@@ -5,12 +5,20 @@
 /// read it: rest-time, daily/weekly overtime, consecutive days, min rest days and collisions.
 /// Reuses the same engine as the period-closing validator and the pre-commit guardrail. When an
 /// analyseToken is supplied the isolated scenario is checked instead of the real plan.
+/// Bounded by the caller's group scope like the schedule grid, which shows a planner the validations of visible
+/// clients only: a group outside the scope is answered exactly like a missing one, and findings of clients the
+/// caller may not see are dropped.
 /// </summary>
 /// <param name="groupId">Required. UUID of the group / planning blade.</param>
 /// <param name="fromDate">Required. ISO date yyyy-MM-dd (period start).</param>
 /// <param name="untilDate">Required. ISO date yyyy-MM-dd (period end, inclusive).</param>
 /// <param name="analyseToken">Optional. UUID of a scenario; when set the isolated scenario is validated instead of the real plan.</param>
+/// <param name="validationLoader">Replays the schedule validator over the period</param>
+/// <param name="groupRepository">Loads the requested group for the scope check</param>
+/// <param name="groupScopeGuard">Resolves the executing user's group scope</param>
+/// <param name="clientVisibilityGuard">Keeps only the findings of clients the caller may see</param>
 
+using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
@@ -25,10 +33,20 @@ namespace Klacks.Api.Application.Skills;
 public class DetectConflictsSkill : BaseSkillImplementation
 {
     private readonly IPeriodValidationLoader _validationLoader;
+    private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
-    public DetectConflictsSkill(IPeriodValidationLoader validationLoader)
+    public DetectConflictsSkill(
+        IPeriodValidationLoader validationLoader,
+        IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
+        IClientVisibilityGuard clientVisibilityGuard)
     {
         _validationLoader = validationLoader;
+        _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -58,8 +76,21 @@ public class DetectConflictsSkill : BaseSkillImplementation
             return SkillResult.Error(scopeError!);
         }
 
-        var issues = await _validationLoader.LoadAsync(
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        if (!scope.IsUnrestricted)
+        {
+            var group = await _groupRepository.Get(groupId);
+            if (group == null || !scope.IsInScope(group))
+            {
+                return SkillResult.Error($"Group with ID '{groupId}' not found.");
+            }
+        }
+
+        var loadedIssues = await _validationLoader.LoadAsync(
             fromDate, untilDate, groupId, analyseToken, cancellationToken: cancellationToken);
+        var issues = scope.IsUnrestricted
+            ? loadedIssues
+            : await KeepVisibleClientsAsync(loadedIssues, cancellationToken);
 
         var conflicts = issues.Select(i => new
         {
@@ -101,5 +132,18 @@ public class DetectConflictsSkill : BaseSkillImplementation
               $"{errors} error(s), {warnings} warning(s).";
 
         return SkillResult.SuccessResult(data, message);
+    }
+
+    private async Task<List<PeriodIssueDto>> KeepVisibleClientsAsync(
+        IReadOnlyCollection<PeriodIssueDto> issues, CancellationToken cancellationToken)
+    {
+        var visibleClientIds = (await _clientVisibilityGuard.FilterVisibleAsync(
+                issues.Where(i => i.ClientId != Guid.Empty).ToList(), i => i.ClientId, cancellationToken))
+            .Select(i => i.ClientId)
+            .ToHashSet();
+
+        return issues
+            .Where(i => i.ClientId == Guid.Empty || visibleClientIds.Contains(i.ClientId))
+            .ToList();
     }
 }

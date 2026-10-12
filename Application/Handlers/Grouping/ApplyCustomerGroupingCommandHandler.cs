@@ -7,7 +7,8 @@
 /// target membership, all committed in a single save. The returned ended-membership count counts the
 /// retires that actually found a live membership, so it is the applied truth rather than the plan — a
 /// membership that vanished between the dry run and the apply is not counted. Re-running it is a no-op
-/// once everything sits in its target group.
+/// once everything sits in its target group. The planner bounds the plan by the caller's group visibility, so the
+/// apply never adds or ends a membership of a client or group the caller may not see.
 /// </summary>
 /// <param name="planner">Recomputes the assignment proposal to apply.</param>
 /// <param name="groupItemRepository">Loads, removes and adds the individual group memberships.</param>

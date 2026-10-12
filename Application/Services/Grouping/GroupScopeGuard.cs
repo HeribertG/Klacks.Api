@@ -1,19 +1,17 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Default group scope guard for skill executions: resolves the caller's scope from the
-/// GroupVisibility table. Unrestricted when the execution carries no resolvable user
-/// (background/system context), when the user is an Admin, or when no visibility rows are
-/// configured for the user; otherwise restricted to the user's visible root groups including
-/// their whole subtrees.
+/// Default group scope guard for skill executions. It holds no visibility rule of its own: the scope comes from
+/// IGroupVisibilityService for the user named in the execution context, so Klacksy and the REST/UI paths share one
+/// fail-closed truth. Unrestricted for admins and for installations without groups; restricted to the subtrees of
+/// the user's visible root groups otherwise, and empty when the user has no visibility row, the context carries no
+/// user or the user is unknown.
 /// </summary>
-/// <param name="userManagementService">Looks up the calling user and checks the Admin role.</param>
-/// <param name="groupVisibilityRepository">Reads the per-user group visibility rows.</param>
-/// <param name="groupRepository">Provides the root groups to translate visible root ids into names.</param>
+/// <param name="groupVisibilityService">Resolves the visibility scope of the executing user</param>
+/// <param name="groupRepository">Provides the root groups to translate visible root ids into names</param>
 
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Interfaces.Authentification;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -21,17 +19,12 @@ namespace Klacks.Api.Application.Services.Grouping;
 
 public class GroupScopeGuard : IGroupScopeGuard
 {
-    private readonly IUserManagementService _userManagementService;
-    private readonly IGroupVisibilityRepository _groupVisibilityRepository;
+    private readonly IGroupVisibilityService _groupVisibilityService;
     private readonly IGroupRepository _groupRepository;
 
-    public GroupScopeGuard(
-        IUserManagementService userManagementService,
-        IGroupVisibilityRepository groupVisibilityRepository,
-        IGroupRepository groupRepository)
+    public GroupScopeGuard(IGroupVisibilityService groupVisibilityService, IGroupRepository groupRepository)
     {
-        _userManagementService = userManagementService;
-        _groupVisibilityRepository = groupVisibilityRepository;
+        _groupVisibilityService = groupVisibilityService;
         _groupRepository = groupRepository;
     }
 
@@ -40,29 +33,22 @@ public class GroupScopeGuard : IGroupScopeGuard
     {
         if (context.UserId == Guid.Empty)
         {
-            return GroupScopeAccess.Unrestricted();
+            return GroupScopeAccess.Restricted([], []);
         }
 
-        var user = await _userManagementService.FindUserByIdAsync(context.UserId.ToString());
-        if (user == null)
+        var scope = await _groupVisibilityService.GetVisibilityScopeForUserAsync(
+            context.UserId.ToString(), cancellationToken);
+        if (scope.IsUnrestricted)
         {
             return GroupScopeAccess.Unrestricted();
         }
 
-        if (await _userManagementService.IsUserInRoleAsync(user, Roles.Admin))
+        if (scope.VisibleRootIds.Count == 0)
         {
-            return GroupScopeAccess.Unrestricted();
+            return GroupScopeAccess.Restricted([], []);
         }
 
-        var visibilities = (await _groupVisibilityRepository.GroupVisibilityList(user.Id))
-            .Where(gv => string.Equals(gv.AppUserId, user.Id, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-        if (visibilities.Count == 0)
-        {
-            return GroupScopeAccess.Unrestricted();
-        }
-
-        var visibleRootIds = visibilities.Select(gv => gv.GroupId).Distinct().ToList();
+        var visibleRootIds = scope.VisibleRootIds.ToHashSet();
         var roots = await _groupRepository.GetRoots();
         var visibleRootNames = roots
             .Where(r => visibleRootIds.Contains(r.Id))

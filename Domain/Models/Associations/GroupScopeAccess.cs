@@ -3,7 +3,8 @@
 /// <summary>
 /// Resolved group scope of the user behind a skill execution. Unrestricted access passes every
 /// group through; restricted access allows only groups whose root belongs to the user's visible
-/// root groups (the whole subtree of an assigned root is in scope).
+/// root groups (the whole subtree of an assigned root is in scope). A restricted access without
+/// any root allows no group at all and says so in its error messages.
 /// </summary>
 /// <param name="visibleRootIds">Ids of the root groups the caller may act on (empty when unrestricted).</param>
 /// <param name="visibleRootNames">Display names of the visible root groups, used in error messages.</param>
@@ -19,6 +20,14 @@ public sealed class GroupScopeAccess
     private const string NoRootScopeTemplate =
         "Creating a root-level group is outside your assigned group scope. You can only work with " +
         "groups under: {0}. Create the group under one of these parents or ask an administrator.";
+
+    private const string NoScopeOutOfScopeTemplate =
+        "Group '{0}' is outside your group scope: no group is assigned to you. " +
+        "Ask an administrator to assign you a group scope.";
+
+    private const string NoScopeRootCreationError =
+        "Creating a root-level group is outside your group scope: no group is assigned to you. " +
+        "Ask an administrator to assign you a group scope.";
 
     private readonly HashSet<Guid> _visibleRootIds;
 
@@ -55,10 +64,14 @@ public sealed class GroupScopeAccess
         IsUnrestricted ? groups.ToList() : groups.Where(IsInScope).ToList();
 
     public string BuildOutOfScopeError(string groupName) =>
-        string.Format(OutOfScopeTemplate, groupName, JoinRootNames());
+        VisibleRootNames.Count == 0
+            ? string.Format(NoScopeOutOfScopeTemplate, groupName)
+            : string.Format(OutOfScopeTemplate, groupName, JoinRootNames());
 
     public string BuildRootCreationError() =>
-        string.Format(NoRootScopeTemplate, JoinRootNames());
+        VisibleRootNames.Count == 0
+            ? NoScopeRootCreationError
+            : string.Format(NoRootScopeTemplate, JoinRootNames());
 
     private string JoinRootNames() => string.Join(", ", VisibleRootNames);
 }

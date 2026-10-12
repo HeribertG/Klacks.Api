@@ -3,8 +3,9 @@
 /// <summary>
 /// Shared helper for the period-closing skills: resolves the optional group scope from a
 /// groupId UUID or a fuzzy groupName (lone-match via GroupResolver) and enforces the
-/// caller's group scope. Returns (null, null, null) when no group was supplied — the
-/// caller then operates globally.
+/// caller's group scope. Returns (null, null, null) when no group was supplied and the caller
+/// is unrestricted — the caller then operates globally. A group-restricted caller must name a
+/// group: an installation-wide answer would include clients outside their scope.
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;
@@ -14,6 +15,14 @@ namespace Klacks.Api.Application.Skills;
 
 internal static class PeriodClosingGroupResolver
 {
+    private const string GroupRequiredTemplate =
+        "Your group scope is restricted, so a period can only be checked for one of your groups. " +
+        "Pass groupId or groupName of a group under: {0}.";
+
+    private const string NoGroupScopeError =
+        "Your group scope is restricted and no group is assigned to you, so no period data is visible. " +
+        "Ask an administrator to assign you a group scope.";
+
     public static async Task<(Guid? GroupId, string? GroupName, string? Error)> ResolveAsync(
         string? groupIdRaw,
         string? groupNameRaw,
@@ -22,12 +31,19 @@ internal static class PeriodClosingGroupResolver
         SkillExecutionContext context,
         CancellationToken cancellationToken)
     {
+        var scope = await groupScopeGuard.GetAccessAsync(context, cancellationToken);
+
         if (string.IsNullOrWhiteSpace(groupIdRaw) && string.IsNullOrWhiteSpace(groupNameRaw))
         {
-            return (null, null, null);
-        }
+            if (scope.IsUnrestricted)
+            {
+                return (null, null, null);
+            }
 
-        var scope = await groupScopeGuard.GetAccessAsync(context, cancellationToken);
+            return (null, null, scope.VisibleRootNames.Count == 0
+                ? NoGroupScopeError
+                : string.Format(GroupRequiredTemplate, string.Join(", ", scope.VisibleRootNames)));
+        }
 
         if (!string.IsNullOrWhiteSpace(groupIdRaw))
         {

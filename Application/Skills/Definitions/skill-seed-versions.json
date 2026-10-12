@@ -1,0 +1,1972 @@
+{
+  "skills": {
+    "accept_scenario": {
+      "version": 5,
+      "hash": "691C4825E7397C9CA037FE75E8CA8722CD884941A04BC7450C5A8F0A46C8A3E0"
+    },
+    "accept_skill_relation": {
+      "version": 5,
+      "hash": "E75DD065C9CF43DF031CDB06CBF0B51BCC40A57D03CBB49565E110CE2EA05ACF"
+    },
+    "add_ai_memory": {
+      "version": 9,
+      "hash": "A3F3AF56957CE596FA4E346D93CE0085266E26449CE9284D075F23DF5A8288D3"
+    },
+    "add_break": {
+      "version": 5,
+      "hash": "392552A484029A0DA1924A484FA4895D7387D3A81428E4C9B471DB4DC3F97DC1"
+    },
+    "add_break_placeholder": {
+      "version": 5,
+      "hash": "217F09C9E30D121B6BDCAEE551047DF0AF27CB3CBDDDC98522B1575A755570A6"
+    },
+    "add_client_email": {
+      "version": 9,
+      "hash": "D94CE5575EB11E9F890619F0CC098BFFC72F46CCF13B951723840C31AA21CF31"
+    },
+    "add_client_note": {
+      "version": 9,
+      "hash": "CA7DBA400513381EB4543E60F4C8B8F4FEA7EB1834C108F125E8272A67BA3BF4"
+    },
+    "add_client_phone": {
+      "version": 7,
+      "hash": "556CDD2291A7D8C336255B07A1F1AA997A4DBD4517B85C3241E15669A608474B"
+    },
+    "add_client_to_group": {
+      "version": 9,
+      "hash": "E12FECE3800AC8AAFDBCCFCFC255AA812EE48097BE4E6FED7994703AD0057651"
+    },
+    "add_client_to_group_by_name": {
+      "version": 12,
+      "hash": "825D12026D03868A0CA6F773EE15B7DAD4ABE9AC67C55CEC6B6020036E23BEB8"
+    },
+    "add_client_to_nearest_group": {
+      "version": 7,
+      "hash": "F876BF245E7D6134A36D7933C42E9D3C7D00B76E511020A2582CA3E7FA84A858"
+    },
+    "add_container_template_task": {
+      "version": 4,
+      "hash": "3F44EB103CFA20354C9A02CDD2AEF58F17FF4E111F6DC8885E06CC114B26FFF1"
+    },
+    "add_expense": {
+      "version": 6,
+      "hash": "A15DF85150D888B52150974E607AB09DDFD0B7636AD8054320F3AACFF2C0A45B"
+    },
+    "add_personal_memory": {
+      "version": 4,
+      "hash": "154C8F2F6E5113454E3BF8CED108754B41842D55A1D26E96E55CAFA68F61817D"
+    },
+    "add_schedule_command": {
+      "version": 6,
+      "hash": "4C025E35DDBDF4FEF8B7599F9D6930065604B1EBA9800262778226CF1ADC3A19"
+    },
+    "add_schedule_commands_range": {
+      "version": 6,
+      "hash": "A6DB4A312BE94168613A03506EE7937923BCF98DEDD8552E72B6154F44542A31"
+    },
+    "add_schedule_note": {
+      "version": 5,
+      "hash": "A72908657169D8217A1B9443A23EE252DAAA639C02B3A951D04113AF4FC02121"
+    },
+    "add_selected_clients_to_group": {
+      "version": 8,
+      "hash": "FC51028F40FFAFF827805E6F389FF1BF6F57E123F1F970F7F833BE6C925F3CE1"
+    },
+    "add_shift_to_group": {
+      "version": 4,
+      "hash": "B9E74E3CCA2FE2EB46C3ECF3CC7BB4387FE56F9596DC97E84D6F6A51757721E8"
+    },
+    "add_transcription_dictionary_entry": {
+      "version": 4,
+      "hash": "D24D9DB8675CE3F475A563D159F8E0DA6D14C92EF226E1061787D0B9C4D77BC4"
+    },
+    "add_workchange": {
+      "version": 5,
+      "hash": "61DD1F1038C9278BBD927DEBB86BE498DD2261470316E2776B7F6023F51813A9"
+    },
+    "analyze_group_semantics": {
+      "version": 4,
+      "hash": "BCEF62FC98A8C30AC6EC0EFF49CCDDB113B9F372EDF3B20770F0F97FDD33B454"
+    },
+    "analyze_grouping_feasibility": {
+      "version": 2,
+      "hash": "C0FA7A77D40A5774FB229CB1FE4232EEB495C171D00F0FA9E75892C99B56FF2E"
+    },
+    "apply_company_rule": {
+      "version": 4,
+      "hash": "C2F4540D9957F79AA91DF7B8068CFECF1908DFF39ACFD84E586356573AF5096C"
+    },
+    "apply_grouping": {
+      "version": 6,
+      "hash": "E272393454A13250CFD6AB12B0BF1AD304ABE183DFC9EFB8B4AB50CF944E46B6"
+    },
+    "apply_grouping_plan": {
+      "version": 3,
+      "hash": "4A50372FA34F7A5996B1209B8A44F8EA3C84D03A4DEA953C1AC0B2BD4B44AA06"
+    },
+    "apply_planning_profile": {
+      "version": 4,
+      "hash": "CE267DD68563C60CE6D26624150E99B07305AE3D66724AF9B44E5B9F9210AB8C"
+    },
+    "approve_day": {
+      "version": 8,
+      "hash": "CB20A94636FB005B9780CB1925FCA2987D3F5E2AFAD7E0B35FC02245F3E8AF10"
+    },
+    "assign_contract_by_name": {
+      "version": 9,
+      "hash": "86F29ACA3CA1D7DBBD2F60F60E3B5BD87533B0AE872C51FD253593CCF5B6B872"
+    },
+    "assign_contract_to_client": {
+      "version": 10,
+      "hash": "7F7B63532D5DF598F02D68DD0A82DF1256B32FDAFA8E3E6A81D003E9493A2912"
+    },
+    "assign_macro_to_absence_type": {
+      "version": 1,
+      "hash": "E1CAF582E127E58B24642E47DC2C54C62B19EE7FB7434D6C1C0D561A439A8503"
+    },
+    "assign_macro_to_shift": {
+      "version": 1,
+      "hash": "4F53F5AC27DE13BF3E8E95439C74320F06C265991A2C910148B1CD6521719F73"
+    },
+    "assign_orders_to_groups": {
+      "version": 3,
+      "hash": "0E56C6F24BBE1EEF54FA924EEA0512B5864FC4D6095BBFDC1FAE2F8584276C59"
+    },
+    "assign_shifts_to_city_groups": {
+      "version": 1,
+      "hash": "A2914A75C80D882C4C3032DF83D5998650C8481FBA8FB647FC172B9B1A4065E5"
+    },
+    "assign_user_permissions": {
+      "version": 4,
+      "hash": "A457BCC328AA258B40A0189E7C70E721D66FA2B37477ACBE015093EA42A7DD67"
+    },
+    "bulk_add_absence_for_group": {
+      "version": 6,
+      "hash": "C9DABFE81E63775ED658AE13EB6627A5C4E5D73B171BFB78F9BDA9F21805BA82"
+    },
+    "bulk_add_shifts_to_group": {
+      "version": 4,
+      "hash": "41556C1A84403A9F5713F60119D76359087934D435C43118FCF78D110A23D0B6"
+    },
+    "bundle_nearby_timerange_shifts_into_container": {
+      "version": 4,
+      "hash": "AAE6B355BFFE4A9B2F3628847E332F61E7B4AC382872EC5450703812D1F0F3C0"
+    },
+    "cancel_company_rule": {
+      "version": 4,
+      "hash": "17F9B18AB7A750D65747F33507CD0204471A42442C3BAB30E09DD12D04464453"
+    },
+    "cancel_planning_profile_setup": {
+      "version": 4,
+      "hash": "3F89265054E04F984E8DFD1A1FC99F0D89DE9933769B39367E6A2C91F20993F8"
+    },
+    "cancel_recurring_task": {
+      "version": 5,
+      "hash": "9CC7B65AA22140CC7CEAFA7A050A5D36945122BA916AAD5C5F85C15D29D00E03"
+    },
+    "cancel_wizard_job": {
+      "version": 4,
+      "hash": "2754A11059C97705BB9E7B5A0CFD55EADF7A7699E6981F8CDBF035003B3471BE"
+    },
+    "check_absence_capacity_reserve": {
+      "version": 3,
+      "hash": "E13D92D21890D9E63CFA340DAA429C8EFA14D683BF1DB5BA550399CF8F3729F0"
+    },
+    "check_absence_conflicts": {
+      "version": 4,
+      "hash": "96DD6EB7C091D793863EC0B606829BAA422C97EC6593A704605553850C0D1975"
+    },
+    "check_client_availability": {
+      "version": 5,
+      "hash": "CB3E3B901AF9684CC7EB2468F7D7C05894925CE96709ECB193D88BC169898854"
+    },
+    "check_erp_drop_point_folder_health": {
+      "version": 2,
+      "hash": "41E86B1979587D842C53A22771022A446C142B95AA4AFFC6C056D26132CD6649"
+    },
+    "check_group_geocoding_status": {
+      "version": 3,
+      "hash": "4F403FD3D77057CB680AFA59FE631AF93BD0236A9FCDD7BE65FCB0B39D9B3451"
+    },
+    "clear_client_availability": {
+      "version": 6,
+      "hash": "3E350C40C014F44549920041282689A58ABF7EA927B294CF6288C876D6BCCC10"
+    },
+    "close_clarification": {
+      "version": 1,
+      "hash": "87E0D42E5D6B6AFF18B90590593A8FBA03ED889CD0F3A89F3C61A931C57F49DF"
+    },
+    "close_period": {
+      "version": 7,
+      "hash": "5E3D55ECAA542016D02F174583F7C7D04C73F2A2B13892E3CFA19D252903588D"
+    },
+    "confirm_pending_action": {
+      "version": 4,
+      "hash": "A292077E7491924F7525F3ADB7B7DDF160C5D050C975784DD961929767B1D9DC"
+    },
+    "confirm_work": {
+      "version": 9,
+      "hash": "DD9069EF24A0182F7C398E54E6C3612537E074D4752C27EDA71F8CF7CDD9B2DF"
+    },
+    "cover_absence": {
+      "version": 8,
+      "hash": "AD48FE243D8D9C3B4DA0981C88710EB4ECD2ED10744933A671532A4CF7632846"
+    },
+    "create_absence": {
+      "version": 4,
+      "hash": "D010ECF5FD5B85B9905324467DA871A2FAD153111D5EC74B7DF291BEEAEA263D"
+    },
+    "create_absence_type": {
+      "version": 5,
+      "hash": "6D4DED8A7F69A671F98878E031494FA41E176082B3717508D72D685721150CBC"
+    },
+    "create_address": {
+      "version": 5,
+      "hash": "CAA23B8B5152EDA47B9BDE0D487B8A43B97D4CA8E4EDA9E950D0E3062065CFD4"
+    },
+    "create_agent_skill": {
+      "version": 8,
+      "hash": "98C648711243655829A9609BBD93C16CA8BC76971EDAB4FD64617DE0BD8E7208"
+    },
+    "create_branch": {
+      "version": 8,
+      "hash": "4E0B659E11067C102BEBA1CB665E3D6226E972C8E6D18B51F6544054634A5F17"
+    },
+    "create_calendar_selection": {
+      "version": 6,
+      "hash": "BA1C06C99C96A4828E13B98CBB0823C9BD630A0F2F1E7E8138DF9272B202217A"
+    },
+    "create_container_template": {
+      "version": 3,
+      "hash": "27C23CBC88D820AA09956EA52E84317BC1EC898171D19D1B2ED33A865761913F"
+    },
+    "create_contract": {
+      "version": 12,
+      "hash": "4B534453B28EE41F26225E8C1185F0945DCD6DA8B5523654653EB4FF50CDB6EC"
+    },
+    "create_contract_from_template": {
+      "version": 2,
+      "hash": "6D2F18EB58E7022D7BA28FC59B2DB479CC7FBD817F71B42B35973DA1ACA78257"
+    },
+    "create_counter_rule": {
+      "version": 6,
+      "hash": "BBF57E9DAB97F2B3C5E07D2FFD514DA2CCB5D7005CEF67E94D9ACCBEE4E7902A"
+    },
+    "create_donation_checkout": {
+      "version": 3,
+      "hash": "458935E425245634D4B620971F60A44864F80008A49E97F60D29EAE503EC719F"
+    },
+    "create_email_folder": {
+      "version": 3,
+      "hash": "60513C923DCF95C8D1B02573DD174B26730AEEF55DBF4D42E57E2B20388A2E01"
+    },
+    "create_employee": {
+      "version": 17,
+      "hash": "A5C48D88BD07E3D3F14C27D882FA3493F7CFF3140F3D6C8213E777EB4EEA39CF"
+    },
+    "create_erp_import_token": {
+      "version": 6,
+      "hash": "3A16C1676510B6350025BA3C10C1AC7961A691B050A6E9D4752704F97776EC48"
+    },
+    "create_group": {
+      "version": 8,
+      "hash": "9883F662CFBC00CF6A27AD5111C55B71205D1F6767040E9A7247686228A89CE2"
+    },
+    "create_identity_provider": {
+      "version": 5,
+      "hash": "E1CC798C90928EC7549C0AD3CB5A985E6C6E6B23E3486DCC8C973FC1E89E17EF"
+    },
+    "create_individual_period": {
+      "version": 5,
+      "hash": "61B826D7B51C25441E8ED2BFF27E110B2C6AA4880149B42EB3DAD1DB8175346C"
+    },
+    "create_llm_model": {
+      "version": 8,
+      "hash": "743EC5C39757A6AC9ABB63F5F9AEF51F92D1E28499CA80F42A99509658A2B6D0"
+    },
+    "create_llm_provider": {
+      "version": 8,
+      "hash": "86EE2247F2B58DC6835047F90FEB9C17EFB9B935E5A801DD47527CD0DD0D2482"
+    },
+    "create_macro": {
+      "version": 5,
+      "hash": "BE59E86C66BAE8734502B312172D6BA957281C185C9424F3F5237C687810B14C"
+    },
+    "create_monthly_target_hours": {
+      "version": 6,
+      "hash": "C89FD1EA48941B81DF445398888109DD81F3C89C71CEC726396E052D44382161"
+    },
+    "create_period_cap_rule": {
+      "version": 5,
+      "hash": "95D02577E5A992C2C61BB606742884E8C8AC82F765AD4053CB325CFF36616369"
+    },
+    "create_personal_access_token": {
+      "version": 7,
+      "hash": "92BDB452281FF155B7D9901A66BF0179AC6F1CA7586F6ACEDECEF031B187D7B8"
+    },
+    "create_plan": {
+      "version": 7,
+      "hash": "76EDAB4990B213E1BE2EB4C6404D52FEF03C17D6E244802C92BB403B8EBEB02E"
+    },
+    "create_qualification": {
+      "version": 5,
+      "hash": "E35F078BC67F0B6D40D68FED09CDF200257A5065CC629FBD82E0039029A91E73"
+    },
+    "create_report_template": {
+      "version": 5,
+      "hash": "4AA1A85F95CECA6582B4CD231FD87250E5C016E764249FF0C43D5BCF5309E7B8"
+    },
+    "create_restricted_time_window_rule": {
+      "version": 6,
+      "hash": "54FA81CCFBDDB183E898F5460A4D894644EA3E5A00401C7D605E51EBE536320E"
+    },
+    "create_scheduling_rule": {
+      "version": 8,
+      "hash": "B8C6D39F3664B25299B9C9EED02515C7C117D4BB87539625D731DF36B55434B8"
+    },
+    "create_shift": {
+      "version": 15,
+      "hash": "E6F801EA0FB451DAA2959C3F817A593342F119FCB4761B43FD670FA4E86A2B3C"
+    },
+    "create_spam_rule": {
+      "version": 5,
+      "hash": "AE2353EAEFB54A645033F24E95F67810E25F898A15C959F242ED82726A3C3261"
+    },
+    "create_test_environment": {
+      "version": 7,
+      "hash": "DCC4531DA74F78E5CCF5F058934EFEABA5957AD75DC71DB6DA80250B53C952EF"
+    },
+    "create_user": {
+      "version": 8,
+      "hash": "6D88A58A71C4A0C623B0E7DD2130BAD6B6A407E09BFFDEFEF4A19436A121FCDF"
+    },
+    "cut_shift": {
+      "version": 6,
+      "hash": "E3F6B7A89F1C78C7DE68F7AE4426D7A940378510C2F8003837CF607056E68F85"
+    },
+    "cut_shift_by_date": {
+      "version": 4,
+      "hash": "476ED76423B3BBE66616388850DEBE43707C60E836EF757C25799762AD640536"
+    },
+    "delete_absence": {
+      "version": 4,
+      "hash": "8E0C80EE582135D52A2D213D374B86152D702E3ABEF51850FB56F3D944A352AD"
+    },
+    "delete_absence_type": {
+      "version": 4,
+      "hash": "6E54BA3532B18E82D2842C518D7BB0CAF01652C39F473C87846C8C51ABCBE515"
+    },
+    "delete_address": {
+      "version": 5,
+      "hash": "F8EF98AA30E11D3474D3431E0E14B15B29017A511E48139D8CE661B5F168E5C3"
+    },
+    "delete_agent_skill": {
+      "version": 8,
+      "hash": "C93F90CDFE809AEA3BCAF9C13A8D153180EC70CAA04A148E3FD34CF98419A432"
+    },
+    "delete_ai_memory": {
+      "version": 8,
+      "hash": "DEE0869146F41D6797768537A0154199BB06C2236F800BD731B3C09715DF3F1F"
+    },
+    "delete_annotation": {
+      "version": 4,
+      "hash": "045D33D68167EF9DA9DBED82678A6739E5A26DDF4CB9FFEF0A49C18BD089F42C"
+    },
+    "delete_branch": {
+      "version": 8,
+      "hash": "0CEFE643A1CDC1172930E05771776E7B25D0997603165012ECCEDF0723BCC4BB"
+    },
+    "delete_break": {
+      "version": 5,
+      "hash": "FDC99889FEE6F95209519AA74C9387897B3C727185058CE7C4438F786643DB74"
+    },
+    "delete_break_placeholder": {
+      "version": 5,
+      "hash": "7CF85AE9CAB17FEB7C4FBEFF4E59C846E9FA9B5BBD1AB16106626F1832E2260E"
+    },
+    "delete_calendar_selection": {
+      "version": 4,
+      "hash": "644FD8979D45981CEB9FFBABD6B2C4C1998B008210F0862A5C764D7AA56AD1E3"
+    },
+    "delete_client": {
+      "version": 5,
+      "hash": "D95B9EB079BDE2B8A803D2D441E228B708F32398769FA9969DAB32924E9F5114"
+    },
+    "delete_communication": {
+      "version": 5,
+      "hash": "F86A16E30FBC4B7CF838EEC70BA18DE5979FE4D46F67922D90CB4E6A31B0331B"
+    },
+    "delete_container_template": {
+      "version": 2,
+      "hash": "667976BB979060D02CA5B651CCDF937AB513C6707541A4FBE28C4F3DFDB6F77A"
+    },
+    "delete_contract": {
+      "version": 4,
+      "hash": "F05F3B1CF0095F74FEF2C24871A9518440EAD3C3892796A96D038204682DC6B2"
+    },
+    "delete_counter_rule": {
+      "version": 5,
+      "hash": "BA28044623A8A4DD012CB6543E25A7508F016E518012FE1B53719BF117995C76"
+    },
+    "delete_email": {
+      "version": 4,
+      "hash": "6E905A1BF5E40F6602362689D6BE8C80C282B8505330CD5F4F5F90ADCD92FE7B"
+    },
+    "delete_email_folder": {
+      "version": 3,
+      "hash": "6079864BDF5139D9E33B25F3098C32601E2F8C0F9C4621A028BED3DEA92E0588"
+    },
+    "delete_expense": {
+      "version": 6,
+      "hash": "B0E4A36ECF21EB7497E0127FFDAA257266D9AAE223C555E0D1A4D3AF13AC2DA7"
+    },
+    "delete_export_format_override": {
+      "version": 5,
+      "hash": "EE693A3946FB35FAE93CE2FFC9D7DEC8E85A3F86886B36029F8DC04A44A3D688"
+    },
+    "delete_group": {
+      "version": 7,
+      "hash": "245CA9831CC08A7350A6317B918FA12BE414741AC79D676C59DE9F9268C2D18E"
+    },
+    "delete_identity_provider": {
+      "version": 5,
+      "hash": "C281948FDF1A8C3051B803C6D3FCB5690C926B0B7AE18DF161FFEFA1D47B6E0F"
+    },
+    "delete_individual_period": {
+      "version": 5,
+      "hash": "E830DAB05827F2C2C3118131A0751D899F20935AD7E40AA8D33D94B130A30BFA"
+    },
+    "delete_llm_model": {
+      "version": 8,
+      "hash": "60D1CC7EB7AF55E786B2F06619800F6303E0A1BD72EEF35F84903E57907838B3"
+    },
+    "delete_llm_provider": {
+      "version": 8,
+      "hash": "AAACB48ADDE9A0A897B08DADE70757A7EE5E2D964DC7F82375DF95B8EB13B677"
+    },
+    "delete_macro": {
+      "version": 4,
+      "hash": "A046F8A395925D0E5E9D23841A4A36D779DDF16D21E962763842C136A56702A6"
+    },
+    "delete_membership": {
+      "version": 5,
+      "hash": "520DB5C09A9C874C00E9893AFDDFAC142F48C6ED01976408E0B9C2ED80300D9F"
+    },
+    "delete_monthly_target_hours": {
+      "version": 6,
+      "hash": "8C1E62669376CE5009669C00C9964E9876E6E42C6D4807C67BEDCA844881A58D"
+    },
+    "delete_period_cap_rule": {
+      "version": 5,
+      "hash": "3688C9FF6BC57782E043B9A17999C1540D430F5D56433C16F7D7F4BF516786FF"
+    },
+    "delete_qualification": {
+      "version": 5,
+      "hash": "E44A37CBB54EDEB1DF69E7809A492D874C4034BC47771A18C49DBE86F27EF80A"
+    },
+    "delete_report_template": {
+      "version": 5,
+      "hash": "8D85B4778ADC4C1A2DFD5994E75BD00767E630BED11A85C39948EFF6CD3FDFE9"
+    },
+    "delete_restricted_time_window_rule": {
+      "version": 6,
+      "hash": "DDA9B38162B0B11553E9EDDC474E9011C45BD9DF9275257CF8EBA5493CE0D2F0"
+    },
+    "delete_schedule_note": {
+      "version": 5,
+      "hash": "910A636AB48473AF904492AF2E165C154BB3108E134B7F79D6EE69BF716E0347"
+    },
+    "delete_scheduling_rule": {
+      "version": 8,
+      "hash": "5D99E36416D4125C13F6955CD239780972590211F805902F4D4263DEDF1C28B4"
+    },
+    "delete_shift": {
+      "version": 5,
+      "hash": "E574344B8A4B8B3A1626B9F210E7D0D591E1708A2953FF5A643DC60643A8D959"
+    },
+    "delete_spam_rule": {
+      "version": 5,
+      "hash": "0DFE6B425FD55AD35F91BB1BE2A0AC1227D20F2A8B476524E23BD73B7E2D47EE"
+    },
+    "delete_system_user": {
+      "version": 8,
+      "hash": "F8F7A656A2B647379DC73DE9C950397DBE9936EB6164C8F8DA85E1ABA4EAC85B"
+    },
+    "delete_transcription_dictionary_entry": {
+      "version": 4,
+      "hash": "E318756EE377AD354CCC102DDF5B402A55CB6C48D6853BBBC6941735DF05BB0B"
+    },
+    "delete_work": {
+      "version": 5,
+      "hash": "E4B1DEE8C77E5AD23439474E986A9393164AB12329FDAC5436BF96ABD25485BD"
+    },
+    "delete_workchange": {
+      "version": 6,
+      "hash": "EAF663C326110AFD4A0133F9778F46084A8D73211FEA13E0FAD4801AE89E44C5"
+    },
+    "detect_conflicts": {
+      "version": 8,
+      "hash": "0B3B3A252FCAB3162283552264CE22A1B4253D9917DAEF63017C1C6D8F5077EF"
+    },
+    "diagnose_holiday_outcome": {
+      "version": 1,
+      "hash": "F5016A10F2A3D276BDF23FE79263AFCF602A203B3140DAAECC9B48DA8773016E"
+    },
+    "diagnose_messaging_setup": {
+      "version": 1,
+      "hash": "81D5974A59E95D6CFE568B8826A8572B7EF361AC5354EF692DA454911BC05C11"
+    },
+    "disable_feature_plugin": {
+      "version": 5,
+      "hash": "399865A0DED38F20FF06C798BE9605F9922AEEA7F2F42F8B7AC45565501F8926"
+    },
+    "dismiss_skill_relation": {
+      "version": 5,
+      "hash": "8C98705C0CE0DD53FC51B8CAD85D356E01BEFB4ED99D8F55F9EA77F1643A1967"
+    },
+    "email_schedule_to_client": {
+      "version": 5,
+      "hash": "61258E0557A4FB03747593DB94B34BC1F95D6652A5F93B4DA05274538BD87B82"
+    },
+    "enable_feature_plugin": {
+      "version": 5,
+      "hash": "2C39EEDC578845E1D6F44396B3FFC59EB5F4C7CA37A5ECC3BF496D0325AFE76B"
+    },
+    "end_client_membership": {
+      "version": 4,
+      "hash": "6194966743BB9970230711C1339BB8FDCB43FE62FEF10AA9B0BABA3E01056666"
+    },
+    "evaluate_autonomy_level_change": {
+      "version": 3,
+      "hash": "76D723E7AEA27550C808EA955D496F8DAEE8A0CBF848B8958268DDFCD9533F24"
+    },
+    "evaluate_contract_templates": {
+      "version": 1,
+      "hash": "59531BC3AE7D6C1ED0A67E0ED1EF11264A007402A6431948FC9CBF8271256CBD"
+    },
+    "evaluate_grouping_by_qualification": {
+      "version": 5,
+      "hash": "E6FB3A60D934A162961FEDF14E0FE71F85BED39BD051FB5127C193F03EADF1E1"
+    },
+    "evaluate_location_group_candidates": {
+      "version": 4,
+      "hash": "EDC475F30C720D873A074F81D91BA949C20413450072CD0A32E47E291216C040"
+    },
+    "evaluate_scenario": {
+      "version": 4,
+      "hash": "C9383486A639A9DBB57008560A4EE6747A38862E2A59DBB733F53675B343BC6B"
+    },
+    "explain_absence_blocks_planning": {
+      "version": 3,
+      "hash": "40E2B56521B82C5480268F6EA4DB93B3BE609C9B0A36A1FD48077E7095473E5C"
+    },
+    "explain_absence_model": {
+      "version": 3,
+      "hash": "4265787DFA706ECAC4ABC9F519E27DAF55069A10A6EE52658D971E4F2EBEA9C2"
+    },
+    "explain_absence_overlap_not_blocked": {
+      "version": 3,
+      "hash": "06F985BCF487470475A79952651863CE55E5B2322D42FB235B8928BA2A961199"
+    },
+    "explain_absence_type_flags": {
+      "version": 3,
+      "hash": "98753249543AAE186BEB776988E463C5CA33F2CF168786DF9AF2DEA28DEE6719"
+    },
+    "explain_absence_value_vs_hours": {
+      "version": 3,
+      "hash": "0B6AF8FE98878F99BCDA43815B51029D8AF5013DEC2230AC465018B5D6B97020"
+    },
+    "explain_active_industries": {
+      "version": 3,
+      "hash": "1E37605A9402ABD8AE077F0F436CFA25F10C7A9C217120F211768210DAE2BAD3"
+    },
+    "explain_address_management": {
+      "version": 3,
+      "hash": "87DBB6BE7DEB4C06A61F1AAEB942657BCA8E4EF3B5F114B603016A6D633BC077"
+    },
+    "explain_calendar_model": {
+      "version": 4,
+      "hash": "1C7C6385D36AA4E25B820676CFAF3819D4312F4B9E94494BDF5024F99C9DC0B3"
+    },
+    "explain_company_rules": {
+      "version": 3,
+      "hash": "C9E358AB9E4BBD5598A57FF2AFD93160BF86173FFABFB1124B8D4201D1276078"
+    },
+    "explain_compliance_rules_model": {
+      "version": 3,
+      "hash": "0F539AD1315484E258F8593CBEEC80B8988BE8EBB52DC65C885E33C8C8F8D1A7"
+    },
+    "explain_contract_setup": {
+      "version": 1,
+      "hash": "C79510DCEAADE2D2F220063162B52020B06A0ABB27A46FD2CC9C7BFCCBAD5D19"
+    },
+    "explain_contracts": {
+      "version": 3,
+      "hash": "2D640929586D244EBF97FCF572C42C5DEC077B812999D1CE4FE367C4AF1BE4F8"
+    },
+    "explain_email_action_automation": {
+      "version": 3,
+      "hash": "93E0EC1EEBB554F66D42436509CE980EDBD97F30F17BBCAB435F5B233D06CD21"
+    },
+    "explain_email_setup": {
+      "version": 3,
+      "hash": "4F3B8B1F0F3C810804F6AEEB6E3C7F7C144C0B2ED82DC2BA991FD87360B37227"
+    },
+    "explain_email_storage_and_deletion": {
+      "version": 3,
+      "hash": "BD378547A2550D22525AC1966F42C0872427B5ED7233D1282D033F5609290C97"
+    },
+    "explain_export_formats_model": {
+      "version": 4,
+      "hash": "26D6F28DF5B8160C9E71D349ADD8AC7BD90187734BD9AE9CA1438F4C26F5E2F8"
+    },
+    "explain_group_hierarchy_inheritance": {
+      "version": 3,
+      "hash": "3A34994D3A9067AD6CF209B3A14F0D423706650D35132177CDA74B11867C026A"
+    },
+    "explain_group_membership_validity": {
+      "version": 3,
+      "hash": "B738E6983C9529A348451BA2E9337FEA94F870DC30983BECD1C13FC7C2B2E09B"
+    },
+    "explain_group_model": {
+      "version": 3,
+      "hash": "0B01BF3E7D40C69A20298583B894BC6A3AAA676A802B62A29A861D5C22680B47"
+    },
+    "explain_group_visibility_blind_spots": {
+      "version": 3,
+      "hash": "36798C888DFC38009E99604D17095D20D795ABEEA6FA92DF5AC021695E0A96DE"
+    },
+    "explain_guided_tour": {
+      "version": 5,
+      "hash": "57A6757340A6116764037BAB3AA04F7054BD29D7889664483D5E71A98B003AF5"
+    },
+    "explain_identity_providers": {
+      "version": 3,
+      "hash": "7952267054C16857BF04B4699A28878054418FC4ADCF34787EF040B0EC92907B"
+    },
+    "explain_individual_periods": {
+      "version": 3,
+      "hash": "9E1550A4EA0CEDEE7EA6786D8DB0703D7217DAAC05B78AFE10DC8AEEFEC359B4"
+    },
+    "explain_klacksy_autonomy": {
+      "version": 3,
+      "hash": "D43D3ED7E50835A78A30C880F6A9C8D866DCA30D8B4E784466EE60B94C4723AC"
+    },
+    "explain_klacksy_learning": {
+      "version": 7,
+      "hash": "802053F22E939206FB8BE1D89E87A11426AF77365137D41CA37C3700FCEBE404"
+    },
+    "explain_klacksy_llm_setup": {
+      "version": 3,
+      "hash": "5457B041FA6DD3AD3E29C20C25FA6829B23ED4F901349971B54D7B386A0C4579"
+    },
+    "explain_klacksy_memory": {
+      "version": 3,
+      "hash": "93E8AE3740B4C4A67DDA0D38F5A168CF2ABE3D403484CD12475A66CB9A9C23C1"
+    },
+    "explain_klacksy_personality": {
+      "version": 3,
+      "hash": "E8C28933956BD753A70AE44B0C8802454D37F4F7D4122895058B7E1F151E9DCB"
+    },
+    "explain_klacksy_skill_relations": {
+      "version": 3,
+      "hash": "5C6FFAB83E30825E9C5141723AD7A1DE85700E85685934137EF0D074E14C0C9A"
+    },
+    "explain_klacksy_speech_setup": {
+      "version": 3,
+      "hash": "DA8038EA2AD45B73AC0BB9C16C103DC733036CC95C984F65693D22972906F563"
+    },
+    "explain_legal_entity_rule": {
+      "version": 3,
+      "hash": "A324571DC812DC082B6775F6C214E0ECCA201D6A003A83EE9639321F4F8F3BC8"
+    },
+    "explain_macro_editor": {
+      "version": 4,
+      "hash": "EB9229BD9070F2F2B5F4717861AEA2B6EF675760FB7BE7C445D59DF7A857A03A"
+    },
+    "explain_membership_single_row": {
+      "version": 3,
+      "hash": "F1E0A621D56F9A6044EB9B0596A5D54B023EDA7976F2AFAB0B91FA2EB86E90BC"
+    },
+    "explain_navigation_learning": {
+      "version": 3,
+      "hash": "2DD78F9E5191A1A9A4B65A970243585F32AF8294C374CCE1A20DBF986C5A5DA1"
+    },
+    "explain_overtime_model": {
+      "version": 4,
+      "hash": "C78FAE235F9978BF25FBFE518A1154B1285EC0CD9C8429708CA2E7B9389D78E1"
+    },
+    "explain_page_absence": {
+      "version": 6,
+      "hash": "2C99210FDA45F96BFDED827B0A73298CEE4C22F1BFB3C26FE9377997926231B4"
+    },
+    "explain_page_availability": {
+      "version": 6,
+      "hash": "9C830024F8768B489C7EBF29CDF0F22A0A5ACDBC8BE2BFE4DDFA0BA798A0A501"
+    },
+    "explain_page_dashboard": {
+      "version": 6,
+      "hash": "AA311EB0410E994F2B69F54C2C5204578F92AD3AC27DB0C213B54DA86EA5366D"
+    },
+    "explain_page_employees": {
+      "version": 6,
+      "hash": "3289391ED7D6E812DF8E420118E472D682765B02090C9A2AF121A28D0D7C37E0"
+    },
+    "explain_page_groups": {
+      "version": 7,
+      "hash": "FAF60CA5BC8D11CDD0DC901AFB812271C071DBCAD52FA000F917B8332FA5983A"
+    },
+    "explain_page_inbox": {
+      "version": 10,
+      "hash": "5898E4262A48F785FC03A98A8BF4B85037A65F7B7671DD0555799C70D2100A95"
+    },
+    "explain_page_period_closing": {
+      "version": 7,
+      "hash": "3C10C1E7881E321D4E9AE671C5C73D9E398869E01F6C998C28AA2EEF4D31315E"
+    },
+    "explain_page_profile": {
+      "version": 6,
+      "hash": "14BD9C691E7C5D57E2B2AAA3B9C3F1D8F66D9CF026FB8808AF92C50A9425B51F"
+    },
+    "explain_page_schedule": {
+      "version": 6,
+      "hash": "D94739EF87B09399EE8D5DD020DB53C5358F18972E2F30C56FB7C028D8707003"
+    },
+    "explain_page_settings_erp_drop_points": {
+      "version": 5,
+      "hash": "F8457E34B83C5F07C7468F35B2E04939A559033852398B50546C70CA3293EE33"
+    },
+    "explain_page_settings_overview": {
+      "version": 8,
+      "hash": "C11CA393DDC56914F9F21562693A7DC9815D95AA8AC00747E266DFEFB8EB3190"
+    },
+    "explain_page_shifts": {
+      "version": 6,
+      "hash": "EFDE2583DC387D1D80F8701C1712A1EAC4F9328B25A581B0AADC9AD7E39D57FC"
+    },
+    "explain_payroll_export_handoff": {
+      "version": 4,
+      "hash": "56823B7468E6BB14EF6FD82D66C11709C1B066673729C938E7BBDBB87D689296"
+    },
+    "explain_period_closing_model": {
+      "version": 4,
+      "hash": "3E84B8A800BAA1A0C03D2A202BC896A6899F890C471B74CB1B372E743BBE9B8B"
+    },
+    "explain_personal_access_tokens": {
+      "version": 3,
+      "hash": "D9BD4A982DC744C1C9415BEEDAEDC225C6E184FA331921A5C99D7FD6ABB49101"
+    },
+    "explain_planning_assistant": {
+      "version": 4,
+      "hash": "AB23A897B5753D65A1717943E8DD9BD53ADE7D41F0AD909BE3946A67BEF78922"
+    },
+    "explain_planning_divide_et_impera": {
+      "version": 4,
+      "hash": "A8634EF0FCE0541DE7E5CBE70F54D9D5831931C94B64D2DDA63877751D01A06F"
+    },
+    "explain_planning_sheets_modular": {
+      "version": 4,
+      "hash": "D42A9D08B9BC2A98CAC2B2837552220D4835DE55955C190436EE52CD34A0E898"
+    },
+    "explain_planning_wizards": {
+      "version": 5,
+      "hash": "4ED43120D25EF62656293D51605FCF1763DB775B4DDF3204D78046CDF0051A34"
+    },
+    "explain_plugin_architecture": {
+      "version": 2,
+      "hash": "1BB0690BC180AB80396A42E984930F54F3C7A84646CA4ACD2964ED486EAC0E99"
+    },
+    "explain_qualifications": {
+      "version": 3,
+      "hash": "4B5B71DC17834777D5D08AB3C963A38930B21F28DB6ED0CBF6E1C883BBABBEA6"
+    },
+    "explain_report_designer": {
+      "version": 3,
+      "hash": "7AAFABDD9A2E8E176898F82BB2339723590778247A2C78117BA3F35848C106E1"
+    },
+    "explain_roles_and_permissions": {
+      "version": 3,
+      "hash": "D6993C489DDFDDDAB56CE540C17ED6A0456A04807971DBB025576842A3A23F8C"
+    },
+    "explain_scheduling_rules_model": {
+      "version": 3,
+      "hash": "62C72EB0B5326B56352A8431342510540B42B82BF396193FA065AA1ED055F5D0"
+    },
+    "explain_shift_classification": {
+      "version": 3,
+      "hash": "25DFA2D233AAFE655454CF0BAAF6F1697D8CCA9F17D6F6D212387A1712701178"
+    },
+    "explain_shift_container": {
+      "version": 4,
+      "hash": "372083AE5292761969E43B6A0263EFD24810E7AE0D003F2DD3A632D740835388"
+    },
+    "explain_shift_lifecycle_order_to_shift": {
+      "version": 7,
+      "hash": "87B10516B0F96439A2252E5E80F76B269BDB83C33F4BB8A0FB4AA43A885A8BF4"
+    },
+    "explain_shift_sporadic": {
+      "version": 4,
+      "hash": "627C31065739C40DAFC985ADFDF09EE733F5A0A7E9A6E098AF3F1325341088CF"
+    },
+    "explain_shift_time_range": {
+      "version": 4,
+      "hash": "784498A52645EEB9AAD8198C9E358AA2AEB7C9522952EF602F51BA66CABF824F"
+    },
+    "explain_shift_type_preferences": {
+      "version": 5,
+      "hash": "94D7808449774DFBE70B41760580B7E39AFCA99EEEE93F5B1E6C817715B2B223"
+    },
+    "explain_software_updates": {
+      "version": 3,
+      "hash": "D24D2B97811D65B42F190575AA6A547BE6AA46F20573B4E4B7FC612796FB44A9"
+    },
+    "explain_spam_rules": {
+      "version": 3,
+      "hash": "9C46DB14915BFE2300EDAB06B2A317A474180EF9F15C53322A468BE9006E3117"
+    },
+    "explain_surcharge_mode": {
+      "version": 4,
+      "hash": "29E90ACA7002B99E693C691FCCB507A05B54D50C55F26EAEB0A178AD296526B0"
+    },
+    "explain_system_context": {
+      "version": 3,
+      "hash": "0BA6692D817DED0809BE8998946BE98F32D39A63FF045843F4A082232B206A6C"
+    },
+    "explain_user_account_creation": {
+      "version": 3,
+      "hash": "EDA9773EE7EB0490577A5CE140803EDCF5FAC6ED05439501C1E68D315458453C"
+    },
+    "explain_whisper_setup": {
+      "version": 3,
+      "hash": "8554EBDEF5C46D8AD863FAEC23CCD13307052E3DA96BE552F06345E8118F33F5"
+    },
+    "extend_macro": {
+      "version": 3,
+      "hash": "7A84119EBAB233DD31515B13B04403C8DA977B7A31F2C3501709D244D240696A"
+    },
+    "fetch_new_emails": {
+      "version": 4,
+      "hash": "D5C0A83F373C10F8420FC4888CCD77B84E32A3205A9E60E0299998C1C2CFED4A"
+    },
+    "fill_group_by_criteria": {
+      "version": 11,
+      "hash": "D1985B49F03BFBFE794F0EDB83A4280814A63C87BC384F79211071AD4B68EFCA"
+    },
+    "find_absence_capacity_windows": {
+      "version": 3,
+      "hash": "BE8C6975EC11E5A118419D0B9F643751C8B42D5CC09B42FACBC1AC64FEF861B4"
+    },
+    "find_customer_candidates": {
+      "version": 4,
+      "hash": "90170458DD647102D6E4F6C62A4138B4847561592D6413833FA333DC4A2AE0FC"
+    },
+    "find_replacement": {
+      "version": 6,
+      "hash": "A777C4265A5FB5EE1E980BD306AF7D9A8F8CC9432F6F3AFCC85ADF0FDED3D0F8"
+    },
+    "find_split_shift_candidates": {
+      "version": 4,
+      "hash": "BFEE8CE566CDE2C94B40E99B15E68E63D0AC39A331749ED9C3DB716A9FA0F257"
+    },
+    "generate_period_summary": {
+      "version": 4,
+      "hash": "50942C706B9A9212C2496BB25271B5EE289B55FC1F8386C638954269E110C1D4"
+    },
+    "geocode_location_groups": {
+      "version": 4,
+      "hash": "4005AA2FF7FB7DC447228FBCE5874B870A88B3C7AFB658BAD1561B5DFC04DE65"
+    },
+    "get_active_industries_settings": {
+      "version": 5,
+      "hash": "E9267ABBBF562799CB7B513631A0C2E516283837C7B1FDE84C2B2005579436BA"
+    },
+    "get_ai_guidelines": {
+      "version": 8,
+      "hash": "FE0EB27D05BB5C422A7ECE1E020CC33FF9C075E05AA31A2E427C552D8F4BB256"
+    },
+    "get_ai_memories": {
+      "version": 8,
+      "hash": "6E1A42A7020526E0018EBCA736B1B53FA9F3077102D4B1B08BFE1E2568223C16"
+    },
+    "get_ai_soul": {
+      "version": 8,
+      "hash": "26E53447771552968BDA1983C9391ABA25C1837C441DEF343F33B720EF5FB421"
+    },
+    "get_autonomy_level": {
+      "version": 4,
+      "hash": "F19EDD43A2C2870DE979676CC254B2BFEE1DAC3E45D7D4A28CE0E68602835289"
+    },
+    "get_availability_overview": {
+      "version": 5,
+      "hash": "07CDC62B912B02FE903F7627DE536D73FE7633B2398A7CAAC1E95C7CE6D23827"
+    },
+    "get_client_absence_summary": {
+      "version": 4,
+      "hash": "8F8832D7C9355BEEBB1AC113F190CC01F7D34C992C908D2F0685A919B4F08A67"
+    },
+    "get_client_details": {
+      "version": 8,
+      "hash": "A240562E670FA8CD349040E5B1566F02EFF7719211D755B8E3FB1E00C03CDEA7"
+    },
+    "get_client_locations_overview": {
+      "version": 5,
+      "hash": "522A3967E72B30F1BCAA494912190222DE70DCF9232884563F12F93C794C6A67"
+    },
+    "get_company_registration": {
+      "version": 5,
+      "hash": "7E42865A4FF30C6360C7FB651D7671BC7EB527C73DB0DD8F66A93E8763FC4EEE"
+    },
+    "get_compensatory_rest_settings": {
+      "version": 5,
+      "hash": "630C0DAFE17C8123E75B235C562C51E761494D1CC3B0BE7C1AAF0DB31D740C17"
+    },
+    "get_compliance_enforcement_settings": {
+      "version": 6,
+      "hash": "C35B75626DF0D46DBB1F9D17B41A86C2632A75B7A59D8EE545EE8C8345AD9914"
+    },
+    "get_contract_details": {
+      "version": 9,
+      "hash": "1F4300363C7AA77648BC401A6DAB47D1E31B810B048F6155FCF3F0927D5ABD23"
+    },
+    "get_current_time": {
+      "version": 7,
+      "hash": "BB0FE0C59EEA4BFDD50097B1FC106A57D99D89470D9DE38E46D3A7D2223ED265"
+    },
+    "get_dashboard_overview": {
+      "version": 4,
+      "hash": "16DA39AF37899006E71F2E21698E0B1F6A60A3F89E266152836F2A59CACDA8D1"
+    },
+    "get_dashboard_summary": {
+      "version": 4,
+      "hash": "99FB1E20A06A96C830BAA0889EDE37B003A336BF93026B5947CFBACB48FE9FBA"
+    },
+    "get_data_retention_settings": {
+      "version": 4,
+      "hash": "8675B1FF9270C3E6F39E53DD9E87E6B81B37DFF40E648F12232623BDCEDE9FC1"
+    },
+    "get_deepl_settings": {
+      "version": 8,
+      "hash": "4F59B94F1ADCE33DCB14F3B73E3A1B36497E2D6FAA5871CEDC91F1C8314DCD62"
+    },
+    "get_email_analysis": {
+      "version": 5,
+      "hash": "66F1210ACD2ED27E3F501BBCDEA18A412E34FC94D6C76C5E25B8E8B97C4C1B08"
+    },
+    "get_email_group_tree": {
+      "version": 4,
+      "hash": "CBFBFB1975E96E870D66281F9E81DBFA361F041E9A5103A05D6EBF9172B6308D"
+    },
+    "get_email_settings": {
+      "version": 9,
+      "hash": "C4471B9133D5EB91D77878CCD8F65C1B3734BA24A124F950D564A93AB68C39D2"
+    },
+    "get_erp_drop_point_settings": {
+      "version": 6,
+      "hash": "905AB91349BAC002DA7274870055932DD1DEA32F96453085C0148812723A67AF"
+    },
+    "get_erp_import_status": {
+      "version": 4,
+      "hash": "D714C8673CE6EF642F561B4ACD951125DA9A62AF9B1E7087C13590A2AF11F59B"
+    },
+    "get_export_formats_settings": {
+      "version": 5,
+      "hash": "E91E62C5727FEF43BA61889B24667ECD79434D12F998110824DEF561A5DADCEC"
+    },
+    "get_general_settings": {
+      "version": 7,
+      "hash": "0BC8313ACBCCEBD6D61C1C0F8C435CA67BFB5A89E57E1096FBF5CF6B344951D5"
+    },
+    "get_grid_color_settings": {
+      "version": 6,
+      "hash": "6FE364381451E0CFE26441002DECF8FF5AB29AB335EBB6520E92999F8357EBB6"
+    },
+    "get_group_absence_overlap": {
+      "version": 4,
+      "hash": "70838BB9CCD134B5E0D790559DBC772F8C2339F8E7F97F86BDBA98D8D3405D3C"
+    },
+    "get_group_details": {
+      "version": 4,
+      "hash": "929D0C80AD838FD95D3E087AC675A70F3C56C40E71E1B8DD564AC27088DF641E"
+    },
+    "get_group_hours_balance": {
+      "version": 4,
+      "hash": "C30DC49F9CF0C24CBC0C0BC111ECAAAA85332CAEEC7972B319BA5CF332F8C930"
+    },
+    "get_imap_settings": {
+      "version": 9,
+      "hash": "D7AA87E3446686436C564DACB913C5683AB2890421BAE2ED82693969B8FF0EA7"
+    },
+    "get_messenger_analysis": {
+      "version": 2,
+      "hash": "18B8EC10969697A813EC889816D963A7A73E9523AB99A9C567DF56A525C7B51E"
+    },
+    "get_openroute_settings": {
+      "version": 5,
+      "hash": "59C756C8A328D2FA06C0E9A5240AB31BC3A8B3A1F015F1986E563DB0B292EB74"
+    },
+    "get_overtime_settings": {
+      "version": 6,
+      "hash": "FEF3EDA0115E85732FC6B85CAAA104DB78027CF5B31C7D98C3AEB9833575A42B"
+    },
+    "get_owner_address": {
+      "version": 7,
+      "hash": "51D75789620ED0C21A6A70DE44EE016345020C1553F090F43B4E87EDE495DAE6"
+    },
+    "get_page_controls": {
+      "version": 6,
+      "hash": "3E810A1CFF1519E2FEC7926223A8BEBC248BED2F30D9DC92340950992D1F7D42"
+    },
+    "get_period_close_schedule": {
+      "version": 1,
+      "hash": "67260F96F136985D5F4B80133A242C55604EA64C7417FD3EF605FF604C6B7627"
+    },
+    "get_period_hours": {
+      "version": 5,
+      "hash": "3F0930E6A6F8FECA422F2D9D109024E6C31D553661042DB7222DC15A0E20538C"
+    },
+    "get_period_status": {
+      "version": 4,
+      "hash": "5E2D7BBEF16A8D6EF17AECCDC4D3BC1A799A5B48152B4CE6701E4F307D53B14D"
+    },
+    "get_plan_status": {
+      "version": 5,
+      "hash": "9E1757CA17A40909A45CA5A8F00DB340544531FB497276CC292CE0EDC734001B"
+    },
+    "get_planning_deadline": {
+      "version": 1,
+      "hash": "9B1154EC8333FACB1BE5A72ADDEB8B6F44FC3398FE2A40BF9F6B4769C73F1DD7"
+    },
+    "get_proactive_governance": {
+      "version": 2,
+      "hash": "F4151B87B4794B3EE2FBED64700D9B7B7C2D31F7A17C58DCC0694F95B9D775C9"
+    },
+    "get_scheduling_defaults": {
+      "version": 8,
+      "hash": "32149D46AB6CCB18E9A277612F00703FA50AB0EC57D17CF64BA20990F1312FBA"
+    },
+    "get_sealed_order_work_entries": {
+      "version": 3,
+      "hash": "F35D9A0DC5D9240F4EAD27289826D4194CDCE31EDFDE7FCD5C4A2DB81646865B"
+    },
+    "get_setup_guidance": {
+      "version": 3,
+      "hash": "2AF1A661CF11D00D6641E82281E61DA1A78AEAB8FEDF6580733C82D85EA9474A"
+    },
+    "get_shift_details": {
+      "version": 4,
+      "hash": "24FFE1799EDBBF5E18AEA26B8A247A2124A2CE4364761C5AD706444CDCF80353"
+    },
+    "get_spam_filter_settings": {
+      "version": 9,
+      "hash": "3A5862B280AB7C8723F900362DB3C81CCE4FEA164B0D1A740EC83D2EC19BCF74"
+    },
+    "get_speech_settings": {
+      "version": 4,
+      "hash": "32D3C07489CA2833D31A0DF4A7B3FC5645C5062A0EE2A7CE93BB81E67FCA2D98"
+    },
+    "get_surcharge_mode_settings": {
+      "version": 6,
+      "hash": "844FBEE77087B91796A19067B328F2B2DB76C841D6D88C20DC91189DBC4F4B15"
+    },
+    "get_system_info": {
+      "version": 6,
+      "hash": "2A5750BED6D999E2A72BEA5E194CC8A6533BE2F094FE43211EB5E728A3C92102"
+    },
+    "get_translation_status": {
+      "version": 4,
+      "hash": "D3B9BF7F8F2D6B1B28F07EAE7EB8C9F82F135A2F5F81095B7D777163FAB1472D"
+    },
+    "get_user_context": {
+      "version": 7,
+      "hash": "A42E5B91AB145ED9C264E2FA9E085E7887FF24AB89CA7BA7BC1DC10C001B6CD2"
+    },
+    "get_user_group_scope": {
+      "version": 5,
+      "hash": "3AEFBFC7994F654C4F4E0F5059538FF533448C8A0708555F5A3DD68DD3118F99"
+    },
+    "get_user_permissions": {
+      "version": 6,
+      "hash": "3B3C491DECC78B09E84F1B14BCA8BF1EAFF0538F5BE8B15E6A9F1ACC60EE5B93"
+    },
+    "get_weather": {
+      "version": 8,
+      "hash": "66FAD9B02F1DE422B020602CF22AF760CF4757212BA5F8CF7C573850B5266033"
+    },
+    "get_web_search_settings": {
+      "version": 8,
+      "hash": "96373A14B742E8654D270B44D94B7301F009967AC0BAE65CB7AA4AAF40A8F363"
+    },
+    "get_whisper_plugin_status": {
+      "version": 5,
+      "hash": "A27D4B44E768DB23BA83A462293CA687A04F4AE41087AA049B0D89C34316F614"
+    },
+    "get_wizard_settings": {
+      "version": 6,
+      "hash": "873867EC623E1CAFB38D1551B2BE7421C4C4F016F9A4032F0FA564BAB281E0EA"
+    },
+    "get_work_settings": {
+      "version": 8,
+      "hash": "3A6A50ED4360F17E7B5AC7CCD6FB36A0564A5817048E8F19BF5268352301AEB0"
+    },
+    "group_ungrouped_by_city_name": {
+      "version": 5,
+      "hash": "992A2A806708D22C248E75D711641CD4D9D8E9DCDCC5F029C535994D6EC99AFD"
+    },
+    "import_calendar_rules": {
+      "version": 4,
+      "hash": "C572D50B6341BFABC2427338A15A168DF0ED26BABF812BED222B8100FCB3ED3E"
+    },
+    "install_feature_plugin": {
+      "version": 5,
+      "hash": "E258020309BD059A4BCAA92DBB87F62A732A15BC026066E6BBDCFDC7BB2CCA66"
+    },
+    "install_language_pack": {
+      "version": 4,
+      "hash": "B064810B282A6DF6DA02EA5C079D0D5C39EA5DCE3CB16A35A529ACDCD94D6553"
+    },
+    "install_whisper_plugin": {
+      "version": 5,
+      "hash": "5825764B9AEF1CB0542F605D49BABDD7A99FB845FED9695785742D85F8790B2F"
+    },
+    "interpret_resource_monitor": {
+      "version": 4,
+      "hash": "D442BCBCB7CD3A6D1288CA416B53F10DE349642F1923B6DCF20CA1751358AC5B"
+    },
+    "list_absence_types": {
+      "version": 8,
+      "hash": "01D35B702E54F20648EEEBD600AF1AC3397EB76276E98733E4DF8938F03A47FE"
+    },
+    "list_agent_skills": {
+      "version": 7,
+      "hash": "412D81B13C85DBA3AE177E8CFBE17668EC37FAFBF3044D827D1501C03B402D18"
+    },
+    "list_branches": {
+      "version": 8,
+      "hash": "B77FA9F0B78904C275AE3CF77D0A32F638458C02A60F6487526BEB9F56E3F892"
+    },
+    "list_calendars": {
+      "version": 4,
+      "hash": "75FFAE86EFC8806957836FC42A5DC09AE2FD4D87AB38A4E312E266D027E68E23"
+    },
+    "list_client_availabilities": {
+      "version": 5,
+      "hash": "64CECF7841338A6F7D10F56C567407A8EFB9E2A5DC2C035F1C48F9B84E96705A"
+    },
+    "list_client_memberships": {
+      "version": 4,
+      "hash": "9391723B025E1DC92D1E954CC4E29F239C454FC12C863D9F43E9CE5E36E029B2"
+    },
+    "list_company_rules": {
+      "version": 4,
+      "hash": "9DACB72800FDA0E065AE37113A9E8984752DD2250C097FB3548E17CA70013F60"
+    },
+    "list_container_template": {
+      "version": 4,
+      "hash": "09B9B1BD7CB51B4EDA12A2BFC88FBA204981DC92FA0FE87C60AD384AF1CF4FFC"
+    },
+    "list_contracts": {
+      "version": 10,
+      "hash": "40568E17B1E7D48FA8A8E7A8A6673D78354A1EC2D90E40E34473A179FD4A5D17"
+    },
+    "list_counter_rules": {
+      "version": 6,
+      "hash": "99B9E81F08AB586C517482905EF5F72B5449BB94304CDE2D71B8244F80364732"
+    },
+    "list_countries": {
+      "version": 4,
+      "hash": "5F2AC0C22A25FE243D04FA4232B348FCB8018B2A2C7F902159AA9C022664BB1C"
+    },
+    "list_email_folders": {
+      "version": 4,
+      "hash": "05B32DF62A9D8E75435886800EA6DFFA211C87CFCAFECA9D2915145AD3173333"
+    },
+    "list_emails": {
+      "version": 5,
+      "hash": "6616C38F4D052751F365E31462628BD82BF6596A27197381CC4C4B0F8D8A67B3"
+    },
+    "list_emails_by_client": {
+      "version": 4,
+      "hash": "500FF3CE1B80E4E834F955DACBA62B25C84F0052CFDA95140D9514D64DA990DE"
+    },
+    "list_emails_by_group": {
+      "version": 3,
+      "hash": "6A9C13979A1C21538F523A3B84909CEC0E20F61B6D78ECE27E49F92D9845B09C"
+    },
+    "list_erp_import_tokens": {
+      "version": 5,
+      "hash": "67C46C3C415FF99B167DE3BA7F83B19A4FB1724541943BF7D371188663CC3464"
+    },
+    "list_expenses": {
+      "version": 11,
+      "hash": "7C0443A7FD7AB0ABB08147A1F24FE6F75C06AF6ACE19E39B430E89B2B223C858"
+    },
+    "list_expiring_contracts": {
+      "version": 4,
+      "hash": "68FE2E941758F406BFF3108C1F502446AF4AB1CE7280F0ECB8BB9E8FB4065802"
+    },
+    "list_export_format_overrides": {
+      "version": 5,
+      "hash": "DCA6F8B8B18509C2D85FF0470F2A1A079703237091086F2EACDDD54BDA6DED6F"
+    },
+    "list_feature_plugins": {
+      "version": 5,
+      "hash": "26F2B80CCCD1509EE00049446A711A4C720366F4F5ABE080D1B19CED054245B7"
+    },
+    "list_group_members": {
+      "version": 4,
+      "hash": "C493A2761329B3FA998B58D61F7865B9ECB47A6FC59A146D01639B8C0602048D"
+    },
+    "list_groups": {
+      "version": 11,
+      "hash": "BB60043C5F7A73D7A388AE1DBEC6E7C39FCF0D41936E5F3C0DF2D24DAF2D7D06"
+    },
+    "list_groups_hierarchical": {
+      "version": 5,
+      "hash": "CE5F5BB60940D6C52CE93CC3A3B7F0D5F5D39017D97056D0210F1D45A472077E"
+    },
+    "list_holidays_for_period": {
+      "version": 5,
+      "hash": "39FD2DD06AC2ECF4A2BD1D9D8E29AB197E7E82C76A314DA1E29F07AF251E54C4"
+    },
+    "list_identity_providers": {
+      "version": 4,
+      "hash": "1930B0658AEA0B216853ADA7C933F2EB9921564F0EE7F3B6B844370A78F029B4"
+    },
+    "list_individual_periods": {
+      "version": 5,
+      "hash": "32CA9F4E1827C819AB60797C1A214F57299ADDAAE08C986B580ADD8973711390"
+    },
+    "list_languages": {
+      "version": 4,
+      "hash": "3D3A551E583B707BB4531047B0EDD4C97EE7DB7D20D13D6420F371E8420056D3"
+    },
+    "list_llm_models": {
+      "version": 9,
+      "hash": "570832C2E725AB4729BB1E298739D0122B231AEFD9CC0ACD191546BB8E89C658"
+    },
+    "list_llm_providers": {
+      "version": 9,
+      "hash": "96A244C376049C4DBFAEA06F7558F7DCA4AA110DF05670F18FE5C4039FADBB30"
+    },
+    "list_llm_sync_log": {
+      "version": 5,
+      "hash": "BF04C29E1284E7436D9EBE6BCDCE3E1D680E72E04F7AC98FC5BDEBAF18178379"
+    },
+    "list_macros": {
+      "version": 5,
+      "hash": "2224381218F23386D816841F30AF38CBD5DDA252EB4A05D09E68122BC993B160"
+    },
+    "list_messaging_providers": {
+      "version": 11,
+      "hash": "0545B997C331DDD3BB0AE1DBF41B68B97E33F2EAE6A9C64258D3C25609B6BCB7"
+    },
+    "list_monthly_target_hours": {
+      "version": 5,
+      "hash": "F73E9639267417BAB62B68EAA47B9DC150193A8724B76CDEA6ECA001307EA5FA"
+    },
+    "list_navigation_feedback": {
+      "version": 4,
+      "hash": "C8052B01D757B120CE037AD66DEF555FC1985C56AAE427D0033C6C95CEA57CBB"
+    },
+    "list_navigation_targets": {
+      "version": 4,
+      "hash": "E09FF9CD0F1F63A43AC36281296038BE725AE178FA3B15938EFFA489421ED794"
+    },
+    "list_open_findings": {
+      "version": 2,
+      "hash": "01D84B4DF5FF1D09FE1E60F569386DC5F37E730334BBE3F837867409D0C6A975"
+    },
+    "list_open_periods": {
+      "version": 5,
+      "hash": "37F42034070C27A6ACC78716BF2AB37BBDE3F45F1D1BDE73365E33904B8A8F88"
+    },
+    "list_open_wizard_jobs": {
+      "version": 5,
+      "hash": "ACE6F111E43F679423ADCE769E1D6148906A57ACC48FB5145ED4EDED7AF4B5F3"
+    },
+    "list_period_audit_log": {
+      "version": 5,
+      "hash": "67C2E8CF4F198205A49B789A89C54DC047A62D7C7D65AD09301A165A09734CFA"
+    },
+    "list_period_cap_rules": {
+      "version": 5,
+      "hash": "14DB75AAA6D8ED8D173D1149EA3D133494BAE7D39D2D9B430AA0B540157D3485"
+    },
+    "list_period_issues": {
+      "version": 5,
+      "hash": "C24B11EE60DA5E8A2A3E4BFC5348E892AF8BD1526E5199B36E18E0E1071616DF"
+    },
+    "list_personal_access_tokens": {
+      "version": 4,
+      "hash": "D01019676A4A3D40E11D454DBECA0FCF34ECE46B93B97A0DA2F510BE75258619"
+    },
+    "list_qualifications": {
+      "version": 4,
+      "hash": "F348167C67051EDF6A8C023A1CBADA4DEE35976F8B47035E3C21C3577EAC7B81"
+    },
+    "list_recent_exports": {
+      "version": 4,
+      "hash": "78F24A8F0D67EE407C34EC7DF681D62BB9CB25B55140405E20FFBEC12BDDBF9E"
+    },
+    "list_recurring_tasks": {
+      "version": 5,
+      "hash": "67E3EEEE3893DD27A266DE4BB68535D2CEDF1F92342564B7B3D1F775B1C867A0"
+    },
+    "list_report_templates": {
+      "version": 4,
+      "hash": "A8E58EA554414A226B5B27CCC383A7CADED76C5CEFC29D5B9D257BA074E6D15B"
+    },
+    "list_restricted_time_window_rules": {
+      "version": 6,
+      "hash": "D00E909972C1C8A4EFD39060F4AB26B051F7596E4617D65FD53D9F6917DBCF53"
+    },
+    "list_scenarios": {
+      "version": 6,
+      "hash": "6C9BC6FA1E13ECB14279E6C9443ECDE01BFA568B0C4B26B34E9B886F2316C2F3"
+    },
+    "list_schedule_notes": {
+      "version": 4,
+      "hash": "9B283434822829A9EEC683BCCC057AE90F56F6D0137568CAE7E465042B8C273C"
+    },
+    "list_scheduling_rules": {
+      "version": 10,
+      "hash": "162F7EEA7FF51D8FA3094E27FFC6A59FA1BF6E705E05E277CCEA18DA2D120146"
+    },
+    "list_sealed_orders": {
+      "version": 4,
+      "hash": "596243606E016C7EA7FBA9D87DE690FE554FC9653E9757B19F0FB935F2E78DB9"
+    },
+    "list_shift_cuts": {
+      "version": 4,
+      "hash": "6AFDD45373D8504856C55BBDAD3AF1DC4BFE2991F76E7D8EA82CCB7617DE4447"
+    },
+    "list_skill_relations": {
+      "version": 5,
+      "hash": "3EAA6F7011C58B4D2DBA1A044533D6CFC8B6EE5B3D45E7EA63AFB5BA912CAF81"
+    },
+    "list_spam_rules": {
+      "version": 5,
+      "hash": "BF10E7FD3F9B5C9B9D4392578D47FC55F82ABBCA0BDC87DAE46ECB5257F97502"
+    },
+    "list_states": {
+      "version": 4,
+      "hash": "D91B586BD13BCACA6A4CE36860F43E9F04CC8659E2C12F2D0B5767DF57B8E9F6"
+    },
+    "list_system_users": {
+      "version": 7,
+      "hash": "EC16865D71EB5606DCA2271793F5345C8105A6C0801701842ACF3788C4450246"
+    },
+    "list_transcription_dictionary_entries": {
+      "version": 4,
+      "hash": "9603371E228EBCF90EB847F3090720755F24C6877F0EA9D9A46AA478F4FA51E7"
+    },
+    "lookup_location": {
+      "version": 5,
+      "hash": "DFDAAA48018E93F008C74F3B5551F32B12B7E48210D4BD83F90E3776224172C2"
+    },
+    "manage_pending_notes": {
+      "version": 3,
+      "hash": "C3787CB95A79970C46E50D8640C92522F72383430C94916253BA647DE4B5D536"
+    },
+    "mark_email_read": {
+      "version": 5,
+      "hash": "07F35F110147490EC8EB69E2BD53E54330C0D60743BFBE8BD5145D8A26B1B800"
+    },
+    "move_email_to_folder": {
+      "version": 4,
+      "hash": "85626F52BDDA7E6FCCF930AF4A7AE8D6208B1EB2B1315AEEE8E7539942594480"
+    },
+    "move_group": {
+      "version": 5,
+      "hash": "5C660C60B58F82990D2F569644FC67CD277F0433F3130F5FD210FB396163A11B"
+    },
+    "navigate_to": {
+      "version": 30,
+      "hash": "8FF5DD7D30673F96F577F7BE41E48616C92BBA559A17E146EE5FE532EB2B84D1"
+    },
+    "open_absence_calendar_pdf_export": {
+      "version": 3,
+      "hash": "54B0836A2BF906CEF828CF9207A39972A367CFE1E053BFFD782F6701C083FB83"
+    },
+    "open_order_export": {
+      "version": 4,
+      "hash": "C29851FA273AF21512908F62B56BAF1ECB40009FF2DED7D612866215C33D50BA"
+    },
+    "open_schedule": {
+      "version": 6,
+      "hash": "17FADA429548CCC7FDABBDEE57E11FA3C64D1A3A36A901A168CB46D21E45B304"
+    },
+    "optimize_llm_models_for_klacksy": {
+      "version": 5,
+      "hash": "6E53149ACC03654A2756B12C09D0D031B27A167FD7DEB9E21F59C7BEFD87BE4F"
+    },
+    "partition_clients_by_address": {
+      "version": 6,
+      "hash": "3F3229D0FC04B2FD5340067E916A8D5B0095C0D9CAC57983F395C2ADE86687D8"
+    },
+    "partition_clients_by_qualification": {
+      "version": 1,
+      "hash": "E69240C2278B6124F667B068E23A81DC52AE6CF0946F97D434224B9A16EC72F8"
+    },
+    "place_work": {
+      "version": 5,
+      "hash": "1B1267675254B5808674804E7A54204792EB337AA23F669A9E44FF376DE70927"
+    },
+    "preview_company_rule": {
+      "version": 4,
+      "hash": "84DEBFE0C7EF04F192A7BD41DD695BD0FAC7AE0B413499906AD137A4042A4F65"
+    },
+    "preview_planning_profile": {
+      "version": 4,
+      "hash": "DB8CDE7B87BBB7B77E67BF6CC0A32DB0C69E6C1F9B4FCA5BB6B01DDA14960B69"
+    },
+    "propose_grouping": {
+      "version": 5,
+      "hash": "74AF51ECDAE668CC80EE7EC527EB61020EE130C99ED918EB50236F123A105DB8"
+    },
+    "propose_plan": {
+      "version": 6,
+      "hash": "C6933A941FB78A893C5DDC00D3B941E149AAC6B533423E30DA043418EA2E648F"
+    },
+    "read_email": {
+      "version": 9,
+      "hash": "D7BF4F35394CC24CC6312F3217C01A9BD9ED2BF83E0165ECCF1026997D917A4E"
+    },
+    "read_messages": {
+      "version": 11,
+      "hash": "B6C82356B9E09E7762BC80B233800A92E90C4D6193123FF5957D358332480149"
+    },
+    "read_schedule_state": {
+      "version": 6,
+      "hash": "D87F88432753981E67F5DCEF6DF39DF6C75D2995EC831046ECDE631A642092E9"
+    },
+    "recall_delivered_notes": {
+      "version": 3,
+      "hash": "6AD24F14F8DB8E1AB113D775186C05AC927AC34AA5EBD85F8536102554EC6E57"
+    },
+    "reject_scenario": {
+      "version": 5,
+      "hash": "80A50646AB53D59E5CB4D926A3AE478F089A164C09D56ABAF97C35E22F78D13F"
+    },
+    "remove_client_contract": {
+      "version": 5,
+      "hash": "86FD2F1248797BE906373AD6E112D5B237088CCE6611EED36B2CE6F25A86C307"
+    },
+    "remove_client_from_group": {
+      "version": 9,
+      "hash": "29A2F3B766C43328B6F81ACE61902D57EF9DF9F042C58B87EF6B73857459DE27"
+    },
+    "remove_client_qualification": {
+      "version": 3,
+      "hash": "005C855490947857187E749F9633A59239E689EEB659CB011A63F8A471D20A1D"
+    },
+    "remove_container_template_task": {
+      "version": 4,
+      "hash": "377F2254AD456AA87048D55B595ECB3914191EA4607A840BCE6DAB3E4BA79792"
+    },
+    "remove_shift_from_group": {
+      "version": 5,
+      "hash": "A8CF109F5C9CB67C0AA04B5B45D2FE02845C879244112C405F58B1C08A5D9D6E"
+    },
+    "remove_shift_required_qualification": {
+      "version": 4,
+      "hash": "071516E9E422BE61A2203D7C28B7CD4C1EE1078E41C3BBB264E62F6FDF569E9D"
+    },
+    "reopen_period": {
+      "version": 6,
+      "hash": "8A07050F0E954AAE1BD6DFFE95D685F490F1F49F695443A8F1FED176250DA76E"
+    },
+    "reset_container_day": {
+      "version": 4,
+      "hash": "4FBFC909A278D70300BF56EE78D054BCE5579A27C8273DD1DDA004BAECB987AB"
+    },
+    "reset_shift_cuts": {
+      "version": 4,
+      "hash": "F86C6228F903E46A78098451A15456E9040839CA30E2694A0F8ABE41345534CB"
+    },
+    "restore_email": {
+      "version": 4,
+      "hash": "EF46E5BD5819CB8A4C27942D97F5A1C2FBDBAE47CD7F5EE025EB0CAC61578099"
+    },
+    "revert_company_rule": {
+      "version": 4,
+      "hash": "4C2324D1E7EB9B0E6A4FB892542FF395F1D921C9CE9E3E8A0B2583C9BB81FA73"
+    },
+    "revert_macro_assignment": {
+      "version": 2,
+      "hash": "DA85F38B4FD49BB227DA86C1FBF85D7A205BCC053B0B883B6CBEBD83EB2670D7"
+    },
+    "revoke_day_approval": {
+      "version": 5,
+      "hash": "29C9923980E306F1B7CADEFC0C4E18CA1EE47F949036A64117D69656BC92DF4C"
+    },
+    "revoke_erp_import_token": {
+      "version": 5,
+      "hash": "046DE2A54ADAB49B25303B6A9C4E0016CD8D6B6EF2ABFBBC6B9CAAA74662737F"
+    },
+    "revoke_personal_access_token": {
+      "version": 6,
+      "hash": "23E10FE34301001828340B04FA1F898909A85132CDA99DA0DADE23B008F670DF"
+    },
+    "rollback_my_last_change": {
+      "version": 4,
+      "hash": "F09B3374409D6FDC608198E8418CFF0BCAD5951397594EE1E04AA21983768E67"
+    },
+    "run_analysis": {
+      "version": 5,
+      "hash": "950ED4A10C16C877C25A4985BE0EA8900F6218B334C6876B7A3FE46BA83E4591"
+    },
+    "schedule_recurring_task": {
+      "version": 8,
+      "hash": "B2A56E6E35FEDB151EC8C705EA85DD6B1B01559E2B56814128C9EA143A4CB8E8"
+    },
+    "seal_open_orders": {
+      "version": 4,
+      "hash": "C49A63432D268EA97460314C626C9E5E0D0DBD3D9A14006BF995CDE6FB65BE41"
+    },
+    "seal_shift": {
+      "version": 5,
+      "hash": "D105C61F7B32023ED1C16DCD170EC6ECFB22C7A66DE9D2714A3ECCBF1A03AE9B"
+    },
+    "search_and_navigate": {
+      "version": 7,
+      "hash": "20CEF2788924ED8631F69916D0B34D8C408B486E6D45BF591B9BB01E33AC9FE6"
+    },
+    "search_client_absences": {
+      "version": 9,
+      "hash": "13BFAA4B8812D469B857C7C5597094C741A933BCF55A0CE6A8ABC90D2593D3D6"
+    },
+    "search_employees": {
+      "version": 9,
+      "hash": "9FD1E5D6DDA5F3361FB60D428FC013C6A8064868F0BF4B6A13A95F49B1C45218"
+    },
+    "search_in_list": {
+      "version": 6,
+      "hash": "B9CA1675F25CFF168211C7F5867E456E318D360932AB226204B3CB0E7523AE67"
+    },
+    "search_shifts": {
+      "version": 10,
+      "hash": "BD2A556F7CB9B206C67874DF2170D4C41036CF32D2C485FE8ED9199662A9FAE3"
+    },
+    "select_group": {
+      "version": 4,
+      "hash": "248C39876C0C6A11EDDF3715BE71418827BFFEC598E20885377F99C8E9B3D0EF"
+    },
+    "send_message": {
+      "version": 17,
+      "hash": "9E591A593C41576BAB3028A3EEFFE5C573809B2A42E4EEE080B4EB8600E2AD1B"
+    },
+    "set_autonomy_level": {
+      "version": 6,
+      "hash": "E0263BDA8CAC250E0863E84DFBB8413A11ED0E3F6FA1ADC042D543F2B8D8D291"
+    },
+    "set_client_availability": {
+      "version": 7,
+      "hash": "72E49C37D4FE4A14CF40E7E1B686CD45830C41024FF74FD4090141E2458F001F"
+    },
+    "set_client_qualification": {
+      "version": 4,
+      "hash": "80FAA4D7D88AAD114452290FC5D80AFC4CCE281DFAE89E768D5919E957164D58"
+    },
+    "set_company_rule_parameters": {
+      "version": 4,
+      "hash": "F61E6707570102E5E34F7E03D782038A0066DCE5E1273FC4E8442455B4DACAAE"
+    },
+    "set_default_llm_model": {
+      "version": 5,
+      "hash": "3C2C3548906E1C731F770E074ABF93193B8B56D09D99238088FC811370880C56"
+    },
+    "set_erp_import_schedule": {
+      "version": 4,
+      "hash": "2BFE966C55891048363D43E331BFA2EE2FDBCB79AF5F9D31CEA06FE15A710391"
+    },
+    "set_export_format_override": {
+      "version": 5,
+      "hash": "B39C6E34C524553ED473D52DA3AD813FB3F7DC126D6EDDB6F811EC44AF5A76FC"
+    },
+    "set_group_location": {
+      "version": 4,
+      "hash": "6EBC6108D9213DD50B56ECE34D0746EEC946C86C458B1219524BCA3767931585"
+    },
+    "set_my_display_language": {
+      "version": 3,
+      "hash": "BF1FE1CD3457B5E2251602F19D12FFAA09109DA087E273C40779C4B3662548AA"
+    },
+    "set_my_theme": {
+      "version": 4,
+      "hash": "BF156D87EB5E085D12B41925666B8C0187048A9A566EFC912ACBB22F895486E7"
+    },
+    "set_period_close_lag": {
+      "version": 1,
+      "hash": "E1E4FCD1EBA9B429CF11A8E5A610BFA1CE786072127C2A4544374A3F99EAFF46"
+    },
+    "set_planning_deadline_lead": {
+      "version": 1,
+      "hash": "39CDE46ACAC1C98A6C6E1977768EE5928FBD0CF7E16D065B50F977CC56EB1908"
+    },
+    "set_planning_profile_parameters": {
+      "version": 4,
+      "hash": "BE81A5B8D3B7D8B15D5AC2EB162E3D5050A430A718C96C4BEB93ACB46EE6F711"
+    },
+    "set_proactive_governance": {
+      "version": 5,
+      "hash": "10078BF85BD37FAF5CFDFA66635E037901F1A15BAB4C960059F15AF03679A9C6"
+    },
+    "set_sealed_order_until_date": {
+      "version": 4,
+      "hash": "06FEF35B47A9A463FBC5F94C1C8E555ACD58D83DA3F388E2EDEB41D20132BC8A"
+    },
+    "set_shift_preferences": {
+      "version": 4,
+      "hash": "A115949118DFBAD1E5AB45C444B21948F6731A1130EEC098165DC66041D70E74"
+    },
+    "set_shift_required_qualification": {
+      "version": 4,
+      "hash": "FD4CE7ABEA206644314020D99D61DCF9728C9E235C04C15ED498FB7BA7820594"
+    },
+    "set_user_group_scope": {
+      "version": 8,
+      "hash": "9F8800441E67988053EDFC3A940C26B2CED991612BB822C3B554A727E0CBD06C"
+    },
+    "start_autowizard": {
+      "version": 7,
+      "hash": "C8B2D10CBC08C008E613FCE6693F1DE9EC85769BC6737B35B697D153901C47BD"
+    },
+    "start_company_rule": {
+      "version": 4,
+      "hash": "CEEB08F0E4BBAEF410790B0A62A2E5EAAD249C42D1F5D801E26391BB941A61BE"
+    },
+    "start_guided_tour": {
+      "version": 4,
+      "hash": "A14C3ECC9B16EE90DD17DDA892CD1D0100F5C22AC635601F4FE25863D56DDA2B"
+    },
+    "start_planning_profile_setup": {
+      "version": 6,
+      "hash": "C5E916C6326CA4508A37FE93A894E4F71F9CE3A4794D62211384C5AEA060A8B0"
+    },
+    "start_wizard1": {
+      "version": 5,
+      "hash": "79AD5D915C2DD539FD738FFEC65B45343C570B607D89F74250A189E8E46FB25E"
+    },
+    "start_wizard2": {
+      "version": 4,
+      "hash": "B248AC2950D231F4B8C18321D3CADD27E3E91275CF6524DB462725B8FD1B2C76"
+    },
+    "start_wizard3": {
+      "version": 5,
+      "hash": "2313FC183EF6F8AB8701B88AAE9C827ECE7A3D07D7AE6911091065007A592384"
+    },
+    "stash_pending_note": {
+      "version": 4,
+      "hash": "3B787E742CAEFC5CB3A9372739ABDAC69D3B2A73EE8215D64677047CABCE2862"
+    },
+    "test_imap_connection": {
+      "version": 8,
+      "hash": "1B792C699A8AE660E9B007BA004EDEC3FEDEFC98B6BA731568B12CD2E72FC701"
+    },
+    "test_smtp_connection": {
+      "version": 8,
+      "hash": "4D373AD79B7772999753BC22634B68FAE65A59C931A5C772AD88C8CB930800B6"
+    },
+    "translate_email": {
+      "version": 4,
+      "hash": "4055CD9A801EEF1F599301C0057A2BB6E79046D03D0BC5E9436EEB788DE52930"
+    },
+    "trigger_erp_import_run": {
+      "version": 4,
+      "hash": "06BB0B1C1AEF387DCB29149172BC4D7C98FB93765DA0DADB4EFD4CD11FDB7692"
+    },
+    "unconfirm_work": {
+      "version": 5,
+      "hash": "E3E3AF1BABBB40F5A46E9BEF0B739439C0271517A8AF4F8C87D96DEF84147CC0"
+    },
+    "uninstall_feature_plugin": {
+      "version": 5,
+      "hash": "9F8730446B3E6DBABCCD4BB7B1BBAE9EBE6EFB92835596D9DC0A428BC61C2A3D"
+    },
+    "uninstall_language_pack": {
+      "version": 4,
+      "hash": "A0F71ABCCE4380513F23F83D9676EF6646866B12A16EAB8C859F1FD7CB958226"
+    },
+    "uninstall_whisper_plugin": {
+      "version": 7,
+      "hash": "9FE77BBE177FF241B0FC7C81C9873C1D3CB76DC9FEFD06A25BAC36047A4A9C68"
+    },
+    "update_absence": {
+      "version": 4,
+      "hash": "870F3B1516853C5857B74FC7D10988ACC26ACD5395FEA3F2EA10D003024687EC"
+    },
+    "update_absence_type": {
+      "version": 5,
+      "hash": "44A73237B4D109CFE4D01D12B6878B91D84C607A06A34893160060782E5D7965"
+    },
+    "update_active_industries_settings": {
+      "version": 6,
+      "hash": "085296F102D7E382AE1A875F0C8B6458EED3EFB2E41DF67AEDBF390B59F676D7"
+    },
+    "update_address": {
+      "version": 5,
+      "hash": "2B6F0C24313832C5B0B71AE3FFE4F030FE56953328D36990179288859700FAFF"
+    },
+    "update_agent_skill": {
+      "version": 8,
+      "hash": "B4C76A1F8EFB250DC16FBB17AC83F048FC43E08E58D0D95109021564D171EE38"
+    },
+    "update_ai_guidelines": {
+      "version": 8,
+      "hash": "41C74DF56C3EF0729BD5525680C97A77AC5CBFCCFE1480DF1F7291CD4105671A"
+    },
+    "update_ai_memory": {
+      "version": 8,
+      "hash": "0CF96F1B800770434B97542E3F686B87B7639F684AAF0FC02ED321F63906DD9B"
+    },
+    "update_ai_soul": {
+      "version": 8,
+      "hash": "2632360C502C6C60B832A57F4F2B545D8E746F2FE948EF5BD4CD0E10CBD9A8B2"
+    },
+    "update_annotation": {
+      "version": 4,
+      "hash": "C70E3025893CFFE377C651B6823E4D3BF19F1C2F3932F42AD6BC1CD745EC0474"
+    },
+    "update_branch": {
+      "version": 9,
+      "hash": "767B1B8790FF4A4EDAF0834A4FDA8611A46893F3CEAC11F0B5B9418D137C09AE"
+    },
+    "update_break": {
+      "version": 6,
+      "hash": "FC444660C3C33A09E1B733C47E79CDAC4DDC5FCBDB5A0D51557828997918297C"
+    },
+    "update_break_placeholder": {
+      "version": 5,
+      "hash": "1B0BD6EBCD9CAF987B771628C0F28D3CC486A6F996D92AE718366D6B2015A71F"
+    },
+    "update_calendar_selection": {
+      "version": 5,
+      "hash": "A03752DAE8A8353BB95A88BA180A9FA0DE3B1B13A9A3C992D9356243B2585046"
+    },
+    "update_client": {
+      "version": 10,
+      "hash": "89A0C49E17392095E96B7E90866D1DAAC8E872953F69F946BE924E00D2D0A0FE"
+    },
+    "update_client_birthdate": {
+      "version": 5,
+      "hash": "8245FB9A46506C59B31CC8EECB03FCCA423A113659F6639304EE578ECD941719"
+    },
+    "update_client_gender": {
+      "version": 6,
+      "hash": "27391BFE0BE4E80F27FF14C685803818252F69137A6993EA83F3B813D8D88538"
+    },
+    "update_client_type": {
+      "version": 3,
+      "hash": "820F2AC09B40663B6056FAE736DCD708871C7BD9161762F7DF5B59EA873DCAE0"
+    },
+    "update_communication": {
+      "version": 4,
+      "hash": "467A185EDE89F0521716332AD6E234E4CD9D9A4F43D0BFF2FC04ADF91A756E58"
+    },
+    "update_compensatory_rest_settings": {
+      "version": 6,
+      "hash": "0CD04BF64DADCB819843EC42F02B229A04D3C4A5B065436EB7193053984C94B3"
+    },
+    "update_compliance_enforcement_settings": {
+      "version": 6,
+      "hash": "6BD3C0219AF0C4929D7F8A8046ED21F724A3A254523F183026B914F9E068F9C0"
+    },
+    "update_contract": {
+      "version": 9,
+      "hash": "B03A67AC366122E6C9E61E2667B6460B7F5DE0327767F9CF8E4490FFEECFA046"
+    },
+    "update_counter_rule": {
+      "version": 5,
+      "hash": "68170E65EB14F03D68C759433EE6BD81E1F083F494D38F7DC6DD7A7FFB4E5E21"
+    },
+    "update_data_retention_settings": {
+      "version": 4,
+      "hash": "44A30ADFDB3939D06A69316F9A7504602B3D15602D1A576F217DC1AFCCDB0F62"
+    },
+    "update_deepl_settings": {
+      "version": 8,
+      "hash": "52AE5327BA9C73111F68E44F978F1CCB55998892B8082C39BCFB14D4254AFAF0"
+    },
+    "update_email_settings": {
+      "version": 8,
+      "hash": "3EEBF1A3CF0ECD58782143B214A6C32E4581398FC6A5864B055DE6B45BC22450"
+    },
+    "update_erp_drop_point_settings": {
+      "version": 5,
+      "hash": "A0C77EBC342F0F0A6B311C1901CF96B02B3DA7AB5A6434AFC48C4E7DC59DE3EB"
+    },
+    "update_expense": {
+      "version": 8,
+      "hash": "CD579A3B8ED782086BF6B0A75BFEF07D74163AE64ECB25FD7A992CD0EDCAADAE"
+    },
+    "update_export_formats_settings": {
+      "version": 5,
+      "hash": "DF71841EF8E24A00A489485CC9B96720D73F3B9E2301FE2F98949CED8D4C203E"
+    },
+    "update_general_settings": {
+      "version": 7,
+      "hash": "7C9C5AE970141E11C25237D18970784546F289F59FEFED587F68B0BD4B258672"
+    },
+    "update_grid_color_settings": {
+      "version": 6,
+      "hash": "29661E235A4D0F087C3D6E8A1318AB8D11EE146E8EB79863AB6BCC3C54677562"
+    },
+    "update_group": {
+      "version": 9,
+      "hash": "5D03F9D7721DD801FE45B6A56933355FBFAF955C31EBFDCECD57BDA50283D38F"
+    },
+    "update_identity_provider": {
+      "version": 5,
+      "hash": "9D5D203A6B8EC0BDF14DA779940BADF0FA9313EA2BA00FB7CF4401B90338A2F2"
+    },
+    "update_imap_settings": {
+      "version": 8,
+      "hash": "9F36EE7B611FF868440A2A458110A1F02A3A572E47329D088F93048386AED960"
+    },
+    "update_individual_period": {
+      "version": 5,
+      "hash": "3815726D9BDC5CD539418BC8A390935598FB50525349FC0E8F8458086895BAC4"
+    },
+    "update_llm_model": {
+      "version": 8,
+      "hash": "32B5E9DDA18BA56DED46343D121E56853C4CA23063B86231C122F905E838F5AA"
+    },
+    "update_llm_provider": {
+      "version": 8,
+      "hash": "DF77401012A44FFE1D0C0156FDCA54A32E5B6E042CB4B2CC255D13547CF386D9"
+    },
+    "update_macro": {
+      "version": 5,
+      "hash": "95ABB58C3DF59A49FDF31AE11F7E22D051DD653B1876B3F7D8EB8EC5417A5EED"
+    },
+    "update_membership": {
+      "version": 4,
+      "hash": "1678F659710D83999D30EC8502626E310B13A43B6D4619112AFCFBD56941BB58"
+    },
+    "update_monthly_target_hours": {
+      "version": 5,
+      "hash": "5FEAAEBDB2DCAD527DCA2517D101430DC982914B6C7A6C9C7F60D7402C62B714"
+    },
+    "update_my_account": {
+      "version": 4,
+      "hash": "66F9BBA8DB5217C0238F5B5E67E3295BE99A41F2D700C7B51DE5E9A83FA94258"
+    },
+    "update_navigation_synonyms": {
+      "version": 5,
+      "hash": "E9FE185403126AA5064A512EE48F11143E6591F41ECC4EEB33BE4003744CCEB6"
+    },
+    "update_openroute_settings": {
+      "version": 5,
+      "hash": "B08BBA71871F8FDD8CB2F6CEA7BE38E198B48EF18521A2039FE95C54AE1121F3"
+    },
+    "update_overtime_settings": {
+      "version": 6,
+      "hash": "35D22C3175C52B581ED480CC037DB0C370F4FD34823E4174792B76AD7E24A0C3"
+    },
+    "update_owner_address": {
+      "version": 9,
+      "hash": "91752B5E75D24AA5FDE3525C6F81A967F700DA39AAEA1B58E4D8876E8C5917B5"
+    },
+    "update_owner_locale_settings": {
+      "version": 4,
+      "hash": "4658A91DDFF948F81233FF160B860FDBED62D60FCBA273E2F32044DEB9683F92"
+    },
+    "update_period_cap_rule": {
+      "version": 5,
+      "hash": "A69E6619891F5F961657B1E979E182E5A69B3727B5B313B694980CCF6C98C619"
+    },
+    "update_qualification": {
+      "version": 5,
+      "hash": "9DCEB10088927664B379BC183248870D4883E76ED31DFFF31F94C240AA0B60BB"
+    },
+    "update_report_template": {
+      "version": 5,
+      "hash": "ADE8A82429F5B6F36FF5D58A18C44284DFE8331A521FDA90732C81ED0BA2FF23"
+    },
+    "update_restricted_time_window_rule": {
+      "version": 6,
+      "hash": "BB54AC41524FCC04743E773A0C1444A14BDB16547ECFF5CEC951667AAE97912C"
+    },
+    "update_schedule_note": {
+      "version": 6,
+      "hash": "D47C4AACA788CAAF7F5C43FDF3714D78739BD94B4730D3F8DB7526B153FEDDDA"
+    },
+    "update_scheduling_defaults": {
+      "version": 9,
+      "hash": "04DB6BE4EF491EACCB74DC9C2FCA35ABC5309CCCB2A9E7036777D0D952BF3682"
+    },
+    "update_scheduling_rule": {
+      "version": 8,
+      "hash": "94C7155AE7A1FD85EAAE5DCE5DB4C417EF12EB5D157F5039848B49ED2D11039B"
+    },
+    "update_shift": {
+      "version": 4,
+      "hash": "A5EA5EDEFE83163182E6571516DCBFE62102DAE291E2DC8D4D34F7BA26ACD49B"
+    },
+    "update_spam_filter_settings": {
+      "version": 8,
+      "hash": "7CA5CC26468B96AA3325AFD4F526E861C4CFCB3DCB52E1004FCFCAA381DB2449"
+    },
+    "update_spam_rule": {
+      "version": 5,
+      "hash": "3158925386A51120A7712C37925325D0845FD22A01FDD10F7517F2168FE8B018"
+    },
+    "update_speech_settings": {
+      "version": 5,
+      "hash": "857A4A2BE8AA227D9AF2782BA79C7D27B3A86A8FB38CA72793E72C996D3E9839"
+    },
+    "update_surcharge_mode_settings": {
+      "version": 6,
+      "hash": "AEDA18CFADF169EA73B752B8E9DA8A8E3C947BC0706F15F69FF1964BFCD6AD60"
+    },
+    "update_transcription_dictionary_entry": {
+      "version": 4,
+      "hash": "0A483496C861B767455F9CC194DDC056E69642D6F9B92EAAFFBF10286AA6B437"
+    },
+    "update_user": {
+      "version": 5,
+      "hash": "A624AE8054D8EE0710E0F63CDB65607543A6F755D712673AF350DAA28C198ACD"
+    },
+    "update_web_search_settings": {
+      "version": 8,
+      "hash": "0EE60CDD0C9945195980858BD0B68D230A56041B66E5AF7ED00CC85E64EF7BCC"
+    },
+    "update_wizard_settings": {
+      "version": 7,
+      "hash": "A32DA199D9ACA3FE1D97AF214A76065E550AB64030EF91152B717D3402D81146"
+    },
+    "update_work": {
+      "version": 5,
+      "hash": "7344826F3B42E1E2022514D3676CD8825EF4441CC14B82EB7BA38E869ECFAA02"
+    },
+    "update_work_settings": {
+      "version": 8,
+      "hash": "0AF88A67B3882F61EC2680093124A53B3662BC807BCE4F143678C6D044980A3D"
+    },
+    "update_workchange": {
+      "version": 9,
+      "hash": "CE3DCB0838EA51BFF9D1CB4CA708C82AF6A9BD3E8323232DF06238989970A0BB"
+    },
+    "validate_address": {
+      "version": 8,
+      "hash": "567E4E93F3495688BF04E910C96322B32D4B052B8CEBF17AB597E18FDF53DC5A"
+    },
+    "validate_calendar_rule": {
+      "version": 8,
+      "hash": "619CAB576692B8B616C408405A7E53BAA125A2AD1BEB96C3900D51D1EE1AB6A3"
+    },
+    "validate_holiday_overlap": {
+      "version": 5,
+      "hash": "F086B9CF71E8AB03692D6920BDEF223D247AC206E51352469ADBE25B8E88A832"
+    },
+    "verify_my_last_action": {
+      "version": 4,
+      "hash": "EFD6453344470DFC4F634FD16520587AC41C9A0806936BB1952BC92DD3F13B88"
+    },
+    "web_search": {
+      "version": 7,
+      "hash": "CF1624D1BEE40AE115049D51C77708F7FDF230EBEDB75F590EF0AAC13702CE48"
+    }
+  }
+}

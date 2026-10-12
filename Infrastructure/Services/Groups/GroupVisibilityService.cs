@@ -56,13 +56,51 @@ namespace Klacks.Api.Infrastructure.Services.Groups
                 return GroupVisibilityScope.Unrestricted();
             }
 
-            var anyGroupsExist = await AnyGroupsExistAsync();
+            return await ResolveNonAdminScopeAsync(user.GetIdString(), CancellationToken.None);
+        }
+
+        public async Task<GroupVisibilityScope> GetVisibilityScopeForUserAsync(
+            string? userId, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return GroupVisibilityScope.Restricted([], []);
+            }
+
+            var appUser = await userManager.FindByIdAsync(userId);
+            if (appUser == null)
+            {
+                return GroupVisibilityScope.Restricted([], []);
+            }
+
+            if (await userManager.IsInRoleAsync(appUser, Roles.Admin))
+            {
+                return GroupVisibilityScope.Unrestricted();
+            }
+
+            return await ResolveNonAdminScopeAsync(appUser.Id, cancellationToken);
+        }
+
+        private async Task<GroupVisibilityScope> ResolveNonAdminScopeAsync(
+            string? userId, CancellationToken cancellationToken)
+        {
+            var anyGroupsExist = await AnyGroupsExistAsync(cancellationToken);
             if (!anyGroupsExist)
             {
                 return GroupVisibilityScope.Unrestricted();
             }
 
-            var visibleRootIds = await ReadVisibleRootIdList();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return GroupVisibilityScope.Restricted([], []);
+            }
+
+            var visibleRootIds = await context.GroupVisibility
+                .AsNoTracking()
+                .Where(x => x.AppUserId == userId)
+                .Select(x => x.GroupId)
+                .Distinct()
+                .ToListAsync(cancellationToken);
             if (visibleRootIds.Count == 0)
             {
                 return GroupVisibilityScope.Restricted([], []);
@@ -72,7 +110,7 @@ namespace Klacks.Api.Infrastructure.Services.Groups
                 .AsNoTracking()
                 .Where(g => !g.IsDeleted && visibleRootIds.Contains(g.Root ?? g.Id))
                 .Select(g => g.Id)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             return GroupVisibilityScope.Restricted(visibleRootIds, visibleGroupIds);
         }

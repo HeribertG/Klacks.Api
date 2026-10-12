@@ -13434,7 +13434,7 @@
         "fr": "Accepter un scénario de planification",
         "it": "Accetta uno scenario di pianificazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "confirm_work",
@@ -14193,7 +14193,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewShifts"
+        "Admin"
       ],
       "parameters": [
         {
@@ -14278,7 +14278,7 @@
         "fr": "Lister les problèmes de validation d'une période",
         "it": "Elenca i problemi di validazione di un periodo"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_period_audit_log",
@@ -14287,7 +14287,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewShifts"
+        "Admin"
       ],
       "parameters": [
         {
@@ -14358,7 +14358,7 @@
         "fr": "Lister le journal d'audit des clôtures de période",
         "it": "Elenca il registro di controllo delle chiusure periodo"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_open_periods",
@@ -14367,7 +14367,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewShifts"
+        "Admin"
       ],
       "parameters": [
         {
@@ -14420,7 +14420,7 @@
         "fr": "Lister les périodes de paie ouvertes",
         "it": "Elenca i periodi di pagamento aperti"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_open_findings",
@@ -15542,7 +15542,7 @@
         "fr": "Rejeter un scénario de planification",
         "it": "Rifiuta uno scenario di pianificazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_client",
@@ -18441,7 +18441,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSettings"
       ],
       "parameters": [
         {
@@ -18554,7 +18554,7 @@
         "fr": "Créer une nouvelle qualification",
         "it": "Crea una nuova qualifica"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_qualifications",
@@ -21512,7 +21512,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSettings"
       ],
       "parameters": [
         {
@@ -21694,7 +21694,7 @@
         "fr": "Modifier une qualification",
         "it": "Modifica una qualifica"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_qualification",
@@ -21703,7 +21703,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSettings"
       ],
       "parameters": [
         {
@@ -21767,7 +21767,7 @@
         "fr": "Supprimer une qualification",
         "it": "Elimina una qualifica"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "search_shifts",
@@ -23581,7 +23581,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanManageAutomation"
+        "CanEditSettings"
       ],
       "parameters": [
         {
@@ -23730,7 +23730,7 @@
         "fr": "Modifier une règle de gouvernance proactive",
         "it": "Modifica una regola di governance proattiva"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "evaluate_autonomy_level_change",
@@ -28923,7 +28923,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditClients"
+        "CanDeleteClients"
       ],
       "parameters": [
         {
@@ -28980,7 +28980,7 @@
         "fr": "Supprimer une entrée de contact",
         "it": "Elimina una voce di contatto"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_communication",
@@ -29315,7 +29315,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditClients"
+        "CanDeleteClients"
       ],
       "parameters": [
         {
@@ -29372,7 +29372,7 @@
         "fr": "Supprimer une adresse",
         "it": "Elimina un indirizzo"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_annotation",
@@ -29521,7 +29521,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditClients"
+        "CanDeleteClients"
       ],
       "parameters": [
         {
@@ -29578,7 +29578,7 @@
         "fr": "Supprimer une affiliation",
         "it": "Elimina un'affiliazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_schedule_note",

@@ -4,10 +4,14 @@
 /// Generates a textual period summary (employee count, total target hours, computed hours
 /// and drift) for a given group + period. Klacksy uses this for chat answers like
 /// "give me the May summary for Bern" or before triggering email_schedule_to_client.
+/// A group outside the caller's group scope is answered exactly like a missing one.
 /// </summary>
 /// <param name="groupId">Required. UUID of the group / location.</param>
 /// <param name="fromDate">Required. ISO date yyyy-MM-dd (period start).</param>
 /// <param name="untilDate">Required. ISO date yyyy-MM-dd (period end, inclusive).</param>
+/// <param name="planningAgentRepository">Resolves the employees planned in the group for the period</param>
+/// <param name="groupRepository">Loads the requested group for the scope check</param>
+/// <param name="groupScopeGuard">Resolves the executing user's group scope</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
@@ -20,10 +24,17 @@ namespace Klacks.Api.Application.Skills;
 public class GeneratePeriodSummarySkill : BaseSkillImplementation
 {
     private readonly IGroupPlanningAgentRepository _planningAgentRepository;
+    private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
 
-    public GeneratePeriodSummarySkill(IGroupPlanningAgentRepository planningAgentRepository)
+    public GeneratePeriodSummarySkill(
+        IGroupPlanningAgentRepository planningAgentRepository,
+        IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard)
     {
         _planningAgentRepository = planningAgentRepository;
+        _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -46,6 +57,16 @@ public class GeneratePeriodSummarySkill : BaseSkillImplementation
         if (untilDate < fromDate)
         {
             return SkillResult.Error("untilDate must be on or after fromDate.");
+        }
+
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        if (!scope.IsUnrestricted)
+        {
+            var group = await _groupRepository.Get(groupId);
+            if (group == null || !scope.IsInScope(group))
+            {
+                return SkillResult.Error($"Group with ID '{groupId}' not found.");
+            }
         }
 
         var employeeIds = await _planningAgentRepository.GetAgentIdsAsync(groupId, fromDate, untilDate, cancellationToken);

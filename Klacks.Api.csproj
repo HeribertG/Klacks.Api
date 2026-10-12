@@ -89,6 +89,8 @@
 
 	<ItemGroup>
 		<AdditionalFiles Include="Application\Skills\Definitions\*.json" />
+		<Content Remove="Application\Skills\Definitions\skill-seed-versions.json" />
+		<None Remove="Application\Skills\Definitions\skill-seed-versions.json" />
 	</ItemGroup>
 
 	<ItemGroup>

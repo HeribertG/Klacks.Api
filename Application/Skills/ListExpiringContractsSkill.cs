@@ -7,11 +7,14 @@
 /// qualifications in this sense. Contract assignments already superseded by a newer one
 /// (IsActive false, set by assign_contract_to_client / assign_contract_by_name) are excluded, since
 /// they are historical rows, not a contract about to lapse. Results are combined and sorted by
-/// expiry date ascending.
+/// expiry date ascending. Bounded by the caller's group visibility like the client detail page (which shows a
+/// planner the contracts and qualifications of visible clients only): rows of clients the caller may not see are
+/// dropped before counting.
 /// </summary>
 /// <param name="withinDays">Optional. Horizon in days from today; defaults to 90.</param>
 /// <param name="includeQualifications">Optional. Whether to include qualification expiries; defaults to true.</param>
 /// <param name="limit">Optional. Maximum number of combined results to return; defaults to 50.</param>
+/// <param name="clientVisibilityGuard">Keeps only the rows of clients the caller may see</param>
 
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Interfaces;
@@ -42,6 +45,7 @@ public class ListExpiringContractsSkill : BaseSkillImplementation
     private readonly IQualificationRepository _qualificationRepository;
     private readonly IClientRepository _clientRepository;
     private readonly ICompanyClock _companyClock;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
     public ListExpiringContractsSkill(
         IClientContractReadRepository clientContractReadRepository,
@@ -49,7 +53,8 @@ public class ListExpiringContractsSkill : BaseSkillImplementation
         IClientQualificationRepository clientQualificationRepository,
         IQualificationRepository qualificationRepository,
         IClientRepository clientRepository,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IClientVisibilityGuard clientVisibilityGuard)
     {
         _clientContractReadRepository = clientContractReadRepository;
         _contractRepository = contractRepository;
@@ -57,6 +62,7 @@ public class ListExpiringContractsSkill : BaseSkillImplementation
         _qualificationRepository = qualificationRepository;
         _clientRepository = clientRepository;
         _companyClock = companyClock;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -82,10 +88,16 @@ public class ListExpiringContractsSkill : BaseSkillImplementation
         var today = DateOnly.FromDateTime(todayUtc);
         var horizon = today.AddDays(withinDays);
 
-        var contractItems = await BuildExpiringContractItemsAsync(today, horizon, cancellationToken);
+        var contractItems = await _clientVisibilityGuard.FilterVisibleAsync(
+            await BuildExpiringContractItemsAsync(today, horizon, cancellationToken),
+            i => i.ClientId,
+            cancellationToken);
 
         var qualificationItems = includeQualifications
-            ? await BuildExpiringQualificationItemsAsync(today, horizon, cancellationToken)
+            ? await _clientVisibilityGuard.FilterVisibleAsync(
+                await BuildExpiringQualificationItemsAsync(today, horizon, cancellationToken),
+                i => i.ClientId,
+                cancellationToken)
             : new List<ExpiringItem>();
 
         var combined = contractItems

@@ -10,11 +10,20 @@
 /// groups) are left untouched. Only real memberships count: scenario memberships (AnalyseToken set) are
 /// ignored everywhere, so an analysis scenario neither hides a needed move nor gets retired by one.
 /// Read-only: it computes the decision, applying it is the caller's job.
-/// Two consequences are non-obvious: the duplicate-name guard runs across all groups, so a non-location
+/// Two consequences are non-obvious: the duplicate-name guard runs across all groups the caller may see, so a non-location
 /// group that happens to carry a city name suppresses that city match for everyone (safe direction — no
 /// wrong assignment), and a group matched by name pulls its own tree into the set of retirable location
 /// memberships, which is what lets the coarse node be retired when no group carries coordinates at all.
+/// The plan is bounded by the caller's group visibility, so propose and apply (which recomputes from here) can
+/// never read or write outside it: only visible clients are considered, only visible groups act as target, as
+/// location tree or as retired membership, and only visible group names are reported. The city-name index and its
+/// duplicate guard see only visible groups too, so a hidden group behaves exactly like a missing one and the plan
+/// cannot reveal its existence. Admins and installations without groups are unrestricted.
 /// </summary>
+/// <param name="clientRepository">Loads the clients of the requested type with addresses and memberships</param>
+/// <param name="groupRepository">Lists the groups that can receive clients</param>
+/// <param name="clientVisibilityGuard">Keeps only the clients the caller may see</param>
+/// <param name="groupVisibilityGuard">Supplies the caller's visible groups</param>
 
 using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
@@ -43,20 +52,33 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
 
     private readonly IClientRepository _clientRepository;
     private readonly IGroupRepository _groupRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
-    public CustomerGroupingPlanner(IClientRepository clientRepository, IGroupRepository groupRepository)
+    public CustomerGroupingPlanner(
+        IClientRepository clientRepository,
+        IGroupRepository groupRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
         _clientRepository = clientRepository;
         _groupRepository = groupRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     public async Task<CustomerGroupingProposal> BuildProposalAsync(
         EntityTypeEnum entityType = EntityTypeEnum.Customer,
         CancellationToken cancellationToken = default)
     {
-        var groups = (await _groupRepository.List())
+        var allGroups = (await _groupRepository.List())
             .Where(g => !g.IsDeleted)
             .ToList();
+        var scope = await _groupVisibilityGuard.GetScopeAsync(cancellationToken);
+        var visibleGroupIds = scope.VisibleGroupIds.ToHashSet();
+        var groups = scope.IsUnrestricted
+            ? allGroups
+            : allGroups.Where(g => visibleGroupIds.Contains(g.Id)).ToList();
         var groupById = groups.ToDictionary(g => g.Id);
 
         var geoAnchors = groups
@@ -66,8 +88,9 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
 
         var groupsByUniqueName = BuildUniqueNameIndex(groups);
 
-        var clients = await _clientRepository.GetByTypeWithAddressesAndGroupItemsAsync(
+        var allClients = await _clientRepository.GetByTypeWithAddressesAndGroupItemsAsync(
             entityType, cancellationToken);
+        var clients = await _clientVisibilityGuard.FilterVisibleAsync(allClients, c => c.Id, cancellationToken);
 
         var candidates = clients
             .Select(client =>
