@@ -245,8 +245,7 @@ public class SkillExecutorService : ISkillExecutor
                 { SkillErrorKeys.ErrorCode, ex.ErrorCode ?? SkillErrorKeys.Unknown },
                 { SkillErrorKeys.SkillName, ex.SkillName }
             });
-            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, CancellationToken.None);
-            return MarkExternalContent(descriptor?.Name ?? invocation.SkillName, result);
+            return await CompleteWithExceptionResultAsync(descriptor, invocation, context, result, stopwatch.Elapsed);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -256,19 +255,70 @@ public class SkillExecutorService : ISkillExecutor
             await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Cancelled, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, CancellationToken.None);
             return result;
         }
+        catch (Exception ex) when (ex is IUserFacingRejection)
+        {
+            stopwatch.Stop();
+            return await CompleteWithExceptionResultAsync(descriptor, invocation, context, RejectionResult(invocation.SkillName, ex), stopwatch.Elapsed);
+        }
         catch (Exception ex)
         {
             stopwatch.Stop();
-            _logger.LogError(ex, "Unexpected error executing skill: {SkillName}", invocation.SkillName);
-            var result = SkillResult.Error($"Execution error: {ex.Message}", new Dictionary<string, object>
-            {
-                { SkillErrorKeys.ErrorCode, SkillErrorKeys.ExecutionError },
-                { SkillErrorKeys.SkillName, invocation.SkillName },
-                { SkillErrorKeys.ExceptionType, ex.GetType().Name }
-            });
-            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, CancellationToken.None);
-            return MarkExternalContent(descriptor?.Name ?? invocation.SkillName, result);
+            return await CompleteWithExceptionResultAsync(descriptor, invocation, context, UnexpectedErrorResult(invocation.SkillName, ex), stopwatch.Elapsed);
         }
+    }
+
+    /// <summary>
+    /// Answers an IUserFacingRejection (sealed day, missing entity, conflict, missing right) with its own message, the
+    /// same text ErrorHandlingMiddleware returns to an HTTP client, and logs it as an expected outcome, not as a fault.
+    /// </summary>
+    /// <param name="skillName">Skill name as invoked.</param>
+    /// <param name="exception">The rejection thrown by the skill or the handler behind it.</param>
+    private SkillResult RejectionResult(string skillName, Exception exception)
+    {
+        _logger.LogWarning("Skill {SkillName} rejected the request ({ExceptionType}): {Message}",
+            skillName, exception.GetType().Name, exception.Message);
+        return SkillResult.Error(exception.Message, new Dictionary<string, object>
+        {
+            { SkillErrorKeys.ErrorCode, SkillErrorKeys.Rejected },
+            { SkillErrorKeys.SkillName, skillName }
+        });
+    }
+
+    /// <summary>
+    /// Answers an unexpected exception with an execution error and logs it as an error.
+    /// </summary>
+    /// <param name="skillName">Skill name as invoked.</param>
+    /// <param name="exception">The unexpected exception.</param>
+    private SkillResult UnexpectedErrorResult(string skillName, Exception exception)
+    {
+        _logger.LogError(exception, "Unexpected error executing skill: {SkillName}", skillName);
+        return SkillResult.Error($"Execution error: {exception.Message}", new Dictionary<string, object>
+        {
+            { SkillErrorKeys.ErrorCode, SkillErrorKeys.ExecutionError },
+            { SkillErrorKeys.SkillName, skillName },
+            { SkillErrorKeys.ExceptionType, exception.GetType().Name }
+        });
+    }
+
+    /// <summary>
+    /// Records an execution that ended in an exception as a failure of kind Exception and returns the error result,
+    /// tainted like any other result of an untrusted-output skill.
+    /// </summary>
+    /// <param name="descriptor">Resolved skill, or null when the exception came before the registry lookup.</param>
+    /// <param name="invocation">Invocation as executed.</param>
+    /// <param name="context">Execution context of the caller.</param>
+    /// <param name="result">Error result built from the exception.</param>
+    /// <param name="elapsed">Time spent until the exception.</param>
+    private async Task<SkillResult> CompleteWithExceptionResultAsync(
+        SkillDescriptor? descriptor,
+        SkillInvocation invocation,
+        SkillExecutionContext context,
+        SkillResult result,
+        TimeSpan elapsed)
+    {
+        var skillName = descriptor?.Name ?? invocation.SkillName;
+        await TrackFailureAsync(skillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, elapsed, descriptor?.Category, CancellationToken.None);
+        return MarkExternalContent(skillName, result);
     }
 
     /// <summary>

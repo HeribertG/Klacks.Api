@@ -2,7 +2,7 @@
 
 ﻿namespace Klacks.Api.Domain.Exceptions;
 
-public class InvalidRequestException : Exception
+public class InvalidRequestException : Exception, IUserFacingRejection
 {
     public InvalidRequestException(string message)
         : base(message)

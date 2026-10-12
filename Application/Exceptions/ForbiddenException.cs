@@ -8,9 +8,11 @@
 /// request the caller could fix by sending different data.
 /// </summary>
 
+using Klacks.Api.Domain.Exceptions;
+
 namespace Klacks.Api.Application.Exceptions;
 
-public class ForbiddenException : Exception
+public class ForbiddenException : Exception, IUserFacingRejection
 {
     public ForbiddenException(string message) : base(message) { }
 }

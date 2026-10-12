@@ -9,4 +9,5 @@ public static class SkillErrorKeys
     public const string ExceptionType = "exceptionType";
     public const string Unknown = "UNKNOWN";
     public const string ExecutionError = "EXECUTION_ERROR";
+    public const string Rejected = "REJECTED";
 }

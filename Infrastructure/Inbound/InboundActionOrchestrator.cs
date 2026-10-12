@@ -33,6 +33,9 @@
 /// fail-closed check the scheduled-task and proactive paths use. The mapping decides WHETHER an
 /// intent may act at all; the policy re-checks what the skill has since become — a skill reclassified
 /// as sensitive, or removed outright, is refused here even though this mapping would still allow it.
+/// Planning commands are placed all or nothing: before the first add_schedule_commands_range call, every covered day
+/// is checked against the day seals and the acting token plus the unattended policy are resolved once for all calls,
+/// so a sealed day or a policy refusal in a later range or keyword never leaves the earlier ones saved.
 /// Every skill it runs gets the message's receive time on the trusted SkillExecutionContext.InboundReceivedAtUtc
 /// (never in the parameter dictionary); cover_absence records it as the report time with the Messenger source in
 /// the replacement request book. Inbound email maps to Messenger too (the source enum names the inbound channel
@@ -62,16 +65,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
     private const int MaxAvailabilityRangeDays = 92;
     private const int MaxSealCheckRangeDays = 92;
     private const double DefaultAbsenceDailyValue = 1.0;
-
-    private static readonly string[] SicknessKeywords = ["krank", "sick", "malad", "malatt"];
-    private static readonly string[] VacationKeywords = ["ferien", "urlaub", "vacation", "holiday", "vacanc", "vacanz", "congé"];
-
-    // Training is not its own EmailIntent: the LLM classifies a course request as VacationRequest too.
-    // The absence type is picked from the wording instead, and the two keyword sets stay separate
-    // because ResolveAbsenceByKeywords demands exactly one match - a merged list would match both the
-    // vacation and the training type in any installation that has both, and record nothing at all.
-    private static readonly string[] TrainingKeywords =
-        ["schulung", "weiterbildung", "fortbildung", "kurs", "training", "course", "formation", "corso"];
+    private const string ScheduleCommandsRangeSkill = "add_schedule_commands_range";
 
     private readonly IAdminAutonomyLevelAggregator _adminAutonomy;
     private readonly ISkillExecutor _skillExecutor;
@@ -200,7 +194,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
                       "pick one and " + suggestion);
         }
 
-        var absence = ResolveAbsenceByKeywords(await _absenceRepository.List(), SicknessKeywords);
+        var absence = InboundAbsenceTypeResolver.ResolveByKeywords(await _absenceRepository.List(), InboundAbsenceTypeResolver.SicknessKeywords);
         if (absence == null)
         {
             return new InboundActionOutcome(false,
@@ -227,11 +221,11 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
         Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, InboundSource source, CancellationToken cancellationToken)
     {
-        var wantsTraining = MentionsTraining(source, analysis);
+        var wantsTraining = InboundAbsenceTypeResolver.MentionsTraining(source, analysis);
         var absenceKind = wantsTraining ? "training" : "vacation";
 
-        var absence = ResolveAbsenceByKeywords(
-            await _absenceRepository.List(), wantsTraining ? TrainingKeywords : VacationKeywords);
+        var absence = InboundAbsenceTypeResolver.ResolveByKeywords(
+            await _absenceRepository.List(), wantsTraining ? InboundAbsenceTypeResolver.TrainingKeywords : InboundAbsenceTypeResolver.VacationKeywords);
 
         var dailyValue = absence is { DefaultValue: > 0 } ? absence.DefaultValue : DefaultAbsenceDailyValue;
         var capacity = await _capacityAdvisor.JudgeAsync(clientId, fromDate, untilDate, dailyValue, cancellationToken);
@@ -287,12 +281,6 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
             : new InboundActionOutcome(false, $"Automatic placeholder failed: {result.Message}. {suggestion}");
     }
 
-    private static bool MentionsTraining(InboundSource source, InboundAnalysis analysis)
-    {
-        var haystack = $"{source.Subject} {analysis.Summary}".ToLowerInvariant();
-        return TrainingKeywords.Any(k => haystack.Contains(k, StringComparison.OrdinalIgnoreCase));
-    }
-
     private async Task<InboundActionOutcome> HandleDayOffWishAsync(
         Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, InboundSource source, CancellationToken cancellationToken)
@@ -341,7 +329,12 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
             return contractOutcome;
         }
 
-        var result = await ExecuteSkillAsync(executingAdminId.Value, source, "add_schedule_commands_range", level,
+        if (IssueOutcome(await DescribeSealedCommandDaysIssueAsync(clientId, [(fromDate, untilDate)], cancellationToken), suggestion) is { } sealedOutcome)
+        {
+            return sealedOutcome;
+        }
+
+        var result = await ExecuteSkillAsync(executingAdminId.Value, source, ScheduleCommandsRangeSkill, level,
             new Dictionary<string, object>
             {
                 ["clientId"] = clientId,
@@ -401,7 +394,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
             ["isAvailable"] = true
         };
 
-        var weekdays = ParseWeekdays(analysis.Weekdays);
+        var weekdays = InboundCommandDateRanges.ParseWeekdays(analysis.Weekdays);
         if (weekdays.Count > 0)
         {
             var dates = Enumerable.Range(0, rangeDays)
@@ -515,7 +508,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
                 "so no planning commands were placed automatically. " + suggestion);
         }
 
-        var ranges = BuildCommandDateRanges(fromDate, untilDate, ParseWeekdays(analysis.Weekdays), rangeDays);
+        var ranges = InboundCommandDateRanges.Build(fromDate, untilDate, InboundCommandDateRanges.ParseWeekdays(analysis.Weekdays));
         if (ranges.Count == 0)
         {
             return new InboundActionOutcome(false,
@@ -523,19 +516,35 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
                 "placed automatically. " + suggestion);
         }
 
+        if (IssueOutcome(await DescribeSealedCommandDaysIssueAsync(clientId, ranges, cancellationToken), suggestion) is { } sealedOutcome)
+        {
+            return sealedOutcome;
+        }
+
+        var (context, refusal) = await PrepareSkillContextAsync(executingAdminId.Value, source, ScheduleCommandsRangeSkill, level, cancellationToken);
+        if (context == null)
+        {
+            return new InboundActionOutcome(false, $"Automatic planning commands failed ({refusal!.Message}). {suggestion}");
+        }
+
         var placedTotal = 0;
         foreach (var keyword in keywords)
         {
             foreach (var (rangeFrom, rangeUntil) in ranges)
             {
-                var result = await ExecuteSkillAsync(executingAdminId.Value, source, "add_schedule_commands_range", level,
-                    new Dictionary<string, object>
+                var result = await _skillExecutor.ExecuteAsync(
+                    new SkillInvocation
                     {
-                        ["clientId"] = clientId,
-                        ["fromDate"] = rangeFrom,
-                        ["untilDate"] = rangeUntil,
-                        ["commandKeyword"] = keyword
+                        SkillName = ScheduleCommandsRangeSkill,
+                        Parameters = new Dictionary<string, object>
+                        {
+                            ["clientId"] = clientId,
+                            ["fromDate"] = rangeFrom,
+                            ["untilDate"] = rangeUntil,
+                            ["commandKeyword"] = keyword
+                        }
                     },
+                    context,
                     cancellationToken);
 
                 if (!result.Success)
@@ -628,52 +637,70 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
             : null;
     }
 
-    private static List<(DateOnly From, DateOnly Until)> BuildCommandDateRanges(
-        DateOnly fromDate, DateOnly untilDate, HashSet<DayOfWeek> weekdays, int rangeDays)
+    /// <summary>
+    /// Seal check over every day the planning commands would cover, run before the first write: each
+    /// add_schedule_commands_range call commits on its own, so a sealed day in a later range would otherwise leave the
+    /// earlier ranges saved. Uses the same rule as the skill's own guard (global seal or a seal of one of the client's
+    /// groups), but over all covered days, including those that already carry the keyword.
+    /// </summary>
+    /// <param name="clientId">Employee the commands are placed for</param>
+    /// <param name="ranges">Date ranges the commands would be placed on</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    private async Task<string?> DescribeSealedCommandDaysIssueAsync(
+        Guid clientId, IReadOnlyCollection<(DateOnly From, DateOnly Until)> ranges, CancellationToken cancellationToken)
     {
-        if (weekdays.Count == 0)
+        if (ranges.Any(range => range.Until < range.From))
         {
-            return [(fromDate, untilDate)];
+            return "The announced period ends before it starts, so no planning commands were placed automatically. ";
         }
 
-        var ranges = new List<(DateOnly From, DateOnly Until)>();
-        var matching = Enumerable.Range(0, rangeDays)
-            .Select(fromDate.AddDays)
-            .Where(day => weekdays.Contains(day.DayOfWeek));
-
-        foreach (var day in matching)
+        var days = ranges.Sum(range => range.Until.DayNumber - range.From.DayNumber + 1);
+        if (days > MaxSealCheckRangeDays)
         {
-            if (ranges.Count > 0 && ranges[^1].Until.AddDays(1) == day)
-            {
-                ranges[^1] = (ranges[^1].From, day);
-            }
-            else
-            {
-                ranges.Add((day, day));
-            }
+            return $"The announced period spans {days} days (maximum {MaxSealCheckRangeDays}), so the seal check " +
+                   "was not performed and no planning commands were placed automatically. ";
         }
 
-        return ranges;
-    }
+        var pairs = InboundCommandDateRanges.Days(ranges)
+            .Distinct()
+            .Select(day => (day, clientId))
+            .ToList();
 
-    private static HashSet<DayOfWeek> ParseWeekdays(string? weekdays)
-    {
-        if (string.IsNullOrWhiteSpace(weekdays))
-        {
-            return [];
-        }
-
-        return weekdays
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(token => int.TryParse(token, out var isoDay) ? isoDay : -1)
-            .Where(isoDay => isoDay is >= 1 and <= 7)
-            .Select(isoDay => isoDay == 7 ? DayOfWeek.Sunday : (DayOfWeek)isoDay)
-            .ToHashSet();
+        var locked = await _sealedDayRepository.GetLockedPairsAsync(pairs, cancellationToken);
+        return locked.Count > 0
+            ? $"Day {locked.Min(pair => pair.Date):yyyy-MM-dd} of the announced period is sealed, so no planning " +
+              "commands were placed automatically (all or nothing). "
+            : null;
     }
 
     private async Task<SkillResult> ExecuteSkillAsync(
         Guid executingAdminId, InboundSource source, string skillName, AutonomyLevel level,
         Dictionary<string, object> parameters, CancellationToken cancellationToken)
+    {
+        var (context, refusal) = await PrepareSkillContextAsync(executingAdminId, source, skillName, level, cancellationToken);
+        if (context == null)
+        {
+            return refusal!;
+        }
+
+        return await _skillExecutor.ExecuteAsync(
+            new SkillInvocation { SkillName = skillName, Parameters = parameters },
+            context,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Issues the acting account's token and runs the unattended-skill policy once, so a flow that executes the same
+    /// skill several times either gets a context for all calls or a refusal before the first write.
+    /// </summary>
+    /// <param name="executingAdminId">The admin the autonomy threshold was resolved against</param>
+    /// <param name="source">Inbound message the action answers</param>
+    /// <param name="skillName">Skill that will be executed with the returned context</param>
+    /// <param name="level">Effective inbound autonomy level</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    private async Task<(SkillExecutionContext? Context, SkillResult? Refusal)> PrepareSkillContextAsync(
+        Guid executingAdminId, InboundSource source, string skillName, AutonomyLevel level,
+        CancellationToken cancellationToken)
     {
         // The automation acts under a configured service account when one is set, otherwise under the
         // admin it already resolved for its autonomy threshold. Either way it runs on a real token with
@@ -686,7 +713,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
             _logger.LogWarning(
                 "Inbound automation skipped skill {SkillName} for {Channel} source {SourceId}: {Reason}",
                 skillName, source.Channel, source.SourceId, token.Reason);
-            return SkillResult.Error(token.Reason!);
+            return (null, SkillResult.Error(token.Reason!));
         }
 
         // Deliberate: the permissions come from the acting account's live token, the autonomy level is
@@ -705,7 +732,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
             _logger.LogWarning(
                 "Inbound automation refused skill {SkillName} for {Channel} source {SourceId} ({DenyReason}): {Reason}",
                 skillName, source.Channel, source.SourceId, decision.DenyReason, decision.Reason);
-            return SkillResult.Error(decision.Reason!);
+            return (null, SkillResult.Error(decision.Reason!));
         }
 
         var context = new SkillExecutionContext
@@ -720,10 +747,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
             InboundReceivedAtUtc = source.ReceivedAt
         };
 
-        return await _skillExecutor.ExecuteAsync(
-            new SkillInvocation { SkillName = skillName, Parameters = parameters },
-            context,
-            cancellationToken);
+        return (context, null);
     }
 
     /// <summary>
@@ -767,22 +791,5 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
         var globalLevel = await _governanceResolver.GetGlobalAutonomyLevelAsync(cancellationToken);
         var effectiveLevel = globalLevel < adminMinimum ? globalLevel : adminMinimum;
         return (effectiveLevel, aggregate.DecidingAdminUserId);
-    }
-
-    private static Absence? ResolveAbsenceByKeywords(IEnumerable<Absence> absences, string[] keywords)
-    {
-        var matches = absences
-            .Where(a => !a.IsDeleted && MatchesAnyKeyword(a, keywords))
-            .ToList();
-
-        return matches.Count == 1 ? matches[0] : null;
-    }
-
-    private static bool MatchesAnyKeyword(Absence absence, string[] keywords)
-    {
-        var names = new[] { absence.Name?.De, absence.Name?.En, absence.Name?.Fr, absence.Name?.It };
-        return names.Any(name =>
-            !string.IsNullOrWhiteSpace(name) &&
-            keywords.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase)));
     }
 }
