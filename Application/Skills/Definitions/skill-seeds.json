@@ -23122,7 +23122,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -23210,7 +23210,7 @@
         "fr": "Ajouter une dépense à un service",
         "it": "Aggiungi una spesa a un turno"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_expense",
@@ -23219,7 +23219,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -23308,7 +23308,7 @@
         "fr": "Modifier une dépense",
         "it": "Modifica una spesa"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "delete_expense",
@@ -23317,7 +23317,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -23374,7 +23374,7 @@
         "fr": "Supprimer une dépense",
         "it": "Elimina una spesa"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_autonomy_level",
