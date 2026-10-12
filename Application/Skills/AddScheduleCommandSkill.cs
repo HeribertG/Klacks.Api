@@ -5,6 +5,7 @@
 /// EARLY, -EARLY, LATE, -LATE, NIGHT, -NIGHT — see IScheduleCommandKeywordProvider). Key commands
 /// are seeds the wizards must respect — e.g. EARLY = only an early shift may be assigned that day.
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
+/// A sealed main-plan day refuses the write with an error result (IDayLockService); scenario writes are exempt.
 /// </summary>
 /// <param name="clientId">UUID of the client.</param>
 /// <param name="date">Workday in ISO yyyy-MM-dd.</param>
@@ -13,6 +14,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
@@ -29,19 +31,22 @@ public class AddScheduleCommandSkill : BaseSkillImplementation
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
+    private readonly IDayLockService _dayLockService;
 
     public AddScheduleCommandSkill(
         IScheduleCommandRepository scheduleCommandRepository,
         IClientRepository clientRepository,
         IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork,
-        IScheduleCommandKeywordProvider keywordProvider)
+        IScheduleCommandKeywordProvider keywordProvider,
+        IDayLockService dayLockService)
     {
         _scheduleCommandRepository = scheduleCommandRepository;
         _clientRepository = clientRepository;
         _clientVisibilityGuard = clientVisibilityGuard;
         _unitOfWork = unitOfWork;
         _keywordProvider = keywordProvider;
+        _dayLockService = dayLockService;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -69,6 +74,15 @@ public class AddScheduleCommandSkill : BaseSkillImplementation
         if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {
             return SkillResult.Error(scopeError!);
+        }
+
+        try
+        {
+            await _dayLockService.EnsureNotLockedAsync(date, clientId, analyseToken, cancellationToken);
+        }
+        catch (InvalidRequestException exception)
+        {
+            return SkillResult.Error(exception.Message);
         }
 
         var entity = new ScheduleCommand

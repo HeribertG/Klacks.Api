@@ -5,14 +5,17 @@
 /// outside the caller's group visibility is answered exactly like a command that does not exist; nothing is
 /// written. The AnalyseToken is taken from the stored row, never from the payload, so a PUT cannot move a command
 /// between the main plan and a scenario.
+/// Both the stored and the new day must not be sealed (moving a row out of or into a sealed day is refused): IDayLockService answers a write on a sealed main-plan day with InvalidRequestException (400); scenario rows are exempt.
 /// </summary>
 /// <param name="request">Contains the updated ScheduleCommandResource</param>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
+/// <param name="dayLockService">Refuses the write when the affected (date, client) pair lies on a sealed day</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -24,12 +27,14 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Schedul
     private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDayLockService _dayLockService;
 
     public PutCommandHandler(
         IScheduleCommandRepository scheduleCommandRepository,
         IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
+        IDayLockService dayLockService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -37,6 +42,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Schedul
         _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
+        _dayLockService = dayLockService;
     }
 
     public async Task<ScheduleCommandResource?> Handle(PutCommand<ScheduleCommandResource> request, CancellationToken cancellationToken)
@@ -55,6 +61,21 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Schedul
             if (!await _rowAccessGuard.AreAllVisibleAsync([existing.ClientId, scheduleCommand.ClientId], scheduleCommand.AnalyseToken, cancellationToken))
             {
                 return null;
+            }
+
+            await _dayLockService.EnsureNotLockedAsync(
+                scheduleCommand.CurrentDate,
+                scheduleCommand.ClientId,
+                scheduleCommand.AnalyseToken,
+                cancellationToken);
+
+            if (existing.CurrentDate != scheduleCommand.CurrentDate || existing.ClientId != scheduleCommand.ClientId)
+            {
+                await _dayLockService.EnsureNotLockedAsync(
+                    existing.CurrentDate,
+                    existing.ClientId,
+                    existing.AnalyseToken,
+                    cancellationToken);
             }
 
             var updated = await _scheduleCommandRepository.Put(scheduleCommand);

@@ -5,7 +5,8 @@
 /// -EARLY, LATE, -LATE, NIGHT, -NIGHT — see IScheduleCommandKeywordProvider) on a client for every
 /// day of a date range — the range variant of add_schedule_command, iterating server-side because
 /// callers (recipes, orchestrators) cannot loop. Days that already carry the keyword are skipped
-/// instead of duplicated.
+/// instead of duplicated. If any day still to be placed is a sealed main-plan day (IDayLockService), the whole range is
+/// refused with an error result and nothing is written, like the bulk work/break handlers; scenario writes are exempt.
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client.</param>
@@ -16,6 +17,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
@@ -34,19 +36,22 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
+    private readonly IDayLockService _dayLockService;
 
     public AddScheduleCommandsRangeSkill(
         IScheduleCommandRepository scheduleCommandRepository,
         IClientRepository clientRepository,
         IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork,
-        IScheduleCommandKeywordProvider keywordProvider)
+        IScheduleCommandKeywordProvider keywordProvider,
+        IDayLockService dayLockService)
     {
         _scheduleCommandRepository = scheduleCommandRepository;
         _clientRepository = clientRepository;
         _clientVisibilityGuard = clientVisibilityGuard;
         _unitOfWork = unitOfWork;
         _keywordProvider = keywordProvider;
+        _dayLockService = dayLockService;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -96,14 +101,29 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
             .Select(c => c.CurrentDate)
             .ToHashSet();
 
-        var placed = new List<DateOnly>();
+        var datesToPlace = new List<DateOnly>();
         for (var date = fromDate; date <= untilDate; date = date.AddDays(1))
         {
-            if (existingDates.Contains(date))
+            if (!existingDates.Contains(date))
             {
-                continue;
+                datesToPlace.Add(date);
             }
+        }
 
+        try
+        {
+            await _dayLockService.EnsureNoneLockedAsync(
+                datesToPlace.Select(date => (date, clientId, analyseToken)).ToList(),
+                cancellationToken);
+        }
+        catch (InvalidRequestException exception)
+        {
+            return SkillResult.Error(exception.Message);
+        }
+
+        var placed = new List<DateOnly>();
+        foreach (var date in datesToPlace)
+        {
             await _scheduleCommandRepository.Add(new ScheduleCommand
             {
                 Id = Guid.NewGuid(),
