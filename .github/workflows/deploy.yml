@@ -18,7 +18,7 @@ concurrency:
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
     - name: Checkout Klacks.Api
@@ -92,7 +92,7 @@ jobs:
       run: dotnet restore Klacks.UnitTest/Klacks.UnitTest.csproj
 
     - name: Build
-      run: dotnet build Klacks.UnitTest/Klacks.UnitTest.csproj --no-restore
+      run: dotnet build Klacks.UnitTest/Klacks.UnitTest.csproj --no-restore --configuration Release
 
     # Exclude SlowModelLoad: those tests download the real ONNX models from HuggingFace at run
     # time, which makes the production deploy gate depend on an external host that rate-limits CI
@@ -102,7 +102,7 @@ jobs:
     # Baseline_ pins, 10 rewritten as pinned measurements — so the suite is green again and the
     # category no longer exists. The whole autofill suite runs inside this gate.
     - name: Run unit tests
-      run: dotnet test Klacks.UnitTest/Klacks.UnitTest.csproj --no-build --verbosity normal --filter "TestCategory!=SlowModelLoad"
+      run: dotnet test Klacks.UnitTest/Klacks.UnitTest.csproj --no-build --configuration Release --verbosity normal --filter "TestCategory!=SlowModelLoad"
 
   # Integration tests require a fully migrated + seeded database.
   # They run locally against the dev DB (port 5434), not in CI.
