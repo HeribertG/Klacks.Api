@@ -275,7 +275,64 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // and cannot be recalled - the outward-facing, irrevocable shape that put create_donation_checkout
         // above, and the reason is the same: an assistant that can reach a client's phone unattended must
         // not be fail-open.
-        "send_message"
+        "send_message",
+        // Owner decision 2026-10-12 ("only deletes and resets ask"): the default autonomy level stays Autonomous, but
+        // every delete_/remove_/reset_ skill that destroys business, personal, payroll, compliance or credential data is
+        // confirmed at EVERY level - the assistant must not remove such data on its own say-so or a prompt injection.
+        // What stays Irreversible is assistant-internal bookkeeping only (delete_ai_memory, delete_agent_skill,
+        // delete_transcription_dictionary_entry, see DestructiveSkillRiskDecisionGuardTests). Price, stated plainly:
+        // UnattendedSkillPolicy refuses these on every background path, McpSkillExposurePolicy hides them from MCP and
+        // ScheduleRecurringTaskSkill cannot schedule them.
+        // Client master data and links: free text, contact data, hour basis and planning eligibility.
+        "delete_address",
+        "delete_communication",
+        "delete_annotation",
+        "delete_qualification",
+        "remove_client_contract",
+        "remove_client_qualification",
+        "remove_client_from_group",
+        // Shift and container structure: delete_shift refuses shifts with cuts or works, but the shift row itself is
+        // gone; the resets rebuild or delete sub-shifts and day overrides.
+        "delete_shift",
+        "reset_shift_cuts",
+        "reset_container_day",
+        "remove_shift_from_group",
+        "remove_container_template_task",
+        "remove_shift_required_qualification",
+        // Schedule day-to-day deletes that carry content or payroll weight (expenses, work changes, notes, planned
+        // absences). delete_work and delete_break stay Reversible (ReversibleExtras) without a registered inverse of
+        // their own: they are the inverses of place_work and add_break, and the removed entry is planned again with those.
+        "delete_workchange",
+        "delete_expense",
+        "delete_schedule_note",
+        "delete_break_placeholder",
+        // Absence master data, compliance rules, periods and layouts: the rule deletes switch off a labour-law check,
+        // the others lose hand-built configuration the delete does not echo back.
+        "delete_absence",
+        "delete_absence_type",
+        "delete_counter_rule",
+        "delete_period_cap_rule",
+        "delete_restricted_time_window_rule",
+        "delete_scheduling_rule",
+        "delete_individual_period",
+        "delete_report_template",
+        "delete_export_format_override",
+        // LLM provider and model rows hold the encrypted API key and can switch the assistant itself off.
+        "delete_llm_provider",
+        "delete_llm_model",
+        // Secret writers: these skills take an API key or a mail password as a parameter. The secret has already
+        // travelled through the chat by then, so the confirmation cannot undo that; it stops the unasked write that
+        // would redirect a mail server, swap a provider key or silently disable a service.
+        "update_deepl_settings",
+        "update_web_search_settings",
+        "update_openroute_settings",
+        "update_speech_settings",
+        "update_email_settings",
+        "update_imap_settings",
+        "create_llm_provider",
+        "update_llm_provider",
+        "create_llm_model",
+        "update_llm_model"
         // apply_grouping was listed here and is deliberately NOT anymore (owner decision): unlike every
         // other entry it is the second half of a propose/apply pair, so the user has already seen the
         // full preview (which clients, which target groups, how many memberships end) and approved it
@@ -355,8 +412,8 @@ public class SkillRiskClassifier : ISkillRiskClassifier
     internal static readonly HashSet<string> IrreversibleSkills = new(StringComparer.OrdinalIgnoreCase)
     {
         // Client master data and its sub-resources (address, communication, annotation, contract link,
-        // qualification link). Single-row, id- or name-addressed writes; a wrong value is corrected by the
-        // paired update skill and nothing computed is rewritten.
+        // qualification link). Single-row, id- or name-addressed creates and updates; a wrong value is corrected by
+        // the paired update skill and nothing computed is rewritten. Their deletes and link removals are Sensitive.
         "create_employee",
         "update_client",
         "update_client_birthdate",
@@ -364,30 +421,22 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "update_client_type",
         "create_address",
         "update_address",
-        "delete_address",
         "add_client_email",
         "add_client_phone",
         "add_client_note",
         "update_communication",
-        "delete_communication",
         "update_annotation",
-        "delete_annotation",
         "assign_contract_to_client",
         "assign_contract_by_name",
-        "remove_client_contract",
         "set_client_qualification",
-        "remove_client_qualification",
         "create_qualification",
         "update_qualification",
-        "delete_qualification",
-        // Group tree, branches and membership links. Every entry writes one link row or one group field; the
-        // cascading deletes that made delete_group/delete_branch/delete_membership Sensitive are not here.
+        // Group tree, branches and membership links. Every entry writes one link row or one group field; deleting a
+        // group, branch or membership and removing a link are Sensitive.
         "add_client_to_group",
         "add_client_to_group_by_name",
         "add_client_to_nearest_group",
-        "remove_client_from_group",
         "add_shift_to_group",
-        "remove_shift_from_group",
         "update_group",
         "move_group",
         "set_group_location",
@@ -415,74 +464,57 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Sensitive would gate the preview too; a wrong move is corrected by remove_shift_from_group and
         // add_shift_to_group.
         "assign_shifts_to_city_groups",
-        // Shift and container structure. delete_shift, reset_container_day and
-        // remove_container_template_task all refuse the data-losing case in the handler itself (assigned works,
-        // existing cuts), so the destructive edge is blocked below this classification.
+        // Shift and container structure: creates, updates, cuts and template additions. The destructive
+        // counterparts (delete_shift, reset_shift_cuts, reset_container_day, remove_container_template_task) are
+        // Sensitive.
         "create_shift",
         "update_shift",
-        "delete_shift",
         "cut_shift",
         "cut_shift_by_date",
-        "reset_shift_cuts",
         "bundle_nearby_timerange_shifts_into_container",
         "add_container_template_task",
-        "remove_container_template_task",
-        "reset_container_day",
         "set_shift_required_qualification",
-        "remove_shift_required_qualification",
         "set_shift_preferences",
         // Schedule day-to-day writes: works, work changes, expenses, key commands, notes and the
         // scenario accept/reject pair. Single-row and re-enterable; period hours are recalculated automatically.
+        // The deletes that carry no registered inverse (work change, expense, note) are Sensitive.
         "update_work",
         "update_workchange",
         "add_workchange",
-        "delete_workchange",
         "update_expense",
-        "delete_expense",
         "add_schedule_command",
         "add_schedule_commands_range",
         "add_schedule_note",
         "update_schedule_note",
-        "delete_schedule_note",
         "accept_scenario",
         "reject_scenario",
-        // Absence master data, absence bookings and availability. The delete skills refuse types still
-        // used by active bookings, so no booked absence can be orphaned.
+        // Absence master data, absence bookings and availability: creates and updates only; the deletes are
+        // Sensitive.
         "create_absence",
         "update_absence",
-        "delete_absence",
         "create_absence_type",
         "update_absence_type",
-        "delete_absence_type",
         "update_break",
-        "delete_break_placeholder",
         "set_client_availability",
-        // Rule and period master data. The evaluators only raise warnings or refuse an assignment; they
-        // never rewrite recorded hours or wages, and the paired create skill restores every field identically.
+        // Rule and period master data: creates and updates. The evaluators only raise warnings or refuse an
+        // assignment and never rewrite recorded hours or wages; switching one off by delete is Sensitive.
         // create_calendar_selection stays here by owner decision: a brand-new, still-unassigned calendar
         // selection cannot yet affect any payroll run.
         "create_counter_rule",
         "update_counter_rule",
-        "delete_counter_rule",
         "create_period_cap_rule",
         "update_period_cap_rule",
-        "delete_period_cap_rule",
         "create_restricted_time_window_rule",
         "update_restricted_time_window_rule",
-        "delete_restricted_time_window_rule",
         "create_scheduling_rule",
         "update_scheduling_rule",
-        "delete_scheduling_rule",
         "create_individual_period",
         "update_individual_period",
-        "delete_individual_period",
         "create_calendar_selection",
         // Report layouts and export-format patches. No business data and no computed value is touched.
         "create_report_template",
         "update_report_template",
-        "delete_report_template",
         "set_export_format_override",
-        "delete_export_format_override",
         // Inbox handling that moves or flags one message. Nothing leaves the installation and no message
         // is destroyed - permanent deletion deliberately has no skill.
         "create_email_folder",
@@ -490,8 +522,9 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "move_email_to_folder",
         "restore_email",
         "fetch_new_emails",
-        // Settings cards without payroll, identity or mandate reach. A wrong value is corrected by
-        // calling the same skill again; the payroll-relevant cards live in SensitiveSkills instead.
+        // Settings cards without payroll, identity, mandate or secret reach. A wrong value is corrected by
+        // calling the same skill again; the payroll-relevant cards and every card that takes an API key or a
+        // password live in SensitiveSkills instead.
         "update_general_settings",
         "update_scheduling_defaults",
         "update_work_settings",
@@ -500,13 +533,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "update_owner_address",
         "update_active_industries_settings",
         "update_export_formats_settings",
-        "update_email_settings",
-        "update_imap_settings",
         "update_spam_filter_settings",
-        "update_deepl_settings",
-        "update_web_search_settings",
-        "update_openroute_settings",
-        "update_speech_settings",
         "set_my_theme",
         "set_my_display_language",
         // The assistant's own bookkeeping: memories, notes, user-created UiAction skills, skill
@@ -532,14 +559,8 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "cancel_recurring_task",
         "enable_feature_plugin",
         "disable_feature_plugin",
-        // LLM provider and model configuration. Technical admin configuration with no business data and
-        // no cascade; a wrong row is corrected or removed by its paired skill.
-        "create_llm_provider",
-        "update_llm_provider",
-        "delete_llm_provider",
-        "create_llm_model",
-        "update_llm_model",
-        "delete_llm_model",
+        // LLM default-model selection and model optimisation. Creating, updating and deleting provider and model rows
+        // (they hold the API key) is Sensitive.
         "set_default_llm_model",
         "optimize_llm_models_for_klacksy",
         // Operational triggers and probes: the ERP import schedule and its manual run, the drop-point

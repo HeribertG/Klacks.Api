@@ -54,7 +54,7 @@ Tools mirror Klacks's built-in assistant skills, filtered by the authenticated u
 | **CRUD** | `create_employee`, `update_group`, `delete_shift` | Write |
 | **Settings** | `validate_calendar_rule`, `add_ai_memory` | Read/Write |
 
-Write actions may return a **confirmation request** instead of executing immediately. Confirm them by calling the `confirm_pending_action` tool with the provided confirmation token.
+Write actions may return a **confirmation request** instead of executing immediately. Such an action is **not** carried out through MCP and cannot be confirmed through it: the server accepts a confirmation only from the user's own explicit yes in the Klacks assistant chat, and `confirm_pending_action` is not offered as an MCP tool. The confirmation request carries no token. Tell the user that nothing was done; they can start the action themselves in the chat.
 
 ## Resources
 
@@ -88,7 +88,7 @@ Get a specific prompt:
 | **Name** | `klacks-mcp` |
 | **Title** | `Klacks MCP Server` |
 | **Version** | `1.0.0` |
-| **Instructions** | Klacks workforce planning and scheduling. Tools mirror the built-in assistant skills, filtered by the authenticated user's permissions. Write actions may return a confirmation request instead of executing immediately. |
+| **Instructions** | Klacks workforce planning and scheduling. Tools mirror the built-in assistant skills, filtered by the authenticated user's permissions. Write actions may return a confirmation request instead of executing immediately; such an action is not carried out through MCP and cannot be confirmed through it, so tell the user, who can start it in the Klacks assistant chat. A read-only personal access token lists and runs read-only tools only. |
 
 ## Rate Limiting
 
@@ -103,7 +103,7 @@ Exceeding the rate limit returns a 429 status code.
 - All tools are filtered by the user's permissions (Assistant access required)
 - Sensitive skills are excluded from the MCP tool list via `McpSkillExposurePolicy`
 - The MCP principal is capped to authorized permissions only (no privilege escalation)
-- Write operations require explicit confirmation via `confirm_pending_action`
+- Write operations that the autonomy level holds are never executed through MCP: the confirmation needs the user's own explicit yes in the Klacks chat, which an external agent cannot give, and a held action's token is bound to the channel that caused it (an MCP-held token is invisible to the chat and cannot be redeemed there)
 
 ## Example: Tool Call Flow
 
@@ -117,10 +117,7 @@ Exceeding the rate limit returns a 429 status code.
    {"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"get_current_time","arguments":{"format":"full"}}}
    ```
 
-3. **If confirmation is required:**
-   ```json
-   {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"confirm_pending_action","arguments":{"confirmationToken":"abc123"}}}
-   ```
+3. **If confirmation is required:** the result is not an error and says that the action was not executed. It carries no token and there is no tool to confirm it; tell the user, who can start the action in the Klacks assistant chat.
 
 ## Implementation
 

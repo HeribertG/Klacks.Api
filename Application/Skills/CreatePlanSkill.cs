@@ -118,8 +118,9 @@ public class CreatePlanSkill : BaseSkillImplementation
             [PlanSkillDefaults.ExecuteConfirmedParameter] = PlanSkillDefaults.ExecuteConfirmedValue
         };
 
-        var token = _confirmationStore.Create(context.UserId, PlanSkillDefaults.CreatePlanSkillName, pendingParameters);
-        _turnScope.MarkIssuedForSensitiveSkill(token);
+        var token = _confirmationStore.Create(
+            context.UserId, PlanSkillDefaults.CreatePlanSkillName, pendingParameters,
+            PendingConfirmationPurposes.GateReplay, context.ConfirmationChannel);
         _turnScope.MarkIssued(token);
 
         var message = new StringBuilder();

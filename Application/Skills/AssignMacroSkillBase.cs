@@ -10,8 +10,8 @@
 /// counts of that dry run and carries the switch id that undoes the whole switch. A database failure at the commit is
 /// answered without the raw database message and without claiming that nothing changed. The confirmation itself is
 /// enforced by the autonomy gate (the skills are Sensitive). Accepted residual risk (owner decision F1, 2026-09-25): the
-/// user reads the confirmation in the language model's wording of the server-computed preview, confirm_pending_action can
-/// redeem the token in a later turn without an explicit yes, and the chat UI does not show skill results; that is why every
+/// user reads the confirmation in the language model's wording of the server-computed preview, confirm_pending_action redeems
+/// the token only after the user's explicit yes in a later turn, and the chat UI does not show skill results; that is why every
 /// confirmed call checks the role here and the handler plans again instead of trusting the preview it was confirmed with.
 /// </summary>
 /// <param name="mediator">Dispatches the switch command</param>

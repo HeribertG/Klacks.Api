@@ -289,7 +289,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             if (reason != null)
             {
                 return ValidFromConfirmationFactory.RequireConfirmation(
-                    _confirmationStore, context.UserId, SkillName, parameters, reason);
+                    _confirmationStore, context.UserId, SkillName, parameters, reason, context.ConfirmationChannel);
             }
         }
 

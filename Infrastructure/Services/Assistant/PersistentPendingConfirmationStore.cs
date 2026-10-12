@@ -54,20 +54,23 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         Guid userId,
         string skillName,
         IReadOnlyDictionary<string, object> parameters,
-        string purpose = PendingConfirmationPurposes.GateReplay)
+        string purpose = PendingConfirmationPurposes.GateReplay,
+        string channel = PendingConfirmationChannels.Chat)
     {
         if (string.Equals(purpose, PendingConfirmationPurposes.CorrectionUndo, StringComparison.Ordinal))
         {
             DiscardCorrectionUndo(userId);
         }
 
-        return CreateRow(userId, skillName, JsonSerializer.Serialize(parameters, JsonOptions), purpose);
+        return CreateRow(userId, skillName, JsonSerializer.Serialize(parameters, JsonOptions), purpose, channel);
     }
 
     public void CreateProposalHint(Guid userId, string applySkillName)
     {
         DiscardProposalHints(userId);
-        CreateRow(userId, applySkillName, EmptyParametersJson, PendingConfirmationPurposes.ProposalHint);
+        CreateRow(
+            userId, applySkillName, EmptyParametersJson, PendingConfirmationPurposes.ProposalHint,
+            PendingConfirmationChannels.Chat);
     }
 
     public void DiscardProposalHints(Guid userId, string? applySkillName = null)
@@ -108,7 +111,7 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         }
     }
 
-    private string CreateRow(Guid userId, string skillName, string parametersJson, string purpose)
+    private string CreateRow(Guid userId, string skillName, string parametersJson, string purpose, string channel)
     {
         var now = DateTime.UtcNow;
         var token = Guid.NewGuid().ToString("N");
@@ -120,6 +123,7 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
             SkillName = skillName,
             ParametersJson = parametersJson,
             Purpose = purpose,
+            Channel = channel,
             ExpiresAtUtc = now.AddMinutes(AutonomyDefaults.ConfirmationTtlMinutes)
         };
 
@@ -130,7 +134,11 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         return token;
     }
 
-    public PendingConfirmation? Consume(string token, Guid userId, string? expectedSkillName = null)
+    public PendingConfirmation? Consume(
+        string token,
+        Guid userId,
+        string? expectedSkillName = null,
+        string channel = PendingConfirmationChannels.Chat)
     {
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IPendingConfirmationRepository>();
@@ -147,6 +155,11 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         }
 
         if (row.UserId != userId)
+        {
+            return null;
+        }
+
+        if (!HasChannel(row, channel))
         {
             return null;
         }
@@ -168,7 +181,8 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
     public PendingConfirmationHandle? PeekLatestForUser(
         Guid userId,
         TimeSpan maxAge,
-        string purpose = PendingConfirmationPurposes.GateReplay)
+        string purpose = PendingConfirmationPurposes.GateReplay,
+        string channel = PendingConfirmationChannels.Chat)
     {
         var now = DateTime.UtcNow;
         var ttl = TimeSpan.FromMinutes(AutonomyDefaults.ConfirmationTtlMinutes);
@@ -183,7 +197,7 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
 
         foreach (var row in rows)
         {
-            if (!HasPurpose(row, purpose))
+            if (!HasPurpose(row, purpose) || !HasChannel(row, channel))
             {
                 continue;
             }
@@ -207,6 +221,12 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
 
     private static bool HasPurpose(PendingConfirmationRow row, string purpose) =>
         string.Equals(NormalizedPurpose(row), purpose, StringComparison.OrdinalIgnoreCase);
+
+    private static bool HasChannel(PendingConfirmationRow row, string channel) =>
+        string.Equals(NormalizedChannel(row), channel, StringComparison.OrdinalIgnoreCase);
+
+    private static string NormalizedChannel(PendingConfirmationRow row) =>
+        string.IsNullOrWhiteSpace(row.Channel) ? PendingConfirmationChannels.Chat : row.Channel;
 
     private static string NormalizedPurpose(PendingConfirmationRow row) =>
         string.IsNullOrWhiteSpace(row.Purpose) ? PendingConfirmationPurposes.GateReplay : row.Purpose;

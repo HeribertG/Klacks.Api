@@ -165,7 +165,8 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
                     userGuid,
                     correction.Undo.SkillName,
                     correction.Undo.Arguments,
-                    PendingConfirmationPurposes.CorrectionUndo);
+                    PendingConfirmationPurposes.CorrectionUndo,
+                    channel: PendingConfirmationChannels.Chat);
                 _turnScope.MarkIssued(undoToken);
                 undoWasHeld = true;
             }

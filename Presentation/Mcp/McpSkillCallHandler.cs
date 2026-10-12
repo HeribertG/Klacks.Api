@@ -16,6 +16,9 @@
 /// result of the chat loop, so the MCP client's model treats them as data. Such results carry no structured
 /// content: it would hand the same bodies to the client raw, and no tool declares an output schema that
 /// would make structured content mandatory. Trusted results keep the full response as structured content.
+/// A confirmation token never leaves the server over MCP: it is removed from the metadata, and a message or data that
+/// embeds it (a redemption instruction written for the chat's model) is dropped, because a token issued on this channel
+/// is bound to it and cannot be redeemed anywhere.
 /// </summary>
 /// <param name="request">MCP call parameters containing the tool name and JSON arguments</param>
 /// <param name="user">Claims principal of the authenticated caller; actions run with this user's permissions</param>
@@ -157,8 +160,9 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
         return parameters;
     }
 
-    private static CallToolResult ToCallToolResult(string skillName, SkillExecuteResponse response)
+    private static CallToolResult ToCallToolResult(string skillName, SkillExecuteResponse rawResponse)
     {
+        var response = WithoutConfirmationToken(rawResponse);
         var isConfirmation = response.ResultType == SkillResultType.Confirmation;
         var isUntrusted = response.ContainsExternalContent || UntrustedSkillOutputs.Contains(skillName);
         var text = isConfirmation
@@ -175,10 +179,33 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
         };
     }
 
+    private static SkillExecuteResponse WithoutConfirmationToken(SkillExecuteResponse response)
+    {
+        if (response.Metadata == null
+            || !response.Metadata.TryGetValue(SkillResultMetadataKeys.ConfirmationToken, out var rawToken)
+            || rawToken?.ToString() is not { Length: > 0 } token)
+        {
+            return response;
+        }
+
+        var metadata = response.Metadata
+            .Where(entry => !string.Equals(entry.Key, SkillResultMetadataKeys.ConfirmationToken, StringComparison.Ordinal))
+            .ToDictionary(entry => entry.Key, entry => entry.Value);
+
+        var dataCarriesToken = response.Data != null
+            && JsonSerializer.Serialize(response.Data, ResultSerializerOptions).Contains(token, StringComparison.Ordinal);
+
+        return response with
+        {
+            Metadata = metadata.Count == 0 ? null : metadata,
+            Message = response.Message?.Contains(token, StringComparison.Ordinal) == true ? null : response.Message,
+            Data = dataCarriesToken ? null : response.Data
+        };
+    }
+
     private static string BuildConfirmationText(SkillExecuteResponse response, bool isUntrusted)
     {
-        var instruction = $"Confirmation required: call the '{AutonomyDefaults.ConfirmPendingActionSkillName}' tool " +
-                          $"with parameter '{AutonomyDefaults.ConfirmationTokenParameter}' set to '{ExtractConfirmationToken(response)}'.";
+        var instruction = McpServerConstants.ConfirmationRequiredInstruction;
 
         if (string.IsNullOrWhiteSpace(response.Message) && (!isUntrusted || response.Data == null))
         {
@@ -208,17 +235,6 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
 
         return ToolResultMarkers.UntrustedContentNotice + Environment.NewLine
             + ToolResultFormatter.EscapeAndCap(body, LLMLoopConstants.DefaultMaxToolResultChars);
-    }
-
-    private static string ExtractConfirmationToken(SkillExecuteResponse response)
-    {
-        if (response.Metadata != null
-            && response.Metadata.TryGetValue(SkillResultMetadataKeys.ConfirmationToken, out var token))
-        {
-            return token?.ToString() ?? string.Empty;
-        }
-
-        return string.Empty;
     }
 
     private static CallToolResult ErrorResult(string message)

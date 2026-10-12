@@ -4,13 +4,17 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface ITurnConfirmationScope
 {
-    void MarkIssuedForSensitiveSkill(string token);
-
-    bool WasIssuedThisTurnForSensitiveSkill(string token);
+    /// <summary>
+    /// True when this turn issued the token, whatever the risk class of the skill it holds. Neither the gate's
+    /// direct-token path nor confirm_pending_action may redeem such a token before the user has actually replied.
+    /// </summary>
+    /// <param name="token">The one-time token to look up</param>
+    bool WasIssuedThisTurn(string token);
 
     /// <summary>
-    /// Records a confirmation token this turn issued, whatever the risk class of the skill it holds. A turn
-    /// the user stopped drops exactly these tokens again, because the question they belong to was never asked.
+    /// Records a confirmation token this turn issued, whatever the risk class of the skill it holds. The token
+    /// cannot be redeemed in this turn, and a turn the user stops drops exactly these tokens again, because the
+    /// question they belong to was never asked.
     /// </summary>
     /// <param name="token">The one-time token the pending-confirmation store issued</param>
     void MarkIssued(string token);

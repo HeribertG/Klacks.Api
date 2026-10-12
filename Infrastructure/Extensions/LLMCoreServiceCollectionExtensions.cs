@@ -209,6 +209,7 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Settings.ISettingValueValidator, Klacks.Api.Domain.Services.Settings.SettingValueValidator>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAutonomyGate, Klacks.Api.Application.Services.Assistant.Autonomy.AutonomyGateService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ITurnConfirmationScope, Klacks.Api.Application.Services.Assistant.Autonomy.TurnConfirmationScope>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IConfirmationRedemptionGuard, Klacks.Api.Application.Services.Assistant.Autonomy.ConfirmationRedemptionGuard>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ITurnConfirmationDiscarder, Klacks.Api.Application.Services.Assistant.Autonomy.TurnConfirmationDiscarder>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IStoppedTurnCleanup, Klacks.Api.Application.Services.Assistant.StoppedTurnCleanup>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IInterruptedTurnFinalizer, Klacks.Api.Domain.Services.Assistant.InterruptedTurnFinalizer>();

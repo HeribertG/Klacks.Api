@@ -25,9 +25,13 @@ public class McpSkillExposurePolicy : IMcpSkillExposurePolicy
     // enumerate the remaining tokens of its owner — the "a PAT cannot manage PATs" rule that
     // PersonalAccessTokensController enforces by pinning itself to JWT bearer. Listing is a pure
     // read of the caller's own metadata, so it is gated here instead of via SensitiveSkills.
+    // confirm_pending_action is withheld for the same kind of reason: it only redeems a token for a call that
+    // carries user-confirmation evidence, and an MCP call never does - the client's agent is a model, so the
+    // server cannot tell its confirmation from the user's. Exposing it would offer a tool that always refuses.
     private static readonly HashSet<string> ExcludedSkills = new(StringComparer.OrdinalIgnoreCase)
     {
-        "list_personal_access_tokens"
+        "list_personal_access_tokens",
+        AutonomyDefaults.ConfirmPendingActionSkillName
     };
 
     private readonly ISkillRiskClassifier _riskClassifier;

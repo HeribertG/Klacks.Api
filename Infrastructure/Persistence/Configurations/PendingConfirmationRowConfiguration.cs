@@ -25,6 +25,9 @@ public class PendingConfirmationRowConfiguration : IEntityTypeConfiguration<Pend
         builder.Property(p => p.Purpose)
             .HasMaxLength(PendingConfirmationPurposes.MaxLength)
             .HasDefaultValue(PendingConfirmationPurposes.GateReplay);
+        builder.Property(p => p.Channel)
+            .HasMaxLength(PendingConfirmationChannels.MaxLength)
+            .HasDefaultValue(PendingConfirmationChannels.Chat);
         builder.HasIndex(p => p.Token).IsUnique();
         builder.HasIndex(p => p.UserId);
         builder.HasIndex(p => p.ExpiresAtUtc);

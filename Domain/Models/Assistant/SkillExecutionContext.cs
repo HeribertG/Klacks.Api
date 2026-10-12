@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Assistant;
@@ -27,6 +28,23 @@ public record SkillExecutionContext
     public string? SessionId { get; init; }
     public bool BypassAutonomyGate { get; init; }
     public bool SupportsUiActions { get; init; }
+
+    /// <summary>
+    /// Proof that the user themselves answered the question a held action raised, set ONLY by the chat loop when the
+    /// user's own message of this turn is an explicit yes. Never filled from the LLM's parameter dictionary, and never
+    /// by a client endpoint (execute-function, skills/execute), because those carry requests a model controls. None (the
+    /// default, also on MCP and every background path) means a confirmation token cannot be redeemed by this call.
+    /// </summary>
+    public UserConfirmationEvidence UserConfirmation { get; init; }
+
+    /// <summary>
+    /// Channel a confirmation token issued by this call belongs to: Mcp for every call that arrives over the MCP
+    /// endpoint (ExternalAgentAccessMode is set on all of them), Chat otherwise. Tokens are only redeemable on the
+    /// channel that issued them.
+    /// </summary>
+    public string ConfirmationChannel => ExternalAgentAccessMode.HasValue
+        ? PendingConfirmationChannels.Mcp
+        : PendingConfirmationChannels.Chat;
 
     /// <summary>
     /// Join key to the chat turn (W1.1), copied from <see cref="LLMContext.TurnId"/> by the executor.

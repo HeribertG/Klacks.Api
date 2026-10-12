@@ -44,9 +44,9 @@ public class McpPromptCatalog : IMcpPromptCatalog
     private static readonly JsonSerializerOptions StepsJsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     private static readonly string ConfirmationHint =
-        $"Whenever a tool responds with a confirmation request instead of a result, call " +
-        $"'{AutonomyDefaults.ConfirmPendingActionSkillName}' with the parameter " +
-        $"'{AutonomyDefaults.ConfirmationTokenParameter}' set to the provided token to execute the held action.";
+        "Whenever a tool responds with a confirmation request instead of a result, stop and tell the user: " +
+        "the action was not carried out and cannot be confirmed through MCP; they can start it themselves in the " +
+        "Klacks assistant chat.";
 
     private static readonly IReadOnlyList<PromptDefinition> StaticDefinitions =
     [

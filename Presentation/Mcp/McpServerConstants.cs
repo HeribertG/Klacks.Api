@@ -19,10 +19,15 @@ public static class McpServerConstants
         "This personal access token is read-only: tool '{0}' can change data and is not available. " +
         "Ask the token owner for a token with write access.";
 
+    public const string ConfirmationRequiredInstruction =
+        "Confirmation required: the action was NOT executed and cannot be confirmed through MCP, because the " +
+        "server cannot tell a client agent's confirmation from the user's. Tell the user that nothing was done; " +
+        "they can start the action themselves in the Klacks assistant chat.";
+
     public const string ServerInstructions =
         "Klacks workforce planning and scheduling. Tools mirror the built-in assistant skills, " +
         "filtered by the authenticated user's permissions. Write actions may return a confirmation " +
-        "request instead of executing immediately; confirm them by calling the " +
-        "'confirm_pending_action' tool with the provided confirmation token. A read-only personal access " +
-        "token lists and runs read-only tools only.";
+        "request instead of executing immediately; such an action is not carried out through MCP and cannot be " +
+        "confirmed through it, so tell the user, who can start it in the Klacks assistant chat. A read-only " +
+        "personal access token lists and runs read-only tools only.";
 }

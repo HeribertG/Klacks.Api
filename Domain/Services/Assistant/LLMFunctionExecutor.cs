@@ -286,6 +286,9 @@ public class LLMFunctionExecutor
             SessionId = context.ConversationId,
             TurnId = context.TurnId,
             SupportsUiActions = true,
+            UserConfirmation = AffirmationDetector.IsExplicitConfirmation(context.Message)
+                ? UserConfirmationEvidence.ExplicitConfirmationReply
+                : UserConfirmationEvidence.None,
             InjectedMemoryIds = context.InjectedMemoryIds,
             ProviderId = context.ProviderId,
             ModelId = context.ModelId

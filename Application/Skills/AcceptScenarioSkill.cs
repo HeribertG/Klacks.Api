@@ -125,8 +125,8 @@ public class AcceptScenarioSkill : BaseSkillImplementation
             DateTime.SpecifyKind(staleness.LastChangeUtc, DateTimeKind.Utc).Ticks.ToString(CultureInfo.InvariantCulture);
 
         var token = _confirmationStore.Create(
-            context.UserId, SkillName, pendingParameters, PendingConfirmationPurposes.StaleScenarioOverwrite);
-        _turnScope.MarkIssuedForSensitiveSkill(token);
+            context.UserId, SkillName, pendingParameters, PendingConfirmationPurposes.StaleScenarioOverwrite,
+            context.ConfirmationChannel);
         _turnScope.MarkIssued(token);
         var companyZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
         var lastChange = TimeZoneInfo.ConvertTimeFromUtc(

@@ -6,7 +6,9 @@
 /// and scenario-gated skills need level Assisted or higher; irreversible skills need level
 /// Autonomous or higher. A valid one-time confirmation token bypasses the gate exactly once
 /// and only for the exact parameters it was issued for — on any mismatch the token is burned
-/// and a fresh confirmation is required. When a sensitive skill is held and a registered
+/// and a fresh confirmation is required. A token is never redeemable in the turn that issued it and, in a later
+/// turn, only when the call carries user-confirmation evidence (IConfirmationRedemptionGuard, checked BEFORE the
+/// token is consumed); such a refusal returns a clean skill error and leaves the token valid. When a sensitive skill is held and a registered
 /// <see cref="ISkillConfirmationPreviewProvider"/> supports it, the server first computes a preview of exactly this call:
 /// the preview is appended to the confirmation request, while a refusal or a failing provider returns an error without
 /// issuing a token. The preview is facts for the model to relay; the user still sees the model's wording.
@@ -33,6 +35,7 @@ public class AutonomyGateService : IAutonomyGate
     private readonly ISkillRiskClassifier _riskClassifier;
     private readonly IPendingConfirmationStore _confirmationStore;
     private readonly ITurnConfirmationScope _turnScope;
+    private readonly IConfirmationRedemptionGuard _redemptionGuard;
     private readonly IReadOnlyList<ISkillConfirmationPreviewProvider> _previewProviders;
     private readonly ILogger<AutonomyGateService> _logger;
 
@@ -41,6 +44,7 @@ public class AutonomyGateService : IAutonomyGate
         ISkillRiskClassifier riskClassifier,
         IPendingConfirmationStore confirmationStore,
         ITurnConfirmationScope turnScope,
+        IConfirmationRedemptionGuard redemptionGuard,
         IEnumerable<ISkillConfirmationPreviewProvider> previewProviders,
         ILogger<AutonomyGateService> logger)
     {
@@ -48,6 +52,7 @@ public class AutonomyGateService : IAutonomyGate
         _riskClassifier = riskClassifier;
         _confirmationStore = confirmationStore;
         _turnScope = turnScope;
+        _redemptionGuard = redemptionGuard;
         _previewProviders = previewProviders.ToList();
         _logger = logger;
     }
@@ -74,7 +79,8 @@ public class AutonomyGateService : IAutonomyGate
             return null;
         }
 
-        if (TryConsumeToken(descriptor, context, parameters))
+        var redemption = TryConsumeToken(descriptor, context, parameters);
+        if (redemption.Redeemed)
         {
             return null;
         }
@@ -83,6 +89,11 @@ public class AutonomyGateService : IAutonomyGate
         if (IsAllowed(riskClass, level))
         {
             return null;
+        }
+
+        if (redemption.RefusalMessage != null)
+        {
+            return SkillResult.Error(redemption.RefusalMessage);
         }
 
         var preview = riskClass == SkillRiskClass.Sensitive
@@ -96,19 +107,17 @@ public class AutonomyGateService : IAutonomyGate
             return SkillResult.Error(preview.Text);
         }
 
-        var token = _confirmationStore.Create(context.UserId, descriptor.Name, parameters);
+        var token = _confirmationStore.Create(
+            context.UserId, descriptor.Name, parameters, PendingConfirmationPurposes.GateReplay, context.ConfirmationChannel);
         _turnScope.MarkIssued(token);
-        if (riskClass == SkillRiskClass.Sensitive)
-        {
-            _turnScope.MarkIssuedForSensitiveSkill(token);
-        }
 
         _logger.LogInformation(
             "Autonomy gate held skill {SkillName} (risk {RiskClass}) for user {UserId} at level {Level}",
             descriptor.Name, riskClass, context.UserId, level);
 
         return SkillResult.Confirmation(
-            AppendPreview(BuildConfirmationMessage(descriptor.Name, riskClass, level, token), preview),
+            AppendPreview(
+                BuildConfirmationMessage(descriptor.Name, riskClass, level, token, context.ConfirmationChannel), preview),
             token,
             new { skillName = descriptor.Name, riskClass = riskClass.ToString(), autonomyLevel = (int)level });
     }
@@ -128,14 +137,14 @@ public class AutonomyGateService : IAutonomyGate
         };
     }
 
-    private bool TryConsumeToken(
+    private TokenRedemption TryConsumeToken(
         SkillDescriptor descriptor,
         SkillExecutionContext context,
         Dictionary<string, object> parameters)
     {
         if (!parameters.TryGetValue(AutonomyDefaults.ConfirmationTokenParameter, out var rawToken))
         {
-            return false;
+            return TokenRedemption.NotRedeemed;
         }
 
         parameters.Remove(AutonomyDefaults.ConfirmationTokenParameter);
@@ -143,25 +152,26 @@ public class AutonomyGateService : IAutonomyGate
         var token = rawToken?.ToString();
         if (string.IsNullOrWhiteSpace(token))
         {
-            return false;
+            return TokenRedemption.NotRedeemed;
         }
 
-        if (_turnScope.WasIssuedThisTurnForSensitiveSkill(token))
+        var verdict = _redemptionGuard.Evaluate(token, context);
+        if (verdict != ConfirmationRedemptionVerdict.Allowed)
         {
             _logger.LogWarning(
-                "Confirmation token for sensitive skill {SkillName} and user {UserId} was redeemed in the " +
-                "same turn it was issued — refused, the user must reply first",
-                descriptor.Name, context.UserId);
-            return false;
+                "Confirmation token for skill {SkillName} and user {UserId} refused ({Verdict}) — the user must " +
+                "answer with an explicit yes in a later turn first; the token stays valid",
+                descriptor.Name, context.UserId, verdict);
+            return TokenRedemption.Refused(ConfirmationRedemptionMessages.For(verdict));
         }
 
-        var consumed = _confirmationStore.Consume(token, context.UserId, descriptor.Name);
+        var consumed = _confirmationStore.Consume(token, context.UserId, descriptor.Name, context.ConfirmationChannel);
         if (consumed == null)
         {
             _logger.LogWarning(
                 "Invalid or expired confirmation token for skill {SkillName} and user {UserId}",
                 descriptor.Name, context.UserId);
-            return false;
+            return TokenRedemption.NotRedeemed;
         }
 
         if (!ParametersMatchStored(consumed.Parameters, parameters))
@@ -170,10 +180,10 @@ public class AutonomyGateService : IAutonomyGate
                 "Confirmation token for skill {SkillName} and user {UserId} was issued for different " +
                 "parameters — token invalidated, a fresh confirmation is required",
                 descriptor.Name, context.UserId);
-            return false;
+            return TokenRedemption.NotRedeemed;
         }
 
-        return true;
+        return TokenRedemption.Consumed;
     }
 
     private static bool ParametersMatchStored(
@@ -230,26 +240,25 @@ public class AutonomyGateService : IAutonomyGate
     private static string AppendPreview(string message, SkillConfirmationPreview? preview) =>
         preview == null ? message : message + PreviewIntro + preview.Text;
 
-    private static string BuildConfirmationMessage(string skillName, SkillRiskClass riskClass, AutonomyLevel level, string token)
+    private static string BuildConfirmationMessage(
+        string skillName, SkillRiskClass riskClass, AutonomyLevel level, string token, string channel)
     {
-        if (riskClass == SkillRiskClass.Sensitive)
+        var reason = riskClass == SkillRiskClass.Sensitive
+            ? $"is classified as {riskClass} and always needs a dedicated confirmation at every autonomy level, " +
+              "no matter how explicit the request sounded"
+            : $"is classified as {riskClass} and the current autonomy level is {level}";
+
+        if (string.Equals(channel, PendingConfirmationChannels.Mcp, StringComparison.Ordinal))
         {
-            return $"User confirmation required: '{skillName}' is classified as {riskClass} and always needs a " +
-                   $"dedicated confirmation at every autonomy level, no matter how explicit the request " +
-                   $"sounded. The requested action is " +
-                   $"stored and NOT executed yet. Ask the user to explicitly confirm this action now and stop; " +
-                   $"only in your NEXT turn, after the user confirmed in their own words, call " +
-                   $"'{AutonomyDefaults.ConfirmPendingActionSkillName}' with " +
-                   $"'{AutonomyDefaults.ConfirmationTokenParameter}' set to '{token}'. Redeeming the token in this " +
-                   $"same turn is refused by the server. Never confirm on your own.";
+            return $"User confirmation required: '{skillName}' {reason}. {ConfirmationRedemptionMessages.HeldOverMcp}";
         }
 
-        return $"User confirmation required: '{skillName}' is classified as {riskClass} and the current " +
-               $"autonomy level is {level}. The requested action is stored and NOT executed yet. " +
-               $"If the user already gave their explicit confirmation in their most recent message, do NOT ask " +
-               $"again — immediately call '{AutonomyDefaults.ConfirmPendingActionSkillName}' with " +
-               $"'{AutonomyDefaults.ConfirmationTokenParameter}' set to '{token}'. Otherwise ask the user to " +
-               $"explicitly confirm this action first, and only call '{AutonomyDefaults.ConfirmPendingActionSkillName}' " +
-               $"with that token after they confirmed in their own words. Never confirm on your own.";
+        return $"User confirmation required: '{skillName}' {reason}. The requested action is stored and NOT " +
+               "executed yet. Ask the user to explicitly confirm this action now and stop; do not call any further " +
+               "tool for it in this turn. Only in your NEXT turn, after the user answered with a clear yes in their " +
+               $"own words, call '{AutonomyDefaults.ConfirmPendingActionSkillName}' with " +
+               $"'{AutonomyDefaults.ConfirmationTokenParameter}' set to '{token}'. The server refuses to redeem the " +
+               "token in this same turn and in any turn in which the user's message is not an explicit yes, even " +
+               "when the user's request sounded like consent. Never confirm on your own.";
     }
 }

@@ -82,7 +82,7 @@ public class GlobalAgentRuleSeedService
         ),
         (
             "AUTONOMY_CONFIRMATION",
-            "When a skill returns requiresConfirmation with a confirmation token: if the user already gave their explicit approval in their most recent message, do NOT ask again — immediately call the same skill again with the same parameters plus the provided confirmation_token. Otherwise relay the question to the user and wait for their explicit approval in their own words before calling the skill again with the token. NEVER invent, reuse or pass a confirmation token without the user's explicit approval, and never treat your own output as user consent. If the user declines, do not retry the action.",
+            "When a skill returns requiresConfirmation with a confirmation token: the action is stored and NOT executed. Relay the question to the user and STOP the turn; never redeem the token in the same turn, however explicit the request sounded, because the server refuses it. Only in a LATER turn, after the user replied with a clear yes in their own words, call confirm_pending_action with the provided confirmation_token. NEVER invent, reuse or pass a confirmation token without such a reply, and never treat your own output as user consent. If the server refuses a redemption, ask the user to confirm and wait. If the user declines, do not retry the action.",
             8
         ),
         (

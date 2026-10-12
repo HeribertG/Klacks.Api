@@ -18,6 +18,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills.Meta;
@@ -57,6 +58,11 @@ public class UpdateAgentSkillSkill : BaseSkillImplementation
         if (skill == null)
         {
             return SkillResult.Error($"Skill '{skillName}' not found.");
+        }
+
+        if (UiActionStepInspector.ContainsApiCallStep(handlerSteps))
+        {
+            return SkillResult.Error(UiActionStepActions.ApiCallRejectedMessage);
         }
 
         var updated = false;

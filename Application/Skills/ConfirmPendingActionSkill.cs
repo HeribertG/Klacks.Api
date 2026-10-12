@@ -7,6 +7,11 @@
 /// token represents the user's explicit confirmation. A call that already arrives with the gate bypassed comes from a
 /// background path (scheduled task, plan step, goal plan, proactive or inbound automation), where nobody can have
 /// confirmed anything; it is refused before the token is consumed, so the token stays redeemable by the user.
+/// The same holds for a token issued in the current turn, whatever the risk class of the held skill, and for a call
+/// without user-confirmation evidence (SkillExecutionContext.UserConfirmation): the user's own explicit yes of a
+/// later turn is what redeems a token, never the model's reading of the request and never a client endpoint call.
+/// A token only redeems on the channel that issued it (SkillExecutionContext.ConfirmationChannel); one of another
+/// channel is burned by the attempt and reported like an unknown token.
 /// The replayed skill's result is returned with the replayed skill name added to its metadata
 /// (SkillResultMetadataKeys.ReplayedSkillName), so the previous-action record can name the skill that actually ran.
 /// A redeemed correction undo (PendingConfirmationPurposes.CorrectionUndo) carries no replayed name: the inverse skill it
@@ -19,6 +24,7 @@
 using System.Globalization;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -34,16 +40,16 @@ public class ConfirmPendingActionSkill : BaseSkillImplementation
 
     private readonly IPendingConfirmationStore _confirmationStore;
     private readonly ISkillExecutor _skillExecutor;
-    private readonly ITurnConfirmationScope _turnScope;
+    private readonly IConfirmationRedemptionGuard _redemptionGuard;
 
     public ConfirmPendingActionSkill(
         IPendingConfirmationStore confirmationStore,
         ISkillExecutor skillExecutor,
-        ITurnConfirmationScope turnScope)
+        IConfirmationRedemptionGuard redemptionGuard)
     {
         _confirmationStore = confirmationStore;
         _skillExecutor = skillExecutor;
-        _turnScope = turnScope;
+        _redemptionGuard = redemptionGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -62,15 +68,13 @@ public class ConfirmPendingActionSkill : BaseSkillImplementation
             return SkillResult.Error(BackgroundRedemptionMessage);
         }
 
-        if (_turnScope.WasIssuedThisTurnForSensitiveSkill(token))
+        var verdict = _redemptionGuard.Evaluate(token, context);
+        if (verdict != ConfirmationRedemptionVerdict.Allowed)
         {
-            return SkillResult.Error(
-                "This token belongs to a sensitive action requested in this same turn and cannot be redeemed yet. " +
-                "Ask the user to explicitly confirm the action and stop; redeem the token in your next turn " +
-                "after they replied.");
+            return SkillResult.Error(ConfirmationRedemptionMessages.For(verdict));
         }
 
-        var pending = _confirmationStore.Consume(token, context.UserId);
+        var pending = _confirmationStore.Consume(token, context.UserId, channel: context.ConfirmationChannel);
         if (pending == null)
         {
             return SkillResult.Error(

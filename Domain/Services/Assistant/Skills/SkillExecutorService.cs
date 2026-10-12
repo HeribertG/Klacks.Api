@@ -143,6 +143,16 @@ public class SkillExecutorService : ISkillExecutor
                 return uiContextError;
             }
 
+            if (isUiAction && UiActionStepInspector.ContainsApiCallStep(descriptor.HandlerConfig))
+            {
+                _logger.LogWarning(
+                    "UiAction skill {SkillName} carries an apiCall step in its stored handler config and is not delivered to the client",
+                    descriptor.Name);
+                var apiCallError = SkillResult.Error(UiActionStepActions.ApiCallRejectedMessage);
+                await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, apiCallError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+                return apiCallError;
+            }
+
             var gateResult = await CheckPreExecutionGatesAsync(descriptor, invocation, context, stopwatch.Elapsed, cancellationToken);
             if (gateResult != null)
             {

@@ -19,6 +19,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills.Meta;
@@ -77,6 +78,11 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
         var handlerConfig = "{}";
         if (!string.IsNullOrWhiteSpace(handlerSteps))
         {
+            if (UiActionStepInspector.ContainsApiCallStep(handlerSteps))
+            {
+                return SkillResult.Error(UiActionStepActions.ApiCallRejectedMessage);
+            }
+
             handlerConfig = BuildHandlerConfig(handlerSteps);
         }
 

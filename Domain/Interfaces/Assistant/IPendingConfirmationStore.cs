@@ -13,6 +13,10 @@
 /// gate-replay path never sees a proposal hint and vice versa.
 /// A correction undo is written through the same Create with its own purpose and dropped again by
 /// DiscardCorrectionUndo, because it is the one token whose validity ends with the very next user turn.
+/// Every token carries the channel that issued it (PendingConfirmationChannels). Consume refuses a token of another
+/// channel exactly like one of another user - the row is deleted first and nothing is returned - and PeekLatestForUser
+/// only sees rows of the asked channel, so the chat never resurfaces or redeems a token an external agent caused.
+/// Every issuer that has a SkillExecutionContext passes its ConfirmationChannel; the default is only for the chat.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -26,14 +30,20 @@ public interface IPendingConfirmationStore
         Guid userId,
         string skillName,
         IReadOnlyDictionary<string, object> parameters,
-        string purpose = PendingConfirmationPurposes.GateReplay);
+        string purpose = PendingConfirmationPurposes.GateReplay,
+        string channel = PendingConfirmationChannels.Chat);
 
-    PendingConfirmation? Consume(string token, Guid userId, string? expectedSkillName = null);
+    PendingConfirmation? Consume(
+        string token,
+        Guid userId,
+        string? expectedSkillName = null,
+        string channel = PendingConfirmationChannels.Chat);
 
     PendingConfirmationHandle? PeekLatestForUser(
         Guid userId,
         TimeSpan maxAge,
-        string purpose = PendingConfirmationPurposes.GateReplay);
+        string purpose = PendingConfirmationPurposes.GateReplay,
+        string channel = PendingConfirmationChannels.Chat);
 
     void CreateProposalHint(Guid userId, string applySkillName);
 

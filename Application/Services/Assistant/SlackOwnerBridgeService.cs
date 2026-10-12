@@ -15,12 +15,15 @@
 /// delete-capable or settings-mutating skill from running immediately off a message from this new,
 /// physically-exposed channel. UserRights is the one lever that always applies regardless of autonomy
 /// level.
+/// Every message runs in its OWN service scope: the scoped per-turn state (TurnConfirmationScope remembers the
+/// confirmation tokens a turn issued) must start empty for each message, otherwise a token held by one message is
+/// "issued this turn" for the owner's "ja" in the next message of the same cycle and the redemption is refused.
 /// </summary>
 /// <param name="ownerMessengerReader">Resolves the owner's registered Slack self-alias.</param>
 /// <param name="messagingService">Reads inbound Slack messages and sends the reply back out.</param>
 /// <param name="settingsRepository">Persists the polling watermark (last processed message timestamp).</param>
 /// <param name="planningAudienceResolver">Resolves the admin user id to run the LLM turn as.</param>
-/// <param name="mediator">Dispatches the LLM chat turn through the same path the in-app chat uses.</param>
+/// <param name="scopeFactory">Opens one isolated service scope per message, in which the LLM chat turn is dispatched through the same mediator path the in-app chat uses.</param>
 /// <param name="logger">Structured log per cycle and per failed message.</param>
 
 using System.Globalization;
@@ -49,7 +52,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPlanningAudienceResolver _planningAudienceResolver;
-    private readonly IMediator _mediator;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly IInternalTokenIssuer _internalTokenIssuer;
     private readonly ILogger<SlackOwnerBridgeService> _logger;
 
@@ -59,7 +62,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
         IPlanningAudienceResolver planningAudienceResolver,
-        IMediator mediator,
+        IServiceScopeFactory scopeFactory,
         IInternalTokenIssuer internalTokenIssuer,
         ILogger<SlackOwnerBridgeService> logger)
     {
@@ -68,7 +71,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
         _planningAudienceResolver = planningAudienceResolver;
-        _mediator = mediator;
+        _scopeFactory = scopeFactory;
         _internalTokenIssuer = internalTokenIssuer;
         _logger = logger;
     }
@@ -163,7 +166,9 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
             }
         }
 
-        var response = await _mediator.Send(
+        using var turnScope = _scopeFactory.CreateScope();
+        var mediator = turnScope.ServiceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(
             new ProcessLLMMessageCommand
             {
                 Message = message.Content,

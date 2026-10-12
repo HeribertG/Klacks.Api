@@ -22,12 +22,14 @@ public static class ValidFromConfirmationFactory
     /// <param name="skillName">Name of the skill to replay once the user confirms.</param>
     /// <param name="originalParameters">The original invocation parameters to replay unchanged.</param>
     /// <param name="reason">English explanation of why the date is implausible.</param>
+    /// <param name="channel">Channel of the calling context (SkillExecutionContext.ConfirmationChannel); the token is redeemable only there.</param>
     public static SkillResult RequireConfirmation(
         IPendingConfirmationStore store,
         Guid userId,
         string skillName,
         IReadOnlyDictionary<string, object> originalParameters,
-        string reason)
+        string reason,
+        string channel)
     {
         var pendingParameters = new Dictionary<string, object>(originalParameters)
         {
@@ -35,7 +37,8 @@ public static class ValidFromConfirmationFactory
                 MembershipPlausibilityDefaults.ConfirmedValue
         };
 
-        var token = store.Create(userId, skillName, pendingParameters);
+        var token = store.Create(
+            userId, skillName, pendingParameters, PendingConfirmationPurposes.GateReplay, channel);
 
         var message =
             $"Plausibility check: {reason} ValidFrom is the plannability boundary in the schedule — if it is a " +

@@ -1,12 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Scoped per request (= one chat turn): remembers confirmation tokens that were issued for
-/// SENSITIVE skills during the current turn, so neither the gate's direct-token path nor
-/// confirm_pending_action can redeem them before the user has actually replied. The token
-/// itself stays valid — only same-turn redemption is refused.
-/// It also remembers every token and proposal hint the turn issued, sensitive or not, so a turn the
-/// user stops can drop exactly those again (ITurnConfirmationDiscarder).
+/// Scoped per request (= one chat turn): remembers every confirmation token and proposal hint the current turn issued,
+/// whatever the risk class of the skill they belong to. Neither the gate's direct-token path nor confirm_pending_action
+/// can redeem a token before the user has actually replied (IConfirmationRedemptionGuard reads WasIssuedThisTurn); the
+/// token itself stays valid, only same-turn redemption is refused. A turn the user stops drops exactly the remembered
+/// tokens and hints again (ITurnConfirmationDiscarder).
 /// </summary>
 /// <param name="token">The one-time confirmation token issued by the autonomy gate.</param>
 
@@ -16,7 +15,6 @@ namespace Klacks.Api.Application.Services.Assistant.Autonomy;
 
 public class TurnConfirmationScope : ITurnConfirmationScope
 {
-    private readonly HashSet<string> _sensitiveTokensIssuedThisTurn = new(StringComparer.Ordinal);
     private readonly HashSet<string> _issuedTokens = new(StringComparer.Ordinal);
     private readonly HashSet<string> _proposalHintSkills = new(StringComparer.OrdinalIgnoreCase);
 
@@ -34,13 +32,8 @@ public class TurnConfirmationScope : ITurnConfirmationScope
         _proposalHintSkills.Add(applySkillName);
     }
 
-    public void MarkIssuedForSensitiveSkill(string token)
+    public bool WasIssuedThisTurn(string token)
     {
-        _sensitiveTokensIssuedThisTurn.Add(token);
-    }
-
-    public bool WasIssuedThisTurnForSensitiveSkill(string token)
-    {
-        return _sensitiveTokensIssuedThisTurn.Contains(token);
+        return _issuedTokens.Contains(token);
     }
 }

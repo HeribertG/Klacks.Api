@@ -53,7 +53,11 @@ Every action Klacksy can perform carries a risk classification:
 - reversible or scenario-bound actions need at least *Assisted*;
 - irreversible actions need at least *Autonomous*;
 - **sensitive actions always require an explicit confirmation, whatever the level** — user
-  administration, permission changes, and changing the autonomy setting itself.
+  administration, permission changes, changing the autonomy setting itself, every delete or reset that
+  destroys business, personal, payroll or compliance data (client master data and links, shifts and
+  their structure, work changes, expenses, notes, absences, compliance rules, report templates), and
+  every setting that takes a secret such as an API key or a mail password. Only Klacksy's own
+  bookkeeping (its memories, its own skills, dictionary entries) is removed without that question.
 
 So a higher level never means "Klacksy stops asking altogether".
 
@@ -63,6 +67,12 @@ Klacksy does not run the action. It sets it aside for a short waiting period, su
 happen, and waits. Only when the user agrees in their own words does Klacksy release exactly the
 action it set aside — same action, same values. It cannot invent an agreement, and it cannot
 release a held action by itself.
+
+The agreement has to be the user's next message, not the message that started the action, and it has
+to be a clear yes ("ja", "yes", "ok, mach das"). The server checks the user's own message, not how
+Klacksy read it: a request that merely contains "bitte" or "please", or a yes with a condition ("ja,
+aber nur für Montag"), does not release anything and Klacksy asks again. A held action cannot be
+confirmed from an external tool connection (MCP) either; the user starts it in the Klacksy chat.
 
 ## Taking something back
 

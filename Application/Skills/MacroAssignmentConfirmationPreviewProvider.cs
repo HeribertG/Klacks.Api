@@ -8,7 +8,7 @@
 /// and planning the confirmed call uses. It refuses (so the gate issues no token) when the caller does not hold the Admin
 /// role, an id is missing or invalid, the plan is refused (for an undo: including every conflict) or a target macro cannot
 /// run. It only reads. Accepted residual risk (owner decision F1, 2026-09-25): the user sees these facts only in the
-/// model's wording, confirm_pending_action can redeem the token in a later turn without an explicit yes, and the chat UI
+/// model's wording, confirm_pending_action redeems the token only after the user's explicit yes in a later turn, and the chat UI
 /// does not show skill results; the confirmed call therefore re-checks the role and plans again.
 /// </summary>
 /// <param name="assignPlanner">Plans the switch and runs its dry run</param>

@@ -79,7 +79,9 @@ public class TurnPreparationService : ITurnPreparationService
     // (a) Moved verbatim from LLMService.cs:133-174, including its summary comment.
     /// <summary>
     /// Decides whether the current turn should be forced to confirm an outstanding pending action.
-    /// Fires only when the user message is a clear affirmation AND the user still has an un-consumed
+    /// Fires only when the user message is an explicit confirmation (AffirmationDetector.IsExplicitConfirmation, the
+    /// same predicate the server demands before it redeems a token, so a reply it would refuse is never forced) AND
+    /// the user still has an un-consumed
     /// confirmation in the store AND confirm_pending_action is in scope. Returns the (always-on)
     /// confirm function to narrow the tool scope to, plus a context note that resurfaces the token
     /// (which is lost from conversation history because only user/assistant text is persisted).
@@ -117,7 +119,7 @@ public class TurnPreparationService : ITurnPreparationService
 
         var undoIsOfferedThisTurn = context.CorrectionUndoOffered;
 
-        if (!AffirmationDetector.IsAffirmation(context.Message))
+        if (!AffirmationDetector.IsExplicitConfirmation(context.Message))
         {
             if (!undoIsOfferedThisTurn)
             {
@@ -131,12 +133,12 @@ public class TurnPreparationService : ITurnPreparationService
         var pending = undoIsOfferedThisTurn
             ? null
             : _pendingConfirmationStore.PeekLatestForUser(
-                userGuid, forceWindow, PendingConfirmationPurposes.CorrectionUndo);
+                userGuid, forceWindow, PendingConfirmationPurposes.CorrectionUndo, PendingConfirmationChannels.Chat);
 
         pending ??= _pendingConfirmationStore.PeekLatestForUser(
-            userGuid, forceWindow, PendingConfirmationPurposes.StaleScenarioOverwrite);
+            userGuid, forceWindow, PendingConfirmationPurposes.StaleScenarioOverwrite, PendingConfirmationChannels.Chat);
         pending ??= _pendingConfirmationStore.PeekLatestForUser(
-            userGuid, forceWindow, PendingConfirmationPurposes.GateReplay);
+            userGuid, forceWindow, PendingConfirmationPurposes.GateReplay, PendingConfirmationChannels.Chat);
         if (pending == null)
         {
             return (false, null, null);

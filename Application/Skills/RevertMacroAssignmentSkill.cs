@@ -13,7 +13,7 @@
 /// Nothing is recalculated. A database failure at the commit is answered without the raw database message and without
 /// claiming that nothing changed. The confirmation itself is enforced by the autonomy gate (the skill is Sensitive).
 /// Accepted residual risk (owner decision F1, 2026-09-25): the user reads the confirmation in the language model's
-/// wording, confirm_pending_action can redeem the token in a later turn without an explicit yes, and the chat UI does not
+/// wording, confirm_pending_action redeems the token only after the user's explicit yes in a later turn, and the chat UI does not
 /// show skill results; that is why every confirmed call checks the role here and the handler plans again.
 /// </summary>
 /// <param name="switchId">Id of the recorded switch, as reported when the macro was switched</param>

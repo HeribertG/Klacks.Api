@@ -7,7 +7,9 @@
 /// <c>BaseEntity</c>: the row is ephemeral and is hard-deleted on consumption, mismatch or expiry
 /// rather than soft-deleted. Purpose keeps the two writers of this single table apart (see
 /// PendingConfirmationPurposes); an empty value is read as GateReplay so rows written before the
-/// discriminator existed keep their original meaning.
+/// discriminator existed keep their original meaning. Channel records where the token was issued (see
+/// PendingConfirmationChannels); rows written before the column existed read as Chat, because MCP could not hold
+/// confirmations before.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -29,4 +31,6 @@ public sealed class PendingConfirmationRow
     public DateTime ExpiresAtUtc { get; set; }
 
     public string Purpose { get; set; } = PendingConfirmationPurposes.GateReplay;
+
+    public string Channel { get; set; } = PendingConfirmationChannels.Chat;
 }
