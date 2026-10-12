@@ -54,13 +54,16 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.11" />
 		<PackageReference Include="Scalar.AspNetCore" Version="2.17.1" />
 		<PackageReference Include="System.DirectoryServices.Protocols" Version="10.0.11" />
 		<PackageReference Include="System.IO.Packaging" Version="10.0.11" />
 		<PackageReference Include="Tokenizers.DotNet" Version="1.4.1" />
 		<PackageReference Include="Tokenizers.DotNet.runtime.linux-arm64" Version="1.4.1" />
 		<PackageReference Include="Tokenizers.DotNet.runtime.linux-x64" Version="1.4.1" />
+		<PackageReference Include="Tokenizers.DotNet.runtime.osx-arm64" Version="1.4.1" />
 		<PackageReference Include="Tokenizers.DotNet.runtime.win-arm64" Version="1.4.1" />
+		<PackageReference Include="Tokenizers.DotNet.runtime.win-x64" Version="1.4.1" />
 	</ItemGroup>
 
 	<ItemGroup>

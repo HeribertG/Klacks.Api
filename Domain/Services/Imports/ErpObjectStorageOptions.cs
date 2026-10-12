@@ -10,5 +10,7 @@ public class ErpObjectStorageOptions
 {
     public const string SectionName = "ErpObjectStorage";
 
+    public const string DefaultRootPath = "ErpImport";
+
     public string RootPath { get; set; } = string.Empty;
 }

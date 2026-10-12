@@ -2,18 +2,20 @@
 
 /// <summary>
 /// Collects the seeded customers, renders the demo order import document and stores it under the
-/// content root. The file is deliberately not written into the ERP drop point: the background import
+/// content root (or Hosting:DataRoot on native installations). The file is deliberately not written into the ERP drop point: the background import
 /// service polls that folder every minute, so the operator must copy it there explicitly.
 /// </summary>
 /// <param name="context">Database context the seeded customers are read from</param>
 /// <param name="generator">Renderer turning the demo order definitions into the import document</param>
 /// <param name="environment">Host environment providing the content root the file is written to</param>
+/// <param name="configuration">Configuration whose Hosting:DataRoot, when set, replaces the content root</param>
 /// <param name="logger">Logger reporting the written path</param>
 
 using Klacks.Api.Application.DTOs.Seed;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Infrastructure.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Persistence.Seed.Demo;
@@ -23,17 +25,20 @@ public class DemoOrderSeedFileWriter : IDemoOrderSeedFileWriter
     private readonly DataBaseContext _context;
     private readonly IDemoOrderXmlGenerator _generator;
     private readonly IHostEnvironment _environment;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<DemoOrderSeedFileWriter> _logger;
 
     public DemoOrderSeedFileWriter(
         DataBaseContext context,
         IDemoOrderXmlGenerator generator,
         IHostEnvironment environment,
+        IConfiguration configuration,
         ILogger<DemoOrderSeedFileWriter> logger)
     {
         _context = context;
         _generator = generator;
         _environment = environment;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -48,7 +53,8 @@ public class DemoOrderSeedFileWriter : IDemoOrderSeedFileWriter
 
         var xml = _generator.Generate(customers, language);
 
-        var directory = Path.Combine(_environment.ContentRootPath, DemoOrderSeedConstants.SeedDataDirectoryName);
+        var directory = DataRootPaths.Resolve(
+            _configuration, DemoOrderSeedConstants.SeedDataDirectoryName, _environment.ContentRootPath);
         Directory.CreateDirectory(directory);
         var path = Path.Combine(directory, DemoOrderSeedConstants.DemoOrdersFileName);
         await File.WriteAllTextAsync(path, xml, cancellationToken);

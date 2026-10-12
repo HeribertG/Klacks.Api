@@ -6,6 +6,8 @@ public class DataProtectionKeyRingOptions
 {
     public const string SectionName = "DataProtection";
 
+    public const string FileKeyRingDirectoryName = "DataProtection-Keys";
+
     public string? CertificateBase64 { get; set; }
 
     public string? CertificatePassword { get; set; }

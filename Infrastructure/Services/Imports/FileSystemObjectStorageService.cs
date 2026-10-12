@@ -20,7 +20,6 @@ namespace Klacks.Api.Infrastructure.Services.Imports;
 public class FileSystemObjectStorageService : IObjectStorageService
 {
     private const string UploadTempSuffix = ".uploading";
-    private const string DefaultRootDirectoryName = "ErpImport";
     private const string HealthCheckMarkerFileName = ".klacksy-health-check";
     private const char KeySeparator = '/';
 
@@ -200,7 +199,7 @@ public class FileSystemObjectStorageService : IObjectStorageService
 
     private static string ResolveRootPath(string configuredRootPath)
     {
-        var rootPath = string.IsNullOrWhiteSpace(configuredRootPath) ? DefaultRootDirectoryName : configuredRootPath;
+        var rootPath = string.IsNullOrWhiteSpace(configuredRootPath) ? ErpObjectStorageOptions.DefaultRootPath : configuredRootPath;
         if (!Path.IsPathRooted(rootPath))
         {
             rootPath = Path.Combine(AppContext.BaseDirectory, rootPath);

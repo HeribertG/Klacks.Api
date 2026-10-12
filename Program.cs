@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Infrastructure.Exceptions;
 using Klacks.Api.Infrastructure.Extensions;
+using Klacks.Api.Infrastructure.Hosting;
 using Microsoft.AspNetCore.DataProtection;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Application.Interfaces;
@@ -56,11 +57,7 @@ Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 // about to need again and re-parsed them.
 Regex.CacheSize = RegexDefaults.CacheSize;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Konfigurieren des Loggings
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
+var builder = KlacksWebApplicationBuilder.Create(args);
 
 var corsHost = builder.Configuration["Cors:Host"];
 var corsHome = builder.Configuration["Cors:Home"];
@@ -477,7 +474,8 @@ if (dataProtectionCertificate != null)
 }
 else
 {
-    var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys");
+    var dataProtectionKeysPath = DataRootPaths.Resolve(
+        builder.Configuration, DataProtectionKeyRingOptions.FileKeyRingDirectoryName, builder.Environment.ContentRootPath);
     Directory.CreateDirectory(dataProtectionKeysPath);
 
     dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
@@ -625,6 +623,7 @@ app.UseMiddleware<SignalRQueryStringAuthMiddleware>();
 app.UseRouting();
 app.UseDefaultFiles();
 app.UseStaticFiles();
+app.UseNativeUi(NativeUiHostingExtensions.GetUiRoot(builder.Configuration));
 
 app.UseAuthentication();
 
@@ -653,6 +652,7 @@ app.UseEndpoints(endpoints =>
         endpoints.MapHub<HarmonizerJobHub>(SignalRConstants.HarmonizerHubPath);
         endpoints.MapHub<HolisticHarmonizerJobHub>(SignalRConstants.HolisticHarmonizerHubPath);
         endpoints.MapHub<AutoWizardJobHub>(SignalRConstants.AutoWizardHubPath);
+        endpoints.MapNativeUiFallback(NativeUiHostingExtensions.GetUiRoot(builder.Configuration));
         endpoints.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
         {
             Predicate = check => !check.Tags.Contains("deep")
