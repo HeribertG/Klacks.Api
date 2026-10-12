@@ -1,0 +1,263 @@
+# Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
+#
+# Provisions a native Klacks installation on Windows: PostgreSQL cluster, secrets, configuration file, version layout
+# and the three services (KlacksPostgres, Klacks, KlacksUpdater). Re-running it is safe: existing secrets, the database
+# cluster and installed versions are kept. The Inno Setup installer only copies the payload and calls this script
+# elevated; everything up to the service registration can be run without administrator rights via -NoServices, which
+# starts PostgreSQL and the API as plain processes instead (development and CI smoke tests).
+#
+# Windows PowerShell 5.1 compatible on purpose: it is the only PowerShell every Windows 10/11 machine has.
+#
+# Layout:  <ProgramRoot>\versions\<x.y.z>\{app,ui,updater}   <ProgramRoot>\current -> junction   <ProgramRoot>\pgsql
+#          <DataRoot>\pgdata  <DataRoot>\config\klacks.native.json  <DataRoot>\backups  <DataRoot>\logs  (+ API data)
+
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory = $true)][string]$BundleZip,
+    [Parameter(Mandatory = $true)][string]$Version,
+    [Parameter(Mandatory = $true)][string]$PostgresDirectory,
+    [string]$ProgramRoot = (Join-Path $env:ProgramFiles 'Klacks'),
+    [string]$DataRoot = (Join-Path $env:ProgramData 'Klacks'),
+    [int]$HttpPort = 5180,
+    [int]$PostgresPort = 5439,
+    [string]$Region = '',
+    [string]$UpdatePublicKeyPath = '',
+    [string]$UpdateManifestBaseUrl = 'https://github.com/HeribertG/Klacks.Api/releases/latest/download',
+    [switch]$NoServices
+)
+
+$ErrorActionPreference = 'Stop'
+
+$ApiServiceName = 'Klacks'
+$UpdaterServiceName = 'KlacksUpdater'
+$PostgresServiceName = 'KlacksPostgres'
+$PostgresSuperUser = 'klacks'
+$DatabaseName = 'Klacks'
+$ConfigFileName = 'klacks.native.json'
+$SecretsFileName = 'secrets.json'
+$HealthTimeoutSeconds = 600
+
+function Write-Step($message) { Write-Host "==> $message" -ForegroundColor Cyan }
+
+function New-Secret([int]$bytes = 48) {
+    $buffer = New-Object byte[] $bytes
+    [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($buffer)
+    return [Convert]::ToBase64String($buffer)
+}
+
+function New-DatabasePassword {
+    return (New-Secret 32).Replace('+', 'A').Replace('/', 'B').Replace('=', '')
+}
+
+function New-DataProtectionCertificate($password) {
+    $rsa = [System.Security.Cryptography.RSA]::Create(2048)
+    $request = New-Object System.Security.Cryptography.X509Certificates.CertificateRequest(
+        'CN=Klacks DataProtection', $rsa,
+        [System.Security.Cryptography.HashAlgorithmName]::SHA256,
+        [System.Security.Cryptography.RSASignaturePadding]::Pkcs1)
+    $certificate = $request.CreateSelfSigned([DateTimeOffset]::UtcNow.AddDays(-1), [DateTimeOffset]::UtcNow.AddYears(10))
+    $pfx = $certificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx, $password)
+    return [Convert]::ToBase64String($pfx)
+}
+
+function Protect-Directory($path) {
+    # SYSTEM and Administrators only: the services run as LocalSystem, nobody else may read the secrets.
+    $acl = New-Object System.Security.AccessControl.DirectorySecurity
+    $acl.SetAccessRuleProtection($true, $false)
+    foreach ($identity in @('NT AUTHORITY\SYSTEM', 'BUILTIN\Administrators')) {
+        $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+            $identity, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
+        $acl.AddAccessRule($rule)
+    }
+    Set-Acl -Path $path -AclObject $acl
+}
+
+function Invoke-Native($file, [string[]]$arguments) {
+    & $file @arguments
+    if ($LASTEXITCODE -ne 0) { throw "'$file $($arguments -join ' ')' exited with $LASTEXITCODE." }
+}
+
+function Wait-Healthy($url, $timeoutSeconds, $process, $serviceName) {
+    $deadline = (Get-Date).AddSeconds($timeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        if ($process -and $process.HasExited) { throw "Klacks exited during start-up with code $($process.ExitCode)." }
+        if ($serviceName -and (Get-Service -Name $serviceName).Status -eq 'Stopped') { throw "Service $serviceName stopped during start-up." }
+        try {
+            $response = Invoke-WebRequest -UseBasicParsing -Uri $url -TimeoutSec 10
+            if ($response.StatusCode -eq 200) { return $true }
+        }
+        catch { }
+        Start-Sleep -Seconds 5
+    }
+    return $false
+}
+
+if ($Version -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$') { throw "'$Version' is not a valid version." }
+if (-not (Test-Path (Join-Path $PostgresDirectory 'bin\pg_ctl.exe'))) { throw "No PostgreSQL binaries below '$PostgresDirectory'." }
+
+$versionsDirectory = Join-Path $ProgramRoot 'versions'
+$versionDirectory = Join-Path $versionsDirectory $Version
+$currentLink = Join-Path $ProgramRoot 'current'
+$postgresRoot = Join-Path $ProgramRoot 'pgsql'
+$postgresBin = Join-Path $postgresRoot 'bin'
+$pgData = Join-Path $DataRoot 'pgdata'
+$configDirectory = Join-Path $DataRoot 'config'
+$logDirectory = Join-Path $DataRoot 'logs'
+$backupDirectory = Join-Path $DataRoot 'backups'
+$secretsFile = Join-Path $configDirectory $SecretsFileName
+$configFile = Join-Path $configDirectory $ConfigFileName
+
+# --- 1. Directories -----------------------------------------------------------------------------------------------
+Write-Step "Preparing $ProgramRoot and $DataRoot"
+foreach ($directory in @($ProgramRoot, $versionsDirectory, $DataRoot, $configDirectory, $logDirectory, $backupDirectory)) {
+    New-Item -ItemType Directory -Force -Path $directory | Out-Null
+}
+if (-not $NoServices) { Protect-Directory $configDirectory }
+
+# --- 2. Secrets (generated once, kept on re-run) -------------------------------------------------------------------
+if (Test-Path $secretsFile) {
+    $secrets = Get-Content -Raw $secretsFile | ConvertFrom-Json
+    Write-Step 'Reusing existing secrets'
+}
+else {
+    Write-Step 'Generating secrets'
+    $dataProtectionPassword = New-Secret 24
+    $secrets = [pscustomobject]@{
+        DatabasePassword             = New-DatabasePassword
+        JwtSecret                    = New-Secret 64
+        DataProtectionCertificate    = New-DataProtectionCertificate $dataProtectionPassword
+        DataProtectionPassword       = $dataProtectionPassword
+    }
+    $secrets | ConvertTo-Json | Set-Content -Encoding UTF8 $secretsFile
+}
+
+# --- 3. PostgreSQL binaries and cluster ---------------------------------------------------------------------------
+if (-not (Test-Path (Join-Path $postgresBin 'pg_ctl.exe'))) {
+    Write-Step "Copying PostgreSQL binaries from $PostgresDirectory"
+    New-Item -ItemType Directory -Force -Path $postgresRoot | Out-Null
+    foreach ($part in @('bin', 'lib', 'share')) {
+        Copy-Item -Recurse -Force (Join-Path $PostgresDirectory $part) (Join-Path $postgresRoot $part)
+    }
+}
+if (-not (Test-Path (Join-Path $postgresRoot 'lib\vector.dll'))) { throw 'pgvector (lib\vector.dll) is missing from the PostgreSQL payload.' }
+
+if (-not (Test-Path (Join-Path $pgData 'PG_VERSION'))) {
+    Write-Step 'Initialising the database cluster'
+    $passwordFile = Join-Path $configDirectory 'initdb.pw'
+    try {
+        Set-Content -NoNewline -Encoding ASCII -Path $passwordFile -Value $secrets.DatabasePassword
+        Invoke-Native (Join-Path $postgresBin 'initdb.exe') @('-D', $pgData, '-U', $PostgresSuperUser, '-E', 'UTF8',
+            '--auth-local=scram-sha-256', '--auth-host=scram-sha-256', "--pwfile=$passwordFile", '--no-instructions')
+    }
+    finally {
+        Remove-Item -Force -ErrorAction SilentlyContinue $passwordFile
+    }
+    Add-Content -Path (Join-Path $pgData 'postgresql.conf') -Value @(
+        '', '# Klacks native installation', "port = $PostgresPort", "listen_addresses = 'localhost'")
+}
+
+$pgCtl = Join-Path $postgresBin 'pg_ctl.exe'
+if ($NoServices) {
+    & $pgCtl status -D $pgData *> $null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Step 'Starting PostgreSQL (process mode)'
+        Invoke-Native $pgCtl @('start', '-D', $pgData, '-w', '-l', (Join-Path $logDirectory 'postgres.log'))
+    }
+}
+else {
+    if (-not (Get-Service -Name $PostgresServiceName -ErrorAction SilentlyContinue)) {
+        Write-Step "Registering service $PostgresServiceName"
+        Invoke-Native $pgCtl @('register', '-N', $PostgresServiceName, '-D', $pgData, '-S', 'auto', '-w')
+    }
+    Start-Service -Name $PostgresServiceName
+}
+
+# --- 4. Program version and "current" junction -------------------------------------------------------------------
+if (-not (Test-Path $versionDirectory)) {
+    Write-Step "Installing Klacks $Version"
+    $staging = Join-Path $ProgramRoot ('staging\' + [guid]::NewGuid().ToString('N'))
+    Expand-Archive -Path $BundleZip -DestinationPath $staging
+    Move-Item -Path $staging -Destination $versionDirectory
+}
+if (-not (Test-Path $currentLink)) {
+    cmd /c mklink /J "$currentLink" "$versionDirectory" | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Could not create the junction $currentLink." }
+}
+
+# --- 5. Configuration file (read by the API and the updater) -----------------------------------------------------
+Write-Step "Writing $configFile"
+$baseUrl = "http://localhost:$HttpPort"
+$loopbackUrl = "http://127.0.0.1:$HttpPort"
+$connectionString = "Host=localhost;Port=$PostgresPort;Database=$DatabaseName;Username=$PostgresSuperUser;Password=$($secrets.DatabasePassword)"
+$publicKey = ''
+if ($UpdatePublicKeyPath) { $publicKey = (Get-Content -Raw $UpdatePublicKeyPath).Replace("`r`n", "`n").Trim() }
+$regionFile = ''
+if ($Region) { $regionFile = Join-Path $currentLink ("app\regions\" + $Region.ToLowerInvariant() + '.json') }
+
+$config = [ordered]@{
+    Urls              = $loopbackUrl
+    ConnectionStrings = [ordered]@{ DefaultConnection = $connectionString }
+    JwtSettings       = [ordered]@{ Secret = $secrets.JwtSecret; ValidAudience = $baseUrl; ValidIssuer = $baseUrl }
+    DataProtection    = [ordered]@{ CertificateBase64 = $secrets.DataProtectionCertificate; CertificatePassword = $secrets.DataProtectionPassword }
+    Hosting           = [ordered]@{ UiRoot = (Join-Path $currentLink 'ui') }
+    Database          = [ordered]@{ InitializeOnStartup = $true }
+    Cors              = [ordered]@{ Host = $baseUrl; Home = $baseUrl }
+    PasswordReset     = [ordered]@{ BaseUrl = $baseUrl }
+    Mcp               = [ordered]@{ PublicBaseUrl = $baseUrl }
+    Update            = [ordered]@{ ManifestBaseUrl = $UpdateManifestBaseUrl; SignaturePublicKey = $publicKey }
+    RegionSetup       = [ordered]@{ File = $regionFile }
+    Updater           = [ordered]@{
+        Mode                 = 'Native'
+        NativeProgramRoot    = $ProgramRoot
+        NativeServiceName    = $ApiServiceName
+        ConnectionString     = $connectionString
+        PostgresBinDirectory = $postgresBin
+        BackupDirectory      = $backupDirectory
+        HealthUrl            = "$loopbackUrl/internal/health/deep"
+        VersionUrl           = "$loopbackUrl/api/Version"
+        SignaturePublicKey   = $publicKey
+    }
+}
+$config | ConvertTo-Json -Depth 5 | Set-Content -Encoding UTF8 $configFile
+
+# --- 6. Klacks and updater -------------------------------------------------------------------------------------
+$apiExe = Join-Path $currentLink 'app\Klacks.Api.exe'
+$updaterExe = Join-Path $currentLink 'updater\Klacks.Updater.exe'
+$environment = @("Hosting__DataRoot=$DataRoot", 'ASPNETCORE_ENVIRONMENT=Production', 'DOTNET_ENVIRONMENT=Production')
+$apiProcess = $null
+$apiServiceName = $null
+
+if ($NoServices) {
+    Write-Step 'Starting Klacks (process mode)'
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo $apiExe
+    $startInfo.UseShellExecute = $false
+    $startInfo.WorkingDirectory = $env:SystemRoot
+    foreach ($entry in $environment) {
+        $pair = $entry.Split('=', 2)
+        $startInfo.EnvironmentVariables[$pair[0]] = $pair[1]
+    }
+    $apiProcess = [System.Diagnostics.Process]::Start($startInfo)
+}
+else {
+    foreach ($service in @(
+            @{ Name = $ApiServiceName; Exe = $apiExe; Display = 'Klacks'; DependsOn = @($PostgresServiceName) },
+            @{ Name = $UpdaterServiceName; Exe = $updaterExe; Display = 'Klacks Updater'; DependsOn = @($PostgresServiceName) })) {
+        if (-not (Get-Service -Name $service.Name -ErrorAction SilentlyContinue)) {
+            Write-Step "Registering service $($service.Name)"
+            New-Service -Name $service.Name -BinaryPathName "`"$($service.Exe)`"" -DisplayName $service.Display `
+                -StartupType Automatic -DependsOn $service.DependsOn | Out-Null
+            $key = "HKLM:\SYSTEM\CurrentControlSet\Services\$($service.Name)"
+            New-ItemProperty -Path $key -Name 'Environment' -PropertyType MultiString -Value $environment -Force | Out-Null
+            sc.exe failure $service.Name reset= 86400 actions= restart/60000/restart/60000/restart/300000 | Out-Null
+        }
+        Start-Service -Name $service.Name
+    }
+    $apiServiceName = $ApiServiceName
+}
+
+# --- 7. Health -------------------------------------------------------------------------------------------------------
+Write-Step "Waiting for Klacks on $loopbackUrl (first start migrates the database, this can take a few minutes)"
+if (-not (Wait-Healthy "$loopbackUrl/internal/health/deep" $HealthTimeoutSeconds $apiProcess $apiServiceName)) {
+    throw "Klacks did not become healthy within $HealthTimeoutSeconds seconds. Logs: $logDirectory"
+}
+Write-Host "Klacks $Version is running: $baseUrl" -ForegroundColor Green
