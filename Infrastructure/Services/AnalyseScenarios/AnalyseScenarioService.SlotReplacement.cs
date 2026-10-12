@@ -7,6 +7,7 @@
 /// displaced work keeps its own employee's new work first, the rest are matched one to one and only leftovers share a work.
 /// A slot that received no planner work (placement blocked or without clone) is emptied; the expenses then follow the
 /// employee's own new work that day, and only without one does the displaced work carrying expenses stay with its children.
+/// A work on a locked day (sealed for its employee) is never displaced: a scenario must not delete it (owner 2026-10-13).
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -33,8 +34,12 @@ public partial class AnalyseScenarioService
                 && !w.IsDeleted && w.LockLevel == WorkLockLevel.None && w.ParentWorkId == null)
             .ToListAsync(ct);
         var fixedWorkIds = await Schedules.CorrectedWorkQuery.LoadFixedWorkIdsAsync(_context, token, fromDate, untilDate, ct);
+        var lockedDays = await Repositories.Schedules.DayLockAttribution.LoadLockedClientDaysAsync(
+            _context, candidateWorks.Select(w => w.ClientId).Distinct().ToList(), fromDate, untilDate, ct);
         var movableWorks = candidateWorks
-            .Where(w => plannedSlots.Contains((w.ShiftId, w.CurrentDate)) && !fixedWorkIds.Contains(w.Id))
+            .Where(w => plannedSlots.Contains((w.ShiftId, w.CurrentDate))
+                && !fixedWorkIds.Contains(w.Id)
+                && !lockedDays.Contains((w.ClientId, w.CurrentDate)))
             .ToList();
         if (movableWorks.Count == 0)
         {

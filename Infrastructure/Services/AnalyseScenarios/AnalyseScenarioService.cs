@@ -171,7 +171,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
 
         var realWorks = await LoadRealWorksInScopeAsync(shiftIds, fromDate, untilDate, ct);
         var plan = await BuildAcceptDayLockPlanAsync(
-            token, fromDate, untilDate, realWorks.Select(w => w.ClientId).Concat(clientIds ?? []), ct);
+            token, fromDate, untilDate, realWorks.Select(w => w.ClientId).Concat(clientIds ?? []), realWorks.Select(w => w.Id), ct);
 
         var keptWorkIds = SoftDeleteRealWorks(realWorks, plan);
         await SoftDeleteRealWorkChildrenAsync(realWorks.Where(w => w.IsDeleted).Select(w => w.Id).ToList(), ct);
@@ -315,7 +315,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
 
     public async Task<ScenarioAcceptLockSkips> PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
     {
-        var plan = await BuildAcceptDayLockPlanAsync(token, fromDate, untilDate, [], ct);
+        var plan = await BuildAcceptDayLockPlanAsync(token, fromDate, untilDate, [], [], ct);
 
         var cloneShifts = await _context.Shift.IgnoreQueryFilters()
             .Where(s => s.AnalyseToken == token && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
@@ -330,6 +330,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
         var promotedWorkIds = new List<Guid>();
         var boundaryWorkIds = new List<Guid>();
         var skippedWorks = 0;
+        var discardedInPeriod = new List<Guid>();
         foreach (var w in scenarioWorks)
         {
             if (w.CurrentDate < fromDate || w.CurrentDate > untilDate)
@@ -345,6 +346,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
                 w.IsDeleted = true;
                 w.DeletedTime = now;
                 boundaryWorkIds.Add(w.Id);
+                discardedInPeriod.Add(w.Id);
                 if (DiffersFromOrigin(w, plan.RealOriginOf(w.Id), cloneToSource))
                 {
                     skippedWorks++;
@@ -390,6 +392,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
             foreach (var e in boundaryExpenses) { e.IsDeleted = true; e.DeletedTime = now; }
         }
 
+        var (skippedWorkChanges, skippedExpenses) = await CountDiscardedChildChangesAsync(discardedInPeriod, plan, ct);
         var skippedBreaks = await PromoteScenarioBreaksAsync(token, fromDate, untilDate, plan, now, ct);
         var skippedNotes = await PromoteScenarioNotesAsync(token, fromDate, untilDate, plan, now, ct);
 
@@ -436,7 +439,8 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
 
         await SoftDeleteScenarioPlanningConstraintsAsync(token, now, ct);
 
-        var skips = new ScenarioAcceptLockSkips(skippedWorks, skippedBreaks, skippedNotes);
+        var skips = new ScenarioAcceptLockSkips(
+            skippedWorks, skippedBreaks, skippedNotes, skippedWorkChanges, skippedExpenses);
         LogLockSkips(token, skips);
         return skips;
     }
@@ -829,8 +833,9 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
     }
 
     /// <summary>
-    /// Soft-deletes the movable real works of the scope; a locked work, a work on a locked day and a work whose slot the
-    /// day-lock plan keeps survive. Returns the ids of every real work the accept keeps.
+    /// Soft-deletes the movable real works of the scope; a locked work, a work on a locked day, a work replacing with an
+    /// employee whose day is locked and a work whose slot the day-lock plan keeps survive. Returns the ids of every real
+    /// work the accept keeps.
     /// </summary>
     private static HashSet<Guid> SoftDeleteRealWorks(List<Work> realWorks, AcceptDayLockPlan plan)
     {
@@ -839,9 +844,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
 
         foreach (var work in realWorks)
         {
-            if (work.LockLevel != WorkLockLevel.None
-                || plan.IsLocked(work.ClientId, work.CurrentDate)
-                || plan.KeepsRealWork(work.Id))
+            if (plan.LeavesRealWork(work.Id, work.ClientId, work.CurrentDate, work.LockLevel))
             {
                 keptWorkIds.Add(work.Id);
                 continue;
@@ -895,10 +898,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
 
         foreach (var brk in realBreaks)
         {
-            var keep = brk.LockLevel != WorkLockLevel.None
-                || plan.IsLocked(brk.ClientId, brk.CurrentDate)
-                || (brk.ParentWorkId is { } parentId && keptWorkIds.Contains(parentId));
-            if (!keep)
+            if (!plan.LeavesRealBreak(brk.LockLevel, brk.ClientId, brk.CurrentDate, brk.ParentWorkId, keptWorkIds))
             {
                 brk.IsDeleted = true;
                 brk.DeletedTime = now;

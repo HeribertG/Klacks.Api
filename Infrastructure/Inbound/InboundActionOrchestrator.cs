@@ -35,7 +35,10 @@
 /// as sensitive, or removed outright, is refused here even though this mapping would still allow it.
 /// Planning commands are placed all or nothing: before the first add_schedule_commands_range call, every covered day
 /// is checked against the day seals and the acting token plus the unattended policy are resolved once for all calls,
-/// so a sealed day or a policy refusal in a later range or keyword never leaves the earlier ones saved.
+/// so a sealed day or a policy refusal in a later range or keyword never leaves the earlier ones saved. The calls
+/// themselves run in one database transaction (IUnitOfWork.ExecuteInTransactionAsync; the skills commit through the same
+/// scoped context), so a failure between them - a database error or a seal set in the meantime - rolls back every
+/// range already placed.
 /// Every skill it runs gets the message's receive time on the trusted SkillExecutionContext.InboundReceivedAtUtc
 /// (never in the parameter dictionary); cover_absence records it as the report time with the Messenger source in
 /// the replacement request book. Inbound email maps to Messenger too (the source enum names the inbound channel
@@ -45,6 +48,7 @@
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Email;
@@ -58,7 +62,7 @@ using Microsoft.Extensions.Options;
 
 namespace Klacks.Api.Infrastructure.Inbound;
 
-public class InboundActionOrchestrator : IInboundActionOrchestrator
+public partial class InboundActionOrchestrator : IInboundActionOrchestrator
 {
     private const int MinHour = 0;
     private const int MaxHour = 23;
@@ -80,6 +84,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
     private readonly IUnattendedSkillPolicy _unattendedSkillPolicy;
     private readonly IProactiveGovernanceResolver _governanceResolver;
     private readonly EmailAutomationOptions _automationOptions;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<InboundActionOrchestrator> _logger;
 
     public InboundActionOrchestrator(
@@ -96,6 +101,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
         IUnattendedSkillPolicy unattendedSkillPolicy,
         IProactiveGovernanceResolver governanceResolver,
         IOptions<EmailAutomationOptions> automationOptions,
+        IUnitOfWork unitOfWork,
         ILogger<InboundActionOrchestrator> logger)
     {
         _adminAutonomy = adminAutonomy;
@@ -111,6 +117,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
         _unattendedSkillPolicy = unattendedSkillPolicy;
         _governanceResolver = governanceResolver;
         _automationOptions = automationOptions.Value;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -527,34 +534,16 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
             return new InboundActionOutcome(false, $"Automatic planning commands failed ({refusal!.Message}). {suggestion}");
         }
 
-        var placedTotal = 0;
-        foreach (var keyword in keywords)
+        int placedTotal;
+        try
         {
-            foreach (var (rangeFrom, rangeUntil) in ranges)
-            {
-                var result = await _skillExecutor.ExecuteAsync(
-                    new SkillInvocation
-                    {
-                        SkillName = ScheduleCommandsRangeSkill,
-                        Parameters = new Dictionary<string, object>
-                        {
-                            ["clientId"] = clientId,
-                            ["fromDate"] = rangeFrom,
-                            ["untilDate"] = rangeUntil,
-                            ["commandKeyword"] = keyword
-                        }
-                    },
-                    context,
-                    cancellationToken);
-
-                if (!result.Success)
-                {
-                    return new InboundActionOutcome(false,
-                        $"Automatic planning commands failed at {keyword} ({result.Message}). {suggestion}");
-                }
-
-                placedTotal += rangeUntil.DayNumber - rangeFrom.DayNumber + 1;
-            }
+            placedTotal = await _unitOfWork.ExecuteInTransactionAsync(
+                () => PlaceCommandsAsync(clientId, keywords, ranges, context, cancellationToken));
+        }
+        catch (InboundCommandPlacementFailedException failure)
+        {
+            return new InboundActionOutcome(false,
+                $"Automatic planning commands failed at {failure.Keyword} ({failure.Reason}); nothing was placed. {suggestion}");
         }
 
         return new InboundActionOutcome(true,
@@ -634,42 +623,6 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
         return lockedDate != null
             ? $"The period is already sealed as of {lockedDate:yyyy-MM-dd} — this action is only " +
               "executed automatically for periods that are not yet sealed. "
-            : null;
-    }
-
-    /// <summary>
-    /// Seal check over every day the planning commands would cover, run before the first write: each
-    /// add_schedule_commands_range call commits on its own, so a sealed day in a later range would otherwise leave the
-    /// earlier ranges saved. Uses the same rule as the skill's own guard (global seal or a seal of one of the client's
-    /// groups), but over all covered days, including those that already carry the keyword.
-    /// </summary>
-    /// <param name="clientId">Employee the commands are placed for</param>
-    /// <param name="ranges">Date ranges the commands would be placed on</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    private async Task<string?> DescribeSealedCommandDaysIssueAsync(
-        Guid clientId, IReadOnlyCollection<(DateOnly From, DateOnly Until)> ranges, CancellationToken cancellationToken)
-    {
-        if (ranges.Any(range => range.Until < range.From))
-        {
-            return "The announced period ends before it starts, so no planning commands were placed automatically. ";
-        }
-
-        var days = ranges.Sum(range => range.Until.DayNumber - range.From.DayNumber + 1);
-        if (days > MaxSealCheckRangeDays)
-        {
-            return $"The announced period spans {days} days (maximum {MaxSealCheckRangeDays}), so the seal check " +
-                   "was not performed and no planning commands were placed automatically. ";
-        }
-
-        var pairs = InboundCommandDateRanges.Days(ranges)
-            .Distinct()
-            .Select(day => (day, clientId))
-            .ToList();
-
-        var locked = await _sealedDayRepository.GetLockedPairsAsync(pairs, cancellationToken);
-        return locked.Count > 0
-            ? $"Day {locked.Min(pair => pair.Date):yyyy-MM-dd} of the announced period is sealed, so no planning " +
-              "commands were placed automatically (all or nothing). "
             : null;
     }
 

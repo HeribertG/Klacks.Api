@@ -104,6 +104,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
                 workChange.AnalyseToken,
                 cancellationToken);
 
+            await _dayLockService.EnsureWorkChangeNotLockedAsync(parentWork, workChange, cancellationToken);
+
             await EnsureNoReplacementCollisionAsync(workChange, parentWork, request.Resource.OverrideBlock, cancellationToken);
 
             await _workChangeRepository.Add(workChange);

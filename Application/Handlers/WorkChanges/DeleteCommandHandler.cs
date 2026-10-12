@@ -100,6 +100,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
                     parentWork.ClientId,
                     parentWork.AnalyseToken,
                     cancellationToken);
+
+                await _dayLockService.EnsureWorkChangeNotLockedAsync(parentWork, existingWorkChange, cancellationToken);
             }
 
             await _workChangeRepository.Delete(request.Id);

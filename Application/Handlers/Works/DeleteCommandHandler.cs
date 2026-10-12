@@ -91,6 +91,11 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
                 work.AnalyseToken,
                 cancellationToken);
 
+            if (work.AnalyseToken.HasValue)
+            {
+                await _dayLockService.EnsureDeletableAsync([(work.CurrentDate, work.ClientId)], cancellationToken);
+            }
+
             var shiftId = work.ShiftId;
             var workDate = work.CurrentDate;
 

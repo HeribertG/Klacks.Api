@@ -137,6 +137,10 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
                     oldParentWork.AnalyseToken,
                     cancellationToken);
             }
+
+            await _dayLockService.EnsureWorkChangeNotLockedAsync(parentWork, workChange, cancellationToken);
+            await _dayLockService.EnsureWorkChangeNotLockedAsync(oldParentWork, existingWorkChange, cancellationToken);
+
             var updatedWorkChange = await _workChangeRepository.Put(workChange);
 
             if (updatedWorkChange == null)

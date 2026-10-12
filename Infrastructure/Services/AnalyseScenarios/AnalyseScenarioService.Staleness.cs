@@ -2,14 +2,15 @@
 
 /// <summary>
 /// Staleness check of a scenario before it is accepted: counts the real rows inside the scope the accept replaces that
-/// were created, updated or deleted after the scenario's snapshot was taken. The scope is resolved by the same helper the
-/// accept delete uses (ResolveRealAcceptScopeAsync). Real works count whatever their lock level: a work sealed after the
-/// snapshot stays in place on accept while its movable clone is promoted next to it. Work changes and expenses count
-/// only on movable works, because the accept never overwrites the children of a locked work. Deleted rows are included
-/// (IgnoreQueryFilters), because a deletion after the snapshot is overwritten too: the accept brings the scenario's copy
-/// of the row back. A scenario built on another scenario carries rows of its source's snapshot, so the snapshot instant
-/// is the earliest creation along the SourceToken chain. Counting and the latest change instant are aggregated in the
-/// database.
+/// were created, updated or deleted after the scenario's snapshot was taken AND that the accept actually overwrites. The
+/// scope is resolved by the same helper the accept delete uses (ResolveRealAcceptScopeAsync), and the rows the accept
+/// leaves in place are dropped with the same day-lock plan the accept builds (AcceptDayLockPlan): rows on a locked day,
+/// locked works and breaks, a work with a work change shown on a locked day, kept slots, and the children and
+/// pauses of every kept work. Such a change survives the accept, so the warning must not call it overwritten. Deleted
+/// rows are included (IgnoreQueryFilters), because a deletion after the snapshot is overwritten too: the accept brings
+/// the scenario's copy of the row back. A scenario built on another scenario carries rows of its source's snapshot, so
+/// the snapshot instant is the earliest creation along the SourceToken chain. The changed rows are filtered in memory,
+/// because the locked (client, day) pairs do not translate into SQL.
 /// </summary>
 
 using System.Linq.Expressions;
@@ -56,7 +57,7 @@ public partial class AnalyseScenarioService
             scopedWorks = scopedWorks.Where(w => shiftIds.Contains(w.ShiftId));
         }
 
-        var movableWorkIds = scopedWorks.Where(w => w.LockLevel == WorkLockLevel.None).Select(w => w.Id);
+        var movableWorks = scopedWorks.Where(w => w.LockLevel == WorkLockLevel.None);
 
         var scopedBreaks = _context.Break.IgnoreQueryFilters()
             .Where(b => b.AnalyseToken == null && b.CurrentDate >= fromDate && b.CurrentDate <= untilDate);
@@ -68,31 +69,106 @@ public partial class AnalyseScenarioService
             scopedNotes = scopedNotes.Where(sn => clientIds.Contains(sn.ClientId));
         }
 
-        var summaries = new[]
-        {
-            await SummarizeChangesSinceAsync(scopedWorks, since, ct),
-            await SummarizeChangesSinceAsync(
-                _context.WorkChange.IgnoreQueryFilters().Where(wc => wc.AnalyseToken == null && movableWorkIds.Contains(wc.WorkId)),
-                since,
-                ct),
-            await SummarizeChangesSinceAsync(
-                _context.Expenses.IgnoreQueryFilters().Where(e => e.AnalyseToken == null && movableWorkIds.Contains(e.WorkId)),
-                since,
-                ct),
-            await SummarizeChangesSinceAsync(scopedBreaks, since, ct),
-            await SummarizeChangesSinceAsync(scopedNotes, since, ct),
-        };
+        var changedSince = ChangedSince<Work>(since);
+        var changed = new List<StaleRow>();
+        changed.AddRange(await scopedWorks.Where(changedSince)
+            .Select(w => new StaleRow(StaleRowKind.Work, w.Id, w.ClientId, w.CurrentDate, w.LockLevel, w.Id, w.CreateTime, w.UpdateTime, w.DeletedTime))
+            .ToListAsync(ct));
+        changed.AddRange(await (
+                from wc in _context.WorkChange.IgnoreQueryFilters()
+                join w in movableWorks on wc.WorkId equals w.Id
+                where wc.AnalyseToken == null && (wc.CreateTime > since || wc.UpdateTime > since || wc.DeletedTime > since)
+                select new StaleRow(StaleRowKind.WorkChild, wc.Id, w.ClientId, w.CurrentDate, w.LockLevel, w.Id, wc.CreateTime, wc.UpdateTime, wc.DeletedTime))
+            .ToListAsync(ct));
+        changed.AddRange(await (
+                from e in _context.Expenses.IgnoreQueryFilters()
+                join w in movableWorks on e.WorkId equals w.Id
+                where e.AnalyseToken == null && (e.CreateTime > since || e.UpdateTime > since || e.DeletedTime > since)
+                select new StaleRow(StaleRowKind.WorkChild, e.Id, w.ClientId, w.CurrentDate, w.LockLevel, w.Id, e.CreateTime, e.UpdateTime, e.DeletedTime))
+            .ToListAsync(ct));
+        changed.AddRange(await scopedBreaks.Where(ChangedSince<Break>(since))
+            .Select(b => new StaleRow(StaleRowKind.Break, b.Id, b.ClientId, b.CurrentDate, b.LockLevel, b.ParentWorkId, b.CreateTime, b.UpdateTime, b.DeletedTime))
+            .ToListAsync(ct));
+        changed.AddRange(await scopedNotes.Where(ChangedSince<ScheduleNote>(since))
+            .Select(sn => new StaleRow(StaleRowKind.Note, sn.Id, sn.ClientId, sn.CurrentDate, WorkLockLevel.None, null, sn.CreateTime, sn.UpdateTime, sn.DeletedTime))
+            .ToListAsync(ct));
 
-        var changedEntryCount = summaries.Sum(s => s.Count);
-        if (changedEntryCount == 0)
+        if (changed.Count == 0)
         {
             return null;
         }
 
-        var lastChange = summaries.Where(s => s.LastChange.HasValue).Max(s => s.LastChange!.Value);
+        var overwritten = await KeepOverwrittenRowsAsync(scenario.Token, fromDate, untilDate, shiftIds, changed, ct);
+        if (overwritten.Count == 0)
+        {
+            return null;
+        }
+
+        var lastChange = overwritten
+            .SelectMany(r => new[] { r.CreateTime, r.UpdateTime, r.DeletedTime })
+            .Where(t => t > since)
+            .Max()!.Value;
         var acceptedScenarioNames = await AcceptedSiblingNamesSinceAsync(scenario, since, ct);
 
-        return new ScenarioStaleness(changedEntryCount, lastChange, acceptedScenarioNames);
+        return new ScenarioStaleness(overwritten.Count, lastChange, acceptedScenarioNames);
+    }
+
+    /// <summary>
+    /// Drops the changed rows the accept leaves in place, decided by the same day-lock plan the accept builds: rows on a
+    /// locked day, locked works and breaks, and the children and pauses of a real work the accept keeps (locked, on a
+    /// locked day, with a work change shown on a locked day, or kept as a slot). Those changes are not overwritten,
+    /// so they must not be reported as such. A pause survives exactly when the delete keeps it: its paused work is a live
+    /// real work of the scope that the accept leaves in place, or a work whose slot the plan keeps.
+    /// </summary>
+    /// <param name="shiftIds">Real shifts of the accept scope, or null for every shift</param>
+    private async Task<List<StaleRow>> KeepOverwrittenRowsAsync(
+        Guid token, DateOnly fromDate, DateOnly untilDate, List<Guid>? shiftIds, List<StaleRow> changed, CancellationToken ct)
+    {
+        var pauseParentIds = changed
+            .Where(r => r.Kind == StaleRowKind.Break && r.WorkId.HasValue)
+            .Select(r => r.WorkId!.Value)
+            .Distinct()
+            .ToList();
+        var pauseParents = pauseParentIds.Count == 0
+            ? new Dictionary<Guid, AcceptWorkSnapshot>()
+            : await _context.Work.IgnoreQueryFilters()
+                .AsNoTracking()
+                .Where(w => pauseParentIds.Contains(w.Id) && w.AnalyseToken == null)
+                .Select(WorkSnapshot)
+                .ToDictionaryAsync(w => w.Id, ct);
+
+        var workIds = changed.Where(r => r.Kind != StaleRowKind.Note && r.Kind != StaleRowKind.Break)
+            .Select(r => r.WorkId!.Value)
+            .Concat(pauseParents.Keys)
+            .Distinct()
+            .ToList();
+        var clientIds = changed.Select(r => r.ClientId).Concat(pauseParents.Values.Select(p => p.ClientId)).Distinct().ToList();
+        var plan = await BuildAcceptDayLockPlanAsync(token, fromDate, untilDate, clientIds, workIds, ct);
+
+        var keptWorkIds = plan.KeptRealWorkIds
+            .Concat(pauseParents.Values
+                .Where(parent => !parent.IsDeleted
+                    && parent.CurrentDate >= fromDate && parent.CurrentDate <= untilDate
+                    && (shiftIds == null || shiftIds.Contains(parent.ShiftId))
+                    && plan.LeavesRealWork(parent.Id, parent.ClientId, parent.CurrentDate, parent.LockLevel))
+                .Select(parent => parent.Id))
+            .ToHashSet();
+
+        bool Overwritten(StaleRow row)
+        {
+            switch (row.Kind)
+            {
+                case StaleRowKind.Work:
+                case StaleRowKind.WorkChild:
+                    return !plan.LeavesRealWork(row.WorkId!.Value, row.ClientId, row.CurrentDate, row.LockLevel);
+                case StaleRowKind.Break:
+                    return !plan.LeavesRealBreak(row.LockLevel, row.ClientId, row.CurrentDate, row.WorkId, keptWorkIds);
+                default:
+                    return !plan.IsLocked(row.ClientId, row.CurrentDate);
+            }
+        }
+
+        return changed.Where(Overwritten).ToList();
     }
 
     /// <summary>
@@ -139,30 +215,6 @@ public partial class AnalyseScenarioService
         }
 
         return earliest;
-    }
-
-    /// <summary>
-    /// Number of rows of <paramref name="query"/> changed after <paramref name="since"/> and the latest of their creation,
-    /// update and deletion instants. Every counted row has at least one instant after <paramref name="since"/>, so the
-    /// largest column maximum equals the latest per-row change.
-    /// </summary>
-    private static async Task<(int Count, DateTime? LastChange)> SummarizeChangesSinceAsync<TEntity>(
-        IQueryable<TEntity> query, DateTime since, CancellationToken ct)
-        where TEntity : BaseEntity
-    {
-        var changed = query.Where(ChangedSince<TEntity>(since));
-        var count = await changed.CountAsync(ct);
-        if (count == 0)
-        {
-            return (0, null);
-        }
-
-        var lastCreated = await changed.MaxAsync(e => e.CreateTime, ct);
-        var lastUpdated = await changed.MaxAsync(e => e.UpdateTime, ct);
-        var lastDeleted = await changed.MaxAsync(e => e.DeletedTime, ct);
-        var lastChange = new[] { lastCreated, lastUpdated, lastDeleted }.Where(t => t.HasValue).Max();
-
-        return (count, lastChange);
     }
 
     private static Expression<Func<TEntity, bool>> ChangedSince<TEntity>(DateTime since)

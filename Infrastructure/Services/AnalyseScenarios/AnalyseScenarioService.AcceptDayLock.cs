@@ -5,7 +5,10 @@
 /// DayLockAttribution) are left untouched by an accept. Real works, breaks and schedule notes on a locked day survive,
 /// and the scenario's works, breaks and notes on a locked day are discarded instead of promoted. Works move as a slot:
 /// when the real work or any of its clones (or a pause of either) is locked, the real work stays and all its clones are
-/// discarded, including the other members of a container family. Breaks that pause a work follow the work. The plan is
+/// discarded, including the other members of a container family. A work counts as locked too, on either side, when one
+/// of its work changes shows on a locked day: on the day the schedule shows it (WorkChangeEntryDay, the following day
+/// for the post-midnight part of a shift crossing midnight), for the work's employee or a replacement employee. The
+/// locked days are therefore resolved up to the day after the period. Breaks that pause a work follow the work. The plan is
 /// read from the database before anything is staged; the delete and the promote each build it and get the same answer,
 /// because staged changes are not visible to these queries until the accept commits.
 /// </summary>
@@ -14,6 +17,7 @@ using System.Linq.Expressions;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,7 +26,7 @@ namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 public partial class AnalyseScenarioService
 {
     private const string LockSkipsMessage =
-        "Accepting scenario {Token}: {Works} works, {Breaks} breaks and {Notes} schedule notes on locked days were not taken over";
+        "Accepting scenario {Token}: {Works} works, {WorkChanges} work changes, {Expenses} expenses, {Breaks} breaks and {Notes} schedule notes on locked days were not taken over";
 
     private const string CloneLineageTooDeepMessage =
         "Accepting scenario {Token}: the clone lineage of {Count} works is deeper than {MaxDepth}; they are treated as having no real origin";
@@ -41,8 +45,14 @@ public partial class AnalyseScenarioService
     /// <param name="fromDate">First day of the accept period</param>
     /// <param name="untilDate">Last day of the accept period</param>
     /// <param name="realScopeClientIds">Clients of the real rows the delete looks at, so their days are resolved too</param>
+    /// <param name="realScopeWorkIds">Real works the delete looks at, so the days of their work changes are resolved too</param>
     private async Task<AcceptDayLockPlan> BuildAcceptDayLockPlanAsync(
-        Guid token, DateOnly fromDate, DateOnly untilDate, IEnumerable<Guid> realScopeClientIds, CancellationToken ct)
+        Guid token,
+        DateOnly fromDate,
+        DateOnly untilDate,
+        IEnumerable<Guid> realScopeClientIds,
+        IEnumerable<Guid> realScopeWorkIds,
+        CancellationToken ct)
     {
         var clones = await _context.Work.IgnoreQueryFilters()
             .AsNoTracking()
@@ -52,6 +62,8 @@ public partial class AnalyseScenarioService
 
         var originByClone = await ResolveRealOriginsAsync(token, clones, ct);
         var subBreaks = await LoadSubBreaksOfAsync(token, clones, originByClone.Values, ct);
+        var workChangeCells = await LoadWorkChangeCellsOfAsync(
+            clones.Select(c => c.Id).Concat(originByClone.Values.Select(o => o.Id)).Concat(realScopeWorkIds), ct);
 
         var scenarioBreakClients = await _context.Break.IgnoreQueryFilters()
             .Where(b => b.AnalyseToken == token && !b.IsDeleted && b.CurrentDate >= fromDate && b.CurrentDate <= untilDate)
@@ -70,20 +82,27 @@ public partial class AnalyseScenarioService
             .Concat(scenarioBreakClients)
             .Concat(scenarioNoteClients)
             .Concat(realScopeClientIds)
+            .Concat(workChangeCells.Select(c => c.ClientId))
             .Distinct()
             .ToList();
 
-        var lockedDays = await DayLockAttribution.LoadLockedClientDaysAsync(_context, clientIds, fromDate, untilDate, ct);
+        var lockedDays = await DayLockAttribution.LoadLockedClientDaysAsync(
+            _context, clientIds, fromDate, untilDate.AddDays(1), ct);
 
         var lockedPauseParents = subBreaks
             .Where(b => b.LockLevel != WorkLockLevel.None || lockedDays.Contains((b.ClientId, b.CurrentDate)))
             .Select(b => b.ParentWorkId!.Value)
             .ToHashSet();
+        var workChangeLocked = workChangeCells
+            .Where(c => lockedDays.Contains((c.ClientId, c.Date)))
+            .Select(c => c.WorkId)
+            .ToHashSet();
 
         bool IsSideLocked(AcceptWorkSnapshot work)
             => work.LockLevel != WorkLockLevel.None
                 || lockedDays.Contains((work.ClientId, work.CurrentDate))
-                || lockedPauseParents.Contains(work.Id);
+                || lockedPauseParents.Contains(work.Id)
+                || workChangeLocked.Contains(work.Id);
 
         var discarded = clones
             .Where(c => IsSideLocked(c) || (originByClone.TryGetValue(c.Id, out var origin) && IsSideLocked(origin)))
@@ -91,7 +110,48 @@ public partial class AnalyseScenarioService
             .ToHashSet();
         var kept = CloseLockedSlots(clones, originByClone, discarded);
 
-        return new AcceptDayLockPlan(lockedDays, kept, discarded, originByClone);
+        return new AcceptDayLockPlan(lockedDays, kept, discarded, originByClone, workChangeLocked);
+    }
+
+    /// <summary>
+    /// The (employee, day) cells the live work changes of the given works (real or scenario) show on: the day comes
+    /// from WorkChangeEntryDay (the following day for the post-midnight part of a shift crossing midnight), the
+    /// employees are the work's own and, for a replacement, the replacement employee.
+    /// </summary>
+    private async Task<List<(Guid WorkId, Guid ClientId, DateOnly Date)>> LoadWorkChangeCellsOfAsync(
+        IEnumerable<Guid> workIds, CancellationToken ct)
+    {
+        var ids = workIds.Distinct().ToList();
+        if (ids.Count == 0)
+        {
+            return [];
+        }
+
+        var rows = await (
+                from wc in _context.WorkChange.IgnoreQueryFilters()
+                join w in _context.Work.IgnoreQueryFilters() on wc.WorkId equals w.Id
+                join s in _context.Shift.IgnoreQueryFilters() on w.ShiftId equals s.Id
+                where !wc.IsDeleted && ids.Contains(wc.WorkId)
+                select new
+                {
+                    wc.WorkId, w.ClientId, wc.ReplaceClientId, wc.Type, w.CurrentDate, w.EndTime,
+                    wc.StartTime, wc.ChangeTime, s.StartShift, s.EndShift,
+                })
+            .ToListAsync(ct);
+
+        var cells = new List<(Guid WorkId, Guid ClientId, DateOnly Date)>();
+        foreach (var row in rows)
+        {
+            var day = WorkChangeEntryDay.Of(
+                row.Type, row.CurrentDate, row.EndTime, row.StartTime, row.ChangeTime, row.StartShift, row.EndShift);
+            cells.Add((row.WorkId, row.ClientId, day));
+            if (row.ReplaceClientId is { } replaceClientId)
+            {
+                cells.Add((row.WorkId, replaceClientId, day));
+            }
+        }
+
+        return cells.Distinct().ToList();
     }
 
     /// <summary>
@@ -223,8 +283,8 @@ public partial class AnalyseScenarioService
 
     /// <summary>
     /// True when a discarded scenario work carries a change the real plan does not keep: it has no live real origin, or
-    /// its employee, day, shift, times, hours or text differ from that origin. Changes of its work changes and expenses
-    /// are not compared.
+    /// its employee, day, shift, times, hours or text differ from that origin. Its work changes and expenses are counted
+    /// separately (CountDiscardedChildChangesAsync).
     /// </summary>
     private static bool DiffersFromOrigin(Work clone, AcceptWorkSnapshot? origin, IReadOnlyDictionary<Guid, Guid> cloneToSource)
     {
@@ -241,6 +301,84 @@ public partial class AnalyseScenarioService
             || clone.EndTime != origin.EndTime
             || clone.WorkTime != origin.WorkTime
             || !string.Equals(clone.Information, origin.Information, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Counts the work changes and expenses of discarded scenario works that the real plan does not keep, matched by
+    /// content: per discarded work the larger of "scenario rows without an identical row on its real origin" and "origin
+    /// rows without an identical scenario row", so an added, removed or edited row counts once. A discarded work without
+    /// a real origin counts all its rows.
+    /// </summary>
+    /// <param name="discardedCloneIds">Scenario works of the period the accept discards</param>
+    private async Task<(int WorkChanges, int Expenses)> CountDiscardedChildChangesAsync(
+        IReadOnlyCollection<Guid> discardedCloneIds, AcceptDayLockPlan plan, CancellationToken ct)
+    {
+        if (discardedCloneIds.Count == 0)
+        {
+            return (0, 0);
+        }
+
+        var workIds = discardedCloneIds
+            .Concat(discardedCloneIds.Select(id => plan.RealOriginOf(id)?.Id).OfType<Guid>())
+            .Distinct()
+            .ToList();
+
+        var workChanges = (await _context.WorkChange.IgnoreQueryFilters()
+                .Where(wc => !wc.IsDeleted && workIds.Contains(wc.WorkId))
+                .Select(wc => new
+                {
+                    wc.WorkId, wc.Type, wc.ChangeTime, wc.Surcharges, wc.StartTime, wc.EndTime,
+                    wc.ReplaceClientId, wc.Description, wc.ToInvoice,
+                })
+                .ToListAsync(ct))
+            .ToLookup(
+                wc => wc.WorkId,
+                wc => (wc.Type, wc.ChangeTime, wc.Surcharges, wc.StartTime, wc.EndTime, wc.ReplaceClientId, wc.Description, wc.ToInvoice));
+
+        var expenses = (await _context.Expenses.IgnoreQueryFilters()
+                .Where(e => !e.IsDeleted && workIds.Contains(e.WorkId))
+                .Select(e => new { e.WorkId, e.Amount, e.Description, e.Taxable })
+                .ToListAsync(ct))
+            .ToLookup(e => e.WorkId, e => (e.Amount, e.Description, e.Taxable));
+
+        return (
+            CountChildDifferences(discardedCloneIds, plan, workChanges),
+            CountChildDifferences(discardedCloneIds, plan, expenses));
+    }
+
+    private static int CountChildDifferences<TRow>(
+        IReadOnlyCollection<Guid> discardedCloneIds, AcceptDayLockPlan plan, ILookup<Guid, TRow> rowsByWork)
+        where TRow : notnull
+    {
+        var total = 0;
+        foreach (var cloneId in discardedCloneIds)
+        {
+            var cloneRows = rowsByWork[cloneId].ToList();
+            var originRows = plan.RealOriginOf(cloneId) is { } origin ? rowsByWork[origin.Id].ToList() : [];
+            total += Math.Max(CountUnmatched(cloneRows, originRows), CountUnmatched(originRows, cloneRows));
+        }
+
+        return total;
+    }
+
+    private static int CountUnmatched<TRow>(IReadOnlyList<TRow> rows, IReadOnlyList<TRow> others)
+        where TRow : notnull
+    {
+        var remaining = others.GroupBy(o => o).ToDictionary(g => g.Key, g => g.Count());
+        var unmatched = 0;
+        foreach (var row in rows)
+        {
+            if (remaining.TryGetValue(row, out var left) && left > 0)
+            {
+                remaining[row] = left - 1;
+            }
+            else
+            {
+                unmatched++;
+            }
+        }
+
+        return unmatched;
     }
 
     /// <summary>
@@ -270,10 +408,12 @@ public partial class AnalyseScenarioService
             .Where(b => b.LockLevel != WorkLockLevel.None)
             .Select(b => (b.ClientId, b.CurrentDate, b.AbsenceId))
             .ToHashSet();
+        var keptParentIds = realBreaks
+            .Where(b => b.ParentWorkId is { } parentId && (plan.KeepsRealWork(parentId) || plan.IsWorkChangeLocked(parentId)))
+            .Select(b => b.ParentWorkId!.Value)
+            .ToHashSet();
         var keptRealBreaks = realBreaks
-            .Where(b => b.LockLevel != WorkLockLevel.None
-                || plan.IsLocked(b.ClientId, b.CurrentDate)
-                || (b.ParentWorkId is { } parentId && plan.KeepsRealWork(parentId)))
+            .Where(b => plan.LeavesRealBreak(b.LockLevel, b.ClientId, b.CurrentDate, b.ParentWorkId, keptParentIds))
             .Select(b => (b.ClientId, b.CurrentDate, b.AbsenceId, b.StartTime, b.EndTime))
             .ToHashSet();
 
@@ -363,7 +503,8 @@ public partial class AnalyseScenarioService
     {
         if (skips.Total > 0)
         {
-            _logger.LogInformation(LockSkipsMessage, token, skips.Works, skips.Breaks, skips.Notes);
+            _logger.LogInformation(
+                LockSkipsMessage, token, skips.Works, skips.WorkChanges, skips.Expenses, skips.Breaks, skips.Notes);
         }
     }
 }

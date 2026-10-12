@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Models.Schedules;
+
 namespace Klacks.Api.Domain.Interfaces.Schedules;
 
 /// <summary>
@@ -35,5 +37,25 @@ public interface IDayLockService
     /// <param name="cancellationToken">Cancellation token.</param>
     Task EnsureNoneLockedAsync(
         IReadOnlyCollection<(DateOnly Date, Guid ClientId, Guid? AnalyseToken)> entries,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Guard for a work change: throws when the day the schedule shows it on (WorkChangeEntryDay, the following day
+    /// for the post-midnight part of a shift that crosses midnight) is locked for the work's employee or, for a
+    /// replacement, for the replacement employee. Skips scenario writes like the other checks.
+    /// </summary>
+    /// <param name="parentWork">The work the change belongs to</param>
+    /// <param name="change">The work change to be written or removed</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task EnsureWorkChangeNotLockedAsync(Work parentWork, WorkChange change, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Guard for deleting works, applied to real AND scenario works: a scenario must never delete a work on a locked
+    /// day (owner decision 2026-10-13), because the accept could not carry that deletion over anyway.
+    /// </summary>
+    /// <param name="works">(day, employee) of every work about to be deleted</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task EnsureDeletableAsync(
+        IReadOnlyCollection<(DateOnly Date, Guid ClientId)> works,
         CancellationToken cancellationToken = default);
 }

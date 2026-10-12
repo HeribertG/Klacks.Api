@@ -82,6 +82,9 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             await _dayLockService.EnsureNoneLockedAsync(
                 deletedWorks.Select(w => (w.CurrentDate, w.ClientId, w.AnalyseToken)).ToList(),
                 cancellationToken);
+            await _dayLockService.EnsureDeletableAsync(
+                deletedWorks.Where(w => w.AnalyseToken.HasValue).Select(w => (w.CurrentDate, w.ClientId)).ToList(),
+                cancellationToken);
 
             foreach (var work in deletedWorks)
             {
