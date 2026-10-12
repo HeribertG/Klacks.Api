@@ -194,4 +194,13 @@ public class LLMContext
     /// purpose: a stop lets the turn finish cleanly and persist what happened. None on paths that offer no stop.
     /// </summary>
     public CancellationToken StopToken { get; set; }
+
+    /// <summary>
+    /// True when the turn-intent classifier read this turn as a confident question in an enabled locale while the
+    /// mutation detector matched a state-changing word. Lifts only the detector's reason to force a tool call
+    /// (ToolChoicePolicy.MutationForcesToolCall); navigation, recipe and confirmation forcing, the no-tool nudge and
+    /// the completion-claim guards keep reading the raw detector signal. Set by every chat entry point from
+    /// SkillToolsetResult.TurnIntentVetoesForcedToolCall.
+    /// </summary>
+    public bool TurnIntentVetoesForcedToolCall { get; set; }
 }

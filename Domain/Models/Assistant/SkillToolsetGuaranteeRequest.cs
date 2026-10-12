@@ -18,6 +18,9 @@
 /// <param name="ContinuationSkillNames">Skills the immediately preceding turn ran (a confirmed held action named by the skill it replayed), most recent last; null when that record was superseded or this turn is a correction. Feeds the same-skill continuation.</param>
 /// <param name="ApplyLearnedPhraseGuarantee">Whether a learning-loop wording may claim a guarantee slot.</param>
 /// <param name="RetrievalScores">Retrieval score per skill name, used to rank retrieved skills; null when unknown.</param>
+/// <param name="PendingTurnIntent">Turn-intent classification started before retrieval so its embedding overlaps it; null when it was not started early, then the guarantee classifies on its own.</param>
+using Klacks.Api.Domain.Models.Assistant.TurnIntent;
+
 namespace Klacks.Api.Domain.Models.Assistant;
 
 public sealed record SkillToolsetGuaranteeRequest(
@@ -34,4 +37,5 @@ public sealed record SkillToolsetGuaranteeRequest(
     IReadOnlyList<string>? PreviousTurnSkillNames,
     IReadOnlyList<string>? ContinuationSkillNames,
     bool ApplyLearnedPhraseGuarantee,
-    IReadOnlyDictionary<string, double>? RetrievalScores = null);
+    IReadOnlyDictionary<string, double>? RetrievalScores = null,
+    Task<TurnIntentPrediction?>? PendingTurnIntent = null);

@@ -43,6 +43,14 @@ public sealed record OnnxEmbeddingRuntimeProfile(
             ShrinkArenaAfterBulkRun: true,
             MaxConcurrentRuns: DefaultMaxConcurrentRuns);
 
+    /// <summary>
+    /// The default profile with the intra-op spin-wait explicitly set, for the composition root to pass the
+    /// configured KnowledgeIndex:OnnxAllowIntraOpSpinning through; vectors do not change either way.
+    /// </summary>
+    /// <param name="allowIntraOpSpinning">True lets intra-op workers busy-wait between graph nodes</param>
+    public static OnnxEmbeddingRuntimeProfile ForIntraOpSpinning(bool allowIntraOpSpinning) =>
+        Default with { CreateSessionOptions = () => OnnxSessionOptionsFactory.CreateEmbedding(allowIntraOpSpinning) };
+
     public static OnnxEmbeddingRuntimeProfile Legacy { get; } =
         new(OnnxSessionOptionsFactory.CreateMemoryFrugal,
             ShrinkArenaAfterBulkRun: false,

@@ -7,9 +7,12 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 /// <summary>
 /// Classifies a chat turn as Ask, Do or Other. Returns null whenever no trustworthy answer exists: classifier off,
 /// no trained head, a different embedding space, an embedding failure or a timeout. Callers then keep the
-/// MutationIntentDetector behaviour.
+/// MutationIntentDetector behaviour. ClassifyAsync bounds the wait by the configured timeout; ClassifyUnboundedAsync
+/// does not, for callers that start it early and bound the wait themselves where they need the result.
 /// </summary>
 public interface ITurnIntentClassifier
 {
     Task<TurnIntentPrediction?> ClassifyAsync(string message, string? language, CancellationToken cancellationToken);
+
+    Task<TurnIntentPrediction?> ClassifyUnboundedAsync(string message, string? language, CancellationToken cancellationToken);
 }

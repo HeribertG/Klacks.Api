@@ -127,13 +127,14 @@ internal static class KnowledgeIndexServiceCollectionExtensions
             // One instance, three service types. Registering the interfaces with their own factory
             // lambda would build a SECOND session per interface - 608 MB of model weights that nothing
             // ever calls and no idle sweep would ever recognise as unused.
+            var allowIntraOpSpinning = ResolveOnnxAllowIntraOpSpinning(configuration);
             services.AddSingleton<OnnxEmbeddingProvider>(sp => new OnnxEmbeddingProvider(
                 sp.GetRequiredService<ModelLoader>(),
-                Path.Combine(modelsRoot, KnowledgeIndexConstants.EmbeddingModelName)));
+                Path.Combine(modelsRoot, KnowledgeIndexConstants.EmbeddingModelName),
+                OnnxEmbeddingRuntimeProfile.ForIntraOpSpinning(allowIntraOpSpinning)));
             services.AddSingleton<IEmbeddingProvider>(sp => sp.GetRequiredService<OnnxEmbeddingProvider>());
             services.AddSingleton<IUnloadableInferenceSession>(sp => sp.GetRequiredService<OnnxEmbeddingProvider>());
 
-            var allowIntraOpSpinning = ResolveOnnxAllowIntraOpSpinning(configuration);
             services.AddSingleton<OnnxRerankerProvider>(sp => new OnnxRerankerProvider(
                 sp.GetRequiredService<ModelLoader>(),
                 Path.Combine(modelsRoot, KnowledgeIndexConstants.RerankerModelName),

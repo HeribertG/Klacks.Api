@@ -165,6 +165,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             HasDomainSkillContext = toolset.HasDomainSkillContext,
             IsVoiceMode = request.IsVoiceMode,
             ToolsetAssemblyMs = toolset.AssemblyMs,
+            TurnIntentVetoesForcedToolCall = toolset.TurnIntentVetoesForcedToolCall,
             CorrectionNote = correction?.ContextNote,
             CorrectionClarificationReply = correction?.ClarificationReply,
             GracefulCorrectionApplied = correction != null,

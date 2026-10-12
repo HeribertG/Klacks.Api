@@ -103,6 +103,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             AvailableFunctions = toolset.Functions,
             HasDomainSkillContext = toolset.HasDomainSkillContext,
             ToolsetAssemblyMs = toolset.AssemblyMs,
+            TurnIntentVetoesForcedToolCall = toolset.TurnIntentVetoesForcedToolCall,
             CorrectionNote = correction?.ContextNote,
             CorrectionClarificationReply = correction?.ClarificationReply,
             GracefulCorrectionApplied = correction != null,

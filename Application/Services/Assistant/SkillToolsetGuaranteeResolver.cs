@@ -15,6 +15,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Assistant.TurnIntent;
 using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant;
@@ -62,6 +63,10 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         _logger = logger;
     }
 
+    public Task<TurnIntentPrediction?>? StartTurnIntent(
+        string userMessage, string? language, IReadOnlyCollection<string>? pinnedSkillNames, CancellationToken cancellationToken) =>
+        _turnIntentExplainGuarantee.Start(userMessage, language, pinnedSkillNames, cancellationToken);
+
     public async Task<SkillToolsetGuaranteeResult> ResolveAsync(
         SkillToolsetGuaranteeRequest request, CancellationToken cancellationToken)
     {
@@ -71,7 +76,8 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
         var forcingRecipeNames = AddContentMatchGuarantees(guaranteedSkills, guaranteedSources, permittedSkills, request);
 
-        foreach (var explainSkillName in await _turnIntentExplainGuarantee.ResolveAsync(request, cancellationToken))
+        var turnIntent = await _turnIntentExplainGuarantee.ResolveAsync(request, cancellationToken);
+        foreach (var explainSkillName in turnIntent.ExplainSkillNames)
         {
             AddPermittedSkillByName(
                 guaranteedSkills, permittedSkills, explainSkillName, ToolsetSkillSource.Hint, guaranteedSources);
@@ -190,7 +196,8 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         var lowestRankedNames = ApplySameSkillContinuationGuarantee(
             guaranteedSkills, guaranteedSources, permittedSkills, request.ContinuationSkillNames);
 
-        return new SkillToolsetGuaranteeResult(guaranteedSkills, guaranteedSources, lowestRankedNames);
+        return new SkillToolsetGuaranteeResult(
+            guaranteedSkills, guaranteedSources, lowestRankedNames, turnIntent.VetoesForcedToolCall);
     }
 
     /// <summary>

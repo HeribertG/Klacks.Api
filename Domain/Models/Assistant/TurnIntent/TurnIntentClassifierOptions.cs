@@ -7,12 +7,14 @@
 /// </summary>
 /// <param name="Mode">Off, Shadow (classify and log only) or Active (classify, log and guarantee explain skills)</param>
 /// <param name="TimeoutMilliseconds">Upper bound for waiting on the extra embedding call</param>
+/// <param name="VetoForcedToolCall">In Active mode, a confident Ask in an enabled locale lifts the tool call the
+/// mutation detector would force; the turn keeps all its tools and every other forcing reason</param>
 
 using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Domain.Models.Assistant.TurnIntent;
 
-public sealed record TurnIntentClassifierOptions(string Mode, int TimeoutMilliseconds)
+public sealed record TurnIntentClassifierOptions(string Mode, int TimeoutMilliseconds, bool VetoForcedToolCall = false)
 {
     private static readonly string[] KnownModes =
         [TurnIntentClassifierModes.Off, TurnIntentClassifierModes.Shadow, TurnIntentClassifierModes.Active];
@@ -24,12 +26,14 @@ public sealed record TurnIntentClassifierOptions(string Mode, int TimeoutMillise
 
     public bool IsActive => string.Equals(Mode, TurnIntentClassifierModes.Active, StringComparison.OrdinalIgnoreCase);
 
-    public static TurnIntentClassifierOptions FromConfiguration(string? mode, int timeoutMilliseconds)
+    public bool MayVetoForcedToolCall => IsActive && VetoForcedToolCall;
+
+    public static TurnIntentClassifierOptions FromConfiguration(string? mode, int timeoutMilliseconds, bool vetoForcedToolCall = false)
     {
         var knownMode = KnownModes.FirstOrDefault(known => string.Equals(known, mode?.Trim(), StringComparison.OrdinalIgnoreCase))
                         ?? TurnIntentClassifierModes.Off;
         var timeout = Math.Clamp(
             timeoutMilliseconds, TurnIntentDefaults.MinimumTimeoutMilliseconds, TurnIntentDefaults.MaximumTimeoutMilliseconds);
-        return new TurnIntentClassifierOptions(knownMode, timeout);
+        return new TurnIntentClassifierOptions(knownMode, timeout, vetoForcedToolCall);
     }
 }

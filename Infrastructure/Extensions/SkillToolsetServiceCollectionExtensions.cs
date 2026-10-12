@@ -26,7 +26,8 @@ public static class SkillToolsetServiceCollectionExtensions
             var configuration = provider.GetRequiredService<IConfiguration>();
             return TurnIntentClassifierOptions.FromConfiguration(
                 configuration.GetValue<string>(TurnIntentDefaults.ModeConfigKey),
-                configuration.GetValue(TurnIntentDefaults.TimeoutConfigKey, TurnIntentDefaults.DefaultTimeoutMilliseconds));
+                configuration.GetValue(TurnIntentDefaults.TimeoutConfigKey, TurnIntentDefaults.DefaultTimeoutMilliseconds),
+                configuration.GetValue(TurnIntentDefaults.VetoConfigKey, TurnIntentDefaults.DefaultVetoForcedToolCall));
         });
         services.AddSingleton<ITurnIntentHeadProvider, FileTurnIntentHeadProvider>();
         services.AddScoped<ITurnIntentClassifier, TurnIntentClassifier>();

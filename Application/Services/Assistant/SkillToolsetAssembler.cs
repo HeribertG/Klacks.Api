@@ -126,6 +126,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         var alwaysOnSkills = permittedSkills.Where(s => s.AlwaysOn).ToList();
         var isAdmin = userRights.Contains(Roles.Admin);
 
+        var pendingTurnIntent = _guaranteeResolver.StartTurnIntent(userMessage, language, pinnedSkillNames, cancellationToken);
+
         var (retrievedSkills, hasDomainSkillContext, retrievalScores) = await RetrieveSkillCandidatesAsync(
             permittedSkills, userRights, isAdmin, userMessage, conversationId, currentRoute, userId, cancellationToken);
 
@@ -136,7 +138,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             new SkillToolsetGuaranteeRequest(
                 agent.Id, permittedSkills, retrievedSkills, userMessage, conversationId, currentRoute, userId,
                 language, userRights, pinnedSkillNames, previousTurnSkillNames, continuationSkillNames,
-                applyLearnedPhraseGuarantee, retrievalScores),
+                applyLearnedPhraseGuarantee, retrievalScores, pendingTurnIntent),
             cancellationToken);
         var guaranteedSkills = guaranteeResult.GuaranteedSkills;
         var guaranteedSources = guaranteeResult.GuaranteedSources;
@@ -159,7 +161,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             {
                 Functions = ToStableOrderedFunctionsWithProvenance(alwaysOnSkills, alwaysOnProvenance),
                 HasDomainSkillContext = hasDomainSkillContext,
-                AssemblyMs = assemblyWatch.ElapsedMilliseconds
+                AssemblyMs = assemblyWatch.ElapsedMilliseconds,
+                TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall
             };
         }
 
@@ -221,7 +224,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         {
             Functions = ToStableOrderedFunctionsWithProvenance(selectedSkills, selectedProvenance),
             HasDomainSkillContext = true,
-            AssemblyMs = assemblyWatch.ElapsedMilliseconds
+            AssemblyMs = assemblyWatch.ElapsedMilliseconds,
+            TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall
         };
     }
 

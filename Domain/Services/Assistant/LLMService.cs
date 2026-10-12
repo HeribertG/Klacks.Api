@@ -349,8 +349,8 @@ public class LLMService : ILLMService
                     confirmThisIteration, recipe.PendingNote, forceRecipe, recipeNote,
                     recipe.SuggestPlan, turn.Calls.Count, recipe.CompletionNote)),
                 runningHistory, iterationFunctions,
-                ToolChoicePolicy.ResolveToolChoice(
-                    forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm, turn.Calls.Count),
+                ToolChoicePolicy.ResolveToolChoice(forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm,
+                    turn.Calls.Count, context.TurnIntentVetoesForcedToolCall),
                 stream: true,
                 onStreamUsage: usage => LLMUsageAccumulator.Add(turn.Usage, usage));
 
@@ -714,8 +714,8 @@ public class LLMService : ILLMService
                     confirmThisIteration, recipe.PendingNote, forceRecipe, recipeNote,
                     recipe.SuggestPlan, allFunctionCalls.Count, recipe.CompletionNote)),
                 runningHistory, iterationFunctions,
-                ToolChoicePolicy.ResolveToolChoice(
-                    forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm, allFunctionCalls.Count));
+                ToolChoicePolicy.ResolveToolChoice(forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm,
+                    allFunctionCalls.Count, ctx.Context.TurnIntentVetoesForcedToolCall && !forcedRetryUsed));
 
             if (providerRequest.ToolChoice == MutationGuardConstants.ToolChoiceRequired)
             {

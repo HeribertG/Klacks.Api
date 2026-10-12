@@ -2,9 +2,11 @@
 
 /// <summary>
 /// Runs the trained turn-intent head on the bare user message: one extra e5 query embedding plus the deterministic
-/// hand features. The configured timeout cancels waiting for a model slot or a cold session build (in Active mode the
-/// call sits on the turn's critical path); an ONNX inference that has already started is not preemptible. Any reason not to trust the result - classifier off, no head, a fallback embedding provider from a
-/// different vector space, an embedding error or a timeout - yields null so the caller keeps today's behaviour.
+/// hand features. ClassifyAsync bounds the wait by the configured timeout; ClassifyUnboundedAsync leaves the bound to a
+/// caller that starts the classification early (before retrieval) and only bounds the wait where it needs the result.
+/// An ONNX inference that has already started is not preemptible either way. Any reason not to trust the result -
+/// classifier off, no head, a fallback embedding provider from a different vector space, an embedding error or a
+/// timeout - yields null so the caller keeps today's behaviour.
 /// </summary>
 /// <param name="embeddingProvider">Runtime embedding provider; only its own vector space is accepted</param>
 /// <param name="headProvider">Supplies the trained head weights</param>
@@ -41,6 +43,23 @@ public sealed class TurnIntentClassifier : ITurnIntentClassifier
     public async Task<TurnIntentPrediction?> ClassifyAsync(
         string message, string? language, CancellationToken cancellationToken)
     {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(TimeSpan.FromMilliseconds(_options.TimeoutMilliseconds));
+        try
+        {
+            return await ClassifyUnboundedAsync(message, language, timeout.Token).WaitAsync(timeout.Token);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogInformation(
+                "{Prefix} skipped: embedding exceeded {TimeoutMs} ms", TurnIntentDefaults.LogPrefix, _options.TimeoutMilliseconds);
+            return null;
+        }
+    }
+
+    public async Task<TurnIntentPrediction?> ClassifyUnboundedAsync(
+        string message, string? language, CancellationToken cancellationToken)
+    {
         if (!_options.IsEnabled || string.IsNullOrWhiteSpace(message))
         {
             return null;
@@ -61,17 +80,9 @@ public sealed class TurnIntentClassifier : ITurnIntentClassifier
         }
 
         float[] embedding;
-        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeout.CancelAfter(TimeSpan.FromMilliseconds(_options.TimeoutMilliseconds));
         try
         {
-            embedding = await _embeddingProvider.EmbedQueryAsync(message, timeout.Token).WaitAsync(timeout.Token);
-        }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogInformation(
-                "{Prefix} skipped: embedding exceeded {TimeoutMs} ms", TurnIntentDefaults.LogPrefix, _options.TimeoutMilliseconds);
-            return null;
+            embedding = await _embeddingProvider.EmbedQueryAsync(message, cancellationToken).WaitAsync(cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

@@ -199,7 +199,8 @@ public class TurnReplayService : ITurnReplayService
                     isMutationIntent: MutationIntentDetector.IsMutationIntent(item.Message),
                     isNavigationIntent: NavigationIntentDetector.IsNavigationIntent(item.Message),
                     forceConfirmation: false,
-                    toolCallCount: 1));
+                    toolCallCount: 1,
+                    turnIntentVeto: prep.Context.TurnIntentVetoesForcedToolCall));
 
             await RunFollowUpStepAsync(provider, followUpRequest, result, cancellationToken);
         }
@@ -268,6 +269,7 @@ public class TurnReplayService : ITurnReplayService
             PageContext = item.CurrentRoute == null ? null : new AssistantPageContext { CurrentRoute = item.CurrentRoute },
             AvailableFunctions = toolset.Functions,
             HasDomainSkillContext = toolset.HasDomainSkillContext,
+            TurnIntentVetoesForcedToolCall = toolset.TurnIntentVetoesForcedToolCall,
             GracefulCorrectionApplied = correction != null,
 
             // A replay resolves the undo as data and never holds a token, so it must never claim to
@@ -301,7 +303,8 @@ public class TurnReplayService : ITurnReplayService
         var forcingPlan = RecipeForcingResolver.Resolve(item.Message);
         var triggeredRecipeName = await FindMatchingEngineRecipeNameAsync(
             item.Message, item.Locale, cancellationToken);
-        var toolChoiceRequired = MutationIntentDetector.IsMutationIntent(item.Message)
+        var toolChoiceRequired = ToolChoicePolicy.MutationForcesToolCall(
+                MutationIntentDetector.IsMutationIntent(item.Message), context.TurnIntentVetoesForcedToolCall)
             || NavigationIntentDetector.IsNavigationIntent(item.Message);
 
         var volatilePrompt = LLMService.CombineVolatile(

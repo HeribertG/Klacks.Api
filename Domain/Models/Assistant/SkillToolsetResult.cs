@@ -14,4 +14,10 @@ public class SkillToolsetResult
     /// pipeline time from model time regardless of which LLM the customer selected.
     /// </summary>
     public long AssemblyMs { get; init; }
+
+    /// <summary>
+    /// True when the turn-intent classifier read the message as a confident question although the mutation
+    /// detector matched a state-changing word: the chat loop then does not force a tool call for that reason.
+    /// </summary>
+    public bool TurnIntentVetoesForcedToolCall { get; init; }
 }

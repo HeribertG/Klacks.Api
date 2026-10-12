@@ -50,10 +50,20 @@ public static class OnnxSessionOptionsFactory
     /// (2060 MB) resident for the process lifetime, which is why OnnxEmbeddingProvider shrinks the arena
     /// after every bulk chunk (1306 MB after a pass, stationary over four passes). Thread count does not
     /// change resident memory (1809 vs 1823 MB) and halves query latency on two cores.
+    ///
+    /// Intra-op spinning is OFF by default here too (since 2026-10-12), behind the same
+    /// KnowledgeIndex:OnnxAllowIntraOpSpinning switch as the reranker. Measured on win-arm64 (10 cores,
+    /// 3 alternating rounds x 59 short chat messages, TurnIntentEmbeddingSpinningLatencyTests): single-query
+    /// latency p50 222 ms with spinning against 47 ms without, p95 396 against 61 ms; vectors bit-identical,
+    /// so EmbeddingSpaceId is unaffected. Every chat turn embeds at least twice (retrieval, turn intent).
     /// </summary>
-    public static SessionOptions CreateEmbedding()
+    public static SessionOptions CreateEmbedding() =>
+        CreateEmbedding(KnowledgeIndexConstants.DefaultOnnxAllowIntraOpSpinning);
+
+    /// <param name="allowIntraOpSpinning">True lets intra-op workers busy-wait between nodes</param>
+    public static SessionOptions CreateEmbedding(bool allowIntraOpSpinning)
     {
-        return new SessionOptions
+        var options = new SessionOptions
         {
             EnableCpuMemArena = true,
             EnableMemoryPattern = true,
@@ -62,6 +72,11 @@ public static class OnnxSessionOptionsFactory
             InterOpNumThreads = 1,
             IntraOpNumThreads = Environment.ProcessorCount,
         };
+
+        options.AddSessionConfigEntry(
+            OnnxRuntimeConfigKeys.AllowIntraOpSpinning, IntraOpSpinningValue(allowIntraOpSpinning));
+
+        return options;
     }
 
     /// <summary>
@@ -90,9 +105,9 @@ public static class OnnxSessionOptionsFactory
     /// production container's shape (cpus 1.5) - but that run had no cgroup quota applied, so it does
     /// not settle the production case. Hence the switch rather than a hard-coded value: production can
     /// flip KnowledgeIndex:OnnxAllowIntraOpSpinning to true after measuring on its own host. That
-    /// setting reaches this profile only, and only through the composition root: the embedder keeps
-    /// CreateEmbedding untouched, and OnnxRerankerRuntimeProfile.Default - the fallback whenever no
-    /// profile is injected - binds the parameterless overload below and therefore the measured default.
+    /// setting reaches this profile and CreateEmbedding only through the composition root:
+    /// OnnxRerankerRuntimeProfile.Default and OnnxEmbeddingRuntimeProfile.Default - the fallbacks whenever
+    /// no profile is injected - bind the parameterless overloads and therefore the measured default.
     /// </summary>
     public static SessionOptions CreateThroughput() =>
         CreateThroughput(KnowledgeIndexConstants.DefaultOnnxAllowIntraOpSpinning);

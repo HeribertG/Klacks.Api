@@ -171,9 +171,10 @@ public static class KnowledgeIndexConstants
     // to work on the shipped runtime (see IsOnnxRuntimeSupported). Set to "true"/"false" to force it.
     public const string OnnxEnabledConfigKey = "KnowledgeIndex:OnnxEnabled";
 
-    // Whether the reranker's intra-op threads busy-wait between graph nodes. Off by default: measured
-    // 2026-09-12 the spin-wait cost 5-8 seconds per rerank pass on a many-core host at zero score
-    // difference (see OnnxSessionOptionsFactory.CreateThroughput). Exists so a host that measures the
+    // Whether the intra-op threads of the reranker and (since 2026-10-12) the embedder busy-wait between
+    // graph nodes. Off by default: measured 2026-09-12 the spin-wait cost 5-8 seconds per rerank pass, and
+    // 2026-10-12 it made a single query embedding 4-6x slower (p50 222 vs 47 ms), both on a many-core host
+    // at zero output difference (see OnnxSessionOptionsFactory). Exists so a host that measures the
     // opposite - few cores, otherwise idle - can switch it back on without a code change.
     public const string OnnxAllowIntraOpSpinningConfigKey = "KnowledgeIndex:OnnxAllowIntraOpSpinning";
 

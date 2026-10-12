@@ -11,7 +11,9 @@ public static class TurnIntentDefaults
 {
     public const string ModeConfigKey = "Assistant:TurnIntentClassifier:Mode";
     public const string TimeoutConfigKey = "Assistant:TurnIntentClassifier:TimeoutMilliseconds";
+    public const string VetoConfigKey = "Assistant:TurnIntentClassifier:VetoForcedToolCall";
     public const int DefaultTimeoutMilliseconds = 500;
+    public const bool DefaultVetoForcedToolCall = false;
     public const int MinimumTimeoutMilliseconds = 50;
     public const int MaximumTimeoutMilliseconds = 5000;
 

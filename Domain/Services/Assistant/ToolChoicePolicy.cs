@@ -12,6 +12,7 @@
 /// <param name="isNavigationIntent">The user message expresses a navigation intent.</param>
 /// <param name="forceConfirmation">A pending confirmation is being resolved this turn.</param>
 /// <param name="toolCallCount">Number of tool calls already executed this turn.</param>
+/// <param name="turnIntentVeto">The turn-intent classifier read the message as a confident question.</param>
 
 using Klacks.Api.Domain.Constants;
 
@@ -30,14 +31,20 @@ public static class ToolChoicePolicy
             || ((isMutationIntent || isNavigationIntent || forceConfirmation) && toolCallCount == 0);
     }
 
+    public static bool MutationForcesToolCall(bool isMutationIntent, bool turnIntentVeto) =>
+        isMutationIntent && !turnIntentVeto;
+
     public static string? ResolveToolChoice(
         bool forceRecipe,
         bool isMutationIntent,
         bool isNavigationIntent,
         bool forceConfirmation,
-        int toolCallCount)
+        int toolCallCount,
+        bool turnIntentVeto = false)
     {
-        return ShouldForceToolCall(forceRecipe, isMutationIntent, isNavigationIntent, forceConfirmation, toolCallCount)
+        return ShouldForceToolCall(
+                forceRecipe, MutationForcesToolCall(isMutationIntent, turnIntentVeto), isNavigationIntent, forceConfirmation,
+                toolCallCount)
             ? MutationGuardConstants.ToolChoiceRequired
             : null;
     }
