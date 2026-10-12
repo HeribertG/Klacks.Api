@@ -35,7 +35,7 @@ $PostgresSuperUser = 'klacks'
 $DatabaseName = 'Klacks'
 $ConfigFileName = 'klacks.native.json'
 $SecretsFileName = 'secrets.json'
-$HealthTimeoutSeconds = 600
+$HealthTimeoutSeconds = 1800
 
 function Write-Step($message) { Write-Host "==> $message" -ForegroundColor Cyan }
 
@@ -192,7 +192,10 @@ $connectionString = "Host=localhost;Port=$PostgresPort;Database=$DatabaseName;Us
 $publicKey = ''
 if ($UpdatePublicKeyPath) { $publicKey = (Get-Content -Raw $UpdatePublicKeyPath).Replace("`r`n", "`n").Trim() }
 $regionFile = ''
-if ($Region) { $regionFile = Join-Path $currentLink ("app\regions\" + $Region.ToLowerInvariant() + '.json') }
+if ($Region) {
+    $regionFile = Join-Path $currentLink ("app\deploy\onprem\regions\" + $Region.ToLowerInvariant() + '.json')
+    if (-not (Test-Path $regionFile)) { throw "No region profile '$Region' in the bundle ($regionFile)." }
+}
 
 $config = [ordered]@{
     Urls              = $loopbackUrl
@@ -257,7 +260,10 @@ else {
 
 # --- 7. Health -------------------------------------------------------------------------------------------------------
 Write-Step "Waiting for Klacks on $loopbackUrl (first start migrates the database, this can take a few minutes)"
-if (-not (Wait-Healthy "$loopbackUrl/internal/health/deep" $HealthTimeoutSeconds $apiProcess $apiServiceName)) {
-    throw "Klacks did not become healthy within $HealthTimeoutSeconds seconds. Logs: $logDirectory"
+if (Wait-Healthy "$loopbackUrl/internal/health/deep" $HealthTimeoutSeconds $apiProcess $apiServiceName) {
+    Write-Host "Klacks $Version is running: $baseUrl" -ForegroundColor Green
 }
-Write-Host "Klacks $Version is running: $baseUrl" -ForegroundColor Green
+else {
+    Write-Warning "Klacks is still starting after $HealthTimeoutSeconds seconds (the first start downloads about 700 MB of AI models). Open $baseUrl later; logs: $logDirectory"
+}
+Write-Host "Default login:  admin@test.com  /  P@ssw0rt1  (Klacks then asks you to create your own admin account)" -ForegroundColor Green
