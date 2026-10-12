@@ -12,6 +12,7 @@ using Klacks.Api.Application.Commands.Update;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Update;
 using Klacks.Api.Domain.Models.Update;
+using Klacks.Api.Domain.Services.Update;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -104,7 +105,17 @@ public class UpdateDetectionBackgroundService : BackgroundService
             Klacks.Api.Application.Constants.MyVersion.Minor,
             Klacks.Api.Application.Constants.MyVersion.Patch);
 
-        var availability = evaluator.Evaluate(current, manifest);
+        var installation = scope.ServiceProvider.GetRequiredService<IInstallationIdentityProvider>().Get();
+        var availability = UpdateArtifactSelector.RestrictToInstallation(
+            evaluator.Evaluate(current, manifest), manifest, installation);
+        if (availability.Status == UpdateAvailabilityStatus.NotAvailableForInstallation)
+        {
+            _logger.LogWarning(
+                "Update detection: version {Latest} has no signed artifact for this installation ({Kind}, {Rid}).",
+                availability.LatestVersion, installation.Kind, installation.RuntimeIdentifier);
+            return TimeSpan.FromHours(intervalHours);
+        }
+
         if (!availability.IsUpdateAvailable)
         {
             _logger.LogInformation("Update detection: up to date on channel {Channel} (version {Current}).", channel, availability.CurrentVersion);

@@ -9,6 +9,7 @@ public static class UpdateReasons
     public const string RequiresIntermediate = "Current version is below the minimum upgradable version; an intermediate update is required first.";
     public const string OperationInProgress = "An update operation is already in progress.";
     public const string UpdateEnqueued = "Update enqueued.";
+    public const string NoArtifactForInstallation = "The release provides no signed artifact for this installation type and platform.";
     public const string NothingToRollback = "No successful update found to roll back.";
     public const string RollbackEnqueued = "Rollback enqueued.";
 }

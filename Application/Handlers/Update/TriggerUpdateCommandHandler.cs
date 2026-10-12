@@ -4,7 +4,8 @@
 /// Enqueues an update by writing a single Pending hand-off row, resolving and snapshotting the target
 /// artifact from the current channel manifest at request time (avoids TOCTOU). Shared by the admin
 /// trigger endpoint and the automatic update policy. Rejects when no update is available, an
-/// intermediate version is required, or an operation is already active (single-active guard).
+/// intermediate version is required, the release has no signed artifact for this installation (Docker vs. native
+/// runtime identifier, see UpdateArtifactSelector), or an operation is already active (single-active guard).
 /// </summary>
 using SettingsConstants = Klacks.Api.Application.Constants.Settings;
 using Klacks.Api.Application.Commands.Update;
@@ -13,6 +14,7 @@ using Klacks.Api.Application.DTOs.Update;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Update;
 using Klacks.Api.Domain.Models.Update;
+using Klacks.Api.Domain.Services.Update;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,17 +26,20 @@ public class TriggerUpdateCommandHandler : IRequestHandler<TriggerUpdateCommand,
     private readonly IUpdateManifestReader _manifestReader;
     private readonly IUpdateAvailabilityEvaluator _evaluator;
     private readonly ISettingsReader _settingsReader;
+    private readonly IInstallationIdentityProvider _installationIdentityProvider;
 
     public TriggerUpdateCommandHandler(
         IUpdateHistoryRepository repository,
         IUpdateManifestReader manifestReader,
         IUpdateAvailabilityEvaluator evaluator,
-        ISettingsReader settingsReader)
+        ISettingsReader settingsReader,
+        IInstallationIdentityProvider installationIdentityProvider)
     {
         _repository = repository;
         _manifestReader = manifestReader;
         _evaluator = evaluator;
         _settingsReader = settingsReader;
+        _installationIdentityProvider = installationIdentityProvider;
     }
 
     public async Task<UpdateTriggerResult> Handle(TriggerUpdateCommand request, CancellationToken cancellationToken)
@@ -61,6 +66,12 @@ public class TriggerUpdateCommandHandler : IRequestHandler<TriggerUpdateCommand,
             return Rejected(UpdateReasons.UpToDate);
         }
 
+        var artifact = UpdateArtifactSelector.Select(manifest, _installationIdentityProvider.Get());
+        if (artifact is null)
+        {
+            return Rejected(UpdateReasons.NoArtifactForInstallation);
+        }
+
         if (await _repository.GetActiveOperationAsync(cancellationToken) is not null)
         {
             return Rejected(UpdateReasons.OperationInProgress);
@@ -74,11 +85,9 @@ public class TriggerUpdateCommandHandler : IRequestHandler<TriggerUpdateCommand,
             Channel = channel,
             FromVersion = current.ToString(),
             TargetVersion = manifest.LatestVersion,
-            ArtifactRef = manifest.Artifacts.Docker?.ApiImage ?? manifest.Artifacts.OnPremWindows.FirstOrDefault()?.BundleUrl,
-            ArtifactSha256 = manifest.Artifacts.Docker is not null
-                ? manifest.Artifacts.Docker.Sha256
-                : manifest.Artifacts.OnPremWindows.FirstOrDefault()?.Sha256,
-            ArtifactSignature = manifest.Signature,
+            ArtifactRef = artifact.ArtifactRef,
+            ArtifactSha256 = artifact.Sha256,
+            ArtifactSignature = artifact.Signature,
             ContainsMigrations = manifest.ContainsMigrations,
             RequestedBy = request.RequestedBy,
             RequestedAt = DateTime.UtcNow,

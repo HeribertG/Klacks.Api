@@ -8,4 +8,5 @@ public enum UpdateAvailabilityStatus
     UpdateAvailable = 1,
     UpdateRequiresIntermediate = 2,
     ManifestInvalid = 3,
+    NotAvailableForInstallation = 4,
 }

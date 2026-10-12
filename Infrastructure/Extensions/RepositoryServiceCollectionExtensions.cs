@@ -197,6 +197,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateHistoryRepository, Klacks.Api.Infrastructure.Repositories.Update.UpdateHistoryRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateAvailabilityEvaluator, Klacks.Api.Application.Services.Update.UpdateAvailabilityEvaluator>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Update.IInstallationIdentityProvider, Klacks.Api.Infrastructure.Hosting.InstallationIdentityProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateManifestReader, Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader>();
         services.AddHttpClient(Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader.HttpClientName);
         services.AddScoped<ISkillLearningClusterRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningClusterRepository>();
