@@ -1,4 +1,4 @@
 {
-  "infoQuestionLeads": ["jak", "co", "gdzie", "dlaczego", "kiedy", "kto", "który", "która", "które"],
+  "infoQuestionLeads": ["jak", "co", "gdzie", "dlaczego", "kiedy", "kto", "który", "która", "które", "jaki", "jaka", "jakie", "jakich", "kogo", "czego", "ile"],
   "mutationPhrases": ["utwórz", "dodaj", "usuń", "aktualizuj", "zmień", "edytuj", "przypisz", "przydziel"]
 }

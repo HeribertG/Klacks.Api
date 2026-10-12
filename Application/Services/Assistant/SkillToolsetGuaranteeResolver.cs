@@ -39,6 +39,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     private readonly IPendingPlanningProfileDraftStore _planningProfileDraftStore;
     private readonly ISkillPhraseRepository _skillPhraseRepository;
     private readonly ISkillRelationRepository _skillRelationRepository;
+    private readonly ITurnIntentExplainGuarantee _turnIntentExplainGuarantee;
     private readonly ILogger<SkillToolsetGuaranteeResolver> _logger;
 
     public SkillToolsetGuaranteeResolver(
@@ -48,6 +49,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         IPendingPlanningProfileDraftStore planningProfileDraftStore,
         ISkillPhraseRepository skillPhraseRepository,
         ISkillRelationRepository skillRelationRepository,
+        ITurnIntentExplainGuarantee turnIntentExplainGuarantee,
         ILogger<SkillToolsetGuaranteeResolver> logger)
     {
         _pendingUserNoteRepository = pendingUserNoteRepository;
@@ -56,6 +58,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         _planningProfileDraftStore = planningProfileDraftStore;
         _skillPhraseRepository = skillPhraseRepository;
         _skillRelationRepository = skillRelationRepository;
+        _turnIntentExplainGuarantee = turnIntentExplainGuarantee;
         _logger = logger;
     }
 
@@ -67,6 +70,12 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         var guaranteedSources = new Dictionary<string, ToolsetSkillSource>(StringComparer.OrdinalIgnoreCase);
 
         var forcingRecipeNames = AddContentMatchGuarantees(guaranteedSkills, guaranteedSources, permittedSkills, request);
+
+        foreach (var explainSkillName in await _turnIntentExplainGuarantee.ResolveAsync(request, cancellationToken))
+        {
+            AddPermittedSkillByName(
+                guaranteedSkills, permittedSkills, explainSkillName, ToolsetSkillSource.Hint, guaranteedSources);
+        }
 
         // Proposal-confirmation guarantee: a propose_* skill produces a read-only dry run and asks the
         // user to confirm. The reply carries no domain word, so retrieval and every keyword rule above

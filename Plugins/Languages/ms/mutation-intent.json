@@ -1,4 +1,4 @@
 {
-  "infoQuestionLeads": ["bagaimana", "apa", "mengapa", "kenapa", "bila", "siapa"],
+  "infoQuestionLeads": ["bagaimana", "apa", "mengapa", "kenapa", "bila", "siapa", "apakah", "berapa", "di mana", "siapakah"],
   "mutationPhrases": ["cipta", "tambah", "padam", "buang", "hapus", "ubah"]
 }

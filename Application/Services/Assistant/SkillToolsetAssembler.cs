@@ -136,7 +136,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             new SkillToolsetGuaranteeRequest(
                 agent.Id, permittedSkills, retrievedSkills, userMessage, conversationId, currentRoute, userId,
                 language, userRights, pinnedSkillNames, previousTurnSkillNames, continuationSkillNames,
-                applyLearnedPhraseGuarantee),
+                applyLearnedPhraseGuarantee, retrievalScores),
             cancellationToken);
         var guaranteedSkills = guaranteeResult.GuaranteedSkills;
         var guaranteedSources = guaranteeResult.GuaranteedSources;

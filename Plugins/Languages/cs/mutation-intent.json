@@ -1,4 +1,4 @@
 {
-  "infoQuestionLeads": ["jak", "co", "kde", "proč", "kdy", "kdo", "který", "která", "které"],
+  "infoQuestionLeads": ["jak", "co", "kde", "proč", "kdy", "kdo", "který", "která", "které", "jaký", "jaká", "jaké", "koho", "čeho", "kolik"],
   "mutationPhrases": ["vytvořit", "přidat", "smazat", "odstranit", "aktualizovat", "upravit", "editovat", "přiřadit"]
 }

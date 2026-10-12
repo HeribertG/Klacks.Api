@@ -17,6 +17,7 @@
 /// <param name="PreviousTurnSkillNames">Skills the last tool-calling turn's successful calls ran while its record lives, most recent last, so the follow-through guarantee can keep what a KnowHow or Advise skill leads to.</param>
 /// <param name="ContinuationSkillNames">Skills the immediately preceding turn ran (a confirmed held action named by the skill it replayed), most recent last; null when that record was superseded or this turn is a correction. Feeds the same-skill continuation.</param>
 /// <param name="ApplyLearnedPhraseGuarantee">Whether a learning-loop wording may claim a guarantee slot.</param>
+/// <param name="RetrievalScores">Retrieval score per skill name, used to rank retrieved skills; null when unknown.</param>
 namespace Klacks.Api.Domain.Models.Assistant;
 
 public sealed record SkillToolsetGuaranteeRequest(
@@ -32,4 +33,5 @@ public sealed record SkillToolsetGuaranteeRequest(
     IReadOnlyCollection<string>? PinnedSkillNames,
     IReadOnlyList<string>? PreviousTurnSkillNames,
     IReadOnlyList<string>? ContinuationSkillNames,
-    bool ApplyLearnedPhraseGuarantee);
+    bool ApplyLearnedPhraseGuarantee,
+    IReadOnlyDictionary<string, double>? RetrievalScores = null);

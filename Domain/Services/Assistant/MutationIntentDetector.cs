@@ -20,13 +20,17 @@ public static class MutationIntentDetector
 {
     private static readonly Regex WordPattern = new(@"\p{L}+", RegexOptions.Compiled);
 
+    private const char LatinExtendedBEnd = 'ɏ';
+    private const char LatinExtendedAdditionalStart = 'Ḁ';
+    private const char LatinExtendedAdditionalEnd = 'ỿ';
+
     private static readonly HashSet<string> InfoQuestionLeads = new(StringComparer.OrdinalIgnoreCase)
     {
         "wie", "warum", "weshalb", "wieso", "was", "wann", "wo", "woher", "wohin", "wer", "wem", "wen",
         "welche", "welcher", "welches", "welchen",
         "how", "what", "why", "when", "where", "who", "whom", "which",
         "comment", "pourquoi", "quand", "ou", "où", "qui", "quel", "quelle", "quels", "quelles",
-        "come", "perche", "perché", "quando", "dove", "chi", "quale", "quali",
+        "come", "perche", "perché", "quando", "dove", "chi", "quale", "quali", "cosa", "cos", "qual",
     };
 
     private static readonly object _configureLock = new();
@@ -102,11 +106,20 @@ public static class MutationIntentDetector
             return true;
         }
 
-        // For non-tokenizable languages (CJK, Thai, etc.) match a question phrase as prefix.
         var pluginLeads = _pluginQuestionLeads;
         return pluginLeads.Count > 0
-            && pluginLeads.Any(lead => lower.StartsWith(lead, StringComparison.OrdinalIgnoreCase));
+            && pluginLeads.Any(lead => lead.Length > 0
+                                       && lower.StartsWith(lead, StringComparison.OrdinalIgnoreCase)
+                                       && (!IsLatinLetter(lead[^1]) || IsWordBoundary(lower, lead.Length)));
     }
+
+    private static bool IsWordBoundary(string text, int index) =>
+        index >= text.Length || !char.IsLetterOrDigit(text[index]);
+
+    private static bool IsLatinLetter(char character) =>
+        char.IsLetter(character)
+        && (character <= LatinExtendedBEnd
+            || (character >= LatinExtendedAdditionalStart && character <= LatinExtendedAdditionalEnd));
 
     public static bool IsMutationIntent(string? message)
     {
@@ -181,7 +194,6 @@ public static class MutationIntentDetector
             return true;
         }
 
-        // Plugin language phrase-based detection (substring match, language-agnostic merge)
         var phrases = _pluginMutationPhrases;
         return phrases.Length > 0 && phrases.Any(p => lower.Contains(p));
     }
