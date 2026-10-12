@@ -3,6 +3,8 @@
 /// <summary>
 /// Builds LLMResponse objects from provider responses.
 /// Parses the [SUGGESTIONS: "..." | "..." | "..."] block embedded by the LLM in its response text.
+/// ActionPerformed is true only when at least one call succeeded: a failed call, a held confirmation and a
+/// rejected call performed nothing, so the flag no longer claims an action for a turn that only failed.
 /// </summary>
 
 using System.Globalization;
@@ -55,7 +57,7 @@ public class LLMResponseBuilder
         {
             Message = cleanedContent,
             ConversationId = conversationId,
-            ActionPerformed = functionCalls.Any(),
+            ActionPerformed = functionCalls.Any(call => call.Success),
             NavigateTo = navigationRoute,
             NavigateToTarget = navigationTarget,
             FunctionCalls = functionCalls

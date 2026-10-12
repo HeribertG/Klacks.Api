@@ -35,6 +35,15 @@
 /// gespeichert") is not a claim either (ClaimNegationDetector, de/en/fr/it). Whether a call of the turn was
 /// side-effecting is judged by the same predicate the write guard uses (ReadOnlyRecipeWriteGuard.IsSideEffectFree),
 /// so an explain_* call the guard lets through does not suppress the notice as if it had stored something.
+///
+/// Every-write-failed notice (both paths, same wording and same slot as the nothing-stored notice): a turn that
+/// attempted side-effecting calls and had none of them succeed has stored nothing, whatever the model's prose says.
+/// Unlike the notices above it does not depend on the prose claiming anything - a model that follows a failed
+/// call with "Erledigt, der Vertrag ist angelegt" cannot be caught reliably by a claim detector - and is held back
+/// only by a blank answer (the step-failed notice's case), a turn whose only calls are held confirmations or
+/// successful previews, a partial success and an answer that itself denies having done anything. A write refused
+/// without running counts as a failed attempt. The notice names the redacted reason of the last write that really
+/// failed. See NothingExecuted.
 /// </summary>
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
@@ -100,6 +109,96 @@ internal static class TurnClosingNotices
             return string.Empty;
         }
 
+        return NothingStoredText(language);
+    }
+
+    /// <summary>
+    /// The notice for a turn whose every side-effecting call failed while the answer still has words: whatever
+    /// that answer says, nothing was stored or changed, and a success-sounding sentence in it ("Erledigt, ich habe
+    /// den Vertrag angelegt") is false. Empty when no notice is owed.
+    /// A call that was rejected without running (a repeat, a skill outside the toolset, a write after a completed
+    /// recipe) is an attempted write that stored nothing, so it counts as a failed attempt: a turn whose only
+    /// write attempt was refused has stored nothing, which is what the notice says. A call the user's stop skipped
+    /// is not an attempt. A call that is merely flagged as outside the toolset (Observe mode) did run with its real
+    /// outcome and counts like any other.
+    /// A preview call of a preview/apply skill (PreviewApplySkillCalls) that succeeded writes nothing by contract:
+    /// it is neither an attempt nor a success, so "preview ok, apply failed" and "preview ok, apply rejected as a
+    /// repeat" both owe the notice, while a turn that only previewed owes nothing. A held confirmation is judged per
+    /// call: it is no attempt and no failure, so a turn that only holds owes nothing, but a write that failed next
+    /// to a held one still owes the notice. One successful side-effecting call makes the turn a partial success.
+    /// A blank answer owes nothing here: that is the every-step-failed notice, which carries the actionable failure
+    /// message. An answer that itself denies having done anything (ClaimNegationDetector.DeniesCompletion) is
+    /// honest and stays as it is. A clarifying question is not exempt: "Erledigt, noch etwas?" is a false success,
+    /// and the notice after a question is still true.
+    /// The wording is the nothing-stored notice, which every shipped language already carries, followed by the
+    /// redacted failure message of the last write that really ran and failed. The German step-failed prefix is
+    /// left out because it would mix languages in a turn of another language; a refusal never contributes its
+    /// text, which is addressed to the model.
+    /// </summary>
+    /// <param name="responseContent">The turn's answer.</param>
+    /// <param name="allFunctionCalls">Every call of the turn.</param>
+    /// <param name="language">The turn's language, used to localize the notice.</param>
+    /// <param name="availableFunctions">The turn's toolset, source of each skill's curated effect.</param>
+    internal static string NothingExecuted(
+        string responseContent,
+        IReadOnlyList<LLMFunctionCall> allFunctionCalls,
+        string? language,
+        IReadOnlyList<LLMFunction>? availableFunctions = null)
+    {
+        if (string.IsNullOrWhiteSpace(responseContent)
+            || ClaimNegationDetector.DeniesCompletion(responseContent))
+        {
+            return string.Empty;
+        }
+
+        var attemptedWrites = allFunctionCalls
+            .Where(call => !call.SkippedByStop && !call.RequiresConfirmation)
+            .Where(call => !ReadOnlyRecipeWriteGuard.IsSideEffectFree(call, availableFunctions))
+            .Where(call => !IsSucceededPreview(call))
+            .ToList();
+        if (attemptedWrites.Count == 0 || attemptedWrites.Any(call => call.Success))
+        {
+            return string.Empty;
+        }
+
+        var failedWrite = attemptedWrites.LastOrDefault(
+            call => !call.IsRejectedWithoutRunning && !string.IsNullOrWhiteSpace(call.Result));
+        return failedWrite == null
+            ? NothingStoredText(language)
+            : NothingStoredText(language) + RecipeEngineDefaults.NothingStoredFailureReasonSeparator + FailureReason(failedWrite);
+    }
+
+    private static bool IsSucceededPreview(LLMFunctionCall call) =>
+        call.Success && PreviewApplySkillCalls.IsPreviewCall(call.FunctionName, call.Parameters);
+
+    private static string FailureReason(LLMFunctionCall failedCall) =>
+        InternalIdentifierRedactor.Redact(failedCall.Result);
+
+    /// <summary>
+    /// The one notice a turn may owe about not having stored anything: the read-only-recipe claim notice, else the
+    /// every-write-failed notice. Never both, because both say the same sentence. Empty when neither is owed.
+    /// </summary>
+    /// <param name="readOnlyRecipeCompleted">True when a read-only recipe executed its final step this turn.</param>
+    /// <param name="responseContent">The turn's answer.</param>
+    /// <param name="allFunctionCalls">Every call of the turn.</param>
+    /// <param name="language">The turn's language, used to localize the notice.</param>
+    /// <param name="availableFunctions">The turn's toolset, source of each skill's curated effect.</param>
+    internal static string NothingChanged(
+        bool readOnlyRecipeCompleted,
+        string responseContent,
+        IReadOnlyList<LLMFunctionCall> allFunctionCalls,
+        string? language,
+        IReadOnlyList<LLMFunction>? availableFunctions = null)
+    {
+        var nothingStored = NothingStored(
+            readOnlyRecipeCompleted, responseContent, allFunctionCalls, language, availableFunctions);
+        return nothingStored.Length > 0
+            ? nothingStored
+            : NothingExecuted(responseContent, allFunctionCalls, language, availableFunctions);
+    }
+
+    private static string NothingStoredText(string? language)
+    {
         var text = GracefulCorrectionTexts.TryGetText(
             GracefulCorrectionTexts.RecipeNothingStoredNotice, language, out var localized)
             ? localized
@@ -112,8 +211,10 @@ internal static class TurnClosingNotices
 
     /// <summary>
     /// The call whose failure message has to be surfaced because the turn produced no prose at all and
-    /// every call it made failed, or null when there is nothing to surface. A rejected repeat carries only
-    /// the generic rejection text, so the genuine failure of an earlier iteration is preferred.
+    /// every call it made failed, or null when there is nothing to surface. A call rejected without running (a
+    /// repeat, a skill outside the toolset, a write after a completed recipe) carries only a rejection text that is
+    /// addressed to the model, so the genuine failure of an earlier iteration is preferred and a turn in which every
+    /// call was rejected surfaces nothing at all.
     /// </summary>
     /// <param name="allFunctionCalls">Every call of the turn, in call order.</param>
     /// <param name="responseContent">The turn's answer; a non-blank answer suppresses the notice.</param>
@@ -127,7 +228,7 @@ internal static class TurnClosingNotices
             return null;
         }
 
-        return allFunctionCalls.LastOrDefault(call => !call.IsRejectedRepeat) ?? allFunctionCalls[^1];
+        return allFunctionCalls.LastOrDefault(call => !call.IsRejectedWithoutRunning);
     }
 
     /// <summary>
@@ -167,7 +268,7 @@ internal static class TurnClosingNotices
             content += noActionNotice;
         }
 
-        var nothingStoredNotice = NothingStored(
+        var nothingStoredNotice = NothingChanged(
             readOnlyRecipeCompleted, content, allFunctionCalls, language, availableFunctions);
         if (nothingStoredNotice.Length > 0)
         {
@@ -190,6 +291,5 @@ internal static class TurnClosingNotices
     /// <summary>The user-visible, identifier-redacted text for a failed forced step.</summary>
     /// <param name="failedCall">The call picked by <see cref="LastUnrecoveredFailure"/>.</param>
     internal static string StepFailed(LLMFunctionCall failedCall) =>
-        MutationGuardConstants.RecipeStepFailedNoticePrefix
-        + InternalIdentifierRedactor.Redact(failedCall.Result);
+        MutationGuardConstants.RecipeStepFailedNoticePrefix + FailureReason(failedCall);
 }

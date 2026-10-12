@@ -388,7 +388,7 @@ public class TurnPreparationService : ITurnPreparationService
             }
 
             var executedCalls = functionCalls
-                .Where(c => !c.IsRejectedRepeat && !c.RequiresConfirmation && !c.SkippedByStop)
+                .Where(c => !c.IsRejectedWithoutRunning && !c.RequiresConfirmation && !c.SkippedByStop)
                 .ToList();
 
             if (executedCalls.Count == 0)

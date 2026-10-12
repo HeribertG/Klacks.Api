@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Services.Assistant.Providers;
@@ -27,6 +28,36 @@ public class LLMFunctionCall
     /// skip, last-error notice) and the record of what the turn executed must exclude it.
     /// </summary>
     public bool SkippedByStop { get; set; }
+
+    /// <summary>
+    /// True when the model called a skill that was not part of the turn's toolset. Purely observational: the call
+    /// is flagged in both ToolsetMembershipModes, and in Observe mode it still ran with its real outcome.
+    /// </summary>
+    public bool IsOutsideToolset { get; set; }
+
+    /// <summary>
+    /// True when the call was rejected without running because its skill was not part of the turn's toolset
+    /// (ToolsetMembershipMode.Enforce). Like IsRejectedRepeat it sets Success=false without being a skill
+    /// failure, so failure-driven consumers and the record of what the turn executed must exclude it.
+    /// </summary>
+    public bool IsRejectedOutsideToolset { get; set; }
+
+    /// <summary>
+    /// True when the call was rejected without running because a recipe had already completed in this turn and
+    /// the skill is side-effecting (ReadOnlyRecipeWriteGuard). Like IsRejectedRepeat it sets Success=false without
+    /// being a skill failure, so failure-driven consumers and the record of what the turn executed must exclude it.
+    /// </summary>
+    public bool IsRejectedByReadOnlyRecipeGuard { get; set; }
+
+    /// <summary>
+    /// True when the loop rejected the call without running it, whatever the reason: a repeat of a write, a skill
+    /// outside the toolset, or a write after a completed recipe. Such a call stored nothing and is no skill failure;
+    /// its result text is addressed to the model and must never reach the user. A call skipped by the user's stop
+    /// is not part of this: it belongs to a stopped turn, which never reaches the consumers of this property.
+    /// </summary>
+    [JsonIgnore]
+    public bool IsRejectedWithoutRunning =>
+        IsRejectedRepeat || IsRejectedOutsideToolset || IsRejectedByReadOnlyRecipeGuard;
 
     /// <summary>
     /// True when the skill's result was a navigation: the server only worked out where to go, and the page is

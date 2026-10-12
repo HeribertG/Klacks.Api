@@ -62,6 +62,8 @@ public static class RecipeEngineDefaults
 
     public const string NothingStoredNoticeSeparator = "\n\n";
 
+    public const string NothingStoredFailureReasonSeparator = " ";
+
     public const string ConfirmationStepWithAlternativeInstructionTemplate =
         "RECIPE CONFIRMATION — The user's message matched a guided flow by meaning, not by an explicit " +
         "trigger phrase: {0} A second guided flow matched almost as closely: {1} Ask the user, in their " +

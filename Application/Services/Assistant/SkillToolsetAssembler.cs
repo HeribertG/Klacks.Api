@@ -16,7 +16,8 @@
 /// <param name="maxToolsForProvider">
 /// Safety cap on the tool list sent to the provider, adaptive per the model's effective input limit
 /// (see ContextBudgetPolicy). AlwaysOn skills are ordered first and survive truncation; retrieved
-/// skills drop first. Must exceed (enabled alwaysOn count + DefaultTopK) at the reference tier or
+/// skills drop first, the lowest retrieval score before the higher ones. Must exceed
+/// (enabled alwaysOn count + DefaultTopK) at the reference tier or
 /// retrieved skills are squeezed out entirely — guarded by SkillToolBudgetGuardTests.
 /// </param>
 /// <param name="previousTurnSkillNames">
@@ -210,7 +211,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         if (truncated)
         {
-            selectedSkills = TruncateToBudget(selectedSkills, guaranteeResult, maxToolsForProvider);
+            selectedSkills = TruncateToBudget(selectedSkills, guaranteeResult, retrievalScores, maxToolsForProvider);
         }
 
         LogToolBudget(
@@ -231,19 +232,31 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
     /// <summary>
     /// Cuts the selection to the provider cap in survival order: always-on skills, then guaranteed skills by the
-    /// strength of their source, with the same-skill continuation last within its source, then by SortOrder.
+    /// strength of their source, with the same-skill continuation last within its source, then by retrieval score,
+    /// best first. The score only ranks inside a tier the guarantees left open, so it never lifts a retrieved skill
+    /// over a guaranteed one nor a weaker guarantee over a stronger one: the continuation a bare "yes" needs is a
+    /// guarantee and survives every retrieved skill however well that one scored. A skill without a score (a
+    /// guarantee retrieval never surfaced, a co-required expansion) ranks below every scored one. SortOrder and
+    /// finally the name break exact ties, so the cut is deterministic; SortOrder alone decided before, and it is 0
+    /// for practically every skill, which left the cut to the order of the skill cache.
     /// </summary>
     /// <param name="selectedSkills">The selection after expansion and exclusion</param>
     /// <param name="guarantees">This turn's guaranteed skills, their sources and the lowest-ranked among them</param>
+    /// <param name="retrievalScores">The retrieval score of every candidate the knowledge index surfaced this turn</param>
     /// <param name="maxToolsForProvider">The provider cap</param>
     private static List<AgentSkill> TruncateToBudget(
-        List<AgentSkill> selectedSkills, SkillToolsetGuaranteeResult guarantees, int maxToolsForProvider) =>
+        List<AgentSkill> selectedSkills,
+        SkillToolsetGuaranteeResult guarantees,
+        IReadOnlyDictionary<string, double> retrievalScores,
+        int maxToolsForProvider) =>
         selectedSkills
             .OrderByDescending(s => s.AlwaysOn)
             .ThenByDescending(s => guarantees.GuaranteedSkills.Contains(s))
             .ThenByDescending(s => guarantees.GuaranteedSources.TryGetValue(s.Name, out var source) ? source.Priority() : 0)
             .ThenBy(s => guarantees.LowestRankedSkillNames.Contains(s.Name))
+            .ThenByDescending(s => retrievalScores.TryGetValue(s.Name, out var score) ? score : double.NegativeInfinity)
             .ThenBy(s => s.SortOrder)
+            .ThenBy(s => s.Name, StringComparer.Ordinal)
             .Take(maxToolsForProvider)
             .ToList();
 

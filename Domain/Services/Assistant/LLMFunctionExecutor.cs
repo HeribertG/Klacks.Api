@@ -12,6 +12,9 @@
 /// It is also the single choke point where a successful call is matched against the skill
 /// catalogue's paired-apply declaration: a propose_* skill that names an apply_* counterpart leaves
 /// a short-lived proposal hint, and executing that counterpart drops the hint again.
+/// A call flagged as outside the turn's toolset (ToolsetMembershipGuard, Observe mode) still runs here, and its
+/// outcome is logged once (Success, result kind, whether the skill is enabled) so the guard's rate of calls that
+/// Enforce would have blocked can be counted.
 /// </summary>
 /// <param name="skillBridge">Executes skills by name; also used for the server-side knowledge injection</param>
 /// <param name="agentSkillRepository">Resolves the execution type of called skills</param>
@@ -124,6 +127,7 @@ public class LLMFunctionExecutor
                 }
 
                 await TrackProposalPairingAsync(context, call);
+                await LogOutsideToolsetOutcomeAsync(context, call);
             }
             catch (Exception ex)
             {
@@ -137,6 +141,21 @@ public class LLMFunctionExecutor
         HasOnlyUiPassthroughCalls = allUiPassthrough;
         LastBatchWasUiPassthroughOnly = allUiPassthrough && functionCalls.Count > 0;
         return string.Join("\n", results);
+    }
+
+    private async Task LogOutsideToolsetOutcomeAsync(LLMContext context, LLMFunctionCall call)
+    {
+        if (!call.IsOutsideToolset)
+        {
+            return;
+        }
+
+        var skill = await GetSkillAsync(call.FunctionName);
+        _logger.LogWarning(
+            "Outside-toolset call {FunctionName} finished with Success {Success}, result kind {ResultKind}, "
+            + "skill enabled {SkillEnabled} (turn {TurnId}, conversation {ConversationId}, model {ModelId})",
+            call.FunctionName, call.Success, call.ResultKind, skill != null,
+            context.TurnId, context.ConversationId, context.ModelId);
     }
 
     private static void MarkSkippedByStop(LLMFunctionCall call)
@@ -218,18 +237,9 @@ public class LLMFunctionExecutor
             string.Equals(skill.PairedApplySkill, functionName, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static readonly Dictionary<string, string> FunctionNameAliases = new(StringComparer.OrdinalIgnoreCase)
-    {
-        { "get_current_user", "get_user_context" },
-        { "getUserPermissions", "get_user_permissions" },
-        { "create_client", "create_employee" },
-        { "search_clients", "search_employees" },
-        { "navigate_to_page", "navigate_to" }
-    };
-
     private async Task<string> ExecuteFunctionAsync(LLMContext context, LLMFunctionCall call, CancellationToken stopToken)
     {
-        if (FunctionNameAliases.TryGetValue(call.FunctionName, out var normalizedName))
+        if (SkillNameAliases.TryResolve(call.FunctionName, out var normalizedName))
         {
             _logger.LogInformation("Normalizing function name {Original} to {Normalized}", call.FunctionName, normalizedName);
             call.FunctionName = normalizedName;

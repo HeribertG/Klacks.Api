@@ -7,6 +7,7 @@
 /// <param name="request">Contains the function name, parameters, user id, user rights and optional page context</param>
 
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Infrastructure.Mediator;
@@ -20,16 +21,6 @@ public class ExecuteLLMFunctionCommandHandler : IRequestHandler<ExecuteLLMFuncti
     private readonly ILogger<ExecuteLLMFunctionCommandHandler> _logger;
     private readonly Klacks.Api.Domain.Services.Assistant.Skills.ILLMSkillBridge? _skillBridge;
 
-    private static readonly Dictionary<string, string> FunctionNameAliases = new()
-    {
-        { "get_user_context", "get_user_permissions" },
-        { "get_current_user", "get_user_permissions" },
-        { "getUserPermissions", "get_user_permissions" },
-        { "create_client", "create_employee" },
-        { "search_clients", "search_employees" },
-        { "navigate_to_page", "navigate_to" }
-    };
-
     public ExecuteLLMFunctionCommandHandler(
         ILogger<ExecuteLLMFunctionCommandHandler> logger,
         Klacks.Api.Domain.Services.Assistant.Skills.ILLMSkillBridge? skillBridge = null)
@@ -40,7 +31,7 @@ public class ExecuteLLMFunctionCommandHandler : IRequestHandler<ExecuteLLMFuncti
 
     public async Task<LLMFunctionResult> Handle(ExecuteLLMFunctionCommand request, CancellationToken cancellationToken)
     {
-        if (FunctionNameAliases.TryGetValue(request.FunctionName, out var normalizedName))
+        if (SkillNameAliases.TryResolve(request.FunctionName, out var normalizedName))
         {
             _logger.LogInformation("Normalizing function name {Original} to {Normalized}", request.FunctionName, normalizedName);
             request.FunctionName = normalizedName;

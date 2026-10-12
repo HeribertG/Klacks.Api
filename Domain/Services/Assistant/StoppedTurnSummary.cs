@@ -37,7 +37,7 @@ public sealed record StoppedTurnSummary(IReadOnlyList<string> Labels, int Execut
     public static List<LLMFunctionCall> ExecutedCalls(IEnumerable<LLMFunctionCall> calls) =>
         calls.Where(call => call.Result != null
                 && !call.SkippedByStop
-                && !call.IsRejectedRepeat
+                && !call.IsRejectedWithoutRunning
                 && call.UiActionSteps == null
                 && call.ResultKind != LLMFunctionResultKind.UiPassthrough)
             .ToList();

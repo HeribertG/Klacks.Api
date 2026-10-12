@@ -62,6 +62,7 @@ internal static class ReadOnlyRecipeWriteGuard
             }
 
             call.Success = false;
+            call.IsRejectedByReadOnlyRecipeGuard = true;
             call.Result = rejectedResult;
         }
 

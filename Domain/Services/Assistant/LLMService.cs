@@ -394,7 +394,7 @@ public class LLMService : ILLMService
             turn.RegisterCalls(functionCalls);
             ApplyRecipeInjections(recipe.Forcing, functionCalls);
 
-            var executableCalls = recipe.RejectWrites(RepeatedWriteCallGuard.RejectAndRecord(functionCalls, calledFunctionNames, forceRecipe));
+            var executableCalls = recipe.RejectWrites(RepeatedWriteCallGuard.RejectAndRecord(InToolset(functionCalls, context), calledFunctionNames, forceRecipe));
 
             var toolRound = new StreamedToolRound(_functionExecutor);
             await foreach (var roundChunk in toolRound.RunAsync(turn, recipe, functionCalls, executableCalls))
@@ -781,7 +781,7 @@ public class LLMService : ILLMService
             ApplyRecipeInjections(recipe.Forcing, lastResponse.FunctionCalls);
 
             var executableCalls = recipe.RejectWrites(RepeatedWriteCallGuard.RejectAndRecord(
-                lastResponse.FunctionCalls, calledFunctionNames, forceRecipe));
+                InToolset(lastResponse.FunctionCalls, ctx.Context), calledFunctionNames, forceRecipe));
 
             await _functionExecutor.ProcessFunctionCallsAsync(ctx.Context, executableCalls);
             recipe.Forcing?.Observe(lastResponse.FunctionCalls);
@@ -846,6 +846,10 @@ public class LLMService : ILLMService
         return (responseContent, lastResponse, iterationsUsed, allFunctionCalls, recipe.AskedSlot);
     }
 
+    private List<LLMFunctionCall> InToolset(List<LLMFunctionCall> functionCalls, LLMContext context) =>
+        ToolsetMembershipGuard.Apply(
+            functionCalls, context, LLMLoopConstants.DefaultToolsetMembershipMode, _logger);
+
     // Prompt-injection containment lives in ToolResultFormatter, shared with the turn replay and the
     // read-only research sub-loop. Internal (not private): covered by LLMServiceFormatFunctionResultsTests.
     internal static string FormatFunctionResults(List<LLMFunctionCall> functionCalls, int? maxToolResultChars = null) =>
@@ -875,7 +879,8 @@ public class LLMService : ILLMService
     /// turns the whole turn into an error response, so recovering its answer would be a wasted call. A turn
     /// without tool calls recovers against the user's message, never against a force-tool nudge, and
     /// without the nudge's exchange, which would otherwise repeat that message in the history. After a read-only
-    /// recipe a completion claim gets the nothing-stored notice, exactly like on the streaming path.
+    /// recipe a completion claim gets the nothing-stored notice, and a turn whose every side-effecting call
+    /// failed gets the same notice whatever its answer claims, exactly like on the streaming path.
     /// </summary>
     private async Task<string> RecoverAnswerAsync(
         MultiTurnContext ctx, string currentMessage, List<Providers.LLMMessage> runningHistory, int historyBudget,
@@ -895,7 +900,7 @@ public class LLMService : ILLMService
         var answer = await recovery.ResolveAsync(
             responseContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, recipe.PausedOnAsk, ctx.CancellationToken);
         ctx.AnsweredWithNotice = recovery.AnsweredWithNotice;
-        return answer + TurnClosingNotices.NothingStored(
+        return answer + TurnClosingNotices.NothingChanged(
             recipe.ReadOnlyRecipeCompleted, answer, allFunctionCalls, ctx.Context.Language, ctx.Context.AvailableFunctions);
     }
 
@@ -1039,6 +1044,7 @@ public class LLMService : ILLMService
     internal static string SerializeFunctionsCalled(IReadOnlyList<LLMFunctionCall> allFunctionCalls)
     {
         var names = allFunctionCalls
+            .Where(c => !c.IsRejectedWithoutRunning)
             .Select(c => c.FunctionName)
             .Where(name => !string.IsNullOrWhiteSpace(name))
             .Distinct(StringComparer.OrdinalIgnoreCase)

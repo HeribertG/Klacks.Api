@@ -6,6 +6,8 @@
 /// scattered as magic numbers across LLMService and PlanStepExecutor.
 /// </summary>
 
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Domain.Constants;
 
 public static class LLMLoopConstants
@@ -47,6 +49,23 @@ public static class LLMLoopConstants
     public const string RepeatedWriteCallRejectedResult =
         "Rejected: this action already ran in this turn and must not run twice. " +
         "Use its earlier result from the previous function results instead of calling it again.";
+
+    public const string ToolsetMembershipRejectedResult =
+        "Rejected: this function is not available in this conversation turn and it did NOT run. " +
+        "Use only the functions you were given. If none of them fits the request, tell the user plainly " +
+        "that you cannot do it here; never say that it was carried out.";
+
+    /// <summary>
+    /// What the chat loop does with a call to a skill outside the turn's toolset. Observe until the logged
+    /// rate of such calls shows that no legitimate call is caught: the guard logs every outside call, and the
+    /// function executor logs its outcome (Success, ResultKind), so the rate of outside calls that succeeded is
+    /// countable. Switching to Enforce is this constant; the rest of the Enforce path is already in place: a
+    /// rejected call is flagged (LLMFunctionCall.IsRejectedWithoutRunning), left out of the functions_called record
+    /// (LLMService.SerializeFunctionsCalled), never counted as a skill failure by the failure consumers, never
+    /// offered as the failure to surface (TurnClosingNotices.LastUnrecoveredFailure), and it counts as a failed
+    /// write attempt for the nothing-stored notice (TurnClosingNotices.NothingExecuted).
+    /// </summary>
+    public const ToolsetMembershipMode DefaultToolsetMembershipMode = ToolsetMembershipMode.Observe;
 
     /// <summary>
     /// Former assistant stand-in for tool-call iterations. No longer written into the running history
