@@ -157,7 +157,7 @@ public class UpdateDetectionBackgroundService : BackgroundService
         }
 
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var result = await mediator.Send(new TriggerUpdateCommand("auto"), stoppingToken);
+        var result = await mediator.Send(new TriggerUpdateCommand(Klacks.Api.Application.Constants.UpdateRequesters.Automatic), stoppingToken);
         _logger.LogInformation("Update detection: auto-trigger result enqueued={Enqueued} ({Reason}).", result.Enqueued, result.Reason);
     }
 

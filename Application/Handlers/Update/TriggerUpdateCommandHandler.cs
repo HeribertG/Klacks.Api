@@ -5,7 +5,9 @@
 /// artifact from the current channel manifest at request time (avoids TOCTOU). Shared by the admin
 /// trigger endpoint and the automatic update policy. Rejects when no update is available, an
 /// intermediate version is required, the release has no signed artifact for this installation (Docker vs. native
-/// runtime identifier, see UpdateArtifactSelector), or an operation is already active (single-active guard).
+/// runtime identifier, see UpdateArtifactSelector), or an operation is already active (single-active guard). The
+/// automatic policy additionally skips a version whose last update attempt failed or was rolled back, so a broken
+/// release is not retried (backup, migration, restore) on every detection cycle; a manual trigger still retries.
 /// </summary>
 using SettingsConstants = Klacks.Api.Application.Constants.Settings;
 using Klacks.Api.Application.Commands.Update;
@@ -72,6 +74,12 @@ public class TriggerUpdateCommandHandler : IRequestHandler<TriggerUpdateCommand,
             return Rejected(UpdateReasons.NoArtifactForInstallation);
         }
 
+        if (request.RequestedBy == UpdateRequesters.Automatic
+            && await LastAttemptAtVersionFailedAsync(manifest.LatestVersion, cancellationToken))
+        {
+            return Rejected(UpdateReasons.PreviousAttemptFailed);
+        }
+
         if (await _repository.GetActiveOperationAsync(cancellationToken) is not null)
         {
             return Rejected(UpdateReasons.OperationInProgress);
@@ -108,6 +116,14 @@ public class TriggerUpdateCommandHandler : IRequestHandler<TriggerUpdateCommand,
             OperationId = entry.Id,
             Reason = UpdateReasons.UpdateEnqueued,
         };
+    }
+
+    private async Task<bool> LastAttemptAtVersionFailedAsync(string version, CancellationToken cancellationToken)
+    {
+        var last = await _repository.GetLatestByTypesAsync([UpdateOperationType.Update], cancellationToken);
+        return last is not null
+            && string.Equals(last.TargetVersion, version, StringComparison.Ordinal)
+            && last.Status is UpdateOperationStatus.Failed or UpdateOperationStatus.RolledBack or UpdateOperationStatus.RollbackFailed;
     }
 
     private static UpdateTriggerResult Rejected(string reason) => new() { Enqueued = false, Reason = reason };
