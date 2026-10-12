@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Abertas",
   "scenarioSummary.reasonsTitle": "Motivos das vagas abertas",
   "scenarioSummary.reasonCount": "Abertas: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Despesas e remunerações no turno de outra pessoa: {{count}} – verifique.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Nenhum colaborador no grupo",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Nenhum contrato ativo",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Nenhum colaborador trabalha neste dia da semana (contrato)",

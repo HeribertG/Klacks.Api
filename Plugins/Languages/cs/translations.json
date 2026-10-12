@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Volné",
   "scenarioSummary.reasonsTitle": "Důvody volných míst",
   "scenarioSummary.reasonCount": "Volných: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Výdaje a odměny u služby jiné osoby: {{count}} – zkontrolujte to prosím.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Ve skupině nejsou žádní zaměstnanci",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Žádná platná smlouva",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "V tento den v týdnu nepracuje žádný zaměstnanec (smlouva)",

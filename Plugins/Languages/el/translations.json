@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Κενές",
   "scenarioSummary.reasonsTitle": "Λόγοι για κενές θέσεις",
   "scenarioSummary.reasonCount": "Κενές: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Έξοδα και αμοιβές σε βάρδια άλλου ατόμου: {{count}} – παρακαλούμε ελέγξτε.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Δεν υπάρχουν εργαζόμενοι στην ομάδα",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Δεν υπάρχει ενεργή σύμβαση",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Κανένας εργαζόμενος δεν εργάζεται αυτή την ημέρα της εβδομάδας (σύμβαση)",

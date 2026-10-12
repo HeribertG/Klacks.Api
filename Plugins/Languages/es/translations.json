@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Abiertos",
   "scenarioSummary.reasonsTitle": "Motivos de los puestos sin cubrir",
   "scenarioSummary.reasonCount": "Abiertos: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Gastos y retribuciones en el turno de otra persona: {{count}} – compruébelo.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "No hay empleados en el grupo",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Ningún contrato activo",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Ningún empleado trabaja en este día de la semana (contrato)",

@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Åpne",
   "scenarioSummary.reasonsTitle": "Årsaker til åpne plasser",
   "scenarioSummary.reasonCount": "Åpne: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Utgifter og godtgjørelser på en annen persons vakt: {{count}} – kontroller.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Ingen medarbeidere i gruppen",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Ingen aktiv kontrakt",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Ingen medarbeider jobber denne ukedagen (kontrakt)",

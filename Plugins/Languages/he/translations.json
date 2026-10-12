@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "פנוי",
   "scenarioSummary.reasonsTitle": "סיבות למקומות פנויים",
   "scenarioSummary.reasonCount": "פנויים: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "הוצאות ותגמולים במשמרת של אדם אחר: {{count}} – יש לבדוק.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "אין עובדים בקבוצה",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "אין חוזה פעיל",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "אף עובד לא עובד ביום זה בשבוע (חוזה)",

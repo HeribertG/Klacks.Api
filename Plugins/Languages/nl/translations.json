@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Open",
   "scenarioSummary.reasonsTitle": "Redenen voor open plaatsen",
   "scenarioSummary.reasonCount": "Open: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Onkosten en vergoedingen bij een dienst van een andere persoon: {{count}} – controleer dit.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Geen medewerkers in de groep",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Geen actief contract",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Geen medewerker werkt op deze weekdag (contract)",

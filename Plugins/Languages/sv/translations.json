@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Lediga",
   "scenarioSummary.reasonsTitle": "Orsaker till lediga platser",
   "scenarioSummary.reasonCount": "Lediga: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Utgifter och ersättningar på en annan persons skift: {{count}} – kontrollera.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Inga medarbetare i gruppen",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Inget aktivt avtal",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Ingen medarbetare arbetar den här veckodagen (avtal)",

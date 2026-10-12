@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Nieobsadzone",
   "scenarioSummary.reasonsTitle": "Przyczyny nieobsadzonych miejsc",
   "scenarioSummary.reasonCount": "Nieobsadzone: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Wydatki i dodatki przy dyżurze innej osoby: {{count}} – sprawdź to.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Brak pracowników w grupie",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Brak aktywnej umowy",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Żaden pracownik nie pracuje w tym dniu tygodnia (umowa)",

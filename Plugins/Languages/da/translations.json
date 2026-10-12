@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Ledige",
   "scenarioSummary.reasonsTitle": "Årsager til ledige pladser",
   "scenarioSummary.reasonCount": "Ledige: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Udgifter og tillæg på en anden persons vagt: {{count}} – kontrollér venligst.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Ingen medarbejdere i gruppen",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Ingen aktiv kontrakt",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Ingen medarbejder arbejder på denne ugedag (kontrakt)",

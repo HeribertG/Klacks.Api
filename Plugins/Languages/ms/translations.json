@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Kosong",
   "scenarioSummary.reasonsTitle": "Sebab slot kosong",
   "scenarioSummary.reasonCount": "Kosong: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Perbelanjaan dan elaun pada syif orang lain: {{count}} – sila semak.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Tiada kakitangan dalam kumpulan",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Tiada kontrak aktif",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Tiada kakitangan yang bekerja pada hari ini (kontrak)",

@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Terbuka",
   "scenarioSummary.reasonsTitle": "Alasan slot terbuka",
   "scenarioSummary.reasonCount": "Terbuka: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Biaya dan tunjangan pada shift orang lain: {{count}} – mohon periksa.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Tidak ada karyawan dalam grup",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Tidak ada kontrak aktif",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Tidak ada karyawan yang bekerja pada hari ini (kontrak)",

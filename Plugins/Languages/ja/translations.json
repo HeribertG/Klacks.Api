@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "未充足",
   "scenarioSummary.reasonsTitle": "未充足の理由",
   "scenarioSummary.reasonCount": "未充足: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "別の人のシフトに付いた経費と手当: {{count}} – 確認してください。",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "グループに従業員がいません",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "有効な契約がありません",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "この曜日に勤務する従業員がいません(契約)",

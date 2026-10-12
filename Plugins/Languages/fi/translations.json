@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Avoinna",
   "scenarioSummary.reasonsTitle": "Avointen paikkojen syyt",
   "scenarioSummary.reasonCount": "Avoinna: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Kulut ja palkkiot toisen henkilön vuorossa: {{count}} – tarkista ne.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Ryhmässä ei ole työntekijöitä",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Ei voimassa olevaa sopimusta",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Kukaan työntekijä ei työskentele tänä viikonpäivänä (sopimus)",

@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "공석",
   "scenarioSummary.reasonsTitle": "공석 사유",
   "scenarioSummary.reasonCount": "공석: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "다른 사람의 근무에 연결된 경비 및 수당: {{count}} – 확인해 주세요.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "그룹에 직원이 없음",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "활성 계약이 없음",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "이 요일에 근무하는 직원이 없음(계약)",

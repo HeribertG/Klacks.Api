@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "空缺",
   "scenarioSummary.reasonsTitle": "名額空缺的原因",
   "scenarioSummary.reasonCount": "空缺：{{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "掛在其他人班次上的費用報銷和津貼：{{count}}，請檢查。",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "群組內沒有員工",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "沒有有效合同",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "沒有員工在這一星期日工作（合同）",

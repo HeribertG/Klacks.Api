@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Còn trống",
   "scenarioSummary.reasonsTitle": "Lý do các vị trí còn trống",
   "scenarioSummary.reasonCount": "Còn trống: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Chi phí và phụ cấp trên ca của người khác: {{count}} – vui lòng kiểm tra.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Không có nhân viên trong nhóm",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Không có hợp đồng hiệu lực",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Không có nhân viên làm việc vào ngày này trong tuần (theo hợp đồng)",

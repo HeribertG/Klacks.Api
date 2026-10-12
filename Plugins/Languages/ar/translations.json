@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "شاغر",
   "scenarioSummary.reasonsTitle": "أسباب الأماكن الشاغرة",
   "scenarioSummary.reasonCount": "شاغر: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "النفقات والبدلات المرتبطة بوردية شخص آخر: {{count}} – يرجى التحقق.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "لا يوجد موظفون في المجموعة",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "لا يوجد عقد ساري",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "لا يعمل أي موظف في هذا اليوم من الأسبوع (العقد)",

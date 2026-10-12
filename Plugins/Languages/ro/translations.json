@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "Libere",
   "scenarioSummary.reasonsTitle": "Motivele locurilor libere",
   "scenarioSummary.reasonCount": "Libere: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Cheltuieli și indemnizații pe tura altei persoane: {{count}} – vă rugăm să verificați.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Niciun angajat în grup",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Niciun contract activ",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Niciun angajat nu lucrează în această zi a săptămânii (contract)",

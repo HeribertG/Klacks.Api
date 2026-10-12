@@ -752,6 +752,7 @@
   "scenarioSummary.col.open": "ว่าง",
   "scenarioSummary.reasonsTitle": "สาเหตุของตำแหน่งที่ว่าง",
   "scenarioSummary.reasonCount": "ว่าง: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "ค่าใช้จ่ายและค่าตอบแทนในกะของบุคคลอื่น: {{count}} – โปรดตรวจสอบ",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "ไม่มีพนักงานในกลุ่ม",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "ไม่มีสัญญาที่ใช้งานอยู่",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "ไม่มีพนักงานที่ทำงานในวันนี้ของสัปดาห์ (ตามสัญญา)",
