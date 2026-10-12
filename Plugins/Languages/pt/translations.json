@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "O plano foi alterado depois de este cenário ter sido criado ({{count}} entradas, última alteração {{lastChange}}). Aceitar substitui o período do cenário pelo seu conteúdo e sobrescreve estas alterações.",
   "scenario.accept.staleAcceptedScenarios": "Cenários aceites desde então: {{names}}",
   "scenario.accept.staleConfirmButton": "Aceitar mesmo assim",
+  "scenario.accept.lockedSkipped": "Não aplicado porque o dia ou a entrada está bloqueado: {{count}} entradas",
   "scenario.banner.hint": "Está a editar um cenário – o plano original permanece inalterado.",
   "scenario.banner.label": "Cenário:",
   "scenario.create": "Criar novo cenário",

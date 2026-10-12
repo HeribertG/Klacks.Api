@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "Planen blev ændret, efter at dette scenarie blev oprettet ({{count}} poster, seneste ændring {{lastChange}}). Overtagelse erstatter scenariets periode med dets indhold og overskriver disse ændringer.",
   "scenario.accept.staleAcceptedScenarios": "Scenarier overtaget siden da: {{names}}",
   "scenario.accept.staleConfirmButton": "Overtag alligevel",
+  "scenario.accept.lockedSkipped": "Ikke overtaget, fordi dagen eller posten er låst: {{count}} poster",
   "scenario.banner.hint": "Du redigerer et scenarie – den oprindelige plan forbliver uændret.",
   "scenario.banner.label": "Scenarie:",
   "scenario.create": "Opret nyt scenarie",

@@ -252,11 +252,11 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         try
         {
-            var accepted = await mediator.Send(
+            var result = await mediator.Send(
                 new AcceptAnalyseScenarioCommand(scenarioId, false, autonomy.DecidingAdminUserId),
                 cancellationToken);
 
-            if (!accepted)
+            if (result is not { Accepted: true })
             {
                 _logger.LogWarning(
                     "NextPeriodAutoCommit: accepting scenario {ScenarioId} for group {GroupName} was refused; the scenario stays a draft",

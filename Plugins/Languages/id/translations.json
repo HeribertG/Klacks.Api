@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "Rencana diubah setelah skenario ini dibuat ({{count}} entri, perubahan terakhir {{lastChange}}). Menerima akan mengganti periode skenario dengan isinya dan menimpa perubahan ini.",
   "scenario.accept.staleAcceptedScenarios": "Skenario yang diterima sejak saat itu: {{names}}",
   "scenario.accept.staleConfirmButton": "Tetap terima",
+  "scenario.accept.lockedSkipped": "Tidak diterapkan karena hari atau entri dikunci: {{count}} entri",
   "scenario.banner.hint": "Anda sedang mengedit skenario – rencana asli tetap tidak berubah.",
   "scenario.banner.label": "Skenario:",
   "scenario.create": "Buat skenario baru",

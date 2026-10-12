@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "El plan se modificó después de crear este escenario ({{count}} entradas, último cambio {{lastChange}}). Aceptar sustituye el periodo del escenario por su contenido y sobrescribe estos cambios.",
   "scenario.accept.staleAcceptedScenarios": "Escenarios aceptados desde entonces: {{names}}",
   "scenario.accept.staleConfirmButton": "Aceptar de todos modos",
+  "scenario.accept.lockedSkipped": "No aplicado porque el día o la entrada está bloqueado: {{count}} entradas",
   "scenario.banner.hint": "Está editando un escenario: el plan original permanece sin cambios.",
   "scenario.banner.label": "Escenario:",
   "scenario.create": "Crear nuevo escenario",

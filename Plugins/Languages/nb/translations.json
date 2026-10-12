@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "Planen ble endret etter at dette scenariet ble opprettet ({{count}} oppføringer, siste endring {{lastChange}}). Å overta erstatter scenariets periode med innholdet og overskriver disse endringene.",
   "scenario.accept.staleAcceptedScenarios": "Scenarier overtatt siden da: {{names}}",
   "scenario.accept.staleConfirmButton": "Overta likevel",
+  "scenario.accept.lockedSkipped": "Ikke overtatt fordi dagen eller oppføringen er låst: {{count}} oppføringer",
   "scenario.banner.hint": "Du redigerer et scenario – den opprinnelige planen forblir uendret.",
   "scenario.banner.label": "Scenario:",
   "scenario.create": "Opprett nytt scenario",

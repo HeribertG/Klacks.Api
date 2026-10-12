@@ -12,7 +12,8 @@
 /// the sole source of the stale override - no parameter and no gate bypass (plan step, scheduled task, inbound,
 /// proactive) can supply it. The accept re-checks the staleness against that acknowledgement and asks again when the
 /// plan changed further meanwhile. The token is marked as issued for a sensitive action this turn, so it cannot be
-/// redeemed in the same turn (as create_plan).
+/// redeemed in the same turn (as create_plan). Entries on locked days are not taken over by the accept; their number is
+/// reported in the success message so the model can tell the user.
 /// </summary>
 /// <param name="scenarioId">UUID of the scenario to accept.</param>
 /// <param name="confirmationStore">Mints the one-time token for the stale-scenario confirmation.</param>
@@ -21,6 +22,7 @@
 
 using System.Globalization;
 using Klacks.Api.Application.Commands.AnalyseScenarios;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
@@ -66,10 +68,10 @@ public class AcceptScenarioSkill : BaseSkillImplementation
         var scenarioId = GetRequiredGuid(parameters, ScenarioIdParameter);
         var acknowledgement = context.StaleScenarioOverwriteAcknowledgement;
 
-        bool success;
+        AcceptAnalyseScenarioResult? result;
         try
         {
-            success = await _mediator.Send(
+            result = await _mediator.Send(
                 new AcceptAnalyseScenarioCommand(
                     scenarioId,
                     OverrideStale: acknowledgement is not null,
@@ -86,16 +88,21 @@ public class AcceptScenarioSkill : BaseSkillImplementation
         }
         catch (KeyNotFoundException)
         {
-            success = false;
+            result = null;
         }
 
-        if (!success)
+        if (result is not { Accepted: true })
         {
             return SkillResult.Error($"Failed to accept scenario {scenarioId} — it may already be accepted, rejected, or not exist.");
         }
+
+        var skipped = result.SkippedLockedTotal;
+        var lockedHint = skipped > 0
+            ? $" {skipped} scenario entries on locked days (sealed or locked entries) were NOT taken over; the original plan stays there. Tell the user."
+            : string.Empty;
         return SkillResult.SuccessResult(
-            new { ScenarioId = scenarioId },
-            $"Scenario {scenarioId} accepted — its works are now part of the main schedule.");
+            new { ScenarioId = scenarioId, SkippedLockedEntries = skipped },
+            $"Scenario {scenarioId} accepted — its works are now part of the main schedule.{lockedHint}");
     }
 
     private async Task<SkillResult> RequireStaleConfirmationAsync(

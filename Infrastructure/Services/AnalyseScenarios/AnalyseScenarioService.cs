@@ -9,6 +9,7 @@
 /// </summary>
 
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
@@ -168,9 +169,14 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
     {
         var (shiftIds, clientIds) = await ResolveRealAcceptScopeAsync(groupId, token, fromDate, untilDate, ct);
 
-        await SoftDeleteRealWorks(shiftIds, fromDate, untilDate, ct);
-        await SoftDeleteRealBreaks(clientIds, fromDate, untilDate, ct);
-        await SoftDeleteRealScheduleNotes(clientIds, fromDate, untilDate, ct);
+        var realWorks = await LoadRealWorksInScopeAsync(shiftIds, fromDate, untilDate, ct);
+        var plan = await BuildAcceptDayLockPlanAsync(
+            token, fromDate, untilDate, realWorks.Select(w => w.ClientId).Concat(clientIds ?? []), ct);
+
+        var keptWorkIds = SoftDeleteRealWorks(realWorks, plan);
+        await SoftDeleteRealWorkChildrenAsync(realWorks.Where(w => w.IsDeleted).Select(w => w.Id).ToList(), ct);
+        await SoftDeleteRealBreaks(clientIds, fromDate, untilDate, plan, keptWorkIds, ct);
+        await SoftDeleteRealScheduleNotes(clientIds, fromDate, untilDate, plan, ct);
     }
 
     /// <summary>
@@ -204,8 +210,8 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
         else
         {
             // No group on the scenario: scope the delete to the scenario's OWN footprint — the real shifts its
-            // works will promote onto, and the clients it touches — instead of deleting the whole date window
-            // company-wide. An empty footprint deletes nothing.
+            // works will promote onto, and the clients its works, breaks and notes touch — instead of deleting the
+            // whole date window company-wide. An empty footprint deletes nothing.
             var cloneToSource = await _context.Shift.IgnoreQueryFilters()
                 .Where(s => s.AnalyseToken == token && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
                 .Select(s => new { s.Id, SourceId = s.ScenarioSourceShiftId!.Value })
@@ -228,8 +234,15 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
                 .Select(b => b.ClientId)
                 .ToListAsync(ct);
 
+            var noteClientIds = await _context.ScheduleNotes.IgnoreQueryFilters()
+                .Where(sn => sn.AnalyseToken == token && !sn.IsDeleted
+                    && sn.CurrentDate >= fromDate && sn.CurrentDate <= untilDate)
+                .Select(sn => sn.ClientId)
+                .ToListAsync(ct);
+
             clientIds = scenarioWorks.Select(w => w.ClientId)
                 .Concat(breakClientIds)
+                .Concat(noteClientIds)
                 .Distinct()
                 .ToList();
         }
@@ -300,8 +313,10 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
             .ToListAsync(ct);
     }
 
-    public async Task PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
+    public async Task<ScenarioAcceptLockSkips> PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
     {
+        var plan = await BuildAcceptDayLockPlanAsync(token, fromDate, untilDate, [], ct);
+
         var cloneShifts = await _context.Shift.IgnoreQueryFilters()
             .Where(s => s.AnalyseToken == token && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
             .Select(s => new { s.Id, SourceId = s.ScenarioSourceShiftId!.Value })
@@ -314,6 +329,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
             .Where(w => w.AnalyseToken == token && !w.IsDeleted).ToListAsync(ct);
         var promotedWorkIds = new List<Guid>();
         var boundaryWorkIds = new List<Guid>();
+        var skippedWorks = 0;
         foreach (var w in scenarioWorks)
         {
             if (w.CurrentDate < fromDate || w.CurrentDate > untilDate)
@@ -322,13 +338,17 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
                 w.DeletedTime = now;
                 boundaryWorkIds.Add(w.Id);
             }
-            else if (w.LockLevel != WorkLockLevel.None)
+            else if (plan.DiscardsClone(w.Id))
             {
-                // Clone of a locked real work: the lock-skipping delete preserves the original, so promoting
-                // this clone would duplicate it. Discard the clone instead.
+                // Locked slot (locked clone or origin, or a locked day on either side): the delete keeps the real
+                // work, so promoting this clone would duplicate it or apply half a move. Discard the clone instead.
                 w.IsDeleted = true;
                 w.DeletedTime = now;
                 boundaryWorkIds.Add(w.Id);
+                if (DiffersFromOrigin(w, plan.RealOriginOf(w.Id), cloneToSource))
+                {
+                    skippedWorks++;
+                }
             }
             else
             {
@@ -370,35 +390,8 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
             foreach (var e in boundaryExpenses) { e.IsDeleted = true; e.DeletedTime = now; }
         }
 
-        var scenarioBreaks = await _context.Break.IgnoreQueryFilters()
-            .Where(b => b.AnalyseToken == token && !b.IsDeleted).ToListAsync(ct);
-        foreach (var b in scenarioBreaks)
-        {
-            if (b.CurrentDate < fromDate || b.CurrentDate > untilDate)
-            {
-                b.IsDeleted = true;
-                b.DeletedTime = now;
-            }
-            else
-            {
-                b.AnalyseToken = null;
-            }
-        }
-
-        var scenarioNotes = await _context.ScheduleNotes.IgnoreQueryFilters()
-            .Where(sn => sn.AnalyseToken == token && !sn.IsDeleted).ToListAsync(ct);
-        foreach (var sn in scenarioNotes)
-        {
-            if (sn.CurrentDate < fromDate || sn.CurrentDate > untilDate)
-            {
-                sn.IsDeleted = true;
-                sn.DeletedTime = now;
-            }
-            else
-            {
-                sn.AnalyseToken = null;
-            }
-        }
+        var skippedBreaks = await PromoteScenarioBreaksAsync(token, fromDate, untilDate, plan, now, ct);
+        var skippedNotes = await PromoteScenarioNotesAsync(token, fromDate, untilDate, plan, now, ct);
 
         var scenarioShifts = await _context.Shift.IgnoreQueryFilters()
             .Where(s => s.AnalyseToken == token && !s.IsDeleted).ToListAsync(ct);
@@ -442,6 +435,10 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
         }
 
         await SoftDeleteScenarioPlanningConstraintsAsync(token, now, ct);
+
+        var skips = new ScenarioAcceptLockSkips(skippedWorks, skippedBreaks, skippedNotes);
+        LogLockSkips(token, skips);
+        return skips;
     }
 
     private async Task<(Dictionary<Guid, Guid> IdMap, List<Shift> Shifts)> CloneShifts(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, Guid token, ScenarioCloneSource source, CancellationToken ct)
@@ -817,11 +814,10 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
         }
     }
 
-    private async Task SoftDeleteRealWorks(List<Guid>? shiftIds, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
+    private async Task<List<Work>> LoadRealWorksInScopeAsync(List<Guid>? shiftIds, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
     {
         IQueryable<Work> workQuery = _context.Work
             .Where(w => !w.IsDeleted && w.AnalyseToken == null
-                && w.LockLevel == WorkLockLevel.None
                 && w.CurrentDate >= fromDate && w.CurrentDate <= untilDate);
 
         if (shiftIds != null)
@@ -829,23 +825,61 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
             workQuery = workQuery.Where(w => shiftIds.Contains(w.ShiftId));
         }
 
-        var realWorks = await workQuery.ToListAsync(ct);
-        var realWorkIds = realWorks.Select(w => w.Id).ToList();
+        return await workQuery.ToListAsync(ct);
+    }
+
+    /// <summary>
+    /// Soft-deletes the movable real works of the scope; a locked work, a work on a locked day and a work whose slot the
+    /// day-lock plan keeps survive. Returns the ids of every real work the accept keeps.
+    /// </summary>
+    private static HashSet<Guid> SoftDeleteRealWorks(List<Work> realWorks, AcceptDayLockPlan plan)
+    {
+        var keptWorkIds = plan.KeptRealWorkIds.ToHashSet();
+        var now = DateTime.UtcNow;
+
+        foreach (var work in realWorks)
+        {
+            if (work.LockLevel != WorkLockLevel.None
+                || plan.IsLocked(work.ClientId, work.CurrentDate)
+                || plan.KeepsRealWork(work.Id))
+            {
+                keptWorkIds.Add(work.Id);
+                continue;
+            }
+
+            work.IsDeleted = true;
+            work.DeletedTime = now;
+        }
+
+        return keptWorkIds;
+    }
+
+    private async Task SoftDeleteRealWorkChildrenAsync(List<Guid> deletedWorkIds, CancellationToken ct)
+    {
+        if (deletedWorkIds.Count == 0)
+        {
+            return;
+        }
 
         var workChanges = await _context.WorkChange
-            .Where(wc => !wc.IsDeleted && realWorkIds.Contains(wc.WorkId))
+            .Where(wc => !wc.IsDeleted && deletedWorkIds.Contains(wc.WorkId))
             .ToListAsync(ct);
 
         var expenses = await _context.Expenses
-            .Where(e => !e.IsDeleted && realWorkIds.Contains(e.WorkId))
+            .Where(e => !e.IsDeleted && deletedWorkIds.Contains(e.WorkId))
             .ToListAsync(ct);
 
-        foreach (var wc in workChanges) { wc.IsDeleted = true; wc.DeletedTime = DateTime.UtcNow; }
-        foreach (var exp in expenses) { exp.IsDeleted = true; exp.DeletedTime = DateTime.UtcNow; }
-        foreach (var work in realWorks) { work.IsDeleted = true; work.DeletedTime = DateTime.UtcNow; }
+        var now = DateTime.UtcNow;
+        foreach (var wc in workChanges) { wc.IsDeleted = true; wc.DeletedTime = now; }
+        foreach (var exp in expenses) { exp.IsDeleted = true; exp.DeletedTime = now; }
     }
 
-    private async Task SoftDeleteRealBreaks(List<Guid>? clientIds, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
+    /// <summary>
+    /// Soft-deletes the real breaks of the scope, except locked breaks, breaks on a locked day and pauses of a work the
+    /// accept keeps.
+    /// </summary>
+    private async Task SoftDeleteRealBreaks(
+        List<Guid>? clientIds, DateOnly fromDate, DateOnly untilDate, AcceptDayLockPlan plan, HashSet<Guid> keptWorkIds, CancellationToken ct)
     {
         IQueryable<Break> breakQuery = _context.Break
             .Where(b => !b.IsDeleted && b.AnalyseToken == null
@@ -857,11 +891,23 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
         }
 
         var realBreaks = await breakQuery.ToListAsync(ct);
+        var now = DateTime.UtcNow;
 
-        foreach (var brk in realBreaks) { brk.IsDeleted = true; brk.DeletedTime = DateTime.UtcNow; }
+        foreach (var brk in realBreaks)
+        {
+            var keep = brk.LockLevel != WorkLockLevel.None
+                || plan.IsLocked(brk.ClientId, brk.CurrentDate)
+                || (brk.ParentWorkId is { } parentId && keptWorkIds.Contains(parentId));
+            if (!keep)
+            {
+                brk.IsDeleted = true;
+                brk.DeletedTime = now;
+            }
+        }
     }
 
-    private async Task SoftDeleteRealScheduleNotes(List<Guid>? clientIds, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
+    private async Task SoftDeleteRealScheduleNotes(
+        List<Guid>? clientIds, DateOnly fromDate, DateOnly untilDate, AcceptDayLockPlan plan, CancellationToken ct)
     {
         IQueryable<ScheduleNote> noteQuery = _context.ScheduleNotes
             .Where(sn => !sn.IsDeleted && sn.AnalyseToken == null
@@ -873,7 +919,12 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
         }
 
         var realNotes = await noteQuery.ToListAsync(ct);
+        var now = DateTime.UtcNow;
 
-        foreach (var note in realNotes) { note.IsDeleted = true; note.DeletedTime = DateTime.UtcNow; }
+        foreach (var note in realNotes.Where(n => !plan.IsLocked(n.ClientId, n.CurrentDate)))
+        {
+            note.IsDeleted = true;
+            note.DeletedTime = now;
+        }
     }
 }

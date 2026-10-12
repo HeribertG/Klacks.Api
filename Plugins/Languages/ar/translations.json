@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "تم تغيير الخطة بعد إنشاء هذا السيناريو ({{count}} إدخالات، آخر تغيير {{lastChange}}). يؤدي القبول إلى استبدال فترة السيناريو بمحتواه والكتابة فوق هذه التغييرات.",
   "scenario.accept.staleAcceptedScenarios": "السيناريوهات المقبولة منذ ذلك الحين: {{names}}",
   "scenario.accept.staleConfirmButton": "قبول على أي حال",
+  "scenario.accept.lockedSkipped": "لم يتم اعتمادها لأن اليوم أو الإدخال مقفل: {{count}} إدخالات",
   "scenario.banner.hint": "أنت تعدّل سيناريو – تبقى الخطة الأصلية دون تغيير.",
   "scenario.banner.label": "السيناريو:",
   "scenario.create": "إنشاء سيناريو جديد",

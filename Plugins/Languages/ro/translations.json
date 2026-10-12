@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "Planul a fost modificat după crearea acestui scenariu ({{count}} înregistrări, ultima modificare {{lastChange}}). Preluarea înlocuiește perioada scenariului cu conținutul său și suprascrie aceste modificări.",
   "scenario.accept.staleAcceptedScenarios": "Scenarii preluate de atunci: {{names}}",
   "scenario.accept.staleConfirmButton": "Preluați oricum",
+  "scenario.accept.lockedSkipped": "Nepreluate deoarece ziua sau înregistrarea este blocată: {{count}} înregistrări",
   "scenario.banner.hint": "Editați un scenariu – planul original rămâne neschimbat.",
   "scenario.banner.label": "Scenariu:",
   "scenario.create": "Creare scenariu nou",

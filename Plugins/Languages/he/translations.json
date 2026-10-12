@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "התוכנית שונתה לאחר יצירת התרחיש הזה ({{count}} רשומות, שינוי אחרון {{lastChange}}). אימוץ מחליף את תקופת התרחיש בתוכן שלו ודורס את השינויים האלה.",
   "scenario.accept.staleAcceptedScenarios": "תרחישים שאומצו מאז: {{names}}",
   "scenario.accept.staleConfirmButton": "אמץ בכל זאת",
+  "scenario.accept.lockedSkipped": "לא אומץ כי היום או הרשומה נעולים: {{count}} רשומות",
   "scenario.banner.hint": "מתבצעת עריכה של תרחיש – התוכנית המקורית נשארת ללא שינוי.",
   "scenario.banner.label": "תרחיש:",
   "scenario.create": "צור תרחיש חדש",

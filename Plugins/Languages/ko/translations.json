@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "이 시나리오가 생성된 후 계획이 변경되었습니다({{count}}개 항목, 마지막 변경 {{lastChange}}). 적용하면 시나리오 기간이 시나리오 내용으로 대체되고 이러한 변경 사항을 덮어씁니다.",
   "scenario.accept.staleAcceptedScenarios": "그 이후 적용된 시나리오: {{names}}",
   "scenario.accept.staleConfirmButton": "그래도 적용",
+  "scenario.accept.lockedSkipped": "날짜 또는 항목이 잠겨 있어 적용되지 않음: {{count}}개 항목",
   "scenario.banner.hint": "시나리오를 편집 중입니다. 원래 계획은 변경되지 않습니다.",
   "scenario.banner.label": "시나리오:",
   "scenario.create": "새 시나리오 만들기",

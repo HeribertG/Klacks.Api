@@ -16,6 +16,8 @@
 /// ever, still pointing at a proposal that has already been applied to the real plan.
 /// The promote bypasses the per-work period-hours hooks, so the real plan's cached period hours
 /// overlapping the accepted range are recomputed afterwards and open schedules are told to reload them.
+/// Locked days are left untouched by the accept; the result reports how many scenario entries on locked days were not
+/// taken over.
 /// A scenario outside the caller's group visibility is answered like a missing one, before the status check, so a
 /// hidden decided scenario does not reveal itself through a 409.
 /// Before the compliance gate a staleness gate runs: when the original plan changed inside the accept scope after the
@@ -48,7 +50,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Klacks.Api.Application.Handlers.AnalyseScenarios;
 
-public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<AcceptAnalyseScenarioCommand, bool>
+public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<AcceptAnalyseScenarioCommand, AcceptAnalyseScenarioResult>
 {
     private const string UnknownUserName = "Unknown";
     private const string BlockedMessageFormat =
@@ -122,7 +124,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         _escalationChainService = escalationChainService;
     }
 
-    public async Task<bool> Handle(AcceptAnalyseScenarioCommand command, CancellationToken cancellationToken)
+    public async Task<AcceptAnalyseScenarioResult> Handle(AcceptAnalyseScenarioCommand command, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
@@ -140,7 +142,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             var scenarioBreakIds = await _scenarioService.GetScenarioBreakIdsAsync(scenario.Token, cancellationToken);
 
             await _scenarioService.SoftDeleteRealScheduleDataAsync(scenario.GroupId, scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
-            await _scenarioService.PromoteScenarioWorksAsync(scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
+            var lockSkips = await _scenarioService.PromoteScenarioWorksAsync(scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
 
             await _softeningRepository.DeleteByAnalyseTokenAsync(scenario.Token, cancellationToken);
             await _softeningRepository.DeleteByRangeAndTokenAsync(scenario.FromDate, scenario.UntilDate, null, cancellationToken);
@@ -157,7 +159,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             await ExecuteLedgerConditionAsync(command, cancellationToken);
 
-            return true;
+            return AcceptAnalyseScenarioResult.From(lockSkips);
         }, nameof(Handle), new { command.ScenarioId });
     }
 

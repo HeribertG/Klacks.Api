@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "このシナリオの作成後にプランが変更されました（{{count}} 件、最終変更 {{lastChange}}）。適用すると、シナリオの期間がシナリオの内容に置き換えられ、これらの変更は上書きされます。",
   "scenario.accept.staleAcceptedScenarios": "その後に適用されたシナリオ: {{names}}",
   "scenario.accept.staleConfirmButton": "それでも適用する",
+  "scenario.accept.lockedSkipped": "日またはエントリがロックされているため適用されませんでした: {{count}} 件",
   "scenario.banner.hint": "シナリオを編集中です。元のプランは変更されません。",
   "scenario.banner.label": "シナリオ:",
   "scenario.create": "新しいシナリオを作成",

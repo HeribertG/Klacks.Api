@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "Suunnitelmaa muutettiin tämän skenaarion luomisen jälkeen ({{count}} merkintää, viimeisin muutos {{lastChange}}). Hyväksyminen korvaa skenaarion ajanjakson sen sisällöllä ja kirjoittaa näiden muutosten päälle.",
   "scenario.accept.staleAcceptedScenarios": "Sen jälkeen hyväksytyt skenaariot: {{names}}",
   "scenario.accept.staleConfirmButton": "Hyväksy silti",
+  "scenario.accept.lockedSkipped": "Ei otettu käyttöön, koska päivä tai merkintä on lukittu: {{count}} merkintää",
   "scenario.banner.hint": "Muokkaat skenaariota – alkuperäinen suunnitelma pysyy ennallaan.",
   "scenario.banner.label": "Skenaario:",
   "scenario.create": "Luo uusi skenaario",

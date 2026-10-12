@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "Plán byl změněn po vytvoření tohoto scénáře ({{count}} záznamů, poslední změna {{lastChange}}). Převzetí nahradí období scénáře jeho obsahem a přepíše tyto změny.",
   "scenario.accept.staleAcceptedScenarios": "Od té doby převzaté scénáře: {{names}}",
   "scenario.accept.staleConfirmButton": "Přesto převzít",
+  "scenario.accept.lockedSkipped": "Nepřevzato, protože den nebo záznam je uzamčen: {{count}} záznamů",
   "scenario.banner.hint": "Upravujete scénář – původní plán zůstává beze změny.",
   "scenario.banner.label": "Scénář:",
   "scenario.create": "Vytvořit nový scénář",

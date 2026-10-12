@@ -21,6 +21,7 @@
 /// SCENARIO_STALE again. Null (REST override, autonomous commit) keeps the plain override.
 /// </param>
 
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -31,4 +32,4 @@ public record AcceptAnalyseScenarioCommand(
     bool OverrideBlock = false,
     Guid? ActingUserId = null,
     bool OverrideStale = false,
-    StaleScenarioOverwriteAcknowledgement? AcknowledgedStaleness = null) : IRequest<bool>;
+    StaleScenarioOverwriteAcknowledgement? AcknowledgedStaleness = null) : IRequest<AcceptAnalyseScenarioResult>;

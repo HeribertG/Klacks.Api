@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "建立此場景後計劃已被變更（{{count}} 筆記錄，最後變更 {{lastChange}}）。接受將以場景內容取代場景期間，並覆寫這些變更。",
   "scenario.accept.staleAcceptedScenarios": "此後已接受的場景：{{names}}",
   "scenario.accept.staleConfirmButton": "仍然接受",
+  "scenario.accept.lockedSkipped": "因日期或項目已鎖定而未採用：{{count}} 筆",
   "scenario.banner.hint": "您正在編輯場景——原始計劃保持不變。",
   "scenario.banner.label": "場景：",
   "scenario.create": "建立新場景",

@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "Planen ändrades efter att detta scenario skapades ({{count}} poster, senaste ändring {{lastChange}}). Att överta ersätter scenariots period med dess innehåll och skriver över dessa ändringar.",
   "scenario.accept.staleAcceptedScenarios": "Scenarier övertagna sedan dess: {{names}}",
   "scenario.accept.staleConfirmButton": "Överta ändå",
+  "scenario.accept.lockedSkipped": "Inte övertaget eftersom dagen eller posten är låst: {{count}} poster",
   "scenario.banner.hint": "Du redigerar ett scenario – originalplanen förblir oförändrad.",
   "scenario.banner.label": "Scenario:",
   "scenario.create": "Skapa nytt scenario",

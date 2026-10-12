@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "Plan został zmieniony po utworzeniu tego scenariusza ({{count}} wpisów, ostatnia zmiana {{lastChange}}). Zastosowanie zastępuje okres scenariusza jego zawartością i nadpisuje te zmiany.",
   "scenario.accept.staleAcceptedScenarios": "Scenariusze zastosowane od tego czasu: {{names}}",
   "scenario.accept.staleConfirmButton": "Zastosuj mimo to",
+  "scenario.accept.lockedSkipped": "Nie zastosowano, ponieważ dzień lub wpis jest zablokowany: {{count}} wpisów",
   "scenario.banner.hint": "Edytujesz scenariusz – oryginalny plan pozostaje bez zmian.",
   "scenario.banner.label": "Scenariusz:",
   "scenario.create": "Utwórz nowy scenariusz",

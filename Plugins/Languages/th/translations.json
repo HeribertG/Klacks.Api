@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "แผนถูกเปลี่ยนแปลงหลังจากสร้างสถานการณ์จำลองนี้ ({{count}} รายการ, เปลี่ยนแปลงล่าสุด {{lastChange}}) การนำไปใช้จะแทนที่ช่วงเวลาของสถานการณ์จำลองด้วยเนื้อหาของสถานการณ์จำลองและเขียนทับการเปลี่ยนแปลงเหล่านี้",
   "scenario.accept.staleAcceptedScenarios": "สถานการณ์จำลองที่นำไปใช้ตั้งแต่นั้น: {{names}}",
   "scenario.accept.staleConfirmButton": "นำไปใช้ต่อไป",
+  "scenario.accept.lockedSkipped": "ไม่ได้นำไปใช้เพราะวันหรือรายการถูกล็อก: {{count}} รายการ",
   "scenario.banner.hint": "คุณกำลังแก้ไขสถานการณ์จำลอง – แผนต้นฉบับจะไม่เปลี่ยนแปลง",
   "scenario.banner.label": "สถานการณ์จำลอง:",
   "scenario.create": "สร้างสถานการณ์จำลองใหม่",

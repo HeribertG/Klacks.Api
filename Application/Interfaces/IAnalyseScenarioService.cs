@@ -85,7 +85,8 @@ public interface IAnalyseScenarioService
     /// breaks, schedule_notes) in the date range so the scenario clones can
     /// be promoted into place. When <paramref name="groupId"/> is <c>null</c>
     /// the scope is limited to the scenario's own footprint (the real shifts its works promote onto and the
-    /// clients it touches); otherwise the scope is limited to the group hierarchy. Locked rows are never deleted.
+    /// clients its works, breaks and notes touch); otherwise the scope is limited to the group hierarchy. Locked rows, rows
+    /// on a locked day (sealed day) and real works whose scenario slot is locked are never deleted.
     /// </summary>
     Task SoftDeleteRealScheduleDataAsync(Guid? groupId, Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken);
 
@@ -120,12 +121,16 @@ public interface IAnalyseScenarioService
     /// not duplicate the unchanged real entries that already exist in the
     /// boundary. Clone shifts, clone preferences and clone shift-expenses
     /// are soft-deleted (NOT promoted) — originals remain unchanged.
+    /// Locked days are left untouched: scenario works, breaks and notes on a locked day (sealed day, locked entry, or
+    /// a work slot whose real origin, clone or pause is locked) are discarded instead of promoted, mirroring what
+    /// <see cref="SoftDeleteRealScheduleDataAsync"/> keeps.
     /// </summary>
     /// <param name="token">Scenario isolation token.</param>
     /// <param name="fromDate">Period start (inclusive); entries with CurrentDate &lt; this are boundary.</param>
     /// <param name="untilDate">Period end (inclusive); entries with CurrentDate &gt; this are boundary.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    Task PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken);
+    /// <returns>The discarded scenario entries on locked days that differ from what the real plan keeps.</returns>
+    Task<ScenarioAcceptLockSkips> PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Ids of the live (not deleted) breaks that belong to the scenario. Must be read BEFORE

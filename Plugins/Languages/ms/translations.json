@@ -1910,6 +1910,7 @@
   "scenario.accept.staleMessage": "Pelan telah diubah selepas senario ini dicipta ({{count}} entri, perubahan terakhir {{lastChange}}). Menerima akan menggantikan tempoh senario dengan kandungannya dan menulis ganti perubahan ini.",
   "scenario.accept.staleAcceptedScenarios": "Senario yang diterima sejak itu: {{names}}",
   "scenario.accept.staleConfirmButton": "Terima juga",
+  "scenario.accept.lockedSkipped": "Tidak diterima kerana hari atau entri dikunci: {{count}} entri",
   "scenario.banner.hint": "Anda sedang menyunting senario – pelan asal kekal tidak berubah.",
   "scenario.banner.label": "Senario:",
   "scenario.create": "Cipta senario baharu",
