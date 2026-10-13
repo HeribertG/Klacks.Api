@@ -75,7 +75,7 @@ if (-not [System.Text.Json.Nodes.JsonNode]::DeepEquals($before, $after)) { throw
 
 $options = [System.Text.Json.JsonSerializerOptions]::new()
 $options.WriteIndented = $true
-# Keep '+' and '/' of Base64 signatures literal instead of +, so the file reads exactly like deploy.yml writes it.
+# Keep '+' of Base64 signatures literal instead of the escape \u002B, so the file reads exactly like deploy.yml writes it.
 $options.Encoder = [System.Text.Encodings.Web.JavaScriptEncoder]::UnsafeRelaxedJsonEscaping
 [System.IO.File]::WriteAllText($OutputPath, $merged.ToJsonString($options), [System.Text.UTF8Encoding]::new($false))
 Write-Host "Merged native $Rid entry for $Version into $OutputPath"
