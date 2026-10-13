@@ -41,17 +41,29 @@ public class UserManagementService : IUserManagementService
         _logger = logger;
     }
 
+    /// <summary>
+    /// Creates the account. Every refusal carries an IdentityResult with Identity's own error code, including the
+    /// checks made here before Identity runs (blank e-mail, blank user name, e-mail already in use), so a caller
+    /// can always tell the user why.
+    /// </summary>
+    /// <param name="user">The new account; Email and UserName are required</param>
+    /// <param name="password">The initial password, validated by Identity's password policy</param>
     public async Task<(bool Success, IdentityResult? Result)> RegisterUserAsync(AppUser user, string password)
     {
-        if (string.IsNullOrWhiteSpace(user.Email) || string.IsNullOrWhiteSpace(user.UserName))
+        if (string.IsNullOrWhiteSpace(user.Email))
         {
-            return (false, null);
+            return Refused(_userManager.ErrorDescriber.InvalidEmail(user.Email));
+        }
+
+        if (string.IsNullOrWhiteSpace(user.UserName))
+        {
+            return Refused(_userManager.ErrorDescriber.InvalidUserName(user.UserName));
         }
 
         var existingUser = await _userManager.FindByEmailAsync(user.Email);
         if (existingUser != null)
         {
-            return (false, null);
+            return Refused(_userManager.ErrorDescriber.DuplicateEmail(user.Email));
         }
 
         user.UserName = FormatHelper.ReplaceUmlaud(user.UserName);
@@ -252,4 +264,7 @@ public class UserManagementService : IUserManagementService
     {
         return await _userManager.GetRolesAsync(user);
     }
+
+    private static (bool Success, IdentityResult? Result) Refused(IdentityError error) =>
+        (false, IdentityResult.Failed(error));
 }

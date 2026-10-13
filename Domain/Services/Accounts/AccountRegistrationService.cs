@@ -44,7 +44,7 @@ public class AccountRegistrationService : IAccountRegistrationService
         {
             if (result != null)
             {
-                _logger.LogWarning("User registration failed for {Email}: {Errors}", user.Email.MaskEmail(), string.Join(", ", result.Errors.Select(e => e.Description)));
+                _logger.LogWarning("User registration failed for {Email}: {Codes}", user.Email.MaskEmail(), string.Join(", ", result.Errors.Select(e => e.Code)));
                 authenticatedResult.ModelState = _authenticationService.AddErrorsToModelState(result, authenticatedResult.ModelState);
             }
             else

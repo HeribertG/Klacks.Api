@@ -555,11 +555,11 @@ builder.Services.AddDatabaseInitializer();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireDigit = PasswordPolicyDefaults.RequireDigit;
+    options.Password.RequiredLength = PasswordPolicyDefaults.RequiredLength;
+    options.Password.RequireLowercase = PasswordPolicyDefaults.RequireLowercase;
+    options.Password.RequireUppercase = PasswordPolicyDefaults.RequireUppercase;
+    options.Password.RequireNonAlphanumeric = PasswordPolicyDefaults.RequireNonAlphanumeric;
 });
 
 var app = builder.Build();

@@ -2,6 +2,7 @@
 
 ﻿using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Logging;
 using FluentValidation;
@@ -44,6 +45,11 @@ public class ErrorHandlingMiddleware
                 .ToDictionary(g => g.Key, g => g.Select(x => x.ErrorMessage).ToArray()));
 
             await context.Response.WriteAsJsonAsync(problem);
+        }
+        catch (AccountRegistrationRejectedException ex)
+        {
+            _logger.LogWarning("AccountRegistrationRejectedException caught by middleware: {Reasons}", string.Join(',', ex.Reasons));
+            await WriteAccountRegistrationRejectedAsync(context, ex);
         }
         catch (ClientImportRejectedException ex)
         {
@@ -301,6 +307,23 @@ public class ErrorHandlingMiddleware
         problem.Extensions["errorCode"] = PayrollExportErrorCodes.Blocked;
         problem.Extensions["blockers"] = exception.Completeness.Blockers;
         problem.Extensions["blockerTotal"] = exception.Completeness.BlockerTotal;
+
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+
+    private static async Task WriteAccountRegistrationRejectedAsync(HttpContext context, AccountRegistrationRejectedException exception)
+    {
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        context.Response.ContentType = "application/problem+json";
+
+        var problem = new ProblemDetails
+        {
+            Title = "Bad Request",
+            Status = StatusCodes.Status400BadRequest,
+            Detail = exception.Message
+        };
+        problem.Extensions["errorCode"] = AccountRegistrationErrorCodes.ErrorCode;
+        problem.Extensions["reasons"] = exception.Reasons;
 
         await context.Response.WriteAsJsonAsync(problem);
     }

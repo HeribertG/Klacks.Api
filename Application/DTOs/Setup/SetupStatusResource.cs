@@ -5,4 +5,6 @@ namespace Klacks.Api.Application.DTOs.Setup;
 public class SetupStatusResource
 {
     public bool RequiresOwnAdmin { get; set; }
+
+    public PasswordPolicyResource PasswordPolicy { get; set; } = new();
 }

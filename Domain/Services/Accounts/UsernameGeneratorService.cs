@@ -1,5 +1,15 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Derives a unique, technical user name from first and last name (e.g. "Max Mustermann" -> "mmu"). The result is
+/// plain ASCII [a-z0-9], because Identity's default AllowedUserNameCharacters rejects everything else: a name in
+/// Cyrillic, Greek, Arabic, Hebrew or CJK script falls back to "usr" plus a counter instead of producing a user name
+/// Identity refuses. People sign in with their e-mail address, so the user name never has to be readable.
+/// </summary>
+/// <param name="userManager">Looks up whether a candidate user name is already taken</param>
+
+using System.Globalization;
+using System.Text;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +18,18 @@ namespace Klacks.Api.Domain.Services.Accounts;
 
 public class UsernameGeneratorService : IUsernameGeneratorService
 {
+    private const string FallbackUsername = "usr";
+
+    private static readonly IReadOnlyDictionary<string, string> Transliterations = new Dictionary<string, string>
+    {
+        ["ä"] = "ae", ["ö"] = "oe", ["ü"] = "ue", ["ß"] = "ss",
+        ["Ä"] = "Ae", ["Ö"] = "Oe", ["Ü"] = "Ue",
+        ["æ"] = "ae", ["Æ"] = "Ae", ["œ"] = "oe", ["Œ"] = "Oe",
+        ["ø"] = "o", ["Ø"] = "O", ["ł"] = "l", ["Ł"] = "L",
+        ["đ"] = "d", ["Đ"] = "D", ["ð"] = "d", ["Ð"] = "D",
+        ["þ"] = "th", ["Þ"] = "Th", ["ı"] = "i",
+    };
+
     private readonly UserManager<AppUser> _userManager;
     private readonly ILogger<UsernameGeneratorService> _logger;
 
@@ -49,7 +71,7 @@ public class UsernameGeneratorService : IUsernameGeneratorService
 
         if (string.IsNullOrEmpty(first) && string.IsNullOrEmpty(last))
         {
-            return "usr";
+            return FallbackUsername;
         }
 
         if (string.IsNullOrEmpty(last))
@@ -86,16 +108,22 @@ public class UsernameGeneratorService : IUsernameGeneratorService
             return string.Empty;
         }
 
-        var normalized = input.Trim()
-            .Replace("ä", "ae")
-            .Replace("ö", "oe")
-            .Replace("ü", "ue")
-            .Replace("ß", "ss")
-            .Replace("Ä", "Ae")
-            .Replace("Ö", "Oe")
-            .Replace("Ü", "Ue");
+        var transliterated = Transliterations.Aggregate(
+            input.Trim(),
+            (current, pair) => current.Replace(pair.Key, pair.Value, StringComparison.Ordinal));
 
-        return new string(normalized.Where(c => char.IsLetterOrDigit(c)).ToArray());
+        var decomposed = transliterated.Normalize(NormalizationForm.FormD);
+        var builder = new StringBuilder(decomposed.Length);
+        foreach (var character in decomposed)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark
+                && char.IsAsciiLetterOrDigit(character))
+            {
+                builder.Append(character);
+            }
+        }
+
+        return builder.ToString();
     }
 
     private async Task<bool> UsernameExistsAsync(string username)

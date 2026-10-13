@@ -17,7 +17,7 @@ public interface IUserManagementService
     /// </summary>
     /// <param name="user">User to register</param>
     /// <param name="password">User's password</param>
-    /// <returns>Success status and identity result</returns>
+    /// <returns>Success status and identity result; a refusal always carries the Identity error codes explaining it</returns>
     Task<(bool Success, IdentityResult? Result)> RegisterUserAsync(AppUser user, string password);
 
     /// <summary>
