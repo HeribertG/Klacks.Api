@@ -19,6 +19,7 @@
 /// <param name="baseDirectory">Application base directory containing the Plugins folder</param>
 /// <param name="onError">Optional callback invoked per plugin file that failed to load</param>
 /// <param name="onMissingFile">Optional callback invoked with the language code of each installed pack directory that has no assistant-texts.json</param>
+/// <param name="configuredPluginDirectory">Value of LanguagePlugins:Directory, null when not configured</param>
 
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
@@ -31,9 +32,12 @@ public static class AssistantTextsPluginLoader
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     public static void Load(
-        string baseDirectory, Action<string, Exception>? onError = null, Action<string>? onMissingFile = null)
+        string baseDirectory,
+        Action<string, Exception>? onError = null,
+        Action<string>? onMissingFile = null,
+        string? configuredPluginDirectory = null)
     {
-        var pluginDir = Path.Combine(baseDirectory, LanguagePluginConstants.PluginDirectory);
+        var pluginDir = LanguagePluginDirectoryResolver.Resolve(baseDirectory, configuredPluginDirectory);
         if (!Directory.Exists(pluginDir))
         {
             return;

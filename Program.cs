@@ -262,26 +262,11 @@ builder.Services.AddSingleton<ScheduleTimelineBackgroundService>();
 if (bgOptions.ScheduleTimeline)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<IScheduleTimelineService>(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
-builder.Services.AddSingleton<IUtteranceNormalizer, UtteranceNormalizer>();
-NavigationIntentPluginLoader.Load(
-    AppContext.BaseDirectory,
-    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
-MutationIntentPluginLoader.Load(
-    AppContext.BaseDirectory,
-    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
-GroupingIntentPluginLoader.Load(
-    AppContext.BaseDirectory,
-    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
-ConversationSignalsPluginLoader.Load(
-    AppContext.BaseDirectory,
-    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
-AssistantTextsPluginLoader.Load(
-    AppContext.BaseDirectory,
-    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"),
-    code => Console.Error.WriteLine($"Language pack '{code}' has no assistant-texts.json; its assistant texts go out in English"));
-CompletionClaimPluginLoader.Load(
-    AppContext.BaseDirectory,
-    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
+var startupLoggerFactory = LoggerFactory.Create(logging => logging.AddConsole());
+var configuredPluginDirectory = builder.Configuration.GetValue<string>(LanguagePluginConstants.DirectoryConfigKey);
+LanguagePluginStartupLoader.LoadAll(
+    AppContext.BaseDirectory, configuredPluginDirectory, startupLoggerFactory.CreateLogger("Klacks.Api.LanguagePlugins"));
+builder.Services.AddSingleton<IUtteranceNormalizer>(_ => new UtteranceNormalizer(configuredPluginDirectory));
 builder.Services.AddSingleton<INavigationTargetCacheService>(sp =>
 {
     var baseDir = AppContext.BaseDirectory;
@@ -472,7 +457,6 @@ var dataProtectionOptions = builder.Configuration
     .GetSection(DataProtectionKeyRingOptions.SectionName)
     .Get<DataProtectionKeyRingOptions>() ?? new DataProtectionKeyRingOptions();
 
-var startupLoggerFactory = LoggerFactory.Create(logging => logging.AddConsole());
 var dataProtectionLogger = startupLoggerFactory.CreateLogger("Klacks.Api.DataProtection");
 var dataProtectionCertificate = DataProtectionCertificateLoader.Load(dataProtectionOptions, dataProtectionLogger);
 

@@ -177,7 +177,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     private async Task ResolvePreviousTurnAsync(Guid agentId, LLMContext context)
     {
         var isCorrectionSignal = ImplicitCorrectionDetector.IsCorrectionSignal(context.Message);
-        var isBareNegation = DeclineDetector.IsBareNegation(context.Message);
+        var isBareNegation = DeclineDetector.IsBareNegation(context.Message, context.Language);
         var confirmedGate = context.RecipeConfirmationAccepted;
         var abandonedGate = context.RecipeConfirmationDeclined;
         var resumesRecipe = !context.RecipeAwaitingConfirmation
@@ -288,7 +288,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
             return;
         }
 
-        if (AffirmationDetector.IsAffirmation(context.Message)
+        if (AffirmationDetector.IsAffirmation(context.Message, context.Language)
             && string.Equals(previous.RecipeName, Truncate(context.ActiveRecipeName), StringComparison.Ordinal))
         {
             await MarkRecipeOutcomeAsync(previous, RecipeOutcomes.Confirmed);

@@ -154,11 +154,11 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
 
         var phase = GetParameter<string>(parameters, SetupConsultationParameters.Phase);
         var attribution = SetupConsultationAnswerClassifier.ClassifyAttribution(
-            GetParameter<string>(parameters, SetupConsultationParameters.Attribution));
+            GetParameter<string>(parameters, SetupConsultationParameters.Attribution), context.UserLanguage);
         var orderSource = SetupConsultationAnswerClassifier.ClassifyOrderSource(
-            GetParameter<string>(parameters, SetupConsultationParameters.OrderSource));
+            GetParameter<string>(parameters, SetupConsultationParameters.OrderSource), context.UserLanguage);
         var nextStep = SetupConsultationAnswerClassifier.ClassifyNextStep(
-            GetParameter<string>(parameters, SetupConsultationParameters.NextStep));
+            GetParameter<string>(parameters, SetupConsultationParameters.NextStep), context.UserLanguage);
 
         var stage = ScheduleSetupStages.For(state);
         var erpRoute = await BuildErpRouteAsync(cancellationToken);

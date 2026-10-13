@@ -5,8 +5,9 @@
 /// candidates are alternatives, not additions, and their precedence is what both chat loops relied on
 /// inline: a forced confirmation wins over a forced recipe step, which wins over the completion note of a
 /// recipe completed this turn (its final step's reply instructions, carried into the reply call with a prefix that
-/// differs for read-only and writing recipes), which wins over the
-/// plan nudge, and the nudge only applies while the turn has not called a tool yet. Extracted so the precedence lives in one
+/// differs for read-only and writing recipes), which wins over the ambiguous-reply note (the user's reply was a word
+/// languages disagree about, so nothing was forced and the model has to ask again), which wins over the
+/// plan nudge, and the nudge and the ambiguous-reply note only apply while the turn has not called a tool yet. Extracted so the precedence lives in one
 /// place instead of in two hand-copied conditional expressions.
 /// </summary>
 using Klacks.Api.Domain.Constants;
@@ -25,6 +26,7 @@ internal static class IterationNotePolicy
     /// <param name="suggestPlan">True when the plan-trigger heuristic considers the turn a plan candidate.</param>
     /// <param name="functionCallCount">Function calls the turn has made so far; the nudge stops after the first.</param>
     /// <param name="recipeCompletionNote">The completed recipe's reply note, null when none completed this turn.</param>
+    /// <param name="ambiguousReplyNote">The note asking for an unambiguous yes or no, null unless the reply was ambiguous.</param>
     internal static string? Select(
         bool confirmThisIteration,
         string? pendingNote,
@@ -32,10 +34,12 @@ internal static class IterationNotePolicy
         string? recipeNote,
         bool suggestPlan,
         int functionCallCount,
-        string? recipeCompletionNote = null) =>
+        string? recipeCompletionNote = null,
+        string? ambiguousReplyNote = null) =>
         confirmThisIteration ? pendingNote
             : forceRecipe ? recipeNote
             : recipeCompletionNote != null ? recipeCompletionNote
+            : ambiguousReplyNote != null && functionCallCount == 0 ? ambiguousReplyNote
             : suggestPlan && functionCallCount == 0 ? PlanSkillDefaults.PlanNudgeNote
             : null;
 }

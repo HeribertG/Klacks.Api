@@ -47,7 +47,7 @@ public class SkillLearningCaseCollector : ISkillLearningCaseCollector
     public async Task CollectFromTurnAsync(SkillLearningTurn turn, CancellationToken cancellationToken = default)
     {
         if (turn.HadFunctionCalls
-            || AffirmationDetector.IsAffirmation(turn.UserMessage)
+            || AffirmationDetector.IsAffirmation(turn.UserMessage, turn.Language)
             || MessageNormalizer.CountWords(turn.UserMessage) < SkillLearningDefaults.MinTokenCount
             || !RefusalSignalDetector.IsRefusal(turn.AssistantResponse))
         {

@@ -7,6 +7,7 @@ namespace Klacks.Api.Application.Constants;
 public static class LanguagePluginConstants
 {
     public const string PluginDirectory = "Plugins/Languages";
+    public const string DirectoryConfigKey = "LanguagePlugins:Directory";
     public const string ManifestFileName = "manifest.json";
     public const string TranslationsFileName = "translations.json";
     public const string DocsDirectory = "docs";

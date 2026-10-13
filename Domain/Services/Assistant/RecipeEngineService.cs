@@ -197,13 +197,13 @@ public class RecipeEngineService
         // terse request with a courtesy word ("Neuen Mitarbeiter, bitte") still reaches the fallback. The
         // keyword trigger still applies.
         var triggerMatch = MatchByTrigger(eligible, message, language, _logger);
-        var isLeadingDecline = DeclineDetector.LeadsWithNegation(message)
+        var isLeadingDecline = DeclineDetector.LeadsWithNegation(message, language)
                                && !MutationIntentDetector.IsMutationIntent(message);
         var runSemanticFallback = allowSemanticFallback
                                   && triggerMatch == null
                                   && !MutationIntentDetector.IsInformationQuestion(message)
                                   && !isLeadingDecline
-                                  && !AffirmationDetector.LeadsWithAffirmation(message);
+                                  && !AffirmationDetector.LeadsWithAffirmation(message, language);
         var (semanticMatch, alternativeGoal, alternativeGoalTranslations) = runSemanticFallback
             ? await FindMatchingRecipeSemanticAsync(scope, eligible, message, language, cancellationToken)
             : ((AgentRecipe?)null, (string?)null, (Dictionary<string, string>?)null);

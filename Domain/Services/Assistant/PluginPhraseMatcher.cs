@@ -16,6 +16,8 @@
 /// <param name="existing">The already-loaded entries to merge into</param>
 /// <param name="added">Newly loaded plugin phrases to normalize and add</param>
 
+using System.Text;
+
 namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class PluginPhraseMatcher
@@ -47,6 +49,28 @@ public static class PluginPhraseMatcher
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Composed (NFC) form of the text, so a message that arrives decomposed still matches the composed vocabulary
+    /// entries. Invalid surrogate input is passed through rather than thrown at: this runs on every chat turn, and a
+    /// malformed message must cost a detection, not the turn.
+    /// </summary>
+    internal static string ComposeNfc(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            return value.Normalize(NormalizationForm.FormC);
+        }
+        catch (ArgumentException)
+        {
+            return value;
+        }
     }
 
     public static string[] Merge(string[] existing, IEnumerable<string> added)

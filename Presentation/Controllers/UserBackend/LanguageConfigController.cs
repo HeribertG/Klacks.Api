@@ -4,7 +4,9 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Config;
+using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -21,8 +23,6 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
 public class LanguageConfigController : ControllerBase
 {
     private const string PluginCodePattern = "^[A-Za-z0-9_-]+$";
-    private const string LanguagePluginsDirectoryKey = "LanguagePlugins:Directory";
-    private const string DefaultLanguagePluginsDirectory = "Plugins/Languages";
 
     private static readonly Regex PluginCodeRegex = new(PluginCodePattern, RegexOptions.Compiled);
 
@@ -355,8 +355,9 @@ public class LanguageConfigController : ControllerBase
         if (string.IsNullOrEmpty(safeCode) || !PluginCodeRegex.IsMatch(safeCode))
             return false;
 
-        var pluginDir = Path.Combine(AppContext.BaseDirectory,
-            _configuration.GetValue<string>(LanguagePluginsDirectoryKey) ?? DefaultLanguagePluginsDirectory);
+        var pluginDir = LanguagePluginDirectoryResolver.Resolve(
+            AppContext.BaseDirectory,
+            _configuration.GetValue<string>(LanguagePluginConstants.DirectoryConfigKey));
         var basePath = Path.GetFullPath(pluginDir);
         var baseWithSeparator = basePath.EndsWith(Path.DirectorySeparatorChar)
             ? basePath

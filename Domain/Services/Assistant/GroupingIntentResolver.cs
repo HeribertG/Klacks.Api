@@ -44,6 +44,7 @@
 /// placement word triggers the same set, unless the message is a question.
 /// </summary>
 /// <param name="message">The current user chat message, matched case-insensitively.</param>
+/// <param name="language">UI language of the turn, used only to settle an affirmation word the languages disagree about; null when unknown.</param>
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -104,7 +105,7 @@ public static class GroupingIntentResolver
         }
     }
 
-    public static IReadOnlyList<string> GuaranteedSkillNames(string? message)
+    public static IReadOnlyList<string> GuaranteedSkillNames(string? message, string? language = null)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -118,7 +119,7 @@ public static class GroupingIntentResolver
         var hasSignal = LocationOrAssignmentTokens.Any(t => lower.Contains(t))
             || _pluginLocationOrAssignmentTokens.Any(t => lower.Contains(t))
             || (lower.Contains("ordne") && lower.Contains("zu"))
-            || AffirmationDetector.IsAffirmation(message)
+            || AffirmationDetector.IsAffirmation(message, language)
             || IsQualificationGroupingRequest(lower);
 
         if (hasGrouping && hasSignal)

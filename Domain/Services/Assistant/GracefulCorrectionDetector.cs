@@ -36,6 +36,7 @@
 /// <param name="recipeIsActive">Whether a recipe is paused or engaging on this turn (G1).</param>
 /// <param name="correctionRoutesAlone">Whether the correction alone guarantees a skill (G5).</param>
 /// <param name="nowUtc">Clock for the window check; UTC, because this is elapsed time, not a calendar day.</param>
+/// <param name="language">UI language of the turn, so a word that is a yes in this language is not read as a bare refusal; null when unknown.</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -50,7 +51,8 @@ public static class GracefulCorrectionDetector
         AssistantLastAction? lastAction,
         bool recipeIsActive,
         bool correctionRoutesAlone,
-        DateTime nowUtc)
+        DateTime nowUtc,
+        string? language = null)
     {
         if (lastAction == null || !lastAction.CanAnchorCorrection(nowUtc))
         {
@@ -67,13 +69,13 @@ public static class GracefulCorrectionDetector
             return GracefulCorrectionGate.Signal;
         }
 
-        if (DeclineDetector.IsBareNegation(message))
+        if (DeclineDetector.IsBareNegation(message, language))
         {
             return GracefulCorrectionGate.BareNegation;
         }
 
         if (RecipeTopicSwitchDetector.IsTopicSwitch(message)
-            || RecipeTopicSwitchDetector.IsTopicSwitch(DeclineDetector.StripNegationLead(message)))
+            || RecipeTopicSwitchDetector.IsTopicSwitch(DeclineDetector.StripNegationLead(message, language)))
         {
             return GracefulCorrectionGate.TopicSwitch;
         }

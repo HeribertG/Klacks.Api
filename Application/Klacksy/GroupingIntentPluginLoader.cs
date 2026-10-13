@@ -17,9 +17,10 @@ public static class GroupingIntentPluginLoader
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public static void Load(string baseDirectory, Action<string, Exception>? onError = null)
+    public static void Load(
+        string baseDirectory, Action<string, Exception>? onError = null, string? configuredPluginDirectory = null)
     {
-        var pluginDir = Path.Combine(baseDirectory, LanguagePluginConstants.PluginDirectory);
+        var pluginDir = LanguagePluginDirectoryResolver.Resolve(baseDirectory, configuredPluginDirectory);
         if (!Directory.Exists(pluginDir))
             return;
 

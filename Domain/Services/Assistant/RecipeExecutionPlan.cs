@@ -29,6 +29,7 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 public sealed class RecipeExecutionPlan : IRecipeForcingPlan
 {
+    private const string ConfirmationNoteSeparator = " ";
     private const string ResultDataMarker = "Data: ";
     private const string ArrayMarker = RecipeEngineDefaults.CaptureArrayMarker;
 
@@ -97,7 +98,24 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     /// guided flow. Otherwise it uses the plain yes/no template. Centralized here so both chat paths
     /// stay coherent (no contradictory "yes/no" plus "pick which of the two" in one prompt).
     /// </summary>
-    public string ConfirmationInstruction => AlternativeGoal == null
+    public string ConfirmationInstruction => BaseConfirmationInstruction
+        + (string.IsNullOrWhiteSpace(AmbiguousReplyNote) ? string.Empty : ConfirmationNoteSeparator + AmbiguousReplyNote);
+
+    /// <summary>
+    /// Set for exactly one turn when the user's reply to the confirmation gate was a word that languages disagree
+    /// about (yes in one, no in another) and the UI language did not settle it. The gate then stays pending and the
+    /// re-asked question carries this note. Never persisted: the pending-recipe snapshot does not include it.
+    /// </summary>
+    public string? AmbiguousReplyNote { get; private set; }
+
+    /// <summary>Records the note for the re-asked gate question; it lasts for the current turn only.</summary>
+    /// <param name="note">The model-facing note asking the user for an unambiguous yes or no</param>
+    public void NoteAmbiguousReply(string note)
+    {
+        AmbiguousReplyNote = note;
+    }
+
+    private string BaseConfirmationInstruction => AlternativeGoal == null
         ? string.Format(
             System.Globalization.CultureInfo.InvariantCulture,
             RecipeEngineDefaults.ConfirmationStepInstructionTemplate, Goal)

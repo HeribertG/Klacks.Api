@@ -11,10 +11,14 @@
 /// in a genuine request ("kannst du nicht ...") never suppresses matching. No language is named in
 /// this code: the core vocabulary arrives through ConfigureCore from conversation-signals-core.json,
 /// the plugin vocabulary through Configure from each language plugin's conversation-signals.json.
+/// A word that one language lists as a yes and another as a no (Polish "tak" against Malay "tak") is settled by the UI
+/// language through ConversationSignalCollisions: a language that reads it as a yes or knows it only inside its own
+/// phrases (Danish "nej tak") does not get a refusal from it, a language that reads it as a no does, and a language that
+/// cannot settle it gets no refusal either - an unsettled word is neither a yes nor a no, and AffirmationDetector reports
+/// it as Ambiguous. This is the one place that rule lives, so no caller has to cross-check the affirmation side.
 /// </summary>
 /// <param name="message">The raw user message that started the turn.</param>
 
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Klacks.Api.Domain.Services.Assistant;
@@ -104,7 +108,15 @@ public static class DeclineDetector
         }
     }
 
-    public static bool LeadsWithNegation(string? message)
+    /// <summary>
+    /// True when the message opens with a refusal. A pack entry that another language lists as a yes (Malay "tak"
+    /// against Polish "tak") is no refusal when the UI language reads it as a yes, uses it only inside its own phrases,
+    /// or cannot settle it; only a UI language that lists it as a no (Malay) reads it as one. A word the language does
+    /// not settle makes the message neither a refusal nor a confirmation, whatever follows it ("tak?" included).
+    /// </summary>
+    /// <param name="message">The raw user message that started the turn.</param>
+    /// <param name="language">UI language of the turn; null when unknown.</param>
+    public static bool LeadsWithNegation(string? message, string? language = null)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -125,8 +137,9 @@ public static class DeclineDetector
             return true;
         }
 
-        return MatchesLeading(lower, leadingTokens, _pluginNegationEntries)
-            || MatchesLeading(lower, leadingTokens, _pluginDeclineEntries);
+        var collisions = ConversationSignalCollisions.Current.Match(lower, leadingTokens, language);
+        return MatchesLeading(lower, leadingTokens, collisions.ExcludeFromNegations(_pluginNegationEntries, true))
+            || MatchesLeading(lower, leadingTokens, collisions.ExcludeFromNegations(_pluginDeclineEntries, true));
     }
 
     /// <summary>
@@ -142,7 +155,8 @@ public static class DeclineDetector
     /// never resolved.
     /// </summary>
     /// <param name="message">The raw user message that started the turn.</param>
-    public static bool IsBareNegation(string? message)
+    /// <param name="language">UI language of the turn; settles a word that one language lists as a yes and another as a refusal (Polish "tak" is not a refusal in a Polish UI); null when unknown.</param>
+    public static bool IsBareNegation(string? message, string? language = null)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -150,21 +164,25 @@ public static class DeclineDetector
         }
 
         var normalized = Normalize(message);
+        var lower = normalized.Trim().ToLowerInvariant();
 
         var tokens = WordPattern.Matches(normalized)
             .Select(m => m.Value.ToLowerInvariant())
             .ToList();
 
+        var collisions = ConversationSignalCollisions.Current.Match(lower, tokens, language);
+        var negationEntries = collisions.ExcludeFromNegations(_pluginNegationEntries, true);
+        var declineEntries = collisions.ExcludeFromNegations(_pluginDeclineEntries, true);
+
         if (tokens.Count > 0
             && tokens.Count <= BareNegationMaxTokens
-            && tokens.TrueForAll(IsNegationToken))
+            && tokens.TrueForAll(token => IsNegationToken(token, negationEntries)))
         {
             return true;
         }
 
-        var lower = normalized.Trim().ToLowerInvariant();
-        return IsNothingButPhrase(lower, _pluginNegationEntries)
-            || IsNothingButPhrase(lower, _pluginDeclineEntries);
+        return IsNothingButPhrase(lower, negationEntries)
+            || IsNothingButPhrase(lower, declineEntries);
     }
 
     private static bool IsNothingButPhrase(string lowerMessage, string[] entries)
@@ -181,31 +199,11 @@ public static class DeclineDetector
         return false;
     }
 
-    private static bool IsNegationToken(string token) =>
+    private static bool IsNegationToken(string token, string[] pluginNegationEntries) =>
         _coreNegationTokens.Contains(token)
-        || Array.IndexOf(_pluginNegationEntries, token) >= 0;
+        || Array.IndexOf(pluginNegationEntries, token) >= 0;
 
-    /// <summary>
-    /// Composed (NFC) form of the text, so a message whose refusal arrives decomposed still matches the
-    /// composed vocabulary entry. Invalid surrogate input is passed through rather than thrown at: this
-    /// runs on every chat turn, and a malformed message must cost a detection, not the turn.
-    /// </summary>
-    private static string Normalize(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return string.Empty;
-        }
-
-        try
-        {
-            return value.Normalize(NormalizationForm.FormC);
-        }
-        catch (ArgumentException)
-        {
-            return value;
-        }
-    }
+    private static string Normalize(string? value) => PluginPhraseMatcher.ComposeNfc(value);
 
     /// <summary>
     /// Separators a negation lead may be followed by before the rest of the clause starts: ASCII comma,
@@ -227,7 +225,8 @@ public static class DeclineDetector
     /// multi-word plugin phrase - a phrase has no single token boundary to strip at.
     /// </summary>
     /// <param name="message">The raw user message that started the turn.</param>
-    internal static string StripNegationLead(string? message)
+    /// <param name="language">UI language of the turn; a lead word the language reads as a yes is not stripped; null when unknown.</param>
+    internal static string StripNegationLead(string? message, string? language = null)
     {
         if (string.IsNullOrEmpty(message))
         {
@@ -241,7 +240,8 @@ public static class DeclineDetector
         }
 
         var leadToken = match.Value.ToLowerInvariant();
-        if (!IsNegationToken(leadToken))
+        var collisions = ConversationSignalCollisions.Current.Match(Normalize(message).ToLowerInvariant(), [leadToken], language);
+        if (!IsNegationToken(leadToken, collisions.ExcludeFromNegations(_pluginNegationEntries, true)))
         {
             return message;
         }

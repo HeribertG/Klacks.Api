@@ -11,6 +11,7 @@ namespace Klacks.Api.Infrastructure.Services.Assistant;
 using System.Collections.Concurrent;
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -23,9 +24,11 @@ public sealed class PhoneticConfigProvider : IPhoneticConfigProvider
 
     private readonly Dictionary<string, PhoneticConfig> _core;
     private readonly ConcurrentDictionary<string, PhoneticConfig> _pluginCache = new();
+    private readonly string _pluginDirectory;
 
-    public PhoneticConfigProvider()
+    public PhoneticConfigProvider(string? configuredPluginDirectory = null)
     {
+        _pluginDirectory = LanguagePluginDirectoryResolver.Resolve(AppContext.BaseDirectory, configuredPluginDirectory);
         _core = LoadCore();
     }
 
@@ -38,6 +41,23 @@ public sealed class PhoneticConfigProvider : IPhoneticConfigProvider
         }
 
         return _pluginCache.GetOrAdd(lang, LoadPlugin);
+    }
+
+    private PhoneticConfig LoadPlugin(string lang)
+    {
+        try
+        {
+            var path = Path.Combine(_pluginDirectory, lang, LanguagePluginConstants.PhoneticsFileName);
+            if (!File.Exists(path))
+                return new PhoneticConfig();
+
+            var json = File.ReadAllText(path);
+            return JsonSerializer.Deserialize<PhoneticConfig>(json, JsonOptions) ?? new PhoneticConfig();
+        }
+        catch
+        {
+            return new PhoneticConfig();
+        }
     }
 
     private static string Normalize(string? locale)
@@ -64,23 +84,6 @@ public sealed class PhoneticConfigProvider : IPhoneticConfigProvider
         catch
         {
             return new Dictionary<string, PhoneticConfig>(StringComparer.OrdinalIgnoreCase);
-        }
-    }
-
-    private static PhoneticConfig LoadPlugin(string lang)
-    {
-        try
-        {
-            var path = Path.Combine(AppContext.BaseDirectory, LanguagePluginConstants.PluginDirectory, lang, LanguagePluginConstants.PhoneticsFileName);
-            if (!File.Exists(path))
-                return new PhoneticConfig();
-
-            var json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<PhoneticConfig>(json, JsonOptions) ?? new PhoneticConfig();
-        }
-        catch
-        {
-            return new PhoneticConfig();
         }
     }
 }

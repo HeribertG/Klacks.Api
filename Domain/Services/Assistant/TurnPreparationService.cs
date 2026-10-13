@@ -106,7 +106,10 @@ public class TurnPreparationService : ITurnPreparationService
     /// wider GracefulCorrectionApplied: a correction that engages but offers no undo (no inverse, zero
     /// candidates, a clarification, or a store write that threw) finds a PREDECESSOR's row, and that one
     /// has to be settled like on any other turn. The invariant is therefore without exception: an undo
-    /// token is either redeemed or discarded on the very next turn after the one that wrote it.
+    /// token is either redeemed or discarded on the very next turn after the one that wrote it - with one
+    /// deliberate exception: a reply made of a word that languages disagree about (Polish "tak", Malay "tak") is
+    /// neither a yes nor a no, so it settles nothing; the undo is kept, the model is told to ask for an unambiguous
+    /// yes or no, and the answer to THAT question redeems or discards it.
     /// The cost is one DiscardCorrectionUndo call - a single indexed GetActiveForUserAsync round-trip -
     /// on every non-affirming chat turn, accepted because rule 3 is otherwise only correct by luck.
     /// </summary>
@@ -119,7 +122,13 @@ public class TurnPreparationService : ITurnPreparationService
 
         var undoIsOfferedThisTurn = context.CorrectionUndoOffered;
 
-        if (!AffirmationDetector.IsExplicitConfirmation(context.Message))
+        var assessment = AffirmationDetector.AssessExplicitConfirmation(context.Message, context.Language);
+        if (assessment.IsAmbiguous)
+        {
+            return ResolveAmbiguousReply(userGuid, assessment, undoIsOfferedThisTurn);
+        }
+
+        if (!assessment.IsConfirmed)
         {
             if (!undoIsOfferedThisTurn)
             {
@@ -160,6 +169,40 @@ public class TurnPreparationService : ITurnPreparationService
         return (true, confirmFunction, note);
     }
 
+    /// <summary>
+    /// A reply made of a word that languages disagree about (Polish "tak" is yes, Malay "tak" is no) that the UI
+    /// language does not settle. It must not redeem a held action and must not be taken as a refusal either, so the
+    /// turn is neither forced nor narrowed: when a correction undo, a gate-replay or a stale-scenario row is held, the
+    /// model is told to ask for an unambiguous yes or no. Nothing is discarded, the correction undo included, because
+    /// the reply answered nothing; the undo offered by this very turn is left out of the lookup like on the confirming
+    /// path.
+    /// </summary>
+    /// <param name="userGuid">The user whose held confirmations are looked up</param>
+    /// <param name="assessment">The ambiguous verdict naming the colliding word and its languages</param>
+    /// <param name="undoIsOfferedThisTurn">True when this turn wrote the correction undo</param>
+    private (bool Force, LLMFunction? ConfirmFunction, string? ContextNote) ResolveAmbiguousReply(
+        Guid userGuid, ConfirmationAssessment assessment, bool undoIsOfferedThisTurn)
+    {
+        var forceWindow = TimeSpan.FromSeconds(AutonomyDefaults.ConfirmationForceWindowSeconds);
+        var held = undoIsOfferedThisTurn
+            ? null
+            : _pendingConfirmationStore.PeekLatestForUser(
+                userGuid, forceWindow, PendingConfirmationPurposes.CorrectionUndo, PendingConfirmationChannels.Chat);
+        held ??= _pendingConfirmationStore.PeekLatestForUser(
+                userGuid, forceWindow, PendingConfirmationPurposes.StaleScenarioOverwrite, PendingConfirmationChannels.Chat)
+            ?? _pendingConfirmationStore.PeekLatestForUser(
+                userGuid, forceWindow, PendingConfirmationPurposes.GateReplay, PendingConfirmationChannels.Chat);
+
+        return held == null ? (false, null, null) : (false, null, BuildAmbiguousReplyNote(assessment));
+    }
+
+    private static string BuildAmbiguousReplyNote(ConfirmationAssessment assessment) =>
+        string.Format(
+            System.Globalization.CultureInfo.InvariantCulture,
+            MutationGuardConstants.AmbiguousConfirmationContextTemplate,
+            assessment.AmbiguousWord,
+            string.Join(MutationGuardConstants.AmbiguousLanguageSeparator, assessment.AmbiguousLanguages ?? []));
+
     // (b) Moved verbatim from LLMService.cs:1373-1483, including its comment block.
     // Data-driven recipe engine entry point (shared by both loops): resume a recipe paused on an ask by
     // raw-filling the current ask slot from the user's message, otherwise match a fresh recipe and
@@ -186,7 +229,14 @@ public class TurnPreparationService : ITurnPreparationService
         {
             if (resumed.NeedsConfirmation)
             {
-                if (!AffirmationDetector.IsAffirmation(context.Message))
+                var gateAnswer = AffirmationDetector.AssessAffirmation(context.Message, context.Language);
+                if (gateAnswer.IsAmbiguous)
+                {
+                    resumed.NoteAmbiguousReply(BuildAmbiguousReplyNote(gateAnswer));
+                    return resumed;
+                }
+
+                if (!gateAnswer.IsConfirmed)
                 {
                     context.RecipeConfirmationDeclined = true;
                     await _recipeRunRecorder.AbortRunningAsync(
@@ -459,7 +509,7 @@ public class TurnPreparationService : ITurnPreparationService
 
         var gate = GracefulCorrectionDetector.Evaluate(
             input.Message, input.LastAction, input.RecipeIsActive,
-            correctionRoutesAlone: false, DateTime.UtcNow);
+            correctionRoutesAlone: false, DateTime.UtcNow, input.Language);
 
         if (gate != GracefulCorrectionGate.Passed)
         {

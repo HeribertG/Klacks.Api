@@ -18,6 +18,7 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Config;
+using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Application.Interfaces;
@@ -62,12 +63,8 @@ public class LanguagePluginService : ILanguagePluginService
         _scopeFactory = scopeFactory;
         _logger = logger;
 
-        var configuredDir = configuration.GetValue<string>("LanguagePlugins:Directory")
-            ?? LanguagePluginConstants.PluginDirectory;
-
-        _pluginDirectory = Path.IsPathRooted(configuredDir)
-            ? configuredDir
-            : Path.Combine(AppContext.BaseDirectory, configuredDir);
+        _pluginDirectory = LanguagePluginDirectoryResolver.Resolve(
+            AppContext.BaseDirectory, configuration.GetValue<string>(LanguagePluginConstants.DirectoryConfigKey));
 
         _geoDataInstaller = new LanguagePluginGeoDataInstaller(_pluginDirectory, _manifests, _logger);
         _contentInstaller = new LanguagePluginContentInstaller(_pluginDirectory, _logger);

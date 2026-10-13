@@ -347,7 +347,7 @@ public class LLMService : ILLMService
                 model!, currentMessage, systemPrompt!,
                 CombineVolatile(volatilePrompt, IterationNotePolicy.Select(
                     confirmThisIteration, recipe.PendingNote, forceRecipe, recipeNote,
-                    recipe.SuggestPlan, turn.Calls.Count, recipe.CompletionNote)),
+                    recipe.SuggestPlan, turn.Calls.Count, recipe.CompletionNote, recipe.AmbiguousReplyNote)),
                 runningHistory, iterationFunctions,
                 ToolChoicePolicy.ResolveToolChoice(forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm,
                     turn.Calls.Count, context.TurnIntentVetoesForcedToolCall),
@@ -712,7 +712,7 @@ public class LLMService : ILLMService
                 ctx.Model, currentMessage, ctx.SystemPrompt,
                 CombineVolatile(ctx.VolatilePrompt, IterationNotePolicy.Select(
                     confirmThisIteration, recipe.PendingNote, forceRecipe, recipeNote,
-                    recipe.SuggestPlan, allFunctionCalls.Count, recipe.CompletionNote)),
+                    recipe.SuggestPlan, allFunctionCalls.Count, recipe.CompletionNote, recipe.AmbiguousReplyNote)),
                 runningHistory, iterationFunctions,
                 ToolChoicePolicy.ResolveToolChoice(forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm,
                     allFunctionCalls.Count, ctx.Context.TurnIntentVetoesForcedToolCall && !forcedRetryUsed));

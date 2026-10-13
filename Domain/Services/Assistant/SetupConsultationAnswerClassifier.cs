@@ -13,10 +13,14 @@
 /// because DeclineDetector treats "kein"/"keine"/"keinen" as a leading negation, so "Keine Ahnung"
 /// ("no idea") would otherwise be misread as a concrete No for attribution or a Manual order source.
 /// Anything that matches nothing stays Unknown, which every caller must treat as the cautious path
-/// rather than as a default answer — landing on None is expensive because it seals a clientless
-/// service immediately and irreversibly, while landing on Unknown only re-asks.
+/// rather than as a default answer. A word that languages disagree about (yes in one, no in another) which the UI
+/// language does not settle is neither a refusal (DeclineDetector ignores it) nor a yes (AffirmationDetector reports it
+/// Ambiguous), so attribution and order source stay Unknown; the next-step question still follows an explicit choice
+/// keyword in the same reply. Landing on None is expensive because it seals a clientless service immediately and
+/// irreversibly, while landing on Unknown only re-asks.
 /// </summary>
 /// <param name="message">The raw slot value the recipe captured from the user's reply.</param>
+/// <param name="language">UI language of the turn, so a word that is a yes in this language is not read as a refusal; null when unknown.</param>
 
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
@@ -37,7 +41,7 @@ public static class SetupConsultationAnswerClassifier
 
     private static readonly Regex WordPattern = new(@"\p{L}+", RegexOptions.Compiled);
 
-    public static SetupAttributionAnswer ClassifyAttribution(string? message)
+    public static SetupAttributionAnswer ClassifyAttribution(string? message, string? language = null)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -82,17 +86,17 @@ public static class SetupConsultationAnswerClassifier
             return SetupAttributionAnswer.Unknown;
         }
 
-        if (DeclineDetector.LeadsWithNegation(trimmed))
+        if (DeclineDetector.LeadsWithNegation(trimmed, language))
         {
             return SetupAttributionAnswer.None;
         }
 
-        return AffirmationDetector.IsAffirmation(trimmed)
+        return AffirmationDetector.IsAffirmation(trimmed, language)
             ? SetupAttributionAnswer.Customer
             : SetupAttributionAnswer.Unknown;
     }
 
-    public static SetupOrderSourceAnswer ClassifyOrderSource(string? message)
+    public static SetupOrderSourceAnswer ClassifyOrderSource(string? message, string? language = null)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -137,17 +141,17 @@ public static class SetupConsultationAnswerClassifier
             return SetupOrderSourceAnswer.Unknown;
         }
 
-        if (DeclineDetector.LeadsWithNegation(trimmed))
+        if (DeclineDetector.LeadsWithNegation(trimmed, language))
         {
             return SetupOrderSourceAnswer.Manual;
         }
 
-        return AffirmationDetector.IsAffirmation(trimmed)
+        return AffirmationDetector.IsAffirmation(trimmed, language)
             ? SetupOrderSourceAnswer.External
             : SetupOrderSourceAnswer.Unknown;
     }
 
-    public static SetupNextStepChoice ClassifyNextStep(string? message)
+    public static SetupNextStepChoice ClassifyNextStep(string? message, string? language = null)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -170,7 +174,7 @@ public static class SetupConsultationAnswerClassifier
             return SetupNextStepChoice.None;
         }
 
-        if (DeclineDetector.LeadsWithNegation(trimmed))
+        if (DeclineDetector.LeadsWithNegation(trimmed, language))
         {
             return SetupNextStepChoice.None;
         }

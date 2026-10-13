@@ -93,7 +93,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         // signal; only an explicit negation discards it. Visibility only: the apply call still runs
         // through the autonomy gate like any other invocation.
         ApplyProposalConfirmationGuarantee(
-            guaranteedSkills, guaranteedSources, permittedSkills, request.UserMessage, request.UserId);
+            guaranteedSkills, guaranteedSources, permittedSkills, request.UserMessage, request.UserId, request.Language);
 
         // Deterministic keyword guarantee: skills whose trigger keywords or synonyms literally occur
         // in the message are always in the tool set. Weak models cannot compensate for a missing tool,
@@ -462,7 +462,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         // Grouping-intent guarantee: when the user asks to group or assign clients/employees
         // geographically (by address/region/nearest), the real grouping skills must be in the tool set so
         // the model calls one instead of inventing a non-existent tool name (which never executes).
-        foreach (var groupingSkillName in GroupingIntentResolver.GuaranteedSkillNames(request.UserMessage))
+        foreach (var groupingSkillName in GroupingIntentResolver.GuaranteedSkillNames(request.UserMessage, request.Language))
         {
             AddPermittedSkillByName(
                 guaranteedSkills, permittedSkills, groupingSkillName, ToolsetSkillSource.Hint, guaranteedSources);
@@ -553,7 +553,8 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         IDictionary<string, ToolsetSkillSource> guaranteedSources,
         IReadOnlyList<AgentSkill> permittedSkills,
         string userMessage,
-        string userId)
+        string userId,
+        string? language)
     {
         if (!Guid.TryParse(userId, out var proposalUserId))
         {
@@ -562,7 +563,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
         try
         {
-            if (DeclineDetector.LeadsWithNegation(userMessage))
+            if (DeclineDetector.LeadsWithNegation(userMessage, language))
             {
                 _pendingConfirmationStore.DiscardProposalHints(proposalUserId);
                 return;

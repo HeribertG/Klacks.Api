@@ -48,6 +48,19 @@ public static class RecipeCancellationDetector
         }
     }
 
+    /// <summary>
+    /// Discards every plugin entry and keeps the core-language tokens. Test-only: Configure is additive on
+    /// process-wide static state, so a fixture that installs the language packs would otherwise leak their
+    /// cancellations into every later fixture in the same run.
+    /// </summary>
+    internal static void Reset()
+    {
+        lock (_configureLock)
+        {
+            _pluginCancellationEntries = [];
+        }
+    }
+
     public static bool IsCancellation(string? message)
     {
         if (string.IsNullOrWhiteSpace(message))

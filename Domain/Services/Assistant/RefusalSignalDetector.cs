@@ -62,6 +62,19 @@ public static class RefusalSignalDetector
         }
     }
 
+    /// <summary>
+    /// Discards every plugin phrase and keeps the core phrases. Test-only: Configure is additive on process-wide
+    /// static state, so a fixture that installs the language packs would otherwise leak their gap indicators into
+    /// every later fixture in the same run.
+    /// </summary>
+    internal static void Reset()
+    {
+        lock (ConfigureLock)
+        {
+            _pluginPhrases = [];
+        }
+    }
+
     public static bool IsRefusal(string? response)
     {
         if (string.IsNullOrWhiteSpace(response))

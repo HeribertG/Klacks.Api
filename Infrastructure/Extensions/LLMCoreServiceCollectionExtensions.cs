@@ -376,7 +376,10 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<ICustomSttSessionFactory, Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.CustomRestSttSessionFactory>();
 
         services.AddSingleton<IPhoneticEncoderFactory, Klacks.Api.Domain.Services.Assistant.Phonetics.PhoneticEncoderFactory>();
-        services.AddSingleton<IPhoneticConfigProvider, Klacks.Api.Infrastructure.Services.Assistant.PhoneticConfigProvider>();
+        services.AddSingleton<IPhoneticConfigProvider>(sp =>
+            new Klacks.Api.Infrastructure.Services.Assistant.PhoneticConfigProvider(
+                sp.GetRequiredService<IConfiguration>().GetValue<string>(
+                    Klacks.Api.Application.Constants.LanguagePluginConstants.DirectoryConfigKey)));
         services.AddScoped<IDictionaryService, Klacks.Api.Infrastructure.Services.Assistant.DictionaryService>();
         services.AddScoped<ITranscriptionDictionaryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.TranscriptionDictionaryRepository>();
         services.AddScoped<ICustomSttProviderRepository, Klacks.Api.Infrastructure.Repositories.Assistant.CustomSttProviderRepository>();

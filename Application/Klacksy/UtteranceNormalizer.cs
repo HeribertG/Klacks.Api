@@ -31,8 +31,11 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
     private readonly IReadOnlyDictionary<string, string[]> _articlesByLocale;
     private readonly ConcurrentDictionary<string, PluginLocaleConfig> _pluginCache = new();
 
-    public UtteranceNormalizer()
+    private readonly string _pluginDirectory;
+
+    public UtteranceNormalizer(string? configuredPluginDirectory = null)
     {
+        _pluginDirectory = LanguagePluginDirectoryResolver.Resolve(AppContext.BaseDirectory, configuredPluginDirectory);
         var path = Path.Combine(AppContext.BaseDirectory, "Application", "Klacksy", "wake-word-variants.json");
         var json = File.ReadAllText(path);
         _config = JsonSerializer.Deserialize<WakeWordConfig>(json, JsonOptions)!;
@@ -146,7 +149,7 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
 
         return _pluginCache.GetOrAdd(locale, loc =>
         {
-            var file = Path.Combine(AppContext.BaseDirectory, LanguagePluginConstants.PluginDirectory, loc, "wake-words.json");
+            var file = Path.Combine(_pluginDirectory, loc, "wake-words.json");
             if (!File.Exists(file))
                 return PluginLocaleConfig.Empty;
             try

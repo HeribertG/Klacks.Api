@@ -50,7 +50,8 @@ internal sealed class RecipeTurnState
         SuggestPlan = suggestPlan;
         ForceConfirm = preparation.ForceConfirm;
         ConfirmFunction = preparation.ConfirmFunction;
-        PendingNote = preparation.VolatileNote;
+        PendingNote = preparation.ForceConfirm ? preparation.VolatileNote : null;
+        AmbiguousReplyNote = preparation.ForceConfirm ? null : preparation.VolatileNote;
     }
 
     /// <summary>The data-driven recipe plan of this turn, null when no recipe was resolved or resumed.</summary>
@@ -81,6 +82,12 @@ internal sealed class RecipeTurnState
 
     /// <summary>The volatile note belonging to the confirmation gate.</summary>
     internal string? PendingNote { get; }
+
+    /// <summary>
+    /// The note that tells the model the user's reply was ambiguous between languages and has to be asked again;
+    /// set only on a turn that did not force the confirmation.
+    /// </summary>
+    internal string? AmbiguousReplyNote { get; }
 
     /// <summary>True once the turn stopped on a recipe ask or confirmation step.</summary>
     internal bool PausedOnAsk { get; private set; }

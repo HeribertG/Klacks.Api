@@ -5,7 +5,7 @@
 /// pure agreements that may open a confirmation; GoAheadWords are imperatives ("mach", "go", "weiter") that only count
 /// inside a very short reply because the same words open ordinary requests; AmbiguousReplyWords ("si") are an agreement
 /// only when set off by punctuation. CourtesyWords and FillerWords are skipped in front of the opening word, and
-/// CompanionWords are the small words a short reply may carry ("mach das", "do it", "alles klar"). ConditionalWords
+/// CompanionWords are the small words a short reply may carry ("mach das", "do it", "alles klar", "los geht's"). ConditionalWords
 /// anywhere in a message turn an apparent yes into a conditional one ("ja, aber nur für Montag"). AffirmationWords is
 /// the union IsAffirmation scans for.
 /// </summary>
@@ -43,7 +43,7 @@ internal static class AffirmationVocabulary
 
     public static readonly HashSet<string> CompanionWords = new(StringComparer.OrdinalIgnoreCase)
     {
-        "das", "es", "alles", "gut", "so", "dann", "jetzt", "sofort", "doch", "mal", "schon",
+        "das", "es", "alles", "gut", "so", "dann", "jetzt", "sofort", "doch", "mal", "schon", "gehts",
         "it", "that", "this", "ahead", "on", "now", "good", "then", "for", "lets",
         "bien", "bene", "ça", "ca", "que",
     };
