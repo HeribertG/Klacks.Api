@@ -1,0 +1,20 @@
+Klacks für den Büro-PC (Windows 10/11, 64-Bit) — Vorschau
+
+1. Diesen Ordner vollständig entpacken (z. B. auf den Desktop oder einen USB-Stick).
+2. Doppelklick auf "Installieren.cmd" und die Frage nach Administratorrechten mit "Ja" bestätigen.
+   Zeigt Windows "Der Computer wurde durch Windows geschützt": "Weitere Informationen" -> "Trotzdem ausführen".
+3. Die Installation dauert einige Minuten; der erste Start lädt zusätzlich ca. 700 MB KI-Modelle.
+4. Danach im Browser http://localhost:5180 öffnen.
+   Erste Anmeldung: admin@test.com / P@ssw0rt1 — Klacks verlangt dann ein eigenes Admin-Konto.
+
+Bericht: Neben "Installieren.cmd" entsteht "Klacks-Installationsbericht-<Datum>.txt" (oder auf dem Desktop,
+wenn der Ordner schreibgeschützt ist). Bei Problemen bitte diese Datei schicken.
+
+Updates: Klacks aktualisiert sich selbst (Dienst "Klacks Updater"), signiert geprüft.
+
+Deinstallation (PowerShell als Administrator, in diesem Ordner):
+  powershell -ExecutionPolicy Bypass -File scripts\Uninstall-Klacks.ps1            (Daten bleiben erhalten)
+  powershell -ExecutionPolicy Bypass -File scripts\Uninstall-Klacks.ps1 -RemoveData  (löscht auch alle Daten)
+
+Diagnose (PowerShell als Administrator):
+  powershell -ExecutionPolicy Bypass -File scripts\Get-KlacksDiagnostics.ps1
