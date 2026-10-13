@@ -250,9 +250,17 @@ if ($NoServices) {
     $apiProcess = [System.Diagnostics.Process]::Start($startInfo)
 }
 else {
-    foreach ($service in @(
-            @{ Name = $ApiServiceName; Exe = $apiExe; Display = 'Klacks'; DependsOn = @($PostgresServiceName) },
-            @{ Name = $UpdaterServiceName; Exe = $updaterExe; Display = 'Klacks Updater'; DependsOn = @($PostgresServiceName) })) {
+    # Register every service first and start them without waiting: Klacks reports "start pending" while it migrates
+    # (up to 30 min on a first start), and Start-Service would block on it, so a later service was never registered.
+    # Wait-Healthy below is the only place that waits.
+    $services = @(@{ Name = $ApiServiceName; Exe = $apiExe; Display = 'Klacks'; DependsOn = @($PostgresServiceName) })
+    if (Test-Path $updaterExe) {
+        $services += @{ Name = $UpdaterServiceName; Exe = $updaterExe; Display = 'Klacks Updater'; DependsOn = @($PostgresServiceName) }
+    }
+    else {
+        Write-Warning "The bundle contains no updater ($updaterExe); service $UpdaterServiceName is not registered."
+    }
+    foreach ($service in $services) {
         if (-not (Get-Service -Name $service.Name -ErrorAction SilentlyContinue)) {
             Write-Step "Registering service $($service.Name)"
             New-Service -Name $service.Name -BinaryPathName "`"$($service.Exe)`"" -DisplayName $service.Display `
@@ -261,7 +269,13 @@ else {
             New-ItemProperty -Path $key -Name 'Environment' -PropertyType MultiString -Value $environment -Force | Out-Null
             sc.exe failure $service.Name reset= 86400 actions= restart/60000/restart/60000/restart/300000 | Out-Null
         }
-        Start-Service -Name $service.Name
+    }
+    foreach ($service in $services) {
+        $controller = Get-Service -Name $service.Name
+        if ($controller.Status -eq 'Stopped') {
+            Write-Step "Starting service $($service.Name)"
+            $controller.Start()
+        }
     }
     $healthServiceName = $ApiServiceName
 }
