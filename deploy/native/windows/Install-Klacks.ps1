@@ -23,6 +23,7 @@ param(
     [string]$Region = '',
     [string]$UpdatePublicKeyPath = '',
     [string]$UpdateManifestBaseUrl = 'https://github.com/HeribertG/Klacks.Api/releases/latest/download',
+    [string]$VcRedistPath = '',
     [switch]$AllowUnsignedUpdates,
     [switch]$NoServices
 )
@@ -46,6 +47,12 @@ $AllowedHosts = 'localhost;127.0.0.1'
 # Same as the Docker image: the database never follows the PC's zone, the company zone lives in Klacks.
 $PostgresTimeZone = 'UTC'
 $HealthTimeoutSeconds = 1800
+# vc_redist.x64 registers itself here; depending on the installer version under the 64-bit or the WOW6432Node view.
+$VcRuntimeKeys = @(
+    'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\X64',
+    'HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64')
+# 1638: a newer version is already installed; 3010: installed, a restart is pending.
+$VcRedistSuccessCodes = @(0, 1638, 3010)
 
 function Write-Step($message) { Write-Host "==> $message" -ForegroundColor Cyan }
 
@@ -97,6 +104,14 @@ function Invoke-Native($file, [string[]]$arguments) {
     if ($LASTEXITCODE -ne 0) { throw "'$file $($arguments -join ' ')' exited with $LASTEXITCODE." }
 }
 
+function Test-VcRuntime {
+    foreach ($key in $VcRuntimeKeys) {
+        $entry = Get-ItemProperty -Path $key -ErrorAction SilentlyContinue
+        if ($entry -and $entry.Installed -eq 1) { return $true }
+    }
+    return $false
+}
+
 function Wait-Healthy($url, $timeoutSeconds, $process, $serviceName) {
     $deadline = (Get-Date).AddSeconds($timeoutSeconds)
     while ((Get-Date) -lt $deadline) {
@@ -145,6 +160,20 @@ if (-not $UpdatePublicKeyPath -and -not $AllowUnsignedUpdates) {
 }
 if (-not $UpdatePublicKeyPath) {
     Write-Warning 'Updates and region packages are NOT signature-verified on this installation (-AllowUnsignedUpdates).'
+}
+
+# --- 1b. Microsoft Visual C++ runtime (PostgreSQL and pgvector are MSVC builds) ----------------------------------
+if (Test-VcRuntime) {
+    Write-Step 'Microsoft Visual C++ runtime is installed'
+}
+elseif ($VcRedistPath) {
+    Write-Step 'Installing the Microsoft Visual C++ runtime'
+    $vcProcess = Start-Process -FilePath $VcRedistPath -ArgumentList '/install', '/quiet', '/norestart' -Wait -PassThru
+    if ($VcRedistSuccessCodes -notcontains $vcProcess.ExitCode) { throw "vc_redist exited with $($vcProcess.ExitCode)." }
+    if (-not (Test-VcRuntime)) { throw 'The Microsoft Visual C++ runtime is still missing after vc_redist.' }
+}
+else {
+    Write-Warning 'The Microsoft Visual C++ runtime (x64) is not installed; PostgreSQL will not start without it.'
 }
 
 # --- 2. Secrets (generated once, kept on re-run) -------------------------------------------------------------------
