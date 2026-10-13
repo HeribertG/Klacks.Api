@@ -16,6 +16,8 @@
 #        -BundleBaseUrl https://github.com/HeribertG/Klacks.Api/releases/download/v1.0.40 `
 #        -SigningKeyPath C:\keys\update-private.pem
 
+#Requires -Version 7
+
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][ValidateSet('win-x64', 'win-arm64', 'osx-arm64')][string]$Rid,

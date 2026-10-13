@@ -22,6 +22,7 @@ public sealed class KlacksWindowsService : ServiceBase
     private static readonly TimeSpan PendingWaitHint = TimeSpan.FromSeconds(60);
     private static readonly TimeSpan ShutdownWait = TimeSpan.FromSeconds(20);
     private static readonly TimeSpan DispatcherExitWait = TimeSpan.FromSeconds(30);
+    private const int UnexpectedStopExitCode = 1;
 
     private readonly ManualResetEventSlim _applicationStarted = new();
     private readonly ManualResetEventSlim _applicationStopped = new();
@@ -48,6 +49,9 @@ public sealed class KlacksWindowsService : ServiceBase
         _applicationStopped.Set();
         if (Volatile.Read(ref _stopRequested) == 0)
         {
+            // The host ended without a stop request (e.g. a failed background service stopped it). A non-zero exit
+            // code makes the service control manager apply the recovery actions instead of leaving the service dead.
+            ExitCode = UnexpectedStopExitCode;
             Stop();
         }
 

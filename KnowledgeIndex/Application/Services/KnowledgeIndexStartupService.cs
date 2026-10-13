@@ -37,25 +37,39 @@ public sealed class KnowledgeIndexStartupService : IHostedService
 
     public async Task StartAsync(CancellationToken ct)
     {
-        double? coverage;
-        await using (var scope = _serviceProvider.CreateAsyncScope())
+        try
         {
-            LogActiveRetrievalStack(scope.ServiceProvider);
-            coverage = await ReadCoverageAsync(scope.ServiceProvider, ct);
+            double? coverage;
+            await using (var scope = _serviceProvider.CreateAsyncScope())
+            {
+                LogActiveRetrievalStack(scope.ServiceProvider);
+                coverage = await ReadCoverageAsync(scope.ServiceProvider, ct);
+            }
+
+            _syncScheduler.Request(KnowledgeIndexSyncConstants.StartupReason);
+
+            if (coverage == null)
+            {
+                _logger.LogInformation(
+                    "Knowledge index coverage is unknown; the startup sync runs in the background and skill retrieval may be degraded until it completes.");
+                return;
+            }
+
+            if (coverage < KnowledgeIndexSyncConstants.MinimumCoverageForFullRetrieval)
+            {
+                _logger.LogWarning(
+                    "Knowledge index covers {Coverage:P0} of the catalogue; it is built in the background and skill retrieval is degraded until the sync completes.",
+                    coverage);
+                return;
+            }
+
+            _logger.LogInformation(
+                "Knowledge index startup sync runs in the background; retrieval serves the stored vectors meanwhile.");
         }
-
-        _syncScheduler.Request(KnowledgeIndexSyncConstants.StartupReason);
-
-        if (coverage < KnowledgeIndexSyncConstants.MinimumCoverageForFullRetrieval)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogWarning(
-                "Knowledge index covers {Coverage:P0} of the catalogue; it is built in the background and skill retrieval is degraded until the sync completes.",
-                coverage);
-            return;
+            _logger.LogWarning(ex, "Knowledge index startup check failed; the host starts anyway and skill retrieval is degraded.");
         }
-
-        _logger.LogInformation(
-            "Knowledge index startup sync runs in the background; retrieval serves the stored vectors meanwhile.");
     }
 
     // Null when the coverage cannot be determined (no probe registered, or the table is unreadable).

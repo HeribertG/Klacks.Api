@@ -185,7 +185,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $zip = Get-ChildItem bundle -Filter '*.zip' | Select-Object -First 1
-          $arguments = @{ BundleZip = $zip.FullName; Version = $env:VERSION; PostgresDirectory = (Resolve-Path postgresql).Path }
+          $arguments = @{ BundleZip = $zip.FullName; Version = $env:VERSION; PostgresDirectory = (Resolve-Path postgresql).Path; AllowUnsignedUpdates = $true }
           if ('${{ matrix.region }}') { $arguments.Region = '${{ matrix.region }}' }
           & .\Klacks.Api\deploy\native\windows\Install-Klacks.ps1 @arguments
 
@@ -208,6 +208,11 @@ jobs:
             Write-Host "$name : $status"
             if ($status -ne 'Running') { throw "Service $name is $status." }
           }
+          $users = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-32-545')
+          foreach ($path in "$env:ProgramData\Klacks", "$env:ProgramData\Klacks\pgdata", "$env:ProgramData\Klacks\backups") {
+            $open = (Get-Acl $path).Access | Where-Object { $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]) -eq $users }
+            if ($open) { throw "$path is accessible for all users." }
+          }
           $index = Invoke-WebRequest -UseBasicParsing "$base/"
           if ($index.Content -notmatch '<app-root') { throw 'The UI index is not served.' }
           $i18n = Invoke-RestMethod "$base/assets/i18n/de.json"
@@ -227,6 +232,8 @@ jobs:
           $service = Get-Service -Name Klacks
           $service.Stop()
           $service.WaitForStatus('Stopped', [TimeSpan]::FromMinutes(2))
+          $exitCode = (Get-CimInstance Win32_Service -Filter "Name='Klacks'").ExitCode
+          if ($exitCode -ne 0) { throw "A requested stop ended with exit code $exitCode." }
           $service.Start()
           $deadline = (Get-Date).AddMinutes(15)
           while ((Get-Date) -lt $deadline) {

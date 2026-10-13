@@ -23,6 +23,7 @@ param(
     [string]$Region = '',
     [string]$UpdatePublicKeyPath = '',
     [string]$UpdateManifestBaseUrl = 'https://github.com/HeribertG/Klacks.Api/releases/latest/download',
+    [switch]$AllowUnsignedUpdates,
     [switch]$NoServices
 )
 
@@ -37,6 +38,11 @@ $ConfigFileName = 'klacks.native.json'
 $SecretsFileName = 'secrets.json'
 $LocalSystemSid = 'S-1-5-18'
 $AdministratorsSid = 'S-1-5-32-544'
+# pg_ctl register runs PostgreSQL as NT AUTHORITY\NetworkService unless an account is given.
+$NetworkServiceSid = 'S-1-5-20'
+$AuthenticatedUsersSid = 'S-1-5-11'
+# Host filtering against DNS rebinding: the browser only ever reaches the PC itself (LAN access is Phase 6b).
+$AllowedHosts = 'localhost;127.0.0.1'
 # Same as the Docker image: the database never follows the PC's zone, the company zone lives in Klacks.
 $PostgresTimeZone = 'UTC'
 $HealthTimeoutSeconds = 1800
@@ -64,18 +70,26 @@ function New-DataProtectionCertificate($password) {
     return [Convert]::ToBase64String($pfx)
 }
 
-function Protect-Directory($path) {
-    # SYSTEM and Administrators only: the services run as LocalSystem, nobody else may read the secrets.
+function Set-DirectoryAccess($path, [string[]]$fullControlSids, [string[]]$readSids = @()) {
+    # Replaces the inherited rights (C:\ProgramData grants every user read and create) with an explicit list.
     # Well-known SIDs, because account names are localised (e.g. VORDEFINIERT\Administratoren on German Windows).
     $acl = New-Object System.Security.AccessControl.DirectorySecurity
     $acl.SetAccessRuleProtection($true, $false)
-    foreach ($sid in @($LocalSystemSid, $AdministratorsSid)) {
-        $identity = New-Object System.Security.Principal.SecurityIdentifier($sid)
-        $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
-            $identity, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
-        $acl.AddAccessRule($rule)
+    foreach ($entry in @(@{ Sids = $fullControlSids; Rights = 'FullControl' }, @{ Sids = $readSids; Rights = 'ReadAndExecute' })) {
+        foreach ($sid in $entry.Sids) {
+            $identity = New-Object System.Security.Principal.SecurityIdentifier($sid)
+            $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+                $identity, $entry.Rights, 'ContainerInherit,ObjectInherit', 'None', 'Allow')
+            $acl.AddAccessRule($rule)
+        }
     }
     Set-Acl -Path $path -AclObject $acl
+}
+
+function Protect-Directory($path) {
+    # SYSTEM and Administrators only: Klacks and the updater run as LocalSystem; secrets, backups, documents and
+    # import drop folders must not be readable or writable for other users of the PC.
+    Set-DirectoryAccess $path @($LocalSystemSid, $AdministratorsSid)
 }
 
 function Invoke-Native($file, [string[]]$arguments) {
@@ -118,7 +132,20 @@ Write-Step "Preparing $ProgramRoot and $DataRoot"
 foreach ($directory in @($ProgramRoot, $versionsDirectory, $DataRoot, $configDirectory, $logDirectory, $backupDirectory)) {
     New-Item -ItemType Directory -Force -Path $directory | Out-Null
 }
-if (-not $NoServices) { Protect-Directory $configDirectory }
+if (-not $NoServices) {
+    Protect-Directory $DataRoot
+    Protect-Directory $configDirectory
+    # Program files: only administrators may change them (the updater trusts an existing versions\<v> folder); the
+    # PostgreSQL service account must still execute its binaries.
+    Set-DirectoryAccess $ProgramRoot @($LocalSystemSid, $AdministratorsSid) @($AuthenticatedUsersSid)
+}
+
+if (-not $UpdatePublicKeyPath -and -not $AllowUnsignedUpdates) {
+    throw 'Pass -UpdatePublicKeyPath (the vendor update signing key): without it updates and region packages are not verified. -AllowUnsignedUpdates is for test runs only.'
+}
+if (-not $UpdatePublicKeyPath) {
+    Write-Warning 'Updates and region packages are NOT signature-verified on this installation (-AllowUnsignedUpdates).'
+}
 
 # --- 2. Secrets (generated once, kept on re-run) -------------------------------------------------------------------
 if (Test-Path $secretsFile) {
@@ -147,8 +174,16 @@ if (-not (Test-Path (Join-Path $postgresBin 'pg_ctl.exe'))) {
 }
 if (-not (Test-Path (Join-Path $postgresRoot 'lib\vector.dll'))) { throw 'pgvector (lib\vector.dll) is missing from the PostgreSQL payload.' }
 
+$postgresDataSids = @($LocalSystemSid, $AdministratorsSid, $NetworkServiceSid)
 if (-not (Test-Path (Join-Path $pgData 'PG_VERSION'))) {
     Write-Step 'Initialising the database cluster'
+    if (-not $NoServices) {
+        # initdb drops the Administrators group from its token, so the installing account itself needs access while
+        # it creates the cluster; that grant is removed again right after.
+        New-Item -ItemType Directory -Force -Path $pgData | Out-Null
+        $installingUserSid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+        Set-DirectoryAccess $pgData ($postgresDataSids + $installingUserSid)
+    }
     # initdb drops the Administrators group from its token, so the password file must not live in the protected config directory.
     $passwordFile = [System.IO.Path]::GetTempFileName()
     try {
@@ -163,6 +198,7 @@ if (-not (Test-Path (Join-Path $pgData 'PG_VERSION'))) {
         '', '# Klacks native installation', "port = $PostgresPort", "listen_addresses = 'localhost'",
         "timezone = '$PostgresTimeZone'", "log_timezone = '$PostgresTimeZone'")
 }
+if (-not $NoServices) { Set-DirectoryAccess $pgData $postgresDataSids }
 
 $pgCtl = Join-Path $postgresBin 'pg_ctl.exe'
 if ($NoServices) {
@@ -207,6 +243,7 @@ if ($Region) {
 
 $config = [ordered]@{
     Urls              = $loopbackUrl
+    AllowedHosts      = $AllowedHosts
     ConnectionStrings = [ordered]@{ DefaultConnection = $connectionString }
     JwtSettings       = [ordered]@{ Secret = $secrets.JwtSecret; ValidAudience = $baseUrl; ValidIssuer = $baseUrl }
     DataProtection    = [ordered]@{ CertificateBase64 = $secrets.DataProtectionCertificate; CertificatePassword = $secrets.DataProtectionPassword }
@@ -268,6 +305,8 @@ else {
             $key = "HKLM:\SYSTEM\CurrentControlSet\Services\$($service.Name)"
             New-ItemProperty -Path $key -Name 'Environment' -PropertyType MultiString -Value $environment -Force | Out-Null
             sc.exe failure $service.Name reset= 86400 actions= restart/60000/restart/60000/restart/300000 | Out-Null
+            # Also recover when the service reports itself stopped with an error code, not only after a crash.
+            sc.exe failureflag $service.Name 1 | Out-Null
         }
     }
     foreach ($service in $services) {

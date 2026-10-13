@@ -30,7 +30,7 @@ $MaxEvents = 80
 $MaxEventMessageLength = 1500
 $HttpTimeoutSeconds = 10
 $DevelopmentApiMarker = 'localhost:5001'
-$SecretNamePattern = 'password|secret|certificate|connectionstring|apikey|token'
+$SecretNamePattern = 'password|passphrase|pwd|secret|certificate|connectionstring|credential|apikey|token|key$'
 $Masked = '***'
 $PostgresUser = 'klacks'
 $DatabaseName = 'Klacks'
@@ -56,6 +56,10 @@ function Add-Section([string]$title, [scriptblock]$block) {
 }
 
 function Hide-Secrets($node) {
+    if ($node -is [System.Array]) {
+        foreach ($item in $node) { Hide-Secrets $item }
+        return
+    }
     if ($node -is [System.Management.Automation.PSCustomObject]) {
         foreach ($property in $node.PSObject.Properties) {
             if ($property.Name -match $SecretNamePattern) {
