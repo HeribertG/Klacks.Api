@@ -34,6 +34,10 @@ $project = Join-Path $PSScriptRoot '..\..\Klacks.Api.csproj' | Resolve-Path
 if (-not (Test-Path (Join-Path $UiDist 'index.html'))) {
     throw "UiDist '$UiDist' contains no index.html."
 }
+# index.html alone loads, but without the assets every translation and icon answers 404 (shipped once to a test PC).
+if (-not (Test-Path (Join-Path $UiDist 'assets\i18n\de.json'))) {
+    throw "UiDist '$UiDist' contains no assets\i18n\de.json; the UI build is incomplete."
+}
 
 $constantsDirectory = Join-Path $PSScriptRoot '..\..\Application\Constants' | Resolve-Path
 $versionFile = Join-Path $constantsDirectory 'VersionConstant.cs'

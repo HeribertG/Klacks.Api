@@ -35,6 +35,10 @@ $PostgresSuperUser = 'klacks'
 $DatabaseName = 'Klacks'
 $ConfigFileName = 'klacks.native.json'
 $SecretsFileName = 'secrets.json'
+$LocalSystemSid = 'S-1-5-18'
+$AdministratorsSid = 'S-1-5-32-544'
+# Same as the Docker image: the database never follows the PC's zone, the company zone lives in Klacks.
+$PostgresTimeZone = 'UTC'
 $HealthTimeoutSeconds = 1800
 
 function Write-Step($message) { Write-Host "==> $message" -ForegroundColor Cyan }
@@ -62,9 +66,11 @@ function New-DataProtectionCertificate($password) {
 
 function Protect-Directory($path) {
     # SYSTEM and Administrators only: the services run as LocalSystem, nobody else may read the secrets.
+    # Well-known SIDs, because account names are localised (e.g. VORDEFINIERT\Administratoren on German Windows).
     $acl = New-Object System.Security.AccessControl.DirectorySecurity
     $acl.SetAccessRuleProtection($true, $false)
-    foreach ($identity in @('NT AUTHORITY\SYSTEM', 'BUILTIN\Administrators')) {
+    foreach ($sid in @($LocalSystemSid, $AdministratorsSid)) {
+        $identity = New-Object System.Security.Principal.SecurityIdentifier($sid)
         $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
             $identity, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
         $acl.AddAccessRule($rule)
@@ -143,7 +149,8 @@ if (-not (Test-Path (Join-Path $postgresRoot 'lib\vector.dll'))) { throw 'pgvect
 
 if (-not (Test-Path (Join-Path $pgData 'PG_VERSION'))) {
     Write-Step 'Initialising the database cluster'
-    $passwordFile = Join-Path $configDirectory 'initdb.pw'
+    # initdb drops the Administrators group from its token, so the password file must not live in the protected config directory.
+    $passwordFile = [System.IO.Path]::GetTempFileName()
     try {
         Set-Content -NoNewline -Encoding ASCII -Path $passwordFile -Value $secrets.DatabasePassword
         Invoke-Native (Join-Path $postgresBin 'initdb.exe') @('-D', $pgData, '-U', $PostgresSuperUser, '-E', 'UTF8',
@@ -153,7 +160,8 @@ if (-not (Test-Path (Join-Path $pgData 'PG_VERSION'))) {
         Remove-Item -Force -ErrorAction SilentlyContinue $passwordFile
     }
     Add-Content -Path (Join-Path $pgData 'postgresql.conf') -Value @(
-        '', '# Klacks native installation', "port = $PostgresPort", "listen_addresses = 'localhost'")
+        '', '# Klacks native installation', "port = $PostgresPort", "listen_addresses = 'localhost'",
+        "timezone = '$PostgresTimeZone'", "log_timezone = '$PostgresTimeZone'")
 }
 
 $pgCtl = Join-Path $postgresBin 'pg_ctl.exe'
@@ -228,7 +236,7 @@ $apiExe = Join-Path $currentLink 'app\Klacks.Api.exe'
 $updaterExe = Join-Path $currentLink 'updater\Klacks.Updater.exe'
 $environment = @("Hosting__DataRoot=$DataRoot", 'ASPNETCORE_ENVIRONMENT=Production', 'DOTNET_ENVIRONMENT=Production')
 $apiProcess = $null
-$apiServiceName = $null
+$healthServiceName = $null
 
 if ($NoServices) {
     Write-Step 'Starting Klacks (process mode)'
@@ -255,12 +263,12 @@ else {
         }
         Start-Service -Name $service.Name
     }
-    $apiServiceName = $ApiServiceName
+    $healthServiceName = $ApiServiceName
 }
 
 # --- 7. Health -------------------------------------------------------------------------------------------------------
 Write-Step "Waiting for Klacks on $loopbackUrl (first start migrates the database, this can take a few minutes)"
-if (Wait-Healthy "$loopbackUrl/internal/health/deep" $HealthTimeoutSeconds $apiProcess $apiServiceName) {
+if (Wait-Healthy "$loopbackUrl/internal/health/deep" $HealthTimeoutSeconds $apiProcess $healthServiceName) {
     Write-Host "Klacks $Version is running: $baseUrl" -ForegroundColor Green
 }
 else {

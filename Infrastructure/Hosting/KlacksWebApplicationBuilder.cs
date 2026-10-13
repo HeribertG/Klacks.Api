@@ -10,6 +10,7 @@
 /// </summary>
 /// <param name="args">Command line arguments of the process</param>
 
+using System.Runtime.Versioning;
 using Klacks.Api.Application.Configuration;
 using Microsoft.Extensions.Hosting.WindowsServices;
 
@@ -30,9 +31,22 @@ public static class KlacksWebApplicationBuilder
 
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
-        builder.Services.AddWindowsService(options => options.ServiceName = NativeHostingOptions.WindowsServiceName);
+        if (OperatingSystem.IsWindows() && WindowsServiceHelpers.IsWindowsService())
+        {
+            AddWindowsServiceHosting(builder);
+        }
 
         return builder;
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static void AddWindowsServiceHosting(WebApplicationBuilder builder)
+    {
+        var service = new KlacksWindowsService();
+        service.StartDispatcher();
+        builder.Services.AddSingleton(service);
+        builder.Services.AddHostedService<KlacksWindowsServiceStatusBridge>();
+        builder.Logging.AddEventLog(settings => settings.SourceName = builder.Environment.ApplicationName);
     }
 
     private static void AddNativeConfigurationFile(ConfigurationManager configuration)

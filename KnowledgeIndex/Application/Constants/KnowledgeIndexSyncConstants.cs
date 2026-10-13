@@ -11,8 +11,8 @@ public static class KnowledgeIndexSyncConstants
 
     public const int PersistChunkSize = KnowledgeIndexConstants.EmbeddingBatchSize * 4;
 
-    // Share of the current skills and recipes that must already have a stored row before startup lets
-    // the sync run in the background. Below it (first start, or a first start that was interrupted)
-    // retrieval would miss most of the catalogue, so host start waits instead.
-    public const double MinimumCoverageForBackgroundSync = 0.9;
+    // Share of the current skills and recipes that must already have a stored row for retrieval to see
+    // the catalogue. Below it (first start, or a first start that was interrupted) startup still runs the
+    // sync in the background, but warns that skill retrieval is degraded until it completes.
+    public const double MinimumCoverageForFullRetrieval = 0.9;
 }

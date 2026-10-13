@@ -747,7 +747,7 @@ await app.SeedGoldsetGoldenCasesAsync();
 // empty snapshot and misses every navigation fast path.
 await app.WarmUpNavigationTargetCacheAsync();
 
-app.Run();
+app.RunKlacks();
 
 static async Task InitializeFeaturePluginsThenLoadSkillSeedsAsync(WebApplication application)
 {

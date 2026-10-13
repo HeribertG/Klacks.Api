@@ -8,14 +8,13 @@ using Microsoft.Extensions.Logging;
 namespace Klacks.Api.KnowledgeIndex.Application.Services;
 
 /// <summary>
-/// Runs the knowledge index synchronization during application startup and reports which retrieval
-/// stack the process actually resolved. The sync goes through the scheduler, so it can never run in
-/// parallel with one requested by a catalogue change. Host start waits for it only while the index covers
-/// less than MinimumCoverageForBackgroundSync of the catalogue (first start, or an interrupted one),
-/// because retrieval would miss most skills until then. A covering index keeps serving its stored
-/// vectors while the delta sync runs in the background - with many language packs a changed
-/// vocabulary re-embeds every entry, which blocked host start for minutes.
-/// Failures are logged but do not block startup.
+/// Starts the knowledge index synchronization during application startup and reports which retrieval
+/// stack the process actually resolved. The sync goes through the single-flight scheduler, so it can never
+/// run in parallel with one requested by a catalogue change, and it always runs in the background: on a
+/// first start it embeds the whole catalogue (and downloads the embedding model), which kept the host - and
+/// with it the login page and the Windows service start - waiting for half an hour on a desktop PC.
+/// While the index covers less than MinimumCoverageForFullRetrieval of the catalogue, retrieval answers
+/// from the always-on and deterministic skills only; that state is logged as a warning.
 /// </summary>
 /// <param name="serviceProvider">Root provider used to resolve the scoped retrieval providers and the index coverage probe.</param>
 /// <param name="syncScheduler">Single-flight scheduler that executes the sync.</param>
@@ -38,64 +37,47 @@ public sealed class KnowledgeIndexStartupService : IHostedService
 
     public async Task StartAsync(CancellationToken ct)
     {
-        try
+        double? coverage;
+        await using (var scope = _serviceProvider.CreateAsyncScope())
         {
-            bool indexUsable;
-            await using (var scope = _serviceProvider.CreateAsyncScope())
-            {
-                LogActiveRetrievalStack(scope.ServiceProvider);
-                indexUsable = await IsIndexUsableAsync(scope.ServiceProvider, ct);
-            }
+            LogActiveRetrievalStack(scope.ServiceProvider);
+            coverage = await ReadCoverageAsync(scope.ServiceProvider, ct);
+        }
 
-            if (indexUsable)
-            {
-                _syncScheduler.Request(KnowledgeIndexSyncConstants.StartupReason);
-                _logger.LogInformation(
-                    "Knowledge index already covers the catalogue; startup sync runs in the background and retrieval serves the stored vectors meanwhile.");
-                return;
-            }
+        _syncScheduler.Request(KnowledgeIndexSyncConstants.StartupReason);
 
-            await _syncScheduler.RunNowAsync(KnowledgeIndexSyncConstants.StartupReason, ct);
-
-            var status = _syncScheduler.Status;
-            if (status.LastCompletedUtc.HasValue
-                && (!status.LastFailedUtc.HasValue || status.LastCompletedUtc >= status.LastFailedUtc))
-            {
-                _logger.LogInformation("Knowledge index sync completed at startup.");
-                return;
-            }
-
+        if (coverage < KnowledgeIndexSyncConstants.MinimumCoverageForFullRetrieval)
+        {
             _logger.LogWarning(
-                "Knowledge index sync did not complete at startup (last error: {Error}). Skill retrieval is degraded.",
-                status.LastError);
+                "Knowledge index covers {Coverage:P0} of the catalogue; it is built in the background and skill retrieval is degraded until the sync completes.",
+                coverage);
+            return;
         }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Knowledge index sync failed at startup. Skill retrieval is degraded.");
-        }
+
+        _logger.LogInformation(
+            "Knowledge index startup sync runs in the background; retrieval serves the stored vectors meanwhile.");
     }
 
-    // A missing probe or an unreadable table counts as not usable: the blocking path is the one that
-    // behaved correctly before, so any doubt falls back to it.
-    private async Task<bool> IsIndexUsableAsync(IServiceProvider scoped, CancellationToken ct)
+    // Null when the coverage cannot be determined (no probe registered, or the table is unreadable).
+    private async Task<double?> ReadCoverageAsync(IServiceProvider scoped, CancellationToken ct)
     {
         try
         {
             var probe = scoped.GetService<IKnowledgeIndexCoverageProbe>();
             if (probe == null)
             {
-                return false;
+                return null;
             }
 
-            var coverage = await probe.GetStoredCoverageAsync(ct);
-            return coverage >= KnowledgeIndexSyncConstants.MinimumCoverageForBackgroundSync;
+            return await probe.GetStoredCoverageAsync(ct);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogWarning(ex, "Could not read the knowledge index before the startup sync; syncing in the foreground.");
-            return false;
+            _logger.LogWarning(ex, "Could not read the knowledge index before the startup sync; it runs in the background.");
+            return null;
         }
     }
+
     // Which embedding and reranker actually got resolved is invisible at runtime, yet it decides
     // retrieval quality: the ONNX pair is the production stack, everything else is a fallback that
     // scores differently. Silently degrading here once cost a full measurement round that compared
