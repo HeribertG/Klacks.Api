@@ -22,7 +22,7 @@ function New-Case($name, [scriptblock]$mutate, [bool]$expectSuccess, [string]$ex
     $case = [ordered]@{
         Version = $version; Url = $url; Bundle = $bundle
         Entry = [ordered]@{ rid = 'win-x64'; bundleUrl = $url; sha256 = $sha; signature = $signature }
-        Manifest = '{"channel":"Stable","latestVersion":"1.0.43","minUpgradableFrom":"1.0.0","releasedAt":"2026-10-14T08:00:00Z","containsMigrations":true,"artifacts":{"docker":{"apiImage":"ghcr.io/heribertg/klacks-api:1.0.43","uiImage":"ghcr.io/heribertg/klacks-ui:1.0.43","sha256":"sha256:abc"}},"signature":"DOCKERSIG"}'
+        Manifest = '{"channel":"Stable","latestVersion":"1.0.43","minUpgradableFrom":"1.0.0","releasedAt":"2026-10-14T08:00:00Z","containsMigrations":true,"artifacts":{"docker":{"apiImage":"ghcr.io/heribertg/klacks-api:1.0.43","uiImage":"ghcr.io/heribertg/klacks-ui:1.0.43","sha256":"sha256:abc"}},"signature":"DOCKER+SIG/=="}'
     }
     & $mutate $case
     $entryPath = Join-Path $work "$name.entry.json"; $case.Entry | ConvertTo-Json | Set-Content $entryPath
@@ -47,8 +47,8 @@ function New-Case($name, [scriptblock]$mutate, [bool]$expectSuccess, [string]$ex
     if ($expectSuccess) {
         $merged = Get-Content -Raw $outPath | ConvertFrom-Json -DateKind String
         if ($merged.artifacts.native.Count -ne 1 -or $merged.artifacts.native[0].rid -ne 'win-x64' -or
-            $merged.signature -ne 'DOCKERSIG' -or $merged.artifacts.docker.sha256 -ne 'sha256:abc' -or
-            $merged.releasedAt -ne '2026-10-14T08:00:00Z') {
+            $merged.signature -ne 'DOCKER+SIG/==' -or $merged.artifacts.docker.sha256 -ne 'sha256:abc' -or
+            $merged.releasedAt -ne '2026-10-14T08:00:00Z' -or -not (Get-Content -Raw $outPath).Contains('"DOCKER+SIG/=="')) {
             $script:failures++; Write-Host "FAIL $name (merged content)" -ForegroundColor Red; return
         }
     }
@@ -67,7 +67,7 @@ try {
     New-Case 'version-mismatch' { param($c) $c.Manifest = $c.Manifest.Replace('"latestVersion":"1.0.43"', '"latestVersion":"1.0.42"') } $false 'stable.json is for'
     New-Case 'wrong-rid' { param($c) $c.Entry.rid = 'osx-arm64' } $false 'Entry RID'
     New-Case 'bad-signature' { param($c) $c.Entry.signature = [Convert]::ToBase64String([byte[]]::new(256)) } $false 'does not verify'
-    New-Case 'no-docker' { param($c) $c.Manifest = '{"latestVersion":"1.0.43","artifacts":{},"signature":"DOCKERSIG"}' } $false 'no Docker artifact'
+    New-Case 'no-docker' { param($c) $c.Manifest = '{"latestVersion":"1.0.43","artifacts":{},"signature":"DOCKER+SIG/=="}' } $false 'no Docker artifact'
 }
 finally {
     $script:rsa.Dispose()
