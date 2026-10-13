@@ -1,19 +1,19 @@
 # .github/workflows/native-windows-gate.yml for Klacks.Api
 #
-# Gate for the native Windows installation (docs/plans/native-installer-windows-mac-2026-10-12.md, Phase 5 pulled
-# forward by owner decision 2026-10-13). No test package goes to a real PC unless this path is green: it builds the
-# win-x64 bundle exactly the way a release would (UI taken from the released ghcr image, never a local dist), installs
-# it on a clean Windows runner in service mode with Windows PowerShell 5.1 (the shell an operator uses), and checks
-# start, UI assets, login, the own-admin setup status, a service restart and the uninstall.
-#
-# The bundle and the diagnostics report of every run are uploaded as artifacts; the bundle of a green run is the one
-# that may be handed to a test PC.
+# Manual entry to the native Windows pipeline (native-windows.yml). gate: build, package, install and check only.
+# release-dry-run: additionally rehearse the publish on a draft release that is deleted at the end; run it green
+# before the first release that carries native artifacts.
 
 name: Native Windows gate
 
 on:
   workflow_dispatch:
     inputs:
+      mode:
+        description: 'gate = install checks only; release-dry-run = also rehearse the publish on a draft release'
+        type: choice
+        options: [gate, release-dry-run]
+        default: gate
       ui_version:
         description: 'Klacks.Ui release whose ghcr image provides the UI (e.g. 1.0.42); empty = latest v* tag'
         required: false
@@ -23,257 +23,13 @@ concurrency:
   group: native-windows-gate-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  DOTNET_VERSION: '10.0.x'
-  POSTGRES_BINARIES_URL: 'https://get.enterprisedb.com/postgresql/postgresql-17.4-1-windows-x64-binaries.zip'
-  PGVECTOR_TAG: 'v0.8.1'
-  HTTP_PORT: '5180'
-  SEED_ADMIN_EMAIL: 'admin@test.com'
-  SEED_ADMIN_PASSWORD: 'P@ssw0rt1'
+permissions:
+  contents: write
 
 jobs:
-  ui:
-    name: ui (extract from ghcr image)
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-    steps:
-      - name: Checkout Klacks.Api (tags)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Resolve version
-        id: version
-        run: |
-          version='${{ github.event.inputs.ui_version }}'
-          if [ -z "$version" ]; then
-            version=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 | sed 's/^v//')
-          fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "UI version: $version"
-
-      - name: Extract UI from ghcr.io/heribertg/klacks-ui
-        run: |
-          image="ghcr.io/heribertg/klacks-ui:${{ steps.version.outputs.version }}"
-          docker pull "$image"
-          id=$(docker create "$image")
-          docker cp "$id:/usr/share/nginx/html" ./ui
-          docker rm "$id"
-          test -f ui/index.html
-          test -f ui/assets/i18n/de.json
-
-      - name: Upload UI
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-dist
-          path: ui
-          retention-days: 3
-
-  install:
-    name: install (region '${{ matrix.region }}')
-    needs: ui
-    runs-on: windows-latest
-    timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix:
-        region: ['', 'ch']
-    env:
-      VERSION: ${{ needs.ui.outputs.version }}
-    steps:
-      - name: Checkout Klacks.Api
-        uses: actions/checkout@v4
-        with:
-          path: Klacks.Api
-
-      - name: Checkout Klacks.Plugin.Contracts
-        uses: actions/checkout@v4
-        with:
-          repository: HeribertG/Klacks.Plugin.Contracts
-          path: Klacks.Plugin.Contracts
-          token: ${{ secrets.GH_PAT || github.token }}
-
-      - name: Checkout Klacks.Plugin.Messaging
-        uses: actions/checkout@v4
-        with:
-          repository: HeribertG/Klacks.Plugin.Messaging
-          path: Klacks.Plugin.Messaging
-          token: ${{ secrets.GH_PAT || github.token }}
-
-      - name: Checkout Klacks.Docs
-        uses: actions/checkout@v4
-        with:
-          repository: HeribertG/Klacks.Docs
-          path: Klacks.Docs
-          token: ${{ secrets.GH_PAT || github.token }}
-
-      - name: Checkout Klacks.Api.SourceGenerators
-        uses: actions/checkout@v4
-        with:
-          repository: HeribertG/Klacks.Api.SourceGenerators
-          path: Klacks.Api.SourceGenerators
-          token: ${{ secrets.GH_PAT || github.token }}
-
-      - name: Checkout Klacks.ScheduleOptimizer
-        uses: actions/checkout@v4
-        with:
-          repository: HeribertG/Klacks.ScheduleOptimizer
-          path: Klacks.ScheduleOptimizer
-
-      - name: Checkout Klacks.ScheduleRecovery
-        uses: actions/checkout@v4
-        with:
-          repository: HeribertG/Klacks.ScheduleRecovery
-          path: Klacks.ScheduleRecovery
-
-      - name: Checkout Klacks.Updater
-        uses: actions/checkout@v4
-        with:
-          repository: HeribertG/Klacks.Updater
-          path: Klacks.Updater
-
-      - name: Checkout pgvector
-        uses: actions/checkout@v4
-        with:
-          repository: pgvector/pgvector
-          ref: ${{ env.PGVECTOR_TAG }}
-          path: pgvector
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Download UI
-        uses: actions/download-artifact@v4
-        with:
-          name: ui-dist
-          path: ui
-
-      - name: Build win-x64 bundle
-        shell: pwsh
-        run: |
-          & Klacks.Api/deploy/native/build-native-bundle.ps1 -Rid win-x64 -Version $env:VERSION `
-            -UiDist ui -OutputDirectory bundle -BundleBaseUrl 'https://example.invalid/gate' `
-            -UpdaterProject Klacks.Updater/Klacks.Updater/Klacks.Updater.csproj -BuildKey "gate-$env:GITHUB_RUN_ID"
-
-      - name: Download PostgreSQL binaries
-        shell: pwsh
-        run: |
-          Invoke-WebRequest -UseBasicParsing -Uri $env:POSTGRES_BINARIES_URL -OutFile postgresql.zip
-          Expand-Archive postgresql.zip -DestinationPath postgres-extract
-          Move-Item postgres-extract/pgsql postgresql
-
-      - name: Setup MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
-
-      - name: Build pgvector
-        shell: cmd
-        run: |
-          set "PGROOT=%GITHUB_WORKSPACE%\postgresql"
-          cd pgvector
-          nmake /NOLOGO /F Makefile.win || exit /b 1
-          nmake /NOLOGO /F Makefile.win install || exit /b 1
-          if not exist "%PGROOT%\lib\vector.dll" exit /b 1
-
-      - name: Install Klacks (service mode, Windows PowerShell 5.1)
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $zip = Get-ChildItem bundle -Filter '*.zip' | Select-Object -First 1
-          $arguments = @{ BundleZip = $zip.FullName; Version = $env:VERSION; PostgresDirectory = (Resolve-Path postgresql).Path; AllowUnsignedUpdates = $true }
-          if ('${{ matrix.region }}') { $arguments.Region = '${{ matrix.region }}' }
-          & .\Klacks.Api\deploy\native\windows\Install-Klacks.ps1 @arguments
-
-      - name: Check services, UI, login and setup status
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $base = "http://127.0.0.1:$env:HTTP_PORT"
-          function Wait-Health($seconds) {
-            $deadline = (Get-Date).AddSeconds($seconds)
-            while ((Get-Date) -lt $deadline) {
-              try { if ((Invoke-WebRequest -UseBasicParsing "$base/internal/health/deep" -TimeoutSec 10).StatusCode -eq 200) { return } } catch { }
-              Start-Sleep -Seconds 5
-            }
-            throw "Klacks is not healthy after $seconds s."
-          }
-          Wait-Health 1800
-          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
-            $status = (Get-Service -Name $name).Status
-            Write-Host "$name : $status"
-            if ($status -ne 'Running') { throw "Service $name is $status." }
-          }
-          $users = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-32-545')
-          foreach ($path in "$env:ProgramData\Klacks", "$env:ProgramData\Klacks\pgdata", "$env:ProgramData\Klacks\backups") {
-            $open = (Get-Acl $path).Access | Where-Object { $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]) -eq $users }
-            if ($open) { throw "$path is accessible for all users." }
-          }
-          $index = Invoke-WebRequest -UseBasicParsing "$base/"
-          if ($index.Content -notmatch '<app-root') { throw 'The UI index is not served.' }
-          # Raw text on purpose: de.json holds keys that differ only in case ("delete"/"DELETE"), which PowerShell's
-          # JSON conversion rejects, so Invoke-RestMethod silently returns a plain string.
-          $i18n = (Invoke-WebRequest -UseBasicParsing "$base/assets/i18n/de.json").Content
-          if ($i18n -notmatch '"setup\.passwordRules"\s*:') { throw 'assets/i18n/de.json is missing or outdated.' }
-          $login = Invoke-RestMethod -Method Post -ContentType 'application/json' -Uri "$base/api/backend/Accounts/LoginUser" `
-            -Body (@{ email = $env:SEED_ADMIN_EMAIL; password = $env:SEED_ADMIN_PASSWORD } | ConvertTo-Json)
-          if (-not $login.token) { throw 'Login with the seeded admin returned no token.' }
-          $status = Invoke-RestMethod -Uri "$base/api/backend/Setup/Status" -Headers @{ Authorization = "Bearer $($login.token)" }
-          if (-not $status.requiresOwnAdmin) { throw 'Setup/Status does not require the own admin account.' }
-          if ($status.passwordPolicy.requiredLength -lt 8) { throw 'Setup/Status publishes no password policy.' }
-          Write-Host 'Login, UI and setup status OK.'
-
-      - name: Restart Klacks
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $service = Get-Service -Name Klacks
-          $service.Stop()
-          $service.WaitForStatus('Stopped', [TimeSpan]::FromMinutes(2))
-          $exitCode = (Get-CimInstance Win32_Service -Filter "Name='Klacks'").ExitCode
-          if ($exitCode -ne 0) { throw "A requested stop ended with exit code $exitCode." }
-          $service.Start()
-          $deadline = (Get-Date).AddMinutes(15)
-          while ((Get-Date) -lt $deadline) {
-            try { if ((Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$env:HTTP_PORT/internal/health/deep" -TimeoutSec 10).StatusCode -eq 200) { Write-Host 'Healthy after restart.'; exit 0 } } catch { }
-            Start-Sleep -Seconds 5
-          }
-          throw 'Klacks is not healthy after a restart.'
-
-      - name: Diagnostics report
-        if: always()
-        shell: powershell
-        run: |
-          New-Item -ItemType Directory -Force -Path diagnostics | Out-Null
-          & .\Klacks.Api\deploy\native\windows\Get-KlacksDiagnostics.ps1 -ReportDirectory (Resolve-Path diagnostics).Path
-          Copy-Item -Recurse -ErrorAction SilentlyContinue "$env:ProgramData\Klacks\logs" diagnostics\logs
-
-      - name: Uninstall
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          & .\Klacks.Api\deploy\native\windows\Uninstall-Klacks.ps1 -RemoveData
-          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
-            if (Get-Service -Name $name -ErrorAction SilentlyContinue) { throw "Service $name is still registered." }
-          }
-          if (Test-Path "$env:ProgramData\Klacks") { throw 'The data directory is still present after -RemoveData.' }
-
-      - name: Upload diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: diagnostics-${{ matrix.region || 'default' }}
-          path: diagnostics
-          retention-days: 14
-
-      - name: Upload bundle
-        if: success() && matrix.region == ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: klacks-${{ env.VERSION }}-win-x64-gate
-          path: bundle
-          retention-days: 14
+  native:
+    uses: ./.github/workflows/native-windows.yml
+    with:
+      mode: ${{ inputs.mode }}
+      ui_version: ${{ inputs.ui_version }}
+    secrets: inherit

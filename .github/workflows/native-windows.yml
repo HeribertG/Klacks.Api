@@ -1,0 +1,470 @@
+# .github/workflows/native-windows.yml for Klacks.Api
+#
+# Reusable build, install gate and (optionally) publish of the native Windows installation
+# (docs/plans/native-a2-release-package-2026-10-13.md). Every mode builds the signed win-x64 bundle and the office-PC
+# package klacks-office-pc-win-x64.zip, installs that package through Installieren.cmd on a clean runner (service mode,
+# Windows PowerShell 5.1, path with space and umlaut) and checks start, UI, login, setup status, restart and uninstall.
+#   gate             stops after the checks
+#   release-dry-run  additionally rehearses the publish on a draft release (tag native-dryrun-<run id>, deleted after)
+#   release          publishes to the stable release v<version>: bundle + package, then adds artifacts.native to
+#                    stable.json - only after both installs are green and every check passed (fail-closed)
+# Callers: native-windows-gate.yml (workflow_dispatch) and native-release.yml (v* tags). Callers pass secrets: inherit.
+
+name: Native Windows (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        type: string
+        required: true
+      ui_version:
+        type: string
+        required: false
+        default: ''
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  POSTGRES_BINARIES_URL: 'https://get.enterprisedb.com/postgresql/postgresql-17.4-1-windows-x64-binaries.zip'
+  PGVECTOR_TAG: 'v0.8.1'
+  VC_REDIST_URL: 'https://aka.ms/vs/17/release/vc_redist.x64.exe'
+  HTTP_PORT: '5180'
+  SEED_ADMIN_EMAIL: 'admin@test.com'
+  SEED_ADMIN_PASSWORD: 'P@ssw0rt1'
+  RELEASE_DOWNLOAD_BASE: 'https://github.com/HeribertG/Klacks.Api/releases/download'
+  PACKAGE_FILE: 'klacks-office-pc-win-x64.zip'
+
+jobs:
+  ui:
+    name: ui (extract from ghcr image)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout Klacks.Api (tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        env:
+          MODE: ${{ inputs.mode }}
+          UI_VERSION: ${{ inputs.ui_version }}
+        run: |
+          set -euo pipefail
+          case "$MODE" in gate|release-dry-run|release) ;; *) echo "::error::Unknown mode '$MODE'"; exit 1 ;; esac
+          if [ "$MODE" = release ]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="$UI_VERSION"
+            if [ -z "$version" ]; then
+              version=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 | sed 's/^v//')
+            fi
+          fi
+          echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "::error::Invalid version '$version'"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Version: $version (mode $MODE)"
+
+      - name: Wait for ghcr.io/heribertg/klacks-ui
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # The Klacks.Ui tag build runs in parallel to this one (scripts/release.ps1 tags both).
+          for attempt in $(seq 1 45); do
+            if docker manifest inspect "ghcr.io/heribertg/klacks-ui:${VERSION}" >/dev/null 2>&1; then exit 0; fi
+            echo "Waiting for klacks-ui:${VERSION} (attempt $attempt/45)"; sleep 60
+          done
+          echo "::error::klacks-ui:${VERSION} is not on ghcr after 45 minutes"; exit 1
+
+      - name: Extract UI from ghcr.io/heribertg/klacks-ui
+        run: |
+          image="ghcr.io/heribertg/klacks-ui:${{ steps.version.outputs.version }}"
+          docker pull "$image"
+          id=$(docker create "$image")
+          docker cp "$id:/usr/share/nginx/html" ./ui
+          docker rm "$id"
+          test -f ui/index.html
+          test -f ui/assets/i18n/de.json
+
+      - name: Upload UI
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-dist
+          path: ui
+          retention-days: 3
+
+  install:
+    name: install (region '${{ matrix.region }}')
+    needs: ui
+    runs-on: windows-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        region: ['', 'ch']
+    env:
+      VERSION: ${{ needs.ui.outputs.version }}
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          path: Klacks.Api
+
+      - name: Checkout Klacks.Plugin.Contracts
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Plugin.Contracts
+          path: Klacks.Plugin.Contracts
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Plugin.Messaging
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Plugin.Messaging
+          path: Klacks.Plugin.Messaging
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Docs
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Docs
+          path: Klacks.Docs
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Api.SourceGenerators
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Api.SourceGenerators
+          path: Klacks.Api.SourceGenerators
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.ScheduleOptimizer
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.ScheduleOptimizer
+          path: Klacks.ScheduleOptimizer
+
+      - name: Checkout Klacks.ScheduleRecovery
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.ScheduleRecovery
+          path: Klacks.ScheduleRecovery
+
+      - name: Checkout Klacks.Updater
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Updater
+          path: Klacks.Updater
+
+      - name: Checkout pgvector
+        uses: actions/checkout@v4
+        with:
+          repository: pgvector/pgvector
+          ref: ${{ env.PGVECTOR_TAG }}
+          path: pgvector
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Download UI
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-dist
+          path: ui
+
+      - name: Signing key
+        shell: pwsh
+        env:
+          PRIV_B64: ${{ secrets.UPDATE_SIGNATURE_PRIVATE_KEY_B64 }}
+        run: |
+          if (-not $env:PRIV_B64) { throw 'UPDATE_SIGNATURE_PRIVATE_KEY_B64 secret is not set.' }
+          $private = Join-Path $env:RUNNER_TEMP 'update_priv.pem'
+          [IO.File]::WriteAllBytes($private, [Convert]::FromBase64String($env:PRIV_B64))
+          $rsa = [Security.Cryptography.RSA]::Create()
+          $rsa.ImportFromPem((Get-Content -Raw $private))
+          [IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP 'update-public-key.pem'), $rsa.ExportSubjectPublicKeyInfoPem())
+          $rsa.Dispose()
+
+      - name: Build signed win-x64 bundle
+        shell: pwsh
+        env:
+          BUILD_KEY: ${{ inputs.mode == 'release' && github.sha || format('gate-{0}', github.run_id) }}
+        run: |
+          try {
+            & Klacks.Api/deploy/native/build-native-bundle.ps1 -Rid win-x64 -Version $env:VERSION `
+              -UiDist ui -OutputDirectory bundle -BundleBaseUrl "$env:RELEASE_DOWNLOAD_BASE/v$env:VERSION" `
+              -UpdaterProject Klacks.Updater/Klacks.Updater/Klacks.Updater.csproj -BuildKey $env:BUILD_KEY `
+              -SigningKeyPath (Join-Path $env:RUNNER_TEMP 'update_priv.pem')
+          }
+          finally {
+            Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $env:RUNNER_TEMP 'update_priv.pem')
+          }
+
+      - name: Download PostgreSQL binaries
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -UseBasicParsing -Uri $env:POSTGRES_BINARIES_URL -OutFile postgresql.zip
+          Expand-Archive postgresql.zip -DestinationPath postgres-extract
+          Move-Item postgres-extract/pgsql postgresql
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build pgvector
+        shell: cmd
+        run: |
+          set "PGROOT=%GITHUB_WORKSPACE%\postgresql"
+          cd pgvector
+          nmake /NOLOGO /F Makefile.win || exit /b 1
+          nmake /NOLOGO /F Makefile.win install || exit /b 1
+          if not exist "%PGROOT%\lib\vector.dll" exit /b 1
+
+      - name: Download Visual C++ redistributable
+        shell: pwsh
+        run: Invoke-WebRequest -UseBasicParsing -Uri $env:VC_REDIST_URL -OutFile vc_redist.x64.exe
+
+      - name: Build office-PC package
+        shell: pwsh
+        run: |
+          & Klacks.Api/deploy/native/windows/New-KlacksOfficePackage.ps1 `
+            -BundleZip "bundle/klacks-$env:VERSION-win-x64.zip" -BundleEntry "bundle/klacks-$env:VERSION-win-x64.json" `
+            -Version $env:VERSION -PostgresDirectory postgresql -VcRedistPath vc_redist.x64.exe `
+            -PublicKeyPath (Join-Path $env:RUNNER_TEMP 'update-public-key.pem') -OutputDirectory package
+
+      - name: Runtime identifier (proxy check)
+        shell: pwsh
+        run: |
+          # Proxy for the API's InstallationIdentityProvider: same .NET runtime family on the same runner.
+          $rid = [System.Runtime.InteropServices.RuntimeInformation]::RuntimeIdentifier
+          Write-Host "RuntimeIdentifier: $rid"
+          if ($rid -ne 'win-x64') { throw "RuntimeIdentifier is '$rid', the manifest entry says win-x64." }
+
+      - name: Install Klacks from the package (Installieren.cmd, Windows PowerShell 5.1)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # A folder name with a space and an umlaut, as on a German USB stick; [char] keeps the script ASCII-only.
+          $target = Join-Path $env:RUNNER_TEMP ('Test Ordner ' + [char]0x00C4)
+          Expand-Archive -Path "package\$env:PACKAGE_FILE" -DestinationPath $target
+          $env:KLACKS_NO_PAUSE = '1'
+          # Start-Process runs the .cmd the way a double-click does (cmd /c with the quoted path).
+          $launch = @{ FilePath = (Join-Path $target 'Installieren.cmd'); Wait = $true; PassThru = $true; NoNewWindow = $true }
+          if ('${{ matrix.region }}') { $launch.ArgumentList = @('-Region', '${{ matrix.region }}') }
+          $exitCode = (Start-Process @launch).ExitCode
+          Get-ChildItem $target -Filter 'Klacks-Installationsbericht-*.txt' | ForEach-Object { Get-Content $_.FullName }
+          if ($exitCode -ne 0) { throw "Installieren.cmd exited with $exitCode." }
+          $config = Get-Content -Raw "$env:ProgramData\Klacks\config\klacks.native.json" | ConvertFrom-Json
+          if (-not $config.Update.SignaturePublicKey) { throw 'The installation has no update signature key.' }
+          $vc = 'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\X64', 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64' |
+            ForEach-Object { Get-ItemProperty -Path $_ -ErrorAction SilentlyContinue } | Where-Object { $_.Installed -eq 1 }
+          if (-not $vc) { throw 'The Visual C++ runtime is not registered after the installation.' }
+
+      - name: Check services, UI, login and setup status
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $base = "http://127.0.0.1:$env:HTTP_PORT"
+          function Wait-Health($seconds) {
+            $deadline = (Get-Date).AddSeconds($seconds)
+            while ((Get-Date) -lt $deadline) {
+              try { if ((Invoke-WebRequest -UseBasicParsing "$base/internal/health/deep" -TimeoutSec 10).StatusCode -eq 200) { return } } catch { }
+              Start-Sleep -Seconds 5
+            }
+            throw "Klacks is not healthy after $seconds s."
+          }
+          Wait-Health 1800
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
+            $status = (Get-Service -Name $name).Status
+            Write-Host "$name : $status"
+            if ($status -ne 'Running') { throw "Service $name is $status." }
+          }
+          $users = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-32-545')
+          foreach ($path in "$env:ProgramData\Klacks", "$env:ProgramData\Klacks\pgdata", "$env:ProgramData\Klacks\backups") {
+            $open = (Get-Acl $path).Access | Where-Object { $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]) -eq $users }
+            if ($open) { throw "$path is accessible for all users." }
+          }
+          $index = Invoke-WebRequest -UseBasicParsing "$base/"
+          if ($index.Content -notmatch '<app-root') { throw 'The UI index is not served.' }
+          # Raw text on purpose: de.json holds keys that differ only in case ("delete"/"DELETE"), which PowerShell's
+          # JSON conversion rejects, so Invoke-RestMethod silently returns a plain string.
+          $i18n = (Invoke-WebRequest -UseBasicParsing "$base/assets/i18n/de.json").Content
+          if ($i18n -notmatch '"setup\.passwordRules"\s*:') { throw 'assets/i18n/de.json is missing or outdated.' }
+          $login = Invoke-RestMethod -Method Post -ContentType 'application/json' -Uri "$base/api/backend/Accounts/LoginUser" `
+            -Body (@{ email = $env:SEED_ADMIN_EMAIL; password = $env:SEED_ADMIN_PASSWORD } | ConvertTo-Json)
+          if (-not $login.token) { throw 'Login with the seeded admin returned no token.' }
+          $status = Invoke-RestMethod -Uri "$base/api/backend/Setup/Status" -Headers @{ Authorization = "Bearer $($login.token)" }
+          if (-not $status.requiresOwnAdmin) { throw 'Setup/Status does not require the own admin account.' }
+          if ($status.passwordPolicy.requiredLength -lt 8) { throw 'Setup/Status publishes no password policy.' }
+          Write-Host 'Login, UI and setup status OK.'
+
+      - name: Restart Klacks
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $service = Get-Service -Name Klacks
+          $service.Stop()
+          $service.WaitForStatus('Stopped', [TimeSpan]::FromMinutes(2))
+          $exitCode = (Get-CimInstance Win32_Service -Filter "Name='Klacks'").ExitCode
+          if ($exitCode -ne 0) { throw "A requested stop ended with exit code $exitCode." }
+          $service.Start()
+          $deadline = (Get-Date).AddMinutes(15)
+          while ((Get-Date) -lt $deadline) {
+            try { if ((Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$env:HTTP_PORT/internal/health/deep" -TimeoutSec 10).StatusCode -eq 200) { Write-Host 'Healthy after restart.'; exit 0 } } catch { }
+            Start-Sleep -Seconds 5
+          }
+          throw 'Klacks is not healthy after a restart.'
+
+      - name: Diagnostics report
+        if: always()
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path diagnostics | Out-Null
+          & .\Klacks.Api\deploy\native\windows\Get-KlacksDiagnostics.ps1 -ReportDirectory (Resolve-Path diagnostics).Path
+          Copy-Item -Recurse -ErrorAction SilentlyContinue "$env:ProgramData\Klacks\logs" diagnostics\logs
+
+      - name: Uninstall
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & .\Klacks.Api\deploy\native\windows\Uninstall-Klacks.ps1 -RemoveData
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
+            if (Get-Service -Name $name -ErrorAction SilentlyContinue) { throw "Service $name is still registered." }
+          }
+          if (Test-Path "$env:ProgramData\Klacks") { throw 'The data directory is still present after -RemoveData.' }
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostics-${{ matrix.region || 'default' }}
+          path: diagnostics
+          retention-days: 14
+
+      - name: Upload release payload
+        if: success() && matrix.region == ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-release-payload
+          path: |
+            bundle/klacks-${{ env.VERSION }}-win-x64.zip
+            bundle/klacks-${{ env.VERSION }}-win-x64.json
+            package/${{ env.PACKAGE_FILE }}
+          retention-days: 14
+
+  publish:
+    name: publish (${{ inputs.mode }})
+    needs: [ui, install]
+    if: ${{ inputs.mode != 'gate' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.ui.outputs.version }}
+      MODE: ${{ inputs.mode }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+
+      - name: Download release payload
+        uses: actions/download-artifact@v4
+        with:
+          name: native-release-payload
+          path: payload
+
+      - name: Public key
+        env:
+          PRIV_B64: ${{ secrets.UPDATE_SIGNATURE_PRIVATE_KEY_B64 }}
+        run: |
+          set -euo pipefail
+          echo "$PRIV_B64" | base64 -d > /tmp/update_priv.pem
+          openssl rsa -in /tmp/update_priv.pem -pubout > "$RUNNER_TEMP/update-public-key.pem"
+          rm -f /tmp/update_priv.pem
+
+      - name: Target release
+        id: target
+        run: |
+          set -euo pipefail
+          if [ "$MODE" = release ]; then
+            tag="v${VERSION}"
+            # deploy.yml creates the release and uploads stable.json after the Docker build; never create it here.
+            for attempt in $(seq 1 60); do
+              if gh release download "$tag" -R "$GITHUB_REPOSITORY" -p stable.json -O current-stable.json --clobber 2>/dev/null \
+                 && [ "$(jq -r .latestVersion current-stable.json)" = "$VERSION" ]; then
+                break
+              fi
+              if [ "$attempt" -eq 60 ]; then echo "::error::Release $tag has no stable.json for $VERSION after 60 minutes"; exit 1; fi
+              echo "Waiting for $tag/stable.json (attempt $attempt/60)"; sleep 60
+            done
+          else
+            tag="native-dryrun-${GITHUB_RUN_ID}"
+            curl -fsSL "https://github.com/HeribertG/Klacks.Api/releases/latest/download/stable.json" -o current-stable.json
+            gh release create "$tag" -R "$GITHUB_REPOSITORY" --draft --target "$GITHUB_SHA" \
+              --title "native dry run ${GITHUB_RUN_ID}" --notes "Rehearsal of the native publish; deleted at the end of the run."
+            mkdir -p dryrun && cp current-stable.json dryrun/stable.json
+            gh release upload "$tag" dryrun/stable.json -R "$GITHUB_REPOSITORY" --clobber
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Upload bundle and package
+        run: |
+          set -euo pipefail
+          gh release upload "${{ steps.target.outputs.tag }}" -R "$GITHUB_REPOSITORY" --clobber \
+            "payload/bundle/klacks-${VERSION}-win-x64.zip" "payload/package/${PACKAGE_FILE}"
+
+      - name: Download back and compare
+        run: |
+          set -euo pipefail
+          mkdir -p back
+          if [ "$MODE" = release ]; then
+            curl -fsSL "${RELEASE_DOWNLOAD_BASE}/v${VERSION}/klacks-${VERSION}-win-x64.zip" -o back/bundle.zip
+            curl -fsSL "https://github.com/HeribertG/Klacks.Api/releases/latest/download/${PACKAGE_FILE}" -o back/package.zip
+          else
+            gh release download "${{ steps.target.outputs.tag }}" -R "$GITHUB_REPOSITORY" -p "klacks-${VERSION}-win-x64.zip" -O back/bundle.zip
+            gh release download "${{ steps.target.outputs.tag }}" -R "$GITHUB_REPOSITORY" -p "${PACKAGE_FILE}" -O back/package.zip
+          fi
+          cmp back/bundle.zip "payload/bundle/klacks-${VERSION}-win-x64.zip"
+          cmp back/package.zip "payload/package/${PACKAGE_FILE}"
+          unzip -p back/package.zip "klacks-${VERSION}-win-x64.zip" | cmp - back/bundle.zip
+
+      - name: Merge native entry into stable.json
+        shell: pwsh
+        run: |
+          & ./deploy/native/Publish-NativeManifest.ps1 -ManifestPath current-stable.json `
+            -EntryPath "payload/bundle/klacks-$env:VERSION-win-x64.json" -BundlePath back/bundle.zip `
+            -PublicKeyPath (Join-Path $env:RUNNER_TEMP 'update-public-key.pem') -Version $env:VERSION `
+            -ExpectedBundleUrl "$env:RELEASE_DOWNLOAD_BASE/v$env:VERSION/klacks-$env:VERSION-win-x64.zip" `
+            -OutputPath merged-stable.json
+          Get-Content merged-stable.json
+
+      - name: Publish stable.json
+        run: |
+          set -euo pipefail
+          tag="${{ steps.target.outputs.tag }}"
+          mkdir -p out && cp merged-stable.json out/stable.json
+          gh release upload "$tag" out/stable.json -R "$GITHUB_REPOSITORY" --clobber
+          gh release download "$tag" -R "$GITHUB_REPOSITORY" -p stable.json -O published-stable.json --clobber
+          cmp published-stable.json merged-stable.json
+
+      - name: Upload publish evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-publish-evidence
+          path: |
+            current-stable.json
+            merged-stable.json
+            published-stable.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Delete dry-run release
+        if: always() && inputs.mode == 'release-dry-run' && steps.target.outputs.tag != ''
+        run: gh release delete "${{ steps.target.outputs.tag }}" -R "$GITHUB_REPOSITORY" --cleanup-tag --yes

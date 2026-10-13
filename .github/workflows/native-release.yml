@@ -1,0 +1,26 @@
+# .github/workflows/native-release.yml for Klacks.Api
+#
+# Stable release tags (vX.Y.Z, set only by scripts/release.ps1) also get the native Windows artifacts: signed bundle,
+# office-PC package and the artifacts.native entry in stable.json - published only after the install gate is green.
+# deploy.yml (Docker build, stable.json, Hetzner deploy) is not touched and does not wait for this workflow.
+
+name: Native release
+
+on:
+  push:
+    tags: ['v*']
+
+concurrency:
+  group: native-release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  native:
+    if: ${{ !contains(github.ref, '-') }}
+    uses: ./.github/workflows/native-windows.yml
+    with:
+      mode: release
+    secrets: inherit
