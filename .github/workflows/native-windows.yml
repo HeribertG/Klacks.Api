@@ -467,4 +467,5 @@ jobs:
 
       - name: Delete dry-run release
         if: always() && inputs.mode == 'release-dry-run' && steps.target.outputs.tag != ''
-        run: gh release delete "${{ steps.target.outputs.tag }}" -R "$GITHUB_REPOSITORY" --cleanup-tag --yes
+        # A draft release has no git tag yet, so there is no tag to clean up (--cleanup-tag answers 422).
+        run: gh release delete "${{ steps.target.outputs.tag }}" -R "$GITHUB_REPOSITORY" --yes
