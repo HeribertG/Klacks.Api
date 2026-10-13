@@ -2,7 +2,9 @@
 
 /// <summary>
 /// Lists available groups with optional canton filter via CalendarSelection and an optional
-/// validity filter (active / former / future).
+/// validity filter (active / former / future). The group description is deliberately not part of the result: it is free text
+/// written by supervisors, and this list runs on nearly every group turn, so the description is read where it is flagged as
+/// untrusted content (get_group_details).
 /// </summary>
 /// <param name="searchTerm">Optional search term to filter groups by name</param>
 /// <param name="rootOnly">If true, only return root-level groups</param>
@@ -94,7 +96,6 @@ public class ListGroupsSkill : BaseSkillImplementation
             {
                 g.Id,
                 g.Name,
-                g.Description,
                 g.Parent,
                 g.ValidFrom,
                 g.ValidUntil,

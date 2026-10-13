@@ -79,4 +79,21 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<List<Guid>> GetShiftIdsByClientAsync(Guid clientId, CancellationToken cancellationToken = default);
 
     Task<bool> HasWorksAfterDateForOrderTreeAsync(Guid sealedOrderId, DateOnly afterDate, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// What the family of a sealed order (the order, its plannable copy and every cut piece, found by OriginalId, scenario
+    /// clones excluded) is still used by: works of any kind that are not deleted, scenario clones of its shifts and
+    /// container references. Read-only.
+    /// </summary>
+    /// <param name="sealedOrderId">Id of the sealed order</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<OrderFamilyUsage> GetOrderFamilyUsageAsync(Guid sealedOrderId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Stages the soft delete of the given shifts together with their group links, default expenses and required
+    /// qualifications. Stage-only like Delete: the caller commits through the unit of work.
+    /// </summary>
+    /// <param name="shiftIds">Ids of the shifts to delete, as returned by GetOrderFamilyUsageAsync</param>
+    /// <param name="cancellationToken">Cancels the query that loads the shifts</param>
+    Task DeleteOrderFamilyAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
 }

@@ -72,6 +72,32 @@ public static class RecipeReplyGuard
     }
 
     /// <summary>
+    /// The finished yes/no proposal for a keyword-matched recipe, built without a model call: the authored goal
+    /// translation in a language that also has an authored question frame, with the Yes/No chip appended. Null when
+    /// the language has no frame or the recipe has no goal translation in it, so the caller falls back to the
+    /// model-phrased question instead of showing the raw English goal.
+    /// </summary>
+    /// <param name="goal">The recipe's English goal, used only for the frame's fallback text</param>
+    /// <param name="goalTranslations">The recipe's authored goal translations by language code</param>
+    /// <param name="language">Active language of the turn, or null when the turn carries none</param>
+    public static string? TryDeterministicProposal(
+        string goal, IReadOnlyDictionary<string, string>? goalTranslations, string? language)
+    {
+        if (goalTranslations == null || string.IsNullOrWhiteSpace(language) || language.Length < 2)
+        {
+            return null;
+        }
+
+        var prefix = language[..2].ToLowerInvariant();
+        if (!SingleFrames.ContainsKey(prefix) || FindTranslation(goalTranslations, prefix) == null)
+        {
+            return null;
+        }
+
+        return WithConfirmationChip(DeterministicConfirmation(goal, null, language, goalTranslations, null), null, language);
+    }
+
+    /// <summary>
     /// Appends the Yes/No answer chip to a single-recipe confirmation question so the reply reaches the
     /// engine as the language-free tokens "yes"/"no" instead of a typed word. The text is returned
     /// untouched when it already carries a REPLIES block, when two alternative flows were offered (the

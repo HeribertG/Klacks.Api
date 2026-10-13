@@ -3,7 +3,8 @@
 /// <summary>
 /// The recipe step at the top of a streamed tool-loop iteration: when the active recipe plan waits on the
 /// user's confirmation or on an ask step, the model is asked for that one question, its answer is streamed
-/// and the recipe is paused for the next turn. Yields nothing when no plan is waiting. The turn ends on the
+/// and the recipe is paused for the next turn. A keyword-matched recipe whose language has an authored goal
+/// translation skips the model call: the proposal is streamed straight from the deterministic frame. Yields nothing when no plan is waiting. The turn ends on the
 /// pause, which the caller reads from RecipeTurnState.PausedOnAsk. A stop request ends the step before the
 /// question is put, or cancels it while it runs; the recipe is then left exactly where it was.
 /// </summary>
@@ -45,6 +46,15 @@ internal static class RecipePauseStep
         enginePlan?.AdvanceOverSatisfied();
         if (enginePlan != null && enginePlan.NeedsConfirmation)
         {
+            var proposal = enginePlan.DeterministicConfirmationText(context.Language);
+            if (proposal != null)
+            {
+                turn.StreamedContent.Append(proposal);
+                yield return SseChunk.Content(proposal);
+                await recipe.PauseForConfirmationAsync(cancellationToken);
+                yield break;
+            }
+
             var confirmInstruction = enginePlan.ConfirmationInstruction;
             yield return SseChunk.Status(SseStatusStages.CallingModel, LLMService.ElapsedMsFor(context), turn.ToolIterations);
             if (turn.StopRequested)

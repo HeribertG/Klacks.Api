@@ -45,6 +45,33 @@ public class AgentSkillRepository : IAgentSkillRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyDictionary<string, string?>> GetRequiredPermissionsByNameAsync(
+        IReadOnlyCollection<string> skillNames, CancellationToken cancellationToken = default)
+    {
+        var requirements = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+        if (skillNames.Count == 0)
+        {
+            return requirements;
+        }
+
+        var names = skillNames.Select(name => name.ToLower()).ToList();
+        var rows = await _context.AgentSkills
+            .Where(s => s.IsEnabled && !s.IsDeleted && names.Contains(s.Name.ToLower()))
+            .OrderByDescending(s => s.Agent.IsDefault)
+            .ThenBy(s => s.SortOrder)
+            .ThenBy(s => s.AgentId)
+            .Select(s => new { s.Name, s.RequiredPermission })
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        foreach (var row in rows)
+        {
+            requirements.TryAdd(row.Name, row.RequiredPermission);
+        }
+
+        return requirements;
+    }
+
     public async Task<List<AgentSkill>> GetAllByAgentIdAsync(Guid agentId, CancellationToken cancellationToken = default)
     {
         return await _context.AgentSkills

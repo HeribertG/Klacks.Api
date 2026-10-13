@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
@@ -8,6 +9,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
+using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -40,6 +42,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
             request.Resource.Id, request.Resource.Name, request.Resource.MacroId, request.Resource.ClientId, request.Resource.Groups?.Count ?? 0);
 
         var shift = _scheduleMapper.ToShiftEntity(request.Resource);
+        await EnsureNotLockedAsync(shift);
         await KeepInheritedRequirementsAsync(shift, cancellationToken);
 
         var resultShift = await _shiftRepository.PutWithSealedOrderHandling(shift);
@@ -58,6 +61,28 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
             resultShift.Id, resultShift.Name, resultShift.Status);
 
         return _scheduleMapper.ToShiftResource(freshShift ?? resultShift);
+    }
+
+    /// <summary>
+    /// Refuses a save that changes content of a shift that is no longer a draft order, with the same fields the edit form
+    /// disables. The sealing save (stored draft order to sealed order) passes because the stored row is still a draft.
+    /// </summary>
+    /// <param name="incoming">Shift as mapped from the request</param>
+    private async Task EnsureNotLockedAsync(Shift incoming)
+    {
+        var stored = await _shiftRepository.GetNoTracking(incoming.Id);
+        if (stored == null)
+        {
+            return;
+        }
+
+        var lockedChanges = LockedShiftEditPolicy.FindLockedChanges(stored, incoming);
+        if (lockedChanges.Count > 0)
+        {
+            _logger.LogWarning("Shift update refused: Id={ShiftId}, Status={Status}, LockedFields={LockedFields}",
+                stored.Id, stored.Status, string.Join(',', lockedChanges));
+            throw ShiftLockedException.ForEdit(stored, lockedChanges);
+        }
     }
 
     /// <summary>

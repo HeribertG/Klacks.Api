@@ -5,7 +5,7 @@
 /// or synonyms appear as a substring in the given user message. Powers the keyword guarantee in
 /// SkillToolsetAssembler (skills literally named in the message outrank retrieval-only skills in the
 /// tool set, independent of embedding ranking — weak models must not depend on probabilistic
-/// retrieval) and the recipe over-match safety net in CompetingSkillIntentDetector.
+/// retrieval).
 /// Ranking under the guarantee cap: number of distinct matched terms first, then longest matched
 /// term, then read-only skills before mutating ones (per SkillRiskClassifier), then skill name as
 /// the final deterministic tiebreak.
@@ -181,59 +181,4 @@ public static class SkillMatchingEngine
 
         return RiskClassifier.Classify(descriptor) == SkillRiskClass.ReadOnly;
     }
-
-    // A multiword trigger phrase found verbatim in the message is a strong, deterministic signal
-    // that the user named this skill's action explicitly (single words over-fire on incidental
-    // vocabulary). Used by CompetingSkillIntentDetector to spot skill intents inside messages a
-    // recipe trigger has hijacked.
-    public static IReadOnlyList<string> MatchedMultiwordPhrases(AgentSkill skill, string userMessage, string? language)
-    {
-        if (string.IsNullOrWhiteSpace(userMessage))
-            return [];
-
-        var messageLower = userMessage.ToLowerInvariant();
-        var phrases = new List<string>();
-
-        foreach (var keyword in ParseKeywords(skill.TriggerKeywords))
-        {
-            CollectMultiwordPhrase(messageLower, keyword, phrases);
-        }
-
-        if (!string.IsNullOrEmpty(language) && skill.Synonyms != null)
-        {
-            foreach (var entry in skill.Synonyms)
-            {
-                if (!string.Equals(entry.Key, language, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                foreach (var synonym in entry.Value)
-                {
-                    CollectMultiwordPhrase(messageLower, synonym, phrases);
-                }
-            }
-        }
-
-        return phrases;
-    }
-
-    private static void CollectMultiwordPhrase(string messageLower, string? candidate, List<string> phrases)
-    {
-        if (string.IsNullOrWhiteSpace(candidate))
-            return;
-
-        var trimmed = candidate.Trim();
-        if (trimmed.Length < MinMatchLength || !trimmed.Contains(' '))
-            return;
-
-        if (messageLower.Contains(trimmed.ToLowerInvariant()))
-        {
-            phrases.Add(trimmed);
-        }
-    }
-
-    // Language-blind on purpose: every caller here searches the message for a literal substring, and
-    // a phrase of the wrong language simply does not occur in it. The same holds for the synonyms the
-    // callers iterate across all languages, so grouping the keywords by language changes nothing here.
-    private static IReadOnlyList<string> ParseKeywords(string? json) =>
-        TriggerKeywordFormat.ReadFlat(json);
 }

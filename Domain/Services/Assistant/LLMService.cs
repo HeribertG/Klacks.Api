@@ -651,15 +651,14 @@ public class LLMService : ILLMService
             enginePlan?.AdvanceOverSatisfied();
             if (enginePlan != null && enginePlan.NeedsConfirmation)
             {
-                var confirmInstruction = enginePlan.ConfirmationInstruction;
-                var confirmRequest = LLMProviderRequestFactory.RecipeStep(
-                    ctx.Model, currentMessage, ctx.SystemPrompt, ctx.VolatilePrompt, confirmInstruction, runningHistory);
-
-                lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, confirmRequest, ctx.CancellationToken);
+                var proposal = enginePlan.DeterministicConfirmationText(ctx.Context.Language);
+                lastResponse = proposal != null ? new LLMProviderResponse { Content = proposal }
+                    : await ProcessWithTransientRetryAsync(ctx.Provider, LLMProviderRequestFactory.RecipeStep(
+                        ctx.Model, currentMessage, ctx.SystemPrompt, ctx.VolatilePrompt, enginePlan.ConfirmationInstruction, runningHistory), ctx.CancellationToken);
                 LLMUsageAccumulator.Add(ctx.TotalUsage, lastResponse.Usage);
                 if (lastResponse.Success)
                 {
-                    responseContent = RecipeReplyGuard.WithConfirmationChip(RecipeReplyGuard.SafeConfirmation(
+                    responseContent = proposal ?? RecipeReplyGuard.WithConfirmationChip(RecipeReplyGuard.SafeConfirmation(
                         lastResponse.Content, enginePlan.Goal, enginePlan.AlternativeGoal, ctx.Context.Language,
                         enginePlan.GoalTranslations, enginePlan.AlternativeGoalTranslations), enginePlan.AlternativeGoal, ctx.Context.Language);
                 }

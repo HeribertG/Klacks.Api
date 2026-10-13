@@ -2,7 +2,9 @@
 
 /// <summary>
 /// Returns the group tree starting from rootId (or all roots if omitted) with depth-level
-/// information, so the LLM can reason about parent / child relationships instead of a flat list.
+/// information, so the LLM can reason about parent / child relationships instead of a flat list. The group description is
+/// deliberately not part of the result (supervisor-written free text, read through get_group_details where it is flagged
+/// as untrusted content).
 /// </summary>
 /// <param name="rootId">Optional. UUID of the subtree root; all roots if omitted.</param>
 /// <param name="maxDepth">Optional. Max depth from root (1-based); unlimited if omitted.</param>
@@ -51,7 +53,6 @@ public class ListGroupsHierarchicalSkill : BaseSkillImplementation
             {
                 g.Id,
                 g.Name,
-                g.Description,
                 g.Parent,
                 ParentName = g.Parent.HasValue && byId.TryGetValue(g.Parent.Value, out var p) ? p.Name : null,
                 Depth = ComputeDepth(g, byId),

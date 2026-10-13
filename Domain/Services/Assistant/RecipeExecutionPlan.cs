@@ -13,10 +13,11 @@
 /// <param name="steps">The ordered steps (deserialized from the recipe definition).</param>
 /// <param name="slots">The slot bag, pre-filled at recipe start and on resume.</param>
 /// <param name="stepIndex">The step to resume at (0 for a fresh recipe).</param>
-/// <param name="needsConfirmation">True when the recipe was matched via the semantic fallback (not an explicit trigger keyword) and must be confirmed by the user before its steps are forced.</param>
+/// <param name="needsConfirmation">True while the recipe awaits the user's go-ahead: a freshly matched recipe always does, whether a trigger keyword or the semantic fallback found it, and its steps are forced only after the user confirmed.</param>
 /// <param name="goal">The recipe's English goal description, surfaced to the model when phrasing the confirmation question.</param>
 /// <param name="alternativeGoal">Goal of a semantically almost-as-close second recipe, surfaced in the confirmation question so the user can pick between the two instead of the engine silently choosing.</param>
 /// <param name="captureRewindUsed">True when a prior turn already spent this plan's one-shot ambiguous-capture rewind; restored on resume so the guard is not re-armed each turn.</param>
+/// <param name="matchedByMeaning">True when the semantic fallback found the recipe (no trigger keyword); selects the confirmation wording and keeps the model-phrased question, because the deterministic proposal is only for a keyword match. Not persisted: a resumed plan reads as a keyword match.</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -51,9 +52,11 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         bool captureRewindUsed = false,
         IReadOnlyDictionary<string, string>? goalTranslations = null,
         IReadOnlyDictionary<string, string>? alternativeGoalTranslations = null,
-        string? triggerMessage = null)
+        string? triggerMessage = null,
+        bool matchedByMeaning = false)
     {
         Name = name;
+        MatchedByMeaning = matchedByMeaning;
         Goal = string.IsNullOrWhiteSpace(goal) ? name : goal;
         AlternativeGoal = string.IsNullOrWhiteSpace(alternativeGoal) ? null : alternativeGoal;
         GoalTranslations = goalTranslations;
@@ -115,10 +118,32 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         AmbiguousReplyNote = note;
     }
 
+    /// <summary>
+    /// True when the semantic fallback found this recipe, i.e. the message carries no trigger phrase of it. Only set on
+    /// the turn that matched; it is not persisted.
+    /// </summary>
+    public bool MatchedByMeaning { get; }
+
+    /// <summary>
+    /// The finished proposal question, chip included, for a recipe a trigger keyword found, or null when the model has to
+    /// phrase it: a semantic match (its question explains the guess), two competing flows, a re-asked question after an
+    /// ambiguous reply (the model carries the note that asks for an unambiguous yes or no), or a language whose authored
+    /// goal translation or frame is missing. Lets the keyword path skip the model call, which on a slow provider is
+    /// the dominant cost of the added confirmation turn.
+    /// </summary>
+    /// <param name="language">Active language of the turn, or null when the turn carries none</param>
+    public string? DeterministicConfirmationText(string? language) =>
+        MatchedByMeaning || AlternativeGoal != null || !string.IsNullOrWhiteSpace(AmbiguousReplyNote)
+            ? null
+            : RecipeReplyGuard.TryDeterministicProposal(Goal, GoalTranslations, language);
+
     private string BaseConfirmationInstruction => AlternativeGoal == null
         ? string.Format(
             System.Globalization.CultureInfo.InvariantCulture,
-            RecipeEngineDefaults.ConfirmationStepInstructionTemplate, Goal)
+            MatchedByMeaning
+                ? RecipeEngineDefaults.ConfirmationStepInstructionTemplate
+                : RecipeEngineDefaults.ConfirmationStepKeywordInstructionTemplate,
+            Goal)
         : string.Format(
             System.Globalization.CultureInfo.InvariantCulture,
             RecipeEngineDefaults.ConfirmationStepWithAlternativeInstructionTemplate, Goal, AlternativeGoal);

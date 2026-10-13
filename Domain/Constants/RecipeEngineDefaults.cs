@@ -20,6 +20,19 @@ public static class RecipeEngineDefaults
         "trigger phrase: {0} Ask the user, in their own language, a short yes/no question confirming " +
         "whether they want you to start this flow. Do NOT call any tool and do NOT start the flow yet.";
 
+    public const string ConfirmationStepKeywordInstructionTemplate =
+        "RECIPE CONFIRMATION — The user's message matches a guided flow: {0} Ask the user, in their own " +
+        "language, a short yes/no question confirming whether they want you to start this flow. Do NOT " +
+        "call any tool and do NOT start the flow yet.";
+
+    public const string RecipeDeniedNoteTemplate =
+        "[GUIDED FLOW NOT AVAILABLE — The request matches the guided flow \"{0}\", but this user's account " +
+        "lacks the permission it needs ({1}). Do not start it and do not say or imply that anything was done. " +
+        "Tell the user plainly that their account is not allowed to do this and that someone with the right " +
+        "permission has to do it; do not quote the internal permission names.]";
+
+    public const string RecipeDeniedRightsSeparator = ", ";
+
     public const string GateHoldEndsRecipeNote =
         "\n\n[RECIPE ENDED — a step needed the user's explicit confirmation, so the guided flow was " +
         "stopped. Only the single confirmed action will run. Tell the user which remaining steps of " +

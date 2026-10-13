@@ -16,6 +16,18 @@ public interface IAgentSkillRepository
     /// </summary>
     Task<List<AgentSkill>> GetAllEnabledTrackedAsync(CancellationToken cancellationToken = default);
     Task<List<AgentSkill>> GetEnabledAsync(Guid agentId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The RequiredPermission of the named enabled skills, a name-only projection so the recipe rights check does not
+    /// read whole skill rows. A skill that is not enabled or does not exist is absent from the result; a skill without a
+    /// requirement maps to null or an empty string. Names are matched case-insensitively, in the database as well as in
+    /// the returned dictionary. When several agents carry a skill of the same name, the default agent's row decides, then
+    /// the lowest sort order, so the answer does not depend on row order.
+    /// </summary>
+    /// <param name="skillNames">Names of the skills whose requirement is wanted</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<IReadOnlyDictionary<string, string?>> GetRequiredPermissionsByNameAsync(
+        IReadOnlyCollection<string> skillNames, CancellationToken cancellationToken = default);
     Task<List<AgentSkill>> GetAllByAgentIdAsync(Guid agentId, CancellationToken cancellationToken = default);
     Task<AgentSkill?> GetByNameAsync(Guid agentId, string name, CancellationToken cancellationToken = default);
     Task<AgentSkill?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

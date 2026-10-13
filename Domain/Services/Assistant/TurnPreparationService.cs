@@ -73,7 +73,18 @@ public class TurnPreparationService : ITurnPreparationService
         var plan = await ResolveOrResumeRecipeAsync(
             request.Context, request.Provider, request.Model, request.ConversationId, force, cancellationToken);
 
-        return new TurnPreparation(plan, force, confirmFunction, note);
+        return new TurnPreparation(plan, force, confirmFunction, note ?? BuildRecipeDeniedNote(plan, request.Context.RecipeDenial));
+    }
+
+    private static string? BuildRecipeDeniedNote(RecipeExecutionPlan? plan, RecipeDenial? denial)
+    {
+        return plan != null || denial == null
+            ? null
+            : string.Format(
+                System.Globalization.CultureInfo.InvariantCulture,
+                RecipeEngineDefaults.RecipeDeniedNoteTemplate,
+                denial.Goal,
+                string.Join(RecipeEngineDefaults.RecipeDeniedRightsSeparator, denial.MissingRights));
     }
 
     // (a) Moved verbatim from LLMService.cs:133-174, including its summary comment.
@@ -225,6 +236,7 @@ public class TurnPreparationService : ITurnPreparationService
         }
 
         var resumed = await _recipeEngine.ResumeAsync(userGuid, conversationId, cancellationToken);
+        string? declinedRecipe = null;
         if (resumed != null)
         {
             if (resumed.NeedsConfirmation)
@@ -239,6 +251,7 @@ public class TurnPreparationService : ITurnPreparationService
                 if (!gateAnswer.IsConfirmed)
                 {
                     context.RecipeConfirmationDeclined = true;
+                    declinedRecipe = DeclineDetector.LeadsWithNegation(context.Message, context.Language) ? resumed.Name : null;
                     await _recipeRunRecorder.AbortRunningAsync(
                         resumed.Name, userGuid, conversationId, RecipeAbortReasons.ConfirmationDeclined, cancellationToken);
                     _recipeEngine.Clear(userGuid, conversationId);
@@ -329,7 +342,16 @@ public class TurnPreparationService : ITurnPreparationService
             return null;
         }
 
-        var fresh = await _recipeEngine.ResolveAsync(context.Message, context.Language, context.UserRights, cancellationToken);
+        // A recipe the user just declined is excluded from this re-match: "No, rather create it differently"
+        // names the same subject and would otherwise raise the very same proposal again in the same breath. Only a reply
+        // that leads with a negation (language-gated, so a word the languages disagree about never counts) declines. Any
+        // other reply that is not a yes - an unrelated question, the data a flow asked for, a fuller version of the same
+        // request - discards the pending question without excluding the recipe, so the re-match may offer it again with
+        // the slots the new message carries.
+        var resolution = await _recipeEngine.ResolveWithDenialAsync(
+            context.Message, context.Language, context.UserRights, cancellationToken, declinedRecipe);
+        context.RecipeDenial = resolution.Denial;
+        var fresh = resolution.Plan;
         if (fresh != null)
         {
             var extracted = await ExtractSlotsAsync(

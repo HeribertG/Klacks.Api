@@ -18758,7 +18758,7 @@
     {
       "name": "update_shift",
       "area": "shift",
-      "description": "Updates an existing shift, patching only the fields you pass (name, abbreviation, description, start/end time, headcount, validity dates, weekdays) — everything else is kept. Refuses if the shift has cuts (a sub-shift tree). Warns if the shift already has works, since changing times/weekdays re-defines them. Use list_shifts / read_schedule_state to find the shiftId.",
+      "description": "Updates a draft order, patching only the fields you pass (name, abbreviation, description, start/end time, headcount, validity dates, weekdays) — everything else is kept. A sealed order, a plannable shift or a cut piece keeps its content and refuses every change except a first end date; the times of plannable shifts and cut pieces are changed in the cut editor. Warns if the shift already has works, since changing times/weekdays re-defines them. Takes the shift id from a previous search result.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18891,12 +18891,12 @@
         "fr": "Modifier un service",
         "it": "Modifica un turno"
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "delete_shift",
       "area": "shift",
-      "description": "Soft-deletes a shift. Refuses if the shift has cuts (a sub-shift tree) or still has works assigned (those must be reassigned/removed first), reporting the manual action needed. Use search_shifts / read_schedule_state to find the shiftId.",
+      "description": "Soft-deletes a draft order. A plannable shift and a cut piece cannot be deleted; a sealed order can only be deleted by an administrator, together with all its pieces, and only while no work exists anywhere in the order. Refuses if the shift has cuts (a sub-shift tree) or still has works assigned (those must be reassigned/removed first), reporting the manual action needed. Takes the shift id from a previous search result.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18953,7 +18953,7 @@
         "fr": "Supprimer un service",
         "it": "Elimina un turno"
       },
-      "version": 5
+      "version": 7
     },
     {
       "name": "email_schedule_to_client",

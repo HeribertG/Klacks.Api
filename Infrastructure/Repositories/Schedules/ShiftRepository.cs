@@ -734,4 +734,58 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .Where(w => !w.IsDeleted && w.AnalyseToken == null && shiftIdsInTree.Contains(w.ShiftId) && w.CurrentDate > afterDate)
             .AnyAsync(cancellationToken);
     }
+
+    public async Task<OrderFamilyUsage> GetOrderFamilyUsageAsync(Guid sealedOrderId, CancellationToken cancellationToken = default)
+    {
+        var shiftIds = await context.Shift
+            .AsNoTracking()
+            .Where(s => (s.Id == sealedOrderId || s.OriginalId == sealedOrderId)
+                && s.AnalyseToken == null
+                && s.ScenarioSourceShiftId == null)
+            .Select(s => s.Id)
+            .ToListAsync(cancellationToken);
+
+        var hasWorks = await context.Work
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .AnyAsync(w => !w.IsDeleted && shiftIds.Contains(w.ShiftId), cancellationToken);
+
+        var hasScenarioClones = await context.Shift
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .AnyAsync(s => !s.IsDeleted && s.ScenarioSourceShiftId.HasValue && shiftIds.Contains(s.ScenarioSourceShiftId.Value), cancellationToken);
+
+        var hasContainerReferences =
+            await context.ContainerTemplateItem
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .AnyAsync(i => !i.IsDeleted && i.ShiftId.HasValue && shiftIds.Contains(i.ShiftId.Value), cancellationToken)
+            || await context.ContainerShiftOverrideItems
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .AnyAsync(i => !i.IsDeleted && i.ShiftId.HasValue && shiftIds.Contains(i.ShiftId.Value), cancellationToken);
+
+        return new OrderFamilyUsage(shiftIds, hasWorks, hasScenarioClones, hasContainerReferences);
+    }
+
+    public async Task DeleteOrderFamilyAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var ids = shiftIds.ToList();
+        var shifts = await context.Shift
+            .Include(s => s.GroupItems)
+            .Include(s => s.ShiftExpenses)
+            .Include(s => s.RequiredQualifications)
+            .AsSplitQuery()
+            .Where(s => ids.Contains(s.Id))
+            .ToListAsync(cancellationToken);
+
+        var preferences = await context.ClientShiftPreference
+            .Where(p => ids.Contains(p.ShiftId))
+            .ToListAsync(cancellationToken);
+
+        context.ClientShiftPreference.RemoveRange(preferences);
+        context.Shift.RemoveRange(shifts);
+
+        Logger.LogInformation("Order family deleted: {ShiftCount} shift(s), {PreferenceCount} shift preference(s)", shifts.Count, preferences.Count);
+    }
 }

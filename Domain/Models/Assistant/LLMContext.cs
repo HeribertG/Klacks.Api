@@ -150,6 +150,13 @@ public class LLMContext
     public bool RecipeConfirmationDeclined { get; set; }
 
     /// <summary>
+    /// The recipe this turn's message matched but the user may not run because a step skill needs a right the user lacks
+    /// (TurnPreparationService). Null on every turn that found nothing to refuse. Turn-scoped on purpose: it lives on the
+    /// context, not on the recipe engine, which can serve several turns.
+    /// </summary>
+    public RecipeDenial? RecipeDenial { get; set; }
+
+    /// <summary>
     /// Volatile system note of a correction turn: what the previous turn called, what the user
     /// corrected, the language to answer in and the pre-formulated opening sentence the answer must
     /// carry. Null on every ordinary turn. Set by both chat entry points before ILLMService runs,

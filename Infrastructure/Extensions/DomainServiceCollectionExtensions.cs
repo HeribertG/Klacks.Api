@@ -137,6 +137,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IShiftTreeService, ShiftTreeService>();
         services.AddScoped<IShiftResetService, ShiftResetService>();
         services.AddScoped<IShiftCutFacade, ShiftCutFacade>();
+        services.AddScoped<ISealedOrderFamilyDeletion, SealedOrderFamilyDeletion>();
         services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
         services.AddScoped<IShiftGroupFilterService, ShiftGroupFilterService>();
         services.AddScoped<ISelectedGroupContextResolver, SelectedGroupContextResolver>();

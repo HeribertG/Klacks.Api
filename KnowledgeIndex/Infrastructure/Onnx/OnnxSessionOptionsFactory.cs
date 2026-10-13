@@ -87,9 +87,8 @@ public static class OnnxSessionOptionsFactory
     /// on a 10-core host.
     /// Applying this to the reranker does NOT reintroduce the startup out-of-memory the frugal profile
     /// exists to prevent: that failure comes from embedding the whole index in one bulk pass, and the
-    /// reranker never participates in it. Its only callers are KnowledgeRetrievalService and
-    /// RecipeSkillMarginEvaluator, both per-request and both bounded by MaxRerankerCandidates (25), so
-    /// the activation tensor stays small no matter how large the index grows.
+    /// reranker never participates in it. Its request-path caller is KnowledgeRetrievalService, which is per-request and
+    /// bounded by MaxRerankerCandidates (25), so the activation tensor stays small no matter how large the index grows.
     /// Do NOT hand this to the embedding provider without re-testing memory: KnowledgeIndexSynchronizer
     /// drives it over every row of the index at startup, which is exactly the unbounded case. Since
     /// the embedder moved to fp16 that is no longer merely risky but fatal - see the note above.

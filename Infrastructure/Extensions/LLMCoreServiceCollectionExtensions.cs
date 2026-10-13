@@ -301,8 +301,6 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IMemoryRelationBuilder, Application.Services.Assistant.MemoryGraph.MemoryRelationBuilder>();
         services.AddScoped<ContextAssemblyPipeline>();
         services.AddScoped<RecipeEngineService>();
-        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ICompetingSkillIntentDetector, Application.Services.Assistant.CompetingSkillIntentDetector>();
-        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IRecipeSkillMarginEvaluator, Application.Services.Assistant.RecipeSkillMarginEvaluator>();
         services.AddScoped<RecipeSlotExtractor>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IRuleContextProvider, Domain.Services.Assistant.RuleContextProvider>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IPlanningScopeEnricher, Application.Services.Assistant.PlanningScopeEnricher>();

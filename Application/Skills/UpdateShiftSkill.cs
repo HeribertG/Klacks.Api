@@ -2,12 +2,14 @@
 
 /// <summary>
 /// Updates an existing shift by PATCHING only the supplied fields onto the current shift (loaded
-/// first, so unspecified fields — times, weekdays, groups, expenses — are preserved). For a cut
-/// parent (a nested-set subtree) structural edits (times / weekdays / dates / headcount) are refused
-/// and routed to the cut editor — each cut child defines its own times, so propagating structure
-/// would destroy the cuts; only metadata (name / abbreviation / description) is propagated across all
-/// members of the cut group. Warns when the shift already has works, since changing its times/weekdays
-/// re-defines those works. Dispatches PutCommand&lt;ShiftResource&gt;.
+/// first, so unspecified fields — times, weekdays, groups, expenses — are preserved). Warns when the shift already has
+/// works, since changing its times/weekdays re-defines those works. Dispatches PutCommand&lt;ShiftResource&gt;.
+/// Only a draft order can be changed freely: for a sealed order, a plannable shift (the root of a cut group) and a cut piece
+/// the shift handler refuses every change to the locked content with ShiftLockedException (see LockedShiftEditPolicy), so
+/// the model gets a plain rejection that names the fields and, for plannable shifts and cut pieces, points to the cut
+/// editor. Nothing is propagated across a cut group: every member of a cut group has a locked status, so a propagation
+/// could never succeed and the name of a cut piece is not changed here. A shift with cuts also refuses an end date of its
+/// own (its pieces keep their dates, so the group would not end) and points to the cut editor's Reset.
 /// </summary>
 /// <param name="shiftId">Required. UUID of the shift to update.</param>
 /// <param name="name">Optional. New name.</param>
@@ -79,31 +81,17 @@ public class UpdateShiftSkill : BaseSkillImplementation
         var untilDate = GetParameter<DateOnly?>(parameters, "untilDate");
         var weekdays = GetParameter<string>(parameters, "weekdays");
 
-        var metadataChanged = !string.IsNullOrWhiteSpace(name)
-            || !string.IsNullOrWhiteSpace(abbreviation)
-            || description != null;
+        if (untilDate.HasValue && existing.Lft.HasValue && existing.Rgt.HasValue && existing.Rgt - existing.Lft > 1)
+        {
+            return SkillResult.Error("This shift has cuts (a sub-shift tree). An end date on the shift alone would leave its cut pieces running, because every piece keeps its own dates. End the whole group via the cut editor's 'Reset' instead.");
+        }
+
         var structuralChanged = !string.IsNullOrWhiteSpace(startRaw)
             || !string.IsNullOrWhiteSpace(endRaw)
             || (sumEmployees.HasValue && sumEmployees.Value > 0)
             || fromDate.HasValue
             || untilDate.HasValue
             || !string.IsNullOrWhiteSpace(weekdays);
-
-        var isCutParent = existing.Lft.HasValue && existing.Rgt.HasValue && existing.Rgt - existing.Lft > 1;
-
-        if (isCutParent)
-        {
-            if (structuralChanged)
-            {
-                return SkillResult.Error("This shift has cuts (a sub-shift tree). Structural edits (times / weekdays / dates / headcount) of a cut parent must be made in the cut editor, because each cut defines its own times — only name, abbreviation and description can be changed here.");
-            }
-            if (!metadataChanged)
-            {
-                return SkillResult.Error("Provide a name, abbreviation or description to update.");
-            }
-
-            return await PropagateMetadataAsync(existing, name, abbreviation, description, cancellationToken);
-        }
 
         var resource = _scheduleMapper.ToShiftResource(existing);
         ApplyMetadata(resource, name, abbreviation, description);
@@ -130,33 +118,6 @@ public class UpdateShiftSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(
             new { result.Id, result.Name, StartShift = result.StartShift.ToString(@"hh\:mm"), EndShift = result.EndShift.ToString(@"hh\:mm") },
             $"Shift '{result.Name}' updated.{worksNote}");
-    }
-
-    private async Task<SkillResult> PropagateMetadataAsync(
-        Domain.Models.Schedules.Shift existing,
-        string? name,
-        string? abbreviation,
-        string? description,
-        CancellationToken cancellationToken)
-    {
-        var groupKey = existing.OriginalId ?? existing.Id;
-        var members = await _shiftRepository.CutList(groupKey, tracked: false);
-        if (members.All(m => m.Id != existing.Id))
-        {
-            members.Add(existing);
-        }
-
-        foreach (var member in members)
-        {
-            var memberResource = _scheduleMapper.ToShiftResource(member);
-            ApplyMetadata(memberResource, name, abbreviation, description);
-            await _mediator.Send(new PutCommand<ShiftResource>(memberResource), cancellationToken);
-        }
-
-        var displayName = string.IsNullOrWhiteSpace(name) ? existing.Name : name.Trim();
-        return SkillResult.SuccessResult(
-            new { existing.Id, Name = displayName, UpdatedMembers = members.Count },
-            $"Metadata of '{displayName}' propagated across {members.Count} cut-group member(s).");
     }
 
     private static void ApplyMetadata(ShiftResource resource, string? name, string? abbreviation, string? description)
