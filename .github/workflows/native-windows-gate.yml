@@ -215,8 +215,10 @@ jobs:
           }
           $index = Invoke-WebRequest -UseBasicParsing "$base/"
           if ($index.Content -notmatch '<app-root') { throw 'The UI index is not served.' }
-          $i18n = Invoke-RestMethod "$base/assets/i18n/de.json"
-          if (-not $i18n.'setup.passwordRules') { throw 'assets/i18n/de.json is missing or outdated.' }
+          # Raw text on purpose: de.json holds keys that differ only in case ("delete"/"DELETE"), which PowerShell's
+          # JSON conversion rejects, so Invoke-RestMethod silently returns a plain string.
+          $i18n = (Invoke-WebRequest -UseBasicParsing "$base/assets/i18n/de.json").Content
+          if ($i18n -notmatch '"setup\.passwordRules"\s*:') { throw 'assets/i18n/de.json is missing or outdated.' }
           $login = Invoke-RestMethod -Method Post -ContentType 'application/json' -Uri "$base/api/backend/Accounts/LoginUser" `
             -Body (@{ email = $env:SEED_ADMIN_EMAIL; password = $env:SEED_ADMIN_PASSWORD } | ConvertTo-Json)
           if (-not $login.token) { throw 'Login with the seeded admin returned no token.' }

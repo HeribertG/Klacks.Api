@@ -174,7 +174,8 @@ Add-Section 'Database' {
         'select (select count(1) from "__EFMigrationsHistory") as migrations, ' +
         '(select max(migration_id) from "__EFMigrationsHistory") as last_migration, ' +
         '(select count(1) from knowledge_index) as index_rows, (select count(1) from agent_skills) as skills, ' +
-        'current_setting(''TimeZone'') as time_zone, current_setting(''lc_collate'') as collation;')
+        'current_setting(''TimeZone'') as time_zone, ' +
+        '(select datcollate from pg_database where datname = current_database()) as collation;')
     $env:PGPASSWORD = (Get-Content -Raw $secretsFile | ConvertFrom-Json).DatabasePassword
     try {
         & $psql -h localhost -p $PostgresPort -U $PostgresUser -d $DatabaseName -x -f $queryFile
