@@ -362,7 +362,8 @@ jobs:
     needs: [ui, install]
     if: ${{ inputs.mode != 'gate' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    # deploy.yml needs about 77 min from the tag to stable.json (v1.0.41, v1.0.42); the wait below allows 150 min.
+    timeout-minutes: 200
     permissions:
       contents: write
     env:
@@ -395,13 +396,13 @@ jobs:
           if [ "$MODE" = release ]; then
             tag="v${VERSION}"
             # deploy.yml creates the release and uploads stable.json after the Docker build; never create it here.
-            for attempt in $(seq 1 60); do
+            for attempt in $(seq 1 150); do
               if gh release download "$tag" -R "$GITHUB_REPOSITORY" -p stable.json -O current-stable.json --clobber 2>/dev/null \
                  && [ "$(jq -r .latestVersion current-stable.json)" = "$VERSION" ]; then
                 break
               fi
-              if [ "$attempt" -eq 60 ]; then echo "::error::Release $tag has no stable.json for $VERSION after 60 minutes"; exit 1; fi
-              echo "Waiting for $tag/stable.json (attempt $attempt/60)"; sleep 60
+              if [ "$attempt" -eq 150 ]; then echo "::error::Release $tag has no stable.json for $VERSION after 150 minutes"; exit 1; fi
+              echo "Waiting for $tag/stable.json (attempt $attempt/150)"; sleep 60
             done
           else
             tag="native-dryrun-${GITHUB_RUN_ID}"
