@@ -432,16 +432,9 @@ public class ChatController : ControllerBase
     [HttpGet("functions")]
     public async Task<ActionResult<object>> GetAvailableFunctions()
     {
-        var userRights = GetCurrentUserRights();
-        var agent = await _agentRepository.GetDefaultAgentAsync();
-
-        if (agent == null)
-            return Ok(Array.Empty<object>());
-
-        var skills = await _agentSkillRepository.GetEnabledAsync(agent.Id);
+        var skills = await GetEnabledSkillsOfCurrentUserAsync();
 
         var filtered = skills
-            .Where(s => Permissions.HasAllRequiredPermissions(userRights, s.RequiredPermission))
             .Select(s => new { s.Name, s.Description, s.ExecutionType, s.Category })
             .ToList();
 
@@ -451,27 +444,38 @@ public class ChatController : ControllerBase
     [HttpGet("function-definitions")]
     public async Task<ActionResult<object>> GetFunctionDefinitions()
     {
+        var skills = await GetEnabledSkillsOfCurrentUserAsync();
+
+        var result = skills
+            .Select(s => new
+            {
+                s.Id,
+                s.Name,
+                s.Description,
+                s.ParametersJson,
+                s.RequiredPermission,
+                s.ExecutionType,
+                s.Category,
+                s.IsEnabled,
+                s.SortOrder
+            });
+
+        return Ok(result);
+    }
+
+    private async Task<IReadOnlyList<AgentSkill>> GetEnabledSkillsOfCurrentUserAsync()
+    {
+        var userRights = GetCurrentUserRights();
         var agent = await _agentRepository.GetDefaultAgentAsync();
 
         if (agent == null)
-            return Ok(Array.Empty<object>());
+            return Array.Empty<AgentSkill>();
 
         var skills = await _agentSkillRepository.GetEnabledAsync(agent.Id);
 
-        var result = skills.Select(s => new
-        {
-            s.Id,
-            s.Name,
-            s.Description,
-            s.ParametersJson,
-            s.RequiredPermission,
-            s.ExecutionType,
-            s.Category,
-            s.IsEnabled,
-            s.SortOrder
-        });
-
-        return Ok(result);
+        return skills
+            .Where(s => Permissions.HasAllRequiredPermissions(userRights, s.RequiredPermission))
+            .ToList();
     }
 
     [HttpPost("execute-function")]

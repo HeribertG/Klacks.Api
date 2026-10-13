@@ -16,6 +16,7 @@
 /// <param name="existing">The already-loaded entries to merge into</param>
 /// <param name="added">Newly loaded plugin phrases to normalize and add</param>
 
+using System.Globalization;
 using System.Text;
 
 namespace Klacks.Api.Domain.Services.Assistant;
@@ -30,6 +31,12 @@ public static class PluginPhraseMatcher
     private const char HanRangeEnd = '\u9FFF';
     private const char HanCompatibilityRangeStart = '\uF900';
     private const char HanCompatibilityRangeEnd = '\uFAFF';
+    private const char HangulJamoStart = '\u1100';
+    private const char HangulJamoEnd = '\u11FF';
+    private const char HangulCompatibilityJamoStart = '\u3130';
+    private const char HangulCompatibilityJamoEnd = '\u318F';
+    private const char HangulSyllablesStart = '\uAC00';
+    private const char HangulSyllablesEnd = '\uD7AF';
     private const char PhraseWordSeparator = ' ';
 
     public static bool MatchesAny(string lowerMessage, IReadOnlyCollection<string> tokens, string[] entries)
@@ -81,6 +88,60 @@ public static class PluginPhraseMatcher
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
+
+    /// <summary>
+    /// True when the message opens with the entry AND the entry ends where a word ends. A segmented-script
+    /// entry must not stop inside a longer word - the Malay refusal "tak" opens "Tak, terima kasih" but not
+    /// "Take the first shift", the Spanish "no" opens "No, gracias" but not "Nombre del cliente" - while an
+    /// entry in a script whose words carry attached suffixes or have no separators at all (Han, Kana, Thai and
+    /// Hangul: "취소" opens "취소해줘") keeps matching as a plain prefix. A letter or a combining mark right after
+    /// the entry continues the word; an entry that itself ends in punctuation needs no boundary.
+    /// </summary>
+    /// <param name="lowerMessage">The user message lowered via ToLowerInvariant, without leading whitespace</param>
+    /// <param name="entry">Plugin phrase entry, stored trimmed and lowercase</param>
+    internal static bool StartsWithEntryAtWordEnd(string lowerMessage, string entry)
+    {
+        if (entry.Length == 0 || !lowerMessage.StartsWith(entry, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return IsAttachedSuffixScript(entry) || EndsAtWordBoundary(lowerMessage, entry.Length);
+    }
+
+    /// <summary>
+    /// The one place that decides which scripts keep prefix semantics for a phrase entry: those written without
+    /// word separators (Han, Kana, Thai) and Hangul, whose words are separated by blanks but carry attached
+    /// particles and verb endings (a Korean refusal entry for "cancel" opens the same word with a verb ending
+    /// attached). Every other script has to end an entry where the word ends. Hangul is deliberately not part of
+    /// UsesNonSegmentedScript: its words are separated by blanks, so whole-token matching stays correct for it.
+    /// </summary>
+    /// <param name="entry">Plugin phrase entry, stored trimmed and lowercase</param>
+    internal static bool IsAttachedSuffixScript(string entry) =>
+        UsesNonSegmentedScript(entry) || entry.Any(IsHangulCharacter);
+
+    private static bool EndsAtWordBoundary(string text, int end) =>
+        end >= text.Length
+            || !IsWordCharacter(text[end - 1])
+            || !IsWordCharacter(text[end]);
+
+    private static bool IsWordCharacter(char value)
+    {
+        if (char.IsLetter(value))
+        {
+            return true;
+        }
+
+        var category = char.GetUnicodeCategory(value);
+        return category is UnicodeCategory.NonSpacingMark
+            or UnicodeCategory.SpacingCombiningMark
+            or UnicodeCategory.EnclosingMark;
+    }
+
+    private static bool IsHangulCharacter(char value) =>
+        value is >= HangulJamoStart and <= HangulJamoEnd
+            or >= HangulCompatibilityJamoStart and <= HangulCompatibilityJamoEnd
+            or >= HangulSyllablesStart and <= HangulSyllablesEnd;
 
     /// <summary>
     /// True when the text contains Thai, Kana or Han characters - a script written without word

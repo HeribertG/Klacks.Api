@@ -19,8 +19,14 @@
     "cancela",
     "cancelar",
     "detente",
+    "deténlo",
+    "detenlo",
     "espera",
-    "no lo hagas"
+    "no lo hagas",
+    "cancélalo",
+    "cancelalo",
+    "cancélala",
+    "cancelala"
   ],
   "corrections": [
     "mal",
@@ -37,6 +43,8 @@
     "cancela",
     "cancélalo",
     "cancelalo",
+    "cancélala",
+    "cancelala",
     "olvídalo",
     "olvidalo",
     "déjalo",

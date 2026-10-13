@@ -13,8 +13,11 @@
 /// <param name="groupId">Optional. UUID of the group to seal; takes precedence over groupName.</param>
 /// <param name="groupName">Optional. Display name of the group; resolved with fuzzy matching.</param>
 /// <param name="reason">Optional. Free-text reason stored in the period audit log.</param>
+/// <param name="acknowledgeViolations">Optional, default false. True only after the user was shown the open errors and chose to seal anyway; without it a period that still holds errors is refused.</param>
+/// <param name="acknowledgedErrorCount">Required when acknowledgeViolations is true. Number of errors the user was shown; the seal is refused again if the period holds more by now.</param>
 
 using Klacks.Api.Application.Commands.PeriodClosing;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Domain.Attributes;
@@ -27,6 +30,12 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("close_period")]
 public class ClosePeriodSkill : BaseSkillImplementation
 {
+    private const string AcknowledgeViolationsParameter = "acknowledgeViolations";
+    private const string AcknowledgedErrorCountParameter = "acknowledgedErrorCount";
+    private const string MissingErrorCountMessage =
+        "Pass acknowledgedErrorCount = number of errors shown to the user together with acknowledgeViolations=true; " +
+        "nothing was sealed.";
+
     private readonly IMediator _mediator;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
@@ -66,8 +75,27 @@ public class ClosePeriodSkill : BaseSkillImplementation
 
         var reason = GetParameter<string>(parameters, "reason");
 
-        var count = await _mediator.Send(
-            new ClosePeriodByGroupCommand(startDate, endDate, groupId, reason), cancellationToken);
+        var acknowledgeViolations = GetParameter<bool?>(parameters, AcknowledgeViolationsParameter) ?? false;
+        var acknowledgedErrorCount = acknowledgeViolations
+            ? GetParameter<int?>(parameters, AcknowledgedErrorCountParameter)
+            : null;
+        if (acknowledgeViolations && acknowledgedErrorCount == null)
+        {
+            return SkillResult.Error(MissingErrorCountMessage);
+        }
+
+        int count;
+        try
+        {
+            count = await _mediator.Send(
+                new ClosePeriodByGroupCommand(
+                    startDate, endDate, groupId, reason, acknowledgeViolations, acknowledgedErrorCount),
+                cancellationToken);
+        }
+        catch (PeriodValidationConflictException ex)
+        {
+            return SkillResult.Error(BuildViolationsRefusal(ex, acknowledgeViolations));
+        }
 
         var days = await _mediator.Send(
             new GetSealedPeriodsQuery(startDate, endDate, groupId), cancellationToken);
@@ -94,5 +122,16 @@ public class ClosePeriodSkill : BaseSkillImplementation
             },
             $"Sealed period {startDate}..{endDate} for {scopeLabel}: {count} item(s) locked, {sealedDays} day lock(s) " +
             "confirmed in the database (verified).");
+    }
+
+    private static string BuildViolationsRefusal(PeriodValidationConflictException ex, bool wasAcknowledged)
+    {
+        var fact = $"Nothing was sealed: the period holds {ex.CurrentErrorCount} unresolved error(s).";
+        var next = wasAcknowledged
+            ? "New findings appeared after the user's confirmation: show them to the user and ask again; seal only if " +
+              "the user explicitly decides to seal anyway."
+            : "Show the user the open errors. Only if the user explicitly decides to seal anyway, call close_period " +
+              $"again with {AcknowledgeViolationsParameter}=true and {AcknowledgedErrorCountParameter}={ex.CurrentErrorCount}.";
+        return $"{fact} {next}";
     }
 }

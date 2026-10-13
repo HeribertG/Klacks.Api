@@ -9,12 +9,17 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 namespace Klacks.Api.Application.Skills;
 
 /// <summary>
-/// Returns a client's master data with its contracts, group memberships, addresses and communications.
+/// Returns a client's master data with its contracts, group memberships, addresses, communications and notes
+/// (annotations, newest first and capped at the newest 20, each with the id the note skills take; the summary
+/// reports the total). The notes are free text typed in by planners, which is why the skill is listed in
+/// UntrustedSkillOutputs.
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 [SkillImplementation("get_client_details")]
 public class GetClientDetailsSkill : BaseSkillImplementation
 {
+    private const int MaxAnnotations = 20;
+
     private readonly IClientRepository _clientRepository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
@@ -95,6 +100,18 @@ public class GetClientDetailsSkill : BaseSkillImplementation
             })
             .ToList();
 
+        var liveAnnotations = client.Annotations.Where(a => !a.IsDeleted).ToList();
+        var annotations = liveAnnotations
+            .OrderByDescending(a => a.CreateTime)
+            .Take(MaxAnnotations)
+            .Select(a => new
+            {
+                a.Id,
+                a.Note,
+                a.CreateTime
+            })
+            .ToList();
+
         var activeContract = contracts.FirstOrDefault(c => c.IsActive);
 
         var resultData = new
@@ -116,17 +133,22 @@ public class GetClientDetailsSkill : BaseSkillImplementation
             Groups = groups,
             Addresses = addresses,
             Communications = communications,
+            Annotations = annotations,
             Summary = new
             {
                 TotalContracts = contracts.Count,
                 HasActiveContract = activeContract != null,
                 TotalGroups = groups.Count,
-                TotalAddresses = addresses.Count
+                TotalAddresses = addresses.Count,
+                TotalAnnotations = liveAnnotations.Count
             }
         };
 
-        var message = $"Client '{client.FirstName} {client.Name}' has {contracts.Count} contract(s) " +
-                      $"and belongs to {groups.Count} group(s).";
+        var noteCount = liveAnnotations.Count > annotations.Count
+            ? $"{liveAnnotations.Count} note(s) (the newest {annotations.Count} are listed)"
+            : $"{annotations.Count} note(s)";
+        var message = $"Client '{client.FirstName} {client.Name}' has {contracts.Count} contract(s), " +
+                      $"{noteCount} and belongs to {groups.Count} group(s).";
 
         return SkillResult.SuccessResult(resultData, message);
     }

@@ -4,20 +4,25 @@
 /// Searches shift definitions by an optional search string and returns a compact list
 /// (id, name, abbreviation, validity dates, start/end times, client name). Thin wrapper
 /// around <see cref="Klacks.Api.Application.Queries.Shifts.GetTruncatedListQuery"/> that
-/// covers active, former and future shifts. When the database text filter finds nothing,
-/// a fuzzy fallback ranks the spoken or decorated query ("Dienst All-Shift") against the
-/// real shift names and abbreviations in memory and suggests the closest shifts. Use this
-/// to find a shiftId for get_shift_details / update_shift / delete_shift.
+/// covers active, former and future shifts. The list view is chosen with the status parameter;
+/// the default is the plannable shifts (the rows place_work, cut_shift, update_shift and delete_shift
+/// work on), because the query's own default is the unsealed order inbox, which holds none of them.
+/// When the database text filter finds nothing, a fuzzy fallback ranks the spoken or decorated
+/// query ("Dienst All-Shift") against the real shift names and abbreviations in memory and suggests
+/// the closest shifts. Use this to find a shiftId for get_shift_details / update_shift / delete_shift.
 /// </summary>
 /// <param name="searchString">Optional. Text filter on shift name, abbreviation or client name;
 /// falls back to fuzzy name resolution when the filter finds nothing.</param>
 /// <param name="maxResults">Optional. Maximum number of shifts to return (default 20, capped at 100).</param>
+/// <param name="status">Optional. List view: shift (default, plannable shifts and cuts), draft_order (unsealed
+/// orders), sealed_order (sealed orders) or container.</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.DTOs.Filter;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -32,7 +37,22 @@ public class SearchShiftsSkill : BaseSkillImplementation
     private const int FuzzyCatalogCap = 500;
     private const int NotFoundNameSampleSize = 20;
 
+    private const string StatusParameter = "status";
+    private const string StatusShift = "shift";
+    private const string StatusDraftOrder = "draft_order";
+    private const string StatusSealedOrder = "sealed_order";
+    private const string StatusContainer = "container";
+
     private static readonly string[] ShiftLabelWords = ["dienst", "schicht", "shift", "service", "turno"];
+
+    private static readonly Dictionary<string, (ShiftFilterType FilterType, bool IsSealedOrder)> Views =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            [StatusShift] = (ShiftFilterType.Shift, false),
+            [StatusDraftOrder] = (ShiftFilterType.Original, false),
+            [StatusSealedOrder] = (ShiftFilterType.Original, true),
+            [StatusContainer] = (ShiftFilterType.Container, false)
+        };
 
     private readonly IMediator _mediator;
 
@@ -59,15 +79,14 @@ public class SearchShiftsSkill : BaseSkillImplementation
             maxResults = MaxAllowedResults;
         }
 
-        var filter = new ShiftFilter
+        var status = (GetParameter<string>(parameters, StatusParameter) ?? StatusShift).Trim();
+        if (!Views.TryGetValue(status, out var view))
         {
-            SearchString = searchString,
-            NumberOfItemsPerPage = maxResults,
-            ActiveDateRange = true,
-            FormerDateRange = true,
-            FutureDateRange = true,
-            IncludeClientName = true
-        };
+            return SkillResult.Error(
+                $"Parameter '{StatusParameter}' must be one of: {string.Join(", ", Views.Keys)}.");
+        }
+
+        var filter = BuildFilter(searchString, maxResults, view);
 
         var result = await _mediator.Send(new GetTruncatedListQuery(filter), cancellationToken);
 
@@ -81,7 +100,7 @@ public class SearchShiftsSkill : BaseSkillImplementation
         // filter — rank it against the real shift names instead of reporting an empty list.
         if (totalCount == 0 && !string.IsNullOrWhiteSpace(searchString))
         {
-            (matched, message) = await ResolveFuzzyAsync(searchString, maxResults, cancellationToken);
+            (matched, message) = await ResolveFuzzyAsync(searchString, maxResults, view, cancellationToken);
             totalCount = matched.Count;
         }
 
@@ -91,6 +110,8 @@ public class SearchShiftsSkill : BaseSkillImplementation
                 s.Id,
                 s.Name,
                 s.Abbreviation,
+                Status = s.Status.ToString(),
+                s.OriginalId,
                 s.FromDate,
                 s.UntilDate,
                 s.StartShift,
@@ -102,18 +123,29 @@ public class SearchShiftsSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(new { TotalCount = totalCount, Shifts = shifts }, message);
     }
 
-    private async Task<(List<ShiftResource> Shifts, string Message)> ResolveFuzzyAsync(
-        string searchString, int maxResults, CancellationToken cancellationToken)
+    private static ShiftFilter BuildFilter(
+        string searchString, int pageSize, (ShiftFilterType FilterType, bool IsSealedOrder) view)
     {
-        var catalogFilter = new ShiftFilter
+        return new ShiftFilter
         {
-            SearchString = string.Empty,
-            NumberOfItemsPerPage = FuzzyCatalogCap,
+            SearchString = searchString,
+            NumberOfItemsPerPage = pageSize,
             ActiveDateRange = true,
             FormerDateRange = true,
             FutureDateRange = true,
-            IncludeClientName = true
+            IncludeClientName = true,
+            FilterType = view.FilterType,
+            IsSealedOrder = view.IsSealedOrder,
+            IsTimeRange = true,
+            IsSporadic = true
         };
+    }
+
+    private async Task<(List<ShiftResource> Shifts, string Message)> ResolveFuzzyAsync(
+        string searchString, int maxResults, (ShiftFilterType FilterType, bool IsSealedOrder) view,
+        CancellationToken cancellationToken)
+    {
+        var catalogFilter = BuildFilter(string.Empty, FuzzyCatalogCap, view);
         var catalog = await _mediator.Send(new GetTruncatedListQuery(catalogFilter), cancellationToken);
         var catalogShifts = (catalog.Shifts ?? new List<ShiftResource>()).ToList();
         var truncationNote = catalog.MaxItems > catalogShifts.Count

@@ -2739,7 +2739,7 @@
         "fr": "Ajouter un service/une commande existant(e) à un groupe donné.",
         "it": "Aggiungere un servizio/ordine esistente a un gruppo."
       },
-      "version": 10,
+      "version": 11,
       "isEnabled": true,
       "sortOrder": 40,
       "trigger": {
@@ -3028,7 +3028,7 @@
             "searchString": "$shiftName"
           },
           "capture": "Shifts[].Id as shiftId",
-          "note": "Find the shift. The search string is supplied. The recipe captures the matching shift automatically when exactly one shift matches."
+          "note": "Find the shift. The search string is supplied. The search covers the plannable shifts by default; if the user speaks of an order (Bestellung) that is not sealed yet, pass status=draft_order, for a sealed order status=sealed_order. The recipe captures the matching shift automatically when exactly one shift matches."
         },
         {
           "kind": "ask",
@@ -5586,7 +5586,7 @@
         "fr": "Ajouter un service-tâche existant au modèle hebdomadaire d'un conteneur.",
         "it": "Aggiungere un servizio-attività esistente al modello settimanale di un contenitore."
       },
-      "version": 9,
+      "version": 10,
       "isEnabled": true,
       "sortOrder": 46,
       "trigger": {
@@ -5744,10 +5744,11 @@
           "kind": "search",
           "skill": "search_shifts",
           "inject": {
-            "searchString": "$containerName"
+            "searchString": "$containerName",
+            "status": "container"
           },
           "capture": "Shifts[].Id as containerId",
-          "note": "Find the container shift. The search string is supplied. The recipe captures the match automatically when exactly one shift matches; it must be a container (ShiftType IsContainer)."
+          "note": "Find the container shift. The search string and the container view are supplied. The recipe captures the match automatically when exactly one container matches; it must be a container (ShiftType IsContainer)."
         },
         {
           "kind": "ask",
@@ -5777,10 +5778,11 @@
           "kind": "search",
           "skill": "search_shifts",
           "inject": {
-            "searchString": "$taskName"
+            "searchString": "$taskName",
+            "status": "shift"
           },
           "capture": "Shifts[].Id as taskShiftId",
-          "note": "Find the task shift. The search string is supplied. The recipe captures the match automatically when exactly one shift matches; it must be a plannable task shift, not a container."
+          "note": "Find the task shift. The search string and the plannable-shift view are supplied. The recipe captures the match automatically when exactly one shift matches; it must be a plannable task shift, not a container."
         },
         {
           "kind": "mutate",
@@ -6670,7 +6672,7 @@
         "fr": "Clôture guidée de la période de paie : vérification préalable des problèmes, présentation des résultats, puis scellement de la période uniquement après confirmation explicite.",
         "it": "Chiusura guidata del periodo di paga: verifica preliminare dei problemi, presentazione dei risultati, poi sigillatura del periodo solo dopo conferma esplicita."
       },
-      "version": 6,
+      "version": 7,
       "isEnabled": true,
       "sortOrder": 70,
       "trigger": {
@@ -6849,7 +6851,7 @@
         {
           "kind": "mutate",
           "skill": "close_period",
-          "note": "Seal the period ONLY if the user explicitly agreed in the goAhead answer (see the known values); if they declined or want to fix issues first, do NOT call this skill — help with the issues instead. Use the same startDate/endDate (and optional groupName) as in the pre-flight check, and pass the user's stated reason if any. Relay the skill's sealed/verified result to the user."
+          "note": "Seal the period ONLY if the user explicitly agreed in the goAhead answer (see the known values); if they declined or want to fix issues first, do NOT call this skill — help with the issues instead. Use the same startDate/endDate (and optional groupName) as in the pre-flight check, and pass the user's stated reason if any. If the pre-flight reported errors and the user explicitly chose to seal anyway, also pass acknowledgeViolations=true and acknowledgedErrorCount set to the number of Error findings the pre-flight reported; if there were no errors, leave both out. Relay the skill's sealed/verified result to the user."
         }
       ]
     },

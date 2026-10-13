@@ -2,7 +2,10 @@
 
 /// <summary>
 /// Soft-deletes a client annotation (note) via DeleteCommand&lt;AnnotationResource&gt;. Use
-/// get_client_details to resolve the annotation id first; fails with a clear message if it does not exist.
+/// get_client_details to resolve the annotation id first; fails with a clear message if it does not exist. The
+/// delete handler runs the client visibility guard and signals a missing annotation as well as one on a client
+/// hidden from the caller by group visibility with KeyNotFoundException, which is answered exactly like an
+/// unknown id so that a hidden note cannot be told apart from a missing one.
 /// The delete is self-verifying: the annotation is re-read after the delete and must no longer be
 /// visible before success is reported.
 /// </summary>
@@ -35,7 +38,16 @@ public class DeleteAnnotationSkill : BaseSkillImplementation
     {
         var annotationId = GetRequiredGuid(parameters, "annotationId");
 
-        var deleted = await _mediator.Send(new DeleteCommand<AnnotationResource>(annotationId), cancellationToken);
+        AnnotationResource? deleted;
+        try
+        {
+            deleted = await _mediator.Send(new DeleteCommand<AnnotationResource>(annotationId), cancellationToken);
+        }
+        catch (KeyNotFoundException)
+        {
+            return SkillResult.Error($"Annotation {annotationId} not found.");
+        }
+
         if (deleted == null)
         {
             return SkillResult.Error($"Annotation {annotationId} not found.");

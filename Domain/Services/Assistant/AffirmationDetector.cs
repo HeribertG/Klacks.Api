@@ -278,16 +278,12 @@ public static class AffirmationDetector
         var opening = lower[opener.Index..];
         foreach (var entry in reading.AffirmationEntries)
         {
-            if (entry.Length == 0 || !opening.StartsWith(entry, StringComparison.Ordinal))
+            if (!PluginPhraseMatcher.StartsWithEntryAtWordEnd(opening, entry))
             {
                 continue;
             }
 
             var end = opener.Index + entry.Length;
-            if (!PluginPhraseMatcher.UsesNonSegmentedScript(entry) && end < lower.Length && char.IsLetter(lower[end]))
-            {
-                continue;
-            }
 
             var endsOnBlank = spaceEndsNonSegmentedEntry
                 && PluginPhraseMatcher.UsesNonSegmentedScript(entry)

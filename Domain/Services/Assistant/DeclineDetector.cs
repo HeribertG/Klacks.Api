@@ -252,12 +252,14 @@ public static class DeclineDetector
 
     // Plugin entries must match at the START of the message (single token among the leading
     // tokens, or as a prefix for multi-word phrases and non-segmented scripts) — a mid-sentence
-    // hit would reintroduce the false positives the leading-token rule exists to avoid.
+    // hit would reintroduce the false positives the leading-token rule exists to avoid. A prefix
+    // match of a segmented-script entry must also end where the word ends: "no" opens "No, gracias"
+    // but not "Nombre del cliente", and "tak" opens "Tak, dziękuję" but not "Take the first shift".
     private static bool MatchesLeading(string lowerMessage, IReadOnlyCollection<string> leadingTokens, string[] entries)
     {
         foreach (var entry in entries)
         {
-            if (leadingTokens.Contains(entry) || lowerMessage.StartsWith(entry, StringComparison.Ordinal))
+            if (leadingTokens.Contains(entry) || PluginPhraseMatcher.StartsWithEntryAtWordEnd(lowerMessage, entry))
             {
                 return true;
             }

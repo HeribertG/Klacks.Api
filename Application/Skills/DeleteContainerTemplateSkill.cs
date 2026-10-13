@@ -77,7 +77,7 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
             return SkillResult.Error(
                 $"Container '{container.Name}' has status {container.Status}; templates belong to the plannable " +
                 "container shift (status OriginalShift). Pass the plannable shift's id, not the order's — " +
-                "get_shift_details or search_shifts return it.");
+                "get_shift_details or search_shifts with status=container return it.");
         }
 
         var existingTemplates = await _containerTemplateRepository.GetTemplatesForContainer(containerId);
