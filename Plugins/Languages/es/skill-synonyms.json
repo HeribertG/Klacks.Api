@@ -194,6 +194,14 @@
     "vincular contrato con cliente",
     "registrar contrato de trabajo para empleado"
   ],
+  "assign_macro_to_absence_type": [
+    "asignar macro al tipo de ausencia",
+    "cambiar la macro de cálculo del tipo de ausencia"
+  ],
+  "assign_macro_to_shift": [
+    "asignar macro al turno",
+    "cambiar la macro de cálculo del turno"
+  ],
   "assign_orders_to_groups": [
     "agrupar pedidos importados",
     "pedidos sin grupo"
@@ -302,6 +310,14 @@
     "sellar el período del 1 al 15 de junio",
     "bloquear el mes para nómina",
     "cerrar la planificación del mes"
+  ],
+  "confirm_break": [
+    "confirmar la ausencia",
+    "confirmar las vacaciones",
+    "bloquear la baja",
+    "fijar el permiso",
+    "asegurar el día libre",
+    "confirmar la baja médica"
   ],
   "confirm_pending_action": [
     "confirma la acción pendiente",
@@ -1403,18 +1419,6 @@
     "ampliar macro como copia",
     "copia ampliada de la macro de cálculo"
   ],
-  "assign_macro_to_shift": [
-    "asignar macro al turno",
-    "cambiar la macro de cálculo del turno"
-  ],
-  "assign_macro_to_absence_type": [
-    "asignar macro al tipo de ausencia",
-    "cambiar la macro de cálculo del tipo de ausencia"
-  ],
-  "revert_macro_assignment": [
-    "deshacer asignación de macro",
-    "restaurar la macro de cálculo anterior"
-  ],
   "fetch_new_emails": [
     "recuperar los correos nuevos ahora",
     "actualizar la bandeja de entrada ya"
@@ -1703,6 +1707,14 @@
     "qué puedes resolver por tu cuenta",
     "muestra el margen de actuación",
     "está activado el interruptor general"
+  ],
+  "get_replacement_status": [
+    "quién ha aceptado o rechazado la cobertura?",
+    "a quién se le ha pedido cubrir la ausencia?",
+    "estado de la búsqueda de sustituto",
+    "está cubierto el turno?",
+    "ver a quién han llamado por la baja",
+    "situación de los reemplazos"
   ],
   "get_scheduling_defaults": [
     "configuración de planificación",
@@ -2471,6 +2483,10 @@
     "deshacer una regla de empresa aplicada",
     "restaurar la regla de empresa anterior"
   ],
+  "revert_macro_assignment": [
+    "deshacer asignación de macro",
+    "restaurar la macro de cálculo anterior"
+  ],
   "revoke_day_approval": [
     "revocar la aprobación del día lunes",
     "desaprobar el 15 de mayo",
@@ -2767,6 +2783,14 @@
     "iniciar importación ahora",
     "procesar archivos erp inmediatamente",
     "arrancar import ahora"
+  ],
+  "unconfirm_break": [
+    "desconfirmar la ausencia",
+    "desbloquear la baja",
+    "quitar la confirmación de la ausencia",
+    "liberar las vacaciones",
+    "anular el bloqueo del permiso",
+    "desfijar la ausencia"
   ],
   "unconfirm_work": [
     "desbloquear la asignación confirmada",

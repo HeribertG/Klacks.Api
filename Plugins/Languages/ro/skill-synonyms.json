@@ -192,6 +192,14 @@
     "atașează contractul la un angajat",
     "leagă contractul de client"
   ],
+  "assign_macro_to_absence_type": [
+    "atribuie macro-ul tipului de absență",
+    "schimbă macro-ul de calcul al tipului de absență"
+  ],
+  "assign_macro_to_shift": [
+    "atribuie macro-ul schimbului",
+    "schimbă macro-ul de calcul al schimbului"
+  ],
   "assign_orders_to_groups": [
     "grupează comenzile importate",
     "comenzi fără grup"
@@ -298,6 +306,14 @@
     "finalizează luna",
     "blochează perioada de plată",
     "închide mai 2026"
+  ],
+  "confirm_break": [
+    "confirmă absența",
+    "blochează concediul",
+    "fixează absența",
+    "confirmă concediul de odihnă",
+    "validează absența",
+    "blochează cererea de concediu"
   ],
   "confirm_pending_action": [
     "confirm acțiunea",
@@ -1400,18 +1416,6 @@
     "extinde macro-ul ca o copie",
     "copie extinsă a macro-ului de calcul"
   ],
-  "assign_macro_to_shift": [
-    "atribuie macro-ul schimbului",
-    "schimbă macro-ul de calcul al schimbului"
-  ],
-  "assign_macro_to_absence_type": [
-    "atribuie macro-ul tipului de absență",
-    "schimbă macro-ul de calcul al tipului de absență"
-  ],
-  "revert_macro_assignment": [
-    "anulează atribuirea macro-ului",
-    "restabilește macro-ul de calcul anterior"
-  ],
   "fetch_new_emails": [
     "preia e-mailurile noi acum",
     "reîmprospătează inboxul imediat"
@@ -1699,6 +1703,14 @@
     "ce poți rezolva singur",
     "arată limita acțiunii independente",
     "este pornit întrerupătorul general"
+  ],
+  "get_replacement_status": [
+    "cine a fost deja rugat să acopere",
+    "cine a acceptat sau a refuzat înlocuirea",
+    "este acoperit schimbul?",
+    "stadiul căutării de înlocuitor",
+    "pe cine am sunat pentru absență",
+    "statusul înlocuirii"
   ],
   "get_scheduling_defaults": [
     "setări planificare",
@@ -2454,6 +2466,10 @@
     "anulează o regulă de companie aplicată",
     "restaurează regula de companie anterioară"
   ],
+  "revert_macro_assignment": [
+    "anulează atribuirea macro-ului",
+    "restabilește macro-ul de calcul anterior"
+  ],
   "revoke_day_approval": [
     "retrage aprobarea zilei",
     "anulează aprobarea pe zi",
@@ -2744,6 +2760,14 @@
     "execută importul manual acum",
     "sincronizează acum cu erp",
     "procesează fișierele xml acum"
+  ],
+  "unconfirm_break": [
+    "deblochează absența",
+    "anulează confirmarea concediului",
+    "deblochează concediul",
+    "eliberează absența",
+    "retrage confirmarea absenței",
+    "scoate blocarea de pe absență"
   ],
   "unconfirm_work": [
     "deblochează work-ul",

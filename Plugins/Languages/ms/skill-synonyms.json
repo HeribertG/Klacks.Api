@@ -185,6 +185,14 @@
     "tetapkan kontrak sedia ada kepada pekerja",
     "lampirkan kontrak untuk kakitangan"
   ],
+  "assign_macro_to_absence_type": [
+    "tetapkan makro kepada jenis ketidakhadiran",
+    "tukar makro pengiraan jenis ketidakhadiran"
+  ],
+  "assign_macro_to_shift": [
+    "tetapkan makro kepada syif",
+    "tukar makro pengiraan syif"
+  ],
   "assign_orders_to_groups": [
     "kumpulkan pesanan yang diimport",
     "pesanan tanpa kumpulan"
@@ -289,6 +297,14 @@
     "kunci tempoh pembayaran sehingga akhir bulan",
     "selesaikan tempoh penjadualan ini",
     "tutup bulan april 2026"
+  ],
+  "confirm_break": [
+    "sahkan cuti",
+    "kunci rekod cuti",
+    "sahkan ketidakhadiran",
+    "kunci cuti sakit",
+    "tetapkan cuti sebagai disahkan",
+    "pastikan cuti tidak boleh dipadam"
   ],
   "confirm_pending_action": [
     "sahkan tindakan",
@@ -1373,18 +1389,6 @@
     "kembangkan makro sebagai salinan",
     "salinan makro pengiraan yang dikembangkan"
   ],
-  "assign_macro_to_shift": [
-    "tetapkan makro kepada syif",
-    "tukar makro pengiraan syif"
-  ],
-  "assign_macro_to_absence_type": [
-    "tetapkan makro kepada jenis ketidakhadiran",
-    "tukar makro pengiraan jenis ketidakhadiran"
-  ],
-  "revert_macro_assignment": [
-    "batalkan penetapan makro",
-    "pulihkan makro pengiraan sebelumnya"
-  ],
   "fetch_new_emails": [
     "dapatkan e-mel baharu sekarang",
     "segarkan peti masuk serta-merta"
@@ -1682,6 +1686,14 @@
     "apa yang boleh anda uruskan sendiri",
     "tunjukkan had tindakan sendiri",
     "adakah suis mati utama dihidupkan"
+  ],
+  "get_replacement_status": [
+    "status pengganti untuk cuti",
+    "siapa yang sudah ditanya untuk ganti",
+    "dah ada sesiapa terima tak untuk ganti shift ni",
+    "macam mana status carian pengganti",
+    "laporan siapa yang setuju atau tolak ganti",
+    "adakah shift ini sudah ada pengganti"
   ],
   "get_scheduling_defaults": [
     "semak tetapan lalai penjadualan",
@@ -2432,6 +2444,10 @@
     "batalkan peraturan syarikat yang digunakan",
     "pulihkan peraturan syarikat sebelumnya"
   ],
+  "revert_macro_assignment": [
+    "batalkan penetapan makro",
+    "pulihkan makro pengiraan sebelumnya"
+  ],
   "revoke_day_approval": [
     "batal kelulusan hari isnin",
     "tarik balik pengesahan untuk 15 mei",
@@ -2720,6 +2736,14 @@
     "mula import pesanan",
     "proses fail erp sekarang",
     "laksana import segera"
+  ],
+  "unconfirm_break": [
+    "buka kunci cuti",
+    "nyah sahkan cuti",
+    "batalkan pengesahan cuti",
+    "lepaskan cuti",
+    "benarkan cuti dipadam semula",
+    "buka semula rekod cuti"
   ],
   "unconfirm_work": [
     "buka kunci tugasan ini",

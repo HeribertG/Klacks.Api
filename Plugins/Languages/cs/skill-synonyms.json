@@ -201,6 +201,14 @@
     "přiřadit existující smlouvu klientovi",
     "nastavit platnou smlouvu pro klienta"
   ],
+  "assign_macro_to_absence_type": [
+    "přiřadit makro typu nepřítomnosti",
+    "změnit výpočetní makro typu nepřítomnosti"
+  ],
+  "assign_macro_to_shift": [
+    "přiřadit makro směně",
+    "změnit výpočetní makro směny"
+  ],
   "assign_orders_to_groups": [
     "seskupit importované objednávky",
     "objednávky bez skupiny"
@@ -308,6 +316,14 @@
     "finalizuj období",
     "zamkni období",
     "zavři výplatní období"
+  ],
+  "confirm_break": [
+    "potvrď dovolenou",
+    "uzamkni absenci",
+    "zamkni záznam nepřítomnosti",
+    "zafixuj volno",
+    "potvrď nemocenskou",
+    "uzamkni školení"
   ],
   "confirm_pending_action": [
     "potvrdit akci",
@@ -1408,18 +1424,6 @@
     "rozšířit makro jako kopii",
     "rozšířená kopie výpočetního makra"
   ],
-  "assign_macro_to_shift": [
-    "přiřadit makro směně",
-    "změnit výpočetní makro směny"
-  ],
-  "assign_macro_to_absence_type": [
-    "přiřadit makro typu nepřítomnosti",
-    "změnit výpočetní makro typu nepřítomnosti"
-  ],
-  "revert_macro_assignment": [
-    "vrátit přiřazení makra",
-    "obnovit předchozí výpočetní makro"
-  ],
   "fetch_new_emails": [
     "stáhnout nové e-maily hned",
     "aktualizovat doručenou poštu"
@@ -1711,6 +1715,14 @@
     "co můžeš vyřídit sám",
     "zobraz meze samostatného jednání",
     "je zapnutý hlavní vypínač"
+  ],
+  "get_replacement_status": [
+    "kdo byl požádán o zástup",
+    "kdo může zaskočit za nemocného",
+    "jak probíhá hledání náhrady",
+    "kdo už odmítl směnu",
+    "je ta směna pokrytá?",
+    "kdo byl kontaktován kvůli absenci"
   ],
   "get_scheduling_defaults": [
     "nastavení plánování",
@@ -2483,6 +2495,10 @@
     "odvolat použité firemní pravidlo",
     "obnovit předchozí firemní pravidlo"
   ],
+  "revert_macro_assignment": [
+    "vrátit přiřazení makra",
+    "obnovit předchozí výpočetní makro"
+  ],
   "revoke_day_approval": [
     "zruš schválení dne 15.5.",
     "odvolej uvolnění dne",
@@ -2777,6 +2793,14 @@
     "spustit erp import ihned",
     "okamžitě naimportovat objednávky",
     "spusť import nyní"
+  ],
+  "unconfirm_break": [
+    "odemkni absenci",
+    "zruš potvrzení dovolené",
+    "uvolni dovolenou",
+    "odjisti absenci",
+    "zruš zámek dovolené",
+    "odblokuj nemocenskou"
   ],
   "unconfirm_work": [
     "odpotvrď směnu",

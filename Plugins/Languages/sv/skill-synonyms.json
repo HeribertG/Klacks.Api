@@ -191,6 +191,14 @@
     "avtalstilldelning",
     "kontrakt"
   ],
+  "assign_macro_to_absence_type": [
+    "tilldela makro till frånvarotyp",
+    "byt beräkningsmakro för frånvarotypen"
+  ],
+  "assign_macro_to_shift": [
+    "tilldela makro till pass",
+    "byt beräkningsmakro för passet"
+  ],
   "assign_orders_to_groups": [
     "gruppera importerade beställningar",
     "beställningar utan grupp"
@@ -296,6 +304,14 @@
     "stäng löneperioden",
     "försegla perioden",
     "lås perioden"
+  ],
+  "confirm_break": [
+    "bekräfta frånvaron",
+    "lås frånvaron",
+    "bekräfta ledigheten",
+    "godkänn frånvaron",
+    "spärra frånvaron",
+    "fastställ frånvaron"
   ],
   "confirm_pending_action": [
     "bekräfta åtgärden",
@@ -1398,18 +1414,6 @@
     "utöka makro som kopia",
     "utökad kopia av beräkningsmakro"
   ],
-  "assign_macro_to_shift": [
-    "tilldela makro till pass",
-    "byt beräkningsmakro för passet"
-  ],
-  "assign_macro_to_absence_type": [
-    "tilldela makro till frånvarotyp",
-    "byt beräkningsmakro för frånvarotypen"
-  ],
-  "revert_macro_assignment": [
-    "ångra makrotilldelning",
-    "återställ tidigare beräkningsmakro"
-  ],
   "fetch_new_emails": [
     "hämta nya e-postmeddelanden nu",
     "uppdatera inkorgen direkt"
@@ -1699,6 +1703,14 @@
     "vad kan du sköta själv",
     "visa gränsen för självständigt handlande",
     "är huvudbrytaren påslagen"
+  ],
+  "get_replacement_status": [
+    "vem har tillfrågats att hoppa in",
+    "har någon tackat ja till att vikariera",
+    "är passet täckt",
+    "hur går det med ersättare",
+    "status på vikariejakten",
+    "vem har kontaktats om frånvaron"
   ],
   "get_scheduling_defaults": [
     "schemainställningar",
@@ -2443,6 +2455,10 @@
     "återställ en tillämpad företagsregel",
     "återgå till den tidigare företagsregeln"
   ],
+  "revert_macro_assignment": [
+    "ångra makrotilldelning",
+    "återställ tidigare beräkningsmakro"
+  ],
   "revoke_day_approval": [
     "återkalla dagens godkännande",
     "ta bort godkännande för dagen",
@@ -2734,6 +2750,14 @@
     "starta orderimporten direkt",
     "utlös en importkörning nu",
     "kör en manuell import"
+  ],
+  "unconfirm_break": [
+    "lås upp frånvaron",
+    "ångra bekräftelsen av frånvaron",
+    "ta bort låset från frånvaron",
+    "frigör frånvaron",
+    "avbryt bekräftelsen",
+    "häva spärren på frånvaron"
   ],
   "unconfirm_work": [
     "lås upp arbetspasset",

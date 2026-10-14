@@ -196,6 +196,14 @@
     "umowa pracownika",
     "powiąż umowę"
   ],
+  "assign_macro_to_absence_type": [
+    "przypisz makro do rodzaju nieobecności",
+    "zmień makro obliczeniowe rodzaju nieobecności"
+  ],
+  "assign_macro_to_shift": [
+    "przypisz makro do zmiany",
+    "zmień makro obliczeniowe zmiany"
+  ],
   "assign_orders_to_groups": [
     "pogrupuj zaimportowane zamówienia",
     "zamówienia bez grupy"
@@ -301,6 +309,14 @@
     "sfinalizuj okres rozliczeniowy",
     "zablokuj okres",
     "zamknij maj 2026"
+  ],
+  "confirm_break": [
+    "potwierdź ten urlop",
+    "zatwierdź nieobecność",
+    "zablokuj wpis urlopu",
+    "potwierdź zwolnienie chorobowe",
+    "zatwierdź szkolenie",
+    "zablokuj tę absencję"
   ],
   "confirm_pending_action": [
     "potwierdzam wykonanie akcji",
@@ -1416,18 +1432,6 @@
     "rozszerz makro jako kopię",
     "rozszerzona kopia makra obliczeniowego"
   ],
-  "assign_macro_to_shift": [
-    "przypisz makro do zmiany",
-    "zmień makro obliczeniowe zmiany"
-  ],
-  "assign_macro_to_absence_type": [
-    "przypisz makro do rodzaju nieobecności",
-    "zmień makro obliczeniowe rodzaju nieobecności"
-  ],
-  "revert_macro_assignment": [
-    "cofnij przypisanie makra",
-    "przywróć poprzednie makro obliczeniowe"
-  ],
   "fetch_new_emails": [
     "pobierz nowe e-maile teraz",
     "odśwież skrzynkę odbiorczą natychmiast"
@@ -1721,6 +1725,14 @@
     "co możesz załatwić samodzielnie",
     "pokaż granicę samodzielnego działania",
     "czy wyłącznik awaryjny jest włączony"
+  ],
+  "get_replacement_status": [
+    "kto był pytany o zastępstwo",
+    "kto przyjął lub odrzucił zastępstwo",
+    "sprawdź status zastępstwa",
+    "czy zmiana jest obsadzona",
+    "kto został już zapytany o zastępstwo",
+    "status poszukiwania zastępstwa"
   ],
   "get_scheduling_defaults": [
     "ustawienia planowania",
@@ -2498,6 +2510,10 @@
     "wycofaj zastosowaną regułę firmową",
     "przywróć poprzednią regułę firmową"
   ],
+  "revert_macro_assignment": [
+    "cofnij przypisanie makra",
+    "przywróć poprzednie makro obliczeniowe"
+  ],
   "revoke_day_approval": [
     "cofnij zatwierdzenie dnia",
     "usuń aprobatę dnia",
@@ -2795,6 +2811,14 @@
     "zainicjuj import zamówień",
     "zacznij import plików erp od razu",
     "przyspiesz import erp"
+  ],
+  "unconfirm_break": [
+    "cofnij potwierdzenie urlopu",
+    "odblokuj nieobecność",
+    "anuluj potwierdzenie absencji",
+    "zwolnij blokadę urlopu",
+    "cofnij zatwierdzenie zwolnienia",
+    "odblokuj ten wpis"
   ],
   "unconfirm_work": [
     "odblokuj zmianę",

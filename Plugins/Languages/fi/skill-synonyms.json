@@ -191,6 +191,14 @@
     "anna sopimus työntekijälle",
     "aktivoi työsopimus asiakkaalle"
   ],
+  "assign_macro_to_absence_type": [
+    "määritä makro poissaolotyypille",
+    "vaihda poissaolotyypin laskentamakro"
+  ],
+  "assign_macro_to_shift": [
+    "määritä makro vuorolle",
+    "vaihda vuoron laskentamakro"
+  ],
   "assign_orders_to_groups": [
     "ryhmittele tuodut tilaukset",
     "tilaukset ilman ryhmää"
@@ -296,6 +304,13 @@
     "lukitse palkkakausi",
     "sulje ajanjakso",
     "sinetöi jakso"
+  ],
+  "confirm_break": [
+    "vahvista poissaolo",
+    "lukitse poissaolo",
+    "vahvista lomapäivä",
+    "vahvista sairauspoissaolo",
+    "lukitse poissaolomerkintä"
   ],
   "confirm_pending_action": [
     "vahvista odottava toimenpide",
@@ -1395,18 +1410,6 @@
     "laajenna makro kopiona",
     "laskentamakron laajennettu kopio"
   ],
-  "assign_macro_to_shift": [
-    "määritä makro vuorolle",
-    "vaihda vuoron laskentamakro"
-  ],
-  "assign_macro_to_absence_type": [
-    "määritä makro poissaolotyypille",
-    "vaihda poissaolotyypin laskentamakro"
-  ],
-  "revert_macro_assignment": [
-    "peru makron määritys",
-    "palauta aiempi laskentamakro"
-  ],
   "fetch_new_emails": [
     "nouda uudet sähköpostit nyt",
     "päivitä saapuneet-kansio heti"
@@ -1695,6 +1698,13 @@
     "mitä voit hoitaa itse",
     "näytä itsenäisen toiminnan raja",
     "onko pääkatkaisin päällä"
+  ],
+  "get_replacement_status": [
+    "kuka on jo kysytty sijaiseksi",
+    "kuka on vastannut sijaiskyselyyn",
+    "onko vuoro katettu",
+    "sijaisuuden tilanne",
+    "keitä on jo kysytty paikkaamaan"
   ],
   "get_scheduling_defaults": [
     "suunnitteluasetukset",
@@ -2457,6 +2467,10 @@
     "kumoa käytössä oleva yrityssääntö",
     "palauta edellinen yrityssääntö"
   ],
+  "revert_macro_assignment": [
+    "peru makron määritys",
+    "palauta aiempi laskentamakro"
+  ],
   "revoke_day_approval": [
     "peru päivän hyväksyntä",
     "pura hyväksyntä",
@@ -2748,6 +2762,13 @@
     "tuo tilaukset nyt",
     "pakota tuonti suoritettavaksi",
     "käynnistä erp-ajo"
+  ],
+  "unconfirm_break": [
+    "poista poissaolon vahvistus",
+    "avaa poissaolon lukitus",
+    "peru poissaolon vahvistus",
+    "vapauta lomapäivä",
+    "poista lukitus poissaolosta"
   ],
   "unconfirm_work": [
     "vapauta vahvistus",

@@ -196,6 +196,14 @@
     "koppel een bestaand contract aan een klant",
     "stel een arbeidscontract in voor een werknemer"
   ],
+  "assign_macro_to_absence_type": [
+    "macro aan afwezigheidstype toewijzen",
+    "berekeningsmacro van het afwezigheidstype wisselen"
+  ],
+  "assign_macro_to_shift": [
+    "macro aan dienst toewijzen",
+    "berekeningsmacro van de dienst wisselen"
+  ],
   "assign_orders_to_groups": [
     "geïmporteerde orders groeperen",
     "orders zonder groep"
@@ -300,6 +308,14 @@
     "sluit de payrollperiode",
     "finaliseer van 1 tot 30 juni",
     "verzegel de periode"
+  ],
+  "confirm_break": [
+    "bevestig deze afwezigheid",
+    "zet mijn vakantie vast",
+    "vergrendel deze ziektedag",
+    "bevestig mijn verlof",
+    "leg deze afwezigheid vast",
+    "bevestig de boeking van mijn vakantie"
   ],
   "confirm_pending_action": [
     "bevestig de geplande actie",
@@ -1415,18 +1431,6 @@
     "macro als kopie uitbreiden",
     "uitgebreide kopie van de berekeningsmacro"
   ],
-  "assign_macro_to_shift": [
-    "macro aan dienst toewijzen",
-    "berekeningsmacro van de dienst wisselen"
-  ],
-  "assign_macro_to_absence_type": [
-    "macro aan afwezigheidstype toewijzen",
-    "berekeningsmacro van het afwezigheidstype wisselen"
-  ],
-  "revert_macro_assignment": [
-    "macrotoewijzing ongedaan maken",
-    "vorige berekeningsmacro terugzetten"
-  ],
   "fetch_new_emails": [
     "nieuwe e-mails nu ophalen",
     "postvak in direct verversen"
@@ -1716,6 +1720,14 @@
     "wat kun je zelf afhandelen",
     "toon de grens van zelfstandig handelen",
     "staat de noodstop aan"
+  ],
+  "get_replacement_status": [
+    "wie is er al gevraagd om in te vallen?",
+    "wat is de status van de vervanging?",
+    "is de dienst al gedekt?",
+    "wie heeft er toegezegd of afgezegd?",
+    "hoe staat het met de vervanging voor deze medewerker?",
+    "zijn er al vervangers geregeld?"
   ],
   "get_scheduling_defaults": [
     "planningsinstellingen",
@@ -2477,6 +2489,10 @@
     "een toegepaste bedrijfsregel ongedaan maken",
     "de vorige bedrijfsregel herstellen"
   ],
+  "revert_macro_assignment": [
+    "macrotoewijzing ongedaan maken",
+    "vorige berekeningsmacro terugzetten"
+  ],
   "revoke_day_approval": [
     "trek de goedkeuring van maandag in",
     "maak de dagvrijgave ongedaan",
@@ -2775,6 +2791,14 @@
     "draai de import direct",
     "voer de import meteen uit",
     "import nu starten"
+  ],
+  "unconfirm_break": [
+    "maak de bevestiging van deze afwezigheid ongedaan",
+    "ontgrendel mijn vakantie",
+    "hef de vergrendeling van deze ziektedag op",
+    "geef dit verlof weer vrij",
+    "verwijder de bevestiging van mijn afwezigheid",
+    "maak deze afwezigheid weer bewerkbaar"
   ],
   "unconfirm_work": [
     "maak de bevestiging ongedaan",

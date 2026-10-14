@@ -191,6 +191,14 @@
     "koble kontrakt til klient",
     "sett ny kontrakt på den ansatte"
   ],
+  "assign_macro_to_absence_type": [
+    "tildel makro til fraværstype",
+    "bytt beregningsmakro for fraværstype"
+  ],
+  "assign_macro_to_shift": [
+    "tildel makro til vakt",
+    "bytt beregningsmakro for vakt"
+  ],
   "assign_orders_to_groups": [
     "grupper importerte bestillinger",
     "bestillinger uten gruppe"
@@ -295,6 +303,14 @@
     "lukk mai 2026",
     "seal perioden",
     "lønnsavslutning for perioden"
+  ],
+  "confirm_break": [
+    "bekreft fraværet",
+    "lås fraværsføringen",
+    "bekreft ferien",
+    "sperr fraværet",
+    "fastsett fraværet",
+    "frys fraværet"
   ],
   "confirm_pending_action": [
     "bekreft handlingen",
@@ -1378,18 +1394,6 @@
     "utvid makro som kopi",
     "utvidet kopi av beregningsmakro"
   ],
-  "assign_macro_to_shift": [
-    "tildel makro til vakt",
-    "bytt beregningsmakro for vakt"
-  ],
-  "assign_macro_to_absence_type": [
-    "tildel makro til fraværstype",
-    "bytt beregningsmakro for fraværstype"
-  ],
-  "revert_macro_assignment": [
-    "angre makrotildeling",
-    "gjenopprett tidligere beregningsmakro"
-  ],
   "fetch_new_emails": [
     "hent nye e-poster nå",
     "oppdater innboksen umiddelbart"
@@ -1683,6 +1687,14 @@
     "hva kan du ordne selv",
     "vis grensen for selvstendig handling",
     "er hovedbryteren slått på"
+  ],
+  "get_replacement_status": [
+    "hvem er spurt om å overta vakten?",
+    "status på vikarjakten",
+    "hvem har sagt ja eller nei til å steppe inn?",
+    "er vakten dekket?",
+    "hvem har blitt kontaktet angående fraværet?",
+    "hva er status for erstatter?"
   ],
   "get_scheduling_defaults": [
     "planleggingsinnstillinger",
@@ -2421,6 +2433,10 @@
     "tilbakestill en anvendt bedriftsregel",
     "gjenopprett den forrige bedriftsregelen"
   ],
+  "revert_macro_assignment": [
+    "angre makrotildeling",
+    "gjenopprett tidligere beregningsmakro"
+  ],
   "revoke_day_approval": [
     "trekk tilbake godkjenning for en dag",
     "opphev daggodkjenning",
@@ -2713,6 +2729,14 @@
     "kjør importen med én gang",
     "trigg erp-import",
     "importer bestillinger nå"
+  ],
+  "unconfirm_break": [
+    "opphev bekreftelsen på fraværet",
+    "lås opp fraværet",
+    "frigi ferien",
+    "fjern låsen fra fraværet",
+    "angre bekreftelsen av fraværet",
+    "opphev sperren på fraværet"
   ],
   "unconfirm_work": [
     "opphev bekreftelse på vakt",

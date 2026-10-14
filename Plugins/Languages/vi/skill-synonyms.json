@@ -189,6 +189,14 @@
     "chỉ định hợp đồng lao động",
     "cập nhật hợp đồng cho nhân sự"
   ],
+  "assign_macro_to_absence_type": [
+    "gán macro cho loại nghỉ phép",
+    "đổi macro tính toán của loại nghỉ phép"
+  ],
+  "assign_macro_to_shift": [
+    "gán macro cho ca làm",
+    "đổi macro tính toán của ca làm"
+  ],
   "assign_orders_to_groups": [
     "nhóm các đơn hàng đã nhập",
     "đơn hàng không có nhóm"
@@ -294,6 +302,13 @@
     "khóa kỳ công tháng này",
     "seal period tháng 6",
     "kết thúc kỳ lương và không cho sửa"
+  ],
+  "confirm_break": [
+    "xác nhận đơn nghỉ phép",
+    "chốt lịch nghỉ",
+    "khóa ngày nghỉ phép",
+    "xác nhận lịch nghỉ ốm",
+    "chốt đơn nghỉ phép"
   ],
   "confirm_pending_action": [
     "xác nhận hành động",
@@ -1368,18 +1383,6 @@
     "mở rộng macro thành bản sao",
     "bản sao mở rộng của macro tính toán"
   ],
-  "assign_macro_to_shift": [
-    "gán macro cho ca làm",
-    "đổi macro tính toán của ca làm"
-  ],
-  "assign_macro_to_absence_type": [
-    "gán macro cho loại nghỉ phép",
-    "đổi macro tính toán của loại nghỉ phép"
-  ],
-  "revert_macro_assignment": [
-    "hoàn tác gán macro",
-    "khôi phục macro tính toán trước đó"
-  ],
   "fetch_new_emails": [
     "lấy email mới ngay bây giờ",
     "làm mới hộp thư đến ngay"
@@ -1674,6 +1677,13 @@
     "bạn có thể tự xử lý những gì",
     "hiển thị giới hạn hành động tự chủ",
     "công tắc dừng khẩn có bật không"
+  ],
+  "get_replacement_status": [
+    "ai đã được hỏi để thay ca?",
+    "tình trạng tìm người thay thế thế nào?",
+    "ca trống đã có người thay chưa?",
+    "đã liên hệ ai để thay thế cho nhân viên nghỉ?",
+    "ai đã đồng ý nhận thay ca?"
   ],
   "get_scheduling_defaults": [
     "cấu hình lập lịch mặc định",
@@ -2433,6 +2443,10 @@
     "khôi phục quy tắc công ty trước đó",
     "thu hồi quy tắc công ty đã áp dụng"
   ],
+  "revert_macro_assignment": [
+    "hoàn tác gán macro",
+    "khôi phục macro tính toán trước đó"
+  ],
   "revoke_day_approval": [
     "hủy phê duyệt ngày hôm qua",
     "rút lại duyệt ngày 15/5",
@@ -2722,6 +2736,13 @@
     "kích hoạt nhập dữ liệu erp",
     "import bây giờ",
     "thực hiện import erp luôn"
+  ],
+  "unconfirm_break": [
+    "bỏ xác nhận đơn nghỉ phép",
+    "mở khóa lịch nghỉ",
+    "hủy xác nhận ngày nghỉ",
+    "gỡ khóa đơn nghỉ",
+    "hủy chốt lịch nghỉ"
   ],
   "unconfirm_work": [
     "mở khóa ca đã xác nhận",

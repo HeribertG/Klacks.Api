@@ -196,6 +196,14 @@
     "berikan kontrak baru ke pegawai",
     "tetapkan perjanjian kerja untuk staf"
   ],
+  "assign_macro_to_absence_type": [
+    "tetapkan makro ke jenis ketidakhadiran",
+    "ganti makro perhitungan jenis ketidakhadiran"
+  ],
+  "assign_macro_to_shift": [
+    "tetapkan makro ke shift",
+    "ganti makro perhitungan shift"
+  ],
   "assign_orders_to_groups": [
     "kelompokkan pesanan impor",
     "pesanan tanpa grup"
@@ -300,6 +308,14 @@
     "kunci bulan ini",
     "seal periode gaji",
     "finalisir periode shift"
+  ],
+  "confirm_break": [
+    "konfirmasi cuti",
+    "kunci entri absen",
+    "kunci jadwal libur",
+    "kunci ketidakhadiran",
+    "jadikan cuti terkunci",
+    "kunci cutiku"
   ],
   "confirm_pending_action": [
     "konfirmasi tindakan",
@@ -1372,18 +1388,6 @@
     "perluas makro sebagai salinan",
     "salinan makro perhitungan yang diperluas"
   ],
-  "assign_macro_to_shift": [
-    "tetapkan makro ke shift",
-    "ganti makro perhitungan shift"
-  ],
-  "assign_macro_to_absence_type": [
-    "tetapkan makro ke jenis ketidakhadiran",
-    "ganti makro perhitungan jenis ketidakhadiran"
-  ],
-  "revert_macro_assignment": [
-    "batalkan penetapan makro",
-    "kembalikan makro perhitungan sebelumnya"
-  ],
   "fetch_new_emails": [
     "ambil email baru sekarang",
     "segarkan kotak masuk segera"
@@ -1676,6 +1680,14 @@
     "apa yang bisa kamu tangani sendiri",
     "tampilkan batas tindakan mandiri",
     "apakah sakelar mati utama aktif"
+  ],
+  "get_replacement_status": [
+    "status pencarian pengganti",
+    "siapa yang sudah ditawari untuk menggantikan",
+    "apakah shift sudah ada penggantinya",
+    "bagaimana status pengganti untuk karyawan yang absen",
+    "cek siapa yang sudah dihubungi untuk ganti",
+    "status tanggapan calon pengganti"
   ],
   "get_scheduling_defaults": [
     "menampilkan pengaturan penjadwalan",
@@ -2425,6 +2437,10 @@
     "batalkan aturan perusahaan yang diterapkan",
     "pulihkan aturan perusahaan sebelumnya"
   ],
+  "revert_macro_assignment": [
+    "batalkan penetapan makro",
+    "kembalikan makro perhitungan sebelumnya"
+  ],
   "revoke_day_approval": [
     "batalkan persetujuan hari ini",
     "cabut approval tanggal 15 mei",
@@ -2711,6 +2727,14 @@
     "proses file order sekarang",
     "paksa import pesanan",
     "impor manual erp"
+  ],
+  "unconfirm_break": [
+    "buka kunci cuti",
+    "batalkan konfirmasi cuti",
+    "lepas kunci absen",
+    "buka kunci entri libur",
+    "batalkan kunci ketidakhadiran",
+    "biarkan entri libur bisa dihapus"
   ],
   "unconfirm_work": [
     "buka kunci assignment",

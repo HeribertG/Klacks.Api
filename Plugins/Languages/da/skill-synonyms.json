@@ -193,6 +193,14 @@
     "tildel kontrakt",
     "medarbejderkontrakt"
   ],
+  "assign_macro_to_absence_type": [
+    "tildel makro til fraværstype",
+    "udskift beregningsmakro for fraværstype"
+  ],
+  "assign_macro_to_shift": [
+    "tildel makro til vagt",
+    "udskift beregningsmakro for vagt"
+  ],
   "assign_orders_to_groups": [
     "gruppér importerede ordrer",
     "ordrer uden gruppe"
@@ -300,6 +308,14 @@
     "seal måneden",
     "lås alle vagter i maj",
     "finalisér perioden fra 1. maj til 31. maj"
+  ],
+  "confirm_break": [
+    "bekræft ferieindtastningen",
+    "lås mit feriefravær",
+    "fastlås sygefraværet",
+    "bekræft fraværet",
+    "godkend min ferie",
+    "markér ferien som bekræftet"
   ],
   "confirm_pending_action": [
     "bekræft handling",
@@ -1408,18 +1424,6 @@
     "udvid makro som kopi",
     "udvidet kopi af beregningsmakro"
   ],
-  "assign_macro_to_shift": [
-    "tildel makro til vagt",
-    "udskift beregningsmakro for vagt"
-  ],
-  "assign_macro_to_absence_type": [
-    "tildel makro til fraværstype",
-    "udskift beregningsmakro for fraværstype"
-  ],
-  "revert_macro_assignment": [
-    "fortryd makrotildeling",
-    "gendan tidligere beregningsmakro"
-  ],
   "fetch_new_emails": [
     "hent nye e-mails nu",
     "opdater indbakken med det samme"
@@ -1705,6 +1709,14 @@
     "hvad kan du klare selv",
     "vis grænsen for selvstændig handling",
     "er hovedafbryderen slået til"
+  ],
+  "get_replacement_status": [
+    "hvem er blevet spurgt om at tage vagten?",
+    "hvem har sagt ja eller nej til at dække?",
+    "er vagten dækket?",
+    "hvad er status på vikarsøgningen?",
+    "hvem har vi kontaktet angående fraværet?",
+    "hvor langt er vi med at finde en afløser?"
   ],
   "get_scheduling_defaults": [
     "planlægningsindstillinger",
@@ -2448,6 +2460,10 @@
     "tilbagefør en anvendt virksomhedsregel",
     "gendan den tidligere virksomhedsregel"
   ],
+  "revert_macro_assignment": [
+    "fortryd makrotildeling",
+    "gendan tidligere beregningsmakro"
+  ],
   "revoke_day_approval": [
     "tilbagekald godkendelsen af mandag",
     "annuller frigivelsen af dagen",
@@ -2740,6 +2756,14 @@
     "importer ordrer nu",
     "udløs import af ordrer",
     "kør importen nu"
+  ],
+  "unconfirm_break": [
+    "lås ferien op",
+    "fjern låsen fra fraværet",
+    "fortryd bekræftelsen af ferien",
+    "frigiv sygefraværet",
+    "annullér lås på ferieindtastningen",
+    "ophæv bekræftelsen af fraværet"
   ],
   "unconfirm_work": [
     "fjern låsningen af vagten",
