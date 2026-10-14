@@ -2,12 +2,17 @@
 #
 # Reusable build, install gate and (optionally) publish of the native Windows installation
 # (docs/plans/native-a2-release-package-2026-10-13.md). Every mode builds the signed win-x64 bundle and the office-PC
-# package klacks-office-pc-win-x64.zip, installs that package through Installieren.cmd on a clean runner (service mode,
-# Windows PowerShell 5.1, path with space and umlaut) and checks start, UI, login, setup status, restart and uninstall.
+# package klacks-office-pc-win-x64.zip once, installs exactly that package through Installieren.cmd on clean runners
+# (service mode, Windows PowerShell 5.1, path with space and umlaut; x64 with and without region, and Windows 11 on
+# ARM64 where the x64 package runs through emulation) and checks start, UI, login, setup status, restart and uninstall.
 #   gate             stops after the checks
-#   release-dry-run  additionally rehearses the publish on a draft release (tag native-dryrun-<run id>, deleted after)
+#   release-dry-run  additionally rehearses the publish on draft releases (tags native-dryrun-<run id> and
+#                    office-pc-dryrun-<run id>, deleted after)
 #   release          publishes to the stable release v<version>: bundle + package, then adds artifacts.native to
-#                    stable.json - only after both installs are green and every check passed (fail-closed)
+#                    stable.json - only after every install is green and every check passed (fail-closed). Finally the
+#                    package replaces the asset of the rolling prerelease office-pc, the stable download link of the
+#                    marketplace: it always serves the last green package, also while a newer release is still
+#                    building or after a failed native run.
 # Callers: native-windows-gate.yml (workflow_dispatch) and native-release.yml (v* tags). Callers pass secrets: inherit.
 
 name: Native Windows (reusable)
@@ -33,6 +38,9 @@ env:
   SEED_ADMIN_PASSWORD: 'P@ssw0rt1'
   RELEASE_DOWNLOAD_BASE: 'https://github.com/HeribertG/Klacks.Api/releases/download'
   PACKAGE_FILE: 'klacks-office-pc-win-x64.zip'
+  ROLLING_TAG: 'office-pc'
+  ROLLING_STAGED_FILE: 'klacks-office-pc-win-x64.next.zip'
+  ROLLING_PREVIOUS_FILE: 'klacks-office-pc-win-x64.previous.zip'
 
 jobs:
   ui:
@@ -95,15 +103,11 @@ jobs:
           path: ui
           retention-days: 3
 
-  install:
-    name: install (region '${{ matrix.region }}')
+  package:
+    name: package (win-x64)
     needs: ui
     runs-on: windows-latest
     timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix:
-        region: ['', 'ch']
     env:
       VERSION: ${{ needs.ui.outputs.version }}
     steps:
@@ -245,13 +249,56 @@ jobs:
           Write-Host "RuntimeIdentifier: $rid"
           if ($rid -ne 'win-x64') { throw "RuntimeIdentifier is '$rid', the manifest entry says win-x64." }
 
+      - name: Upload release payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-release-payload
+          path: |
+            bundle/klacks-${{ env.VERSION }}-win-x64.zip
+            bundle/klacks-${{ env.VERSION }}-win-x64.json
+            package/${{ env.PACKAGE_FILE }}
+          retention-days: 14
+
+  install:
+    name: install (${{ matrix.label }})
+    needs: [ui, package]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: x64
+            runner: windows-latest
+            region: ''
+          - label: x64-ch
+            runner: windows-latest
+            region: 'ch'
+          - label: arm64-emulation
+            runner: windows-11-arm
+            region: ''
+    env:
+      VERSION: ${{ needs.ui.outputs.version }}
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          path: Klacks.Api
+
+      - name: Download release payload
+        uses: actions/download-artifact@v4
+        with:
+          name: native-release-payload
+          path: payload
+
       - name: Install Klacks from the package (Installieren.cmd, Windows PowerShell 5.1)
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
+          Write-Host "OS architecture: $env:PROCESSOR_ARCHITECTURE / $((Get-CimInstance Win32_OperatingSystem).OSArchitecture)"
           # A folder name with a space and an umlaut, as on a German USB stick; [char] keeps the script ASCII-only.
           $target = Join-Path $env:RUNNER_TEMP ('Test Ordner ' + [char]0x00C4)
-          Expand-Archive -Path "package\$env:PACKAGE_FILE" -DestinationPath $target
+          Expand-Archive -Path "payload\package\$env:PACKAGE_FILE" -DestinationPath $target
           $env:KLACKS_NO_PAUSE = '1'
           # Start-Process runs the .cmd the way a double-click does (cmd /c with the quoted path).
           $launch = @{ FilePath = (Join-Path $target 'Installieren.cmd'); Wait = $true; PassThru = $true; NoNewWindow = $true }
@@ -264,6 +311,23 @@ jobs:
           $vc = 'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\X64', 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64' |
             ForEach-Object { Get-ItemProperty -Path $_ -ErrorAction SilentlyContinue } | Where-Object { $_.Installed -eq 1 }
           if (-not $vc) { throw 'The Visual C++ runtime is not registered after the installation.' }
+
+      - name: Service binaries are x64
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # The manifest entry and the updater's artifact choice say win-x64; on ARM64 the services must still run the
+          # x64 binaries (through emulation), so the PE machine type of every registered service binary is checked.
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
+            $pathName = (Get-CimInstance Win32_Service -Filter "Name='$name'").PathName
+            $exe = if ($pathName -match '^"([^"]+)"') { $Matches[1] } else { ($pathName -split ' ')[0] }
+            $header = New-Object byte[] 4096
+            $stream = [IO.File]::OpenRead($exe)
+            try { [void]$stream.Read($header, 0, $header.Length) } finally { $stream.Dispose() }
+            $machine = [BitConverter]::ToUInt16($header, [BitConverter]::ToInt32($header, 0x3C) + 4)
+            Write-Host ('{0}: {1} machine 0x{2:X4}' -f $name, $exe, $machine)
+            if ($machine -ne 0x8664) { throw ('{0} runs {1}, which is not an x64 binary.' -f $name, $exe) }
+          }
 
       - name: Check services, UI, login and setup status
         shell: powershell
@@ -342,24 +406,13 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: diagnostics-${{ matrix.region || 'default' }}
+          name: diagnostics-${{ matrix.label }}
           path: diagnostics
-          retention-days: 14
-
-      - name: Upload release payload
-        if: success() && matrix.region == ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: native-release-payload
-          path: |
-            bundle/klacks-${{ env.VERSION }}-win-x64.zip
-            bundle/klacks-${{ env.VERSION }}-win-x64.json
-            package/${{ env.PACKAGE_FILE }}
           retention-days: 14
 
   publish:
     name: publish (${{ inputs.mode }})
-    needs: [ui, install]
+    needs: [ui, package, install]
     if: ${{ inputs.mode != 'gate' }}
     runs-on: ubuntu-latest
     # deploy.yml needs about 77 min from the tag to stable.json (v1.0.41, v1.0.42); the wait below allows 150 min.
@@ -454,6 +507,69 @@ jobs:
           gh release download "$tag" -R "$GITHUB_REPOSITORY" -p stable.json -O published-stable.json --clobber
           cmp published-stable.json merged-stable.json
 
+      - name: Rolling office-PC download
+        id: rolling
+        run: |
+          set -euo pipefail
+          if [ "$MODE" = release ]; then rolling="$ROLLING_TAG"; else rolling="${ROLLING_TAG}-dryrun-${GITHUB_RUN_ID}"; fi
+          echo "tag=$rolling" >> "$GITHUB_OUTPUT"
+          if ! gh release view "$rolling" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            draft=()
+            [ "$MODE" = release ] || draft=(--draft)
+            # A prerelease that is never "latest": releases/latest/download/stable.json stays the Docker update path.
+            gh release create "$rolling" -R "$GITHUB_REPOSITORY" "${draft[@]}" --prerelease --latest=false \
+              --target "$GITHUB_SHA" --title "Office PC package" \
+              --notes "Always the last office-PC package that passed the native install gate; replaced by every stable release."
+          fi
+          mkdir -p rolling
+          gh release view "$rolling" -R "$GITHUB_REPOSITORY" --json name > rolling/release.json
+          current=$(jq -r '.name' rolling/release.json | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+$' || true)
+          if [ -n "$current" ] && [ "$current" != "$VERSION" ] \
+             && [ "$(printf '%s\n%s\n' "$current" "$VERSION" | sort -V | tail -1)" = "$current" ]; then
+            echo "::notice::${rolling} already serves ${current}, newer than ${VERSION}; left unchanged."
+            exit 0
+          fi
+          if [ "$MODE" != release ]; then
+            # The dry-run draft starts empty; a placeholder lets the rehearsal run the same replace path as a release.
+            echo placeholder > "rolling/${PACKAGE_FILE}"
+            gh release upload "$rolling" "rolling/${PACKAGE_FILE}" -R "$GITHUB_REPOSITORY" --clobber
+          fi
+          cp "payload/package/${PACKAGE_FILE}" "rolling/${ROLLING_STAGED_FILE}"
+          gh release upload "$rolling" "rolling/${ROLLING_STAGED_FILE}" -R "$GITHUB_REPOSITORY" --clobber
+          # Upload under a staging name first, then swap by renaming: the public file is missing for one API call, not
+          # for an upload, and a failed swap restores the previous package.
+          asset_url() { jq -r --arg n "$1" '.assets[] | select(.name == $n) | .apiUrl' rolling/assets.json; }
+          rename_asset() {
+            for attempt in 1 2 3; do
+              if gh api -X PATCH "$1" -f name="$2" > /dev/null; then return 0; fi
+              sleep 10
+            done
+            return 1
+          }
+          gh release view "$rolling" -R "$GITHUB_REPOSITORY" --json assets > rolling/assets.json
+          leftover=$(asset_url "$ROLLING_PREVIOUS_FILE")
+          if [ -n "$leftover" ]; then gh api -X DELETE "$leftover"; fi
+          old=$(asset_url "$PACKAGE_FILE")
+          staged=$(asset_url "$ROLLING_STAGED_FILE")
+          [ -n "$staged" ] || { echo "::error::Staged asset ${ROLLING_STAGED_FILE} is missing on ${rolling}"; exit 1; }
+          if [ -n "$old" ]; then
+            rename_asset "$old" "$ROLLING_PREVIOUS_FILE" || { echo "::error::Moving the previous package aside on ${rolling} failed"; exit 1; }
+          fi
+          if ! rename_asset "$staged" "$PACKAGE_FILE"; then
+            if [ -n "$old" ]; then rename_asset "$old" "$PACKAGE_FILE" || echo "::error::Restoring the previous package on ${rolling} failed"; fi
+            echo "::error::Renaming the staged package on ${rolling} failed"
+            exit 1
+          fi
+          if [ -n "$old" ]; then gh api -X DELETE "$old"; fi
+          gh release edit "$rolling" -R "$GITHUB_REPOSITORY" --title "Office PC package ${VERSION}" > /dev/null
+          if [ "$MODE" = release ]; then
+            curl -fsSL "${RELEASE_DOWNLOAD_BASE}/${rolling}/${PACKAGE_FILE}" -o rolling/back.zip
+          else
+            gh release download "$rolling" -R "$GITHUB_REPOSITORY" -p "$PACKAGE_FILE" -O rolling/back.zip
+          fi
+          cmp rolling/back.zip "payload/package/${PACKAGE_FILE}"
+          echo "Rolling download ${rolling}/${PACKAGE_FILE} serves ${VERSION}."
+
       - name: Upload publish evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -466,7 +582,16 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Delete dry-run release
-        if: always() && inputs.mode == 'release-dry-run' && steps.target.outputs.tag != ''
+      - name: Delete dry-run releases
+        if: always() && inputs.mode == 'release-dry-run'
         # A draft release has no git tag yet, so there is no tag to clean up (--cleanup-tag answers 422).
-        run: gh release delete "${{ steps.target.outputs.tag }}" -R "$GITHUB_REPOSITORY" --yes
+        env:
+          DRYRUN_TAG: ${{ steps.target.outputs.tag }}
+          ROLLING_DRYRUN_TAG: ${{ steps.rolling.outputs.tag }}
+        run: |
+          status=0
+          for tag in "$DRYRUN_TAG" "$ROLLING_DRYRUN_TAG"; do
+            [ -n "$tag" ] || continue
+            gh release delete "$tag" -R "$GITHUB_REPOSITORY" --yes || status=1
+          done
+          exit $status
