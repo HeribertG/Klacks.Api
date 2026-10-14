@@ -78,6 +78,14 @@ public record SkillExecutionContext
     public PersonalAccessTokenAccessMode? ExternalAgentAccessMode { get; init; }
 
     /// <summary>
+    /// Capped channel (CappedChannels) that dispatched this turn, set ONLY by the channel's own entry point and carried
+    /// through ProcessLLMMessageCommand and LLMContext, never read from the LLM's parameter dictionary. Together with
+    /// ExternalAgentAccessMode it tells SkillExecutorService, the plan and schedule authoring skills and the research
+    /// sub-loop that CappedChannelSkillExclusions applies. Null on chat, REST and background paths.
+    /// </summary>
+    public string? CappedChannel { get; init; }
+
+    /// <summary>
     /// Ids of memories already injected into the system prompt this turn (ambient retrieval). Null
     /// when unknown/not a chat turn. Consumed by GetAiMemoriesSkill to avoid duplicating full-text
     /// memory content the model already has in context.

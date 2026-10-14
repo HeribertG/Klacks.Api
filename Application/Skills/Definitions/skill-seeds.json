@@ -24675,7 +24675,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanEditClients"
       ],
       "parameters": [],
       "handlerConfig": null,
@@ -24732,7 +24732,7 @@
         "fr": "Lister les dossiers e-mail",
         "it": "Elenca le cartelle e-mail"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_emails",
@@ -24741,7 +24741,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanManageAutomation"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -24827,7 +24827,7 @@
         "fr": "Lister les e-mails",
         "it": "Elenca le e-mail"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "read_email",
@@ -24836,7 +24836,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanManageAutomation"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -24902,7 +24902,7 @@
         "fr": "Lire un e-mail",
         "it": "Leggi un'e-mail"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "mark_email_read",
@@ -24911,7 +24911,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -24972,7 +24972,7 @@
         "fr": "Marquer un e-mail comme lu ou non lu",
         "it": "Contrassegna un'e-mail come letta o non letta"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "fetch_new_emails",
@@ -24981,7 +24981,7 @@
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanEditClients"
       ],
       "parameters": [],
       "handlerConfig": null,
@@ -25025,7 +25025,7 @@
         "fr": "Récupérer les nouveaux e-mails maintenant",
         "it": "Recupera subito le nuove e-mail"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "move_email_to_folder",
@@ -25034,7 +25034,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -25102,7 +25102,7 @@
         "fr": "Déplacer un e-mail vers un dossier",
         "it": "Sposta un'e-mail in una cartella"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_email",
@@ -25111,7 +25111,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -25161,7 +25161,7 @@
         "fr": "Supprimer un e-mail",
         "it": "Elimina un'e-mail"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "restore_email",
@@ -25170,7 +25170,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -25220,7 +25220,7 @@
         "fr": "Restaurer un e-mail depuis la corbeille",
         "it": "Ripristina un'e-mail dal cestino"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_email_analysis",
@@ -25229,7 +25229,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanManageAutomation"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -25281,7 +25281,7 @@
         "fr": "Afficher l'analyse d'un e-mail",
         "it": "Mostra l'analisi dell'e-mail"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_messenger_analysis",
@@ -25419,7 +25419,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -25477,7 +25477,7 @@
         "fr": "Traduire un e-mail",
         "it": "Traduci un'e-mail"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_transcription_dictionary_entries",
@@ -43726,7 +43726,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanManageAutomation"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -43780,7 +43780,7 @@
           "emails from"
         ]
       },
-      "version": 4,
+      "version": 5,
       "synonyms": {
         "de": [
           "mails von kunde",
@@ -43821,7 +43821,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -43859,7 +43859,7 @@
           "group emails"
         ]
       },
-      "version": 3,
+      "version": 4,
       "synonyms": {
         "de": [
           "mails vom team",
@@ -43900,7 +43900,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanEditClients"
       ],
       "parameters": [],
       "handlerConfig": null,
@@ -43921,7 +43921,7 @@
           "unread overview"
         ]
       },
-      "version": 4,
+      "version": 5,
       "synonyms": {
         "de": [
           "wo liegt unbearbeitete post",

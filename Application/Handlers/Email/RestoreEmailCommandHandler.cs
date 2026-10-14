@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Restores one received email from the trash, locally and on the IMAP server. An email whose sender
-/// belongs only to clients outside the caller's group visibility is refused exactly like a missing email.
+/// Restores one received email from the trash, locally and on the IMAP server, into the folder marked as inbox (else the
+/// first folder that is not the trash). An email whose sender belongs only to clients outside the caller's group
+/// visibility is refused exactly like a missing email.
 /// </summary>
 /// <param name="emailQueryRepository">Resolves the clients that own the sender address</param>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may see those clients</param>
@@ -48,7 +49,8 @@ public class RestoreEmailCommandHandler : BaseHandler, IRequestHandler<RestoreEm
         return await ExecuteAsync(async () =>
         {
             var folders = await _folderRepository.GetAllAsync();
-            var defaultFolder = folders.FirstOrDefault(f => f.SpecialUse != FolderSpecialUse.Trash);
+            var defaultFolder = folders.FirstOrDefault(f => f.SpecialUse == FolderSpecialUse.Inbox)
+                ?? folders.FirstOrDefault(f => f.SpecialUse != FolderSpecialUse.Trash);
             var targetFolder = defaultFolder?.ImapFolderName ?? "INBOX";
 
             var email = await _repository.GetByIdAsync(request.Id);

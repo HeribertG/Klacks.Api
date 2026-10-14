@@ -5,6 +5,8 @@
 /// was changed and that a fresh preview and a fresh confirmation are needed. Describe picks ListChanged when both sides
 /// carry their items and are of the same kind (it can count what changed) and ScopeChanged otherwise. ChatOnlyStep is
 /// the text a user sees when an agent plan step names a skill that shows a server preview and so can only run in the chat.
+/// BindingRequired and ScopeChanged are the texts of the plugin contract (PluginConfirmationTexts), so a plugin skill that is
+/// bound to its preview refuses in the same words.
 /// </summary>
 
 using System.Globalization;
@@ -14,19 +16,14 @@ namespace Klacks.Api.Domain.Constants;
 
 public static class ConfirmationBindingMessages
 {
-    public const string BindingRequired =
-        "'{0}' only runs as the confirmed replay of its own server preview. Call it without a token to get the "
-        + "preview, show it to the user and ask for confirmation.";
+    public const string BindingRequired = Klacks.Plugin.Contracts.Skills.PluginConfirmationTexts.BindingRequired;
 
     public const string ListChanged =
         "What this confirmation was given for has changed since the preview: {0} item(s) were shown, {1} apply now "
         + "({2} new, {3} no longer there). Nothing was changed and this confirmation is void. Repeat the call without a "
         + "confirmation token to get a fresh preview, show it to the user and ask for a new confirmation.";
 
-    public const string ScopeChanged =
-        "What this confirmation was given for has changed since the preview. Nothing was changed and this "
-        + "confirmation is void. Repeat the call without a confirmation token to get a fresh preview, show it to the "
-        + "user and ask for a new confirmation.";
+    public const string ScopeChanged = Klacks.Plugin.Contracts.Skills.PluginConfirmationTexts.ScopeChanged;
 
     public const string ContainerChildrenChanged =
         "The container entries (child works and breaks) that the delete would take along differ from the confirmed "

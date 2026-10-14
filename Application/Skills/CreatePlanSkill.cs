@@ -37,6 +37,10 @@ public class CreatePlanSkill : BaseSkillImplementation
         "This plan cannot be run for an external agent: its skill '{0}' is not available to this caller over MCP, "
         + "so the plan may not run it on the caller's behalf either.";
 
+    private const string StepNotAvailableInChannelMessage =
+        "This plan cannot be run from this channel: its skill '{0}' is not available here, so the plan may not run "
+        + "it on the caller's behalf later either.";
+
     private readonly IPlanChatService _planChatService;
     private readonly IAgentPlanRepository _planRepository;
     private readonly IPendingConfirmationStore _confirmationStore;
@@ -102,6 +106,11 @@ public class CreatePlanSkill : BaseSkillImplementation
             return SkillResult.Error(
                 "I could not break this goal down into concrete steps from the available skills. " +
                 "Please rephrase the request or split it into individual actions.");
+        }
+
+        if (FindStepUnavailableInChannel(plan.StepsJson, context) is { } blockedSkill)
+        {
+            return SkillResult.Error(string.Format(StepNotAvailableInChannelMessage, blockedSkill));
         }
 
         if (FindStepUnavailableToExternalAgent(plan.StepsJson, context) is { } unavailableSkill)
@@ -174,6 +183,11 @@ public class CreatePlanSkill : BaseSkillImplementation
                 $"The plan is already '{plan.Status}' — not started again.");
         }
 
+        if (FindStepUnavailableInChannel(plan.StepsJson, context) is { } blockedSkill)
+        {
+            return SkillResult.Error(string.Format(StepNotAvailableInChannelMessage, blockedSkill));
+        }
+
         if (FindStepUnavailableToExternalAgent(plan.StepsJson, context) is { } unavailableSkill)
         {
             return SkillResult.Error(string.Format(StepNotAvailableToExternalAgentMessage, unavailableSkill));
@@ -192,6 +206,18 @@ public class CreatePlanSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(
             new { planId = plan.Id, status = PlanStatus.Executing },
             "Plan execution started. Progress will stream to the plan panel; tell the user it is running now.");
+    }
+
+    private static string? FindStepUnavailableInChannel(string stepsJson, SkillExecutionContext context)
+    {
+        if (string.IsNullOrEmpty(context.CappedChannel))
+        {
+            return null;
+        }
+
+        return PlanStepsJson.Parse(stepsJson)
+            .SelectMany(step => new[] { step.Skill, step.VerifySkill })
+            .FirstOrDefault(skillName => CappedChannelSkillExclusions.Blocks(skillName, context));
     }
 
     private string? FindStepUnavailableToExternalAgent(string stepsJson, SkillExecutionContext context)

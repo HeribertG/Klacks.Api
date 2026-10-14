@@ -7,6 +7,7 @@
 /// <param name="Message">User's chat message.</param>
 /// <param name="UserRights">User's permissions for skill access control.</param>
 /// <param name="ModelId">Optional specific LLM model to use.</param>
+/// <param name="CappedChannel">Set by a channel that dispatches with capped rights and no person present (CappedChannels); the toolset and the skill executor then withhold CappedChannelSkillExclusions.</param>
 /// <param name="Language">User's UI language, any of the 25 supported languages; NOT necessarily the language the message is written in.</param>
 
 using Klacks.Api.Domain.Models.Assistant;
@@ -27,4 +28,5 @@ public class ProcessLLMMessageCommand : IRequest<LLMResponse>
     public Guid? AgentId { get; set; }
     public AssistantPageContext? PageContext { get; set; }
     public bool IsVoiceMode { get; set; }
+    public string? CappedChannel { get; set; }
 }

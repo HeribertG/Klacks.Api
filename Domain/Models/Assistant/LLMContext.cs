@@ -23,6 +23,12 @@ public class LLMContext
     public string? ConversationId { get; set; }
 
     /// <summary>
+    /// Capped channel (CappedChannels) that dispatched this turn, copied from the command by the chat entry point and
+    /// onto the SkillExecutionContext by LLMFunctionExecutor. Null for turns of a signed-in person.
+    /// </summary>
+    public string? CappedChannel { get; set; }
+
+    /// <summary>
     /// Unique id of this chat turn, generated once at turn start and carried on the context so every
     /// consumer (trajectory capture, skill usage tracking, LLM usage row) writes the same key.
     /// This is the join key "turn -> chosen skill -> execution result" (W1.1).

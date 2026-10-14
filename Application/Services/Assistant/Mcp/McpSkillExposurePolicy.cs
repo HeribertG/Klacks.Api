@@ -6,7 +6,8 @@
 /// this policy's own exclusion list. The exclusion list exists because SkillRiskClass.Sensitive is
 /// a bundled lever — it hides a skill from MCP but also forces a chat confirmation, blocks plan and
 /// recurring-task steps. A read-only skill that must stay invisible to external agents without
-/// paying that price belongs here instead of in SkillRiskClassifier.SensitiveSkills.
+/// paying that price belongs here instead of in SkillRiskClassifier.SensitiveSkills. CappedChannelSkillExclusions is added
+/// to the exclusions: the skills B8 opened to the Supervisor role must not follow an Authorised-capped token into MCP.
 /// </summary>
 /// <param name="descriptor">Skill whose name, execution type, category and risk class are evaluated</param>
 
@@ -43,7 +44,7 @@ public class McpSkillExposurePolicy : IMcpSkillExposurePolicy
 
     public bool IsExposed(SkillDescriptor descriptor)
     {
-        if (ExcludedSkills.Contains(descriptor.Name))
+        if (ExcludedSkills.Contains(descriptor.Name) || CappedChannelSkillExclusions.Contains(descriptor.Name))
         {
             return false;
         }

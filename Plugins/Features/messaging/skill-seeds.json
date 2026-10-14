@@ -1,14 +1,14 @@
 [
   {
     "name": "send_message",
-    "description": "Send a message via Telegram, WhatsApp, Signal, SMS or any other configured messenger provider, to a Klacks client (default) or to an application user. ALWAYS call this directly when the user says 'send/schick' a message, even if no provider/channel is named — do not ask for confirmation, do not first check the provider list, do not ask which provider/channel to use before calling the skill; the skill itself resolves the provider automatically when only one is enabled. For recipientType 'client' (default): recipient values are 'mir' / 'ich' / 'me' / 'myself' (sends to the Klacks owner — looked up in Settings -> Owner-Messenger card), a contact name like 'Heribert' (looked up in the Mitarbeiter Messenger tab for the requested provider type), or a literal phone number / Telegram chat ID; provider is optional — omit it and the skill uses the one enabled messaging provider automatically, only asking (or erroring) if none or more than one is enabled. For recipientType 'user': recipient is an application-user name, resolved by name search; provider is optional — omit it to use that user's preferred paired channel. If the name search finds more than one match, the skill returns the candidate names instead of guessing — ask the user which one they meant and call the skill again with a more specific name.",
+    "description": "Sends a message via a configured messenger such as Telegram, WhatsApp, Signal or SMS to a Klacks client or, for administrators, to an application user. Call it right away, without asking first: the server shows channel, resolved recipient and text verbatim, and the message goes out only after the user confirms exactly that. Without a provider the single enabled one is used. A name matching several clients returns the candidates; ask which one is meant. Non-admins reach only visible clients.",
     "category": "Communication",
     "executionType": "Skill",
-    "requiredPermissions": ["CanEditSettings"],
+    "requiredPermissions": ["CanEditClients"],
     "parameters": [
       {
         "name": "recipientType",
-        "description": "Who to send to: 'client' (default) for a Klacks client, or 'user' for an application user (login account).",
+        "description": "Who to send to: 'client' (default) for a Klacks client, or 'user' for an application user (login account; administrators only).",
         "type": "Enum",
         "required": false,
         "defaultValue": "client",
@@ -16,13 +16,13 @@
       },
       {
         "name": "provider",
-        "description": "The messaging provider name (e.g., telegram, whatsapp). Optional for both recipientType 'client' and 'user' — for 'client', omitting it uses the single enabled provider automatically (the skill only asks when none or more than one is enabled); for 'user', omitting it uses that user's preferred paired channel.",
+        "description": "The messaging provider name or type, such as telegram or whatsapp. Optional: for recipientType 'client' the single enabled provider is used when it is omitted (the skill asks when none or several are enabled); for 'user' the user's preferred paired channel is used.",
         "type": "String",
         "required": false
       },
       {
         "name": "recipient",
-        "description": "Recipient identifier. For recipientType 'client': 'mir' / 'ich' / 'me' / 'myself' to send to the Klacks owner — the skill looks up the Owner-Messenger jsonb setting and resolves the requested provider type to a chat ID / phone. Otherwise a contact name (e.g. 'Max Muster') which is resolved against the Klacks Mitarbeiter Messenger tab for the requested provider type, or a literal phone number / Telegram chat ID that is sent through unchanged. For recipientType 'user': an application-user name, resolved by name search.",
+        "description": "Who receives the message. For recipientType 'client': a client name, resolved against the messenger contacts of the clients; or a literal phone number or chat ID (for non-admins only one that belongs to a contact of a client they may see); administrators may also use 'mir', 'ich', 'me' or 'myself' for the Klacks owner (Settings -> Owner-Messenger). For recipientType 'user': an application-user name, resolved by name search.",
         "type": "String",
         "required": true
       },
@@ -59,14 +59,14 @@
       "fr": "Envoyer un message par messagerie",
       "it": "Invia un messaggio tramite messenger"
     },
-    "version": 17
+    "version": 19
   },
   {
     "name": "read_messages",
-    "description": "Read recent messages from messaging providers. Shows incoming and outgoing messages with sender, content, and timestamp.",
+    "description": "Read recent messages from messaging providers. Shows incoming and outgoing messages with sender, content, and timestamp. Non-admins see only messages of clients they may see; messages without a client are shown to administrators only.",
     "category": "Communication",
     "executionType": "Skill",
-    "requiredPermissions": ["CanViewSettings"],
+    "requiredPermissions": ["CanEditClients"],
     "parameters": [
       {
         "name": "provider",
@@ -114,14 +114,14 @@
       "fr": "Lire les messages de messagerie",
       "it": "Leggi i messaggi di messaggistica"
     },
-    "version": 11
+    "version": 13
   },
   {
     "name": "list_messaging_providers",
     "description": "List all configured messaging providers with their name, type, and enabled status.",
     "category": "Communication",
     "executionType": "Skill",
-    "requiredPermissions": ["CanViewSettings"],
+    "requiredPermissions": ["CanViewClients"],
     "parameters": [],
     "handlerConfig": null,
     "handlerType": null,
@@ -141,7 +141,7 @@
       "fr": "Lister les fournisseurs de messagerie",
       "it": "Elenca i provider di messaggistica"
     },
-    "version": 11
+    "version": 12
   },
   {
     "name": "diagnose_messaging_setup",

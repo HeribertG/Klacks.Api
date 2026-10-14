@@ -345,7 +345,10 @@ public class SkillExecutorService : ISkillExecutor
             UserId = context.UserId,
             TenantId = context.TenantId,
             UserName = context.UserName,
-            UserPermissions = context.UserPermissions
+            UserPermissions = context.UserPermissions,
+            ConfirmedBinding = context.ConfirmedActionBinding is { } binding
+                ? new Klacks.Plugin.Contracts.Skills.PluginConfirmedBinding(binding.Kind, binding.Items)
+                : null
         };
         var pluginResult = await pluginImpl.ExecuteAsync(pluginContext, invocation.Parameters, cancellationToken);
         return MapPluginSkillResult(pluginResult);
@@ -492,8 +495,23 @@ public class SkillExecutorService : ISkillExecutor
         return results;
     }
 
+    /// <summary>
+    /// Refuses a skill of CappedChannelSkillExclusions on a capped channel (Slack owner bridge, MCP) whatever the rights say, then
+    /// checks the rights the skill requires and, for the skills of GroupVisibilityBoundSkills, that somebody is identified:
+    /// the visibility guards read the ambient user and answer "unrestricted" for no user at all, which is right for a
+    /// background job but would hand a call made for a person every client's data. After BeginContextPrincipal the ambient
+    /// owner is set exactly when the context names a user or an owner further up already runs the flow; an HTTP claim is
+    /// not consulted, so a request whose context lost its user id is refused too. Admins are unrestricted either way.
+    /// </summary>
+    /// <param name="descriptor">Skill about to run.</param>
+    /// <param name="context">Execution context of the caller.</param>
     private static SkillResult ValidatePermissions(SkillDescriptor descriptor, SkillExecutionContext context)
     {
+        if (CappedChannelSkillExclusions.Blocks(descriptor.Name, context))
+        {
+            return SkillResult.Error(CappedChannelSkillExclusions.DescribeNotAvailable(descriptor.Name));
+        }
+
         if (context.UserPermissions.Contains(Roles.Admin))
         {
             return SkillResult.SuccessResult(null);
@@ -507,6 +525,11 @@ public class SkillExecutorService : ISkillExecutor
         {
             return SkillResult.Error(
                 $"Permission denied. Missing permissions: {string.Join(", ", missingPermissions)}");
+        }
+
+        if (GroupVisibilityBoundSkills.Contains(descriptor.Name) && ExecutionPrincipal.CurrentUserId == null)
+        {
+            return SkillResult.Error(GroupVisibilityBoundSkills.UnidentifiedCallerMessage);
         }
 
         return SkillResult.SuccessResult(null);

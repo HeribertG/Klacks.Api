@@ -176,6 +176,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
                 ConversationId = ConversationIdPrefix + executingAdminId,
                 UserRights = userRights,
                 AccessToken = accessToken,
+                CappedChannel = CappedChannels.SlackOwnerBridge,
                 Language = await ResolveLanguageAsync(),
             },
             ct);

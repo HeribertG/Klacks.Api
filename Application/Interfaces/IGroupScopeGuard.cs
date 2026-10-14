@@ -13,7 +13,9 @@ namespace Klacks.Api.Application.Interfaces;
 /// sees nothing either. Coupling: IClientVisibilityGuard and IGroupVisibilityGuard read the ambient user and treat a
 /// missing one as an unrestricted background job, so the two only agree because SkillExecutorService sets the
 /// ExecutionPrincipal from context.UserId for every skill run; a skill reached without that principal and without an
-/// HTTP user is fail-closed here but unrestricted there.
+/// HTTP user is fail-closed here but unrestricted there. For the skills of GroupVisibilityBoundSkills (messaging and
+/// inbox) SkillExecutorService closes that gap itself: a non-admin call without a context user or an ambient owner is
+/// refused before the skill runs.
 /// </summary>
 public interface IGroupScopeGuard
 {

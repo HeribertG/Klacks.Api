@@ -301,7 +301,8 @@ public class LLMFunctionExecutor
                 : UserConfirmationEvidence.None,
             InjectedMemoryIds = context.InjectedMemoryIds,
             ProviderId = context.ProviderId,
-            ModelId = context.ModelId
+            ModelId = context.ModelId,
+            CappedChannel = context.CappedChannel
         };
 
         var skillCall = new Providers.LLMFunctionCall

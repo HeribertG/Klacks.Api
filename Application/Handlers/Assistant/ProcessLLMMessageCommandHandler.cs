@@ -100,7 +100,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             AccessToken = request.AccessToken,
             PageContext = request.PageContext,
             IsVoiceMode = request.IsVoiceMode,
-            AvailableFunctions = toolset.Functions,
+            CappedChannel = request.CappedChannel,
+            AvailableFunctions = WithoutChannelExclusions(toolset.Functions, request.CappedChannel),
             HasDomainSkillContext = toolset.HasDomainSkillContext,
             ToolsetAssemblyMs = toolset.AssemblyMs,
             TurnIntentVetoesForcedToolCall = toolset.TurnIntentVetoesForcedToolCall,
@@ -115,4 +116,9 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
 
         return await _llmService.ProcessAsync(context, cancellationToken);
     }
+
+    private static List<LLMFunction> WithoutChannelExclusions(List<LLMFunction> functions, string? cappedChannel) =>
+        string.IsNullOrEmpty(cappedChannel)
+            ? functions
+            : functions.Where(function => !CappedChannelSkillExclusions.Blocks(function.Name, cappedChannel, null)).ToList();
 }

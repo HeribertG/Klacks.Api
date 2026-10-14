@@ -19,6 +19,7 @@
 /// <param name="skillBridge">Executes read-only tool calls and exports skills as LLM functions.</param>
 
 using Klacks.Api.Application.Interfaces.Assistant;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -137,7 +138,9 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
         var userPermissions = context.UserPermissions;
         var permitted = _skillRegistry.GetSkillsForUser(userPermissions);
         var readOnly = _toolsetFilter.Filter(
-            permitted, ReadOnlyResearchConstants.RunAnalysisSkillName, context.ExternalAgentAccessMode);
+                permitted, ReadOnlyResearchConstants.RunAnalysisSkillName, context.ExternalAgentAccessMode)
+            .Where(descriptor => !CappedChannelSkillExclusions.Blocks(descriptor.Name, context))
+            .ToList();
 
         var allowedNames = readOnly
             .Select(descriptor => descriptor.Name)

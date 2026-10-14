@@ -39,6 +39,11 @@ public static class UntrustedSkillOutputs
         "list_emails",
         "list_emails_by_client",
         "list_emails_by_group",
+        // The verification messages and results quote the sender's subject line, which is attacker-controlled text.
+        "mark_email_read",
+        "move_email_to_folder",
+        "delete_email",
+        "restore_email",
         // Derived from an e-mail body, so it inherits the sender's text (summary, quoted content).
         "get_email_analysis",
         // Derived from a messenger message body, so it inherits the external sender's text.

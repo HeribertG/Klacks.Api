@@ -62,6 +62,10 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
         "Skill '{0}' cannot be scheduled by an external agent: it is not available to this caller over MCP, "
         + "so it cannot run on its behalf in the background either.";
 
+    private const string NotAvailableInChannelMessage =
+        "Skill '{0}' cannot be scheduled from this channel: it is not available here, so it cannot run on the "
+        + "caller's behalf in the background either.";
+
     private readonly IScheduledTaskRepository _repository;
     private readonly ISkillRegistry _skillRegistry;
     private readonly ISkillRiskClassifier _riskClassifier;
@@ -255,6 +259,11 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
         if (_riskClassifier.Classify(descriptor) == SkillRiskClass.Sensitive)
         {
             return $"Skill '{skillName}' is too sensitive to run unattended on a schedule.";
+        }
+
+        if (!string.IsNullOrEmpty(context.CappedChannel) && CappedChannelSkillExclusions.Blocks(skillName, context))
+        {
+            return string.Format(NotAvailableInChannelMessage, skillName);
         }
 
         if (!_mcpDelegatedSkillPolicy.IsAllowed(descriptor, context.ExternalAgentAccessMode))
