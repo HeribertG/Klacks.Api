@@ -1,22 +1,22 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Switches the macro reference of an absence type, or of a shift together with every other live shift cut from the same
-/// order (owner decision F2). The switch is planned first through the same preview the confirmation used, dry run
+/// Switches the macro reference of an absence type, or of a shift together with every other live shift cut from the
+/// same order (owner decision F2). The switch is planned first through the same preview the confirmation used, dry run
 /// included, so a refusal or a target macro that cannot run becomes an InvalidRequestException and the dry-run warnings
 /// and the dry run itself reach the outcome (the skill reports it without a second run). The references that plan would
 /// write are then compared with the binding of the confirmed preview (MacroAssignmentBinding, command field
 /// ConfirmedBinding): when a member was added, is gone or points elsewhere since the user saw the preview, the handler
-/// throws an InvalidRequestException that says how many references differ and starts no transaction, so the user is asked
-/// again with a fresh preview. Only after that, in one transaction, each changed holder is re-read untracked (vanished or changed since the
-/// plan aborts everything), its reference is written on its row alone, one history row per written holder records the
-/// macro before and after, the requesting user and the shared switch id, and every written holder is read back (a
-/// mismatch rolls everything back). The switch id and the history rows are built once, before the transaction, so a
-/// retry of the transaction by the execution strategy re-adds the same rows instead of duplicating them. Nothing is
-/// recalculated: works and breaks keep their stored values until they are edited or recalculated (sealed ones are
-/// skipped by recalculations), and no macro row is written. A failure while saving (any exception of the transaction
-/// other than a refusal or a cancellation) is logged as an error with the switch, holder and macro ids and the holder
-/// count, never with names, and rethrown for the caller to map.
+/// throws an InvalidRequestException that says how many references differ and starts no transaction, so the user is
+/// asked again with a fresh preview. Only after that, in one transaction, each changed holder is re-read untracked
+/// (vanished or changed since the plan aborts everything), its reference is written on its row alone, one history row
+/// per written holder records the macro before and after, the requesting user and the shared switch id, and every
+/// written holder is read back (a mismatch rolls everything back). The switch id and the history rows are built once,
+/// before the transaction, so a retry of the transaction by the execution strategy re-adds the same rows instead of
+/// duplicating them. Nothing is recalculated: works and breaks keep their stored values until they are edited or
+/// recalculated (sealed ones are skipped by recalculations), and no macro row is written. A failure while saving (any
+/// exception of the transaction other than a refusal or a cancellation) is logged as an error with the switch, holder
+/// and macro ids and the holder count, never with names, and rethrown for the caller to map.
 /// </summary>
 /// <param name="request">Holder kind and id, the new macro, the requesting user and the binding of the confirmed preview</param>
 

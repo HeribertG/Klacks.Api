@@ -3,7 +3,8 @@
 /// <summary>
 /// Model-facing error texts for a confirmation that is bound to the facts of its preview. They tell the model that nothing
 /// was changed and that a fresh preview and a fresh confirmation are needed. Describe picks ListChanged when both sides
-/// carry their items (it can count what changed) and ScopeChanged otherwise.
+/// carry their items and are of the same kind (it can count what changed) and ScopeChanged otherwise. ChatOnlyStep is
+/// the text a user sees when an agent plan step names a skill that shows a server preview and so can only run in the chat.
 /// </summary>
 
 using System.Globalization;
@@ -29,11 +30,14 @@ public static class ConfirmationBindingMessages
 
     public const string DirectRedemptionRefused =
         "'{0}' shows a server preview before it runs, so its confirmation token can only be redeemed through "
-        + "'confirm_pending_action'. Nothing was executed; the token stays valid.";
+        + $"'{AutonomyDefaults.ConfirmPendingActionSkillName}'. Nothing was executed; the token stays valid.";
+
+    public const string ChatOnlyStep =
+        "This step can only run in the chat, after the user has confirmed its server preview.";
 
     public static string Describe(ConfirmationBinding stored, ConfirmationBinding current)
     {
-        var diff = stored.DiffTo(current);
+        var diff = string.Equals(stored.Kind, current.Kind, StringComparison.Ordinal) ? stored.DiffTo(current) : null;
         return diff == null
             ? ScopeChanged
             : string.Format(

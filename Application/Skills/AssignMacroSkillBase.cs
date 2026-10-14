@@ -2,22 +2,22 @@
 
 /// <summary>
 /// Shared body of the two macro assignment skills. The caller must hold the Admin role itself (CanEditSettings is not
-/// enough). Holder and macro are addressed by id only, never by name; a shift is switched together with every other live
-/// shift cut from the same order (owner decision F2). The skill only sends <see cref="AssignMacroCommand"/> and carries the
-/// confirmed binding into it (SkillExecutionContext.ConfirmedActionBinding, kind MacroSwitch, set by confirm_pending_action
-/// from the redeemed token): without that binding the skill refuses and sends nothing, so it never runs from a plan step, a
-/// goal plan or a direct call. Its handler plans the switch and runs the dry run exactly like the confirmation preview did,
-/// once per call, and refuses when the references it would write differ from the ones bound to the confirmation — a
-/// refusal, including a target macro that cannot run, comes back as an error and nothing is written — then switches the
-/// references and records
-/// one history row per written holder under one switch id. Nothing is recalculated; the answer says so, repeats the entry
-/// counts of that dry run and carries the switch id that undoes the whole switch. A database failure at the commit is
-/// answered without the raw database message and without claiming that nothing changed. The confirmation itself is
-/// enforced by the autonomy gate (the skills are Sensitive). Accepted residual risk (owner decision F1, 2026-09-25): the
-/// user reads the confirmation in the language model's wording of the server-computed preview, confirm_pending_action redeems
-/// the token only after the user's explicit yes in a later turn, and the chat UI does not show skill results; that is why every
-/// confirmed call checks the role here and the handler plans again and compares, instead of trusting the preview it was
-/// confirmed with (the entry counts, warnings and samples are shown, not bound).
+/// enough). Holder and macro are addressed by id only, never by name; a shift is switched together with every other
+/// live shift cut from the same order (owner decision F2). The skill only sends <see cref="AssignMacroCommand"/> and
+/// carries the confirmed binding into it (SkillExecutionContext.ConfirmedActionBinding, kind MacroSwitch, set by
+/// confirm_pending_action from the redeemed token): without that binding the skill refuses and sends nothing, so it
+/// never runs from a plan step, a goal plan or a direct call. Its handler plans the switch and runs the dry run exactly
+/// like the confirmation preview did, once per call, and refuses when the references it would write differ from the
+/// ones bound to the confirmation — a refusal, including a target macro that cannot run, comes back as an error and
+/// nothing is written — then switches the references and records one history row per written holder under one switch
+/// id. Nothing is recalculated; the answer says so, repeats the entry counts of that dry run and carries the switch id
+/// that undoes the whole switch. A database failure at the commit is answered without the raw database message and
+/// without claiming that nothing changed. The confirmation itself is enforced by the autonomy gate (the skills are
+/// Sensitive). Accepted residual risk (owner decision F1, 2026-09-25): the user reads the confirmation in the language
+/// model's wording of the server-computed preview, confirm_pending_action redeems the token only after the user's
+/// explicit yes in a later turn, and the chat UI does not show skill results; that is why every confirmed call checks
+/// the role here and the handler plans again and compares, instead of trusting the preview it was confirmed with (the
+/// entry counts, warnings and samples are shown, not bound).
 /// </summary>
 /// <param name="mediator">Dispatches the switch command</param>
 
@@ -41,9 +41,7 @@ public abstract class AssignMacroSkillBase : BaseSkillImplementation
 
     protected abstract MacroAssignmentTarget Target { get; }
 
-    private string CurrentSkillName => Target == MacroAssignmentTarget.Shift
-        ? MacroAssignmentSkillNames.AssignToShift
-        : MacroAssignmentSkillNames.AssignToAbsenceType;
+    protected abstract string CurrentSkillName { get; }
 
     public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,

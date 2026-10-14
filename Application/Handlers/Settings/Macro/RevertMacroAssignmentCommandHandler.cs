@@ -2,21 +2,22 @@
 
 /// <summary>
 /// Undoes a recorded macro switch as a whole (owner decisions F2 and F6). The undo is planned first through the same
-/// preview the confirmation used, dry run included (a refusal becomes an InvalidRequestException: unknown, itself an undo,
-/// already undone, any row in conflict with the current state, listed, or a macro to restore that cannot run); the
-/// references that plan would write are then compared with the binding of the confirmed preview (MacroAssignmentBinding,
-/// command field ConfirmedBinding) and a difference throws an InvalidRequestException that says how many references
-/// differ, before any transaction starts; then, in one transaction, the rows of the switch are read and matched to the planned changes by holder. Because those rows may
-/// already be tracked from planning, the handler also checks untracked that each holder's latest recorded switch is still
-/// the one being undone and that the holder still carries the reference the plan started from; a row that vanished,
-/// appeared or was undone, a later switch or an outside change aborts without writing. Each holder then gets its previous
-/// reference (possibly none: Guid.Empty counts as no macro, as in production, and is restored as null) back on its row
-/// alone, one undo row per holder is recorded under a new shared switch id and points at the row it undid, every undone
-/// row is marked, and every written holder is read back (a mismatch rolls everything back). The undo rows are built once,
-/// before the transaction, so a retry of the transaction re-adds the same rows. The outcome carries the dry run of the
-/// preview and the id of the undone switch. Nothing is recalculated; an undo itself is final. A failure while saving
-/// (any exception of the transaction other than a refusal or a cancellation) is logged as an error with the undo and
-/// switch ids, the holder id and the holder count, never with names, and rethrown for the caller to map.
+/// preview the confirmation used, dry run included (a refusal becomes an InvalidRequestException: unknown, itself an
+/// undo, already undone, any row in conflict with the current state, listed, or a macro to restore that cannot run);
+/// the references that plan would write are then compared with the binding of the confirmed preview
+/// (MacroAssignmentBinding, command field ConfirmedBinding) and a difference throws an InvalidRequestException that
+/// says how many references differ, before any transaction starts; then, in one transaction, the rows of the switch are
+/// read and matched to the planned changes by holder. Because those rows may already be tracked from planning, the
+/// handler also checks untracked that each holder's latest recorded switch is still the one being undone and that the
+/// holder still carries the reference the plan started from; a row that vanished, appeared or was undone, a later
+/// switch or an outside change aborts without writing. Each holder then gets its previous reference (possibly none:
+/// Guid.Empty counts as no macro, as in production, and is restored as null) back on its row alone, one undo row per
+/// holder is recorded under a new shared switch id and points at the row it undid, every undone row is marked, and
+/// every written holder is read back (a mismatch rolls everything back). The undo rows are built once, before the
+/// transaction, so a retry of the transaction re-adds the same rows. The outcome carries the dry run of the preview and
+/// the id of the undone switch. Nothing is recalculated; an undo itself is final. A failure while saving (any exception
+/// of the transaction other than a refusal or a cancellation) is logged as an error with the undo and switch ids, the
+/// holder id and the holder count, never with names, and rethrown for the caller to map.
 /// </summary>
 /// <param name="request">Which switch to undo, the requesting user and the binding of the confirmed preview</param>
 

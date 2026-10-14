@@ -23,4 +23,6 @@ public class AssignMacroToShiftSkill : AssignMacroSkillBase
     }
 
     protected override MacroAssignmentTarget Target => MacroAssignmentTarget.Shift;
+
+    protected override string CurrentSkillName => MacroAssignmentSkillNames.AssignToShift;
 }

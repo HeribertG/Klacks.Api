@@ -4,8 +4,10 @@
 /// The facts a held action was previewed with, in a form the confirmed replay can compare: the kind of fact, the items
 /// themselves (ordinal sorted; kept only up to ConfirmationBindingDefaults.MaxStoredItems, otherwise empty) and a
 /// SHA-256 fingerprint over kind and all items. Two bindings match when kind and fingerprint are equal; the items only
-/// serve to tell the user how the list changed. Built by Of from the very plan the preview was computed from. Equality
-/// compares the items by value (a record would compare the list by reference).
+/// serve to tell the user how the list changed. Built by Of from the very plan the preview was computed from. Equals
+/// compares kind, fingerprint and the items by value (a record would compare the list by reference), so it tells apart a
+/// binding that kept its items from one that kept none; the check of a confirmation is always Matches (kind and fingerprint
+/// only), under which those two are the same binding.
 /// </summary>
 /// <param name="Kind">What the items are (ConfirmationBindingKinds)</param>
 /// <param name="Items">The sorted items, or none when there were more than the storage cap</param>

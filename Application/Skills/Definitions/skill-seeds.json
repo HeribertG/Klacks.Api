@@ -13536,7 +13536,7 @@
     {
       "name": "bulk_delete_works",
       "area": "schedule",
-      "description": "Deletes all works of one employee in a date range at once, optionally only those on one shift; at most 50 per call, more is refused. Locked works, sealed days or an employee the caller may not see refuse the whole call; container children go with each work. Always needs a dedicated confirmation bound to exactly the listed works; deleted works can only be restored one by one. Use when the user says: 'lösche alle Dienste von Müller im November', 'delete all of Smith's shifts next week'.",
+      "description": "Deletes all works of one employee in a date range, optionally only those on one shift; at most 50 per call, more is refused. Locked works, sealed days or a hidden employee refuse the whole call. Container entries go with each work. Always needs a dedicated confirmation bound to exactly the listed works and their container entries; deleted works can only be restored one by one. Use when the user says: 'lösche alle Dienste von Müller im November', 'delete all of Smith's shifts next week'.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13645,7 +13645,7 @@
         "fr": "Supprimer plusieurs affectations d'un employé",
         "it": "Elimina più assegnazioni di un dipendente"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_period_hours",

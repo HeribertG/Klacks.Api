@@ -5,11 +5,13 @@
 /// skill-calls using the cheapest enabled LLM provider plus the live skill catalog. Returns an
 /// AgentPlan in status 'drafting' with steps serialized as JSON. The StepExecutor (later) executes
 /// each step, pairs it with the verify-skill when present, and pauses for HITL on non-reversible
-/// steps.
+/// steps. Skills that show a server preview before they run (IConfirmationPreviewCatalog) are left out of the catalog the
+/// planner sees: they run only as the confirmed replay of that preview in the chat, never as a plan step.
 /// </summary>
 /// <param name="agentRepository">Resolves the owning agent (klacks-default today).</param>
 /// <param name="skillRepository">Live skill catalog (name + short description) used as the planner's tool list.</param>
 /// <param name="cheapestModelResolver">Resolves the cheapest enabled LLM model together with its provider.</param>
+/// <param name="previewCatalog">Tells which skills show a server preview; those can only run in the chat after the user confirmed it, so they are not offered to the planner.</param>
 /// <param name="logger">Structured log of planning attempts.</param>
 
 using System.Text;
@@ -56,17 +58,20 @@ public class PlanningAgent : IPlanningAgent
     private readonly IAgentRepository _agentRepository;
     private readonly IAgentSkillRepository _skillRepository;
     private readonly ICheapestModelResolver _cheapestModelResolver;
+    private readonly IConfirmationPreviewCatalog _previewCatalog;
     private readonly ILogger<PlanningAgent> _logger;
 
     public PlanningAgent(
         IAgentRepository agentRepository,
         IAgentSkillRepository skillRepository,
         ICheapestModelResolver cheapestModelResolver,
+        IConfirmationPreviewCatalog previewCatalog,
         ILogger<PlanningAgent> logger)
     {
         _agentRepository = agentRepository;
         _skillRepository = skillRepository;
         _cheapestModelResolver = cheapestModelResolver;
+        _previewCatalog = previewCatalog;
         _logger = logger;
     }
 
@@ -95,7 +100,9 @@ public class PlanningAgent : IPlanningAgent
         try
         {
             var skills = agentId != Guid.Empty
-                ? await _skillRepository.GetEnabledAsync(agentId, cancellationToken)
+                ? (await _skillRepository.GetEnabledAsync(agentId, cancellationToken))
+                    .Where(skill => !_previewCatalog.HasPreview(skill.Name))
+                    .ToList()
                 : new List<AgentSkill>();
 
             var (model, provider) = await _cheapestModelResolver.ResolveAsync();

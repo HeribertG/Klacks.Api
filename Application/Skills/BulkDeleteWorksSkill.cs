@@ -8,13 +8,14 @@
 /// MaxWorksPerCall Works, and the handler adds container children, day lock, group visibility and period hours.
 /// The skill is Sensitive: the autonomy gate holds every call for a dedicated confirmation whose text is the
 /// server-computed list at that moment (BulkWorkDeletionConfirmationPreviewProvider). The confirmation binds the list,
-/// not only the parameters: the preview's work ids travel with the token (ConfirmationBinding, kind Work) and
-/// confirm_pending_action hands them to this skill in SkillExecutionContext.ConfirmedActionBinding. The skill plans
-/// again right before it deletes and deletes only when that plan has exactly the bound works; a Work that appeared,
-/// vanished or was swapped in the meantime deletes nothing and the refusal says how many differ, so the user is asked
-/// again with a fresh preview. A call without that binding (a plan step, a goal plan, a direct call) never deletes. A Work
-/// whose time or shift changed but whose id is the same is still the bound Work. Anything short of a complete delete is never reported as
-/// complete: a refusal or a delete of nothing is a failure, a partial delete is a committed change marked Partial that
+/// not only the parameters: the work ids of the preview and the ids of their container children (child works and breaks,
+/// which the delete takes along) travel with the token (ConfirmationBinding, kind Work) and confirm_pending_action hands
+/// them to this skill in SkillExecutionContext.ConfirmedActionBinding. A call without that binding (a plan step, a goal
+/// plan, a direct call) is refused first, before anything is planned, and never deletes. Otherwise the skill plans again
+/// right before it deletes and deletes only when that plan has exactly the bound works and container entries; a Work or
+/// entry that appeared, vanished or was swapped in the meantime deletes nothing and the refusal says how many differ, so
+/// the user is asked again with a fresh preview. A Work whose time or shift changed but whose id is the same is still
+/// the bound Work. Anything short of a complete delete is never reported as complete: a refusal or a delete of nothing is a failure, a partial delete is a committed change marked Partial that
 /// carries the deleted ids. The handler commits before it recalculates, so a failure after the commit is told apart
 /// from a refusal by re-reading which of the planned Works are gone: none (nothing deleted), all (deleted, a follow-up
 /// step failed) or some (partial).
@@ -79,15 +80,15 @@ public class BulkDeleteWorksSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        if (context.ConfirmedActionBinding is not { Kind: ConfirmationBindingKinds.Work } confirmed)
+        {
+            return SkillResult.Error(string.Format(ConfirmationBindingMessages.BindingRequired, SkillName));
+        }
+
         var plan = await _planner.PlanAsync(parameters, context.UserLanguage, cancellationToken);
         if (plan.IsRefused)
         {
             return SkillResult.Error(plan.Refusal!);
-        }
-
-        if (context.ConfirmedActionBinding is not { Kind: ConfirmationBindingKinds.Work } confirmed)
-        {
-            return SkillResult.Error(string.Format(ConfirmationBindingMessages.BindingRequired, SkillName));
         }
 
         var current = BulkWorkDeletionBinding.Of(plan);

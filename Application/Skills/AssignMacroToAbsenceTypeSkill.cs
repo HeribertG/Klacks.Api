@@ -23,4 +23,6 @@ public class AssignMacroToAbsenceTypeSkill : AssignMacroSkillBase
     }
 
     protected override MacroAssignmentTarget Target => MacroAssignmentTarget.AbsenceType;
+
+    protected override string CurrentSkillName => MacroAssignmentSkillNames.AssignToAbsenceType;
 }

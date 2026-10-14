@@ -4,7 +4,8 @@
 /// Cascades operations (delete, restore, move, lock-level) from a container work to its children. The
 /// restore brings back only the children the same delete took away: same stamped user and a delete time
 /// within the sibling tolerance of the container's, so children removed earlier or by another actor
-/// (scenario cleanup, harmonizer) stay deleted.
+/// (scenario cleanup, harmonizer) stay deleted. GetChildIdsAsync lists the live children with the same query the delete
+/// uses, so a caller can name exactly what a delete would take.
 /// </summary>
 /// <param name="context">The EF Core database context used for direct bulk queries on child entities</param>
 /// <param name="logger">Logger for diagnostic output</param>
@@ -33,13 +34,10 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
 
     public async Task DeleteChildrenAsync(Guid parentWorkId)
     {
-        var childWorks = await _context.Work
-            .Where(w => w.ParentWorkId == parentWorkId && !w.IsDeleted)
-            .ToListAsync();
+        Guid[] parentWorkIds = [parentWorkId];
+        var childWorks = await LiveChildWorks(parentWorkIds).ToListAsync();
 
-        var childBreaks = await _context.Break
-            .Where(b => b.ParentWorkId == parentWorkId && !b.IsDeleted)
-            .ToListAsync();
+        var childBreaks = await LiveChildBreaks(parentWorkIds).ToListAsync();
 
         foreach (var work in childWorks)
             _context.Remove(work);
@@ -51,6 +49,26 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
             "Deleted {WorkCount} child works and {BreakCount} child breaks for parentWorkId={ParentWorkId}",
             childWorks.Count, childBreaks.Count, parentWorkId);
     }
+
+    public async Task<ContainerChildIds> GetChildIdsAsync(
+        IReadOnlyCollection<Guid> parentWorkIds, CancellationToken cancellationToken = default)
+    {
+        if (parentWorkIds.Count == 0)
+        {
+            return ContainerChildIds.None;
+        }
+
+        var parentIds = parentWorkIds.ToArray();
+        var workIds = await LiveChildWorks(parentIds).Select(w => w.Id).ToListAsync(cancellationToken);
+        var breakIds = await LiveChildBreaks(parentIds).Select(b => b.Id).ToListAsync(cancellationToken);
+        return new ContainerChildIds(workIds, breakIds);
+    }
+
+    private IQueryable<Work> LiveChildWorks(Guid[] parentWorkIds) =>
+        _context.Work.Where(w => w.ParentWorkId.HasValue && parentWorkIds.Contains(w.ParentWorkId.Value) && !w.IsDeleted);
+
+    private IQueryable<Break> LiveChildBreaks(Guid[] parentWorkIds) =>
+        _context.Break.Where(b => b.ParentWorkId.HasValue && parentWorkIds.Contains(b.ParentWorkId.Value) && !b.IsDeleted);
 
     public async Task RestoreChildrenAsync(Guid parentWorkId, DateTime deletedTime, string? deletedBy)
     {

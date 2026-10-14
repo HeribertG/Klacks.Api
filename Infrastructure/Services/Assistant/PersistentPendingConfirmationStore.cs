@@ -1,32 +1,28 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// EF-backed store for one-time skill-confirmation tokens, so a confirmation held by the autonomy gate
-/// survives a backend restart instead of living only in an in-memory singleton. Each operation runs in
-/// its OWN service scope (via IServiceScopeFactory) rather than a request-scoped DbContext, mirroring
-/// PersistentPendingRecipeStore and PersistentPendingCompanyRuleDraftStore: the chat pipeline can touch
-/// the request context concurrently, so a shared context would race. The IPendingConfirmationStore
-/// interface is synchronous because callers (AutonomyGateService, ConfirmPendingActionSkill) invoke it
-/// synchronously, so the short single-row repository calls are awaited via GetAwaiter().GetResult();
-/// ASP.NET Core has no synchronization context, so this cannot deadlock. Consume deletes the row keyed
-/// on the token ALONE before validating expiry/user/skill, so a mismatched or expired token is still
-/// burned on first use — exactly like the in-memory store it replaces.
-/// Proposal hints share this table and differ only in their purpose column: they are written without
-/// invocation parameters, deliberately keep the SAME row TTL as gate-replay rows (PeekLatestForUser
-/// reconstructs a row's creation time as ExpiresAtUtc - ConfirmationTtlMinutes, so a shorter row TTL
-/// would make a fresh hint look stale immediately), and are instead bounded by the shorter maxAge the
-/// reader passes. They are dropped again via DiscardProposalHints, which reuses the existing
-/// GetActiveForUser/Consume repository calls rather than adding a second persistence path.
-/// A correction-undo row is a third purpose in the same table, written through Create and dropped by
-/// DiscardCorrectionUndo; both discards share one loop because they differ only in the purpose they
-/// match and in whether they narrow by skill name.
-/// A binding (ConfirmationBinding) is stored as JSON in its own nullable column, never inside the parameters, because the
-/// parameters are what the model supplied and are compared with the call that redeems a token directly. A binding that
-/// cannot be read back makes Consume return null (logged): the token is void, which is more honest than reading corrupt
-/// data as "nothing is bound". Writing one replaces its predecessor the way a
-/// proposal hint does, so a user never has two redeemable undo offers at once: the offering turn cannot
-/// discard its own fresh row (it runs after the write), and without this a second correction inside the
-/// force window would leave the first offer redeemable by a "ja" that was never meant for it.
+/// EF-backed store for one-time skill-confirmation tokens, so a confirmation held by the autonomy gate survives a
+/// backend restart instead of living only in an in-memory singleton. Each operation runs in its OWN service scope (via
+/// IServiceScopeFactory) rather than a request-scoped DbContext, mirroring PersistentPendingRecipeStore and
+/// PersistentPendingCompanyRuleDraftStore: the chat pipeline can touch the request context concurrently, so a shared
+/// context would race. The IPendingConfirmationStore interface is synchronous because callers (AutonomyGateService,
+/// ConfirmPendingActionSkill) invoke it synchronously, so the short single-row repository calls are awaited via
+/// GetAwaiter().GetResult(); ASP.NET Core has no synchronization context, so this cannot deadlock. Consume deletes the
+/// row keyed on the token ALONE before validating expiry/user/skill, so a mismatched or expired token is still burned
+/// on first use — exactly like the in-memory store it replaces. Proposal hints share this table and differ only in
+/// their purpose column: they are written without invocation parameters, deliberately keep the SAME row TTL as
+/// gate-replay rows (PeekLatestForUser reconstructs a row's creation time as ExpiresAtUtc - ConfirmationTtlMinutes, so
+/// a shorter row TTL would make a fresh hint look stale immediately), and are instead bounded by the shorter maxAge the
+/// reader passes. They are dropped again via DiscardProposalHints, which reuses the existing GetActiveForUser/Consume
+/// repository calls rather than adding a second persistence path. A correction-undo row is a third purpose in the same
+/// table, written through Create and dropped by DiscardCorrectionUndo; both discards share one loop because they differ
+/// only in the purpose they match and in whether they narrow by skill name. Writing one replaces its predecessor the
+/// way a proposal hint does, so a user never has two redeemable undo offers at once: the offering turn cannot discard
+/// its own fresh row (it runs after the write), and without this a second correction inside the force window would
+/// leave the first offer redeemable by a "ja" that was never meant for it. A binding (ConfirmationBinding) is stored as
+/// JSON in its own nullable column, never inside the parameters, because the parameters are what the model supplied and
+/// are compared with the call that redeems a token directly. A binding that cannot be read back makes Consume return
+/// null (logged): the token is void, which is more honest than reading corrupt data as "nothing is bound".
 /// </summary>
 /// <param name="scopeFactory">Creates an isolated service scope (and DbContext) per store operation.</param>
 /// <param name="logger">Reports a stored binding that cannot be read.</param>

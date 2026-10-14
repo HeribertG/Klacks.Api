@@ -390,10 +390,11 @@ verwerfen muss.
   ausserhalb der Mitgliedschafts- oder Gruppenperiode des neuen Mitarbeiters werden abgelehnt, eine
   Kollision beim Ziel erscheint als Warnung) — Skill `reassign_work`
 - Alle Einsätze eines Mitarbeiters in einem Zeitraum auf einmal löschen (höchstens 50, nur mit
-  ausdrücklicher Bestätigung genau der gezeigten Liste — ändert sich die Liste bis zur
-  Bestätigung, weil ein Einsatz hinzukommt oder wegfällt, wird nichts gelöscht und Klacksy zeigt
-  eine neue Vorschau; gesperrte Einträge oder Tage verhindern den ganzen Aufruf) — Skill
-  `bulk_delete_works`
+  ausdrücklicher Bestätigung genau der gezeigten Einsätze samt ihren Container-Einträgen
+  (untergeordnete Einsätze und Pausen, die mitgelöscht werden; die Vorschau nennt ihre Anzahl) —
+  ändert sich das bis zur Bestätigung, weil ein Einsatz oder ein Container-Eintrag hinzukommt oder
+  wegfällt, wird nichts gelöscht und Klacksy zeigt eine neue Vorschau; gesperrte Einträge oder Tage
+  verhindern den ganzen Aufruf) — Skill `bulk_delete_works`
 - Stundensaldo eines Mitarbeiters (Ist vs. Soll, Zuschläge) für eine Periode — Skill
   `get_period_hours` (szenariofähig via `analyseToken`)
 - Einträge bestätigen / Bestätigung aufheben — Skills `confirm_work`, `unconfirm_work`

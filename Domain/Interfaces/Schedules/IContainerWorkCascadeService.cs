@@ -7,12 +7,20 @@
 /// <param name="deletedTime">Delete stamp of the container; only children deleted within the sibling tolerance around it are restored</param>
 /// <param name="deletedBy">User stamped on the container's delete; only children carrying the same user are restored</param>
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Domain.Interfaces.Schedules;
 
 public interface IContainerWorkCascadeService
 {
     Task DeleteChildrenAsync(Guid parentWorkId);
+
+    /// <summary>
+    /// Reads, without changing anything, the live child Works and Breaks of the given container Works: the very entries
+    /// DeleteChildrenAsync deletes for each of them.
+    /// </summary>
+    Task<ContainerChildIds> GetChildIdsAsync(
+        IReadOnlyCollection<Guid> parentWorkIds, CancellationToken cancellationToken = default);
 
     Task RestoreChildrenAsync(Guid parentWorkId, DateTime deletedTime, string? deletedBy);
 

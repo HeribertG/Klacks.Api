@@ -77,10 +77,14 @@ confirmed from an external tool connection (MCP) either; the user starts it in t
 For some held actions Klacksy shows a preview worked out by the server first: deleting many
 entries at once and switching or undoing a calculation macro. That preview is bound to the
 confirmation. The server carries out exactly the entries or references that were shown, and
-nothing else: if the list changed between the preview and the yes (an entry was added or removed,
-a shift was switched in the meantime), nothing is changed, the confirmation is void, and Klacksy
-shows a fresh preview and asks again. Such an action only runs as the confirmed release of its own
-preview, never from a plan step or in the background.
+nothing else: for the deletion that includes the container entries (child works and breaks) that go
+with the listed entries, and the preview names their number. If the list changed between the
+preview and the yes (an entry or a container entry was added or removed, a shift was switched in
+the meantime), nothing is changed, the confirmation is void, and Klacksy shows a fresh preview and
+asks again. Such an action only runs as the confirmed release of its own preview in the chat, never
+from a plan step or in the background: Klacksy does not put it into a plan, and a plan step that
+names it stops with the note that the step can only run in the chat after the user confirmed its
+preview.
 
 ## Taking something back
 

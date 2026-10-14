@@ -17,6 +17,11 @@
 /// candidate the executor falls back to the user's own level. This does not weaken the Sensitive floor:
 /// PlanStepApprovalPolicy still pauses Sensitive steps unconditionally.
 /// Step invocations bypass the chat-level autonomy gate because this executor enforces its own gate.
+/// A step whose skill shows a server preview before it runs (IConfirmationPreviewCatalog: bulk_delete_works and the macro
+/// assignment skills) fails the plan at that step with ConfirmationBindingMessages.ChatOnlyStep, before the approval pause
+/// and before the skill is invoked: such a skill runs only as the confirmed replay of its own preview in the chat and
+/// refuses a call that bypasses the gate, so pausing for an approval that cannot make it succeed would only mislead the user.
+/// The planner does not offer these skills; this catches a plan that names one anyway, and a plan paused before this rule.
 /// A step naming a verify skill that is not a registered READ-ONLY catalogue skill fails the plan before
 /// its mutation runs. The verify name arrives verbatim from the LLM and passes neither RequiresApproval
 /// nor the bypassed chat gate, so without this a sensitive skill named as verifySkill would execute with
@@ -59,6 +64,8 @@
 /// <param name="backgroundTaskService">Fires the fire-and-forget task-boundary compaction trigger on plan completion.</param>
 /// <param name="triggerService">Fires the proactive PlanPausedForApprovalTriggerEvent so offline users learn about a pause via the inbox, not only SignalR.</param>
 /// <param name="goalCandidateRepository">Proves that a SelfReflection plan traces back to an approved goal candidate before the elevated autonomy level is granted, and supplies the frozen identity ApproveAndContinueAsync resumes under.</param>
+/// <param name="internalTokenIssuer">Renews the owner token of a background plan between steps.</param>
+/// <param name="previewCatalog">Tells which skills show a server preview and so can only run in the chat after the user confirmed it.</param>
 /// <param name="logger">Structured log per step.</param>
 
 using System.Globalization;
@@ -74,7 +81,6 @@ namespace Klacks.Api.Application.Services.Assistant.Planning;
 
 public class PlanStepExecutor : IPlanStepExecutor
 {
-    private const string PrevPlaceholderPrefix = "$prev.";
     private const int MaxStepBudget = LLMLoopConstants.MaxPlanSteps;
     private const int TaskBoundaryMinMessages = 10;
     private const string VerifySkillUnknownMessage =
@@ -94,6 +100,7 @@ public class PlanStepExecutor : IPlanStepExecutor
     private readonly IAgentTriggerService _triggerService;
     private readonly IGoalCandidateRepository _goalCandidateRepository;
     private readonly IInternalTokenIssuer _internalTokenIssuer;
+    private readonly IConfirmationPreviewCatalog _previewCatalog;
     private readonly ILogger<PlanStepExecutor> _logger;
 
     public PlanStepExecutor(
@@ -107,6 +114,7 @@ public class PlanStepExecutor : IPlanStepExecutor
         IAgentTriggerService triggerService,
         IGoalCandidateRepository goalCandidateRepository,
         IInternalTokenIssuer internalTokenIssuer,
+        IConfirmationPreviewCatalog previewCatalog,
         ILogger<PlanStepExecutor> logger)
     {
         _planRepository = planRepository;
@@ -119,6 +127,7 @@ public class PlanStepExecutor : IPlanStepExecutor
         _triggerService = triggerService;
         _goalCandidateRepository = goalCandidateRepository;
         _internalTokenIssuer = internalTokenIssuer;
+        _previewCatalog = previewCatalog;
         _logger = logger;
     }
 
@@ -216,6 +225,17 @@ public class PlanStepExecutor : IPlanStepExecutor
                 // Checked BEFORE the mutation runs, not next to the verify call itself: once
                 // ExecuteSingleStepAsync has run there is no safe stopping point left, because resuming a
                 // paused plan re-enters the loop body at CurrentStepIndex and would repeat the mutation.
+                if (_previewCatalog.HasPreview(step.Skill))
+                {
+                    plan.CurrentStepIndex = index;
+                    plan.Status = PlanStatus.Failed;
+                    plan.LastErrorMessage = ConfirmationBindingMessages.ChatOnlyStep;
+                    await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+                    _logger.LogWarning("Plan {PlanId} stopped at step {Index}: {Skill} shows a server preview and runs only in the chat",
+                        plan.Id, index, step.Skill);
+                    return plan;
+                }
+
                 var verifyRejection = ValidateVerifySkill(step);
                 if (verifyRejection != null)
                 {
@@ -552,7 +572,7 @@ public class PlanStepExecutor : IPlanStepExecutor
         SkillExecutionContext skillContext,
         CancellationToken cancellationToken)
     {
-        var parameters = ResolveParameters(step.Params, stepResults);
+        var parameters = PlanStepPlaceholderResolver.ResolveParameters(step.Params, stepResults);
         var invocation = new SkillInvocation
         {
             SkillName = step.Skill,
@@ -641,7 +661,7 @@ public class PlanStepExecutor : IPlanStepExecutor
 
         foreach (var (key, value) in step.Params)
         {
-            if (value is string s && s.StartsWith(PrevPlaceholderPrefix, StringComparison.Ordinal))
+            if (value is string s && s.StartsWith(PlanStepPlaceholderResolver.PrevPlaceholderPrefix, StringComparison.Ordinal))
             {
                 continue;
             }
@@ -700,72 +720,6 @@ public class PlanStepExecutor : IPlanStepExecutor
                 yield return new KeyValuePair<string, object>(property.Name, value);
             }
         }
-    }
-
-    private static Dictionary<string, object> ResolveParameters(
-        Dictionary<string, object?> rawParams,
-        IReadOnlyDictionary<int, object?> stepResults)
-    {
-        var resolved = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-        if (rawParams.Count == 0) return resolved;
-
-        var previousData = stepResults.Count > 0
-            ? stepResults[stepResults.Keys.Max()]
-            : null;
-
-        foreach (var (key, value) in rawParams)
-        {
-            var resolvedValue = ResolveValue(value, previousData);
-            if (resolvedValue != null)
-            {
-                resolved[key] = resolvedValue;
-            }
-        }
-        return resolved;
-    }
-
-    private static object? ResolveValue(object? value, object? previousData)
-    {
-        if (value is string strValue && strValue.StartsWith(PrevPlaceholderPrefix, StringComparison.Ordinal))
-        {
-            var path = strValue[PrevPlaceholderPrefix.Length..];
-            return ExtractFromObject(previousData, path);
-        }
-        return value;
-    }
-
-    private static object? ExtractFromObject(object? source, string path)
-    {
-        if (source == null) return null;
-        var parts = path.Split('.');
-
-        var current = source;
-        foreach (var part in parts)
-        {
-            current = ExtractMember(current, part);
-            if (current == null) return null;
-        }
-        return current;
-    }
-
-    private static object? ExtractMember(object? source, string memberName)
-    {
-        if (source == null) return null;
-
-        if (source is IDictionary<string, object?> dictNullable && dictNullable.TryGetValue(memberName, out var v1))
-        {
-            return v1;
-        }
-        if (source is IDictionary<string, object> dict && dict.TryGetValue(memberName, out var v2))
-        {
-            return v2;
-        }
-
-        var property = source.GetType().GetProperty(memberName,
-            System.Reflection.BindingFlags.IgnoreCase |
-            System.Reflection.BindingFlags.Public |
-            System.Reflection.BindingFlags.Instance);
-        return property?.GetValue(source);
     }
 
     private static List<PlanStep> ParseSteps(string stepsJson)

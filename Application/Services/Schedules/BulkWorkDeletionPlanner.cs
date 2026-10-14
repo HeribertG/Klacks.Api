@@ -6,7 +6,9 @@
 /// when nothing matches, more than BulkWorkDeletionDefaults.MaxWorksPerCall match, any matching Work is locked
 /// (confirmed, approved or in a closed period) or any of its days is sealed for the employee. It never truncates a
 /// match to fit the cap and never reads or returns details of a Work the caller may not see: the employee is resolved
-/// through the visibility-scoped search or guard before any Work is loaded.
+/// through the visibility-scoped search or guard before any Work is loaded. A usable plan also names the live container
+/// children (child Works and Breaks) of the planned Works, read through the cascade service the delete itself uses, so a
+/// confirmation can be bound to everything the delete would remove.
 /// </summary>
 /// <param name="workRepository">Source of the employee's Works in the range</param>
 /// <param name="clientRepository">Loads the resolved employee</param>
@@ -15,6 +17,7 @@
 /// <param name="sealedDayRepository">Tells which of the employee's days are sealed</param>
 /// <param name="shiftRepository">Source of the shift names listed in the plan</param>
 /// <param name="companyClock">Anchor for relative day words in the dates</param>
+/// <param name="cascadeService">Names the container children that the delete of the planned Works takes with it</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -65,6 +68,7 @@ public sealed class BulkWorkDeletionPlanner : IBulkWorkDeletionPlanner
     private readonly ISealedDayRepository _sealedDayRepository;
     private readonly IShiftRepository _shiftRepository;
     private readonly ICompanyClock _companyClock;
+    private readonly IContainerWorkCascadeService _cascadeService;
 
     public BulkWorkDeletionPlanner(
         IWorkRepository workRepository,
@@ -73,7 +77,8 @@ public sealed class BulkWorkDeletionPlanner : IBulkWorkDeletionPlanner
         IClientVisibilityGuard clientVisibilityGuard,
         ISealedDayRepository sealedDayRepository,
         IShiftRepository shiftRepository,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IContainerWorkCascadeService cascadeService)
     {
         _workRepository = workRepository;
         _clientRepository = clientRepository;
@@ -82,6 +87,7 @@ public sealed class BulkWorkDeletionPlanner : IBulkWorkDeletionPlanner
         _sealedDayRepository = sealedDayRepository;
         _shiftRepository = shiftRepository;
         _companyClock = companyClock;
+        _cascadeService = cascadeService;
     }
 
     public async Task<BulkWorkDeletionPlan> PlanAsync(
@@ -159,8 +165,13 @@ public sealed class BulkWorkDeletionPlanner : IBulkWorkDeletionPlanner
             return BulkWorkDeletionPlan.Refuse(sealedRefusal);
         }
 
+        var children = await _cascadeService.GetChildIdsAsync(works.Select(work => work.Id).ToList(), cancellationToken);
         return new BulkWorkDeletionPlan(
-            null, employeeName, from, until, await ToPlannedDeletionsAsync(works));
+            null, employeeName, from, until, await ToPlannedDeletionsAsync(works))
+        {
+            ChildWorkIds = children.WorkIds,
+            ChildBreakIds = children.BreakIds
+        };
     }
 
     private async Task<((DateOnly From, DateOnly Until) Range, string? Error)> ReadRangeAsync(
