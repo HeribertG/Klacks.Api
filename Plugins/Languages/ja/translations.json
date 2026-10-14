@@ -1954,6 +1954,7 @@
   "schedule.compliance.reasonShort.restViolation": "休息時間が短すぎます",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "禁止時間帯違反",
   "schedule.compliance.reasonShort.shiftNotInScenario": "新しいシナリオにないシフト",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "所属期間またはグループ期間の範囲外",
   "schedule.compliance.reasonShort.rollingAverage": "移動平均を超過",
   "schedule.compliance.reasonShort.weeklyOvertime": "週あたりの残業",
   "schedule.compliance.skipped.col.client": "従業員",

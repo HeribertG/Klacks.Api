@@ -6,7 +6,10 @@
 /// period-hour recalculation and validation logic stays in one place.
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// A day that is sealed for the client is refused before anything is written, also for scenario placements (which
-/// the day lock itself lets through) - a sealed day is a fixed cell for every planner.
+/// the day lock itself lets through) - a sealed day is a fixed cell for every planner. A day outside the client's
+/// membership or group period is refused before anything is written, exactly like the grid's locked cells (the
+/// BulkAddWorks pipeline enforces the same rule as a backstop). A refusal of the pipeline itself is answered as a skill
+/// error with the pipeline's reason instead of escaping as an exception.
 /// </summary>
 /// <param name="clientId">UUID of the client (agent) to schedule.</param>
 /// <param name="shiftId">UUID of the shift to assign.</param>
@@ -16,14 +19,17 @@
 /// <param name="workTime">Optional work time in hours; defaults to (endTime - startTime) wrapping past midnight.</param>
 /// <param name="information">Free-text note.</param>
 /// <param name="analyseToken">Optional scenario token; null = write to main schedule.</param>
+/// <param name="planningPeriodGuard">Names a day outside the client's membership or group period</param>
 
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -40,6 +46,7 @@ public class PlaceWorkSkill : BaseSkillImplementation
     private readonly IClientRepository _clientRepository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ISealedDayRepository _sealedDayRepository;
+    private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
 
     public PlaceWorkSkill(
         IMediator mediator,
@@ -47,8 +54,10 @@ public class PlaceWorkSkill : BaseSkillImplementation
         IPreCommitConflictChecker conflictChecker,
         IClientRepository clientRepository,
         IClientVisibilityGuard clientVisibilityGuard,
-        ISealedDayRepository sealedDayRepository)
+        ISealedDayRepository sealedDayRepository,
+        IClientPlanningPeriodGuard planningPeriodGuard)
     {
+        _planningPeriodGuard = planningPeriodGuard;
         _mediator = mediator;
         _shiftRepository = shiftRepository;
         _conflictChecker = conflictChecker;
@@ -85,6 +94,12 @@ public class PlaceWorkSkill : BaseSkillImplementation
         if (await _sealedDayRepository.IsDayLockedAsync(date, clientId, cancellationToken))
         {
             return SkillResult.Error($"Day {date:yyyy-MM-dd} is sealed for client {clientId}; nothing was placed.");
+        }
+
+        var periodViolations = await _planningPeriodGuard.FindViolationsAsync([(clientId, date)], cancellationToken);
+        if (periodViolations.Count > 0)
+        {
+            return SkillResult.Error($"{periodViolations[0].Message} Nothing was placed.");
         }
 
         var startTime = !string.IsNullOrWhiteSpace(startTimeRaw) && TimeOnly.TryParse(startTimeRaw, out var sParsed)
@@ -139,7 +154,16 @@ public class PlaceWorkSkill : BaseSkillImplementation
             ]
         };
 
-        var response = await _mediator.Send(new BulkAddWorksCommand(request), cancellationToken);
+        BulkWorksResponse response;
+        try
+        {
+            response = await _mediator.Send(new BulkAddWorksCommand(request), cancellationToken);
+        }
+        catch (Exception ex) when (ex is InvalidRequestException or ConflictException)
+        {
+            return SkillResult.Error(
+                $"Placement of client {clientId} on shift '{shift.Name}' for {date} was refused: {ex.Message}");
+        }
 
         var warningNote = warnings.Count > 0
             ? $" Note: {warnings.Count} schedule warning(s) (e.g. rest time / overtime) — committed anyway."

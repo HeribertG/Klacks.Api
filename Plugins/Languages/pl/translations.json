@@ -1954,6 +1954,7 @@
   "schedule.compliance.reasonShort.restViolation": "Zbyt krótki czas odpoczynku",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Naruszono ograniczone okno czasowe",
   "schedule.compliance.reasonShort.shiftNotInScenario": "Zmiany nie ma w nowym scenariuszu",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "Poza okresem członkostwa lub grupy",
   "schedule.compliance.reasonShort.rollingAverage": "Przekroczono średnią kroczącą",
   "schedule.compliance.reasonShort.weeklyOvertime": "Tygodniowe nadgodziny",
   "schedule.compliance.skipped.col.client": "Pracownik",

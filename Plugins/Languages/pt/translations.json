@@ -1954,6 +1954,7 @@
   "schedule.compliance.reasonShort.restViolation": "Descanso demasiado curto",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Janela horária restrita violada",
   "schedule.compliance.reasonShort.shiftNotInScenario": "Turno ausente do novo cenário",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "Fora do período de inscrição ou de grupo",
   "schedule.compliance.reasonShort.rollingAverage": "Média móvel excedida",
   "schedule.compliance.reasonShort.weeklyOvertime": "Horas extra semanais",
   "schedule.compliance.skipped.col.client": "Colaborador",

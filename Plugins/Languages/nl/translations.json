@@ -1954,6 +1954,7 @@
   "schedule.compliance.reasonShort.restViolation": "Rusttijd te kort",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Beperkt tijdvenster geschonden",
   "schedule.compliance.reasonShort.shiftNotInScenario": "Dienst niet in het nieuwe scenario",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "Buiten de lidmaatschaps- of groepsperiode",
   "schedule.compliance.reasonShort.rollingAverage": "Voortschrijdend gemiddelde overschreden",
   "schedule.compliance.reasonShort.weeklyOvertime": "Wekelijkse overuren",
   "schedule.compliance.skipped.col.client": "Medewerker",

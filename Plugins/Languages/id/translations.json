@@ -1954,6 +1954,7 @@
   "schedule.compliance.reasonShort.restViolation": "Waktu istirahat terlalu singkat",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Jendela waktu terbatas dilanggar",
   "schedule.compliance.reasonShort.shiftNotInScenario": "Shift tidak ada dalam skenario baru",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "Di luar periode keanggotaan atau grup",
   "schedule.compliance.reasonShort.rollingAverage": "Rata-rata bergulir terlampaui",
   "schedule.compliance.reasonShort.weeklyOvertime": "Lembur mingguan",
   "schedule.compliance.skipped.col.client": "Karyawan",

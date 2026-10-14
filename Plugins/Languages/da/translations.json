@@ -1954,6 +1954,7 @@
   "schedule.compliance.reasonShort.restViolation": "Hviletid for kort",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Forbudt tidsvindue overtrådt",
   "schedule.compliance.reasonShort.shiftNotInScenario": "Vagten findes ikke i det nye scenarie",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "Uden for medlemskabs- eller gruppeperioden",
   "schedule.compliance.reasonShort.rollingAverage": "Glidende gennemsnit overskredet",
   "schedule.compliance.reasonShort.weeklyOvertime": "Ugentlig overtid",
   "schedule.compliance.skipped.col.client": "Medarbejder",

@@ -9,6 +9,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Filters;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
@@ -172,10 +173,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             .GroupBy(gi => gi.ClientId!.Value)
             .ToDictionary(
                 g => g.Key,
-                g => (
-                    ValidFrom: g.Min(gi => gi.ValidFrom),
-                    ValidUntil: g.Max(gi => gi.ValidUntil)
-                ));
+                g => GroupItemValidityRange.Combine(g.Select(gi => (gi.ValidFrom, gi.ValidUntil)).ToList()));
 
         foreach (var resource in clientResources)
         {

@@ -4,9 +4,12 @@
 /// Creates several Works in one call after the day-lock and hard-blocking guards have passed, together with the
 /// default expenses of their shifts (same scope, same save). If any Work is for a client outside the caller's
 /// group visibility, the whole request is refused exactly like a request for a client that does not exist;
-/// nothing is written.
+/// nothing is written. Like the grid's locked cells, a Work on a day outside its employee's membership or group period
+/// refuses the whole request (unless the command comes from a planner that skips this check); container children follow
+/// their parent's cell and are not checked on their own.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client of the request</param>
+/// <param name="planningPeriodGuard">Refuses a Work whose employee is not plannable on its day (membership or group period)</param>
 /// <param name="defaultExpensesApplier">Stages the shifts' default expenses on the new top-level Works before the single bulk save</param>
 
 using Klacks.Api.Application.Commands.Works;
@@ -39,6 +42,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly IDayLockService _dayLockService;
     private readonly IPreCommitConflictChecker _conflictChecker;
     private readonly IShiftDefaultExpensesApplier _defaultExpensesApplier;
+    private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
@@ -52,6 +56,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         IDayLockService dayLockService,
         IPreCommitConflictChecker conflictChecker,
         IShiftDefaultExpensesApplier defaultExpensesApplier,
+        IClientPlanningPeriodGuard planningPeriodGuard,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
     {
@@ -66,6 +71,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _dayLockService = dayLockService;
         _conflictChecker = conflictChecker;
         _defaultExpensesApplier = defaultExpensesApplier;
+        _planningPeriodGuard = planningPeriodGuard;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkAddWorksCommand command, CancellationToken cancellationToken)
@@ -84,6 +90,13 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                     .Distinct()
                     .ToList(),
                 cancellationToken);
+
+            if (command.PeriodCheck == PlanningPeriodCheck.Enforce)
+            {
+                await _planningPeriodGuard.EnsureWithinPeriodsAsync(
+                    command.Request.Works.Select(w => (w.ClientId, w.CurrentDate)).Distinct().ToList(),
+                    cancellationToken);
+            }
 
             var response = new BulkWorksResponse();
             var works = new List<Work>();

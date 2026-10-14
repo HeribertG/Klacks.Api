@@ -1954,6 +1954,7 @@
   "schedule.compliance.reasonShort.restViolation": "זמן מנוחה קצר מדי",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "חלון זמן אסור הופר",
   "schedule.compliance.reasonShort.shiftNotInScenario": "המשמרת אינה קיימת בתרחיש החדש",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "מחוץ לתקופת החברות או לתקופת הקבוצה",
   "schedule.compliance.reasonShort.rollingAverage": "הממוצע הנע נחצה",
   "schedule.compliance.reasonShort.weeklyOvertime": "שעות נוספות שבועיות",
   "schedule.compliance.skipped.col.client": "עובד",

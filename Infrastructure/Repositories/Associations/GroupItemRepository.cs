@@ -4,6 +4,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -83,7 +84,7 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
             .GroupBy(gi => gi.ClientId!.Value)
             .ToDictionary(
                 group => group.Key,
-                group => (ValidFrom: group.Min(gi => gi.ValidFrom), ValidUntil: group.Max(gi => gi.ValidUntil)));
+                group => GroupItemValidityRange.Combine(group.Select(gi => (gi.ValidFrom, gi.ValidUntil)).ToList()));
     }
 
     public async Task<List<Guid>> GetGroupIdsByShiftId(Guid shiftId, CancellationToken cancellationToken = default)

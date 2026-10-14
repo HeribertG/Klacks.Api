@@ -493,7 +493,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             Works = bulkItems,
             PeriodStart = periodFrom,
             PeriodEnd = periodUntil,
-        }));
+        }, PlanningPeriodCheck.SkipForPlannerOutput));
         return response.CreatedIds;
     }
 

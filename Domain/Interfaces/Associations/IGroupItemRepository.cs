@@ -28,7 +28,7 @@ public interface IGroupItemRepository : IBaseRepository<GroupItem>
 
     /// <summary>
     /// Per client, the period the schedule grid derives from its items in the given groups: the earliest ValidFrom and
-    /// the latest ValidUntil (items without a bound do not count towards that bound). Only clients with at least one
+    /// the latest ValidUntil, where an item without a bound leaves that side open (GroupItemValidityRange). Only clients with at least one
     /// non-deleted item in those groups are present; the group ids are matched exactly, not by subtree.
     /// </summary>
     /// <param name="clientIds">Clients whose group items are read</param>

@@ -7,10 +7,14 @@
 /// Work that does not exist; nothing is written. The AnalyseToken is server-owned like the seal state: it is
 /// taken from the stored row, never from the payload, so a PUT cannot flip a main-plan Work into a scenario and
 /// bypass the day lock and conflict check. The stored Work's lock level is enforced by IParentWorkLockGuard: Closed
-/// refuses everyone, Approved needs Admin or Authorised, Confirmed is open; scenario Works are not checked.
+/// refuses everyone, Approved needs Admin or Authorised, Confirmed is open; scenario Works are not checked. A move to
+/// another day or another client must land on a plannable cell (membership and group period, like the grid's locked
+/// cells); an edit that keeps the stored cell is not checked, so a Work in a cell that has since been locked stays
+/// editable.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 /// <param name="workLockGuard">Refuses the update when the stored Work's lock level forbids it for the caller</param>
+/// <param name="planningPeriodGuard">Refuses a move onto a day or client outside the membership or group period</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
@@ -45,6 +49,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IPreCommitConflictChecker _conflictChecker;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IParentWorkLockGuard _workLockGuard;
+    private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
 
     public PutCommandHandler(
         IWorkRepository workRepository,
@@ -62,6 +67,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IPreCommitConflictChecker conflictChecker,
         IHttpContextAccessor httpContextAccessor,
         IParentWorkLockGuard workLockGuard,
+        IClientPlanningPeriodGuard planningPeriodGuard,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -80,6 +86,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _conflictChecker = conflictChecker;
         _httpContextAccessor = httpContextAccessor;
         _workLockGuard = workLockGuard;
+        _planningPeriodGuard = planningPeriodGuard;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -122,6 +129,13 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
                 work.ClientId,
                 work.AnalyseToken,
                 cancellationToken);
+
+            if (existingWork == null
+                || existingWork.ClientId != work.ClientId
+                || existingWork.CurrentDate != work.CurrentDate)
+            {
+                await _planningPeriodGuard.EnsureWithinPeriodsAsync([(work.ClientId, work.CurrentDate)], cancellationToken);
+            }
 
             await EnsureNoHardBlockingConflictAsync(work, existingWork, cancellationToken);
 

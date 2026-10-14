@@ -20,6 +20,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Geo;
+using Klacks.Api.Domain.Services.Groups;
 
 namespace Klacks.Api.Application.Services.Grouping;
 
@@ -61,6 +62,8 @@ public static class ShiftCityGroupPlanner
             var currentLinks = shift.GroupItems
                 .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null)
                 .ToList();
+            var validity = GroupItemValidityRange.Combine(
+                currentLinks.Select(gi => (gi.ValidFrom, gi.ValidUntil)).ToList());
 
             if (currentLinks.Any(gi => cityGroupIds.Contains(gi.GroupId)))
             {
@@ -111,8 +114,8 @@ public static class ShiftCityGroupPlanner
                 currentLinks
                     .Select(gi => groupById.TryGetValue(gi.GroupId, out var g) ? g.Name : gi.GroupId.ToString())
                     .ToList(),
-                MergeValidFrom(currentLinks),
-                MergeValidUntil(currentLinks)));
+                validity.ValidFrom,
+                validity.ValidUntil));
         }
 
         var unlocated = cityGroups
@@ -308,26 +311,6 @@ public static class ShiftCityGroupPlanner
         }
 
         return locations;
-    }
-
-    private static DateTime? MergeValidFrom(IReadOnlyList<GroupItem> links)
-    {
-        if (links.Count == 0 || links.Any(gi => !gi.ValidFrom.HasValue))
-        {
-            return null;
-        }
-
-        return links.Min(gi => gi.ValidFrom);
-    }
-
-    private static DateTime? MergeValidUntil(IReadOnlyList<GroupItem> links)
-    {
-        if (links.Count == 0 || links.Any(gi => !gi.ValidUntil.HasValue))
-        {
-            return null;
-        }
-
-        return links.Max(gi => gi.ValidUntil);
     }
 
     private static bool StartsWithWord(string text, string prefix)

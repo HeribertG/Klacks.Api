@@ -4,11 +4,14 @@
 /// Creates a Work: day-lock and write guards first, then the Work with its container expansion and
 /// default expenses, commit, overtime successors, period hours, notifications and the three-day
 /// WorkResource the client repaints from. A Work for a client outside the caller's group visibility is
-/// refused exactly like a Work for a client that does not exist; nothing is written.
+/// refused exactly like a Work for a client that does not exist; nothing is written. Like the grid's locked cells, a
+/// Work on a day outside the client's membership or group period is refused; container children follow their parent's
+/// cell and are not checked on their own.
 /// </summary>
 /// <param name="request">Carries the WorkResource to persist</param>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
 /// <param name="defaultExpensesApplier">Stages the shift's default expenses on the new Work (same scope, same save)</param>
+/// <param name="planningPeriodGuard">Refuses a Work whose client is not plannable on its day (membership or group period)</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
@@ -38,6 +41,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IWorkWriteGuard _writeGuard;
+    private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
 
     public PostCommandHandler(
         IWorkRepository workRepository,
@@ -54,6 +58,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         IUnitOfWork unitOfWork,
         IOvertimeCascadeService overtimeCascadeService,
         IWorkWriteGuard writeGuard,
+        IClientPlanningPeriodGuard planningPeriodGuard,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -71,6 +76,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _unitOfWork = unitOfWork;
         _overtimeCascadeService = overtimeCascadeService;
         _writeGuard = writeGuard;
+        _planningPeriodGuard = planningPeriodGuard;
     }
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -89,6 +95,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
                 work.ClientId,
                 work.AnalyseToken,
                 cancellationToken);
+
+            await _planningPeriodGuard.EnsureWithinPeriodsAsync([(work.ClientId, work.CurrentDate)], cancellationToken);
 
             await _writeGuard.EnsureNoSporadicConflictAsync(work, cancellationToken);
 

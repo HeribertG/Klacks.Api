@@ -6,13 +6,17 @@
 /// ValidFrom and latest ValidUntil of the employee's items in the visible groups). The visible groups are those of the
 /// request's selected group, or, without a selection, the ones the grid itself uses; with none (an unrestricted caller
 /// without a selection) no group period applies. An employee without a membership row and without group bounds is not
-/// blocked, exactly like the grid. The earliest offending day is reported.
+/// blocked, exactly like the grid. The earliest offending day is reported; FindViolationsAsync lists every offending cell
+/// without throwing, so a batch planner can reject single placements instead of the whole batch;
+/// FindViolationsInGroupsAsync reads the group period of explicitly named groups (the target group of a planner run)
+/// instead of the request's group context.
 /// </summary>
 /// <param name="clientRepository">Loads the employees with their membership</param>
 /// <param name="groupItemRepository">Reads the group period bounds of the employees</param>
 /// <param name="groupContextResolver">The visible groups of the request's selected group, null without one</param>
 /// <param name="groupFilterService">The groups the grid uses when no group is selected</param>
 
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Exceptions;
@@ -54,51 +58,98 @@ public sealed class ClientPlanningPeriodGuard : IClientPlanningPeriodGuard
         IReadOnlyCollection<(Guid ClientId, DateOnly Date)> cells,
         CancellationToken cancellationToken)
     {
+        var violations = await FindViolationsAsync(cells, cancellationToken);
+        if (violations.Count > 0)
+        {
+            throw new InvalidRequestException(violations[0].Message);
+        }
+    }
+
+    public async Task<IReadOnlyList<PlanningPeriodViolation>> FindViolationsAsync(
+        IReadOnlyCollection<(Guid ClientId, DateOnly Date)> cells,
+        CancellationToken cancellationToken)
+    {
         if (cells.Count == 0)
         {
-            return;
+            return [];
         }
 
+        return await FindViolationsCoreAsync(cells, await ResolveVisibleGroupIdsAsync(), cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<PlanningPeriodViolation>> FindViolationsInGroupsAsync(
+        IReadOnlyCollection<(Guid ClientId, DateOnly Date)> cells,
+        IReadOnlyCollection<Guid> groupIds,
+        CancellationToken cancellationToken)
+    {
+        if (cells.Count == 0)
+        {
+            return [];
+        }
+
+        return await FindViolationsCoreAsync(cells, groupIds, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<PlanningPeriodViolation>> FindViolationsCoreAsync(
+        IReadOnlyCollection<(Guid ClientId, DateOnly Date)> cells,
+        IReadOnlyCollection<Guid> visibleGroupIds,
+        CancellationToken cancellationToken)
+    {
         var clientIds = cells.Select(cell => cell.ClientId).Distinct().ToList();
         var clients = (await _clientRepository.GetByIdsAsync(clientIds, cancellationToken))
             .GroupBy(client => client.Id)
             .ToDictionary(group => group.Key, group => group.First());
 
-        var visibleGroupIds = await ResolveVisibleGroupIdsAsync();
         var groupRanges = visibleGroupIds.Count == 0
             ? new Dictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)>()
             : await _groupItemRepository.GetValidityRangesAsync(clientIds, visibleGroupIds, cancellationToken);
 
-        foreach (var cell in cells.OrderBy(cell => cell.Date))
+        var violations = new List<PlanningPeriodViolation>();
+        foreach (var cell in cells.Distinct().OrderBy(cell => cell.Date))
         {
             if (!clients.TryGetValue(cell.ClientId, out var client))
             {
                 continue;
             }
 
-            if (client.Membership != null
-                && IsOutside(
-                    cell.Date, DateOnly.FromDateTime(client.Membership.ValidFrom), ToDate(client.Membership.ValidUntil)))
+            var message = DescribeViolation(client, cell.Date, groupRanges);
+            if (message != null)
             {
-                throw new InvalidRequestException(string.Format(
-                    OutsideMembershipMessage,
-                    DisplayName(client),
-                    cell.Date.ToString(DateFormat),
-                    client.Membership.ValidFrom.ToString(DateFormat),
-                    Describe(client.Membership.ValidUntil)));
-            }
-
-            if (groupRanges.TryGetValue(cell.ClientId, out var range)
-                && IsOutside(cell.Date, ToDate(range.ValidFrom), ToDate(range.ValidUntil)))
-            {
-                throw new InvalidRequestException(string.Format(
-                    OutsideGroupPeriodMessage,
-                    DisplayName(client),
-                    cell.Date.ToString(DateFormat),
-                    Describe(range.ValidFrom),
-                    Describe(range.ValidUntil)));
+                violations.Add(new PlanningPeriodViolation(cell.ClientId, cell.Date, message));
             }
         }
+
+        return violations;
+    }
+
+    private static string? DescribeViolation(
+        Client client,
+        DateOnly date,
+        IReadOnlyDictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)> groupRanges)
+    {
+        if (client.Membership != null
+            && IsOutside(date, DateOnly.FromDateTime(client.Membership.ValidFrom), ToDate(client.Membership.ValidUntil)))
+        {
+            return string.Format(
+                OutsideMembershipMessage,
+                DisplayName(client),
+                date.ToString(DateFormat),
+                client.Membership.ValidFrom.ToString(DateFormat),
+                Describe(client.Membership.ValidUntil));
+        }
+
+        if (groupRanges.TryGetValue(client.Id, out var range)
+            && IsOutside(date, ToDate(range.ValidFrom), ToDate(range.ValidUntil)))
+        {
+            return string.Format(
+                OutsideGroupPeriodMessage,
+                DisplayName(client),
+                date.ToString(DateFormat),
+                Describe(range.ValidFrom),
+                Describe(range.ValidUntil));
+        }
+
+        return null;
     }
 
     private async Task<IReadOnlyCollection<Guid>> ResolveVisibleGroupIdsAsync()

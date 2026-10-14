@@ -1954,6 +1954,7 @@
   "schedule.compliance.reasonShort.restViolation": "休息時間過短",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "違反禁止時段",
   "schedule.compliance.reasonShort.shiftNotInScenario": "新情境中沒有該班次",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "超出會員期限或群組期限",
   "schedule.compliance.reasonShort.rollingAverage": "超過移動平均值",
   "schedule.compliance.reasonShort.weeklyOvertime": "每週加班",
   "schedule.compliance.skipped.col.client": "員工",

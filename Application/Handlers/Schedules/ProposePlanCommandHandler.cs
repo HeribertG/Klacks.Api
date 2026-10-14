@@ -8,6 +8,9 @@
 /// placements are reported as rejected with the violating rule's key. A placement on a day that is sealed for the
 /// client (globally, or by a group the client belongs to or worked for that day) is rejected up front: the scenario
 /// write itself would pass (scenario writes bypass the day lock), but accepting it could never reach the real plan.
+/// A placement on a day outside the employee's membership or group period (the grid's locked cells) is rejected up front
+/// as well, one by one, so the rest of the proposal is still written and the bulk write itself skips that check; the
+/// group period is that of the proposal's target group.
 /// </summary>
 /// <param name="shiftRepository">Resolves shift start/end times for each placement</param>
 /// <param name="scenarioRepository">Persists the new AnalyseScenario</param>
@@ -18,6 +21,7 @@
 /// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
 /// <param name="sealedDayRepository">Tells which (client, date) pairs are sealed</param>
 /// <param name="groupVisibilityGuard">Refuses a hidden target group like a missing one and a group-less proposal for restricted callers</param>
+/// <param name="planningPeriodGuard">Names the placements whose employee is not plannable on that day (membership or group period)</param>
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -36,6 +40,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
 {
     private const string ShiftNotFoundReason = "shift not found";
     private const string SealedDayReason = "day sealed";
+    private const string OutsidePlanningPeriodReason = "outside membership or group period";
     private const int HoursPerDay = 24;
 
     private readonly IShiftRepository _shiftRepository;
@@ -47,6 +52,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
     private readonly IScenarioNameGenerator _scenarioNameGenerator;
     private readonly ISealedDayRepository _sealedDayRepository;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
 
     public ProposePlanCommandHandler(
         IShiftRepository shiftRepository,
@@ -57,9 +63,11 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         IUnitOfWork unitOfWork,
         IScenarioNameGenerator scenarioNameGenerator,
         ISealedDayRepository sealedDayRepository,
-        IGroupVisibilityGuard groupVisibilityGuard)
+        IGroupVisibilityGuard groupVisibilityGuard,
+        IClientPlanningPeriodGuard planningPeriodGuard)
     {
         _groupVisibilityGuard = groupVisibilityGuard;
+        _planningPeriodGuard = planningPeriodGuard;
         _shiftRepository = shiftRepository;
         _scenarioRepository = scenarioRepository;
         _scenarioService = scenarioService;
@@ -94,6 +102,9 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
 
         var sealedPairs = await _sealedDayRepository.GetLockedPairsAsync(
             placements.Select(p => (p.Date, p.ClientId)).Distinct().ToList(), cancellationToken);
+        var outsidePeriodCells = (await FindPeriodViolationsAsync(placements, groupId, cancellationToken))
+            .Select(violation => (violation.ClientId, violation.Date))
+            .ToHashSet();
 
         var resolved = new List<PlacementInput>();
         foreach (var placement in placements)
@@ -101,6 +112,11 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
             if (sealedPairs.Contains((placement.Date, placement.ClientId)))
             {
                 rejected.Add(new RejectedPlacement(placement.ClientId, placement.ShiftId, placement.Date, SealedDayReason));
+            }
+            else if (outsidePeriodCells.Contains((placement.ClientId, placement.Date)))
+            {
+                rejected.Add(new RejectedPlacement(
+                    placement.ClientId, placement.ShiftId, placement.Date, OutsidePlanningPeriodReason));
             }
             else if (shifts.ContainsKey(placement.ShiftId))
             {
@@ -161,6 +177,22 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
             partition.ReportableConflicts);
     }
 
+    /// <summary>
+    /// The placements outside their employee's planning period. With a target group (whose visibility the handler has
+    /// already ensured) the group period of that group applies, not the group the caller happens to have selected;
+    /// without one, the request's group context decides, like for every other write.
+    /// </summary>
+    private Task<IReadOnlyList<PlanningPeriodViolation>> FindPeriodViolationsAsync(
+        IReadOnlyList<PlacementInput> placements,
+        Guid? groupId,
+        CancellationToken cancellationToken)
+    {
+        var cells = placements.Select(p => (p.ClientId, p.Date)).Distinct().ToList();
+        return groupId is Guid targetGroupId
+            ? _planningPeriodGuard.FindViolationsInGroupsAsync(cells, [targetGroupId], cancellationToken)
+            : _planningPeriodGuard.FindViolationsAsync(cells, cancellationToken);
+    }
+
     private async Task WriteAsync(
         List<(PlacementInput Placement, PlannedWorkRow Row)> accepted,
         IReadOnlyDictionary<Guid, Shift> shifts,
@@ -193,7 +225,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
             Works = bulkItems,
             PeriodStart = fromDate,
             PeriodEnd = untilDate
-        }), cancellationToken);
+        }, PlanningPeriodCheck.SkipForPlannerOutput), cancellationToken);
     }
 
     private static decimal WorkHours(TimeOnly start, TimeOnly end)

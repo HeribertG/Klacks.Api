@@ -1954,6 +1954,7 @@
   "schedule.compliance.reasonShort.restViolation": "휴식 시간이 너무 짧음",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "제한 시간대 위반",
   "schedule.compliance.reasonShort.shiftNotInScenario": "새 시나리오에 없는 근무",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "회원 기간 또는 그룹 기간 외",
   "schedule.compliance.reasonShort.rollingAverage": "이동 평균 초과",
   "schedule.compliance.reasonShort.weeklyOvertime": "주간 초과근무",
   "schedule.compliance.skipped.col.client": "직원",

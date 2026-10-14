@@ -1954,6 +1954,7 @@
   "schedule.compliance.reasonShort.restViolation": "Doba odpočinku je příliš krátká",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Porušeno zakázané časové okno",
   "schedule.compliance.reasonShort.shiftNotInScenario": "Směna není v novém scénáři",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "Mimo období členství nebo skupiny",
   "schedule.compliance.reasonShort.rollingAverage": "Překročen klouzavý průměr",
   "schedule.compliance.reasonShort.weeklyOvertime": "Týdenní přesčasové hodiny",
   "schedule.compliance.skipped.col.client": "Zaměstnanec",

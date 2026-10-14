@@ -1954,6 +1954,7 @@
   "schedule.compliance.reasonShort.restViolation": "Lepoaika liian lyhyt",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Rajoitettua aikaikkunaa rikottu",
   "schedule.compliance.reasonShort.shiftNotInScenario": "Vuoro puuttuu uudesta skenaariosta",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "Jäsenyyden tai ryhmän aikavälin ulkopuolella",
   "schedule.compliance.reasonShort.rollingAverage": "Liukuva keskiarvo ylitetty",
   "schedule.compliance.reasonShort.weeklyOvertime": "Viikoittainen ylityö",
   "schedule.compliance.skipped.col.client": "Työntekijä",

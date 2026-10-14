@@ -31,6 +31,9 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// invisible. The new scenario
 /// spans the source scenario's range as well (ScenarioSourceRange), so accepting it never drops the source plan, and
 /// without an own group it inherits the source scenario's group.
+/// A placement on a day outside its employee's membership or group period (the grid's locked cells) is not written but
+/// reported as skipped; the rest of the run is applied. The group period is that of the scenario's group when it has one,
+/// otherwise the request's group context; the bulk write itself then skips its own period check.
 /// </summary>
 /// <param name="resultCache">Cache populated by the wizard runner</param>
 /// <param name="mediator">Mediator used to dispatch BulkAddWorksCommand</param>
@@ -42,10 +45,13 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="partitionService">Shared accept/block compliance partition incl. the K1 supervisor override</param>
 /// <param name="companyClock">Resolves the company's current calendar date when the cached scenario has no tokens</param>
 /// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
+/// <param name="planningPeriodGuard">Names the placements outside their employee's membership or group period; they are
+/// reported as skipped instead of written (the planner models the membership per day, but not the group period)</param>
 /// <param name="logger">Logger used for best-effort capture warnings</param>
 public sealed class WizardApplyService : IWizardApplyService
 {
     private const string ShiftNotInScenarioReasonKey = "schedule.error-list.shift-not-in-scenario";
+    private const string OutsidePlanningPeriodReasonKey = "schedule.error-list.outside-planning-period";
 
     private readonly WizardResultCache _resultCache;
     private readonly IMediator _mediator;
@@ -60,6 +66,7 @@ public sealed class WizardApplyService : IWizardApplyService
     private readonly ICompanyClock _companyClock;
     private readonly IScenarioNameGenerator _scenarioNameGenerator;
     private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
+    private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
     private readonly ILogger<WizardApplyService> _logger;
 
     public WizardApplyService(
@@ -76,8 +83,10 @@ public sealed class WizardApplyService : IWizardApplyService
         ICompanyClock companyClock,
         IScenarioNameGenerator scenarioNameGenerator,
         IScenarioTokenAccessGuard scenarioTokenAccessGuard,
+        IClientPlanningPeriodGuard planningPeriodGuard,
         ILogger<WizardApplyService> logger)
     {
+        _planningPeriodGuard = planningPeriodGuard;
         _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
         _resultCache = resultCache;
         _mediator = mediator;
@@ -121,9 +130,10 @@ public sealed class WizardApplyService : IWizardApplyService
                 .Select(i => new PlannedWorkRow(i.ClientId, i.CurrentDate, i.StartTime, i.EndTime, i.ShiftId))
                 .ToList();
             var partition = await _partitionService.PartitionAsync(rows, analyseToken, overrideBlock, ct);
+            var outsidePeriod = await FindOutsidePeriodIndexesAsync(rows, partition.AcceptedIndexes, groupId: null, jobId, ct);
 
-            var acceptedItems = partition.AcceptedIndexes.Select(i => items[i]).ToList();
-            var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes);
+            var acceptedItems = partition.AcceptedIndexes.Except(outsidePeriod).Select(i => items[i]).ToList();
+            var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes, outsidePeriodIndexes: outsidePeriod);
 
             if (acceptedItems.Count == 0)
             {
@@ -149,7 +159,7 @@ public sealed class WizardApplyService : IWizardApplyService
                     Works = acceptedItems,
                     PeriodStart = periodStart,
                     PeriodEnd = periodEnd,
-                }));
+                }, PlanningPeriodCheck.SkipForPlannerOutput));
 
                 await PersistEscalationsAsync(acceptedItems, escalations, analyseToken, periodStart, periodEnd, ct);
 
@@ -270,8 +280,10 @@ public sealed class WizardApplyService : IWizardApplyService
                 var partition = await _partitionService.PartitionAsync(rows, token, overrideBlock, ct);
 
                 var unplaceable = FindPlacementsWithoutClone(items, partition.AcceptedIndexes, shiftIdMap, sourceAnalyseToken, jobId);
-                var acceptedTokens = partition.AcceptedIndexes.Except(unplaceable).Select(i => items[i]).ToList();
-                var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes, unplaceable);
+                var outsidePeriod = await FindOutsidePeriodIndexesAsync(
+                    rows, partition.AcceptedIndexes.Except(unplaceable).ToList(), groupId, jobId, ct);
+                var acceptedTokens = partition.AcceptedIndexes.Except(unplaceable).Except(outsidePeriod).Select(i => items[i]).ToList();
+                var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes, unplaceable, outsidePeriod);
 
                 var bulkItems = acceptedTokens
                     .Select(t => BuildBulkItem(t, token, shiftIdMap))
@@ -286,7 +298,7 @@ public sealed class WizardApplyService : IWizardApplyService
                         Works = bulkItems,
                         PeriodStart = periodFrom,
                         PeriodEnd = periodUntil,
-                    }));
+                    }, PlanningPeriodCheck.SkipForPlannerOutput));
                     ids = response.CreatedIds;
                 }
 
@@ -350,10 +362,12 @@ public sealed class WizardApplyService : IWizardApplyService
     private static List<SkippedPlacementDto> BuildSkippedPlacements(
         IReadOnlyList<PlannedWorkRow> rows,
         IReadOnlyList<BlockedRow> blockedRows,
-        IReadOnlyList<int>? withoutCloneIndexes = null)
+        IReadOnlyList<int>? withoutCloneIndexes = null,
+        IReadOnlyList<int>? outsidePeriodIndexes = null)
         => blockedRows
             .Select(b => (b.Index, b.ReasonKey))
             .Concat((withoutCloneIndexes ?? []).Select(index => (Index: index, ReasonKey: ShiftNotInScenarioReasonKey)))
+            .Concat((outsidePeriodIndexes ?? []).Select(index => (Index: index, ReasonKey: OutsidePlanningPeriodReasonKey)))
             .Select(s => new SkippedPlacementDto(
                 rows[s.Index].ClientId,
                 rows[s.Index].Date,
@@ -532,6 +546,35 @@ public sealed class WizardApplyService : IWizardApplyService
         }
 
         return withoutClone;
+    }
+
+    /// <summary>
+    /// Accepted placements on a day outside their employee's membership or group period. With a scenario group the group
+    /// period of that group applies (the AutoWizard background run has no request, so this is what makes it behave like
+    /// a planner who selected that group); without one, the request's group context decides, like every other write.
+    /// </summary>
+    private async Task<List<int>> FindOutsidePeriodIndexesAsync(
+        IReadOnlyList<PlannedWorkRow> rows,
+        IReadOnlyList<int> acceptedIndexes,
+        Guid? groupId,
+        Guid jobId,
+        CancellationToken ct)
+    {
+        var cells = acceptedIndexes.Select(i => (rows[i].ClientId, rows[i].Date)).Distinct().ToList();
+        var violations = groupId is Guid targetGroupId
+            ? await _planningPeriodGuard.FindViolationsInGroupsAsync(cells, [targetGroupId], ct)
+            : await _planningPeriodGuard.FindViolationsAsync(cells, ct);
+        if (violations.Count == 0)
+        {
+            return [];
+        }
+
+        var outside = violations.Select(v => (v.ClientId, v.Date)).ToHashSet();
+        var indexes = acceptedIndexes.Where(i => outside.Contains((rows[i].ClientId, rows[i].Date))).ToList();
+        _logger.LogWarning(
+            "WizardApply job {JobId}: {Count} placements outside the employees' planning period were skipped",
+            jobId, indexes.Count);
+        return indexes;
     }
 
     private static BulkWorkItem BuildBulkItem(CoreToken token, Guid? analyseToken, IReadOnlyDictionary<Guid, Guid>? shiftIdMap = null)
