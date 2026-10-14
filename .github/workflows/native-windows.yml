@@ -537,7 +537,8 @@ jobs:
           cp "payload/package/${PACKAGE_FILE}" "rolling/${ROLLING_STAGED_FILE}"
           gh release upload "$rolling" "rolling/${ROLLING_STAGED_FILE}" -R "$GITHUB_REPOSITORY" --clobber
           # Upload under a staging name first, then swap by renaming: the public file is missing for one API call, not
-          # for an upload, and a failed swap restores the previous package.
+          # for an upload, and a failed swap restores the previous package. A leftover .previous.zip is deleted only
+          # while a public package exists; without one it is the last good package and is restored.
           asset_url() { jq -r --arg n "$1" '.assets[] | select(.name == $n) | .apiUrl' rolling/assets.json; }
           rename_asset() {
             for attempt in 1 2 3; do
@@ -566,14 +567,20 @@ jobs:
             echo "::error::Renaming the staged package on ${rolling} failed"
             exit 1
           fi
-          if [ -n "$old" ]; then gh api -X DELETE "$old"; fi
+          # The previous package stays as .previous.zip until the next run: GitHub caches the redirect of the public
+          # download URL for a few minutes, and a cached redirect must not point at a deleted asset.
           gh release edit "$rolling" -R "$GITHUB_REPOSITORY" --title "Office PC package ${VERSION}" > /dev/null
-          if [ "$MODE" = release ]; then
-            curl -fsSL "${RELEASE_DOWNLOAD_BASE}/${rolling}/${PACKAGE_FILE}" -o rolling/back.zip
-          else
-            gh release download "$rolling" -R "$GITHUB_REPOSITORY" -p "$PACKAGE_FILE" -O rolling/back.zip
-          fi
+          gh release download "$rolling" -R "$GITHUB_REPOSITORY" -p "$PACKAGE_FILE" -O rolling/back.zip --clobber
           cmp rolling/back.zip "payload/package/${PACKAGE_FILE}"
+          if [ "$MODE" = release ]; then
+            public=""
+            for attempt in 1 2 3 4 5; do
+              if curl -fsSL "${RELEASE_DOWNLOAD_BASE}/${rolling}/${PACKAGE_FILE}?run=${GITHUB_RUN_ID}-${attempt}" -o rolling/public.zip \
+                 && cmp -s rolling/public.zip "payload/package/${PACKAGE_FILE}"; then public=ok; break; fi
+              sleep 30
+            done
+            [ "$public" = ok ] || echo "::warning::The public URL of ${rolling} does not serve ${VERSION} yet (GitHub cache); the API copy is correct."
+          fi
           echo "Rolling download ${rolling}/${PACKAGE_FILE} serves ${VERSION}."
 
       - name: Upload publish evidence
