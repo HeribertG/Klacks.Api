@@ -233,6 +233,12 @@
     "najdi a přiřaď směny ke skupině",
     "všechny směny s názvem přidej do skupiny"
   ],
+  "bulk_delete_works": [
+    "smazat všechny směny zaměstnance za období",
+    "smazat všechna nasazení v rozmezí dat",
+    "odstranit všechna přiřazení za období",
+    "smazat několik nasazení najednou"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "sloučit mobilní služby kolem města",
     "shromáždit blízké timerange směny",
@@ -2387,6 +2393,12 @@
     "ukázat přiřazení zaměstnanců",
     "jak vypadá plán na týden"
   ],
+  "reassign_work": [
+    "předat směnu jinému zaměstnanci",
+    "přesunout nasazení na jiného zaměstnance",
+    "nech směnu převzít někoho jiného",
+    "přepiš směnu na jiného zaměstnance"
+  ],
   "recall_delivered_notes": [
     "vyvolat doručené poznámky"
   ],
@@ -2459,6 +2471,12 @@
   "restore_email": [
     "obnovit e-mail z koše",
     "vrátit e-mail z koše zpět"
+  ],
+  "restore_work": [
+    "obnovit smazané nasazení",
+    "vrátit smazanou směnu zpět",
+    "zrušit smazání přiřazení",
+    "získat zpět smazanou směnu"
   ],
   "revert_company_rule": [
     "vrátit zpět firemní pravidlo",

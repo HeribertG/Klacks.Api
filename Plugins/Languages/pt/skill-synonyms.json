@@ -227,6 +227,12 @@
     "liga os turnos que correspondem a",
     "atribui em lote os serviços ao grupo"
   ],
+  "bulk_delete_works": [
+    "apagar todos os turnos de um colaborador num período",
+    "excluir todas as intervenções num intervalo de datas",
+    "remover todas as atribuições de um período",
+    "apagar várias intervenções de uma vez"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "agrupar serviços móveis ao redor de uma cidade",
     "reunir turnos timerange próximos",
@@ -2371,6 +2377,12 @@
     "quem está na escala",
     "grade de escala"
   ],
+  "reassign_work": [
+    "passar o turno a outro colaborador",
+    "transferir a intervenção para outro colaborador",
+    "deixar outro colaborador assumir o turno",
+    "reatribuir a atribuição a outro colaborador"
+  ],
   "recall_delivered_notes": [
     "recuperar notas entregues"
   ],
@@ -2445,6 +2457,12 @@
   "restore_email": [
     "restaurar o e-mail da lixeira",
     "recuperar o e-mail da lixeira"
+  ],
+  "restore_work": [
+    "restaurar o turno apagado",
+    "recuperar a atribuição apagada",
+    "desfazer a exclusão da intervenção",
+    "trazer de volta o turno excluído"
   ],
   "revert_company_rule": [
     "reverter a regra da empresa",

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Skills.Meta;
@@ -33,11 +34,28 @@ public static class InverseSkillRegistry
     /// (spec §8). They are all marked UndoOnly: none of those skills had an entry before, and each of
     /// them would otherwise change risk class and leave the autonomy gate, which
     /// SkillRiskReversibilityPinTests caught and which is not part of this change.
+    ///
+    /// The delete_work / restore_work pair is the one approved exception (B2 plan §2.1): it is structured AND visible
+    /// to the prose view. delete_work was Reversible before (ReversibleExtras) without any inverse; restore_work is
+    /// the inverse it always claimed, so the pair makes that class true and lets rollback_my_last_change propose the
+    /// restore. reassign_work is prose-only: its undo needs the source client from the result AND the work id from
+    /// the arguments, a mix the structured shape does not allow. bulk_delete_works is a __manual__ entry: its undo is
+    /// restore_work once per deleted work, which no single inverse call can express; it stays Sensitive.
     /// </summary>
     public static readonly IReadOnlyDictionary<string, InverseSkillEntry> Map =
         new Dictionary<string, InverseSkillEntry>(StringComparer.OrdinalIgnoreCase)
         {
             ["place_work"] = new("delete_work", "Take workId from the original execution's result."),
+            ["delete_work"] = new("restore_work", "Same workId.", ["workId"]),
+            ["restore_work"] = new("delete_work", "Same workId.", ["workId"]),
+            ["reassign_work"] = new(
+                "reassign_work",
+                "Same workId, with targetClientId set to the SourceClientId of the original execution's result."),
+            [BulkDeleteWorksSkill.SkillName] = new(
+                ManualMarker,
+                "restore one by one via restore_work, using each id of DeletedWorkIds from the original execution's " +
+                $"result; the deleting user only within {WorkRestoreDefaults.UndoWindowSeconds} seconds, an administrator " +
+                "at any time."),
             ["add_break"] = new("delete_break", "Take breakId from the original execution's result."),
             ["add_break_placeholder"] = new("delete_break_placeholder", "Take the placeholder Id from the original execution's result."),
             ["update_break_placeholder"] = new("update_break_placeholder", "Re-apply the previous values reported in the original execution's result."),

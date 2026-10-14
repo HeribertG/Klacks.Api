@@ -13322,6 +13322,332 @@
       "version": 5
     },
     {
+      "name": "restore_work",
+      "area": "schedule",
+      "description": "Takes back the delete of one Work entry (one assignment of a client to a shift on a date): the work comes back with its container children, under the same checks as a new placement (sealed day, sporadic capacity, hard-blocking conflicts). The user who deleted it may restore it only within 60 seconds of the delete; an administrator may restore any deleted work at any time, a sealed work only an administrator. Anything else is refused with its reason and changes nothing. Needs the workId the delete reported. Use when the user says: 'stelle den gelöschten Einsatz wieder her', 'hol den gelöschten Dienst zurück', 'restore the shift I just deleted', 'bring back the deleted assignment'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSchedule"
+      ],
+      "parameters": [
+        {
+          "name": "workId",
+          "description": "UUID of the deleted Work entry (the WorkId the delete reported).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "einsatz wiederherstellen",
+          "gelöschten dienst zurückholen"
+        ],
+        "en": [
+          "restore deleted work",
+          "restore deleted shift"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "gelöschten einsatz wiederherstellen",
+          "gelöschten dienst wiederherstellen",
+          "gelöschten dienst zurückholen",
+          "gelöschten einsatz zurückholen",
+          "dienst nach dem löschen wiederherstellen"
+        ],
+        "en": [
+          "restore a deleted work",
+          "restore the deleted shift",
+          "bring back the deleted shift",
+          "undelete a work assignment",
+          "recover a deleted assignment"
+        ],
+        "fr": [
+          "restaurer l'affectation supprimée",
+          "rétablir le service supprimé",
+          "récupérer le service supprimé",
+          "annuler la suppression de l'affectation"
+        ],
+        "it": [
+          "ripristinare l'assegnazione eliminata",
+          "ripristinare il turno eliminato",
+          "recuperare il turno eliminato",
+          "annullare l'eliminazione dell'assegnazione"
+        ]
+      },
+      "labels": {
+        "de": "Gelöschten Einsatz wiederherstellen",
+        "en": "Restore a deleted work assignment",
+        "fr": "Restaurer une affectation supprimée",
+        "it": "Ripristina un'assegnazione eliminata"
+      },
+      "version": 1
+    },
+    {
+      "name": "reassign_work",
+      "area": "schedule",
+      "description": "Hands one placed Work over to another employee on the same day - what dragging the entry onto another employee's row of the schedule does; date, shift and times stay as they are. Name the work with workId, or with its current holder (firstName and lastName, optionally idNumber, or clientId) and the date; name the new holder with targetFirstName and targetLastName (optionally targetIdNumber) or targetClientId. Refused with the reason, and nothing changed: a locked work (confirmed, approved or in a closed period), an entry inside a container work, a sealed day for either employee, a day outside the new holder's membership or group period, an employee or work the caller may not see, a missing mandatory qualification. A collision or rest-time finding at the new holder is reported as a warning and the hand-over still happens. Use when the user says: 'gib Müllers Frühdienst vom 14.10. an Meier', 'Meier soll den Dienst von Müller am Dienstag übernehmen', 'hand Smith's late shift on Oct 14 over to Jones'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSchedule"
+      ],
+      "parameters": [
+        {
+          "name": "workId",
+          "description": "UUID of the Work to hand over; alternative to naming its current holder and the date.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clientId",
+          "description": "UUID of the employee who currently holds the work; alternative to firstName and lastName.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "First name of the employee who currently holds the work.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the employee who currently holds the work.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Optional visible client number that disambiguates duplicate names of the current holder.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "Day of the work (yyyy-MM-dd); required when the work is named by its current holder. If that employee has several works that day, the answer lists them and the call is repeated with workId.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "targetClientId",
+          "description": "UUID of the employee who takes the work over; alternative to targetFirstName and targetLastName.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "targetFirstName",
+          "description": "First name of the employee who takes the work over.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "targetLastName",
+          "description": "Last name of the employee who takes the work over.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "targetIdNumber",
+          "description": "Optional visible client number that disambiguates duplicate names of the employee who takes the work over.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "dienst übergeben",
+          "einsatz umhängen"
+        ],
+        "en": [
+          "hand over shift",
+          "reassign work"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "dienst an einen anderen mitarbeiter übergeben",
+          "einsatz einem anderen mitarbeiter geben",
+          "dienst von einem anderen übernehmen lassen",
+          "einsatz umhängen",
+          "dienst umhängen"
+        ],
+        "en": [
+          "hand a shift over to another employee",
+          "give the shift to someone else",
+          "reassign a work assignment",
+          "let another employee take over the shift",
+          "move the shift to another employee"
+        ],
+        "fr": [
+          "donner le service à un autre employé",
+          "transférer l'affectation à un autre employé",
+          "réaffecter le service",
+          "faire reprendre le service par un autre employé"
+        ],
+        "it": [
+          "passare il turno a un altro dipendente",
+          "assegnare il turno a un altro dipendente",
+          "riassegnare l'assegnazione",
+          "far subentrare un altro dipendente nel turno"
+        ]
+      },
+      "labels": {
+        "de": "Einsatz an anderen Mitarbeiter übergeben",
+        "en": "Hand a work assignment to another employee",
+        "fr": "Confier une affectation à un autre employé",
+        "it": "Passa un'assegnazione a un altro dipendente"
+      },
+      "version": 2
+    },
+    {
+      "name": "bulk_delete_works",
+      "area": "schedule",
+      "description": "Deletes all works of one employee in a date range with one sentence, optionally only those on one shift: at most 50 per call, a larger match is refused as a whole. The server resolves the exact works itself; locked works (confirmed, approved or in a closed period), sealed days and an employee the caller may not see refuse the whole call and delete nothing. Each deleted work takes its container children with it. Always needs a dedicated confirmation that lists the works to be deleted as they are at that moment (the list is worked out again when the confirmed call runs); afterwards a deleted work can only be restored one by one. Use when the user says: 'lösche alle Dienste von Müller im November', 'delete all of Smith's shifts next week', 'remove every assignment of Jones between the 3rd and the 7th'. Do NOT use for one single work on one day.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSchedule"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the employee whose works are deleted; alternative to firstName and lastName.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "First name of the employee whose works are deleted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the employee whose works are deleted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Optional visible client number that disambiguates duplicate names.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "First day of the range (yyyy-MM-dd).",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last day of the range (yyyy-MM-dd); defaults to fromDate.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "shiftId",
+          "description": "Optional UUID of one shift; only works on that shift are deleted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "alle dienste löschen",
+          "alle einsätze löschen"
+        ],
+        "en": [
+          "delete all shifts",
+          "delete all works"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "alle dienste eines mitarbeiters löschen",
+          "alle einsätze im zeitraum löschen",
+          "alle schichten im zeitraum entfernen",
+          "mehrere einsätze auf einmal löschen"
+        ],
+        "en": [
+          "delete all shifts of an employee in a period",
+          "delete all works in a date range",
+          "remove every assignment in a period",
+          "delete several work assignments at once"
+        ],
+        "fr": [
+          "supprimer tous les services d'un employé sur une période",
+          "supprimer toutes les affectations d'une période",
+          "effacer plusieurs affectations à la fois"
+        ],
+        "it": [
+          "eliminare tutti i turni di un dipendente in un periodo",
+          "eliminare tutte le assegnazioni di un periodo",
+          "cancellare più assegnazioni in una volta"
+        ]
+      },
+      "labels": {
+        "de": "Mehrere Einsätze eines Mitarbeiters löschen",
+        "en": "Delete several work assignments of an employee",
+        "fr": "Supprimer plusieurs affectations d'un employé",
+        "it": "Elimina più assegnazioni di un dipendente"
+      },
+      "version": 2
+    },
+    {
       "name": "get_period_hours",
       "area": "period",
       "description": "Shows an employee's period-hours balance for a date range: actual scheduled hours, surcharges, the contract's guaranteed (target) hours and the resulting balance — the numbers of the employee row header in the schedule. Scenario-aware via analyseToken. For the whole-schedule view use read_schedule_state; for yearly workload use interpret_resource_monitor.",

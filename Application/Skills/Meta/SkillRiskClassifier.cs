@@ -300,12 +300,21 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "remove_container_template_task",
         "remove_shift_required_qualification",
         // Schedule day-to-day deletes that carry content or payroll weight (expenses, work changes, notes, planned
-        // absences). delete_work and delete_break stay Reversible (ReversibleExtras) without a registered inverse of
-        // their own: they are the inverses of place_work and add_break, and the removed entry is planned again with those.
+        // absences). delete_work is Reversible through its registered inverse restore_work (InverseSkillRegistry) and
+        // delete_break stays Reversible (ReversibleExtras) without a registered inverse of its own: it is the inverse of
+        // add_break, and the removed entry is planned again with that. bulk_delete_works below has no inverse at all
+        // (a restore is one work at a time inside an undo window), so it is held at every level.
         "delete_workchange",
         "delete_expense",
         "delete_schedule_note",
         "delete_break_placeholder",
+        // bulk_delete_works removes up to BulkWorkDeletionDefaults.MaxWorksPerCall works of one employee with one
+        // sentence. Unlike delete_work it has no inverse: restore_work brings back one work at a time, for the deleting
+        // user only inside the undo window (InverseSkillRegistry answers it with a __manual__ entry). It is held at
+        // every level with the server-computed list as it is at the time of the confirmation, which the confirmed call
+        // works out again (BulkWorkDeletionConfirmationPreviewProvider), so it has no apply=false preview of its own
+        // and is not in PreviewApplySkillCalls.
+        "bulk_delete_works",
         // Absence master data, compliance rules, periods and layouts: the rule deletes switch off a labour-law check,
         // the others lose hand-built configuration the delete does not echo back.
         "delete_absence",
@@ -355,7 +364,6 @@ public class SkillRiskClassifier : ISkillRiskClassifier
 
     internal static readonly HashSet<string> ReversibleExtras = new(StringComparer.OrdinalIgnoreCase)
     {
-        "delete_work",
         "delete_break",
         "cancel_wizard_job",
         // delete_email only moves the mail into the trash folder (verified by re-reading it) and

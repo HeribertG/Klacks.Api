@@ -223,6 +223,12 @@
     "previzualizează adăugarea turelor cu 'weekend' la grupul x",
     "aplică legarea tuturor turelor care au 'receptie' la grupul front desk"
   ],
+  "bulk_delete_works": [
+    "șterge toate turele unui angajat într-o perioadă",
+    "șterge toate intervențiile dintr-un interval de date",
+    "elimină toate asignările dintr-o perioadă",
+    "șterge mai multe intervenții deodată"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "grupează serviciile mobile în jurul unui oraș",
     "adună turele timerange din apropiere",
@@ -2358,6 +2364,12 @@
     "înregistrări plan",
     "ce schimburi are fiecare"
   ],
+  "reassign_work": [
+    "predă tura unui alt angajat",
+    "mută intervenția la alt angajat",
+    "lasă alt angajat să preia tura",
+    "transferă asignarea la alt angajat"
+  ],
   "recall_delivered_notes": [
     "recheamă notele livrate"
   ],
@@ -2430,6 +2442,12 @@
   "restore_email": [
     "restaurează e-mailul din coș",
     "adu înapoi e-mailul din coș"
+  ],
+  "restore_work": [
+    "restaurează tura ștearsă",
+    "readu intervenția ștearsă",
+    "anulează ștergerea asignării",
+    "recuperează o tură ștearsă"
   ],
   "revert_company_rule": [
     "revino asupra regulii de companie",

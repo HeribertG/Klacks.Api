@@ -215,6 +215,12 @@
     "gandingkan semua order dengan perkataan 'vip' ke kumpulan eksklusif",
     "tambahkan secara pukal semua tugasan yang mengandungi 'teknikal' ke jabatan it"
   ],
+  "bulk_delete_works": [
+    "padam semua syif pekerja dalam tempoh tertentu",
+    "padam semua tugasan kerja dalam julat tarikh",
+    "buang semua tugasan dalam satu tempoh",
+    "padam beberapa tugasan sekali gus"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "gabungkan perkhidmatan mudah alih sekitar bandar",
     "kumpul syif timerange berdekatan",
@@ -2329,6 +2335,12 @@
     "lihat pelan semasa",
     "siapa dijadualkan untuk minggu ini"
   ],
+  "reassign_work": [
+    "serahkan syif kepada pekerja lain",
+    "pindahkan tugasan kepada pekerja lain",
+    "biar pekerja lain ambil alih syif",
+    "alihkan tugasan kerja kepada pekerja lain"
+  ],
   "recall_delivered_notes": [
     "panggil nota yang dihantar"
   ],
@@ -2401,6 +2413,12 @@
   "restore_email": [
     "pulihkan e-mel dari tong sampah",
     "kembalikan e-mel dari tong sampah"
+  ],
+  "restore_work": [
+    "pulihkan syif yang dipadam",
+    "kembalikan tugasan yang dipadam",
+    "batalkan pemadaman tugasan kerja",
+    "dapatkan semula syif yang dipadam"
   ],
   "revert_company_rule": [
     "kembalikan peraturan syarikat",

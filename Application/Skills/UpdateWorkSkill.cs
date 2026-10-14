@@ -62,11 +62,7 @@ public class UpdateWorkSkill : BaseSkillImplementation
 
         if (work.LockLevel != WorkLockLevel.None)
         {
-            return SkillResult.Error(
-                $"Work '{workId}' is locked ({work.LockLevel}) and cannot be edited. " +
-                "Confirmed works need unconfirm_work first, approved days revoke_day_approval, " +
-                "and closed periods reopen_period (which returns an entry to its pre-close level, so a confirmed or " +
-                "approved one still needs unconfirm_work or revoke_day_approval afterwards).");
+            return SkillResult.Error(WorkLockRefusal.Message(workId, work.LockLevel, "edited"));
         }
 
         var changed = new List<string>();

@@ -222,6 +222,12 @@
     "lisää bulkilla kaikki 'yö'-vuorot osastolle turvallisuus",
     "lisää kaikki vuorot joiden nimessä 'vuorovastaava' ryhmään johto"
   ],
+  "bulk_delete_works": [
+    "poista työntekijän kaikki vuorot jaksolta",
+    "poista kaikki työvuorot aikaväliltä",
+    "poista kaikki sijoitukset jaksolta",
+    "poista useita työvuoroja kerralla"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "yhdistä mobiilipalvelut kaupungin ympärillä",
     "kerää lähellä olevat timerange-vuorot",
@@ -2362,6 +2368,12 @@
     "hae työvuorot ajanjaksolla",
     "näytä nykyinen suunnitelma"
   ],
+  "reassign_work": [
+    "anna vuoro toiselle työntekijälle",
+    "siirrä työvuoro toiselle työntekijälle",
+    "toinen työntekijä ottaa vuoron",
+    "luovuta vuoro toiselle työntekijälle"
+  ],
   "recall_delivered_notes": [
     "hae toimitetut muistiinpanot"
   ],
@@ -2433,6 +2445,12 @@
   "restore_email": [
     "palauta sähköposti roskakorista",
     "tuo sähköposti takaisin roskakorista"
+  ],
+  "restore_work": [
+    "palauta poistettu työvuoro",
+    "tuo poistettu vuoro takaisin",
+    "peru työvuoron poisto",
+    "palauta poistettu sijoitus"
   ],
   "revert_company_rule": [
     "peru yrityssääntö",

@@ -322,6 +322,8 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Application.Services.Macros.MacroRevertPlanner>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
                            Klacks.Api.Application.Skills.MacroAssignmentConfirmationPreviewProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
+                           Klacks.Api.Application.Skills.BulkWorkDeletionConfirmationPreviewProvider>();
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
     }
 

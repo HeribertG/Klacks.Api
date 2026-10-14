@@ -130,6 +130,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayCalendarLookupService, Klacks.Api.Application.Services.Schedules.HolidayCalendarLookupService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayCalendarTargetResolver, Klacks.Api.Application.Services.Schedules.HolidayCalendarTargetResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IClientWorkCoverageReader, Klacks.Api.Infrastructure.Services.Schedules.ClientWorkCoverageReader>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IBulkWorkDeletionPlanner, Klacks.Api.Application.Services.Schedules.BulkWorkDeletionPlanner>();
     }
 
     private static readonly List<Klacks.Plugin.Contracts.IPluginRegistrar> PluginRegistrars = [];
@@ -474,6 +475,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.PeriodClosing.IPeriodValidationLoader, Services.PeriodClosing.PeriodValidationLoader>();
         services.AddScoped<Application.Interfaces.Schedules.IPreCommitConflictChecker, Services.Schedules.PreCommitConflictChecker>();
         services.AddScoped<Application.Interfaces.Schedules.IWorkWriteGuard, Application.Services.Schedules.WorkWriteGuardService>();
+        services.AddScoped<Application.Interfaces.Schedules.IClientPlanningPeriodGuard, Application.Services.Schedules.ClientPlanningPeriodGuard>();
         services.AddScoped<Application.Interfaces.Schedules.IShiftDefaultExpensesApplier, Application.Services.Schedules.ShiftDefaultExpensesApplier>();
         services.AddScoped<Application.Interfaces.Schedules.IWorkRestoreAuthorizer, Application.Services.Schedules.WorkRestoreAuthorizer>();
         services.AddScoped<Application.Interfaces.Schedules.IComplianceEscalationService, Application.Services.Schedules.ComplianceEscalationService>();

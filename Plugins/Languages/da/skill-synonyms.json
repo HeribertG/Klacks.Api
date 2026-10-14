@@ -226,6 +226,12 @@
     "tildel alle job der hedder 'service' til holdet",
     "sammenlæg vagter med 'vagt' til team b"
   ],
+  "bulk_delete_works": [
+    "slet alle vagter for en medarbejder i en periode",
+    "slet alle indsatser i et datointerval",
+    "fjern alle tildelinger i en periode",
+    "slet flere indsatser på én gang"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "saml mobile tjenester omkring en by",
     "indsaml nærliggende timerange-vagter",
@@ -2352,6 +2358,12 @@
     "vis bemandingsplan",
     "se vagter for afdeling"
   ],
+  "reassign_work": [
+    "giv vagten videre til en anden medarbejder",
+    "flyt indsatsen over til en anden medarbejder",
+    "lad en anden medarbejder overtage vagten",
+    "overfør tildelingen til en anden medarbejder"
+  ],
   "recall_delivered_notes": [
     "hent leverede noter"
   ],
@@ -2424,6 +2436,12 @@
   "restore_email": [
     "gendan e-mailen fra papirkurven",
     "hent e-mailen tilbage fra papirkurven"
+  ],
+  "restore_work": [
+    "gendan den slettede vagt",
+    "hent den slettede indsats tilbage",
+    "fortryd sletningen af tildelingen",
+    "genopret en slettet vagt"
   ],
   "revert_company_rule": [
     "fortryd virksomhedsreglen",

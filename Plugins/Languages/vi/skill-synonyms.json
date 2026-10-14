@@ -220,6 +220,12 @@
     "áp dụng thêm tất cả dịch vụ có mã 'dv01' vào nhóm d",
     "thêm bulk các ca có chứa 'lễ' vào nhóm lễ tân"
   ],
+  "bulk_delete_works": [
+    "xóa tất cả ca của một nhân viên trong khoảng thời gian",
+    "xóa mọi phân công trong khoảng ngày",
+    "gỡ toàn bộ phân công trong một giai đoạn",
+    "xóa nhiều phân công cùng lúc"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "gộp các dịch vụ di động quanh một thành phố",
     "thu thập ca timerange gần đó",
@@ -2330,6 +2336,12 @@
     "xem bảng phân công",
     "xem schedule của nhóm"
   ],
+  "reassign_work": [
+    "giao ca cho nhân viên khác",
+    "chuyển phân công sang nhân viên khác",
+    "để nhân viên khác nhận ca",
+    "đổi người nhận ca sang nhân viên khác"
+  ],
   "recall_delivered_notes": [
     "gọi lại ghi chú đã gửi"
   ],
@@ -2401,6 +2413,12 @@
   "restore_email": [
     "khôi phục email từ thùng rác",
     "lấy lại email từ thùng rác"
+  ],
+  "restore_work": [
+    "khôi phục ca đã xóa",
+    "lấy lại phân công đã xóa",
+    "hoàn tác việc xóa ca",
+    "phục hồi ca làm đã bị xóa"
   ],
   "revert_company_rule": [
     "hoàn tác quy tắc công ty",

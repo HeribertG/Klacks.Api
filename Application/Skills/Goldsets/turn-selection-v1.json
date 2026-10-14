@@ -5122,6 +5122,250 @@
       "tags": [
         "crud"
       ]
+    },
+    {
+      "id": "curated-grid-reassign-de",
+      "message": "Gib Müllers Frühdienst vom 14.10. an Meier",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "reassign_work",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "targetLastName",
+          "match": "exact",
+          "value": "Meier"
+        }
+      ],
+      "source": "curated",
+      "comment": "Handing a placed shift over to another named employee on a date is the hand-over, not a delete plus a new placement.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-reassign-de-question",
+      "message": "Kann Meier den Dienst von Müller am Dienstag übernehmen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "reassign_work",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "targetLastName",
+          "match": "exact",
+          "value": "Meier"
+        }
+      ],
+      "source": "curated",
+      "comment": "The question form asks for the same hand-over: Meier takes over the shift Müller holds on Tuesday.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-restore-de",
+      "message": "Hol den gelöschten Dienst von Müller wieder zurück",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "restore_work",
+      "alternativeTools": [
+        "rollback_my_last_change"
+      ],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Bringing back a deleted shift is the restore; the rollback of the last change is the accepted alternative right after a delete.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-rollback-de",
+      "message": "Ups, rückgängig",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "rollback_my_last_change",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "A bare take-it-back after an action is the rollback of the last change, not a restore of a named shift.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-delete-single-de",
+      "message": "Müller soll am 14. nicht arbeiten",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "delete_work",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "One employee off for one day is the single delete, never the bulk delete.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-bulk-delete-de",
+      "message": "Lösch alle Dienste von Müller im November",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "bulk_delete_works",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "lastName",
+          "match": "exact",
+          "value": "Müller"
+        }
+      ],
+      "source": "curated",
+      "comment": "All shifts of one employee in a month is the bulk delete.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-reassign-en",
+      "message": "Hand Smith's late shift on Oct 14 over to Jones",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "reassign_work",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "targetLastName",
+          "match": "exact",
+          "value": "Jones"
+        }
+      ],
+      "source": "curated",
+      "comment": "English hand-over of a placed shift to another employee.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-restore-en",
+      "message": "Restore the shift I just deleted",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "restore_work",
+      "alternativeTools": [
+        "rollback_my_last_change"
+      ],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "English restore of a just deleted shift; the rollback of the last change is the accepted alternative.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-update-not-reassign-en",
+      "message": "Change Smith's shift on the 14th to 07:00-15:00",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "update_work",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Changing the times of a placed shift is the edit, not a hand-over to another employee.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-reassign-fr",
+      "message": "Donne le service de Dupont du 14 octobre à Martin",
+      "locale": "fr",
+      "currentRoute": null,
+      "expectedTool": "reassign_work",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "targetLastName",
+          "match": "exact",
+          "value": "Martin"
+        }
+      ],
+      "source": "curated",
+      "comment": "French hand-over of a placed shift to another employee.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-restore-fr",
+      "message": "Annule la suppression, remets le service",
+      "locale": "fr",
+      "currentRoute": null,
+      "expectedTool": "restore_work",
+      "alternativeTools": [
+        "rollback_my_last_change"
+      ],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "French restore of a deleted shift; the rollback of the last change is the accepted alternative.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-reassign-it",
+      "message": "Passa il turno di Rossi del 14 ottobre a Bianchi",
+      "locale": "it",
+      "currentRoute": null,
+      "expectedTool": "reassign_work",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "targetLastName",
+          "match": "exact",
+          "value": "Bianchi"
+        }
+      ],
+      "source": "curated",
+      "comment": "Italian hand-over of a placed shift to another employee.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-bulk-delete-it",
+      "message": "Cancella tutti i turni di Rossi a novembre",
+      "locale": "it",
+      "currentRoute": null,
+      "expectedTool": "bulk_delete_works",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "lastName",
+          "match": "exact",
+          "value": "Rossi"
+        }
+      ],
+      "source": "curated",
+      "comment": "Italian bulk delete of all shifts of one employee in a month.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-grid-swap-no-skill-de",
+      "message": "Tausche die Dienste von Müller und Meier am 14.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": null,
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "A swap has no skill: the assistant asks what to do and must not guess two hand-overs.",
+      "tags": [
+        "crud"
+      ]
     }
   ]
 }

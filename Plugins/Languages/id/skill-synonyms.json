@@ -226,6 +226,12 @@
     "bulk assign dinas ke tim",
     "cari shift dan tambahkan ke grup"
   ],
+  "bulk_delete_works": [
+    "hapus semua shift karyawan dalam satu periode",
+    "hapus semua penugasan kerja dalam rentang tanggal",
+    "buang semua penugasan dalam periode",
+    "hapus beberapa penugasan sekaligus"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "gabungkan layanan mobile di sekitar kota",
     "kumpulkan shift timerange terdekat",
@@ -2322,6 +2328,12 @@
     "jadwal saat ini grup",
     "baca rencana shift grup"
   ],
+  "reassign_work": [
+    "serahkan shift ke karyawan lain",
+    "pindahkan penugasan ke karyawan lain",
+    "biarkan karyawan lain mengambil alih shift",
+    "alihkan penugasan kerja ke karyawan lain"
+  ],
   "recall_delivered_notes": [
     "panggil catatan terkirim"
   ],
@@ -2393,6 +2405,12 @@
   "restore_email": [
     "pulihkan email dari tempat sampah",
     "kembalikan email dari tempat sampah"
+  ],
+  "restore_work": [
+    "pulihkan shift yang sudah dihapus",
+    "kembalikan penugasan yang dihapus",
+    "batalkan penghapusan penugasan kerja",
+    "ambil kembali shift yang terhapus"
   ],
   "revert_company_rule": [
     "kembalikan aturan perusahaan",

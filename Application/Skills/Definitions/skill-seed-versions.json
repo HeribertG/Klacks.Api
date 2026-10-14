@@ -148,6 +148,10 @@
       "version": 4,
       "hash": "41556C1A84403A9F5713F60119D76359087934D435C43118FCF78D110A23D0B6"
     },
+    "bulk_delete_works": {
+      "version": 2,
+      "hash": "1A5C30F8560C588C31614CFE60E6D3750C3051FBD093E23481FFFACC492BAB3B"
+    },
     "bundle_nearby_timerange_shifts_into_container": {
       "version": 4,
       "hash": "AAE6B355BFFE4A9B2F3628847E332F61E7B4AC382872EC5450703812D1F0F3C0"
@@ -1440,6 +1444,10 @@
       "version": 6,
       "hash": "D87F88432753981E67F5DCEF6DF39DF6C75D2995EC831046ECDE631A642092E9"
     },
+    "reassign_work": {
+      "version": 2,
+      "hash": "BFBE987998E875A141CEDB198734F89CD2F41B7A26CEEE6732D231156F23FE69"
+    },
     "recall_delivered_notes": {
       "version": 3,
       "hash": "6AD24F14F8DB8E1AB113D775186C05AC927AC34AA5EBD85F8536102554EC6E57"
@@ -1487,6 +1495,10 @@
     "restore_email": {
       "version": 4,
       "hash": "EF46E5BD5819CB8A4C27942D97F5A1C2FBDBAE47CD7F5EE025EB0CAC61578099"
+    },
+    "restore_work": {
+      "version": 1,
+      "hash": "03A83992C20CB6C9290B6712A5429F92CB1A4672266048FBE1D8884E2C544636"
     },
     "revert_company_rule": {
       "version": 4,

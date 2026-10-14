@@ -6,9 +6,11 @@
 /// not deleted and count as failed. Like the single delete, the whole request is refused when any visible work
 /// lies on a sealed day (IDayLockService), whatever the caller's role, or when any visible Work's own lock level
 /// forbids the delete for the caller (IParentWorkLockGuard: Closed refuses everyone, Approved needs Admin or
-/// Authorised); nothing is deleted then.
+/// Authorised); nothing is deleted then. Like the single delete, every deleted Work takes its container children
+/// (child Works and Breaks) with it, so no child stays behind under a soft-deleted parent.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
+/// <param name="cascadeService">Soft-deletes the container children of each deleted Work</param>
 /// <param name="dayLockService">Refuses deletions on days sealed globally or for a group of the client</param>
 /// <param name="workLockGuard">Refuses the batch when a Work's lock level forbids the delete for the caller</param>
 
@@ -35,6 +37,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
+    private readonly IContainerWorkCascadeService _cascadeService;
     private readonly IDayLockService _dayLockService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IParentWorkLockGuard _workLockGuard;
@@ -47,6 +50,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
         IOvertimeCascadeService overtimeCascadeService,
+        IContainerWorkCascadeService cascadeService,
         IDayLockService dayLockService,
         IHttpContextAccessor httpContextAccessor,
         IParentWorkLockGuard workLockGuard,
@@ -60,6 +64,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         _completionService = completionService;
         _notificationFacade = notificationFacade;
         _overtimeCascadeService = overtimeCascadeService;
+        _cascadeService = cascadeService;
         _dayLockService = dayLockService;
         _httpContextAccessor = httpContextAccessor;
         _workLockGuard = workLockGuard;
@@ -93,6 +98,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
 
             foreach (var work in deletedWorks)
             {
+                await _cascadeService.DeleteChildrenAsync(work.Id);
                 _workRepository.Remove(work);
             }
 

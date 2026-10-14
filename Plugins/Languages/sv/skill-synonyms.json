@@ -221,6 +221,12 @@
     "förhandsgranska vilka pass som skulle läggas till",
     "verkställ alla kopplingar till gruppen nu"
   ],
+  "bulk_delete_works": [
+    "ta bort alla pass för en anställd under en period",
+    "radera alla arbetsuppdrag inom ett datumintervall",
+    "ta bort alla tilldelningar under en period",
+    "radera flera arbetsuppdrag på en gång"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "samla mobila tjänster runt en stad",
     "hämta närliggande timerange-pass",
@@ -2348,6 +2354,12 @@
     "läs schema för grupp",
     "visa bemanning"
   ],
+  "reassign_work": [
+    "lämna över passet till en annan anställd",
+    "flytta arbetsuppdraget till en annan anställd",
+    "låt en annan anställd ta över passet",
+    "överför tilldelningen till en annan anställd"
+  ],
   "recall_delivered_notes": [
     "hämta levererade anteckningar"
   ],
@@ -2419,6 +2431,12 @@
   "restore_email": [
     "återställ e-postmeddelandet från papperskorgen",
     "hämta tillbaka mejlet från papperskorgen"
+  ],
+  "restore_work": [
+    "återställ det borttagna passet",
+    "hämta tillbaka det raderade arbetsuppdraget",
+    "ångra borttagningen av tilldelningen",
+    "återskapa ett borttaget skift"
   ],
   "revert_company_rule": [
     "ångra företagsregeln",

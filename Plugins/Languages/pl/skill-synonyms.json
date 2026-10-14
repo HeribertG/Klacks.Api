@@ -226,6 +226,12 @@
     "przypisz wszystkie zmiany z 'weekend' do grupy weekendowej",
     "zbiorczo dodaj służby do działu"
   ],
+  "bulk_delete_works": [
+    "usuń wszystkie zmiany pracownika w okresie",
+    "usuń wszystkie przydziały z zakresu dat",
+    "skasuj wszystkie dyżury pracownika w okresie",
+    "usuń wiele przydziałów naraz"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "połącz mobilne usługi wokół miasta",
     "zbierz pobliskie zmiany timerange",
@@ -2400,6 +2406,12 @@
     "jak wygląda plan na przyszły tydzień",
     "pokaż przydziały pracowników"
   ],
+  "reassign_work": [
+    "przekaż zmianę innemu pracownikowi",
+    "przenieś przydział na innego pracownika",
+    "niech inny pracownik przejmie zmianę",
+    "przepisz dyżur na innego pracownika"
+  ],
   "recall_delivered_notes": [
     "przywołaj dostarczone notatki"
   ],
@@ -2474,6 +2486,12 @@
   "restore_email": [
     "przywróć e-mail z kosza",
     "odzyskaj e-mail z kosza"
+  ],
+  "restore_work": [
+    "przywróć usuniętą zmianę",
+    "odzyskaj usunięty przydział",
+    "cofnij usunięcie dyżuru",
+    "przywróć usunięty dyżur pracownika"
   ],
   "revert_company_rule": [
     "cofnij regułę firmową",

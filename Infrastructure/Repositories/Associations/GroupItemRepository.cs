@@ -58,6 +58,34 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
         return context.GroupItem.AsQueryable();
     }
 
+    public async Task<Dictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)>> GetValidityRangesAsync(
+        IReadOnlyCollection<Guid> clientIds,
+        IReadOnlyCollection<Guid> groupIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (clientIds.Count == 0 || groupIds.Count == 0)
+        {
+            return new Dictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)>();
+        }
+
+        var clientIdList = clientIds.ToList();
+        var groupIdList = groupIds.ToList();
+        var items = await context.GroupItem
+            .AsNoTracking()
+            .Where(gi => !gi.IsDeleted
+                         && gi.ClientId.HasValue
+                         && clientIdList.Contains(gi.ClientId.Value)
+                         && groupIdList.Contains(gi.GroupId))
+            .Select(gi => new { gi.ClientId, gi.ValidFrom, gi.ValidUntil })
+            .ToListAsync(cancellationToken);
+
+        return items
+            .GroupBy(gi => gi.ClientId!.Value)
+            .ToDictionary(
+                group => group.Key,
+                group => (ValidFrom: group.Min(gi => gi.ValidFrom), ValidUntil: group.Max(gi => gi.ValidUntil)));
+    }
+
     public async Task<List<Guid>> GetGroupIdsByShiftId(Guid shiftId, CancellationToken cancellationToken = default)
     {
         return await context.GroupItem

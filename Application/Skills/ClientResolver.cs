@@ -64,20 +64,66 @@ internal static class ClientResolver
     {
         return ResolveCoreAsync(
             searchRepository, clientRepository, firstName, lastName,
-            idNumber: null, idNumberSupported: false, cancellationToken);
+            idNumber: null, idNumberSupported: false, IdNumberParameterName, cancellationToken);
     }
 
+    /// <summary>
+    /// Resolves a client by name and optional client number. The ambiguity and wrong-number answers name the
+    /// parameter the skill really has for the number, so a skill that resolves a second, prefixed client (for example
+    /// targetIdNumber) tells the model the right retry parameter.
+    /// </summary>
+    /// <param name="idNumber">Visible client number that disambiguates duplicate names</param>
+    /// <param name="idNumberParameterName">Name of the skill parameter carrying the number, named in the answers</param>
     public static Task<(Client? Client, string? Error)> ResolveByNameAsync(
         IClientSearchRepository searchRepository,
         IClientRepository clientRepository,
         string? firstName,
         string? lastName,
         int? idNumber,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string idNumberParameterName = IdNumberParameterName)
     {
         return ResolveCoreAsync(
             searchRepository, clientRepository, firstName, lastName,
-            idNumber, idNumberSupported: true, cancellationToken);
+            idNumber, idNumberSupported: true, idNumberParameterName, cancellationToken);
+    }
+
+    /// <summary>
+    /// Resolves the client a skill call names, either by an id or by first/last name (optionally with the visible
+    /// client number). An id that is unknown and an id the caller may not see give the same answer; a name is looked
+    /// up through the group-scoped search, so a hidden person is unknown there too.
+    /// </summary>
+    /// <param name="clientIdRaw">Client id as the model supplied it; when present the names are ignored</param>
+    /// <param name="firstName">First name as the caller supplied it</param>
+    /// <param name="lastName">Last name as the caller supplied it</param>
+    /// <param name="idNumber">Visible client number that disambiguates duplicate names</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <param name="idNumberParameterName">Name of the skill parameter carrying the number, named in the answers</param>
+    public static async Task<(Client? Client, string? Error)> ResolveByIdOrNameAsync(
+        IClientSearchRepository searchRepository,
+        IClientRepository clientRepository,
+        IClientVisibilityGuard visibilityGuard,
+        string? clientIdRaw,
+        string? firstName,
+        string? lastName,
+        int? idNumber,
+        CancellationToken cancellationToken,
+        string idNumberParameterName = IdNumberParameterName)
+    {
+        if (string.IsNullOrWhiteSpace(clientIdRaw))
+        {
+            return await ResolveByNameAsync(
+                searchRepository, clientRepository, firstName, lastName, idNumber, cancellationToken,
+                idNumberParameterName);
+        }
+
+        if (!Guid.TryParse(clientIdRaw, out var clientId))
+        {
+            return (null, $"Invalid client id '{clientIdRaw}'. Expected a UUID, or give the first and last name instead.");
+        }
+
+        var client = await LoadVisibleByIdAsync(clientRepository, visibilityGuard, clientId, cancellationToken);
+        return client == null ? (null, $"Client {clientId} not found.") : (client, null);
     }
 
     /// <summary>
@@ -96,6 +142,7 @@ internal static class ClientResolver
         string? lastName,
         int? idNumber,
         bool idNumberSupported,
+        string idNumberParameterName,
         CancellationToken cancellationToken)
     {
         var term = $"{firstName} {lastName}".Trim();
@@ -123,7 +170,8 @@ internal static class ClientResolver
 
             return (null,
                 $"No unique client matching '{term}' has client number {idNumber.Value}. " +
-                $"Matches: {Describe(items)}. Use one of these client numbers (the number in brackets).");
+                $"Matches: {Describe(items)}. Use one of these client numbers (the number in brackets) as " +
+                $"'{idNumberParameterName}'.");
         }
 
         if (items.Count == 1)
@@ -140,7 +188,7 @@ internal static class ClientResolver
         var pool = exact.Count > 1 ? exact : items;
         var nextStep = idNumberSupported
             ? "then call this skill again with the same name plus the additional parameter " +
-              $"'{IdNumberParameterName}' set to that client number "
+              $"'{idNumberParameterName}' set to that client number "
             : "then complete the requested action for that specific person yourself ";
         return (null,
             $"Multiple clients match '{term}': {Describe(pool)}. Ask the user which one they mean " +

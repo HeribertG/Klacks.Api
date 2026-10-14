@@ -226,6 +226,12 @@
     "muestra una vista previa de añadir todos los turnos con 'noche' al grupo nocturno",
     "previsualiza los servicios con 'urgente' para el grupo de respuesta rápida"
   ],
+  "bulk_delete_works": [
+    "eliminar todos los turnos de un empleado en un periodo",
+    "borrar todas las intervenciones de un rango de fechas",
+    "quitar todas las asignaciones de un periodo",
+    "eliminar varias intervenciones de una vez"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "agrupar servicios móviles alrededor de una ciudad",
     "recopilar servicios timerange cercanos",
@@ -2375,6 +2381,12 @@
     "ver la cuadrícula de turnos",
     "cómo está el plan"
   ],
+  "reassign_work": [
+    "pasar el turno a otro empleado",
+    "traspasar la intervención a otro empleado",
+    "que otro empleado se quede con el turno",
+    "reasignar la asignación a otro empleado"
+  ],
   "recall_delivered_notes": [
     "recuperar notas entregadas"
   ],
@@ -2447,6 +2459,12 @@
   "restore_email": [
     "restaurar el correo de la papelera",
     "recuperar el correo de la papelera"
+  ],
+  "restore_work": [
+    "restaurar el turno eliminado",
+    "recuperar la asignación eliminada",
+    "deshacer la eliminación de la intervención",
+    "traer de vuelta el turno borrado"
   ],
   "revert_company_rule": [
     "revertir la regla de empresa",

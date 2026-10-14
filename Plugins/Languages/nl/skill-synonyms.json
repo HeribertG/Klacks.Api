@@ -226,6 +226,12 @@
     "voeg meerdere shiften tegelijk aan groep",
     "alle shiften met naam... aan groep toevoegen"
   ],
+  "bulk_delete_works": [
+    "alle diensten van een medewerker in een periode verwijderen",
+    "alle inzetten in een datumbereik verwijderen",
+    "alle toewijzingen in een periode weghalen",
+    "meerdere inzetten in één keer verwijderen"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "mobiele diensten rond een stad bundelen",
     "nabijgelegen timerange-diensten verzamelen",
@@ -2382,6 +2388,12 @@
     "lees de actuele planning",
     "laat de shift toewijzingen zien"
   ],
+  "reassign_work": [
+    "dienst aan een andere medewerker overdragen",
+    "inzet overzetten naar een andere medewerker",
+    "laat een andere medewerker de dienst overnemen",
+    "toewijzing aan een andere medewerker geven"
+  ],
   "recall_delivered_notes": [
     "afgeleverde notities ophalen"
   ],
@@ -2453,6 +2465,12 @@
   "restore_email": [
     "e-mail uit de prullenbak terugzetten",
     "e-mail herstellen uit de prullenbak"
+  ],
+  "restore_work": [
+    "verwijderde dienst herstellen",
+    "verwijderde inzet terugzetten",
+    "verwijdering van de toewijzing ongedaan maken",
+    "de verwijderde dienst terughalen"
   ],
   "revert_company_rule": [
     "de bedrijfsregel terugdraaien",

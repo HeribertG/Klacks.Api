@@ -221,6 +221,12 @@
     "forhåndsvis hvilke vakter som matcher 'hjemmetjeneste'",
     "sett alle ordre med 'turnus' i gruppa oslo"
   ],
+  "bulk_delete_works": [
+    "slett alle vakter for en ansatt i en periode",
+    "slett alle oppdrag i et datoområde",
+    "fjern alle tildelinger i en periode",
+    "slett flere oppdrag samtidig"
+  ],
   "bundle_nearby_timerange_shifts_into_container": [
     "samle mobile tjenester rundt en by",
     "hent nærliggende timerange-vakter",
@@ -2326,6 +2332,12 @@
     "vis bemanning gjeldende uke",
     "hvilke vakter er satt opp"
   ],
+  "reassign_work": [
+    "gi vakten videre til en annen ansatt",
+    "flytt oppdraget over til en annen ansatt",
+    "la en annen ansatt overta vakten",
+    "overfør tildelingen til en annen ansatt"
+  ],
   "recall_delivered_notes": [
     "hent leverte notater"
   ],
@@ -2397,6 +2409,12 @@
   "restore_email": [
     "gjenopprett e-posten fra papirkurven",
     "hent e-posten tilbake fra papirkurven"
+  ],
+  "restore_work": [
+    "gjenopprett den slettede vakten",
+    "hent det slettede oppdraget tilbake",
+    "angre slettingen av tildelingen",
+    "gjenopprett en slettet vakt"
   ],
   "revert_company_rule": [
     "angre bedriftsregelen",

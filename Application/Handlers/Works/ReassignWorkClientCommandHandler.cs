@@ -4,13 +4,20 @@
 /// Hands a Work over to another client: day-lock and hard-blocking guards for both clients, the move
 /// including container children, commit, overtime successors, period hours and the schedule entries of
 /// source and target. A Work whose current owner or whose target client is outside the caller's group
-/// visibility is refused exactly like a Work that does not exist; nothing is written.
+/// visibility is refused exactly like a Work that does not exist; nothing is written. Like the Work PUT and DELETE,
+/// the stored Work must be writable for the caller under IParentWorkLockGuard: a Closed Work is refused for everyone,
+/// an Approved one needs Admin or Authorised. Like the grid's drop target, the target client must be plannable on the
+/// Work's day: a day outside its membership or group period is refused.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
+/// <param name="httpContextAccessor">Source of the calling user's roles for the Work lock rule</param>
+/// <param name="workLockGuard">Refuses the reassignment when the Work's lock level forbids it for the caller</param>
+/// <param name="planningPeriodGuard">Refuses a target client whose membership or group period does not cover the Work's day</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
@@ -37,6 +44,9 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IPreCommitConflictChecker _conflictChecker;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IParentWorkLockGuard _workLockGuard;
+    private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
 
     public ReassignWorkClientCommandHandler(
         IWorkRepository workRepository,
@@ -52,6 +62,9 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         IUnitOfWork unitOfWork,
         IOvertimeCascadeService overtimeCascadeService,
         IPreCommitConflictChecker conflictChecker,
+        IHttpContextAccessor httpContextAccessor,
+        IParentWorkLockGuard workLockGuard,
+        IClientPlanningPeriodGuard planningPeriodGuard,
         ILogger<ReassignWorkClientCommandHandler> logger)
         : base(logger)
     {
@@ -68,6 +81,9 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         _unitOfWork = unitOfWork;
         _overtimeCascadeService = overtimeCascadeService;
         _conflictChecker = conflictChecker;
+        _httpContextAccessor = httpContextAccessor;
+        _workLockGuard = workLockGuard;
+        _planningPeriodGuard = planningPeriodGuard;
     }
 
     public async Task<ReassignWorkClientResponse?> Handle(ReassignWorkClientCommand request, CancellationToken cancellationToken)
@@ -82,10 +98,15 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
                 throw new KeyNotFoundException($"Work with ID {request.Id} not found.");
             }
 
+            _workLockGuard.EnsureWorkWritableForCaller(existingWork, _httpContextAccessor);
+
             await _dayLockService.EnsureNotLockedAsync(
                 existingWork.CurrentDate, existingWork.ClientId, existingWork.AnalyseToken, cancellationToken);
             await _dayLockService.EnsureNotLockedAsync(
                 existingWork.CurrentDate, request.TargetClientId, existingWork.AnalyseToken, cancellationToken);
+
+            await _planningPeriodGuard.EnsureWithinPeriodsAsync(
+                [(request.TargetClientId, existingWork.CurrentDate)], cancellationToken);
 
             await EnsureNoHardBlockingConflictAsync(existingWork, request.TargetClientId, cancellationToken);
 
