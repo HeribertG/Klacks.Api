@@ -19,8 +19,41 @@ $ErrorActionPreference = 'Stop'
 
 $ServiceNames = @('KlacksUpdater', 'Klacks', 'KlacksPostgres')
 $ServiceStopTimeout = [TimeSpan]::FromMinutes(2)
+$KlacksProcessNames = @('Klacks.Api', 'Klacks.Updater')
+$ProcessExitTimeoutSeconds = 60
+$RemoveAttempts = 10
+$RemoveRetryDelaySeconds = 3
 
 function Write-Step($message) { Write-Host "==> $message" -ForegroundColor Cyan }
+
+function Stop-KlacksProcesses([string]$Root) {
+    $prefix = $Root.TrimEnd([char]92) + [char]92
+    $running = @(Get-Process -ErrorAction SilentlyContinue | Where-Object {
+        $path = $null
+        try { $path = $_.Path } catch { }
+        ($KlacksProcessNames -contains $_.ProcessName) -or ($path -and $path.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase))
+    })
+    if ($running.Count -eq 0) { return }
+    Write-Step "Ending remaining Klacks processes ($((@($running | ForEach-Object { $_.ProcessName }) | Sort-Object -Unique) -join ', '))"
+    $running | Stop-Process -Force -ErrorAction SilentlyContinue
+    $running | Wait-Process -Timeout $ProcessExitTimeoutSeconds -ErrorAction SilentlyContinue
+}
+
+# A file handle can outlive its process for a moment (slow machines, emulation on ARM64, virus scanners), so a locked
+# file is retried instead of failing the whole uninstallation.
+function Remove-DirectoryWithRetry([string]$Path) {
+    for ($attempt = 1; $attempt -le $RemoveAttempts; $attempt++) {
+        try {
+            Remove-Item -Recurse -Force $Path
+            return
+        }
+        catch {
+            if ($attempt -eq $RemoveAttempts) { throw }
+            Write-Warning "Files in $Path are still in use, retrying ($attempt/$RemoveAttempts): $($_.Exception.Message)"
+            Start-Sleep -Seconds $RemoveRetryDelaySeconds
+        }
+    }
+}
 
 $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
@@ -41,23 +74,19 @@ foreach ($name in $ServiceNames) {
     sc.exe delete $name | Out-Null
 }
 
-$apiProcess = Get-Process -Name 'Klacks.Api', 'Klacks.Updater' -ErrorAction SilentlyContinue
-if ($apiProcess) {
-    Write-Step 'Ending remaining Klacks processes'
-    $apiProcess | Stop-Process -Force
-}
+Stop-KlacksProcesses $ProgramRoot
 
 if (Test-Path $ProgramRoot) {
     Write-Step "Deleting $ProgramRoot"
     $currentLink = Join-Path $ProgramRoot 'current'
     if (Test-Path $currentLink) { cmd /c rmdir "$currentLink" | Out-Null }
-    Remove-Item -Recurse -Force $ProgramRoot
+    Remove-DirectoryWithRetry $ProgramRoot
 }
 
 if ($RemoveData) {
     if (Test-Path $DataRoot) {
         Write-Step "Deleting $DataRoot (database, configuration, backups)"
-        Remove-Item -Recurse -Force $DataRoot
+        Remove-DirectoryWithRetry $DataRoot
     }
 }
 elseif (Test-Path $DataRoot) {
