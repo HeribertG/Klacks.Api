@@ -123,8 +123,10 @@ public class LanguagePluginContentInstaller
     /// <summary>
     /// Startup backfill of the pack's skill synonyms. Writes only the skills that carry no synonyms of
     /// this language yet - a skill seeded after the pack was installed, or one the pack file gained
-    /// later - and leaves every other skill without a write: IAgentSkillRepository.UpdateAsync commits
-    /// per call, so a full reinstall of every pack on every boot would rewrite hundreds of unchanged rows.
+    /// later - or whose stored synonyms lack a phrase the pack now lists, so a pack update that adds
+    /// phrases to an existing skill reaches installations where the language was installed before. Every
+    /// other skill is left without a write: IAgentSkillRepository.UpdateAsync commits per call, so a full
+    /// reinstall of every pack on every boot would rewrite hundreds of unchanged rows.
     /// A written skill ends in the same state a fresh install produces (jsonb mirror plus skill_phrase
     /// rows). The presence check ignores case so a key stored as zh-CN is not duplicated as zh-cn.
     /// </summary>
@@ -135,7 +137,8 @@ public class LanguagePluginContentInstaller
         try
         {
             var count = await WriteSkillSynonymsAsync(
-                scope, code, (skill, keywords) => keywords is { Count: > 0 } && !HasSynonymsFor(skill, code));
+                scope, code, (skill, keywords) => keywords is { Count: > 0 }
+                    && (!HasSynonymsFor(skill, code) || LacksPackPhrase(skill, code, keywords)));
             if (count == null)
                 return;
 
@@ -170,16 +173,29 @@ public class LanguagePluginContentInstaller
         var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
         var phraseRepo = scope.ServiceProvider.GetRequiredService<ISkillPhraseRepository>();
         var allSkills = await skillRepo.GetAllEnabledTrackedAsync();
+        var rejected = (await phraseRepo.GetRejectedAsync(SkillPhraseOwnerKinds.Skill, code))
+            .Select(row => (row.OwnerName, row.Phrase))
+            .ToHashSet();
         var count = 0;
 
         foreach (var skill in allSkills)
         {
-            if (!synonymMap.TryGetValue(skill.Name, out var keywords) || !include(skill, keywords))
+            if (!synonymMap.TryGetValue(skill.Name, out var packPhrases))
+                continue;
+
+            var keywords = packPhrases
+                .Where(phrase => !string.IsNullOrWhiteSpace(phrase))
+                .Select(phrase => phrase.Trim())
+                .Where(phrase => !rejected.Contains((skill.Name, phrase)))
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+            if (!include(skill, keywords))
                 continue;
 
             skill.Synonyms ??= new Dictionary<string, List<string>>();
-            skill.Synonyms[code] = await LanguagePackPhraseMirror.MergePackIntoMirrorAsync(
-                phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, skill.Synonyms.GetValueOrDefault(code), keywords);
+            var mirrorKey = ResolveMirrorKey(skill, code);
+            skill.Synonyms[mirrorKey] = await LanguagePackPhraseMirror.MergePackIntoMirrorAsync(
+                phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, skill.Synonyms.GetValueOrDefault(mirrorKey), keywords);
             await skillRepo.UpdateAsync(skill);
             await LanguagePackPhraseMirror.ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, keywords);
             count++;
@@ -192,6 +208,20 @@ public class LanguagePluginContentInstaller
         skill.Synonyms != null
         && skill.Synonyms.Any(entry =>
             string.Equals(entry.Key, code, StringComparison.OrdinalIgnoreCase) && entry.Value is { Count: > 0 });
+
+    private static string ResolveMirrorKey(AgentSkill skill, string code) =>
+        skill.Synonyms!.ContainsKey(code)
+            ? code
+            : skill.Synonyms.Keys.FirstOrDefault(key => string.Equals(key, code, StringComparison.OrdinalIgnoreCase)) ?? code;
+
+    private static bool LacksPackPhrase(AgentSkill skill, string code, List<string> keywords)
+    {
+        var stored = skill.Synonyms!
+            .Where(entry => string.Equals(entry.Key, code, StringComparison.OrdinalIgnoreCase))
+            .SelectMany(entry => entry.Value)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return keywords.Any(keyword => !string.IsNullOrWhiteSpace(keyword) && !stored.Contains(keyword.Trim()));
+    }
 
     public async Task UninstallSkillSynonymsAsync(IServiceScope scope, string code)
     {

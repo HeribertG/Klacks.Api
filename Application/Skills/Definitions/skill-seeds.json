@@ -13940,6 +13940,145 @@
       "version": 5
     },
     {
+      "name": "confirm_break",
+      "area": "absence",
+      "description": "Confirms one booked absence entry (a Break: vacation, sick leave, training; not a work assignment) at the Confirmed lock level. Afterwards only an administrator can delete the entry, and the confirmation is written to the period audit log. The entry stays editable. Takes the breakId. Refused when the entry does not exist, is outside the caller's group visibility, or is already locked at this level or higher.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSchedule"
+      ],
+      "parameters": [
+        {
+          "name": "breakId",
+          "description": "UUID of the Break entry (booked absence).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "absenz bestätigen",
+          "abwesenheit fixieren"
+        ],
+        "en": [
+          "confirm absence",
+          "lock absence"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "absenz bestätigen",
+          "abwesenheit bestätigen",
+          "ferien bestätigen",
+          "absenz fixieren",
+          "urlaub sperren"
+        ],
+        "en": [
+          "confirm absence",
+          "lock absence",
+          "confirm vacation",
+          "fix absence",
+          "secure time off"
+        ],
+        "fr": [
+          "confirmer l'absence",
+          "verrouiller l'absence",
+          "valider les congés",
+          "fixer l'absence"
+        ],
+        "it": [
+          "confermare l'assenza",
+          "bloccare l'assenza",
+          "convalidare le ferie",
+          "fissare l'assenza"
+        ]
+      },
+      "labels": {
+        "de": "Absenz bestätigen und sperren",
+        "en": "Confirm and lock an absence entry",
+        "fr": "Confirmer et verrouiller une absence",
+        "it": "Conferma e blocca un'assenza"
+      },
+      "version": 1
+    },
+    {
+      "name": "unconfirm_break",
+      "area": "absence",
+      "description": "Removes the lock from one booked absence entry (a Break: vacation, sick leave, training; not a work assignment), so non-administrators can delete it again. Takes the breakId. Refused when the entry carries no lock or is outside the caller's group visibility. A level set by approving a day needs the supervisor or admin role, one set by closing a period the admin role.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSchedule"
+      ],
+      "parameters": [
+        {
+          "name": "breakId",
+          "description": "UUID of the Break entry (booked absence).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "absenz entsperren"
+        ],
+        "en": [
+          "unlock absence",
+          "unconfirm absence"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "absenz entsperren",
+          "abwesenheit entsperren",
+          "absenz-bestätigung zurücknehmen",
+          "ferien entfixieren",
+          "urlaub freigeben"
+        ],
+        "en": [
+          "unconfirm absence",
+          "unlock absence",
+          "release absence",
+          "revoke absence confirmation",
+          "unlock vacation"
+        ],
+        "fr": [
+          "déverrouiller l'absence",
+          "révoquer la confirmation de l'absence",
+          "libérer l'absence",
+          "annuler la validation des congés"
+        ],
+        "it": [
+          "sbloccare l'assenza",
+          "revocare la conferma dell'assenza",
+          "liberare l'assenza",
+          "togliere il blocco all'assenza"
+        ]
+      },
+      "labels": {
+        "de": "Absenz-Bestätigung aufheben",
+        "en": "Remove confirmation from an absence entry",
+        "fr": "Annuler la confirmation d'une absence",
+        "it": "Annulla la conferma di un'assenza"
+      },
+      "version": 1
+    },
+    {
       "name": "add_schedule_command",
       "area": "schedule",
       "description": "Places a key command (default tokens FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT — admins can rename these in Settings; the skill accepts whichever tokens are currently configured and its error message lists the exact live set) on a client/date. These are seeds the wizards must respect — e.g. Use when the user says: 'Yasmine am 15.05. frei', 'Coline muss am 11.05. Früh arbeiten', 'set free day', 'lock early'.",
@@ -40289,42 +40428,62 @@
         {
           "name": "nightRateMode",
           "description": "Whether the night surcharge is a multiplier or a fixed time credit",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "multiplier",
+            "fixedperhour",
+            "fixedpershift"
+          ]
         },
         {
           "name": "holidayRateMode",
           "description": "Whether the holiday surcharge is a multiplier or a fixed time credit",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "multiplier",
+            "fixedperhour",
+            "fixedpershift"
+          ]
         },
         {
           "name": "we1RateMode",
           "description": "Whether the Saturday surcharge is a multiplier or a fixed time credit",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "multiplier",
+            "fixedperhour",
+            "fixedpershift"
+          ]
         },
         {
           "name": "we2RateMode",
           "description": "Whether the Sunday surcharge is a multiplier or a fixed time credit",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "multiplier",
+            "fixedperhour",
+            "fixedpershift"
+          ]
         },
         {
           "name": "we3RateMode",
           "description": "Whether the third weekend surcharge is a multiplier or a fixed time credit",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "multiplier",
+            "fixedperhour",
+            "fixedpershift"
+          ]
         },
         {
           "name": "nightMinimumPerHour",
@@ -40385,10 +40544,13 @@
         {
           "name": "stackingMode",
           "description": "How several kinds combine on the same hour",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "highestwins",
+            "additive"
+          ]
         }
       ],
       "handlerConfig": null,
@@ -40437,7 +40599,7 @@
         "fr": "Modifier les paramètres de majoration",
         "it": "Modifica le impostazioni di maggiorazione"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_overtime_settings",
@@ -40507,18 +40669,24 @@
         {
           "name": "basis",
           "description": "What the count is measured against",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "day",
+            "week"
+          ]
         },
         {
           "name": "rateMode",
           "description": "Whether the rate is a multiplier or a fixed time credit",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "multiplier",
+            "fixedperhour"
+          ]
         },
         {
           "name": "tier1AfterHours",
@@ -40611,7 +40779,7 @@
         "fr": "Modifier les paramètres des heures supplémentaires",
         "it": "Modifica le impostazioni degli straordinari"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_wizard_settings",

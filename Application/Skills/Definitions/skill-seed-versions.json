@@ -204,6 +204,10 @@
       "version": 9,
       "hash": "8DA13975D068DEB1F50CD14CDA3B97596C3D838337510E1843B756ECDA0D3857"
     },
+    "confirm_break": {
+      "version": 1,
+      "hash": "8087C7BFB6C39C7CC424A92F948BECE1555A6CAC611AAFCD57C3E6B759F76574"
+    },
     "confirm_pending_action": {
       "version": 4,
       "hash": "A292077E7491924F7525F3ADB7B7DDF160C5D050C975784DD961929767B1D9DC"
@@ -1688,6 +1692,10 @@
       "version": 4,
       "hash": "06BB0B1C1AEF387DCB29149172BC4D7C98FB93765DA0DADB4EFD4CD11FDB7692"
     },
+    "unconfirm_break": {
+      "version": 1,
+      "hash": "2BDAC941FB8DC346364585FC4DCE881074D9F9A7A694A6A743BB1C2AA6AEE71D"
+    },
     "unconfirm_work": {
       "version": 5,
       "hash": "E3E3AF1BABBB40F5A46E9BEF0B739439C0271517A8AF4F8C87D96DEF84147CC0"
@@ -1873,8 +1881,8 @@
       "hash": "B08BBA71871F8FDD8CB2F6CEA7BE38E198B48EF18521A2039FE95C54AE1121F3"
     },
     "update_overtime_settings": {
-      "version": 6,
-      "hash": "35D22C3175C52B581ED480CC037DB0C370F4FD34823E4174792B76AD7E24A0C3"
+      "version": 7,
+      "hash": "59DFB962F0137E2589FC236A0B0630B9D16EDA32ED636AD625B56589EABAC70A"
     },
     "update_owner_address": {
       "version": 9,
@@ -1929,8 +1937,8 @@
       "hash": "857A4A2BE8AA227D9AF2782BA79C7D27B3A86A8FB38CA72793E72C996D3E9839"
     },
     "update_surcharge_mode_settings": {
-      "version": 6,
-      "hash": "AEDA18CFADF169EA73B752B8E9DA8A8E3C947BC0706F15F69FF1964BFCD6AD60"
+      "version": 7,
+      "hash": "785ED59C049B2425BA47417A216AE3F9D72D24EBA4ECD49DD82A91E025AA5663"
     },
     "update_transcription_dictionary_entry": {
       "version": 4,

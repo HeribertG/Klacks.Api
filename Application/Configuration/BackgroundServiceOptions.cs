@@ -260,16 +260,6 @@ public class BackgroundServiceOptions
     public bool AgentTrigger { get; set; } = true;
 
     /// <summary>
-    /// Enables the skill-coverage reporter, which compares the documented use cases against the
-    /// registered skills once a week. Default ON: it is the behaviour every installation runs today.
-    /// It reads a documentation file and writes a single log line - no database writes, no external
-    /// call - so running it on every instance costs log volume and nothing else. It is the least
-    /// urgent of these flags when scaling out.
-    /// Override via env <c>BackgroundServices__SkillCoverage=false</c>.
-    /// </summary>
-    public bool SkillCoverage { get; set; } = true;
-
-    /// <summary>
     /// Enables the hourly pending-note broadcast cleanup sweep, which expires undelivered broadcast
     /// notes once they are older than a day. The delete is soft, as for every other entity. Default
     /// ON: it is the behaviour every installation runs today. The sweep is idempotent - it selects by

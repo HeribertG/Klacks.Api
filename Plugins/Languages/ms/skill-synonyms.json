@@ -1118,7 +1118,8 @@
     "apa itu jalur lebih masa",
     "bagaimana lebih masa dikira dalam sehari",
     "mengapa tiada lebih masa dikira",
-    "berapa kadar untuk jam lebih masa"
+    "berapa kadar untuk jam lebih masa",
+    "terangkan kredit masa tambahan peringkat 1 dalam kerja lebih masa"
   ],
   "explain_page_absence": [
     "apa yang saya nampak di halaman kalendar ketidakhadiran?",
@@ -1344,7 +1345,9 @@
     "bagaimana kadar tambahan dibaca",
     "kenapa amaun minimum tidak berkesan",
     "berapa jam dikira sebagai malam",
-    "apakah peraturan untuk tambahan ganda"
+    "apakah peraturan untuk tambahan ganda",
+    "apa maksud mod kredit masa tambahan?",
+    "bagaimana kredit masa minimum dikenakan untuk kredit masa tambahan malam?"
   ],
   "explain_system_context": [
     "adakah pembantu menyambung ke internet",
@@ -1636,7 +1639,9 @@
     "apakah kadar bayaran untuk lebih masa?",
     "berapakah jam pertama untuk kadar lebih masa lebih tinggi?",
     "tunjukkan langkah-langkah bayaran lebih masa",
-    "bagaimana lebih masa dibayar berdasarkan kontrak?"
+    "bagaimana lebih masa dibayar berdasarkan kontrak?",
+    "apakah kredit masa tetap sejam untuk kerja lebih masa?",
+    "tunjukkan kredit masa tambahan peringkat 1 untuk kerja lebih masa"
   ],
   "get_owner_address": [
     "alamat pemilik syarikat",
@@ -1728,7 +1733,9 @@
     "apakah jenis bayaran lebih masa untuk kerja hari cuti?",
     "berapa minimum bayaran lebih masa sejam?",
     "bila waktu malam bermula untuk bayaran lebih masa?",
-    "macam mana jika dua jenis bayaran lebih masa dikenakan pada jam yang sama?"
+    "macam mana jika dua jenis bayaran lebih masa dikenakan pada jam yang sama?",
+    "tunjukkan mod kredit masa tambahan yang sedang digunakan",
+    "bagaimana kredit masa minimum dan kredit masa tambahan malam ditetapkan?"
   ],
   "get_system_info": [
     "maklumat sistem"
@@ -3031,7 +3038,9 @@
     "ubah langkah untuk bayaran lebih masa",
     "naikkan kadar bayaran untuk lebih masa",
     "tetapkan asas untuk kiraan lebih masa",
-    "saya nak ubah kadar bayaran lebih masa bagi langkah tertentu"
+    "saya nak ubah kadar bayaran lebih masa bagi langkah tertentu",
+    "ubah kredit masa tetap sejam untuk kerja lebih masa",
+    "tukar kredit masa tambahan peringkat 1 kepada nilai baharu"
   ],
   "update_owner_address": [
     "kemas kini alamat syarikat",
@@ -3132,7 +3141,9 @@
     "set minimum bayaran lebih masa sejam",
     "ubah waktu malam untuk bayaran lebih masa",
     "jangan tambah dua jenis bayaran lebih masa pada jam yang sama",
-    "kawal cara bayaran lebih masa dikira"
+    "kawal cara bayaran lebih masa dikira",
+    "tukar mod kredit masa tambahan kepada gandaan",
+    "ubah kredit masa minimum kepada nilai baharu"
   ],
   "update_transcription_dictionary_entry": [
     "kemas kini entri kamus transkripsi",

@@ -87,6 +87,17 @@ public class SkillPhraseRepository : ISkillPhraseRepository
         }
     }
 
+    public async Task<IReadOnlyList<SkillPhrase>> GetRejectedAsync(
+        string ownerKind, string language, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillPhrases
+            .AsNoTracking()
+            .Where(p => p.OwnerKind == ownerKind
+                && p.Language == language
+                && p.Status == SkillPhraseStatuses.Rejected)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<bool> SetStatusAsync(Guid id, string status, CancellationToken cancellationToken = default)
     {
         var affected = await _context.SkillPhrases

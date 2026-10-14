@@ -21,8 +21,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public class OvertimeConfigResolver : IOvertimeConfigResolver
 {
-    private const string BasisWeek = "week";
-    private const string RateModeFixedPerHour = "fixedperhour";
+    private const string BasisWeek = CompanyRuleParameterValues.OvertimeBasisWeek;
+    private const string RateModeFixedPerHour = CompanyRuleParameterValues.RateModeFixedPerHour;
 
     private readonly DataBaseContext _context;
     private readonly IClientContractDataProvider _contractDataProvider;

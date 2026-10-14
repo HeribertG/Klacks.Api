@@ -150,7 +150,6 @@ services:
       #   ErpOrderImport              imports order files and writes orders.
       #   ScheduledTask               runs the user-defined cron tasks.
       #   AnswerGroundingSentinel     daily probe; writes findings and counters.
-      # Not worth pinning: SkillCoverage only reads a doc file and writes one log line per week.
       # Already safe against double execution: ScheduledTask claims each occurrence with a conditional
       # UPDATE, ErpOrderImport claims each file with an atomic move (and its due time with a
       # conditional UPDATE). Left on everywhere they duplicate polling load, not work.

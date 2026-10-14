@@ -81,14 +81,14 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
     private const string SurchargeTypeWeekend2 = "weekend2";
     private const string SurchargeTypeWeekend3 = "weekend3";
 
-    private const string RateModeMultiplier = "multiplier";
-    private const string RateModeFixedPerHour = "fixedperhour";
-    private const string RateModeFixedPerShift = "fixedpershift";
+    private const string RateModeMultiplier = CompanyRuleParameterValues.RateModeMultiplier;
+    private const string RateModeFixedPerHour = CompanyRuleParameterValues.RateModeFixedPerHour;
+    private const string RateModeFixedPerShift = CompanyRuleParameterValues.RateModeFixedPerShift;
 
     private const string StackingModeHighestWins = SurchargeStackingModeValues.HighestWins;
     private const string StackingModeAdditive = SurchargeStackingModeValues.Additive;
-    private const string OvertimeBasisDay = "day";
-    private const string OvertimeBasisWeek = "week";
+    private const string OvertimeBasisDay = CompanyRuleParameterValues.OvertimeBasisDay;
+    private const string OvertimeBasisWeek = CompanyRuleParameterValues.OvertimeBasisWeek;
     private const int MaxOvertimeTiers = 3;
     private const int MinCustomPeriodWeeks = 1;
     private const int MaxCustomPeriodWeeks = 104;

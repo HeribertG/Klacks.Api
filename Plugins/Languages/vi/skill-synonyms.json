@@ -1116,7 +1116,9 @@
     "từ giờ thứ mấy được tính tăng ca",
     "mức phụ trội tăng ca là gì",
     "tại sao tiền tăng ca ít vậy",
-    "tăng ca ngày và tăng ca tuần khác nhau thế nào"
+    "tăng ca ngày và tăng ca tuần khác nhau thế nào",
+    "tăng ca có mấy bậc và giờ phụ trội bậc 1 là gì",
+    "giờ phụ trội cố định mỗi giờ khác gì với giờ phụ trội bậc 1"
   ],
   "explain_page_absence": [
     "giải thích trang lịch vắng mặt (absenzen kalender)",
@@ -1339,7 +1341,9 @@
     "cách tính phụ cấp đêm",
     "phụ cấp ngày lễ có cộng dồn không",
     "mức phụ cấp tối thiểu mỗi giờ",
-    "phụ cấp cuối tuần được tính thế nào"
+    "phụ cấp cuối tuần được tính thế nào",
+    "chế độ giờ phụ trội hoạt động như thế nào",
+    "khi nào giờ phụ trội tối thiểu và giờ phụ trội ban đêm được áp dụng"
   ],
   "explain_system_context": [
     "trợ lý có kết nối internet không",
@@ -1627,7 +1631,9 @@
     "lương tăng ca tính thế nào",
     "mức tăng ca sau 8 giờ là bao nhiêu",
     "xem các bậc tăng ca",
-    "tăng ca tính theo hệ số hay cố định"
+    "tăng ca tính theo hệ số hay cố định",
+    "cho tôi xem cài đặt tăng ca hiện tại",
+    "giờ phụ trội bậc 1 hiện bắt đầu từ giờ nào"
   ],
   "get_owner_address": [
     "địa chỉ chủ sở hữu",
@@ -1720,7 +1726,9 @@
     "phụ cấp tính theo hệ số hay cố định",
     "mức phụ cấp tối thiểu mỗi giờ là bao nhiêu",
     "khung giờ phụ cấp ban đêm bắt đầu từ lúc nào",
-    "cách cộng dồn các loại phụ cấp"
+    "cách cộng dồn các loại phụ cấp",
+    "chế độ giờ phụ trội hiện tại đang cài đặt như thế nào",
+    "xem giờ phụ trội cố định mỗi giờ và giờ phụ trội ban đêm"
   ],
   "get_system_info": [
     "thông tin hệ thống"
@@ -3035,7 +3043,8 @@
     "chuyển bậc tăng ca thứ hai lên 10 giờ",
     "tăng lương tăng ca thêm 20%",
     "chỉnh mức phụ cấp tăng ca",
-    "cập nhật cài đặt tăng ca"
+    "cập nhật cài đặt tăng ca",
+    "cập nhật giờ phụ trội cố định mỗi giờ cho tăng ca"
   ],
   "update_owner_address": [
     "cập nhật địa chỉ công ty",
@@ -3140,7 +3149,8 @@
     "đặt mức phụ cấp tối thiểu mỗi giờ",
     "thay đổi khung giờ ban đêm",
     "dừng cộng dồn các loại phụ cấp",
-    "cập nhật chế độ tính phụ cấp"
+    "cập nhật chế độ tính phụ cấp",
+    "cập nhật giờ phụ trội tối thiểu và giờ phụ trội ban đêm"
   ],
   "update_transcription_dictionary_entry": [
     "cập nhật mục từ điển phiên âm",

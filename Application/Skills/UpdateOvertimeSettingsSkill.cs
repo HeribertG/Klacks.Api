@@ -40,9 +40,10 @@ public class UpdateOvertimeSettingsSkill : SettingsWriterSkillBase
         CancellationToken cancellationToken = default)
     {
         var pending = new List<PendingSetting>();
+        var rejected = new List<string>();
 
-        CollectText(pending, parameters, "basis", SettingKeys.OvertimeBasis);
-        CollectText(pending, parameters, "rateMode", SettingKeys.OvertimeRateMode);
+        CollectChoice(pending, rejected, parameters, "basis", SettingKeys.OvertimeBasis, CompanyRuleParameterValues.OvertimeBases);
+        CollectChoice(pending, rejected, parameters, "rateMode", SettingKeys.OvertimeRateMode, CompanyRuleParameterValues.OvertimeRateModes);
         CollectDecimal(pending, parameters, "tier1AfterHours", SettingKeys.OvertimeTier1AfterHours);
         CollectDecimal(pending, parameters, "tier1Rate", SettingKeys.OvertimeTier1Rate);
         CollectDecimal(pending, parameters, "tier2AfterHours", SettingKeys.OvertimeTier2AfterHours);
@@ -50,6 +51,6 @@ public class UpdateOvertimeSettingsSkill : SettingsWriterSkillBase
         CollectDecimal(pending, parameters, "tier3AfterHours", SettingKeys.OvertimeTier3AfterHours);
         CollectDecimal(pending, parameters, "tier3Rate", SettingKeys.OvertimeTier3Rate);
 
-        return await PersistAsync(pending, "Overtime settings");
+        return await PersistAsync(pending, rejected, "Overtime settings");
     }
 }

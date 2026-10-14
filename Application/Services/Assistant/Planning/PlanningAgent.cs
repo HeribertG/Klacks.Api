@@ -34,7 +34,7 @@ public class PlanningAgent : IPlanningAgent
     {
         "add_ai_memory", "add_client_to_group", "create_branch", "create_employee",
         "create_shift", "create_user", "place_work", "delete_work", "restore_work", "reassign_work",
-        "confirm_work", "unconfirm_work",
+        "confirm_work", "unconfirm_work", "confirm_break", "unconfirm_break",
         "add_break", "add_workchange", "add_schedule_command", "approve_day", "revoke_day_approval",
         "list_scenarios", "reject_scenario", "cancel_wizard_job"
     };

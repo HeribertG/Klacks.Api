@@ -1112,7 +1112,9 @@
     "kenapa lembur saya kecil sekali",
     "apa itu tiga tingkat lembur",
     "kenapa tidak ada lembur meskipun saya kerja lama",
-    "bagaimana cara menghitung uang lembur"
+    "bagaimana cara menghitung uang lembur",
+    "jelaskan model lembur dengan koefisien tambahan waktu tingkat 1",
+    "bagaimana kredit waktu tetap per jam bekerja untuk lembur?"
   ],
   "explain_page_absence": [
     "apa yang dilihat di halaman kalender absen?",
@@ -1343,7 +1345,9 @@
     "apa arti angka tarif tunjangan",
     "kenapa tunjangan minimum tidak berlaku",
     "berapa jam yang dihitung sebagai malam",
-    "bagaimana cara kerja mode tunjangan"
+    "bagaimana cara kerja mode tunjangan",
+    "jelaskan mode tambahan waktu dan kredit waktu minimum",
+    "apa itu kredit waktu tetap per jam dan tambahan waktu malam?"
   ],
   "explain_system_context": [
     "apakah asisten terhubung ke internet",
@@ -1629,7 +1633,9 @@
     "apa saja tahapan pembayaran untuk jam kerja ekstra?",
     "sejak jam berapa tarif lembur lebih tinggi berlaku?",
     "tampilkan pengaturan lembur",
-    "lihat ketentuan pembayaran jam lebih"
+    "lihat ketentuan pembayaran jam lebih",
+    "lihat koefisien tambahan waktu tingkat 1 untuk pengaturan lembur",
+    "tampilkan kredit waktu tetap per jam untuk lembur"
   ],
   "get_owner_address": [
     "menampilkan alamat pemilik perusahaan",
@@ -1721,7 +1727,9 @@
     "berapa tunjangan minimum per jam?",
     "jam berapa tunjangan malam mulai?",
     "bagaimana jika dua jenis tunjangan terjadi bersamaan?",
-    "lihat pengaturan mode tunjangan"
+    "lihat pengaturan mode tunjangan",
+    "tampilkan mode tambahan waktu dan kredit waktu minimum",
+    "lihat kredit waktu tetap per jam dan tambahan waktu malam"
   ],
   "get_system_info": [
     "informasi sistem"
@@ -3016,7 +3024,9 @@
     "geser batas tahapan jam lembur",
     "naikkan tarif untuk jam tambahan",
     "ubah basis perhitungan lembur",
-    "setel tarif lembur untuk tahap kedua"
+    "setel tarif lembur untuk tahap kedua",
+    "ubah koefisien tambahan waktu tingkat 1",
+    "setel kredit waktu tetap per jam untuk lembur"
   ],
   "update_owner_address": [
     "ubah alamat perusahaan",
@@ -3118,7 +3128,9 @@
     "setel tunjangan minimum per jam",
     "ubah rentang jam malam",
     "hentikan penambahan tunjangan bersamaan",
-    "ubah cara tunjangan dihitung"
+    "ubah cara tunjangan dihitung",
+    "ubah mode tambahan waktu menjadi kredit waktu tetap per jam",
+    "atur kredit waktu minimum dan tambahan waktu malam"
   ],
   "update_transcription_dictionary_entry": [
     "perbarui entri kamus transkripsi",

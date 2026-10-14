@@ -3110,6 +3110,36 @@
       "contradictionCount": 0,
       "provenance": "curated:advises",
       "status": 1
+    },
+    {
+      "skillAName": "add_break",
+      "skillBName": "confirm_break",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_break",
+      "skillBName": "unconfirm_break",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_break",
+      "skillBName": "unconfirm_break",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
     }
   ]
 }

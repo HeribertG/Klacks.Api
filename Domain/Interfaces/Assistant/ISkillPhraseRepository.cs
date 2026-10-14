@@ -43,6 +43,14 @@ public interface ISkillPhraseRepository
     Task<bool> SetStatusAsync(Guid id, string status, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Phrases an administrator or the learning loop withdrew, for one owner kind and language. A language
+    /// pack that is installed or backfilled later must not bring these wordings back.
+    /// </summary>
+    /// <param name="ownerKind">Skill or Recipe, see SkillPhraseOwnerKinds</param>
+    /// <param name="language">ISO tag of the phrases</param>
+    Task<IReadOnlyList<SkillPhrase>> GetRejectedAsync(string ownerKind, string language, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Adds one learned phrase and reports whether it stuck. The learning loop writes a single row at a
     /// time and must never go through the replace-a-whole-language path, which would delete the phrases
     /// earlier rounds learned. A wording that already exists for the same owner, language and kind is

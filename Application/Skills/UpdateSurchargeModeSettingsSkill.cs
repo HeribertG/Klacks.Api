@@ -45,12 +45,13 @@ public class UpdateSurchargeModeSettingsSkill : SettingsWriterSkillBase
         CancellationToken cancellationToken = default)
     {
         var pending = new List<PendingSetting>();
+        var rejected = new List<string>();
 
-        CollectText(pending, parameters, "nightRateMode", SettingKeys.SurchargeNightRateMode);
-        CollectText(pending, parameters, "holidayRateMode", SettingKeys.SurchargeHolidayRateMode);
-        CollectText(pending, parameters, "we1RateMode", SettingKeys.SurchargeWE1RateMode);
-        CollectText(pending, parameters, "we2RateMode", SettingKeys.SurchargeWE2RateMode);
-        CollectText(pending, parameters, "we3RateMode", SettingKeys.SurchargeWE3RateMode);
+        CollectChoice(pending, rejected, parameters, "nightRateMode", SettingKeys.SurchargeNightRateMode, CompanyRuleParameterValues.SurchargeRateModes);
+        CollectChoice(pending, rejected, parameters, "holidayRateMode", SettingKeys.SurchargeHolidayRateMode, CompanyRuleParameterValues.SurchargeRateModes);
+        CollectChoice(pending, rejected, parameters, "we1RateMode", SettingKeys.SurchargeWE1RateMode, CompanyRuleParameterValues.SurchargeRateModes);
+        CollectChoice(pending, rejected, parameters, "we2RateMode", SettingKeys.SurchargeWE2RateMode, CompanyRuleParameterValues.SurchargeRateModes);
+        CollectChoice(pending, rejected, parameters, "we3RateMode", SettingKeys.SurchargeWE3RateMode, CompanyRuleParameterValues.SurchargeRateModes);
         CollectDecimal(pending, parameters, "nightMinimumPerHour", SettingKeys.SurchargeNightMinimumPerHour);
         CollectDecimal(pending, parameters, "holidayMinimumPerHour", SettingKeys.SurchargeHolidayMinimumPerHour);
         CollectDecimal(pending, parameters, "we1MinimumPerHour", SettingKeys.SurchargeWE1MinimumPerHour);
@@ -58,8 +59,9 @@ public class UpdateSurchargeModeSettingsSkill : SettingsWriterSkillBase
         CollectDecimal(pending, parameters, "we3MinimumPerHour", SettingKeys.SurchargeWE3MinimumPerHour);
         CollectText(pending, parameters, "nightStart", SettingKeys.SurchargeNightStart);
         CollectText(pending, parameters, "nightEnd", SettingKeys.SurchargeNightEnd);
-        CollectText(pending, parameters, "stackingMode", SettingKeys.SurchargeStackingMode);
+        CollectChoice(
+            pending, rejected, parameters, "stackingMode", SettingKeys.SurchargeStackingMode, CompanyRuleParameterValues.StackingModes);
 
-        return await PersistAsync(pending, "Surcharge mode settings");
+        return await PersistAsync(pending, rejected, "Surcharge mode settings");
     }
 }

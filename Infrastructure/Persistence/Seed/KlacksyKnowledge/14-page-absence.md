@@ -180,6 +180,9 @@ sind deaktiviert und in der Liste steht **Gebucht** (de: "Gebucht", en: "Booked"
 - Wer ist wann abwesend? — Skill `search_client_absences`
 - Welche Absenz-Arten gibt es (Farbe, Standardlänge)? — Skill `list_absence_types`
 - Eintrag wieder entfernen — Skill `delete_break`
+- Gebuchten Absenz-Eintrag bestätigen (danach kann nur ein Administrator ihn löschen, Bearbeiten
+  bleibt möglich, die Bestätigung steht im Audit-Log) bzw. die Bestätigung aufheben — Skills
+  `confirm_break`, `unconfirm_break`
 - Ausfall kompensieren (Absenz + Ersatzvorschlag als Szenario) — Skill `cover_absence`
 - Neue Absenz-Art anlegen/ändern (Stammdaten) — Skills `create_absence` / `update_absence`
 - Zur Seite springen — Skill `navigate_to` (Ziel "absences")

@@ -315,8 +315,6 @@ if (bgOptions.SlackOwnerBridge)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.SlackOwnerBridgeBackgroundService>();
 if (bgOptions.AgentTrigger)
     builder.Services.AddHostedService<AgentTriggerBackgroundService>();
-if (bgOptions.SkillCoverage)
-    builder.Services.AddHostedService<SkillCoverageBackgroundService>();
 if (bgOptions.PendingNoteBroadcastCleanup)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PendingNoteBroadcastCleanupBackgroundService>();
 if (bgOptions.PlanningConstraintProposalExpiry)

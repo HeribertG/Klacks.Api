@@ -397,7 +397,9 @@ verwerfen muss.
   verhindern den ganzen Aufruf) — Skill `bulk_delete_works`
 - Stundensaldo eines Mitarbeiters (Ist vs. Soll, Zuschläge) für eine Periode — Skill
   `get_period_hours` (szenariofähig via `analyseToken`)
-- Einträge bestätigen / Bestätigung aufheben — Skills `confirm_work`, `unconfirm_work`
+- Einsätze bestätigen / Bestätigung aufheben — Skills `confirm_work`, `unconfirm_work`; gebuchte
+  Absenz-Einträge — Skills `confirm_break`, `unconfirm_break` (Schutz vor dem Löschen durch
+  Nicht-Administratoren, kein Eingriff in die Wizards)
 - Automatisch planen lassen — Skills `start_autowizard`, `start_wizard1`, `start_wizard2`,
   `start_wizard3`
 - Szenarien verwalten — Skills `list_scenarios`, `accept_scenario`, `reject_scenario`,

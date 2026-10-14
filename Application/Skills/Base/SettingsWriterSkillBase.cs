@@ -102,6 +102,58 @@ public abstract class SettingsWriterSkillBase : BaseSkillImplementation
         }
     }
 
+    /// <summary>
+    /// Adds a choice parameter when it was supplied. The value is matched case-insensitively and stored
+    /// in its canonical spelling, because the settings UI compares the stored text exactly and the
+    /// readers fall back to a default for anything unknown — an unchecked value would be saved, reported
+    /// as verified and then silently ignored. An unknown value is recorded in <paramref name="rejected"/>.
+    /// </summary>
+    /// <param name="allowedValues">Canonical spellings the setting accepts</param>
+    /// <param name="rejected">Collects one message per unknown value; non-empty means nothing is written</param>
+    protected static void CollectChoice(
+        List<PendingSetting> pending,
+        List<string> rejected,
+        Dictionary<string, object> parameters,
+        string parameterName,
+        string key,
+        IReadOnlyList<string> allowedValues)
+    {
+        var value = GetParameter<string>(parameters, parameterName);
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        var trimmed = value.Trim();
+        var canonical = allowedValues.FirstOrDefault(
+            allowed => string.Equals(allowed, trimmed, StringComparison.OrdinalIgnoreCase));
+        if (canonical == null)
+        {
+            rejected.Add($"{parameterName} '{trimmed}' (allowed: {string.Join(", ", allowedValues)})");
+            return;
+        }
+
+        pending.Add(new PendingSetting(parameterName, key, canonical));
+    }
+
+    /// <summary>
+    /// Writes the collected values unless a choice parameter was rejected; a rejection leaves every
+    /// setting unchanged so a partly valid call never half-applies.
+    /// </summary>
+    protected async Task<SkillResult> PersistAsync(
+        IReadOnlyList<PendingSetting> pending,
+        IReadOnlyList<string> rejected,
+        string subject)
+    {
+        if (rejected.Count > 0)
+        {
+            return SkillResult.Error(
+                $"Unknown value for {string.Join("; ", rejected)} — {subject} left unchanged.");
+        }
+
+        return await PersistAsync(pending, subject);
+    }
+
     protected static void CollectBoolean(
         List<PendingSetting> pending,
         Dictionary<string, object> parameters,

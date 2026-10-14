@@ -7,8 +7,11 @@
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 
 using Klacks.Api.Application.Commands.Breaks;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -17,6 +20,10 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 
 public class UnconfirmBreakCommandHandler : BaseHandler, IRequestHandler<UnconfirmBreakCommand, BreakResource?>
 {
+    private const string NotSealedMessage = "This entry is not sealed, so there is nothing to unseal.";
+
+    private const string InsufficientRoleMessage = "Unsealing this entry needs a higher role than yours.";
+
     private readonly IBreakRepository _breakRepository;
     private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly IUnitOfWork _unitOfWork;
@@ -51,6 +58,16 @@ public class UnconfirmBreakCommandHandler : BaseHandler, IRequestHandler<Unconfi
                 throw new KeyNotFoundException($"Break with ID {request.BreakId} not found.");
 
             var ctx = _userContextProvider.GetUserContext();
+            if (breakEntry.LockLevel == WorkLockLevel.None)
+            {
+                throw new InvalidRequestException(NotSealedMessage);
+            }
+
+            if (!_lockLevelService.CanUnseal(breakEntry.LockLevel, ctx.IsAdmin, ctx.IsAuthorised))
+            {
+                throw new ForbiddenException(InsufficientRoleMessage);
+            }
+
             _lockLevelService.Unseal(breakEntry, ctx.IsAdmin, ctx.IsAuthorised);
 
             await _breakRepository.Put(breakEntry);

@@ -22,4 +22,15 @@ public static class CompanyRuleParameterValues
 
     public const string EnforcementWarn = ComplianceEnforcementModeValues.Warn;
     public const string EnforcementBlock = ComplianceEnforcementModeValues.Block;
+
+    public static readonly IReadOnlyList<string> SurchargeRateModes =
+        [RateModeMultiplier, RateModeFixedPerHour, RateModeFixedPerShift];
+
+    public static readonly IReadOnlyList<string> OvertimeRateModes = [RateModeMultiplier, RateModeFixedPerHour];
+
+    public static readonly IReadOnlyList<string> StackingModes = [StackingModeHighestWins, StackingModeAdditive];
+
+    public static readonly IReadOnlyList<string> OvertimeBases = [OvertimeBasisDay, OvertimeBasisWeek];
+
+    public static readonly IReadOnlyList<string> EnforcementModes = [EnforcementWarn, EnforcementBlock];
 }

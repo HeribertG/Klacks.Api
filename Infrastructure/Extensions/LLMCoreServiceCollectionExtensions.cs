@@ -255,7 +255,6 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IClientAvailabilityReadRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ClientAvailabilityReadRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IClientCoreDataReadRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ClientCoreDataReadRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISuggestionEntityNameReader, Klacks.Api.Infrastructure.Repositories.Assistant.SuggestionEntityNameReader>();
-        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillCoverageService, Klacks.Api.Application.Services.Assistant.Coverage.SkillCoverageService>();
     }
 
     private static void AddLLMPipelineServices(this IServiceCollection services)

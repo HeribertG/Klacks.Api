@@ -62,6 +62,8 @@ public static class InverseSkillRegistry
             ["add_expense"] = new("delete_expense", "Take expenseId from the original execution's result."),
             ["confirm_work"] = new("unconfirm_work", "Same workId."),
             ["unconfirm_work"] = new("confirm_work", "Same workId."),
+            ["confirm_break"] = new("unconfirm_break", "Same breakId."),
+            ["unconfirm_break"] = new("confirm_break", "Same breakId."),
             ["approve_day"] = new("revoke_day_approval", "Same date + groupId."),
             ["revoke_day_approval"] = new("approve_day", "Same date + groupId."),
             ["close_period"] = new(

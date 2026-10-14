@@ -21,37 +21,11 @@ public class CompanyRuleParameterCatalog : ICompanyRuleParameterCatalog
     private const decimal ZeroBound = 0m;
     private const int MinThreshold = 1;
 
-    private static readonly IReadOnlyList<string> RateModeValues = new[]
-    {
-        CompanyRuleParameterValues.RateModeMultiplier,
-        CompanyRuleParameterValues.RateModeFixedPerHour,
-        CompanyRuleParameterValues.RateModeFixedPerShift
-    };
-
-    private static readonly IReadOnlyList<string> OvertimeRateModeValues = new[]
-    {
-        CompanyRuleParameterValues.RateModeMultiplier,
-        CompanyRuleParameterValues.RateModeFixedPerHour
-    };
-
-    private static readonly IReadOnlyList<string> StackingModeValues = new[]
-    {
-        CompanyRuleParameterValues.StackingModeHighestWins,
-        CompanyRuleParameterValues.StackingModeAdditive
-    };
-
-    private static readonly IReadOnlyList<string> OvertimeBasisValues = new[]
-    {
-        CompanyRuleParameterValues.OvertimeBasisDay,
-        CompanyRuleParameterValues.OvertimeBasisWeek
-    };
-
-    private static readonly IReadOnlyList<string> EnforcementValues = new[]
-    {
-        CompanyRuleParameterValues.EnforcementWarn,
-        CompanyRuleParameterValues.EnforcementBlock
-    };
-
+    private static readonly IReadOnlyList<string> RateModeValues = CompanyRuleParameterValues.SurchargeRateModes;
+    private static readonly IReadOnlyList<string> OvertimeRateModeValues = CompanyRuleParameterValues.OvertimeRateModes;
+    private static readonly IReadOnlyList<string> StackingModeValues = CompanyRuleParameterValues.StackingModes;
+    private static readonly IReadOnlyList<string> OvertimeBasisValues = CompanyRuleParameterValues.OvertimeBases;
+    private static readonly IReadOnlyList<string> EnforcementValues = CompanyRuleParameterValues.EnforcementModes;
     private static readonly IReadOnlyList<string> EventTypeValues = Enum.GetNames(typeof(CounterEventType));
     private static readonly IReadOnlyList<string> PeriodValues = Enum.GetNames(typeof(CounterPeriod));
     private static readonly IReadOnlyList<string> MacroCategoryValues = Enum.GetNames(typeof(MacroCategoryEnum));
