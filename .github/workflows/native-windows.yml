@@ -264,6 +264,8 @@ jobs:
     needs: [ui, package]
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
+    # Until the ARM64 entry has passed once, its result is reported but does not block the x64 release.
+    continue-on-error: ${{ matrix.label == 'arm64-emulation' }}
     strategy:
       fail-fast: false
       matrix:
@@ -479,7 +481,7 @@ jobs:
           mkdir -p back
           if [ "$MODE" = release ]; then
             curl -fsSL "${RELEASE_DOWNLOAD_BASE}/v${VERSION}/klacks-${VERSION}-win-x64.zip" -o back/bundle.zip
-            curl -fsSL "https://github.com/HeribertG/Klacks.Api/releases/latest/download/${PACKAGE_FILE}" -o back/package.zip
+            curl -fsSL "${RELEASE_DOWNLOAD_BASE}/v${VERSION}/${PACKAGE_FILE}" -o back/package.zip
           else
             gh release download "${{ steps.target.outputs.tag }}" -R "$GITHUB_REPOSITORY" -p "klacks-${VERSION}-win-x64.zip" -O back/bundle.zip
             gh release download "${{ steps.target.outputs.tag }}" -R "$GITHUB_REPOSITORY" -p "${PACKAGE_FILE}" -O back/package.zip
@@ -547,9 +549,15 @@ jobs:
             return 1
           }
           gh release view "$rolling" -R "$GITHUB_REPOSITORY" --json assets > rolling/assets.json
-          leftover=$(asset_url "$ROLLING_PREVIOUS_FILE")
-          if [ -n "$leftover" ]; then gh api -X DELETE "$leftover"; fi
           old=$(asset_url "$PACKAGE_FILE")
+          leftover=$(asset_url "$ROLLING_PREVIOUS_FILE")
+          if [ -n "$leftover" ] && [ -z "$old" ]; then
+            # An earlier run died between moving the package aside and the swap: its previous file is the last good one.
+            rename_asset "$leftover" "$PACKAGE_FILE" || { echo "::error::Restoring ${ROLLING_PREVIOUS_FILE} on ${rolling} failed"; exit 1; }
+            old="$leftover"
+          elif [ -n "$leftover" ]; then
+            gh api -X DELETE "$leftover"
+          fi
           staged=$(asset_url "$ROLLING_STAGED_FILE")
           [ -n "$staged" ] || { echo "::error::Staged asset ${ROLLING_STAGED_FILE} is missing on ${rolling}"; exit 1; }
           if [ -n "$old" ]; then

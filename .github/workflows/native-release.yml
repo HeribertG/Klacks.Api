@@ -11,7 +11,7 @@ on:
     tags: ['v*']
 
 concurrency:
-  group: native-release-${{ github.ref }}
+  group: native-release
   cancel-in-progress: false
 
 permissions:
