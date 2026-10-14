@@ -264,8 +264,6 @@ jobs:
     needs: [ui, package]
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
-    # Until the ARM64 entry has passed once, its result is reported but does not block the x64 release.
-    continue-on-error: ${{ matrix.label == 'arm64-emulation' }}
     strategy:
       fail-fast: false
       matrix:
