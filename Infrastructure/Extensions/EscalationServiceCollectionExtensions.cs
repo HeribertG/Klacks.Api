@@ -9,6 +9,7 @@
 /// its size-guard ceiling. Registration order of IInboundMessengerObserver is preserved by calling this
 /// from the exact position the EscalationReplyObserver registration used to occupy.
 /// </summary>
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Assistant.Conditions;
 using Klacks.Api.Application.Services.Assistant.Escalation;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -30,6 +31,7 @@ public static class EscalationServiceCollectionExtensions
         services.AddScoped<IEscalationNotifier, EscalationNotifier>();
         services.AddScoped<IEscalationHandoffTextService, EscalationHandoffTextService>();
         services.AddScoped<IEscalationChainService, EscalationChainService>();
+        services.AddScoped<IEscalationChainVisibilityFilter, EscalationChainVisibilityFilter>();
         services.AddScoped<ISkillPermissionGate, SkillPermissionGate>();
         services.AddScoped<IConditionApprovalRosterResolver, ConditionApprovalRosterResolver>();
         services.AddScoped<IConditionApprovalChainStarter, ConditionApprovalChainStarter>();

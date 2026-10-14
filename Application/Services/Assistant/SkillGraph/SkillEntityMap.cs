@@ -68,6 +68,7 @@ public static class SkillEntityMap
         ["get_client_locations_overview"] = new[] { "Client", "Address" },
         ["get_contract_details"] = new[] { "Contract" },
         ["get_dashboard_summary"] = new[] { "Shift" },
+        ["get_replacement_status"] = new[] { "Client", "Shift" },
         ["get_shift_details"] = new[] { "Shift" },
         ["group_ungrouped_by_city_name"] = new[] { "Client", "Group", "GroupItem" },
         ["list_client_memberships"] = new[] { "Membership", "Client" },

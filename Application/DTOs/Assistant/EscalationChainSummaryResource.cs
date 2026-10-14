@@ -21,5 +21,8 @@ public class EscalationChainSummaryResource
     /// <summary>True when the requesting user currently holds a Notified stage on this chain.</summary>
     public bool CanAcknowledge { get; set; }
 
+    /// <summary>True when the requesting user may cancel this chain (administrator, supervisor or holder of an open stage of it).</summary>
+    public bool CanCancel { get; set; }
+
     public List<EscalationStageSummaryResource> Stages { get; set; } = [];
 }

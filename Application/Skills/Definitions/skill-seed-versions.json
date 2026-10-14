@@ -1048,6 +1048,10 @@
       "version": 2,
       "hash": "F4151B87B4794B3EE2FBED64700D9B7B7C2D31F7A17C58DCC0694F95B9D775C9"
     },
+    "get_replacement_status": {
+      "version": 1,
+      "hash": "F813BA2D834FD6865BDFF5EFFB2741B22A618E4C695EEAB849495472354A1610"
+    },
     "get_scheduling_defaults": {
       "version": 8,
       "hash": "32149D46AB6CCB18E9A277612F00703FA50AB0EC57D17CF64BA20990F1312FBA"

@@ -4,7 +4,9 @@
 /// Skills that neither the Slack owner bridge nor an MCP caller may offer or run. Both channels cap the rights at
 /// Authorised (Supervisor), and B8 opened exactly these skills to that role (messaging and the e-mail inbox, gated
 /// CanEditClients): without this list the cap alone would hand a physically exposed chat or an external agent the
-/// messenger store and the whole inbox of the installation. Skills the Supervisor already reached before B8
+/// messenger store and the whole inbox of the installation. get_replacement_status is listed for a different reason:
+/// its escalation-chain part decides admin through the database role (the planning audience resolver), which a capped
+/// channel's reduced rights do not change, so a capped admin would see every chain. Skills the Supervisor already reached before B8
 /// (list_emails, read_email, get_email_analysis, list_emails_by_client) are deliberately not listed. The list is the
 /// one building block of both channels: McpSkillExposurePolicy adds it to its exclusions (catalog, call handler,
 /// delegated plan and schedule steps, read-only research) and SkillExecutorService, the toolset filter of the chat
@@ -33,7 +35,8 @@ public static class CappedChannelSkillExclusions
         "fetch_new_emails",
         "translate_email",
         "list_emails_by_group",
-        "get_email_group_tree"
+        "get_email_group_tree",
+        "get_replacement_status"
     };
 
     public static IReadOnlyCollection<string> All => Names;

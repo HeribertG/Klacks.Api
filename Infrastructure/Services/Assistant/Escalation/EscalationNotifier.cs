@@ -159,6 +159,16 @@ public class EscalationNotifier : IEscalationNotifier
         }
     }
 
+    public async Task CloseOpenQuestionsAsync(
+        IReadOnlyList<EscalationStage> notifiedStages,
+        CancellationToken cancellationToken = default)
+    {
+        foreach (var stage in notifiedStages)
+        {
+            await TryAcknowledgeDispatchRowAsync(stage, cancellationToken);
+        }
+    }
+
     public async Task NotifyExhaustedAsync(
         EscalationChain chain,
         IReadOnlyList<EscalationStage> notifiedStages,

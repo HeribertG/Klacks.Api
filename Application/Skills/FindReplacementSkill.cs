@@ -67,7 +67,7 @@ public class FindReplacementSkill : BaseSkillImplementation
         var overrideBlock = GetParameter<bool?>(parameters, "overrideBlock") ?? false;
 
         var shift = await _shiftRepository.Get(shiftId);
-        if (shift == null || !await IsShiftVisibleAsync(shift, cancellationToken))
+        if (shift == null || !await ShiftGroupVisibility.IsVisibleAsync(shift, _groupVisibilityGuard, cancellationToken))
         {
             return SkillResult.Error($"Shift {shiftId} not found.");
         }
@@ -106,29 +106,6 @@ public class FindReplacementSkill : BaseSkillImplementation
             $"{result.Excluded.Count} excluded (absence / unavailable / collision / rest time / missing qualification / blacklist).";
 
         return SkillResult.SuccessResult(data, message);
-    }
-
-    private async Task<bool> IsShiftVisibleAsync(Shift shift, CancellationToken cancellationToken)
-    {
-        var groupIds = shift.GroupItems
-            .Where(item => !item.IsDeleted)
-            .Select(item => item.GroupId)
-            .Distinct()
-            .ToList();
-        if (groupIds.Count == 0 || await _groupVisibilityGuard.IsUnrestrictedAsync(cancellationToken))
-        {
-            return true;
-        }
-
-        foreach (var groupId in groupIds)
-        {
-            if (await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private static object Project(

@@ -103,6 +103,21 @@ public class EscalationChainRepository : IEscalationChainRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<EscalationChain>> GetAbsenceCoverageChainsByAbsentClientAsync(
+        Guid absentClientId, DateTime shiftStartFromUtc, DateTime shiftStartUntilUtc, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<EscalationChain>()
+            .AsNoTracking()
+            .Include(c => c.Stages)
+            .Where(c => c.Purpose == EscalationChainPurpose.AbsenceCoverage
+                && c.AbsentClientId == absentClientId
+                && c.ShiftStartUtc != null
+                && c.ShiftStartUtc >= shiftStartFromUtc
+                && c.ShiftStartUtc < shiftStartUntilUtc)
+            .OrderBy(c => c.ShiftStartUtc)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<EscalationChain?> GetLatestChainForConditionAsync(Guid conditionId, CancellationToken cancellationToken = default)
     {
         return await _context.Set<EscalationChain>()

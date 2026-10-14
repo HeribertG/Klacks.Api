@@ -40,6 +40,12 @@ public interface IEscalationChainRepository
     /// <summary>Every Running chain with its stages, for the admin intervention list.</summary>
     Task<IReadOnlyList<EscalationChain>> GetRunningChainsWithStagesAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>Every AbsenceCoverage chain of this absent employee whose shift starts inside the window, with its
+    /// stages, whatever its status - what the replacement status answer needs, which reports finished chains too.
+    /// Oldest shift first; read-only (no tracking).</summary>
+    Task<IReadOnlyList<EscalationChain>> GetAbsenceCoverageChainsByAbsentClientAsync(
+        Guid absentClientId, DateTime shiftStartFromUtc, DateTime shiftStartUntilUtc, CancellationToken cancellationToken = default);
+
     Task<bool> IsBreakDeletedAsync(Guid breakId, CancellationToken cancellationToken = default);
 
     /// <summary>The most recently created chain for this condition whatever its status, or null - what the

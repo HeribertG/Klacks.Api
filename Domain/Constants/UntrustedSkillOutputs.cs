@@ -57,6 +57,8 @@ public static class UntrustedSkillOutputs
         // Delivered notes carry the same relayed external text as pending notes.
         "recall_delivered_notes",
         "list_macros",
+        // Cancel reasons of escalation chains are typed in by every planner who may cancel one (the intervention list is open to the planner floor).
+        "get_replacement_status",
         // Client notes are free text typed in by any planner (the notes right is part of the Planer floor), so a
         // note can carry instructions to the model.
         "get_client_details",

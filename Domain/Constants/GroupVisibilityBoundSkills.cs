@@ -36,7 +36,8 @@ public static class GroupVisibilityBoundSkills
         "list_emails_by_group",
         "get_email_group_tree",
         "get_messenger_analysis",
-        "close_clarification"
+        "close_clarification",
+        "get_replacement_status"
     };
 
     public static bool Contains(string? skillName) =>

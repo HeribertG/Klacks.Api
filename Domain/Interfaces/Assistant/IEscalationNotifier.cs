@@ -43,4 +43,12 @@ public interface IEscalationNotifier
         EscalationChain chain,
         IReadOnlyList<EscalationStage> notifiedStages,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Closes the open inbox question of every stage that was still waiting when a person cancelled the chain,
+    /// without any further note: the person who cancelled gave the reason.
+    /// </summary>
+    Task CloseOpenQuestionsAsync(
+        IReadOnlyList<EscalationStage> notifiedStages,
+        CancellationToken cancellationToken = default);
 }

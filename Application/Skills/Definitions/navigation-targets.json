@@ -2404,9 +2404,8 @@
     "route": "/workplace/escalations",
     "labelKey": "nav.escalations",
     "category": "page",
-    "requiredPermission": "Admin",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-09-12T05:49:46.873Z",
+    "lastScannedAt": "2026-10-14T21:32:23.410Z",
     "synonyms": {
       "de": [
         "eskalationen",

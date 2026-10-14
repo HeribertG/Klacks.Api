@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-04T05:09:04.102Z",
+  "generatedAt": "2026-10-14T21:32:23.410Z",
   "source": "Klacks.Ui/src/app/domain/constants/klacksy-page-keys.ts",
   "entries": [
     {
@@ -65,7 +65,7 @@
     {
       "pageKey": "escalations",
       "route": "/workplace/escalations",
-      "requiredPermission": "Admin",
+      "requiredPermission": null,
       "hasEntityParam": false,
       "llmHint": "open escalation interventions list"
     },

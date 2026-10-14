@@ -46657,6 +46657,137 @@
         "it": "Crea un contratto da un modello"
       },
       "version": 2
+    },
+    {
+      "name": "get_replacement_status",
+      "area": "schedule",
+      "description": "Reports who was already asked to cover an absent employee and how it went: per affected shift and day the candidates with their recorded answer (only proposed, asked without answer, accepted, declined, not reached), whether a replacement reached the plan, the coverage status of the slot, plus the escalation chains woken for it (which planners, who took over). Only recorded contacts appear; proposed means NOT asked. Default period: 7 days back to 14 days ahead.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSchedule"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the absent employee; alternative to firstName and lastName.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "First name of the absent employee.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the absent employee.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Optional visible client number that disambiguates duplicate names.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "First slot date (yyyy-MM-dd); default 7 days before today.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last slot date (yyyy-MM-dd); default 14 days after today, at most 92 days after fromDate.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "analyseToken",
+          "description": "Optional UUID of one scenario; by default every scenario and the real plan are included.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "ersatzstatus",
+          "wer wurde angefragt",
+          "vertretung angefragt",
+          "ist der dienst gedeckt"
+        ],
+        "en": [
+          "replacement status",
+          "who was asked",
+          "is the shift covered"
+        ],
+        "fr": [
+          "statut du remplacement",
+          "qui a été sollicité",
+          "le service est-il couvert"
+        ],
+        "it": [
+          "stato della sostituzione",
+          "chi è stato contattato",
+          "il turno è coperto"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wer wurde wegen des ausfalls angefragt",
+          "wer hat zugesagt oder abgesagt",
+          "ist der dienst gedeckt",
+          "stand der ersatzsuche",
+          "wer wurde schon angerufen"
+        ],
+        "en": [
+          "who was already asked to cover",
+          "who accepted or declined the cover",
+          "is the shift covered",
+          "status of the replacement search",
+          "who has been called about the absence"
+        ],
+        "fr": [
+          "qui a déjà été sollicité pour le remplacement",
+          "qui a accepté ou refusé",
+          "le service est-il couvert",
+          "état de la recherche de remplaçant"
+        ],
+        "it": [
+          "chi è già stato contattato per la sostituzione",
+          "chi ha accettato o rifiutato",
+          "il turno è coperto",
+          "stato della ricerca del sostituto"
+        ]
+      },
+      "labels": {
+        "de": "Stand der Ersatzsuche bei einem Ausfall",
+        "en": "Status of the replacement search for an absence",
+        "fr": "État de la recherche de remplaçant",
+        "it": "Stato della ricerca del sostituto"
+      },
+      "version": 1
     }
   ]
 }

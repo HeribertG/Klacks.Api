@@ -406,6 +406,13 @@ public class EscalationChainService : IEscalationChainService
         if (won)
         {
             await _chainRepository.CancelRemainingStagesAsync(chainId, Guid.Empty, cancellationToken);
+
+            // Read after the cancel, like the exhaust: only a won transition out of Running writes Cancelled, so a
+            // Cancelled stage that carries a NotifiedAtUtc was woken and its inbox question is still open.
+            var wokenAndCancelled = (await _chainRepository.GetStagesByChainAsync(chainId, cancellationToken))
+                .Where(s => s.Status == EscalationStageStatus.Cancelled && s.NotifiedAtUtc != null)
+                .ToList();
+            await _notifier.CloseOpenQuestionsAsync(wokenAndCancelled, cancellationToken);
         }
 
         return won;
