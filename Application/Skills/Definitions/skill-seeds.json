@@ -13324,7 +13324,7 @@
     {
       "name": "restore_work",
       "area": "schedule",
-      "description": "Restores one deleted Work entry (an assignment of an employee to a shift on a date) with its container children, under the same checks as a new placement (sealed day, capacity, hard conflicts). The user who deleted it may restore it only within 60 seconds; an administrator may restore any deleted work, a sealed one only an administrator. Needs the workId from the delete result. Use when the user says: 'hol den gelöschten Dienst zurück', 'restore the shift I just deleted'.",
+      "description": "Restores one deleted Work entry (an assignment of an employee to a shift on a date) with its container children, under the same checks as a new placement (sealed day, capacity, hard conflicts). The user who deleted it may restore it only within 60 seconds; an administrator may restore any deleted work, a sealed one only an administrator. Needs the workId from the delete result.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13389,12 +13389,12 @@
         "fr": "Restaurer une affectation supprimée",
         "it": "Ripristina un'assegnazione eliminata"
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "reassign_work",
       "area": "schedule",
-      "description": "Hands one placed Work over to another employee on the same day, like dragging it onto another employee's row; date, shift and times stay. Name the work by workId or by its current holder and date, the new holder by name or targetClientId. Refused with reason: locked work, entry in a container, sealed day, day outside the new holder's membership or group period, missing qualification. Use when the user says: 'gib Müllers Frühdienst vom 14.10. an Meier', 'hand Smith's late shift over to Jones'.",
+      "description": "Hands one placed Work over to another employee on the same day, like dragging it onto another employee's row; date, shift and times stay. Name the work by workId or by its current holder and date, the new holder by name or targetClientId. Refused with reason: locked work, entry in a container, sealed day, day outside the new holder's membership or group period, missing qualification.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13531,12 +13531,12 @@
         "fr": "Confier une affectation à un autre employé",
         "it": "Passa un'assegnazione a un altro dipendente"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "bulk_delete_works",
       "area": "schedule",
-      "description": "Deletes all works of one employee in a date range, optionally only those on one shift; at most 50 per call, more is refused. Locked works, sealed days or a hidden employee refuse the whole call. Container entries go with each work. Always needs a dedicated confirmation bound to exactly the listed works and their container entries; deleted works can only be restored one by one. Use when the user says: 'lösche alle Dienste von Müller im November', 'delete all of Smith's shifts next week'.",
+      "description": "Deletes all works of one employee in a date range, optionally only those on one shift; at most 50 per call, more is refused. Locked works, sealed days or a hidden employee refuse the whole call. Container entries go with each work. Always needs a dedicated confirmation bound to exactly the listed works and their container entries; deleted works can only be restored one by one.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13645,7 +13645,7 @@
         "fr": "Supprimer plusieurs affectations d'un employé",
         "it": "Elimina più assegnazioni di un dipendente"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_period_hours",
