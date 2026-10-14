@@ -7,9 +7,12 @@
 /// notice that nothing is recalculated and a dry run on the most recent open entries — with exactly the parameter reading
 /// and planning the confirmed call uses. It refuses (so the gate issues no token) when the caller does not hold the Admin
 /// role, an id is missing or invalid, the plan is refused (for an undo: including every conflict) or a target macro cannot
-/// run. It only reads. Accepted residual risk (owner decision F1, 2026-09-25): the user sees these facts only in the
-/// model's wording, confirm_pending_action redeems the token only after the user's explicit yes in a later turn, and the chat UI
-/// does not show skill results; the confirmed call therefore re-checks the role and plans again.
+/// run. It only reads. The macro references the plan would write are returned as the preview's binding
+/// (MacroAssignmentBinding) and stored with the token; the entry counts, the warnings and the samples are shown but not
+/// bound, because the switch writes none of them. Accepted residual risk (owner decision F1, 2026-09-25): the user sees
+/// these facts only in the model's wording, confirm_pending_action redeems the token only after the user's explicit yes in a
+/// later turn, and the chat UI does not show skill results; the confirmed call therefore re-checks the role, plans again and
+/// refuses when the references it would write differ from the ones bound to the confirmation.
 /// </summary>
 /// <param name="assignPlanner">Plans the switch and runs its dry run</param>
 /// <param name="revertPlanner">Plans the undo and runs its dry run</param>
@@ -18,6 +21,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Macros;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -71,7 +75,9 @@ public class MacroAssignmentConfirmationPreviewProvider : ISkillConfirmationPrev
         var preview = await _assignPlanner.PreviewAssignAsync(target, holderId, macroId, cancellationToken);
         return preview.Refusal != null
             ? SkillConfirmationPreview.Refuse(preview.Refusal)
-            : SkillConfirmationPreview.Show(MacroAssignmentTextFormatter.DescribeAssignPreview(preview.Plan, preview.DryRun!));
+            : SkillConfirmationPreview.Show(
+                MacroAssignmentTextFormatter.DescribeAssignPreview(preview.Plan, preview.DryRun!),
+                MacroAssignmentBinding.Of(preview.Plan));
     }
 
     private async Task<SkillConfirmationPreview> BuildRevertAsync(
@@ -86,7 +92,9 @@ public class MacroAssignmentConfirmationPreviewProvider : ISkillConfirmationPrev
         var preview = await _revertPlanner.PreviewRevertAsync(request!, cancellationToken);
         return preview.Refusal != null
             ? SkillConfirmationPreview.Refuse(preview.Refusal)
-            : SkillConfirmationPreview.Show(MacroAssignmentTextFormatter.DescribeRevertPreview(preview.Plan, preview.DryRun!));
+            : SkillConfirmationPreview.Show(
+                MacroAssignmentTextFormatter.DescribeRevertPreview(preview.Plan, preview.DryRun!),
+                MacroAssignmentBinding.Of(preview.Plan));
     }
 
     private static bool IsSkill(string skillName, string expected) =>

@@ -19,12 +19,17 @@
 /// GetActiveForUser/Consume repository calls rather than adding a second persistence path.
 /// A correction-undo row is a third purpose in the same table, written through Create and dropped by
 /// DiscardCorrectionUndo; both discards share one loop because they differ only in the purpose they
-/// match and in whether they narrow by skill name. Writing one replaces its predecessor the way a
+/// match and in whether they narrow by skill name.
+/// A binding (ConfirmationBinding) is stored as JSON in its own nullable column, never inside the parameters, because the
+/// parameters are what the model supplied and are compared with the call that redeems a token directly. A binding that
+/// cannot be read back makes Consume return null (logged): the token is void, which is more honest than reading corrupt
+/// data as "nothing is bound". Writing one replaces its predecessor the way a
 /// proposal hint does, so a user never has two redeemable undo offers at once: the offering turn cannot
 /// discard its own fresh row (it runs after the write), and without this a second correction inside the
 /// force window would leave the first offer redeemable by a "ja" that was never meant for it.
 /// </summary>
 /// <param name="scopeFactory">Creates an isolated service scope (and DbContext) per store operation.</param>
+/// <param name="logger">Reports a stored binding that cannot be read.</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -44,10 +49,13 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
     };
 
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILogger<PersistentPendingConfirmationStore> _logger;
 
-    public PersistentPendingConfirmationStore(IServiceScopeFactory scopeFactory)
+    public PersistentPendingConfirmationStore(
+        IServiceScopeFactory scopeFactory, ILogger<PersistentPendingConfirmationStore> logger)
     {
         _scopeFactory = scopeFactory;
+        _logger = logger;
     }
 
     public string Create(
@@ -55,14 +63,17 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         string skillName,
         IReadOnlyDictionary<string, object> parameters,
         string purpose = PendingConfirmationPurposes.GateReplay,
-        string channel = PendingConfirmationChannels.Chat)
+        string channel = PendingConfirmationChannels.Chat,
+        ConfirmationBinding? binding = null)
     {
         if (string.Equals(purpose, PendingConfirmationPurposes.CorrectionUndo, StringComparison.Ordinal))
         {
             DiscardCorrectionUndo(userId);
         }
 
-        return CreateRow(userId, skillName, JsonSerializer.Serialize(parameters, JsonOptions), purpose, channel);
+        var bindingJson = binding == null ? null : JsonSerializer.Serialize(binding, JsonOptions);
+        return CreateRow(
+            userId, skillName, JsonSerializer.Serialize(parameters, JsonOptions), purpose, channel, bindingJson);
     }
 
     public void CreateProposalHint(Guid userId, string applySkillName)
@@ -111,7 +122,8 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         }
     }
 
-    private string CreateRow(Guid userId, string skillName, string parametersJson, string purpose, string channel)
+    private string CreateRow(
+        Guid userId, string skillName, string parametersJson, string purpose, string channel, string? bindingJson = null)
     {
         var now = DateTime.UtcNow;
         var token = Guid.NewGuid().ToString("N");
@@ -124,6 +136,7 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
             ParametersJson = parametersJson,
             Purpose = purpose,
             Channel = channel,
+            BindingJson = bindingJson,
             ExpiresAtUtc = now.AddMinutes(AutonomyDefaults.ConfirmationTtlMinutes)
         };
 
@@ -170,12 +183,47 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
             return null;
         }
 
+        if (!TryDeserializeBinding(row, out var binding))
+        {
+            return null;
+        }
+
         return new PendingConfirmation(
             row.UserId,
             row.SkillName,
             DeserializeParameters(row.ParametersJson),
             row.ExpiresAtUtc,
-            NormalizedPurpose(row));
+            NormalizedPurpose(row),
+            binding);
+    }
+
+    private bool TryDeserializeBinding(PendingConfirmationRow row, out ConfirmationBinding? binding)
+    {
+        binding = null;
+        if (string.IsNullOrWhiteSpace(row.BindingJson))
+        {
+            return true;
+        }
+
+        try
+        {
+            binding = JsonSerializer.Deserialize<ConfirmationBinding>(row.BindingJson, JsonOptions);
+        }
+        catch (JsonException)
+        {
+            binding = null;
+        }
+
+        if (binding?.Items != null && !string.IsNullOrEmpty(binding.Kind) && !string.IsNullOrEmpty(binding.Fingerprint))
+        {
+            return true;
+        }
+
+        _logger.LogWarning(
+            "The stored confirmation binding of a token for skill {SkillName} and user {UserId} cannot be read; "
+            + "the token is void", row.SkillName, row.UserId);
+        binding = null;
+        return false;
     }
 
     public PendingConfirmationHandle? PeekLatestForUser(

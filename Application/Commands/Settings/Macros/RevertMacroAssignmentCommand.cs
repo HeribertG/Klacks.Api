@@ -5,10 +5,13 @@
 /// </summary>
 /// <param name="SwitchId">Id of the recorded switch</param>
 /// <param name="UserId">Id of the user who asked for the undo</param>
+/// <param name="ConfirmedBinding">The references the confirmed preview showed (MacroAssignmentBinding); the handler writes only when its own plan binds the same</param>
 
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Settings.Macros;
 
-public record RevertMacroAssignmentCommand(Guid SwitchId, Guid UserId) : IRequest<MacroAssignmentOutcome>;
+public record RevertMacroAssignmentCommand(Guid SwitchId, Guid UserId, ConfirmationBinding ConfirmedBinding)
+    : IRequest<MacroAssignmentOutcome>;

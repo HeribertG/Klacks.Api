@@ -7,9 +7,13 @@
 /// Works, sealed days, an unknown or hidden employee, an empty match and more than BulkWorkDeletionDefaults
 /// MaxWorksPerCall Works, and the handler adds container children, day lock, group visibility and period hours.
 /// The skill is Sensitive: the autonomy gate holds every call for a dedicated confirmation whose text is the
-/// server-computed list at that moment (BulkWorkDeletionConfirmationPreviewProvider). The confirmation binds the
-/// parameters, not the list: the confirmed call plans again, so a Work that appeared in the range in the meantime is
-/// part of what is deleted, and the preview says so. Anything short of a complete delete is never reported as
+/// server-computed list at that moment (BulkWorkDeletionConfirmationPreviewProvider). The confirmation binds the list,
+/// not only the parameters: the preview's work ids travel with the token (ConfirmationBinding, kind Work) and
+/// confirm_pending_action hands them to this skill in SkillExecutionContext.ConfirmedActionBinding. The skill plans
+/// again right before it deletes and deletes only when that plan has exactly the bound works; a Work that appeared,
+/// vanished or was swapped in the meantime deletes nothing and the refusal says how many differ, so the user is asked
+/// again with a fresh preview. A call without that binding (a plan step, a goal plan, a direct call) never deletes. A Work
+/// whose time or shift changed but whose id is the same is still the bound Work. Anything short of a complete delete is never reported as
 /// complete: a refusal or a delete of nothing is a failure, a partial delete is a committed change marked Partial that
 /// carries the deleted ids. The handler commits before it recalculates, so a failure after the commit is told apart
 /// from a refusal by re-reading which of the planned Works are gone: none (nothing deleted), all (deleted, a follow-up
@@ -30,6 +34,7 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -78,6 +83,17 @@ public class BulkDeleteWorksSkill : BaseSkillImplementation
         if (plan.IsRefused)
         {
             return SkillResult.Error(plan.Refusal!);
+        }
+
+        if (context.ConfirmedActionBinding is not { Kind: ConfirmationBindingKinds.Work } confirmed)
+        {
+            return SkillResult.Error(string.Format(ConfirmationBindingMessages.BindingRequired, SkillName));
+        }
+
+        var current = BulkWorkDeletionBinding.Of(plan);
+        if (!confirmed.Matches(current))
+        {
+            return SkillResult.Error(ConfirmationBindingMessages.Describe(confirmed, current));
         }
 
         var workIds = plan.Works.Select(work => work.WorkId).ToList();

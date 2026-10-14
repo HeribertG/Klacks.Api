@@ -4,7 +4,8 @@
 /// EF configuration for PendingConfirmationRow: table name, explicit primary key (the row is not a
 /// BaseEntity, so no key is inferred and no soft-delete query filter applies), bounded key columns,
 /// a unique index on Token (the natural lookup/consume key) and supporting indexes on UserId and
-/// ExpiresAtUtc for PeekLatestForUser and TTL pruning.
+/// ExpiresAtUtc for PeekLatestForUser and TTL pruning. BindingJson stays a nullable text column (binding_json by the
+/// snake_case convention) holding the facts the user confirmed.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;

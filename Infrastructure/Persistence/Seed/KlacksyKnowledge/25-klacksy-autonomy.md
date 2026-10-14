@@ -74,6 +74,14 @@ Klacksy read it: a request that merely contains "bitte" or "please", or a yes wi
 aber nur für Montag"), does not release anything and Klacksy asks again. A held action cannot be
 confirmed from an external tool connection (MCP) either; the user starts it in the Klacksy chat.
 
+For some held actions Klacksy shows a preview worked out by the server first: deleting many
+entries at once and switching or undoing a calculation macro. That preview is bound to the
+confirmation. The server carries out exactly the entries or references that were shown, and
+nothing else: if the list changed between the preview and the yes (an entry was added or removed,
+a shift was switched in the meantime), nothing is changed, the confirmation is void, and Klacksy
+shows a fresh preview and asks again. Such an action only runs as the confirmed release of its own
+preview, never from a plan step or in the background.
+
 ## Taking something back
 
 Klacksy can report its own last action and propose the counter-action to undo the most recent

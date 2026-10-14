@@ -2,7 +2,8 @@
 
 /// <summary>
 /// A consumed held invocation: the skill and parameters confirm_pending_action replays, plus the Purpose of the row
-/// it came from (PendingConfirmationPurposes), so the redeemer can tell a gate replay from a correction undo.
+/// it came from (PendingConfirmationPurposes), so the redeemer can tell a gate replay from a correction undo, and the
+/// Binding of the facts the user was shown (null when the held skill pins nothing or the row predates the column).
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -14,4 +15,5 @@ public sealed record PendingConfirmation(
     string SkillName,
     IReadOnlyDictionary<string, object> Parameters,
     DateTime ExpiresAtUtc,
-    string Purpose = PendingConfirmationPurposes.GateReplay);
+    string Purpose = PendingConfirmationPurposes.GateReplay,
+    ConfirmationBinding? Binding = null);

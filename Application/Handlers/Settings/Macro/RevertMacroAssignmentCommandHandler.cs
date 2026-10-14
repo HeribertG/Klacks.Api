@@ -3,8 +3,10 @@
 /// <summary>
 /// Undoes a recorded macro switch as a whole (owner decisions F2 and F6). The undo is planned first through the same
 /// preview the confirmation used, dry run included (a refusal becomes an InvalidRequestException: unknown, itself an undo,
-/// already undone, any row in conflict with the current state, listed, or a macro to restore that cannot run); then, in
-/// one transaction, the rows of the switch are read and matched to the planned changes by holder. Because those rows may
+/// already undone, any row in conflict with the current state, listed, or a macro to restore that cannot run); the
+/// references that plan would write are then compared with the binding of the confirmed preview (MacroAssignmentBinding,
+/// command field ConfirmedBinding) and a difference throws an InvalidRequestException that says how many references
+/// differ, before any transaction starts; then, in one transaction, the rows of the switch are read and matched to the planned changes by holder. Because those rows may
 /// already be tracked from planning, the handler also checks untracked that each holder's latest recorded switch is still
 /// the one being undone and that the holder still carries the reference the plan started from; a row that vanished,
 /// appeared or was undone, a later switch or an outside change aborts without writing. Each holder then gets its previous
@@ -16,16 +18,18 @@
 /// (any exception of the transaction other than a refusal or a cancellation) is logged as an error with the undo and
 /// switch ids, the holder id and the holder count, never with names, and rethrown for the caller to map.
 /// </summary>
-/// <param name="request">Which switch to undo and the requesting user</param>
+/// <param name="request">Which switch to undo, the requesting user and the binding of the confirmed preview</param>
 
 using Klacks.Api.Application.Commands.Settings.Macros;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Services.Macros;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Settings.Macro;
@@ -68,6 +72,12 @@ public class RevertMacroAssignmentCommandHandler : IRequestHandler<RevertMacroAs
         }
 
         var plan = preview.Plan;
+        var current = MacroAssignmentBinding.Of(plan);
+        if (!request.ConfirmedBinding.Matches(current))
+        {
+            throw new InvalidRequestException(ConfirmationBindingMessages.Describe(request.ConfirmedBinding, current));
+        }
+
         var undoneSwitchId = plan.SwitchId!.Value;
         var undoSwitchId = Guid.NewGuid();
         var undoRows = plan.Changes.Select(change => NewUndoRow(undoSwitchId, change, request.UserId)).ToList();

@@ -11,7 +11,11 @@
 /// token is consumed); such a refusal returns a clean skill error and leaves the token valid. When a sensitive skill is held and a registered
 /// <see cref="ISkillConfirmationPreviewProvider"/> supports it, the server first computes a preview of exactly this call:
 /// the preview is appended to the confirmation request, while a refusal or a failing provider returns an error without
-/// issuing a token. The preview is facts for the model to relay; the user still sees the model's wording.
+/// issuing a token. The preview is facts for the model to relay; the user still sees the model's wording. The facts a
+/// preview binds (SkillConfirmationPreview.Binding) are stored with the token; the confirmed replay hands them to the
+/// skill, which refuses when its plan no longer matches. A skill with a preview provider is therefore redeemed only
+/// through confirm_pending_action: a token sent along with the call itself is refused before it is consumed (the token
+/// stays valid), because that path gives the skill no binding to compare.
 /// </summary>
 
 using System.Globalization;
@@ -108,7 +112,12 @@ public class AutonomyGateService : IAutonomyGate
         }
 
         var token = _confirmationStore.Create(
-            context.UserId, descriptor.Name, parameters, PendingConfirmationPurposes.GateReplay, context.ConfirmationChannel);
+            context.UserId,
+            descriptor.Name,
+            parameters,
+            PendingConfirmationPurposes.GateReplay,
+            context.ConfirmationChannel,
+            preview?.Binding);
         _turnScope.MarkIssued(token);
 
         _logger.LogInformation(
@@ -163,6 +172,16 @@ public class AutonomyGateService : IAutonomyGate
                 "answer with an explicit yes in a later turn first; the token stays valid",
                 descriptor.Name, context.UserId, verdict);
             return TokenRedemption.Refused(ConfirmationRedemptionMessages.For(verdict));
+        }
+
+        if (_previewProviders.Any(provider => provider.Supports(descriptor.Name)))
+        {
+            _logger.LogWarning(
+                "Confirmation token for skill {SkillName} and user {UserId} refused: the skill shows a preview, so " +
+                "its token can only be redeemed through {ConfirmSkill}; the token stays valid",
+                descriptor.Name, context.UserId, AutonomyDefaults.ConfirmPendingActionSkillName);
+            return TokenRedemption.Refused(
+                string.Format(CultureInfo.InvariantCulture, ConfirmationBindingMessages.DirectRedemptionRefused, descriptor.Name));
         }
 
         var consumed = _confirmationStore.Consume(token, context.UserId, descriptor.Name, context.ConfirmationChannel);

@@ -8,12 +8,15 @@
 /// <param name="HolderId">Id of the shift (any shift of the order) or absence type</param>
 /// <param name="MacroId">Id of the macro the holder and its cut group use from now on</param>
 /// <param name="UserId">Id of the user who asked for the switch</param>
+/// <param name="ConfirmedBinding">The references the confirmed preview showed (MacroAssignmentBinding); the handler writes only when its own plan binds the same</param>
 
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Settings.Macros;
 
-public record AssignMacroCommand(MacroAssignmentTarget Target, Guid HolderId, Guid MacroId, Guid UserId)
+public record AssignMacroCommand(
+    MacroAssignmentTarget Target, Guid HolderId, Guid MacroId, Guid UserId, ConfirmationBinding ConfirmedBinding)
     : IRequest<MacroAssignmentOutcome>;

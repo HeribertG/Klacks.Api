@@ -4,7 +4,11 @@
 /// Switches the macro reference of an absence type, or of a shift together with every other live shift cut from the same
 /// order (owner decision F2). The switch is planned first through the same preview the confirmation used, dry run
 /// included, so a refusal or a target macro that cannot run becomes an InvalidRequestException and the dry-run warnings
-/// and the dry run itself reach the outcome (the skill reports it without a second run). Then, in one transaction, each changed holder is re-read untracked (vanished or changed since the
+/// and the dry run itself reach the outcome (the skill reports it without a second run). The references that plan would
+/// write are then compared with the binding of the confirmed preview (MacroAssignmentBinding, command field
+/// ConfirmedBinding): when a member was added, is gone or points elsewhere since the user saw the preview, the handler
+/// throws an InvalidRequestException that says how many references differ and starts no transaction, so the user is asked
+/// again with a fresh preview. Only after that, in one transaction, each changed holder is re-read untracked (vanished or changed since the
 /// plan aborts everything), its reference is written on its row alone, one history row per written holder records the
 /// macro before and after, the requesting user and the shared switch id, and every written holder is read back (a
 /// mismatch rolls everything back). The switch id and the history rows are built once, before the transaction, so a
@@ -14,16 +18,18 @@
 /// other than a refusal or a cancellation) is logged as an error with the switch, holder and macro ids and the holder
 /// count, never with names, and rethrown for the caller to map.
 /// </summary>
-/// <param name="request">Holder kind and id, the new macro and the requesting user</param>
+/// <param name="request">Holder kind and id, the new macro, the requesting user and the binding of the confirmed preview</param>
 
 using Klacks.Api.Application.Commands.Settings.Macros;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Services.Macros;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Settings.Macro;
@@ -63,6 +69,12 @@ public class AssignMacroCommandHandler : IRequestHandler<AssignMacroCommand, Mac
         }
 
         var plan = preview.Plan;
+        var current = MacroAssignmentBinding.Of(plan);
+        if (!request.ConfirmedBinding.Matches(current))
+        {
+            throw new InvalidRequestException(ConfirmationBindingMessages.Describe(request.ConfirmedBinding, current));
+        }
+
         var switchId = Guid.NewGuid();
         var entries = plan.Changes.Select(change => NewEntry(switchId, change, request.UserId)).ToList();
 

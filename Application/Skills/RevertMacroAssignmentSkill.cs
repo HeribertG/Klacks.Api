@@ -5,8 +5,11 @@
 /// previous macro (owner decisions F2 and F6: one switch of a shift covers every cut of its order, and an undo itself is
 /// final). The caller must hold the Admin role itself. The switch is identified by its switchId alone: a holder id would
 /// mean the holder's latest switch when the confirmed call runs, which can be a younger switch than the one the user
-/// confirmed. The skill only sends <see cref="RevertMacroAssignmentCommand"/> with the id unchanged: its handler plans the
-/// undo and runs the dry run exactly like the confirmation preview did, once per call — a refusal
+/// confirmed. The skill only sends <see cref="RevertMacroAssignmentCommand"/> with the id unchanged and carries the
+/// confirmed binding into it (SkillExecutionContext.ConfirmedActionBinding, kind MacroUndo, set by confirm_pending_action
+/// from the redeemed token): without that binding the skill refuses and sends nothing, so it never runs from a plan step, a
+/// goal plan or a direct call. Its handler plans the undo and runs the dry run exactly like the confirmation preview did,
+/// once per call, and refuses when the references it would write differ from the ones bound to the confirmation — a refusal
 /// (unknown, itself an undo, already undone, or any shift of the switch in conflict: switched again later, changed
 /// elsewhere, macro to restore deleted or unable to run; the refusal lists the conflicts) comes back as an error and
 /// nothing is written. The answer carries the undo id, the id of the undone switch and the entry counts of that dry run.
@@ -14,12 +17,14 @@
 /// claiming that nothing changed. The confirmation itself is enforced by the autonomy gate (the skill is Sensitive).
 /// Accepted residual risk (owner decision F1, 2026-09-25): the user reads the confirmation in the language model's
 /// wording, confirm_pending_action redeems the token only after the user's explicit yes in a later turn, and the chat UI does not
-/// show skill results; that is why every confirmed call checks the role here and the handler plans again.
+/// show skill results; that is why every confirmed call checks the role here and the handler plans again and compares (the entry counts, warnings
+/// and samples are shown, not bound).
 /// </summary>
 /// <param name="switchId">Id of the recorded switch, as reported when the macro was switched</param>
 
 using Klacks.Api.Application.Commands.Settings.Macros;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -52,7 +57,12 @@ public class RevertMacroAssignmentSkill : BaseSkillImplementation
             return SkillResult.Error(parameterError);
         }
 
-        var command = new RevertMacroAssignmentCommand(request!.SwitchId, context.UserId);
+        if (context.ConfirmedActionBinding is not { Kind: ConfirmationBindingKinds.MacroUndo } binding)
+        {
+            return SkillResult.Error(string.Format(ConfirmationBindingMessages.BindingRequired, MacroAssignmentSkillNames.Revert));
+        }
+
+        var command = new RevertMacroAssignmentCommand(request!.SwitchId, context.UserId, binding);
         var (outcome, error) = await MacroAssignmentCommandSender.SendAsync(_mediator, command, cancellationToken);
         if (outcome == null)
         {

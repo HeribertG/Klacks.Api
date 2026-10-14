@@ -99,4 +99,12 @@ public record SkillExecutionContext
     /// (plan step, scheduled task, inbound, proactive) can claim it. Null everywhere else.
     /// </summary>
     public StaleScenarioOverwriteAcknowledgement? StaleScenarioOverwriteAcknowledgement { get; init; }
+
+    /// <summary>
+    /// The facts the user was shown and confirmed, set ONLY by confirm_pending_action from the redeemed row. Never filled
+    /// from the LLM's parameter dictionary and never on a background path, so neither a model nor a plan step, scheduled
+    /// task, inbound or proactive run can claim it. A skill whose preview provider binds facts refuses to run without it
+    /// and compares it with its own freshly computed plan right before it writes. Null everywhere else.
+    /// </summary>
+    public ConfirmationBinding? ConfirmedActionBinding { get; init; }
 }

@@ -149,8 +149,8 @@
       "hash": "41556C1A84403A9F5713F60119D76359087934D435C43118FCF78D110A23D0B6"
     },
     "bulk_delete_works": {
-      "version": 3,
-      "hash": "7A36A945838C1E2DA3D682B4A5E18013D4CADEF896060A8ABE8132A832A57366"
+      "version": 4,
+      "hash": "3DB039F8084AFB6296732F1A9D6E172CF2DA326E9545556ABCB2FE4DC5328956"
     },
     "bundle_nearby_timerange_shifts_into_container": {
       "version": 4,

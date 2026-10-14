@@ -17,6 +17,9 @@
 /// channel exactly like one of another user - the row is deleted first and nothing is returned - and PeekLatestForUser
 /// only sees rows of the asked channel, so the chat never resurfaces or redeems a token an external agent caused.
 /// Every issuer that has a SkillExecutionContext passes its ConfirmationChannel; the default is only for the chat.
+/// The gate also stores the ConfirmationBinding of the preview the user is asked about; Consume returns it with the
+/// invocation so the replay can refuse when what it would do differs from what was shown. A stored binding that cannot
+/// be read makes Consume return null (the token is void) instead of silently reading as "nothing bound".
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -31,7 +34,8 @@ public interface IPendingConfirmationStore
         string skillName,
         IReadOnlyDictionary<string, object> parameters,
         string purpose = PendingConfirmationPurposes.GateReplay,
-        string channel = PendingConfirmationChannels.Chat);
+        string channel = PendingConfirmationChannels.Chat,
+        ConfirmationBinding? binding = null);
 
     PendingConfirmation? Consume(
         string token,

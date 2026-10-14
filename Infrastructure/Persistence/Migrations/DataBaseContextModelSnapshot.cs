@@ -3344,6 +3344,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("BindingJson")
+                        .HasColumnType("text")
+                        .HasColumnName("binding_json");
+
                     b.Property<string>("Channel")
                         .IsRequired()
                         .ValueGeneratedOnAdd()

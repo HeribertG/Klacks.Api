@@ -18,6 +18,9 @@
 /// ran is not something the user asked to continue with, so it must not be re-offered on the next turn.
 /// A redeemed StaleScenarioOverwrite token of accept_scenario is the only source of the stale-scenario consent: its
 /// stored staleness is moved from the parameters onto SkillExecutionContext.StaleScenarioOverwriteAcknowledgement.
+/// The facts the user was shown (the binding stored with the token) are moved the same way onto
+/// SkillExecutionContext.ConfirmedActionBinding, never into the parameters; a skill that pins its confirmation compares
+/// it with its own plan right before it writes. This skill does not verify anything itself.
 /// </summary>
 /// <param name="confirmation_token">The one-time token from the confirmation request.</param>
 
@@ -90,7 +93,8 @@ public class ConfirmPendingActionSkill : BaseSkillImplementation
         var bypassContext = context with
         {
             BypassAutonomyGate = true,
-            StaleScenarioOverwriteAcknowledgement = TakeStaleOverwriteAcknowledgement(pending, replayParameters)
+            StaleScenarioOverwriteAcknowledgement = TakeStaleOverwriteAcknowledgement(pending, replayParameters),
+            ConfirmedActionBinding = pending.Binding
         };
 
         var result = await _skillExecutor.ExecuteAsync(invocation, bypassContext, cancellationToken);

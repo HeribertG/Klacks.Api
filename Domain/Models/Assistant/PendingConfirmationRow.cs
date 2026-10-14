@@ -9,7 +9,8 @@
 /// PendingConfirmationPurposes); an empty value is read as GateReplay so rows written before the
 /// discriminator existed keep their original meaning. Channel records where the token was issued (see
 /// PendingConfirmationChannels); rows written before the column existed read as Chat, because MCP could not hold
-/// confirmations before.
+/// confirmations before. BindingJson holds the serialized ConfirmationBinding of the preview the user confirmed; null
+/// means nothing is bound (older rows, skills without a preview binding).
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -33,4 +34,6 @@ public sealed class PendingConfirmationRow
     public string Purpose { get; set; } = PendingConfirmationPurposes.GateReplay;
 
     public string Channel { get; set; } = PendingConfirmationChannels.Chat;
+
+    public string? BindingJson { get; set; }
 }
