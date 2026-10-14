@@ -149,8 +149,8 @@
       "hash": "41556C1A84403A9F5713F60119D76359087934D435C43118FCF78D110A23D0B6"
     },
     "bulk_delete_works": {
-      "version": 2,
-      "hash": "1A5C30F8560C588C31614CFE60E6D3750C3051FBD093E23481FFFACC492BAB3B"
+      "version": 3,
+      "hash": "7A36A945838C1E2DA3D682B4A5E18013D4CADEF896060A8ABE8132A832A57366"
     },
     "bundle_nearby_timerange_shifts_into_container": {
       "version": 4,
@@ -1445,8 +1445,8 @@
       "hash": "D87F88432753981E67F5DCEF6DF39DF6C75D2995EC831046ECDE631A642092E9"
     },
     "reassign_work": {
-      "version": 2,
-      "hash": "BFBE987998E875A141CEDB198734F89CD2F41B7A26CEEE6732D231156F23FE69"
+      "version": 3,
+      "hash": "191DD0E75CA78A52719A892C368B2E8BFF631B9BD4037CBF48D7B348F82FA8A6"
     },
     "recall_delivered_notes": {
       "version": 3,
@@ -1497,8 +1497,8 @@
       "hash": "EF46E5BD5819CB8A4C27942D97F5A1C2FBDBAE47CD7F5EE025EB0CAC61578099"
     },
     "restore_work": {
-      "version": 1,
-      "hash": "03A83992C20CB6C9290B6712A5429F92CB1A4672266048FBE1D8884E2C544636"
+      "version": 2,
+      "hash": "DCC5890CA186A2DB0798BD120B57F9951C941D0259B99B0A1763F3279C431099"
     },
     "revert_company_rule": {
       "version": 4,

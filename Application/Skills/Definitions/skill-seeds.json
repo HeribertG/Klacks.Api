@@ -13324,7 +13324,7 @@
     {
       "name": "restore_work",
       "area": "schedule",
-      "description": "Takes back the delete of one Work entry (one assignment of a client to a shift on a date): the work comes back with its container children, under the same checks as a new placement (sealed day, sporadic capacity, hard-blocking conflicts). The user who deleted it may restore it only within 60 seconds of the delete; an administrator may restore any deleted work at any time, a sealed work only an administrator. Anything else is refused with its reason and changes nothing. Needs the workId the delete reported. Use when the user says: 'stelle den gelöschten Einsatz wieder her', 'hol den gelöschten Dienst zurück', 'restore the shift I just deleted', 'bring back the deleted assignment'.",
+      "description": "Restores one deleted Work entry (an assignment of an employee to a shift on a date) with its container children, under the same checks as a new placement (sealed day, capacity, hard conflicts). The user who deleted it may restore it only within 60 seconds; an administrator may restore any deleted work, a sealed one only an administrator. Needs the workId from the delete result. Use when the user says: 'hol den gelöschten Dienst zurück', 'restore the shift I just deleted'.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13389,12 +13389,12 @@
         "fr": "Restaurer une affectation supprimée",
         "it": "Ripristina un'assegnazione eliminata"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "reassign_work",
       "area": "schedule",
-      "description": "Hands one placed Work over to another employee on the same day - what dragging the entry onto another employee's row of the schedule does; date, shift and times stay as they are. Name the work with workId, or with its current holder (firstName and lastName, optionally idNumber, or clientId) and the date; name the new holder with targetFirstName and targetLastName (optionally targetIdNumber) or targetClientId. Refused with the reason, and nothing changed: a locked work (confirmed, approved or in a closed period), an entry inside a container work, a sealed day for either employee, a day outside the new holder's membership or group period, an employee or work the caller may not see, a missing mandatory qualification. A collision or rest-time finding at the new holder is reported as a warning and the hand-over still happens. Use when the user says: 'gib Müllers Frühdienst vom 14.10. an Meier', 'Meier soll den Dienst von Müller am Dienstag übernehmen', 'hand Smith's late shift on Oct 14 over to Jones'.",
+      "description": "Hands one placed Work over to another employee on the same day, like dragging it onto another employee's row; date, shift and times stay. Name the work by workId or by its current holder and date, the new holder by name or targetClientId. Refused with reason: locked work, entry in a container, sealed day, day outside the new holder's membership or group period, missing qualification. Use when the user says: 'gib Müllers Frühdienst vom 14.10. an Meier', 'hand Smith's late shift over to Jones'.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13531,12 +13531,12 @@
         "fr": "Confier une affectation à un autre employé",
         "it": "Passa un'assegnazione a un altro dipendente"
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "bulk_delete_works",
       "area": "schedule",
-      "description": "Deletes all works of one employee in a date range with one sentence, optionally only those on one shift: at most 50 per call, a larger match is refused as a whole. The server resolves the exact works itself; locked works (confirmed, approved or in a closed period), sealed days and an employee the caller may not see refuse the whole call and delete nothing. Each deleted work takes its container children with it. Always needs a dedicated confirmation that lists the works to be deleted as they are at that moment (the list is worked out again when the confirmed call runs); afterwards a deleted work can only be restored one by one. Use when the user says: 'lösche alle Dienste von Müller im November', 'delete all of Smith's shifts next week', 'remove every assignment of Jones between the 3rd and the 7th'. Do NOT use for one single work on one day.",
+      "description": "Deletes all works of one employee in a date range at once, optionally only those on one shift; at most 50 per call, more is refused. Locked works, sealed days or an employee the caller may not see refuse the whole call; container children go with each work. Always needs a dedicated confirmation of the listed works; deleted works can only be restored one by one. Use when the user says: 'lösche alle Dienste von Müller im November', 'delete all of Smith's shifts next week'.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13645,7 +13645,7 @@
         "fr": "Supprimer plusieurs affectations d'un employé",
         "it": "Elimina più assegnazioni di un dipendente"
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_period_hours",
