@@ -529,6 +529,10 @@ internal static class DomainServiceCollectionExtensions
             .JobTerminalStateCache<Klacks.Api.Application.DTOs.Schedules.AutoWizard.AutoWizardJobResultDto>>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.AutoWizard.IAutoWizardHubNotifier,
                               Klacks.Api.Infrastructure.Services.Schedules.AutoWizard.AutoWizardHubNotifier>();
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.AutoWizard.IAutofillRunPresenceNotifier,
+                              Klacks.Api.Infrastructure.Services.Schedules.AutoWizard.AutofillRunPresenceNotifier>();
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.AutoWizard.IAutofillRunPresenceTracker,
+                              Klacks.Api.Application.Services.Schedules.AutoWizard.AutofillRunPresenceTracker>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.AutoWizard.IAutoWizardJobRunner,
                               Klacks.Api.Infrastructure.Services.Schedules.AutoWizard.AutoWizardJobRunner>();
     }

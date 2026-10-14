@@ -170,7 +170,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
 
             var sourceScenario = await LoadSourceScenarioAsync(sourceAnalyseToken, ct);
             var runGroupId = sourceScenario?.RunGroupId ?? Guid.NewGuid();
-            groupId ??= sourceScenario?.GroupId;
+            groupId = ScenarioGroupInheritance.Resolve(groupId, sourceScenario);
 
             var workIds = CollectWorkIds(bestBitmap);
             var originalWorks = await LoadWorksAsync(workIds, ct);

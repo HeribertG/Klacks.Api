@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 
 namespace Klacks.Api.Infrastructure.Hubs;
 
@@ -19,4 +20,6 @@ public interface IScheduleClient
     Task ScheduleChangeTracked(ScheduleChangeNotificationDto notification);
     Task CollisionsDetected(CollisionListNotificationDto notification);
     Task ScheduleValidationsDetected(ScheduleValidationListNotificationDto notification);
+    Task AutofillRunStarted(AutofillRunPresenceDto run);
+    Task AutofillRunEnded(AutofillRunPresenceDto run);
 }

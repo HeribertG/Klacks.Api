@@ -72,6 +72,11 @@ public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
         return Task.FromResult(ScheduleConnectionFilter.GroupedBySelectedGroup(GetAllConnections(), analyseToken));
     }
 
+    public Task<IReadOnlyList<ScheduleConnectionSnapshot>> GetConnectionsForGroupAudienceAsync(Guid? groupId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(ScheduleConnectionFilter.ForGroupAudience(GetAllConnections(), groupId));
+    }
+
     /// <summary>
     /// Raw, unfiltered local state. Deliberately outside <see cref="IConnectionDateRangeTracker"/>:
     /// application code must go through the filtered members, only infrastructure that merges or

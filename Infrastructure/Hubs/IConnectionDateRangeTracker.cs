@@ -19,4 +19,6 @@ public interface IConnectionDateRangeTracker
     Task<IReadOnlyList<ScheduleConnectionSnapshot>> GetConnectionsForDatesAsync(IReadOnlyCollection<DateOnly> dates, Guid? analyseToken, string? excludeConnectionId = null, CancellationToken cancellationToken = default);
 
     Task<GroupedScheduleConnections> GetConnectionsGroupedBySelectedGroupAsync(Guid? analyseToken, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<ScheduleConnectionSnapshot>> GetConnectionsForGroupAudienceAsync(Guid? groupId, CancellationToken cancellationToken = default);
 }

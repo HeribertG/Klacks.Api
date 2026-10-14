@@ -111,6 +111,24 @@ public static class ScheduleConnectionFilter
             byGroup.ToDictionary(entry => entry.Key, entry => (IReadOnlyList<ScheduleConnectionSnapshot>)entry.Value));
     }
 
+    /// <summary>
+    /// Connections whose user may see the given group, in any scenario and any date range: the audience of news about
+    /// a whole group, such as an autofill run. A group-less subject reaches unrestricted users only, and a connection
+    /// without resolved visibility reaches nobody.
+    /// </summary>
+    /// <param name="connections">Unfiltered connection snapshots to select from</param>
+    /// <param name="groupId">Group the news is about; null = no group</param>
+    public static IReadOnlyList<ScheduleConnectionSnapshot> ForGroupAudience(
+        IReadOnlyList<ScheduleConnectionSnapshot> connections,
+        Guid? groupId)
+    {
+        return connections
+            .Where(connection => groupId is { } visibleGroupId
+                ? connection.Visibility.AllowsGroup(visibleGroupId)
+                : connection.Visibility.IsUnrestricted)
+            .ToList();
+    }
+
     private static bool IsCandidate(ScheduleConnectionSnapshot connection, Guid? analyseToken, string? excludeConnectionId)
     {
         if (excludeConnectionId != null && connection.ConnectionId == excludeConnectionId)

@@ -202,7 +202,7 @@ public sealed class WizardApplyService : IWizardApplyService
         {
             var sourceScenario = await LoadSourceScenarioAsync(sourceAnalyseToken, ct);
             var runGroupId = sourceScenario?.RunGroupId ?? Guid.NewGuid();
-            groupId ??= sourceScenario?.GroupId;
+            groupId = ScenarioGroupInheritance.Resolve(groupId, sourceScenario);
 
             var items = cachedScenario.Tokens
                 .Where(t => !t.IsLocked)

@@ -43,6 +43,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// <param name="scopeFactory">DI scope factory for resolving scoped apply services per stage.</param>
 /// <param name="hubNotifier">Sends SignalR OnCompleted/OnFailed events to the job's client group.</param>
 /// <param name="registry">Singleton registry that tracks the orchestrator's own cancellation token.</param>
+/// <param name="presenceTracker">Records the run under its own presence id for every viewer of its group, from before
+/// the start returns until the chain has finished (after its intermediate scenarios are deleted).</param>
 /// <param name="wizardRunner">Background runner for the Wizard 1 (Planner) stage.</param>
 /// <param name="wizardRegistry">Wizard 1 registry, polled to detect stage completion.</param>
 /// <param name="wizardResultCache">Wizard 1 result cache, queried to detect stage success.</param>
@@ -63,6 +65,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IAutoWizardHubNotifier _hubNotifier;
     private readonly AutoWizardJobRegistry _registry;
+    private readonly IAutofillRunPresenceTracker _presenceTracker;
     private readonly AutofillStartGuard _startGuard;
     private readonly IWizardJobRunner _wizardRunner;
     private readonly WizardJobRegistry _wizardRegistry;
@@ -81,6 +84,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         IServiceScopeFactory scopeFactory,
         IAutoWizardHubNotifier hubNotifier,
         AutoWizardJobRegistry registry,
+        IAutofillRunPresenceTracker presenceTracker,
         AutofillStartGuard startGuard,
         IWizardJobRunner wizardRunner,
         WizardJobRegistry wizardRegistry,
@@ -98,6 +102,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         _scopeFactory = scopeFactory;
         _hubNotifier = hubNotifier;
         _registry = registry;
+        _presenceTracker = presenceTracker;
         _startGuard = startGuard;
         _wizardRunner = wizardRunner;
         _wizardRegistry = wizardRegistry;
@@ -115,7 +120,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
     public async Task<Guid> StartAsync(StartAutoWizardRequest request, CancellationToken chainCt)
     {
-        await EnsureStartScopeVisibleAsync(request, chainCt);
+        var scenarioGroupId = await ResolveStartScopeAsync(request, chainCt);
 
         _startGuard.EnsureWithinLimits(
             AutofillFamily.AutoWizard, request.AgentIds.Count, request.ShiftIds?.Count ?? 0,
@@ -129,7 +134,9 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         var cts = _registry.Register(jobId, _lifetime.ApplicationStopping, chainCt);
         cts.CancelAfter(TotalTimeBudget);
 
-        _ = Task.Run(() => RunOrchestrationAsync(jobId, request, cts.Token));
+        var presence = await _presenceTracker.BeginAsync(scenarioGroupId, request.PeriodFrom, request.PeriodUntil);
+
+        _ = Task.Run(() => RunOrchestrationAsync(jobId, presence.RunId, request, cts.Token));
 
         return jobId;
     }
@@ -137,20 +144,26 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     /// <summary>
     /// Refuses a start the caller may not see: a hidden source scenario like a missing one, a hidden target group like a
     /// missing one and - for a restricted caller - a run without a group, whose stage scenarios would be group-less and
-    /// therefore refused by the next stage's own scenario check part-way through the chain.
+    /// therefore refused by the next stage's own scenario check part-way through the chain. Returns the group the run's
+    /// scenarios will belong to (ScenarioGroupInheritance, the rule the apply uses).
     /// </summary>
-    private async Task EnsureStartScopeVisibleAsync(StartAutoWizardRequest request, CancellationToken ct)
+    private async Task<Guid?> ResolveStartScopeAsync(StartAutoWizardRequest request, CancellationToken ct)
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<IScenarioTokenAccessGuard>().EnsureVisibleAsync(request.AnalyseToken, ct);
         await scope.ServiceProvider.GetRequiredService<IGroupVisibilityGuard>().EnsureScenarioScopeWritableAsync(request.GroupId, ct);
+
+        var sourceScenario = request.AnalyseToken is Guid sourceToken
+            ? await scope.ServiceProvider.GetRequiredService<IAnalyseScenarioRepository>().GetByTokenAsync(sourceToken, ct)
+            : null;
+        return ScenarioGroupInheritance.Resolve(request.GroupId, sourceScenario);
     }
 
     public bool TryCancel(Guid jobId) => _registry.TryCancel(jobId);
 
     public bool IsRunning(Guid jobId) => _registry.IsRunning(jobId);
 
-    private async Task RunOrchestrationAsync(Guid jobId, StartAutoWizardRequest request, CancellationToken ct)
+    private async Task RunOrchestrationAsync(Guid jobId, Guid presenceRunId, StartAutoWizardRequest request, CancellationToken ct)
     {
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var produced = new List<AutoWizardStageScenario>();
@@ -218,25 +231,25 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
             // Only the final scenario is a result; the intermediates would otherwise pile up in the
             // scenario list with no way for the operator to tell which one is the real one.
-            await DeleteScenariosAsync(
-                jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnSuccess(produced), ct);
+            await DeleteScenariosAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnSuccess(produced));
         }
         catch (OperationCanceledException)
         {
             stopwatch.Stop();
             _logger.LogWarning("AutoWizard job {JobId} cancelled after {ElapsedMs}ms", jobId, stopwatch.ElapsedMilliseconds);
-            await ReportFailureAsync(jobId, produced, "AutoWizard run was cancelled or timed out.", stopwatch.ElapsedMilliseconds, ct);
+            await ReportFailureAsync(jobId, produced, "AutoWizard run was cancelled or timed out.", stopwatch.ElapsedMilliseconds);
         }
         catch (Exception ex)
         {
             stopwatch.Stop();
             _logger.LogError(ex, "AutoWizard job {JobId} failed after {ElapsedMs}ms", jobId, stopwatch.ElapsedMilliseconds);
-            await ReportFailureAsync(jobId, produced, ex.Message, stopwatch.ElapsedMilliseconds, ct);
+            await ReportFailureAsync(jobId, produced, ex.Message, stopwatch.ElapsedMilliseconds);
         }
         finally
         {
             _startGuard.ReleaseRunLock(jobId);
             _registry.Remove(jobId);
+            await _presenceTracker.EndAsync(presenceRunId);
         }
     }
 
@@ -260,8 +273,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         Guid jobId,
         IReadOnlyList<AutoWizardStageScenario> produced,
         string reason,
-        long elapsedMs,
-        CancellationToken ct)
+        long elapsedMs)
     {
         var failure = AutoWizardStageOutcomePlanner.BuildFailure(jobId, produced, StageNames.InOrder, reason);
         var statusReason = AutoWizardStageOutcomePlanner.BuildStatusReason(failure);
@@ -281,7 +293,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
         await _hubNotifier.NotifyFailedAsync(failure);
 
-        await DeleteScenariosAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnFailure(produced), ct);
+        await DeleteScenariosAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnFailure(produced));
     }
 
     /// <summary>
@@ -317,9 +329,10 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
     /// <summary>
     /// Removes intermediate scenarios best-effort - a cleanup failure must never turn a finished or already
-    /// reported run into something else.
+    /// reported run into something else. Runs with CancellationToken.None: after a cancel or the time budget the
+    /// orchestrator token has fired, and a cancelled delete would leave the intermediates in every viewer's scenario list.
     /// </summary>
-    private async Task DeleteScenariosAsync(Guid jobId, IReadOnlyList<Guid> scenarioIds, CancellationToken ct)
+    private async Task DeleteScenariosAsync(Guid jobId, IReadOnlyList<Guid> scenarioIds)
     {
         if (scenarioIds.Count == 0)
         {
@@ -332,7 +345,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
             foreach (var scenarioId in scenarioIds)
             {
-                await mediator.Send(new DeleteAnalyseScenarioCommand(scenarioId), ct);
+                await mediator.Send(new DeleteAnalyseScenarioCommand(scenarioId), CancellationToken.None);
             }
 
             _logger.LogInformation(
