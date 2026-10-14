@@ -28,6 +28,11 @@ public static class ConfirmationBindingMessages
         + "confirmation is void. Repeat the call without a confirmation token to get a fresh preview, show it to the "
         + "user and ask for a new confirmation.";
 
+    public const string ContainerChildrenChanged =
+        "The container entries (child works and breaks) that the delete would take along differ from the confirmed "
+        + "preview: {0} were shown, {1} exist now. Nothing was deleted and this confirmation is void. Repeat the call "
+        + "without a confirmation token to get a fresh preview, show it to the user and ask for a new confirmation.";
+
     public const string DirectRedemptionRefused =
         "'{0}' shows a server preview before it runs, so its confirmation token can only be redeemed through "
         + $"'{AutonomyDefaults.ConfirmPendingActionSkillName}'. Nothing was executed; the token stays valid.";

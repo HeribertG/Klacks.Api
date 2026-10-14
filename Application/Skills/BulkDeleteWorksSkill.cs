@@ -14,7 +14,9 @@
 /// plan, a direct call) is refused first, before anything is planned, and never deletes. Otherwise the skill plans again
 /// right before it deletes and deletes only when that plan has exactly the bound works and container entries; a Work or
 /// entry that appeared, vanished or was swapped in the meantime deletes nothing and the refusal says how many differ, so
-/// the user is asked again with a fresh preview. A Work whose time or shift changed but whose id is the same is still
+/// the user is asked again with a fresh preview. The bound container children travel in the command as ExpectedChildren:
+/// the handler reads them once more right before it stages the first delete, so a child that appears between this plan
+/// and the cascade also deletes nothing (reported as nothing deleted). A Work whose time or shift changed but whose id is the same is still
 /// the bound Work. Anything short of a complete delete is never reported as complete: a refusal or a delete of nothing is a failure, a partial delete is a committed change marked Partial that
 /// carries the deleted ids. The handler commits before it recalculates, so a failure after the commit is told apart
 /// from a refusal by re-reading which of the planned Works are gone: none (nothing deleted), all (deleted, a follow-up
@@ -38,6 +40,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -103,7 +106,10 @@ public class BulkDeleteWorksSkill : BaseSkillImplementation
         try
         {
             response = await _mediator.Send(
-                new BulkDeleteWorksCommand(new BulkDeleteWorksRequest { WorkIds = workIds }), cancellationToken);
+                new BulkDeleteWorksCommand(
+                    new BulkDeleteWorksRequest { WorkIds = workIds },
+                    new ContainerChildIds(plan.ChildWorkIds, plan.ChildBreakIds)),
+                cancellationToken);
         }
         catch (ValidationException ex)
         {

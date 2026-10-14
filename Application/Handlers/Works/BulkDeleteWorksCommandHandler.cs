@@ -7,7 +7,10 @@
 /// lies on a sealed day (IDayLockService), whatever the caller's role, or when any visible Work's own lock level
 /// forbids the delete for the caller (IParentWorkLockGuard: Closed refuses everyone, Approved needs Admin or
 /// Authorised); nothing is deleted then. Like the single delete, every deleted Work takes its container children
-/// (child Works and Breaks) with it, so no child stays behind under a soft-deleted parent.
+/// (child Works and Breaks) with it, so no child stays behind under a soft-deleted parent. When the command carries
+/// ExpectedChildren (the confirmed bulk delete skill), the live children of the Works about to be deleted are read once
+/// before the first delete is staged and the request is refused when they are not exactly the expected ones, so a child
+/// that appeared after the skill's last look is never deleted unseen; only the read-to-commit span inside this handler stays open.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="cascadeService">Soft-deletes the container children of each deleted Work</param>
@@ -19,6 +22,8 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -94,6 +99,17 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             foreach (var work in deletedWorks)
             {
                 _workLockGuard.EnsureWorkWritableForCaller(work, _httpContextAccessor);
+            }
+
+            if (command.ExpectedChildren is { } expectedChildren)
+            {
+                var liveChildren = await _cascadeService.GetChildIdsAsync(
+                    deletedWorks.Select(w => w.Id).ToList(), cancellationToken);
+                if (!liveChildren.HasSameEntriesAs(expectedChildren))
+                {
+                    throw new InvalidRequestException(string.Format(
+                        ConfirmationBindingMessages.ContainerChildrenChanged, expectedChildren.Count, liveChildren.Count));
+                }
             }
 
             foreach (var work in deletedWorks)
