@@ -55,6 +55,24 @@ public class AnalyseScenarioRepository : BaseRepository<AnalyseScenario>, IAnaly
             .ToListAsync(ct);
     }
 
+    public async Task<bool> AnyOpenVisibleAsync(
+        IReadOnlyCollection<Guid>? visibleRootIds, DateTime activeSinceUtc, CancellationToken ct = default)
+    {
+        var query = context.Set<AnalyseScenario>()
+            .Where(s => !s.IsDeleted
+                && s.Status == AnalyseScenarioStatus.Active
+                && ((s.CreateTime != null && s.CreateTime > activeSinceUtc)
+                    || (s.UpdateTime != null && s.UpdateTime > activeSinceUtc)));
+
+        if (visibleRootIds != null)
+        {
+            var rootIds = visibleRootIds.ToList();
+            query = query.Where(s => s.Group != null && rootIds.Contains(s.Group.Root ?? s.Group.Id));
+        }
+
+        return await query.AnyAsync(ct);
+    }
+
     public async Task<List<AnalyseScenario>> GetActiveCreatedBetweenAsync(
         DateTime createdAfterUtc, DateTime createdBeforeUtc, CancellationToken ct = default)
     {

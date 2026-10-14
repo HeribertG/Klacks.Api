@@ -29,6 +29,17 @@ public interface IAnalyseScenarioRepository : IBaseRepository<AnalyseScenario>
         Guid? groupId, bool onlyOpen, IReadOnlyCollection<Guid>? visibleRootIds, CancellationToken ct = default);
 
     /// <summary>
+    /// Whether at least one open (Active), not deleted scenario that was created or updated after the given moment
+    /// exists inside the caller's group scope; the same visibility rule as ListVisibleAsync with onlyOpen, answered
+    /// with a single existence query.
+    /// </summary>
+    /// <param name="visibleRootIds">Root group ids the caller may see; null for no scope filter at all.</param>
+    /// <param name="activeSinceUtc">Only scenarios created or updated after this moment count (exclusive).</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<bool> AnyOpenVisibleAsync(
+        IReadOnlyCollection<Guid>? visibleRootIds, DateTime activeSinceUtc, CancellationToken ct = default);
+
+    /// <summary>
     /// Active, not deleted scenarios created inside a window - the proposals that wait for an answer. Filtered
     /// in the database, each with its group loaded; scenarios without a create time are left out.
     /// </summary>

@@ -41,6 +41,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     private readonly ISkillPhraseRepository _skillPhraseRepository;
     private readonly ISkillRelationRepository _skillRelationRepository;
     private readonly ITurnIntentExplainGuarantee _turnIntentExplainGuarantee;
+    private readonly IScenarioActivityProbe _scenarioActivityProbe;
     private readonly ILogger<SkillToolsetGuaranteeResolver> _logger;
 
     public SkillToolsetGuaranteeResolver(
@@ -51,6 +52,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         ISkillPhraseRepository skillPhraseRepository,
         ISkillRelationRepository skillRelationRepository,
         ITurnIntentExplainGuarantee turnIntentExplainGuarantee,
+        IScenarioActivityProbe scenarioActivityProbe,
         ILogger<SkillToolsetGuaranteeResolver> logger)
     {
         _pendingUserNoteRepository = pendingUserNoteRepository;
@@ -60,6 +62,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         _skillPhraseRepository = skillPhraseRepository;
         _skillRelationRepository = skillRelationRepository;
         _turnIntentExplainGuarantee = turnIntentExplainGuarantee;
+        _scenarioActivityProbe = scenarioActivityProbe;
         _logger = logger;
     }
 
@@ -196,8 +199,70 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         var lowestRankedNames = ApplySameSkillContinuationGuarantee(
             guaranteedSkills, guaranteedSources, permittedSkills, request.ContinuationSkillNames);
 
+        await ApplyScenarioFollowUpGuaranteeAsync(
+            guaranteedSkills, guaranteedSources, request, cancellationToken);
+
         return new SkillToolsetGuaranteeResult(
             guaranteedSkills, guaranteedSources, lowestRankedNames, turnIntent.VetoesForcedToolCall);
+    }
+
+    /// <summary>
+    /// Keeps list_scenarios reachable while a proposal scenario matters to the user, because the conversation
+    /// history carries no ids of earlier tool results and accept_scenario (scenarioId required) is unusable
+    /// without it (the history carries message texts, not tool-result ids, unless the assistant echoed them) - observed live 2026-09-30, when "Ja, übernimm es." after start_autowizard got accept_scenario
+    /// but no list_scenarios. Two signals, either is enough: a skill that consumes a scenarioId is selected
+    /// (retrieved or guaranteed by any layer above, which is why this runs last), or the user may see a running
+    /// AutoWizard run or a recently opened scenario (IScenarioActivityProbe). No previous-turn pin on purpose: a
+    /// non-empty pinned list switches the turn-intent classifier off. Only the read-only list_scenarios is ever
+    /// guaranteed, never accept_scenario or reject_scenario (owner decision 2026-09-30). The source is Hint:
+    /// the strongest of the weak sources, so at truncation it survives retrieved skills and the follow-through
+    /// guarantees, but never evicts the current message's own recipe, learned-phrase or keyword guarantees.
+    /// The probe runs only when list_scenarios is permitted and no cheaper signal already decided; a failing
+    /// probe degrades to no guarantee. Visibility only: nothing is executed or confirmed here.
+    /// </summary>
+    private async Task ApplyScenarioFollowUpGuaranteeAsync(
+        HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
+        SkillToolsetGuaranteeRequest request,
+        CancellationToken cancellationToken)
+    {
+        var permittedSkills = request.PermittedSkills;
+        var listScenariosPermitted = permittedSkills.Any(s =>
+            string.Equals(s.Name, ScenarioFollowUpSkills.ListScenariosSkillName, StringComparison.OrdinalIgnoreCase));
+        if (!listScenariosPermitted)
+        {
+            return;
+        }
+
+        var selectedNames = guaranteedSkills.Select(s => s.Name).Concat(request.RetrievedSkills.Select(s => s.Name));
+        var needed = ScenarioFollowUpSkills.NeedsScenarioList(selectedNames)
+            || await HasScenarioActivityAsync(request.UserId, cancellationToken);
+        if (!needed)
+        {
+            return;
+        }
+
+        AddPermittedSkillByName(
+            guaranteedSkills, permittedSkills, ScenarioFollowUpSkills.ListScenariosSkillName,
+            ToolsetSkillSource.Hint, guaranteedSources);
+    }
+
+    private async Task<bool> HasScenarioActivityAsync(string userId, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(userId, out var activityUserId))
+        {
+            return false;
+        }
+
+        try
+        {
+            return await _scenarioActivityProbe.HasVisibleActivityAsync(activityUserId, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Scenario activity probe failed; continuing without the scenario guarantee.");
+            return false;
+        }
     }
 
     /// <summary>

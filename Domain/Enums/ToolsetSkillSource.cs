@@ -28,7 +28,8 @@ public enum ToolsetSkillSource
     Expansion = 6,
 
     /// <summary>Any other deterministic hint (page explain, concept keyword, workflow pair,
-    /// grouping intent, proposal confirmation, plan candidate, planning-profile loop, pending notes, turn-intent Ask).</summary>
+    /// grouping intent, proposal confirmation, plan candidate, planning-profile loop, pending notes, turn-intent Ask,
+    /// scenario follow-up list_scenarios).</summary>
     Hint = 7,
 
     /// <summary>The previous turn ran an Advise skill, or a KnowHow skill that opens an advisory chain, and the

@@ -32,6 +32,7 @@ public static class SkillToolsetServiceCollectionExtensions
         services.AddSingleton<ITurnIntentHeadProvider, FileTurnIntentHeadProvider>();
         services.AddScoped<ITurnIntentClassifier, TurnIntentClassifier>();
         services.AddScoped<ITurnIntentExplainGuarantee, TurnIntentExplainGuarantee>();
+        services.AddScoped<IScenarioActivityProbe, ScenarioActivityProbe>();
         services.AddScoped<ISkillToolsetGuaranteeResolver, SkillToolsetGuaranteeResolver>();
         services.AddScoped<ISkillToolsetAssembler, SkillToolsetAssembler>();
         services.AddScoped<ICorrectionTurnPreparer, CorrectionTurnPreparer>();
