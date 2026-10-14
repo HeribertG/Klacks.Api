@@ -4,7 +4,9 @@
 # the download mark of the extracted files and runs Install-Klacks.ps1 with the PostgreSQL, Visual C++ runtime and
 # update key that ship in the package. Everything it prints goes into a report next to the package (USB stick), or to
 # the desktop when the package folder is read-only. Started by Installieren.cmd; asks for administrator rights
-# itself and waits for Enter at the end unless KLACKS_NO_PAUSE is set (CI).
+# itself, asks for the country whose region profile Klacks applies (holidays, time zone, working-time rules; the PC's
+# own country is the default) unless -Region is given, and waits for Enter at the end. KLACKS_NO_PAUSE (CI) skips
+# both questions; without -Region the installation then has no region profile.
 #
 # Windows PowerShell 5.1 compatible on purpose.
 
@@ -17,9 +19,62 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $NoPauseVariable = 'KLACKS_NO_PAUSE'
+$RegionProfilePrefix = 'app/deploy/onprem/regions/'
+$RegionProfileExtension = '.json'
+$NoRegionChoice = '0'
+
+function Test-Interactive {
+    -not [Environment]::GetEnvironmentVariable($NoPauseVariable)
+}
 
 function Wait-ForKey {
-    if (-not [Environment]::GetEnvironmentVariable($NoPauseVariable)) { Read-Host 'Press Enter to close this window' | Out-Null }
+    if (Test-Interactive) { Read-Host 'Press Enter to close this window' | Out-Null }
+}
+
+function Get-BundleRegionCodes([string]$BundlePath) {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $zip = [System.IO.Compression.ZipFile]::OpenRead($BundlePath)
+    try {
+        $codes = foreach ($entry in $zip.Entries) {
+            $name = $entry.FullName.Replace('\', '/')
+            $file = $name.Substring([Math]::Min($name.Length, $RegionProfilePrefix.Length))
+            if ($name.StartsWith($RegionProfilePrefix) -and $file.EndsWith($RegionProfileExtension) -and $file.IndexOf('/') -lt 0) {
+                [System.IO.Path]::GetFileNameWithoutExtension($file).ToUpperInvariant()
+            }
+        }
+        return @($codes | Sort-Object -Unique)
+    }
+    finally {
+        $zip.Dispose()
+    }
+}
+
+function Get-CountryName([string]$Code) {
+    try { return (New-Object System.Globalization.RegionInfo($Code)).DisplayName }
+    catch { return $Code }
+}
+
+function Select-Region([string[]]$Codes) {
+    $default = ''
+    try { $default = [System.Globalization.RegionInfo]::CurrentRegion.TwoLetterISORegionName.ToUpperInvariant() } catch { }
+    if ($Codes -notcontains $default) { $default = '' }
+    Write-Host ''
+    Write-Host 'Which country is this Klacks installation for?' -ForegroundColor Cyan
+    Write-Host 'Klacks applies the country''s region profile: public holidays, time zone and working-time rules.'
+    Write-Host ('  {0,2}  no region profile (set it up later in Klacks)' -f $NoRegionChoice)
+    for ($i = 0; $i -lt $Codes.Count; $i++) {
+        Write-Host ('  {0,2}  {1}  {2}' -f ($i + 1), $Codes[$i], (Get-CountryName $Codes[$i]))
+    }
+    $defaultLabel = if ($default) { "$default $(Get-CountryName $default)" } else { 'no region profile' }
+    while ($true) {
+        $answer = ([string](Read-Host "Number or country code (Enter = $defaultLabel)")).Trim()
+        if (-not $answer) { return $default }
+        if ($answer -eq $NoRegionChoice) { return '' }
+        $number = 0
+        if ([int]::TryParse($answer, [ref]$number) -and $number -ge 1 -and $number -le $Codes.Count) { return $Codes[$number - 1] }
+        if ($Codes -contains $answer.ToUpperInvariant()) { return $answer.ToUpperInvariant() }
+        Write-Host "Unknown choice '$answer'. Please enter a number from the list or a two-letter country code." -ForegroundColor Yellow
+    }
 }
 
 $principal = New-Object System.Security.Principal.WindowsPrincipal([System.Security.Principal.WindowsIdentity]::GetCurrent())
@@ -59,6 +114,11 @@ try {
     if ($actual -ne $package.sha256) {
         throw "The bundle $($package.bundle) is damaged (SHA-256 $actual, expected $($package.sha256)). Please download the package again."
     }
+
+    if (-not $Region -and (Test-Interactive)) {
+        $Region = Select-Region (Get-BundleRegionCodes $bundle)
+    }
+    Write-Host "Region profile: $(if ($Region) { $Region.ToUpperInvariant() } else { 'none' })"
 
     $arguments = @{
         BundleZip           = $bundle
