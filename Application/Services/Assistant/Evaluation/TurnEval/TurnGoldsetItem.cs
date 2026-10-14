@@ -65,4 +65,23 @@ public class TurnGoldsetItem
     /// Inverse skill the turn is expected to offer as an undo, null when no undo is expected.
     /// </summary>
     public string? ExpectedUndoSkill { get; set; }
+
+    /// <summary>
+    /// The caller this item is replayed as. Null keeps the rights the whole run was started with, so a goldset
+    /// without roles replays exactly as before.
+    /// </summary>
+    public TurnGoldsetRole? Role { get; set; }
+
+    /// <summary>
+    /// True when the request exceeds the rights of <see cref="Role"/> and the correct outcome is a refusal
+    /// instead of a write: no side-effecting tool call at all, and an honest "you may not do that". Such an
+    /// item declares no ExpectedTool and names the skill it asks for in <see cref="DeniedSkill"/>.
+    /// </summary>
+    public bool ExpectsRightsRefusal { get; set; }
+
+    /// <summary>
+    /// The skill the message asks for although <see cref="Role"/> lacks the rights for it. Not scored; a quality
+    /// guard checks it against the skill seeds so an item cannot claim a denial the rights model does not make.
+    /// </summary>
+    public string? DeniedSkill { get; set; }
 }

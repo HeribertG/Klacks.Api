@@ -6,6 +6,8 @@
 /// production, latency and cost. No tool is ever executed and nothing is persisted.
 /// </summary>
 
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 
 public class TurnReplayResult
@@ -45,6 +47,12 @@ public class TurnReplayResult
     public string? TriggeredRecipeName { get; set; }
 
     public List<string> AvailableToolNames { get; set; } = new();
+
+    /// <summary>
+    /// Curated skill effect of every offered function that has one, keyed by skill name. Lets the scorer tell a
+    /// write from a read; a tool missing here was not offered or carries no curated effect.
+    /// </summary>
+    public Dictionary<string, SkillEffect> ToolEffects { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     public bool ToolChoiceRequired { get; set; }
 

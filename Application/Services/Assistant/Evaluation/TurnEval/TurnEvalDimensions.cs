@@ -11,8 +11,15 @@
 /// the correction goldset is a separate file, so mixing its rates into a weighted mean of a different
 /// goldset's dimensions would compare two populations. Both are optional parameters so a run
 /// persisted before they existed still deserializes. ReachedHit and LookupDetourRate (scorer version 5)
-/// are reported the same way and stay outside the composite.
+/// are reported the same way and stay outside the composite. RightsRefusalAccuracy (share of rights-refusal items
+/// without a side-effecting call and without an invented result), RightsNoWriteRate (the no-write part alone),
+/// RefusalStatedRate (share of those that ended without a tool call and carried a recognisable refusal phrase) and
+/// RightsToolForcedRate (share of rights-refusal items on which production forces a tool call, tool_choice required,
+/// so a refusal text is impossible by construction) are likewise outside the composite and omitted from the persisted JSON while null,
+/// so the dimensions of every run without rights items serialize exactly as before.
 /// </summary>
+
+using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 
@@ -35,4 +42,8 @@ public sealed record TurnEvalDimensions(
     double? FalseRepairRate = null,
     double? UndoOfferedWhenExpected = null,
     double? ReachedHit = null,
-    double? LookupDetourRate = null);
+    double? LookupDetourRate = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RightsRefusalAccuracy = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RefusalStatedRate = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RightsNoWriteRate = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RightsToolForcedRate = null);

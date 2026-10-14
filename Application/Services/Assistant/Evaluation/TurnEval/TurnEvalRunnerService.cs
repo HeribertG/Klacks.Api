@@ -96,7 +96,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             cancellationToken.ThrowIfCancellationRequested();
 
             var replay = await _replayService.ReplayWithLookupFollowUpAsync(
-                item, modelId, userId, userRights, cancellationToken);
+                item, modelId, userId, TurnGoldsetRightsResolver.Resolve(item, userRights), cancellationToken);
             providerId ??= replay.ProviderId;
 
             var resolvedNameSlots = await ResolveNameSlotsAsync(item, replay, cancellationToken);
@@ -115,6 +115,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
 
         var dimensions = TurnEvalScorer.Aggregate(itemResults);
         var composite = TurnEvalScorer.ComputeComposite(dimensions);
+        var dimensionsByOrigin = TurnEvalScorer.AggregateByOrigin(itemResults);
 
         // IsPartial means "not comparable to a completed run", for either of two reasons: the run was
         // capped and covers a different population, or it is no measurement of the model - too many
@@ -163,12 +164,36 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             dimensions.ReachedHit ?? -1, dimensions.LookupDetourRate ?? -1, regression,
             baselineMedian, baselineComposites.Count);
 
+        LogOriginBreakdown(goldset, modelId, dimensionsByOrigin);
+
         return new TurnEvalRunResult
         {
             Run = evalRun,
             Dimensions = dimensions,
-            Items = itemResults
+            Items = itemResults,
+            DimensionsByOrigin = dimensionsByOrigin
         };
+    }
+
+    private void LogOriginBreakdown(
+        string goldset,
+        string modelId,
+        IReadOnlyDictionary<TurnGoldsetOrigin, TurnEvalDimensions> dimensionsByOrigin)
+    {
+        foreach (var (origin, originDimensions) in dimensionsByOrigin)
+        {
+            _logger.LogInformation(
+                "TurnEvalRun {Goldset} model {Model} origin={Origin}: composite={Composite:F4}, tool={Tool:F2}, slot={Slot:F2}, noTool={NoTool:F2}, recipe={Recipe:F2}, honesty={Honesty:F2}, retrievalHit={RetrievalHit:F3}, selectionHit={SelectionHit:F3}, reachedHit={ReachedHit:F3}, rightsRefusal={RightsRefusal:F2}, items={Items}, passed={Passed}, excluded={Excluded}, errored={Errored}",
+                goldset.ForLog(), modelId.ForLog(), origin,
+                TurnEvalScorer.ComputeComposite(originDimensions),
+                originDimensions.ToolAccuracy ?? -1, originDimensions.SlotAccuracy ?? -1,
+                originDimensions.NoToolAccuracy ?? -1, originDimensions.RecipeAccuracy ?? -1,
+                originDimensions.HonestyAccuracy ?? -1, originDimensions.RetrievalHit ?? -1,
+                originDimensions.SelectionHit ?? -1, originDimensions.ReachedHit ?? -1,
+                originDimensions.RightsRefusalAccuracy ?? -1,
+                originDimensions.ItemsTotal, originDimensions.ItemsPassed,
+                originDimensions.ItemsExcluded, originDimensions.ItemsErrored);
+        }
     }
 
     /// <summary>
