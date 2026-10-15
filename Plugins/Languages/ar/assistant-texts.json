@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "شكرًا لك، لقد اعتمدت الإجراء {{action}} للملاحظة {{finding}}. سيقوم Klacksy بتنفيذه قريبًا بموجب صلاحياتك وسيرسل إليك تقريرًا بالنتيجة.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "لقد اعتمد {{responder}} الإجراء {{action}} للملاحظة {{finding}}؛ ولا يلزمك اتخاذ أي إجراء آخر.",
   "assistant.escalationHandoff.approvalExhaustedNote": "لم يعتمِد أحد الإجراء {{action}} للملاحظة {{finding}}؛ وقد انتهت المدة المخصصة لذلك. سيقوم Klacksy بإعادة الطلب في يوم الشركة التالي. ولتنفيذ الإجراء اليوم، يُرجى تفويض الملاحظة مباشرةً.",
+  "assistant.escalationHandoff.absenceExhaustedNote": "لم يتولَّ أحد معالجة غياب {{employee}} في {{date}}؛ انتهى وقت الاستجابة. قد تكون المناوبة لا تزال بلا تغطية - يُرجى التحقق منها في جدول المناوبات.",
+  "assistant.escalationHandoff.absenceUnreachedNote": "لم يكن بالإمكان الوصول إلى أي شخص من قائمة التصعيد بشأن غياب {{employee}} في {{date}}. قد تكون المناوبة لا تزال بلا تغطية - يُرجى التعامل معها مباشرة.",
   "assistant.scenarioName.autoPlan": "خطة منشأة تلقائيًا",
   "assistant.scenarioName.autoHarmonizer": "خطة متوازنة منشأة تلقائيًا",
   "assistant.scenarioName.auto": "منشأ تلقائيًا",

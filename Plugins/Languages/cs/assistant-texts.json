@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Děkujeme, schválili jste akci {{action}} pro zjištění {{finding}}. Klacksy ji brzy provede pod vašimi právy a výsledek vám oznámí.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} schválil akci {{action}} pro zjištění {{finding}}; není třeba, abyste něco dále dělali.",
   "assistant.escalationHandoff.approvalExhaustedNote": "Nikdo neschválil akci {{action}} pro zjištění {{finding}}; časové okno vypršelo. Klacksy se zeptá znovu příští firemní den. Pokud chcete akci spustit ještě dnes, předejte zjištění přímo.",
+  "assistant.escalationHandoff.absenceExhaustedNote": "Nikdo se nepostaral o nepřítomnost {{employee}} dne {{date}}; čas na reakci vypršel. Směna možná stále není obsazená - zkontroluj ji prosím v rozpisu služeb.",
+  "assistant.escalationHandoff.absenceUnreachedNote": "Kvůli nepřítomnosti {{employee}} dne {{date}} nebyl zastižen nikdo z eskalačního seznamu. Směna možná stále není obsazená - postarej se o ni prosím přímo.",
   "assistant.scenarioName.autoPlan": "Automaticky vytvořený plán",
   "assistant.scenarioName.autoHarmonizer": "Automaticky vytvořený harmonizovaný plán",
   "assistant.scenarioName.auto": "Automaticky vytvořeno",

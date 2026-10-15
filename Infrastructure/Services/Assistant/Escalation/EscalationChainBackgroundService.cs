@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Periodic sweep for the escalation chain (docs/ENTWURF-eskalationskette-2026-08-16.md §5). Force-exhausts
-/// any Running chain past its own DeadlineUtc FIRST, then expires stages whose DueAtUtc has passed and
+/// any Running chain past its own DeadlineUtc FIRST, then wakes the chains registered ahead of time whose wake
+/// instant has come (EscalationChain.WakeNotBeforeUtc), then expires stages whose DueAtUtc has passed and
 /// hands each expiry to IEscalationChainService.AdvanceAsync for the next wave, and finally checks F3
 /// (a chain's referenced Break got soft-deleted -> Superseded). The order is part of the contract: a
 /// chain that drifted past its deadline - a stalled sweep, a long restart - would otherwise have its
@@ -103,17 +104,41 @@ public class EscalationChainBackgroundService : BackgroundService
             var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
 
             var overdueCount = await ExhaustOverdueChainsAsync(repository, chainService, nowUtc, cancellationToken);
+            var wokenCount = await WakeRegisteredChainsAsync(repository, chainService, nowUtc, cancellationToken);
             var expiredCount = await ExpireDueStagesAsync(repository, chainService, nowUtc, cancellationToken);
             var supersededCount = await SupersedeCancelledReportsAsync(repository, cancellationToken);
 
             _logger.LogInformation(
-                "EscalationChainBackgroundService - sweep completed in {Ms}ms: {Expired} stage(s) expired, {Overdue} chain(s) force-exhausted, {Superseded} chain(s) superseded",
-                sw.ElapsedMilliseconds, expiredCount, overdueCount, supersededCount);
+                "EscalationChainBackgroundService - sweep completed in {Ms}ms: {Woken} registered chain(s) woken, {Expired} stage(s) expired, {Overdue} chain(s) force-exhausted, {Superseded} chain(s) superseded",
+                sw.ElapsedMilliseconds, wokenCount, expiredCount, overdueCount, supersededCount);
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             _logger.LogError(ex, "EscalationChainBackgroundService - sweep failed after {Ms}ms", sw.ElapsedMilliseconds);
         }
+    }
+
+    /// <summary>
+    /// Wakes the first stage of every chain that was registered ahead of time and whose wake instant has come.
+    /// Only the instance that claims the wake-up advances the chain, so two sweeps never notify the first stage twice.
+    /// </summary>
+    private static async Task<int> WakeRegisteredChainsAsync(
+        IEscalationChainRepository repository, IEscalationChainService chainService, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        var chainIds = await repository.GetChainIdsDueToWakeAsync(nowUtc, cancellationToken);
+        var woken = 0;
+        foreach (var chainId in chainIds)
+        {
+            if (!await repository.TryClaimWakeAsync(chainId, nowUtc, cancellationToken))
+            {
+                continue;
+            }
+
+            await chainService.AdvanceAsync(chainId, cancellationToken);
+            woken++;
+        }
+
+        return woken;
     }
 
     private static async Task<int> ExpireDueStagesAsync(

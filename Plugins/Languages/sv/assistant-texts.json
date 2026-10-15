@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Tack, du godkände åtgärden {{action}} för observationen {{finding}}. Klacksy kommer snart genomföra åtgärden med dina rättigheter och rapportera resultatet till dig.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} har godkänt åtgärden {{action}} för observationen {{finding}}; det finns inget kvar för dig att göra.",
   "assistant.escalationHandoff.approvalExhaustedNote": "Ingen godkände åtgärden {{action}} för observationen {{finding}}; tidsfönstret har gått ut. Klacksy kommer fråga igen nästa företagsdag. Vill du ändå genomföra åtgärden idag, delegera observationen direkt.",
+  "assistant.escalationHandoff.absenceExhaustedNote": "Ingen tog hand om frånvaron för {{employee}} den {{date}}; tiden att reagera har gått ut. Passet kan fortfarande vara obemannat - kontrollera det i schemat.",
+  "assistant.escalationHandoff.absenceUnreachedNote": "Ingen på eskaleringslistan gick att nå angående frånvaron för {{employee}} den {{date}}. Passet kan fortfarande vara obemannat - ta hand om det direkt.",
   "assistant.scenarioName.autoPlan": "Automatiskt skapad plan",
   "assistant.scenarioName.autoHarmonizer": "Automatiskt skapad harmoniserad plan",
   "assistant.scenarioName.auto": "Automatiskt skapad",

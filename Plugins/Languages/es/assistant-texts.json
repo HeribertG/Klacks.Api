@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Gracias, aprobaste la acción {{action}} para el hallazgo {{finding}}. Klacksy la ejecutará en breve bajo tus derechos y te informará del resultado.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} ha aprobado la acción {{action}} para el hallazgo {{finding}}; ya no tienes nada que hacer.",
   "assistant.escalationHandoff.approvalExhaustedNote": "Nadie aprobó la acción {{action}} para el hallazgo {{finding}}; el plazo ha expirado. Klacksy volverá a preguntar el próximo día hábil de la empresa. Para ejecutarla hoy mismo, delega directamente el hallazgo.",
+  "assistant.escalationHandoff.absenceExhaustedNote": "Nadie se ha ocupado de la ausencia de {{employee}} el {{date}}; el tiempo para reaccionar ha vencido. Es posible que el turno siga sin cubrir; revísalo en el cuadrante.",
+  "assistant.escalationHandoff.absenceUnreachedNote": "No se pudo localizar a nadie de la lista de escalada por la ausencia de {{employee}} el {{date}}. Es posible que el turno siga sin cubrir; ocúpate de ello directamente.",
   "assistant.scenarioName.autoPlan": "Plan creado automáticamente",
   "assistant.scenarioName.autoHarmonizer": "Plan armonizado creado automáticamente",
   "assistant.scenarioName.auto": "Creado automáticamente",

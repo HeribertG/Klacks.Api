@@ -27,6 +27,7 @@ public class EscalationChainConfiguration : IEntityTypeConfiguration<EscalationC
 
         builder.HasIndex(c => c.Status);
         builder.HasIndex(c => c.AbsenceBreakId);
+        builder.HasIndex(c => c.ScenarioId);
 
         builder.HasIndex(c => c.WorkId)
             .IsUnique()

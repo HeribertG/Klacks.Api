@@ -7,7 +7,7 @@
 /// else the chains of their visible groups plus every chain in which they hold an open stage. Reads the repository directly: this is a pure projection with no state transition, so it
 /// does not need IEscalationChainService.
 /// </summary>
-/// <param name="chainRepository">Source of the Running chains and their stages.</param>
+/// <param name="chainRepository">Source of the Running chains, their stages and their display context (group names, finding kinds, still-active scenarios).</param>
 /// <param name="visibilityFilter">Narrows the chains to those the caller may see.</param>
 /// <param name="userService">Tells whether the caller holds the Admin or Authorised role (drives CanCancel).</param>
 
@@ -45,6 +45,11 @@ public class GetRunningEscalationChainsQueryHandler : IRequestHandler<GetRunning
         var chains = await _visibilityFilter.FilterVisibleAsync(allChains, request.CurrentUserId, cancellationToken);
         var isAdmin = await _userService.IsAdmin();
         var isSupervisor = _userService.GetRights().Contains(Roles.Authorised);
+        var display = await _chainRepository.GetDisplayContextAsync(
+            chains.Where(c => c.GroupId.HasValue).Select(c => c.GroupId!.Value).Distinct().ToList(),
+            chains.Where(c => c.ConditionId.HasValue).Select(c => c.ConditionId!.Value).Distinct().ToList(),
+            chains.Where(c => c.ScenarioId.HasValue).Select(c => c.ScenarioId!.Value).Distinct().ToList(),
+            cancellationToken);
 
         return chains.Select(chain => new EscalationChainSummaryResource
         {
@@ -55,6 +60,17 @@ public class GetRunningEscalationChainsQueryHandler : IRequestHandler<GetRunning
             AbsentClientName = chain.AbsentClientName,
             ShiftStartUtc = chain.ShiftStartUtc,
             DeadlineUtc = chain.DeadlineUtc,
+            StartedAtUtc = chain.Stages.Where(s => s.NotifiedAtUtc.HasValue).Min(s => s.NotifiedAtUtc)
+                ?? chain.WakeNotBeforeUtc
+                ?? chain.CreateTime,
+            GroupName = chain.GroupId is Guid groupId ? display.GroupNames.GetValueOrDefault(groupId) : null,
+            FindingKind = chain.ConditionId is Guid conditionId ? display.FindingKinds.GetValueOrDefault(conditionId) : null,
+            GroupId = chain.GroupId,
+            WakeNotBeforeUtc = chain.WakeNotBeforeUtc,
+            ScenarioId = chain.ScenarioId is Guid scenarioId
+                && display.ScenarioStatuses.GetValueOrDefault(scenarioId, AnalyseScenarioStatus.Superseded) == AnalyseScenarioStatus.Active
+                ? scenarioId
+                : null,
             CanAcknowledge = chain.Stages.Any(s =>
                 s.UserId == request.CurrentUserId && s.Status == EscalationStageStatus.Notified),
             CanCancel = EscalationChainCancelPolicy.MayCancel(chain, request.CurrentUserId, isAdmin, isSupervisor),

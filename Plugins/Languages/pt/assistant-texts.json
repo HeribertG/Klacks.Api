@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Obrigado, aprovaste a ação {{action}} para a constatação {{finding}}. O Klacksy irá executá-la em breve sob os teus direitos e reportar-te o resultado.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} aprovou a ação {{action}} para a constatação {{finding}}; não tens mais nada a fazer.",
   "assistant.escalationHandoff.approvalExhaustedNote": "Ninguém aprovou a ação {{action}} para a constatação {{finding}}; o prazo expirou. O Klacksy voltará a perguntar no próximo dia útil da empresa. Para que ainda seja executada hoje, delega diretamente a constatação.",
+  "assistant.escalationHandoff.absenceExhaustedNote": "Ninguém tratou da ausência de {{employee}} em {{date}}; o tempo para reagir expirou. O turno pode ainda estar descoberto - verifica-o na escala.",
+  "assistant.escalationHandoff.absenceUnreachedNote": "Não foi possível contactar ninguém da lista de escalonamento sobre a ausência de {{employee}} em {{date}}. O turno pode ainda estar descoberto - trata disso diretamente.",
   "assistant.scenarioName.autoPlan": "Plano criado automaticamente",
   "assistant.scenarioName.autoHarmonizer": "Plano harmonizado criado automaticamente",
   "assistant.scenarioName.auto": "Criado automaticamente",

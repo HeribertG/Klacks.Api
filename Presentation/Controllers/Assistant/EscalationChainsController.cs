@@ -8,8 +8,9 @@
 /// missing ones; cancelling is limited to an administrator, a supervisor or a member of that chain's roster (403
 /// otherwise). A take-over that arrives after the chain has already ended answers 409 with the outcome and the chain's
 /// status, never a 200 that would tell the caller their approval took effect when nothing was released by it.
+/// The "unresolved" list shows the chains of the last week that were cancelled or lapsed unanswered.
 /// </summary>
-/// <param name="mediator">Dispatches the chain list query and the acknowledge/cancel commands.</param>
+/// <param name="mediator">Dispatches the running and unresolved list queries and the acknowledge/cancel commands.</param>
 
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Assistant;
@@ -40,6 +41,13 @@ public class EscalationChainsController : ControllerBase
     public async Task<ActionResult<IReadOnlyList<EscalationChainSummaryResource>>> GetRunning()
     {
         var result = await _mediator.Send(new GetRunningEscalationChainsQuery(CurrentUserId()));
+        return Ok(result);
+    }
+
+    [HttpGet("unresolved")]
+    public async Task<ActionResult<IReadOnlyList<UnresolvedEscalationChainResource>>> GetUnresolved()
+    {
+        var result = await _mediator.Send(new GetUnresolvedEscalationChainsQuery(CurrentUserId()));
         return Ok(result);
     }
 

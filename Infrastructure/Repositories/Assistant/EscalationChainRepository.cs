@@ -88,10 +88,52 @@ public class EscalationChainRepository : IEscalationChainRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Guid>> GetChainIdsDueToWakeAsync(DateTime nowUtc, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<EscalationChain>()
+            .Where(c => c.Status == EscalationChainStatus.Running
+                && c.WakeNotBeforeUtc != null
+                && c.WakeNotBeforeUtc <= nowUtc)
+            .Select(c => c.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> TryClaimWakeAsync(Guid chainId, DateTime nowUtc, CancellationToken cancellationToken = default)
+    {
+        var claimed = await _context.Set<EscalationChain>()
+            .Where(c => c.Id == chainId
+                && c.Status == EscalationChainStatus.Running
+                && c.WakeNotBeforeUtc != null
+                && c.WakeNotBeforeUtc <= nowUtc)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.WakeNotBeforeUtc, (DateTime?)null), cancellationToken);
+
+        return claimed == 1;
+    }
+
+    public async Task<bool> TryUpdateRunningChainScenarioAsync(Guid workId, Guid scenarioId, CancellationToken cancellationToken = default)
+    {
+        var updated = await _context.Set<EscalationChain>()
+            .Where(c => c.WorkId == workId && c.Status == EscalationChainStatus.Running)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.ScenarioId, scenarioId), cancellationToken);
+
+        return updated > 0;
+    }
+
     public async Task<IReadOnlyList<EscalationChain>> GetRunningChainsWithAbsenceBreakAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Set<EscalationChain>()
             .Where(c => c.Status == EscalationChainStatus.Running && c.AbsenceBreakId != null)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<EscalationChain>> GetUnresolvedChainsSinceAsync(DateTime sinceUtc, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<EscalationChain>()
+            .AsNoTracking()
+            .Include(c => c.Stages)
+            .Where(c => (c.Status == EscalationChainStatus.Cancelled && c.CancelledAtUtc >= sinceUtc)
+                || (c.Status == EscalationChainStatus.Exhausted && c.ExhaustedAtUtc >= sinceUtc))
+            .OrderByDescending(c => c.CancelledAtUtc ?? c.ExhaustedAtUtc)
             .ToListAsync(cancellationToken);
     }
 
@@ -102,6 +144,36 @@ public class EscalationChainRepository : IEscalationChainRepository
             .Where(c => c.Status == EscalationChainStatus.Running)
             .OrderBy(c => c.DeadlineUtc)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<EscalationChainDisplayContext> GetDisplayContextAsync(
+        IReadOnlyCollection<Guid> groupIds,
+        IReadOnlyCollection<Guid> conditionIds,
+        IReadOnlyCollection<Guid> scenarioIds,
+        CancellationToken cancellationToken = default)
+    {
+        var groupNames = groupIds.Count == 0
+            ? new Dictionary<Guid, string>()
+            : await _context.Group
+                .AsNoTracking()
+                .Where(g => groupIds.Contains(g.Id))
+                .ToDictionaryAsync(g => g.Id, g => g.Name, cancellationToken);
+
+        var findingKinds = conditionIds.Count == 0
+            ? new Dictionary<Guid, string>()
+            : await _context.AgentConditions
+                .AsNoTracking()
+                .Where(c => conditionIds.Contains(c.Id))
+                .ToDictionaryAsync(c => c.Id, c => c.TriggerKind, cancellationToken);
+
+        var scenarioStatuses = scenarioIds.Count == 0
+            ? new Dictionary<Guid, AnalyseScenarioStatus>()
+            : await _context.AnalyseScenarios
+                .AsNoTracking()
+                .Where(s => scenarioIds.Contains(s.Id))
+                .ToDictionaryAsync(s => s.Id, s => s.Status, cancellationToken);
+
+        return new EscalationChainDisplayContext(groupNames, findingKinds, scenarioStatuses);
     }
 
     public async Task<IReadOnlyList<EscalationChain>> GetAbsenceCoverageChainsByAbsentClientAsync(
@@ -254,7 +326,7 @@ public class EscalationChainRepository : IEscalationChainRepository
     /// Running ever writes Cancelled - so a chain that was Running a statement ago carried none.
     /// </summary>
     public async Task<EscalationChainExhaustResult> TryExhaustChainAsync(
-        Guid chainId, string outcomeReason, CancellationToken cancellationToken = default)
+        Guid chainId, string outcomeReason, DateTime exhaustedAtUtc, CancellationToken cancellationToken = default)
     {
         var strategy = _context.Database.CreateExecutionStrategy();
 
@@ -266,7 +338,8 @@ public class EscalationChainRepository : IEscalationChainRepository
                 .Where(c => c.Id == chainId && c.Status == EscalationChainStatus.Running)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(c => c.Status, EscalationChainStatus.Exhausted)
-                    .SetProperty(c => c.OutcomeReason, outcomeReason),
+                    .SetProperty(c => c.OutcomeReason, outcomeReason)
+                    .SetProperty(c => c.ExhaustedAtUtc, exhaustedAtUtc),
                     cancellationToken);
 
             if (affected == 0)
