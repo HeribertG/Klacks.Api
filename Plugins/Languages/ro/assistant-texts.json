@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Mulțumim, ai aprobat acțiunea {{action}} pentru constatarea {{finding}}. Klacksy o va executa în curând în baza drepturilor tale și îți va raporta rezultatul.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} a aprobat acțiunea {{action}} pentru constatarea {{finding}}; nu mai ai nimic de făcut.",
   "assistant.escalationHandoff.approvalExhaustedNote": "Nimeni nu a aprobat acțiunea {{action}} pentru constatarea {{finding}}; intervalul a expirat. Klacksy va întreba din nou în următoarea zi lucrătoare. Pentru a o executa totuși astăzi, delegă direct constatarea.",
+  "assistant.escalationHandoff.absenceExhaustedNote": "Nimeni nu s-a ocupat de absența lui {{employee}} din {{date}}; timpul de reacție a expirat. Tura poate fi încă neacoperită - verific-o în planificare.",
+  "assistant.escalationHandoff.absenceUnreachedNote": "Nimeni de pe lista de escaladare nu a putut fi contactat pentru absența lui {{employee}} din {{date}}. Tura poate fi încă neacoperită - ocupă-te direct de ea.",
   "assistant.scenarioName.autoPlan": "Plan creat automat",
   "assistant.scenarioName.autoHarmonizer": "Plan armonizat creat automat",
   "assistant.scenarioName.auto": "Creat automat",

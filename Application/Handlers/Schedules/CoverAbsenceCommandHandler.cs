@@ -179,7 +179,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
 
         if (request.NotifyEscalationRoster)
         {
-            await StartEscalationChainsAsync(clientId, groupId, run.Snapshot, run.AbsenceDays, cancellationToken);
+            await StartEscalationChainsAsync(clientId, groupId, run.Outcome.ScenarioId, run.Snapshot, run.AbsenceDays, cancellationToken);
         }
 
         return run.Outcome;
@@ -667,6 +667,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private async Task StartEscalationChainsAsync(
         Guid clientId,
         Guid groupId,
+        Guid scenarioId,
         Rec.RecoverySnapshot snapshot,
         IReadOnlyList<(DateOnly Date, Guid? WorkId, DateTime? ShiftStartUtc, Guid? BreakId)> absenceDays,
         CancellationToken cancellationToken)
@@ -681,7 +682,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             }
 
             await _escalationChainService.StartChainAsync(new StartEscalationChainRequest(
-                day.WorkId.Value, groupId, clientId, absentClientName, day.ShiftStartUtc.Value, day.BreakId),
+                day.WorkId.Value, groupId, clientId, absentClientName, day.ShiftStartUtc.Value, day.BreakId, scenarioId),
                 cancellationToken);
         }
     }

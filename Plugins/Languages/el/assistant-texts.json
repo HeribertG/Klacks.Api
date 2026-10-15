@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Ευχαριστούμε, εγκρίνατε την ενέργεια {{action}} για το εύρημα {{finding}}. Ο Klacksy θα την εκτελέσει σύντομα με τα δικαιώματά σας και θα σας αναφέρει το αποτέλεσμα.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "Ο/Η {{responder}} έχει εγκρίνει την ενέργεια {{action}} για το εύρημα {{finding}}· δεν απομένει τίποτα άλλο για εσάς να κάνετε.",
   "assistant.escalationHandoff.approvalExhaustedNote": "Κανείς δεν ενέκρινε την ενέργεια {{action}} για το εύρημα {{finding}}· το χρονικό περιθώριο έληξε. Ο Klacksy θα ξαναρωτήσει την επόμενη ημέρα λειτουργίας της εταιρείας. Για να εκτελεστεί σήμερα, αναθέστε το εύρημα απευθείας.",
+  "assistant.escalationHandoff.absenceExhaustedNote": "Κανείς δεν ασχολήθηκε με την απουσία του/της {{employee}} στις {{date}}· ο χρόνος αντίδρασης έληξε. Η βάρδια ίσως είναι ακόμη ακάλυπτη - έλεγξέ τη στο πρόγραμμα βαρδιών.",
+  "assistant.escalationHandoff.absenceUnreachedNote": "Κανείς από τη λίστα κλιμάκωσης δεν ήταν διαθέσιμος για την απουσία του/της {{employee}} στις {{date}}. Η βάρδια ίσως είναι ακόμη ακάλυπτη - φρόντισέ το απευθείας.",
   "assistant.scenarioName.autoPlan": "Αυτόματα δημιουργημένο πρόγραμμα",
   "assistant.scenarioName.autoHarmonizer": "Αυτόματα δημιουργημένο εναρμονισμένο πρόγραμμα",
   "assistant.scenarioName.auto": "Αυτόματη δημιουργία",

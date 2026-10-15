@@ -18,6 +18,13 @@ public interface IEscalationChainVisibilityFilter
     Task<List<EscalationChain>> FilterVisibleAsync(
         IReadOnlyCollection<EscalationChain> chains, string userId, CancellationToken cancellationToken = default);
 
+    /// <summary>The same rule for chains that already ended: everybody who held any stage of it, or cancelled it,
+    /// keeps seeing it, because no stage is open any more that would grant the holder path.</summary>
+    /// <param name="chains">Ended chains, loaded with their stages</param>
+    /// <param name="userId">Id of the calling user</param>
+    Task<List<EscalationChain>> FilterVisibleEndedAsync(
+        IReadOnlyCollection<EscalationChain> chains, string userId, CancellationToken cancellationToken = default);
+
     /// <param name="chain">Chain to check, loaded with its stages</param>
     /// <param name="userId">Id of the calling user</param>
     Task<bool> IsVisibleAsync(EscalationChain chain, string userId, CancellationToken cancellationToken = default);

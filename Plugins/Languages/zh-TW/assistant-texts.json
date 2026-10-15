@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "感謝您，您已批准針對發現 {{finding}} 的操作 {{action}}。Klacksy 將在您的授權下盡快執行，並向您回報結果。",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} 已批准針對發現 {{finding}} 的操作 {{action}}；您無需再採取任何行動。",
   "assistant.escalationHandoff.approvalExhaustedNote": "無人批准針對發現 {{finding}} 的操作 {{action}}；核准時限已過。Klacksy 將於下一個公司日再次詢問。若您仍希望今日執行，請直接指派該發現。",
+  "assistant.escalationHandoff.absenceExhaustedNote": "沒有人處理 {{employee}} 在 {{date}} 的缺勤；回應時間已過。該班次可能仍無人頂替，請在排班表中查看。",
+  "assistant.escalationHandoff.absenceUnreachedNote": "關於 {{employee}} 在 {{date}} 的缺勤，升級名單中無人可聯繫。該班次可能仍無人頂替，請直接處理。",
   "assistant.scenarioName.autoPlan": "自動建立的計畫",
   "assistant.scenarioName.autoHarmonizer": "自動建立的協調計畫",
   "assistant.scenarioName.auto": "自動建立",

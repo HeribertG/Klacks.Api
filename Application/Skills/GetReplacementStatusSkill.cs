@@ -299,10 +299,14 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
             absentClientId, fromUtc, untilUtc, cancellationToken);
         var visible = await _chainVisibilityFilter.FilterVisibleAsync(chains, context.UserId.ToString(), cancellationToken);
 
-        return visible.Select(ToChain).ToList();
+        var mayReadAnyReason = context.UserPermissions.Contains(Roles.Admin) || context.UserPermissions.Contains(Roles.Authorised);
+        return visible.Select(chain => ToChain(chain, MayReadCancelReason(chain, context, mayReadAnyReason))).ToList();
     }
 
-    private static ChainView ToChain(EscalationChain chain) => new(
+    private static bool MayReadCancelReason(EscalationChain chain, SkillExecutionContext context, bool mayReadAnyReason) =>
+        mayReadAnyReason || string.Equals(chain.CancelledByUserId, context.UserId.ToString(), StringComparison.OrdinalIgnoreCase);
+
+    private static ChainView ToChain(EscalationChain chain, bool mayReadCancelReason) => new(
         chain.Id,
         chain.Status.ToString(),
         chain.ShiftStartUtc,
@@ -311,7 +315,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         chain.AcknowledgedByUserName,
         chain.AcknowledgedAtUtc,
         chain.CancelledByUserName,
-        chain.CancelReason,
+        mayReadCancelReason ? chain.CancelReason : null,
         chain.OutcomeReason,
         chain.Stages.OrderBy(s => s.Rank).Select(s => new StageView(
             s.Rank, s.UserDisplayName, s.Status.ToString(), s.NotifiedAtUtc, s.RespondedAtUtc, s.DeliveryChannel)).ToList());

@@ -1710,6 +1710,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
 
+                    b.Property<DateTime?>("ExhaustedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("exhausted_at_utc");
+
                     b.Property<Guid?>("GroupId")
                         .HasColumnType("uuid")
                         .HasColumnName("group_id");
@@ -1726,6 +1730,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("purpose");
 
+                    b.Property<Guid?>("ScenarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("scenario_id");
+
                     b.Property<DateTime?>("ShiftStartUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("shift_start_utc");
@@ -1737,6 +1745,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
+
+                    b.Property<DateTime?>("WakeNotBeforeUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("wake_not_before_utc");
 
                     b.Property<Guid?>("WorkId")
                         .HasColumnType("uuid")
@@ -1752,6 +1764,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_escalation_chains_condition_id")
                         .HasFilter("\"condition_id\" IS NOT NULL AND \"is_deleted\" = false AND \"status\" = 0");
+
+                    b.HasIndex("ScenarioId")
+                        .HasDatabaseName("ix_escalation_chains_scenario_id");
 
                     b.HasIndex("Status")
                         .HasDatabaseName("ix_escalation_chains_status");

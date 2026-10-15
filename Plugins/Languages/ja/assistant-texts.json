@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "アクション{{action}}（検出事項{{finding}}）を承認いただき、ありがとうございます。Klacksyはまもなくお客様に代わってこれを実行し、結果をご報告します。",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}}さんが検出事項{{finding}}についてアクション{{action}}を承認しました。対応が必要な作業は残っていません。",
   "assistant.escalationHandoff.approvalExhaustedNote": "検出事項{{finding}}についてアクション{{action}}を承認した方がおらず、承認期限が過ぎました。Klacksyは次の営業日に再度確認します。本日中に実行させたい場合は、その検出事項を直接誰かに割り当ててください。",
+  "assistant.escalationHandoff.absenceExhaustedNote": "{{date}}の{{employee}}さんの欠勤に誰も対応しませんでした。対応期限が過ぎています。シフトがまだ埋まっていない可能性があります。勤務表で確認してください。",
+  "assistant.escalationHandoff.absenceUnreachedNote": "{{date}}の{{employee}}さんの欠勤について、エスカレーションリストの誰にも連絡が取れませんでした。シフトがまだ埋まっていない可能性があります。直接対応してください。",
   "assistant.scenarioName.autoPlan": "自動作成プラン",
   "assistant.scenarioName.autoHarmonizer": "自動作成・調整済みプラン",
   "assistant.scenarioName.auto": "自動作成",

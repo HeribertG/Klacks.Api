@@ -3,7 +3,7 @@
 /// <summary>
 /// The short sentences EscalationNotifier sends outside the wake-up path: per chain purpose a
 /// confirmation back to whoever just acknowledged a chain and a quiet note to the stages that were
-/// notified before them, plus - for the approval chain only - the note that closes a window nobody used.
+/// notified before them, plus per purpose the note that closes a window nobody used.
 /// The absence pair speaks of a shift being covered, the approval texts of a remediation being released
 /// or not - both with the responder's name so nobody who was asked earlier acts a
 /// second time. Deliberately separate from MessengerProactiveTexts, whose own test enforces a strict 1:1
@@ -35,12 +35,14 @@ public static class EscalationHandoffTexts
     public const string ApprovalAcknowledgedConfirmation = Prefix + "approvalAcknowledgedConfirmation";
     public const string ApprovalHandoffQuietNote = Prefix + "approvalHandoffQuietNote";
     public const string ApprovalExhaustedNote = Prefix + "approvalExhaustedNote";
+    public const string AbsenceExhaustedNote = Prefix + "absenceExhaustedNote";
+    public const string AbsenceUnreachedNote = Prefix + "absenceUnreachedNote";
 
     /// <summary>Every key a language pack has to ship in assistant-texts.json. The catalogue guard reads exactly this list.</summary>
     public static readonly IReadOnlyList<string> RequiredKeys =
     [
         AcknowledgedConfirmation, HandoffQuietNote, ApprovalAcknowledgedConfirmation, ApprovalHandoffQuietNote,
-        ApprovalExhaustedNote
+        ApprovalExhaustedNote, AbsenceExhaustedNote, AbsenceUnreachedNote
     ];
 
     /// <summary>
@@ -86,6 +88,20 @@ public static class EscalationHandoffTexts
                 [English] = "Nobody approved the action {{action}} for the finding {{finding}}; the window has lapsed. Klacksy will ask again on the next company day. To still have it run today, delegate the finding directly.",
                 [French] = "Personne n'a approuvé l'action {{action}} pour le constat {{finding}} ; le délai est écoulé. Klacksy redemandera le prochain jour ouvré. Pour qu'elle s'exécute encore aujourd'hui, délègue directement le constat.",
                 [Italian] = "Nessuno ha approvato l'azione {{action}} per la rilevazione {{finding}}; il termine è scaduto. Klacksy lo richiederà il prossimo giorno aziendale. Se deve essere eseguita ancora oggi, delega direttamente la rilevazione."
+            },
+            [AbsenceExhaustedNote] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "Niemand hat sich um den Ausfall von {{employee}} am {{date}} gekümmert; die Zeit zum Reagieren ist abgelaufen. Der Dienst ist womöglich noch unbesetzt - bitte prüfe ihn im Einsatzplan.",
+                [English] = "Nobody took care of {{employee}}'s absence on {{date}}; the time to react has run out. The shift may still be uncovered - please check it in the schedule.",
+                [French] = "Personne ne s'est occupé de l'absence de {{employee}} le {{date}} ; le délai pour réagir est écoulé. Le service n'est peut-être toujours pas couvert - vérifie-le dans le planning.",
+                [Italian] = "Nessuno si è occupato dell'assenza di {{employee}} il {{date}}; il tempo per reagire è scaduto. Il turno potrebbe essere ancora scoperto - controllalo nel piano di servizio."
+            },
+            [AbsenceUnreachedNote] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "Für den Ausfall von {{employee}} am {{date}} war niemand aus der Eskalationsliste erreichbar. Der Dienst ist womöglich noch unbesetzt - bitte kümmere dich direkt darum.",
+                [English] = "Nobody on the escalation list could be reached for {{employee}}'s absence on {{date}}. The shift may still be uncovered - please take care of it directly.",
+                [French] = "Personne de la liste d'escalade n'a pu être joint pour l'absence de {{employee}} le {{date}}. Le service n'est peut-être pas couvert - occupe-t'en directement.",
+                [Italian] = "Nessuno della lista di escalation è stato raggiungibile per l'assenza di {{employee}} il {{date}}. Il turno potrebbe essere ancora scoperto - occupatene direttamente."
             }
         };
 

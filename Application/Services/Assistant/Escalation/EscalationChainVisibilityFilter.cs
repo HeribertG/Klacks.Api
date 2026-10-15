@@ -27,15 +27,30 @@ public class EscalationChainVisibilityFilter : IEscalationChainVisibilityFilter
         _audienceResolver = audienceResolver;
     }
 
-    public async Task<List<EscalationChain>> FilterVisibleAsync(
+    public Task<List<EscalationChain>> FilterVisibleAsync(
         IReadOnlyCollection<EscalationChain> chains, string userId, CancellationToken cancellationToken = default)
+    {
+        return FilterAsync(chains, userId, chain => HoldsOpenStage(chain, userId), cancellationToken);
+    }
+
+    public Task<List<EscalationChain>> FilterVisibleEndedAsync(
+        IReadOnlyCollection<EscalationChain> chains, string userId, CancellationToken cancellationToken = default)
+    {
+        return FilterAsync(chains, userId, chain => WasInvolved(chain, userId), cancellationToken);
+    }
+
+    private async Task<List<EscalationChain>> FilterAsync(
+        IReadOnlyCollection<EscalationChain> chains,
+        string userId,
+        Func<EscalationChain, bool> alwaysVisible,
+        CancellationToken cancellationToken)
     {
         var verdictByGroup = new Dictionary<Guid, bool>();
         var visible = new List<EscalationChain>();
 
         foreach (var chain in chains)
         {
-            if (HoldsOpenStage(chain, userId))
+            if (alwaysVisible(chain))
             {
                 visible.Add(chain);
                 continue;
@@ -67,6 +82,12 @@ public class EscalationChainVisibilityFilter : IEscalationChainVisibilityFilter
         return chain.Stages.Any(s =>
             string.Equals(s.UserId, userId, StringComparison.OrdinalIgnoreCase)
             && (s.Status == EscalationStageStatus.Pending || s.Status == EscalationStageStatus.Notified));
+    }
+
+    private static bool WasInvolved(EscalationChain chain, string userId)
+    {
+        return string.Equals(chain.CancelledByUserId, userId, StringComparison.OrdinalIgnoreCase)
+            || chain.Stages.Any(s => string.Equals(s.UserId, userId, StringComparison.OrdinalIgnoreCase));
     }
 
     private Task<bool> MaySeeAsync(Guid? groupId, string userId, CancellationToken cancellationToken)

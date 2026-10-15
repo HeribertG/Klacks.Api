@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Kiitos, hyväksyit toiminnon {{action}} havainnolle {{finding}}. Klacksy suorittaa sen pian sinun oikeuksillasi ja ilmoittaa tuloksen sinulle.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} on hyväksynyt toiminnon {{action}} havainnolle {{finding}}; sinun ei tarvitse tehdä mitään.",
   "assistant.escalationHandoff.approvalExhaustedNote": "Kukaan ei hyväksynyt toimintoa {{action}} havainnolle {{finding}}; aikaraja on umpeutunut. Klacksy kysyy uudelleen seuraavana yrityspäivänä. Jos haluat silti suorittaa sen tänään, delegoi havainto suoraan.",
+  "assistant.escalationHandoff.absenceExhaustedNote": "Kukaan ei hoitanut henkilön {{employee}} poissaoloa {{date}}; reagointiaika on päättynyt. Vuoro saattaa olla yhä täyttämättä - tarkista se työvuorolistasta.",
+  "assistant.escalationHandoff.absenceUnreachedNote": "Eskalointilistalta ei tavoitettu ketään henkilön {{employee}} poissaolosta {{date}}. Vuoro saattaa olla yhä täyttämättä - hoida asia suoraan.",
   "assistant.scenarioName.autoPlan": "Automaattisesti luotu suunnitelma",
   "assistant.scenarioName.autoHarmonizer": "Automaattisesti luotu harmonisoitu suunnitelma",
   "assistant.scenarioName.auto": "Automaattisesti luotu",

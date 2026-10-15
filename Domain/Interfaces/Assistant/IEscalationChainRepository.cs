@@ -34,11 +34,34 @@ public interface IEscalationChainRepository
     /// <summary>Running chains whose DeadlineUtc has passed - the safety net for Exhausted even if stage timing drifted.</summary>
     Task<IReadOnlyList<Guid>> GetOverdueRunningChainIdsAsync(DateTime nowUtc, CancellationToken cancellationToken = default);
 
+    /// <summary>Running chains registered ahead of time whose wake instant has come.</summary>
+    Task<IReadOnlyList<Guid>> GetChainIdsDueToWakeAsync(DateTime nowUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Claims the wake-up of a registered chain by clearing its WakeNotBeforeUtc; true only for the one caller whose
+    /// statement moved the row, so two sweep instances never wake the first stage twice.
+    /// </summary>
+    Task<bool> TryClaimWakeAsync(Guid chainId, DateTime nowUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>Points the Running chain of a shift at a newer recovery scenario (a re-run cover); false when none runs.</summary>
+    Task<bool> TryUpdateRunningChainScenarioAsync(Guid workId, Guid scenarioId, CancellationToken cancellationToken = default);
+
     /// <summary>Running chains that carry an AbsenceBreakId, for the F3 Superseded sweep.</summary>
     Task<IReadOnlyList<EscalationChain>> GetRunningChainsWithAbsenceBreakAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>Chains that ended without anybody taking care of them (Cancelled or Exhausted) since the given instant,
+    /// newest first, with their stages - the "not resolved" history of the intervention list.</summary>
+    Task<IReadOnlyList<EscalationChain>> GetUnresolvedChainsSinceAsync(DateTime sinceUtc, CancellationToken cancellationToken = default);
+
     /// <summary>Every Running chain with its stages, for the admin intervention list.</summary>
     Task<IReadOnlyList<EscalationChain>> GetRunningChainsWithStagesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Group names, finding kinds and still-active scenarios the intervention list shows next to the chains; empty id sets skip the database.</summary>
+    Task<EscalationChainDisplayContext> GetDisplayContextAsync(
+        IReadOnlyCollection<Guid> groupIds,
+        IReadOnlyCollection<Guid> conditionIds,
+        IReadOnlyCollection<Guid> scenarioIds,
+        CancellationToken cancellationToken = default);
 
     /// <summary>Every AbsenceCoverage chain of this absent employee whose shift starts inside the window, with its
     /// stages, whatever its status - what the replacement status answer needs, which reports finished chains too.
@@ -87,7 +110,8 @@ public interface IEscalationChainRepository
     /// wave with no surrounding unit of work, and a half-applied exhaust is exactly the state this fixes.
     /// The returned stages are the ones this call moved from Notified to Cancelled - their inbox rows are
     /// still open and the caller is expected to close them.</summary>
-    Task<EscalationChainExhaustResult> TryExhaustChainAsync(Guid chainId, string outcomeReason, CancellationToken cancellationToken = default);
+    Task<EscalationChainExhaustResult> TryExhaustChainAsync(
+        Guid chainId, string outcomeReason, DateTime exhaustedAtUtc, CancellationToken cancellationToken = default);
 
     Task<bool> TrySupersedeChainAsync(Guid chainId, string outcomeReason, CancellationToken cancellationToken = default);
 

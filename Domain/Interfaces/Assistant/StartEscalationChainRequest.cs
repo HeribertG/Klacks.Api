@@ -8,10 +8,12 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 /// <param name="AbsentClientName">Snapshot taken at chain start; not re-resolved by a join afterwards.</param>
 /// <param name="ShiftStartUtc">Frozen into EscalationChain.ShiftStartUtc; a later shift edit must not move it.</param>
 /// <param name="AbsenceBreakId">The Break row BulkAddBreaksCommandHandler recorded for this absence, when known; enables the F3 Superseded path.</param>
+/// <param name="ScenarioId">The recovery scenario holding the prepared replacement, so the intervention list can open it.</param>
 public readonly record struct StartEscalationChainRequest(
     Guid WorkId,
     Guid GroupId,
     Guid AbsentClientId,
     string AbsentClientName,
     DateTime ShiftStartUtc,
-    Guid? AbsenceBreakId);
+    Guid? AbsenceBreakId,
+    Guid? ScenarioId = null);

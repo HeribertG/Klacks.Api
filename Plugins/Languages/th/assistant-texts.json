@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "ขอบคุณ คุณได้อนุมัติการดำเนินการ {{action}} สำหรับสิ่งที่ตรวจพบ {{finding}} แล้ว Klacksy จะดำเนินการดังกล่าวในนามของคุณในอีกไม่ช้า และรายงานผลลัพธ์ให้คุณทราบ",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} ได้อนุมัติการดำเนินการ {{action}} สำหรับสิ่งที่ตรวจพบ {{finding}} แล้ว; ไม่มีสิ่งใดเหลือให้คุณดำเนินการอีก",
   "assistant.escalationHandoff.approvalExhaustedNote": "ไม่มีผู้ใดอนุมัติการดำเนินการ {{action}} สำหรับสิ่งที่ตรวจพบ {{finding}}; ระยะเวลาที่กำหนดได้หมดลงแล้ว Klacksy จะสอบถามอีกครั้งในวันทำการถัดไป หากต้องการให้ดำเนินการในวันนี้ โปรดมอบหมายสิ่งที่ตรวจพบนี้โดยตรง",
+  "assistant.escalationHandoff.absenceExhaustedNote": "ไม่มีใครดูแลการขาดงานของ {{employee}} ในวันที่ {{date}} หมดเวลาตอบสนองแล้ว กะงานอาจยังไม่มีคนเข้าแทน โปรดตรวจสอบในตารางเวร",
+  "assistant.escalationHandoff.absenceUnreachedNote": "ไม่สามารถติดต่อใครในรายชื่อการยกระดับได้เกี่ยวกับการขาดงานของ {{employee}} ในวันที่ {{date}} กะงานอาจยังไม่มีคนเข้าแทน โปรดดำเนินการโดยตรง",
   "assistant.scenarioName.autoPlan": "แผนงานที่สร้างอัตโนมัติ",
   "assistant.scenarioName.autoHarmonizer": "แผนงานปรับสมดุลที่สร้างอัตโนมัติ",
   "assistant.scenarioName.auto": "สร้างอัตโนมัติ",

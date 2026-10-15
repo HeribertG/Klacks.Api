@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Terima kasih, Anda telah menyetujui tindakan {{action}} untuk temuan {{finding}}. Klacksy akan segera menjalankannya berdasarkan hak Anda dan melaporkan hasilnya kepada Anda.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} telah menyetujui tindakan {{action}} untuk temuan {{finding}}; tidak ada lagi yang perlu Anda lakukan.",
   "assistant.escalationHandoff.approvalExhaustedNote": "Tidak ada yang menyetujui tindakan {{action}} untuk temuan {{finding}}; jangka waktu telah berakhir. Klacksy akan menanyakan kembali pada hari kerja perusahaan berikutnya. Untuk tetap menjalankannya hari ini, delegasikan temuan tersebut secara langsung.",
+  "assistant.escalationHandoff.absenceExhaustedNote": "Tidak ada yang menangani ketidakhadiran {{employee}} pada {{date}}; waktu untuk merespons telah habis. Shift mungkin masih belum terisi - silakan periksa di jadwal kerja.",
+  "assistant.escalationHandoff.absenceUnreachedNote": "Tidak ada seorang pun dari daftar eskalasi yang dapat dihubungi terkait ketidakhadiran {{employee}} pada {{date}}. Shift mungkin masih belum terisi - silakan tangani langsung.",
   "assistant.scenarioName.autoPlan": "Rencana dibuat otomatis",
   "assistant.scenarioName.autoHarmonizer": "Rencana harmonisasi dibuat otomatis",
   "assistant.scenarioName.auto": "Dibuat otomatis",

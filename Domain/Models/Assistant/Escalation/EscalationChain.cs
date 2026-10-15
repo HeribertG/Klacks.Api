@@ -47,7 +47,16 @@ public class EscalationChain : BaseEntity
     /// </summary>
     public Guid? AbsenceBreakId { get; set; }
 
+    /// <summary>The recovery scenario an AbsenceCoverage chain asks a human to review; null when unknown or for approvals.</summary>
+    public Guid? ScenarioId { get; set; }
+
     public DateTime DeadlineUtc { get; set; }
+
+    /// <summary>
+    /// For a chain registered before its roster could usefully be woken (shift far ahead): the sweep wakes the first
+    /// stage from this instant on. Null when the chain was woken at creation or once the sweep claimed the wake-up.
+    /// </summary>
+    public DateTime? WakeNotBeforeUtc { get; set; }
 
     public string? AcknowledgedByUserId { get; set; }
 
@@ -64,6 +73,9 @@ public class EscalationChain : BaseEntity
     public DateTime? CancelledAtUtc { get; set; }
 
     public string? OutcomeReason { get; set; }
+
+    /// <summary>When the chain lapsed unanswered (Exhausted); null for every other outcome.</summary>
+    public DateTime? ExhaustedAtUtc { get; set; }
 
     public virtual ICollection<EscalationStage> Stages { get; set; } = new List<EscalationStage>();
 }

@@ -29,6 +29,8 @@
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "感谢您，您已批准针对发现项{{finding}}的操作{{action}}。Klacksy将立即以您的权限执行该操作，并向您报告结果。",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}}已批准针对发现项{{finding}}的操作{{action}}；您无需再进行任何操作。",
   "assistant.escalationHandoff.approvalExhaustedNote": "无人批准针对发现项{{finding}}的操作{{action}}；授权窗口已过期。Klacksy将在下一个公司日再次询问。如仍希望今日执行，请直接委派该发现项。",
+  "assistant.escalationHandoff.absenceExhaustedNote": "没有人处理 {{employee}} 在 {{date}} 的缺勤；响应时间已过。该班次可能仍无人顶替，请在排班表中查看。",
+  "assistant.escalationHandoff.absenceUnreachedNote": "关于 {{employee}} 在 {{date}} 的缺勤，升级名单中无人可联系。该班次可能仍无人顶替，请直接处理。",
   "assistant.scenarioName.autoPlan": "自动创建的计划",
   "assistant.scenarioName.autoHarmonizer": "自动创建的协调计划",
   "assistant.scenarioName.auto": "自动创建",

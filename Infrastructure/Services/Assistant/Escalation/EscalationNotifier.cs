@@ -17,6 +17,7 @@
 /// <param name="companyClock">Resolves the company's configured time zone for rendering shift/due times.</param>
 /// <param name="conditionRepository">Names the finding an approval chain is about.</param>
 /// <param name="remediationRegistry">Names the remediation an approval chain would release.</param>
+/// <param name="audienceResolver">Names the administrators who learn that an absence chain lapsed unanswered.</param>
 /// <param name="logger">Logs a delivery failure without ever aborting the caller's sweep.</param>
 
 using System.Globalization;
@@ -44,6 +45,7 @@ public class EscalationNotifier : IEscalationNotifier
     private readonly ICompanyClock _companyClock;
     private readonly IAgentConditionRepository _conditionRepository;
     private readonly IConditionRemediationRegistry _remediationRegistry;
+    private readonly IPlanningAudienceResolver _audienceResolver;
     private readonly ILogger<EscalationNotifier> _logger;
 
     public EscalationNotifier(
@@ -55,6 +57,7 @@ public class EscalationNotifier : IEscalationNotifier
         ICompanyClock companyClock,
         IAgentConditionRepository conditionRepository,
         IConditionRemediationRegistry remediationRegistry,
+        IPlanningAudienceResolver audienceResolver,
         ILogger<EscalationNotifier> logger)
     {
         _dispatchRepository = dispatchRepository;
@@ -65,6 +68,7 @@ public class EscalationNotifier : IEscalationNotifier
         _companyClock = companyClock;
         _conditionRepository = conditionRepository;
         _remediationRegistry = remediationRegistry;
+        _audienceResolver = audienceResolver;
         _logger = logger;
     }
 
@@ -179,7 +183,13 @@ public class EscalationNotifier : IEscalationNotifier
             await TryAcknowledgeDispatchRowAsync(stage, cancellationToken);
         }
 
-        if (chain.Purpose != EscalationChainPurpose.ProactiveApproval || notifiedStages.Count == 0)
+        if (chain.Purpose == EscalationChainPurpose.AbsenceCoverage)
+        {
+            await NotifyAbsenceExhaustedAsync(chain, cancellationToken);
+            return;
+        }
+
+        if (notifiedStages.Count == 0)
         {
             return;
         }
@@ -192,6 +202,45 @@ public class EscalationNotifier : IEscalationNotifier
         foreach (var stage in notifiedStages)
         {
             await RecordInboxOnlyAsync(stage.UserId, noteText, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// An absence chain that lapsed unanswered leaves a shift that may still be uncovered, so everybody who was
+    /// asked plus every administrator learns it - also when nobody could be reached at all, which is exactly the
+    /// case nobody would otherwise ever hear about. Inbox only: the wake-up already went out loudly per stage.
+    /// </summary>
+    private async Task NotifyAbsenceExhaustedAsync(EscalationChain chain, CancellationToken cancellationToken)
+    {
+        var recipients = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var stage in chain.Stages.Where(s => s.NotifiedAtUtc.HasValue))
+        {
+            recipients.Add(stage.UserId);
+        }
+
+        try
+        {
+            recipients.UnionWith(await _audienceResolver.GetAdminUserIdsAsync(cancellationToken));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not resolve the administrators for the exhausted absence chain {ChainId}", chain.Id);
+        }
+
+        if (recipients.Count == 0)
+        {
+            return;
+        }
+
+        var anyStageNotified = chain.Stages.Any(s => s.NotifiedAtUtc.HasValue);
+        var noteText = await _handoffTextService.RenderAsync(
+            anyStageNotified ? EscalationHandoffTexts.AbsenceExhaustedNote : EscalationHandoffTexts.AbsenceUnreachedNote,
+            await AbsenceHandoffParametersAsync(chain, cancellationToken),
+            cancellationToken);
+
+        foreach (var userId in recipients)
+        {
+            await RecordInboxOnlyAsync(userId, noteText, cancellationToken);
         }
     }
 

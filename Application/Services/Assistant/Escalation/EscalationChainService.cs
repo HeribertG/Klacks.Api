@@ -89,16 +89,16 @@ public class EscalationChainService : IEscalationChainService
         var now = _timeProvider.GetUtcNow().UtcDateTime;
 
         // The roster can only ever consume roster.Count x MaxStageMinutes of wall-clock time even run
-        // fully serial. Beyond that window there is nothing useful a wave computation could do yet, so
-        // starting now would just wake stage 1 with an artificial "reply in MaxStageMinutes" deadline
-        // for a shift that may be weeks out. Skip silently; the caller can retry closer to the deadline.
+        // fully serial. Beyond that window waking stage 1 now would only give it an artificial "reply in
+        // MaxStageMinutes" deadline for a shift that may be weeks out, so the chain is registered right away
+        // (visible in the intervention list, blocking a duplicate) and the sweep wakes it once the window opens.
         var reachableWindow = TimeSpan.FromMinutes(budget.MaxStageMinutes * Math.Max(roster.Count, 1));
-        if (deadlineUtc - now > reachableWindow)
+        DateTime? wakeNotBeforeUtc = deadlineUtc - now > reachableWindow ? deadlineUtc - reachableWindow : null;
+        if (wakeNotBeforeUtc.HasValue)
         {
             _logger.LogInformation(
-                "Escalation chain not started for work {WorkId}: deadline {DeadlineUtc} is beyond the {RosterSize}-stage roster's reachable window ({ReachableWindow}); not urgent yet.",
-                request.WorkId, deadlineUtc, roster.Count, reachableWindow);
-            return null;
+                "Escalation chain for work {WorkId} registered without waking: deadline {DeadlineUtc} is beyond the {RosterSize}-stage roster's reachable window ({ReachableWindow}); the sweep wakes it from {WakeNotBeforeUtc}.",
+                request.WorkId, deadlineUtc, roster.Count, reachableWindow, wakeNotBeforeUtc);
         }
 
         var chain = new EscalationChain
@@ -112,7 +112,9 @@ public class EscalationChainService : IEscalationChainService
             AbsentClientId = request.AbsentClientId,
             AbsentClientName = request.AbsentClientName,
             AbsenceBreakId = request.AbsenceBreakId,
-            DeadlineUtc = deadlineUtc
+            ScenarioId = request.ScenarioId,
+            DeadlineUtc = deadlineUtc,
+            WakeNotBeforeUtc = wakeNotBeforeUtc
         };
 
         return await CreateAndStartAsync(chain, roster, request.WorkId, cancellationToken);
@@ -160,6 +162,12 @@ public class EscalationChainService : IEscalationChainService
             _logger.LogInformation(
                 "Escalation chain ({Purpose}) not started for key {PurposeKey}: a chain is already running for it.",
                 chain.Purpose, purposeKey);
+
+            if (chain.ScenarioId is Guid scenarioId && chain.WorkId is Guid workId)
+            {
+                await _chainRepository.TryUpdateRunningChainScenarioAsync(workId, scenarioId, cancellationToken);
+            }
+
             return null;
         }
 
@@ -169,6 +177,11 @@ public class EscalationChainService : IEscalationChainService
                 "Escalation chain {ChainId} ({Purpose}) started with an empty roster for group {GroupId}",
                 chain.Id, chain.Purpose, chain.GroupId);
             await ExhaustAsync(chain.Id, ExhaustedNoRosterReason, chain, cancellationToken);
+            return chain.Id;
+        }
+
+        if (chain.WakeNotBeforeUtc.HasValue)
+        {
             return chain.Id;
         }
 
@@ -347,17 +360,24 @@ public class EscalationChainService : IEscalationChainService
     private async Task<bool> ExhaustAsync(
         Guid chainId, string outcomeReason, EscalationChain? knownChain, CancellationToken cancellationToken)
     {
-        var result = await _chainRepository.TryExhaustChainAsync(chainId, outcomeReason, cancellationToken);
+        var result = await _chainRepository.TryExhaustChainAsync(
+            chainId, outcomeReason, _timeProvider.GetUtcNow().UtcDateTime, cancellationToken);
 
         // The ?? guards the default struct a bare test double returns, whose list is null.
         var cancelledNotifiedStages = result.CancelledNotifiedStages ?? [];
-        if (!result.Exhausted || cancelledNotifiedStages.Count == 0)
+        if (!result.Exhausted)
         {
-            return result.Exhausted;
+            return false;
         }
 
         var chain = knownChain ?? await _chainRepository.GetByIdWithStagesAsync(chainId, cancellationToken);
         if (chain is null)
+        {
+            return true;
+        }
+
+        // An absence chain is reported even when nobody was ever woken: the shift may stay uncovered.
+        if (cancelledNotifiedStages.Count == 0 && chain.Purpose != EscalationChainPurpose.AbsenceCoverage)
         {
             return true;
         }
