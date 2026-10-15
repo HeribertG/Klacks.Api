@@ -286,7 +286,9 @@ done
 
 echo ""
 if [ "$HEALTHY" = true ]; then
-  printf '\033[32mKlacks is up at https://%s\033[0m\n' "$SERVER_NAME"
+  HTTPS_SUFFIX=""
+  [ "${ENVMAP[HTTPS_PORT]}" != 443 ] && HTTPS_SUFFIX=":${ENVMAP[HTTPS_PORT]}"
+  printf '\033[32mKlacks is up at https://%s%s\033[0m\n' "$SERVER_NAME" "$HTTPS_SUFFIX"
 else
   warn "API did not report healthy yet. Check: docker compose logs klacks-api"
 fi
