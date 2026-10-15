@@ -67,6 +67,7 @@ public class EscalationChainRepository : IEscalationChainRepository
     public async Task<IReadOnlyList<EscalationStage>> GetStagesByChainAsync(Guid chainId, CancellationToken cancellationToken = default)
     {
         return await _context.Set<EscalationStage>()
+            .AsNoTracking()
             .Where(s => s.EscalationChainId == chainId)
             .OrderBy(s => s.Rank)
             .ToListAsync(cancellationToken);
