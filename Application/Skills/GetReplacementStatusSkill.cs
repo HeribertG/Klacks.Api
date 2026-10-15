@@ -2,8 +2,8 @@
 
 /// <summary>
 /// Answers "who was already asked to cover this employee's absence, who said yes or no, is the shift covered?" from the
-/// replacement request book (the same rows and guards as GET Recovery/Requests: ListReplacementRequestsQuery, group
-/// visibility of the candidate AND the absent employee) and from the escalation chains woken for the absence. Rows are
+/// replacement request book (the listed rows use the same guards as GET Recovery/Requests: ListReplacementRequestsQuery,
+/// group visibility of the candidate AND the absent employee) and from the escalation chains woken for the absence. Rows are
 /// grouped per slot (scenario x date x shift) and each slot gets a coverage status; only a recorded contact is a
 /// contact - a proposed candidate was NOT asked, and the book holds nothing for a call nobody entered. Escalation
 /// chains (which planners were woken, who took over) are shown for the AbsenceCoverage purpose only, narrowed to the
@@ -14,6 +14,10 @@
 /// subgroups, so the two checks can differ for a group below a visible root. The skill is withheld on the capped
 /// channels (Slack owner bridge, MCP) because the chain check reads the database role, not the capped rights. A name that matches several employees is answered
 /// with the candidate list, a hidden or unknown employee with the same not-found answer.
+/// A slot's status is classified over every recorded row, including rows of candidates outside the caller's group
+/// visibility (so a slot covered by a hidden colleague is not reported as open); those rows are only counted, never named.
+/// Every instant is rendered in the company time zone, and the date range is reported as the search window, not as the
+/// absence period - the days that actually have slots are listed separately.
 /// </summary>
 /// <param name="clientId">Optional. UUID of the absent employee; alternative to the name.</param>
 /// <param name="firstName">Optional. First name of the absent employee.</param>
@@ -23,6 +27,7 @@
 /// <param name="untilDate">Optional. Last slot date (yyyy-MM-dd); default 14 days after today.</param>
 /// <param name="analyseToken">Optional. UUID of one scenario; default is every scenario and the real plan.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Schedules;
@@ -46,6 +51,7 @@ namespace Klacks.Api.Application.Skills;
 public class GetReplacementStatusSkill : BaseSkillImplementation
 {
     private const string DateFormat = "yyyy-MM-dd";
+    private const string DateTimeFormat = "yyyy-MM-dd HH\\:mm";
     private const string TimeFormat = "HH\\:mm";
     private const int DefaultPastDays = 7;
     private const int DefaultFutureDays = 14;
@@ -70,8 +76,16 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         "nobody was called.";
 
     private const string RowsMessage =
-        "{0}: {1} slot(s) in the replacement request book between {2} and {3} ({4} covered); {5} escalation chain(s) " +
-        "visible to you. Proposed means the candidate was NOT asked; only recorded answers count.";
+        "{0}: {1} slot(s) in the replacement request book in the search window {2} to {3} ({4} covered); {5} escalation " +
+        "chain(s) visible to you. Proposed means the candidate was NOT asked; only recorded answers count.";
+
+    private const string SearchWindowNote =
+        "SearchFrom/SearchUntil is only the window that was searched, NOT the absence period; DatesWithEntries lists the days " +
+        "that have entries in the book (scenario slots included). All times are in the company time zone.";
+
+    private const string HiddenEntriesNote =
+        "Some slots include entries of employees outside your groups (HiddenEntries). They count for the slot status but " +
+        "are not listed, so never say that nobody declined or accepted when HiddenEntries is above zero.";
 
     private const string TruncatedNote =
         "The request book holds more rows than the answer limit; narrow the period to see them all.";
@@ -92,6 +106,8 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
     private readonly IEscalationChainRepository _chainRepository;
     private readonly IEscalationChainVisibilityFilter _chainVisibilityFilter;
     private readonly ICompanyClock _companyClock;
+    private readonly IReplacementRequestRepository _requestRepository;
+    private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
 
     public GetReplacementStatusSkill(
         IMediator mediator,
@@ -103,7 +119,9 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         IAbsenceRepository absenceRepository,
         IEscalationChainRepository chainRepository,
         IEscalationChainVisibilityFilter chainVisibilityFilter,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IReplacementRequestRepository requestRepository,
+        IScenarioTokenAccessGuard scenarioTokenAccessGuard)
     {
         _mediator = mediator;
         _searchRepository = searchRepository;
@@ -115,6 +133,8 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         _chainRepository = chainRepository;
         _chainVisibilityFilter = chainVisibilityFilter;
         _companyClock = companyClock;
+        _requestRepository = requestRepository;
+        _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -158,19 +178,23 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
 
         var rows = await _mediator.Send(
             new ListReplacementRequestsQuery(absent.Id, fromDate, untilDate, analyseToken), cancellationToken);
-        var slots = await BuildSlotsAsync(rows, context.UserLanguage, cancellationToken);
-        var chains = await BuildChainsAsync(context, absent.Id, fromDate, untilDate, cancellationToken);
+        var timeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
+        var outcomes = await ReadAllSlotOutcomesAsync(absent.Id, fromDate, untilDate, analyseToken, cancellationToken);
+        var slots = await BuildSlotsAsync(rows, outcomes, timeZone, context.UserLanguage, cancellationToken);
+        var chains = await BuildChainsAsync(context, absent.Id, fromDate, untilDate, timeZone, cancellationToken);
 
         var absentName = DisplayName(absent);
         var data = new
         {
             AbsentClient = new { absent.Id, Name = absentName },
-            FromDate = fromDate.ToString(DateFormat),
-            UntilDate = untilDate.ToString(DateFormat),
+            SearchFrom = fromDate.ToString(DateFormat),
+            SearchUntil = untilDate.ToString(DateFormat),
+            DatesWithEntries = slots.Select(s => s.Date).Distinct().ToList(),
+            TimeZone = timeZone.Id,
             SlotCount = slots.Count,
             Slots = slots,
             EscalationChains = chains,
-            Notes = BuildNotes(rows)
+            Notes = BuildNotes(rows, slots, outcomes.Values.Sum(o => o.TotalEntries))
         };
 
         var message = slots.Count == 0 && chains.Count == 0
@@ -182,15 +206,21 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(data, message);
     }
 
-    private static List<string> BuildNotes(IReadOnlyList<ReplacementRequestResource> rows)
+    private static List<string> BuildNotes(
+        IReadOnlyList<ReplacementRequestResource> rows, IReadOnlyList<SlotView> slots, int allRowCount)
     {
-        var notes = new List<string> { AnswerNote };
+        var notes = new List<string> { AnswerNote, SearchWindowNote };
+        if (slots.Any(s => s.HiddenEntries > 0))
+        {
+            notes.Add(HiddenEntriesNote);
+        }
+
         if (rows.Any(r => r.Source == ReplacementRequestSource.Messenger))
         {
             notes.Add(MessengerSourceNote);
         }
 
-        if (rows.Count >= ReplacementRequestLimits.MaxListRows)
+        if (Math.Max(rows.Count, allRowCount) >= ReplacementRequestLimits.MaxListRows)
         {
             notes.Add(TruncatedNote);
         }
@@ -198,8 +228,39 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         return notes;
     }
 
+    /// <summary>
+    /// Status and row count per slot over EVERY row of the book in the same bounds, the hidden candidates included, so
+    /// the visible list can say "covered" or "n entries hidden" without naming anybody. A scenario the caller may not see
+    /// yields nothing, exactly like the visible list.
+    /// </summary>
+    private async Task<Dictionary<SlotKey, SlotOutcome>> ReadAllSlotOutcomesAsync(
+        Guid absentClientId, DateOnly fromDate, DateOnly untilDate, Guid? analyseToken, CancellationToken cancellationToken)
+    {
+        if (!await _scenarioTokenAccessGuard.IsVisibleAsync(analyseToken, cancellationToken))
+        {
+            return [];
+        }
+
+        var allRows = await _requestRepository.ListAsync(
+            new ReplacementRequestFilter(absentClientId, fromDate, untilDate, analyseToken),
+            ReplacementRequestLimits.MaxListRows,
+            cancellationToken);
+
+        return allRows
+            .GroupBy(r => new SlotKey(r.AnalyseToken, r.Date, r.ShiftId))
+            .ToDictionary(
+                group => group.Key,
+                group => new SlotOutcome(
+                    ReplacementSlotStatusPolicy.Classify(group.Select(r => (r.Outcome, r.AppliedAtUtc.HasValue)).ToList()),
+                    group.Count()));
+    }
+
     private async Task<List<SlotView>> BuildSlotsAsync(
-        IReadOnlyList<ReplacementRequestResource> rows, string? language, CancellationToken cancellationToken)
+        IReadOnlyList<ReplacementRequestResource> rows,
+        Dictionary<SlotKey, SlotOutcome> outcomes,
+        TimeZoneInfo timeZone,
+        string? language,
+        CancellationToken cancellationToken)
     {
         if (rows.Count == 0)
         {
@@ -213,7 +274,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
 
         return rows
             .GroupBy(r => (r.AnalyseToken, r.Date, r.ShiftId))
-            .Select(group => ToSlot(group.ToList(), candidateNames, shiftNames, absenceNames))
+            .Select(group => ToSlot(group.ToList(), outcomes, timeZone, candidateNames, shiftNames, absenceNames))
             .OrderBy(s => s.Date)
             .ThenBy(s => s.StartTime)
             .ToList();
@@ -221,17 +282,23 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
 
     private static SlotView ToSlot(
         List<ReplacementRequestResource> group,
+        Dictionary<SlotKey, SlotOutcome> outcomes,
+        TimeZoneInfo timeZone,
         Dictionary<Guid, string> candidateNames,
         Dictionary<Guid, string?> shiftNames,
         Dictionary<Guid, string?> absenceNames)
     {
         var first = group[0];
-        var status = ReplacementSlotStatusPolicy.Classify(
+        var visibleStatus = ReplacementSlotStatusPolicy.Classify(
             group.Select(r => (r.Outcome, r.AppliedAtUtc.HasValue)).ToList());
+        var hasOutcome = outcomes.TryGetValue(new SlotKey(first.AnalyseToken, first.Date, first.ShiftId), out var outcome);
+        var status = hasOutcome ? outcome!.Status : visibleStatus;
+        var hiddenEntries = hasOutcome ? Math.Max(0, outcome!.TotalEntries - group.Count) : 0;
         var absenceId = group.Select(r => r.AbsenceId).FirstOrDefault(id => id.HasValue);
 
         return new SlotView(
             first.Date.ToString(DateFormat),
+            first.Date.DayOfWeek.ToString(),
             first.StartTime.ToString(TimeFormat),
             first.EndTime.ToString(TimeFormat),
             first.ShiftId,
@@ -240,6 +307,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
             first.AnalyseToken.HasValue,
             absenceId.HasValue ? absenceNames.GetValueOrDefault(absenceId.Value) : null,
             status.ToString(),
+            hiddenEntries,
             group.Any(r => r.AppliedAtUtc.HasValue),
             group.OrderBy(r => r.ReportedAtUtc).Select(r => new CandidateView(
                 r.CandidateClientId,
@@ -247,7 +315,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
                 r.Source.ToString(),
                 ContactOf(r.Outcome),
                 r.Outcome.ToString(),
-                r.OutcomeAtUtc,
+                ToCompanyTime(r.OutcomeAtUtc, timeZone),
                 r.AppliedAtUtc.HasValue,
                 r.IsShortNotice)).ToList());
     }
@@ -289,9 +357,13 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
     }
 
     private async Task<List<ChainView>> BuildChainsAsync(
-        SkillExecutionContext context, Guid absentClientId, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken)
+        SkillExecutionContext context,
+        Guid absentClientId,
+        DateOnly fromDate,
+        DateOnly untilDate,
+        TimeZoneInfo timeZone,
+        CancellationToken cancellationToken)
     {
-        var timeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
         var fromUtc = CompanyWallClockToUtcConverter.ConvertToUtc(fromDate.ToDateTime(TimeOnly.MinValue), timeZone);
         var untilUtc = CompanyWallClockToUtcConverter.ConvertToUtc(untilDate.AddDays(1).ToDateTime(TimeOnly.MinValue), timeZone);
 
@@ -300,30 +372,46 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         var visible = await _chainVisibilityFilter.FilterVisibleAsync(chains, context.UserId.ToString(), cancellationToken);
 
         var mayReadAnyReason = context.UserPermissions.Contains(Roles.Admin) || context.UserPermissions.Contains(Roles.Authorised);
-        return visible.Select(chain => ToChain(chain, MayReadCancelReason(chain, context, mayReadAnyReason))).ToList();
+        return visible.Select(chain => ToChain(chain, MayReadCancelReason(chain, context, mayReadAnyReason), timeZone)).ToList();
     }
 
     private static bool MayReadCancelReason(EscalationChain chain, SkillExecutionContext context, bool mayReadAnyReason) =>
         mayReadAnyReason || string.Equals(chain.CancelledByUserId, context.UserId.ToString(), StringComparison.OrdinalIgnoreCase);
 
-    private static ChainView ToChain(EscalationChain chain, bool mayReadCancelReason) => new(
+    private static ChainView ToChain(EscalationChain chain, bool mayReadCancelReason, TimeZoneInfo timeZone) => new(
         chain.Id,
         chain.Status.ToString(),
-        chain.ShiftStartUtc,
-        chain.DeadlineUtc,
+        ToCompanyTime(chain.ShiftStartUtc, timeZone),
+        ToCompanyTime(chain.DeadlineUtc, timeZone),
         chain.WorkId,
         chain.AcknowledgedByUserName,
-        chain.AcknowledgedAtUtc,
+        ToCompanyTime(chain.AcknowledgedAtUtc, timeZone),
         chain.CancelledByUserName,
         mayReadCancelReason ? chain.CancelReason : null,
         chain.OutcomeReason,
         chain.Stages.OrderBy(s => s.Rank).Select(s => new StageView(
-            s.Rank, s.UserDisplayName, s.Status.ToString(), s.NotifiedAtUtc, s.RespondedAtUtc, s.DeliveryChannel)).ToList());
+            s.Rank,
+            s.UserDisplayName,
+            s.Status.ToString(),
+            ToCompanyTime(s.NotifiedAtUtc, timeZone),
+            ToCompanyTime(s.RespondedAtUtc, timeZone),
+            s.DeliveryChannel)).ToList());
+
+    private static string? ToCompanyTime(DateTime? utc, TimeZoneInfo timeZone) =>
+        utc is DateTime value
+            ? TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(value, DateTimeKind.Utc), timeZone)
+                .ToString(DateTimeFormat, CultureInfo.InvariantCulture)
+            : null;
 
     private static string DisplayName(Client client) => $"{client.FirstName} {client.Name}".Trim();
 
+    private sealed record SlotKey(Guid? AnalyseToken, DateOnly Date, Guid ShiftId);
+
+    private sealed record SlotOutcome(ReplacementSlotStatus Status, int TotalEntries);
+
     public sealed record SlotView(
         string Date,
+        string Weekday,
         string StartTime,
         string EndTime,
         Guid ShiftId,
@@ -332,6 +420,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         bool IsScenario,
         string? AbsenceType,
         string Status,
+        int HiddenEntries,
         bool AppliedToPlan,
         List<CandidateView> Candidates);
 
@@ -341,18 +430,18 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         string Source,
         string Contact,
         string Outcome,
-        DateTime? AnsweredAtUtc,
+        string? AnsweredAt,
         bool AppliedToPlan,
         bool IsShortNotice);
 
     public sealed record ChainView(
         Guid Id,
         string Status,
-        DateTime? ShiftStartUtc,
-        DateTime DeadlineUtc,
+        string? ShiftStart,
+        string? Deadline,
         Guid? WorkId,
         string? TakenOverBy,
-        DateTime? TakenOverAtUtc,
+        string? TakenOverAt,
         string? CancelledBy,
         string? CancelReason,
         string? OutcomeReason,
@@ -362,7 +451,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         int Rank,
         string PlannerName,
         string Status,
-        DateTime? NotifiedAtUtc,
-        DateTime? RespondedAtUtc,
+        string? NotifiedAt,
+        string? RespondedAt,
         string? DeliveryChannel);
 }
