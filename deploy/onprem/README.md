@@ -7,7 +7,10 @@ Run Klacks on your own Windows or Linux machine with Docker. Updates apply autom
   (embedder + reranker) locally inside `klacks-api`; both sessions stay resident and
   need a 3584M container limit. On a smaller host, see `KLACKS_API_MEMORY_LIMIT` in
   `.env.example` — it must always be lowered together with
-  `KLACKS_API_IDLE_UNLOAD_MINUTES`.
+  `KLACKS_API_IDLE_UNLOAD_MINUTES`. `install.sh` checks the memory Docker reports and
+  stops a first install below 7 GiB unless both variables are passed, e.g.
+  `sudo KLACKS_API_MEMORY_LIMIT=2560M KLACKS_API_IDLE_UNLOAD_MINUTES=30 bash ./install.sh`; it
+  writes them into `.env` so the auto-updater keeps them.
 - Docker Desktop (Windows/Mac) or Docker Engine + Compose plugin (Linux)
 - Outbound internet to `ghcr.io` and `github.com` (for images + auto-update)
 - Open ports 80 + 443 (configurable)

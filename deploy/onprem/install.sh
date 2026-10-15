@@ -9,19 +9,127 @@
 #         GHCR_USER / GHCR_TOKEN while ghcr packages are private)
 #         REGION=de ./install.sh                              (country/region setup, see regions/README.md;
 #         must match a regions/<code>.json file; omit to skip region setup)
+#         sudo KLACKS_API_MEMORY_LIMIT=2560M KLACKS_API_IDLE_UNLOAD_MINUTES=30 bash ./install.sh
+#                                                             (host below ~8 GB RAM; both or neither, see .env.example)
+#         sudo bash ./install.sh                              (without Docker: asks to install Docker Engine via
+#                                                             get.docker.com; INSTALL_DOCKER=yes answers without a terminal)
 set -euo pipefail
 cd "$(dirname "$0")"
 
 step() { printf '\033[36m==> %s\033[0m\n' "$1"; }
 warn() { printf '\033[33m!!  %s\033[0m\n' "$1"; }
 
+fail() { printf '\033[31mXX  %s\033[0m\n' "$1" >&2; exit 1; }
+
+DOCKER_INSTALL_URL=https://docs.docker.com/engine/install/
+COMPOSE_INSTALL_URL=https://docs.docker.com/compose/install/linux/
+GET_DOCKER_URL=https://get.docker.com
+DOCKER_SCRIPT_DISTROS="Ubuntu, Debian, Fedora, CentOS, RHEL"
+BYTES_PER_GIB=1073741824
+# The compose limits add up to 6.25 GiB (postgres 2 GiB, klacks-api 3.5 GiB, ui/updater/nginx
+# 0.25 GiB each). An 8 GB host reports about 7.6 GiB to Docker, so 7 GiB is the floor that still
+# leaves the host some headroom.
+MIN_DOCKER_MEMORY_GIB=7
+MEMORY_OVERRIDE_KEYS=(KLACKS_API_MEMORY_LIMIT KLACKS_API_IDLE_UNLOAD_MINUTES)
+
+# Writes the URL to the file ('-' = stdout); fresh desktop installs often ship wget but no curl.
+download() {
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$1" -o "$2"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -q -O "$2" "$1"
+  else
+    return 1
+  fi
+}
+
+# Only offered when the docker binary is missing: on a host with the distribution's own docker
+# package the convenience script would conflict with it. Needs root and an explicit yes (from the
+# terminal, or INSTALL_DOCKER=yes when no terminal is attached); the default is no.
+offer_docker_install() {
+  local answer="" script
+  [ "$(id -u)" -eq 0 ] \
+    || fail "Docker is not installed. Re-run this script with sudo to let it install Docker, or install Docker Engine with the Compose plugin yourself: $DOCKER_INSTALL_URL"
+  if [ "${INSTALL_DOCKER:-}" = yes ]; then
+    answer=y
+  elif (exec </dev/tty) 2>/dev/null; then
+    printf 'Docker is not installed. Install Docker Engine now with Docker'\''s official script (%s, for %s)? [y/N] ' "$GET_DOCKER_URL" "$DOCKER_SCRIPT_DISTROS"
+    read -r answer </dev/tty || answer=""
+  fi
+  case "$answer" in
+    y|Y|yes|YES) ;;
+    *) fail "Docker is not installed. Install Docker Engine with the Compose plugin first ($DOCKER_INSTALL_URL), or re-run and answer y." ;;
+  esac
+
+  step "Installing Docker Engine (this takes a few minutes)..."
+  script="$(mktemp)"
+  if ! download "$GET_DOCKER_URL" "$script"; then
+    rm -f "$script"
+    fail "Could not download $GET_DOCKER_URL (curl or wget and an internet connection are needed). Install Docker yourself: $DOCKER_INSTALL_URL"
+  fi
+  if ! sh "$script"; then
+    rm -f "$script"
+    fail "Docker's install script failed - it supports $DOCKER_SCRIPT_DISTROS. Install Docker Engine with the Compose plugin yourself: $DOCKER_INSTALL_URL"
+  fi
+  rm -f "$script"
+  if command -v systemctl >/dev/null 2>&1; then
+    systemctl enable --now docker >/dev/null 2>&1 || warn "Could not start the Docker service automatically."
+  fi
+}
+
+check_docker() {
+  local out
+  if ! command -v docker >/dev/null 2>&1; then
+    offer_docker_install
+    command -v docker >/dev/null 2>&1 \
+      || fail "Docker is still not available after the installation. Install Docker Engine with the Compose plugin yourself: $DOCKER_INSTALL_URL"
+  fi
+  if ! out="$(docker version --format '{{.Server.Version}}' 2>&1)"; then
+    case "$out" in
+      *"permission denied"*)
+        fail "This user may not talk to the Docker daemon. Re-run with sudo, or add the user to the docker group (sudo usermod -aG docker \$USER) and log in again." ;;
+      *)
+        fail "The Docker daemon is not reachable. Start it (sudo systemctl start docker) and re-run this script. Docker said: $out" ;;
+    esac
+  fi
+  docker compose version >/dev/null 2>&1 \
+    || fail "The Docker Compose plugin ('docker compose') is missing. Install it: $COMPOSE_INSTALL_URL - the standalone docker-compose v1 is not supported."
+}
+
+# Below the floor a first install stops unless the API limit is lowered; a re-run only warns, so an
+# existing small installation can still be updated by re-running the script.
+check_memory() {
+  local total gib msg
+  total="$(docker info --format '{{.MemTotal}}' 2>/dev/null || true)"
+  if ! [[ "$total" =~ ^[0-9]+$ ]] || [ "$total" -eq 0 ]; then
+    warn "Could not read the memory available to Docker; skipping the memory check."
+    return
+  fi
+  if [ "$total" -ge $((MIN_DOCKER_MEMORY_GIB * BYTES_PER_GIB)) ]; then return; fi
+  gib="$(awk -v b="$total" -v d="$BYTES_PER_GIB" 'BEGIN { printf "%.1f", b / d }')"
+  if [ -n "${ENVMAP[KLACKS_API_MEMORY_LIMIT]:-}" ]; then
+    warn "Docker sees ${gib} GiB of memory; running with the reduced API limit ${ENVMAP[KLACKS_API_MEMORY_LIMIT]}."
+    return
+  fi
+  msg="Docker sees only ${gib} GiB of memory, Klacks needs at least ${MIN_DOCKER_MEMORY_GIB} GiB (an 8 GB host): the containers may use up to 6.25 GiB. On a smaller host lower the API limit together with the idle unload, e.g. sudo KLACKS_API_MEMORY_LIMIT=2560M KLACKS_API_IDLE_UNLOAD_MINUTES=30 bash ./install.sh (see .env.example)."
+  if [ "$FIRST_RUN" = true ]; then fail "$msg"; fi
+  warn "$msg"
+}
+
 step "Checking Docker..."
-docker version --format '{{.Server.Version}}' >/dev/null
-docker compose version >/dev/null
+check_docker
+
+# The updater recreates the containers with bind mounts into this folder, so it has to stay where it is.
+case "$(pwd -P)" in
+  */Downloads|*/Downloads/*|*/Download|*/Download/*|/tmp|/tmp/*)
+    warn "Klacks is installed in $(pwd -P). Automatic updates keep using this folder - do not delete it. Better: move the folder to a permanent place (e.g. ~/klacks) and run the installer there." ;;
+esac
 
 ENV_FILE=.env
+FIRST_RUN=true
 declare -A ENVMAP
 if [ -f "$ENV_FILE" ]; then
+  FIRST_RUN=false
   step "Existing .env found — preserving secrets."
   while IFS='=' read -r k v; do
     [[ "$k" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] && ENVMAP["$k"]="$v"
@@ -29,6 +137,19 @@ if [ -f "$ENV_FILE" ]; then
 else
   step "First run — generating a fresh .env."
 fi
+
+# Memory overrides go into .env: the updater recreates the containers from .env and never sees this shell.
+for key in "${MEMORY_OVERRIDE_KEYS[@]}"; do
+  if [ -n "${!key:-}" ]; then ENVMAP[$key]="${!key}"; fi
+done
+HAS_MEMORY_LIMIT="${ENVMAP[KLACKS_API_MEMORY_LIMIT]:+yes}"
+HAS_IDLE_UNLOAD="${ENVMAP[KLACKS_API_IDLE_UNLOAD_MINUTES]:+yes}"
+if [ "$HAS_MEMORY_LIMIT" != "$HAS_IDLE_UNLOAD" ]; then
+  fail "Set KLACKS_API_MEMORY_LIMIT and KLACKS_API_IDLE_UNLOAD_MINUTES together - a lowered limit without the idle unload gets the API killed (see .env.example)."
+fi
+
+step "Checking memory..."
+check_memory
 
 gen_secret() { head -c "${1:-48}" /dev/urandom | base64 | tr -d '\n'; }
 set_if_empty() { local k="$1" v="$2"; [ -z "${ENVMAP[$k]:-}" ] && ENVMAP["$k"]="$v" || true; }
@@ -115,7 +236,7 @@ fi
 # Pin the released version from the signed manifest.
 if [ -z "${ENVMAP[KLACKS_API_TAG]:-}" ] || [ "${ENVMAP[KLACKS_API_TAG]}" = latest ]; then
   step "Resolving latest released version from the manifest..."
-  if VER="$(curl -fsSL "${ENVMAP[UPDATE_MANIFEST_BASE_URL]%/}/stable.json" 2>/dev/null | grep -o '"latestVersion"[^,]*' | grep -o '[0-9][0-9.]*' | head -1)" && [ -n "$VER" ]; then
+  if VER="$(download "${ENVMAP[UPDATE_MANIFEST_BASE_URL]%/}/stable.json" - 2>/dev/null | grep -o '"latestVersion"[^,]*' | grep -o '[0-9][0-9.]*' | head -1)" && [ -n "$VER" ]; then
     ENVMAP[KLACKS_API_TAG]="$VER"; ENVMAP[KLACKS_UI_TAG]="$VER"
     step "Pinned api + ui to $VER."
   else
