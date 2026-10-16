@@ -61,7 +61,7 @@ jobs:
         path: Klacks.UnitTest
         token: ${{ secrets.GH_PAT || github.token }}
 
-    - name: Checkout Klacks.Ui (permission constants for guard test)
+    - name: Checkout Klacks.Ui (permission constants and i18n catalogues for guard tests)
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.Ui
@@ -69,6 +69,7 @@ jobs:
         token: ${{ secrets.GH_PAT || github.token }}
         sparse-checkout: |
           src/app/domain/constants
+          src/assets/i18n
         sparse-checkout-cone-mode: false
 
     - name: Checkout Klacks.ScheduleOptimizer
