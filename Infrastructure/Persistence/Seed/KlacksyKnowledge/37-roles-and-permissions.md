@@ -33,15 +33,18 @@ that sounds like a role is a job description, not a permission.
 
 ## The two levels
 
-**Supervisor** may create, edit and delete addresses, groups, contracts, absences and shifts, and
+**Supervisor** may create and edit addresses, groups, contracts and shifts, but may not delete
+them (deleting addresses, groups, contracts and shifts is reserved for Admin), and
 may approve a day or a group in the schedule as well as withdraw that approval again.
 
 **Admin** may do everything a Supervisor may, plus: all settings including user administration
 itself, closing and reopening payroll periods, and the specially protected areas such as identity
 providers, reports and calendar rules.
 
-An account with **neither** can look but not change. Confirming individual working times is the
-exception — that needs no particular level.
+An account with **neither** is a planner: it can read everything it is allowed to see and can still
+plan — place, change and remove entries in the schedule, record absences, write client notes and
+work with Klacksy. It cannot create or edit master data (addresses, groups, contracts, shifts) and
+has no settings. Confirming individual working times needs no particular level either.
 
 Both are granted in user administration and take effect immediately, without a separate save.
 

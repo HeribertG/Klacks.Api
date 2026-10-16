@@ -216,8 +216,8 @@ Admin-Konten ist der Button deaktiviert — Admins sehen immer alles.
 - **Datenbasis**: Die Tabelle lädt seitenweise über den Gruppen-Filter (Gültigkeit
   aktiv/einstig/zukünftig, Suchstring auf den Namen, Sortierung, Pagination). Die
   Baumansicht lädt die ganze Hierarchie; das Backend berechnet dabei pro Gruppe die
-  Mitglieder- und Dienste-Zähler aus den Gruppen-Zuordnungen. Gelöschte Gruppen sind
-  im Papierkorb und erscheinen nirgends mehr.
+  Mitglieder- und Dienste-Zähler aus den Gruppen-Zuordnungen. Gelöschte Gruppen
+  erscheinen nirgends mehr; eine Wiederherstellen-Funktion gibt es in der App nicht.
 - **Hierarchie**: Gruppen bilden eine echte Baum-Hierarchie (jede Gruppe kann eine
   übergeordnete Gruppe und beliebig viele Untergruppen haben). Umhängen per Drag & Drop oder die Auswahl der übergeordneten Gruppe ordnet ganze
   Teilbäume um; "Aktualisieren" in der Baumansicht berechnet die Struktur im Backend neu.

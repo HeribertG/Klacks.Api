@@ -1,7 +1,7 @@
 ---
 name: explain_guided_tour
 description: |
-  Explains the guided setup tour: Klacksy walks a new user through sixteen stations covering the
+  Explains the guided setup tour: Klacksy walks a new user through twenty stations covering the
   whole application, navigating to each page itself and making the matching navigation icon pulse.
   Covers how to start it, that the user sets the pace and can skip or stop at any point, that
   questions can be asked at every station, and that it can be repeated for new colleagues. Use this
@@ -31,10 +31,13 @@ Klacksy does the navigating.
 
 ## What happens
 
-The tour is started from the chat, simply by asking for it. From then on it goes through **sixteen
-stations**, covering the whole application: company basics and the company address, calendars, user
-administration, groups, people, shifts, availability, absences, public holidays, period closing,
-email setup, and the assistant and plugin settings.
+The tour is started from the chat, simply by asking for it. It is the **setup tour for the
+administrator** of a new installation; its progress is stored for the whole installation and only an
+administrator can read or continue it. From then on it goes through **twenty stations**: company name,
+branding and company address, default language, the AI provider with its model sync and model check,
+the planning optimiser, the Klacksy settings, the calendar (public holidays), email setup, absence
+types, weekend and scheduling defaults, people, shifts, availability, period closing, user
+administration, web search and plugins.
 
 At each station three things happen together:
 

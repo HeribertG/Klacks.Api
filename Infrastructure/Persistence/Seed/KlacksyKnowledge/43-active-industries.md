@@ -45,7 +45,7 @@ Card anchor: `settings-active-industries`. Exactly one sector is chosen, not sev
 - **Security** (de: "Sicherheit")
 - **Facility services** (de: "Facility Services")
 - **Logistics** (de: "Logistik")
-- **Free choice** (de: "Eigene Auswahl") — the fifth option, meaning no preset sector
+- **Custom planning rule** (de: "Eigene Planungsregel", en: "Custom planning rule", fr: "Règle de planification personnalisée", it: "Regola di pianificazione personalizzata") — the fifth option, meaning no preset sector
 
 The card saves on its own; there is no save button.
 

@@ -66,7 +66,7 @@ Card anchor: `updates-setting-container`, in the **system** section of the setti
   default.
 - **Backup retention** (de: "Backup-Aufbewahrung") — how many database copies to keep, three by
   default.
-- **Maintenance window** (de: "Wartungsfenster Start / Ende") — the time of day an automatic install
+- **Maintenance window** start and end (de: "Wartungsfenster Start"/"Wartungsfenster Ende", en: "Maintenance window start"/"Maintenance window end", fr: "Début de la fenêtre de maintenance"/"Fin de la fenêtre de maintenance", it: "Inizio finestra di manutenzione"/"Fine finestra di manutenzione") — the time of day an automatic install
   may use. A window running past midnight is allowed. **Careful: the clock used is UTC**, so in
   central Europe the window sits one to two hours away from local time. An unset window means
   "any time".

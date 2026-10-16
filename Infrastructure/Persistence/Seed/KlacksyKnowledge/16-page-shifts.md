@@ -97,10 +97,18 @@ Unterseiten sind `/workplace/edit-shift/:id` (neu: `/workplace/new-shift`),
 
 ### Card **Dienste** (de: "Dienste", en: "Services", fr: "Services", it: "Servizi") — die Hauptliste links
 
-Oben rechts der Button `shift-create-btn` **+ Dienst erfassen** (de: "+ Dienst erfassen",
-en: "+ Create Shift", fr: "+ Créer un service", it: "Crea turno") — nur für Admins sichtbar
-und nur in der Sicht "Bestellungen" (neue Dienste entstehen immer als Bestellung; öffnet
-`/workplace/new-shift`).
+Oben rechts je nach Sicht ein Erfassen-Button (sichtbar nur mit dem Recht, Dienste anzulegen —
+Admin und Supervisor, nicht ohne Rolle); beide öffnen `/workplace/new-shift`:
+
+- In der Sicht "Bestellungen" (filterType 0) der Button `shift-create-btn` **+ neue
+  Bestellung** (de: "+ neue Bestellung", en: "+ New Order", fr: "+ Nouvelle commande", it:
+  "+ Nuovo ordine") — legt einen Dienst für einen Kunden an, zunächst als Bestellung.
+- In der Sicht "Planbare Dienste" (filterType 1) der Button `shift-create-plannable-btn`
+  **+ neuer Dienst** (de: "+ neuer Dienst", en: "+ New Service", fr: "+ Nouveau service",
+  it: "+ Nuovo servizio") — legt einen Dienst OHNE Kunde an (allgemeine, nicht
+  kundenspezifische Arbeit); er entsteht direkt als versiegelte Bestellung, ohne
+  Bestellungs-Entwurfsphase.
+- In den Sichten Container und Abwesenheit gibt es keinen Erfassen-Button.
 
 Je nach gewählter Sicht (Filter-Card rechts) zeigt die Card eine andere Tabelle:
 
@@ -146,12 +154,13 @@ mit wählbarer Zeilenzahl inkl. Automatik (passt die Zeilenzahl an die Fensterh�
   "Validità") mit den Checkboxen **Aktive** (en: "Active"), **Einstige** (en: "Former") und
   **Zukünftige** (en: "Future") — filtert nach dem Gültigkeitszeitraum der Dienste.
 - Radio-Auswahl der Sicht (IDs `shift-filter-original`, `shift-filter-shift`,
-  `shift-filter-container`, `shift-filter-absence`; nur für Admins änderbar):
+  `shift-filter-container`, `shift-filter-absence`; nur änderbar mit dem Recht, Dienste zu
+  bearbeiten — Admin und Supervisor):
   **Bestellungen** (de: "Bestellungen", en: "Orders", fr: "Commandes", it: "Ordini"),
   **Planbare Dienste** (de: "Planbare Dienste", en: "Plannable Services", fr: "Services
   planifiables", it: "Servizi Pianificabili"), **Container** (de: "Container", en:
   "Container", fr: "Conteneur", it: "Contenitore"), **Abwesenheit** (de: "Abwesenheit",
-  en: "Absence", fr: "Absence", it: "Assenza"). Nicht-Admins werden beim Laden fest auf
+  en: "Absence", fr: "Absence", it: "Assenza"). Wer Dienste nicht bearbeiten darf (ohne Rolle), wird beim Laden fest auf
   "Planbare Dienste" gesetzt.
 - Bei "Bestellungen": Checkbox **Nur versiegelte Bestellungen anzeigen** (de: "Nur
   versiegelte Bestellungen anzeigen", en: "Show Only Sealed Orders", fr: "Afficher
@@ -240,9 +249,8 @@ oben rechts einen Auf-/Zuklapp-Pfeil. Cards in dieser Reihenfolge:
    ist nur die Sporadisch-Option sichtbar.
 8. **Standard-Spesen** (de: "Standard-Spesen", en: "Default Expenses", fr: "Frais par
    défaut", it: "Spese predefinite") — eigene Card, nur im Experten-Modus und nicht bei
-   Containern: Button **+ Neue Spese** (de: "+ Neue Spese", en: "+ New Expense", fr: "+
-   Nouvelle dépense", it: "+ Nuova spesa"), Hinweis **Keine Standard-Spesen definiert**
-   (de: "Keine Standard-Spesen definiert", en: "No Default Expenses defined") wenn leer,
+   Containern: Button **+ Neue Spese** (de: "+ Neue Spese", en: "+ New Expense", fr: "+ Nouveau frais", it: "+ Nuova spesa"), Hinweis **Keine Standard-Spesen definiert**
+   (de: "Keine Standard-Spesen definiert", en: "No default expenses defined") wenn leer,
    und eine Tabelle mit **BEZEICHNUNG** (en: "DESCRIPTION"), **BETRAG** (en: "AMOUNT",
    Zahl mit Rappen-Schritten) und **STEUERPFLICHTIG** (en: "TAXABLE", Checkbox) plus
    Papierkorb pro Zeile.
@@ -349,9 +357,10 @@ schreibgeschützt.
   Absenzen, Verfügbarkeit). Auf dieser Seite gilt sie für die planbaren/Container-Sichten;
   Dienste ohne Gruppenzuordnung bleiben immer sichtbar, die Bestellungen-Sicht (ohne
   Versiegelt-Häkchen) ignoriert den Gruppenfilter ganz.
-- **Berechtigungen**: Nicht-Admins sehen nur die Sicht "Planbare Dienste" (Radios und
-  Versiegelt-Checkbox deaktiviert, beim Laden erzwungen) und haben keinen
-  "+ Dienst erfassen"-Button.
+- **Berechtigungen**: Wer Dienste nicht bearbeiten darf (ohne Rolle), sieht nur die Sicht
+  "Planbare Dienste" (Radios und Versiegelt-Checkbox deaktiviert, beim Laden erzwungen); die
+  Erfassen-Buttons "+ neue Bestellung" / "+ neuer Dienst" erscheinen nur mit dem Recht, Dienste
+  anzulegen (Admin und Supervisor, nicht ohne Rolle).
 - **Stammdaten-Wirkung**: Gruppen-Zuordnung, erforderliche Qualifikationen, Anzahl
   Mitarbeiter/Aufgaben pro Schicht und Macros am Dienst steuern die Vorschläge und
   Prüfungen des Planungs-Assistenten und der Einsatzplanung.

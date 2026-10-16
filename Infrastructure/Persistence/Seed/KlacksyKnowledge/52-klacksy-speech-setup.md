@@ -68,7 +68,7 @@ Card anchor: `settings-assistant-speech`.
   Shorter reacts faster, longer gives you room to think mid-sentence.
 - **Text tidying** — a language model cleans up the raw transcript. There is a separate model choice
   for this and an editable instruction, which can be reset to its original.
-- **Interruption** (de: "Sprach-Unterbrechung (Barge-in)") — see below. **Off by default.**
+- **Interruption** (de: "Sprach-Unterbrechung (Barge-in) aktiv", en: "Voice interruption (barge-in) enabled", fr: "Interruption vocale (barge-in) activée", it: "Interruzione vocale (barge-in) attiva") — see below. **Off by default.**
 
 There is no save button; changes are stored on their own.
 

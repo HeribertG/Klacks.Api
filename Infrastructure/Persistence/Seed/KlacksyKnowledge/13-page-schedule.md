@@ -127,11 +127,10 @@ verwerfen muss.
   konfiguriert ist, und nur aktiv, wenn es seit dem letzten Versand ungesendete Änderungen
   gibt. Ergebnis-Toast: "{x} gesendet, {y} fehlgeschlagen, {z} ohne E-Mail".
 - **Wizard-Button** (`schedule-wizard-btn`): standardmäßig Ein-Klick-**AutoWizard**
-  (Tooltip de: "AutoWizard - Plan + Harmonizer + Holistic Harmonizer ausführen"); mit
-  Ctrl+Shift+H (nur Admin) wechselt der Button in den Dropdown-Modus mit den Einzelschritten
-  **Plan** (de/en/fr/it: "Plan"), **Fuzzy Harmonizer** und **Holistic Harmonizer**. Jeder
-  Lauf schreibt sein Ergebnis als Szenario, das aktiviert wird und das der Planer übernehmen
-  oder verwerfen muss.
+  (Tooltip de: "AutoWizard - Plan + Harmonizer + Holistic Harmonizer ausführen"). Der
+  Wizard-Button ist nur für Admins sichtbar. Ein zusätzliches Einzelschritt-Menü existiert nur
+  für den internen Entwicklungsgebrauch und wird Nutzern nicht erklärt. Jeder Lauf schreibt sein Ergebnis als Szenario, das aktiviert wird und das
+  der Planer übernehmen oder verwerfen muss.
 - **Einsatzplan PDF** (de: "Einsatzplan PDF", en: "Schedule PDF", fr: "Planning PDF",
   it: "Pianificazione PDF", `schedule-pdf-export-btn`): exportiert die sichtbare Plantafel
   als PDF.
@@ -258,7 +257,7 @@ verwerfen muss.
   anzeigen. Diese Balken sind rein informativ — sie sperren keine Zelle und können die
   Planung nicht blockieren. Rechtsklick auf einen Balken: **Löschen** (entfernt den
   Platzhalter) und **Absenz übernehmen** (de: "Absenz übernehmen", en: "Adopt absence",
-  fr: "Adopter l'absence", it: "Adottare l'assenza") — wandelt den Platzhalter Tag für Tag
+  fr: "Reprendre l'absence", it: "Riprendere l'assenza") — wandelt den Platzhalter Tag für Tag
   in gebuchte Absenz-Einträge im Einsatzplan um.
 - **Verfügbarkeits-Überlagerung**: Wenn der Toggle **Verfügbarkeit ein-/ausblenden**
   (`schedule-availability-check-btn`) aktiv ist (er ist nur sichtbar, wenn Verfügbarkeitsdaten
@@ -371,7 +370,7 @@ verwerfen muss.
   sporadische Dienste, Zeitfenster-Dienste (TimeRange), versiegelte Aufträge und
   Szenario-Einträge; Container zählen als 1. Der Absenzen-Balken umfasst vorgeplante
   Platzhalter UND gebuchte Absenz-Dienste.
-- **Berechtigungen**: Der Wizard-Dropdown-Modus (Ctrl+Shift+H) ist Admins vorbehalten;
+- **Berechtigungen**: Der Wizard-Button ist Admins vorbehalten;
   Admins dürfen unabhängig vom LockLevel editieren und Closed-Sperren aufheben.
 
 ### Typische Aufgaben
@@ -383,7 +382,7 @@ verwerfen muss.
 - Zeiten oder Notiz eines platzierten Einsatzes ändern (ohne Löschen/Neuanlegen, Historie
   bleibt) — Skill `update_work` (gesperrte Einträge nennen die nötige Entsperrung;
   DB-verifiziert)
-- Einen gelöschten Einsatz wiederherstellen (Undo des Löschens; wer ihn gelöscht hat, nur in den
+- Einen gelöschten Einsatz wiederherstellen (gezieltes Wiederherstellen eines gelöschten Einsatzes, kein allgemeines Rückgängig — ein Undo/Redo gibt es in Klacks nicht; wer ihn gelöscht hat, nur in den
   ersten 60 Sekunden, ein Administrator jederzeit) — Skill `restore_work`
 - Einen Einsatz am selben Tag an einen anderen Mitarbeiter übergeben (wie das Ziehen auf die Zeile
   des anderen Mitarbeiters; gesperrte Einträge, Einträge in Containern, gesperrte Tage und Tage

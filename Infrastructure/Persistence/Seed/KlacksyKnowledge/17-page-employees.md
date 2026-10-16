@@ -116,11 +116,14 @@ Verträge, Gruppen, Qualifikationen, Notizen und Bild.
   - **FIRMA** (de: "FIRMA", en: "COMPANY", fr: "ENTREPRISE", it: "AZIENDA").
   - **VORNAME** (de: "VORNAME", en: "FIRST NAME", fr: "PRÉNOM", it: "NOME").
   - **NACHNAME** (de: "NACHNAME", en: "LAST NAME", fr: "NOM", it: "COGNOME").
-  - **Aktionen** (rechts): Admins sehen einen **Stift** (`client-edit-button-{i}`, öffnet
-    `/workplace/edit-address/:id`) und einen **roten Papierkorb**
-    (`client-delete-button-{i}`, Löschen mit Bestätigungsdialog; der Eintrag landet im Papierkorb und kann wiederhergestellt werden); Nicht-Admins
-    sehen stattdessen ein **Auge** (`client-view-button-{i}`, öffnet die Maske nur zum
-    Ansehen).
+  - **Aktionen** (rechts): Wer Adressen bearbeiten darf (Admin und Supervisor), sieht einen
+    **Stift** (`client-edit-button-{i}`, öffnet `/workplace/edit-address/:id`); den **roten
+    Papierkorb** (`client-delete-button-{i}`, Löschen mit Bestätigungsdialog) sieht nur, wer
+    Adressen löschen darf (nur Admin) und nur bei nicht gelöschten Einträgen. Das Löschen ist
+    ein Soft-Delete: die Person verschwindet aus der normalen Liste und bleibt nur über den
+    Filter **Gelöschte Adressen** einsehbar; eine Wiederherstellen-Funktion gibt es in der App
+    nicht. Wer Adressen nicht bearbeiten darf (Konto ohne Rolle), sieht stattdessen ein
+    **Auge** (`client-view-button-{i}`, öffnet die Maske nur zum Ansehen).
 - **Sortierung**: Klick auf die Spaltenköpfe NR / FIRMA / VORNAME / NACHNAME sortiert auf-
   bzw. absteigend (Sortierfelder `idNumber`/`company`/`firstName`/`name`, Pfeil zeigt die
   Richtung); Standard ist Nachname aufsteigend.
@@ -163,7 +166,7 @@ Verträge, Gruppen, Qualifikationen, Notizen und Bild.
   Austrittsdatum).
 - Checkbox **Gelöschte Adressen** (`filter-show-deleted`, de: "Gelöschte Adressen", en:
   "Deleted Addresses", fr: "Adresses supprimées", it: "Indirizzi Eliminati") — zeigt
-  AUSSCHLIESSLICH die gelöschten Einträge im Papierkorb (nicht zusätzlich zu den aktiven).
+  AUSSCHLIESSLICH die gelöschten Einträge (nicht zusätzlich zu den aktiven).
 - Button **Filter zurücksetzten** (`filter-reset-button`, de: "Filter zurücksetzten", en:
   "Reset Filter", fr: "Réinitialiser le filtre", it: "Resetta Filtro") — setzt alle Filter
   auf Standard.
@@ -260,9 +263,11 @@ Cards plus einer rechten Navigationsspalte:
   des Backends; dabei greifen nacheinander Gruppen-Filter, Suche, Anrede-/Typ-Filter,
   Membership-Status-Filter (Aktive/Ehemalige/Zukünftige relativ zu heute),
   Sichtbarkeits-Zeitraum (auf Ein-/Austrittsdatum der Mitgliedschaft) und Sortierung.
-- **Gelöschte Adressen (Papierkorb)**: Gelöschte Personen sind standardmässig ausgeschlossen. Der Filter
+- **Gelöschte Adressen**: Gelöschte Personen sind standardmässig ausgeschlossen. Der Filter
   „Gelöschte Adressen" schaltet die Liste komplett auf NUR gelöschte Einträge um; dort gibt
-  es keinen Lösch-Button mehr. Löschen über den Papierkorb entfernt die Person nicht endgültig — sie bleibt wiederherstellbar.
+  es keinen Lösch-Button mehr. Löschen ist ein Soft-Delete: die Person wird nicht endgültig
+  entfernt und bleibt über diesen Filter einsehbar, kann in der App aber nicht
+  wiederhergestellt werden.
 - **Gruppen-Scope und Sichtbarkeit**: Die globale Gruppen-Auswahl wirkt seitenübergreifend —
   wer hier die Gruppe wechselt, sieht auch im Schichtplan und in der Verfügbarkeit nur noch
   diese Gruppe (und umgekehrt). Zusätzlich beschränkt das Backend Nicht-Admins immer auf

@@ -133,9 +133,10 @@ fr: "Par groupe", it: "Per gruppo"); die Wahl wird gemerkt.
   aktiven Adressen (Clients) mit gültiger aktueller Adresse, geokodiert und pro Stadt+Land
   gruppiert. Oben ein Adress-Suchfeld (de: "Adresse suchen..."), darunter eine Leaflet-Karte
   mit geclusterten Markern. Marker-Klick öffnet ein Popup mit Total sowie Aufschlüsselung
-  Employees / Extern Emp / Customers und einem Street-View-Link. Darunter: **Kartenstil**
-  (de: "Kartenstil", en: "Map Style") mit 6 Kartenstilen (OSM Standard, OSM DE, CartoDB
-  Positron/Dark/Voyager, OpenTopoMap) und der Button **Alle anzeigen** (de: "Alle anzeigen",
+  Employees / Extern Emp / Customers und einem Street-View-Link. Die Kartenkacheln liefert der
+  vom Betreiber konfigurierte Kartendienst; ein Bedienelement zur Wahl des Kartenstils gibt es
+  im Dashboard nicht, und ist der Kartendienst abgeschaltet, erscheint statt der Karte ein
+  Hinweis. Über der Kachel-Liste steht der Button **Alle anzeigen** (de: "Alle anzeigen",
   en: "Show all") zum Heranzoomen auf alle Marker.
 - Unter der Karte eine Kachel-Liste pro Standort: Stadt, Land, Badges **MA** (Mitarbeiter),
   **Ext** (externe Mitarbeiter), **KD** (Kunden) und das Total **Adressen**; Klick auf eine
