@@ -244,8 +244,9 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     /// but no list_scenarios. Two signals, either is enough: a skill that consumes a scenarioId is selected
     /// (retrieved or guaranteed by any layer above, which is why this runs last), or the user may see a running
     /// AutoWizard run or a recently opened scenario (IScenarioActivityProbe). No previous-turn pin on purpose: a
-    /// non-empty pinned list switches the turn-intent classifier off. Only the read-only list_scenarios is ever
-    /// guaranteed, never accept_scenario or reject_scenario (owner decision 2026-09-30). The source is Hint:
+    /// non-empty pinned list switches the turn-intent classifier off. list_scenarios is guaranteed unconditionally
+    /// by those signals (owner decision 2026-09-30); accept_scenario only through the narrow
+    /// ApplyScenarioAcceptGuarantee below (owner approval 2026-10-16), never reject_scenario. The source is Hint:
     /// the strongest of the weak sources, so at truncation it survives retrieved skills and the follow-through
     /// guarantees, but never evicts the current message's own recipe, learned-phrase or keyword guarantees.
     /// The probe runs only when list_scenarios is permitted and no cheaper signal already decided; a failing
@@ -265,6 +266,8 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
             return;
         }
 
+        ApplyScenarioAcceptGuarantee(guaranteedSkills, guaranteedSources, request);
+
         var selectedNames = guaranteedSkills.Select(s => s.Name).Concat(request.RetrievedSkills.Select(s => s.Name));
         var needed = ScenarioFollowUpSkills.NeedsScenarioList(selectedNames)
             || await HasScenarioActivityAsync(request.UserId, cancellationToken);
@@ -275,6 +278,36 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
         AddPermittedSkillByName(
             guaranteedSkills, permittedSkills, ScenarioFollowUpSkills.ListScenariosSkillName,
+            ToolsetSkillSource.Hint, guaranteedSources);
+    }
+
+    /// <summary>
+    /// Keeps accept_scenario in the toolset for the one turn that needs it and retrieval cannot rank: the previous turn
+    /// showed a scenario (list_scenarios or evaluate_scenario ran, see
+    /// ScenarioFollowUpSkills.PresentsScenarioProposal) and the reply OPENS with an affirmation ("Ja, übernimm es.").
+    /// The retrieval query is anchored on the first message of the conversation, so with a wording such as "Plane für
+    /// Winterthur die Woche ..." accept_scenario is not even in the 25-candidate pool (found 2026-10-16, demo and
+    /// fresh database alike) and the model answers that it has no such tool. A negation, a question mark or a
+    /// conditional never opens an affirmation (AffirmationDetector), and without a scenario-showing previous turn
+    /// a stray "ja" offers nothing. A wizard start is deliberately not such a turn: its scenario does not exist yet,
+    /// and a "ja" to any follow-up question right after it must not expose accept_scenario while older scenarios are
+    /// open (the stale-scenario consent guards the plan changing, not the choice between scenarios). Visibility only: the autonomy gate and the model's own choice stay untouched, and
+    /// reject_scenario is never guaranteed. Owner approval 2026-10-16: this lifts the 2026-09-30 decision that only
+    /// the read-only list_scenarios is guaranteed, for accept_scenario in exactly this case.
+    /// </summary>
+    private static void ApplyScenarioAcceptGuarantee(
+        HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
+        SkillToolsetGuaranteeRequest request)
+    {
+        if (!ScenarioFollowUpSkills.PresentsScenarioProposal(request.PreviousTurnSkillNames)
+            || !AffirmationDetector.LeadsWithAffirmation(request.UserMessage, request.Language))
+        {
+            return;
+        }
+
+        AddPermittedSkillByName(
+            guaranteedSkills, request.PermittedSkills, ScenarioFollowUpSkills.AcceptScenarioSkillName,
             ToolsetSkillSource.Hint, guaranteedSources);
     }
 
