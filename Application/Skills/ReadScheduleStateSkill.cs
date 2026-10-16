@@ -14,6 +14,7 @@
 /// <param name="analyseToken">Optional. UUID of a scenario; when set the isolated scenario grid is read instead of the real plan.</param>
 /// <param name="groupVisibilityGuard">Decides whether the calling user may see the requested group</param>
 /// <param name="clientVisibilityGuard">Filters the entries down to clients the calling user may see</param>
+/// <param name="clientRepository">Resolves, in one batched read, the display names of the visible employees named in the entries</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
@@ -34,15 +35,18 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IClientRepository _clientRepository;
 
     public ReadScheduleStateSkill(
         IScheduleEntriesService scheduleEntriesService,
         IGroupVisibilityGuard groupVisibilityGuard,
-        IClientVisibilityGuard clientVisibilityGuard)
+        IClientVisibilityGuard clientVisibilityGuard,
+        IClientRepository clientRepository)
     {
         _scheduleEntriesService = scheduleEntriesService;
         _groupVisibilityGuard = groupVisibilityGuard;
         _clientVisibilityGuard = clientVisibilityGuard;
+        _clientRepository = clientRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -93,7 +97,8 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
             ordered = ordered.Take(MaxEntries).ToList();
         }
 
-        var entries = ordered.Select(ToEntry).ToList();
+        var names = await ResolveNamesAsync(ordered, cancellationToken);
+        var entries = ordered.Select(cell => ToEntry(cell, names)).ToList();
         var distinctEmployees = ordered.Select(c => c.ClientId).Distinct().Count();
 
         var data = new
@@ -118,7 +123,33 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(data, message);
     }
 
-    private static object ToEntry(ScheduleCell cell)
+    private async Task<Dictionary<Guid, string>> ResolveNamesAsync(
+        IReadOnlyCollection<ScheduleCell> cells, CancellationToken cancellationToken)
+    {
+        var replacedIds = cells
+            .Where(c => c.ReplaceClientId.HasValue)
+            .Select(c => c.ReplaceClientId!.Value)
+            .Distinct()
+            .ToList();
+        var visibleReplacedIds = replacedIds.Count == 0
+            ? new List<Guid>()
+            : await _clientVisibilityGuard.FilterVisibleAsync(replacedIds, id => id, cancellationToken);
+
+        var nameIds = cells.Select(c => c.ClientId).Concat(visibleReplacedIds).Distinct().ToList();
+        if (nameIds.Count == 0)
+        {
+            return new Dictionary<Guid, string>();
+        }
+
+        return await _clientRepository.GetDisplayNamesAsync(nameIds, cancellationToken);
+    }
+
+    private static string? NameOf(IReadOnlyDictionary<Guid, string> names, Guid? clientId)
+        => clientId.HasValue && names.TryGetValue(clientId.Value, out var name) && !string.IsNullOrWhiteSpace(name)
+            ? name
+            : null;
+
+    private static object ToEntry(ScheduleCell cell, IReadOnlyDictionary<Guid, string> names)
     {
         if (cell.EntryType == (int)ScheduleEntryType.WorkChange)
         {
@@ -126,6 +157,7 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
             {
                 cell.Id,
                 cell.ClientId,
+                ClientName = NameOf(names, cell.ClientId),
                 Date = DateOnly.FromDateTime(cell.EntryDate).ToString("yyyy-MM-dd"),
                 EntryType = ResolveEnumName<ScheduleEntryType>(cell.EntryType),
                 Shift = cell.EntryName,
@@ -139,7 +171,8 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
                 IsLocked = cell.LockLevel != (int)WorkLockLevel.None,
                 cell.IsGroupRestricted,
                 IsReplacement = cell.IsReplacementEntry,
-                cell.ReplaceClientId
+                cell.ReplaceClientId,
+                ReplaceClientName = NameOf(names, cell.ReplaceClientId)
             };
         }
 
@@ -147,6 +180,7 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
         {
             cell.Id,
             cell.ClientId,
+            ClientName = NameOf(names, cell.ClientId),
             Date = DateOnly.FromDateTime(cell.EntryDate).ToString("yyyy-MM-dd"),
             EntryType = ResolveEnumName<ScheduleEntryType>(cell.EntryType),
             Shift = cell.EntryName,
@@ -157,7 +191,8 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
             IsLocked = cell.LockLevel != (int)WorkLockLevel.None,
             cell.IsGroupRestricted,
             IsReplacement = cell.IsReplacementEntry,
-            cell.ReplaceClientId
+            cell.ReplaceClientId,
+            ReplaceClientName = NameOf(names, cell.ReplaceClientId)
         };
     }
 

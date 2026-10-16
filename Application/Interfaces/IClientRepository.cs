@@ -34,6 +34,15 @@ public interface IClientRepository : IBaseRepository<Client>
     Task<ClientTypeAndDisplayName?> GetTypeAndDisplayNameAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Reads the display name ("FirstName Name", falling back to Company) of many clients with one query and
+    /// without any navigation collections. It does not apply any visibility rule: the caller must pass only ids it
+    /// may name.
+    /// </summary>
+    /// <param name="ids">Clients whose names are read</param>
+    /// <returns>Display name by client id; ids that match no client are absent</returns>
+    Task<Dictionary<Guid, string>> GetDisplayNamesAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Loads the client with all update-relevant relations as a tracked entity, intended to be passed to
     /// <see cref="Put(Client, Client)"/> so update flows need only a single database load.
     /// </summary>

@@ -147,9 +147,29 @@ public class ClientRepository : IClientRepository
             return null;
         }
 
-        var personName = $"{row.FirstName} {row.Name}".Trim();
-        var displayName = personName.Length > 0 ? personName : row.Company?.Trim() ?? string.Empty;
-        return new ClientTypeAndDisplayName(row.Type, displayName);
+        return new ClientTypeAndDisplayName(row.Type, BuildDisplayName(row.FirstName, row.Name, row.Company));
+    }
+
+    public async Task<Dictionary<Guid, string>> GetDisplayNamesAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        if (ids.Count == 0)
+        {
+            return new Dictionary<Guid, string>();
+        }
+
+        var idList = ids.Distinct().ToList();
+        var rows = await context.Client
+            .Where(c => idList.Contains(c.Id))
+            .Select(c => new { c.Id, c.FirstName, c.Name, c.Company })
+            .ToListAsync(cancellationToken);
+
+        return rows.ToDictionary(r => r.Id, r => BuildDisplayName(r.FirstName, r.Name, r.Company));
+    }
+
+    private static string BuildDisplayName(string? firstName, string? name, string? company)
+    {
+        var personName = $"{firstName} {name}".Trim();
+        return personName.Length > 0 ? personName : company?.Trim() ?? string.Empty;
     }
 
     public async Task<LastChangeMetaData> LastChangeMetaData()
