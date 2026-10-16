@@ -24,6 +24,7 @@ param(
     [string]$UpdatePublicKeyPath = '',
     [string]$UpdateManifestBaseUrl = 'https://github.com/HeribertG/Klacks.Api/releases/latest/download',
     [string]$VcRedistPath = '',
+    [int]$HealthTimeoutSeconds = 1800,
     [switch]$AllowUnsignedUpdates,
     [switch]$NoServices
 )
@@ -36,6 +37,8 @@ $PostgresServiceName = 'KlacksPostgres'
 $PostgresSuperUser = 'klacks'
 $DatabaseName = 'Klacks'
 $ConfigFileName = 'klacks.native.json'
+# Last status line when Klacks answered its health check; Setup.exe reads it to tell "ready" from "still starting".
+$ReadyMarker = 'READY'
 $SecretsFileName = 'secrets.json'
 $LocalSystemSid = 'S-1-5-18'
 $AdministratorsSid = 'S-1-5-32-544'
@@ -46,7 +49,6 @@ $AuthenticatedUsersSid = 'S-1-5-11'
 $AllowedHosts = 'localhost;127.0.0.1'
 # Same as the Docker image: the database never follows the PC's zone, the company zone lives in Klacks.
 $PostgresTimeZone = 'UTC'
-$HealthTimeoutSeconds = 1800
 # vc_redist.x64 registers itself here; depending on the installer version under the 64-bit or the WOW6432Node view.
 $VcRuntimeKeys = @(
     'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\X64',
@@ -54,7 +56,16 @@ $VcRuntimeKeys = @(
 # 1638: a newer version is already installed; 3010: installed, a restart is pending.
 $VcRedistSuccessCodes = @(0, 1638, 3010)
 
-function Write-Step($message) { Write-Host "==> $message" -ForegroundColor Cyan }
+# KLACKS_STATUS_FILE is set by the Setup.exe wrapper: it shows the last line on its progress page.
+function Write-Status($message) {
+    # Best effort: the wizard or a virus scanner may hold the file for a moment, and a lost line must never abort the install.
+    if ($env:KLACKS_STATUS_FILE) { try { Add-Content -Path $env:KLACKS_STATUS_FILE -Value $message -Encoding Ascii } catch { } }
+}
+
+function Write-Step($message) {
+    Write-Host "==> $message" -ForegroundColor Cyan
+    Write-Status $message
+}
 
 function New-Secret([int]$bytes = 48) {
     $buffer = New-Object byte[] $bytes
@@ -352,6 +363,7 @@ else {
 Write-Step "Waiting for Klacks on $loopbackUrl (first start migrates the database, this can take a few minutes)"
 if (Wait-Healthy "$loopbackUrl/internal/health/deep" $HealthTimeoutSeconds $apiProcess $healthServiceName) {
     Write-Host "Klacks $Version is running: $baseUrl" -ForegroundColor Green
+    Write-Status $ReadyMarker
 }
 else {
     Write-Warning "Klacks is still starting after $HealthTimeoutSeconds seconds (the first start downloads about 700 MB of AI models). Open $baseUrl later; logs: $logDirectory"

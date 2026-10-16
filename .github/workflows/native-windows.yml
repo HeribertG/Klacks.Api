@@ -38,6 +38,9 @@ env:
   SEED_ADMIN_PASSWORD: 'P@ssw0rt1'
   RELEASE_DOWNLOAD_BASE: 'https://github.com/HeribertG/Klacks.Api/releases/download'
   PACKAGE_FILE: 'klacks-office-pc-win-x64.zip'
+  INSTALLER_FILE: 'Klacks-Setup-win-x64.exe'
+  ROLLING_INSTALLER_STAGED_FILE: 'Klacks-Setup-win-x64.next.exe'
+  ROLLING_INSTALLER_PREVIOUS_FILE: 'Klacks-Setup-win-x64.previous.exe'
   ROLLING_TAG: 'office-pc'
   ROLLING_STAGED_FILE: 'klacks-office-pc-win-x64.next.zip'
   ROLLING_PREVIOUS_FILE: 'klacks-office-pc-win-x64.previous.zip'
@@ -241,6 +244,24 @@ jobs:
             -Version $env:VERSION -PostgresDirectory postgresql -VcRedistPath vc_redist.x64.exe `
             -PublicKeyPath (Join-Path $env:RUNNER_TEMP 'update-public-key.pem') -OutputDirectory package
 
+      # Builds Klacks-Setup-win-x64.exe from the same inputs into its own folder (the ZIP it also writes there is
+      # discarded). Fail-soft: a failure or timeout here leaves the ZIP release intact; the EXE is then simply not
+      # published (the installer job and the publish step below look for the artifact).
+      - name: Build setup installer (Inno Setup)
+        continue-on-error: true
+        timeout-minutes: 25
+        shell: pwsh
+        run: |
+          $iscc = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+          if (-not $iscc -and -not (Test-Path (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'))) {
+            choco install innosetup --version 6.7.3 --no-progress -y
+            if ($LASTEXITCODE -ne 0) { throw "choco install innosetup failed with $LASTEXITCODE." }
+          }
+          & Klacks.Api/deploy/native/windows/New-KlacksOfficePackage.ps1 `
+            -BundleZip "bundle/klacks-$env:VERSION-win-x64.zip" -BundleEntry "bundle/klacks-$env:VERSION-win-x64.json" `
+            -Version $env:VERSION -PostgresDirectory postgresql -VcRedistPath vc_redist.x64.exe `
+            -PublicKeyPath (Join-Path $env:RUNNER_TEMP 'update-public-key.pem') -OutputDirectory installer-out -BuildInstaller
+
       - name: Runtime identifier (proxy check)
         shell: pwsh
         run: |
@@ -257,6 +278,14 @@ jobs:
             bundle/klacks-${{ env.VERSION }}-win-x64.zip
             bundle/klacks-${{ env.VERSION }}-win-x64.json
             package/${{ env.PACKAGE_FILE }}
+          retention-days: 14
+
+      - name: Upload setup installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-installer
+          path: installer-out/${{ env.INSTALLER_FILE }}
+          if-no-files-found: warn
           retention-days: 14
 
   install:
@@ -410,10 +439,92 @@ jobs:
           path: diagnostics
           retention-days: 14
 
+  # Installs the Inno Setup EXE silently on clean runners and checks services, health, login and uninstall. Publish
+  # releases the EXE (next to the ZIP) only when every leg is green; a red leg never blocks the ZIP release.
+  installer:
+    name: installer (${{ matrix.label }})
+    needs: [ui, package]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: x64
+            runner: windows-latest
+            region: ''
+          - label: x64-ch
+            runner: windows-latest
+            region: 'CH'
+          - label: arm64-emulation
+            runner: windows-11-arm
+            region: ''
+    env:
+      VERSION: ${{ needs.ui.outputs.version }}
+    steps:
+      - name: Download setup installer
+        uses: actions/download-artifact@v4
+        with:
+          name: native-installer
+          path: payload
+
+      - name: Install Klacks silently (Setup.exe)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = "payload\$env:INSTALLER_FILE"
+          if (-not (Test-Path $exe)) { throw "$env:INSTALLER_FILE is missing (installer build failed?)." }
+          $log = Join-Path $env:RUNNER_TEMP 'setup.log'
+          $arguments = @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/LOG=$log")
+          if ('${{ matrix.region }}') { $arguments += '/REGION=${{ matrix.region }}' }
+          $exitCode = (Start-Process -FilePath (Resolve-Path $exe).Path -ArgumentList $arguments -Wait -PassThru).ExitCode
+          Get-ChildItem "$env:ProgramData\Klacks\logs" -Filter 'Installationsbericht-*.txt' -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName }
+          if ($exitCode -ne 0) { Get-Content $log -Tail 40; throw "Setup exited with $exitCode." }
+          $config = Get-Content -Raw "$env:ProgramData\Klacks\config\klacks.native.json" | ConvertFrom-Json
+          if (-not $config.Update.SignaturePublicKey) { throw 'The installation has no update signature key.' }
+          if (-not (Test-Path "$env:ProgramFiles\Klacks Setup\unins000.exe")) { throw 'The uninstaller is missing.' }
+          $entry = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue | Where-Object DisplayName -eq 'Klacks'
+          if (-not $entry) { throw 'Klacks is not listed under Apps & Features.' }
+
+      - name: Check services and health
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $base = "http://127.0.0.1:$env:HTTP_PORT"
+          $deadline = (Get-Date).AddMinutes(30)
+          $healthy = $false
+          while ((Get-Date) -lt $deadline -and -not $healthy) {
+            try { $healthy = (Invoke-WebRequest -UseBasicParsing "$base/internal/health/deep" -TimeoutSec 10).StatusCode -eq 200 } catch { }
+            if (-not $healthy) { Start-Sleep -Seconds 5 }
+          }
+          if (-not $healthy) { throw 'Klacks is not healthy.' }
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
+            $status = (Get-Service -Name $name).Status
+            if ($status -ne 'Running') { throw "Service $name is $status." }
+          }
+          $login = Invoke-RestMethod -Method Post -ContentType 'application/json' -Uri "$base/api/backend/Accounts/LoginUser" `
+            -Body (@{ email = $env:SEED_ADMIN_EMAIL; password = $env:SEED_ADMIN_PASSWORD } | ConvertTo-Json)
+          if (-not $login.token) { throw 'Login with the seeded admin returned no token.' }
+          Write-Host 'Services, health and login OK.'
+
+      - name: Uninstall silently (unins000.exe)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $uninstaller = "$env:ProgramFiles\Klacks Setup\unins000.exe"
+          $exitCode = (Start-Process -FilePath $uninstaller -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/REMOVEDATA' -Wait -PassThru).ExitCode
+          if ($exitCode -ne 0) { throw "Uninstaller exited with $exitCode." }
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
+            if (Get-Service -Name $name -ErrorAction SilentlyContinue) { throw "Service $name is still registered." }
+          }
+          if (Test-Path "$env:ProgramData\Klacks") { throw 'The data directory is still present after /REMOVEDATA.' }
+          if (Test-Path "$env:ProgramFiles\Klacks") { throw 'The program directory is still present.' }
+
   publish:
     name: publish (${{ inputs.mode }})
-    needs: [ui, package, install]
-    if: ${{ inputs.mode != 'gate' }}
+    needs: [ui, package, install, installer]
+    # always(): a red installer leg must not stop the ZIP release; the ZIP prerequisites are checked explicitly.
+    if: ${{ always() && inputs.mode != 'gate' && needs.ui.result == 'success' && needs.package.result == 'success' && needs.install.result == 'success' }}
     runs-on: ubuntu-latest
     # deploy.yml needs about 77 min from the tag to stable.json (v1.0.41, v1.0.42); the wait below allows 150 min.
     timeout-minutes: 200
@@ -582,6 +693,44 @@ jobs:
             [ "$public" = ok ] || echo "::warning::The public URL of ${rolling} does not serve ${VERSION} yet (GitHub cache); the API copy is correct."
           fi
           echo "Rolling download ${rolling}/${PACKAGE_FILE} serves ${VERSION}."
+
+      - name: Download setup installer
+        id: setup
+        if: ${{ needs.installer.result == 'success' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: native-installer
+          path: installer
+
+      # Fail-soft: the ZIP release is complete at this point; the EXE joins the version release and the rolling
+      # download (same downgrade guard as the ZIP: a newer rolling title is left alone).
+      - name: Publish setup installer
+        if: ${{ steps.setup.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          exe="installer/${INSTALLER_FILE}"
+          [ -f "$exe" ] || { echo "::warning::${INSTALLER_FILE} is not in the artifact"; exit 1; }
+          tag="${{ steps.target.outputs.tag }}"
+          rolling="${{ steps.rolling.outputs.tag }}"
+          gh release upload "$tag" "$exe" -R "$GITHUB_REPOSITORY" --clobber
+          mkdir -p setup-back
+          gh release download "$tag" -R "$GITHUB_REPOSITORY" -p "$INSTALLER_FILE" -O setup-back/version.exe --clobber
+          cmp setup-back/version.exe "$exe"
+          current=$(gh release view "$rolling" -R "$GITHUB_REPOSITORY" --json name -q .name | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+$' || true)
+          if [ -n "$current" ] && [ "$current" != "$VERSION" ] \
+             && [ "$(printf '%s\n%s\n' "$current" "$VERSION" | sort -V | tail -1)" = "$current" ]; then
+            echo "::notice::${rolling} already serves ${current}, newer than ${VERSION}; setup installer left unchanged."
+            exit 0
+          fi
+          if [ "$MODE" != release ]; then
+            mkdir -p setup-placeholder
+            echo placeholder > "setup-placeholder/${INSTALLER_FILE}"
+            gh release upload "$rolling" "setup-placeholder/${INSTALLER_FILE}" -R "$GITHUB_REPOSITORY" --clobber
+          fi
+          bash deploy/native/swap-rolling-asset.sh "$GITHUB_REPOSITORY" "$rolling" "$exe" \
+            "$INSTALLER_FILE" "$ROLLING_INSTALLER_STAGED_FILE" "$ROLLING_INSTALLER_PREVIOUS_FILE"
 
       - name: Upload publish evidence
         if: always()

@@ -8,12 +8,20 @@
 # own country is the default) unless -Region is given, and waits for Enter at the end. KLACKS_NO_PAUSE (CI) skips
 # both questions; without -Region the installation then has no region profile.
 #
+# Setup.exe (installer\Klacks.iss) runs it hidden with -Unattended (no questions, no pause), -ReportPath (the report
+# goes to a fixed place instead of next to the package), -StatusFile (progress lines for the wizard) and
+# -HealthTimeoutSeconds (how long the wizard waits for the first start).
+#
 # Windows PowerShell 5.1 compatible on purpose.
 
 [CmdletBinding()]
 param(
     [string]$Region = '',
-    [int]$HttpPort = 5180
+    [int]$HttpPort = 5180,
+    [switch]$Unattended,
+    [string]$ReportPath = '',
+    [string]$StatusFile = '',
+    [int]$HealthTimeoutSeconds = 0
 )
 
 $ErrorActionPreference = 'Stop'
@@ -22,9 +30,24 @@ $NoPauseVariable = 'KLACKS_NO_PAUSE'
 $RegionProfilePrefix = 'app/deploy/onprem/regions/'
 $RegionProfileExtension = '.json'
 $NoRegionChoice = '0'
+$ReadyMarker = 'READY'
+$CompletedMarker = 'COMPLETED'
+$FailedMarker = 'FAILED'
+
+# Last line of the status file (see Install-Klacks.ps1): READY = health check passed, COMPLETED = installed but still
+# starting, FAILED = the installation threw. Setup.exe reads it; a script that dies without any marker counts as failed.
+function Write-StatusOnce([string]$Marker) {
+    if (-not $StatusFile) { return }
+    # Best effort, see Write-Status in Install-Klacks.ps1: a lost marker must not turn a good install into a failed one.
+    try {
+        $last = Get-Content -Path $StatusFile -Tail 1 -ErrorAction SilentlyContinue
+        if ($last -ne $ReadyMarker) { Add-Content -Path $StatusFile -Value $Marker -Encoding Ascii }
+    }
+    catch { }
+}
 
 function Test-Interactive {
-    -not [Environment]::GetEnvironmentVariable($NoPauseVariable)
+    -not ($Unattended -or [Environment]::GetEnvironmentVariable($NoPauseVariable))
 }
 
 function Wait-ForKey {
@@ -96,13 +119,19 @@ if (-not $principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Adm
 
 $packageRoot = Split-Path -Parent $PSScriptRoot
 $reportName = "Klacks-Installationsbericht-$(Get-Date -Format 'yyyyMMdd-HHmmss').txt"
-$reportPath = Join-Path $packageRoot $reportName
-try {
-    [System.IO.File]::WriteAllText($reportPath, '')
+if ($ReportPath) {
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $ReportPath) | Out-Null
 }
-catch {
-    $reportPath = Join-Path ([Environment]::GetFolderPath('Desktop')) $reportName
+else {
+    $ReportPath = Join-Path $packageRoot $reportName
+    try {
+        [System.IO.File]::WriteAllText($ReportPath, '')
+    }
+    catch {
+        $ReportPath = Join-Path ([Environment]::GetFolderPath('Desktop')) $reportName
+    }
 }
+if ($StatusFile) { $env:KLACKS_STATUS_FILE = $StatusFile }
 
 $failed = $false
 Start-Transcript -Path $reportPath | Out-Null
@@ -129,10 +158,13 @@ try {
         HttpPort            = $HttpPort
     }
     if ($Region) { $arguments.Region = $Region }
+    if ($HealthTimeoutSeconds -gt 0) { $arguments.HealthTimeoutSeconds = $HealthTimeoutSeconds }
     & (Join-Path $PSScriptRoot 'Install-Klacks.ps1') @arguments
+    Write-StatusOnce $CompletedMarker
 }
 catch {
     $failed = $true
+    Write-StatusOnce $FailedMarker
     Write-Host "INSTALLATION FAILED: $($_.Exception.Message)" -ForegroundColor Red
     Write-Host $_.ScriptStackTrace
 }

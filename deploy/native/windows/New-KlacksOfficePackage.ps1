@@ -7,6 +7,9 @@
 #
 # Parameters: BundleZip/BundleEntry = output of build-native-bundle.ps1; PostgresDirectory = EDB pgsql folder with
 # pgvector installed; VcRedistPath = vc_redist.x64.exe; PublicKeyPath = PEM of the update signing key.
+# -BuildInstaller additionally compiles Klacks-Setup-win-x64.exe from the same staging folder with Inno Setup
+# (installer\Klacks.iss); IsccPath defaults to ISCC.exe on PATH or the Inno Setup 6 install folders. SignToolCommand is
+# an optional Inno SignTool command line (e.g. 'signtool sign ... $f'); when given, the setup and uninstaller are signed.
 
 #Requires -Version 7
 
@@ -18,7 +21,10 @@ param(
     [Parameter(Mandatory)][string]$PostgresDirectory,
     [Parameter(Mandatory)][string]$VcRedistPath,
     [Parameter(Mandatory)][string]$PublicKeyPath,
-    [Parameter(Mandatory)][string]$OutputDirectory
+    [Parameter(Mandatory)][string]$OutputDirectory,
+    [switch]$BuildInstaller,
+    [string]$IsccPath = '',
+    [string]$SignToolCommand = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -28,6 +34,59 @@ $Rid = 'win-x64'
 $PostgresParts = @('bin', 'lib', 'share')
 $Scripts = @('Install-Klacks.ps1', 'Install-KlacksPackage.ps1', 'Uninstall-Klacks.ps1', 'Get-KlacksDiagnostics.ps1')
 $PackageTemplates = @('Installieren.cmd', 'LIESMICH.txt', 'README.txt')
+$InstallerScript = Join-Path $PSScriptRoot 'installer\Klacks.iss'
+$RegionsIncludeName = 'Regions.generated.inc'
+$RegionProfilePrefix = 'app/deploy/onprem/regions/'
+$InstallerFileName = 'Klacks-Setup-win-x64.exe'
+$InnoSetupFolders = @(
+    (Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6'),
+    (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6'),
+    (Join-Path $env:ProgramFiles 'Inno Setup 6'))
+
+function Find-Iscc([string]$Explicit) {
+    if ($Explicit) {
+        if (-not (Test-Path $Explicit)) { throw "ISCC.exe not found at '$Explicit'." }
+        return $Explicit
+    }
+    $command = Get-Command 'ISCC.exe' -ErrorAction SilentlyContinue
+    if ($command) { return $command.Source }
+    foreach ($folder in $InnoSetupFolders) {
+        $candidate = Join-Path $folder 'ISCC.exe'
+        if (Test-Path $candidate) { return $candidate }
+    }
+    throw 'ISCC.exe (Inno Setup 6) not found; install it or pass -IsccPath.'
+}
+
+# Pascal source of FillRegions(Names, Codes) for the wizard's country list: one entry per region profile in the bundle.
+function New-RegionsInclude([string]$BundlePath, [string]$TargetPath) {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $zip = [IO.Compression.ZipFile]::OpenRead($BundlePath)
+    try {
+        $codes = foreach ($zipEntry in $zip.Entries) {
+            $name = $zipEntry.FullName.Replace([string][char]92, '/')
+            if ($name.StartsWith($RegionProfilePrefix) -and $name.EndsWith('.json')) {
+                $file = $name.Substring($RegionProfilePrefix.Length)
+                if ($file.IndexOf('/') -lt 0) { [IO.Path]::GetFileNameWithoutExtension($file).ToUpperInvariant() }
+            }
+        }
+    }
+    finally {
+        $zip.Dispose()
+    }
+    $regions = foreach ($code in ($codes | Sort-Object -Unique)) {
+        $label = $code
+        try { $label = (New-Object Globalization.RegionInfo($code)).EnglishName } catch { }
+        [pscustomobject]@{ Code = $code; Name = $label }
+    }
+    if (-not $regions) { throw 'The bundle contains no region profiles; the wizard would offer no country.' }
+    $lines = @('procedure FillRegions(Names, Codes: TStrings);', 'begin')
+    foreach ($region in ($regions | Sort-Object Name)) {
+        $lines += "  Codes.Add('$($region.Code)'); Names.Add('$($region.Name.Replace("'", "''"))');"
+    }
+    $lines += 'end;'
+    Set-Content -Path $TargetPath -Value $lines -Encoding utf8BOM
+    Write-Host "Wizard countries: $(@($regions).Count)"
+}
 
 foreach ($required in @($BundleZip, $BundleEntry, $VcRedistPath, $PublicKeyPath)) {
     if (-not (Test-Path $required)) { throw "Missing input '$required'." }
@@ -62,6 +121,21 @@ try {
     $packagePath = Join-Path $OutputDirectory $PackageFileName
     if (Test-Path $packagePath) { Remove-Item $packagePath }
     [IO.Compression.ZipFile]::CreateFromDirectory($staging, $packagePath, [IO.Compression.CompressionLevel]::Optimal, $false)
+
+    if ($BuildInstaller) {
+        $iscc = Find-Iscc $IsccPath
+        $regionsInclude = Join-Path (Split-Path -Parent $InstallerScript) $RegionsIncludeName
+        New-RegionsInclude $BundleZip $regionsInclude
+        $versionCore = ($Version -split '-')[0]
+        $isccArguments = @('/Q', "/DVersion=$Version", "/DVersionCore=$versionCore", "/DSourceDir=$staging", "/DOutputDir=$OutputDirectory")
+        if ($SignToolCommand) { $isccArguments += @('/DSign', "/Ssigntool=$SignToolCommand") }
+        $isccArguments += $InstallerScript
+        & $iscc @isccArguments
+        if ($LASTEXITCODE -ne 0) { throw "ISCC.exe failed with exit code $LASTEXITCODE." }
+        $installerPath = Join-Path $OutputDirectory $InstallerFileName
+        if (-not (Test-Path $installerPath)) { throw "Inno Setup did not produce $installerPath." }
+        Write-Host "Installer: $installerPath ($([math]::Round((Get-Item $installerPath).Length / 1MB)) MB)"
+    }
 }
 finally {
     if (Test-Path $staging) { Remove-Item -Recurse -Force $staging }
