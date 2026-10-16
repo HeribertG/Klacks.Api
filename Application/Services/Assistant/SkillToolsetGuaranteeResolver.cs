@@ -500,6 +500,17 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
                 guaranteedSkills, permittedSkills, conceptSkillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
+        // Schedule-read guarantee: "who has duty on Monday in Winterthur" is answered by read_schedule_state
+        // alone, yet vector retrieval never surfaces it for that wording (the shift-structure skills win on
+        // "Dienst") and the route boost cannot lift a skill outside the retrieval pool. The schedule page and
+        // a dated duty/plan question therefore keep it in the tool set; it only reads.
+        foreach (var scheduleReadSkillName in ScheduleReadIntentResolver.GuaranteedSkillNames(
+                     request.UserMessage, request.CurrentRoute))
+        {
+            AddPermittedSkillByName(
+                guaranteedSkills, permittedSkills, scheduleReadSkillName, ToolsetSkillSource.Hint, guaranteedSources);
+        }
+
         // Workflow-pair guarantee: an order is created (create_shift) and then split into parts
         // (cut_shift), usually in the same turn. cut_shift is not always-on and both vector retrieval
         // and the (probabilistic) co-required expansion can miss it on the create/confirm turn, so the
