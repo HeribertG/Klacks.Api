@@ -166,12 +166,6 @@ public class ClientRepository : IClientRepository
         return rows.ToDictionary(r => r.Id, r => BuildDisplayName(r.FirstName, r.Name, r.Company));
     }
 
-    private static string BuildDisplayName(string? firstName, string? name, string? company)
-    {
-        var personName = $"{firstName} {name}".Trim();
-        return personName.Length > 0 ? personName : company?.Trim() ?? string.Empty;
-    }
-
     public async Task<LastChangeMetaData> LastChangeMetaData()
     {
         var result = await _changeTrackingService.GetLastChangeMetadataAsync();
@@ -539,5 +533,11 @@ public class ClientRepository : IClientRepository
                             && a.Street.Trim().ToLower() == street))
             .AsNoTracking()
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private static string BuildDisplayName(string? firstName, string? name, string? company)
+    {
+        var personName = $"{firstName} {name}".Trim();
+        return personName.Length > 0 ? personName : company?.Trim() ?? string.Empty;
     }
 }

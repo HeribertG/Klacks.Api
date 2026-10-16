@@ -97,8 +97,8 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
             ordered = ordered.Take(MaxEntries).ToList();
         }
 
-        var names = await ResolveNamesAsync(ordered, cancellationToken);
-        var entries = ordered.Select(cell => ToEntry(cell, names)).ToList();
+        var lookup = await ResolveNamesAsync(ordered, cancellationToken);
+        var entries = ordered.Select(cell => ToEntry(cell, lookup)).ToList();
         var distinctEmployees = ordered.Select(c => c.ClientId).Distinct().Count();
 
         var data = new
@@ -123,7 +123,7 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(data, message);
     }
 
-    private async Task<Dictionary<Guid, string>> ResolveNamesAsync(
+    private async Task<ClientLookup> ResolveNamesAsync(
         IReadOnlyCollection<ScheduleCell> cells, CancellationToken cancellationToken)
     {
         var replacedIds = cells
@@ -136,20 +136,24 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
             : await _clientVisibilityGuard.FilterVisibleAsync(replacedIds, id => id, cancellationToken);
 
         var nameIds = cells.Select(c => c.ClientId).Concat(visibleReplacedIds).Distinct().ToList();
-        if (nameIds.Count == 0)
-        {
-            return new Dictionary<Guid, string>();
-        }
+        var names = nameIds.Count == 0
+            ? new Dictionary<Guid, string>()
+            : await _clientRepository.GetDisplayNamesAsync(nameIds, cancellationToken);
 
-        return await _clientRepository.GetDisplayNamesAsync(nameIds, cancellationToken);
+        return new ClientLookup(names, visibleReplacedIds.ToHashSet());
     }
 
-    private static string? NameOf(IReadOnlyDictionary<Guid, string> names, Guid? clientId)
-        => clientId.HasValue && names.TryGetValue(clientId.Value, out var name) && !string.IsNullOrWhiteSpace(name)
+    private static string? NameOf(ClientLookup lookup, Guid? clientId)
+        => clientId.HasValue && lookup.Names.TryGetValue(clientId.Value, out var name) && !string.IsNullOrWhiteSpace(name)
             ? name
             : null;
 
-    private static object ToEntry(ScheduleCell cell, IReadOnlyDictionary<Guid, string> names)
+    private static Guid? VisibleReplacedId(ClientLookup lookup, Guid? replaceClientId)
+        => replaceClientId.HasValue && lookup.VisibleReplacedIds.Contains(replaceClientId.Value)
+            ? replaceClientId
+            : null;
+
+    private static object ToEntry(ScheduleCell cell, ClientLookup lookup)
     {
         if (cell.EntryType == (int)ScheduleEntryType.WorkChange)
         {
@@ -157,7 +161,7 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
             {
                 cell.Id,
                 cell.ClientId,
-                ClientName = NameOf(names, cell.ClientId),
+                ClientName = NameOf(lookup, cell.ClientId),
                 Date = DateOnly.FromDateTime(cell.EntryDate).ToString("yyyy-MM-dd"),
                 EntryType = ResolveEnumName<ScheduleEntryType>(cell.EntryType),
                 Shift = cell.EntryName,
@@ -171,8 +175,8 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
                 IsLocked = cell.LockLevel != (int)WorkLockLevel.None,
                 cell.IsGroupRestricted,
                 IsReplacement = cell.IsReplacementEntry,
-                cell.ReplaceClientId,
-                ReplaceClientName = NameOf(names, cell.ReplaceClientId)
+                ReplaceClientId = VisibleReplacedId(lookup, cell.ReplaceClientId),
+                ReplaceClientName = NameOf(lookup, cell.ReplaceClientId)
             };
         }
 
@@ -180,7 +184,7 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
         {
             cell.Id,
             cell.ClientId,
-            ClientName = NameOf(names, cell.ClientId),
+            ClientName = NameOf(lookup, cell.ClientId),
             Date = DateOnly.FromDateTime(cell.EntryDate).ToString("yyyy-MM-dd"),
             EntryType = ResolveEnumName<ScheduleEntryType>(cell.EntryType),
             Shift = cell.EntryName,
@@ -191,10 +195,12 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
             IsLocked = cell.LockLevel != (int)WorkLockLevel.None,
             cell.IsGroupRestricted,
             IsReplacement = cell.IsReplacementEntry,
-            cell.ReplaceClientId,
-            ReplaceClientName = NameOf(names, cell.ReplaceClientId)
+            ReplaceClientId = VisibleReplacedId(lookup, cell.ReplaceClientId),
+            ReplaceClientName = NameOf(lookup, cell.ReplaceClientId)
         };
     }
+
+    private sealed record ClientLookup(IReadOnlyDictionary<Guid, string> Names, IReadOnlySet<Guid> VisibleReplacedIds);
 
     private static string ResolveEnumName<TEnum>(int value) where TEnum : struct, Enum
         => Enum.IsDefined(typeof(TEnum), value)
