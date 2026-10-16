@@ -202,8 +202,39 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         await ApplyScenarioFollowUpGuaranteeAsync(
             guaranteedSkills, guaranteedSources, request, cancellationToken);
 
+        ApplyScheduleReadGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+
         return new SkillToolsetGuaranteeResult(
             guaranteedSkills, guaranteedSources, lowestRankedNames, turnIntent.VetoesForcedToolCall);
+    }
+
+    /// <summary>
+    /// Keeps read_schedule_state reachable for "who has duty on Monday in Winterthur": vector retrieval never ranks it
+    /// for that wording (see ScheduleReadIntentResolver) and the route boost cannot lift a skill outside the pool. The
+    /// schedule page keeps read_schedule_state; a recognised dated duty question also keeps list_groups, because the
+    /// skill takes a group UUID. Runs last so that a list_groups another layer already claimed keeps its source. A
+    /// list_groups claimed only here is the weakest guarantee of its tier (LowestRankedSkillNames), so at a small
+    /// provider cap it goes before read_schedule_state and the other hints. Visibility only: both skills read.
+    /// </summary>
+    private static void ApplyScheduleReadGuarantee(
+        HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
+        HashSet<string> lowestRankedNames,
+        SkillToolsetGuaranteeRequest request)
+    {
+        foreach (var skillName in ScheduleReadIntentResolver.GuaranteedSkillNames(request.UserMessage, request.CurrentRoute))
+        {
+            var claimedElsewhere = guaranteedSources.ContainsKey(skillName);
+            AddPermittedSkillByName(
+                guaranteedSkills, request.PermittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
+
+            if (!claimedElsewhere
+                && string.Equals(skillName, ScheduleReadIntentResolver.ListGroupsSkillName, StringComparison.Ordinal)
+                && guaranteedSources.ContainsKey(skillName))
+            {
+                lowestRankedNames.Add(skillName);
+            }
+        }
     }
 
     /// <summary>
@@ -498,17 +529,6 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         {
             AddPermittedSkillByName(
                 guaranteedSkills, permittedSkills, conceptSkillName, ToolsetSkillSource.Hint, guaranteedSources);
-        }
-
-        // Schedule-read guarantee: "who has duty on Monday in Winterthur" is answered by read_schedule_state
-        // alone, yet vector retrieval never surfaces it for that wording (the shift-structure skills win on
-        // "Dienst") and the route boost cannot lift a skill outside the retrieval pool. The schedule page and
-        // a dated duty/plan question therefore keep it in the tool set; it only reads.
-        foreach (var scheduleReadSkillName in ScheduleReadIntentResolver.GuaranteedSkillNames(
-                     request.UserMessage, request.CurrentRoute))
-        {
-            AddPermittedSkillByName(
-                guaranteedSkills, permittedSkills, scheduleReadSkillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
         // Workflow-pair guarantee: an order is created (create_shift) and then split into parts
