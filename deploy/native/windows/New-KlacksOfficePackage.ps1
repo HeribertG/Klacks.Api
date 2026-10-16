@@ -127,12 +127,14 @@ try {
         $regionsInclude = Join-Path (Split-Path -Parent $InstallerScript) $RegionsIncludeName
         New-RegionsInclude $BundleZip $regionsInclude
         $versionCore = ($Version -split '-')[0]
-        $isccArguments = @('/Q', "/DVersion=$Version", "/DVersionCore=$versionCore", "/DSourceDir=$staging", "/DOutputDir=$OutputDirectory")
+        # ISCC resolves a relative /DOutputDir against the folder of the .iss, not the current directory.
+        $absoluteOutput = (Resolve-Path $OutputDirectory).Path
+        $isccArguments = @('/Q', "/DVersion=$Version", "/DVersionCore=$versionCore", "/DSourceDir=$staging", "/DOutputDir=$absoluteOutput")
         if ($SignToolCommand) { $isccArguments += @('/DSign', "/Ssigntool=$SignToolCommand") }
         $isccArguments += $InstallerScript
         & $iscc @isccArguments
         if ($LASTEXITCODE -ne 0) { throw "ISCC.exe failed with exit code $LASTEXITCODE." }
-        $installerPath = Join-Path $OutputDirectory $InstallerFileName
+        $installerPath = Join-Path $absoluteOutput $InstallerFileName
         if (-not (Test-Path $installerPath)) { throw "Inno Setup did not produce $installerPath." }
         Write-Host "Installer: $installerPath ($([math]::Round((Get-Item $installerPath).Length / 1MB)) MB)"
     }
