@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "Explicar el modelo de reglas de planificación",
   "explain_shift_classification": "Explicar la clasificación «temprano/tarde/noche»",
   "explain_shift_container": "Explicar el nivel de contenedores",
+  "explain_shift_holiday_options": "Explicar los servicios en días festivos",
   "explain_shift_lifecycle_order_to_shift": "Explicar el proceso desde el pedido hasta el turno",
   "explain_shift_sporadic": "Explicar la capa esporádica",
   "explain_shift_time_range": "Explicar el concepto de «turno por franja horaria»",

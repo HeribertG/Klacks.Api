@@ -1308,6 +1308,11 @@
     "sự khác nhau giữa ca cha (visible) và ca con (invisible)",
     "khi nào dùng ghi đè container cho một ngày cụ thể"
   ],
+  "explain_shift_holiday_options": [
+    "ca của tôi có chạy vào ngày lễ không",
+    "ca làm dịp tết",
+    "tại sao ca của tôi không có vào ngày lễ"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "đơn hàng (bestellung) trở thành ca lập lịch thế nào",
     "giải thích từ bản nháp đến khi niêm phong và tạo ca",

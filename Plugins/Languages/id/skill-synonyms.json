@@ -1314,6 +1314,11 @@
     "jelaskan sub-work dan parent work di container shift",
     "bagaimana cara membuat shift container dengan template?"
   ],
+  "explain_shift_holiday_options": [
+    "apakah shift saya berjalan pada hari libur",
+    "shift saat paskah",
+    "mengapa shift saya tidak ada pada hari libur"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "bagaimana cara mengubah order menjadi shift yang bisa dijadwalkan?",
     "apa artinya 'seal' pada order?",

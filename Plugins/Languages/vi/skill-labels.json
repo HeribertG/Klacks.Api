@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "Giải thích mô hình quy tắc lập lịch",
   "explain_shift_classification": "Giải thích cách phân loại ca sớm, muộn, đêm",
   "explain_shift_container": "Giải thích khái niệm ca dạng container",
+  "explain_shift_holiday_options": "Giải thích ca làm vào ngày lễ",
   "explain_shift_lifecycle_order_to_shift": "Giải thích vòng đời từ đơn hàng đến ca làm",
   "explain_shift_sporadic": "Giải thích ca không thường xuyên",
   "explain_shift_time_range": "Giải thích ca theo khung giờ",

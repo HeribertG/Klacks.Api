@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "Förklara modellen för planeringsregler",
   "explain_shift_classification": "Förklara klassificering tidigt/sent/natt",
   "explain_shift_container": "Förklara konceptet containerpass",
+  "explain_shift_holiday_options": "Förklara pass på helgdagar",
   "explain_shift_lifecycle_order_to_shift": "Förklara flödet från order till pass",
   "explain_shift_sporadic": "Förklara sporadiskt pass",
   "explain_shift_time_range": "Förklara pass med tidsintervall",

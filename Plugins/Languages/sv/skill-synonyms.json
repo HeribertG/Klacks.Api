@@ -1337,6 +1337,11 @@
     "vad gör containeroverride",
     "vad är skillnaden mellan synligt och osynligt arbete"
   ],
+  "explain_shift_holiday_options": [
+    "går mitt pass på helgdagar",
+    "pass under påsken",
+    "varför saknas mitt pass på helgdagen"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "vad är en beställning",
     "hur skapar jag en beställning",

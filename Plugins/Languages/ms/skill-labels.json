@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "Jelaskan model peraturan penjadualan",
   "explain_shift_classification": "Jelaskan klasifikasi syif awal/lewat/malam",
   "explain_shift_container": "Terangkan konsep syif kontena",
+  "explain_shift_holiday_options": "Jelaskan syif pada cuti umum",
   "explain_shift_lifecycle_order_to_shift": "Terangkan kitaran hayat pesanan ke syif",
   "explain_shift_sporadic": "Terangkan syif sporadik",
   "explain_shift_time_range": "Terangkan syif julat masa",

@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "Explică modelul regulilor de planificare",
   "explain_shift_classification": "Explică clasificarea turelor dimineață/seară/noapte",
   "explain_shift_container": "Explică conceptul de tură container",
+  "explain_shift_holiday_options": "Explică turele în zilele de sărbătoare legală",
   "explain_shift_lifecycle_order_to_shift": "Explică fluxul de la comandă la tură",
   "explain_shift_sporadic": "Explică tura sporadică",
   "explain_shift_time_range": "Explică tura cu interval orar",

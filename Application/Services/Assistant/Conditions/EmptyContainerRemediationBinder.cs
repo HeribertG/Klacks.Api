@@ -10,7 +10,8 @@
 /// only ever configure the first of them - which is enough to clear THIS finding, because
 /// EmptyContainerDetector fires on "no template at all", not on "a template per weekday". The remaining
 /// weekdays stay unconfigured and are not detected by anything today; that is a gap in the detector's
-/// resolution, not something this binder can paper over.
+/// resolution, not something this binder can paper over. The bound template is always the plain weekday
+/// template: holiday variants of an FT or +FT container are additional rows and never the first one to create.
 ///
 /// Unbindable rather than wrong, in three cases, each of which returns an INCOMPLETE dictionary that the
 /// dispatcher's required-argument pre-flight rejects before it claims the row - so an unbindable
@@ -62,10 +63,8 @@ public sealed class EmptyContainerRemediationBinder : IConditionRemediationParam
             arguments[CreateContainerTemplateParameters.UntilTime] = Format(untilTime);
         }
 
-        arguments[CreateContainerTemplateParameters.IsHoliday] =
-            ReadBoolean(conditionPayload, EmptyContainerPayloadKeys.IsHoliday);
-        arguments[CreateContainerTemplateParameters.IsWeekdayAndHoliday] =
-            ReadBoolean(conditionPayload, EmptyContainerPayloadKeys.IsWeekdayAndHoliday);
+        arguments[CreateContainerTemplateParameters.IsHoliday] = false;
+        arguments[CreateContainerTemplateParameters.IsWeekdayAndHoliday] = false;
 
         return arguments;
     }
@@ -98,9 +97,6 @@ public sealed class EmptyContainerRemediationBinder : IConditionRemediationParam
             _ => false
         };
     }
-
-    private static bool ReadBoolean(IReadOnlyDictionary<string, object?> payload, string key) =>
-        ReadScalar(payload, key) is bool flag && flag;
 
     /// <summary>
     /// The lowest ISO weekday the container runs on. Accepts both shapes the payload can arrive in: a

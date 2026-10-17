@@ -1349,6 +1349,11 @@
     "como criar um turno que agrupa várias atividades",
     "explica a hierarquia de trabalho principal e sub-trabalhos"
   ],
+  "explain_shift_holiday_options": [
+    "o meu turno acontece nos feriados",
+    "turno na páscoa",
+    "porque falta o meu turno no feriado"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "como um pedido vira um turno",
     "o que significa selar um pedido",

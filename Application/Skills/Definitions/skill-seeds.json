@@ -33029,7 +33029,7 @@
         },
         {
           "name": "isHoliday",
-          "description": "Optional; template variant that applies on holidays only",
+          "description": "Optional; true makes this a holiday template instead of the normal weekday template. With isWeekdayAndHoliday false it applies on every public holiday, whatever the weekday; with isWeekdayAndHoliday true only on a public holiday that falls on this template's weekday. Leave both false for the normal weekday template",
           "type": "Boolean",
           "required": false,
           "defaultValue": false,
@@ -33037,7 +33037,7 @@
         },
         {
           "name": "isWeekdayAndHoliday",
-          "description": "Optional; template variant that applies on the weekday and on holidays",
+          "description": "Optional; only together with isHoliday true: holiday template for a container whose ticked days also run on public holidays, used when a holiday falls on this template's weekday; holidays on unticked days do not count. Never set it without isHoliday",
           "type": "Boolean",
           "required": false,
           "defaultValue": false,
@@ -33121,7 +33121,7 @@
         "fr": "Créer le modèle hebdomadaire d'un service conteneur",
         "it": "Crea il modello settimanale di un turno contenitore"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_container_template",
@@ -45678,6 +45678,92 @@
         "en": "Explain early/late/night shift classification",
         "fr": "Expliquer la classification matin/après-midi/nuit des services",
         "it": "Spiega la classificazione turni mattina/pomeriggio/notte"
+      }
+    },
+    {
+      "name": "explain_shift_holiday_options",
+      "area": "shift",
+      "description": "Explains whether a shift runs on a public holiday such as Easter or Christmas. Without a holiday option a shift skips every holiday on its ticked days; 'Plus every public holiday' (FT) adds every holiday whatever the weekday; 'Selected days, holidays included' (+FT) keeps exactly the ticked days even on a holiday, while holidays on unticked days do not count. Use when someone asks what FT or +FT means or why a shift is missing on a holiday.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerConfig": {
+        "memoryKey": "explain_shift_holiday_options"
+      },
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "+ft",
+          "+hol"
+        ],
+        "de": [
+          "dienst an feiertagen",
+          "feiertagsoption",
+          "was bedeutet ft"
+        ],
+        "en": [
+          "shift on public holidays",
+          "holiday option",
+          "what does hol mean"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "läuft mein dienst an feiertagen",
+          "was bedeutet ft",
+          "was bedeutet +ft",
+          "dienst an ostern",
+          "dienst an weihnachten",
+          "warum fehlt mein dienst am feiertag",
+          "unterschied ft und +ft"
+        ],
+        "en": [
+          "does my shift run on public holidays",
+          "what does hol mean",
+          "what does +hol mean",
+          "shift on easter",
+          "shift on christmas day",
+          "why is my shift missing on the holiday",
+          "difference between hol and +hol"
+        ],
+        "fr": [
+          "mon service a-t-il lieu les jours fériés",
+          "que signifie jf",
+          "service à pâques",
+          "service le jour de noël",
+          "pourquoi mon service manque le jour férié"
+        ],
+        "it": [
+          "il mio turno si svolge nei giorni festivi",
+          "cosa significa fer",
+          "turno a pasqua",
+          "turno a natale",
+          "perché manca il mio turno nel giorno festivo"
+        ]
+      },
+      "labels": {
+        "de": "Dienst an Feiertagen erklären",
+        "en": "Explain shifts on public holidays",
+        "fr": "Expliquer les services les jours fériés",
+        "it": "Spiega i turni nei giorni festivi"
       }
     },
     {

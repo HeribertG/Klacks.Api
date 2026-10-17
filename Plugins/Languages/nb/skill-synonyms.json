@@ -1318,6 +1318,11 @@
     "fortell om containervakt og underbooking",
     "hvordan fungerer container med deloppgaver?"
   ],
+  "explain_shift_holiday_options": [
+    "går vakten min på helligdager",
+    "vakt i påsken",
+    "hvorfor mangler vakten min på helligdagen"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "hvordan blir en bestilling til en planleggingsvakt?",
     "forklar bestillingsskjemaet og forsegling",

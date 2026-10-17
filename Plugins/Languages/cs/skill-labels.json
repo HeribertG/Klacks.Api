@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "Vysvětlení modelu pravidel plánování",
   "explain_shift_classification": "Vysvětlit rozdělení na brzy/pozdě/v noci",
   "explain_shift_container": "Vysvětlení vrstvy kontejnerů",
+  "explain_shift_holiday_options": "Vysvětlit služby ve státní svátky",
   "explain_shift_lifecycle_order_to_shift": "Vysvětlit průběh od zadání zakázky po směnu",
   "explain_shift_sporadic": "Vysvětlení pojmu „sporadická vrstva",
   "explain_shift_time_range": "Vysvětlení směny v časovém okně",

@@ -1343,6 +1343,11 @@
     "¿qué es una anulación de contenedor?",
     "explica la estructura de trabajo padre e hijo en contenedores"
   ],
+  "explain_shift_holiday_options": [
+    "mi turno se realiza en días festivos",
+    "turno en semana santa",
+    "por qué falta mi turno en el día festivo"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "explica cómo convertir un pedido en un turno",
     "¿cómo se sella un pedido para hacerlo planificable?",

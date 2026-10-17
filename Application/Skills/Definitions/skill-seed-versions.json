@@ -245,8 +245,8 @@
       "hash": "BA1C06C99C96A4828E13B98CBB0823C9BD630A0F2F1E7E8138DF9272B202217A"
     },
     "create_container_template": {
-      "version": 3,
-      "hash": "27C23CBC88D820AA09956EA52E84317BC1EC898171D19D1B2ED33A865761913F"
+      "version": 4,
+      "hash": "4D2CE440B3BB34BC031406BE3F3FEF2967404BD248B8FB185B125222F827E1B7"
     },
     "create_contract": {
       "version": 12,
@@ -807,6 +807,10 @@
     "explain_shift_container": {
       "version": 6,
       "hash": "0492160933CF5C0ABF453CE32E101886FA3873E4AA8572C8A3F262728698835D"
+    },
+    "explain_shift_holiday_options": {
+      "version": 1,
+      "hash": "A658EC38A07C8CD1D5AB134736C9CD772E5CC8472B54616E42F968E1BD5860BC"
     },
     "explain_shift_lifecycle_order_to_shift": {
       "version": 9,

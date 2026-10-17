@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "Jelaskan model aturan penjadwalan",
   "explain_shift_classification": "Jelaskan klasifikasi shift pagi/siang/malam",
   "explain_shift_container": "Jelaskan konsep shift kontainer",
+  "explain_shift_holiday_options": "Jelaskan shift pada hari libur nasional",
   "explain_shift_lifecycle_order_to_shift": "Jelaskan siklus hidup dari order ke shift",
   "explain_shift_sporadic": "Jelaskan shift sporadis",
   "explain_shift_time_range": "Jelaskan shift rentang waktu",

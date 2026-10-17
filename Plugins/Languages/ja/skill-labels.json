@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "シフト作成ルールモデルの説明",
   "explain_shift_classification": "早番・遅番・夜勤の分類を説明",
   "explain_shift_container": "コンテナシフトの考え方を説明",
+  "explain_shift_holiday_options": "祝日のシフトの扱いを説明",
   "explain_shift_lifecycle_order_to_shift": "受注からシフトまでの流れを説明",
   "explain_shift_sporadic": "スポラディックシフトを説明",
   "explain_shift_time_range": "時間帯シフトを説明",

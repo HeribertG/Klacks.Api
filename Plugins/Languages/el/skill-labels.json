@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "Επεξήγηση του μοντέλου των κανόνων σχεδιασμού",
   "explain_shift_classification": "Επεξήγηση της ταξινόμησης «νωρίς/αργά/νύχτα»",
   "explain_shift_container": "Επεξήγηση της στρώσης κοντέινερ",
+  "explain_shift_holiday_options": "Επεξήγηση βαρδιών σε επίσημες αργίες",
   "explain_shift_lifecycle_order_to_shift": "Επεξήγηση της διαδικασίας από την παραγγελία έως τη βάρδια",
   "explain_shift_sporadic": "Επεξήγηση της σποραδικής στρώσης",
   "explain_shift_time_range": "Επεξήγηση της βάρδιας με χρονικά διαστήματα",

@@ -1311,6 +1311,11 @@
     "parent work dalam container shift tu apa?",
     "macam mana container shift bezakan sub-work dan break?"
   ],
+  "explain_shift_holiday_options": [
+    "adakah syif saya berjalan pada cuti umum",
+    "syif pada hari raya",
+    "kenapa syif saya tiada pada hari cuti"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "apa itu order dalam klacks?",
     "macam mana order menjadi shift yang boleh dijadualkan?",

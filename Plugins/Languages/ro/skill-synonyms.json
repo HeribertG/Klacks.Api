@@ -1336,6 +1336,11 @@
     "diferența dintre container și o tură normală",
     "explică-mi override-ul containershiftoverride"
   ],
+  "explain_shift_holiday_options": [
+    "tura mea are loc și în zilele de sărbătoare",
+    "tură de paște",
+    "de ce lipsește tura mea în ziua de sărbătoare"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "cum transform o comandă într-o tură planificabilă",
     "ce înseamnă sigilarea unei comenzi",

@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "스케줄링 규칙 모델 설명",
   "explain_shift_classification": "초·중·야간 근무 분류 안내",
   "explain_shift_container": "컨테이너 교대 설명",
+  "explain_shift_holiday_options": "공휴일 근무 설정 안내",
   "explain_shift_lifecycle_order_to_shift": "오더에서 교대까지의 라이프사이클 설명",
   "explain_shift_sporadic": "비정기 교대 설명",
   "explain_shift_time_range": "시간 범위 교대 설명",

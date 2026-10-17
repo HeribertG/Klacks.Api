@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "อธิบายโมเดลกฎการจัดตารางงาน",
   "explain_shift_classification": "อธิบายการแบ่งประเภทกะเช้า/บ่าย/ดึก",
   "explain_shift_container": "อธิบายแนวคิดกะคอนเทนเนอร์",
+  "explain_shift_holiday_options": "อธิบายกะงานในวันหยุดนักขัตฤกษ์",
   "explain_shift_lifecycle_order_to_shift": "อธิบายวงจรชีวิตจากคำสั่งงานถึงกะ",
   "explain_shift_sporadic": "อธิบายกะแบบประปราย",
   "explain_shift_time_range": "อธิบายกะแบบช่วงเวลา",

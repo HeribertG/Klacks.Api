@@ -138,9 +138,11 @@ DATE"/"UNTIL DATE", fr: "DATE DE DÉBUT"/"DATE DE FIN", it: "DATA DI INIZIO"/"DA
 = Gültigkeit des Dienstes). Die zweite Zeile jedes Eintrags zeigt **VON ZEIT / BIS ZEIT**
 (de: "VON ZEIT"/"BIS ZEIT", en: "FROM TIME"/"UNTIL TIME", fr: "HEURE DE DÉBUT"/"HEURE DE
 FIN", it: "ORA DI INIZIO"/"ORA DI FINE") sowie schreibgeschützte Checkboxen für die
-Wochentage MO–SO plus **FT** (de: "FT", en: "HOL", fr: "JF", it: "FER" = Feiertag, egal an
-welchem Wochentag) und **+FT** (de: "+FT", en: "+HOL", fr: "+JF", it: "+FER" = Feiertag an
-selektiertem Wochentag).
+Wochentage MO–SO plus **FT** (de: "FT", en: "HOL", fr: "JF", it: "FER" = zusätzlich an
+jedem Feiertag, egal welcher Wochentag) und **+FT** (de: "+FT", en: "+HOL", fr: "+JF", it:
+"+FER" = genau die gewählten Wochentage, auch wenn einer davon ein Feiertag ist; Feiertage
+an nicht gewählten Tagen zählen nicht). Ohne beide Häkchen läuft der Dienst an einem
+Feiertag nicht. Details: `explain_shift_holiday_options`.
 
 **Icon-Spalte** (nur planbare/Container-Sicht), kennzeichnet den Diensttyp:
 Fragezeichen-Uhr = sporadischer Dienst (isSporadic), Zeitfenster-Icon = TimeRange-Dienst
@@ -224,8 +226,15 @@ oben rechts einen Auf-/Zuklapp-Pfeil. Cards in dieser Reihenfolge:
    zusätzlich die Zeitrahmen-Checkbox "Dienst innerhalb des Zeitrahmens (Von Zeit hh:mm -
    Bis Zeit hh:mm). Bitte in Feld Dauer die Dauer des Diensten angeben" (= TimeRange:
    der Dienst liegt flexibel in diesem Zeitfenster, die Dauer zählt). Darunter die
-   Wochentags-Checkboxen Montag–Sonntag plus **Feiertag, egal an welchen Wochentag** und
-   **Feiertag an selektiertem Wochentag**.
+   Wochentags-Checkboxen Montag–Sonntag plus **Zusätzlich an jedem Feiertag** (de:
+   "Zusätzlich an jedem Feiertag", en: "Plus every public holiday", fr: "En plus chaque jour
+   férié", it: "In più ogni giorno festivo" = gewählte Tage plus jeder Feiertag, egal welcher
+   Wochentag; auch ohne gewählten Tag erlaubt = nur an Feiertagen) und **Gewählte Tage, auch
+   an Feiertagen** (de: "Gewählte Tage, auch an Feiertagen", en: "Selected days, holidays
+   included", fr: "Jours choisis, fériés inclus", it: "Giorni scelti, festivi inclusi" =
+   genau die gewählten Tage, auch wenn einer ein Feiertag ist; braucht mindestens einen
+   gewählten Tag). Die beiden schliessen sich gegenseitig aus; ohne beide fällt der Dienst an
+   Feiertagen aus.
 5. **Macro** (de: "Macro", en: "Macro", fr: "Macro", it: "Macro") — nur im Experten-Modus
    sichtbar: Dropdown **Macro Liste** (de: "Macro Liste", en: "Macro list", fr: "Liste des
    macros", it: "Elenco macro") zur Zuordnung eines Macros für die Dauer-/Lohnberechnung;
@@ -297,7 +306,13 @@ sind direkt in der Tabelle editierbar (Klick auf die Zelle der selektierten Zeil
 Kopfbereich: Name des Containers (sonst **Schichtvorlage**, de: "Schichtvorlage", en:
 "Shift Template", fr: "Modèle de service", it: "Modello di turno"), Zeitfelder **Von / Bis
 / Dauer**, Wochentags-Radio-Buttons (nur die im Container aktivierten Wochentage), optional
-die Checkboxen **Feiertag** und **Wochentag oder Feiertag** (falls am Container aktiviert),
+die Checkboxen **Feiertagsvorlage (jeder Feiertag)** (de: "Feiertagsvorlage (jeder
+Feiertag)", en: "Holiday template (every holiday)", fr: "Modèle férié (chaque férié)", it:
+"Modello festivo (ogni festivo)" = Tagesplan für jeden Feiertag) bzw. **Feiertagsvorlage
+(gewählte Tage)** (de: "Feiertagsvorlage (gewählte Tage)", en: "Holiday template (selected
+days)", fr: "Modèle férié (jours choisis)", it: "Modello festivo (giorni scelti)" = Tagesplan
+für einen Feiertag, der auf einen gewählten Wochentag fällt), je nach Feiertagsoption am
+Container,
 Auswahl **Start**/**Ende**-Basis (Adressen) und **Transport**-Modus (Auto, Velo, zu Fuss,
 Mix — Velo/Fuss/Mix benötigen einen OpenRouteService-API-Key). Drei Zonen mit
 verschiebbaren Trennlinien:

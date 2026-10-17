@@ -1330,6 +1330,11 @@
     "miksi näen konttivuoron alivuoroja",
     "miten konttivuoro luodaan"
   ],
+  "explain_shift_holiday_options": [
+    "onko vuoroni myös pyhäpäivinä",
+    "vuoro pääsiäisenä",
+    "miksi vuoroni puuttuu pyhäpäivältä"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "miten tilauksesta tulee suunniteltava vuoro",
     "selitä tilauksen elinkaari",

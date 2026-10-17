@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "Het model voor planningsregels uitleggen",
   "explain_shift_classification": "Uitleg over de indeling vroeg/laat/nacht",
   "explain_shift_container": "De containerlaag uitleggen",
+  "explain_shift_holiday_options": "Uitleg over diensten op feestdagen",
   "explain_shift_lifecycle_order_to_shift": "Uitleg over het proces van opdracht tot dienst",
   "explain_shift_sporadic": "De sporadische laag uitleggen",
   "explain_shift_time_range": "Uitleg over de 'tijdvenster'-dienst",

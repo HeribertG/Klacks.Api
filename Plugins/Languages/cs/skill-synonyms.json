@@ -1349,6 +1349,11 @@
     "přepsání kontejneru pro konkrétní den",
     "vytvořit kontejnerovou směnu"
   ],
+  "explain_shift_holiday_options": [
+    "běží moje služba i ve svátek",
+    "služba o velikonocích",
+    "proč chybí moje služba ve svátek"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "vysvětli přechod objednávky na směnu",
     "jak vytvořit objednávku a zapečetit ji",

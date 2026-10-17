@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "說明排班規則模型",
   "explain_shift_classification": "說明早班、晚班與夜班分類",
   "explain_shift_container": "說明容器班概念",
+  "explain_shift_holiday_options": "說明國定假日的班次",
   "explain_shift_lifecycle_order_to_shift": "說明從訂單到班別的流程",
   "explain_shift_sporadic": "說明零星班",
   "explain_shift_time_range": "說明時間範圍班",

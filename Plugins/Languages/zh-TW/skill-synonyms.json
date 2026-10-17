@@ -1316,6 +1316,11 @@
     "如何覆蓋容器班次模板",
     "容器班次的父工作連結"
   ],
+  "explain_shift_holiday_options": [
+    "我的班次在國定假日也會排嗎",
+    "春節期間的班次",
+    "為什麼假日沒有我的班次"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "訂單如何變成可排班班次",
     "訂單草稿與密封鎖功能",

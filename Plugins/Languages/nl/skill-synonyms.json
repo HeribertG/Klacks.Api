@@ -1352,6 +1352,11 @@
     "wat is het verschil tussen een containerdienst en een normale dienst?",
     "hoe worden sub-booking gekoppeld aan de hoofddienst?"
   ],
+  "explain_shift_holiday_options": [
+    "loopt mijn dienst ook op feestdagen",
+    "dienst met pasen",
+    "waarom ontbreekt mijn dienst op de feestdag"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "hoe maak ik een bestelling en wordt die een dienst?",
     "wat betekent 'sealen' van een bestelling?",

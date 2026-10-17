@@ -1343,6 +1343,11 @@
     "hvordan bruger jeg container-skabeloner?",
     "containervagter: forældre- og underordnede vagter"
   ],
+  "explain_shift_holiday_options": [
+    "kører min vagt på helligdage",
+    "vagt i påsken",
+    "hvorfor mangler min vagt på helligdagen"
+  ],
   "explain_shift_lifecycle_order_to_shift": [
     "hvordan bliver en bestilling til en planlægningsvagt?",
     "forklar de forskellige kort i bestillingsmasken",

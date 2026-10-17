@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "Forklar model for planlægningsregler",
   "explain_shift_classification": "Forklar klassificeringen tidligt/sent/om natten",
   "explain_shift_container": "Forklar containerlag",
+  "explain_shift_holiday_options": "Forklar vagter på helligdage",
   "explain_shift_lifecycle_order_to_shift": "Forklar forløbet fra ordre til vagt",
   "explain_shift_sporadic": "Forklar sporadisk lagdeling",
   "explain_shift_time_range": "Forklar begrebet »tidsvindue-vagt«",

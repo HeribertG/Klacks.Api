@@ -13,8 +13,8 @@
 /// <param name="weekday">Required. ISO weekday 1=Monday..7=Sunday the template applies to.</param>
 /// <param name="fromTime">Required. Start of the day's time budget (HH:mm).</param>
 /// <param name="untilTime">Required. End of the day's time budget (HH:mm); must be after fromTime.</param>
-/// <param name="isHoliday">Optional. Variant that applies on holidays only; defaults to false.</param>
-/// <param name="isWeekdayAndHoliday">Optional. Variant that applies on the weekday and on holidays; defaults to false.</param>
+/// <param name="isHoliday">Optional. Holiday template instead of the weekday template: alone it applies on every public holiday, with isWeekdayAndHoliday only on a public holiday falling on this weekday; defaults to false.</param>
+/// <param name="isWeekdayAndHoliday">Optional, only together with isHoliday. Restricts the holiday template to public holidays on this weekday (ticked days also run on holidays, unticked ones do not); defaults to false.</param>
 /// <param name="startBase">Optional. Start location the container's tasks are routed from.</param>
 /// <param name="endBase">Optional. End location of that route; falls back to startBase when omitted.</param>
 /// <param name="transportMode">Optional: car|bicycle|foot|mix; defaults to car.</param>

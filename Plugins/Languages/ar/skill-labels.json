@@ -200,6 +200,7 @@
   "explain_scheduling_rules_model": "شرح نموذج قواعد التخطيط",
   "explain_shift_classification": "شرح تصنيف «مبكر/متأخر/ليلي»",
   "explain_shift_container": "شرح طبقة الحاويات",
+  "explain_shift_holiday_options": "شرح الخدمات في أيام العطل الرسمية",
   "explain_shift_lifecycle_order_to_shift": "شرح مسار الطلب حتى بدء الوردية",
   "explain_shift_sporadic": "شرح الطبقة المتفرقة",
   "explain_shift_time_range": "شرح نظام نوبات العمل حسب الفترات الزمنية",
