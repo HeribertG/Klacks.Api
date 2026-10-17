@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Creates one shift from the UI. Enforces ClientlessOrderRules before anything is written: a draft
+/// Creates one shift from the UI. A new shift is always an order (draft or sealed); the hierarchy is server-owned, so
+/// order reference and cut-tree fields of the request are discarded and any other status is refused with 400.
+/// Enforces ClientlessOrderRules before anything is written: a draft
 /// without a customer is refused outright, and an order that deliberately has none must already meet
 /// the sealing requirements, because it is sealed on creation and sealing cannot be undone.
 /// </summary>
@@ -20,6 +22,8 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Services.Shifts;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -58,6 +62,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
             request.Resource.Name, request.Resource.MacroId, request.Resource.ClientId, request.Resource.Groups?.Count ?? 0);
 
         var shift = _scheduleMapper.ToShiftEntity(request.Resource);
+        GuardCreatableStatus(shift);
+        ClearServerOwnedHierarchy(shift);
         await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync([], shift.GroupItems, cancellationToken);
 
         if (!shift.MacroId.HasValue || shift.MacroId.Value == Guid.Empty)
@@ -76,6 +82,23 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
             resultShift.Id, resultShift.Name, resultShift.Status);
 
         return _scheduleMapper.ToShiftResource(freshShift ?? resultShift);
+    }
+
+    private static void GuardCreatableStatus(Domain.Models.Schedules.Shift shift)
+    {
+        if (shift.Status is not (ShiftStatus.OriginalOrder or ShiftStatus.SealedOrder))
+        {
+            throw new BadRequestException(string.Format(ShiftHierarchyMessages.PostStatusNotAllowed, shift.Status));
+        }
+    }
+
+    private static void ClearServerOwnedHierarchy(Domain.Models.Schedules.Shift shift)
+    {
+        shift.OriginalId = null;
+        shift.ParentId = null;
+        shift.RootId = null;
+        shift.Lft = null;
+        shift.Rgt = null;
     }
 
     private void GuardClientlessRules(Domain.Models.Schedules.Shift shift)
