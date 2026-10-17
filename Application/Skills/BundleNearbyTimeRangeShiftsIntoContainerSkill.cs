@@ -30,6 +30,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Extensions;
@@ -51,7 +52,6 @@ namespace Klacks.Api.Application.Skills;
 public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementation
 {
     private const string SkillName = "bundle_nearby_timerange_shifts_into_container";
-    private const string LockResourceType = "ContainerTemplate";
     private const int MinIsoWeekday = 1;
     private const int MaxIsoWeekday = 7;
     private const int IsoSunday = 7;
@@ -288,7 +288,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
                 }
 
                 var lockResult = await _mediator.Send(
-                    new AcquireContainerLockCommand(LockResourceType, containerId, instanceId), cancellationToken);
+                    new AcquireContainerLockCommand(ContainerLockResourceTypes.ContainerTemplate, containerId, instanceId), cancellationToken);
 
                 if (!lockResult.Acquired)
                 {

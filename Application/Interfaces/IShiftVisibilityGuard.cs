@@ -21,6 +21,14 @@ public interface IShiftVisibilityGuard
     Task<bool> IsVisibleAsync(Guid shiftId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// True only when the shift exists and the caller may touch it, for every caller: an unrestricted caller gets a
+    /// plain existence query, a restricted caller the visibility query, so each is answered with exactly one query and
+    /// a missing and a hidden shift look alike.
+    /// </summary>
+    /// <param name="shiftId">Shift a read or write is about to touch</param>
+    Task<bool> ExistsAndVisibleAsync(Guid shiftId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Same rule for a shift that is already loaded with its group items, answered without a shift query.
     /// </summary>
     /// <param name="shift">Shift loaded including GroupItems</param>

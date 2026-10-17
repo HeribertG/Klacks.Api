@@ -9,6 +9,7 @@
 /// checks it against the X-Instance-Id header, which KlacksSelfApiClient does not send — an empty
 /// value is the only one under which both ends agree on a self-call.
 /// </summary>
+/// <param name="shiftVisibilityGuard">Answers a hidden container (or task shift) exactly like a missing one</param>
 /// <param name="containerId">Required. UUID of the container's plannable shift (Status OriginalShift, ShiftType IsContainer).</param>
 /// <param name="weekday">Required. ISO weekday 1=Monday..7=Sunday the template applies to.</param>
 /// <param name="fromTime">Required. Start of the day's time budget (HH:mm).</param>
@@ -20,6 +21,7 @@
 /// <param name="transportMode">Optional: car|bicycle|foot|mix; defaults to car.</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -34,7 +36,6 @@ namespace Klacks.Api.Application.Skills;
 public class CreateContainerTemplateSkill : BaseSkillImplementation
 {
     private const string SkillName = "create_container_template";
-    private const string LockResourceType = "ContainerTemplate";
     private const string SelfCallInstanceId = "";
     private const string TemplatesRouteSegment = "templates";
     private const string LockAcquireRouteSegment = "Acquire";
@@ -48,17 +49,20 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
     private readonly IContainerTemplateRepository _containerTemplateRepository;
     private readonly IKlacksSelfApiClient _selfApi;
     private readonly ISelfApiRouteResolver _routes;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public CreateContainerTemplateSkill(
         IShiftRepository shiftRepository,
         IContainerTemplateRepository containerTemplateRepository,
         IKlacksSelfApiClient selfApi,
-        ISelfApiRouteResolver routes)
+        ISelfApiRouteResolver routes,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _containerTemplateRepository = containerTemplateRepository;
         _selfApi = selfApi;
         _routes = routes;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -106,7 +110,7 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
         var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
 
         var container = await _shiftRepository.Get(containerId);
-        if (container is null)
+        if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
         {
             return SkillResult.Error($"Shift/container not found: {containerId}");
         }
@@ -143,7 +147,7 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
             $"{SelfApiRoutes.ContainerLocks}/{LockAcquireRouteSegment}",
             new AcquireContainerLockRequest
             {
-                ResourceType = LockResourceType,
+                ResourceType = ContainerLockResourceTypes.ContainerTemplate,
                 ResourceId = containerId,
                 InstanceId = SelfCallInstanceId
             },

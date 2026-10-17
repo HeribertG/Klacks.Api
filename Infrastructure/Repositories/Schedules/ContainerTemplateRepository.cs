@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Schedules;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -202,16 +203,16 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
         return items;
     }
 
-    public async Task UpdateItem(ContainerTemplateItem item)
+    public async Task UpdateItem(Guid templateId, ContainerTemplateItem item)
     {
         Logger.LogInformation("Updating ContainerTemplateItem: {ItemId}", item.Id);
 
         var existingItem = await context.ContainerTemplateItem.FindAsync(item.Id);
 
-        if (existingItem == null)
+        if (existingItem == null || existingItem.IsDeleted || existingItem.ContainerTemplateId != templateId)
         {
-            Logger.LogWarning("ContainerTemplateItem not found for update: {ItemId}", item.Id);
-            throw new InvalidOperationException($"ContainerTemplateItem with ID {item.Id} not found");
+            Logger.LogWarning("ContainerTemplateItem not found for update in template {TemplateId}: {ItemId}", templateId, item.Id);
+            throw new KeyNotFoundException(string.Format(ContainerTemplateMessages.ItemNotFound, item.Id));
         }
 
         existingItem.ShiftId = item.ShiftId;

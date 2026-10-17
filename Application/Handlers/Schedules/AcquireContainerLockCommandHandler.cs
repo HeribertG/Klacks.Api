@@ -4,10 +4,16 @@
 /// Handler for acquiring an exclusive edit lock on a container resource.
 /// If the resource is already locked by another user with a fresh heartbeat, the existing
 /// lock is returned with Acquired=false. Stale locks are removed first. Idempotent for the
-/// same user (refreshes heartbeat).
+/// same user (refreshes heartbeat). Only the resource types of ContainerLockResourceTypes are accepted (400 otherwise),
+/// and a lock keyed by a container needs an existing container the caller may see (404 like a missing one otherwise),
+/// both checked before anything is written or the holder is revealed.
 /// </summary>
+/// <param name="containerVisibilityGuard">Refuses missing and hidden containers alike</param>
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -22,21 +28,34 @@ public class AcquireContainerLockCommandHandler : BaseHandler, IRequestHandler<A
     private readonly IContainerLockRepository _repository;
     private readonly IUserService _userService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IContainerVisibilityGuard _containerVisibilityGuard;
 
     public AcquireContainerLockCommandHandler(
         IContainerLockRepository repository,
         IUserService userService,
         IUnitOfWork unitOfWork,
+        IContainerVisibilityGuard containerVisibilityGuard,
         ILogger<AcquireContainerLockCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
         _userService = userService;
         _unitOfWork = unitOfWork;
+        _containerVisibilityGuard = containerVisibilityGuard;
     }
 
     public async Task<ContainerLockResource> Handle(AcquireContainerLockCommand request, CancellationToken cancellationToken)
     {
+        if (!ContainerLockResourceTypes.IsKnown(request.ResourceType))
+        {
+            throw new BadRequestException(string.Format(ContainerLockResourceTypes.UnknownResourceType, request.ResourceType));
+        }
+
+        if (ContainerLockResourceTypes.IsKeyedByContainer(request.ResourceType))
+        {
+            await _containerVisibilityGuard.EnsureContainerVisibleAsync(request.ResourceId, cancellationToken);
+        }
+
         var now = DateTime.UtcNow;
         var staleThreshold = now.AddSeconds(-StaleSeconds);
         var currentUserId = _userService.GetId() ?? Guid.Empty;

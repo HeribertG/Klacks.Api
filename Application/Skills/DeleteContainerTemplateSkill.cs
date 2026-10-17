@@ -13,9 +13,11 @@
 /// cascade them. The container edit lock is acquired first and released again in a finally block; a
 /// container that has no templates at all is reported as a no-op and never takes the lock.
 /// </summary>
+/// <param name="shiftVisibilityGuard">Answers a hidden container (or task shift) exactly like a missing one</param>
 /// <param name="containerId">Required. UUID of the container's plannable shift (Status OriginalShift, ShiftType IsContainer).</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -30,7 +32,6 @@ namespace Klacks.Api.Application.Skills;
 public class DeleteContainerTemplateSkill : BaseSkillImplementation
 {
     private const string SkillName = "delete_container_template";
-    private const string LockResourceType = "ContainerTemplate";
     private const string SelfCallInstanceId = "";
     private const string TemplatesRouteSegment = "templates";
     private const string LockAcquireRouteSegment = "Acquire";
@@ -41,17 +42,20 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
     private readonly IContainerTemplateRepository _containerTemplateRepository;
     private readonly IKlacksSelfApiClient _selfApi;
     private readonly ISelfApiRouteResolver _routes;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public DeleteContainerTemplateSkill(
         IShiftRepository shiftRepository,
         IContainerTemplateRepository containerTemplateRepository,
         IKlacksSelfApiClient selfApi,
-        ISelfApiRouteResolver routes)
+        ISelfApiRouteResolver routes,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _containerTemplateRepository = containerTemplateRepository;
         _selfApi = selfApi;
         _routes = routes;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -62,7 +66,7 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
         var containerId = GetRequiredGuid(parameters, "containerId");
 
         var container = await _shiftRepository.Get(containerId);
-        if (container is null)
+        if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
         {
             return SkillResult.Error($"Shift/container not found: {containerId}");
         }
@@ -92,7 +96,7 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
             $"{SelfApiRoutes.ContainerLocks}/{LockAcquireRouteSegment}",
             new AcquireContainerLockRequest
             {
-                ResourceType = LockResourceType,
+                ResourceType = ContainerLockResourceTypes.ContainerTemplate,
                 ResourceId = containerId,
                 InstanceId = SelfCallInstanceId
             },

@@ -15,6 +15,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Services.Shifts;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -25,7 +26,6 @@ namespace Klacks.Api.Application.Handlers.Works;
 
 public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHandler<UpdateContainerWorkChildrenCommand, ContainerWorkChildrenResource>
 {
-    private const string LockResourceType = "ContainerWork";
     private const string WorkNotFoundMessageFormat = "Work with ID {0} not found.";
 
     private readonly IContainerWorkChildrenReadRepository _childrenReadRepository;
@@ -120,7 +120,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     {
         var userId = _userService.GetId() ?? Guid.Empty;
         var instanceId = _userService.GetInstanceId() ?? string.Empty;
-        var holdsLock = await _lockRepository.IsHeldBy(LockResourceType, workId, userId, instanceId, cancellationToken);
+        var holdsLock = await _lockRepository.IsHeldBy(ContainerLockResourceTypes.ContainerWork, workId, userId, instanceId, cancellationToken);
         if (!holdsLock)
         {
             throw new ContainerLockedException("Cannot save: container work is not locked by this session.");

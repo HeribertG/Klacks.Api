@@ -10,9 +10,11 @@
 /// </summary>
 /// <param name="containerId">Required. UUID of the container shift.</param>
 /// <param name="date">Required. ISO date of the day to reset, e.g. 2026-07-09.</param>
+/// <param name="shiftVisibilityGuard">Answers a hidden container exactly like a missing one</param>
 
 using Klacks.Api.Application.Commands.ContainerShiftOverrides;
 using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerShiftOverrides;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
@@ -28,11 +30,14 @@ public class ResetContainerDaySkill : BaseSkillImplementation
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IMediator _mediator;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
-    public ResetContainerDaySkill(IShiftRepository shiftRepository, IMediator mediator)
+    public ResetContainerDaySkill(
+        IShiftRepository shiftRepository, IMediator mediator, IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _mediator = mediator;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -53,7 +58,9 @@ public class ResetContainerDaySkill : BaseSkillImplementation
         }
 
         var shift = await _shiftRepository.Get(containerId);
-        if (shift is null || shift.ShiftType != ShiftType.IsContainer)
+        if (shift is null
+            || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken)
+            || shift.ShiftType != ShiftType.IsContainer)
         {
             return SkillResult.Error($"Shift {containerId} is not a container shift.");
         }
