@@ -74,6 +74,7 @@ using Klacks.Api.Application.Services.Clients;
 using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Application.Services.Identity;
 using Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Translation;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -153,6 +154,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IClientGroupFilterService, ClientGroupFilterService>();
         services.AddScoped<IClientVisibilityGuard, ClientVisibilityGuard>();
         services.AddScoped<IGroupVisibilityGuard, GroupVisibilityGuard>();
+        services.AddScoped<IShiftVisibilityGuard, ShiftVisibilityGuard>();
         services.AddScoped<IScenarioTokenAccessGuard, ScenarioTokenAccessGuard>();
         services.AddScoped<IScheduleRowAccessGuard, ScheduleRowAccessGuard>();
         services.AddScoped<ISkillScenarioScopeGuard, SkillScenarioScopeGuard>();

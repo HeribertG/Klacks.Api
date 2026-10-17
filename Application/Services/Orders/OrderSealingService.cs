@@ -10,6 +10,7 @@
 /// </summary>
 /// <param name="shiftRepository">Loads the order and performs the sealing write and its verification read.</param>
 /// <param name="unitOfWork">Opens the per-order transaction the whole transition runs in.</param>
+/// <param name="shiftVisibilityGuard">Answers an order a group-restricted caller may not see exactly like a missing one.</param>
 
 using Klacks.Api.Application.DTOs.Orders;
 using Klacks.Api.Application.Interfaces;
@@ -61,11 +62,14 @@ public sealed class OrderSealingService : IOrderSealingService
 
     private readonly IShiftRepository _shiftRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
-    public OrderSealingService(IShiftRepository shiftRepository, IUnitOfWork unitOfWork)
+    public OrderSealingService(
+        IShiftRepository shiftRepository, IUnitOfWork unitOfWork, IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _unitOfWork = unitOfWork;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public IReadOnlyList<string> CollectMissingRequirements(Shift order)
@@ -115,7 +119,7 @@ public sealed class OrderSealingService : IOrderSealingService
     public async Task<OrderSealingOutcome> SealAsync(Guid orderId, CancellationToken cancellationToken = default)
     {
         var order = await _shiftRepository.Get(orderId);
-        if (order == null)
+        if (order == null || !await _shiftVisibilityGuard.IsVisibleAsync(order, cancellationToken))
         {
             return Refused(orderId, string.Empty, string.Format(NotFoundFormat, orderId), []);
         }

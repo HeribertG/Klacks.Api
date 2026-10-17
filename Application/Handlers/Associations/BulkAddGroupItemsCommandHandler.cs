@@ -5,8 +5,8 @@
 /// because the operation is genuinely atomic: linking a set of shifts to a group half-way leaves the
 /// group in a state nobody asked for. A caller doing it as N separate requests could not roll back what
 /// already succeeded, so the atomicity has to live here, on the server, rather than in the caller.
-/// Every target group and every linked client must be visible to the caller; one hidden group or client
-/// refuses the whole batch like a missing one, before anything is written.
+/// Every target group, every linked client and every linked shift must be visible to the caller; one hidden group,
+/// client or shift refuses the whole batch like a missing one, before anything is written.
 /// </summary>
 /// <param name="groupItemRepository">Persists the rows and confirms them by id</param>
 /// <param name="unitOfWork">Owns the transaction the whole batch runs in</param>
@@ -19,6 +19,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Application.Services.Groups;
+using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Associations;
@@ -30,15 +31,18 @@ public class BulkAddGroupItemsCommandHandler
     private readonly IUnitOfWork _unitOfWork;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public BulkAddGroupItemsCommandHandler(
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
         IGroupVisibilityGuard groupVisibilityGuard,
         IClientVisibilityGuard clientVisibilityGuard,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         ILogger<BulkAddGroupItemsCommandHandler> logger)
         : base(logger)
     {
+        _shiftVisibilityGuard = shiftVisibilityGuard;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
         _groupVisibilityGuard = groupVisibilityGuard;
@@ -119,5 +123,15 @@ public class BulkAddGroupItemsCommandHandler
             .Select(item => item.ClientId!.Value)
             .ToList();
         await GroupMemberVisibilityCheck.EnsureAddedClientsVisibleAsync(_clientVisibilityGuard, clientIds, cancellationToken);
+
+        var shiftIds = requested
+            .Where(item => item.ShiftId.HasValue)
+            .Select(item => item.ShiftId!.Value)
+            .ToList();
+        var hiddenShiftId = await _shiftVisibilityGuard.FindFirstHiddenAsync(shiftIds, cancellationToken);
+        if (hiddenShiftId.HasValue)
+        {
+            throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, hiddenShiftId.Value));
+        }
     }
 }

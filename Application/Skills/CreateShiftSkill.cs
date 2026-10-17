@@ -52,6 +52,7 @@ public class CreateShiftSkill : BaseSkillImplementation
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public CreateShiftSkill(
         IShiftRepository shiftRepository,
@@ -60,8 +61,10 @@ public class CreateShiftSkill : BaseSkillImplementation
         IClientVisibilityGuard clientVisibilityGuard,
         IMediator mediator,
         IUnitOfWork unitOfWork,
-        IDefaultShiftMacroResolver defaultShiftMacroResolver)
+        IDefaultShiftMacroResolver defaultShiftMacroResolver,
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
+        _groupVisibilityGuard = groupVisibilityGuard;
         _shiftRepository = shiftRepository;
         _groupRepository = groupRepository;
         _clientRepository = clientRepository;
@@ -183,7 +186,7 @@ public class CreateShiftSkill : BaseSkillImplementation
                 if (Guid.TryParse(gidStr, out var gid))
                 {
                     var group = await _groupRepository.Get(gid);
-                    if (group == null)
+                    if (group == null || !await _groupVisibilityGuard.IsGroupVisibleAsync(gid, cancellationToken))
                     {
                         return SkillResult.Error($"Group with ID {gid} not found.");
                     }

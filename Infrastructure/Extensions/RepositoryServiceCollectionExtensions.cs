@@ -145,6 +145,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IWizardRunCaptureMeasurementService, Klacks.Api.Infrastructure.Services.Schedules.WizardRunCaptureMeasurementService>();
         services.AddScoped<IAnalyseScenarioService, AnalyseScenarioService>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
+        services.AddScoped<IShiftVisibilityReader, Klacks.Api.Infrastructure.Repositories.Schedules.ShiftVisibilityReadRepository>();
         services.AddScoped<IShiftGroupScopeReader, Klacks.Api.Infrastructure.Repositories.Schedules.ShiftGroupScopeReadRepository>();
         services.AddScoped<IGroupAbsenceReadRepository, Klacks.Api.Infrastructure.Repositories.Schedules.GroupAbsenceReadRepository>();
         services.AddScoped<IContainerLockRepository, ContainerLockRepository>();

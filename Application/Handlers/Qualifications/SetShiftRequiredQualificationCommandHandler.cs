@@ -10,8 +10,13 @@
 /// </summary>
 /// <param name="repository">Resolves / adds the shift-required-qualification row</param>
 /// <param name="unitOfWork">Commits the change</param>
+/// <param name="shiftVisibilityGuard">Refuses a group-restricted caller a shift they may not see, exactly like a missing
+/// one (404 "Shift with ID ... not found"); for such a caller a missing shift now also answers 404 instead of a foreign-key
+/// error</param>
 
 using Klacks.Api.Application.Commands.Qualifications;
+using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
@@ -24,17 +29,25 @@ public sealed class SetShiftRequiredQualificationCommandHandler : IRequestHandle
 {
     private readonly IShiftRequiredQualificationRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public SetShiftRequiredQualificationCommandHandler(
         IShiftRequiredQualificationRepository repository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public async Task<Guid> Handle(SetShiftRequiredQualificationCommand request, CancellationToken cancellationToken)
     {
+        if (!await _shiftVisibilityGuard.IsVisibleAsync(request.ShiftId, cancellationToken))
+        {
+            throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, request.ShiftId));
+        }
+
         var existing = await _repository.GetActiveAsync(request.ShiftId, request.QualificationId, cancellationToken);
         if (existing != null)
         {

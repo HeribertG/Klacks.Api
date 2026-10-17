@@ -7,7 +7,8 @@
 /// exception is an administrator deleting a sealed order: the whole family goes with it, but only while no work, scenario
 /// clone or container reference exists anywhere in the family (SealedOrderFamilyDeletion decides; the administrator role
 /// is read from the current HTTP principal, so a call outside a web request never qualifies).
-/// Caller-side guards (shift has cuts / active works) live in the delete_shift skill.
+/// Caller-side guards (shift has cuts / active works) live in the delete_shift skill. A shift a group-restricted caller
+/// may not see is answered like a missing one (null) and not touched.
 /// </summary>
 /// <param name="request">Contains the id of the shift to delete</param>
 
@@ -31,6 +32,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISealedOrderFamilyDeletion _familyDeletion;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public DeleteCommandHandler(
         IShiftRepository shiftRepository,
@@ -38,9 +40,11 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
         IUnitOfWork unitOfWork,
         ISealedOrderFamilyDeletion familyDeletion,
         IHttpContextAccessor httpContextAccessor,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
+        _shiftVisibilityGuard = shiftVisibilityGuard;
         _shiftRepository = shiftRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
@@ -51,7 +55,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
     public async Task<ShiftResource?> Handle(DeleteCommand<ShiftResource> request, CancellationToken cancellationToken)
     {
         var existing = await _shiftRepository.Get(request.Id);
-        if (existing == null)
+        if (existing == null || !await _shiftVisibilityGuard.IsVisibleAsync(existing, cancellationToken))
         {
             return null;
         }

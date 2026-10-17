@@ -30,10 +30,13 @@ public class ResetShiftCutsSkill : BaseSkillImplementation
     private readonly IShiftRepository _shiftRepository;
     private readonly IMediator _mediator;
 
-    public ResetShiftCutsSkill(IShiftRepository shiftRepository, IMediator mediator)
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+
+    public ResetShiftCutsSkill(IShiftRepository shiftRepository, IMediator mediator, IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _mediator = mediator;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -46,7 +49,7 @@ public class ResetShiftCutsSkill : BaseSkillImplementation
             ?? throw new ArgumentException("Required parameter 'newStartDate' is missing");
 
         var loadedShift = await _shiftRepository.Get(shiftId);
-        if (loadedShift == null)
+        if (loadedShift == null || !await _shiftVisibilityGuard.IsVisibleAsync(loadedShift, cancellationToken))
         {
             return SkillResult.Error($"Shift with ID {shiftId} not found.");
         }

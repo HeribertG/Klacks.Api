@@ -34,15 +34,18 @@ public class DeleteShiftSkill : BaseSkillImplementation
     private readonly IShiftRepository _shiftRepository;
     private readonly IMediator _mediator;
     private readonly ISealedOrderFamilyDeletion _familyDeletion;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public DeleteShiftSkill(
         IShiftRepository shiftRepository,
         IMediator mediator,
-        ISealedOrderFamilyDeletion familyDeletion)
+        ISealedOrderFamilyDeletion familyDeletion,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _mediator = mediator;
         _familyDeletion = familyDeletion;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -52,7 +55,7 @@ public class DeleteShiftSkill : BaseSkillImplementation
     {
         var shiftId = GetRequiredGuid(parameters, "shiftId");
         var existing = await _shiftRepository.Get(shiftId);
-        if (existing == null)
+        if (existing == null || !await _shiftVisibilityGuard.IsVisibleAsync(existing, cancellationToken))
         {
             return SkillResult.Error($"Shift {shiftId} not found.");
         }

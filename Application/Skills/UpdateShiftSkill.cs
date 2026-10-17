@@ -22,6 +22,7 @@
 /// <param name="untilDate">Optional. New validity end (ISO yyyy-MM-dd).</param>
 /// <param name="weekdays">Optional. "all" or a comma list (mon,tue,wed,thu,fri,sat,sun) replacing the weekday flags.</param>
 
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Mappers;
@@ -39,15 +40,18 @@ public class UpdateShiftSkill : BaseSkillImplementation
     private readonly IShiftRepository _shiftRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IMediator _mediator;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public UpdateShiftSkill(
         IShiftRepository shiftRepository,
         ScheduleMapper scheduleMapper,
-        IMediator mediator)
+        IMediator mediator,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _scheduleMapper = scheduleMapper;
         _mediator = mediator;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -57,7 +61,7 @@ public class UpdateShiftSkill : BaseSkillImplementation
     {
         var shiftId = GetRequiredGuid(parameters, "shiftId");
         var existing = await _shiftRepository.Get(shiftId);
-        if (existing == null)
+        if (existing == null || !await _shiftVisibilityGuard.IsVisibleAsync(existing, cancellationToken))
         {
             return SkillResult.Error($"Shift {shiftId} not found.");
         }

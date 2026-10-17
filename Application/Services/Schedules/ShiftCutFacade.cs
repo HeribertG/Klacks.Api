@@ -11,9 +11,16 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Services.Shifts;
 
 namespace Klacks.Api.Application.Services.Schedules;
 
+/// <summary>
+/// Cuts shifts into pieces and resets the cuts of a sealed order. Every shift a batch touches (updated shift, stored
+/// parent, referenced sealed order) and the reset order must be visible to a group-restricted caller; a hidden one is
+/// answered with exactly the error a missing one gets, before anything is validated or written.
+/// </summary>
+/// <param name="shiftVisibilityGuard">Decides whether the caller may touch a shift and the groups a piece changes</param>
 public class ShiftCutFacade : IShiftCutFacade
 {
     private readonly IShiftRepository _shiftRepository;
@@ -23,6 +30,7 @@ public class ShiftCutFacade : IShiftCutFacade
     private readonly IShiftValidator _shiftValidator;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly ILogger<ShiftCutFacade> _logger;
 
     public ShiftCutFacade(
@@ -33,8 +41,10 @@ public class ShiftCutFacade : IShiftCutFacade
         IShiftValidator shiftValidator,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         ILogger<ShiftCutFacade> logger)
     {
+        _shiftVisibilityGuard = shiftVisibilityGuard;
         _shiftRepository = shiftRepository;
         _requirementRepository = requirementRepository;
         _shiftTreeService = shiftTreeService;
@@ -50,6 +60,7 @@ public class ShiftCutFacade : IShiftCutFacade
         _logger.LogInformation("=== ProcessBatchCuts START (2-Phase Approach) ===");
         _logger.LogInformation("Number of operations: {OpCount}", operations.Count);
 
+        await EnsureOperationsVisibleAsync(operations);
         await ValidateCutDates(operations);
 
         var processedShifts = new List<Shift>();
@@ -108,9 +119,9 @@ public class ShiftCutFacade : IShiftCutFacade
 
         var sealedOrder = await _shiftRepository.GetSealedOrder(originalId);
 
-        if (sealedOrder == null)
+        if (sealedOrder == null || !await _shiftVisibilityGuard.IsVisibleAsync(sealedOrder))
         {
-            throw new InvalidOperationException($"No SealedOrder found for OriginalId {originalId}");
+            throw new InvalidOperationException(string.Format(ShiftVisibilityMessages.NoSealedOrderFound, originalId));
         }
 
         EnsureNotInScenario(sealedOrder, "reset cuts on");
@@ -139,6 +150,67 @@ public class ShiftCutFacade : IShiftCutFacade
 
         _logger.LogInformation("=== ResetCuts END - Returned {Count} shifts ===", updatedShifts.Count);
         return updatedShifts;
+    }
+
+    /// <summary>
+    /// Refuses the whole batch for a group-restricted caller before anything is validated or written when it touches a
+    /// shift they may not see: an updated shift, a stored parent of a new piece or a referenced sealed order. Each is
+    /// answered with the error the later step raises for a missing one. Changed group assignments must be visible too:
+    /// an update is compared with the stored shift, a new piece with its parent (the piece normally copies its groups).
+    /// Parents and orders created in the same batch are checked as their own operation. Every operation is checked with
+    /// its own groups, and a piece whose parent occurs several times in the batch is compared with each occurrence, so a
+    /// repeated id cannot slip a hidden group past the check.
+    /// </summary>
+    /// <param name="operations">The batch as sent</param>
+    private async Task EnsureOperationsVisibleAsync(List<CutOperation> operations)
+    {
+        var batchIds = operations.Select(op => op.Data.Id).ToHashSet();
+        var requestedGroupsByOperation = operations.ToDictionary(op => op, op => _scheduleMapper.ToShiftEntity(op.Data).GroupItems);
+        var requestedGroupsById = operations
+            .GroupBy(op => op.Data.Id)
+            .ToDictionary(g => g.Key, g => g.Select(op => requestedGroupsByOperation[op]).ToList());
+
+        foreach (var op in operations)
+        {
+            var requestedGroups = requestedGroupsByOperation[op];
+
+            if (op.Type == "UPDATE" && op.Data.Id != Guid.Empty)
+            {
+                if (!await _shiftVisibilityGuard.IsVisibleAsync(op.Data.Id))
+                {
+                    throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, op.Data.Id));
+                }
+
+                await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync(op.Data.Id, requestedGroups);
+            }
+            else if (op.Type == "CREATE" && Guid.TryParse(op.ParentId, out var parentId))
+            {
+                if (requestedGroupsById.TryGetValue(parentId, out var parentGroupsInBatch))
+                {
+                    foreach (var parentGroups in parentGroupsInBatch)
+                    {
+                        await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync(parentGroups, requestedGroups);
+                    }
+                }
+                else
+                {
+                    if (!await _shiftVisibilityGuard.IsVisibleAsync(parentId))
+                    {
+                        throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ParentShiftNotFound, parentId));
+                    }
+
+                    await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync(parentId, requestedGroups);
+                }
+            }
+
+            if (op.Data.OriginalId.HasValue
+                && !batchIds.Contains(op.Data.OriginalId.Value)
+                && !await _shiftVisibilityGuard.IsVisibleAsync(op.Data.OriginalId.Value))
+            {
+                throw new InvalidOperationException(
+                    string.Format(ShiftVisibilityMessages.SealedOrderNotFound, op.Data.OriginalId.Value));
+            }
+        }
     }
 
     private async Task ValidateCutDates(List<CutOperation> operations)
@@ -176,7 +248,7 @@ public class ShiftCutFacade : IShiftCutFacade
         var existingShift = await _shiftRepository.Get(op.Data.Id);
         if (existingShift == null)
         {
-            throw new KeyNotFoundException($"Shift with ID {op.Data.Id} not found");
+            throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, op.Data.Id));
         }
 
         EnsureNotInScenario(existingShift, "cut/update");
@@ -227,7 +299,7 @@ public class ShiftCutFacade : IShiftCutFacade
         var parentShift = await _shiftRepository.GetTrackedOrFromDb(parentId);
         if (parentShift == null)
         {
-            throw new KeyNotFoundException($"Parent shift with ID {parentId} not found");
+            throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ParentShiftNotFound, parentId));
         }
 
         EnsureNotInScenario(parentShift, "cut (create child of)");

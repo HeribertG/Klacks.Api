@@ -15,6 +15,8 @@
 /// <param name="references">Reads holders, cut groups and macros without tracking</param>
 /// <param name="channelInspector">Tells whether a macro outputs surcharges (warning for absence types)</param>
 /// <param name="dryRun">Evaluates a switch on real entries for the preview</param>
+/// <param name="shiftVisibilityGuard">Answers a shift a group-restricted caller may not see exactly like a missing holder;
+/// a cut group with a hidden member is refused the same way, so the switch neither changes nor lists that piece</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
@@ -31,22 +33,26 @@ public class MacroAssignPlanner : IMacroAssignPlanner
     private readonly IMacroReferenceRepository _references;
     private readonly IMacroOutputChannelInspector _channelInspector;
     private readonly IMacroDryRunService _dryRun;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public MacroAssignPlanner(
         IMacroReferenceRepository references,
         IMacroOutputChannelInspector channelInspector,
-        IMacroDryRunService dryRun)
+        IMacroDryRunService dryRun,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _references = references;
         _channelInspector = channelInspector;
         _dryRun = dryRun;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     internal async Task<MacroAssignmentPlan> PlanAssignAsync(
         MacroAssignmentTarget target, Guid holderId, Guid macroId, CancellationToken cancellationToken = default)
     {
         var holder = await _references.FindHolderAsync(target, holderId, cancellationToken);
-        if (holder == null)
+        if (holder == null
+            || target == MacroAssignmentTarget.Shift && !await _shiftVisibilityGuard.IsVisibleAsync(holderId, cancellationToken))
         {
             return MacroAssignmentPlan.Refused(MacroAssignmentPlanning.DescribeMissingHolder(target, holderId));
         }
@@ -64,6 +70,12 @@ public class MacroAssignPlanner : IMacroAssignPlanner
         }
 
         var members = await FindMembersAsync(holder, cancellationToken);
+        if (target == MacroAssignmentTarget.Shift
+            && await _shiftVisibilityGuard.FindFirstHiddenAsync(members.Select(member => member.Id).ToList(), cancellationToken) != null)
+        {
+            return MacroAssignmentPlan.Refused(MacroAssignmentPlanning.DescribeMissingHolder(target, holderId));
+        }
+
         var targetRefusal = MacroAssignmentPolicy.FindTargetRefusal(holder, members, newMacro);
         if (targetRefusal != null)
         {

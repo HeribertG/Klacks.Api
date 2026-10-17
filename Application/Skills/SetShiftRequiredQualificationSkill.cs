@@ -76,7 +76,7 @@ public class SetShiftRequiredQualificationSkill : BaseSkillImplementation
                 new { Id = id, ShiftId = shiftId, QualificationId = qualificationId, IsMandatory = isMandatory, MinLevel = ((QualificationLevel)minLevel).ToString(), LevelBindingOverride = levelBinding },
                 $"Shift {shiftId} now requires the qualification at minimum level {(QualificationLevel)minLevel} (mandatory: {isMandatory}{levelBindingNote}).");
         }
-        catch (DbUpdateException)
+        catch (Exception ex) when (ex is DbUpdateException or KeyNotFoundException)
         {
             return SkillResult.Error("Could not set the required qualification — the shift or qualification id may not exist.");
         }

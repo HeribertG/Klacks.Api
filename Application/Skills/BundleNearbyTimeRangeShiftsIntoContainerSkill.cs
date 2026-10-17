@@ -21,6 +21,7 @@
 /// <param name="groupIds">Optional comma-separated group UUIDs restricting which candidate services are
 /// considered; without any group the container has no group filter (all matching tasks are eligible).</param>
 /// <param name="name">Optional container name; defaults to "Mobile Dienste {location}".</param>
+/// <param name="groupVisibilityGuard">Answers a group a restricted caller may not see exactly like a missing group</param>
 
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Constants;
@@ -69,6 +70,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private readonly ISettingsReader _settingsReader;
     private readonly ISettingsEncryptionService _encryptionService;
     private readonly IGeoServicesPolicy _geoServicesPolicy;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public BundleNearbyTimeRangeShiftsIntoContainerSkill(
         IShiftRepository shiftRepository,
@@ -79,7 +81,8 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         IContainerAutofillService containerAutofillService,
         ISettingsReader settingsReader,
         ISettingsEncryptionService encryptionService,
-        IGeoServicesPolicy geoServicesPolicy)
+        IGeoServicesPolicy geoServicesPolicy,
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
         _geoServicesPolicy = geoServicesPolicy;
         _shiftRepository = shiftRepository;
@@ -90,6 +93,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         _containerAutofillService = containerAutofillService;
         _settingsReader = settingsReader;
         _encryptionService = encryptionService;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     private async Task<SkillResult?> CheckTransportModeAvailableAsync(ContainerTransportMode transportMode, string? transportModeStr)
@@ -205,7 +209,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
                 }
 
                 var group = await _groupRepository.Get(groupId);
-                if (group == null)
+                if (group == null || !await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken))
                 {
                     return SkillResult.Error($"Group with ID {groupId} not found.");
                 }

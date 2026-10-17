@@ -15,18 +15,26 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Shifts;
 
+/// <summary>
+/// Saves a shift from the edit form. A shift a group-restricted caller may not see is answered exactly like a missing
+/// one (null, i.e. 404), before any other check; adding, removing or re-dating an assignment to a hidden group is
+/// refused like a missing group.
+/// </summary>
+/// <param name="shiftVisibilityGuard">Decides whether the caller may touch the shift and its changed groups</param>
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftResource>, ShiftResource?>
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftRequiredQualificationRepository _requirementRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public PutCommandHandler(
         IShiftRepository shiftRepository,
         IShiftRequiredQualificationRepository requirementRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -34,6 +42,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
         _requirementRepository = requirementRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public async Task<ShiftResource?> Handle(PutCommand<ShiftResource> request, CancellationToken cancellationToken)
@@ -41,7 +50,14 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
         _logger.LogInformation("Updating shift: Id={ShiftId}, Name={Name}, MacroId={MacroId}, ClientId={ClientId}, GroupCount={GroupCount}",
             request.Resource.Id, request.Resource.Name, request.Resource.MacroId, request.Resource.ClientId, request.Resource.Groups?.Count ?? 0);
 
+        if (!await _shiftVisibilityGuard.IsVisibleAsync(request.Resource.Id, cancellationToken))
+        {
+            _logger.LogWarning("Shift not found for update: Id={ShiftId}", request.Resource.Id);
+            return null;
+        }
+
         var shift = _scheduleMapper.ToShiftEntity(request.Resource);
+        await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync(shift.Id, shift.GroupItems, cancellationToken);
         await EnsureNotLockedAsync(shift);
         await KeepInheritedRequirementsAsync(shift, cancellationToken);
 

@@ -34,10 +34,14 @@ public class CutShiftByDateSkill : BaseSkillImplementation
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftCutFacade _shiftCutFacade;
 
-    public CutShiftByDateSkill(IShiftRepository shiftRepository, IShiftCutFacade shiftCutFacade)
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+
+    public CutShiftByDateSkill(
+        IShiftRepository shiftRepository, IShiftCutFacade shiftCutFacade, IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _shiftCutFacade = shiftCutFacade;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -52,7 +56,7 @@ public class CutShiftByDateSkill : BaseSkillImplementation
         var newAbbreviation = GetParameter<string>(parameters, "newAbbreviation");
 
         var loadedShift = await _shiftRepository.Get(shiftId);
-        if (loadedShift == null)
+        if (loadedShift == null || !await _shiftVisibilityGuard.IsVisibleAsync(loadedShift, cancellationToken))
         {
             return SkillResult.Error($"Shift with ID {shiftId} not found.");
         }

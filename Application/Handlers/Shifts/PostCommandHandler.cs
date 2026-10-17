@@ -10,6 +10,7 @@
 /// <param name="unitOfWork">Commits the write.</param>
 /// <param name="defaultShiftMacroResolver">Fills in the standard calculation macro when none was chosen.</param>
 /// <param name="orderSealingService">Source of the sealing requirements a clientless order must satisfy.</param>
+/// <param name="shiftVisibilityGuard">Refuses a group-restricted caller every group they cannot see, like a missing group.</param>
 /// <param name="logger">Structured log per creation.</param>
 
 using Klacks.Api.Application.Mappers;
@@ -31,6 +32,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
     private readonly IOrderSealingService _orderSealingService;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public PostCommandHandler(
         IShiftRepository shiftRepository,
@@ -38,9 +40,11 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
         IUnitOfWork unitOfWork,
         IDefaultShiftMacroResolver defaultShiftMacroResolver,
         IOrderSealingService orderSealingService,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
+        _shiftVisibilityGuard = shiftVisibilityGuard;
         _shiftRepository = shiftRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
@@ -54,6 +58,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
             request.Resource.Name, request.Resource.MacroId, request.Resource.ClientId, request.Resource.Groups?.Count ?? 0);
 
         var shift = _scheduleMapper.ToShiftEntity(request.Resource);
+        await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync([], shift.GroupItems, cancellationToken);
 
         if (!shift.MacroId.HasValue || shift.MacroId.Value == Guid.Empty)
         {

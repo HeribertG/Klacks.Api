@@ -7,6 +7,7 @@
 /// <param name="shiftId">Required. UUID of the shift.</param>
 /// <param name="qualificationId">Required. UUID of the qualification to remove from the shift.</param>
 
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Commands.Qualifications;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -22,12 +23,16 @@ public class RemoveShiftRequiredQualificationSkill : BaseSkillImplementation
     private readonly IShiftRequiredQualificationRepository _repository;
     private readonly IMediator _mediator;
 
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+
     public RemoveShiftRequiredQualificationSkill(
         IShiftRequiredQualificationRepository repository,
-        IMediator mediator)
+        IMediator mediator,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _repository = repository;
         _mediator = mediator;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -38,10 +43,13 @@ public class RemoveShiftRequiredQualificationSkill : BaseSkillImplementation
         var shiftId = GetRequiredGuid(parameters, "shiftId");
         var qualificationId = GetRequiredGuid(parameters, "qualificationId");
 
-        var existing = await _repository.GetActiveAsync(shiftId, qualificationId, cancellationToken);
+        var isVisible = await _shiftVisibilityGuard.IsVisibleAsync(shiftId, cancellationToken);
+        var existing = isVisible ? await _repository.GetActiveAsync(shiftId, qualificationId, cancellationToken) : null;
         if (existing == null)
         {
-            var current = await _repository.GetByShiftIdAsync(shiftId, cancellationToken);
+            var current = isVisible
+                ? await _repository.GetByShiftIdAsync(shiftId, cancellationToken)
+                : new List<Domain.Models.Associations.ShiftRequiredQualification>();
             if (current.Count == 0)
             {
                 return SkillResult.Error(

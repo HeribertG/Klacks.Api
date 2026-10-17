@@ -12,6 +12,7 @@
 /// <param name="shiftId">UUID of the sealed order (status SealedOrder) to set the until-date on.</param>
 /// <param name="untilDate">ISO date (YYYY-MM-DD) the order ends on; must not be before fromDate.</param>
 
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
@@ -30,10 +31,14 @@ public class SetSealedOrderUntilDateSkill : BaseSkillImplementation
     private readonly IShiftRepository _shiftRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public SetSealedOrderUntilDateSkill(IShiftRepository shiftRepository, IUnitOfWork unitOfWork)
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+
+    public SetSealedOrderUntilDateSkill(
+        IShiftRepository shiftRepository, IUnitOfWork unitOfWork, IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _unitOfWork = unitOfWork;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -50,7 +55,7 @@ public class SetSealedOrderUntilDateSkill : BaseSkillImplementation
         }
 
         var shift = await _shiftRepository.Get(shiftId);
-        if (shift == null)
+        if (shift == null || !await _shiftVisibilityGuard.IsVisibleAsync(shift, cancellationToken))
         {
             return SkillResult.Error($"Order with ID {shiftId} not found.");
         }
