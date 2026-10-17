@@ -4,13 +4,18 @@
 /// Handler for updating all children (sub-works, sub-breaks, and work changes) of a container work using the Savebar pattern.
 /// Delegates business logic to IContainerWorkChildrenManager; handles lock verification, mapping, persistence, and notifications.
 /// A container whose owner, any client of its sub-works or any replacement client of its work changes is outside the
-/// caller's group visibility is refused exactly like a container that does not exist; nothing is written.
+/// caller's group visibility is refused exactly like a container that does not exist; nothing is written. A new sub-work or
+/// a sub-work whose shift changes against the stored one must be on a shift the caller may book, otherwise the save is
+/// refused exactly like a save with a shift that does not exist; unchanged sub-works on hidden shifts stay saveable.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
+/// <param name="shiftVisibilityGuard">Decides which shifts of new or changed sub-works the calling user may book</param>
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Application.Services.Shifts;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -21,9 +26,6 @@ namespace Klacks.Api.Application.Handlers.Works;
 
 public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHandler<UpdateContainerWorkChildrenCommand, ContainerWorkChildrenResource>
 {
-    private const string LockResourceType = "ContainerWork";
-    private const string WorkNotFoundMessageFormat = "Work with ID {0} not found.";
-
     private readonly IContainerWorkChildrenReadRepository _childrenReadRepository;
     private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
@@ -33,6 +35,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     private readonly IUserService _userService;
     private readonly IContainerWorkChildrenManager _childrenManager;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public UpdateContainerWorkChildrenCommandHandler(
         IContainerWorkChildrenReadRepository childrenReadRepository,
@@ -44,6 +47,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         IUserService userService,
         IContainerWorkChildrenManager childrenManager,
         IOvertimeCascadeService overtimeCascadeService,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         ILogger<UpdateContainerWorkChildrenCommandHandler> logger)
         : base(logger)
     {
@@ -56,6 +60,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         _userService = userService;
         _childrenManager = childrenManager;
         _overtimeCascadeService = overtimeCascadeService;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public async Task<ContainerWorkChildrenResource> Handle(UpdateContainerWorkChildrenCommand request, CancellationToken cancellationToken)
@@ -73,6 +78,8 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             var updatedWorks = request.Resource.SubWorks.Select(_scheduleMapper.ToWorkEntity).ToList();
             var updatedBreaks = request.Resource.SubBreaks.Select(_scheduleMapper.ToBreakEntity).ToList();
             var updatedWorkChanges = request.Resource.SubWorkChanges.Select(_scheduleMapper.ToWorkChangeEntity).ToList();
+
+            await EnsureSubWorkShiftsVisibleAsync(request.WorkId, updatedWorks, cancellationToken);
 
             var parentWork = await _childrenManager.UpdateChildrenAsync(
                 request.WorkId,
@@ -111,7 +118,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     {
         var userId = _userService.GetId() ?? Guid.Empty;
         var instanceId = _userService.GetInstanceId() ?? string.Empty;
-        var holdsLock = await _lockRepository.IsHeldBy(LockResourceType, workId, userId, instanceId, cancellationToken);
+        var holdsLock = await _lockRepository.IsHeldBy(ContainerLockResourceTypes.ContainerWork, workId, userId, instanceId, cancellationToken);
         if (!holdsLock)
         {
             throw new ContainerLockedException("Cannot save: container work is not locked by this session.");
@@ -129,7 +136,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         var parentWork = await _childrenReadRepository.GetParentWorkNoTracking(workId, cancellationToken);
         if (parentWork == null)
         {
-            throw new KeyNotFoundException(string.Format(WorkNotFoundMessageFormat, workId));
+            throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, workId));
         }
 
         var clientIds = resource.SubWorkChanges
@@ -141,7 +148,48 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             .ToList();
         if (!await _rowAccessGuard.AreAllVisibleAsync(clientIds, parentWork.AnalyseToken, cancellationToken))
         {
-            throw new KeyNotFoundException(string.Format(WorkNotFoundMessageFormat, workId));
+            throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, workId));
+        }
+    }
+
+    /// <summary>
+    /// One query decides which requested sub-work shifts the caller may book; only when some may not are the stored
+    /// sub-works read, so that a hidden shift is refused only on a new sub-work or a changed shift.
+    /// </summary>
+    private async Task EnsureSubWorkShiftsVisibleAsync(
+        Guid workId, IReadOnlyCollection<Work> updatedWorks, CancellationToken cancellationToken)
+    {
+        var requestedShiftIds = updatedWorks
+            .Select(w => w.ShiftId)
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToList();
+        if (requestedShiftIds.Count == 0)
+        {
+            return;
+        }
+
+        var visibleShiftIds = await _shiftVisibilityGuard.FilterVisibleAsync(requestedShiftIds, cancellationToken);
+        if (visibleShiftIds.Count == requestedShiftIds.Count)
+        {
+            return;
+        }
+
+        var storedShiftIds = await _childrenReadRepository.GetChildWorkShiftIds(workId, cancellationToken);
+        foreach (var subWork in updatedWorks)
+        {
+            if (subWork.ShiftId == Guid.Empty || visibleShiftIds.Contains(subWork.ShiftId))
+            {
+                continue;
+            }
+
+            var unchanged = subWork.Id != Guid.Empty
+                && storedShiftIds.TryGetValue(subWork.Id, out var storedShiftId)
+                && storedShiftId == subWork.ShiftId;
+            if (!unchanged)
+            {
+                throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, subWork.ShiftId));
+            }
         }
     }
 

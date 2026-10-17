@@ -20,7 +20,13 @@ public interface IContainerTemplateRepository : IBaseRepository<ContainerTemplat
 
     Task<List<ContainerTemplateItem>> GetItemsForTemplate(Guid templateId, bool tracked);
 
-    Task UpdateItem(ContainerTemplateItem item);
+    /// <summary>
+    /// Updates a stored item of the given template. An item that is missing or belongs to another template throws
+    /// KeyNotFoundException with the same text, so a foreign item id cannot be overwritten.
+    /// </summary>
+    /// <param name="templateId">Template the item must belong to</param>
+    /// <param name="item">Item values to apply, keyed by item.Id</param>
+    Task UpdateItem(Guid templateId, ContainerTemplateItem item);
 
     Task<Guid> CreateItem(Guid templateId, ContainerTemplateItem item);
 

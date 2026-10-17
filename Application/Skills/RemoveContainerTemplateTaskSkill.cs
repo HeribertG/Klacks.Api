@@ -9,12 +9,16 @@
 /// <param name="containerId">Required. UUID of the container shift (ShiftType.IsContainer).</param>
 /// <param name="weekday">Required. ISO weekday 1=Monday..7=Sunday of the template to remove the task from.</param>
 /// <param name="taskShiftId">Required. UUID of the task shift item to remove.</param>
+/// <param name="shiftVisibilityGuard">Answers a hidden container exactly like a missing one; hidden task shifts are
+/// neither listed nor removable, exactly like absent ones</param>
 
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
@@ -28,7 +32,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("remove_container_template_task")]
 public class RemoveContainerTemplateTaskSkill : BaseSkillImplementation
 {
-    private const string LockResourceType = "ContainerTemplate";
     private const int MinIsoWeekday = 1;
     private const int MaxIsoWeekday = 7;
     private const int IsoSunday = 7;
@@ -37,15 +40,18 @@ public class RemoveContainerTemplateTaskSkill : BaseSkillImplementation
     private readonly IShiftRepository _shiftRepository;
     private readonly IMediator _mediator;
     private readonly IUserService _userService;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public RemoveContainerTemplateTaskSkill(
         IShiftRepository shiftRepository,
         IMediator mediator,
-        IUserService userService)
+        IUserService userService,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _mediator = mediator;
         _userService = userService;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -65,7 +71,7 @@ public class RemoveContainerTemplateTaskSkill : BaseSkillImplementation
         var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
 
         var container = await _shiftRepository.Get(containerId);
-        if (container is null)
+        if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
         {
             return SkillResult.Error($"Shift/container not found: {containerId}");
         }
@@ -82,10 +88,20 @@ public class RemoveContainerTemplateTaskSkill : BaseSkillImplementation
             return SkillResult.Error("No container template configured for this weekday yet — there is nothing to remove.");
         }
 
-        var precheckItem = precheckTemplate.ContainerTemplateItems.FirstOrDefault(i => i.ShiftId == taskShiftId);
+        var visibleShiftIds = await _shiftVisibilityGuard.FilterVisibleAsync(
+            precheckTemplate.ContainerTemplateItems
+                .Where(i => i.ShiftId.HasValue)
+                .Select(i => i.ShiftId!.Value)
+                .ToList(),
+            cancellationToken);
+        var listedItems = precheckTemplate.ContainerTemplateItems
+            .Where(i => !i.ShiftId.HasValue || visibleShiftIds.Contains(i.ShiftId.Value))
+            .ToList();
+
+        var precheckItem = listedItems.FirstOrDefault(i => i.ShiftId == taskShiftId);
         if (precheckItem is null)
         {
-            var currentItems = precheckTemplate.ContainerTemplateItems
+            var currentItems = listedItems
                 .Select(i => i.ShiftId?.ToString() ?? i.AbsenceId?.ToString() ?? "unknown")
                 .ToList();
             var currentItemsText = currentItems.Count > 0 ? string.Join(", ", currentItems) : "none";
@@ -96,7 +112,7 @@ public class RemoveContainerTemplateTaskSkill : BaseSkillImplementation
 
         var instanceId = _userService.GetInstanceId() ?? string.Empty;
         var lockResult = await _mediator.Send(
-            new AcquireContainerLockCommand(LockResourceType, containerId, instanceId), cancellationToken);
+            new AcquireContainerLockCommand(ContainerLockResourceTypes.ContainerTemplate, containerId, instanceId), cancellationToken);
 
         if (!lockResult.Acquired)
         {

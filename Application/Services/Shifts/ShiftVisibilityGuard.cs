@@ -44,6 +44,17 @@ public class ShiftVisibilityGuard : IShiftVisibilityGuard
         return await FindFirstHiddenAsync([shiftId], cancellationToken) == null;
     }
 
+    public async Task<bool> ExistsAndVisibleAsync(Guid shiftId, CancellationToken cancellationToken = default)
+    {
+        var visibleGroupIds = await _shiftGroupFilterService.ResolveShiftListGroupIdsAsync(null);
+        if (visibleGroupIds == null)
+        {
+            return await _shiftVisibilityReader.ExistsAsync(shiftId, cancellationToken);
+        }
+
+        return (await _shiftVisibilityReader.FilterVisibleShiftIdsAsync([shiftId], visibleGroupIds, cancellationToken)).Count > 0;
+    }
+
     public async Task<bool> IsVisibleAsync(Shift shift, CancellationToken cancellationToken = default)
     {
         var visibleGroupIds = await _shiftGroupFilterService.ResolveShiftListGroupIdsAsync(null);
@@ -58,14 +69,7 @@ public class ShiftVisibilityGuard : IShiftVisibilityGuard
             return null;
         }
 
-        var visibleGroupIds = await _shiftGroupFilterService.ResolveShiftListGroupIdsAsync(null);
-        if (visibleGroupIds == null)
-        {
-            return null;
-        }
-
-        var visibleIds = (await _shiftVisibilityReader.FilterVisibleShiftIdsAsync(distinctIds, visibleGroupIds, cancellationToken))
-            .ToHashSet();
+        var visibleIds = await FilterVisibleAsync(distinctIds, cancellationToken);
         foreach (var shiftId in distinctIds)
         {
             if (!visibleIds.Contains(shiftId))
@@ -76,6 +80,24 @@ public class ShiftVisibilityGuard : IShiftVisibilityGuard
         }
 
         return null;
+    }
+
+    public async Task<IReadOnlySet<Guid>> FilterVisibleAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var distinctIds = shiftIds.Distinct().ToList();
+        if (distinctIds.Count == 0)
+        {
+            return new HashSet<Guid>();
+        }
+
+        var visibleGroupIds = await _shiftGroupFilterService.ResolveShiftListGroupIdsAsync(null);
+        if (visibleGroupIds == null)
+        {
+            return distinctIds.ToHashSet();
+        }
+
+        return (await _shiftVisibilityReader.FilterVisibleShiftIdsAsync(distinctIds, visibleGroupIds, cancellationToken))
+            .ToHashSet();
     }
 
     public async Task EnsureGroupChangesVisibleAsync(

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.Commands.Shifts;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
@@ -17,8 +18,10 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 /// <summary>
 /// Cuts shifts into pieces and resets the cuts of a sealed order. Every shift a batch touches (updated shift, stored
-/// parent, referenced sealed order) and the reset order must be visible to a group-restricted caller; a hidden one is
-/// answered with exactly the error a missing one gets, before anything is validated or written.
+/// parent) and the reset order must be visible to a group-restricted caller; a hidden one is answered with exactly the
+/// error a missing one gets, before anything is validated or written. The hierarchy is server-owned: an update keeps the
+/// stored order reference, customer and tree fields, a new piece takes order reference and customer from its parent,
+/// whatever the request carries. The sealed order and a draft cannot be the target of a cut update.
 /// </summary>
 /// <param name="shiftVisibilityGuard">Decides whether the caller may touch a shift and the groups a piece changes</param>
 public class ShiftCutFacade : IShiftCutFacade
@@ -61,41 +64,35 @@ public class ShiftCutFacade : IShiftCutFacade
         _logger.LogInformation("Number of operations: {OpCount}", operations.Count);
 
         await EnsureOperationsVisibleAsync(operations);
-        await ValidateCutDates(operations);
-
-        var processedShifts = new List<Shift>();
-        var shiftsToDelete = new HashSet<Guid>();
-        var requirementsOfCreated = new Dictionary<Guid, List<ShiftRequiredQualification>>();
 
         var sortedOps = TopologicalSort(operations);
+        var lineages = await ResolveLineagesAsync(sortedOps);
+        await ValidateCutDates(sortedOps, lineages);
+
+        var processedShifts = new List<Shift>();
+        var requirementsOfCreated = new Dictionary<Guid, List<ShiftRequiredQualification>>();
 
         _logger.LogInformation("=== PHASE 1: Processing operations and setting hierarchy relations ===");
 
         foreach (var op in sortedOps)
         {
-            if (op.Type == "UPDATE")
+            if (op.Type == CutOperation.UpdateType)
             {
                 _logger.LogInformation("Processing UPDATE for ShiftId={ShiftId}", op.Data.Id);
-                var updatedShift = await ProcessUpdate(op, shiftsToDelete, processedShifts);
+                var updatedShift = await ProcessUpdate(op, lineages[op]);
                 processedShifts.Add(updatedShift);
             }
-            else if (op.Type == "CREATE")
+            else if (op.Type == CutOperation.CreateType)
             {
                 _logger.LogInformation("Processing CREATE with ShiftId={ShiftId}, ParentId={ParentId}",
                     op.Data.Id, op.ParentId);
-                var createdShift = await ProcessCreate(op, requirementsOfCreated);
+                var createdShift = await ProcessCreate(op, lineages[op], requirementsOfCreated);
                 processedShifts.Add(createdShift);
             }
             else
             {
                 throw new InvalidOperationException($"Unknown operation type: {op.Type}");
             }
-        }
-
-        foreach (var shiftId in shiftsToDelete)
-        {
-            _logger.LogInformation("Deleting original shift: {ShiftId}", shiftId);
-            await _shiftRepository.Delete(shiftId);
         }
 
         _logger.LogInformation("=== PHASE 1 Complete: Saving to database ===");
@@ -154,17 +151,17 @@ public class ShiftCutFacade : IShiftCutFacade
 
     /// <summary>
     /// Refuses the whole batch for a group-restricted caller before anything is validated or written when it touches a
-    /// shift they may not see: an updated shift, a stored parent of a new piece or a referenced sealed order. Each is
-    /// answered with the error the later step raises for a missing one. Changed group assignments must be visible too:
-    /// an update is compared with the stored shift, a new piece with its parent (the piece normally copies its groups).
-    /// Parents and orders created in the same batch are checked as their own operation. Every operation is checked with
-    /// its own groups, and a piece whose parent occurs several times in the batch is compared with each occurrence, so a
-    /// repeated id cannot slip a hidden group past the check.
+    /// shift they may not see: an updated shift or a stored parent of a new piece. Each is answered with the error the
+    /// later step raises for a missing one. The sealed order is not checked separately: the order reference is never
+    /// taken from the request, it comes from the visible stored shift or parent. Changed group assignments must be
+    /// visible too: an update is compared with the stored shift, a new piece with its parent (the piece normally copies
+    /// its groups). Parents created in the same batch are checked as their own operation. Every operation is checked
+    /// with its own groups, and a piece whose parent occurs several times in the batch is compared with each occurrence,
+    /// so a repeated id cannot slip a hidden group past the check.
     /// </summary>
     /// <param name="operations">The batch as sent</param>
     private async Task EnsureOperationsVisibleAsync(List<CutOperation> operations)
     {
-        var batchIds = operations.Select(op => op.Data.Id).ToHashSet();
         var requestedGroupsByOperation = operations.ToDictionary(op => op, op => _scheduleMapper.ToShiftEntity(op.Data).GroupItems);
         var requestedGroupsById = operations
             .GroupBy(op => op.Data.Id)
@@ -174,7 +171,7 @@ public class ShiftCutFacade : IShiftCutFacade
         {
             var requestedGroups = requestedGroupsByOperation[op];
 
-            if (op.Type == "UPDATE" && op.Data.Id != Guid.Empty)
+            if (op.Type == CutOperation.UpdateType && op.Data.Id != Guid.Empty)
             {
                 if (!await _shiftVisibilityGuard.IsVisibleAsync(op.Data.Id))
                 {
@@ -183,7 +180,7 @@ public class ShiftCutFacade : IShiftCutFacade
 
                 await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync(op.Data.Id, requestedGroups);
             }
-            else if (op.Type == "CREATE" && Guid.TryParse(op.ParentId, out var parentId))
+            else if (op.Type == CutOperation.CreateType && Guid.TryParse(op.ParentId, out var parentId))
             {
                 if (requestedGroupsById.TryGetValue(parentId, out var parentGroupsInBatch))
                 {
@@ -202,43 +199,39 @@ public class ShiftCutFacade : IShiftCutFacade
                     await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync(parentId, requestedGroups);
                 }
             }
-
-            if (op.Data.OriginalId.HasValue
-                && !batchIds.Contains(op.Data.OriginalId.Value)
-                && !await _shiftVisibilityGuard.IsVisibleAsync(op.Data.OriginalId.Value))
-            {
-                throw new InvalidOperationException(
-                    string.Format(ShiftVisibilityMessages.SealedOrderNotFound, op.Data.OriginalId.Value));
-            }
         }
     }
 
-    private async Task ValidateCutDates(List<CutOperation> operations)
+    /// <summary>
+    /// Resolves the server-owned fields of every operation before anything is staged, so a refused batch leaves the
+    /// change tracker untouched. An update must target a stored plannable shift or cut piece and be sent as a cut piece;
+    /// it keeps its stored order reference, customer and tree fields. A new piece takes order reference and customer from
+    /// its parent: a sealed order is itself the reference, any other parent passes on its own. A parent created or
+    /// updated earlier in the batch passes on what was resolved for it.
+    /// </summary>
+    /// <param name="sortedOperations">The batch in processing order (parents first)</param>
+    private async Task<Dictionary<CutOperation, CutOperationLineage>> ResolveLineagesAsync(List<CutOperation> sortedOperations)
     {
-        _logger.LogInformation("=== Validating cut dates against allowed range ===");
-        foreach (var op in operations)
-        {
-            if (op.Data.OriginalId.HasValue)
-            {
-                await _shiftValidator.ValidateCutDatesWithinAllowedRange(
-                    op.Data.OriginalId.Value,
-                    op.Data.FromDate,
-                    op.Data.UntilDate,
-                    _shiftRepository);
+        var lineages = new Dictionary<CutOperation, CutOperationLineage>();
+        var lineagesById = new Dictionary<Guid, CutOperationLineage>();
 
-                _logger.LogInformation(
-                    "Validated cut dates for OriginalId={OriginalId}, FromDate={FromDate}, UntilDate={UntilDate}",
-                    op.Data.OriginalId.Value,
-                    op.Data.FromDate,
-                    op.Data.UntilDate);
-            }
+        foreach (var op in sortedOperations)
+        {
+            var lineage = op.Type switch
+            {
+                CutOperation.UpdateType => await ResolveUpdateLineageAsync(op),
+                CutOperation.CreateType => await ResolveCreateLineageAsync(op, lineagesById),
+                _ => throw new InvalidOperationException($"Unknown operation type: {op.Type}")
+            };
+
+            lineages[op] = lineage;
+            lineagesById[op.Data.Id] = lineage;
         }
+
+        return lineages;
     }
 
-    private async Task<Shift> ProcessUpdate(
-        CutOperation op,
-        HashSet<Guid> shiftsToDelete,
-        List<Shift> processedShifts)
+    private async Task<CutOperationLineage> ResolveUpdateLineageAsync(CutOperation op)
     {
         if (op.Data.Id == Guid.Empty)
         {
@@ -253,20 +246,89 @@ public class ShiftCutFacade : IShiftCutFacade
 
         EnsureNotInScenario(existingShift, "cut/update");
 
+        var isAllowedTransition = op.Data.Status == ShiftStatus.SplitShift
+            && existingShift.Status is ShiftStatus.SplitShift or ShiftStatus.OriginalShift;
+        if (!isAllowedTransition)
+        {
+            throw new BadRequestException(string.Format(
+                ShiftHierarchyMessages.CutUpdateStatusNotAllowed, existingShift.Id, existingShift.Status, op.Data.Status));
+        }
+
         _logger.LogInformation("Existing shift loaded: ID={Id}, Status={Status}",
             existingShift.Id, existingShift.Status);
 
+        return new CutOperationLineage(
+            existingShift.OriginalId,
+            existingShift.ClientId,
+            existingShift.ParentId,
+            existingShift.RootId,
+            existingShift.Lft,
+            existingShift.Rgt,
+            existingShift.Status);
+    }
+
+    private async Task<CutOperationLineage> ResolveCreateLineageAsync(
+        CutOperation op,
+        Dictionary<Guid, CutOperationLineage> lineagesById)
+    {
+        var parentId = ResolveParentId(op.ParentId);
+
+        if (lineagesById.TryGetValue(parentId, out var parentInBatch))
+        {
+            return new CutOperationLineage(parentInBatch.OriginalId, parentInBatch.ClientId, null, null, null, null, null);
+        }
+
+        var parentShift = await _shiftRepository.GetTrackedOrFromDb(parentId);
+        if (parentShift == null)
+        {
+            throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ParentShiftNotFound, parentId));
+        }
+
+        var originalId = parentShift.Status == ShiftStatus.SealedOrder ? parentShift.Id : parentShift.OriginalId;
+        return new CutOperationLineage(originalId, parentShift.ClientId, null, null, null, null, null);
+    }
+
+    private async Task ValidateCutDates(
+        List<CutOperation> sortedOperations,
+        Dictionary<CutOperation, CutOperationLineage> lineages)
+    {
+        _logger.LogInformation("=== Validating cut dates against allowed range ===");
+        foreach (var op in sortedOperations)
+        {
+            var originalId = lineages[op].OriginalId;
+            if (!originalId.HasValue)
+            {
+                continue;
+            }
+
+            await _shiftValidator.ValidateCutDatesWithinAllowedRange(
+                originalId.Value,
+                op.Data.FromDate,
+                op.Data.UntilDate,
+                _shiftRepository);
+
+            _logger.LogInformation(
+                "Validated cut dates for OriginalId={OriginalId}, FromDate={FromDate}, UntilDate={UntilDate}",
+                originalId.Value,
+                op.Data.FromDate,
+                op.Data.UntilDate);
+        }
+    }
+
+    private async Task<Shift> ProcessUpdate(CutOperation op, CutOperationLineage lineage)
+    {
         var shift = _scheduleMapper.ToShiftEntity(op.Data);
         shift.Id = op.Data.Id;
+        shift.OriginalId = lineage.OriginalId;
+        shift.ClientId = lineage.ClientId;
+        shift.ParentId = lineage.ParentId;
+        shift.RootId = lineage.RootId;
+        shift.Lft = lineage.Lft;
+        shift.Rgt = lineage.Rgt;
 
-        if (shift.Status == ShiftStatus.SplitShift &&
-            (existingShift.Status == ShiftStatus.OriginalShift || existingShift.Status == ShiftStatus.SealedOrder))
+        if (lineage.StoredStatus == ShiftStatus.OriginalShift)
         {
-            _logger.LogInformation("Status change detected: {OldStatus} -> SplitShift", existingShift.Status);
-
-            var parentId = ResolveParentId(op.ParentId);
-            var parentShift = await _shiftRepository.GetTrackedOrFromDb(parentId);
-
+            _logger.LogInformation("Status change detected: {OldStatus} -> SplitShift", lineage.StoredStatus);
             _shiftTreeService.SetHierarchyRelation(shift, null, null);
         }
 
@@ -285,6 +347,7 @@ public class ShiftCutFacade : IShiftCutFacade
 
     private async Task<Shift> ProcessCreate(
         CutOperation op,
+        CutOperationLineage lineage,
         Dictionary<Guid, List<ShiftRequiredQualification>> requirementsOfCreated)
     {
         if (op.Data.Id == Guid.Empty)
@@ -310,6 +373,8 @@ public class ShiftCutFacade : IShiftCutFacade
         var shift = _scheduleMapper.ToShiftEntity(op.Data);
         shift.Id = op.Data.Id;
         shift.Status = ShiftStatus.SplitShift;
+        shift.OriginalId = lineage.OriginalId;
+        shift.ClientId = lineage.ClientId;
 
         if (parentShift.Status == ShiftStatus.SealedOrder || parentShift.Status == ShiftStatus.OriginalShift)
         {

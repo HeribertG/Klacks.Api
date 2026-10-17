@@ -7,8 +7,10 @@
 /// </summary>
 /// <param name="containerId">Required. UUID of the container shift (ShiftType.IsContainer).</param>
 /// <param name="weekday">Optional. ISO weekday 1=Monday..7=Sunday; omitted lists all weekdays.</param>
+/// <param name="shiftVisibilityGuard">Answers a hidden container (or task shift) exactly like a missing one</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
@@ -29,11 +31,14 @@ public class ListContainerTemplateSkill : BaseSkillImplementation
 
     private readonly IShiftRepository _shiftRepository;
     private readonly IMediator _mediator;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
-    public ListContainerTemplateSkill(IShiftRepository shiftRepository, IMediator mediator)
+    public ListContainerTemplateSkill(
+        IShiftRepository shiftRepository, IMediator mediator, IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _mediator = mediator;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -45,7 +50,7 @@ public class ListContainerTemplateSkill : BaseSkillImplementation
         var isoWeekday = GetParameter<int?>(parameters, "weekday");
 
         var container = await _shiftRepository.Get(containerId);
-        if (container is null)
+        if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
         {
             return SkillResult.Error($"Shift/container not found: {containerId}");
         }

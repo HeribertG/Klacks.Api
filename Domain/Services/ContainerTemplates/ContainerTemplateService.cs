@@ -37,7 +37,7 @@ public class ContainerTemplateService
             if (item.Id != Guid.Empty)
             {
                 _logger.LogInformation("Updating ContainerTemplateItem: {ItemId}", item.Id);
-                await repository.UpdateItem(item);
+                await repository.UpdateItem(templateId, item);
                 result.UpdatedItems.Add(item.Id);
 
                 var existingItem = existingList.FirstOrDefault(e => e.Id == item.Id);

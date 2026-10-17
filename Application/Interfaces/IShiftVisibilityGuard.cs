@@ -16,9 +16,19 @@ public interface IShiftVisibilityGuard
     /// <summary>
     /// True for an unrestricted caller without any query (the caller's own existence check decides as before);
     /// for a restricted caller true only when the shift exists and is visible, so missing and hidden look alike.
+    /// For an unrestricted caller the result is therefore also true for an id that does not exist: this is no
+    /// existence check; use ExistsAndVisibleAsync when existence must be decided too.
     /// </summary>
     /// <param name="shiftId">Shift a write is about to touch</param>
     Task<bool> IsVisibleAsync(Guid shiftId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// True only when the shift exists and the caller may touch it, for every caller: an unrestricted caller gets a
+    /// plain existence query, a restricted caller the visibility query, so each is answered with exactly one query and
+    /// a missing and a hidden shift look alike.
+    /// </summary>
+    /// <param name="shiftId">Shift a read or write is about to touch</param>
+    Task<bool> ExistsAndVisibleAsync(Guid shiftId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Same rule for a shift that is already loaded with its group items, answered without a shift query.
@@ -32,6 +42,14 @@ public interface IShiftVisibilityGuard
     /// </summary>
     /// <param name="shiftIds">Shift ids a write is about to touch</param>
     Task<Guid?> FindFirstHiddenAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns those of the given shift ids a write may touch: all of them (distinct) for an unrestricted caller without
+    /// a query; for a restricted caller only the ids that exist and are visible, answered with one query, so a missing
+    /// and a hidden id are both left out alike.
+    /// </summary>
+    /// <param name="shiftIds">Shift ids a write is about to touch</param>
+    Task<IReadOnlySet<Guid>> FilterVisibleAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Refuses a write that adds, removes or re-dates a group assignment of a group the caller cannot see, with the

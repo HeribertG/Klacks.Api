@@ -6,17 +6,21 @@
 /// WorkResource the client repaints from. A Work for a client outside the caller's group visibility is
 /// refused exactly like a Work for a client that does not exist; nothing is written. Like the grid's locked cells, a
 /// Work on a day outside the client's membership or group period is refused; container children follow their parent's
-/// cell and are not checked on their own.
+/// cell and are not checked on their own. A Work on a shift outside the caller's group visibility is refused exactly like a
+/// Work on a shift that does not exist (404, same text), before any other check reveals anything about the shift.
 /// </summary>
 /// <param name="request">Carries the WorkResource to persist</param>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
 /// <param name="defaultExpensesApplier">Stages the shift's default expenses on the new Work (same scope, same save)</param>
 /// <param name="planningPeriodGuard">Refuses a Work whose client is not plannable on its day (membership or group period)</param>
+/// <param name="shiftVisibilityGuard">Decides whether the calling user may book the Work's shift</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Clients;
+using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -42,6 +46,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IWorkWriteGuard _writeGuard;
     private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public PostCommandHandler(
         IWorkRepository workRepository,
@@ -59,6 +64,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         IOvertimeCascadeService overtimeCascadeService,
         IWorkWriteGuard writeGuard,
         IClientPlanningPeriodGuard planningPeriodGuard,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -77,6 +83,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _overtimeCascadeService = overtimeCascadeService;
         _writeGuard = writeGuard;
         _planningPeriodGuard = planningPeriodGuard;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -87,7 +94,12 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
 
             if (!await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
             {
-                throw new KeyNotFoundException($"Client with ID {work.ClientId} not found");
+                throw new KeyNotFoundException(string.Format(ClientVisibilityMessages.ClientNotFound, work.ClientId));
+            }
+
+            if (!await _shiftVisibilityGuard.IsVisibleAsync(work.ShiftId, cancellationToken))
+            {
+                throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, work.ShiftId));
             }
 
             await _dayLockService.EnsureNotLockedAsync(

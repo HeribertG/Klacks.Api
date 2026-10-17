@@ -4,6 +4,8 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Shifts;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -18,9 +20,15 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 /// <summary>
 /// Saves a shift from the edit form. A shift a group-restricted caller may not see is answered exactly like a missing
 /// one (null, i.e. 404), before any other check; adding, removing or re-dating an assignment to a hidden group is
-/// refused like a missing group.
+/// refused like a missing group. A changed customer must exist, must not be soft-deleted and must be visible, otherwise
+/// the save is refused with the same 404 for all three; an unchanged customer is not checked, so a shift whose stored
+/// customer the caller cannot see stays saveable. A stored draft order (OriginalOrder) may only be saved as a draft or
+/// sealed (SealedOrder); any other status is refused with 400, because the status is server-owned hierarchy. The lock
+/// check runs first, then the draft status check, then the customer check, so a locked shift answers 409 and a forbidden
+/// draft status 400 whatever customer was sent.
 /// </summary>
 /// <param name="shiftVisibilityGuard">Decides whether the caller may touch the shift and its changed groups</param>
+/// <param name="clientReferenceGuard">Decides whether a changed customer exists and is visible to the caller</param>
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftResource>, ShiftResource?>
 {
     private readonly IShiftRepository _shiftRepository;
@@ -28,6 +36,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly IClientReferenceGuard _clientReferenceGuard;
 
     public PutCommandHandler(
         IShiftRepository shiftRepository,
@@ -35,6 +44,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IShiftVisibilityGuard shiftVisibilityGuard,
+        IClientReferenceGuard clientReferenceGuard,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -43,6 +53,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _shiftVisibilityGuard = shiftVisibilityGuard;
+        _clientReferenceGuard = clientReferenceGuard;
     }
 
     public async Task<ShiftResource?> Handle(PutCommand<ShiftResource> request, CancellationToken cancellationToken)
@@ -58,7 +69,10 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
 
         var shift = _scheduleMapper.ToShiftEntity(request.Resource);
         await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync(shift.Id, shift.GroupItems, cancellationToken);
-        await EnsureNotLockedAsync(shift);
+        var stored = await _shiftRepository.GetNoTracking(shift.Id);
+        EnsureNotLocked(stored, shift);
+        EnsureDraftStatusTransitionAllowed(stored, shift);
+        await EnsureChangedClientExistsVisibleAsync(stored, shift, cancellationToken);
         await KeepInheritedRequirementsAsync(shift, cancellationToken);
 
         var resultShift = await _shiftRepository.PutWithSealedOrderHandling(shift);
@@ -83,10 +97,10 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
     /// Refuses a save that changes content of a shift that is no longer a draft order, with the same fields the edit form
     /// disables. The sealing save (stored draft order to sealed order) passes because the stored row is still a draft.
     /// </summary>
+    /// <param name="stored">Shift as saved, or null when it does not exist</param>
     /// <param name="incoming">Shift as mapped from the request</param>
-    private async Task EnsureNotLockedAsync(Shift incoming)
+    private void EnsureNotLocked(Shift? stored, Shift incoming)
     {
-        var stored = await _shiftRepository.GetNoTracking(incoming.Id);
         if (stored == null)
         {
             return;
@@ -99,6 +113,41 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
                 stored.Id, stored.Status, string.Join(',', lockedChanges));
             throw ShiftLockedException.ForEdit(stored, lockedChanges);
         }
+    }
+
+    /// <summary>
+    /// A draft order becomes something else only by sealing (which derives the plannable copy); turning it into a
+    /// plannable shift or a cut piece by PUT would bypass the server-owned hierarchy.
+    /// </summary>
+    /// <param name="stored">Shift as saved, or null when it does not exist</param>
+    /// <param name="incoming">Shift as mapped from the request</param>
+    private void EnsureDraftStatusTransitionAllowed(Shift? stored, Shift incoming)
+    {
+        if (stored?.Status != ShiftStatus.OriginalOrder
+            || incoming.Status is ShiftStatus.OriginalOrder or ShiftStatus.SealedOrder)
+        {
+            return;
+        }
+
+        _logger.LogWarning("Shift update refused: draft order {ShiftId} sent with status {Status}", stored.Id, incoming.Status);
+        throw new BadRequestException(
+            string.Format(ShiftHierarchyMessages.DraftStatusChangeNotAllowed, stored.Id, incoming.Status));
+    }
+
+    /// <summary>
+    /// Checks the customer only when the save sets a different one than stored; a missing shift is left to the
+    /// repository's not-found answer, so it never reports a customer.
+    /// </summary>
+    /// <param name="stored">Shift as saved, or null when it does not exist</param>
+    /// <param name="incoming">Shift as mapped from the request</param>
+    private async Task EnsureChangedClientExistsVisibleAsync(Shift? stored, Shift incoming, CancellationToken cancellationToken)
+    {
+        if (stored == null || !incoming.ClientId.HasValue || incoming.ClientId == stored.ClientId)
+        {
+            return;
+        }
+
+        await _clientReferenceGuard.EnsureExistsVisibleAsync(incoming.ClientId.Value, cancellationToken);
     }
 
     /// <summary>

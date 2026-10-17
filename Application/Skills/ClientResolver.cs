@@ -12,6 +12,7 @@
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Clients;
 using Klacks.Api.Domain.Models.Staffs;
 
 namespace Klacks.Api.Application.Skills;
@@ -51,8 +52,8 @@ internal static class ClientResolver
         Guid clientId,
         CancellationToken cancellationToken)
     {
-        return await visibilityGuard.IsVisibleAsync(clientId, cancellationToken)
-               && await clientRepository.Exists(clientId);
+        return await ClientReferenceGuard.ExistsVisibleAsync(
+            clientRepository, visibilityGuard, clientId, cancellationToken);
     }
 
     public static Task<(Client? Client, string? Error)> ResolveByNameAsync(

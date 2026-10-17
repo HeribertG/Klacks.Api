@@ -10,11 +10,14 @@
 /// refuses everyone, Approved needs Admin or Authorised, Confirmed is open; scenario Works are not checked. A move to
 /// another day or another client must land on a plannable cell (membership and group period, like the grid's locked
 /// cells); an edit that keeps the stored cell is not checked, so a Work in a cell that has since been locked stays
-/// editable.
+/// editable. A Work moved onto a shift outside the caller's group visibility is refused exactly like a move onto a shift
+/// that does not exist (404, same text), before any other check; a Work that keeps its stored shift is not checked, so
+/// a Work on a shift that has since become hidden stays editable.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 /// <param name="workLockGuard">Refuses the update when the stored Work's lock level forbids it for the caller</param>
 /// <param name="planningPeriodGuard">Refuses a move onto a day or client outside the membership or group period</param>
+/// <param name="shiftVisibilityGuard">Decides whether the calling user may book a changed shift</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
@@ -22,6 +25,7 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -50,6 +54,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IParentWorkLockGuard _workLockGuard;
     private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public PutCommandHandler(
         IWorkRepository workRepository,
@@ -68,6 +73,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IHttpContextAccessor httpContextAccessor,
         IParentWorkLockGuard workLockGuard,
         IClientPlanningPeriodGuard planningPeriodGuard,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -87,6 +93,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _httpContextAccessor = httpContextAccessor;
         _workLockGuard = workLockGuard;
         _planningPeriodGuard = planningPeriodGuard;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -108,6 +115,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             if (!await _rowAccessGuard.AreAllVisibleAsync(ownerIds, work.AnalyseToken, cancellationToken))
             {
                 return null;
+            }
+
+            if (work.ShiftId != oldShiftId
+                && !await _shiftVisibilityGuard.IsVisibleAsync(work.ShiftId, cancellationToken))
+            {
+                throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, work.ShiftId));
             }
 
             if (existingWork != null)

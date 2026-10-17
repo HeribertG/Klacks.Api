@@ -111,13 +111,13 @@ public class CutShiftByDateSkill : BaseSkillImplementation
         {
             new CutOperation
             {
-                Type = "UPDATE",
+                Type = CutOperation.UpdateType,
                 ParentId = sealedOrderId.Value.ToString(),
                 Data = updateData
             },
             new CutOperation
             {
-                Type = "CREATE",
+                Type = CutOperation.CreateType,
                 ParentId = createParentId.ToString(),
                 Data = createData
             }

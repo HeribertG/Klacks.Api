@@ -37,6 +37,14 @@ public class ContainerWorkChildrenReadRepository : IContainerWorkChildrenReadRep
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyDictionary<Guid, Guid>> GetChildWorkShiftIds(Guid parentWorkId, CancellationToken cancellationToken)
+    {
+        return await _context.Work
+            .AsNoTracking()
+            .Where(w => w.ParentWorkId == parentWorkId && !w.IsDeleted)
+            .ToDictionaryAsync(w => w.Id, w => w.ShiftId, cancellationToken);
+    }
+
     public Task<List<Break>> GetChildBreaksWithAbsence(Guid parentWorkId, CancellationToken cancellationToken)
     {
         return _context.Break

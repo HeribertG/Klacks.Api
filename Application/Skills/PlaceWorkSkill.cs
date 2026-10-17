@@ -4,7 +4,8 @@
 /// Skill that assigns an agent (client) to a shift on a specific date — i.e. creates a single Work entry
 /// in the main schedule or in a named scenario. Delegates to the existing BulkAddWorks pipeline so all
 /// period-hour recalculation and validation logic stays in one place.
-/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id, and so is a
+/// shift hidden from the caller.
 /// A day that is sealed for the client is refused before anything is written, also for scenario placements (which
 /// the day lock itself lets through) - a sealed day is a fixed cell for every planner. A day outside the client's
 /// membership or group period is refused before anything is written, exactly like the grid's locked cells (the
@@ -20,6 +21,7 @@
 /// <param name="information">Free-text note.</param>
 /// <param name="analyseToken">Optional scenario token; null = write to main schedule.</param>
 /// <param name="planningPeriodGuard">Names a day outside the client's membership or group period</param>
+/// <param name="shiftVisibilityGuard">Decides whether the calling user may book the shift</param>
 
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Commands.Works;
@@ -47,6 +49,7 @@ public class PlaceWorkSkill : BaseSkillImplementation
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ISealedDayRepository _sealedDayRepository;
     private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public PlaceWorkSkill(
         IMediator mediator,
@@ -55,9 +58,11 @@ public class PlaceWorkSkill : BaseSkillImplementation
         IClientRepository clientRepository,
         IClientVisibilityGuard clientVisibilityGuard,
         ISealedDayRepository sealedDayRepository,
-        IClientPlanningPeriodGuard planningPeriodGuard)
+        IClientPlanningPeriodGuard planningPeriodGuard,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _planningPeriodGuard = planningPeriodGuard;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
         _mediator = mediator;
         _shiftRepository = shiftRepository;
         _conflictChecker = conflictChecker;
@@ -86,7 +91,7 @@ public class PlaceWorkSkill : BaseSkillImplementation
         }
 
         var shift = await _shiftRepository.Get(shiftId);
-        if (shift == null)
+        if (shift == null || !await _shiftVisibilityGuard.IsVisibleAsync(shiftId, cancellationToken))
         {
             return SkillResult.Error($"Shift {shiftId} not found.");
         }

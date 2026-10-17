@@ -7,13 +7,12 @@
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Clients;
 
 namespace Klacks.Api.Application.Services.Groups;
 
 public static class GroupMemberVisibilityCheck
 {
-    public const string ClientNotFoundMessage = "Client with ID {0} not found";
-
     /// <param name="clientVisibilityGuard">Answers which of the added clients the caller may see</param>
     /// <param name="addedClientIds">Client ids that become new members of the group</param>
     /// <param name="cancellationToken">Cancels the visibility query</param>
@@ -33,7 +32,7 @@ public static class GroupMemberVisibilityCheck
         var hiddenIds = distinctIds.Where(id => !visibleIds.Contains(id)).ToList();
         if (hiddenIds.Count > 0)
         {
-            throw new KeyNotFoundException(string.Format(ClientNotFoundMessage, hiddenIds[0]));
+            throw new KeyNotFoundException(string.Format(ClientVisibilityMessages.ClientNotFound, hiddenIds[0]));
         }
     }
 }

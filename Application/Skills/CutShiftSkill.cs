@@ -165,7 +165,7 @@ public class CutShiftSkill : BaseSkillImplementation
 
             operations.Add(new CutOperation
             {
-                Type = isConversion ? "UPDATE" : "CREATE",
+                Type = isConversion ? CutOperation.UpdateType : CutOperation.CreateType,
                 ParentId = sealedOrderId.Value.ToString(),
                 Data = data
             });

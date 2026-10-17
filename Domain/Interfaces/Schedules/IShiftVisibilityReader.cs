@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Reads what the shift write guard needs: which of a set of shift ids exist and are visible for a group
-/// restriction, and the stored group assignments of one shift.
+/// restriction, whether one shift exists at all, the stored group assignments of one shift and the task shifts a
+/// container already references.
 /// </summary>
 
 using Klacks.Api.Domain.Models.Associations;
@@ -25,4 +26,16 @@ public interface IShiftVisibilityReader
     /// </summary>
     /// <param name="shiftId">Shift whose group assignments are read</param>
     Task<List<GroupItem>> GetActiveGroupItemsAsync(Guid shiftId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// True when a not deleted shift with the id exists, regardless of its groups.
+    /// </summary>
+    /// <param name="shiftId">Shift whose existence is checked</param>
+    Task<bool> ExistsAsync(Guid shiftId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The distinct shift ids the not deleted template items and override items of a container reference as stored.
+    /// </summary>
+    /// <param name="containerId">Container shift whose templates and overrides are read</param>
+    Task<List<Guid>> GetContainerItemShiftIdsAsync(Guid containerId, CancellationToken cancellationToken = default);
 }

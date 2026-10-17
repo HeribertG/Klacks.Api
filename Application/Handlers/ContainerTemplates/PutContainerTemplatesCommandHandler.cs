@@ -1,8 +1,18 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Replaces the template list of a container under the container template lock (templates and items not sent are
+/// deleted). Everything is validated before the first write, because the item update commits per template: a missing
+/// or hidden container, an item id that does not belong to the matched stored template, and a task shift the caller
+/// may not see that the container does not reference yet are all answered with 404. Unchanged hidden task shifts of a
+/// container mixing groups stay saveable.
+/// </summary>
+/// <param name="containerVisibilityGuard">Refuses missing and hidden containers and new hidden task shifts</param>
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -14,13 +24,12 @@ namespace Klacks.Api.Application.Handlers.ContainerTemplates;
 
 public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerTemplatesCommand, List<ContainerTemplateResource>>
 {
-    private const string LockResourceType = "ContainerTemplate";
-
     private readonly IContainerTemplateRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IContainerLockRepository _lockRepository;
     private readonly IUserService _userService;
+    private readonly IContainerVisibilityGuard _containerVisibilityGuard;
     private readonly ILogger<PutContainerTemplatesCommandHandler> _logger;
 
     public PutContainerTemplatesCommandHandler(
@@ -29,6 +38,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
         ScheduleMapper scheduleMapper,
         IContainerLockRepository lockRepository,
         IUserService userService,
+        IContainerVisibilityGuard containerVisibilityGuard,
         ILogger<PutContainerTemplatesCommandHandler> logger)
     {
         _repository = repository;
@@ -36,14 +46,17 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
         _scheduleMapper = scheduleMapper;
         _lockRepository = lockRepository;
         _userService = userService;
+        _containerVisibilityGuard = containerVisibilityGuard;
         _logger = logger;
     }
 
     public async Task<List<ContainerTemplateResource>> Handle(PutContainerTemplatesCommand request, CancellationToken cancellationToken)
     {
+        await _containerVisibilityGuard.EnsureContainerVisibleAsync(request.ContainerId, cancellationToken);
+
         var userId = _userService.GetId() ?? Guid.Empty;
         var instanceId = _userService.GetInstanceId() ?? string.Empty;
-        var holdsLock = await _lockRepository.IsHeldBy(LockResourceType, request.ContainerId, userId, instanceId, cancellationToken);
+        var holdsLock = await _lockRepository.IsHeldBy(ContainerLockResourceTypes.ContainerTemplate, request.ContainerId, userId, instanceId, cancellationToken);
         if (!holdsLock)
         {
             throw new ContainerLockedException("Cannot save: container template is not locked by this session.");
@@ -52,6 +65,13 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
         _logger.LogInformation("Updating ContainerTemplates for Container: {ContainerId}", request.ContainerId);
 
         var existingTemplates = await _repository.GetTemplatesForContainerWithTracking(request.ContainerId);
+        EnsureContainerIdsMatch(request);
+        EnsureItemsBelongToMatchedTemplates(request.Resources, existingTemplates);
+        await _containerVisibilityGuard.EnsureItemShiftsVisibleAsync(
+            request.ContainerId,
+            request.Resources.SelectMany(r => r.ContainerTemplateItems).Select(i => i.ShiftId),
+            cancellationToken);
+
         var resultTemplates = new List<ContainerTemplate>();
 
         foreach (var resource in request.Resources)
@@ -59,23 +79,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
             _logger.LogInformation("Received resource - Weekday: {Weekday}, TransportMode: {TransportMode}",
                 resource.Weekday, resource.TransportMode);
 
-            if (resource.ContainerId == Guid.Empty)
-            {
-                _logger.LogError("ContainerTemplate has no ContainerId set");
-                throw new InvalidOperationException("ContainerTemplate has no ContainerId set");
-            }
-
-            if (resource.ContainerId != request.ContainerId)
-            {
-                _logger.LogError("ContainerTemplate has wrong ContainerId. Expected: {Expected}, Got: {Actual}",
-                    request.ContainerId, resource.ContainerId);
-                throw new InvalidOperationException($"ContainerTemplate has wrong ContainerId. Expected: {request.ContainerId}, Got: {resource.ContainerId}");
-            }
-
-            var existingTemplate = existingTemplates.FirstOrDefault(t =>
-                t.Weekday == resource.Weekday &&
-                t.IsHoliday == resource.IsHoliday &&
-                t.IsWeekdayAndHoliday == resource.IsWeekdayAndHoliday);
+            var existingTemplate = FindMatchingTemplate(existingTemplates, resource);
 
             if (existingTemplate != null)
             {
@@ -146,5 +150,56 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
 
         var result = resultTemplates.Select(t => _scheduleMapper.ToContainerTemplateResource(t)).ToList();
         return result;
+    }
+
+    private void EnsureContainerIdsMatch(PutContainerTemplatesCommand request)
+    {
+        foreach (var resource in request.Resources)
+        {
+            if (resource.ContainerId == Guid.Empty)
+            {
+                _logger.LogError("ContainerTemplate has no ContainerId set");
+                throw new InvalidOperationException("ContainerTemplate has no ContainerId set");
+            }
+
+            if (resource.ContainerId != request.ContainerId)
+            {
+                _logger.LogError("ContainerTemplate has wrong ContainerId. Expected: {Expected}, Got: {Actual}",
+                    request.ContainerId, resource.ContainerId);
+                throw new InvalidOperationException($"ContainerTemplate has wrong ContainerId. Expected: {request.ContainerId}, Got: {resource.ContainerId}");
+            }
+        }
+    }
+
+    private void EnsureItemsBelongToMatchedTemplates(
+        IReadOnlyCollection<ContainerTemplateResource> resources, List<ContainerTemplate> existingTemplates)
+    {
+        foreach (var resource in resources)
+        {
+            var existingTemplate = FindMatchingTemplate(existingTemplates, resource);
+            if (existingTemplate == null)
+            {
+                continue;
+            }
+
+            var storedItemIds = existingTemplate.ContainerTemplateItems.Select(i => i.Id).ToHashSet();
+            var foreignItem = resource.ContainerTemplateItems
+                .FirstOrDefault(i => i.Id != Guid.Empty && !storedItemIds.Contains(i.Id));
+            if (foreignItem != null)
+            {
+                _logger.LogWarning("ContainerTemplateItem {ItemId} does not belong to template {TemplateId}",
+                    foreignItem.Id, existingTemplate.Id);
+                throw new KeyNotFoundException(string.Format(ContainerTemplateMessages.ItemNotFound, foreignItem.Id));
+            }
+        }
+    }
+
+    private static ContainerTemplate? FindMatchingTemplate(
+        List<ContainerTemplate> existingTemplates, ContainerTemplateResource resource)
+    {
+        return existingTemplates.FirstOrDefault(t =>
+            t.Weekday == resource.Weekday &&
+            t.IsHoliday == resource.IsHoliday &&
+            t.IsWeekdayAndHoliday == resource.IsWeekdayAndHoliday);
     }
 }

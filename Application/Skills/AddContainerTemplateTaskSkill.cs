@@ -10,13 +10,16 @@
 /// <param name="containerId">Required. UUID of the container shift (ShiftType.IsContainer).</param>
 /// <param name="weekday">Required. ISO weekday 1=Monday..7=Sunday of the template to add the task to.</param>
 /// <param name="taskShiftId">Required. UUID of the task shift to add.</param>
+/// <param name="shiftVisibilityGuard">Answers a hidden container (or task shift) exactly like a missing one</param>
 /// <param name="position">Optional. 1-based insert position; appended at the end when omitted or out of range.</param>
 
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
@@ -30,7 +33,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("add_container_template_task")]
 public class AddContainerTemplateTaskSkill : BaseSkillImplementation
 {
-    private const string LockResourceType = "ContainerTemplate";
     private const int MinIsoWeekday = 1;
     private const int MaxIsoWeekday = 7;
     private const int IsoSunday = 7;
@@ -41,17 +43,20 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
     private readonly IMediator _mediator;
     private readonly IUserService _userService;
     private readonly IContainerAvailableTasksService _availableTasksService;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public AddContainerTemplateTaskSkill(
         IShiftRepository shiftRepository,
         IMediator mediator,
         IUserService userService,
-        IContainerAvailableTasksService availableTasksService)
+        IContainerAvailableTasksService availableTasksService,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _mediator = mediator;
         _userService = userService;
         _availableTasksService = availableTasksService;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -72,7 +77,7 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
         var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
 
         var container = await _shiftRepository.Get(containerId);
-        if (container is null)
+        if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
         {
             return SkillResult.Error($"Shift/container not found: {containerId}");
         }
@@ -83,7 +88,7 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
         }
 
         var taskShift = await _shiftRepository.Get(taskShiftId);
-        if (taskShift is null)
+        if (taskShift is null || !await _shiftVisibilityGuard.IsVisibleAsync(taskShiftId, cancellationToken))
         {
             return SkillResult.Error($"Task shift not found: {taskShiftId}");
         }
@@ -115,7 +120,7 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
 
         var instanceId = _userService.GetInstanceId() ?? string.Empty;
         var lockResult = await _mediator.Send(
-            new AcquireContainerLockCommand(LockResourceType, containerId, instanceId), cancellationToken);
+            new AcquireContainerLockCommand(ContainerLockResourceTypes.ContainerTemplate, containerId, instanceId), cancellationToken);
 
         if (!lockResult.Acquired)
         {
