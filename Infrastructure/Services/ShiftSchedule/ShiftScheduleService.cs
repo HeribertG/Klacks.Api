@@ -8,6 +8,10 @@
 /// <param name="context">EF Core context for the stored procedure calls</param>
 /// <param name="requirementRepository">Resolves the required qualifications that apply to each shift</param>
 /// <param name="logger">Debug logging of the schedule queries</param>
+/// <remarks>
+/// visibleGroupIds: null = unrestricted; a list (even an empty one) restricts the result to shifts of those
+/// groups and their subgroups, so an empty list means "no group visible" and never "everything".
+/// </remarks>
 
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -22,6 +26,8 @@ namespace Klacks.Api.Infrastructure.Services.ShiftSchedule;
 
 public class ShiftScheduleService : IShiftScheduleService
 {
+    private const string VisibleGroupIdsParameterName = "visibleGroupIds";
+
     private readonly DataBaseContext _context;
     private readonly IShiftRequiredQualificationRepository _requirementRepository;
     private readonly ILogger<ShiftScheduleService> _logger;
@@ -77,7 +83,7 @@ public class ShiftScheduleService : IShiftScheduleService
         var startDateTime = DateTime.SpecifyKind(startDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
         var endDateTime = DateTime.SpecifyKind(endDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
 
-        var visibleGroupArray = visibleGroupIds?.ToArray() ?? [];
+        var visibleGroupParam = CreateVisibleGroupParameter(visibleGroupIds);
 
         if (analyseToken.HasValue)
         {
@@ -87,7 +93,7 @@ public class ShiftScheduleService : IShiftScheduleService
                         {startDateTime}::DATE,
                         {endDateTime}::DATE,
                         {holidayArray}::DATE[],
-                        {visibleGroupArray}::UUID[],
+                        {visibleGroupParam},
                         {showUngroupedShifts},
                         {analyseToken.Value}::UUID
                     )");
@@ -99,7 +105,7 @@ public class ShiftScheduleService : IShiftScheduleService
                     {startDateTime}::DATE,
                     {endDateTime}::DATE,
                     {holidayArray}::DATE[],
-                    {visibleGroupArray}::UUID[],
+                    {visibleGroupParam},
                     {showUngroupedShifts}
                 )");
     }
@@ -107,6 +113,7 @@ public class ShiftScheduleService : IShiftScheduleService
     public async Task<List<ShiftDayAssignment>> GetShiftSchedulePartialAsync(
         List<(Guid ShiftId, DateOnly Date)> shiftDatePairs,
         Guid? analyseToken = null,
+        List<Guid>? visibleGroupIds = null,
         CancellationToken cancellationToken = default)
     {
         if (shiftDatePairs.Count == 0)
@@ -135,11 +142,18 @@ public class ShiftScheduleService : IShiftScheduleService
             SELECT * FROM get_shift_schedule_partial(
                 (SELECT array_agg(ROW(s, d)::shift_date_pair)
                  FROM unnest(@shiftIds::UUID[], @dates::DATE[]) AS t(s, d)),
-                @analyseToken::UUID
+                @analyseToken::UUID,
+                @visibleGroupIds
             )";
 
         return await _context.ShiftDayAssignments
-            .FromSqlRaw(sql, shiftIdsParam, datesParam, tokenParam)
+            .FromSqlRaw(sql, shiftIdsParam, datesParam, tokenParam, CreateVisibleGroupParameter(visibleGroupIds))
             .ToListAsync(cancellationToken);
     }
+
+    private static NpgsqlParameter CreateVisibleGroupParameter(List<Guid>? visibleGroupIds)
+        => new(VisibleGroupIdsParameterName, NpgsqlDbType.Array | NpgsqlDbType.Uuid)
+        {
+            Value = (object?)visibleGroupIds?.ToArray() ?? DBNull.Value
+        };
 }

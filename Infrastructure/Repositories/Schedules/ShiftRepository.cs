@@ -382,7 +382,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .FirstOrDefaultAsync();
     }
 
-    public IQueryable<Shift> FilterShifts(ShiftFilter filter, DateOnly today)
+    public IQueryable<Shift> FilterShifts(ShiftFilter filter, DateOnly today, IReadOnlyCollection<Guid>? visibleGroupIds)
     {
         Logger.LogInformation("Applying filters to shifts query");
 
@@ -395,10 +395,10 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         // The unsealed-draft review queue (Bestellungseingang) must never be date-scoped: a draft's
         // FromDate reflects the ERP's own booking horizon (often weeks/months out for Spitex-style
         // advance bookings), so the default "active date range" filter would silently hide exactly
-        // the drafts an admin needs to review and seal. Mirrors the existing group-filter bypass below.
-        bool isUnsealedDraftView = filter.FilterType == ShiftFilterType.Original && filter.IsSealedOrder == false;
-        bool shouldApplyGroupFilter = !isUnsealedDraftView;
-        if (shouldApplyGroupFilter && filter.SelectedGroup.HasValue)
+        // the drafts an admin needs to review and seal. It also ignores the UI group selection, but
+        // never the caller's group visibility (visibleGroupIds), which is a security boundary.
+        bool isUnsealedDraftView = ShiftListViews.IsUnsealedDraftView(filter);
+        if (!isUnsealedDraftView && filter.SelectedGroup.HasValue)
         {
             Logger.LogInformation("Including GroupItems for group filter: {GroupId}", filter.SelectedGroup.Value);
             baseQuery = baseQuery.Include(s => s.GroupItems);
@@ -409,26 +409,18 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             ? query
             : _queryPipeline.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange, today);
         query = _queryPipeline.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
-
-        if (shouldApplyGroupFilter && filter.SelectedGroup.HasValue)
-        {
-            Logger.LogInformation("Applying group filter for group: {GroupId}", filter.SelectedGroup.Value);
-            query = query.Where(s =>
-                !s.GroupItems.Any() ||
-                s.GroupItems.Any(gi => gi.GroupId == filter.SelectedGroup.Value));
-        }
-
+        query = ShiftGroupVisibilityFilter.Apply(query, visibleGroupIds);
         query = _queryPipeline.ApplySorting(query, filter.OrderBy, filter.SortOrder);
 
         Logger.LogInformation("Filters applied to shifts query");
         return query;
     }
 
-    public async Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter)
+    public async Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter, IReadOnlyCollection<Guid>? visibleGroupIds)
     {
         Logger.LogInformation("Getting filtered and paginated shifts");
         var today = await _companyClock.GetTodayDateAsync();
-        var filteredQuery = FilterShifts(filter, today);
+        var filteredQuery = FilterShifts(filter, today, visibleGroupIds);
         return await _queryPipeline.ApplyPaginationAsync(filteredQuery, filter);
     }
 

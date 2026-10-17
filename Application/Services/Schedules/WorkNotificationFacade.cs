@@ -130,7 +130,7 @@ public class WorkNotificationFacade : IWorkNotificationFacade
         string connectionId, Guid? analyseToken, CancellationToken cancellationToken)
     {
         var shiftDatePairs = affectedShifts.ToList();
-        var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, analyseToken, cancellationToken);
+        var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, analyseToken, cancellationToken: cancellationToken);
 
         foreach (var shiftData in shiftStats)
         {
@@ -144,7 +144,7 @@ public class WorkNotificationFacade : IWorkNotificationFacade
         string connectionId, Guid? analyseToken, CancellationToken cancellationToken)
     {
         var shiftDatePairs = new List<(Guid ShiftId, DateOnly Date)> { (shiftId, date) };
-        var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, analyseToken, cancellationToken);
+        var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, analyseToken, cancellationToken: cancellationToken);
         var shiftData = shiftStats.FirstOrDefault();
 
         if (shiftData != null)
