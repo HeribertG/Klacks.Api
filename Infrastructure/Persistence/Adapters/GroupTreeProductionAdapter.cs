@@ -23,6 +23,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Adapters;
 /// several times after calling these two methods within a single node insertion, relying on it staying at
 /// its pre-shift value for that one operation; detaching preserves that value on the already-loaded
 /// instance while still fixing what the next, separate query will see.
+/// MarkSubtreeAsDeletedAsync soft-deletes the subtree's groups and, in the same statement, every group_item
+/// (client memberships, shift assignments, scenario memberships) of those groups, stamping the audit actor
+/// itself because raw SQL bypasses OnBeforeSaving: members become group-less, shifts ungrouped.
 /// </summary>
 public class GroupTreeProductionAdapter : IGroupTreeDatabaseAdapter
 {
@@ -82,8 +85,12 @@ public class GroupTreeProductionAdapter : IGroupTreeDatabaseAdapter
     public async Task MarkSubtreeAsDeletedAsync(int lft, int rgt, Guid root, DateTime deletedTime)
     {
         await _context.Database.ExecuteSqlRawAsync(
-            "UPDATE \"group\" SET \"is_deleted\" = true, \"deleted_time\" = @p0 WHERE \"lft\" >= @p1 AND \"rgt\" <= @p2 AND (\"root\" = @p3 OR \"id\" = @p3)",
-            deletedTime, lft, rgt, root);
+            "WITH deleted_groups AS (" +
+            "UPDATE \"group\" SET \"is_deleted\" = true, \"deleted_time\" = @p0 WHERE \"lft\" >= @p1 AND \"rgt\" <= @p2 AND (\"root\" = @p3 OR \"id\" = @p3) " +
+            "RETURNING \"id\") " +
+            "UPDATE \"group_item\" SET \"is_deleted\" = true, \"deleted_time\" = @p0, \"current_user_deleted\" = @p4 " +
+            "WHERE \"is_deleted\" = false AND \"group_id\" IN (SELECT \"id\" FROM deleted_groups)",
+            deletedTime, lft, rgt, root, _context.CurrentAuditActorName());
     }
 
     public async Task ShiftNodesAfterDeleteAsync(int afterRgt, Guid root, int width)

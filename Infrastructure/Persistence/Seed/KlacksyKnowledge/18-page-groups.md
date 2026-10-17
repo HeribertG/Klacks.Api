@@ -303,9 +303,14 @@ Admin-Konten ist der Button deaktiviert — Admins sehen immer alles.
 - **Endgültig, nur für Admins.** Es gibt keinen Weg zurück: Weder die App noch Klacksy kann eine gelöschte
   Gruppe wiederherstellen. Das Löschen trifft immer den ganzen Teilbaum; der Klacksy-Skill `delete_group`
   verweigert eine Gruppe mit Untergruppen, solange `forceCascade` nicht gesetzt ist.
-- **Die Mitgliedschaften werden beim Löschen nicht angefasst.** Das Löschen markiert nur die Gruppen
-  (samt Untergruppen) als gelöscht; die Mitgliedschafts-Einträge der Personen bleiben unverändert stehen.
-  Endgültig entfernt werden gelöschte Gruppen erst später von der automatischen Datenbereinigung.
+- **Mit der Gruppe verschwinden auch ihre Mitgliedschaften und Dienst-Zuordnungen.** Das Löschen entfernt
+  die Mitgliedschaften aller Personen und die Zuordnungen aller Dienste der gelöschten Gruppen (samt
+  Untergruppen). Personen ohne weitere Gruppe sind danach gruppenlos und damit für alle Benutzer mit
+  eingeschränkter Gruppen-Sicht sichtbar; in der Gruppenauswahl erscheinen sie wieder unter (de: "Ohne
+  Gruppe", en: "Without group", fr: "Sans groupe", it: "Senza gruppo"). Dienste ohne weitere Gruppe sind
+  danach keiner Gruppe mehr zugeordnet. Mitgliedschaften in anderen Gruppen bleiben unverändert. Endgültig
+  entfernt werden die gelöschten Gruppen samt diesen Einträgen erst später von der automatischen
+  Datenbereinigung.
 
 ### Mitglieder entfernen
 

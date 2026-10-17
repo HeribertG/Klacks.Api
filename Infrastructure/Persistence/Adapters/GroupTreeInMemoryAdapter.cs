@@ -6,6 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Persistence.Adapters;
 
+/// <summary>
+/// InMemory adapter for nested-set tree operations on the Group table, used by the EF InMemory provider. Mirrors the
+/// production adapter with LINQ: deleting a subtree also soft-deletes the group_item rows of every deleted group.
+/// </summary>
 public class GroupTreeInMemoryAdapter : IGroupTreeDatabaseAdapter
 {
     private readonly DataBaseContext _context;
@@ -70,7 +74,7 @@ public class GroupTreeInMemoryAdapter : IGroupTreeDatabaseAdapter
     public async Task MarkSubtreeAsDeletedAsync(int lft, int rgt, Guid root, DateTime deletedTime)
     {
         var subtreeNodes = await _context.Group
-            .Where(g => g.Lft >= lft && g.Rgt <= rgt && g.Root == root)
+            .Where(g => g.Lft >= lft && g.Rgt <= rgt && (g.Root == root || g.Id == root))
             .ToListAsync();
 
         foreach (var node in subtreeNodes)
@@ -79,6 +83,13 @@ public class GroupTreeInMemoryAdapter : IGroupTreeDatabaseAdapter
             node.DeletedTime = deletedTime;
             _context.Group.Update(node);
         }
+
+        var subtreeGroupIds = subtreeNodes.Select(node => node.Id).ToList();
+        var subtreeItems = await _context.GroupItem
+            .Where(gi => subtreeGroupIds.Contains(gi.GroupId))
+            .ToListAsync();
+
+        _context.GroupItem.RemoveRange(subtreeItems);
     }
 
     public async Task ShiftNodesAfterDeleteAsync(int afterRgt, Guid root, int width)

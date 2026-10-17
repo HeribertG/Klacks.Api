@@ -18,21 +18,7 @@ public class DeleteCommandValidator : AbstractValidator<DeleteCommand<GroupResou
     public DeleteCommandValidator(IShiftRepository shiftRepository, IGroupHierarchyService groupHierarchyService)
     {
         RuleFor(x => x.Id)
-            .MustAsync(async (id, ct) =>
-            {
-                IEnumerable<Guid> groupIds;
-                try
-                {
-                    var subtree = await groupHierarchyService.GetDescendantsAsync(id, includeParent: true);
-                    groupIds = subtree.Select(g => g.Id);
-                }
-                catch (KeyNotFoundException)
-                {
-                    return true;
-                }
-
-                return !await shiftRepository.HasWorksForAnyGroupAsync(groupIds, null, ct);
-            })
-            .WithMessage("group.validation.has-planned-works");
+            .MustAsync((id, ct) => GroupSubtreePlannedWorksRule.HasNoPlannedWorksAsync(id, shiftRepository, groupHierarchyService, ct))
+            .WithMessage(GroupSubtreePlannedWorksRule.ErrorMessageKey);
     }
 }

@@ -163,7 +163,11 @@ overlap within it.
 
 **Deleting a group is final.** The group and all its subgroups are deleted together; only an
 administrator can do it, and there is no restore function — neither in the app nor through Klacksy. The
-memberships of the group are not touched by the delete itself.
+delete also removes the memberships of every person and the assignments of every shift in the deleted
+groups (subgroups included). A person without another group becomes group-less and is therefore visible to
+every user with a restricted group view; in the group selection they show up again under (de: "Ohne
+Gruppe", en: "Without group", fr: "Sans groupe", it: "Senza gruppo"). A shift without another group becomes
+ungrouped. Memberships in other groups stay as they are.
 
 **A booking that belongs to another group is locked.** Take a person who is a member of groups A and B.
 In the view of group B you still see their booking for a shift that is assigned only to group A (outside
