@@ -34,6 +34,14 @@ public interface IShiftVisibilityGuard
     Task<Guid?> FindFirstHiddenAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Returns those of the given shift ids a write may touch: all of them (distinct) for an unrestricted caller without
+    /// a query; for a restricted caller only the ids that exist and are visible, answered with one query, so a missing
+    /// and a hidden id are both left out alike.
+    /// </summary>
+    /// <param name="shiftIds">Shift ids a write is about to touch</param>
+    Task<IReadOnlySet<Guid>> FilterVisibleAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Refuses a write that adds, removes or re-dates a group assignment of a group the caller cannot see, with the
     /// same KeyNotFoundException text as a missing group. Unchanged assignments are not checked.
     /// </summary>

@@ -58,14 +58,7 @@ public class ShiftVisibilityGuard : IShiftVisibilityGuard
             return null;
         }
 
-        var visibleGroupIds = await _shiftGroupFilterService.ResolveShiftListGroupIdsAsync(null);
-        if (visibleGroupIds == null)
-        {
-            return null;
-        }
-
-        var visibleIds = (await _shiftVisibilityReader.FilterVisibleShiftIdsAsync(distinctIds, visibleGroupIds, cancellationToken))
-            .ToHashSet();
+        var visibleIds = await FilterVisibleAsync(distinctIds, cancellationToken);
         foreach (var shiftId in distinctIds)
         {
             if (!visibleIds.Contains(shiftId))
@@ -76,6 +69,24 @@ public class ShiftVisibilityGuard : IShiftVisibilityGuard
         }
 
         return null;
+    }
+
+    public async Task<IReadOnlySet<Guid>> FilterVisibleAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var distinctIds = shiftIds.Distinct().ToList();
+        if (distinctIds.Count == 0)
+        {
+            return new HashSet<Guid>();
+        }
+
+        var visibleGroupIds = await _shiftGroupFilterService.ResolveShiftListGroupIdsAsync(null);
+        if (visibleGroupIds == null)
+        {
+            return distinctIds.ToHashSet();
+        }
+
+        return (await _shiftVisibilityReader.FilterVisibleShiftIdsAsync(distinctIds, visibleGroupIds, cancellationToken))
+            .ToHashSet();
     }
 
     public async Task EnsureGroupChangesVisibleAsync(

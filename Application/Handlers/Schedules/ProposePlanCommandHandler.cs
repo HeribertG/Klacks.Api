@@ -10,7 +10,8 @@
 /// write itself would pass (scenario writes bypass the day lock), but accepting it could never reach the real plan.
 /// A placement on a day outside the employee's membership or group period (the grid's locked cells) is rejected up front
 /// as well, one by one, so the rest of the proposal is still written and the bulk write itself skips that check; the
-/// group period is that of the proposal's target group.
+/// group period is that of the proposal's target group. A placement on a shift hidden from the caller is rejected exactly
+/// like one on a shift that does not exist, and a hidden shift is never cloned into the scenario.
 /// </summary>
 /// <param name="shiftRepository">Resolves shift start/end times for each placement</param>
 /// <param name="scenarioRepository">Persists the new AnalyseScenario</param>
@@ -22,6 +23,7 @@
 /// <param name="sealedDayRepository">Tells which (client, date) pairs are sealed</param>
 /// <param name="groupVisibilityGuard">Refuses a hidden target group like a missing one and a group-less proposal for restricted callers</param>
 /// <param name="planningPeriodGuard">Names the placements whose employee is not plannable on that day (membership or group period)</param>
+/// <param name="shiftVisibilityGuard">Leaves out the shifts the caller may not book (one query for all placements)</param>
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -53,6 +55,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
     private readonly ISealedDayRepository _sealedDayRepository;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public ProposePlanCommandHandler(
         IShiftRepository shiftRepository,
@@ -64,10 +67,12 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         IScenarioNameGenerator scenarioNameGenerator,
         ISealedDayRepository sealedDayRepository,
         IGroupVisibilityGuard groupVisibilityGuard,
-        IClientPlanningPeriodGuard planningPeriodGuard)
+        IClientPlanningPeriodGuard planningPeriodGuard,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _groupVisibilityGuard = groupVisibilityGuard;
         _planningPeriodGuard = planningPeriodGuard;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
         _shiftRepository = shiftRepository;
         _scenarioRepository = scenarioRepository;
         _scenarioService = scenarioService;
@@ -90,8 +95,9 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         var rejected = new List<RejectedPlacement>();
 
         var shiftIds = placements.Select(p => p.ShiftId).Distinct().ToList();
+        var visibleShiftIds = await _shiftVisibilityGuard.FilterVisibleAsync(shiftIds, cancellationToken);
         var shifts = new Dictionary<Guid, Shift>();
-        foreach (var shiftId in shiftIds)
+        foreach (var shiftId in shiftIds.Where(visibleShiftIds.Contains))
         {
             var shift = await _shiftRepository.Get(shiftId);
             if (shift != null)
@@ -145,7 +151,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         // Clone the real schedule under the token FIRST, then flush, so the guardrail sees the cloned
         // world. If the check ran before this, it would query by token, find nothing, and falsely pass.
         var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(
-            groupId, fromDate, untilDate, token, shiftIds, sourceToken: null, cancellationToken);
+            groupId, fromDate, untilDate, token, shifts.Keys.ToList(), sourceToken: null, cancellationToken);
         await _unitOfWork.CompleteAsync();
 
         var plannedRows = resolved

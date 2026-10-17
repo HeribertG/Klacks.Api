@@ -6,17 +6,20 @@
 /// group visibility, the whole request is refused exactly like a request for a client that does not exist;
 /// nothing is written. Like the grid's locked cells, a Work on a day outside its employee's membership or group period
 /// refuses the whole request (unless the command comes from a planner that skips this check); container children follow
-/// their parent's cell and are not checked on their own.
+/// their parent's cell and are not checked on their own. If any Work is on a shift outside the caller's group visibility,
+/// the whole request is refused exactly like a request with a shift that does not exist (one query for all shifts).
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client of the request</param>
 /// <param name="planningPeriodGuard">Refuses a Work whose employee is not plannable on its day (membership or group period)</param>
 /// <param name="defaultExpensesApplier">Stages the shifts' default expenses on the new top-level Works before the single bulk save</param>
+/// <param name="shiftVisibilityGuard">Names the first shift of the request the calling user may not book</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -43,6 +46,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly IPreCommitConflictChecker _conflictChecker;
     private readonly IShiftDefaultExpensesApplier _defaultExpensesApplier;
     private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
@@ -57,6 +61,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         IPreCommitConflictChecker conflictChecker,
         IShiftDefaultExpensesApplier defaultExpensesApplier,
         IClientPlanningPeriodGuard planningPeriodGuard,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
     {
@@ -72,17 +77,14 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _conflictChecker = conflictChecker;
         _defaultExpensesApplier = defaultExpensesApplier;
         _planningPeriodGuard = planningPeriodGuard;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkAddWorksCommand command, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
-            var clientIds = command.Request.Works.Select(w => w.ClientId).Distinct().ToList();
-            if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
-            {
-                throw new KeyNotFoundException(ClientsNotFoundMessage);
-            }
+            await EnsureClientsAndShiftsVisibleAsync(command.Request.Works, cancellationToken);
 
             await _dayLockService.EnsureNoneLockedAsync(
                 command.Request.Works
@@ -221,6 +223,27 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
             return response;
         }, "BulkAddWorks", new { Count = command.Request.Works.Count });
+    }
+
+    /// <summary>
+    /// Refuses the whole request like a missing client or shift when any client or shift is outside the caller's group
+    /// visibility: one query for the clients, one for the shifts.
+    /// </summary>
+    private async Task EnsureClientsAndShiftsVisibleAsync(
+        IReadOnlyCollection<BulkWorkItem> items, CancellationToken cancellationToken)
+    {
+        var clientIds = items.Select(w => w.ClientId).Distinct().ToList();
+        if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
+        {
+            throw new KeyNotFoundException(ClientsNotFoundMessage);
+        }
+
+        var hiddenShiftId = await _shiftVisibilityGuard.FindFirstHiddenAsync(
+            items.Select(w => w.ShiftId).Distinct().ToList(), cancellationToken);
+        if (hiddenShiftId.HasValue)
+        {
+            throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, hiddenShiftId.Value));
+        }
     }
 
     /// <summary>
