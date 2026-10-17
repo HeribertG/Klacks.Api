@@ -7,12 +7,13 @@
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Clients;
 
 namespace Klacks.Api.Application.Services.Groups;
 
 public static class GroupMemberVisibilityCheck
 {
-    public const string ClientNotFoundMessage = "Client with ID {0} not found";
+    public const string ClientNotFoundMessage = ClientVisibilityMessages.ClientNotFound;
 
     /// <param name="clientVisibilityGuard">Answers which of the added clients the caller may see</param>
     /// <param name="addedClientIds">Client ids that become new members of the group</param>

@@ -13,6 +13,8 @@
 /// <param name="defaultShiftMacroResolver">Fills in the standard calculation macro when none was chosen.</param>
 /// <param name="orderSealingService">Source of the sealing requirements a clientless order must satisfy.</param>
 /// <param name="shiftVisibilityGuard">Refuses a group-restricted caller every group they cannot see, like a missing group.</param>
+/// <param name="clientReferenceGuard">Refuses a customer that is missing, soft-deleted or hidden from the caller with the
+/// same 404, before anything is written.</param>
 /// <param name="logger">Structured log per creation.</param>
 
 using Klacks.Api.Application.Mappers;
@@ -37,6 +39,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
     private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
     private readonly IOrderSealingService _orderSealingService;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly IClientReferenceGuard _clientReferenceGuard;
 
     public PostCommandHandler(
         IShiftRepository shiftRepository,
@@ -45,10 +48,12 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
         IDefaultShiftMacroResolver defaultShiftMacroResolver,
         IOrderSealingService orderSealingService,
         IShiftVisibilityGuard shiftVisibilityGuard,
+        IClientReferenceGuard clientReferenceGuard,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _shiftVisibilityGuard = shiftVisibilityGuard;
+        _clientReferenceGuard = clientReferenceGuard;
         _shiftRepository = shiftRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
@@ -65,6 +70,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
         GuardCreatableStatus(shift);
         ClearServerOwnedHierarchy(shift);
         await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync([], shift.GroupItems, cancellationToken);
+        if (shift.ClientId.HasValue)
+        {
+            await _clientReferenceGuard.EnsureExistsVisibleAsync(shift.ClientId.Value, cancellationToken);
+        }
 
         if (!shift.MacroId.HasValue || shift.MacroId.Value == Guid.Empty)
         {
