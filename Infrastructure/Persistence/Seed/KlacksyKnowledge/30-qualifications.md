@@ -70,7 +70,8 @@ Every qualification exists first as a catalogue entry in the settings:
   construction, cleaning, transport, or general. Language qualifications have no category.
 - **Minimum level is binding** (de: "Mindeststufe ist verbindlich", en: "Minimum level is binding", fr: "Le
   niveau minimum est contraignant", it: "Il livello minimo è vincolante") — a checkbox, off by default. When ticked, a level below a shift's
-  required minimum is treated like a missing qualification wherever the shift does not say otherwise.
+  required minimum is treated like a missing qualification wherever the shift does not say otherwise. Qualifications that
+  already existed when this checkbox was introduced were switched on by the update, so their earlier block stays.
 
 The catalogue itself holds no information about any person. It is the vocabulary, not the assignment.
 
