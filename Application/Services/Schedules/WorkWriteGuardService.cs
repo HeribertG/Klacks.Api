@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Default IWorkWriteGuard: refuses a real write only for a missing mandatory qualification (the one
-/// Error class that cannot be reported after the fact) and for an exhausted sporadic shift. Manual
+/// Default IWorkWriteGuard: refuses a real write only for a missing mandatory qualification or one held below a binding
+/// minimum level (the Error class that cannot be reported after the fact) and for an exhausted sporadic shift. Manual
 /// planning otherwise stays advisory - a Block-mode compliance rule reports into the error list rather
 /// than stopping the write, and a schedule collision (owner decision 2026-08-22) does too: it is persisted
 /// and the async post-commit check (ScheduleTimelineBackgroundService) surfaces it like any other finding.

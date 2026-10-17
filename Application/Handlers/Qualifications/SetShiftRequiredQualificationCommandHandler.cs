@@ -4,7 +4,9 @@
 /// Handler for <see cref="SetShiftRequiredQualificationCommand"/>. Upserts the active
 /// (shift, qualification) row via the repository and persists through the unit of work. When the shift carries no
 /// row of its own yet, the rows it inherits (cut ancestor, plannable copy, sealed order) are first written as its own
-/// rows, because under the nearest-wins rule the new row would otherwise silently replace them.
+/// rows, because under the nearest-wins rule the new row would otherwise silently replace them. With
+/// KeepExistingLevelBinding a new row keeps the override of the row it replaces for that qualification (the inherited,
+/// effective one), so "keep" never silently resets an inherited binding to "as the qualification".
 /// </summary>
 /// <param name="repository">Resolves / adds the shift-required-qualification row</param>
 /// <param name="unitOfWork">Commits the change</param>
@@ -38,11 +40,19 @@ public sealed class SetShiftRequiredQualificationCommandHandler : IRequestHandle
         {
             existing.IsMandatory = request.IsMandatory;
             existing.MinLevel = request.MinLevel;
+            if (!request.KeepExistingLevelBinding)
+            {
+                existing.LevelBindingOverride = request.LevelBindingOverride;
+            }
+
             await _unitOfWork.CompleteAsync();
             return existing.Id;
         }
 
         var effective = await _repository.GetEffectiveByShiftIdsAsync([request.ShiftId], cancellationToken);
+        var inheritedOverride = effective
+            .FirstOrDefault(e => e.ShiftId == request.ShiftId && e.Requirement.QualificationId == request.QualificationId)
+            ?.Requirement.LevelBindingOverride;
         var inherited = ShiftRequirementMaterializer.InheritedAsOwn(effective, request.ShiftId)
             .Where(row => row.QualificationId != request.QualificationId);
         foreach (var row in inherited)
@@ -57,6 +67,7 @@ public sealed class SetShiftRequiredQualificationCommandHandler : IRequestHandle
             QualificationId = request.QualificationId,
             IsMandatory = request.IsMandatory,
             MinLevel = request.MinLevel,
+            LevelBindingOverride = request.KeepExistingLevelBinding ? inheritedOverride : request.LevelBindingOverride,
         };
         await _repository.Add(entity);
         await _unitOfWork.CompleteAsync();

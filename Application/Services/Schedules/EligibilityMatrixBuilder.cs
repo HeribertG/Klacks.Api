@@ -2,7 +2,10 @@
 
 /// <summary>
 /// Precomputes which (agent, shift, date) assignments are ineligible because the agent lacks a
-/// mandatory qualification the shift requires (date- and level-aware via <see cref="EligibilityMatcher"/>).
+/// mandatory qualification the shift requires or holds it below a binding minimum level (date- and level-aware via
+/// <see cref="EligibilityMatcher"/>), and the level shortfall of the assignable ones below a non-binding level (in-window
+/// or expired rows alike). A pre-existing assignment is never vetoed retroactively by the opt-in expired-mandatory
+/// escalation or by a binding level: its level gap is treated as non-binding and counted as shortfall.
 /// Shared by both wizard context builders so all three wizards veto on one source of truth.
 /// </summary>
 /// <param name="clientQualificationRepository">Loads the qualifications held by the planning agents</param>
@@ -77,6 +80,7 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
 
         var ineligible = new HashSet<(string, Guid, DateOnly)>();
         var gaps = new Dictionary<(string, Guid, DateOnly), IReadOnlyList<QualificationGap>>();
+        var levelShortfall = new Dictionary<(string, Guid, DateOnly), int>();
         IReadOnlyList<ClientQualification> noQuals = [];
 
         foreach (var slot in slots.Where(s => gatedShiftIds.Contains(s.ShiftId)))
@@ -88,13 +92,20 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
                 var key = (agentId.ToString(), slot.ShiftId, slot.Date);
 
                 // Pre-Commit-Diff-Prinzip: an incumbent's own pre-existing assignment never gets
-                // retroactively vetoed by the opt-in expired-mandatory escalation; any other agent
-                // considered for the same slot is still gated by the setting as usual.
-                var effectiveExpiredMandatoryBlocks = expiredMandatoryBlocks && !incumbents.Contains(key);
+                // retroactively vetoed by the opt-in expired-mandatory escalation nor by a minimum level that
+                // became binding after the assignment was made (its level gap stays a shortfall); any other agent
+                // considered for the same slot is still gated as usual. A missing qualification still vetoes.
+                var isIncumbent = incumbents.Contains(key);
+                var effectiveExpiredMandatoryBlocks = expiredMandatoryBlocks && !isIncumbent;
                 var slotGaps = EligibilityMatcher.FindGaps(requirements, held, slot.Date, effectiveExpiredMandatoryBlocks);
                 if (slotGaps.Count == 0)
                 {
                     continue;
+                }
+
+                if (isIncumbent)
+                {
+                    slotGaps = slotGaps.Select(g => g with { IsLevelBinding = false }).ToList();
                 }
 
                 gaps[key] = slotGaps;
@@ -103,6 +114,15 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
                 if (slotGaps.Any(g => g.Severity == QualificationGapSeverity.Error))
                 {
                     ineligible.Add(key);
+                    continue;
+                }
+
+                var shortfall = slotGaps
+                    .Where(g => g.IsMandatory)
+                    .Sum(g => g.LevelDelta);
+                if (shortfall > 0)
+                {
+                    levelShortfall[key] = shortfall;
                 }
             }
         }
@@ -112,6 +132,7 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
             Ineligible = ineligible,
             Gaps = gaps,
             QualificationInfo = qualificationInfo,
+            LevelShortfall = levelShortfall,
             ShiftNames = effectiveRequirements
                 .GroupBy(r => r.ShiftId)
                 .ToDictionary(g => g.Key, g => g.First().ShiftName),

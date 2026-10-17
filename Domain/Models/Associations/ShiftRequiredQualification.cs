@@ -2,8 +2,9 @@
 
 /// <summary>
 /// Junction entity: a shift requires a qualification at a minimum level. When IsMandatory is true
-/// an employee without the qualification (at MinLevel or higher) is ineligible for the shift; when
-/// false it is a soft preference signal only.
+/// an employee without the qualification is ineligible for the shift; an employee holding it below MinLevel is
+/// ineligible only when the level is binding (LevelBindingOverride, null = inherit Qualification.IsLevelBinding),
+/// otherwise it is a warning. When IsMandatory is false the requirement is a soft preference signal only.
 /// </summary>
 
 using Klacks.Api.Domain.Common;
@@ -31,6 +32,8 @@ public class ShiftRequiredQualification : BaseEntity
 
     [Required]
     public QualificationLevel MinLevel { get; set; }
+
+    public bool? LevelBindingOverride { get; set; }
 
     [JsonIgnore]
     public virtual Shift? Shift { get; set; }

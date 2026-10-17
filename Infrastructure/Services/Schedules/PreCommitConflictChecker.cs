@@ -321,22 +321,16 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
 
             foreach (var gap in EligibilityMatcher.FindMandatoryGaps(reqs, held, row.Date, expiredMandatoryBlocks))
             {
-                // An expired mandatory qualification only warns unless QUALIFICATION_EXPIRED_MANDATORY_BLOCKS
-                // is on; missing and too-low-level gaps stay hard errors.
-                var isSoftExpiry = gap.Reason == QualificationGapReason.Expired
-                    && gap.Severity != QualificationGapSeverity.Error;
                 conflicts.Add(new ScheduleValidationNotificationDto
                 {
-                    Type = isSoftExpiry ? ScheduleValidationType.Warning : ScheduleValidationType.Error,
+                    Type = gap.Severity == QualificationGapSeverity.Error
+                        ? ScheduleValidationType.Error
+                        : ScheduleValidationType.Warning,
                     ClientId = row.ClientId,
                     ClientName = string.Empty,
                     Date = row.Date,
                     Comment = QualificationValidationKeys.ForReason(gap.Reason),
-                    CommentParams = new Dictionary<string, string>
-                    {
-                        ["qualificationId"] = gap.QualificationId.ToString(),
-                        ["minLevel"] = gap.RequiredMinLevel.ToString(),
-                    },
+                    CommentParams = QualificationGapCommentParams.Build(gap),
                 });
             }
 
@@ -353,8 +347,8 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
                     Comment = QualificationValidationKeys.ExpiringSoon,
                     CommentParams = new Dictionary<string, string>
                     {
-                        ["qualificationId"] = expiring.QualificationId.ToString(),
-                        ["validUntil"] = expiring.ValidUntil.ToString("yyyy-MM-dd"),
+                        [QualificationValidationParamKeys.QualificationId] = expiring.QualificationId.ToString(),
+                        [QualificationValidationParamKeys.ValidUntil] = expiring.ValidUntil.ToString("yyyy-MM-dd"),
                     },
                 });
             }

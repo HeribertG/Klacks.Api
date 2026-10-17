@@ -18375,7 +18375,7 @@
     {
       "name": "find_replacement",
       "area": "schedule",
-      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates are the group members; one is excluded only when assigning them would cause a collision, a rest-time violation, or a missing/insufficient mandatory qualification, or when the shift is blacklisted for them. Overtime / consecutive-day / min-rest findings lower a candidate's rank (less headroom) instead of excluding. On-call employees (IsOnCall) rank first, then preferred ones.",
+      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates are the group members; one is excluded only for a collision, a rest-time violation, a missing mandatory qualification or one below a binding level, or a blacklisted shift. Overtime / consecutive-day / min-rest findings and a level below a non-binding minimum lower the rank instead. On-call employees (IsOnCall) rank first, then preferred ones.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18475,7 +18475,7 @@
         "fr": "Trouver un remplaçant pour un service",
         "it": "Trova un sostituto per un turno"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "propose_plan",
@@ -18868,7 +18868,7 @@
     {
       "name": "set_shift_required_qualification",
       "area": "contract",
-      "description": "Records (or updates) a qualification a shift requires, with a minimum level (1=Low..5=Expert) and whether it is mandatory. A mandatory requirement makes employees who lack it (missing, expired, or below the level) ineligible — enforced by find_replacement and the pre-commit guardrail (place_work / propose_plan / cover_absence). A non-mandatory requirement is a soft signal only. Calling it again for the same shift + qualification updates the existing entry.",
+      "description": "Records (or updates) a qualification a shift requires, with a minimum level (1=Low..5=Expert), whether it is mandatory and whether the level is binding. A mandatory requirement makes employees who lack it ineligible; below the level only when the level is binding, otherwise it warns. Expired only warns unless expiry blocking is on or it is below a binding level. A non-mandatory requirement is a soft signal only. Calling it again for the same shift + qualification updates the existing entry.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18906,6 +18906,18 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "levelBindingOverride",
+          "description": "Optional. inherit = as the qualification's own setting, binding = below the minimum level blocks, hint = below it only warns. Omitted keeps the current choice.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "inherit",
+            "binding",
+            "hint"
+          ]
         }
       ],
       "handlerConfig": null,
@@ -18953,7 +18965,7 @@
         "fr": "Définir l'exigence de qualification d'un service",
         "it": "Imposta il requisito di qualifica di un turno"
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "create_qualification",
@@ -19028,6 +19040,14 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "isLevelBinding",
+          "description": "Optional, only for a NEW qualification (default false). True = an employee holding it below a shift's minimum level is ineligible; false = only a warning. An existing qualification with the same German name is returned unchanged; change its binding with update_qualification.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -19075,7 +19095,7 @@
         "fr": "Créer une nouvelle qualification",
         "it": "Crea una nuova qualifica"
       },
-      "version": 5
+      "version": 7
     },
     {
       "name": "list_qualifications",
@@ -22133,6 +22153,14 @@
           "enumValues": null
         },
         {
+          "name": "isLevelBinding",
+          "description": "Whether the minimum level of its mandatory shift requirements is binding (below it = ineligible) or only a warning",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
           "name": "type",
           "description": "Qualification type",
           "type": "Enum",
@@ -22215,7 +22243,7 @@
         "fr": "Modifier une qualification",
         "it": "Modifica una qualifica"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "delete_qualification",
@@ -35695,11 +35723,24 @@
     {
       "name": "explain_qualifications",
       "area": "contract",
-      "description": "Explains who is allowed to work a shift: qualifications form a catalogue of skills and certificates that people hold at a proficiency level from 1 to 5 and that shifts can require at a minimum level. A mandatory requirement makes anyone ineligible who lacks it, whose certificate expired, or who holds it below the required level. Use this when the user asks why somebody cannot be assigned, how to record a certificate, or how to restrict a shift to trained staff.",
+      "description": "Explains who may work a shift: qualifications are skills and certificates people hold at a level 1-5 and shifts can require at a minimum level. A missing mandatory qualification always blocks; a level below the minimum blocks only when the level is binding (set on the qualification, overridable per shift), otherwise it warns. Use this when the user asks why someone cannot be assigned, why a booking only warns, how to record a certificate, or how to restrict a shift to trained staff.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -35772,7 +35813,7 @@
         "fr": "Expliquer le concept de qualification",
         "it": "Spiega il concetto di qualifica"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_planning_wizards",

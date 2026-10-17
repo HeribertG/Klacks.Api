@@ -299,7 +299,7 @@ public class KlacksOntologyService : IKlacksOntologyService
         ],
         ["ShiftRequiredQualification"] =
         [
-            "ShiftRequiredQualification demands a Qualification at MinLevel for a Shift; IsMandatory=true means an employee without it must not be planned."
+            "ShiftRequiredQualification demands a Qualification at MinLevel for a Shift; IsMandatory=true means an employee without it must not be planned; below MinLevel blocks only if LevelBindingOverride ?? Qualification.IsLevelBinding, else it warns."
         ],
         ["CalendarSelection"] =
         [

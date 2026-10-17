@@ -329,11 +329,19 @@ verwerfen muss.
   lesen Verfügbarkeit als Soft-Constraint (bevorzugen verfügbare Zeiten, erzwingen es nicht).
 - **Qualifikationen und Qualifikations-Bubbles**: Die Bubbles im Mitarbeiter-Zeilenkopf
   zeigen, welche Qualifikationen dieser Mitarbeiter besitzt; die Bubbles im Schicht-Zeilenkopf
-  zeigen, welche Qualifikationen für die jeweilige Schicht erforderlich sind. Das System
-  warnt in der Fehlerliste, wenn ein geplanter Mitarbeiter eine für die Schicht erforderliche
-  Qualifikation nicht hat oder wenn eine Qualifikation inzwischen abgelaufen ist (Ablaufdatum
-  der Qualifikation). Die Bubbles sind rein informativ — das System verhindert die Buchung
-  nicht, sondern macht Qualifikations-Lücken sichtbar. Qualifikationen werden den
+  zeigen, welche Qualifikationen für die jeweilige Schicht erforderlich sind. Die Bubbles
+  selbst sind rein informativ. Die Prüfung dahinter ist es nicht: Fehlt dem Mitarbeiter eine
+  **Pflicht**-Qualifikation der Schicht ganz, lehnt das System die Buchung ab (Meldung "… fehlt
+  die Pflicht-Qualifikation … für den Dienst …"; Fehlerliste: Fehler). Dasselbe gilt, wenn er sie
+  nur unterhalb der Mindeststufe besitzt **und** diese Stufe verbindlich ist (Einstellung an der
+  Qualifikation, pro Anforderungszeile am Dienst überschreibbar). Ist die Stufe nicht verbindlich
+  (Standard), wird nur gewarnt, z. B. "Stufe 2 statt 3" — die Buchung geht durch. Eine abgelaufene
+  Pflicht-Qualifikation ergibt eine Warnung, ausser die Einstellung
+  QUALIFICATION_EXPIRED_MANDATORY_BLOCKS ist eingeschaltet, dann wird ebenfalls abgelehnt; liegt
+  die abgelaufene Qualifikation zudem unter einer verbindlichen Mindeststufe, wird ebenfalls abgelehnt.
+  Nicht-Pflicht-Anforderungen sperren nie, und im Szenario sperrt eine Qualifikations-Lücke nie.
+  Eine Ablehnung lässt sich nicht übergehen, auch nicht von Administratoren. Details:
+  `explain_qualifications`. Qualifikationen werden den
   Mitarbeitenden auf der Personen-Maske (`/workplace/edit-address/:id`) und den Schichten
   auf der Schicht-Seite (`/workplace/shift`) hinterlegt.
 - **Gruppen-Scope (Planungsblätter)**: Die gewählte Gruppe wirkt als Sichtbarkeits-Filter

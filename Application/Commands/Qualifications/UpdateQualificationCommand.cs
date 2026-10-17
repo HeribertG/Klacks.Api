@@ -8,13 +8,15 @@ using Klacks.Api.Infrastructure.Mediator;
 namespace Klacks.Api.Application.Commands.Qualifications;
 
 /// <summary>
-/// Updates an existing qualification's name, description, emoji, time-limited flag, type, category and country list.
+/// Updates an existing qualification's name, description, emoji, time-limited flag, level-binding default, type,
+/// category and country list.
 /// </summary>
 /// <param name="Id">Id of the qualification to update</param>
 /// <param name="Name">New multilingual display name</param>
 /// <param name="Description">Optional multilingual free-text description</param>
 /// <param name="Emoji">Emoji character(s) representing this qualification</param>
 /// <param name="IsTimeLimited">Whether this qualification has an expiry date on client assignments</param>
+/// <param name="IsLevelBinding">Default for its mandatory shift requirements: true = holding it below the minimum level makes an employee ineligible, false = warning only</param>
 /// <param name="Type">Distinguishes Language from Work qualifications</param>
 /// <param name="Category">Industry category: None, Spitex, Security, or Logistics</param>
 /// <param name="Countries">ISO country codes this qualification applies to (e.g. ["CH", "DE"])</param>
@@ -24,6 +26,7 @@ public record UpdateQualificationCommand(
     MultiLanguage? Description,
     string? Emoji,
     bool IsTimeLimited,
+    bool IsLevelBinding,
     QualificationType Type,
     QualificationCategory Category,
     IList<string> Countries) : IRequest<Qualification>;

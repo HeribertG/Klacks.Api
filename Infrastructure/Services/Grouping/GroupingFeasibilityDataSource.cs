@@ -144,7 +144,9 @@ public sealed class GroupingFeasibilityDataSource : IGroupingFeasibilityDataSour
                 shift.SumEmployees));
 
     internal IQueryable<ShiftRequiredQualification> RequirementsQuery(List<Guid> shiftIds) =>
-        _context.ShiftRequiredQualification.AsNoTracking().Where(requirement => shiftIds.Contains(requirement.ShiftId));
+        _context.ShiftRequiredQualification.AsNoTracking()
+            .Include(requirement => requirement.Qualification)
+            .Where(requirement => shiftIds.Contains(requirement.ShiftId));
 
     internal IQueryable<ClientQualification> QualificationsQuery(List<Guid> clientIds) =>
         _context.ClientQualification.AsNoTracking().Where(qualification => clientIds.Contains(qualification.ClientId));

@@ -548,7 +548,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
     /// <summary>
     /// Notification-only qualification check for the live editing path: for every placed work, report
     /// any required-qualification gap of the assigned agent as a schedule-validation entry. A completely
-    /// missing mandatory qualification is an Error; too-low level, expired or optional gaps are Warnings.
+    /// missing mandatory qualification and one held below a binding level are Errors; a non-binding too-low
+    /// level, expired or optional gaps are Warnings (QualificationGap.Severity).
     /// Never blocks the save — it mirrors how collisions/overtime are surfaced post-commit.
     /// </summary>
     private static async Task AddQualificationEntriesAsync(
@@ -596,11 +597,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                     ClientName = clientName ?? string.Empty,
                     Date = work.CurrentDate,
                     Comment = QualificationValidationKeys.ForReason(gap.Reason),
-                    CommentParams = new Dictionary<string, string>
-                    {
-                        ["qualificationId"] = gap.QualificationId.ToString(),
-                        ["minLevel"] = gap.RequiredMinLevel.ToString(),
-                    },
+                    CommentParams = QualificationGapCommentParams.Build(gap),
                 });
             }
         }

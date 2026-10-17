@@ -6,13 +6,14 @@
 /// absence type is not on-call; an on-call Break whose window overlaps the slot makes the candidate rank first,
 /// IsOnCall, while a non-overlapping one neither excludes nor prefers),
 /// when explicitly unavailable for an hour the shift occupies (an opt-in availability window), when
-/// assigning them would introduce ANY new Error-level conflict (collision, missing/expired/insufficient
-/// mandatory qualification, or a
+/// assigning them would introduce ANY new Error-level conflict (collision, missing or expired mandatory
+/// qualification, a mandatory qualification held below a BINDING minimum level, or a
 /// Block-mode enforcement escalation such as restricted-time-window / period-cap / counter-rule /
 /// rest-day-rotation), when a rest-time violation is found (excluding even in Warn mode), or when the
 /// shift is blacklisted for them. Warning-level aggregate findings (overtime/consecutive/min-rest) are
 /// a soft ranking signal (less headroom -> lower rank). On-call candidates rank first, then preferred
-/// employees; among equally
+/// employees, then the candidates holding every mandatory qualification at the required level ahead of those
+/// below a non-binding level (fewer missing levels first, LevelShortfall); among equally
 /// clean candidates the one furthest below their period target hours ranks higher (fairness, 3b/3c).
 /// The candidate pool is resolved in two steps because IClientRepository filters on the group ROOT
 /// (Group.Root ?? Group.Id): a subgroup id matches no root and would silently yield an empty pool, so
@@ -38,6 +39,7 @@
 /// <param name="clientVisibilityGuard">Narrows the candidate pool to the employees the caller may see</param>
 /// <param name="scenarioTokenAccessGuard">Answers a scenario token the caller may not see like an unknown group (empty result)</param>
 /// <param name="logger">Logs a structured audit entry whenever a supervisor overrides a compliance exclusion</param>
+using System.Globalization;
 using System.Security.Claims;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -231,12 +233,14 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
                 IsPreferred: hasPreference && preferenceType == ShiftPreferenceType.Preferred,
                 SoftConflicts: conflicts,
                 TargetHoursDeficit: deficit,
-                IsOnCall: onCallClientIds.Contains(member.Id)));
+                IsOnCall: onCallClientIds.Contains(member.Id),
+                LevelShortfall: SumLevelShortfall(conflicts)));
         }
 
         var ranked = eligible
             .OrderByDescending(c => c.IsOnCall)
             .ThenByDescending(c => c.IsPreferred)
+            .ThenBy(c => c.LevelShortfall)
             .ThenBy(c => c.SoftConflicts.Count)
             .ThenByDescending(c => c.TargetHoursDeficit)
             .ThenBy(c => c.Name)
@@ -310,8 +314,20 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     private static bool IsAlwaysExcluding(ScheduleValidationNotificationDto conflict) =>
         conflict.Comment is ScheduleValidationKeys.Collision or ScheduleValidationKeys.RestViolation
             or QualificationValidationKeys.Missing
-            or QualificationValidationKeys.Expired
-            or QualificationValidationKeys.InsufficientLevel;
+            or QualificationValidationKeys.Expired;
+
+    /// <summary>
+    /// Missing levels over the non-blocking InsufficientLevel warnings of a candidate; a binding level is an Error and
+    /// excludes the candidate before ranking, so only non-binding levels reach this sum.
+    /// </summary>
+    internal static int SumLevelShortfall(IEnumerable<ScheduleValidationNotificationDto> conflicts) =>
+        conflicts
+            .Where(c => c.Comment == QualificationValidationKeys.InsufficientLevel
+                && c.Type == ScheduleValidationType.Warning)
+            .Sum(c => c.CommentParams.TryGetValue(QualificationValidationParamKeys.LevelDelta, out var raw)
+                && int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var delta)
+                    ? delta
+                    : 0);
 
     private static bool IsOverridableBlocking(ScheduleValidationNotificationDto conflict) =>
         conflict.Type == ScheduleValidationType.Error

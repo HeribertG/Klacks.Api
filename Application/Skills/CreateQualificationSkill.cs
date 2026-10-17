@@ -13,6 +13,7 @@
 /// <param name="description_en">Optional English description</param>
 /// <param name="description_fr">Optional French description</param>
 /// <param name="description_it">Optional Italian description</param>
+/// <param name="isLevelBinding">Optional, only for a new qualification. true = holding it below a shift's minimum level makes an employee ineligible; false/omitted = only a warning. An existing same-named qualification keeps its binding</param>
 
 using Klacks.Api.Application.Commands.Qualifications;
 using Klacks.Api.Domain.Attributes;
@@ -77,7 +78,9 @@ public class CreateQualificationSkill : BaseSkillImplementation
             };
         }
 
-        var id = await _mediator.Send(new CreateQualificationCommand(mlName, mlDescription), cancellationToken);
+        var isLevelBinding = GetParameter<bool?>(parameters, "isLevelBinding");
+
+        var id = await _mediator.Send(new CreateQualificationCommand(mlName, mlDescription, isLevelBinding), cancellationToken);
         var displayName = nameDe ?? nameEn ?? nameFr ?? nameIt ?? string.Empty;
 
         return SkillResult.SuccessResult(

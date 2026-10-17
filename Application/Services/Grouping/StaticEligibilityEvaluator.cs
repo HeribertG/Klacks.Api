@@ -3,7 +3,8 @@
 /// <summary>
 /// Decides whether a client can in principle take a shift in the analysed period: there must be one run
 /// day on which the contract is active and allows the weekday, the shift-work rule of the wizard holds,
-/// no mandatory qualification gap of severity Error exists, the shift is not blacklisted and the client
+/// no mandatory qualification gap of severity Error exists (MandatoryQualificationLevelTooLow when every such gap is
+/// only a held level below a binding minimum, otherwise MandatoryQualificationMissing), the shift is not blacklisted and the client
 /// is not marked unavailable for the shift's hours. The scan stops at the first eligible day. Per run day
 /// the first violated condition is the day's reason; for an ineligible pair the reason that blocks on the
 /// most run days is kept, a tie going to the lower enum value (the condition order).
@@ -182,10 +183,13 @@ public sealed class StaticEligibilityEvaluator : IGroupingEligibilityOracle
             var held = _context.QualificationsByClient.GetValueOrDefault(clientId, NoQualifications);
             var blocking = EligibilityMatcher
                 .FindMandatoryGaps(requirements, held, day, _context.ExpiredMandatoryBlocks)
-                .Any(gap => gap.Severity == QualificationGapSeverity.Error);
-            if (blocking)
+                .Where(gap => gap.Severity == QualificationGapSeverity.Error)
+                .ToList();
+            if (blocking.Count > 0)
             {
-                return GroupingIneligibilityReason.MandatoryQualificationMissing;
+                return blocking.All(gap => gap.IsBindingLevelBlock)
+                    ? GroupingIneligibilityReason.MandatoryQualificationLevelTooLow
+                    : GroupingIneligibilityReason.MandatoryQualificationMissing;
             }
         }
 

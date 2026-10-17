@@ -45,6 +45,7 @@ public class QualificationController : BaseController
             qualification.Description,
             qualification.Emoji,
             qualification.IsTimeLimited,
+            qualification.IsLevelBinding,
             qualification.Type,
             qualification.Category,
             qualification.Countries));
@@ -60,6 +61,7 @@ public class QualificationController : BaseController
             qualification.Description,
             qualification.Emoji,
             qualification.IsTimeLimited,
+            qualification.IsLevelBinding,
             qualification.Type,
             qualification.Category,
             qualification.Countries));

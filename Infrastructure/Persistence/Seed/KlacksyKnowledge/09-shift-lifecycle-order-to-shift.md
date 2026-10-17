@@ -214,4 +214,4 @@ Container sind davon nicht betroffen: sie sind Vorlagen, keine Bestellungen, und
 
 - **Beim Anlegen wird ein Entwurf ohne Kunde abgelehnt.** Ausnahme sind Container: sie sind Vorlagen und tragen nie einen Kunden.
 - **Stapel-Versiegeln ist endgültig und nicht für jeden.** `seal_open_orders` steht nur Nutzern mit uneingeschränktem Gruppenumfang offen; eine Bestellung ohne Gruppe wird nicht versiegelt (blockiert), und was versiegelt ist, bleibt es. Vorschau mit `apply=false` zuerst.
-- **Dieselbe Bezeichnung, drei Dinge:** "Versiegeln" einer Bestellung (Stufenwechsel des Dienstes) ist nicht dasselbe wie die Sperrstufe eines Einsatzes (Bestätigt, Genehmigt, Abgeschlossen) und nicht die Tagessperre.
+- **Dieselbe Bezeichnung, drei Dinge:** "Versiegeln" einer Bestellung (Stufenwechsel des Dienstes) ist nicht dasselbe wie die Sperrstufe eines Einsatzes (de: "Bestätigt", "Freigegeben", "Geschlossen"; en: "Confirmed", "Approved", "Closed"; fr: "Confirmé", "Approuvé", "Clôturé"; it: "Confermato", "Approvato", "Chiuso") und nicht die Tagessperre.

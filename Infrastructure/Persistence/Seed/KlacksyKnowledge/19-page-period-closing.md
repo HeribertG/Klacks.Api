@@ -268,7 +268,7 @@ Anker der Unter-Tabs (`...-tab-single`, `...-tab-employee`, `...-tab-range`) sin
 
 - **Was Versiegeln tut**: Das Versiegeln setzt alle Dienst- und Absenz-Einträge
   des Zeitraums auf die höchste der vier Sperrstufen (Offen → Bestätigt → Freigegeben →
-  **Abgeschlossen**) und legt zusätzlich pro Kalendertag ein **Tagessiegel** an — mit Gruppenbezug,
+  **Geschlossen**) und legt zusätzlich pro Kalendertag ein **Tagessiegel** an — mit Gruppenbezug,
   wenn die gewählte Periode eine Gruppe trägt, sonst global für alle. Der gemeldete Zähler
   "betroffene Einträge" ist die Summe aus versiegelten Dienst- und Absenz-Einträgen plus neu
   angelegten Tagessiegeln. Der Protokoll-Eintrag wird in derselben Transaktion geschrieben.

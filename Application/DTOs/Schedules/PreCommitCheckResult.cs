@@ -25,8 +25,9 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// is treated the same way since 2026-10-08: an Error, so find_replacement excludes the candidate and place_work and the
 /// plan partition refuse it, but not hard-blocking, so a planner's direct write may knowingly go against a wish. Unlike a
 /// collision, the post-commit check does not evaluate directives yet, so such a direct write currently gets no signal. A
-/// missing mandatory qualification remains hard-blocking under that property - it is the only
-/// remaining structural Error that is never overridable and never silently accepted.
+/// missing mandatory qualification, and a mandatory one held below a BINDING minimum level, remain hard-blocking under that
+/// property - the only remaining structural Errors that are never overridable and never silently accepted (a non-binding
+/// level gap is a Warning and never blocks).
 /// <see cref="HasNonOverridableBlocking"/> is the pre-2026-08-22 "hard" definition (collision included)
 /// and exists solely for <c>CompliancePartitionService</c>'s batch/per-row override gate: that gate
 /// mixes rows from MULTIPLE clients in one <see cref="PreCommitCheckResult"/>, so a collision on one

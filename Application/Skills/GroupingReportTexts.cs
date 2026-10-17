@@ -79,6 +79,7 @@ internal static class GroupingReportTexts
             [GroupingIneligibilityReason.WeekdayNotAllowed] = "the contract does not allow the weekdays on which the duty runs",
             [GroupingIneligibilityReason.NotShiftWorker] = "does not do shift work and the duty is not an early duty",
             [GroupingIneligibilityReason.MandatoryQualificationMissing] = "a mandatory qualification is missing or has expired",
+            [GroupingIneligibilityReason.MandatoryQualificationLevelTooLow] = "a mandatory qualification is held below the binding minimum level of the duty",
             [GroupingIneligibilityReason.Blacklisted] = "has excluded this duty",
             [GroupingIneligibilityReason.Unavailable] = "marked as unavailable during the duty's hours",
         };

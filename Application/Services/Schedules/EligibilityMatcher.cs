@@ -3,8 +3,10 @@
 /// <summary>
 /// Pure, date- and level-aware match of a client's qualifications against a shift's required
 /// qualifications on a given date. Each unmet requirement is classified as Missing (no such
-/// qualification), Expired (held at the required level but outside its validity window) or
-/// InsufficientLevel (held and in-window but below the required level). <see cref="FindMandatoryGaps"/>
+/// qualification), Expired (held, but no held row is inside its validity window; carries the highest held level, so a
+/// row that is expired AND too low keeps its level gap) or InsufficientLevel (held and in-window but below the required
+/// level; carries the highest in-window level). Every gap carries the effective level binding from
+/// <see cref="QualificationLevelBinding"/>. <see cref="FindMandatoryGaps"/>
 /// considers only mandatory requirements (the pre-commit guardrail's blocker set); <see cref="FindGaps"/>
 /// considers all requirements and carries the IsMandatory flag so callers can derive severity.
 /// No data access — the caller loads the rows; this is a side-effect-free function.
@@ -13,6 +15,7 @@
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Application.Services.Schedules;
 
@@ -44,9 +47,10 @@ public static class EligibilityMatcher
     }
 
     /// <summary>All gaps (mandatory and optional), each carrying IsMandatory so the caller can derive
-    /// the severity (Error only for a completely missing mandatory qualification, Warning otherwise;
-    /// also Error for an expired mandatory qualification when <paramref name="expiredMandatoryBlocks"/>
-    /// is set — the opt-in QUALIFICATION_EXPIRED_MANDATORY_BLOCKS region-setup behavior).</summary>
+    /// the severity (see <see cref="QualificationGap.Severity"/>: Error for a completely missing mandatory qualification
+    /// and for a mandatory one held below a binding level, in-window or expired; also Error for an expired mandatory
+    /// qualification when <paramref name="expiredMandatoryBlocks"/> is set — the opt-in
+    /// QUALIFICATION_EXPIRED_MANDATORY_BLOCKS region-setup behavior; Warning otherwise).</summary>
     public static IReadOnlyList<QualificationGap> FindGaps(
         IReadOnlyList<ShiftRequiredQualification> requirements,
         IReadOnlyList<ClientQualification> clientQualifications,
@@ -78,7 +82,13 @@ public static class EligibilityMatcher
 
         if (held.Count == 0)
         {
-            return new QualificationGap(requirement.QualificationId, QualificationGapReason.Missing, requirement.MinLevel, requirement.IsMandatory, expiredMandatoryBlocks);
+            return new QualificationGap(
+                requirement.QualificationId,
+                QualificationGapReason.Missing,
+                requirement.MinLevel,
+                requirement.IsMandatory,
+                expiredMandatoryBlocks,
+                IsLevelBinding: QualificationLevelBinding.IsBinding(requirement));
         }
 
         var inWindow = held.Where(cq => IsInWindow(cq, date)).ToList();
@@ -88,21 +98,28 @@ public static class EligibilityMatcher
             return null;
         }
 
-        QualificationGapReason reason;
+        var isLevelBinding = QualificationLevelBinding.IsBinding(requirement);
+
         if (inWindow.Count > 0)
         {
-            reason = QualificationGapReason.InsufficientLevel;
-        }
-        else if (held.Any(cq => cq.Level >= requirement.MinLevel))
-        {
-            reason = QualificationGapReason.Expired;
-        }
-        else
-        {
-            reason = QualificationGapReason.Missing;
+            return new QualificationGap(
+                requirement.QualificationId,
+                QualificationGapReason.InsufficientLevel,
+                requirement.MinLevel,
+                requirement.IsMandatory,
+                expiredMandatoryBlocks,
+                inWindow.Max(cq => cq.Level),
+                isLevelBinding);
         }
 
-        return new QualificationGap(requirement.QualificationId, reason, requirement.MinLevel, requirement.IsMandatory, expiredMandatoryBlocks);
+        return new QualificationGap(
+            requirement.QualificationId,
+            QualificationGapReason.Expired,
+            requirement.MinLevel,
+            requirement.IsMandatory,
+            expiredMandatoryBlocks,
+            held.Max(cq => cq.Level),
+            isLevelBinding);
     }
 
     /// <summary>

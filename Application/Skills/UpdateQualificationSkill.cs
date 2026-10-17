@@ -17,6 +17,7 @@
 /// <param name="description_it">New Italian description</param>
 /// <param name="emoji">New emoji character(s) representing this qualification</param>
 /// <param name="isTimeLimited">Whether client assignments of this qualification carry an expiry date</param>
+/// <param name="isLevelBinding">Whether the minimum level of its mandatory shift requirements is binding (below it = ineligible) or only a warning</param>
 /// <param name="type">Qualification type: Language or Work</param>
 /// <param name="category">Industry category (e.g. None, Spitex, Security, Logistics)</param>
 /// <param name="countries">Comma-separated ISO country codes (e.g. "CH,DE")</param>
@@ -61,11 +62,13 @@ public class UpdateQualificationSkill : BaseSkillImplementation
 
         var emoji = GetParameter<string>(parameters, "emoji");
         var isTimeLimited = GetParameter<bool?>(parameters, "isTimeLimited");
+        var isLevelBinding = GetParameter<bool?>(parameters, "isLevelBinding");
         var typeRaw = GetParameter<string>(parameters, "type");
         var categoryRaw = GetParameter<string>(parameters, "category");
         var countriesRaw = GetParameter<string>(parameters, "countries");
 
         var hasUpdate = isTimeLimited.HasValue
+                        || isLevelBinding.HasValue
                         || new[] { nameDe, nameEn, nameFr, nameIt, descDe, descEn, descFr, descIt, emoji, typeRaw, categoryRaw, countriesRaw }
                             .Any(value => !string.IsNullOrWhiteSpace(value));
         if (!hasUpdate)
@@ -131,6 +134,7 @@ public class UpdateQualificationSkill : BaseSkillImplementation
                 mlDescription,
                 string.IsNullOrWhiteSpace(emoji) ? existing.Emoji : emoji.Trim(),
                 isTimeLimited ?? existing.IsTimeLimited,
+                isLevelBinding ?? existing.IsLevelBinding,
                 type ?? existing.Type,
                 category ?? existing.Category,
                 countries),

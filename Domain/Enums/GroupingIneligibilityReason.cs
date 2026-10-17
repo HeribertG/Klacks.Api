@@ -8,6 +8,7 @@ public enum GroupingIneligibilityReason
     WeekdayNotAllowed = 1,
     NotShiftWorker = 2,
     MandatoryQualificationMissing = 3,
-    Blacklisted = 4,
-    Unavailable = 5,
+    MandatoryQualificationLevelTooLow = 4,
+    Blacklisted = 5,
+    Unavailable = 6,
 }

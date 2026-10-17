@@ -12,6 +12,8 @@ namespace Klacks.Api.Application.Commands.Qualifications;
 /// </summary>
 /// <param name="Name">Multilingual qualification name (e.g. "Forklift licence")</param>
 /// <param name="Description">Optional multilingual description</param>
+/// <param name="IsLevelBinding">Optional level-binding default of a NEW row (null = false); an existing same-named row is returned unchanged</param>
 public record CreateQualificationCommand(
     MultiLanguage Name,
-    MultiLanguage? Description) : IRequest<Guid>;
+    MultiLanguage? Description,
+    bool? IsLevelBinding = null) : IRequest<Guid>;

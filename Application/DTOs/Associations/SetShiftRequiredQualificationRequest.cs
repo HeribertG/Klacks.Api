@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Request body for the SetRequiredQualification endpoint: all fields needed to upsert one
-/// required-qualification row for a shift.
+/// required-qualification row for a shift. LevelBindingOverride: true = binding, false = hint only, null = as the
+/// qualification.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -15,4 +16,5 @@ public class SetShiftRequiredQualificationRequest
     public Guid QualificationId { get; set; }
     public bool IsMandatory { get; set; }
     public QualificationLevel MinLevel { get; set; }
+    public bool? LevelBindingOverride { get; set; }
 }

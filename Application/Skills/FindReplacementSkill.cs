@@ -8,8 +8,9 @@
 /// that day (any other Break on the date), when explicitly unavailable for an hour the shift occupies (an
 /// opt-in availability window), when assigning them would introduce a collision or rest-time
 /// violation, when they lack a mandatory qualification the shift requires (missing / expired / below
-/// the required level), or when the shift is blacklisted for them; aggregate findings lower the rank
-/// instead. Among equally clean candidates the one furthest below their period target hours ranks
+/// a BINDING minimum level), or when the shift is blacklisted for them; aggregate findings lower the rank
+/// instead, and a candidate below a non-binding minimum level ranks after the sufficiently qualified ones
+/// (LevelShortfall = missing levels, with the qualification-level warning in SoftConflicts). Among equally clean candidates the one furthest below their period target hours ranks
 /// higher (fairness; TargetHoursDeficit is surfaced per candidate).
 /// A shift outside the caller's group visibility is answered exactly like a missing shift: a shift is visible
 /// when it belongs to no group at all or to at least one group the caller may see (the plan-view rule), so its
@@ -83,6 +84,7 @@ public class FindReplacementSkill : BaseSkillImplementation
             c.IsOnCall,
             c.IsPreferred,
             c.TargetHoursDeficit,
+            c.LevelShortfall,
             SoftConflictCount = c.SoftConflicts.Count,
             SoftConflicts = c.SoftConflicts.Select(conflict => Project(conflict, context.UserLanguage))
         });

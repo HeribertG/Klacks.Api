@@ -317,8 +317,8 @@
       "hash": "76EDAB4990B213E1BE2EB4C6404D52FEF03C17D6E244802C92BB403B8EBEB02E"
     },
     "create_qualification": {
-      "version": 5,
-      "hash": "E35F078BC67F0B6D40D68FED09CDF200257A5065CC629FBD82E0039029A91E73"
+      "version": 7,
+      "hash": "CBE6758CD0EB28AF3B4E5ECF7326EE9CBBD9462B0C0EEB5C78D784F28FEFB8E7"
     },
     "create_report_template": {
       "version": 5,
@@ -785,8 +785,8 @@
       "hash": "1BB0690BC180AB80396A42E984930F54F3C7A84646CA4ACD2964ED486EAC0E99"
     },
     "explain_qualifications": {
-      "version": 3,
-      "hash": "4B5B71DC17834777D5D08AB3C963A38930B21F28DB6ED0CBF6E1C883BBABBEA6"
+      "version": 4,
+      "hash": "837322EE9DBDA1CE0DFA536FDDA8D1B1AD5D6EAB37340F40F18E8A8A6405D54B"
     },
     "explain_report_designer": {
       "version": 5,
@@ -873,8 +873,8 @@
       "hash": "90170458DD647102D6E4F6C62A4138B4847561592D6413833FA333DC4A2AE0FC"
     },
     "find_replacement": {
-      "version": 6,
-      "hash": "A777C4265A5FB5EE1E980BD306AF7D9A8F8CC9432F6F3AFCC85ADF0FDED3D0F8"
+      "version": 7,
+      "hash": "C281B67C75C100FD6656A9ED97B92DA8B2C45EE45F7DFCBA3899603B4A291218"
     },
     "find_split_shift_candidates": {
       "version": 4,
@@ -1649,8 +1649,8 @@
       "hash": "A115949118DFBAD1E5AB45C444B21948F6731A1130EEC098165DC66041D70E74"
     },
     "set_shift_required_qualification": {
-      "version": 4,
-      "hash": "FD4CE7ABEA206644314020D99D61DCF9728C9E235C04C15ED498FB7BA7820594"
+      "version": 6,
+      "hash": "384B8ED9C4FB5EC74F37615B0D513BF2E0721A26D7AF338630B860315BC0E0C4"
     },
     "set_user_group_scope": {
       "version": 8,
@@ -1909,8 +1909,8 @@
       "hash": "A69E6619891F5F961657B1E979E182E5A69B3727B5B313B694980CCF6C98C619"
     },
     "update_qualification": {
-      "version": 5,
-      "hash": "9DCEB10088927664B379BC183248870D4883E76ED31DFFF31F94C240AA0B60BB"
+      "version": 6,
+      "hash": "101C18420805C5C7339007E747AD8732203167017C905AEB494274FC8CCD2394"
     },
     "update_report_template": {
       "version": 5,

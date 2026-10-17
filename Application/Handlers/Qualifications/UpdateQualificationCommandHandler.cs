@@ -37,6 +37,7 @@ public sealed class UpdateQualificationCommandHandler : IRequestHandler<UpdateQu
         entity.Description = request.Description;
         entity.Emoji = request.Emoji;
         entity.IsTimeLimited = request.IsTimeLimited;
+        entity.IsLevelBinding = request.IsLevelBinding;
         entity.Type = request.Type;
         entity.Category = request.Category;
 

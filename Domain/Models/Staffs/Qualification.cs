@@ -7,6 +7,9 @@
 /// </summary>
 /// <remarks>
 /// Type distinguishes between language qualifications and work qualifications.
+/// IsLevelBinding is the default for every mandatory shift requirement of this qualification: true = an employee
+/// holding it below the required minimum level is ineligible (like a missing qualification); false = only a warning.
+/// A shift requirement can override it (see ShiftRequiredQualification.LevelBindingOverride).
 /// Countries is a many-to-many list of ISO codes stored in the qualification_country junction table.
 /// Rows are either customer-created (full CRUD, ImportSourceKey empty) or imported from a region-setup
 /// industry-profile qualification catalog (K20, ImportSourceKey/ImportContentHash set — see
@@ -29,6 +32,8 @@ public class Qualification : BaseEntity, IImportableEntity
     public string? Emoji { get; set; }
 
     public bool IsTimeLimited { get; set; }
+
+    public bool IsLevelBinding { get; set; }
 
     public QualificationType Type { get; set; } = QualificationType.Work;
 

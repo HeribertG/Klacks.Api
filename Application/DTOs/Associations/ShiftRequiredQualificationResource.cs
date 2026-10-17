@@ -9,6 +9,7 @@
 /// <param name="QualificationId">The required qualification</param>
 /// <param name="IsMandatory">True = hard gate; false = soft preference only</param>
 /// <param name="MinLevel">Minimum proficiency level accepted</param>
+/// <param name="LevelBindingOverride">true = the minimum level is binding, false = hint only, null = as the qualification (IsLevelBinding)</param>
 
 using Klacks.Api.Domain.Enums;
 
@@ -21,4 +22,5 @@ public class ShiftRequiredQualificationResource
     public Guid QualificationId { get; set; }
     public bool IsMandatory { get; set; }
     public QualificationLevel MinLevel { get; set; }
+    public bool? LevelBindingOverride { get; set; }
 }

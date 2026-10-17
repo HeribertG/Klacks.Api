@@ -157,6 +157,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             BoundaryLockedWorks = boundaryLocked,
             BoundaryExistingWorkBlockers = boundaryExisting,
             IneligibleAssignments = ineligible,
+            LevelShortfall = eligibilityMatrix.LevelShortfall,
             SchedulingMaxConsecutiveDays = defaults.MaxConsecutiveDays > 0 ? defaults.MaxConsecutiveDays : WizardSchedulingDefaults.MaxConsecutiveDays,
             SchedulingMinPauseHours = defaults.MinPauseHours > 0 ? (double)defaults.MinPauseHours : WizardSchedulingDefaults.MinRestHours,
             SchedulingMaxOptimalGap = defaults.MaxOptimalGap > 0 ? (double)defaults.MaxOptimalGap : 2,

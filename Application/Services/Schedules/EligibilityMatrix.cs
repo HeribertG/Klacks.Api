@@ -2,9 +2,10 @@
 
 /// <summary>
 /// Result of <see cref="IEligibilityMatrixBuilder"/>. Carries the set of ineligible
-/// (agent, shift, date) assignments for the optimizer veto plus the per-assignment qualification
-/// gaps and qualification display metadata for the frontend gap report. An empty matrix means
-/// "everyone is eligible" — the default for plans without mandatory shift qualifications.
+/// (agent, shift, date) assignments for the optimizer veto, the per-assignment level shortfall of
+/// mandatory qualifications held below a NON-binding minimum level (soft wizard penalty), plus the
+/// per-assignment qualification gaps and qualification display metadata for the frontend gap report.
+/// An empty matrix means "everyone is eligible" — the default for plans without mandatory shift qualifications.
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Schedules;
@@ -18,6 +19,14 @@ public sealed class EligibilityMatrix
     public required IReadOnlyDictionary<(string AgentId, Guid ShiftId, DateOnly Date), IReadOnlyList<QualificationGap>> Gaps { get; init; }
 
     public required IReadOnlyDictionary<Guid, QualificationInfo> QualificationInfo { get; init; }
+
+    /// <summary>
+    /// Sum of the missing levels per assignment over the mandatory requirements held below a non-binding minimum
+    /// level (in-window or expired rows; a pre-existing assignment's binding gap counts here too, it is never vetoed
+    /// retroactively). Only assignable (not ineligible) triples appear; empty means no soft level penalty.
+    /// </summary>
+    public IReadOnlyDictionary<(string AgentId, Guid ShiftId, DateOnly Date), int> LevelShortfall { get; init; }
+        = new Dictionary<(string, Guid, DateOnly), int>();
 
     /// <summary>Shift display names (name, or abbreviation as fallback) keyed by shift id, for the report.</summary>
     public required IReadOnlyDictionary<Guid, string> ShiftNames { get; init; }

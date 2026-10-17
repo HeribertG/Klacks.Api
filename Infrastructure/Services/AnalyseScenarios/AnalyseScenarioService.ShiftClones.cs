@@ -58,7 +58,8 @@ public partial class AnalyseScenarioService
                 ShiftId = shiftIdMap[req.ShiftId],
                 QualificationId = req.QualificationId,
                 IsMandatory = req.IsMandatory,
-                MinLevel = req.MinLevel
+                MinLevel = req.MinLevel,
+                LevelBindingOverride = req.LevelBindingOverride
             };
 
             await _context.ShiftRequiredQualification.AddAsync(clone, ct);

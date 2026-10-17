@@ -94,7 +94,7 @@ public class ShiftsController : InputBaseController<ShiftResource>
         [FromBody] SetShiftRequiredQualificationRequest request)
     {
         var id = await Mediator.Send(new SetShiftRequiredQualificationCommand(
-            request.ShiftId, request.QualificationId, request.IsMandatory, request.MinLevel));
+            request.ShiftId, request.QualificationId, request.IsMandatory, request.MinLevel, request.LevelBindingOverride));
         return Ok(id);
     }
 

@@ -56,5 +56,6 @@ public static class ShiftRequirementMaterializer
         QualificationId = source.QualificationId,
         IsMandatory = source.IsMandatory,
         MinLevel = source.MinLevel,
+        LevelBindingOverride = source.LevelBindingOverride,
     };
 }

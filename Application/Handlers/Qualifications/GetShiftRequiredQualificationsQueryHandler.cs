@@ -34,6 +34,7 @@ public sealed class GetShiftRequiredQualificationsQueryHandler
             QualificationId = srq.QualificationId,
             IsMandatory = srq.IsMandatory,
             MinLevel = srq.MinLevel,
+            LevelBindingOverride = srq.LevelBindingOverride,
         }).ToList();
     }
 }

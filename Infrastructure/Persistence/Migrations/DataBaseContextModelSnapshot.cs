@@ -6116,6 +6116,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_mandatory");
 
+                    b.Property<bool?>("LevelBindingOverride")
+                        .HasColumnType("boolean")
+                        .HasColumnName("level_binding_override");
+
                     b.Property<int>("MinLevel")
                         .HasColumnType("integer")
                         .HasColumnName("min_level");
@@ -13571,6 +13575,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsLevelBinding")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_level_binding");
 
                     b.Property<bool>("IsTimeLimited")
                         .HasColumnType("boolean")

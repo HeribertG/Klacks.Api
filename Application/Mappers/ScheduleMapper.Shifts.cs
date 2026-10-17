@@ -87,7 +87,8 @@ public partial class ScheduleMapper
             ShiftId = q.ShiftId,
             QualificationId = q.QualificationId,
             IsMandatory = q.IsMandatory,
-            MinLevel = q.MinLevel
+            MinLevel = q.MinLevel,
+            LevelBindingOverride = q.LevelBindingOverride
         }).ToList() ?? [];
 
         if (shift.Client != null)
@@ -189,7 +190,8 @@ public partial class ScheduleMapper
                 ShiftId = q.ShiftId,
                 QualificationId = q.QualificationId,
                 IsMandatory = q.IsMandatory,
-                MinLevel = q.MinLevel
+                MinLevel = q.MinLevel,
+                LevelBindingOverride = q.LevelBindingOverride
             }).ToList() ?? [];
         return entity;
     }

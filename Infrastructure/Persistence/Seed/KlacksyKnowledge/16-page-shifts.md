@@ -218,8 +218,17 @@ oben rechts einen Auf-/Zuklapp-Pfeil. Cards in dieser Reihenfolge:
    en: "Add qualification", fr: "Ajouter une qualification", it: "Aggiungi qualifica").
    Tabelle mit **QUALIFIKATION** (en: "QUALIFICATION"), **MINDESTSTUFE** (en: "MIN LEVEL",
    Stufen 1–5: Gering / Grundlegend / Kompetent / Fortgeschritten / Experte) und
-   **PFLICHT** (en: "MANDATORY", Checkbox). Sind noch keine Qualifikationen definiert,
-   erscheint der Hinweis, sie zuerst in den Einstellungen anzulegen.
+   **PFLICHT** (en: "MANDATORY", Checkbox) und **STUFE VERBINDLICH** (de: "STUFE VERBINDLICH", en:
+   "LEVEL BINDING", fr: "NIVEAU CONTRAIGNANT", it: "LIVELLO VINCOLANTE"), eine Dreifach-Auswahl pro Zeile:
+   **Wie Qualifikation** (de: "Wie Qualifikation", en: "As qualification", fr: "Comme la qualification", it:
+   "Come la qualifica", Standard) übernimmt die Checkbox "Mindeststufe ist verbindlich" der Qualifikation; ist in
+   der Zeile eine Qualifikation gewählt, nennt die Option, was das gerade bedeutet (z. B. "Wie Qualifikation:
+   Nur Hinweis"). **Verbindlich** (de: "Verbindlich", en: "Binding", fr: "Contraignant", it: "Vincolante")
+   sperrt bei zu niedriger Stufe die Einteilung auf diesem Dienst, **Nur Hinweis** (de: "Nur Hinweis", en:
+   "Hint only", fr: "Simple remarque", it: "Solo avviso") warnt nur, jeweils unabhängig von der Qualifikation.
+   Die Wahl wird mit dem Dienst gespeichert. Sie wirkt nur bei Pflicht-Anforderungen und nur auf die
+   Stufe: eine ganz fehlende Pflicht-Qualifikation sperrt immer (Details: `explain_qualifications`). Sind noch keine Qualifikationen
+   definiert, erscheint der Hinweis, sie zuerst in den Einstellungen anzulegen.
 4. **Stunden und Wochentage** (de: "Stunden und Wochentage", en: "Hours and Weekdays", fr:
    "Heures et jours de la semaine", it: "Ore e Giorni Feriali") — **Von Zeit hh:mm**, **Bis
    Zeit hh:mm**, **Dauer** (en: "Duration"); im Experten-Modus (nicht bei Containern)

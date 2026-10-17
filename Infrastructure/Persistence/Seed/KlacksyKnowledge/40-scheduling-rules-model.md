@@ -143,9 +143,18 @@ Refusal does not look the same everywhere: when planning, the affected rows are 
 proposal and the rest goes through; when accepting a scenario, the whole operation is rejected;
 when searching for a replacement, the person is left out of the candidate list.
 
-Some objections cannot be waved through at all — a double booking or a missing required
-qualification is refused regardless of role and regardless of any setting. Only an objection that
-comes from a configurable limit can be overridden, and only by somebody with the right to do so.
+Some objections cannot be waved through at all. A missing mandatory qualification, or a mandatory
+qualification held below a minimum level that is binding, is refused regardless of role — when a
+planner enters the shift directly in the real schedule (inside a scenario a manual booking is not
+checked), when planning with Klacksy or the planning
+assistants, and when searching for a replacement. A double booking is refused regardless of role
+when planning with Klacksy or the planning assistants and when searching for a replacement; a
+planner who enters or moves a shift directly in the schedule is not stopped — the double booking is
+saved and then shows up in the error list. Accepting a scenario checks only the configurable limits,
+not double bookings or qualifications. Only an objection that comes from a configurable
+scheduling limit can be overridden, and only by somebody with the right to do so. (Whether a
+qualification level is binding is configurable, but once it blocks, nobody can override it; see
+`explain_qualifications`.)
 
 ## Related skills
 

@@ -168,8 +168,8 @@ from the scheduling defaults.
 
 **Overriding a refusal** requires all three: the right role, the company setting that permits it,
 and an explicit request to override. Every override is recorded. Objections that do not come from a
-configurable safeguard — a double booking, a missing required qualification — can never be waved
-through, by anyone.
+configurable safeguard — a double booking, a missing mandatory qualification, a mandatory
+qualification below a binding minimum level — can never be waved through, by anyone.
 
 ## A note on deleting rules
 
