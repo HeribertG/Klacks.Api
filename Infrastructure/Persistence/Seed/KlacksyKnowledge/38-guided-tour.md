@@ -1,25 +1,28 @@
 ---
 name: explain_guided_tour
 description: |
-  Explains the guided setup tour: Klacksy walks a new user through twenty stations covering the
-  whole application, navigating to each page itself and making the matching navigation icon pulse.
-  Covers how to start it, that the user sets the pace and can skip or stop at any point, that
-  questions can be asked at every station, and that it can be repeated for new colleagues. Use this
-  when somebody is new, asks where to begin, or wants an overview of the application.
+  Explains the guided setup tour for administrators: twenty stations across the whole application
+  where Klacksy explains each area, navigates to the page itself and makes the matching navigation
+  icon pulse, while the user sets the pace and can skip, stop or ask questions at any station. It
+  shows where things are rather than filling anything in, and can be repeated. Use this when
+  somebody is new, asks where to begin, or wants an overview of the application.
 category: Query
 executionType: Skill
 alwaysOn: false
 triggerKeywords:
-  - tour
-  - einführung
-  - neu hier
-  - wo fange ich an
-  - rundgang
+  de:
+    - tour
+    - rundgang
+    - neu hier
+  en:
+    - tour
+    - walkthrough
+    - new here
 synonyms:
-  de: [tour, rundgang, einführung, zeig mir die app, neu hier, wo fange ich an, erste schritte, überblick über die anwendung, einarbeitung]
-  en: [tour, walkthrough, introduction, show me the app, new here, where do i start, first steps, overview of the application, onboarding]
-  fr: [visite guidée, introduction, montre-moi l application, nouveau ici, par où commencer, premiers pas]
-  it: [tour guidato, introduzione, mostrami l applicazione, nuovo qui, da dove comincio, primi passi]
+  de: [tour, rundgang, einführung, zeig mir die app, neu hier, überblick über die anwendung, einarbeitung]
+  en: [tour, walkthrough, introduction, show me the app, new here, overview of the application, app tour]
+  fr: [visite guidée, introduction, montre-moi l application, nouveau ici]
+  it: [tour guidato, introduzione, mostrami l applicazione, nuovo qui]
 ---
 
 # The guided setup tour

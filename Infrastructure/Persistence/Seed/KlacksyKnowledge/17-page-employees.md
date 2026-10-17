@@ -69,7 +69,7 @@ adresses", it: "Tutti gli indirizzi") ist die zentrale Liste aller Personen in K
 Mitarbeiter, Externe und Kunden — zum Suchen, Filtern, Anlegen, Bearbeiten, Löschen und
 Exportieren. Erreichbar über das Personen-Icon `open-employees` in der linken Navigation
 (Tastenkürzel **Alt+5**) oder die Route `/workplace/client`. Der Stift (bzw. das Auge für
-Nicht-Admins) in einer Zeile öffnet die Bearbeitungsmaske `/workplace/edit-address/:id`
+Konten ohne Bearbeitungsrecht) in einer Zeile öffnet die Bearbeitungsmaske `/workplace/edit-address/:id`
 (de: "Adresse und persönliche Daten", en: "Address and personal details", fr: "Adresse et
 coordonnées personnelles", it: "Indirizzo e dati personali") — dort sind alle Stammdaten
 einer Person gebündelt: Persona mit historisierten Adressen, Kommunikation, Mitgliedschaft,
@@ -100,7 +100,7 @@ Verträge, Gruppen, Qualifikationen, Notizen und Bild.
 
 - **Kopfzeile**: Button **+ Adresse erfassen** (`new-address-button`, de: "+ Adresse
   erfassen", en: "+ Add Address", fr: "Ajouter une adresse", it: "Aggiungi indirizzo") —
-  nur für Admins sichtbar, öffnet die leere Erfassungsmaske `/workplace/edit-address`.
+  nur sichtbar mit dem Recht, Personen anzulegen (Admin und Supervisor), öffnet die leere Erfassungsmaske `/workplace/edit-address`.
   Daneben ein **Excel-Export-Icon**: ausgegraut, solange keine Zeile angehakt ist; sobald
   die Kopf-Checkbox oder einzelne Zeilen-Checkboxen gesetzt sind, exportiert ein Klick die
   selektierten Adressen als Excel.
@@ -293,7 +293,7 @@ Cards plus einer rechten Navigationsspalte:
 - **Szenarien & Periodenabschluss**: Stammdaten sind davon nicht betroffen —
   Szenario-Isolation und Periodenabschluss/Tagessperre wirken auf Planungsdaten
   (Dienste/Absenzen), nicht auf Adressen.
-- **Berechtigungen**: Anlegen, Bearbeiten und Löschen sind Admin-Funktionen; Nicht-Admins
+- **Berechtigungen**: Anlegen und Bearbeiten dürfen Admin und Supervisor, Löschen nur der Admin; Konten ohne Rolle
   öffnen die Maske nur lesend (Auge / `readonly=true`).
 - **Dubletten-Schutz**: Bei der Neuerfassung sucht Klacks live nach ähnlichen bestehenden
   Personen und zeigt sie in der „Gefunden"-Liste, bevor versehentlich ein Duplikat
@@ -357,3 +357,46 @@ Cards plus einer rechten Navigationsspalte:
   Mitgliedschaft)
 - "How do I export selected addresses to Excel?"
 - "How do I show deleted addresses?"
+
+<!-- level:pitfalls -->
+
+## Stufe 4 — Folgen, Endgültigkeit, Grenzfälle
+
+### Person fehlt in der Liste
+
+Die Liste startet mit dem Filter (de: "Gültigkeit", en: "Validity") nur auf (de: "Aktive", en: "Active"). Wer erst in der Zukunft eintritt, steht nur unter (de: "Zukünftige", en: "Future"); wer ausgetreten ist, nur unter (de: "Ehemalige", en: "Alumni"). Gelöschte Personen erscheinen nur mit (de: "Gelöschte Adressen", en: "Deleted Addresses") — und dann ausschliesslich sie. Eine neu erfasste Person mit Eintritt in der Zukunft ist also nach dem Speichern nicht sofort in der Standardliste zu sehen. Dazu kommen Gruppen-Auswahl, Suche und bei Nicht-Admins die Gruppen-Sichtbarkeit.
+
+### Rechte
+
+Admin darf alles. Supervisor darf Personen ansehen, anlegen und bearbeiten, aber nicht löschen. Ein Konto ohne Rolle sieht das Auge statt des Stifts, darf in der Maske nur Notizen schreiben und Stammdaten nicht ändern.
+
+### Löschen
+
+Löschen darf nur der Admin. Es ist ein Soft-Delete: die Person verschwindet aus der Standardliste, bleibt in der Datenbank und ist nur über (de: "Gelöschte Adressen", en: "Deleted Addresses") sichtbar; dort öffnet sie sich schreibgeschützt (alle Cards gesperrt). Eine Wiederherstellen-Funktion gibt es in der App nicht — das Löschen ist aus Sicht der App endgültig. Wenn jemand nur das Unternehmen verlässt, ist das Austrittsdatum der richtige Weg, denn es lässt sich ändern oder wieder leeren.
+
+### Typ ändern
+
+Das Dropdown (de: "Typ", en: "Type") in der Card (de: "Registration", en: "Registration") übernimmt den neuen Wert ohne Prüfung; erst das Speichern wird abgelehnt, wenn die Person noch eine Adressart hat, die der neue Typ nicht erlaubt (etwa eine Geschäftsadresse bei einem Mitarbeiter). Diese Adressen zuerst entfernen, dann erneut speichern. Eine juristische Person darf nur Kunde sein. Bei Typ Kunde verschwinden die Cards (de: "Verträge", en: "Contracts") und (de: "Qualifikationen", en: "Qualifications"); was mit bereits gespeicherten Verträgen passiert, ist nicht geprüft.
+
+### Adresse: Tippfehler, Umzug, Entfernen
+
+- Ein Tippfehler wird direkt in der angezeigten Adresse korrigiert und ändert damit auch, was vergangene Tage zeigen. Ein echter Umzug ist eine neue Version über (de: "Neue Adresse erstellen", en: "Create new address") mit (de: "Adresse gültig ab", en: "Address valid from"); liegt der Tag in der Zukunft, ist es ein vorgemerkter Umzug und die Version steht bis dahin unter den zukünftigen Adressen.
+- Die „aktuelle" Adresse wird in der Maske je Adressart bestimmt: die neueste Version dieser Art mit Beginn bis heute.
+- (de: "Adresse deaktivieren", en: "Deactivate Address") setzt kein Enddatum, sondern nimmt die Version aus der Person heraus; geschrieben wird das erst beim Speichern. Davor verwirft (de: "Zurücksetzen", en: "Reset") in der unteren Leiste alle offenen Änderungen der Maske.
+
+### Geocoding-Ausfall
+
+- Geprüft wird beim Speichern, und nur Adressen mit PLZ und Ort, die sich seit dem letzten Speichern geändert haben. Eine unveränderte Adresse erneut zu speichern holt fehlende Koordinaten nicht nach.
+- Findet der Dienst die Adresse nicht, trifft die Strasse nicht genau oder passt der Kanton nicht, bricht das Speichern ab; der Hinweis bietet Vorschläge und (de: "Trotzdem speichern", en: "Save anyway"). Ein gewählter Vorschlag übernimmt Strasse, PLZ und Ort samt Koordinaten; „Trotzdem speichern" überspringt die Prüfung für alle Adressen dieses Speicherns und speichert die eingegebenen Werte, normalerweise ohne Koordinaten.
+- Ist der Geocoding-Dienst nicht erreichbar oder abgeschaltet, wird ohne Hinweis ohne Koordinaten gespeichert.
+- Ohne Koordinaten fehlen die Karten-Buttons (nur bei Kunden mit Koordinaten und aktivierten externen Kartenlinks), der Skill „nächste Gruppe" ändert nichts und meldet, dass keine Adresse mit Koordinaten vorliegt, und die Standort-Gruppierung kann Adressen ausserhalb ihrer Cluster-Orte nicht einordnen.
+
+### Austritt
+
+- Das Austrittsdatum ist der letzte Tag der Zugehörigkeit; ab dem Folgetag wird die Planung abgelehnt (Schichtplan: auch ausserhalb der Gruppenzeit der Person). Absenzen müssen vollständig innerhalb der Mitgliedschaft liegen.
+- Das Soll einer Zahlperiode wird nach Mitgliedschaftstagen anteilig gekürzt (Austritt am 15.03. ergibt 15/31 des Monatssolls); die Maximalstunden werden nie gekürzt.
+- Was mit bereits geplanten Einträgen nach einem neu gesetzten Austrittsdatum geschieht, ist nicht geprüft.
+
+### Verträge in der Maske
+
+Hat die Person Vertragszeilen, muss mindestens eine (de: "AKTIV", en: "ACTIVE") sein, sonst lässt sich nicht speichern; die Datumsauswahl bietet keinen Beginn vor dem Eintrittsdatum an. Das Soll richtet sich nach dem aktiven Vertrag am ersten Tag der Zahlperiode — Details in `explain_contracts`.

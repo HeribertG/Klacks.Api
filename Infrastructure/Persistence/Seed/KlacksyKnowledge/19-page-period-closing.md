@@ -360,9 +360,9 @@ der übrigen Bedingungen, schliesst Klacksy nicht und meldet den Grund (z. B. ke
 Abschluss-Zeitpunkt gespeichert, offene Fehler, teilweise versiegelt, Termin zu lange her).
 Eine Periode, die jemand wieder geöffnet hat, schliesst Klacksy nie erneut selbst ab. Jeder
 automatische Abschluss steht mit dem entscheidenden Admin und dem Handelnden "Klacksy
-(autonom)" im Protokoll (Aktion **Versiegelt**) und wird gemeldet. Ein Abschluss ist **nicht
-verlustfrei umkehrbar**: Wieder öffnen stellt bestätigte/freigegebene Zwischenstufen nicht wieder
-her.
+(autonom)" im Protokoll (Aktion **Versiegelt**) und wird gemeldet. Wieder öffnen stellt
+bestätigte/freigegebene Zwischenstufen wieder her (ausser bei Einträgen ohne gespeicherten
+Vorzustand, siehe Entsiegeln).
 
 ### Typische Aufgaben
 

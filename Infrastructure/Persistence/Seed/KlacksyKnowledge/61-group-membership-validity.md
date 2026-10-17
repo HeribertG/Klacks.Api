@@ -1,12 +1,12 @@
 ---
 name: explain_group_membership_validity
 description: |
-  Explains that a group membership carries its own start and optional end date, and that this window
-  actively decides who counts, not only how history is kept. The automatic planner draws its
-  candidate pool for a group from memberships overlapping the planning period, and a group's hours
-  balance follows the same rule. Also covers that ending a membership is refused once the person
-  already has planned shifts in that group afterwards. Use this when asked why the planner skipped
-  somebody.
+  Explains that a group membership has its own start and optional end date that decides who counts:
+  with a group selected in the schedule, days outside a person's window are locked for them, and the
+  group's hours balance counts only memberships overlapping the period. The planning wizards do not
+  filter candidates by it. Ending a membership is refused while the person has planned work in that
+  group afterwards. Use this when a person cannot be booked in a group or a membership cannot be
+  ended.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -15,56 +15,104 @@ triggerKeywords:
     - gruppenmitgliedschaft
   de:
     - gültigkeit der gruppenmitgliedschaft
-    - kandidatenkreis der planung
+    - gültigkeitsfenster der mitgliedschaft
   en:
     - group membership validity
-    - planner candidate pool
+    - membership validity window
 synonyms:
-  de: [warum schlägt der planungs-assistent diese person nicht vor, zählt eine person schon mit die erst nächste woche im team ist, kann ich eine gruppenmitgliedschaft rückwirkend beenden, warum lässt sich die mitgliedschaft nicht beenden, was passiert mit geplanten diensten wenn ich die mitgliedschaft beende, steuert die gültigkeit der mitgliedschaft die planung]
-  en: [why didn't the planner suggest this person for the team, does someone joining next week already count this period, can i end a group membership retroactively, why can't i close this membership, what happens to planned shifts if i end a membership, does membership validity control who gets scheduled]
-  fr: [pourquoi l'assistant de planification n'a pas proposé cette personne, puis-je mettre fin à une affiliation de groupe rétroactivement, que se passe-t-il avec les services déjà planifiés, la validité de l'affiliation contrôle-t-elle la planification]
-  it: [perché l'assistente di pianificazione non ha proposto questa persona, posso terminare un'appartenenza di gruppo retroattivamente, cosa succede ai turni già pianificati, la validità dell'appartenenza controlla la pianificazione]
+  de: [warum kann ich diese person im plan der gruppe nicht eintragen, zählt eine person schon mit die erst nächste woche im team ist, kann ich eine gruppenmitgliedschaft rückwirkend beenden, warum lässt sich die mitgliedschaft nicht beenden, was passiert mit geplanten diensten wenn ich die mitgliedschaft beende, steuert die gültigkeit der mitgliedschaft die planung]
+  en: [why can't i book this person in the group's schedule, does someone joining next week already count this period, can i end a group membership retroactively, why can't i close this membership, what happens to planned shifts if i end a membership, does membership validity control who gets scheduled]
+  fr: [pourquoi je ne peux pas planifier cette personne dans ce groupe, puis-je mettre fin à une affiliation de groupe rétroactivement, que se passe-t-il avec les services déjà planifiés, la validité de l'affiliation contrôle-t-elle la planification]
+  it: [perché non posso pianificare questa persona in questo gruppo, posso terminare un'appartenenza di gruppo retroattivamente, cosa succede ai turni già pianificati, la validità dell'appartenenza controlla la pianificazione]
 ---
 
 # Group membership validity — not just history
 
-## Core idea (one sentence)
+A person's link to a group has its own start date and, optionally, an end date, and that window decides
+whether the person can be booked in that group's schedule and whether they count in the group's numbers
+for a period — not only how the past is kept intact.
 
-A group membership has its own start date and, optionally, an end date, and that window actively
-decides who the automatic planner considers and who a period's numbers include — not only how the
-past is kept intact.
+<!-- level:short -->
+
+## Joining a group for a limited time
+
+When somebody joins a group you can give the membership a start date and an end date. Example: a seasonal
+helper joins the Bern team from 1 June to 31 August. In the Bern schedule the days in May and September
+are locked for that person, so nobody plans them by mistake. If you leave both dates empty, the person is a member without time limit.
+
+<!-- level:elements -->
+
+## Setting and ending a membership window
+
+1. Open the person's own page and go to the card (de: "Zugewiesene Gruppen", en: "Assigned Groups", fr:
+   "Groupes assignés", it: "Gruppi assegnati").
+2. Click (de: "Gruppe hinzufügen", en: "Add Group", fr: "Ajouter un groupe", it: "Aggiungi gruppo") and pick
+   the group. The start column is preset to today.
+3. Fill or change the columns (de: "GÜLTIG VON", en: "VALID FROM", fr: "VALIDE DÈS", it: "VALIDO DA") and
+   (de: "GÜLTIG BIS", en: "VALID UNTIL", fr: "VALIDE JUSQU'À", it: "VALIDO FINO A"). An empty end means no
+   end.
+4. Save the person. Ending a membership can be refused — see the consequences below.
+5. Adding a person in the group editor, card (de: "Teilnehmerliste", en: "Participant List", fr: "Liste
+   des participants", it: "Elenco dei Partecipanti"), with the button (de: "Übernehmen", en: "Apply", fr:
+   "Appliquer", it: "Applica") creates a membership without any dates.
+6. To see the effect, select the group at the top of the application and open the schedule: the days
+   outside the person's window are locked in their row.
+
+<!-- level:effects -->
 
 ## What the validity window drives
 
-When the automatic planner builds a work schedule for a group, its pool of schedulable people is
-exactly the memberships whose window overlaps the planning period — someone whose membership starts
-after the period ends, or ended before it begins, is not offered as a candidate at all, even though
-they still show up in the group's plain member list. The same overlap rule decides who counts in a
-group's hours balance for a chosen period: join a team the week after that period closes, and the
-period's balance simply does not include that person yet.
+### The schedule
 
-## Example
+While a group is selected in the schedule, the days outside a person's membership window in that group are locked: no
+shift or absence can be placed there by menu, text entry, drag and drop, fill handle or paste. This is
+separate from the person's entry and exit dates (card de: "Registration", en: "Registration", fr:
+"Inscription", it: "Registrazione"), which lock days in the same way.
 
-A membership valid from 1 September has no bearing on planning in August — the planner will not
-propose that person for an August roster no matter how visibly the membership already sits in the
-group. From September onward it becomes a completely ordinary candidate.
+### The group's numbers
 
-## Closing a membership is checked against reality
+The hours balance of a group for a chosen period counts only the employees whose membership window
+overlaps that period. Join a team the week after the period closes and the period's balance simply does
+not include that person yet.
 
-Ending a membership — setting its last day, or removing it outright — is refused if the person
-already has planned shifts in that group after the chosen end date (or, for an outright removal, any
-planned shift in it at all). The membership has to be adjusted, or those shifts dealt with first;
-Klacks will not silently leave a scheduled shift pointing at a membership that no longer covers that
-day.
+### Example
 
-## Related skills
+A membership valid from 1 September has no place in the August schedule of that group — those days are
+locked for the person. From September onward it is a completely ordinary row.
+
+### Related skills
 
 - `add_client_to_group_by_name` / `remove_client_from_group` — changing who is in a group
 - `get_group_hours_balance` — counts only memberships valid for the requested period
 
-## Trigger phrases
+### Trigger phrases
 
-- "Warum hat der Planungs-Assistent diese Person nicht vorgeschlagen?"
+- "Warum kann ich diese Person im Plan nicht eintragen?"
 - "Zählt jemand, der erst nächste Woche eintritt, schon in der Stunden-Bilanz?"
 - "Warum kann ich diese Mitgliedschaft nicht beenden?"
 - "What happens to planned shifts if I end someone's group membership?"
+
+<!-- level:pitfalls -->
+
+## Consequences and edge cases
+
+**Ending a membership is checked against planned work.** Saving a person with an end date is refused if
+they already have planned work in a shift of that group on a day after that end date (the check is strict:
+the end date itself is fine). Removing the person from the group (for example in the participant list) is refused if they have any
+planned work in that group's shifts, whatever the date. The messages read: "This membership cannot be
+ended on this date because the employee still has planned work entries in this group afterwards." and
+"This employee cannot be removed from the group because they have planned work entries in this group."
+The way out is to deal with those entries first or, for an end date, to move it.
+
+- Only the exact group is checked, not its subgroups, and only real entries — entries inside scenarios
+  do not count.
+- The entry and exit dates of a person are a different thing from a group window; the skills
+  `update_membership` and `end_client_membership` change those entry and exit dates, not a group window,
+  and carry no such check.
+
+**The window is not a candidate filter for the planning wizards.** The wizards started from chat take the
+people who have a membership entry in the group, whatever its dates; the schedule then refuses the
+placements that fall outside the window.
+
+**The window is read per exact group.** While a parent group is selected, the lock dates come only from
+memberships in that exact group, not from its subgroups.

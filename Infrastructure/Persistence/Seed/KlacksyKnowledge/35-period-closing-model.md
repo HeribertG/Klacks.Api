@@ -26,76 +26,90 @@ synonyms:
 
 # Closing a period — what actually happens
 
-## Core idea (one sentence)
+Closing a period freezes the days inside it so that the figures handed to payroll cannot change afterwards.
 
-Closing a period freezes the days inside it so the figures handed to payroll cannot change
-afterwards.
+<!-- level:short -->
 
-## What closing does
+## What closing a period means
 
-Three things happen at once:
+A period is the stretch of time you settle together, for example a month. Closing it is the last step once the hours are final: from then on nobody can change the work and the absences of those days any more. Only an administrator can close a period, and Klacks records who closed what and when. A day that suddenly refuses to be edited usually belongs to a closed period; that is not a fault, it is the point. Example: once April is closed, a forgotten sick day in April cannot be added until an administrator reopens the period.
 
-1. The work and absences in the period are **locked** — they can no longer be edited.
-2. **Day locks** are written, and these are the authoritative record of what was frozen.
-3. An **audit entry** is written, so it stays traceable who closed which period when.
+<!-- level:elements -->
 
-Closing starts no payroll export. The payroll figures are exported afterwards, per employee, from the
-period-closing page.
+## Closing and reopening, step by step
 
-This is why a day suddenly refuses to be edited: it belongs to a closed period. That is not a fault,
-it is the point.
+The page is for administrators only (de: "Periodenabschluss", en: "Period Closing", fr: "Clôture de période", it: "Chiusura periodo").
 
-## Check before you close
+1. **Pick the period.** In the card (de: "Perioden", en: "Periods") choose it from the dropdown (de: "Periode", en: "Period"). Periods of a group carry the group name.
+2. **Check it first.** Open the card (de: "Probleme dieser Periode", en: "Issues in this period", fr: "Problèmes de cette période", it: "Problemi di questo periodo"). It lists errors, warnings and notes per day and per person, typically days without an assignment, hours that contradict the contract, or absences that were never booked from a wish. Correct what needs correcting now, because afterwards every correction means reopening.
+3. **Close.** Click (de: "Alle versiegeln", en: "Seal all") and confirm. If errors are still open, a second question follows (de: "Trotzdem abschliessen", en: "Close anyway", fr: "Clôturer quand même", it: "Chiudi comunque"). Warnings never stop the closing, errors do until you confirm.
+4. **Reopen.** Click (de: "Alle entsiegeln", en: "Unseal all") or untick a single day. A reason is required in the box that opens (de: "Begründung", en: "Reason"); the button is (de: "Periode wieder öffnen", en: "Reopen period", fr: "Rouvrir la période", it: "Riapri periodo").
+5. **Look up who did what.** The card (de: "Protokoll", en: "Audit Log", fr: "Journal d'audit", it: "Registro di controllo") lists every closing and reopening with the person, the reason and the number of entries.
 
-There is a pre-flight check that lists the validation findings of the period — errors, warnings and
-notes per day and per person. It is meant to be run **before** closing, because afterwards
-correcting anything means reopening the whole period.
+<!-- level:effects -->
 
-Typical findings are days without an assignment, hours that contradict the contract, or absences
-that were never materialised from a wish.
+## What closing does and how it connects to the rest
 
-## Approving is not closing
+### What happens at once
 
-Approving a day or a group in the schedule and closing a period are different acts by different
-people. Approval is the planner's confirmation that a day is correct, and it can be withdrawn again.
-Closing is the final freeze for payroll and is **administrator-only** — including reopening.
+1. The work entries and absences of the period are set to the highest lock stage (closed). Only the real plan is touched, never scenario drafts.
+2. A day lock is written for every day of the period. The day locks are the authoritative record of what was frozen.
+3. An audit entry is written in the same transaction: who, when, which period, which group, the reason and how many entries were affected.
 
-So a period can perfectly well contain approved days and still be open.
+With a group chosen, the closing covers the entries of that group and the day locks belong to that group; without a group it is global.
 
-Reopening a closed period puts every entry back to the level it had before the close: confirmed
-entries stay confirmed, approved ones stay approved, open ones become open again. Only entries that
-were closed before this was recorded have no stored previous level; they come back open, and an
-earlier confirmation or approval of theirs is lost.
+### What a locked day refuses
 
-## How the balance is made up
+On a locked day the server refuses to create, change or delete work entries, work corrections, absences, expenses, notes and planning commands (message de: "Tag ist gesperrt und kann nicht geändert werden", en: "Day is sealed and cannot be modified"). A day lock without a group blocks every person; a group's day lock blocks the persons who belong to that group on that day. Scenario drafts are not checked. Planned absence wishes are not checked either.
 
-The balance shown in a person's schedule row is the difference between two figures:
+### Approving is not closing
 
-- **actual hours** — what is scheduled, including surcharges,
-- **target hours** — what the contract requires (see `explain_contracts`).
+An entry has four lock stages: open, confirmed, approved, closed. Confirming is the first step and needs no special role. Approving a day for a group needs a supervisor or an administrator; it also writes a day lock for that group, so the day is already locked for its members, and the approving group can withdraw it again. Closing covers a whole period, needs an administrator, and so does reopening; a reason is mandatory.
 
-The same comparison can be swept across a whole group, sorted from the most under-target to the most
-overtime — which is how the question "who has too many hours" gets answered without going through
-people one by one.
+### Payroll
 
-## Expenses
+Closing starts no payroll export. An administrator exports the payroll figures afterwards, per employee, from the same page. That export is blocked while an entry of the range is not closed or a day is not locked by a closing.
 
-Expenses belong to the period as well: they are recorded per person and go into the same hand-off.
-Worth entering before closing, for the same reason as everything else.
+### How the balance is made up
 
-## Related skills
+The row of a person in the schedule shows three figures, each with a tooltip: de: "Garantierte Stunden", en: "Guaranteed Hours"; de: "Geleistete Stunden", en: "Worked Hours" (including surcharges); de: "Zuschlag", en: "Surcharges". It shows no balance itself. The balance that Klacksy reports is the worked hours without surcharges minus the guaranteed hours, so a negative number means under target. The guaranteed hours come from the contract. The same comparison can be swept across a whole group, sorted from the most under target to the most overtime.
+
+### Expenses
+
+Expenses are recorded per person and day and go into the same payroll hand-off. A locked day refuses expense changes, so enter them before closing.
+
+### Related skills
 
 - `list_period_issues` — the pre-flight check, before closing
 - `close_period` / `reopen_period` — freeze and unfreeze, administrator-only
 - `list_open_periods` / `get_period_status` / `list_period_audit_log` — what is open, and what happened
 - `get_period_hours` / `get_group_hours_balance` — actual against target, per person or group
+- `approve_day` / `revoke_day_approval` — approval of a day for a group
 - `add_expense` / `update_expense` / `delete_expense` / `list_expenses` — expenses
 - `generate_period_summary` — a summary of the period
 
-## Trigger phrases
+### Trigger phrases
 
 - "Why can't I edit this day any more?"
 - "What should I check before closing?"
 - "Who has overtime this month?"
 - "Reopen the period."
 - "Was ist der Unterschied zwischen genehmigen und abschliessen?"
+
+<!-- level:pitfalls -->
+
+## Consequences and edge cases
+
+**There is no general step-back function in Klacks.** After a closing the only way back is the reopening by an administrator, with a reason. Reopening gives every entry the lock stage it had before the closing: confirmed stays confirmed, approved stays approved, open stays open. Only entries that were closed before this was recorded have no stored previous stage; they come back open, and an earlier confirmation or approval of theirs is lost. Reopening also lifts the day locks and writes its own audit entry.
+
+**A reopening does not take back what left the system.** The page warns when an export already exists for the period. Earlier exports stay in the export history, and after correcting and closing again the next payroll export contains only the persons whose figures changed, marked as a supplement.
+
+**A reopening by group lifts only that group's locks.** An absence of a person who belongs to several groups stays closed when it was closed by the first group and another group reopens; a day approval of another group can keep a day locked as well.
+
+**Errors gate the closing, warnings do not.** If errors appear between the refusal and your confirmation, the confirmation is refused again. Closing over a known error is possible, but it is a decision: the closing makes those days unwritable.
+
+**Klacksy closes on its own only when an administrator has switched that on.** It is off by default. It needs the rule for the automatic period close set to carry out, full autonomy of the installation and of every administrator, a stored closing time, and a period with no open errors. A period that somebody reopened is never closed automatically again. Every automatic closing appears in the audit log.
+
+**The guaranteed hours are a planning target, not a payroll figure.** If the membership of a person starts or ends inside the period, the target is scaled by the member days. The worked hours of a person are stored per period and updated when entries are written; the recalculation in the schedule toolbar (de: "Stunden berechnen und zusammenzählen", en: "Calculate and sum hours") skips entries that are confirmed, approved or closed, so a change of a macro does not reach locked days until they are reopened.
+
+**Scenario drafts are outside the closing.** A closing neither locks nor changes the entries of a scenario, and a locked day does not stop scenario entries.

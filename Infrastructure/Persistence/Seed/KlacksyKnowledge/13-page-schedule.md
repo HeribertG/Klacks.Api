@@ -431,3 +431,25 @@ verwerfen muss.
 - "How do I recalculate period hours?"
 - "Que signifie cette vue du planning ?"
 - "Cosa significa questa vista della pianificazione?"
+
+<!-- level:pitfalls -->
+
+## Folgen, Endgültigkeit, Grenzfälle
+
+- **Welche Neuberechnung wann:** "Stunden zusammenzählen" rechnet nur die Pausen neu und summiert
+  die gespeicherten Stunden und Zuschläge der Einträge. "Stunden berechnen und zusammenzählen"
+  verarbeitet zusätzlich jeden Dienst und jede Korrektur der Periode mit ihren Makros neu (läuft im
+  Hintergrund, kann Minuten dauern, am Ende kommt eine Benachrichtigung). Die gründliche Variante ist
+  nötig, nachdem ein Makro oder seine Zuweisung geändert wurde — dafür gibt es keinen automatischen
+  Anstoss. Änderungen an Verträgen, Planungsregeln oder Zuschlags-Einstellungen stossen die gründliche
+  Neuberechnung selbst an. Das Soll wird beim Anzeigen immer frisch aus dem Vertrag gelesen.
+- **Gesperrte Einträge bleiben, wie sie sind:** Bestätigte, freigegebene oder abgeschlossene Einträge
+  werden von keiner der beiden Neuberechnungen verändert.
+- **Szenario übernehmen ersetzt den Plan im Zeitraum** des Szenarios; gesperrte Einträge werden dabei
+  übersprungen. Ein Gegenweg existiert nicht — vorher prüfen.
+- **Kein allgemeines Rückgängig:** Klacks kennt kein generelles Rückgängigmachen. Ein gelöschter Einsatz lässt
+  sich gezielt wiederherstellen (wer ihn gelöscht hat, nur in den ersten 60 Sekunden; ein
+  Administrator jederzeit), alles andere wird über den Gegenweg korrigiert.
+- **Person in mehreren Gruppen:** Ein Dienst, der im Plan einer Gruppe gebucht ist, erscheint im Plan
+  der anderen Gruppe sichtbar, ist dort aber weder bearbeit- noch löschbar.
+- **Dienst über Mitternacht am Monatsende:** Er zählt ganz zum Monat seines Starttags.

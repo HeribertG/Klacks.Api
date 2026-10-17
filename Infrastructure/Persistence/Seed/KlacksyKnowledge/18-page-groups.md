@@ -293,3 +293,59 @@ Admin-Konten ist der Button deaktiviert — Admins sehen immer alles.
 - "Wie hänge ich eine Gruppe unter eine andere?"
 - "Wie füge ich jemanden zu einer Gruppe hinzu?"
 - "Who sees which groups?" (Sichtbarkeit pro Benutzer)
+
+<!-- level:pitfalls -->
+
+## Stufe 4 — Folgen, Endgültiges und Grenzfälle
+
+### Gruppe löschen
+
+- **Endgültig, nur für Admins.** Es gibt keinen Weg zurück: Weder die App noch Klacksy kann eine gelöschte
+  Gruppe wiederherstellen. Das Löschen trifft immer den ganzen Teilbaum; der Klacksy-Skill `delete_group`
+  verweigert eine Gruppe mit Untergruppen, solange `forceCascade` nicht gesetzt ist.
+- **Die Mitgliedschaften werden beim Löschen nicht angefasst.** Das Löschen markiert nur die Gruppen
+  (samt Untergruppen) als gelöscht; die Mitgliedschafts-Einträge der Personen bleiben unverändert stehen.
+  Endgültig entfernt werden gelöschte Gruppen erst später von der automatischen Datenbereinigung.
+
+### Mitglieder entfernen
+
+- Ein Mitglied lässt sich nicht aus der Gruppe entfernen, solange es geplante Einsätze in den Diensten
+  dieser Gruppe hat. Die Meldung lautet (de: "Dieser Mitarbeiter kann nicht aus der Gruppe entfernt
+  werden, da er noch Dienste in dieser Gruppe hat."). Erst die Einsätze bereinigen, dann entfernen. Geprüft
+  wird nur genau diese Gruppe (nicht ihre Untergruppen) und nur echte Einträge, keine Szenario-Einträge.
+- Wer die **letzte** Mitgliedschaft einer Person entfernt, macht sie gruppenlos — und gruppenlose Personen
+  sind für alle eingeschränkten Benutzer sichtbar (siehe unten). Das verhindert Klacks nicht.
+
+### Sichtbarkeit
+
+- **Wer keine Wurzelgruppe angehakt hat, sieht fast niemanden.** Sobald es mindestens eine Gruppe gibt, sieht
+  ein Nicht-Admin ohne Haken in den Personenlisten nur Personen ohne jede Gruppe, und die Dashboard-Widgets
+  zeigen keine Daten. Nur eine Installation ganz ohne Gruppen ist für niemanden eingeschränkt.
+- **Gruppenlose Personen bleiben immer sichtbar.** Geprüft wird nur, ob überhaupt ein Mitgliedschafts-Eintrag
+  existiert, ohne Datumsprüfung: Auch eine abgelaufene Mitgliedschaft zählt als Gruppe. Eine Person verstecken
+  heisst, sie in eine Gruppe ausserhalb der sichtbaren Gruppen des Benutzers zu legen — "in keiner Gruppe" versteckt nicht.
+  Eine Person in mehreren Gruppen ist sichtbar, sobald eine davon sichtbar ist.
+- Im Dialog werden nur Wurzelgruppen angeboten; eine Untergruppe lässt sich nicht einzeln freigeben.
+
+### Mehrere Gruppen pro Person
+
+- Welcher Gruppe eine Buchung gehört, bestimmt die Gruppe ihres **Dienstes**, nicht die der Person. Ist eine
+  Person in Gruppe A und B und in der Ansicht von Gruppe B auch für einen Dienst eingeplant, der nur Gruppe A
+  zugeordnet ist, sieht man die Buchung (damit nicht doppelt gebucht wird), aber sie ist gesperrt: Tooltip
+  (de: "Gruppeneinschränkung", en: "Group restricted", fr: "Restriction de groupe", it: "Restrizione di
+  gruppo"), keine Änderung, Verschiebung oder Löschung im Raster. Ändern geht in der Ansicht der Gruppe, der
+  der Dienst gehört. Das gilt nur bei gewählter Gruppe; Dienste ganz ohne Gruppe werden so nie gesperrt.
+
+### Was sich nicht vererbt
+
+- Zahlungsintervall und Standort sind Werte genau dieser Gruppe; Untergruppen übernehmen sie nicht vom
+  Elternknoten. Der Feiertagskalender im Einsatzplan ist der Kalender der gewählten Gruppe, sonst der
+  Firmenkalender — nie der der Elterngruppe.
+- Die Stundenbilanz einer Gruppe zählt nur Mitarbeitende, die direkt in genau dieser Gruppe sind; die
+  Absenz-Überschneidung bezieht die Untergruppen mit ein.
+
+### Nächste Gruppe
+
+- Die automatische Zuordnung "nächste Gruppe" (`add_client_to_nearest_group`) setzt nur Kunden und externe
+  Mitarbeitende, nicht Mitarbeitende. Nur Gruppen mit Koordinaten kommen infrage (der Name muss einen
+  Ort ergeben), gemessen wird Luftlinie, und Personen ohne geokodierte Adresse bleiben unverändert.

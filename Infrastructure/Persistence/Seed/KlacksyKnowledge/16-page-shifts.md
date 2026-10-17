@@ -338,9 +338,10 @@ schreibgeschützt.
   Bestellung. Der Zuschnitt zerlegt diese planbare Schicht in Teilstücke — die
   Schere in der Liste führt deshalb immer zum Original-Dienst. Details: Skill
   `explain_shift_lifecycle_order_to_shift`.
-- **Bearbeitbarkeit**: Felder der Edit-Maske sind nur im Status Bestellung
-  änderbar; versiegelte Bestellungen, planbare Kopien und Teilstücke sind dort
-  schreibgeschützt (Namens-/Beschreibungs-Korrekturen an Teilstücken gehen über die
+- **Bearbeitbarkeit**: Alle Felder der Edit-Maske sind nur im Status Bestellung
+  änderbar; bei versiegelten Bestellungen, planbaren Kopien und Teilstücken bleiben nur
+  Gruppen, Standard-Spesen, Erforderliche Qualifikationen, Macro und ein noch leeres
+  Bis Datum änderbar (Namens-/Beschreibungs-Korrekturen an Teilstücken gehen über die
   editierbaren Zellen der Zuschnitt-Tabelle).
 - **Einsatzplanung (`/workplace/schedule`)**: Die planbaren Dienste (inkl. Teilstücke und
   Container) sind das Angebot, das im Schichtplan gebucht wird. Gruppenfremd gebuchte
@@ -396,3 +397,17 @@ schreibgeschützt.
 - "Was ist der Unterschied zwischen Bestellungen und planbaren Diensten?"
 - "Warum kann ich diesen Dienst nicht mehr bearbeiten?" (versiegelt/planbar)
 - "What do I see on the shifts page and what do the columns mean?"
+
+<!-- level:pitfalls -->
+
+## Stufe 4 — Folgen, Endgültiges, Grenzfälle
+
+- **Versiegeln ist bis zum Speichern verwerfbar, danach endgültig.** Der Klick auf den Lock-Button ändert zunächst nur das offene Formular; verwirfst du es, bleibt die Bestellung eine Bestellung. Nach dem Speichern gibt es keinen Weg zurück, denn der Status gehört selbst zu den gesperrten Feldern; die einzige Korrektur ist Löschen und Neuanlegen (siehe unten).
+- **Was nach dem Versiegeln fest ist und was nicht.** Gesperrt sind Name, Abkürzung, Beschreibung, Von-Datum, Zeiten, Briefing/Reisezeiten, Wochentage und Feiertags-Optionen, Anzahl Mitarbeiter und Aufgaben, Kunde, Dienst-Typ (Aufgabe oder Container) sowie die Einstellungen sporadisch und Zeitbereich samt Periode. Änderbar bleiben die Karten Gruppe, Erforderliche Qualifikationen, Standard-Spesen und Macro sowie ein noch leeres Bis Datum (einmalig; danach ebenfalls gesperrt). Der Server lehnt gesperrte Änderungen mit einem Konflikt ab, auch wenn jemand die Maske umgeht. Setzt du das Bis-Datum über Klacksy, wird zusätzlich geprüft, dass nach dem Datum nichts verplant ist; die planbare Schicht und die Teilstücke behalten ihr eigenes Bis-Datum und werden nicht nachgeführt.
+- **Löschen hängt vom Status ab.** Der Papierkorb in der Sicht "Bestellungen" gilt nur für noch bearbeitbare Bestellungen. Planbare Schichten und Teilstücke sind nie direkt löschbar (Konflikt). Eine versiegelte Bestellung löscht nur ein Administrator über Klacksy oder die API, dann samt planbarer Schicht und Teilstücken und nur, solange in der Familie nichts verplant ist: keine Einsätze, keine Szenario-Kopien, keine Container-Verweise.
+- **Eine Schnittgruppe endet über Zurücksetzen, nicht über Löschen.** Die Schaltfläche "Zurücksetzen" im Zuschnitt schließt die noch offenen Teilstücke am Tag vor dem neuen Startdatum und legt ab diesem Datum eine frische, ungeteilte planbare Schicht an; früher beendete Schnitte bleiben unberührt. Im Szenario ist der Zuschnitt gesperrt.
+- **Dienst ohne Kunde: nur vollständig und nur mit Absicht.** "+ neuer Dienst" legt sofort versiegelt an; fehlt eine Pflichtangabe (Abkürzung, Name, Von-Datum, ein Wochentag oder Feiertag, eine Gruppe, Aufgaben und Mitarbeiter größer null), wird nicht gespeichert. Ein Kunde lässt sich nach dem Versiegeln nicht mehr ändern, also auch nicht nachtragen. Beim Anlegen lehnt der Server außerdem einen Entwurf ohne Kunde ab; ausgenommen sind Container.
+- **Die Container-Eigenschaft ist früh festgelegt.** Das Häkchen "Ist ein Container" gibt es nur im Experten-Modus und nur, solange die Bestellung noch nicht versiegelt ist; danach ist der Dienst-Typ gesperrt.
+- **Sporadisch und Zeitbereich lassen sich nachträglich nicht umstellen.** Wer sie braucht, muss es vor dem Versiegeln setzen; Wirkung und Grenzen: `explain_shift_sporadic` und `explain_shift_time_range`.
+- **Der Dienste-Balken im Dashboard zählt weniger, als die Liste zeigt.** Neben sporadischen Diensten, Zeitbereich-Diensten, versiegelten Bestellungen und Szenario-Zeilen fehlen dort auch Aufgaben-Dienste, die in der Vorlage eines Containers stehen; der Container selbst zählt als 1.
+- **Die Sicht "Abwesenheit" ist leer.** Das ist kein Fehler: Das Backend liefert für diese Sicht derzeit nichts.

@@ -25,53 +25,112 @@ synonyms:
 
 # Groups — more than folders
 
-## Core idea (one sentence)
+A group is not only a way to sort people: it is the planning sheet a team is scheduled on, it decides
+who a user is allowed to see, and it anchors work geographically.
 
-A group is not only a way to sort people; it is what decides who a user is allowed to see and where
-work is geographically anchored.
+<!-- level:short -->
 
-## Visibility
+## What groups are for
 
-Every user can be given a **visibility scope**: a set of groups. From then on they see only the
-people in those groups — across the whole application, not just in one list. Somebody reporting that
-"half the staff are missing" usually has a scope set, not a broken filter.
+A group is a team, a location or any unit that is planned together — for example "Bern". Employees,
+external employees and customers can be put into groups, and one person can belong to several groups
+at the same time. Each group has its own planning sheet: choose the group at the top of the app and the
+schedule shows that group's people and shifts. Groups also decide who sees whom — a user who is only
+allowed to see the Bern group does not see the people of other groups. That keeps every planner's view
+small and keeps staff data away from people who do not need it.
 
-Two things about it are worth knowing: setting a scope **replaces** whatever was there before rather
-than adding to it, and the group selection at the top of the application works inside that scope,
-never around it.
+<!-- level:elements -->
 
-## Filling a group without picking people
+## Working with groups, step by step
 
-A group can be filled in one step from criteria instead of person by person: region or canton, town,
-the start of a postal code, an active contract by name, a qualification by name, or the kind of
-person. That is how "all full-time staff in the Bern area with a forklift licence" becomes a group
-without a list being clicked together by hand.
+The Groups pages are for administrators.
 
-There is also a proposal step: Klacks can suggest a grouping first and apply it only after it has
-been looked at.
+1. **Create a group:** open the Groups page and click the button (de: "+ Gruppe erfassen", en: "+ Create
+   Group", fr: "+ Créer un groupe", it: "+ Crea gruppo"). In the editor give the group a name; the card
+   (de: "Gruppenstruktur", en: "Group Structure", fr: "Structure du groupe", it: "Struttura del Gruppo")
+   has the selection (de: "Übergeordnete Gruppe auswählen", en: "Select Parent Group", fr: "Sélectionner le
+   groupe parent", it: "Seleziona Gruppo Genitore") that puts it below another group.
+2. **Put people into a group** — two ways:
+   - In the group editor, card (de: "Teilnehmerliste", en: "Participant List", fr: "Liste des
+     participants", it: "Elenco dei Partecipanti"): search the person by name or ID number and click
+     (de: "Übernehmen", en: "Apply", fr: "Appliquer", it: "Applica"). A person added this way is a member
+     without start or end date.
+   - On the person's own page, card (de: "Zugewiesene Gruppen", en: "Assigned Groups", fr: "Groupes
+     assignés", it: "Gruppi assegnati"): click (de: "Gruppe hinzufügen", en: "Add Group", fr: "Ajouter un
+     groupe", it: "Aggiungi gruppo") and, if the membership is limited in time, fill the columns (de:
+     "GÜLTIG VON", en: "VALID FROM", fr: "VALIDE DÈS", it: "VALIDO DA") and (de: "GÜLTIG BIS", en: "VALID
+     UNTIL", fr: "VALIDE JUSQU'À", it: "VALIDO FINO A").
+3. **Decide who sees which groups:** open the page (de: "Sichtbarkeit von Gruppen pro Benutzer", en:
+   "Visibility of Groups per User", fr: "Visibilité des groupes par utilisateur", it: "Visibilità dei gruppi
+   per utente"), click the counter of a user in the column (de: "Anzahl", en: "Number") and tick the
+   top-level groups in the dialog (de: "Sichtbare Rootgruppe", en: "Visible Root Group", fr: "Groupe racine
+   visible", it: "Gruppo radice visibile"). The button of an administrator account is disabled —
+   administrators always see everything.
+4. **Plan one group:** pick it in the group selection at the top of the app; pick (de: "Alle Gruppen",
+   en: "All groups", fr: "Tous les groupes", it: "Tutti i gruppi") to see everything the user may see.
+5. **Assign a shift to a group:** in the shift's edit mask use the card (de: "Gruppe", en: "Group", fr:
+   "Groupe", it: "Gruppo"); the shift filter of the schedule has the checkbox (de: "Nicht gruppierte Dienste", en: "Ungrouped
+   Shifts", fr: "Services non groupés", it: "Turni non raggruppati") that includes shifts without any group.
+6. **Fill a group by criteria or by location, set coordinates:** there is no input field for this on the
+   Groups pages; ask Klacksy (see the skills below).
 
-## Groups have a place
+<!-- level:effects -->
 
-A group can carry a **location**. Once locations are known, people and customers can be assigned to
-the group **nearest to their own address** — computed from the addresses, not guessed from names.
-This is what makes regional structures maintainable when staff move or new customers arrive.
+## How groups affect the rest of Klacks
 
-Because this depends on coordinates, there is a way to check which groups still lack them before
-relying on the assignment.
+### Who sees whom
 
-## Structure and time
+A non-admin user can be given a **visibility scope**: a set of top-level groups, each of which includes
+everything below it. From then on the user sees only people in those groups — across the whole
+application (lists, schedule, dashboard, and when changing data), not just in one list. A person is
+visible as soon as at least one of their groups is visible. Administrators are never restricted.
 
-Groups form a tree and can be moved within it. Membership is not permanent by nature: it has a
-validity period, so somebody can belong to a group for a season without their history being
-rewritten afterwards.
+Two things about it are worth knowing: setting a user's scope **replaces** whatever was there before
+instead of adding to it, and the group selection at the top of the application works inside that scope,
+never around it — a selected group is intersected with what the user may see.
 
-## Groups answer questions too
+### The planning sheet
 
-Because a group bundles people, it is also a unit for evaluation — the hours balance of all its
-members for a period, sorted from most under-target to most overtime, or the absence overlap within
-it.
+The group chosen at the top filters the schedule's people (including subgroups) and the shifts assigned
+to the group or its subgroups. The group's own payment interval gives the schedule its period grid; a
+group without one falls back to the company setting, not to its parent.
 
-## Related skills
+### Shifts and groups
+
+A shift is assigned to groups in its own edit mask. Which group a booking counts for is decided by the
+group of its **shift**, not by the person's own groups — see the pitfalls for what that means when a
+person works in two groups.
+
+### Filling a group without picking people
+
+A group can be filled in one step from criteria instead of person by person: canton or region, town,
+the start of a postal code, an active contract by name, a qualification by name, and the kind of person
+(employee by default). That is how "all full-time staff in the Bern area with a forklift licence"
+becomes a group without a list being clicked together by hand. The first run is a preview; people are
+added only when it is applied.
+
+There is also a proposal step for regrouping by location: Klacks first shows what would change and
+applies it only after confirmation.
+
+### Groups have a place
+
+A group can carry a **location** (coordinates). Customers and external employees can then be assigned
+to the group **nearest to their own address** — computed from the addresses, not guessed from names.
+This is what makes regional structures maintainable when staff move or new customers arrive. There is
+a way to check which groups still lack coordinates before relying on the assignment.
+
+### Structure and time
+
+Groups form a tree and can be moved within it. A person's link to a group has its own validity period,
+so somebody can belong to a group for a season without their history being rewritten afterwards.
+
+### Groups answer questions too
+
+Because a group bundles people, it is also a unit for evaluation — the hours balance of its employees
+for a period, from the lowest balance (most under target) to the highest (most overtime), or the absence
+overlap within it.
+
+### Related skills
 
 - `list_groups` / `list_groups_hierarchical` / `get_group_details` / `list_group_members`
 - `create_group` / `update_group` / `move_group` / `delete_group`
@@ -90,10 +149,42 @@ it.
 - `set_group_location` / `add_client_to_nearest_group` / `check_group_geocoding_status` — geography
 - `get_group_hours_balance` / `get_group_absence_overlap` — evaluation
 
-## Trigger phrases
+### Trigger phrases
 
 - "Why does this user not see all the staff?"
 - "Put every full-time employee in the Bern region into this group."
 - "What is a group's location good for?"
 - "Who in this group has overtime?"
 - "Warum sehe ich nur einen Teil der Mitarbeiter?"
+
+<!-- level:pitfalls -->
+
+## Consequences and edge cases
+
+**Deleting a group is final.** The group and all its subgroups are deleted together; only an
+administrator can do it, and there is no restore function — neither in the app nor through Klacksy. The
+memberships of the group are not touched by the delete itself.
+
+**A booking that belongs to another group is locked.** Take a person who is a member of groups A and B.
+In the view of group B you still see their booking for a shift that is assigned only to group A (outside
+the group you are viewing) — it is shown so nobody gets booked twice by accident — but it is locked: the
+tooltip says (de: "Gruppeneinschränkung", en: "Group restricted", fr: "Restriction de groupe", it:
+"Restrizione di gruppo"), and it cannot be edited, moved or deleted from the grid there. Change it in
+the view of the group that owns the shift. This only applies while a group is selected, and bookings on
+shifts without any group are never locked this way.
+
+**People without any group are visible to every restricted user.** The check is only "has no membership
+entry at all", with no dates: an expired membership still counts as a group. Taking away somebody's last
+membership therefore makes them visible to all restricted users, and nothing prevents that.
+
+**Nearest group has limits.** It places customers and external employees, not employees; only groups
+that carry coordinates are candidates (a group whose name is not a place is skipped); the distance is
+air-line, not by road; and a person without a geocoded address is left where they are. A regrouping that
+moves people can end their other memberships — the proposal states how many before anything is applied.
+
+**Settings do not cascade down the tree.** Payment interval and location are values of that one group;
+subgroups do not inherit them from their parent.
+
+**Evaluations differ.** A group's hours balance counts only the employees directly assigned to that
+exact group (and only those whose membership overlaps the period), while the absence overlap also
+includes the subgroups.

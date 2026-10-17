@@ -1,11 +1,11 @@
 ---
 name: explain_group_visibility_blind_spots
 description: |
-  Explains two behaviours of a group visibility scope that contradict what the name suggests. With
-  no root group configured for a user, most of the app treats them as unrestricted rather than
-  showing nothing — though the dashboard widgets do the opposite and show no data until a scope is
-  set. Separately, a person with no active group membership stays visible to every restricted user.
-  Use this when asked what an unconfigured scope shows, or why a group-less person still appears.
+  Explains two surprises of group visibility. Once any group exists, a non-admin user with no
+  top-level group ticked is not unrestricted: they see only people who belong to no group, and the
+  dashboard shows them no data; only administrators are unrestricted. And a person with no group
+  membership stays visible to every restricted user, so leaving someone group-less never hides them.
+  Use this when asked what an unconfigured scope shows or why a group-less person still appears.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -19,49 +19,84 @@ triggerKeywords:
     - no visibility scope configured
     - group-less still visible
 synonyms:
-  de: [was sieht ein benutzer ohne sichtbarkeitsbereich, sieht ein benutzer ohne konfigurierte sichtbarkeit alles, warum sehe ich personen ohne gruppe trotzdem, bleiben gruppenlose mitarbeiter für eingeschränkte benutzer sichtbar, was passiert wenn ich keine sichtbarkeit für einen benutzer einstelle, warum ist das dashboard leer aber die einsatzplanung nicht]
-  en: [what does a user see with no visibility scope configured, does an unconfigured visibility scope show everything, why can i still see people who are in no group at all, do group-less employees stay visible to restricted users, what happens if i never set a visibility scope for a user, why is the dashboard empty but the schedule is not]
-  fr: [que voit un utilisateur sans portée de visibilité configurée, les employés sans groupe restent-ils visibles, que se passe-t-il si je ne configure aucune visibilité, pourquoi le tableau de bord est-il vide mais pas le planning]
-  it: [cosa vede un utente senza ambito di visibilità configurato, i dipendenti senza gruppo restano visibili, cosa succede se non configuro alcuna visibilità, perché la dashboard è vuota ma la pianificazione no]
+  de: [was sieht ein benutzer ohne sichtbarkeitsbereich, sieht ein benutzer ohne konfigurierte sichtbarkeit alles, warum sehe ich personen ohne gruppe trotzdem, bleiben gruppenlose mitarbeiter für eingeschränkte benutzer sichtbar, was passiert wenn ich keine sichtbarkeit für einen benutzer einstelle, warum sieht ein neuer benutzer fast niemanden]
+  en: [what does a user see with no visibility scope configured, does an unconfigured visibility scope show everything, why can i still see people who are in no group at all, do group-less employees stay visible to restricted users, what happens if i never set a visibility scope for a user, why does a new user see almost nobody]
+  fr: [que voit un utilisateur sans portée de visibilité configurée, les employés sans groupe restent-ils visibles, que se passe-t-il si je ne configure aucune visibilité, pourquoi un nouvel utilisateur ne voit presque personne]
+  it: [cosa vede un utente senza ambito di visibilità configurato, i dipendenti senza gruppo restano visibili, cosa succede se non configuro alcuna visibilità, perché un nuovo utente non vede quasi nessuno]
 ---
 
-# Group visibility — two blind spots
+# Group visibility — what it hides and what it does not
 
-## Core idea (one sentence)
+A visibility scope narrows what a user sees to the groups an administrator has ticked for them — but
+people who belong to no group at all stay visible to every restricted user.
 
-A restricted visibility scope only ever narrows what somebody sees once it has actually been set —
-before that, and for people in no group at all, the default leans towards showing rather than
-hiding.
+<!-- level:short -->
 
-## No scope set means no restriction — almost everywhere
+## Who sees which people
 
-Visibility for a user is a list of root groups they are allowed to see. As long as that list is
-empty, the assistant, the employee list and the schedule all treat the user like an unrestricted
-one: an unconfigured scope is read as "not restricted yet," not as "restricted to nothing."
-Somebody given a fresh login who never gets a root group ticked for them at
-`/workplace/group-structure` therefore sees everything, not nothing.
+Not every user should see every person. An administrator therefore decides, for each user, which groups
+they may see. From then on that user sees only the people of those groups — in the people lists, in the
+schedule and in the dashboard. Example: a planner who is allowed to see only the Bern group never sees
+the staff of the Zurich group. Administrators are never restricted: they always see everything.
 
-That default is not universal, though. The dashboard's own overview widgets — the staff map, the
-coverage statistics, the resource monitor — work the other way round: for a non-admin user with no
-root group configured yet, they show no data at all instead of falling back to unrestricted. So the
-very same account can see the full staff list and the full schedule while its dashboard sits empty —
-worth knowing before concluding the dashboard is broken.
+<!-- level:elements -->
 
-## People in no group are always visible
+## Setting who sees which groups
 
-A restricted scope filters by group membership — but a person carrying no active group membership at
-all is never filtered out by it. Trying to hide someone from a restricted user by simply not putting
-them in any group does not work; the opposite happens, they stay visible regardless of scope. To
-actually keep somebody out of a restricted user's view, they need to be inside a group that itself
-lies outside that user's visible scope — being in no group at all is not a way to hide.
+1. Open the page `/workplace/group-structure`, headed (de: "Sichtbarkeit von Gruppen pro Benutzer", en:
+   "Visibility of Groups per User", fr: "Visibilité des groupes par utilisateur", it: "Visibilità dei
+   gruppi per utente"). There is one row per user account.
+2. Click the counter button of the user in the column (de: "Anzahl", en: "Number"). For an administrator
+   account the button is disabled.
+3. In the dialog (de: "Sichtbare Rootgruppe", en: "Visible Root Group", fr: "Groupe racine visible", it:
+   "Gruppo radice visibile") tick the top-level groups the user may see. Only top-level groups are
+   offered; their subgroups follow automatically.
+4. Klacksy can do the same with `set_user_group_scope` (it replaces the user's previous selection and
+   refuses administrator accounts).
 
-## Related skills
+<!-- level:effects -->
+
+## What a restricted user sees
+
+Visibility for a user is a list of top-level groups. The user sees the people who belong to at least one
+group inside those trees, plus the people who belong to no group at all. The same limit applies to the
+schedule's people, the dashboard widgets (staff map, coverage statistics, resource monitor), reading and
+changing data, and Klacksy's skills: a person or group outside the scope is answered as if it did not
+exist. The group selection at the top of the application works inside the scope, never around it.
+
+Administrators are unrestricted, and so is everybody on an installation that has no group at all.
+
+### Related skills
 
 - `set_user_group_scope` / `get_user_group_scope`
 
-## Trigger phrases
+### Trigger phrases
 
 - "Ich habe für diesen Benutzer noch keine Sichtbarkeit eingestellt — was sieht er?"
 - "Warum sieht dieser Mitarbeiter ohne Gruppe trotzdem jeder?"
-- "Why is the dashboard empty for this user but the schedule isn't?"
+- "Why is the dashboard empty for this user?"
 - "Kann ich jemanden verstecken, indem ich sie in keine Gruppe stecke?"
+
+<!-- level:pitfalls -->
+
+## Two blind spots
+
+**A user with no top-level group ticked sees almost nobody.** As soon as at least one group exists, a
+non-admin user without any ticked group is restricted to nothing: the people lists show only people who
+belong to no group at all, and the dashboard widgets show no data (Klacksy's dashboard overview says the
+dashboard is empty for that user). Somebody given a fresh login therefore sees an almost empty
+application until an administrator ticks groups for them. Only on an installation without any group is
+every user unrestricted.
+
+**People in no group are always visible.** A restricted scope filters by group membership — but a person
+with no membership entry at all is never filtered out. Hiding someone from a restricted user by leaving
+them in no group does not work; the opposite happens, they stay visible to everyone. To keep somebody out
+of a restricted user's view, they have to be inside a group that lies outside that user's visible
+groups.
+
+- The test is "has any membership entry", without looking at dates: a person whose membership has
+  expired still counts as being in a group and is hidden like any other member.
+- A person in several groups is visible as soon as one of those groups is visible, so one visible group
+  is enough to expose them.
+- Removing somebody's last membership makes them group-less and thereby visible to all restricted users;
+  the app does not protect against that.

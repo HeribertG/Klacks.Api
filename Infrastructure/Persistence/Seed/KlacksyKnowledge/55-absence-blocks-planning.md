@@ -27,40 +27,70 @@ synonyms:
 
 # Booked absences and the planning assistants
 
-## Core idea (one sentence)
+For the automatic planning a booked absence is fixed from the moment it exists, whereas a work shift is only fixed once it has reached a lock stage.
 
-A booked absence is off-limits for every planning assistant no matter what — a work shift is only
-off-limits once it has reached a locking stage.
+<!-- level:short -->
 
-## Two kinds of "cannot touch this"
+## What the automatic planning does with absences
 
-A work shift becomes untouchable for the assistants only once it has been confirmed, approved or
-closed — an unconfirmed shift is still fair game for a rearrangement. A booked absence has no such
-staging: the moment it exists, every assistant treats it as fixed, regardless of any lock state on
-it. Vacation, sickness, training — none of it is ever shuffled around automatically.
+The automatic planning (the wizards that propose a schedule) never moves or deletes an absence that is booked. Holiday, sick leave and training stay exactly where they are, and the person is simply not planned on that day. A work shift is different: as long as nobody has confirmed it, the wizards may rearrange it. A mere wish for time off does not hold anybody back; only booked absences do. Example: if Anna has a booked holiday on Wednesday, the wizard plans the Wednesday shift for somebody else.
 
-## What that means for the hour counts
+<!-- level:elements -->
 
-Hours from a booked absence count towards the target hours a person owes for the period — someone on
-holiday still moves towards their contracted hours as if they had worked. They do **not** count
-towards the weekly hours ceiling: a sick week does not push a person over their weekly maximum, and
-does not trigger an overtime rejection the way an unusually long run of shifts would.
+## Making the planning respect an absence, step by step
 
-## What that means for consecutive-day rules
+1. **Book it.** A wish in the absence calendar is not enough. In the schedule right-click the wish bar and choose (de: "Absenz übernehmen", en: "Adopt absence", fr: "Reprendre l'absence", it: "Riprendere l'assenza"), or type the abbreviation of the kind into the person's cell. The bars of the wishes are shown with the toolbar switch (de: "Gewünschte Absenzen ein-/ausblenden", en: "Show/hide absence bars").
+2. **Run the planning.** The wizard button in the schedule toolbar is visible for administrators only. Every run writes its result as a scenario, a draft next to the real plan.
+3. **Check the draft.** The booked absences are unchanged in it, and the person has no shift on those days.
+4. **Accept or reject.** In the scenario menu choose (de: "Szenario übernehmen", en: "Accept scenario") or (de: "Szenario verwerfen", en: "Reject scenario").
+5. **To free the person for planning again,** delete the booked absence in the schedule; deleting only the wish changes nothing.
 
-A limit on how many days in a row somebody may work treats a booked absence like a day off: the
-count of consecutive working days resets there. Three working days, a day of vacation, then three
-more working days is **not** a run of six — the absence breaks it, so a rule capping runs at, say,
-five days is not violated even though nine calendar days are covered end to end.
+<!-- level:effects -->
 
-## Related skills
+## What exactly the assistants read, and what counts
+
+### Which absences the wizards see
+
+The automatic planning first builds a plan (called the first wizard below) and then improves it with the harmonizers. They read the booked absences of the plan they work on: the real plan, or the scenario they are filling. A scenario works on its own copy of the absences. When the scenario is accepted, that copy replaces the real absences of its scope; absences that are confirmed or higher, or that lie on a locked day, stay as they are. Wishes are never read.
+
+### The whole day is blocked
+
+A booked absence blocks the person for the whole calendar day, whatever times the absence has: a two-hour training in the morning still keeps the person out of every shift that day. An absence that belongs to a container service does not count as an absence for the first wizard.
+
+### Hours
+
+Hours of a booked absence are added to the worked hours of the period, so somebody on holiday moves towards the guaranteed hours as if they had worked. The first wizard measures the period maximum against the hours already booked in the pay period before the planned range, absences included. The weekly maximum is checked only by the harmonizer; there an absence day is not a working day, so absence hours do not count towards that weekly cap.
+
+### Consecutive working days
+
+An absence day is not a working day, so it interrupts a run. Three working days, a day of holiday, then three more working days is not a run of six, and a rule capping runs at five days is not violated.
+
+### Availability and planning commands
+
+On a day with a booked absence or a planning command, the person's availability blocks are dropped, so the higher layer rules the day. Qualification limits stay.
+
+### Related skills
 
 - `add_break`, `update_break`, `delete_break` — placing the booked absence itself
 - `cover_absence` — find replacement cover once an absence is booked
 
-## Trigger phrases
+### Trigger phrases
 
 - "Verschiebt der Planungs-Assistent eine gebuchte Absenz?"
 - "Does a sick week count against the weekly hours limit?"
 - "Zählt eine Ferienwoche gegen die Sechs-Tage-Regel?"
 - "Why didn't the wizard reschedule this vacation?"
+
+<!-- level:pitfalls -->
+
+## Consequences and edge cases
+
+**A work shift becomes fixed only through its lock, but a booked absence needs none.** The lock stage of an absence is irrelevant for the wizards: they load every booked absence, confirmed or not. Work entries are fixed from the stage confirmed upwards, and also when they lie before the start date of a re-planning run, or when they carry a replacement or a correction.
+
+**Wishes protect nobody.** A person with only a wish can be planned on that day. Book the wish before you run the planning.
+
+**The replacement search treats absences differently from the wizards.** For finding a replacement, a candidate with any booked absence that day is excluded, except for a kind marked as on call: such a candidate is not treated as absent and is offered first. The wizards still treat an on-call day as occupied.
+
+**Time of day is ignored.** An absence entered with a time range does not leave the rest of the day free for the wizards.
+
+**Where the weekly maximum is checked.** Only the harmonizer checks a weekly maximum, and there absence hours are excluded. The first wizard knows the period maximum instead, and that one includes the absence hours booked before the planned range.
