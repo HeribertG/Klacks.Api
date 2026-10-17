@@ -8,4 +8,7 @@ public static class SkillNames
     public const string SearchAndNavigate = "search_and_navigate";
     public const string ManagePendingNotes = "manage_pending_notes";
     public const string ExplainShiftLifecycle = "explain_shift_lifecycle_order_to_shift";
+    public const string ExplainFinalVsCorrectable = "explain_final_vs_correctable";
+    public const string ExplainPlanningWizards = "explain_planning_wizards";
+    public const string ExplainPlanningAssistant = "explain_planning_assistant";
 }

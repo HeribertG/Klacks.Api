@@ -23,4 +23,10 @@ public interface IPendingConfirmationRepository
     Task<IReadOnlyList<PendingConfirmationRow>> GetActiveForUserAsync(Guid userId, DateTime nowUtc, CancellationToken cancellationToken = default);
 
     Task PruneExpiredAsync(DateTime nowUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Moves the expiry of the row with this token to <paramref name="newExpiresAtUtc"/>. Does nothing when the row is
+    /// gone (consumed or pruned in the meantime).
+    /// </summary>
+    Task RenewAsync(string token, DateTime newExpiresAtUtc, CancellationToken cancellationToken = default);
 }

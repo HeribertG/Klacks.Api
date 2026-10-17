@@ -107,6 +107,24 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<ProactiveTriggerDispatchRow?> FindPendingExplainOfferAsync(string userId, string conversationId, CancellationToken cancellationToken = default)
+    {
+        var keyPrefix = conversationId + ExplainOfferDefaults.DedupKeySeparator;
+        return await _context.AgentTriggerDispatches
+            .Where(d => d.UserId == userId
+                && d.TriggerKind.StartsWith(ExplainOfferTopics.TriggerKindPrefix)
+                && d.Reaction == ProactiveReaction.None
+                && d.DedupKey.StartsWith(keyPrefix))
+            .OrderByDescending(d => d.CreateTime)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<bool> HasRecentAsync(string userId, string triggerKind, DateTime sinceUtc, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentTriggerDispatches
+            .AnyAsync(d => d.UserId == userId && d.TriggerKind == triggerKind && d.CreateTime >= sinceUtc, cancellationToken);
+    }
+
     public async Task<int> CountUnreadAsync(string userId, CancellationToken cancellationToken = default)
     {
         return await InboxMessagesForUser(userId)

@@ -223,4 +223,19 @@ public class LLMContext
     /// prompt and copied onto the SkillExecutionContext. Null on paths without a resolvable user.
     /// </summary>
     public ExplainDepthProfile? ExplainDepth { get; set; }
+
+    /// <summary>
+    /// Volatile system note of the turn that follows an accepted explain offer: the curated content to explain from and
+    /// the instruction to stay on it and to ask again whether to proceed. Null on every other turn. Set by both chat entry
+    /// points through IGateExplainOfferService.PrepareTurnAsync before ILLMService runs and combined into the volatile
+    /// prompt like CorrectionNote, so it applies to every iteration of its one turn.
+    /// </summary>
+    public string? ExplainOfferNote { get; set; }
+
+    /// <summary>
+    /// The explain offer the user accepted this turn (topic, gate skill, fingerprint of the held token), null when none.
+    /// Read after the turn by IGateExplainOfferService.AugmentRepliesAsync to renew exactly the confirmation the offer was
+    /// made at and to offer yes/no again.
+    /// </summary>
+    public ExplainOfferAcceptance? ExplainOfferAcceptance { get; set; }
 }

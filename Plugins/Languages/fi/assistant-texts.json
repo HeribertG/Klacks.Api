@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "Tekoälysuunnitelma",
   "assistant.scenarioName.optimizer": "Optimoitu",
   "assistant.scenarioName.proposal": "Ehdotus",
-  "assistant.scenarioName.absenceCover": "Poissaolon sijaistus"
+  "assistant.scenarioName.absenceCover": "Poissaolon sijaistus",
+  "assistant.explainOffer.chipLabel": "Selitä ensin lyhyesti"
 }

@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "Plán AI",
   "assistant.scenarioName.optimizer": "Optimalizováno",
   "assistant.scenarioName.proposal": "Návrh",
-  "assistant.scenarioName.absenceCover": "Zástup za nepřítomnost"
+  "assistant.scenarioName.absenceCover": "Zástup za nepřítomnost",
+  "assistant.explainOffer.chipLabel": "Nejdřív stručně vysvětlit"
 }

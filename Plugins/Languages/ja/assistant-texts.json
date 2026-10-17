@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "AIプラン",
   "assistant.scenarioName.optimizer": "最適化済み",
   "assistant.scenarioName.proposal": "提案",
-  "assistant.scenarioName.absenceCover": "欠勤カバー"
+  "assistant.scenarioName.absenceCover": "欠勤カバー",
+  "assistant.explainOffer.chipLabel": "まず簡単に説明"
 }

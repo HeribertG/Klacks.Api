@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "แผนงาน AI",
   "assistant.scenarioName.optimizer": "ปรับให้เหมาะสมแล้ว",
   "assistant.scenarioName.proposal": "ข้อเสนอ",
-  "assistant.scenarioName.absenceCover": "การทดแทนผู้ขาดงาน"
+  "assistant.scenarioName.absenceCover": "การทดแทนผู้ขาดงาน",
+  "assistant.explainOffer.chipLabel": "อธิบายสั้น ๆ ก่อน"
 }

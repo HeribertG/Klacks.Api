@@ -333,6 +333,7 @@ public class LLMFunctionExecutor
         call.ReplayedSkillName = result.ReplayedSkillName;
         call.RequiresConfirmation =
             result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Confirmation);
+        call.IssuedConfirmationToken = call.RequiresConfirmation ? result.ConfirmationToken : null;
 
         if (!string.IsNullOrEmpty(result.UiActionSteps))
         {

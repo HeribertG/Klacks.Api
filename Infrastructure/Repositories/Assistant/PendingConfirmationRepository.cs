@@ -6,23 +6,29 @@
 /// deleted the same row) means the race was lost, so the caller gets null instead of the exception —
 /// this is the DB-level guard against a double redemption of the same one-time token. GetActiveForUserAsync
 /// and PruneExpiredAsync issue plain hard deletes because a confirmation row is ephemeral and must vanish
-/// once consumed, mismatched or expired.
+/// once consumed, mismatched or expired. RenewAsync losing the same race (the row was consumed in between) is logged at
+/// debug level and otherwise ignored: there is nothing left to renew.
 /// </summary>
+/// <param name="context">The scope's database context</param>
+/// <param name="logger">Reports a lost renewal race; optional so callers outside DI can omit it</param>
 
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Klacks.Api.Infrastructure.Repositories.Assistant;
 
 public class PendingConfirmationRepository : IPendingConfirmationRepository
 {
     private readonly DataBaseContext _context;
+    private readonly ILogger<PendingConfirmationRepository> _logger;
 
-    public PendingConfirmationRepository(DataBaseContext context)
+    public PendingConfirmationRepository(DataBaseContext context, ILogger<PendingConfirmationRepository>? logger = null)
     {
         _context = context;
+        _logger = logger ?? NullLogger<PendingConfirmationRepository>.Instance;
     }
 
     public async Task AddAsync(PendingConfirmationRow row, CancellationToken cancellationToken = default)
@@ -59,6 +65,26 @@ public class PendingConfirmationRepository : IPendingConfirmationRepository
         return await _context.PendingConfirmations
             .Where(p => p.UserId == userId && p.ExpiresAtUtc >= nowUtc)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task RenewAsync(string token, DateTime newExpiresAtUtc, CancellationToken cancellationToken = default)
+    {
+        var row = await _context.PendingConfirmations
+            .FirstOrDefaultAsync(p => p.Token == token, cancellationToken);
+        if (row == null)
+        {
+            return;
+        }
+
+        row.ExpiresAtUtc = newExpiresAtUtc;
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            _logger.LogDebug("A confirmation row was consumed while it was being renewed; nothing left to renew");
+        }
     }
 
     public async Task PruneExpiredAsync(DateTime nowUtc, CancellationToken cancellationToken = default)

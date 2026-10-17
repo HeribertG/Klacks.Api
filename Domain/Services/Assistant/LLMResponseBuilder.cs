@@ -63,6 +63,7 @@ public class LLMResponseBuilder
             FunctionCalls = functionCalls
                 .Select(f => (object)new { f.FunctionName, f.Parameters, f.UiActionSteps, f.UiActionTrackingId, f.Result, f.Success })
                 .ToList(),
+            ExecutedCalls = functionCalls,
             Usage = new LLMUsageInfo
             {
                 InputTokens = providerResponse.Usage.InputTokens,

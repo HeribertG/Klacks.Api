@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "Plan IA",
   "assistant.scenarioName.optimizer": "Optimizat",
   "assistant.scenarioName.proposal": "Propunere",
-  "assistant.scenarioName.absenceCover": "Acoperire absență"
+  "assistant.scenarioName.absenceCover": "Acoperire absență",
+  "assistant.explainOffer.chipLabel": "Mai întâi o scurtă explicație"
 }

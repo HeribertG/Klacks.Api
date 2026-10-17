@@ -36,6 +36,8 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
     // that is due or overdue - is already reflected through period_close_due and period_overdue.
     // GroupingFeasibility is Klacksy's daily grouping report; its business signals have kinds of their own
     // (ungrouped_shifts, ungrouped_workforce, unstaffed_shift).
+    // Explain-offer counter rows (kinds below ExplainOfferTopics.TriggerKindPrefix) measure how often Klacksy offered an
+    // explanation, not a business condition, and the kind set is open-ended, so they are excluded by prefix.
     private static readonly HashSet<string> ExcludedTriggerKinds = new(StringComparer.Ordinal)
     {
         AgentTriggerKinds.CuriosityQuestion,
@@ -75,7 +77,8 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
         var groups = rows
             .Where(r => r.CreateTime.HasValue
                         && !string.IsNullOrWhiteSpace(r.UserId)
-                        && !ExcludedTriggerKinds.Contains(r.TriggerKind))
+                        && !ExcludedTriggerKinds.Contains(r.TriggerKind)
+                        && !ExplainOfferTopics.IsOfferKind(r.TriggerKind))
             .GroupBy(r => (r.UserId, r.TriggerKind))
             .ToList();
 

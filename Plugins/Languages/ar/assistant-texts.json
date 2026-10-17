@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "خطة ذكاء اصطناعي",
   "assistant.scenarioName.optimizer": "محسّن",
   "assistant.scenarioName.proposal": "اقتراح",
-  "assistant.scenarioName.absenceCover": "تغطية غياب"
+  "assistant.scenarioName.absenceCover": "تغطية غياب",
+  "assistant.explainOffer.chipLabel": "شرح مختصر أولاً"
 }

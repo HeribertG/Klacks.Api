@@ -187,7 +187,11 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.ISkillRiskClassifier, Klacks.Api.Application.Skills.Meta.SkillRiskClassifier>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.ICancellableSkillPolicy, Klacks.Api.Application.Services.Assistant.CancellableSkillPolicy>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingConfirmationRepository>();
-        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingConfirmationStore>();
+        services.AddSingleton<Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingConfirmationStore>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationStore>(
+            sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingConfirmationStore>());
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationRenewal>(
+            sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingConfirmationStore>());
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingRecipeRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingRecipeStore>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAssistantLastActionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AssistantLastActionRepository>();
@@ -305,6 +309,7 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IPlanningScopeEnricher, Application.Services.Assistant.PlanningScopeEnricher>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IExplainDepthResolver, Application.Services.Assistant.ExplainDepthResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IExplainDepthOverrideService, Application.Services.Assistant.ExplainDepthOverrideService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGateExplainOfferService, Application.Services.Assistant.ExplainOffers.GateExplainOfferService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IEntityCandidateGrounder, Application.Services.Assistant.ClientNameCandidateGrounder>();
         services.AddSingleton<ISentimentAnalyzer, Domain.Services.Assistant.SentimentAnalyzer>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ITtsApiKeyResolver, Klacks.Api.Infrastructure.Services.Assistant.TtsApiKeyResolver>();

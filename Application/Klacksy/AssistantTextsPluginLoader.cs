@@ -5,7 +5,7 @@
 /// installed language plugin directory. assistant-texts.json feeds GracefulCorrectionTexts,
 /// ClarificationTexts (the planner notices, status words and reply subject of the inbound clarification
 /// dialog), EscalationHandoffTexts (the escalation confirmations and quiet notes) and ScenarioNameTexts (the
-/// prefixes of server-created scenario names): no prompt rule can translate these, so the pack has to carry them - unlike conversation-signals.json, which carries
+/// prefixes of server-created scenario names) and ExplainOfferTexts (the label of the "explain briefly first" chip): no prompt rule can translate these, so the pack has to carry them - unlike conversation-signals.json, which carries
 /// input-side vocabulary. translations.json, the frontend catalogue, feeds MessengerProactiveTexts with the
 /// five assistant.proactive.* sentences a messenger can carry: the pack already ships them for the inbox,
 /// and reading that one source keeps inbox and messenger identical. Called once at application startup
@@ -76,6 +76,7 @@ public static class AssistantTextsPluginLoader
                 ClarificationTexts.Configure(code, texts);
                 EscalationHandoffTexts.Configure(code, texts);
                 ScenarioNameTexts.Configure(code, texts);
+                ExplainOfferTexts.Configure(code, texts);
             }
         }
         catch (Exception ex)

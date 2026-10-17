@@ -75,6 +75,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly LLMProviderOrchestrator _providerOrchestrator;
     private readonly IContextBudgetPolicy _contextBudgetPolicy;
     private readonly IExplainDepthResolver _explainDepthResolver;
+    private readonly IGateExplainOfferService _gateExplainOffers;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     public LLMStreamingOrchestrator(
@@ -86,6 +87,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         LLMProviderOrchestrator providerOrchestrator,
         IContextBudgetPolicy contextBudgetPolicy,
         IExplainDepthResolver explainDepthResolver,
+        IGateExplainOfferService gateExplainOffers,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
@@ -96,6 +98,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         _providerOrchestrator = providerOrchestrator;
         _contextBudgetPolicy = contextBudgetPolicy;
         _explainDepthResolver = explainDepthResolver;
+        _gateExplainOffers = gateExplainOffers;
         _logger = logger;
     }
 
@@ -178,9 +181,21 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
         await _entityCandidateGrounder.GroundAsync(context, cancellationToken);
+        await _gateExplainOffers.PrepareTurnAsync(context, cancellationToken);
 
+        var conversationId = context.ConversationId;
         await foreach (var chunk in _llmService.ProcessStreamAsync(context, cancellationToken))
         {
+            if (chunk.Type == SseChunkType.StreamStart && !string.IsNullOrEmpty(chunk.ConversationId))
+            {
+                conversationId = chunk.ConversationId;
+            }
+            else if (chunk.Type == SseChunkType.Metadata)
+            {
+                chunk.SuggestedReplies = await _gateExplainOffers.AugmentRepliesAsync(
+                    context, conversationId, chunk.ExecutedCalls, chunk.SuggestedReplies, cancellationToken);
+            }
+
             yield return chunk;
         }
     }

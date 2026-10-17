@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "AI 계획",
   "assistant.scenarioName.optimizer": "최적화됨",
   "assistant.scenarioName.proposal": "제안",
-  "assistant.scenarioName.absenceCover": "결근 대체"
+  "assistant.scenarioName.absenceCover": "결근 대체",
+  "assistant.explainOffer.chipLabel": "먼저 간단히 설명"
 }

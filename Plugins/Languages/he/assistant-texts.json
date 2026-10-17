@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "תוכנית בינה מלאכותית",
   "assistant.scenarioName.optimizer": "ממוטב",
   "assistant.scenarioName.proposal": "הצעה",
-  "assistant.scenarioName.absenceCover": "כיסוי היעדרות"
+  "assistant.scenarioName.absenceCover": "כיסוי היעדרות",
+  "assistant.explainOffer.chipLabel": "קודם הסבר קצר"
 }

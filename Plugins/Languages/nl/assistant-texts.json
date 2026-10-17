@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "AI-plan",
   "assistant.scenarioName.optimizer": "Geoptimaliseerd",
   "assistant.scenarioName.proposal": "Voorstel",
-  "assistant.scenarioName.absenceCover": "Afwezigheidsvervanging"
+  "assistant.scenarioName.absenceCover": "Afwezigheidsvervanging",
+  "assistant.explainOffer.chipLabel": "Eerst kort uitleggen"
 }

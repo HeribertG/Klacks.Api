@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "KI-plan",
   "assistant.scenarioName.optimizer": "Optimalisert",
   "assistant.scenarioName.proposal": "Forslag",
-  "assistant.scenarioName.absenceCover": "Fraværsdekning"
+  "assistant.scenarioName.absenceCover": "Fraværsdekning",
+  "assistant.explainOffer.chipLabel": "Forklar kort først"
 }
