@@ -16,11 +16,13 @@ namespace Klacks.Api.Infrastructure.Persistence.Configurations;
 
 public class UserIntroTourStateConfiguration : IEntityTypeConfiguration<UserIntroTourState>
 {
+    public const string TableName = "user_intro_tour_states";
+
     private const string EmptyJsonArraySql = "'[]'::jsonb";
 
     public void Configure(EntityTypeBuilder<UserIntroTourState> builder)
     {
-        builder.ToTable(IntroTourDefaults.TableName);
+        builder.ToTable(TableName);
         builder.HasKey(s => s.UserId);
 
         builder.Property(s => s.Status)

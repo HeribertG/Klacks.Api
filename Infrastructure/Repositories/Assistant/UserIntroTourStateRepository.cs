@@ -8,6 +8,7 @@
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Infrastructure.Persistence.Configurations;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,7 @@ namespace Klacks.Api.Infrastructure.Repositories.Assistant;
 public class UserIntroTourStateRepository : IUserIntroTourStateRepository
 {
     private static readonly string EnsureExistsSql =
-        $"INSERT INTO {IntroTourDefaults.TableName} (user_id, status, completed_stations, snooze_count, create_time) "
+        $"INSERT INTO {UserIntroTourStateConfiguration.TableName} (user_id, status, completed_stations, snooze_count, create_time) "
         + "VALUES ({0}, {1}, '[]'::jsonb, 0, {2}) ON CONFLICT (user_id) DO NOTHING";
 
     private readonly DataBaseContext _context;

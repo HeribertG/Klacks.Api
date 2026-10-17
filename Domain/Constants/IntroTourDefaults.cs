@@ -8,8 +8,6 @@ namespace Klacks.Api.Domain.Constants;
 
 public static class IntroTourDefaults
 {
-    public const string TableName = "user_intro_tour_states";
-
     /// <summary>
     /// Event the frontend reports as soon as the offer is visible. It is not stored as a status: it stamps
     /// last_offered_at and turns a legacy offer into legacy_offered.

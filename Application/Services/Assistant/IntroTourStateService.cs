@@ -208,7 +208,7 @@ public partial class IntroTourStateService : IIntroTourStateService
         var normalized = status.Trim().ToLowerInvariant();
         if (!ReportableStatuses.Contains(normalized))
         {
-            throw new InvalidRequestException($"Unknown intro tour status '{normalized}'.");
+            throw new InvalidRequestException("Unknown intro tour status.");
         }
 
         return normalized;

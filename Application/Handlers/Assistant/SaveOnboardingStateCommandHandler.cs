@@ -48,7 +48,7 @@ public class SaveOnboardingStateCommandHandler : IRequestHandler<SaveOnboardingS
 
         if (kind != OnboardingKind.Setup)
         {
-            throw new InvalidRequestException($"Unknown onboarding kind '{kind}'.");
+            throw new InvalidRequestException("Unknown onboarding kind.");
         }
 
         var result = await _onboardingService.UpdateStateAsync(

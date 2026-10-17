@@ -311,10 +311,18 @@ public class AgentMemoryRepository : IAgentMemoryRepository
 
     public async Task<int> SoftDeleteByUserAndKeyAsync(Guid userId, string key, Guid? keepId = null, CancellationToken cancellationToken = default)
     {
+        var keptCreateTime = keepId == null
+            ? (DateTime?)null
+            : await _context.AgentMemories
+                .IgnoreQueryFilters()
+                .Where(m => m.Id == keepId)
+                .Select(m => m.CreateTime)
+                .FirstOrDefaultAsync(cancellationToken);
+
         var memories = await _context.AgentMemories
             .Where(m => m.UserId == userId
                         && m.Key == key
-                        && (keepId == null || m.Id != keepId))
+                        && (keepId == null || (m.Id != keepId && (keptCreateTime == null || m.CreateTime < keptCreateTime))))
             .ToListAsync(cancellationToken);
 
         if (memories.Count == 0)
