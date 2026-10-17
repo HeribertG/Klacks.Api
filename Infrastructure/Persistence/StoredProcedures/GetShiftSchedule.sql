@@ -3,8 +3,10 @@
 --   start_date: Start of the period
 --   end_date: End of the period
 --   holiday_dates: Array of holidays (DATE[])
---   visible_group_ids: Optional array of visible group IDs (includes subgroups)
---   show_ungrouped_shifts: If TRUE, include shifts not assigned to any group (default FALSE)
+--   visible_group_ids: NULL = unrestricted (admin, no groups, background job). An array - even an EMPTY one -
+--     restricts the result to shifts of those groups (includes subgroups); an empty array means "no group
+--     visible" (group visibility is a security boundary, fail-closed), never "everything".
+--   show_ungrouped_shifts: If TRUE, a restricted result also includes shifts not assigned to any group (default FALSE)
 -- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status, sporadic_status, period_booked_days
 -- sporadic_status: 0 = none, 1 = booked (per-day capacity reached: engaged_at_day >= sum_employees), 2 = blocked (no booking on this day AND distinct booked days in range >= quantity)
 -- period_booked_days: sporadic shifts only - distinct booked days within the whole sporadic period (week/month/...) containing the date,
@@ -22,7 +24,7 @@ CREATE OR REPLACE FUNCTION get_shift_schedule(
     start_date DATE,
     end_date DATE,
     holiday_dates DATE[] DEFAULT ARRAY[]::DATE[],
-    visible_group_ids UUID[] DEFAULT ARRAY[]::UUID[],
+    visible_group_ids UUID[] DEFAULT NULL,
     show_ungrouped_shifts BOOLEAN DEFAULT FALSE,
     p_analyse_token UUID DEFAULT NULL
 )
@@ -52,7 +54,6 @@ BEGIN
     WITH RECURSIVE group_hierarchy AS (
         SELECT g.id FROM "group" g
         WHERE g.id = ANY(visible_group_ids)
-          AND array_length(visible_group_ids, 1) > 0
           AND g.is_deleted = false
         UNION ALL
         SELECT g.id FROM "group" g
@@ -66,7 +67,7 @@ BEGIN
         WHERE
             s.analyse_token IS NOT DISTINCT FROM p_analyse_token
             AND (
-                (visible_group_ids IS NULL OR array_length(visible_group_ids, 1) IS NULL)
+                visible_group_ids IS NULL
                 OR (gi.shift_id IS NULL AND show_ungrouped_shifts)
                 OR gi.group_id IN (SELECT id FROM group_hierarchy)
             )
@@ -263,6 +264,8 @@ $$ LANGUAGE plpgsql;
 -- Used for partial refresh after Work CRUD operations
 -- Parameters:
 --   shift_date_pairs: Array of composite type (shift_id UUID, date DATE)
+--   visible_group_ids: NULL = unrestricted. An array - even an EMPTY one - keeps only shifts without any group
+--     or with a group in those groups (includes subgroups); shifts of hidden groups are dropped (fail-closed).
 -- Returns: Same columns as get_shift_schedule
 
 DROP TYPE IF EXISTS shift_date_pair CASCADE;
@@ -273,10 +276,12 @@ CREATE TYPE shift_date_pair AS (
 
 DROP FUNCTION IF EXISTS get_shift_schedule_partial(shift_date_pair[]);
 DROP FUNCTION IF EXISTS get_shift_schedule_partial(shift_date_pair[], UUID);
+DROP FUNCTION IF EXISTS get_shift_schedule_partial(shift_date_pair[], UUID, UUID[]);
 
 CREATE OR REPLACE FUNCTION get_shift_schedule_partial(
     shift_date_pairs shift_date_pair[],
-    p_analyse_token UUID DEFAULT NULL
+    p_analyse_token UUID DEFAULT NULL,
+    visible_group_ids UUID[] DEFAULT NULL
 )
 RETURNS TABLE (
     shift_id UUID,
@@ -301,7 +306,16 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
     RETURN QUERY
-    WITH input_pairs AS (
+    WITH RECURSIVE group_hierarchy AS (
+        SELECT g.id FROM "group" g
+        WHERE g.id = ANY(visible_group_ids)
+          AND g.is_deleted = false
+        UNION ALL
+        SELECT g.id FROM "group" g
+        INNER JOIN group_hierarchy gh ON g.parent = gh.id
+        WHERE g.is_deleted = false
+    ),
+    input_pairs AS (
         SELECT (unnest(shift_date_pairs)).*
     ),
     shift_data AS (
@@ -326,6 +340,13 @@ BEGIN
         WHERE s.is_deleted = false
         AND s.status >= 2
         AND s.analyse_token IS NOT DISTINCT FROM p_analyse_token
+        AND (
+            visible_group_ids IS NULL
+            OR NOT EXISTS (SELECT 1 FROM group_item gi WHERE gi.shift_id = s.id AND gi.is_deleted = false)
+            OR EXISTS (SELECT 1 FROM group_item gi
+                       WHERE gi.shift_id = s.id AND gi.is_deleted = false
+                       AND gi.group_id IN (SELECT gh.id FROM group_hierarchy gh))
+        )
     ),
     container_lookup AS (
         SELECT DISTINCT

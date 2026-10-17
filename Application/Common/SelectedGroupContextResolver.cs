@@ -12,7 +12,9 @@ namespace Klacks.Api.Application.Common;
 /// interceptor and expands it into the full subtree via
 /// <see cref="IShiftGroupFilterService"/>. Returns null when no header is
 /// present (admin / unfiltered view) so the SP keeps backwards-compatible
-/// is_group_restricted=false semantics.
+/// is_group_restricted=false semantics. The header is client-controlled: a group
+/// the caller may not see is ignored by <see cref="IShiftGroupFilterService"/>
+/// and replaced by the caller's own visible roots, never honoured.
 /// </summary>
 /// <param name="httpContextAccessor">Access to the current request headers.</param>
 /// <param name="groupFilterService">Expands the selected group into the visible subtree.</param>

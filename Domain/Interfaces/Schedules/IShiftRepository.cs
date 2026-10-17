@@ -31,10 +31,13 @@ public interface IShiftRepository : IBaseRepository<Shift>
     /// <summary>
     /// Filters shifts by the given criteria. <paramref name="today"/> is the company's own local day
     /// (per ICompanyClock), resolved by the caller since this method itself is synchronous.
+    /// <paramref name="visibleGroupIds"/> is the caller's group restriction from
+    /// IShiftGroupFilterService.ResolveShiftListGroupIdsAsync (null = unrestricted, empty = only group-less
+    /// shifts); it is deliberately not optional so no caller can forget the security boundary.
     /// </summary>
-    IQueryable<Shift> FilterShifts(ShiftFilter filter, DateOnly today);
+    IQueryable<Shift> FilterShifts(ShiftFilter filter, DateOnly today, IReadOnlyCollection<Guid>? visibleGroupIds);
 
-    Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter);
+    Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter, IReadOnlyCollection<Guid>? visibleGroupIds);
 
     Task UpdateGroupItems(Guid shiftId, List<Guid> actualGroupIds);
     

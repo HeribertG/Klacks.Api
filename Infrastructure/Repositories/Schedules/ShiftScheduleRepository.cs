@@ -1,5 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Reads the shift schedule for the Schedule view, restricted to the shifts of the groups the caller may see
+/// (group visibility is a security boundary; a restricted caller without a visible group gets no grouped shift).
+/// </summary>
+/// <param name="shiftScheduleService">Executes the shift schedule stored procedures</param>
+/// <param name="shiftGroupFilterService">Resolves the caller's group restriction (null = unrestricted)</param>
+/// <param name="shiftScheduleFilterService">Applies the UI filters to the schedule query</param>
+/// <param name="logger">Diagnostics logging</param>
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
@@ -54,7 +63,7 @@ public class ShiftScheduleRepository : IShiftScheduleRepository
             .Select(d => DateOnly.FromDateTime(d))
             .ToList();
 
-        var visibleGroupIds = await _shiftGroupFilterService.GetVisibleGroupIdsAsync(filter.SelectedGroup);
+        var visibleGroupIds = await _shiftGroupFilterService.ResolveShiftScheduleGroupIdsAsync(filter.SelectedGroup);
 
         var query = _shiftScheduleService.GetShiftScheduleQuery(
             startDate,
@@ -114,9 +123,12 @@ public class ShiftScheduleRepository : IShiftScheduleRepository
             .Select(p => (p.ShiftId, DateOnly.FromDateTime(p.Date)))
             .ToList();
 
+        var visibleGroupIds = await _shiftGroupFilterService.ResolveShiftScheduleGroupIdsAsync(null);
+
         var assignments = await _shiftScheduleService.GetShiftSchedulePartialAsync(
             shiftDatePairs,
             filter.AnalyseToken,
+            visibleGroupIds,
             cancellationToken);
 
         await AttachRequiredQualificationsAsync(assignments, cancellationToken);

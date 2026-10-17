@@ -22,5 +22,6 @@ public interface IShiftScheduleService
     Task<List<ShiftDayAssignment>> GetShiftSchedulePartialAsync(
         List<(Guid ShiftId, DateOnly Date)> shiftDatePairs,
         Guid? analyseToken = null,
+        List<Guid>? visibleGroupIds = null,
         CancellationToken cancellationToken = default);
 }
