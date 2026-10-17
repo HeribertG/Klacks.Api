@@ -379,7 +379,8 @@ verwerfen muss.
   Szenario-Einträge; Container zählen als 1. Der Absenzen-Balken umfasst vorgeplante
   Platzhalter UND gebuchte Absenz-Dienste.
 - **Berechtigungen**: Der Wizard-Button ist Admins vorbehalten;
-  Admins dürfen unabhängig vom LockLevel editieren und Closed-Sperren aufheben.
+  Admins dürfen jede Sperrstufe aufheben, auch Closed; einen Eintrag mit Stufe Closed
+  ändert aber auch ein Admin erst, nachdem die Sperre aufgehoben bzw. die Periode wieder geöffnet ist.
 
 ### Typische Aufgaben
 

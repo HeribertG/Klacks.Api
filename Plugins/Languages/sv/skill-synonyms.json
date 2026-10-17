@@ -1025,6 +1025,11 @@
     "förklara exportformat för bokföring och lön",
     "vad är en korrigeringsinställning för export?"
   ],
+  "explain_final_vs_correctable": [
+    "kan jag ta tillbaka det",
+    "är raderingen slutgiltig",
+    "kan en raderad grupp återställas"
+  ],
   "explain_group_hierarchy_inheritance": [
     "ärvs betalningsintervall till undergrupper",
     "gäller gruppens kalender även för undergrupper",
@@ -1400,6 +1405,11 @@
     "vilka data lämnar företaget",
     "är testdata riktiga poster"
   ],
+  "explain_terms_with_several_meanings": [
+    "vad är skillnaden mellan en beställning och ett pass",
+    "betyder förseglad samma sak överallt",
+    "är en adress en person eller en postadress"
+  ],
   "explain_user_account_creation": [
     "ny användare fick inget lösenordsmail",
     "konto skapades utan välkomstmail",
@@ -1414,6 +1424,21 @@
     "hur ser jag förloppet för nedladdning?",
     "vad kostar det i minne med whisper?",
     "hur tar jag bort whisper igen?"
+  ],
+  "explain_why_cannot_book": [
+    "varför kan jag inte lägga ett pass i den här cellen",
+    "passet erbjuds inte för den dagen",
+    "varför avvisas bokningen"
+  ],
+  "explain_why_cannot_edit": [
+    "varför är fältet grått så att jag inte kan skriva",
+    "formuläret öppnas bara för visning",
+    "varför kan jag inte längre ändra den förseglade beställningen"
+  ],
+  "explain_why_not_visible": [
+    "varför syns inte den nya medarbetaren i listan",
+    "vart tog min kollega vägen i schemat",
+    "varför ser jag bara en del av personalen"
   ],
   "extend_macro": [
     "utöka makro som kopia",

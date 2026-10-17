@@ -1036,6 +1036,11 @@
     "welke formaten worden ondersteund voor salaris",
     "waar kan ik de export aanpassen"
   ],
+  "explain_final_vs_correctable": [
+    "kan ik dat terugdraaien",
+    "is verwijderen definitief",
+    "kan een verwijderde groep worden hersteld"
+  ],
   "explain_group_hierarchy_inheritance": [
     "erft het betaalinterval naar subgroepen",
     "geldt de kalender van de groep ook voor subgroepen",
@@ -1417,6 +1422,11 @@
     "welke gegevens verlaten het bedrijf",
     "zijn testgegevens echte records"
   ],
+  "explain_terms_with_several_meanings": [
+    "wat is het verschil tussen een bestelling en een dienst",
+    "betekent verzegeld overal hetzelfde",
+    "is een adres een persoon of een postadres"
+  ],
   "explain_user_account_creation": [
     "nieuwe gebruiker heeft nooit een wachtwoordmail ontvangen",
     "account aangemaakt zonder welkomstmail",
@@ -1431,6 +1441,21 @@
     "kan ik spraakdata in huis houden",
     "wat is het verschil tussen de modellen",
     "hoe verwijder ik de lokale spraakherkenning"
+  ],
+  "explain_why_cannot_book": [
+    "waarom kan ik geen dienst in deze cel zetten",
+    "de dienst wordt voor die dag niet aangeboden",
+    "waarom wordt de inplanning geweigerd"
+  ],
+  "explain_why_cannot_edit": [
+    "waarom is dit veld grijs en kan ik niets typen",
+    "het formulier opent alleen om te bekijken",
+    "waarom kan ik de verzegelde bestelling niet meer wijzigen"
+  ],
+  "explain_why_not_visible": [
+    "waarom staat de nieuwe medewerker niet in de lijst",
+    "waar is mijn collega gebleven in het rooster",
+    "waarom zie ik maar een deel van het personeel"
   ],
   "extend_macro": [
     "macro als kopie uitbreiden",

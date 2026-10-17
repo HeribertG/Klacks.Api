@@ -1010,6 +1010,11 @@
     "apa itu format eksport untuk gaji",
     "kenapa eksport manual kosong"
   ],
+  "explain_final_vs_correctable": [
+    "bolehkah saya tarik balik tindakan itu",
+    "adakah pemadaman itu kekal",
+    "bolehkah kumpulan yang dipadam dipulihkan"
+  ],
   "explain_group_hierarchy_inheritance": [
     "adakah selang pembayaran diwarisi ke subkumpulan?",
     "adakah kalendar kumpulan terpakai untuk subkumpulan juga?",
@@ -1375,6 +1380,11 @@
     "data apa yang keluar dari syarikat",
     "adakah data ujian rekod sebenar"
   ],
+  "explain_terms_with_several_meanings": [
+    "apakah beza antara pesanan dan syif",
+    "adakah dimeterai bermaksud sama di mana-mana",
+    "adakah alamat itu orang atau alamat pos"
+  ],
   "explain_user_account_creation": [
     "pengguna baru tidak terima emel kata laluan, kenapa?",
     "akaun dibuat tanpa emel ucapan, normal?",
@@ -1389,6 +1399,21 @@
     "saiz model mana yang patut saya pilih",
     "bagaimana menukar saiz model whisper",
     "apa yang berlaku jika saya buang whisper"
+  ],
+  "explain_why_cannot_book": [
+    "kenapa saya tidak boleh letak syif dalam sel ini",
+    "syif tidak ditawarkan untuk hari itu",
+    "kenapa penjadualan ditolak"
+  ],
+  "explain_why_cannot_edit": [
+    "kenapa medan ini kelabu dan tidak boleh ditaip",
+    "borang hanya dibuka untuk dibaca",
+    "kenapa pesanan yang dimeterai tidak boleh diubah lagi"
+  ],
+  "explain_why_not_visible": [
+    "kenapa pekerja baharu tidak muncul dalam senarai",
+    "ke mana rakan sekerja saya hilang dari jadual",
+    "kenapa saya hanya nampak sebahagian kakitangan"
   ],
   "extend_macro": [
     "kembangkan makro sebagai salinan",

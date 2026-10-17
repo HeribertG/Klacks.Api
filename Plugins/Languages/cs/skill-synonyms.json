@@ -1045,6 +1045,11 @@
     "jak nastavit export pro účetnictví",
     "proč se export neodeslal"
   ],
+  "explain_final_vs_correctable": [
+    "mohu to vzít zpět",
+    "je smazání konečné",
+    "lze obnovit smazanou skupinu"
+  ],
   "explain_group_hierarchy_inheritance": [
     "dědí se interval výplaty na podskupiny",
     "platí kalendář skupiny i pro podskupiny",
@@ -1410,6 +1415,11 @@
     "jaká data opouštějí firmu",
     "jsou testovací data skutečné záznamy"
   ],
+  "explain_terms_with_several_meanings": [
+    "jaký je rozdíl mezi objednávkou a službou",
+    "znamená zapečetěno všude totéž",
+    "je adresa osoba nebo poštovní adresa"
+  ],
   "explain_user_account_creation": [
     "nový uživatel nikdy nedostal e-mail s heslem",
     "účet vytvořen bez uvítacího e-mailu",
@@ -1424,6 +1434,21 @@
     "můžeme mít rozpoznávání bez cloudu",
     "jak stáhnout model pro whisper",
     "co se stane, když whisper odeberu"
+  ],
+  "explain_why_cannot_book": [
+    "proč nemohu do této buňky zadat službu",
+    "služba se pro tento den nenabízí",
+    "proč bylo zadání služby odmítnuto"
+  ],
+  "explain_why_cannot_edit": [
+    "proč je toto pole šedé a nemohu psát",
+    "formulář se otevírá jen pro čtení",
+    "proč už nemohu změnit zapečetěnou objednávku"
+  ],
+  "explain_why_not_visible": [
+    "proč se nová zaměstnankyně nezobrazuje v seznamu",
+    "kam zmizel kolega z plánu směn",
+    "proč vidím jen část zaměstnanců"
   ],
   "extend_macro": [
     "rozšířit makro jako kopii",

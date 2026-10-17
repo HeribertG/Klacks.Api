@@ -1021,6 +1021,11 @@
     "cum configurez exportul contabil?",
     "ce formate sunt întotdeauna disponibile?"
   ],
+  "explain_final_vs_correctable": [
+    "pot să anulez asta",
+    "ștergerea este definitivă",
+    "se poate restaura un grup șters"
+  ],
   "explain_group_hierarchy_inheritance": [
     "se moștenește intervalul de plată în subgrupuri?",
     "calendarul unui grup se aplică și subgrupurilor?",
@@ -1402,6 +1407,11 @@
     "ce date părăsesc firma",
     "datele de test sunt înregistrări reale"
   ],
+  "explain_terms_with_several_meanings": [
+    "care este diferența dintre comandă și tură",
+    "sigilat înseamnă același lucru peste tot",
+    "o adresă este o persoană sau o adresă poștală"
+  ],
   "explain_user_account_creation": [
     "noul utilizator nu a primit niciodată un email cu parola",
     "cont creat fără un email de bun venit",
@@ -1416,6 +1426,21 @@
     "ce dimensiuni de model există și care e potrivit?",
     "ce se întâmplă cu dictarea dacă elimin whisper?",
     "cum văd progresul instalării?"
+  ],
+  "explain_why_cannot_book": [
+    "de ce nu pot pune o tură în această celulă",
+    "tura nu este oferită pentru ziua respectivă",
+    "de ce este respinsă planificarea"
+  ],
+  "explain_why_cannot_edit": [
+    "de ce acest câmp este gri și nu pot scrie",
+    "formularul se deschide doar pentru citire",
+    "de ce nu mai pot modifica comanda sigilată"
+  ],
+  "explain_why_not_visible": [
+    "de ce noua angajată nu apare în listă",
+    "unde a dispărut colegul din planificare",
+    "de ce văd doar o parte din personal"
   ],
   "extend_macro": [
     "extinde macro-ul ca o copie",

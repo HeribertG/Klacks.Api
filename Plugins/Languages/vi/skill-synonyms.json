@@ -1011,6 +1011,11 @@
     "tại sao xuất file không có gì",
     "định dạng xuất lương"
   ],
+  "explain_final_vs_correctable": [
+    "tôi có thể hoàn tác việc này không",
+    "xóa có phải là vĩnh viễn không",
+    "nhóm đã xóa có khôi phục được không"
+  ],
   "explain_group_hierarchy_inheritance": [
     "chu kỳ trả lương có kế thừa xuống nhóm con không",
     "lịch của nhóm có áp dụng cho nhóm con không",
@@ -1370,6 +1375,11 @@
     "dữ liệu nào rời khỏi công ty",
     "dữ liệu thử nghiệm có phải bản ghi thật không"
   ],
+  "explain_terms_with_several_meanings": [
+    "đơn hàng và ca khác nhau thế nào",
+    "niêm phong có cùng một nghĩa ở mọi nơi không",
+    "địa chỉ là một người hay địa chỉ bưu điện"
+  ],
   "explain_user_account_creation": [
     "nhân viên mới chưa nhận được email mật khẩu",
     "tài khoản được tạo mà không có email chào mừng",
@@ -1383,6 +1393,21 @@
     "tải mô hình nhận dạng giọng nói",
     "tại sao quá trình cài đặt lâu vậy",
     "cách chuyển giọng nói về máy chủ nội bộ"
+  ],
+  "explain_why_cannot_book": [
+    "tại sao tôi không thể xếp ca vào ô này",
+    "ca không được đề xuất cho ngày đó",
+    "tại sao việc xếp ca bị từ chối"
+  ],
+  "explain_why_cannot_edit": [
+    "tại sao ô này bị xám và tôi không gõ được",
+    "biểu mẫu chỉ mở ở chế độ xem",
+    "tại sao tôi không thể sửa đơn hàng đã niêm phong nữa"
+  ],
+  "explain_why_not_visible": [
+    "tại sao nhân viên mới không hiện trong danh sách",
+    "đồng nghiệp của tôi biến mất khỏi lịch làm việc",
+    "tại sao tôi chỉ thấy một phần nhân viên"
   ],
   "extend_macro": [
     "mở rộng macro thành bản sao",

@@ -45820,6 +45820,452 @@
       }
     },
     {
+      "name": "explain_why_cannot_book",
+      "area": "schedule",
+      "description": "Explains why a shift cannot be placed for a person on a day: empty right-click menu, shift not offered, or save refused. Covers sealed or approved days, days before entry or after exit, group membership windows, used-up sporadic shifts, fully staffed shifts, public holidays, a missing mandatory qualification or one below a binding level (never overridable), working-time rules set to block (stop Klacksy and assistants, not direct entries), and scenario bookings.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerConfig": {
+        "memoryKey": "explain_why_cannot_book"
+      },
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "kann nicht buchen",
+          "buchung abgelehnt",
+          "kontextmenü leer",
+          "dienst lässt sich nicht eintragen"
+        ],
+        "en": [
+          "cannot book",
+          "booking refused",
+          "empty context menu",
+          "cannot place a shift"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "warum lässt sich hier kein dienst eintragen",
+          "wieso ist das kontextmenü in dieser zelle leer",
+          "der dienst wird mir für diesen tag nicht angeboten",
+          "warum kann ich den mitarbeiter nach seinem austritt nicht mehr einteilen",
+          "warum sind die tage vor seinem eintritt grau",
+          "wieso bekomme ich den sporadischen dienst nicht mehr gebucht",
+          "warum wird die buchung wegen fehlender qualifikation abgelehnt"
+        ],
+        "en": [
+          "why can't i put a shift in this cell",
+          "the right-click menu on this day is empty",
+          "the shift is not offered for that date",
+          "why can't i schedule him after his last working day",
+          "why are the days before her start date locked",
+          "the sporadic shift cannot be booked any more",
+          "why is the booking refused because of a missing qualification"
+        ],
+        "fr": [
+          "pourquoi je n'arrive pas à placer un service dans cette case",
+          "le menu contextuel de ce jour est vide",
+          "le service n'est pas proposé pour cette date",
+          "pourquoi je ne peux plus planifier l'employé après son départ",
+          "le service sporadique n'est plus réservable",
+          "pourquoi la réservation est refusée faute de qualification"
+        ],
+        "it": [
+          "perché non riesco a mettere un turno in questa cella",
+          "il menu contestuale di questo giorno è vuoto",
+          "il turno non viene proposto per quella data",
+          "perché non posso più pianificarlo dopo l'uscita",
+          "il turno sporadico non si può più prenotare",
+          "perché la prenotazione viene rifiutata per una qualifica mancante"
+        ]
+      },
+      "labels": {
+        "de": "Erklären, warum sich nicht buchen lässt",
+        "en": "Explain why a booking is not possible",
+        "fr": "Expliquer pourquoi la réservation est impossible",
+        "it": "Spiega perché non si può prenotare"
+      }
+    },
+    {
+      "name": "explain_why_not_visible",
+      "area": "client",
+      "description": "Explains why a person or a shift is missing from a list or from the schedule. Covers the group chosen at the top of the app, the root groups a user may see, the validity filter (active, former, future), entry and exit dates, the employee and external checkboxes, an active search text, deleted persons behind the admin-only \"deleted addresses\" filter, ungrouped shifts, deleted groups, customers never appearing as schedule rows, and scenario copies of shifts.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerConfig": {
+        "memoryKey": "explain_why_not_visible"
+      },
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "nicht sichtbar",
+          "fehlt in der liste",
+          "verschwunden",
+          "person gelöscht"
+        ],
+        "en": [
+          "not visible",
+          "missing from the list",
+          "disappeared",
+          "deleted person"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "warum taucht die neue mitarbeiterin nicht in der liste auf",
+          "wo ist der kollege im einsatzplan hin",
+          "ich finde den dienst im plan nicht mehr",
+          "wieso sehe ich nur einen teil der leute",
+          "der ausgetretene mitarbeiter ist weg",
+          "eine gelöschte person wieder anzeigen",
+          "warum ist die zeile im nächsten monat verschwunden",
+          "wo sind die dienste ohne gruppe"
+        ],
+        "en": [
+          "why doesn't the new hire show up in the list",
+          "where did my colleague go in the schedule",
+          "i can't find the shift in the plan any more",
+          "why do i only see some of the staff",
+          "the person who left is gone",
+          "show a deleted person again",
+          "why did the row vanish next month",
+          "where are the shifts without a group"
+        ],
+        "fr": [
+          "pourquoi la nouvelle employée n'apparaît pas dans la liste",
+          "où est passé le collègue dans le planning",
+          "je ne trouve plus le service dans le plan",
+          "pourquoi je ne vois qu'une partie du personnel",
+          "l'employé parti a disparu",
+          "afficher à nouveau une personne supprimée",
+          "où sont les services sans groupe"
+        ],
+        "it": [
+          "perché la nuova dipendente non compare nell'elenco",
+          "dov'è finito il collega nella pianificazione",
+          "non trovo più il turno nel piano",
+          "perché vedo solo una parte del personale",
+          "il dipendente uscito è sparito",
+          "mostrare di nuovo una persona eliminata",
+          "dove sono i turni senza gruppo"
+        ]
+      },
+      "labels": {
+        "de": "Erklären, warum etwas nicht sichtbar ist",
+        "en": "Explain why something is not visible",
+        "fr": "Expliquer pourquoi un élément n'est pas visible",
+        "it": "Spiega perché qualcosa non è visibile"
+      }
+    },
+    {
+      "name": "explain_why_cannot_edit",
+      "area": "schedule",
+      "description": "Explains why a field, entry or mask is greyed out or read-only: sealed orders and plannable shifts with the cards that stay editable, sealed days, the lock levels confirmed, approved and closed and who lifts them, group-restricted entries, shift editing blocked while a scenario is active, a container template opened elsewhere, booked absences, deleted persons, and the rights of admin, supervisor and accounts without a role.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerConfig": {
+        "memoryKey": "explain_why_cannot_edit"
+      },
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "ausgegraut",
+          "schreibgeschützt",
+          "gruppeneinschränkung",
+          "feld gesperrt"
+        ],
+        "en": [
+          "greyed out",
+          "read-only",
+          "group restricted",
+          "field locked"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "warum ist das feld grau und ich kann nichts eintippen",
+          "die maske ist nur zum ansehen offen",
+          "warum steht bei dem eintrag gruppeneinschränkung",
+          "wieso lässt sich die versiegelte bestellung nicht mehr ändern",
+          "der eintrag hat ein rotes schloss",
+          "ich sehe nur ein auge statt dem stift",
+          "warum kann ich den dienst im szenario nicht zuschneiden",
+          "die vorlage ist von jemand anderem gesperrt"
+        ],
+        "en": [
+          "why is this field grey and i can't type",
+          "the mask only opens for viewing",
+          "why does the entry say group restricted",
+          "why can't i change the sealed order any more",
+          "the entry has a red padlock",
+          "i only get an eye icon instead of the pencil",
+          "why can't i cut the shift inside a scenario",
+          "the template is locked by another user"
+        ],
+        "fr": [
+          "pourquoi ce champ est grisé",
+          "le masque s'ouvre seulement en lecture",
+          "pourquoi l'entrée indique restriction de groupe",
+          "pourquoi la commande scellée n'est plus modifiable",
+          "l'entrée a un cadenas rouge",
+          "je vois seulement un œil au lieu du crayon",
+          "le modèle est bloqué par un autre utilisateur"
+        ],
+        "it": [
+          "perché questo campo è grigio",
+          "la maschera si apre solo in lettura",
+          "perché la voce dice restrizione di gruppo",
+          "perché l'ordine sigillato non si può più cambiare",
+          "la voce ha un lucchetto rosso",
+          "vedo solo un occhio invece della matita",
+          "il modello è bloccato da un altro utente"
+        ]
+      },
+      "labels": {
+        "de": "Erklären, warum sich nichts bearbeiten lässt",
+        "en": "Explain why something cannot be edited",
+        "fr": "Expliquer pourquoi un élément n'est pas modifiable",
+        "it": "Spiega perché qualcosa non è modificabile"
+      }
+    },
+    {
+      "name": "explain_final_vs_correctable",
+      "area": "schedule",
+      "description": "Explains which actions in Klacks can be taken back and which are final, as there is no general step-back button: sealing an order, accepting or discarding a scenario, closing and reopening a period, deleting a person, deleting and restoring work entries, deleting a group (refused while works are planned), setting an exit date, changing the person type, resetting a shift cut, adopting an absence wish and Klacksy counter-actions.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerConfig": {
+        "memoryKey": "explain_final_vs_correctable"
+      },
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "umkehrbar",
+          "endgültig",
+          "wiederherstellbar",
+          "gegenweg"
+        ],
+        "en": [
+          "reversible",
+          "permanent",
+          "restorable",
+          "take back"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "kann ich das wieder zurücknehmen",
+          "ist das löschen endgültig",
+          "gibt es einen weg zurück nach dem versiegeln",
+          "wie hole ich einen gelöschten einsatz zurück",
+          "kann man eine gelöschte gruppe wiederherstellen",
+          "was ist nach dem übernehmen des szenarios weg",
+          "lässt sich der periodenabschluss aufheben",
+          "was passiert wenn ich mich vertan habe"
+        ],
+        "en": [
+          "can i take that back",
+          "is deleting permanent",
+          "is there a way back after sealing",
+          "how do i get a deleted work entry back",
+          "can a deleted group be restored",
+          "what is lost after accepting the scenario",
+          "is closing a period final",
+          "what if i made a mistake"
+        ],
+        "fr": [
+          "puis-je revenir en arrière",
+          "la suppression est-elle définitive",
+          "y a-t-il un retour après le scellement",
+          "comment récupérer une affectation supprimée",
+          "peut-on restaurer un groupe supprimé",
+          "la clôture de période est-elle réversible",
+          "que faire si je me suis trompé"
+        ],
+        "it": [
+          "posso tornare indietro",
+          "l'eliminazione è definitiva",
+          "c'è un ritorno dopo la sigillatura",
+          "come recupero un'assegnazione eliminata",
+          "si può ripristinare un gruppo eliminato",
+          "la chiusura del periodo è reversibile",
+          "cosa faccio se ho sbagliato"
+        ]
+      },
+      "labels": {
+        "de": "Endgültige und korrigierbare Aktionen erklären",
+        "en": "Explain final versus correctable actions",
+        "fr": "Expliquer les actions définitives et corrigeables",
+        "it": "Spiega le azioni definitive e correggibili"
+      }
+    },
+    {
+      "name": "explain_terms_with_several_meanings",
+      "area": "shift",
+      "description": "Explains Klacks words whose meaning depends on where they appear: \"Dienst\" (order, sealed order, plannable shift, cut piece, container), \"versiegelt\" (sealed order, sealed day, lock level Closed, entry of another group), the lock levels, \"Adresse\", \"Absenz\" (wish, booked absence, absence kind), \"Schicht\" vs \"Dienst\", \"Zurücksetzen\", \"Gültigkeit\", \"Mitgliedschaft\" and the day a shift past midnight counts for.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerConfig": {
+        "memoryKey": "explain_terms_with_several_meanings"
+      },
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "begriff",
+          "mehrdeutig",
+          "was meint",
+          "bedeutet hier"
+        ],
+        "en": [
+          "terminology",
+          "ambiguous term",
+          "what is meant by",
+          "meaning here"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "was ist der unterschied zwischen bestellung und dienst",
+          "heisst versiegelt hier dasselbe wie geschlossen",
+          "ist eine adresse eine person oder eine anschrift",
+          "was ist ein absenz wunsch im vergleich zur gebuchten absenz",
+          "sind schicht und dienst dasselbe",
+          "welcher tag zählt bei einem nachtdienst über mitternacht",
+          "was ist mit mitgliedschaft gemeint",
+          "ich verwechsle die begriffe"
+        ],
+        "en": [
+          "what is the difference between an order and a shift",
+          "does sealed mean the same as closed here",
+          "is an address a person or a postal address",
+          "absence wish versus booked absence",
+          "are schicht and dienst the same thing",
+          "which day does a night shift past midnight count for",
+          "what does membership mean here",
+          "i keep mixing up these terms"
+        ],
+        "fr": [
+          "quelle différence entre commande et service",
+          "scellé veut-il dire clôturé ici",
+          "une adresse est-elle une personne",
+          "souhait d'absence ou absence réservée",
+          "à quel jour compte un service de nuit après minuit",
+          "que signifie adhésion ici",
+          "je confonds ces termes"
+        ],
+        "it": [
+          "qual è la differenza tra ordine e turno",
+          "sigillato significa chiuso qui",
+          "un indirizzo è una persona",
+          "desiderio di assenza o assenza prenotata",
+          "a quale giorno conta un turno di notte dopo mezzanotte",
+          "cosa significa appartenenza qui",
+          "confondo questi termini"
+        ]
+      },
+      "labels": {
+        "de": "Mehrdeutige Begriffe erklären",
+        "en": "Explain terms with several meanings",
+        "fr": "Expliquer les termes à plusieurs sens",
+        "it": "Spiega i termini con più significati"
+      }
+    },
+    {
       "name": "explain_payroll_export_handoff",
       "area": "period",
       "description": "Explains how the payroll figures of a sealed period reach the payroll system: sealing starts no export; an administrator runs the payroll export per employee on the period-closing page once every day is locked and every entry closed. Only new or changed persons are exported, so corrected figures after a reopen yield a supplementary export. Use this when sealing a period produced no payroll file, or corrected figures need to reach payroll after reopening.",

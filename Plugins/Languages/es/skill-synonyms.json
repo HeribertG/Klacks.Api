@@ -1039,6 +1039,11 @@
     "¿puedo ajustar la codificación manualmente?",
     "¿cómo exporto horas por persona?"
   ],
+  "explain_final_vs_correctable": [
+    "puedo deshacer esto",
+    "es definitivo el borrado",
+    "se puede restaurar un grupo eliminado"
+  ],
   "explain_group_hierarchy_inheritance": [
     "¿el intervalo de pago se hereda a los subgrupos?",
     "¿el calendario del grupo se aplica también a los subgrupos?",
@@ -1405,6 +1410,11 @@
     "qué datos salen de la empresa",
     "los datos de prueba son registros reales"
   ],
+  "explain_terms_with_several_meanings": [
+    "cuál es la diferencia entre pedido y servicio",
+    "sellado significa lo mismo en todas partes",
+    "una dirección es una persona o una dirección postal"
+  ],
   "explain_user_account_creation": [
     "¿por qué el nuevo usuario no ha recibido el correo de contraseña?",
     "¿se ha creado la cuenta sin enviar correo de bienvenida?",
@@ -1419,6 +1429,21 @@
     "¿cómo veo el progreso de la descarga?",
     "¿qué pasa con el dictado si quito whisper?",
     "¿cuánta memoria necesita cada modelo?"
+  ],
+  "explain_why_cannot_book": [
+    "por qué no puedo poner un servicio en esta celda",
+    "el servicio no se ofrece para ese día",
+    "por qué se rechaza la asignación"
+  ],
+  "explain_why_cannot_edit": [
+    "por qué este campo está gris y no puedo escribir",
+    "la ficha solo se abre en modo lectura",
+    "por qué ya no puedo cambiar el pedido sellado"
+  ],
+  "explain_why_not_visible": [
+    "por qué la nueva empleada no aparece en la lista",
+    "dónde ha ido mi compañero en el plan de turnos",
+    "por qué solo veo una parte del personal"
   ],
   "extend_macro": [
     "ampliar macro como copia",

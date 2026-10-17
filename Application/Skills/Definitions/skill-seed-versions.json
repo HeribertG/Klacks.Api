@@ -628,6 +628,10 @@
       "version": 6,
       "hash": "9B777945C02EE1CF00DB07F4E40C426FB0F644C78A43DD8D0CFDD9B1C4633098"
     },
+    "explain_final_vs_correctable": {
+      "version": 1,
+      "hash": "A56086CF8127EE7877112E8CE92C971C466BBE020270A58233C68268A78D851A"
+    },
     "explain_group_hierarchy_inheritance": {
       "version": 5,
       "hash": "4302BE1652CC83E0F6335A10CCA4408A7FBFAC2287A7D981A95F7B093500F36C"
@@ -844,6 +848,10 @@
       "version": 3,
       "hash": "0BA6692D817DED0809BE8998946BE98F32D39A63FF045843F4A082232B206A6C"
     },
+    "explain_terms_with_several_meanings": {
+      "version": 1,
+      "hash": "3ECB47E428157146D731EBED0200BC8BDDC4CBA5AF0B788EFBD9EB7ED8F918BE"
+    },
     "explain_user_account_creation": {
       "version": 3,
       "hash": "EDA9773EE7EB0490577A5CE140803EDCF5FAC6ED05439501C1E68D315458453C"
@@ -851,6 +859,18 @@
     "explain_whisper_setup": {
       "version": 3,
       "hash": "8554EBDEF5C46D8AD863FAEC23CCD13307052E3DA96BE552F06345E8118F33F5"
+    },
+    "explain_why_cannot_book": {
+      "version": 1,
+      "hash": "E826C8DA8E096F656FB717A58607DB63263C251DC21674BC5C61F409A967A80E"
+    },
+    "explain_why_cannot_edit": {
+      "version": 1,
+      "hash": "A8B301CB63F900FFE4E1E785097999EDFAE4A841F4B6A73E37892DD020778EFD"
+    },
+    "explain_why_not_visible": {
+      "version": 1,
+      "hash": "7B2FD58B935ADB448DB76B9372ED7DEE7A7BEC1A487113A7368292D639A48648"
     },
     "extend_macro": {
       "version": 3,

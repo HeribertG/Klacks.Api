@@ -395,7 +395,7 @@ Das Dropdown (de: "Typ", en: "Type") in der Card (de: "Registration", en: "Regis
 
 - Das Austrittsdatum ist der letzte Tag der Zugehörigkeit; ab dem Folgetag wird die Planung abgelehnt (Schichtplan: auch ausserhalb der Gruppenzeit der Person). Absenzen müssen vollständig innerhalb der Mitgliedschaft liegen.
 - Das Soll einer Zahlperiode wird nach Mitgliedschaftstagen anteilig gekürzt (Austritt am 15.03. ergibt 15/31 des Monatssolls); die Maximalstunden werden nie gekürzt.
-- Was mit bereits geplanten Einträgen nach einem neu gesetzten Austrittsdatum geschieht, ist nicht geprüft.
+- Bereits geplante Einträge nach einem neu gesetzten Austrittsdatum bleiben bestehen: Klacks löscht und markiert sie nicht, und beim Speichern des Austrittsdatums kommt keine Warnung. Im Schichtplan sind diese Tage in der Zeile der Person gesperrt; in einer Periode ganz nach dem Austritt wird die Zeile nicht mehr gelistet, die Einträge existieren aber weiter. Deshalb vor dem Setzen des Austrittsdatums die geplanten Einträge der Person prüfen.
 
 ### Verträge in der Maske
 

@@ -1029,6 +1029,11 @@
     "hvad betyder det, når et format er slået fra?",
     "hvordan rettes fejl i eksportfilen?"
   ],
+  "explain_final_vs_correctable": [
+    "kan jeg tage det tilbage",
+    "er sletningen endelig",
+    "kan en slettet gruppe gendannes"
+  ],
   "explain_group_hierarchy_inheritance": [
     "nedarves betalingsintervallet til undergrupper?",
     "gælder gruppens kalender også for undergrupper?",
@@ -1409,6 +1414,11 @@
     "hvilke data forlader virksomheden",
     "er testdata rigtige poster"
   ],
+  "explain_terms_with_several_meanings": [
+    "hvad er forskellen på en bestilling og en vagt",
+    "betyder forseglet det samme overalt",
+    "er en adresse en person eller en postadresse"
+  ],
   "explain_user_account_creation": [
     "hvorfor fik den nye aldrig en velkomstmail?",
     "hvordan får man sit første kodeord?",
@@ -1424,6 +1434,21 @@
     "hvorfor tager installationen så lang tid?",
     "hvordan skifter jeg mellem whisper-modeller?",
     "hvad sker der, hvis jeg fjerner whisper?"
+  ],
+  "explain_why_cannot_book": [
+    "hvorfor kan jeg ikke sætte en vagt i denne celle",
+    "vagten bliver ikke tilbudt på denne dag",
+    "hvorfor bliver bookingen afvist"
+  ],
+  "explain_why_cannot_edit": [
+    "hvorfor er dette felt gråt så jeg ikke kan skrive",
+    "masken åbner kun til visning",
+    "hvorfor kan jeg ikke længere ændre den forseglede bestilling"
+  ],
+  "explain_why_not_visible": [
+    "hvorfor vises den nye medarbejder ikke på listen",
+    "hvor er min kollega blevet af i vagtplanen",
+    "hvorfor ser jeg kun en del af medarbejderne"
   ],
   "extend_macro": [
     "udvid makro som kopi",

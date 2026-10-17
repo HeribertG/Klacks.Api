@@ -1013,6 +1013,11 @@
     "apa itu koreksi ekspor",
     "kenapa ekspor gaji kosong"
   ],
+  "explain_final_vs_correctable": [
+    "bisakah saya membatalkannya",
+    "apakah penghapusan itu permanen",
+    "bisakah grup yang dihapus dipulihkan"
+  ],
   "explain_group_hierarchy_inheritance": [
     "apakah interval pembayaran diturunkan ke subgrup?",
     "apakah kalender grup berlaku untuk subgrup?",
@@ -1375,6 +1380,11 @@
     "data apa yang keluar dari perusahaan",
     "apakah data uji adalah catatan nyata"
   ],
+  "explain_terms_with_several_meanings": [
+    "apa beda pesanan dan sif",
+    "apakah disegel artinya sama di mana-mana",
+    "apakah alamat itu orang atau alamat pos"
+  ],
   "explain_user_account_creation": [
     "kenapa pengguna baru tidak dapat email password?",
     "akun dibuat tanpa email selamat datang?",
@@ -1388,6 +1398,21 @@
     "ukuran model mana yang harus saya pilih",
     "bagaimana cara beralih ke pengenalan suara lokal",
     "apa yang terjadi jika saya hapus model whisper"
+  ],
+  "explain_why_cannot_book": [
+    "kenapa saya tidak bisa memasukkan sif di sel ini",
+    "sif tidak ditawarkan untuk hari itu",
+    "kenapa penjadwalan ditolak"
+  ],
+  "explain_why_cannot_edit": [
+    "kenapa kolom ini abu-abu dan tidak bisa diketik",
+    "formulir hanya terbuka untuk dibaca",
+    "kenapa pesanan yang disegel tidak bisa diubah lagi"
+  ],
+  "explain_why_not_visible": [
+    "kenapa karyawan baru tidak muncul di daftar",
+    "ke mana rekan saya hilang dari jadwal",
+    "kenapa saya hanya melihat sebagian staf"
   ],
   "extend_macro": [
     "perluas makro sebagai salinan",

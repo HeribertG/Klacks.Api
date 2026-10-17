@@ -1044,6 +1044,11 @@
     "jak skonfigurować eksport do księgowości?",
     "co zrobić, gdy eksport nie działa?"
   ],
+  "explain_final_vs_correctable": [
+    "czy mogę to cofnąć",
+    "czy usunięcie jest ostateczne",
+    "czy można przywrócić usuniętą grupę"
+  ],
   "explain_group_hierarchy_inheritance": [
     "czy interwał płatności jest dziedziczony przez podgrupy",
     "czy kalendarz grupy dotyczy też podgrup",
@@ -1418,6 +1423,11 @@
     "jakie dane opuszczają firmę",
     "czy dane testowe to prawdziwe rekordy"
   ],
+  "explain_terms_with_several_meanings": [
+    "jaka jest różnica między zamówieniem a dyżurem",
+    "czy zapieczętowany wszędzie znaczy to samo",
+    "czy adres to osoba czy adres pocztowy"
+  ],
   "explain_user_account_creation": [
     "nowy użytkownik nigdy nie dostał maila z hasłem",
     "konto utworzone bez maila powitalnego od klacksy",
@@ -1432,6 +1442,21 @@
     "jaki model whisper wybrać?",
     "wyjaśnij lokalną zamianę mowy na tekst",
     "co się stanie, gdy usunę whisper?"
+  ],
+  "explain_why_cannot_book": [
+    "dlaczego nie mogę wpisać dyżuru w tę komórkę",
+    "dyżur nie jest oferowany na ten dzień",
+    "dlaczego przydział został odrzucony"
+  ],
+  "explain_why_cannot_edit": [
+    "dlaczego to pole jest szare i nie mogę pisać",
+    "formularz otwiera się tylko do odczytu",
+    "dlaczego nie mogę już zmienić zapieczętowanego zamówienia"
+  ],
+  "explain_why_not_visible": [
+    "dlaczego nowa pracownica nie pojawia się na liście",
+    "gdzie zniknął kolega z grafiku",
+    "dlaczego widzę tylko część pracowników"
   ],
   "extend_macro": [
     "rozszerz makro jako kopię",

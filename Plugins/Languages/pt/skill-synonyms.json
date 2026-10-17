@@ -1043,6 +1043,11 @@
     "como exportar para folha de pagamento",
     "por que meu arquivo saiu sem dados"
   ],
+  "explain_final_vs_correctable": [
+    "posso voltar atrás nisto",
+    "a eliminação é definitiva",
+    "um grupo eliminado pode ser restaurado"
+  ],
   "explain_group_hierarchy_inheritance": [
     "o intervalo de pagamento é herdado pelos subgrupos?",
     "o calendário do grupo também se aplica aos subgrupos?",
@@ -1411,6 +1416,11 @@
     "que dados saem da empresa",
     "os dados de teste são registos reais"
   ],
+  "explain_terms_with_several_meanings": [
+    "qual é a diferença entre encomenda e serviço",
+    "selado significa o mesmo em todo o lado",
+    "um endereço é uma pessoa ou um endereço postal"
+  ],
   "explain_user_account_creation": [
     "novo usuário nunca recebeu e-mail de senha",
     "conta criada sem e-mail de boas-vindas",
@@ -1425,6 +1435,21 @@
     "me explica sobre o whisper",
     "posso manter as gravações aqui",
     "como trocar o tamanho do modelo"
+  ],
+  "explain_why_cannot_book": [
+    "por que não consigo colocar um serviço nesta célula",
+    "o serviço não é oferecido para esse dia",
+    "por que a marcação é recusada"
+  ],
+  "explain_why_cannot_edit": [
+    "por que este campo está cinzento e não consigo escrever",
+    "o formulário só abre para leitura",
+    "por que já não consigo alterar a encomenda selada"
+  ],
+  "explain_why_not_visible": [
+    "por que a nova funcionária não aparece na lista",
+    "para onde foi o meu colega no plano de turnos",
+    "por que só vejo parte do pessoal"
   ],
   "extend_macro": [
     "ampliar macro como cópia",

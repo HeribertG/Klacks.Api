@@ -1015,6 +1015,11 @@
     "hvordan fikser jeg tegnkodingen i eksporten?",
     "hvilke systemer støttes for eksport?"
   ],
+  "explain_final_vs_correctable": [
+    "kan jeg ta det tilbake",
+    "er slettingen endelig",
+    "kan en slettet gruppe gjenopprettes"
+  ],
   "explain_group_hierarchy_inheritance": [
     "overføres betalingsintervall til undergrupper?",
     "gjelder gruppekalenderen også for undergrupper?",
@@ -1380,6 +1385,11 @@
     "hvilke data forlater bedriften",
     "er testdata ekte oppføringer"
   ],
+  "explain_terms_with_several_meanings": [
+    "hva er forskjellen på en bestilling og en vakt",
+    "betyr forseglet det samme overalt",
+    "er en adresse en person eller en postadresse"
+  ],
   "explain_user_account_creation": [
     "hvorfor fikk ikke ny ansatt en passordepost?",
     "kan det opprettes konto uten at det sendes e-post?",
@@ -1394,6 +1404,21 @@
     "hvordan kjører jeg talegjenkjenning lokalt?",
     "hvordan bytter jeg modellstørrelse?",
     "hva skjer med diktat hvis jeg fjerner whisper?"
+  ],
+  "explain_why_cannot_book": [
+    "hvorfor kan jeg ikke legge en vakt i denne cellen",
+    "vakten blir ikke tilbudt denne dagen",
+    "hvorfor blir bookingen avvist"
+  ],
+  "explain_why_cannot_edit": [
+    "hvorfor er dette feltet grått så jeg ikke kan skrive",
+    "skjemaet åpnes bare for visning",
+    "hvorfor kan jeg ikke lenger endre den forseglede bestillingen"
+  ],
+  "explain_why_not_visible": [
+    "hvorfor vises ikke den nye medarbeideren i listen",
+    "hvor ble det av kollegaen min i vaktplanen",
+    "hvorfor ser jeg bare en del av de ansatte"
   ],
   "extend_macro": [
     "utvid makro som kopi",

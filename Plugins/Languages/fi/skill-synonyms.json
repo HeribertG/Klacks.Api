@@ -1016,6 +1016,11 @@
     "mitä vientimuotoja palkanlaskentaan on?",
     "miten vien tiedot ulkopuoliseen järjestelmään?"
   ],
+  "explain_final_vs_correctable": [
+    "voinko perua tämän",
+    "onko poistaminen lopullista",
+    "voiko poistetun ryhmän palauttaa"
+  ],
   "explain_group_hierarchy_inheritance": [
     "periytyykö maksuväli alaryhmiin?",
     "päteekö ryhmän kalenteri myös alaryhmiin?",
@@ -1396,6 +1401,11 @@
     "mitkä tiedot lähtevät yrityksestä",
     "ovatko testitiedot oikeita tietueita"
   ],
+  "explain_terms_with_several_meanings": [
+    "mikä ero on tilauksella ja vuorolla",
+    "tarkoittaako sinetöity kaikkialla samaa",
+    "onko osoite henkilö vai postiosoite"
+  ],
   "explain_user_account_creation": [
     "miksi uusi työntekijä ei saanut salasanasähköpostia?",
     "tili luotiin ilman tervetuloviestiä",
@@ -1410,6 +1420,21 @@
     "miten vaihdan mallin kokoa?",
     "mitä tapahtuu kun poistan whisperin?",
     "millä mallilla saan parhaan tarkkuuden?"
+  ],
+  "explain_why_cannot_book": [
+    "miksi en voi lisätä vuoroa tähän soluun",
+    "vuoroa ei tarjota tälle päivälle",
+    "miksi vuoron kirjaus hylätään"
+  ],
+  "explain_why_cannot_edit": [
+    "miksi tämä kenttä on harmaa enkä voi kirjoittaa",
+    "lomake avautuu vain luettavaksi",
+    "miksi en voi enää muuttaa sinetöityä tilausta"
+  ],
+  "explain_why_not_visible": [
+    "miksi uusi työntekijä ei näy listassa",
+    "minne kollega katosi vuorolistalta",
+    "miksi näen vain osan henkilöstöstä"
   ],
   "extend_macro": [
     "laajenna makro kopiona",

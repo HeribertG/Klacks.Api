@@ -3140,6 +3140,226 @@
       "contradictionCount": 0,
       "provenance": "curated:seealso",
       "status": 1
+    },
+    {
+      "skillAName": "accept_scenario",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "reject_scenario",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "bulk_delete_works",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_work",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "seal_shift",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "seal_open_orders",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "close_period",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "reopen_period",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_client",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_group",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_shift",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "reset_shift_cuts",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "end_client_membership",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_client_type",
+      "skillBName": "explain_final_vs_correctable",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "place_work",
+      "skillBName": "explain_why_cannot_book",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "reassign_work",
+      "skillBName": "explain_why_cannot_book",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "add_break",
+      "skillBName": "explain_why_cannot_book",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_work",
+      "skillBName": "explain_why_cannot_edit",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_shift",
+      "skillBName": "explain_why_cannot_edit",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "cut_shift",
+      "skillBName": "explain_why_cannot_edit",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "select_group",
+      "skillBName": "explain_why_not_visible",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "set_user_group_scope",
+      "skillBName": "explain_why_not_visible",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
     }
   ]
 }

@@ -211,7 +211,7 @@ erste. Welche Formate in den Dropdowns stehen, hängt von der Einstellung "Expor
      Merit Palk (EE), PAXml (SE), AbaConnect (CH), POHODA (CZ), WinMENTOR (RO), BrightPay
      (IE/UK).
    - Bei einem **Lohn-Format** gibt es keine Gruppenauswahl: der Lohnexport gilt für alle Mitarbeitenden
-     mit abgeschlossenen Einträgen im Zeitraum, egal in welchen Gruppen sie sind. **Exportieren** zeigt
+     mit Einträgen der Sperrstufe **Geschlossen** im Zeitraum, egal in welchen Gruppen sie sind. **Exportieren** zeigt
      zuerst eine Vorschau: entweder die **Blocker** (pro Person und Tag: Eintrag nicht geschlossen,
      Tag nicht durch einen Abschluss gesperrt, Export einer überlappenden Periode vorhanden; mit der
      Schaltfläche für einen globalen Abschluss, wenn keine Gruppe den Tag abdeckt) oder die Liste der
@@ -222,7 +222,7 @@ erste. Welche Formate in den Dropdowns stehen, hängt von der Einstellung "Expor
 3. **Bestellungen im Zeitraum** (de: "Bestellungen im Zeitraum", en: "Orders in Range", fr:
    "Commandes sur la période", it: "Ordini nel periodo"; Anker
    `period-closing-export-tab-range`) — ERP-Zeitraum-Export (Titel "ERP-Zeitraum-Export"): alle
-   versiegelten Bestellungen mit abgeschlossenen Diensten im Zeitraum als **ZIP** — eine Datei
+   versiegelten Bestellungen mit Diensten der Sperrstufe **Geschlossen** im Zeitraum als **ZIP** — eine Datei
    pro Bestellung plus ein Mitarbeiter-Perioden-XML:
    - Zeile mit **Von / Bis** (DOM-IDs `rangeExportFrom`/`rangeExportUntil`), **Format**, Laden-
      und ZIP-Button (Anker der Zeile `period-closing-export-range-form`).
