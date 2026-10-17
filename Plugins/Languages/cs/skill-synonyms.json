@@ -1054,7 +1054,7 @@
     "platí umístění skupiny pro podskupiny"
   ],
   "explain_group_membership_validity": [
-    "proč asistent navrhl tuto osobu pro tým",
+    "proč nemůžu tuto osobu zaplánovat v plánu skupiny",
     "počítá se osoba, která nastupuje příští týden, už v tomto období",
     "můžu ukončit členství ve skupině zpětně",
     "proč nemůžu ukončit toto členství",
@@ -1072,7 +1072,7 @@
     "proč stále vidím lidi, kteří nejsou v žádné skupině",
     "zůstávají lidé bez skupiny viditelní pro omezené uživatele",
     "co se stane, když uživateli nikdy nenastavím rozsah viditelnosti",
-    "proč je dashboard prázdný, ale plánování ne"
+    "proč nový uživatel nevidí téměř nikoho"
   ],
   "explain_guided_tour": [
     "jak funguje provázená prohlídka",
@@ -2638,6 +2638,13 @@
     "změnit interval erp importu",
     "jak často se má importovat",
     "nastav cron pro erp"
+  ],
+  "set_explain_depth": [
+    "vysvětluj mi vždy jednodušeji",
+    "od teď jen to podstatné",
+    "od teď mi všechno vysvětluj jednodušeji",
+    "od teď přeskoč základy",
+    "vysvětlení zase automaticky"
   ],
   "set_export_format_override": [
     "upravit exportní formát",

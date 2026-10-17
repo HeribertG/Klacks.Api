@@ -549,6 +549,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // on/off toggle. confirm_pending_action is listed for completeness only - AutonomyGateService
         // short-circuits it by name before any classification is read.
         "add_personal_memory",
+        ExplainDepthDefaults.SetSkillName,
         "update_ai_memory",
         "delete_ai_memory",
         "manage_pending_notes",

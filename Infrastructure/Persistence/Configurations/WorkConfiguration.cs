@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// EF Core configuration for the Work-Entity with query filter, indexes and relationships to Client/Shift.
+/// EF Core configuration for the Work-Entity with query filter, indexes and relationships to Client/Shift. The partial
+/// (current_user_created, create_time) index backs the explanation-depth heuristic that counts a user's own live works.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -11,12 +12,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Configurations;
 
 public class WorkConfiguration : IEntityTypeConfiguration<Work>
 {
+    private const string OwnLiveWorkFilter = "analyse_token IS NULL AND is_deleted = false";
+
     public void Configure(EntityTypeBuilder<Work> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => new { p.ClientId, p.ShiftId });
         builder.HasIndex(p => new { p.CurrentDate, p.ClientId, p.IsDeleted });
         builder.HasIndex(p => p.AnalyseToken).HasFilter("analyse_token IS NOT NULL");
+        builder.HasIndex(p => new { p.CurrentUserCreated, p.CreateTime })
+            .HasFilter(OwnLiveWorkFilter);
 
         // Remap CurrentDate to a non-reserved column name. "current_date" is a SQL reserved
         // identifier in PostgreSQL; Npgsql 10.x silently replaces parameter values bound to

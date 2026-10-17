@@ -4,7 +4,8 @@
 /// Default IPeriodAutoCloseService: Klacksy closes a group's period on its own. Scoped and called from
 /// PeriodAutoCloseDetector inside the hourly AgentTriggerBackgroundService tick - the same place and cadence
 /// as the next-period automation - and the tick reports the returned events through the condition ledger.
-/// A close is irreversible in effect: reopening does not restore confirmations, and the group-scoped
+/// A close is weighty: reopening restores the lock levels saved at sealing (PeriodSealUpdates) but drops the day
+/// seals, so it is a correction step, not a free toggle; and the group-scoped
 /// PeriodClosedEvent the close handler raises after its commit does not trigger a payroll export: payroll is
 /// exported manually and person-based, not per closed group. Hence the order of gates, per group, each of which ends the evaluation of that group:
 ///

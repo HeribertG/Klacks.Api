@@ -6,6 +6,7 @@
 /// </summary>
 /// <param name="listExecutor">Executor for generic list operations</param>
 /// <param name="deleteExecutor">Executor for generic delete operations</param>
+/// <param name="knowledgeHappenExecutor">Executor for curated knowledge happens; receives the caller's explanation depth</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -55,6 +56,7 @@ public class GenericSkillDispatcher : IGenericSkillDispatcher
         string handlerType,
         string handlerConfig,
         Dictionary<string, object> parameters,
+        ExplainDepthProfile? depth,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Dispatching generic skill with HandlerType={HandlerType}", handlerType);
@@ -63,7 +65,7 @@ public class GenericSkillDispatcher : IGenericSkillDispatcher
         {
             HandlerTypes.GenericList => await ExecuteListAsync(handlerConfig, parameters, cancellationToken),
             HandlerTypes.GenericDelete => await ExecuteDeleteAsync(handlerConfig, parameters, cancellationToken),
-            HandlerTypes.KnowledgeHappen => await ExecuteKnowledgeHappenAsync(handlerConfig, parameters, cancellationToken),
+            HandlerTypes.KnowledgeHappen => await ExecuteKnowledgeHappenAsync(handlerConfig, parameters, depth, cancellationToken),
             _ => SkillResult.Error($"Unsupported handler type: '{handlerType}'")
         };
     }
@@ -71,13 +73,14 @@ public class GenericSkillDispatcher : IGenericSkillDispatcher
     private async Task<SkillResult> ExecuteKnowledgeHappenAsync(
         string handlerConfig,
         Dictionary<string, object> parameters,
+        ExplainDepthProfile? depth,
         CancellationToken cancellationToken)
     {
         var config = DeserializeConfig<KnowledgeHappenConfig>(handlerConfig);
         if (config == null)
             return SkillResult.Error("Failed to deserialize knowledge-happen handler config.");
 
-        return await _knowledgeHappenExecutor.ExecuteAsync(config, parameters, cancellationToken);
+        return await _knowledgeHappenExecutor.ExecuteAsync(config, parameters, depth, cancellationToken);
     }
 
     private async Task<SkillResult> ExecuteListAsync(

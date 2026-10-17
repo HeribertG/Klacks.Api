@@ -27434,11 +27434,24 @@
     {
       "name": "explain_shift_type_preferences",
       "area": "shift",
-      "description": "Explains Diensttypwünsche — alias keywords FREE / EARLY / LATE / NIGHT and their negations (-FREE / -EARLY / -LATE / -NIGHT); these are the English defaults, admins can rename them in Settings. The planning assistant honours them when possible; unfulfillable preferences fall back to FREE.",
+      "description": "Explains Diensttypwünsche (planning commands): per-day alias keywords FREE / EARLY / LATE / NIGHT and their negations -EARLY / -LATE / -NIGHT; these are the English defaults, admins can rename them in Settings. The automatic planning treats them as a hard limit with no fallback to FREE: a shift nobody else may take stays open. -FREE (prefer work) restricts nothing. Use this when the user asks how to steer the automatic planning or what -EARLY etc. means.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -27509,7 +27522,7 @@
         "fr": "Expliquer les préférences de type de service",
         "it": "Spiega le preferenze del tipo di turno"
       },
-      "version": 5
+      "version": 7
     },
     {
       "name": "explain_shift_sporadic",
@@ -27518,7 +27531,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -27582,7 +27608,7 @@
         "fr": "Expliquer le service sporadique",
         "it": "Spiega il turno sporadico"
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "explain_shift_time_range",
@@ -27591,7 +27617,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -27648,7 +27687,7 @@
         "fr": "Expliquer le service à plage horaire",
         "it": "Spiega il turno a fascia oraria"
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "explain_shift_container",
@@ -27657,7 +27696,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -27725,16 +27777,29 @@
         "fr": "Expliquer le concept de service conteneur",
         "it": "Spiega il concetto di turno contenitore"
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "explain_shift_lifecycle_order_to_shift",
       "area": "shift",
-      "description": "Explains how an order (Bestellung) becomes a plannable shift and walks through the cards of the order entry mask. An order starts as an editable draft that is not plannable; sealing it makes it final and creates the plannable shift; cutting that shift produces split pieces. Also explains what separates a duty billed to a customer from one that has none - internal work such as refuelling, positions such as a ward or kitchen shift - and why such a duty is sealed on creation.",
+      "description": "Explains the four-stage lifecycle of a shift: the editable order (Bestellung), the immutable sealed order, the plannable shift created by sealing, and its cut pieces; how an order or a customer-less duty is created; and what separates a duty billed to a customer from internal work or positions such as a ward shift, sealed on creation. The order entry mask itself is explained with the Services page. Use this when asked what an order is, how to create one or why it is not yet bookable.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -27829,7 +27894,7 @@
         "fr": "Expliquer le cycle de vie commande vers service",
         "it": "Spiega il ciclo di vita da ordine a turno"
       },
-      "version": 7
+      "version": 9
     },
     {
       "name": "explain_page_dashboard",
@@ -27922,7 +27987,7 @@
     {
       "name": "explain_page_schedule",
       "area": "schedule",
-      "description": "Explains the Schedule page (Einsatzplan) at /workplace/schedule — the central planning board with an employees-by-days grid. Covers the toolbar (period navigation by week/bi-week/month, send email, AutoWizard with Plan/Fuzzy Harmonizer/Holistic Harmonizer, schedule PDF export, desired-absence bars, command and availability toggles, hour recalculation, scenario selector, day-timeline switch, zoom), the row header with sort/filter popup and hour slots, the grid with drag & drop booking, cell context menus, lock levels and sealed days, cross-group sealed entries, and the lower shift section with the Shifts and Error List tabs. Use this when the user asks what they see on the Schedule page, what the grid/toolbar buttons/locks mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every element explained), effects (data sources, scenarios, period closing/day locks and how the page interacts with the absence calendar, shifts, groups and the dashboard).",
+      "description": "Explains the Schedule page (Einsatzplan) at /workplace/schedule — the central planning board with an employees-by-days grid. Covers the toolbar (period navigation by week/bi-week/month, send email, AutoWizard with Plan/Fuzzy Harmonizer/Holistic Harmonizer, schedule PDF export, desired-absence bars, command and availability toggles, the two hour-recalculation variants: quick summing of the period hours or the thorough recalculate-and-sum with confirmation, scenario selector, day-timeline switch, zoom), the row header with hour slots, the grid with drag & drop booking, cell context menus, lock levels and sealed days, cross-group sealed entries, and the lower shift section with the Shifts and Error List tabs. Use this when the user asks what they see on the Schedule page, what the toolbar buttons or locks mean, or how to work with it.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -27930,7 +27995,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -27972,7 +28037,8 @@
           "tagesverlauf",
           "gewünschte absenzen",
           "verfügbarkeit",
-          "befehle anzeigen"
+          "befehle anzeigen",
+          "stunden zusammenzählen"
         ],
         "en": [
           "schedule",
@@ -27986,7 +28052,8 @@
           "locked",
           "confirm",
           "day timeline",
-          "availability"
+          "availability",
+          "sum hours"
         ]
       },
       "synonyms": {
@@ -28010,7 +28077,9 @@
           "warum kann ich nicht bearbeiten",
           "gewünschte absenzen",
           "tagesverlauf",
-          "dienst buchen"
+          "dienst buchen",
+          "stunden zusammenzählen",
+          "stunden berechnen und zusammenzählen"
         ],
         "en": [
           "what do i see here",
@@ -28030,7 +28099,9 @@
           "locked entries",
           "why can't i edit",
           "day timeline",
-          "book a shift"
+          "book a shift",
+          "sum hours",
+          "calculate and sum hours"
         ],
         "fr": [
           "que vois-je ici",
@@ -28047,7 +28118,9 @@
           "jours scellés",
           "entrées verrouillées",
           "pourquoi je ne peux pas modifier",
-          "déroulé de la journée"
+          "déroulé de la journée",
+          "totaliser les heures",
+          "calculer et totaliser les heures"
         ],
         "it": [
           "cosa vedo qui",
@@ -28064,7 +28137,9 @@
           "giorni sigillati",
           "voci bloccate",
           "perché non posso modificare",
-          "andamento giornaliero"
+          "andamento giornaliero",
+          "somma ore",
+          "calcola e somma ore"
         ]
       },
       "labels": {
@@ -28073,7 +28148,7 @@
         "fr": "Expliquer la page Planning",
         "it": "Spiega la pagina Planning"
       },
-      "version": 6
+      "version": 8
     },
     {
       "name": "explain_page_absence",
@@ -28086,7 +28161,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "enumValues": [
             "short",
@@ -28199,7 +28274,7 @@
         "fr": "Expliquer la page du calendrier des absences",
         "it": "Spiega la pagina del calendario delle assenze"
       },
-      "version": 6
+      "version": 8
     },
     {
       "name": "explain_page_availability",
@@ -28212,7 +28287,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -28318,7 +28393,7 @@
         "fr": "Expliquer la page Disponibilité",
         "it": "Spiega la pagina Disponibilità"
       },
-      "version": 6
+      "version": 8
     },
     {
       "name": "explain_page_shifts",
@@ -28331,7 +28406,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -28464,12 +28539,12 @@
         "fr": "Expliquer la page Services",
         "it": "Spiega la pagina Servizi"
       },
-      "version": 6
+      "version": 8
     },
     {
       "name": "explain_page_employees",
       "area": "client",
-      "description": "Explains the All Addresses page (Alle Adressen) at /workplace/client — the central, searchable and filterable list of all persons in Klacks (employees, external employees, customers) — and the edit mask at /workplace/edit-address/:id. Covers the address table (columns NR/COMPANY/FIRST NAME/LAST NAME, type abbreviation, sorting, pagination, Excel export, edit/delete/view actions), the filter panel (salutation, type, validity/membership status, countries, cantons, visibility date range, deleted addresses, reset), the global header search (name or ID number, multiple IDs separated by ';', include-address option) and the edit mask cards: persona/master data (company, salutation, first/last name, birthdate), historized addresses (a move adds a NEW address with valid-from instead of overwriting; types main/company/invoicing address), communication (phone/email), membership (entry date = plannability limit in the schedule), contracts, assigned groups, qualifications, notes and image.",
+      "description": "Explains the All Addresses page (Alle Adressen) at /workplace/client — the searchable list of all persons in Klacks (employees, external employees, customers) — and the edit mask at /workplace/edit-address/:id: master data, historized addresses (a move adds a NEW address with valid-from instead of overwriting), communication, membership (entry date = plannability limit in the schedule, exit date when someone leaves), contracts, assigned groups, qualifications, notes and image. Also covers the consequences of changing the person type (employee, external, customer) and of removing a person record: soft delete, admin only, no restore in the app, deleted addresses filter, and why the exit date is the safer way.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -28477,7 +28552,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -28516,7 +28591,9 @@
           "rechnungsadresse",
           "hauptadresse",
           "geschäftsadresse",
-          "gelöschte adressen"
+          "gelöschte adressen",
+          "personentyp",
+          "soft-delete"
         ],
         "en": [
           "addresses",
@@ -28529,7 +28606,10 @@
           "new address",
           "membership",
           "entry date",
-          "deleted addresses"
+          "deleted addresses",
+          "person type",
+          "change type",
+          "soft delete"
         ]
       },
       "synonyms": {
@@ -28553,7 +28633,11 @@
           "gelöschte adressen anzeigen",
           "excel export der adressen",
           "nach id-nummer suchen",
-          "liste sortieren"
+          "liste sortieren",
+          "person lösche",
+          "gelöschte person wiederherstellen",
+          "von mitarbeiter auf kunde",
+          "von mitarbeiter zu kunde"
         ],
         "en": [
           "all addresses",
@@ -28575,7 +28659,11 @@
           "show deleted addresses",
           "export addresses to excel",
           "search by id number",
-          "sort the list"
+          "sort the list",
+          "deleting a person",
+          "delete a person",
+          "restore a deleted person",
+          "from employee to customer"
         ],
         "fr": [
           "toutes les adresses",
@@ -28593,7 +28681,11 @@
           "date de sortie",
           "adresses supprimées",
           "export excel",
-          "trier la liste"
+          "trier la liste",
+          "supprimer une personne",
+          "suppression d'une personne",
+          "restaurer une personne supprimée",
+          "d'employé à client"
         ],
         "it": [
           "tutti gli indirizzi",
@@ -28611,7 +28703,11 @@
           "data di uscita",
           "indirizzi eliminati",
           "esportazione excel",
-          "ordinare la lista"
+          "ordinare la lista",
+          "eliminare una persona",
+          "eliminazione di una persona",
+          "ripristinare una persona eliminata",
+          "da dipendente a cliente"
         ]
       },
       "labels": {
@@ -28620,7 +28716,7 @@
         "fr": "Expliquer la page Toutes les adresses",
         "it": "Spiega la pagina Tutti gli indirizzi"
       },
-      "version": 6
+      "version": 9
     },
     {
       "name": "explain_page_groups",
@@ -28633,7 +28729,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -28770,7 +28866,7 @@
         "fr": "Expliquer la page Groupes",
         "it": "Spiega la pagina Gruppi"
       },
-      "version": 7
+      "version": 9
     },
     {
       "name": "explain_page_period_closing",
@@ -28783,7 +28879,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -28927,7 +29023,7 @@
         "fr": "Expliquer la page de clôture de période",
         "it": "Spiega la pagina di chiusura del periodo"
       },
-      "version": 7
+      "version": 9
     },
     {
       "name": "explain_page_inbox",
@@ -28940,7 +29036,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -29105,7 +29201,7 @@
         "fr": "Expliquer la page de la boîte de réception",
         "it": "Spiega la pagina della posta in arrivo"
       },
-      "version": 10
+      "version": 12
     },
     {
       "name": "explain_page_settings_overview",
@@ -29118,7 +29214,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -29237,7 +29333,7 @@
         "fr": "Explication de la page des paramètres",
         "it": "Spiegazione della pagina delle impostazioni"
       },
-      "version": 8
+      "version": 10
     },
     {
       "name": "explain_page_profile",
@@ -29250,7 +29346,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -29376,7 +29472,7 @@
         "fr": "Aperçu de la page Mon profil",
         "it": "Panoramica della pagina Il mio profilo"
       },
-      "version": 6
+      "version": 8
     },
     {
       "name": "start_guided_tour",
@@ -31345,7 +31441,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview. Use 'effects' ONLY when the user explicitly asks about data sources or how the feature interacts with other pages. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -31422,7 +31518,7 @@
         "fr": "Explication des paramètres des points de dépôt ERP",
         "it": "Spiegazione delle impostazioni dei punti di consegna ERP"
       },
-      "version": 5
+      "version": 7
     },
     {
       "name": "add_break_placeholder",
@@ -35493,7 +35589,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -35569,7 +35678,7 @@
         "fr": "Expliquer les conditions contractuelles",
         "it": "Spiega le condizioni contrattuali"
       },
-      "version": 3
+      "version": 5
     },
     {
       "name": "explain_qualifications",
@@ -35883,7 +35992,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -35954,7 +36076,7 @@
         "fr": "Expliquer le modèle de données de la gestion des adresses",
         "it": "Spiega il modello dati della gestione degli indirizzi"
       },
-      "version": 3
+      "version": 5
     },
     {
       "name": "explain_email_setup",
@@ -36044,7 +36166,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -36106,7 +36241,7 @@
         "fr": "Expliquer le modèle de données des absences",
         "it": "Spiega il modello dati delle assenze"
       },
-      "version": 3
+      "version": 5
     },
     {
       "name": "explain_period_closing_model",
@@ -36115,7 +36250,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -36185,7 +36333,7 @@
         "fr": "Expliquer le concept de clôture de période",
         "it": "Spiega il concetto di chiusura del periodo"
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "explain_group_model",
@@ -36194,7 +36342,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -36258,7 +36419,7 @@
         "fr": "Expliquer le modèle de groupe",
         "it": "Spiega il modello di gruppo"
       },
-      "version": 3
+      "version": 5
     },
     {
       "name": "explain_roles_and_permissions",
@@ -36348,7 +36509,7 @@
     {
       "name": "explain_guided_tour",
       "area": "navigation",
-      "description": "Explains the guided setup tour through sixteen stations covering the whole application: Klacksy explains each area, navigates to the page itself and makes the matching navigation icon pulse, while the user sets the pace and can skip, stop or ask questions at any station. It shows where things are rather than filling anything in, and can be repeated for new colleagues. Use this when somebody is new or asks where to begin.",
+      "description": "Explains the guided setup tour for administrators: twenty stations across the whole application where Klacksy explains each area, navigates to the page itself and makes the matching navigation icon pulse, while the user sets the pace and can skip, stop or ask questions at any station. It shows where things are rather than filling anything in, and can be repeated. Use this when somebody is new, asks where to begin, or wants an overview of the application.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -36410,7 +36571,7 @@
         "fr": "Expliquer la visite guidée",
         "it": "Spiega il tour guidato"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_navigation_learning",
@@ -42177,7 +42338,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -42265,7 +42426,7 @@
         "fr": "Expliquer le modèle des règles de planification",
         "it": "Spiega il modello delle regole di pianificazione"
       },
-      "version": 3
+      "version": 5
     },
     {
       "name": "explain_compliance_rules_model",
@@ -42278,7 +42439,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -42367,7 +42528,7 @@
         "fr": "Expliquer le modèle des règles de conformité",
         "it": "Spiega il modello delle regole di conformità"
       },
-      "version": 3
+      "version": 5
     },
     {
       "name": "explain_calendar_model",
@@ -42380,7 +42541,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -42465,7 +42626,7 @@
         "fr": "Expliquer le modèle des jours fériés",
         "it": "Spiega il modello dei giorni festivi"
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "explain_active_industries",
@@ -42558,7 +42719,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -42628,7 +42789,7 @@
         "fr": "Expliquer le modèle d'heures supplémentaires",
         "it": "Spiega il modello degli straordinari"
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "explain_identity_providers",
@@ -42641,7 +42802,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -42714,7 +42875,7 @@
         "fr": "Connexion via annuaire ou SSO",
         "it": "Accesso tramite directory o SSO"
       },
-      "version": 3
+      "version": 5
     },
     {
       "name": "explain_individual_periods",
@@ -42791,7 +42952,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -42869,7 +43030,7 @@
         "fr": "Expliquer les formats d'export pour la paie et la comptabilité",
         "it": "Spiega i formati di esportazione per paghe e contabilità"
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "explain_report_designer",
@@ -42882,7 +43043,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -42958,7 +43119,7 @@
         "fr": "Explication du concepteur de rapports",
         "it": "Spiegazione del designer di report"
       },
-      "version": 3
+      "version": 5
     },
     {
       "name": "explain_spam_rules",
@@ -43045,7 +43206,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -43118,7 +43279,7 @@
         "fr": "Expliquer le mode de majoration",
         "it": "Spiega la modalità di maggiorazione"
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "explain_software_updates",
@@ -43131,7 +43292,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -43205,7 +43366,7 @@
         "fr": "Expliquer les mises à jour logicielles",
         "it": "Spiega gli aggiornamenti software"
       },
-      "version": 3
+      "version": 5
     },
     {
       "name": "explain_klacksy_speech_setup",
@@ -43218,7 +43379,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -43297,7 +43458,7 @@
         "fr": "Expliquer la configuration vocale de Klacksy",
         "it": "Spiega la configurazione vocale di Klacksy"
       },
-      "version": 3
+      "version": 5
     },
     {
       "name": "explain_whisper_setup",
@@ -43381,7 +43542,7 @@
         {
           "name": "level",
           "type": "enum",
-          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -43452,7 +43613,7 @@
         "fr": "Expliquer les relations entre compétences de Klacksy",
         "it": "Spiega le relazioni tra abilità di Klacksy"
       },
-      "version": 3
+      "version": 5
     },
     {
       "name": "set_my_theme",
@@ -44478,7 +44639,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerConfig": {
         "memoryKey": "explain_absence_blocks_planning"
       },
@@ -44499,7 +44673,7 @@
           "absence interrupts consecutive run"
         ]
       },
-      "version": 3,
+      "version": 5,
       "synonyms": {
         "de": [
           "blockiert eine absenz die planung",
@@ -44545,7 +44719,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerConfig": {
         "memoryKey": "explain_absence_value_vs_hours"
       },
@@ -44566,7 +44753,7 @@
           "where do absence hours come from"
         ]
       },
-      "version": 3,
+      "version": 5,
       "synonyms": {
         "de": [
           "wert spalte stimmt nicht mit den stunden überein",
@@ -44605,11 +44792,24 @@
     {
       "name": "explain_absence_overlap_not_blocked",
       "area": "absence",
-      "description": "Explains whether Klacks stops a person from ending up with two overlapping absence entries. Pre-planned wishes are never checked against each other or against booked absences, so overlapping requests of any kind can both be saved. Booking directly has no such check either; only the assistant's own route refuses an exact repeat of the same person, day and kind — a different kind on the same day still goes through. Use this for double-booked or clashing absences.",
+      "description": "Explains whether Klacks stops a person from ending up with two overlapping absence entries. Wishes are never checked against each other or against booked absences. Booking several days at once (adopting a wish, dragging the fill handle, the assistant's booking) refuses a day that already has the same kind at overlapping times; booking a single cell has no check, and a different kind on the same day always goes through. Use this for double-booked or clashing absences.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerConfig": {
         "memoryKey": "explain_absence_overlap_not_blocked"
       },
@@ -44630,7 +44830,7 @@
           "duplicate absence"
         ]
       },
-      "version": 3,
+      "version": 5,
       "synonyms": {
         "de": [
           "kann ich zwei überlappende ferien anlegen",
@@ -44671,11 +44871,24 @@
     {
       "name": "explain_absence_type_flags",
       "area": "absence",
-      "description": "Explains what the switches on an absence kind actually do today. The Saturday, Sunday and public-holiday switches are stored but read by no calculation anywhere, so toggling them changes nothing. The unpaid switch can only be turned on together with two other switches and is reset otherwise; once genuinely on, it deducts its span from the paid duration of the container service it sits inside. Use this when a counting switch has no visible effect or unpaid keeps unchecking.",
+      "description": "Explains what the switches on an absence kind actually do today. The Saturday, Sunday and public-holiday switches are stored but read by no calculation, so toggling them changes nothing. The unpaid switch can only be turned on together with two other switches; saving the kind on the settings page resets it otherwise. Once on, it deducts its span from the paid duration of the container service it sits inside. Use this when a counting switch has no visible effect or unpaid keeps unchecking.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerConfig": {
         "memoryKey": "explain_absence_type_flags"
       },
@@ -44696,7 +44909,7 @@
           "unpaid keeps unchecking"
         ]
       },
-      "version": 3,
+      "version": 5,
       "synonyms": {
         "de": [
           "was bewirkt samstag wird berechnet",
@@ -44737,11 +44950,24 @@
     {
       "name": "explain_group_hierarchy_inheritance",
       "area": "group",
-      "description": "Explains what actually carries down a group hierarchy and what does not: payment interval, calendar selection and location are per-group fields with no parent fallback, while visibility and filtering reach into every subgroup. Covers a case where two similar evaluations disagree because of this: one counts only direct members, the other the whole subtree. Use this when asked whether a setting cascades to subgroups, or why an evaluation looks smaller than expected.",
+      "description": "Explains what carries down a group hierarchy: payment interval, calendar selection and location are per-group fields with no parent fallback, while visibility and filtering reach every subgroup. The schedule uses the group's own or the company calendar; only the proactive unstaffed-shift check falls back to the parent's. Covers why the hours balance (direct members) and the absence overlap (whole subtree) disagree. Use this when asked whether a setting cascades to subgroups.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerConfig": {
         "memoryKey": "explain_group_hierarchy_inheritance"
       },
@@ -44763,7 +44989,7 @@
           "inherit settings"
         ]
       },
-      "version": 3,
+      "version": 5,
       "synonyms": {
         "de": [
           "vererbt sich das zahlungsintervall an untergruppen",
@@ -44806,11 +45032,24 @@
     {
       "name": "explain_group_visibility_blind_spots",
       "area": "group",
-      "description": "Explains two behaviours of a group visibility scope that contradict what the name suggests. With no root group configured for a user, most of the app treats them as unrestricted rather than showing nothing — though the dashboard widgets do the opposite and show no data until a scope is set. Separately, a person with no active group membership stays visible to every restricted user. Use this when asked what an unconfigured scope shows, or why a group-less person still appears.",
+      "description": "Explains two surprises of group visibility. Once any group exists, a non-admin user with no top-level group ticked is not unrestricted: they see only people who belong to no group, and the dashboard shows them no data; only administrators are unrestricted. And a person with no group membership stays visible to every restricted user, so leaving someone group-less never hides them. Use this when asked what an unconfigured scope shows or why a group-less person still appears.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerConfig": {
         "memoryKey": "explain_group_visibility_blind_spots"
       },
@@ -44831,7 +45070,7 @@
           "group-less still visible"
         ]
       },
-      "version": 3,
+      "version": 5,
       "synonyms": {
         "de": [
           "was sieht ein benutzer ohne sichtbarkeitsbereich",
@@ -44839,7 +45078,7 @@
           "warum sehe ich personen ohne gruppe trotzdem",
           "bleiben gruppenlose mitarbeiter für eingeschränkte benutzer sichtbar",
           "was passiert wenn ich keine sichtbarkeit für einen benutzer einstelle",
-          "warum ist das dashboard leer aber die einsatzplanung nicht"
+          "warum sieht ein neuer benutzer fast niemanden"
         ],
         "en": [
           "what does a user see with no visibility scope configured",
@@ -44847,19 +45086,19 @@
           "why can i still see people who are in no group at all",
           "do group-less employees stay visible to restricted users",
           "what happens if i never set a visibility scope for a user",
-          "why is the dashboard empty but the schedule is not"
+          "why does a new user see almost nobody"
         ],
         "fr": [
           "que voit un utilisateur sans portée de visibilité configurée",
           "les employés sans groupe restent-ils visibles",
           "que se passe-t-il si je ne configure aucune visibilité",
-          "pourquoi le tableau de bord est-il vide mais pas le planning"
+          "pourquoi un nouvel utilisateur ne voit presque personne"
         ],
         "it": [
           "cosa vede un utente senza ambito di visibilità configurato",
           "i dipendenti senza gruppo restano visibili",
           "cosa succede se non configuro alcuna visibilità",
-          "perché la dashboard è vuota ma la pianificazione no"
+          "perché un nuovo utente non vede quasi nessuno"
         ]
       },
       "labels": {
@@ -44872,11 +45111,24 @@
     {
       "name": "explain_group_membership_validity",
       "area": "group",
-      "description": "Explains that a group membership carries its own start and optional end date, and that this window actively decides who counts, not only how history is kept. The automatic planner draws its candidate pool for a group from memberships overlapping the planning period, and a group's hours balance follows the same rule. Also covers that ending a membership is refused once the person already has planned shifts in that group afterwards. Use this when asked why the planner skipped somebody.",
+      "description": "Explains that a group membership has its own start and optional end date that decides who counts: with a group selected in the schedule, days outside a person's window are locked for them, and the group's hours balance counts only memberships overlapping the period. The planning wizards do not filter candidates by it. Ending a membership is refused while the person has planned work in that group afterwards. Use this when a person cannot be booked in a group or a membership cannot be ended.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerConfig": {
         "memoryKey": "explain_group_membership_validity"
       },
@@ -44890,17 +45142,17 @@
         ],
         "de": [
           "gültigkeit der gruppenmitgliedschaft",
-          "kandidatenkreis der planung"
+          "gültigkeitsfenster der mitgliedschaft"
         ],
         "en": [
           "group membership validity",
-          "planner candidate pool"
+          "membership validity window"
         ]
       },
-      "version": 3,
+      "version": 5,
       "synonyms": {
         "de": [
-          "warum schlägt der planungs-assistent diese person nicht vor",
+          "warum kann ich diese person im plan der gruppe nicht eintragen",
           "zählt eine person schon mit die erst nächste woche im team ist",
           "kann ich eine gruppenmitgliedschaft rückwirkend beenden",
           "warum lässt sich die mitgliedschaft nicht beenden",
@@ -44908,7 +45160,7 @@
           "steuert die gültigkeit der mitgliedschaft die planung"
         ],
         "en": [
-          "why didn't the planner suggest this person for the team",
+          "why can't i book this person in the group's schedule",
           "does someone joining next week already count this period",
           "can i end a group membership retroactively",
           "why can't i close this membership",
@@ -44916,13 +45168,13 @@
           "does membership validity control who gets scheduled"
         ],
         "fr": [
-          "pourquoi l'assistant de planification n'a pas proposé cette personne",
+          "pourquoi je ne peux pas planifier cette personne dans ce groupe",
           "puis-je mettre fin à une affiliation de groupe rétroactivement",
           "que se passe-t-il avec les services déjà planifiés",
           "la validité de l'affiliation contrôle-t-elle la planification"
         ],
         "it": [
-          "perché l'assistente di pianificazione non ha proposto questa persona",
+          "perché non posso pianificare questa persona in questo gruppo",
           "posso terminare un'appartenenza di gruppo retroattivamente",
           "cosa succede ai turni già pianificati",
           "la validità dell'appartenenza controlla la pianificazione"
@@ -44942,7 +45194,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerConfig": {
         "memoryKey": "explain_legal_entity_rule"
       },
@@ -44963,7 +45228,7 @@
           "legal entity must be customer"
         ]
       },
-      "version": 3,
+      "version": 5,
       "synonyms": {
         "de": [
           "juristische person kunde pflicht",
@@ -45009,7 +45274,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerConfig": {
         "memoryKey": "explain_membership_single_row"
       },
@@ -45030,7 +45308,7 @@
           "re-entry"
         ]
       },
-      "version": 3,
+      "version": 5,
       "synonyms": {
         "de": [
           "mitgliedschaft hat keine historie",
@@ -45332,7 +45610,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerConfig": {
         "memoryKey": "explain_shift_classification"
       },
@@ -45356,7 +45647,7 @@
           "shift classification"
         ]
       },
-      "version": 3,
+      "version": 5,
       "synonyms": {
         "de": [
           "wann gilt eine schicht als nachtschicht",
@@ -46323,7 +46614,20 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
@@ -46375,7 +46679,7 @@
         "fr": "Expliquer la mise en place d'un contrat",
         "it": "Spiega l'impostazione di un contratto"
       },
-      "version": 1
+      "version": 3
     },
     {
       "name": "evaluate_contract_templates",
@@ -46786,6 +47090,84 @@
         "en": "Status of the replacement search for an absence",
         "fr": "État de la recherche de remplaçant",
         "it": "Stato della ricerca del sostituto"
+      },
+      "version": 1
+    },
+    {
+      "name": "set_explain_depth",
+      "area": "klacksy",
+      "description": "Saves for the signed-in user how deep Klacksy explains from now on: 'beginner' gives plain, fuller step-by-step explanations, 'advanced' skips the basics and keeps to the essentials and consequences, 'auto' follows the user's experience again. Use it only when the user wants a lasting change, such as 'always explain more simply' or 'from now on just the essentials'. A one-off request for a simpler or shorter answer is simply answered and saves nothing.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanUseAssistant"
+      ],
+      "parameters": [
+        {
+          "name": "depth",
+          "description": "Depth to keep: beginner = simpler, fuller explanations; advanced = only the essentials, skip the basics; auto = decide from the user's experience again.",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "beginner",
+            "advanced",
+            "auto"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "erklär einfacher",
+          "nur das wichtige",
+          "ab jetzt einfacher erklären"
+        ],
+        "en": [
+          "explain more simply",
+          "skip the basics",
+          "just the essentials"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "erklär mir alles einfacher",
+          "ab jetzt nur das wichtige",
+          "erklär mir ab jetzt immer einfacher",
+          "grundlagen ab jetzt überspringen",
+          "erklärungen wieder automatisch anpassen"
+        ],
+        "en": [
+          "always explain more simply",
+          "from now on just the essentials",
+          "from now on explain everything more simply",
+          "skip the basics from now on",
+          "set explanations back to automatic"
+        ],
+        "fr": [
+          "explique toujours plus simplement",
+          "désormais seulement l'essentiel",
+          "désormais explique tout plus simplement",
+          "saute les bases désormais",
+          "explications de nouveau automatiques"
+        ],
+        "it": [
+          "spiega sempre in modo più semplice",
+          "d'ora in poi solo l'essenziale",
+          "d'ora in poi spiega tutto più semplicemente",
+          "salta le basi d'ora in poi",
+          "spiegazioni di nuovo automatiche"
+        ]
+      },
+      "labels": {
+        "de": "Erklärtiefe festlegen",
+        "en": "Set the explanation depth",
+        "fr": "Définir le niveau d'explication",
+        "it": "Imposta il livello di spiegazione"
       },
       "version": 1
     }

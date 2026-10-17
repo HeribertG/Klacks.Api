@@ -302,7 +302,8 @@ public class LLMFunctionExecutor
             InjectedMemoryIds = context.InjectedMemoryIds,
             ProviderId = context.ProviderId,
             ModelId = context.ModelId,
-            CappedChannel = context.CappedChannel
+            CappedChannel = context.CappedChannel,
+            ExplainDepth = context.ExplainDepth
         };
 
         var skillCall = new Providers.LLMFunctionCall
@@ -377,7 +378,7 @@ public class LLMFunctionExecutor
 
                     if (call.FunctionName == SkillNames.NavigateTo)
                     {
-                        var (knowledgeAppendix, appendixDataJson) = await BuildPageKnowledgeAppendixAsync(skillContext, route);
+                        var (knowledgeAppendix, appendixDataJson) = await BuildPageKnowledgeAppendixAsync(skillContext with { ExplainDepth = null }, route);
                         if (knowledgeAppendix != null)
                         {
                             response = $"{response}\n{knowledgeAppendix}";

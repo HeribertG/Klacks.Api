@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "De parameters van de bedrijfsregel instellen",
   "set_default_llm_model": "Een standaard LLM-model instellen",
   "set_erp_import_schedule": "ERP-importschema vaststellen",
+  "set_explain_depth": "Uitlegniveau instellen",
   "set_export_format_override": "Exportformaat instellen",
   "set_group_location": "Coördinaten van een groep instellen",
   "set_my_display_language": "De taal van de weergave wijzigen",

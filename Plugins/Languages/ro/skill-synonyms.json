@@ -1030,7 +1030,7 @@
     "locația unui grup se aplică subgrupurilor?"
   ],
   "explain_group_membership_validity": [
-    "de ce nu a sugerat planificatorul această persoană pentru echipă?",
+    "de ce nu pot planifica această persoană în programul grupului?",
     "contează cineva care intră săptămâna viitoare în perioada curentă?",
     "pot încheia o apartenență retroactiv?",
     "de ce nu pot închide această apartenență?",
@@ -1048,7 +1048,7 @@
     "de ce pot vedea persoane care nu sunt în niciun grup?",
     "angajații fără grup rămân vizibili pentru utilizatorii restricționați?",
     "ce se întâmplă dacă nu setezi un scop de vizibilitate?",
-    "de ce e dashboard-ul gol dar programul nu?"
+    "de ce un utilizator nou nu vede aproape pe nimeni?"
   ],
   "explain_guided_tour": [
     "cum funcționează turul ghidat",
@@ -2610,6 +2610,13 @@
     "modifică frecvența importului",
     "cron expression pentru import",
     "stabilește orarul de import"
+  ],
+  "set_explain_depth": [
+    "explică-mi mereu mai simplu",
+    "de acum doar esențialul",
+    "de acum explică-mi totul mai simplu",
+    "de acum sari peste noțiunile de bază",
+    "explicații din nou automate"
   ],
   "set_export_format_override": [
     "ajustează formatul de export",

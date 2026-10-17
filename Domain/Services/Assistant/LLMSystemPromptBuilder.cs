@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -207,6 +208,7 @@ TEMPORAL CONTEXT (mandatory):
         sb.Append(FactualGroundingGuide);
         sb.Append(TemporalContextGuide);
         sb.Append(InternalDisclosureGuide);
+        sb.Append(ExplainDepthPromptTexts.OfferFirstGuide);
 
         if (HasNavigateToSkill(context))
         {
@@ -222,12 +224,12 @@ TEMPORAL CONTEXT (mandatory):
     }
 
     /// <summary>
-    /// Renders the per-turn/per-navigation blocks (current page/route, entity grounding) that must
+    /// Renders the per-turn/per-navigation blocks (current page/route, entity grounding, explanation depth) that must
     /// live in the volatile system-prompt segment instead of the stable one, since either can change
     /// between two turns of the same conversation (P1b of the Klacksy memory redesign). Returns null
     /// when neither block applies to this turn.
     /// </summary>
-    /// <param name="context">Turn context providing PageContext and EntityGroundingBlock</param>
+    /// <param name="context">Turn context providing PageContext, EntityGroundingBlock and ExplainDepth</param>
     public static string? BuildVolatileAdditions(LLMContext context)
     {
         var sb = new StringBuilder();
@@ -249,7 +251,43 @@ TEMPORAL CONTEXT (mandatory):
             sb.Append(context.EntityGroundingBlock.Trim());
         }
 
+        var explainDepth = RenderExplainDepthBlock(context.ExplainDepth);
+        if (explainDepth != null)
+        {
+            if (sb.Length > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine();
+            }
+
+            sb.Append(explainDepth);
+        }
+
         return sb.Length > 0 ? sb.ToString() : null;
+    }
+
+    private static string? RenderExplainDepthBlock(ExplainDepthProfile? depth)
+    {
+        if (depth == null)
+        {
+            return null;
+        }
+
+        var isAdvanced = depth.Level == ExplainExperienceLevel.Advanced;
+        var levelName = isAdvanced ? ExplainDepthPromptTexts.LevelNameAdvanced : ExplainDepthPromptTexts.LevelNameBeginner;
+        var source = depth.IsExplicitOverride
+            ? ExplainDepthPromptTexts.SourceExplicitOverride
+            : ExplainDepthPromptTexts.SourceEstimated;
+
+        var sb = new StringBuilder();
+        sb.AppendLine(ExplainDepthPromptTexts.Header);
+        sb.AppendLine(string.Format(CultureInfo.InvariantCulture, ExplainDepthPromptTexts.LevelLineFormat, levelName, source));
+        sb.AppendLine(isAdvanced ? ExplainDepthPromptTexts.AdvancedStyle : ExplainDepthPromptTexts.BeginnerStyle);
+        sb.AppendLine(ExplainDepthPromptTexts.ExplicitRequestRule);
+        sb.AppendLine(ExplainDepthPromptTexts.PersistentChangeHint);
+        sb.Append(ExplainDepthPromptTexts.Footer);
+
+        return sb.ToString();
     }
 
     /// <summary>

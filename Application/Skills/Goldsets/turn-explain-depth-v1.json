@@ -1,0 +1,1072 @@
+{
+  "version": 2,
+  "kind": "turn-selection",
+  "items": [
+    {
+      "id": "ed-001",
+      "message": "Was ist eigentlich der Unterschied zwischen einer Bestellung und einem Dienst?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-effects",
+        "order-vs-shift"
+      ],
+      "source": "curated",
+      "comment": "Beginner difference question: a difference between two concepts is answered at effects depth (question kind decides the level, the user level only adds pitfalls)."
+    },
+    {
+      "id": "ed-002",
+      "message": "What actually changes between an order and a plannable shift, and what can I no longer edit afterwards?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "order-vs-shift"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question: effects plus pitfalls."
+    },
+    {
+      "id": "ed-003",
+      "message": "What kinds of shifts are there in Klacks and when do I use which one?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_shifts",
+      "alternativeTools": [
+        "explain_shift_sporadic",
+        "explain_shift_time_range",
+        "explain_shift_container",
+        "explain_shift_lifecycle_order_to_shift"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-short",
+        "shift-kinds"
+      ],
+      "source": "curated",
+      "comment": "Overview of the shift kinds; any of the three kind skills or the lifecycle skill is an acceptable entry point."
+    },
+    {
+      "id": "ed-004",
+      "message": "Welche Dienstarten gibt es und worauf muss ich achten, wenn ich von der einen auf die andere umstelle?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_shifts",
+      "alternativeTools": [
+        "explain_shift_sporadic",
+        "explain_shift_time_range",
+        "explain_shift_container",
+        "explain_shift_lifecycle_order_to_shift"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "shift-kinds"
+      ],
+      "source": "curated",
+      "comment": "Advanced difference/consequence question across the shift kinds."
+    },
+    {
+      "id": "ed-005",
+      "message": "Was ist ein sporadischer Dienst?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_sporadic",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-short",
+        "shift-sporadic"
+      ],
+      "source": "curated",
+      "comment": "Beginner what-question."
+    },
+    {
+      "id": "ed-006",
+      "message": "What happens when a sporadic shift has reached its quantity for the month, can I still book it somewhere else?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_sporadic",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "shift-sporadic"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question on the sporadic caps."
+    },
+    {
+      "id": "ed-007",
+      "message": "Wie lege ich einen Dienst mit flexiblem Beginn an?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_time_range",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-elements",
+        "shift-time-range"
+      ],
+      "source": "curated",
+      "comment": "Beginner how-to: the steps."
+    },
+    {
+      "id": "ed-008",
+      "message": "What are the consequences when the booked work time is shorter than the window of a time-range shift?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_time_range",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "shift-time-range"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question on the window versus the work time."
+    },
+    {
+      "id": "ed-009",
+      "message": "How do I put several tasks together into one container for a day?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_container",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-elements",
+        "shift-container"
+      ],
+      "source": "curated",
+      "comment": "Beginner how-to: the steps."
+    },
+    {
+      "id": "ed-010",
+      "message": "Was passiert mit den Unterdiensten, wenn ich einen einzelnen Tag eines Containers abändere und später wieder zurücksetze?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_container",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "shift-container"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question on the day override."
+    },
+    {
+      "id": "ed-011",
+      "message": "Wie erfasse ich einen Dienst ohne Kunde, zum Beispiel Putzen oder Tanken?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-elements",
+        "shift-no-customer"
+      ],
+      "source": "curated",
+      "comment": "Beginner how-to: the steps."
+    },
+    {
+      "id": "ed-012",
+      "message": "What is different for a duty without a customer compared with one that is billed to a customer?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "shift-no-customer"
+      ],
+      "source": "curated",
+      "comment": "Advanced difference question."
+    },
+    {
+      "id": "ed-013",
+      "message": "Wie lege ich eine neue Person an und was muss ich mindestens ausfüllen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_address_management",
+      "alternativeTools": [
+        "explain_page_employees"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-elements",
+        "new-person"
+      ],
+      "source": "curated",
+      "comment": "Beginner how-to: the steps."
+    },
+    {
+      "id": "ed-014",
+      "message": "What are the pitfalls when creating a new person, for example the membership dates and the group assignment?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_address_management",
+      "alternativeTools": [
+        "explain_page_employees"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "new-person"
+      ],
+      "source": "curated",
+      "comment": "Advanced pitfall question."
+    },
+    {
+      "id": "ed-015",
+      "message": "Eine Mitarbeiterin ist umgezogen. Wie trage ich ihre neue Adresse ein?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-elements",
+        "new-address"
+      ],
+      "source": "curated",
+      "comment": "Beginner how-to: the steps (a move adds a new address with a valid-from date)."
+    },
+    {
+      "id": "ed-016",
+      "message": "If I record a move, what happens to the old address and to everything that was planned with it?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "new-address"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question on the historized address."
+    },
+    {
+      "id": "ed-017",
+      "message": "Was bedeutet der Typ einer Person, also Mitarbeiter, Externer oder Kunde?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-short",
+        "employee-type"
+      ],
+      "source": "curated",
+      "comment": "Beginner what-question."
+    },
+    {
+      "id": "ed-018",
+      "message": "What happens if I switch a person from employee to customer later on?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "employee-type"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question on the type change."
+    },
+    {
+      "id": "ed-019",
+      "message": "Wozu gibt es in Klacks eigentlich Gruppen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_group_model",
+      "alternativeTools": [
+        "explain_page_groups"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-short",
+        "group-idea"
+      ],
+      "source": "curated",
+      "comment": "Beginner what-question: the idea behind groups."
+    },
+    {
+      "id": "ed-020",
+      "message": "What do groups do beyond sorting people into folders, and what breaks if I restructure them later?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_group_model",
+      "alternativeTools": [
+        "explain_page_groups",
+        "explain_group_hierarchy_inheritance"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "group-idea"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question."
+    },
+    {
+      "id": "ed-021",
+      "message": "Warum sehe ich eine bestimmte Person in meiner Liste nicht?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_group_model",
+      "alternativeTools": [
+        "explain_group_visibility_blind_spots",
+        "explain_page_groups"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-short",
+        "group-visibility"
+      ],
+      "source": "curated",
+      "comment": "Beginner why-question: the visibility scope of groups."
+    },
+    {
+      "id": "ed-022",
+      "message": "Why can a restricted user still see people who are in no group, and what does a user without a configured scope see?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_group_visibility_blind_spots",
+      "alternativeTools": [
+        "explain_group_model",
+        "explain_page_groups"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "group-visibility"
+      ],
+      "source": "curated",
+      "comment": "Advanced edge-case question."
+    },
+    {
+      "id": "ed-023",
+      "message": "Kann eine Person in zwei Gruppen gleichzeitig sein?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_groups",
+      "alternativeTools": [
+        "explain_group_model",
+        "explain_group_visibility_blind_spots",
+        "explain_group_membership_validity"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-short",
+        "person-two-groups"
+      ],
+      "source": "curated",
+      "comment": "Beginner can-I question."
+    },
+    {
+      "id": "ed-024",
+      "message": "What happens to visibility and to the hours balance when a person belongs to two groups at the same time?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_groups",
+      "alternativeTools": [
+        "explain_group_model",
+        "explain_group_visibility_blind_spots",
+        "explain_group_membership_validity",
+        "explain_group_hierarchy_inheritance"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "person-two-groups"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question."
+    },
+    {
+      "id": "ed-025",
+      "message": "Was passiert, wenn ich eine Bestellung versiegle?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-effects",
+        "sealing-order"
+      ],
+      "source": "curated",
+      "comment": "Beginner what-happens-if question: a consequence question is answered at effects depth regardless of the user level. Sealing here is the order seal, not the period seal."
+    },
+    {
+      "id": "ed-026",
+      "message": "What can no longer be changed once I seal an order, and what can still be corrected afterwards?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "sealing-order"
+      ],
+      "source": "curated",
+      "comment": "Advanced final-versus-correctable question."
+    },
+    {
+      "id": "ed-027",
+      "message": "Was bedeutet Szenario übernehmen im Einsatzplan?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-short",
+        "scenario-accept"
+      ],
+      "source": "curated",
+      "comment": "Beginner what-question. Must be answered by the explanation, not by calling accept_scenario."
+    },
+    {
+      "id": "ed-028",
+      "message": "What happens to the original plan and to the other scenarios when I accept a scenario?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "scenario-accept"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question. Must be answered by the explanation, not by calling accept_scenario."
+    },
+    {
+      "id": "ed-029",
+      "message": "Was heisst es, eine Periode abzuschliessen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_period_closing_model",
+      "alternativeTools": [
+        "explain_page_period_closing"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-short",
+        "period-close"
+      ],
+      "source": "curated",
+      "comment": "Beginner what-question."
+    },
+    {
+      "id": "ed-030",
+      "message": "How do I close a period?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_period_closing",
+      "alternativeTools": [
+        "explain_period_closing_model"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-elements",
+        "period-close"
+      ],
+      "source": "curated",
+      "comment": "Beginner how-to: the steps on the period closing page."
+    },
+    {
+      "id": "ed-031",
+      "message": "What exactly gets locked when a period is closed, and who can reopen it?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_period_closing_model",
+      "alternativeTools": [
+        "explain_page_period_closing"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "period-close"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question."
+    },
+    {
+      "id": "ed-032",
+      "message": "Wie berechne ich im Einsatzplan die Stunden neu?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-elements",
+        "recalculation"
+      ],
+      "source": "curated",
+      "comment": "Beginner how-to: the steps with the recalculate dropdown."
+    },
+    {
+      "id": "ed-033",
+      "message": "What is the difference between Sum hours and Calculate and sum hours, and when is the thorough one worth the wait?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "recalculation"
+      ],
+      "source": "curated",
+      "comment": "Advanced difference question on the two recalculation variants."
+    },
+    {
+      "id": "ed-034",
+      "message": "Was passiert, wenn ich eine Person lösche?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-effects",
+        "delete-person"
+      ],
+      "source": "curated",
+      "comment": "Beginner what-happens-if question: a consequence question is answered at effects depth regardless of the user level. Must be answered by the explanation, not by calling delete_client."
+    },
+    {
+      "id": "ed-035",
+      "message": "What are the consequences of deleting a person: is it final, who is allowed to do it and what happens to their planned shifts?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "delete-person"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question. Must be answered by the explanation, not by calling delete_client."
+    },
+    {
+      "id": "ed-036",
+      "message": "Was bedeutet FREE oder EARLY, wenn ich es für einen Tag eintrage?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_type_preferences",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-short",
+        "planning-keywords"
+      ],
+      "source": "curated",
+      "comment": "Beginner what-question on the shift-type preference aliases."
+    },
+    {
+      "id": "ed-037",
+      "message": "What happens when the assistant cannot honour an EARLY wish, and how does -EARLY differ from LATE?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_type_preferences",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-effects",
+        "planning-keywords"
+      ],
+      "source": "curated",
+      "comment": "Advanced consequence question on unfulfillable preferences."
+    },
+    {
+      "id": "ed-038",
+      "message": "Erklär mir das bitte nochmal ganz von vorn und Schritt für Schritt: Was ist der Unterschied zwischen einer Bestellung und einem Dienst?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-elements",
+        "override-detail"
+      ],
+      "source": "curated",
+      "comment": "Advanced user who explicitly asks for the full walkthrough: the explicit request beats the style, so no collapse to effects."
+    },
+    {
+      "id": "ed-039",
+      "message": "Just give me the one-minute version: what is a container shift?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_container",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-short",
+        "override-short"
+      ],
+      "source": "curated",
+      "comment": "Beginner who explicitly asks for the short version."
+    },
+    {
+      "id": "ed-040",
+      "message": "Gib mir nur die Kurzfassung: Was sind Diensttypwünsche?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_type_preferences",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "advanced",
+        "level-short",
+        "override-short"
+      ],
+      "source": "curated",
+      "comment": "Advanced user who explicitly asks for the short version: the explicit request beats the style."
+    },
+    {
+      "id": "ed-041",
+      "message": "Ich möchte genau verstehen, wie das mit dem Versiegeln eines Tages in der Periode funktioniert, bitte mit allen Schritten.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_period_closing",
+      "alternativeTools": [
+        "explain_period_closing_model"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "beginner",
+        "level-elements",
+        "override-detail"
+      ],
+      "source": "curated",
+      "comment": "Beginner who explicitly asks for every step."
+    }
+  ]
+}

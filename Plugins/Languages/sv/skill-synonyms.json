@@ -1034,7 +1034,7 @@
     "påverkar gruppens plats undergrupper"
   ],
   "explain_group_membership_validity": [
-    "varför föreslog inte planeraren den här personen",
+    "varför kan jag inte schemalägga den här personen i gruppens schema",
     "räknas någon som börjar nästa vecka med i perioden",
     "kan jag avsluta ett medlemskap retroaktivt",
     "varför kan jag inte avsluta medlemskapet",
@@ -1052,7 +1052,7 @@
     "varför kan jag se personer som inte tillhör någon grupp",
     "förblir grupplösa medarbetare synliga för begränsade användare",
     "vad händer om jag aldrig ställer in synlighet",
-    "varför är dashboarden tom men inte schemat"
+    "varför ser en ny användare nästan ingen"
   ],
   "explain_guided_tour": [
     "hur fungerar den guidade rundturen",
@@ -2596,6 +2596,13 @@
     "ändra importintervallet",
     "ange tidsschema för erp-import",
     "konfigurera importfrekvensen"
+  ],
+  "set_explain_depth": [
+    "förklara alltid enklare",
+    "från och med nu bara det viktigaste",
+    "från och med nu förklara allt enklare",
+    "hoppa över grunderna från och med nu",
+    "förklaringar automatiskt igen"
   ],
   "set_export_format_override": [
     "anpassa ett exportformat",

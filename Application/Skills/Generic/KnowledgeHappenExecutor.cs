@@ -9,8 +9,11 @@
 /// </summary>
 /// <param name="memoryRepository">Loads the seeded knowledge memory by key</param>
 /// <param name="logger">Warns when curated content still carried internal entity names that had to be replaced</param>
+/// <param name="depth">Explanation depth of the caller: level effects always adds the pitfalls stage, elements adds it
+/// for advanced users only, short never; null is treated like a beginner</param>
 
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -46,6 +49,8 @@ public class KnowledgeHappenExecutor
         " This is the '{0}' depth of a multi-level explanation. If the user wants a shorter overview " +
         "or more detail, call this skill again with the level parameter set to one of: short, elements, effects.";
 
+    private const string SectionSeparator = "\n\n";
+
     private readonly IAgentMemoryRepository _memoryRepository;
     private readonly ILogger<KnowledgeHappenExecutor> _logger;
 
@@ -60,6 +65,7 @@ public class KnowledgeHappenExecutor
     public async Task<SkillResult> ExecuteAsync(
         KnowledgeHappenConfig config,
         Dictionary<string, object>? parameters = null,
+        ExplainDepthProfile? depth = null,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(config.MemoryKey))
@@ -79,7 +85,7 @@ public class KnowledgeHappenExecutor
         var requestedLevel = ExtractRequestedLevel(parameters);
         var levelContent = requestedLevel == null
             ? null
-            : ExtractLevelSection(content, requestedLevel);
+            : ExtractStages(content, ResolveStages(requestedLevel, depth?.Level ?? ExplainExperienceLevel.Beginner));
 
         if (levelContent == null)
         {
@@ -89,8 +95,56 @@ public class KnowledgeHappenExecutor
         }
 
         return SkillResult.SuccessResult(
-            new { Knowledge = levelContent, Level = requestedLevel },
+            new { Knowledge = levelContent.Value.Text, Level = requestedLevel, Stages = levelContent.Value.Stages },
             AnswerInstruction + string.Format(LevelInstruction, requestedLevel));
+    }
+
+    private static IReadOnlyList<string> ResolveStages(string requestedLevel, ExplainExperienceLevel experience)
+    {
+        if (string.Equals(requestedLevel, KnowledgeHappenLevels.Effects, StringComparison.Ordinal))
+        {
+            return [KnowledgeHappenLevels.Effects, KnowledgeHappenLevels.Pitfalls];
+        }
+
+        if (string.Equals(requestedLevel, KnowledgeHappenLevels.Elements, StringComparison.Ordinal)
+            && experience == ExplainExperienceLevel.Advanced)
+        {
+            return [KnowledgeHappenLevels.Elements, KnowledgeHappenLevels.Pitfalls];
+        }
+
+        return [requestedLevel];
+    }
+
+    private static (string Text, string[] Stages)? ExtractStages(string content, IReadOnlyList<string> stages)
+    {
+        var markers = FindLevelMarkers(content);
+        if (markers.Count == 0)
+        {
+            return null;
+        }
+
+        var primary = ExtractLevelSection(content, markers, stages[0]);
+        if (primary == null)
+        {
+            return null;
+        }
+
+        var sections = new List<string> { primary };
+        var includedStages = new List<string> { stages[0] };
+        foreach (var stage in stages.Skip(1))
+        {
+            var section = ExtractLevelSection(content, markers, stage);
+            if (section != null)
+            {
+                sections.Add(section);
+                includedStages.Add(stage);
+            }
+        }
+
+        var preamble = content[..markers[0].Position].Trim();
+        var body = string.Join(SectionSeparator, sections);
+
+        return (preamble.Length > 0 ? preamble + SectionSeparator + body : body, includedStages.ToArray());
     }
 
     private string SanitizeContent(string memoryKey, string rawContent)
@@ -130,14 +184,8 @@ public class KnowledgeHappenExecutor
             string.Equals(l, value, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static string? ExtractLevelSection(string content, string level)
+    private static string? ExtractLevelSection(string content, List<(int Position, string Level)> markers, string level)
     {
-        var markers = FindLevelMarkers(content);
-        if (markers.Count == 0)
-        {
-            return null;
-        }
-
         var index = markers.FindIndex(m =>
             string.Equals(m.Level, level, StringComparison.OrdinalIgnoreCase));
         if (index < 0)
@@ -148,10 +196,7 @@ public class KnowledgeHappenExecutor
         var sectionStart = markers[index].Position;
         var sectionEnd = index + 1 < markers.Count ? markers[index + 1].Position : content.Length;
 
-        var preamble = content[..markers[0].Position].Trim();
-        var section = content[sectionStart..sectionEnd].Trim();
-
-        return preamble.Length > 0 ? preamble + "\n\n" + section : section;
+        return content[sectionStart..sectionEnd].Trim();
     }
 
     private static List<(int Position, string Level)> FindLevelMarkers(string content)

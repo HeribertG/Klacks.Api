@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "設定公司規則參數",
   "set_default_llm_model": "設定預設 LLM 模型",
   "set_erp_import_schedule": "設定 ERP 匯入排程",
+  "set_explain_depth": "設定講解深度",
   "set_export_format_override": "設定匯出格式覆寫",
   "set_group_location": "設定群組座標",
   "set_my_display_language": "更改我的顯示語言",

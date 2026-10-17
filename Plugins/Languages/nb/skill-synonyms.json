@@ -1024,7 +1024,7 @@
     "gjelder gruppens lokasjon for undergrupper?"
   ],
   "explain_group_membership_validity": [
-    "hvorfor foreslo ikke planleggeren denne personen?",
+    "hvorfor kan jeg ikke sette opp denne personen i gruppens plan?",
     "teller en person som starter neste uke allerede med?",
     "kan jeg avslutte en gruppemedlemskap retroaktivt?",
     "hvorfor kan jeg ikke avslutte dette medlemskapet?",
@@ -1042,7 +1042,7 @@
     "hvorfor kan jeg se personer som ikke er i noen gruppe?",
     "forblir ansatte uten gruppe synlig for begrensede brukere?",
     "hva skjer hvis jeg aldri setter synlighetsområde for en bruker?",
-    "hvorfor er dashbordet tomt men timeplanen ikke?"
+    "hvorfor ser en ny bruker nesten ingen?"
   ],
   "explain_guided_tour": [
     "hvordan fungerer den veiledede omvisningen",
@@ -2576,6 +2576,13 @@
     "sett cron for erp-import",
     "juster importintervall",
     "plan for erp-import"
+  ],
+  "set_explain_depth": [
+    "forklar alltid enklere",
+    "fra nå av bare det viktigste",
+    "fra nå av forklar alt enklere",
+    "hopp over det grunnleggende fra nå av",
+    "forklaringer automatisk igjen"
   ],
   "set_export_format_override": [
     "tilpass et eksportformat",

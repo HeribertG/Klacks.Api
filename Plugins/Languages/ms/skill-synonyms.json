@@ -1019,7 +1019,7 @@
     "adakah lokasi kumpulan terpakai untuk subkumpulannya?"
   ],
   "explain_group_membership_validity": [
-    "kenapa perancang tidak cadangkan orang ini untuk pasukan?",
+    "kenapa saya tidak boleh menjadualkan orang ini dalam jadual kumpulan?",
     "adakah orang yang akan masuk minggu depan dikira untuk tempoh ini?",
     "bolehkah saya tamatkan keahlian kumpulan secara retroaktif?",
     "kenapa saya tidak boleh tutup keahlian ini?",
@@ -1037,7 +1037,7 @@
     "kenapa saya masih boleh lihat orang yang tiada dalam kumpulan?",
     "adakah pekerja tanpa kumpulan kekal kelihatan untuk pengguna terhad?",
     "apa jadi jika saya tidak tetapkan skop visibiliti untuk pengguna?",
-    "kenapa papan pemuka kosong tetapi jadual tidak?"
+    "kenapa pengguna baharu hampir tidak nampak sesiapa?"
   ],
   "explain_guided_tour": [
     "bagaimana lawatan berpandu berfungsi",
@@ -2585,6 +2585,13 @@
     "cron import erp",
     "set masa import",
     "atur jadual import"
+  ],
+  "set_explain_depth": [
+    "sentiasa terangkan dengan lebih mudah",
+    "mulai sekarang hanya perkara penting",
+    "mulai sekarang terangkan semuanya dengan lebih mudah",
+    "mulai sekarang langkau asas",
+    "kembalikan penerangan kepada automatik"
   ],
   "set_export_format_override": [
     "ubah format eksport",

@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "Indstil parametre for virksomhedsreglen",
   "set_default_llm_model": "Vælg en standard-LLM-model",
   "set_erp_import_schedule": "Fastlægge tidsplan for ERP-import",
+  "set_explain_depth": "Angiv forklaringsdybden",
   "set_export_format_override": "Indstil tilpasning af eksportformat",
   "set_group_location": "Indstille koordinater for en gruppe",
   "set_my_display_language": "Skift sprog i visningen",

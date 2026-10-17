@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "会社ルールのパラメータを設定",
   "set_default_llm_model": "既定のLLMモデルを設定",
   "set_erp_import_schedule": "ERPインポートのスケジュールを設定",
+  "set_explain_depth": "説明の詳しさを設定",
   "set_export_format_override": "エクスポート形式のカスタマイズを設定",
   "set_group_location": "グループの座標を設定",
   "set_my_display_language": "表示言語を変更する",

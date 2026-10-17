@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "Nastavení parametrů firemního pravidla",
   "set_default_llm_model": "Nastavit standardní model LLM",
   "set_erp_import_schedule": "Nastavení harmonogramu importu do systému ERP",
+  "set_explain_depth": "Nastavit hloubku vysvětlení",
   "set_export_format_override": "Nastavení přizpůsobení exportního formátu",
   "set_group_location": "Nastavení souřadnic skupiny",
   "set_my_display_language": "Změna jazyka zobrazení",

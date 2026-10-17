@@ -2,7 +2,9 @@
 
 /// <summary>
 /// Repository for AgentMemory with hybrid search (vector + full text), importance adjustment and cleanup.
-/// Uses pgvector for semantic similarity search and PostgreSQL full-text search as fallback.
+/// Uses pgvector for semantic similarity search and PostgreSQL full-text search as fallback. The user's
+/// explanation-depth override (ExplainDepthDefaults.OverrideMemoryKey) is a setting, not a recollection: the importance
+/// decay and the low-value cleanup never touch it.
 /// </summary>
 /// <param name="context">Database context with AgentMemories DbSet</param>
 
@@ -294,6 +296,37 @@ public class AgentMemoryRepository : IAgentMemoryRepository
             .FirstOrDefaultAsync(m => m.Key == key, cancellationToken);
     }
 
+    public async Task<AgentMemory?> GetByUserAndKeyAsync(Guid userId, string key, CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        return await _context.AgentMemories
+            .Where(m => m.UserId == userId
+                        && m.Key == key
+                        && !m.IsDeleted
+                        && (m.ExpiresAt == null || m.ExpiresAt > now))
+            .OrderByDescending(m => m.CreateTime)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<int> SoftDeleteByUserAndKeyAsync(Guid userId, string key, Guid? keepId = null, CancellationToken cancellationToken = default)
+    {
+        var memories = await _context.AgentMemories
+            .Where(m => m.UserId == userId
+                        && m.Key == key
+                        && (keepId == null || m.Id != keepId))
+            .ToListAsync(cancellationToken);
+
+        if (memories.Count == 0)
+        {
+            return 0;
+        }
+
+        _context.AgentMemories.RemoveRange(memories);
+        await _context.SaveChangesAsync(cancellationToken);
+        return memories.Count;
+    }
+
     public async Task<List<AgentMemory>> SearchAsync(Guid agentId, string searchTerm, Guid? userId = null, CancellationToken cancellationToken = default)
     {
         return await _context.AgentMemories
@@ -419,6 +452,7 @@ public class AgentMemoryRepository : IAgentMemoryRepository
             WHERE is_deleted = false
               AND is_pinned = false
               AND category <> '{MemoryCategories.Reflection}'
+              AND key <> '{ExplainDepthDefaults.OverrideMemoryKey}'
               AND access_count < {ImportanceDecayMinAccessCount}
               AND importance > {ImportanceDecayMinValue}
               AND EXTRACT(EPOCH FROM (NOW() - COALESCE(last_accessed_at, create_time))) / 86400.0 > {ImportanceDecayAgeDays}
@@ -434,6 +468,7 @@ public class AgentMemoryRepository : IAgentMemoryRepository
             SET is_deleted = true, deleted_time = NOW()
             WHERE is_deleted = false
               AND is_pinned = false
+              AND key <> '{ExplainDepthDefaults.OverrideMemoryKey}'
               AND importance <= {LowValueMaxImportance}
               AND access_count < {LowValueMaxAccessCount}
               AND EXTRACT(EPOCH FROM (NOW() - COALESCE(update_time, create_time))) / 86400.0 > {LowValueCleanupAgeDays}

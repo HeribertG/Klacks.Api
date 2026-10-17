@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "تعيين معلمات قاعدة الشركة",
   "set_default_llm_model": "تحديد نموذج LLM قياسي",
   "set_erp_import_schedule": "تحديد الجدول الزمني لاستيراد بيانات نظام تخطيط موارد المؤسسة (ERP)",
+  "set_explain_depth": "تحديد مستوى الشرح",
   "set_export_format_override": "تحديد إعدادات تنسيق التصدير",
   "set_group_location": "تحديد إحداثيات مجموعة",
   "set_my_display_language": "تغيير لغة العرض الخاصة بك",

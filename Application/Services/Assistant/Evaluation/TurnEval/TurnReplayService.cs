@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Assistant.Recipes;
@@ -276,7 +277,9 @@ public class TurnReplayService : ITurnReplayService
 
             // A replay resolves the undo as data and never holds a token, so it must never claim to
             // have offered one - that flag suppresses the settlement of an outstanding row.
-            CorrectionUndoOffered = false
+            CorrectionUndoOffered = false,
+            ExplainDepth = new ExplainDepthProfile(
+                item.ExplainDepth ?? ExplainExperienceLevel.Beginner, IsExplicitOverride: false)
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);

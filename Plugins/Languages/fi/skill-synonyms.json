@@ -1025,7 +1025,7 @@
     "päteekö ryhmän sijainti alaryhmiin?"
   ],
   "explain_group_membership_validity": [
-    "miksi suunnitteluavustaja ei ehdottanut tätä henkilöä tiimille?",
+    "miksi en voi merkitä tätä henkilöä ryhmän työvuorolistaan?",
     "lasketaanko ensi viikolla liittyvä henkilö jo tähän jaksoon?",
     "voinko lopettaa ryhmäjäsenyyden takautuvasti?",
     "miksi en voi sulkea tätä jäsenyyttä?",
@@ -1043,7 +1043,7 @@
     "miksi näen silti henkilöitä, jotka eivät ole missään ryhmässä?",
     "pysyvätkö ryhmättömät työntekijät näkyvissä rajoitetuille käyttäjille?",
     "mitä tapahtuu jos en koskaan aseta näkyvyysaluetta?",
-    "miksi dashboard on tyhjä mutta aikataulu ei?"
+    "miksi uusi käyttäjä ei näe lähes ketään?"
   ],
   "explain_guided_tour": [
     "miten opastettu kierros toimii",
@@ -2609,6 +2609,13 @@
     "kuinka usein erp-tuonti ajetaan",
     "aseta cron erp-tuonnille",
     "muuta tuontiaikataulua"
+  ],
+  "set_explain_depth": [
+    "selitä aina yksinkertaisemmin",
+    "tästä lähtien vain olennainen",
+    "tästä lähtien selitä kaikki yksinkertaisemmin",
+    "ohita perusasiat tästä lähtien",
+    "selitykset taas automaattisesti"
   ],
   "set_export_format_override": [
     "mukauta vientimuotoa",

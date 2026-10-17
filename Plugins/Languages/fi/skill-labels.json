@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "Yrityssäännön parametrien määrittäminen",
   "set_default_llm_model": "Määritä vakio-LLM-malli",
   "set_erp_import_schedule": "ERP-tuonnin aikataulun määrittäminen",
+  "set_explain_depth": "Aseta selitysten syvyys",
   "set_export_format_override": "Vienti-muodon mukautuksen määrittäminen",
   "set_group_location": "Ryhmän koordinaattien asettaminen",
   "set_my_display_language": "Oman näyttökielen muuttaminen",

@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "הגדרת הפרמטרים של כלל החברה",
   "set_default_llm_model": "הגדרת מודל LLM סטנדרטי",
   "set_erp_import_schedule": "קביעת לוח הזמנים לייבוא ERP",
+  "set_explain_depth": "הגדרת עומק ההסבר",
   "set_export_format_override": "הגדרת התאמת פורמט הייצוא",
   "set_group_location": "הגדרת קואורדינטות של קבוצה",
   "set_my_display_language": "שינוי שפת התצוגה",

@@ -5155,6 +5155,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.HasIndex("TurnId")
                         .HasDatabaseName("ix_skill_usage_records_turn_id");
 
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_skill_usage_records_user_id")
+                        .HasFilter("success = true AND is_deleted = false");
+
                     b.ToTable("skill_usage_records", (string)null);
                 });
 
@@ -10914,6 +10918,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClientId", "ShiftId")
                         .HasDatabaseName("ix_work_client_id_shift_id");
+
+                    b.HasIndex("CurrentUserCreated", "CreateTime")
+                        .HasDatabaseName("ix_work_current_user_created_create_time")
+                        .HasFilter("analyse_token IS NULL AND is_deleted = false");
 
                     b.HasIndex("CurrentDate", "ClientId", "IsDeleted")
                         .HasDatabaseName("ix_work_current_date_client_id_is_deleted");

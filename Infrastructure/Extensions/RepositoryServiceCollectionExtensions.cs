@@ -182,6 +182,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IAgentRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentRepository>();
         services.AddScoped<IAgentSoulRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSoulRepository>();
         services.AddScoped<IAgentMemoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentMemoryRepository>();
+        services.AddScoped<IUserExperienceSignalReader, Klacks.Api.Infrastructure.Repositories.Assistant.UserExperienceSignalReader>();
         services.AddScoped<IPendingUserNoteRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingUserNoteRepository>();
         services.AddScoped<IAgentSessionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSessionRepository>();
         services.AddScoped<IAgentSkillRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSkillRepository>();

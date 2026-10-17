@@ -6,6 +6,9 @@
 /// where no tool call at all is the correct behaviour.
 /// </summary>
 
+using System.Text.Json.Serialization;
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 
 public class TurnGoldsetItem
@@ -84,4 +87,11 @@ public class TurnGoldsetItem
     /// guard checks it against the skill seeds so an item cannot claim a denial the rights model does not make.
     /// </summary>
     public string? DeniedSkill { get; set; }
+
+    /// <summary>
+    /// Explanation depth the item is replayed with, as if estimated for the caller. Null replays as a beginner, because
+    /// production always resolves a depth for a real user; a replay never depends on a database user's history.
+    /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter<ExplainExperienceLevel>))]
+    public ExplainExperienceLevel? ExplainDepth { get; set; }
 }

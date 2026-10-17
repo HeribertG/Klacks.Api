@@ -12,5 +12,6 @@ public interface IGenericSkillDispatcher
         string handlerType,
         string handlerConfig,
         Dictionary<string, object> parameters,
+        ExplainDepthProfile? depth,
         CancellationToken cancellationToken = default);
 }

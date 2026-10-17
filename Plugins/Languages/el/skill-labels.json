@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "Ρύθμιση παραμέτρων του κανόνα της εταιρείας",
   "set_default_llm_model": "Ορισμός τυπικού μοντέλου LLM",
   "set_erp_import_schedule": "Καθορισμός χρονοδιαγράμματος εισαγωγής δεδομένων στο ERP",
+  "set_explain_depth": "Ορισμός βάθους εξήγησης",
   "set_export_format_override": "Ορισμός προσαρμογής μορφής εξαγωγής",
   "set_group_location": "Ορισμός συντεταγμένων μιας ομάδας",
   "set_my_display_language": "Αλλαγή της γλώσσας εμφάνισης",

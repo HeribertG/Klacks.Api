@@ -216,4 +216,11 @@ public class LLMContext
     /// SkillToolsetResult.TurnIntentVetoesForcedToolCall.
     /// </summary>
     public bool TurnIntentVetoesForcedToolCall { get; set; }
+
+    /// <summary>
+    /// Explanation depth resolved for the user of this turn (persisted override, usage heuristic or beginner
+    /// default). Set by every chat entry point via IExplainDepthResolver; rendered as a style block in the volatile
+    /// prompt and copied onto the SkillExecutionContext. Null on paths without a resolvable user.
+    /// </summary>
+    public ExplainDepthProfile? ExplainDepth { get; set; }
 }

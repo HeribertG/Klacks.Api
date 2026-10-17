@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "Setează parametrii regulii de companie",
   "set_default_llm_model": "Setează modelul LLM implicit",
   "set_erp_import_schedule": "Setează programul importului ERP",
+  "set_explain_depth": "Setează nivelul explicațiilor",
   "set_export_format_override": "Setează o suprascriere de format de export",
   "set_group_location": "Setarea coordonatelor unui grup",
   "set_my_display_language": "Schimbă limba de afișare",

@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "Đặt tham số quy tắc công ty",
   "set_default_llm_model": "Đặt mô hình LLM mặc định",
   "set_erp_import_schedule": "Thiết lập lịch nhập ERP",
+  "set_explain_depth": "Đặt mức độ giải thích",
   "set_export_format_override": "Thiết lập ghi đè định dạng xuất",
   "set_group_location": "Đặt tọa độ cho nhóm",
   "set_my_display_language": "Đổi ngôn ngữ hiển thị của tôi",

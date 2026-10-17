@@ -1038,7 +1038,7 @@
     "gælder gruppens lokation for undergrupper?"
   ],
   "explain_group_membership_validity": [
-    "hvorfor foreslog planlæggeren ikke denne person til teamet?",
+    "hvorfor kan jeg ikke planlægge denne person i gruppens plan?",
     "tæller en person, der starter næste uge, allerede med i denne periode?",
     "kan jeg afslutte et medlemskab med tilbagevirkende kraft?",
     "hvorfor kan jeg ikke lukke medlemskabet?",
@@ -1056,7 +1056,7 @@
     "hvorfor kan jeg se personer, der ikke er i en gruppe?",
     "forbliver medarbejdere uden gruppe synlige for begrænsede brugere?",
     "hvad sker der, hvis jeg aldrig sætter synlighed for en bruger?",
-    "hvorfor er dashboard tomt, men planlægningen viser data?"
+    "hvorfor ser en ny bruger næsten ingen?"
   ],
   "explain_guided_tour": [
     "hvordan fungerer den guidede rundtur",
@@ -2603,6 +2603,13 @@
     "indstil cron udtryk for import",
     "skift importinterval",
     "planlæg erp import"
+  ],
+  "set_explain_depth": [
+    "forklar altid mere enkelt",
+    "fra nu af kun det vigtigste",
+    "fra nu af forklar alt mere enkelt",
+    "spring det grundlæggende over fra nu af",
+    "forklaringer automatisk igen"
   ],
   "set_export_format_override": [
     "tilpas et eksportformat",

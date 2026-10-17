@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "Configurar los parámetros de la regla de la empresa",
   "set_default_llm_model": "Establecer un modelo LLM predeterminado",
   "set_erp_import_schedule": "Establecer el calendario de importación del ERP",
+  "set_explain_depth": "Definir el nivel de explicación",
   "set_export_format_override": "Configurar el formato de exportación",
   "set_group_location": "Establecer las coordenadas de un grupo",
   "set_my_display_language": "Cambiar el idioma de la pantalla",

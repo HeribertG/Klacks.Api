@@ -1048,7 +1048,7 @@
     "¿la ubicación de un grupo se aplica a sus subgrupos?"
   ],
   "explain_group_membership_validity": [
-    "¿por qué el planificador no sugiere a esta persona para el equipo?",
+    "¿por qué no puedo programar a esta persona en el plan del grupo?",
     "¿alguien que se une la próxima semana ya cuenta para este período?",
     "¿puedo terminar una membresía de grupo retroactivamente?",
     "¿por qué no puedo cerrar esta membresía?",
@@ -1066,7 +1066,7 @@
     "¿por qué sigo viendo a personas que no están en ningún grupo?",
     "¿los empleados sin grupo siguen siendo visibles para los usuarios restringidos?",
     "¿qué pasa si nunca configuro un ámbito de visibilidad para un usuario?",
-    "¿por qué el panel está vacío pero la programación no?"
+    "¿por qué un usuario nuevo casi no ve a nadie?"
   ],
   "explain_guided_tour": [
     "cómo funciona la visita guiada",
@@ -2628,6 +2628,13 @@
     "establecer cron de import",
     "cada cuánto importar pedidos",
     "modificar horario de importación"
+  ],
+  "set_explain_depth": [
+    "explícamelo siempre de forma más sencilla",
+    "a partir de ahora solo lo esencial",
+    "a partir de ahora explícamelo todo de forma más sencilla",
+    "sáltate lo básico a partir de ahora",
+    "volver a explicaciones automáticas"
   ],
   "set_export_format_override": [
     "personalizar un formato de exportación",

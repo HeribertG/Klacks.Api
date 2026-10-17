@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "Ange parametrar för företagsregel",
   "set_default_llm_model": "Ange standardmodell för LLM",
   "set_erp_import_schedule": "Ange schema för ERP-importen",
+  "set_explain_depth": "Ange förklaringsdjupet",
   "set_export_format_override": "Åsidosätt ett exportformat",
   "set_group_location": "Ange gruppens koordinater",
   "set_my_display_language": "Ändra mitt visningsspråk",

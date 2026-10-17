@@ -1052,7 +1052,7 @@
     "a localização de um grupo se aplica aos subgrupos?"
   ],
   "explain_group_membership_validity": [
-    "por que o planejador não sugeriu essa pessoa para a equipe?",
+    "por que não consigo escalar essa pessoa na escala do grupo?",
     "alguém que entra na próxima semana já conta neste período?",
     "posso encerrar uma associação retroativamente?",
     "por que não consigo fechar essa associação?",
@@ -1070,7 +1070,7 @@
     "por que ainda vejo pessoas que não estão em nenhum grupo?",
     "funcionários sem grupo permanecem visíveis para usuários restritos?",
     "o que acontece se eu nunca definir um escopo de visibilidade para um usuário?",
-    "por que o painel está vazio, mas a escala não?"
+    "por que um usuário novo quase não vê ninguém?"
   ],
   "explain_guided_tour": [
     "como funciona a visita guiada",
@@ -2626,6 +2626,13 @@
     "configurar cron do erp",
     "com que frequência importar pedidos",
     "alterar intervalo de importação"
+  ],
+  "set_explain_depth": [
+    "explica-me sempre de forma mais simples",
+    "a partir de agora só o essencial",
+    "a partir de agora explica-me tudo de forma mais simples",
+    "salta o básico a partir de agora",
+    "voltar às explicações automáticas"
   ],
   "set_export_format_override": [
     "ajustar formato de exportação",

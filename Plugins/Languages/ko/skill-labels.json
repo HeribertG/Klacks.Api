@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "회사 규칙 파라미터 설정",
   "set_default_llm_model": "기본 LLM 모델 설정",
   "set_erp_import_schedule": "ERP 가져오기 일정 설정",
+  "set_explain_depth": "설명 수준 설정",
   "set_export_format_override": "내보내기 형식 재정의 설정",
   "set_group_location": "그룹 좌표 설정",
   "set_my_display_language": "내 표시 언어 변경",

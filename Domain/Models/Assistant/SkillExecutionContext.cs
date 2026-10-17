@@ -115,4 +115,11 @@ public record SkillExecutionContext
     /// and compares it with its own freshly computed plan right before it writes. Null everywhere else.
     /// </summary>
     public ConfirmationBinding? ConfirmedActionBinding { get; init; }
+
+    /// <summary>
+    /// Explanation depth of the calling user, copied from <see cref="LLMContext.ExplainDepth"/> by the executor.
+    /// Knowledge happens choose their stages from it; null (background paths, page-knowledge injection) is treated
+    /// like a beginner.
+    /// </summary>
+    public ExplainDepthProfile? ExplainDepth { get; init; }
 }

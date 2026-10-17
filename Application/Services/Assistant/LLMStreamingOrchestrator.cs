@@ -74,6 +74,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly IEntityCandidateGrounder _entityCandidateGrounder;
     private readonly LLMProviderOrchestrator _providerOrchestrator;
     private readonly IContextBudgetPolicy _contextBudgetPolicy;
+    private readonly IExplainDepthResolver _explainDepthResolver;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     public LLMStreamingOrchestrator(
@@ -84,6 +85,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         IEntityCandidateGrounder entityCandidateGrounder,
         LLMProviderOrchestrator providerOrchestrator,
         IContextBudgetPolicy contextBudgetPolicy,
+        IExplainDepthResolver explainDepthResolver,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
@@ -93,6 +95,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         _entityCandidateGrounder = entityCandidateGrounder;
         _providerOrchestrator = providerOrchestrator;
         _contextBudgetPolicy = contextBudgetPolicy;
+        _explainDepthResolver = explainDepthResolver;
         _logger = logger;
     }
 
@@ -169,7 +172,8 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             CorrectionNote = correction?.ContextNote,
             CorrectionClarificationReply = correction?.ClarificationReply,
             GracefulCorrectionApplied = correction != null,
-            CorrectionUndoOffered = undoWasHeld
+            CorrectionUndoOffered = undoWasHeld,
+            ExplainDepth = await _explainDepthResolver.ResolveAsync(request.UserId, cancellationToken)
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);

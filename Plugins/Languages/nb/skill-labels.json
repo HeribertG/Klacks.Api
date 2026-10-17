@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "Angi parametere for bedriftsregelen",
   "set_default_llm_model": "Angi standard LLM-modell",
   "set_erp_import_schedule": "Angi tidsplan for ERP-import",
+  "set_explain_depth": "Angi forklaringsdybden",
   "set_export_format_override": "Angi tilpasning av eksportformat",
   "set_group_location": "Angi koordinater for en gruppe",
   "set_my_display_language": "Endre språk i visningen",

@@ -16,6 +16,18 @@ public interface IAgentMemoryRepository
     Task<List<AgentMemory>> GetByUserAsync(Guid agentId, Guid userId, CancellationToken cancellationToken = default);
     Task<AgentMemory?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<AgentMemory?> GetByKeyAsync(string key, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The newest live (not deleted, not expired) memory of exactly this user carrying this key, across all agents,
+    /// or null when there is none. Shared memories (UserId null) and other users' memories never match.
+    /// </summary>
+    Task<AgentMemory?> GetByUserAndKeyAsync(Guid userId, string key, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Soft-deletes every live memory of exactly this user carrying this key, except the one with
+    /// <paramref name="keepId"/> when given, and commits right away. Returns the number of rows deleted.
+    /// </summary>
+    Task<int> SoftDeleteByUserAndKeyAsync(Guid userId, string key, Guid? keepId = null, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> SearchAsync(Guid agentId, string searchTerm, Guid? userId = null, CancellationToken cancellationToken = default);
     Task AddAsync(AgentMemory memory, CancellationToken cancellationToken = default);
 

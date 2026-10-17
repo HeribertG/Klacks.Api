@@ -1021,7 +1021,7 @@
     "apakah saldo jam sudah termasuk subgrup?"
   ],
   "explain_group_membership_validity": [
-    "kenapa perencana tidak menyarankan orang ini?",
+    "kenapa saya tidak bisa menjadwalkan orang ini di jadwal grup?",
     "apakah seseorang yang bergabung minggu depan sudah dihitung?",
     "bisakah saya mengakhiri keanggotaan secara retroaktif?",
     "kenapa keanggotaan ini tidak bisa ditutup?",
@@ -1037,7 +1037,7 @@
     "apakah pengguna tanpa cakupan bisa lihat semua?",
     "kenapa saya masih bisa lihat orang tanpa grup?",
     "apakah karyawan tanpa grup tetap terlihat?",
-    "kenapa dashboard kosong tapi jadwal tidak?"
+    "kenapa pengguna baru hampir tidak melihat siapa pun?"
   ],
   "explain_guided_tour": [
     "bagaimana tur berpandu bekerja",
@@ -2575,6 +2575,13 @@
     "set cron import",
     "konfigurasi frekuensi import",
     "tentukan waktu import otomatis"
+  ],
+  "set_explain_depth": [
+    "selalu jelaskan dengan lebih sederhana",
+    "mulai sekarang hanya yang penting",
+    "mulai sekarang jelaskan semuanya dengan lebih sederhana",
+    "mulai sekarang lewati dasar-dasarnya",
+    "kembalikan penjelasan ke otomatis"
   ],
   "set_export_format_override": [
     "ubah format export",

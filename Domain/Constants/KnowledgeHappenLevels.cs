@@ -13,6 +13,13 @@ public static class KnowledgeHappenLevels
     public const string Elements = "elements";
     public const string Effects = "effects";
 
+    /// <summary>
+    /// Body-only stage for consequences, final vs. correctable actions, edge cases and shortcuts. Never requestable
+    /// through the level parameter (not in <see cref="All"/>); the executor appends it to effects, and to elements
+    /// for advanced users.
+    /// </summary>
+    public const string Pitfalls = "pitfalls";
+
     public const string ParameterName = "level";
     public const string MarkerPrefix = "<!-- level:";
     public const string MarkerSuffix = "-->";

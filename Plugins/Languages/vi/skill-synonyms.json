@@ -920,7 +920,7 @@
     "máy chủ có chặn các đơn nghỉ trùng không",
     "có chấp nhận nghỉ ốm và nghỉ phép cùng ngày không",
     "vì sao hai đơn nghỉ cùng ngày vẫn được lưu",
-    "không bị chặn khi nghỉ trùng ngày",
+    "nghỉ trùng ngày có bị chặn không",
     "tạo nghỉ ốm và nghỉ phép cùng lúc được không"
   ],
   "explain_absence_type_flags": [
@@ -1020,7 +1020,7 @@
     "vị trí của nhóm có áp dụng cho nhóm con không"
   ],
   "explain_group_membership_validity": [
-    "vì sao trợ lý không đề xuất người này cho nhóm",
+    "vì sao tôi không thể xếp lịch cho người này trong nhóm",
     "người vào nhóm tuần sau có được tính trong kỳ này không",
     "tôi có thể kết thúc tư cách thành viên trong quá khứ không",
     "vì sao không kết thúc được tư cách thành viên này",
@@ -1038,7 +1038,7 @@
     "tại sao tôi vẫn thấy người không thuộc nhóm nào",
     "người không thuộc nhóm có hiển thị với người dùng giới hạn không",
     "nếu không bao giờ đặt phạm vi hiển thị cho người dùng thì sao",
-    "vì sao dashboard trống nhưng lịch làm việc lại không"
+    "vì sao người dùng mới hầu như không thấy ai"
   ],
   "explain_guided_tour": [
     "chuyến tham quan có hướng dẫn hoạt động ra sao",
@@ -1333,7 +1333,7 @@
     "giải thích từ khóa ưu tiên ca: free, early, late, night",
     "cách dùng dấu trừ để từ chối loại ca",
     "ưu tiên ca hoạt động thế nào trong trợ lý lập kế hoạch",
-    "nếu không đáp ứng được ưu tiên, mặc định về free",
+    "nếu không đáp ứng được ưu tiên ca thì sao",
     "cách đặt ưu tiên ca cho nhân viên"
   ],
   "explain_software_updates": [
@@ -2587,6 +2587,13 @@
     "thay đổi tần suất import",
     "cấu hình cron import erp",
     "định giờ chạy import"
+  ],
+  "set_explain_depth": [
+    "luôn giải thích đơn giản hơn",
+    "từ giờ chỉ những điều cốt lõi",
+    "từ giờ giải thích mọi thứ đơn giản hơn",
+    "từ giờ bỏ qua phần cơ bản",
+    "đặt lại giải thích về tự động"
   ],
   "set_export_format_override": [
     "điều chỉnh định dạng xuất",

@@ -1045,7 +1045,7 @@
     "werkt de locatie van een groep door naar subgroepen"
   ],
   "explain_group_membership_validity": [
-    "waarom stelde de planner deze persoon niet voor",
+    "waarom kan ik deze persoon niet inplannen in het rooster van de groep",
     "telt iemand die volgende week begint al mee voor deze periode",
     "kan ik een groepslidmaatschap met terugwerkende kracht beëindigen",
     "waarom kan ik dit lidmaatschap niet sluiten",
@@ -1063,7 +1063,7 @@
     "waarom zie ik toch mensen zonder groep",
     "blijven mensen zonder groep zichtbaar voor beperkte gebruikers",
     "wat gebeurt er als ik nooit een zichtbaarheidsbereik instel voor een gebruiker",
-    "waarom is het dashboard leeg maar de planning niet"
+    "waarom ziet een nieuwe gebruiker bijna niemand"
   ],
   "explain_guided_tour": [
     "hoe werkt de begeleide rondleiding",
@@ -2634,6 +2634,13 @@
     "hoe vaak moet de import draaien",
     "verander het importinterval",
     "planning van erp-import instellen"
+  ],
+  "set_explain_depth": [
+    "leg het voortaan altijd eenvoudiger uit",
+    "vanaf nu alleen het belangrijkste",
+    "leg vanaf nu alles eenvoudiger uit",
+    "sla vanaf nu de basis over",
+    "uitleg weer automatisch aanpassen"
   ],
   "set_export_format_override": [
     "pas een exportformaat aan",

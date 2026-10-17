@@ -1053,7 +1053,7 @@
     "czy lokalizacja grupy dotyczy jej podgrup"
   ],
   "explain_group_membership_validity": [
-    "dlaczego planista nie zasugerował tej osoby do zespołu",
+    "dlaczego nie mogę zaplanować tej osoby w grafiku grupy",
     "czy osoba dołączająca w przyszłym tygodniu już się liczy w tym okresie",
     "czy mogę zakończyć członkostwo w grupie z mocą wsteczną",
     "dlaczego nie mogę zakończyć tego członkostwa",
@@ -1071,7 +1071,7 @@
     "dlaczego nadal widzę osoby, które nie należą do żadnej grupy",
     "czy pracownicy bez grupy pozostają widoczni dla ograniczonych użytkowników",
     "co się stanie, jeśli nigdy nie ustawię zakresu widoczności dla użytkownika",
-    "dlaczego pulpit jest pusty, a plan nie"
+    "dlaczego nowy użytkownik prawie nikogo nie widzi"
   ],
   "explain_guided_tour": [
     "jak działa przewodnik po aplikacji",
@@ -2654,6 +2654,13 @@
     "zaplanuj import erp co 2 godziny",
     "skonfiguruj wyrażenie cron dla erp",
     "kiedy ma odbywać się import erp"
+  ],
+  "set_explain_depth": [
+    "zawsze wyjaśniaj prościej",
+    "od teraz tylko najważniejsze",
+    "od teraz wyjaśniaj wszystko prościej",
+    "od teraz pomijaj podstawy",
+    "wyjaśnienia znowu automatycznie"
   ],
   "set_export_format_override": [
     "dostosuj format eksportu",

@@ -395,6 +395,7 @@
   "set_company_rule_parameters": "Tetapkan parameter peraturan syarikat",
   "set_default_llm_model": "Tetapkan model LLM lalai",
   "set_erp_import_schedule": "Tetapkan jadual import ERP",
+  "set_explain_depth": "Tetapkan tahap penerangan",
   "set_export_format_override": "Tetapkan penggantian format eksport",
   "set_group_location": "Tetapkan koordinat kumpulan",
   "set_my_display_language": "Tukar bahasa paparan saya",

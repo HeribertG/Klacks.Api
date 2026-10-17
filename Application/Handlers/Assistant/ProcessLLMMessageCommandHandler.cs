@@ -12,6 +12,7 @@
 /// <param name="entityCandidateGrounder">Grounds entity mentions in the message to candidate records</param>
 /// <param name="providerOrchestrator">Resolves the model and provider for the turn</param>
 /// <param name="contextBudgetPolicy">Caps the tool count for the resolved model and provider</param>
+/// <param name="explainDepthResolver">Resolves how deep Klacksy explains for the calling user</param>
 /// <param name="logger">Receives turn diagnostics</param>
 
 using System.Diagnostics;
@@ -38,6 +39,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly IEntityCandidateGrounder _entityCandidateGrounder;
     private readonly LLMProviderOrchestrator _providerOrchestrator;
     private readonly IContextBudgetPolicy _contextBudgetPolicy;
+    private readonly IExplainDepthResolver _explainDepthResolver;
     private readonly ILogger<ProcessLLMMessageCommandHandler> _logger;
 
     public ProcessLLMMessageCommandHandler(
@@ -49,6 +51,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         IEntityCandidateGrounder entityCandidateGrounder,
         LLMProviderOrchestrator providerOrchestrator,
         IContextBudgetPolicy contextBudgetPolicy,
+        IExplainDepthResolver explainDepthResolver,
         ILogger<ProcessLLMMessageCommandHandler> logger)
     {
         _llmService = llmService;
@@ -59,6 +62,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         _entityCandidateGrounder = entityCandidateGrounder;
         _providerOrchestrator = providerOrchestrator;
         _contextBudgetPolicy = contextBudgetPolicy;
+        _explainDepthResolver = explainDepthResolver;
         _logger = logger;
     }
 
@@ -108,7 +112,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             CorrectionNote = correction?.ContextNote,
             CorrectionClarificationReply = correction?.ClarificationReply,
             GracefulCorrectionApplied = correction != null,
-            CorrectionUndoOffered = undoWasHeld
+            CorrectionUndoOffered = undoWasHeld,
+            ExplainDepth = await _explainDepthResolver.ResolveAsync(request.UserId, cancellationToken)
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
