@@ -175,7 +175,7 @@ The list opens with the filter (de: "Gültigkeit", en: "Validity") on (de: "Akti
 - Absences must lie completely inside the membership window, and new work entries outside it are refused (also outside the group period of the person).
 - The target hours of a pay period are scaled by the member days inside it: an exit on 15 March gives 15/31 of the monthly target. The maximum hours are never scaled.
 - The exit date can be changed or cleared again in the same field; it is a correction, not a one-way step.
-- What happens to work entries that already exist after a newly set exit date was not verified.
+- Work entries that already exist after a newly set exit date are kept: Klacks neither deletes nor flags them, and saving the exit date gives no warning about them. In the schedule those days are locked in the person's row; in a period that lies completely after the exit the row is no longer listed, but the entries still exist. So check the person's planned entries before setting the exit date.
 
 ### Deleting a person
 

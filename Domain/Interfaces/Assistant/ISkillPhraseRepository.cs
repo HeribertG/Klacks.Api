@@ -99,7 +99,9 @@ public interface ISkillPhraseRepository
 
     /// <summary>
     /// Replaces the phrases of one owner for exactly one language. By default only rows of the given
-    /// source are removed.
+    /// source are removed. The replacement is a diff: a row of the given source whose phrase is still
+    /// listed keeps its id and status and only takes the new SortOrder; only rows missing from the new
+    /// list are removed and only genuinely new phrases are inserted.
     /// </summary>
     /// <param name="ownerKind">Skill or Recipe, see SkillPhraseOwnerKinds</param>
     /// <param name="ownerName">Business name of the skill or recipe</param>
@@ -121,7 +123,7 @@ public interface ISkillPhraseRepository
     /// <summary>
     /// Replaces the phrases of one owner across every language at once. Used where the caller owns the
     /// complete per-language contribution of one source, such as a seed definition whose synonym
-    /// dictionary is the entire seed contribution for that skill.
+    /// dictionary is the entire seed contribution for that skill. Diff-based like ReplaceForLanguageAsync.
     /// </summary>
     /// <param name="ownerKind">Skill or Recipe, see SkillPhraseOwnerKinds</param>
     /// <param name="ownerName">Business name of the skill or recipe</param>

@@ -1,0 +1,1134 @@
+{
+  "version": 2,
+  "kind": "turn-selection",
+  "items": [
+    {
+      "id": "edh-001",
+      "message": "Was ist eigentlich der Unterschied zwischen einem Auftrag und einer planbaren Schicht? Ich blick da noch nicht ganz durch.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-effects",
+        "topic-1"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-002",
+      "message": "how do I get an order to show up as plannable in the schedule, do I need to do something first?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-elements",
+        "topic-1"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-003",
+      "message": "Was passiert wenn ich einen Auftrag nicht abschliesse, kann ich trotzdem schon Schichten daraus einplanen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-effects",
+        "topic-1"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-004",
+      "message": "Welche Arten von Schichten gibt es überhaupt und wofür ist welche gedacht?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_shifts",
+      "alternativeTools": [
+        "explain_shift_sporadic",
+        "explain_shift_time_range",
+        "explain_shift_container",
+        "explain_shift_lifecycle_order_to_shift"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-short",
+        "topic-2"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-005",
+      "message": "how do I create a shift that doesn't have a fixed start time, more like anytime between 7 and 10?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_time_range",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-elements",
+        "topic-2"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-006",
+      "message": "Wenn ich eine Sammelschicht mit mehreren Aufgaben anlege und die Gesamtzeit verschiebe, werden die Zeiten der Einzelaufgaben dann mitgezogen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_container",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-effects",
+        "topic-2"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-007",
+      "message": "Was sind Schichten ohne Kunden, zum Beispiel für Reinigung oder Büroarbeit, und wozu braucht man die?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-short",
+        "topic-3"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-008",
+      "message": "how do I make a shift for the cleaning crew that isn't linked to any client",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-elements",
+        "topic-3"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-009",
+      "message": "Taucht eine kundenlose Interne-Aufgabe-Schicht in der Lohnauswertung oder in den Kundenberichten trotzdem auf?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-effects",
+        "topic-3"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-010",
+      "message": "Was muss ich eigentlich alles eingeben wenn ich einen neuen Mitarbeiter im System erfasse?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_address_management",
+      "alternativeTools": [
+        "explain_page_employees"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-short",
+        "topic-4"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-011",
+      "message": "walk me through adding a new employee, which fields are mandatory and which can I skip?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_address_management",
+      "alternativeTools": [
+        "explain_page_employees"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-elements",
+        "topic-4"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-012",
+      "message": "Wenn ich jemanden zweimal anlege, was passiert dann mit den Einsätzen, die schon an der ersten Person hängen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_address_management",
+      "alternativeTools": [
+        "explain_page_employees"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-effects",
+        "topic-4"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-013",
+      "message": "Wozu soll ich bei einer Person eine neue Wohnadresse erfassen, statt die alte einfach zu überschreiben?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-short",
+        "topic-5"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-014",
+      "message": "someone just moved apartments, where do I put the new address so the old one doesn't get lost?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-elements",
+        "topic-5"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-015",
+      "message": "Hat eine Adressänderung Auswirkungen auf schon geplante Einsätze oder auf die Fahrzeit-Berechnung?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-effects",
+        "topic-5"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-016",
+      "message": "Was ist der Unterschied zwischen Mitarbeiter, externer Person und Kunde, wenn ich den Typ einer Person festlege?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-effects",
+        "topic-6"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-017",
+      "message": "how can I switch a person from external to employee? the type dropdown seems locked for me",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-elements",
+        "topic-6"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-018",
+      "message": "Wenn ich jemanden von extern auf Mitarbeiter umstelle, gehen seine bisherigen Einsätze verloren oder ändern sich die Abrechnungen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-effects",
+        "topic-6"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-019",
+      "message": "Wozu gibt es Gruppen überhaupt, ich sehe doch sowieso alle Leute im Plan?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_group_model",
+      "alternativeTools": [
+        "explain_page_groups",
+        "explain_group_visibility_blind_spots"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-short",
+        "topic-7"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-020",
+      "message": "how do I put people into a group so that a team lead only sees their own team?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_group_model",
+      "alternativeTools": [
+        "explain_page_groups",
+        "explain_group_visibility_blind_spots"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-elements",
+        "topic-7"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-021",
+      "message": "Was passiert wenn ich eine Gruppe lösche, verschwinden die Mitarbeiter dann ganz oder bleiben sie nur ohne Gruppe bestehen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_group_model",
+      "alternativeTools": [
+        "explain_page_groups",
+        "explain_group_visibility_blind_spots"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-effects",
+        "topic-7"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-022",
+      "message": "can someone belong to more than one group at the same time or is it just one?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_groups",
+      "alternativeTools": [
+        "explain_group_model",
+        "explain_group_visibility_blind_spots",
+        "explain_group_membership_validity"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-short",
+        "topic-8"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-023",
+      "message": "Wie setze ich eine Person zusätzlich in eine zweite Gruppe, ohne dass sie aus der ersten rausfliegt?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_groups",
+      "alternativeTools": [
+        "explain_group_model",
+        "explain_group_visibility_blind_spots",
+        "explain_group_membership_validity"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-elements",
+        "topic-8"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-024",
+      "message": "if a person is in two groups, which group's shifts show up for them and what does the planner see?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_groups",
+      "alternativeTools": [
+        "explain_group_model",
+        "explain_group_visibility_blind_spots",
+        "explain_group_membership_validity"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-effects",
+        "topic-8"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-025",
+      "message": "what does sealing an order actually mean, is it basically locking it?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-short",
+        "topic-9"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-026",
+      "message": "Wie kann ich einen Auftrag fixieren, wo finde ich dafür die Schaltfläche?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-elements",
+        "topic-9"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-027",
+      "message": "what happens if I seal an order by mistake, can I undo that or is it final?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_lifecycle_order_to_shift",
+      "alternativeTools": [
+        "explain_page_shifts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-effects",
+        "topic-9"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-028",
+      "message": "what is a scenario exactly and what happens to my real schedule when I accept one?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-effects",
+        "topic-10"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-029",
+      "message": "Wie übernehme ich einen Entwurf aus einem Szenario in den echten Dienstplan?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-elements",
+        "topic-10"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-030",
+      "message": "if I accept a scenario, do the existing shifts get overwritten or are they merged with the draft?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-effects",
+        "topic-10"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-031",
+      "message": "what's a closed pay period and why would I want to close one?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_period_closing_model",
+      "alternativeTools": [
+        "explain_page_period_closing"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-short",
+        "topic-11"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-032",
+      "message": "Wie schliesse ich eine Abrechnungsperiode ab? Muss ich vorher alle Stunden kontrollieren?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_period_closing",
+      "alternativeTools": [
+        "explain_period_closing_model"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-elements",
+        "topic-11"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-033",
+      "message": "once a period is closed, can employees still change their hours or does it lock everything?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_period_closing_model",
+      "alternativeTools": [
+        "explain_page_period_closing"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-effects",
+        "topic-11"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-034",
+      "message": "what does recalculating the hour balances actually do?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-short",
+        "topic-12"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-035",
+      "message": "Wo starte ich die Neuberechnung der Stundenkonten, falls die Zahlen irgendwie nicht stimmen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-elements",
+        "topic-12"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-036",
+      "message": "how much can a recalculation change the balances and is it safe to run it more than once?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-effects",
+        "topic-12"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-037",
+      "message": "what does deleting a person really remove, is it permanent or can I bring them back?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-effects",
+        "topic-13"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-038",
+      "message": "Wie entferne ich jemanden aus dem System, der vor drei Jahren ausgetreten ist?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-elements",
+        "topic-13"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-039",
+      "message": "if I delete someone, what happens to their past shifts and their time records?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_page_employees",
+      "alternativeTools": [
+        "explain_address_management"
+      ],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-effects",
+        "topic-13"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-040",
+      "message": "what does it mean when I type FREE into a day cell?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_type_preferences",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "short"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-short",
+        "topic-14"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-041",
+      "message": "Wie trage ich in einen Tag das Wort FRÜH ein, damit das System das als Planungsangabe versteht?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_type_preferences",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "elements"
+        }
+      ],
+      "explainDepth": "Beginner",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "beginner",
+        "level-elements",
+        "topic-14"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    },
+    {
+      "id": "edh-042",
+      "message": "if I type EARLY into a day, does that block the person from other shifts or is it just a note?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_type_preferences",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "level",
+          "match": "exact",
+          "value": "effects"
+        }
+      ],
+      "explainDepth": "Advanced",
+      "tags": [
+        "explain-depth",
+        "heldout",
+        "advanced",
+        "level-effects",
+        "topic-14"
+      ],
+      "source": "heldout",
+      "comment": "Held-out paraphrase written by an independent model (2026-10-17); never used to derive synonyms or descriptions."
+    }
+  ]
+}

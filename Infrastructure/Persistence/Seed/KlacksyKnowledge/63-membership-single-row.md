@@ -63,7 +63,8 @@ if the exact first period matters later, write it down somewhere else before the
 
 The schedule lists only people who are not customers and whose entry/exit window overlaps the period
 shown. Within the period, days before the entry date and after the exit date are locked in the person's
-row. The person's links to groups are separate records with their own dates (see the group membership
+row. Entries that were already planned after a newly set exit date stay in the database; they are
+neither deleted nor flagged. The person's links to groups are separate records with their own dates (see the group membership
 validity).
 
 The membership record also carries its own type value. It can be set and it is shown back — but no

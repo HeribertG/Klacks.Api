@@ -1,0 +1,279 @@
+# .github/workflows/knowledge-retrieval.yml for Klacks.Api
+#
+# Manually triggered measurement of knowledge-index retrieval quality (top-3 recall) with the REAL ONNX
+# embedding + reranker models on an x64 Linux runner. Exists because the usual developer machine is
+# Windows ARM64, where the retrieval tests Assert.Ignore themselves (they cannot measure recall there).
+# Never runs on push / pull_request; tests.yml excludes the SlowModelLoad category on purpose.
+#
+# Steps (all run through Klacks.IntegrationTest, [Explicit] fixtures selected by exact name):
+#   1. GoldsetIndexSyncPrepTests            boots the real host and syncs skills/recipes into knowledge_index.
+#                                           On the fresh service-container DB the assembly SetUpFixture
+#                                           (IntegrationTestAssemblySetup) already creates the schema and
+#                                           runs the first sync; the prep test then re-syncs, so the index
+#                                           is guaranteed populated before any recall step.
+#   2. KnowledgeIndexGoldenSetTests         knowledge-index-v1.json (Klacks.Api/Application/Skills/Goldsets).
+#                                           Gate: top-3 recall >= 0.85 (const MinPassRate, no override).
+#   3. KnowledgeIndexHardGoldenSetTests     knowledge-index-golden-hard.json (confusable skill clusters).
+#                                           Gate: top-3 recall >= 0.50 (const MinPassRate). This is a
+#                                           PROVISIONAL floor, not "measured - 5 pp": no top-3 measurement
+#                                           of this set was on record when the test was written. Override per
+#                                           run with the hard_min_pass_rate input (env
+#                                           KNOWLEDGEINDEX_HARD_MIN_PASS_RATE, 0.0-1.0). Record the first
+#                                           number from this workflow and tighten the const afterwards.
+#   Neither recall test has an ARM64 ignore that triggers here: both only Assert.Ignore on Windows ARM64.
+#   They print pre-rerank recall@N, top-1 and top-3 recall plus every missed query; the summary step
+#   greps those lines from the console log into the job summary.
+#
+# Explicit tests: NUnit3TestAdapter 6.2.0 defaults to ExplicitMode=Strict - explicit tests run only when
+# the filter selects ONLY explicit tests. Each step below filters on one exact FullyQualifiedName of an
+# [Explicit] test, so the default mode is sufficient and no runsettings are needed. If a custom
+# test_filter also matches non-explicit tests, Strict mode would skip the explicit ones.
+#
+# Models: downloaded from huggingface.co (~200-700 MB) and cached. The recall tests read
+# ~/.local/share/Cache/Models; the booted host would default to <test bin>/Cache/Models, so
+# KnowledgeIndex__ModelsRoot points the host at the same directory (one download, one cache).
+#
+# Same service container, sibling checkouts and DB wiring as the integration-tests job in tests.yml.
+# Trigger:
+#   gh workflow run knowledge-retrieval.yml -R HeribertG/Klacks.Api --ref main
+
+name: Knowledge Retrieval
+
+on:
+  workflow_dispatch:
+    inputs:
+      hard_min_pass_rate:
+        description: 'Override the hard golden set gate (0.0-1.0). Empty keeps the built-in provisional 0.5.'
+        required: false
+        default: ''
+        type: string
+      test_filter:
+        description: 'Optional dotnet test --filter expression. When set it replaces the two default recall steps (the prep step still runs first).'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: knowledge-retrieval-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  TEST_DB_PORT: 5434
+  TEST_DB_NAME: klacks
+  TEST_DB_USER: postgres
+  TEST_DB_PASSWORD: admin
+  TEST_PROJECT: Klacks.IntegrationTest/Klacks.IntegrationTest.csproj
+  TEST_NAMESPACE: Klacks.IntegrationTest.KnowledgeIndex
+
+jobs:
+  retrieval-recall:
+    name: retrieval-recall (real ONNX models, x64)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_DB: klacks
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: admin
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          path: Klacks.Api
+
+      - name: Checkout Klacks.Plugin.Contracts
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Plugin.Contracts
+          path: Klacks.Plugin.Contracts
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Plugin.Messaging
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Plugin.Messaging
+          path: Klacks.Plugin.Messaging
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Docs
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Docs
+          path: Klacks.Docs
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Api.SourceGenerators
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Api.SourceGenerators
+          path: Klacks.Api.SourceGenerators
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.ScheduleOptimizer
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.ScheduleOptimizer
+          path: Klacks.ScheduleOptimizer
+
+      - name: Checkout Klacks.ScheduleRecovery
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.ScheduleRecovery
+          path: Klacks.ScheduleRecovery
+
+      - name: Checkout Klacks.IntegrationTest
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.IntegrationTest
+          path: Klacks.IntegrationTest
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Create required Postgres extensions
+        env:
+          PGPASSWORD: ${{ env.TEST_DB_PASSWORD }}
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends postgresql-client
+          fi
+          psql -h localhost -p ${{ env.TEST_DB_PORT }} -U ${{ env.TEST_DB_USER }} -d ${{ env.TEST_DB_NAME }} -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          psql -h localhost -p ${{ env.TEST_DB_PORT }} -U ${{ env.TEST_DB_USER }} -d ${{ env.TEST_DB_NAME }} -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Point the host model cache at the directory the recall tests read
+        run: |
+          mkdir -p "$HOME/.local/share/Cache/Models" logs results
+          echo "KnowledgeIndex__ModelsRoot=$HOME/.local/share/Cache/Models" >> "$GITHUB_ENV"
+
+      - name: Cache ONNX models
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/Cache/Models
+            Klacks.IntegrationTest/bin/Release/net10.0/Cache/Models
+          key: onnx-models-${{ runner.os }}-${{ hashFiles('Klacks.Api/KnowledgeIndex/Application/Constants/KnowledgeIndexConstants.cs') }}
+          restore-keys: |
+            onnx-models-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore ${{ env.TEST_PROJECT }}
+
+      - name: Build
+        run: dotnet build ${{ env.TEST_PROJECT }} --no-restore --configuration Release
+
+      - name: Prep - sync knowledge index
+        id: prep
+        run: |
+          dotnet test ${{ env.TEST_PROJECT }} --no-build --configuration Release \
+            --blame-hang-timeout 40m \
+            --results-directory results \
+            --logger "trx;LogFileName=prep.trx" \
+            --logger "console;verbosity=detailed" \
+            --filter "FullyQualifiedName=${{ env.TEST_NAMESPACE }}.GoldsetIndexSyncPrepTests.SyncSkillsAndKnowledgeIndex_ForTheBinariesUnderTest" \
+            2>&1 | tee logs/prep.log
+
+      - name: Verify knowledge_index is populated
+        env:
+          PGPASSWORD: ${{ env.TEST_DB_PASSWORD }}
+        run: |
+          count=$(psql -h localhost -p ${{ env.TEST_DB_PORT }} -U ${{ env.TEST_DB_USER }} -d ${{ env.TEST_DB_NAME }} -tA -c "SELECT count(*) FROM knowledge_index;")
+          echo "knowledge_index rows: $count" | tee logs/index-count.log
+          if [ "${count:-0}" -eq 0 ]; then
+            echo "::error::knowledge_index is empty after the prep step; recall would read 0% regardless of retrieval quality."
+            exit 1
+          fi
+
+      - name: Golden set - top-3 recall (gate 0.85)
+        id: golden
+        if: ${{ !cancelled() && steps.prep.outcome == 'success' && inputs.test_filter == '' }}
+        run: |
+          dotnet test ${{ env.TEST_PROJECT }} --no-build --configuration Release \
+            --blame-hang-timeout 40m \
+            --results-directory results \
+            --logger "trx;LogFileName=golden.trx" \
+            --logger "console;verbosity=detailed" \
+            --filter "FullyQualifiedName=${{ env.TEST_NAMESPACE }}.KnowledgeIndexGoldenSetTests.GoldenSet_QueriesMeetTop3RecallBaseline" \
+            2>&1 | tee logs/golden.log
+
+      - name: Hard golden set - top-3 recall (provisional gate 0.5)
+        id: hard
+        if: ${{ !cancelled() && steps.prep.outcome == 'success' && inputs.test_filter == '' }}
+        env:
+          KNOWLEDGEINDEX_HARD_MIN_PASS_RATE: ${{ inputs.hard_min_pass_rate }}
+        run: |
+          dotnet test ${{ env.TEST_PROJECT }} --no-build --configuration Release \
+            --blame-hang-timeout 40m \
+            --results-directory results \
+            --logger "trx;LogFileName=hard.trx" \
+            --logger "console;verbosity=detailed" \
+            --filter "FullyQualifiedName=${{ env.TEST_NAMESPACE }}.KnowledgeIndexHardGoldenSetTests.HardGoldenSet_QueriesMeetTop3RecallBaseline" \
+            2>&1 | tee logs/hard.log
+
+      - name: Custom filter run
+        id: custom
+        if: ${{ !cancelled() && steps.prep.outcome == 'success' && inputs.test_filter != '' }}
+        env:
+          CUSTOM_FILTER: ${{ inputs.test_filter }}
+          KNOWLEDGEINDEX_HARD_MIN_PASS_RATE: ${{ inputs.hard_min_pass_rate }}
+        run: |
+          dotnet test ${{ env.TEST_PROJECT }} --no-build --configuration Release \
+            --blame-hang-timeout 40m \
+            --results-directory results \
+            --logger "trx;LogFileName=custom.trx" \
+            --logger "console;verbosity=detailed" \
+            --filter "$CUSTOM_FILTER" \
+            2>&1 | tee logs/custom.log
+
+      - name: Job summary
+        if: ${{ always() }}
+        run: |
+          {
+            echo "## Knowledge retrieval recall (x64 Linux, real ONNX models)"
+            echo
+            [ -f logs/index-count.log ] && cat logs/index-count.log && echo
+            for name in golden hard custom; do
+              log="logs/$name.log"
+              [ -f "$log" ] || continue
+              echo "### $name"
+              echo '```'
+              { grep -hE "recall|Passed!|Failed!|Skipped!" "$log" || true; } | sed -E 's/^[[:space:]]+//' | sort -u
+              echo '```'
+              if grep -q "expected '" "$log"; then
+                echo "<details><summary>Missed queries (first 60)</summary>"
+                echo
+                echo '```'
+                grep -h "expected '" "$log" | sed -E 's/^[[:space:]]+//' | sort -u | head -60
+                echo '```'
+                echo "</details>"
+              fi
+              echo
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload logs and trx
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: knowledge-retrieval-results
+          path: |
+            logs/
+            results/
+          if-no-files-found: warn
+          retention-days: 30

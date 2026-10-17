@@ -108,7 +108,8 @@ public class SkillPhraseRepository : ISkillPhraseRepository
     }
 
     // The learning loop writes exactly one row and must not touch its neighbours: the replace paths below
-    // delete a whole (owner, language, kind, source) slice, which would drop every phrase earlier rounds
+    // rewrite a whole (owner, language, kind, source) slice and remove every row the new list does not
+    // carry, which would drop every phrase earlier rounds
     // learned for the same skill. SortOrder is appended rather than recomputed for the same reason.
     public async Task<Guid?> TryAddLearnedAsync(
         string ownerKind,
@@ -209,14 +210,14 @@ public class SkillPhraseRepository : ISkillPhraseRepository
         SkillPhraseReplaceScope scope = SkillPhraseReplaceScope.SameSourceOnly,
         CancellationToken cancellationToken = default)
     {
+        var tag = NormalizeLanguage(language);
         var query = OwnerQuery(ownerKind, ownerName, kind, source, scope)
-            .Where(p => p.Language == language);
+            .Where(p => p.Language == tag);
 
-        await RemoveExistingAsync(query, cancellationToken);
-        AddPhrases(ownerKind, ownerName, kind, source, language, phrases);
+        var desired = new Dictionary<(string Language, string Phrase), int>();
+        CollectDesiredPhrases(desired, kind, tag, phrases);
 
-        await _context.SaveChangesAsync(cancellationToken);
-        DetachTrackedPhrases();
+        await ApplyReplacementAsync(query, ownerKind, ownerName, kind, source, desired, cancellationToken);
     }
 
     public async Task ReplaceAllLanguagesAsync(
@@ -230,18 +231,16 @@ public class SkillPhraseRepository : ISkillPhraseRepository
     {
         var query = OwnerQuery(ownerKind, ownerName, kind, source, scope);
 
-        await RemoveExistingAsync(query, cancellationToken);
-
+        var desired = new Dictionary<(string Language, string Phrase), int>();
         if (phrasesByLanguage != null)
         {
             foreach (var entry in phrasesByLanguage)
             {
-                AddPhrases(ownerKind, ownerName, kind, source, entry.Key, entry.Value);
+                CollectDesiredPhrases(desired, kind, NormalizeLanguage(entry.Key), entry.Value);
             }
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
-        DetachTrackedPhrases();
+        await ApplyReplacementAsync(query, ownerKind, ownerName, kind, source, desired, cancellationToken);
     }
 
     // The startup seed loader calls ReplaceAllLanguagesAsync once per skill and kind on one scoped
@@ -284,33 +283,99 @@ public class SkillPhraseRepository : ISkillPhraseRepository
             : query;
     }
 
-    // Removal and insertion are saved separately on purpose. The unique index is filtered on
-    // is_deleted = false, so a re-inserted identical phrase only clears the old row once that row is
-    // flagged as deleted; a single SaveChanges would leave the statement order to the change tracker.
-    // Status is deliberately not filtered: a rejected row still occupies the unique key.
-    private async Task RemoveExistingAsync(IQueryable<SkillPhrase> query, CancellationToken cancellationToken)
-    {
-        var existing = await query.ToListAsync(cancellationToken);
-        if (existing.Count == 0)
-        {
-            return;
-        }
-
-        _context.SkillPhrases.RemoveRange(existing);
-        await _context.SaveChangesAsync(cancellationToken);
-        DetachTrackedPhrases();
-    }
-
-    private void AddPhrases(
+    // The replacement is a diff, not a delete-and-insert. Every seed version bump and every language
+    // pack install rewrites its slice, and the soft delete turned each unchanged phrase into one more
+    // tombstone per run - the table ended up holding more deleted than active rows. A row of the writing
+    // source whose (language, phrase) is still wanted therefore stays the same row; only its position
+    // follows the new list. A row of another source inside an AllSourcesOfOwner slice is still removed
+    // and written anew: taking it over in place would carry its status along, and a rejected Learned
+    // row turned into an Admin row would stay inactive where neither the learning card nor anyone
+    // else can reach it.
+    //
+    // Status is deliberately not filtered: a rejected row still occupies the unique key. Listing its
+    // wording again from the same source keeps the row as it is - neither a second row next to it nor a
+    // silent reactivation - and a rejected wording the list no longer carries is removed like any other.
+    //
+    // Removal and insertion are still saved separately. The unique index is filtered on
+    // is_deleted = false, so a row only clears its key once it is flagged as deleted; a single
+    // SaveChanges would leave the statement order to the change tracker.
+    private async Task ApplyReplacementAsync(
+        IQueryable<SkillPhrase> query,
         string ownerKind,
         string ownerName,
         string kind,
         string source,
+        IReadOnlyDictionary<(string Language, string Phrase), int> desired,
+        CancellationToken cancellationToken)
+    {
+        var existing = await query.ToListAsync(cancellationToken);
+        var kept = new Dictionary<(string Language, string Phrase), SkillPhrase>();
+        var obsolete = new List<SkillPhrase>();
+
+        foreach (var row in existing)
+        {
+            var key = (row.Language, row.Phrase);
+            if (string.Equals(row.Source, source, StringComparison.Ordinal)
+                && desired.ContainsKey(key)
+                && kept.TryAdd(key, row))
+            {
+                continue;
+            }
+
+            obsolete.Add(row);
+        }
+
+        if (obsolete.Count > 0)
+        {
+            _context.SkillPhrases.RemoveRange(obsolete);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        foreach (var (key, sortOrder) in desired)
+        {
+            if (kept.TryGetValue(key, out var row))
+            {
+                if (row.SortOrder != sortOrder)
+                {
+                    row.SortOrder = sortOrder;
+                }
+
+                continue;
+            }
+
+            _context.SkillPhrases.Add(new SkillPhrase
+            {
+                Id = Guid.NewGuid(),
+                OwnerKind = ownerKind,
+                OwnerName = ownerName,
+                Language = key.Language,
+                Kind = kind,
+                Phrase = key.Phrase,
+                SortOrder = sortOrder,
+                Source = source,
+                Status = SkillPhraseStatuses.Active
+            });
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+        DetachTrackedPhrases();
+    }
+
+    // Nothing reaches the column without a tag any more. A caller that has no language to give means
+    // "not classified", which is Undetermined - never Multiple, because that one makes a short phrase an
+    // anchor in the keyword matcher and would hand anchor status to whatever an unaudited caller happens
+    // to pass. The slice is read under the same tag it is written under, so a repeated untagged call
+    // finds the rows the previous one wrote.
+    private static string NormalizeLanguage(string? language) =>
+        string.IsNullOrWhiteSpace(language) ? SkillPhraseLanguages.Undetermined : language;
+
+    private static void CollectDesiredPhrases(
+        Dictionary<(string Language, string Phrase), int> desired,
+        string kind,
         string language,
         IReadOnlyList<string> phrases)
     {
         var keepBlanks = KeepsBlankPhrases(kind);
-        var written = new HashSet<string>(StringComparer.Ordinal);
 
         for (var sortOrder = 0; sortOrder < phrases.Count; sortOrder++)
         {
@@ -324,28 +389,9 @@ public class SkillPhraseRepository : ISkillPhraseRepository
             // The unique index spans (owner, language, kind, phrase) without a source column, so an
             // exact repeat inside one list cannot be stored twice. It is skipped rather than thrown
             // on: the callers are the startup seed loader and the language pack installer, and
-            // neither may fail because a definition happens to list a term twice.
-            if (!written.Add(phrase))
-            {
-                continue;
-            }
-
-            _context.SkillPhrases.Add(new SkillPhrase
-            {
-                Id = Guid.NewGuid(),
-                OwnerKind = ownerKind,
-                OwnerName = ownerName,
-                // Nothing reaches the column without a tag any more. A caller that has no language to
-                // give means "not classified", which is Undetermined - never Multiple, because that
-                // one makes a short phrase an anchor in the keyword matcher and would hand anchor
-                // status to whatever an unaudited caller happens to pass.
-                Language = string.IsNullOrWhiteSpace(language) ? SkillPhraseLanguages.Undetermined : language,
-                Kind = kind,
-                Phrase = phrase,
-                SortOrder = sortOrder,
-                Source = source,
-                Status = SkillPhraseStatuses.Active
-            });
+            // neither may fail because a definition happens to list a term twice. The first
+            // position wins, as it always has.
+            desired.TryAdd((language, phrase), sortOrder);
         }
     }
 
