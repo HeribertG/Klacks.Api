@@ -29477,11 +29477,23 @@
     {
       "name": "start_guided_tour",
       "area": "navigation",
-      "description": "Starts the guided Klacks setup tour: Klacksy actively walks the user through all 16 stations (basic settings, employees, shifts, availability, absences, period closing, email, plugins), navigating to each page, pulsing the matching main-nav icon and explaining everything step by step. Use this whenever the user asks for a tour, a guided walkthrough, an introduction to Klacks, or wants Klacksy to lead them through the app. The tour can be restarted at any time, even when already completed.",
+      "description": "Starts a guided Klacks tour: Klacksy walks the user station by station through the app, navigating to each page, pulsing the matching main-nav icon and explaining it. Every user gets the short introduction (schedule, shifts and orders, absences, people, period closing, asking Klacksy); administrators also have the 20-station setup tour (basic settings, AI provider, calendar, email, employees, plugins). Use it when the user asks for a tour, a walkthrough or an introduction, or to repeat one.",
       "category": "Action",
       "executionType": "UiAction",
       "requiredPermissions": [],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "kind",
+          "description": "Which tour to start: intro = the short introduction every user gets; setup = the administrator's setup tour of the installation. Use intro unless an administrator explicitly asks for the setup tour.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "intro",
+          "enumValues": [
+            "intro",
+            "setup"
+          ]
+        }
+      ],
       "handlerConfig": {
         "steps": []
       },
@@ -29544,7 +29556,7 @@
         "fr": "Démarrer la visite guidée",
         "it": "Avvia il tour guidato"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_communication",

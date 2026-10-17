@@ -48,6 +48,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
     private readonly IOpenMeteoClient _weatherClient;
     private readonly ICompanyLocationProvider _companyLocationProvider;
     private readonly IOnboardingService _onboardingService;
+    private readonly IIntroTourStateService _introTourStateService;
     private readonly IPublicHolidayProvider _holidayProvider;
     private readonly IGreetingComposer _greetingComposer;
     private readonly IConfiguration _configuration;
@@ -61,6 +62,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         IOpenMeteoClient weatherClient,
         ICompanyLocationProvider companyLocationProvider,
         IOnboardingService onboardingService,
+        IIntroTourStateService introTourStateService,
         IPublicHolidayProvider holidayProvider,
         IGreetingComposer greetingComposer,
         IConfiguration configuration,
@@ -73,6 +75,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         _weatherClient = weatherClient;
         _companyLocationProvider = companyLocationProvider;
         _onboardingService = onboardingService;
+        _introTourStateService = introTourStateService;
         _holidayProvider = holidayProvider;
         _greetingComposer = greetingComposer;
         _configuration = configuration;
@@ -118,7 +121,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             SuggestionCount,
             cancellationToken);
 
-        var onboarding = await _onboardingService.GetStateAsync(request.UserRights, cancellationToken);
+        var onboarding = await ResolveOnboardingAsync(request, cancellationToken);
         var focus = await _welcomeFocusResolver.ResolveAsync(request.UserId, cancellationToken);
 
         return new WelcomeResource
@@ -138,6 +141,22 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             Onboarding = onboarding,
             Focus = focus,
         };
+    }
+
+    /// <summary>
+    /// The admin's setup tour while it is still open (pending, in progress or snoozed); otherwise the caller's own
+    /// intro tour. Null only when the caller has no account id.
+    /// </summary>
+    private async Task<OnboardingResource?> ResolveOnboardingAsync(GetWelcomeQuery request, CancellationToken cancellationToken)
+    {
+        var setup = await _onboardingService.GetStateAsync(request.UserRights, cancellationToken);
+        if (setup != null && OnboardingStatus.IsOpen(setup.Status))
+        {
+            setup.Kind = OnboardingKind.Setup;
+            return setup;
+        }
+
+        return await _introTourStateService.GetStateAsync(request.UserId, cancellationToken);
     }
 
     private static int PickVariantIndex(int? excludeIndex, int total)

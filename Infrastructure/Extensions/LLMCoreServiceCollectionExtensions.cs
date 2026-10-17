@@ -304,6 +304,7 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IRuleContextProvider, Domain.Services.Assistant.RuleContextProvider>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IPlanningScopeEnricher, Application.Services.Assistant.PlanningScopeEnricher>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IExplainDepthResolver, Application.Services.Assistant.ExplainDepthResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IExplainDepthOverrideService, Application.Services.Assistant.ExplainDepthOverrideService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IEntityCandidateGrounder, Application.Services.Assistant.ClientNameCandidateGrounder>();
         services.AddSingleton<ISentimentAnalyzer, Domain.Services.Assistant.SentimentAnalyzer>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ITtsApiKeyResolver, Klacks.Api.Infrastructure.Services.Assistant.TtsApiKeyResolver>();
@@ -324,6 +325,10 @@ internal static class LLMCoreServiceCollectionExtensions
             Klacks.Api.Application.Services.Assistant.SuggestionsRanker>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IOnboardingService,
             Klacks.Api.Application.Services.Assistant.OnboardingService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IUserIntroTourStateRepository,
+            Klacks.Api.Infrastructure.Repositories.Assistant.UserIntroTourStateRepository>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IIntroTourStateService,
+            Klacks.Api.Application.Services.Assistant.IntroTourStateService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IWelcomeFocusResolver,
             Klacks.Api.Application.Services.Assistant.WelcomeFocusResolver>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IOpenMeteoClient,

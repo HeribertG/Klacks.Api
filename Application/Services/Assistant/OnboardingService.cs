@@ -13,6 +13,7 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
@@ -104,6 +105,7 @@ public class OnboardingService : IOnboardingService
 
         return new OnboardingResource
         {
+            Kind = OnboardingKind.Setup,
             ShouldOffer = state.Status == OnboardingStatus.Pending,
             LlmLive = await IsLlmLiveAsync(cancellationToken),
             ShowCard = !resolved,
@@ -116,7 +118,7 @@ public class OnboardingService : IOnboardingService
     {
         cancellationToken.ThrowIfCancellationRequested();
         var providers = await _llmRepository.GetProvidersAsync();
-        return providers.Any(p => p.IsEnabled && (p.HasApiKey || !p.RequiresApiKey));
+        return LlmProviderAvailability.AnyLive(providers);
     }
 
     private static OnboardingState ParseState(string? value)

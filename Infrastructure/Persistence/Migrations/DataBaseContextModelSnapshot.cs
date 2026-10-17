@@ -5420,6 +5420,47 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("ui_controls", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.UserIntroTourState", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("CompletedStations")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("completed_stations")
+                        .HasDefaultValueSql("'[]'::jsonb");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<DateTime?>("LastOfferedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_offered_at");
+
+                    b.Property<int>("SnoozeCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("snooze_count");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("UserId")
+                        .HasName("pk_user_intro_tour_states");
+
+                    b.ToTable("user_intro_tour_states", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.ClientQualification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -14732,6 +14773,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_ui_controls_ui_controls_parent_control_id");
 
                     b.Navigation("ParentControl");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.UserIntroTourState", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Authentification.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_intro_tour_states_app_user_user_id");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Associations.ClientQualification", b =>

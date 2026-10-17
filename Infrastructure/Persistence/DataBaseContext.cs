@@ -265,6 +265,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<AgentPlan> AgentPlans { get; set; }
     public DbSet<GoalCandidate> GoalCandidates { get; set; }
     public DbSet<AgentTriggerPreferenceRow> AgentTriggerPreferences { get; set; }
+    public DbSet<UserIntroTourState> UserIntroTourStates { get; set; }
     public DbSet<ProactiveTriggerDispatchRow> AgentTriggerDispatches { get; set; }
     public DbSet<AgentAutonomyPreferenceRow> AgentAutonomyPreferences { get; set; }
     public DbSet<EscalationChain> EscalationChains { get; set; }

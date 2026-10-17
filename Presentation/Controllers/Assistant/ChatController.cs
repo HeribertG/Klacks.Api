@@ -570,6 +570,7 @@ public class ChatController : ControllerBase
         [FromBody] SaveOnboardingStateCommand command,
         CancellationToken cancellationToken)
     {
+        command.UserId = GetCurrentUserId();
         command.UserRights = GetCurrentUserRights();
         var result = await _mediator.Send(command, cancellationToken);
         if (result == null)
@@ -578,6 +579,24 @@ public class ChatController : ControllerBase
         }
 
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Sets the caller's explanation-depth override to advanced (onboarding chip "I already know Klacks") without an
+    /// LLM turn. 204 on success, 400 without a usable account id, 409 while no agent is configured yet.
+    /// </summary>
+    [HttpPost("onboarding/explain-depth/advanced")]
+    public async Task<ActionResult> SetAdvancedExplainDepth(CancellationToken cancellationToken)
+    {
+        var outcome = await _mediator.Send(
+            new SetAdvancedExplainDepthCommand { UserId = GetCurrentUserId() }, cancellationToken);
+
+        return outcome switch
+        {
+            ExplainDepthOverrideOutcome.Stored => NoContent(),
+            ExplainDepthOverrideOutcome.NoAgent => Conflict(),
+            _ => BadRequest(),
+        };
     }
 
     [HttpGet("help")]

@@ -3,11 +3,33 @@
 namespace Klacks.Api.Application.DTOs.Assistant;
 
 /// <summary>
-/// Onboarding slice of the welcome payload. Tells the frontend whether to proactively offer the
+/// Onboarding slice of the welcome payload (setup or intro tour, see Kind). Tells the frontend whether to proactively offer the
 /// setup tour, whether to show the resumable progress card, and which stations are already done.
 /// </summary>
 public class OnboardingResource
 {
+    /// <summary>
+    /// Which tour this slice describes: "setup" (installation-wide admin setup tour) or "intro" (per-account
+    /// short intro). See <see cref="Constants.OnboardingKind"/>.
+    /// </summary>
+    public string Kind { get; set; } = Constants.OnboardingKind.Setup;
+
+    /// <summary>
+    /// Intro only: true while the account still holds its single release-time offer (existing account). The
+    /// frontend shows that offer once and without the "later" chip.
+    /// </summary>
+    public bool IsLegacyOffer { get; set; }
+
+    /// <summary>
+    /// Intro only: number of explicit "later" answers so far; the second one dismisses the offer.
+    /// </summary>
+    public int SnoozeCount { get; set; }
+
+    /// <summary>
+    /// Intro only: when the frontend last reported the offer as visible (UTC), or null.
+    /// </summary>
+    public DateTime? LastOfferedAt { get; set; }
+
     /// <summary>
     /// True when Klacksy should proactively offer the tour now (fresh install and the user has not
     /// yet acted on the offer). Independent of LLM availability — the tour itself is frontend-scripted.
@@ -28,7 +50,8 @@ public class OnboardingResource
     public bool ShowCard { get; set; }
 
     /// <summary>
-    /// Current onboarding lifecycle status (see <see cref="Constants.OnboardingStatus"/>).
+    /// Current lifecycle status: <see cref="Constants.OnboardingStatus"/> for setup,
+    /// <see cref="Domain.Constants.IntroTourStatus"/> for intro ("pending" also when the account has no row yet).
     /// </summary>
     public string Status { get; set; } = string.Empty;
 
