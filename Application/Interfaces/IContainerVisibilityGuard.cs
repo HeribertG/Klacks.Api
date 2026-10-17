@@ -10,13 +10,8 @@ namespace Klacks.Api.Application.Interfaces;
 public interface IContainerVisibilityGuard
 {
     /// <summary>
-    /// True only when the container shift exists and the caller may touch it (one query for every caller).
-    /// </summary>
-    /// <param name="containerId">Container shift the request is about</param>
-    Task<bool> IsContainerVisibleAsync(Guid containerId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Throws KeyNotFoundException with the missing-shift text when the container shift is missing or hidden.
+    /// Throws KeyNotFoundException with the missing-shift text when the container shift is missing or hidden (one
+    /// existence-and-visibility query for every caller).
     /// </summary>
     /// <param name="containerId">Container shift the request is about</param>
     Task EnsureContainerVisibleAsync(Guid containerId, CancellationToken cancellationToken = default);

@@ -19,6 +19,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Clients;
 using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -93,7 +94,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
 
             if (!await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
             {
-                throw new KeyNotFoundException($"Client with ID {work.ClientId} not found");
+                throw new KeyNotFoundException(string.Format(ClientVisibilityMessages.ClientNotFound, work.ClientId));
             }
 
             if (!await _shiftVisibilityGuard.IsVisibleAsync(work.ShiftId, cancellationToken))

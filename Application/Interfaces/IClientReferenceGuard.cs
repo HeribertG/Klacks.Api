@@ -10,13 +10,8 @@ namespace Klacks.Api.Application.Interfaces;
 public interface IClientReferenceGuard
 {
     /// <summary>
-    /// True only when the client exists (not soft-deleted) and the caller may see it.
-    /// </summary>
-    /// <param name="clientId">Client id taken from the request</param>
-    Task<bool> ExistsVisibleAsync(Guid clientId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Throws KeyNotFoundException with ClientVisibilityMessages.ClientNotFound unless ExistsVisibleAsync holds.
+    /// Throws KeyNotFoundException with ClientVisibilityMessages.ClientNotFound unless the client exists (not
+    /// soft-deleted) and the caller may see it.
     /// </summary>
     /// <param name="clientId">Client id taken from the request</param>
     Task EnsureExistsVisibleAsync(Guid clientId, CancellationToken cancellationToken = default);

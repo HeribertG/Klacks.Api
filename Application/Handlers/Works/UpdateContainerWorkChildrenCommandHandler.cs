@@ -26,8 +26,6 @@ namespace Klacks.Api.Application.Handlers.Works;
 
 public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHandler<UpdateContainerWorkChildrenCommand, ContainerWorkChildrenResource>
 {
-    private const string WorkNotFoundMessageFormat = "Work with ID {0} not found.";
-
     private readonly IContainerWorkChildrenReadRepository _childrenReadRepository;
     private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
@@ -138,7 +136,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         var parentWork = await _childrenReadRepository.GetParentWorkNoTracking(workId, cancellationToken);
         if (parentWork == null)
         {
-            throw new KeyNotFoundException(string.Format(WorkNotFoundMessageFormat, workId));
+            throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, workId));
         }
 
         var clientIds = resource.SubWorkChanges
@@ -150,7 +148,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             .ToList();
         if (!await _rowAccessGuard.AreAllVisibleAsync(clientIds, parentWork.AnalyseToken, cancellationToken))
         {
-            throw new KeyNotFoundException(string.Format(WorkNotFoundMessageFormat, workId));
+            throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, workId));
         }
     }
 

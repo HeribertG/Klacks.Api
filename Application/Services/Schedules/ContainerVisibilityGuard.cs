@@ -31,14 +31,9 @@ public class ContainerVisibilityGuard : IContainerVisibilityGuard
         _logger = logger;
     }
 
-    public Task<bool> IsContainerVisibleAsync(Guid containerId, CancellationToken cancellationToken = default)
-    {
-        return _shiftVisibilityGuard.ExistsAndVisibleAsync(containerId, cancellationToken);
-    }
-
     public async Task EnsureContainerVisibleAsync(Guid containerId, CancellationToken cancellationToken = default)
     {
-        if (!await IsContainerVisibleAsync(containerId, cancellationToken))
+        if (!await _shiftVisibilityGuard.ExistsAndVisibleAsync(containerId, cancellationToken))
         {
             _logger.LogWarning("Container request refused on hidden or missing container {ContainerId}", containerId);
             throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, containerId));

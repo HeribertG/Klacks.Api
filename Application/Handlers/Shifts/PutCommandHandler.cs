@@ -4,6 +4,8 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Shifts;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -20,8 +22,10 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 /// one (null, i.e. 404), before any other check; adding, removing or re-dating an assignment to a hidden group is
 /// refused like a missing group. A changed customer must exist, must not be soft-deleted and must be visible, otherwise
 /// the save is refused with the same 404 for all three; an unchanged customer is not checked, so a shift whose stored
-/// customer the caller cannot see stays saveable. The lock check runs before the customer check, so a locked shift
-/// answers 409 whatever customer was sent.
+/// customer the caller cannot see stays saveable. A stored draft order (OriginalOrder) may only be saved as a draft or
+/// sealed (SealedOrder); any other status is refused with 400, because the status is server-owned hierarchy. The lock
+/// check runs first, then the draft status check, then the customer check, so a locked shift answers 409 and a forbidden
+/// draft status 400 whatever customer was sent.
 /// </summary>
 /// <param name="shiftVisibilityGuard">Decides whether the caller may touch the shift and its changed groups</param>
 /// <param name="clientReferenceGuard">Decides whether a changed customer exists and is visible to the caller</param>
@@ -67,6 +71,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
         await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync(shift.Id, shift.GroupItems, cancellationToken);
         var stored = await _shiftRepository.GetNoTracking(shift.Id);
         EnsureNotLocked(stored, shift);
+        EnsureDraftStatusTransitionAllowed(stored, shift);
         await EnsureChangedClientExistsVisibleAsync(stored, shift, cancellationToken);
         await KeepInheritedRequirementsAsync(shift, cancellationToken);
 
@@ -108,6 +113,25 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
                 stored.Id, stored.Status, string.Join(',', lockedChanges));
             throw ShiftLockedException.ForEdit(stored, lockedChanges);
         }
+    }
+
+    /// <summary>
+    /// A draft order becomes something else only by sealing (which derives the plannable copy); turning it into a
+    /// plannable shift or a cut piece by PUT would bypass the server-owned hierarchy.
+    /// </summary>
+    /// <param name="stored">Shift as saved, or null when it does not exist</param>
+    /// <param name="incoming">Shift as mapped from the request</param>
+    private void EnsureDraftStatusTransitionAllowed(Shift? stored, Shift incoming)
+    {
+        if (stored?.Status != ShiftStatus.OriginalOrder
+            || incoming.Status is ShiftStatus.OriginalOrder or ShiftStatus.SealedOrder)
+        {
+            return;
+        }
+
+        _logger.LogWarning("Shift update refused: draft order {ShiftId} sent with status {Status}", stored.Id, incoming.Status);
+        throw new BadRequestException(
+            string.Format(ShiftHierarchyMessages.DraftStatusChangeNotAllowed, stored.Id, incoming.Status));
     }
 
     /// <summary>

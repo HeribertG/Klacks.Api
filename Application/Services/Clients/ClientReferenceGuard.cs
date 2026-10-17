@@ -24,14 +24,9 @@ public class ClientReferenceGuard : IClientReferenceGuard
         _clientRepository = clientRepository;
     }
 
-    public Task<bool> ExistsVisibleAsync(Guid clientId, CancellationToken cancellationToken = default)
-    {
-        return ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
-    }
-
     public async Task EnsureExistsVisibleAsync(Guid clientId, CancellationToken cancellationToken = default)
     {
-        if (!await ExistsVisibleAsync(clientId, cancellationToken))
+        if (!await ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken))
         {
             throw new KeyNotFoundException(string.Format(ClientVisibilityMessages.ClientNotFound, clientId));
         }

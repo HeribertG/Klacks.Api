@@ -26,9 +26,6 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// <param name="shiftVisibilityGuard">Decides whether the caller may touch a shift and the groups a piece changes</param>
 public class ShiftCutFacade : IShiftCutFacade
 {
-    private const string UpdateOperation = "UPDATE";
-    private const string CreateOperation = "CREATE";
-
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftRequiredQualificationRepository _requirementRepository;
     private readonly IShiftTreeService _shiftTreeService;
@@ -79,13 +76,13 @@ public class ShiftCutFacade : IShiftCutFacade
 
         foreach (var op in sortedOps)
         {
-            if (op.Type == UpdateOperation)
+            if (op.Type == CutOperation.UpdateType)
             {
                 _logger.LogInformation("Processing UPDATE for ShiftId={ShiftId}", op.Data.Id);
                 var updatedShift = await ProcessUpdate(op, lineages[op]);
                 processedShifts.Add(updatedShift);
             }
-            else if (op.Type == CreateOperation)
+            else if (op.Type == CutOperation.CreateType)
             {
                 _logger.LogInformation("Processing CREATE with ShiftId={ShiftId}, ParentId={ParentId}",
                     op.Data.Id, op.ParentId);
@@ -174,7 +171,7 @@ public class ShiftCutFacade : IShiftCutFacade
         {
             var requestedGroups = requestedGroupsByOperation[op];
 
-            if (op.Type == UpdateOperation && op.Data.Id != Guid.Empty)
+            if (op.Type == CutOperation.UpdateType && op.Data.Id != Guid.Empty)
             {
                 if (!await _shiftVisibilityGuard.IsVisibleAsync(op.Data.Id))
                 {
@@ -183,7 +180,7 @@ public class ShiftCutFacade : IShiftCutFacade
 
                 await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync(op.Data.Id, requestedGroups);
             }
-            else if (op.Type == CreateOperation && Guid.TryParse(op.ParentId, out var parentId))
+            else if (op.Type == CutOperation.CreateType && Guid.TryParse(op.ParentId, out var parentId))
             {
                 if (requestedGroupsById.TryGetValue(parentId, out var parentGroupsInBatch))
                 {
@@ -222,8 +219,8 @@ public class ShiftCutFacade : IShiftCutFacade
         {
             var lineage = op.Type switch
             {
-                UpdateOperation => await ResolveUpdateLineageAsync(op),
-                CreateOperation => await ResolveCreateLineageAsync(op, lineagesById),
+                CutOperation.UpdateType => await ResolveUpdateLineageAsync(op),
+                CutOperation.CreateType => await ResolveCreateLineageAsync(op, lineagesById),
                 _ => throw new InvalidOperationException($"Unknown operation type: {op.Type}")
             };
 

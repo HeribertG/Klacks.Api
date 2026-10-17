@@ -22,6 +22,8 @@
 /// considered; without any group the container has no group filter (all matching tasks are eligible).</param>
 /// <param name="name">Optional container name; defaults to "Mobile Dienste {location}".</param>
 /// <param name="groupVisibilityGuard">Answers a group a restricted caller may not see exactly like a missing group</param>
+/// <param name="shiftVisibilityGuard">Drops autofill picks a restricted caller may not see, so a hidden task shift is
+/// never written into the template, reported back or named in an error</param>
 
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Constants;
@@ -60,6 +62,8 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private const int DefaultQuantity = 1;
     private const double DefaultTimeRangeTolerance = 0.5;
     private const string TransportModeCar = "car";
+    private const string NoMatchingServicesMessage =
+        "No matching mobile TimeRange services were found around '{0}' within the given time budget — no container was created.";
 
     private readonly IShiftRepository _shiftRepository;
     private readonly IGroupRepository _groupRepository;
@@ -71,6 +75,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private readonly ISettingsEncryptionService _encryptionService;
     private readonly IGeoServicesPolicy _geoServicesPolicy;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public BundleNearbyTimeRangeShiftsIntoContainerSkill(
         IShiftRepository shiftRepository,
@@ -82,7 +87,8 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         ISettingsReader settingsReader,
         ISettingsEncryptionService encryptionService,
         IGeoServicesPolicy geoServicesPolicy,
-        IGroupVisibilityGuard groupVisibilityGuard)
+        IGroupVisibilityGuard groupVisibilityGuard,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _geoServicesPolicy = geoServicesPolicy;
         _shiftRepository = shiftRepository;
@@ -94,6 +100,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         _settingsReader = settingsReader;
         _encryptionService = encryptionService;
         _groupVisibilityGuard = groupVisibilityGuard;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     private async Task<SkillResult?> CheckTransportModeAvailableAsync(ContainerTransportMode transportMode, string? transportModeStr)
@@ -267,7 +274,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
 
                 var containerId = resultShift.Id;
 
-                var autofillResult = await _containerAutofillService.AutofillAsync(new ContainerAutofillRequest(
+                var rawAutofillResult = await _containerAutofillService.AutofillAsync(new ContainerAutofillRequest(
                     ContainerId: containerId,
                     Weekday: storageWeekday,
                     IsHoliday: false,
@@ -279,12 +286,10 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
                     TimeRangeTolerance: timeRangeTolerance,
                     CancellationToken: cancellationToken));
 
+                var autofillResult = await KeepVisibleSelectionAsync(rawAutofillResult, cancellationToken);
                 if (autofillResult.SelectedShiftIds.Count == 0)
                 {
-                    throw new SkillVerificationException(
-                        SkillName,
-                        $"No matching mobile TimeRange services were found around '{location}' within the given time " +
-                        "budget — no container was created.");
+                    throw new SkillVerificationException(SkillName, string.Format(NoMatchingServicesMessage, location));
                 }
 
                 var lockResult = await _mediator.Send(
@@ -396,6 +401,29 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             "optimization. To fill another weekday, call this skill again with a different weekday.";
 
         return SkillResult.SuccessResult(resultData, message);
+    }
+
+    /// <summary>
+    /// The autofill service is a domain service without a caller, so its picks are narrowed to the task shifts the caller
+    /// may see before anything is written; an unrestricted caller keeps every pick.
+    /// </summary>
+    /// <param name="autofillResult">Raw autofill result</param>
+    private async Task<ContainerAutofillResult> KeepVisibleSelectionAsync(
+        ContainerAutofillResult autofillResult, CancellationToken cancellationToken)
+    {
+        if (autofillResult.SelectedShiftIds.Count == 0)
+        {
+            return autofillResult;
+        }
+
+        var visibleIds = await _shiftVisibilityGuard.FilterVisibleAsync(autofillResult.SelectedShiftIds, cancellationToken);
+        if (visibleIds.Count == autofillResult.SelectedShiftIds.Distinct().Count())
+        {
+            return autofillResult;
+        }
+
+        var visibleSelection = autofillResult.SelectedShiftIds.Where(visibleIds.Contains).ToList();
+        return autofillResult with { SelectedShiftIds = visibleSelection, SelectedShiftCount = visibleSelection.Count };
     }
 
     private static bool IsTemplateFullyPersisted(

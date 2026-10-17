@@ -16,6 +16,8 @@ public interface IShiftVisibilityGuard
     /// <summary>
     /// True for an unrestricted caller without any query (the caller's own existence check decides as before);
     /// for a restricted caller true only when the shift exists and is visible, so missing and hidden look alike.
+    /// For an unrestricted caller the result is therefore also true for an id that does not exist: this is no
+    /// existence check; use ExistsAndVisibleAsync when existence must be decided too.
     /// </summary>
     /// <param name="shiftId">Shift a write is about to touch</param>
     Task<bool> IsVisibleAsync(Guid shiftId, CancellationToken cancellationToken = default);
