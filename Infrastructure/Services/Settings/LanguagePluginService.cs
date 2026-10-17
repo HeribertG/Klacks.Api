@@ -7,7 +7,8 @@
 /// country, state and geo translation operations to <see cref="LanguagePluginGeoContentInstaller"/>,
 /// the one-time calendar rule heal to <see cref="LanguagePluginCalendarRuleBackfiller"/>,
 /// the default qualification names to <see cref="LanguagePluginQualificationInstaller"/>,
-/// the default holiday names to <see cref="LanguagePluginCalendarRuleNameInstaller"/>
+/// the default holiday names to <see cref="LanguagePluginCalendarRuleNameInstaller"/>,
+/// the default absence type names and abbreviations to <see cref="LanguagePluginAbsenceInstaller"/>
 /// and skill label operations to <see cref="LanguagePluginSkillLabelInstaller"/>.
 /// </summary>
 /// <param name="scopeFactory">Factory for DI scopes in database operations</param>
@@ -46,6 +47,7 @@ public class LanguagePluginService : ILanguagePluginService
     private readonly LanguagePluginGeoContentInstaller _geoContentInstaller;
     private readonly LanguagePluginQualificationInstaller _qualificationInstaller;
     private readonly LanguagePluginCalendarRuleNameInstaller _calendarRuleNameInstaller;
+    private readonly LanguagePluginAbsenceInstaller _absenceInstaller;
     private readonly LanguagePluginSkillLabelInstaller _skillLabelInstaller;
     private readonly LanguagePluginRecipeVocabularyInstaller _recipeVocabularyInstaller;
     private readonly LanguagePluginCalendarRuleBackfiller _calendarRuleBackfiller;
@@ -71,6 +73,7 @@ public class LanguagePluginService : ILanguagePluginService
         _geoContentInstaller = new LanguagePluginGeoContentInstaller(_pluginDirectory, _logger);
         _qualificationInstaller = new LanguagePluginQualificationInstaller(_pluginDirectory, _logger);
         _calendarRuleNameInstaller = new LanguagePluginCalendarRuleNameInstaller(_pluginDirectory, _logger);
+        _absenceInstaller = new LanguagePluginAbsenceInstaller(_pluginDirectory, _logger);
         _skillLabelInstaller = new LanguagePluginSkillLabelInstaller(_pluginDirectory, _logger);
         _recipeVocabularyInstaller = new LanguagePluginRecipeVocabularyInstaller(_pluginDirectory, _logger);
         _calendarRuleBackfiller = new LanguagePluginCalendarRuleBackfiller(_pluginDirectory, _logger);
@@ -84,6 +87,7 @@ public class LanguagePluginService : ILanguagePluginService
         await LoadInstalledCodesFromDatabaseAsync();
         await BackfillDefaultGeoTranslationsAsync();
         await BackfillDefaultQualificationTranslationsAsync();
+        await BackfillDefaultAbsenceTranslationsAsync();
         await BackfillDocsAsync();
         await BackfillCountriesAsync();
         await BackfillCalendarRulesAsync();
@@ -108,6 +112,18 @@ public class LanguagePluginService : ILanguagePluginService
         await RunForEachInstalledCodeAsync(
             _qualificationInstaller.MergeDefaultQualificationTranslationsAsync,
             "Failed to backfill default qualification translations for installed language plugins");
+    }
+
+    /// <summary>
+    /// Writes the installed packs' names and abbreviations of the pre-seeded default absence types on every
+    /// startup, so an installation whose packs were installed before the translations existed gets them without
+    /// a reinstall. Values a customer already set, and seed rows a customer repurposed, are not touched.
+    /// </summary>
+    private async Task BackfillDefaultAbsenceTranslationsAsync()
+    {
+        await RunForEachInstalledCodeAsync(
+            _absenceInstaller.MergeDefaultAbsenceTranslationsAsync,
+            "Failed to backfill default absence translations for installed language plugins");
     }
 
     /// <summary>
@@ -434,6 +450,7 @@ public class LanguagePluginService : ILanguagePluginService
             await _geoContentInstaller.MergeNonCoreTranslationsAsync(scope, code);
             await _geoContentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
             await _qualificationInstaller.MergeDefaultQualificationTranslationsAsync(scope, code);
+            await _absenceInstaller.MergeDefaultAbsenceTranslationsAsync(scope, code);
             await _calendarRuleNameInstaller.MergeDefaultCalendarRuleTranslationsAsync(scope, code);
             await _geoContentInstaller.InstallCountryAsync(scope, code);
             await _geoContentInstaller.InstallStatesAsync(scope, code);
@@ -484,6 +501,7 @@ public class LanguagePluginService : ILanguagePluginService
             await _contentInstaller.UninstallDocsAsync(scope, code);
             await _geoContentInstaller.RemoveDefaultGeoTranslationsAsync(scope, code);
             await _qualificationInstaller.RemoveDefaultQualificationTranslationsAsync(scope, code);
+            await _absenceInstaller.RemoveDefaultAbsenceTranslationsAsync(scope, code);
             await _calendarRuleNameInstaller.RemoveDefaultCalendarRuleTranslationsAsync(scope, code);
 
             var existing = await settingsRepo.GetSetting(settingKey);
