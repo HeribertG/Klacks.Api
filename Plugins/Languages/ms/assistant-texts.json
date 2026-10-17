@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "Pelan AI",
   "assistant.scenarioName.optimizer": "Dioptimumkan",
   "assistant.scenarioName.proposal": "Cadangan",
-  "assistant.scenarioName.absenceCover": "Ganti ketidakhadiran"
+  "assistant.scenarioName.absenceCover": "Ganti ketidakhadiran",
+  "assistant.explainOffer.chipLabel": "Terangkan secara ringkas dahulu"
 }

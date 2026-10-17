@@ -7,7 +7,9 @@
 /// PersistentPendingCompanyRuleDraftStore: the chat pipeline can touch the request context concurrently, so a shared
 /// context would race. The IPendingConfirmationStore interface is synchronous because callers (AutonomyGateService,
 /// ConfirmPendingActionSkill) invoke it synchronously, so the short single-row repository calls are awaited via
-/// GetAwaiter().GetResult(); ASP.NET Core has no synchronization context, so this cannot deadlock. Consume deletes the
+/// GetAwaiter().GetResult(); ASP.NET Core has no synchronization context, so this cannot deadlock. IPendingConfirmationRenewal
+/// is asynchronous instead, because its only caller (the explain offer) is; it renews exactly the row whose token fingerprint,
+/// skill, purpose and channel match, never "the latest" row. Consume deletes the
 /// row keyed on the token ALONE before validating expiry/user/skill, so a mismatched or expired token is still burned
 /// on first use — exactly like the in-memory store it replaces. Proposal hints share this table and differ only in
 /// their purpose column: they are written without invocation parameters, deliberately keep the SAME row TTL as
@@ -31,11 +33,12 @@ using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Security;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
-public class PersistentPendingConfirmationStore : IPendingConfirmationStore
+public class PersistentPendingConfirmationStore : IPendingConfirmationStore, IPendingConfirmationRenewal
 {
     private const string EmptyParametersJson = "{}";
 
@@ -261,6 +264,40 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         }
 
         return latestToken == null ? null : new PendingConfirmationHandle(latestToken, latestSkillName!);
+    }
+
+    public async Task<bool> RenewOfferedAsync(
+        Guid userId,
+        string tokenFingerprint,
+        string skillName,
+        IReadOnlyCollection<string> purposes,
+        string channel,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(tokenFingerprint) || string.IsNullOrEmpty(skillName) || purposes.Count == 0)
+        {
+            return false;
+        }
+
+        var now = DateTime.UtcNow;
+
+        using var scope = _scopeFactory.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IPendingConfirmationRepository>();
+        var rows = await repository.GetActiveForUserAsync(userId, now, cancellationToken);
+
+        var offered = rows.FirstOrDefault(row =>
+            string.Equals(ConfirmationTokenHasher.Hash(row.Token), tokenFingerprint, StringComparison.Ordinal)
+            && string.Equals(row.SkillName, skillName, StringComparison.OrdinalIgnoreCase)
+            && purposes.Any(purpose => HasPurpose(row, purpose))
+            && HasChannel(row, channel));
+        if (offered == null)
+        {
+            return false;
+        }
+
+        await repository.RenewAsync(
+            offered.Token, now.AddMinutes(AutonomyDefaults.ConfirmationTtlMinutes), cancellationToken);
+        return true;
     }
 
     private static bool HasPurpose(PendingConfirmationRow row, string purpose) =>

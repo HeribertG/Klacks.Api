@@ -13,6 +13,7 @@
 /// <param name="providerOrchestrator">Resolves the model and provider for the turn</param>
 /// <param name="contextBudgetPolicy">Caps the tool count for the resolved model and provider</param>
 /// <param name="explainDepthResolver">Resolves how deep Klacksy explains for the calling user</param>
+/// <param name="gateExplainOffers">Settles a pending explain offer before the turn and adds the explain chip at a gate after it</param>
 /// <param name="logger">Receives turn diagnostics</param>
 
 using System.Diagnostics;
@@ -40,6 +41,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly LLMProviderOrchestrator _providerOrchestrator;
     private readonly IContextBudgetPolicy _contextBudgetPolicy;
     private readonly IExplainDepthResolver _explainDepthResolver;
+    private readonly IGateExplainOfferService _gateExplainOffers;
     private readonly ILogger<ProcessLLMMessageCommandHandler> _logger;
 
     public ProcessLLMMessageCommandHandler(
@@ -52,6 +54,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         LLMProviderOrchestrator providerOrchestrator,
         IContextBudgetPolicy contextBudgetPolicy,
         IExplainDepthResolver explainDepthResolver,
+        IGateExplainOfferService gateExplainOffers,
         ILogger<ProcessLLMMessageCommandHandler> logger)
     {
         _llmService = llmService;
@@ -63,6 +66,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         _providerOrchestrator = providerOrchestrator;
         _contextBudgetPolicy = contextBudgetPolicy;
         _explainDepthResolver = explainDepthResolver;
+        _gateExplainOffers = gateExplainOffers;
         _logger = logger;
     }
 
@@ -118,8 +122,12 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
         await _entityCandidateGrounder.GroundAsync(context, cancellationToken);
+        await _gateExplainOffers.PrepareTurnAsync(context, cancellationToken);
 
-        return await _llmService.ProcessAsync(context, cancellationToken);
+        var response = await _llmService.ProcessAsync(context, cancellationToken);
+        response.SuggestedReplies = await _gateExplainOffers.AugmentRepliesAsync(
+            context, response.ConversationId, response.ExecutedCalls, response.SuggestedReplies, cancellationToken);
+        return response;
     }
 
     private static List<LLMFunction> WithoutChannelExclusions(List<LLMFunction> functions, string? cappedChannel) =>

@@ -82,4 +82,12 @@ public class LLMFunctionCall
     /// so the correction and undo paths keep treating the call as the wrapper. Null for every other call.
     /// </summary>
     public string? ReplayedSkillName { get; set; }
+
+    /// <summary>
+    /// The one-time confirmation token the skill issued when it held the call (RequiresConfirmation), null for every
+    /// other call. Server-internal: it lets a later step address exactly the confirmation this call created instead of
+    /// "the user's latest one", and it is never serialized.
+    /// </summary>
+    [JsonIgnore]
+    public string? IssuedConfirmationToken { get; set; }
 }

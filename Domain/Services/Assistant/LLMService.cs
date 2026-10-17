@@ -570,7 +570,8 @@ public class LLMService : ILLMService
 
     /// <summary>
     /// The turn's volatile system-prompt segment: temporal context, the context-derived additions, the
-    /// soul/memory segment and - on a correction turn - LLMContext.CorrectionNote. The correction note
+    /// soul/memory segment, - on a correction turn - LLMContext.CorrectionNote and - on the turn after an accepted
+    /// explain offer - LLMContext.ExplainOfferNote. The correction note
     /// belongs HERE rather than in the per-iteration note slot of the loop: the pending/recipe/plan notes
     /// are alternatives to each other, while a correction note applies to every iteration of the turn it
     /// belongs to. Volatile rather than stable so a note that changes every turn cannot invalidate a
@@ -584,8 +585,10 @@ public class LLMService : ILLMService
         CombineVolatile(
             temporalContext,
             CombineVolatile(
-                CombineVolatile(LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryVolatilePrompt),
-                context.CorrectionNote));
+                CombineVolatile(
+                    CombineVolatile(LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryVolatilePrompt),
+                    context.CorrectionNote),
+                context.ExplainOfferNote));
 
     // Milliseconds since the turn clock started, i.e. before the toolset assembly the caller already
     // paid for. Null when no clock was handed in, which keeps elapsedMs off the wire instead of

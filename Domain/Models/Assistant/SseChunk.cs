@@ -6,6 +6,9 @@
 /// @param Text - Token delta text for Content events
 /// </summary>
 
+using System.Text.Json.Serialization;
+using Klacks.Api.Domain.Services.Assistant.Providers;
+
 namespace Klacks.Api.Domain.Models.Assistant;
 
 public class SseChunk
@@ -34,6 +37,13 @@ public class SseChunk
     public Guid? TurnId { get; set; }
     public List<string>? ExecutedSkillLabels { get; set; }
     public int? ExecutedCount { get; set; }
+
+    /// <summary>
+    /// Server-only copy of LLMResponse.ExecutedCalls on the Metadata chunk: the typed calls a post-turn step reads.
+    /// Never written to the stream.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyList<LLMFunctionCall>? ExecutedCalls { get; set; }
 
     /// <param name="conversationId">The conversation the turn belongs to</param>
     /// <param name="turnId">Id the client sends to the cancel endpoint to stop this turn; omitted when the turn has none</param>
@@ -77,7 +87,8 @@ public class SseChunk
         Target = response.NavigateToTarget,
         MissedTargetId = response.MissedTargetId,
         ActionPerformed = response.ActionPerformed,
-        FunctionCalls = response.FunctionCalls
+        FunctionCalls = response.FunctionCalls,
+        ExecutedCalls = response.ExecutedCalls
     };
 
     public static SseChunk Done() => new()

@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "AI-plan",
   "assistant.scenarioName.optimizer": "Optimeret",
   "assistant.scenarioName.proposal": "Forslag",
-  "assistant.scenarioName.absenceCover": "Fraværsdækning"
+  "assistant.scenarioName.absenceCover": "Fraværsdækning",
+  "assistant.explainOffer.chipLabel": "Forklar kort først"
 }

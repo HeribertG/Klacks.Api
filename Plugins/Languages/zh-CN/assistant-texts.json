@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "AI 计划",
   "assistant.scenarioName.optimizer": "已优化",
   "assistant.scenarioName.proposal": "提案",
-  "assistant.scenarioName.absenceCover": "缺勤顶替"
+  "assistant.scenarioName.absenceCover": "缺勤顶替",
+  "assistant.explainOffer.chipLabel": "先简单说明一下"
 }

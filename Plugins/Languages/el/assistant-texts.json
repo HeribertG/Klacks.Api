@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "Πρόγραμμα ΤΝ",
   "assistant.scenarioName.optimizer": "Βελτιστοποιημένο",
   "assistant.scenarioName.proposal": "Πρόταση",
-  "assistant.scenarioName.absenceCover": "Κάλυψη απουσίας"
+  "assistant.scenarioName.absenceCover": "Κάλυψη απουσίας",
+  "assistant.explainOffer.chipLabel": "Πρώτα μια σύντομη εξήγηση"
 }

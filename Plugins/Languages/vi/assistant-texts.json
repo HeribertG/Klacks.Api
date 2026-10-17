@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "Kế hoạch AI",
   "assistant.scenarioName.optimizer": "Đã tối ưu",
   "assistant.scenarioName.proposal": "Đề xuất",
-  "assistant.scenarioName.absenceCover": "Thay thế vắng mặt"
+  "assistant.scenarioName.absenceCover": "Thay thế vắng mặt",
+  "assistant.explainOffer.chipLabel": "Giải thích ngắn gọn trước"
 }

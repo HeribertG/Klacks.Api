@@ -27,6 +27,17 @@ public interface IProactiveTriggerDispatchRepository
     Task<int> CountUnreadAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The newest explain-offer counter row (trigger kind below ExplainOfferTopics.TriggerKindPrefix) of the user that was
+    /// made in the given conversation and has not been reacted to yet, or null. The row's dedup key starts with the
+    /// conversation id, which is what scopes an offer to the conversation whose chip it is. Tracked, so the caller can
+    /// stamp the reaction and hand it to UpdateAsync.
+    /// </summary>
+    Task<ProactiveTriggerDispatchRow?> FindPendingExplainOfferAsync(string userId, string conversationId, CancellationToken cancellationToken = default);
+
+    /// <summary>Whether the user already got a row of this trigger kind at or after <paramref name="sinceUtc"/>, reacted to or not.</summary>
+    Task<bool> HasRecentAsync(string userId, string triggerKind, DateTime sinceUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// All dispatch rows (any user, any content state) recorded at or after <paramref name="sinceUtc"/>,
     /// newest first and capped at <paramref name="maxRows"/>. Used by the goal reflection pipeline to
     /// aggregate recurring signals across users; unlike ListForUserAsync this is not scoped to one user

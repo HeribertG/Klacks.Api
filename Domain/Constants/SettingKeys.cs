@@ -137,6 +137,13 @@ public static class SettingKeys
     /// </summary>
     public const string KlacksyProactiveAutonomyLevel = "KLACKSY_PROACTIVE_AUTONOMY_LEVEL";
 
+    /// <summary>
+    /// Switch for the "explain briefly first" chip Klacksy attaches to the confirmation and preview gates of
+    /// consequential actions (GateExplainOfferService). Absent or unparseable means on; "false" removes the
+    /// chip everywhere without touching the proactive kill switch, which governs actions rather than offers.
+    /// </summary>
+    public const string KlacksyExplainOffersEnabled = "KLACKSY_EXPLAIN_OFFERS_ENABLED";
+
     public const string SurchargeStackingMode = "SURCHARGE_STACKING_MODE";
     public const string OvertimeBasis = "OVERTIME_BASIS";
     public const string OvertimeRateMode = "OVERTIME_RATE_MODE";

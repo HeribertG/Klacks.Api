@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "AI 計畫",
   "assistant.scenarioName.optimizer": "已最佳化",
   "assistant.scenarioName.proposal": "提案",
-  "assistant.scenarioName.absenceCover": "缺勤代班"
+  "assistant.scenarioName.absenceCover": "缺勤代班",
+  "assistant.explainOffer.chipLabel": "先簡單說明一下"
 }

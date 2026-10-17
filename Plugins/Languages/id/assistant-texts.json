@@ -39,5 +39,6 @@
   "assistant.scenarioName.llm": "Rencana AI",
   "assistant.scenarioName.optimizer": "Dioptimalkan",
   "assistant.scenarioName.proposal": "Usulan",
-  "assistant.scenarioName.absenceCover": "Pengganti ketidakhadiran"
+  "assistant.scenarioName.absenceCover": "Pengganti ketidakhadiran",
+  "assistant.explainOffer.chipLabel": "Jelaskan singkat dulu"
 }

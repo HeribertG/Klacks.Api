@@ -23,7 +23,7 @@ namespace Klacks.Api.Application.Skills.Generic;
 
 public class KnowledgeHappenExecutor
 {
-    private const string AnswerInstruction =
+    public const string AnswerInstruction =
         "Curated Klacks knowledge. Answer the user's question using ONLY this content, in the user's language. " +
         "Bracketed label anchors like (de: ..., en: ..., fr: ..., it: ...) are internal translation aids: " +
         "use ONLY the label matching the user's language and NEVER print the anchor lists themselves. " +
@@ -97,6 +97,29 @@ public class KnowledgeHappenExecutor
         return SkillResult.SuccessResult(
             new { Knowledge = levelContent.Value.Text, Level = requestedLevel, Stages = levelContent.Value.Stages },
             AnswerInstruction + string.Format(LevelInstruction, requestedLevel));
+    }
+
+    /// <summary>
+    /// The curated content of a happen as plain text for a caller that grounds its own model turn in it (the gate explain
+    /// offer), cut to the stages of the given level exactly as ExecuteAsync would for this depth. Null when the happen is
+    /// not seeded or empty. A body without level markers comes back whole, like ExecuteAsync returns it.
+    /// </summary>
+    /// <param name="memoryKey">Memory key of the happen, i.e. the knowledge skill's name</param>
+    /// <param name="level">One of KnowledgeHappenLevels.All</param>
+    /// <param name="depth">Explanation depth of the user; decides whether the pitfalls stage joins the elements level</param>
+    /// <param name="cancellationToken">Cancels the memory lookup</param>
+    public async Task<string?> ReadKnowledgeAsync(
+        string memoryKey, string level, ExplainDepthProfile? depth = null, CancellationToken cancellationToken = default)
+    {
+        var memory = await _memoryRepository.GetByKeyAsync(memoryKey, cancellationToken);
+        if (memory == null || string.IsNullOrWhiteSpace(memory.Content))
+        {
+            return null;
+        }
+
+        var content = SanitizeContent(memoryKey, memory.Content);
+        var staged = ExtractStages(content, ResolveStages(level, depth?.Level ?? ExplainExperienceLevel.Beginner));
+        return staged?.Text ?? content;
     }
 
     private static IReadOnlyList<string> ResolveStages(string requestedLevel, ExplainExperienceLevel experience)
