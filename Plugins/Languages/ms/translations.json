@@ -4434,6 +4434,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Entri ini telah dimeterai. Hanya penyelia atau pentadbir boleh mengubahnya.",
   "schedule.workConflict.periodFrom": "mulai {{from}}",
   "schedule.workConflict.periodUntil": "hingga {{until}}",
+  "schedule.workConflict.askKlacksy": "Kenapa? Tanya Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "Kenapa {{client}} tidak boleh dijadualkan untuk syif {{shift}} pada {{date}}? Apa yang menghalang tugasan pekerja ini pada hari itu?",
   "assistant-chat.onboarding.header-badge.start": "Mulakan lawatan",
   "shift.edit-shift.group.header": "Kumpulan yang Ditetapkan",
   "profile.nav.aria-label": "Buka profil",

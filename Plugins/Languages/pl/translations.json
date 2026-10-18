@@ -4434,6 +4434,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Ten wpis jest zapieczętowany. Zmienić go może tylko przełożony lub administrator.",
   "schedule.workConflict.periodFrom": "od {{from}}",
   "schedule.workConflict.periodUntil": "do {{until}}",
+  "schedule.workConflict.askKlacksy": "Dlaczego? Zapytaj Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "Co blokuje przydział tego pracownika w tym dniu? Dlaczego nie można przydzielić {{client}} do zmiany {{shift}} w dniu {{date}}?",
   "assistant-chat.onboarding.header-badge.start": "Rozpocznij przewodnik",
   "shift.edit-shift.group.header": "Przypisane grupy",
   "profile.nav.aria-label": "Otwórz profil",

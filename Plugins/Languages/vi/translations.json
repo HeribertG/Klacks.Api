@@ -4434,6 +4434,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Mục này đã được niêm phong. Chỉ người giám sát hoặc quản trị viên mới có thể thay đổi.",
   "schedule.workConflict.periodFrom": "từ {{from}}",
   "schedule.workConflict.periodUntil": "đến {{until}}",
+  "schedule.workConflict.askKlacksy": "Tại sao? Hỏi Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "Tại sao không xếp được {{client}} vào ca {{shift}} ngày {{date}}? Điều gì ngăn việc xếp nhân viên này vào ngày đó?",
   "assistant-chat.onboarding.header-badge.start": "Bắt đầu hướng dẫn",
   "shift.edit-shift.group.header": "Nhóm đã chỉ định",
   "profile.nav.aria-label": "Mở hồ sơ",

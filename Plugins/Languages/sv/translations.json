@@ -4434,6 +4434,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Den här posten är förseglad. Bara en arbetsledare eller en administratör kan ändra den.",
   "schedule.workConflict.periodFrom": "från {{from}}",
   "schedule.workConflict.periodUntil": "till {{until}}",
+  "schedule.workConflict.askKlacksy": "Varför? Fråga Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "Varför kan inte {{client}} schemaläggas på passet {{shift}} den {{date}}? Vad hindrar att den här medarbetaren schemaläggs den dagen?",
   "assistant-chat.onboarding.header-badge.start": "Starta rundtur",
   "shift.edit-shift.group.header": "Tilldelade grupper",
   "profile.nav.aria-label": "Öppna profil",

@@ -4434,6 +4434,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Denne oppføringen er forseglet. Bare en supervisor eller en administrator kan endre den.",
   "schedule.workConflict.periodFrom": "fra {{from}}",
   "schedule.workConflict.periodUntil": "til {{until}}",
+  "schedule.workConflict.askKlacksy": "Hvorfor? Spør Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "Hvorfor kan ikke {{client}} settes opp på vakten {{shift}} {{date}}? Hva hindrer at denne ansatte settes opp den dagen?",
   "assistant-chat.onboarding.header-badge.start": "Start omvisning",
   "shift.edit-shift.group.header": "Tildelte grupper",
   "profile.nav.aria-label": "Åpne profil",

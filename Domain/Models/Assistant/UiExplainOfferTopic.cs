@@ -4,8 +4,8 @@ namespace Klacks.Api.Domain.Models.Assistant;
 
 /// <summary>
 /// One topic the UI may offer Klacksy's short explanation for, when the user does something whose meaning is known to
-/// the UI (ticking FT or +FT on a shift).
+/// the UI (ticking FT or +FT on a shift, a refused single work booking).
 /// </summary>
 /// <param name="Key">Short topic key; the trigger kind of its counter rows is UiExplainOfferTopics.TriggerKindPrefix + Key</param>
-/// <param name="HappenSkillName">Knowledge happen the UI's trigger phrase is guaranteed to reach</param>
+/// <param name="HappenSkillName">Knowledge happen or skill the UI's trigger phrase is guaranteed to reach</param>
 public sealed record UiExplainOfferTopic(string Key, string HappenSkillName);

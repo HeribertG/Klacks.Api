@@ -4434,6 +4434,8 @@
   "schedule.workConflict.workSealedRoleRequired": "هذا السجل مقفل. لا يمكن تعديله إلا من قِبل مشرف أو مسؤول.",
   "schedule.workConflict.periodFrom": "من {{from}}",
   "schedule.workConflict.periodUntil": "حتى {{until}}",
+  "schedule.workConflict.askKlacksy": "لماذا؟ اسأل Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "ما الذي يمنع تعيين هذا الموظف في هذا اليوم؟ لماذا لا يمكن تعيين {{client}} في الوردية {{shift}} بتاريخ {{date}}؟",
   "assistant-chat.onboarding.header-badge.start": "بدء الجولة",
   "shift.edit-shift.group.header": "المجموعات المخصصة",
   "profile.nav.aria-label": "فتح الملف الشخصي",

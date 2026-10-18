@@ -4434,6 +4434,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Αυτή η εγγραφή είναι σφραγισμένη. Μόνο επιβλέπων ή διαχειριστής μπορεί να την αλλάξει.",
   "schedule.workConflict.periodFrom": "από {{from}}",
   "schedule.workConflict.periodUntil": "έως {{until}}",
+  "schedule.workConflict.askKlacksy": "Γιατί; Ρώτα το Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "Γιατί δεν μπορώ να βάλω {{client}} στη βάρδια {{shift}} στις {{date}}; Τι εμποδίζει την ανάθεση αυτού του υπαλλήλου εκείνη την ημέρα;",
   "assistant-chat.onboarding.header-badge.start": "Έναρξη περιήγησης",
   "shift.edit-shift.group.header": "Ανατεθειμένες ομάδες",
   "profile.nav.aria-label": "Άνοιγμα προφίλ",

@@ -5498,6 +5498,50 @@
       "expectedSlots": [],
       "source": "curated",
       "comment": "T5 FT/+FT: Italian effect question."
+    },
+    {
+      "id": "curated-t5-why-refused-de-trigger",
+      "message": "Warum kann Anna Muster am 10.03.2027 nicht für den Dienst Frühdienst eingeteilt werden? Was hindert die Einteilung dieser Person an diesem Tag?",
+      "locale": "de",
+      "currentRoute": "/workplace/schedule",
+      "expectedTool": "diagnose_work_booking",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 part b: the question the \"Why? Ask Klacksy\" link of a refused single booking sends (de), with sample name, date and shift, asked on the schedule page."
+    },
+    {
+      "id": "curated-t5-why-refused-en-trigger",
+      "message": "Why can't Anna Muster be scheduled for the shift Early on 03/10/2027? What stops assigning this person on that day?",
+      "locale": "en",
+      "currentRoute": "/workplace/schedule",
+      "expectedTool": "diagnose_work_booking",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 part b: the question the \"Why? Ask Klacksy\" link of a refused single booking sends (en), with sample name, date and shift, asked on the schedule page."
+    },
+    {
+      "id": "curated-t5-why-refused-fr-trigger",
+      "message": "Pourquoi n'est-il pas possible d'affecter Anna Muster au service Matin le 10/03/2027 ? Qu'est-ce qui empêche d'affecter cette personne ce jour-là ?",
+      "locale": "fr",
+      "currentRoute": "/workplace/schedule",
+      "expectedTool": "diagnose_work_booking",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 part b: the question the \"Why? Ask Klacksy\" link of a refused single booking sends (fr), with sample name, date and shift, asked on the schedule page."
+    },
+    {
+      "id": "curated-t5-why-refused-it-trigger",
+      "message": "Cosa impedisce di assegnare questa persona quel giorno? Perché non è possibile assegnare Anna Muster al turno Mattina il 10/03/2027?",
+      "locale": "it",
+      "currentRoute": "/workplace/schedule",
+      "expectedTool": "diagnose_work_booking",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 part b: the question the \"Why? Ask Klacksy\" link of a refused single booking sends (it), with sample name, date and shift, asked on the schedule page."
     }
   ]
 }

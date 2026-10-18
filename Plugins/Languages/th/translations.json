@@ -4434,6 +4434,8 @@
   "schedule.workConflict.workSealedRoleRequired": "รายการนี้ถูกล็อก เฉพาะหัวหน้างานหรือผู้ดูแลระบบเท่านั้นที่เปลี่ยนแปลงได้",
   "schedule.workConflict.periodFrom": "ตั้งแต่ {{from}}",
   "schedule.workConflict.periodUntil": "จนถึง {{until}}",
+  "schedule.workConflict.askKlacksy": "ทำไม? ถาม Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "ทำไมจัด {{client}} เข้ากะ {{shift}} วันที่ {{date}} ไม่ได้ อะไรทำให้จัดพนักงานคนนี้ในวันนั้นไม่ได้",
   "assistant-chat.onboarding.header-badge.start": "เริ่มทัวร์",
   "shift.edit-shift.group.header": "กลุ่มที่กำหนด",
   "profile.nav.aria-label": "เปิดโปรไฟล์",

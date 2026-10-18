@@ -4434,6 +4434,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Esta entrada está sellada. Solo un supervisor o un administrador puede modificarla.",
   "schedule.workConflict.periodFrom": "desde el {{from}}",
   "schedule.workConflict.periodUntil": "hasta el {{until}}",
+  "schedule.workConflict.askKlacksy": "¿Por qué? Preguntar a Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "¿Por qué no se puede planificar a esta persona en ese turno? Se trata de {{client}}, {{shift}}, el {{date}}. ¿Qué impide asignar a esta persona ese día?",
   "assistant-chat.onboarding.header-badge.start": "Iniciar recorrido",
   "shift.edit-shift.group.header": "Grupos asignados",
   "profile.nav.aria-label": "Abrir perfil",

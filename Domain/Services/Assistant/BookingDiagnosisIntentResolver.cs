@@ -13,11 +13,13 @@
 /// <param name="message">The current user chat message, matched case-insensitively.</param>
 /// <param name="currentRoute">Frontend route from the page context.</param>
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class BookingDiagnosisIntentResolver
 {
-    public const string DiagnoseWorkBookingSkillName = "diagnose_work_booking";
+    public const string DiagnoseWorkBookingSkillName = SkillNames.DiagnoseWorkBooking;
     public const string ExplainWhyCannotBookSkillName = "explain_why_cannot_book";
 
     private const string EnglishContractedNegation = "n't";

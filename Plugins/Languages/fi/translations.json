@@ -4434,6 +4434,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Tämä merkintä on lukittu. Vain esimies tai ylläpitäjä voi muuttaa sitä.",
   "schedule.workConflict.periodFrom": "{{from}} alkaen",
   "schedule.workConflict.periodUntil": "{{until}} asti",
+  "schedule.workConflict.askKlacksy": "Miksi? Kysy Klacksylta",
+  "schedule.workConflict.whyTriggerPhrase": "Miksi {{client}} ei voi saada vuoroa {{shift}} päivänä {{date}}? Mikä estää tämän työntekijän vuoroon merkitsemisen sinä päivänä?",
   "assistant-chat.onboarding.header-badge.start": "Aloita esittely",
   "shift.edit-shift.group.header": "Määritetyt ryhmät",
   "profile.nav.aria-label": "Avaa profiili",

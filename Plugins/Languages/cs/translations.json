@@ -4434,6 +4434,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Tento záznam je zapečetěn. Změnit jej může pouze supervizor nebo administrátor.",
   "schedule.workConflict.periodFrom": "od {{from}}",
   "schedule.workConflict.periodUntil": "do {{until}}",
+  "schedule.workConflict.askKlacksy": "Proč? Zeptej se Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "Proč nelze {{client}} dne {{date}} zařadit na směnu {{shift}}? Co brání přiřazení tohoto zaměstnance v ten den?",
   "assistant-chat.onboarding.header-badge.start": "Spustit prohlídku",
   "shift.edit-shift.group.header": "Přiřazené skupiny",
   "profile.nav.aria-label": "Otevřít profil",
