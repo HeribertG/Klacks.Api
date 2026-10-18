@@ -129,7 +129,10 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
     {
         var day = date.ToString(DateFormat, CultureInfo.InvariantCulture);
         var reasonSentences = diagnosis.Refusals
-            .Select(refusal => Fill(ReasonTemplate(refusal), refusal, diagnosis, day))
+            .Select(refusal => Fill(ReasonTemplate(refusal), refusal, diagnosis, day, name => name))
+            .ToList();
+        var messageSentences = diagnosis.Refusals
+            .Select(refusal => Fill(ReasonTemplate(refusal), refusal, diagnosis, day, SkillMessageText.Name))
             .ToList();
         var reasons = diagnosis.Refusals
             .Select((refusal, index) => new
@@ -168,7 +171,7 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
             WarningsIfBooked = warnings,
         };
 
-        var reasonSummary = reasonSentences.Count == 0 ? string.Empty : " " + string.Join(" ", reasonSentences);
+        var reasonSummary = messageSentences.Count == 0 ? string.Empty : " " + string.Join(" ", messageSentences);
         var message =
             $"{SkillMessageText.Name(diagnosis.ClientName)}, {SkillMessageText.Name(diagnosis.ShiftName)}, {day}: " +
             $"{verdict}{reasonSummary} {WorkBookingDiagnosisTexts.RelayInstruction}";
@@ -231,15 +234,16 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
         return WorkBookingDiagnosisTexts.Reasons[refusal.Reason];
     }
 
-    private static string Fill(string template, WorkBookingRefusalFinding refusal, WorkBookingDiagnosis diagnosis, string day)
+    private static string Fill(
+        string template, WorkBookingRefusalFinding refusal, WorkBookingDiagnosis diagnosis, string day, Func<string?, string?> name)
     {
         var occupyingShift = refusal.Reason == WorkBookingRefusalReason.CellOccupiedByWork
             ? Detail(refusal, WorkWriteConflictCodes.ShiftNameField)
             : null;
         return template
-            .Replace(WorkBookingDiagnosisTexts.EmployeeToken, diagnosis.ClientName ?? string.Empty)
-            .Replace(WorkBookingDiagnosisTexts.ShiftToken, diagnosis.ShiftName ?? string.Empty)
-            .Replace(WorkBookingDiagnosisTexts.OccupyingShiftToken, occupyingShift ?? string.Empty)
+            .Replace(WorkBookingDiagnosisTexts.EmployeeToken, name(diagnosis.ClientName) ?? string.Empty)
+            .Replace(WorkBookingDiagnosisTexts.ShiftToken, name(diagnosis.ShiftName) ?? string.Empty)
+            .Replace(WorkBookingDiagnosisTexts.OccupyingShiftToken, name(occupyingShift) ?? string.Empty)
             .Replace(WorkBookingDiagnosisTexts.DateToken, day)
             .Replace(WorkBookingDiagnosisTexts.FromToken, Detail(refusal, WorkBookingRefusalCodes.FromField) ?? WorkBookingDiagnosisTexts.OpenEnd)
             .Replace(WorkBookingDiagnosisTexts.UntilToken, Detail(refusal, WorkBookingRefusalCodes.UntilField) ?? WorkBookingDiagnosisTexts.OpenEnd)
