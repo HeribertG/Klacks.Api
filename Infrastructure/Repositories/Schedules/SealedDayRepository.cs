@@ -97,6 +97,15 @@ public class SealedDayRepository : ISealedDayRepository
         return locking.Keys.ToHashSet();
     }
 
+    public async Task<HashSet<(DateOnly Date, Guid ClientId)>> GetLockedPairsAsync(
+        IReadOnlyCollection<(DateOnly Date, Guid ClientId)> pairs,
+        WorkLockLevel onlyLevel,
+        CancellationToken cancellationToken = default)
+    {
+        var locking = await DayLockAttribution.LoadLockingSealsAsync(_context, pairs, null, cancellationToken, onlyLevel);
+        return locking.Keys.ToHashSet();
+    }
+
     public async Task<DateOnly?> FindFirstLockedDateForClientAsync(DateOnly from, DateOnly to, Guid clientId, CancellationToken cancellationToken = default)
     {
         var sealedDates = await _context.SealedDay

@@ -842,6 +842,11 @@
     "hvorfor kommer det ingen telegram-meldinger",
     "fungerer messengeren"
   ],
+  "diagnose_work_booking": [
+    "hvorfor kan hun ikke få morgenvakten på mandag",
+    "sjekk om han kan ta nattevakten den dagen",
+    "hva hindrer at denne ansatte settes opp den dagen"
+  ],
   "disable_feature_plugin": [
     "slå av modulen",
     "deaktiver utvidelsen",

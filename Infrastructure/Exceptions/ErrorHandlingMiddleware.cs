@@ -64,7 +64,14 @@ public class ErrorHandlingMiddleware
         catch (InvalidRequestException ex)
         {
             _logger.LogWarning(ex, "InvalidRequestException caught by middleware: {Message}", ex.Message);
-            await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Invalid request", ex.Message);
+            if (ex is ICodedRejection coded)
+            {
+                await WriteCodedProblemAsync(context, StatusCodes.Status400BadRequest, "Invalid request", ex.Message, coded);
+            }
+            else
+            {
+                await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Invalid request", ex.Message);
+            }
         }
         catch (KeyNotFoundException ex)
         {
@@ -328,6 +335,10 @@ public class ErrorHandlingMiddleware
         await context.Response.WriteAsJsonAsync(problem);
     }
 
+    /// <summary>
+    /// A conflict answered with 409. A coded conflict writes its detail fields first and its code last, so no detail field
+    /// can overwrite "errorCode" (the same order as the coded 400 body).
+    /// </summary>
     private static async Task WriteConflictAsync(HttpContext context, ConflictException exception)
     {
         context.Response.StatusCode = StatusCodes.Status409Conflict;
@@ -340,22 +351,43 @@ public class ErrorHandlingMiddleware
             Detail = exception.Message
         };
 
-        if (exception is WorkWriteConflictException workConflict)
+        if (exception.ConflictCode is { } conflictCode)
         {
-            problem.Extensions["errorCode"] = workConflict.ErrorCode;
-            foreach (var (field, value) in workConflict.Details)
-            {
-                problem.Extensions[field] = value;
-            }
-        }
-        else if (exception.ConflictCode is { } conflictCode)
-        {
-            problem.Extensions["errorCode"] = conflictCode;
             foreach (var (field, value) in exception.ConflictDetails ?? new Dictionary<string, object?>())
             {
                 problem.Extensions[field] = value;
             }
+
+            problem.Extensions["errorCode"] = conflictCode;
         }
+
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+
+    /// <summary>
+    /// A coded rejection answered with a non-409 status: the code goes out as "errorCode" and "code" (the two names
+    /// the existing 400 bodies use) and every detail field next to it; status, title and detail stay as for the
+    /// uncoded rejection.
+    /// </summary>
+    private static async Task WriteCodedProblemAsync(HttpContext context, int status, string title, string detail, ICodedRejection rejection)
+    {
+        context.Response.StatusCode = status;
+        context.Response.ContentType = "application/problem+json";
+
+        var problem = new ProblemDetails
+        {
+            Title = title,
+            Status = status,
+            Detail = detail
+        };
+
+        foreach (var (field, value) in rejection.Details)
+        {
+            problem.Extensions[field] = value;
+        }
+
+        problem.Extensions["errorCode"] = rejection.ErrorCode;
+        problem.Extensions["code"] = rejection.ErrorCode;
 
         await context.Response.WriteAsJsonAsync(problem);
     }

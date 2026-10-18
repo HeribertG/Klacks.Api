@@ -71,6 +71,23 @@ public interface IShiftRepository : IBaseRepository<Shift>
 
     Task<SporadicShiftInfo?> GetSporadicInfoAsync(Guid shiftId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Plannable shifts of the real plan (OriginalShift or SplitShift, no scenario copy) whose name or abbreviation equals
+    /// the given text, ignoring case, that the caller may see. The group-visibility rule (ShiftGroupVisibilityFilter) is
+    /// applied in the query BEFORE the limit, so hidden same-named shifts can never use up the limit and push a visible
+    /// one out.
+    /// </summary>
+    /// <param name="nameOrAbbreviation">Shift name or abbreviation as the user typed it</param>
+    /// <param name="visibleGroupIds">The caller's restriction from IShiftGroupFilterService.ResolveShiftListGroupIdsAsync
+    /// (null = unrestricted, empty = only group-less shifts); deliberately not optional, like for FilterShifts</param>
+    /// <param name="limit">Maximum number of shifts returned</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<List<Shift>> FindPlannableByNameAsync(
+        string nameOrAbbreviation,
+        IReadOnlyCollection<Guid>? visibleGroupIds,
+        int limit,
+        CancellationToken cancellationToken = default);
+
     Task<bool> HasActiveWorksAsync(Guid shiftId, CancellationToken cancellationToken = default);
 
     Task<bool> HasWorksForGroupAsync(Guid groupId, DateOnly? afterDate = null, CancellationToken cancellationToken = default);

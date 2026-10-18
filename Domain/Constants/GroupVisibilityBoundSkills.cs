@@ -11,6 +11,8 @@
 /// SkillRestParityGateTests fails when a Supervisor-gated messaging or e-mail skill is neither listed here nor named as
 /// independent of group visibility. The inbound-analysis skills (get_messenger_analysis, close_clarification) are listed too:
 /// their gate CanManageAutomation reaches the Supervisor, and they answer through the same client visibility guard.
+/// diagnose_work_booking is listed because its planner-floor gate reaches every signed-in user while its answer (seals,
+/// periods, occupying entries) depends on the client and shift visibility guards.
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;
@@ -37,7 +39,8 @@ public static class GroupVisibilityBoundSkills
         "get_email_group_tree",
         "get_messenger_analysis",
         "close_clarification",
-        "get_replacement_status"
+        "get_replacement_status",
+        "diagnose_work_booking"
     };
 
     public static bool Contains(string? skillName) =>

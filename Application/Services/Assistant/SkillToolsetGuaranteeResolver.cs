@@ -82,7 +82,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         var turnIntent = await _turnIntentExplainGuarantee.ResolveAsync(request, cancellationToken);
         foreach (var explainSkillName in turnIntent.ExplainSkillNames)
         {
-            AddPermittedSkillByName(
+            SkillGuaranteeCollector.Add(
                 guaranteedSkills, permittedSkills, explainSkillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
@@ -107,7 +107,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
         foreach (var keywordSkillName in keywordMatchedSkills)
         {
-            AddPermittedSkillByName(
+            SkillGuaranteeCollector.Add(
                 guaranteedSkills, permittedSkills, keywordSkillName, ToolsetSkillSource.Keyword, guaranteedSources);
         }
 
@@ -134,7 +134,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
             cancellationToken)).ToList();
         foreach (var recipeSkillName in engineRecipeNames)
         {
-            AddPermittedSkillByName(
+            SkillGuaranteeCollector.Add(
                 guaranteedSkills, permittedSkills, recipeSkillName, ToolsetSkillSource.RecipeStep, guaranteedSources);
         }
 
@@ -145,7 +145,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         var recipeMatched = forcingRecipeNames.Count > 0 || engineRecipeNames.Count > 0;
         if (PlanTriggerHeuristic.IsPlanCandidate(request.UserMessage, recipeMatched))
         {
-            AddPermittedSkillByName(
+            SkillGuaranteeCollector.Add(
                 guaranteedSkills, permittedSkills, PlanSkillDefaults.CreatePlanSkillName,
                 ToolsetSkillSource.Hint, guaranteedSources);
         }
@@ -169,7 +169,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
                 await _pendingUserNoteRepository.CountPendingAsync(
                     request.AgentId, pendingNotesUserId, cancellationToken) > 0)
             {
-                AddPermittedSkillByName(
+                SkillGuaranteeCollector.Add(
                     guaranteedSkills, permittedSkills, pendingNotesSkill.Name, ToolsetSkillSource.Hint, guaranteedSources);
             }
         }
@@ -181,7 +181,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         {
             foreach (var pinnedSkillName in request.PinnedSkillNames)
             {
-                AddPermittedSkillByName(
+                SkillGuaranteeCollector.Add(
                     guaranteedSkills, permittedSkills, pinnedSkillName, ToolsetSkillSource.Hint, guaranteedSources);
             }
         }
@@ -204,6 +204,8 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
         ApplyScheduleReadGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
 
+        ApplyBookingDiagnosisGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+
         return new SkillToolsetGuaranteeResult(
             guaranteedSkills, guaranteedSources, lowestRankedNames, turnIntent.VetoesForcedToolCall);
     }
@@ -212,7 +214,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     /// Keeps read_schedule_state reachable for "who has duty on Monday in Winterthur": vector retrieval never ranks it
     /// for that wording (see ScheduleReadIntentResolver) and the route boost cannot lift a skill outside the pool. The
     /// schedule page keeps read_schedule_state; a recognised dated duty question also keeps list_groups, because the
-    /// skill takes a group UUID. Runs last so that a list_groups another layer already claimed keeps its source. A
+    /// skill takes a group UUID. Runs after the message and history layers so that a list_groups another layer already claimed keeps its source. A
     /// list_groups claimed only here is the weakest guarantee of its tier (LowestRankedSkillNames), so at a small
     /// provider cap it goes before read_schedule_state and the other hints. Visibility only: both skills read.
     /// </summary>
@@ -224,16 +226,42 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     {
         foreach (var skillName in ScheduleReadIntentResolver.GuaranteedSkillNames(request.UserMessage, request.CurrentRoute))
         {
-            var claimedElsewhere = guaranteedSources.ContainsKey(skillName);
-            AddPermittedSkillByName(
-                guaranteedSkills, request.PermittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
-
-            if (!claimedElsewhere
-                && string.Equals(skillName, ScheduleReadIntentResolver.ListGroupsSkillName, StringComparison.Ordinal)
-                && guaranteedSources.ContainsKey(skillName))
+            if (string.Equals(skillName, ScheduleReadIntentResolver.ListGroupsSkillName, StringComparison.Ordinal))
             {
-                lowestRankedNames.Add(skillName);
+                SkillGuaranteeCollector.AddAsLowestRankedHint(
+                    guaranteedSkills, request.PermittedSkills, skillName, guaranteedSources, lowestRankedNames);
+                continue;
             }
+
+            SkillGuaranteeCollector.Add(
+                guaranteedSkills, request.PermittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
+        }
+    }
+
+    /// <summary>
+    /// Keeps diagnose_work_booking and explain_why_cannot_book for a "why ... not" question on the schedule page or naming
+    /// a day (BookingDiagnosisIntentResolver). The diagnosis is the skill that answers the concrete cell; the general
+    /// explanation only complements it, so an explain_why_cannot_book claimed only here is lowest-ranked like list_groups:
+    /// on the schedule page at the provider cap of 12 (nine always-on skills, three slots) the three slots stay with
+    /// explain_page_schedule, read_schedule_state and the diagnosis. Visibility only: both skills read.
+    /// </summary>
+    private static void ApplyBookingDiagnosisGuarantee(
+        HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
+        HashSet<string> lowestRankedNames,
+        SkillToolsetGuaranteeRequest request)
+    {
+        foreach (var skillName in BookingDiagnosisIntentResolver.GuaranteedSkillNames(request.UserMessage, request.CurrentRoute))
+        {
+            if (string.Equals(skillName, BookingDiagnosisIntentResolver.ExplainWhyCannotBookSkillName, StringComparison.Ordinal))
+            {
+                SkillGuaranteeCollector.AddAsLowestRankedHint(
+                    guaranteedSkills, request.PermittedSkills, skillName, guaranteedSources, lowestRankedNames);
+                continue;
+            }
+
+            SkillGuaranteeCollector.Add(
+                guaranteedSkills, request.PermittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
     }
 
@@ -276,7 +304,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
             return;
         }
 
-        AddPermittedSkillByName(
+        SkillGuaranteeCollector.Add(
             guaranteedSkills, permittedSkills, ScenarioFollowUpSkills.ListScenariosSkillName,
             ToolsetSkillSource.Hint, guaranteedSources);
     }
@@ -306,7 +334,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
             return;
         }
 
-        AddPermittedSkillByName(
+        SkillGuaranteeCollector.Add(
             guaranteedSkills, request.PermittedSkills, ScenarioFollowUpSkills.AcceptScenarioSkillName,
             ToolsetSkillSource.Hint, guaranteedSources);
     }
@@ -368,7 +396,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
                 lowestRankedNames.Add(skill.Name);
             }
 
-            AddPermittedSkillByName(
+            SkillGuaranteeCollector.Add(
                 guaranteedSkills, permittedSkills, skill.Name, ToolsetSkillSource.FollowThrough, guaranteedSources);
         }
 
@@ -444,7 +472,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
             foreach (var skill in PickFollowThrough(actNames, advisersByAct, skillsByName))
             {
-                AddPermittedSkillByName(
+                SkillGuaranteeCollector.Add(
                     guaranteedSkills, permittedSkills, skill.Name, ToolsetSkillSource.FollowThrough, guaranteedSources);
             }
         }
@@ -551,7 +579,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         var pageExplainSkill = ResolvePageExplainSkill(permittedSkills, request.CurrentRoute);
         if (pageExplainSkill != null)
         {
-            AddPermittedSkillByName(
+            SkillGuaranteeCollector.Add(
                 guaranteedSkills, permittedSkills, pageExplainSkill.Name, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
@@ -560,7 +588,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         // instead of calling the curated concept skill.
         foreach (var conceptSkillName in ConceptExplainSkillKeywords.ResolveSkillNames(request.UserMessage))
         {
-            AddPermittedSkillByName(
+            SkillGuaranteeCollector.Add(
                 guaranteedSkills, permittedSkills, conceptSkillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
@@ -573,7 +601,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         if (request.RetrievedSkills.Any(
                 s => string.Equals(s.Name, CreateShiftSkillName, StringComparison.OrdinalIgnoreCase)))
         {
-            AddPermittedSkillByName(
+            SkillGuaranteeCollector.Add(
                 guaranteedSkills, permittedSkills, CutShiftSkillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
@@ -584,7 +612,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         var forcingRecipeNames = RecipeForcingResolver.GuaranteedSkillNames(request.UserMessage).ToList();
         foreach (var recipeSkillName in forcingRecipeNames)
         {
-            AddPermittedSkillByName(
+            SkillGuaranteeCollector.Add(
                 guaranteedSkills, permittedSkills, recipeSkillName, ToolsetSkillSource.RecipeStep, guaranteedSources);
         }
 
@@ -593,7 +621,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         // the model calls one instead of inventing a non-existent tool name (which never executes).
         foreach (var groupingSkillName in GroupingIntentResolver.GuaranteedSkillNames(request.UserMessage, request.Language))
         {
-            AddPermittedSkillByName(
+            SkillGuaranteeCollector.Add(
                 guaranteedSkills, permittedSkills, groupingSkillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
@@ -626,7 +654,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
             foreach (var skillName in PlanningProfileLoopSkillNames)
             {
-                AddPermittedSkillByName(
+                SkillGuaranteeCollector.Add(
                     guaranteedSkills, permittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
             }
         }
@@ -667,7 +695,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
             foreach (var ownerName in owners)
             {
-                AddPermittedSkillByName(
+                SkillGuaranteeCollector.Add(
                     guaranteedSkills, permittedSkills, ownerName, ToolsetSkillSource.LearnedPhrase, guaranteedSources);
             }
         }
@@ -705,7 +733,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
             if (hint != null)
             {
-                AddPermittedSkillByName(
+                SkillGuaranteeCollector.Add(
                     guaranteedSkills, permittedSkills, hint.SkillName, ToolsetSkillSource.Hint, guaranteedSources);
             }
         }
@@ -713,34 +741,6 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         {
             _logger.LogError(ex, "Proposal-confirmation guarantee failed; continuing without it.");
         }
-    }
-
-    private static void AddPermittedSkillByName(
-        HashSet<AgentSkill> guaranteedSkills,
-        IReadOnlyList<AgentSkill> permittedSkills,
-        string skillName,
-        ToolsetSkillSource source,
-        IDictionary<string, ToolsetSkillSource> guaranteedSources)
-    {
-        var skill = permittedSkills.FirstOrDefault(s =>
-            string.Equals(s.Name, skillName, StringComparison.OrdinalIgnoreCase));
-        if (skill == null)
-        {
-            return;
-        }
-
-        // A skill can be guaranteed by several layers at once (keyword + learned phrase + recipe).
-        // One source per candidate keeps the W5 provenance distribution additive, so the strongest
-        // deterministic reason wins: RecipeStep > LearnedPhrase > Keyword > Hint.
-        if (guaranteedSources.TryGetValue(skill.Name, out var existing) &&
-            existing.Priority() >= source.Priority())
-        {
-            guaranteedSkills.Add(skill);
-            return;
-        }
-
-        guaranteedSources[skill.Name] = source;
-        guaranteedSkills.Add(skill);
     }
 
     private static AgentSkill? ResolvePageExplainSkill(IReadOnlyList<AgentSkill> permittedSkills, string? currentRoute)

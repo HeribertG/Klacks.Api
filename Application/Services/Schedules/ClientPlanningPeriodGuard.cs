@@ -19,6 +19,7 @@
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Staffs;
@@ -61,7 +62,7 @@ public sealed class ClientPlanningPeriodGuard : IClientPlanningPeriodGuard
         var violations = await FindViolationsAsync(cells, cancellationToken);
         if (violations.Count > 0)
         {
-            throw new InvalidRequestException(violations[0].Message);
+            throw ToRefusal(violations[0]);
         }
     }
 
@@ -112,17 +113,17 @@ public sealed class ClientPlanningPeriodGuard : IClientPlanningPeriodGuard
                 continue;
             }
 
-            var message = DescribeViolation(client, cell.Date, groupRanges);
-            if (message != null)
+            var violation = DescribeViolation(client, cell.Date, groupRanges);
+            if (violation != null)
             {
-                violations.Add(new PlanningPeriodViolation(cell.ClientId, cell.Date, message));
+                violations.Add(violation);
             }
         }
 
         return violations;
     }
 
-    private static string? DescribeViolation(
+    private static PlanningPeriodViolation? DescribeViolation(
         Client client,
         DateOnly date,
         IReadOnlyDictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)> groupRanges)
@@ -130,27 +131,50 @@ public sealed class ClientPlanningPeriodGuard : IClientPlanningPeriodGuard
         if (client.Membership != null
             && IsOutside(date, DateOnly.FromDateTime(client.Membership.ValidFrom), ToDate(client.Membership.ValidUntil)))
         {
-            return string.Format(
+            var message = string.Format(
                 OutsideMembershipMessage,
                 DisplayName(client),
                 date.ToString(DateFormat),
                 client.Membership.ValidFrom.ToString(DateFormat),
                 Describe(client.Membership.ValidUntil));
+            return new PlanningPeriodViolation(
+                client.Id,
+                date,
+                message,
+                WorkBookingRefusalCodes.OutsideMembershipPeriod,
+                DateOnly.FromDateTime(client.Membership.ValidFrom),
+                ToDate(client.Membership.ValidUntil));
         }
 
         if (groupRanges.TryGetValue(client.Id, out var range)
             && IsOutside(date, ToDate(range.ValidFrom), ToDate(range.ValidUntil)))
         {
-            return string.Format(
+            var message = string.Format(
                 OutsideGroupPeriodMessage,
                 DisplayName(client),
                 date.ToString(DateFormat),
                 Describe(range.ValidFrom),
                 Describe(range.ValidUntil));
+            return new PlanningPeriodViolation(
+                client.Id,
+                date,
+                message,
+                WorkBookingRefusalCodes.OutsideGroupPeriod,
+                ToDate(range.ValidFrom),
+                ToDate(range.ValidUntil));
         }
 
         return null;
     }
+
+    private static WorkBookingRefusedException ToRefusal(PlanningPeriodViolation violation)
+        => new(violation.Message, violation.Code, new Dictionary<string, object?>
+        {
+            [WorkBookingRefusalCodes.ClientIdField] = violation.ClientId,
+            [WorkBookingRefusalCodes.DateField] = violation.Date,
+            [WorkBookingRefusalCodes.FromField] = violation.From,
+            [WorkBookingRefusalCodes.UntilField] = violation.Until,
+        });
 
     private async Task<IReadOnlyCollection<Guid>> ResolveVisibleGroupIdsAsync()
     {

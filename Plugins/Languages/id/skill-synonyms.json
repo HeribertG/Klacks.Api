@@ -850,6 +850,11 @@
     "kenapa pesan telegram tidak masuk",
     "apakah layanan pesan berfungsi"
   ],
+  "diagnose_work_booking": [
+    "kenapa dia tidak bisa dapat shift pagi hari senin",
+    "cek apakah dia bisa ambil shift malam di tanggal itu",
+    "apa yang menghalangi penugasan karyawan ini di hari itu"
+  ],
   "disable_feature_plugin": [
     "nonaktifkan modul fitur",
     "matikan plugin",

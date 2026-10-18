@@ -840,6 +840,11 @@
     "tại sao không nhận được tin nhắn telegram",
     "kênh nhắn tin có hoạt động không"
   ],
+  "diagnose_work_booking": [
+    "tại sao không xếp cô ấy vào ca sáng thứ hai được",
+    "kiểm tra xem anh ấy có làm ca đêm vào ngày đó được không",
+    "điều gì ngăn việc xếp nhân viên này vào ngày đó"
+  ],
   "disable_feature_plugin": [
     "tắt plugin tính năng",
     "vô hiệu hóa mô-đun mở rộng",

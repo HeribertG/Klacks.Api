@@ -40,10 +40,12 @@ public static class ReadOnlySkillPrefixes
 
     public const string Generate = "generate_";
 
+    public const string Diagnose = "diagnose_";
+
     public static readonly IReadOnlyList<string> All =
     [
         Get, List, Search, Find, Read, Lookup, Verify, Check,
-        Detect, Interpret, Validate, Test, Evaluate, Generate
+        Detect, Interpret, Validate, Test, Evaluate, Generate, Diagnose
     ];
 
     public static bool HasReadOnlyPrefix(string? skillName)

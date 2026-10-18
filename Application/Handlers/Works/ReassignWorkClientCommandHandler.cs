@@ -43,7 +43,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
     private readonly IDayLockService _dayLockService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
-    private readonly IPreCommitConflictChecker _conflictChecker;
+    private readonly IWorkWriteGuard _workWriteGuard;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IParentWorkLockGuard _workLockGuard;
     private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
@@ -61,7 +61,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         IDayLockService dayLockService,
         IUnitOfWork unitOfWork,
         IOvertimeCascadeService overtimeCascadeService,
-        IPreCommitConflictChecker conflictChecker,
+        IWorkWriteGuard workWriteGuard,
         IHttpContextAccessor httpContextAccessor,
         IParentWorkLockGuard workLockGuard,
         IClientPlanningPeriodGuard planningPeriodGuard,
@@ -80,7 +80,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         _dayLockService = dayLockService;
         _unitOfWork = unitOfWork;
         _overtimeCascadeService = overtimeCascadeService;
-        _conflictChecker = conflictChecker;
+        _workWriteGuard = workWriteGuard;
         _httpContextAccessor = httpContextAccessor;
         _workLockGuard = workLockGuard;
         _planningPeriodGuard = planningPeriodGuard;
@@ -212,14 +212,11 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
             existingWork.EndTime,
             existingWork.Id);
 
-        var conflictCheck = await _conflictChecker.CheckAsync(
-            [plannedRow], [vacatedRow], null, cancellationToken);
-        if (conflictCheck.HasHardBlocking)
+        var refusal = await _workWriteGuard.FindHardBlockingRefusalAsync(
+            [plannedRow], [vacatedRow], WorkWriteOperation.Reassign, cancellationToken);
+        if (refusal != null)
         {
-            throw new ConflictException(
-                $"Reassignment blocked: client {targetClientId} would introduce " +
-                $"{conflictCheck.NewConflicts.Count(c => c.Type == ScheduleValidationType.Error)} " +
-                $"non-overridable schedule conflict(s) on {existingWork.CurrentDate:yyyy-MM-dd}. Not committed.");
+            throw WorkWriteConflictException.From(refusal);
         }
     }
 }

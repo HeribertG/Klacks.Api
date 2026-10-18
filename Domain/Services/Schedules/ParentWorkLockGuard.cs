@@ -7,6 +7,7 @@
 /// </summary>
 /// <param name="workLockLevelService">Decides which roles may lift a Confirmed or Approved lock</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -50,12 +51,18 @@ public class ParentWorkLockGuard : IParentWorkLockGuard
 
         if (work.LockLevel == WorkLockLevel.Closed)
         {
-            throw new InvalidRequestException(closedMessage);
+            throw Refusal(closedMessage, WorkBookingRefusalCodes.WorkInClosedPeriod, work.LockLevel);
         }
 
         if (!_workLockLevelService.CanUnseal(work.LockLevel, isAdmin, isAuthorised))
         {
-            throw new InvalidRequestException(sealedMessage);
+            throw Refusal(sealedMessage, WorkBookingRefusalCodes.WorkSealedRoleRequired, work.LockLevel);
         }
     }
+
+    private static WorkBookingRefusedException Refusal(string message, string code, WorkLockLevel lockLevel)
+        => new(message, code, new Dictionary<string, object?>
+        {
+            [WorkBookingRefusalCodes.LockLevelField] = (int)lockLevel,
+        });
 }

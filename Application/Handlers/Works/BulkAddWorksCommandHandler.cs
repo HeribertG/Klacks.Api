@@ -43,7 +43,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly IContainerWorkExpansionService _expansionService;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IDayLockService _dayLockService;
-    private readonly IPreCommitConflictChecker _conflictChecker;
+    private readonly IWorkWriteGuard _workWriteGuard;
     private readonly IShiftDefaultExpensesApplier _defaultExpensesApplier;
     private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
@@ -58,7 +58,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         IContainerWorkExpansionService expansionService,
         IOvertimeCascadeService overtimeCascadeService,
         IDayLockService dayLockService,
-        IPreCommitConflictChecker conflictChecker,
+        IWorkWriteGuard workWriteGuard,
         IShiftDefaultExpensesApplier defaultExpensesApplier,
         IClientPlanningPeriodGuard planningPeriodGuard,
         IShiftVisibilityGuard shiftVisibilityGuard,
@@ -74,7 +74,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _expansionService = expansionService;
         _overtimeCascadeService = overtimeCascadeService;
         _dayLockService = dayLockService;
-        _conflictChecker = conflictChecker;
+        _workWriteGuard = workWriteGuard;
         _defaultExpensesApplier = defaultExpensesApplier;
         _planningPeriodGuard = planningPeriodGuard;
         _shiftVisibilityGuard = shiftVisibilityGuard;
@@ -268,13 +268,11 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
             return;
         }
 
-        var conflictCheck = await _conflictChecker.CheckAsync(realRows, null, cancellationToken);
-        if (conflictCheck.HasHardBlocking)
+        var refusal = await _workWriteGuard.FindHardBlockingRefusalAsync(
+            realRows, null, WorkWriteOperation.Bulk, cancellationToken);
+        if (refusal != null)
         {
-            throw new ConflictException(
-                "Bulk write blocked: at least one row would introduce " +
-                $"{conflictCheck.NewConflicts.Count(c => c.Type == ScheduleValidationType.Error)} " +
-                "non-overridable schedule conflict(s). Nothing was committed.");
+            throw WorkWriteConflictException.From(refusal);
         }
     }
 }

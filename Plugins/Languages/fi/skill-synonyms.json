@@ -843,6 +843,11 @@
     "miksi telegram-viestejä ei tule perille",
     "toimiiko viestipalvelu"
   ],
+  "diagnose_work_booking": [
+    "miksi hän ei voi saada aamuvuoroa maanantaina",
+    "tarkista voiko hän tehdä yövuoron sinä päivänä",
+    "mikä estää tämän työntekijän vuoroon merkitsemisen sinä päivänä"
+  ],
   "disable_feature_plugin": [
     "ota lisäosa pois käytöstä",
     "deaktivoi laajennus",
