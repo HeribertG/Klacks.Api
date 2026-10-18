@@ -45,7 +45,9 @@ public interface IProactiveTriggerDispatchRepository
     /// newest first and capped at <paramref name="maxRows"/>. Used by the goal reflection pipeline to
     /// aggregate recurring signals across users; unlike ListForUserAsync this is not scoped to one user
     /// and does not exclude ledger-only rows (ContentKey == null), because a trigger firing without a
-    /// persisted inbox message is still a real occurrence for aggregation purposes.
+    /// persisted inbox message is still a real occurrence for aggregation purposes. The explain-offer counter rows
+    /// (ExplainOfferTopics.TriggerKindPrefix and UiExplainOfferTopics.TriggerKindPrefix) are excluded in the query: they
+    /// record an offered explanation, never a business occurrence, and must not use up the row cap.
     /// </summary>
     Task<IReadOnlyList<ProactiveTriggerDispatchRow>> GetSinceAsync(DateTime sinceUtc, int maxRows, CancellationToken cancellationToken = default);
 

@@ -23,19 +23,18 @@
 /// </summary>
 /// <param name="dispatches">Counter rows: remembers the offer and settles it</param>
 /// <param name="preferences">The user's per-kind mute/snooze; the long snooze after ignored offers is written here</param>
-/// <param name="governance">Reads the proactive kill switch</param>
-/// <param name="settingsReader">Reads the explain-offers setting</param>
+/// <param name="offersSwitch">The explain-offers setting and the proactive kill switch, shared with the UI offers</param>
 /// <param name="knowledgeExecutor">Reads the curated happen content the explanation is grounded in</param>
 /// <param name="confirmationRenewal">Gives the offered held confirmation a fresh lifetime after the detour turn</param>
 /// <param name="timeProvider">Clock for the cooldown, the offer's maximum age, the reaction stamp and the snooze end</param>
 /// <param name="logger">Reports a swallowed failure</param>
 
 using System.Globalization;
+using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Application.Skills.Generic;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
-using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Security;
 using Klacks.Api.Domain.Services.Assistant;
@@ -49,8 +48,7 @@ public sealed class GateExplainOfferService : IGateExplainOfferService
 
     private readonly IProactiveTriggerDispatchRepository _dispatches;
     private readonly IAgentTriggerPreferenceService _preferences;
-    private readonly IProactiveGovernanceResolver _governance;
-    private readonly ISettingsReader _settingsReader;
+    private readonly IExplainOffersSwitch _offersSwitch;
     private readonly KnowledgeHappenExecutor _knowledgeExecutor;
     private readonly IPendingConfirmationRenewal _confirmationRenewal;
     private readonly TimeProvider _timeProvider;
@@ -59,8 +57,7 @@ public sealed class GateExplainOfferService : IGateExplainOfferService
     public GateExplainOfferService(
         IProactiveTriggerDispatchRepository dispatches,
         IAgentTriggerPreferenceService preferences,
-        IProactiveGovernanceResolver governance,
-        ISettingsReader settingsReader,
+        IExplainOffersSwitch offersSwitch,
         KnowledgeHappenExecutor knowledgeExecutor,
         IPendingConfirmationRenewal confirmationRenewal,
         TimeProvider timeProvider,
@@ -68,8 +65,7 @@ public sealed class GateExplainOfferService : IGateExplainOfferService
     {
         _dispatches = dispatches;
         _preferences = preferences;
-        _governance = governance;
-        _settingsReader = settingsReader;
+        _offersSwitch = offersSwitch;
         _knowledgeExecutor = knowledgeExecutor;
         _confirmationRenewal = confirmationRenewal;
         _timeProvider = timeProvider;
@@ -194,7 +190,7 @@ public sealed class GateExplainOfferService : IGateExplainOfferService
             return false;
         }
 
-        if (!await IsEnabledAsync() || await _governance.IsKillSwitchActiveAsync(cancellationToken))
+        if (!await _offersSwitch.IsOnAsync(cancellationToken))
         {
             return false;
         }
@@ -207,12 +203,6 @@ public sealed class GateExplainOfferService : IGateExplainOfferService
 
         var cooldownStart = _timeProvider.GetUtcNow().UtcDateTime.AddHours(-ExplainOfferDefaults.OfferCooldownHours);
         return !await _dispatches.HasRecentAsync(context.UserId, kind, cooldownStart, cancellationToken);
-    }
-
-    private async Task<bool> IsEnabledAsync()
-    {
-        var setting = await _settingsReader.GetSetting(SettingKeys.KlacksyExplainOffersEnabled);
-        return string.IsNullOrWhiteSpace(setting?.Value) || !bool.TryParse(setting.Value, out var enabled) || enabled;
     }
 
     /// <summary>

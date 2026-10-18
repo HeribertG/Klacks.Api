@@ -143,7 +143,9 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
     {
         return await _context.AgentTriggerDispatches
             .AsNoTracking()
-            .Where(d => d.CreateTime >= sinceUtc)
+            .Where(d => d.CreateTime >= sinceUtc
+                && !d.TriggerKind.StartsWith(ExplainOfferTopics.TriggerKindPrefix)
+                && !d.TriggerKind.StartsWith(UiExplainOfferTopics.TriggerKindPrefix))
             .OrderByDescending(d => d.CreateTime)
             .Take(maxRows)
             .ToListAsync(cancellationToken);

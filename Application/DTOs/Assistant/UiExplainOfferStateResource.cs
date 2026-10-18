@@ -9,7 +9,5 @@ public class UiExplainOfferStateResource
 {
     public string TopicKey { get; set; } = string.Empty;
 
-    public bool Enabled { get; set; }
-
     public bool ShouldOffer { get; set; }
 }

@@ -34,7 +34,6 @@ public class GetUiExplainOfferStateQueryHandler : IRequestHandler<GetUiExplainOf
         return new UiExplainOfferStateResource
         {
             TopicKey = topic.Key,
-            Enabled = state.Enabled,
             ShouldOffer = state.ShouldOffer
         };
     }

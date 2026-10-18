@@ -19,8 +19,6 @@ public static class UiExplainOfferDefaults
 
     public const char DedupKeySeparator = ':';
 
-    public const string OutcomeProperty = "outcome";
-
     public static readonly IReadOnlySet<ExplainExperienceLevel> OfferedLevels =
         new HashSet<ExplainExperienceLevel> { ExplainExperienceLevel.Beginner };
 }

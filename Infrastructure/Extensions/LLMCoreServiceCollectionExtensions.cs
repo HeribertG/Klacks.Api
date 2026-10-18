@@ -309,6 +309,7 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IPlanningScopeEnricher, Application.Services.Assistant.PlanningScopeEnricher>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IExplainDepthResolver, Application.Services.Assistant.ExplainDepthResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IExplainDepthOverrideService, Application.Services.Assistant.ExplainDepthOverrideService>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IExplainOffersSwitch, Application.Services.Assistant.ExplainOffers.ExplainOffersSwitch>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGateExplainOfferService, Application.Services.Assistant.ExplainOffers.GateExplainOfferService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IUiExplainOfferService, Application.Services.Assistant.ExplainOffers.UiExplainOfferService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IEntityCandidateGrounder, Application.Services.Assistant.ClientNameCandidateGrounder>();

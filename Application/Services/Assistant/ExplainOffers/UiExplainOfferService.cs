@@ -10,23 +10,23 @@
 /// dosage itself lives in the user's per-kind mute, which survives the retention of the counter rows: yes or no mutes
 /// at once, the second "later" mutes, and so does the third time the offer was shown at all. The rows are written
 /// directly, not through SetProactiveReactionCommandHandler, whose dismiss-streak evaluators would read a "later" as a
-/// rejected notification. Reading is fail-closed: any failure means "do not offer". Logs never carry the user.
+/// rejected notification. Writing is gated like reading: while the offers are switched off or the topic is already muted
+/// or snoozed for the user, a reaction is accepted (idempotent) but stores nothing, so a client cannot grow the counter
+/// table of a topic it may no longer be offered. Reading is fail-closed: any failure means "do not offer". Logs never
+/// carry the user.
 /// </summary>
 /// <param name="dispatches">Counter rows of the offers</param>
 /// <param name="preferences">The user's per-kind mute; the dosage is written here</param>
-/// <param name="governance">Reads the proactive kill switch</param>
-/// <param name="settingsReader">Reads the explain-offers setting</param>
+/// <param name="offersSwitch">The explain-offers setting and the proactive kill switch, shared with the gate offers</param>
 /// <param name="explainDepthResolver">Resolves the user's explanation level (beginner/advanced)</param>
 /// <param name="timeProvider">Clock for the reaction stamp</param>
 /// <param name="logger">Reports a swallowed failure</param>
 
 using System.Globalization;
-using System.Text.Json;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
-using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.ExplainOffers;
@@ -37,8 +37,7 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
 
     private readonly IProactiveTriggerDispatchRepository _dispatches;
     private readonly IAgentTriggerPreferenceService _preferences;
-    private readonly IProactiveGovernanceResolver _governance;
-    private readonly ISettingsReader _settingsReader;
+    private readonly IExplainOffersSwitch _offersSwitch;
     private readonly IExplainDepthResolver _explainDepthResolver;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<UiExplainOfferService> _logger;
@@ -46,16 +45,14 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
     public UiExplainOfferService(
         IProactiveTriggerDispatchRepository dispatches,
         IAgentTriggerPreferenceService preferences,
-        IProactiveGovernanceResolver governance,
-        ISettingsReader settingsReader,
+        IExplainOffersSwitch offersSwitch,
         IExplainDepthResolver explainDepthResolver,
         TimeProvider timeProvider,
         ILogger<UiExplainOfferService> logger)
     {
         _dispatches = dispatches;
         _preferences = preferences;
-        _governance = governance;
-        _settingsReader = settingsReader;
+        _offersSwitch = offersSwitch;
         _explainDepthResolver = explainDepthResolver;
         _timeProvider = timeProvider;
         _logger = logger;
@@ -72,7 +69,7 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
 
         try
         {
-            if (!await IsEnabledAsync() || await _governance.IsKillSwitchActiveAsync(cancellationToken))
+            if (!await _offersSwitch.IsOnAsync(cancellationToken))
             {
                 return UiExplainOfferState.Off;
             }
@@ -98,6 +95,12 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
         }
 
         var kind = UiExplainOfferTopics.TriggerKindOf(topic);
+        if (!await _offersSwitch.IsOnAsync(cancellationToken)
+            || !await _preferences.IsAllowedAsync(userId, kind, AgentTriggerSeverity.Low))
+        {
+            return true;
+        }
+
         await _dispatches.RecordAsync(NewRow(userId, topic, kind, outcome), cancellationToken);
 
         if (await ShouldMuteAfterAsync(userId, kind, outcome, cancellationToken))
@@ -106,12 +109,6 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
         }
 
         return true;
-    }
-
-    private async Task<bool> IsEnabledAsync()
-    {
-        var setting = await _settingsReader.GetSetting(SettingKeys.KlacksyExplainOffersEnabled);
-        return string.IsNullOrWhiteSpace(setting?.Value) || !bool.TryParse(setting.Value, out var enabled) || enabled;
     }
 
     private async Task<bool> IsLevelOfferedAsync(string userId, CancellationToken cancellationToken)
@@ -131,7 +128,7 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
             case UiExplainOfferOutcomes.Later:
                 var recent = await _dispatches.GetRecentReactionsAsync(
                     userId, kind, UiExplainOfferDefaults.MaxLaterBeforeMute, cancellationToken);
-                return recent.Count(row => OutcomeOf(row) == UiExplainOfferOutcomes.Later)
+                return recent.Count(row => ExplainOfferMarker.Parse(row.ContentParamsJson).Outcome == UiExplainOfferOutcomes.Later)
                     >= UiExplainOfferDefaults.MaxLaterBeforeMute;
             default:
                 return await _dispatches.CountUnreactedAsync(userId, kind, cancellationToken)
@@ -148,8 +145,7 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
             TriggerKind = kind,
             DedupKey = topic.Key + UiExplainOfferDefaults.DedupKeySeparator + outcome
                 + UiExplainOfferDefaults.DedupKeySeparator + Guid.NewGuid().ToString(GuidFormat, CultureInfo.InvariantCulture),
-            ContentParamsJson = JsonSerializer.Serialize(
-                new Dictionary<string, string> { [UiExplainOfferDefaults.OutcomeProperty] = outcome }),
+            ContentParamsJson = new ExplainOfferMarker { Outcome = outcome }.ToJson(),
             Severity = AgentTriggerSeverity.Low,
             Reaction = reaction,
             ReactionAtUtc = reaction == ProactiveReaction.None ? null : _timeProvider.GetUtcNow().UtcDateTime
@@ -162,22 +158,4 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
         UiExplainOfferOutcomes.Shown => ProactiveReaction.None,
         _ => ProactiveReaction.Dismissed
     };
-
-    private static string? OutcomeOf(ProactiveTriggerDispatchRow row)
-    {
-        if (string.IsNullOrWhiteSpace(row.ContentParamsJson))
-        {
-            return null;
-        }
-
-        try
-        {
-            var values = JsonSerializer.Deserialize<Dictionary<string, string>>(row.ContentParamsJson);
-            return values != null && values.TryGetValue(UiExplainOfferDefaults.OutcomeProperty, out var value) ? value : null;
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
-    }
 }
