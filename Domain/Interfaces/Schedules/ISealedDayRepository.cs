@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Domain.Interfaces.Schedules;
@@ -39,6 +40,19 @@ public interface ISealedDayRepository
     /// <returns>The subset of <paramref name="pairs"/> that is sealed.</returns>
     Task<HashSet<(DateOnly Date, Guid ClientId)>> GetLockedPairsAsync(
         IReadOnlyCollection<(DateOnly Date, Guid ClientId)> pairs,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Same rule as <see cref="GetLockedPairsAsync(IReadOnlyCollection{ValueTuple{DateOnly, Guid}}, CancellationToken)"/>,
+    /// restricted to seals of one level, so a caller can tell a day approval (Approved) from a period close (Closed).
+    /// </summary>
+    /// <param name="pairs">Pairs of (date, client) to test.</param>
+    /// <param name="onlyLevel">The seal level that counts; seals of other levels are ignored.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The subset of <paramref name="pairs"/> that a seal of this level locks.</returns>
+    Task<HashSet<(DateOnly Date, Guid ClientId)>> GetLockedPairsAsync(
+        IReadOnlyCollection<(DateOnly Date, Guid ClientId)> pairs,
+        WorkLockLevel onlyLevel,
         CancellationToken cancellationToken = default);
 
     Task<DateOnly?> FindFirstLockedDateForClientAsync(DateOnly from, DateOnly to, Guid clientId, CancellationToken cancellationToken = default);

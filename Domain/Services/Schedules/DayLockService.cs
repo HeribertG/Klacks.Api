@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -60,7 +61,7 @@ public class DayLockService : IDayLockService
         var locked = await _repository.GetLockedPairsAsync(pairs, cancellationToken);
         if (locked.Count > 0)
         {
-            throw new InvalidRequestException(SealedDayMessage(locked.Min(p => p.Date)));
+            throw SealedDayRefusal(locked.Min(p => p.Date));
         }
     }
 
@@ -73,7 +74,7 @@ public class DayLockService : IDayLockService
 
         if (await _repository.IsDayLockedAsync(date, clientId, cancellationToken))
         {
-            throw new InvalidRequestException(SealedDayMessage(date));
+            throw SealedDayRefusal(date);
         }
     }
 
@@ -86,7 +87,7 @@ public class DayLockService : IDayLockService
 
         if (await _repository.IsDayLockedForShiftAsync(date, shiftId, cancellationToken))
         {
-            throw new InvalidRequestException(SealedDayMessage(date));
+            throw SealedDayRefusal(date);
         }
     }
 
@@ -111,9 +112,12 @@ public class DayLockService : IDayLockService
             return;
         }
 
-        throw new InvalidRequestException(SealedDayMessage(locked.Min(p => p.Date)));
+        throw SealedDayRefusal(locked.Min(p => p.Date));
     }
 
-    private static string SealedDayMessage(DateOnly date)
-        => $"Day {date:yyyy-MM-dd} is sealed and cannot be modified.";
+    private static WorkBookingRefusedException SealedDayRefusal(DateOnly date)
+        => new(
+            $"Day {date:yyyy-MM-dd} is sealed and cannot be modified.",
+            WorkBookingRefusalCodes.DaySealed,
+            new Dictionary<string, object?> { [WorkBookingRefusalCodes.DateField] = date });
 }
