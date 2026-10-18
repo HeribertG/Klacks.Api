@@ -219,6 +219,7 @@ public class LLMFunctionExecutor
     }
 
     private const string ApplyParameterName = "apply";
+    private const string ParameterNameSeparator = ",";
 
     private static bool IsSelfPaired(AgentSkill? skill, string functionName)
     {
@@ -245,8 +246,8 @@ public class LLMFunctionExecutor
             call.FunctionName = normalizedName;
         }
 
-        _logger.LogInformation("Executing function {FunctionName} with parameters {Parameters}",
-            call.FunctionName, JsonSerializer.Serialize(call.Parameters));
+        _logger.LogInformation("Executing function {FunctionName} with parameters {ParameterNames}",
+            call.FunctionName, string.Join(ParameterNameSeparator, call.Parameters?.Keys ?? Enumerable.Empty<string>()));
 
         var executionType = await GetExecutionTypeAsync(call.FunctionName);
 

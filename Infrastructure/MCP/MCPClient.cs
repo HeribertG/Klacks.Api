@@ -2,6 +2,7 @@
 
 using System.Diagnostics;
 using System.Text.Json;
+using Klacks.Api.Domain.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.MCP;
@@ -240,7 +241,7 @@ public class MCPClient : IDisposable
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
 
-        _logger.LogDebug("Sending MCP request: {Request}", requestJson);
+        _logger.LogDebug("Sending MCP request {Method} ({RequestLength} chars)", request.Method.ForLog(), requestJson.LengthForLog());
 
         await _stdin.WriteLineAsync(requestJson);
         await _stdin.FlushAsync();
@@ -251,7 +252,7 @@ public class MCPClient : IDisposable
             throw new InvalidOperationException("No response from MCP server");
         }
 
-        _logger.LogDebug("Received MCP response: {Response}", responseLine);
+        _logger.LogDebug("Received MCP response ({ResponseLength} chars)", responseLine.LengthForLog());
 
         return JsonSerializer.Deserialize<MCPResponse>(responseLine, new JsonSerializerOptions
         {

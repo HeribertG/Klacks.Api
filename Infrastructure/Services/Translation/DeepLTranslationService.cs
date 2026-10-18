@@ -97,8 +97,8 @@ public class DeepLTranslationService : ITranslationService
 
             var translatedText = result?.Translations?.FirstOrDefault()?.Text ?? text;
 
-            _logger.LogDebug("Translated '{Source}' from {SourceLang} to {TargetLang}: '{Target}'",
-                text.ForLog(), (sourceLanguage ?? "auto-detect").ForLog(), targetLanguage.ForLog(), translatedText.ForLog());
+            _logger.LogDebug("Translated {SourceLength} chars from {SourceLang} to {TargetLang}: {TargetLength} chars",
+                text.LengthForLog(), (sourceLanguage ?? "auto-detect").ForLog(), targetLanguage.ForLog(), translatedText.LengthForLog());
 
             return new TranslationResult(translatedText, sourceLanguage ?? string.Empty, targetLanguage);
         }

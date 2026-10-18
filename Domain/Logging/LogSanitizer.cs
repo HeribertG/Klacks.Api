@@ -25,6 +25,14 @@ public static class LogSanitizer
     }
 
     /// <summary>
+    /// Returns only the length of a content value (chat message, prompt, LLM reply, tool arguments) so a log
+    /// line can carry its size as metadata while the text itself, which may hold personal data, stays out of
+    /// the log.
+    /// </summary>
+    /// <param name="value">The content whose text must not be logged.</param>
+    public static int LengthForLog(this string? value) => value?.Length ?? 0;
+
+    /// <summary>
     /// Returns a partially redacted form of an email address for logging: the local part is
     /// reduced to its first character so the personally identifiable identity is not written to
     /// logs, while the domain is kept for operational debugging. CR/LF are stripped as well.

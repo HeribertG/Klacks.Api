@@ -47,6 +47,7 @@
 /// </summary>
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
@@ -280,8 +281,8 @@ internal static class TurnClosingNotices
         if (failedCall != null)
         {
             logger.LogWarning(
-                "All function calls failed in stream turn; surfacing notice for {FunctionName}. Raw result: {RawResult}",
-                failedCall.FunctionName, failedCall.Result);
+                "All function calls failed in stream turn; surfacing notice for {FunctionName} (result kind {ResultKind}, {ResultLength} chars)",
+                failedCall.FunctionName, failedCall.ResultKind, failedCall.Result.LengthForLog());
             notices.Add(StepFailed(failedCall));
         }
 

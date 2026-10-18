@@ -133,19 +133,19 @@ public class PlanningAgent : IPlanningAgent
             var response = await provider.ProcessAsync(request);
             if (!response.Success || string.IsNullOrWhiteSpace(response.Content))
             {
-                _logger.LogWarning("Planning LLM call returned no content for goal '{Goal}'", goal.ForLog());
+                _logger.LogWarning("Planning LLM call returned no content for plan {PlanId} (goal {GoalLength} chars)", plan.Id, goal.LengthForLog());
                 plan.StepsJson = "[]";
                 return plan;
             }
 
             var steps = ParseSteps(response.Content);
             plan.StepsJson = JsonSerializer.Serialize(steps);
-            _logger.LogInformation("Planned {Count} step(s) for goal '{Goal}' using model {Model}",
-                steps.Count, goal.ForLog(), model.ApiModelId);
+            _logger.LogInformation("Planned {Count} step(s) for plan {PlanId} (goal {GoalLength} chars) using model {Model}",
+                steps.Count, plan.Id, goal.LengthForLog(), model.ApiModelId);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "PlanningAgent failed for goal '{Goal}' — returning empty plan", goal.ForLog());
+            _logger.LogWarning(ex, "PlanningAgent failed for plan {PlanId} (goal {GoalLength} chars) — returning empty plan", plan.Id, goal.LengthForLog());
             plan.Status = PlanStatus.Failed;
             plan.LastErrorMessage = ex.Message;
             plan.StepsJson = "[]";

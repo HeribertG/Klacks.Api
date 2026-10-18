@@ -23,6 +23,7 @@
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Learning;
@@ -185,7 +186,8 @@ public class PhraseLearner : IPhraseLearner
                 cancellationToken);
 
             _logger.LogInformation(
-                "Learned phrase '{Phrase}' ({Language}) for skill {Skill}", phrase, language, skillName);
+                "Learned phrase {PhraseId} ({PhraseLength} chars, {Language}) for skill {Skill}",
+                phraseId.Value, phrase.LengthForLog(), language, skillName);
 
             return PhraseLearningOutcome.Success(phraseId.Value, phrase);
         }
@@ -198,7 +200,8 @@ public class PhraseLearner : IPhraseLearner
             cancellationToken);
 
         _logger.LogInformation(
-            "Rejected phrase '{Phrase}' for skill {Skill}: {Reason}", phrase, skillName, failure);
+            "Rejected phrase {PhraseId} ({PhraseLength} chars) for skill {Skill}: {Reason}",
+            phraseId.Value, phrase.LengthForLog(), skillName, failure);
 
         return PhraseLearningOutcome.Failure(failure);
     }

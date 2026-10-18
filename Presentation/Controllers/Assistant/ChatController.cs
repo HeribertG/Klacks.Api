@@ -190,7 +190,9 @@ public class ChatController : ControllerBase
             });
         }
 
-        _logger.LogInformation("Processing assistant request for user {UserId}: {Message}", userId, request.Message.ForLog());
+        _logger.LogInformation(
+            "Processing assistant request for user {UserId} (conversation {ConversationId}, {MessageLength} chars)",
+            userId, request.ConversationId.ForLog(), request.Message.LengthForLog());
 
         var response = await _mediator.Send(new ProcessLLMMessageCommand
         {

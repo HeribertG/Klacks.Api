@@ -137,8 +137,8 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         if (_logger.IsEnabled(LogLevel.Debug))
         {
             _logger.LogDebug(
-                "Knowledge retrieval scores for query {Query}: {Scores}",
-                userQuery.ForLog(),
+                "Knowledge retrieval scores for query {QueryHash}: {Scores}",
+                ShortHash(userQuery),
                 string.Join(", ", filtered.Zip(scores).Select(p => $"{p.First.SourceId}:{p.Second:F3}")));
         }
 

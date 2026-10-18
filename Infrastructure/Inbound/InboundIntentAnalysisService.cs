@@ -45,6 +45,7 @@ using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Inbound;
 using Klacks.Api.Domain.Models.Schedules;
 
@@ -54,7 +55,6 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
 {
     private const int MaxBodyLengthForLlm = 4000;
     private const int MaxLlmAttempts = 2;
-    private const int RawReplyLogLength = 1000;
     private const int MaxSummaryLength = 2000;
     private const int MaxUnparsedSummaryLength = 500;
     private const string LlmCallFailedPrefix = "LLM call failed: ";
@@ -180,8 +180,8 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
                 "Inbound intent analysis attempt {Attempt}/{Max} for {Channel} source {SourceId}: parsed={Parsed}",
                 attempt, MaxLlmAttempts, source.Channel, source.SourceId, parsed != null);
             _logger.LogDebug(
-                "Inbound intent analysis raw reply for {Channel} source {SourceId}: {Reply}",
-                source.Channel, source.SourceId, Truncate(reply, RawReplyLogLength));
+                "Inbound intent analysis raw reply for {Channel} source {SourceId}: {ReplyLength} chars",
+                source.Channel, source.SourceId, reply.LengthForLog());
             if (parsed == null && attempt < MaxLlmAttempts)
             {
                 _logger.LogWarning(

@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Logging of the reasoning_content channel for the OpenAI-compatible providers. The reasoning text is
-/// chain-of-thought and may quote user data, so it is written at Debug level only; a call whose model
+/// chain-of-thought and may quote user data, so only its length is written (Debug level); a call whose model
 /// reasoned but wrote no content and no tool call is reported at Warning level with its finish_reason,
 /// because the caller then receives an empty answer and has to recover it.
 /// </summary>
@@ -11,11 +11,8 @@ namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 
 public static class ReasoningChannelLog
 {
-    private const int MaxLoggedReasoningLength = 1000;
-    private const string TruncationSuffix = "...";
-
     /// <summary>
-    /// Writes the reasoning text at Debug level and warns when the call ended with reasoning only.
+    /// Writes the reasoning length at Debug level and warns when the call ended with reasoning only.
     /// </summary>
     /// <param name="logger">The provider's logger</param>
     /// <param name="providerName">Display name of the provider, for the log line</param>
@@ -27,12 +24,9 @@ public static class ReasoningChannelLog
         ILogger logger, string providerName, string? modelId, string? reasoning,
         bool reasoningWithoutContent, string? finishReason)
     {
-        if (!string.IsNullOrEmpty(reasoning) && logger.IsEnabled(LogLevel.Debug))
+        if (!string.IsNullOrEmpty(reasoning))
         {
-            var logged = reasoning.Length <= MaxLoggedReasoningLength
-                ? reasoning
-                : reasoning[..MaxLoggedReasoningLength] + TruncationSuffix;
-            logger.LogDebug("{Provider} reasoning_content ({Length} chars): {Reasoning}", providerName, reasoning.Length, logged);
+            logger.LogDebug("{Provider} reasoning_content ({Length} chars)", providerName, reasoning.Length);
         }
 
         if (reasoningWithoutContent)

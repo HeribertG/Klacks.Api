@@ -244,8 +244,8 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
 
         await _agentMemoryRepository.AddAsync(memory);
 
-        _logger.LogDebug("Auto-extracted memory '{Key}' [{Category}] importance={Importance}",
-            fact.Key, fact.Category, fact.Importance);
+        _logger.LogDebug("Auto-extracted memory {MemoryId} [{Category}] importance={Importance}",
+            memory.Id, fact.Category, fact.Importance);
     }
 
     // An expiring duplicate is the one case where finding a copy must still write something. Every read

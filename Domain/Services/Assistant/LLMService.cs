@@ -137,8 +137,8 @@ public class LLMService : ILLMService
 
         try
         {
-            _logger.LogInformation("Processing LLM request from user {UserId}: {Message}",
-                context.UserId, context.Message);
+            _logger.LogInformation("Processing LLM request from user {UserId} (conversation {ConversationId}, {MessageLength} chars)",
+                context.UserId, context.ConversationId.ForLog(), context.Message.LengthForLog());
 
             var (model, provider, error, conversation, systemPrompt, volatilePrompt, truncatedHistory, budgetProfile) =
                 await PrepareContextAsync(context);
@@ -832,8 +832,8 @@ public class LLMService : ILLMService
         if (failedCall != null)
         {
             _logger.LogWarning(
-                "All function calls failed in multi-turn loop; surfacing notice for {FunctionName}. Raw result: {RawResult}",
-                failedCall.FunctionName, failedCall.Result);
+                "All function calls failed in multi-turn loop; surfacing notice for {FunctionName} (result kind {ResultKind}, {ResultLength} chars)",
+                failedCall.FunctionName, failedCall.ResultKind, failedCall.Result.LengthForLog());
             responseContent = TurnClosingNotices.StepFailed(failedCall);
         }
 

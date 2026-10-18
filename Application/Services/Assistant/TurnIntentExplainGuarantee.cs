@@ -86,6 +86,7 @@ public sealed class TurnIntentExplainGuarantee : ITurnIntentExplainGuarantee
             ? TopRetrievedExplainSkillNames(request)
             : [];
         var detectorMutation = MutationIntentDetector.IsMutationIntent(request.UserMessage);
+        var detectorQuestion = MutationIntentDetector.IsInformationQuestion(request.UserMessage);
         var wouldVeto = detectorMutation && prediction.MayActOnAsk;
         var vetoApplied = wouldVeto && _options.MayVetoForcedToolCall;
 
@@ -96,8 +97,7 @@ public sealed class TurnIntentExplainGuarantee : ITurnIntentExplainGuarantee
             "vetoApplied={VetoApplied} explainSkills={ExplainSkills}",
             TurnIntentDefaults.LogPrefix, _options.Mode, request.ConversationId, request.Language, prediction.Locale,
             prediction.LocaleEnabled, prediction.Label, prediction.AskProbability, prediction.DoProbability,
-            prediction.OtherProbability, prediction.IsConfidentAsk, detectorMutation,
-            MutationIntentDetector.IsInformationQuestion(request.UserMessage),
+            prediction.OtherProbability, prediction.IsConfidentAsk, detectorMutation, detectorQuestion,
             wouldVeto, vetoApplied, string.Join(",", explainSkillNames));
 
         return _options.IsActive

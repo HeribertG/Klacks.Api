@@ -28,6 +28,7 @@ using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using LLMModelDiscovery = Klacks.Api.Domain.Models.Assistant.LLMModelDiscovery;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek;
@@ -37,7 +38,6 @@ public class DeepSeekProvider : BaseHttpProvider
     private const string ToolChoiceAuto = "auto";
     private const string ToolChoiceUnsupportedErrorMarker = "does not support this tool_choice";
     private const string ThinkingTypeDisabled = "disabled";
-    private const int RawChannelLogLength = 1000;
 
     private readonly bool _disableThinking;
     private int _thinkingDisabledLogged;
@@ -196,16 +196,6 @@ public class DeepSeekProvider : BaseHttpProvider
         return new OpenAIThinkingOptions { Type = ThinkingTypeDisabled };
     }
 
-    private static string TruncateForLog(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return string.Empty;
-        }
-
-        return value.Length <= RawChannelLogLength ? value : value[..RawChannelLogLength] + "...";
-    }
-
     private async Task<LLMProviderResponse> ProcessCoreAsync(
         LLMProviderRequest request, string? toolChoice, CancellationToken cancellationToken)
     {
@@ -235,9 +225,8 @@ public class DeepSeekProvider : BaseHttpProvider
         var rawReasoning = choice.Message?.ReasoningContent;
         _logger.LogInformation(
             "DeepSeek raw channels: hasToolCalls={HasToolCalls}, finish_reason={FinishReason}, " +
-            "content ({ContentLength} chars)={Content}, reasoning_content ({ReasoningLength} chars)",
-            hasToolCalls, choice.FinishReason, rawContent?.Length ?? 0, TruncateForLog(rawContent),
-            rawReasoning?.Length ?? 0);
+            "content ({ContentLength} chars), reasoning_content ({ReasoningLength} chars)",
+            hasToolCalls, choice.FinishReason, rawContent.LengthForLog(), rawReasoning.LengthForLog());
         var answer = ReasoningContentResolver.Resolve(rawContent, rawReasoning, hasToolCalls);
         ReasoningChannelLog.Write(
             _logger, ProviderName, request.ModelId, rawReasoning, answer.ReasoningWithoutContent, choice.FinishReason);

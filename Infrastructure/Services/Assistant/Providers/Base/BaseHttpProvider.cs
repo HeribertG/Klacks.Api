@@ -284,13 +284,13 @@ public abstract class BaseHttpProvider : ILLMProvider
         var json = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        _logger.LogDebug("{Provider} sending request to {Endpoint}: {Request}", ProviderName, RedactQuery(endpoint), json.ForLog());
+        _logger.LogDebug("{Provider} sending request to {Endpoint} ({RequestLength} chars)", ProviderName, RedactQuery(endpoint), json.LengthForLog());
 
         var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
         var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        _logger.LogDebug("{Provider} received response: {StatusCode} - {Response}",
-            ProviderName, response.StatusCode, responseJson);
+        _logger.LogDebug("{Provider} received response: {StatusCode} ({ResponseLength} chars)",
+            ProviderName, response.StatusCode, responseJson.LengthForLog());
         
         if (!response.IsSuccessStatusCode)
         {
