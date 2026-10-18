@@ -10,9 +10,12 @@
 /// dosage itself lives in the user's per-kind mute, which survives the retention of the counter rows: yes or no mutes
 /// at once, the second "later" mutes, and so does the third time the offer was shown at all. The rows are written
 /// directly, not through SetProactiveReactionCommandHandler, whose dismiss-streak evaluators would read a "later" as a
-/// rejected notification. Writing is gated like reading: while the offers are switched off or the topic is already muted
-/// or snoozed for the user, a reaction is accepted (idempotent) but stores nothing, so a client cannot grow the counter
-/// table of a topic it may no longer be offered. Reading is fail-closed: any failure means "do not offer". Logs never
+/// rejected notification. Writing is gated like reading: while the offers are switched off nothing is stored, and while
+/// the topic is muted or snoozed for the user a reaction is accepted (idempotent) but stores nothing - with one
+/// exception: the answer (accepted, later, declined) to the very offer whose "shown" muted the topic is still stored as
+/// long as the user's newest row of the kind is that unanswered "shown". The UI sends "shown" before the toast appears,
+/// so without it the answer to the third offer would be lost; at most one answer per offer, so a client still cannot
+/// grow the counter table of a topic it may no longer be offered. Reading is fail-closed: any failure means "do not offer". Logs never
 /// carry the user.
 /// </summary>
 /// <param name="dispatches">Counter rows of the offers</param>
@@ -95,9 +98,18 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
         }
 
         var kind = UiExplainOfferTopics.TriggerKindOf(topic);
-        if (!await _offersSwitch.IsOnAsync(cancellationToken)
-            || !await _preferences.IsAllowedAsync(userId, kind, AgentTriggerSeverity.Low))
+        if (!await _offersSwitch.IsOnAsync(cancellationToken))
         {
+            return true;
+        }
+
+        if (!await _preferences.IsAllowedAsync(userId, kind, AgentTriggerSeverity.Low))
+        {
+            if (await AnswersTheMutingOfferAsync(userId, kind, outcome, cancellationToken))
+            {
+                await _dispatches.RecordAsync(NewRow(userId, topic, kind, outcome), cancellationToken);
+            }
+
             return true;
         }
 
@@ -109,6 +121,19 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
         }
 
         return true;
+    }
+
+    private async Task<bool> AnswersTheMutingOfferAsync(
+        string userId, string kind, string outcome, CancellationToken cancellationToken)
+    {
+        if (outcome == UiExplainOfferOutcomes.Shown)
+        {
+            return false;
+        }
+
+        var newest = await _dispatches.FindNewestAsync(userId, kind, cancellationToken);
+        return newest is { Reaction: ProactiveReaction.None }
+            && ExplainOfferMarker.Parse(newest.ContentParamsJson).Outcome == UiExplainOfferOutcomes.Shown;
     }
 
     private async Task<bool> IsLevelOfferedAsync(string userId, CancellationToken cancellationToken)

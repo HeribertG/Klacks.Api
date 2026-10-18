@@ -37,6 +37,9 @@ public interface IProactiveTriggerDispatchRepository
     /// <summary>Whether the user already got a row of this trigger kind at or after <paramref name="sinceUtc"/>, reacted to or not.</summary>
     Task<bool> HasRecentAsync(string userId, string triggerKind, DateTime sinceUtc, CancellationToken cancellationToken = default);
 
+    /// <summary>The user's newest (not soft-deleted) row of this trigger kind by CreateTime, reacted to or not, or null. Untracked.</summary>
+    Task<ProactiveTriggerDispatchRow?> FindNewestAsync(string userId, string triggerKind, CancellationToken cancellationToken = default);
+
     /// <summary>How many (not soft-deleted) rows of this trigger kind the user has that carry no reaction.</summary>
     Task<int> CountUnreactedAsync(string userId, string triggerKind, CancellationToken cancellationToken = default);
 

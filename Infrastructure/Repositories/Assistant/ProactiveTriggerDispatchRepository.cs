@@ -125,6 +125,15 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
             .AnyAsync(d => d.UserId == userId && d.TriggerKind == triggerKind && d.CreateTime >= sinceUtc, cancellationToken);
     }
 
+    public async Task<ProactiveTriggerDispatchRow?> FindNewestAsync(string userId, string triggerKind, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentTriggerDispatches
+            .AsNoTracking()
+            .Where(d => d.UserId == userId && d.TriggerKind == triggerKind)
+            .OrderByDescending(d => d.CreateTime)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<int> CountUnreactedAsync(string userId, string triggerKind, CancellationToken cancellationToken = default)
     {
         return await _context.AgentTriggerDispatches
