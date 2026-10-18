@@ -4436,6 +4436,7 @@
   "schedule.workConflict.periodUntil": "至{{until}}",
   "schedule.workConflict.askKlacksy": "為什麼？問問 Klacksy",
   "schedule.workConflict.whyTriggerPhrase": "為什麼不能把{{client}}排到{{date}}的{{shift}}班次？是什麼阻止了這位員工那天的排班？",
+  "schedule.workConflict.clientWithNumber": "{{name}}（編號 {{number}}）",
   "assistant-chat.onboarding.header-badge.start": "開始導覽",
   "shift.edit-shift.group.header": "已分配的分組",
   "profile.nav.aria-label": "開啟個人資料",

@@ -253,7 +253,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     {
         foreach (var skillName in BookingDiagnosisIntentResolver.GuaranteedSkillNames(request.UserMessage, request.CurrentRoute))
         {
-            if (string.Equals(skillName, BookingDiagnosisIntentResolver.ExplainWhyCannotBookSkillName, StringComparison.Ordinal))
+            if (string.Equals(skillName, SkillNames.ExplainWhyCannotBook, StringComparison.Ordinal))
             {
                 SkillGuaranteeCollector.AddAsLowestRankedHint(
                     guaranteedSkills, request.PermittedSkills, skillName, guaranteedSources, lowestRankedNames);

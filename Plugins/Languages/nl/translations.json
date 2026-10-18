@@ -4436,6 +4436,7 @@
   "schedule.workConflict.periodUntil": "tot en met {{until}}",
   "schedule.workConflict.askKlacksy": "Waarom? Vraag het Klacksy",
   "schedule.workConflict.whyTriggerPhrase": "Waarom kan {{client}} op {{date}} niet worden ingepland voor dienst {{shift}}? Wat verhindert dat deze medewerker die dag wordt ingepland?",
+  "schedule.workConflict.clientWithNumber": "{{name}} (nr. {{number}})",
   "assistant-chat.onboarding.header-badge.start": "Rondleiding starten",
   "shift.edit-shift.group.header": "Toegewezen groepen",
   "profile.nav.aria-label": "Profiel openen",

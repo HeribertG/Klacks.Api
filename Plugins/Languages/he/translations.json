@@ -4436,6 +4436,7 @@
   "schedule.workConflict.periodUntil": "עד {{until}}",
   "schedule.workConflict.askKlacksy": "למה? לשאול את Klacksy",
   "schedule.workConflict.whyTriggerPhrase": "למה אי אפשר לשבץ את {{client}} למשמרת {{shift}} בתאריך {{date}}? מה מונע לשבץ את העובד הזה ביום הזה?",
+  "schedule.workConflict.clientWithNumber": "{{name}} (מס' {{number}})",
   "assistant-chat.onboarding.header-badge.start": "התחל סיור",
   "shift.edit-shift.group.header": "קבוצות משויכות",
   "profile.nav.aria-label": "פתח פרופיל",

@@ -16,13 +16,17 @@
 /// long as the user's newest row of the kind is that unanswered "shown". The UI sends "shown" before the toast appears,
 /// so without it the answer to the third offer would be lost; at most one answer per offer, so a client still cannot
 /// grow the counter table of a topic it may no longer be offered. Reading is fail-closed: any failure means "do not offer". Logs never
-/// carry the user.
+/// carry the user. A passive topic (UiExplainOfferTopic.IsPassive, a link the UI always shows) is never offered by state
+/// (always off), stores only "accepted", at most one row per user and company-local day (the DedupKey carries the day from
+/// ICompanyClock; RecordAsync skips an existing key and the unique dedup index backs a concurrent duplicate), and never
+/// touches the mute.
 /// </summary>
 /// <param name="dispatches">Counter rows of the offers</param>
 /// <param name="preferences">The user's per-kind mute; the dosage is written here</param>
 /// <param name="offersSwitch">The explain-offers setting and the proactive kill switch, shared with the gate offers</param>
 /// <param name="explainDepthResolver">Resolves the user's explanation level (beginner/advanced)</param>
 /// <param name="timeProvider">Clock for the reaction stamp</param>
+/// <param name="companyClock">Company-local day of a passive click row</param>
 /// <param name="logger">Reports a swallowed failure</param>
 
 using System.Globalization;
@@ -30,7 +34,9 @@ using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Services.Assistant.ExplainOffers;
 
@@ -43,6 +49,7 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
     private readonly IExplainOffersSwitch _offersSwitch;
     private readonly IExplainDepthResolver _explainDepthResolver;
     private readonly TimeProvider _timeProvider;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<UiExplainOfferService> _logger;
 
     public UiExplainOfferService(
@@ -51,6 +58,7 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
         IExplainOffersSwitch offersSwitch,
         IExplainDepthResolver explainDepthResolver,
         TimeProvider timeProvider,
+        ICompanyClock companyClock,
         ILogger<UiExplainOfferService> logger)
     {
         _dispatches = dispatches;
@@ -58,6 +66,7 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
         _offersSwitch = offersSwitch;
         _explainDepthResolver = explainDepthResolver;
         _timeProvider = timeProvider;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -65,7 +74,7 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
         string userId, string topicKey, CancellationToken cancellationToken = default)
     {
         var topic = UiExplainOfferTopics.Find(topicKey);
-        if (topic == null || string.IsNullOrWhiteSpace(userId))
+        if (topic == null || topic.IsPassive || string.IsNullOrWhiteSpace(userId))
         {
             return UiExplainOfferState.Off;
         }
@@ -103,17 +112,23 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
             return true;
         }
 
+        if (topic.IsPassive)
+        {
+            await RecordPassiveClickAsync(userId, topic, kind, outcome, cancellationToken);
+            return true;
+        }
+
         if (!await _preferences.IsAllowedAsync(userId, kind, AgentTriggerSeverity.Low))
         {
             if (await AnswersTheMutingOfferAsync(userId, kind, outcome, cancellationToken))
             {
-                await _dispatches.RecordAsync(NewRow(userId, topic, kind, outcome), cancellationToken);
+                await _dispatches.RecordAsync(NewRow(userId, kind, outcome, UniqueDedupKey(topic, outcome)), cancellationToken);
             }
 
             return true;
         }
 
-        await _dispatches.RecordAsync(NewRow(userId, topic, kind, outcome), cancellationToken);
+        await _dispatches.RecordAsync(NewRow(userId, kind, outcome, UniqueDedupKey(topic, outcome)), cancellationToken);
 
         if (await ShouldMuteAfterAsync(userId, kind, outcome, cancellationToken))
         {
@@ -121,6 +136,33 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
         }
 
         return true;
+    }
+
+    private async Task RecordPassiveClickAsync(
+        string userId, UiExplainOfferTopic topic, string kind, string outcome, CancellationToken cancellationToken)
+    {
+        if (outcome != UiExplainOfferOutcomes.Accepted)
+        {
+            return;
+        }
+
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
+        var row = NewRow(userId, kind, outcome,
+            topic.Key + UiExplainOfferDefaults.DedupKeySeparator + outcome + UiExplainOfferDefaults.DedupKeySeparator
+                + today.ToString(UiExplainOfferDefaults.PassiveDayFormat, CultureInfo.InvariantCulture));
+        try
+        {
+            await _dispatches.RecordAsync(row, cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            if (!await _dispatches.WasDispatchedAsync(userId, kind, row.DedupKey, null, cancellationToken))
+            {
+                throw;
+            }
+
+            _logger.LogDebug("A concurrent click of the passive UI explain topic {TopicKey} was already recorded", topic.Key);
+        }
     }
 
     private async Task<bool> AnswersTheMutingOfferAsync(
@@ -161,15 +203,18 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
         }
     }
 
-    private ProactiveTriggerDispatchRow NewRow(string userId, UiExplainOfferTopic topic, string kind, string outcome)
+    private static string UniqueDedupKey(UiExplainOfferTopic topic, string outcome) =>
+        topic.Key + UiExplainOfferDefaults.DedupKeySeparator + outcome
+            + UiExplainOfferDefaults.DedupKeySeparator + Guid.NewGuid().ToString(GuidFormat, CultureInfo.InvariantCulture);
+
+    private ProactiveTriggerDispatchRow NewRow(string userId, string kind, string outcome, string dedupKey)
     {
         var reaction = ReactionOf(outcome);
         return new ProactiveTriggerDispatchRow
         {
             UserId = userId,
             TriggerKind = kind,
-            DedupKey = topic.Key + UiExplainOfferDefaults.DedupKeySeparator + outcome
-                + UiExplainOfferDefaults.DedupKeySeparator + Guid.NewGuid().ToString(GuidFormat, CultureInfo.InvariantCulture),
+            DedupKey = dedupKey,
             ContentParamsJson = new ExplainOfferMarker { Outcome = outcome }.ToJson(),
             Severity = AgentTriggerSeverity.Low,
             Reaction = reaction,

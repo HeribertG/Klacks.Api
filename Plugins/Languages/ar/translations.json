@@ -4436,6 +4436,7 @@
   "schedule.workConflict.periodUntil": "حتى {{until}}",
   "schedule.workConflict.askKlacksy": "لماذا؟ اسأل Klacksy",
   "schedule.workConflict.whyTriggerPhrase": "ما الذي يمنع تعيين هذا الموظف في هذا اليوم؟ لماذا لا يمكن تعيين {{client}} في الوردية {{shift}} بتاريخ {{date}}؟",
+  "schedule.workConflict.clientWithNumber": "{{name}} (رقم {{number}})",
   "assistant-chat.onboarding.header-badge.start": "بدء الجولة",
   "shift.edit-shift.group.header": "المجموعات المخصصة",
   "profile.nav.aria-label": "فتح الملف الشخصي",

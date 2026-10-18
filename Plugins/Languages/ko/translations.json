@@ -4436,6 +4436,7 @@
   "schedule.workConflict.periodUntil": "{{until}}까지",
   "schedule.workConflict.askKlacksy": "왜요? Klacksy에게 묻기",
   "schedule.workConflict.whyTriggerPhrase": "왜 {{client}} 님을 {{date}} {{shift}} 근무에 배정할 수 없나요? 이 직원을 그날 배정하지 못하는 이유를 알려 주세요.",
+  "schedule.workConflict.clientWithNumber": "{{name}}(번호 {{number}})",
   "assistant-chat.onboarding.header-badge.start": "투어 시작",
   "shift.edit-shift.group.header": "할당된 그룹",
   "profile.nav.aria-label": "프로필 열기",

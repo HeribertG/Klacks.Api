@@ -19,14 +19,11 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class BookingDiagnosisIntentResolver
 {
-    public const string DiagnoseWorkBookingSkillName = SkillNames.DiagnoseWorkBooking;
-    public const string ExplainWhyCannotBookSkillName = "explain_why_cannot_book";
-
     private const string EnglishContractedNegation = "n't";
     private const string EnglishContractedNegationTypographic = "n’t";
     private const string GermanNegationStem = "kein";
 
-    private static readonly string[] GuaranteedSkills = [DiagnoseWorkBookingSkillName, ExplainWhyCannotBookSkillName];
+    private static readonly string[] GuaranteedSkills = [SkillNames.DiagnoseWorkBooking, SkillNames.ExplainWhyCannotBook];
 
     private static readonly HashSet<string> WhyWords = new(StringComparer.Ordinal)
     {

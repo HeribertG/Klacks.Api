@@ -4436,6 +4436,7 @@
   "schedule.workConflict.periodUntil": "til {{until}}",
   "schedule.workConflict.askKlacksy": "Hvorfor? Spørg Klacksy",
   "schedule.workConflict.whyTriggerPhrase": "Hvorfor kan {{client}} ikke sættes på vagten {{shift}} den {{date}}? Hvad forhindrer at denne medarbejder sættes på vagten den dag?",
+  "schedule.workConflict.clientWithNumber": "{{name}} (nr. {{number}})",
   "assistant-chat.onboarding.header-badge.start": "Start rundvisning",
   "shift.edit-shift.group.header": "Tildelte grupper",
   "profile.nav.aria-label": "Åbn profil",

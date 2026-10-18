@@ -4436,6 +4436,7 @@
   "schedule.workConflict.periodUntil": "hingga {{until}}",
   "schedule.workConflict.askKlacksy": "Mengapa? Tanya Klacksy",
   "schedule.workConflict.whyTriggerPhrase": "Kenapa {{client}} tidak bisa dijadwalkan pada shift {{shift}} tanggal {{date}}? Apa yang menghalangi penugasan karyawan ini di hari itu?",
+  "schedule.workConflict.clientWithNumber": "{{name}} (nomor {{number}})",
   "assistant-chat.onboarding.header-badge.start": "Mulai tur",
   "shift.edit-shift.group.header": "Grup yang Ditetapkan",
   "profile.nav.aria-label": "Buka profil",

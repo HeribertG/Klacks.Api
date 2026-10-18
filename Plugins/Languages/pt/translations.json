@@ -4436,6 +4436,7 @@
   "schedule.workConflict.periodUntil": "até {{until}}",
   "schedule.workConflict.askKlacksy": "Porquê? Perguntar ao Klacksy",
   "schedule.workConflict.whyTriggerPhrase": "O que impede atribuir esta pessoa nesse dia? Porque não é possível atribuir {{client}} ao turno {{shift}} em {{date}}?",
+  "schedule.workConflict.clientWithNumber": "{{name}} (n.º {{number}})",
   "assistant-chat.onboarding.header-badge.start": "Iniciar visita guiada",
   "shift.edit-shift.group.header": "Grupos atribuídos",
   "profile.nav.aria-label": "Abrir perfil",

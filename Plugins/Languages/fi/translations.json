@@ -4436,6 +4436,7 @@
   "schedule.workConflict.periodUntil": "{{until}} asti",
   "schedule.workConflict.askKlacksy": "Miksi? Kysy Klacksylta",
   "schedule.workConflict.whyTriggerPhrase": "Miksi {{client}} ei voi saada vuoroa {{shift}} päivänä {{date}}? Mikä estää tämän työntekijän vuoroon merkitsemisen sinä päivänä?",
+  "schedule.workConflict.clientWithNumber": "{{name}} (nro {{number}})",
   "assistant-chat.onboarding.header-badge.start": "Aloita esittely",
   "shift.edit-shift.group.header": "Määritetyt ryhmät",
   "profile.nav.aria-label": "Avaa profiili",

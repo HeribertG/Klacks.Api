@@ -8,4 +8,6 @@ namespace Klacks.Api.Domain.Models.Assistant;
 /// </summary>
 /// <param name="Key">Short topic key; the trigger kind of its counter rows is UiExplainOfferTopics.TriggerKindPrefix + Key</param>
 /// <param name="HappenSkillName">Knowledge happen or skill the UI's trigger phrase is guaranteed to reach</param>
-public sealed record UiExplainOfferTopic(string Key, string HappenSkillName);
+/// <param name="IsPassive">A passive topic is a link the UI always shows (no offer state, no dosage, never muted); its
+/// counter only records the click, at most once per user and company-local day</param>
+public sealed record UiExplainOfferTopic(string Key, string HappenSkillName, bool IsPassive = false);

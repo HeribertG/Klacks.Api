@@ -7,8 +7,8 @@
 /// ExplainOfferTopics.TriggerKindPrefix ("explain.topic."): the gate offers of T4 read every row below their own prefix
 /// as a pending chip of the conversation, so a shared prefix would let the T4 service settle UI offers.
 /// WorkBookingRefusalKey is passive (T5 part b): the "Why? Ask Klacksy" link of a refused single booking never asks
-/// for the offer state and records only "accepted" on click. The first click mutes the kind like any answer, so the
-/// counter shows how many accounts used the link at least once, not how often.
+/// for the offer state and records only "accepted" on click, at most one row per user and company-local day, and never
+/// mutes the kind, so the counter shows on how many days each account used the link.
 /// </summary>
 
 using Klacks.Api.Domain.Models.Assistant;
@@ -26,7 +26,7 @@ public static class UiExplainOfferTopics
     public static readonly IReadOnlyList<UiExplainOfferTopic> All =
     [
         new(ShiftHolidayOptionsKey, SkillNames.ExplainShiftHolidayOptions),
-        new(WorkBookingRefusalKey, SkillNames.DiagnoseWorkBooking)
+        new(WorkBookingRefusalKey, SkillNames.DiagnoseWorkBooking, IsPassive: true)
     ];
 
     /// <summary>The topic of a key, null when the key is no (longer) a known topic.</summary>

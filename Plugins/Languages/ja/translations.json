@@ -4436,6 +4436,7 @@
   "schedule.workConflict.periodUntil": "{{until}}まで",
   "schedule.workConflict.askKlacksy": "なぜ？Klacksyに聞く",
   "schedule.workConflict.whyTriggerPhrase": "なぜ{{client}}を{{date}}の{{shift}}に割り当てられないのですか？この人をその日に割り当てられない原因を教えてください。",
+  "schedule.workConflict.clientWithNumber": "{{name}}（番号 {{number}}）",
   "assistant-chat.onboarding.header-badge.start": "ツアーを開始",
   "shift.edit-shift.group.header": "割り当てられたグループ",
   "profile.nav.aria-label": "プロフィールを開く",
