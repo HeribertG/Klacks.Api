@@ -2,27 +2,29 @@
 
 /// <summary>
 /// Shared skill helper that resolves the shift a skill call names, by id or by name/abbreviation. Group visibility is
-/// applied before anything is counted or listed: a shift the caller may not see is left out of every match, so a hidden
-/// shift reads exactly like an unknown one, also in the ambiguity list. Several plannable pieces with the same name
+/// applied before anything is counted, limited or listed: the name search filters by the caller's group restriction in
+/// the query itself (before its result limit), so a shift the caller may not see is left out of every match, can never
+/// crowd a visible one out of the limit, and a hidden shift reads exactly like an unknown one, also in the ambiguity
+/// list. The visibility guard filters the result once more as a second net. Several plannable pieces with the same name
 /// (cuts of one shift) are narrowed to the piece valid on the requested date before the name counts as ambiguous;
 /// genuine duplicates are answered with the candidate list, never resolved by picking one.
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.ShiftSchedule;
 
 namespace Klacks.Api.Application.Skills;
 
 internal static class ShiftResolver
 {
     private const int SearchResultLimit = 20;
-    private const string DateFormat = "yyyy-MM-dd";
     private const string TimeFormat = "HH:mm";
-    private const string OpenEnd = "open";
 
     /// <summary>
     /// Resolves a shift by an id the model supplied, or by name or abbreviation.
     /// </summary>
+    /// <param name="shiftGroupFilterService">Resolves the caller's group restriction the name search applies</param>
     /// <param name="shiftIdRaw">Shift id as the model supplied it; when present the name is ignored</param>
     /// <param name="shiftName">Shift name or abbreviation as the user said it</param>
     /// <param name="date">Day the shift is needed on; picks the cut valid on that day among same-named pieces</param>
@@ -30,6 +32,7 @@ internal static class ShiftResolver
     public static async Task<(Shift? Shift, string? Error)> ResolveByIdOrNameAsync(
         IShiftRepository shiftRepository,
         IShiftVisibilityGuard visibilityGuard,
+        IShiftGroupFilterService shiftGroupFilterService,
         string? shiftIdRaw,
         string? shiftName,
         DateOnly date,
@@ -58,7 +61,8 @@ internal static class ShiftResolver
             return (null, "Please provide the shift name or its id.");
         }
 
-        var matches = await shiftRepository.FindPlannableByNameAsync(term, SearchResultLimit, cancellationToken);
+        var visibleGroupIds = await shiftGroupFilterService.ResolveShiftListGroupIdsAsync(null);
+        var matches = await shiftRepository.FindPlannableByNameAsync(term, visibleGroupIds, SearchResultLimit, cancellationToken);
         var visibleIds = matches.Count == 0
             ? new HashSet<Guid>()
             : await visibilityGuard.FilterVisibleAsync(matches.Select(s => s.Id).ToList(), cancellationToken);
@@ -101,7 +105,8 @@ internal static class ShiftResolver
 
     private static string Describe(IReadOnlyList<Shift> shifts) =>
         string.Join(", ", shifts.Select(s =>
-            $"{s.Name} ({s.Abbreviation}, {s.FromDate.ToString(DateFormat)} to " +
-            $"{s.UntilDate?.ToString(DateFormat) ?? OpenEnd}, {s.StartShift.ToString(TimeFormat)}-" +
+            $"{s.Name} ({s.Abbreviation}, {s.FromDate.ToString(SkillDisplayFormats.IsoDate)} to " +
+            $"{s.UntilDate?.ToString(SkillDisplayFormats.IsoDate) ?? SkillDisplayFormats.OpenEnd}, " +
+            $"{s.StartShift.ToString(TimeFormat)}-" +
             $"{s.EndShift.ToString(TimeFormat)}, id {s.Id})"));
 }

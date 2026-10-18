@@ -4,7 +4,9 @@
 /// Default IWorkBookingDiagnosisService. Runs the checks of the direct booking path (Works POST) in its order and with
 /// its own primitives, so the first direct-entry refusal carries exactly the code the real POST would answer with:
 /// visibility, day seal (skipped for a scenario, like the day lock), membership and group period, sporadic capacity,
-/// hard-blocking conflict (skipped for a scenario). On top it reports what the assistant's placement refuses (a sealed
+/// hard-blocking conflict. The Work it checks is the one the POST would write; the hard-blocking check takes that Work
+/// itself (IWorkWriteGuard builds its row and decides the scenario skip, exactly as for the write), so the diagnosis
+/// cannot drift from the write by building its own row. On top it reports what the assistant's placement refuses (a sealed
 /// day also in a scenario, every Error-level conflict, but no sporadic capacity check) and what the schedule grid blocks
 /// without a request (an occupied cell). A hidden or missing employee, shift or scenario ends the diagnosis before any
 /// other query and reads exactly like "not found"; an occupying work on a shift the caller cannot see is reported
@@ -109,11 +111,9 @@ public sealed class WorkBookingDiagnosisService : IWorkBookingDiagnosisService
         };
         AddIfPresent(refusals, ToSporadicFinding(await _writeGuard.FindSporadicRefusalAsync(work, cancellationToken)));
 
-        var plannedRow = new PlannedWorkRow(request.ClientId, request.Date, shift.StartShift, shift.EndShift, request.ShiftId);
-        var directHardBlocking = inScenario
-            ? null
-            : await _writeGuard.FindHardBlockingRefusalAsync([plannedRow], null, WorkWriteOperation.Create, cancellationToken);
-        var assistantCheck = await _conflictChecker.CheckAsync([plannedRow], request.AnalyseToken, cancellationToken);
+        var directHardBlocking = await _writeGuard.FindHardBlockingRefusalAsync(work, cancellationToken);
+        var assistantCheck = await _conflictChecker.CheckAsync(
+            [PlannedWorkRow.From(work)], request.AnalyseToken, cancellationToken);
         AddIfPresent(refusals, ToHardBlockingFinding(directHardBlocking, assistantCheck));
         AddIfPresent(refusals, ToAssistantOnlyFinding(assistantCheck));
 
@@ -139,17 +139,18 @@ public sealed class WorkBookingDiagnosisService : IWorkBookingDiagnosisService
 
         var closed = await _sealedDayRepository.GetLockedPairsAsync(
             [(request.Date, request.ClientId)], WorkLockLevel.Closed, cancellationToken);
-        var kind = closed.Count > 0 ? WorkBookingSealKind.PeriodClosed : WorkBookingSealKind.DayApproval;
+        var periodClosed = closed.Count > 0;
 
         return new WorkBookingRefusalFinding(
-            WorkBookingRefusalReason.DaySealed,
+            periodClosed ? WorkBookingRefusalReason.PeriodClosed : WorkBookingRefusalReason.DayApproved,
             WorkBookingRefusalCodes.DaySealed,
             new WorkBookingChannels(DirectEntry: !inScenario, Assistant: true, Grid: false),
-            kind == WorkBookingSealKind.PeriodClosed ? WorkBookingRemedy.ReopenPeriodAdmin : WorkBookingRemedy.RevokeDayApproval,
+            periodClosed ? WorkBookingRemedy.ReopenPeriodAdmin : WorkBookingRemedy.RevokeDayApproval,
             new Dictionary<string, object?>
             {
                 [WorkBookingRefusalCodes.DateField] = request.Date,
-                [WorkBookingRefusalCodes.SealLevelField] = kind,
+                [WorkBookingRefusalCodes.SealLevelField] =
+                    periodClosed ? WorkBookingSealKind.PeriodClosed : WorkBookingSealKind.DayApproval,
             },
             []);
     }

@@ -13,8 +13,6 @@
 /// <param name="message">The current user chat message, matched case-insensitively.</param>
 /// <param name="currentRoute">Frontend route from the page context.</param>
 
-using System.Text.RegularExpressions;
-
 namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class BookingDiagnosisIntentResolver
@@ -27,8 +25,6 @@ public static class BookingDiagnosisIntentResolver
     private const string GermanNegationStem = "kein";
 
     private static readonly string[] GuaranteedSkills = [DiagnoseWorkBookingSkillName, ExplainWhyCannotBookSkillName];
-
-    private static readonly Regex WordPattern = new(@"\p{L}+", RegexOptions.Compiled);
 
     private static readonly HashSet<string> WhyWords = new(StringComparer.Ordinal)
     {
@@ -60,7 +56,7 @@ public static class BookingDiagnosisIntentResolver
         }
 
         var lower = message.ToLowerInvariant();
-        var words = WordPattern.Matches(lower).Select(match => match.Value).ToList();
+        var words = ScheduleReadIntentResolver.WordPattern.Matches(lower).Select(match => match.Value).ToList();
         if (!words.Any(WhyWords.Contains))
         {
             return false;

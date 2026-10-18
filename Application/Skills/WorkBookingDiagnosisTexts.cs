@@ -5,7 +5,8 @@
 /// one per remedy, one per channel and the notes that keep the channel truth honest (a sporadic limit only the single
 /// direct entry checks, a scenario that skips the seal and the qualification check of the direct entry). The model
 /// relays them in the user's language; no sentence names a code or an enum value. Every reason, remedy and outcome has
-/// exactly one entry (WorkBookingDiagnosisTextsCoverageTests).
+/// exactly one entry, the seal kind is a reason of its own (day approval or closed period), and no sentence, notes
+/// included, names an enum value (WorkBookingDiagnosisTextsCoverageTests).
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -39,6 +40,8 @@ internal static class WorkBookingDiagnosisTexts
     public const string OccupiedByHiddenWork =
         "The cell of {employee} on {date} already holds an entry of a group you cannot see.";
 
+    public const string OccupiedByUnnamedWork = "The cell of {employee} on {date} already holds another shift.";
+
     public const string SporadicNotCheckedByAssistant =
         "This limit is only checked when a single entry is saved directly in the schedule; Klacksy's placement and " +
         "pasting several cells do not check it.";
@@ -47,15 +50,14 @@ internal static class WorkBookingDiagnosisTexts
         "In this scenario a direct entry is not refused for this reason; it only becomes binding when the scenario is " +
         "accepted into the real plan.";
 
-    public const string OpenEnd = "open";
-
     public const string RelayInstruction =
         "Relay the reasons and remedies in plain words in the user's language, never codes or field names.";
 
     public static readonly IReadOnlyDictionary<WorkBookingRefusalReason, string> Reasons =
         new Dictionary<WorkBookingRefusalReason, string>
         {
-            [WorkBookingRefusalReason.DaySealed] = PeriodClosedSealed,
+            [WorkBookingRefusalReason.DayApproved] = DayApprovalSealed,
+            [WorkBookingRefusalReason.PeriodClosed] = PeriodClosedSealed,
             [WorkBookingRefusalReason.OutsideMembershipPeriod] =
                 "{date} is outside the membership of {employee} ({from} to {until}).",
             [WorkBookingRefusalReason.OutsideGroupPeriod] =

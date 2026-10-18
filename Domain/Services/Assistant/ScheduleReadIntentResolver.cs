@@ -31,7 +31,7 @@ public static class ScheduleReadIntentResolver
 
     private static readonly string[] GuaranteedSkillsForPage = [ReadScheduleStateSkillName];
 
-    private static readonly Regex WordPattern = new(@"\p{L}+", RegexOptions.Compiled);
+    internal static readonly Regex WordPattern = new(@"\p{L}+", RegexOptions.Compiled);
 
     private static readonly Regex NumericDatePattern = new(
         @"\b\d{1,2}\s*[./-]\s*\d{1,2}(?:\s*[./-]\s*\d{2,4})?\b", RegexOptions.Compiled);

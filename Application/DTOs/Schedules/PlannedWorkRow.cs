@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Models.Schedules;
+
 namespace Klacks.Api.Application.DTOs.Schedules;
 
 /// <summary>
@@ -15,4 +17,12 @@ public sealed record PlannedWorkRow(
     DateOnly Date,
     TimeOnly StartTime,
     TimeOnly EndTime,
-    Guid? ShiftId = null);
+    Guid? ShiftId = null)
+{
+    /// <summary>
+    /// The row a Work occupies once it is written: its employee, day, times and shift.
+    /// </summary>
+    /// <param name="work">The Work about to be written</param>
+    public static PlannedWorkRow From(Work work)
+        => new(work.ClientId, work.CurrentDate, work.StartTime, work.EndTime, work.ShiftId);
+}

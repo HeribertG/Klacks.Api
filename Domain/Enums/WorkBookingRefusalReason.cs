@@ -4,7 +4,7 @@ namespace Klacks.Api.Domain.Enums;
 
 public enum WorkBookingRefusalReason
 {
-    DaySealed = 0,
+    DayApproved = 0,
     OutsideMembershipPeriod = 1,
     OutsideGroupPeriod = 2,
     SporadicShiftDayFull = 3,
@@ -12,5 +12,6 @@ public enum WorkBookingRefusalReason
     HardBlockingConflict = 5,
     AssistantOnlyConflict = 6,
     CellOccupiedByWork = 7,
-    CellOccupiedByAbsence = 8
+    CellOccupiedByAbsence = 8,
+    PeriodClosed = 9
 }

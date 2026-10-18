@@ -44,8 +44,17 @@ public interface IWorkWriteGuard
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Throws a WorkWriteConflictException when the Work would introduce a hard-blocking schedule conflict.
-    /// Skipped for scenario writes, mirroring the day-lock contract.
+    /// The refusal the single-Work create and restore paths raise: the Work's row (PlannedWorkRow.From) checked alone,
+    /// worded as a create. Null for a scenario Work, mirroring the day-lock contract. The one place that builds the row
+    /// and decides the scenario skip, shared by <see cref="EnsureNoHardBlockingConflictAsync"/> and the booking diagnosis.
+    /// </summary>
+    /// <param name="work">The Work about to be written</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<WorkBookingRefusal?> FindHardBlockingRefusalAsync(Work work, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Throws a WorkWriteConflictException when <see cref="FindHardBlockingRefusalAsync(Work, CancellationToken)"/>
+    /// reports a refusal.
     /// </summary>
     /// <param name="work">The Work about to be written</param>
     /// <param name="cancellationToken">Cancellation token</param>

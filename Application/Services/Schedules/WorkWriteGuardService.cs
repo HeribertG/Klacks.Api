@@ -114,23 +114,22 @@ public class WorkWriteGuardService : IWorkWriteGuard
 
     public async Task EnsureNoHardBlockingConflictAsync(Work work, CancellationToken cancellationToken)
     {
-        if (work.AnalyseToken != null)
-        {
-            return;
-        }
-
-        var plannedRow = new PlannedWorkRow(
-            work.ClientId,
-            work.CurrentDate,
-            work.StartTime,
-            work.EndTime,
-            work.ShiftId);
-
-        var refusal = await FindHardBlockingRefusalAsync([plannedRow], null, WorkWriteOperation.Create, cancellationToken);
+        var refusal = await FindHardBlockingRefusalAsync(work, cancellationToken);
         if (refusal != null)
         {
             throw WorkWriteConflictException.From(refusal);
         }
+    }
+
+    public async Task<WorkBookingRefusal?> FindHardBlockingRefusalAsync(Work work, CancellationToken cancellationToken)
+    {
+        if (work.AnalyseToken != null)
+        {
+            return null;
+        }
+
+        return await FindHardBlockingRefusalAsync(
+            [PlannedWorkRow.From(work)], null, WorkWriteOperation.Create, cancellationToken);
     }
 
     public async Task<WorkBookingRefusal?> FindHardBlockingRefusalAsync(

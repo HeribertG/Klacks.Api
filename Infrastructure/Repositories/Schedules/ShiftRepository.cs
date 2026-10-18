@@ -199,14 +199,16 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<List<Shift>> FindPlannableByNameAsync(string nameOrAbbreviation, int limit, CancellationToken cancellationToken = default)
+    public async Task<List<Shift>> FindPlannableByNameAsync(
+        string nameOrAbbreviation, IReadOnlyCollection<Guid>? visibleGroupIds, int limit, CancellationToken cancellationToken = default)
     {
         var term = nameOrAbbreviation.Trim().ToLowerInvariant();
-        return await context.Shift
-            .AsNoTracking()
+        var query = context.Shift.AsNoTracking()
             .Where(s => s.AnalyseToken == null && s.Status >= ShiftStatus.OriginalShift)
-            .Where(s => s.Name.ToLower() == term || s.Abbreviation.ToLower() == term)
+            .Where(s => s.Name.ToLower() == term || s.Abbreviation.ToLower() == term);
+        return await ShiftGroupVisibilityFilter.Apply(query, visibleGroupIds)
             .OrderBy(s => s.FromDate)
+            .ThenBy(s => s.Id)
             .Take(limit)
             .ToListAsync(cancellationToken);
     }

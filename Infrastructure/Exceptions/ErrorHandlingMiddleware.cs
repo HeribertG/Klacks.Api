@@ -335,6 +335,10 @@ public class ErrorHandlingMiddleware
         await context.Response.WriteAsJsonAsync(problem);
     }
 
+    /// <summary>
+    /// A conflict answered with 409. A coded conflict writes its detail fields first and its code last, so no detail field
+    /// can overwrite "errorCode" (the same order as the coded 400 body).
+    /// </summary>
     private static async Task WriteConflictAsync(HttpContext context, ConflictException exception)
     {
         context.Response.StatusCode = StatusCodes.Status409Conflict;
@@ -349,11 +353,12 @@ public class ErrorHandlingMiddleware
 
         if (exception.ConflictCode is { } conflictCode)
         {
-            problem.Extensions["errorCode"] = conflictCode;
             foreach (var (field, value) in exception.ConflictDetails ?? new Dictionary<string, object?>())
             {
                 problem.Extensions[field] = value;
             }
+
+            problem.Extensions["errorCode"] = conflictCode;
         }
 
         await context.Response.WriteAsJsonAsync(problem);

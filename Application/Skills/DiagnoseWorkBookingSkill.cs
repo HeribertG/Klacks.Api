@@ -29,6 +29,7 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.ShiftSchedule;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -41,7 +42,6 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
     private const string ShiftIdParameter = "shiftId";
     private const string ShiftNameParameter = "shiftName";
     private const string DateParameter = "date";
-    private const string DateFormat = "yyyy-MM-dd";
 
     private const string MissingClientMessage = "Please provide the employee: clientId, or firstName and lastName.";
 
@@ -50,6 +50,7 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly IShiftGroupFilterService _shiftGroupFilterService;
     private readonly IWorkBookingDiagnosisService _diagnosisService;
 
     public DiagnoseWorkBookingSkill(
@@ -58,6 +59,7 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
         IClientVisibilityGuard clientVisibilityGuard,
         IShiftRepository shiftRepository,
         IShiftVisibilityGuard shiftVisibilityGuard,
+        IShiftGroupFilterService shiftGroupFilterService,
         IWorkBookingDiagnosisService diagnosisService)
     {
         _clientSearchRepository = clientSearchRepository;
@@ -65,6 +67,7 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
         _clientVisibilityGuard = clientVisibilityGuard;
         _shiftRepository = shiftRepository;
         _shiftVisibilityGuard = shiftVisibilityGuard;
+        _shiftGroupFilterService = shiftGroupFilterService;
         _diagnosisService = diagnosisService;
     }
 
@@ -106,7 +109,7 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
         }
 
         var (shift, shiftError) = await ShiftResolver.ResolveByIdOrNameAsync(
-            _shiftRepository, _shiftVisibilityGuard, GetParameter<string>(parameters, ShiftIdParameter),
+            _shiftRepository, _shiftVisibilityGuard, _shiftGroupFilterService, GetParameter<string>(parameters, ShiftIdParameter),
             GetParameter<string>(parameters, ShiftNameParameter), date, ShiftIdParameter, cancellationToken);
         if (shift == null)
         {
@@ -127,12 +130,13 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
 
     private static SkillResult BuildResult(WorkBookingDiagnosis diagnosis, DateOnly date, bool inScenario, string? language)
     {
-        var day = date.ToString(DateFormat, CultureInfo.InvariantCulture);
+        var day = date.ToString(SkillDisplayFormats.IsoDate, CultureInfo.InvariantCulture);
         var reasonSentences = diagnosis.Refusals
-            .Select(refusal => Fill(ReasonTemplate(refusal), refusal, diagnosis, day, name => name))
+            .Select(refusal => Fill(ReasonTemplate(refusal, name => name), refusal, diagnosis, day, name => name))
             .ToList();
         var messageSentences = diagnosis.Refusals
-            .Select(refusal => Fill(ReasonTemplate(refusal), refusal, diagnosis, day, SkillMessageText.Name))
+            .Select(refusal => Fill(
+                ReasonTemplate(refusal, SkillMessageText.Name), refusal, diagnosis, day, SkillMessageText.Name))
             .ToList();
         var reasons = diagnosis.Refusals
             .Select((refusal, index) => new
@@ -154,7 +158,7 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
             .Select(advisory => new
             {
                 advisory.Comment,
-                Date = advisory.Date.ToString(DateFormat, CultureInfo.InvariantCulture),
+                Date = advisory.Date.ToString(SkillDisplayFormats.IsoDate, CultureInfo.InvariantCulture),
                 CommentParams = LocalizedCommentParams.ForLanguage(advisory.CommentParams, language),
             })
             .ToList();
@@ -208,7 +212,8 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
             notes.Add(WorkBookingDiagnosisTexts.SporadicNotCheckedByAssistant);
         }
 
-        if (inScenario && reason is WorkBookingRefusalReason.DaySealed or WorkBookingRefusalReason.HardBlockingConflict)
+        if (inScenario && reason is WorkBookingRefusalReason.DayApproved or WorkBookingRefusalReason.PeriodClosed
+                or WorkBookingRefusalReason.HardBlockingConflict)
         {
             notes.Add(WorkBookingDiagnosisTexts.ScenarioSkipsDirectCheck);
         }
@@ -216,22 +221,21 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
         return notes;
     }
 
-    private static string ReasonTemplate(WorkBookingRefusalFinding refusal)
+    private static string ReasonTemplate(WorkBookingRefusalFinding refusal, Func<string?, string?> name)
     {
-        if (refusal.Reason == WorkBookingRefusalReason.DaySealed
-            && refusal.Details.TryGetValue(WorkBookingRefusalCodes.SealLevelField, out var kind)
-            && kind is WorkBookingSealKind.DayApproval)
+        if (refusal.Reason != WorkBookingRefusalReason.CellOccupiedByWork)
         {
-            return WorkBookingDiagnosisTexts.DayApprovalSealed;
+            return WorkBookingDiagnosisTexts.Reasons[refusal.Reason];
         }
 
-        if (refusal.Reason == WorkBookingRefusalReason.CellOccupiedByWork
-            && !refusal.Details.ContainsKey(WorkWriteConflictCodes.ShiftNameField))
+        if (!refusal.Details.ContainsKey(WorkWriteConflictCodes.ShiftNameField))
         {
             return WorkBookingDiagnosisTexts.OccupiedByHiddenWork;
         }
 
-        return WorkBookingDiagnosisTexts.Reasons[refusal.Reason];
+        return string.IsNullOrWhiteSpace(name(Detail(refusal, WorkWriteConflictCodes.ShiftNameField)))
+            ? WorkBookingDiagnosisTexts.OccupiedByUnnamedWork
+            : WorkBookingDiagnosisTexts.Reasons[refusal.Reason];
     }
 
     private static string Fill(
@@ -245,8 +249,8 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
             .Replace(WorkBookingDiagnosisTexts.ShiftToken, name(diagnosis.ShiftName) ?? string.Empty)
             .Replace(WorkBookingDiagnosisTexts.OccupyingShiftToken, name(occupyingShift) ?? string.Empty)
             .Replace(WorkBookingDiagnosisTexts.DateToken, day)
-            .Replace(WorkBookingDiagnosisTexts.FromToken, Detail(refusal, WorkBookingRefusalCodes.FromField) ?? WorkBookingDiagnosisTexts.OpenEnd)
-            .Replace(WorkBookingDiagnosisTexts.UntilToken, Detail(refusal, WorkBookingRefusalCodes.UntilField) ?? WorkBookingDiagnosisTexts.OpenEnd)
+            .Replace(WorkBookingDiagnosisTexts.FromToken, Detail(refusal, WorkBookingRefusalCodes.FromField) ?? SkillDisplayFormats.OpenEnd)
+            .Replace(WorkBookingDiagnosisTexts.UntilToken, Detail(refusal, WorkBookingRefusalCodes.UntilField) ?? SkillDisplayFormats.OpenEnd)
             .Replace(WorkBookingDiagnosisTexts.CapacityToken, Detail(refusal, WorkWriteConflictCodes.CapacityField) ?? string.Empty)
             .Replace(WorkBookingDiagnosisTexts.RangeFromToken, Detail(refusal, WorkWriteConflictCodes.RangeFromField) ?? string.Empty)
             .Replace(WorkBookingDiagnosisTexts.RangeUntilToken, Detail(refusal, WorkWriteConflictCodes.RangeUntilField) ?? string.Empty);
@@ -261,7 +265,7 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
 
         return value switch
         {
-            DateOnly dateValue => dateValue.ToString(DateFormat, CultureInfo.InvariantCulture),
+            DateOnly dateValue => dateValue.ToString(SkillDisplayFormats.IsoDate, CultureInfo.InvariantCulture),
             IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
             _ => value.ToString(),
         };
