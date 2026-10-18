@@ -204,6 +204,12 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
         ApplyScheduleReadGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
 
+        foreach (var skillName in BookingDiagnosisIntentResolver.GuaranteedSkillNames(request.UserMessage, request.CurrentRoute))
+        {
+            AddPermittedSkillByName(
+                guaranteedSkills, request.PermittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
+        }
+
         return new SkillToolsetGuaranteeResult(
             guaranteedSkills, guaranteedSources, lowestRankedNames, turnIntent.VetoesForcedToolCall);
     }

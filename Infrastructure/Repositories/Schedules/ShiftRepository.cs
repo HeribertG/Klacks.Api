@@ -199,6 +199,18 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<List<Shift>> FindPlannableByNameAsync(string nameOrAbbreviation, int limit, CancellationToken cancellationToken = default)
+    {
+        var term = nameOrAbbreviation.Trim().ToLowerInvariant();
+        return await context.Shift
+            .AsNoTracking()
+            .Where(s => s.AnalyseToken == null && s.Status >= ShiftStatus.OriginalShift)
+            .Where(s => s.Name.ToLower() == term || s.Abbreviation.ToLower() == term)
+            .OrderBy(s => s.FromDate)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
+
     public new async Task<Shift?> Get(Guid id)
     {
         Logger.LogInformation("Fetching shift with ID: {ShiftId}", id);

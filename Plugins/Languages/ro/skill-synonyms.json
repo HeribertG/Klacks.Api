@@ -846,6 +846,11 @@
     "de ce nu sosesc mesajele telegram",
     "funcționează mesageria"
   ],
+  "diagnose_work_booking": [
+    "de ce nu o pot programa luni în tura de dimineață",
+    "verifică dacă el poate lucra în tura de noapte în acea zi",
+    "ce împiedică alocarea acestui angajat în acea zi"
+  ],
   "disable_feature_plugin": [
     "dezactivează modulul x.",
     "oprește funcția suplimentară x.",

@@ -524,6 +524,10 @@
       "version": 1,
       "hash": "81D5974A59E95D6CFE568B8826A8572B7EF361AC5354EF692DA454911BC05C11"
     },
+    "diagnose_work_booking": {
+      "version": 1,
+      "hash": "2D36309BF1FF17A55478FE0ABD367FE646C4B0447E6CADF59B627B072727ED66"
+    },
     "disable_feature_plugin": {
       "version": 5,
       "hash": "399865A0DED38F20FF06C798BE9605F9922AEEA7F2F42F8B7AC45565501F8926"

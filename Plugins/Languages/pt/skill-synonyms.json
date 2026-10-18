@@ -869,6 +869,11 @@
     "porque é que não chegam mensagens do telegram",
     "o serviço de mensagens está a funcionar"
   ],
+  "diagnose_work_booking": [
+    "por que ela não pode ficar com o turno da manhã na segunda",
+    "verifica se ele pode fazer o turno da noite nesse dia",
+    "o que impede atribuir esta pessoa nesse dia"
+  ],
   "disable_feature_plugin": [
     "desligar módulo opcional",
     "desativar extensão",

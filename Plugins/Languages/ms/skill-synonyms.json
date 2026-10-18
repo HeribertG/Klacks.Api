@@ -838,6 +838,11 @@
     "kenapa mesej telegram tidak masuk",
     "adakah perkhidmatan mesej berfungsi"
   ],
+  "diagnose_work_booking": [
+    "kenapa dia tidak boleh dapat syif pagi pada hari isnin",
+    "semak sama ada dia boleh buat syif malam pada tarikh itu",
+    "apa yang menghalang tugasan pekerja ini pada hari itu"
+  ],
   "disable_feature_plugin": [
     "matikan modul tambahan",
     "nyahaktifkan sambungan buat sementara",

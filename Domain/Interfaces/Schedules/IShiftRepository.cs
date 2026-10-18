@@ -71,6 +71,15 @@ public interface IShiftRepository : IBaseRepository<Shift>
 
     Task<SporadicShiftInfo?> GetSporadicInfoAsync(Guid shiftId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Plannable shifts of the real plan (OriginalShift or SplitShift, no scenario copy) whose name or abbreviation equals
+    /// the given text, ignoring case. Not filtered by group visibility: the caller must filter before it reveals anything.
+    /// </summary>
+    /// <param name="nameOrAbbreviation">Shift name or abbreviation as the user typed it</param>
+    /// <param name="limit">Maximum number of shifts returned</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<List<Shift>> FindPlannableByNameAsync(string nameOrAbbreviation, int limit, CancellationToken cancellationToken = default);
+
     Task<bool> HasActiveWorksAsync(Guid shiftId, CancellationToken cancellationToken = default);
 
     Task<bool> HasWorksForGroupAsync(Guid groupId, DateOnly? afterDate = null, CancellationToken cancellationToken = default);

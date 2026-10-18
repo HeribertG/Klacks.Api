@@ -850,6 +850,11 @@
     "varför kommer inga telegram-meddelanden fram",
     "fungerar messengern"
   ],
+  "diagnose_work_booking": [
+    "varför kan hon inte få morgonpasset på måndag",
+    "kolla om han kan ta nattpasset den dagen",
+    "vad hindrar att den här medarbetaren schemaläggs den dagen"
+  ],
   "disable_feature_plugin": [
     "avaktivera en tilläggsmodul",
     "stäng av en funktionsmodul",

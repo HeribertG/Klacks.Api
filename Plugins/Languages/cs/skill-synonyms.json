@@ -872,6 +872,11 @@
     "proč z telegramu nic nepřichází",
     "funguje messenger"
   ],
+  "diagnose_work_booking": [
+    "proč ji nemůžu v pondělí zařadit na ranní směnu",
+    "zkontroluj, jestli může mít v ten den noční směnu",
+    "co brání přiřazení tohoto zaměstnance v ten den"
+  ],
   "disable_feature_plugin": [
     "vypnout modul",
     "deaktivovat rozšíření",

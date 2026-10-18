@@ -45906,6 +45906,138 @@
       }
     },
     {
+      "name": "diagnose_work_booking",
+      "area": "schedule",
+      "description": "Checks one named employee on one given date for one given shift against the live plan data and reports which rule refuses that assignment right now, separately for the schedule grid, a direct entry and the assistant, with the step that lifts it and the warnings the assignment would raise. Use it when the user names the person, the day and the duty. Reads only and changes nothing.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSchedule"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the employee; leave empty and give firstName and lastName instead",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "First name of the employee the assignment is for",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the employee the assignment is for",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Client number to tell apart several employees with the same name",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "shiftId",
+          "description": "UUID of the shift; leave empty and give shiftName instead",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "shiftName",
+          "description": "Name or abbreviation of the shift as the user calls it, e.g. Early",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "The day of the assignment in ISO yyyy-MM-dd",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "analyseToken",
+          "description": "Optional UUID of a scenario; when set the scenario is checked instead of the real plan",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "nicht buchbar",
+          "einteilung prüfen"
+        ],
+        "en": [
+          "not bookable",
+          "check this assignment"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "warum kann sie am montag den frühdienst nicht bekommen",
+          "prüf ob er am 12. den nachtdienst machen kann",
+          "warum lässt sich der spätdienst für diese person am freitag nicht eintragen",
+          "geht dieser dienst für ihn an diesem datum",
+          "was hindert die einteilung dieser person an diesem tag",
+          "kann ich sie am dienstag für diesen dienst einplanen"
+        ],
+        "en": [
+          "why can't she get the early shift on monday",
+          "check whether he can work the night shift on the 12th",
+          "why won't the late shift go in for this person on friday",
+          "is this shift possible for him on that date",
+          "what stops assigning this person on that day",
+          "can i schedule her for this shift on tuesday"
+        ],
+        "fr": [
+          "pourquoi ne peut-elle pas avoir le service du matin lundi",
+          "vérifie s'il peut faire le service de nuit le 12",
+          "pourquoi le service du soir ne passe pas pour cette personne vendredi",
+          "ce service est-il possible pour lui à cette date",
+          "qu'est-ce qui empêche d'affecter cette personne ce jour-là",
+          "puis-je la planifier mardi sur ce service"
+        ],
+        "it": [
+          "perché non può avere il turno del mattino lunedì",
+          "verifica se può fare il turno di notte il 12",
+          "perché il turno serale non entra per questa persona venerdì",
+          "questo turno è possibile per lui in quella data",
+          "cosa impedisce di assegnare questa persona quel giorno",
+          "posso pianificarla martedì su questo turno"
+        ]
+      },
+      "labels": {
+        "de": "Einteilung prüfen",
+        "en": "Check an assignment",
+        "fr": "Vérifier une affectation",
+        "it": "Verifica un'assegnazione"
+      },
+      "version": 1
+    },
+    {
       "name": "explain_why_not_visible",
       "area": "client",
       "description": "Explains why a person or a shift is missing from a list or from the schedule. Covers the group chosen at the top of the app, the root groups a user may see, the validity filter (active, former, future), entry and exit dates, the employee and external checkboxes, an active search text, deleted persons behind the admin-only \"deleted addresses\" filter, ungrouped shifts, deleted groups, customers never appearing as schedule rows, and scenario copies of shifts.",

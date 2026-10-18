@@ -92,7 +92,9 @@ public static class ScheduleReadIntentResolver
         return IsSchedulePage(currentRoute) ? GuaranteedSkillsForPage : [];
     }
 
-    private static bool IsSchedulePage(string? currentRoute)
+    /// <summary>True on the schedule page, also with entity ids, query strings or fragments in the route.</summary>
+    /// <param name="currentRoute">Frontend route from the page context</param>
+    public static bool IsSchedulePage(string? currentRoute)
     {
         if (string.IsNullOrWhiteSpace(currentRoute))
         {
@@ -114,10 +116,7 @@ public static class ScheduleReadIntentResolver
         var lower = message.ToLowerInvariant();
         var words = WordPattern.Matches(lower).Select(match => match.Value).ToList();
 
-        var hasDate = NumericDatePattern.IsMatch(lower)
-            || words.Any(word => StartsWithWeekday(word) || MonthWords.Contains(word) || RelativeDayWords.Contains(word)
-                || RelativeDayStems.Any(stem => word.StartsWith(stem, StringComparison.Ordinal)));
-        if (!hasDate)
+        if (!HasDateSignal(lower, words))
         {
             return false;
         }
@@ -133,6 +132,26 @@ public static class ScheduleReadIntentResolver
             .Select(WithoutWeekdayPrefix)
             .Any(word => DutyStems.Any(stem => word.Contains(stem, StringComparison.Ordinal)));
     }
+
+    /// <summary>
+    /// True when the message names a day in one of the core languages: weekday, month, relative day or numeric date.
+    /// </summary>
+    /// <param name="message">The current user chat message, matched case-insensitively.</param>
+    public static bool HasDateSignal(string? message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return false;
+        }
+
+        var lower = message.ToLowerInvariant();
+        return HasDateSignal(lower, WordPattern.Matches(lower).Select(match => match.Value).ToList());
+    }
+
+    private static bool HasDateSignal(string lower, IReadOnlyList<string> words) =>
+        NumericDatePattern.IsMatch(lower)
+        || words.Any(word => StartsWithWeekday(word) || MonthWords.Contains(word) || RelativeDayWords.Contains(word)
+            || RelativeDayStems.Any(stem => word.StartsWith(stem, StringComparison.Ordinal)));
 
     private static bool StartsWithWeekday(string word) =>
         WeekdayWords.Any(weekday => word.StartsWith(weekday, StringComparison.Ordinal));
