@@ -5366,6 +5366,138 @@
       "tags": [
         "crud"
       ]
+    },
+    {
+      "id": "curated-t5-holiday-options-de-trigger",
+      "message": "Was bedeutet FT und was bedeutet +FT bei einem Dienst?",
+      "locale": "de",
+      "currentRoute": "/workplace/edit-shift",
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT offer: the exact trigger phrase the yes chip sends (de), asked on the edit-shift page."
+    },
+    {
+      "id": "curated-t5-holiday-options-de-tick",
+      "message": "Wenn ich bei einem Dienst +FT anhake, was passiert dann an einem Feiertag?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT: natural German question about the +FT tick."
+    },
+    {
+      "id": "curated-t5-holiday-options-de-difference",
+      "message": "Was ist der Unterschied zwischen FT und +FT im Dienstformular?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT: German difference question."
+    },
+    {
+      "id": "curated-t5-holiday-options-en-trigger",
+      "message": "Does my shift run on public holidays? What do the two holiday options mean?",
+      "locale": "en",
+      "currentRoute": "/workplace/edit-shift",
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT offer: the exact trigger phrase the yes chip sends (en), asked on the edit-shift page."
+    },
+    {
+      "id": "curated-t5-holiday-options-en-difference",
+      "message": "What is the difference between 'Plus every public holiday' and 'Selected days, holidays included' on a shift?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT: English difference question using the UI labels."
+    },
+    {
+      "id": "curated-t5-holiday-options-en-sunday",
+      "message": "If I tick 'Plus every public holiday', does the shift also run on a holiday that falls on a Sunday?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT: English effect question."
+    },
+    {
+      "id": "curated-t5-holiday-options-fr-trigger",
+      "message": "Mon service a-t-il lieu les jours fériés ? Que signifient les deux options pour les jours fériés ?",
+      "locale": "fr",
+      "currentRoute": "/workplace/edit-shift",
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT offer: the exact trigger phrase the yes chip sends (fr), asked on the edit-shift page."
+    },
+    {
+      "id": "curated-t5-holiday-options-fr-difference",
+      "message": "Quelle est la différence entre « En plus chaque jour férié » et « Jours choisis, fériés inclus » pour un service ?",
+      "locale": "fr",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT: French difference question using the UI labels."
+    },
+    {
+      "id": "curated-t5-holiday-options-fr-christmas",
+      "message": "Si je coche « En plus chaque jour férié », le service a-t-il lieu aussi à Noël ?",
+      "locale": "fr",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT: French effect question."
+    },
+    {
+      "id": "curated-t5-holiday-options-it-trigger",
+      "message": "Il mio turno si svolge nei giorni festivi? Cosa significano le due opzioni per i festivi?",
+      "locale": "it",
+      "currentRoute": "/workplace/edit-shift",
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT offer: the exact trigger phrase the yes chip sends (it), asked on the edit-shift page."
+    },
+    {
+      "id": "curated-t5-holiday-options-it-difference",
+      "message": "Qual è la differenza tra «In più ogni giorno festivo» e «Giorni scelti, festivi inclusi» in un turno?",
+      "locale": "it",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT: Italian difference question using the UI labels."
+    },
+    {
+      "id": "curated-t5-holiday-options-it-christmas",
+      "message": "Se spunto «In più ogni giorno festivo», il turno si svolge anche a Natale?",
+      "locale": "it",
+      "currentRoute": null,
+      "expectedTool": "explain_shift_holiday_options",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "T5 FT/+FT: Italian effect question."
     }
   ]
 }

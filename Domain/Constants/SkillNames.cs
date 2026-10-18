@@ -11,4 +11,5 @@ public static class SkillNames
     public const string ExplainFinalVsCorrectable = "explain_final_vs_correctable";
     public const string ExplainPlanningWizards = "explain_planning_wizards";
     public const string ExplainPlanningAssistant = "explain_planning_assistant";
+    public const string ExplainShiftHolidayOptions = "explain_shift_holiday_options";
 }

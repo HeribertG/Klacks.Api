@@ -78,7 +78,8 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
             .Where(r => r.CreateTime.HasValue
                         && !string.IsNullOrWhiteSpace(r.UserId)
                         && !ExcludedTriggerKinds.Contains(r.TriggerKind)
-                        && !ExplainOfferTopics.IsOfferKind(r.TriggerKind))
+                        && !ExplainOfferTopics.IsOfferKind(r.TriggerKind)
+                        && !UiExplainOfferTopics.IsOfferKind(r.TriggerKind))
             .GroupBy(r => (r.UserId, r.TriggerKind))
             .ToList();
 
