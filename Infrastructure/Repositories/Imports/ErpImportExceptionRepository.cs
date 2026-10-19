@@ -66,4 +66,27 @@ public class ErpImportExceptionRepository : BaseRepository<ErpImportException>, 
             .Where(e => e.FileKey == fileKey && e.ImportFileId == null)
             .ExecuteUpdateAsync(setters => setters.SetProperty(e => e.ImportFileId, importFileId), cancellationToken);
     }
+
+    public async Task<List<Guid>> GetIdsByImportFileAsync(Guid importFileId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<ErpImportException>()
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(e => e.ImportFileId == importFileId)
+            .Select(e => e.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> DeleteByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        if (ids.Count == 0)
+        {
+            return 0;
+        }
+
+        return await _context.Set<ErpImportException>()
+            .IgnoreQueryFilters()
+            .Where(e => ids.Contains(e.Id))
+            .ExecuteDeleteAsync(cancellationToken);
+    }
 }

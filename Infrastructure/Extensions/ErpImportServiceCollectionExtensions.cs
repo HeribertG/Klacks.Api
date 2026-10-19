@@ -46,6 +46,7 @@ public static class ErpImportServiceCollectionExtensions
         services.AddScoped<ErpImportFileRegistrar>();
         services.AddScoped<ErpImportInboxRegistrationService>();
         services.AddScoped<ErpImportLegacyFolderMigrator>();
+        services.AddScoped<ErpImportRetentionService>();
         services.AddScoped<ErpImportFileImporter>();
         services.AddSingleton<ErpImportRunState>();
         services.AddSingleton<ErpCronTimeZoneDriftNotifier>();

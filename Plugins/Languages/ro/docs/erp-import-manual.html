@@ -249,7 +249,7 @@ Klacks asociază fiecare comandă unui client:
 <ul>
   <li>
     Fișierul original rămâne în folderul punctului de depunere (pentru audit și
-    reîncercări; nu este mutat și nici șters). Starea lui este afișată pe pagina de
+    reîncercări; nu este mutat). Starea lui este afișată pe pagina de
     import: în timpul importului în zona <em>Intrare</em> (cu progresul), apoi în
     zona <em>Procesate</em> cu un rezumat (comenzi noi, actualizate, neschimbate și
     respinse). Un fișier identic cu o livrare anterioară afișează doar un mesaj
@@ -260,6 +260,9 @@ Klacks asociază fiecare comandă unui client:
     și importurile întrerupte apar în zona <em>Erori</em> împreună cu motivul; de
     acolo pot fi importate din nou prin <em>Reimportă</em> sau șterse. Un fișier
     corectat trebuie încărcat din nou.
+    Fișierele procesate cu succes (zona <em>Procesate</em>) sunt șterse automat după 90
+    de zile; fișierele din zona <em>Erori</em> rămân până când sunt importate din nou
+    prin <em>Reimportă</em> sau șterse.
   </li>
   <li>
     Comenzile incomplete sau nevalide sunt respinse (de ex. fără nicio zi a săptămânii, cu

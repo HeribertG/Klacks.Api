@@ -16,7 +16,9 @@ namespace Klacks.Api.Domain.Interfaces.Imports;
 /// <item>The state transitions (<see cref="TryClaimAsync"/>, <see cref="HeartbeatAsync"/>,
 /// <see cref="FinishAsync"/>, <see cref="ReapStaleAsync"/>, <see cref="TryResetForRetryAsync"/>,
 /// <see cref="TryMarkFailedAsync"/>, <see cref="TrySoftDeleteAsync"/>, <see cref="TryApplyLegacyStateAsync"/>)
-/// are self-committing: each is a single conditional UPDATE issued through ExecuteUpdateAsync. They bypass
+/// and the retention deletes (<see cref="TryDeleteExpiredProcessedAsync"/>, <see cref="TryPurgeExpiredDeletedAsync"/>)
+/// are self-committing: each is a single conditional UPDATE or DELETE issued through ExecuteUpdateAsync or
+/// ExecuteDeleteAsync. They bypass
 /// the change tracker, so they neither flush nor see staged changes of other repositories, and a tracked
 /// ErpImportFile instance is NOT refreshed by them.</item>
 /// </list>
@@ -144,4 +146,27 @@ public interface IErpImportFileRepository
     /// becomes unknown (null). Never touches an Importing row: false then.
     /// </summary>
     Task<bool> TryApplyLegacyStateAsync(Guid id, string storageKey, ErpImportFileStatus status, string? failureReason, DateTime finishedAt, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns at most limit rows of the drop point that are due for the retention purge, oldest first, as
+    /// id/key/deleted projections: live Completed and CompletedWithWarnings rows that finished before cutoff (a
+    /// row without finish time, e.g. a migrated legacy row, counts from its receipt), and soft-deleted rows of any
+    /// status whose deletion time is before cutoff (a soft-deleted row without deletion time is never due).
+    /// Failed, Interrupted, Received and Importing rows that are not deleted are never returned.
+    /// </summary>
+    Task<List<ErpImportFileRetentionCandidate>> ListExpiredAsync(Guid dropPointId, DateTime cutoff, int limit, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Self-committing. Hard-deletes the row only while it is still a live Completed or CompletedWithWarnings row
+    /// that finished (or, without finish time, was received) before cutoff; false when it changed in between.
+    /// The database sets ImportFileId of linked exceptions and DuplicateOfFileId of later rows to null.
+    /// </summary>
+    Task<bool> TryDeleteExpiredProcessedAsync(Guid id, DateTime cutoff, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Self-committing. Hard-deletes the row only while it is still soft-deleted with a deletion time before
+    /// cutoff; false otherwise. The caller must have confirmed that the row's storage object is gone: the inbox
+    /// registration relies on the soft-deleted row to never register a leftover object again.
+    /// </summary>
+    Task<bool> TryPurgeExpiredDeletedAsync(Guid id, DateTime cutoff, CancellationToken cancellationToken = default);
 }

@@ -254,7 +254,7 @@ Klacks przypisuje każde zamówienie do klienta:
 <ul>
   <li>
     Oryginalny plik pozostaje w folderze punktu odbioru (na potrzeby audytu i
-    ponownych prób; nie jest przenoszony ani usuwany). Jego stan jest widoczny na
+    ponownych prób; nie jest przenoszony). Jego stan jest widoczny na
     stronie importu: w trakcie importu w obszarze <em>Przychodzące</em> (z
     postępem), a następnie w obszarze <em>Przetworzone</em> wraz z podsumowaniem
     (zamówienia nowe, zaktualizowane, niezmienione i odrzucone). Plik identyczny z
@@ -266,6 +266,9 @@ Klacks przypisuje każde zamówienie do klienta:
     przerwane importy pojawiają się w obszarze <em>Błąd</em> wraz z powodem; stamtąd
     można je za pomocą przycisku <em>Importuj ponownie</em> zaimportować jeszcze raz
     albo usunąć. Poprawiony plik należy przesłać ponownie.
+    Pomyślnie przetworzone pliki (obszar <em>Przetworzone</em>) są automatycznie usuwane
+    po 90 dniach; pliki w obszarze <em>Błąd</em> pozostają do czasu ponownego
+    zaimportowania przyciskiem <em>Importuj ponownie</em> albo usunięcia.
   </li>
   <li>
     Niekompletne lub nieprawidłowe zamówienia są odrzucane (np.&nbsp;bez

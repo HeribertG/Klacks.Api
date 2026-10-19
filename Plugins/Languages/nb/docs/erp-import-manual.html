@@ -253,7 +253,7 @@ Klacks tilordner hver bestilling til en kunde:
 <ul>
   <li>
     Originalfilen blir liggende i drop-pointets mappe (for revisjon og nye forsøk;
-    den verken flyttes eller slettes). Statusen vises på importsiden: under importen
+    den flyttes ikke). Statusen vises på importsiden: under importen
     i området <em>Innboks</em> (med fremdrift), deretter i området
     <em>Behandlet</em> med et sammendrag (nye, oppdaterte, uendrede og avviste
     bestillinger). En fil som er identisk med en tidligere levering, viser bare en
@@ -264,6 +264,9 @@ Klacks tilordner hver bestilling til en kunde:
     mottak, og avbrutte importer vises i området <em>Feil</em> med årsak; derfra kan
     de importeres på nytt med <em>Importer på nytt</em> eller slettes. En rettet fil
     må lastes opp på nytt.
+    Vellykket behandlede filer (området <em>Behandlet</em>) slettes automatisk etter 90
+    dager; filer i området <em>Feil</em> blir liggende til de importeres på nytt med
+    <em>Importer på nytt</em> eller slettes.
   </li>
   <li>
     Ufullstendige eller ugyldige bestillinger avvises (f.&nbsp;eks. uten

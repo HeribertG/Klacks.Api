@@ -254,7 +254,7 @@ Klacks přiřadí každou objednávku klientovi:
 <ul>
   <li>
     Původní soubor zůstává ve složce Drop-Pointu (pro audit a opakování; nepřesouvá
-    se ani nemaže). Jeho stav se zobrazuje na stránce importu: během importu v
+    se). Jeho stav se zobrazuje na stránce importu: během importu v
     oblasti <em>Doručeno</em> (s průběhem), poté v oblasti <em>Zpracováno</em> se
     souhrnem (nové, aktualizované, nezměněné a odmítnuté objednávky). Soubor shodný
     s dřívější dodávkou zobrazí pouze informační upozornění a přesto se importuje.
@@ -264,6 +264,9 @@ Klacks přiřadí každou objednávku klientovi:
     importy se zobrazují v oblasti <em>Chyby</em> s uvedením důvodu; odtud je lze
     tlačítkem <em>Importovat znovu</em> znovu zpracovat nebo je smazat. Opravený
     soubor je nutné nahrát znovu.
+    Úspěšně zpracované soubory (oblast <em>Zpracováno</em>) se po 90 dnech automaticky
+    smažou; soubory v oblasti <em>Chyby</em> zůstávají, dokud nejsou znovu importovány
+    tlačítkem <em>Importovat znovu</em> nebo smazány.
   </li>
   <li>
     Neúplné nebo neplatné objednávky se odmítají (např. bez dne v týdnu,

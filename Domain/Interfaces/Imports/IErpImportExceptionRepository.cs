@@ -30,4 +30,16 @@ public interface IErpImportExceptionRepository : IBaseRepository<ErpImportExcept
     /// ledger. Returns the number of rows.
     /// </summary>
     Task<int> LinkToImportFileAsync(string fileKey, Guid importFileId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns the ids of every exception linked to the ledger row -- resolved and soft-deleted ones included --
+    /// so they can be removed together with the row after the row delete nulled their link.
+    /// </summary>
+    Task<List<Guid>> GetIdsByImportFileAsync(Guid importFileId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Self-committing (single DELETE through ExecuteDeleteAsync, bypasses the change tracker): hard-deletes the
+    /// exceptions with the given ids, soft-deleted ones included. Returns the number of rows.
+    /// </summary>
+    Task<int> DeleteByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default);
 }

@@ -254,7 +254,7 @@ Klacks tilldelar varje beställning till en kund:
 <ul>
   <li>
     Originalfilen ligger kvar i hämtningspunktens mapp (för granskning och nya
-    försök; den varken flyttas eller raderas). Dess status visas på importsidan:
+    försök; den flyttas inte). Dess status visas på importsidan:
     under importen under <em>Inkorg</em> (med förlopp), därefter under
     <em>Bearbetade</em> med en sammanfattning (nya, uppdaterade, oförändrade och
     avvisade beställningar). En fil som är identisk med en tidigare leverans visar
@@ -265,6 +265,9 @@ Klacks tilldelar varje beställning till en kund:
     avbrutna importer visas under <em>Fel</em> med orsak; därifrån kan de importeras
     på nytt med <em>Importera igen</em> eller raderas. En korrigerad fil måste
     laddas upp på nytt.
+    Filer som har bearbetats framgångsrikt (under <em>Bearbetade</em>) raderas
+    automatiskt efter 90 dagar; filer under <em>Fel</em> ligger kvar tills de importeras
+    igen med <em>Importera igen</em> eller raderas.
   </li>
   <li>
     Ofullständiga eller ogiltiga beställningar avvisas (t.ex. utan

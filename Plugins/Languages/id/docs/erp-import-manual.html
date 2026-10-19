@@ -254,7 +254,7 @@ Klacks memetakan setiap pesanan ke seorang klien:
 <ul>
   <li>
     File asli tetap berada di folder drop-point (untuk audit dan percobaan ulang;
-    tidak dipindahkan maupun dihapus). Statusnya ditampilkan di halaman impor:
+    tidak dipindahkan). Statusnya ditampilkan di halaman impor:
     selama impor di area <em>Masuk</em> (dengan progres), setelah itu di area
     <em>Diproses</em> beserta ringkasan (pesanan baru, diperbarui, tidak berubah,
     dan ditolak). File yang identik dengan pengiriman sebelumnya hanya menampilkan
@@ -265,6 +265,9 @@ Klacks memetakan setiap pesanan ke seorang klien:
     diterima, dan impor yang terputus muncul di area <em>Kesalahan</em> beserta
     alasannya; dari sana file dapat diimpor lagi melalui <em>Impor ulang</em> atau
     dihapus. File yang sudah diperbaiki harus diunggah ulang.
+    File yang berhasil diproses (area <em>Diproses</em>) dihapus secara otomatis setelah
+    90 hari; file di area <em>Kesalahan</em> tetap disimpan hingga diimpor lagi melalui
+    <em>Impor ulang</em> atau dihapus.
   </li>
   <li>
     Pesanan yang tidak lengkap atau tidak valid akan ditolak (misalnya tanpa

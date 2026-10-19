@@ -7,19 +7,22 @@
 /// files -- then (0) migrates files the pre-ledger import left in the processing/processed/error
 /// sub-folders of every drop point (enabled or not, so the table-only listing shows them) into the ledger
 /// and back into the inbox (ErpImportLegacyFolderMigrator, idempotent), (1) flips Importing rows whose
-/// heartbeat is older than ErpImportFileTiming.StaleAfter to Interrupted (global, once per run), (2)
-/// registers new inbox files of every enabled drop point as Received rows, before anything else is staged
+/// heartbeat is older than ErpImportFileTiming.StaleAfter to Interrupted (global, once per run), (1b) removes
+/// expired files of every drop point (ErpImportRetentionService: Completed/CompletedWithWarnings files and
+/// soft-deleted rows older than ErpImportFileTiming.RetentionPeriod, bounded per run; Failed/Interrupted rows are
+/// never removed), (2) registers new inbox files of every enabled drop point as Received rows, before anything else is staged
 /// and outside every per-order transaction, and (3) hands
 /// each Received row of every enabled drop point, oldest first, to ErpImportFileImporter, which claims it
 /// through a conditional ledger update (multi-instance safe; a lost claim skips the file), imports it and
 /// finishes the row. Files are never moved by the import: the raw XML stays at its inbox key. Inbox files get
 /// their last write time as ReceivedAt, so "oldest first" follows the delivery order, not the random key order.
-/// Migration, registration and import are each guarded per drop point: an unexpected error is logged, the
+/// Migration, retention, registration and import are each guarded per drop point: an unexpected error is logged, the
 /// scope's tracked changes are discarded and the run continues with the next step or drop point.
 /// Cancellation stops the run between files and orders; an interrupted row ages into Interrupted.
 /// </summary>
 /// <param name="legacyFolderMigrator">Moves files of the pre-ledger sub-folders into the ledger and the inbox</param>
 /// <param name="fileRepository">Ledger repository: stale-row reaper and the Received rows of a drop point</param>
+/// <param name="retentionService">Removes expired files and soft-deleted rows of a drop point</param>
 /// <param name="inboxRegistrationService">Registers files dropped directly into an inbox folder</param>
 /// <param name="fileImporter">Claims, imports and finishes one Received row</param>
 /// <param name="timeProvider">Clock for the stale-heartbeat cutoff</param>
@@ -43,6 +46,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
     private readonly IErpDefaultDropPointProvider _defaultDropPointProvider;
     private readonly ErpImportLegacyFolderMigrator _legacyFolderMigrator;
     private readonly IErpImportFileRepository _fileRepository;
+    private readonly ErpImportRetentionService _retentionService;
     private readonly ErpImportInboxRegistrationService _inboxRegistrationService;
     private readonly ErpImportFileImporter _fileImporter;
     private readonly ISettingsRepository _settingsRepository;
@@ -58,6 +62,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         IErpDefaultDropPointProvider defaultDropPointProvider,
         ErpImportLegacyFolderMigrator legacyFolderMigrator,
         IErpImportFileRepository fileRepository,
+        ErpImportRetentionService retentionService,
         ErpImportInboxRegistrationService inboxRegistrationService,
         ErpImportFileImporter fileImporter,
         ISettingsRepository settingsRepository,
@@ -72,6 +77,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         _defaultDropPointProvider = defaultDropPointProvider;
         _legacyFolderMigrator = legacyFolderMigrator;
         _fileRepository = fileRepository;
+        _retentionService = retentionService;
         _inboxRegistrationService = inboxRegistrationService;
         _fileImporter = fileImporter;
         _settingsRepository = settingsRepository;
@@ -102,6 +108,8 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             }
 
             await ReapStaleImportsAsync(cancellationToken);
+
+            await PurgeExpiredFilesAsync(allDropPoints, cancellationToken);
 
             var dropPoints = allDropPoints.Where(d => d.IsEnabled).ToList();
 
@@ -207,6 +215,31 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         if (reaped > 0)
         {
             _logger.LogWarning("ERP import: {Count} import(s) without heartbeat since {Cutoff:O} marked as interrupted", reaped, cutoff);
+        }
+    }
+
+    private async Task PurgeExpiredFilesAsync(IReadOnlyList<ErpDropPoint> dropPoints, CancellationToken cancellationToken)
+    {
+        var removed = 0;
+        foreach (var dropPoint in dropPoints)
+        {
+            try
+            {
+                removed += await _retentionService.PurgeExpiredAsync(dropPoint, cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+            {
+                _unitOfWork.DiscardTrackedChanges();
+                _logger.LogError(ex, "ERP import: expired files of drop point {DropPointId} could not be removed; the import continues", dropPoint.Id);
+            }
+        }
+
+        if (removed > 0)
+        {
+            _logger.LogInformation(
+                "ERP import: {Count} file(s) older than {RetentionDays} days removed (processed files and deleted records)",
+                removed,
+                ErpImportFileTiming.RetentionPeriod.TotalDays);
         }
     }
 

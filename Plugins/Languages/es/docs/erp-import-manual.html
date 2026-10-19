@@ -255,7 +255,7 @@ Klacks asigna cada pedido a un cliente:
 <ul>
   <li>
     El archivo original permanece en la carpeta del Drop-Point (para auditoría y
-    reintentos; no se mueve ni se elimina). Su estado se muestra en la página de
+    reintentos; no se mueve). Su estado se muestra en la página de
     importación: durante la importación en el área <em>Entrada</em> (con el
     progreso), después en el área <em>Procesado</em> con un resumen (pedidos nuevos,
     actualizados, sin cambios y rechazados). Un archivo idéntico a una entrega
@@ -267,6 +267,10 @@ Klacks asigna cada pedido a un cliente:
     <em>Error</em> con el motivo; desde allí pueden importarse de nuevo mediante
     <em>Reintentar importación</em> o eliminarse. Un archivo corregido debe cargarse
     de nuevo.
+    Los archivos procesados correctamente (área <em>Procesado</em>) se eliminan
+    automáticamente después de 90 días; los archivos del área <em>Error</em> se
+    conservan hasta que se vuelven a importar mediante <em>Reintentar importación</em> o
+    se eliminan.
   </li>
   <li>
     Los pedidos incompletos o inválidos son rechazados (p.&nbsp;ej. sin día de la

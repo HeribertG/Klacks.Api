@@ -149,8 +149,9 @@ vollständig und minimal).
   liefern ist kein Fehler (sie zählen als unverändert). Dateien aus den früheren
   Unterordnern processed, error und processing werden beim nächsten Import-Lauf
   automatisch übernommen (als Verarbeitet, Fehler bzw. abgebrochen unter Fehler) und in
-  den Drop-Point-Ordner zurückgelegt. Gelöscht wird eine Datei nur über **Löschen** im
-  Fehler-Reiter.
+  den Drop-Point-Ordner zurückgelegt. Erfolgreich verarbeitete Dateien (Reiter Verarbeitet,
+  auch mit Warnung) werden 90 Tage nach dem Import automatisch gelöscht (Roh-XML und Eintrag);
+  Dateien unter Fehler bleiben, bis sie erneut importiert oder über **Löschen** entfernt werden.
 - **Zeitplan wirkt global**, nicht pro Datei: ein ungültiger Cron-Ausdruck lässt den
   Import komplett stillstehen (kein automatischer Lauf mehr), deshalb validiert die
   Oberfläche den Ausdruck sofort.

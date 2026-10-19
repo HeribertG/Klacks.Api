@@ -5,7 +5,8 @@
 /// ExecuteUpdateAsync whose winner is decided by the affected row count (pattern of
 /// ScheduledTaskRepository.TryClaimAsync), so a ledger row is never flushed by another repository's
 /// SaveChangesAsync inside a per-order transaction. Only Add stages through the change tracker. Heartbeat
-/// and finish are guarded by instance AND attempt number.
+/// and finish are guarded by instance AND attempt number. The retention purge hard-deletes through conditional
+/// ExecuteDeleteAsync calls that re-check status and age, so a row that changed meanwhile is kept.
 /// </summary>
 /// <param name="context">Shared scoped database context</param>
 using Klacks.Api.Domain.Constants;
@@ -347,6 +348,44 @@ public class ErpImportFileRepository : IErpImportFileRepository
                     .SetProperty(f => f.SupersededCount, 0)
                     .SetProperty(f => f.RejectedCount, 0),
                 cancellationToken);
+
+        return affected == SingleRow;
+    }
+
+    public async Task<List<ErpImportFileRetentionCandidate>> ListExpiredAsync(Guid dropPointId, DateTime cutoff, int limit, CancellationToken cancellationToken = default)
+    {
+        return await _context.ErpImportFiles
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(f => f.DropPointId == dropPointId
+                && ((!f.IsDeleted
+                        && ProcessedStatuses.Contains(f.Status)
+                        && (f.FinishedAt < cutoff || (f.FinishedAt == null && f.ReceivedAt < cutoff)))
+                    || (f.IsDeleted && f.DeletedTime < cutoff)))
+            .OrderBy(f => f.IsDeleted ? f.DeletedTime : (f.FinishedAt ?? f.ReceivedAt))
+            .ThenBy(f => f.Id)
+            .Take(limit)
+            .Select(f => new ErpImportFileRetentionCandidate(f.Id, f.StorageKey, f.IsDeleted))
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> TryDeleteExpiredProcessedAsync(Guid id, DateTime cutoff, CancellationToken cancellationToken = default)
+    {
+        var affected = await _context.ErpImportFiles
+            .Where(f => f.Id == id
+                && ProcessedStatuses.Contains(f.Status)
+                && (f.FinishedAt < cutoff || (f.FinishedAt == null && f.ReceivedAt < cutoff)))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        return affected == SingleRow;
+    }
+
+    public async Task<bool> TryPurgeExpiredDeletedAsync(Guid id, DateTime cutoff, CancellationToken cancellationToken = default)
+    {
+        var affected = await _context.ErpImportFiles
+            .IgnoreQueryFilters()
+            .Where(f => f.Id == id && f.IsDeleted && f.DeletedTime < cutoff)
+            .ExecuteDeleteAsync(cancellationToken);
 
         return affected == SingleRow;
     }
