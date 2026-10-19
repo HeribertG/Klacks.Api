@@ -24,6 +24,8 @@
 /// <param name="groupVisibilityGuard">Answers a group a restricted caller may not see exactly like a missing group</param>
 /// <param name="shiftVisibilityGuard">Drops autofill picks a restricted caller may not see, so a hidden task shift is
 /// never written into the template, reported back or named in an error</param>
+/// <param name="defaultShiftMacroResolver">Supplies the default Shift-category macro of the new container, exactly as a
+/// container created in the shift editor receives it</param>
 
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Constants;
@@ -76,6 +78,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private readonly IGeoServicesPolicy _geoServicesPolicy;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
 
     public BundleNearbyTimeRangeShiftsIntoContainerSkill(
         IShiftRepository shiftRepository,
@@ -88,7 +91,8 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         ISettingsEncryptionService encryptionService,
         IGeoServicesPolicy geoServicesPolicy,
         IGroupVisibilityGuard groupVisibilityGuard,
-        IShiftVisibilityGuard shiftVisibilityGuard)
+        IShiftVisibilityGuard shiftVisibilityGuard,
+        IDefaultShiftMacroResolver defaultShiftMacroResolver)
     {
         _geoServicesPolicy = geoServicesPolicy;
         _shiftRepository = shiftRepository;
@@ -101,6 +105,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         _encryptionService = encryptionService;
         _groupVisibilityGuard = groupVisibilityGuard;
         _shiftVisibilityGuard = shiftVisibilityGuard;
+        _defaultShiftMacroResolver = defaultShiftMacroResolver;
     }
 
     private async Task<SkillResult?> CheckTransportModeAvailableAsync(ContainerTransportMode transportMode, string? transportModeStr)
@@ -232,6 +237,8 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
         var (isMonday, isTuesday, isWednesday, isThursday, isFriday, isSaturday, isSunday) = BuildIsoWeekdayFlags(isoWeekday);
 
+        var defaultMacroId = await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync(cancellationToken);
+
         var containerShift = new Shift
         {
             Id = Guid.NewGuid(),
@@ -239,7 +246,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             Abbreviation = GenerateAbbreviation(name),
             Description = string.Empty,
             ClientId = null,
-            MacroId = null,
+            MacroId = defaultMacroId,
             Status = ShiftStatus.SealedOrder,
             ShiftType = ShiftType.IsContainer,
             IsTimeRange = false,

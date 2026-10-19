@@ -6,6 +6,7 @@
 /// </summary>
 /// <param name="city">City for the employee addresses (e.g. "Bern")</param>
 /// <param name="numberOfEmployees">Number of employees to create</param>
+/// <param name="defaultShiftMacroResolver">Supplies the default Shift-category macro every created shift carries</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -33,6 +34,7 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
     private readonly IShiftRepository _shiftRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
+    private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
 
     public CreateTestEnvironmentSkill(
         IClientRepository clientRepository,
@@ -42,7 +44,8 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
         IGroupItemRepository groupItemRepository,
         IShiftRepository shiftRepository,
         IUnitOfWork unitOfWork,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IDefaultShiftMacroResolver defaultShiftMacroResolver)
     {
         _clientRepository = clientRepository;
         _addressRepository = addressRepository;
@@ -52,6 +55,7 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
         _shiftRepository = shiftRepository;
         _unitOfWork = unitOfWork;
         _companyClock = companyClock;
+        _defaultShiftMacroResolver = defaultShiftMacroResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -239,6 +243,7 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
     private async Task<List<object>> CreateShiftsAsync(string city, Group group, DateOnly fromDate, int sumEmployees, string userName)
     {
         var createdShifts = new List<object>();
+        var defaultMacroId = await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync();
 
         var shiftDefinitions = new[]
         {
@@ -258,6 +263,7 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
                 Abbreviation = def.Abbr,
                 Status = ShiftStatus.SealedOrder,
                 ShiftType = ShiftType.IsTask,
+                MacroId = defaultMacroId,
                 StartShift = def.Start,
                 EndShift = def.End,
                 FromDate = fromDate,

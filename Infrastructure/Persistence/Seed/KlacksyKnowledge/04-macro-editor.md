@@ -58,6 +58,20 @@ Diese Default-Macros können **schnell angepasst** werden — das Skript wird im
 Editor geöffnet, geändert, gespeichert. Beim nächsten Berechnungslauf nutzt das
 System die neue Logik.
 
+## Standard-Macro für neue Dienste und Bestellungen
+
+Jeder **neu angelegte** Dienst bzw. jede neue Bestellung erhält automatisch das
+Standard-Macro der Kategorie **Dienst** — egal ob in der Dienst-Maske, per
+ERP-Import oder über Klacksy angelegt. Standard ist das Macro mit der Funktion
+"Standard" (ab Werk **AllShift**); ist die Installation auf additive Zuschläge
+eingestellt, das Macro mit der Funktion "Standard additiv" (ab Werk
+**AllShiftAdditive**). Ein ausdrücklich gewähltes Macro wird nie überschrieben,
+und gibt es kein aktives Standard-Macro der Kategorie Dienst, bleibt das Feld
+leer — nur Klacksy legt in diesem Fall keinen Dienst an, sondern verlangt
+zuerst ein Macro der Kategorie Dienst (Funktion Standard) oder ein ausdrücklich
+gewähltes Macro. Bestehende Dienste werden nicht nachträglich geändert; ein entferntes
+Macro bleibt entfernt.
+
 ## Anbindung im Datenmodell
 
 Ein `Shift` trägt eine optionale `MacroId` (FK auf Macro-Tabelle). Beim

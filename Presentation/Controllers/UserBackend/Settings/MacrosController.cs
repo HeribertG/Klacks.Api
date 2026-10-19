@@ -37,6 +37,13 @@ public class MacrosController : BaseController
         return result;
     }
 
+    [HttpGet("Macros/DefaultShift")]
+    public async Task<DefaultShiftMacroResource> GetDefaultShiftMacro()
+    {
+        logger.LogInformation("[MACRO-API] GET Macros/DefaultShift");
+        return await mediator.Send(new Application.Queries.Settings.Macros.GetDefaultShiftMacroQuery());
+    }
+
     [HttpGet("Macros/{id}")]
     public async Task<ActionResult<MacroResource>> GetMacro(Guid id)
     {

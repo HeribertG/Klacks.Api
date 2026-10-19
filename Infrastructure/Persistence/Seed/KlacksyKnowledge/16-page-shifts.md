@@ -247,7 +247,9 @@ oben rechts einen Auf-/Zuklapp-Pfeil. Cards in dieser Reihenfolge:
 5. **Macro** (de: "Macro", en: "Macro", fr: "Macro", it: "Macro") — nur im Experten-Modus
    sichtbar: Dropdown **Macro Liste** (de: "Macro Liste", en: "Macro list", fr: "Liste des
    macros", it: "Elenco macro") zur Zuordnung eines Macros für die Dauer-/Lohnberechnung;
-   darunter ein schreibgeschütztes Textfeld mit der Beschreibung des gewählten Macros.
+   darunter ein schreibgeschütztes Textfeld mit der Beschreibung des gewählten Macros. Bei
+   einem neuen Dienst ist das Standard-Macro der Kategorie Dienst vorausgewählt; ohne
+   Experten-Modus setzt der Server es beim Speichern genauso.
 6. **Adresse** (de: "Adresse", en: "Address", fr: "Adresse", it: "Indirizzo") — nicht bei
    Containern: Suchfeld **Adresse suchen** (de: "Adresse suchen", en: "Search address",
    fr: "Rechercher une adresse", it: "Cerca indirizzo") mit Platzhalter **Name oder ID

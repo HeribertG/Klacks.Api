@@ -16,6 +16,8 @@
 /// <param name="groupScopeReader">Resolves the groups of the dropped Work's Shift, which scope that notice's audience.</param>
 /// <param name="unitOfWork">Wraps close, cancel and re-open in one transaction.</param>
 /// <param name="companyClock">Resolves the company's current calendar date for the closed order's UntilDate.</param>
+/// <param name="defaultShiftMacroResolver">Supplies the default Shift-category macro for the replacement draft when the
+/// superseded order carried none; a macro the planner set on the sealed order is carried over instead.</param>
 /// <param name="logger">Structured log per superseded order.</param>
 using Klacks.Api.Application.DTOs.Imports;
 using Klacks.Api.Application.Interfaces;
@@ -37,6 +39,7 @@ public class OrderSupersessionService
     private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
+    private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
     private readonly ILogger<OrderSupersessionService> _logger;
 
     public OrderSupersessionService(
@@ -47,6 +50,7 @@ public class OrderSupersessionService
         IShiftGroupScopeReader groupScopeReader,
         IUnitOfWork unitOfWork,
         ICompanyClock companyClock,
+        IDefaultShiftMacroResolver defaultShiftMacroResolver,
         ILogger<OrderSupersessionService> logger)
     {
         _shiftRepository = shiftRepository;
@@ -56,6 +60,7 @@ public class OrderSupersessionService
         _groupScopeReader = groupScopeReader;
         _unitOfWork = unitOfWork;
         _companyClock = companyClock;
+        _defaultShiftMacroResolver = defaultShiftMacroResolver;
         _logger = logger;
     }
 
@@ -67,6 +72,8 @@ public class OrderSupersessionService
         }
 
         var today = await _companyClock.GetTodayDateAsync(cancellationToken);
+        var replacementMacroId = sealedOrder.MacroId
+            ?? await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync(cancellationToken);
         var droppedWork = new List<Work>();
 
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
@@ -86,6 +93,7 @@ public class OrderSupersessionService
 
             var newDraft = ImportedOrderShiftMapper.BuildDraft(order, clientId);
             newDraft.SupersedesOrderId = sealedOrder.Id;
+            newDraft.MacroId = replacementMacroId;
             await _shiftRepository.AddWithSealedOrderHandling(newDraft);
 
             await _unitOfWork.CompleteAsync();
