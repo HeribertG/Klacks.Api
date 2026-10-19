@@ -23,4 +23,6 @@ public class ErpImportException : BaseEntity
     public string Reason { get; set; } = string.Empty;
 
     public DateTime? ResolvedAt { get; set; }
+
+    public Guid? ImportFileId { get; set; }
 }

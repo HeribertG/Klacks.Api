@@ -31,11 +31,7 @@ Existem três formas de transferência:
 <h3>Drop-Point</h3>
 <p>
 O Drop-Point é a caixa de correio central para todos os ficheiros de importação. O Klacks gere-o
-automaticamente – ninguém tem de o criar ou configurar. A página mostra o seu
-conteúdo como uma vista de ficheiros com três áreas: <strong>Entrada</strong> (aguarda a
-próxima execução de importação), <strong>Processado</strong> (arquivo) e <strong>Erros</strong>
-(ficheiros ilegíveis ou inválidos, incluindo o motivo do erro). Os ficheiros com erro podem ser
-movidos de volta para a entrada através do botão <em>Importar novamente</em>.
+automaticamente – ninguém tem de o criar ou configurar. A página mostra o seu conteúdo como uma lista de importações com três áreas: <strong>Entrada</strong> (ficheiros recebidos ou em importação, com o progresso), <strong>Processado</strong> (com um resumo por ficheiro) e <strong>Erros</strong> (ficheiros ilegíveis ou inválidos e importações interrompidas, incluindo o motivo). Os ficheiros com erro podem ser importados novamente através do botão <em>Importar novamente</em>.
 </p>
 <ul>
   <li>
@@ -257,14 +253,19 @@ O Klacks atribui cada encomenda a um cliente:
 <h3>Tratamento de erros &amp; arquivo</h3>
 <ul>
   <li>
-    Os ficheiros processados são movidos, no armazenamento de ficheiros, para a subpasta
-    <code>processed/</code> (arquivo, sem eliminação); aparecem na
-    página de importação na área <em>Processado</em>.
+    O ficheiro original permanece na pasta do Drop-Point (para auditoria e novas
+    tentativas; não é movido nem eliminado). O seu estado é apresentado na página de
+    importação: durante a importação na área <em>Entrada</em> (com o progresso),
+    depois na área <em>Processado</em> com um resumo (encomendas novas, atualizadas,
+    inalteradas e rejeitadas). Um ficheiro idêntico a uma entrega anterior mostra
+    apenas um aviso informativo e é importado na mesma.
   </li>
   <li>
-    Ficheiros ilegíveis ou inválidos são movidos para a subpasta <code>error/</code>
-    e aparecem na área <em>Erros</em>; a partir daí podem ser
-    movidos de volta para a entrada através de <em>Importar novamente</em>.
+    Ficheiros ilegíveis (p.&nbsp;ex. XML danificado), ficheiros alterados após a
+    receção e importações interrompidas aparecem na área <em>Erros</em> com o
+    motivo; a partir daí podem ser importados de novo através de <em>Importar
+    novamente</em> ou eliminados. Um ficheiro corrigido tem de ser carregado de
+    novo.
   </li>
   <li>
     Encomendas incompletas ou inválidas são rejeitadas (p.&nbsp;ex. sem
@@ -273,9 +274,9 @@ O Klacks atribui cada encomenda a um cliente:
     do mesmo ficheiro são, ainda assim, importadas.
   </li>
   <li>
-    Se um ficheiro contiver pelo menos uma encomenda rejeitada, é movido com o
-    motivo da rejeição para a área <em>Erros</em> — as encomendas já
-    importadas mantêm-se.
+    Se um ficheiro contiver pelo menos uma encomenda rejeitada, aparece mesmo assim
+    na área <em>Processado</em>, assinalado com um aviso: as encomendas válidas são
+    importadas e as rejeitadas são listadas com o respetivo motivo.
   </li>
   <li>Os erros são registados e os administradores são notificados.</li>
 </ul>

@@ -30,11 +30,7 @@ Siirtoon on kolme tapaa:
 <h3>Pudotuspiste</h3>
 <p>
 Pudotuspiste on kaikkien tuontitiedostojen keskitetty postilaatikko. Klacks hallinnoi sitä
-automaattisesti – kenenkään ei tarvitse luoda tai määrittää sitä. Sivu näyttää sen sisällön
-tiedostonäkymänä, jossa on kolme aluetta: <strong>Saapuvat</strong> (odottaa seuraavaa
-tuontiajoa), <strong>Käsitellyt</strong> (arkisto) ja <strong>Virheet</strong>
-(lukukelvottomat tai virheelliset tiedostot virheen syyn kera). Virhetiedostot voidaan
-siirtää takaisin saapuviin painikkeella <em>Tuo uudelleen</em>.
+automaattisesti – kenenkään ei tarvitse luoda tai määrittää sitä. Sivu näyttää sen sisällön tuontiluettelona, jossa on kolme aluetta: <strong>Saapuvat</strong> (vastaanotetut tai parhaillaan tuotavat tiedostot edistymisen kera), <strong>Käsitellyt</strong> (yhteenvedolla tiedostoa kohden) ja <strong>Virheet</strong> (lukukelvottomat tai virheelliset tiedostot sekä keskeytyneet tuonnit syyn kera). Virhetiedostot voidaan tuoda vielä kerran painikkeella <em>Tuo uudelleen</em>.
 </p>
 <ul>
   <li>
@@ -253,14 +249,18 @@ Klacks kohdistaa jokaisen tilauksen asiakkaalle:
 <h3>Virheenkäsittely ja arkisto</h3>
 <ul>
   <li>
-    Käsitellyt tiedostot siirretään tiedostoalueella alikansioon
-    <code>processed/</code> (arkisto, ei poistoa); ne näkyvät tuontisivulla alueella
-    <em>Käsitellyt</em>.
+    Alkuperäinen tiedosto jää pudotuspisteen kansioon (tarkastusta ja
+    uusintayrityksiä varten; sitä ei siirretä eikä poisteta). Sen tila näkyy
+    tuontisivulla: tuonnin aikana alueella <em>Saapuvat</em> (edistymisen kera), sen
+    jälkeen alueella <em>Käsitellyt</em> yhteenvedon kera (uudet, päivitetyt,
+    muuttumattomat ja hylätyt tilaukset). Aiemman toimituksen kanssa identtinen
+    tiedosto näyttää vain tiedotteen ja tuodaan silti.
   </li>
   <li>
-    Lukukelvottomat tai virheelliset tiedostot siirtyvät alikansioon <code>error/</code>
-    ja näkyvät alueella <em>Virheet</em>; sieltä ne voidaan siirtää takaisin saapuviin
-    painikkeella <em>Tuo uudelleen</em>.
+    Lukukelvottomat tiedostot (esim. rikkinäinen XML), vastaanoton jälkeen
+    muuttuneet tiedostot ja keskeytyneet tuonnit näkyvät alueella <em>Virheet</em>
+    syyn kera; sieltä ne voidaan tuoda uudelleen painikkeella <em>Tuo uudelleen</em>
+    tai poistaa. Korjattu tiedosto on ladattava uudelleen.
   </li>
   <li>
     Puutteelliset tai virheelliset tilaukset hylätään (esim. ilman viikonpäivää, jos
@@ -269,8 +269,9 @@ Klacks kohdistaa jokaisen tilauksen asiakkaalle:
     muut tilaukset tuodaan silti.
   </li>
   <li>
-    Jos tiedosto sisältää vähintään yhden hylätyn tilauksen, se siirtyy hylkäyksen syyn
-    kera alueelle <em>Virheet</em> — jo tuodut tilaukset säilyvät tällöin.
+    Jos tiedosto sisältää vähintään yhden hylätyn tilauksen, se näkyy silti alueella
+    <em>Käsitellyt</em> varoituksella merkittynä: kelvolliset tilaukset tuodaan, ja
+    hylätyt luetellaan syineen.
   </li>
   <li>Virheet kirjataan lokiin, ja pääkäyttäjille lähetetään ilmoitus.</li>
 </ul>

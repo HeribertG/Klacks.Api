@@ -1,94 +1,84 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Straight-through order import: for every enabled drop point, lists pending files in its
-/// object storage prefix, parses each one, resolves the customer and upserts the order as an
-/// unsealed draft. A SealedOrder hit for the same external reference is handed to
-/// OrderSupersessionService, which decides whether the payload actually changed anything.
-/// A file is claimed into a processing/ sub-prefix before it is parsed, so a concurrent run --
-/// a second API instance sharing the drop point volume -- cannot import the same orders twice;
-/// the claim is an atomic move, and the caller that loses it skips the file. After handling, the
-/// file moves on to a processed/ or error/ sub-prefix, so a re-poll never reprocesses it; a file
-/// goes to error/ as soon as a single order was rejected or failed, with one erp_import_exception
-/// row per affected order. A crash between claim and completion parks the file under processing/,
-/// where no later run picks it up again: unprocessed rather than imported twice. The drop point view
-/// lists such a file among the errors so it stays visible, and it can be removed there and re-uploaded.
-/// Guarantees the single default drop point exists on every due run, via the same get-or-create
-/// provider the settings/status skills use, so a fresh install never silently drops files simply
-/// because no one has opened the settings page or asked Klacksy about it yet.
+/// Scheduled ERP order import over the erp_import_file ledger. On every due run (cron occurrence claimed
+/// through a conditional settings update) it guarantees the single default drop point exists -- via the
+/// same get-or-create provider the settings/status skills use, so a fresh install never silently ignores
+/// files -- then (0) migrates files the pre-ledger import left in the processing/processed/error
+/// sub-folders of every drop point (enabled or not, so the table-only listing shows them) into the ledger
+/// and back into the inbox (ErpImportLegacyFolderMigrator, idempotent), (1) flips Importing rows whose
+/// heartbeat is older than ErpImportFileTiming.StaleAfter to Interrupted (global, once per run), (2)
+/// registers new inbox files of every enabled drop point as Received rows, before anything else is staged
+/// and outside every per-order transaction, and (3) hands
+/// each Received row of every enabled drop point, oldest first, to ErpImportFileImporter, which claims it
+/// through a conditional ledger update (multi-instance safe; a lost claim skips the file), imports it and
+/// finishes the row. Files are never moved by the import: the raw XML stays at its inbox key. Inbox files get
+/// their last write time as ReceivedAt, so "oldest first" follows the delivery order, not the random key order.
+/// Migration, registration and import are each guarded per drop point: an unexpected error is logged, the
+/// scope's tracked changes are discarded and the run continues with the next step or drop point.
+/// Cancellation stops the run between files and orders; an interrupted row ages into Interrupted.
 /// </summary>
-using Klacks.Api.Application.DTOs.Imports;
+/// <param name="legacyFolderMigrator">Moves files of the pre-ledger sub-folders into the ledger and the inbox</param>
+/// <param name="fileRepository">Ledger repository: stale-row reaper and the Received rows of a drop point</param>
+/// <param name="inboxRegistrationService">Registers files dropped directly into an inbox folder</param>
+/// <param name="fileImporter">Claims, imports and finishes one Received row</param>
+/// <param name="timeProvider">Clock for the stale-heartbeat cutoff</param>
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Assistant.Scheduling;
-using Klacks.Api.Application.Services.Assistant.Triggers;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Imports;
-using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Imports;
-using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
-using Klacks.Api.Domain.Services.Imports;
 
 namespace Klacks.Api.Application.Services.Imports;
 
 public class ErpOrderImportRunner : IErpOrderImportRunner
 {
-    private const string ProcessedSegment = ErpImportStorageKeys.ProcessedSegment;
-    private const string ErrorSegment = ErpImportStorageKeys.ErrorSegment;
-    private const string ProcessingSegment = ErpImportStorageKeys.ProcessingSegment;
-    private const string ReasonSeparator = "; ";
     private static readonly TimeSpan CatchUpWindow = TimeSpan.FromHours(1);
 
     private readonly IErpDropPointRepository _dropPointRepository;
     private readonly IErpDefaultDropPointProvider _defaultDropPointProvider;
-    private readonly IObjectStorageService _objectStorageService;
-    private readonly IOrderImportParser _parser;
-    private readonly ErpCustomerResolver _customerResolver;
-    private readonly IShiftRepository _shiftRepository;
-    private readonly OrderSupersessionService _supersessionService;
-    private readonly IErpImportExceptionRepository _exceptionRepository;
-    private readonly IAgentTriggerService _triggerService;
+    private readonly ErpImportLegacyFolderMigrator _legacyFolderMigrator;
+    private readonly IErpImportFileRepository _fileRepository;
+    private readonly ErpImportInboxRegistrationService _inboxRegistrationService;
+    private readonly ErpImportFileImporter _fileImporter;
     private readonly ISettingsRepository _settingsRepository;
     private readonly ICompanyClock _companyClock;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ErpImportRunState _runState;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<ErpOrderImportRunner> _logger;
     private readonly ErpCronTimeZoneDriftNotifier _driftNotifier;
 
     public ErpOrderImportRunner(
         IErpDropPointRepository dropPointRepository,
         IErpDefaultDropPointProvider defaultDropPointProvider,
-        IObjectStorageService objectStorageService,
-        IOrderImportParser parser,
-        ErpCustomerResolver customerResolver,
-        IShiftRepository shiftRepository,
-        OrderSupersessionService supersessionService,
-        IErpImportExceptionRepository exceptionRepository,
-        IAgentTriggerService triggerService,
+        ErpImportLegacyFolderMigrator legacyFolderMigrator,
+        IErpImportFileRepository fileRepository,
+        ErpImportInboxRegistrationService inboxRegistrationService,
+        ErpImportFileImporter fileImporter,
         ISettingsRepository settingsRepository,
         ICompanyClock companyClock,
         IUnitOfWork unitOfWork,
         ErpImportRunState runState,
+        TimeProvider timeProvider,
         ILogger<ErpOrderImportRunner> logger,
         ErpCronTimeZoneDriftNotifier driftNotifier)
     {
         _dropPointRepository = dropPointRepository;
         _defaultDropPointProvider = defaultDropPointProvider;
-        _objectStorageService = objectStorageService;
-        _parser = parser;
-        _customerResolver = customerResolver;
-        _shiftRepository = shiftRepository;
-        _supersessionService = supersessionService;
-        _exceptionRepository = exceptionRepository;
-        _triggerService = triggerService;
+        _legacyFolderMigrator = legacyFolderMigrator;
+        _fileRepository = fileRepository;
+        _inboxRegistrationService = inboxRegistrationService;
+        _fileImporter = fileImporter;
         _settingsRepository = settingsRepository;
         _companyClock = companyClock;
         _unitOfWork = unitOfWork;
         _runState = runState;
+        _timeProvider = timeProvider;
         _logger = logger;
         _driftNotifier = driftNotifier;
     }
@@ -105,10 +95,24 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         {
             await _defaultDropPointProvider.GetOrCreateDefaultAsync(cancellationToken);
 
-            var dropPoints = await _dropPointRepository.List();
-            foreach (var dropPoint in dropPoints.Where(d => d.IsEnabled))
+            var allDropPoints = (await _dropPointRepository.List()).ToList();
+            foreach (var dropPoint in allDropPoints)
             {
-                await ProcessDropPointAsync(dropPoint.SourceSystemId, dropPoint.BucketPrefix, cancellationToken);
+                await MigrateLegacyFoldersAsync(dropPoint, cancellationToken);
+            }
+
+            await ReapStaleImportsAsync(cancellationToken);
+
+            var dropPoints = allDropPoints.Where(d => d.IsEnabled).ToList();
+
+            foreach (var dropPoint in dropPoints)
+            {
+                await RegisterInboxFilesAsync(dropPoint, cancellationToken);
+            }
+
+            foreach (var dropPoint in dropPoints)
+            {
+                await ImportReceivedFilesAsync(dropPoint, cancellationToken);
             }
         }
         finally
@@ -184,126 +188,57 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         await _unitOfWork.CompleteAsync();
     }
 
-    private async Task ProcessDropPointAsync(string sourceSystemId, string bucketPrefix, CancellationToken cancellationToken)
+    private async Task MigrateLegacyFoldersAsync(ErpDropPoint dropPoint, CancellationToken cancellationToken)
     {
-        var prefix = ErpImportStorageKeys.NormalizePrefix(bucketPrefix);
-        var keys = await _objectStorageService.ListAsync(prefix, cancellationToken);
-        var pendingKeys = keys.Where(k => !IsInSubSegment(k, prefix, ProcessedSegment)
-            && !IsInSubSegment(k, prefix, ErrorSegment)
-            && !IsInSubSegment(k, prefix, ProcessingSegment));
-
-        foreach (var key in pendingKeys)
+        try
         {
-            var fileName = key[prefix.Length..];
-            var claimedKey = ErpImportStorageKeys.SegmentPrefix(prefix, ProcessingSegment) + fileName;
-
-            if (!await _objectStorageService.TryClaimAsync(key, claimedKey, cancellationToken))
-            {
-                _logger.LogInformation("ERP import: file {Key} is already being processed elsewhere, skipping", key);
-                continue;
-            }
-
-            await ProcessFileAsync(sourceSystemId, prefix, claimedKey, fileName, cancellationToken);
+            await _legacyFolderMigrator.MigrateAsync(dropPoint, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogError(ex, "ERP import: legacy folders of drop point {DropPointId} could not be migrated; the import continues", dropPoint.Id);
         }
     }
 
-    private async Task ProcessFileAsync(string sourceSystemId, string prefix, string key, string fileName, CancellationToken cancellationToken)
+    private async Task ReapStaleImportsAsync(CancellationToken cancellationToken)
     {
-        // Exceptions are recorded against the key the file had before it was claimed: that is the key
-        // the drop point view reconstructs from the error/ segment when it looks up a reason, and the
-        // key an operator sees. The claimed key exists only for the duration of this run.
-        var reportedKey = prefix + fileName;
-
-        OrderImportParseResult result;
-        await using (var stream = await _objectStorageService.DownloadAsync(key, cancellationToken))
+        var cutoff = _timeProvider.GetUtcNow().UtcDateTime - ErpImportFileTiming.StaleAfter;
+        var reaped = await _fileRepository.ReapStaleAsync(cutoff, cancellationToken);
+        if (reaped > 0)
         {
-            result = _parser.Parse(stream);
+            _logger.LogWarning("ERP import: {Count} import(s) without heartbeat since {Cutoff:O} marked as interrupted", reaped, cutoff);
         }
+    }
 
-        var hasOrderFailures = false;
-
-        foreach (var rejectedOrder in result.Errors.GroupBy(e => e.ExternalOrderReference))
+    private async Task RegisterInboxFilesAsync(ErpDropPoint dropPoint, CancellationToken cancellationToken)
+    {
+        try
         {
-            hasOrderFailures = true;
-            var reason = string.Join(ReasonSeparator, rejectedOrder.Select(e => e.Message));
-            _logger.LogWarning("ERP import: order {Reference} in {Key} rejected: {Errors}", rejectedOrder.Key, reportedKey, reason);
-            await RecordExceptionAsync(sourceSystemId, reportedKey, rejectedOrder.Key, reason, cancellationToken);
+            await _inboxRegistrationService.RegisterInboxFilesAsync(dropPoint, cancellationToken);
         }
-
-        foreach (var order in result.Orders)
+        catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
-            try
+            _unitOfWork.DiscardTrackedChanges();
+            _logger.LogError(ex, "ERP import: inbox of drop point {DropPointId} could not be registered; the import continues", dropPoint.Id);
+        }
+    }
+
+    private async Task ImportReceivedFilesAsync(ErpDropPoint dropPoint, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var receivedFiles = await _fileRepository.ListReceivedAsync(dropPoint.Id, cancellationToken);
+
+            foreach (var file in receivedFiles)
             {
-                await ProcessOrderAsync(order, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                hasOrderFailures = true;
-                _logger.LogError(ex, "ERP import: order {Reference} in {Key} failed", order.ExternalOrderReference, reportedKey);
-                await RecordExceptionAsync(sourceSystemId, reportedKey, order.ExternalOrderReference, ex.Message, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                await _fileImporter.ImportAsync(file, cancellationToken);
             }
         }
-
-        await MoveToAsync(prefix, key, fileName, hasOrderFailures ? ErrorSegment : ProcessedSegment, cancellationToken);
-    }
-
-    private async Task RecordExceptionAsync(string sourceSystemId, string key, string? externalOrderReference, string reason, CancellationToken cancellationToken)
-    {
-        var exception = new ErpImportException
+        catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
-            Id = Guid.NewGuid(),
-            SourceSystemId = sourceSystemId,
-            FileKey = key,
-            ExternalOrderReference = externalOrderReference,
-            Reason = reason
-        };
-
-        await _exceptionRepository.Add(exception);
-        await _unitOfWork.CompleteAsync();
-
-        await _triggerService.OnEventAsync(new OrderImportFailedTriggerEvent(exception.Id, key, reason), cancellationToken);
-    }
-
-    private async Task ProcessOrderAsync(ImportedOrderPayload order, CancellationToken cancellationToken)
-    {
-        var client = await _unitOfWork.ExecuteInTransactionAsync(() => _customerResolver.ResolveAsync(order.Customer, cancellationToken));
-
-        var existing = await _shiftRepository.FindActiveByExternalReferenceAsync(order.SourceSystemId, order.ExternalOrderReference, cancellationToken);
-
-        if (existing == null)
-        {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                await _shiftRepository.AddWithSealedOrderHandling(ImportedOrderShiftMapper.BuildDraft(order, client.Id));
-                await _unitOfWork.CompleteAsync();
-                return true;
-            });
+            _unitOfWork.DiscardTrackedChanges();
+            _logger.LogError(ex, "ERP import: files of drop point {DropPointId} could not be imported; the other drop points continue", dropPoint.Id);
         }
-        else if (existing.Status == ShiftStatus.SealedOrder)
-        {
-            // OrderSupersessionService manages its own transaction -- must not nest inside another.
-            await _supersessionService.HandleAsync(existing, order, client.Id, cancellationToken);
-        }
-        else
-        {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                ImportedOrderShiftMapper.ApplyToDraft(existing, order, client.Id);
-                await _shiftRepository.PutWithSealedOrderHandling(existing);
-                await _unitOfWork.CompleteAsync();
-                return true;
-            });
-        }
-    }
-
-    private static bool IsInSubSegment(string key, string prefix, string segment)
-    {
-        return key.StartsWith(ErpImportStorageKeys.SegmentPrefix(prefix, segment), StringComparison.Ordinal);
-    }
-
-    private async Task MoveToAsync(string prefix, string key, string fileName, string segment, CancellationToken cancellationToken)
-    {
-        var destination = ErpImportStorageKeys.SegmentPrefix(prefix, segment) + fileName;
-        await _objectStorageService.MoveAsync(key, destination, cancellationToken);
     }
 }

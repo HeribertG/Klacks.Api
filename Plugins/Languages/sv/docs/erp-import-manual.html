@@ -31,11 +31,7 @@ Det finns tre sätt att överföra dem:
 <h3>Hämtningspunkt (Drop-Point)</h3>
 <p>
 Hämtningspunkten är den centrala brevlådan för alla importfiler. Klacks hanterar
-den automatiskt – ingen behöver skapa eller konfigurera den. Sidan visar dess
-innehåll som en filvy med tre områden: <strong>Inkorg</strong> (väntar på
-nästa importkörning), <strong>Bearbetade</strong> (arkiv) och <strong>Fel</strong>
-(oläsbara eller ogiltiga filer med felorsak). Felfiler kan flyttas tillbaka till
-inkorgen med knappen <em>Importera igen</em>.
+den automatiskt – ingen behöver skapa eller konfigurera den. Sidan visar dess innehåll som en importlista med tre områden: <strong>Inkorg</strong> (mottagna filer eller filer som importeras just nu, med förlopp), <strong>Bearbetade</strong> (med en sammanfattning per fil) och <strong>Fel</strong> (oläsbara eller ogiltiga filer och avbrutna importer med orsak). Felfiler kan importeras en gång till med knappen <em>Importera igen</em>.
 </p>
 <ul>
   <li>
@@ -257,14 +253,18 @@ Klacks tilldelar varje beställning till en kund:
 <h3>Felhantering &amp; arkiv</h3>
 <ul>
   <li>
-    Bearbetade filer flyttas i fillagret till underkatalogen
-    <code>processed/</code> (arkiv, ingen radering); de visas på
-    importsidan under <em>Bearbetade</em>.
+    Originalfilen ligger kvar i hämtningspunktens mapp (för granskning och nya
+    försök; den varken flyttas eller raderas). Dess status visas på importsidan:
+    under importen under <em>Inkorg</em> (med förlopp), därefter under
+    <em>Bearbetade</em> med en sammanfattning (nya, uppdaterade, oförändrade och
+    avvisade beställningar). En fil som är identisk med en tidigare leverans visar
+    bara ett informationsmeddelande och importeras ändå.
   </li>
   <li>
-    Oläsbara eller ogiltiga filer hamnar i underkatalogen <code>error/</code>
-    och visas under <em>Fel</em>; därifrån kan de flyttas tillbaka till
-    inkorgen med <em>Importera igen</em>.
+    Oläsbara filer (t.ex. skadad XML), filer som ändrats efter mottagandet och
+    avbrutna importer visas under <em>Fel</em> med orsak; därifrån kan de importeras
+    på nytt med <em>Importera igen</em> eller raderas. En korrigerad fil måste
+    laddas upp på nytt.
   </li>
   <li>
     Ofullständiga eller ogiltiga beställningar avvisas (t.ex. utan
@@ -273,9 +273,9 @@ Klacks tilldelar varje beställning till en kund:
     i samma fil importeras ändå.
   </li>
   <li>
-    Innehåller en fil minst en avvisad beställning hamnar den med
-    avvisningsorsaken under <em>Fel</em> — redan importerade
-    beställningar behålls.
+    Innehåller en fil minst en avvisad beställning visas den ändå under
+    <em>Bearbetade</em>, markerad med en varning: de giltiga beställningarna
+    importeras och de avvisade listas med orsak.
   </li>
   <li>Fel loggas och administratörerna meddelas.</li>
 </ul>

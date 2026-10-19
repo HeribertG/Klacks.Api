@@ -31,11 +31,7 @@ Do przesyłania są trzy sposoby:
 <h3>Punkt odbioru</h3>
 <p>
 Punkt odbioru to centralna skrzynka na wszystkie pliki importu. Klacks zarządza
-nim automatycznie – nikt nie musi go tworzyć ani konfigurować. Strona pokazuje jego
-zawartość jako widok plików z trzema obszarami: <strong>Przychodzące</strong> (czeka na
-kolejny przebieg importu), <strong>Przetworzone</strong> (archiwum) i <strong>Błąd</strong>
-(pliki nieczytelne lub nieprawidłowe wraz z powodem błędu). Pliki błędów można za pomocą
-przycisku <em>Importuj ponownie</em> przenieść z powrotem do przychodzących.
+nim automatycznie – nikt nie musi go tworzyć ani konfigurować. Strona pokazuje jego zawartość jako listę importów z trzema obszarami: <strong>Przychodzące</strong> (pliki odebrane lub aktualnie importowane, z postępem), <strong>Przetworzone</strong> (z podsumowaniem dla każdego pliku) i <strong>Błąd</strong> (pliki nieczytelne lub nieprawidłowe oraz przerwane importy wraz z powodem). Pliki błędów można zaimportować ponownie za pomocą przycisku <em>Importuj ponownie</em>.
 </p>
 <ul>
   <li>
@@ -257,14 +253,19 @@ Klacks przypisuje każde zamówienie do klienta:
 <h3>Obsługa błędów i archiwum</h3>
 <ul>
   <li>
-    Przetworzone pliki są przenoszone w magazynie plików do podfolderu
-    <code>processed/</code> (archiwum, bez usuwania); pojawiają się na stronie
-    importu w obszarze <em>Przetworzone</em>.
+    Oryginalny plik pozostaje w folderze punktu odbioru (na potrzeby audytu i
+    ponownych prób; nie jest przenoszony ani usuwany). Jego stan jest widoczny na
+    stronie importu: w trakcie importu w obszarze <em>Przychodzące</em> (z
+    postępem), a następnie w obszarze <em>Przetworzone</em> wraz z podsumowaniem
+    (zamówienia nowe, zaktualizowane, niezmienione i odrzucone). Plik identyczny z
+    wcześniejszą dostawą wyświetla jedynie komunikat informacyjny i mimo to jest
+    importowany.
   </li>
   <li>
-    Nieczytelne lub nieprawidłowe pliki trafiają do podfolderu <code>error/</code>
-    i pojawiają się w obszarze <em>Błąd</em>; stamtąd można je za pomocą
-    przycisku <em>Importuj ponownie</em> przenieść z powrotem do przychodzących.
+    Pliki nieczytelne (np.&nbsp;uszkodzony XML), pliki zmienione po otrzymaniu oraz
+    przerwane importy pojawiają się w obszarze <em>Błąd</em> wraz z powodem; stamtąd
+    można je za pomocą przycisku <em>Importuj ponownie</em> zaimportować jeszcze raz
+    albo usunąć. Poprawiony plik należy przesłać ponownie.
   </li>
   <li>
     Niekompletne lub nieprawidłowe zamówienia są odrzucane (np.&nbsp;bez
@@ -273,9 +274,9 @@ Klacks przypisuje każde zamówienie do klienta:
     z tego samego pliku są mimo to importowane.
   </li>
   <li>
-    Jeśli plik zawiera co najmniej jedno odrzucone zamówienie, trafia on wraz z
-    powodem odrzucenia do obszaru <em>Błąd</em> — już zaimportowane
-    zamówienia pozostają przy tym zachowane.
+    Jeśli plik zawiera co najmniej jedno odrzucone zamówienie, mimo to pojawia się w
+    obszarze <em>Przetworzone</em> z ostrzeżeniem: prawidłowe zamówienia są
+    importowane, a odrzucone są wyświetlane wraz z powodem.
   </li>
   <li>Błędy są rejestrowane, a administratorzy są powiadamiani.</li>
 </ul>

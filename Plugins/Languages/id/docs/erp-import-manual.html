@@ -31,11 +31,7 @@ Ada tiga cara untuk transmisi:
 <h3>Drop-Point</h3>
 <p>
 Drop-point adalah kotak surat pusat untuk semua file impor. Klacks mengelolanya
-secara otomatis – tidak ada yang perlu membuatnya atau mengonfigurasinya. Halaman ini menampilkan
-isinya sebagai tampilan file dengan tiga area: <strong>Masuk</strong> (menunggu
-proses impor berikutnya), <strong>Diproses</strong> (arsip), dan <strong>Kesalahan</strong>
-(file yang tidak dapat dibaca atau tidak valid beserta alasan kesalahan). File kesalahan dapat
-dipindahkan kembali ke folder masuk melalui tombol <em>Impor ulang</em>.
+secara otomatis – tidak ada yang perlu membuatnya atau mengonfigurasinya. Halaman ini menampilkan isinya sebagai daftar impor dengan tiga area: <strong>Masuk</strong> (file yang diterima atau sedang diimpor, beserta progres), <strong>Diproses</strong> (dengan ringkasan per file), dan <strong>Kesalahan</strong> (file yang tidak dapat dibaca atau tidak valid serta impor yang terhenti, beserta alasannya). File kesalahan dapat diimpor sekali lagi melalui tombol <em>Impor ulang</em>.
 </p>
 <ul>
   <li>
@@ -257,14 +253,18 @@ Klacks memetakan setiap pesanan ke seorang klien:
 <h3>Penanganan kesalahan &amp; Arsip</h3>
 <ul>
   <li>
-    File yang diproses dipindahkan dalam penyimpanan file ke subfolder
-    <code>processed/</code> (arsip, tidak dihapus); file tersebut muncul di
-    halaman impor pada area <em>Diproses</em>.
+    File asli tetap berada di folder drop-point (untuk audit dan percobaan ulang;
+    tidak dipindahkan maupun dihapus). Statusnya ditampilkan di halaman impor:
+    selama impor di area <em>Masuk</em> (dengan progres), setelah itu di area
+    <em>Diproses</em> beserta ringkasan (pesanan baru, diperbarui, tidak berubah,
+    dan ditolak). File yang identik dengan pengiriman sebelumnya hanya menampilkan
+    petunjuk informasi dan tetap diimpor.
   </li>
   <li>
-    File yang tidak dapat dibaca atau tidak valid dipindahkan ke subfolder <code>error/</code>
-    dan muncul di area <em>Kesalahan</em>; dari sana file dapat
-    dipindahkan kembali ke folder masuk melalui <em>Impor ulang</em>.
+    File yang tidak dapat dibaca (misalnya XML rusak), file yang berubah setelah
+    diterima, dan impor yang terputus muncul di area <em>Kesalahan</em> beserta
+    alasannya; dari sana file dapat diimpor lagi melalui <em>Impor ulang</em> atau
+    dihapus. File yang sudah diperbaiki harus diunggah ulang.
   </li>
   <li>
     Pesanan yang tidak lengkap atau tidak valid akan ditolak (misalnya tanpa
@@ -273,9 +273,9 @@ Klacks memetakan setiap pesanan ke seorang klien:
     dalam file yang sama tetap diimpor.
   </li>
   <li>
-    Jika sebuah file berisi setidaknya satu pesanan yang ditolak, file tersebut dipindahkan
-    dengan alasan penolakan ke area <em>Kesalahan</em> — pesanan yang sudah
-    diimpor tetap dipertahankan.
+    Jika sebuah file berisi setidaknya satu pesanan yang ditolak, file tersebut
+    tetap muncul di area <em>Diproses</em> dengan tanda peringatan: pesanan yang
+    valid diimpor, dan pesanan yang ditolak dicantumkan beserta alasannya.
   </li>
   <li>Kesalahan dicatat dan administrator diberi tahu.</li>
 </ul>

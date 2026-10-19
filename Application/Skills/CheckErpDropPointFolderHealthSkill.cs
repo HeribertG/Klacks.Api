@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Verifies that the configured ERP drop point folder is reachable and writable, ensures its
-/// processed/error sub-folders exist (created if missing), and explains -- transparently, since
+/// Verifies that the configured ERP drop point (inbox) folder is reachable and writable, ensures it
+/// exists (created if missing; there are no sub-folders -- files stay in the inbox and their import
+/// state lives in the erp_import_file ledger), and explains -- transparently, since
 /// this check runs inside the container and cannot see the host's docker-compose.yml -- what is
 /// needed for the folder to survive a container restart.
 /// </summary>
@@ -48,11 +49,7 @@ public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
 
         var normalizedPrefix = ErpImportStorageKeys.NormalizePrefix(dropPoint.BucketPrefix);
         var dropPointPath = _objectStorageService.ResolvePath(normalizedPrefix);
-        var requiredPrefixes = new[]
-        {
-            ErpImportStorageKeys.SegmentPrefix(normalizedPrefix, ErpImportStorageKeys.ProcessedSegment),
-            ErpImportStorageKeys.SegmentPrefix(normalizedPrefix, ErpImportStorageKeys.ErrorSegment),
-        };
+        var requiredPrefixes = new[] { normalizedPrefix };
 
         var health = await _objectStorageService.CheckHealthAsync(requiredPrefixes, cancellationToken);
         var isHealthy = health.RootDirectoryReady && health.IsWritable && health.Prefixes.All(p => p.Ready);
@@ -90,7 +87,7 @@ public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
         if (failedPrefixes.Count > 0)
         {
             var names = string.Join(", ", failedPrefixes.Select(p => p.Prefix));
-            return $"Drop point folder '{dropPointPath}' is writable, but these sub-folders could not be created: {names}.";
+            return $"The storage root is writable, but the drop point folder could not be created: {names}.";
         }
 
         var justCreatedWarning = health.RootDirectoryExisted
@@ -100,7 +97,8 @@ public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
               "otherwise create and report a healthy but unused folder.";
 
         return
-            $"Drop point folder '{dropPointPath}' is writable and its processed/error sub-folders are in place." +
+            $"Drop point folder '{dropPointPath}' is in place and writable. Delivered files stay in this folder; " +
+            "their import state is tracked per file (use get_erp_import_status)." +
             justCreatedWarning +
             " This check runs inside the running container and cannot inspect the host's docker-compose.yml volume " +
             $"configuration. For files to survive a container restart, RootPath must be mounted as a named volume " +

@@ -31299,7 +31299,7 @@
     {
       "name": "get_erp_import_status",
       "area": "settings",
-      "description": "Reports the current status of the ERP order XML import (single drop point/mailbox model): whether it is enabled, the cron schedule and time zone, the next scheduled run, and how many files are pending/processed/failed in the drop point's inbox. Read-only.",
+      "description": "Reports the current status of the ERP order XML import (single drop point/mailbox model): whether it is enabled, the cron schedule and time zone, the next scheduled run, and how many delivered files are waiting, importing, processed and failed, plus a summary of the latest finished file (new/updated/unchanged/superseded/rejected orders or its failure reason). Read-only.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -31355,7 +31355,7 @@
         "fr": "État de l'importation des commandes ERP",
         "it": "Stato dell'importazione degli ordini ERP"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "trigger_erp_import_run",
@@ -31493,7 +31493,7 @@
     {
       "name": "explain_page_settings_erp_drop_points",
       "area": "settings",
-      "description": "Explains the ERP order & customer import feature (Bestellungs- & Kunden-Import) in Klacks settings — the single-drop-point ('one mailbox') model for automatically importing orders (as SealedOrder shifts) from XML files delivered by an external ERP system. Covers the four cards: import schedule (cron expression, time zone, enable toggle, run-now button, last-polled/last-error status), manual upload (drag & drop an XML file), the file explorer (pending/processed/error tabs with retry and delete) and the ERP push access tokens for HTTPS delivery. Also covers the manual/handbook tab with the sample XML download. Use this when the user asks how to set up or use the ERP order import. Supports a level parameter: short (purpose only), elements (every card explained), effects (data flow, how orders become shifts, how tokens and the drop-zone relate).",
+      "description": "Explains the ERP order & customer import feature (Bestellungs- & Kunden-Import) in Klacks settings — the single-drop-point ('one mailbox') model for automatically importing orders (as SealedOrder shifts) from XML files delivered by an external ERP system. Covers the four cards: import schedule (cron expression, time zone, enable toggle, run-now button, last-polled/last-error status), manual upload (drag & drop an XML file), the file list (Inbox/Processed/Failed tabs with import progress, per-file summary and status icon, uploader, retry and delete) and the ERP push access tokens for HTTPS delivery. Also covers the manual/handbook tab with the sample XML download. Use this when the user asks how to set up or use the ERP order import. Supports a level parameter: short (purpose only), elements (every card explained), effects (data flow, how orders become shifts, how tokens and the drop-zone relate).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31579,7 +31579,7 @@
         "fr": "Explication des paramètres des points de dépôt ERP",
         "it": "Spiegazione delle impostazioni dei punti di consegna ERP"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "add_break_placeholder",
@@ -39027,7 +39027,7 @@
     {
       "name": "get_erp_drop_point_settings",
       "area": "settings",
-      "description": "Shows where an outside system hands its files in: the name of that handover point, which system delivers there, the resolved absolute folder path on disk files must be copied to, its processing/processed/error sub-folders, whether pickup happens at all, the poll schedule, when it last looked and what went wrong the last time. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows where an outside system hands its files in: the name of that handover point, which system delivers there, the resolved absolute folder path on disk files must be copied to (files stay there; their import state is tracked per file), whether pickup happens at all, the poll schedule, when it last looked and what went wrong the last time. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -39090,7 +39090,7 @@
         "fr": "Paramètres du point de dépôt ERP",
         "it": "Impostazioni del punto di consegna ERP"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_erp_drop_point_settings",
@@ -46596,7 +46596,7 @@
     {
       "name": "check_erp_drop_point_folder_health",
       "area": "settings",
-      "description": "Checks whether the ERP drop point's configured folder actually exists, is writable, and has its processed/error sub-folders, creating any missing sub-folder. Reports write errors and reminds that persistence across a container restart depends on the folder being mounted as a docker volume. Use when order files silently fail to be picked up or before trusting a freshly configured handover point.",
+      "description": "Checks whether the ERP drop point's configured folder actually exists and is writable, creating it if it is missing. Reports write errors and reminds that persistence across a container restart depends on the folder being mounted as a docker volume. Use when order files silently fail to be picked up or before trusting a freshly configured handover point.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -46652,7 +46652,7 @@
         "fr": "Vérifier l'état du dossier de dépôt ERP",
         "it": "Verifica lo stato della cartella di consegna ERP"
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_plugin_architecture",

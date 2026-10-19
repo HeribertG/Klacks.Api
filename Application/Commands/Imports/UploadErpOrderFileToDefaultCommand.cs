@@ -4,4 +4,4 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Imports;
 
-public record UploadErpOrderFileToDefaultCommand(string FileName, Stream Content) : IRequest<string>;
+public record UploadErpOrderFileToDefaultCommand(string FileName, Stream Content, string? UploadedBy) : IRequest<string>;

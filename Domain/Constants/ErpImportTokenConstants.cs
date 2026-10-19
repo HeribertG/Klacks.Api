@@ -15,6 +15,8 @@ public static class ErpImportTokenConstants
 
     public const string DropPointIdClaimType = "erp_drop_point_id";
 
+    public const string TokenNameClaimType = "erp_import_token_name";
+
     public const int TokenByteLength = 32;
 
     public const int DisplayPrefixLength = 16;

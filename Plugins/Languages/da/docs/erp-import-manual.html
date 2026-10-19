@@ -30,11 +30,7 @@ Der findes tre måder til overførslen:
 <h3>Drop-punkt</h3>
 <p>
 Drop-punktet er den centrale postkasse for alle importfiler. Klacks administrerer
-det automatisk – ingen behøver at oprette eller konfigurere det. Siden viser dets
-indhold som en filvisning med tre områder: <strong>Indbakke</strong> (venter på det
-næste importforløb), <strong>Behandlet</strong> (arkiv) og <strong>Fejl</strong>
-(ulæselige eller ugyldige filer med fejlårsag). Fejlfiler kan flyttes tilbage til
-indbakken via knappen <em>Importer igen</em>.
+det automatisk – ingen behøver at oprette eller konfigurere det. Siden viser dets indhold som en importliste med tre områder: <strong>Indbakke</strong> (modtagne filer eller filer, der netop importeres, med fremdrift), <strong>Behandlet</strong> (med en oversigt pr. fil) og <strong>Fejl</strong> (ulæselige eller ugyldige filer og afbrudte importer med årsag). Fejlfiler kan importeres én gang til via knappen <em>Importer igen</em>.
 </p>
 <ul>
   <li>
@@ -255,14 +251,18 @@ Klacks tilknytter hver ordre en kunde:
 <h3>Fejlhåndtering &amp; arkiv</h3>
 <ul>
   <li>
-    Behandlede filer flyttes i filaflæggelsen til underkataloget
-    <code>processed/</code> (arkiv, ingen sletning); de vises på
-    importsiden i området <em>Behandlet</em>.
+    Den oprindelige fil bliver i drop-punktets mappe (til revision og nye forsøg;
+    den hverken flyttes eller slettes). Dens status vises på importsiden: under
+    importen i området <em>Indbakke</em> (med fremskridt), derefter i området
+    <em>Behandlet</em> med en oversigt (nye, opdaterede, uændrede og afviste
+    ordrer). En fil, der er identisk med en tidligere levering, viser kun en
+    informationsbesked og importeres alligevel.
   </li>
   <li>
-    Ulæselige eller ugyldige filer havner i underkataloget <code>error/</code>
-    og vises i området <em>Fejl</em>; derfra kan de flyttes tilbage til
-    indbakken via <em>Importer igen</em>.
+    Ulæselige filer (f.&nbsp;eks. beskadiget XML), filer der er ændret efter
+    modtagelsen, og afbrudte importer vises i området <em>Fejl</em> med årsagen;
+    derfra kan de importeres igen via <em>Importer igen</em> eller slettes. En
+    rettet fil skal uploades på ny.
   </li>
   <li>
     Ufuldstændige eller ugyldige ordrer afvises (f.&nbsp;eks. uden
@@ -271,9 +271,9 @@ Klacks tilknytter hver ordre en kunde:
     samme fil importeres alligevel.
   </li>
   <li>
-    Indeholder en fil mindst én afvist ordre, havner den med
-    afvisningsårsagen i området <em>Fejl</em> — de allerede importerede
-    ordrer bevares.
+    Indeholder en fil mindst én afvist ordre, vises den alligevel i området
+    <em>Behandlet</em>, markeret med en advarsel: de gyldige ordrer importeres, og
+    de afviste vises med deres årsag.
   </li>
   <li>Fejl logges, og administratorerne underrettes.</li>
 </ul>

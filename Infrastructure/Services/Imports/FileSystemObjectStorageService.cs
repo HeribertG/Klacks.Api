@@ -3,7 +3,7 @@
 /// <summary>
 /// File-system-backed object storage for ERP order import drop points. Maps slash-separated
 /// object keys to files below the configured root directory. Uploads write to a temporary
-/// file first and are published via an atomic rename. Key listing (used by the import runner)
+/// file first (hashing the bytes while copying) and are published via an atomic rename. Key listing (used by the import runner)
 /// skips temporary files and files still inside the write-stability window, so half-written
 /// files dropped into the directory by external processes are never imported; metadata listing
 /// (used by the file explorer) skips only temporary files so fresh uploads are visible at once.
@@ -59,16 +59,7 @@ public class FileSystemObjectStorageService : IObjectStorageService
         return Task.FromResult<Stream>(File.OpenRead(ToSafePath(key)));
     }
 
-    public Task MoveAsync(string sourceKey, string destinationKey, CancellationToken cancellationToken = default)
-    {
-        var sourcePath = ToSafePath(sourceKey);
-        var destinationPath = ToSafePath(destinationKey);
-        Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
-        File.Move(sourcePath, destinationPath, overwrite: true);
-        return Task.CompletedTask;
-    }
-
-    public Task<bool> TryClaimAsync(string sourceKey, string destinationKey, CancellationToken cancellationToken = default)
+    public Task<bool> TryMoveAsync(string sourceKey, string destinationKey, CancellationToken cancellationToken = default)
     {
         var sourcePath = ToSafePath(sourceKey);
         var destinationPath = ToSafePath(destinationKey);
@@ -87,22 +78,45 @@ public class FileSystemObjectStorageService : IObjectStorageService
 
     public Task DeleteAsync(string key, CancellationToken cancellationToken = default)
     {
-        File.Delete(ToSafePath(key));
+        var path = ToSafePath(key);
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
+
         return Task.CompletedTask;
     }
 
-    public async Task UploadAsync(string key, Stream content, CancellationToken cancellationToken = default)
+    public async Task<StoredObjectInfo> UploadAsync(string key, Stream content, CancellationToken cancellationToken = default)
     {
         var destinationPath = ToSafePath(key);
         Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
 
         var tempPath = destinationPath + UploadTempSuffix;
+        StoredObjectInfo info;
         await using (var file = File.Create(tempPath))
         {
-            await content.CopyToAsync(file, cancellationToken);
+            info = await ErpImportFileHasher.CopyAndHashAsync(content, file, cancellationToken);
         }
 
         File.Move(tempPath, destinationPath, overwrite: true);
+        return info with { LastModifiedUtc = File.GetLastWriteTimeUtc(destinationPath) };
+    }
+
+    public async Task<StoredObjectInfo?> GetObjectInfoAsync(string key, CancellationToken cancellationToken = default)
+    {
+        var path = ToSafePath(key);
+
+        try
+        {
+            await using var file = File.OpenRead(path);
+            var info = await ErpImportFileHasher.CopyAndHashAsync(file, Stream.Null, cancellationToken);
+            return info with { LastModifiedUtc = File.GetLastWriteTimeUtc(path) };
+        }
+        catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
+        {
+            return null;
+        }
     }
 
     public string ResolvePath(string key)

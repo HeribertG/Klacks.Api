@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Authentication handler for ERP import tokens. Deliberately separate from PatAuthenticationHandler
-/// and the KlacksPat scheme: an ERP import token identifies only a drop point, carries no user
+/// and the KlacksPat scheme: an ERP import token identifies only a drop point (plus its own name, recorded
+/// as the uploader in the import file ledger -- deliberately not ClaimTypes.Name), carries no user
 /// roles, and is only ever accepted by endpoints that explicitly opt into the KlacksErpImport
 /// scheme -- a leaked token cannot authenticate anywhere else in the API (MCP, REST, etc.).
 /// </summary>
@@ -72,7 +73,8 @@ public class ErpImportTokenAuthenticationHandler : AuthenticationHandler<Authent
 
         var claims = new List<Claim>
         {
-            new(ErpImportTokenConstants.DropPointIdClaimType, token.DropPointId.ToString())
+            new(ErpImportTokenConstants.DropPointIdClaimType, token.DropPointId.ToString()),
+            new(ErpImportTokenConstants.TokenNameClaimType, token.Name)
         };
         var identity = new ClaimsIdentity(claims, Scheme.Name);
         var principal = new ClaimsPrincipal(identity);

@@ -1,11 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Security.Claims;
 using Klacks.Api.Application.Commands.ErpDropPoints;
 using Klacks.Api.Application.Commands.Imports;
 using Klacks.Api.Application.DTOs.ErpDropPoints;
 using Klacks.Api.Application.Queries.ErpDropPoints;
 using Klacks.Api.Application.Validation.Imports;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -59,24 +61,23 @@ public class ErpDropPointsController : BaseController
         _logger.LogInformation("[ERP-DROP-POINT-API] POST ErpDropPoints/files - File: {FileName}", file.FileName.ForLog());
 
         await using var stream = file.OpenReadStream();
-        var key = await _mediator.Send(new UploadErpOrderFileToDefaultCommand(file.FileName, stream), cancellationToken);
+        var key = await _mediator.Send(new UploadErpOrderFileToDefaultCommand(file.FileName, stream, CurrentUserName()), cancellationToken);
 
         return Ok(new { key });
     }
 
-    [HttpPost("files/retry")]
-    public async Task<IActionResult> RetryErpOrderFile([FromBody] ErpOrderFileRetryResource resource, CancellationToken cancellationToken)
+    [HttpPost("files/{fileId:guid}/retry")]
+    public async Task<ActionResult<ErpOrderFileRetryResultResource>> RetryErpOrderFile(Guid fileId, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("[ERP-DROP-POINT-API] POST ErpDropPoints/files/retry - Key: {Key}", resource.Key.ForLog());
-        await _mediator.Send(new RetryErpOrderFileCommand(resource.Key), cancellationToken);
-        return NoContent();
+        _logger.LogInformation("[ERP-DROP-POINT-API] POST ErpDropPoints/files/{FileId}/retry", fileId);
+        return await _mediator.Send(new RetryErpOrderFileCommand(fileId), cancellationToken);
     }
 
-    [HttpDelete("files")]
-    public async Task<IActionResult> DeleteErpOrderFile([FromBody] ErpOrderFileDeleteResource resource, CancellationToken cancellationToken)
+    [HttpDelete("files/{fileId:guid}")]
+    public async Task<IActionResult> DeleteErpOrderFile(Guid fileId, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("[ERP-DROP-POINT-API] DELETE ErpDropPoints/files - Key: {Key}", resource.Key.ForLog());
-        await _mediator.Send(new DeleteErpOrderFileCommand(resource.Key), cancellationToken);
+        _logger.LogInformation("[ERP-DROP-POINT-API] DELETE ErpDropPoints/files/{FileId}", fileId);
+        await _mediator.Send(new DeleteErpOrderFileCommand(fileId), cancellationToken);
         return NoContent();
     }
 
@@ -130,7 +131,9 @@ public class ErpDropPointsController : BaseController
         _logger.LogInformation("[ERP-DROP-POINT-API] POST ErpDropPoints/{Id}/files - File: {FileName}", id, file.FileName.ForLog());
 
         await using var stream = file.OpenReadStream();
-        var key = await _mediator.Send(new UploadErpOrderFileCommand(id, file.FileName, stream), cancellationToken);
+        var key = await _mediator.Send(
+            new UploadErpOrderFileCommand(id, file.FileName, stream, ErpImportChannel.UiUpload, CurrentUserName()),
+            cancellationToken);
 
         return Ok(new { key });
     }
@@ -155,5 +158,11 @@ public class ErpDropPointsController : BaseController
         }
 
         return result;
+    }
+
+    private string? CurrentUserName()
+    {
+        var name = User.FindFirst(ClaimTypes.Name)?.Value;
+        return string.IsNullOrWhiteSpace(name) ? User.FindFirst(ClaimTypes.Email)?.Value : name;
     }
 }

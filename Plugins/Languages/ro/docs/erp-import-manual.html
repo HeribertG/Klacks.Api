@@ -30,11 +30,7 @@ Pentru transfer există trei căi:
 <h3>Punctul de depunere (Drop-Point)</h3>
 <p>
 Punctul de depunere este cutia poștală centrală pentru toate fișierele de import. Klacks îl
-gestionează automat – nimeni nu trebuie să îl creeze sau să îl configureze. Pagina afișează
-conținutul acestuia ca o vizualizare de fișiere cu trei zone: <strong>Intrare</strong> (așteaptă
-următoarea rulare de import), <strong>Procesate</strong> (arhivă) și <strong>Erori</strong>
-(fișiere ilizibile sau nevalide, împreună cu motivul erorii). Fișierele cu erori pot fi mutate
-înapoi în Intrare prin butonul <em>Reimportă</em>.
+gestionează automat – nimeni nu trebuie să îl creeze sau să îl configureze. Pagina afișează conținutul acestuia ca o listă de importuri cu trei zone: <strong>Intrare</strong> (fișiere primite sau aflate în curs de import, cu progres), <strong>Procesate</strong> (cu un rezumat pentru fiecare fișier) și <strong>Erori</strong> (fișiere ilizibile sau nevalide și importuri întrerupte, împreună cu motivul). Fișierele cu erori pot fi importate încă o dată prin butonul <em>Reimportă</em>.
 </p>
 <ul>
   <li>
@@ -252,14 +248,18 @@ Klacks asociază fiecare comandă unui client:
 <h3>Gestionarea erorilor &amp; arhivă</h3>
 <ul>
   <li>
-    Fișierele procesate sunt mutate în spațiul de stocare, în subdirectorul
-    <code>processed/</code> (arhivă, fără ștergere); acestea apar pe pagina de import în zona
-    <em>Procesate</em>.
+    Fișierul original rămâne în folderul punctului de depunere (pentru audit și
+    reîncercări; nu este mutat și nici șters). Starea lui este afișată pe pagina de
+    import: în timpul importului în zona <em>Intrare</em> (cu progresul), apoi în
+    zona <em>Procesate</em> cu un rezumat (comenzi noi, actualizate, neschimbate și
+    respinse). Un fișier identic cu o livrare anterioară afișează doar un mesaj
+    informativ și este totuși importat.
   </li>
   <li>
-    Fișierele ilizibile sau nevalide ajung în subdirectorul <code>error/</code> și apar în
-    zona <em>Erori</em>; de acolo pot fi mutate înapoi în Intrare prin
-    <em>Reimportă</em>.
+    Fișierele ilizibile (de ex. XML deteriorat), fișierele modificate după primire
+    și importurile întrerupte apar în zona <em>Erori</em> împreună cu motivul; de
+    acolo pot fi importate din nou prin <em>Reimportă</em> sau șterse. Un fișier
+    corectat trebuie încărcat din nou.
   </li>
   <li>
     Comenzile incomplete sau nevalide sunt respinse (de ex. fără nicio zi a săptămânii, cu
@@ -268,8 +268,9 @@ Klacks asociază fiecare comandă unui client:
     același fișier sunt totuși importate.
   </li>
   <li>
-    Dacă un fișier conține cel puțin o comandă respinsă, acesta ajunge, împreună cu motivul
-    respingerii, în zona <em>Erori</em> — comenzile deja importate rămân totuși păstrate.
+    Dacă un fișier conține cel puțin o comandă respinsă, acesta apare totuși în zona
+    <em>Procesate</em>, marcat cu un avertisment: comenzile valide sunt importate,
+    iar cele respinse sunt listate împreună cu motivul.
   </li>
   <li>Erorile sunt înregistrate, iar administratorii sunt notificați.</li>
 </ul>

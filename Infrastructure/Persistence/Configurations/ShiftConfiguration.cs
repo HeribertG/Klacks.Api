@@ -3,6 +3,8 @@
 /// <summary>
 /// EF Core configuration for the Shift-Entity with query filter, indexes and Client-relationship.
 /// </summary>
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -22,8 +24,16 @@ public class ShiftConfiguration : IEntityTypeConfiguration<Shift>
 
         // Not unique: an ExternalOrderReference forms a version chain over time (superseded orders
         // stay non-deleted with an UntilDate), so more than one Shift row can legitimately share it.
-        builder.HasIndex(p => new { p.SourceSystemId, p.ExternalOrderReference })
+        builder.HasIndex(p => new { p.SourceSystemId, p.ExternalOrderReference }, ShiftIndexNames.ExternalOrderReferenceLookup)
+            .HasDatabaseName(ShiftIndexNames.ExternalOrderReferenceLookup)
             .HasFilter("external_order_reference IS NOT NULL");
+
+        // One open draft per (source system, reference). Deliberately narrow: supersession keeps the closed
+        // SealedOrder row with the same reference, so only OriginalOrder rows may not repeat.
+        builder.HasIndex(p => new { p.SourceSystemId, p.ExternalOrderReference }, ShiftIndexNames.OpenDraftReferenceUnique)
+            .IsUnique()
+            .HasDatabaseName(ShiftIndexNames.OpenDraftReferenceUnique)
+            .HasFilter($"external_order_reference IS NOT NULL AND is_deleted = false AND status = {(int)ShiftStatus.OriginalOrder}");
 
         builder.HasOne(s => s.Client)
             .WithMany()

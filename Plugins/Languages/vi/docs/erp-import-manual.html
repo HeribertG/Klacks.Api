@@ -31,11 +31,7 @@ Có ba cách để truyền dữ liệu:
 <h3>Drop Point</h3>
 <p>
 Drop Point là hộp thư trung tâm cho tất cả các tệp nhập dữ liệu. Klacks quản lý
-nó tự động – không ai cần tạo hoặc cấu hình nó. Trang này hiển thị nội dung
-của nó dưới dạng xem tệp với ba phần: <strong>Đến</strong> (đang chờ lần chạy nhập
-tiếp theo), <strong>Đã xử lý</strong> (lưu trữ) và <strong>Lỗi</strong>
-(các tệp không đọc được hoặc không hợp lệ kèm lý do lỗi). Các tệp lỗi có thể được
-chuyển lại vào mục Đến qua nút <em>Nhập lại</em>.
+nó tự động – không ai cần tạo hoặc cấu hình nó. Trang này hiển thị nội dung của nó dưới dạng danh sách nhập với ba phần: <strong>Đến</strong> (các tệp đã nhận hoặc đang được nhập, kèm tiến độ), <strong>Đã xử lý</strong> (kèm bản tóm tắt cho từng tệp) và <strong>Lỗi</strong> (các tệp không đọc được hoặc không hợp lệ và các lần nhập bị gián đoạn, kèm lý do). Các tệp lỗi có thể được nhập thêm một lần nữa qua nút <em>Nhập lại</em>.
 </p>
 <ul>
   <li>
@@ -256,14 +252,18 @@ Klacks gán mỗi đơn hàng cho một khách hàng:
 <h3>Xử lý lỗi &amp; Lưu trữ</h3>
 <ul>
   <li>
-    Các tệp đã xử lý sẽ được chuyển vào thư mục con
-    <code>processed/</code> trong kho lưu trữ tệp (lưu trữ, không xóa); chúng sẽ
-    xuất hiện trên trang nhập dữ liệu trong phần <em>Đã xử lý</em>.
+    Tệp gốc vẫn được giữ trong thư mục Drop Point (để kiểm tra và thử lại; không bị
+    di chuyển hay xóa). Trạng thái của tệp được hiển thị trên trang nhập dữ liệu:
+    trong khi nhập ở phần <em>Đến</em> (kèm tiến độ), sau đó ở phần <em>Đã xử
+    lý</em> kèm bản tóm tắt (đơn hàng mới, đã cập nhật, không thay đổi và bị từ
+    chối). Tệp giống hệt một lần gửi trước đó chỉ hiển thị một thông báo thông tin
+    và vẫn được nhập.
   </li>
   <li>
-    Các tệp không đọc được hoặc không hợp lệ sẽ chuyển vào thư mục con <code>error/</code>
-    và xuất hiện trong phần <em>Lỗi</em>; từ đó chúng có thể được chuyển lại vào mục
-    Đến qua <em>Nhập lại</em>.
+    Các tệp không đọc được (ví dụ: XML bị hỏng), các tệp bị thay đổi sau khi nhận và
+    các lần nhập bị gián đoạn sẽ xuất hiện trong phần <em>Lỗi</em> kèm lý do; từ đó
+    chúng có thể được nhập lại qua <em>Nhập lại</em> hoặc bị xóa. Tệp đã sửa phải
+    được tải lên lại.
   </li>
   <li>
     Các đơn hàng không đầy đủ hoặc không hợp lệ sẽ bị từ chối (ví dụ: không có ngày
@@ -272,9 +272,9 @@ Klacks gán mỗi đơn hàng cho một khách hàng:
     còn lại trong cùng tệp đó vẫn sẽ được nhập.
   </li>
   <li>
-    Nếu một tệp chứa ít nhất một đơn hàng bị từ chối, nó sẽ chuyển vào phần
-    <em>Lỗi</em> kèm lý do từ chối — các đơn hàng đã được nhập trước đó vẫn
-    được giữ lại.
+    Nếu một tệp chứa ít nhất một đơn hàng bị từ chối, tệp đó vẫn xuất hiện trong
+    phần <em>Đã xử lý</em> kèm dấu cảnh báo: các đơn hàng hợp lệ được nhập, còn các
+    đơn hàng bị từ chối được liệt kê kèm lý do.
   </li>
   <li>Lỗi sẽ được ghi lại và quản trị viên sẽ được thông báo.</li>
 </ul>

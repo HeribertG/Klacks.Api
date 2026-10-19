@@ -5,8 +5,9 @@ description: |
   settings — the single-drop-point ("one mailbox") model for automatically importing orders
   (as unsealed, group-less OriginalOrder draft shifts) from XML files delivered by an external
   ERP system. Covers the four cards: import schedule (cron expression, time zone, enable toggle, run-now button,
-  last-polled/last-error status), manual upload (drag & drop an XML file), the file explorer
-  (pending/processed/error tabs with retry and delete) and the ERP push access tokens for
+  last-polled/last-error status), manual upload (drag & drop an XML file), the file list
+  (Inbox/Processed/Failed tabs with import progress, per-file summary and status icon, uploader,
+  retry and delete) and the ERP push access tokens for
   HTTPS delivery. Also covers the manual/handbook tab with the sample XML download. Use this
   when the user asks how to set up or use the ERP order import. Supports a level parameter:
   short (purpose only), elements (every card explained), effects (data flow, how orders
@@ -57,8 +58,8 @@ Hand, z. B. bei der Ersteinrichtung) kann XML-Dateien auch direkt auf den physis
 Server-Ordner kopieren, ohne die Seite je zu öffnen — der nächste Zeitplan-Tick holt sie
 genauso ab wie einen manuellen Upload. Für „Wo kopiere ich die XML hin?" den absoluten
 Pfad NICHT raten, sondern per Skill `get_erp_drop_point_settings` abfragen (liefert den
-aufgelösten Pfad auf der Platte, die Unterordner processing/processed/error und den
-Zeitplan); bei Zweifel, ob der Ordner wirklich beschreibbar ist und ob er einen Neustart
+aufgelösten Pfad auf der Platte und den Zeitplan; Unterordner gibt es keine — die Dateien
+bleiben im Drop-Point-Ordner selbst); bei Zweifel, ob der Ordner wirklich beschreibbar ist und ob er einen Neustart
 übersteht, zusätzlich `check_erp_drop_point_folder_health`.
 
 <!-- level:elements -->
@@ -88,11 +89,30 @@ Vier auf-/zuklappbare Karten:
    Dateiauswahl zu öffnen. Der Import startet danach automatisch (kein separater
    Auslöse-Klick nötig).
 3. **Dateien im Drop-Point** (de: "Dateien im Drop-Point"): drei Reiter mit
-   Live-Zählern — **Eingang** (`pending`, wartet auf Verarbeitung), **Verarbeitet**
-   (`processed`) und **Fehler** (`error`). Jede Zeile zeigt Dateiname, Größe, Datum;
-   der Fehler-Reiter zusätzlich den Ablehnungsgrund sowie **Erneut importieren**
-   (verschiebt die Datei zurück nach Eingang) und **Löschen**. Ein Refresh-Icon
-   aktualisiert die Liste manuell.
+   Live-Zählern. Der Dateistatus steht nur in der Datenbank; die Roh-XML bleibt im
+   Drop-Point-Ordner (Audit und Wiederholung).
+   - **Eingang**: empfangene Dateien und Dateien, die gerade importiert werden, mit
+     Fortschritt (x/y Bestellungen).
+   - **Verarbeitet** (die neuesten 200): Zusammenfassung pro Datei (neu / aktualisiert /
+     unverändert / ersetzt / abgelehnt), Status-Icon (Warn-Icon, wenn einzelne
+     Bestellungen abgelehnt wurden — die abgelehnten Bestellungen mit Grund lassen sich
+     aufklappen), wer die Datei geliefert hat und über welchen Kanal (UI-Upload,
+     Token-Push, Ordner). Eine Datei mit einzelnen abgelehnten Bestellungen ist kein
+     Fehler: die gültigen Bestellungen werden importiert.
+   - **Fehler**: Dateien ohne verwertbaren Inhalt (z. B. kaputtes XML), nach dem Empfang
+     veränderte Dateien und abgebrochene Importe (z. B. durch Neustart; erkannt, wenn
+     10 Minuten lang kein Lebenszeichen kam), jeweils mit Grund sowie **Erneut
+     importieren** und **Löschen**. Erneut importieren prüft den SHA-256-Hash der
+     gespeicherten Datei — wurde sie nach dem Empfang verändert, schlägt sie wieder
+     fehl; eine korrigierte Datei muss neu hochgeladen werden. Löschen entfernt die
+     gespeicherte Datei und blendet die Zeile aus (nur bei Fehler-Einträgen).
+     Ebenfalls unter Fehler, ohne automatischen Import: zu grosse Dateien (über 50 MB)
+     und gespeicherte Dateien ohne Import-Eintrag (z. B. nach einer Wiederherstellung der
+     Datenbank) — Inhalt prüfen, dann erneut importieren oder löschen.
+
+   Ist eine Datei inhaltsgleich mit einer früheren Lieferung, erscheint nur ein
+   Info-Hinweis; importiert wird sie trotzdem. Ein Refresh-Icon aktualisiert die Liste
+   manuell.
 4. **ERP-Anbindung per Push (Zugriffstoken)** (de: "ERP-Anbindung per Push
    (Zugriffstoken)", standardmäßig eingeklappt): nur nötig, wenn ein externes
    ERP-System Dateien per HTTPS direkt anliefert (statt dass ein Mensch sie manuell
@@ -118,9 +138,19 @@ vollständig und minimal).
 - **Qualifikationen werden NICHT importiert** (bewusste Entscheidung) — der Planer
   ergänzt sie beim Versiegeln; ein ERP-Hinweis kann über das `Description`-Feld
   mitgeliefert werden.
-- **Dateien werden archiviert, nie gelöscht**: nach Verarbeitung wandern sie nach
-  `processed/` bzw. `error/`, unabhängig davon ob der Server als lokales Verzeichnis
-  oder S3-kompatiblen Objektspeicher konfiguriert ist (für den Nutzer transparent).
+- **Dateien bleiben liegen, der Status steht in der Datenbank**: jede gelieferte Datei
+  (UI-Upload, Token-Push oder vom ERP in den Drop-Point-Ordner kopiert) erhält einen
+  Eintrag im Import-Protokoll; die Roh-XML bleibt im Drop-Point-Ordner (Audit,
+  Wiederholung) und wird nicht verschoben. Eine vom ERP unter eigenem Namen abgelegte
+  Datei bekommt beim Erfassen eine eindeutige ID als Namenspräfix, damit z. B. eine nächtliche
+  orders.xml keine frühere Lieferung überschreibt. Importiert wird in Lieferreihenfolge
+  (Dateizeitstempel, älteste zuerst), damit eine ältere Lieferung nie eine neuere
+  überschreibt. Unveränderte Bestellungen erneut zu
+  liefern ist kein Fehler (sie zählen als unverändert). Dateien aus den früheren
+  Unterordnern processed, error und processing werden beim nächsten Import-Lauf
+  automatisch übernommen (als Verarbeitet, Fehler bzw. abgebrochen unter Fehler) und in
+  den Drop-Point-Ordner zurückgelegt. Gelöscht wird eine Datei nur über **Löschen** im
+  Fehler-Reiter.
 - **Zeitplan wirkt global**, nicht pro Datei: ein ungültiger Cron-Ausdruck lässt den
   Import komplett stillstehen (kein automatischer Lauf mehr), deshalb validiert die
   Oberfläche den Ausdruck sofort.
@@ -135,11 +165,11 @@ vollständig und minimal).
 ### Typische Aufgaben
 
 - Physischen Ablage-Pfad für die ERP-XML erfragen ("Wo kopiere ich die XML hin?") —
-  Skill `get_erp_drop_point_settings` (aufgelöster absoluter Pfad, Unterordner,
-  Zeitplan)
-- Prüfen, ob der Ablage-Ordner erreichbar/beschreibbar ist und seine Unterordner
-  existieren — Skill `check_erp_drop_point_folder_health`
-- Status abfragen (aktiv, Zeitplan, nächster Lauf, Anzahl Dateien) — Skill
+  Skill `get_erp_drop_point_settings` (aufgelöster absoluter Pfad, Zeitplan)
+- Prüfen, ob der Ablage-Ordner selbst erreichbar/beschreibbar ist (fehlt er, wird er
+  angelegt; Unterordner gibt es keine) — Skill `check_erp_drop_point_folder_health`
+- Status abfragen (aktiv, Zeitplan, nächster Lauf, Anzahl Dateien im Eingang / im Import /
+  verarbeitet / mit Fehler, Zusammenfassung der zuletzt abgeschlossenen Datei) — Skill
   `get_erp_import_status`
 - Import sofort auslösen, statt auf den Zeitplan zu warten — Skill
   `trigger_erp_import_run`

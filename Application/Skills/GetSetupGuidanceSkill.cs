@@ -307,7 +307,7 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
         var dropPoint = await _mediator.Send(new GetDefaultQuery(), cancellationToken);
         if (dropPoint == null)
         {
-            return new ErpRouteFacts(false, null, null, null, null, null, null, null, null, 0);
+            return new ErpRouteFacts(false, null, null, null, null, null, 0);
         }
 
         var normalizedPrefix = ErpImportStorageKeys.NormalizePrefix(dropPoint.BucketPrefix);
@@ -324,9 +324,6 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
             dropPoint.Name,
             dropPoint.IsEnabled,
             absolutePath,
-            ErpImportStorageKeys.ProcessingSegment,
-            ErpImportStorageKeys.ProcessedSegment,
-            ErpImportStorageKeys.ErrorSegment,
             cronExpression,
             timeZoneId,
             tokens.Count);
@@ -380,9 +377,6 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
         string? Name,
         bool? IsEnabled,
         string? AbsolutePath,
-        string? ProcessingFolder,
-        string? ProcessedFolder,
-        string? ErrorFolder,
         string? CronExpression,
         string? TimeZone,
         int TokenCount);

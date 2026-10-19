@@ -185,8 +185,8 @@
       "hash": "CB3E3B901AF9684CC7EB2468F7D7C05894925CE96709ECB193D88BC169898854"
     },
     "check_erp_drop_point_folder_health": {
-      "version": 2,
-      "hash": "41E86B1979587D842C53A22771022A446C142B95AA4AFFC6C056D26132CD6649"
+      "version": 3,
+      "hash": "D81C8079B95C44C1B07F2913614E5DF6500964D6BB01305EA9A3E2990EFE3F7C"
     },
     "check_group_geocoding_status": {
       "version": 3,
@@ -749,8 +749,8 @@
       "hash": "43E105319FF323F2DFAEF5948253091589E5649F02AC397CBA253652C72D6D8A"
     },
     "explain_page_settings_erp_drop_points": {
-      "version": 8,
-      "hash": "C46C82DB3F53E244A6E2CDF81AB1B9DCE32ACC08AF0FA3979C6A9D42961BC466"
+      "version": 9,
+      "hash": "B10D9C5F694EAE9170139B3F46074049C546F24C1C16D12A04EA321586B46B19"
     },
     "explain_page_settings_overview": {
       "version": 11,
@@ -997,12 +997,12 @@
       "hash": "C4471B9133D5EB91D77878CCD8F65C1B3734BA24A124F950D564A93AB68C39D2"
     },
     "get_erp_drop_point_settings": {
-      "version": 6,
-      "hash": "905AB91349BAC002DA7274870055932DD1DEA32F96453085C0148812723A67AF"
+      "version": 7,
+      "hash": "4C4F0759580E98B4A58917698256706C3DC64463CF11439EEA4651B15C7D9995"
     },
     "get_erp_import_status": {
-      "version": 4,
-      "hash": "D714C8673CE6EF642F561B4ACD951125DA9A62AF9B1E7087C13590A2AF11F59B"
+      "version": 5,
+      "hash": "2F8F550B84DD8521965DD7CE4B17287238DAD25C70786E3830062CFA876E9726"
     },
     "get_export_formats_settings": {
       "version": 5,

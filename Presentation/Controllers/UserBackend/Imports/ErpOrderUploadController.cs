@@ -8,6 +8,7 @@
 /// </summary>
 using Klacks.Api.Application.Commands.Imports;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -47,7 +48,10 @@ public class ErpOrderUploadController : ControllerBase
         _logger.LogInformation("[ERP-IMPORT-UPLOAD] Upload for drop point {DropPointId}, file {FileName}", dropPointId, file.FileName.ForLog());
 
         await using var stream = file.OpenReadStream();
-        var key = await _mediator.Send(new UploadErpOrderFileCommand(dropPointId, file.FileName, stream), cancellationToken);
+        var tokenName = User.FindFirst(ErpImportTokenConstants.TokenNameClaimType)?.Value;
+        var key = await _mediator.Send(
+            new UploadErpOrderFileCommand(dropPointId, file.FileName, stream, ErpImportChannel.TokenPush, tokenName),
+            cancellationToken);
 
         return Ok(new { key });
     }

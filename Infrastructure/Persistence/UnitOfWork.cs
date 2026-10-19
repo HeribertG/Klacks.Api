@@ -120,6 +120,11 @@ public class UnitOfWork : IUnitOfWork
         });
     }
 
+    public void DiscardTrackedChanges()
+    {
+        context.ChangeTracker.Clear();
+    }
+
     private sealed class TransactionWrapper : ITransaction
     {
         public IDbContextTransaction Inner { get; }

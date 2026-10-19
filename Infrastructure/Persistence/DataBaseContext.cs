@@ -238,6 +238,8 @@ public class DataBaseContext : IdentityDbContext
     // ERP Drop Point DbSets
     public DbSet<ErpDropPoint> ErpDropPoints { get; set; }
 
+    public DbSet<ErpImportFile> ErpImportFiles { get; set; }
+
     // Agent Architecture DbSets
     public DbSet<Agent> Agents { get; set; }
     public DbSet<AgentSoulSection> AgentSoulSections { get; set; }

@@ -17,7 +17,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.11")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -7666,6 +7666,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("file_key");
 
+                    b.Property<Guid?>("ImportFileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("import_file_id");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -7693,10 +7697,180 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_erp_import_exception");
 
+                    b.HasIndex("ImportFileId")
+                        .HasDatabaseName("ix_erp_import_exception_import_file_id");
+
                     b.HasIndex("ResolvedAt")
                         .HasDatabaseName("ix_erp_import_exception_resolved_at");
 
                     b.ToTable("erp_import_exception", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Imports.ErpImportFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Attempt")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempt");
+
+                    b.Property<int>("Channel")
+                        .HasColumnType("integer")
+                        .HasColumnName("channel");
+
+                    b.Property<string>("ClaimedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("claimed_by");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<Guid>("DropPointId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("drop_point_id");
+
+                    b.Property<Guid?>("DuplicateOfFileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("duplicate_of_file_id");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("failure_reason");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("file_name");
+
+                    b.Property<DateTime?>("FinishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("finished_at");
+
+                    b.Property<DateTime?>("HeartbeatAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("heartbeat_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<int>("NewCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("new_count");
+
+                    b.Property<int>("ProcessedOrders")
+                        .HasColumnType("integer")
+                        .HasColumnName("processed_orders");
+
+                    b.Property<DateTime>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("received_at");
+
+                    b.Property<int>("RejectedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("rejected_count");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("sha256")
+                        .IsFixedLength();
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<string>("SourceSystemId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("source_system_id");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("storage_key");
+
+                    b.Property<int>("SupersededCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("superseded_count");
+
+                    b.Property<int?>("TotalOrders")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_orders");
+
+                    b.Property<int>("UnchangedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("unchanged_count");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int>("UpdatedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("updated_count");
+
+                    b.Property<string>("UploadedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("uploaded_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_erp_import_file");
+
+                    b.HasIndex("DuplicateOfFileId")
+                        .HasDatabaseName("ix_erp_import_file_duplicate_of_file_id");
+
+                    b.HasIndex("StorageKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_erp_import_file_storage_key")
+                        .HasFilter("is_deleted = false");
+
+                    b.HasIndex("DropPointId", "ReceivedAt")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("ix_erp_import_file_drop_point_id_received_at");
+
+                    b.HasIndex("DropPointId", "Sha256")
+                        .HasDatabaseName("ix_erp_import_file_drop_point_id_sha256");
+
+                    b.HasIndex("DropPointId", "Status")
+                        .HasDatabaseName("ix_erp_import_file_drop_point_id_status");
+
+                    b.ToTable("erp_import_file", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Imports.ErpImportToken", b =>
@@ -10353,12 +10527,17 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_shift_scenario_source_shift_id")
                         .HasFilter("scenario_source_shift_id IS NOT NULL AND is_deleted = false");
 
-                    b.HasIndex("SourceSystemId", "ExternalOrderReference")
+                    b.HasIndex("MacroId", "ClientId", "Status", "FromDate", "UntilDate")
+                        .HasDatabaseName("ix_shift_macro_id_client_id_status_from_date_until_date");
+
+                    b.HasIndex(new[] { "SourceSystemId", "ExternalOrderReference" }, "ix_shift_source_system_id_external_order_reference")
                         .HasDatabaseName("ix_shift_source_system_id_external_order_reference")
                         .HasFilter("external_order_reference IS NOT NULL");
 
-                    b.HasIndex("MacroId", "ClientId", "Status", "FromDate", "UntilDate")
-                        .HasDatabaseName("ix_shift_macro_id_client_id_status_from_date_until_date");
+                    b.HasIndex(new[] { "SourceSystemId", "ExternalOrderReference" }, "ux_shift_open_draft_source_system_id_external_order_reference")
+                        .IsUnique()
+                        .HasDatabaseName("ux_shift_open_draft_source_system_id_external_order_reference")
+                        .HasFilter("external_order_reference IS NOT NULL AND is_deleted = false AND status = 0");
 
                     b.ToTable("shift", (string)null);
                 });
@@ -15032,6 +15211,33 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_history_client_client_id");
 
                     b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Imports.ErpImportException", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Imports.ErpImportFile", null)
+                        .WithMany()
+                        .HasForeignKey("ImportFileId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_erp_import_exception_erp_import_files_import_file_id");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Imports.ErpImportFile", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Imports.ErpDropPoint", "DropPoint")
+                        .WithMany()
+                        .HasForeignKey("DropPointId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_erp_import_file_erp_drop_points_drop_point_id");
+
+                    b.HasOne("Klacks.Api.Domain.Models.Imports.ErpImportFile", null)
+                        .WithMany()
+                        .HasForeignKey("DuplicateOfFileId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_erp_import_file_erp_import_file_duplicate_of_file_id");
+
+                    b.Navigation("DropPoint");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Imports.ErpImportToken", b =>

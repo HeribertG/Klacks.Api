@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Maps an ImportedOrderPayload onto a Shift draft. Shared between ErpOrderImportRunner
+/// Maps an ImportedOrderPayload onto a Shift draft. Shared between ImportedOrderProcessor
 /// (create/overwrite an unsealed draft) and OrderSupersessionService (build the replacement
 /// draft after closing a superseded SealedOrder), so the field mapping stays in one place.
 /// </summary>
@@ -69,6 +69,42 @@ public static class ImportedOrderShiftMapper
         }
 
         return Math.Round(TimeRange.ForWorkingTime(order.StartTime, order.EndTime).DurationInHours, WorkTimeHoursDecimals);
+    }
+
+    /// <summary>
+    /// True when applying the payload to an existing unsealed draft would change any field ApplyToDraft
+    /// writes (including Name, Abbreviation, SourceSystemId and ExternalOrderReference). The expected
+    /// values come from ApplyToDraft itself, so a derived field such as Name can never drift from what an
+    /// update would write. Lets the importer skip the write for an unchanged re-delivery and count the
+    /// order as unchanged. Deliberately separate from DiffersFromSealedOrder, which is the supersession
+    /// contract and compares a narrower set of fields.
+    /// </summary>
+    public static bool DiffersFromDraft(Shift draft, ImportedOrderPayload order, Guid clientId)
+    {
+        var expected = new Shift();
+        ApplyToDraft(expected, order, clientId);
+
+        return draft.ClientId != expected.ClientId
+            || !string.Equals(draft.SourceSystemId, expected.SourceSystemId, StringComparison.Ordinal)
+            || !string.Equals(draft.ExternalOrderReference, expected.ExternalOrderReference, StringComparison.Ordinal)
+            || !string.Equals(draft.Name, expected.Name, StringComparison.Ordinal)
+            || !string.Equals(draft.Abbreviation, expected.Abbreviation, StringComparison.Ordinal)
+            || !string.Equals(draft.Description, expected.Description, StringComparison.Ordinal)
+            || draft.WorkTime != expected.WorkTime
+            || draft.FromDate != expected.FromDate
+            || draft.UntilDate != expected.UntilDate
+            || draft.StartShift != expected.StartShift
+            || draft.EndShift != expected.EndShift
+            || draft.IsTimeRange != expected.IsTimeRange
+            || draft.IsMonday != expected.IsMonday
+            || draft.IsTuesday != expected.IsTuesday
+            || draft.IsWednesday != expected.IsWednesday
+            || draft.IsThursday != expected.IsThursday
+            || draft.IsFriday != expected.IsFriday
+            || draft.IsSaturday != expected.IsSaturday
+            || draft.IsSunday != expected.IsSunday
+            || draft.Quantity != expected.Quantity
+            || draft.SumEmployees != expected.SumEmployees;
     }
 
     /// <summary>

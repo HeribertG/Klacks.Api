@@ -65,8 +65,10 @@ public class XmlOrderImportParser : IOrderImportParser
         }
 
         var seenReferences = new HashSet<string>(StringComparer.Ordinal);
+        var orderIndex = -1;
         foreach (var orderElement in root.Elements(ErpImportXmlElements.Order))
         {
+            orderIndex++;
             var errorsBefore = result.Errors.Count;
             var order = ParseOrder(orderElement, sourceSystemId, result.Errors);
             var isValid = result.Errors.Count == errorsBefore;
@@ -88,7 +90,7 @@ public class XmlOrderImportParser : IOrderImportParser
             }
             else
             {
-                StampOrderReference(result.Errors, errorsBefore, order.ExternalOrderReference);
+                StampOrder(result.Errors, errorsBefore, orderIndex, order.ExternalOrderReference);
             }
         }
 
@@ -144,16 +146,16 @@ public class XmlOrderImportParser : IOrderImportParser
             || order.IsFriday || order.IsSaturday || order.IsSunday;
     }
 
-    private static void StampOrderReference(List<OrderImportValidationError> errors, int firstIndex, string externalOrderReference)
+    private static void StampOrder(List<OrderImportValidationError> errors, int firstIndex, int orderIndex, string externalOrderReference)
     {
-        if (string.IsNullOrWhiteSpace(externalOrderReference))
-        {
-            return;
-        }
-
+        var hasReference = !string.IsNullOrWhiteSpace(externalOrderReference);
         for (var i = firstIndex; i < errors.Count; i++)
         {
-            errors[i].ExternalOrderReference = externalOrderReference;
+            errors[i].OrderIndex = orderIndex;
+            if (hasReference)
+            {
+                errors[i].ExternalOrderReference = externalOrderReference;
+            }
         }
     }
 

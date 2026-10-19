@@ -31,12 +31,7 @@ Para la transferencia existen tres vías:
 <h3>Drop-Point</h3>
 <p>
 El Drop-Point es el buzón central para todos los archivos de importación. Klacks lo
-gestiona automáticamente – nadie tiene que crearlo ni configurarlo. La página muestra
-su contenido como una vista de archivos con tres áreas: <strong>Entrada</strong> (a la
-espera de la próxima ejecución de importación), <strong>Procesado</strong> (archivo) y
-<strong>Error</strong> (archivos ilegibles o inválidos junto con el motivo del error).
-Los archivos con error pueden devolverse a la entrada mediante el botón
-<em>Reintentar importación</em>.
+gestiona automáticamente – nadie tiene que crearlo ni configurarlo. La página muestra su contenido como una lista de importaciones con tres áreas: <strong>Entrada</strong> (archivos recibidos o que se están importando, con el progreso), <strong>Procesado</strong> (con un resumen por archivo) y <strong>Error</strong> (archivos ilegibles o inválidos e importaciones interrumpidas, junto con el motivo). Los archivos con error pueden importarse de nuevo mediante el botón <em>Reintentar importación</em>.
 </p>
 <ul>
   <li>
@@ -259,14 +254,19 @@ Klacks asigna cada pedido a un cliente:
 <h3>Gestión de errores y archivo</h3>
 <ul>
   <li>
-    Los archivos procesados se mueven en el almacenamiento a la subcarpeta
-    <code>processed/</code> (archivo, sin eliminación); aparecen en la página de
-    importación en el área <em>Procesado</em>.
+    El archivo original permanece en la carpeta del Drop-Point (para auditoría y
+    reintentos; no se mueve ni se elimina). Su estado se muestra en la página de
+    importación: durante la importación en el área <em>Entrada</em> (con el
+    progreso), después en el área <em>Procesado</em> con un resumen (pedidos nuevos,
+    actualizados, sin cambios y rechazados). Un archivo idéntico a una entrega
+    anterior solo muestra un aviso informativo y se importa igualmente.
   </li>
   <li>
-    Los archivos ilegibles o inválidos se mueven a la subcarpeta <code>error/</code>
-    y aparecen en el área <em>Error</em>; desde allí pueden devolverse a la entrada
-    mediante <em>Reintentar importación</em>.
+    Los archivos ilegibles (p.&nbsp;ej. XML dañado), los archivos modificados
+    después de su recepción y las importaciones interrumpidas aparecen en el área
+    <em>Error</em> con el motivo; desde allí pueden importarse de nuevo mediante
+    <em>Reintentar importación</em> o eliminarse. Un archivo corregido debe cargarse
+    de nuevo.
   </li>
   <li>
     Los pedidos incompletos o inválidos son rechazados (p.&nbsp;ej. sin día de la
@@ -275,8 +275,9 @@ Klacks asigna cada pedido a un cliente:
     pedidos del mismo archivo se importan de todos modos.
   </li>
   <li>
-    Si un archivo contiene al menos un pedido rechazado, se mueve con el motivo del
-    rechazo al área <em>Error</em> — los pedidos ya importados se conservan.
+    Si un archivo contiene al menos un pedido rechazado, aparece igualmente en el
+    área <em>Procesado</em>, marcado con una advertencia: los pedidos válidos se
+    importan y los rechazados se listan con su motivo.
   </li>
   <li>Los errores se registran y se notifica a los administradores.</li>
 </ul>

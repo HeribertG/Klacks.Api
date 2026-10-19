@@ -4,4 +4,4 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Imports;
 
-public record DeleteErpOrderFileCommand(string Key) : IRequest;
+public record DeleteErpOrderFileCommand(Guid Id) : IRequest;

@@ -6,7 +6,8 @@
 /// Work, notifies planners per cancellation, and opens a fresh OriginalOrder draft carrying the
 /// same ExternalOrderReference via SupersedesOrderId. A no-op when the new payload does not
 /// actually differ from the sealed data, so a full nightly ERP extract does not re-trigger this
-/// on every unchanged order.
+/// on every unchanged order. HandleAsync returns true when the order was superseded and false for
+/// that no-op, so the importer can count superseded and unchanged orders apart.
 /// </summary>
 /// <param name="shiftRepository">Closes the sealed order, lists its derived shifts and adds the new draft.</param>
 /// <param name="workRepository">Finds and cancels the future, not-yet-locked Work of the superseded order.</param>
@@ -58,11 +59,11 @@ public class OrderSupersessionService
         _logger = logger;
     }
 
-    public async Task HandleAsync(Shift sealedOrder, ImportedOrderPayload order, Guid clientId, CancellationToken cancellationToken = default)
+    public async Task<bool> HandleAsync(Shift sealedOrder, ImportedOrderPayload order, Guid clientId, CancellationToken cancellationToken = default)
     {
         if (!ImportedOrderShiftMapper.DiffersFromSealedOrder(sealedOrder, order, clientId))
         {
-            return;
+            return false;
         }
 
         var today = await _companyClock.GetTodayDateAsync(cancellationToken);
@@ -113,5 +114,7 @@ public class OrderSupersessionService
                     ShiftGroupScope.For(groupsByShift, work.ShiftId)),
                 cancellationToken);
         }
+
+        return true;
     }
 }

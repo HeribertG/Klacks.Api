@@ -15,6 +15,7 @@ using Klacks.Api.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Klacks.Api.Infrastructure.Extensions;
 
@@ -36,8 +37,16 @@ public static class ErpImportServiceCollectionExtensions
 
         services.AddScoped<ErpCustomerResolver>();
         services.AddScoped<OrderSupersessionService>();
+        services.AddScoped<ImportedOrderProcessor>();
         services.AddScoped<IErpDefaultDropPointProvider, ErpDefaultDropPointProvider>();
         services.AddScoped<IErpImportExceptionRepository, Repositories.Imports.ErpImportExceptionRepository>();
+        services.AddScoped<IErpImportFileRepository, Repositories.Imports.ErpImportFileRepository>();
+        services.AddSingleton<ErpImportInstanceIdentity>();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddScoped<ErpImportFileRegistrar>();
+        services.AddScoped<ErpImportInboxRegistrationService>();
+        services.AddScoped<ErpImportLegacyFolderMigrator>();
+        services.AddScoped<ErpImportFileImporter>();
         services.AddSingleton<ErpImportRunState>();
         services.AddSingleton<ErpCronTimeZoneDriftNotifier>();
         services.AddScoped<IErpOrderImportRunner, ErpOrderImportRunner>();
