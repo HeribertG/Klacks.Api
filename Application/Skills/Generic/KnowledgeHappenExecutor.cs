@@ -35,7 +35,9 @@ public class KnowledgeHappenExecutor
         "This is not optional: the client hides the marker and scrolls the page along so the user sees the " +
         "section being explained; without the markers the user stares at the wrong part of the page. " +
         "Emit a marker only for anchor ids that appear in this content, at most one marker per section, " +
-        "and none when you explain a single topic. " +
+        "and none when you explain a single topic — EXCEPT when the user asks WHERE one control, card or area is " +
+        "or how to get to it: then insert exactly one [SCROLL:anchor-id] marker for that element, using its backticked " +
+        "anchor id from this content, immediately before the sentence that names it. " +
         "Internal entity or technical names (e.g. Work, Break, Expenses, WorkChange, BreakPlaceholder, AnalyseToken, DayLock, " +
         "OriginalOrder, SealedOrder, OriginalShift, SplitShift) are unknown to users: NEVER use them — speak of Diensten, Absenzen, " +
         "Spesen, Korrekturen, vorgeplanten Absenzen, Szenarien, Tagessperren, Bestellungen, versiegelten Bestellungen, planbaren " +
@@ -44,6 +46,17 @@ public class KnowledgeHappenExecutor
         VoiceModeInstructionConstants.DetailCoverageMarker + ", card and control " +
         "the content describes for that page or mask, in its visible order — never summarize controls away or stop after the first fields. " +
         "If the question goes beyond this content, say so instead of inventing details.";
+
+    public const string PageAlreadyOpenInstruction =
+        " Calling this skill has already taken the user to the page it explains: NEVER describe the click path to it " +
+        "(gear icon, menu, settings section, tab) — point at the element with its [SCROLL:anchor-id] marker instead; " +
+        "the client scrolls to it and highlights it, so tell the user it is highlighted on their screen.";
+
+    public const string NoPageAccessInstruction =
+        " This user has NO access to the page this content describes, so the app did not open it: explain only the " +
+        "purpose in one or two sentences, then say that an administrator sets this up and that the user cannot open " +
+        "it. NEVER describe a click path, NEVER claim that anything is opened or highlighted, and insert no " +
+        "[SCROLL:...] markers.";
 
     private const string LevelInstruction =
         " This is the '{0}' depth of a multi-level explanation. If the user wants a shorter overview " +
@@ -66,6 +79,7 @@ public class KnowledgeHappenExecutor
         KnowledgeHappenConfig config,
         Dictionary<string, object>? parameters = null,
         ExplainDepthProfile? depth = null,
+        KnowledgePageAccess pageAccess = KnowledgePageAccess.NoPage,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(config.MemoryKey))
@@ -87,17 +101,27 @@ public class KnowledgeHappenExecutor
             ? null
             : ExtractStages(content, ResolveStages(requestedLevel, depth?.Level ?? ExplainExperienceLevel.Beginner));
 
+        var instruction = AnswerInstruction + NavigationInstruction(pageAccess);
+
         if (levelContent == null)
         {
             return SkillResult.SuccessResult(
                 new { Knowledge = content },
-                AnswerInstruction);
+                instruction);
         }
 
         return SkillResult.SuccessResult(
             new { Knowledge = levelContent.Value.Text, Level = requestedLevel, Stages = levelContent.Value.Stages },
-            AnswerInstruction + string.Format(LevelInstruction, requestedLevel));
+            instruction + string.Format(LevelInstruction, requestedLevel));
     }
+
+    // Without a page the click path may be the only way the user finds the place, so it stays allowed.
+    private static string NavigationInstruction(KnowledgePageAccess pageAccess) => pageAccess switch
+    {
+        KnowledgePageAccess.Open => PageAlreadyOpenInstruction,
+        KnowledgePageAccess.Denied => NoPageAccessInstruction,
+        _ => string.Empty
+    };
 
     /// <summary>
     /// The curated content of a happen as plain text for a caller that grounds its own model turn in it (the gate explain

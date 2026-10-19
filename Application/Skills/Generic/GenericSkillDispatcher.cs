@@ -7,6 +7,7 @@
 /// <param name="listExecutor">Executor for generic list operations</param>
 /// <param name="deleteExecutor">Executor for generic delete operations</param>
 /// <param name="knowledgeHappenExecutor">Executor for curated knowledge happens; receives the caller's explanation depth</param>
+/// <param name="pageAccessResolver">Tells a knowledge happen whether the caller may open the page it explains</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -33,17 +34,20 @@ public class GenericSkillDispatcher : IGenericSkillDispatcher
     private readonly GenericListExecutor _listExecutor;
     private readonly GenericDeleteExecutor _deleteExecutor;
     private readonly KnowledgeHappenExecutor _knowledgeHappenExecutor;
+    private readonly KnowledgePageAccessResolver _pageAccessResolver;
     private readonly ILogger<GenericSkillDispatcher> _logger;
 
     public GenericSkillDispatcher(
         GenericListExecutor listExecutor,
         GenericDeleteExecutor deleteExecutor,
         KnowledgeHappenExecutor knowledgeHappenExecutor,
+        KnowledgePageAccessResolver pageAccessResolver,
         ILogger<GenericSkillDispatcher> logger)
     {
         _listExecutor = listExecutor;
         _deleteExecutor = deleteExecutor;
         _knowledgeHappenExecutor = knowledgeHappenExecutor;
+        _pageAccessResolver = pageAccessResolver;
         _logger = logger;
     }
 
@@ -57,6 +61,7 @@ public class GenericSkillDispatcher : IGenericSkillDispatcher
         string handlerConfig,
         Dictionary<string, object> parameters,
         ExplainDepthProfile? depth,
+        IReadOnlyList<string> userPermissions,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Dispatching generic skill with HandlerType={HandlerType}", handlerType);
@@ -65,7 +70,7 @@ public class GenericSkillDispatcher : IGenericSkillDispatcher
         {
             HandlerTypes.GenericList => await ExecuteListAsync(handlerConfig, parameters, cancellationToken),
             HandlerTypes.GenericDelete => await ExecuteDeleteAsync(handlerConfig, parameters, cancellationToken),
-            HandlerTypes.KnowledgeHappen => await ExecuteKnowledgeHappenAsync(handlerConfig, parameters, depth, cancellationToken),
+            HandlerTypes.KnowledgeHappen => await ExecuteKnowledgeHappenAsync(handlerConfig, parameters, depth, userPermissions, cancellationToken),
             _ => SkillResult.Error($"Unsupported handler type: '{handlerType}'")
         };
     }
@@ -74,13 +79,15 @@ public class GenericSkillDispatcher : IGenericSkillDispatcher
         string handlerConfig,
         Dictionary<string, object> parameters,
         ExplainDepthProfile? depth,
+        IReadOnlyList<string> userPermissions,
         CancellationToken cancellationToken)
     {
         var config = DeserializeConfig<KnowledgeHappenConfig>(handlerConfig);
         if (config == null)
             return SkillResult.Error("Failed to deserialize knowledge-happen handler config.");
 
-        return await _knowledgeHappenExecutor.ExecuteAsync(config, parameters, depth, cancellationToken);
+        var pageAccess = _pageAccessResolver.Resolve(config.PageKey, userPermissions);
+        return await _knowledgeHappenExecutor.ExecuteAsync(config, parameters, depth, pageAccess, cancellationToken);
     }
 
     private async Task<SkillResult> ExecuteListAsync(

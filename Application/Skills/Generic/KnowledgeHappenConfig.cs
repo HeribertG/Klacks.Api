@@ -5,4 +5,6 @@ namespace Klacks.Api.Application.Skills.Generic;
 public class KnowledgeHappenConfig
 {
     public string MemoryKey { get; set; } = string.Empty;
+
+    public string? PageKey { get; set; }
 }

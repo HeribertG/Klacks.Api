@@ -61,7 +61,13 @@ public class GetPageControlsSkill : BaseSkillImplementation
 
         if (controls.Count == 0)
         {
-            return SkillResult.Error($"No controls found for page '{pageKey}'. Use page=\"list\" to see available pages.");
+            // Naming the valid keys right away lets the model correct a guessed key in the same turn,
+            // instead of a page="list" round trip it rarely makes.
+            var pageKeys = await _uiControlRepository.GetDistinctPageKeysAsync(cancellationToken);
+            var available = pageKeys.Count == 0
+                ? "No UI pages registered yet."
+                : $"Registered pages: {string.Join(", ", pageKeys)}.";
+            return SkillResult.Error($"No controls found for page '{pageKey}'. {available}");
         }
 
         var controlDtos = controls.Select(c => new

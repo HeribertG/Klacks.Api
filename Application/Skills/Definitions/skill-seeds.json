@@ -27190,7 +27190,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_planning_divide_et_impera"
+        "memoryKey": "explain_planning_divide_et_impera",
+        "pageKey": "schedule"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -27249,7 +27250,7 @@
         "fr": "Expliquer le principe diviser pour régner",
         "it": "Spiega il principio 'divide et impera'"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_planning_sheets_modular",
@@ -27262,7 +27263,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_planning_sheets_modular"
+        "memoryKey": "explain_planning_sheets_modular",
+        "pageKey": "schedule"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -27316,7 +27318,7 @@
         "fr": "Expliquer les feuilles de planification et références partagées",
         "it": "Spiega i fogli di pianificazione e i riferimenti condivisi"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_planning_assistant",
@@ -27329,7 +27331,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_planning_assistant"
+        "memoryKey": "explain_planning_assistant",
+        "pageKey": "schedule"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -27383,7 +27386,7 @@
         "fr": "Expliquer l'assistant de planification",
         "it": "Spiega l'assistente di pianificazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_macro_editor",
@@ -27396,7 +27399,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_macro_editor"
+        "memoryKey": "explain_macro_editor",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -27457,7 +27461,7 @@
         "fr": "Explication de l'éditeur de macros",
         "it": "Spiegazione dell'editor di macro"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_shift_type_preferences",
@@ -27483,7 +27487,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_shift_type_preferences"
+        "memoryKey": "explain_shift_type_preferences",
+        "pageKey": "schedule"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -27550,7 +27555,7 @@
         "fr": "Expliquer les préférences de type de service",
         "it": "Spiega le preferenze del tipo di turno"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "explain_shift_sporadic",
@@ -27576,7 +27581,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_shift_sporadic"
+        "memoryKey": "explain_shift_sporadic",
+        "pageKey": "shift-list"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -27636,7 +27642,7 @@
         "fr": "Expliquer le service sporadique",
         "it": "Spiega il turno sporadico"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_shift_time_range",
@@ -27662,7 +27668,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_shift_time_range"
+        "memoryKey": "explain_shift_time_range",
+        "pageKey": "shift-list"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -27715,7 +27722,7 @@
         "fr": "Expliquer le service à plage horaire",
         "it": "Spiega il turno a fascia oraria"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_shift_container",
@@ -27741,7 +27748,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_shift_container"
+        "memoryKey": "explain_shift_container",
+        "pageKey": "shift-list"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -27805,7 +27813,7 @@
         "fr": "Expliquer le concept de service conteneur",
         "it": "Spiega il concetto di turno contenitore"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_shift_lifecycle_order_to_shift",
@@ -27831,7 +27839,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_shift_lifecycle_order_to_shift"
+        "memoryKey": "explain_shift_lifecycle_order_to_shift",
+        "pageKey": "new-shift"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -27922,7 +27931,7 @@
         "fr": "Expliquer le cycle de vie commande vers service",
         "it": "Spiega il ciclo di vita da ordine a turno"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "explain_page_dashboard",
@@ -27935,7 +27944,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_dashboard"
+        "memoryKey": "explain_page_dashboard",
+        "pageKey": "dashboard"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -28010,7 +28020,7 @@
         "fr": "Expliquer la page tableau de bord",
         "it": "Spiega la pagina dashboard"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_page_schedule",
@@ -28036,7 +28046,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_schedule"
+        "memoryKey": "explain_page_schedule",
+        "pageKey": "schedule"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -28176,7 +28187,7 @@
         "fr": "Expliquer la page Planning",
         "it": "Spiega la pagina Planning"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "explain_page_absence",
@@ -28201,7 +28212,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_absence"
+        "memoryKey": "explain_page_absence",
+        "pageKey": "absences"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -28302,7 +28314,7 @@
         "fr": "Expliquer la page du calendrier des absences",
         "it": "Spiega la pagina del calendario delle assenze"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "explain_page_availability",
@@ -28328,7 +28340,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_availability"
+        "memoryKey": "explain_page_availability",
+        "pageKey": "client-availability"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -28421,7 +28434,7 @@
         "fr": "Expliquer la page Disponibilité",
         "it": "Spiega la pagina Disponibilità"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "explain_page_shifts",
@@ -28447,7 +28460,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_shifts"
+        "memoryKey": "explain_page_shifts",
+        "pageKey": "shift-list"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -28567,7 +28581,7 @@
         "fr": "Expliquer la page Services",
         "it": "Spiega la pagina Servizi"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "explain_page_employees",
@@ -28593,7 +28607,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_employees"
+        "memoryKey": "explain_page_employees",
+        "pageKey": "client-list"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -28744,7 +28759,7 @@
         "fr": "Expliquer la page Toutes les adresses",
         "it": "Spiega la pagina Tutti gli indirizzi"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "explain_page_groups",
@@ -28770,7 +28785,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_groups"
+        "memoryKey": "explain_page_groups",
+        "pageKey": "group-list"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -28894,7 +28910,7 @@
         "fr": "Expliquer la page Groupes",
         "it": "Spiega la pagina Gruppi"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "explain_page_period_closing",
@@ -28920,7 +28936,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_period_closing"
+        "memoryKey": "explain_page_period_closing",
+        "pageKey": "period-closing"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -29051,7 +29068,7 @@
         "fr": "Expliquer la page de clôture de période",
         "it": "Spiega la pagina di chiusura del periodo"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "explain_page_inbox",
@@ -29077,7 +29094,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_inbox"
+        "memoryKey": "explain_page_inbox",
+        "pageKey": "inbox"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -29229,7 +29247,7 @@
         "fr": "Expliquer la page de la boîte de réception",
         "it": "Spiega la pagina della posta in arrivo"
       },
-      "version": 12
+      "version": 13
     },
     {
       "name": "explain_page_settings_overview",
@@ -29255,7 +29273,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_settings_overview"
+        "memoryKey": "explain_page_settings_overview",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -29361,7 +29380,7 @@
         "fr": "Explication de la page des paramètres",
         "it": "Spiegazione della pagina delle impostazioni"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "explain_page_profile",
@@ -29387,7 +29406,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_profile"
+        "memoryKey": "explain_page_profile",
+        "pageKey": "profile"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -29500,7 +29520,7 @@
         "fr": "Aperçu de la page Mon profil",
         "it": "Panoramica della pagina Il mio profilo"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "start_guided_tour",
@@ -31494,7 +31514,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_page_settings_erp_drop_points"
+        "memoryKey": "explain_page_settings_erp_drop_points",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -31558,7 +31579,7 @@
         "fr": "Explication des paramètres des points de dépôt ERP",
         "it": "Spiegazione delle impostazioni dei punti di consegna ERP"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "add_break_placeholder",
@@ -35326,7 +35347,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_klacksy_autonomy"
+        "memoryKey": "explain_klacksy_autonomy",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -35388,7 +35410,7 @@
         "fr": "Expliquer les niveaux d'autonomie de Klacksy",
         "it": "Spiega i livelli di autonomia di Klacksy"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_klacksy_personality",
@@ -35401,7 +35423,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_klacksy_personality"
+        "memoryKey": "explain_klacksy_personality",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -35468,7 +35491,7 @@
         "fr": "Expliquer la personnalité de Klacksy",
         "it": "Spiega la personalità di Klacksy"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_klacksy_llm_setup",
@@ -35481,7 +35504,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_klacksy_llm_setup"
+        "memoryKey": "explain_klacksy_llm_setup",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -35547,7 +35571,7 @@
         "fr": "Expliquer la configuration LLM de Klacksy",
         "it": "Spiega la configurazione LLM di Klacksy"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_klacksy_learning",
@@ -35560,7 +35584,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_klacksy_learning"
+        "memoryKey": "explain_klacksy_learning",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -35620,7 +35645,7 @@
         "fr": "Expliquer comment Klacksy apprend",
         "it": "Spiega come apprende Klacksy"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "explain_contracts",
@@ -36142,7 +36167,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_email_setup"
+        "memoryKey": "explain_email_setup",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -36210,7 +36236,7 @@
         "fr": "Expliquer la configuration de la messagerie",
         "it": "Spiega la configurazione e-mail"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_absence_model",
@@ -36637,7 +36663,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_navigation_learning"
+        "memoryKey": "explain_navigation_learning",
+        "pageKey": "klacksy-training"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -36693,7 +36720,7 @@
         "fr": "Expliquer l'apprentissage de la navigation",
         "it": "Spiega l'apprendimento della navigazione"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_monthly_target_hours",
@@ -42404,7 +42431,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_scheduling_rules_model"
+        "memoryKey": "explain_scheduling_rules_model",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -42479,7 +42507,7 @@
         "fr": "Expliquer le modèle des règles de planification",
         "it": "Spiega il modello delle regole di pianificazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_compliance_rules_model",
@@ -42607,7 +42635,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_calendar_model"
+        "memoryKey": "explain_calendar_model",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -42679,7 +42708,7 @@
         "fr": "Expliquer le modèle des jours fériés",
         "it": "Spiega il modello dei giorni festivi"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_active_industries",
@@ -42692,7 +42721,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_active_industries"
+        "memoryKey": "explain_active_industries",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -42759,7 +42789,7 @@
         "fr": "Explication des secteurs actifs",
         "it": "Spiegazione dei settori attivi"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_overtime_model",
@@ -42785,7 +42815,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_overtime_model"
+        "memoryKey": "explain_overtime_model",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -42842,7 +42873,7 @@
         "fr": "Expliquer le modèle d'heures supplémentaires",
         "it": "Spiega il modello degli straordinari"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_identity_providers",
@@ -42868,7 +42899,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_identity_providers"
+        "memoryKey": "explain_identity_providers",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -42928,7 +42960,7 @@
         "fr": "Connexion via annuaire ou SSO",
         "it": "Accesso tramite directory o SSO"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_individual_periods",
@@ -42941,7 +42973,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_individual_periods"
+        "memoryKey": "explain_individual_periods",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -42992,7 +43025,7 @@
         "fr": "Expliquer les schémas de période individuels",
         "it": "Spiega gli schemi di periodo individuali"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_export_formats_model",
@@ -43018,7 +43051,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_export_formats_model"
+        "memoryKey": "explain_export_formats_model",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -43083,7 +43117,7 @@
         "fr": "Expliquer les formats d'export pour la paie et la comptabilité",
         "it": "Spiega i formati di esportazione per paghe e contabilità"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_report_designer",
@@ -43109,7 +43143,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_report_designer"
+        "memoryKey": "explain_report_designer",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -43172,7 +43207,7 @@
         "fr": "Explication du concepteur de rapports",
         "it": "Spiegazione del designer di report"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_spam_rules",
@@ -43185,7 +43220,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_spam_rules"
+        "memoryKey": "explain_spam_rules",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -43246,7 +43282,7 @@
         "fr": "Expliquer les règles anti-spam",
         "it": "Spiega le regole antispam"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_surcharge_mode",
@@ -43272,7 +43308,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_surcharge_mode"
+        "memoryKey": "explain_surcharge_mode",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -43332,7 +43369,7 @@
         "fr": "Expliquer le mode de majoration",
         "it": "Spiega la modalità di maggiorazione"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_software_updates",
@@ -43358,7 +43395,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_software_updates"
+        "memoryKey": "explain_software_updates",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -43419,7 +43457,7 @@
         "fr": "Expliquer les mises à jour logicielles",
         "it": "Spiega gli aggiornamenti software"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_klacksy_speech_setup",
@@ -43445,7 +43483,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_klacksy_speech_setup"
+        "memoryKey": "explain_klacksy_speech_setup",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -43511,7 +43550,7 @@
         "fr": "Expliquer la configuration vocale de Klacksy",
         "it": "Spiega la configurazione vocale di Klacksy"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_whisper_setup",
@@ -43524,7 +43563,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_whisper_setup"
+        "memoryKey": "explain_whisper_setup",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -43582,7 +43622,7 @@
         "fr": "Expliquer la reconnaissance vocale locale (Whisper)",
         "it": "Spiega il riconoscimento vocale locale (Whisper)"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_klacksy_skill_relations",
@@ -43608,7 +43648,8 @@
       "handlerType": "knowledge-happen",
       "effect": "Explain",
       "handlerConfig": {
-        "memoryKey": "explain_klacksy_skill_relations"
+        "memoryKey": "explain_klacksy_skill_relations",
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -43666,7 +43707,7 @@
         "fr": "Expliquer les relations entre compétences de Klacksy",
         "it": "Spiega le relazioni tra abilità di Klacksy"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "set_my_theme",
@@ -44943,7 +44984,8 @@
         }
       ],
       "handlerConfig": {
-        "memoryKey": "explain_absence_type_flags"
+        "memoryKey": "explain_absence_type_flags",
+        "pageKey": "settings"
       },
       "handlerType": "knowledge-happen",
       "effect": "Explain",
@@ -44962,7 +45004,7 @@
           "unpaid keeps unchecking"
         ]
       },
-      "version": 5,
+      "version": 6,
       "synonyms": {
         "de": [
           "was bewirkt samstag wird berechnet",
@@ -45467,7 +45509,8 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerConfig": {
-        "memoryKey": "explain_personal_access_tokens"
+        "memoryKey": "explain_personal_access_tokens",
+        "pageKey": "settings"
       },
       "handlerType": "knowledge-happen",
       "effect": "Explain",
@@ -45486,7 +45529,7 @@
           "token validity"
         ]
       },
-      "version": 3,
+      "version": 4,
       "synonyms": {
         "de": [
           "token hat dieselben rechte wie login",
@@ -46406,7 +46449,8 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerConfig": {
-        "memoryKey": "explain_payroll_export_handoff"
+        "memoryKey": "explain_payroll_export_handoff",
+        "pageKey": "period-closing"
       },
       "handlerType": "knowledge-happen",
       "effect": "Explain",
@@ -46427,7 +46471,7 @@
           "payroll add-on"
         ]
       },
-      "version": 4,
+      "version": 5,
       "synonyms": {
         "de": [
           "warum fehlt die lohndatei nach dem versiegeln",

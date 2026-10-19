@@ -13,5 +13,6 @@ public interface IGenericSkillDispatcher
         string handlerConfig,
         Dictionary<string, object> parameters,
         ExplainDepthProfile? depth,
+        IReadOnlyList<string> userPermissions,
         CancellationToken cancellationToken = default);
 }

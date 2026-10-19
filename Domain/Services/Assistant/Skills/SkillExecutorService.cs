@@ -189,7 +189,7 @@ public class SkillExecutorService : ISkillExecutor
                     descriptor.HandlerType!,
                     descriptor.HandlerConfig,
                     invocation.Parameters,
-                    context.ExplainDepth,
+                    context.ExplainDepth, context.UserPermissions,
                     cancellationToken);
             }
             else if (descriptor.ImplementationType != null)
