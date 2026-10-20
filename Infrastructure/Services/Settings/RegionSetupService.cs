@@ -2497,8 +2497,6 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
 
     private static string FormatDecimal(decimal? value) => ImportFieldFormatter.Decimal(value);
 
-    private static string FormatInt(int? value) => ImportFieldFormatter.Int(value);
-
     private static string FormatBool(bool? value) => ImportFieldFormatter.Bool(value);
 
     private static void RequireNonNegative(decimal? value, string fieldName)

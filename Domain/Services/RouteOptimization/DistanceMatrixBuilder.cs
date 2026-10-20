@@ -272,18 +272,6 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         };
     }
 
-    private string GetOsrmProfile(ContainerTransportMode transportMode)
-    {
-        return transportMode switch
-        {
-            ContainerTransportMode.ByCar => "driving",
-            ContainerTransportMode.ByBicycle => "cycling",
-            ContainerTransportMode.ByFoot => "foot",
-            ContainerTransportMode.Mix => "driving",
-            _ => "driving"
-        };
-    }
-
     private double GetSpeedForTransportMode(ContainerTransportMode transportMode)
     {
         return transportMode switch

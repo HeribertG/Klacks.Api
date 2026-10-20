@@ -28,11 +28,6 @@ public class RecipeSlotExtractor
     // leaves only a truncated fragment of the JSON (observed: a tiny tail like '6" -> "2026-0').
     private const int ExtractionMaxTokens = 2000;
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-
     private readonly ILogger<RecipeSlotExtractor> _logger;
 
     public RecipeSlotExtractor(ILogger<RecipeSlotExtractor> logger)

@@ -11,7 +11,6 @@ using Klacks.Api.Domain.Models.Assistant.Recipes;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Klacks.Api.KnowledgeIndex.Domain;
-using Klacks.Api.KnowledgeIndex.Presentation.Attributes;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.KnowledgeIndex.Application.Services;
@@ -177,7 +176,6 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
 
         foreach (var skill in skills)
         {
-            var exposedEndpointKey = GetExposedEndpointKey(skill);
             var embeddingText = BuildEmbeddingText(
                 skill,
                 GetPhrases(phraseSets, SkillPhraseOwnerKinds.Skill, skill.Name));
@@ -202,7 +200,7 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
                 Text = embeddingText,
                 TextHash = textHash,
                 RequiredPermission = requiredPermission,
-                ExposedEndpointKey = exposedEndpointKey,
+                ExposedEndpointKey = null,
                 UpdatedAt = DateTime.UtcNow
             }, embeddingText));
         }
@@ -235,17 +233,6 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
     // every stored entry and force a full re-embed in the active provider's space.
     private byte[] ComputeTextHash(string embeddingText) =>
         SHA256.HashData(Encoding.UTF8.GetBytes(_embeddingProvider.EmbeddingSpaceId + "\n" + embeddingText));
-
-    private static string? GetExposedEndpointKey(SkillDescriptor skill)
-    {
-        if (skill.ImplementationType is null) return null;
-
-        return skill.ImplementationType
-            .GetCustomAttributes(typeof(ExposesEndpointAttribute), false)
-            .Cast<ExposesEndpointAttribute>()
-            .FirstOrDefault()
-            ?.EndpointKey;
-    }
 
     private static IndexPhraseSet GetPhrases(
         IReadOnlyDictionary<(string OwnerKind, string OwnerName), IndexPhraseSet> phraseSets,

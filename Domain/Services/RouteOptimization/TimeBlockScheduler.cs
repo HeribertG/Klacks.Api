@@ -9,7 +9,6 @@ namespace Klacks.Api.Domain.Services.RouteOptimization;
 
 public static class TimeBlockScheduler
 {
-    private const double SecondsPerMinute = 60.0;
     private const double SecondsPerDay = 86400.0;
 
     public static double SkipOverUnmovableBlocks(double timeSeconds, List<TimeBlock> unmovableBlocks)

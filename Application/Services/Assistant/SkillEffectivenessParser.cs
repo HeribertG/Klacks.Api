@@ -14,8 +14,6 @@ namespace Klacks.Api.Application.Services.Assistant;
 
 public static class SkillEffectivenessParser
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
-
     internal static List<SkillEffectivenessSourceRow> DistributeChosenSources(
         IEnumerable<(string? ChosenSkill, string CandidatesJson)> trajectories)
     {
