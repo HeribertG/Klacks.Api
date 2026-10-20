@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.Constants
 {
     public class Settings
@@ -57,7 +59,7 @@ namespace Klacks.Api.Application.Constants
 
         public const string PROMPT_TRANSLATIONS_PREFIX = "PROMPT_TRANSLATIONS_";
 
-        public const string LLM_FALLBACK_MODEL_ID = "claude-sonnet-5";
+        public const string LLM_FALLBACK_MODEL_ID = LLMModelDefaults.FallbackModelId;
 
         public const string APP_INCOMING_SERVER = "incomingserver";
         public const string APP_INCOMING_SERVER_PORT = "incomingserverPort";
@@ -80,11 +82,11 @@ namespace Klacks.Api.Application.Constants
         public const string INBOUND_CLARIFICATION_ENABLED = "INBOUND_CLARIFICATION_ENABLED";
 
         public const string DEEPL_API_KEY = "DEEPL_API_KEY";
-        public const string OPENROUTESERVICE_API_KEY = "OPENROUTESERVICE_API_KEY";
+        public const string OPENROUTESERVICE_API_KEY = SettingKeys.OpenRouteServiceApiKey;
 
-        public const string ROUTE_MIN_TRAVEL_TIME_BY_CAR = "ROUTE_MIN_TRAVEL_TIME_BY_CAR";
-        public const string ROUTE_MIN_TRAVEL_TIME_BY_BICYCLE = "ROUTE_MIN_TRAVEL_TIME_BY_BICYCLE";
-        public const string ROUTE_MIN_TRAVEL_TIME_BY_FOOT = "ROUTE_MIN_TRAVEL_TIME_BY_FOOT";
+        public const string ROUTE_MIN_TRAVEL_TIME_BY_CAR = SettingKeys.RouteMinTravelTimeByCar;
+        public const string ROUTE_MIN_TRAVEL_TIME_BY_BICYCLE = SettingKeys.RouteMinTravelTimeByBicycle;
+        public const string ROUTE_MIN_TRAVEL_TIME_BY_FOOT = SettingKeys.RouteMinTravelTimeByFoot;
 
         public const string INSTALLED_LANGUAGE_PREFIX = "INSTALLED_LANGUAGE_";
 

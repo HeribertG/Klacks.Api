@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
-using AppSettings = Klacks.Api.Application.Constants.Settings;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -72,6 +72,6 @@ public class LLMProviderOrchestrator
     private async Task<string> GetDefaultModelIdAsync()
     {
         var defaultModel = await _repository.GetDefaultModelAsync();
-        return defaultModel?.ModelId ?? AppSettings.LLM_FALLBACK_MODEL_ID;
+        return defaultModel?.ModelId ?? LLMModelDefaults.FallbackModelId;
     }
 }

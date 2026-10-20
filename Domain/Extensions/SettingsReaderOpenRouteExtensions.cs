@@ -8,6 +8,7 @@
 /// <param name="settingsReader">Read-only settings access (or any repository extending it).</param>
 /// <param name="encryptionService">Decrypts the stored setting value.</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
 
 namespace Klacks.Api.Domain.Extensions;
@@ -18,7 +19,7 @@ public static class SettingsReaderOpenRouteExtensions
         this ISettingsReader settingsReader,
         ISettingsEncryptionService encryptionService)
     {
-        var setting = await settingsReader.GetSetting(Application.Constants.Settings.OPENROUTESERVICE_API_KEY);
+        var setting = await settingsReader.GetSetting(SettingKeys.OpenRouteServiceApiKey);
         if (setting == null || string.IsNullOrEmpty(setting.Value))
         {
             return null;

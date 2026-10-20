@@ -713,9 +713,9 @@ public class ContainerAutofillService : IContainerAutofillService
     {
         var settingKey = transportMode switch
         {
-            ContainerTransportMode.ByBicycle => Application.Constants.Settings.ROUTE_MIN_TRAVEL_TIME_BY_BICYCLE,
-            ContainerTransportMode.ByFoot => Application.Constants.Settings.ROUTE_MIN_TRAVEL_TIME_BY_FOOT,
-            _ => Application.Constants.Settings.ROUTE_MIN_TRAVEL_TIME_BY_CAR
+            ContainerTransportMode.ByBicycle => Constants.SettingKeys.RouteMinTravelTimeByBicycle,
+            ContainerTransportMode.ByFoot => Constants.SettingKeys.RouteMinTravelTimeByFoot,
+            _ => Constants.SettingKeys.RouteMinTravelTimeByCar
         };
 
         var setting = await _settingsReader.GetSetting(settingKey);

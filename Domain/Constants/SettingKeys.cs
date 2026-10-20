@@ -153,4 +153,10 @@ public static class SettingKeys
     public const string OvertimeTier2Rate = "OVERTIME_TIER2_RATE";
     public const string OvertimeTier3AfterHours = "OVERTIME_TIER3_AFTER_HOURS";
     public const string OvertimeTier3Rate = "OVERTIME_TIER3_RATE";
+
+    public const string OpenRouteServiceApiKey = "OPENROUTESERVICE_API_KEY";
+
+    public const string RouteMinTravelTimeByCar = "ROUTE_MIN_TRAVEL_TIME_BY_CAR";
+    public const string RouteMinTravelTimeByBicycle = "ROUTE_MIN_TRAVEL_TIME_BY_BICYCLE";
+    public const string RouteMinTravelTimeByFoot = "ROUTE_MIN_TRAVEL_TIME_BY_FOOT";
 }
