@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-namespace Klacks.Api.Presentation.Controllers.UserBackend;
+namespace Klacks.Api.Application.Interfaces;
 
 /// <summary>
 /// Marks a controller as the REST endpoint that serves TResource, so SelfApiRouteResolver can map the

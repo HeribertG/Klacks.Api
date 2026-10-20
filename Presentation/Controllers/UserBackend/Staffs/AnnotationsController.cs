@@ -17,6 +17,7 @@
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Staffs;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.Annotation;
 using Klacks.Api.Domain.Constants;

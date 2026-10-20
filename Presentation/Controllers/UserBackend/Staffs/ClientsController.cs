@@ -23,6 +23,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Clients;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Staffs;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Domain.Constants;

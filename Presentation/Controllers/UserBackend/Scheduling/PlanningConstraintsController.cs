@@ -13,6 +13,7 @@
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.PlanningConstraints;
 using Klacks.Api.Application.DTOs.Scheduling;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.PlanningConstraints;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;

@@ -11,8 +11,8 @@
 /// </summary>
 
 using System.Reflection;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
-using Klacks.Api.Presentation.Controllers.UserBackend;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
@@ -27,7 +27,7 @@ public sealed class SelfApiRouteResolver : ISelfApiRouteResolver
 
     public SelfApiRouteResolver()
     {
-        _routesByResource = BuildMap(typeof(InputBaseController<>).Assembly);
+        _routesByResource = BuildMap(typeof(SelfApiRouteResolver).Assembly);
     }
 
     public string Resolve(Type resourceType)

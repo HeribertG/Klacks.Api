@@ -18,6 +18,7 @@
 /// <typeparam name="TModel">The resource DTO this controller serves</typeparam>
 
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;

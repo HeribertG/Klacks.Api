@@ -12,6 +12,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.BreakPlaceholders;
 using Klacks.Api.Domain.DTOs.Filter;
