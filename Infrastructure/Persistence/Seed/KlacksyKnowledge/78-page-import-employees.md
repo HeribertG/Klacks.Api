@@ -132,11 +132,10 @@ fr: "Importer un autre fichier", it: "Importa un altro file") closes the window 
 
 ### Closing the window
 
-The × at the top right and the Esc key close the window. During mapping and preview nothing has been
-saved yet, so the window first asks at its bottom whether the import should be thrown away; the
-answer **Keep editing** (de: "Weiter bearbeiten", en: "Keep editing", fr: "Continuer l’édition",
-it: "Continua a modificare") keeps it open. While the import is being saved the window cannot be
-closed. After closing, the card shows the upload zone again.
+The × at the top right and the Esc key close the window immediately, without asking. During mapping and
+preview nothing has been saved yet, so closing simply discards the import. A click outside the window
+does nothing. While the import is being saved the window cannot be closed. After closing, the card shows
+the upload zone again.
 
 <!-- level:effects -->
 
