@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// EF Core configuration for the ContainerTemplateItem-Entity with query filter, relationshipen and check constraint.
+/// EF Core configuration for the ContainerTemplateItem entity with query filter, relationships and check constraint.
 /// </summary>
-/// <param name="builder">Konfiguriert ContainerTemplate-, Shift- und Absence-Beziehungen sowie XOR-Constraint</param>
+/// <param name="builder">Configures the ContainerTemplate, Shift and Absence relationships and the XOR constraint</param>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

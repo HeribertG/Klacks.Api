@@ -59,8 +59,6 @@ namespace Klacks.Api.Application.Constants
 
         public const string PROMPT_TRANSLATIONS_PREFIX = "PROMPT_TRANSLATIONS_";
 
-        public const string LLM_FALLBACK_MODEL_ID = LLMModelDefaults.FallbackModelId;
-
         public const string APP_INCOMING_SERVER = "incomingserver";
         public const string APP_INCOMING_SERVER_PORT = "incomingserverPort";
         public const string APP_INCOMING_SERVER_USERNAME = "incomingserverUsername";

@@ -5,9 +5,9 @@
 /// </summary>
 /// <param name="dateRangeFilterService">Filters shifts by date range (active, past, future)</param>
 /// <param name="searchService">Filters shifts by search term</param>
-/// <param name="sortingService">Sortiert Shifts nach Spalte und Richtung</param>
-/// <param name="statusFilterService">Filtert Shifts nach Status (Original, SealedOrder etc.)</param>
-/// <param name="paginationService">Paginiert die gefilterte Query</param>
+/// <param name="sortingService">Sorts shifts by column and direction</param>
+/// <param name="statusFilterService">Filters shifts by status (Original, SealedOrder etc.)</param>
+/// <param name="paginationService">Paginates the filtered query</param>
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Domain.Enums;

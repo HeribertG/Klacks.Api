@@ -10,10 +10,10 @@
 /// <param name="geocodingService">Service for address geocoding</param>
 /// <param name="routeDirectionsBuilder">Retrieves turn-by-turn directions for the final route segments</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Schedules;
-using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Schedules;
 
@@ -713,9 +713,9 @@ public class ContainerAutofillService : IContainerAutofillService
     {
         var settingKey = transportMode switch
         {
-            ContainerTransportMode.ByBicycle => Constants.SettingKeys.RouteMinTravelTimeByBicycle,
-            ContainerTransportMode.ByFoot => Constants.SettingKeys.RouteMinTravelTimeByFoot,
-            _ => Constants.SettingKeys.RouteMinTravelTimeByCar
+            ContainerTransportMode.ByBicycle => SettingKeys.RouteMinTravelTimeByBicycle,
+            ContainerTransportMode.ByFoot => SettingKeys.RouteMinTravelTimeByFoot,
+            _ => SettingKeys.RouteMinTravelTimeByCar
         };
 
         var setting = await _settingsReader.GetSetting(settingKey);
