@@ -2,7 +2,6 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

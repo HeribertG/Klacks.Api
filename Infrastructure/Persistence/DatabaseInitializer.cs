@@ -13,7 +13,6 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Data.Seed;
-using Klacks.Api.Infrastructure.Persistence.Seed.Demo;
 using Klacks.Api.Infrastructure.Persistence.StoredProcedures;
 using Klacks.Api.Infrastructure.Services.Settings;
 using Microsoft.EntityFrameworkCore;
@@ -21,13 +20,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace Klacks.Api.Infrastructure.Persistence;
-
-public interface IDatabaseInitializer
-{
-    Task InitializeAsync();
-
-    Task SeedDataAsync();
-}
 
 public class DatabaseInitializer : IDatabaseInitializer
 {
@@ -251,18 +243,5 @@ public class DatabaseInitializer : IDatabaseInitializer
             source);
 
         return (seedDemoData, seedDemoShiftsAndGroups, language);
-    }
-}
-
-public static class DatabaseInitializerExtensions
-{
-    public static IServiceCollection AddDatabaseInitializer(this IServiceCollection services)
-    {
-        services.AddStoredProcedureInitializer();
-        services.AddScoped<IIdentityProviderSecretBackfill, IdentityProviderSecretBackfill>();
-        services.AddScoped<IDemoOrderXmlGenerator, DemoOrderXmlGenerator>();
-        services.AddScoped<IDemoOrderSeedFileWriter, DemoOrderSeedFileWriter>();
-        services.AddScoped<IDatabaseInitializer, DatabaseInitializer>();
-        return services;
     }
 }
