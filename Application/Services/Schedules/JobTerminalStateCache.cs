@@ -3,9 +3,6 @@
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
 
 namespace Klacks.Api.Application.Services.Schedules;
 
@@ -15,16 +12,14 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// live in the database rather than in process memory, because a poll may reach a different API
 /// instance than the one that ran the job; from there an in-process cache answers "unknown", which a
 /// client cannot tell apart from an expired entry, and the failure reason is gone. Entries expire
-/// after <see cref="TtlMinutes"/> minutes. Resolves its own scope per call so the surrounding
-/// registration can stay a singleton that background runners hold for their lifetime.
+/// after <see cref="TtlMinutes"/> minutes. Resolves the scoped IJobTerminalStateStore from its own
+/// scope per call so the surrounding registration can stay a singleton that background runners hold
+/// for their lifetime.
 /// </summary>
 /// <typeparam name="TResult">Result DTO stored for completed jobs.</typeparam>
 public sealed class JobTerminalStateCache<TResult>
     where TResult : class
 {
-    // Postgres SQLSTATE for a unique violation, locale-independent unlike the message text.
-    private const string UniqueViolationSqlState = "23505";
-
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<JobTerminalStateCache<TResult>> _logger;
 
@@ -61,15 +56,13 @@ public sealed class JobTerminalStateCache<TResult>
         try
         {
             using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+            var store = scope.ServiceProvider.GetRequiredService<IJobTerminalStateStore>();
 
             // Reading deliberately does not evict: two concurrent polls would race over the same
             // expired rows, and the loser's delete -- affecting no rows any more -- would surface as a
             // concurrency failure and answer "unknown" for a job whose row is right there. The expiry
             // check below is what makes a stale row invisible; removing it is the writer's job.
-            var row = await context.JobTerminalStates
-                .AsNoTracking()
-                .FirstOrDefaultAsync(r => r.JobId == jobId, cancellationToken);
+            var row = await store.FindAsync(jobId, cancellationToken);
 
             if (row == null || row.ExpiresAtUtc <= DateTime.UtcNow)
             {
@@ -104,11 +97,11 @@ public sealed class JobTerminalStateCache<TResult>
     private async Task StoreCoreAsync(Guid jobId, string status, TResult? result, string? reason, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+        var store = scope.ServiceProvider.GetRequiredService<IJobTerminalStateStore>();
 
-        await EvictExpiredAsync(context, cancellationToken);
+        await store.EvictExpiredAsync(DateTime.UtcNow, cancellationToken);
 
-        await context.JobTerminalStates.AddAsync(
+        var stored = await store.TryAddAsync(
             new JobTerminalStateRow
             {
                 Id = Guid.NewGuid(),
@@ -120,23 +113,15 @@ public sealed class JobTerminalStateCache<TResult>
             },
             cancellationToken);
 
-        try
-        {
-            await context.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException exception) when (IsDuplicateJob(exception))
+        if (!stored)
         {
             // First terminal state wins, enforced by the unique index on JobId. Job ids are unique per
             // run, so a second store can only come from a late failure path -- a completed run must
-            // never end up reported as failed. Narrowed to the unique violation on purpose: any other
-            // write failure is a real problem and belongs in the log, not silently treated as a
-            // duplicate that never happened.
+            // never end up reported as failed. The store narrows this to the unique violation on
+            // purpose: any other write failure is a real problem and reaches the log below.
             _logger.LogDebug("Job {JobId} already carries a terminal state; keeping the first one", jobId);
         }
     }
-
-    private static bool IsDuplicateJob(DbUpdateException exception) =>
-        (exception.InnerException as PostgresException)?.SqlState == UniqueViolationSqlState;
 
     private void LogStoreFailure(Exception exception, Guid jobId, string status)
     {
@@ -145,31 +130,5 @@ public sealed class JobTerminalStateCache<TResult>
         // Losing the record costs a status poll, which is what the situation looked like before this
         // store existed at all.
         _logger.LogError(exception, "Could not record job {JobId} as {Status}", jobId, status);
-    }
-
-    private static async Task EvictExpiredAsync(DataBaseContext context, CancellationToken cancellationToken)
-    {
-        var utcNow = DateTime.UtcNow;
-        var expired = await context.JobTerminalStates
-            .Where(r => r.ExpiresAtUtc <= utcNow)
-            .ToListAsync(cancellationToken);
-
-        if (expired.Count == 0)
-        {
-            return;
-        }
-
-        context.JobTerminalStates.RemoveRange(expired);
-
-        try
-        {
-            await context.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            // Another writer removed the same expired rows first. Housekeeping, not the caller's
-            // concern -- and it must not fail the store operation this eviction merely precedes.
-            context.ChangeTracker.Clear();
-        }
     }
 }
