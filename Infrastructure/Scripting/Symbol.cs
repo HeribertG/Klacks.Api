@@ -5,16 +5,14 @@ namespace Klacks.Api.Infrastructure.Scripting
     public class Symbol
     {
 
-        // Symbol: Ein Symbol-Objekt steht immer für 1 im Quelltext
-        // erkanntes Symbol, z.B. math. Operator, Identifier, vordefinierte
-        // Symbole ("FOR", "SUB" usw.).
+        // Symbol: a Symbol object always stands for one symbol recognized in the source text,
+        // e.g. a math operator, an identifier or a predefined symbol ("FOR", "SUB", etc.).
 
-        // Jedes Symbol bzw. jede Symbolklasse wird über ein
-        // sog. token für den schnellen Vergleich identifiziert.
+        // Every symbol or symbol class is identified by a token for fast comparison.
 
-        // Bei simplen Symbolen wie "+" reicht für die weitere Verarbeitung
-        // das token. Bei Identifier jedoch wird immer auch der Name benötigt.
-        // Im Symbol sind daher token, textuelle Repräsentation und Wert vereint.
+        // For simple symbols such as "+" the token is enough for further processing, but an
+        // identifier always needs its name as well. A Symbol therefore combines the token, the
+        // textual representation and the value.
 
 
         public enum Tokens

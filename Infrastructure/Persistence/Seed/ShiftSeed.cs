@@ -458,7 +458,7 @@ INSERT INTO public.shift (
             script.AppendLine("-- Stattdessen: 3 eigenständige SplitShifts als Geschwister (parent_id=NULL, root_id=SealedOrder, lft=1, rgt=2)");
             for (int i = 1; i <= 20; i++)
             {
-                var orderId = Guid.NewGuid(); // EINE ID für Order (wird von Status 0 -> 1 updated)
+                var orderId = Guid.NewGuid(); // ONE id for the order (kept when its status moves from 0 to 1)
                 var definition = definitions[DemoOrderCategory.TwentyFourHourShift][i - 1];
                 var employees = definition.SumEmployees;
                 var startShift = FormatShiftTime(definition.StartShift);
@@ -880,10 +880,10 @@ INSERT INTO public.shift (
 
             foreach (var shiftId in shiftIds)
             {
-                // Hole die zugewiesenen Gruppen aus dem Mapping
+                // Look up the assigned groups in the mapping
                 if (!ShiftGroupMappings.TryGetValue(shiftId, out var cantonNames))
                 {
-                    continue; // Shift hat keine Gruppen-Zuordnung
+                    continue; // Shift has no group assignment
                 }
 
                 foreach (var cantonName in cantonNames)

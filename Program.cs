@@ -93,7 +93,7 @@ builder.Services.AddOpenApi("v1", options =>
     {
         document.Info.Title = "Klacks-Net API";
         document.Info.Version = "v1";
-        document.Info.Description = "API für Klacks-Net Anwendung";
+        document.Info.Description = "API of the Klacks-Net application";
         return Task.CompletedTask;
     });
 });
@@ -680,8 +680,7 @@ app.UseEndpoints(endpoints =>
     }
 );
 
-// Optional: Datenbank automatisch initialisieren beim Start
-// Kann über appsettings.json gesteuert werden
+// Optional: initialize the database on startup, controlled by Database:InitializeOnStartup in appsettings.json
 if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
 {
     using (var scope = app.Services.CreateScope())
