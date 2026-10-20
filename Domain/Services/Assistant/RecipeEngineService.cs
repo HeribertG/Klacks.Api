@@ -116,10 +116,22 @@ public class RecipeEngineService
     /// not call and nothing else could be offered, the plan is null and the denial names the recipe and the missing
     /// rights. Same parameters as ResolveAsync.
     /// </summary>
-    public async Task<RecipeResolution> ResolveWithDenialAsync(
+    public Task<RecipeResolution> ResolveWithDenialAsync(
         string? message, string? language = null,
         IReadOnlyCollection<string>? userRights = null, CancellationToken cancellationToken = default,
-        string? excludedRecipeName = null)
+        string? excludedRecipeName = null) =>
+        ResolveWithDenialAsync(message, language, userRights, excludedRecipeName, allowSemanticFallback: true, cancellationToken);
+
+    /// <summary>
+    /// ResolveWithDenialAsync with the semantic fallback switchable. False restricts matching to the deterministic
+    /// keyword trigger: used for the reply that turned down a pending confirmation, where a similarity score over a
+    /// short follow-up ("pick them yourself") says nothing about a new request and used to start an unrelated flow.
+    /// Full arity and no defaults on purpose, for the same overload-rebinding reason as GuaranteedSkillNamesAsync.
+    /// </summary>
+    public async Task<RecipeResolution> ResolveWithDenialAsync(
+        string? message, string? language,
+        IReadOnlyCollection<string>? userRights, string? excludedRecipeName,
+        bool allowSemanticFallback, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -130,7 +142,8 @@ public class RecipeEngineService
         var repository = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
         var recipes = await repository.GetAllEnabledAsync(cancellationToken);
 
-        var match = await FindMatchingRecipeAsync(scope, recipes, message, language, userRights, cancellationToken, excludedRecipeName);
+        var match = await FindMatchingRecipeAsync(
+            scope, recipes, message, language, userRights, cancellationToken, excludedRecipeName, allowSemanticFallback);
         var recipe = match.Recipe;
         if (recipe == null)
         {
@@ -613,10 +626,20 @@ public class RecipeEngineService
     /// The subject gate on the semantic fallback, shared by the candidate and the alternative. Passes the
     /// recipe's pack anchors of every installed language: the request language is the UI language, so a
     /// Spanish message from a German UI can only be anchored through the Spanish pack.
+    /// A trigger marked PackAnchorRequired is anchored by its pack anchors only: its single phrase list gives the
+    /// matcher no subject condition, and live 2026-10-20 "Suche selber random die Mitarbeiter" was offered the
+    /// writing recipe setup-planning-profile on similarity alone.
     /// </summary>
     private static bool HasSemanticAnchor(AgentRecipe recipe, string message, ILogger logger, string? language)
-        => RecipeTriggerMatcher.HasSemanticAnchor(
-            Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger, language, recipe.AllAnchors());
+    {
+        var trigger = Deserialize<RecipeTrigger>(recipe.TriggerJson);
+        if (trigger?.PackAnchorRequired == true)
+        {
+            return RecipeTriggerMatcher.HasPackAnchor(recipe.AllAnchors(), message, logger);
+        }
+
+        return RecipeTriggerMatcher.HasSemanticAnchor(trigger, message, logger, language, recipe.AllAnchors());
+    }
 
     private static IReadOnlyList<string> ExtractStepSkills(AgentRecipe recipe)
     {

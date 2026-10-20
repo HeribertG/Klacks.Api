@@ -348,8 +348,13 @@ public class TurnPreparationService : ITurnPreparationService
         // other reply that is not a yes - an unrelated question, the data a flow asked for, a fuller version of the same
         // request - discards the pending question without excluding the recipe, so the re-match may offer it again with
         // the slots the new message carries.
+        // That re-match is keyword-only. A reply to the gate question is usually a short follow-up to it ("Suche
+        // selber random die Mitarbeiter"), and the semantic fallback ranked one into an unrelated flow (live
+        // 2026-10-20: setup-planning-profile). Without a keyword match the turn runs with its full toolset, which
+        // still carries the declined recipe's step skills, so the model can serve the refined request directly.
         var resolution = await _recipeEngine.ResolveWithDenialAsync(
-            context.Message, context.Language, context.UserRights, cancellationToken, declinedRecipe);
+            context.Message, context.Language, context.UserRights, declinedRecipe,
+            allowSemanticFallback: !context.RecipeConfirmationDeclined, cancellationToken);
         context.RecipeDenial = resolution.Denial;
         var fresh = resolution.Plan;
         if (fresh != null)

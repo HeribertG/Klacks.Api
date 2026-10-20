@@ -58,6 +58,28 @@ public interface IClientSearchRepository
         DateOnly? qualificationValidityDate,
         int limit,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns the ids of every client the caller may see that matches the structured filters, uncapped and in a
+    /// stable order (by id), so a seeded random sample drawn from it is reproducible between a preview and its apply.
+    /// </summary>
+    /// <param name="qualificationValidityDate">Reference date for the qualification filter; null means company today.</param>
+    Task<IReadOnlyList<Guid>> ListMatchingIdsAsync(
+        string? canton,
+        EntityTypeEnum? entityType,
+        Guid? contractId,
+        string? city,
+        string? zipPrefix,
+        Guid? qualificationId,
+        DateOnly? qualificationValidityDate,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Loads the search items for the given client ids, restricted to the clients the caller may see, ordered by name.
+    /// </summary>
+    /// <param name="clientIds">Ids to load; unknown or invisible ids are left out</param>
+    Task<IReadOnlyList<ClientSearchItem>> GetItemsByIdsAsync(
+        IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
 }
 
 public record ClientSearchResult

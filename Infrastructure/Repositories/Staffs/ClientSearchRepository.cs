@@ -252,6 +252,57 @@ public class ClientSearchRepository : IClientSearchRepository
         };
     }
 
+    public async Task<IReadOnlyList<Guid>> ListMatchingIdsAsync(
+        string? canton,
+        EntityTypeEnum? entityType,
+        Guid? contractId,
+        string? city,
+        string? zipPrefix,
+        Guid? qualificationId,
+        DateOnly? qualificationValidityDate,
+        CancellationToken cancellationToken)
+    {
+        var query = context.Client
+            .Where(c => !c.IsDeleted)
+            .AsNoTracking()
+            .AsQueryable();
+
+        query = await _groupFilterService.FilterClientsByGroupId(null, query);
+
+        var effectiveQualificationValidityDate = await ResolveQualificationValidityDateAsync(
+            qualificationId, qualificationValidityDate, cancellationToken);
+        query = ApplyStructuredFilters(
+            query, canton, entityType, contractId, city, zipPrefix, qualificationId, effectiveQualificationValidityDate);
+
+        return await query
+            .OrderBy(c => c.Id)
+            .Select(c => c.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ClientSearchItem>> GetItemsByIdsAsync(
+        IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken)
+    {
+        if (clientIds.Count == 0)
+        {
+            return [];
+        }
+
+        var ids = clientIds.Distinct().ToList();
+        var query = context.Client
+            .Include(c => c.Addresses)
+            .Where(c => !c.IsDeleted && ids.Contains(c.Id))
+            .AsNoTracking()
+            .AsQueryable();
+
+        query = await _groupFilterService.FilterClientsByGroupId(null, query);
+
+        return await ProjectToItems(query
+                .OrderBy(c => c.Name)
+                .ThenBy(c => c.FirstName))
+            .ToListAsync(cancellationToken);
+    }
+
     private async Task<List<ClientSearchItem>> SearchFuzzyAsync(
         string searchTerm,
         string? canton,

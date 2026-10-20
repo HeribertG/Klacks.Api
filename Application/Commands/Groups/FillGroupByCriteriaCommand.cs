@@ -23,6 +23,8 @@ namespace Klacks.Api.Application.Commands.Groups;
 /// <param name="Apply">False for a dry-run preview, true to persist the memberships.</param>
 /// <param name="UserName">Name of the acting user, stored on the created memberships.</param>
 /// <param name="StartMode">Fixed starts every membership on ValidFrom; EntryDate starts each person's membership on their own employment entry date.</param>
+/// <param name="RandomSeed">Null selects the first matches by name; a value draws Count matches at random with this
+/// seed, so the apply call that passes the preview's seed adds exactly the previewed clients.</param>
 public record FillGroupByCriteriaCommand(
     Guid GroupId,
     string GroupName,
@@ -36,4 +38,5 @@ public record FillGroupByCriteriaCommand(
     DateTime? ValidFrom,
     bool Apply,
     string UserName,
-    GroupMembershipStartMode StartMode = GroupMembershipStartMode.Fixed) : IRequest<FillGroupByCriteriaResult>;
+    GroupMembershipStartMode StartMode = GroupMembershipStartMode.Fixed,
+    int? RandomSeed = null) : IRequest<FillGroupByCriteriaResult>;

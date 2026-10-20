@@ -14,8 +14,12 @@
 /// <param name="qualificationName">Optional name (or partial name) of a qualification the client must currently hold.</param>
 /// <param name="entityType">Optional client type (Employee, ExternEmp, Customer); defaults to Employee.</param>
 /// <param name="count">Optional maximum number of clients to add.</param>
+/// <param name="random">When true, count clients are drawn at random instead of the first ones by name. The draw is
+/// seeded from the user, group, criteria, count and the company date, so the apply adds exactly the previewed clients.</param>
+/// <param name="validFrom">Optional start date of the memberships (a date, 'today' or 'entry' for each person's own employment entry); required to apply.</param>
 /// <param name="apply">When true the matches are added; when false (default) only a preview is returned.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.DTOs.Settings;
@@ -36,6 +40,12 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("fill_group_by_criteria")]
 public class FillGroupByCriteriaSkill : BaseSkillImplementation
 {
+    private const string IsoDateFormat = "yyyy-MM-dd";
+
+    private const string RandomSelectionNote =
+        " The clients were drawn at random; calling again today with the same parameters, random=true included, " +
+        "and apply=true adds exactly these.";
+
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IContractRepository _contractRepository;
@@ -70,6 +80,7 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
         var entityTypeValue = GetParameter<string>(parameters, "entityType");
         var count = GetParameter<int?>(parameters, "count");
         var apply = GetParameter<bool?>(parameters, "apply") ?? false;
+        var random = GetParameter<bool?>(parameters, "random") ?? false;
 
         var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
@@ -160,6 +171,12 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
         var resolvedCanton = await ResolveCantonAsync(canton, cancellationToken);
         var trimmedCity = string.IsNullOrWhiteSpace(city) ? null : city.Trim();
         var trimmedZipPrefix = string.IsNullOrWhiteSpace(zipPrefix) ? null : zipPrefix.Trim();
+        int? randomSeed = random
+            ? SeededSample.StableSeed(
+                context.UserId.ToString(), group.Id.ToString(), resolvedCanton, trimmedCity, trimmedZipPrefix,
+                contractId?.ToString(), qualificationId?.ToString(), entityType.ToString(),
+                count?.ToString(CultureInfo.InvariantCulture), today.ToString(IsoDateFormat, CultureInfo.InvariantCulture))
+            : null;
 
         if (apply && startDateOpen)
         {
@@ -185,7 +202,8 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
                     validFrom,
                     apply,
                     context.UserName,
-                    startMode),
+                    startMode,
+                    randomSeed),
                 cancellationToken);
         }
         catch (SkillVerificationException ex)
@@ -193,11 +211,11 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
             return SkillResult.Error(ex.Message);
         }
 
-        return BuildResult(result, group.Name, entityType, apply, startDateOpen);
+        return BuildResult(result, group.Name, entityType, apply, startDateOpen, random);
     }
 
     private static SkillResult BuildResult(
-        FillGroupByCriteriaResult result, string groupName, EntityTypeEnum entityType, bool apply, bool startDateOpen)
+        FillGroupByCriteriaResult result, string groupName, EntityTypeEnum entityType, bool apply, bool startDateOpen, bool random)
     {
         if (result.TotalMatchCount == 0)
         {
@@ -210,13 +228,14 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
         {
             var clientNames = string.Join(", ", result.Clients.Select(c => $"{c.FirstName} {c.LastName}".Trim()));
             var validFromAsk = startDateOpen ? SkillDateParser.AskForStartDateInPreview : string.Empty;
+            var randomNote = random ? RandomSelectionNote : string.Empty;
             return SkillResult.SuccessResult(
                 result,
                 $"Preview: {result.Clients.Count} of {result.TotalMatchCount} matching {entityType}(s) " +
                 $"would be added to group '{groupName}': {clientNames}. " +
                 $"{GroupMembershipStartHint.For(result.MembershipStart, applied: false)} " +
-                $"Nothing was changed yet.{validFromAsk} " +
-                "Ask the user to confirm, then call again with apply=true.");
+                $"Nothing was changed yet.{validFromAsk}{randomNote} " +
+                "Ask the user to confirm, then call again with apply=true and the same parameters.");
         }
 
         var alreadyNote = result.AlreadyMemberCount > 0

@@ -201,6 +201,17 @@ public static class RecipeTriggerMatcher
         return MatchesAnyPackAnchor(packAnchors, message, logger);
     }
 
+    /// <summary>
+    /// True when any installed language pack has an anchor term of this recipe in the message, each term matched by
+    /// the mode of its own language. The whole subject gate for a recipe that has no core subject condition.
+    /// </summary>
+    /// <param name="packAnchors">The recipe's pack anchors keyed by language code (AgentRecipe.AllAnchors()); may be null.</param>
+    /// <param name="message">The user message.</param>
+    /// <param name="logger">Receives regex timeout warnings; may be null.</param>
+    public static bool HasPackAnchor(
+        IReadOnlyDictionary<string, List<string>>? packAnchors, string? message, ILogger? logger = null) =>
+        !string.IsNullOrWhiteSpace(message) && MatchesAnyPackAnchor(packAnchors, message, logger);
+
     private static bool IsOutsideCoreLanguages(string? language) =>
         !string.IsNullOrEmpty(language)
         && !MultiLanguage.CoreLanguages.Contains(language, StringComparer.OrdinalIgnoreCase);

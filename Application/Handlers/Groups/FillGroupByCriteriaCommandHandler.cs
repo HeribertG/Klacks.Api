@@ -5,6 +5,7 @@ using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Application.Services.Grouping;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -70,17 +71,19 @@ public sealed class FillGroupByCriteriaCommandHandler
         var limit = request.Count is > 0 ? request.Count.Value : DefaultMatchLimit;
         var companyToday = await _companyClock.GetTodayAsync(cancellationToken);
 
-        var search = await _searchRepository.SearchAsync(
-            searchTerm: null,
-            canton: request.Canton,
-            entityType: request.EntityType,
-            contractId: request.ContractId,
-            city: request.City,
-            zipPrefix: request.ZipPrefix,
-            qualificationId: request.QualificationId,
-            qualificationValidityDate: DateOnly.FromDateTime(companyToday),
-            limit: limit,
-            cancellationToken: cancellationToken);
+        var search = request.RandomSeed.HasValue
+            ? await SampleAsync(request, limit, request.RandomSeed.Value, DateOnly.FromDateTime(companyToday), cancellationToken)
+            : await _searchRepository.SearchAsync(
+                searchTerm: null,
+                canton: request.Canton,
+                entityType: request.EntityType,
+                contractId: request.ContractId,
+                city: request.City,
+                zipPrefix: request.ZipPrefix,
+                qualificationId: request.QualificationId,
+                qualificationValidityDate: DateOnly.FromDateTime(companyToday),
+                limit: limit,
+                cancellationToken: cancellationToken);
 
         var matched = search.Items;
         var matchedClientIds = matched.Select(c => c.Id).Distinct().ToList();
@@ -165,5 +168,29 @@ public sealed class FillGroupByCriteriaCommandHandler
             AlreadyMemberCount: existingMembers.Count,
             Clients: matched,
             MembershipStart: pulledForward.ReportOn(membershipStart));
+    }
+
+    private async Task<ClientSearchResult> SampleAsync(
+        FillGroupByCriteriaCommand request, int limit, int seed, DateOnly companyToday,
+        CancellationToken cancellationToken)
+    {
+        var matchingIds = await _searchRepository.ListMatchingIdsAsync(
+            request.Canton,
+            request.EntityType,
+            request.ContractId,
+            request.City,
+            request.ZipPrefix,
+            request.QualificationId,
+            companyToday,
+            cancellationToken);
+
+        var sampledIds = SeededSample.Take(matchingIds, limit, seed);
+        var items = await _searchRepository.GetItemsByIdsAsync(sampledIds.ToList(), cancellationToken);
+
+        return new ClientSearchResult
+        {
+            Items = items,
+            TotalCount = matchingIds.Count
+        };
     }
 }

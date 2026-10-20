@@ -1486,14 +1486,14 @@
     },
     {
       "name": "bulk-add-employees-to-group",
-      "goal": "Bulk-add all employees matching criteria (canton/region and/or contract) to a named group, previewing the matches before applying.",
+      "goal": "Add several employees matching criteria (canton/region, city, contract, a number of them, optionally picked at random) to a named group, previewing the matches before applying.",
       "goalTranslations": {
-        "de": "Alle Mitarbeiter, die bestimmten Kriterien entsprechen (Kanton/Region und/oder Vertrag), einer Gruppe hinzufügen — mit Vorschau vor dem Übernehmen.",
-        "en": "Bulk-add all employees matching criteria (canton/region and/or contract) to a named group, previewing before applying.",
-        "fr": "Ajouter en masse tous les employés correspondant aux critères (canton/région et/ou contrat) à un groupe, avec aperçu avant application.",
-        "it": "Aggiungere in blocco tutti i dipendenti che soddisfano i criteri (cantone/regione e/o contratto) a un gruppo, con anteprima prima dell'applicazione."
+        "de": "Mehrere Mitarbeiter nach Kriterien (Kanton/Region, Ort, Vertrag, Anzahl, auf Wunsch zufällig ausgewählt) einer Gruppe hinzufügen — mit Vorschau vor dem Übernehmen.",
+        "en": "Add several employees matching criteria (canton/region, city, contract, a number of them, optionally picked at random) to a named group, previewing before applying.",
+        "fr": "Ajouter plusieurs employés selon des critères (canton/région, localité, contrat, nombre, au besoin choisis au hasard) à un groupe, avec aperçu avant application.",
+        "it": "Aggiungere più dipendenti secondo criteri (cantone/regione, località, contratto, numero, se richiesto scelti a caso) a un gruppo, con anteprima prima dell'applicazione."
       },
-      "version": 13,
+      "version": 14,
       "isEnabled": true,
       "sortOrder": 15,
       "trigger": {
@@ -1826,25 +1826,12 @@
           "description": "the selection criteria, e.g. a canton/region and/or a contract name"
         },
         {
-          "kind": "ask",
-          "slot": "validFrom",
-          "prompt": "Ask the user from which date the new group memberships should be valid (the start date applied to all added members). Accept a concrete date like 2026-05-01 or 'today'.",
-          "promptTranslations": {
-            "de": "Ab welchem Datum sollen die neuen Gruppenmitgliedschaften gültig sein (z. B. 2026-05-01 oder 'heute')?",
-            "en": "From which date should the new group memberships be valid (e.g. 2026-05-01 or 'today')?",
-            "fr": "À partir de quelle date les nouvelles appartenances au groupe doivent-elles être valables (p. ex. 2026-05-01 ou « aujourd'hui ») ?",
-            "it": "Da quale data devono essere valide le nuove appartenenze al gruppo (per es. 2026-05-01 o 'oggi')?"
-          },
-          "description": "the start date (valid-from) for the new memberships"
-        },
-        {
           "kind": "mutate",
           "skill": "fill_group_by_criteria",
           "inject": {
-            "groupName": "$groupName",
-            "validFrom": "$validFrom"
+            "groupName": "$groupName"
           },
-          "note": "Bulk-fill the group. groupName and validFrom are supplied — do not ask for them again. Map the user's criteria (see the known values below) to the optional parameters canton (a Swiss canton code like 'BE', or a canton name) and/or contractName. ALWAYS call with apply=false first to return a preview of who would be added; never set apply=true until the user has explicitly confirmed the previewed list. Relay the preview, and on apply relay the added and verified counts from the skill result to the user."
+          "note": "Bulk-fill the group. groupName is supplied — do not ask for it again. Map the user's criteria (see the known values below) to the optional parameters canton (a Swiss canton code like 'BE', or a canton name; a region named after a canton or its capital, e.g. 'Region Bern', is that canton), city and/or contractName. A number of employees ('10 Mitarbeiter') goes into count; a wish to pick them at random or not caring which ones ('zufällig', 'random', 'such selber aus', 'irgendwelche') sets random=true. Pass validFrom only when the user named a start date (a date, 'today' or 'entry'); otherwise leave it empty for the preview: the preview states the default start date and asks the user for the start (date or each person's entry date) together with the confirmation, and the answer is passed as validFrom when applying. ALWAYS call with apply=false first to return a preview of who would be added; never set apply=true until the user has explicitly confirmed the previewed list and answered the start question, then repeat the same parameters with apply=true (random=true included: the same clients are drawn again). Relay the preview including its start date, and on apply relay the added and verified counts from the skill result to the user."
         }
       ]
     },
@@ -6864,10 +6851,11 @@
         "fr": "Configuration guidée d'un profil de planification propre : demander d'abord à quel secteur l'entreprise ressemble le plus (ou partir de zéro), ouvrir le brouillon avec cette base, puis collecter les paramètres un par un.",
         "it": "Configurazione guidata di un profilo di pianificazione proprio: chiedere prima a quale settore assomiglia di più l'azienda (o partire da zero), aprire la bozza con quella base e poi raccogliere i parametri uno alla volta."
       },
-      "version": 4,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 66,
       "trigger": {
+        "packAnchorRequired": true,
         "allOf": [
           {
             "anySubstring": [
@@ -6973,7 +6961,7 @@
           "slot": "baseIndustry",
           "prompt": "Ask which of the shipped industries the business is most comparable to — homecare, healthcare, security, facility or logistics — or 'scratch' to start from a blank rule. Explain the consequence: picking an industry copies all of its scheduling-rule templates into the company's own editable rules, while starting blank creates a single empty rule filled entirely from the answers that follow. Offer the six choices as single-select replies and pass the chosen slug on.",
           "promptTranslations": {
-            "de": "Welcher Branche entspricht Ihr Betrieb am ehesten — Spitex/Hauspflege, Gesundheitswesen, Sicherheitsdienst, Hausdienste oder Logistik? Die Vorlagen dieser Branche werden als eigene, frei änderbare Regeln übernommen. Alternativ beginnen wir leer, dann entsteht eine einzige leere Regel, die vollständig aus Ihren Antworten gefüllt wird.",
+            "de": "Welcher Branche entspricht dein Betrieb am ehesten — Spitex/Hauspflege, Gesundheitswesen, Sicherheitsdienst, Hausdienste oder Logistik? Die Vorlagen dieser Branche werden als eigene, frei änderbare Regeln übernommen. Alternativ beginnen wir leer, dann entsteht eine einzige leere Regel, die vollständig aus deinen Antworten gefüllt wird.",
             "en": "Which of the shipped industries is your business most comparable to — homecare, healthcare, security, facility services or logistics? That industry's templates are copied as your own editable rules. Alternatively we start blank, which creates a single empty rule filled entirely from your answers.",
             "fr": "À quel secteur votre entreprise ressemble-t-elle le plus — soins à domicile, santé, sécurité, services immobiliers ou logistique ? Les modèles de ce secteur sont copiés comme vos propres règles modifiables. Sinon nous partons de zéro, ce qui crée une seule règle vide remplie entièrement par vos réponses.",
             "it": "A quale settore assomiglia di più la vostra azienda — assistenza domiciliare, sanità, sicurezza, servizi immobiliari o logistica? I modelli di quel settore vengono copiati come regole proprie e modificabili. In alternativa partiamo da zero, creando una sola regola vuota riempita interamente dalle vostre risposte."
@@ -7352,7 +7340,7 @@
         "fr": "Détermine la date limite de fin de planification pour une remise à temps par e-mail ou par courrier : demande le mode d'envoi, le délai postal, le délai de communication et la durée de contrôle, indique la date limite par groupe et propose d'enregistrer le délai (étape distincte et confirmée).",
         "it": "Determina entro quando la pianificazione deve essere pronta per una consegna puntuale via e-mail o posta: chiede il canale, i tempi postali, il preavviso e il tempo di verifica, indica la scadenza per gruppo e propone di salvare l'anticipo (passo separato e confermato)."
       },
-      "version": 1,
+      "version": 2,
       "isEnabled": true,
       "sortOrder": 76,
       "trigger": {
@@ -7460,7 +7448,7 @@
           "slot": "announcementDays",
           "prompt": "Ask how many days before a period starts the employees must hold the plan. If the context result reported a legal minimum publication lead above 0, name it and say it will be used as the lower limit; otherwise ask for the company's own rule. Ask exactly this one question and nothing else: state no deadline, sum, date or conclusion before the calculation step, and do not offer to store anything yet.",
           "promptTranslations": {
-            "de": "Wie viele Tage vor Periodenbeginn müssen die Mitarbeitenden den Plan haben? Ist eine gesetzliche Mindestfrist hinterlegt, gilt sie als Untergrenze; sonst gilt Ihre betriebliche Regel.",
+            "de": "Wie viele Tage vor Periodenbeginn müssen die Mitarbeitenden den Plan haben? Ist eine gesetzliche Mindestfrist hinterlegt, gilt sie als Untergrenze; sonst gilt eure betriebliche Regel.",
             "en": "How many days before a period starts must the employees hold the plan? If a legal minimum publication lead is configured it counts as the lower limit; otherwise your own company rule applies.",
             "fr": "Combien de jours avant le début d'une période les collaborateurs doivent-ils avoir le planning ? Si un délai légal minimal est configuré, il sert de limite inférieure ; sinon, c'est la règle de votre entreprise.",
             "it": "Quanti giorni prima dell'inizio di un periodo i collaboratori devono avere il piano? Se è configurato un preavviso legale minimo, vale come limite inferiore; altrimenti vale la regola della vostra azienda."

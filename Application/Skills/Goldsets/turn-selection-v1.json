@@ -1247,6 +1247,17 @@
       "expectedRecipe": "bulk-add-employees-to-group"
     },
     {
+      "id": "ts-recipe-bulk-add-random-count-region",
+      "message": "Suche dir einfach 10 Mitarbeiter aus, die in der Region Bern wohnen, und ordne sie der Gruppe Deutschschweiz Mitte zu.",
+      "locale": "de",
+      "source": "curated",
+      "expectedTool": null,
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "Live 2026-10-20: a count + region + 'pick them yourself' request must reach the bulk group-fill flow, not be refused.",
+      "expectedRecipe": "bulk-add-employees-to-group"
+    },
+    {
       "id": "w05-recipe-add-absence-for-employee",
       "message": "Place an absence (Break) on an existing employee for a given date and absence type.",
       "locale": "de",

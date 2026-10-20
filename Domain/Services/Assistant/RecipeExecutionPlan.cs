@@ -125,15 +125,16 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     public bool MatchedByMeaning { get; }
 
     /// <summary>
-    /// The finished proposal question, chip included, for a recipe a trigger keyword found, or null when the model has to
-    /// phrase it: a semantic match (its question explains the guess), two competing flows, a re-asked question after an
-    /// ambiguous reply (the model carries the note that asks for an unambiguous yes or no), or a language whose authored
-    /// goal translation or frame is missing. Lets the keyword path skip the model call, which on a slow provider is
-    /// the dominant cost of the added confirmation turn.
+    /// The finished proposal question, chip included, for a single matched recipe, keyword or semantic, or null when the
+    /// model has to phrase it: two competing flows, a re-asked question after an ambiguous reply (the model carries the
+    /// note that asks for an unambiguous yes or no), or a language whose authored goal translation or frame is missing.
+    /// Semantic matches were model-phrased until 2026-10-20: the tool-less call answered a fully specified request with
+    /// a refusal that ended on a question mark, which the reply guard let through as the gate question. Skipping the
+    /// model call also removes the dominant cost of the added confirmation turn on a slow provider.
     /// </summary>
     /// <param name="language">Active language of the turn, or null when the turn carries none</param>
     public string? DeterministicConfirmationText(string? language) =>
-        MatchedByMeaning || AlternativeGoal != null || !string.IsNullOrWhiteSpace(AmbiguousReplyNote)
+        AlternativeGoal != null || !string.IsNullOrWhiteSpace(AmbiguousReplyNote)
             ? null
             : RecipeReplyGuard.TryDeterministicProposal(Goal, GoalTranslations, language);
 

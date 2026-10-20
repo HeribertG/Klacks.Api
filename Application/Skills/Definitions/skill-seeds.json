@@ -20038,7 +20038,7 @@
       "name": "fill_group_by_criteria",
       "area": "group",
       "pairedApplySkill": "fill_group_by_criteria",
-      "description": "Fills a group (by name) with the clients matching criteria — canton/region, city, zip-code prefix, an active contract (by name), a qualification (by name) and/or entity type — in ONE server-side call. Use for 'find N employees in <region> with contract <X> and add them to group <Y>', 'add all employees from <canton> to group <Y>', 'add all employees in city <X> with qualification <Y> to group <Z>' or 'add employees with zip starting <prefix> to group <Y>'.",
+      "description": "Fills a group (by name) with the clients matching criteria — canton/region, city, zip-code prefix, an active contract (by name), a qualification (by name) and/or entity type — in ONE server-side call, optionally only N of them picked at random. Use for 'find N employees in <region> with contract <X> and add them to group <Y>', 'pick any 10 employees living in <region> for group <Y>', 'add all employees from <canton> to group <Y>' or 'add employees with zip starting <prefix> to group <Y>'.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20108,10 +20108,18 @@
         },
         {
           "name": "count",
-          "description": "Optional maximum number of clients to add",
+          "description": "Optional maximum number of clients to add; set it whenever the user names a number ('10 employees')",
           "type": "Integer",
           "required": false,
           "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "random",
+          "description": "Set true when the user wants the clients picked at random or does not care which ones ('random', 'zufällig', 'irgendwelche', 'such selber aus'); count clients are then drawn at random from all matches instead of the first ones by name; repeat it on apply=true, the same clients are drawn again",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
           "enumValues": null
         },
         {
@@ -20176,7 +20184,7 @@
         "fr": "Remplir un groupe par critères",
         "it": "Riempi un gruppo per criteri"
       },
-      "version": 13
+      "version": 14
     },
     {
       "name": "evaluate_grouping_by_qualification",
