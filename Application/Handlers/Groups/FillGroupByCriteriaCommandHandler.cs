@@ -4,6 +4,7 @@ using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Grouping;
+using Klacks.Api.Application.Services.Grouping;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -95,7 +96,7 @@ public sealed class FillGroupByCriteriaCommandHandler
             var existing = await _groupItemRepository.GetByClientAndGroup(client.Id, request.GroupId);
             if (existing != null && !existing.IsDeleted)
             {
-                existingMembers.Add(new ExistingMembershipStart(client.Id, existing.ValidFrom));
+                existingMembers.Add(new ExistingMembershipStart(client.Id, existing.ValidFrom, existing.Id, request.GroupId, existing.ValidUntil));
                 continue;
             }
 
@@ -126,7 +127,8 @@ public sealed class FillGroupByCriteriaCommandHandler
         }
 
         var verified = 0;
-        if (newItems.Count > 0)
+        var pulledForward = PullForwardBatch.Empty;
+        if (newItems.Count > 0 || membershipStart.ExistingMembersPulledForwardCount > 0)
         {
             verified = await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
@@ -135,10 +137,12 @@ public sealed class FillGroupByCriteriaCommandHandler
                     await _groupItemRepository.Add(item);
                 }
 
+                pulledForward = await _startPlanner.StagePullForwardAsync(startPlan, existingMembers, cancellationToken);
                 await _unitOfWork.CompleteAsync();
 
-                var confirmed = await _groupItemRepository.CountExistingByIds(
-                    newItems.Select(i => i.Id).ToList(), cancellationToken);
+                var confirmed = newItems.Count == 0
+                    ? 0
+                    : await _groupItemRepository.CountExistingByIds(newItems.Select(i => i.Id).ToList(), cancellationToken);
                 if (confirmed != newItems.Count)
                 {
                     throw new SkillVerificationException(
@@ -147,6 +151,7 @@ public sealed class FillGroupByCriteriaCommandHandler
                         $"'{request.GroupName}' but only {confirmed} were confirmed — the changes were rolled back.");
                 }
 
+                await _startPlanner.VerifyPullForwardAsync(pulledForward, cancellationToken);
                 return confirmed;
             });
         }
@@ -159,6 +164,6 @@ public sealed class FillGroupByCriteriaCommandHandler
             VerifiedCount: verified,
             AlreadyMemberCount: existingMembers.Count,
             Clients: matched,
-            MembershipStart: membershipStart);
+            MembershipStart: pulledForward.ReportOn(membershipStart));
     }
 }

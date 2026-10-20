@@ -69,8 +69,8 @@
       "hash": "A72908657169D8217A1B9443A23EE252DAAA639C02B3A951D04113AF4FC02121"
     },
     "add_selected_clients_to_group": {
-      "version": 9,
-      "hash": "F1891D07297C1F74EC87B9C761C6E8C50919985565C9DFA6606122B718E83727"
+      "version": 10,
+      "hash": "E365BAF95B2FCD65FEEE422B165807C3F2D236C48C9DFE88D4E3FAC598ED92B0"
     },
     "add_shift_to_group": {
       "version": 4,
@@ -101,8 +101,8 @@
       "hash": "478DDBA958B5D11D6A6DA58AE94C974EF8AC44AFE153A18180083500FD3E0E02"
     },
     "apply_grouping_plan": {
-      "version": 4,
-      "hash": "8AD5440ECCB09093E71A32F69D0F8366AC23FB6A894A1B82FFF3CF00C9E66782"
+      "version": 5,
+      "hash": "B03902A85804439C49349C333EFEF0D173A211FBBB7CB6F5D1EDE2D28116E570"
     },
     "apply_planning_profile": {
       "version": 4,
@@ -893,8 +893,8 @@
       "hash": "987FBD9DB6C8056B914486E88B15B0D1D563F7FB6FD06D3108BC29A8246E704E"
     },
     "fill_group_by_criteria": {
-      "version": 12,
-      "hash": "BFEA51573C7F40A551133810DC8766EC5E23BEA3F6A7F0B9808336CB95FA50C1"
+      "version": 13,
+      "hash": "14A5609C60CAF0239398C63834434B42886060A44E3691188C49ADDAE84F8E69"
     },
     "find_absence_capacity_windows": {
       "version": 3,
@@ -1157,8 +1157,8 @@
       "hash": "3A6A50ED4360F17E7B5AC7CCD6FB36A0564A5817048E8F19BF5268352301AEB0"
     },
     "group_ungrouped_by_city_name": {
-      "version": 6,
-      "hash": "CCEB990F2779910BF5D24925E10FDD8F3250AB6A78AC3A049D1457FEE4A8E400"
+      "version": 7,
+      "hash": "82ABC88686A6905B611726A74000211A5DDE0850803AA5143C89706F4D589E5C"
     },
     "import_calendar_rules": {
       "version": 4,
@@ -1449,12 +1449,12 @@
       "hash": "6E53149ACC03654A2756B12C09D0D031B27A167FD7DEB9E21F59C7BEFD87BE4F"
     },
     "partition_clients_by_address": {
-      "version": 8,
-      "hash": "39F84F07CF726490CE858D94A130835595D2B8D051DCBCE61940C3F0AC916475"
+      "version": 9,
+      "hash": "5FF3C43D138D781397E8A136E4B9FCAC6FC96F5DE6A735D28AF8B47C171B9B6D"
     },
     "partition_clients_by_qualification": {
-      "version": 2,
-      "hash": "9E2FCC3612A8563BE2359D1478AB1FF9138283E6031C5B9CB37AB5E7D3639955"
+      "version": 3,
+      "hash": "16ACC50E29A104738B16A49952E794384FC85896C0FDFEC197AAC9DEE9B0852B"
     },
     "place_work": {
       "version": 5,

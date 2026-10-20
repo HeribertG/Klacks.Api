@@ -21,8 +21,12 @@ namespace Klacks.Api.Application.DTOs.Groups;
 /// <param name="PersonsEnteredBeforeStartCount">Persons whose employment entry lies before their membership start and who are still employed then; their days in between are shown blue and locked.</param>
 /// <param name="PersonsWithoutEntryDateCount">Persons without a membership row (no entry date); in EntryDate mode they start on the fallback day.</param>
 /// <param name="EarliestEntryDate">Earliest employment entry among the persons entered before the start (yyyy-MM-dd); null when none.</param>
-/// <param name="ExistingMembersStartingAfterEntryCount">EntryDate mode only: existing members whose membership starts after their employment entry. This run does not change them.</param>
-/// <param name="ExistingMembersEarliestEntryDate">Earliest employment entry among those existing members (yyyy-MM-dd); null when none.</param>
+/// <param name="ExistingMembersStartingAfterEntryCount">EntryDate mode only: existing members whose membership starts after their employment entry and that this run does not change (they are not in a target group of the run).</param>
+/// <param name="ExistingMembersEarliestEntryDate">Earliest employment entry among those unchanged existing members (yyyy-MM-dd); null when none.</param>
+/// <param name="ExistingMembersPulledForwardCount">EntryDate mode only: existing memberships of the target group(s) that start after the person's employment entry; a preview reports how many an apply would pull forward to the entry date, the result how many it did.</param>
+/// <param name="PulledForwardEarliestEntryDate">Earliest new start among the pulled-forward memberships (yyyy-MM-dd); null when none.</param>
+/// <param name="ExistingMembersNotPulledForwardCount">EntryDate mode only: existing memberships of the target group(s) that start after the person's entry but are not pulled forward - the membership has ended, or pulling it forward would reach back before an earlier group membership of the person ended.</param>
+/// <param name="PersonsWithImplausibleEntryDateCount">Persons whose employment entry date fails the plausibility check (a placeholder such as 0001-01-01 or 1900-01-01); the date is not used for any start.</param>
 public sealed record GroupMembershipStartInfo(
     [property: JsonConverter(typeof(JsonStringEnumConverter<GroupMembershipStartMode>))]
     GroupMembershipStartMode Mode,
@@ -35,4 +39,8 @@ public sealed record GroupMembershipStartInfo(
     int PersonsWithoutEntryDateCount,
     string? EarliestEntryDate,
     int ExistingMembersStartingAfterEntryCount = 0,
-    string? ExistingMembersEarliestEntryDate = null);
+    string? ExistingMembersEarliestEntryDate = null,
+    int ExistingMembersPulledForwardCount = 0,
+    string? PulledForwardEarliestEntryDate = null,
+    int ExistingMembersNotPulledForwardCount = 0,
+    int PersonsWithImplausibleEntryDateCount = 0);

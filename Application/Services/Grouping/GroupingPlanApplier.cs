@@ -89,7 +89,7 @@ public sealed class GroupingPlanApplier : IGroupingPlanApplier
                     alreadyInPlace++;
                     if (proposal.Kind == GroupingProposalKind.AddClient)
                     {
-                        existingMembers.Add(new ExistingMembershipStart(proposal.ClientId!.Value, held.ValidFrom));
+                        existingMembers.Add(new ExistingMembershipStart(proposal.ClientId!.Value, held.ValidFrom, held.Id, held.GroupId, held.ValidUntil));
                     }
 
                     continue;
@@ -111,8 +111,10 @@ public sealed class GroupingPlanApplier : IGroupingPlanApplier
                 newItems.Add(item);
             }
 
+            var pulledForward = await _startPlanner.StagePullForwardAsync(startPlan, existingMembers, cancellationToken);
             await _unitOfWork.CompleteAsync();
             await VerifyAddedAsync(newItems, cancellationToken);
+            await _startPlanner.VerifyPullForwardAsync(pulledForward, cancellationToken);
 
             var removedIds = new List<Guid>();
             foreach (var proposal in proposals.Where(p => p.Kind == GroupingProposalKind.RemoveClient))
@@ -138,7 +140,7 @@ public sealed class GroupingPlanApplier : IGroupingPlanApplier
                 newItems.Count(item => item.ClientId != null),
                 removedIds.Count,
                 alreadyInPlace,
-                startPlan.Describe(newItems.Where(item => item.ClientId != null).Select(item => item.ClientId!.Value), existingMembers));
+                pulledForward.ReportOn(startPlan.Describe(newItems.Where(item => item.ClientId != null).Select(item => item.ClientId!.Value), existingMembers)));
         });
     }
 
@@ -159,7 +161,7 @@ public sealed class GroupingPlanApplier : IGroupingPlanApplier
             }
             else
             {
-                existingMembers.Add(new ExistingMembershipStart(proposal.ClientId!.Value, held.ValidFrom));
+                existingMembers.Add(new ExistingMembershipStart(proposal.ClientId!.Value, held.ValidFrom, held.Id, held.GroupId, held.ValidUntil));
             }
         }
 

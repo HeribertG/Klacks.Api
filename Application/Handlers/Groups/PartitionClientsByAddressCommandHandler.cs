@@ -128,6 +128,7 @@ public sealed class PartitionClientsByAddressCommandHandler
 
         var groupStarts = PartitionGroupStarts.Resolve(plan, startPlan);
         var newMemberIds = new List<Guid>();
+        var pulledForward = PullForwardBatch.Empty;
         var now = DateTime.UtcNow;
 
         var outcome = await _unitOfWork.ExecuteInTransactionAsync(async () =>
@@ -186,7 +187,8 @@ public sealed class PartitionClientsByAddressCommandHandler
                 });
             }
 
-            if (newItems.Count == 0)
+            pulledForward = await _startPlanner.StagePullForwardAsync(startPlan, existingMembers, cancellationToken);
+            if (newItems.Count == 0 && pulledForward.Count == 0)
             {
                 return new PartitionApplyOutcome(0, alreadyMember, resolvedGroupIds);
             }
@@ -200,8 +202,9 @@ public sealed class PartitionClientsByAddressCommandHandler
 
             await _unitOfWork.CompleteAsync();
 
-            var confirmed = await _groupItemRepository.CountExistingByIds(
-                newItems.Select(i => i.Id).ToList(), cancellationToken);
+            var confirmed = newItems.Count == 0
+                ? 0
+                : await _groupItemRepository.CountExistingByIds(newItems.Select(i => i.Id).ToList(), cancellationToken);
             if (confirmed != newItems.Count)
             {
                 throw new SkillVerificationException(
@@ -210,6 +213,7 @@ public sealed class PartitionClientsByAddressCommandHandler
                     $"{confirmed} were confirmed — the changes were rolled back.");
             }
 
+            await _startPlanner.VerifyPullForwardAsync(pulledForward, cancellationToken);
             return new PartitionApplyOutcome(confirmed, alreadyMember, resolvedGroupIds);
         });
 
@@ -222,7 +226,7 @@ public sealed class PartitionClientsByAddressCommandHandler
             request, plan, applied: true, groups: createdGroups,
             assignedCount: assignedCount, verifiedCount: outcome.VerifiedCount, alreadyMemberCount: outcome.AlreadyMemberCount,
             usersKeepingFullVisibilityCount: usersKeepingFullVisibility,
-            membershipStart: startPlan.Describe(newMemberIds, existingMembers));
+            membershipStart: pulledForward.ReportOn(startPlan.Describe(newMemberIds, existingMembers)));
     }
 
     private static (List<Guid> NewClientIds, List<ExistingMembershipStart> ExistingMembers) SplitNewFromExisting(
@@ -245,7 +249,7 @@ public sealed class PartitionClientsByAddressCommandHandler
             }
             else
             {
-                existingMembers.Add(new ExistingMembershipStart(assignment.ClientId, held.ValidFrom));
+                existingMembers.Add(new ExistingMembershipStart(assignment.ClientId, held.ValidFrom, held.Id, held.GroupId, held.ValidUntil));
             }
         }
 

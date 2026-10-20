@@ -62,6 +62,22 @@ internal static class GroupMembershipStartHint
     private const string WithoutEntryApplied =
         " {0} person(s) have no entry date and start on the company's current day.";
 
+    private const string PulledForwardPreview =
+        "Applying would pull forward {0} existing membership(s) of the target group(s) to each person's employment entry " +
+        "date (earliest entry {1}); until then their days between entry and the old start stay blue and locked.";
+
+    private const string PulledForwardApplied =
+        "Pulled forward {0} existing membership(s) of the target group(s) to each person's employment entry date " +
+        "(earliest entry {1}); their days between entry and the old start are no longer blue and locked.";
+
+    private const string NotPulledForward =
+        "{0} existing membership(s) of the target group(s) were not pulled forward because they have ended, or because of " +
+        "a group change: a pull-forward would reach back before an earlier group membership of the person ended.";
+
+    private const string ImplausibleEntryDates =
+        "{0} person(s) have an implausible employment entry date (for example a placeholder); it was not used - new " +
+        "memberships of these persons start on the fallback day and their existing memberships are not changed.";
+
     private const string ExistingMembersLeftUnchanged =
         "{0} existing member(s) already hold a membership that starts after their employment entry (earliest entry {1}); " +
         "this run does not change existing memberships, so their days between entry and that start stay blue and locked.";
@@ -86,20 +102,50 @@ internal static class GroupMembershipStartHint
 
     private static string ExistingOnly(GroupMembershipStartInfo info, bool applied)
     {
-        if (info.ExistingMembersStartingAfterEntryCount == 0)
+        if (info.ExistingMembersStartingAfterEntryCount == 0 && info.ExistingMembersPulledForwardCount == 0
+            && info.ExistingMembersNotPulledForwardCount == 0 && info.PersonsWithImplausibleEntryDateCount == 0)
         {
             return string.Empty;
         }
 
-        var text = ExistingSentence(info);
+        var text = ExistingSentences(info, applied);
         return applied ? text + TellTheUser : text;
     }
 
-    private static string ExistingSentence(GroupMembershipStartInfo info) => string.Format(
-        CultureInfo.InvariantCulture,
-        ExistingMembersLeftUnchanged,
-        info.ExistingMembersStartingAfterEntryCount,
-        info.ExistingMembersEarliestEntryDate);
+    private static string ExistingSentences(GroupMembershipStartInfo info, bool applied)
+    {
+        var sentences = new List<string>();
+        if (info.ExistingMembersPulledForwardCount > 0)
+        {
+            sentences.Add(string.Format(
+                CultureInfo.InvariantCulture,
+                applied ? PulledForwardApplied : PulledForwardPreview,
+                info.ExistingMembersPulledForwardCount,
+                info.PulledForwardEarliestEntryDate));
+        }
+
+        if (info.ExistingMembersNotPulledForwardCount > 0)
+        {
+            sentences.Add(string.Format(CultureInfo.InvariantCulture, NotPulledForward, info.ExistingMembersNotPulledForwardCount));
+        }
+
+        if (info.ExistingMembersStartingAfterEntryCount > 0)
+        {
+            sentences.Add(string.Format(
+                CultureInfo.InvariantCulture,
+                ExistingMembersLeftUnchanged,
+                info.ExistingMembersStartingAfterEntryCount,
+                info.ExistingMembersEarliestEntryDate));
+        }
+
+        if (info.PersonsWithImplausibleEntryDateCount > 0)
+        {
+            sentences.Add(string.Format(
+                CultureInfo.InvariantCulture, ImplausibleEntryDates, info.PersonsWithImplausibleEntryDateCount));
+        }
+
+        return string.Join(" ", sentences);
+    }
 
     internal static string ForSingle(GroupMembershipStartInfo info)
     {
@@ -155,9 +201,10 @@ internal static class GroupMembershipStartHint
                 info.PersonsWithoutEntryDateCount);
         }
 
-        if (info.ExistingMembersStartingAfterEntryCount > 0)
+        var existing = ExistingSentences(info, applied);
+        if (existing.Length > 0)
         {
-            text += " " + ExistingSentence(info);
+            text += " " + existing;
         }
 
         return applied ? text + TellTheUser : text;

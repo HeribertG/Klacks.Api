@@ -12,6 +12,8 @@ namespace Klacks.Api.Infrastructure.Repositories.Associations;
 
 public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemRepository
 {
+    private const int IdChunkSize = 2000;
+
     public GroupItemRepository(DataBaseContext context, ILogger<GroupItem> logger)
         : base(context, logger)
     {
@@ -20,8 +22,11 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
     public async Task<GroupItem?> GetByClientAndGroup(Guid clientId, Guid groupId)
     {
         return await context.GroupItem
-            .FirstOrDefaultAsync(gi =>
-                gi.ClientId == clientId && gi.GroupId == groupId && gi.AnalyseToken == null);
+            .Where(gi => gi.ClientId == clientId && gi.GroupId == groupId && gi.AnalyseToken == null)
+            .OrderBy(gi => gi.ValidUntil == null ? 0 : 1)
+            .ThenByDescending(gi => gi.ValidFrom)
+            .ThenBy(gi => gi.Id)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<int> CountExistingByIds(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
@@ -36,6 +41,71 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
             .AsNoTracking()
             .Where(gi => idList.Contains(gi.Id) && !gi.IsDeleted)
             .CountAsync(cancellationToken);
+    }
+
+    public async Task<int> PullForwardValidFromAsync(
+        IReadOnlyDictionary<Guid, DateTime> newStarts, CancellationToken cancellationToken = default)
+    {
+        var changed = 0;
+        foreach (var chunk in newStarts.Keys.Chunk(IdChunkSize))
+        {
+            var items = await context.GroupItem
+                .Where(gi => chunk.Contains(gi.Id) && !gi.IsDeleted)
+                .ToListAsync(cancellationToken);
+
+            foreach (var item in items)
+            {
+                var start = newStarts[item.Id];
+                var saved = context.Entry(item).Property(gi => gi.ValidFrom).OriginalValue;
+                if (saved.HasValue && saved.Value > start)
+                {
+                    item.ValidFrom = start;
+                    changed++;
+                }
+            }
+        }
+
+        return changed;
+    }
+
+    public async Task<IReadOnlyList<(Guid ClientId, Guid GroupId, DateTime ValidUntil)>> GetEndedMembershipsAsync(
+        IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken = default)
+    {
+        var result = new List<(Guid ClientId, Guid GroupId, DateTime ValidUntil)>();
+        foreach (var chunk in clientIds.Distinct().Chunk(IdChunkSize))
+        {
+            var rows = await context.GroupItem
+                .AsNoTracking()
+                .Where(gi => gi.ClientId != null && chunk.Contains(gi.ClientId.Value)
+                    && gi.ShiftId == null && gi.AnalyseToken == null && gi.ValidUntil != null && !gi.IsDeleted)
+                .Select(gi => new { ClientId = gi.ClientId!.Value, gi.GroupId, ValidUntil = gi.ValidUntil!.Value })
+                .ToListAsync(cancellationToken);
+
+            result.AddRange(rows.Select(row => (row.ClientId, row.GroupId, row.ValidUntil)));
+        }
+
+        return result;
+    }
+
+    public async Task<Dictionary<Guid, DateTime?>> GetValidFromByIdsAsync(
+        IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        var result = new Dictionary<Guid, DateTime?>();
+        foreach (var chunk in ids.Chunk(IdChunkSize))
+        {
+            var rows = await context.GroupItem
+                .AsNoTracking()
+                .Where(gi => chunk.Contains(gi.Id) && !gi.IsDeleted)
+                .Select(gi => new { gi.Id, gi.ValidFrom })
+                .ToListAsync(cancellationToken);
+
+            foreach (var row in rows)
+            {
+                result[row.Id] = row.ValidFrom;
+            }
+        }
+
+        return result;
     }
 
     public async Task<int> RemoveByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)

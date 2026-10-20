@@ -19972,7 +19972,7 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date and to pull forward existing memberships of the target group that start later (the preview shows how many)). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -20032,7 +20032,7 @@
         "fr": "Affecter les personnes sélectionnées à un groupe",
         "it": "Assegna le persone selezionate a un gruppo"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "fill_group_by_criteria",
@@ -20124,7 +20124,7 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date and to pull forward existing memberships of the target group that start later (the preview shows how many)). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -20176,7 +20176,7 @@
         "fr": "Remplir un groupe par critères",
         "it": "Riempi un gruppo per criteri"
       },
-      "version": 12
+      "version": 13
     },
     {
       "name": "evaluate_grouping_by_qualification",
@@ -20274,7 +20274,7 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date and to pull forward existing memberships of the target group that start later (the preview shows how many)). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -20327,7 +20327,7 @@
         "fr": "Affecter les employés sans groupe par nom de ville",
         "it": "Assegna i dipendenti senza gruppo per nome città"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "partition_clients_by_address",
@@ -20403,7 +20403,7 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new memberships (format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date); defaults to today when this is left out. The preview states the consequence for persons who joined earlier, so pass the date or 'entry' the user chose.",
+          "description": "Start date of the new memberships (format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date and to pull forward existing memberships of the target group that start later (the preview shows how many)); defaults to today when this is left out. The preview states the consequence for persons who joined earlier, so pass the date or 'entry' the user chose.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -20485,7 +20485,7 @@
         "fr": "Construire une arborescence de groupes à partir des adresses",
         "it": "Costruisci un albero di gruppi di sede dagli indirizzi"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "partition_clients_by_qualification",
@@ -20539,7 +20539,7 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new memberships (format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date); defaults to today when this is left out. The preview states the consequence for persons who joined earlier, so pass the date or 'entry' the user chose.",
+          "description": "Start date of the new memberships (format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date and to pull forward existing memberships of the target group that start later (the preview shows how many)); defaults to today when this is left out. The preview states the consequence for persons who joined earlier, so pass the date or 'entry' the user chose.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -20600,7 +20600,7 @@
         "fr": "Créer des groupes par qualification",
         "it": "Creare gruppi per qualifica"
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "assign_orders_to_groups",
@@ -47487,7 +47487,7 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new group memberships (format YYYY-MM-DD, 'today', or 'entry' for each person's own employment entry date). Optional: when omitted, the start of the checked period (the plan's From date, company today by default) is used and stated in the result. Never invent a different date.",
+          "description": "Start date of the new group memberships (format YYYY-MM-DD, 'today', or 'entry' for each person's own employment entry date (it also pulls forward existing memberships of the target group that start later; the preview shows how many)). Optional: when omitted, the start of the checked period (the plan's From date, company today by default) is used and stated in the result. Never invent a different date.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -47570,7 +47570,7 @@
         "fr": "Appliquer le plan de groupes",
         "it": "Applicare il piano dei gruppi"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_contract_setup",

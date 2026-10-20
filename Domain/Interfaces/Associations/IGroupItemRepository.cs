@@ -19,6 +19,34 @@ public interface IGroupItemRepository : IBaseRepository<GroupItem>
     Task<int> CountExistingByIds(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Stages the pull-forward of the start of many memberships in a few queries (ids in chunks): each listed item whose
+    /// ValidFrom lies after the given start gets that start (also when a retried call finds the entity already carrying it but
+    /// still unsaved, so the count stays the number of rows that change); an item that is already on or before it, has no start, or is
+    /// deleted is left alone, so the call never moves a start later. The caller commits via IUnitOfWork. Returns the number
+    /// of items changed.
+    /// </summary>
+    /// <param name="newStarts">New ValidFrom per group item id</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<int> PullForwardValidFromAsync(IReadOnlyDictionary<Guid, DateTime> newStarts, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Reads the ended real memberships (ValidUntil set, no scenario, no shift item, not deleted) of many clients in a few
+    /// queries (ids in chunks), so a pull-forward can keep a start behind the end of an earlier group membership.
+    /// </summary>
+    /// <param name="clientIds">Clients whose ended memberships are read</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<IReadOnlyList<(Guid ClientId, Guid GroupId, DateTime ValidUntil)>> GetEndedMembershipsAsync(
+        IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Reads the current ValidFrom of many items in a few queries (ids in chunks), without tracking, so a caller can
+    /// verify a committed change. Items that do not exist or are deleted are missing from the result.
+    /// </summary>
+    /// <param name="ids">Group item ids</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<Dictionary<Guid, DateTime?>> GetValidFromByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Stages the (soft) deletion of every listed link in one query; the caller commits via IUnitOfWork.
     /// Returns the number of links found and staged.
     /// </summary>

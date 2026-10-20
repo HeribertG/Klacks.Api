@@ -145,6 +145,7 @@ public sealed class PartitionClientsByQualificationCommandHandler
         }
 
         var now = DateTime.UtcNow;
+        var pulledForward = PullForwardBatch.Empty;
 
         var outcome = await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
@@ -187,6 +188,7 @@ public sealed class PartitionClientsByQualificationCommandHandler
                 await _groupItemRepository.Add(item);
             }
 
+            pulledForward = await _startPlanner.StagePullForwardAsync(startPlan, existingMembers, cancellationToken);
             await _unitOfWork.CompleteAsync();
 
             var confirmed = newItems.Count == 0
@@ -200,13 +202,15 @@ public sealed class PartitionClientsByQualificationCommandHandler
                     $"{confirmed} were confirmed — the changes were rolled back.");
             }
 
+            await _startPlanner.VerifyPullForwardAsync(pulledForward, cancellationToken);
             return new QualificationApplyOutcome(confirmed, parentId.Value, groupIds);
         });
 
         return BuildResult(
             request, plan, parent with { Id = outcome.ParentGroupId }, applied: true, outcome.GroupIds,
             assignedCount: plannedNew, verifiedCount: outcome.VerifiedCount, alreadyMemberCount: plannedAlready,
-            usersKeepingFullVisibility, widening, startPlan.Describe(plannedClientIds, existingMembers));
+            usersKeepingFullVisibility, widening,
+            pulledForward.ReportOn(startPlan.Describe(plannedClientIds, existingMembers)));
     }
 
     private static List<ExistingMembershipStart> ExistingMembers(IReadOnlyList<Client> clients, QualificationGroupPlan plan)
@@ -223,7 +227,7 @@ public sealed class PartitionClientsByQualificationCommandHandler
                     .FirstOrDefault(gi => !gi.IsDeleted && gi.AnalyseToken == null && gi.GroupId == planned.ExistingGroupId);
                 if (held is not null)
                 {
-                    existing.Add(new ExistingMembershipStart(clientId, held.ValidFrom));
+                    existing.Add(new ExistingMembershipStart(clientId, held.ValidFrom, held.Id, planned.ExistingGroupId, held.ValidUntil));
                 }
             }
         }

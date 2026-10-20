@@ -3,18 +3,24 @@
 /// <summary>
 /// Start dates of new group memberships for a set of persons. In Fixed mode everybody starts on the same day; in
 /// EntryDate mode each person starts on the day of their own employment entry (Membership.ValidFrom) and a person
-/// without a membership row falls back to the fallback day. Describe turns the plan into the structured facts a
-/// grouping skill reports: the start date, how many persons entered earlier and are still employed at the start (the
-/// schedule shows their days between entry and group start blue and locked; a person who left before the start is not
-/// counted) and, in EntryDate mode, how many existing members hold a start after their entry. Dates are UTC midnight values.
+/// without a usable entry date falls back to the fallback day. An entry date that fails MembershipValidFromPlausibility
+/// (placeholders such as 0001-01-01 or 1900-01-01) is never used - not for a new membership, not to pull an existing one
+/// forward - and is counted separately. Describe turns the plan into the structured facts a grouping skill reports: the
+/// start date, how many persons entered earlier and are still employed at the start (the schedule shows their days
+/// between entry and group start blue and locked; a person who left before the start is not counted) and, in EntryDate
+/// mode, how many existing memberships of the target groups would be or were pulled forward, how many were not (ended
+/// memberships, or a start that would reach back before an earlier group ended) and how many existing members outside
+/// the target groups start after their entry. Dates are UTC midnight values.
 /// </summary>
 /// <param name="mode">Fixed or EntryDate</param>
 /// <param name="startDateGiven">False when no start date was supplied and the default applies</param>
 /// <param name="fixedStart">The common start in Fixed mode (supplied or default); ignored in EntryDate mode</param>
-/// <param name="fallbackStart">Start of a person without an entry date in EntryDate mode (the company today)</param>
+/// <param name="fallbackStart">Start of a person without a usable entry date in EntryDate mode, and the reference day of the plausibility check (the company today)</param>
 /// <param name="windows">Employment window per client; a client without a membership row has no entry</param>
+/// <param name="endedMemberships">Ended memberships (GroupItem with ValidUntil) per client with their group; read only in EntryDate mode</param>
 
 using System.Globalization;
+using Klacks.Api.Application.Common;
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
@@ -30,22 +36,29 @@ public sealed class GroupMembershipStartPlan
     private readonly DateTime _fixedStart;
     private readonly DateTime _fallbackStart;
     private readonly IReadOnlyDictionary<Guid, MembershipWindow> _windows;
+    private readonly ILookup<Guid, (Guid GroupId, DateTime ValidUntil)> _endedMemberships;
 
     public GroupMembershipStartPlan(
         GroupMembershipStartMode mode,
         bool startDateGiven,
         DateTime fixedStart,
         DateTime fallbackStart,
-        IReadOnlyDictionary<Guid, MembershipWindow> windows)
+        IReadOnlyDictionary<Guid, MembershipWindow> windows,
+        ILookup<Guid, (Guid GroupId, DateTime ValidUntil)>? endedMemberships = null)
     {
         _mode = mode;
         _startDateGiven = startDateGiven;
         _fixedStart = fixedStart;
         _fallbackStart = fallbackStart;
         _windows = windows;
+        _endedMemberships = endedMemberships
+            ?? Array.Empty<(Guid ClientId, Guid GroupId, DateTime ValidUntil)>()
+                .ToLookup(entry => entry.ClientId, entry => (entry.GroupId, entry.ValidUntil));
     }
 
     public GroupMembershipStartMode Mode => _mode;
+
+    public DateTime Today => _fallbackStart;
 
     public DateTime StartFor(Guid clientId)
     {
@@ -54,7 +67,9 @@ public sealed class GroupMembershipStartPlan
             return _fixedStart;
         }
 
-        return _windows.TryGetValue(clientId, out var window) ? ToUtcMidnight(window.ValidFrom) : _fallbackStart;
+        return _windows.TryGetValue(clientId, out var window) && IsPlausible(window)
+            ? ToUtcMidnight(window.ValidFrom)
+            : _fallbackStart;
     }
 
     public DateTime GroupStart(IEnumerable<Guid> memberIds)
@@ -78,7 +93,11 @@ public sealed class GroupMembershipStartPlan
             .Where(s => _windows.TryGetValue(s.Id, out var window) && EnteredBeforeAndStillEmployed(window, s.Start))
             .Select(s => _windows[s.Id].ValidFrom)
             .ToList();
-        var existing = ExistingStartingAfterEntry(existingMembers);
+        var existingList = existingMembers?.ToList() ?? [];
+        var (pullable, notPulledForward) = AnalyzePullForward(existingList);
+        var existing = ExistingStartingAfterEntry(existingList.Where(member => member.ItemId is null || member.GroupId is null));
+        var implausible = persons.Concat(existingList.Select(member => member.ClientId)).Distinct()
+            .Count(id => _windows.TryGetValue(id, out var window) && !IsPlausible(window));
 
         return new GroupMembershipStartInfo(
             _mode,
@@ -91,12 +110,71 @@ public sealed class GroupMembershipStartPlan
             withoutEntry,
             enteredEarlier.Count == 0 ? null : enteredEarlier.Min().ToString(IsoDate, CultureInfo.InvariantCulture),
             existing.Count,
-            existing.Count == 0 ? null : existing.Min().ToString(IsoDate, CultureInfo.InvariantCulture));
+            existing.Count == 0 ? null : existing.Min().ToString(IsoDate, CultureInfo.InvariantCulture),
+            pullable.Count,
+            pullable.Count == 0 ? null : Format(pullable.Min(candidate => candidate.NewStart)),
+            notPulledForward,
+            implausible);
     }
 
-    private List<DateOnly> ExistingStartingAfterEntry(IEnumerable<ExistingMembershipStart>? existingMembers)
+    public IReadOnlyList<PullForwardCandidate> PullForwardCandidates(IEnumerable<ExistingMembershipStart>? existingMembers) =>
+        AnalyzePullForward(existingMembers).Candidates;
+
+    private (IReadOnlyList<PullForwardCandidate> Candidates, int NotPulledForward) AnalyzePullForward(
+        IEnumerable<ExistingMembershipStart>? existingMembers)
     {
         if (_mode != GroupMembershipStartMode.EntryDate || existingMembers is null)
+        {
+            return ([], 0);
+        }
+
+        var candidates = new Dictionary<Guid, PullForwardCandidate>();
+        var notPulledForward = new HashSet<Guid>();
+        foreach (var member in existingMembers)
+        {
+            if (member.ItemId is not { } itemId
+                || member.GroupId is not { } groupId
+                || member.ValidFrom is not { } validFrom
+                || !_windows.TryGetValue(member.ClientId, out var window))
+            {
+                continue;
+            }
+
+            var currentStart = ToUtcMidnight(DateOnly.FromDateTime(validFrom));
+            if (!EnteredBeforeAndStillEmployed(window, currentStart))
+            {
+                continue;
+            }
+
+            var newStart = member.ValidUntil is null ? NewStartAfterEarlierGroups(member.ClientId, groupId, window) : currentStart;
+            if (newStart >= currentStart)
+            {
+                notPulledForward.Add(itemId);
+                continue;
+            }
+
+            candidates[itemId] = new PullForwardCandidate(itemId, groupId, member.ClientId, newStart);
+        }
+
+        return (candidates.Values.ToList(), notPulledForward.Count);
+    }
+
+    private DateTime NewStartAfterEarlierGroups(Guid clientId, Guid groupId, MembershipWindow window)
+    {
+        var entry = ToUtcMidnight(window.ValidFrom);
+        var endedElsewhere = _endedMemberships[clientId].Where(ended => ended.GroupId != groupId).Select(ended => ended.ValidUntil).ToList();
+        if (endedElsewhere.Count == 0)
+        {
+            return entry;
+        }
+
+        var dayAfter = ToUtcMidnight(DateOnly.FromDateTime(endedElsewhere.Max())).AddDays(1);
+        return dayAfter > entry ? dayAfter : entry;
+    }
+
+    private List<DateOnly> ExistingStartingAfterEntry(IEnumerable<ExistingMembershipStart> existingMembers)
+    {
+        if (_mode != GroupMembershipStartMode.EntryDate)
         {
             return [];
         }
@@ -119,8 +197,12 @@ public sealed class GroupMembershipStartPlan
         return entries;
     }
 
-    private static bool EnteredBeforeAndStillEmployed(MembershipWindow window, DateTime start) =>
-        ToUtcMidnight(window.ValidFrom) < start
+    private bool IsPlausible(MembershipWindow window) =>
+        MembershipValidFromPlausibility.Evaluate(ToUtcMidnight(window.ValidFrom), null, _fallbackStart) is null;
+
+    private bool EnteredBeforeAndStillEmployed(MembershipWindow window, DateTime start) =>
+        IsPlausible(window)
+        && ToUtcMidnight(window.ValidFrom) < start
         && (window.ValidUntil is null || ToUtcMidnight(window.ValidUntil.Value) >= start);
 
     private static DateTime ToUtcMidnight(DateOnly date) =>

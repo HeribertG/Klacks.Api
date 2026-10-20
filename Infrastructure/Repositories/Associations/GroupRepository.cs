@@ -9,6 +9,7 @@ using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
@@ -130,6 +131,42 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
         Logger.LogInformation("Group with ID: {GroupId} found successfully.", id);
         return group;
+    }
+
+    public async Task<int> LowerValidFromAsync(
+        IReadOnlyDictionary<Guid, DateTime> newStarts, CancellationToken cancellationToken = default)
+    {
+        if (newStarts.Count == 0)
+        {
+            return 0;
+        }
+
+        var targetIds = newStarts.Keys.ToList();
+        var roots = await context.Group
+            .Where(g => targetIds.Contains(g.Id))
+            .Select(g => g.Root ?? g.Id)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        var tree = await context.Group
+            .Where(g => roots.Contains(g.Root ?? g.Id))
+            .Select(g => new { g.Id, g.Parent, g.ValidFrom })
+            .ToListAsync(cancellationToken);
+
+        var lowered = GroupValidFromPropagation.Resolve(
+            tree.Select(g => (g.Id, g.Parent, g.ValidFrom)).ToList(), newStarts);
+
+        var stamp = BulkUpdateAuditStamp.Now(context);
+        var changed = 0;
+        foreach (var sameDate in lowered.GroupBy(entry => entry.Value, entry => entry.Key))
+        {
+            var start = sameDate.Key;
+            var ids = sameDate.ToList();
+            changed += await context.Group
+                .Where(g => ids.Contains(g.Id) && g.ValidFrom > start)
+                .ExecuteUpdateAsync(setters => stamp.ApplyTo(setters.SetProperty(g => g.ValidFrom, start)), cancellationToken);
+        }
+
+        return changed;
     }
 
     public async Task<bool> SetCoordinatesAsync(Guid groupId, double latitude, double longitude, CancellationToken cancellationToken = default)

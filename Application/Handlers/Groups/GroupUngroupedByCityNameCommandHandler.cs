@@ -5,6 +5,7 @@ using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Grouping;
+using Klacks.Api.Application.Services.Grouping;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
@@ -134,7 +135,7 @@ public sealed class GroupUngroupedByCityNameCommandHandler
             var existing = await _groupItemRepository.GetByClientAndGroup(assignment.ClientId, assignment.GroupId);
             if (existing != null && !existing.IsDeleted)
             {
-                existingMembers.Add(new ExistingMembershipStart(assignment.ClientId, existing.ValidFrom));
+                existingMembers.Add(new ExistingMembershipStart(assignment.ClientId, existing.ValidFrom, existing.Id, assignment.GroupId, existing.ValidUntil));
                 continue;
             }
 
@@ -166,7 +167,8 @@ public sealed class GroupUngroupedByCityNameCommandHandler
         }
 
         var verified = 0;
-        if (newItems.Count > 0)
+        var pulledForward = PullForwardBatch.Empty;
+        if (newItems.Count > 0 || membershipStart.ExistingMembersPulledForwardCount > 0)
         {
             verified = await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
@@ -175,10 +177,12 @@ public sealed class GroupUngroupedByCityNameCommandHandler
                     await _groupItemRepository.Add(item);
                 }
 
+                pulledForward = await _startPlanner.StagePullForwardAsync(startPlan, existingMembers, cancellationToken);
                 await _unitOfWork.CompleteAsync();
 
-                var confirmed = await _groupItemRepository.CountExistingByIds(
-                    newItems.Select(i => i.Id).ToList(), cancellationToken);
+                var confirmed = newItems.Count == 0
+                    ? 0
+                    : await _groupItemRepository.CountExistingByIds(newItems.Select(i => i.Id).ToList(), cancellationToken);
                 if (confirmed != newItems.Count)
                 {
                     throw new SkillVerificationException(
@@ -187,6 +191,7 @@ public sealed class GroupUngroupedByCityNameCommandHandler
                         $"{confirmed} were confirmed — the changes were rolled back.");
                 }
 
+                await _startPlanner.VerifyPullForwardAsync(pulledForward, cancellationToken);
                 return confirmed;
             });
         }
@@ -200,6 +205,6 @@ public sealed class GroupUngroupedByCityNameCommandHandler
             NoAddressCount: noAddress,
             Assignments: assignments,
             UnmatchedCities: unmatchedCities,
-            MembershipStart: membershipStart);
+            MembershipStart: pulledForward.ReportOn(membershipStart));
     }
 }
