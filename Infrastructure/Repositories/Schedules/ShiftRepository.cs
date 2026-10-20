@@ -96,7 +96,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
                 $"Shift {existingShift.Id} cannot be edited while in scenario mode (AnalyseToken={existingShift.AnalyseToken}).");
         }
 
-        KeepFieldsSetOnlyAtCreation(existingShift, shift);
+        ShiftCreationOnlyFields.KeepStored(existingShift, shift);
 
         var entry = context.Entry(existingShift);
         entry.CurrentValues.SetValues(shift);
@@ -134,23 +134,6 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         Logger.LogInformation("Shift updated: {ShiftId}, GroupItems count: {Count}, ShiftExpenses count: {ExpenseCount}, RequiredQualifications count: {QualificationCount}",
             shift.Id, existingShift.GroupItems.Count, existingShift.ShiftExpenses.Count, existingShift.RequiredQualifications.Count);
         return existingShift;
-    }
-
-    /// <summary>
-    /// The ERP reference and the scenario clone tracking are written when the row is created (ERP import,
-    /// order supersession, scenario clone) and ShiftResource does not carry them, so a shift mapped from the
-    /// edit form or the cut dialog brings them as null. An update keeps the stored values instead of
-    /// overwriting them; the internal callers that pass a loaded entity hold the same values anyway.
-    /// </summary>
-    /// <param name="stored">The tracked shift as stored.</param>
-    /// <param name="incoming">The shift whose values are about to be copied onto the stored one.</param>
-    private static void KeepFieldsSetOnlyAtCreation(Shift stored, Shift incoming)
-    {
-        incoming.SourceSystemId = stored.SourceSystemId;
-        incoming.ExternalOrderReference = stored.ExternalOrderReference;
-        incoming.SupersedesOrderId = stored.SupersedesOrderId;
-        incoming.ScenarioSourceShiftId = stored.ScenarioSourceShiftId;
-        incoming.SourceChildCountSnapshot = stored.SourceChildCountSnapshot;
     }
 
     public override async Task<Shift?> Delete(Guid id)
@@ -340,6 +323,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .ThenBy(x => x.StartShift)
             .AsNoTracking();
     }
+
+    public Task<bool> HasOriginalShiftCopyAsync(Guid originalShiftId, CancellationToken cancellationToken = default) =>
+        GetQuery().AnyAsync(s => s.OriginalId == originalShiftId && s.Status == ShiftStatus.OriginalShift, cancellationToken);
+
+    public Task<List<Shift>> GetWithClientByIdsAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default) =>
+        GetQueryWithClient().Where(s => shiftIds.Contains(s.Id)).ToListAsync(cancellationToken);
 
     public async Task<List<Shift>> CutList(Guid id, DateOnly? filterClosedBefore = null, bool tracked = false)
     {

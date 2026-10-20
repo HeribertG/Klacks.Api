@@ -29,6 +29,16 @@ public interface IShiftRepository : IBaseRepository<Shift>
     IQueryable<Shift> GetQueryWithClient();
 
     /// <summary>
+    /// Whether a shift with status OriginalShift already carries <paramref name="originalShiftId"/> as its OriginalId.
+    /// </summary>
+    Task<bool> HasOriginalShiftCopyAsync(Guid originalShiftId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Loads the given shifts untracked, with their client and the client's addresses.
+    /// </summary>
+    Task<List<Shift>> GetWithClientByIdsAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Filters shifts by the given criteria. <paramref name="today"/> is the company's own local day
     /// (per ICompanyClock), resolved by the caller since this method itself is synchronous.
     /// <paramref name="visibleGroupIds"/> is the caller's group restriction from

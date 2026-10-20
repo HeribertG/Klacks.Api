@@ -94,7 +94,7 @@ public class GroupSearchService : IGroupSearchService
     public async Task<TruncatedGroup> ApplyPaginationAsync(IQueryable<Group> query, GroupFilter filter)
     {
         _logger.LogInformation("Applying pagination to query");
-        var totalCount = query.Count();
+        var totalCount = await query.CountAsync();
 
         var maxPage = filter.NumberOfItemsPerPage > 0 ? (totalCount / filter.NumberOfItemsPerPage) : 0;
         var firstItem = CalculateFirstItem(filter, totalCount);

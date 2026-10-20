@@ -17,7 +17,6 @@ using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Schedules;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization;
 
@@ -203,9 +202,7 @@ public class RouteOptimizationService : IRouteOptimizationService
     {
         _logger.LogInformation("OptimizeRouteByShiftIdsAsync called with {Count} shift IDs", shiftIds.Count);
 
-        var shifts = await _shiftRepository.GetQueryWithClient()
-            .Where(s => shiftIds.Contains(s.Id))
-            .ToListAsync();
+        var shifts = await _shiftRepository.GetWithClientByIdsAsync(shiftIds);
 
         _logger.LogInformation("Loaded {Count} shifts from DB", shifts.Count);
 
