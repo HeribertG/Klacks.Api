@@ -5,20 +5,22 @@ description: |
   reached via the gear icon (open-settings, Alt+8) in the main navigation; route and icon are
   only available with admin permission. Gives an orientation overview of its thirteen collapsible
   sections: General (app name, owner address, data retention/GDPR), Users & Access (user
-  administration, group visibility per user, identity providers), Organization (branches,
-  contracts, states, countries, qualifications), Work & Scheduling (work settings, scheduling
+  administration, group visibility per user), Organization (branches, contracts, states,
+  countries, qualifications, identity providers — the last only in expert mode), Work & Scheduling (work settings, scheduling
   defaults, scheduling rules, Holistic Harmonizer), Absence & Calendar (absence types, absence
   details, holiday rules, calendar selection), Communication & Reports (SMTP email, IMAP, spam
   rules, report templates and defaults), Appearance & Automation (grid colors, calculation
   macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech,
   personality, learning, autonomy), External Services (OpenRoute, DeepL, messaging when
-  the plugin is enabled), Order & Customer Import (ERP drop point: import schedule, manual XML
-  upload, file explorer, push access tokens — see explain_page_settings_erp_drop_points for
-  detail), Plugins (language packs, feature plugins) and System (software updates). Also covers
+  the plugin is enabled), Import (employee import from Excel/CSV, admins only — see
+  explain_page_import_employees; ERP drop point: import schedule, manual XML upload, file
+  explorer, push access tokens — see explain_page_settings_erp_drop_points for detail),
+  Plugins (language packs, feature plugins) and System (software updates). Several sections,
+  among them Import, are only shown with the expert mode switch turned on. Also covers
   Klacksy's guided first-run setup tour and how the settings feed other pages (absence types →
   absence calendar, contracts and scheduling rules → resource monitor and planning, LLM
-  providers → Klacksy, macros → booked services, email/IMAP → inbox, ERP drop point → sealed
-  order shifts). Use this when the user asks what they see on the settings page, what the
+  providers → Klacksy, macros → booked services, email/IMAP → inbox, ERP drop point → unsealed
+  draft orders). Use this when the user asks what they see on the settings page, what the
   sections/cards mean, or how to work with it. Supports a level parameter: short (purpose
   only), elements (every section and card explained), effects (how the settings affect the
   other pages).
@@ -93,10 +95,17 @@ eigene Felder und Dialoge; bei Fragen zu einer einzelnen Karte einfach nachfrage
 ### Kopfzeile der Seite
 
 Oben der Seitentitel **Einstellungen** (de: "Einstellungen", en: "Settings",
-fr: "Paramètres", it: "Impostazioni") mit zwei Icon-Knöpfen rechts: **alle Sektionen
-aufklappen** und **alle Sektionen zuklappen**.
+fr: "Paramètres", it: "Impostazioni") mit dem Schalter **Expertenmodus** (de: "Experten Modus",
+en: "Expert Mode", fr: "Mode expert", it: "Modalità esperto") und zwei Icon-Knöpfen rechts:
+**alle Sektionen aufklappen** und **alle Sektionen zuklappen**. Der Expertenmodus blendet
+weitere Sektionen und Karten ein (u. a. Arbeitszeit & Planung, Compliance, KI / LLM,
+Klacksy, Externe Dienste, Import, Plugins, System); ohne ihn sind sie nicht sichtbar. Die
+Wahl bleibt im Browser gespeichert. Springt Klacksy per `navigate_to` zu einer Karte, die nur
+im Expertenmodus erscheint, schaltet die Seite den Expertenmodus selbst ein und klappt die
+Sektion auf; erklärt Klacksy nur den Weg, muss es den Benutzer bitten, den Schalter
+einzuschalten.
 
-### Die zwölf Sektionen
+### Die dreizehn Sektionen
 
 Jede Sektion ist eine Kartengruppe mit eigener Abschnitts-Zeile; Klick auf die Zeile
 (oder Enter, die Zeilen sind per Tastatur erreichbar) klappt sie auf oder zu, ein
@@ -122,14 +131,13 @@ mit — erwähne die Marker und Anker-IDs niemals im Text.
    (lesen) und `update_data_retention_settings` (schreiben, Parameter `retentionDays`).
 2. **Benutzer & Zugriff** (de: "Benutzer & Zugriff", en: "Users & Access",
    fr: "Utilisateurs & Accès", it: "Utenti & Accesso"): `user-management`
-   (Login-Konten und Rechte), `group-scope` (Sichtbarkeit von Gruppen pro Benutzer),
-   `identity-providers` (externe Identity Provider für die Anmeldung).
+   (Login-Konten und Rechte), `group-scope` (Sichtbarkeit von Gruppen pro Benutzer).
 3. **Organisation** (de: "Organisation", en: "Organization", fr: "Organisation",
    it: "Organizzazione"): `branches` (Filialen), `contracts` (Vertragsvorlagen),
    `states` (Staaten/Kantone), `countries` (Länder), `qualifications`
-   (Qualifikationen der Mitarbeitenden), `client-import` (Karte "Mitarbeitende
-   importieren", nur für Admins sichtbar: öffnet die eigene Import-Seite für
-   Excel-/CSV-Mitarbeiterlisten, Details siehe `explain_page_import_employees`).
+   (Qualifikationen der Mitarbeitenden), rechts daneben `identity-providers` (externe
+   Identity Provider für die Anmeldung; nur mit eingeschaltetem Expertenmodus sichtbar). Der Mitarbeiterimport liegt nicht hier, sondern
+   in der Sektion **Import** (Punkt 11).
 4. **Arbeitszeit & Planung** (de: "Arbeitszeit & Planung", en: "Work & Scheduling",
    fr: "Travail & Planification", it: "Lavoro & Pianificazione"): `work-setting`
    (Anstellungs- und Lohnparameter wie Ferientage, Probezeit, Kündigungsfrist,
@@ -163,10 +171,11 @@ mit — erwähne die Marker und Anker-IDs niemals im Text.
     `deepl` (Übersetzung). Ist das Messaging-Feature-Plugin aktiviert, erscheinen
     zusätzlich `messaging-providers` (Messaging-Anbieter) und `owner-messengers`
     (eigene Messenger-Konten) — sonst fehlen diese beiden Karten.
-11. **Bestellungs- & Kunden-Import** (de: "Bestellungs- & Kunden-Import",
-    en: "Order & Customer Import", fr: "Importation commandes & clients",
-    it: "Importazione ordini & clienti"): `erp-drop-points` — automatischer Import
-    von Bestellungen aus XML-Dateien eines externen ERP-Systems (Ein-Briefkasten-
+11. **Import** (de/en: "Import", fr: "Importation", it: "Importazione") — nur im
+    Expertenmodus sichtbar: `client-import` (Karte "Mitarbeitende importieren", nur für
+    Admins sichtbar: öffnet die eigene Import-Seite für Excel-/CSV-Mitarbeiterlisten,
+    Details siehe `explain_page_import_employees`) und `erp-drop-points` — automatischer
+    Import von Bestellungen aus XML-Dateien eines externen ERP-Systems (Ein-Briefkasten-
     Modell): Import-Zeitplan, manueller Upload, Datei-Explorer (Eingang/Verarbeitet/
     Fehler), Zugriffstoken. Details siehe `explain_page_settings_erp_drop_points`.
 12. **Plugins** (in allen Sprachen "Plugins"): `language-plugins` (Sprachpakete

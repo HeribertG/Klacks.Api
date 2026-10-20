@@ -31485,7 +31485,7 @@
     {
       "name": "explain_page_settings_erp_drop_points",
       "area": "settings",
-      "description": "Explains the ERP order & customer import feature (Bestellungs- & Kunden-Import) in Klacks settings — the single-drop-point ('one mailbox') model for automatically importing orders (as SealedOrder shifts) from XML files delivered by an external ERP system. Covers the four cards: import schedule (cron expression, time zone, enable toggle, run-now button, last-polled/last-error status), manual upload (drag & drop an XML file), the file list (Inbox/Processed/Failed tabs with import progress, per-file summary and status icon, uploader, retry and delete) and the ERP push access tokens for HTTPS delivery. Also covers the manual/handbook tab with the sample XML download. Use this when the user asks how to set up or use the ERP order import. Supports a level parameter: short (purpose only), elements (every card explained), effects (data flow, how orders become shifts, how tokens and the drop-zone relate).",
+      "description": "Explains the ERP order & customer import feature in Klacks settings (section Import, only visible in expert mode) — the single-drop-point ('one mailbox') model for automatically importing orders (as unsealed, group-less OriginalOrder draft shifts that planners review and seal by hand) from XML files delivered by an external ERP system. Covers the four cards: import schedule (cron expression, time zone, enable toggle, run-now button, last-polled/last-error status), manual upload (drag & drop an XML file), the file list (Inbox/Processed/Failed tabs with import progress, per-file summary and status icon, uploader, retry and delete) and the ERP push access tokens for HTTPS delivery. Also covers the manual/handbook tab with the sample XML download. Use this when the user asks how to set up or use the ERP order import. Supports a level parameter: short (purpose only), elements (every card explained), effects (data flow, how orders become shifts, how tokens and the drop-zone relate).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31571,7 +31571,7 @@
         "fr": "Explication des paramètres des points de dépôt ERP",
         "it": "Spiegazione delle impostazioni dei punti di consegna ERP"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "explain_page_import_employees",

@@ -41,10 +41,14 @@ The page **Import employees** (de: "Mitarbeitende importieren", en: "Import empl
 fr: "Importer des collaborateurs", it: "Importa collaboratori") takes over a whole staff list from
 one Excel file (.xlsx) or one CSV file (.csv) with one row per person, instead of creating every
 person by hand. Klacks recognises the columns itself, shows how every record will look and only then
-saves. It is reached in the settings, section **Organization** (de: "Organisation",
-en: "Organization", fr: "Organisation", it: "Organizzazione"), card **Import employees**, button
-**Import** (de: "Importieren", en: "Import", fr: "Importer", it: "Importa"); the card opens a page of
-its own. Only administrators see the card and can open the page.
+saves. It is reached in the settings, section **Import** (de/en: "Import", fr: "Importation",
+it: "Importazione"), card **Import employees**, button **Import** (de: "Importieren",
+en: "Import", fr: "Importer", it: "Importa"); the card opens a page of its own. The section Import
+is only shown in expert mode: the user first turns on the switch **Expert mode** at the top of the
+settings page (de: "Experten Modus", en: "Expert Mode", fr: "Mode expert", it: "Modalità esperto").
+When Klacksy navigates to the card itself (`navigate_to`, target `client-import`), the page turns
+expert mode on and opens the section by itself. Only administrators see the card and can open the
+page.
 
 The page leads through four steps shown at the top (`client-import-steps`):
 **File** (de: "Datei", en: "File", fr: "Fichier", it: "File") →
@@ -151,7 +155,8 @@ another file.
 - **Other ways in**: a single person is created by hand on the employee page; a company directory can
   be synchronised by an administrator through the identity provider settings.
 - **Permission**: only administrators can open the page. Other users cannot import employees and
-  need an administrator for it.
+  need an administrator for it. An administrator who does not find the card has expert mode
+  switched off: turn on the switch at the top of the settings page, then open the section Import.
 
 ### Trigger phrases
 

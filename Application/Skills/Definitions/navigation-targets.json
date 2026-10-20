@@ -1142,10 +1142,10 @@
     "targetId": "client-import",
     "route": "/workplace/settings",
     "labelKey": "clientImport.title",
-    "category": "settings.organization",
+    "category": "settings.integrations",
     "requiredPermission": "CanViewSettings",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-10-19T20:49:42.280Z",
+    "lastScannedAt": "2026-10-20T06:17:29.798Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false

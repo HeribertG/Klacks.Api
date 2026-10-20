@@ -1,8 +1,8 @@
 ---
 name: explain_page_settings_erp_drop_points
 description: |
-  Explains the ERP order & customer import feature (Bestellungs- & Kunden-Import) in Klacks
-  settings — the single-drop-point ("one mailbox") model for automatically importing orders
+  Explains the ERP order & customer import feature in Klacks settings (section Import, only
+  visible in expert mode) — the single-drop-point ("one mailbox") model for automatically importing orders
   (as unsealed, group-less OriginalOrder draft shifts) from XML files delivered by an external
   ERP system. Covers the four cards: import schedule (cron expression, time zone, enable toggle, run-now button,
   last-polled/last-error status), manual upload (drag & drop an XML file), the file list
@@ -34,16 +34,19 @@ synonyms:
   it: [come configuro l'import erp, cos'è un drop point, importare ordini automaticamente, token di accesso erp]
 ---
 
-# Bestellungs- & Kunden-Import — Sektion "ERP" in den Einstellungen
+# ERP-Bestellungsimport — Sektion "Import" in den Einstellungen
 
 <!-- level:short -->
 
-## Stufe 1 — Wofür ist diese Sektion?
+## Stufe 1 — Wofür ist diese Karte?
 
-Die Sektion **Bestellungs- & Kunden-Import** (de: "Bestellungs- & Kunden-Import", en:
-"Order & Customer Import", fr: "Importation commandes & clients", it: "Importazione
-ordini & clienti") liegt unter `/workplace/settings` (Anker-ID `erp-drop-points`,
-zwischen "Externe Dienste" und "Plugins") und konfiguriert den automatischen Import von
+Die Karte **ERP Drop Points** (Anker-ID `erp-drop-points`) liegt unter
+`/workplace/settings` in der Sektion **Import** (de/en: "Import", fr: "Importation",
+it: "Importazione"), zwischen "Externe Dienste" und "Plugins", direkt unter der Karte
+"Mitarbeitende importieren" (`client-import`, siehe `explain_page_import_employees`). Die
+Sektion erscheint nur im Expertenmodus (Schalter oben auf der Einstellungsseite, de:
+"Experten Modus", en: "Expert Mode", fr: "Mode expert", it: "Modalità esperto"). Die Karte
+konfiguriert den automatischen Import von
 Bestellungen aus XML-Dateien, die ein externes ERP-System liefert. Klacks folgt dem
 **Ein-Briefkasten-Modell**: es gibt genau einen Drop-Point ("Default"), keine Liste zum
 Anlegen mehrerer Briefkästen. Jede importierte Bestellung wird als **Dienst
