@@ -37,6 +37,7 @@
 /// <param name="timeProvider">Clock for claim, heartbeat and finish timestamps</param>
 using Klacks.Api.Application.DTOs.Imports;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Imports;
 using Klacks.Api.Application.Services.Assistant.Triggers;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;

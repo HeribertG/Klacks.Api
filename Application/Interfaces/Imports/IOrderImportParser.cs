@@ -2,7 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Imports;
 
-namespace Klacks.Api.Domain.Interfaces.Imports;
+namespace Klacks.Api.Application.Interfaces.Imports;
 
 public interface IOrderImportParser
 {
