@@ -9,7 +9,7 @@
 /// trimmed and unchanged, so callers keep their existing "unknown code" behaviour.
 /// </summary>
 
-namespace Klacks.Api.Application.Constants;
+namespace Klacks.Api.Domain.Constants;
 
 public static class CountryCodeNormalizer
 {

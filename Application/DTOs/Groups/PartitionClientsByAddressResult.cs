@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Grouping;
+using Klacks.Api.Domain.Services.Geo;
 
 namespace Klacks.Api.Application.DTOs.Groups;
 
@@ -26,6 +27,11 @@ namespace Klacks.Api.Application.DTOs.Groups;
 /// <param name="PlaceAttachments">At level cluster_municipality: the small places of every city cluster and the group each joined (a municipality sub-cluster or the city cluster itself); empty otherwise.</param>
 /// <param name="UsersKeepingFullVisibilityCount">Only non-zero when this run introduces the very first group of the installation: how many non-admin users automatically keep visibility on the new root group(s), so nothing changes for them until an administrator restricts visibility deliberately.</param>
 /// <param name="MembershipStart">Start date of the new memberships and how many of the placed persons entered earlier (their days before the start are shown blue and locked in the schedule).</param>
+/// <param name="PopulationCount">Clients with a usable address the structure (cluster centres, thresholds, centre positions) was computed from, including already grouped clients that are not re-placed.</param>
+/// <param name="UnassignableByReason">Every reason why clients could not be placed, with the number of clients, most frequent first.</param>
+/// <param name="ClusterPlaceAttachments">At cluster levels: every non-centre place holding clients this run places, with the centre it joined as a whole and the distance; empty otherwise.</param>
+/// <param name="StateThresholds">At cluster levels: population and centre threshold of every state the run places clients in; empty otherwise.</param>
+/// <param name="Method">How this run decided group membership, in words, so it can be repeated to the user instead of guessed.</param>
 public sealed record PartitionClientsByAddressResult(
     bool Applied,
     string Level,
@@ -41,4 +47,9 @@ public sealed record PartitionClientsByAddressResult(
     IReadOnlyList<string> Warnings,
     int UsersKeepingFullVisibilityCount,
     IReadOnlyList<PartitionPlaceAttachment>? PlaceAttachments = null,
-    GroupMembershipStartInfo? MembershipStart = null);
+    GroupMembershipStartInfo? MembershipStart = null,
+    int PopulationCount = 0,
+    IReadOnlyList<PartitionReasonCount>? UnassignableByReason = null,
+    IReadOnlyList<ClusterPlaceAttachment>? ClusterPlaceAttachments = null,
+    IReadOnlyList<ClusterStateThreshold>? StateThresholds = null,
+    string Method = "");

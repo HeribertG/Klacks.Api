@@ -716,12 +716,7 @@ INSERT INTO public.shift (
             script.AppendLine("\n-- Container Seed Data (ShiftType = IsContainer)");
             script.AppendLine("-- Containers with Root Groups for Container Templates");
 
-            var availableRootGroups = new[] {
-                "Westschweiz",
-                "Deutschschweiz Zürich",
-                "Deutschschweiz Mitte",
-                "Deutschschweiz Ost"
-            };
+            var availableRootGroups = DemoOrderDefinitionFactory.RootGroups;
 
             List<string> GetRandomRootGroups(int count)
             {
@@ -914,15 +909,10 @@ INSERT INTO public.shift (
             var currentTime = DateTime.UtcNow;
             var baseDate = new DateOnly(2025, 1, 1);
 
-            script.AppendLine("\n-- Container (Tag, Abend, Nacht) - 20 pro RootGroup = 240 total");
+            script.AppendLine("\n-- Container (Tag, Abend, Nacht) - 20 pro RootGroup und Typ");
             script.AppendLine("-- shift_type = 1 (IsContainer), status = 2 (OriginalShift)");
 
-            var availableRootGroups = new[] {
-                "Westschweiz",
-                "Deutschschweiz Zürich",
-                "Deutschschweiz Mitte",
-                "Deutschschweiz Ost"
-            };
+            var availableRootGroups = DemoOrderDefinitionFactory.RootGroups;
 
             var containerTypes = language switch
             {

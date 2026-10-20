@@ -79,7 +79,7 @@ public class AddressGeocodingProcessor : IAddressGeocodingProcessor
 
         if (string.IsNullOrWhiteSpace(address.State))
         {
-            address.State = await _stateResolver.ResolveAsync(result.State) ?? string.Empty;
+            address.State = await _stateResolver.ResolveAsync(country?.Abbreviation ?? address.Country, result.State, result.County) ?? string.Empty;
         }
 
         await _unitOfWork.CompleteAsync();

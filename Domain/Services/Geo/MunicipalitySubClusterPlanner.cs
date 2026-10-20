@@ -137,10 +137,8 @@ public static class MunicipalitySubClusterPlanner
             .ThenBy(g => g.Key, StringComparer.Ordinal)
             .First().Key;
 
-        var located = addresses.Where(a => a.Latitude.HasValue && a.Longitude.HasValue).ToList();
-        return located.Count == 0
-            ? new Place(name, addresses, null, null)
-            : new Place(name, addresses, located.Average(a => a.Latitude!.Value), located.Average(a => a.Longitude!.Value));
+        var position = PlacePosition.Of(addresses);
+        return new Place(name, addresses, position?.Latitude, position?.Longitude);
     }
 
     private sealed record Place(string Name, List<ClusterAddress> Addresses, double? Latitude, double? Longitude);

@@ -12,9 +12,23 @@
 /// At ClusterMunicipality level every city cluster additionally gets the municipality sub-clusters computed by
 /// <see cref="MunicipalitySubClusterPlanner"/>; clients of the centre city and of small places that stay with
 /// the centre remain direct members of the city cluster group.
+/// Population versus candidates: the cluster structure (centres, thresholds, centroids, sub-clusters) is
+/// always computed from EVERY placeable client of the states that have candidates, also those already
+/// grouped, while includeAlreadyGrouped=false only decides who gets a NEW membership (the candidates). A
+/// re-run after a partial first run therefore reproduces the same structure and reuses its groups by name
+/// and parent instead of turning leftover villages into centres of their own. Nodes without candidates are
+/// only listed when they already exist.
+/// Regions are identified by the language-independent key of the country's region file; the display name
+/// only labels a newly created root. An existing root group is reused when it carries ANY language variant
+/// of the region name, so switching the installation language never creates a second root. A state that
+/// already exists under the root of ANOTHER region of the same country is not moved; the plan warns instead.
+/// Country codes are normalised to ISO alpha-2 (the seeded US states carry "USA"), so "US" and "USA"
+/// addresses share one state node and one region file.
 /// </summary>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Grouping;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
@@ -37,7 +51,14 @@ public static class GroupPartitionPlanner
     private const string NameParentKeySeparator = "|group-key|";
     private const string RootParentMarker = "root";
 
-    private sealed record PlacedClient(Client Client, string Country, string State, string City, double? Latitude, double? Longitude);
+    private const string AmbiguousRegionRootWarningTemplate =
+        "Several root groups carry a name of region '{0}' ({1}); none was reused and a new root '{0}' would be created. " +
+        "Merge or rename the duplicate roots first.";
+
+    private const string StateUnderOtherRegionWarningTemplate =
+        "{0} exists under '{1}'; the run creates a second '{0}' under '{2}' — move the existing group first.";
+
+    private sealed record PlacedClient(Client Client, string Country, string State, string City, double? Latitude, double? Longitude, bool IsCandidate);
 
     private sealed class PlanBuilder
     {
@@ -57,6 +78,14 @@ public static class GroupPartitionPlanner
         public List<UnassignablePartitionClient> Unassignable { get; }
 
         public List<PartitionPlaceAttachment> PlaceAttachments { get; } = new();
+
+        public List<ClusterPlaceAttachment> ClusterPlaceAttachments { get; } = new();
+
+        public List<ClusterStateThreshold> StateThresholds { get; } = new();
+
+        public List<string> Warnings { get; } = new();
+
+        public HashSet<string> NamesWithSpecificWarning { get; } = new(StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -66,7 +95,7 @@ public static class GroupPartitionPlanner
     /// <param name="existingGroups">All groups currently in the database</param>
     /// <param name="level">Granularity of the tree</param>
     /// <param name="rootGroupId">Optional root every top-level node attaches under; null uses the region map</param>
-    /// <param name="includeAlreadyGrouped">When false, clients with an active membership are skipped</param>
+    /// <param name="includeAlreadyGrouped">When false, clients with an active membership get no new membership; they still count for the cluster structure</param>
     /// <param name="context">Default country, region maps, state names and the cluster share</param>
     public static GroupPartitionPlan Plan(
         IReadOnlyList<Client> clients,
@@ -91,50 +120,55 @@ public static class GroupPartitionPlanner
 
         foreach (var client in clients)
         {
-            if (!includeAlreadyGrouped && HasActiveMembership(client))
+            var isCandidate = includeAlreadyGrouped || !HasActiveMembership(client);
+            if (!isCandidate)
             {
                 skipped++;
-                continue;
             }
 
             var address = CustomerGroupingPlanner.SelectPreferredAddress(client, _ => true);
-            var country = string.IsNullOrWhiteSpace(address?.Country)
-                ? context.DefaultCountryCode.Trim().ToUpperInvariant()
-                : address!.Country.Trim().ToUpperInvariant();
+            var country = NormalizeCountry(string.IsNullOrWhiteSpace(address?.Country)
+                ? context.DefaultCountryCode
+                : address!.Country);
             var state = address?.State?.Trim().ToUpperInvariant() ?? string.Empty;
             var city = address?.City?.Trim() ?? string.Empty;
 
             var reason = ResolveUnassignableReason(level, address, state, city);
             if (reason != null)
             {
-                unassignable.Add(new UnassignablePartitionClient(client.Id, DisplayName(client), reason));
+                if (isCandidate)
+                {
+                    unassignable.Add(new UnassignablePartitionClient(client.Id, DisplayName(client), reason));
+                }
+
                 continue;
             }
 
-            placed.Add(new PlacedClient(client, country, state, city, address?.Latitude, address?.Longitude));
+            placed.Add(new PlacedClient(client, country, state, city, address?.Latitude, address?.Longitude, isCandidate));
         }
 
+        var candidates = placed.Where(c => c.IsCandidate).ToList();
         var builder = new PlanBuilder(unassignable);
 
         if (level != GroupPartitionLevelEnum.City)
         {
-            PlanRegionsAndStates(level, rootGroupId, context, placed, existingByNameAndParent, builder);
+            PlanRegionsAndStates(level, rootGroupId, context, candidates, activeGroups, existingByNameAndParent, builder);
         }
 
         switch (level)
         {
             case GroupPartitionLevelEnum.State:
-                foreach (var client in placed)
+                foreach (var client in candidates)
                 {
                     builder.LeafKeyByClientId[client.Client.Id] = builder.StateKeyByCountryAndCode[StateLookupKey(client.Country, client.State)];
                 }
 
                 break;
             case GroupPartitionLevelEnum.City:
-                PlanFlatCities(rootGroupId, placed, existingByNameAndParent, builder);
+                PlanFlatCities(rootGroupId, candidates, existingByNameAndParent, builder);
                 break;
             case GroupPartitionLevelEnum.StateCity:
-                PlanCitiesUnderStates(placed, existingByNameAndParent, builder);
+                PlanCitiesUnderStates(candidates, existingByNameAndParent, builder);
                 break;
             case GroupPartitionLevelEnum.Cluster:
                 PlanClustersUnderStates(context.ClusterSharePercent, placed, existingByNameAndParent, builder);
@@ -145,48 +179,55 @@ public static class GroupPartitionPlanner
                 break;
         }
 
-        var assignments = placed
+        var assignments = candidates
             .Where(c => builder.LeafKeyByClientId.ContainsKey(c.Client.Id))
             .Select(c => new PartitionClientAssignment(c.Client.Id, DisplayName(c.Client), builder.LeafKeyByClientId[c.Client.Id]))
             .ToList();
 
-        var warnings = BuildDuplicateNameWarnings(builder.Groups, groupsByNameAnywhere);
+        var warnings = builder.Warnings
+            .Concat(BuildDuplicateNameWarnings(builder.Groups, groupsByNameAnywhere, builder.NamesWithSpecificWarning))
+            .ToList();
 
-        return new GroupPartitionPlan(clients.Count, skipped, builder.Groups, assignments, unassignable, warnings, builder.PlaceAttachments);
+        return new GroupPartitionPlan(
+            clients.Count, skipped, builder.Groups, assignments, unassignable, warnings, builder.PlaceAttachments,
+            placed.Count, builder.ClusterPlaceAttachments, builder.StateThresholds);
     }
 
     private static void PlanRegionsAndStates(
         GroupPartitionLevelEnum level,
         Guid? rootGroupId,
         GroupPartitionContext context,
-        List<PlacedClient> placed,
+        List<PlacedClient> candidates,
+        IReadOnlyList<Group> activeGroups,
         Dictionary<string, Group> existingByNameAndParent,
         PlanBuilder builder)
     {
-        var neededStates = placed
+        var neededStates = candidates
             .Select(c => (c.Country, c.State))
             .Distinct()
             .OrderBy(s => s.Country, StringComparer.Ordinal)
             .ThenBy(s => s.State, StringComparer.Ordinal)
             .ToList();
 
-        var regionKeyByCountryAndName = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var regionKeyByCountryAndKey = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         if (rootGroupId is null)
         {
             var regions = neededStates
                 .Select(s => (s.Country, Region: RegionFor(context, s.Country, s.State)))
                 .Where(r => r.Region != null)
                 .Select(r => (r.Country, Region: r.Region!))
-                .Distinct()
+                .DistinctBy(r => (r.Country, r.Region.Key))
                 .OrderBy(r => r.Country, StringComparer.Ordinal)
-                .ThenBy(r => r.Region, StringComparer.Ordinal);
+                .ThenBy(r => r.Region.DisplayName, StringComparer.Ordinal);
 
-            foreach (var (country, regionName) in regions)
+            foreach (var (country, region) in regions)
             {
-                var key = RegionKeyPrefix + country + GroupPartitionContext.StateKeySeparator + regionName;
-                var existing = LookupExisting(existingByNameAndParent, regionName, parentActualId: null, parentIsPending: false);
-                builder.Groups.Add(new PlannedPartitionGroup(key, regionName, ParentKey: null, existing != null, existing?.Id, ClientCount: 0));
-                regionKeyByCountryAndName[country + GroupPartitionContext.StateKeySeparator + regionName] = key;
+                var key = RegionKeyPrefix + country + GroupPartitionContext.StateKeySeparator + region.Key;
+                var existing = LookupExistingRegionRoot(activeGroups, region, builder);
+                var name = existing?.Name ?? region.DisplayName;
+                builder.Groups.Add(new PlannedPartitionGroup(
+                    key, name, ParentKey: null, existing != null, existing?.Id, ClientCount: 0, Method: PartitionGroupMethods.Region));
+                regionKeyByCountryAndKey[country + GroupPartitionContext.StateKeySeparator + region.Key] = key;
                 builder.ResolvedId[key] = existing?.Id;
             }
         }
@@ -197,10 +238,10 @@ public static class GroupPartitionPlanner
             Guid? parentActualId = rootGroupId;
             var parentIsPending = false;
 
-            var regionName = rootGroupId is null ? RegionFor(context, country, stateCode) : null;
-            if (regionName != null)
+            var region = rootGroupId is null ? RegionFor(context, country, stateCode) : null;
+            if (region != null)
             {
-                parentKey = regionKeyByCountryAndName[country + GroupPartitionContext.StateKeySeparator + regionName];
+                parentKey = regionKeyByCountryAndKey[country + GroupPartitionContext.StateKeySeparator + region.Key];
                 parentActualId = builder.ResolvedId[parentKey];
                 parentIsPending = parentActualId is null;
             }
@@ -208,16 +249,85 @@ public static class GroupPartitionPlanner
             var key = StateKeyPrefix + country + GroupPartitionContext.StateKeySeparator + stateCode;
             var existing = LookupExisting(existingByNameAndParent, stateCode, parentActualId, parentIsPending);
             var clientCount = level == GroupPartitionLevelEnum.State
-                ? placed.Count(c => c.Country == country && string.Equals(c.State, stateCode, StringComparison.OrdinalIgnoreCase))
+                ? candidates.Count(c => c.Country == country && string.Equals(c.State, stateCode, StringComparison.OrdinalIgnoreCase))
                 : 0;
             var description = context.StateNameByCountryAndCode.TryGetValue(GroupPartitionContext.StateKey(country, stateCode), out var name)
                 ? name
                 : stateCode;
 
-            builder.Groups.Add(new PlannedPartitionGroup(key, stateCode, parentKey, existing != null, existing?.Id, clientCount, description));
+            if (existing == null && region != null && parentKey != null)
+            {
+                WarnWhenStateExistsUnderOtherRegion(
+                    context, country, stateCode, region, builder.Groups.Single(g => g.Key == parentKey).Name, activeGroups, builder);
+            }
+
+            builder.Groups.Add(new PlannedPartitionGroup(
+                key, stateCode, parentKey, existing != null, existing?.Id, clientCount, description,
+                DirectCount: clientCount, Method: PartitionGroupMethods.State));
             builder.StateKeyByCountryAndCode[StateLookupKey(country, stateCode)] = key;
             builder.ResolvedId[key] = existing?.Id;
         }
+    }
+
+    private static Group? LookupExistingRegionRoot(IReadOnlyList<Group> activeGroups, RegionDescriptor region, PlanBuilder builder)
+    {
+        var names = new HashSet<string>(region.AllNames.Select(n => n.Trim()), StringComparer.OrdinalIgnoreCase);
+        var hits = activeGroups
+            .Where(g => g.Parent == null && names.Contains(g.Name.Trim()))
+            .OrderBy(g => g.Name, StringComparer.Ordinal)
+            .ToList();
+
+        if (hits.Count <= 1)
+        {
+            return hits.FirstOrDefault();
+        }
+
+        builder.Warnings.Add(string.Format(
+            AmbiguousRegionRootWarningTemplate,
+            region.DisplayName,
+            string.Join(", ", hits.Select(g => $"'{g.Name}' (id {g.Id})"))));
+        builder.NamesWithSpecificWarning.Add(region.DisplayName);
+        return null;
+    }
+
+    private static void WarnWhenStateExistsUnderOtherRegion(
+        GroupPartitionContext context,
+        string country,
+        string stateCode,
+        RegionDescriptor region,
+        string regionGroupName,
+        IReadOnlyList<Group> activeGroups,
+        PlanBuilder builder)
+    {
+        if (!context.RegionByCountryAndState.TryGetValue(country, out var byState))
+        {
+            return;
+        }
+
+        var otherRegionNames = new HashSet<string>(
+            byState.Values
+                .Where(r => !string.Equals(r.Key, region.Key, StringComparison.Ordinal))
+                .SelectMany(r => r.AllNames)
+                .Select(n => n.Trim()),
+            StringComparer.OrdinalIgnoreCase);
+        var rootById = activeGroups.Where(g => g.Parent == null).ToDictionary(g => g.Id);
+
+        var misplaced = activeGroups
+            .Where(g => string.Equals(g.Name.Trim(), stateCode, StringComparison.OrdinalIgnoreCase)
+                && g.Parent.HasValue
+                && rootById.TryGetValue(g.Parent.Value, out var root)
+                && otherRegionNames.Contains(root.Name.Trim()))
+            .Select(g => rootById[g.Parent!.Value].Name)
+            .OrderBy(n => n, StringComparer.Ordinal)
+            .FirstOrDefault();
+
+        if (misplaced == null)
+        {
+            return;
+        }
+
+        builder.Warnings.Add(string.Format(StateUnderOtherRegionWarningTemplate, stateCode, misplaced, regionGroupName));
+        builder.NamesWithSpecificWarning.Add(stateCode);
     }
 
     private static void PlanFlatCities(
@@ -238,7 +348,9 @@ public static class GroupPartitionPlanner
             var existing = LookupExisting(existingByNameAndParent, city, rootGroupId, parentIsPending: false);
             var clientCount = placed.Count(c => string.Equals(c.City, city, StringComparison.OrdinalIgnoreCase));
 
-            builder.Groups.Add(new PlannedPartitionGroup(key, city, ParentKey: null, existing != null, existing?.Id, clientCount));
+            builder.Groups.Add(new PlannedPartitionGroup(
+                key, city, ParentKey: null, existing != null, existing?.Id, clientCount,
+                DirectCount: clientCount, Method: PartitionGroupMethods.City));
             cityKeyByCity[city] = key;
         }
 
@@ -274,7 +386,9 @@ public static class GroupPartitionPlanner
                 string.Equals(c.State, state, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(c.City, city, StringComparison.OrdinalIgnoreCase));
 
-            builder.Groups.Add(new PlannedPartitionGroup(key, city, stateKey, existing != null, existing?.Id, clientCount));
+            builder.Groups.Add(new PlannedPartitionGroup(
+                key, city, stateKey, existing != null, existing?.Id, clientCount,
+                DirectCount: clientCount, Method: PartitionGroupMethods.City));
             cityKeyByStateAndCity[StateLookupKey(country, state) + GroupPartitionContext.StateKeySeparator + city] = key;
         }
 
@@ -291,10 +405,26 @@ public static class GroupPartitionPlanner
         Dictionary<string, Group> existingByNameAndParent,
         PlanBuilder builder)
     {
-        var clientById = placed.ToDictionary(c => c.Client.Id, c => c.Client);
+        var candidateStates = new HashSet<string>(
+            placed.Where(c => c.IsCandidate).Select(c => StateLookupKey(c.Country, c.State)), StringComparer.OrdinalIgnoreCase);
+        var population = placed.Where(c => candidateStates.Contains(StateLookupKey(c.Country, c.State))).ToList();
+        var placedById = population.ToDictionary(c => c.Client.Id);
         var clusterPlan = AddressClusterPlanner.Plan(
-            placed.Select(c => new ClusterAddress(c.Client.Id, c.Country, c.State, c.City, c.Latitude, c.Longitude)).ToList(),
+            population.Select(c => new ClusterAddress(c.Client.Id, c.Country, c.State, c.City, c.Latitude, c.Longitude)).ToList(),
             sharePercent);
+
+        var candidateAssignmentsByCluster = clusterPlan.Assignments
+            .Where(a => placedById[a.ClientId].IsCandidate)
+            .GroupBy(a => ClusterLookupKey(a.Country, a.State, a.City), StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
+        var candidatePlaces = new HashSet<string>(
+            clusterPlan.Assignments
+                .Where(a => a.AttachedByDistance && placedById[a.ClientId].IsCandidate)
+                .Select(a => PlaceLookupKey(a.Country, a.State, placedById[a.ClientId].City)),
+            StringComparer.OrdinalIgnoreCase);
+        var placeAttachments = clusterPlan.PlaceAttachments
+            .Where(p => candidatePlaces.Contains(PlaceLookupKey(p.Country, p.State, p.Place)))
+            .ToList();
 
         var clusterKeyByCluster = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var cluster in clusterPlan.Clusters)
@@ -303,25 +433,46 @@ public static class GroupPartitionPlanner
             var parentActualId = builder.ResolvedId[stateKey];
             var parentIsPending = parentActualId is null;
 
-            var key = ClusterKeyPrefix + cluster.Country + GroupPartitionContext.StateKeySeparator + cluster.State + GroupPartitionContext.StateKeySeparator + cluster.City;
+            var clusterLookup = ClusterLookupKey(cluster.Country, cluster.State, cluster.City);
+            var key = ClusterKeyPrefix + clusterLookup;
             var existing = LookupExisting(existingByNameAndParent, cluster.City, parentActualId, parentIsPending);
+            var members = candidateAssignmentsByCluster.GetValueOrDefault(clusterLookup) ?? [];
+            if (members.Count == 0 && existing == null)
+            {
+                continue;
+            }
+
+            var attachedPlaces = placeAttachments.Count(p =>
+                p.Country == cluster.Country && p.State == cluster.State && p.CentreCity == cluster.City);
 
             builder.Groups.Add(new PlannedPartitionGroup(
                 key, cluster.City, stateKey, existing != null, existing?.Id,
-                cluster.DirectCount + cluster.AttachedCount, string.Empty, cluster.Latitude, cluster.Longitude));
-            clusterKeyByCluster[ClusterLookupKey(cluster.Country, cluster.State, cluster.City)] = key;
+                members.Count, string.Empty, cluster.Latitude, cluster.Longitude,
+                DirectCount: members.Count(a => !a.AttachedByDistance),
+                AttachedCount: members.Count(a => a.AttachedByDistance),
+                AttachedPlaceCount: attachedPlaces,
+                Method: PartitionGroupMethods.Cluster));
+            clusterKeyByCluster[clusterLookup] = key;
             builder.ResolvedId[key] = existing?.Id;
         }
 
-        foreach (var assignment in clusterPlan.Assignments)
+        foreach (var members in candidateAssignmentsByCluster.Values)
         {
-            builder.LeafKeyByClientId[assignment.ClientId] = clusterKeyByCluster[ClusterLookupKey(assignment.Country, assignment.State, assignment.City)];
+            foreach (var assignment in members)
+            {
+                builder.LeafKeyByClientId[assignment.ClientId] =
+                    clusterKeyByCluster[ClusterLookupKey(assignment.Country, assignment.State, assignment.City)];
+            }
         }
 
-        foreach (var rejection in clusterPlan.Rejections)
+        foreach (var rejection in clusterPlan.Rejections.Where(r => placedById[r.ClientId].IsCandidate))
         {
-            builder.Unassignable.Add(new UnassignablePartitionClient(rejection.ClientId, DisplayName(clientById[rejection.ClientId]), rejection.Reason));
+            builder.Unassignable.Add(new UnassignablePartitionClient(
+                rejection.ClientId, DisplayName(placedById[rejection.ClientId].Client), rejection.Reason));
         }
+
+        builder.ClusterPlaceAttachments.AddRange(placeAttachments);
+        builder.StateThresholds.AddRange(clusterPlan.StateThresholds);
 
         return clusterPlan;
     }
@@ -341,12 +492,13 @@ public static class GroupPartitionPlanner
         foreach (var cluster in clusterPlan.Clusters)
         {
             var clusterLookup = ClusterLookupKey(cluster.Country, cluster.State, cluster.City);
-            if (!membersByCluster.TryGetValue(clusterLookup, out var members))
+            var clusterKey = ClusterKeyPrefix + clusterLookup;
+            if (!builder.ResolvedId.TryGetValue(clusterKey, out var parentActualId)
+                || !membersByCluster.TryGetValue(clusterLookup, out var members))
             {
                 continue;
             }
 
-            var clusterKey = ClusterKeyPrefix + clusterLookup;
             var subPlan = MunicipalitySubClusterPlanner.Plan(
                 cluster.City,
                 cluster.Latitude,
@@ -354,30 +506,54 @@ public static class GroupPartitionPlanner
                 members.Select(c => new ClusterAddress(c.Client.Id, c.Country, c.State, c.City, c.Latitude, c.Longitude)).ToList(),
                 sharePercent);
 
-            var parentActualId = builder.ResolvedId[clusterKey];
+            var candidatePlaces = new HashSet<string>(
+                members.Where(c => c.IsCandidate).Select(c => c.City), StringComparer.OrdinalIgnoreCase);
+            var keptAttachments = subPlan.Attachments.Where(a => candidatePlaces.Contains(a.Place)).ToList();
+            var movedCandidates = subPlan.SubClusterByClientId
+                .Where(entry => placedById[entry.Key].IsCandidate)
+                .ToList();
+
             var parentIsPending = parentActualId is null;
             var subKeyByCity = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (var subCluster in subPlan.SubClusters)
             {
                 var key = MunicipalityKeyPrefix + clusterLookup + GroupPartitionContext.StateKeySeparator + subCluster.City;
                 var existing = LookupExisting(existingByNameAndParent, subCluster.City, parentActualId, parentIsPending);
+                var subMembers = movedCandidates.Where(entry => entry.Value == subCluster.City).ToList();
+                if (subMembers.Count == 0 && existing == null)
+                {
+                    continue;
+                }
+
+                var direct = subMembers.Count(entry =>
+                    string.Equals(placedById[entry.Key].City, subCluster.City, StringComparison.OrdinalIgnoreCase));
                 builder.Groups.Add(new PlannedPartitionGroup(
                     key, subCluster.City, clusterKey, existing != null, existing?.Id,
-                    subCluster.DirectCount + subCluster.AttachedCount, string.Empty, subCluster.Latitude, subCluster.Longitude));
+                    subMembers.Count, string.Empty, subCluster.Latitude, subCluster.Longitude,
+                    DirectCount: direct,
+                    AttachedCount: subMembers.Count - direct,
+                    AttachedPlaceCount: keptAttachments.Count(a => a.SubClusterCity == subCluster.City),
+                    Method: PartitionGroupMethods.Municipality));
                 builder.ResolvedId[key] = existing?.Id;
                 subKeyByCity[subCluster.City] = key;
             }
 
-            foreach (var (clientId, subCity) in subPlan.SubClusterByClientId)
+            foreach (var (clientId, subCity) in movedCandidates)
             {
                 builder.LeafKeyByClientId[clientId] = subKeyByCity[subCity];
             }
 
             var clusterIndex = builder.Groups.FindIndex(g => g.Key == clusterKey);
             var cityCluster = builder.Groups[clusterIndex];
-            builder.Groups[clusterIndex] = cityCluster with { ClientCount = cityCluster.ClientCount - subPlan.SubClusterByClientId.Count };
+            var remaining = cityCluster.ClientCount - movedCandidates.Count;
+            builder.Groups[clusterIndex] = cityCluster with
+            {
+                ClientCount = remaining,
+                AttachedCount = remaining - cityCluster.DirectCount,
+                AttachedPlaceCount = keptAttachments.Count(a => a.SubClusterCity == null)
+            };
 
-            foreach (var attachment in subPlan.Attachments)
+            foreach (var attachment in keptAttachments)
             {
                 builder.PlaceAttachments.Add(new PartitionPlaceAttachment(
                     attachment.Place,
@@ -390,21 +566,27 @@ public static class GroupPartitionPlanner
         }
     }
 
-    private static string? RegionFor(GroupPartitionContext context, string country, string stateCode) =>
+    private static RegionDescriptor? RegionFor(GroupPartitionContext context, string country, string stateCode) =>
         context.RegionByCountryAndState.TryGetValue(country, out var byState) && byState.TryGetValue(stateCode, out var region)
             ? region
             : null;
+
+    private static string NormalizeCountry(string countryCode) =>
+        (CountryCodeNormalizer.ToAlpha2(countryCode) ?? string.Empty).Trim().ToUpperInvariant();
 
     private static string StateLookupKey(string country, string state) => country + GroupPartitionContext.StateKeySeparator + state;
 
     private static string ClusterLookupKey(string country, string state, string city) =>
         country + GroupPartitionContext.StateKeySeparator + state + GroupPartitionContext.StateKeySeparator + city;
 
+    private static string PlaceLookupKey(string country, string state, string place) =>
+        ClusterLookupKey(country, state, place.Trim());
+
     private static List<string> BuildDuplicateNameWarnings(
-        IReadOnlyList<PlannedPartitionGroup> groups, ILookup<string, Group> groupsByNameAnywhere)
+        IReadOnlyList<PlannedPartitionGroup> groups, ILookup<string, Group> groupsByNameAnywhere, IReadOnlySet<string> alreadyWarned)
     {
         var warnings = new List<string>();
-        var warnedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var warnedNames = new HashSet<string>(alreadyWarned, StringComparer.OrdinalIgnoreCase);
 
         foreach (var planned in groups.Where(g => !g.Existed))
         {

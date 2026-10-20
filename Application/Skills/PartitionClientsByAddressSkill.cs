@@ -7,7 +7,9 @@
 /// With apply=false (default) it returns a read-only preview; with apply=true it creates the missing
 /// groups (reusing a group with the right name under the right parent), persists the memberships and
 /// verifies the write. Cluster groups receive the mean coordinates of their addresses so the order
-/// assignment's distance fallback works without geocoding.
+/// assignment's distance fallback works without geocoding. Preview and apply message both state the method
+/// (centre thresholds, by-name versus attached-by-distance counts per group, where every attached place went
+/// and why clients could not be placed), so the assistant repeats the method instead of guessing it.
 /// </summary>
 /// <param name="level">Granularity: 'cluster' (default), 'cluster_municipality', 'state', 'city' or 'state_city'.</param>
 /// <param name="entityType">Client types to place: 'All' (default), 'Employee', 'ExternEmp' or 'Customer'.</param>
@@ -18,7 +20,9 @@
 /// <param name="validFrom">Start date of the new memberships (format YYYY-MM-DD, or 'today'; 'entry' starts each person on their own employment entry date); defaults to today when omitted.</param>
 /// <param name="apply">When false (default) only previews the plan; when true creates the groups and persists the memberships.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Commands.Groups;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Interfaces;
@@ -57,6 +61,8 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
         "Clients of the centre city stay directly in the city cluster group.";
 
     private const int MaxPreviewPlaceAttachments = 20;
+    private const int MaxListedReasons = 5;
+    private const int MaxListedClusterAttachments = 20;
 
     private const string InvalidEntityTypeError =
         "Invalid entityType '{0}'. Allowed: All, Employee, ExternEmp, Customer.";
@@ -187,9 +193,7 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
 
         var isMunicipalityLevel = result.Level == nameof(GroupPartitionLevelEnum.ClusterMunicipality);
         var groupNames = string.Join(", ",
-            result.Groups.Take(MaxPreviewGroupNames)
-                .Select(g => $"{g.Name} ({g.ClientCount}{(g.Existed ? ", existing" : ", new")}" +
-                    $"{(isMunicipalityLevel && g.ParentName != null ? $", in {g.ParentName}" : string.Empty)})"));
+            result.Groups.Take(MaxPreviewGroupNames).Select(g => DescribeGroup(g, isMunicipalityLevel)));
         var moreGroups = result.Groups.Count > MaxPreviewGroupNames
             ? $" (+{result.Groups.Count - MaxPreviewGroupNames} more)"
             : string.Empty;
@@ -199,6 +203,8 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
             result,
             $"Preview: {result.Groups.Count} group(s) planned at level '{result.Level}' ({newCount} new, " +
             $"{result.Groups.Count - newCount} reused): {groupNames}{moreGroups}. " +
+            BuildMethod(result) +
+            BuildClusterPlaceAttachments(result) +
             (isMunicipalityLevel ? $"{MunicipalityTreeDescription} {BuildPlaceAttachments(result)}" : string.Empty) +
             $"{BuildDiagnostics(result)} {visibilityAdvisory} {GroupMembershipStartHint.For(result.MembershipStart, applied: false)} " +
             "Nothing was changed yet. Ask the user to confirm, then call again with apply=true.");
@@ -212,13 +218,63 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
         var newCount = result.Groups.Count(g => !g.Existed);
         var reusedCount = result.Groups.Count - newCount;
         var visibilityAdvisory = FirstGroupVisibilityAdvisory.For(result.UsersKeepingFullVisibilityCount);
+        var isMunicipalityLevel = result.Level == nameof(GroupPartitionLevelEnum.ClusterMunicipality);
+        var groupNames = string.Join(", ",
+            result.Groups.Take(MaxPreviewGroupNames).Select(g => DescribeGroup(g, isMunicipalityLevel)));
+        var moreGroups = result.Groups.Count > MaxPreviewGroupNames
+            ? $" (+{result.Groups.Count - MaxPreviewGroupNames} more)"
+            : string.Empty;
 
         return SkillResult.SuccessResult(
             result,
             $"Partitioned {result.TotalClients} {result.EntityType} client(s) at level '{result.Level}' into " +
-            $"{result.Groups.Count} group(s) ({newCount} new, {reusedCount} reused), added {result.AssignedCount} " +
+            $"{result.Groups.Count} group(s) ({newCount} new, {reusedCount} reused): {groupNames}{moreGroups}. Added {result.AssignedCount} " +
             $"membership(s) and confirmed {result.VerifiedCount} in the database (verified){alreadyNote}. " +
+            BuildMethod(result) +
+            BuildClusterPlaceAttachments(result) +
             $"{BuildDiagnostics(result)} {visibilityAdvisory} {GroupMembershipStartHint.For(result.MembershipStart, applied: true)}");
+    }
+
+    private static string DescribeGroup(PartitionGroupSummary group, bool isMunicipalityLevel)
+    {
+        var state = group.Existed ? "existing" : "new";
+        var parent = isMunicipalityLevel && group.ParentName != null ? $", in {group.ParentName}" : string.Empty;
+        if (!IsDistanceBasedGroup(group))
+        {
+            return $"{group.Name} ({group.ClientCount}, {state}{parent})";
+        }
+
+        var coordinates = group.HasCoordinates ? "centre has coordinates" : "centre has no coordinates";
+        return $"{group.Name} ({group.ClientCount}: {group.DirectCount} by city name + {group.AttachedCount} attached " +
+            $"from {group.AttachedPlaceCount} place(s); {coordinates}, {state}{parent})";
+    }
+
+    private static bool IsDistanceBasedGroup(PartitionGroupSummary group) =>
+        group.Method == PartitionGroupMethods.Cluster || group.Method == PartitionGroupMethods.Municipality;
+
+    private static string BuildMethod(PartitionClientsByAddressResult result) =>
+        string.IsNullOrWhiteSpace(result.Method) ? string.Empty : result.Method + " ";
+
+    private static string BuildClusterPlaceAttachments(PartitionClientsByAddressResult result)
+    {
+        var attachments = result.ClusterPlaceAttachments ?? [];
+        if (attachments.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var listed = string.Join("; ", attachments
+            .OrderByDescending(a => a.ClientCount)
+            .ThenBy(a => a.Place, StringComparer.Ordinal)
+            .Take(MaxListedClusterAttachments)
+            .Select(a => a.DistanceKm.HasValue
+                ? $"{a.Place} ({a.ClientCount}) → {a.CentreCity}, {a.DistanceKm.Value.ToString("0.0", CultureInfo.InvariantCulture)} km"
+                : $"{a.Place} ({a.ClientCount}) → {a.CentreCity}, only centre of its state (distance not measured)"));
+        var more = attachments.Count > MaxListedClusterAttachments
+            ? $" (+{attachments.Count - MaxListedClusterAttachments} more)"
+            : string.Empty;
+
+        return $"Places attached as a whole: {listed}{more}. ";
     }
 
     private static string BuildPlaceAttachments(PartitionClientsByAddressResult result)
@@ -245,18 +301,21 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
 
         if (result.SkippedAlreadyGroupedCount > 0)
         {
-            parts.Add($"{result.SkippedAlreadyGroupedCount} already had a group and were skipped");
+            parts.Add(
+                $"structure computed from all {result.PopulationCount} client(s) with a usable address; " +
+                $"{result.SkippedAlreadyGroupedCount} already grouped kept their membership and were not re-placed");
         }
 
         if (result.UnassignableCount > 0)
         {
+            parts.Add($"{result.UnassignableCount} could not be placed{BuildReasonCounts(result)}");
             var sample = string.Join(", ",
                 result.UnassignableSample.Take(MaxUnassignablePreviewNames)
                     .Select(u => $"{u.ClientName} ({u.Reason})"));
             var more = result.UnassignableCount > MaxUnassignablePreviewNames
                 ? $" and {result.UnassignableCount - MaxUnassignablePreviewNames} more"
                 : string.Empty;
-            parts.Add($"{result.UnassignableCount} could not be placed: {sample}{more}");
+            parts.Add($"for example {sample}{more}");
         }
 
         if (result.Warnings.Count > 0)
@@ -265,6 +324,22 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
         }
 
         return parts.Count > 0 ? string.Join("; ", parts) + "." : string.Empty;
+    }
+
+    private static string BuildReasonCounts(PartitionClientsByAddressResult result)
+    {
+        var reasons = result.UnassignableByReason ?? [];
+        if (reasons.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var listed = string.Join(", ", reasons.Take(MaxListedReasons).Select(r => $"{r.Count}× {r.Reason}"));
+        var more = reasons.Count > MaxListedReasons
+            ? $" (+{reasons.Count - MaxListedReasons} more reasons)"
+            : string.Empty;
+
+        return $" ({listed}{more})";
     }
 
     private static bool TryParseEntityTypes(string? value, out IReadOnlyList<EntityTypeEnum> entityTypes)

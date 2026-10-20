@@ -20333,7 +20333,7 @@
       "name": "partition_clients_by_address",
       "area": "group",
       "pairedApplySkill": "partition_clients_by_address",
-      "description": "Builds the location group tree from client addresses: region → state/province → city cluster, placing employees, external employees and customers into their cluster. Use level 'cluster_municipality' when the user mentions municipalities or Gemeinden: it adds municipality sub-groups inside each city cluster. Use for 'create groups from all addresses' or when orders cannot be sealed because no groups exist. Existing groups are reused.",
+      "description": "Builds the location group tree from client addresses: region → state/province → city cluster for employees, external employees and customers. Centres are cities with enough addresses; every other place joins its nearest centre as a whole, so single addresses need no coordinates. Level 'cluster_municipality' adds municipality sub-groups (Gemeinden). Use for 'create groups from all addresses' or when orders cannot be sealed because no groups exist. Existing groups are reused.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20395,7 +20395,7 @@
         },
         {
           "name": "includeAlreadyGrouped",
-          "description": "When true, clients that already belong to a group are placed again too; defaults to false so only ungrouped clients are touched. Existing groups with the right name under the right parent are always reused.",
+          "description": "When true, clients that already belong to a group are placed again too; defaults to false so only ungrouped clients get new memberships. The clusters are still computed from ALL addresses, so a re-run lands in the groups of the first run, which are reused by name under the right parent.",
           "type": "Boolean",
           "required": false,
           "defaultValue": false,
@@ -20485,7 +20485,7 @@
         "fr": "Construire une arborescence de groupes à partir des adresses",
         "it": "Costruisci un albero di gruppi di sede dagli indirizzi"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "partition_clients_by_qualification",

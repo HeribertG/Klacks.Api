@@ -25,6 +25,7 @@ namespace Klacks.Api.Data.Seed
             var deutschschweizZurichCalSelId = SwissCantonCalendarSelectionsSeed.CalendarSelectionIds["ZH"];
             var deutschschweizMitteCalSelId = SwissCantonCalendarSelectionsSeed.CalendarSelectionIds["BE"];
             var deutschschweizOstCalSelId = SwissCantonCalendarSelectionsSeed.CalendarSelectionIds["SG"];
+            var italienischeSchweizCalSelId = SwissCantonCalendarSelectionsSeed.CalendarSelectionIds["TI"];
 
             // Root 1: Westschweiz (GE, VD, NE, JU, FR) - parent=NULL, root=NULL
             var westschweizId = Guid.NewGuid();
@@ -179,17 +180,16 @@ namespace Klacks.Api.Data.Seed
             script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES 
             ('{liestalId}', 'Liestal (Hauptstadt)', 'Liestal', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, 27, '{blId}', 28, '{deutschweizMitteId}', 2, '{deutschschweizMitteCalSelId}');");
 
-            // Root 4: Deutschschweiz Ost (Alle anderen Kantone ohne FR) - parent=NULL, root=NULL
+            // Root 4: Deutschschweiz Ost (Alle anderen deutschsprachigen Kantone) - parent=NULL, root=NULL
             var deutschweizOstId = Guid.NewGuid();
-            script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES
-            ('{deutschweizOstId}', '', 'Deutschschweiz Ost', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, 1, NULL, 52, NULL, 2, '{deutschschweizOstCalSelId}');");
+            var ostRootIndex = script.Length;
 
             var currentLft = 2;
 
             // LU - Luzern (2-6)
             var luId = Guid.NewGuid();
             CantonGroupIds["LU"] = luId;
-            var luRgt = currentLft + 4;
+            var luRgt = currentLft + 5;
             script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES 
             ('{luId}', 'Luzern', 'LU', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, {currentLft++}, '{deutschweizOstId}', {luRgt}, '{deutschweizOstId}', 2, '{deutschschweizOstCalSelId}');");
             var luzernStadtId = Guid.NewGuid();
@@ -200,6 +200,7 @@ namespace Klacks.Api.Data.Seed
             CityGroupIds["Emmen"] = emmenId;
             script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES 
             ('{emmenId}', 'Emmen (ca. 30.000)', 'Emmen', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, {currentLft++}, '{luId}', {currentLft++}, '{deutschweizOstId}', 2, '{deutschschweizOstCalSelId}');");
+            currentLft++;
 
             // SG - St. Gallen (7-12)
             var sgId = Guid.NewGuid();
@@ -215,19 +216,21 @@ namespace Klacks.Api.Data.Seed
             CityGroupIds["Rapperswil-Jona"] = rapperswilJonaId;
             script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES 
             ('{rapperswilJonaId}', 'Rapperswil-Jona (ca. 27.000)', 'Rapperswil-Jona', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, {currentLft++}, '{sgId}', {currentLft++}, '{deutschweizOstId}', 2, '{deutschschweizOstCalSelId}');");
+            currentLft++;
 
             // TG - Thurgau (13-15)
             var tgId = Guid.NewGuid();
             CantonGroupIds["TG"] = tgId;
-            var tgRgt = currentLft + 2;
+            var tgRgt = currentLft + 3;
             script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES 
             ('{tgId}', 'Thurgau', 'TG', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, {currentLft++}, '{deutschweizOstId}', {tgRgt}, '{deutschweizOstId}', 2, '{deutschschweizOstCalSelId}');");
             var frauenfeldId = Guid.NewGuid();
             CityGroupIds["Frauenfeld"] = frauenfeldId;
             script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES 
             ('{frauenfeldId}', 'Frauenfeld (Hauptstadt)', 'Frauenfeld', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, {currentLft++}, '{tgId}', {currentLft++}, '{deutschweizOstId}', 2, '{deutschschweizOstCalSelId}');");
+            currentLft++;
 
-            // Alle restlichen Kantone mit Hauptstädten (FR wurde nach Westschweiz verschoben)
+            // Alle restlichen deutschsprachigen Kantone mit Hauptstädten (FR in Westschweiz, TI in Italienische Schweiz)
             var remainingCantonsWithCapitals = new[]
             {
                 ("AI", "Appenzell Innerrhoden", "Appenzell"),
@@ -238,7 +241,6 @@ namespace Klacks.Api.Data.Seed
                 ("OW", "Obwalden", "Sarnen"),
                 ("SH", "Schaffhausen", "Schaffhausen"),
                 ("SZ", "Schwyz", "Schwyz"),
-                ("TI", "Tessin", "Bellinzona"),
                 ("UR", "Uri", "Altdorf"),
                 ("VS", "Wallis", "Sion"),
                 ("ZG", "Zug", "Zug")
@@ -248,14 +250,33 @@ namespace Klacks.Api.Data.Seed
             {
                 var cantonId = Guid.NewGuid();
                 CantonGroupIds[code] = cantonId;
-                var cantonRgt = currentLft + 2;
+                var cantonRgt = currentLft + 3;
                 script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES 
                 ('{cantonId}', '{name}', '{code}', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, {currentLft++}, '{deutschweizOstId}', {cantonRgt}, '{deutschweizOstId}', 2, '{deutschschweizOstCalSelId}');");
                 var capitalId = Guid.NewGuid();
                 CityGroupIds[capital] = capitalId;
                 script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES 
                 ('{capitalId}', '{capital} (Hauptstadt)', '{capital}', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, {currentLft++}, '{cantonId}', {currentLft++}, '{deutschweizOstId}', 2, '{deutschschweizOstCalSelId}');");
+                currentLft++;
             }
+
+            script.Insert(ostRootIndex, $@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES
+            ('{deutschweizOstId}', '', 'Deutschschweiz Ost', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, 1, NULL, {currentLft}, NULL, 2, '{deutschschweizOstCalSelId}');" + Environment.NewLine);
+
+            // Root 5: Italienische Schweiz (TI) - parent=NULL, root=NULL
+            var italienischeSchweizId = Guid.NewGuid();
+            script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES
+            ('{italienischeSchweizId}', '', 'Italienische Schweiz', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, 1, NULL, 6, NULL, 2, '{italienischeSchweizCalSelId}');");
+
+            // TI - Tessin
+            var tiId = Guid.NewGuid();
+            CantonGroupIds["TI"] = tiId;
+            script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES
+            ('{tiId}', 'Tessin', 'TI', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, 2, '{italienischeSchweizId}', 5, '{italienischeSchweizId}', 2, '{italienischeSchweizCalSelId}');");
+            var bellinzonaId = Guid.NewGuid();
+            CityGroupIds["Bellinzona"] = bellinzonaId;
+            script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES
+            ('{bellinzonaId}', 'Bellinzona (Hauptstadt)', 'Bellinzona', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, 3, '{tiId}', 4, '{italienischeSchweizId}', 2, '{italienischeSchweizCalSelId}');");
 
             return script.ToString();
         }

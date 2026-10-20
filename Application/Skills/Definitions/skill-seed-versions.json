@@ -1449,8 +1449,8 @@
       "hash": "6E53149ACC03654A2756B12C09D0D031B27A167FD7DEB9E21F59C7BEFD87BE4F"
     },
     "partition_clients_by_address": {
-      "version": 7,
-      "hash": "6F2C8AD187C67FA0A32510BD8E434179C947FECDBA9CCCCDE4D82B2523EC2DF6"
+      "version": 8,
+      "hash": "39F84F07CF726490CE858D94A130835595D2B8D051DCBCE61940C3F0AC916475"
     },
     "partition_clients_by_qualification": {
       "version": 2,

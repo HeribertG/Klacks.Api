@@ -18,6 +18,8 @@
 /// country outright.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.Constants;
 
 public static class CountryTimeZones

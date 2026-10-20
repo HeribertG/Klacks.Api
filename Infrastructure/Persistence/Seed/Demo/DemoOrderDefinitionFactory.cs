@@ -23,6 +23,7 @@ public class DemoOrderDefinitionFactory
     public const string RootGroupZurich = "Deutschschweiz Z\u00fcrich";
     public const string RootGroupCentral = "Deutschschweiz Mitte";
     public const string RootGroupEast = "Deutschschweiz Ost";
+    public const string RootGroupItalian = "Italienische Schweiz";
 
     public const int SimpleShiftCount = 10;
     public const int MorningShiftCount = 40;
@@ -68,7 +69,8 @@ public class DemoOrderDefinitionFactory
         RootGroupWestSwitzerland,
         RootGroupZurich,
         RootGroupCentral,
-        RootGroupEast
+        RootGroupEast,
+        RootGroupItalian
     ];
 
     public static readonly DateOnly DefaultBaseDate = new(2025, 1, 1);

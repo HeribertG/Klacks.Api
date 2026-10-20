@@ -2213,6 +2213,32 @@
       }
     },
     {
+      "id": "cf9361fb-5792-4d93-9ad5-000000000061",
+      "name": {
+        "ar": "مقاطعة كولومبيا",
+        "cs": "District of Columbia",
+        "da": "District of Columbia",
+        "el": "Περιφέρεια της Κολούμπια",
+        "es": "Distrito de Columbia",
+        "fi": "District of Columbia",
+        "he": "מחוז קולומביה",
+        "id": "Distrik Columbia",
+        "ja": "コロンビア特別区",
+        "ko": "컬럼비아 특별구",
+        "ms": "Daerah Columbia",
+        "nb": "District of Columbia",
+        "nl": "District of Columbia",
+        "pl": "Dystrykt Kolumbii",
+        "pt": "Distrito de Columbia",
+        "ro": "Districtul Columbia",
+        "sv": "District of Columbia",
+        "th": "ดิสตริกต์ออฟโคลัมเบีย",
+        "vi": "Đặc khu Columbia",
+        "zh-cn": "哥伦比亚特区",
+        "zh-tw": "哥倫比亞特區"
+      }
+    },
+    {
       "id": "cf9361fb-5792-4d93-9ad5-000000000009",
       "name": {
         "ar": "فلوريدا",
@@ -3302,6 +3328,32 @@
         "vi": "Wyoming",
         "zh-cn": "怀俄明州",
         "zh-tw": "懷俄明州"
+      }
+    },
+    {
+      "id": "d6ae2a47-8e65-4ccd-bbe9-000000000001",
+      "name": {
+        "ar": "آن",
+        "cs": "Ain",
+        "da": "Ain",
+        "el": "Αιν",
+        "es": "Ain",
+        "fi": "Ain",
+        "he": "איין",
+        "id": "Ain",
+        "ja": "アン",
+        "ko": "앵",
+        "ms": "Ain",
+        "nb": "Ain",
+        "nl": "Ain",
+        "pl": "Ain",
+        "pt": "Ain",
+        "ro": "Ain",
+        "sv": "Ain",
+        "th": "แอ็ง",
+        "vi": "Ain",
+        "zh-cn": "安省",
+        "zh-tw": "安省"
       }
     },
     {

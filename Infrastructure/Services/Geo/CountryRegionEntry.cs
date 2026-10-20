@@ -4,7 +4,9 @@ namespace Klacks.Api.Infrastructure.Services.Geo;
 
 public sealed class CountryRegionEntry
 {
-    public string Name { get; set; } = string.Empty;
+    public string Key { get; set; } = string.Empty;
+
+    public Dictionary<string, string> Names { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     public List<string> States { get; set; } = [];
 }

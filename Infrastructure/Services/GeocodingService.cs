@@ -389,7 +389,8 @@ public class GeocodingService : IGeocodingService
                 Longitude = lon,
                 ReturnedAddress = firstResult.display_name,
                 MatchType = isExact ? "exact" : "approximate",
-                State = firstResult.address?.state
+                State = firstResult.address?.state,
+                County = firstResult.address?.county
             };
 
             _cache.Set(cacheKey, result2, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(7)).SetSize(1));
@@ -442,7 +443,8 @@ public class GeocodingService : IGeocodingService
             Latitude = validLat,
             Longitude = validLon,
             ReturnedAddress = first.display_name,
-            State = first.address?.state
+            State = first.address?.state,
+            County = first.address?.county
         };
     }
 

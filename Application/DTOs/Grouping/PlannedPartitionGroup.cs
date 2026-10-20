@@ -11,10 +11,14 @@ namespace Klacks.Api.Application.DTOs.Grouping;
 /// <param name="ParentKey">Key of the planned parent node, or null when the node attaches directly under the caller-supplied root group (or the database root when none was given).</param>
 /// <param name="Existed">True when a matching group (by name under the resolved parent) was already found in the database.</param>
 /// <param name="ExistingGroupId">Id of the reused group when Existed is true; otherwise null.</param>
-/// <param name="ClientCount">Number of clients that would become direct members of exactly this group (0 for a pure hierarchy node such as a region or, in state_city or cluster mode, a state).</param>
+/// <param name="ClientCount">Number of candidate clients (those this run places) that would become direct members of exactly this group (0 for a pure hierarchy node such as a region or, in state_city or cluster mode, a state).</param>
 /// <param name="Description">Description the group gets when created (state display name for a state node; empty otherwise).</param>
 /// <param name="Latitude">Latitude written to a newly created cluster group (mean of its addresses); null for every other node.</param>
 /// <param name="Longitude">Longitude written to a newly created cluster group; null for every other node.</param>
+/// <param name="DirectCount">Of ClientCount: candidates placed by name (the centre city of a cluster or the centre place of a sub-cluster); equals ClientCount for state and city nodes.</param>
+/// <param name="AttachedCount">Of ClientCount: candidates of other places that joined as a whole by distance.</param>
+/// <param name="AttachedPlaceCount">Number of places whose candidates joined this group by distance.</param>
+/// <param name="Method">How the members were chosen, one of <see cref="Constants.PartitionGroupMethods"/>.</param>
 public sealed record PlannedPartitionGroup(
     string Key,
     string Name,
@@ -24,4 +28,8 @@ public sealed record PlannedPartitionGroup(
     int ClientCount,
     string Description = "",
     double? Latitude = null,
-    double? Longitude = null);
+    double? Longitude = null,
+    int DirectCount = 0,
+    int AttachedCount = 0,
+    int AttachedPlaceCount = 0,
+    string Method = "");

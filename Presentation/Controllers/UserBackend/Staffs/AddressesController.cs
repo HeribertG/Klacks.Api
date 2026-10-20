@@ -6,10 +6,13 @@
 /// <param name="Mediator">Mediator for query/command handling</param>
 /// <param name="_geocodingService">Service for address geocoding and validation</param>
 /// <param name="_coordinateWriter">Service zum Speichern von Koordinaten in der Address-Tabelle</param>
+/// <param name="_stateResolver">Resolves the geocoder's state/county to a state abbreviation of the address' country</param>
+/// <param name="_countryResolver">Provides the configured default country for addresses that carry none</param>
 
 using Klacks.Api.Application.Queries.Addresses;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Mediator;
@@ -25,6 +28,7 @@ public class AddressesController : InputBaseController<AddressResource>
     private readonly IGeocodingService _geocodingService;
     private readonly IAddressCoordinateWriter _coordinateWriter;
     private readonly StateAbbreviationResolver _stateResolver;
+    private readonly ICountryResolver _countryResolver;
     private readonly ILogger<AddressesController> _logger;
 
     public AddressesController(
@@ -32,12 +36,14 @@ public class AddressesController : InputBaseController<AddressResource>
         ILogger<AddressesController> logger,
         IGeocodingService geocodingService,
         IAddressCoordinateWriter coordinateWriter,
-        StateAbbreviationResolver stateResolver)
+        StateAbbreviationResolver stateResolver,
+        ICountryResolver countryResolver)
         : base(Mediator, logger)
     {
         _geocodingService = geocodingService;
         _coordinateWriter = coordinateWriter;
         _stateResolver = stateResolver;
+        _countryResolver = countryResolver;
         _logger = logger;
     }
 
@@ -113,10 +119,10 @@ public class AddressesController : InputBaseController<AddressResource>
             };
         }
 
-        var country = string.IsNullOrWhiteSpace(resource.Country) ? "CH" : resource.Country;
-
         try
         {
+            var country = await ResolveCountryAsync(resource.Country);
+
             var validationResult = await _geocodingService.ValidateExactAddressAsync(
                 resource.Street, resource.Zip, resource.City, country);
 
@@ -145,7 +151,8 @@ public class AddressesController : InputBaseController<AddressResource>
 
             if (validationResult.Found && isExactEnough)
             {
-                var stateAbbreviation = await _stateResolver.ResolveAsync(validationResult.State);
+                var stateAbbreviation = await _stateResolver.ResolveAsync(
+                    country, validationResult.State, validationResult.County);
 
                 if (!string.IsNullOrWhiteSpace(stateAbbreviation)
                     && !string.IsNullOrWhiteSpace(resource.State)
@@ -201,6 +208,17 @@ public class AddressesController : InputBaseController<AddressResource>
 
             return AcceptedWithoutValidation();
         }
+    }
+
+    private async Task<string> ResolveCountryAsync(string? country)
+    {
+        if (!string.IsNullOrWhiteSpace(country))
+        {
+            return country;
+        }
+
+        var defaultCountry = await _countryResolver.GetDefaultAsync();
+        return defaultCountry?.Abbreviation ?? string.Empty;
     }
 
     // A geocoder that cannot be reached says nothing about the address, so saving is not blocked:

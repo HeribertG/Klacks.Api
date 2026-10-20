@@ -37,6 +37,10 @@ public class GeocodingValidationResult
     public string? ReturnedAddress { get; set; }
     public string? MatchType { get; set; }
     public string? State { get; set; }
+    /// <summary>
+    /// The geocoder's "county" (for France the département, whereas State holds the région).
+    /// </summary>
+    public string? County { get; set; }
 }
 
 public class AddressSuggestion

@@ -76,7 +76,8 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
 
             if (AddressGeocodingRules.IsAcceptedHit(result, address.Street))
             {
-                var stateAbbreviation = await _stateResolver.ResolveAsync(result.State);
+                var stateAbbreviation = await _stateResolver.ResolveAsync(
+                    resolvedCountry?.Abbreviation ?? address.Country, result.State, result.County);
 
                 if (!string.IsNullOrWhiteSpace(stateAbbreviation)
                     && !string.IsNullOrWhiteSpace(address.State)

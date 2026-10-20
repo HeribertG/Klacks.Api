@@ -140,7 +140,17 @@ overlap within it.
   city cluster) from the addresses of employees, external employees and customers in one call, for a
   fresh install that has clients but no groups yet; orders then follow their customer's cluster. Level
   `cluster_municipality` adds municipality sub-groups below a city cluster, but only for larger
-  accumulations; small places join the nearest sub-group or stay in the city group
+  accumulations; small places join the nearest sub-group or stay in the city group. How a cluster is
+  formed: a city with at least the share threshold of its state's addresses (10 % by default; the
+  largest city of a state always) is a centre, its clients join it by city name, and every other place
+  joins the nearest centre of its state **as a whole**, measured from the mean position of its geocoded
+  addresses — so neighbours in one village never end up in different groups and a single address needs
+  no coordinates; only a place without any geocoded address cannot be placed when its state has several
+  centres. The result states this method, the threshold per state and where each place went. A re-run
+  for the clients still without a group computes the clusters from **all** addresses again, so it lands
+  in the groups of the first run instead of turning leftover villages into centres. Region names come
+  from a per-country region file with a stable key; an existing region group is recognised by its name
+  in any language, so changing the installation language does not create a second region
 - `partition_clients_by_qualification` — one group per currently valid qualification (preview first,
   then apply on confirmation); a person with several qualifications is in several groups. With
   `rootGroupName` the qualification groups are created below that group, for its members only

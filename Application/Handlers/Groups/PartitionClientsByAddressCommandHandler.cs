@@ -16,6 +16,7 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Geo;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Geo;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -36,10 +37,10 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// <param name="groupRepository">Provides the existing groups and creates the missing ones (nested-set aware).</param>
 /// <param name="groupItemRepository">Reads existing memberships and adds new ones.</param>
 /// <param name="unitOfWork">Commits and verifies the new memberships in a single transaction.</param>
-/// <param name="regionProvider">Supplies the state-to-region map per country.</param>
+/// <param name="regionProvider">Supplies the state-to-region map per country; each region reaches the planner with its key, its display name (DEFAULT_LANGUAGE, then English, then the core languages in order) and every language variant of its name.</param>
 /// <param name="countryResolver">Supplies the company's default country for addresses without one.</param>
 /// <param name="stateRepository">Supplies state display names for the descriptions of state nodes.</param>
-/// <param name="settingsReader">Reads the installation-wide DEFAULT_LANGUAGE setting used to pick the state display name's language.</param>
+/// <param name="settingsReader">Reads the installation-wide DEFAULT_LANGUAGE setting used to pick the language of state and region display names.</param>
 /// <param name="visibilityPreservation">Counts the users that keep access to everything when this run introduces the first group, for the advisory the preview shows.</param>
 /// <param name="groupVisibilityGuard">Tells whether the caller is free of group-visibility restrictions.</param>
 /// <param name="startPlanner">Plans the start date of every new membership (one common date, or each person's employment entry) and describes it for the result.</param>
@@ -50,6 +51,7 @@ public sealed class PartitionClientsByAddressCommandHandler
     private const string AllEntityTypesLabel = "All";
     private const int MaxUnassignableSample = 20;
     private const string RestrictedCallerMessage = "Only unrestricted users may partition clients into groups";
+    private const string RegionNameFallbackLanguage = "en";
 
     private readonly IClientRepository _clientRepository;
     private readonly IGroupRepository _groupRepository;
@@ -261,36 +263,39 @@ public sealed class PartitionClientsByAddressCommandHandler
     private async Task<GroupPartitionContext> BuildContextAsync(
         IReadOnlyList<Client> clients, int clusterSharePercent, int subClusterSharePercent, CancellationToken cancellationToken)
     {
-        var defaultCountry = (await _countryResolver.GetDefaultAsync(cancellationToken))?.Abbreviation?.Trim().ToUpperInvariant()
-            ?? string.Empty;
+        var defaultCountry = NormalizeCountry((await _countryResolver.GetDefaultAsync(cancellationToken))?.Abbreviation);
 
         var countries = clients
             .Select(c => CustomerGroupingPlanner.SelectPreferredAddress(c, _ => true))
             .Where(a => a != null)
-            .Select(a => string.IsNullOrWhiteSpace(a!.Country) ? defaultCountry : a.Country.Trim().ToUpperInvariant())
+            .Select(a => string.IsNullOrWhiteSpace(a!.Country) ? defaultCountry : NormalizeCountry(a.Country))
             .Where(code => code.Length > 0)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        var regionByCountry = new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+        var configuredLanguage = await ResolveConfiguredLanguageAsync();
+        var regionNameLanguages = RegionNameLanguages(configuredLanguage);
+
+        var regionByCountry = new Dictionary<string, IReadOnlyDictionary<string, RegionDescriptor>>(StringComparer.OrdinalIgnoreCase);
         foreach (var country in countries)
         {
-            regionByCountry[country] = await _regionProvider.GetRegionByStateAsync(country, cancellationToken);
+            var regionByState = await _regionProvider.GetRegionByStateAsync(country, cancellationToken);
+            regionByCountry[country] = ToDescriptors(regionByState, regionNameLanguages);
         }
 
         var countriesInPlay = new HashSet<string>(countries, StringComparer.OrdinalIgnoreCase);
-        var languagesInOrder = await ResolveStateNameLanguagesAsync();
+        var stateNameLanguages = StateNameLanguages(configuredLanguage);
 
         var stateNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var state in await _stateRepository.List())
         {
-            var countryPrefix = state.CountryPrefix.Trim().ToUpperInvariant();
+            var countryPrefix = NormalizeCountry(state.CountryPrefix);
             if (!countriesInPlay.Contains(countryPrefix))
             {
                 continue;
             }
 
-            var name = languagesInOrder
+            var name = stateNameLanguages
                 .Select(language => state.Name?.GetValue(language))
                 .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
             if (name != null)
@@ -302,15 +307,54 @@ public sealed class PartitionClientsByAddressCommandHandler
         return new GroupPartitionContext(defaultCountry, regionByCountry, stateNames, clusterSharePercent, subClusterSharePercent);
     }
 
-    private async Task<IReadOnlyList<string>> ResolveStateNameLanguagesAsync()
+    private static IReadOnlyDictionary<string, RegionDescriptor> ToDescriptors(
+        IReadOnlyDictionary<string, CountryRegion> regionByState, IReadOnlyList<string> languagesInOrder)
+    {
+        var descriptorByKey = new Dictionary<string, RegionDescriptor>(StringComparer.Ordinal);
+        var result = new Dictionary<string, RegionDescriptor>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (state, region) in regionByState)
+        {
+            if (!descriptorByKey.TryGetValue(region.Key, out var descriptor))
+            {
+                var displayName = languagesInOrder
+                    .Select(language => region.Names.GetValue(language))
+                    .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value))
+                    ?? region.Names.GetValueOrFirstAvailable(null);
+                var allNames = region.Names.ToDictionary().Values
+                    .Select(name => name.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+                descriptor = new RegionDescriptor(region.Key, displayName.Trim(), allNames);
+                descriptorByKey[region.Key] = descriptor;
+            }
+
+            result[state] = descriptor;
+        }
+
+        return result;
+    }
+
+    private async Task<string?> ResolveConfiguredLanguageAsync()
     {
         var setting = await _settingsReader.GetSetting(SettingKeys.DefaultLanguage);
-        var configured = setting?.Value;
-
-        return string.IsNullOrWhiteSpace(configured)
-            ? MultiLanguage.CoreLanguages
-            : new[] { configured }.Concat(MultiLanguage.CoreLanguages).ToArray();
+        return string.IsNullOrWhiteSpace(setting?.Value) ? null : setting.Value.Trim();
     }
+
+    private static IReadOnlyList<string> StateNameLanguages(string? configuredLanguage) =>
+        configuredLanguage is null
+            ? MultiLanguage.CoreLanguages
+            : new[] { configuredLanguage }.Concat(MultiLanguage.CoreLanguages).ToArray();
+
+    private static IReadOnlyList<string> RegionNameLanguages(string? configuredLanguage) =>
+        new[] { configuredLanguage, RegionNameFallbackLanguage }
+            .Concat(MultiLanguage.CoreLanguages)
+            .Where(language => !string.IsNullOrWhiteSpace(language))
+            .Select(language => language!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+    private static string NormalizeCountry(string? countryCode) =>
+        (CountryCodeNormalizer.ToAlpha2(countryCode) ?? string.Empty).Trim().ToUpperInvariant();
 
     private static PartitionClientsByAddressResult BuildResult(
         PartitionClientsByAddressCommand request,
@@ -337,7 +381,21 @@ public sealed class PartitionClientsByAddressCommandHandler
             Warnings: plan.Warnings,
             UsersKeepingFullVisibilityCount: usersKeepingFullVisibilityCount,
             PlaceAttachments: plan.PlaceAttachments ?? [],
-            MembershipStart: membershipStart);
+            MembershipStart: membershipStart,
+            PopulationCount: plan.PopulationCount,
+            UnassignableByReason: CountReasons(plan.Unassignable),
+            ClusterPlaceAttachments: plan.ClusterPlaceAttachments ?? [],
+            StateThresholds: plan.StateThresholds ?? [],
+            Method: PartitionMethodDescriber.Describe(
+                request.Level, request.ClusterSharePercent, request.SubClusterSharePercent, plan.StateThresholds ?? []));
+
+    private static List<PartitionReasonCount> CountReasons(IReadOnlyList<UnassignablePartitionClient> unassignable) =>
+        unassignable
+            .GroupBy(u => u.Reason, StringComparer.Ordinal)
+            .Select(g => new PartitionReasonCount(g.Key, g.Count()))
+            .OrderByDescending(r => r.Count)
+            .ThenBy(r => r.Reason, StringComparer.Ordinal)
+            .ToList();
 
     private static List<PartitionGroupSummary> BuildSummaries(
         IReadOnlyList<PlannedPartitionGroup> groups, string? rootGroupName)
@@ -350,7 +408,12 @@ public sealed class PartitionClientsByAddressCommandHandler
                 g.ParentKey is null ? rootGroupName : nameByKey[g.ParentKey],
                 g.Existed,
                 g.ExistingGroupId,
-                g.ClientCount))
+                g.ClientCount,
+                HasCoordinates: g.Latitude.HasValue && g.Longitude.HasValue,
+                DirectCount: g.DirectCount,
+                AttachedCount: g.AttachedCount,
+                AttachedPlaceCount: g.AttachedPlaceCount,
+                Method: g.Method))
             .ToList();
     }
 }

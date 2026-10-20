@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Services.Geo;
+
 namespace Klacks.Api.Application.DTOs.Grouping;
 
 /// <summary>
@@ -13,6 +15,9 @@ namespace Klacks.Api.Application.DTOs.Grouping;
 /// <param name="Unassignable">Clients that cannot be placed at the requested level, with the reason.</param>
 /// <param name="Warnings">Non-fatal issues worth surfacing in a preview, e.g. a planned group name that already exists elsewhere in the tree under a different parent.</param>
 /// <param name="PlaceAttachments">At ClusterMunicipality level: every small place of a city cluster with the group it joined; empty at every other level.</param>
+/// <param name="PopulationCount">Clients with a usable address the structure (cluster centres, thresholds, centroids) was computed from: every placeable client, also those already grouped and therefore not re-placed.</param>
+/// <param name="ClusterPlaceAttachments">At Cluster and ClusterMunicipality level: every non-centre place holding at least one candidate, with the centre it joined as a whole and the distance; empty at every other level.</param>
+/// <param name="StateThresholds">At Cluster and ClusterMunicipality level: population and centre threshold of every state that has candidates; empty at every other level.</param>
 public sealed record GroupPartitionPlan(
     int TotalClients,
     int SkippedAlreadyGroupedCount,
@@ -20,4 +25,7 @@ public sealed record GroupPartitionPlan(
     IReadOnlyList<PartitionClientAssignment> Assignments,
     IReadOnlyList<UnassignablePartitionClient> Unassignable,
     IReadOnlyList<string> Warnings,
-    IReadOnlyList<PartitionPlaceAttachment>? PlaceAttachments = null);
+    IReadOnlyList<PartitionPlaceAttachment>? PlaceAttachments = null,
+    int PopulationCount = 0,
+    IReadOnlyList<ClusterPlaceAttachment>? ClusterPlaceAttachments = null,
+    IReadOnlyList<ClusterStateThreshold>? StateThresholds = null);
