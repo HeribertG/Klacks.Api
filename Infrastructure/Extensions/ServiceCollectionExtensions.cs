@@ -362,6 +362,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.NavigationTargetSynonymSeedService>();
         services.AddScoped<Persistence.Seed.KlacksyKnowledgeMemorySeed>();
         services.AddScoped<Persistence.Seed.ClientPhoneticBackfillSeed>();
+        services.AddSingleton<Application.Interfaces.Plugins.IPluginSkillAssemblySource, Plugins.PluginSkillAssemblySource>();
         services.AddScoped<Application.Services.Assistant.SkillRegistryInitializer>();
         services.AddScoped<Application.Services.Assistant.ISkillCatalogRefresher, Application.Services.Assistant.SkillCatalogRefresher>();
         services.AddScoped<ISubstratePriorDeriver, Application.Services.Assistant.SkillGraph.SubstratePriorDeriver>();

@@ -8,10 +8,12 @@
 /// </summary>
 /// <param name="skillRepository">Repository to query all enabled AgentSkill records</param>
 /// <param name="skillRegistry">Singleton registry that will be reloaded with the assembled descriptors</param>
+/// <param name="pluginSkillAssemblies">Skill assemblies of the loaded plugins, scanned next to the core assembly</param>
 /// <param name="logger">Logger for initialization diagnostics</param>
 
 using System.Reflection;
 using System.Text.Json;
+using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -26,6 +28,7 @@ public class SkillRegistryInitializer
 {
     private readonly IAgentSkillRepository _skillRepository;
     private readonly ISkillRegistry _skillRegistry;
+    private readonly IPluginSkillAssemblySource _pluginSkillAssemblies;
     private readonly ILogger<SkillRegistryInitializer> _logger;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -36,10 +39,12 @@ public class SkillRegistryInitializer
     public SkillRegistryInitializer(
         IAgentSkillRepository skillRepository,
         ISkillRegistry skillRegistry,
+        IPluginSkillAssemblySource pluginSkillAssemblies,
         ILogger<SkillRegistryInitializer> logger)
     {
         _skillRepository = skillRepository;
         _skillRegistry = skillRegistry;
+        _pluginSkillAssemblies = pluginSkillAssemblies;
         _logger = logger;
     }
 
@@ -88,14 +93,10 @@ public class SkillRegistryInitializer
             descriptors.Count - matched);
     }
 
-    private static Dictionary<string, Type> ScanAssemblyForImplementations()
+    private Dictionary<string, Type> ScanAssemblyForImplementations()
     {
         var assemblies = new List<Assembly> { typeof(SkillRegistryInitializer).Assembly };
-
-        foreach (var registrar in Infrastructure.Extensions.ServiceCollectionExtensions.GetPluginRegistrars())
-        {
-            assemblies.AddRange(registrar.GetSkillAssemblies());
-        }
+        assemblies.AddRange(_pluginSkillAssemblies.GetSkillAssemblies());
 
         var result = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
