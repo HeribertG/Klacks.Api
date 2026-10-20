@@ -173,7 +173,8 @@ mit — erwähne die Marker und Anker-IDs niemals im Text.
     (eigene Messenger-Konten) — sonst fehlen diese beiden Karten.
 11. **Import** (de/en: "Import", fr: "Importation", it: "Importazione") — nur im
     Expertenmodus sichtbar: `client-import` (Karte "Mitarbeitende importieren", nur für
-    Admins sichtbar: öffnet die eigene Import-Seite für Excel-/CSV-Mitarbeiterlisten,
+    Admins sichtbar: Ablage-Zone für Excel-/CSV-Mitarbeiterlisten direkt in der Karte, danach ein
+    Fenster mit Zuordnung, Vorschau und Ergebnis; Reiter und Button Handbuch,
     Details siehe `explain_page_import_employees`) und `erp-drop-points` — automatischer
     Import von Bestellungen aus XML-Dateien eines externen ERP-Systems (Ein-Briefkasten-
     Modell): Import-Zeitplan, manueller Upload, Datei-Explorer (Eingang/Verarbeitet/

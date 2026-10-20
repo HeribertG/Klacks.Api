@@ -12,17 +12,18 @@ bevatten.
   <li>
     <strong>Wie mag importeren:</strong> alleen beheerders. De kaart <em>Medewerkers importeren</em> staat
     in de instellingen, sectie <em>Import</em>; deze sectie verschijnt alleen als de schakelaar
-    <em>Expertmodus</em> bovenaan de instellingenpagina aan staat. De knop <em>Importeren</em> opent de
-    importpagina. Andere gebruikers zien de kaart niet en hebben voor de import een beheerder nodig.
+    <em>Expertmodus</em> bovenaan de instellingenpagina aan staat. De kaart heeft de tabbladen <em>Import</em> en <em>Handleiding</em>; de import begint direct op
+    de kaart. Andere gebruikers zien de kaart niet en hebben voor de import een beheerder nodig.
   </li>
   <li>
     <strong>Privacy:</strong> het bestand zelf wordt niet opgeslagen. Het wordt alleen gelezen; alleen de
     in het voorbeeld bevestigde rijen worden aangemaakt.
   </li>
   <li>
-    <strong>Vier stappen:</strong> <em>Bestand</em> → <em>Toewijzing en regels</em> → <em>Voorbeeld</em> →
-    <em>Resultaat</em>. Het tabblad <em>Handleiding</em> toont deze handleiding; wie ernaar overschakelt,
-    verliest een lopende import niet.
+    <strong>Werking:</strong> het bestand gaat naar de uploadzone van de kaart. Daarna opent een venster
+    met drie stappen: <em>Toewijzing en regels</em> → <em>Voorbeeld</em> → <em>Resultaat</em>. Deze
+    handleiding staat in het tabblad <em>Handleiding</em> van de kaart; in het venster opent de knop
+    <em>Handleiding</em> haar in een tweede venster, zonder de lopende import te verliezen.
   </li>
 </ul>
 
@@ -37,7 +38,7 @@ bevatten.
   </li>
   <li>
     <strong>Excel-werkmappen:</strong> alleen zichtbare werkbladen worden gelezen, standaard het eerste.
-    Bij een werkmap met meerdere werkbladen is in stap 2 de keuze <em>Werkblad</em> beschikbaar. Het
+    Bij een werkmap met meerdere werkbladen is in de stap <em>Toewijzing en regels</em> de keuze <em>Werkblad</em> beschikbaar. Het
     berekende resultaat van een formule wordt geïmporteerd. Cellen die als datum zijn opgemaakt, worden
     als datum gelezen. Getallen in cellen met de opmaak "Standaard" verliezen voorloopnullen (postcode
     01234 wordt 1234) – maak zulke kolommen op als tekst (de sjabloon doet dat al).
@@ -65,8 +66,7 @@ bevatten.
     koppelteken, bijvoorbeeld 31.12.1990, 12/31/1990 of 1990-12-31; een tijdsdeel na de datum wordt
     genegeerd. Een waarde die met een jaartal van vier cijfers begint, wordt altijd gelezen als
     jaar-maand-dag. Als uit het bestand niet blijkt of de dag of de maand voorop staat (geen waarde boven
-    12), gaat Klacks uit van dag/maand/jaar en vraagt Klacks om de datumnotatie in stap 2 te
-    controleren. Maandnamen (bijvoorbeeld "31 Dec 1990") worden niet herkend.
+    12), gaat Klacks uit van dag/maand/jaar en vraagt Klacks om de datumnotatie in de stap <em>Toewijzing en regels</em> te controleren. Maandnamen (bijvoorbeeld "31 Dec 1990") worden niet herkend.
   </li>
   <li>
     <strong>Jaartallen met twee cijfers:</strong> jaartallen tot en met de laatste twee cijfers van het
@@ -108,7 +108,7 @@ dubbel herkend als ze een e-mailadres of een geboortedatum hebben (zie <em>Dubbe
 
 <h3>Sjabloon</h3>
 <p>
-De knop <em>Sjabloon downloaden</em> in stap 1 levert een Excel-bestand in de taal van de gebruiker
+De knop <em>Sjabloon downloaden</em> op de kaart levert een Excel-bestand in de taal van de gebruiker
 (bestandsnaam <code>klacks-employee-import-nl.xlsx</code>). Met de sjabloon wordt elke kolom betrouwbaar
 herkend. De koprij is vet en vastgezet, elke kolom is opgemaakt als tekst (voorloopnullen en datums
 blijven zoals ingetypt) en de kop van de kolom <em>Type</em> bevat een notitie met de toegestane
@@ -124,21 +124,22 @@ kolomnamen in alle 25 Klacks-talen en veel gangbare varianten (bijvoorbeeld "Ach
 
 <hr>
 
-<h3>Stap 1 – Bestand</h3>
+<h3>Bestand kiezen</h3>
 <ul>
   <li>
-    Sleep het bestand naar de uploadzone of klik op de zone om een bestand te kiezen. Klacks leest het
-    bestand en gaat door naar stap 2.
+    Sleep het bestand naar de uploadzone van de kaart of klik op de zone om een bestand te kiezen.
+    Klacks leest het bestand en opent het venster met stap 1.
   </li>
   <li>
     Een probleem met het bestand (verkeerd formaat, te groot, te veel rijen of kolommen, geen koprij)
-    wordt direct onder de uploadzone getoond; zie <em>Veelvoorkomende fouten en oplossingen</em>.
+    wordt direct onder de uploadzone getoond en het venster opent niet; zie
+    <em>Veelvoorkomende fouten en oplossingen</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Stap 2 – Toewijzing en regels</h3>
+<h3>Stap 1 – Toewijzing en regels</h3>
 <h4>Kolommen toewijzen</h4>
 <ul>
   <li>
@@ -189,13 +190,13 @@ kolomnamen in alle 25 Klacks-talen en veel gangbare varianten (bijvoorbeeld "Ach
   </li>
 </ul>
 <p>
-<em>Verder naar voorbeeld</em> gaat door; <em>Ander bestand kiezen</em> begint opnieuw met een ander
-bestand.
+De knoppen staan onderaan het venster: <em>Verder naar voorbeeld</em> gaat door; <em>Ander bestand
+kiezen</em> sluit het venster en begint opnieuw op de kaart met een ander bestand.
 </p>
 
 <hr>
 
-<h3>Stap 3 – Voorbeeld</h3>
+<h3>Stap 2 – Voorbeeld</h3>
 <ul>
   <li>
     Een samenvatting telt de rijen: totaal, gereed, overgeslagen, met fouten, dubbele records en met
@@ -211,12 +212,11 @@ bestand.
     zonder geslacht; <em>Toch aanmaken</em> behoudt een rij die als dubbel is herkend.
   </li>
   <li>
-    Andere waarden kunnen in het voorbeeld niet worden bewerkt. Om ze te corrigeren, past u het bestand
-    aan en kiest u het opnieuw (<em>Ander bestand kiezen</em>), of wijzigt u de toewijzing met
-    <em>Terug</em>.
+    Andere waarden kunnen in het voorbeeld niet worden bewerkt. Om ze te corrigeren, wijzigt u de toewijzing met <em>Terug</em>, of past u het bestand aan en
+    kiest u het opnieuw met <em>Terug</em> en <em>Ander bestand kiezen</em>.
   </li>
   <li>
-    De importknop laat zien hoeveel personen worden aangemaakt (bijvoorbeeld <em>25 medewerkers
+    De importknop onderaan het venster laat zien hoeveel personen worden aangemaakt (bijvoorbeeld <em>25 medewerkers
     importeren</em>). Hij blijft uitgeschakeld zolang een rij nog een fout bevat: corrigeer de rij of sla
     haar over.
   </li>
@@ -224,11 +224,21 @@ bestand.
 
 <hr>
 
-<h3>Stap 4 – Resultaat</h3>
+<h3>Stap 3 – Resultaat</h3>
 <p>
 Toont hoeveel personen zijn aangemaakt en hoeveel rijen zijn overgeslagen, en hoeveel adressen op de
 achtergrond op de kaart worden gelokaliseerd. <em>Naar de medewerkerslijst</em> opent de lijst,
-<em>Nog een bestand importeren</em> start een nieuwe import.
+<em>Nog een bestand importeren</em> sluit het venster voor het volgende bestand.
+</p>
+
+<hr>
+
+<h3>Het venster sluiten</h3>
+<p>
+Het × rechtsboven en de Esc-toets sluiten het venster. Tijdens de toewijzing en het voorbeeld is
+nog niets opgeslagen; het venster vraagt daarom onderaan of de import moet worden verworpen.
+<em>Verder bewerken</em> houdt het open. Zolang de import wordt opgeslagen, kan het venster niet
+worden gesloten. Daarna toont de kaart weer de uploadzone.
 </p>
 
 <hr>
@@ -251,7 +261,7 @@ achtergrond op de kaart worden gelokaliseerd. <em>Naar de medewerkerslijst</em> 
     <tr>
       <td>Volledige naam</td>
       <td>Nee</td>
-      <td>Alternatief voor aparte naamkolommen; wordt gesplitst in voor- en achternaam (zie stap 2). Namen
+      <td>Alternatief voor aparte naamkolommen; wordt gesplitst in voor- en achternaam (zie <em>Toewijzing en regels</em>). Namen
         met meer dan twee delen krijgen een waarschuwing – controleer de verdeling.</td>
     </tr>
     <tr>
@@ -443,7 +453,7 @@ achtergrond op de kaart worden gelokaliseerd. <em>Naar de medewerkerslijst</em> 
 <p>
 Klacks <strong>kent het personeelsnummer altijd zelf toe</strong>. Een kolom met personeelsnummers in het
 bestand wordt herkend maar genegeerd; het voorbeeld toont een opmerking. Om de nummers van een ander
-systeem te behouden, kan de kolom in stap 2 worden toegewezen aan <em>Notitie</em>, zolang geen andere
+systeem te behouden, kan de kolom in de stap <em>Toewijzing en regels</em> worden toegewezen aan <em>Notitie</em>, zolang geen andere
 kolom als notitie wordt geïmporteerd.
 </p>
 
@@ -550,13 +560,13 @@ kolom als notitie wordt geïmporteerd.
     <tr>
       <td>Voornaam ontbreekt. / Achternaam ontbreekt.</td>
       <td>Naamkolom leeg of niet toegewezen; een volledige naam met slechts één woord.</td>
-      <td>Controleer de toewijzing in stap 2 of vul het bestand aan.</td>
+      <td>Controleer de toewijzing in de stap <em>Toewijzing en regels</em> of vul het bestand aan.</td>
     </tr>
     <tr>
       <td>Ongeldige datum: “…”.</td>
       <td>Onleesbare datum, geboortedatum in de toekomst, of datum uitdiensttreding vóór datum
         indiensttreding.</td>
-      <td>Controleer de datumnotatie in stap 2 of corrigeer de waarde in het bestand.</td>
+      <td>Controleer de datumnotatie in de stap <em>Toewijzing en regels</em> of corrigeer de waarde in het bestand.</td>
     </tr>
     <tr>
       <td>Onbekend type “…” – gebruik medewerker, extern of klant.</td>
@@ -587,7 +597,7 @@ kolom als notitie wordt geïmporteerd.
     <tr>
       <td>Een van de regels voor ontbrekende gegevens is niet meer geldig …</td>
       <td>Een in de regels gekozen contract of groep is intussen verwijderd.</td>
-      <td>Controleer de regels in stap 2.</td>
+      <td>Controleer de regels in de stap <em>Toewijzing en regels</em>.</td>
     </tr>
   </tbody>
 </table>

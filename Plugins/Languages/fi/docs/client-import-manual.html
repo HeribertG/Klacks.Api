@@ -12,17 +12,19 @@ tiedostossa voi olla myös ulkoisia työntekijöitä ja asiakkaita.
   <li>
     <strong>Kuka saa tuoda:</strong> vain pääkäyttäjät. Kortti <em>Tuo työntekijät</em> löytyy
     asetuksista, osiosta <em>Tuonti</em>; osio näkyy vain, kun asetussivun yläreunan kytkin
-    <em>Asiantuntijatila</em> on päällä. Painike <em>Tuo</em> avaa tuontisivun. Muut käyttäjät
-    eivät näe korttia, ja tuontiin tarvitaan pääkäyttäjä.
+    <em>Asiantuntijatila</em> on päällä. Kortilla on välilehdet <em>Tuonti</em> ja <em>Käyttöohje</em>;
+    tuonti alkaa suoraan kortilla. Muut käyttäjät eivät näe korttia, ja tuontiin tarvitaan
+    pääkäyttäjä.
   </li>
   <li>
     <strong>Tietosuoja:</strong> itse tiedostoa ei tallenneta. Se ainoastaan luetaan; vain
     esikatselussa vahvistetut rivit luodaan.
   </li>
   <li>
-    <strong>Neljä vaihetta:</strong> <em>Tiedosto</em> → <em>Kohdistus ja säännöt</em> →
-    <em>Esikatselu</em> → <em>Tulos</em>. Välilehti <em>Käyttöohje</em> näyttää tämän käyttöoppaan;
-    siihen siirtyminen ei keskeytä käynnissä olevaa tuontia.
+    <strong>Toimintatapa:</strong> tiedosto viedään kortin latausalueelle. Sen jälkeen avautuu ikkuna,
+    jossa on kolme vaihetta: <em>Kohdistus ja säännöt</em> → <em>Esikatselu</em> → <em>Tulos</em>.
+    Tämä käyttöopas on kortin välilehdellä <em>Käyttöohje</em>; ikkunassa painike <em>Käyttöohje</em>
+    avaa sen toiseen ikkunaan menettämättä käynnissä olevaa tuontia.
   </li>
 </ul>
 
@@ -37,7 +39,7 @@ tiedostossa voi olla myös ulkoisia työntekijöitä ja asiakkaita.
   </li>
   <li>
     <strong>Excel-työkirjat:</strong> vain näkyvät taulukot luetaan, oletuksena ensimmäinen. Jos
-    työkirjassa on useita taulukoita, vaiheessa 2 tarjotaan valinta <em>Taulukko</em>. Kaavoista tuodaan
+    työkirjassa on useita taulukoita, vaiheessa <em>Kohdistus ja säännöt</em> tarjotaan valinta <em>Taulukko</em>. Kaavoista tuodaan
     laskettu tulos. Päivämääräksi muotoillut solut luetaan päivämäärinä. Muotoilulla "Yleinen"
     olevien solujen luvuista häviävät etunollat (postinumerosta 01234 tulee 1234) – tällaiset sarakkeet
     kannattaa muotoilla tekstiksi (mallissa näin on jo tehty).
@@ -66,7 +68,7 @@ tiedostossa voi olla myös ulkoisia työntekijöitä ja asiakkaita.
     oleva kellonaika ohitetaan. Nelinumeroisella vuosiluvulla alkava arvo luetaan aina muodossa
     vuosi-kuukausi-päivä. Jos tiedostosta ei käy ilmi, tuleeko päivä vai kuukausi ensin (yksikään arvo
     ei ole yli 12), Klacks olettaa muodon päivä/kuukausi/vuosi ja pyytää tarkistamaan päivämäärän
-    muodon vaiheessa 2. Kuukausien nimiä (esimerkiksi "31. joulukuuta 1990") ei tunnisteta.
+    muodon vaiheessa <em>Kohdistus ja säännöt</em>. Kuukausien nimiä (esimerkiksi "31. joulukuuta 1990") ei tunnisteta.
   </li>
   <li>
     <strong>Kaksinumeroiset vuosiluvut:</strong> vuodet kuluvan vuoden kahteen viimeiseen numeroon asti
@@ -108,7 +110,7 @@ kaksoiskappaleiksi, jos heillä on sähköpostiosoite tai syntymäaika (ks. koht
 
 <h3>Malli</h3>
 <p>
-Vaiheen 1 painike <em>Lataa malli</em> antaa Excel-tiedoston käyttäjän kielellä (tiedostonimi
+Kortin painike <em>Lataa malli</em> antaa Excel-tiedoston käyttäjän kielellä (tiedostonimi
 <code>klacks-employee-import-fi.xlsx</code>). Mallin avulla jokainen sarake tunnistetaan luotettavasti.
 Sen otsikkorivi on lihavoitu ja kiinnitetty, jokainen sarake on muotoiltu tekstiksi (etunollat ja
 päivämäärät säilyvät kirjoitetussa muodossa), ja sarakkeen <em>Tyyppi</em> otsikossa on huomautus
@@ -124,22 +126,22 @@ muunnelmia (esimerkiksi "Etunimet", "Paikkakunta", "Työsuhteen alkamispäivä")
 
 <hr>
 
-<h3>Vaihe 1 – Tiedosto</h3>
+<h3>Tiedoston valinta</h3>
 <ul>
   <li>
-    Tiedosto vedetään latausalueelle, tai aluetta napsautetaan tiedoston valitsemiseksi. Klacks lukee
-    tiedoston ja siirtyy vaiheeseen 2.
+    Tiedosto vedetään kortin latausalueelle, tai aluetta napsautetaan tiedoston valitsemiseksi. Klacks
+    lukee tiedoston ja avaa ikkunan, jossa on vaihe 1.
   </li>
   <li>
     Tiedostoon liittyvä ongelma (väärä muoto, liian suuri, liian monta riviä tai saraketta, ei
-    otsikkoriviä) näytetään suoraan latausalueen alapuolella; ks. kohta <em>Yleiset virheet ja niiden
-    korjaus</em>.
+    otsikkoriviä) näytetään suoraan latausalueen alapuolella, eikä ikkuna avaudu; ks. kohta
+    <em>Yleiset virheet ja niiden korjaus</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Vaihe 2 – Kohdistus ja säännöt</h3>
+<h3>Vaihe 1 – Kohdistus ja säännöt</h3>
 <h4>Yhdistä sarakkeet</h4>
 <ul>
   <li>
@@ -188,13 +190,13 @@ muunnelmia (esimerkiksi "Etunimet", "Paikkakunta", "Työsuhteen alkamispäivä")
   </li>
 </ul>
 <p>
-<em>Jatka esikatseluun</em> siirtyy eteenpäin; <em>Valitse toinen tiedosto</em> aloittaa alusta
-toisella tiedostolla.
+Painikkeet ovat ikkunan alareunassa: <em>Jatka esikatseluun</em> siirtyy eteenpäin; <em>Valitse toinen
+tiedosto</em> sulkee ikkunan ja aloittaa alusta kortilla toisella tiedostolla.
 </p>
 
 <hr>
 
-<h3>Vaihe 3 – Esikatselu</h3>
+<h3>Vaihe 2 – Esikatselu</h3>
 <ul>
   <li>
     Yhteenveto laskee rivit: yhteensä, valmiit, ohitetut, virheelliset, kaksoiskappaleet ja
@@ -210,23 +212,33 @@ toisella tiedostolla.
     jolta se puuttuu; <em>Luo silti</em> säilyttää rivin, joka on tunnistettu kaksoiskappaleeksi.
   </li>
   <li>
-    Muita arvoja ei voi muokata esikatselussa. Niiden korjaamiseksi tiedosto korjataan ja valitaan
-    uudelleen (<em>Valitse toinen tiedosto</em>), tai kohdistusta muutetaan painikkeella
-    <em>Takaisin</em>.
+    Muita arvoja ei voi muokata esikatselussa. Niiden korjaamiseksi kohdistusta muutetaan
+    painikkeella <em>Takaisin</em>, tai tiedosto korjataan ja valitaan uudelleen painikkeilla
+    <em>Takaisin</em> ja <em>Valitse toinen tiedosto</em>.
   </li>
   <li>
-    Tuontipainike näyttää, montako henkilöä luodaan (esimerkiksi <em>Tuo 25 työntekijää</em>). Se pysyy
+    Ikkunan alareunan tuontipainike näyttää, montako henkilöä luodaan (esimerkiksi <em>Tuo 25 työntekijää</em>). Se pysyy
     poissa käytöstä niin kauan kuin jollakin rivillä on virhe: rivi on korjattava tai ohitettava.
   </li>
 </ul>
 
 <hr>
 
-<h3>Vaihe 4 – Tulos</h3>
+<h3>Vaihe 3 – Tulos</h3>
 <p>
 Näyttää, montako henkilöä luotiin ja montako riviä ohitettiin sekä montako osoitetta paikannetaan
 kartalle taustalla. <em>Siirry työntekijäluetteloon</em> avaa luettelon,
-<em>Tuo toinen tiedosto</em> aloittaa uuden tuonnin.
+<em>Tuo toinen tiedosto</em> sulkee ikkunan seuraavaa tiedostoa varten.
+</p>
+
+<hr>
+
+<h3>Ikkunan sulkeminen</h3>
+<p>
+Oikean yläkulman × ja Esc-näppäin sulkevat ikkunan. Kohdistuksen ja esikatselun aikana mitään ei ole
+vielä tallennettu, joten ikkuna kysyy ensin alareunassaan, hylätäänkö tuonti; <em>Jatka muokkausta</em>
+pitää sen auki. Kun tuontia tallennetaan, ikkunaa ei voi sulkea. Sen jälkeen kortilla näkyy taas
+latausalue.
 </p>
 
 <hr>
@@ -249,7 +261,7 @@ kartalle taustalla. <em>Siirry työntekijäluetteloon</em> avaa luettelon,
     <tr>
       <td>Koko nimi</td>
       <td>Ei</td>
-      <td>Vaihtoehto erillisille nimisarakkeille; jaetaan etu- ja sukunimeksi (ks. vaihe 2). Yli
+      <td>Vaihtoehto erillisille nimisarakkeille; jaetaan etu- ja sukunimeksi (ks. <em>Kohdistus ja säännöt</em>). Yli
         kaksiosaiset nimet saavat varoituksen – jako on tarkistettava.</td>
     </tr>
     <tr>
@@ -438,7 +450,7 @@ kartalle taustalla. <em>Siirry työntekijäluetteloon</em> avaa luettelon,
 <p>
 Klacks <strong>antaa henkilöstönumeron aina itse</strong>. Tiedostossa oleva henkilöstönumerosarake
 tunnistetaan, mutta se ohitetaan; esikatselu näyttää vihjeen. Jos toisen järjestelmän numerot halutaan
-säilyttää, sarake voidaan vaiheessa 2 kohdistaa kenttään <em>Muistiinpano</em>, kunhan mitään muuta
+säilyttää, sarake voidaan vaiheessa <em>Kohdistus ja säännöt</em> kohdistaa kenttään <em>Muistiinpano</em>, kunhan mitään muuta
 saraketta ei tuoda muistiinpanona.
 </p>
 
@@ -546,12 +558,12 @@ saraketta ei tuoda muistiinpanona.
     <tr>
       <td>Etunimi puuttuu. / Sukunimi puuttuu.</td>
       <td>Nimisarake on tyhjä tai sitä ei ole kohdistettu; koko nimessä on vain yksi sana.</td>
-      <td>Tarkista kohdistus vaiheessa 2 tai täydennä tiedostoa.</td>
+      <td>Tarkista kohdistus vaiheessa <em>Kohdistus ja säännöt</em> tai täydennä tiedostoa.</td>
     </tr>
     <tr>
       <td>Virheellinen päivämäärä: "…".</td>
       <td>Lukukelvoton päivämäärä, syntymäaika tulevaisuudessa tai päättymispäivä ennen alkamispäivää.</td>
-      <td>Tarkista päivämäärän muoto vaiheessa 2 tai korjaa arvo tiedostossa.</td>
+      <td>Tarkista päivämäärän muoto vaiheessa <em>Kohdistus ja säännöt</em> tai korjaa arvo tiedostossa.</td>
     </tr>
     <tr>
       <td>Tuntematon tyyppi "…" – käytä arvoa työntekijä, ulkoinen tai asiakas.</td>
@@ -583,7 +595,7 @@ saraketta ei tuoda muistiinpanona.
     <tr>
       <td>Yksi puuttuvien tietojen säännöistä ei ole enää voimassa …</td>
       <td>Säännöissä valittu sopimus tai ryhmä on sillä välin poistettu.</td>
-      <td>Tarkista säännöt vaiheessa 2.</td>
+      <td>Tarkista säännöt vaiheessa <em>Kohdistus ja säännöt</em>.</td>
     </tr>
   </tbody>
 </table>

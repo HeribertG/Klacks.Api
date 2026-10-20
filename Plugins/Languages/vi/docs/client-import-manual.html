@@ -11,17 +11,19 @@ nhận diện các cột, hiển thị trong bản xem trước từng bản ghi
   <li>
     <strong>Ai được phép nhập:</strong> chỉ quản trị viên. Thẻ <em>Nhập nhân viên</em> nằm trong phần
     cài đặt, mục <em>Nhập dữ liệu</em>; mục này chỉ hiển thị khi công tắc <em>Chế độ chuyên gia</em> ở đầu
-    trang cài đặt được bật. Nút <em>Nhập</em> mở trang nhập dữ liệu. Những người dùng khác
-    không thấy thẻ này và cần một quản trị viên để thực hiện việc nhập.
+    trang cài đặt được bật. Thẻ này có hai tab là <em>Nhập dữ liệu</em> và <em>Hướng dẫn</em>; việc nhập bắt đầu
+    ngay trên thẻ. Những người dùng khác không thấy thẻ này và cần một quản trị viên để thực hiện
+    việc nhập.
   </li>
   <li>
     <strong>Bảo vệ dữ liệu:</strong> bản thân tệp không được lưu. Tệp chỉ được đọc; chỉ những dòng
     đã được xác nhận trong bản xem trước mới được tạo.
   </li>
   <li>
-    <strong>Bốn bước:</strong> <em>Tệp</em> → <em>Ánh xạ và quy tắc</em> → <em>Xem trước</em> →
-    <em>Kết quả</em>. Thẻ <em>Hướng dẫn</em> hiển thị tài liệu hướng dẫn này; chuyển sang thẻ đó
-    không làm mất lần nhập đang thực hiện.
+    <strong>Cách hoạt động:</strong> tệp được thả vào vùng tải lên của thẻ. Sau đó một cửa sổ mở ra
+    với ba bước: <em>Ánh xạ và quy tắc</em> → <em>Xem trước</em> → <em>Kết quả</em>. Tài liệu hướng dẫn
+    này nằm trong tab <em>Hướng dẫn</em> của thẻ; trong cửa sổ, nút <em>Hướng dẫn</em> mở tài liệu
+    trong một cửa sổ thứ hai mà không làm mất lần nhập đang thực hiện.
   </li>
 </ul>
 
@@ -36,7 +38,7 @@ nhận diện các cột, hiển thị trong bản xem trước từng bản ghi
   </li>
   <li>
     <strong>Sổ làm việc Excel:</strong> chỉ các trang tính đang hiển thị được đọc, mặc định là trang
-    đầu tiên. Sổ làm việc có nhiều trang tính sẽ có lựa chọn <em>Trang tính</em> ở bước 2. Kết quả
+    đầu tiên. Sổ làm việc có nhiều trang tính sẽ có lựa chọn <em>Trang tính</em> ở bước <em>Ánh xạ và quy tắc</em>. Kết quả
     tính toán của công thức được nhập. Các ô được định dạng ngày được đọc là ngày. Số trong các ô có
     định dạng "General" sẽ mất các số 0 ở đầu (mã bưu chính 01234 thành 1234) – nên định dạng các
     cột như vậy là văn bản (tệp mẫu đã làm sẵn điều này).
@@ -63,7 +65,7 @@ nhận diện các cột, hiển thị trong bản xem trước từng bản ghi
     hoặc dấu gạch nối, ví dụ 31.12.1990, 12/31/1990 hoặc 1990-12-31; phần giờ sau ngày được bỏ qua.
     Giá trị bắt đầu bằng năm có bốn chữ số luôn được đọc theo thứ tự năm-tháng-ngày. Nếu tệp không
     cho thấy ngày hay tháng đứng trước (không có giá trị nào lớn hơn 12), Klacks giả định thứ tự
-    ngày/tháng/năm và yêu cầu kiểm tra định dạng ngày ở bước 2. Tên tháng (ví dụ "31 Dec 1990")
+    ngày/tháng/năm và yêu cầu kiểm tra định dạng ngày ở bước <em>Ánh xạ và quy tắc</em>. Tên tháng (ví dụ "31 Dec 1990")
     không được nhận diện.
   </li>
   <li>
@@ -106,7 +108,7 @@ hoặc ngày sinh (xem <em>Trùng lặp</em>).
 
 <h3>Tệp mẫu</h3>
 <p>
-Nút <em>Tải xuống tệp mẫu</em> ở bước 1 cung cấp một tệp Excel theo ngôn ngữ của người dùng (tên
+Nút <em>Tải xuống tệp mẫu</em> trên thẻ cung cấp một tệp Excel theo ngôn ngữ của người dùng (tên
 tệp <code>klacks-employee-import-vi.xlsx</code>). Với tệp mẫu, mọi cột đều được nhận diện chính xác.
 Dòng tiêu đề của tệp được in đậm và cố định, mọi cột được định dạng là văn bản (các số 0 ở đầu và
 ngày được giữ nguyên như khi nhập vào), và tiêu đề của cột <em>Loại</em> có kèm một ghi chú với các
@@ -122,21 +124,21 @@ Klacks còn nhận diện tên cột bằng cả 25 ngôn ngữ của Klacks và
 
 <hr>
 
-<h3>Bước 1 – Tệp</h3>
+<h3>Chọn tệp</h3>
 <ul>
   <li>
-    Kéo tệp vào vùng tải lên hoặc nhấp vào vùng đó để chọn một tệp. Klacks đọc tệp và chuyển sang
-    bước 2.
+    Kéo tệp vào vùng tải lên của thẻ hoặc nhấp vào vùng đó để chọn một tệp. Klacks đọc tệp và mở
+    cửa sổ với bước 1.
   </li>
   <li>
     Sự cố về tệp (sai định dạng, quá lớn, quá nhiều dòng hoặc cột, không có dòng tiêu đề) được hiển
-    thị ngay bên dưới vùng tải lên; xem <em>Lỗi thường gặp và cách khắc phục</em>.
+    thị ngay bên dưới vùng tải lên và cửa sổ không mở ra; xem <em>Lỗi thường gặp và cách khắc phục</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Bước 2 – Ánh xạ và quy tắc</h3>
+<h3>Bước 1 – Ánh xạ và quy tắc</h3>
 <h4>Ánh xạ cột</h4>
 <ul>
   <li>
@@ -184,13 +186,13 @@ Klacks còn nhận diện tên cột bằng cả 25 ngôn ngữ của Klacks và
   </li>
 </ul>
 <p>
-<em>Tiếp tục đến phần xem trước</em> chuyển sang bước tiếp theo; <em>Chọn tệp khác</em> bắt đầu lại
-với một tệp khác.
+Các nút nằm ở cuối cửa sổ: <em>Tiếp tục đến phần xem trước</em> chuyển sang bước tiếp theo; <em>Chọn
+tệp khác</em> đóng cửa sổ và bắt đầu lại trên thẻ với một tệp khác.
 </p>
 
 <hr>
 
-<h3>Bước 3 – Xem trước</h3>
+<h3>Bước 2 – Xem trước</h3>
 <ul>
   <li>
     Phần tóm tắt đếm số dòng: tổng cộng, sẵn sàng, đã bỏ qua, có lỗi, trùng lặp và có cảnh báo. Các
@@ -206,22 +208,31 @@ với một tệp khác.
     chưa có giới tính; <em>Vẫn tạo</em> giữ lại dòng đã được nhận diện là trùng lặp.
   </li>
   <li>
-    Các giá trị khác không thể chỉnh sửa trong bản xem trước. Để sửa, cần sửa tệp và chọn lại tệp
-    (<em>Chọn tệp khác</em>), hoặc thay đổi ánh xạ bằng <em>Quay lại</em>.
+    Các giá trị khác không thể chỉnh sửa trong bản xem trước. Để sửa, hãy thay đổi ánh xạ bằng
+    <em>Quay lại</em>, hoặc sửa tệp và chọn lại tệp bằng <em>Quay lại</em> rồi <em>Chọn tệp khác</em>.
   </li>
   <li>
-    Nút nhập hiển thị số người sẽ được tạo (ví dụ <em>Nhập 25
+    Nút nhập ở cuối cửa sổ hiển thị số người sẽ được tạo (ví dụ <em>Nhập 25
     nhân viên</em>). Nút này bị vô hiệu hóa chừng nào còn một dòng có lỗi: sửa dòng đó hoặc bỏ qua.
   </li>
 </ul>
 
 <hr>
 
-<h3>Bước 4 – Kết quả</h3>
+<h3>Bước 3 – Kết quả</h3>
 <p>
 Hiển thị số người đã được tạo, số dòng đã bị bỏ qua và số địa chỉ đang được định vị trên bản đồ ở
 chế độ nền. <em>Đến danh sách nhân viên</em> mở danh sách,
-<em>Nhập tệp khác</em> bắt đầu một lần nhập mới.
+<em>Nhập tệp khác</em> đóng cửa sổ để chuẩn bị cho tệp tiếp theo.
+</p>
+
+<hr>
+
+<h3>Đóng cửa sổ</h3>
+<p>
+Dấu × ở góc trên bên phải và phím Esc đều đóng cửa sổ. Trong lúc ánh xạ và xem trước, chưa có gì được
+lưu, vì vậy trước tiên cửa sổ hỏi ở phía dưới xem có hủy lần nhập hay không; <em>Tiếp tục chỉnh sửa</em>
+giữ cửa sổ mở. Khi lần nhập đang được lưu, không thể đóng cửa sổ. Sau đó thẻ hiển thị lại vùng tải lên.
 </p>
 
 <hr>
@@ -244,7 +255,7 @@ chế độ nền. <em>Đến danh sách nhân viên</em> mở danh sách,
     <tr>
       <td>Họ và tên</td>
       <td>Không</td>
-      <td>Thay thế cho các cột tên riêng biệt; được tách thành tên và họ (xem bước 2). Tên gồm nhiều
+      <td>Thay thế cho các cột tên riêng biệt; được tách thành tên và họ (xem <em>Ánh xạ và quy tắc</em>). Tên gồm nhiều
         hơn hai thành phần sẽ nhận cảnh báo – cần kiểm tra cách tách.</td>
     </tr>
     <tr>
@@ -434,7 +445,7 @@ chế độ nền. <em>Đến danh sách nhân viên</em> mở danh sách,
 <p>
 Klacks <strong>luôn tự cấp mã nhân viên</strong>. Cột mã nhân viên trong tệp được nhận diện nhưng bị
 bỏ qua; bản xem trước hiển thị một gợi ý. Để giữ lại mã của hệ thống khác, cột đó có thể được ánh xạ
-thành <em>Ghi chú</em> ở bước 2, miễn là không có cột nào khác được nhập làm ghi chú.
+thành <em>Ghi chú</em> ở bước <em>Ánh xạ và quy tắc</em>, miễn là không có cột nào khác được nhập làm ghi chú.
 </p>
 
 <hr>
@@ -540,12 +551,12 @@ thành <em>Ghi chú</em> ở bước 2, miễn là không có cột nào khác �
     <tr>
       <td>Thiếu tên. / Thiếu họ.</td>
       <td>Cột tên trống hoặc chưa được ánh xạ; họ tên đầy đủ chỉ có một từ.</td>
-      <td>Kiểm tra ánh xạ ở bước 2 hoặc bổ sung tệp.</td>
+      <td>Kiểm tra ánh xạ ở bước <em>Ánh xạ và quy tắc</em> hoặc bổ sung tệp.</td>
     </tr>
     <tr>
       <td>Ngày không hợp lệ: "…".</td>
       <td>Ngày không đọc được, ngày sinh trong tương lai, hoặc ngày nghỉ việc trước ngày vào làm.</td>
-      <td>Kiểm tra định dạng ngày ở bước 2 hoặc sửa giá trị trong tệp.</td>
+      <td>Kiểm tra định dạng ngày ở bước <em>Ánh xạ và quy tắc</em> hoặc sửa giá trị trong tệp.</td>
     </tr>
     <tr>
       <td>Loại "…" không xác định – hãy dùng nhân viên, bên ngoài hoặc khách hàng.</td>
@@ -575,7 +586,7 @@ thành <em>Ghi chú</em> ở bước 2, miễn là không có cột nào khác �
     <tr>
       <td>Một trong các quy tắc cho thông tin còn thiếu không còn hợp lệ …</td>
       <td>Hợp đồng hoặc nhóm được chọn trong các quy tắc đã bị xóa trong thời gian đó.</td>
-      <td>Kiểm tra các quy tắc ở bước 2.</td>
+      <td>Kiểm tra các quy tắc ở bước <em>Ánh xạ và quy tắc</em>.</td>
     </tr>
   </tbody>
 </table>

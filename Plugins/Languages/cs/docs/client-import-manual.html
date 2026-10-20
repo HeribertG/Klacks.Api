@@ -11,17 +11,19 @@ Kromě zaměstnanců může tentýž soubor obsahovat také externí pracovníky
   <li>
     <strong>Kdo smí importovat:</strong> pouze administrátoři. Karta <em>Importovat zaměstnance</em> se
     nachází v nastavení, v sekci <em>Import</em>; tato sekce se zobrazí jen tehdy, když je nahoře na
-    stránce nastavení zapnutý přepínač <em>Expertní režim</em>. Tlačítko <em>Importovat</em> otevře
-    stránku importu. Ostatní uživatelé kartu nevidí a pro import potřebují administrátora.
+    stránce nastavení zapnutý přepínač <em>Expertní režim</em>. Karta má
+    záložky <em>Import</em> a <em>Příručka</em>; import začíná přímo na kartě. Ostatní uživatelé kartu
+    nevidí a pro import potřebují administrátora.
   </li>
   <li>
     <strong>Ochrana osobních údajů:</strong> samotný soubor se neukládá. Pouze se načte; vytvoří se jen
     řádky potvrzené v náhledu.
   </li>
   <li>
-    <strong>Čtyři kroky:</strong> <em>Soubor</em> → <em>Přiřazení a pravidla</em> → <em>Náhled</em> →
-    <em>Výsledek</em>. Záložka <em>Příručka</em> zobrazuje tuto příručku; přepnutím na ni se rozpracovaný
-    import neztratí.
+    <strong>Postup:</strong> soubor se přetáhne do oblasti pro nahrání na kartě. Poté se otevře okno se
+    třemi kroky: <em>Přiřazení a pravidla</em> → <em>Náhled</em> → <em>Výsledek</em>. Tato příručka je v
+    záložce <em>Příručka</em> na kartě; v okně ji tlačítko <em>Příručka</em> otevře ve druhém okně, aniž
+    by se rozpracovaný import ztratil.
   </li>
 </ul>
 
@@ -36,7 +38,7 @@ Kromě zaměstnanců může tentýž soubor obsahovat také externí pracovníky
   </li>
   <li>
     <strong>Sešity Excelu:</strong> načítají se pouze viditelné listy, ve výchozím stavu první z nich. U
-    sešitu s více listy nabízí krok 2 výběr <em>List</em>. Importuje se vypočtený výsledek vzorce. Buňky
+    sešitu s více listy nabízí krok <em>Přiřazení a pravidla</em> výběr <em>List</em>. Importuje se vypočtený výsledek vzorce. Buňky
     formátované jako datum se načtou jako data. Čísla v buňkách s formátem „Obecný“ ztrácejí úvodní nuly
     (PSČ 01234 se změní na 1234) – takové sloupce je třeba formátovat jako text (šablona to již dělá).
   </li>
@@ -62,7 +64,7 @@ Kromě zaměstnanců může tentýž soubor obsahovat také externí pracovníky
     31.12.1990, 12/31/1990 nebo 1990-12-31; časová část za datem se ignoruje. Hodnota, která začíná
     čtyřmístným rokem, se vždy čte jako rok-měsíc-den. Pokud ze souboru není patrné, zda je první den,
     nebo měsíc (žádná hodnota nad 12), Klacks předpokládá den/měsíc/rok a vyzve ke kontrole formátu data
-    v kroku 2. Názvy měsíců (například „31 Dec 1990“) se nerozpoznávají.
+    v kroku <em>Přiřazení a pravidla</em>. Názvy měsíců (například „31 Dec 1990“) se nerozpoznávají.
   </li>
   <li>
     <strong>Dvoumístné roky:</strong> roky do posledních dvou číslic aktuálního roku se počítají jako
@@ -103,7 +105,7 @@ duplicity, pokud mají e-mailovou adresu nebo datum narození (viz <em>Duplicity
 
 <h3>Šablona</h3>
 <p>
-Tlačítko <em>Stáhnout šablonu</em> v kroku 1 poskytne soubor Excel v jazyce uživatele (název souboru
+Tlačítko <em>Stáhnout šablonu</em> na kartě poskytne soubor Excel v jazyce uživatele (název souboru
 <code>klacks-employee-import-cs.xlsx</code>). Se šablonou se každý sloupec spolehlivě rozpozná. Její
 záhlavní řádek je tučný a ukotvený, každý sloupec je formátován jako text (úvodní nuly a data zůstanou
 tak, jak byla zadána) a záhlaví sloupce <em>Typ</em> obsahuje poznámku s povolenými hodnotami. Šablona
@@ -119,22 +121,22 @@ jazycích Klacks a mnoho obvyklých variant (například „Křestní jméno“,
 
 <hr>
 
-<h3>Krok 1 – Soubor</h3>
+<h3>Výběr souboru</h3>
 <ul>
   <li>
-    Soubor je třeba přetáhnout do oblasti pro nahrání, nebo na oblast kliknout a soubor vybrat. Klacks
-    soubor načte a přejde ke kroku 2.
+    Soubor je třeba přetáhnout do oblasti pro nahrání na kartě, nebo na oblast kliknout a soubor vybrat.
+    Klacks soubor načte a otevře okno s krokem 1.
   </li>
   <li>
     Problém se souborem (nesprávný formát, příliš velký soubor, příliš mnoho řádků nebo sloupců,
-    chybějící záhlavní řádek) se zobrazí přímo pod oblastí pro nahrání; viz <em>Časté chyby a jejich
-    řešení</em>.
+    chybějící záhlavní řádek) se zobrazí přímo pod oblastí pro nahrání a okno se neotevře; viz
+    <em>Časté chyby a jejich řešení</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Krok 2 – Přiřazení a pravidla</h3>
+<h3>Krok 1 – Přiřazení a pravidla</h3>
 <h4>Přiřadit sloupce</h4>
 <ul>
   <li>
@@ -182,13 +184,13 @@ jazycích Klacks a mnoho obvyklých variant (například „Křestní jméno“,
   </li>
 </ul>
 <p>
-<em>Pokračovat k náhledu</em> přejde dál; <em>Vybrat jiný soubor</em> začne znovu s jiným
-souborem.
+Tlačítka jsou dole v okně: <em>Pokračovat k náhledu</em> přejde dál; <em>Vybrat jiný soubor</em>
+zavře okno a začne znovu na kartě s jiným souborem.
 </p>
 
 <hr>
 
-<h3>Krok 3 – Náhled</h3>
+<h3>Krok 2 – Náhled</h3>
 <ul>
   <li>
     Souhrn spočítá řádky: celkem, připravené, přeskočené, s chybami, duplicity a s upozorněními.
@@ -204,11 +206,12 @@ souborem.
     chybí; <em>Přesto vytvořit</em> ponechá řádek, který byl rozpoznán jako duplicita.
   </li>
   <li>
-    Ostatní hodnoty nelze v náhledu upravovat. Pro jejich opravu je třeba opravit soubor a vybrat jej
-    znovu (<em>Vybrat jiný soubor</em>), nebo změnit přiřazení tlačítkem <em>Zpět</em>.
+    Ostatní hodnoty nelze v náhledu upravovat. Pro jejich opravu je třeba změnit přiřazení tlačítkem
+    <em>Zpět</em>, nebo opravit soubor a vybrat jej znovu pomocí <em>Zpět</em> a <em>Vybrat jiný
+    soubor</em>.
   </li>
   <li>
-    Tlačítko importu ukazuje, kolik osob bude vytvořeno (například <em>Importovat zaměstnance:
+    Tlačítko importu dole v okně ukazuje, kolik osob bude vytvořeno (například <em>Importovat zaměstnance:
     25</em>). Zůstává neaktivní, dokud některý řádek obsahuje chybu: řádek je třeba opravit nebo
     přeskočit.
   </li>
@@ -216,11 +219,20 @@ souborem.
 
 <hr>
 
-<h3>Krok 4 – Výsledek</h3>
+<h3>Krok 3 – Výsledek</h3>
 <p>
 Zobrazí, kolik osob bylo vytvořeno a kolik řádků bylo přeskočeno, a také kolik adres se na pozadí
 lokalizuje na mapě. <em>Přejít na seznam zaměstnanců</em> otevře seznam,
-<em>Importovat další soubor</em> spustí nový import.
+<em>Importovat další soubor</em> zavře okno pro další soubor.
+</p>
+
+<hr>
+
+<h3>Zavření okna</h3>
+<p>
+Křížek × vpravo nahoře a klávesa Esc okno zavřou. Během přiřazování a náhledu ještě nic není uloženo,
+proto se okno dole nejprve zeptá, zda se má import zahodit; <em>Pokračovat v úpravách</em> jej nechá
+otevřený. Během ukládání importu nelze okno zavřít. Poté karta znovu zobrazí oblast pro nahrání.
 </p>
 
 <hr>
@@ -243,7 +255,7 @@ lokalizuje na mapě. <em>Přejít na seznam zaměstnanců</em> otevře seznam,
     <tr>
       <td>Celé jméno</td>
       <td>Ne</td>
-      <td>Alternativa k samostatným sloupcům se jménem; rozdělí se na jméno a příjmení (viz krok 2). Jména
+      <td>Alternativa k samostatným sloupcům se jménem; rozdělí se na jméno a příjmení (viz <em>Přiřazení a pravidla</em>). Jména
         s více než dvěma částmi dostanou upozornění – rozdělení je třeba zkontrolovat.</td>
     </tr>
     <tr>
@@ -430,7 +442,7 @@ lokalizuje na mapě. <em>Přejít na seznam zaměstnanců</em> otevře seznam,
 <p>
 Klacks <strong>přiděluje osobní číslo vždy sám</strong>. Sloupec s osobním číslem v souboru se
 rozpozná, ale ignoruje; náhled zobrazí informaci. Pro zachování čísel z jiného systému lze sloupec v
-kroku 2 přiřadit k poli <em>Poznámka</em>, pokud se jako poznámka neimportuje žádný jiný sloupec.
+kroku <em>Přiřazení a pravidla</em> přiřadit k poli <em>Poznámka</em>, pokud se jako poznámka neimportuje žádný jiný sloupec.
 </p>
 
 <hr>
@@ -534,12 +546,12 @@ kroku 2 přiřadit k poli <em>Poznámka</em>, pokud se jako poznámka neimportuj
     <tr>
       <td>Chybí jméno. / Chybí příjmení.</td>
       <td>Sloupec se jménem je prázdný nebo nepřiřazený; celé jméno obsahuje jen jedno slovo.</td>
-      <td>Zkontrolovat přiřazení v kroku 2 nebo doplnit soubor.</td>
+      <td>Zkontrolovat přiřazení v kroku <em>Přiřazení a pravidla</em> nebo doplnit soubor.</td>
     </tr>
     <tr>
       <td>Neplatné datum: "…".</td>
       <td>Nečitelné datum, datum narození v budoucnosti nebo datum ukončení před datem nástupu.</td>
-      <td>Zkontrolovat formát data v kroku 2 nebo opravit hodnotu v souboru.</td>
+      <td>Zkontrolovat formát data v kroku <em>Přiřazení a pravidla</em> nebo opravit hodnotu v souboru.</td>
     </tr>
     <tr>
       <td>Neznámý typ "…" – použijte zaměstnanec, externí nebo zákazník.</td>
@@ -570,7 +582,7 @@ kroku 2 přiřadit k poli <em>Poznámka</em>, pokud se jako poznámka neimportuj
     <tr>
       <td>Jedno z pravidel pro chybějící údaje již není platné …</td>
       <td>Smlouva nebo skupina vybraná v pravidlech byla mezitím smazána.</td>
-      <td>Zkontrolovat pravidla v kroku 2.</td>
+      <td>Zkontrolovat pravidla v kroku <em>Přiřazení a pravidla</em>.</td>
     </tr>
   </tbody>
 </table>

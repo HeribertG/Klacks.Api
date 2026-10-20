@@ -12,17 +12,19 @@ och kunder.
   <li>
     <strong>Vem får importera:</strong> endast administratörer. Kortet <em>Importera medarbetare</em>
     finns i inställningarna, avsnittet <em>Import</em>; avsnittet visas bara när reglaget
-    <em>Expertläge</em> högst upp på inställningssidan är påslaget. Knappen <em>Importera</em> öppnar
-    importsidan. Andra användare ser inte kortet och behöver en administratör för importen.
+    <em>Expertläge</em> högst upp på inställningssidan är påslaget. Kortet har flikarna <em>Import</em>
+    och <em>Manual</em>; importen börjar direkt på kortet. Andra användare ser inte kortet och behöver
+    en administratör för importen.
   </li>
   <li>
     <strong>Dataskydd:</strong> själva filen sparas inte. Den läses bara; endast de rader som bekräftas
     i förhandsgranskningen skapas.
   </li>
   <li>
-    <strong>Fyra steg:</strong> <em>Fil</em> → <em>Mappning och regler</em> → <em>Förhandsgranskning</em> →
-    <em>Resultat</em>. Fliken <em>Manual</em> visar den här handboken; en pågående import går inte
-    förlorad när man byter till den.
+    <strong>Så fungerar det:</strong> filen läggs i uppladdningszonen på kortet. Därefter öppnas ett
+    fönster med tre steg: <em>Mappning och regler</em> → <em>Förhandsgranskning</em> →
+    <em>Resultat</em>. Den här handboken finns på fliken <em>Manual</em> på kortet; i fönstret öppnar
+    knappen <em>Manual</em> den i ett andra fönster utan att den pågående importen går förlorad.
   </li>
 </ul>
 
@@ -36,7 +38,7 @@ och kunder.
   </li>
   <li>
     <strong>Excel-arbetsböcker:</strong> endast synliga blad läses, som standard det första. En
-    arbetsbok med flera blad erbjuder valet <em>Blad</em> i steg 2. Det beräknade resultatet av en
+    arbetsbok med flera blad erbjuder valet <em>Blad</em> i steget <em>Mappning och regler</em>. Det beräknade resultatet av en
     formel importeras. Celler som är formaterade som datum läses som datum. Tal i celler med formatet
     "Allmänt" förlorar inledande nollor (postnumret 01234 blir 1234) – formatera sådana kolumner som
     text (mallen gör det redan).
@@ -63,7 +65,7 @@ och kunder.
     till exempel 31.12.1990, 12/31/1990 eller 1990-12-31; en tidsdel efter datumet ignoreras. Ett värde
     som börjar med ett fyrsiffrigt år läses alltid som år-månad-dag. Om det inte framgår av filen om
     dagen eller månaden kommer först (inget värde över 12), antar Klacks dag/månad/år och ber om att
-    datumformatet kontrolleras i steg 2.
+    datumformatet kontrolleras i steget <em>Mappning och regler</em>.
     Månadsnamn (till exempel "31 dec 1990") känns inte igen.
   </li>
   <li>
@@ -105,7 +107,7 @@ e-postadress eller ett födelsedatum (se <em>Dubbletter</em>).
 
 <h3>Mall</h3>
 <p>
-Knappen <em>Ladda ner mall</em> i steg 1 ger en Excel-fil på användarens språk (filnamn
+Knappen <em>Ladda ner mall</em> på kortet ger en Excel-fil på användarens språk (filnamn
 <code>klacks-employee-import-sv.xlsx</code>). Med mallen känns varje kolumn igen på ett tillförlitligt
 sätt. Rubrikraden är fet och låst, varje kolumn är formaterad som text (inledande nollor och datum
 behålls som de skrivits in), och rubriken i kolumnen <em>Typ</em> har en anteckning med de tillåtna
@@ -121,21 +123,21 @@ från").
 
 <hr>
 
-<h3>Steg 1 – Fil</h3>
+<h3>Välj filen</h3>
 <ul>
   <li>
-    Dra filen till uppladdningszonen eller klicka på zonen för att välja en fil. Klacks läser filen och
-    går vidare till steg 2.
+    Dra filen till kortets uppladdningszon eller klicka på zonen för att välja en fil. Klacks läser
+    filen och öppnar fönstret med steg 1.
   </li>
   <li>
     Ett filproblem (fel format, för stor, för många rader eller kolumner, ingen rubrikrad) visas direkt
-    under uppladdningszonen; se <em>Vanliga fel och åtgärder</em>.
+    under uppladdningszonen och fönstret öppnas inte; se <em>Vanliga fel och åtgärder</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Steg 2 – Mappning och regler</h3>
+<h3>Steg 1 – Mappning och regler</h3>
 <h4>Mappa kolumner</h4>
 <ul>
   <li>
@@ -184,13 +186,13 @@ från").
   </li>
 </ul>
 <p>
-<em>Fortsätt till förhandsgranskning</em> går vidare; <em>Välj en annan fil</em> börjar om med en
-annan fil.
+Knapparna finns längst ned i fönstret: <em>Fortsätt till förhandsgranskning</em> går vidare; <em>Välj
+en annan fil</em> stänger fönstret och börjar om på kortet med en annan fil.
 </p>
 
 <hr>
 
-<h3>Steg 3 – Förhandsgranskning</h3>
+<h3>Steg 2 – Förhandsgranskning</h3>
 <ul>
   <li>
     En sammanfattning räknar raderna: totalt, klara, överhoppade, med fel, dubbletter och med
@@ -206,11 +208,12 @@ annan fil.
     <em>Skapa ändå</em> behåller en rad som har identifierats som dubblett.
   </li>
   <li>
-    Övriga värden kan inte redigeras i förhandsgranskningen. För att rätta dem korrigeras filen och
-    väljs på nytt (<em>Välj en annan fil</em>), eller så ändras mappningen med <em>Tillbaka</em>.
+    Övriga värden kan inte redigeras i förhandsgranskningen. För att rätta dem ändras mappningen med
+    <em>Tillbaka</em>, eller så korrigeras filen och väljs på nytt med <em>Tillbaka</em> och <em>Välj en
+    annan fil</em>.
   </li>
   <li>
-    Importknappen visar hur många personer som kommer att skapas (till exempel <em>Importera 25
+    Importknappen längst ned i fönstret visar hur många personer som kommer att skapas (till exempel <em>Importera 25
     medarbetare</em>). Den förblir inaktiverad så länge en rad fortfarande har ett fel: rätta raden
     eller hoppa över den.
   </li>
@@ -218,11 +221,21 @@ annan fil.
 
 <hr>
 
-<h3>Steg 4 – Resultat</h3>
+<h3>Steg 3 – Resultat</h3>
 <p>
 Visar hur många personer som skapades och hur många rader som hoppades över, samt hur många adresser
 som lokaliseras på kartan i bakgrunden. <em>Gå till medarbetarlistan</em> öppnar listan,
-<em>Importera en annan fil</em> startar en ny import.
+<em>Importera en annan fil</em> stänger fönstret inför nästa fil.
+</p>
+
+<hr>
+
+<h3>Stänga fönstret</h3>
+<p>
+Krysset (×) uppe till höger och Esc-tangenten stänger fönstret. Under mappningen och
+förhandsgranskningen är ännu ingenting sparat, så fönstret frågar först längst ned om importen ska
+kasseras; <em>Fortsätt redigera</em> håller det öppet. Medan importen sparas går fönstret inte att
+stänga. Därefter visar kortet uppladdningszonen igen.
 </p>
 
 <hr>
@@ -245,7 +258,7 @@ som lokaliseras på kartan i bakgrunden. <em>Gå till medarbetarlistan</em> öpp
     <tr>
       <td>Fullständigt namn</td>
       <td>Nej</td>
-      <td>Alternativ till separata namnkolumner; delas upp i förnamn och efternamn (se steg 2). Namn med
+      <td>Alternativ till separata namnkolumner; delas upp i förnamn och efternamn (se <em>Mappning och regler</em>). Namn med
         fler än två delar får en varning – kontrollera uppdelningen.</td>
     </tr>
     <tr>
@@ -431,7 +444,7 @@ som lokaliseras på kartan i bakgrunden. <em>Gå till medarbetarlistan</em> öpp
 <p>
 Klacks <strong>tilldelar alltid personalnumret själv</strong>. En kolumn med personalnummer i filen
 känns igen men ignoreras; förhandsgranskningen visar en anmärkning. För att behålla numren från ett
-annat system kan kolumnen mappas till <em>Anteckning</em> i steg 2, så länge ingen annan kolumn
+annat system kan kolumnen mappas till <em>Anteckning</em> i steget <em>Mappning och regler</em>, så länge ingen annan kolumn
 importeras som anteckning.
 </p>
 
@@ -539,12 +552,12 @@ importeras som anteckning.
     <tr>
       <td>Förnamn saknas. / Efternamn saknas.</td>
       <td>Namnkolumnen är tom eller inte mappad; ett fullständigt namn med bara ett ord.</td>
-      <td>Kontrollera mappningen i steg 2 eller komplettera filen.</td>
+      <td>Kontrollera mappningen i steget <em>Mappning och regler</em> eller komplettera filen.</td>
     </tr>
     <tr>
       <td>Ogiltigt datum: "…".</td>
       <td>Oläsligt datum, födelsedatum i framtiden eller slutdatum före anställningsdatum.</td>
-      <td>Kontrollera datumformatet i steg 2 eller rätta värdet i filen.</td>
+      <td>Kontrollera datumformatet i steget <em>Mappning och regler</em> eller rätta värdet i filen.</td>
     </tr>
     <tr>
       <td>Okänd typ "…" – använd medarbetare, extern eller kund.</td>
@@ -574,7 +587,7 @@ importeras som anteckning.
     <tr>
       <td>En av reglerna för saknad information är inte längre giltig …</td>
       <td>Ett avtal eller en grupp som valts i reglerna har raderats under tiden.</td>
-      <td>Kontrollera reglerna i steg 2.</td>
+      <td>Kontrollera reglerna i steget <em>Mappning och regler</em>.</td>
     </tr>
   </tbody>
 </table>

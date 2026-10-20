@@ -12,17 +12,19 @@ eksterne medarbejdere og kunder.
   <li>
     <strong>Hvem må importere:</strong> kun administratorer. Kortet <em>Importer medarbejdere</em>
     findes i indstillingerne, afsnittet <em>Import</em>; afsnittet vises kun, når kontakten
-    <em>Eksperttilstand</em> øverst på indstillingssiden er slået til. Knappen <em>Importer</em> åbner
-    importsiden. Andre brugere ser ikke kortet og skal have en administrator til at foretage importen.
+    <em>Eksperttilstand</em> øverst på indstillingssiden er slået til. Kortet
+    har fanerne <em>Import</em> og <em>Manual</em>; importen starter direkte på kortet. Andre brugere
+    ser ikke kortet og skal have en administrator til at foretage importen.
   </li>
   <li>
     <strong>Databeskyttelse:</strong> selve filen gemmes ikke. Den bliver kun læst; kun de rækker,
     der bekræftes i forhåndsvisningen, oprettes.
   </li>
   <li>
-    <strong>Fire trin:</strong> <em>Fil</em> → <em>Kortlægning og regler</em> →
-    <em>Forhåndsvisning</em> → <em>Resultat</em>. Fanen <em>Manual</em> viser denne manual; et
-    skift dertil afbryder ikke en igangværende import.
+    <strong>Sådan fungerer det:</strong> filen trækkes hen på kortets uploadzone. Derefter åbnes et
+    vindue med tre trin: <em>Kortlægning og regler</em> → <em>Forhåndsvisning</em> → <em>Resultat</em>.
+    Denne manual findes i fanen <em>Manual</em> på kortet; i vinduet åbner knappen <em>Manual</em> den i
+    et andet vindue, uden at den igangværende import går tabt.
   </li>
 </ul>
 
@@ -37,7 +39,7 @@ eksterne medarbejdere og kunder.
   </li>
   <li>
     <strong>Excel-projektmapper:</strong> kun synlige ark læses, som standard det første. En
-    projektmappe med flere ark tilbyder valget <em>Ark</em> i trin 2. Det beregnede resultat af en
+    projektmappe med flere ark tilbyder valget <em>Ark</em> i trinnet <em>Kortlægning og regler</em>. Det beregnede resultat af en
     formel importeres. Celler, der er formateret som dato, læses som datoer. Tal i celler med formatet
     "Generelt" mister foranstillede nuller (postnummer 01234 bliver til 1234) – formatér sådanne
     kolonner som tekst (det gør skabelonen allerede).
@@ -64,7 +66,7 @@ eksterne medarbejdere og kunder.
     for eksempel 31.12.1990, 12/31/1990 eller 1990-12-31; et klokkeslæt efter datoen ignoreres. En
     værdi, der begynder med et firecifret årstal, læses altid som år-måned-dag. Hvis det ikke fremgår
     af filen, om dagen eller måneden kommer først (ingen værdi over 12), antager Klacks dag/måned/år
-    og beder om, at datoformatet kontrolleres i trin 2. Månedsnavne (for eksempel "31 Dec 1990")
+    og beder om, at datoformatet kontrolleres i trinnet <em>Kortlægning og regler</em>. Månedsnavne (for eksempel "31 Dec 1990")
     genkendes ikke.
   </li>
   <li>
@@ -106,7 +108,7 @@ som dubletter, når de har en e-mailadresse eller en fødselsdato (se <em>Dublet
 
 <h3>Skabelon</h3>
 <p>
-Knappen <em>Download skabelon</em> i trin 1 leverer en Excel-fil på brugerens sprog (filnavn
+Knappen <em>Download skabelon</em> på kortet leverer en Excel-fil på brugerens sprog (filnavn
 <code>klacks-employee-import-da.xlsx</code>). Med skabelonen genkendes alle kolonner pålideligt.
 Overskriftsrækken er fed og frosset, alle kolonner er formateret som tekst (foranstillede nuller og
 datoer forbliver, som de er indtastet), og overskriften i kolonnen <em>Type</em> har en note med de
@@ -122,21 +124,22 @@ genkender også kolonnenavne på alle 25 Klacks-sprog og mange gængse varianter
 
 <hr>
 
-<h3>Trin 1 – Fil</h3>
+<h3>Vælg filen</h3>
 <ul>
   <li>
-    Træk filen hen på uploadzonen, eller klik på zonen for at vælge en fil. Klacks læser filen og
-    går videre til trin 2.
+    Træk filen hen på kortets uploadzone, eller klik på zonen for at vælge en fil. Klacks læser filen og
+    åbner vinduet med trin 1.
   </li>
   <li>
     Et problem med filen (forkert format, for stor, for mange rækker eller kolonner, ingen
-    overskriftsrække) vises direkte under uploadzonen; se <em>Typiske fejl og løsninger</em>.
+    overskriftsrække) vises direkte under uploadzonen, og vinduet åbnes ikke; se
+    <em>Typiske fejl og løsninger</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Trin 2 – Kortlægning og regler</h3>
+<h3>Trin 1 – Kortlægning og regler</h3>
 <h4>Tilknyt kolonner</h4>
 <ul>
   <li>
@@ -186,13 +189,13 @@ genkender også kolonnenavne på alle 25 Klacks-sprog og mange gængse varianter
   </li>
 </ul>
 <p>
-<em>Fortsæt til forhåndsvisning</em> går videre; <em>Vælg en anden fil</em> begynder forfra med en
-anden fil.
+Knapperne står nederst i vinduet: <em>Fortsæt til forhåndsvisning</em> går videre; <em>Vælg en
+anden fil</em> lukker vinduet og begynder forfra på kortet med en anden fil.
 </p>
 
 <hr>
 
-<h3>Trin 3 – Forhåndsvisning</h3>
+<h3>Trin 2 – Forhåndsvisning</h3>
 <ul>
   <li>
     En oversigt tæller rækkerne: i alt, klar, sprunget over, med fejl, dubletter og med advarsler.
@@ -208,11 +211,12 @@ anden fil.
     køn; <em>Opret alligevel</em> beholder en række, der er genkendt som dublet.
   </li>
   <li>
-    Andre værdier kan ikke redigeres i forhåndsvisningen. For at rette dem skal filen rettes og
-    vælges igen (<em>Vælg en anden fil</em>), eller tilknytningen ændres med <em>Tilbage</em>.
+    Andre værdier kan ikke redigeres i forhåndsvisningen. For at rette dem skal tilknytningen
+    ændres med <em>Tilbage</em>, eller filen rettes og vælges igen med <em>Tilbage</em> og <em>Vælg en
+    anden fil</em>.
   </li>
   <li>
-    Importknappen viser, hvor mange personer der oprettes (for eksempel <em>Importer 25
+    Importknappen nederst i vinduet viser, hvor mange personer der oprettes (for eksempel <em>Importer 25
     medarbejdere</em>). Den forbliver deaktiveret, så længe en række stadig har en fejl: ret rækken,
     eller spring den over.
   </li>
@@ -220,11 +224,20 @@ anden fil.
 
 <hr>
 
-<h3>Trin 4 – Resultat</h3>
+<h3>Trin 3 – Resultat</h3>
 <p>
 Viser, hvor mange personer der blev oprettet, hvor mange rækker der blev sprunget over, og hvor
 mange adresser der lokaliseres på kortet i baggrunden. <em>Gå til medarbejderlisten</em> åbner
-listen, <em>Importer en anden fil</em> starter en ny import.
+listen, <em>Importer en anden fil</em> lukker vinduet til den næste fil.
+</p>
+
+<hr>
+
+<h3>Luk vinduet</h3>
+<p>
+Krydset × øverst til højre og Esc-tasten lukker vinduet. Under kortlægningen og forhåndsvisningen er
+intet gemt endnu, så vinduet spørger først nederst, om importen skal kasseres; <em>Fortsæt redigering</em>
+holder det åbent. Mens importen gemmes, kan vinduet ikke lukkes. Bagefter viser kortet uploadzonen igen.
 </p>
 
 <hr>
@@ -247,7 +260,7 @@ listen, <em>Importer en anden fil</em> starter en ny import.
     <tr>
       <td>Fulde navn</td>
       <td>Nej</td>
-      <td>Alternativ til separate navnekolonner; deles op i fornavn og efternavn (se trin 2). Navne med
+      <td>Alternativ til separate navnekolonner; deles op i fornavn og efternavn (se <em>Kortlægning og regler</em>). Navne med
         mere end to dele får en advarsel – kontrollér opdelingen.</td>
     </tr>
     <tr>
@@ -437,7 +450,7 @@ listen, <em>Importer en anden fil</em> starter en ny import.
 <p>
 Klacks <strong>tildeler altid selv personalenummeret</strong>. En kolonne med personalenumre i
 filen genkendes, men ignoreres; forhåndsvisningen viser et hint. For at bevare numrene fra et andet
-system kan kolonnen i trin 2 tilknyttes <em>Note</em>, så længe ingen anden kolonne importeres som
+system kan kolonnen i trinnet <em>Kortlægning og regler</em> tilknyttes <em>Note</em>, så længe ingen anden kolonne importeres som
 note.
 </p>
 
@@ -544,12 +557,12 @@ note.
     <tr>
       <td>Fornavn mangler. / Efternavn mangler.</td>
       <td>Navnekolonnen er tom eller ikke tilknyttet; et fulde navn med kun ét ord.</td>
-      <td>Kontrollér tilknytningen i trin 2, eller suppler filen.</td>
+      <td>Kontrollér tilknytningen i trinnet <em>Kortlægning og regler</em>, eller suppler filen.</td>
     </tr>
     <tr>
       <td>Ugyldig dato: "…".</td>
       <td>Ulæselig dato, fødselsdato i fremtiden eller fratrædelsesdato før ansættelsesdato.</td>
-      <td>Kontrollér datoformatet i trin 2, eller ret værdien i filen.</td>
+      <td>Kontrollér datoformatet i trinnet <em>Kortlægning og regler</em>, eller ret værdien i filen.</td>
     </tr>
     <tr>
       <td>Ukendt type "…" – brug medarbejder, ekstern eller kunde.</td>
@@ -579,7 +592,7 @@ note.
     <tr>
       <td>Én af reglerne for manglende oplysninger er ikke længere gyldig …</td>
       <td>En kontrakt eller gruppe, der er valgt i reglerne, er blevet slettet i mellemtiden.</td>
-      <td>Kontrollér reglerne i trin 2.</td>
+      <td>Kontrollér reglerne i trinnet <em>Kortlægning og regler</em>.</td>
     </tr>
   </tbody>
 </table>

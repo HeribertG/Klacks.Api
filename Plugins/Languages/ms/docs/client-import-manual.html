@@ -12,7 +12,7 @@ pekerja luaran dan pelanggan.
   <li>
     <strong>Siapa yang boleh mengimport:</strong> hanya pentadbir. Kad <em>Import pekerja</em> terdapat
     dalam tetapan, bahagian <em>Import</em>; bahagian ini hanya dipaparkan apabila suis <em>Mod pakar</em>
-    di bahagian atas halaman tetapan dihidupkan. Butang <em>Import</em> membuka halaman import.
+    di bahagian atas halaman tetapan dihidupkan. Kad ini mempunyai tab <em>Import</em> dan <em>Panduan</em>; import bermula terus pada kad.
     Pengguna lain tidak melihat kad tersebut dan memerlukan pentadbir untuk melakukan import.
   </li>
   <li>
@@ -20,9 +20,11 @@ pekerja luaran dan pelanggan.
     disahkan dalam pratonton akan dicipta.
   </li>
   <li>
-    <strong>Empat langkah:</strong> <em>Fail</em> → <em>Pemetaan &amp; peraturan</em> →
-    <em>Pratonton</em> → <em>Keputusan</em>. Tab <em>Panduan</em> memaparkan manual ini; beralih ke
-    tab tersebut tidak menyebabkan import yang sedang berjalan hilang.
+    <strong>Cara ia berfungsi:</strong> fail diletakkan pada zon muat naik kad. Satu tetingkap
+    kemudian dibuka dengan tiga langkah: <em>Pemetaan &amp; peraturan</em> → <em>Pratonton</em> →
+    <em>Keputusan</em>. Manual ini terdapat dalam tab <em>Panduan</em> pada kad; di dalam tetingkap,
+    butang <em>Panduan</em> membukanya dalam tetingkap kedua tanpa menyebabkan import yang sedang
+    berjalan hilang.
   </li>
 </ul>
 
@@ -37,7 +39,7 @@ pekerja luaran dan pelanggan.
   </li>
   <li>
     <strong>Buku kerja Excel:</strong> hanya helaian yang kelihatan dibaca, secara lalai helaian
-    pertama. Buku kerja dengan beberapa helaian menawarkan pilihan <em>Helaian</em> dalam langkah 2.
+    pertama. Buku kerja dengan beberapa helaian menawarkan pilihan <em>Helaian</em> dalam langkah <em>Pemetaan &amp; peraturan</em>.
     Hasil pengiraan formula yang diimport. Sel yang diformatkan sebagai tarikh dibaca sebagai tarikh.
     Nombor dalam sel dengan format "General" kehilangan sifar di hadapan (poskod 01234 menjadi 1234) –
     formatkan lajur sedemikian sebagai teks (templat sudah berbuat demikian).
@@ -63,7 +65,7 @@ pekerja luaran dan pelanggan.
     tanda sempang, contohnya 31.12.1990, 12/31/1990 atau 1990-12-31; bahagian masa selepas tarikh
     diabaikan. Nilai yang bermula dengan tahun empat digit sentiasa dibaca sebagai tahun-bulan-hari.
     Jika fail tidak menunjukkan sama ada hari atau bulan didahulukan (tiada nilai melebihi 12),
-    Klacks menganggap hari/bulan/tahun dan meminta format tarikh disemak dalam langkah 2. Nama bulan
+    Klacks menganggap hari/bulan/tahun dan meminta format tarikh disemak dalam langkah <em>Pemetaan &amp; peraturan</em>. Nama bulan
     (contohnya "31 Dec 1990") tidak dikenali.
   </li>
   <li>
@@ -108,7 +110,7 @@ daripada fail sebelumnya dikenali sebagai pendua jika mereka mempunyai alamat e-
 
 <h3>Templat</h3>
 <p>
-Butang <em>Muat turun templat</em> dalam langkah 1 menyediakan fail Excel dalam bahasa pengguna
+Butang <em>Muat turun templat</em> pada kad menyediakan fail Excel dalam bahasa pengguna
 (nama fail <code>klacks-employee-import-ms.xlsx</code>). Dengan templat, setiap lajur dikenali dengan
 tepat. Baris pengepalanya ditebalkan dan dibekukan, setiap lajur diformatkan sebagai teks (sifar di
 hadapan dan tarikh kekal seperti yang ditaip), dan pengepala lajur <em>Jenis</em> mempunyai nota
@@ -125,21 +127,22 @@ lazim (contohnya "Nama keluarga", "Poskod", "Tarikh masuk").
 
 <hr>
 
-<h3>Langkah 1 – Fail</h3>
+<h3>Pilih fail</h3>
 <ul>
   <li>
-    Seret fail ke zon muat naik atau klik zon tersebut untuk memilih fail. Klacks membaca fail dan
-    beralih ke langkah 2.
+    Seret fail ke zon muat naik pada kad atau klik zon tersebut untuk memilih fail. Klacks membaca
+    fail dan membuka tetingkap dengan langkah 1.
   </li>
   <li>
     Masalah fail (format salah, terlalu besar, terlalu banyak baris atau lajur, tiada baris pengepala)
-    dipaparkan terus di bawah zon muat naik; lihat <em>Ralat biasa dan penyelesaian</em>.
+    dipaparkan terus di bawah zon muat naik, dan tetingkap tidak dibuka; lihat <em>Ralat biasa dan
+    penyelesaian</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Langkah 2 – Pemetaan &amp; peraturan</h3>
+<h3>Langkah 1 – Pemetaan &amp; peraturan</h3>
 <h4>Petakan lajur</h4>
 <ul>
   <li>
@@ -189,13 +192,14 @@ lazim (contohnya "Nama keluarga", "Poskod", "Tarikh masuk").
   </li>
 </ul>
 <p>
-<em>Teruskan ke pratonton</em> beralih ke langkah seterusnya; <em>Pilih fail lain</em> bermula semula
-dengan fail yang berbeza.
+Butang terdapat di bahagian bawah tetingkap: <em>Teruskan ke pratonton</em> beralih ke langkah
+seterusnya; <em>Pilih fail lain</em> menutup tetingkap dan bermula semula pada kad dengan fail yang
+berbeza.
 </p>
 
 <hr>
 
-<h3>Langkah 3 – Pratonton</h3>
+<h3>Langkah 2 – Pratonton</h3>
 <ul>
   <li>
     Ringkasan mengira baris: jumlah, sedia, dilangkau, dengan ralat, pendua dan dengan amaran. Catatan
@@ -212,11 +216,11 @@ dengan fail yang berbeza.
     sebagai pendua.
   </li>
   <li>
-    Nilai lain tidak boleh disunting dalam pratonton. Untuk membetulkannya, perbaiki fail dan pilih
-    fail itu semula (<em>Pilih fail lain</em>), atau ubah pemetaan dengan <em>Kembali</em>.
+    Nilai lain tidak boleh disunting dalam pratonton. Untuk membetulkannya, ubah pemetaan dengan <em>Kembali</em>, atau perbaiki fail dan pilih fail
+    itu semula dengan <em>Kembali</em> dan <em>Pilih fail lain</em>.
   </li>
   <li>
-    Butang import menunjukkan bilangan orang yang akan dicipta (contohnya <em>Import 25
+    Butang import di bahagian bawah tetingkap menunjukkan bilangan orang yang akan dicipta (contohnya <em>Import 25
     pekerja</em>). Butang ini kekal dinyahaktifkan selagi masih ada baris dengan ralat: betulkan baris
     tersebut atau langkaunya.
   </li>
@@ -224,11 +228,21 @@ dengan fail yang berbeza.
 
 <hr>
 
-<h3>Langkah 4 – Keputusan</h3>
+<h3>Langkah 3 – Keputusan</h3>
 <p>
 Menunjukkan bilangan orang yang telah dicipta dan bilangan baris yang dilangkau, serta bilangan
 alamat yang sedang dikesan pada peta di latar belakang. <em>Pergi ke senarai pekerja</em> membuka
-senarai, <em>Import fail lain</em> memulakan import baharu.
+senarai, <em>Import fail lain</em> menutup tetingkap untuk fail seterusnya.
+</p>
+
+<hr>
+
+<h3>Menutup tetingkap</h3>
+<p>
+× di bahagian atas kanan dan kekunci Esc menutup tetingkap. Semasa pemetaan dan pratonton, belum ada
+apa-apa yang disimpan, jadi tetingkap terlebih dahulu bertanya di bahagian bawahnya sama ada import
+perlu dibuang; <em>Teruskan mengedit</em> mengekalkannya terbuka. Selagi import sedang disimpan,
+tetingkap tidak boleh ditutup. Selepas itu kad memaparkan zon muat naik semula.
 </p>
 
 <hr>
@@ -252,7 +266,7 @@ senarai, <em>Import fail lain</em> memulakan import baharu.
       <td>Nama penuh</td>
       <td>Tidak</td>
       <td>Alternatif kepada lajur nama yang berasingan; dipisahkan kepada nama pertama dan nama akhir
-        (lihat langkah 2). Nama dengan lebih daripada dua bahagian menerima amaran – semak pemisahannya.</td>
+        (lihat <em>Pemetaan &amp; peraturan</em>). Nama dengan lebih daripada dua bahagian menerima amaran – semak pemisahannya.</td>
     </tr>
     <tr>
       <td>Gelaran</td>
@@ -441,7 +455,7 @@ senarai, <em>Import fail lain</em> memulakan import baharu.
 <p>
 Klacks <strong>sentiasa memberikan nombor pekerja sendiri</strong>. Lajur nombor pekerja dalam fail
 dikenali tetapi diabaikan; pratonton memaparkan petunjuk. Untuk mengekalkan nombor daripada sistem
-lain, lajur tersebut boleh dipetakan kepada <em>Nota</em> dalam langkah 2, selagi tiada lajur lain
+lain, lajur tersebut boleh dipetakan kepada <em>Nota</em> dalam langkah <em>Pemetaan &amp; peraturan</em>, selagi tiada lajur lain
 yang diimport sebagai nota.
 </p>
 
@@ -549,13 +563,13 @@ yang diimport sebagai nota.
     <tr>
       <td>Nama pertama tiada. / Nama akhir tiada.</td>
       <td>Lajur nama kosong atau tidak dipetakan; nama penuh dengan hanya satu perkataan.</td>
-      <td>Semak pemetaan dalam langkah 2 atau lengkapkan fail.</td>
+      <td>Semak pemetaan dalam langkah <em>Pemetaan &amp; peraturan</em> atau lengkapkan fail.</td>
     </tr>
     <tr>
       <td>Tarikh tidak sah: "…".</td>
       <td>Tarikh tidak dapat dibaca, tarikh lahir pada masa hadapan, atau tarikh berhenti sebelum tarikh
         mula bekerja.</td>
-      <td>Semak format tarikh dalam langkah 2 atau betulkan nilai dalam fail.</td>
+      <td>Semak format tarikh dalam langkah <em>Pemetaan &amp; peraturan</em> atau betulkan nilai dalam fail.</td>
     </tr>
     <tr>
       <td>Jenis "…" tidak dikenali – gunakan pekerja, luaran atau pelanggan.</td>
@@ -588,7 +602,7 @@ yang diimport sebagai nota.
     <tr>
       <td>Salah satu peraturan untuk maklumat yang tiada tidak lagi sah …</td>
       <td>Kontrak atau kumpulan yang dipilih dalam peraturan telah dipadam sementara itu.</td>
-      <td>Semak peraturan dalam langkah 2.</td>
+      <td>Semak peraturan dalam langkah <em>Pemetaan &amp; peraturan</em>.</td>
     </tr>
   </tbody>
 </table>

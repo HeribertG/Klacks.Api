@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-14T21:32:23.410Z",
+  "generatedAt": "2026-10-20T07:24:08.268Z",
   "source": "Klacks.Ui/src/app/domain/constants/klacksy-page-keys.ts",
   "entries": [
     {
@@ -14,13 +14,6 @@
       "requiredPermission": null,
       "hasEntityParam": false,
       "llmHint": "employee overview"
-    },
-    {
-      "pageKey": "import-employees",
-      "route": "/workplace/settings/client-import",
-      "requiredPermission": "Admin",
-      "hasEntityParam": false,
-      "llmHint": "import employees from an Excel or CSV file"
     },
     {
       "pageKey": "new-employee",
@@ -60,7 +53,8 @@
       "pageKey": "settings",
       "route": "/workplace/settings",
       "requiredPermission": "CanViewSettings",
-      "hasEntityParam": false
+      "hasEntityParam": false,
+      "llmHint": "all settings, including the employee import from an Excel or CSV file (target client-import, admins only)"
     },
     {
       "pageKey": "escalations",

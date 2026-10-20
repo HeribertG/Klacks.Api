@@ -266,14 +266,13 @@
       "parameters": [
         {
           "name": "page",
-          "description": "The page to navigate to. client-list for employee overview; import-employees for import employees from an Excel or CSV file; new-employee for create employee form; edit-employee for edit existing employee (needs entityId); escalations for open escalation interventions list; new-group for create group form; edit-group for edit existing group (needs entityId); new-shift for create shift template; new-plannable-shift for create a plannable duty without a customer; edit-shift for edit shift template (needs entityId); cut-shift for split or trim a shift (needs entityId); container-template for edit shift container template (needs entityId); messaging for send and read messages to employees; floor-plan for site floor plans with markers; klacksy-training for admin training review.",
+          "description": "The page to navigate to. client-list for employee overview; new-employee for create employee form; edit-employee for edit existing employee (needs entityId); settings for all settings, including the employee import from an Excel or CSV file (target client-import, admins only); escalations for open escalation interventions list; new-group for create group form; edit-group for edit existing group (needs entityId); new-shift for create shift template; new-plannable-shift for create a plannable duty without a customer; edit-shift for edit shift template (needs entityId); cut-shift for split or trim a shift (needs entityId); container-template for edit shift container template (needs entityId); messaging for send and read messages to employees; floor-plan for site floor plans with markers; klacksy-training for admin training review.",
           "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
             "dashboard",
             "client-list",
-            "import-employees",
             "new-employee",
             "edit-employee",
             "schedule",
@@ -316,7 +315,7 @@
         },
         {
           "name": "target",
-          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: /: goal-{candidates-panel,candidates-panel.approve,candidates-panel.item,candidates-panel.reject},header-search,plan-{execution-panel,execution-panel.abort,execution-panel.approve}; client-list: addresses; container-template: container-{template.overview,template.selected-tasks}; cut-shift: cut-{shift.list,shift.overview}; dashboard: dashboard.clients-{locations,overview},dashboard.resource-monitor,dashboard.shift-coverage,dashboard.shifts-overview; new-employee/edit-employee: address-{contracts,groups,image,membership,note,persona,qualifications},client-{detail,detail.birthday,detail.firstname,detail.gender,detail.lastname},employee-membership.type; new-group/edit-group: group-{detail,detail.name,item,members,parent}; edit-shift: shift-{address,expenses,form,form.abbreviation,form.name,group,item,macro,qualifications,special-feature,weekday}; group-list: groups; klacksy-training: klacksy-{training.feedback,training.manual,training.metrics,training.targets},skill-effectiveness; period-closing: period-{closing-audit,closing-audit-actions,closing-audit-exports,closing-audit-filter,closing-day-table,closing-export-employee-export,closing-export-employee-form,closing-export-employee-format,closing-export-range-export,closing-export-range-form,closing-export-range-format,closing-export-single-export,closing-export-single-filter,closing-export-single-format,closing-export-single-order,closing-export-tab-employee,closing-export-tab-range,closing-export-tab-single,closing-exports,closing-issues,closing-period-select,closing-periods,closing-seal-all,closing-unseal-all,closing-unseal-reason}; profile: profile-{data,messengers,microphone,picture,settings}; settings: absence-{detail,detail-form,types},active-industries,assistant-{learning,personality,skill-relations,speech},branch-form,branches,calendar-{rule-form,rules,selection,selection-form},client-import,compensatory-rest,compliance-enforcement,contract-{form,form.name,form.percent},contracts,counter-rules,countries,data-retention,deepl,email-config,erp-drop-points,escalation-roster,export-{format-overrides,formats},feature-plugins,grid-color,group-scope,holiday-work-exemptions,identity-providers,imap-setting,individual-{period-form,period-form.name,periods},klacksy-{autonomy,model-check,proactive-governance},language-plugins,llm-{models,provider,sync-log},macros,messaging-providers,monthly-target-hours,openroute,overtime,owner-{address,messengers},period-cap-rules,personal-{access-token-form,access-tokens},qualifications,report-defaults,reports,restricted-time-window-rules,scheduling-{defaults,rules},settings-general,spam-rules,states,surcharge-mode,updates,user-management,web-search,whisper-plugin,wizard,work-{setting,setting-form}; import-employees: client-{import-commit,import-drop-zone,import-mapping-table,import-policy,import-preview-table,import-steps,import-template-button,import-to-list,import-to-preview}; shift-list: shifts. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
+          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: /: goal-{candidates-panel,candidates-panel.approve,candidates-panel.item,candidates-panel.reject},header-search,plan-{execution-panel,execution-panel.abort,execution-panel.approve}; client-list: addresses; container-template: container-{template.overview,template.selected-tasks}; cut-shift: cut-{shift.list,shift.overview}; dashboard: dashboard.clients-{locations,overview},dashboard.resource-monitor,dashboard.shift-coverage,dashboard.shifts-overview; new-employee/edit-employee: address-{contracts,groups,image,membership,note,persona,qualifications},client-{detail,detail.birthday,detail.firstname,detail.gender,detail.lastname},employee-membership.type; new-group/edit-group: group-{detail,detail.name,item,members,parent}; edit-shift: shift-{address,expenses,form,form.abbreviation,form.name,group,item,macro,qualifications,special-feature,weekday}; group-list: groups; klacksy-training: klacksy-{training.feedback,training.manual,training.metrics,training.targets},skill-effectiveness; period-closing: period-{closing-audit,closing-audit-actions,closing-audit-exports,closing-audit-filter,closing-day-table,closing-export-employee-export,closing-export-employee-form,closing-export-employee-format,closing-export-range-export,closing-export-range-form,closing-export-range-format,closing-export-single-export,closing-export-single-filter,closing-export-single-format,closing-export-single-order,closing-export-tab-employee,closing-export-tab-range,closing-export-tab-single,closing-exports,closing-issues,closing-period-select,closing-periods,closing-seal-all,closing-unseal-all,closing-unseal-reason}; profile: profile-{data,messengers,microphone,picture,settings}; settings: absence-{detail,detail-form,types},active-industries,assistant-{learning,personality,skill-relations,speech},branch-form,branches,calendar-{rule-form,rules,selection,selection-form},client-{import,import-commit,import-drop-zone,import-manual,import-mapping-table,import-policy,import-preview-table,import-steps,import-template-button,import-to-list,import-to-preview},compensatory-rest,compliance-enforcement,contract-{form,form.name,form.percent},contracts,counter-rules,countries,data-retention,deepl,email-config,erp-drop-points,escalation-roster,export-{format-overrides,formats},feature-plugins,grid-color,group-scope,holiday-work-exemptions,identity-providers,imap-setting,individual-{period-form,period-form.name,periods},klacksy-{autonomy,model-check,proactive-governance},language-plugins,llm-{models,provider,sync-log},macros,messaging-providers,monthly-target-hours,openroute,overtime,owner-{address,messengers},period-cap-rules,personal-{access-token-form,access-tokens},qualifications,report-defaults,reports,restricted-time-window-rules,scheduling-{defaults,rules},settings-general,spam-rules,states,surcharge-mode,updates,user-management,web-search,whisper-plugin,wizard,work-{setting,setting-form}; shift-list: shifts. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -362,7 +361,7 @@
         "fr": "Naviguer vers une page",
         "it": "Naviga a una pagina"
       },
-      "version": 31
+      "version": 32
     },
     {
       "name": "get_page_controls",
@@ -31576,7 +31575,7 @@
     {
       "name": "explain_page_import_employees",
       "area": "client",
-      "description": "Explains the employee import page, where an administrator takes over a whole staff list from an Excel (.xlsx) or CSV file instead of creating every person by hand. Covers the four steps (file upload, column mapping with rules for missing information, preview, result), the file limits, the downloadable template, how duplicates, contracts, groups, the person type and the personnel number are handled, and that only administrators can open the page. Use this when the user asks how to import employees from Excel or CSV, where to upload a staff list or whether there is a template for it. Supports a level parameter: short (purpose and where the upload is), elements (every step and control), effects (what is written, duplicates and pitfalls).",
+      "description": "Explains the employee import, where an administrator takes over a whole staff list from an Excel (.xlsx) or CSV file instead of creating every person by hand. It is the settings card Import employees (section Import, expert mode, admins only): the file goes onto the drop zone of the card, then a window leads through mapping with rules for missing information, preview and result. Covers the file limits, the downloadable template, the manual, and how duplicates, contracts, groups, the person type and the personnel number are handled. Use this when the user asks how to import employees from Excel or CSV, where to upload a staff list or whether there is a template for it. Supports a level parameter: short (purpose and where the upload is), elements (every step and control), effects (what is written, duplicates and pitfalls).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31598,7 +31597,7 @@
       "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_import_employees",
-        "pageKey": "import-employees"
+        "pageKey": "settings"
       },
       "isEnabled": true,
       "alwaysOn": false,
@@ -31656,7 +31655,7 @@
         "fr": "Explication de l'import de collaborateurs",
         "it": "Spiegazione dell'importazione dei collaboratori"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "add_break_placeholder",

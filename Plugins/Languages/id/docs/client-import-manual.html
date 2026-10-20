@@ -12,17 +12,19 @@ eksternal dan pelanggan.
   <li>
     <strong>Siapa yang boleh mengimpor:</strong> hanya administrator. Kartu <em>Impor karyawan</em>
     terdapat di pengaturan, bagian <em>Impor</em>; bagian ini hanya muncul jika sakelar <em>Mode ahli</em>
-    di bagian atas halaman pengaturan diaktifkan. Tombol <em>Impor</em> membuka halaman impor.
-    Pengguna lain tidak melihat kartu tersebut dan memerlukan administrator untuk melakukan impor.
+    di bagian atas halaman pengaturan diaktifkan. Kartu ini memiliki tab <em>Impor</em> dan
+    <em>Panduan</em>; impor dimulai langsung di kartu. Pengguna lain tidak melihat kartu tersebut dan
+    memerlukan administrator untuk melakukan impor.
   </li>
   <li>
     <strong>Privasi:</strong> file itu sendiri tidak disimpan. File hanya dibaca; hanya baris yang
     dikonfirmasi di pratinjau yang akan dibuat.
   </li>
   <li>
-    <strong>Empat langkah:</strong> <em>File</em> → <em>Pemetaan &amp; aturan</em> → <em>Pratinjau</em> →
-    <em>Hasil</em>. Tab <em>Panduan</em> menampilkan panduan ini; berpindah ke tab tersebut tidak
-    menghilangkan impor yang sedang berjalan.
+    <strong>Cara kerja:</strong> file diletakkan di zona unggah pada kartu. Setelah itu sebuah jendela
+    terbuka dengan tiga langkah: <em>Pemetaan &amp; aturan</em> → <em>Pratinjau</em> → <em>Hasil</em>.
+    Panduan ini ada di tab <em>Panduan</em> pada kartu; di dalam jendela, tombol <em>Panduan</em>
+    membukanya di jendela kedua tanpa menghilangkan impor yang sedang berjalan.
   </li>
 </ul>
 
@@ -37,7 +39,7 @@ eksternal dan pelanggan.
   </li>
   <li>
     <strong>Buku kerja Excel:</strong> hanya lembar yang terlihat yang dibaca, secara default lembar
-    pertama. Buku kerja dengan beberapa lembar menawarkan pilihan <em>Lembar</em> di langkah 2. Yang
+    pertama. Buku kerja dengan beberapa lembar menawarkan pilihan <em>Lembar</em> di langkah <em>Pemetaan &amp; aturan</em>. Yang
     diimpor adalah hasil perhitungan sebuah rumus. Sel yang diformat sebagai tanggal dibaca sebagai
     tanggal. Angka dalam sel dengan format "General" kehilangan nol di depan (kode pos 01234 menjadi
     1234) – format kolom seperti itu sebagai teks (templat sudah melakukannya).
@@ -63,7 +65,7 @@ eksternal dan pelanggan.
     tanda hubung, misalnya 31.12.1990, 12/31/1990 atau 1990-12-31; bagian waktu setelah tanggal
     diabaikan. Nilai yang diawali tahun empat digit selalu dibaca sebagai tahun-bulan-hari. Jika file
     tidak menunjukkan apakah hari atau bulan yang lebih dulu (tidak ada nilai di atas 12), Klacks
-    mengasumsikan hari/bulan/tahun dan meminta agar format tanggal diperiksa di langkah 2. Nama
+    mengasumsikan hari/bulan/tahun dan meminta agar format tanggal diperiksa di langkah <em>Pemetaan &amp; aturan</em>. Nama
     bulan (misalnya "31 Dec 1990") tidak dikenali.
   </li>
   <li>
@@ -108,7 +110,7 @@ sebelumnya dikenali sebagai duplikat jika memiliki alamat email atau tanggal lah
 
 <h3>Templat</h3>
 <p>
-Tombol <em>Unduh templat</em> di langkah 1 menyediakan file Excel dalam bahasa pengguna (nama file
+Tombol <em>Unduh templat</em> pada kartu menyediakan file Excel dalam bahasa pengguna (nama file
 <code>klacks-employee-import-id.xlsx</code>). Dengan templat, setiap kolom dikenali secara andal. Baris
 judulnya dicetak tebal dan dibekukan, setiap kolom diformat sebagai teks (nol di depan dan tanggal
 tetap seperti yang diketik), dan judul kolom <em>Tipe</em> memiliki catatan berisi nilai yang
@@ -124,21 +126,22 @@ keluarga", "Kodepos", "Tanggal mulai kerja").
 
 <hr>
 
-<h3>Langkah 1 – File</h3>
+<h3>Pilih file</h3>
 <ul>
   <li>
-    Seret file ke zona unggah atau klik zona tersebut untuk memilih file. Klacks membaca file dan
-    melanjutkan ke langkah 2.
+    Seret file ke zona unggah pada kartu atau klik zona tersebut untuk memilih file. Klacks membaca
+    file dan membuka jendela dengan langkah 1.
   </li>
   <li>
     Masalah file (format salah, terlalu besar, terlalu banyak baris atau kolom, tidak ada baris judul)
-    ditampilkan langsung di bawah zona unggah; lihat <em>Kesalahan umum dan solusinya</em>.
+    ditampilkan langsung di bawah zona unggah, dan jendela tidak terbuka; lihat
+    <em>Kesalahan umum dan solusinya</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Langkah 2 – Pemetaan &amp; aturan</h3>
+<h3>Langkah 1 – Pemetaan &amp; aturan</h3>
 <h4>Petakan kolom</h4>
 <ul>
   <li>
@@ -188,13 +191,13 @@ keluarga", "Kodepos", "Tanggal mulai kerja").
   </li>
 </ul>
 <p>
-<em>Lanjut ke pratinjau</em> melanjutkan ke langkah berikutnya; <em>Pilih file lain</em> memulai
-kembali dengan file yang berbeda.
+Tombol berada di bagian bawah jendela: <em>Lanjut ke pratinjau</em> melanjutkan ke langkah berikutnya;
+<em>Pilih file lain</em> menutup jendela dan memulai kembali di kartu dengan file yang berbeda.
 </p>
 
 <hr>
 
-<h3>Langkah 3 – Pratinjau</h3>
+<h3>Langkah 2 – Pratinjau</h3>
 <ul>
   <li>
     Ringkasan menghitung baris: total, siap, dilewati, dengan kesalahan, duplikat, dan dengan
@@ -211,11 +214,12 @@ kembali dengan file yang berbeda.
     sebagai duplikat.
   </li>
   <li>
-    Nilai lain tidak dapat diedit di pratinjau. Untuk memperbaikinya, perbaiki file lalu pilih lagi
-    (<em>Pilih file lain</em>), atau ubah pemetaan dengan <em>Kembali</em>.
+    Nilai lain tidak dapat diedit di pratinjau. Untuk memperbaikinya, ubah pemetaan dengan
+    <em>Kembali</em>, atau perbaiki file lalu pilih lagi dengan <em>Kembali</em> dan <em>Pilih file
+    lain</em>.
   </li>
   <li>
-    Tombol impor menunjukkan berapa banyak orang yang akan dibuat (misalnya <em>Impor 25
+    Tombol impor di bagian bawah jendela menunjukkan berapa banyak orang yang akan dibuat (misalnya <em>Impor 25
     karyawan</em>). Tombol tetap nonaktif selama masih ada baris dengan kesalahan: perbaiki baris
     tersebut atau lewati.
   </li>
@@ -223,11 +227,21 @@ kembali dengan file yang berbeda.
 
 <hr>
 
-<h3>Langkah 4 – Hasil</h3>
+<h3>Langkah 3 – Hasil</h3>
 <p>
 Menampilkan berapa banyak orang yang telah dibuat dan berapa banyak baris yang dilewati, serta berapa
 banyak alamat yang sedang dilokalisasi di peta di latar belakang. <em>Buka daftar karyawan</em>
-membuka daftar, <em>Impor file lain</em> memulai impor baru.
+membuka daftar, <em>Impor file lain</em> menutup jendela untuk file berikutnya.
+</p>
+
+<hr>
+
+<h3>Menutup jendela</h3>
+<p>
+Tanda × di kanan atas dan tombol Esc menutup jendela. Selama pemetaan dan pratinjau belum ada yang
+disimpan, sehingga jendela terlebih dahulu bertanya di bagian bawahnya apakah impor akan dibuang;
+<em>Lanjutkan mengedit</em> membiarkannya tetap terbuka. Selama impor sedang disimpan, jendela tidak
+dapat ditutup. Setelah itu kartu kembali menampilkan zona unggah.
 </p>
 
 <hr>
@@ -251,7 +265,7 @@ membuka daftar, <em>Impor file lain</em> memulai impor baru.
       <td>Nama lengkap</td>
       <td>Tidak</td>
       <td>Alternatif untuk kolom nama terpisah; dipisahkan menjadi nama depan dan nama belakang (lihat
-        langkah 2). Nama yang terdiri dari lebih dari dua bagian mendapat peringatan – periksa
+        <em>Pemetaan &amp; aturan</em>). Nama yang terdiri dari lebih dari dua bagian mendapat peringatan – periksa
         pemisahannya.</td>
     </tr>
     <tr>
@@ -441,7 +455,7 @@ membuka daftar, <em>Impor file lain</em> memulai impor baru.
 <p>
 Klacks <strong>selalu menetapkan nomor pegawai sendiri</strong>. Kolom nomor pegawai dalam file
 dikenali tetapi diabaikan; pratinjau menampilkan petunjuk. Untuk mempertahankan nomor dari sistem
-lain, kolom tersebut dapat dipetakan ke <em>Catatan</em> di langkah 2, selama tidak ada kolom lain yang
+lain, kolom tersebut dapat dipetakan ke <em>Catatan</em> di langkah <em>Pemetaan &amp; aturan</em>, selama tidak ada kolom lain yang
 diimpor sebagai catatan.
 </p>
 
@@ -548,13 +562,13 @@ diimpor sebagai catatan.
     <tr>
       <td>Nama depan belum diisi. / Nama belakang belum diisi.</td>
       <td>Kolom nama kosong atau tidak dipetakan; nama lengkap yang hanya terdiri dari satu kata.</td>
-      <td>Periksa pemetaan di langkah 2 atau lengkapi file.</td>
+      <td>Periksa pemetaan di langkah <em>Pemetaan &amp; aturan</em> atau lengkapi file.</td>
     </tr>
     <tr>
       <td>Tanggal tidak valid: "…".</td>
       <td>Tanggal tidak dapat dibaca, tanggal lahir di masa depan, atau tanggal keluar sebelum tanggal
         masuk.</td>
-      <td>Periksa format tanggal di langkah 2 atau perbaiki nilai di file.</td>
+      <td>Periksa format tanggal di langkah <em>Pemetaan &amp; aturan</em> atau perbaiki nilai di file.</td>
     </tr>
     <tr>
       <td>Tipe "…" tidak dikenal – gunakan karyawan, eksternal, atau pelanggan.</td>
@@ -586,7 +600,7 @@ diimpor sebagai catatan.
     <tr>
       <td>Salah satu aturan untuk informasi yang hilang tidak lagi valid …</td>
       <td>Kontrak atau grup yang dipilih di aturan telah dihapus sementara itu.</td>
-      <td>Periksa aturan di langkah 2.</td>
+      <td>Periksa aturan di langkah <em>Pemetaan &amp; aturan</em>.</td>
     </tr>
   </tbody>
 </table>

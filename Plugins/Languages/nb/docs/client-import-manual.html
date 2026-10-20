@@ -12,17 +12,18 @@ medarbeidere og kunder.
   <li>
     <strong>Hvem kan importere:</strong> bare administratorer. Kortet <em>Importer medarbeidere</em>
     finnes i innstillingene, under seksjonen <em>Import</em>; seksjonen vises bare når bryteren
-    <em>Ekspertmodus</em> øverst på innstillingssiden er slått på. Knappen <em>Importer</em> åpner
-    importsiden. Andre brukere ser ikke kortet og trenger en administrator for importen.
+    <em>Ekspertmodus</em> øverst på innstillingssiden er slått på. Kortet har fanene <em>Import</em> og <em>Håndbok</em>; importen starter rett på kortet. Andre
+    brukere ser ikke kortet og trenger en administrator for importen.
   </li>
   <li>
     <strong>Personvern:</strong> selve filen lagres ikke. Den blir bare lest; bare radene som
     bekreftes i forhåndsvisningen, opprettes.
   </li>
   <li>
-    <strong>Fire trinn:</strong> <em>Fil</em> → <em>Tilordning og regler</em> →
-    <em>Forhåndsvisning</em> → <em>Resultat</em>. Fanen <em>Håndbok</em> viser denne håndboken; et
-    påbegynt importarbeid går ikke tapt når det byttes til den.
+    <strong>Slik fungerer det:</strong> filen legges på opplastingssonen på kortet. Deretter åpnes et
+    vindu med tre trinn: <em>Tilordning og regler</em> → <em>Forhåndsvisning</em> → <em>Resultat</em>.
+    Denne håndboken finnes i fanen <em>Håndbok</em> på kortet; i vinduet åpner knappen
+    <em>Håndbok</em> den i et nytt vindu, uten at den pågående importen går tapt.
   </li>
 </ul>
 
@@ -37,7 +38,7 @@ medarbeidere og kunder.
   </li>
   <li>
     <strong>Excel-arbeidsbøker:</strong> bare synlige ark leses, som standard det første. En
-    arbeidsbok med flere ark gir valget <em>Ark</em> i trinn 2. Det beregnede resultatet av en formel
+    arbeidsbok med flere ark gir valget <em>Ark</em> i trinnet <em>Tilordning og regler</em>. Det beregnede resultatet av en formel
     importeres. Celler formatert som dato leses som datoer. Tall i celler med formatet «Standard»
     mister innledende nuller (postnummer 01234 blir 1234) – slike kolonner bør formateres som tekst
     (malen gjør det allerede).
@@ -64,7 +65,7 @@ medarbeidere og kunder.
     for eksempel 31.12.1990, 12/31/1990 eller 1990-12-31; en tidsdel etter datoen ignoreres. En verdi
     som begynner med et firesifret årstall, leses alltid som år-måned-dag. Hvis det ikke fremgår av
     filen om dagen eller måneden kommer først (ingen verdi over 12), antar Klacks dag/måned/år og ber
-    om at datoformatet kontrolleres i trinn 2.
+    om at datoformatet kontrolleres i trinnet <em>Tilordning og regler</em>.
     Månedsnavn (for eksempel «31. des. 1990») gjenkjennes ikke.
   </li>
   <li>
@@ -107,7 +108,7 @@ som duplikater når de har en e-postadresse eller en fødselsdato (se <em>Duplik
 
 <h3>Mal</h3>
 <p>
-Knappen <em>Last ned mal</em> i trinn 1 leverer en Excel-fil på brukerens språk (filnavn
+Knappen <em>Last ned mal</em> på kortet leverer en Excel-fil på brukerens språk (filnavn
 <code>klacks-employee-import-nb.xlsx</code>). Med malen gjenkjennes hver kolonne på en pålitelig
 måte. Overskriftsraden er uthevet og frosset, hver kolonne er formatert som tekst (innledende nuller
 og datoer blir stående slik de er skrevet), og overskriften i kolonnen <em>Type</em> har en merknad
@@ -123,21 +124,22 @@ gjenkjenner kolonnenavn på alle 25 Klacks-språk og mange vanlige varianter (fo
 
 <hr>
 
-<h3>Trinn 1 – Fil</h3>
+<h3>Velg filen</h3>
 <ul>
   <li>
-    Filen dras til opplastingssonen, eller sonen klikkes for å velge en fil. Klacks leser filen og
-    går videre til trinn 2.
+    Filen dras til opplastingssonen på kortet, eller sonen klikkes for å velge en fil. Klacks leser
+    filen og åpner vinduet med trinn 1.
   </li>
   <li>
     Et problem med filen (feil format, for stor, for mange rader eller kolonner, ingen
-    overskriftsrad) vises rett under opplastingssonen; se <em>Vanlige feil og løsninger</em>.
+    overskriftsrad) vises rett under opplastingssonen, og vinduet åpnes ikke; se <em>Vanlige feil og
+    løsninger</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Trinn 2 – Tilordning og regler</h3>
+<h3>Trinn 1 – Tilordning og regler</h3>
 <h4>Tilordne kolonner</h4>
 <ul>
   <li>
@@ -186,13 +188,13 @@ gjenkjenner kolonnenavn på alle 25 Klacks-språk og mange vanlige varianter (fo
   </li>
 </ul>
 <p>
-<em>Fortsett til forhåndsvisning</em> går videre; <em>Velg en annen fil</em> begynner på nytt med en
-annen fil.
+Knappene ligger nederst i vinduet: <em>Fortsett til forhåndsvisning</em> går videre; <em>Velg en
+annen fil</em> lukker vinduet og begynner på nytt på kortet med en annen fil.
 </p>
 
 <hr>
 
-<h3>Trinn 3 – Forhåndsvisning</h3>
+<h3>Trinn 2 – Forhåndsvisning</h3>
 <ul>
   <li>
     En oppsummering teller radene: totalt, klare, hoppet over, med feil, duplikater og med advarsler.
@@ -208,11 +210,11 @@ annen fil.
     kjønn; <em>Opprett likevel</em> beholder en rad som ble gjenkjent som duplikat.
   </li>
   <li>
-    Andre verdier kan ikke redigeres i forhåndsvisningen. For å rette dem korrigeres filen og velges
-    på nytt (<em>Velg en annen fil</em>), eller tilordningen endres med <em>Tilbake</em>.
+    Andre verdier kan ikke redigeres i forhåndsvisningen. For å rette dem endres tilordningen med <em>Tilbake</em>, eller filen korrigeres og velges på nytt
+    med <em>Tilbake</em> og <em>Velg en annen fil</em>.
   </li>
   <li>
-    Importknappen viser hvor mange personer som kommer til å bli opprettet (for eksempel
+    Importknappen nederst i vinduet viser hvor mange personer som kommer til å bli opprettet (for eksempel
     <em>Importer 25 medarbeidere</em>). Den forblir deaktivert så lenge en rad fortsatt har en feil:
     raden må rettes eller hoppes over.
   </li>
@@ -220,11 +222,21 @@ annen fil.
 
 <hr>
 
-<h3>Trinn 4 – Resultat</h3>
+<h3>Trinn 3 – Resultat</h3>
 <p>
 Viser hvor mange personer som ble opprettet, hvor mange rader som ble hoppet over, og hvor mange
 adresser som lokaliseres på kartet i bakgrunnen. <em>Gå til medarbeiderlisten</em> åpner listen,
-<em>Importer en annen fil</em> starter en ny import.
+<em>Importer en annen fil</em> lukker vinduet for neste fil.
+</p>
+
+<hr>
+
+<h3>Lukking av vinduet</h3>
+<p>
+× øverst til høyre og Esc-tasten lukker vinduet. Under tilordningen og forhåndsvisningen er
+ingenting lagret ennå, så vinduet spør nederst om importen skal forkastes; <em>Fortsett
+redigering</em> holder det åpent. Mens importen lagres, kan ikke vinduet lukkes. Etterpå viser
+kortet opplastingssonen igjen.
 </p>
 
 <hr>
@@ -247,7 +259,7 @@ adresser som lokaliseres på kartet i bakgrunnen. <em>Gå til medarbeiderlisten<
     <tr>
       <td>Fullt navn</td>
       <td>Nei</td>
-      <td>Alternativ til separate navnekolonner; deles i fornavn og etternavn (se trinn 2). Navn med
+      <td>Alternativ til separate navnekolonner; deles i fornavn og etternavn (se <em>Tilordning og regler</em>). Navn med
         mer enn to deler får en advarsel – oppdelingen bør kontrolleres.</td>
     </tr>
     <tr>
@@ -436,7 +448,7 @@ adresser som lokaliseres på kartet i bakgrunnen. <em>Gå til medarbeiderlisten<
 <p>
 Klacks <strong>tildeler alltid personalnummeret selv</strong>. En personalnummerkolonne i filen
 gjenkjennes, men ignoreres; forhåndsvisningen viser en merknad. For å beholde numrene fra et annet
-system kan kolonnen tilordnes <em>Notat</em> i trinn 2, så lenge ingen annen kolonne importeres som
+system kan kolonnen tilordnes <em>Notat</em> i trinnet <em>Tilordning og regler</em>, så lenge ingen annen kolonne importeres som
 notat.
 </p>
 
@@ -544,12 +556,12 @@ notat.
     <tr>
       <td>Fornavn mangler. / Etternavn mangler.</td>
       <td>Navnekolonnen er tom eller ikke tilordnet; et fullt navn med bare ett ord.</td>
-      <td>Kontroller tilordningen i trinn 2 eller fullfør filen.</td>
+      <td>Kontroller tilordningen i trinnet <em>Tilordning og regler</em> eller fullfør filen.</td>
     </tr>
     <tr>
       <td>Ugyldig dato: «…».</td>
       <td>Uleselig dato, fødselsdato i fremtiden eller sluttdato før ansettelsesdato.</td>
-      <td>Kontroller datoformatet i trinn 2 eller rett verdien i filen.</td>
+      <td>Kontroller datoformatet i trinnet <em>Tilordning og regler</em> eller rett verdien i filen.</td>
     </tr>
     <tr>
       <td>Ukjent type «…» – bruk ansatt, ekstern eller kunde.</td>
@@ -579,7 +591,7 @@ notat.
     <tr>
       <td>En av reglene for manglende opplysninger er ikke lenger gyldig …</td>
       <td>En kontrakt eller gruppe som er valgt i reglene, er slettet i mellomtiden.</td>
-      <td>Kontroller reglene i trinn 2.</td>
+      <td>Kontroller reglene i trinnet <em>Tilordning og regler</em>.</td>
     </tr>
   </tbody>
 </table>

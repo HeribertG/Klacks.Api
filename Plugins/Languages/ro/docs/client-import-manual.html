@@ -12,18 +12,19 @@ angajați externi și clienți.
   <li>
     <strong>Cine poate importa:</strong> doar administratorii. Cardul <em>Importă angajați</em> se
     află în setări, secțiunea <em>Import</em>; această secțiune apare doar când comutatorul
-    <em>Mod expert</em> din partea de sus a paginii de setări este activat. Butonul <em>Importă</em>
-    deschide pagina de import. Ceilalți utilizatori nu văd cardul și au nevoie de un administrator pentru
-    import.
+    <em>Mod expert</em> din partea de sus a paginii de setări este activat. Cardul are filele
+    <em>Import</em> și <em>Manual</em>; importul începe direct pe card. Ceilalți utilizatori nu văd
+    cardul și au nevoie de un administrator pentru import.
   </li>
   <li>
     <strong>Protecția datelor:</strong> fișierul în sine nu este salvat. El este doar citit; se
     creează numai rândurile confirmate în previzualizare.
   </li>
   <li>
-    <strong>Patru pași:</strong> <em>Fișier</em> → <em>Mapare și reguli</em> → <em>Previzualizare</em> →
-    <em>Rezultat</em>. Fila <em>Manual</em> afișează acest manual; trecerea la ea nu pierde un import
-    aflat în curs.
+    <strong>Cum funcționează:</strong> fișierul se trage în zona de încărcare a cardului. Apoi se
+    deschide o fereastră cu trei pași: <em>Mapare și reguli</em> → <em>Previzualizare</em> →
+    <em>Rezultat</em>. Acest manual se află în fila <em>Manual</em> a cardului; în fereastră, butonul
+    <em>Manual</em> îl deschide într-o a doua fereastră, fără a pierde importul aflat în curs.
   </li>
 </ul>
 
@@ -38,7 +39,7 @@ angajați externi și clienți.
   </li>
   <li>
     <strong>Registre de lucru Excel:</strong> se citesc doar foile vizibile, implicit prima. Pentru un
-    registru cu mai multe foi, pasul 2 oferă alegerea <em>Foaie</em>. Se importă rezultatul calculat
+    registru cu mai multe foi, pasul <em>Mapare și reguli</em> oferă alegerea <em>Foaie</em>. Se importă rezultatul calculat
     al unei formule. Celulele formatate ca dată sunt citite ca date. Numerele din celulele cu formatul
     „General” își pierd zerourile de la început (codul poștal 01234 devine 1234) – astfel de coloane
     trebuie formatate ca text (șablonul face deja acest lucru).
@@ -66,7 +67,7 @@ angajați externi și clienți.
     de exemplu 31.12.1990, 12/31/1990 sau 1990-12-31; o parte de oră după dată este ignorată. O valoare
     care începe cu un an din patru cifre este citită întotdeauna ca an-lună-zi. Dacă din fișier nu
     reiese dacă ziua sau luna este prima (nicio valoare peste 12), Klacks presupune ordinea
-    zi/lună/an și cere verificarea formatului datei în pasul 2. Numele lunilor (de exemplu „31 Dec
+    zi/lună/an și cere verificarea formatului datei în pasul <em>Mapare și reguli</em>. Numele lunilor (de exemplu „31 Dec
     1990”) nu sunt recunoscute.
   </li>
   <li>
@@ -111,7 +112,7 @@ anterior sunt recunoscute ca dubluri dacă au o adresă de e-mail sau o dată a 
 
 <h3>Șablon</h3>
 <p>
-Butonul <em>Descărcați șablonul</em> din pasul 1 oferă un fișier Excel în limba utilizatorului
+Butonul <em>Descărcați șablonul</em> de pe card oferă un fișier Excel în limba utilizatorului
 (numele fișierului <code>klacks-employee-import-ro.xlsx</code>). Cu șablonul, fiecare coloană este
 recunoscută în mod fiabil. Rândul de antet este îngroșat și înghețat, fiecare coloană este formatată
 ca text (zerourile de la început și datele rămân așa cum au fost tastate), iar antetul coloanei
@@ -128,21 +129,22 @@ exemplu „Nume de familie”, „CP”, „Data intrării”).
 
 <hr>
 
-<h3>Pasul 1 – Fișier</h3>
+<h3>Alegerea fișierului</h3>
 <ul>
   <li>
-    Fișierul se trage în zona de încărcare sau se face clic pe zonă pentru a alege un fișier. Klacks
-    citește fișierul și trece la pasul 2.
+    Fișierul se trage în zona de încărcare a cardului sau se face clic pe zonă pentru a alege un
+    fișier. Klacks citește fișierul și deschide fereastra cu pasul 1.
   </li>
   <li>
     O problemă cu fișierul (format greșit, prea mare, prea multe rânduri sau coloane, lipsa rândului
-    de antet) este afișată direct sub zona de încărcare; vezi <em>Erori frecvente și remedieri</em>.
+    de antet) este afișată direct sub zona de încărcare, iar fereastra nu se deschide; vezi
+    <em>Erori frecvente și remedieri</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Pasul 2 – Mapare și reguli</h3>
+<h3>Pasul 1 – Mapare și reguli</h3>
 <h4>Maparea coloanelor</h4>
 <ul>
   <li>
@@ -192,13 +194,13 @@ exemplu „Nume de familie”, „CP”, „Data intrării”).
   </li>
 </ul>
 <p>
-<em>Continuați la previzualizare</em> trece mai departe; <em>Alegeți alt fișier</em> reia procesul
-cu un alt fișier.
+Butoanele se află în partea de jos a ferestrei: <em>Continuați la previzualizare</em> trece mai
+departe; <em>Alegeți alt fișier</em> închide fereastra și reia procesul pe card cu un alt fișier.
 </p>
 
 <hr>
 
-<h3>Pasul 3 – Previzualizare</h3>
+<h3>Pasul 2 – Previzualizare</h3>
 <ul>
   <li>
     Un rezumat numără rândurile: total, gata, omise, cu erori, dubluri și cu avertismente.
@@ -214,11 +216,12 @@ cu un alt fișier.
     nu are unul; <em>Creează oricum</em> păstrează un rând recunoscut ca dublură.
   </li>
   <li>
-    Alte valori nu pot fi editate în previzualizare. Pentru a le corecta, se corectează fișierul și se
-    alege din nou (<em>Alegeți alt fișier</em>) sau se modifică maparea cu <em>Înapoi</em>.
+    Alte valori nu pot fi editate în previzualizare. Pentru a le corecta, se modifică maparea cu
+    <em>Înapoi</em> sau se corectează fișierul și se alege din nou cu <em>Înapoi</em> și <em>Alegeți
+    alt fișier</em>.
   </li>
   <li>
-    Butonul de import arată câte persoane vor fi create (de exemplu <em>Importă 25
+    Butonul de import din partea de jos a ferestrei arată câte persoane vor fi create (de exemplu <em>Importă 25
     angajați</em>). Rămâne dezactivat cât timp un rând mai conține o eroare: rândul trebuie corectat
     sau omis.
   </li>
@@ -226,11 +229,21 @@ cu un alt fișier.
 
 <hr>
 
-<h3>Pasul 4 – Rezultat</h3>
+<h3>Pasul 3 – Rezultat</h3>
 <p>
 Arată câte persoane au fost create și câte rânduri au fost omise, precum și câte adrese sunt
 localizate pe hartă în fundal. <em>Mergeți la lista de angajați</em> deschide lista,
-<em>Importați alt fișier</em> pornește un import nou.
+<em>Importați alt fișier</em> închide fereastra pentru fișierul următor.
+</p>
+
+<hr>
+
+<h3>Închiderea ferestrei</h3>
+<p>
+Simbolul × din dreapta sus și tasta Esc închid fereastra. În timpul mapării și al previzualizării
+nu este încă nimic salvat, de aceea fereastra întreabă mai întâi, în partea de jos, dacă importul
+trebuie anulat; <em>Continuă editarea</em> o păstrează deschisă. Cât timp importul este salvat,
+fereastra nu poate fi închisă. După aceea, cardul afișează din nou zona de încărcare.
 </p>
 
 <hr>
@@ -253,7 +266,7 @@ localizate pe hartă în fundal. <em>Mergeți la lista de angajați</em> deschid
     <tr>
       <td>Nume complet</td>
       <td>Nu</td>
-      <td>Alternativă la coloanele de nume separate; se împarte în prenume și nume (vezi pasul 2). Numele
+      <td>Alternativă la coloanele de nume separate; se împarte în prenume și nume (vezi <em>Mapare și reguli</em>). Numele
         din mai mult de două părți primesc un avertisment – împărțirea trebuie verificată.</td>
     </tr>
     <tr>
@@ -443,7 +456,7 @@ localizate pe hartă în fundal. <em>Mergeți la lista de angajați</em> deschid
 <p>
 Klacks <strong>atribuie întotdeauna singur numărul de personal</strong>. O coloană cu numărul de
 personal din fișier este recunoscută, dar ignorată; previzualizarea afișează o indicație. Pentru a
-păstra numerele unui alt sistem, coloana poate fi mapată în pasul 2 pe <em>Notă</em>, cu condiția ca
+păstra numerele unui alt sistem, coloana poate fi mapată în pasul <em>Mapare și reguli</em> pe <em>Notă</em>, cu condiția ca
 nicio altă coloană să nu fie importată ca notă.
 </p>
 
@@ -553,12 +566,12 @@ nicio altă coloană să nu fie importată ca notă.
     <tr>
       <td>Lipsește prenumele. / Lipsește numele.</td>
       <td>Coloana de nume goală sau nemapată; un nume complet format dintr-un singur cuvânt.</td>
-      <td>Verificarea mapării în pasul 2 sau completarea fișierului.</td>
+      <td>Verificarea mapării în pasul <em>Mapare și reguli</em> sau completarea fișierului.</td>
     </tr>
     <tr>
       <td>Dată nevalidă: „…”.</td>
       <td>Dată ilizibilă, dată a nașterii în viitor sau dată a încetării anterioară datei angajării.</td>
-      <td>Verificarea formatului datei în pasul 2 sau corectarea valorii în fișier.</td>
+      <td>Verificarea formatului datei în pasul <em>Mapare și reguli</em> sau corectarea valorii în fișier.</td>
     </tr>
     <tr>
       <td>Tip necunoscut „…” – folosiți angajat, extern sau client.</td>
@@ -590,7 +603,7 @@ nicio altă coloană să nu fie importată ca notă.
     <tr>
       <td>Una dintre regulile pentru informațiile lipsă nu mai este valabilă …</td>
       <td>Un contract sau un grup ales în reguli a fost șters între timp.</td>
-      <td>Verificarea regulilor în pasul 2.</td>
+      <td>Verificarea regulilor în pasul <em>Mapare și reguli</em>.</td>
     </tr>
   </tbody>
 </table>

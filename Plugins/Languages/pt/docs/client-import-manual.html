@@ -12,18 +12,19 @@ colaboradores externos e clientes.
   <li>
     <strong>Quem pode importar:</strong> apenas administradores. O cartão <em>Importar colaboradores</em>
     encontra-se nas definições, secção <em>Importação</em>; esta secção só aparece quando o interruptor
-    <em>Modo avançado</em> no topo da página de definições está ativado. O botão <em>Importar</em> abre a
-    página de importação. Os outros utilizadores não veem o cartão e precisam de um administrador para a
-    importação.
+    <em>Modo avançado</em> no topo da página de definições está ativado. O cartão tem os separadores <em>Importação</em> e <em>Manual</em>; a importação começa
+    diretamente no cartão. Os outros utilizadores não veem o cartão e precisam de um administrador
+    para a importação.
   </li>
   <li>
     <strong>Privacidade:</strong> o ficheiro em si não é guardado. É apenas lido; só são criadas as
     linhas confirmadas na pré-visualização.
   </li>
   <li>
-    <strong>Quatro passos:</strong> <em>Ficheiro</em> → <em>Mapeamento e regras</em> →
-    <em>Pré-visualização</em> → <em>Resultado</em>. O separador <em>Manual</em> mostra este manual;
-    mudar para ele não faz perder uma importação em curso.
+    <strong>Como funciona:</strong> o ficheiro é colocado na zona de carregamento do cartão. Abre-se
+    então uma janela com três passos: <em>Mapeamento e regras</em> → <em>Pré-visualização</em> →
+    <em>Resultado</em>. Este manual encontra-se no separador <em>Manual</em> do cartão; dentro da
+    janela, o botão <em>Manual</em> abre-o numa segunda janela, sem fazer perder a importação em curso.
   </li>
 </ul>
 
@@ -38,7 +39,7 @@ colaboradores externos e clientes.
   </li>
   <li>
     <strong>Livros do Excel:</strong> só são lidas as folhas visíveis, por predefinição a primeira. Um
-    livro com várias folhas oferece no passo 2 a escolha <em>Folha</em>. É importado o resultado
+    livro com várias folhas oferece no passo <em>Mapeamento e regras</em> a escolha <em>Folha</em>. É importado o resultado
     calculado de uma fórmula. As células formatadas como data são lidas como datas. Os números em
     células com o formato "Geral" perdem os zeros à esquerda (o código postal 01234 passa a 1234) –
     formatar essas colunas como texto (o modelo já o faz).
@@ -66,7 +67,7 @@ colaboradores externos e clientes.
     31.12.1990, 12/31/1990 ou 1990-12-31; uma parte horária após a data é ignorada. Um valor que comece
     por um ano de quatro dígitos é sempre lido como ano-mês-dia. Se o ficheiro não permitir perceber se
     o dia ou o mês vem primeiro (nenhum valor acima de 12), o Klacks assume dia/mês/ano e pede que o
-    formato de data seja verificado no passo 2. Os nomes de meses (por exemplo, "31 Dez 1990") não
+    formato de data seja verificado no passo <em>Mapeamento e regras</em>. Os nomes de meses (por exemplo, "31 Dez 1990") não
     são reconhecidos.
   </li>
   <li>
@@ -111,7 +112,7 @@ ficheiro anterior são reconhecidas como duplicados quando têm endereço de e-m
 
 <h3>Modelo</h3>
 <p>
-O botão <em>Transferir modelo</em> no passo 1 disponibiliza um ficheiro Excel no idioma do utilizador
+O botão <em>Transferir modelo</em> no cartão disponibiliza um ficheiro Excel no idioma do utilizador
 (nome do ficheiro <code>klacks-employee-import-pt.xlsx</code>). Com o modelo, todas as colunas são
 reconhecidas de forma fiável. A linha de cabeçalho está a negrito e fixa, todas as colunas estão
 formatadas como texto (zeros à esquerda e datas ficam tal como foram escritos) e o cabeçalho da coluna
@@ -128,22 +129,22 @@ variantes habituais (por exemplo, "Apelido", "Código postal", "Data de admissã
 
 <hr>
 
-<h3>Passo 1 – Ficheiro</h3>
+<h3>Escolher o ficheiro</h3>
 <ul>
   <li>
-    Arrastar o ficheiro para a zona de carregamento ou clicar na zona para escolher um ficheiro. O
-    Klacks lê o ficheiro e avança para o passo 2.
+    Arrastar o ficheiro para a zona de carregamento do cartão ou clicar na zona para escolher um
+    ficheiro. O Klacks lê o ficheiro e abre a janela com o passo 1.
   </li>
   <li>
     Um problema no ficheiro (formato errado, demasiado grande, demasiadas linhas ou colunas, sem linha
-    de cabeçalho) é apresentado diretamente abaixo da zona de carregamento; ver <em>Erros comuns e
-    soluções</em>.
+    de cabeçalho) é apresentado diretamente abaixo da zona de carregamento, e a janela não se abre; ver
+    <em>Erros comuns e soluções</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Passo 2 – Mapeamento e regras</h3>
+<h3>Passo 1 – Mapeamento e regras</h3>
 <h4>Mapear colunas</h4>
 <ul>
   <li>
@@ -192,13 +193,13 @@ variantes habituais (por exemplo, "Apelido", "Código postal", "Data de admissã
   </li>
 </ul>
 <p>
-<em>Continuar para a pré-visualização</em> avança; <em>Escolher outro ficheiro</em> recomeça com um
-ficheiro diferente.
+Os botões estão na parte inferior da janela: <em>Continuar para a pré-visualização</em> avança;
+<em>Escolher outro ficheiro</em> fecha a janela e recomeça no cartão com um ficheiro diferente.
 </p>
 
 <hr>
 
-<h3>Passo 3 – Pré-visualização</h3>
+<h3>Passo 2 – Pré-visualização</h3>
 <ul>
   <li>
     Um resumo conta as linhas: total, prontas, ignoradas, com erros, duplicados e com avisos. As notas
@@ -214,12 +215,11 @@ ficheiro diferente.
     uma linha que não o tenha; <em>Criar mesmo assim</em> mantém uma linha reconhecida como duplicado.
   </li>
   <li>
-    Os restantes valores não podem ser editados na pré-visualização. Para os corrigir, corrigir o
-    ficheiro e escolhê-lo novamente (<em>Escolher outro ficheiro</em>), ou alterar o mapeamento com
-    <em>Voltar</em>.
+    Os restantes valores não podem ser editados na pré-visualização. Para os corrigir, alterar o mapeamento com <em>Voltar</em>, ou corrigir o ficheiro e escolhê-lo
+    novamente com <em>Voltar</em> e <em>Escolher outro ficheiro</em>.
   </li>
   <li>
-    O botão de importação mostra quantas pessoas serão criadas (por exemplo, <em>Importar 25
+    O botão de importação, na parte inferior da janela, mostra quantas pessoas serão criadas (por exemplo, <em>Importar 25
     colaboradores</em>). Fica desativado enquanto uma linha ainda tiver um erro: corrigir a linha ou
     ignorá-la.
   </li>
@@ -227,11 +227,22 @@ ficheiro diferente.
 
 <hr>
 
-<h3>Passo 4 – Resultado</h3>
+<h3>Passo 3 – Resultado</h3>
 <p>
 Mostra quantas pessoas foram criadas, quantas linhas foram ignoradas e quantas moradas estão a ser
 localizadas no mapa em segundo plano. <em>Ir para a lista de colaboradores</em> abre a lista,
-<em>Importar outro ficheiro</em> inicia uma nova importação.
+<em>Importar outro ficheiro</em> fecha a janela para o ficheiro seguinte.
+</p>
+
+<hr>
+
+<h3>Fechar a janela</h3>
+<p>
+O × no canto superior direito e a tecla Esc fecham a janela. Durante o mapeamento e a
+pré-visualização ainda nada foi guardado, pelo que a janela pergunta primeiro, na parte inferior, se
+a importação deve ser descartada; <em>Continuar a editar</em> mantém-na aberta. Enquanto a
+importação está a ser guardada, a janela não pode ser fechada. Depois, o cartão volta a mostrar a
+zona de carregamento.
 </p>
 
 <hr>
@@ -254,8 +265,7 @@ localizadas no mapa em segundo plano. <em>Ir para a lista de colaboradores</em> 
     <tr>
       <td>Nome completo</td>
       <td>Não</td>
-      <td>Alternativa a colunas de nome separadas; é dividido em nome próprio e apelido (ver passo 2).
-        Os nomes com mais de duas partes recebem um aviso – verificar a divisão.</td>
+      <td>Alternativa a colunas de nome separadas; é dividido em nome próprio e apelido (ver <em>Mapeamento e regras</em>). Os nomes com mais de duas partes recebem um aviso – verificar a divisão.</td>
     </tr>
     <tr>
       <td>Título</td>
@@ -444,7 +454,7 @@ localizadas no mapa em segundo plano. <em>Ir para a lista de colaboradores</em> 
 <p>
 O Klacks <strong>atribui sempre o número de colaborador automaticamente</strong>. Uma coluna de número
 de colaborador no ficheiro é reconhecida, mas ignorada; a pré-visualização mostra uma nota. Para manter
-os números de outro sistema, a coluna pode ser mapeada para <em>Nota</em> no passo 2, desde que
+os números de outro sistema, a coluna pode ser mapeada para <em>Nota</em> no passo <em>Mapeamento e regras</em>, desde que
 nenhuma outra coluna seja importada como nota.
 </p>
 
@@ -552,12 +562,12 @@ nenhuma outra coluna seja importada como nota.
     <tr>
       <td>Falta o nome próprio. / Falta o apelido.</td>
       <td>Coluna de nome vazia ou não mapeada; um nome completo com uma só palavra.</td>
-      <td>Verificar o mapeamento no passo 2 ou completar o ficheiro.</td>
+      <td>Verificar o mapeamento no passo <em>Mapeamento e regras</em> ou completar o ficheiro.</td>
     </tr>
     <tr>
       <td>Data inválida: "…".</td>
       <td>Data ilegível, data de nascimento no futuro ou data de saída anterior à data de admissão.</td>
-      <td>Verificar o formato de data no passo 2 ou corrigir o valor no ficheiro.</td>
+      <td>Verificar o formato de data no passo <em>Mapeamento e regras</em> ou corrigir o valor no ficheiro.</td>
     </tr>
     <tr>
       <td>Tipo "…" desconhecido – use colaborador, externo ou cliente.</td>
@@ -587,7 +597,7 @@ nenhuma outra coluna seja importada como nota.
     <tr>
       <td>Uma das regras para informações em falta já não é válida …</td>
       <td>Um contrato ou grupo escolhido nas regras foi eliminado entretanto.</td>
-      <td>Verificar as regras no passo 2.</td>
+      <td>Verificar as regras no passo <em>Mapeamento e regras</em>.</td>
     </tr>
   </tbody>
 </table>

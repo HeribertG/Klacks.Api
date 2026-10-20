@@ -12,18 +12,18 @@ pracowników zewnętrznych i klientów.
   <li>
     <strong>Kto może importować:</strong> wyłącznie administratorzy. Karta <em>Importuj pracowników</em>
     znajduje się w ustawieniach, w sekcji <em>Import</em>; sekcja ta jest widoczna tylko wtedy, gdy
-    przełącznik <em>Tryb zaawansowany</em> u góry strony ustawień jest włączony. Przycisk
-    <em>Importuj</em> otwiera stronę importu. Pozostali użytkownicy nie widzą tej karty i do importu
-    potrzebują administratora.
+    przełącznik <em>Tryb zaawansowany</em> u góry strony ustawień jest włączony. Karta ma zakładki <em>Import</em> i <em>Instrukcja</em>; import rozpoczyna się bezpośrednio na
+    karcie. Pozostali użytkownicy nie widzą tej karty i do importu potrzebują administratora.
   </li>
   <li>
     <strong>Ochrona danych:</strong> sam plik nie jest zapisywany. Jest on tylko odczytywany; tworzone
     są wyłącznie wiersze potwierdzone w podglądzie.
   </li>
   <li>
-    <strong>Cztery kroki:</strong> <em>Plik</em> → <em>Mapowanie i reguły</em> → <em>Podgląd</em> →
-    <em>Wynik</em>. Karta <em>Instrukcja</em> wyświetla tę instrukcję; przejście do niej nie przerywa
-    rozpoczętego importu.
+    <strong>Przebieg:</strong> plik trafia do strefy przesyłania na karcie. Następnie otwiera się okno
+    z trzema krokami: <em>Mapowanie i reguły</em> → <em>Podgląd</em> → <em>Wynik</em>. Ta instrukcja
+    znajduje się w zakładce <em>Instrukcja</em> karty; w oknie przycisk <em>Instrukcja</em> otwiera ją
+    w drugim oknie, bez przerywania rozpoczętego importu.
   </li>
 </ul>
 
@@ -38,7 +38,7 @@ pracowników zewnętrznych i klientów.
   </li>
   <li>
     <strong>Skoroszyty Excela:</strong> odczytywane są tylko widoczne arkusze, domyślnie pierwszy z
-    nich. W przypadku skoroszytu z kilkoma arkuszami w kroku 2 pojawia się wybór <em>Arkusz</em>.
+    nich. W przypadku skoroszytu z kilkoma arkuszami w kroku <em>Mapowanie i reguły</em> pojawia się wybór <em>Arkusz</em>.
     Importowany jest obliczony wynik formuły. Komórki sformatowane jako data są odczytywane jako daty.
     Liczby w komórkach o formacie „Ogólne” tracą zera wiodące (kod pocztowy 01234 zmienia się w 1234)
     – takie kolumny należy sformatować jako tekst (szablon już to robi).
@@ -66,7 +66,7 @@ pracowników zewnętrznych i klientów.
     na przykład 31.12.1990, 12/31/1990 lub 1990-12-31; część z godziną po dacie jest pomijana. Wartość
     zaczynająca się od czterocyfrowego roku jest zawsze odczytywana jako rok-miesiąc-dzień. Jeśli z
     pliku nie wynika, czy najpierw jest dzień, czy miesiąc (brak wartości powyżej 12), Klacks przyjmuje
-    format dzień/miesiąc/rok i prosi o sprawdzenie formatu daty w kroku 2. Nazwy miesięcy (na przykład
+    format dzień/miesiąc/rok i prosi o sprawdzenie formatu daty w kroku <em>Mapowanie i reguły</em>. Nazwy miesięcy (na przykład
     „31 Dec 1990”) nie są rozpoznawane.
   </li>
   <li>
@@ -109,7 +109,7 @@ rozpoznawane jako duplikaty, jeśli mają adres e-mail lub datę urodzenia (zob.
 
 <h3>Szablon</h3>
 <p>
-Przycisk <em>Pobierz szablon</em> w kroku 1 udostępnia plik Excel w języku użytkownika (nazwa pliku
+Przycisk <em>Pobierz szablon</em> na karcie udostępnia plik Excel w języku użytkownika (nazwa pliku
 <code>klacks-employee-import-pl.xlsx</code>). Dzięki szablonowi każda kolumna jest niezawodnie
 rozpoznawana. Jego wiersz nagłówkowy jest pogrubiony i zablokowany, każda kolumna jest sformatowana
 jako tekst (zera wiodące i daty pozostają takie, jak je wpisano), a nagłówek kolumny <em>Typ (pracownik,
@@ -126,22 +126,22 @@ nazwy kolumn we wszystkich 25 językach Klacks oraz wiele typowych wariantów (n
 
 <hr>
 
-<h3>Krok 1 – Plik</h3>
+<h3>Wybór pliku</h3>
 <ul>
   <li>
-    Plik należy przeciągnąć do strefy przesyłania lub kliknąć strefę, aby wybrać plik. Klacks odczytuje
-    plik i przechodzi do kroku 2.
+    Plik należy przeciągnąć do strefy przesyłania na karcie lub kliknąć strefę, aby wybrać plik.
+    Klacks odczytuje plik i otwiera okno z krokiem 1.
   </li>
   <li>
     Problem z plikiem (niewłaściwy format, zbyt duży plik, zbyt wiele wierszy lub kolumn, brak wiersza
-    nagłówkowego) jest wyświetlany bezpośrednio pod strefą przesyłania; zob. <em>Częste błędy i ich
-    usuwanie</em>.
+    nagłówkowego) jest wyświetlany bezpośrednio pod strefą przesyłania, a okno się nie otwiera; zob.
+    <em>Częste błędy i ich usuwanie</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Krok 2 – Mapowanie i reguły</h3>
+<h3>Krok 1 – Mapowanie i reguły</h3>
 <h4>Mapuj kolumny</h4>
 <ul>
   <li>
@@ -192,13 +192,13 @@ nazwy kolumn we wszystkich 25 językach Klacks oraz wiele typowych wariantów (n
   </li>
 </ul>
 <p>
-<em>Dalej do podglądu</em> przechodzi dalej; <em>Wybierz inny plik</em> rozpoczyna od nowa z innym
-plikiem.
+Przyciski znajdują się na dole okna: <em>Dalej do podglądu</em> przechodzi dalej; <em>Wybierz inny
+plik</em> zamyka okno i rozpoczyna od nowa na karcie z innym plikiem.
 </p>
 
 <hr>
 
-<h3>Krok 3 – Podgląd</h3>
+<h3>Krok 2 – Podgląd</h3>
 <ul>
   <li>
     Podsumowanie zlicza wiersze: łącznie, gotowe, pominięte, z błędami, duplikaty i z ostrzeżeniami.
@@ -214,11 +214,11 @@ plikiem.
     wierszu, w którym jej brakuje; <em>Utwórz mimo to</em> zachowuje wiersz rozpoznany jako duplikat.
   </li>
   <li>
-    Innych wartości nie można edytować w podglądzie. Aby je poprawić, należy poprawić plik i wybrać go
-    ponownie (<em>Wybierz inny plik</em>) albo zmienić mapowanie przyciskiem <em>Wstecz</em>.
+    Innych wartości nie można edytować w podglądzie. Aby je poprawić, należy zmienić mapowanie przyciskiem <em>Wstecz</em> albo poprawić plik i wybrać
+    go ponownie za pomocą <em>Wstecz</em> i <em>Wybierz inny plik</em>.
   </li>
   <li>
-    Przycisk importu pokazuje, ile osób zostanie utworzonych (na przykład <em>Importuj pracowników:
+    Przycisk importu na dole okna pokazuje, ile osób zostanie utworzonych (na przykład <em>Importuj pracowników:
     25</em>). Pozostaje nieaktywny, dopóki którykolwiek wiersz zawiera błąd: wiersz należy poprawić
     lub pominąć.
   </li>
@@ -226,11 +226,21 @@ plikiem.
 
 <hr>
 
-<h3>Krok 4 – Wynik</h3>
+<h3>Krok 3 – Wynik</h3>
 <p>
 Pokazuje, ile osób utworzono i ile wierszy pominięto, a także ile adresów jest lokalizowanych na
 mapie w tle. <em>Przejdź do listy pracowników</em> otwiera listę,
-<em>Importuj kolejny plik</em> rozpoczyna nowy import.
+<em>Importuj kolejny plik</em> zamyka okno na potrzeby następnego pliku.
+</p>
+
+<hr>
+
+<h3>Zamykanie okna</h3>
+<p>
+Przycisk × w prawym górnym rogu i klawisz Esc zamykają okno. Podczas mapowania i podglądu nic nie
+zostało jeszcze zapisane, dlatego okno najpierw pyta na dole, czy import ma zostać odrzucony;
+<em>Kontynuuj edycję</em> pozostawia je otwarte. Dopóki import jest zapisywany, okna nie można
+zamknąć. Potem karta ponownie pokazuje strefę przesyłania.
 </p>
 
 <hr>
@@ -253,8 +263,7 @@ mapie w tle. <em>Przejdź do listy pracowników</em> otwiera listę,
     <tr>
       <td>Imię i nazwisko</td>
       <td>Nie</td>
-      <td>Alternatywa dla oddzielnych kolumn z imieniem i nazwiskiem; dzielone na imię i nazwisko (zob.
-        krok 2). Nazwy składające się z więcej niż dwóch części otrzymują ostrzeżenie – należy sprawdzić
+      <td>Alternatywa dla oddzielnych kolumn z imieniem i nazwiskiem; dzielone na imię i nazwisko (zob. <em>Mapowanie i reguły</em>). Nazwy składające się z więcej niż dwóch części otrzymują ostrzeżenie – należy sprawdzić
         podział.</td>
     </tr>
     <tr>
@@ -443,7 +452,7 @@ mapie w tle. <em>Przejdź do listy pracowników</em> otwiera listę,
 <p>
 Klacks <strong>zawsze sam nadaje numer pracownika</strong>. Kolumna z numerem pracownika w pliku jest
 rozpoznawana, ale pomijana; podgląd wyświetla odpowiednią wskazówkę. Aby zachować numery z innego
-systemu, można w kroku 2 przypisać tę kolumnę do pola <em>Notatka</em>, o ile żadna inna kolumna nie
+systemu, można w kroku <em>Mapowanie i reguły</em> przypisać tę kolumnę do pola <em>Notatka</em>, o ile żadna inna kolumna nie
 jest importowana jako notatka.
 </p>
 
@@ -553,13 +562,13 @@ jest importowana jako notatka.
       <td>Brakuje imienia. / Brakuje nazwiska.</td>
       <td>Kolumna z imieniem lub nazwiskiem jest pusta albo nieprzypisana; imię i nazwisko składające się
         tylko z jednego słowa.</td>
-      <td>Sprawdzić mapowanie w kroku 2 lub uzupełnić plik.</td>
+      <td>Sprawdzić mapowanie w kroku <em>Mapowanie i reguły</em> lub uzupełnić plik.</td>
     </tr>
     <tr>
       <td>Nieprawidłowa data: „…”.</td>
       <td>Nieczytelna data, data urodzenia w przyszłości lub data zakończenia zatrudnienia przed datą
         zatrudnienia.</td>
-      <td>Sprawdzić format daty w kroku 2 lub poprawić wartość w pliku.</td>
+      <td>Sprawdzić format daty w kroku <em>Mapowanie i reguły</em> lub poprawić wartość w pliku.</td>
     </tr>
     <tr>
       <td>Nieznany typ „…” – użyj: pracownik, zewnętrzny lub klient.</td>
@@ -591,7 +600,7 @@ jest importowana jako notatka.
     <tr>
       <td>Jedna z reguł dla brakujących informacji przestała być prawidłowa …</td>
       <td>Umowa lub grupa wybrana w regułach została w międzyczasie usunięta.</td>
-      <td>Sprawdzić reguły w kroku 2.</td>
+      <td>Sprawdzić reguły w kroku <em>Mapowanie i reguły</em>.</td>
     </tr>
   </tbody>
 </table>

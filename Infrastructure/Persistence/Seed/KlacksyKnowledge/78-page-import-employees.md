@@ -1,13 +1,14 @@
 ---
 name: explain_page_import_employees
 description: |
-  Explains the employee import page, where an administrator takes over a whole staff list from an
-  Excel (.xlsx) or CSV file instead of creating every person by hand. Covers the four steps (file,
-  column mapping with rules for missing information, preview, result), the file limits, the downloadable
-  template, how duplicates, contracts, groups, the person type and the personnel number are handled, and
-  that only administrators can open the page. Use this when the user asks how to import employees from
-  Excel or CSV or where to upload a staff list. Supports a level parameter: short (purpose and where),
-  elements (every step and control), effects (what is written, duplicates and pitfalls).
+  Explains the employee import, where an administrator takes over a whole staff list from an Excel
+  (.xlsx) or CSV file instead of creating every person by hand. It lives in the settings card Import
+  employees (section Import, expert mode, admins only): the file goes onto the drop zone of the card, then
+  a window leads through three steps (mapping with rules for missing information, preview, result).
+  Covers the file limits, the downloadable template, the manual, how duplicates, contracts, groups, the
+  person type and the personnel number are handled. Use this when the user asks how to import employees
+  from Excel or CSV or where to upload a staff list. Supports a level parameter: short (purpose and
+  where), elements (every step and control), effects (what is written, duplicates and pitfalls).
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -37,38 +38,39 @@ synonyms:
 
 ## Stage 1 — What is it for and where is it?
 
-The page **Import employees** (de: "Mitarbeitende importieren", en: "Import employees",
-fr: "Importer des collaborateurs", it: "Importa collaboratori") takes over a whole staff list from
-one Excel file (.xlsx) or one CSV file (.csv) with one row per person, instead of creating every
-person by hand. Klacks recognises the columns itself, shows how every record will look and only then
-saves. It is reached in the settings, section **Import** (de/en: "Import", fr: "Importation",
-it: "Importazione"), card **Import employees**, button **Import** (de: "Importieren",
-en: "Import", fr: "Importer", it: "Importa"); the card opens a page of its own. The section Import
-is only shown in expert mode: the user first turns on the switch **Expert mode** at the top of the
-settings page (de: "Experten Modus", en: "Expert Mode", fr: "Mode expert", it: "Modalità esperto").
-When Klacksy navigates to the card itself (`navigate_to`, target `client-import`), the page turns
-expert mode on and opens the section by itself. Only administrators see the card and can open the
-page.
+The employee import takes over a whole staff list from one Excel file (.xlsx) or one CSV file (.csv)
+with one row per person, instead of creating every person by hand. Klacks recognises the columns
+itself, shows how every record will look and only then saves. It has no page of its own: it is the
+card **Import employees** (de: "Mitarbeitende importieren", en: "Import employees",
+fr: "Importer des collaborateurs", it: "Importa collaboratori") in the settings, section **Import**
+(de/en: "Import", fr: "Importation", it: "Importazione"). The section Import is only shown in expert
+mode: the user first turns on the switch **Expert mode** at the top of the settings page
+(de: "Experten Modus", en: "Expert Mode", fr: "Mode expert", it: "Modalità esperto"). When Klacksy
+navigates to the card (`navigate_to`, page `settings`, target `client-import`), the settings page
+turns expert mode on and opens the section by itself. Only administrators see the card.
 
-The page leads through four steps shown at the top (`client-import-steps`):
-**File** (de: "Datei", en: "File", fr: "Fichier", it: "File") →
+The card has two tabs: **Import** (de/en: "Import", fr: "Importation", it: "Importazione")
+(`client-import-tab-import`) and **Manual** (de: "Handbuch", en: "Manual", fr: "Manuel",
+it: "Manuale") (`client-import-tab-manual`). The tab Import holds the upload zone
+(`client-import-drop-zone`): drag the file onto it or click it to choose one. Klacksy cannot upload
+a file itself; the user drops or chooses it there. As soon as the file has been read, a window opens
+over the settings page and leads through three steps shown at its top (`client-import-steps`):
 **Mapping & rules** (de: "Zuordnung & Regeln", en: "Mapping & rules", fr: "Correspondance & règles",
 it: "Associazione & regole") → **Preview** (de: "Vorschau", en: "Preview", fr: "Aperçu",
 it: "Anteprima") → **Result** (de: "Ergebnis", en: "Result", fr: "Résultat", it: "Risultato").
+While the window is open, it covers the rest of the screen, the chat with Klacksy included; Klacksy
+can answer again once the window is closed.
 
-The upload zone (`client-import-drop-zone`) is where the file goes: drag the file onto it or click it
-to choose one. Klacksy cannot upload a file itself; the user drops or chooses it there.
-
-The tab **Manual** (de: "Handbuch", en: "Manual", fr: "Manuel", it: "Manuale") (`client-import-tab-manual`),
-next to the tab **Import** (de/en: "Import", fr: "Importation", it: "Importazione"), shows the multilingual import
-handbook (`assets/docs/client-import-manual/`, 25 languages) with every column, accepted value, limit and common error
-message; for details beyond this page, point the user to that tab.
+The tab Manual (`client-import-manual`) shows the multilingual import handbook (25 languages) with
+every column, accepted value, limit and common error message. Inside the window, the button
+**Manual** (de: "Handbuch", en: "Manual", fr: "Manuel", it: "Manuale") at the top opens the same
+handbook in a second window on top; for details beyond this explanation, point the user there.
 
 <!-- level:elements -->
 
 ## Stage 2 — The steps in detail
 
-### Step 1 — File
+### On the card — choose the file
 
 - **Upload zone** (`client-import-drop-zone`): drag an .xlsx or .csv file here or click to open the
   file dialog. Limits per file: at most 5 MB, at most 1000 rows and at most 60 columns. The header row
@@ -77,9 +79,9 @@ message; for details beyond this page, point the user to that tab.
   fr: "Télécharger le modèle", it: "Scarica il modello") (`client-import-template-button`): an Excel
   template in the user's language. With the template every column is recognised reliably.
 - A file problem (wrong format, too large, too many rows, unreadable) is shown directly under the
-  upload zone.
+  upload zone on the card; the window only opens for a file that could be read.
 
-### Step 2 — Mapping & rules
+### Step 1 in the window — Mapping & rules
 
 - **Map columns** (de: "Spalten zuordnen", en: "Map columns", fr: "Associer les colonnes",
   it: "Associa le colonne"): one line per column of the file with sample values, the field Klacks
@@ -98,12 +100,13 @@ message; for details beyond this page, point the user to that tab.
   happens with former employees (skip them or import them with their exit date) and with
   **Possible duplicates** (de: "Mögliche Dubletten", en: "Possible duplicates",
   fr: "Doublons possibles", it: "Possibili duplicati"): skip them (default) or create them anyway.
-- **Continue to preview** (de: "Weiter zur Vorschau", en: "Continue to preview",
-  fr: "Continuer vers l'aperçu", it: "Continua all'anteprima") moves on; **Choose another file**
-  (de: "Andere Datei wählen", en: "Choose another file", fr: "Choisir un autre fichier",
-  it: "Scegli un altro file") starts again with a different file.
+- The buttons sit at the bottom of the window: **Continue to preview** (de: "Weiter zur Vorschau",
+  en: "Continue to preview", fr: "Continuer vers l'aperçu", it: "Continua all'anteprima")
+  (`client-import-to-preview`) moves on; **Choose another file** (de: "Andere Datei wählen",
+  en: "Choose another file", fr: "Choisir un autre fichier", it: "Scegli un altro file") closes the
+  window and goes back to the upload zone of the card.
 
-### Step 3 — Preview
+### Step 2 in the window — Preview
 
 - A summary counts the rows: total, ready, skipped, with errors, duplicates, with warnings. Notes that
   concern (nearly) every row stand once above the table.
@@ -113,14 +116,27 @@ message; for details beyond this page, point the user to that tab.
   it: "Mostra solo le righe con problemi") narrows the list. Per row the user can skip it, choose the
   gender when the file has none, or keep a duplicate with **Create anyway** (de: "Trotzdem anlegen",
   en: "Create anyway", fr: "Créer quand même", it: "Crea comunque").
-- The import button shows how many people will be created. It stays disabled while a row still has
-  an error: fix the row (for example by going back to the mapping) or skip it.
+- At the bottom of the window, **Back** (de: "Zurück", en: "Back", fr: "Retour", it: "Indietro")
+  returns to the mapping, and the import button (`client-import-commit`) shows how many people will be
+  created. It stays disabled while a row still has an error: fix the row (for example by going back to
+  the mapping) or skip it.
 
-### Step 4 — Result
+### Step 3 in the window — Result
 
 Shows how many people were created and how many rows were skipped. Addresses are placed on the map in
-the background, which can take a few minutes. From here the user goes to the employee list or imports
-another file.
+the background, which can take a few minutes. At the bottom of the window, **Go to employee list**
+(de: "Zur Mitarbeiterliste", en: "Go to employee list", fr: "Vers la liste des collaborateurs",
+it: "All'elenco dei collaboratori") (`client-import-to-list`) opens the employee list, and
+**Import another file** (de: "Weitere Datei importieren", en: "Import another file",
+fr: "Importer un autre fichier", it: "Importa un altro file") closes the window for the next file.
+
+### Closing the window
+
+The × at the top right and the Esc key close the window. During mapping and preview nothing has been
+saved yet, so the window first asks at its bottom whether the import should be thrown away; the
+answer **Keep editing** (de: "Weiter bearbeiten", en: "Keep editing", fr: "Continuer l’édition",
+it: "Continua a modificare") keeps it open. While the import is being saved the window cannot be
+closed. After closing, the card shows the upload zone again.
 
 <!-- level:effects -->
 
@@ -154,8 +170,8 @@ another file.
   importing twice.
 - **Other ways in**: a single person is created by hand on the employee page; a company directory can
   be synchronised by an administrator through the identity provider settings.
-- **Permission**: only administrators can open the page. Other users cannot import employees and
-  need an administrator for it. An administrator who does not find the card has expert mode
+- **Permission**: only administrators see the card and can import. Other users cannot import
+  employees and need an administrator for it. An administrator who does not find the card has expert mode
   switched off: turn on the switch at the top of the settings page, then open the section Import.
 
 ### Trigger phrases

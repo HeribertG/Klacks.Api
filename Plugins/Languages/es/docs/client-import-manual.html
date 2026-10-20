@@ -13,17 +13,20 @@ contener empleados externos y clientes.
     <strong>Quién puede importar:</strong> solo los administradores. La tarjeta <em>Importar
     empleados</em> se encuentra en la configuración, sección <em>Importación</em>; esta sección solo
     aparece si el interruptor <em>Modo experto</em> de la parte superior de la página de configuración
-    está activado. El botón <em>Importar</em> abre la página de importación. Los demás usuarios no ven la
-    tarjeta y necesitan a un administrador para la importación.
+    está activado. La tarjeta tiene las pestañas <em>Importación</em> y <em>Manual</em>; la importación
+    empieza directamente en la tarjeta. Los demás usuarios no ven la tarjeta y necesitan a un
+    administrador para la importación.
   </li>
   <li>
     <strong>Protección de datos:</strong> el archivo en sí no se guarda. Solo se lee; únicamente se
     crean las filas confirmadas en la vista previa.
   </li>
   <li>
-    <strong>Cuatro pasos:</strong> <em>Archivo</em> → <em>Asignación y reglas</em> → <em>Vista
-    previa</em> → <em>Resultado</em>. La pestaña <em>Manual</em> muestra este manual; al cambiar a
-    ella no se pierde una importación en curso.
+    <strong>Cómo funciona:</strong> el archivo se coloca en la zona de carga de la tarjeta. A
+    continuación se abre una ventana con tres pasos: <em>Asignación y reglas</em> → <em>Vista
+    previa</em> → <em>Resultado</em>. Este manual está en la pestaña <em>Manual</em> de la tarjeta; en
+    la ventana, el botón <em>Manual</em> lo abre en una segunda ventana sin perder la importación en
+    curso.
   </li>
 </ul>
 
@@ -38,7 +41,7 @@ contener empleados externos y clientes.
   </li>
   <li>
     <strong>Libros de Excel:</strong> solo se leen las hojas visibles, por defecto la primera. Un
-    libro con varias hojas ofrece la selección <em>Hoja</em> en el paso 2. Se importa el resultado
+    libro con varias hojas ofrece la selección <em>Hoja</em> en el paso <em>Asignación y reglas</em>. Se importa el resultado
     calculado de una fórmula. Las celdas con formato de fecha se leen como fechas. Los números en
     celdas con el formato "General" pierden los ceros iniciales (el código postal 01234 pasa a ser
     1234): conviene dar formato de texto a esas columnas (la plantilla ya lo hace).
@@ -66,7 +69,7 @@ contener empleados externos y clientes.
     ejemplo 31.12.1990, 12/31/1990 o 1990-12-31; una parte horaria después de la fecha se ignora. Un
     valor que empieza con un año de cuatro cifras se lee siempre como año-mes-día. Si el archivo no
     permite saber si va primero el día o el mes (ningún valor mayor que 12), Klacks asume
-    día/mes/año y pide comprobar el formato de fecha en el paso 2. Los nombres de mes (por ejemplo,
+    día/mes/año y pide comprobar el formato de fecha en el paso <em>Asignación y reglas</em>. Los nombres de mes (por ejemplo,
     "31 dic 1990") no se reconocen.
   </li>
   <li>
@@ -111,7 +114,7 @@ fecha de nacimiento (véase <em>Duplicados</em>).
 
 <h3>Plantilla</h3>
 <p>
-El botón <em>Descargar plantilla</em> del paso 1 proporciona un archivo Excel en el idioma del
+El botón <em>Descargar plantilla</em> en la tarjeta proporciona un archivo Excel en el idioma del
 usuario (nombre de archivo <code>klacks-employee-import-es.xlsx</code>). Con la plantilla, todas las
 columnas se reconocen de forma fiable. Su fila de encabezado está en negrita e inmovilizada, todas
 las columnas tienen formato de texto (los ceros iniciales y las fechas se mantienen tal como se
@@ -128,22 +131,22 @@ variantes habituales (por ejemplo, "Primer apellido", "CP", "Fecha de incorporac
 
 <hr>
 
-<h3>Paso 1 – Archivo</h3>
+<h3>Elegir el archivo</h3>
 <ul>
   <li>
-    El archivo se arrastra a la zona de carga, o se hace clic en la zona para seleccionar un
-    archivo. Klacks lee el archivo y pasa al paso 2.
+    El archivo se arrastra a la zona de carga de la tarjeta, o se hace clic en la zona para
+    seleccionar un archivo. Klacks lee el archivo y abre la ventana con el paso 1.
   </li>
   <li>
     Un problema con el archivo (formato incorrecto, demasiado grande, demasiadas filas o columnas,
-    sin fila de encabezado) se muestra directamente debajo de la zona de carga; véase <em>Errores
-    frecuentes y soluciones</em>.
+    sin fila de encabezado) se muestra directamente debajo de la zona de carga y la ventana no se abre; véase
+    <em>Errores frecuentes y soluciones</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Paso 2 – Asignación y reglas</h3>
+<h3>Paso 1 – Asignación y reglas</h3>
 <h4>Asignar columnas</h4>
 <ul>
   <li>
@@ -194,13 +197,14 @@ variantes habituales (por ejemplo, "Primer apellido", "CP", "Fecha de incorporac
   </li>
 </ul>
 <p>
-<em>Continuar con la vista previa</em> avanza; <em>Elegir otro archivo</em> vuelve a empezar con un
-archivo diferente.
+Los botones están en la parte inferior de la ventana: <em>Continuar con la vista previa</em> avanza;
+<em>Elegir otro archivo</em> cierra la ventana y vuelve a empezar en la tarjeta con un archivo
+diferente.
 </p>
 
 <hr>
 
-<h3>Paso 3 – Vista previa</h3>
+<h3>Paso 2 – Vista previa</h3>
 <ul>
   <li>
     Un resumen cuenta las filas: total, listas, omitidas, con errores, duplicados y con advertencias.
@@ -217,12 +221,12 @@ archivo diferente.
     duplicado.
   </li>
   <li>
-    Los demás valores no se pueden editar en la vista previa. Para corregirlos, hay que corregir el
-    archivo y volver a seleccionarlo (<em>Elegir otro archivo</em>), o cambiar la asignación con
-    <em>Atrás</em>.
+    Los demás valores no se pueden editar en la vista previa. Para corregirlos, hay que cambiar la
+    asignación con <em>Atrás</em>, o corregir el archivo y volver a seleccionarlo con <em>Atrás</em> y
+    <em>Elegir otro archivo</em>.
   </li>
   <li>
-    El botón de importación indica cuántas personas se crearán (por ejemplo, <em>Importar 25
+    El botón de importación de la parte inferior de la ventana indica cuántas personas se crearán (por ejemplo, <em>Importar 25
     empleados</em>). Permanece desactivado mientras una fila siga teniendo un error: hay que corregir
     la fila u omitirla.
   </li>
@@ -230,11 +234,21 @@ archivo diferente.
 
 <hr>
 
-<h3>Paso 4 – Resultado</h3>
+<h3>Paso 3 – Resultado</h3>
 <p>
 Muestra cuántas personas se han creado y cuántas filas se han omitido, así como cuántas direcciones
 se están ubicando en el mapa en segundo plano. <em>Ir a la lista de empleados</em> abre la lista,
-<em>Importar otro archivo</em> inicia una nueva importación.
+<em>Importar otro archivo</em> cierra la ventana para el siguiente archivo.
+</p>
+
+<hr>
+
+<h3>Cerrar la ventana</h3>
+<p>
+La × de la parte superior derecha y la tecla Esc cierran la ventana. Durante la asignación y la vista
+previa todavía no se ha guardado nada, por lo que la ventana pregunta primero en su parte inferior si
+se debe descartar la importación; <em>Seguir editando</em> la mantiene abierta. Mientras se guarda la
+importación, la ventana no se puede cerrar. Después, la tarjeta vuelve a mostrar la zona de carga.
 </p>
 
 <hr>
@@ -257,7 +271,7 @@ se están ubicando en el mapa en segundo plano. <em>Ir a la lista de empleados</
     <tr>
       <td>Nombre completo</td>
       <td>No</td>
-      <td>Alternativa a columnas de nombre separadas; se divide en nombre y apellido (véase el paso 2).
+      <td>Alternativa a columnas de nombre separadas; se divide en nombre y apellido (véase <em>Asignación y reglas</em>).
         Los nombres con más de dos partes reciben una advertencia: hay que comprobar la división.</td>
     </tr>
     <tr>
@@ -449,7 +463,7 @@ se están ubicando en el mapa en segundo plano. <em>Ir a la lista de empleados</
 <p>
 Klacks <strong>asigna siempre el número de personal por sí mismo</strong>. Una columna de número de
 personal en el archivo se reconoce, pero se ignora; la vista previa muestra una indicación. Para
-conservar los números de otro sistema, la columna puede asignarse a <em>Nota</em> en el paso 2,
+conservar los números de otro sistema, la columna puede asignarse a <em>Nota</em> en el paso <em>Asignación y reglas</em>,
 siempre que ninguna otra columna se importe como nota.
 </p>
 
@@ -558,12 +572,12 @@ siempre que ninguna otra columna se importe como nota.
     <tr>
       <td>Falta el nombre. / Falta el apellido.</td>
       <td>Columna de nombre vacía o no asignada; un nombre completo con una sola palabra.</td>
-      <td>Comprobar la asignación en el paso 2 o completar el archivo.</td>
+      <td>Comprobar la asignación en el paso <em>Asignación y reglas</em> o completar el archivo.</td>
     </tr>
     <tr>
       <td>Fecha no válida: "…".</td>
       <td>Fecha ilegible, fecha de nacimiento en el futuro o fecha de baja anterior a la de alta.</td>
-      <td>Comprobar el formato de fecha en el paso 2 o corregir el valor en el archivo.</td>
+      <td>Comprobar el formato de fecha en el paso <em>Asignación y reglas</em> o corregir el valor en el archivo.</td>
     </tr>
     <tr>
       <td>Tipo "…" desconocido – use empleado, externo o cliente.</td>
@@ -594,7 +608,7 @@ siempre que ninguna otra columna se importe como nota.
     <tr>
       <td>Una de las reglas para la información que falta ya no es válida …</td>
       <td>Un contrato o grupo elegido en las reglas se ha eliminado entretanto.</td>
-      <td>Revisar las reglas en el paso 2.</td>
+      <td>Revisar las reglas en el paso <em>Asignación y reglas</em>.</td>
     </tr>
   </tbody>
 </table>
