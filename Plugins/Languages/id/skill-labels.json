@@ -129,6 +129,7 @@
   "delete_workchange": "Hapus perubahan penugasan",
   "detect_conflicts": "Deteksi konflik jadwal",
   "diagnose_holiday_outcome": "Jelaskan Tambahan Waktu dan peringatan hari libur",
+  "diagnose_planning_period": "Periksa mengapa suatu hari tidak dapat direncanakan",
   "diagnose_work_booking": "Periksa penugasan shift",
   "disable_feature_plugin": "Nonaktifkan modul fitur",
   "dismiss_skill_relation": "Tolak usulan relasi keahlian",

@@ -129,6 +129,7 @@
   "delete_workchange": "מחיקת שינוי במשימה",
   "detect_conflicts": "זיהוי קונפליקטים בין תוכניות",
   "diagnose_holiday_outcome": "הסבר תוספת חג ואזהרת חג",
+  "diagnose_planning_period": "בדיקה מדוע אי אפשר לתכנן יום",
   "diagnose_work_booking": "בדיקת שיבוץ למשמרת",
   "disable_feature_plugin": "השבתת מודול התכונה",
   "dismiss_skill_relation": "לדחות את קישור המיומנות המוצע",

@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Decides whether a turn must carry diagnose_work_booking together with explain_why_cannot_book: a "why ... not"
+/// Decides whether a turn must carry diagnose_work_booking and diagnose_planning_period (the same question without a shift,
+/// answered from the membership, group and seal periods) together with explain_why_cannot_book: a "why ... not"
 /// question (warum/wieso/weshalb ... nicht/kein, why ... not/n't/cannot, pourquoi ... pas/jamais, perché ... non) asked
 /// on the schedule page or naming a day. Vector retrieval ranks the diagnosis below the general explanation for such
 /// wording, and an Explain skill's graph edges never lead to a Read skill, so without this rule the concrete check of
@@ -23,7 +24,8 @@ public static class BookingDiagnosisIntentResolver
     private const string EnglishContractedNegationTypographic = "n’t";
     private const string GermanNegationStem = "kein";
 
-    private static readonly string[] GuaranteedSkills = [SkillNames.DiagnoseWorkBooking, SkillNames.ExplainWhyCannotBook];
+    private static readonly string[] GuaranteedSkills =
+        [SkillNames.DiagnoseWorkBooking, SkillNames.DiagnosePlanningPeriod, SkillNames.ExplainWhyCannotBook];
 
     private static readonly HashSet<string> WhyWords = new(StringComparer.Ordinal)
     {

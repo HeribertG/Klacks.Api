@@ -129,6 +129,7 @@
   "delete_workchange": "Slet ændring af indsats",
   "detect_conflicts": "At genkende planlægningskonflikter",
   "diagnose_holiday_outcome": "Forklar helligdagstillæg og helligdagsadvarsel",
+  "diagnose_planning_period": "Undersøg hvorfor en dag ikke kan planlægges",
   "diagnose_work_booking": "Tjek en vagtbooking",
   "disable_feature_plugin": "Deaktiver funktionsmodul",
   "dismiss_skill_relation": "Afvis foreslået færdighedskombination",

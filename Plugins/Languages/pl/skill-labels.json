@@ -129,6 +129,7 @@
   "delete_workchange": "Usuń zmianę przydziału",
   "detect_conflicts": "Rozpoznawanie konfliktów dotyczących planów",
   "diagnose_holiday_outcome": "Wyjaśnij dodatek świąteczny i ostrzeżenie o święcie",
+  "diagnose_planning_period": "Sprawdź, dlaczego dnia nie można zaplanować",
   "diagnose_work_booking": "Sprawdź przydział zmiany",
   "disable_feature_plugin": "Wyłącz moduł funkcji",
   "dismiss_skill_relation": "Odrzuć proponowane powiązanie umiejętności",

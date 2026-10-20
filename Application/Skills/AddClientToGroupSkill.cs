@@ -8,12 +8,15 @@
 /// </summary>
 /// <param name="clientId">UUID of the client to add to the group.</param>
 /// <param name="groupId">UUID of the target group.</param>
-/// <param name="validFrom">Membership start date (the plannability boundary in the schedule); required.</param>
+/// <param name="validFrom">Membership start date (the plannability boundary in the schedule), or 'entry' for the person's own employment entry date; required.</param>
 /// <param name="validUntil">Optional membership end date; open-ended when omitted.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -33,6 +36,10 @@ public class AddClientToGroupSkill : BaseSkillImplementation
 {
     private const string SkillName = "add_client_to_group";
 
+    private const string ValidUntilBeforeStartError =
+        "The membership end date (validUntil {0}) lies before its start ({1}). Ask the user for an end date on or after the start, " +
+        "or leave validUntil empty for an open-ended membership.";
+
     private readonly IClientRepository _clientRepository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IGroupRepository _groupRepository;
@@ -41,6 +48,7 @@ public class AddClientToGroupSkill : BaseSkillImplementation
     private readonly IKlacksSelfApiClient _selfApi;
     private readonly ISelfApiRouteResolver _routes;
     private readonly ICompanyClock _companyClock;
+    private readonly IGroupMembershipStartPlanner _startPlanner;
 
     public AddClientToGroupSkill(
         IClientRepository clientRepository,
@@ -50,8 +58,10 @@ public class AddClientToGroupSkill : BaseSkillImplementation
         IGroupItemRepository groupItemRepository,
         IKlacksSelfApiClient selfApi,
         ISelfApiRouteResolver routes,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IGroupMembershipStartPlanner startPlanner)
     {
+        _startPlanner = startPlanner;
         _clientRepository = clientRepository;
         _clientVisibilityGuard = clientVisibilityGuard;
         _groupRepository = groupRepository;
@@ -107,13 +117,13 @@ public class AddClientToGroupSkill : BaseSkillImplementation
         }
 
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today, context.UserLanguage);
+        var (givenStart, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(validFromStr, today, context.UserLanguage);
         if (invalidDate)
         {
             return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
-        if (validFrom is null)
+        if (givenStart is null && startMode == GroupMembershipStartMode.Fixed)
         {
             return SkillResult.Error(
                 SkillDateParser.MissingStartDateMessage(
@@ -127,12 +137,25 @@ public class AddClientToGroupSkill : BaseSkillImplementation
             return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
         }
 
+        var startPlan = await _startPlanner.PlanAsync(
+            [clientId], givenStart, startMode, defaultStart: null, cancellationToken);
+        var validFrom = startPlan.StartFor(clientId);
+        var startInfo = startPlan.Describe([clientId]);
+
+        if (validUntil.HasValue && validUntil.Value < validFrom)
+        {
+            return SkillResult.Error(string.Format(
+                ValidUntilBeforeStartError,
+                validUntil.Value.ToString(SkillDisplayFormats.IsoDate, CultureInfo.InvariantCulture),
+                validFrom.ToString(SkillDisplayFormats.IsoDate, CultureInfo.InvariantCulture)));
+        }
+
         var groupItem = new GroupItem
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
             GroupId = groupId,
-            ValidFrom = validFrom.Value,
+            ValidFrom = validFrom,
             ValidUntil = validUntil,
             CreateTime = DateTime.UtcNow,
             CurrentUserCreated = context.UserName
@@ -162,11 +185,12 @@ public class AddClientToGroupSkill : BaseSkillImplementation
             GroupName = group.Name,
             ValidFrom = groupItem.ValidFrom,
             ValidUntil = groupItem.ValidUntil,
-            Verified = true
+            Verified = true,
+            MembershipStart = startInfo
         };
 
         return SkillResult.SuccessResult(
             resultData,
-            $"Client successfully added to group '{group.Name}'");
+            $"Client successfully added to group '{group.Name}'. {GroupMembershipStartHint.ForSingle(startInfo)}".TrimEnd());
     }
 }

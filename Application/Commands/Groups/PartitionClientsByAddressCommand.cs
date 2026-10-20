@@ -18,11 +18,12 @@ namespace Klacks.Api.Application.Commands.Groups;
 /// <param name="RootGroupId">Id of an already-resolved group every top-level node attaches under; null mirrors the deterministic state-to-region convention baked into GroupsSeed instead.</param>
 /// <param name="RootGroupName">Display name of RootGroupId, carried through only to label the top-level nodes' parent in the result; null when RootGroupId is null.</param>
 /// <param name="IncludeAlreadyGrouped">When false (default), clients that already hold an active group membership are skipped.</param>
-/// <param name="ValidFrom">Start date of the new memberships (the plannability boundary); null defaults to today.</param>
+/// <param name="ValidFrom">Start date of the new memberships (the plannability boundary); null defaults to today. Ignored when StartMode is EntryDate.</param>
 /// <param name="Apply">False for a dry-run preview, true to create the groups and persist the memberships.</param>
 /// <param name="UserName">Name of the acting user, stored on the created groups and memberships.</param>
 /// <param name="ClusterSharePercent">Minimum share (1-100) a city needs to become a cluster center; used at Cluster and ClusterMunicipality level.</param>
 /// <param name="SubClusterSharePercent">Minimum share (1-100) of a city cluster's addresses a place outside the centre city needs to become a municipality sub-cluster; only used at ClusterMunicipality level.</param>
+/// <param name="StartMode">Fixed starts every membership on ValidFrom; EntryDate starts each person's membership on their own employment entry date.</param>
 public record PartitionClientsByAddressCommand(
     GroupPartitionLevelEnum Level,
     IReadOnlyList<EntityTypeEnum> EntityTypes,
@@ -33,4 +34,5 @@ public record PartitionClientsByAddressCommand(
     bool Apply,
     string UserName,
     int ClusterSharePercent,
-    int SubClusterSharePercent = GroupPartitionContext.DefaultSubClusterSharePercent) : IRequest<PartitionClientsByAddressResult>;
+    int SubClusterSharePercent = GroupPartitionContext.DefaultSubClusterSharePercent,
+    GroupMembershipStartMode StartMode = GroupMembershipStartMode.Fixed) : IRequest<PartitionClientsByAddressResult>;

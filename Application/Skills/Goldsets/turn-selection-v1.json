@@ -5542,6 +5542,28 @@
       "expectedSlots": [],
       "source": "curated",
       "comment": "T5 part b: the question the \"Why? Ask Klacksy\" link of a refused single booking sends (it), with sample name, date and shift, asked on the schedule page."
+    },
+    {
+      "id": "curated-planning-period-blue-de",
+      "message": "Warum kann ich Anna Muster am 12.10.2027 nicht verplanen? Der Tag ist blau.",
+      "locale": "de",
+      "currentRoute": "/workplace/schedule",
+      "expectedTool": "diagnose_planning_period",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Planning-period diagnosis: a person and a day but no shift, with the colour the grid shows. The answer is diagnose_planning_period, not the shift booking check (diagnose_work_booking needs a shift)."
+    },
+    {
+      "id": "curated-planning-period-en",
+      "message": "Why is October 12, 2027 dark for Anna Muster and I can't schedule her that day?",
+      "locale": "en",
+      "currentRoute": "/workplace/schedule",
+      "expectedTool": "diagnose_planning_period",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Planning-period diagnosis: a person and a day but no shift, with the colour the grid shows. The answer is diagnose_planning_period, not the shift booking check (diagnose_work_booking needs a shift)."
     }
   ]
 }

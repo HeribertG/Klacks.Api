@@ -12,7 +12,8 @@
 /// independent of group visibility. The inbound-analysis skills (get_messenger_analysis, close_clarification) are listed too:
 /// their gate CanManageAutomation reaches the Supervisor, and they answer through the same client visibility guard.
 /// diagnose_work_booking is listed because its planner-floor gate reaches every signed-in user while its answer (seals,
-/// periods, occupying entries) depends on the client and shift visibility guards.
+/// periods, occupying entries) depends on the client and shift visibility guards. diagnose_planning_period is listed for the
+/// same reason: it names an employee's group memberships and day seals and answers through the client visibility guard.
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;
@@ -40,7 +41,8 @@ public static class GroupVisibilityBoundSkills
         "get_messenger_analysis",
         "close_clarification",
         "get_replacement_status",
-        "diagnose_work_booking"
+        "diagnose_work_booking",
+        "diagnose_planning_period"
     };
 
     public static bool Contains(string? skillName) =>

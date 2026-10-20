@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Groups;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Groups;
@@ -11,11 +12,13 @@ namespace Klacks.Api.Application.Commands.Groups;
 /// it persists the memberships and re-reads them for verification.
 /// </summary>
 /// <param name="Count">Optional maximum number of employees to assign; null means all matches.</param>
-/// <param name="ValidFrom">Start date of the new memberships (the plannability boundary); null defaults to today.</param>
+/// <param name="ValidFrom">Start date of the new memberships (the plannability boundary); null defaults to today. Ignored when StartMode is EntryDate.</param>
 /// <param name="Apply">False for a dry-run preview, true to persist the memberships.</param>
 /// <param name="UserName">Name of the acting user, stored on the created memberships.</param>
+/// <param name="StartMode">Fixed starts every membership on ValidFrom; EntryDate starts each person's membership on their own employment entry date.</param>
 public record GroupUngroupedByCityNameCommand(
     int? Count,
     DateTime? ValidFrom,
     bool Apply,
-    string UserName) : IRequest<GroupUngroupedByCityNameResult>;
+    string UserName,
+    GroupMembershipStartMode StartMode = GroupMembershipStartMode.Fixed) : IRequest<GroupUngroupedByCityNameResult>;

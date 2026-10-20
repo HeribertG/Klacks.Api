@@ -32,6 +32,7 @@
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Grouping;
+using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Application.Services.Grouping;
@@ -198,7 +199,7 @@ public class ApplyGroupingPlanSkill : BaseSkillImplementation
         var createsGroup = decision.Permitted.Any(proposal => proposal.Kind == GroupingProposalKind.CreateGroup);
         var today = await _companyClock.GetTodayAsync(cancellationToken);
         var rawValidFrom = GetParameter<string>(parameters, ValidFromParameter);
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(rawValidFrom, today, context.UserLanguage);
+        var (validFrom, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(rawValidFrom, today, context.UserLanguage);
         if (invalidDate)
         {
             return SkillResult.Error(SkillDateParser.InvalidDateMessageFor(ValidFromParameter, rawValidFrom!));
@@ -207,17 +208,15 @@ public class ApplyGroupingPlanSkill : BaseSkillImplementation
         var newGroupName = GetParameter<string>(parameters, NewGroupNameParameter)?.Trim();
         var periodStart = report.Request.From.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
         var effectiveValidFrom = validFrom ?? periodStart;
-        var startDateNote = addsMembers
-            ? string.Format(
-                CultureInfo.InvariantCulture,
-                validFrom is null ? StartDateDefaultedTemplate : StartDateGivenTemplate,
-                effectiveValidFrom)
-            : string.Empty;
+        var command = new GroupingApplyCommand(
+            decision.Permitted, effectiveValidFrom, newGroupName, context.UserName, startMode, StartDateGiven: validFrom is not null);
         var data = new { Applied = false, Changes = steps, Skipped = skipped };
 
         if (!apply)
         {
             var askName = createsGroup && string.IsNullOrWhiteSpace(newGroupName) ? AskForGroupNameInPreview : string.Empty;
+            var startDateNote = StartNote(
+                addsMembers, validFrom, effectiveValidFrom, await _applier.PreviewStartAsync(command, cancellationToken), applied: false);
             _previewRegistry.RecordPreview(context.UserId, report.Fingerprint, context.TurnId);
             return SkillResult.SuccessResult(data, string.Format(
                 CultureInfo.InvariantCulture, PreviewTemplate, steps.Count,
@@ -233,9 +232,7 @@ public class ApplyGroupingPlanSkill : BaseSkillImplementation
         GroupingApplyResult result;
         try
         {
-            result = await _applier.ApplyAsync(
-                new GroupingApplyCommand(decision.Permitted, effectiveValidFrom, newGroupName, context.UserName),
-                cancellationToken);
+            result = await _applier.ApplyAsync(command, cancellationToken);
         }
         catch (SkillVerificationException ex)
         {
@@ -250,8 +247,26 @@ public class ApplyGroupingPlanSkill : BaseSkillImplementation
             new { Applied = true, Result = result, Skipped = skipped, Remaining = remaining?.PlanningUnits },
             string.Format(CultureInfo.InvariantCulture, AppliedTemplate,
                 result.CreatedGroups, result.AddedShifts, result.AddedClients, result.RemovedClients,
-                result.AlreadyInPlace, skippedText, startDateNote)
+                result.AlreadyInPlace, skippedText,
+                StartNote(addsMembers, validFrom, effectiveValidFrom, result.MembershipStart, applied: true))
             + (remaining is null ? GroupingReportTexts.RecomputeFailedSentence : GroupingReportTexts.RemainingGaps(remaining)));
+    }
+
+    private static string StartNote(
+        bool addsMembers, DateTime? validFrom, DateTime effectiveValidFrom, GroupMembershipStartInfo? info, bool applied)
+    {
+        var hint = GroupMembershipStartHint.For(info, applied);
+        if (hint.Length > 0)
+        {
+            return " " + hint;
+        }
+
+        return addsMembers
+            ? string.Format(
+                CultureInfo.InvariantCulture,
+                validFrom is null ? StartDateDefaultedTemplate : StartDateGivenTemplate,
+                effectiveValidFrom)
+            : string.Empty;
     }
 
     private async Task<GroupingReportView?> RecomputeAsync(

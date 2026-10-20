@@ -12,8 +12,10 @@
 /// <param name="groupRepository">Creates the new group (nested set, visibility preservation; self-committing).</param>
 /// <param name="groupItemRepository">Stages and soft-deletes group_item rows; counts them for verification.</param>
 /// <param name="unitOfWork">Transaction and SaveChanges.</param>
+/// <param name="startPlanner">Plans the start date of every new client membership (the command's date, or each person's employment entry).</param>
 
 using Klacks.Api.Application.DTOs.Grouping;
+using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Constants;
@@ -40,9 +42,15 @@ public sealed class GroupingPlanApplier : IGroupingPlanApplier
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IGroupMembershipStartPlanner _startPlanner;
 
-    public GroupingPlanApplier(IGroupRepository groupRepository, IGroupItemRepository groupItemRepository, IUnitOfWork unitOfWork)
+    public GroupingPlanApplier(
+        IGroupRepository groupRepository,
+        IGroupItemRepository groupItemRepository,
+        IUnitOfWork unitOfWork,
+        IGroupMembershipStartPlanner startPlanner)
     {
+        _startPlanner = startPlanner;
         _groupRepository = groupRepository;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
@@ -62,9 +70,12 @@ public sealed class GroupingPlanApplier : IGroupingPlanApplier
             throw new ArgumentException(MissingCreateGroupMessage, nameof(command));
         }
 
+        var startPlan = await PlanStartAsync(command, cancellationToken);
+        var existingMembers = new List<ExistingMembershipStart>();
+
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var createdGroupId = needsGroup ? await CreateGroupAsync(command) : (Guid?)null;
+            var createdGroupId = needsGroup ? await CreateGroupAsync(command, startPlan) : (Guid?)null;
             var now = DateTime.UtcNow;
             var newItems = new List<GroupItem>();
             var alreadyInPlace = 0;
@@ -72,9 +83,15 @@ public sealed class GroupingPlanApplier : IGroupingPlanApplier
             foreach (var proposal in proposals.Where(p => p.Kind is GroupingProposalKind.AddShift or GroupingProposalKind.AddClient))
             {
                 var groupId = proposal.GroupId ?? createdGroupId!.Value;
-                if (await IsAlreadyMemberAsync(proposal, groupId, cancellationToken))
+                var held = await FindExistingMembershipAsync(proposal, groupId, cancellationToken);
+                if (held is not null)
                 {
                     alreadyInPlace++;
+                    if (proposal.Kind == GroupingProposalKind.AddClient)
+                    {
+                        existingMembers.Add(new ExistingMembershipStart(proposal.ClientId!.Value, held.ValidFrom));
+                    }
+
                     continue;
                 }
 
@@ -84,7 +101,9 @@ public sealed class GroupingPlanApplier : IGroupingPlanApplier
                     GroupId = groupId,
                     ClientId = proposal.Kind == GroupingProposalKind.AddClient ? proposal.ClientId : null,
                     ShiftId = proposal.Kind == GroupingProposalKind.AddShift ? proposal.ShiftId : null,
-                    ValidFrom = command.ValidFromUtc,
+                    ValidFrom = proposal.Kind == GroupingProposalKind.AddClient
+                        ? startPlan.StartFor(proposal.ClientId!.Value)
+                        : command.ValidFromUtc,
                     CreateTime = now,
                     CurrentUserCreated = command.UserName
                 };
@@ -118,18 +137,85 @@ public sealed class GroupingPlanApplier : IGroupingPlanApplier
                 newItems.Count(item => item.ShiftId != null),
                 newItems.Count(item => item.ClientId != null),
                 removedIds.Count,
-                alreadyInPlace);
+                alreadyInPlace,
+                startPlan.Describe(newItems.Where(item => item.ClientId != null).Select(item => item.ClientId!.Value), existingMembers));
         });
     }
 
-    private async Task<Guid> CreateGroupAsync(GroupingApplyCommand command)
+    public async Task<GroupMembershipStartInfo> PreviewStartAsync(GroupingApplyCommand command, CancellationToken cancellationToken)
+    {
+        var startPlan = await PlanStartAsync(command, cancellationToken);
+        var newClientIds = new List<Guid>();
+        var existingMembers = new List<ExistingMembershipStart>();
+
+        foreach (var proposal in command.Proposals.Where(p => p.Kind == GroupingProposalKind.AddClient && p.ClientId.HasValue))
+        {
+            var held = proposal.GroupId is { } groupId
+                ? await FindExistingMembershipAsync(proposal, groupId, cancellationToken)
+                : null;
+            if (held is null)
+            {
+                newClientIds.Add(proposal.ClientId!.Value);
+            }
+            else
+            {
+                existingMembers.Add(new ExistingMembershipStart(proposal.ClientId!.Value, held.ValidFrom));
+            }
+        }
+
+        return startPlan.Describe(newClientIds, existingMembers);
+    }
+
+    private Task<GroupMembershipStartPlan> PlanStartAsync(GroupingApplyCommand command, CancellationToken cancellationToken)
+    {
+        var clientIds = command.Proposals
+            .Where(p => p.Kind == GroupingProposalKind.AddClient && p.ClientId.HasValue)
+            .Select(p => p.ClientId!.Value)
+            .Distinct()
+            .ToList();
+        return _startPlanner.PlanAsync(
+            clientIds,
+            command.StartDateGiven ? command.ValidFromUtc : null,
+            command.StartMode,
+            command.ValidFromUtc,
+            cancellationToken);
+    }
+
+    private static DateTime NewGroupStart(GroupingApplyCommand command, GroupMembershipStartPlan startPlan)
+    {
+        if (command.StartMode != GroupMembershipStartMode.EntryDate)
+        {
+            return command.ValidFromUtc;
+        }
+
+        var clientIds = command.Proposals
+            .Where(p => p.Kind == GroupingProposalKind.AddClient && p.GroupId is null && p.ClientId.HasValue)
+            .Select(p => p.ClientId!.Value)
+            .Distinct()
+            .ToList();
+        var hasShifts = command.Proposals.Any(p => p.Kind == GroupingProposalKind.AddShift && p.GroupId is null);
+        var starts = new List<DateTime>();
+        if (clientIds.Count > 0)
+        {
+            starts.Add(startPlan.GroupStart(clientIds));
+        }
+
+        if (hasShifts || clientIds.Count == 0)
+        {
+            starts.Add(command.ValidFromUtc);
+        }
+
+        return starts.Min();
+    }
+
+    private async Task<Guid> CreateGroupAsync(GroupingApplyCommand command, GroupMembershipStartPlan startPlan)
     {
         var group = new Group
         {
             Id = Guid.NewGuid(),
             Name = command.NewGroupName!.Trim(),
             Description = string.Empty,
-            ValidFrom = command.ValidFromUtc,
+            ValidFrom = NewGroupStart(command, startPlan),
             PaymentInterval = PaymentInterval.Monthly,
             CreateTime = DateTime.UtcNow,
             CurrentUserCreated = command.UserName
@@ -144,16 +230,17 @@ public sealed class GroupingPlanApplier : IGroupingPlanApplier
         return group.Id;
     }
 
-    private async Task<bool> IsAlreadyMemberAsync(GroupingProposal proposal, Guid groupId, CancellationToken cancellationToken)
+    private async Task<GroupItem?> FindExistingMembershipAsync(
+        GroupingProposal proposal, Guid groupId, CancellationToken cancellationToken)
     {
         if (proposal.Kind == GroupingProposalKind.AddShift)
         {
             var groupIds = await _groupItemRepository.GetGroupIdsByShiftId(proposal.ShiftId!.Value, cancellationToken);
-            return groupIds.Contains(groupId);
+            return groupIds.Contains(groupId) ? new GroupItem { GroupId = groupId, ShiftId = proposal.ShiftId } : null;
         }
 
         var existing = await _groupItemRepository.GetByClientAndGroup(proposal.ClientId!.Value, groupId);
-        return existing is not null && !existing.IsDeleted;
+        return existing is not null && !existing.IsDeleted ? existing : null;
     }
 
     private async Task VerifyAddedAsync(IReadOnlyList<GroupItem> newItems, CancellationToken cancellationToken)

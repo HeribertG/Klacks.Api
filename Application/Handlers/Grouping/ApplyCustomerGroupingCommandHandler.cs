@@ -13,16 +13,16 @@
 /// <param name="planner">Recomputes the assignment proposal to apply.</param>
 /// <param name="groupItemRepository">Loads, removes and adds the individual group memberships.</param>
 /// <param name="unitOfWork">Commits all membership changes in a single save.</param>
-/// <param name="companyClock">Supplies the company-local date used for the new membership ValidFrom when the caller did not request an explicit one.</param>
+/// <param name="startPlanner">Plans the start date of every new membership (one common date, defaulting to the company today, or each person's employment entry) and describes it for the result.</param>
 
 using Klacks.Api.Application.Commands.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
+using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Services.Grouping;
 using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
-using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -34,32 +34,37 @@ public sealed class ApplyCustomerGroupingCommandHandler
     private readonly ICustomerGroupingPlanner _planner;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ICompanyClock _companyClock;
+    private readonly IGroupMembershipStartPlanner _startPlanner;
 
     public ApplyCustomerGroupingCommandHandler(
         ICustomerGroupingPlanner planner,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
-        ICompanyClock companyClock)
+        IGroupMembershipStartPlanner startPlanner)
     {
         _planner = planner;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
-        _companyClock = companyClock;
+        _startPlanner = startPlanner;
     }
 
     public async Task<CustomerGroupingApplyResult> Handle(
         ApplyCustomerGroupingCommand request, CancellationToken cancellationToken)
     {
         var proposal = await _planner.BuildProposalAsync(request.EntityType, cancellationToken);
-        var validFrom = request.ValidFrom ?? await _companyClock.GetTodayAsync(cancellationToken);
+        var plannedClientIds = proposal.Assignments.Select(a => a.ClientId).Distinct().ToList();
+        var startPlan = await _startPlanner.PlanAsync(
+            plannedClientIds, request.ValidFrom, request.StartMode, defaultStart: null, cancellationToken);
+        var validFrom = startPlan.GroupStart(plannedClientIds);
 
         if (proposal.Assignments.Count == 0)
         {
-            return new CustomerGroupingApplyResult(0, 0, proposal.Unassigned.Count, 0, validFrom);
+            return new CustomerGroupingApplyResult(
+                0, 0, proposal.Unassigned.Count, 0, validFrom, startPlan.Describe(plannedClientIds));
         }
 
         var addedItems = new List<GroupItem>();
+        var existingMembers = new List<ExistingMembershipStart>();
         var endedMembershipCount = 0;
         var movedCount = 0;
 
@@ -83,14 +88,18 @@ public sealed class ApplyCustomerGroupingCommandHandler
 
                 var existingTarget = await _groupItemRepository.GetByClientAndGroup(
                     assignment.ClientId, assignment.TargetGroupId);
-                if (existingTarget == null)
+                if (existingTarget != null)
+                {
+                    existingMembers.Add(new ExistingMembershipStart(assignment.ClientId, existingTarget.ValidFrom));
+                }
+                else
                 {
                     var item = new GroupItem
                     {
                         Id = Guid.NewGuid(),
                         ClientId = assignment.ClientId,
                         GroupId = assignment.TargetGroupId,
-                        ValidFrom = validFrom,
+                        ValidFrom = startPlan.StartFor(assignment.ClientId),
                         CreateTime = DateTime.UtcNow
                     };
                     await _groupItemRepository.Add(item);
@@ -123,6 +132,7 @@ public sealed class ApplyCustomerGroupingCommandHandler
         });
 
         return new CustomerGroupingApplyResult(
-            movedCount, addedItems.Count, proposal.Unassigned.Count, endedMembershipCount, validFrom);
+            movedCount, addedItems.Count, proposal.Unassigned.Count, endedMembershipCount, validFrom,
+            startPlan.Describe(addedItems.Select(i => i.ClientId!.Value), existingMembers));
     }
 }

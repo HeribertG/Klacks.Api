@@ -129,6 +129,7 @@
   "delete_workchange": "Wijziging in inzet verwijderen",
   "detect_conflicts": "Conflicten in de planning herkennen",
   "diagnose_holiday_outcome": "Feestdagtoeslag en feestdagwaarschuwing uitleggen",
+  "diagnose_planning_period": "Controleer waarom een dag niet te plannen is",
   "diagnose_work_booking": "Dienstinplanning controleren",
   "disable_feature_plugin": "Functiemodule uitschakelen",
   "dismiss_skill_relation": "Voorgestelde vaardigheidskoppeling afwijzen",

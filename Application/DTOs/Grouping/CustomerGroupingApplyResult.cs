@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.DTOs.Groups;
+
 namespace Klacks.Api.Application.DTOs.Grouping;
 
 /// <summary>
@@ -9,10 +11,12 @@ namespace Klacks.Api.Application.DTOs.Grouping;
 /// <param name="VerifiedCount">Number of created memberships re-read and confirmed in the database after the write.</param>
 /// <param name="UnassignedCount">Number of clients the proposal could not place.</param>
 /// <param name="EndedMembershipCount">Number of existing memberships that were actually ended, counting only those still present when the move ran — this is what the proposal announced as the memberships that would end.</param>
-/// <param name="AppliedValidFrom">Start date actually written to the new memberships: either the date the caller asked for or the company's current date. Reported back so the answer can name the date that was really used instead of the one that was requested.</param>
+/// <param name="AppliedValidFrom">Start date actually written to the new memberships: either the date the caller asked for or the company's current date; with per-person entry dates, the earliest start. Reported back so the answer can name the date that was really used instead of the one that was requested.</param>
+/// <param name="MembershipStart">Start date of the new memberships and how many of the moved persons entered earlier (their days before the start are shown blue and locked in the schedule).</param>
 public record CustomerGroupingApplyResult(
     int MovedCount,
     int VerifiedCount,
     int UnassignedCount,
     int EndedMembershipCount,
-    DateTime AppliedValidFrom);
+    DateTime AppliedValidFrom,
+    GroupMembershipStartInfo? MembershipStart = null);

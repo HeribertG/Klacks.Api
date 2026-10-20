@@ -838,6 +838,11 @@
     "kenapa mesej telegram tidak masuk",
     "adakah perkhidmatan mesej berfungsi"
   ],
+  "diagnose_planning_period": [
+    "mengapa hari ini berwarna biru untuk orang itu",
+    "mengapa hari ini dipaparkan gelap",
+    "mengapa orang itu tidak boleh dijadualkan pada tarikh ini"
+  ],
   "diagnose_work_booking": [
     "kenapa dia tidak boleh dapat syif pagi pada hari isnin",
     "semak sama ada dia boleh buat syif malam pada tarikh itu",

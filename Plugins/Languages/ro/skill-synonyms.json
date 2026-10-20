@@ -846,6 +846,11 @@
     "de ce nu sosesc mesajele telegram",
     "funcționează mesageria"
   ],
+  "diagnose_planning_period": [
+    "de ce este această zi albastră pentru persoană",
+    "de ce apare ziua întunecată",
+    "de ce nu poate fi planificată persoana la această dată"
+  ],
   "diagnose_work_booking": [
     "de ce nu o pot programa luni în tura de dimineață",
     "verifică dacă el poate lucra în tura de noapte în acea zi",

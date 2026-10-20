@@ -869,6 +869,11 @@
     "dlaczego nie przychodzą wiadomości z telegrama",
     "czy komunikator działa"
   ],
+  "diagnose_planning_period": [
+    "dlaczego ten dzień jest niebieski dla tej osoby",
+    "dlaczego dzień jest wyświetlany na ciemno",
+    "dlaczego nie można zaplanować tej osoby w tym dniu"
+  ],
   "diagnose_work_booking": [
     "dlaczego nie mogę jej przydzielić porannej zmiany w poniedziałek",
     "sprawdź, czy może wziąć nocną zmianę tego dnia",

@@ -5,6 +5,7 @@ using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Application.Services.Grouping;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
@@ -35,13 +36,13 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// <param name="groupRepository">Provides the existing groups and creates the missing ones (nested-set aware).</param>
 /// <param name="groupItemRepository">Reads existing memberships and adds new ones.</param>
 /// <param name="unitOfWork">Commits and verifies the new memberships in a single transaction.</param>
-/// <param name="companyClock">Supplies the company-local date used when no explicit ValidFrom is given.</param>
 /// <param name="regionProvider">Supplies the state-to-region map per country.</param>
 /// <param name="countryResolver">Supplies the company's default country for addresses without one.</param>
 /// <param name="stateRepository">Supplies state display names for the descriptions of state nodes.</param>
 /// <param name="settingsReader">Reads the installation-wide DEFAULT_LANGUAGE setting used to pick the state display name's language.</param>
 /// <param name="visibilityPreservation">Counts the users that keep access to everything when this run introduces the first group, for the advisory the preview shows.</param>
 /// <param name="groupVisibilityGuard">Tells whether the caller is free of group-visibility restrictions.</param>
+/// <param name="startPlanner">Plans the start date of every new membership (one common date, or each person's employment entry) and describes it for the result.</param>
 public sealed class PartitionClientsByAddressCommandHandler
     : IRequestHandler<PartitionClientsByAddressCommand, PartitionClientsByAddressResult>
 {
@@ -54,33 +55,33 @@ public sealed class PartitionClientsByAddressCommandHandler
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ICompanyClock _companyClock;
     private readonly ICountryRegionProvider _regionProvider;
     private readonly ICountryResolver _countryResolver;
     private readonly IStateRepository _stateRepository;
     private readonly ISettingsReader _settingsReader;
     private readonly IGroupVisibilityPreservationService _visibilityPreservation;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IGroupMembershipStartPlanner _startPlanner;
 
     public PartitionClientsByAddressCommandHandler(
         IClientRepository clientRepository,
         IGroupRepository groupRepository,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
-        ICompanyClock companyClock,
         ICountryRegionProvider regionProvider,
         ICountryResolver countryResolver,
         IStateRepository stateRepository,
         ISettingsReader settingsReader,
         IGroupVisibilityPreservationService visibilityPreservation,
-        IGroupVisibilityGuard groupVisibilityGuard)
+        IGroupVisibilityGuard groupVisibilityGuard,
+        IGroupMembershipStartPlanner startPlanner)
     {
         _groupVisibilityGuard = groupVisibilityGuard;
+        _startPlanner = startPlanner;
         _clientRepository = clientRepository;
         _groupRepository = groupRepository;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
-        _companyClock = companyClock;
         _regionProvider = regionProvider;
         _countryResolver = countryResolver;
         _stateRepository = stateRepository;
@@ -110,14 +111,21 @@ public sealed class PartitionClientsByAddressCommandHandler
         var plan = GroupPartitionPlanner.Plan(
             clients, existingGroups, request.Level, request.RootGroupId, request.IncludeAlreadyGrouped, context);
 
+        var (plannedNewClientIds, existingMembers) = SplitNewFromExisting(clients, plan);
+        var startPlan = await _startPlanner.PlanAsync(
+            plan.Assignments.Select(a => a.ClientId).Concat(existingMembers.Select(m => m.ClientId)).Distinct().ToList(),
+            request.ValidFrom, request.StartMode, defaultStart: null, cancellationToken);
+
         if (!request.Apply)
         {
             return BuildResult(
                 request, plan, applied: false, groups: plan.Groups, assignedCount: 0, verifiedCount: 0, alreadyMemberCount: 0,
-                usersKeepingFullVisibilityCount: usersKeepingFullVisibility);
+                usersKeepingFullVisibilityCount: usersKeepingFullVisibility,
+                membershipStart: startPlan.Describe(plannedNewClientIds, existingMembers));
         }
 
-        var validFrom = request.ValidFrom ?? await _companyClock.GetTodayAsync(cancellationToken);
+        var groupStarts = PartitionGroupStarts.Resolve(plan, startPlan);
+        var newMemberIds = new List<Guid>();
         var now = DateTime.UtcNow;
 
         var outcome = await _unitOfWork.ExecuteInTransactionAsync(async () =>
@@ -141,7 +149,7 @@ public sealed class PartitionClientsByAddressCommandHandler
                     Name = planned.Name,
                     Description = planned.Description,
                     Parent = parentId,
-                    ValidFrom = validFrom,
+                    ValidFrom = groupStarts[planned.Key],
                     PaymentInterval = PaymentInterval.Monthly,
                     Latitude = planned.Latitude,
                     Longitude = planned.Longitude,
@@ -170,7 +178,7 @@ public sealed class PartitionClientsByAddressCommandHandler
                     Id = Guid.NewGuid(),
                     ClientId = assignment.ClientId,
                     GroupId = groupId,
-                    ValidFrom = validFrom,
+                    ValidFrom = startPlan.StartFor(assignment.ClientId),
                     CreateTime = now,
                     CurrentUserCreated = request.UserName
                 });
@@ -185,6 +193,8 @@ public sealed class PartitionClientsByAddressCommandHandler
             {
                 await _groupItemRepository.Add(item);
             }
+
+            newMemberIds.AddRange(newItems.Select(i => i.ClientId!.Value));
 
             await _unitOfWork.CompleteAsync();
 
@@ -209,8 +219,44 @@ public sealed class PartitionClientsByAddressCommandHandler
         return BuildResult(
             request, plan, applied: true, groups: createdGroups,
             assignedCount: assignedCount, verifiedCount: outcome.VerifiedCount, alreadyMemberCount: outcome.AlreadyMemberCount,
-            usersKeepingFullVisibilityCount: usersKeepingFullVisibility);
+            usersKeepingFullVisibilityCount: usersKeepingFullVisibility,
+            membershipStart: startPlan.Describe(newMemberIds, existingMembers));
     }
+
+    private static (List<Guid> NewClientIds, List<ExistingMembershipStart> ExistingMembers) SplitNewFromExisting(
+        IReadOnlyList<Client> clients, GroupPartitionPlan plan)
+    {
+        var clientsById = clients.GroupBy(c => c.Id).ToDictionary(g => g.Key, g => g.First());
+        var groupsByKey = plan.Groups.ToDictionary(g => g.Key, StringComparer.Ordinal);
+        var newClientIds = new List<Guid>();
+        var existingMembers = new List<ExistingMembershipStart>();
+
+        foreach (var assignment in plan.Assignments)
+        {
+            var leaf = groupsByKey[assignment.LeafGroupKey];
+            var held = leaf.Existed
+                ? ActiveMemberships(clientsById[assignment.ClientId]).FirstOrDefault(gi => gi.GroupId == leaf.ExistingGroupId)
+                : null;
+            if (held is null)
+            {
+                newClientIds.Add(assignment.ClientId);
+            }
+            else
+            {
+                existingMembers.Add(new ExistingMembershipStart(assignment.ClientId, held.ValidFrom));
+            }
+        }
+
+        var assignedIds = plan.Assignments.Select(a => a.ClientId).ToHashSet();
+        existingMembers.AddRange(clients
+            .Where(c => !assignedIds.Contains(c.Id))
+            .SelectMany(c => ActiveMemberships(c).Select(gi => new ExistingMembershipStart(c.Id, gi.ValidFrom))));
+
+        return (newClientIds.Distinct().ToList(), existingMembers);
+    }
+
+    private static IEnumerable<GroupItem> ActiveMemberships(Client client) =>
+        client.GroupItems.Where(gi => !gi.IsDeleted && gi.AnalyseToken == null);
 
     private async Task<GroupPartitionContext> BuildContextAsync(
         IReadOnlyList<Client> clients, int clusterSharePercent, int subClusterSharePercent, CancellationToken cancellationToken)
@@ -274,7 +320,8 @@ public sealed class PartitionClientsByAddressCommandHandler
         int assignedCount,
         int verifiedCount,
         int alreadyMemberCount,
-        int usersKeepingFullVisibilityCount) =>
+        int usersKeepingFullVisibilityCount,
+        GroupMembershipStartInfo membershipStart) =>
         new(
             Applied: applied,
             Level: request.Level.ToString(),
@@ -289,7 +336,8 @@ public sealed class PartitionClientsByAddressCommandHandler
             UnassignableSample: plan.Unassignable.Take(MaxUnassignableSample).ToList(),
             Warnings: plan.Warnings,
             UsersKeepingFullVisibilityCount: usersKeepingFullVisibilityCount,
-            PlaceAttachments: plan.PlaceAttachments ?? []);
+            PlaceAttachments: plan.PlaceAttachments ?? [],
+            MembershipStart: membershipStart);
 
     private static List<PartitionGroupSummary> BuildSummaries(
         IReadOnlyList<PlannedPartitionGroup> groups, string? rootGroupName)

@@ -129,6 +129,7 @@
   "delete_workchange": "Διαγραφή αλλαγής αποστολής",
   "detect_conflicts": "Αναγνώριση συγκρούσεων σχεδίων",
   "diagnose_holiday_outcome": "Εξήγηση προσαύξησης και προειδοποίησης αργίας",
+  "diagnose_planning_period": "Έλεγχος γιατί μια ημέρα δεν προγραμματίζεται",
   "diagnose_work_booking": "Έλεγχος ανάθεσης βάρδιας",
   "disable_feature_plugin": "Απενεργοποίηση της ενότητας λειτουργιών",
   "dismiss_skill_relation": "Απόρριψη της προτεινόμενης αντιστοίχισης δεξιοτήτων",

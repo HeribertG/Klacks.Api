@@ -73,8 +73,9 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
 
         var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
+        var (validFrom, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(
             validFromStr, today, context.UserLanguage);
+        var startDateOpen = validFrom is null && startMode == GroupMembershipStartMode.Fixed;
         if (invalidDate)
         {
             return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
@@ -160,7 +161,7 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
         var trimmedCity = string.IsNullOrWhiteSpace(city) ? null : city.Trim();
         var trimmedZipPrefix = string.IsNullOrWhiteSpace(zipPrefix) ? null : zipPrefix.Trim();
 
-        if (apply && validFrom is null)
+        if (apply && startDateOpen)
         {
             return SkillResult.Error(
                 SkillDateParser.MissingStartDateMessage(
@@ -183,7 +184,8 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
                     count,
                     validFrom,
                     apply,
-                    context.UserName),
+                    context.UserName,
+                    startMode),
                 cancellationToken);
         }
         catch (SkillVerificationException ex)
@@ -191,23 +193,29 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
             return SkillResult.Error(ex.Message);
         }
 
+        return BuildResult(result, group.Name, entityType, apply, startDateOpen);
+    }
+
+    private static SkillResult BuildResult(
+        FillGroupByCriteriaResult result, string groupName, EntityTypeEnum entityType, bool apply, bool startDateOpen)
+    {
         if (result.TotalMatchCount == 0)
         {
             return SkillResult.SuccessResult(
                 result,
-                $"No {entityType} found matching the criteria for group '{group.Name}'.");
+                $"No {entityType} found matching the criteria for group '{groupName}'.");
         }
-
-        var clientNames = string.Join(", ",
-            result.Clients.Select(c => $"{c.FirstName} {c.LastName}".Trim()));
 
         if (!apply)
         {
-            var validFromAsk = validFrom is null ? SkillDateParser.AskForStartDateInPreview : string.Empty;
+            var clientNames = string.Join(", ", result.Clients.Select(c => $"{c.FirstName} {c.LastName}".Trim()));
+            var validFromAsk = startDateOpen ? SkillDateParser.AskForStartDateInPreview : string.Empty;
             return SkillResult.SuccessResult(
                 result,
                 $"Preview: {result.Clients.Count} of {result.TotalMatchCount} matching {entityType}(s) " +
-                $"would be added to group '{group.Name}': {clientNames}. Nothing was changed yet.{validFromAsk} " +
+                $"would be added to group '{groupName}': {clientNames}. " +
+                $"{GroupMembershipStartHint.For(result.MembershipStart, applied: false)} " +
+                $"Nothing was changed yet.{validFromAsk} " +
                 "Ask the user to confirm, then call again with apply=true.");
         }
 
@@ -217,8 +225,9 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             result,
-            $"Added {result.AddedCount} {entityType}(s) to group '{group.Name}' " +
-            $"and confirmed {result.VerifiedCount} in the database (verified){alreadyNote}.");
+            $"Added {result.AddedCount} {entityType}(s) to group '{groupName}' " +
+            $"and confirmed {result.VerifiedCount} in the database (verified){alreadyNote}. " +
+            GroupMembershipStartHint.For(result.MembershipStart, applied: true));
     }
 
     private async Task<string?> ResolveCantonAsync(string? canton, CancellationToken cancellationToken)

@@ -19,9 +19,10 @@ namespace Klacks.Api.Application.Commands.Groups;
 /// <param name="QualificationId">Optional id of a qualification the client must currently hold.</param>
 /// <param name="EntityType">Optional client type filter (defaults to Employee in the calling skill).</param>
 /// <param name="Count">Optional maximum number of clients to add; null means all matches up to the search cap.</param>
-/// <param name="ValidFrom">Start date of the new memberships (the plannability boundary); null defaults to now.</param>
+/// <param name="ValidFrom">Start date of the new memberships (the plannability boundary); null defaults to now. Ignored when StartMode is EntryDate.</param>
 /// <param name="Apply">False for a dry-run preview, true to persist the memberships.</param>
 /// <param name="UserName">Name of the acting user, stored on the created memberships.</param>
+/// <param name="StartMode">Fixed starts every membership on ValidFrom; EntryDate starts each person's membership on their own employment entry date.</param>
 public record FillGroupByCriteriaCommand(
     Guid GroupId,
     string GroupName,
@@ -34,4 +35,5 @@ public record FillGroupByCriteriaCommand(
     int? Count,
     DateTime? ValidFrom,
     bool Apply,
-    string UserName) : IRequest<FillGroupByCriteriaResult>;
+    string UserName,
+    GroupMembershipStartMode StartMode = GroupMembershipStartMode.Fixed) : IRequest<FillGroupByCriteriaResult>;

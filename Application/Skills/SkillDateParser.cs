@@ -8,6 +8,7 @@
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 
 namespace Klacks.Api.Application.Skills;
@@ -72,6 +73,32 @@ internal static class SkillDateParser
     }
 
     /// <summary>
+    /// Keyword for the validFrom parameter of the grouping skills that starts each person's membership on the day of
+    /// their own employment entry instead of one common date.
+    /// </summary>
+    public const string EntryDateKeyword = "entry";
+
+    /// <summary>
+    /// Reads the validFrom parameter of a grouping skill: the entry keyword selects EntryDate mode (no date), anything
+    /// else is read like <see cref="ParseOptionalUtcDate"/> in Fixed mode.
+    /// </summary>
+    /// <param name="raw">The user-supplied value (blank, a date, a relative day word or the entry keyword).</param>
+    /// <param name="today">The company's current calendar date as a UTC-midnight value.</param>
+    /// <param name="language">UI language of the calling user.</param>
+    public static (DateTime? Value, GroupMembershipStartMode Mode, bool Invalid) ParseMembershipStart(
+        string? raw, DateTime today, string? language = null)
+    {
+        if (!string.IsNullOrWhiteSpace(raw)
+            && string.Equals(raw.Trim(), EntryDateKeyword, StringComparison.OrdinalIgnoreCase))
+        {
+            return (null, GroupMembershipStartMode.EntryDate, false);
+        }
+
+        var (value, invalid) = ParseOptionalUtcDate(raw, today, language);
+        return (value, GroupMembershipStartMode.Fixed, invalid);
+    }
+
+    /// <summary>
     /// Builds the clarification a membership skill returns when no start date was supplied and it must
     /// obtain one from the user instead of silently defaulting to today. The wording tells the model to
     /// ask, not invent — a fabricated date cannot be caught downstream, only an absent one.
@@ -79,14 +106,14 @@ internal static class SkillDateParser
     /// <param name="action">What the skill is about to do, e.g. "add the selected client(s) to group 'Bern'".</param>
     public static string MissingStartDateMessage(string action) =>
         $"Before I {action}, I need to know from which date the membership should be valid. " +
-        "Ask the user for a concrete start date (for example 2026-05-01) or 'today' — do not assume or " +
-        "invent a date yourself — then call again with that validFrom.";
+        "Ask the user for a concrete start date (for example 2026-05-01), 'today' or 'entry' (each " +
+        "person's own employment entry date) — do not assume or invent a date yourself — then call again with that validFrom.";
 
     /// <summary>
     /// Suffix for a read-only preview message when no start date was supplied yet, so the model collects
     /// it in the same confirmation turn instead of after the user has already said "yes".
     /// </summary>
     public const string AskForStartDateInPreview =
-        " Also ask the user from which date the membership should start (for example 2026-05-01 or " +
-        "'today') and pass it as validFrom when applying — do not invent a date.";
+        " Also ask the user from which date the membership should start (for example 2026-05-01, 'today' or " +
+        "'entry' for each person's own employment entry date) and pass it as validFrom when applying — do not invent a date.";
 }

@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.DTOs.Groups;
+
 namespace Klacks.Api.Application.DTOs.Grouping;
 
 public sealed record GroupingApplyResult(
@@ -8,4 +10,5 @@ public sealed record GroupingApplyResult(
     int AddedShifts,
     int AddedClients,
     int RemovedClients,
-    int AlreadyInPlace);
+    int AlreadyInPlace,
+    GroupMembershipStartInfo? MembershipStart = null);

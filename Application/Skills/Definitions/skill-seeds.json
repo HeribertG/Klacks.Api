@@ -693,8 +693,8 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the membership (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save the membership without it; if it is missing it asks the user for the start date.",
-          "type": "Date",
+          "description": "Start date of the membership (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start the person on their own employment entry date). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "type": "String",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -778,7 +778,7 @@
         "fr": "Affecter une personne à un groupe",
         "it": "Assegna una persona a un gruppo"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "add_shift_to_group",
@@ -981,8 +981,8 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the membership (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save the membership without it; if it is missing it asks the user for the start date.",
-          "type": "Date",
+          "description": "Start date of the membership (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start the person on their own employment entry date). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "type": "String",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -1047,7 +1047,7 @@
         "fr": "Affecter une personne au groupe le plus proche",
         "it": "Assegna una persona al gruppo più vicino"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "list_calendars",
@@ -19894,8 +19894,8 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the membership (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save the membership without it; if it is missing it asks the user for the start date.",
-          "type": "Date",
+          "description": "Start date of the membership (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start the person on their own employment entry date). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "type": "String",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -19949,7 +19949,7 @@
         "fr": "Affecter une personne à un groupe par nom",
         "it": "Assegna una persona a un gruppo per nome"
       },
-      "version": 12
+      "version": 13
     },
     {
       "name": "add_selected_clients_to_group",
@@ -19972,8 +19972,8 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
-          "type": "Date",
+          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "type": "String",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -20032,7 +20032,7 @@
         "fr": "Affecter les personnes sélectionnées à un groupe",
         "it": "Assegna le persone selezionate a un gruppo"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "fill_group_by_criteria",
@@ -20124,8 +20124,8 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
-          "type": "Date",
+          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "type": "String",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -20176,7 +20176,7 @@
         "fr": "Remplir un groupe par critères",
         "it": "Riempi un gruppo per criteri"
       },
-      "version": 11
+      "version": 12
     },
     {
       "name": "evaluate_grouping_by_qualification",
@@ -20274,8 +20274,8 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
-          "type": "Date",
+          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "type": "String",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -20327,7 +20327,7 @@
         "fr": "Affecter les employés sans groupe par nom de ville",
         "it": "Assegna i dipendenti senza gruppo per nome città"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "partition_clients_by_address",
@@ -20403,8 +20403,8 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new memberships (format YYYY-MM-DD, or 'today'); defaults to today when this is left out.",
-          "type": "Date",
+          "description": "Start date of the new memberships (format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date); defaults to today when this is left out. The preview states the consequence for persons who joined earlier, so pass the date or 'entry' the user chose.",
+          "type": "String",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -20485,7 +20485,7 @@
         "fr": "Construire une arborescence de groupes à partir des adresses",
         "it": "Costruisci un albero di gruppi di sede dagli indirizzi"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "partition_clients_by_qualification",
@@ -20539,8 +20539,8 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new memberships (format YYYY-MM-DD, or 'today'); defaults to today when this is left out.",
-          "type": "Date",
+          "description": "Start date of the new memberships (format YYYY-MM-DD, 'today', or 'entry' to start each person on their own employment entry date); defaults to today when this is left out. The preview states the consequence for persons who joined earlier, so pass the date or 'entry' the user chose.",
+          "type": "String",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -20600,7 +20600,7 @@
         "fr": "Créer des groupes par qualification",
         "it": "Creare gruppi per qualifica"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "assign_orders_to_groups",
@@ -21602,8 +21602,8 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new group memberships in ISO format YYYY-MM-DD. Omit it to use the company's current date — that is the normal case, and also what to do when the user says 'heute'/'today'/'sofort'. Pass it only when the user explicitly named a date (including a date in the past, which is allowed). Never invent a date and never ask for one.",
-          "type": "Date",
+          "description": "Start date of the new group memberships in ISO format YYYY-MM-DD, or 'entry' to start each person on their own employment entry date. Omit it to use the company's current date. Pass a date only when the user explicitly named one (including a date in the past, which is allowed) and 'entry' only when the user chose it. Never invent a date.",
+          "type": "String",
           "required": false,
           "defaultValue": null
         }
@@ -21631,7 +21631,7 @@
         "fr": "Appliquer et enregistrer le groupement par localisation",
         "it": "Applica e salva il raggruppamento per sede"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_macro",
@@ -46157,6 +46157,134 @@
       "version": 1
     },
     {
+      "name": "diagnose_planning_period",
+      "area": "schedule",
+      "description": "Explains why one employee cannot be planned on a day or a short range when no shift is named: whether the day lies outside the employment period (shown dark in the schedule), outside the period of one of the employee's group memberships (shown blue and locked) or on a sealed day, with the dates and the step that lifts it. Reads only and changes nothing.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSchedule"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the employee; leave empty and give firstName and lastName instead",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "First name of the employee whose planning days are checked",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the employee whose planning days are checked",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Client number to tell apart several employees with the same name",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "The day to check in ISO yyyy-MM-dd, or the first day of a range",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last day of a range of at most 31 days in ISO yyyy-MM-dd; leave empty to check only the date",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Name of the group whose schedule is meant; leave empty to check every group of the employee",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "nicht verplanbar",
+          "tag ist blau",
+          "tag ist dunkel",
+          "planungszeitraum prüfen"
+        ],
+        "en": [
+          "not plannable",
+          "day is blue",
+          "day is dark",
+          "planning period check"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "warum ist dieser tag für die person blau",
+          "warum ist der tag dunkel eingefärbt",
+          "warum lässt sich die person an diesem datum nicht verplanen",
+          "warum ist der tag gesperrt und nicht planbar",
+          "gilt die gruppenzugehörigkeit an diesem tag noch",
+          "ist die person an diesem tag angestellt"
+        ],
+        "en": [
+          "why is this day blue for the person",
+          "why is the day shown dark",
+          "why can't the person be scheduled on this date",
+          "why is the day locked and not plannable",
+          "is the group membership still valid on this day",
+          "is the person employed on this day"
+        ],
+        "fr": [
+          "pourquoi ce jour est-il bleu pour la personne",
+          "pourquoi le jour est-il affiché en sombre",
+          "pourquoi la personne ne peut-elle pas être planifiée à cette date",
+          "pourquoi le jour est-il verrouillé et non planifiable",
+          "l'appartenance au groupe est-elle encore valable ce jour-là",
+          "la personne est-elle employée ce jour-là"
+        ],
+        "it": [
+          "perché questo giorno è blu per la persona",
+          "perché il giorno è mostrato in scuro",
+          "perché la persona non può essere pianificata a questa data",
+          "perché il giorno è bloccato e non pianificabile",
+          "l'appartenenza al gruppo è ancora valida in questo giorno",
+          "la persona è impiegata in questo giorno"
+        ]
+      },
+      "labels": {
+        "de": "Planbarkeit eines Tages prüfen",
+        "en": "Check why a day is not plannable",
+        "fr": "Vérifier pourquoi un jour n'est pas planifiable",
+        "it": "Verifica perché un giorno non è pianificabile"
+      },
+      "version": 1
+    },
+    {
       "name": "explain_why_not_visible",
       "area": "client",
       "description": "Explains why a person or a shift is missing from a list or from the schedule. Covers the group chosen at the top of the app, the root groups a user may see, the validity filter (active, former, future), entry and exit dates, the employee and external checkboxes, an active search text, deleted persons behind the admin-only \"deleted addresses\" filter, ungrouped shifts, deleted groups, customers never appearing as schedule rows, and scenario copies of shifts.",
@@ -47359,8 +47487,8 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of the new group memberships (format YYYY-MM-DD, or 'today'). Optional: when omitted, the start of the checked period (the plan's From date, company today by default) is used and stated in the result. Never invent a different date.",
-          "type": "Date",
+          "description": "Start date of the new group memberships (format YYYY-MM-DD, 'today', or 'entry' for each person's own employment entry date). Optional: when omitted, the start of the checked period (the plan's From date, company today by default) is used and stated in the result. Never invent a different date.",
+          "type": "String",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -47442,7 +47570,7 @@
         "fr": "Appliquer le plan de groupes",
         "it": "Applicare il piano dei gruppi"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_contract_setup",

@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -26,7 +27,8 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// <param name="groupItemRepository">Reads existing memberships and adds new ones.</param>
 /// <param name="unitOfWork">Commits the new memberships in a single save.</param>
 /// <param name="companyClock">Supplies the company-local date used both as the qualification validity
-/// reference date and as the default ValidFrom when none is given.</param>
+/// reference date.</param>
+/// <param name="startPlanner">Plans the start date of every new membership (one common date, or each person's employment entry) and describes it for the result.</param>
 public sealed class FillGroupByCriteriaCommandHandler
     : IRequestHandler<FillGroupByCriteriaCommand, FillGroupByCriteriaResult>
 {
@@ -38,14 +40,17 @@ public sealed class FillGroupByCriteriaCommandHandler
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IGroupMembershipStartPlanner _startPlanner;
 
     public FillGroupByCriteriaCommandHandler(
         IClientSearchRepository searchRepository,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
         ICompanyClock companyClock,
-        IGroupVisibilityGuard groupVisibilityGuard)
+        IGroupVisibilityGuard groupVisibilityGuard,
+        IGroupMembershipStartPlanner startPlanner)
     {
+        _startPlanner = startPlanner;
         _searchRepository = searchRepository;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
@@ -77,6 +82,35 @@ public sealed class FillGroupByCriteriaCommandHandler
             cancellationToken: cancellationToken);
 
         var matched = search.Items;
+        var matchedClientIds = matched.Select(c => c.Id).Distinct().ToList();
+        var startPlan = await _startPlanner.PlanAsync(
+            matchedClientIds, request.ValidFrom, request.StartMode, companyToday, cancellationToken);
+
+        var now = DateTime.UtcNow;
+        var existingMembers = new List<ExistingMembershipStart>();
+        var newItems = new List<GroupItem>();
+
+        foreach (var client in matched)
+        {
+            var existing = await _groupItemRepository.GetByClientAndGroup(client.Id, request.GroupId);
+            if (existing != null && !existing.IsDeleted)
+            {
+                existingMembers.Add(new ExistingMembershipStart(client.Id, existing.ValidFrom));
+                continue;
+            }
+
+            newItems.Add(new GroupItem
+            {
+                Id = Guid.NewGuid(),
+                ClientId = client.Id,
+                GroupId = request.GroupId,
+                ValidFrom = startPlan.StartFor(client.Id),
+                CreateTime = now,
+                CurrentUserCreated = request.UserName
+            });
+        }
+
+        var membershipStart = startPlan.Describe(newItems.Select(i => i.ClientId!.Value), existingMembers);
 
         if (!request.Apply)
         {
@@ -86,33 +120,9 @@ public sealed class FillGroupByCriteriaCommandHandler
                 TotalMatchCount: search.TotalCount,
                 AddedCount: 0,
                 VerifiedCount: 0,
-                AlreadyMemberCount: 0,
-                Clients: matched);
-        }
-
-        var alreadyMember = 0;
-        var now = DateTime.UtcNow;
-        var validFrom = request.ValidFrom ?? companyToday;
-        var newItems = new List<GroupItem>();
-
-        foreach (var client in matched)
-        {
-            var existing = await _groupItemRepository.GetByClientAndGroup(client.Id, request.GroupId);
-            if (existing != null && !existing.IsDeleted)
-            {
-                alreadyMember++;
-                continue;
-            }
-
-            newItems.Add(new GroupItem
-            {
-                Id = Guid.NewGuid(),
-                ClientId = client.Id,
-                GroupId = request.GroupId,
-                ValidFrom = validFrom,
-                CreateTime = now,
-                CurrentUserCreated = request.UserName
-            });
+                AlreadyMemberCount: existingMembers.Count,
+                Clients: matched,
+                MembershipStart: membershipStart);
         }
 
         var verified = 0;
@@ -147,7 +157,8 @@ public sealed class FillGroupByCriteriaCommandHandler
             TotalMatchCount: search.TotalCount,
             AddedCount: newItems.Count,
             VerifiedCount: verified,
-            AlreadyMemberCount: alreadyMember,
-            Clients: matched);
+            AlreadyMemberCount: existingMembers.Count,
+            Clients: matched,
+            MembershipStart: membershipStart);
     }
 }

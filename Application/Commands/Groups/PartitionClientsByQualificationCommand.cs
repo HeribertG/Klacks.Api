@@ -16,9 +16,10 @@ namespace Klacks.Api.Application.Commands.Groups;
 /// <param name="ScopeGroupName">Display name of ScopeGroupId; null when ScopeGroupId is null.</param>
 /// <param name="MinMembers">Minimum number of holders a qualification needs to get a group; values below MinimumMinMembers count as MinimumMinMembers (EffectiveMinMembers).</param>
 /// <param name="IncludeAlreadyGrouped">When false, clients with a current membership outside the scope subtree (without a scope: any membership) are skipped.</param>
-/// <param name="ValidFrom">Start date of the new memberships and groups; null defaults to today.</param>
+/// <param name="ValidFrom">Start date of the new memberships and groups; null defaults to today. Ignored when StartMode is EntryDate.</param>
 /// <param name="Apply">False for a dry-run preview, true to create the groups and persist the memberships.</param>
 /// <param name="UserName">Name of the acting user, stored on the created groups and memberships.</param>
+/// <param name="StartMode">Fixed starts every membership on ValidFrom; EntryDate starts each person's membership on their own employment entry date.</param>
 public record PartitionClientsByQualificationCommand(
     IReadOnlyList<EntityTypeEnum> EntityTypes,
     Guid? ScopeGroupId,
@@ -27,7 +28,8 @@ public record PartitionClientsByQualificationCommand(
     bool IncludeAlreadyGrouped,
     DateTime? ValidFrom,
     bool Apply,
-    string UserName) : IRequest<PartitionClientsByQualificationResult>
+    string UserName,
+    GroupMembershipStartMode StartMode = GroupMembershipStartMode.Fixed) : IRequest<PartitionClientsByQualificationResult>
 {
     public const int MinimumMinMembers = 1;
 

@@ -3,10 +3,10 @@
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
-using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
@@ -26,7 +26,7 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// <param name="clientVisibilityGuard">Drops the selected clients the caller cannot see.</param>
 /// <param name="groupItemRepository">Reads existing memberships and adds new ones.</param>
 /// <param name="unitOfWork">Commits the new memberships in a single verified transaction.</param>
-/// <param name="companyClock">Supplies the company-local date used when no explicit ValidFrom is given.</param>
+/// <param name="startPlanner">Plans the start date of every new membership (one common date, or each person's employment entry) and describes it for the result.</param>
 public sealed class AddSelectedClientsToGroupCommandHandler
     : IRequestHandler<AddSelectedClientsToGroupCommand, AddSelectedClientsToGroupResult>
 {
@@ -35,22 +35,22 @@ public sealed class AddSelectedClientsToGroupCommandHandler
     private readonly IClientRepository _clientRepository;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ICompanyClock _companyClock;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IGroupMembershipStartPlanner _startPlanner;
 
     public AddSelectedClientsToGroupCommandHandler(
         IClientRepository clientRepository,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
-        ICompanyClock companyClock,
         IGroupVisibilityGuard groupVisibilityGuard,
-        IClientVisibilityGuard clientVisibilityGuard)
+        IClientVisibilityGuard clientVisibilityGuard,
+        IGroupMembershipStartPlanner startPlanner)
     {
+        _startPlanner = startPlanner;
         _clientRepository = clientRepository;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
-        _companyClock = companyClock;
         _groupVisibilityGuard = groupVisibilityGuard;
         _clientVisibilityGuard = clientVisibilityGuard;
     }
@@ -68,13 +68,13 @@ public sealed class AddSelectedClientsToGroupCommandHandler
         var clients = await _clientVisibilityGuard.FilterVisibleAsync(loadedClients, c => c.Id, cancellationToken);
 
         var eligible = new List<Client>();
-        var alreadyMember = 0;
+        var existingMembers = new List<ExistingMembershipStart>();
         foreach (var client in clients)
         {
             var existing = await _groupItemRepository.GetByClientAndGroup(client.Id, request.GroupId);
             if (existing != null && !existing.IsDeleted)
             {
-                alreadyMember++;
+                existingMembers.Add(new ExistingMembershipStart(client.Id, existing.ValidFrom));
                 continue;
             }
 
@@ -83,6 +83,11 @@ public sealed class AddSelectedClientsToGroupCommandHandler
 
         var eligibleItems = eligible.Select(ToSearchItem).ToList();
         var notFound = requestedCount - clients.Count;
+        var eligibleClientIds = eligible.Select(c => c.Id).ToList();
+        var startPlan = await _startPlanner.PlanAsync(
+            clients.Select(c => c.Id).ToList(), request.ValidFrom, request.StartMode, defaultStart: null, cancellationToken);
+        var membershipStart = startPlan.Describe(eligibleClientIds, existingMembers);
+        var alreadyMember = existingMembers.Count;
 
         if (!request.Apply)
         {
@@ -96,17 +101,17 @@ public sealed class AddSelectedClientsToGroupCommandHandler
                 AddedCount: 0,
                 VerifiedCount: 0,
                 AlreadyMemberCount: alreadyMember,
-                Clients: eligibleItems);
+                Clients: eligibleItems,
+                MembershipStart: membershipStart);
         }
 
         var now = DateTime.UtcNow;
-        var validFrom = request.ValidFrom ?? await _companyClock.GetTodayAsync(cancellationToken);
         var newItems = eligible.Select(c => new GroupItem
         {
             Id = Guid.NewGuid(),
             ClientId = c.Id,
             GroupId = request.GroupId,
-            ValidFrom = validFrom,
+            ValidFrom = startPlan.StartFor(c.Id),
             CreateTime = now,
             CurrentUserCreated = request.UserName
         }).ToList();
@@ -147,7 +152,8 @@ public sealed class AddSelectedClientsToGroupCommandHandler
             AddedCount: newItems.Count,
             VerifiedCount: verified,
             AlreadyMemberCount: alreadyMember,
-            Clients: eligibleItems);
+            Clients: eligibleItems,
+            MembershipStart: membershipStart);
     }
 
     private static ClientSearchItem ToSearchItem(Client client) => new()

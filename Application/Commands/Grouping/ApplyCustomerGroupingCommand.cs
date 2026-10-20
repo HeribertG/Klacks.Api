@@ -8,7 +8,9 @@
 /// <param name="EntityType">Which client population to move into its location group.</param>
 /// <param name="ValidFrom">Start date of the new memberships, as UTC midnight. Null means the company's
 /// current date — the caller must not substitute today itself, because the resolved date is reported
-/// back and a silently replaced date would be indistinguishable from an honoured one.</param>
+/// back and a silently replaced date would be indistinguishable from an honoured one. Ignored when
+/// StartMode is EntryDate.</param>
+/// <param name="StartMode">Fixed starts every membership on ValidFrom; EntryDate starts each person's membership on their own employment entry date.</param>
 
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Enums;
@@ -18,5 +20,6 @@ namespace Klacks.Api.Application.Commands.Grouping;
 
 public record ApplyCustomerGroupingCommand(
     EntityTypeEnum EntityType = EntityTypeEnum.Customer,
-    DateTime? ValidFrom = null)
+    DateTime? ValidFrom = null,
+    GroupMembershipStartMode StartMode = GroupMembershipStartMode.Fixed)
     : IRequest<CustomerGroupingApplyResult>;

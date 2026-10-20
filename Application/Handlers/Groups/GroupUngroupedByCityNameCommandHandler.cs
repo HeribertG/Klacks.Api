@@ -4,11 +4,11 @@ using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
-using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -29,8 +29,8 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// <param name="groupRepository">Provides the groups whose names are matched against address cities.</param>
 /// <param name="groupItemRepository">Reads existing memberships and adds new ones.</param>
 /// <param name="unitOfWork">Commits and verifies the new memberships in a single transaction.</param>
-/// <param name="companyClock">Supplies the company-local date used when no explicit ValidFrom is given.</param>
 /// <param name="groupVisibilityGuard">Tells whether the caller is free of group-visibility restrictions.</param>
+/// <param name="startPlanner">Plans the start date of every new membership (one common date, or each person's employment entry) and describes it for the result.</param>
 public sealed class GroupUngroupedByCityNameCommandHandler
     : IRequestHandler<GroupUngroupedByCityNameCommand, GroupUngroupedByCityNameResult>
 {
@@ -41,23 +41,23 @@ public sealed class GroupUngroupedByCityNameCommandHandler
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ICompanyClock _companyClock;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IGroupMembershipStartPlanner _startPlanner;
 
     public GroupUngroupedByCityNameCommandHandler(
         IClientRepository clientRepository,
         IGroupRepository groupRepository,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
-        ICompanyClock companyClock,
-        IGroupVisibilityGuard groupVisibilityGuard)
+        IGroupVisibilityGuard groupVisibilityGuard,
+        IGroupMembershipStartPlanner startPlanner)
     {
+        _startPlanner = startPlanner;
         _groupVisibilityGuard = groupVisibilityGuard;
         _clientRepository = clientRepository;
         _groupRepository = groupRepository;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
-        _companyClock = companyClock;
     }
 
     public async Task<GroupUngroupedByCityNameResult> Handle(
@@ -122,6 +122,35 @@ public sealed class GroupUngroupedByCityNameCommandHandler
             .ThenBy(u => u.City, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
+        var now = DateTime.UtcNow;
+        var assignedClientIds = assignments.Select(a => a.ClientId).Distinct().ToList();
+        var startPlan = await _startPlanner.PlanAsync(
+            assignedClientIds, request.ValidFrom, request.StartMode, defaultStart: null, cancellationToken);
+        var existingMembers = new List<ExistingMembershipStart>();
+        var newItems = new List<GroupItem>();
+
+        foreach (var assignment in assignments)
+        {
+            var existing = await _groupItemRepository.GetByClientAndGroup(assignment.ClientId, assignment.GroupId);
+            if (existing != null && !existing.IsDeleted)
+            {
+                existingMembers.Add(new ExistingMembershipStart(assignment.ClientId, existing.ValidFrom));
+                continue;
+            }
+
+            newItems.Add(new GroupItem
+            {
+                Id = Guid.NewGuid(),
+                ClientId = assignment.ClientId,
+                GroupId = assignment.GroupId,
+                ValidFrom = startPlan.StartFor(assignment.ClientId),
+                CreateTime = now,
+                CurrentUserCreated = request.UserName
+            });
+        }
+
+        var membershipStart = startPlan.Describe(newItems.Select(i => i.ClientId!.Value), existingMembers);
+
         if (!request.Apply)
         {
             return new GroupUngroupedByCityNameResult(
@@ -132,30 +161,8 @@ public sealed class GroupUngroupedByCityNameCommandHandler
                 VerifiedCount: 0,
                 NoAddressCount: noAddress,
                 Assignments: assignments,
-                UnmatchedCities: unmatchedCities);
-        }
-
-        var now = DateTime.UtcNow;
-        var validFrom = request.ValidFrom ?? await _companyClock.GetTodayAsync(cancellationToken);
-        var newItems = new List<GroupItem>();
-
-        foreach (var assignment in assignments)
-        {
-            var existing = await _groupItemRepository.GetByClientAndGroup(assignment.ClientId, assignment.GroupId);
-            if (existing != null && !existing.IsDeleted)
-            {
-                continue;
-            }
-
-            newItems.Add(new GroupItem
-            {
-                Id = Guid.NewGuid(),
-                ClientId = assignment.ClientId,
-                GroupId = assignment.GroupId,
-                ValidFrom = validFrom,
-                CreateTime = now,
-                CurrentUserCreated = request.UserName
-            });
+                UnmatchedCities: unmatchedCities,
+                MembershipStart: membershipStart);
         }
 
         var verified = 0;
@@ -192,6 +199,7 @@ public sealed class GroupUngroupedByCityNameCommandHandler
             VerifiedCount: verified,
             NoAddressCount: noAddress,
             Assignments: assignments,
-            UnmatchedCities: unmatchedCities);
+            UnmatchedCities: unmatchedCities,
+            MembershipStart: membershipStart);
     }
 }

@@ -12,7 +12,9 @@
 /// <param name="clientId">UUID of the client (customer or external employee) to place.</param>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -41,6 +43,7 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
     private readonly IKlacksSelfApiClient _selfApi;
     private readonly ISelfApiRouteResolver _routes;
     private readonly ICompanyClock _companyClock;
+    private readonly IGroupMembershipStartPlanner _startPlanner;
 
     public AddClientToNearestGroupSkill(
         IClientRepository clientRepository,
@@ -50,8 +53,10 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
         IGroupItemRepository groupItemRepository,
         IKlacksSelfApiClient selfApi,
         ISelfApiRouteResolver routes,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IGroupMembershipStartPlanner startPlanner)
     {
+        _startPlanner = startPlanner;
         _clientRepository = clientRepository;
         _clientVisibilityGuard = clientVisibilityGuard;
         _groupRepository = groupRepository;
@@ -75,7 +80,7 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
 
         var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
+        var (givenStart, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(
             validFromStr, today, context.UserLanguage);
         if (invalidDate)
         {
@@ -142,19 +147,23 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
                 $"Client is already in the nearest group '{targetGroup.Name}'. Nothing was changed.");
         }
 
-        if (validFrom is null)
+        if (givenStart is null && startMode == GroupMembershipStartMode.Fixed)
         {
             return SkillResult.Error(
                 SkillDateParser.MissingStartDateMessage(
                     $"add this client to the nearest group '{targetGroup.Name}'"));
         }
 
+        var startPlan = await _startPlanner.PlanAsync(
+            [clientId], givenStart, startMode, defaultStart: null, cancellationToken);
+        var startInfo = startPlan.Describe([clientId]);
+
         var groupItem = new GroupItem
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
             GroupId = targetGroup.Id,
-            ValidFrom = validFrom.Value,
+            ValidFrom = startPlan.StartFor(clientId),
             CreateTime = DateTime.UtcNow,
             CurrentUserCreated = context.UserName
         };
@@ -183,8 +192,10 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
                 GroupId = targetGroup.Id,
                 GroupName = targetGroup.Name,
                 DistanceKm = Math.Round(nearest.DistanceKm, 2),
-                Added = true
+                Added = true,
+                MembershipStart = startInfo
             },
-            $"Client added to the nearest group '{targetGroup.Name}' ({Math.Round(nearest.DistanceKm, 2)} km air-line).");
+            $"Client added to the nearest group '{targetGroup.Name}' ({Math.Round(nearest.DistanceKm, 2)} km air-line). " +
+            GroupMembershipStartHint.ForSingle(startInfo));
     }
 }

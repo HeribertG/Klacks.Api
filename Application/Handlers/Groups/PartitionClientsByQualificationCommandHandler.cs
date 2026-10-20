@@ -5,6 +5,7 @@ using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Application.Services.Grouping;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
@@ -39,11 +40,12 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// <param name="groupRepository">Provides the existing groups and creates the missing ones (nested-set aware).</param>
 /// <param name="groupItemRepository">Adds the new memberships and counts them for verification.</param>
 /// <param name="unitOfWork">Commits and verifies the new memberships in a single transaction.</param>
-/// <param name="companyClock">Supplies the company-local date for validity and the default ValidFrom.</param>
+/// <param name="companyClock">Supplies the company-local date for the validity of qualifications.</param>
 /// <param name="languageResolver">Supplies the installation language for the group names.</param>
 /// <param name="groupVisibilityRepository">Counts the non-admin users with explicit visibility on a reused qualifications root.</param>
 /// <param name="visibilityPreservation">Counts the users that keep access to everything when this run introduces the first group.</param>
 /// <param name="groupVisibilityGuard">Tells whether the caller is free of group-visibility restrictions.</param>
+/// <param name="startPlanner">Plans the start date of every new membership (one common date, or each person's employment entry) and describes it for the result.</param>
 public sealed class PartitionClientsByQualificationCommandHandler
     : IRequestHandler<PartitionClientsByQualificationCommand, PartitionClientsByQualificationResult>
 {
@@ -65,6 +67,7 @@ public sealed class PartitionClientsByQualificationCommandHandler
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
     private readonly IGroupVisibilityPreservationService _visibilityPreservation;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IGroupMembershipStartPlanner _startPlanner;
 
     public PartitionClientsByQualificationCommandHandler(
         IClientRepository clientRepository,
@@ -76,8 +79,10 @@ public sealed class PartitionClientsByQualificationCommandHandler
         IInstallationLanguageResolver languageResolver,
         IGroupVisibilityRepository groupVisibilityRepository,
         IGroupVisibilityPreservationService visibilityPreservation,
-        IGroupVisibilityGuard groupVisibilityGuard)
+        IGroupVisibilityGuard groupVisibilityGuard,
+        IGroupMembershipStartPlanner startPlanner)
     {
+        _startPlanner = startPlanner;
         _clientRepository = clientRepository;
         _qualificationRepository = qualificationRepository;
         _groupRepository = groupRepository;
@@ -125,14 +130,20 @@ public sealed class PartitionClientsByQualificationCommandHandler
         var plannedNew = plan.Groups.Sum(g => g.NewMemberClientIds.Count);
         var plannedAlready = plan.Groups.Sum(g => g.MemberClientIds.Count - g.NewMemberClientIds.Count);
 
+        var plannedClientIds = plan.Groups.SelectMany(g => g.NewMemberClientIds).Distinct().ToList();
+        var allMemberIds = plan.Groups.SelectMany(g => g.MemberClientIds).Distinct().ToList();
+        var existingMembers = ExistingMembers(clients, plan);
+        var startPlan = await _startPlanner.PlanAsync(
+            allMemberIds, request.ValidFrom, request.StartMode, todayDate, cancellationToken);
+
         if (!request.Apply)
         {
             return BuildResult(
                 request, plan, parent, applied: false, groupIds: null, assignedCount: plannedNew, verifiedCount: 0,
-                alreadyMemberCount: plannedAlready, usersKeepingFullVisibility, widening);
+                alreadyMemberCount: plannedAlready, usersKeepingFullVisibility, widening,
+                startPlan.Describe(plannedClientIds, existingMembers));
         }
 
-        var validFrom = request.ValidFrom ?? todayDate;
         var now = DateTime.UtcNow;
 
         var outcome = await _unitOfWork.ExecuteInTransactionAsync(async () =>
@@ -140,7 +151,7 @@ public sealed class PartitionClientsByQualificationCommandHandler
             var parentId = parent.Id;
             if (parentId is null)
             {
-                var root = NewGroup(parent.Name, null, validFrom, now, request.UserName);
+                var root = NewGroup(parent.Name, null, startPlan.GroupStart(allMemberIds), now, request.UserName);
                 await _groupRepository.Add(root);
                 parentId = root.Id;
             }
@@ -154,7 +165,7 @@ public sealed class PartitionClientsByQualificationCommandHandler
                     continue;
                 }
 
-                var group = NewGroup(planned.Name, parentId, validFrom, now, request.UserName);
+                var group = NewGroup(planned.Name, parentId, startPlan.GroupStart(planned.MemberClientIds), now, request.UserName);
                 await _groupRepository.Add(group);
                 groupIds[planned.Name] = group.Id;
             }
@@ -165,7 +176,7 @@ public sealed class PartitionClientsByQualificationCommandHandler
                     Id = Guid.NewGuid(),
                     ClientId = clientId,
                     GroupId = groupIds[planned.Name],
-                    ValidFrom = validFrom,
+                    ValidFrom = startPlan.StartFor(clientId),
                     CreateTime = now,
                     CurrentUserCreated = request.UserName
                 }))
@@ -195,7 +206,29 @@ public sealed class PartitionClientsByQualificationCommandHandler
         return BuildResult(
             request, plan, parent with { Id = outcome.ParentGroupId }, applied: true, outcome.GroupIds,
             assignedCount: plannedNew, verifiedCount: outcome.VerifiedCount, alreadyMemberCount: plannedAlready,
-            usersKeepingFullVisibility, widening);
+            usersKeepingFullVisibility, widening, startPlan.Describe(plannedClientIds, existingMembers));
+    }
+
+    private static List<ExistingMembershipStart> ExistingMembers(IReadOnlyList<Client> clients, QualificationGroupPlan plan)
+    {
+        var clientsById = clients.GroupBy(c => c.Id).ToDictionary(g => g.Key, g => g.First());
+        var existing = new List<ExistingMembershipStart>();
+
+        foreach (var planned in plan.Groups.Where(g => g.Existed))
+        {
+            var newIds = planned.NewMemberClientIds.ToHashSet();
+            foreach (var clientId in planned.MemberClientIds.Where(id => !newIds.Contains(id)))
+            {
+                var held = clientsById[clientId].GroupItems
+                    .FirstOrDefault(gi => !gi.IsDeleted && gi.AnalyseToken == null && gi.GroupId == planned.ExistingGroupId);
+                if (held is not null)
+                {
+                    existing.Add(new ExistingMembershipStart(clientId, held.ValidFrom));
+                }
+            }
+        }
+
+        return existing;
     }
 
     private async Task<VisibilityWidening> ResolveVisibilityWideningAsync(
@@ -313,7 +346,8 @@ public sealed class PartitionClientsByQualificationCommandHandler
         int verifiedCount,
         int alreadyMemberCount,
         int usersKeepingFullVisibilityCount,
-        VisibilityWidening widening) =>
+        VisibilityWidening widening,
+        GroupMembershipStartInfo membershipStart) =>
         new(
             Applied: applied,
             EntityType: request.EntityTypes.Distinct().Count() == 1
@@ -343,7 +377,8 @@ public sealed class PartitionClientsByQualificationCommandHandler
             Warnings: plan.Warnings,
             UsersKeepingFullVisibilityCount: usersKeepingFullVisibilityCount,
             RestrictedUsersSeeingRootCount: widening.RestrictedUsers,
-            ClientsNewlyVisibleToThemCount: widening.NewlyVisibleClients);
+            ClientsNewlyVisibleToThemCount: widening.NewlyVisibleClients,
+            MembershipStart: membershipStart);
 
     private sealed record ParentResolution(Guid? Id, string Name, bool Existed);
 

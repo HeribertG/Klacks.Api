@@ -129,6 +129,7 @@
   "delete_workchange": "配置変更を削除",
   "detect_conflicts": "シフトの競合を検出",
   "diagnose_holiday_outcome": "祝日時間割増と祝日勤務警告の説明",
+  "diagnose_planning_period": "日が計画できない理由を確認",
   "diagnose_work_booking": "勤務の割り当てを確認",
   "disable_feature_plugin": "機能モジュールを無効化",
   "dismiss_skill_relation": "提案されたスキルの関連付けを却下",

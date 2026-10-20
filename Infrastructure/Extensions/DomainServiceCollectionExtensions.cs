@@ -430,6 +430,8 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Application.Services.Grouping.GroupingFeasibilityAnalyzer>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupingPlanApplier,
                            Klacks.Api.Application.Services.Grouping.GroupingPlanApplier>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupMembershipStartPlanner,
+                           Klacks.Api.Application.Services.Grouping.GroupMembershipStartPlanner>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupingFeasibilityNotifier,
                            Klacks.Api.Application.Services.Grouping.GroupingFeasibilityNotifier>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.Recovery.IRecoverySnapshotBuilder,

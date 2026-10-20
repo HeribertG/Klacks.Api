@@ -129,6 +129,7 @@
   "delete_workchange": "Ta bort en passändring",
   "detect_conflicts": "Upptäck schemakonflikter",
   "diagnose_holiday_outcome": "Förklara helgdagstillägg och helgdagsvarning",
+  "diagnose_planning_period": "Kontrollera varför en dag inte kan planeras",
   "diagnose_work_booking": "Kontrollera en passbokning",
   "disable_feature_plugin": "Inaktivera en funktionsmodul",
   "dismiss_skill_relation": "Avvisa föreslagen kompetensrelation",

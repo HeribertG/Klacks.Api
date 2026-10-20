@@ -10,7 +10,7 @@
 /// confirmed.
 /// </summary>
 /// <param name="entityType">Which client population to apply the grouping to: Employee, ExternEmp, or Customer. Must match the entityType used in the preceding propose_grouping call.</param>
-/// <param name="validFrom">Optional start date of the new memberships as yyyy-MM-dd; omitted means the company's current date. An unparseable value is rejected rather than silently replaced by today, because a wrong membership start is invisible in the answer.</param>
+/// <param name="validFrom">Optional start date of the new memberships as yyyy-MM-dd or 'today', or 'entry' to start each person on their own employment entry date; omitted means the company's current date. An unparseable value is rejected rather than silently replaced by today, because a wrong membership start is invisible in the answer.</param>
 
 using System.Globalization;
 using Klacks.Api.Application.Commands.Grouping;
@@ -18,6 +18,7 @@ using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -33,11 +34,16 @@ public class ApplyGroupingSkill : BaseSkillImplementation
 
     private const string ValidFromFormat = "yyyy-MM-dd";
 
-    private readonly IMediator _mediator;
+    private const string UnstructuredStartTemplate =
+        "The new memberships start on {0} — state this date in the answer.";
 
-    public ApplyGroupingSkill(IMediator mediator)
+    private readonly IMediator _mediator;
+    private readonly ICompanyClock _companyClock;
+
+    public ApplyGroupingSkill(IMediator mediator, ICompanyClock companyClock)
     {
         _mediator = mediator;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -56,25 +62,18 @@ public class ApplyGroupingSkill : BaseSkillImplementation
         var noun = GroupingEntityNouns.Noun(entityType);
 
         var validFromValue = GetParameter<string>(parameters, ValidFromParameterName);
-        DateTime? validFrom = null;
-        if (!string.IsNullOrWhiteSpace(validFromValue))
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+        var (validFrom, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(validFromValue, today, context.UserLanguage);
+        if (invalidDate)
         {
-            if (!DateTime.TryParseExact(
-                    validFromValue, ValidFromFormat, CultureInfo.InvariantCulture,
-                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var parsedValidFrom))
-            {
-                return SkillResult.Error(
-                    $"Invalid {ValidFromParameterName} '{validFromValue}'. Expected format {ValidFromFormat}.");
-            }
-
-            validFrom = DateTime.SpecifyKind(parsedValidFrom, DateTimeKind.Utc);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor(ValidFromParameterName, validFromValue!));
         }
 
         CustomerGroupingApplyResult result;
         try
         {
             result = await _mediator.Send(
-                new ApplyCustomerGroupingCommand(entityType, validFrom), cancellationToken);
+                new ApplyCustomerGroupingCommand(entityType, validFrom, startMode), cancellationToken);
         }
         catch (SkillVerificationException ex)
         {
@@ -87,7 +86,11 @@ public class ApplyGroupingSkill : BaseSkillImplementation
             $"(confirmed {result.VerifiedCount} new memberships in the database, verified); " +
             $"{result.EndedMembershipCount} existing group membership(s) ended as part of these moves; " +
             $"{result.UnassignedCount} could not be assigned. " +
-            $"The new memberships start on {result.AppliedValidFrom.ToString(ValidFromFormat, CultureInfo.InvariantCulture)} — " +
-            $"state this date in the answer.");
+            (result.MembershipStart is null
+                ? string.Format(
+                    CultureInfo.InvariantCulture,
+                    UnstructuredStartTemplate,
+                    result.AppliedValidFrom.ToString(ValidFromFormat, CultureInfo.InvariantCulture))
+                : GroupMembershipStartHint.For(result.MembershipStart, applied: true)));
     }
 }

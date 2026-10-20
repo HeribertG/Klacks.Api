@@ -843,6 +843,11 @@
     "miksi telegram-viestejä ei tule perille",
     "toimiiko viestipalvelu"
   ],
+  "diagnose_planning_period": [
+    "miksi tämä päivä on henkilölle sininen",
+    "miksi päivä näkyy tummana",
+    "miksi henkilöä ei voi suunnitella tälle päivälle"
+  ],
   "diagnose_work_booking": [
     "miksi hän ei voi saada aamuvuoroa maanantaina",
     "tarkista voiko hän tehdä yövuoron sinä päivänä",

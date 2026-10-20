@@ -854,6 +854,11 @@
     "hvorfor kommer der ingen telegram-beskeder",
     "virker messengeren"
   ],
+  "diagnose_planning_period": [
+    "hvorfor er denne dag blå for personen",
+    "hvorfor vises dagen mørk",
+    "hvorfor kan personen ikke planlægges på denne dato"
+  ],
   "diagnose_work_booking": [
     "hvorfor kan hun ikke få morgenvagten på mandag",
     "tjek om han kan tage nattevagten den dag",

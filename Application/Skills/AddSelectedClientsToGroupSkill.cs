@@ -14,6 +14,7 @@ using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -52,8 +53,9 @@ public class AddSelectedClientsToGroupSkill : BaseSkillImplementation
 
         var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
+        var (validFrom, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(
             validFromStr, today, context.UserLanguage);
+        var startDateOpen = validFrom is null && startMode == GroupMembershipStartMode.Fixed;
         if (invalidDate)
         {
             return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
@@ -75,7 +77,7 @@ public class AddSelectedClientsToGroupSkill : BaseSkillImplementation
             return SkillResult.Error(groupError!);
         }
 
-        if (apply && validFrom is null)
+        if (apply && startDateOpen)
         {
             return SkillResult.Error(
                 SkillDateParser.MissingStartDateMessage(
@@ -87,7 +89,7 @@ public class AddSelectedClientsToGroupSkill : BaseSkillImplementation
         {
             result = await _mediator.Send(
                 new AddSelectedClientsToGroupCommand(
-                    group.Id, group.Name, selectedIds, validFrom, apply, context.UserName),
+                    group.Id, group.Name, selectedIds, validFrom, apply, context.UserName, startMode),
                 cancellationToken);
         }
         catch (SkillVerificationException ex)
@@ -121,11 +123,12 @@ public class AddSelectedClientsToGroupSkill : BaseSkillImplementation
             var alreadyPreviewNote = result.AlreadyMemberCount > 0
                 ? $" ({result.AlreadyMemberCount} already members)"
                 : string.Empty;
-            var validFromAsk = validFrom is null ? SkillDateParser.AskForStartDateInPreview : string.Empty;
+            var validFromAsk = startDateOpen ? SkillDateParser.AskForStartDateInPreview : string.Empty;
             return SkillResult.SuccessResult(
                 result,
                 $"Preview: {result.EligibleCount} selected client(s) would be added to group " +
-                $"'{result.GroupName}': {clientNames}{alreadyPreviewNote}{notFoundNote}. Nothing was changed " +
+                $"'{result.GroupName}': {clientNames}{alreadyPreviewNote}{notFoundNote}. " +
+                $"{GroupMembershipStartHint.For(result.MembershipStart, applied: false)} Nothing was changed " +
                 $"yet.{validFromAsk} Ask the user to confirm, then call THIS skill " +
                 "(add_selected_clients_to_group) again with apply=true and the same validFrom. The clients are " +
                 "already identified by the selection — do NOT look anyone up or add them individually by name " +
@@ -146,6 +149,7 @@ public class AddSelectedClientsToGroupSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(
             result,
             $"Added {result.AddedCount} selected client(s) to group '{result.GroupName}' and confirmed " +
-            $"{result.VerifiedCount} in the database (verified){alreadyNote}{notFoundNote}.");
+            $"{result.VerifiedCount} in the database (verified){alreadyNote}{notFoundNote}. " +
+            GroupMembershipStartHint.For(result.MembershipStart, applied: true));
     }
 }

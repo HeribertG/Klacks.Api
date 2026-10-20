@@ -129,6 +129,7 @@
   "delete_workchange": "删除排班变更",
   "detect_conflicts": "检测排班冲突",
   "diagnose_holiday_outcome": "解释节假日补贴和节假日工作警告",
+  "diagnose_planning_period": "检查某天为何无法排班",
   "diagnose_work_booking": "检查排班能否安排",
   "disable_feature_plugin": "停用功能模块",
   "dismiss_skill_relation": "拒绝建议的技能关联",

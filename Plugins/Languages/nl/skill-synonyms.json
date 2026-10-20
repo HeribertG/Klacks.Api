@@ -860,6 +860,11 @@
     "waarom komen er geen telegram-berichten binnen",
     "werkt de messenger"
   ],
+  "diagnose_planning_period": [
+    "waarom is deze dag blauw voor de persoon",
+    "waarom wordt de dag donker weergegeven",
+    "waarom kan de persoon op deze datum niet worden ingepland"
+  ],
   "diagnose_work_booking": [
     "waarom kan ze maandag de vroege dienst niet krijgen",
     "controleer of hij die dag de nachtdienst kan doen",

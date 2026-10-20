@@ -15,7 +15,7 @@
 /// <param name="subClusterSharePercent">At level 'cluster_municipality': minimum share (1-100, default 15) of a city cluster's addresses a place outside the centre city needs to become a municipality sub-cluster (it also needs at least three addresses).</param>
 /// <param name="rootGroupName">Optional name of an existing group every top-level node attaches under; when omitted, states nest under the regions the country's region map defines.</param>
 /// <param name="includeAlreadyGrouped">When false (default), clients that already hold an active group membership are left untouched.</param>
-/// <param name="validFrom">Start date of the new memberships (format YYYY-MM-DD, or 'today'); defaults to today when omitted.</param>
+/// <param name="validFrom">Start date of the new memberships (format YYYY-MM-DD, or 'today'; 'entry' starts each person on their own employment entry date); defaults to today when omitted.</param>
 /// <param name="apply">When false (default) only previews the plan; when true creates the groups and persists the memberships.</param>
 
 using Klacks.Api.Application.Commands.Groups;
@@ -149,7 +149,7 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
 
         var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
+        var (validFrom, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(
             validFromStr, today, context.UserLanguage);
         if (invalidDate)
         {
@@ -162,7 +162,7 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
             result = await _mediator.Send(
                 new PartitionClientsByAddressCommand(
                     level, entityTypes, rootGroupId, rootGroupName, includeAlreadyGrouped, validFrom, apply,
-                    context.UserName, clusterSharePercent, subClusterSharePercent),
+                    context.UserName, clusterSharePercent, subClusterSharePercent, startMode),
                 cancellationToken);
         }
         catch (SkillVerificationException ex)
@@ -200,8 +200,8 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
             $"Preview: {result.Groups.Count} group(s) planned at level '{result.Level}' ({newCount} new, " +
             $"{result.Groups.Count - newCount} reused): {groupNames}{moreGroups}. " +
             (isMunicipalityLevel ? $"{MunicipalityTreeDescription} {BuildPlaceAttachments(result)}" : string.Empty) +
-            $"{BuildDiagnostics(result)} {visibilityAdvisory} Nothing was changed yet. " +
-            "Ask the user to confirm, then call again with apply=true.");
+            $"{BuildDiagnostics(result)} {visibilityAdvisory} {GroupMembershipStartHint.For(result.MembershipStart, applied: false)} " +
+            "Nothing was changed yet. Ask the user to confirm, then call again with apply=true.");
     }
 
     private static SkillResult BuildAppliedResult(PartitionClientsByAddressResult result)
@@ -218,7 +218,7 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
             $"Partitioned {result.TotalClients} {result.EntityType} client(s) at level '{result.Level}' into " +
             $"{result.Groups.Count} group(s) ({newCount} new, {reusedCount} reused), added {result.AssignedCount} " +
             $"membership(s) and confirmed {result.VerifiedCount} in the database (verified){alreadyNote}. " +
-            $"{BuildDiagnostics(result)} {visibilityAdvisory}");
+            $"{BuildDiagnostics(result)} {visibilityAdvisory} {GroupMembershipStartHint.For(result.MembershipStart, applied: true)}");
     }
 
     private static string BuildPlaceAttachments(PartitionClientsByAddressResult result)

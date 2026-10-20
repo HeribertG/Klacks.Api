@@ -12,6 +12,7 @@
 /// <param name="entityType">Which client population to group: Employee, ExternEmp, or Customer.</param>
 
 using Klacks.Api.Application.DTOs.Grouping;
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Application.Queries.Grouping;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
@@ -29,10 +30,12 @@ public class ProposeGroupingSkill : BaseSkillImplementation
     private const string EntityTypeParameterName = "entityType";
 
     private readonly IMediator _mediator;
+    private readonly IGroupMembershipStartPlanner _startPlanner;
 
-    public ProposeGroupingSkill(IMediator mediator)
+    public ProposeGroupingSkill(IMediator mediator, IGroupMembershipStartPlanner startPlanner)
     {
         _mediator = mediator;
+        _startPlanner = startPlanner;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -93,6 +96,11 @@ public class ProposeGroupingSkill : BaseSkillImplementation
             })
             .ToList();
 
+        var plannedClientIds = proposal.Assignments.Select(a => a.ClientId).Distinct().ToList();
+        var startPlan = await _startPlanner.PlanAsync(
+            plannedClientIds, givenStart: null, GroupMembershipStartMode.Fixed, defaultStart: null, cancellationToken);
+        var membershipStart = startPlan.Describe(plannedClientIds);
+
         var data = new
         {
             EntityType = entityType.ToString(),
@@ -105,7 +113,8 @@ public class ProposeGroupingSkill : BaseSkillImplementation
             ByTargetGroup = byTargetGroup,
             ByMatchReason = byMatchReason,
             UnassignedByReason = unassignedByReason,
-            Sample = sample
+            Sample = sample,
+            MembershipStart = membershipStart
         };
 
         var message =
@@ -114,6 +123,7 @@ public class ProposeGroupingSkill : BaseSkillImplementation
             $"{proposal.Unassigned.Count} cannot be assigned. " +
             $"{membershipsToEnd} existing group membership(s) of {losingMembership} {noun}(s) " +
             "would end as part of these moves — the sample lists them per client under 'Ends'. " +
+            $"{GroupMembershipStartHint.For(membershipStart, applied: false)} " +
             "Nothing has been saved yet: show these numbers to the user and wait for confirmation.";
 
         return SkillResult.SuccessResult(data, message);

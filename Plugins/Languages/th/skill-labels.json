@@ -129,6 +129,7 @@
   "delete_workchange": "ลบการเปลี่ยนแปลงการมอบหมาย",
   "detect_conflicts": "ตรวจจับความขัดแย้งในตารางงาน",
   "diagnose_holiday_outcome": "อธิบายค่าทำงานวันหยุดและคำเตือนวันหยุด",
+  "diagnose_planning_period": "ตรวจสอบว่าทำไมวันนี้วางแผนไม่ได้",
   "diagnose_work_booking": "ตรวจสอบการจัดกะ",
   "disable_feature_plugin": "ปิดใช้งานโมดูลฟีเจอร์",
   "dismiss_skill_relation": "ปฏิเสธความสัมพันธ์ทักษะที่แนะนำ",

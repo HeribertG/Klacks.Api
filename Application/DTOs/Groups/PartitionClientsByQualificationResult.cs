@@ -28,6 +28,7 @@ namespace Klacks.Api.Application.DTOs.Groups;
 /// <param name="UsersKeepingFullVisibilityCount">Only non-zero when this run introduces the very first group of the installation: how many non-admin users keep visibility on the new root group.</param>
 /// <param name="RestrictedUsersSeeingRootCount">When an existing qualifications root is reused without a scope group: non-admin users with visibility on that root, who inherit visibility on every new member.</param>
 /// <param name="ClientsNewlyVisibleToThemCount">Clients that join the reused root's subtree for the first time and so become visible to those users.</param>
+/// <param name="MembershipStart">Start date of the new memberships and how many of the placed persons entered earlier (their days before the start are shown blue and locked in the schedule).</param>
 public sealed record PartitionClientsByQualificationResult(
     bool Applied,
     string EntityType,
@@ -48,4 +49,5 @@ public sealed record PartitionClientsByQualificationResult(
     IReadOnlyList<string> Warnings,
     int UsersKeepingFullVisibilityCount,
     int RestrictedUsersSeeingRootCount = 0,
-    int ClientsNewlyVisibleToThemCount = 0);
+    int ClientsNewlyVisibleToThemCount = 0,
+    GroupMembershipStartInfo? MembershipStart = null);

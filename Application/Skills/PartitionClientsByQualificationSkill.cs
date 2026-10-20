@@ -13,7 +13,7 @@
 /// <param name="rootGroupName">Optional existing group the qualification groups go under; limits the run to its members.</param>
 /// <param name="minMembers">Minimum number of holders a qualification needs to get a group; default 2, values below 1 count as 1.</param>
 /// <param name="includeAlreadyGrouped">When true (default) clients with other memberships are included too; when false they are skipped (memberships inside rootGroupName's subtree do not count).</param>
-/// <param name="validFrom">Start date of the new memberships (YYYY-MM-DD or 'today'); defaults to today.</param>
+/// <param name="validFrom">Start date of the new memberships (YYYY-MM-DD or 'today'; 'entry' starts each person on their own employment entry date); defaults to today.</param>
 /// <param name="apply">When false (default) only previews the plan; when true creates the groups and persists the memberships.</param>
 
 using Klacks.Api.Application.Commands.Groups;
@@ -107,7 +107,8 @@ public class PartitionClientsByQualificationSkill : BaseSkillImplementation
 
         var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today, context.UserLanguage);
+        var (validFrom, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(
+            validFromStr, today, context.UserLanguage);
         if (invalidDate)
         {
             return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
@@ -119,7 +120,7 @@ public class PartitionClientsByQualificationSkill : BaseSkillImplementation
             result = await _mediator.Send(
                 new PartitionClientsByQualificationCommand(
                     entityTypes, rootGroupId, rootGroupName, minMembers, includeAlreadyGrouped, validFrom, apply,
-                    context.UserName),
+                    context.UserName, startMode),
                 cancellationToken);
         }
         catch (SkillVerificationException ex)
@@ -160,6 +161,7 @@ public class PartitionClientsByQualificationSkill : BaseSkillImplementation
             $"Preview: {result.Groups.Count} qualification group(s) {parent}{ScopeNote(result)}: {groups}{moreGroups}. " +
             $"{result.AssignedCount} membership(s) would be added; clients holding several qualifications join " +
             $"several groups and keep their existing memberships. {BuildDiagnostics(result)} {visibilityAdvisory} " +
+            $"{GroupMembershipStartHint.For(result.MembershipStart, applied: false)} " +
             "Nothing was changed yet. Ask the user to confirm, then call again with apply=true.");
     }
 
@@ -176,7 +178,8 @@ public class PartitionClientsByQualificationSkill : BaseSkillImplementation
             $"Grouped {result.ConsideredClients} {result.EntityType} client(s) by qualification under " +
             $"'{result.ParentGroupName}': {result.Groups.Count} group(s) ({newCount} new, {result.Groups.Count - newCount} " +
             $"reused), added {result.AssignedCount} membership(s) and confirmed {result.VerifiedCount} in the database " +
-            $"(verified){alreadyNote}. {BuildDiagnostics(result)} {visibilityAdvisory}");
+            $"(verified){alreadyNote}. {BuildDiagnostics(result)} {visibilityAdvisory} " +
+            GroupMembershipStartHint.For(result.MembershipStart, applied: true));
     }
 
     private static string ScopeNote(PartitionClientsByQualificationResult result) =>

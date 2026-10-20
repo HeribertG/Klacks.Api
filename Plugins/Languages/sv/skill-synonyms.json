@@ -850,6 +850,11 @@
     "varför kommer inga telegram-meddelanden fram",
     "fungerar messengern"
   ],
+  "diagnose_planning_period": [
+    "varför är den här dagen blå för personen",
+    "varför visas dagen mörk",
+    "varför kan personen inte planeras det här datumet"
+  ],
   "diagnose_work_booking": [
     "varför kan hon inte få morgonpasset på måndag",
     "kolla om han kan ta nattpasset den dagen",

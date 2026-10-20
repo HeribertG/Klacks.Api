@@ -14,6 +14,7 @@ using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -61,14 +62,15 @@ public class GroupUngroupedByCityNameSkill : BaseSkillImplementation
 
         var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
+        var (validFrom, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(
             validFromStr, today, context.UserLanguage);
+        var startDateOpen = validFrom is null && startMode == GroupMembershipStartMode.Fixed;
         if (invalidDate)
         {
             return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
-        if (apply && validFrom is null)
+        if (apply && startDateOpen)
         {
             return SkillResult.Error(
                 SkillDateParser.MissingStartDateMessage(
@@ -79,7 +81,7 @@ public class GroupUngroupedByCityNameSkill : BaseSkillImplementation
         try
         {
             result = await _mediator.Send(
-                new GroupUngroupedByCityNameCommand(count, validFrom, apply, context.UserName),
+                new GroupUngroupedByCityNameCommand(count, validFrom, apply, context.UserName, startMode),
                 cancellationToken);
         }
         catch (SkillVerificationException ex)
@@ -104,18 +106,20 @@ public class GroupUngroupedByCityNameSkill : BaseSkillImplementation
 
         if (!apply)
         {
-            var validFromAsk = validFrom is null ? SkillDateParser.AskForStartDateInPreview : string.Empty;
+            var validFromAsk = startDateOpen ? SkillDateParser.AskForStartDateInPreview : string.Empty;
             return SkillResult.SuccessResult(
                 result,
                 $"Preview: {result.MatchCount} of {result.TotalUngrouped} ungrouped employee(s) would be " +
                 $"assigned to the group matching their city: {names}{more}. {BuildDiagnostics(result)} " +
+                $"{GroupMembershipStartHint.For(result.MembershipStart, applied: false)} " +
                 $"Nothing was changed yet.{validFromAsk} Ask the user to confirm, then call again with apply=true.");
         }
 
         return SkillResult.SuccessResult(
             result,
             $"Assigned {result.AddedCount} employee(s) to their city-named group and confirmed " +
-            $"{result.VerifiedCount} in the database (verified). {BuildDiagnostics(result)}");
+            $"{result.VerifiedCount} in the database (verified). {BuildDiagnostics(result)} " +
+            GroupMembershipStartHint.For(result.MembershipStart, applied: true));
     }
 
     private static string BuildDiagnostics(GroupUngroupedByCityNameResult result)

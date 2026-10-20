@@ -14,6 +14,7 @@ namespace Klacks.Api.Application.DTOs.Groups;
 /// <param name="VerifiedCount">Number of created memberships re-read and confirmed in the database after the write.</param>
 /// <param name="AlreadyMemberCount">Number of matched clients that were already members of the group.</param>
 /// <param name="Clients">The matched clients that were previewed or added.</param>
+/// <param name="MembershipStart">Start date of the new memberships and how many of the persons entered earlier (their days before the start are shown blue and locked in the schedule).</param>
 public record FillGroupByCriteriaResult(
     bool Applied,
     string GroupName,
@@ -21,4 +22,5 @@ public record FillGroupByCriteriaResult(
     int AddedCount,
     int VerifiedCount,
     int AlreadyMemberCount,
-    IReadOnlyList<ClientSearchItem> Clients);
+    IReadOnlyList<ClientSearchItem> Clients,
+    GroupMembershipStartInfo? MembershipStart = null);

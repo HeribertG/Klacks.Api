@@ -865,6 +865,11 @@
     "por qué no llegan los mensajes de telegram",
     "funciona la mensajería"
   ],
+  "diagnose_planning_period": [
+    "por qué este día está en azul para la persona",
+    "por qué el día aparece oscuro",
+    "por qué no se puede planificar a la persona en esta fecha"
+  ],
   "diagnose_work_booking": [
     "por qué no puede tener el turno de mañana el lunes",
     "comprueba si puede hacer el turno de noche ese día",

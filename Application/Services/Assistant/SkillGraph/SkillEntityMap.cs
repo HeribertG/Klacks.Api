@@ -57,6 +57,7 @@ public static class SkillEntityMap
         ["delete_shift"] = new[] { "Shift" },
         ["delete_work"] = new[] { "Work" },
         ["detect_conflicts"] = new[] { "Work" },
+        ["diagnose_planning_period"] = new[] { "Membership", "GroupItem", "Client" },
         ["diagnose_work_booking"] = new[] { "Work", "Shift", "Client" },
         ["email_schedule_to_client"] = new[] { "Client" },
         ["evaluate_contract_templates"] = new[] { "Contract" },

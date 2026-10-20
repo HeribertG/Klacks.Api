@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Groups;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Groups;
@@ -13,13 +14,15 @@ namespace Klacks.Api.Application.Commands.Groups;
 /// <param name="GroupId">Resolved id of the target group.</param>
 /// <param name="GroupName">Resolved name of the target group (for the result message).</param>
 /// <param name="SelectedClientIds">Ids of the clients the user selected in the list.</param>
-/// <param name="ValidFrom">Start date of the new memberships (the plannability boundary); null defaults to now.</param>
+/// <param name="ValidFrom">Start date of the new memberships (the plannability boundary); null defaults to now. Ignored when StartMode is EntryDate.</param>
 /// <param name="Apply">False for a dry-run preview, true to persist the memberships.</param>
 /// <param name="UserName">Name of the acting user, stored on the created memberships.</param>
+/// <param name="StartMode">Fixed starts every membership on ValidFrom; EntryDate starts each person's membership on their own employment entry date.</param>
 public record AddSelectedClientsToGroupCommand(
     Guid GroupId,
     string GroupName,
     IReadOnlyList<Guid> SelectedClientIds,
     DateTime? ValidFrom,
     bool Apply,
-    string UserName) : IRequest<AddSelectedClientsToGroupResult>;
+    string UserName,
+    GroupMembershipStartMode StartMode = GroupMembershipStartMode.Fixed) : IRequest<AddSelectedClientsToGroupResult>;

@@ -15,6 +15,7 @@ namespace Klacks.Api.Application.DTOs.Groups;
 /// <param name="NoAddressCount">Ungrouped employees skipped because they have no employee address / empty city.</param>
 /// <param name="Assignments">The planned or applied city-to-group assignments.</param>
 /// <param name="UnmatchedCities">Address cities with no equally named group, with the affected employee count.</param>
+/// <param name="MembershipStart">Start date of the new memberships and how many of the placed persons entered earlier (their days before the start are shown blue and locked in the schedule).</param>
 public record GroupUngroupedByCityNameResult(
     bool Applied,
     int TotalUngrouped,
@@ -23,4 +24,5 @@ public record GroupUngroupedByCityNameResult(
     int VerifiedCount,
     int NoAddressCount,
     IReadOnlyList<GroupCityAssignment> Assignments,
-    IReadOnlyList<UnmatchedCityCount> UnmatchedCities);
+    IReadOnlyList<UnmatchedCityCount> UnmatchedCities,
+    GroupMembershipStartInfo? MembershipStart = null);

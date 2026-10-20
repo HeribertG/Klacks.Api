@@ -13,5 +13,6 @@ public static class SkillNames
     public const string ExplainPlanningAssistant = "explain_planning_assistant";
     public const string ExplainShiftHolidayOptions = "explain_shift_holiday_options";
     public const string DiagnoseWorkBooking = "diagnose_work_booking";
+    public const string DiagnosePlanningPeriod = "diagnose_planning_period";
     public const string ExplainWhyCannotBook = "explain_why_cannot_book";
 }

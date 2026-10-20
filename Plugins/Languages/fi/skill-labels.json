@@ -129,6 +129,7 @@
   "delete_workchange": "Poista käyttötarkoituksen muutos",
   "detect_conflicts": "Plankonfliktien tunnistaminen",
   "diagnose_holiday_outcome": "Selitä pyhäpäivälisä ja pyhäpäivävaroitus",
+  "diagnose_planning_period": "Tarkista, miksi päivää ei voi suunnitella",
   "diagnose_work_booking": "Tarkista vuoron varaus",
   "disable_feature_plugin": "Poista ominaisuusmoduuli käytöstä",
   "dismiss_skill_relation": "Hylkää ehdotettu taitojen yhdistelmä",

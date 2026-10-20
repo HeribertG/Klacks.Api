@@ -9,7 +9,9 @@
 /// <param name="idNumber">Optional visible client number to disambiguate duplicate names.</param>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -34,6 +36,7 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
     private readonly ICompanyClock _companyClock;
     private readonly IKlacksSelfApiClient _selfApi;
     private readonly ISelfApiRouteResolver _routes;
+    private readonly IGroupMembershipStartPlanner _startPlanner;
 
     public AddClientToGroupByNameSkill(
         IClientRepository clientRepository,
@@ -42,8 +45,10 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
         IGroupScopeGuard groupScopeGuard,
         ICompanyClock companyClock,
         IKlacksSelfApiClient selfApi,
-        ISelfApiRouteResolver routes)
+        ISelfApiRouteResolver routes,
+        IGroupMembershipStartPlanner startPlanner)
     {
+        _startPlanner = startPlanner;
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
         _groupRepository = groupRepository;
@@ -64,7 +69,7 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
 
         var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
+        var (givenStart, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(
             validFromStr, today, context.UserLanguage);
         if (invalidDate)
         {
@@ -103,18 +108,22 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
                 $"{client.FirstName} {client.Name} is already in group '{group.Name}'.");
         }
 
-        if (validFrom is null)
+        if (givenStart is null && startMode == GroupMembershipStartMode.Fixed)
         {
             return SkillResult.Error(
                 SkillDateParser.MissingStartDateMessage(
                     $"add {client.FirstName} {client.Name} to group '{group.Name}'"));
         }
 
+        var startPlan = await _startPlanner.PlanAsync(
+            [client.Id], givenStart, startMode, defaultStart: null, cancellationToken);
+        var startInfo = startPlan.Describe([client.Id]);
+
         var resource = new GroupItemResource
         {
             ClientId = client.Id,
             GroupId = group.Id,
-            ValidFrom = validFrom.Value
+            ValidFrom = startPlan.StartFor(client.Id)
         };
 
         var result = await _selfApi.PostAsync<GroupItemResource>(
@@ -126,7 +135,14 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
         }
 
         return SkillResult.SuccessResult(
-            new { ClientId = client.Id, client.FirstName, LastName = client.Name, GroupName = group.Name },
-            $"{client.FirstName} {client.Name} added to group '{group.Name}'.");
+            new
+            {
+                ClientId = client.Id,
+                client.FirstName,
+                LastName = client.Name,
+                GroupName = group.Name,
+                MembershipStart = startInfo
+            },
+            $"{client.FirstName} {client.Name} added to group '{group.Name}'. {GroupMembershipStartHint.ForSingle(startInfo)}".TrimEnd());
     }
 }

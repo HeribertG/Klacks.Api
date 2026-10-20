@@ -129,6 +129,7 @@
   "delete_workchange": "Șterge o modificare de programare",
   "detect_conflicts": "Identificarea conflictelor de planuri",
   "diagnose_holiday_outcome": "Explică sporul și avertismentul de sărbătoare",
+  "diagnose_planning_period": "Verifică de ce o zi nu poate fi planificată",
   "diagnose_work_booking": "Verifică alocarea unei ture",
   "disable_feature_plugin": "Dezactivează un modul funcțional",
   "dismiss_skill_relation": "Respinge o legătură de competențe propusă",
