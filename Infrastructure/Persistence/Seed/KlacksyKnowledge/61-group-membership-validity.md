@@ -65,8 +65,9 @@ are locked for that person, so nobody plans them by mistake. If you leave both d
 ### The schedule
 
 While a group is selected in the schedule, the days outside a person's membership window in that group are locked: no
-shift or absence can be placed there by menu, text entry, drag and drop, fill handle or paste. This is
-separate from the person's entry and exit dates (card de: "Registration", en: "Registration", fr:
+shift or absence can be placed there by menu, text entry, drag and drop, fill handle or paste. The schedule draws
+these days blue and darkened (often called dark blue); days outside the employment are drawn dark without the blue.
+This is separate from the person's entry and exit dates (card de: "Registration", en: "Registration", fr:
 "Inscription", it: "Registrazione"), which lock days in the same way.
 
 ### The group's numbers
@@ -74,6 +75,14 @@ separate from the person's entry and exit dates (card de: "Registration", en: "R
 The hours balance of a group for a chosen period counts only the employees whose membership window
 overlaps that period. Join a team the week after the period closes and the period's balance simply does
 not include that person yet.
+
+### Why the cells of a whole group are blue
+
+Assigning many people to a group on one day gives all of them the same start date. If that day is later than
+their entry, every day before it is blue and locked in the group's schedule, although the people have worked
+for a long time. The fix is the start date of the membership (not the colour settings): move it back to the
+entry date of each person. `diagnose_planning_period` shows, for a group and a range of days, how many people are
+affected and which start date they share.
 
 ### Example
 

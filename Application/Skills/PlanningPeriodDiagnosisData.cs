@@ -52,7 +52,7 @@ internal static class PlanningPeriodDiagnosisData
             WorkBookingSealKind.PeriodClosed => PeriodClosedSeal,
             _ => null
         },
-        ScheduleShows = day.OutsideEmployment ? DarkDisplay : day.OutsideGroupPeriod ? BlueDisplay : NormalDisplay,
+        ScheduleShows = day.OutsideGroupPeriod ? BlueDisplay : day.OutsideEmployment ? DarkDisplay : NormalDisplay,
     };
 
     private static string Iso(DateOnly date) => date.ToString(SkillDisplayFormats.IsoDate, CultureInfo.InvariantCulture);

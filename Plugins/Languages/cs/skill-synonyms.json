@@ -875,7 +875,9 @@
   "diagnose_planning_period": [
     "proč je tento den pro osobu modrý",
     "proč je den zobrazen tmavě",
-    "proč nelze osobu v tomto datu naplánovat"
+    "proč nelze osobu v tomto datu naplánovat",
+    "proč jsou buňky tmavě modré",
+    "proč jsou buňky modré"
   ],
   "diagnose_work_booking": [
     "proč ji nemůžu v pondělí zařadit na ranní směnu",
@@ -1257,7 +1259,8 @@
     "co je mřížka zaměstnanců a dnů",
     "jak používat panel nástrojů v plánu",
     "vysvětli zámky a uzavřené dny",
-    "krátce: k čemu je stránka plánu"
+    "krátce: k čemu je stránka plánu",
+    "co znamenají barvy buněk"
   ],
   "explain_page_settings_erp_drop_points": [
     "jak nastavit erp import",

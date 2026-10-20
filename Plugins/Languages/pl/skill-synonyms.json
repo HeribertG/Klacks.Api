@@ -872,7 +872,9 @@
   "diagnose_planning_period": [
     "dlaczego ten dzień jest niebieski dla tej osoby",
     "dlaczego dzień jest wyświetlany na ciemno",
-    "dlaczego nie można zaplanować tej osoby w tym dniu"
+    "dlaczego nie można zaplanować tej osoby w tym dniu",
+    "dlaczego komórki są ciemnoniebieskie",
+    "dlaczego komórki są niebieskie"
   ],
   "diagnose_work_booking": [
     "dlaczego nie mogę jej przydzielić porannej zmiany w poniedziałek",
@@ -1256,7 +1258,8 @@
     "wyjaśnij układ stronę planowania",
     "opisz narzędzia na pasku planu",
     "jak działa siatka w planie",
-    "co oznaczają blokady w planie"
+    "co oznaczają blokady w planie",
+    "co oznaczają kolory komórek"
   ],
   "explain_page_settings_erp_drop_points": [
     "jak skonfigurować import zamówień z erp",

@@ -872,7 +872,9 @@
   "diagnose_planning_period": [
     "por que este dia está azul para a pessoa",
     "por que o dia aparece escuro",
-    "por que a pessoa não pode ser planeada nesta data"
+    "por que a pessoa não pode ser planeada nesta data",
+    "por que as células estão azul-escuras",
+    "por que as células estão azuis"
   ],
   "diagnose_work_booking": [
     "por que ela não pode ficar com o turno da manhã na segunda",
@@ -1255,7 +1257,8 @@
     "o que fazem os botões da barra de ferramentas",
     "como usar o assistente automático na escala",
     "o que significam os cadeados e níveis de bloqueio",
-    "como exportar a escala em pdf"
+    "como exportar a escala em pdf",
+    "o que significam as cores das células"
   ],
   "explain_page_settings_erp_drop_points": [
     "como funciona o import de pedidos",

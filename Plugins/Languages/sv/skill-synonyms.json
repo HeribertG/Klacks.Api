@@ -853,7 +853,9 @@
   "diagnose_planning_period": [
     "varför är den här dagen blå för personen",
     "varför visas dagen mörk",
-    "varför kan personen inte planeras det här datumet"
+    "varför kan personen inte planeras det här datumet",
+    "varför är cellerna mörkblå",
+    "varför är cellerna blå"
   ],
   "diagnose_work_booking": [
     "varför kan hon inte få morgonpasset på måndag",
@@ -1243,7 +1245,8 @@
     "vad betyder låsningsnivåerna",
     "hur fungerar drag and drop i schemat",
     "vad är skillnaden mellan kort och element",
-    "varför visas vissa dagar som förseglade"
+    "varför visas vissa dagar som förseglade",
+    "vad betyder cellernas färger"
   ],
   "explain_page_settings_erp_drop_points": [
     "hur fungerar orderimporten",

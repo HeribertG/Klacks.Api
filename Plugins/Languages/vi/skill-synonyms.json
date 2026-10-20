@@ -843,7 +843,8 @@
   "diagnose_planning_period": [
     "vì sao ngày này có màu xanh với người này",
     "vì sao ngày hiển thị màu tối",
-    "vì sao không thể xếp lịch cho người này vào ngày này"
+    "vì sao không thể xếp lịch cho người này vào ngày này",
+    "tại sao các ô có màu xanh đậm"
   ],
   "diagnose_work_booking": [
     "tại sao không xếp cô ấy vào ca sáng thứ hai được",
@@ -1218,7 +1219,8 @@
     "các nút công cụ và chức năng trên thanh toolbar",
     "lưới nhân viên-theo-ngày và kéo thả ca",
     "khóa cấp độ và ngày niêm phong trên lưới",
-    "dịch chuyển giữa chế độ ngày và dòng thời gian"
+    "dịch chuyển giữa chế độ ngày và dòng thời gian",
+    "màu của các ô có nghĩa là gì"
   ],
   "explain_page_settings_erp_drop_points": [
     "hướng dẫn import erp",

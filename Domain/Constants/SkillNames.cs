@@ -15,4 +15,5 @@ public static class SkillNames
     public const string DiagnoseWorkBooking = "diagnose_work_booking";
     public const string DiagnosePlanningPeriod = "diagnose_planning_period";
     public const string ExplainWhyCannotBook = "explain_why_cannot_book";
+    public const string ExplainPageSchedule = "explain_page_schedule";
 }

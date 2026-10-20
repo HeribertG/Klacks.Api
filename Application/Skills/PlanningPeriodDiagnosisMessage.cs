@@ -28,6 +28,10 @@ internal static class PlanningPeriodDiagnosisMessage
         "{span} is outside the employment of {person} ({from} to {until}); the schedule shows the day dark (not employed) " +
         "and nothing can be planned on it.";
 
+    private const string OutsideEmploymentAndGroup =
+        "{span} is outside the employment of {person} ({from} to {until}); nothing can be planned on it. Because the day " +
+        "is also outside the group membership, the schedule shows it blue (the blue marking covers the dark one).";
+
     private const string OutsideGroup =
         "{span} is outside the period in which {person} belongs to group '{group}' ({from} to {until}); the schedule of " +
         "that group shows the day blue and locked.";
@@ -160,7 +164,8 @@ internal static class PlanningPeriodDiagnosisMessage
     {
         if (day.OutsideEmployment && diagnosis.Employment is { } employment)
         {
-            yield return OutsideEmployment.Replace(SpanToken, span).Replace(PersonToken, person)
+            yield return (day.OutsideGroupPeriod ? OutsideEmploymentAndGroup : OutsideEmployment)
+                .Replace(SpanToken, span).Replace(PersonToken, person)
                 .Replace(FromToken, Iso(employment.ValidFrom)).Replace(UntilToken, IsoOrOpen(employment.ValidUntil))
                 + Joiner + WorkBookingDiagnosisTexts.Remedies[WorkBookingRemedy.AdjustMembership];
         }

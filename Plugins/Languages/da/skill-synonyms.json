@@ -857,7 +857,9 @@
   "diagnose_planning_period": [
     "hvorfor er denne dag blå for personen",
     "hvorfor vises dagen mørk",
-    "hvorfor kan personen ikke planlægges på denne dato"
+    "hvorfor kan personen ikke planlægges på denne dato",
+    "hvorfor er cellerne mørkeblå",
+    "hvorfor er cellerne blå"
   ],
   "diagnose_work_booking": [
     "hvorfor kan hun ikke få morgenvagten på mandag",
@@ -1245,7 +1247,8 @@
     "hvad betyder låseniveauer og forseglede dage?",
     "hvordan bruger jeg auto-wizard?",
     "forklar gitteret med medarbejdere og dage",
-    "planlægningssiden: elementer og funktioner"
+    "planlægningssiden: elementer og funktioner",
+    "hvad betyder cellernes farver"
   ],
   "explain_page_settings_erp_drop_points": [
     "hvordan opsætter jeg erp import",

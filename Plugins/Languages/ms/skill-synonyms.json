@@ -841,7 +841,8 @@
   "diagnose_planning_period": [
     "mengapa hari ini berwarna biru untuk orang itu",
     "mengapa hari ini dipaparkan gelap",
-    "mengapa orang itu tidak boleh dijadualkan pada tarikh ini"
+    "mengapa orang itu tidak boleh dijadualkan pada tarikh ini",
+    "mengapa sel berwarna biru gelap"
   ],
   "diagnose_work_booking": [
     "kenapa dia tidak boleh dapat syif pagi pada hari isnin",
@@ -1220,7 +1221,8 @@
     "grid di jadual tu maksudnya apa?",
     "butang toolbar di jadual apa fungsinya?",
     "apa itu lock level dan sealed days?",
-    "macam mana nak guna scenario selector?"
+    "macam mana nak guna scenario selector?",
+    "apakah maksud warna sel"
   ],
   "explain_page_settings_erp_drop_points": [
     "terangkan import erp",

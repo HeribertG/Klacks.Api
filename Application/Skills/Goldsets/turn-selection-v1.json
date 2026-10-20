@@ -5564,6 +5564,58 @@
       "expectedSlots": [],
       "source": "curated",
       "comment": "Planning-period diagnosis: a person and a day but no shift, with the colour the grid shows. The answer is diagnose_planning_period, not the shift booking check (diagnose_work_booking needs a shift)."
+    },
+    {
+      "id": "curated-grid-shading-dark-blue-de",
+      "message": "Warum sind die Zellen dunkelblau?",
+      "locale": "de",
+      "currentRoute": "/workplace/schedule",
+      "expectedTool": "diagnose_planning_period",
+      "alternativeTools": [
+        "explain_page_schedule"
+      ],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Cell-colour question on the schedule page without a person or a day: dark means outside the employment, blue means outside the group membership. The planning-period diagnosis gives the facts for the group; the page explanation is the accepted alternative."
+    },
+    {
+      "id": "curated-grid-shading-dark-blue-en",
+      "message": "Why are the cells dark blue?",
+      "locale": "en",
+      "currentRoute": "/workplace/schedule",
+      "expectedTool": "diagnose_planning_period",
+      "alternativeTools": [
+        "explain_page_schedule"
+      ],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Cell-colour question on the schedule page without a person or a day: dark means outside the employment, blue means outside the group membership. The planning-period diagnosis gives the facts for the group; the page explanation is the accepted alternative."
+    },
+    {
+      "id": "curated-grid-shading-meaning-de",
+      "message": "Was bedeuten die Farben der Zellen im Einsatzplan?",
+      "locale": "de",
+      "currentRoute": "/workplace/schedule",
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [
+        "diagnose_planning_period"
+      ],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Question about what the colours of the cells mean: the schedule page explanation is the answer; the planning-period diagnosis is the accepted alternative when the user means a concrete group or day."
+    },
+    {
+      "id": "curated-grid-shading-meaning-en",
+      "message": "What do the colours of the cells in the schedule mean?",
+      "locale": "en",
+      "currentRoute": "/workplace/schedule",
+      "expectedTool": "explain_page_schedule",
+      "alternativeTools": [
+        "diagnose_planning_period"
+      ],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Question about what the colours of the cells mean: the schedule page explanation is the answer; the planning-period diagnosis is the accepted alternative when the user means a concrete group or day."
     }
   ]
 }

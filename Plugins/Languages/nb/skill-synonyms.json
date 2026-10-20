@@ -845,7 +845,9 @@
   "diagnose_planning_period": [
     "hvorfor er denne dagen blå for personen",
     "hvorfor vises dagen mørk",
-    "hvorfor kan ikke personen planlegges på denne datoen"
+    "hvorfor kan ikke personen planlegges på denne datoen",
+    "hvorfor er cellene mørkeblå",
+    "hvorfor er cellene blå"
   ],
   "diagnose_work_booking": [
     "hvorfor kan hun ikke få morgenvakten på mandag",
@@ -1226,7 +1228,8 @@
     "forklar verktøylinjen på vaktplanen",
     "hva betyr låsenivåene på vaktplanen?",
     "forklar hvordan dra-og-slipp fungerer på vaktplanen",
-    "hva er scenarioer på vaktplanen?"
+    "hva er scenarioer på vaktplanen?",
+    "hva betyr fargene på cellene"
   ],
   "explain_page_settings_erp_drop_points": [
     "hvordan setter jeg opp erp-import",

@@ -28016,7 +28016,7 @@
     {
       "name": "explain_page_schedule",
       "area": "schedule",
-      "description": "Explains the Schedule page (Einsatzplan) at /workplace/schedule — the central planning board with an employees-by-days grid. Covers the toolbar (period navigation by week/bi-week/month, send email, AutoWizard with Plan/Fuzzy Harmonizer/Holistic Harmonizer, schedule PDF export, desired-absence bars, command and availability toggles, the two hour-recalculation variants: quick summing of the period hours or the thorough recalculate-and-sum with confirmation, scenario selector, day-timeline switch, zoom), the row header with hour slots, the grid with drag & drop booking, cell context menus, lock levels and sealed days, cross-group sealed entries, and the lower shift section with the Shifts and Error List tabs. Use this when the user asks what they see on the Schedule page, what the toolbar buttons or locks mean, or how to work with it.",
+      "description": "Explains the Schedule page (Einsatzplan) at /workplace/schedule — the central planning board with an employees-by-days grid. Covers the toolbar (period navigation by week/bi-week/month, send email, AutoWizard with Plan/Fuzzy Harmonizer/Holistic Harmonizer, schedule PDF export, desired-absence bars, command and availability toggles, the two hour-recalculation variants: quick summing of the period hours or the thorough recalculate-and-sum with confirmation, scenario selector, day-timeline switch, zoom), the row header with hour slots, the grid with drag & drop booking, cell context menus, lock levels, sealed days, cross-group sealed entries and the dark and blue day shading (outside the employment or the group membership, locked), and the lower shift section with the Shifts and Error List tabs. Use this when the user asks what they see on the Schedule page, what the toolbar buttons, locks or cell colours mean, or how to work with it.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -28109,7 +28109,9 @@
           "tagesverlauf",
           "dienst buchen",
           "stunden zusammenzählen",
-          "stunden berechnen und zusammenzählen"
+          "stunden berechnen und zusammenzählen",
+          "was bedeuten die farben der zellen im raster",
+          "was bedeuten dunkle und blaue tage im einsatzplan"
         ],
         "en": [
           "what do i see here",
@@ -28131,7 +28133,9 @@
           "day timeline",
           "book a shift",
           "sum hours",
-          "calculate and sum hours"
+          "calculate and sum hours",
+          "what do the colours of the cells mean",
+          "what do dark and blue days in the schedule mean"
         ],
         "fr": [
           "que vois-je ici",
@@ -28150,7 +28154,9 @@
           "pourquoi je ne peux pas modifier",
           "déroulé de la journée",
           "totaliser les heures",
-          "calculer et totaliser les heures"
+          "calculer et totaliser les heures",
+          "que signifient les couleurs des cellules du planning",
+          "que signifient les jours sombres et bleus dans le planning"
         ],
         "it": [
           "cosa vedo qui",
@@ -28169,7 +28175,9 @@
           "perché non posso modificare",
           "andamento giornaliero",
           "somma ore",
-          "calcola e somma ore"
+          "calcola e somma ore",
+          "cosa significano i colori delle celle",
+          "cosa significano i giorni scuri e blu nella pianificazione"
         ]
       },
       "labels": {
@@ -28178,7 +28186,7 @@
         "fr": "Expliquer la page Planning",
         "it": "Spiega la pagina Planning"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "explain_page_absence",
@@ -45282,7 +45290,7 @@
     {
       "name": "explain_group_membership_validity",
       "area": "group",
-      "description": "Explains that a group membership has its own start and optional end date that decides who counts: with a group selected in the schedule, days outside a person's window are locked for them, and the group's hours balance counts only memberships overlapping the period. The planning wizards do not filter candidates by it. Ending a membership is refused while the person has planned work in that group afterwards. Use this when a person cannot be booked in a group or a membership cannot be ended.",
+      "description": "Explains that a group membership has its own start and optional end date that decides who counts: in the schedule of a group, days outside a person's window are locked and shown blue, and the group's hours balance counts only memberships overlapping the period. The planning wizards do not filter candidates by it. Ending a membership is refused while the person has planned work in that group afterwards. Use this when a person cannot be booked in a group or a membership cannot be ended.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -45320,7 +45328,7 @@
           "membership validity window"
         ]
       },
-      "version": 5,
+      "version": 6,
       "synonyms": {
         "de": [
           "warum kann ich diese person im plan der gruppe nicht eintragen",
@@ -46159,7 +46167,7 @@
     {
       "name": "diagnose_planning_period",
       "area": "schedule",
-      "description": "Explains why one employee cannot be planned on a day or a short range when no shift is named: whether the day lies outside the employment period (shown dark in the schedule), outside the period of one of the employee's group memberships (shown blue and locked) or on a sealed day, with the dates and the step that lifts it. Reads only and changes nothing.",
+      "description": "Explains why days cannot be planned, from the planning periods alone, for one employee or, when no employee is given, for a whole group (groupName or groupId). Shows whether days lie outside the employment (shown dark), outside the group membership period (shown blue, also called dark blue, and locked) or on a sealed day, with the dates and the step that lifts it. For a group it counts the dark and blue employees and names the most common and the earliest membership start. Reads only.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -46216,7 +46224,15 @@
         },
         {
           "name": "groupName",
-          "description": "Name of the group whose schedule is meant; leave empty to check every group of the employee",
+          "description": "Name of the group whose schedule is meant; with an employee leave empty to check every group of the employee, without an employee it names the group to summarize",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "UUID of the group, as an alternative to groupName; for the summary of a whole group when no employee is named. Use the selectedGroupId of the page context when the user means the cells on screen",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -46233,13 +46249,19 @@
           "nicht verplanbar",
           "tag ist blau",
           "tag ist dunkel",
-          "planungszeitraum prüfen"
+          "planungszeitraum prüfen",
+          "dunkelblau",
+          "blaue zellen",
+          "dunkle zellen"
         ],
         "en": [
           "not plannable",
           "day is blue",
           "day is dark",
-          "planning period check"
+          "planning period check",
+          "dark blue",
+          "blue cells",
+          "dark cells"
         ]
       },
       "synonyms": {
@@ -46249,7 +46271,11 @@
           "warum lässt sich die person an diesem datum nicht verplanen",
           "warum ist der tag gesperrt und nicht planbar",
           "gilt die gruppenzugehörigkeit an diesem tag noch",
-          "ist die person an diesem tag angestellt"
+          "ist die person an diesem tag angestellt",
+          "warum sind die zellen dunkelblau",
+          "warum sind die zellen blau",
+          "warum sind die zellen dunkel",
+          "wie viele mitarbeiter sind in dieser gruppe nicht verplanbar"
         ],
         "en": [
           "why is this day blue for the person",
@@ -46257,7 +46283,11 @@
           "why can't the person be scheduled on this date",
           "why is the day locked and not plannable",
           "is the group membership still valid on this day",
-          "is the person employed on this day"
+          "is the person employed on this day",
+          "why are the cells dark blue",
+          "why are the cells blue",
+          "why are the cells dark",
+          "how many employees in this group cannot be scheduled"
         ],
         "fr": [
           "pourquoi ce jour est-il bleu pour la personne",
@@ -46265,7 +46295,11 @@
           "pourquoi la personne ne peut-elle pas être planifiée à cette date",
           "pourquoi le jour est-il verrouillé et non planifiable",
           "l'appartenance au groupe est-elle encore valable ce jour-là",
-          "la personne est-elle employée ce jour-là"
+          "la personne est-elle employée ce jour-là",
+          "pourquoi les cellules sont-elles bleu foncé",
+          "pourquoi les cellules sont-elles bleues",
+          "pourquoi les cellules sont-elles sombres",
+          "combien de collaborateurs de ce groupe ne sont pas planifiables"
         ],
         "it": [
           "perché questo giorno è blu per la persona",
@@ -46273,7 +46307,11 @@
           "perché la persona non può essere pianificata a questa data",
           "perché il giorno è bloccato e non pianificabile",
           "l'appartenenza al gruppo è ancora valida in questo giorno",
-          "la persona è impiegata in questo giorno"
+          "la persona è impiegata in questo giorno",
+          "perché le celle sono blu scuro",
+          "perché le celle sono blu",
+          "perché le celle sono scure",
+          "quanti collaboratori di questo gruppo non sono pianificabili"
         ]
       },
       "labels": {
@@ -46282,7 +46320,7 @@
         "fr": "Vérifier pourquoi un jour n'est pas planifiable",
         "it": "Verifica perché un giorno non è pianificabile"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_why_not_visible",

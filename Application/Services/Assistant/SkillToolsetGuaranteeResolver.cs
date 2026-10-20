@@ -204,6 +204,8 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
         ApplyScheduleReadGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
 
+        ApplyGridMarkingGuarantee(guaranteedSkills, guaranteedSources, request);
+
         ApplyBookingDiagnosisGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
 
         return new SkillToolsetGuaranteeResult(
@@ -239,11 +241,12 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     }
 
     /// <summary>
-    /// Keeps diagnose_work_booking and explain_why_cannot_book for a "why ... not" question on the schedule page or naming
-    /// a day (BookingDiagnosisIntentResolver). The diagnosis is the skill that answers the concrete cell; the general
-    /// explanation only complements it, so an explain_why_cannot_book claimed only here is lowest-ranked like list_groups:
-    /// on the schedule page at the provider cap of 12 (nine always-on skills, three slots) the three slots stay with
-    /// explain_page_schedule, read_schedule_state and the diagnosis. Visibility only: both skills read.
+    /// Keeps diagnose_work_booking, diagnose_planning_period and explain_why_cannot_book for a "why ... not" question on the
+    /// schedule page or naming a day (BookingDiagnosisIntentResolver). The booking diagnosis is the skill that answers the
+    /// concrete cell; the planning-period check and the general explanation only complement it, so one claimed only here is
+    /// lowest-ranked like list_groups: on the schedule page at the provider cap of 12 (nine always-on skills, three slots) the
+    /// three slots stay with explain_page_schedule, read_schedule_state and the booking diagnosis. A shading question claims
+    /// diagnose_planning_period before (ApplyGridMarkingGuarantee), which keeps its full rank. Visibility only: all read.
     /// </summary>
     private static void ApplyBookingDiagnosisGuarantee(
         HashSet<AgentSkill> guaranteedSkills,
@@ -253,13 +256,33 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     {
         foreach (var skillName in BookingDiagnosisIntentResolver.GuaranteedSkillNames(request.UserMessage, request.CurrentRoute))
         {
-            if (string.Equals(skillName, SkillNames.ExplainWhyCannotBook, StringComparison.Ordinal))
+            if (string.Equals(skillName, SkillNames.ExplainWhyCannotBook, StringComparison.Ordinal)
+                || string.Equals(skillName, SkillNames.DiagnosePlanningPeriod, StringComparison.Ordinal))
             {
                 SkillGuaranteeCollector.AddAsLowestRankedHint(
                     guaranteedSkills, request.PermittedSkills, skillName, guaranteedSources, lowestRankedNames);
                 continue;
             }
 
+            SkillGuaranteeCollector.Add(
+                guaranteedSkills, request.PermittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
+        }
+    }
+
+    /// <summary>
+    /// Keeps explain_page_schedule and diagnose_planning_period for a question about the shading of the schedule cells ("Warum
+    /// sind die Zellen dunkelblau", GridMarkingIntentResolver). A day outside the employment is drawn dark and a day outside
+    /// the group membership blue; the question names the colour, which no skill keyword carries, and without the diagnosis the
+    /// model guesses other causes. Both are claimed as plain hints: the diagnosis is the skill that gives the facts and the
+    /// explanation says what each shading means. Visibility only: both skills read.
+    /// </summary>
+    private static void ApplyGridMarkingGuarantee(
+        HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
+        SkillToolsetGuaranteeRequest request)
+    {
+        foreach (var skillName in GridMarkingIntentResolver.GuaranteedSkillNames(request.UserMessage, request.CurrentRoute))
+        {
             SkillGuaranteeCollector.Add(
                 guaranteedSkills, request.PermittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
         }

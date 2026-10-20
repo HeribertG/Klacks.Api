@@ -95,7 +95,8 @@ Toggle in der Toolbar. Im Zeilenkopf links zeigen kleine farbige Kreise die **Qu
 jedes Mitarbeiters. Eingeblendet werden können ausserdem **vorgeplante Absenz-Balken** aus dem
 Absenzen-Kalender und **Verfügbarkeits-Schattierungen**. Automatische Planungsläufe
 (Wizard/Harmonizer) schreiben ihre Ergebnisse als Szenario, das der Planer übernehmen oder
-verwerfen muss.
+verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder nicht zur angezeigten Gruppe gehört
+(blau, oft dunkelblau genannt), sind gesperrt.
 
 <!-- level:elements -->
 
@@ -272,6 +273,32 @@ verwerfen muss.
   Einträge möglich.
 - Tooltips: Kopfzellen zeigen nicht gebuchte oder überbuchte Schichten, leere Zellen Feiertage.
 
+### Markierungen im Raster — dunkel, blau und gesperrt
+
+Manche Tage einer Zeile sind abgedunkelt oder blau eingefärbt. Das sind keine Farbeinstellungen und kein Wochenende,
+sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planbar, die Zelle ist gesperrt.
+
+- **Dunkel (abgedunkelt):** Der Tag liegt ausserhalb der Anstellung der Person — vor dem Eintrittsdatum oder nach dem
+  Austrittsdatum (Beginn und Ende der Mitgliedschaft).
+- **Blau, zusätzlich abgedunkelt (im Alltag meist dunkelblau genannt):** Der Tag liegt ausserhalb des Zeitraums, in dem
+  die Person zur gewählten Gruppe gehört (Gültigkeit der Gruppenmitgliedschaft, Beginn (de: "GÜLTIG VON", en: "VALID FROM", fr: "VALIDE DÈS", it: "VALIDO DA") und Ende (de: "GÜLTIG BIS", en: "VALID UNTIL", fr: "VALIDE JUSQU'À", it: "VALIDO FINO A")). Gezählt werden nur Mitgliedschaften in genau der gewählten Gruppe (nicht in ihren Untergruppen); gehört jemand nur zu einer Untergruppe, ist er nie blau. Hat
+  jemand mehrere Mitgliedschaften in den angezeigten Gruppen, gilt wie im Raster der zusammengefasste Zeitraum: frühester Beginn bis
+  spätestes Ende. Typischer Fall: Alle Personen wurden an einem Stichtag einer Gruppe zugeordnet, also beginnt die
+  Mitgliedschaft erst an diesem Tag, und alle Tage davor sind blau — obwohl die Personen schon lange angestellt sind.
+- **Beide sperren den Tag:** Kein Dienst, keine Absenz (Menü, Texteingabe, Ziehen, Fill-Handle, Einfügen); das Kontextmenü
+  der leeren Zelle bleibt leer. Liegt ein Tag zugleich ausserhalb der Anstellung und der Gruppe, erscheint er blau (die blaue Markierung überdeckt das Dunkel); gesperrt ist er so oder so.
+- **Abhilfe bei Blau:** In der Card (de: "Zugewiesene Gruppen", en: "Assigned Groups", fr: "Groupes assignés", it: "Gruppi assegnati") der Person das Datum (de: "GÜLTIG VON", en: "VALID FROM", fr: "VALIDE DÈS", it: "VALIDO DA") auf den
+  Eintritt oder früher setzen; beim Zuordnen mehrerer Personen über Klacksy den Start auf das Eintrittsdatum jeder Person
+  stellen (Startmodus Eintrittsdatum), dann bleibt davor nichts gesperrt. **Abhilfe bei Dunkel:** Eintritts- und
+  Austrittsdatum der Person prüfen (`explain_address_management`).
+- **Ursache nachsehen lassen:** Klacksy kann für eine Person und einen Tag, aber auch für eine ganze Gruppe nachsehen
+  (`diagnose_planning_period`): wie viele Personen dunkel oder blau sind, an welchem Datum die Mitgliedschaften am
+  häufigsten beginnen und welche Tage versiegelt sind. Die Antwort nennt die geprüften Fakten; geraten wird nicht.
+- **Nicht verwechseln:** Die Hintergrundfarben für Wochenende und Feiertag (Einstellungen der Raster-Farben) sind reine
+  Optik und sperren nichts. Ein versiegelter Tag (Periodenabschluss oder Tagesfreigabe) zeigt das Schloss im Spaltenkopf;
+  seine leeren Zellen bleiben ungefärbt, bereits eingetragene Dienste mit Sperrstufe erscheinen abgedunkelt
+  (`explain_page_period_closing`). Tage am Rand ausserhalb des gewählten Zeitraums sind nur etwas dunkler dargestellt.
+
 ### Unterer Bereich: Schicht-Sektion
 
 - Tabs **Schichten** (de: "Schichten", en: "Shifts", fr: "Services", it: "Turni") und
@@ -435,6 +462,8 @@ verwerfen muss.
 - "Erkläre diese Seite" (auf /workplace/schedule)
 - "Was bedeuten die Buttons in der Dienstplan-Toolbar?"
 - "Warum kann ich diesen Eintrag nicht bearbeiten?" (Lock/versiegelt/gruppenfremd)
+- "Warum sind die Zellen dunkelblau?" / "Was bedeuten die Farben der Zellen?" (dunkel = nicht angestellt, blau = nicht in der Gruppe)
+- "Why are the cells dark blue?" / "What does the colour of the cells mean?"
 - "Wie übernehme ich ein Szenario?"
 - "What does the schedule grid show?"
 - "How do I recalculate period hours?"
@@ -452,6 +481,10 @@ verwerfen muss.
   nötig, nachdem ein Makro oder seine Zuweisung geändert wurde — dafür gibt es keinen automatischen
   Anstoss. Änderungen an Verträgen, Planungsregeln oder Zuschlags-Einstellungen stossen die gründliche
   Neuberechnung selbst an. Das Soll wird beim Anzeigen immer frisch aus dem Vertrag gelesen.
+- **Blau ist kein Fehler der Farbeinstellung:** Ein blau abgedunkelter Tag heisst, dass die Gruppenmitgliedschaft der
+  Person an diesem Tag noch nicht oder nicht mehr gilt. Gesperrt ist er trotzdem — auch dann, wenn die Person schon
+  lange angestellt ist. Wer die Ursache rät (Rasterfarben, Wochenende, Periodenabschluss), liegt oft falsch: erst die
+  Zeiträume prüfen (`diagnose_planning_period`), dann sagen, was gilt.
 - **Gesperrte Einträge bleiben, wie sie sind:** Bestätigte, freigegebene oder abgeschlossene Einträge
   werden von keiner der beiden Neuberechnungen verändert.
 - **Szenario übernehmen ersetzt den Plan im Zeitraum** des Szenarios; gesperrte Einträge werden dabei

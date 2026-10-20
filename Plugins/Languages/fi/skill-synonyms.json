@@ -846,7 +846,9 @@
   "diagnose_planning_period": [
     "miksi tämä päivä on henkilölle sininen",
     "miksi päivä näkyy tummana",
-    "miksi henkilöä ei voi suunnitella tälle päivälle"
+    "miksi henkilöä ei voi suunnitella tälle päivälle",
+    "miksi solut ovat tummansinisiä",
+    "miksi solut ovat sinisiä"
   ],
   "diagnose_work_booking": [
     "miksi hän ei voi saada aamuvuoroa maanantaina",
@@ -1234,7 +1236,8 @@
     "kerro aikataulun lukituksista",
     "miten vedän ja pudotan vuoroja aikataulussa",
     "selitä aikataulun palkit ja tilat",
-    "mitä aikataulun virhelista tarkoittaa"
+    "mitä aikataulun virhelista tarkoittaa",
+    "mitä solujen värit tarkoittavat"
   ],
   "explain_page_settings_erp_drop_points": [
     "miten erp-tuonti toimii",

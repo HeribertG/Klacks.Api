@@ -868,7 +868,9 @@
   "diagnose_planning_period": [
     "por qué este día está en azul para la persona",
     "por qué el día aparece oscuro",
-    "por qué no se puede planificar a la persona en esta fecha"
+    "por qué no se puede planificar a la persona en esta fecha",
+    "por qué las celdas son azul oscuro",
+    "por qué las celdas son azules"
   ],
   "diagnose_work_booking": [
     "por qué no puede tener el turno de mañana el lunes",
@@ -1251,7 +1253,8 @@
     "¿qué significa cada botón en la barra de herramientas del planificador?",
     "dime cómo usar la cuadrícula de empleados y días",
     "explica los niveles de bloqueo y días sellados",
-    "¿cómo funciona el arrastrar y soltar en el planificador?"
+    "¿cómo funciona el arrastrar y soltar en el planificador?",
+    "qué significan los colores de las celdas"
   ],
   "explain_page_settings_erp_drop_points": [
     "cómo configurar importación erp",

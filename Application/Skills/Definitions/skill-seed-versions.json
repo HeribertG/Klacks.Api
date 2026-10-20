@@ -525,8 +525,8 @@
       "hash": "81D5974A59E95D6CFE568B8826A8572B7EF361AC5354EF692DA454911BC05C11"
     },
     "diagnose_planning_period": {
-      "version": 1,
-      "hash": "769B406157AA35B268D3C3B530D9E5A9B4F2A3CAF6100BA4B59ED763FED3FD70"
+      "version": 2,
+      "hash": "A1F5008FA217CE15552EE003E309334F723088B82B57EF0A2A6D0FBBD5AA8D87"
     },
     "diagnose_work_booking": {
       "version": 1,
@@ -645,8 +645,8 @@
       "hash": "4302BE1652CC83E0F6335A10CCA4408A7FBFAC2287A7D981A95F7B093500F36C"
     },
     "explain_group_membership_validity": {
-      "version": 5,
-      "hash": "B65CB719E9E0F0A417ECB3C83D42D667DC04DFF09A783ADE940AE9A6AD3C3B70"
+      "version": 6,
+      "hash": "006C9A2EDC2B8D7833989A6EDDCADDA1DE493C92F15842AA5E0F55855B9FDB0D"
     },
     "explain_group_model": {
       "version": 5,
@@ -753,8 +753,8 @@
       "hash": "1DB7DE0E604126E3E219C8799F94636C774A172BC1310B0C6D99508358124D19"
     },
     "explain_page_schedule": {
-      "version": 9,
-      "hash": "43E105319FF323F2DFAEF5948253091589E5649F02AC397CBA253652C72D6D8A"
+      "version": 10,
+      "hash": "ABBFDD42A946C786C8EA761AF422D74B9C54B95BCC693FB023A75AA351BECE58"
     },
     "explain_page_settings_erp_drop_points": {
       "version": 10,

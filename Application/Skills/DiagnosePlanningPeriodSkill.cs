@@ -1,13 +1,17 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Read-only diagnosis of why a day cannot be planned for one employee from the planning periods alone: the employment
-/// (membership) period, the periods of the employee's group memberships and the day seals, evaluated exactly like the
-/// schedule grid does (a day outside the employment is shown dark, a day outside a group membership is shown blue and
-/// locked in that group's schedule). Takes the employee (id, or name plus optional client number), a day or a short range
-/// (at most 31 days) and optionally one group, whose subtree limits the memberships looked at. A hidden employee is answered
-/// exactly like an unknown one, memberships in groups outside the caller's group scope are only counted, never named. The
-/// answer is a structured status per day plus English sentences with the step that lifts each finding; it writes nothing.
+/// Read-only diagnosis of why a day cannot be planned from the planning periods alone: the employment (membership) period,
+/// the periods of the group memberships and the day seals, evaluated exactly like the schedule grid does (a day outside the
+/// employment is shown dark, a day outside a group membership is shown blue and locked in that group's schedule). Takes the
+/// employee (id, or name plus optional client number), a day or a short range (at most 31 days) and optionally one group,
+/// whose subtree limits the memberships looked at. A hidden employee is answered exactly like an unknown one, memberships in
+/// groups outside the caller's group scope are only counted, never named. The answer is a structured status per day plus
+/// English sentences with the step that lifts each finding; it writes nothing. Without an employee it summarizes a whole
+/// group (by name or id) for the same days, over the employees the schedule lists for it: how many are dark, how many are
+/// blue, the most common and the earliest start of the late memberships, and the sealed days, read in a few batched queries.
+/// The blue days of that summary come from the memberships in exactly the selected group, like the grid, which matches the
+/// selected group id exactly and not its subgroups; an employee who only belongs to a subgroup is listed but never blue.
 /// </summary>
 /// <param name="clientId">Optional. UUID of the employee; otherwise firstName/lastName</param>
 /// <param name="firstName">Optional. First name of the employee</param>
@@ -15,7 +19,8 @@
 /// <param name="idNumber">Optional. Client number that tells apart people with the same name</param>
 /// <param name="date">Required. The day to check, or the first day of a range</param>
 /// <param name="untilDate">Optional. Last day of a range of at most 31 days; empty checks the single day</param>
-/// <param name="groupName">Optional. Name of the group whose schedule is meant; empty looks at all groups the caller may see</param>
+/// <param name="groupName">Optional. Name of the group whose schedule is meant; empty looks at all groups the caller may see. Required (or groupId) without an employee</param>
+/// <param name="groupId">Optional. UUID of the group, as an alternative to groupName; the selectedGroupId of the page context when the user means the group on screen</param>
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -45,8 +50,12 @@ public class DiagnosePlanningPeriodSkill : BaseSkillImplementation
     private const string DateParameter = "date";
     private const string UntilDateParameter = "untilDate";
     private const string GroupNameParameter = "groupName";
+    private const string GroupIdParameter = "groupId";
 
-    private const string MissingClientMessage = "Please provide the employee: clientId, or firstName and lastName.";
+    private const string MissingSubjectMessage =
+        "Please provide the employee (clientId, or firstName and lastName) or the group (groupName, or groupId; for the " +
+        "cells on screen the selectedGroupId of the page context) to check.";
+    private const string GroupIdNotFoundMessage = "No group with this id exists in your group scope.";
     private const string MissingDateMessage = "Required parameter 'date' is missing. Ask the user for the day to check.";
     private const string RangeOrderMessage = "The untilDate lies before the date. Ask the user for the correct range.";
     private const string RangeTooLongMessage =
@@ -59,6 +68,8 @@ public class DiagnosePlanningPeriodSkill : BaseSkillImplementation
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly ISealedDayRepository _sealedDayRepository;
     private readonly ICompanyClock _companyClock;
+    private readonly IGroupPlanningAgentRepository _planningAgentRepository;
+    private readonly IGroupItemRepository _groupItemRepository;
 
     public DiagnosePlanningPeriodSkill(
         IClientSearchRepository clientSearchRepository,
@@ -67,7 +78,9 @@ public class DiagnosePlanningPeriodSkill : BaseSkillImplementation
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         ISealedDayRepository sealedDayRepository,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IGroupPlanningAgentRepository planningAgentRepository,
+        IGroupItemRepository groupItemRepository)
     {
         _clientSearchRepository = clientSearchRepository;
         _clientRepository = clientRepository;
@@ -76,6 +89,8 @@ public class DiagnosePlanningPeriodSkill : BaseSkillImplementation
         _groupScopeGuard = groupScopeGuard;
         _sealedDayRepository = sealedDayRepository;
         _companyClock = companyClock;
+        _planningAgentRepository = planningAgentRepository;
+        _groupItemRepository = groupItemRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -95,7 +110,7 @@ public class DiagnosePlanningPeriodSkill : BaseSkillImplementation
         var lastName = GetParameter<string>(parameters, LastNameParameter);
         if (string.IsNullOrWhiteSpace(clientIdRaw) && string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName))
         {
-            return SkillResult.Error(MissingClientMessage);
+            return await SummarizeGroupAsync(context, parameters, range, cancellationToken);
         }
 
         var (client, clientError) = await ClientResolver.ResolveByIdOrNameAsync(
@@ -108,7 +123,8 @@ public class DiagnosePlanningPeriodSkill : BaseSkillImplementation
 
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
         var (view, groupError) = await ReadMembershipsAsync(
-            client, GetParameter<string>(parameters, GroupNameParameter), scope, cancellationToken);
+            client, GetParameter<string>(parameters, GroupNameParameter), GetParameter<string>(parameters, GroupIdParameter),
+            scope, cancellationToken);
         if (view is null)
         {
             return SkillResult.Error(groupError!);
@@ -159,8 +175,75 @@ public class DiagnosePlanningPeriodSkill : BaseSkillImplementation
             : (checkedRange, null);
     }
 
+    private async Task<SkillResult> SummarizeGroupAsync(
+        SkillExecutionContext context,
+        Dictionary<string, object> parameters,
+        DateRange range,
+        CancellationToken cancellationToken)
+    {
+        var groupName = GetParameter<string>(parameters, GroupNameParameter);
+        var groupIdRaw = GetParameter<string>(parameters, GroupIdParameter);
+        if (string.IsNullOrWhiteSpace(groupName) && string.IsNullOrWhiteSpace(groupIdRaw))
+        {
+            return SkillResult.Error(MissingSubjectMessage);
+        }
+
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var groups = scope.Filter(await _groupRepository.List());
+        var (group, groupError) = ResolveGroup(groups, groupName, groupIdRaw);
+        if (group is null)
+        {
+            return SkillResult.Error(groupError!);
+        }
+
+        var employments = await _planningAgentRepository.GetAgentEmploymentsAsync(
+            group.Id, range.From, range.Until, cancellationToken);
+        var members = await ReadGroupMembersAsync(employments, group, cancellationToken);
+        var sealedClientDays = members.Count == 0
+            ? new HashSet<(Guid ClientId, DateOnly Date)>()
+            : await _sealedDayRepository.GetLockedClientDaysAsync(
+                members.Select(member => member.ClientId).ToList(), range.From, range.Until, cancellationToken);
+
+        var summary = PlanningGroupSummaryBuilder.Build(group.Name, range.From, range.Until, members, sealedClientDays);
+        return SkillResult.SuccessResult(PlanningGroupSummaryData.From(summary), PlanningGroupSummaryMessage.Compose(summary));
+    }
+
+    private async Task<List<PlanningGroupMember>> ReadGroupMembersAsync(
+        IReadOnlyList<PlanningAgentEmployment> employments,
+        Group group,
+        CancellationToken cancellationToken)
+    {
+        if (employments.Count == 0)
+        {
+            return [];
+        }
+
+        var ranges = await _groupItemRepository.GetValidityRangesAsync(
+            employments.Select(employment => employment.ClientId).ToList(), [group.Id], cancellationToken);
+
+        return employments
+            .Select(employment => ranges.TryGetValue(employment.ClientId, out var range)
+                ? new PlanningGroupMember(
+                    employment.ClientId, employment.Employment, ToDate(range.ValidFrom), ToDate(range.ValidUntil), true)
+                : new PlanningGroupMember(employment.ClientId, employment.Employment, null, null, false))
+            .ToList();
+    }
+
+    private static (Group? Group, string? Error) ResolveGroup(IReadOnlyList<Group> groups, string? groupName, string? groupIdRaw)
+    {
+        if (!string.IsNullOrWhiteSpace(groupIdRaw))
+        {
+            var byId = Guid.TryParse(groupIdRaw, out var groupId) ? groups.FirstOrDefault(group => group.Id == groupId) : null;
+            return byId is null ? (null, GroupIdNotFoundMessage) : (byId, null);
+        }
+
+        return GroupResolver.Resolve(groups, groupName);
+    }
+
+    private static DateOnly? ToDate(DateTime? value) => value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
+
     private async Task<(MembershipView? View, string? Error)> ReadMembershipsAsync(
-        Client client, string? groupName, GroupScopeAccess scope, CancellationToken cancellationToken)
+        Client client, string? groupName, string? groupIdRaw, GroupScopeAccess scope, CancellationToken cancellationToken)
     {
         var items = client.GroupItems
             .Where(item => !item.IsDeleted && item.AnalyseToken == null && item.ShiftId == null && item.Group is { IsDeleted: false })
@@ -169,10 +252,10 @@ public class DiagnosePlanningPeriodSkill : BaseSkillImplementation
         var hidden = items.Count - visible.Count;
 
         string? requestedName = null;
-        if (!string.IsNullOrWhiteSpace(groupName))
+        if (!string.IsNullOrWhiteSpace(groupName) || !string.IsNullOrWhiteSpace(groupIdRaw))
         {
             var groups = scope.Filter(await _groupRepository.List());
-            var (group, error) = GroupResolver.Resolve(groups, groupName);
+            var (group, error) = ResolveGroup(groups, groupName, groupIdRaw);
             if (group == null)
             {
                 return (null, error);

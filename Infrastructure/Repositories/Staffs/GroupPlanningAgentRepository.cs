@@ -7,7 +7,9 @@
 /// </summary>
 /// <param name="context">Database context</param>
 /// <param name="groupFilterService">Group subtree + visibility filter shared with the schedule client list</param>
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services.Clients;
@@ -36,5 +38,25 @@ public class GroupPlanningAgentRepository : IGroupPlanningAgentRepository
             .Select(c => c.Id)
             .Distinct()
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<PlanningAgentEmployment>> GetAgentEmploymentsAsync(
+        Guid groupId, DateOnly periodFrom, DateOnly periodUntil, CancellationToken cancellationToken = default)
+    {
+        var scoped = ScheduleClientScope.ActiveInPeriod(_context.Client.AsNoTracking(), periodFrom, periodUntil);
+        var inGroup = await _groupFilterService.FilterClientsByGroupId(groupId, scoped);
+
+        var rows = await inGroup
+            .Select(c => new { c.Id, c.Membership!.ValidFrom, c.Membership.ValidUntil })
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        return rows
+            .Select(row => new PlanningAgentEmployment(
+                row.Id,
+                new MembershipWindow(
+                    DateOnly.FromDateTime(row.ValidFrom),
+                    row.ValidUntil.HasValue ? DateOnly.FromDateTime(row.ValidUntil.Value) : null)))
+            .ToList();
     }
 }

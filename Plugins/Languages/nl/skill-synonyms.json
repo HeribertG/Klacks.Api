@@ -863,7 +863,9 @@
   "diagnose_planning_period": [
     "waarom is deze dag blauw voor de persoon",
     "waarom wordt de dag donker weergegeven",
-    "waarom kan de persoon op deze datum niet worden ingepland"
+    "waarom kan de persoon op deze datum niet worden ingepland",
+    "waarom zijn de cellen donkerblauw",
+    "waarom zijn de cellen blauw"
   ],
   "diagnose_work_booking": [
     "waarom kan ze maandag de vroege dienst niet krijgen",
@@ -1255,7 +1257,8 @@
     "leg de planningstool autowizard uit.",
     "wat betekenen de slotjes en vergrendelde dagen?",
     "hoe wissel ik van week naar maand in het dienstplan?",
-    "wat is het verschil tussen scenario's op het dienstplan?"
+    "wat is het verschil tussen scenario's op het dienstplan?",
+    "wat betekenen de kleuren van de cellen"
   ],
   "explain_page_settings_erp_drop_points": [
     "hoe stel ik de erp-import in",

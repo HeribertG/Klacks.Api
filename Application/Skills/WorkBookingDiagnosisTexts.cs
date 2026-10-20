@@ -51,7 +51,8 @@ internal static class WorkBookingDiagnosisTexts
         "accepted into the real plan.";
 
     public const string RelayInstruction =
-        "Relay the reasons and remedies in plain words in the user's language, never codes or field names.";
+        "Relay the reasons and remedies in plain words in the user's language, never codes or field names. These are the " +
+        "verified facts: state them as they are and do not add other causes you were not given.";
 
     public static readonly IReadOnlyDictionary<WorkBookingRefusalReason, string> Reasons =
         new Dictionary<WorkBookingRefusalReason, string>

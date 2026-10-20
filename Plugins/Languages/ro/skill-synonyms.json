@@ -849,7 +849,9 @@
   "diagnose_planning_period": [
     "de ce este această zi albastră pentru persoană",
     "de ce apare ziua întunecată",
-    "de ce nu poate fi planificată persoana la această dată"
+    "de ce nu poate fi planificată persoana la această dată",
+    "de ce sunt celulele albastru închis",
+    "de ce sunt celulele albastre"
   ],
   "diagnose_work_booking": [
     "de ce nu o pot programa luni în tura de dimineață",
@@ -1239,7 +1241,8 @@
     "ce fac butoanele din bara de unelte a planificatorului",
     "cum folosesc autowizard-ul",
     "ce înseamnă nivelurile de blocare și zilele sigilate",
-    "cum export programul în pdf"
+    "cum export programul în pdf",
+    "ce înseamnă culorile celulelor"
   ],
   "explain_page_settings_erp_drop_points": [
     "cum se configurează importul erp",
