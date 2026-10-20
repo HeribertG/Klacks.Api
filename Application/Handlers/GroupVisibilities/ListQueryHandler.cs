@@ -10,13 +10,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.GroupVisibilities;
 
-public class ListQueryhandler : IRequestHandler<ListQuery<GroupVisibilityResource>, IEnumerable<GroupVisibilityResource>>
+public class ListQueryHandler : IRequestHandler<ListQuery<GroupVisibilityResource>, IEnumerable<GroupVisibilityResource>>
 {
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
     private readonly GroupMapper _groupMapper;
-    private readonly ILogger<ListQueryhandler> _logger;
+    private readonly ILogger<ListQueryHandler> _logger;
 
-    public ListQueryhandler(IGroupVisibilityRepository groupVisibilityRepository, GroupMapper groupMapper, ILogger<ListQueryhandler> logger)
+    public ListQueryHandler(IGroupVisibilityRepository groupVisibilityRepository, GroupMapper groupMapper, ILogger<ListQueryHandler> logger)
     {
         _groupVisibilityRepository = groupVisibilityRepository;
         _groupMapper = groupMapper;

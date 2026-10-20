@@ -9,11 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Persistence;
 
-public interface IIdentityProviderSecretBackfill
-{
-    Task EncryptLegacySecretsAsync();
-}
-
 public class IdentityProviderSecretBackfill : IIdentityProviderSecretBackfill
 {
     private const string EncryptedPrefix = "ENC:";

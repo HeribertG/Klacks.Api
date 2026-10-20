@@ -5,11 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Persistence.StoredProcedures;
 
-public interface IStoredProcedureInitializer
-{
-    Task InitializeAsync(CancellationToken cancellationToken = default);
-}
-
 public class StoredProcedureInitializer : IStoredProcedureInitializer
 {
     private readonly DataBaseContext _context;

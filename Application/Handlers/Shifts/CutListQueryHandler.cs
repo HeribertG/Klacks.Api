@@ -21,18 +21,18 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 /// <param name="shiftGroupFilterService">Resolves the caller's group restriction (null = unrestricted)</param>
 /// <param name="scheduleMapper">Maps the cuts to the API resource</param>
 /// <param name="logger">Diagnostics logging</param>
-public class CutListQueryhandler : IRequestHandler<CutListQuery, IEnumerable<ShiftResource>>
+public class CutListQueryHandler : IRequestHandler<CutListQuery, IEnumerable<ShiftResource>>
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftGroupFilterService _shiftGroupFilterService;
     private readonly ScheduleMapper _scheduleMapper;
-    private readonly ILogger<CutListQueryhandler> _logger;
+    private readonly ILogger<CutListQueryHandler> _logger;
 
-    public CutListQueryhandler(
+    public CutListQueryHandler(
         IShiftRepository shiftRepository,
         IShiftGroupFilterService shiftGroupFilterService,
         ScheduleMapper scheduleMapper,
-        ILogger<CutListQueryhandler> logger)
+        ILogger<CutListQueryHandler> logger)
     {
         _shiftRepository = shiftRepository;
         _shiftGroupFilterService = shiftGroupFilterService;
