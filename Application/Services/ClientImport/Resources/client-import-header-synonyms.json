@@ -24,7 +24,9 @@
       "Contract": ["Vertrag", "Arbeitsvertrag", "Vertragsart"],
       "Group": ["Gruppe", "Abteilung", "Team", "Filiale", "Standort"],
       "PersonnelNumber": ["Personalnummer", "Personal-Nr.", "Mitarbeiternummer", "Pers.-Nr."],
-      "Note": ["Bemerkung", "Bemerkungen", "Notiz", "Kommentar", "Anmerkung"]
+      "Note": ["Bemerkung", "Bemerkungen", "Notiz", "Kommentar", "Anmerkung"],
+      "Type": ["Typ", "Art", "Mitarbeitertyp", "Mitarbeiterart", "Personentyp", "Kontakttyp"],
+      "Company": ["Firma", "Unternehmen", "Firmenname"]
     },
     "en": {
       "FirstName": ["First name", "Given name", "Forename"],
@@ -50,7 +52,9 @@
       "Contract": ["Contract", "Contract type", "Employment contract"],
       "Group": ["Group", "Department", "Branch", "Location"],
       "PersonnelNumber": ["Employee number", "Employee ID", "Personnel number", "Staff number", "Payroll number"],
-      "Note": ["Note", "Notes", "Comment", "Comments", "Remarks"]
+      "Note": ["Note", "Notes", "Comment", "Comments", "Remarks"],
+      "Type": ["Type", "Employee type", "Person type", "Contact type", "Client type"],
+      "Company": ["Company", "Company name", "Organization", "Organisation"]
     },
     "fr": {
       "FirstName": ["Prénom", "Prénoms"],
@@ -76,7 +80,9 @@
       "Contract": ["Contrat", "Type de contrat"],
       "Group": ["Groupe", "Équipe", "Service", "Site"],
       "PersonnelNumber": ["Numéro personnel", "Matricule", "Numéro d'employé"],
-      "Note": ["Remarque", "Remarques", "Commentaire"]
+      "Note": ["Remarque", "Remarques", "Commentaire"],
+      "Type": ["Type", "Type de personne", "Type de collaborateur", "Type de contact"],
+      "Company": ["Entreprise", "Société", "Raison sociale", "Nom de l'entreprise"]
     },
     "it": {
       "FirstName": ["Nome"],
@@ -102,7 +108,9 @@
       "Contract": ["Contratto", "Tipo di contratto"],
       "Group": ["Gruppo", "Reparto", "Squadra", "Sede"],
       "PersonnelNumber": ["Numero del personale", "Matricola", "Numero dipendente"],
-      "Note": ["Osservazioni", "Nota", "Commento"]
+      "Note": ["Osservazioni", "Nota", "Commento"],
+      "Type": ["Tipo", "Tipologia", "Tipo di persona", "Tipo di collaboratore"],
+      "Company": ["Azienda", "Ditta", "Società", "Ragione sociale", "Impresa"]
     },
     "ar": {
       "FirstName": ["الاسم الأول"],
@@ -128,7 +136,9 @@
       "Contract": ["العقد", "نوع العقد"],
       "Group": ["المجموعة", "القسم", "الفريق"],
       "PersonnelNumber": ["الرقم الوظيفي", "رقم الموظف"],
-      "Note": ["ملاحظات", "ملاحظة"]
+      "Note": ["ملاحظات", "ملاحظة"],
+      "Type": ["الفئة", "نوع الشخص", "نوع الموظف"],
+      "Company": ["الشركة", "اسم الشركة", "المؤسسة"]
     },
     "cs": {
       "FirstName": ["Jméno", "Křestní jméno"],
@@ -154,7 +164,9 @@
       "Contract": ["Smlouva", "Pracovní smlouva", "Typ smlouvy"],
       "Group": ["Skupina", "Oddělení", "Tým"],
       "PersonnelNumber": ["Osobní číslo", "Číslo zaměstnance"],
-      "Note": ["Poznámka", "Komentář"]
+      "Note": ["Poznámka", "Komentář"],
+      "Type": ["Typ", "Druh", "Typ zaměstnance", "Typ osoby"],
+      "Company": ["Firma", "Společnost", "Název firmy", "Podnik"]
     },
     "da": {
       "FirstName": ["Fornavn"],
@@ -180,7 +192,9 @@
       "Contract": ["Kontrakt", "Ansættelseskontrakt", "Kontrakttype"],
       "Group": ["Gruppe", "Afdeling", "Team"],
       "PersonnelNumber": ["Medarbejdernummer", "Personalenummer", "Lønnummer"],
-      "Note": ["Bemærkning", "Bemærkninger", "Kommentar"]
+      "Note": ["Bemærkning", "Bemærkninger", "Kommentar"],
+      "Type": ["Type", "Medarbejdertype", "Persontype"],
+      "Company": ["Firma", "Virksomhed", "Firmanavn", "Selskab"]
     },
     "el": {
       "FirstName": ["Όνομα"],
@@ -206,7 +220,9 @@
       "Contract": ["Σύμβαση", "Τύπος σύμβασης"],
       "Group": ["Ομάδα", "Τμήμα"],
       "PersonnelNumber": ["Αριθμός μητρώου", "Κωδικός υπαλλήλου"],
-      "Note": ["Παρατηρήσεις", "Σημείωση", "Σχόλια"]
+      "Note": ["Παρατηρήσεις", "Σημείωση", "Σχόλια"],
+      "Type": ["Τύπος", "Τύπος προσώπου", "Τύπος εργαζομένου"],
+      "Company": ["Εταιρεία", "Επιχείρηση", "Επωνυμία"]
     },
     "es": {
       "FirstName": ["Nombre", "Nombres"],
@@ -232,7 +248,9 @@
       "Contract": ["Contrato", "Tipo de contrato"],
       "Group": ["Grupo", "Departamento", "Equipo", "Sucursal"],
       "PersonnelNumber": ["Número de empleado", "Número de personal", "Legajo"],
-      "Note": ["Observaciones", "Notas", "Comentario"]
+      "Note": ["Observaciones", "Notas", "Comentario"],
+      "Type": ["Tipo", "Tipo de persona", "Tipo de empleado"],
+      "Company": ["Empresa", "Compañía", "Razón social", "Nombre de la empresa"]
     },
     "fi": {
       "FirstName": ["Etunimi", "Etunimet"],
@@ -258,7 +276,9 @@
       "Contract": ["Sopimus", "Työsopimus", "Sopimustyyppi"],
       "Group": ["Ryhmä", "Osasto", "Tiimi"],
       "PersonnelNumber": ["Henkilönumero", "Työntekijänumero"],
-      "Note": ["Huomautus", "Lisätiedot", "Kommentti"]
+      "Note": ["Huomautus", "Lisätiedot", "Kommentti"],
+      "Type": ["Tyyppi", "Henkilötyyppi", "Työntekijätyyppi"],
+      "Company": ["Yritys", "Yhtiö", "Yrityksen nimi", "Toiminimi"]
     },
     "he": {
       "FirstName": ["שם פרטי"],
@@ -284,7 +304,9 @@
       "Contract": ["חוזה", "סוג חוזה"],
       "Group": ["קבוצה", "מחלקה", "צוות"],
       "PersonnelNumber": ["מספר עובד"],
-      "Note": ["הערות", "הערה"]
+      "Note": ["הערות", "הערה"],
+      "Type": ["סוג", "סוג איש קשר", "סוג עובד"],
+      "Company": ["חברה", "שם החברה", "ארגון"]
     },
     "id": {
       "FirstName": ["Nama depan"],
@@ -310,7 +332,9 @@
       "Contract": ["Kontrak", "Jenis kontrak"],
       "Group": ["Grup", "Kelompok", "Departemen", "Tim"],
       "PersonnelNumber": ["Nomor induk karyawan", "ID karyawan"],
-      "Note": ["Catatan", "Keterangan"]
+      "Note": ["Catatan", "Keterangan"],
+      "Type": ["Tipe", "Jenis", "Tipe karyawan"],
+      "Company": ["Perusahaan", "Nama perusahaan", "Firma"]
     },
     "ja": {
       "FirstName": ["名"],
@@ -336,7 +360,9 @@
       "Contract": ["契約形態", "契約", "雇用契約"],
       "Group": ["部署", "グループ", "所属"],
       "PersonnelNumber": ["社員番号", "従業員番号"],
-      "Note": ["備考", "メモ", "コメント"]
+      "Note": ["備考", "メモ", "コメント"],
+      "Type": ["種別", "区分", "タイプ", "従業員区分"],
+      "Company": ["会社名", "会社", "企業名"]
     },
     "ko": {
       "FirstName": ["이름"],
@@ -362,7 +388,9 @@
       "Contract": ["계약", "계약 유형", "고용 계약"],
       "Group": ["부서", "그룹", "팀"],
       "PersonnelNumber": ["사번", "직원 번호"],
-      "Note": ["비고", "메모"]
+      "Note": ["비고", "메모"],
+      "Type": ["유형", "구분", "직원 유형"],
+      "Company": ["회사", "회사명", "업체명"]
     },
     "ms": {
       "FirstName": ["Nama pertama"],
@@ -388,7 +416,9 @@
       "Contract": ["Kontrak", "Jenis kontrak"],
       "Group": ["Kumpulan", "Jabatan", "Pasukan"],
       "PersonnelNumber": ["Nombor pekerja", "ID pekerja"],
-      "Note": ["Catatan", "Nota"]
+      "Note": ["Catatan", "Nota"],
+      "Type": ["Jenis", "Jenis pekerja", "Jenis orang"],
+      "Company": ["Syarikat", "Nama syarikat", "Firma"]
     },
     "nb": {
       "FirstName": ["Fornavn"],
@@ -414,7 +444,9 @@
       "Contract": ["Kontrakt", "Arbeidskontrakt", "Kontrakttype"],
       "Group": ["Gruppe", "Avdeling", "Team"],
       "PersonnelNumber": ["Ansattnummer", "Personalnummer"],
-      "Note": ["Merknad", "Kommentar", "Notat"]
+      "Note": ["Merknad", "Kommentar", "Notat"],
+      "Type": ["Type", "Ansattype", "Persontype"],
+      "Company": ["Firma", "Selskap", "Bedrift", "Firmanavn"]
     },
     "nl": {
       "FirstName": ["Voornaam", "Roepnaam", "Voornamen"],
@@ -440,7 +472,9 @@
       "Contract": ["Contract", "Contractsoort", "Arbeidscontract"],
       "Group": ["Groep", "Afdeling", "Team", "Vestiging"],
       "PersonnelNumber": ["Personeelsnummer", "Medewerkernummer"],
-      "Note": ["Opmerking", "Opmerkingen", "Notitie"]
+      "Note": ["Opmerking", "Opmerkingen", "Notitie"],
+      "Type": ["Type", "Soort", "Medewerkertype", "Persoonstype"],
+      "Company": ["Bedrijf", "Firma", "Bedrijfsnaam", "Onderneming"]
     },
     "pl": {
       "FirstName": ["Imię"],
@@ -466,7 +500,9 @@
       "Contract": ["Umowa", "Rodzaj umowy"],
       "Group": ["Grupa", "Dział", "Zespół"],
       "PersonnelNumber": ["Numer pracownika", "Nr ewidencyjny"],
-      "Note": ["Uwagi", "Notatka", "Komentarz"]
+      "Note": ["Uwagi", "Notatka", "Komentarz"],
+      "Type": ["Typ", "Rodzaj", "Typ pracownika", "Typ osoby"],
+      "Company": ["Firma", "Przedsiębiorstwo", "Nazwa firmy", "Spółka"]
     },
     "pt": {
       "FirstName": ["Nome", "Primeiro nome"],
@@ -492,7 +528,9 @@
       "Contract": ["Contrato", "Tipo de contrato"],
       "Group": ["Grupo", "Departamento", "Equipa", "Equipe", "Filial"],
       "PersonnelNumber": ["Número de funcionário", "Matrícula", "Número do colaborador"],
-      "Note": ["Observações", "Nota", "Notas", "Comentário"]
+      "Note": ["Observações", "Nota", "Notas", "Comentário"],
+      "Type": ["Tipo", "Tipo de pessoa", "Tipo de colaborador"],
+      "Company": ["Empresa", "Companhia", "Razão social", "Nome da empresa"]
     },
     "ro": {
       "FirstName": ["Prenume"],
@@ -518,7 +556,9 @@
       "Contract": ["Contract", "Tip contract"],
       "Group": ["Grup", "Departament", "Echipă"],
       "PersonnelNumber": ["Marcă", "Număr angajat"],
-      "Note": ["Observații", "Notă", "Comentariu"]
+      "Note": ["Observații", "Notă", "Comentariu"],
+      "Type": ["Tip", "Tip persoană", "Tip angajat"],
+      "Company": ["Companie", "Firmă", "Societate", "Denumire firmă"]
     },
     "sv": {
       "FirstName": ["Förnamn", "Tilltalsnamn"],
@@ -544,7 +584,9 @@
       "Contract": ["Avtal", "Anställningsavtal", "Kontrakt"],
       "Group": ["Grupp", "Avdelning", "Team"],
       "PersonnelNumber": ["Anställningsnummer", "Personalnummer"],
-      "Note": ["Anteckning", "Kommentar", "Anmärkning"]
+      "Note": ["Anteckning", "Kommentar", "Anmärkning"],
+      "Type": ["Typ", "Persontyp", "Medarbetartyp"],
+      "Company": ["Företag", "Firma", "Bolag", "Företagsnamn"]
     },
     "th": {
       "FirstName": ["ชื่อ", "ชื่อจริง"],
@@ -570,7 +612,9 @@
       "Contract": ["สัญญาจ้าง", "ประเภทสัญญา", "สัญญา"],
       "Group": ["แผนก", "กลุ่ม", "ทีม"],
       "PersonnelNumber": ["รหัสพนักงาน"],
-      "Note": ["หมายเหตุ"]
+      "Note": ["หมายเหตุ"],
+      "Type": ["ประเภท", "ประเภทบุคคล", "ประเภทพนักงาน"],
+      "Company": ["บริษัท", "ชื่อบริษัท"]
     },
     "vi": {
       "FirstName": ["Tên"],
@@ -596,7 +640,9 @@
       "Contract": ["Hợp đồng", "Loại hợp đồng"],
       "Group": ["Nhóm", "Phòng ban", "Bộ phận"],
       "PersonnelNumber": ["Mã nhân viên", "Mã số nhân viên"],
-      "Note": ["Ghi chú"]
+      "Note": ["Ghi chú"],
+      "Type": ["Loại", "Loại nhân viên", "Loại đối tượng"],
+      "Company": ["Công ty", "Tên công ty", "Doanh nghiệp"]
     },
     "zh-CN": {
       "FirstName": ["名", "名字"],
@@ -622,7 +668,9 @@
       "Contract": ["合同", "合同类型"],
       "Group": ["部门", "组", "团队", "小组"],
       "PersonnelNumber": ["工号", "员工编号"],
-      "Note": ["备注", "说明"]
+      "Note": ["备注", "说明"],
+      "Type": ["类型", "人员类型", "员工类型"],
+      "Company": ["公司", "公司名称", "企业名称"]
     },
     "zh-TW": {
       "FirstName": ["名", "名字"],
@@ -648,7 +696,9 @@
       "Contract": ["合約", "合約類型"],
       "Group": ["部門", "組", "團隊", "小組"],
       "PersonnelNumber": ["員工編號", "工號"],
-      "Note": ["備註", "說明"]
+      "Note": ["備註", "說明"],
+      "Type": ["類型", "人員類型", "員工類型"],
+      "Company": ["公司", "公司名稱", "企業名稱"]
     }
   },
   "genderValues": {
@@ -776,6 +826,133 @@
       "Female": ["女", "女性", "女士", "小姐"],
       "Male": ["男", "男性", "先生"],
       "Intersexuality": ["其他", "雙性人"]
+    }
+  },
+  "typeValues": {
+    "de": {
+      "Employee": ["Mitarbeiter", "Mitarbeiterin", "Mitarbeitende", "Mitarbeitender", "Angestellter", "Angestellte", "Arbeitnehmer", "Personal", "Intern", "Interner Mitarbeiter"],
+      "ExternEmp": ["Extern", "Externer", "Externe", "Externer Mitarbeiter", "Externe Mitarbeiterin", "Externe Mitarbeitende", "Freier Mitarbeiter", "Freelancer"],
+      "Customer": ["Kunde", "Kundin", "Kunden", "Auftraggeber"]
+    },
+    "en": {
+      "Employee": ["Employee", "Staff", "Staff member", "Internal", "Internal employee"],
+      "ExternEmp": ["External", "External employee", "Contractor", "Freelancer"],
+      "Customer": ["Customer", "Client"]
+    },
+    "fr": {
+      "Employee": ["Collaborateur", "Collaboratrice", "Employé", "Employée", "Salarié", "Salariée", "Interne"],
+      "ExternEmp": ["Externe", "Collaborateur externe", "Collaboratrice externe", "Employé externe", "Indépendant"],
+      "Customer": ["Client", "Cliente"]
+    },
+    "it": {
+      "Employee": ["Collaboratore", "Collaboratrice", "Dipendente", "Impiegato", "Impiegata", "Interno"],
+      "ExternEmp": ["Esterno", "Esterna", "Collaboratore esterno", "Collaboratrice esterna", "Dipendente esterno"],
+      "Customer": ["Cliente"]
+    },
+    "ar": {
+      "Employee": ["موظف", "موظفة", "داخلي"],
+      "ExternEmp": ["خارجي", "موظف خارجي", "متعاقد"],
+      "Customer": ["عميل", "زبون"]
+    },
+    "cs": {
+      "Employee": ["Zaměstnanec", "Zaměstnankyně", "Interní"],
+      "ExternEmp": ["Externí", "Externí pracovník", "Externista"],
+      "Customer": ["Zákazník", "Zákaznice", "Klient"]
+    },
+    "da": {
+      "Employee": ["Medarbejder", "Ansat", "Intern"],
+      "ExternEmp": ["Ekstern", "Ekstern medarbejder", "Freelancer"],
+      "Customer": ["Kunde"]
+    },
+    "el": {
+      "Employee": ["Υπάλληλος", "Εργαζόμενος", "Εργαζόμενη", "Εσωτερικός"],
+      "ExternEmp": ["Εξωτερικός", "Εξωτερική", "Εξωτερικός συνεργάτης"],
+      "Customer": ["Πελάτης", "Πελάτισσα"]
+    },
+    "es": {
+      "Employee": ["Empleado", "Empleada", "Trabajador", "Colaborador", "Interno"],
+      "ExternEmp": ["Externo", "Externa", "Empleado externo", "Colaborador externo", "Autónomo"],
+      "Customer": ["Cliente"]
+    },
+    "fi": {
+      "Employee": ["Työntekijä", "Henkilöstö", "Sisäinen"],
+      "ExternEmp": ["Ulkoinen", "Ulkoinen työntekijä", "Vuokratyöntekijä", "Freelancer"],
+      "Customer": ["Asiakas"]
+    },
+    "he": {
+      "Employee": ["עובד", "עובדת", "פנימי"],
+      "ExternEmp": ["חיצוני", "עובד חיצוני", "קבלן"],
+      "Customer": ["לקוח", "לקוחה"]
+    },
+    "id": {
+      "Employee": ["Karyawan", "Pegawai", "Internal"],
+      "ExternEmp": ["Eksternal", "Karyawan eksternal", "Kontraktor", "Pekerja lepas"],
+      "Customer": ["Pelanggan", "Klien"]
+    },
+    "ja": {
+      "Employee": ["従業員", "社員", "正社員", "内部"],
+      "ExternEmp": ["外部", "外部スタッフ", "業務委託", "派遣"],
+      "Customer": ["顧客", "取引先", "お客様"]
+    },
+    "ko": {
+      "Employee": ["직원", "사원", "내부"],
+      "ExternEmp": ["외부", "외부인", "외부 직원", "외주"],
+      "Customer": ["고객", "거래처"]
+    },
+    "ms": {
+      "Employee": ["Pekerja", "Kakitangan", "Dalaman"],
+      "ExternEmp": ["Luaran", "Pekerja luaran", "Kontraktor"],
+      "Customer": ["Pelanggan"]
+    },
+    "nb": {
+      "Employee": ["Ansatt", "Medarbeider", "Intern"],
+      "ExternEmp": ["Ekstern", "Innleid", "Ekstern medarbeider", "Frilanser"],
+      "Customer": ["Kunde"]
+    },
+    "nl": {
+      "Employee": ["Medewerker", "Werknemer", "Personeelslid", "Intern"],
+      "ExternEmp": ["Extern", "Externe medewerker", "Freelancer", "Zzp'er"],
+      "Customer": ["Klant"]
+    },
+    "pl": {
+      "Employee": ["Pracownik", "Zatrudniony", "Wewnętrzny"],
+      "ExternEmp": ["Zewnętrzny", "Pracownik zewnętrzny", "Zleceniobiorca"],
+      "Customer": ["Klient", "Klientka"]
+    },
+    "pt": {
+      "Employee": ["Funcionário", "Funcionária", "Colaborador", "Colaboradora", "Empregado", "Interno"],
+      "ExternEmp": ["Externo", "Externa", "Colaborador externo", "Prestador de serviços"],
+      "Customer": ["Cliente"]
+    },
+    "ro": {
+      "Employee": ["Angajat", "Angajată", "Salariat", "Intern"],
+      "ExternEmp": ["Extern", "Colaborator extern", "Angajat extern"],
+      "Customer": ["Client", "Clientă"]
+    },
+    "sv": {
+      "Employee": ["Anställd", "Medarbetare", "Intern"],
+      "ExternEmp": ["Extern", "Extern medarbetare", "Konsult", "Frilansare"],
+      "Customer": ["Kund"]
+    },
+    "th": {
+      "Employee": ["พนักงาน", "ภายใน"],
+      "ExternEmp": ["ภายนอก", "บุคลากรภายนอก", "พนักงานภายนอก", "ผู้รับเหมา"],
+      "Customer": ["ลูกค้า"]
+    },
+    "vi": {
+      "Employee": ["Nhân viên", "Nội bộ"],
+      "ExternEmp": ["Bên ngoài", "Nhân viên bên ngoài", "Cộng tác viên"],
+      "Customer": ["Khách hàng"]
+    },
+    "zh-CN": {
+      "Employee": ["员工", "职员", "内部"],
+      "ExternEmp": ["外部", "外部人员", "外包"],
+      "Customer": ["客户"]
+    },
+    "zh-TW": {
+      "Employee": ["員工", "職員", "內部"],
+      "ExternEmp": ["外部", "外部人員", "外包"],
+      "Customer": ["客戶"]
     }
   }
 }

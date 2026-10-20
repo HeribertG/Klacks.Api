@@ -1,10 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Checks a transformed import row against the rules the manual client form enforces
-/// (ClientPersonRules: first name, last name, person gender), the column lengths of the client and
-/// communication tables, the entry-date plausibility window shared with create_employee
-/// (MembershipValidFromPlausibility) and an exit date that lies before the entry date.
+/// Checks a transformed import row against the rules the manual client form enforces: a person
+/// (ClientPersonRules: first name, last name, person gender) or a legal entity (ClientLegalEntityRules: an
+/// address with postcode, city and country; company and customer type are guaranteed by the transformer,
+/// the person name is an optional contact person and needs no gender).
+/// It also checks the column lengths of the client and communication tables, the entry-date plausibility
+/// window shared with create_employee (MembershipValidFromPlausibility) and an exit date that lies before
+/// the entry date.
 /// </summary>
 
 using Klacks.Api.Application.Common;
@@ -18,23 +21,18 @@ public static class ClientImportValidator
 {
     public static void Validate(ClientImportDraft draft, ClientImportLookup lookup)
     {
-        if (!ClientPersonRules.HasName(draft.FirstName))
+        if (draft.LegalEntity)
         {
-            draft.AddIssue(ClientImportFields.FirstName, ClientImportIssueSeverity.Error, ClientImportIssueCodes.MissingFirstName);
+            ValidateLegalEntity(draft);
         }
-
-        if (!ClientPersonRules.HasName(draft.LastName))
+        else
         {
-            draft.AddIssue(ClientImportFields.LastName, ClientImportIssueSeverity.Error, ClientImportIssueCodes.MissingLastName);
-        }
-
-        if (draft.Gender is not { } gender || !ClientPersonRules.IsPersonGender(gender))
-        {
-            draft.AddIssue(ClientImportFields.Gender, ClientImportIssueSeverity.Error, ClientImportIssueCodes.MissingGender);
+            ValidatePerson(draft);
         }
 
         CheckLength(draft, ClientImportFields.FirstName, draft.FirstName, ClientImportLimits.MaxPersonFieldLength);
         CheckLength(draft, ClientImportFields.LastName, draft.LastName, ClientImportLimits.MaxPersonFieldLength);
+        CheckLength(draft, ClientImportFields.Company, draft.Company, ClientImportLimits.MaxCompanyLength);
         CheckLength(draft, ClientImportFields.Title, draft.Title, ClientImportLimits.MaxPersonFieldLength);
         CheckLength(draft, ClientImportFields.Email, draft.Email, ClientImportLimits.MaxCommunicationValueLength);
         CheckLength(draft, ClientImportFields.Phone, draft.PhoneNumber, ClientImportLimits.MaxCommunicationValueLength);
@@ -56,6 +54,37 @@ public static class ClientImportValidator
                     [ClientImportIssueArgs.Reason] = ClientImportIssueArgs.ReasonExitBeforeEntry
                 });
         }
+    }
+
+    private static void ValidatePerson(ClientImportDraft draft)
+    {
+        if (!ClientPersonRules.HasName(draft.FirstName))
+        {
+            draft.AddIssue(ClientImportFields.FirstName, ClientImportIssueSeverity.Error, ClientImportIssueCodes.MissingFirstName);
+        }
+
+        if (!ClientPersonRules.HasName(draft.LastName))
+        {
+            draft.AddIssue(ClientImportFields.LastName, ClientImportIssueSeverity.Error, ClientImportIssueCodes.MissingLastName);
+        }
+
+        if (draft.Gender is not { } gender || !ClientPersonRules.IsPersonGender(gender))
+        {
+            draft.AddIssue(ClientImportFields.Gender, ClientImportIssueSeverity.Error, ClientImportIssueCodes.MissingGender);
+        }
+    }
+
+    private static void ValidateLegalEntity(ClientImportDraft draft)
+    {
+        if (ClientLegalEntityRules.IsCompleteAddress(draft.Zip, draft.City, draft.CountryCode))
+        {
+            return;
+        }
+
+        var field = string.IsNullOrWhiteSpace(draft.Zip) ? ClientImportFields.Zip
+            : string.IsNullOrWhiteSpace(draft.City) ? ClientImportFields.City
+            : ClientImportFields.Country;
+        draft.AddIssue(field, ClientImportIssueSeverity.Error, ClientImportIssueCodes.LegalEntityAddressIncomplete);
     }
 
     private static void CheckLength(ClientImportDraft draft, string field, string? value, int maxLength)

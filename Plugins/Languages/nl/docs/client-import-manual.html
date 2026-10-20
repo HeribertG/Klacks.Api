@@ -1,0 +1,611 @@
+<h2>Medewerkersimport – Handleiding</h2>
+
+<h3>Wat is de medewerkersimport?</h3>
+<p>
+De medewerkersimport neemt een volledige personeelslijst over uit <strong>één Excel-bestand (.xlsx) of
+één CSV-bestand (.csv)</strong> met één rij per persoon, in plaats van iedere persoon handmatig aan te
+maken. Klacks herkent de kolommen zelf, laat in een voorbeeld zien hoe elk record eruit komt te zien en
+slaat pas na bevestiging op. Naast medewerkers kan hetzelfde bestand ook externe medewerkers en klanten
+bevatten.
+</p>
+<ul>
+  <li>
+    <strong>Wie mag importeren:</strong> alleen beheerders. De kaart <em>Medewerkers importeren</em> staat
+    in de instellingen, sectie <em>Organisatie</em>; de knop <em>Importeren</em> opent de importpagina.
+    Andere gebruikers zien de kaart niet en hebben voor de import een beheerder nodig.
+  </li>
+  <li>
+    <strong>Privacy:</strong> het bestand zelf wordt niet opgeslagen. Het wordt alleen gelezen; alleen de
+    in het voorbeeld bevestigde rijen worden aangemaakt.
+  </li>
+  <li>
+    <strong>Vier stappen:</strong> <em>Bestand</em> → <em>Toewijzing en regels</em> → <em>Voorbeeld</em> →
+    <em>Resultaat</em>. Het tabblad <em>Handleiding</em> toont deze handleiding; wie ernaar overschakelt,
+    verliest een lopende import niet.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Ondersteunde bestanden</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> en <strong>CSV (.csv)</strong>; een .txt-bestand wordt gelezen als een
+    CSV-bestand. Het oude Excel-formaat <strong>.xls wordt niet ondersteund</strong> – sla het bestand
+    eerst in Excel op als .xlsx.
+  </li>
+  <li>
+    <strong>Excel-werkmappen:</strong> alleen zichtbare werkbladen worden gelezen, standaard het eerste.
+    Bij een werkmap met meerdere werkbladen is in stap 2 de keuze <em>Werkblad</em> beschikbaar. Het
+    berekende resultaat van een formule wordt geïmporteerd. Cellen die als datum zijn opgemaakt, worden
+    als datum gelezen. Getallen in cellen met de opmaak "Standaard" verliezen voorloopnullen (postcode
+    01234 wordt 1234) – maak zulke kolommen op als tekst (de sjabloon doet dat al).
+  </li>
+  <li>
+    <strong>Codering van CSV-bestanden:</strong> UTF-8 (met of zonder byte order mark) en UTF-16 met byte
+    order mark worden herkend; elk ander bestand wordt gelezen als Windows-1252 (het gebruikelijke
+    "ANSI"-formaat van Excel onder Windows in West-Europa), zodat West-Europese umlauten en accenten
+    zonder instelling goed doorkomen. Sla voor alle andere schriften en letters (bijvoorbeeld ł, ř,
+    ș, Grieks, Arabisch, Hebreeuws, Chinees, Japans, Koreaans of Thai) het bestand op als
+    "CSV UTF-8" of gebruik .xlsx.
+  </li>
+  <li>
+    <strong>Scheidingsteken van CSV-bestanden:</strong> puntkomma, komma, tab of verticale streep (|)
+    wordt automatisch herkend. Waarden tussen aanhalingstekens mogen het scheidingsteken en regeleinden
+    bevatten.
+  </li>
+  <li>
+    <strong>Koprij:</strong> de eerste rij met kolomnamen moet binnen de eerste 10 niet-lege rijen liggen
+    en minstens twee tekstcellen bevatten. Rijen daarboven (bijvoorbeeld een titel) en lege rijen worden
+    genegeerd.
+  </li>
+  <li>
+    <strong>Datumnotaties:</strong> dag, maand en jaar gescheiden door een punt, schuine streep of
+    koppelteken, bijvoorbeeld 31.12.1990, 12/31/1990 of 1990-12-31; een tijdsdeel na de datum wordt
+    genegeerd. Een waarde die met een jaartal van vier cijfers begint, wordt altijd gelezen als
+    jaar-maand-dag. Als uit het bestand niet blijkt of de dag of de maand voorop staat (geen waarde boven
+    12), gaat Klacks uit van dag/maand/jaar en vraagt Klacks om de datumnotatie in stap 2 te
+    controleren. Maandnamen (bijvoorbeeld "31 Dec 1990") worden niet herkend.
+  </li>
+  <li>
+    <strong>Jaartallen met twee cijfers:</strong> jaartallen tot en met de laatste twee cijfers van het
+    huidige jaar gelden als 20xx, hogere als 19xx (in 2026: "26" = 2026, "27" = 1927). Het voorbeeld
+    markeert elke zulke datum met een waarschuwing, zodat de eeuw kan worden gecontroleerd.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Limieten en grotere lijsten</h3>
+<ul>
+  <li>Maximaal <strong>5 MB</strong> per bestand.</li>
+  <li>
+    Maximaal <strong>1000 rijen</strong> per import – geteld worden de gegevensrijen onder de koprij,
+    zonder lege rijen.
+  </li>
+  <li>
+    Maximaal <strong>60 kolommen</strong>. In Excel telt de laatst gebruikte kolom: één vergeten waarde
+    ver naar rechts maakt het bestand te breed.
+  </li>
+  <li>
+    Een cel mag maximaal 1000 tekens bevatten; langere inhoud wordt afgekapt. Voornaam, achternaam, titel
+    en bedrijf mogen elk maximaal 100 tekens hebben, net als e-mailadres, telefoon- en mobiel nummer.
+  </li>
+  <li>
+    Een Excel-bestand mag uitgepakt maximaal 20 MB groot zijn (bescherming tegen gemanipuleerde
+    bestanden).
+  </li>
+</ul>
+<p>
+<strong>Grotere lijsten:</strong> splits de lijst in meerdere bestanden van elk maximaal 1000 rijen;
+elk bestand heeft een eigen koprij nodig. Kolommen die niet nodig zijn, kunnen vooraf worden verwijderd.
+Importeer de bestanden na elkaar. Personen die al uit een eerder bestand zijn geïmporteerd, worden als
+dubbel herkend als ze een e-mailadres of een geboortedatum hebben (zie <em>Dubbele records</em>).
+</p>
+
+<hr>
+
+<h3>Sjabloon</h3>
+<p>
+De knop <em>Sjabloon downloaden</em> in stap 1 levert een Excel-bestand in de taal van de gebruiker
+(bestandsnaam <code>klacks-employee-import-nl.xlsx</code>). Met de sjabloon wordt elke kolom betrouwbaar
+herkend. De koprij is vet en vastgezet, elke kolom is opgemaakt als tekst (voorloopnullen en datums
+blijven zoals ingetypt) en de kop van de kolom <em>Type</em> bevat een notitie met de toegestane
+waarden. De sjabloon heeft geen voorbeeldrij, omdat die mee geïmporteerd zou worden.
+</p>
+<p>
+Kolommen van de sjabloon, in deze volgorde: Voornaam, Achternaam, Titel, Bedrijf, Type, Geslacht,
+Geboortedatum, Straat, Adresregel 2, Postcode, Woonplaats, Provincie, Land, E-mail, Telefoon, Mobiel,
+Datum in dienst, Datum uit dienst, Contract, Groep, Opmerking. Eigen lijsten werken ook – Klacks herkent
+kolomnamen in alle 25 Klacks-talen en veel gangbare varianten (bijvoorbeeld "Achternaam", "Woonplaats",
+"Datum in dienst").
+</p>
+
+<hr>
+
+<h3>Stap 1 – Bestand</h3>
+<ul>
+  <li>
+    Sleep het bestand naar de uploadzone of klik op de zone om een bestand te kiezen. Klacks leest het
+    bestand en gaat door naar stap 2.
+  </li>
+  <li>
+    Een probleem met het bestand (verkeerd formaat, te groot, te veel rijen of kolommen, geen koprij)
+    wordt direct onder de uploadzone getoond; zie <em>Veelvoorkomende fouten en oplossingen</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Stap 2 – Toewijzing en regels</h3>
+<h4>Kolommen toewijzen</h4>
+<ul>
+  <li>
+    Elke kolom van het bestand verschijnt op een eigen regel met maximaal drie voorbeeldwaarden, het door
+    Klacks voorgestelde veld (<em>Importeren als</em>) en hoe zeker het voorstel is
+    (<em>Betrouwbaarheid</em>).
+  </li>
+  <li>
+    Elk voorstel kan in de keuzelijst worden gewijzigd. Een kolom die niet geïmporteerd moet worden, wordt
+    op <em>Niet importeren</em> gezet. Elk veld kan slechts aan één kolom worden toegewezen.
+  </li>
+  <li>
+    <em>Datumnotatie</em> verschijnt als het bestand datums bevat; als het bestand de volgorde van dag en
+    maand niet bepaalt, moet de selectie worden gecontroleerd.
+  </li>
+  <li>
+    <em>Volgorde in het naamveld</em> verschijnt bij een kolom met de volledige naam: <em>Voornaam
+    Achternaam</em> of <em>Achternaam Voornaam</em>. Een komma ("Jansen, Anna") betekent altijd achternaam
+    eerst. De volledige naam vult alleen een voor- of achternaam in die geen eigen kolom heeft of in een
+    rij leeg is.
+  </li>
+</ul>
+<h4>Regels voor ontbrekende gegevens</h4>
+<p>Deze regels gelden voor alle rijen:</p>
+<ul>
+  <li>
+    <em>Contract als er geen is opgegeven</em> en <em>Groep als er geen is opgegeven</em> – gebruikt voor
+    rijen zonder contract of groep, of met een naam die niet bestaat.
+  </li>
+  <li>
+    <em>Datum indiensttreding als er geen is opgegeven</em> – leeg betekent vandaag. De datum is ook het
+    begin van het contract, de groepstoewijzing en het adres.
+  </li>
+  <li>
+    <em>Land als er geen is opgegeven</em> – standaard <em>Land van de installatie</em>.
+  </li>
+  <li>
+    <em>E-mailadressen opslaan als</em>, <em>Telefoonnummers opslaan als</em>, <em>Mobiele nummers opslaan
+    als</em> – privé of zakelijk; geldt voor alle rijen.
+  </li>
+  <li>
+    <em>Oud-medewerkers (uitdiensttreding in het verleden)</em> – <em>Overslaan</em> (standaard) of
+    <em>Importeren met uitdiensttreding</em>. Een datum uitdiensttreding van vandaag of later wordt altijd
+    geïmporteerd.
+  </li>
+  <li>
+    <em>Mogelijke dubbele records</em> – <em>Overslaan</em> (standaard) of <em>Toch aanmaken</em>.
+  </li>
+</ul>
+<p>
+<em>Verder naar voorbeeld</em> gaat door; <em>Ander bestand kiezen</em> begint opnieuw met een ander
+bestand.
+</p>
+
+<hr>
+
+<h3>Stap 3 – Voorbeeld</h3>
+<ul>
+  <li>
+    Een samenvatting telt de rijen: totaal, gereed, overgeslagen, met fouten, dubbele records en met
+    waarschuwingen. Opmerkingen die alle of veel rijen betreffen, verschijnen één keer boven de tabel,
+    samen met de kolommen die niet worden geïmporteerd.
+  </li>
+  <li>
+    De tabel toont elke rij zoals die wordt opgeslagen, met eerst de fouten, daarna waarschuwingen en
+    opmerkingen. <em>Alleen rijen met problemen tonen</em> beperkt de lijst.
+  </li>
+  <li>
+    Per rij: <em>Overslaan</em> laat de rij weg; <em>Maak een keuze</em> stelt het geslacht in van een rij
+    zonder geslacht; <em>Toch aanmaken</em> behoudt een rij die als dubbel is herkend.
+  </li>
+  <li>
+    Andere waarden kunnen in het voorbeeld niet worden bewerkt. Om ze te corrigeren, past u het bestand
+    aan en kiest u het opnieuw (<em>Ander bestand kiezen</em>), of wijzigt u de toewijzing met
+    <em>Terug</em>.
+  </li>
+  <li>
+    De importknop laat zien hoeveel personen worden aangemaakt (bijvoorbeeld <em>25 medewerkers
+    importeren</em>). Hij blijft uitgeschakeld zolang een rij nog een fout bevat: corrigeer de rij of sla
+    haar over.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Stap 4 – Resultaat</h3>
+<p>
+Toont hoeveel personen zijn aangemaakt en hoeveel rijen zijn overgeslagen, en hoeveel adressen op de
+achtergrond op de kaart worden gelokaliseerd. <em>Naar de medewerkerslijst</em> opent de lijst,
+<em>Nog een bestand importeren</em> start een nieuwe import.
+</p>
+
+<hr>
+
+<h3>Importeerbare kolommen</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Veld (Importeren als)</th>
+      <th>Verplicht</th>
+      <th>Opmerkingen</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Voornaam, Achternaam</td>
+      <td>Ja, voor personen</td>
+      <td>Elk maximaal 100 tekens. Niet verplicht voor een klant met een bedrijf.</td>
+    </tr>
+    <tr>
+      <td>Volledige naam</td>
+      <td>Nee</td>
+      <td>Alternatief voor aparte naamkolommen; wordt gesplitst in voor- en achternaam (zie stap 2). Namen
+        met meer dan twee delen krijgen een waarschuwing – controleer de verdeling.</td>
+    </tr>
+    <tr>
+      <td>Titel</td>
+      <td>Nee</td>
+      <td>Ongewijzigd overgenomen, bijvoorbeeld "Dr.". Een titel binnen de volledige naam wordt niet
+        afgesplitst.</td>
+    </tr>
+    <tr>
+      <td>Geslacht, Aanhef</td>
+      <td>Ja, voor personen</td>
+      <td>Zie <em>Geslacht en aanhef</em>. Zonder waarde wordt het geslacht per rij in het voorbeeld
+        gekozen.</td>
+    </tr>
+    <tr>
+      <td>Geboortedatum</td>
+      <td>Nee</td>
+      <td>Een datum in de toekomst is een fout. Belangrijk voor de herkenning van dubbele records.</td>
+    </tr>
+    <tr>
+      <td>Bedrijf</td>
+      <td>Voor klanten die bedrijven zijn</td>
+      <td>Maximaal 100 tekens. Zie <em>Type en bedrijf</em>.</td>
+    </tr>
+    <tr>
+      <td>Type (medewerker, extern, klant)</td>
+      <td>Nee</td>
+      <td>Leeg of ontbrekend = medewerker. Zie <em>Type en bedrijf</em>.</td>
+    </tr>
+    <tr>
+      <td>Straat, Huisnummer</td>
+      <td>Nee</td>
+      <td>Een apart huisnummer wordt achter de straat geplaatst.</td>
+    </tr>
+    <tr>
+      <td>Adresregel 2</td>
+      <td>Nee</td>
+      <td>Overgenomen als vrije tekst.</td>
+    </tr>
+    <tr>
+      <td>Postcode, Plaats</td>
+      <td>Voor klanten die bedrijven zijn</td>
+      <td>Er wordt een adres aangemaakt zodra straat, postcode of plaats is opgegeven.</td>
+    </tr>
+    <tr>
+      <td>Postcode en plaats</td>
+      <td>Nee</td>
+      <td>Eén kolom met beide, bijvoorbeeld "8000 Zürich" of "CH-8000 Zürich"; alleen gebruikt als de rij
+        geen aparte postcode of plaats heeft. Als de waarde niet kan worden gesplitst, wordt de hele waarde
+        de plaats (waarschuwing).</td>
+    </tr>
+    <tr>
+      <td>Provincie / regio</td>
+      <td>Nee</td>
+      <td>Vrije tekst; indien leeg, wordt deze ingevuld wanneer het adres op de kaart wordt
+        gelokaliseerd.</td>
+    </tr>
+    <tr>
+      <td>Land</td>
+      <td>Voor klanten die bedrijven zijn (het standaardland telt)</td>
+      <td>Landcode (CH, DE …) of landnaam in een willekeurige Klacks-taal. Leeg = standaardland; een
+        onbekend land geeft een waarschuwing en het standaardland wordt gebruikt.</td>
+    </tr>
+    <tr>
+      <td>E-mail</td>
+      <td>Nee</td>
+      <td>Een ongeldig adres wordt met een waarschuwing weggelaten; de persoon wordt toch geïmporteerd.</td>
+    </tr>
+    <tr>
+      <td>Telefoon, Mobiele telefoon</td>
+      <td>Nee</td>
+      <td>Spaties en scheidingstekens worden verwijderd en een voorloop-00 wordt +; een nummer zonder +
+        krijgt het landnummer van het land van de rij.</td>
+    </tr>
+    <tr>
+      <td>Datum indiensttreding</td>
+      <td>Nee</td>
+      <td>Leeg = de regel <em>Datum indiensttreding als er geen is opgegeven</em>. Onwaarschijnlijke datums
+        (vóór de geboortedatum, of meer dan 50 jaar verwijderd) geven een waarschuwing.</td>
+    </tr>
+    <tr>
+      <td>Datum uitdiensttreding</td>
+      <td>Nee</td>
+      <td>Vóór de datum indiensttreding = fout. In het verleden: zie de regel
+        <em>Oud-medewerkers</em>.</td>
+    </tr>
+    <tr>
+      <td>Contract, Groep</td>
+      <td>Nee</td>
+      <td>Gekoppeld op naam; zie <em>Contract en groep</em>.</td>
+    </tr>
+    <tr>
+      <td>Notitie</td>
+      <td>Nee</td>
+      <td>Opgeslagen als notitie bij de persoon.</td>
+    </tr>
+    <tr>
+      <td>Personeelsnummer (toegekend door Klacks)</td>
+      <td>–</td>
+      <td>Herkend maar nooit geïmporteerd; zie <em>Personeelsnummer</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Type en bedrijf</h3>
+<ul>
+  <li>
+    De kolom <em>Type</em> geeft per rij aan of het om een medewerker, een externe medewerker of een klant
+    gaat. Herkende waarden zijn bijvoorbeeld <code>Medewerker</code>, <code>Werknemer</code>,
+    <code>Personeelslid</code> (medewerker), <code>Extern</code>, <code>Externe medewerker</code>,
+    <code>Freelancer</code> (externe medewerker) en <code>Klant</code> (klant); de overeenkomstige woorden
+    van alle andere Klacks-talen en de getallen 0, 1 en 2 werken ook. Hoofd- en kleine letters maken niet
+    uit.
+  </li>
+  <li>
+    Een <strong>lege cel</strong> of een bestand zonder typekolom betekent <strong>medewerker</strong>.
+    Een onbekende waarde is een fout in het voorbeeld.
+  </li>
+  <li>
+    <strong>Klant met bedrijf:</strong> aangemaakt als bedrijf (rechtspersoon), niet als persoon. Voor- en
+    achternaam zijn optioneel en worden bewaard als contactpersoon (het voorbeeld markeert ze met
+    <em>Contactpersoon:</em>); een geslacht in de rij wordt genegeerd. Zo'n rij heeft een adres met
+    postcode, plaats en land nodig (het standaardland telt).
+  </li>
+  <li>
+    <strong>Klant zonder bedrijf:</strong> aangemaakt als persoon – voornaam, achternaam en geslacht zijn
+    verplicht.
+  </li>
+  <li>
+    <strong>Medewerker of externe medewerker met bedrijf:</strong> blijft een persoon; de bedrijfsnaam
+    wordt bij de persoon opgeslagen.
+  </li>
+  <li>
+    <strong>Klanten krijgen nooit een contract</strong> – noch uit het bestand (waarschuwing, de waarde
+    wordt niet geïmporteerd) noch uit de regels. Een groep wordt ook aan klanten toegewezen.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Geslacht en aanhef</h3>
+<ul>
+  <li>
+    Personen hebben een geslacht nodig: <em>Vrouw</em>, <em>Man</em> of <em>Divers</em>. Het komt uit de
+    kolom <em>Geslacht</em>; als die leeg is, uit de kolom <em>Aanhef</em> (het voorbeeld vermeldt dit).
+    Zonder beide wordt het geslacht per rij in het voorbeeld gekozen (<em>Maak een keuze</em>).
+  </li>
+  <li>
+    Herkende waarden zijn bijvoorbeeld <code>Mevrouw</code>, <code>Mevr.</code>, <code>Mw.</code>,
+    <code>Vrouw</code>, <code>Vrouwelijk</code> (vrouw), <code>De heer</code>, <code>Dhr.</code>,
+    <code>Mannelijk</code> (man) en <code>Anders</code>, <code>Intersekse</code> (divers) – plus de
+    overeenkomstige woorden van alle andere Klacks-talen, zoals <code>Herr</code>/<code>Frau</code> of
+    <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Hoofd- en kleine letters, accenten en leestekens maken niet uit; bij een langere aanhef telt het
+    eerste woord ("Dhr. Dr." = man).
+  </li>
+  <li>Een bedrijf (klant met bedrijf) heeft geen geslacht nodig.</li>
+</ul>
+
+<hr>
+
+<h3>Contract en groep</h3>
+<ul>
+  <li>
+    Een waarde in het bestand wordt vergeleken met de namen van de bestaande contracten en groepen;
+    hoofd- en kleine letters en spaties aan het begin of einde maken niet uit.
+  </li>
+  <li>
+    Als de naam niet bestaat, meerdere keren voorkomt of leeg is, wordt het contract of de groep uit de
+    regels gebruikt en vermeldt het voorbeeld dit. Zonder regel krijgt de rij geen contract of geen groep.
+  </li>
+  <li>
+    <strong>De import maakt geen contracten of groepen aan.</strong> Richt ze eerst in via de
+    instellingen en de groepenpagina en importeer daarna.
+  </li>
+  <li>
+    Contract en groep beginnen op de datum indiensttreding en eindigen op de datum uitdiensttreding, als
+    die er is.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Personeelsnummer</h3>
+<p>
+Klacks <strong>kent het personeelsnummer altijd zelf toe</strong>. Een kolom met personeelsnummers in het
+bestand wordt herkend maar genegeerd; het voorbeeld toont een opmerking. Om de nummers van een ander
+systeem te behouden, kan de kolom in stap 2 worden toegewezen aan <em>Notitie</em>, zolang geen andere
+kolom als notitie wordt geïmporteerd.
+</p>
+
+<hr>
+
+<h3>Dubbele records</h3>
+<ul>
+  <li>
+    <strong>Personen:</strong> een rij geldt als dubbel als het <strong>e-mailadres</strong> gelijk is, of
+    als <strong>voornaam, achternaam en geboortedatum</strong> gelijk zijn. Hoofd- en kleine letters,
+    accenten en koppeltekens worden genegeerd ("Müller" = "Muller", "Hans-Peter" = "Hanspeter").
+  </li>
+  <li>
+    <strong>Bedrijven</strong> (klanten met bedrijf): zelfde <strong>bedrijf, postcode en
+    straat</strong>.
+  </li>
+  <li>
+    Rijen worden vergeleken met de personen die al in Klacks staan en met eerdere rijen van hetzelfde
+    bestand. <strong>Klanten worden alleen met klanten vergeleken</strong>, medewerkers en externe
+    medewerkers met elkaar.
+  </li>
+  <li>
+    Dubbele records worden overgeslagen met de regel <em>Mogelijke dubbele records</em> =
+    <em>Overslaan</em>. Met <em>Toch aanmaken</em> – als regel voor alle rijen of per rij in het voorbeeld
+    – worden ze toch aangemaakt.
+  </li>
+  <li>
+    Alleen een <strong>opmerking</strong>, zonder overslaan: dezelfde naam zonder overeenkomende
+    geboortedatum, of hetzelfde bedrijf op een ander adres. Controleer zulke rijen vóór het importeren.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Opslaan en adressen</h3>
+<ul>
+  <li>
+    <strong>Alles of niets:</strong> de import slaat alle gereedstaande rijen in één keer op. Als er iets
+    misgaat, wordt niets opgeslagen. Vóór het opslaan controleert Klacks alle rijen opnieuw tegen de
+    actuele gegevens.
+  </li>
+  <li>
+    Per rij aangemaakt: de persoon (of het bedrijf), de dienstverbandperiode van datum indiensttreding tot
+    datum uitdiensttreding, het adres, e-mailadres, telefoon- en mobiel nummer, contract, groep en notitie.
+  </li>
+  <li>
+    Dezelfde import kan niet twee keer worden opgeslagen; een tweede poging toont dat de import al is
+    uitgevoerd.
+  </li>
+  <li>
+    <strong>Kaart:</strong> adressen met postcode en plaats worden na de import op de achtergrond, één
+    voor één, op de kaart gelokaliseerd. Bij veel adressen kan dit enkele minuten duren; de personen
+    kunnen in de tussentijd al worden gebruikt.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Veelvoorkomende fouten en oplossingen</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Melding</th>
+      <th>Oorzaak</th>
+      <th>Oplossing</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Dit bestandsformaat wordt niet ondersteund. Gebruik een .xlsx- of .csv-bestand.</td>
+      <td>.xls, .ods, PDF of een beschadigd bestand.</td>
+      <td>Sla het bestand in Excel op als .xlsx of exporteer het als CSV.</td>
+    </tr>
+    <tr>
+      <td>Het bestand is te groot (maximaal 5 MB).</td>
+      <td>Bestand groter dan 5 MB, bijvoorbeeld door afbeeldingen of ongebruikte werkbladen.</td>
+      <td>Verwijder afbeeldingen en ongebruikte werkbladen, of splits de lijst.</td>
+    </tr>
+    <tr>
+      <td>Het bestand bevat te veel rijen (maximaal 1000 personen per import).</td>
+      <td>Meer dan 1000 gegevensrijen.</td>
+      <td>Splits de lijst in meerdere bestanden (zie <em>Limieten en grotere lijsten</em>).</td>
+    </tr>
+    <tr>
+      <td>Het bestand bevat te veel kolommen (maximaal 60).</td>
+      <td>Meer dan 60 kolommen, vaak door een verdwaalde waarde ver naar rechts.</td>
+      <td>Verwijder ongebruikte kolommen, ook schijnbaar lege aan de rechterrand.</td>
+    </tr>
+    <tr>
+      <td>In de eerste rijen is geen koprij met kolomnamen gevonden.</td>
+      <td>Geen rij met minstens twee kolomnamen binnen de eerste 10 rijen.</td>
+      <td>Plaats een koprij met kolomnamen boven de gegevens.</td>
+    </tr>
+    <tr>
+      <td>Het bestand bevat geen gegevens.</td>
+      <td>Leeg bestand, alleen een koprij, of geen zichtbaar werkblad.</td>
+      <td>Controleer het bestand; maak het werkblad in Excel zichtbaar.</td>
+    </tr>
+    <tr>
+      <td>Geslacht ontbreekt – maak een keuze.</td>
+      <td>Geen of een niet-herkend geslacht of aanhef.</td>
+      <td>Kies het geslacht in het voorbeeld, of vul de kolom in het bestand in.</td>
+    </tr>
+    <tr>
+      <td>Voornaam ontbreekt. / Achternaam ontbreekt.</td>
+      <td>Naamkolom leeg of niet toegewezen; een volledige naam met slechts één woord.</td>
+      <td>Controleer de toewijzing in stap 2 of vul het bestand aan.</td>
+    </tr>
+    <tr>
+      <td>Ongeldige datum: “…”.</td>
+      <td>Onleesbare datum, geboortedatum in de toekomst, of datum uitdiensttreding vóór datum
+        indiensttreding.</td>
+      <td>Controleer de datumnotatie in stap 2 of corrigeer de waarde in het bestand.</td>
+    </tr>
+    <tr>
+      <td>Onbekend type “…” – gebruik medewerker, extern of klant.</td>
+      <td>Waarde in de typekolom niet herkend.</td>
+      <td>Gebruik een van de waarden uit de notitie in de sjabloon, of laat de cel leeg (= medewerker).</td>
+    </tr>
+    <tr>
+      <td>Een klant met een bedrijf heeft een adres met postcode, plaats en land nodig.</td>
+      <td>Bedrijfsrij zonder volledig adres.</td>
+      <td>Vul postcode en plaats aan; stel een land in in het bestand of in de regels.</td>
+    </tr>
+    <tr>
+      <td>Waarde te lang (maximaal … tekens).</td>
+      <td>Naam, titel, bedrijf, e-mail of telefoon langer dan 100 tekens.</td>
+      <td>Kort de waarde in het bestand in.</td>
+    </tr>
+    <tr>
+      <td>Contract “…” niet gevonden. / Groep “…” niet gevonden.</td>
+      <td>Naam wijkt af van de contracten en groepen in Klacks.</td>
+      <td>Corrigeer de naam, of richt eerst het contract of de groep in; anders geldt de regel.</td>
+    </tr>
+    <tr>
+      <td>Sommige rijen bevatten nog fouten. Corrigeer ze of sla deze rijen over en probeer het daarna
+        opnieuw.</td>
+      <td>Minstens één rij bevat een fout.</td>
+      <td>Gebruik <em>Alleen rijen met problemen tonen</em> en corrigeer die rijen of sla ze over.</td>
+    </tr>
+    <tr>
+      <td>Een van de regels voor ontbrekende gegevens is niet meer geldig …</td>
+      <td>Een in de regels gekozen contract of groep is intussen verwijderd.</td>
+      <td>Controleer de regels in stap 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Na de import</h3>
+<ul>
+  <li>
+    Geïmporteerde personen zijn gewone records. Fouten worden gecorrigeerd of verwijderd op de pagina van
+    de persoon; er is geen "ongedaan maken" voor de hele import.
+  </li>
+  <li>
+    Wordt hetzelfde bestand een tweede keer geïmporteerd, dan worden rijen met een e-mailadres of een
+    geboortedatum opnieuw als dubbel herkend. Rijen met alleen een naam worden slechts gemarkeerd –
+    controleer ze voordat u twee keer importeert.
+  </li>
+  <li>
+    Eén enkele persoon wordt handmatig aangemaakt op de medewerkerspagina; een bedrijfsdirectory kan door
+    een beheerder worden gesynchroniseerd via de instellingen van de identiteitsprovider.
+  </li>
+</ul>

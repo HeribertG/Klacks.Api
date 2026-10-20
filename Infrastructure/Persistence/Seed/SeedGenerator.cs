@@ -315,7 +315,6 @@ namespace Klacks.Api.Data.Seed
                 ClientId = client.Id,
                 ValidFrom = startDate,
                 ValidUntil = endDate,
-                Type = rand.Next(5),
                 IsDeleted = false,
                 CreateTime = DateTime.UtcNow,
                 CurrentUserCreated = user
@@ -412,8 +411,8 @@ namespace Klacks.Api.Data.Seed
             StringBuilder script = new StringBuilder();
             foreach (var membership in memberships)
             {
-                script.AppendLine($@"INSERT INTO public.membership (id, client_id, type, valid_from, valid_until, is_deleted, create_time, current_user_created)
-                    VALUES ('{membership.Id}', '{membership.ClientId}', {membership.Type}, '{SeedSqlTimestamp.ToUtcMidnightLiteral(membership.ValidFrom)}', {(membership.ValidUntil.HasValue ? $"'{SeedSqlTimestamp.ToUtcMidnightLiteral(membership.ValidUntil.Value)}'" : "NULL")}, {membership.IsDeleted.ToString().ToLower()}, '{SeedSqlTimestamp.ToLiteral(membership.CreateTime)}', '{membership.CurrentUserCreated}');");
+                script.AppendLine($@"INSERT INTO public.membership (id, client_id, valid_from, valid_until, is_deleted, create_time, current_user_created)
+                    VALUES ('{membership.Id}', '{membership.ClientId}', '{SeedSqlTimestamp.ToUtcMidnightLiteral(membership.ValidFrom)}', {(membership.ValidUntil.HasValue ? $"'{SeedSqlTimestamp.ToUtcMidnightLiteral(membership.ValidUntil.Value)}'" : "NULL")}, {membership.IsDeleted.ToString().ToLower()}, '{SeedSqlTimestamp.ToLiteral(membership.CreateTime)}', '{membership.CurrentUserCreated}');");
             }
 
             return script.ToString();

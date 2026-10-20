@@ -1159,7 +1159,6 @@
   "explain_membership_single_row": [
     "¿la membresía no tiene historial?",
     "¿una reincorporación sobrescribe la fecha de entrada?",
-    "¿el campo de tipo de membresía no tiene efecto?",
     "¿solo hay una fila de membresía por persona?",
     "¿la membresía se sobrescribe en lugar de añadir una nueva?"
   ],
@@ -1210,6 +1209,13 @@
     "dime cómo cambiar el grupo padre de un subgrupo",
     "explica la configuración de visibilidad de grupos",
     "¿cómo afecta la selección de grupo a otras páginas?"
+  ],
+  "explain_page_import_employees": [
+    "cómo importo empleados desde excel",
+    "importar empleados",
+    "cargar lista de empleados",
+    "dónde subo un csv con empleados",
+    "plantilla para importar empleados"
   ],
   "explain_page_inbox": [
     "explícame la página de la bandeja de entrada",

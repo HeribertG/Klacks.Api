@@ -1,16 +1,21 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Turns one raw import row into a draft: splits names and "postcode city", parses dates in the chosen
+/// Turns one raw import row into a draft: splits names and "postcode city", reads the client type (employee
+/// when the cell is empty, an error when the word is unknown) and the company, parses dates in the chosen
 /// order, derives the gender from a gender or salutation column (or the user's per-row choice), resolves
 /// country, contract and group by name, splits phone numbers and applies the import policy for missing
-/// entry date, contract, group and former employees. Every substitution is recorded as an issue so the
-/// preview explains what will be written.
+/// entry date, contract, group and former employees. A customer row with a company becomes a legal entity
+/// (gender LegalEntity, like the legal-entity switch of the client form); its title, first and last name
+/// are optional and kept as the contact person, and its gender and salutation cells are ignored.
+/// Customers get no contract, from the file or from the policy, because the client form has no contracts
+/// for them. Every substitution is recorded as an issue so the preview explains what will be written.
 /// </summary>
-/// <param name="catalog">Gender and salutation vocabulary of all supported languages</param>
+/// <param name="catalog">Gender, salutation and client type vocabulary of all supported languages</param>
 
 using Klacks.Api.Application.Common;
 using Klacks.Api.Application.DTOs.ClientImport;
+using Klacks.Api.Application.Validation.Clients;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Settings;
@@ -39,6 +44,7 @@ public class ClientImportTransformer
         };
 
         ApplyNames(draft, row, request.NameOrder);
+        ApplyClientType(draft, row);
         ApplyGender(draft, row, rowOverride);
         ApplyDates(draft, row, request, lookup);
         ApplyAddress(draft, row, lookup);
@@ -75,8 +81,36 @@ public class ClientImportTransformer
         }
     }
 
+    private void ApplyClientType(ClientImportDraft draft, ClientImportRowReader row)
+    {
+        draft.Company = row.Value(ClientImportTarget.Company);
+
+        var typeValue = row.Value(ClientImportTarget.Type);
+        if (typeValue != null)
+        {
+            if (_catalog.ResolveType(typeValue) is { } type)
+            {
+                draft.Type = type;
+            }
+            else
+            {
+                draft.AddIssue(ClientImportFields.Type, ClientImportIssueSeverity.Error, ClientImportIssueCodes.UnknownType,
+                    Args(ClientImportIssueArgs.Value, typeValue));
+            }
+        }
+
+        draft.LegalEntity = draft.Type == ClientLegalEntityRules.RequiredType
+            && ClientLegalEntityRules.HasCompany(draft.Company);
+    }
+
     private void ApplyGender(ClientImportDraft draft, ClientImportRowReader row, ClientImportRowOverride? rowOverride)
     {
+        if (draft.LegalEntity)
+        {
+            draft.Gender = GenderEnum.LegalEntity;
+            return;
+        }
+
         if (rowOverride?.Gender != null)
         {
             draft.Gender = rowOverride.Gender;
@@ -269,8 +303,21 @@ public class ClientImportTransformer
 
     private static void ApplyAssignments(ClientImportDraft draft, ClientImportRowReader row, ClientImportLookup lookup)
     {
-        draft.Contract = ResolveNamed(draft, row.Value(ClientImportTarget.Contract), lookup.Contracts, lookup.PolicyContract,
-            ClientImportFields.Contract, ClientImportIssueCodes.UnknownContract, ClientImportIssueCodes.ContractFromPolicy);
+        var contract = row.Value(ClientImportTarget.Contract);
+        if (draft.Type == EntityTypeEnum.Customer)
+        {
+            if (contract != null)
+            {
+                draft.AddIssue(ClientImportFields.Contract, ClientImportIssueSeverity.Warning, ClientImportIssueCodes.ContractNotForCustomer,
+                    Args(ClientImportIssueArgs.Value, contract));
+            }
+        }
+        else
+        {
+            draft.Contract = ResolveNamed(draft, contract, lookup.Contracts, lookup.PolicyContract,
+                ClientImportFields.Contract, ClientImportIssueCodes.UnknownContract, ClientImportIssueCodes.ContractFromPolicy);
+        }
+
         draft.Group = ResolveNamed(draft, row.Value(ClientImportTarget.Group), lookup.Groups, lookup.PolicyGroup,
             ClientImportFields.Group, ClientImportIssueCodes.UnknownGroup, ClientImportIssueCodes.GroupFromPolicy);
     }

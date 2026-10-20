@@ -32,4 +32,6 @@ public enum ClientImportTarget
     Group,
     PersonnelNumber,
     Note,
+    Type,
+    Company,
 }

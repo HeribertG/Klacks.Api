@@ -1165,7 +1165,6 @@
     "członkostwo nie ma historii",
     "ponowne wejście nadpisuje datę wejścia",
     "stary okres członkostwa jest tracony",
-    "pole typu członkostwa nie ma wpływu",
     "tylko jeden wiersz członkostwa na osobę",
     "członkostwo jest nadpisywane zamiast dodawane"
   ],
@@ -1217,6 +1216,13 @@
     "opisz drzewo grup",
     "jak zarządzać grupami",
     "co oznaczają odznaki w grupach"
+  ],
+  "explain_page_import_employees": [
+    "jak zaimportować pracowników z excela",
+    "importuj pracowników",
+    "prześlij listę pracowników",
+    "gdzie wgrać plik csv z pracownikami",
+    "szablon do importu pracowników"
   ],
   "explain_page_inbox": [
     "co widzę na stronie skrzynki odbiorczej",

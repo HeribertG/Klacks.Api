@@ -10,11 +10,17 @@
 /// so "Nom et prenom" is French (nom + prenom) and not Italian "nome" followed by a French "prenom";
 /// within a language longer words claim their characters first, so "Cognome" is one last-name word and
 /// not "Nome" inside it. A generic name word is a full-name synonym of the language that contains none of
-/// its first- or last-name words ("Name", "Navn").
+/// its first- or last-name words ("Name", "Navn"). ResolveType reads a client type cell ("Mitarbeiter",
+/// "Extern", "Kunde", "Customer" ...) by exact normalized word only, so "Mitarbeiter extern" is not taken for
+/// an employee; the numeric codes of EntityTypeEnum ("0", "1", "2") are accepted as well. Type and company
+/// headers are recognised only as a whole: their short words ("Type", "Tipo", "Firma") occur inside other
+/// headers ("Company phone", "E-Mail Firma") that belong to another target.
 /// </summary>
 /// <param name="headers">Language code -> target -> synonyms (first one is the template header)</param>
 /// <param name="genderValues">Language code -> gender -> gender words and salutations</param>
+/// <param name="typeValues">Language code -> client type -> words that name the type</param>
 
+using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using Klacks.Api.Domain.Enums;
@@ -25,16 +31,22 @@ public class ClientImportSynonymCatalog
 {
     public const string ResourceName = "Klacks.Api.ClientImport.HeaderSynonyms.json";
 
+    private const string TypeExampleSeparator = " / ";
+
     private static readonly JsonSerializerOptions SerializerOptions = new() { PropertyNameCaseInsensitive = true };
+
+    private static readonly HashSet<ClientImportTarget> ExactMatchOnlyTargets = [ClientImportTarget.Type, ClientImportTarget.Company];
 
     private readonly Dictionary<string, ClientImportTarget> _headerIndex = new(StringComparer.Ordinal);
     private readonly Dictionary<string, GenderEnum> _genderIndex = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, EntityTypeEnum> _typeIndex = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Dictionary<ClientImportTarget, List<string>>> _headers;
     private readonly List<List<(string Word, ClientImportNameWordKind Kind)>> _nameWordsPerLanguage;
 
     public ClientImportSynonymCatalog(
         Dictionary<string, Dictionary<ClientImportTarget, List<string>>> headers,
-        Dictionary<string, Dictionary<GenderEnum, List<string>>> genderValues)
+        Dictionary<string, Dictionary<GenderEnum, List<string>>> genderValues,
+        Dictionary<string, Dictionary<EntityTypeEnum, List<string>>> typeValues)
     {
         _headers = new Dictionary<string, Dictionary<ClientImportTarget, List<string>>>(headers, StringComparer.OrdinalIgnoreCase);
 
@@ -48,14 +60,22 @@ public class ClientImportSynonymCatalog
             _genderIndex.TryAdd(ClientImportTextNormalizer.Normalize(value.Value), value.Gender);
         }
 
+        foreach (var value in typeValues.Values.SelectMany(t => t).SelectMany(t => t.Value.Select(v => (Type: t.Key, Value: v))))
+        {
+            _typeIndex.TryAdd(ClientImportTextNormalizer.Normalize(value.Value), value.Type);
+        }
+
         HeaderSynonyms = _headers;
         GenderValues = genderValues;
+        TypeValues = typeValues;
         _nameWordsPerLanguage = headers.Values.Select(BuildNameWords).ToList();
     }
 
     public IReadOnlyDictionary<string, Dictionary<ClientImportTarget, List<string>>> HeaderSynonyms { get; }
 
     public IReadOnlyDictionary<string, Dictionary<GenderEnum, List<string>>> GenderValues { get; }
+
+    public IReadOnlyDictionary<string, Dictionary<EntityTypeEnum, List<string>>> TypeValues { get; }
 
     public IEnumerable<string> Languages => _headers.Keys;
 
@@ -69,7 +89,7 @@ public class ClientImportSynonymCatalog
         var document = JsonSerializer.Deserialize<ClientImportSynonymDocument>(stream, SerializerOptions)
             ?? throw new InvalidOperationException($"Embedded resource '{ResourceName}' is empty.");
 
-        return new ClientImportSynonymCatalog(document.Headers, document.GenderValues);
+        return new ClientImportSynonymCatalog(document.Headers, document.GenderValues, document.TypeValues);
     }
 
     public bool IsSupportedLanguage(string? language) =>
@@ -90,7 +110,9 @@ public class ClientImportSynonymCatalog
         }
 
         var best = _headerIndex
-            .Where(entry => entry.Key.Length >= minimumSynonymLength && normalized.Contains(entry.Key, StringComparison.Ordinal))
+            .Where(entry => !ExactMatchOnlyTargets.Contains(entry.Value)
+                            && entry.Key.Length >= minimumSynonymLength
+                            && normalized.Contains(entry.Key, StringComparison.Ordinal))
             .OrderByDescending(entry => entry.Key.Length)
             .Select(entry => (ClientImportTarget?)entry.Value)
             .FirstOrDefault();
@@ -169,6 +191,34 @@ public class ClientImportSynonymCatalog
         return normalizedFirstWord.Length > 0 && _genderIndex.TryGetValue(normalizedFirstWord, out var firstWordGender)
             ? firstWordGender
             : null;
+    }
+
+    public EntityTypeEnum? ResolveType(string? value)
+    {
+        if (int.TryParse(value?.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var code)
+            && Enum.IsDefined(typeof(EntityTypeEnum), code))
+        {
+            return (EntityTypeEnum)code;
+        }
+
+        var normalized = ClientImportTextNormalizer.Normalize(value);
+        return normalized.Length > 0 && _typeIndex.TryGetValue(normalized, out var type) ? type : null;
+    }
+
+    public string? TypeExample(string language)
+    {
+        var types = TypeValues.FirstOrDefault(entry => string.Equals(entry.Key, language, StringComparison.OrdinalIgnoreCase)).Value;
+        if (types == null)
+        {
+            return null;
+        }
+
+        var words = Enum.GetValues<EntityTypeEnum>()
+            .Select(type => types.TryGetValue(type, out var values) ? values.FirstOrDefault() : null)
+            .Where(word => !string.IsNullOrWhiteSpace(word))
+            .ToList();
+
+        return words.Count == 0 ? null : string.Join(TypeExampleSeparator, words);
     }
 
     private static List<(string Word, ClientImportNameWordKind Kind)> BuildNameWords(Dictionary<ClientImportTarget, List<string>> targets)

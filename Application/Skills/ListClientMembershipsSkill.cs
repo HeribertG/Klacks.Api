@@ -54,7 +54,6 @@ public class ListClientMembershipsSkill : BaseSkillImplementation
             {
                 m.Id,
                 m.ClientId,
-                m.Type,
                 m.ValidFrom,
                 m.ValidUntil
             })

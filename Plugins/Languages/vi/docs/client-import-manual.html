@@ -1,0 +1,598 @@
+<h2>Nhập nhân viên – Hướng dẫn</h2>
+
+<h3>Nhập nhân viên là gì?</h3>
+<p>
+Chức năng nhập nhân viên tiếp nhận toàn bộ danh sách nhân sự từ <strong>một tệp Excel (.xlsx) hoặc
+một tệp CSV (.csv)</strong> với mỗi người một dòng, thay vì phải tạo từng người bằng tay. Klacks tự
+nhận diện các cột, hiển thị trong bản xem trước từng bản ghi sẽ trông như thế nào và chỉ lưu sau khi
+được xác nhận. Ngoài nhân viên, cùng một tệp cũng có thể chứa nhân viên bên ngoài và khách hàng.
+</p>
+<ul>
+  <li>
+    <strong>Ai được phép nhập:</strong> chỉ quản trị viên. Thẻ <em>Nhập nhân viên</em> nằm trong phần
+    cài đặt, mục <em>Tổ chức</em>; nút <em>Nhập</em> mở trang nhập dữ liệu. Những người dùng khác
+    không thấy thẻ này và cần một quản trị viên để thực hiện việc nhập.
+  </li>
+  <li>
+    <strong>Bảo vệ dữ liệu:</strong> bản thân tệp không được lưu. Tệp chỉ được đọc; chỉ những dòng
+    đã được xác nhận trong bản xem trước mới được tạo.
+  </li>
+  <li>
+    <strong>Bốn bước:</strong> <em>Tệp</em> → <em>Ánh xạ và quy tắc</em> → <em>Xem trước</em> →
+    <em>Kết quả</em>. Thẻ <em>Hướng dẫn</em> hiển thị tài liệu hướng dẫn này; chuyển sang thẻ đó
+    không làm mất lần nhập đang thực hiện.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Các tệp được hỗ trợ</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> và <strong>CSV (.csv)</strong>; tệp .txt được đọc như một tệp
+    CSV. Định dạng Excel cũ <strong>.xls không được hỗ trợ</strong> – trước tiên cần lưu tệp dưới
+    dạng .xlsx trong Excel.
+  </li>
+  <li>
+    <strong>Sổ làm việc Excel:</strong> chỉ các trang tính đang hiển thị được đọc, mặc định là trang
+    đầu tiên. Sổ làm việc có nhiều trang tính sẽ có lựa chọn <em>Trang tính</em> ở bước 2. Kết quả
+    tính toán của công thức được nhập. Các ô được định dạng ngày được đọc là ngày. Số trong các ô có
+    định dạng "General" sẽ mất các số 0 ở đầu (mã bưu chính 01234 thành 1234) – nên định dạng các
+    cột như vậy là văn bản (tệp mẫu đã làm sẵn điều này).
+  </li>
+  <li>
+    <strong>Mã hóa của tệp CSV:</strong> UTF-8 (có hoặc không có dấu thứ tự byte) và UTF-16 có dấu
+    thứ tự byte được nhận diện; mọi tệp khác được đọc theo Windows-1252 (định dạng "ANSI" thông
+    thường của Excel trên Windows ở Tây Âu), vì vậy chữ có dấu của các ngôn ngữ Tây Âu được giữ
+    nguyên mà không cần thiết lập gì. Đối với mọi hệ chữ viết và chữ cái khác (ví dụ ł, ř, ș, chữ Hy
+    Lạp, Ả Rập, Hebrew, Trung Quốc, Nhật Bản, Hàn Quốc hoặc Thái), cần lưu tệp dưới dạng "CSV UTF-8"
+    hoặc dùng .xlsx.
+  </li>
+  <li>
+    <strong>Ký tự phân cách của tệp CSV:</strong> dấu chấm phẩy, dấu phẩy, tab hoặc gạch đứng (|)
+    được tự động nhận diện. Giá trị đặt trong dấu ngoặc kép có thể chứa ký tự phân cách và ngắt dòng.
+  </li>
+  <li>
+    <strong>Dòng tiêu đề:</strong> dòng đầu tiên chứa tên cột phải nằm trong 10 dòng không trống đầu
+    tiên và chứa ít nhất hai ô văn bản. Các dòng phía trên nó (ví dụ một tiêu đề) và các dòng trống
+    được bỏ qua.
+  </li>
+  <li>
+    <strong>Định dạng ngày:</strong> ngày, tháng và năm được phân cách bằng dấu chấm, dấu gạch chéo
+    hoặc dấu gạch nối, ví dụ 31.12.1990, 12/31/1990 hoặc 1990-12-31; phần giờ sau ngày được bỏ qua.
+    Giá trị bắt đầu bằng năm có bốn chữ số luôn được đọc theo thứ tự năm-tháng-ngày. Nếu tệp không
+    cho thấy ngày hay tháng đứng trước (không có giá trị nào lớn hơn 12), Klacks giả định thứ tự
+    ngày/tháng/năm và yêu cầu kiểm tra định dạng ngày ở bước 2. Tên tháng (ví dụ "31 Dec 1990")
+    không được nhận diện.
+  </li>
+  <li>
+    <strong>Năm hai chữ số:</strong> các năm đến hai chữ số cuối của năm hiện tại được tính là 20xx,
+    các năm lớn hơn là 19xx (vào năm 2026: "26" = 2026, "27" = 1927). Bản xem trước đánh dấu mỗi
+    ngày như vậy bằng một cảnh báo để có thể kiểm tra thế kỷ.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Giới hạn và danh sách lớn</h3>
+<ul>
+  <li>Tối đa <strong>5 MB</strong> mỗi tệp.</li>
+  <li>
+    Tối đa <strong>1000 dòng</strong> mỗi lần nhập – được tính là các dòng dữ liệu bên dưới dòng
+    tiêu đề, không kể các dòng trống.
+  </li>
+  <li>
+    Tối đa <strong>60 cột</strong>. Trong Excel, cột cuối cùng được sử dụng mới là cột được tính:
+    chỉ một giá trị bị bỏ quên ở xa bên phải cũng khiến tệp quá rộng.
+  </li>
+  <li>
+    Một ô có thể chứa tối đa 1000 ký tự; nội dung dài hơn bị cắt bớt. Tên, họ, danh hiệu và công ty
+    mỗi trường tối đa 100 ký tự, địa chỉ email, số điện thoại và số di động cũng vậy.
+  </li>
+  <li>
+    Tệp Excel sau khi giải nén có thể chứa tối đa 20 MB (bảo vệ chống lại các tệp bị chỉnh sửa
+    trái phép).
+  </li>
+</ul>
+<p>
+<strong>Danh sách lớn:</strong> chia danh sách thành nhiều tệp, mỗi tệp tối đa 1000 dòng; mỗi tệp
+cần có dòng tiêu đề riêng. Các cột không cần thiết có thể được xóa trước. Nhập lần lượt từng tệp.
+Những người đã được nhập từ một tệp trước đó sẽ được nhận diện là trùng lặp nếu họ có địa chỉ email
+hoặc ngày sinh (xem <em>Trùng lặp</em>).
+</p>
+
+<hr>
+
+<h3>Tệp mẫu</h3>
+<p>
+Nút <em>Tải xuống tệp mẫu</em> ở bước 1 cung cấp một tệp Excel theo ngôn ngữ của người dùng (tên
+tệp <code>klacks-employee-import-vi.xlsx</code>). Với tệp mẫu, mọi cột đều được nhận diện chính xác.
+Dòng tiêu đề của tệp được in đậm và cố định, mọi cột được định dạng là văn bản (các số 0 ở đầu và
+ngày được giữ nguyên như khi nhập vào), và tiêu đề của cột <em>Loại</em> có kèm một ghi chú với các
+giá trị được phép. Tệp mẫu không có dòng ví dụ, vì dòng đó sẽ bị nhập vào.
+</p>
+<p>
+Các cột của tệp mẫu, theo thứ tự này: Tên, Họ, Học hàm/học vị, Công ty, Loại, Giới tính, Ngày sinh,
+Địa chỉ, Địa chỉ dòng 2, Mã bưu chính, Thành phố, Tỉnh/Thành phố, Quốc gia, Thư điện tử, Điện thoại,
+Di động, Ngày vào làm, Ngày nghỉ việc, Hợp đồng, Nhóm, Ghi chú. Danh sách tự tạo cũng dùng được –
+Klacks còn nhận diện tên cột bằng cả 25 ngôn ngữ của Klacks và nhiều biến thể thông dụng (ví dụ
+"Họ", "Mã bưu chính", "Ngày vào làm").
+</p>
+
+<hr>
+
+<h3>Bước 1 – Tệp</h3>
+<ul>
+  <li>
+    Kéo tệp vào vùng tải lên hoặc nhấp vào vùng đó để chọn một tệp. Klacks đọc tệp và chuyển sang
+    bước 2.
+  </li>
+  <li>
+    Sự cố về tệp (sai định dạng, quá lớn, quá nhiều dòng hoặc cột, không có dòng tiêu đề) được hiển
+    thị ngay bên dưới vùng tải lên; xem <em>Lỗi thường gặp và cách khắc phục</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Bước 2 – Ánh xạ và quy tắc</h3>
+<h4>Ánh xạ cột</h4>
+<ul>
+  <li>
+    Mỗi cột của tệp xuất hiện trên một dòng với tối đa ba giá trị mẫu, trường do Klacks đề xuất
+    (<em>Nhập thành</em>) và mức độ chắc chắn của đề xuất (<em>Độ tin cậy</em>).
+  </li>
+  <li>
+    Mọi đề xuất đều có thể thay đổi trong danh sách thả xuống. Cột không cần nhập được đặt thành
+    <em>Không nhập</em>. Mỗi trường chỉ có thể được gán cho một cột.
+  </li>
+  <li>
+    <em>Định dạng ngày</em> xuất hiện khi tệp chứa ngày tháng; khi tệp không xác định được thứ tự
+    của ngày và tháng, cần kiểm tra lại lựa chọn.
+  </li>
+  <li>
+    <em>Thứ tự trong trường họ tên</em> xuất hiện đối với cột chứa họ tên đầy đủ: <em>Tên
+    Họ</em> hoặc <em>Họ Tên</em>. Dấu phẩy ("Nguyễn, Lan") luôn có nghĩa là họ đứng trước. Họ tên
+    đầy đủ chỉ điền vào tên hoặc họ nào chưa có cột riêng hoặc bị trống ở một dòng.
+  </li>
+</ul>
+<h4>Quy tắc cho thông tin còn thiếu</h4>
+<p>Các quy tắc này áp dụng cho tất cả các dòng:</p>
+<ul>
+  <li>
+    <em>Hợp đồng nếu không có thông tin</em> và <em>Nhóm nếu không có thông tin</em> – được dùng cho
+    các dòng không có hợp đồng hoặc nhóm, hoặc có tên không tồn tại.
+  </li>
+  <li>
+    <em>Ngày vào làm nếu không có thông tin</em> – để trống nghĩa là hôm nay. Ngày này cũng là ngày
+    bắt đầu của hợp đồng, việc phân nhóm và địa chỉ.
+  </li>
+  <li>
+    <em>Quốc gia nếu không có thông tin</em> – mặc định là <em>Quốc gia của hệ thống cài đặt</em>.
+  </li>
+  <li>
+    <em>Lưu địa chỉ email dưới dạng</em>, <em>Lưu số điện thoại dưới dạng</em>, <em>Lưu số di động
+    dưới dạng</em> – cá nhân hoặc công việc; áp dụng cho tất cả các dòng.
+  </li>
+  <li>
+    <em>Nhân viên cũ (ngày nghỉ việc trong quá khứ)</em> – <em>Bỏ qua</em> (mặc định) hoặc <em>Nhập
+    kèm ngày nghỉ việc</em>. Ngày nghỉ việc là hôm nay hoặc muộn hơn luôn được nhập.
+  </li>
+  <li>
+    <em>Có thể trùng lặp</em> – <em>Bỏ qua</em> (mặc định) hoặc <em>Vẫn tạo</em>.
+  </li>
+</ul>
+<p>
+<em>Tiếp tục đến phần xem trước</em> chuyển sang bước tiếp theo; <em>Chọn tệp khác</em> bắt đầu lại
+với một tệp khác.
+</p>
+
+<hr>
+
+<h3>Bước 3 – Xem trước</h3>
+<ul>
+  <li>
+    Phần tóm tắt đếm số dòng: tổng cộng, sẵn sàng, đã bỏ qua, có lỗi, trùng lặp và có cảnh báo. Các
+    ghi chú liên quan đến tất cả hoặc nhiều dòng xuất hiện một lần phía trên bảng, cùng với các cột
+    không được nhập.
+  </li>
+  <li>
+    Bảng hiển thị mỗi dòng đúng như khi được lưu, các lỗi đứng đầu, sau đó là cảnh báo và gợi ý.
+    <em>Chỉ hiển thị các dòng có vấn đề</em> thu hẹp danh sách.
+  </li>
+  <li>
+    Theo từng dòng: <em>Bỏ qua</em> loại bỏ dòng đó; <em>Vui lòng chọn</em> đặt giới tính cho dòng
+    chưa có giới tính; <em>Vẫn tạo</em> giữ lại dòng đã được nhận diện là trùng lặp.
+  </li>
+  <li>
+    Các giá trị khác không thể chỉnh sửa trong bản xem trước. Để sửa, cần sửa tệp và chọn lại tệp
+    (<em>Chọn tệp khác</em>), hoặc thay đổi ánh xạ bằng <em>Quay lại</em>.
+  </li>
+  <li>
+    Nút nhập hiển thị số người sẽ được tạo (ví dụ <em>Nhập 25
+    nhân viên</em>). Nút này bị vô hiệu hóa chừng nào còn một dòng có lỗi: sửa dòng đó hoặc bỏ qua.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Bước 4 – Kết quả</h3>
+<p>
+Hiển thị số người đã được tạo, số dòng đã bị bỏ qua và số địa chỉ đang được định vị trên bản đồ ở
+chế độ nền. <em>Đến danh sách nhân viên</em> mở danh sách,
+<em>Nhập tệp khác</em> bắt đầu một lần nhập mới.
+</p>
+
+<hr>
+
+<h3>Các cột có thể nhập</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Trường (Nhập thành)</th>
+      <th>Bắt buộc</th>
+      <th>Ghi chú</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tên, Họ</td>
+      <td>Có, đối với cá nhân</td>
+      <td>Mỗi trường tối đa 100 ký tự. Không bắt buộc đối với khách hàng có công ty.</td>
+    </tr>
+    <tr>
+      <td>Họ và tên</td>
+      <td>Không</td>
+      <td>Thay thế cho các cột tên riêng biệt; được tách thành tên và họ (xem bước 2). Tên gồm nhiều
+        hơn hai thành phần sẽ nhận cảnh báo – cần kiểm tra cách tách.</td>
+    </tr>
+    <tr>
+      <td>Danh hiệu</td>
+      <td>Không</td>
+      <td>Được giữ nguyên, ví dụ "Dr.". Danh hiệu nằm trong họ tên đầy đủ không được tách riêng.</td>
+    </tr>
+    <tr>
+      <td>Giới tính, Cách xưng hô</td>
+      <td>Có, đối với cá nhân</td>
+      <td>Xem <em>Giới tính và cách xưng hô</em>. Nếu không có giá trị, giới tính được chọn theo từng
+        dòng trong bản xem trước.</td>
+    </tr>
+    <tr>
+      <td>Ngày sinh</td>
+      <td>Không</td>
+      <td>Ngày trong tương lai là lỗi. Quan trọng cho việc phát hiện trùng lặp.</td>
+    </tr>
+    <tr>
+      <td>Công ty</td>
+      <td>Đối với khách hàng là công ty</td>
+      <td>Tối đa 100 ký tự. Xem <em>Loại và công ty</em>.</td>
+    </tr>
+    <tr>
+      <td>Loại (nhân viên, bên ngoài, khách hàng)</td>
+      <td>Không</td>
+      <td>Trống hoặc không có = nhân viên. Xem <em>Loại và công ty</em>.</td>
+    </tr>
+    <tr>
+      <td>Đường, Số nhà</td>
+      <td>Không</td>
+      <td>Số nhà ở cột riêng được nối vào tên đường.</td>
+    </tr>
+    <tr>
+      <td>Dòng địa chỉ 2</td>
+      <td>Không</td>
+      <td>Được giữ nguyên dưới dạng văn bản tự do.</td>
+    </tr>
+    <tr>
+      <td>Mã bưu chính, Thành phố</td>
+      <td>Đối với khách hàng là công ty</td>
+      <td>Địa chỉ được tạo ngay khi có đường, mã bưu chính hoặc thành phố.</td>
+    </tr>
+    <tr>
+      <td>Mã bưu chính và thành phố</td>
+      <td>Không</td>
+      <td>Một cột chứa cả hai, ví dụ "8000 Zürich" hoặc "CH-8000 Zürich"; chỉ được dùng khi dòng đó
+        không có mã bưu chính hoặc thành phố riêng. Nếu không tách được, toàn bộ giá trị trở thành
+        thành phố (cảnh báo).</td>
+    </tr>
+    <tr>
+      <td>Tỉnh / vùng</td>
+      <td>Không</td>
+      <td>Văn bản tự do; nếu để trống, sẽ được điền khi địa chỉ được định vị trên bản đồ.</td>
+    </tr>
+    <tr>
+      <td>Quốc gia</td>
+      <td>Đối với khách hàng là công ty (quốc gia mặc định được tính)</td>
+      <td>Mã quốc gia (CH, DE …) hoặc tên quốc gia bằng bất kỳ ngôn ngữ nào của Klacks. Trống = quốc
+        gia mặc định; quốc gia không xác định sẽ nhận cảnh báo và quốc gia mặc định được sử dụng.</td>
+    </tr>
+    <tr>
+      <td>Email</td>
+      <td>Không</td>
+      <td>Địa chỉ không hợp lệ bị bỏ qua kèm cảnh báo; người đó vẫn được nhập.</td>
+    </tr>
+    <tr>
+      <td>Điện thoại, Điện thoại di động</td>
+      <td>Không</td>
+      <td>Khoảng trắng và ký tự phân cách bị xóa, 00 ở đầu được đổi thành +; số không có + sẽ được
+        thêm mã gọi quốc tế của quốc gia trong dòng đó.</td>
+    </tr>
+    <tr>
+      <td>Ngày vào làm</td>
+      <td>Không</td>
+      <td>Trống = quy tắc <em>Ngày vào làm nếu không có thông tin</em>. Ngày không hợp lý (trước ngày
+        sinh, hoặc cách xa hơn 50 năm) sẽ nhận cảnh báo.</td>
+    </tr>
+    <tr>
+      <td>Ngày nghỉ việc</td>
+      <td>Không</td>
+      <td>Trước ngày vào làm = lỗi. Trong quá khứ: xem quy tắc <em>Nhân viên cũ</em>.</td>
+    </tr>
+    <tr>
+      <td>Hợp đồng, Nhóm</td>
+      <td>Không</td>
+      <td>Được đối chiếu theo tên; xem <em>Hợp đồng và nhóm</em>.</td>
+    </tr>
+    <tr>
+      <td>Ghi chú</td>
+      <td>Không</td>
+      <td>Được lưu dưới dạng ghi chú của người đó.</td>
+    </tr>
+    <tr>
+      <td>Mã nhân viên (do Klacks cấp)</td>
+      <td>–</td>
+      <td>Được nhận diện nhưng không bao giờ được nhập; xem <em>Mã nhân viên</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Loại và công ty</h3>
+<ul>
+  <li>
+    Cột <em>Loại</em> cho biết ở từng dòng đó là nhân viên, nhân viên bên ngoài hay khách hàng. Các
+    giá trị được nhận diện là, ví dụ, <code>Nhân viên</code>, <code>Nội bộ</code> (nhân viên),
+    <code>Bên ngoài</code>, <code>Nhân viên bên ngoài</code>,
+    <code>Cộng tác viên</code> (nhân viên bên ngoài) và <code>Khách hàng</code>
+    (khách hàng); các từ tương ứng của mọi ngôn ngữ khác của Klacks và các số 0, 1 và 2 cũng dùng
+    được. Chữ hoa và chữ thường không quan trọng.
+  </li>
+  <li>
+    <strong>Ô trống</strong> hoặc tệp không có cột loại có nghĩa là <strong>nhân viên</strong>.
+    Giá trị không xác định là lỗi trong bản xem trước.
+  </li>
+  <li>
+    <strong>Khách hàng có công ty:</strong> được tạo dưới dạng công ty (pháp nhân), không phải cá
+    nhân. Tên và họ là tùy chọn và được giữ làm người liên hệ (bản xem trước đánh dấu chúng bằng
+    <em>Người liên hệ:</em>); giới tính trong dòng bị bỏ qua. Dòng như vậy cần có địa chỉ với mã bưu
+    chính, thành phố và quốc gia (quốc gia mặc định được tính).
+  </li>
+  <li>
+    <strong>Khách hàng không có công ty:</strong> được tạo dưới dạng cá nhân – tên, họ và giới tính
+    là bắt buộc.
+  </li>
+  <li>
+    <strong>Nhân viên hoặc nhân viên bên ngoài có công ty:</strong> vẫn là cá nhân; tên công ty được
+    lưu cùng với người đó.
+  </li>
+  <li>
+    <strong>Khách hàng không bao giờ nhận hợp đồng</strong> – không từ tệp (cảnh báo, giá trị không
+    được nhập) cũng không từ các quy tắc. Khách hàng cũng được phân nhóm.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Giới tính và cách xưng hô</h3>
+<ul>
+  <li>
+    Cá nhân cần có giới tính: <em>Nữ</em>, <em>Nam</em> hoặc <em>Khác</em>. Giới tính được lấy từ cột
+    <em>Giới tính</em>; nếu cột đó trống, thì từ cột <em>Cách xưng hô</em> (bản xem trước ghi chú điều
+    này). Nếu không có cả hai, giới tính được chọn theo từng dòng trong bản xem trước (<em>Vui lòng
+    chọn</em>).
+  </li>
+  <li>
+    Các giá trị được nhận diện là, ví dụ, <code>Bà</code>, <code>Cô</code>, <code>Chị</code>,
+    <code>Nữ</code> (nữ), <code>Ông</code>, <code>Anh</code>,
+    <code>Nam</code> (nam) và <code>Khác</code>, <code>Liên giới tính</code>
+    (khác) – cùng với các từ tương ứng của mọi ngôn ngữ khác của Klacks, chẳng hạn
+    <code>Herr</code>/<code>Frau</code> hoặc <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Chữ hoa và chữ thường, dấu và dấu câu không quan trọng; với cách xưng hô dài hơn, từ đầu tiên
+    được tính ("Ông Dr." = nam).
+  </li>
+  <li>Công ty (khách hàng có công ty) không cần giới tính.</li>
+</ul>
+
+<hr>
+
+<h3>Hợp đồng và nhóm</h3>
+<ul>
+  <li>
+    Giá trị trong tệp được so sánh với tên của các hợp đồng và nhóm hiện có; chữ hoa và chữ thường
+    cũng như khoảng trắng ở đầu hoặc cuối không quan trọng.
+  </li>
+  <li>
+    Nếu tên không tồn tại, tồn tại nhiều lần hoặc để trống, hợp đồng hoặc nhóm từ các quy tắc sẽ được
+    dùng và bản xem trước sẽ thông báo điều đó. Nếu không có quy tắc, dòng đó sẽ không có hợp đồng
+    hoặc không có nhóm.
+  </li>
+  <li>
+    <strong>Việc nhập không tạo hợp đồng hoặc nhóm.</strong> Cần thiết lập chúng trước trong phần cài
+    đặt và trên trang nhóm, sau đó mới nhập.
+  </li>
+  <li>
+    Hợp đồng và nhóm bắt đầu vào ngày vào làm và kết thúc vào ngày nghỉ việc, nếu có.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Mã nhân viên</h3>
+<p>
+Klacks <strong>luôn tự cấp mã nhân viên</strong>. Cột mã nhân viên trong tệp được nhận diện nhưng bị
+bỏ qua; bản xem trước hiển thị một gợi ý. Để giữ lại mã của hệ thống khác, cột đó có thể được ánh xạ
+thành <em>Ghi chú</em> ở bước 2, miễn là không có cột nào khác được nhập làm ghi chú.
+</p>
+
+<hr>
+
+<h3>Trùng lặp</h3>
+<ul>
+  <li>
+    <strong>Cá nhân:</strong> một dòng được xem là trùng lặp khi <strong>địa chỉ email</strong>
+    giống nhau, hoặc khi <strong>tên, họ và ngày sinh</strong> giống nhau. Chữ hoa và chữ thường, dấu
+    và dấu gạch nối được bỏ qua ("Müller" = "Muller", "Hans-Peter" = "Hanspeter").
+  </li>
+  <li>
+    <strong>Công ty</strong> (khách hàng có công ty): cùng <strong>công ty, mã bưu chính và
+    đường</strong>.
+  </li>
+  <li>
+    Các dòng được so sánh với những người đã có trong Klacks và với các dòng phía trước của cùng tệp.
+    <strong>Khách hàng chỉ được so sánh với khách hàng</strong>, nhân viên và nhân viên bên ngoài được
+    so sánh với nhau.
+  </li>
+  <li>
+    Các bản trùng lặp bị bỏ qua với quy tắc <em>Có thể trùng lặp</em> = <em>Bỏ qua</em>. Với
+    <em>Vẫn tạo</em> – dưới dạng quy tắc cho tất cả các dòng hoặc theo từng dòng trong bản xem trước –
+    chúng vẫn được tạo.
+  </li>
+  <li>
+    Chỉ là <strong>gợi ý</strong>, không bỏ qua: cùng tên nhưng không có ngày sinh trùng khớp, hoặc
+    cùng công ty ở một địa chỉ khác. Cần kiểm tra các dòng như vậy trước khi nhập.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Lưu và địa chỉ</h3>
+<ul>
+  <li>
+    <strong>Tất cả hoặc không gì cả:</strong> việc nhập lưu tất cả các dòng sẵn sàng trong một lần.
+    Nếu có bất kỳ lỗi nào, không có gì được lưu. Trước khi lưu, Klacks kiểm tra lại tất cả các dòng
+    với dữ liệu hiện tại.
+  </li>
+  <li>
+    Được tạo cho mỗi dòng: người đó (hoặc công ty), thời gian làm việc từ ngày vào làm đến ngày nghỉ
+    việc, địa chỉ, địa chỉ email, số điện thoại và số di động, hợp đồng, nhóm và ghi chú.
+  </li>
+  <li>
+    Cùng một lần nhập không thể được lưu hai lần; lần thử thứ hai sẽ cho thấy việc nhập đã được thực
+    hiện.
+  </li>
+  <li>
+    <strong>Bản đồ:</strong> các địa chỉ có mã bưu chính và thành phố được định vị trên bản đồ ở chế
+    độ nền sau khi nhập, lần lượt từng địa chỉ. Với nhiều địa chỉ, việc này có thể mất vài phút; trong
+    thời gian đó, những người đã nhập vẫn có thể được sử dụng.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Lỗi thường gặp và cách khắc phục</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Thông báo</th>
+      <th>Nguyên nhân</th>
+      <th>Cách khắc phục</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Định dạng tệp này không được hỗ trợ. Vui lòng dùng tệp .xlsx hoặc .csv.</td>
+      <td>.xls, .ods, PDF hoặc tệp bị hỏng.</td>
+      <td>Lưu tệp trong Excel dưới dạng .xlsx hoặc xuất ra CSV.</td>
+    </tr>
+    <tr>
+      <td>Tệp quá lớn (tối đa 5 MB).</td>
+      <td>Tệp lớn hơn 5 MB, ví dụ do hình ảnh hoặc trang tính không dùng đến.</td>
+      <td>Xóa hình ảnh và trang tính không dùng đến, hoặc chia nhỏ danh sách.</td>
+    </tr>
+    <tr>
+      <td>Tệp chứa quá nhiều dòng (tối đa 1000 người cho mỗi lần nhập).</td>
+      <td>Hơn 1000 dòng dữ liệu.</td>
+      <td>Chia danh sách thành nhiều tệp (xem <em>Giới hạn và danh sách lớn</em>).</td>
+    </tr>
+    <tr>
+      <td>Tệp chứa quá nhiều cột (tối đa 60).</td>
+      <td>Hơn 60 cột, thường do một giá trị lạc ở xa bên phải.</td>
+      <td>Xóa các cột không dùng đến, kể cả những cột trông có vẻ trống ở mép phải.</td>
+    </tr>
+    <tr>
+      <td>Không tìm thấy dòng tiêu đề chứa tên cột trong các dòng đầu tiên.</td>
+      <td>Không có dòng nào chứa ít nhất hai tên cột trong 10 dòng đầu tiên.</td>
+      <td>Đặt một dòng tiêu đề chứa tên cột phía trên dữ liệu.</td>
+    </tr>
+    <tr>
+      <td>Tệp không chứa dữ liệu.</td>
+      <td>Tệp trống, chỉ có dòng tiêu đề, hoặc không có trang tính nào đang hiển thị.</td>
+      <td>Kiểm tra tệp; bỏ ẩn trang tính trong Excel.</td>
+    </tr>
+    <tr>
+      <td>Thiếu giới tính – vui lòng chọn.</td>
+      <td>Không có hoặc không nhận diện được giới tính hay cách xưng hô.</td>
+      <td>Chọn giới tính trong bản xem trước, hoặc điền cột đó trong tệp.</td>
+    </tr>
+    <tr>
+      <td>Thiếu tên. / Thiếu họ.</td>
+      <td>Cột tên trống hoặc chưa được ánh xạ; họ tên đầy đủ chỉ có một từ.</td>
+      <td>Kiểm tra ánh xạ ở bước 2 hoặc bổ sung tệp.</td>
+    </tr>
+    <tr>
+      <td>Ngày không hợp lệ: "…".</td>
+      <td>Ngày không đọc được, ngày sinh trong tương lai, hoặc ngày nghỉ việc trước ngày vào làm.</td>
+      <td>Kiểm tra định dạng ngày ở bước 2 hoặc sửa giá trị trong tệp.</td>
+    </tr>
+    <tr>
+      <td>Loại "…" không xác định – hãy dùng nhân viên, bên ngoài hoặc khách hàng.</td>
+      <td>Giá trị trong cột loại không được nhận diện.</td>
+      <td>Dùng một trong các giá trị từ ghi chú của tệp mẫu, hoặc để trống ô (= nhân viên).</td>
+    </tr>
+    <tr>
+      <td>Khách hàng có công ty cần có địa chỉ với mã bưu chính, thành phố và quốc gia.</td>
+      <td>Dòng công ty không có địa chỉ đầy đủ.</td>
+      <td>Bổ sung mã bưu chính và thành phố; đặt quốc gia trong tệp hoặc trong các quy tắc.</td>
+    </tr>
+    <tr>
+      <td>Giá trị quá dài (tối đa … ký tự).</td>
+      <td>Tên, danh hiệu, công ty, email hoặc số điện thoại dài hơn 100 ký tự.</td>
+      <td>Rút ngắn giá trị trong tệp.</td>
+    </tr>
+    <tr>
+      <td>Không tìm thấy hợp đồng "…". / Không tìm thấy nhóm "…".</td>
+      <td>Tên khác với các hợp đồng và nhóm trong Klacks.</td>
+      <td>Sửa tên, hoặc thiết lập hợp đồng hay nhóm trước; nếu không, quy tắc sẽ được áp dụng.</td>
+    </tr>
+    <tr>
+      <td>Một số dòng vẫn còn lỗi. Hãy sửa chúng hoặc bỏ qua các dòng đó, rồi thử lại.</td>
+      <td>Ít nhất một dòng có lỗi.</td>
+      <td>Dùng <em>Chỉ hiển thị các dòng có vấn đề</em>, sau đó sửa hoặc bỏ qua các dòng đó.</td>
+    </tr>
+    <tr>
+      <td>Một trong các quy tắc cho thông tin còn thiếu không còn hợp lệ …</td>
+      <td>Hợp đồng hoặc nhóm được chọn trong các quy tắc đã bị xóa trong thời gian đó.</td>
+      <td>Kiểm tra các quy tắc ở bước 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Sau khi nhập</h3>
+<ul>
+  <li>
+    Những người đã nhập là các bản ghi bình thường. Sai sót được sửa hoặc xóa trên trang của người
+    đó; không có chức năng "hoàn tác" cho toàn bộ lần nhập.
+  </li>
+  <li>
+    Nhập cùng một tệp lần thứ hai sẽ lại phát hiện các dòng có địa chỉ email hoặc ngày sinh là trùng
+    lặp. Các dòng chỉ có tên thì chỉ được đánh dấu – cần kiểm tra chúng trước khi nhập lần hai.
+  </li>
+  <li>
+    Một người riêng lẻ được tạo bằng tay trên trang nhân viên; danh bạ của công ty có thể được quản
+    trị viên đồng bộ hóa qua phần cài đặt nhà cung cấp danh tính.
+  </li>
+</ul>

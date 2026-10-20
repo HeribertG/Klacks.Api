@@ -3,7 +3,8 @@
 /// <summary>
 /// One import row after transformation: the values that will be written, the findings about the row,
 /// and its duplicate and skip state. Preview shows it, commit builds the client from it, so both see the
-/// identical result.
+/// identical result. Type is the client type (employee when the file has none); LegalEntity marks a
+/// customer with a company, whose person name (if any) is only its contact person.
 /// </summary>
 
 using Klacks.Api.Application.DTOs.ClientImport;
@@ -20,6 +21,12 @@ public class ClientImportDraft
     public string? LastName { get; set; }
 
     public string? Title { get; set; }
+
+    public EntityTypeEnum Type { get; set; } = EntityTypeEnum.Employee;
+
+    public string? Company { get; set; }
+
+    public bool LegalEntity { get; set; }
 
     public GenderEnum? Gender { get; set; }
 

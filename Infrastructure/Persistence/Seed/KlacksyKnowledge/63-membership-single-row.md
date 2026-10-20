@@ -2,10 +2,10 @@
 name: explain_membership_single_row
 description: |
   Explains that a person's membership is a single row rather than a history: a departure and a
-  later return overwrite the same entry's dates instead of adding a new one. Also covers the
-  membership's own type field, stored and displayed but never evaluated anywhere — the value that
-  actually governs a person's classification lives elsewhere. Use this when asked whether a
-  re-entry keeps the old start date, or why changing that field has no effect.
+  later return overwrite the same entry's dates instead of adding a new one. Also covers the Type
+  dropdown on the same card, which changes the person's own classification (employee, external,
+  customer) and not the membership. Use this when asked whether a re-entry keeps the old start
+  date, or what the Type control on that card changes.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -19,13 +19,13 @@ triggerKeywords:
     - membership
     - re-entry
 synonyms:
-  de: [mitgliedschaft hat keine historie, wiedereintritt überschreibt eintrittsdatum, alte mitgliedschaft geht verloren, mitgliedschaft typ ohne wirkung, nur eine mitgliedschaftszeile pro person, mitgliedschaft wird überschrieben statt neu]
-  en: [membership has no history, re-entry overwrites entry date, old membership period lost, membership type field has no effect, only one membership row per person]
-  fr: [adhésion sans historique, réintégration écrase la date d'entrée, type d'adhésion sans effet réel]
-  it: [appartenenza senza storico, rientro sovrascrive la data di ingresso, tipo di appartenenza senza effetto]
+  de: [mitgliedschaft hat keine historie, wiedereintritt überschreibt eintrittsdatum, alte mitgliedschaft geht verloren, typ in der registrierung ändert die person, nur eine mitgliedschaftszeile pro person, mitgliedschaft wird überschrieben statt neu]
+  en: [membership has no history, re-entry overwrites entry date, old membership period lost, type dropdown in the registration card, only one membership row per person]
+  fr: [adhésion sans historique, réintégration écrase la date d'entrée, le type dans la carte inscription change la personne]
+  it: [appartenenza senza storico, rientro sovrascrive la data di ingresso, il tipo nella scheda registrazione cambia la persona]
 ---
 
-# Membership — one row, no history, and a type field that does nothing
+# Membership — one row, no history
 
 A person has exactly one membership record (their entry and exit dates), never a list of past periods,
 so a later return overwrites the same entry instead of adding to it. This is not the person's link to
@@ -53,7 +53,7 @@ if the exact first period matters later, write it down somewhere else before the
 3. In the same card sits the dropdown (de: "Typ", en: "Type", fr: "Type", it: "Tipo") with the choices (de:
    "Mitarbeiter", en: "Employee", fr: "Employé", it: "Dipendente"), (de: "Externer", en: "External", fr:
    "Externe", it: "Esterno") and (de: "Kunde", en: "Customer", fr: "Client", it: "Cliente"). It changes the
-   person's classification — not a type of the membership.
+   person's classification — not the membership.
 4. Klacksy: `list_client_memberships` shows the record, `update_membership` changes its dates,
    `end_client_membership` sets the exit date.
 
@@ -67,23 +67,21 @@ row. Entries that were already planned after a newly set exit date stay in the d
 neither deleted nor flagged. The person's links to groups are separate records with their own dates (see the group membership
 validity).
 
-The membership record also carries its own type value. It can be set and it is shown back — but no
-scheduling rule, report or filter in Klacks reads it to decide anything. The value that really
-determines whether somebody counts as staff, external staff or a customer is the person's own
-classification, a separate field.
+The membership record holds only these dates. Whether somebody counts as staff, external staff or a
+customer is the person's own classification, a separate field.
 
 ### Related skills
 
 - `list_client_memberships` / `update_membership` / `end_client_membership` — reading and changing
   the one membership record
-- `update_client_type` — the classification that actually matters
+- `update_client_type` — changing the person's classification
 
 ### Trigger phrases
 
 - "Wenn jemand wieder eintritt, sehe ich dann noch das alte Eintrittsdatum?"
-- "Ich habe den Mitgliedschafts-Typ geändert — warum ändert sich sonst nichts?"
+- "Was ändert das Feld Typ in der Karte Registrierung?"
 - "Does re-joining keep the previous membership period?"
-- "What is the difference between the membership type and the person's type?"
+- "Does the Type dropdown in the registration card change the membership?"
 
 <!-- level:pitfalls -->
 
@@ -95,10 +93,10 @@ re-entry replaces its start date. Nothing archives the earlier dates, and no sec
 preserve them. If the exact history of an earlier stay matters, it has to be recorded outside the
 membership before the rejoin overwrites it.
 
-**Changing the type control changes the person, not the membership.** The control that changes the real
+**Changing the type control changes the person, not the membership.** The control that changes the
 classification sits visually inside the membership card, right next to the dates, which makes it easy to
-assume it edits the membership's type. It edits the person's classification directly; the membership's
-own type field stays untouched either way, and changing that field has no effect on anything.
+assume it edits the membership. It edits the person's classification directly; the membership itself has
+no type and keeps only its dates.
 
 **A classification change can be refused.** For a person marked as a legal entity the type is locked to
 customer; see the legal entity rule.

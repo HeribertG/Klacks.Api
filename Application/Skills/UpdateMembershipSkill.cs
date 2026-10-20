@@ -10,7 +10,6 @@
 /// <param name="validFrom">Optional. New start date (YYYY-MM-DD); plannability boundary in the schedule.</param>
 /// <param name="validUntil">Optional. New end date (YYYY-MM-DD).</param>
 /// <param name="clearValidUntil">Optional. If true, removes the end date (open-ended membership).</param>
-/// <param name="type">Optional. New numeric membership type code.</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Common;
@@ -104,13 +103,6 @@ public class UpdateMembershipSkill : BaseSkillImplementation
             }
         }
 
-        var type = GetParameter<int?>(parameters, "type");
-        if (type.HasValue && type.Value != membership.Type)
-        {
-            membership.Type = type.Value;
-            changed.Add("type");
-        }
-
         if (changed.Count == 0)
         {
             return SkillResult.SuccessResult(
@@ -165,8 +157,7 @@ public class UpdateMembershipSkill : BaseSkillImplementation
         }
 
         if (persisted.ValidFrom != membership.ValidFrom
-            || persisted.ValidUntil != membership.ValidUntil
-            || persisted.Type != membership.Type)
+            || persisted.ValidUntil != membership.ValidUntil)
         {
             return SkillResult.Error(
                 $"Database verification failed: membership '{membershipId}' does not show the requested values after the update. " +
@@ -179,7 +170,6 @@ public class UpdateMembershipSkill : BaseSkillImplementation
                 MembershipId = membershipId,
                 ChangedFields = changed,
                 persisted.ClientId,
-                persisted.Type,
                 persisted.ValidFrom,
                 persisted.ValidUntil
             },

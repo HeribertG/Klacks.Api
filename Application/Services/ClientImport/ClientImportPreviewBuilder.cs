@@ -54,6 +54,8 @@ public static class ClientImportPreviewBuilder
             FirstName = draft.FirstName,
             LastName = draft.LastName,
             Title = draft.Title,
+            Type = draft.Type.ToString(),
+            Company = draft.Company,
             Gender = draft.Gender?.ToString(),
             Birthdate = FormatDate(draft.Birthdate),
             Street = draft.Street,

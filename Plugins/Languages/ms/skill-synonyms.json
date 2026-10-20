@@ -1130,7 +1130,6 @@
     "adakah keahlian ada sejarah?",
     "masuk semula tulis ganti tarikh masuk asal, betul?",
     "tempoh keahlian lama hilang, kenapa?",
-    "adakah jenis keahlian tidak memberi kesan?",
     "hanya satu baris keahlian setiap orang, betul?"
   ],
   "explain_navigation_learning": [
@@ -1181,6 +1180,13 @@
     "macam mana nak buat kumpulan baru?",
     "apa kesan pemilihan kumpulan global?",
     "boleh seret kumpulan untuk ubah induk?"
+  ],
+  "explain_page_import_employees": [
+    "bagaimana nak import pekerja dari excel",
+    "import pekerja",
+    "muat naik senarai pekerja",
+    "di mana nak muat naik csv pekerja",
+    "templat untuk import pekerja"
   ],
   "explain_page_inbox": [
     "terangkan halaman peti masuk",

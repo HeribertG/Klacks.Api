@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Writes the employee import template as xlsx with ClosedXML: one sheet, a bold frozen header row,
-/// and text format on every column so postcodes and phone numbers keep their leading zeros.
+/// text format on every column so postcodes and phone numbers keep their leading zeros, and an optional
+/// note on a header cell (e.g. the accepted client type words).
 /// </summary>
 
 using ClosedXML.Excel;
@@ -17,7 +18,7 @@ public class ClientImportTemplateBuilder : IClientImportTemplateBuilder
     private const double MinColumnWidth = 14;
     private const int ColumnPadding = 4;
 
-    public byte[] Build(string sheetName, IReadOnlyList<string> headers)
+    public byte[] Build(string sheetName, IReadOnlyList<string> headers, IReadOnlyList<string?>? headerNotes = null)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.Worksheets.Add(sheetName);
@@ -31,6 +32,12 @@ public class ClientImportTemplateBuilder : IClientImportTemplateBuilder
             var cell = sheet.Cell(HeaderRow, index + 1);
             cell.Value = headers[index];
             cell.Style.Font.Bold = true;
+
+            var note = headerNotes != null && index < headerNotes.Count ? headerNotes[index] : null;
+            if (!string.IsNullOrWhiteSpace(note))
+            {
+                cell.CreateComment().AddText(note);
+            }
         }
 
         sheet.SheetView.FreezeRows(HeaderRow);

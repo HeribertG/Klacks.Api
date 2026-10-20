@@ -145,8 +145,7 @@ public class ClientSyncService : IClientSyncService
             Id = Guid.NewGuid(),
             ClientId = client.Id,
             ValidFrom = ldapUser.WhenCreated ?? DateTime.UtcNow,
-            ValidUntil = null,
-            Type = 0
+            ValidUntil = null
         };
 
         await _membershipRepository.Add(membership);

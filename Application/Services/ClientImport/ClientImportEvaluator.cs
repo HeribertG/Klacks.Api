@@ -6,7 +6,7 @@
 /// lookups once, transform and validate every row, then detect duplicates against the database and
 /// within the file.
 /// </summary>
-/// <param name="lookupRepository">Contracts, groups and duplicate candidates</param>
+/// <param name="lookupRepository">Contracts, groups and duplicate candidates (by last name, e-mail and company)</param>
 /// <param name="countryResolver">Resolves country cells and the installation's default country</param>
 /// <param name="companyClock">Company "today" for the default entry date and plausibility checks</param>
 /// <param name="transformer">Row transformation</param>
@@ -57,7 +57,8 @@ public class ClientImportEvaluator
 
         lookup.ExistingClients = await _lookupRepository.FindDuplicateCandidatesAsync(
             drafts.Where(d => d.LastName != null).Select(d => d.LastName!.ToLowerInvariant()).ToList(),
-            drafts.Where(d => d.Email != null).Select(d => ClientImportDuplicateDetector.EmailKey(d.Email!)).ToList(),
+            drafts.Where(d => d.Email != null).Select(d => ClientImportDuplicateKeys.EmailKey(d.Email!)).ToList(),
+            drafts.Where(d => d.LegalEntity).Select(d => ClientImportDuplicateKeys.BusinessKeyPart(d.Company)).OfType<string>().ToList(),
             cancellationToken);
 
         ClientImportDuplicateDetector.Detect(drafts, request.Policy.Duplicates, lookup);

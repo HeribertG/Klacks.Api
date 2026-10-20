@@ -1,0 +1,594 @@
+<h2>Import zaměstnanců – příručka</h2>
+
+<h3>Co je import zaměstnanců?</h3>
+<p>
+Import zaměstnanců převezme celý seznam personálu z <strong>jednoho souboru Excel (.xlsx) nebo jednoho
+souboru CSV (.csv)</strong> s jedním řádkem na osobu, místo aby se každá osoba zakládala ručně. Klacks
+sám rozpozná sloupce, v náhledu ukáže, jak bude každý záznam vypadat, a data uloží až po potvrzení.
+Kromě zaměstnanců může tentýž soubor obsahovat také externí pracovníky a zákazníky.
+</p>
+<ul>
+  <li>
+    <strong>Kdo smí importovat:</strong> pouze administrátoři. Karta <em>Importovat zaměstnance</em> se
+    nachází v nastavení, v sekci <em>Organizace</em>; tlačítko <em>Importovat</em> otevře stránku
+    importu. Ostatní uživatelé kartu nevidí a pro import potřebují administrátora.
+  </li>
+  <li>
+    <strong>Ochrana osobních údajů:</strong> samotný soubor se neukládá. Pouze se načte; vytvoří se jen
+    řádky potvrzené v náhledu.
+  </li>
+  <li>
+    <strong>Čtyři kroky:</strong> <em>Soubor</em> → <em>Přiřazení a pravidla</em> → <em>Náhled</em> →
+    <em>Výsledek</em>. Záložka <em>Příručka</em> zobrazuje tuto příručku; přepnutím na ni se rozpracovaný
+    import neztratí.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Podporované soubory</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> a <strong>CSV (.csv)</strong>; soubor .txt se načte jako soubor CSV.
+    Starý formát Excelu <strong>.xls není podporován</strong> – soubor je třeba nejprve v Excelu uložit
+    jako .xlsx.
+  </li>
+  <li>
+    <strong>Sešity Excelu:</strong> načítají se pouze viditelné listy, ve výchozím stavu první z nich. U
+    sešitu s více listy nabízí krok 2 výběr <em>List</em>. Importuje se vypočtený výsledek vzorce. Buňky
+    formátované jako datum se načtou jako data. Čísla v buňkách s formátem „Obecný“ ztrácejí úvodní nuly
+    (PSČ 01234 se změní na 1234) – takové sloupce je třeba formátovat jako text (šablona to již dělá).
+  </li>
+  <li>
+    <strong>Kódování souborů CSV:</strong> rozpoznává se UTF-8 (se značkou pořadí bajtů i bez ní) a
+    UTF-16 se značkou pořadí bajtů; každý jiný soubor se načte jako Windows-1252 (obvyklý formát „ANSI“
+    Excelu ve Windows v západní Evropě), takže západoevropské přehlásky a akcenty se přenesou bez
+    jakéhokoli nastavení. Pro všechna ostatní písma a písmena (například ł, ř, ș, řečtinu, arabštinu,
+    hebrejštinu, čínštinu, japonštinu, korejštinu nebo thajštinu) je třeba soubor uložit jako
+    „CSV UTF-8“ nebo použít .xlsx.
+  </li>
+  <li>
+    <strong>Oddělovač v souborech CSV:</strong> středník, čárka, tabulátor nebo svislá čára (|) se
+    rozpozná automaticky. Hodnoty v uvozovkách mohou obsahovat oddělovač i zalomení řádků.
+  </li>
+  <li>
+    <strong>Záhlavní řádek:</strong> první řádek s názvy sloupců musí ležet mezi prvními 10 neprázdnými
+    řádky a obsahovat alespoň dvě textové buňky. Řádky nad ním (například nadpis) a prázdné řádky se
+    ignorují.
+  </li>
+  <li>
+    <strong>Formáty data:</strong> den, měsíc a rok oddělené tečkou, lomítkem nebo spojovníkem, například
+    31.12.1990, 12/31/1990 nebo 1990-12-31; časová část za datem se ignoruje. Hodnota, která začíná
+    čtyřmístným rokem, se vždy čte jako rok-měsíc-den. Pokud ze souboru není patrné, zda je první den,
+    nebo měsíc (žádná hodnota nad 12), Klacks předpokládá den/měsíc/rok a vyzve ke kontrole formátu data
+    v kroku 2. Názvy měsíců (například „31 Dec 1990“) se nerozpoznávají.
+  </li>
+  <li>
+    <strong>Dvoumístné roky:</strong> roky do posledních dvou číslic aktuálního roku se počítají jako
+    20xx, vyšší jako 19xx (v roce 2026: „26“ = 2026, „27“ = 1927). Náhled označí každé takové datum
+    upozorněním, aby bylo možné zkontrolovat století.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Limity a větší seznamy</h3>
+<ul>
+  <li>Nejvýše <strong>5 MB</strong> na soubor.</li>
+  <li>
+    Nejvýše <strong>1000 řádků</strong> na jeden import – počítají se datové řádky pod záhlavním
+    řádkem, bez prázdných řádků.
+  </li>
+  <li>
+    Nejvýše <strong>60 sloupců</strong>. V Excelu se počítá poslední použitý sloupec: jediná zapomenutá
+    hodnota daleko vpravo učiní soubor příliš širokým.
+  </li>
+  <li>
+    Buňka smí obsahovat nejvýše 1000 znaků; delší obsah se zkrátí. Jméno, příjmení, titul a firma smějí
+    mít každé nejvýše 100 znaků, stejně tak e-mailová adresa, telefonní a mobilní číslo.
+  </li>
+  <li>
+    Soubor Excel smí mít po rozbalení nejvýše 20 MB (ochrana před zmanipulovanými soubory).
+  </li>
+</ul>
+<p>
+<strong>Větší seznamy:</strong> seznam je třeba rozdělit do několika souborů po nejvýše 1000 řádcích;
+každý soubor potřebuje vlastní záhlavní řádek. Nepotřebné sloupce lze předem odstranit. Soubory se
+importují jeden po druhém. Osoby, které již byly importovány z dřívějšího souboru, se rozpoznají jako
+duplicity, pokud mají e-mailovou adresu nebo datum narození (viz <em>Duplicity</em>).
+</p>
+
+<hr>
+
+<h3>Šablona</h3>
+<p>
+Tlačítko <em>Stáhnout šablonu</em> v kroku 1 poskytne soubor Excel v jazyce uživatele (název souboru
+<code>klacks-employee-import-cs.xlsx</code>). Se šablonou se každý sloupec spolehlivě rozpozná. Její
+záhlavní řádek je tučný a ukotvený, každý sloupec je formátován jako text (úvodní nuly a data zůstanou
+tak, jak byla zadána) a záhlaví sloupce <em>Typ</em> obsahuje poznámku s povolenými hodnotami. Šablona
+neobsahuje žádný ukázkový řádek, protože by se importoval.
+</p>
+<p>
+Sloupce šablony v tomto pořadí: Jméno, Příjmení, Titul, Firma, Typ, Pohlaví, Datum narození, Ulice,
+Adresa řádek 2, PSČ, Obec, Region, Země, E-mail, Telefon, Mobil, Datum nástupu, Datum ukončení,
+Smlouva, Skupina, Poznámka. Fungují i vlastní seznamy – Klacks rozpozná názvy sloupců ve všech 25
+jazycích Klacks a mnoho obvyklých variant (například „Křestní jméno“, „Poštovní směrovací číslo“,
+„Nástup“).
+</p>
+
+<hr>
+
+<h3>Krok 1 – Soubor</h3>
+<ul>
+  <li>
+    Soubor je třeba přetáhnout do oblasti pro nahrání, nebo na oblast kliknout a soubor vybrat. Klacks
+    soubor načte a přejde ke kroku 2.
+  </li>
+  <li>
+    Problém se souborem (nesprávný formát, příliš velký soubor, příliš mnoho řádků nebo sloupců,
+    chybějící záhlavní řádek) se zobrazí přímo pod oblastí pro nahrání; viz <em>Časté chyby a jejich
+    řešení</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Krok 2 – Přiřazení a pravidla</h3>
+<h4>Přiřadit sloupce</h4>
+<ul>
+  <li>
+    Každý sloupec souboru se zobrazí na jednom řádku s nejvýše třemi ukázkovými hodnotami, polem, které
+    navrhuje Klacks (<em>Importovat jako</em>), a údajem, jak jistý je návrh (<em>Jistota</em>).
+  </li>
+  <li>
+    Každý návrh lze změnit v rozbalovacím seznamu. Sloupec, který se nemá importovat, se nastaví na
+    <em>Neimportovat</em>. Každé pole lze přiřadit pouze jednomu sloupci.
+  </li>
+  <li>
+    <em>Formát data</em> se zobrazí, pokud soubor obsahuje data; pokud ze souboru nelze určit pořadí dne
+    a měsíce, je třeba výběr zkontrolovat.
+  </li>
+  <li>
+    <em>Pořadí v poli se jménem</em> se zobrazí u sloupce s celým jménem: <em>Jméno Příjmení</em> nebo
+    <em>Příjmení Jméno</em>. Čárka („Nováková, Jana“) vždy znamená, že příjmení je uvedeno první. Celé
+    jméno doplní pouze jméno nebo příjmení, které nemá vlastní sloupec nebo je v daném řádku prázdné.
+  </li>
+</ul>
+<h4>Pravidla pro chybějící údaje</h4>
+<p>Tato pravidla platí pro všechny řádky:</p>
+<ul>
+  <li>
+    <em>Smlouva, pokud žádná není uvedena</em> a <em>Skupina, pokud žádná není uvedena</em> – použijí se
+    pro řádky bez smlouvy nebo skupiny, případně s názvem, který neexistuje.
+  </li>
+  <li>
+    <em>Datum nástupu, pokud žádné není uvedeno</em> – prázdné pole znamená dnešní datum. Toto datum je
+    zároveň začátkem smlouvy, přiřazení ke skupině a adresy.
+  </li>
+  <li>
+    <em>Země, pokud žádná není uvedena</em> – výchozí hodnota je <em>Země instalace</em>.
+  </li>
+  <li>
+    <em>Ukládat e-mailové adresy jako</em>, <em>Ukládat telefonní čísla jako</em>, <em>Ukládat čísla
+    mobilních telefonů jako</em> – soukromé nebo pracovní; platí pro všechny řádky.
+  </li>
+  <li>
+    <em>Bývalí zaměstnanci (datum ukončení v minulosti)</em> – <em>Přeskočit</em> (výchozí) nebo
+    <em>Importovat s datem ukončení</em>. Datum ukončení dnes nebo později se importuje vždy.
+  </li>
+  <li>
+    <em>Možné duplicity</em> – <em>Přeskočit</em> (výchozí) nebo <em>Přesto vytvořit</em>.
+  </li>
+</ul>
+<p>
+<em>Pokračovat k náhledu</em> přejde dál; <em>Vybrat jiný soubor</em> začne znovu s jiným
+souborem.
+</p>
+
+<hr>
+
+<h3>Krok 3 – Náhled</h3>
+<ul>
+  <li>
+    Souhrn spočítá řádky: celkem, připravené, přeskočené, s chybami, duplicity a s upozorněními.
+    Poznámky, které se týkají všech nebo mnoha řádků, se zobrazí jednou nad tabulkou spolu se sloupci,
+    které se neimportují.
+  </li>
+  <li>
+    Tabulka zobrazuje každý řádek tak, jak bude uložen – nejprve chyby, potom upozornění a informace.
+    <em>Zobrazit pouze řádky s problémy</em> seznam zúží.
+  </li>
+  <li>
+    U každého řádku: <em>Přeskočit</em> řádek vynechá; <em>Vyberte</em> nastaví pohlaví u řádku, kde
+    chybí; <em>Přesto vytvořit</em> ponechá řádek, který byl rozpoznán jako duplicita.
+  </li>
+  <li>
+    Ostatní hodnoty nelze v náhledu upravovat. Pro jejich opravu je třeba opravit soubor a vybrat jej
+    znovu (<em>Vybrat jiný soubor</em>), nebo změnit přiřazení tlačítkem <em>Zpět</em>.
+  </li>
+  <li>
+    Tlačítko importu ukazuje, kolik osob bude vytvořeno (například <em>Importovat zaměstnance:
+    25</em>). Zůstává neaktivní, dokud některý řádek obsahuje chybu: řádek je třeba opravit nebo
+    přeskočit.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Krok 4 – Výsledek</h3>
+<p>
+Zobrazí, kolik osob bylo vytvořeno a kolik řádků bylo přeskočeno, a také kolik adres se na pozadí
+lokalizuje na mapě. <em>Přejít na seznam zaměstnanců</em> otevře seznam,
+<em>Importovat další soubor</em> spustí nový import.
+</p>
+
+<hr>
+
+<h3>Importovatelné sloupce</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Pole (Importovat jako)</th>
+      <th>Povinné</th>
+      <th>Poznámky</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Jméno, Příjmení</td>
+      <td>Ano, u osob</td>
+      <td>Každé nejvýše 100 znaků. Nepovinné u zákazníka s firmou.</td>
+    </tr>
+    <tr>
+      <td>Celé jméno</td>
+      <td>Ne</td>
+      <td>Alternativa k samostatným sloupcům se jménem; rozdělí se na jméno a příjmení (viz krok 2). Jména
+        s více než dvěma částmi dostanou upozornění – rozdělení je třeba zkontrolovat.</td>
+    </tr>
+    <tr>
+      <td>Titul</td>
+      <td>Ne</td>
+      <td>Převezme se beze změny, například „Dr.“. Titul uvnitř celého jména se neoddělí.</td>
+    </tr>
+    <tr>
+      <td>Pohlaví, Oslovení</td>
+      <td>Ano, u osob</td>
+      <td>Viz <em>Pohlaví a oslovení</em>. Bez hodnoty se pohlaví vybírá v náhledu pro každý
+        řádek.</td>
+    </tr>
+    <tr>
+      <td>Datum narození</td>
+      <td>Ne</td>
+      <td>Datum v budoucnosti je chyba. Důležité pro rozpoznání duplicit.</td>
+    </tr>
+    <tr>
+      <td>Firma</td>
+      <td>U zákazníků, kteří jsou firmami</td>
+      <td>Nejvýše 100 znaků. Viz <em>Typ a firma</em>.</td>
+    </tr>
+    <tr>
+      <td>Typ (zaměstnanec, externí, zákazník)</td>
+      <td>Ne</td>
+      <td>Prázdné nebo chybějící = zaměstnanec. Viz <em>Typ a firma</em>.</td>
+    </tr>
+    <tr>
+      <td>Ulice, Číslo domu</td>
+      <td>Ne</td>
+      <td>Samostatné číslo domu se připojí k ulici.</td>
+    </tr>
+    <tr>
+      <td>Adresa – řádek 2</td>
+      <td>Ne</td>
+      <td>Převezme se jako volný text.</td>
+    </tr>
+    <tr>
+      <td>PSČ, Město</td>
+      <td>U zákazníků, kteří jsou firmami</td>
+      <td>Adresa se vytvoří, jakmile je uvedena ulice, PSČ nebo město.</td>
+    </tr>
+    <tr>
+      <td>PSČ a město</td>
+      <td>Ne</td>
+      <td>Jeden sloupec s oběma údaji, například „8000 Zürich“ nebo „CH-8000 Zürich“; použije se pouze
+        tehdy, když řádek nemá samostatné PSČ ani město. Pokud jej nelze rozdělit, celá hodnota se stane
+        městem (upozornění).</td>
+    </tr>
+    <tr>
+      <td>Kraj / region</td>
+      <td>Ne</td>
+      <td>Volný text; pokud je prázdné, doplní se při lokalizaci adresy na mapě.</td>
+    </tr>
+    <tr>
+      <td>Země</td>
+      <td>U zákazníků, kteří jsou firmami (počítá se i výchozí země)</td>
+      <td>Kód země (CH, DE …) nebo název země v libovolném jazyce Klacks. Prázdné = výchozí země; neznámá
+        země vyvolá upozornění a použije se výchozí země.</td>
+    </tr>
+    <tr>
+      <td>E-mail</td>
+      <td>Ne</td>
+      <td>Neplatná adresa se s upozorněním vynechá; osoba se přesto importuje.</td>
+    </tr>
+    <tr>
+      <td>Telefon, Mobilní telefon</td>
+      <td>Ne</td>
+      <td>Mezery a oddělovače se odstraní a úvodní 00 se změní na +; číslo bez + dostane mezinárodní
+        předvolbu země daného řádku.</td>
+    </tr>
+    <tr>
+      <td>Datum nástupu</td>
+      <td>Ne</td>
+      <td>Prázdné = pravidlo <em>Datum nástupu, pokud žádné není uvedeno</em>. Nepravděpodobná data (před
+        datem narození nebo vzdálená více než 50 let) vyvolají upozornění.</td>
+    </tr>
+    <tr>
+      <td>Datum ukončení</td>
+      <td>Ne</td>
+      <td>Před datem nástupu = chyba. V minulosti: viz pravidlo <em>Bývalí zaměstnanci</em>.</td>
+    </tr>
+    <tr>
+      <td>Smlouva, Skupina</td>
+      <td>Ne</td>
+      <td>Přiřazují se podle názvu; viz <em>Smlouva a skupina</em>.</td>
+    </tr>
+    <tr>
+      <td>Poznámka</td>
+      <td>Ne</td>
+      <td>Uloží se jako poznámka k osobě.</td>
+    </tr>
+    <tr>
+      <td>Osobní číslo (přiděluje Klacks)</td>
+      <td>–</td>
+      <td>Rozpozná se, ale nikdy se neimportuje; viz <em>Osobní číslo</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Typ a firma</h3>
+<ul>
+  <li>
+    Sloupec <em>Typ</em> určuje u každého řádku, zda jde o zaměstnance, externího pracovníka nebo
+    zákazníka. Rozpoznávané hodnoty jsou například <code>Zaměstnanec</code>, <code>Zaměstnankyně</code>,
+    <code>Interní</code> (zaměstnanec), <code>Externí</code>, <code>Externí pracovník</code>,
+    <code>Externista</code> (externí pracovník) a <code>Zákazník</code>, <code>Klient</code>
+    (zákazník); fungují také odpovídající slova všech ostatních jazyků Klacks a čísla 0, 1 a 2. Na
+    velikosti písmen nezáleží.
+  </li>
+  <li>
+    <strong>Prázdná buňka</strong> nebo soubor bez sloupce typu znamená <strong>zaměstnance</strong>.
+    Neznámá hodnota je v náhledu chybou.
+  </li>
+  <li>
+    <strong>Zákazník s firmou:</strong> vytvoří se jako firma (právnická osoba), nikoli jako osoba. Jméno
+    a příjmení jsou nepovinné a uchovají se jako kontaktní osoba (náhled je označí jako
+    <em>Kontaktní osoba:</em>); pohlaví v řádku se ignoruje. Takový řádek potřebuje adresu s PSČ,
+    městem a zemí (počítá se i výchozí země).
+  </li>
+  <li>
+    <strong>Zákazník bez firmy:</strong> vytvoří se jako osoba – jméno, příjmení a pohlaví jsou
+    povinné.
+  </li>
+  <li>
+    <strong>Zaměstnanec nebo externí pracovník s firmou:</strong> zůstává osobou; název firmy se uloží
+    u osoby.
+  </li>
+  <li>
+    <strong>Zákazníci nikdy nedostávají smlouvu</strong> – ani ze souboru (upozornění, hodnota se
+    neimportuje), ani z pravidel. Skupina se přiřazuje i zákazníkům.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Pohlaví a oslovení</h3>
+<ul>
+  <li>
+    Osoby potřebují pohlaví: <em>Žena</em>, <em>Muž</em> nebo <em>Jiné</em>. Převezme se ze sloupce
+    <em>Pohlaví</em>; je-li prázdný, ze sloupce <em>Oslovení</em> (náhled to poznamená). Bez obou se
+    pohlaví vybírá v náhledu pro každý řádek (<em>Vyberte</em>).
+  </li>
+  <li>
+    Rozpoznávané hodnoty jsou například <code>Paní</code>, <code>Slečna</code>, <code>Žena</code>
+    (žena), <code>Pan</code>, <code>Muž</code> (muž) a <code>Jiné</code>, <code>Intersexuál</code>
+    (jiné) – navíc odpovídající slova všech ostatních jazyků Klacks, například
+    <code>Herr</code>/<code>Frau</code> nebo <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Na velikosti písmen, diakritice a interpunkci nezáleží; u delšího oslovení rozhoduje první slovo
+    („Pan Dr.“ = muž).
+  </li>
+  <li>Firma (zákazník s firmou) pohlaví nepotřebuje.</li>
+</ul>
+
+<hr>
+
+<h3>Smlouva a skupina</h3>
+<ul>
+  <li>
+    Hodnota ze souboru se porovná s názvy existujících smluv a skupin; na velikosti písmen a mezerách
+    na začátku nebo na konci nezáleží.
+  </li>
+  <li>
+    Pokud název neexistuje, existuje vícekrát nebo je prázdný, použije se smlouva nebo skupina z
+    pravidel a náhled na to upozorní. Bez pravidla řádek nedostane žádnou smlouvu, resp. žádnou skupinu.
+  </li>
+  <li>
+    <strong>Import nezakládá smlouvy ani skupiny.</strong> Je třeba je nejprve vytvořit v nastavení a
+    na stránce skupin a teprve potom importovat.
+  </li>
+  <li>
+    Smlouva a skupina začínají datem nástupu a končí datem ukončení, pokud je uvedeno.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Osobní číslo</h3>
+<p>
+Klacks <strong>přiděluje osobní číslo vždy sám</strong>. Sloupec s osobním číslem v souboru se
+rozpozná, ale ignoruje; náhled zobrazí informaci. Pro zachování čísel z jiného systému lze sloupec v
+kroku 2 přiřadit k poli <em>Poznámka</em>, pokud se jako poznámka neimportuje žádný jiný sloupec.
+</p>
+
+<hr>
+
+<h3>Duplicity</h3>
+<ul>
+  <li>
+    <strong>Osoby:</strong> řádek se považuje za duplicitu, pokud je stejná <strong>e-mailová
+    adresa</strong>, nebo pokud jsou stejné <strong>jméno, příjmení a datum narození</strong>. Velikost
+    písmen, diakritika a spojovníky se ignorují („Müller“ = „Muller“, „Hans-Peter“ =
+    „Hanspeter“).
+  </li>
+  <li>
+    <strong>Firmy</strong> (zákazníci s firmou): stejná <strong>firma, PSČ a
+    ulice</strong>.
+  </li>
+  <li>
+    Řádky se porovnávají s osobami, které již v Klacks existují, a s předchozími řádky téhož souboru.
+    <strong>Zákazníci se porovnávají pouze se zákazníky</strong>, zaměstnanci a externí pracovníci
+    mezi sebou.
+  </li>
+  <li>
+    Při pravidle <em>Možné duplicity</em> = <em>Přeskočit</em> se duplicity přeskočí. S volbou
+    <em>Přesto vytvořit</em> – jako pravidlem pro všechny řádky nebo u jednotlivého řádku v náhledu –
+    se přesto vytvoří.
+  </li>
+  <li>
+    Pouze <strong>informace</strong>, bez přeskočení: stejné jméno bez shodného data narození nebo
+    stejná firma na jiné adrese. Takové řádky je třeba před importem zkontrolovat.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Ukládání a adresy</h3>
+<ul>
+  <li>
+    <strong>Vše, nebo nic:</strong> import uloží všechny připravené řádky najednou. Pokud cokoli selže,
+    neuloží se nic. Před uložením Klacks znovu zkontroluje všechny řádky vůči aktuálním datům.
+  </li>
+  <li>
+    Pro každý řádek se vytvoří: osoba (nebo firma), období zaměstnání od data nástupu do data ukončení,
+    adresa, e-mailová adresa, telefonní a mobilní číslo, smlouva, skupina a poznámka.
+  </li>
+  <li>
+    Tentýž import nelze uložit dvakrát; druhý pokus ukáže, že import již byl proveden.
+  </li>
+  <li>
+    <strong>Mapa:</strong> adresy s PSČ a městem se po importu na pozadí postupně lokalizují na mapě.
+    U mnoha adres to může trvat několik minut; s osobami lze mezitím již pracovat.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Časté chyby a jejich řešení</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Hlášení</th>
+      <th>Příčina</th>
+      <th>Řešení</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tento formát souboru není podporován. Použijte soubor .xlsx nebo .csv.</td>
+      <td>.xls, .ods, PDF nebo poškozený soubor.</td>
+      <td>Uložit soubor v Excelu jako .xlsx nebo jej exportovat jako CSV.</td>
+    </tr>
+    <tr>
+      <td>Soubor je příliš velký (maximum je 5 MB).</td>
+      <td>Soubor nad 5 MB, například kvůli obrázkům nebo nepoužívaným listům.</td>
+      <td>Odstranit obrázky a nepoužívané listy, nebo seznam rozdělit.</td>
+    </tr>
+    <tr>
+      <td>Soubor obsahuje příliš mnoho řádků (maximálně 1000 osob na jeden import).</td>
+      <td>Více než 1000 datových řádků.</td>
+      <td>Rozdělit seznam do několika souborů (viz <em>Limity a větší seznamy</em>).</td>
+    </tr>
+    <tr>
+      <td>Soubor obsahuje příliš mnoho sloupců (maximálně 60).</td>
+      <td>Více než 60 sloupců, často kvůli zapomenuté hodnotě daleko vpravo.</td>
+      <td>Odstranit nepoužívané sloupce, včetně zdánlivě prázdných u pravého okraje.</td>
+    </tr>
+    <tr>
+      <td>V prvních řádcích nebyl nalezen záhlavní řádek s názvy sloupců.</td>
+      <td>Mezi prvními 10 řádky není žádný řádek s alespoň dvěma názvy sloupců.</td>
+      <td>Nad data vložit záhlavní řádek s názvy sloupců.</td>
+    </tr>
+    <tr>
+      <td>Soubor neobsahuje žádná data.</td>
+      <td>Prázdný soubor, pouze záhlavní řádek nebo žádný viditelný list.</td>
+      <td>Zkontrolovat soubor; v Excelu zobrazit skrytý list.</td>
+    </tr>
+    <tr>
+      <td>Chybí pohlaví – vyberte je.</td>
+      <td>Chybějící nebo nerozpoznané pohlaví či oslovení.</td>
+      <td>Vybrat pohlaví v náhledu, nebo vyplnit sloupec v souboru.</td>
+    </tr>
+    <tr>
+      <td>Chybí jméno. / Chybí příjmení.</td>
+      <td>Sloupec se jménem je prázdný nebo nepřiřazený; celé jméno obsahuje jen jedno slovo.</td>
+      <td>Zkontrolovat přiřazení v kroku 2 nebo doplnit soubor.</td>
+    </tr>
+    <tr>
+      <td>Neplatné datum: "…".</td>
+      <td>Nečitelné datum, datum narození v budoucnosti nebo datum ukončení před datem nástupu.</td>
+      <td>Zkontrolovat formát data v kroku 2 nebo opravit hodnotu v souboru.</td>
+    </tr>
+    <tr>
+      <td>Neznámý typ "…" – použijte zaměstnanec, externí nebo zákazník.</td>
+      <td>Hodnota ve sloupci typu nebyla rozpoznána.</td>
+      <td>Použít jednu z hodnot z poznámky v šabloně, nebo nechat buňku prázdnou (= zaměstnanec).</td>
+    </tr>
+    <tr>
+      <td>Zákazník s firmou potřebuje adresu s PSČ, městem a zemí.</td>
+      <td>Řádek firmy bez úplné adresy.</td>
+      <td>Doplnit PSČ a město; zemi nastavit v souboru nebo v pravidlech.</td>
+    </tr>
+    <tr>
+      <td>Hodnota je příliš dlouhá (maximálně … znaků).</td>
+      <td>Jméno, příjmení, titul, firma, e-mail nebo telefon delší než 100 znaků.</td>
+      <td>Zkrátit hodnotu v souboru.</td>
+    </tr>
+    <tr>
+      <td>Smlouva "…" nebyla nalezena. / Skupina "…" nebyla nalezena.</td>
+      <td>Název se liší od smluv a skupin v Klacks.</td>
+      <td>Opravit název, nebo nejprve vytvořit smlouvu či skupinu; jinak platí pravidlo.</td>
+    </tr>
+    <tr>
+      <td>Některé řádky stále obsahují chyby. Opravte je nebo tyto řádky přeskočte a zkuste to
+        znovu.</td>
+      <td>Alespoň jeden řádek obsahuje chybu.</td>
+      <td>Použít <em>Zobrazit pouze řádky s problémy</em> a tyto řádky opravit nebo přeskočit.</td>
+    </tr>
+    <tr>
+      <td>Jedno z pravidel pro chybějící údaje již není platné …</td>
+      <td>Smlouva nebo skupina vybraná v pravidlech byla mezitím smazána.</td>
+      <td>Zkontrolovat pravidla v kroku 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Po importu</h3>
+<ul>
+  <li>
+    Importované osoby jsou běžné záznamy. Chyby se opravují nebo mažou na stránce dané osoby; pro celý
+    import neexistuje funkce „zpět“.
+  </li>
+  <li>
+    Při opětovném importu téhož souboru se řádky s e-mailovou adresou nebo datem narození znovu
+    rozpoznají jako duplicity. Řádky pouze se jménem se jen označí – před opakovaným importem je třeba
+    je zkontrolovat.
+  </li>
+  <li>
+    Jednotlivá osoba se zakládá ručně na stránce zaměstnanců; firemní adresář může synchronizovat
+    administrátor prostřednictvím nastavení poskytovatele identit.
+  </li>
+</ul>

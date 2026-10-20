@@ -1,8 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Builds the client aggregate of a ready import row: the employee with membership, optional address,
-/// e-mail/phone/mobile communications, contract, group membership and note. The entry date feeds the
+/// Builds the client aggregate of a ready import row: the client with its type (employee, external
+/// employee or customer), company and legal-entity flag, membership, optional address,
+/// e-mail/phone/mobile communications, contract, group membership and note. A legal entity keeps an
+/// optional contact person in title, first and last name; without one its name stays empty like a
+/// company created on the client form. The entry date feeds the
 /// membership start, the contract start, the group membership start and the address validity; the exit
 /// date ends membership, contract and group membership. The IdNumber is left to the database sequence.
 /// </summary>
@@ -16,8 +19,6 @@ namespace Klacks.Api.Application.Services.ClientImport;
 
 public static class ClientImportClientFactory
 {
-    private const int DefaultMembershipType = 0;
-
     public static Client Create(ClientImportDraft draft, ClientImportPolicy policy)
     {
         var clientId = Guid.NewGuid();
@@ -25,17 +26,17 @@ public static class ClientImportClientFactory
         {
             Id = clientId,
             FirstName = draft.FirstName,
-            Name = draft.LastName!,
+            Name = draft.LastName ?? string.Empty,
+            Company = draft.Company ?? string.Empty,
             Title = draft.Title ?? string.Empty,
             Gender = draft.Gender!.Value,
             Birthdate = draft.Birthdate,
-            Type = EntityTypeEnum.Employee,
-            LegalEntity = false,
+            Type = draft.Type,
+            LegalEntity = draft.LegalEntity,
             Membership = new Membership
             {
                 Id = Guid.NewGuid(),
                 ClientId = clientId,
-                Type = DefaultMembershipType,
                 ValidFrom = draft.EntryDate,
                 ValidUntil = draft.ExitDate
             }

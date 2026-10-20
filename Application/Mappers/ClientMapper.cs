@@ -102,7 +102,6 @@ public partial class ClientMapper
         {
             Id = resource.Id,
             ClientId = resource.ClientId,
-            Type = resource.Type,
             ValidFrom = resource.ValidFrom,
             ValidUntil = resource.ValidUntil
         };

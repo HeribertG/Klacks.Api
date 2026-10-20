@@ -1157,7 +1157,6 @@
     "lidmaatschap heeft geen historie",
     "herintreding overschrijft de ingangsdatum",
     "oude lidmaatschapsperiode gaat verloren",
-    "het veld lidmaatschapstype heeft geen effect",
     "slechts één lidmaatschapsrij per persoon",
     "lidmaatschap wordt overschreven in plaats van nieuw"
   ],
@@ -1213,6 +1212,13 @@
     "hoe wijs ik medewerkers toe aan een groep?",
     "wat zijn de effecten van groepsselectie op andere pagina's?",
     "hoe stel ik zichtbaarheid van groepen in?"
+  ],
+  "explain_page_import_employees": [
+    "hoe importeer ik medewerkers uit excel",
+    "medewerkers importeren",
+    "medewerkerslijst uploaden",
+    "waar kan ik een csv met medewerkers uploaden",
+    "sjabloon voor het importeren van medewerkers"
   ],
   "explain_page_inbox": [
     "wat zie ik in de inbox",

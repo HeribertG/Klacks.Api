@@ -43,6 +43,8 @@ public static class ClientImportLimits
 
     public const int MaxPersonFieldLength = 100;
 
+    public const int MaxCompanyLength = 100;
+
     public const int MaxCommunicationValueLength = 100;
 
     public const int MaxFileNameLength = 260;

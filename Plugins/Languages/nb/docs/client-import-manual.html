@@ -1,0 +1,603 @@
+<h2>Medarbeiderimport – håndbok</h2>
+
+<h3>Hva er medarbeiderimport?</h3>
+<p>
+Medarbeiderimporten overtar en hel personalliste fra <strong>én Excel-fil (.xlsx) eller én CSV-fil
+(.csv)</strong> med én rad per person, i stedet for at hver person opprettes manuelt. Klacks
+gjenkjenner kolonnene selv, viser i en forhåndsvisning hvordan hver post kommer til å se ut, og
+lagrer først etter bekreftelse. I tillegg til medarbeidere kan den samme filen også inneholde eksterne
+medarbeidere og kunder.
+</p>
+<ul>
+  <li>
+    <strong>Hvem kan importere:</strong> bare administratorer. Kortet <em>Importer medarbeidere</em>
+    finnes i innstillingene, under seksjonen <em>Organisasjon</em>; knappen <em>Importer</em> åpner
+    importsiden. Andre brukere ser ikke kortet og trenger en administrator for importen.
+  </li>
+  <li>
+    <strong>Personvern:</strong> selve filen lagres ikke. Den blir bare lest; bare radene som
+    bekreftes i forhåndsvisningen, opprettes.
+  </li>
+  <li>
+    <strong>Fire trinn:</strong> <em>Fil</em> → <em>Tilordning og regler</em> →
+    <em>Forhåndsvisning</em> → <em>Resultat</em>. Fanen <em>Håndbok</em> viser denne håndboken; et
+    påbegynt importarbeid går ikke tapt når det byttes til den.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Støttede filer</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> og <strong>CSV (.csv)</strong>; en .txt-fil leses som en CSV-fil.
+    Det gamle Excel-formatet <strong>.xls støttes ikke</strong> – filen må først lagres som .xlsx i
+    Excel.
+  </li>
+  <li>
+    <strong>Excel-arbeidsbøker:</strong> bare synlige ark leses, som standard det første. En
+    arbeidsbok med flere ark gir valget <em>Ark</em> i trinn 2. Det beregnede resultatet av en formel
+    importeres. Celler formatert som dato leses som datoer. Tall i celler med formatet «Standard»
+    mister innledende nuller (postnummer 01234 blir 1234) – slike kolonner bør formateres som tekst
+    (malen gjør det allerede).
+  </li>
+  <li>
+    <strong>Tegnkoding for CSV-filer:</strong> UTF-8 (med eller uten byte order mark) og UTF-16 med
+    byte order mark gjenkjennes; alle andre filer leses som Windows-1252 (det vanlige «ANSI»-formatet
+    i Excel for Windows i Vest-Europa), slik at vesteuropeiske tegn som æ, ø, å og aksenter kommer
+    riktig gjennom uten noen innstilling. For alle andre skriftsystemer og bokstaver (for eksempel ł, ř,
+    ș, gresk, arabisk, hebraisk, kinesisk, japansk, koreansk eller thai) må filen lagres som
+    «CSV UTF-8», eller .xlsx må brukes.
+  </li>
+  <li>
+    <strong>Skilletegn for CSV-filer:</strong> semikolon, komma, tabulator eller loddrett strek (|)
+    oppdages automatisk. Verdier i anførselstegn kan inneholde skilletegnet og linjeskift.
+  </li>
+  <li>
+    <strong>Overskriftsrad:</strong> den første raden med kolonnenavn må ligge blant de første 10
+    ikke-tomme radene og inneholde minst to tekstceller. Rader over den (for eksempel en tittel) og
+    tomme rader ignoreres.
+  </li>
+  <li>
+    <strong>Datoformater:</strong> dag, måned og år adskilt med punktum, skråstrek eller bindestrek,
+    for eksempel 31.12.1990, 12/31/1990 eller 1990-12-31; en tidsdel etter datoen ignoreres. En verdi
+    som begynner med et firesifret årstall, leses alltid som år-måned-dag. Hvis det ikke fremgår av
+    filen om dagen eller måneden kommer først (ingen verdi over 12), antar Klacks dag/måned/år og ber
+    om at datoformatet kontrolleres i trinn 2.
+    Månedsnavn (for eksempel «31. des. 1990») gjenkjennes ikke.
+  </li>
+  <li>
+    <strong>Tosifrede årstall:</strong> årstall opp til de to siste sifrene i inneværende år regnes
+    som 20xx, høyere som 19xx (i 2026: «26» = 2026, «27» = 1927). Forhåndsvisningen markerer hver
+    slik dato med en advarsel, slik at århundret kan kontrolleres.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Grenser og større lister</h3>
+<ul>
+  <li>Maksimalt <strong>5 MB</strong> per fil.</li>
+  <li>
+    Maksimalt <strong>1000 rader</strong> per import – det telles datarader under overskriftsraden,
+    uten tomme rader.
+  </li>
+  <li>
+    Maksimalt <strong>60 kolonner</strong>. I Excel teller den siste brukte kolonnen: én enkelt
+    glemt verdi langt til høyre gjør filen for bred.
+  </li>
+  <li>
+    En celle kan inneholde maksimalt 1000 tegn; lengre innhold kuttes. Fornavn, etternavn, tittel og
+    firma kan hver ha maksimalt 100 tegn, det samme gjelder e-postadresse, telefon- og mobilnummer.
+  </li>
+  <li>
+    En Excel-fil kan inneholde maksimalt 20 MB i utpakket tilstand (beskyttelse mot manipulerte
+    filer).
+  </li>
+</ul>
+<p>
+<strong>Større lister:</strong> listen deles opp i flere filer med maksimalt 1000 rader hver; hver
+fil trenger sin egen overskriftsrad. Kolonner som ikke trengs, kan slettes på forhånd. Filene
+importeres etter hverandre. Personer som allerede er importert fra en tidligere fil, gjenkjennes
+som duplikater når de har en e-postadresse eller en fødselsdato (se <em>Duplikater</em>).
+</p>
+
+<hr>
+
+<h3>Mal</h3>
+<p>
+Knappen <em>Last ned mal</em> i trinn 1 leverer en Excel-fil på brukerens språk (filnavn
+<code>klacks-employee-import-nb.xlsx</code>). Med malen gjenkjennes hver kolonne på en pålitelig
+måte. Overskriftsraden er uthevet og frosset, hver kolonne er formatert som tekst (innledende nuller
+og datoer blir stående slik de er skrevet), og overskriften i kolonnen <em>Type</em> har en merknad
+med de tillatte verdiene. Malen har ingen eksempelrad, fordi den ville blitt importert.
+</p>
+<p>
+Kolonnene i malen, i denne rekkefølgen: Fornavn, Etternavn, Tittel, Firma, Type, Kjønn,
+Fødselsdato, Gateadresse, Adresselinje 2, Postnummer, Poststed, Fylke, Land, E-post, Telefon,
+Mobil, Ansettelsesdato, Sluttdato, Kontrakt, Gruppe, Merknad. Egne lister fungerer også – Klacks
+gjenkjenner kolonnenavn på alle 25 Klacks-språk og mange vanlige varianter (for eksempel «Postnr.»,
+«Tlf.», «Tiltredelsesdato»).
+</p>
+
+<hr>
+
+<h3>Trinn 1 – Fil</h3>
+<ul>
+  <li>
+    Filen dras til opplastingssonen, eller sonen klikkes for å velge en fil. Klacks leser filen og
+    går videre til trinn 2.
+  </li>
+  <li>
+    Et problem med filen (feil format, for stor, for mange rader eller kolonner, ingen
+    overskriftsrad) vises rett under opplastingssonen; se <em>Vanlige feil og løsninger</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Trinn 2 – Tilordning og regler</h3>
+<h4>Tilordne kolonner</h4>
+<ul>
+  <li>
+    Hver kolonne i filen vises på én linje med opptil tre eksempelverdier, feltet som Klacks foreslår
+    (<em>Importer som</em>), og hvor sikkert forslaget er (<em>Sikkerhet</em>).
+  </li>
+  <li>
+    Hvert forslag kan endres i nedtrekkslisten. En kolonne som ikke skal importeres, settes til
+    <em>Ikke importer</em>. Hvert felt kan bare tilordnes én kolonne.
+  </li>
+  <li>
+    <em>Datoformat</em> vises når filen inneholder datoer; når rekkefølgen av dag og måned ikke kan
+    avgjøres ut fra filen, må valget kontrolleres.
+  </li>
+  <li>
+    <em>Rekkefølge i navnefeltet</em> vises for en kolonne med fullt navn: <em>Fornavn
+    Etternavn</em> eller <em>Etternavn Fornavn</em>. Et komma («Hansen, Kari») betyr alltid
+    etternavn først. Det fulle navnet fyller bare ut et fornavn eller etternavn som ikke har en egen
+    kolonne eller som er tomt i en rad.
+  </li>
+</ul>
+<h4>Regler for manglende opplysninger</h4>
+<p>Disse reglene gjelder for alle rader:</p>
+<ul>
+  <li>
+    <em>Kontrakt hvis ingen er oppgitt</em> og <em>Gruppe hvis ingen er oppgitt</em> – brukes for
+    rader uten kontrakt eller gruppe, eller med et navn som ikke finnes.
+  </li>
+  <li>
+    <em>Ansettelsesdato hvis ingen er oppgitt</em> – tomt betyr dagens dato. Datoen er også
+    startdatoen for kontrakten, gruppetilhørigheten og adressen.
+  </li>
+  <li>
+    <em>Land hvis ingen er oppgitt</em> – standard er <em>Installasjonens land</em>.
+  </li>
+  <li>
+    <em>Lagre e-postadresser som</em>, <em>Lagre telefonnumre som</em>, <em>Lagre mobilnumre som</em>
+    – privat eller jobb; gjelder for alle rader.
+  </li>
+  <li>
+    <em>Tidligere medarbeidere (sluttdato i fortiden)</em> – <em>Hopp over</em> (standard) eller
+    <em>Importer med sluttdato</em>. En sluttdato i dag eller senere importeres alltid.
+  </li>
+  <li>
+    <em>Mulige duplikater</em> – <em>Hopp over</em> (standard) eller <em>Opprett likevel</em>.
+  </li>
+</ul>
+<p>
+<em>Fortsett til forhåndsvisning</em> går videre; <em>Velg en annen fil</em> begynner på nytt med en
+annen fil.
+</p>
+
+<hr>
+
+<h3>Trinn 3 – Forhåndsvisning</h3>
+<ul>
+  <li>
+    En oppsummering teller radene: totalt, klare, hoppet over, med feil, duplikater og med advarsler.
+    Merknader som gjelder alle eller mange rader, vises én gang over tabellen, sammen med kolonnene
+    som ikke importeres.
+  </li>
+  <li>
+    Tabellen viser hver rad slik den kommer til å bli lagret, med feil først, deretter advarsler og
+    merknader. <em>Vis bare rader med problemer</em> begrenser listen.
+  </li>
+  <li>
+    Per rad: <em>Hopp over</em> utelater raden; <em>Velg</em> angir kjønnet for en rad uten
+    kjønn; <em>Opprett likevel</em> beholder en rad som ble gjenkjent som duplikat.
+  </li>
+  <li>
+    Andre verdier kan ikke redigeres i forhåndsvisningen. For å rette dem korrigeres filen og velges
+    på nytt (<em>Velg en annen fil</em>), eller tilordningen endres med <em>Tilbake</em>.
+  </li>
+  <li>
+    Importknappen viser hvor mange personer som kommer til å bli opprettet (for eksempel
+    <em>Importer 25 medarbeidere</em>). Den forblir deaktivert så lenge en rad fortsatt har en feil:
+    raden må rettes eller hoppes over.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Trinn 4 – Resultat</h3>
+<p>
+Viser hvor mange personer som ble opprettet, hvor mange rader som ble hoppet over, og hvor mange
+adresser som lokaliseres på kartet i bakgrunnen. <em>Gå til medarbeiderlisten</em> åpner listen,
+<em>Importer en annen fil</em> starter en ny import.
+</p>
+
+<hr>
+
+<h3>Kolonner som kan importeres</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Felt (Importer som)</th>
+      <th>Obligatorisk</th>
+      <th>Merknader</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Fornavn, Etternavn</td>
+      <td>Ja, for personer</td>
+      <td>Maksimalt 100 tegn hver. Ikke obligatorisk for en kunde med firma.</td>
+    </tr>
+    <tr>
+      <td>Fullt navn</td>
+      <td>Nei</td>
+      <td>Alternativ til separate navnekolonner; deles i fornavn og etternavn (se trinn 2). Navn med
+        mer enn to deler får en advarsel – oppdelingen bør kontrolleres.</td>
+    </tr>
+    <tr>
+      <td>Tittel</td>
+      <td>Nei</td>
+      <td>Overtas uendret, for eksempel «Dr.». En tittel inne i det fulle navnet skilles ikke ut.</td>
+    </tr>
+    <tr>
+      <td>Kjønn, Tiltaleform</td>
+      <td>Ja, for personer</td>
+      <td>Se <em>Kjønn og tiltaleform</em>. Uten verdi velges kjønnet per rad i
+        forhåndsvisningen.</td>
+    </tr>
+    <tr>
+      <td>Fødselsdato</td>
+      <td>Nei</td>
+      <td>En dato i fremtiden er en feil. Viktig for gjenkjenning av duplikater.</td>
+    </tr>
+    <tr>
+      <td>Firma</td>
+      <td>For kunder som er firmaer</td>
+      <td>Maksimalt 100 tegn. Se <em>Type og firma</em>.</td>
+    </tr>
+    <tr>
+      <td>Type (ansatt, ekstern, kunde)</td>
+      <td>Nei</td>
+      <td>Tom eller manglende = ansatt. Se <em>Type og firma</em>.</td>
+    </tr>
+    <tr>
+      <td>Gate, Husnummer</td>
+      <td>Nei</td>
+      <td>Et separat husnummer legges til etter gaten.</td>
+    </tr>
+    <tr>
+      <td>Adresselinje 2</td>
+      <td>Nei</td>
+      <td>Overtas som fritekst.</td>
+    </tr>
+    <tr>
+      <td>Postnummer, Sted</td>
+      <td>For kunder som er firmaer</td>
+      <td>En adresse opprettes så snart gate, postnummer eller sted er oppgitt.</td>
+    </tr>
+    <tr>
+      <td>Postnummer og sted</td>
+      <td>Nei</td>
+      <td>Én kolonne med begge, for eksempel «8000 Zürich» eller «CH-8000 Zürich»; brukes bare når
+        raden ikke har separat postnummer eller sted. Kan verdien ikke deles opp, blir hele verdien
+        stedet (advarsel).</td>
+    </tr>
+    <tr>
+      <td>Fylke / region</td>
+      <td>Nei</td>
+      <td>Fritekst; er feltet tomt, fylles det ut når adressen lokaliseres på kartet.</td>
+    </tr>
+    <tr>
+      <td>Land</td>
+      <td>For kunder som er firmaer (standardlandet teller)</td>
+      <td>Landkode (CH, DE …) eller landnavn på et hvilket som helst Klacks-språk. Tom =
+        standardland; et ukjent land gir en advarsel, og standardlandet brukes.</td>
+    </tr>
+    <tr>
+      <td>E-post</td>
+      <td>Nei</td>
+      <td>En ugyldig adresse utelates med en advarsel; personen importeres likevel.</td>
+    </tr>
+    <tr>
+      <td>Telefon, Mobiltelefon</td>
+      <td>Nei</td>
+      <td>Mellomrom og skilletegn fjernes, og innledende 00 blir til +; et nummer uten + får
+        landsnummeret til radens land.</td>
+    </tr>
+    <tr>
+      <td>Ansettelsesdato</td>
+      <td>Nei</td>
+      <td>Tom = regelen <em>Ansettelsesdato hvis ingen er oppgitt</em>. Usannsynlige datoer (før
+        fødselsdatoen eller mer enn 50 år unna) gir en advarsel.</td>
+    </tr>
+    <tr>
+      <td>Sluttdato</td>
+      <td>Nei</td>
+      <td>Før ansettelsesdatoen = feil. I fortiden: se regelen <em>Tidligere medarbeidere</em>.</td>
+    </tr>
+    <tr>
+      <td>Kontrakt, Gruppe</td>
+      <td>Nei</td>
+      <td>Tilordnes etter navn; se <em>Kontrakt og gruppe</em>.</td>
+    </tr>
+    <tr>
+      <td>Notat</td>
+      <td>Nei</td>
+      <td>Lagres som notat på personen.</td>
+    </tr>
+    <tr>
+      <td>Personalnummer (tildeles av Klacks)</td>
+      <td>–</td>
+      <td>Gjenkjennes, men importeres aldri; se <em>Personalnummer</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Type og firma</h3>
+<ul>
+  <li>
+    Kolonnen <em>Type</em> angir per rad om det dreier seg om en medarbeider, en ekstern medarbeider
+    eller en kunde. Gjenkjente verdier er for eksempel <code>Ansatt</code>, <code>Medarbeider</code>,
+    <code>Intern</code> (medarbeider), <code>Ekstern</code>, <code>Innleid</code>,
+    <code>Ekstern medarbeider</code> (ekstern medarbeider) og <code>Kunde</code> (kunde); de
+    tilsvarende ordene på alle andre Klacks-språk og tallene 0, 1 og 2 fungerer også. Store og små
+    bokstaver spiller ingen rolle.
+  </li>
+  <li>
+    En <strong>tom celle</strong> eller en fil uten typekolonne betyr <strong>medarbeider</strong>.
+    En ukjent verdi er en feil i forhåndsvisningen.
+  </li>
+  <li>
+    <strong>Kunde med firma:</strong> opprettes som firma (juridisk person), ikke som person. Fornavn
+    og etternavn er valgfrie og beholdes som kontaktperson (forhåndsvisningen markerer dem med
+    <em>Kontaktperson:</em>); et kjønn i raden ignoreres. En slik rad trenger en adresse med
+    postnummer, sted og land (standardlandet teller).
+  </li>
+  <li>
+    <strong>Kunde uten firma:</strong> opprettes som person – fornavn, etternavn og kjønn er
+    obligatoriske.
+  </li>
+  <li>
+    <strong>Medarbeider eller ekstern medarbeider med firma:</strong> forblir en person;
+    firmanavnet lagres på personen.
+  </li>
+  <li>
+    <strong>Kunder får aldri en kontrakt</strong> – verken fra filen (advarsel, verdien importeres
+    ikke) eller fra reglene. En gruppe tildeles også kunder.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Kjønn og tiltaleform</h3>
+<ul>
+  <li>
+    Personer trenger et kjønn: <em>Kvinne</em>, <em>Mann</em> eller <em>Annet</em>. Det hentes fra
+    kolonnen <em>Kjønn</em>; er den tom, fra kolonnen <em>Tiltaleform</em> (forhåndsvisningen
+    noterer dette). Uten noen av dem velges kjønnet per rad i forhåndsvisningen (<em>Velg</em>).
+  </li>
+  <li>
+    Gjenkjente verdier er for eksempel <code>Fru</code>, <code>Frøken</code>, <code>Kvinne</code>,
+    <code>Kvinnelig</code> (kvinne), <code>Herr</code>, <code>Mann</code>, <code>Mannlig</code>
+    (mann) og <code>Annet</code>, <code>Interkjønn</code> (annet) – i tillegg de tilsvarende ordene
+    på alle andre Klacks-språk, for eksempel <code>Herr</code>/<code>Frau</code> eller
+    <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Store og små bokstaver, aksenter og tegnsetting spiller ingen rolle; ved en lengre tiltaleform
+    teller det første ordet («Herr Dr.» = mann).
+  </li>
+  <li>Et firma (kunde med firma) trenger ikke noe kjønn.</li>
+</ul>
+
+<hr>
+
+<h3>Kontrakt og gruppe</h3>
+<ul>
+  <li>
+    En verdi i filen sammenlignes med navnene på eksisterende kontrakter og grupper; store og små
+    bokstaver og mellomrom i begynnelsen eller slutten spiller ingen rolle.
+  </li>
+  <li>
+    Finnes navnet ikke, finnes det flere ganger eller er det tomt, brukes kontrakten eller gruppen
+    fra reglene, og forhåndsvisningen opplyser om det. Uten regel får raden ingen kontrakt eller
+    ingen gruppe.
+  </li>
+  <li>
+    <strong>Importen oppretter ikke kontrakter eller grupper.</strong> De må først settes opp i
+    innstillingene og på gruppesiden, deretter kan det importeres.
+  </li>
+  <li>
+    Kontrakt og gruppe begynner på ansettelsesdatoen og slutter på sluttdatoen, hvis det finnes en.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Personalnummer</h3>
+<p>
+Klacks <strong>tildeler alltid personalnummeret selv</strong>. En personalnummerkolonne i filen
+gjenkjennes, men ignoreres; forhåndsvisningen viser en merknad. For å beholde numrene fra et annet
+system kan kolonnen tilordnes <em>Notat</em> i trinn 2, så lenge ingen annen kolonne importeres som
+notat.
+</p>
+
+<hr>
+
+<h3>Duplikater</h3>
+<ul>
+  <li>
+    <strong>Personer:</strong> en rad regnes som duplikat når <strong>e-postadressen</strong> er den
+    samme, eller når <strong>fornavn, etternavn og fødselsdato</strong> er de samme. Store og små
+    bokstaver, aksenter og bindestreker ignoreres («Müller» = «Muller», «Hans-Peter» =
+    «Hanspeter»).
+  </li>
+  <li>
+    <strong>Firmaer</strong> (kunder med firma): samme <strong>firma, postnummer og
+    gate</strong>.
+  </li>
+  <li>
+    Radene sammenlignes med personene som allerede finnes i Klacks, og med tidligere rader i samme
+    fil. <strong>Kunder sammenlignes bare med kunder</strong>, medarbeidere og eksterne medarbeidere
+    med hverandre.
+  </li>
+  <li>
+    Duplikater hoppes over med regelen <em>Mulige duplikater</em> = <em>Hopp over</em>. Med
+    <em>Opprett likevel</em> – som regel for alle rader eller per rad i forhåndsvisningen – opprettes
+    de likevel.
+  </li>
+  <li>
+    Bare en <strong>merknad</strong>, uten at raden hoppes over: samme navn uten samsvarende
+    fødselsdato, eller samme firma på en annen adresse. Slike rader bør kontrolleres før import.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Lagring og adresser</h3>
+<ul>
+  <li>
+    <strong>Alt eller ingenting:</strong> importen lagrer alle klare rader på én gang. Hvis noe
+    mislykkes, lagres ingenting. Før lagring kontrollerer Klacks alle rader på nytt mot gjeldende
+    data.
+  </li>
+  <li>
+    Opprettes per rad: personen (eller firmaet), ansettelsesperioden fra ansettelses- til sluttdato,
+    adressen, e-postadresse, telefon- og mobilnummer, kontrakt, gruppe og notat.
+  </li>
+  <li>
+    Den samme importen kan ikke lagres to ganger; et nytt forsøk viser at importen allerede er
+    gjennomført.
+  </li>
+  <li>
+    <strong>Kart:</strong> adresser med postnummer og sted lokaliseres på kartet i bakgrunnen etter
+    importen, den ene etter den andre. Med mange adresser kan dette ta noen minutter; personene kan
+    allerede brukes i mellomtiden.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Vanlige feil og løsninger</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Melding</th>
+      <th>Årsak</th>
+      <th>Løsning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Dette filformatet støttes ikke. Bruk en .xlsx- eller .csv-fil.</td>
+      <td>.xls, .ods, PDF eller en skadet fil.</td>
+      <td>Lagre filen i Excel som .xlsx eller eksporter den som CSV.</td>
+    </tr>
+    <tr>
+      <td>Filen er for stor (maksimalt 5 MB).</td>
+      <td>Filen er over 5 MB, for eksempel på grunn av bilder eller ubrukte ark.</td>
+      <td>Fjern bilder og ubrukte ark, eller del opp listen.</td>
+    </tr>
+    <tr>
+      <td>Filen inneholder for mange rader (maksimalt 1000 personer per import).</td>
+      <td>Mer enn 1000 datarader.</td>
+      <td>Del opp listen i flere filer (se <em>Grenser og større lister</em>).</td>
+    </tr>
+    <tr>
+      <td>Filen inneholder for mange kolonner (maksimalt 60).</td>
+      <td>Mer enn 60 kolonner, ofte på grunn av en bortkommen verdi langt til høyre.</td>
+      <td>Slett ubrukte kolonner, også de som ser tomme ut ved høyre kant.</td>
+    </tr>
+    <tr>
+      <td>Fant ingen overskriftsrad med kolonnenavn blant de første radene.</td>
+      <td>Ingen rad med minst to kolonnenavn blant de første 10 radene.</td>
+      <td>Sett inn en overskriftsrad med kolonnenavn over dataene.</td>
+    </tr>
+    <tr>
+      <td>Filen inneholder ingen data.</td>
+      <td>Tom fil, bare en overskriftsrad, eller ikke noe synlig ark.</td>
+      <td>Kontroller filen; vis det skjulte arket i Excel.</td>
+    </tr>
+    <tr>
+      <td>Kjønn mangler – velg et.</td>
+      <td>Manglende eller ikke gjenkjent kjønn eller tiltaleform.</td>
+      <td>Velg kjønnet i forhåndsvisningen, eller fyll ut kolonnen i filen.</td>
+    </tr>
+    <tr>
+      <td>Fornavn mangler. / Etternavn mangler.</td>
+      <td>Navnekolonnen er tom eller ikke tilordnet; et fullt navn med bare ett ord.</td>
+      <td>Kontroller tilordningen i trinn 2 eller fullfør filen.</td>
+    </tr>
+    <tr>
+      <td>Ugyldig dato: «…».</td>
+      <td>Uleselig dato, fødselsdato i fremtiden eller sluttdato før ansettelsesdato.</td>
+      <td>Kontroller datoformatet i trinn 2 eller rett verdien i filen.</td>
+    </tr>
+    <tr>
+      <td>Ukjent type «…» – bruk ansatt, ekstern eller kunde.</td>
+      <td>Verdien i typekolonnen ble ikke gjenkjent.</td>
+      <td>Bruk en av verdiene fra merknaden i malen, eller la cellen stå tom (= ansatt).</td>
+    </tr>
+    <tr>
+      <td>En kunde med firma trenger en adresse med postnummer, sted og land.</td>
+      <td>Firmarad uten fullstendig adresse.</td>
+      <td>Fyll ut postnummer og sted; angi et land i filen eller i reglene.</td>
+    </tr>
+    <tr>
+      <td>Verdien er for lang (maks. … tegn).</td>
+      <td>Navn, tittel, firma, e-post eller telefon lengre enn 100 tegn.</td>
+      <td>Forkort verdien i filen.</td>
+    </tr>
+    <tr>
+      <td>Kontrakten «…» ble ikke funnet. / Gruppen «…» ble ikke funnet.</td>
+      <td>Navnet avviker fra kontraktene og gruppene i Klacks.</td>
+      <td>Rett navnet, eller sett opp kontrakten eller gruppen først; ellers gjelder regelen.</td>
+    </tr>
+    <tr>
+      <td>Noen rader har fortsatt feil. Rett dem eller hopp over radene, og prøv deretter på nytt.</td>
+      <td>Minst én rad har en feil.</td>
+      <td>Bruk <em>Vis bare rader med problemer</em>, og rett eller hopp over disse radene.</td>
+    </tr>
+    <tr>
+      <td>En av reglene for manglende opplysninger er ikke lenger gyldig …</td>
+      <td>En kontrakt eller gruppe som er valgt i reglene, er slettet i mellomtiden.</td>
+      <td>Kontroller reglene i trinn 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Etter importen</h3>
+<ul>
+  <li>
+    Importerte personer er vanlige poster. Feil rettes eller slettes på personens side; det finnes
+    ingen «angre» for hele importen.
+  </li>
+  <li>
+    Importeres den samme filen en gang til, blir rader med e-postadresse eller fødselsdato funnet
+    igjen som duplikater. Rader med bare et navn blir kun markert – de bør kontrolleres før en ny
+    import.
+  </li>
+  <li>
+    En enkelt person opprettes manuelt på medarbeidersiden; en firmakatalog kan synkroniseres av en
+    administrator via innstillingene for identitetsleverandøren.
+  </li>
+</ul>

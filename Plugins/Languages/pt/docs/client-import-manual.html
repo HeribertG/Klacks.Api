@@ -1,0 +1,610 @@
+<h2>Importação de colaboradores – Manual</h2>
+
+<h3>O que é a importação de colaboradores?</h3>
+<p>
+A importação de colaboradores transfere uma lista completa de pessoal a partir de <strong>um ficheiro
+Excel (.xlsx) ou um ficheiro CSV (.csv)</strong> com uma linha por pessoa, em vez de criar cada pessoa
+manualmente. O Klacks reconhece as colunas automaticamente, mostra numa pré-visualização como ficará
+cada registo e só guarda após confirmação. Além de colaboradores, o mesmo ficheiro pode conter também
+colaboradores externos e clientes.
+</p>
+<ul>
+  <li>
+    <strong>Quem pode importar:</strong> apenas administradores. O cartão <em>Importar colaboradores</em>
+    encontra-se nas definições, secção <em>Organização</em>; o botão <em>Importar</em> abre a página de
+    importação. Os outros utilizadores não veem o cartão e precisam de um administrador para a importação.
+  </li>
+  <li>
+    <strong>Privacidade:</strong> o ficheiro em si não é guardado. É apenas lido; só são criadas as
+    linhas confirmadas na pré-visualização.
+  </li>
+  <li>
+    <strong>Quatro passos:</strong> <em>Ficheiro</em> → <em>Mapeamento e regras</em> →
+    <em>Pré-visualização</em> → <em>Resultado</em>. O separador <em>Manual</em> mostra este manual;
+    mudar para ele não faz perder uma importação em curso.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Ficheiros suportados</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> e <strong>CSV (.csv)</strong>; um ficheiro .txt é lido como um
+    ficheiro CSV. O antigo formato Excel <strong>.xls não é suportado</strong> – guardar primeiro o
+    ficheiro no Excel como .xlsx.
+  </li>
+  <li>
+    <strong>Livros do Excel:</strong> só são lidas as folhas visíveis, por predefinição a primeira. Um
+    livro com várias folhas oferece no passo 2 a escolha <em>Folha</em>. É importado o resultado
+    calculado de uma fórmula. As células formatadas como data são lidas como datas. Os números em
+    células com o formato "Geral" perdem os zeros à esquerda (o código postal 01234 passa a 1234) –
+    formatar essas colunas como texto (o modelo já o faz).
+  </li>
+  <li>
+    <strong>Codificação dos ficheiros CSV:</strong> são reconhecidos UTF-8 (com ou sem marca de ordem de
+    bytes) e UTF-16 com marca de ordem de bytes; qualquer outro ficheiro é lido como Windows-1252 (o
+    formato "ANSI" habitual do Excel para Windows na Europa Ocidental), pelo que os acentos e
+    caracteres especiais da Europa Ocidental passam corretamente sem qualquer configuração. Para
+    todas as outras escritas e letras (por exemplo, ł, ř, ș, grego, árabe, hebraico, chinês,
+    japonês, coreano ou tailandês), guardar o ficheiro como "CSV UTF-8" ou utilizar .xlsx.
+  </li>
+  <li>
+    <strong>Separador dos ficheiros CSV:</strong> ponto e vírgula, vírgula, tabulação ou barra vertical
+    (|) são detetados automaticamente. Os valores entre aspas podem conter o separador e quebras de
+    linha.
+  </li>
+  <li>
+    <strong>Linha de cabeçalho:</strong> a primeira linha com nomes de colunas tem de estar entre as
+    primeiras 10 linhas não vazias e conter pelo menos duas células de texto. As linhas acima dela (por
+    exemplo, um título) e as linhas vazias são ignoradas.
+  </li>
+  <li>
+    <strong>Formatos de data:</strong> dia, mês e ano separados por ponto, barra ou hífen, por exemplo
+    31.12.1990, 12/31/1990 ou 1990-12-31; uma parte horária após a data é ignorada. Um valor que comece
+    por um ano de quatro dígitos é sempre lido como ano-mês-dia. Se o ficheiro não permitir perceber se
+    o dia ou o mês vem primeiro (nenhum valor acima de 12), o Klacks assume dia/mês/ano e pede que o
+    formato de data seja verificado no passo 2. Os nomes de meses (por exemplo, "31 Dez 1990") não
+    são reconhecidos.
+  </li>
+  <li>
+    <strong>Anos com dois dígitos:</strong> os anos até aos dois últimos dígitos do ano atual contam
+    como 20xx, os superiores como 19xx (em 2026: "26" = 2026, "27" = 1927). A pré-visualização marca
+    cada uma dessas datas com um aviso, para que o século possa ser verificado.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Limites e listas maiores</h3>
+<ul>
+  <li>No máximo <strong>5 MB</strong> por ficheiro.</li>
+  <li>
+    No máximo <strong>1000 linhas</strong> por importação – contam as linhas de dados abaixo da linha
+    de cabeçalho, sem as linhas vazias.
+  </li>
+  <li>
+    No máximo <strong>60 colunas</strong>. No Excel conta a última coluna utilizada: um único valor
+    esquecido muito à direita torna o ficheiro demasiado largo.
+  </li>
+  <li>
+    Uma célula pode conter no máximo 1000 carateres; o conteúdo mais longo é cortado. Nome próprio,
+    apelido, título e empresa podem ter no máximo 100 carateres cada, tal como o endereço de e-mail, o
+    número de telefone e o número de telemóvel.
+  </li>
+  <li>
+    Um ficheiro Excel pode ocupar no máximo 20 MB depois de descompactado (proteção contra ficheiros
+    manipulados).
+  </li>
+</ul>
+<p>
+<strong>Listas maiores:</strong> dividir a lista em vários ficheiros com no máximo 1000 linhas cada;
+cada ficheiro precisa da sua própria linha de cabeçalho. As colunas desnecessárias podem ser
+eliminadas previamente. Importar os ficheiros um após o outro. As pessoas já importadas a partir de um
+ficheiro anterior são reconhecidas como duplicados quando têm endereço de e-mail ou data de nascimento
+(ver <em>Duplicados</em>).
+</p>
+
+<hr>
+
+<h3>Modelo</h3>
+<p>
+O botão <em>Transferir modelo</em> no passo 1 disponibiliza um ficheiro Excel no idioma do utilizador
+(nome do ficheiro <code>klacks-employee-import-pt.xlsx</code>). Com o modelo, todas as colunas são
+reconhecidas de forma fiável. A linha de cabeçalho está a negrito e fixa, todas as colunas estão
+formatadas como texto (zeros à esquerda e datas ficam tal como foram escritos) e o cabeçalho da coluna
+<em>Tipo</em> tem uma nota com os valores permitidos. O modelo não tem linha de exemplo, porque esta
+seria importada.
+</p>
+<p>
+Colunas do modelo, por esta ordem: Nome, Apelido, Título, Empresa, Tipo, Sexo, Data de nascimento,
+Morada, Complemento, Código postal, Localidade, Distrito, País, Correio eletrónico, Telefone,
+Telemóvel, Data de admissão, Data de saída, Contrato, Grupo, Observações. As listas próprias também
+funcionam – o Klacks reconhece igualmente nomes de colunas em todos os 25 idiomas do Klacks e muitas
+variantes habituais (por exemplo, "Apelido", "Código postal", "Data de admissão").
+</p>
+
+<hr>
+
+<h3>Passo 1 – Ficheiro</h3>
+<ul>
+  <li>
+    Arrastar o ficheiro para a zona de carregamento ou clicar na zona para escolher um ficheiro. O
+    Klacks lê o ficheiro e avança para o passo 2.
+  </li>
+  <li>
+    Um problema no ficheiro (formato errado, demasiado grande, demasiadas linhas ou colunas, sem linha
+    de cabeçalho) é apresentado diretamente abaixo da zona de carregamento; ver <em>Erros comuns e
+    soluções</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Passo 2 – Mapeamento e regras</h3>
+<h4>Mapear colunas</h4>
+<ul>
+  <li>
+    Cada coluna do ficheiro aparece numa linha com até três valores de exemplo, o campo sugerido pelo
+    Klacks (<em>Importar como</em>) e o grau de certeza da sugestão (<em>Fiabilidade</em>).
+  </li>
+  <li>
+    Cada sugestão pode ser alterada na lista pendente. Uma coluna que não deva ser importada é definida
+    como <em>Não importar</em>. Cada campo só pode ser atribuído a uma coluna.
+  </li>
+  <li>
+    <em>Formato de data</em> aparece quando o ficheiro contém datas; quando o ficheiro não define a
+    ordem entre dia e mês, a seleção tem de ser verificada.
+  </li>
+  <li>
+    <em>Ordem no campo do nome</em> aparece para uma coluna com o nome completo: <em>Nome Apelido</em>
+    ou <em>Apelido Nome</em>. Uma vírgula ("Silva, Ana") significa sempre apelido primeiro. O nome
+    completo só preenche um nome próprio ou apelido que não tenha coluna própria ou que esteja vazio
+    numa linha.
+  </li>
+</ul>
+<h4>Regras para informações em falta</h4>
+<p>Estas regras aplicam-se a todas as linhas:</p>
+<ul>
+  <li>
+    <em>Contrato, se nenhum for indicado</em> e <em>Grupo, se nenhum for indicado</em> – usados para
+    linhas sem contrato ou grupo, ou com um nome que não existe.
+  </li>
+  <li>
+    <em>Data de admissão, se nenhuma for indicada</em> – vazio significa hoje. A data é também o início
+    do contrato, da atribuição ao grupo e da morada.
+  </li>
+  <li>
+    <em>País, se nenhum for indicado</em> – predefinição <em>País da instalação</em>.
+  </li>
+  <li>
+    <em>Guardar endereços de e-mail como</em>, <em>Guardar números de telefone como</em>,
+    <em>Guardar números de telemóvel como</em> – privado ou profissional; aplica-se a todas as linhas.
+  </li>
+  <li>
+    <em>Antigos colaboradores (data de saída no passado)</em> – <em>Ignorar</em> (predefinição) ou
+    <em>Importar com data de saída</em>. Uma data de saída igual ou posterior a hoje é sempre importada.
+  </li>
+  <li>
+    <em>Possíveis duplicados</em> – <em>Ignorar</em> (predefinição) ou <em>Criar mesmo assim</em>.
+  </li>
+</ul>
+<p>
+<em>Continuar para a pré-visualização</em> avança; <em>Escolher outro ficheiro</em> recomeça com um
+ficheiro diferente.
+</p>
+
+<hr>
+
+<h3>Passo 3 – Pré-visualização</h3>
+<ul>
+  <li>
+    Um resumo conta as linhas: total, prontas, ignoradas, com erros, duplicados e com avisos. As notas
+    que dizem respeito a todas ou a muitas linhas aparecem uma única vez acima da tabela, juntamente com
+    as colunas que não são importadas.
+  </li>
+  <li>
+    A tabela mostra cada linha tal como será guardada, com os erros primeiro, depois os avisos e as
+    notas. <em>Mostrar apenas linhas com problemas</em> restringe a lista.
+  </li>
+  <li>
+    Por linha: <em>Ignorar</em> deixa a linha de fora; <em>Escolha uma opção</em> define o género de
+    uma linha que não o tenha; <em>Criar mesmo assim</em> mantém uma linha reconhecida como duplicado.
+  </li>
+  <li>
+    Os restantes valores não podem ser editados na pré-visualização. Para os corrigir, corrigir o
+    ficheiro e escolhê-lo novamente (<em>Escolher outro ficheiro</em>), ou alterar o mapeamento com
+    <em>Voltar</em>.
+  </li>
+  <li>
+    O botão de importação mostra quantas pessoas serão criadas (por exemplo, <em>Importar 25
+    colaboradores</em>). Fica desativado enquanto uma linha ainda tiver um erro: corrigir a linha ou
+    ignorá-la.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Passo 4 – Resultado</h3>
+<p>
+Mostra quantas pessoas foram criadas, quantas linhas foram ignoradas e quantas moradas estão a ser
+localizadas no mapa em segundo plano. <em>Ir para a lista de colaboradores</em> abre a lista,
+<em>Importar outro ficheiro</em> inicia uma nova importação.
+</p>
+
+<hr>
+
+<h3>Colunas importáveis</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Campo (Importar como)</th>
+      <th>Obrigatório</th>
+      <th>Notas</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Nome próprio, Apelido</td>
+      <td>Sim, para pessoas</td>
+      <td>No máximo 100 carateres cada. Não obrigatório para um cliente com empresa.</td>
+    </tr>
+    <tr>
+      <td>Nome completo</td>
+      <td>Não</td>
+      <td>Alternativa a colunas de nome separadas; é dividido em nome próprio e apelido (ver passo 2).
+        Os nomes com mais de duas partes recebem um aviso – verificar a divisão.</td>
+    </tr>
+    <tr>
+      <td>Título</td>
+      <td>Não</td>
+      <td>Transferido sem alterações, por exemplo "Dr.". Um título dentro do nome completo não é
+        separado.</td>
+    </tr>
+    <tr>
+      <td>Género, Tratamento</td>
+      <td>Sim, para pessoas</td>
+      <td>Ver <em>Género e tratamento</em>. Sem valor, o género é escolhido por linha na
+        pré-visualização.</td>
+    </tr>
+    <tr>
+      <td>Data de nascimento</td>
+      <td>Não</td>
+      <td>Uma data no futuro é um erro. Importante para a deteção de duplicados.</td>
+    </tr>
+    <tr>
+      <td>Empresa</td>
+      <td>Para clientes que são empresas</td>
+      <td>No máximo 100 carateres. Ver <em>Tipo e empresa</em>.</td>
+    </tr>
+    <tr>
+      <td>Tipo (colaborador, externo, cliente)</td>
+      <td>Não</td>
+      <td>Vazio ou em falta = colaborador. Ver <em>Tipo e empresa</em>.</td>
+    </tr>
+    <tr>
+      <td>Rua, Número da porta</td>
+      <td>Não</td>
+      <td>Um número da porta separado é acrescentado à rua.</td>
+    </tr>
+    <tr>
+      <td>Morada (linha 2)</td>
+      <td>Não</td>
+      <td>Transferida como texto livre.</td>
+    </tr>
+    <tr>
+      <td>Código postal, Localidade</td>
+      <td>Para clientes que são empresas</td>
+      <td>É criada uma morada assim que for indicada a rua, o código postal ou a localidade.</td>
+    </tr>
+    <tr>
+      <td>Código postal e localidade</td>
+      <td>Não</td>
+      <td>Uma coluna com ambos, por exemplo "8000 Zürich" ou "CH-8000 Zürich"; só é usada quando a linha
+        não tem código postal ou localidade separados. Se não puder ser dividida, todo o valor passa a
+        ser a localidade (aviso).</td>
+    </tr>
+    <tr>
+      <td>Distrito / região</td>
+      <td>Não</td>
+      <td>Texto livre; se estiver vazio, é preenchido quando a morada é localizada no mapa.</td>
+    </tr>
+    <tr>
+      <td>País</td>
+      <td>Para clientes que são empresas (conta o país predefinido)</td>
+      <td>Código do país (CH, DE …) ou nome do país em qualquer idioma do Klacks. Vazio = país
+        predefinido; um país desconhecido gera um aviso e é usado o país predefinido.</td>
+    </tr>
+    <tr>
+      <td>E-mail</td>
+      <td>Não</td>
+      <td>Um endereço inválido é omitido com um aviso; a pessoa é importada mesmo assim.</td>
+    </tr>
+    <tr>
+      <td>Telefone, Telemóvel</td>
+      <td>Não</td>
+      <td>Os espaços e separadores são removidos e um 00 inicial passa a +; um número sem + recebe o
+        indicativo do país da linha.</td>
+    </tr>
+    <tr>
+      <td>Data de admissão</td>
+      <td>Não</td>
+      <td>Vazio = a regra <em>Data de admissão, se nenhuma for indicada</em>. Datas pouco plausíveis
+        (antes da data de nascimento ou a mais de 50 anos de distância) geram um aviso.</td>
+    </tr>
+    <tr>
+      <td>Data de saída</td>
+      <td>Não</td>
+      <td>Antes da data de admissão = erro. No passado: ver a regra <em>Antigos colaboradores</em>.</td>
+    </tr>
+    <tr>
+      <td>Contrato, Grupo</td>
+      <td>Não</td>
+      <td>Associados pelo nome; ver <em>Contrato e grupo</em>.</td>
+    </tr>
+    <tr>
+      <td>Nota</td>
+      <td>Não</td>
+      <td>Guardada como nota na pessoa.</td>
+    </tr>
+    <tr>
+      <td>Número de colaborador (atribuído pelo Klacks)</td>
+      <td>–</td>
+      <td>Reconhecido, mas nunca importado; ver <em>Número de colaborador</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Tipo e empresa</h3>
+<ul>
+  <li>
+    A coluna <em>Tipo</em> indica por linha se se trata de um colaborador, de um colaborador externo ou
+    de um cliente. Os valores reconhecidos são, por exemplo, <code>Funcionário</code>,
+    <code>Funcionária</code>, <code>Colaborador</code> (colaborador), <code>Externo</code>,
+    <code>Externa</code>, <code>Colaborador externo</code> (colaborador externo) e
+    <code>Cliente</code> (cliente); as palavras correspondentes de todos os outros idiomas do Klacks e
+    os números 0, 1 e 2 também funcionam. Maiúsculas e minúsculas não importam.
+  </li>
+  <li>
+    Uma <strong>célula vazia</strong> ou um ficheiro sem coluna de tipo significa
+    <strong>colaborador</strong>. Um valor desconhecido é um erro na pré-visualização.
+  </li>
+  <li>
+    <strong>Cliente com empresa:</strong> criado como empresa (pessoa coletiva), não como pessoa. O nome
+    próprio e o apelido são opcionais e ficam guardados como pessoa de contacto (a pré-visualização
+    marca-os com <em>Pessoa de contacto:</em>); um género na linha é ignorado. Uma linha deste tipo
+    precisa de uma morada com código postal, localidade e país (conta o país predefinido).
+  </li>
+  <li>
+    <strong>Cliente sem empresa:</strong> criado como pessoa – nome próprio, apelido e género são
+    obrigatórios.
+  </li>
+  <li>
+    <strong>Colaborador ou colaborador externo com empresa:</strong> continua a ser uma pessoa; o nome da
+    empresa é guardado com a pessoa.
+  </li>
+  <li>
+    <strong>Os clientes nunca recebem contrato</strong> – nem a partir do ficheiro (aviso, o valor não é
+    importado) nem a partir das regras. Um grupo também é atribuído aos clientes.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Género e tratamento</h3>
+<ul>
+  <li>
+    As pessoas precisam de um género: <em>Feminino</em>, <em>Masculino</em> ou <em>Diverso</em>. Este
+    provém da coluna <em>Género</em>; se estiver vazia, da coluna <em>Tratamento</em> (a
+    pré-visualização indica-o). Sem nenhuma das duas, o género é escolhido por linha na
+    pré-visualização (<em>Escolha uma opção</em>).
+  </li>
+  <li>
+    Os valores reconhecidos são, por exemplo, <code>Senhora</code>, <code>Sra</code>,
+    <code>Mulher</code>, <code>Feminino</code> (feminino), <code>Senhor</code>, <code>Sr</code>,
+    <code>Homem</code> (masculino) e <code>Outro</code>, <code>Intersexo</code>, <code>Não binário</code>
+    (diverso) – além das palavras correspondentes de todos os outros idiomas do Klacks, como
+    <code>Herr</code>/<code>Frau</code> ou <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Maiúsculas e minúsculas, acentos e pontuação não importam; num tratamento mais longo conta a
+    primeira palavra ("Sr. Dr." = masculino).
+  </li>
+  <li>Uma empresa (cliente com empresa) não precisa de género.</li>
+</ul>
+
+<hr>
+
+<h3>Contrato e grupo</h3>
+<ul>
+  <li>
+    Um valor no ficheiro é comparado com os nomes dos contratos e grupos existentes; maiúsculas e
+    minúsculas e espaços no início ou no fim não importam.
+  </li>
+  <li>
+    Se o nome não existir, existir várias vezes ou estiver vazio, é usado o contrato ou grupo das regras
+    e a pré-visualização indica-o. Sem regra, a linha fica sem contrato ou sem grupo.
+  </li>
+  <li>
+    <strong>A importação não cria contratos nem grupos.</strong> Configurá-los primeiro nas definições
+    e na página de grupos e só depois importar.
+  </li>
+  <li>
+    O contrato e o grupo começam na data de admissão e terminam na data de saída, se existir.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Número de colaborador</h3>
+<p>
+O Klacks <strong>atribui sempre o número de colaborador automaticamente</strong>. Uma coluna de número
+de colaborador no ficheiro é reconhecida, mas ignorada; a pré-visualização mostra uma nota. Para manter
+os números de outro sistema, a coluna pode ser mapeada para <em>Nota</em> no passo 2, desde que
+nenhuma outra coluna seja importada como nota.
+</p>
+
+<hr>
+
+<h3>Duplicados</h3>
+<ul>
+  <li>
+    <strong>Pessoas:</strong> uma linha conta como duplicado quando o <strong>endereço de e-mail</strong>
+    é o mesmo, ou quando <strong>nome próprio, apelido e data de nascimento</strong> são os mesmos.
+    Maiúsculas e minúsculas, acentos e hífenes são ignorados ("Müller" = "Muller", "Hans-Peter" =
+    "Hanspeter").
+  </li>
+  <li>
+    <strong>Empresas</strong> (clientes com empresa): mesma <strong>empresa, código postal e
+    rua</strong>.
+  </li>
+  <li>
+    As linhas são comparadas com as pessoas já existentes no Klacks e com as linhas anteriores do mesmo
+    ficheiro. <strong>Os clientes só são comparados com clientes</strong>, os colaboradores e os
+    colaboradores externos entre si.
+  </li>
+  <li>
+    Os duplicados são ignorados com a regra <em>Possíveis duplicados</em> = <em>Ignorar</em>. Com
+    <em>Criar mesmo assim</em> – como regra para todas as linhas ou por linha na pré-visualização – são
+    criados mesmo assim.
+  </li>
+  <li>
+    Apenas uma <strong>nota</strong>, sem ignorar: o mesmo nome sem data de nascimento coincidente, ou a
+    mesma empresa noutra morada. Verificar essas linhas antes de importar.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Gravação e moradas</h3>
+<ul>
+  <li>
+    <strong>Tudo ou nada:</strong> a importação guarda todas as linhas prontas de uma só vez. Se algo
+    falhar, nada é guardado. Antes de guardar, o Klacks verifica novamente todas as linhas com os dados
+    atuais.
+  </li>
+  <li>
+    Criado por linha: a pessoa (ou empresa), o período de vínculo da data de admissão à data de saída,
+    a morada, o endereço de e-mail, o número de telefone e de telemóvel, o contrato, o grupo e a nota.
+  </li>
+  <li>
+    A mesma importação não pode ser guardada duas vezes; uma segunda tentativa indica que a importação
+    já foi realizada.
+  </li>
+  <li>
+    <strong>Mapa:</strong> as moradas com código postal e localidade são localizadas no mapa em segundo
+    plano após a importação, uma após a outra. Com muitas moradas, isto pode demorar alguns minutos;
+    entretanto, as pessoas já podem ser utilizadas.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Erros comuns e soluções</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Mensagem</th>
+      <th>Causa</th>
+      <th>Solução</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Este formato de ficheiro não é suportado. Utilize um ficheiro .xlsx ou .csv.</td>
+      <td>.xls, .ods, PDF ou um ficheiro danificado.</td>
+      <td>Guardar o ficheiro no Excel como .xlsx ou exportá-lo como CSV.</td>
+    </tr>
+    <tr>
+      <td>O ficheiro é demasiado grande (máximo de 5 MB).</td>
+      <td>Ficheiro com mais de 5 MB, por exemplo devido a imagens ou folhas não utilizadas.</td>
+      <td>Remover as imagens e as folhas não utilizadas, ou dividir a lista.</td>
+    </tr>
+    <tr>
+      <td>O ficheiro contém demasiadas linhas (máximo de 1000 pessoas por importação).</td>
+      <td>Mais de 1000 linhas de dados.</td>
+      <td>Dividir a lista em vários ficheiros (ver <em>Limites e listas maiores</em>).</td>
+    </tr>
+    <tr>
+      <td>O ficheiro contém demasiadas colunas (máximo de 60).</td>
+      <td>Mais de 60 colunas, muitas vezes devido a um valor perdido muito à direita.</td>
+      <td>Eliminar as colunas não utilizadas, incluindo as que parecem vazias na margem direita.</td>
+    </tr>
+    <tr>
+      <td>Não foi encontrada nenhuma linha de cabeçalho com nomes de colunas nas primeiras linhas.</td>
+      <td>Nenhuma linha com pelo menos dois nomes de colunas nas primeiras 10 linhas.</td>
+      <td>Colocar uma linha de cabeçalho com nomes de colunas acima dos dados.</td>
+    </tr>
+    <tr>
+      <td>O ficheiro não contém dados.</td>
+      <td>Ficheiro vazio, apenas uma linha de cabeçalho ou nenhuma folha visível.</td>
+      <td>Verificar o ficheiro; mostrar a folha oculta no Excel.</td>
+    </tr>
+    <tr>
+      <td>Falta o género – escolha uma opção.</td>
+      <td>Género ou tratamento em falta ou não reconhecido.</td>
+      <td>Escolher o género na pré-visualização ou preencher a coluna no ficheiro.</td>
+    </tr>
+    <tr>
+      <td>Falta o nome próprio. / Falta o apelido.</td>
+      <td>Coluna de nome vazia ou não mapeada; um nome completo com uma só palavra.</td>
+      <td>Verificar o mapeamento no passo 2 ou completar o ficheiro.</td>
+    </tr>
+    <tr>
+      <td>Data inválida: "…".</td>
+      <td>Data ilegível, data de nascimento no futuro ou data de saída anterior à data de admissão.</td>
+      <td>Verificar o formato de data no passo 2 ou corrigir o valor no ficheiro.</td>
+    </tr>
+    <tr>
+      <td>Tipo "…" desconhecido – use colaborador, externo ou cliente.</td>
+      <td>Valor na coluna de tipo não reconhecido.</td>
+      <td>Usar um dos valores da nota do modelo ou deixar a célula vazia (= colaborador).</td>
+    </tr>
+    <tr>
+      <td>Um cliente com empresa precisa de uma morada com código postal, localidade e país.</td>
+      <td>Linha de empresa sem morada completa.</td>
+      <td>Completar o código postal e a localidade; definir um país no ficheiro ou nas regras.</td>
+    </tr>
+    <tr>
+      <td>Valor demasiado longo (máximo de … carateres).</td>
+      <td>Nome, título, empresa, e-mail ou telefone com mais de 100 carateres.</td>
+      <td>Encurtar o valor no ficheiro.</td>
+    </tr>
+    <tr>
+      <td>Contrato "…" não encontrado. / Grupo "…" não encontrado.</td>
+      <td>O nome difere dos contratos e grupos existentes no Klacks.</td>
+      <td>Corrigir o nome ou configurar primeiro o contrato ou grupo; caso contrário, aplica-se a regra.</td>
+    </tr>
+    <tr>
+      <td>Algumas linhas ainda têm erros. Corrija-as ou ignore essas linhas e tente novamente.</td>
+      <td>Pelo menos uma linha tem um erro.</td>
+      <td>Usar <em>Mostrar apenas linhas com problemas</em> e depois corrigir ou ignorar essas linhas.</td>
+    </tr>
+    <tr>
+      <td>Uma das regras para informações em falta já não é válida …</td>
+      <td>Um contrato ou grupo escolhido nas regras foi eliminado entretanto.</td>
+      <td>Verificar as regras no passo 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Após a importação</h3>
+<ul>
+  <li>
+    As pessoas importadas são registos normais. Os erros são corrigidos ou eliminados na página da
+    pessoa; não existe "anular" para a importação completa.
+  </li>
+  <li>
+    Importar o mesmo ficheiro uma segunda vez volta a detetar como duplicados as linhas com endereço de
+    e-mail ou data de nascimento. As linhas apenas com nome são só assinaladas – verificá-las antes de
+    importar duas vezes.
+  </li>
+  <li>
+    Uma pessoa individual é criada manualmente na página de colaboradores; um diretório da empresa pode
+    ser sincronizado por um administrador através das definições do fornecedor de identidade.
+  </li>
+</ul>

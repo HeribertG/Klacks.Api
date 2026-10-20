@@ -1,0 +1,613 @@
+<h2>Import angajați – Manual</h2>
+
+<h3>Ce este importul de angajați?</h3>
+<p>
+Importul de angajați preia o listă completă de personal dintr-un <strong>singur fișier Excel (.xlsx)
+sau un singur fișier CSV (.csv)</strong>, cu un rând pe persoană, în loc ca fiecare persoană să fie
+creată manual. Klacks recunoaște singur coloanele, arată într-o previzualizare cum va arăta fiecare
+înregistrare și salvează abia după confirmare. Pe lângă angajați, același fișier poate conține și
+angajați externi și clienți.
+</p>
+<ul>
+  <li>
+    <strong>Cine poate importa:</strong> doar administratorii. Cardul <em>Importă angajați</em> se
+    află în setări, secțiunea <em>Organizare</em>; butonul <em>Importă</em> deschide pagina de import.
+    Ceilalți utilizatori nu văd cardul și au nevoie de un administrator pentru import.
+  </li>
+  <li>
+    <strong>Protecția datelor:</strong> fișierul în sine nu este salvat. El este doar citit; se
+    creează numai rândurile confirmate în previzualizare.
+  </li>
+  <li>
+    <strong>Patru pași:</strong> <em>Fișier</em> → <em>Mapare și reguli</em> → <em>Previzualizare</em> →
+    <em>Rezultat</em>. Fila <em>Manual</em> afișează acest manual; trecerea la ea nu pierde un import
+    aflat în curs.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Fișiere acceptate</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> și <strong>CSV (.csv)</strong>; un fișier .txt este citit ca un
+    fișier CSV. Vechiul format Excel <strong>.xls nu este acceptat</strong> – fișierul trebuie salvat
+    mai întâi în Excel ca .xlsx.
+  </li>
+  <li>
+    <strong>Registre de lucru Excel:</strong> se citesc doar foile vizibile, implicit prima. Pentru un
+    registru cu mai multe foi, pasul 2 oferă alegerea <em>Foaie</em>. Se importă rezultatul calculat
+    al unei formule. Celulele formatate ca dată sunt citite ca date. Numerele din celulele cu formatul
+    „General” își pierd zerourile de la început (codul poștal 01234 devine 1234) – astfel de coloane
+    trebuie formatate ca text (șablonul face deja acest lucru).
+  </li>
+  <li>
+    <strong>Codificarea fișierelor CSV:</strong> sunt recunoscute UTF-8 (cu sau fără marcaj de ordine a
+    octeților) și UTF-16 cu marcaj de ordine a octeților; orice alt fișier este citit ca Windows-1252
+    (formatul „ANSI” obișnuit al Excel pentru Windows în Europa de Vest), astfel încât diacriticele
+    și accentele vest-europene sunt preluate corect fără nicio setare. Pentru toate celelalte
+    scrieri și litere (de exemplu ł, ř, ș, greacă, arabă, ebraică, chineză, japoneză, coreeană sau
+    thailandeză), fișierul trebuie salvat ca „CSV UTF-8” sau trebuie folosit .xlsx.
+  </li>
+  <li>
+    <strong>Separatorul fișierelor CSV:</strong> punctul și virgula, virgula, tabulatorul sau bara
+    verticală (|) sunt detectate automat. Valorile între ghilimele pot conține separatorul și
+    întreruperi de rând.
+  </li>
+  <li>
+    <strong>Rândul de antet:</strong> primul rând cu numele coloanelor trebuie să se afle printre
+    primele 10 rânduri care nu sunt goale și să conțină cel puțin două celule cu text. Rândurile de
+    deasupra (de exemplu un titlu) și rândurile goale sunt ignorate.
+  </li>
+  <li>
+    <strong>Formate de dată:</strong> ziua, luna și anul separate prin punct, bară oblică sau cratimă,
+    de exemplu 31.12.1990, 12/31/1990 sau 1990-12-31; o parte de oră după dată este ignorată. O valoare
+    care începe cu un an din patru cifre este citită întotdeauna ca an-lună-zi. Dacă din fișier nu
+    reiese dacă ziua sau luna este prima (nicio valoare peste 12), Klacks presupune ordinea
+    zi/lună/an și cere verificarea formatului datei în pasul 2. Numele lunilor (de exemplu „31 Dec
+    1990”) nu sunt recunoscute.
+  </li>
+  <li>
+    <strong>Ani din două cifre:</strong> anii până la ultimele două cifre ale anului curent sunt
+    considerați 20xx, cei mai mari 19xx (în 2026: „26” = 2026, „27” = 1927). Previzualizarea marchează
+    fiecare astfel de dată cu un avertisment, pentru ca secolul să poată fi verificat.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Limite și liste mai mari</h3>
+<ul>
+  <li>Cel mult <strong>5 MB</strong> per fișier.</li>
+  <li>
+    Cel mult <strong>1000 de rânduri</strong> per import – se numără rândurile de date de sub rândul
+    de antet, fără rândurile goale.
+  </li>
+  <li>
+    Cel mult <strong>60 de coloane</strong>. În Excel contează ultima coloană folosită: o singură
+    valoare uitată mult în dreapta face fișierul prea lat.
+  </li>
+  <li>
+    O celulă poate conține cel mult 1000 de caractere; conținutul mai lung este trunchiat. Prenumele,
+    numele, titlul și compania pot avea fiecare cel mult 100 de caractere, la fel adresa de e-mail,
+    numărul de telefon și cel de mobil.
+  </li>
+  <li>
+    Un fișier Excel poate avea cel mult 20 MB după dezarhivare (protecție împotriva fișierelor
+    manipulate).
+  </li>
+</ul>
+<p>
+<strong>Liste mai mari:</strong> lista se împarte în mai multe fișiere de cel mult 1000 de rânduri
+fiecare; fiecare fișier are nevoie de propriul rând de antet. Coloanele care nu sunt necesare pot fi
+șterse în prealabil. Fișierele se importă unul după altul. Persoanele deja importate dintr-un fișier
+anterior sunt recunoscute ca dubluri dacă au o adresă de e-mail sau o dată a nașterii (vezi
+<em>Dubluri</em>).
+</p>
+
+<hr>
+
+<h3>Șablon</h3>
+<p>
+Butonul <em>Descărcați șablonul</em> din pasul 1 oferă un fișier Excel în limba utilizatorului
+(numele fișierului <code>klacks-employee-import-ro.xlsx</code>). Cu șablonul, fiecare coloană este
+recunoscută în mod fiabil. Rândul de antet este îngroșat și înghețat, fiecare coloană este formatată
+ca text (zerourile de la început și datele rămân așa cum au fost tastate), iar antetul coloanei
+<em>Tip</em> conține o notă cu valorile permise. Șablonul nu are un rând de exemplu, deoarece acesta
+ar fi importat.
+</p>
+<p>
+Coloanele șablonului, în această ordine: Prenume, Nume, Titlu, Companie, Tip, Sex, Data nașterii,
+Stradă, Adresă linia 2, Cod poștal, Localitate, Județ, Țară, E-mail, Telefon, Telefon mobil, Data
+angajării, Data încetării, Contract, Grup, Observații. Funcționează și listele proprii – Klacks
+recunoaște numele coloanelor în toate cele 25 de limbi Klacks, precum și multe variante uzuale (de
+exemplu „Nume de familie”, „CP”, „Data intrării”).
+</p>
+
+<hr>
+
+<h3>Pasul 1 – Fișier</h3>
+<ul>
+  <li>
+    Fișierul se trage în zona de încărcare sau se face clic pe zonă pentru a alege un fișier. Klacks
+    citește fișierul și trece la pasul 2.
+  </li>
+  <li>
+    O problemă cu fișierul (format greșit, prea mare, prea multe rânduri sau coloane, lipsa rândului
+    de antet) este afișată direct sub zona de încărcare; vezi <em>Erori frecvente și remedieri</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Pasul 2 – Mapare și reguli</h3>
+<h4>Maparea coloanelor</h4>
+<ul>
+  <li>
+    Fiecare coloană a fișierului apare pe un rând cu până la trei valori exemplu, câmpul propus de
+    Klacks (<em>Importă ca</em>) și cât de sigură este propunerea (<em>Încredere</em>).
+  </li>
+  <li>
+    Fiecare propunere poate fi modificată în lista derulantă. O coloană care nu trebuie importată se
+    setează pe <em>Nu importa</em>. Fiecare câmp poate fi atribuit unei singure coloane.
+  </li>
+  <li>
+    <em>Format dată</em> apare atunci când fișierul conține date; dacă fișierul nu stabilește ordinea
+    zilei și a lunii, selecția trebuie verificată.
+  </li>
+  <li>
+    <em>Ordinea în câmpul de nume</em> apare pentru o coloană cu numele complet: <em>Prenume
+    Nume</em> sau <em>Nume Prenume</em>. O virgulă („Popescu, Ana”) înseamnă întotdeauna că numele
+    de familie este primul. Numele complet completează doar un prenume sau un nume care nu are o
+    coloană proprie sau care este gol într-un rând.
+  </li>
+</ul>
+<h4>Reguli pentru informațiile lipsă</h4>
+<p>Aceste reguli se aplică tuturor rândurilor:</p>
+<ul>
+  <li>
+    <em>Contract, dacă nu este indicat niciunul</em> și <em>Grup, dacă nu este indicat niciunul</em> –
+    se folosesc pentru rândurile fără contract sau grup ori cu un nume care nu există.
+  </li>
+  <li>
+    <em>Data angajării, dacă nu este indicată nicio dată</em> – necompletat înseamnă azi. Data este
+    totodată începutul contractului, al apartenenței la grup și al adresei.
+  </li>
+  <li>
+    <em>Țară, dacă nu este indicată nicio țară</em> – implicit <em>Țara instalării</em>.
+  </li>
+  <li>
+    <em>Salvează adresele de e-mail ca</em>, <em>Salvează numerele de telefon ca</em>, <em>Salvează
+    numerele de mobil ca</em> – personal sau de serviciu; se aplică tuturor rândurilor.
+  </li>
+  <li>
+    <em>Foști angajați (data încetării în trecut)</em> – <em>Omite</em> (implicit) sau <em>Importă
+    cu data încetării</em>. O dată a încetării egală cu ziua de azi sau ulterioară este importată
+    întotdeauna.
+  </li>
+  <li>
+    <em>Posibile dubluri</em> – <em>Omite</em> (implicit) sau <em>Creează oricum</em>.
+  </li>
+</ul>
+<p>
+<em>Continuați la previzualizare</em> trece mai departe; <em>Alegeți alt fișier</em> reia procesul
+cu un alt fișier.
+</p>
+
+<hr>
+
+<h3>Pasul 3 – Previzualizare</h3>
+<ul>
+  <li>
+    Un rezumat numără rândurile: total, gata, omise, cu erori, dubluri și cu avertismente.
+    Observațiile care privesc toate sau multe rânduri apar o singură dată deasupra tabelului, împreună
+    cu coloanele care nu sunt importate.
+  </li>
+  <li>
+    Tabelul afișează fiecare rând așa cum va fi salvat, mai întâi erorile, apoi avertismentele și
+    indicațiile. <em>Afișează doar rândurile cu probleme</em> restrânge lista.
+  </li>
+  <li>
+    Pe fiecare rând: <em>Omite</em> exclude rândul; <em>Alegeți</em> stabilește genul unui rând care
+    nu are unul; <em>Creează oricum</em> păstrează un rând recunoscut ca dublură.
+  </li>
+  <li>
+    Alte valori nu pot fi editate în previzualizare. Pentru a le corecta, se corectează fișierul și se
+    alege din nou (<em>Alegeți alt fișier</em>) sau se modifică maparea cu <em>Înapoi</em>.
+  </li>
+  <li>
+    Butonul de import arată câte persoane vor fi create (de exemplu <em>Importă 25
+    angajați</em>). Rămâne dezactivat cât timp un rând mai conține o eroare: rândul trebuie corectat
+    sau omis.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Pasul 4 – Rezultat</h3>
+<p>
+Arată câte persoane au fost create și câte rânduri au fost omise, precum și câte adrese sunt
+localizate pe hartă în fundal. <em>Mergeți la lista de angajați</em> deschide lista,
+<em>Importați alt fișier</em> pornește un import nou.
+</p>
+
+<hr>
+
+<h3>Coloane importabile</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Câmp (Importă ca)</th>
+      <th>Obligatoriu</th>
+      <th>Observații</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Prenume, Nume</td>
+      <td>Da, pentru persoane</td>
+      <td>Cel mult 100 de caractere fiecare. Nu sunt obligatorii pentru un client cu companie.</td>
+    </tr>
+    <tr>
+      <td>Nume complet</td>
+      <td>Nu</td>
+      <td>Alternativă la coloanele de nume separate; se împarte în prenume și nume (vezi pasul 2). Numele
+        din mai mult de două părți primesc un avertisment – împărțirea trebuie verificată.</td>
+    </tr>
+    <tr>
+      <td>Titlu</td>
+      <td>Nu</td>
+      <td>Preluat neschimbat, de exemplu „Dr.”. Un titlu din interiorul numelui complet nu este separat.</td>
+    </tr>
+    <tr>
+      <td>Gen, Formulă de adresare</td>
+      <td>Da, pentru persoane</td>
+      <td>Vezi <em>Gen și formulă de adresare</em>. Fără valoare, genul se alege pe fiecare rând în
+        previzualizare.</td>
+    </tr>
+    <tr>
+      <td>Data nașterii</td>
+      <td>Nu</td>
+      <td>O dată în viitor este o eroare. Importantă pentru recunoașterea dublurilor.</td>
+    </tr>
+    <tr>
+      <td>Companie</td>
+      <td>Pentru clienții care sunt companii</td>
+      <td>Cel mult 100 de caractere. Vezi <em>Tip și companie</em>.</td>
+    </tr>
+    <tr>
+      <td>Tip (angajat, extern, client)</td>
+      <td>Nu</td>
+      <td>Gol sau lipsă = angajat. Vezi <em>Tip și companie</em>.</td>
+    </tr>
+    <tr>
+      <td>Stradă, Număr</td>
+      <td>Nu</td>
+      <td>Un număr separat este adăugat la stradă.</td>
+    </tr>
+    <tr>
+      <td>Adresă, rândul 2</td>
+      <td>Nu</td>
+      <td>Preluat ca text liber.</td>
+    </tr>
+    <tr>
+      <td>Cod poștal, Localitate</td>
+      <td>Pentru clienții care sunt companii</td>
+      <td>O adresă este creată imediat ce este indicată strada, codul poștal sau localitatea.</td>
+    </tr>
+    <tr>
+      <td>Cod poștal și localitate</td>
+      <td>Nu</td>
+      <td>O singură coloană cu ambele, de exemplu „8000 Zürich” sau „CH-8000 Zürich”; se folosește doar
+        dacă rândul nu are cod poștal sau localitate separate. Dacă nu poate fi împărțită, întreaga
+        valoare devine localitatea (avertisment).</td>
+    </tr>
+    <tr>
+      <td>Județ / regiune</td>
+      <td>Nu</td>
+      <td>Text liber; dacă este gol, se completează la localizarea adresei pe hartă.</td>
+    </tr>
+    <tr>
+      <td>Țară</td>
+      <td>Pentru clienții care sunt companii (contează și țara implicită)</td>
+      <td>Codul țării (CH, DE …) sau numele țării în orice limbă Klacks. Gol = țara implicită; o țară
+        necunoscută generează un avertisment și se folosește țara implicită.</td>
+    </tr>
+    <tr>
+      <td>E-mail</td>
+      <td>Nu</td>
+      <td>O adresă nevalidă este omisă cu un avertisment; persoana este importată totuși.</td>
+    </tr>
+    <tr>
+      <td>Telefon, Telefon mobil</td>
+      <td>Nu</td>
+      <td>Spațiile și separatorii sunt eliminați, iar un 00 de la început devine +; un număr fără +
+        primește prefixul telefonic al țării din rând.</td>
+    </tr>
+    <tr>
+      <td>Data angajării</td>
+      <td>Nu</td>
+      <td>Gol = regula <em>Data angajării, dacă nu este indicată nicio dată</em>. Datele neplauzibile
+        (înainte de data nașterii sau la o distanță de peste 50 de ani) generează un avertisment.</td>
+    </tr>
+    <tr>
+      <td>Data încetării</td>
+      <td>Nu</td>
+      <td>Înainte de data angajării = eroare. În trecut: vezi regula <em>Foști angajați</em>.</td>
+    </tr>
+    <tr>
+      <td>Contract, Grup</td>
+      <td>Nu</td>
+      <td>Asociate după nume; vezi <em>Contract și grup</em>.</td>
+    </tr>
+    <tr>
+      <td>Notă</td>
+      <td>Nu</td>
+      <td>Salvată ca notă la persoană.</td>
+    </tr>
+    <tr>
+      <td>Număr de personal (atribuit de Klacks)</td>
+      <td>–</td>
+      <td>Recunoscut, dar niciodată importat; vezi <em>Număr de personal</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Tip și companie</h3>
+<ul>
+  <li>
+    Coloana <em>Tip</em> indică pentru fiecare rând dacă este vorba de un angajat, un angajat extern
+    sau un client. Valori recunoscute sunt, de exemplu, <code>Angajat</code>, <code>Salariat</code>,
+    <code>Intern</code> (angajat), <code>Extern</code>, <code>Colaborator extern</code>,
+    <code>Angajat extern</code> (angajat extern) și <code>Client</code>, <code>Clientă</code>
+    (client); funcționează și cuvintele corespunzătoare din toate celelalte limbi Klacks, precum și
+    numerele 0, 1 și 2. Literele mari și mici nu contează.
+  </li>
+  <li>
+    O <strong>celulă goală</strong> sau un fișier fără coloană de tip înseamnă <strong>angajat</strong>.
+    O valoare necunoscută este o eroare în previzualizare.
+  </li>
+  <li>
+    <strong>Client cu companie:</strong> este creat ca firmă (persoană juridică), nu ca persoană.
+    Prenumele și numele sunt opționale și sunt păstrate ca persoană de contact (previzualizarea le
+    marchează cu <em>Persoană de contact:</em>); un gen din rând este ignorat. Un astfel de rând are
+    nevoie de o adresă cu cod poștal, localitate și țară (contează și țara implicită).
+  </li>
+  <li>
+    <strong>Client fără companie:</strong> este creat ca persoană – prenumele, numele și genul sunt
+    obligatorii.
+  </li>
+  <li>
+    <strong>Angajat sau angajat extern cu companie:</strong> rămâne persoană; numele companiei este
+    salvat la persoană.
+  </li>
+  <li>
+    <strong>Clienții nu primesc niciodată un contract</strong> – nici din fișier (avertisment, valoarea
+    nu este importată), nici din reguli. Un grup este atribuit și clienților.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Gen și formulă de adresare</h3>
+<ul>
+  <li>
+    Persoanele au nevoie de un gen: <em>Feminin</em>, <em>Masculin</em> sau <em>Diferit</em>. Acesta
+    provine din coloana <em>Gen</em>; dacă aceasta este goală, din coloana <em>Formulă de
+    adresare</em> (previzualizarea menționează acest lucru). Fără niciuna dintre ele, genul se alege
+    pe fiecare rând în previzualizare (<em>Alegeți</em>).
+  </li>
+  <li>
+    Valori recunoscute sunt, de exemplu, <code>Doamna</code>, <code>Dna.</code>, <code>Domnișoara</code>,
+    <code>Femeie</code>, <code>Feminin</code> (feminin), <code>Domnul</code>, <code>Dl.</code>,
+    <code>Bărbat</code> (masculin) și <code>Altul</code>, <code>Intersexual</code>
+    (diferit) – plus cuvintele corespunzătoare din toate celelalte limbi Klacks, cum ar fi
+    <code>Herr</code>/<code>Frau</code> sau <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Literele mari și mici, accentele și semnele de punctuație nu contează; la o formulă de adresare mai
+    lungă contează primul cuvânt („Domnul Dr.” = masculin).
+  </li>
+  <li>O companie (client cu companie) nu are nevoie de gen.</li>
+</ul>
+
+<hr>
+
+<h3>Contract și grup</h3>
+<ul>
+  <li>
+    O valoare din fișier este comparată cu numele contractelor și grupurilor existente; literele mari
+    și mici și spațiile de la început sau de la sfârșit nu contează.
+  </li>
+  <li>
+    Dacă numele nu există, există de mai multe ori sau este gol, se folosește contractul sau grupul din
+    reguli, iar previzualizarea semnalează acest lucru. Fără regulă, rândul nu primește contract sau
+    grup.
+  </li>
+  <li>
+    <strong>Importul nu creează contracte sau grupuri.</strong> Acestea trebuie configurate mai întâi
+    în setări și pe pagina de grupuri, apoi se face importul.
+  </li>
+  <li>
+    Contractul și grupul încep la data angajării și se termină la data încetării, dacă există una.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Număr de personal</h3>
+<p>
+Klacks <strong>atribuie întotdeauna singur numărul de personal</strong>. O coloană cu numărul de
+personal din fișier este recunoscută, dar ignorată; previzualizarea afișează o indicație. Pentru a
+păstra numerele unui alt sistem, coloana poate fi mapată în pasul 2 pe <em>Notă</em>, cu condiția ca
+nicio altă coloană să nu fie importată ca notă.
+</p>
+
+<hr>
+
+<h3>Dubluri</h3>
+<ul>
+  <li>
+    <strong>Persoane:</strong> un rând este considerat dublură dacă <strong>adresa de e-mail</strong>
+    este aceeași sau dacă <strong>prenumele, numele și data nașterii</strong> sunt aceleași. Literele
+    mari și mici, accentele și cratimele sunt ignorate („Müller” = „Muller”, „Hans-Peter” =
+    „Hanspeter”).
+  </li>
+  <li>
+    <strong>Companii</strong> (clienți cu companie): aceeași <strong>companie, același cod poștal și
+    aceeași stradă</strong>.
+  </li>
+  <li>
+    Rândurile sunt comparate cu persoanele deja existente în Klacks și cu rândurile anterioare din
+    același fișier. <strong>Clienții sunt comparați doar cu clienți</strong>, angajații și angajații
+    externi între ei.
+  </li>
+  <li>
+    Dublurile sunt omise cu regula <em>Posibile dubluri</em> = <em>Omite</em>. Cu
+    <em>Creează oricum</em> – ca regulă pentru toate rândurile sau pe fiecare rând în previzualizare –
+    sunt create totuși.
+  </li>
+  <li>
+    Doar o <strong>indicație</strong>, fără omitere: același nume fără o dată a nașterii
+    corespunzătoare sau aceeași companie la o altă adresă. Astfel de rânduri trebuie verificate
+    înainte de import.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Salvare și adrese</h3>
+<ul>
+  <li>
+    <strong>Totul sau nimic:</strong> importul salvează dintr-o dată toate rândurile gata de import.
+    Dacă ceva eșuează, nu se salvează nimic. Înainte de salvare, Klacks verifică din nou toate
+    rândurile față de datele curente.
+  </li>
+  <li>
+    Pentru fiecare rând se creează: persoana (sau compania), perioada de angajare de la data angajării
+    până la data încetării, adresa, adresa de e-mail, numărul de telefon și cel de mobil, contractul,
+    grupul și nota.
+  </li>
+  <li>
+    Același import nu poate fi salvat de două ori; o a doua încercare arată că importul a fost deja
+    efectuat.
+  </li>
+  <li>
+    <strong>Hartă:</strong> adresele cu cod poștal și localitate sunt localizate pe hartă în fundal
+    după import, una după alta. La multe adrese, acest lucru poate dura câteva minute; persoanele pot
+    fi folosite deja între timp.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Erori frecvente și remedieri</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Mesaj</th>
+      <th>Cauză</th>
+      <th>Remediere</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Acest format de fișier nu este acceptat. Utilizați un fișier .xlsx sau .csv.</td>
+      <td>.xls, .ods, PDF sau un fișier deteriorat.</td>
+      <td>Salvarea fișierului în Excel ca .xlsx sau exportul ca CSV.</td>
+    </tr>
+    <tr>
+      <td>Fișierul este prea mare (maximum 5 MB).</td>
+      <td>Fișier de peste 5 MB, de exemplu din cauza imaginilor sau a foilor nefolosite.</td>
+      <td>Eliminarea imaginilor și a foilor nefolosite sau împărțirea listei.</td>
+    </tr>
+    <tr>
+      <td>Fișierul conține prea multe rânduri (maximum 1000 de persoane per import).</td>
+      <td>Peste 1000 de rânduri de date.</td>
+      <td>Împărțirea listei în mai multe fișiere (vezi <em>Limite și liste mai mari</em>).</td>
+    </tr>
+    <tr>
+      <td>Fișierul conține prea multe coloane (maximum 60).</td>
+      <td>Peste 60 de coloane, adesea din cauza unei valori rătăcite mult în dreapta.</td>
+      <td>Ștergerea coloanelor nefolosite, inclusiv a celor aparent goale de la marginea din dreapta.</td>
+    </tr>
+    <tr>
+      <td>În primele rânduri nu a fost găsit un rând de antet cu numele coloanelor.</td>
+      <td>Niciun rând cu cel puțin două nume de coloane printre primele 10 rânduri.</td>
+      <td>Adăugarea unui rând de antet cu numele coloanelor deasupra datelor.</td>
+    </tr>
+    <tr>
+      <td>Fișierul nu conține date.</td>
+      <td>Fișier gol, doar un rând de antet sau nicio foaie vizibilă.</td>
+      <td>Verificarea fișierului; reafișarea foii ascunse în Excel.</td>
+    </tr>
+    <tr>
+      <td>Lipsește genul – alegeți unul.</td>
+      <td>Gen sau formulă de adresare lipsă ori nerecunoscută.</td>
+      <td>Alegerea genului în previzualizare sau completarea coloanei în fișier.</td>
+    </tr>
+    <tr>
+      <td>Lipsește prenumele. / Lipsește numele.</td>
+      <td>Coloana de nume goală sau nemapată; un nume complet format dintr-un singur cuvânt.</td>
+      <td>Verificarea mapării în pasul 2 sau completarea fișierului.</td>
+    </tr>
+    <tr>
+      <td>Dată nevalidă: „…”.</td>
+      <td>Dată ilizibilă, dată a nașterii în viitor sau dată a încetării anterioară datei angajării.</td>
+      <td>Verificarea formatului datei în pasul 2 sau corectarea valorii în fișier.</td>
+    </tr>
+    <tr>
+      <td>Tip necunoscut „…” – folosiți angajat, extern sau client.</td>
+      <td>Valoarea din coloana de tip nu a fost recunoscută.</td>
+      <td>Folosirea uneia dintre valorile din nota șablonului sau lăsarea celulei goale (= angajat).</td>
+    </tr>
+    <tr>
+      <td>Un client cu companie are nevoie de o adresă cu cod poștal, localitate și țară.</td>
+      <td>Rând de companie fără adresă completă.</td>
+      <td>Completarea codului poștal și a localității; indicarea unei țări în fișier sau în reguli.</td>
+    </tr>
+    <tr>
+      <td>Valoare prea lungă (maximum … caractere).</td>
+      <td>Nume, titlu, companie, e-mail sau telefon mai lung de 100 de caractere.</td>
+      <td>Scurtarea valorii în fișier.</td>
+    </tr>
+    <tr>
+      <td>Contractul „…” nu a fost găsit. / Grupul „…” nu a fost găsit.</td>
+      <td>Numele diferă de contractele și grupurile din Klacks.</td>
+      <td>Corectarea numelui sau configurarea mai întâi a contractului ori a grupului; altfel se aplică
+        regula.</td>
+    </tr>
+    <tr>
+      <td>Unele rânduri mai conțin erori. Corectați-le sau omiteți aceste rânduri, apoi încercați din nou.</td>
+      <td>Cel puțin un rând conține o eroare.</td>
+      <td>Folosirea opțiunii <em>Afișează doar rândurile cu probleme</em>, apoi corectarea sau omiterea
+        acestor rânduri.</td>
+    </tr>
+    <tr>
+      <td>Una dintre regulile pentru informațiile lipsă nu mai este valabilă …</td>
+      <td>Un contract sau un grup ales în reguli a fost șters între timp.</td>
+      <td>Verificarea regulilor în pasul 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>După import</h3>
+<ul>
+  <li>
+    Persoanele importate sunt înregistrări obișnuite. Greșelile se corectează sau se șterg pe pagina
+    persoanei; nu există „anulare” pentru întregul import.
+  </li>
+  <li>
+    La importarea aceluiași fișier a doua oară, rândurile cu adresă de e-mail sau dată a nașterii sunt
+    găsite din nou ca dubluri. Rândurile care au doar un nume sunt doar semnalate – acestea trebuie
+    verificate înainte de un al doilea import.
+  </li>
+  <li>
+    O persoană individuală se creează manual pe pagina de angajați; un director de companie poate fi
+    sincronizat de un administrator prin setările furnizorului de identitate.
+  </li>
+</ul>

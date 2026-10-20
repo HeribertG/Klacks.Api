@@ -1165,7 +1165,6 @@
     "členství nemá historii",
     "znovupřijetí přepíše datum nástupu",
     "staré období členství se ztratí",
-    "pole typ členství nemá žádný účinek",
     "pouze jeden řádek členství na osobu",
     "členství se přepíše, ne přidá"
   ],
@@ -1216,6 +1215,13 @@
     "jak přidat podskupinu",
     "jak nastavit viditelnost skupin",
     "krátce: k čemu jsou skupiny"
+  ],
+  "explain_page_import_employees": [
+    "jak importovat zaměstnance z excelu",
+    "importovat zaměstnance",
+    "nahrát seznam zaměstnanců",
+    "kam nahraju csv se zaměstnanci",
+    "šablona pro import zaměstnanců"
   ],
   "explain_page_inbox": [
     "vysvětli mi stránku pošty",

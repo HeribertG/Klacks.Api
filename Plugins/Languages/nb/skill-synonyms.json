@@ -1135,7 +1135,6 @@
     "har medlemskapet en historikk?",
     "overskriver gjeninnmelding startdatoen?",
     "går tidligere medlemskapsperiode tapt?",
-    "har medlemskapets type noen effekt?",
     "finnes det bare én rad per person?"
   ],
   "explain_navigation_learning": [
@@ -1185,6 +1184,13 @@
     "hvordan oppretter jeg en undergruppe?",
     "forklar synlighet for grupper",
     "hvordan påvirker gruppevalg andre sider?"
+  ],
+  "explain_page_import_employees": [
+    "hvordan importerer jeg medarbeidere fra excel",
+    "importer medarbeidere",
+    "last opp medarbeiderliste",
+    "hvor laster jeg opp en csv med medarbeidere",
+    "mal for import av medarbeidere"
   ],
   "explain_page_inbox": [
     "forklar innbokssiden",

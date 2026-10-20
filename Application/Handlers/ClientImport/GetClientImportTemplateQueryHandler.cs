@@ -43,7 +43,10 @@ public class GetClientImportTemplateQueryHandler : BaseHandler, IRequestHandler<
         {
             var language = ResolveLanguage(request);
 
-            var content = _templateBuilder.Build(ClientImportTemplateLayout.SheetName, ClientImportTemplateLayout.Headers(_catalog, language));
+            var content = _templateBuilder.Build(
+                ClientImportTemplateLayout.SheetName,
+                ClientImportTemplateLayout.Headers(_catalog, language),
+                ClientImportTemplateLayout.HeaderNotes(_catalog, language));
             var fileName = string.Concat(ClientImportTemplateLayout.FileNamePrefix, language, ClientImportTemplateLayout.FileExtension);
 
             return Task.FromResult(new ClientImportTemplateFile(content, fileName, ClientImportTemplateLayout.ContentType));

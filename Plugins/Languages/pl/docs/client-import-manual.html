@@ -1,0 +1,614 @@
+<h2>Import pracowników – instrukcja</h2>
+
+<h3>Czym jest import pracowników?</h3>
+<p>
+Import pracowników przejmuje całą listę personelu z <strong>jednego pliku Excel (.xlsx) lub jednego
+pliku CSV (.csv)</strong>, w którym każdej osobie odpowiada jeden wiersz – zamiast ręcznego tworzenia
+każdej osoby. Klacks sam rozpoznaje kolumny, w podglądzie pokazuje, jak będzie wyglądał każdy rekord,
+i zapisuje dane dopiero po potwierdzeniu. Oprócz pracowników ten sam plik może zawierać także
+pracowników zewnętrznych i klientów.
+</p>
+<ul>
+  <li>
+    <strong>Kto może importować:</strong> wyłącznie administratorzy. Karta <em>Importuj pracowników</em>
+    znajduje się w ustawieniach, w sekcji <em>Organizacja</em>; przycisk <em>Importuj</em> otwiera
+    stronę importu. Pozostali użytkownicy nie widzą tej karty i do importu potrzebują administratora.
+  </li>
+  <li>
+    <strong>Ochrona danych:</strong> sam plik nie jest zapisywany. Jest on tylko odczytywany; tworzone
+    są wyłącznie wiersze potwierdzone w podglądzie.
+  </li>
+  <li>
+    <strong>Cztery kroki:</strong> <em>Plik</em> → <em>Mapowanie i reguły</em> → <em>Podgląd</em> →
+    <em>Wynik</em>. Karta <em>Instrukcja</em> wyświetla tę instrukcję; przejście do niej nie przerywa
+    rozpoczętego importu.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Obsługiwane pliki</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> i <strong>CSV (.csv)</strong>; plik .txt jest odczytywany jak plik
+    CSV. Stary format Excela <strong>.xls nie jest obsługiwany</strong> – plik należy najpierw zapisać
+    w Excelu jako .xlsx.
+  </li>
+  <li>
+    <strong>Skoroszyty Excela:</strong> odczytywane są tylko widoczne arkusze, domyślnie pierwszy z
+    nich. W przypadku skoroszytu z kilkoma arkuszami w kroku 2 pojawia się wybór <em>Arkusz</em>.
+    Importowany jest obliczony wynik formuły. Komórki sformatowane jako data są odczytywane jako daty.
+    Liczby w komórkach o formacie „Ogólne” tracą zera wiodące (kod pocztowy 01234 zmienia się w 1234)
+    – takie kolumny należy sformatować jako tekst (szablon już to robi).
+  </li>
+  <li>
+    <strong>Kodowanie plików CSV:</strong> rozpoznawane są UTF-8 (ze znacznikiem kolejności bajtów
+    lub bez niego) oraz UTF-16 ze znacznikiem kolejności bajtów; każdy inny plik jest odczytywany jako
+    Windows-1252 (typowy format „ANSI” Excela w systemie Windows w Europie Zachodniej), dzięki czemu
+    zachodnioeuropejskie umlauty i akcenty są przenoszone poprawnie bez żadnych ustawień. W przypadku
+    wszystkich innych pism i liter (na przykład ł, ř, ș oraz pismo greckie, arabskie, hebrajskie,
+    chińskie, japońskie, koreańskie lub tajskie) plik należy zapisać jako „CSV UTF-8” lub użyć
+    formatu .xlsx.
+  </li>
+  <li>
+    <strong>Separator w plikach CSV:</strong> średnik, przecinek, tabulator lub pionowa kreska (|) są
+    rozpoznawane automatycznie. Wartości w cudzysłowach mogą zawierać separator i podziały wierszy.
+  </li>
+  <li>
+    <strong>Wiersz nagłówkowy:</strong> pierwszy wiersz z nazwami kolumn musi znajdować się wśród
+    pierwszych 10 niepustych wierszy i zawierać co najmniej dwie komórki tekstowe. Wiersze nad nim
+    (na przykład tytuł) oraz puste wiersze są pomijane.
+  </li>
+  <li>
+    <strong>Formaty daty:</strong> dzień, miesiąc i rok oddzielone kropką, ukośnikiem lub łącznikiem,
+    na przykład 31.12.1990, 12/31/1990 lub 1990-12-31; część z godziną po dacie jest pomijana. Wartość
+    zaczynająca się od czterocyfrowego roku jest zawsze odczytywana jako rok-miesiąc-dzień. Jeśli z
+    pliku nie wynika, czy najpierw jest dzień, czy miesiąc (brak wartości powyżej 12), Klacks przyjmuje
+    format dzień/miesiąc/rok i prosi o sprawdzenie formatu daty w kroku 2. Nazwy miesięcy (na przykład
+    „31 Dec 1990”) nie są rozpoznawane.
+  </li>
+  <li>
+    <strong>Lata dwucyfrowe:</strong> lata do dwóch ostatnich cyfr bieżącego roku są traktowane jako
+    20xx, wyższe jako 19xx (w 2026 roku: „26” = 2026, „27” = 1927). Podgląd oznacza każdą taką datę
+    ostrzeżeniem, aby można było sprawdzić stulecie.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Limity i większe listy</h3>
+<ul>
+  <li>Maksymalnie <strong>5 MB</strong> na plik.</li>
+  <li>
+    Maksymalnie <strong>1000 wierszy</strong> na import – liczą się wiersze danych pod wierszem
+    nagłówkowym, bez pustych wierszy.
+  </li>
+  <li>
+    Maksymalnie <strong>60 kolumn</strong>. W Excelu liczy się ostatnia używana kolumna: jedna
+    zapomniana wartość daleko po prawej stronie sprawia, że plik jest za szeroki.
+  </li>
+  <li>
+    Komórka może zawierać maksymalnie 1000 znaków; dłuższa zawartość jest obcinana. Imię, nazwisko,
+    tytuł i firma mogą mieć maksymalnie po 100 znaków, podobnie adres e-mail, numer telefonu i numer
+    telefonu komórkowego.
+  </li>
+  <li>
+    Plik Excel po rozpakowaniu może mieć maksymalnie 20 MB (ochrona przed zmanipulowanymi plikami).
+  </li>
+</ul>
+<p>
+<strong>Większe listy:</strong> listę należy podzielić na kilka plików liczących maksymalnie po 1000
+wierszy; każdy plik potrzebuje własnego wiersza nagłówkowego. Niepotrzebne kolumny można wcześniej
+usunąć. Pliki importuje się jeden po drugim. Osoby zaimportowane już z wcześniejszego pliku są
+rozpoznawane jako duplikaty, jeśli mają adres e-mail lub datę urodzenia (zob. <em>Duplikaty</em>).
+</p>
+
+<hr>
+
+<h3>Szablon</h3>
+<p>
+Przycisk <em>Pobierz szablon</em> w kroku 1 udostępnia plik Excel w języku użytkownika (nazwa pliku
+<code>klacks-employee-import-pl.xlsx</code>). Dzięki szablonowi każda kolumna jest niezawodnie
+rozpoznawana. Jego wiersz nagłówkowy jest pogrubiony i zablokowany, każda kolumna jest sformatowana
+jako tekst (zera wiodące i daty pozostają takie, jak je wpisano), a nagłówek kolumny <em>Typ (pracownik,
+zewnętrzny, klient)</em> zawiera notatkę z dozwolonymi wartościami. Szablon nie zawiera przykładowego
+wiersza, ponieważ zostałby on zaimportowany.
+</p>
+<p>
+Kolumny szablonu w tej kolejności: Imię, Nazwisko, Tytuł, Firma, Typ, Płeć, Data urodzenia, Ulica,
+Adres linia 2, Kod pocztowy, Miejscowość, Województwo, Kraj, E-mail, Telefon, Telefon komórkowy, Data
+zatrudnienia, Data zwolnienia, Umowa, Grupa, Uwagi. Własne listy również działają – Klacks rozpoznaje
+nazwy kolumn we wszystkich 25 językach Klacks oraz wiele typowych wariantów (na przykład „Nazwisko”,
+„Kod pocztowy”, „Data rozpoczęcia pracy”).
+</p>
+
+<hr>
+
+<h3>Krok 1 – Plik</h3>
+<ul>
+  <li>
+    Plik należy przeciągnąć do strefy przesyłania lub kliknąć strefę, aby wybrać plik. Klacks odczytuje
+    plik i przechodzi do kroku 2.
+  </li>
+  <li>
+    Problem z plikiem (niewłaściwy format, zbyt duży plik, zbyt wiele wierszy lub kolumn, brak wiersza
+    nagłówkowego) jest wyświetlany bezpośrednio pod strefą przesyłania; zob. <em>Częste błędy i ich
+    usuwanie</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Krok 2 – Mapowanie i reguły</h3>
+<h4>Mapuj kolumny</h4>
+<ul>
+  <li>
+    Każda kolumna pliku pojawia się w osobnym wierszu z maksymalnie trzema przykładowymi wartościami,
+    polem zaproponowanym przez Klacks (<em>Importuj jako</em>) oraz informacją, jak pewna jest ta
+    propozycja (<em>Pewność</em>).
+  </li>
+  <li>
+    Każdą propozycję można zmienić na liście rozwijanej. Kolumnę, która nie ma być importowana,
+    ustawia się na <em>Nie importuj</em>. Każde pole można przypisać tylko do jednej kolumny.
+  </li>
+  <li>
+    <em>Format daty</em> pojawia się, gdy plik zawiera daty; jeśli plik nie rozstrzyga kolejności dnia
+    i miesiąca, wybór należy sprawdzić.
+  </li>
+  <li>
+    <em>Kolejność w polu nazwiska i imienia</em> pojawia się dla kolumny z imieniem i nazwiskiem:
+    <em>Imię Nazwisko</em> lub <em>Nazwisko Imię</em>. Przecinek („Kowalska, Anna”) zawsze oznacza,
+    że najpierw jest nazwisko. Imię i nazwisko z tej kolumny uzupełnia tylko imię lub nazwisko, które
+    nie ma własnej kolumny albo jest puste w danym wierszu.
+  </li>
+</ul>
+<h4>Reguły dla brakujących danych</h4>
+<p>Te reguły obowiązują dla wszystkich wierszy:</p>
+<ul>
+  <li>
+    <em>Umowa, jeśli nie podano żadnej</em> i <em>Grupa, jeśli nie podano żadnej</em> – stosowane dla
+    wierszy bez umowy lub grupy albo z nazwą, która nie istnieje.
+  </li>
+  <li>
+    <em>Data zatrudnienia, jeśli nie podano żadnej</em> – puste pole oznacza dzisiejszą datę. Data ta
+    jest także początkiem umowy, przypisania do grupy i adresu.
+  </li>
+  <li>
+    <em>Kraj, jeśli nie podano żadnego</em> – domyślnie <em>Kraj instalacji</em>.
+  </li>
+  <li>
+    <em>Zapisuj adresy e-mail jako</em>, <em>Zapisuj numery telefonów jako</em>, <em>Zapisuj numery
+    komórkowe jako</em> – prywatne lub służbowe; obowiązuje dla wszystkich wierszy.
+  </li>
+  <li>
+    <em>Byli pracownicy (data zakończenia zatrudnienia w przeszłości)</em> – <em>Pomiń</em> (domyślnie)
+    lub <em>Importuj z datą zakończenia zatrudnienia</em>. Data zakończenia zatrudnienia przypadająca
+    dziś lub później jest zawsze importowana.
+  </li>
+  <li>
+    <em>Możliwe duplikaty</em> – <em>Pomiń</em> (domyślnie) lub <em>Utwórz mimo to</em>.
+  </li>
+</ul>
+<p>
+<em>Dalej do podglądu</em> przechodzi dalej; <em>Wybierz inny plik</em> rozpoczyna od nowa z innym
+plikiem.
+</p>
+
+<hr>
+
+<h3>Krok 3 – Podgląd</h3>
+<ul>
+  <li>
+    Podsumowanie zlicza wiersze: łącznie, gotowe, pominięte, z błędami, duplikaty i z ostrzeżeniami.
+    Uwagi dotyczące wszystkich lub wielu wierszy pojawiają się jeden raz nad tabelą, razem z kolumnami,
+    które nie są importowane.
+  </li>
+  <li>
+    Tabela pokazuje każdy wiersz w takiej postaci, w jakiej zostanie zapisany – najpierw wiersze z
+    błędami, potem z ostrzeżeniami i wskazówkami. <em>Pokaż tylko wiersze z problemami</em> zawęża listę.
+  </li>
+  <li>
+    Dla każdego wiersza: <em>Pomiń</em> wyłącza wiersz z importu; <em>Wybierz</em> ustawia płeć w
+    wierszu, w którym jej brakuje; <em>Utwórz mimo to</em> zachowuje wiersz rozpoznany jako duplikat.
+  </li>
+  <li>
+    Innych wartości nie można edytować w podglądzie. Aby je poprawić, należy poprawić plik i wybrać go
+    ponownie (<em>Wybierz inny plik</em>) albo zmienić mapowanie przyciskiem <em>Wstecz</em>.
+  </li>
+  <li>
+    Przycisk importu pokazuje, ile osób zostanie utworzonych (na przykład <em>Importuj pracowników:
+    25</em>). Pozostaje nieaktywny, dopóki którykolwiek wiersz zawiera błąd: wiersz należy poprawić
+    lub pominąć.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Krok 4 – Wynik</h3>
+<p>
+Pokazuje, ile osób utworzono i ile wierszy pominięto, a także ile adresów jest lokalizowanych na
+mapie w tle. <em>Przejdź do listy pracowników</em> otwiera listę,
+<em>Importuj kolejny plik</em> rozpoczyna nowy import.
+</p>
+
+<hr>
+
+<h3>Kolumny do importu</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Pole (Importuj jako)</th>
+      <th>Wymagane</th>
+      <th>Uwagi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Imię, Nazwisko</td>
+      <td>Tak, dla osób</td>
+      <td>Maksymalnie po 100 znaków. Niewymagane w przypadku klienta z firmą.</td>
+    </tr>
+    <tr>
+      <td>Imię i nazwisko</td>
+      <td>Nie</td>
+      <td>Alternatywa dla oddzielnych kolumn z imieniem i nazwiskiem; dzielone na imię i nazwisko (zob.
+        krok 2). Nazwy składające się z więcej niż dwóch części otrzymują ostrzeżenie – należy sprawdzić
+        podział.</td>
+    </tr>
+    <tr>
+      <td>Tytuł</td>
+      <td>Nie</td>
+      <td>Przejmowany bez zmian, na przykład „dr”. Tytuł zawarty w kolumnie z imieniem i nazwiskiem nie
+        jest wydzielany.</td>
+    </tr>
+    <tr>
+      <td>Płeć, Forma grzecznościowa</td>
+      <td>Tak, dla osób</td>
+      <td>Zob. <em>Płeć i forma grzecznościowa</em>. Bez wartości płeć wybiera się dla każdego wiersza
+        w podglądzie.</td>
+    </tr>
+    <tr>
+      <td>Data urodzenia</td>
+      <td>Nie</td>
+      <td>Data w przyszłości jest błędem. Ważna dla wykrywania duplikatów.</td>
+    </tr>
+    <tr>
+      <td>Firma</td>
+      <td>Dla klientów będących firmami</td>
+      <td>Maksymalnie 100 znaków. Zob. <em>Typ i firma</em>.</td>
+    </tr>
+    <tr>
+      <td>Typ (pracownik, zewnętrzny, klient)</td>
+      <td>Nie</td>
+      <td>Puste lub brak = pracownik. Zob. <em>Typ i firma</em>.</td>
+    </tr>
+    <tr>
+      <td>Ulica, Numer domu</td>
+      <td>Nie</td>
+      <td>Oddzielny numer domu jest dopisywany do ulicy.</td>
+    </tr>
+    <tr>
+      <td>Adres – wiersz 2</td>
+      <td>Nie</td>
+      <td>Przejmowany jako dowolny tekst.</td>
+    </tr>
+    <tr>
+      <td>Kod pocztowy, Miejscowość</td>
+      <td>Dla klientów będących firmami</td>
+      <td>Adres jest tworzony, gdy tylko podano ulicę, kod pocztowy lub miejscowość.</td>
+    </tr>
+    <tr>
+      <td>Kod pocztowy i miejscowość</td>
+      <td>Nie</td>
+      <td>Jedna kolumna z obiema wartościami, na przykład „8000 Zürich” lub „CH-8000 Zürich”; używana tylko
+        wtedy, gdy wiersz nie ma oddzielnego kodu pocztowego ani miejscowości. Jeśli nie da się jej
+        podzielić, cała wartość staje się miejscowością (ostrzeżenie).</td>
+    </tr>
+    <tr>
+      <td>Województwo / region</td>
+      <td>Nie</td>
+      <td>Dowolny tekst; jeśli jest puste, zostaje uzupełnione podczas lokalizowania adresu na mapie.</td>
+    </tr>
+    <tr>
+      <td>Kraj</td>
+      <td>Dla klientów będących firmami (liczy się kraj domyślny)</td>
+      <td>Kod kraju (CH, DE …) lub nazwa kraju w dowolnym języku Klacks. Puste = kraj domyślny; nieznany
+        kraj powoduje ostrzeżenie i używany jest kraj domyślny.</td>
+    </tr>
+    <tr>
+      <td>E-mail</td>
+      <td>Nie</td>
+      <td>Nieprawidłowy adres jest pomijany z ostrzeżeniem; osoba i tak zostaje zaimportowana.</td>
+    </tr>
+    <tr>
+      <td>Telefon, Telefon komórkowy</td>
+      <td>Nie</td>
+      <td>Spacje i separatory są usuwane, a początkowe 00 zmienia się w +; numer bez + otrzymuje numer
+        kierunkowy kraju z danego wiersza.</td>
+    </tr>
+    <tr>
+      <td>Data zatrudnienia</td>
+      <td>Nie</td>
+      <td>Puste = reguła <em>Data zatrudnienia, jeśli nie podano żadnej</em>. Nieprawdopodobne daty
+        (przed datą urodzenia lub odległe o ponad 50 lat) powodują ostrzeżenie.</td>
+    </tr>
+    <tr>
+      <td>Data zakończenia zatrudnienia</td>
+      <td>Nie</td>
+      <td>Przed datą zatrudnienia = błąd. W przeszłości: zob. reguła <em>Byli pracownicy</em>.</td>
+    </tr>
+    <tr>
+      <td>Umowa, Grupa</td>
+      <td>Nie</td>
+      <td>Przypisywane według nazwy; zob. <em>Umowa i grupa</em>.</td>
+    </tr>
+    <tr>
+      <td>Notatka</td>
+      <td>Nie</td>
+      <td>Zapisywana jako notatka przy osobie.</td>
+    </tr>
+    <tr>
+      <td>Numer pracownika (nadaje Klacks)</td>
+      <td>–</td>
+      <td>Rozpoznawany, ale nigdy nie importowany; zob. <em>Numer pracownika</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Typ i firma</h3>
+<ul>
+  <li>
+    Kolumna <em>Typ (pracownik, zewnętrzny, klient)</em> określa dla każdego wiersza, czy chodzi o
+    pracownika, pracownika zewnętrznego czy klienta. Rozpoznawane wartości to na przykład
+    <code>Pracownik</code>, <code>Zatrudniony</code>, <code>Wewnętrzny</code> (pracownik),
+    <code>Zewnętrzny</code>, <code>Pracownik zewnętrzny</code>, <code>Zleceniobiorca</code> (pracownik
+    zewnętrzny) oraz <code>Klient</code>, <code>Klientka</code> (klient); działają również odpowiednie
+    słowa we wszystkich pozostałych językach Klacks oraz liczby 0, 1 i 2. Wielkość liter nie ma
+    znaczenia.
+  </li>
+  <li>
+    <strong>Pusta komórka</strong> lub plik bez kolumny typu oznacza <strong>pracownika</strong>.
+    Nieznana wartość jest w podglądzie błędem.
+  </li>
+  <li>
+    <strong>Klient z firmą:</strong> tworzony jako firma (osoba prawna), a nie jako osoba. Imię i
+    nazwisko są opcjonalne i zostają zachowane jako osoba kontaktowa (podgląd oznacza je etykietą
+    <em>Osoba kontaktowa:</em>); płeć podana w wierszu jest pomijana. Taki wiersz wymaga adresu z
+    kodem pocztowym, miejscowością i krajem (liczy się kraj domyślny).
+  </li>
+  <li>
+    <strong>Klient bez firmy:</strong> tworzony jako osoba – imię, nazwisko i płeć są wymagane.
+  </li>
+  <li>
+    <strong>Pracownik lub pracownik zewnętrzny z firmą:</strong> pozostaje osobą; nazwa firmy jest
+    zapisywana przy osobie.
+  </li>
+  <li>
+    <strong>Klienci nigdy nie otrzymują umowy</strong> – ani z pliku (ostrzeżenie, wartość nie jest
+    importowana), ani z reguł. Grupa jest przypisywana również klientom.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Płeć i forma grzecznościowa</h3>
+<ul>
+  <li>
+    Osoby wymagają płci: <em>Kobieta</em>, <em>Mężczyzna</em> lub <em>Inna</em>. Pochodzi ona z
+    kolumny <em>Płeć</em>; jeśli ta jest pusta – z kolumny <em>Forma grzecznościowa</em> (podgląd to
+    odnotowuje). Jeśli brak obu, płeć wybiera się dla każdego wiersza w podglądzie (<em>Wybierz</em>).
+  </li>
+  <li>
+    Rozpoznawane wartości to na przykład <code>Pani</code>, <code>Kobieta</code> (kobieta),
+    <code>Mężczyzna</code> (mężczyzna) oraz <code>Inna</code>, <code>Inne</code>,
+    <code>Interpłciowy</code> (inna) – a także odpowiednie słowa we wszystkich pozostałych językach
+    Klacks, takie jak <code>Herr</code>/<code>Frau</code> lub <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Wielkość liter, znaki diakrytyczne i interpunkcja nie mają znaczenia; w przypadku dłuższej formy
+    grzecznościowej liczy się pierwsze słowo („Pani dr” = kobieta).
+  </li>
+  <li>Firma (klient z firmą) nie wymaga płci.</li>
+</ul>
+
+<hr>
+
+<h3>Umowa i grupa</h3>
+<ul>
+  <li>
+    Wartość z pliku jest porównywana z nazwami istniejących umów i grup; wielkość liter oraz spacje na
+    początku lub końcu nie mają znaczenia.
+  </li>
+  <li>
+    Jeśli nazwa nie istnieje, występuje wielokrotnie lub jest pusta, używana jest umowa lub grupa z
+    reguł, a podgląd to sygnalizuje. Bez reguły wiersz nie otrzymuje umowy lub grupy.
+  </li>
+  <li>
+    <strong>Import nie tworzy umów ani grup.</strong> Należy je najpierw utworzyć w ustawieniach i na
+    stronie grup, a dopiero potem importować.
+  </li>
+  <li>
+    Umowa i grupa zaczynają się w dniu zatrudnienia i kończą w dniu zakończenia zatrudnienia, jeśli
+    został podany.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Numer pracownika</h3>
+<p>
+Klacks <strong>zawsze sam nadaje numer pracownika</strong>. Kolumna z numerem pracownika w pliku jest
+rozpoznawana, ale pomijana; podgląd wyświetla odpowiednią wskazówkę. Aby zachować numery z innego
+systemu, można w kroku 2 przypisać tę kolumnę do pola <em>Notatka</em>, o ile żadna inna kolumna nie
+jest importowana jako notatka.
+</p>
+
+<hr>
+
+<h3>Duplikaty</h3>
+<ul>
+  <li>
+    <strong>Osoby:</strong> wiersz jest uznawany za duplikat, gdy <strong>adres e-mail</strong> jest
+    taki sam albo gdy <strong>imię, nazwisko i data urodzenia</strong> są takie same. Wielkość liter,
+    znaki diakrytyczne i łączniki są pomijane („Müller” = „Muller”, „Hans-Peter” =
+    „Hanspeter”).
+  </li>
+  <li>
+    <strong>Firmy</strong> (klienci z firmą): ta sama <strong>firma, kod pocztowy i
+    ulica</strong>.
+  </li>
+  <li>
+    Wiersze są porównywane z osobami już istniejącymi w Klacks oraz z wcześniejszymi wierszami tego
+    samego pliku. <strong>Klienci są porównywani tylko z klientami</strong>, pracownicy i pracownicy
+    zewnętrzni – między sobą.
+  </li>
+  <li>
+    Przy regule <em>Możliwe duplikaty</em> = <em>Pomiń</em> duplikaty są pomijane. Przy
+    <em>Utwórz mimo to</em> – jako regule dla wszystkich wierszy lub dla pojedynczego wiersza w
+    podglądzie – zostają mimo to utworzone.
+  </li>
+  <li>
+    Tylko <strong>wskazówka</strong>, bez pomijania: to samo imię i nazwisko bez zgodnej daty urodzenia
+    lub ta sama firma pod innym adresem. Takie wiersze należy sprawdzić przed importem.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Zapisywanie i adresy</h3>
+<ul>
+  <li>
+    <strong>Wszystko albo nic:</strong> import zapisuje wszystkie gotowe wiersze za jednym razem. Jeśli
+    cokolwiek się nie powiedzie, nic nie zostaje zapisane. Przed zapisaniem Klacks ponownie sprawdza
+    wszystkie wiersze względem aktualnych danych.
+  </li>
+  <li>
+    Dla każdego wiersza tworzone są: osoba (lub firma), okres zatrudnienia od daty zatrudnienia do daty
+    zakończenia zatrudnienia, adres, adres e-mail, numer telefonu i telefonu komórkowego, umowa, grupa
+    i notatka.
+  </li>
+  <li>
+    Tego samego importu nie można zapisać dwukrotnie; druga próba pokazuje, że import został już
+    wykonany.
+  </li>
+  <li>
+    <strong>Mapa:</strong> adresy z kodem pocztowym i miejscowością są po imporcie lokalizowane na
+    mapie w tle, jeden po drugim. Przy wielu adresach może to potrwać kilka minut; w tym czasie z osób
+    można już korzystać.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Częste błędy i ich usuwanie</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Komunikat</th>
+      <th>Przyczyna</th>
+      <th>Rozwiązanie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Ten format pliku nie jest obsługiwany. Użyj pliku .xlsx lub .csv.</td>
+      <td>.xls, .ods, PDF lub uszkodzony plik.</td>
+      <td>Zapisać plik w Excelu jako .xlsx lub wyeksportować go jako CSV.</td>
+    </tr>
+    <tr>
+      <td>Plik jest zbyt duży (maksymalnie 5 MB).</td>
+      <td>Plik powyżej 5 MB, na przykład z powodu obrazów lub nieużywanych arkuszy.</td>
+      <td>Usunąć obrazy i nieużywane arkusze albo podzielić listę.</td>
+    </tr>
+    <tr>
+      <td>Plik zawiera zbyt wiele wierszy (maksymalnie 1000 osób na jeden import).</td>
+      <td>Ponad 1000 wierszy danych.</td>
+      <td>Podzielić listę na kilka plików (zob. <em>Limity i większe listy</em>).</td>
+    </tr>
+    <tr>
+      <td>Plik zawiera zbyt wiele kolumn (maksymalnie 60).</td>
+      <td>Ponad 60 kolumn, często z powodu przypadkowej wartości daleko po prawej stronie.</td>
+      <td>Usunąć nieużywane kolumny, także te pozornie puste przy prawej krawędzi.</td>
+    </tr>
+    <tr>
+      <td>W pierwszych wierszach nie znaleziono wiersza nagłówkowego z nazwami kolumn.</td>
+      <td>Brak wiersza z co najmniej dwiema nazwami kolumn wśród pierwszych 10 wierszy.</td>
+      <td>Umieścić nad danymi wiersz nagłówkowy z nazwami kolumn.</td>
+    </tr>
+    <tr>
+      <td>Plik nie zawiera danych.</td>
+      <td>Pusty plik, sam wiersz nagłówkowy lub brak widocznego arkusza.</td>
+      <td>Sprawdzić plik; odkryć arkusz w Excelu.</td>
+    </tr>
+    <tr>
+      <td>Brakuje płci – wybierz ją.</td>
+      <td>Brak płci lub formy grzecznościowej albo wartość nierozpoznana.</td>
+      <td>Wybrać płeć w podglądzie lub uzupełnić kolumnę w pliku.</td>
+    </tr>
+    <tr>
+      <td>Brakuje imienia. / Brakuje nazwiska.</td>
+      <td>Kolumna z imieniem lub nazwiskiem jest pusta albo nieprzypisana; imię i nazwisko składające się
+        tylko z jednego słowa.</td>
+      <td>Sprawdzić mapowanie w kroku 2 lub uzupełnić plik.</td>
+    </tr>
+    <tr>
+      <td>Nieprawidłowa data: „…”.</td>
+      <td>Nieczytelna data, data urodzenia w przyszłości lub data zakończenia zatrudnienia przed datą
+        zatrudnienia.</td>
+      <td>Sprawdzić format daty w kroku 2 lub poprawić wartość w pliku.</td>
+    </tr>
+    <tr>
+      <td>Nieznany typ „…” – użyj: pracownik, zewnętrzny lub klient.</td>
+      <td>Nierozpoznana wartość w kolumnie typu.</td>
+      <td>Użyć jednej z wartości z notatki w szablonie lub pozostawić komórkę pustą (= pracownik).</td>
+    </tr>
+    <tr>
+      <td>Klient z firmą wymaga adresu z kodem pocztowym, miejscowością i krajem.</td>
+      <td>Wiersz firmy bez pełnego adresu.</td>
+      <td>Uzupełnić kod pocztowy i miejscowość; ustawić kraj w pliku lub w regułach.</td>
+    </tr>
+    <tr>
+      <td>Wartość jest za długa (maksymalnie … znaków).</td>
+      <td>Imię, nazwisko, tytuł, firma, e-mail lub telefon dłuższe niż 100 znaków.</td>
+      <td>Skrócić wartość w pliku.</td>
+    </tr>
+    <tr>
+      <td>Nie znaleziono umowy „…”. / Nie znaleziono grupy „…”.</td>
+      <td>Nazwa różni się od nazw umów i grup w Klacks.</td>
+      <td>Poprawić nazwę lub najpierw utworzyć umowę albo grupę; w przeciwnym razie obowiązuje reguła.</td>
+    </tr>
+    <tr>
+      <td>Niektóre wiersze nadal zawierają błędy. Popraw je lub pomiń te wiersze, a następnie spróbuj
+        ponownie.</td>
+      <td>Co najmniej jeden wiersz zawiera błąd.</td>
+      <td>Użyć opcji <em>Pokaż tylko wiersze z problemami</em>, a następnie poprawić lub pominąć te
+        wiersze.</td>
+    </tr>
+    <tr>
+      <td>Jedna z reguł dla brakujących informacji przestała być prawidłowa …</td>
+      <td>Umowa lub grupa wybrana w regułach została w międzyczasie usunięta.</td>
+      <td>Sprawdzić reguły w kroku 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Po imporcie</h3>
+<ul>
+  <li>
+    Zaimportowane osoby są zwykłymi rekordami. Błędy poprawia się lub usuwa na stronie danej osoby;
+    dla całego importu nie ma funkcji „cofnij”.
+  </li>
+  <li>
+    Ponowny import tego samego pliku ponownie wykrywa wiersze z adresem e-mail lub datą urodzenia jako
+    duplikaty. Wiersze zawierające tylko imię i nazwisko są jedynie oznaczane – należy je sprawdzić
+    przed ponownym importem.
+  </li>
+  <li>
+    Pojedynczą osobę tworzy się ręcznie na stronie pracowników; firmowy katalog użytkowników może
+    zsynchronizować administrator za pomocą ustawień dostawcy tożsamości.
+  </li>
+</ul>

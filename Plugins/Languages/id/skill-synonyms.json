@@ -1125,7 +1125,6 @@
     "apakah keanggotaan tidak punya riwayat?",
     "kenapa tanggal masuk berubah saat masuk lagi?",
     "apakah periode keanggotaan lama hilang?",
-    "kenapa tipe keanggotaan tidak berpengaruh?",
     "hanya satu baris keanggotaan per orang?"
   ],
   "explain_navigation_learning": [
@@ -1180,6 +1179,13 @@
     "apa itu badge anggota grup?",
     "bagaimana cara mengatur visibilitas grup?",
     "jelaskan pengaruh pemilihan grup global"
+  ],
+  "explain_page_import_employees": [
+    "bagaimana cara impor karyawan dari excel",
+    "impor karyawan",
+    "unggah daftar karyawan",
+    "di mana saya bisa unggah csv karyawan",
+    "templat untuk impor karyawan"
   ],
   "explain_page_inbox": [
     "jelaskan halaman inbox",

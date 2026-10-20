@@ -9,4 +9,6 @@ public class ClientImportSynonymDocument
     public Dictionary<string, Dictionary<ClientImportTarget, List<string>>> Headers { get; set; } = [];
 
     public Dictionary<string, Dictionary<GenderEnum, List<string>>> GenderValues { get; set; } = [];
+
+    public Dictionary<string, Dictionary<EntityTypeEnum, List<string>>> TypeValues { get; set; } = [];
 }

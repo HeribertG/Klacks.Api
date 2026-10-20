@@ -18,4 +18,5 @@ public static class ClientImportIssueArgs
     public const string ReasonFuture = "future";
     public const string ReasonAmbiguous = "ambiguous";
     public const string ReasonNotSplit = "not-split";
+    public const string ReasonSameCompany = "same-company";
 }

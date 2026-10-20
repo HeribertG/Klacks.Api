@@ -2,9 +2,11 @@
 
 /// <summary>
 /// Bulk read-only lookups of the employee import. The duplicate search runs two set-based queries
-/// (lower(name) IN ..., lower(mail) IN ...) instead of one query per row; ToLower is used because
-/// Npgsql translates it to lower(), which ToLowerInvariant is not. Customers are excluded: an employee
-/// is only a duplicate of another employee or external employee.
+/// (lower(name) IN ..., lower(mail) IN ..., lower(trim(company)) IN ... for customers) instead of one query
+/// per row; ToLower is used because Npgsql translates it to lower(), which ToLowerInvariant is not. All
+/// client types are returned with their type, because ClientImportDuplicateKeys compares customers only
+/// with customers and employees only with employees or external employees; the addresses (postcode,
+/// street) are loaded for legal-entity customers only, for the company + postcode + street business key.
 /// </summary>
 /// <param name="context">Database context</param>
 
@@ -38,21 +40,23 @@ public class ClientImportLookupRepository : IClientImportLookupRepository
     public async Task<List<ClientImportExistingClient>> FindDuplicateCandidatesAsync(
         IReadOnlyCollection<string> lowerCaseLastNames,
         IReadOnlyCollection<string> lowerCaseEmails,
+        IReadOnlyCollection<string> lowerCaseCompanies,
         CancellationToken cancellationToken)
     {
         var names = lowerCaseLastNames.Distinct().ToList();
         var emails = lowerCaseEmails.Distinct().ToList();
+        var companies = lowerCaseCompanies.Distinct().ToList();
 
         var clientIdsByMail = emails.Count == 0
             ? []
             : await ClientIdsByMailQuery(emails).ToListAsync(cancellationToken);
 
-        if (names.Count == 0 && clientIdsByMail.Count == 0)
+        if (names.Count == 0 && clientIdsByMail.Count == 0 && companies.Count == 0)
         {
             return [];
         }
 
-        return await CandidatesQuery(names, clientIdsByMail).ToListAsync(cancellationToken);
+        return await CandidatesQuery(names, clientIdsByMail, companies).ToListAsync(cancellationToken);
     }
 
     internal IQueryable<Guid> ClientIdsByMailQuery(List<string> lowerCaseEmails) =>
@@ -62,10 +66,12 @@ public class ClientImportLookupRepository : IClientImportLookupRepository
             .Select(c => c.ClientId)
             .Distinct();
 
-    internal IQueryable<ClientImportExistingClient> CandidatesQuery(List<string> lowerCaseLastNames, List<Guid> clientIds) =>
+    internal IQueryable<ClientImportExistingClient> CandidatesQuery(
+        List<string> lowerCaseLastNames, List<Guid> clientIds, List<string> lowerCaseCompanies) =>
         _context.Client.AsNoTracking()
-            .Where(c => c.Type != EntityTypeEnum.Customer
-                        && (lowerCaseLastNames.Contains(c.Name.ToLower()) || clientIds.Contains(c.Id)))
+            .Where(c => lowerCaseLastNames.Contains(c.Name.ToLower())
+                        || clientIds.Contains(c.Id)
+                        || (c.Type == EntityTypeEnum.Customer && c.Company != null && lowerCaseCompanies.Contains(c.Company.Trim().ToLower())))
             .Select(c => new ClientImportExistingClient(
                 c.Id,
                 c.FirstName,
@@ -74,5 +80,12 @@ public class ClientImportLookupRepository : IClientImportLookupRepository
                 c.Communications
                     .Where(m => m.Type == CommunicationTypeEnum.PrivateMail || m.Type == CommunicationTypeEnum.OfficeMail)
                     .Select(m => m.Value)
+                    .ToList(),
+                c.Type,
+                c.LegalEntity,
+                c.Company,
+                c.Addresses
+                    .Where(a => c.Type == EntityTypeEnum.Customer && c.LegalEntity && !a.IsDeleted)
+                    .Select(a => new ClientImportExistingAddress(a.Zip, a.Street))
                     .ToList()));
 }

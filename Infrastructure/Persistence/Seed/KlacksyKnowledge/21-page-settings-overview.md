@@ -127,7 +127,9 @@ mit — erwähne die Marker und Anker-IDs niemals im Text.
 3. **Organisation** (de: "Organisation", en: "Organization", fr: "Organisation",
    it: "Organizzazione"): `branches` (Filialen), `contracts` (Vertragsvorlagen),
    `states` (Staaten/Kantone), `countries` (Länder), `qualifications`
-   (Qualifikationen der Mitarbeitenden).
+   (Qualifikationen der Mitarbeitenden), `client-import` (Karte "Mitarbeitende
+   importieren", nur für Admins sichtbar: öffnet die eigene Import-Seite für
+   Excel-/CSV-Mitarbeiterlisten, Details siehe `explain_page_import_employees`).
 4. **Arbeitszeit & Planung** (de: "Arbeitszeit & Planung", en: "Work & Scheduling",
    fr: "Travail & Planification", it: "Lavoro & Pianificazione"): `work-setting`
    (Anstellungs- und Lohnparameter wie Ferientage, Probezeit, Kündigungsfrist,

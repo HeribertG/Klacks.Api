@@ -25,4 +25,6 @@ public static class ClientImportFields
     public const string ExitDate = "exitDate";
     public const string Contract = "contractName";
     public const string Group = "groupName";
+    public const string Type = "type";
+    public const string Company = "company";
 }

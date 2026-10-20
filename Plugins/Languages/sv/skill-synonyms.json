@@ -1145,7 +1145,6 @@
     "har medlemskap ingen historik",
     "återinträde skriver över startdatum",
     "varför försvinner min gamla medlemsperiod",
-    "har medlemskapstyp någon effekt",
     "kan man bara ha en medlemskapsrad per person",
     "varför skrivs medlemskapet över istället för att skapa en ny"
   ],
@@ -1201,6 +1200,13 @@
     "vad betyder betalningsintervall",
     "hur påverkar gruppval andra sidor",
     "vad är synlighetskonfiguration"
+  ],
+  "explain_page_import_employees": [
+    "hur importerar jag medarbetare från excel",
+    "importera medarbetare",
+    "ladda upp medarbetarlista",
+    "var laddar jag upp en csv med medarbetare",
+    "mall för import av medarbetare"
   ],
   "explain_page_inbox": [
     "förklara inkorgen",

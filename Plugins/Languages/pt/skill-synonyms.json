@@ -1162,7 +1162,6 @@
     "a associação não tem histórico",
     "o retorno sobrescreve a data de entrada",
     "período de associação antigo é perdido",
-    "o campo tipo de associação não tem efeito",
     "apenas uma linha de associação por pessoa",
     "a associação é sobrescrita em vez de adicionada"
   ],
@@ -1213,6 +1212,13 @@
     "como criar subgrupos e reorganizar",
     "o que são os crachás de membros na árvore",
     "como a visibilidade de grupos afeta outras páginas"
+  ],
+  "explain_page_import_employees": [
+    "como importo colaboradores a partir do excel",
+    "importar colaboradores",
+    "carregar lista de colaboradores",
+    "onde carrego um csv com colaboradores",
+    "modelo para importar colaboradores"
   ],
   "explain_page_inbox": [
     "o que tem na página de entrada",

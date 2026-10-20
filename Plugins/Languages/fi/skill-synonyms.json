@@ -1137,7 +1137,6 @@
     "onko jäsenyydellä historiaa?",
     "miksi paluu ylikirjoittaa sisääntulopäivän?",
     "entinen jäsenyysjakso häviää",
-    "miksi jäsenyyden tyyppikenttä ei vaikuta mihinkään?",
     "onko henkilöllä vain yksi jäsenyysrivi?",
     "miksi jäsenyys korvataan eikä lisätä?"
   ],
@@ -1193,6 +1192,13 @@
     "kerro ryhmän asetuksista",
     "mitä osallistujalista tarkoittaa",
     "selitä ryhmänäkyvyys"
+  ],
+  "explain_page_import_employees": [
+    "miten tuon työntekijät excelistä",
+    "tuo työntekijät",
+    "lataa työntekijäluettelo",
+    "mihin voin ladata csv-tiedoston työntekijöistä",
+    "malli työntekijöiden tuontiin"
   ],
   "explain_page_inbox": [
     "mitä tällä postilaatikon sivulla on?",

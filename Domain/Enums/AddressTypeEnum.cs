@@ -8,10 +8,3 @@ public enum AddressTypeEnum
     Workplace = 1,
     InvoicingAddress = 2,
 }
-
-public enum EntityTypeEnum
-{
-    Employee = 0,
-    ExternEmp = 1,
-    Customer = 2
-}

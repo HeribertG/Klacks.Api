@@ -17,8 +17,6 @@ public class Membership : BaseEntity
     [ForeignKey("Employee")]
     public Guid ClientId { get; set; }
 
-    public int Type { get; set; }
-
     [Required]
     [DataType(DataType.Date)]
     public DateTime ValidFrom { get; set; }

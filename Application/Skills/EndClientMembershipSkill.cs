@@ -128,7 +128,7 @@ public class EndClientMembershipSkill : BaseSkillImplementation
             {
                 var options = string.Join("; ", activeMemberships.Select(m =>
                     $"id={m.Id}, validFrom={m.ValidFrom.ToString(DateFormat)}, " +
-                    $"validUntil={FormatValidUntil(m.ValidUntil)}, type={m.Type}"));
+                    $"validUntil={FormatValidUntil(m.ValidUntil)}"));
                 return SkillResult.Error(
                     $"Client {clientId} has {activeMemberships.Count} active memberships — cannot decide which one to end. " +
                     $"Available memberships: {options}. Ask the user which membership applies, then call " +
@@ -150,7 +150,6 @@ public class EndClientMembershipSkill : BaseSkillImplementation
         {
             Id = membership.Id,
             ClientId = membership.ClientId,
-            Type = membership.Type,
             ValidFrom = membership.ValidFrom,
             ValidUntil = exitDateTime
         };

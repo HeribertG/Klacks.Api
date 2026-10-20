@@ -10,8 +10,6 @@ namespace Klacks.Api.Application.DTOs.Associations
 
         public Guid Id { get; set; }
 
-        public int Type { get; set; }
-
         [Required]
         public DateTime ValidFrom { get; set; }
 

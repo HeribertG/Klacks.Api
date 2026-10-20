@@ -1150,7 +1150,6 @@
     "har medlemskabet en historik?",
     "overskriver genindtræden indtrædelsesdatoen?",
     "går det gamle medlemskab tabt?",
-    "hvorfor har typen ingen effekt?",
     "kan en person have flere medlemskaber?",
     "bliver medlemskabet overskrevet i stedet for nyt?"
   ],
@@ -1206,6 +1205,13 @@
     "hvordan konfigurerer jeg gruppesynlighed?",
     "hvad betyder betalingsinterval for en gruppe?",
     "gruppeside: organisering af teams og lokationer"
+  ],
+  "explain_page_import_employees": [
+    "hvordan importerer jeg medarbejdere fra excel",
+    "importer medarbejdere",
+    "upload medarbejderliste",
+    "hvor kan jeg uploade en csv med medarbejdere",
+    "skabelon til import af medarbejdere"
   ],
   "explain_page_inbox": [
     "forklar indbakkesiden",

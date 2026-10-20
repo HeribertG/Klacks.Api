@@ -1,0 +1,618 @@
+<h2>Importación de empleados – Manual</h2>
+
+<h3>¿Qué es la importación de empleados?</h3>
+<p>
+La importación de empleados incorpora una lista completa de personal desde <strong>un archivo Excel
+(.xlsx) o un archivo CSV (.csv)</strong> con una fila por persona, en lugar de crear cada persona a
+mano. Klacks reconoce las columnas por sí mismo, muestra en una vista previa cómo quedará cada
+registro y solo guarda tras la confirmación. Además de empleados, el mismo archivo también puede
+contener empleados externos y clientes.
+</p>
+<ul>
+  <li>
+    <strong>Quién puede importar:</strong> solo los administradores. La tarjeta <em>Importar
+    empleados</em> se encuentra en la configuración, sección <em>Organización</em>; el botón
+    <em>Importar</em> abre la página de importación. Los demás usuarios no ven la tarjeta y
+    necesitan a un administrador para la importación.
+  </li>
+  <li>
+    <strong>Protección de datos:</strong> el archivo en sí no se guarda. Solo se lee; únicamente se
+    crean las filas confirmadas en la vista previa.
+  </li>
+  <li>
+    <strong>Cuatro pasos:</strong> <em>Archivo</em> → <em>Asignación y reglas</em> → <em>Vista
+    previa</em> → <em>Resultado</em>. La pestaña <em>Manual</em> muestra este manual; al cambiar a
+    ella no se pierde una importación en curso.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Archivos compatibles</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> y <strong>CSV (.csv)</strong>; un archivo .txt se lee como un
+    archivo CSV. El antiguo formato de Excel <strong>.xls no es compatible</strong>: primero hay que
+    guardar el archivo como .xlsx en Excel.
+  </li>
+  <li>
+    <strong>Libros de Excel:</strong> solo se leen las hojas visibles, por defecto la primera. Un
+    libro con varias hojas ofrece la selección <em>Hoja</em> en el paso 2. Se importa el resultado
+    calculado de una fórmula. Las celdas con formato de fecha se leen como fechas. Los números en
+    celdas con el formato "General" pierden los ceros iniciales (el código postal 01234 pasa a ser
+    1234): conviene dar formato de texto a esas columnas (la plantilla ya lo hace).
+  </li>
+  <li>
+    <strong>Codificación de los archivos CSV:</strong> se reconocen UTF-8 (con o sin marca de orden
+    de bytes) y UTF-16 con marca de orden de bytes; cualquier otro archivo se lee como Windows-1252
+    (el formato "ANSI" habitual de Excel para Windows en Europa occidental), por lo que las tildes,
+    la ñ y otros acentos de Europa occidental se transfieren correctamente sin ningún ajuste. Para
+    todas las demás escrituras y letras (por ejemplo, ł, ř, ș, griego, árabe, hebreo, chino,
+    japonés, coreano o tailandés), hay que guardar el archivo como "CSV UTF-8" o utilizar .xlsx.
+  </li>
+  <li>
+    <strong>Separador de los archivos CSV:</strong> el punto y coma, la coma, el tabulador o la barra
+    vertical (|) se detectan automáticamente. Los valores entre comillas pueden contener el separador
+    y saltos de línea.
+  </li>
+  <li>
+    <strong>Fila de encabezado:</strong> la primera fila con nombres de columna debe estar dentro de
+    las 10 primeras filas no vacías y contener al menos dos celdas de texto. Las filas situadas por
+    encima (por ejemplo, un título) y las filas vacías se ignoran.
+  </li>
+  <li>
+    <strong>Formatos de fecha:</strong> día, mes y año separados por punto, barra o guion, por
+    ejemplo 31.12.1990, 12/31/1990 o 1990-12-31; una parte horaria después de la fecha se ignora. Un
+    valor que empieza con un año de cuatro cifras se lee siempre como año-mes-día. Si el archivo no
+    permite saber si va primero el día o el mes (ningún valor mayor que 12), Klacks asume
+    día/mes/año y pide comprobar el formato de fecha en el paso 2. Los nombres de mes (por ejemplo,
+    "31 dic 1990") no se reconocen.
+  </li>
+  <li>
+    <strong>Años de dos cifras:</strong> los años hasta las dos últimas cifras del año actual cuentan
+    como 20xx, los superiores como 19xx (en 2026: "26" = 2026, "27" = 1927). La vista previa marca
+    cada una de estas fechas con una advertencia para que se pueda comprobar el siglo.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Límites y listas más grandes</h3>
+<ul>
+  <li>Como máximo <strong>5 MB</strong> por archivo.</li>
+  <li>
+    Como máximo <strong>1000 filas</strong> por importación: se cuentan las filas de datos debajo de
+    la fila de encabezado, sin las filas vacías.
+  </li>
+  <li>
+    Como máximo <strong>60 columnas</strong>. En Excel cuenta la última columna utilizada: un único
+    valor olvidado muy a la derecha hace que el archivo sea demasiado ancho.
+  </li>
+  <li>
+    Una celda puede contener como máximo 1000 caracteres; el contenido más largo se recorta. Nombre,
+    apellido, título y empresa pueden tener como máximo 100 caracteres cada uno, al igual que la
+    dirección de correo electrónico, el teléfono y el número de móvil.
+  </li>
+  <li>
+    Un archivo de Excel puede ocupar como máximo 20 MB una vez descomprimido (protección contra
+    archivos manipulados).
+  </li>
+</ul>
+<p>
+<strong>Listas más grandes:</strong> la lista se divide en varios archivos de 1000 filas como
+máximo; cada archivo necesita su propia fila de encabezado. Las columnas que no se necesitan pueden
+eliminarse antes. Los archivos se importan uno tras otro. Las personas ya importadas desde un
+archivo anterior se reconocen como duplicados si tienen una dirección de correo electrónico o una
+fecha de nacimiento (véase <em>Duplicados</em>).
+</p>
+
+<hr>
+
+<h3>Plantilla</h3>
+<p>
+El botón <em>Descargar plantilla</em> del paso 1 proporciona un archivo Excel en el idioma del
+usuario (nombre de archivo <code>klacks-employee-import-es.xlsx</code>). Con la plantilla, todas las
+columnas se reconocen de forma fiable. Su fila de encabezado está en negrita e inmovilizada, todas
+las columnas tienen formato de texto (los ceros iniciales y las fechas se mantienen tal como se
+escriben) y el encabezado de la columna <em>Tipo</em> lleva una nota con los valores permitidos. La
+plantilla no contiene ninguna fila de ejemplo, porque se importaría.
+</p>
+<p>
+Columnas de la plantilla, en este orden: Nombre, Apellidos, Título, Empresa, Tipo, Sexo, Fecha de
+nacimiento, Calle, Dirección línea 2, Código postal, Ciudad, Provincia, País, Correo electrónico,
+Teléfono, Móvil, Fecha de alta, Fecha de baja, Contrato, Grupo, Observaciones. También funcionan
+listas propias: Klacks reconoce asimismo nombres de columna en los 25 idiomas de Klacks y muchas
+variantes habituales (por ejemplo, "Primer apellido", "CP", "Fecha de incorporación").
+</p>
+
+<hr>
+
+<h3>Paso 1 – Archivo</h3>
+<ul>
+  <li>
+    El archivo se arrastra a la zona de carga, o se hace clic en la zona para seleccionar un
+    archivo. Klacks lee el archivo y pasa al paso 2.
+  </li>
+  <li>
+    Un problema con el archivo (formato incorrecto, demasiado grande, demasiadas filas o columnas,
+    sin fila de encabezado) se muestra directamente debajo de la zona de carga; véase <em>Errores
+    frecuentes y soluciones</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Paso 2 – Asignación y reglas</h3>
+<h4>Asignar columnas</h4>
+<ul>
+  <li>
+    Cada columna del archivo aparece en una línea con hasta tres valores de ejemplo, el campo
+    propuesto por Klacks (<em>Importar como</em>) y el grado de seguridad de la propuesta
+    (<em>Fiabilidad</em>).
+  </li>
+  <li>
+    Cada propuesta puede cambiarse en la lista desplegable. Una columna que no debe importarse se
+    establece en <em>No importar</em>. Cada campo solo puede asignarse a una columna.
+  </li>
+  <li>
+    <em>Formato de fecha</em> aparece cuando el archivo contiene fechas; si el archivo no determina
+    el orden de día y mes, hay que comprobar la selección.
+  </li>
+  <li>
+    <em>Orden en el campo de nombre</em> aparece para una columna con el nombre completo: <em>Nombre
+    Apellido</em> o <em>Apellido Nombre</em>. Una coma ("García, Ana") significa siempre que el
+    apellido va primero. El nombre completo solo rellena un nombre o un apellido que no tiene
+    columna propia o que está vacío en una fila.
+  </li>
+</ul>
+<h4>Reglas para la información que falta</h4>
+<p>Estas reglas se aplican a todas las filas:</p>
+<ul>
+  <li>
+    <em>Contrato si no se indica ninguno</em> y <em>Grupo si no se indica ninguno</em>: se usan para
+    filas sin contrato o grupo, o con un nombre que no existe.
+  </li>
+  <li>
+    <em>Fecha de alta si no se indica ninguna</em>: vacío significa hoy. La fecha es también el
+    inicio del contrato, de la asignación al grupo y de la dirección.
+  </li>
+  <li>
+    <em>País si no se indica ninguno</em>: por defecto <em>País de la instalación</em>.
+  </li>
+  <li>
+    <em>Guardar las direcciones de correo electrónico como</em>, <em>Guardar los números de teléfono
+    como</em>, <em>Guardar los números de móvil como</em>: privado o profesional; se aplica a todas
+    las filas.
+  </li>
+  <li>
+    <em>Antiguos empleados (fecha de baja en el pasado)</em>: <em>Omitir</em> (por defecto) o
+    <em>Importar con fecha de baja</em>. Una fecha de baja de hoy o posterior se importa siempre.
+  </li>
+  <li>
+    <em>Posibles duplicados</em>: <em>Omitir</em> (por defecto) o <em>Crear de todos modos</em>.
+  </li>
+</ul>
+<p>
+<em>Continuar con la vista previa</em> avanza; <em>Elegir otro archivo</em> vuelve a empezar con un
+archivo diferente.
+</p>
+
+<hr>
+
+<h3>Paso 3 – Vista previa</h3>
+<ul>
+  <li>
+    Un resumen cuenta las filas: total, listas, omitidas, con errores, duplicados y con advertencias.
+    Las notas que afectan a todas o a muchas filas aparecen una sola vez encima de la tabla, junto
+    con las columnas que no se importan.
+  </li>
+  <li>
+    La tabla muestra cada fila tal como se guardará, primero las que tienen errores, después
+    advertencias e indicaciones. <em>Mostrar solo las filas con problemas</em> reduce la lista.
+  </li>
+  <li>
+    Por fila: <em>Omitir</em> deja fuera la fila; <em>Seleccione una opción</em> establece el sexo
+    de una fila que no lo tiene; <em>Crear de todos modos</em> conserva una fila reconocida como
+    duplicado.
+  </li>
+  <li>
+    Los demás valores no se pueden editar en la vista previa. Para corregirlos, hay que corregir el
+    archivo y volver a seleccionarlo (<em>Elegir otro archivo</em>), o cambiar la asignación con
+    <em>Atrás</em>.
+  </li>
+  <li>
+    El botón de importación indica cuántas personas se crearán (por ejemplo, <em>Importar 25
+    empleados</em>). Permanece desactivado mientras una fila siga teniendo un error: hay que corregir
+    la fila u omitirla.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Paso 4 – Resultado</h3>
+<p>
+Muestra cuántas personas se han creado y cuántas filas se han omitido, así como cuántas direcciones
+se están ubicando en el mapa en segundo plano. <em>Ir a la lista de empleados</em> abre la lista,
+<em>Importar otro archivo</em> inicia una nueva importación.
+</p>
+
+<hr>
+
+<h3>Columnas importables</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Campo (Importar como)</th>
+      <th>Obligatorio</th>
+      <th>Notas</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Nombre, Apellido</td>
+      <td>Sí, para personas</td>
+      <td>Como máximo 100 caracteres cada uno. No es obligatorio para un cliente con empresa.</td>
+    </tr>
+    <tr>
+      <td>Nombre completo</td>
+      <td>No</td>
+      <td>Alternativa a columnas de nombre separadas; se divide en nombre y apellido (véase el paso 2).
+        Los nombres con más de dos partes reciben una advertencia: hay que comprobar la división.</td>
+    </tr>
+    <tr>
+      <td>Título</td>
+      <td>No</td>
+      <td>Se adopta sin cambios, por ejemplo "Dr.". Un título dentro del nombre completo no se separa.</td>
+    </tr>
+    <tr>
+      <td>Sexo, Tratamiento</td>
+      <td>Sí, para personas</td>
+      <td>Véase <em>Sexo y tratamiento</em>. Sin valor, el sexo se selecciona por fila en la vista
+        previa.</td>
+    </tr>
+    <tr>
+      <td>Fecha de nacimiento</td>
+      <td>No</td>
+      <td>Una fecha en el futuro es un error. Importante para la detección de duplicados.</td>
+    </tr>
+    <tr>
+      <td>Empresa</td>
+      <td>Para clientes que son empresas</td>
+      <td>Como máximo 100 caracteres. Véase <em>Tipo y empresa</em>.</td>
+    </tr>
+    <tr>
+      <td>Tipo (empleado, externo, cliente)</td>
+      <td>No</td>
+      <td>Vacío o ausente = empleado. Véase <em>Tipo y empresa</em>.</td>
+    </tr>
+    <tr>
+      <td>Calle, Número</td>
+      <td>No</td>
+      <td>Un número separado se añade a la calle.</td>
+    </tr>
+    <tr>
+      <td>Dirección (línea 2)</td>
+      <td>No</td>
+      <td>Se adopta como texto libre.</td>
+    </tr>
+    <tr>
+      <td>Código postal, Localidad</td>
+      <td>Para clientes que son empresas</td>
+      <td>Se crea una dirección en cuanto se indica la calle, el código postal o la localidad.</td>
+    </tr>
+    <tr>
+      <td>Código postal y localidad</td>
+      <td>No</td>
+      <td>Una columna con ambos, por ejemplo "8000 Zürich" o "CH-8000 Zürich"; solo se usa si la fila
+        no tiene código postal o localidad por separado. Si no se puede dividir, el valor completo
+        pasa a ser la localidad (advertencia).</td>
+    </tr>
+    <tr>
+      <td>Provincia / región</td>
+      <td>No</td>
+      <td>Texto libre; si está vacío, se rellena al ubicar la dirección en el mapa.</td>
+    </tr>
+    <tr>
+      <td>País</td>
+      <td>Para clientes que son empresas (cuenta el país por defecto)</td>
+      <td>Código de país (CH, DE …) o nombre del país en cualquier idioma de Klacks. Vacío = país por
+        defecto; un país desconocido genera una advertencia y se usa el país por defecto.</td>
+    </tr>
+    <tr>
+      <td>Correo electrónico</td>
+      <td>No</td>
+      <td>Una dirección no válida se omite con una advertencia; la persona se importa igualmente.</td>
+    </tr>
+    <tr>
+      <td>Teléfono, Teléfono móvil</td>
+      <td>No</td>
+      <td>Se eliminan los espacios y separadores, y un 00 inicial se convierte en +; un número sin +
+        recibe el prefijo telefónico del país de la fila.</td>
+    </tr>
+    <tr>
+      <td>Fecha de alta</td>
+      <td>No</td>
+      <td>Vacío = la regla <em>Fecha de alta si no se indica ninguna</em>. Las fechas poco plausibles
+        (anteriores a la fecha de nacimiento, o a más de 50 años de distancia) generan una
+        advertencia.</td>
+    </tr>
+    <tr>
+      <td>Fecha de baja</td>
+      <td>No</td>
+      <td>Anterior a la fecha de alta = error. En el pasado: véase la regla <em>Antiguos
+        empleados</em>.</td>
+    </tr>
+    <tr>
+      <td>Contrato, Grupo</td>
+      <td>No</td>
+      <td>Se asignan por nombre; véase <em>Contrato y grupo</em>.</td>
+    </tr>
+    <tr>
+      <td>Nota</td>
+      <td>No</td>
+      <td>Se guarda como nota de la persona.</td>
+    </tr>
+    <tr>
+      <td>Número de personal (lo asigna Klacks)</td>
+      <td>–</td>
+      <td>Se reconoce, pero nunca se importa; véase <em>Número de personal</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Tipo y empresa</h3>
+<ul>
+  <li>
+    La columna <em>Tipo</em> indica por fila si se trata de un empleado, un empleado externo o un
+    cliente. Se reconocen, por ejemplo, los valores <code>Empleado</code>, <code>Empleada</code>,
+    <code>Trabajador</code> (empleado), <code>Externo</code>, <code>Externa</code>,
+    <code>Empleado externo</code> (empleado externo) y <code>Cliente</code> (cliente); también
+    funcionan las palabras correspondientes de todos los demás idiomas de Klacks y los números 0, 1
+    y 2. Las mayúsculas y minúsculas no importan.
+  </li>
+  <li>
+    Una <strong>celda vacía</strong> o un archivo sin columna de tipo significa
+    <strong>empleado</strong>. Un valor desconocido es un error en la vista previa.
+  </li>
+  <li>
+    <strong>Cliente con empresa:</strong> se crea como empresa (persona jurídica), no como persona.
+    Nombre y apellido son opcionales y se conservan como persona de contacto (la vista previa los
+    marca con <em>Persona de contacto:</em>); un sexo indicado en la fila se ignora. Una fila así
+    necesita una dirección con código postal, localidad y país (cuenta el país por defecto).
+  </li>
+  <li>
+    <strong>Cliente sin empresa:</strong> se crea como persona; nombre, apellido y sexo son
+    obligatorios.
+  </li>
+  <li>
+    <strong>Empleado o empleado externo con empresa:</strong> sigue siendo una persona; el nombre de
+    la empresa se guarda con la persona.
+  </li>
+  <li>
+    <strong>Los clientes nunca reciben contrato</strong>: ni desde el archivo (advertencia, el valor
+    no se importa) ni desde las reglas. A los clientes también se les asigna un grupo.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Sexo y tratamiento</h3>
+<ul>
+  <li>
+    Las personas necesitan un sexo: <em>Femenino</em>, <em>Masculino</em> o <em>Diverso</em>. Se
+    toma de la columna <em>Sexo</em>; si está vacía, de la columna <em>Tratamiento</em> (la vista
+    previa lo indica). Si faltan ambas, el sexo se selecciona por fila en la vista previa
+    (<em>Seleccione una opción</em>).
+  </li>
+  <li>
+    Se reconocen, por ejemplo, los valores <code>Señora</code>, <code>Sra.</code>,
+    <code>Señorita</code>, <code>Mujer</code>, <code>Femenino</code> (femenino), <code>Señor</code>,
+    <code>Sr.</code>, <code>Hombre</code>, <code>Masculino</code> (masculino) y <code>Otro</code>,
+    <code>Intersexual</code>, <code>No binario</code> (diverso), además de las palabras
+    correspondientes de todos los demás idiomas de Klacks, como
+    <code>Herr</code>/<code>Frau</code> o <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Las mayúsculas y minúsculas, los acentos y los signos de puntuación no importan; en un
+    tratamiento más largo cuenta la primera palabra ("Sr. Dr." = masculino).
+  </li>
+  <li>Una empresa (cliente con empresa) no necesita sexo.</li>
+</ul>
+
+<hr>
+
+<h3>Contrato y grupo</h3>
+<ul>
+  <li>
+    Un valor del archivo se compara con los nombres de los contratos y grupos existentes; las
+    mayúsculas y minúsculas y los espacios al principio o al final no importan.
+  </li>
+  <li>
+    Si el nombre no existe, existe varias veces o está vacío, se usa el contrato o el grupo de las
+    reglas y la vista previa lo indica. Sin regla, la fila no recibe contrato o no recibe grupo.
+  </li>
+  <li>
+    <strong>La importación no crea contratos ni grupos.</strong> Primero hay que configurarlos en la
+    configuración y en la página de grupos, y después importar.
+  </li>
+  <li>
+    El contrato y el grupo comienzan en la fecha de alta y terminan en la fecha de baja, si la hay.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Número de personal</h3>
+<p>
+Klacks <strong>asigna siempre el número de personal por sí mismo</strong>. Una columna de número de
+personal en el archivo se reconoce, pero se ignora; la vista previa muestra una indicación. Para
+conservar los números de otro sistema, la columna puede asignarse a <em>Nota</em> en el paso 2,
+siempre que ninguna otra columna se importe como nota.
+</p>
+
+<hr>
+
+<h3>Duplicados</h3>
+<ul>
+  <li>
+    <strong>Personas:</strong> una fila cuenta como duplicado si la <strong>dirección de correo
+    electrónico</strong> es la misma, o si <strong>nombre, apellido y fecha de nacimiento</strong>
+    coinciden. Se ignoran las mayúsculas y minúsculas, los acentos y los guiones ("Müller" =
+    "Muller", "Hans-Peter" = "Hanspeter").
+  </li>
+  <li>
+    <strong>Empresas</strong> (clientes con empresa): misma <strong>empresa, código postal y
+    calle</strong>.
+  </li>
+  <li>
+    Las filas se comparan con las personas que ya existen en Klacks y con las filas anteriores del
+    mismo archivo. <strong>Los clientes solo se comparan con clientes</strong>, los empleados y los
+    empleados externos entre sí.
+  </li>
+  <li>
+    Los duplicados se omiten con la regla <em>Posibles duplicados</em> = <em>Omitir</em>. Con
+    <em>Crear de todos modos</em> (como regla para todas las filas o por fila en la vista previa)
+    se crean igualmente.
+  </li>
+  <li>
+    Solo una <strong>indicación</strong>, sin omitir: el mismo nombre sin una fecha de nacimiento
+    coincidente, o la misma empresa en otra dirección. Conviene revisar estas filas antes de importar.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Guardado y direcciones</h3>
+<ul>
+  <li>
+    <strong>Todo o nada:</strong> la importación guarda todas las filas listas de una sola vez. Si
+    algo falla, no se guarda nada. Antes de guardar, Klacks vuelve a comprobar todas las filas con
+    los datos actuales.
+  </li>
+  <li>
+    Se crea por fila: la persona (o la empresa), el período de empleo desde la fecha de alta hasta la
+    de baja, la dirección, la dirección de correo electrónico, el teléfono y el número de móvil, el
+    contrato, el grupo y la nota.
+  </li>
+  <li>
+    La misma importación no se puede guardar dos veces; un segundo intento indica que la importación
+    ya se ha realizado.
+  </li>
+  <li>
+    <strong>Mapa:</strong> después de la importación, las direcciones con código postal y localidad
+    se ubican en el mapa en segundo plano, una tras otra. Con muchas direcciones esto puede tardar
+    unos minutos; mientras tanto, las personas ya se pueden utilizar.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Errores frecuentes y soluciones</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Mensaje</th>
+      <th>Causa</th>
+      <th>Solución</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Este formato de archivo no es compatible. Utilice un archivo .xlsx o .csv.</td>
+      <td>.xls, .ods, PDF o un archivo dañado.</td>
+      <td>Guardar el archivo en Excel como .xlsx o exportarlo como CSV.</td>
+    </tr>
+    <tr>
+      <td>El archivo es demasiado grande (máximo 5 MB).</td>
+      <td>Archivo de más de 5 MB, por ejemplo por imágenes u hojas no utilizadas.</td>
+      <td>Eliminar las imágenes y las hojas no utilizadas, o dividir la lista.</td>
+    </tr>
+    <tr>
+      <td>El archivo contiene demasiadas filas (máximo 1000 personas por importación).</td>
+      <td>Más de 1000 filas de datos.</td>
+      <td>Dividir la lista en varios archivos (véase <em>Límites y listas más grandes</em>).</td>
+    </tr>
+    <tr>
+      <td>El archivo contiene demasiadas columnas (máximo 60).</td>
+      <td>Más de 60 columnas, a menudo por un valor perdido muy a la derecha.</td>
+      <td>Eliminar las columnas no utilizadas, incluidas las que parecen vacías en el borde derecho.</td>
+    </tr>
+    <tr>
+      <td>No se encontró ninguna fila de encabezado con nombres de columna en las primeras filas.</td>
+      <td>Ninguna fila con al menos dos nombres de columna dentro de las 10 primeras filas.</td>
+      <td>Colocar una fila de encabezado con nombres de columna encima de los datos.</td>
+    </tr>
+    <tr>
+      <td>El archivo no contiene datos.</td>
+      <td>Archivo vacío, solo una fila de encabezado o ninguna hoja visible.</td>
+      <td>Comprobar el archivo; mostrar la hoja oculta en Excel.</td>
+    </tr>
+    <tr>
+      <td>Falta el sexo: seleccione una opción.</td>
+      <td>Sexo o tratamiento ausente o no reconocido.</td>
+      <td>Seleccionar el sexo en la vista previa o rellenar la columna en el archivo.</td>
+    </tr>
+    <tr>
+      <td>Falta el nombre. / Falta el apellido.</td>
+      <td>Columna de nombre vacía o no asignada; un nombre completo con una sola palabra.</td>
+      <td>Comprobar la asignación en el paso 2 o completar el archivo.</td>
+    </tr>
+    <tr>
+      <td>Fecha no válida: "…".</td>
+      <td>Fecha ilegible, fecha de nacimiento en el futuro o fecha de baja anterior a la de alta.</td>
+      <td>Comprobar el formato de fecha en el paso 2 o corregir el valor en el archivo.</td>
+    </tr>
+    <tr>
+      <td>Tipo "…" desconocido – use empleado, externo o cliente.</td>
+      <td>Valor de la columna de tipo no reconocido.</td>
+      <td>Usar uno de los valores de la nota de la plantilla, o dejar la celda vacía (= empleado).</td>
+    </tr>
+    <tr>
+      <td>Un cliente con empresa necesita una dirección con código postal, localidad y país.</td>
+      <td>Fila de empresa sin dirección completa.</td>
+      <td>Completar el código postal y la localidad; indicar un país en el archivo o en las reglas.</td>
+    </tr>
+    <tr>
+      <td>Valor demasiado largo (máximo … caracteres).</td>
+      <td>Nombre, título, empresa, correo electrónico o teléfono de más de 100 caracteres.</td>
+      <td>Acortar el valor en el archivo.</td>
+    </tr>
+    <tr>
+      <td>Contrato "…" no encontrado. / Grupo "…" no encontrado.</td>
+      <td>El nombre no coincide con los contratos y grupos de Klacks.</td>
+      <td>Corregir el nombre o configurar primero el contrato o el grupo; de lo contrario, se aplica la
+        regla.</td>
+    </tr>
+    <tr>
+      <td>Algunas filas siguen teniendo errores. Corríjalas u omita esas filas e inténtelo de nuevo.</td>
+      <td>Al menos una fila tiene un error.</td>
+      <td>Usar <em>Mostrar solo las filas con problemas</em> y después corregir u omitir esas filas.</td>
+    </tr>
+    <tr>
+      <td>Una de las reglas para la información que falta ya no es válida …</td>
+      <td>Un contrato o grupo elegido en las reglas se ha eliminado entretanto.</td>
+      <td>Revisar las reglas en el paso 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Después de la importación</h3>
+<ul>
+  <li>
+    Las personas importadas son registros normales. Los errores se corrigen o eliminan en la página
+    de la persona; no existe un "deshacer" para toda la importación.
+  </li>
+  <li>
+    Si el mismo archivo se importa por segunda vez, las filas con dirección de correo electrónico o
+    fecha de nacimiento se vuelven a detectar como duplicados. Las filas que solo tienen un nombre
+    únicamente se marcan: conviene revisarlas antes de importar dos veces.
+  </li>
+  <li>
+    Una persona individual se crea a mano en la página de empleados; un directorio de empresa puede
+    sincronizarlo un administrador a través de la configuración del proveedor de identidad.
+  </li>
+</ul>

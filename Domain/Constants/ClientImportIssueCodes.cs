@@ -32,4 +32,7 @@ public static class ClientImportIssueCodes
     public const string MultiWordName = "multi-word-name";
     public const string PersonnelNumberNotImported = "personnel-number-not-imported";
     public const string ValueTooLong = "value-too-long";
+    public const string UnknownType = "unknown-type";
+    public const string LegalEntityAddressIncomplete = "legal-entity-address-incomplete";
+    public const string ContractNotForCustomer = "contract-not-for-customer";
 }

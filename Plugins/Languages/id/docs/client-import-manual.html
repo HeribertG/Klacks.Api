@@ -1,0 +1,610 @@
+<h2>Impor Karyawan – Panduan</h2>
+
+<h3>Apa itu impor karyawan?</h3>
+<p>
+Impor karyawan mengambil alih seluruh daftar staf dari <strong>satu file Excel (.xlsx) atau satu file
+CSV (.csv)</strong> dengan satu baris per orang, sehingga setiap orang tidak perlu dibuat secara manual.
+Klacks mengenali kolom secara mandiri, menampilkan dalam pratinjau bagaimana setiap data akan terlihat
+dan baru menyimpan setelah dikonfirmasi. Selain karyawan, file yang sama juga dapat berisi karyawan
+eksternal dan pelanggan.
+</p>
+<ul>
+  <li>
+    <strong>Siapa yang boleh mengimpor:</strong> hanya administrator. Kartu <em>Impor karyawan</em>
+    terdapat di pengaturan, bagian <em>Organisasi</em>; tombol <em>Impor</em> membuka halaman impor.
+    Pengguna lain tidak melihat kartu tersebut dan memerlukan administrator untuk melakukan impor.
+  </li>
+  <li>
+    <strong>Privasi:</strong> file itu sendiri tidak disimpan. File hanya dibaca; hanya baris yang
+    dikonfirmasi di pratinjau yang akan dibuat.
+  </li>
+  <li>
+    <strong>Empat langkah:</strong> <em>File</em> → <em>Pemetaan &amp; aturan</em> → <em>Pratinjau</em> →
+    <em>Hasil</em>. Tab <em>Panduan</em> menampilkan panduan ini; berpindah ke tab tersebut tidak
+    menghilangkan impor yang sedang berjalan.
+  </li>
+</ul>
+
+<hr>
+
+<h3>File yang didukung</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> dan <strong>CSV (.csv)</strong>; file .txt dibaca seperti file CSV.
+    Format Excel lama <strong>.xls tidak didukung</strong> – simpan file terlebih dahulu sebagai .xlsx
+    di Excel.
+  </li>
+  <li>
+    <strong>Buku kerja Excel:</strong> hanya lembar yang terlihat yang dibaca, secara default lembar
+    pertama. Buku kerja dengan beberapa lembar menawarkan pilihan <em>Lembar</em> di langkah 2. Yang
+    diimpor adalah hasil perhitungan sebuah rumus. Sel yang diformat sebagai tanggal dibaca sebagai
+    tanggal. Angka dalam sel dengan format "General" kehilangan nol di depan (kode pos 01234 menjadi
+    1234) – format kolom seperti itu sebagai teks (templat sudah melakukannya).
+  </li>
+  <li>
+    <strong>Encoding file CSV:</strong> UTF-8 (dengan atau tanpa byte order mark) dan UTF-16 dengan
+    byte order mark dikenali; file lainnya dibaca sebagai Windows-1252 (format "ANSI" yang umum di
+    Excel untuk Windows di Eropa Barat), sehingga umlaut dan aksen Eropa Barat terbaca dengan benar
+    tanpa pengaturan apa pun. Untuk semua aksara dan huruf lainnya (misalnya ł, ř, ș, Yunani, Arab,
+    Ibrani, Tionghoa, Jepang, Korea, atau Thai), simpan file sebagai "CSV UTF-8" atau gunakan .xlsx.
+  </li>
+  <li>
+    <strong>Pemisah file CSV:</strong> titik koma, koma, tab, atau garis vertikal (|) dideteksi
+    secara otomatis. Nilai dalam tanda kutip boleh berisi pemisah dan pergantian baris.
+  </li>
+  <li>
+    <strong>Baris judul:</strong> baris pertama dengan nama kolom harus berada dalam 10 baris pertama
+    yang tidak kosong dan berisi setidaknya dua sel teks. Baris di atasnya (misalnya judul) dan baris
+    kosong diabaikan.
+  </li>
+  <li>
+    <strong>Format tanggal:</strong> hari, bulan, dan tahun dipisahkan dengan titik, garis miring, atau
+    tanda hubung, misalnya 31.12.1990, 12/31/1990 atau 1990-12-31; bagian waktu setelah tanggal
+    diabaikan. Nilai yang diawali tahun empat digit selalu dibaca sebagai tahun-bulan-hari. Jika file
+    tidak menunjukkan apakah hari atau bulan yang lebih dulu (tidak ada nilai di atas 12), Klacks
+    mengasumsikan hari/bulan/tahun dan meminta agar format tanggal diperiksa di langkah 2. Nama
+    bulan (misalnya "31 Dec 1990") tidak dikenali.
+  </li>
+  <li>
+    <strong>Tahun dua digit:</strong> tahun hingga dua digit terakhir tahun berjalan dihitung sebagai
+    20xx, yang lebih tinggi sebagai 19xx (pada 2026: "26" = 2026, "27" = 1927). Pratinjau menandai
+    setiap tanggal seperti itu dengan peringatan agar abadnya dapat diperiksa.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Batas dan daftar yang lebih besar</h3>
+<ul>
+  <li>Maksimum <strong>5 MB</strong> per file.</li>
+  <li>
+    Maksimum <strong>1000 baris</strong> per impor – yang dihitung adalah baris data di bawah baris
+    judul, tanpa baris kosong.
+  </li>
+  <li>
+    Maksimum <strong>60 kolom</strong>. Di Excel yang dihitung adalah kolom terakhir yang digunakan:
+    satu nilai yang terlupa jauh di sebelah kanan membuat file terlalu lebar.
+  </li>
+  <li>
+    Satu sel boleh berisi maksimum 1000 karakter; isi yang lebih panjang dipotong. Nama depan, nama
+    belakang, gelar, dan perusahaan masing-masing boleh berisi maksimum 100 karakter, demikian pula
+    alamat email, nomor telepon, dan nomor ponsel.
+  </li>
+  <li>
+    File Excel boleh berukuran maksimum 20 MB setelah diekstrak (perlindungan terhadap file yang
+    dimanipulasi).
+  </li>
+</ul>
+<p>
+<strong>Daftar yang lebih besar:</strong> bagi daftar menjadi beberapa file yang masing-masing berisi
+maksimum 1000 baris; setiap file memerlukan baris judulnya sendiri. Kolom yang tidak diperlukan dapat
+dihapus terlebih dahulu. Impor file-file tersebut satu per satu. Orang yang sudah diimpor dari file
+sebelumnya dikenali sebagai duplikat jika memiliki alamat email atau tanggal lahir (lihat
+<em>Duplikat</em>).
+</p>
+
+<hr>
+
+<h3>Templat</h3>
+<p>
+Tombol <em>Unduh templat</em> di langkah 1 menyediakan file Excel dalam bahasa pengguna (nama file
+<code>klacks-employee-import-id.xlsx</code>). Dengan templat, setiap kolom dikenali secara andal. Baris
+judulnya dicetak tebal dan dibekukan, setiap kolom diformat sebagai teks (nol di depan dan tanggal
+tetap seperti yang diketik), dan judul kolom <em>Tipe</em> memiliki catatan berisi nilai yang
+diizinkan. Templat tidak memiliki baris contoh, karena baris tersebut akan ikut diimpor.
+</p>
+<p>
+Kolom templat, dalam urutan ini: Nama depan, Nama belakang, Gelar, Perusahaan, Tipe, Jenis kelamin,
+Tanggal lahir, Alamat, Alamat baris 2, Kode pos, Kota, Provinsi, Negara, Surel, Telepon, Ponsel,
+Tanggal masuk, Tanggal keluar, Kontrak, Grup, Catatan. Daftar sendiri juga dapat digunakan – Klacks
+juga mengenali nama kolom dalam ke-25 bahasa Klacks dan banyak variasi yang umum (misalnya "Nama
+keluarga", "Kodepos", "Tanggal mulai kerja").
+</p>
+
+<hr>
+
+<h3>Langkah 1 – File</h3>
+<ul>
+  <li>
+    Seret file ke zona unggah atau klik zona tersebut untuk memilih file. Klacks membaca file dan
+    melanjutkan ke langkah 2.
+  </li>
+  <li>
+    Masalah file (format salah, terlalu besar, terlalu banyak baris atau kolom, tidak ada baris judul)
+    ditampilkan langsung di bawah zona unggah; lihat <em>Kesalahan umum dan solusinya</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Langkah 2 – Pemetaan &amp; aturan</h3>
+<h4>Petakan kolom</h4>
+<ul>
+  <li>
+    Setiap kolom file muncul dalam satu baris dengan hingga tiga nilai contoh, kolom isian yang
+    disarankan oleh Klacks (<em>Impor sebagai</em>) dan seberapa yakin saran tersebut
+    (<em>Tingkat keyakinan</em>).
+  </li>
+  <li>
+    Setiap saran dapat diubah di menu tarik-turun. Kolom yang tidak boleh diimpor diatur ke
+    <em>Jangan impor</em>. Setiap kolom isian hanya dapat ditetapkan ke satu kolom.
+  </li>
+  <li>
+    <em>Format tanggal</em> muncul jika file berisi tanggal; jika file tidak menentukan urutan hari
+    dan bulan, pilihan tersebut harus diperiksa.
+  </li>
+  <li>
+    <em>Urutan pada kolom nama</em> muncul untuk kolom berisi nama lengkap: <em>Nama depan Nama
+    belakang</em> atau <em>Nama belakang Nama depan</em>. Koma ("Santoso, Dewi") selalu berarti nama
+    belakang lebih dulu. Nama lengkap hanya mengisi nama depan atau nama belakang yang tidak memiliki
+    kolom sendiri atau yang kosong pada suatu baris.
+  </li>
+</ul>
+<h4>Aturan untuk informasi yang hilang</h4>
+<p>Aturan ini berlaku untuk semua baris:</p>
+<ul>
+  <li>
+    <em>Kontrak jika tidak ada yang diberikan</em> dan <em>Grup jika tidak ada yang diberikan</em> –
+    digunakan untuk baris tanpa kontrak atau grup, atau dengan nama yang tidak ada.
+  </li>
+  <li>
+    <em>Tanggal masuk jika tidak ada yang diberikan</em> – kosong berarti hari ini. Tanggal ini juga
+    menjadi awal kontrak, penugasan grup, dan alamat.
+  </li>
+  <li>
+    <em>Negara jika tidak ada yang diberikan</em> – default <em>Negara instalasi</em>.
+  </li>
+  <li>
+    <em>Simpan alamat email sebagai</em>, <em>Simpan nomor telepon sebagai</em>, <em>Simpan nomor
+    ponsel sebagai</em> – pribadi atau kantor; berlaku untuk semua baris.
+  </li>
+  <li>
+    <em>Mantan karyawan (tanggal keluar di masa lalu)</em> – <em>Lewati</em> (default) atau
+    <em>Impor dengan tanggal keluar</em>. Tanggal keluar hari ini atau setelahnya selalu diimpor.
+  </li>
+  <li>
+    <em>Kemungkinan duplikat</em> – <em>Lewati</em> (default) atau <em>Tetap buat</em>.
+  </li>
+</ul>
+<p>
+<em>Lanjut ke pratinjau</em> melanjutkan ke langkah berikutnya; <em>Pilih file lain</em> memulai
+kembali dengan file yang berbeda.
+</p>
+
+<hr>
+
+<h3>Langkah 3 – Pratinjau</h3>
+<ul>
+  <li>
+    Ringkasan menghitung baris: total, siap, dilewati, dengan kesalahan, duplikat, dan dengan
+    peringatan. Catatan yang berlaku untuk semua atau banyak baris muncul sekali di atas tabel,
+    bersama dengan kolom yang tidak diimpor.
+  </li>
+  <li>
+    Tabel menampilkan setiap baris sebagaimana akan disimpan, dengan kesalahan terlebih dahulu, lalu
+    peringatan dan petunjuk. <em>Hanya tampilkan baris yang bermasalah</em> mempersempit daftar.
+  </li>
+  <li>
+    Per baris: <em>Lewati</em> mengecualikan baris tersebut; <em>Silakan pilih</em> menetapkan jenis
+    kelamin untuk baris yang belum memilikinya; <em>Tetap buat</em> mempertahankan baris yang dikenali
+    sebagai duplikat.
+  </li>
+  <li>
+    Nilai lain tidak dapat diedit di pratinjau. Untuk memperbaikinya, perbaiki file lalu pilih lagi
+    (<em>Pilih file lain</em>), atau ubah pemetaan dengan <em>Kembali</em>.
+  </li>
+  <li>
+    Tombol impor menunjukkan berapa banyak orang yang akan dibuat (misalnya <em>Impor 25
+    karyawan</em>). Tombol tetap nonaktif selama masih ada baris dengan kesalahan: perbaiki baris
+    tersebut atau lewati.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Langkah 4 – Hasil</h3>
+<p>
+Menampilkan berapa banyak orang yang telah dibuat dan berapa banyak baris yang dilewati, serta berapa
+banyak alamat yang sedang dilokalisasi di peta di latar belakang. <em>Buka daftar karyawan</em>
+membuka daftar, <em>Impor file lain</em> memulai impor baru.
+</p>
+
+<hr>
+
+<h3>Kolom yang dapat diimpor</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Kolom isian (Impor sebagai)</th>
+      <th>Wajib</th>
+      <th>Catatan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Nama depan, Nama belakang</td>
+      <td>Ya, untuk orang</td>
+      <td>Masing-masing maksimum 100 karakter. Tidak wajib untuk pelanggan dengan perusahaan.</td>
+    </tr>
+    <tr>
+      <td>Nama lengkap</td>
+      <td>Tidak</td>
+      <td>Alternatif untuk kolom nama terpisah; dipisahkan menjadi nama depan dan nama belakang (lihat
+        langkah 2). Nama yang terdiri dari lebih dari dua bagian mendapat peringatan – periksa
+        pemisahannya.</td>
+    </tr>
+    <tr>
+      <td>Gelar</td>
+      <td>Tidak</td>
+      <td>Diambil tanpa perubahan, misalnya "Dr.". Gelar di dalam nama lengkap tidak dipisahkan.</td>
+    </tr>
+    <tr>
+      <td>Jenis kelamin, Sapaan</td>
+      <td>Ya, untuk orang</td>
+      <td>Lihat <em>Jenis kelamin dan sapaan</em>. Tanpa nilai, jenis kelamin dipilih per baris di
+        pratinjau.</td>
+    </tr>
+    <tr>
+      <td>Tanggal lahir</td>
+      <td>Tidak</td>
+      <td>Tanggal di masa depan merupakan kesalahan. Penting untuk deteksi duplikat.</td>
+    </tr>
+    <tr>
+      <td>Perusahaan</td>
+      <td>Untuk pelanggan yang berupa perusahaan</td>
+      <td>Maksimum 100 karakter. Lihat <em>Tipe dan perusahaan</em>.</td>
+    </tr>
+    <tr>
+      <td>Tipe (karyawan, eksternal, pelanggan)</td>
+      <td>Tidak</td>
+      <td>Kosong atau tidak ada = karyawan. Lihat <em>Tipe dan perusahaan</em>.</td>
+    </tr>
+    <tr>
+      <td>Jalan, Nomor rumah</td>
+      <td>Tidak</td>
+      <td>Nomor rumah yang terpisah ditambahkan ke jalan.</td>
+    </tr>
+    <tr>
+      <td>Baris alamat 2</td>
+      <td>Tidak</td>
+      <td>Diambil sebagai teks bebas.</td>
+    </tr>
+    <tr>
+      <td>Kode pos, Kota</td>
+      <td>Untuk pelanggan yang berupa perusahaan</td>
+      <td>Alamat dibuat segera setelah jalan, kode pos, atau kota diisi.</td>
+    </tr>
+    <tr>
+      <td>Kode pos dan kota</td>
+      <td>Tidak</td>
+      <td>Satu kolom berisi keduanya, misalnya "8000 Zürich" atau "CH-8000 Zürich"; hanya digunakan jika
+        baris tidak memiliki kode pos atau kota yang terpisah. Jika tidak dapat dipisahkan, seluruh
+        nilai menjadi kota (peringatan).</td>
+    </tr>
+    <tr>
+      <td>Provinsi / wilayah</td>
+      <td>Tidak</td>
+      <td>Teks bebas; jika kosong, diisi saat alamat dilokalisasi di peta.</td>
+    </tr>
+    <tr>
+      <td>Negara</td>
+      <td>Untuk pelanggan yang berupa perusahaan (negara default berlaku)</td>
+      <td>Kode negara (CH, DE …) atau nama negara dalam bahasa Klacks mana pun. Kosong = negara
+        default; negara yang tidak dikenal menghasilkan peringatan dan negara default digunakan.</td>
+    </tr>
+    <tr>
+      <td>Email</td>
+      <td>Tidak</td>
+      <td>Alamat yang tidak valid dihilangkan dengan peringatan; orang tersebut tetap diimpor.</td>
+    </tr>
+    <tr>
+      <td>Telepon, Ponsel</td>
+      <td>Tidak</td>
+      <td>Spasi dan pemisah dihapus dan 00 di depan menjadi +; nomor tanpa + mendapat kode panggilan
+        negara pada baris tersebut.</td>
+    </tr>
+    <tr>
+      <td>Tanggal masuk</td>
+      <td>Tidak</td>
+      <td>Kosong = aturan <em>Tanggal masuk jika tidak ada yang diberikan</em>. Tanggal yang tidak masuk
+        akal (sebelum tanggal lahir, atau berjarak lebih dari 50 tahun) menghasilkan peringatan.</td>
+    </tr>
+    <tr>
+      <td>Tanggal keluar</td>
+      <td>Tidak</td>
+      <td>Sebelum tanggal masuk = kesalahan. Di masa lalu: lihat aturan <em>Mantan karyawan</em>.</td>
+    </tr>
+    <tr>
+      <td>Kontrak, Grup</td>
+      <td>Tidak</td>
+      <td>Dicocokkan berdasarkan nama; lihat <em>Kontrak dan grup</em>.</td>
+    </tr>
+    <tr>
+      <td>Catatan</td>
+      <td>Tidak</td>
+      <td>Disimpan sebagai catatan pada orang tersebut.</td>
+    </tr>
+    <tr>
+      <td>Nomor pegawai (ditetapkan oleh Klacks)</td>
+      <td>–</td>
+      <td>Dikenali tetapi tidak pernah diimpor; lihat <em>Nomor pegawai</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Tipe dan perusahaan</h3>
+<ul>
+  <li>
+    Kolom <em>Tipe</em> menyatakan per baris apakah itu karyawan, karyawan eksternal, atau pelanggan.
+    Nilai yang dikenali antara lain <code>Karyawan</code>, <code>Pegawai</code>,
+    <code>Internal</code> (karyawan), <code>Eksternal</code>, <code>Kontraktor</code>,
+    <code>Pekerja lepas</code> (karyawan eksternal) dan <code>Pelanggan</code>, <code>Klien</code>
+    (pelanggan); kata-kata yang sesuai dari semua bahasa Klacks lainnya serta angka 0, 1, dan 2 juga
+    dapat digunakan. Huruf besar dan kecil tidak berpengaruh.
+  </li>
+  <li>
+    <strong>Sel kosong</strong> atau file tanpa kolom tipe berarti <strong>karyawan</strong>. Nilai
+    yang tidak dikenal merupakan kesalahan di pratinjau.
+  </li>
+  <li>
+    <strong>Pelanggan dengan perusahaan:</strong> dibuat sebagai perusahaan (badan hukum), bukan
+    sebagai orang. Nama depan dan nama belakang bersifat opsional dan disimpan sebagai narahubung
+    (pratinjau menandainya dengan <em>Narahubung:</em>); jenis kelamin pada baris tersebut diabaikan.
+    Baris seperti itu memerlukan alamat dengan kode pos, kota, dan negara (negara default berlaku).
+  </li>
+  <li>
+    <strong>Pelanggan tanpa perusahaan:</strong> dibuat sebagai orang – nama depan, nama belakang,
+    dan jenis kelamin wajib diisi.
+  </li>
+  <li>
+    <strong>Karyawan atau karyawan eksternal dengan perusahaan:</strong> tetap sebagai orang; nama
+    perusahaan disimpan pada orang tersebut.
+  </li>
+  <li>
+    <strong>Pelanggan tidak pernah mendapat kontrak</strong> – baik dari file (peringatan, nilainya
+    tidak diimpor) maupun dari aturan. Pelanggan tetap mendapat penetapan grup.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Jenis kelamin dan sapaan</h3>
+<ul>
+  <li>
+    Orang memerlukan jenis kelamin: <em>Perempuan</em>, <em>Laki-laki</em> atau <em>Lainnya</em>.
+    Jenis kelamin diambil dari kolom <em>Jenis kelamin</em>; jika kolom itu kosong, dari kolom
+    <em>Sapaan</em> (pratinjau mencatat hal ini). Tanpa keduanya, jenis kelamin dipilih per baris di
+    pratinjau (<em>Silakan pilih</em>).
+  </li>
+  <li>
+    Nilai yang dikenali antara lain <code>Ibu</code>, <code>Nyonya</code>, <code>Nona</code>,
+    <code>Perempuan</code>, <code>Wanita</code> (perempuan), <code>Bapak</code>, <code>Tuan</code>,
+    <code>Laki-laki</code>, <code>Pria</code> (laki-laki) dan <code>Lainnya</code>, <code>Interseks</code>
+    (lainnya) – ditambah kata-kata yang sesuai dari semua bahasa Klacks lainnya, seperti
+    <code>Herr</code>/<code>Frau</code> atau <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Huruf besar dan kecil, aksen, dan tanda baca tidak berpengaruh; untuk sapaan yang lebih panjang,
+    kata pertama yang berlaku ("Bapak Dr." = laki-laki).
+  </li>
+  <li>Perusahaan (pelanggan dengan perusahaan) tidak memerlukan jenis kelamin.</li>
+</ul>
+
+<hr>
+
+<h3>Kontrak dan grup</h3>
+<ul>
+  <li>
+    Nilai dalam file dibandingkan dengan nama kontrak dan grup yang sudah ada; huruf besar dan kecil
+    serta spasi di awal atau akhir tidak berpengaruh.
+  </li>
+  <li>
+    Jika nama tersebut tidak ada, ada lebih dari sekali, atau kosong, kontrak atau grup dari aturan
+    yang digunakan dan pratinjau menyebutkan hal itu. Tanpa aturan, baris tersebut tidak mendapat
+    kontrak atau grup.
+  </li>
+  <li>
+    <strong>Impor tidak membuat kontrak atau grup.</strong> Siapkan keduanya terlebih dahulu di
+    pengaturan dan di halaman grup, lalu lakukan impor.
+  </li>
+  <li>
+    Kontrak dan grup dimulai pada tanggal masuk dan berakhir pada tanggal keluar, jika ada.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Nomor pegawai</h3>
+<p>
+Klacks <strong>selalu menetapkan nomor pegawai sendiri</strong>. Kolom nomor pegawai dalam file
+dikenali tetapi diabaikan; pratinjau menampilkan petunjuk. Untuk mempertahankan nomor dari sistem
+lain, kolom tersebut dapat dipetakan ke <em>Catatan</em> di langkah 2, selama tidak ada kolom lain yang
+diimpor sebagai catatan.
+</p>
+
+<hr>
+
+<h3>Duplikat</h3>
+<ul>
+  <li>
+    <strong>Orang:</strong> sebuah baris dianggap duplikat jika <strong>alamat email</strong> sama, atau
+    jika <strong>nama depan, nama belakang, dan tanggal lahir</strong> sama. Huruf besar dan kecil,
+    aksen, dan tanda hubung diabaikan ("Müller" = "Muller", "Hans-Peter" = "Hanspeter").
+  </li>
+  <li>
+    <strong>Perusahaan</strong> (pelanggan dengan perusahaan): <strong>perusahaan, kode pos, dan
+    jalan</strong> yang sama.
+  </li>
+  <li>
+    Baris dibandingkan dengan orang yang sudah ada di Klacks dan dengan baris sebelumnya dalam file
+    yang sama. <strong>Pelanggan hanya dibandingkan dengan pelanggan</strong>, karyawan dan karyawan
+    eksternal satu sama lain.
+  </li>
+  <li>
+    Duplikat dilewati dengan aturan <em>Kemungkinan duplikat</em> = <em>Lewati</em>. Dengan
+    <em>Tetap buat</em> – sebagai aturan untuk semua baris atau per baris di pratinjau – duplikat
+    tetap dibuat.
+  </li>
+  <li>
+    Hanya berupa <strong>petunjuk</strong>, tanpa dilewati: nama yang sama tanpa tanggal lahir yang
+    cocok, atau perusahaan yang sama di alamat lain. Periksa baris seperti itu sebelum mengimpor.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Penyimpanan dan alamat</h3>
+<ul>
+  <li>
+    <strong>Semua atau tidak sama sekali:</strong> impor menyimpan semua baris yang siap sekaligus.
+    Jika ada yang gagal, tidak ada yang disimpan. Sebelum menyimpan, Klacks memeriksa kembali semua
+    baris terhadap data terkini.
+  </li>
+  <li>
+    Yang dibuat per baris: orang (atau perusahaan), masa kerja dari tanggal masuk hingga tanggal
+    keluar, alamat, alamat email, nomor telepon dan nomor ponsel, kontrak, grup, dan catatan.
+  </li>
+  <li>
+    Impor yang sama tidak dapat disimpan dua kali; percobaan kedua menunjukkan bahwa impor sudah
+    dilakukan.
+  </li>
+  <li>
+    <strong>Peta:</strong> alamat dengan kode pos dan kota dilokalisasi di peta di latar belakang
+    setelah impor, satu per satu. Dengan banyak alamat, ini dapat memakan waktu beberapa menit; orang
+    yang diimpor sudah dapat digunakan sementara itu.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Kesalahan umum dan solusinya</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Pesan</th>
+      <th>Penyebab</th>
+      <th>Solusi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Format file ini tidak didukung. Gunakan file .xlsx atau .csv.</td>
+      <td>.xls, .ods, PDF, atau file yang rusak.</td>
+      <td>Simpan file di Excel sebagai .xlsx atau ekspor sebagai CSV.</td>
+    </tr>
+    <tr>
+      <td>File terlalu besar (maksimum 5 MB).</td>
+      <td>File lebih dari 5 MB, misalnya karena gambar atau lembar yang tidak digunakan.</td>
+      <td>Hapus gambar dan lembar yang tidak digunakan, atau bagi daftar.</td>
+    </tr>
+    <tr>
+      <td>File berisi terlalu banyak baris (maksimum 1000 orang per impor).</td>
+      <td>Lebih dari 1000 baris data.</td>
+      <td>Bagi daftar menjadi beberapa file (lihat <em>Batas dan daftar yang lebih besar</em>).</td>
+    </tr>
+    <tr>
+      <td>File berisi terlalu banyak kolom (maksimum 60).</td>
+      <td>Lebih dari 60 kolom, sering kali karena nilai nyasar jauh di sebelah kanan.</td>
+      <td>Hapus kolom yang tidak digunakan, termasuk yang tampak kosong di tepi kanan.</td>
+    </tr>
+    <tr>
+      <td>Baris judul dengan nama kolom tidak ditemukan di beberapa baris pertama.</td>
+      <td>Tidak ada baris dengan setidaknya dua nama kolom dalam 10 baris pertama.</td>
+      <td>Tempatkan baris judul dengan nama kolom di atas data.</td>
+    </tr>
+    <tr>
+      <td>File tidak berisi data.</td>
+      <td>File kosong, hanya berisi baris judul, atau tidak ada lembar yang terlihat.</td>
+      <td>Periksa file; tampilkan kembali lembar yang tersembunyi di Excel.</td>
+    </tr>
+    <tr>
+      <td>Jenis kelamin belum diisi – silakan pilih.</td>
+      <td>Jenis kelamin atau sapaan tidak ada atau tidak dikenali.</td>
+      <td>Pilih jenis kelamin di pratinjau, atau isi kolom di file.</td>
+    </tr>
+    <tr>
+      <td>Nama depan belum diisi. / Nama belakang belum diisi.</td>
+      <td>Kolom nama kosong atau tidak dipetakan; nama lengkap yang hanya terdiri dari satu kata.</td>
+      <td>Periksa pemetaan di langkah 2 atau lengkapi file.</td>
+    </tr>
+    <tr>
+      <td>Tanggal tidak valid: "…".</td>
+      <td>Tanggal tidak dapat dibaca, tanggal lahir di masa depan, atau tanggal keluar sebelum tanggal
+        masuk.</td>
+      <td>Periksa format tanggal di langkah 2 atau perbaiki nilai di file.</td>
+    </tr>
+    <tr>
+      <td>Tipe "…" tidak dikenal – gunakan karyawan, eksternal, atau pelanggan.</td>
+      <td>Nilai di kolom tipe tidak dikenali.</td>
+      <td>Gunakan salah satu nilai dari catatan templat, atau kosongkan sel (= karyawan).</td>
+    </tr>
+    <tr>
+      <td>Pelanggan dengan perusahaan memerlukan alamat dengan kode pos, kota, dan negara.</td>
+      <td>Baris perusahaan tanpa alamat lengkap.</td>
+      <td>Lengkapi kode pos dan kota; tetapkan negara di file atau di aturan.</td>
+    </tr>
+    <tr>
+      <td>Nilai terlalu panjang (maksimum … karakter).</td>
+      <td>Nama, gelar, perusahaan, email, atau telepon lebih dari 100 karakter.</td>
+      <td>Persingkat nilai di file.</td>
+    </tr>
+    <tr>
+      <td>Kontrak "…" tidak ditemukan. / Grup "…" tidak ditemukan.</td>
+      <td>Nama berbeda dari kontrak dan grup di Klacks.</td>
+      <td>Perbaiki nama, atau siapkan kontrak atau grup terlebih dahulu; jika tidak, aturan yang
+        berlaku.</td>
+    </tr>
+    <tr>
+      <td>Beberapa baris masih memiliki kesalahan. Perbaiki atau lewati baris tersebut, lalu coba lagi.</td>
+      <td>Setidaknya satu baris memiliki kesalahan.</td>
+      <td>Gunakan <em>Hanya tampilkan baris yang bermasalah</em>, lalu perbaiki atau lewati baris
+        tersebut.</td>
+    </tr>
+    <tr>
+      <td>Salah satu aturan untuk informasi yang hilang tidak lagi valid …</td>
+      <td>Kontrak atau grup yang dipilih di aturan telah dihapus sementara itu.</td>
+      <td>Periksa aturan di langkah 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Setelah impor</h3>
+<ul>
+  <li>
+    Orang yang diimpor adalah data biasa. Kesalahan diperbaiki atau dihapus di halaman orang
+    tersebut; tidak ada "urungkan" untuk seluruh impor.
+  </li>
+  <li>
+    Mengimpor file yang sama untuk kedua kalinya akan kembali menemukan baris dengan alamat email atau
+    tanggal lahir sebagai duplikat. Baris yang hanya berisi nama hanya ditandai – periksa baris
+    tersebut sebelum mengimpor dua kali.
+  </li>
+  <li>
+    Satu orang dibuat secara manual di halaman karyawan; direktori perusahaan dapat disinkronkan oleh
+    administrator melalui pengaturan penyedia identitas.
+  </li>
+</ul>

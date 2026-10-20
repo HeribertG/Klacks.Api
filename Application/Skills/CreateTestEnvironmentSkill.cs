@@ -188,7 +188,6 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
                 Membership = new Membership
                 {
                     Id = Guid.NewGuid(),
-                    Type = 0,
                     ValidFrom = DateTime.UtcNow,
                     CreateTime = DateTime.UtcNow,
                     CurrentUserCreated = userName

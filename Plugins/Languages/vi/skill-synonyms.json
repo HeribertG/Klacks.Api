@@ -1127,7 +1127,6 @@
     "tư cách thành viên không có lịch sử",
     "tái gia nhập làm ghi đè ngày vào",
     "khoảng thời gian thành viên cũ bị mất",
-    "trường loại tư cách thành viên không có tác dụng",
     "mỗi người chỉ có một dòng tư cách thành viên",
     "tư cách thành viên bị ghi đè thay vì thêm dòng mới"
   ],
@@ -1179,6 +1178,13 @@
     "chỉnh sửa nhóm: tên, hiệu lực, lịch trả lương",
     "cấu hình hiển thị nhóm cho từng người dùng",
     "ảnh hưởng của chọn nhóm đến các trang khác"
+  ],
+  "explain_page_import_employees": [
+    "làm sao nhập nhân viên từ excel",
+    "nhập danh sách nhân viên từ tệp",
+    "tải lên danh sách nhân viên",
+    "tải tệp csv nhân viên lên ở đâu",
+    "tệp mẫu để nhập nhân viên"
   ],
   "explain_page_inbox": [
     "trang hộp thư đến có gì? giải thích giao diện inbox",

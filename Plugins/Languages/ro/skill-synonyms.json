@@ -1142,7 +1142,6 @@
     "apartenența nu are istoric",
     "reintrarea suprascrie data de intrare",
     "perioada veche de apartenență se pierde",
-    "câmpul tip de apartenență nu are efect",
     "o singură linie de apartenență per persoană"
   ],
   "explain_navigation_learning": [
@@ -1197,6 +1196,13 @@
     "cum se moștenește vizibilitatea grupurilor",
     "cum atribui persoane unui grup",
     "explică-mi cele două moduri de afișare (tabel și arbore)"
+  ],
+  "explain_page_import_employees": [
+    "cum import angajați din excel",
+    "importă angajați",
+    "încarcă lista de angajați",
+    "unde încarc un fișier csv cu angajați",
+    "șablon pentru importul angajaților"
   ],
   "explain_page_inbox": [
     "ce vezi pe pagina de inbox",

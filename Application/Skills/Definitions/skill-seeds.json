@@ -316,7 +316,7 @@
         },
         {
           "name": "target",
-          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: /: goal-{candidates-panel,candidates-panel.approve,candidates-panel.item,candidates-panel.reject},header-search,plan-{execution-panel,execution-panel.abort,execution-panel.approve}; client-list: addresses; container-template: container-{template.overview,template.selected-tasks}; cut-shift: cut-{shift.list,shift.overview}; dashboard: dashboard.clients-{locations,overview},dashboard.resource-monitor,dashboard.shift-coverage,dashboard.shifts-overview; new-employee/edit-employee: address-{contracts,groups,image,membership,note,persona,qualifications},client-{detail,detail.birthday,detail.firstname,detail.gender,detail.lastname},employee-membership.type; new-group/edit-group: group-{detail,detail.name,item,members,parent}; edit-shift: shift-{address,expenses,form,form.abbreviation,form.name,group,item,macro,qualifications,special-feature,weekday}; group-list: groups; klacksy-training: klacksy-{training.feedback,training.manual,training.metrics,training.targets},skill-effectiveness; period-closing: period-{closing-audit,closing-audit-actions,closing-audit-exports,closing-audit-filter,closing-day-table,closing-export-employee-export,closing-export-employee-form,closing-export-employee-format,closing-export-range-export,closing-export-range-form,closing-export-range-format,closing-export-single-export,closing-export-single-filter,closing-export-single-format,closing-export-single-order,closing-export-tab-employee,closing-export-tab-range,closing-export-tab-single,closing-exports,closing-issues,closing-period-select,closing-periods,closing-seal-all,closing-unseal-all,closing-unseal-reason}; profile: profile-{data,messengers,microphone,picture,settings}; settings: absence-{detail,detail-form,types},active-industries,assistant-{learning,personality,skill-relations,speech},branch-form,branches,calendar-{rule-form,rules,selection,selection-form},compensatory-rest,compliance-enforcement,contract-{form,form.name,form.percent},contracts,counter-rules,countries,data-retention,deepl,email-config,erp-drop-points,escalation-roster,export-{format-overrides,formats},feature-plugins,grid-color,group-scope,holiday-work-exemptions,identity-providers,imap-setting,individual-{period-form,period-form.name,periods},klacksy-{autonomy,model-check,proactive-governance},language-plugins,llm-{models,provider,sync-log},macros,messaging-providers,monthly-target-hours,openroute,overtime,owner-{address,messengers},period-cap-rules,personal-{access-token-form,access-tokens},qualifications,report-defaults,reports,restricted-time-window-rules,scheduling-{defaults,rules},settings-general,spam-rules,states,surcharge-mode,updates,user-management,web-search,whisper-plugin,wizard,work-{setting,setting-form}; shift-list: shifts. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
+          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: /: goal-{candidates-panel,candidates-panel.approve,candidates-panel.item,candidates-panel.reject},header-search,plan-{execution-panel,execution-panel.abort,execution-panel.approve}; client-list: addresses; container-template: container-{template.overview,template.selected-tasks}; cut-shift: cut-{shift.list,shift.overview}; dashboard: dashboard.clients-{locations,overview},dashboard.resource-monitor,dashboard.shift-coverage,dashboard.shifts-overview; new-employee/edit-employee: address-{contracts,groups,image,membership,note,persona,qualifications},client-{detail,detail.birthday,detail.firstname,detail.gender,detail.lastname},employee-membership.type; new-group/edit-group: group-{detail,detail.name,item,members,parent}; edit-shift: shift-{address,expenses,form,form.abbreviation,form.name,group,item,macro,qualifications,special-feature,weekday}; group-list: groups; klacksy-training: klacksy-{training.feedback,training.manual,training.metrics,training.targets},skill-effectiveness; period-closing: period-{closing-audit,closing-audit-actions,closing-audit-exports,closing-audit-filter,closing-day-table,closing-export-employee-export,closing-export-employee-form,closing-export-employee-format,closing-export-range-export,closing-export-range-form,closing-export-range-format,closing-export-single-export,closing-export-single-filter,closing-export-single-format,closing-export-single-order,closing-export-tab-employee,closing-export-tab-range,closing-export-tab-single,closing-exports,closing-issues,closing-period-select,closing-periods,closing-seal-all,closing-unseal-all,closing-unseal-reason}; profile: profile-{data,messengers,microphone,picture,settings}; settings: absence-{detail,detail-form,types},active-industries,assistant-{learning,personality,skill-relations,speech},branch-form,branches,calendar-{rule-form,rules,selection,selection-form},client-import,compensatory-rest,compliance-enforcement,contract-{form,form.name,form.percent},contracts,counter-rules,countries,data-retention,deepl,email-config,erp-drop-points,escalation-roster,export-{format-overrides,formats},feature-plugins,grid-color,group-scope,holiday-work-exemptions,identity-providers,imap-setting,individual-{period-form,period-form.name,periods},klacksy-{autonomy,model-check,proactive-governance},language-plugins,llm-{models,provider,sync-log},macros,messaging-providers,monthly-target-hours,openroute,overtime,owner-{address,messengers},period-cap-rules,personal-{access-token-form,access-tokens},qualifications,report-defaults,reports,restricted-time-window-rules,scheduling-{defaults,rules},settings-general,spam-rules,states,surcharge-mode,updates,user-management,web-search,whisper-plugin,wizard,work-{setting,setting-form}; import-employees: client-{import-commit,import-drop-zone,import-mapping-table,import-policy,import-preview-table,import-steps,import-template-button,import-to-list,import-to-preview}; shift-list: shifts. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -362,7 +362,7 @@
         "fr": "Naviguer vers une page",
         "it": "Naviga a una pagina"
       },
-      "version": 30
+      "version": 31
     },
     {
       "name": "get_page_controls",
@@ -22783,7 +22783,7 @@
     {
       "name": "update_membership",
       "area": "client",
-      "description": "Updates an existing membership (client affiliation period). Only supplied fields change: validFrom, validUntil (or clearValidUntil to make it open-ended) and the numeric type. IMPORTANT: Membership.ValidFrom is the plannability boundary in the schedule — moving it changes from which date the employee can be planned (it is independent of contract dates). Use list_client_memberships first to find the membership ID. Refuses validUntil before validFrom.",
+      "description": "Updates an existing membership (client affiliation period). Only supplied fields change: validFrom and validUntil (or clearValidUntil to make it open-ended). IMPORTANT: Membership.ValidFrom is the plannability boundary in the schedule — moving it changes from which date the employee can be planned (it is independent of contract dates). Use list_client_memberships first to find the membership ID. Refuses validUntil before validFrom.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22820,14 +22820,6 @@
           "type": "Boolean",
           "required": false,
           "defaultValue": false,
-          "enumValues": null
-        },
-        {
-          "name": "type",
-          "description": "New numeric membership type code (0 = default employee membership)",
-          "type": "Integer",
-          "required": false,
-          "defaultValue": null,
           "enumValues": null
         }
       ],
@@ -22881,7 +22873,7 @@
         "fr": "Mettre à jour une affiliation",
         "it": "Aggiorna un'affiliazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "end_client_membership",
@@ -31580,6 +31572,91 @@
         "it": "Spiegazione delle impostazioni dei punti di consegna ERP"
       },
       "version": 9
+    },
+    {
+      "name": "explain_page_import_employees",
+      "area": "client",
+      "description": "Explains the employee import page, where an administrator takes over a whole staff list from an Excel (.xlsx) or CSV file instead of creating every person by hand. Covers the four steps (file upload, column mapping with rules for missing information, preview, result), the file limits, the downloadable template, how duplicates, contracts, groups, the person type and the personnel number are handled, and that only administrators can open the page. Use this when the user asks how to import employees from Excel or CSV, where to upload a staff list or whether there is a template for it. Supports a level parameter: short (purpose and where the upload is), elements (every step and control), effects (what is written, duplicates and pitfalls).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "handlerConfig": {
+        "memoryKey": "explain_page_import_employees",
+        "pageKey": "import-employees"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "excel import",
+          "csv import"
+        ],
+        "de": [
+          "mitarbeiter importieren",
+          "mitarbeitende importieren",
+          "mitarbeiterimport",
+          "mitarbeiterliste hochladen"
+        ],
+        "en": [
+          "import employees",
+          "employee import",
+          "upload employee list"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wie importiere ich mitarbeiter aus excel",
+          "mitarbeiter importieren",
+          "mitarbeiterliste hochladen",
+          "wo kann ich eine csv mit mitarbeitern hochladen",
+          "excel liste mit mitarbeitenden einlesen",
+          "personal aus excel übernehmen",
+          "vorlage für den mitarbeiterimport"
+        ],
+        "en": [
+          "how do i import employees from excel",
+          "import employees",
+          "upload employee list",
+          "where can i upload a csv with employees",
+          "import staff from a spreadsheet",
+          "template for the employee import"
+        ],
+        "fr": [
+          "importer des collaborateurs",
+          "importer des employés depuis excel",
+          "téléverser la liste des collaborateurs",
+          "importer un fichier csv de collaborateurs"
+        ],
+        "it": [
+          "importare collaboratori",
+          "importare dipendenti da excel",
+          "caricare l'elenco dei collaboratori",
+          "importare un file csv di collaboratori"
+        ]
+      },
+      "labels": {
+        "de": "Erklärung des Mitarbeiter-Imports",
+        "en": "Explanation of the employee import",
+        "fr": "Explication de l'import de collaborateurs",
+        "it": "Spiegazione dell'importazione dei collaboratori"
+      },
+      "version": 1
     },
     {
       "name": "add_break_placeholder",
@@ -45365,7 +45442,7 @@
     {
       "name": "explain_membership_single_row",
       "area": "client",
-      "description": "Explains that a person's membership is a single row rather than a history: a departure and a later return overwrite the same entry's dates instead of adding a new one. Also covers the membership's own type field, stored and displayed but never evaluated anywhere — the value that actually governs a person's classification lives elsewhere. Use this when asked whether a re-entry keeps the old start date, or why changing that field has no effect.",
+      "description": "Explains that a person's membership is a single row rather than a history: a departure and a later return overwrite the same entry's dates instead of adding a new one. Also covers the Type dropdown on the same card, which changes the person's own classification (employee, external, customer) and not the membership. Use this when asked whether a re-entry keeps the old start date, or what the Type control on that card changes.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -45403,13 +45480,13 @@
           "re-entry"
         ]
       },
-      "version": 5,
+      "version": 6,
       "synonyms": {
         "de": [
           "mitgliedschaft hat keine historie",
           "wiedereintritt überschreibt eintrittsdatum",
           "alte mitgliedschaft geht verloren",
-          "mitgliedschaft typ ohne wirkung",
+          "typ in der registrierung ändert die person",
           "nur eine mitgliedschaftszeile pro person",
           "mitgliedschaft wird überschrieben statt neu"
         ],
@@ -45417,18 +45494,18 @@
           "membership has no history",
           "re-entry overwrites entry date",
           "old membership period lost",
-          "membership type field has no effect",
+          "type dropdown in the registration card",
           "only one membership row per person"
         ],
         "fr": [
           "adhésion sans historique",
           "réintégration écrase la date d'entrée",
-          "type d'adhésion sans effet réel"
+          "le type dans la carte inscription change la personne"
         ],
         "it": [
           "appartenenza senza storico",
           "rientro sovrascrive la data di ingresso",
-          "tipo di appartenenza senza effetto"
+          "il tipo nella scheda registrazione cambia la persona"
         ]
       },
       "labels": {

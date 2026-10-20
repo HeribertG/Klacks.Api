@@ -3,7 +3,6 @@
 using FluentValidation;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -28,18 +27,16 @@ public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
         When(x => x.Resource.LegalEntity, () =>
         {
             RuleFor(x => x.Resource.Company)
-                .NotEmpty()
+                .Must(ClientLegalEntityRules.HasCompany)
                 .WithMessage("address.edit-address.address-persona.validation.company-required");
 
             RuleFor(x => x.Resource.Type)
-                .Equal((int)EntityTypeEnum.Customer)
+                .Equal((int)ClientLegalEntityRules.RequiredType)
                 .WithMessage("address.edit-address.address-persona.validation.legal-entity-must-be-customer");
 
             RuleFor(x => x.Resource.Addresses)
-                .Must(addresses => addresses != null && addresses.Any(a =>
-                    !string.IsNullOrWhiteSpace(a.Zip) &&
-                    !string.IsNullOrWhiteSpace(a.City) &&
-                    !string.IsNullOrWhiteSpace(a.Country)))
+                .Must(addresses => addresses != null
+                    && addresses.Any(a => ClientLegalEntityRules.IsCompleteAddress(a.Zip, a.City, a.Country)))
                 .WithMessage("address.edit-address.address-persona.validation.address-required");
         });
 

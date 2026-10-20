@@ -3,6 +3,8 @@
 /// <summary>
 /// The columns of the downloadable import template, in order. The header of each is the first synonym
 /// of its target in the requested language, so the detector recognises a filled-in template completely.
+/// The type column carries a header note with the type words of the language as an example
+/// ("Mitarbeiter / Extern / Kunde"); the template has no example row, because it would be imported.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -22,6 +24,8 @@ public static class ClientImportTemplateLayout
         ClientImportTarget.FirstName,
         ClientImportTarget.LastName,
         ClientImportTarget.Title,
+        ClientImportTarget.Company,
+        ClientImportTarget.Type,
         ClientImportTarget.Gender,
         ClientImportTarget.Birthdate,
         ClientImportTarget.Street,
@@ -44,4 +48,7 @@ public static class ClientImportTemplateLayout
         Targets.Select(target => catalog.TemplateHeader(language, target)
             ?? throw new InvalidOperationException($"No template header for {target} in '{language}'."))
             .ToList();
+
+    public static List<string?> HeaderNotes(ClientImportSynonymCatalog catalog, string language) =>
+        Targets.Select(target => target == ClientImportTarget.Type ? catalog.TypeExample(language) : null).ToList();
 }

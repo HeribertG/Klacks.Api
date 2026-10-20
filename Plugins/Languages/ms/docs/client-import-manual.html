@@ -1,0 +1,612 @@
+<h2>Import Pekerja – Manual Pengguna</h2>
+
+<h3>Apakah itu import pekerja?</h3>
+<p>
+Import pekerja mengambil keseluruhan senarai kakitangan daripada <strong>satu fail Excel (.xlsx) atau
+satu fail CSV (.csv)</strong> dengan satu baris bagi setiap orang, dan bukannya mencipta setiap orang
+secara manual. Klacks mengenali lajur dengan sendirinya, menunjukkan dalam pratonton rupa setiap
+rekod dan hanya menyimpan selepas pengesahan. Selain pekerja, fail yang sama juga boleh mengandungi
+pekerja luaran dan pelanggan.
+</p>
+<ul>
+  <li>
+    <strong>Siapa yang boleh mengimport:</strong> hanya pentadbir. Kad <em>Import pekerja</em> terdapat
+    dalam tetapan, bahagian <em>Organisasi</em>; butang <em>Import</em> membuka halaman import.
+    Pengguna lain tidak melihat kad tersebut dan memerlukan pentadbir untuk melakukan import.
+  </li>
+  <li>
+    <strong>Privasi:</strong> fail itu sendiri tidak disimpan. Fail hanya dibaca; hanya baris yang
+    disahkan dalam pratonton akan dicipta.
+  </li>
+  <li>
+    <strong>Empat langkah:</strong> <em>Fail</em> → <em>Pemetaan &amp; peraturan</em> →
+    <em>Pratonton</em> → <em>Keputusan</em>. Tab <em>Panduan</em> memaparkan manual ini; beralih ke
+    tab tersebut tidak menyebabkan import yang sedang berjalan hilang.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Fail yang disokong</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> dan <strong>CSV (.csv)</strong>; fail .txt dibaca seperti fail
+    CSV. Format Excel lama <strong>.xls tidak disokong</strong> – simpan fail sebagai .xlsx dalam
+    Excel terlebih dahulu.
+  </li>
+  <li>
+    <strong>Buku kerja Excel:</strong> hanya helaian yang kelihatan dibaca, secara lalai helaian
+    pertama. Buku kerja dengan beberapa helaian menawarkan pilihan <em>Helaian</em> dalam langkah 2.
+    Hasil pengiraan formula yang diimport. Sel yang diformatkan sebagai tarikh dibaca sebagai tarikh.
+    Nombor dalam sel dengan format "General" kehilangan sifar di hadapan (poskod 01234 menjadi 1234) –
+    formatkan lajur sedemikian sebagai teks (templat sudah berbuat demikian).
+  </li>
+  <li>
+    <strong>Pengekodan fail CSV:</strong> UTF-8 (dengan atau tanpa tanda tertib bait) dan UTF-16
+    dengan tanda tertib bait dikenali; fail lain dibaca sebagai Windows-1252 (format "ANSI" yang
+    biasa bagi Excel Windows di Eropah Barat), jadi umlaut dan aksen Eropah Barat dipaparkan dengan
+    betul tanpa sebarang tetapan. Bagi semua tulisan dan huruf lain (contohnya ł, ř, ș, Yunani,
+    Arab, Ibrani, Cina, Jepun, Korea atau Thai), simpan fail sebagai "CSV UTF-8" atau gunakan .xlsx.
+  </li>
+  <li>
+    <strong>Pemisah fail CSV:</strong> koma bertitik, koma, tab atau bar menegak (|) dikesan secara
+    automatik. Nilai dalam tanda petikan boleh mengandungi pemisah dan pemisah baris.
+  </li>
+  <li>
+    <strong>Baris pengepala:</strong> baris pertama dengan nama lajur mesti berada dalam 10 baris
+    pertama yang tidak kosong dan mengandungi sekurang-kurangnya dua sel teks. Baris di atasnya
+    (contohnya tajuk) dan baris kosong diabaikan.
+  </li>
+  <li>
+    <strong>Format tarikh:</strong> hari, bulan dan tahun dipisahkan oleh titik, garis miring atau
+    tanda sempang, contohnya 31.12.1990, 12/31/1990 atau 1990-12-31; bahagian masa selepas tarikh
+    diabaikan. Nilai yang bermula dengan tahun empat digit sentiasa dibaca sebagai tahun-bulan-hari.
+    Jika fail tidak menunjukkan sama ada hari atau bulan didahulukan (tiada nilai melebihi 12),
+    Klacks menganggap hari/bulan/tahun dan meminta format tarikh disemak dalam langkah 2. Nama bulan
+    (contohnya "31 Dec 1990") tidak dikenali.
+  </li>
+  <li>
+    <strong>Tahun dua digit:</strong> tahun sehingga dua digit terakhir tahun semasa dikira sebagai
+    20xx, yang lebih tinggi sebagai 19xx (pada tahun 2026: "26" = 2026, "27" = 1927). Pratonton
+    menandakan setiap tarikh sedemikian dengan amaran supaya abad dapat disemak.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Had dan senarai yang lebih besar</h3>
+<ul>
+  <li>Maksimum <strong>5 MB</strong> bagi setiap fail.</li>
+  <li>
+    Maksimum <strong>1000 baris</strong> bagi setiap import – yang dikira ialah baris data di bawah
+    baris pengepala, tanpa baris kosong.
+  </li>
+  <li>
+    Maksimum <strong>60 lajur</strong>. Dalam Excel, lajur terakhir yang digunakan dikira: satu nilai
+    yang terlupa jauh di sebelah kanan menjadikan fail terlalu lebar.
+  </li>
+  <li>
+    Satu sel boleh mengandungi maksimum 1000 aksara; kandungan yang lebih panjang dipotong. Nama
+    pertama, nama akhir, gelaran dan syarikat masing-masing boleh mempunyai maksimum 100 aksara,
+    begitu juga alamat e-mel, nombor telefon dan nombor telefon bimbit.
+  </li>
+  <li>
+    Fail Excel boleh mengandungi maksimum 20 MB apabila diekstrak (perlindungan terhadap fail yang
+    dimanipulasi).
+  </li>
+</ul>
+<p>
+<strong>Senarai yang lebih besar:</strong> pecahkan senarai kepada beberapa fail dengan maksimum 1000
+baris setiap satu; setiap fail memerlukan baris pengepalanya sendiri. Lajur yang tidak diperlukan
+boleh dipadam terlebih dahulu. Import fail tersebut satu demi satu. Orang yang telah diimport
+daripada fail sebelumnya dikenali sebagai pendua jika mereka mempunyai alamat e-mel atau tarikh lahir
+(lihat <em>Pendua</em>).
+</p>
+
+<hr>
+
+<h3>Templat</h3>
+<p>
+Butang <em>Muat turun templat</em> dalam langkah 1 menyediakan fail Excel dalam bahasa pengguna
+(nama fail <code>klacks-employee-import-ms.xlsx</code>). Dengan templat, setiap lajur dikenali dengan
+tepat. Baris pengepalanya ditebalkan dan dibekukan, setiap lajur diformatkan sebagai teks (sifar di
+hadapan dan tarikh kekal seperti yang ditaip), dan pengepala lajur <em>Jenis</em> mempunyai nota
+dengan nilai yang dibenarkan. Templat tidak mengandungi baris contoh, kerana baris itu akan turut
+diimport.
+</p>
+<p>
+Lajur templat, mengikut susunan ini: Nama pertama, Nama akhir, Gelaran, Syarikat, Jenis, Jantina,
+Tarikh lahir, Alamat, Alamat baris 2, Poskod, Bandar, Negeri, Negara, E-mel, Telefon, Telefon bimbit,
+Tarikh mula bekerja, Tarikh berhenti, Kontrak, Kumpulan, Catatan. Senarai sendiri juga boleh
+digunakan – Klacks juga mengenali nama lajur dalam kesemua 25 bahasa Klacks dan banyak variasi yang
+lazim (contohnya "Nama keluarga", "Poskod", "Tarikh masuk").
+</p>
+
+<hr>
+
+<h3>Langkah 1 – Fail</h3>
+<ul>
+  <li>
+    Seret fail ke zon muat naik atau klik zon tersebut untuk memilih fail. Klacks membaca fail dan
+    beralih ke langkah 2.
+  </li>
+  <li>
+    Masalah fail (format salah, terlalu besar, terlalu banyak baris atau lajur, tiada baris pengepala)
+    dipaparkan terus di bawah zon muat naik; lihat <em>Ralat biasa dan penyelesaian</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Langkah 2 – Pemetaan &amp; peraturan</h3>
+<h4>Petakan lajur</h4>
+<ul>
+  <li>
+    Setiap lajur fail muncul dalam satu baris dengan sehingga tiga nilai contoh, medan yang
+    dicadangkan oleh Klacks (<em>Import sebagai</em>) dan sejauh mana cadangan itu pasti
+    (<em>Tahap keyakinan</em>).
+  </li>
+  <li>
+    Setiap cadangan boleh diubah dalam senarai juntai bawah. Lajur yang tidak sepatutnya diimport
+    ditetapkan kepada <em>Jangan import</em>. Setiap medan hanya boleh diberikan kepada satu lajur.
+  </li>
+  <li>
+    <em>Format tarikh</em> muncul apabila fail mengandungi tarikh; apabila fail tidak menentukan
+    susunan hari dan bulan, pilihan tersebut mesti disemak.
+  </li>
+  <li>
+    <em>Susunan dalam medan nama</em> muncul bagi lajur dengan nama penuh: <em>Nama pertama Nama
+    akhir</em> atau <em>Nama akhir Nama pertama</em>. Koma ("Tan, Siew Ling") sentiasa bermaksud nama
+    akhir didahulukan. Nama penuh hanya mengisi nama pertama atau nama akhir yang tidak mempunyai lajur
+    sendiri atau yang kosong dalam sesuatu baris.
+  </li>
+</ul>
+<h4>Peraturan untuk maklumat yang tiada</h4>
+<p>Peraturan ini terpakai untuk semua baris:</p>
+<ul>
+  <li>
+    <em>Kontrak jika tiada diberikan</em> dan <em>Kumpulan jika tiada diberikan</em> – digunakan untuk
+    baris tanpa kontrak atau kumpulan, atau dengan nama yang tidak wujud.
+  </li>
+  <li>
+    <em>Tarikh mula bekerja jika tiada diberikan</em> – kosong bermaksud hari ini. Tarikh ini juga
+    merupakan permulaan kontrak, penugasan kumpulan dan alamat.
+  </li>
+  <li>
+    <em>Negara jika tiada diberikan</em> – lalai <em>Negara pemasangan</em>.
+  </li>
+  <li>
+    <em>Simpan alamat e-mel sebagai</em>, <em>Simpan nombor telefon sebagai</em>, <em>Simpan nombor
+    telefon bimbit sebagai</em> – peribadi atau pejabat; terpakai untuk semua baris.
+  </li>
+  <li>
+    <em>Bekas pekerja (tarikh berhenti pada masa lalu)</em> – <em>Langkau</em> (lalai) atau
+    <em>Import dengan tarikh berhenti</em>. Tarikh berhenti hari ini atau kemudian sentiasa diimport.
+  </li>
+  <li>
+    <em>Kemungkinan pendua</em> – <em>Langkau</em> (lalai) atau <em>Cipta juga</em>.
+  </li>
+</ul>
+<p>
+<em>Teruskan ke pratonton</em> beralih ke langkah seterusnya; <em>Pilih fail lain</em> bermula semula
+dengan fail yang berbeza.
+</p>
+
+<hr>
+
+<h3>Langkah 3 – Pratonton</h3>
+<ul>
+  <li>
+    Ringkasan mengira baris: jumlah, sedia, dilangkau, dengan ralat, pendua dan dengan amaran. Catatan
+    yang melibatkan semua atau banyak baris dipaparkan sekali di atas jadual, bersama lajur yang tidak
+    diimport.
+  </li>
+  <li>
+    Jadual menunjukkan setiap baris sebagaimana ia akan disimpan, dengan ralat didahulukan, diikuti
+    amaran dan petunjuk. <em>Tunjukkan hanya baris yang bermasalah</em> menyempitkan senarai.
+  </li>
+  <li>
+    Bagi setiap baris: <em>Langkau</em> mengecualikan baris tersebut; <em>Sila pilih</em> menetapkan
+    jantina bagi baris yang tidak mempunyainya; <em>Cipta juga</em> mengekalkan baris yang dikenali
+    sebagai pendua.
+  </li>
+  <li>
+    Nilai lain tidak boleh disunting dalam pratonton. Untuk membetulkannya, perbaiki fail dan pilih
+    fail itu semula (<em>Pilih fail lain</em>), atau ubah pemetaan dengan <em>Kembali</em>.
+  </li>
+  <li>
+    Butang import menunjukkan bilangan orang yang akan dicipta (contohnya <em>Import 25
+    pekerja</em>). Butang ini kekal dinyahaktifkan selagi masih ada baris dengan ralat: betulkan baris
+    tersebut atau langkaunya.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Langkah 4 – Keputusan</h3>
+<p>
+Menunjukkan bilangan orang yang telah dicipta dan bilangan baris yang dilangkau, serta bilangan
+alamat yang sedang dikesan pada peta di latar belakang. <em>Pergi ke senarai pekerja</em> membuka
+senarai, <em>Import fail lain</em> memulakan import baharu.
+</p>
+
+<hr>
+
+<h3>Lajur yang boleh diimport</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Medan (Import sebagai)</th>
+      <th>Wajib</th>
+      <th>Catatan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Nama pertama, Nama akhir</td>
+      <td>Ya, bagi individu</td>
+      <td>Maksimum 100 aksara setiap satu. Tidak wajib bagi pelanggan dengan syarikat.</td>
+    </tr>
+    <tr>
+      <td>Nama penuh</td>
+      <td>Tidak</td>
+      <td>Alternatif kepada lajur nama yang berasingan; dipisahkan kepada nama pertama dan nama akhir
+        (lihat langkah 2). Nama dengan lebih daripada dua bahagian menerima amaran – semak pemisahannya.</td>
+    </tr>
+    <tr>
+      <td>Gelaran</td>
+      <td>Tidak</td>
+      <td>Diambil tanpa perubahan, contohnya "Dr.". Gelaran di dalam nama penuh tidak dipisahkan.</td>
+    </tr>
+    <tr>
+      <td>Jantina, Panggilan</td>
+      <td>Ya, bagi individu</td>
+      <td>Lihat <em>Jantina dan panggilan</em>. Tanpa nilai, jantina dipilih bagi setiap baris dalam
+        pratonton.</td>
+    </tr>
+    <tr>
+      <td>Tarikh lahir</td>
+      <td>Tidak</td>
+      <td>Tarikh pada masa hadapan ialah ralat. Penting untuk pengesanan pendua.</td>
+    </tr>
+    <tr>
+      <td>Syarikat</td>
+      <td>Bagi pelanggan yang merupakan syarikat</td>
+      <td>Maksimum 100 aksara. Lihat <em>Jenis dan syarikat</em>.</td>
+    </tr>
+    <tr>
+      <td>Jenis (pekerja, luaran, pelanggan)</td>
+      <td>Tidak</td>
+      <td>Kosong atau tiada = pekerja. Lihat <em>Jenis dan syarikat</em>.</td>
+    </tr>
+    <tr>
+      <td>Jalan, Nombor rumah</td>
+      <td>Tidak</td>
+      <td>Nombor rumah yang berasingan ditambahkan pada jalan.</td>
+    </tr>
+    <tr>
+      <td>Baris alamat 2</td>
+      <td>Tidak</td>
+      <td>Diambil sebagai teks bebas.</td>
+    </tr>
+    <tr>
+      <td>Poskod, Bandar</td>
+      <td>Bagi pelanggan yang merupakan syarikat</td>
+      <td>Alamat dicipta sebaik sahaja jalan, poskod atau bandar diberikan.</td>
+    </tr>
+    <tr>
+      <td>Poskod dan bandar</td>
+      <td>Tidak</td>
+      <td>Satu lajur dengan kedua-duanya, contohnya "8000 Zürich" atau "CH-8000 Zürich"; hanya digunakan
+        apabila baris tidak mempunyai poskod atau bandar yang berasingan. Jika tidak dapat dipisahkan,
+        keseluruhan nilai menjadi bandar (amaran).</td>
+    </tr>
+    <tr>
+      <td>Negeri / wilayah</td>
+      <td>Tidak</td>
+      <td>Teks bebas; jika kosong, ia diisi apabila alamat dikesan pada peta.</td>
+    </tr>
+    <tr>
+      <td>Negara</td>
+      <td>Bagi pelanggan yang merupakan syarikat (negara lalai dikira)</td>
+      <td>Kod negara (CH, DE …) atau nama negara dalam mana-mana bahasa Klacks. Kosong = negara lalai;
+        negara yang tidak dikenali memberikan amaran dan negara lalai digunakan.</td>
+    </tr>
+    <tr>
+      <td>E-mel</td>
+      <td>Tidak</td>
+      <td>Alamat yang tidak sah dikecualikan dengan amaran; orang tersebut tetap diimport.</td>
+    </tr>
+    <tr>
+      <td>Telefon, Telefon bimbit</td>
+      <td>Tidak</td>
+      <td>Ruang dan pemisah dibuang dan 00 di hadapan menjadi +; nombor tanpa + menerima kod panggilan
+        negara bagi baris tersebut.</td>
+    </tr>
+    <tr>
+      <td>Tarikh mula bekerja</td>
+      <td>Tidak</td>
+      <td>Kosong = peraturan <em>Tarikh mula bekerja jika tiada diberikan</em>. Tarikh yang tidak
+        munasabah (sebelum tarikh lahir, atau lebih daripada 50 tahun jaraknya) memberikan amaran.</td>
+    </tr>
+    <tr>
+      <td>Tarikh berhenti</td>
+      <td>Tidak</td>
+      <td>Sebelum tarikh mula bekerja = ralat. Pada masa lalu: lihat peraturan <em>Bekas
+        pekerja</em>.</td>
+    </tr>
+    <tr>
+      <td>Kontrak, Kumpulan</td>
+      <td>Tidak</td>
+      <td>Dipadankan mengikut nama; lihat <em>Kontrak dan kumpulan</em>.</td>
+    </tr>
+    <tr>
+      <td>Nota</td>
+      <td>Tidak</td>
+      <td>Disimpan sebagai nota pada orang tersebut.</td>
+    </tr>
+    <tr>
+      <td>Nombor pekerja (diberikan oleh Klacks)</td>
+      <td>–</td>
+      <td>Dikenali tetapi tidak pernah diimport; lihat <em>Nombor pekerja</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Jenis dan syarikat</h3>
+<ul>
+  <li>
+    Lajur <em>Jenis</em> menyatakan bagi setiap baris sama ada ia pekerja, pekerja luaran atau
+    pelanggan. Nilai yang dikenali termasuklah, contohnya, <code>Pekerja</code>,
+    <code>Kakitangan</code>, <code>Dalaman</code> (pekerja), <code>Luaran</code>,
+    <code>Pekerja luaran</code>, <code>Kontraktor</code> (pekerja luaran) dan
+    <code>Pelanggan</code> (pelanggan); perkataan yang sepadan dalam semua bahasa Klacks yang lain serta
+    nombor 0, 1 dan 2 juga boleh digunakan. Huruf besar dan huruf kecil tidak penting.
+  </li>
+  <li>
+    <strong>Sel kosong</strong> atau fail tanpa lajur jenis bermaksud <strong>pekerja</strong>. Nilai
+    yang tidak dikenali ialah ralat dalam pratonton.
+  </li>
+  <li>
+    <strong>Pelanggan dengan syarikat:</strong> dicipta sebagai syarikat (entiti undang-undang), bukan
+    sebagai individu. Nama pertama dan nama akhir adalah pilihan dan disimpan sebagai orang hubungan
+    (pratonton menandakannya dengan <em>Orang hubungan:</em>); jantina dalam baris diabaikan. Baris
+    sedemikian memerlukan alamat dengan poskod, bandar dan negara (negara lalai dikira).
+  </li>
+  <li>
+    <strong>Pelanggan tanpa syarikat:</strong> dicipta sebagai individu – nama pertama, nama akhir dan
+    jantina adalah wajib.
+  </li>
+  <li>
+    <strong>Pekerja atau pekerja luaran dengan syarikat:</strong> kekal sebagai individu; nama syarikat
+    disimpan bersama orang tersebut.
+  </li>
+  <li>
+    <strong>Pelanggan tidak pernah menerima kontrak</strong> – sama ada daripada fail (amaran, nilai
+    tidak diimport) mahupun daripada peraturan. Kumpulan juga diberikan kepada pelanggan.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Jantina dan panggilan</h3>
+<ul>
+  <li>
+    Individu memerlukan jantina: <em>Perempuan</em>, <em>Lelaki</em> atau <em>Lain-lain</em>. Jantina
+    diambil daripada lajur <em>Jantina</em>; jika lajur itu kosong, daripada lajur <em>Panggilan</em>
+    (pratonton mencatat perkara ini). Tanpa kedua-duanya, jantina dipilih bagi setiap baris dalam
+    pratonton (<em>Sila pilih</em>).
+  </li>
+  <li>
+    Nilai yang dikenali termasuklah, contohnya, <code>Puan</code>, <code>Cik</code>,
+    <code>Wanita</code> (perempuan), <code>Encik</code>, <code>En.</code>,
+    <code>Lelaki</code> (lelaki) dan <code>Lain-lain</code> (lain-lain)
+    – serta perkataan yang sepadan dalam semua bahasa Klacks yang lain, seperti
+    <code>Herr</code>/<code>Frau</code> atau <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Huruf besar dan huruf kecil, aksen dan tanda baca tidak penting; bagi panggilan yang lebih panjang,
+    perkataan pertama yang dikira ("Encik Dr." = lelaki).
+  </li>
+  <li>Syarikat (pelanggan dengan syarikat) tidak memerlukan jantina.</li>
+</ul>
+
+<hr>
+
+<h3>Kontrak dan kumpulan</h3>
+<ul>
+  <li>
+    Nilai dalam fail dibandingkan dengan nama kontrak dan kumpulan yang sedia ada; huruf besar dan
+    huruf kecil serta ruang di awal atau di hujung tidak penting.
+  </li>
+  <li>
+    Jika nama tidak wujud, wujud beberapa kali atau kosong, kontrak atau kumpulan daripada peraturan
+    digunakan dan pratonton menyatakannya. Tanpa peraturan, baris tidak menerima kontrak atau kumpulan.
+  </li>
+  <li>
+    <strong>Import tidak mencipta kontrak atau kumpulan.</strong> Sediakan kontrak dan kumpulan
+    terlebih dahulu dalam tetapan dan pada halaman kumpulan, kemudian lakukan import.
+  </li>
+  <li>
+    Kontrak dan kumpulan bermula pada tarikh mula bekerja dan berakhir pada tarikh berhenti, jika ada.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Nombor pekerja</h3>
+<p>
+Klacks <strong>sentiasa memberikan nombor pekerja sendiri</strong>. Lajur nombor pekerja dalam fail
+dikenali tetapi diabaikan; pratonton memaparkan petunjuk. Untuk mengekalkan nombor daripada sistem
+lain, lajur tersebut boleh dipetakan kepada <em>Nota</em> dalam langkah 2, selagi tiada lajur lain
+yang diimport sebagai nota.
+</p>
+
+<hr>
+
+<h3>Pendua</h3>
+<ul>
+  <li>
+    <strong>Individu:</strong> baris dikira sebagai pendua apabila <strong>alamat e-mel</strong> sama,
+    atau apabila <strong>nama pertama, nama akhir dan tarikh lahir</strong> sama. Huruf besar dan huruf
+    kecil, aksen dan tanda sempang diabaikan ("Müller" = "Muller", "Hans-Peter" = "Hanspeter").
+  </li>
+  <li>
+    <strong>Syarikat</strong> (pelanggan dengan syarikat): <strong>syarikat, poskod dan jalan</strong>
+    yang sama.
+  </li>
+  <li>
+    Baris dibandingkan dengan orang yang sudah ada dalam Klacks dan dengan baris terdahulu dalam fail
+    yang sama. <strong>Pelanggan hanya dibandingkan dengan pelanggan</strong>, manakala pekerja dan
+    pekerja luaran dibandingkan sesama sendiri.
+  </li>
+  <li>
+    Pendua dilangkau dengan peraturan <em>Kemungkinan pendua</em> = <em>Langkau</em>. Dengan
+    <em>Cipta juga</em> – sebagai peraturan untuk semua baris atau bagi setiap baris dalam pratonton –
+    pendua tetap dicipta.
+  </li>
+  <li>
+    Hanya <strong>petunjuk</strong>, tanpa melangkau: nama yang sama tanpa tarikh lahir yang sepadan,
+    atau syarikat yang sama di alamat lain. Semak baris sedemikian sebelum mengimport.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Penyimpanan dan alamat</h3>
+<ul>
+  <li>
+    <strong>Semua atau tiada:</strong> import menyimpan semua baris yang sedia sekali gus. Jika
+    berlaku sebarang kegagalan, tiada apa-apa yang disimpan. Sebelum menyimpan, Klacks menyemak semula
+    semua baris berbanding data semasa.
+  </li>
+  <li>
+    Dicipta bagi setiap baris: individu (atau syarikat), tempoh pekerjaan dari tarikh mula bekerja
+    hingga tarikh berhenti, alamat, alamat e-mel, nombor telefon dan telefon bimbit, kontrak, kumpulan
+    dan nota.
+  </li>
+  <li>
+    Import yang sama tidak boleh disimpan dua kali; percubaan kedua menunjukkan bahawa import telah pun
+    dilaksanakan.
+  </li>
+  <li>
+    <strong>Peta:</strong> alamat dengan poskod dan bandar dikesan pada peta di latar belakang selepas
+    import, satu demi satu. Dengan banyak alamat, ini boleh mengambil masa beberapa minit; orang
+    tersebut sudah boleh digunakan sementara itu.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Ralat biasa dan penyelesaian</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Mesej</th>
+      <th>Punca</th>
+      <th>Penyelesaian</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Format fail ini tidak disokong. Sila gunakan fail .xlsx atau .csv.</td>
+      <td>.xls, .ods, PDF atau fail yang rosak.</td>
+      <td>Simpan fail dalam Excel sebagai .xlsx atau eksportnya sebagai CSV.</td>
+    </tr>
+    <tr>
+      <td>Fail terlalu besar (maksimum 5 MB).</td>
+      <td>Fail melebihi 5 MB, contohnya kerana imej atau helaian yang tidak digunakan.</td>
+      <td>Buang imej dan helaian yang tidak digunakan, atau pecahkan senarai.</td>
+    </tr>
+    <tr>
+      <td>Fail mengandungi terlalu banyak baris (maksimum 1000 orang bagi setiap import).</td>
+      <td>Lebih daripada 1000 baris data.</td>
+      <td>Pecahkan senarai kepada beberapa fail (lihat <em>Had dan senarai yang lebih besar</em>).</td>
+    </tr>
+    <tr>
+      <td>Fail mengandungi terlalu banyak lajur (maksimum 60).</td>
+      <td>Lebih daripada 60 lajur, selalunya kerana nilai tersasar jauh di sebelah kanan.</td>
+      <td>Padam lajur yang tidak digunakan, termasuk lajur yang kelihatan kosong di tepi kanan.</td>
+    </tr>
+    <tr>
+      <td>Tiada baris pengepala dengan nama lajur ditemui dalam beberapa baris pertama.</td>
+      <td>Tiada baris dengan sekurang-kurangnya dua nama lajur dalam 10 baris pertama.</td>
+      <td>Letakkan baris pengepala dengan nama lajur di atas data.</td>
+    </tr>
+    <tr>
+      <td>Fail tidak mengandungi data.</td>
+      <td>Fail kosong, hanya baris pengepala, atau tiada helaian yang kelihatan.</td>
+      <td>Semak fail; nyahsembunyikan helaian dalam Excel.</td>
+    </tr>
+    <tr>
+      <td>Jantina tiada – sila pilih.</td>
+      <td>Tiada jantina atau panggilan, atau jantina atau panggilan tidak dikenali.</td>
+      <td>Pilih jantina dalam pratonton, atau isi lajur dalam fail.</td>
+    </tr>
+    <tr>
+      <td>Nama pertama tiada. / Nama akhir tiada.</td>
+      <td>Lajur nama kosong atau tidak dipetakan; nama penuh dengan hanya satu perkataan.</td>
+      <td>Semak pemetaan dalam langkah 2 atau lengkapkan fail.</td>
+    </tr>
+    <tr>
+      <td>Tarikh tidak sah: "…".</td>
+      <td>Tarikh tidak dapat dibaca, tarikh lahir pada masa hadapan, atau tarikh berhenti sebelum tarikh
+        mula bekerja.</td>
+      <td>Semak format tarikh dalam langkah 2 atau betulkan nilai dalam fail.</td>
+    </tr>
+    <tr>
+      <td>Jenis "…" tidak dikenali – gunakan pekerja, luaran atau pelanggan.</td>
+      <td>Nilai dalam lajur jenis tidak dikenali.</td>
+      <td>Gunakan salah satu nilai daripada nota templat, atau biarkan sel kosong (= pekerja).</td>
+    </tr>
+    <tr>
+      <td>Pelanggan dengan syarikat memerlukan alamat dengan poskod, bandar dan negara.</td>
+      <td>Baris syarikat tanpa alamat yang lengkap.</td>
+      <td>Lengkapkan poskod dan bandar; tetapkan negara dalam fail atau dalam peraturan.</td>
+    </tr>
+    <tr>
+      <td>Nilai terlalu panjang (maksimum … aksara).</td>
+      <td>Nama, gelaran, syarikat, e-mel atau telefon melebihi 100 aksara.</td>
+      <td>Pendekkan nilai dalam fail.</td>
+    </tr>
+    <tr>
+      <td>Kontrak "…" tidak ditemui. / Kumpulan "…" tidak ditemui.</td>
+      <td>Nama berbeza daripada kontrak dan kumpulan dalam Klacks.</td>
+      <td>Betulkan nama, atau sediakan kontrak atau kumpulan terlebih dahulu; jika tidak, peraturan
+        terpakai.</td>
+    </tr>
+    <tr>
+      <td>Sesetengah baris masih mempunyai ralat. Betulkan atau langkau baris tersebut, kemudian cuba
+        lagi.</td>
+      <td>Sekurang-kurangnya satu baris mempunyai ralat.</td>
+      <td>Gunakan <em>Tunjukkan hanya baris yang bermasalah</em>, kemudian betulkan atau langkau baris
+        tersebut.</td>
+    </tr>
+    <tr>
+      <td>Salah satu peraturan untuk maklumat yang tiada tidak lagi sah …</td>
+      <td>Kontrak atau kumpulan yang dipilih dalam peraturan telah dipadam sementara itu.</td>
+      <td>Semak peraturan dalam langkah 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Selepas import</h3>
+<ul>
+  <li>
+    Orang yang diimport ialah rekod biasa. Kesilapan dibetulkan atau dipadam pada halaman orang
+    tersebut; tiada fungsi "buat asal" bagi keseluruhan import.
+  </li>
+  <li>
+    Mengimport fail yang sama kali kedua akan menemui semula baris dengan alamat e-mel atau tarikh
+    lahir sebagai pendua. Baris dengan nama sahaja hanya ditandakan – semak baris tersebut sebelum
+    mengimport kali kedua.
+  </li>
+  <li>
+    Seorang individu dicipta secara manual pada halaman pekerja; direktori syarikat boleh
+    disegerakkan oleh pentadbir melalui tetapan penyedia identiti.
+  </li>
+</ul>

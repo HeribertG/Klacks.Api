@@ -1,0 +1,607 @@
+<h2>Työntekijöiden tuonti – Käyttöopas</h2>
+
+<h3>Mikä on työntekijöiden tuonti?</h3>
+<p>
+Työntekijöiden tuonnilla otetaan käyttöön koko henkilöstöluettelo <strong>yhdestä Excel-tiedostosta
+(.xlsx) tai yhdestä CSV-tiedostosta (.csv)</strong>, jossa on yksi rivi henkilöä kohti, sen sijaan että
+jokainen henkilö luotaisiin käsin. Klacks tunnistaa sarakkeet itse, näyttää esikatselussa, miltä kukin
+tietue näyttää, ja tallentaa tiedot vasta vahvistuksen jälkeen. Työntekijöiden lisäksi samassa
+tiedostossa voi olla myös ulkoisia työntekijöitä ja asiakkaita.
+</p>
+<ul>
+  <li>
+    <strong>Kuka saa tuoda:</strong> vain pääkäyttäjät. Kortti <em>Tuo työntekijät</em> löytyy
+    asetuksista, osiosta <em>Organisaatio</em>; painike <em>Tuo</em> avaa tuontisivun. Muut käyttäjät
+    eivät näe korttia, ja tuontiin tarvitaan pääkäyttäjä.
+  </li>
+  <li>
+    <strong>Tietosuoja:</strong> itse tiedostoa ei tallenneta. Se ainoastaan luetaan; vain
+    esikatselussa vahvistetut rivit luodaan.
+  </li>
+  <li>
+    <strong>Neljä vaihetta:</strong> <em>Tiedosto</em> → <em>Kohdistus ja säännöt</em> →
+    <em>Esikatselu</em> → <em>Tulos</em>. Välilehti <em>Käyttöohje</em> näyttää tämän käyttöoppaan;
+    siihen siirtyminen ei keskeytä käynnissä olevaa tuontia.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Tuetut tiedostot</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> ja <strong>CSV (.csv)</strong>; .txt-tiedosto luetaan kuten
+    CSV-tiedosto. Vanhaa Excel-muotoa <strong>.xls ei tueta</strong> – tiedosto on ensin tallennettava
+    Excelissä .xlsx-muotoon.
+  </li>
+  <li>
+    <strong>Excel-työkirjat:</strong> vain näkyvät taulukot luetaan, oletuksena ensimmäinen. Jos
+    työkirjassa on useita taulukoita, vaiheessa 2 tarjotaan valinta <em>Taulukko</em>. Kaavoista tuodaan
+    laskettu tulos. Päivämääräksi muotoillut solut luetaan päivämäärinä. Muotoilulla "Yleinen"
+    olevien solujen luvuista häviävät etunollat (postinumerosta 01234 tulee 1234) – tällaiset sarakkeet
+    kannattaa muotoilla tekstiksi (mallissa näin on jo tehty).
+  </li>
+  <li>
+    <strong>CSV-tiedostojen merkistökoodaus:</strong> UTF-8 (tavujärjestysmerkin kanssa tai ilman) ja
+    UTF-16 tavujärjestysmerkin kanssa tunnistetaan; kaikki muut tiedostot luetaan Windows-1252-muodossa
+    (Windows-Excelin tavallinen "ANSI"-muoto Länsi-Euroopassa), joten länsieurooppalaiset ääkköset ja
+    aksentit säilyvät ilman erillisiä asetuksia. Kaikkia muita kirjoitusjärjestelmiä ja kirjaimia varten
+    (esimerkiksi ł, ř, ș, kreikka, arabia, heprea, kiina, japani, korea tai thai) tiedosto on
+    tallennettava muodossa "CSV UTF-8" tai on käytettävä .xlsx-tiedostoa.
+  </li>
+  <li>
+    <strong>CSV-tiedostojen erotin:</strong> puolipiste, pilkku, sarkain tai pystyviiva (|)
+    tunnistetaan automaattisesti. Lainausmerkeissä olevat arvot voivat sisältää erottimen ja
+    rivinvaihtoja.
+  </li>
+  <li>
+    <strong>Otsikkorivi:</strong> ensimmäisen sarakkeiden nimet sisältävän rivin on oltava 10
+    ensimmäisen ei-tyhjän rivin joukossa, ja siinä on oltava vähintään kaksi tekstisolua. Sen
+    yläpuolella olevat rivit (esimerkiksi otsikko) ja tyhjät rivit ohitetaan.
+  </li>
+  <li>
+    <strong>Päivämäärämuodot:</strong> päivä, kuukausi ja vuosi pisteellä, kauttaviivalla tai
+    yhdysviivalla erotettuina, esimerkiksi 31.12.1990, 12/31/1990 tai 1990-12-31; päivämäärän perässä
+    oleva kellonaika ohitetaan. Nelinumeroisella vuosiluvulla alkava arvo luetaan aina muodossa
+    vuosi-kuukausi-päivä. Jos tiedostosta ei käy ilmi, tuleeko päivä vai kuukausi ensin (yksikään arvo
+    ei ole yli 12), Klacks olettaa muodon päivä/kuukausi/vuosi ja pyytää tarkistamaan päivämäärän
+    muodon vaiheessa 2. Kuukausien nimiä (esimerkiksi "31. joulukuuta 1990") ei tunnisteta.
+  </li>
+  <li>
+    <strong>Kaksinumeroiset vuosiluvut:</strong> vuodet kuluvan vuoden kahteen viimeiseen numeroon asti
+    tulkitaan muotoon 20xx, suuremmat muotoon 19xx (vuonna 2026: "26" = 2026, "27" = 1927). Esikatselu
+    merkitsee jokaisen tällaisen päivämäärän varoituksella, jotta vuosisata voidaan tarkistaa.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Rajat ja suuremmat luettelot</h3>
+<ul>
+  <li>Enintään <strong>5 Mt</strong> tiedostoa kohti.</li>
+  <li>
+    Enintään <strong>1000 riviä</strong> tuontia kohti – mukaan lasketaan otsikkorivin alapuolella
+    olevat tietorivit ilman tyhjiä rivejä.
+  </li>
+  <li>
+    Enintään <strong>60 saraketta</strong>. Excelissä ratkaisee viimeinen käytetty sarake: yksikin
+    unohtunut arvo kaukana oikealla tekee tiedostosta liian leveän.
+  </li>
+  <li>
+    Solussa voi olla enintään 1000 merkkiä; pidempi sisältö katkaistaan. Etunimessä, sukunimessä,
+    tittelissä ja yrityksessä voi olla kussakin enintään 100 merkkiä, samoin sähköpostiosoitteessa,
+    puhelinnumerossa ja matkapuhelinnumerossa.
+  </li>
+  <li>
+    Excel-tiedosto saa purettuna olla enintään 20 Mt (suojaus manipuloituja tiedostoja vastaan).
+  </li>
+</ul>
+<p>
+<strong>Suuremmat luettelot:</strong> luettelo jaetaan useaan tiedostoon, joissa kussakin on enintään
+1000 riviä; jokainen tiedosto tarvitsee oman otsikkorivin. Tarpeettomat sarakkeet voidaan poistaa
+etukäteen. Tiedostot tuodaan peräkkäin. Aiemmasta tiedostosta jo tuodut henkilöt tunnistetaan
+kaksoiskappaleiksi, jos heillä on sähköpostiosoite tai syntymäaika (ks. kohta <em>Kaksoiskappaleet</em>).
+</p>
+
+<hr>
+
+<h3>Malli</h3>
+<p>
+Vaiheen 1 painike <em>Lataa malli</em> antaa Excel-tiedoston käyttäjän kielellä (tiedostonimi
+<code>klacks-employee-import-fi.xlsx</code>). Mallin avulla jokainen sarake tunnistetaan luotettavasti.
+Sen otsikkorivi on lihavoitu ja kiinnitetty, jokainen sarake on muotoiltu tekstiksi (etunollat ja
+päivämäärät säilyvät kirjoitetussa muodossa), ja sarakkeen <em>Tyyppi</em> otsikossa on huomautus
+sallituista arvoista. Mallissa ei ole esimerkkiriviä, koska se tuotaisiin.
+</p>
+<p>
+Mallin sarakkeet tässä järjestyksessä: Etunimi, Sukunimi, Titteli, Yritys, Tyyppi, Sukupuoli,
+Syntymäaika, Katuosoite, Osoiterivi 2, Postinumero, Postitoimipaikka, Maakunta, Maa, Sähköposti,
+Puhelin, Matkapuhelin, Aloituspäivä, Päättymispäivä, Sopimus, Ryhmä, Huomautus. Myös omat luettelot
+toimivat – Klacks tunnistaa sarakkeiden nimet kaikilla 25 Klacks-kielellä sekä monia tavallisia
+muunnelmia (esimerkiksi "Etunimet", "Paikkakunta", "Työsuhteen alkamispäivä").
+</p>
+
+<hr>
+
+<h3>Vaihe 1 – Tiedosto</h3>
+<ul>
+  <li>
+    Tiedosto vedetään latausalueelle, tai aluetta napsautetaan tiedoston valitsemiseksi. Klacks lukee
+    tiedoston ja siirtyy vaiheeseen 2.
+  </li>
+  <li>
+    Tiedostoon liittyvä ongelma (väärä muoto, liian suuri, liian monta riviä tai saraketta, ei
+    otsikkoriviä) näytetään suoraan latausalueen alapuolella; ks. kohta <em>Yleiset virheet ja niiden
+    korjaus</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Vaihe 2 – Kohdistus ja säännöt</h3>
+<h4>Yhdistä sarakkeet</h4>
+<ul>
+  <li>
+    Jokainen tiedoston sarake näkyy omalla rivillään, jossa on enintään kolme esimerkkiarvoa, Klacksin
+    ehdottama kenttä (<em>Tuo kenttään</em>) ja ehdotuksen varmuus (<em>Varmuus</em>).
+  </li>
+  <li>
+    Jokaista ehdotusta voidaan muuttaa pudotusvalikossa. Sarake, jota ei haluta tuoda, asetetaan
+    arvoon <em>Älä tuo</em>. Kukin kenttä voidaan kohdistaa vain yhteen sarakkeeseen.
+  </li>
+  <li>
+    <em>Päivämäärän muoto</em> näkyy, kun tiedostossa on päivämääriä; jos tiedostosta ei voida päätellä
+    päivän ja kuukauden järjestystä, valinta on tarkistettava.
+  </li>
+  <li>
+    <em>Järjestys nimikentässä</em> näkyy sarakkeelle, jossa on koko nimi: <em>Etunimi Sukunimi</em>
+    tai <em>Sukunimi Etunimi</em>. Pilkku ("Virtanen, Anna") tarkoittaa aina, että sukunimi on ensin.
+    Koko nimi täyttää vain sellaisen etu- tai sukunimen, jolla ei ole omaa saraketta tai joka on
+    rivillä tyhjä.
+  </li>
+</ul>
+<h4>Puuttuvien tietojen säännöt</h4>
+<p>Nämä säännöt koskevat kaikkia rivejä:</p>
+<ul>
+  <li>
+    <em>Sopimus, jos sitä ei ole annettu</em> ja <em>Ryhmä, jos sitä ei ole annettu</em> – käytetään
+    riveillä, joilla ei ole sopimusta tai ryhmää tai joilla on nimi, jota ei ole olemassa.
+  </li>
+  <li>
+    <em>Alkamispäivä, jos sitä ei ole annettu</em> – tyhjä tarkoittaa tätä päivää. Päivämäärä on myös
+    sopimuksen, ryhmään kuulumisen ja osoitteen alkamispäivä.
+  </li>
+  <li>
+    <em>Maa, jos sitä ei ole annettu</em> – oletuksena <em>Asennuksen maa</em>.
+  </li>
+  <li>
+    <em>Tallenna sähköpostiosoitteet tyyppinä</em>, <em>Tallenna puhelinnumerot tyyppinä</em>,
+    <em>Tallenna matkapuhelinnumerot tyyppinä</em> – yksityinen tai työ; koskee kaikkia rivejä.
+  </li>
+  <li>
+    <em>Entiset työntekijät (päättymispäivä menneisyydessä)</em> – <em>Ohita</em> (oletus) tai
+    <em>Tuo päättymispäivän kanssa</em>. Tänään tai myöhemmin oleva päättymispäivä tuodaan aina.
+  </li>
+  <li>
+    <em>Mahdolliset kaksoiskappaleet</em> – <em>Ohita</em> (oletus) tai <em>Luo silti</em>.
+  </li>
+</ul>
+<p>
+<em>Jatka esikatseluun</em> siirtyy eteenpäin; <em>Valitse toinen tiedosto</em> aloittaa alusta
+toisella tiedostolla.
+</p>
+
+<hr>
+
+<h3>Vaihe 3 – Esikatselu</h3>
+<ul>
+  <li>
+    Yhteenveto laskee rivit: yhteensä, valmiit, ohitetut, virheelliset, kaksoiskappaleet ja
+    varoituksia sisältävät. Huomautukset, jotka koskevat kaikkia tai monia rivejä, näytetään kerran
+    taulukon yläpuolella yhdessä tuomatta jätettyjen sarakkeiden kanssa.
+  </li>
+  <li>
+    Taulukko näyttää jokaisen rivin sellaisena kuin se tallennetaan: ensin virheet, sitten varoitukset
+    ja vihjeet. <em>Näytä vain rivit, joissa on ongelmia</em> rajaa luetteloa.
+  </li>
+  <li>
+    Rivikohtaisesti: <em>Ohita</em> jättää rivin pois; <em>Valitse</em> asettaa sukupuolen riville,
+    jolta se puuttuu; <em>Luo silti</em> säilyttää rivin, joka on tunnistettu kaksoiskappaleeksi.
+  </li>
+  <li>
+    Muita arvoja ei voi muokata esikatselussa. Niiden korjaamiseksi tiedosto korjataan ja valitaan
+    uudelleen (<em>Valitse toinen tiedosto</em>), tai kohdistusta muutetaan painikkeella
+    <em>Takaisin</em>.
+  </li>
+  <li>
+    Tuontipainike näyttää, montako henkilöä luodaan (esimerkiksi <em>Tuo 25 työntekijää</em>). Se pysyy
+    poissa käytöstä niin kauan kuin jollakin rivillä on virhe: rivi on korjattava tai ohitettava.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Vaihe 4 – Tulos</h3>
+<p>
+Näyttää, montako henkilöä luotiin ja montako riviä ohitettiin sekä montako osoitetta paikannetaan
+kartalle taustalla. <em>Siirry työntekijäluetteloon</em> avaa luettelon,
+<em>Tuo toinen tiedosto</em> aloittaa uuden tuonnin.
+</p>
+
+<hr>
+
+<h3>Tuotavat sarakkeet</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Kenttä (Tuo kenttään)</th>
+      <th>Pakollinen</th>
+      <th>Huomautukset</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Etunimi, Sukunimi</td>
+      <td>Kyllä, henkilöillä</td>
+      <td>Kukin enintään 100 merkkiä. Ei pakollinen asiakkaalle, jolla on yritys.</td>
+    </tr>
+    <tr>
+      <td>Koko nimi</td>
+      <td>Ei</td>
+      <td>Vaihtoehto erillisille nimisarakkeille; jaetaan etu- ja sukunimeksi (ks. vaihe 2). Yli
+        kaksiosaiset nimet saavat varoituksen – jako on tarkistettava.</td>
+    </tr>
+    <tr>
+      <td>Titteli</td>
+      <td>Ei</td>
+      <td>Otetaan sellaisenaan, esimerkiksi "Dr.". Koko nimen sisällä olevaa titteliä ei eroteta.</td>
+    </tr>
+    <tr>
+      <td>Sukupuoli, Puhuttelu</td>
+      <td>Kyllä, henkilöillä</td>
+      <td>Ks. kohta <em>Sukupuoli ja puhuttelu</em>. Jos arvoa ei ole, sukupuoli valitaan rivikohtaisesti
+        esikatselussa.</td>
+    </tr>
+    <tr>
+      <td>Syntymäaika</td>
+      <td>Ei</td>
+      <td>Tulevaisuudessa oleva päivämäärä on virhe. Tärkeä kaksoiskappaleiden tunnistuksessa.</td>
+    </tr>
+    <tr>
+      <td>Yritys</td>
+      <td>Asiakkailla, jotka ovat yrityksiä</td>
+      <td>Enintään 100 merkkiä. Ks. kohta <em>Tyyppi ja yritys</em>.</td>
+    </tr>
+    <tr>
+      <td>Tyyppi (työntekijä, ulkoinen, asiakas)</td>
+      <td>Ei</td>
+      <td>Tyhjä tai puuttuva = työntekijä. Ks. kohta <em>Tyyppi ja yritys</em>.</td>
+    </tr>
+    <tr>
+      <td>Katu, Talon numero</td>
+      <td>Ei</td>
+      <td>Erillinen talon numero liitetään katuun.</td>
+    </tr>
+    <tr>
+      <td>Osoiterivi 2</td>
+      <td>Ei</td>
+      <td>Otetaan vapaana tekstinä.</td>
+    </tr>
+    <tr>
+      <td>Postinumero, Postitoimipaikka</td>
+      <td>Asiakkailla, jotka ovat yrityksiä</td>
+      <td>Osoite luodaan heti, kun katu, postinumero tai postitoimipaikka on annettu.</td>
+    </tr>
+    <tr>
+      <td>Postinumero ja postitoimipaikka</td>
+      <td>Ei</td>
+      <td>Yksi sarake, jossa on molemmat, esimerkiksi "8000 Zürich" tai "CH-8000 Zürich"; käytetään vain,
+        jos rivillä ei ole erillistä postinumeroa tai postitoimipaikkaa. Jos arvoa ei voida jakaa, koko
+        arvosta tulee postitoimipaikka (varoitus).</td>
+    </tr>
+    <tr>
+      <td>Osavaltio / alue</td>
+      <td>Ei</td>
+      <td>Vapaa teksti; jos kenttä on tyhjä, se täytetään, kun osoite paikannetaan kartalle.</td>
+    </tr>
+    <tr>
+      <td>Maa</td>
+      <td>Asiakkailla, jotka ovat yrityksiä (oletusmaa riittää)</td>
+      <td>Maakoodi (CH, DE …) tai maan nimi millä tahansa Klacks-kielellä. Tyhjä = oletusmaa; tuntematon
+        maa antaa varoituksen, ja tilalla käytetään oletusmaata.</td>
+    </tr>
+    <tr>
+      <td>Sähköposti</td>
+      <td>Ei</td>
+      <td>Virheellinen osoite jätetään pois varoituksen kera; henkilö tuodaan silti.</td>
+    </tr>
+    <tr>
+      <td>Puhelin, Matkapuhelin</td>
+      <td>Ei</td>
+      <td>Välilyönnit ja erottimet poistetaan, ja alussa oleva 00 muutetaan muotoon +; numero ilman
+        +-merkkiä saa rivin maan maatunnuksen.</td>
+    </tr>
+    <tr>
+      <td>Työsuhteen alkamispäivä</td>
+      <td>Ei</td>
+      <td>Tyhjä = sääntö <em>Alkamispäivä, jos sitä ei ole annettu</em>. Epätodennäköiset päivämäärät
+        (ennen syntymäaikaa tai yli 50 vuoden päässä) antavat varoituksen.</td>
+    </tr>
+    <tr>
+      <td>Työsuhteen päättymispäivä</td>
+      <td>Ei</td>
+      <td>Ennen alkamispäivää = virhe. Menneisyydessä: ks. sääntö <em>Entiset työntekijät</em>.</td>
+    </tr>
+    <tr>
+      <td>Sopimus, Ryhmä</td>
+      <td>Ei</td>
+      <td>Kohdistetaan nimen perusteella; ks. kohta <em>Sopimus ja ryhmä</em>.</td>
+    </tr>
+    <tr>
+      <td>Muistiinpano</td>
+      <td>Ei</td>
+      <td>Tallennetaan henkilön muistiinpanoksi.</td>
+    </tr>
+    <tr>
+      <td>Henkilöstönumero (Klacks antaa)</td>
+      <td>–</td>
+      <td>Tunnistetaan, mutta ei koskaan tuoda; ks. kohta <em>Henkilöstönumero</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Tyyppi ja yritys</h3>
+<ul>
+  <li>
+    Sarake <em>Tyyppi</em> kertoo rivikohtaisesti, onko kyseessä työntekijä, ulkoinen työntekijä vai
+    asiakas. Tunnistettuja arvoja ovat esimerkiksi <code>Työntekijä</code>, <code>Henkilöstö</code>,
+    <code>Sisäinen</code> (työntekijä), <code>Ulkoinen</code>, <code>Ulkoinen työntekijä</code>,
+    <code>Vuokratyöntekijä</code> (ulkoinen työntekijä) ja <code>Asiakas</code> (asiakas); myös kaikkien
+    muiden Klacks-kielten vastaavat sanat sekä luvut 0, 1 ja 2 toimivat. Isoilla ja pienillä
+    kirjaimilla ei ole merkitystä.
+  </li>
+  <li>
+    <strong>Tyhjä solu</strong> tai tiedosto ilman tyyppisaraketta tarkoittaa <strong>työntekijää</strong>.
+    Tuntematon arvo on esikatselussa virhe.
+  </li>
+  <li>
+    <strong>Asiakas, jolla on yritys:</strong> luodaan yrityksenä (oikeushenkilönä), ei henkilönä. Etu-
+    ja sukunimi ovat vapaaehtoisia, ja ne säilytetään yhteyshenkilönä (esikatselu merkitsee ne tekstillä
+    <em>Yhteyshenkilö:</em>); rivillä oleva sukupuoli ohitetaan. Tällainen rivi tarvitsee osoitteen,
+    jossa on postinumero, postitoimipaikka ja maa (oletusmaa riittää).
+  </li>
+  <li>
+    <strong>Asiakas ilman yritystä:</strong> luodaan henkilönä – etunimi, sukunimi ja sukupuoli ovat
+    pakollisia.
+  </li>
+  <li>
+    <strong>Työntekijä tai ulkoinen työntekijä, jolla on yritys:</strong> pysyy henkilönä; yrityksen
+    nimi tallennetaan henkilön tietoihin.
+  </li>
+  <li>
+    <strong>Asiakkaat eivät koskaan saa sopimusta</strong> – eivät tiedostosta (varoitus, arvoa ei
+    tuoda) eivätkä säännöistä. Ryhmä kohdistetaan myös asiakkaille.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Sukupuoli ja puhuttelu</h3>
+<ul>
+  <li>
+    Henkilöillä on oltava sukupuoli: <em>Nainen</em>, <em>Mies</em> tai <em>Muu</em>. Se otetaan
+    sarakkeesta <em>Sukupuoli</em>; jos se on tyhjä, sarakkeesta <em>Puhuttelu</em> (esikatselu
+    huomauttaa tästä). Jos kumpaakaan ei ole, sukupuoli valitaan rivikohtaisesti esikatselussa
+    (<em>Valitse</em>).
+  </li>
+  <li>
+    Tunnistettuja arvoja ovat esimerkiksi <code>Rouva</code>, <code>Neiti</code>, <code>Nainen</code>
+    (nainen), <code>Herra</code>, <code>Mies</code> (mies) ja <code>Muu</code>,
+    <code>Intersukupuolinen</code> (muu) – sekä kaikkien muiden Klacks-kielten vastaavat sanat, kuten
+    <code>Herr</code>/<code>Frau</code> tai <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Isoilla ja pienillä kirjaimilla, aksenteilla ja välimerkeillä ei ole merkitystä; pidemmässä
+    puhuttelussa ratkaisee ensimmäinen sana ("Herra Dr." = mies).
+  </li>
+  <li>Yritys (asiakas, jolla on yritys) ei tarvitse sukupuolta.</li>
+</ul>
+
+<hr>
+
+<h3>Sopimus ja ryhmä</h3>
+<ul>
+  <li>
+    Tiedoston arvoa verrataan olemassa olevien sopimusten ja ryhmien nimiin; isoilla ja pienillä
+    kirjaimilla sekä alussa tai lopussa olevilla välilyönneillä ei ole merkitystä.
+  </li>
+  <li>
+    Jos nimeä ei ole olemassa, se esiintyy useita kertoja tai se on tyhjä, käytetään säännöissä
+    määritettyä sopimusta tai ryhmää, ja esikatselu ilmoittaa siitä. Ilman sääntöä rivi jää ilman
+    sopimusta tai ryhmää.
+  </li>
+  <li>
+    <strong>Tuonti ei luo sopimuksia eikä ryhmiä.</strong> Ne on ensin määritettävä asetuksissa ja
+    ryhmäsivulla, minkä jälkeen tuonti tehdään.
+  </li>
+  <li>
+    Sopimus ja ryhmä alkavat alkamispäivänä ja päättyvät päättymispäivänä, jos sellainen on.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Henkilöstönumero</h3>
+<p>
+Klacks <strong>antaa henkilöstönumeron aina itse</strong>. Tiedostossa oleva henkilöstönumerosarake
+tunnistetaan, mutta se ohitetaan; esikatselu näyttää vihjeen. Jos toisen järjestelmän numerot halutaan
+säilyttää, sarake voidaan vaiheessa 2 kohdistaa kenttään <em>Muistiinpano</em>, kunhan mitään muuta
+saraketta ei tuoda muistiinpanona.
+</p>
+
+<hr>
+
+<h3>Kaksoiskappaleet</h3>
+<ul>
+  <li>
+    <strong>Henkilöt:</strong> rivi katsotaan kaksoiskappaleeksi, jos <strong>sähköpostiosoite</strong>
+    on sama tai jos <strong>etunimi, sukunimi ja syntymäaika</strong> ovat samat. Isot ja pienet
+    kirjaimet, aksentit ja yhdysviivat jätetään huomiotta ("Müller" = "Muller", "Hans-Peter" =
+    "Hanspeter").
+  </li>
+  <li>
+    <strong>Yritykset</strong> (asiakkaat, joilla on yritys): sama <strong>yritys, postinumero ja
+    katu</strong>.
+  </li>
+  <li>
+    Rivejä verrataan Klacksissa jo oleviin henkilöihin ja saman tiedoston aiempiin riveihin.
+    <strong>Asiakkaita verrataan vain asiakkaisiin</strong>, työntekijöitä ja ulkoisia työntekijöitä
+    keskenään.
+  </li>
+  <li>
+    Kaksoiskappaleet ohitetaan, kun säännön <em>Mahdolliset kaksoiskappaleet</em> arvona on
+    <em>Ohita</em>. Valinnalla <em>Luo silti</em> – sääntönä kaikille riveille tai rivikohtaisesti
+    esikatselussa – ne luodaan siitä huolimatta.
+  </li>
+  <li>
+    Pelkkä <strong>vihje</strong> ilman ohittamista: sama nimi ilman vastaavaa syntymäaikaa tai sama
+    yritys toisessa osoitteessa. Tällaiset rivit on tarkistettava ennen tuontia.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Tallennus ja osoitteet</h3>
+<ul>
+  <li>
+    <strong>Kaikki tai ei mitään:</strong> tuonti tallentaa kaikki valmiit rivit kerralla. Jos jokin
+    epäonnistuu, mitään ei tallenneta. Ennen tallennusta Klacks tarkistaa kaikki rivit uudelleen
+    ajantasaisia tietoja vasten.
+  </li>
+  <li>
+    Rivikohtaisesti luodaan: henkilö (tai yritys), työsuhteen jakso alkamispäivästä päättymispäivään,
+    osoite, sähköpostiosoite, puhelin- ja matkapuhelinnumero, sopimus, ryhmä ja muistiinpano.
+  </li>
+  <li>
+    Samaa tuontia ei voi tallentaa kahdesti; toisella yrityksellä näytetään ilmoitus, että tuonti on
+    jo suoritettu.
+  </li>
+  <li>
+    <strong>Kartta:</strong> osoitteet, joissa on postinumero ja postitoimipaikka, paikannetaan
+    kartalle taustalla tuonnin jälkeen yksi kerrallaan. Kun osoitteita on paljon, tämä voi kestää
+    muutaman minuutin; henkilöitä voidaan käyttää jo sillä välin.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Yleiset virheet ja niiden korjaus</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Ilmoitus</th>
+      <th>Syy</th>
+      <th>Korjaus</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tätä tiedostomuotoa ei tueta. Käytä .xlsx- tai .csv-tiedostoa.</td>
+      <td>.xls, .ods, PDF tai vahingoittunut tiedosto.</td>
+      <td>Tallenna tiedosto Excelissä .xlsx-muodossa tai vie se CSV-muotoon.</td>
+    </tr>
+    <tr>
+      <td>Tiedosto on liian suuri (enintään 5 Mt).</td>
+      <td>Tiedosto on yli 5 Mt, esimerkiksi kuvien tai käyttämättömien taulukoiden vuoksi.</td>
+      <td>Poista kuvat ja käyttämättömät taulukot tai jaa luettelo.</td>
+    </tr>
+    <tr>
+      <td>Tiedostossa on liian monta riviä (enintään 1000 henkilöä tuontia kohti).</td>
+      <td>Yli 1000 tietoriviä.</td>
+      <td>Jaa luettelo useaan tiedostoon (ks. kohta <em>Rajat ja suuremmat luettelot</em>).</td>
+    </tr>
+    <tr>
+      <td>Tiedostossa on liian monta saraketta (enintään 60).</td>
+      <td>Yli 60 saraketta, usein kaukana oikealla olevan ylimääräisen arvon vuoksi.</td>
+      <td>Poista käyttämättömät sarakkeet, myös tyhjiltä näyttävät oikeassa reunassa.</td>
+    </tr>
+    <tr>
+      <td>Ensimmäisistä riveistä ei löytynyt otsikkoriviä, jossa olisi sarakkeiden nimet.</td>
+      <td>Ensimmäisten 10 rivin joukossa ei ole riviä, jossa olisi vähintään kaksi sarakkeen nimeä.</td>
+      <td>Lisää tietojen yläpuolelle otsikkorivi, jossa on sarakkeiden nimet.</td>
+    </tr>
+    <tr>
+      <td>Tiedostossa ei ole tietoja.</td>
+      <td>Tyhjä tiedosto, pelkkä otsikkorivi tai ei yhtään näkyvää taulukkoa.</td>
+      <td>Tarkista tiedosto; tuo piilotettu taulukko näkyviin Excelissä.</td>
+    </tr>
+    <tr>
+      <td>Sukupuoli puuttuu – valitse sukupuoli.</td>
+      <td>Sukupuoli tai puhuttelu puuttuu, tai sitä ei tunnistettu.</td>
+      <td>Valitse sukupuoli esikatselussa tai täytä sarake tiedostossa.</td>
+    </tr>
+    <tr>
+      <td>Etunimi puuttuu. / Sukunimi puuttuu.</td>
+      <td>Nimisarake on tyhjä tai sitä ei ole kohdistettu; koko nimessä on vain yksi sana.</td>
+      <td>Tarkista kohdistus vaiheessa 2 tai täydennä tiedostoa.</td>
+    </tr>
+    <tr>
+      <td>Virheellinen päivämäärä: "…".</td>
+      <td>Lukukelvoton päivämäärä, syntymäaika tulevaisuudessa tai päättymispäivä ennen alkamispäivää.</td>
+      <td>Tarkista päivämäärän muoto vaiheessa 2 tai korjaa arvo tiedostossa.</td>
+    </tr>
+    <tr>
+      <td>Tuntematon tyyppi "…" – käytä arvoa työntekijä, ulkoinen tai asiakas.</td>
+      <td>Tyyppisarakkeen arvoa ei tunnistettu.</td>
+      <td>Käytä jotakin mallin huomautuksessa mainituista arvoista tai jätä solu tyhjäksi
+        (= työntekijä).</td>
+    </tr>
+    <tr>
+      <td>Asiakas, jolla on yritys, tarvitsee osoitteen, jossa on postinumero, paikkakunta ja maa.</td>
+      <td>Yritysrivi ilman täydellistä osoitetta.</td>
+      <td>Täydennä postinumero ja postitoimipaikka; aseta maa tiedostossa tai säännöissä.</td>
+    </tr>
+    <tr>
+      <td>Arvo on liian pitkä (enintään … merkkiä).</td>
+      <td>Nimi, titteli, yritys, sähköposti tai puhelinnumero on yli 100 merkkiä pitkä.</td>
+      <td>Lyhennä arvoa tiedostossa.</td>
+    </tr>
+    <tr>
+      <td>Sopimusta "…" ei löytynyt. / Ryhmää "…" ei löytynyt.</td>
+      <td>Nimi poikkeaa Klacksissa olevista sopimuksista ja ryhmistä.</td>
+      <td>Korjaa nimi tai määritä sopimus tai ryhmä ensin; muuten sovelletaan sääntöä.</td>
+    </tr>
+    <tr>
+      <td>Joillakin riveillä on vielä virheitä. Korjaa ne tai ohita nämä rivit ja yritä uudelleen.</td>
+      <td>Vähintään yhdellä rivillä on virhe.</td>
+      <td>Käytä valintaa <em>Näytä vain rivit, joissa on ongelmia</em> ja korjaa tai ohita nämä
+        rivit.</td>
+    </tr>
+    <tr>
+      <td>Yksi puuttuvien tietojen säännöistä ei ole enää voimassa …</td>
+      <td>Säännöissä valittu sopimus tai ryhmä on sillä välin poistettu.</td>
+      <td>Tarkista säännöt vaiheessa 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Tuonnin jälkeen</h3>
+<ul>
+  <li>
+    Tuodut henkilöt ovat tavallisia tietueita. Virheet korjataan tai poistetaan henkilön sivulla;
+    koko tuontia ei voi "kumota".
+  </li>
+  <li>
+    Kun sama tiedosto tuodaan toisen kerran, rivit, joilla on sähköpostiosoite tai syntymäaika,
+    tunnistetaan jälleen kaksoiskappaleiksi. Rivit, joilla on pelkkä nimi, ainoastaan merkitään –
+    ne on tarkistettava ennen kuin tiedosto tuodaan uudelleen.
+  </li>
+  <li>
+    Yksittäinen henkilö luodaan käsin työntekijäsivulla; pääkäyttäjä voi synkronoida yrityksen
+    käyttäjähakemiston identiteetintarjoajan asetusten kautta.
+  </li>
+</ul>
