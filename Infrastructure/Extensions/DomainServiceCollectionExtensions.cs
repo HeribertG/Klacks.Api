@@ -201,7 +201,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IDistanceMatrixBuilder, DistanceMatrixBuilder>();
         services.AddScoped<IRouteDirectionsBuilder, RouteDirectionsBuilder>();
         services.AddScoped<IRouteOptimizationService, RouteOptimizationService>();
-        services.AddScoped<IContainerAutofillService, ContainerAutofillService>();
+        services.AddContainerAutofillServices();
         services.AddScoped<IAbsenceSortingService, AbsenceSortingService>();
         services.AddScoped<IAbsencePaginationService, AbsencePaginationService>();
         services.AddScoped<IAbsenceExportService, AbsenceExportService>();
