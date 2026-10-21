@@ -19,10 +19,3 @@ public interface IAgentTriggerPreferenceService
 
     Task SetMinimumSeverityAsync(string userId, string triggerKind, string severity);
 }
-
-public sealed record AgentTriggerPreference(
-    string UserId,
-    string TriggerKind,
-    bool Muted,
-    DateTime? SnoozedUntilUtc,
-    string MinimumSeverity);

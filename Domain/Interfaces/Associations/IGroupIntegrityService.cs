@@ -87,18 +87,3 @@ public interface IGroupIntegrityService
     /// <returns>Report containing all found integrity issues</returns>
     Task<GroupIntegrityReport> PerformFullIntegrityCheckAsync();
 }
-
-/// <summary>
-/// Report containing results of group integrity checks
-/// </summary>
-public class GroupIntegrityReport
-{
-    public IEnumerable<Group> OrphanedGroups { get; set; } = Enumerable.Empty<Group>();
-    public IEnumerable<Group> CircularReferences { get; set; } = Enumerable.Empty<Group>();
-    public IEnumerable<Group> NestedSetInconsistencies { get; set; } = Enumerable.Empty<Group>();
-    public IEnumerable<string> ValidationErrors { get; set; } = Enumerable.Empty<string>();
-    public bool IsIntegrityValid => !OrphanedGroups.Any() && 
-                                   !CircularReferences.Any() && 
-                                   !NestedSetInconsistencies.Any() && 
-                                   !ValidationErrors.Any();
-}

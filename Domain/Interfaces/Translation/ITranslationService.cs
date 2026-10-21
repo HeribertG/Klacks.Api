@@ -8,5 +8,3 @@ public interface ITranslationService
     Task<Dictionary<string, string>> TranslateToAllLanguagesAsync(string text, string sourceLanguage);
     Task<bool> IsConfiguredAsync();
 }
-
-public record TranslationResult(string TranslatedText, string SourceLanguage, string TargetLanguage);

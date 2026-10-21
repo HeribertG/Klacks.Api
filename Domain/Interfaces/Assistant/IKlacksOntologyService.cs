@@ -38,5 +38,3 @@ public interface IKlacksOntologyService
     /// </summary>
     string RenderWorldModelBlock(int maxTokens = DefaultMaxTokens);
 }
-
-public record KlacksOntologyRelation(string From, string To, string Kind);

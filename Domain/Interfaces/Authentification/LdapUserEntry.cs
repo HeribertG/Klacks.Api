@@ -1,0 +1,29 @@
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
+
+namespace Klacks.Api.Domain.Interfaces.Authentification;
+
+public class LdapUserEntry
+{
+    public string DistinguishedName { get; set; } = string.Empty;
+    public string? ObjectGuid { get; set; }
+    public string? SamAccountName { get; set; }
+    public string? UserPrincipalName { get; set; }
+    public string? GivenName { get; set; }
+    public string? Surname { get; set; }
+    public string? DisplayName { get; set; }
+    public string? Mail { get; set; }
+    public string? TelephoneNumber { get; set; }
+    public string? Mobile { get; set; }
+    public string? Title { get; set; }
+    public string? Department { get; set; }
+    public string? Company { get; set; }
+    public string? PersonalTitle { get; set; }
+    public string? StreetAddress { get; set; }
+    public string? PostalCode { get; set; }
+    public string? City { get; set; }
+    public string? State { get; set; }
+    public string? Country { get; set; }
+    public DateTime? WhenCreated { get; set; }
+    public DateTime? WhenChanged { get; set; }
+    public bool IsEnabled { get; set; } = true;
+}
