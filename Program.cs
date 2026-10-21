@@ -255,6 +255,7 @@ builder.Services.AddSingleton<Klacks.Api.Application.Interfaces.ISealOpenOrdersJ
 if (bgOptions.SealOpenOrdersJob)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Orders.SealOpenOrdersJobBackgroundService>());
 builder.Services.AddSingleton<IScheduleTimelineStore, ScheduleTimelineStore>();
+builder.Services.AddScheduleTimelineChecks();
 builder.Services.AddSingleton<ScheduleTimelineBackgroundService>();
 if (bgOptions.ScheduleTimeline)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());

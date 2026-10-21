@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Builds the legacy collision notifications of the live schedule check from a client's timeline (moved out of
-/// ScheduleTimelineBackgroundService unchanged, to keep that service within its size ceiling). A work over an
+/// ScheduleTimelineBackgroundService unchanged; used by its single and range checks). A work over an
 /// on-call break is not a collision here (it is reported as an on-call-overlap Warning in the validation list).
 /// </summary>
 /// <param name="onCallBreakIds">Source ids of the break blocks whose absence type is on-call</param>
