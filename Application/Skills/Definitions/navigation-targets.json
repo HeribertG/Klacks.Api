@@ -1021,8 +1021,8 @@
     "route": "/workplace/edit-address",
     "labelKey": "",
     "requiredPermission": "CanViewClients",
-    "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona-communications/address-persona-communications.component.html",
+    "lastScannedAt": "2026-10-21T19:40:09.029Z",
     "synonyms": {
       "de": [
         "geburtstag",
@@ -1053,8 +1053,8 @@
     "route": "/workplace/edit-address",
     "labelKey": "",
     "requiredPermission": "CanViewClients",
-    "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona-name-fields/address-persona-name-fields.component.html",
+    "lastScannedAt": "2026-10-21T19:40:09.029Z",
     "synonyms": {
       "de": [
         "vorname",
@@ -1083,8 +1083,8 @@
     "route": "/workplace/edit-address",
     "labelKey": "",
     "requiredPermission": "CanViewClients",
-    "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona-entity-fields/address-persona-entity-fields.component.html",
+    "lastScannedAt": "2026-10-21T19:40:09.029Z",
     "synonyms": {
       "de": [
         "geschlecht",
@@ -1113,8 +1113,8 @@
     "route": "/workplace/edit-address",
     "labelKey": "",
     "requiredPermission": "CanViewClients",
-    "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona-name-fields/address-persona-name-fields.component.html",
+    "lastScannedAt": "2026-10-21T19:40:09.029Z",
     "synonyms": {
       "de": [
         "nachname",
@@ -1583,8 +1583,8 @@
     "route": "/workplace/settings",
     "labelKey": "",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/contracts/contracts.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/contracts/contract-payment-interval/contract-payment-interval.component.html",
+    "lastScannedAt": "2026-10-21T19:40:09.029Z",
     "synonyms": {
       "de": [
         "pensum",
