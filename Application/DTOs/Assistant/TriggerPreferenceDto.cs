@@ -12,12 +12,3 @@ public class TriggerPreferenceDto
 
     public string MinimumSeverity { get; set; } = "low";
 }
-
-public class UpdateTriggerPreferenceRequest
-{
-    public bool? Muted { get; set; }
-
-    public DateTime? SnoozedUntilUtc { get; set; }
-
-    public string? MinimumSeverity { get; set; }
-}

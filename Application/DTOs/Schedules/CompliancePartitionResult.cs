@@ -5,13 +5,6 @@ using Klacks.Api.Application.DTOs.Notifications;
 namespace Klacks.Api.Application.DTOs.Schedules;
 
 /// <summary>
-/// A single planned row the compliance partition refused to accept.
-/// </summary>
-/// <param name="Index">Index of the row in the caller's original row list</param>
-/// <param name="ReasonKey">Translation key of the rule violation that blocked the row</param>
-public sealed record BlockedRow(int Index, string ReasonKey);
-
-/// <summary>
 /// Result of partitioning a batch of planned work rows into accepted and blocked rows via the
 /// pre-commit compliance guardrail, including the conflicts worth surfacing to the caller.
 /// </summary>

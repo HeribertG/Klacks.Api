@@ -24,12 +24,3 @@ public class ContainerLockResource
 
     public bool IsSelfConflict { get; set; }
 }
-
-public class AcquireContainerLockRequest
-{
-    public string ResourceType { get; set; } = string.Empty;
-
-    public Guid ResourceId { get; set; }
-
-    public string InstanceId { get; set; } = string.Empty;
-}

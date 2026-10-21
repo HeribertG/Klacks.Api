@@ -8,10 +8,3 @@ public class ShiftSchedulePartialFilter
 
     public Guid? AnalyseToken { get; set; }
 }
-
-public class ShiftDatePairFilter
-{
-    public Guid ShiftId { get; set; }
-
-    public DateTime Date { get; set; }
-}
