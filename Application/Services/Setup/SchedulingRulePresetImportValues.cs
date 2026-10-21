@@ -12,7 +12,7 @@ namespace Klacks.Api.Application.Services.Setup;
 /// SchedulingRulePresetContentHasher, so rows written by an older binary (Industry empty) are
 /// never misread as customer-edited. Keep the three sets in sync when adding a hashed field: this
 /// record, SchedulingRulePresetContentHasher and CopyPresetValues/ToImportValues in
-/// RegionSetupService — a field present in only two of the three silently breaks the customer-edit
+/// SchedulingRulePresetImporter — a field present in only two of the three silently breaks the customer-edit
 /// detection. MaxDailySpanHours is appended last and hashed only when set, so presets written before the field
 /// existed keep their stored hash.
 /// </summary>

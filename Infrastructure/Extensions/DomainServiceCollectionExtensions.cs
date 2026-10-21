@@ -229,9 +229,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddSingleton<ILanguagePluginService, LanguagePluginService>();
         services.AddSingleton<IFeaturePluginService, FeaturePluginService>();
         services.AddScoped<IFeaturePluginAssistantSetupHintService, Klacks.Api.Application.Services.Plugins.FeaturePluginAssistantSetupHintService>();
-        services.AddScoped<RegionSetupService>();
-        services.AddScoped<IRegionSetupService>(sp => sp.GetRequiredService<RegionSetupService>());
-        services.AddScoped<IRegionEntityImportService>(sp => sp.GetRequiredService<RegionSetupService>());
+        services.AddRegionSetupServices();
         services.AddScoped<IRegionPackageUpdateRunner, RegionPackageUpdateRunner>();
         services.AddSingleton<IRegionPackageSignatureVerifier, RegionPackageSignatureVerifier>();
 

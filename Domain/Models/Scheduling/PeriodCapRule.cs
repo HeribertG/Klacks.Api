@@ -7,7 +7,7 @@
 /// CapHours. Rolling-average mode ("48 h/week averaged over 17 weeks", K6) uses
 /// <see cref="RollingWindowWeeks"/>/<see cref="MaxAverageWeeklyHours"/> and compares the average weekly
 /// hours over a trailing window ending on the evaluated day against MaxAverageWeeklyHours. Exactly one of
-/// the two field groups is populated per row — <see cref="Klacks.Api.Infrastructure.Services.Settings.RegionSetupService"/>
+/// the two field groups is populated per row — <see cref="Klacks.Api.Infrastructure.Services.Settings.RegionSetup.PeriodCapRuleImporter"/>
 /// validates this on import, <see cref="Klacks.Api.Application.Services.Schedules.PeriodCapEvaluator"/>
 /// dispatches on which group is populated. Scope: with <see cref="SchedulingRuleId"/> null the rule is
 /// GLOBAL; otherwise it applies only to clients whose active contract references that scheduling rule

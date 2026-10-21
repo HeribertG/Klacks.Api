@@ -229,7 +229,7 @@ public class OvertimeConfigResolver : IOvertimeConfigResolver
 
     private static SurchargeRateMode ParseOvertimeRateMode(string? value)
     {
-        // FixedPerShift is rejected by RegionSetupService at import time (see AddOvertimeSettings); this
+        // FixedPerShift is rejected by the region setup at import time (see RegionSetupFieldParser.ValidateOvertimeRateMode); this
         // is the runtime safety net for a setting edited directly, bypassing that validation. Falling
         // back to Multiplier rather than throwing keeps a live Work save from failing over a malformed
         // config value.
