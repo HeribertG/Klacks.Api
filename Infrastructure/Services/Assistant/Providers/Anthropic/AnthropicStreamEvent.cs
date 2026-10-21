@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Minimal DTOs for deserializing Anthropic SSE streaming events.
+/// Top-level DTO for deserializing one Anthropic SSE streaming event; its parts live in AnthropicStreamMessage, AnthropicStreamDelta and AnthropicStreamContentBlock.
 /// Only the fields consumed by AnthropicProvider.ProcessStreamAsync are mapped.
 /// </summary>
 

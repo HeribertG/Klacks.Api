@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Models for deserializing OpenAI-compatible streaming response chunks.
+/// Model for deserializing one OpenAI-compatible streaming response chunk.
 /// @param Choices - List of completion choices with delta content
 /// @param Usage - Token usage info (only present in final chunk with stream_options)
 /// </summary>
