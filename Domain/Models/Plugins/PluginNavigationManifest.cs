@@ -19,9 +19,3 @@ public class PluginNavigationManifest
     public string ViewBox { get; set; } = "0 0 24 24";
     public PluginSvgPath[] SvgPaths { get; set; } = [];
 }
-
-public class PluginSvgPath
-{
-    public string D { get; set; } = string.Empty;
-    public string? Opacity { get; set; }
-}

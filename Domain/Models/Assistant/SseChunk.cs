@@ -133,16 +133,3 @@ public class SseChunk
         Iteration = iteration
     };
 }
-
-public enum SseChunkType
-{
-    StreamStart,
-    Content,
-    FunctionCall,
-    FunctionResult,
-    Metadata,
-    Done,
-    Error,
-    Status,
-    TurnStopped
-}

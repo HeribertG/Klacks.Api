@@ -20,14 +20,3 @@ public class ExportOptions
 
     public CompanyInfo Company { get; set; } = new();
 }
-
-public class CompanyInfo
-{
-    public string Name { get; set; } = string.Empty;
-
-    public string TaxId { get; set; } = string.Empty;
-
-    public string VatId { get; set; } = string.Empty;
-
-    public string CommercialRegister { get; set; } = string.Empty;
-}

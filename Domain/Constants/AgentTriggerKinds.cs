@@ -89,10 +89,3 @@ public static class AgentTriggerKinds
         GroupingFeasibility
     ];
 }
-
-public static class AgentTriggerSeverity
-{
-    public const string High = "high";
-    public const string Medium = "medium";
-    public const string Low = "low";
-}

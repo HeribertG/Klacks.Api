@@ -17,7 +17,3 @@ public record SettingsSkillConfig
     public required IReadOnlyList<SettingsField> Fields { get; init; }
     public IReadOnlyList<SensitiveSettingsField>? SensitiveFields { get; init; }
 }
-
-public record SettingsField(string SettingsKey, string ResultName);
-
-public record SensitiveSettingsField(string SettingsKey, string ResultName);

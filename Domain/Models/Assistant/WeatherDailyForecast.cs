@@ -1,0 +1,16 @@
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
+
+namespace Klacks.Api.Domain.Models.Assistant;
+
+public sealed class WeatherDailyForecast
+{
+    public string Date { get; set; } = string.Empty;
+
+    public double TemperatureMaxCelsius { get; set; }
+
+    public double TemperatureMinCelsius { get; set; }
+
+    public int WeatherCode { get; set; }
+
+    public string Condition { get; set; } = string.Empty;
+}
