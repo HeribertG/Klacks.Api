@@ -5,8 +5,8 @@
 /// Solves an Orienteering Problem in 3 phases: Greedy Selection, ACO+2-Opt, Post-Insertion.
 /// Orchestrates the collaborators in ContainerAutofill/: candidates, distance matrix, travel time floor, route plan, result.
 /// </summary>
-/// <param name="availableTasksService">Supplies the candidate tasks through the same query, and the same holiday filter, as the
-/// available-task list: a holiday request only gets holiday tasks, a weekday request never gets them</param>
+/// <param name="availableTasksService">Supplies the candidate tasks through the same query, and the same day rule
+/// (ShiftDayActivityFilter), as the available-task list</param>
 /// <param name="candidateLocator">Turns shifts into geocoded route candidates and geocodes the bases</param>
 /// <param name="routeOptimizationService">Service for distance matrix calculation</param>
 /// <param name="travelTimeFloor">Raises short legs to the configured minimum travel time</param>

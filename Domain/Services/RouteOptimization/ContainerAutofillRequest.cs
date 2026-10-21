@@ -5,8 +5,9 @@
 /// </summary>
 /// <param name="ContainerId">ID of the container</param>
 /// <param name="Weekday">Weekday (0=Sun, 1=Mon, ..., 6=Sat)</param>
-/// <param name="IsHoliday">Whether the holiday variant is filled: true offers only holiday tasks (Shift.IsHoliday), false
-/// never offers them; tasks in AdditionalAvailableWorkIds are added regardless</param>
+/// <param name="IsHoliday">Whether a public holiday falling on Weekday is filled. Candidates are the tasks the schedule engine
+/// runs on that day (ShiftDayActivityFilter): on a holiday IsHoliday tasks and tasks of the weekday with IsWeekdayAndHoliday,
+/// on a normal day every task of the weekday; tasks in AdditionalAvailableWorkIds are added regardless</param>
 /// <param name="StartBase">Start address of the route</param>
 /// <param name="EndBase">End address of the route</param>
 /// <param name="FromTime">Start of the time window</param>

@@ -162,7 +162,7 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
             _logger.LogWarning("No group filter applied - this will return ALL tasks matching time/weekday criteria");
         }
 
-        query = ApplyWeekdayFilter(query, weekday);
+        query = ShiftDayActivityFilter.Apply(query, weekday, isHoliday, isWeekdayAndHoliday);
 
         if (!string.IsNullOrWhiteSpace(searchString))
         {
@@ -173,31 +173,6 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
                 s.Description.ToLower().Contains(searchLower));
         }
 
-        if (isHoliday.HasValue)
-        {
-            query = query.Where(s => s.IsHoliday == isHoliday.Value);
-        }
-
-        if (isWeekdayAndHoliday.HasValue)
-        {
-            query = query.Where(s => s.IsWeekdayAndHoliday == isWeekdayAndHoliday.Value);
-        }
-
         return query;
-    }
-
-    private IQueryable<Shift> ApplyWeekdayFilter(IQueryable<Shift> query, int weekday)
-    {
-        return weekday switch
-        {
-            0 => query.Where(s => s.IsSunday),
-            1 => query.Where(s => s.IsMonday),
-            2 => query.Where(s => s.IsTuesday),
-            3 => query.Where(s => s.IsWednesday),
-            4 => query.Where(s => s.IsThursday),
-            5 => query.Where(s => s.IsFriday),
-            6 => query.Where(s => s.IsSaturday),
-            _ => query
-        };
     }
 }

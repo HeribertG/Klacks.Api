@@ -5,7 +5,8 @@
 /// </summary>
 /// <param name="ContainerId">Container ID</param>
 /// <param name="Weekday">Weekday (0-6)</param>
-/// <param name="IsHoliday">Holiday variant</param>
+/// <param name="IsHoliday">True fills a public holiday falling on Weekday (holiday tasks and tasks of the weekday that also run
+/// on holidays), false or omitted a normal day (every task of the weekday)</param>
 /// <param name="StartBase">Start address</param>
 /// <param name="EndBase">End address</param>
 /// <param name="FromTime">Time window start (HH:mm)</param>
