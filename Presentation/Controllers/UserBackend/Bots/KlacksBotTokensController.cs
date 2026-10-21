@@ -60,5 +60,3 @@ public class KlacksBotTokensController : BaseController
         return NoContent();
     }
 }
-
-public record CreateKlacksBotTokenRequest(string Name, int? ExpiresInDays);

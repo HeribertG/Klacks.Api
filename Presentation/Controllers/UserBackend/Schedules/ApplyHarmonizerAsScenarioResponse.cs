@@ -1,0 +1,19 @@
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
+
+/// <param name="ScenarioId">Id of the newly created AnalyseScenario</param>
+/// <param name="ScenarioToken">Unique token of the new scenario</param>
+/// <param name="ScenarioName">Auto-generated name of the new scenario</param>
+/// <param name="RunGroupId">Correlation id linking Wizard 1/2/3 scenarios from the same run</param>
+/// <param name="CreatedWorkIds">Ids of Work entities written into the scenario</param>
+/// <param name="ComplianceReport">End-state compliance diff of the new scenario versus the real plan</param>
+using Klacks.Api.Application.DTOs.Schedules;
+
+namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
+
+public sealed record ApplyHarmonizerAsScenarioResponse(
+    Guid ScenarioId,
+    Guid ScenarioToken,
+    string ScenarioName,
+    Guid? RunGroupId,
+    IReadOnlyList<Guid> CreatedWorkIds,
+    ScenarioComplianceReport? ComplianceReport);

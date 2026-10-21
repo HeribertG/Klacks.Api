@@ -93,38 +93,3 @@ public sealed class HarmonizerController : ControllerBase
         }
     }
 }
-
-/// <param name="PeriodFrom">Start date (inclusive)</param>
-/// <param name="PeriodUntil">End date (inclusive)</param>
-/// <param name="AgentIds">Clients whose rows are part of the bitmap</param>
-/// <param name="AnalyseToken">Source-scenario isolation token; null = main scenario</param>
-public sealed record StartHarmonizerRequest(
-    DateOnly PeriodFrom,
-    DateOnly PeriodUntil,
-    IReadOnlyList<Guid> AgentIds,
-    Guid? AnalyseToken);
-
-public sealed record StartHarmonizerResponse(Guid JobId);
-
-public sealed record CancelHarmonizerRequest(Guid JobId);
-
-public sealed record CancelHarmonizerResponse(bool Cancelled);
-
-/// <param name="JobId">The harmonizer job whose cached result is materialised</param>
-/// <param name="GroupId">Optional group scope for scenario cloning and name uniqueness</param>
-/// <param name="Language">The planner's language for the scenario name prefix; null falls back to the installation language</param>
-public sealed record ApplyHarmonizerAsScenarioRequest(Guid JobId, Guid? GroupId, string? Language = null);
-
-/// <param name="ScenarioId">Id of the newly created AnalyseScenario</param>
-/// <param name="ScenarioToken">Unique token of the new scenario</param>
-/// <param name="ScenarioName">Auto-generated name of the new scenario</param>
-/// <param name="RunGroupId">Correlation id linking Wizard 1/2/3 scenarios from the same run</param>
-/// <param name="CreatedWorkIds">Ids of Work entities written into the scenario</param>
-/// <param name="ComplianceReport">End-state compliance diff of the new scenario versus the real plan</param>
-public sealed record ApplyHarmonizerAsScenarioResponse(
-    Guid ScenarioId,
-    Guid ScenarioToken,
-    string ScenarioName,
-    Guid? RunGroupId,
-    IReadOnlyList<Guid> CreatedWorkIds,
-    ScenarioComplianceReport? ComplianceReport);

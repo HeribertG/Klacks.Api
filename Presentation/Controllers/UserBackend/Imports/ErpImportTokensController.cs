@@ -59,5 +59,3 @@ public class ErpImportTokensController : BaseController
         return NoContent();
     }
 }
-
-public record CreateErpImportTokenRequest(Guid DropPointId, string Name, int? ExpiresInDays);

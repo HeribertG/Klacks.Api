@@ -36,5 +36,3 @@ public sealed class KlacksyTrainingController : ControllerBase
     public Task<IReadOnlyList<KlacksyNavigationFeedback>> GetFeedback([FromQuery] string locale, [FromQuery] int take = 50, CancellationToken ct = default)
         => _mediator.Send(new GetNavigationFeedbackQuery(locale, take), ct);
 }
-
-public sealed record UpdateSynonymsDto(string Locale, string[] Synonyms, string Status);
