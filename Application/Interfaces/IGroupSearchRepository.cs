@@ -9,15 +9,3 @@ public interface IGroupSearchRepository
         int limit = 10,
         CancellationToken cancellationToken = default);
 }
-
-public record GroupSearchResult
-{
-    public required IReadOnlyList<GroupSearchItem> Items { get; init; }
-    public int TotalCount { get; init; }
-}
-
-public record GroupSearchItem
-{
-    public Guid Id { get; init; }
-    public string? Name { get; init; }
-}

@@ -6,9 +6,6 @@
 /// @param communicationTypes - The communication types to include (e.g., PrivateMail, OfficeMail)
 /// </summary>
 
-using Klacks.Api.Application.DTOs.Email;
-using Klacks.Api.Domain.Models.Email;
-
 namespace Klacks.Api.Application.Interfaces;
 
 public interface IEmailQueryRepository
@@ -35,19 +32,4 @@ public interface IEmailQueryRepository
         int skip,
         int take,
         CancellationToken cancellationToken = default);
-}
-
-public class ClientEmailInfo
-{
-    public Guid ClientId { get; set; }
-    public string EmailAddress { get; set; } = string.Empty;
-    public string ClientDisplayName { get; set; } = string.Empty;
-    public List<Guid> GroupIds { get; set; } = [];
-}
-
-public class ReceivedEmailQueryResult
-{
-    public List<ReceivedEmail> Items { get; set; } = [];
-    public int TotalCount { get; set; }
-    public int UnreadCount { get; set; }
 }

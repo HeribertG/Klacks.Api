@@ -81,22 +81,3 @@ public interface IClientSearchRepository
     Task<IReadOnlyList<ClientSearchItem>> GetItemsByIdsAsync(
         IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
 }
-
-public record ClientSearchResult
-{
-    public required IReadOnlyList<ClientSearchItem> Items { get; init; }
-    public int TotalCount { get; init; }
-}
-
-public record ClientSearchItem
-{
-    public Guid Id { get; init; }
-    public int? IdNumber { get; init; }
-    public string? FirstName { get; init; }
-    public string? LastName { get; init; }
-    public string? Company { get; init; }
-    public string? Gender { get; init; }
-    public string? EntityType { get; init; }
-    public string? Canton { get; init; }
-    public string? City { get; init; }
-}

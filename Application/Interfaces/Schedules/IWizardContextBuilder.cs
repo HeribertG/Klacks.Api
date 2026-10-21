@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-using Klacks.Api.Application.Services.Schedules;
 using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Interfaces.Schedules;
@@ -19,42 +18,3 @@ public interface IWizardContextBuilder
     /// <param name="ct">Cancellation token</param>
     Task<CoreWizardContext> BuildContextAsync(WizardContextRequest request, CancellationToken ct);
 }
-
-/// <summary>
-/// Request parameters for building a wizard context.
-/// </summary>
-/// <param name="PeriodFrom">Start date (inclusive)</param>
-/// <param name="PeriodUntil">End date (inclusive)</param>
-/// <param name="AgentIds">Subset of agents to plan for (Client IDs)</param>
-/// <param name="ShiftIds">Optional subset of shifts to consider; null = all shifts of the groups</param>
-/// <param name="AnalyseToken">Scenario isolation token — propagates to all writes after apply</param>
-/// <param name="TrainingOverrides">Optional per-run overrides for the TokenEvolution config (training/benchmark use)</param>
-/// <param name="ContextDaysBefore">
-/// How many days before <paramref name="PeriodFrom"/> the builder loads existing works, breaks and locked works as
-/// boundary context. Boundary entries are placed in CoreWizardContext.Boundary* fields — never planned, never scored —
-/// and let constraint validators detect MaxConsecutiveDays / MinRestHours runs that cross the start of the period.
-/// Default 14 covers the longest realistic streak plus weekly caps.
-/// </param>
-/// <param name="ContextDaysAfter">Same as <paramref name="ContextDaysBefore"/>, applied after <paramref name="PeriodUntil"/>.</param>
-/// <param name="ReplanFrom">
-/// Frozen-prefix replanning cut: existing works of the period dated before this day enter the context
-/// as locked works regardless of their lock level, so the run keeps the head of the plan untouched and
-/// only plans from this day on. Outside (PeriodFrom, PeriodUntil] the cut freezes nothing and the run
-/// degrades to a full plan. Null = plan the whole period.
-/// </param>
-/// <param name="AgentOrderIsUserDefined">
-/// True when <paramref name="AgentIds"/> reflects an individual roster order the user arranged by hand —
-/// that order is then used as the top-down priority order unchanged. False (default) means the order is the
-/// regular list sort and the builder reshapes it by contractually guaranteed hours (descending, stable).
-/// </param>
-public sealed record WizardContextRequest(
-    DateOnly PeriodFrom,
-    DateOnly PeriodUntil,
-    IReadOnlyList<Guid> AgentIds,
-    IReadOnlyList<Guid>? ShiftIds,
-    Guid? AnalyseToken,
-    WizardTrainingOverrides? TrainingOverrides = null,
-    int ContextDaysBefore = 14,
-    int ContextDaysAfter = 14,
-    bool AgentOrderIsUserDefined = false,
-    DateOnly? ReplanFrom = null);
