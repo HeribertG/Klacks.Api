@@ -91,13 +91,78 @@ public class UpdateContractSkill : BaseSkillImplementation
 
         var changed = new List<string>();
 
+        var editError = await ApplyEditsAsync(parameters, contract, changed, context.UserLanguage, cancellationToken);
+        if (editError != null)
+        {
+            return SkillResult.Error(editError);
+        }
+
+        if (changed.Count == 0)
+        {
+            return SkillResult.SuccessResult(
+                new { ContractId = contractId, ChangedFields = Array.Empty<string>() },
+                "No fields supplied for update — contract left unchanged.");
+        }
+
+        var consistencyError = ValidateConsistency(contract);
+        if (consistencyError != null)
+        {
+            return SkillResult.Error(consistencyError);
+        }
+
+        var updated = await _mediator.Send(new PutCommand<ContractResource>(contract), cancellationToken);
+        if (updated == null)
+        {
+            return SkillResult.Error($"Updating contract '{contractId}' failed.");
+        }
+
+        return BuildSuccessResult(updated, contractId, resolvedName, changed);
+    }
+
+    private async Task<string?> ApplyEditsAsync(
+        Dictionary<string, object> parameters,
+        ContractResource contract,
+        List<string> changed,
+        string? language,
+        CancellationToken cancellationToken)
+    {
+        ApplyName(parameters, contract, changed);
+
+        var fieldError = ApplyDecimalFields(parameters, contract, changed)
+            ?? ApplyNullableDecimalFields(parameters, contract, changed)
+            ?? ApplyShiftWorkAndStandardResets(parameters, contract, changed)
+            ?? await ApplyWorkdaysAndRegionAsync(parameters, contract, changed, cancellationToken);
+        if (fieldError != null)
+        {
+            return fieldError;
+        }
+
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+
+        var validFromError = ApplyValidFrom(parameters, contract, changed, today, language);
+        if (validFromError != null)
+        {
+            return validFromError;
+        }
+
+        ApplyClearGuaranteedHoursAndPercent(parameters, contract, changed);
+
+        return ApplyValidUntil(parameters, contract, changed, today, language);
+    }
+
+    private static void ApplyName(Dictionary<string, object> parameters, ContractResource contract, List<string> changed)
+    {
         var name = GetParameter<string>(parameters, "name");
         if (!string.IsNullOrWhiteSpace(name) && name.Trim() != contract.Name)
         {
             contract.Name = name.Trim();
             changed.Add("name");
         }
+    }
 
+    private static string? ApplyDecimalFields(
+        Dictionary<string, object> parameters, ContractResource contract, List<string> changed)
+    {
         var decimalFields = new (string Key, Func<decimal> Get, Action<decimal> Set)[]
         {
             ("minimumHours", () => contract.MinimumHours, v => contract.MinimumHours = v),
@@ -115,7 +180,7 @@ public class UpdateContractSkill : BaseSkillImplementation
 
             if (value.Value < decimal.Zero)
             {
-                return SkillResult.Error($"Parameter '{field.Key}' must not be negative.");
+                return $"Parameter '{field.Key}' must not be negative.";
             }
 
             if (value.Value == field.Get())
@@ -127,31 +192,17 @@ public class UpdateContractSkill : BaseSkillImplementation
             changed.Add(field.Key);
         }
 
-        var nullableDecimalError = ApplyNullableDecimalFields(parameters, contract, changed);
-        if (nullableDecimalError != null)
-        {
-            return SkillResult.Error(nullableDecimalError);
-        }
+        return null;
+    }
 
-        var standardResetError = ApplyShiftWorkAndStandardResets(parameters, contract, changed);
-        if (standardResetError != null)
-        {
-            return SkillResult.Error(standardResetError);
-        }
-
-        var workdaysRegionError = await ApplyWorkdaysAndRegionAsync(parameters, contract, changed, cancellationToken);
-        if (workdaysRegionError != null)
-        {
-            return SkillResult.Error(workdaysRegionError);
-        }
-
-        var today = await _companyClock.GetTodayAsync(cancellationToken);
-
+    private static string? ApplyValidFrom(
+        Dictionary<string, object> parameters, ContractResource contract, List<string> changed, DateTime today, string? language)
+    {
         var validFromStr = GetParameter<string>(parameters, "validFrom");
-        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today, context.UserLanguage);
+        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today, language);
         if (invalidValidFrom)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
+            return SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!);
         }
 
         if (validFrom.HasValue && validFrom.Value != contract.ValidFrom)
@@ -160,6 +211,12 @@ public class UpdateContractSkill : BaseSkillImplementation
             changed.Add("validFrom");
         }
 
+        return null;
+    }
+
+    private static void ApplyClearGuaranteedHoursAndPercent(
+        Dictionary<string, object> parameters, ContractResource contract, List<string> changed)
+    {
         var clearGuaranteedHours = GetParameter<bool>(parameters, "clearGuaranteedHours", false);
         if (clearGuaranteedHours && contract.GuaranteedHours != null)
         {
@@ -173,36 +230,26 @@ public class UpdateContractSkill : BaseSkillImplementation
             contract.Percent = null;
             changed.Add("percent");
         }
+    }
 
-        var validUntilError = ApplyValidUntil(parameters, contract, changed, today, context.UserLanguage);
-        if (validUntilError != null)
-        {
-            return SkillResult.Error(validUntilError);
-        }
-
-        if (changed.Count == 0)
-        {
-            return SkillResult.SuccessResult(
-                new { ContractId = contractId, ChangedFields = Array.Empty<string>() },
-                "No fields supplied for update — contract left unchanged.");
-        }
-
+    private static string? ValidateConsistency(ContractResource contract)
+    {
         if (contract.MinimumHours > contract.MaximumHours && contract.MaximumHours > decimal.Zero)
         {
-            return SkillResult.Error("minimumHours must not exceed maximumHours.");
+            return "minimumHours must not exceed maximumHours.";
         }
 
         if (contract.ValidUntil.HasValue && contract.ValidUntil.Value < contract.ValidFrom)
         {
-            return SkillResult.Error("validUntil must not be before validFrom.");
+            return "validUntil must not be before validFrom.";
         }
 
-        var updated = await _mediator.Send(new PutCommand<ContractResource>(contract), cancellationToken);
-        if (updated == null)
-        {
-            return SkillResult.Error($"Updating contract '{contractId}' failed.");
-        }
+        return null;
+    }
 
+    private static SkillResult BuildSuccessResult(
+        ContractResource updated, Guid contractId, string resolvedName, List<string> changed)
+    {
         var warnings = new List<string>();
         if (changed.Contains(ContractFieldNames.Workdays) && updated.SchedulingRuleId.HasValue)
         {

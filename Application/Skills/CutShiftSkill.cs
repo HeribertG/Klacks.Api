@@ -47,6 +47,12 @@ public class CutShiftSkill : BaseSkillImplementation
         _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
+    private sealed record CutTarget(Shift OriginalShift, Guid SealedOrderId);
+
+    private sealed record CutPart(Guid Id, string Name, int Index, TimeOnly Start, TimeOnly End);
+
+    private sealed record CutPlan(List<CutOperation> Operations, List<object> Summaries);
+
     public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
@@ -56,54 +62,23 @@ public class CutShiftSkill : BaseSkillImplementation
         var partsRaw = GetRequiredString(parameters, "parts");
         var namesRaw = GetParameter<string>(parameters, "partNames") ?? string.Empty;
 
-        var ranges = ParseRanges(partsRaw, out var rangeError);
-        if (rangeError != null)
+        var (ranges, rangeError) = ParseParts(partsRaw);
+        if (ranges is null)
         {
-            return SkillResult.Error(rangeError);
-        }
-
-        if (ranges.Count < MinParts || ranges.Count > MaxParts)
-        {
-            return SkillResult.Error($"A cut needs between {MinParts} and {MaxParts} parts; received {ranges.Count}.");
+            return SkillResult.Error(rangeError!);
         }
 
         var names = namesRaw
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToList();
 
-        var loadedShift = await _shiftRepository.Get(shiftId);
-        if (loadedShift == null || !await _shiftVisibilityGuard.IsVisibleAsync(loadedShift, cancellationToken))
+        var (target, targetError) = await ResolveCutTargetAsync(shiftId, cancellationToken);
+        if (target is null)
         {
-            return SkillResult.Error($"Shift with ID {shiftId} not found.");
+            return SkillResult.Error(targetError!);
         }
 
-        var sealedOrderId = ResolveSealedOrderId(loadedShift);
-        if (sealedOrderId == null)
-        {
-            return SkillResult.Error(
-                $"Shift '{loadedShift.Name}' has status {loadedShift.Status} and has no order reference and cannot be cut. " +
-                "Create the order first (create_shift), then cut its plannable shift.");
-        }
-
-        var alreadySplit = await _shiftRepository.GetQuery()
-            .AnyAsync(s => s.OriginalId == sealedOrderId && s.Status == ShiftStatus.SplitShift, cancellationToken);
-        if (alreadySplit)
-        {
-            return SkillResult.Error(
-                $"Order '{loadedShift.Name}' is already split into parts. Reuse the existing parts or reset the cut first " +
-                "instead of cutting again (use find_split_shift_candidates to inspect the existing parts).");
-        }
-
-        var originalShift = loadedShift.Status == ShiftStatus.OriginalShift
-            ? loadedShift
-            : await _shiftRepository.GetQuery()
-                .FirstOrDefaultAsync(s => s.OriginalId == sealedOrderId && s.Status == ShiftStatus.OriginalShift, cancellationToken);
-
-        if (originalShift == null)
-        {
-            return SkillResult.Error(
-                $"Order '{loadedShift.Name}' has no plannable shift to cut. Create the order first (create_shift).");
-        }
+        var (originalShift, sealedOrderId) = (target.OriginalShift, target.SealedOrderId);
 
         var tilingError = ShiftTilingValidator.Validate(originalShift.StartShift, originalShift.EndShift, ranges);
         if (tilingError != null)
@@ -115,6 +90,76 @@ public class CutShiftSkill : BaseSkillImplementation
         var groups = await _shiftRepository.GetGroupsForShift(originalShift.Id);
         var groupResources = groups.Select(g => new SimpleGroupResource { Id = g.Id }).ToList();
 
+        var plan = BuildCutPlan(originalShift, sealedOrderId, ranges, names, groupResources);
+
+        var results = await _shiftCutFacade.ProcessBatchCutsAsync(plan.Operations);
+
+        return BuildSuccessResult(originalShift, sealedOrderId, results, groupResources, plan.Summaries);
+    }
+
+    private static (List<(TimeOnly Start, TimeOnly End)>? Ranges, string? Error) ParseParts(string partsRaw)
+    {
+        var ranges = ParseRanges(partsRaw, out var rangeError);
+        if (rangeError != null)
+        {
+            return (null, rangeError);
+        }
+
+        if (ranges.Count < MinParts || ranges.Count > MaxParts)
+        {
+            return (null, $"A cut needs between {MinParts} and {MaxParts} parts; received {ranges.Count}.");
+        }
+
+        return (ranges, null);
+    }
+
+    private async Task<(CutTarget? Target, string? Error)> ResolveCutTargetAsync(
+        Guid shiftId, CancellationToken cancellationToken)
+    {
+        var loadedShift = await _shiftRepository.Get(shiftId);
+        if (loadedShift == null || !await _shiftVisibilityGuard.IsVisibleAsync(loadedShift, cancellationToken))
+        {
+            return (null, $"Shift with ID {shiftId} not found.");
+        }
+
+        var sealedOrderId = ResolveSealedOrderId(loadedShift);
+        if (sealedOrderId == null)
+        {
+            return (null,
+                $"Shift '{loadedShift.Name}' has status {loadedShift.Status} and has no order reference and cannot be cut. " +
+                "Create the order first (create_shift), then cut its plannable shift.");
+        }
+
+        var alreadySplit = await _shiftRepository.GetQuery()
+            .AnyAsync(s => s.OriginalId == sealedOrderId && s.Status == ShiftStatus.SplitShift, cancellationToken);
+        if (alreadySplit)
+        {
+            return (null,
+                $"Order '{loadedShift.Name}' is already split into parts. Reuse the existing parts or reset the cut first " +
+                "instead of cutting again (use find_split_shift_candidates to inspect the existing parts).");
+        }
+
+        var originalShift = loadedShift.Status == ShiftStatus.OriginalShift
+            ? loadedShift
+            : await _shiftRepository.GetQuery()
+                .FirstOrDefaultAsync(s => s.OriginalId == sealedOrderId && s.Status == ShiftStatus.OriginalShift, cancellationToken);
+
+        if (originalShift == null)
+        {
+            return (null,
+                $"Order '{loadedShift.Name}' has no plannable shift to cut. Create the order first (create_shift).");
+        }
+
+        return (new CutTarget(originalShift, sealedOrderId.Value), null);
+    }
+
+    private static CutPlan BuildCutPlan(
+        Shift originalShift,
+        Guid sealedOrderId,
+        List<(TimeOnly Start, TimeOnly End)> ranges,
+        List<string> names,
+        List<SimpleGroupResource> groupResources)
+    {
         var operations = new List<CutOperation>();
         var summaries = new List<object>();
 
@@ -122,51 +167,19 @@ public class CutShiftSkill : BaseSkillImplementation
         {
             var (start, end) = ranges[i];
             var partName = i < names.Count ? names[i] : $"{originalShift.Name} ({start:HH\\:mm}-{end:HH\\:mm})";
-            var crossesMidnight = end <= start;
 
             // The first part REUSES the plannable shift (UPDATE: OriginalShift -> SplitShift), so the
             // order is converted instead of left over as a duplicate. Further parts are created.
             var isConversion = i == 0;
             var partId = isConversion ? originalShift.Id : Guid.NewGuid();
 
-            var data = new ShiftResource
-            {
-                Id = partId,
-                Name = partName,
-                Abbreviation = BuildAbbreviation(partName, i),
-                Description = originalShift.Description,
-                Status = ShiftStatus.SplitShift,
-                ShiftType = originalShift.ShiftType,
-                OriginalId = sealedOrderId,
-                ClientId = originalShift.ClientId,
-                MacroId = originalShift.MacroId,
-                StartShift = start,
-                EndShift = end,
-                FromDate = originalShift.FromDate,
-                UntilDate = originalShift.UntilDate,
-                WorkTime = CalculateWorkTime(start, end),
-                CuttingAfterMidnight = crossesMidnight,
-                SumEmployees = originalShift.SumEmployees,
-                Quantity = originalShift.Quantity,
-                IsMonday = originalShift.IsMonday,
-                IsTuesday = originalShift.IsTuesday,
-                IsWednesday = originalShift.IsWednesday,
-                IsThursday = originalShift.IsThursday,
-                IsFriday = originalShift.IsFriday,
-                IsSaturday = originalShift.IsSaturday,
-                IsSunday = originalShift.IsSunday,
-                IsHoliday = originalShift.IsHoliday,
-                IsWeekdayAndHoliday = originalShift.IsWeekdayAndHoliday,
-                IsTimeRange = originalShift.IsTimeRange,
-                IsSporadic = originalShift.IsSporadic,
-                SporadicScope = originalShift.SporadicScope,
-                Groups = groupResources
-            };
+            var data = BuildPartResource(
+                originalShift, sealedOrderId, new CutPart(partId, partName, i, start, end), groupResources);
 
             operations.Add(new CutOperation
             {
                 Type = isConversion ? CutOperation.UpdateType : CutOperation.CreateType,
-                ParentId = sealedOrderId.Value.ToString(),
+                ParentId = sealedOrderId.ToString(),
                 Data = data
             });
 
@@ -182,8 +195,57 @@ public class CutShiftSkill : BaseSkillImplementation
             });
         }
 
-        var results = await _shiftCutFacade.ProcessBatchCutsAsync(operations);
+        return new CutPlan(operations, summaries);
+    }
 
+    private static ShiftResource BuildPartResource(
+        Shift originalShift, Guid sealedOrderId, CutPart part, List<SimpleGroupResource> groupResources)
+    {
+        var (start, end) = (part.Start, part.End);
+        var crossesMidnight = end <= start;
+
+        return new ShiftResource
+        {
+            Id = part.Id,
+            Name = part.Name,
+            Abbreviation = BuildAbbreviation(part.Name, part.Index),
+            Description = originalShift.Description,
+            Status = ShiftStatus.SplitShift,
+            ShiftType = originalShift.ShiftType,
+            OriginalId = sealedOrderId,
+            ClientId = originalShift.ClientId,
+            MacroId = originalShift.MacroId,
+            StartShift = start,
+            EndShift = end,
+            FromDate = originalShift.FromDate,
+            UntilDate = originalShift.UntilDate,
+            WorkTime = CalculateWorkTime(start, end),
+            CuttingAfterMidnight = crossesMidnight,
+            SumEmployees = originalShift.SumEmployees,
+            Quantity = originalShift.Quantity,
+            IsMonday = originalShift.IsMonday,
+            IsTuesday = originalShift.IsTuesday,
+            IsWednesday = originalShift.IsWednesday,
+            IsThursday = originalShift.IsThursday,
+            IsFriday = originalShift.IsFriday,
+            IsSaturday = originalShift.IsSaturday,
+            IsSunday = originalShift.IsSunday,
+            IsHoliday = originalShift.IsHoliday,
+            IsWeekdayAndHoliday = originalShift.IsWeekdayAndHoliday,
+            IsTimeRange = originalShift.IsTimeRange,
+            IsSporadic = originalShift.IsSporadic,
+            SporadicScope = originalShift.SporadicScope,
+            Groups = groupResources
+        };
+    }
+
+    private static SkillResult BuildSuccessResult(
+        Shift originalShift,
+        Guid? sealedOrderId,
+        List<Shift> results,
+        List<SimpleGroupResource> groupResources,
+        List<object> summaries)
+    {
         var resultData = new
         {
             SealedOrderId = sealedOrderId,

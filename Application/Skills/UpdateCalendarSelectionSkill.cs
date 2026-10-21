@@ -30,10 +30,12 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Skills.Base;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -61,6 +63,8 @@ public class UpdateCalendarSelectionSkill : BaseSkillImplementation
         _unitOfWork = unitOfWork;
     }
 
+    private sealed record OverrideKeys(HashSet<(string, string)> ReminderKeys, HashSet<(string, string)> InheritKeys);
+
     public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
@@ -83,108 +87,12 @@ public class UpdateCalendarSelectionSkill : BaseSkillImplementation
             .ToDictionary(sc => (sc.Country, sc.State), sc => sc.OfficialOverride);
         var changed = new List<string>();
 
-        var newName = GetParameter<string>(parameters, "newName");
-        var finalName = selection.Name;
-        if (!string.IsNullOrWhiteSpace(newName) && newName.Trim() != selection.Name)
+        var finalName = ApplyNewName(parameters, selection, changed);
+
+        var editError = ApplyCalendarEdits(parameters, availableTokens, merged, changed);
+        if (editError != null)
         {
-            finalName = newName.Trim();
-            changed.Add("name");
-        }
-
-        var removeRaw = SkillStringListParser.ParseStringList(parameters, "removeCalendars") ?? new();
-        foreach (var raw in removeRaw)
-        {
-            var (country, state, error) = CalendarTokenParser.Resolve(raw, availableTokens);
-            if (error != null)
-            {
-                return SkillResult.Error(error);
-            }
-
-            if (merged.Remove((country, state)))
-            {
-                changed.Add($"removed {CalendarTokenParser.Format(country, state)}");
-            }
-        }
-
-        var addRaw = SkillStringListParser.ParseStringList(parameters, "addCalendars") ?? new();
-        foreach (var raw in addRaw)
-        {
-            var (country, state, error) = CalendarTokenParser.Resolve(raw, availableTokens);
-            if (error != null)
-            {
-                return SkillResult.Error(error);
-            }
-
-            if (!merged.ContainsKey((country, state)))
-            {
-                merged[(country, state)] = null;
-                changed.Add($"added {CalendarTokenParser.Format(country, state)}");
-            }
-        }
-
-        var reminderRaw = SkillStringListParser.ParseStringList(parameters, "reminderOnlyCalendars") ?? new();
-        var inheritRaw = SkillStringListParser.ParseStringList(parameters, "inheritCalendars") ?? new();
-
-        var reminderKeys = new HashSet<(string, string)>();
-        foreach (var raw in reminderRaw)
-        {
-            var (country, state, error) = CalendarTokenParser.Resolve(raw, availableTokens);
-            if (error != null)
-            {
-                return SkillResult.Error(error);
-            }
-
-            reminderKeys.Add((country, state));
-        }
-
-        var inheritKeys = new HashSet<(string, string)>();
-        foreach (var raw in inheritRaw)
-        {
-            var (country, state, error) = CalendarTokenParser.Resolve(raw, availableTokens);
-            if (error != null)
-            {
-                return SkillResult.Error(error);
-            }
-
-            if (reminderKeys.Contains((country, state)))
-            {
-                return SkillResult.Error(
-                    $"'{raw}' is listed in both reminderOnlyCalendars and inheritCalendars — pick one.");
-            }
-
-            inheritKeys.Add((country, state));
-        }
-
-        foreach (var key in reminderKeys)
-        {
-            if (!merged.TryGetValue(key, out var currentOverride))
-            {
-                return SkillResult.Error(
-                    $"reminderOnlyCalendars entry '{CalendarTokenParser.Format(key.Item1, key.Item2)}' is not part " +
-                    "of this calendar selection — add it via addCalendars first.");
-            }
-
-            if (currentOverride != false)
-            {
-                merged[key] = false;
-                changed.Add($"reminder-only {CalendarTokenParser.Format(key.Item1, key.Item2)}");
-            }
-        }
-
-        foreach (var key in inheritKeys)
-        {
-            if (!merged.TryGetValue(key, out var currentOverride))
-            {
-                return SkillResult.Error(
-                    $"inheritCalendars entry '{CalendarTokenParser.Format(key.Item1, key.Item2)}' is not part of " +
-                    "this calendar selection.");
-            }
-
-            if (currentOverride != null)
-            {
-                merged[key] = null;
-                changed.Add($"inherit {CalendarTokenParser.Format(key.Item1, key.Item2)}");
-            }
+            return SkillResult.Error(editError);
         }
 
         if (changed.Count == 0)
@@ -200,7 +108,197 @@ public class UpdateCalendarSelectionSkill : BaseSkillImplementation
                 $"Calendar selection '{selection.Name}' must keep at least one calendar — refusing to remove the last one.");
         }
 
-        var resource = new CalendarSelectionResource
+        var writeError = await UpdateAndConfirmAsync(selection, finalName, merged, changed, cancellationToken);
+        if (writeError != null)
+        {
+            return SkillResult.Error(writeError);
+        }
+
+        return BuildSuccessResult(selection, finalName, merged, changed);
+    }
+
+    private static string ApplyNewName(
+        Dictionary<string, object> parameters, CalendarSelection selection, List<string> changed)
+    {
+        var newName = GetParameter<string>(parameters, "newName");
+        var finalName = selection.Name;
+        if (!string.IsNullOrWhiteSpace(newName) && newName.Trim() != selection.Name)
+        {
+            finalName = newName.Trim();
+            changed.Add("name");
+        }
+
+        return finalName;
+    }
+
+    private static string? ApplyCalendarEdits(
+        Dictionary<string, object> parameters,
+        List<StateCountryToken> availableTokens,
+        Dictionary<(string Country, string State), bool?> merged,
+        List<string> changed)
+    {
+        var removeError = RemoveCalendars(parameters, availableTokens, merged, changed);
+        if (removeError != null)
+        {
+            return removeError;
+        }
+
+        var addError = AddCalendars(parameters, availableTokens, merged, changed);
+        if (addError != null)
+        {
+            return addError;
+        }
+
+        var (overrideKeys, overrideError) = ResolveOverrideKeys(parameters, availableTokens);
+        if (overrideKeys is null)
+        {
+            return overrideError;
+        }
+
+        return ApplyReminderOnly(overrideKeys.ReminderKeys, merged, changed)
+            ?? ApplyInherit(overrideKeys.InheritKeys, merged, changed);
+    }
+
+    private static string? RemoveCalendars(
+        Dictionary<string, object> parameters,
+        List<StateCountryToken> availableTokens,
+        Dictionary<(string Country, string State), bool?> merged,
+        List<string> changed)
+    {
+        var removeRaw = SkillStringListParser.ParseStringList(parameters, "removeCalendars") ?? new();
+        foreach (var raw in removeRaw)
+        {
+            var (country, state, error) = CalendarTokenParser.Resolve(raw, availableTokens);
+            if (error != null)
+            {
+                return error;
+            }
+
+            if (merged.Remove((country, state)))
+            {
+                changed.Add($"removed {CalendarTokenParser.Format(country, state)}");
+            }
+        }
+
+        return null;
+    }
+
+    private static string? AddCalendars(
+        Dictionary<string, object> parameters,
+        List<StateCountryToken> availableTokens,
+        Dictionary<(string Country, string State), bool?> merged,
+        List<string> changed)
+    {
+        var addRaw = SkillStringListParser.ParseStringList(parameters, "addCalendars") ?? new();
+        foreach (var raw in addRaw)
+        {
+            var (country, state, error) = CalendarTokenParser.Resolve(raw, availableTokens);
+            if (error != null)
+            {
+                return error;
+            }
+
+            if (!merged.ContainsKey((country, state)))
+            {
+                merged[(country, state)] = null;
+                changed.Add($"added {CalendarTokenParser.Format(country, state)}");
+            }
+        }
+
+        return null;
+    }
+
+    private static (OverrideKeys? Keys, string? Error) ResolveOverrideKeys(
+        Dictionary<string, object> parameters, List<StateCountryToken> availableTokens)
+    {
+        var reminderRaw = SkillStringListParser.ParseStringList(parameters, "reminderOnlyCalendars") ?? new();
+        var inheritRaw = SkillStringListParser.ParseStringList(parameters, "inheritCalendars") ?? new();
+
+        var reminderKeys = new HashSet<(string, string)>();
+        foreach (var raw in reminderRaw)
+        {
+            var (country, state, error) = CalendarTokenParser.Resolve(raw, availableTokens);
+            if (error != null)
+            {
+                return (null, error);
+            }
+
+            reminderKeys.Add((country, state));
+        }
+
+        var inheritKeys = new HashSet<(string, string)>();
+        foreach (var raw in inheritRaw)
+        {
+            var (country, state, error) = CalendarTokenParser.Resolve(raw, availableTokens);
+            if (error != null)
+            {
+                return (null, error);
+            }
+
+            if (reminderKeys.Contains((country, state)))
+            {
+                return (null,
+                    $"'{raw}' is listed in both reminderOnlyCalendars and inheritCalendars — pick one.");
+            }
+
+            inheritKeys.Add((country, state));
+        }
+
+        return (new OverrideKeys(reminderKeys, inheritKeys), null);
+    }
+
+    private static string? ApplyReminderOnly(
+        HashSet<(string, string)> reminderKeys,
+        Dictionary<(string Country, string State), bool?> merged,
+        List<string> changed)
+    {
+        foreach (var key in reminderKeys)
+        {
+            if (!merged.TryGetValue(key, out var currentOverride))
+            {
+                return
+                    $"reminderOnlyCalendars entry '{CalendarTokenParser.Format(key.Item1, key.Item2)}' is not part " +
+                    "of this calendar selection — add it via addCalendars first.";
+            }
+
+            if (currentOverride != false)
+            {
+                merged[key] = false;
+                changed.Add($"reminder-only {CalendarTokenParser.Format(key.Item1, key.Item2)}");
+            }
+        }
+
+        return null;
+    }
+
+    private static string? ApplyInherit(
+        HashSet<(string, string)> inheritKeys,
+        Dictionary<(string Country, string State), bool?> merged,
+        List<string> changed)
+    {
+        foreach (var key in inheritKeys)
+        {
+            if (!merged.TryGetValue(key, out var currentOverride))
+            {
+                return
+                    $"inheritCalendars entry '{CalendarTokenParser.Format(key.Item1, key.Item2)}' is not part of " +
+                    "this calendar selection.";
+            }
+
+            if (currentOverride != null)
+            {
+                merged[key] = null;
+                changed.Add($"inherit {CalendarTokenParser.Format(key.Item1, key.Item2)}");
+            }
+        }
+
+        return null;
+    }
+
+    private static CalendarSelectionResource BuildResource(
+        CalendarSelection selection, string finalName, Dictionary<(string Country, string State), bool?> merged)
+    {
+        return new CalendarSelectionResource
         {
             Id = selection.Id,
             Name = finalName,
@@ -213,6 +311,16 @@ public class UpdateCalendarSelectionSkill : BaseSkillImplementation
                 OfficialOverride = kv.Value
             }).ToList()
         };
+    }
+
+    private async Task<string?> UpdateAndConfirmAsync(
+        CalendarSelection selection,
+        string finalName,
+        Dictionary<(string Country, string State), bool?> merged,
+        List<string> changed,
+        CancellationToken cancellationToken)
+    {
+        var resource = BuildResource(selection, finalName, merged);
 
         try
         {
@@ -240,9 +348,18 @@ public class UpdateCalendarSelectionSkill : BaseSkillImplementation
         }
         catch (SkillVerificationException ex)
         {
-            return SkillResult.Error(ex.Message);
+            return ex.Message;
         }
 
+        return null;
+    }
+
+    private static SkillResult BuildSuccessResult(
+        CalendarSelection selection,
+        string finalName,
+        Dictionary<(string Country, string State), bool?> merged,
+        List<string> changed)
+    {
         return SkillResult.SuccessResult(
             new
             {

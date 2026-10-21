@@ -74,6 +74,19 @@ public class UpdateClientSkill : BaseSkillImplementation
         _countryResolver = countryResolver;
     }
 
+    private sealed class ClientChanges
+    {
+        public List<string> Fields { get; } = new();
+
+        public List<Func<Client, bool>> Verifications { get; } = new();
+
+        public void Add(string field, Func<Client, bool> verification)
+        {
+            Fields.Add(field);
+            Verifications.Add(verification);
+        }
+    }
+
     public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
@@ -87,107 +100,159 @@ public class UpdateClientSkill : BaseSkillImplementation
 
         var clientId = client!.Id;
 
-        var changed = new List<string>();
-        var verifications = new List<Func<Client, bool>>();
+        var changes = new ClientChanges();
 
+        ApplyMasterFields(parameters, client, changes);
+
+        var birthdateError = ApplyBirthdate(parameters, client, changes, context.UserLanguage);
+        if (birthdateError != null)
+        {
+            return SkillResult.Error(birthdateError);
+        }
+
+        var genderError = ApplyGender(parameters, client, changes);
+        if (genderError != null)
+        {
+            return SkillResult.Error(genderError);
+        }
+
+        var now = DateTime.UtcNow;
+
+        await AddAddressAsync(parameters, client, changes, now, context, cancellationToken);
+        AddCommunications(parameters, client, changes, now, context);
+
+        if (changes.Fields.Count == 0)
+        {
+            return SkillResult.SuccessResult(
+                new { ClientId = clientId, ChangedFields = Array.Empty<string>() },
+                "No fields supplied for update — client left unchanged.");
+        }
+
+        return await PutClientAsync(client, clientId, changes.Fields, context, cancellationToken);
+    }
+
+    private static void ApplyMasterFields(Dictionary<string, object> parameters, Client client, ClientChanges changes)
+    {
         var firstName = GetParameter<string>(parameters, "firstName");
         if (!string.IsNullOrWhiteSpace(firstName) && firstName != client.FirstName)
         {
             client.FirstName = firstName;
-            changed.Add("firstName");
-            verifications.Add(persisted => persisted.FirstName == firstName);
+            changes.Add("firstName", persisted => persisted.FirstName == firstName);
         }
 
         var lastName = GetParameter<string>(parameters, "lastName");
         if (!string.IsNullOrWhiteSpace(lastName) && lastName != client.Name)
         {
             client.Name = lastName;
-            changed.Add("lastName");
-            verifications.Add(persisted => persisted.Name == lastName);
+            changes.Add("lastName", persisted => persisted.Name == lastName);
         }
 
         var title = GetParameter<string>(parameters, "title");
         if (title != null && title != client.Title)
         {
             client.Title = title;
-            changed.Add("title");
-            verifications.Add(persisted => persisted.Title == title);
+            changes.Add("title", persisted => persisted.Title == title);
         }
 
         var company = GetParameter<string>(parameters, "company");
         if (company != null && company != client.Company)
         {
             client.Company = company;
-            changed.Add("company");
-            verifications.Add(persisted => persisted.Company == company);
+            changes.Add("company", persisted => persisted.Company == company);
         }
+    }
 
+    private static string? ApplyBirthdate(
+        Dictionary<string, object> parameters, Client client, ClientChanges changes, string? language)
+    {
         var birthdate = GetParameter<string>(parameters, "birthdate");
-        if (!string.IsNullOrEmpty(birthdate))
+        if (string.IsNullOrEmpty(birthdate))
         {
-            if (!SkillUtcDateTimeParser.TryParse(birthdate, context.UserLanguage, out var parsedBirthdate))
-            {
-                return SkillResult.Error(SkillDateParser.InvalidBirthdateMessage(birthdate));
-            }
-
-            if (client.Birthdate != parsedBirthdate)
-            {
-                client.Birthdate = parsedBirthdate;
-                changed.Add("birthdate");
-                verifications.Add(persisted => persisted.Birthdate.HasValue
-                    && persisted.Birthdate.Value.Date == parsedBirthdate.Date);
-            }
+            return null;
         }
 
+        if (!SkillUtcDateTimeParser.TryParse(birthdate, language, out var parsedBirthdate))
+        {
+            return SkillDateParser.InvalidBirthdateMessage(birthdate);
+        }
+
+        if (client.Birthdate != parsedBirthdate)
+        {
+            client.Birthdate = parsedBirthdate;
+            changes.Add("birthdate", persisted => persisted.Birthdate.HasValue
+                && persisted.Birthdate.Value.Date == parsedBirthdate.Date);
+        }
+
+        return null;
+    }
+
+    private static string? ApplyGender(Dictionary<string, object> parameters, Client client, ClientChanges changes)
+    {
         var genderStr = GetParameter<string>(parameters, "gender");
-        if (!string.IsNullOrWhiteSpace(genderStr))
+        if (string.IsNullOrWhiteSpace(genderStr))
         {
-            if (!Enum.TryParse<GenderEnum>(genderStr, true, out var gender))
-            {
-                return SkillResult.Error($"Invalid gender value: {genderStr}");
-            }
-            if (client.Gender != gender)
-            {
-                client.Gender = gender;
-                client.LegalEntity = gender == GenderEnum.LegalEntity;
-                changed.Add("gender");
-                verifications.Add(persisted => persisted.Gender == gender
-                    && persisted.LegalEntity == (gender == GenderEnum.LegalEntity));
-            }
+            return null;
         }
 
-        var now = DateTime.UtcNow;
+        if (!Enum.TryParse<GenderEnum>(genderStr, true, out var gender))
+        {
+            return $"Invalid gender value: {genderStr}";
+        }
 
+        if (client.Gender != gender)
+        {
+            client.Gender = gender;
+            client.LegalEntity = gender == GenderEnum.LegalEntity;
+            changes.Add("gender", persisted => persisted.Gender == gender
+                && persisted.LegalEntity == (gender == GenderEnum.LegalEntity));
+        }
+
+        return null;
+    }
+
+    private async Task AddAddressAsync(
+        Dictionary<string, object> parameters,
+        Client client,
+        ClientChanges changes,
+        DateTime now,
+        SkillExecutionContext context,
+        CancellationToken cancellationToken)
+    {
         var street = GetParameter<string>(parameters, "street");
         var zip = GetParameter<string>(parameters, "zip");
         var city = GetParameter<string>(parameters, "city");
         var stateParam = GetParameter<string>(parameters, "state");
         var countryInput = GetParameter<string>(parameters, "country");
-        if (!string.IsNullOrWhiteSpace(street) || !string.IsNullOrWhiteSpace(zip) || !string.IsNullOrWhiteSpace(city))
+        if (string.IsNullOrWhiteSpace(street) && string.IsNullOrWhiteSpace(zip) && string.IsNullOrWhiteSpace(city))
         {
-            var resolvedCountry = await _countryResolver.ResolveAsync(countryInput, cancellationToken)
-                ?? await _countryResolver.GetDefaultAsync(cancellationToken);
-            var countryCode = resolvedCountry?.Abbreviation ?? string.Empty;
-
-            var newAddress = new Address
-            {
-                Id = Guid.NewGuid(),
-                ClientId = client.Id,
-                Street = street ?? string.Empty,
-                Zip = zip ?? string.Empty,
-                City = city ?? string.Empty,
-                State = stateParam ?? string.Empty,
-                Country = countryCode,
-                Type = client.Type == EntityTypeEnum.Customer ? AddressTypeEnum.Workplace : AddressTypeEnum.Employee,
-                ValidFrom = now,
-                CreateTime = now,
-                CurrentUserCreated = context.UserName
-            };
-            client.Addresses.Add(newAddress);
-            changed.Add("address");
-            verifications.Add(persisted => persisted.Addresses.Any(a => a.Id == newAddress.Id));
+            return;
         }
 
+        var resolvedCountry = await _countryResolver.ResolveAsync(countryInput, cancellationToken)
+            ?? await _countryResolver.GetDefaultAsync(cancellationToken);
+        var countryCode = resolvedCountry?.Abbreviation ?? string.Empty;
+
+        var newAddress = new Address
+        {
+            Id = Guid.NewGuid(),
+            ClientId = client.Id,
+            Street = street ?? string.Empty,
+            Zip = zip ?? string.Empty,
+            City = city ?? string.Empty,
+            State = stateParam ?? string.Empty,
+            Country = countryCode,
+            Type = client.Type == EntityTypeEnum.Customer ? AddressTypeEnum.Workplace : AddressTypeEnum.Employee,
+            ValidFrom = now,
+            CreateTime = now,
+            CurrentUserCreated = context.UserName
+        };
+        client.Addresses.Add(newAddress);
+        changes.Add("address", persisted => persisted.Addresses.Any(a => a.Id == newAddress.Id));
+    }
+
+    private static void AddCommunications(
+        Dictionary<string, object> parameters, Client client, ClientChanges changes, DateTime now, SkillExecutionContext context)
+    {
         var email = GetParameter<string>(parameters, "email");
         if (!string.IsNullOrWhiteSpace(email))
         {
@@ -201,8 +266,7 @@ public class UpdateClientSkill : BaseSkillImplementation
                 CurrentUserCreated = context.UserName
             };
             client.Communications.Add(newEmail);
-            changed.Add("email");
-            verifications.Add(persisted => persisted.Communications.Any(c => c.Id == newEmail.Id));
+            changes.Add("email", persisted => persisted.Communications.Any(c => c.Id == newEmail.Id));
         }
 
         var phone = GetParameter<string>(parameters, "phone");
@@ -218,17 +282,13 @@ public class UpdateClientSkill : BaseSkillImplementation
                 CurrentUserCreated = context.UserName
             };
             client.Communications.Add(newPhone);
-            changed.Add("phone");
-            verifications.Add(persisted => persisted.Communications.Any(c => c.Id == newPhone.Id));
+            changes.Add("phone", persisted => persisted.Communications.Any(c => c.Id == newPhone.Id));
         }
+    }
 
-        if (changed.Count == 0)
-        {
-            return SkillResult.SuccessResult(
-                new { ClientId = clientId, ChangedFields = Array.Empty<string>() },
-                "No fields supplied for update — client left unchanged.");
-        }
-
+    private async Task<SkillResult> PutClientAsync(
+        Client client, Guid clientId, List<string> changed, SkillExecutionContext context, CancellationToken cancellationToken)
+    {
         var result = await _selfApi.PutAsync<ClientResource>(
             _routes.Resolve(typeof(ClientResource)), _clientMapper.ToResource(client), context,
             SkillName, cancellationToken);
