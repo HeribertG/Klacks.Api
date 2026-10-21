@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -96,39 +95,4 @@ public class GeminiSkillAdapter : BaseSkillAdapter
 
         return schema;
     }
-}
-
-public class GeminiFunctionDeclarationDefinition
-{
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [JsonPropertyName("description")]
-    public string Description { get; set; } = string.Empty;
-
-    [JsonPropertyName("parameters")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public GeminiParametersDefinition? Parameters { get; set; }
-}
-
-public class GeminiParametersDefinition
-{
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = "OBJECT";
-
-    [JsonPropertyName("properties")]
-    public Dictionary<string, object> Properties { get; set; } = new();
-
-    [JsonPropertyName("required")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<string>? Required { get; set; }
-}
-
-public class GeminiFunctionCall
-{
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [JsonPropertyName("args")]
-    public Dictionary<string, object>? Args { get; set; }
 }

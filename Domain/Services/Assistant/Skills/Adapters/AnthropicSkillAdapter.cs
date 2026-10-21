@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -66,43 +65,4 @@ public class AnthropicSkillAdapter : BaseSkillAdapter
 
         throw new ArgumentException($"Unsupported provider call type: {providerFunctionCall.GetType().Name}");
     }
-}
-
-public class AnthropicToolDefinition
-{
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [JsonPropertyName("description")]
-    public string Description { get; set; } = string.Empty;
-
-    [JsonPropertyName("input_schema")]
-    public AnthropicInputSchemaDefinition InputSchema { get; set; } = new();
-}
-
-public class AnthropicInputSchemaDefinition
-{
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = "object";
-
-    [JsonPropertyName("properties")]
-    public Dictionary<string, object> Properties { get; set; } = new();
-
-    [JsonPropertyName("required")]
-    public List<string> Required { get; set; } = new();
-}
-
-public class AnthropicToolUse
-{
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = "tool_use";
-
-    [JsonPropertyName("id")]
-    public string Id { get; set; } = string.Empty;
-
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [JsonPropertyName("input")]
-    public Dictionary<string, object>? Input { get; set; }
 }

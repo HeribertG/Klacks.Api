@@ -12,7 +12,6 @@
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Domain.Logging;
@@ -662,60 +661,3 @@ public class RouteOptimizationService : IRouteOptimizationService
         return await _distanceMatrixBuilder.BuildDistanceMatrixAsync(newLocations, transportMode);
     }
 }
-
-public record Location
-{
-    public string Name { get; init; } = string.Empty;
-    public string Address { get; init; } = string.Empty;
-    public double Latitude { get; init; }
-    public double Longitude { get; init; }
-    public Guid ShiftId { get; init; }
-    public TransportMode TransportMode { get; init; } = TransportMode.ByCar;
-    public TimeSpan BriefingTime { get; init; } = TimeSpan.Zero;
-    public TimeSpan DebriefingTime { get; init; } = TimeSpan.Zero;
-    public TimeSpan WorkTime { get; init; } = TimeSpan.Zero;
-    public TimeSpan TotalOnSiteTime => BriefingTime + WorkTime + DebriefingTime;
-    public TimeOnly? TimeRangeStart { get; init; }
-    public TimeOnly? TimeRangeEnd { get; init; }
-}
-
-public record DistanceMatrix(
-    List<Location> Locations,
-    double[,] Matrix,
-    double[,] DurationMatrix,
-    Dictionary<string, double[,]>? DurationMatricesByProfile = null,
-    bool IsEstimated = false);
-
-public record RouteOptimizationResult(
-    List<Location> OptimizedRoute,
-    double TotalDistanceKm,
-    TimeSpan EstimatedTravelTime,
-    double[,] DistanceMatrix,
-    double[,] DurationMatrix,
-    TimeSpan TravelTimeFromStartBase,
-    List<int> RouteIndices,
-    double DistanceFromStartBaseKm,
-    double DistanceToEndBaseKm,
-    TimeSpan TravelTimeToEndBase,
-    List<int> FullRouteIndices,
-    Dictionary<string, double[,]>? DurationMatricesByProfile = null,
-    ContainerTransportMode TransportMode = ContainerTransportMode.ByCar,
-    List<RouteSegmentDirections>? SegmentDirections = null,
-    TimeSpan TotalBriefingDebriefingTime = default,
-    List<PlacedTimeBlock>? PlacedTimeBlocks = null,
-    bool IsEstimated = false);
-
-public record RouteSegmentDirections(
-    string FromName,
-    string ToName,
-    string TransportMode,
-    double DistanceKm,
-    TimeSpan Duration,
-    List<DirectionStep> Steps);
-
-public record DirectionStep(
-    string Instruction,
-    string StreetName,
-    double DistanceMeters,
-    int DurationSeconds,
-    string ManeuverType);

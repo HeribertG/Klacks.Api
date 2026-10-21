@@ -94,9 +94,3 @@ public static class WorkSubEntryMapper
             .ToHashSet();
     }
 }
-
-public sealed record WorkSubEntryLookups(
-    Dictionary<Guid, List<WorkChange>> WorkChanges,
-    Dictionary<Guid, List<Expenses>> Expenses,
-    Dictionary<(Guid ClientId, DateOnly Date), List<Break>> Breaks,
-    IReadOnlySet<Guid>? BreakCarrierWorkIds = null);
