@@ -30,6 +30,24 @@ public class ErrorHandlingMiddleware
     private const string ErrorsKey = "errors";
     private const string StackTraceKey = "stackTrace";
     private const string StaleWizardResultErrorCode = "staleWizardResult";
+    private const string ReasonsKey = "reasons";
+    private const string RunningJobIdKey = "runningJobId";
+    private const string CurrentErrorCountKey = "currentErrorCount";
+    private const string BlockersKey = "blockers";
+    private const string BlockerTotalKey = "blockerTotal";
+    private const string ExpectedWorkCountKey = "expectedWorkCount";
+    private const string ActualWorkCountKey = "actualWorkCount";
+    private const string ExpectedBreakCountKey = "expectedBreakCount";
+    private const string ActualBreakCountKey = "actualBreakCount";
+    private const string PlacementChangedKey = "placementChanged";
+    private const string AgentsKey = "agents";
+    private const string ShiftsKey = "shifts";
+    private const string PeriodDaysKey = "periodDays";
+    private const string MaxAgentsKey = "maxAgents";
+    private const string MaxShiftsKey = "maxShifts";
+    private const string MaxPeriodDaysKey = "maxPeriodDays";
+    private const string SlotProductKey = "slotProduct";
+    private const string MaxSlotProductKey = "maxSlotProduct";
 
     private const string BadRequestTitle = "Bad Request";
     private const string ConflictTitle = "Conflict";
@@ -93,8 +111,8 @@ public class ErrorHandlingMiddleware
         NotFoundException ex => HandleNotFoundAsync(context, ex),
         AutofillLimitExceededException ex => HandleAutofillLimitExceededAsync(context, ex),
         BadRequestException ex => HandleBadRequestAsync(context, ex),
-        OperationCanceledException => HandleRequestCancelled(context),
-        Npgsql.PostgresException { SqlState: QueryCanceledSqlState } => HandleQueryCancelled(context),
+        OperationCanceledException => HandleRequestCancelledAsync(context),
+        Npgsql.PostgresException { SqlState: QueryCanceledSqlState } => HandleQueryCancelledAsync(context),
         _ => HandleUnexpectedAsync(context, exception),
     };
 
@@ -113,7 +131,7 @@ public class ErrorHandlingMiddleware
         _logger.LogWarning("AccountRegistrationRejectedException caught by middleware: {Reasons}", string.Join(',', ex.Reasons));
         var problem = StartProblem(context, StatusCodes.Status400BadRequest, BadRequestTitle, ex.Message);
         problem.Extensions[ErrorCodeKey] = AccountRegistrationErrorCodes.ErrorCode;
-        problem.Extensions["reasons"] = ex.Reasons;
+        problem.Extensions[ReasonsKey] = ex.Reasons;
 
         await context.Response.WriteAsJsonAsync(problem);
     }
@@ -172,7 +190,7 @@ public class ErrorHandlingMiddleware
             ex.Family, ex.RunningJobId);
         var problem = StartProblem(context, StatusCodes.Status409Conflict, ConflictTitle, ex.Message);
         problem.Extensions[ErrorCodeKey] = AutofillLimits.RunConflictErrorCode;
-        problem.Extensions["runningJobId"] = ex.RunningJobId;
+        problem.Extensions[RunningJobIdKey] = ex.RunningJobId;
 
         await context.Response.WriteAsJsonAsync(problem);
     }
@@ -193,7 +211,7 @@ public class ErrorHandlingMiddleware
             ex, "PeriodValidationConflictException caught by middleware: {Message}", ex.Message);
         var problem = StartProblem(context, StatusCodes.Status409Conflict, ConflictTitle, ex.Message);
         problem.Extensions[ErrorCodeKey] = PeriodValidationConflictException.ErrorCode;
-        problem.Extensions["currentErrorCount"] = ex.CurrentErrorCount;
+        problem.Extensions[CurrentErrorCountKey] = ex.CurrentErrorCount;
 
         await context.Response.WriteAsJsonAsync(problem);
     }
@@ -203,8 +221,8 @@ public class ErrorHandlingMiddleware
         _logger.LogWarning(ex, "PayrollExportBlockedException caught by middleware: {BlockerTotal} blockers", ex.Completeness.BlockerTotal);
         var problem = StartProblem(context, StatusCodes.Status409Conflict, ConflictTitle, ex.Message);
         problem.Extensions[ErrorCodeKey] = PayrollExportErrorCodes.Blocked;
-        problem.Extensions["blockers"] = ex.Completeness.Blockers;
-        problem.Extensions["blockerTotal"] = ex.Completeness.BlockerTotal;
+        problem.Extensions[BlockersKey] = ex.Completeness.Blockers;
+        problem.Extensions[BlockerTotalKey] = ex.Completeness.BlockerTotal;
 
         await context.Response.WriteAsJsonAsync(problem);
     }
@@ -240,11 +258,11 @@ public class ErrorHandlingMiddleware
         _logger.LogWarning(ex, "StaleWizardResultException caught by middleware: {Message}", ex.Message);
         var problem = StartProblem(context, StatusCodes.Status409Conflict, ConflictTitle, ex.Message);
         problem.Extensions[ErrorCodeKey] = StaleWizardResultErrorCode;
-        problem.Extensions["expectedWorkCount"] = ex.ExpectedWorkCount;
-        problem.Extensions["actualWorkCount"] = ex.ActualWorkCount;
-        problem.Extensions["expectedBreakCount"] = ex.ExpectedBreakCount;
-        problem.Extensions["actualBreakCount"] = ex.ActualBreakCount;
-        problem.Extensions["placementChanged"] = ex.PlacementChanged;
+        problem.Extensions[ExpectedWorkCountKey] = ex.ExpectedWorkCount;
+        problem.Extensions[ActualWorkCountKey] = ex.ActualWorkCount;
+        problem.Extensions[ExpectedBreakCountKey] = ex.ExpectedBreakCount;
+        problem.Extensions[ActualBreakCountKey] = ex.ActualBreakCount;
+        problem.Extensions[PlacementChangedKey] = ex.PlacementChanged;
 
         await context.Response.WriteAsJsonAsync(problem);
     }
@@ -280,14 +298,14 @@ public class ErrorHandlingMiddleware
         var problem = StartProblem(context, StatusCodes.Status400BadRequest, BadRequestTitle, ex.Message);
         problem.Extensions[ErrorCodeKey] = ex.Code;
         problem.Extensions[CodeKey] = ex.Code;
-        problem.Extensions["agents"] = ex.Agents;
-        problem.Extensions["shifts"] = ex.Shifts;
-        problem.Extensions["periodDays"] = ex.PeriodDays;
-        problem.Extensions["maxAgents"] = ex.MaxAgents;
-        problem.Extensions["maxShifts"] = ex.MaxShifts;
-        problem.Extensions["maxPeriodDays"] = ex.MaxPeriodDays;
-        problem.Extensions["slotProduct"] = ex.SlotProduct;
-        problem.Extensions["maxSlotProduct"] = ex.MaxSlotProduct;
+        problem.Extensions[AgentsKey] = ex.Agents;
+        problem.Extensions[ShiftsKey] = ex.Shifts;
+        problem.Extensions[PeriodDaysKey] = ex.PeriodDays;
+        problem.Extensions[MaxAgentsKey] = ex.MaxAgents;
+        problem.Extensions[MaxShiftsKey] = ex.MaxShifts;
+        problem.Extensions[MaxPeriodDaysKey] = ex.MaxPeriodDays;
+        problem.Extensions[SlotProductKey] = ex.SlotProduct;
+        problem.Extensions[MaxSlotProductKey] = ex.MaxSlotProduct;
 
         await context.Response.WriteAsJsonAsync(problem);
     }
@@ -301,7 +319,7 @@ public class ErrorHandlingMiddleware
     /// <summary>
     /// A cancelled request gets the status alone: no content type, no body.
     /// </summary>
-    private Task HandleRequestCancelled(HttpContext context)
+    private Task HandleRequestCancelledAsync(HttpContext context)
     {
         _logger.LogDebug("Request cancelled: {Method} {Path}", context.Request.Method.ForLog(), context.Request.Path.ToString().ForLog());
         context.Response.StatusCode = ClientClosedRequestStatus;
@@ -312,7 +330,7 @@ public class ErrorHandlingMiddleware
     /// PostgreSQL reports a cancelled statement (SQLSTATE 57014) as its own exception; it is answered like a cancelled
     /// request. Every other PostgresException falls through to the unexpected-error handler.
     /// </summary>
-    private Task HandleQueryCancelled(HttpContext context)
+    private Task HandleQueryCancelledAsync(HttpContext context)
     {
         _logger.LogDebug("PostgreSQL query cancelled: {Method} {Path}", context.Request.Method.ForLog(), context.Request.Path.ToString().ForLog());
         context.Response.StatusCode = ClientClosedRequestStatus;

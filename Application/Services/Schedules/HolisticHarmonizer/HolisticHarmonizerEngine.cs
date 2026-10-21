@@ -295,14 +295,26 @@ public sealed class HolisticHarmonizerEngine
     private static HolisticHarmonizerIterationOutcome RegisterUnusableResponse(HolisticHarmonizerRunState state)
     {
         state.PlateauCounter++;
+        return CountUnusableAndCheckAbort(state)
+            ? HolisticHarmonizerIterationOutcome.Stop
+            : HolisticHarmonizerIterationOutcome.Skipped;
+    }
+
+    /// <summary>
+    /// Extends the streak of unusable iterations and marks the run as aborted once it reaches
+    /// <see cref="MaxConsecutiveUnusableResponses"/>.
+    /// </summary>
+    /// <returns>True when the run has to stop.</returns>
+    private static bool CountUnusableAndCheckAbort(HolisticHarmonizerRunState state)
+    {
         state.ConsecutiveUnusable++;
-        if (state.ConsecutiveUnusable >= MaxConsecutiveUnusableResponses)
+        if (state.ConsecutiveUnusable < MaxConsecutiveUnusableResponses)
         {
-            state.AbortedOnUnusableResponses = true;
-            return HolisticHarmonizerIterationOutcome.Stop;
+            return false;
         }
 
-        return HolisticHarmonizerIterationOutcome.Skipped;
+        state.AbortedOnUnusableResponses = true;
+        return true;
     }
 
     private (bool IterImproved, bool EvaluatedAnyBatch) EvaluateBatches(
@@ -401,14 +413,9 @@ public sealed class HolisticHarmonizerEngine
             state.ConsecutiveUnusable = 0;
             state.LastParsingError = null;
         }
-        else
+        else if (CountUnusableAndCheckAbort(state))
         {
-            state.ConsecutiveUnusable++;
-            if (state.ConsecutiveUnusable >= MaxConsecutiveUnusableResponses)
-            {
-                state.AbortedOnUnusableResponses = true;
-                return HolisticHarmonizerIterationOutcome.Stop;
-            }
+            return HolisticHarmonizerIterationOutcome.Stop;
         }
 
         state.PlateauCounter = iterImproved ? 0 : state.PlateauCounter + 1;
