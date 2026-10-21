@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.Interfaces.Schedules;
-using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
@@ -20,7 +19,7 @@ using Microsoft.Extensions.Logging;
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
 /// <summary>
-/// Holistic Holistic Harmonizer engine. Runs an inner LLM-ALNS loop: each iteration renders the current
+/// Holistic Harmonizer engine. Runs an inner LLM-ALNS loop: each iteration renders the current
 /// bitmap, asks the LLM for one or more <see cref="MutationBatch"/> proposals (each tagged with
 /// an intent label), evaluates them as atomic transformations with Score-Greedy and prefix
 /// acceptance, and feeds rejects back to the LLM via a small reject memory. The inner loop
@@ -41,11 +40,16 @@ public sealed class HolisticHarmonizerEngine
     /// </summary>
     private const int PlateauStopThreshold = 5;
 
-    // Consecutive iterations whose response was unparsable, signalled no batches without the satisfied
-    // flag, or contained no usable step after candidate filtering. Stops the run as failed instead of
-    // reporting a silent zero-improvement success.
+    /// <summary>
+    /// Consecutive iterations whose response was unparsable, signalled no batches without the satisfied flag, or
+    /// contained no usable step after candidate filtering. Stops the run as failed instead of reporting a silent
+    /// zero-improvement success.
+    /// </summary>
     private const int MaxConsecutiveUnusableResponses = 3;
     private const int RawResponsePreviewLength = 600;
+    private const string RawResponsePreviewEllipsis = "...";
+    private const string DefaultLanguage = "en";
+    private const string NoUsableBatchError = "Model response contained no usable batch.";
     private const string EmptyLogValue = "-";
     private const string SwapListSeparator = ",";
     private const string SwapLogFormat = "r{0}d{1}<->r{2}d{3}";
@@ -85,60 +89,66 @@ public sealed class HolisticHarmonizerEngine
             "Holistic Harmonizer pre-flight: model={Model} healthy={Healthy} latency={LatencyMs}ms error={Error}",
             request.LlmModelId, ping.IsHealthy, ping.LatencyMs, ping.Error ?? "<none>");
 
-        var contextRequest = new HarmonizerContextRequest(
-            request.PeriodFrom,
-            request.PeriodUntil,
-            request.AgentIds,
-            request.AnalyseToken,
-            request.ContextDaysBefore,
-            request.ContextDaysAfter);
-        var input = await _contextBuilder.BuildContextAsync(contextRequest, cancellationToken);
+        var input = await _contextBuilder.BuildContextAsync(ToContextRequest(request), cancellationToken);
         var sorted = RowSorter.Sort(BitmapBuilder.Build(input));
         var original = BitmapCloner.Clone(sorted);
         var working = BitmapCloner.Clone(sorted);
 
         var components = HolisticHarmonizerComponents.Build(
             input, new HarmonyFitnessEvaluator(new HarmonyScorer()), MoveCandidatePool.DefaultTopPerIntent);
-        var fitness = components.Fitness;
-        var batchEvaluator = components.Evaluator;
-        var candidatePool = components.Pool;
-        var rejectMemory = new RejectMemory();
-        var cap = new AdaptiveBatchCap();
-        var iterations = new List<BatchEvaluation>();
         var agentSummary = BuildAgentSummary(working);
-        var fitnessBefore = fitness.Evaluate(original).Fitness;
+        var fitnessBefore = components.Fitness.Evaluate(original).Fitness;
 
         if (!ping.IsHealthy)
         {
-            return new HolisticHarmonizerRunResult(
-                OriginalBitmap: original,
-                FinalBitmap: original,
-                Iterations: iterations,
-                FitnessBefore: fitnessBefore,
-                FitnessAfter: fitnessBefore,
-                LlmModelId: request.LlmModelId,
-                LlmParsingError: $"Pre-flight check failed ({ping.LatencyMs} ms): {ping.Error}",
-                LlmRawResponsePreview: null,
-                AbortedOnUnusableResponses: true);
+            return BuildPreflightFailedResult(request, original, fitnessBefore, ping);
         }
 
-        var stopwatch = Stopwatch.StartNew();
-        var plateauCounter = 0;
-        var consecutiveUnusable = 0;
-        var abortedOnUnusableResponses = false;
-        var bestFitness = fitnessBefore;
-        var acceptedCountSoFar = 0;
-        var rejectedCountSoFar = 0;
-        string? lastParsingError = null;
-        string? lastRawResponse = null;
-        var pngRenderer = new HarmonyBitmapPngRenderer();
-        var intentTracker = new IntentSuccessTracker();
-        var intentSelector = new RouletteIntentSelector();
+        var state = new HolisticHarmonizerRunState(request, working, components, agentSummary, fitnessBefore);
+        await RunInnerLoopAsync(state, progress, cancellationToken);
 
+        return BuildRunResult(state, input, original, fitnessBefore);
+    }
+
+    private static HarmonizerContextRequest ToContextRequest(HolisticHarmonizerEngineRequest request)
+        => new(
+            request.PeriodFrom,
+            request.PeriodUntil,
+            request.AgentIds,
+            request.AnalyseToken,
+            request.ContextDaysBefore,
+            request.ContextDaysAfter);
+
+    private static HolisticHarmonizerRunResult BuildPreflightFailedResult(
+        HolisticHarmonizerEngineRequest request,
+        HarmonyBitmap original,
+        double fitnessBefore,
+        PlanProposalPingResult ping)
+        => new(
+            OriginalBitmap: original,
+            FinalBitmap: original,
+            Iterations: new List<BatchEvaluation>(),
+            FitnessBefore: fitnessBefore,
+            FitnessAfter: fitnessBefore,
+            LlmModelId: request.LlmModelId,
+            LlmParsingError: $"Pre-flight check failed ({ping.LatencyMs} ms): {ping.Error}",
+            LlmRawResponsePreview: null,
+            AbortedOnUnusableResponses: true);
+
+    /// <summary>
+    /// The inner loop: one start tick, then up to <see cref="MaxInnerIterations"/> iterations until the time budget,
+    /// the plateau, the LLM's satisfied signal or too many unusable responses stop it. Only a completed iteration
+    /// reports progress; an iteration skipped for an unusable response does not.
+    /// </summary>
+    private async Task RunInnerLoopAsync(
+        HolisticHarmonizerRunState state,
+        IProgress<HolisticHarmonizerProgress>? progress,
+        CancellationToken cancellationToken)
+    {
         progress?.Report(new HolisticHarmonizerProgress(
             IterationIndex: 0,
             MaxIterations: MaxInnerIterations,
-            BestFitness: bestFitness,
+            BestFitness: state.BestFitness,
             AcceptedBatchCount: 0,
             RejectedBatchCount: 0,
             ElapsedMs: 0));
@@ -147,195 +157,301 @@ public sealed class HolisticHarmonizerEngine
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (stopwatch.Elapsed > InnerLoopTimeBudget)
+            if (IsBudgetOrPlateauReached(state, iter))
             {
-                _logger.LogInformation("Holistic Harmonizer inner loop hit time budget after iter={Iter}", iter);
-                break;
-            }
-            if (plateauCounter >= PlateauStopThreshold)
-            {
-                _logger.LogInformation("Holistic Harmonizer inner loop hit plateau after iter={Iter}", iter);
                 break;
             }
 
-            // Iteration 0 always uses the proven baseline intent so the first batch produced by
-            // the LLM has the best chance to land. From iteration 1 onward the roulette explores
-            // alternative intents weighted by their Laplace-smoothed success rate.
-            var focusedIntent = iter == 0
-                ? HolisticIntent.ConsolidateBlock
-                : intentSelector.Pick(HolisticIntent.All, intentTracker);
-            var excludedSwaps = rejectMemory.SameDayForbiddenSwapKeys();
-            var iterCandidates = candidatePool.Generate(working, focusedIntent, excludedSwaps);
-            _logger.LogInformation(
-                "Holistic Harmonizer iter={Iter} intent={Intent} candidates={Count} excludedByRejectMemory={Excluded}",
-                iter, focusedIntent, iterCandidates.Count, excludedSwaps.Count);
-
-            var proposalRequest = new PlanProposalRequest(
-                ModelId: request.LlmModelId,
-                PlanText: HarmonyBitmapTextRenderer.Render(working),
-                AgentSummary: agentSummary,
-                FragmentationSummary: FragmentationAnalyzer.Render(working),
-                MaxStepsPerBatch: cap.Current,
-                Language: request.Language ?? "en",
-                IterationIndex: iter,
-                PriorRejections: rejectMemory.Entries.ToArray(),
-                PlanPng: pngRenderer.Render(working),
-                FocusedIntent: focusedIntent,
-                CandidateMoves: iterCandidates);
-
-            var response = await _proposalProvider.ProposeAsync(proposalRequest, cancellationToken);
-            lastRawResponse = response.RawResponse;
-
-            if (response.ParsingError is not null)
+            var outcome = await RunIterationAsync(state, iter, cancellationToken);
+            if (outcome == HolisticHarmonizerIterationOutcome.Stop)
             {
-                lastParsingError = response.ParsingError;
-                _logger.LogWarning("Holistic Harmonizer iter={Iter} parsing failed: {Error}", iter, response.ParsingError);
-                plateauCounter++;
-                consecutiveUnusable++;
-                if (consecutiveUnusable >= MaxConsecutiveUnusableResponses)
-                {
-                    abortedOnUnusableResponses = true;
-                    break;
-                }
-                continue;
+                break;
             }
 
-            if (response.Batches.Count == 0)
+            if (outcome == HolisticHarmonizerIterationOutcome.Completed)
             {
-                if (response.LlmSignaledSatisfied)
-                {
-                    _logger.LogInformation("Holistic Harmonizer iter={Iter} returned an empty batches array — LLM signals satisfied", iter);
-                    break;
-                }
-
-                // No batch survived parsing, but the model never signalled convergence either.
-                // Treating that as success is how a broken model used to look like a finished run.
-                lastParsingError = "Model response contained no usable batch.";
-                _logger.LogWarning("Holistic Harmonizer iter={Iter} produced no usable batch without signalling satisfaction", iter);
-                plateauCounter++;
-                consecutiveUnusable++;
-                if (consecutiveUnusable >= MaxConsecutiveUnusableResponses)
-                {
-                    abortedOnUnusableResponses = true;
-                    break;
-                }
-                continue;
+                ReportIterationProgress(state, progress, iter + 1);
             }
+        }
+    }
 
-            var iterImproved = false;
-            var evaluatedAnyBatch = false;
-            foreach (var rawBatch in response.Batches)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                var fromCandidates = CandidateStepFilter.CountStepsInCandidates(rawBatch, iterCandidates);
-                var batch = CandidateStepFilter.FilterToCandidates(rawBatch, iterCandidates);
-                var droppedSelfProposed = rawBatch.Steps.Count - batch.Steps.Count;
-                _logger.LogInformation(
-                    "Holistic Harmonizer iter={Iter} batch intent={Intent} steps={Steps} fromCandidates={Hits}/{Total} droppedSelfProposed={Dropped}",
-                    iter, rawBatch.Intent, rawBatch.Steps.Count, fromCandidates, rawBatch.Steps.Count, droppedSelfProposed);
-
-                if (batch.Steps.Count == 0)
-                {
-                    if (droppedSelfProposed > 0)
-                    {
-                        _logger.LogInformation(
-                            "Holistic Harmonizer iter={Iter} batch intent={Intent} skipped: all steps were self-proposed and dropped (strict-candidate mode)",
-                            iter, rawBatch.Intent);
-                    }
-                    continue;
-                }
-
-                var evaluation = batchEvaluator.Evaluate(working, batch);
-                evaluatedAnyBatch = true;
-                iterations.Add(evaluation);
-                LogBatchOutcome(iter, evaluation);
-
-                intentTracker.Note(batch.Intent, evaluation.Result);
-
-                if (evaluation.Result == BatchAcceptance.Accepted || evaluation.Result == BatchAcceptance.PartiallyAccepted)
-                {
-                    cap.RecordAccept();
-                    acceptedCountSoFar++;
-                    if (evaluation.ScoreAfter > bestFitness)
-                    {
-                        bestFitness = evaluation.ScoreAfter;
-                        iterImproved = true;
-                    }
-                }
-                else
-                {
-                    cap.RecordReject();
-                    rejectedCountSoFar++;
-                    rejectMemory.Note(evaluation);
-                }
-            }
-
-            if (evaluatedAnyBatch)
-            {
-                consecutiveUnusable = 0;
-                lastParsingError = null;
-            }
-            else
-            {
-                // Every step was dropped by the candidate filter - nothing was evaluated, so this
-                // iteration is as unusable as an unparsable response.
-                consecutiveUnusable++;
-                if (consecutiveUnusable >= MaxConsecutiveUnusableResponses)
-                {
-                    abortedOnUnusableResponses = true;
-                    break;
-                }
-            }
-
-            if (iterImproved)
-            {
-                plateauCounter = 0;
-            }
-            else
-            {
-                plateauCounter++;
-            }
-
-            progress?.Report(new HolisticHarmonizerProgress(
-                IterationIndex: iter + 1,
-                MaxIterations: MaxInnerIterations,
-                BestFitness: bestFitness,
-                AcceptedBatchCount: acceptedCountSoFar,
-                RejectedBatchCount: rejectedCountSoFar,
-                ElapsedMs: stopwatch.ElapsedMilliseconds));
+    private bool IsBudgetOrPlateauReached(HolisticHarmonizerRunState state, int iter)
+    {
+        if (state.Stopwatch.Elapsed > InnerLoopTimeBudget)
+        {
+            _logger.LogInformation("Holistic Harmonizer inner loop hit time budget after iter={Iter}", iter);
+            return true;
         }
 
-        var fitnessAfter = fitness.Evaluate(working).Fitness;
+        if (state.PlateauCounter >= PlateauStopThreshold)
+        {
+            _logger.LogInformation("Holistic Harmonizer inner loop hit plateau after iter={Iter}", iter);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void ReportIterationProgress(
+        HolisticHarmonizerRunState state,
+        IProgress<HolisticHarmonizerProgress>? progress,
+        int iterationIndex)
+        => progress?.Report(new HolisticHarmonizerProgress(
+            IterationIndex: iterationIndex,
+            MaxIterations: MaxInnerIterations,
+            BestFitness: state.BestFitness,
+            AcceptedBatchCount: state.AcceptedCount,
+            RejectedBatchCount: state.RejectedCount,
+            ElapsedMs: state.Stopwatch.ElapsedMilliseconds));
+
+    /// <summary>
+    /// One iteration: pick the focused intent, offer its candidates, ask the LLM and evaluate what came back.
+    /// </summary>
+    private async Task<HolisticHarmonizerIterationOutcome> RunIterationAsync(
+        HolisticHarmonizerRunState state,
+        int iter,
+        CancellationToken cancellationToken)
+    {
+        var focusedIntent = PickFocusedIntent(state, iter);
+        var excludedSwaps = state.RejectMemory.SameDayForbiddenSwapKeys();
+        var iterCandidates = state.Components.Pool.Generate(state.Working, focusedIntent, excludedSwaps);
+        _logger.LogInformation(
+            "Holistic Harmonizer iter={Iter} intent={Intent} candidates={Count} excludedByRejectMemory={Excluded}",
+            iter, focusedIntent, iterCandidates.Count, excludedSwaps.Count);
+
+        var proposalRequest = BuildProposalRequest(state, iter, focusedIntent, iterCandidates);
+        var response = await _proposalProvider.ProposeAsync(proposalRequest, cancellationToken);
+        state.LastRawResponse = response.RawResponse;
+
+        if (response.ParsingError is not null)
+        {
+            state.LastParsingError = response.ParsingError;
+            _logger.LogWarning("Holistic Harmonizer iter={Iter} parsing failed: {Error}", iter, response.ParsingError);
+            return RegisterUnusableResponse(state);
+        }
+
+        if (response.Batches.Count == 0)
+        {
+            return HandleResponseWithoutBatches(state, iter, response);
+        }
+
+        var (iterImproved, evaluatedAnyBatch) = EvaluateBatches(state, iter, response.Batches, iterCandidates, cancellationToken);
+        return CompleteIteration(state, iterImproved, evaluatedAnyBatch);
+    }
+
+    /// <summary>
+    /// Iteration 0 always uses the proven baseline intent so the first batch produced by the LLM has the best chance to
+    /// land. From iteration 1 onward the roulette explores alternative intents weighted by their Laplace-smoothed
+    /// success rate.
+    /// </summary>
+    private static string PickFocusedIntent(HolisticHarmonizerRunState state, int iter)
+        => iter == 0
+            ? HolisticIntent.ConsolidateBlock
+            : state.IntentSelector.Pick(HolisticIntent.All, state.IntentTracker);
+
+    private static PlanProposalRequest BuildProposalRequest(
+        HolisticHarmonizerRunState state,
+        int iter,
+        string focusedIntent,
+        IReadOnlyList<MoveCandidate> iterCandidates)
+        => new(
+            ModelId: state.Request.LlmModelId,
+            PlanText: HarmonyBitmapTextRenderer.Render(state.Working),
+            AgentSummary: state.AgentSummary,
+            FragmentationSummary: FragmentationAnalyzer.Render(state.Working),
+            MaxStepsPerBatch: state.Cap.Current,
+            Language: state.Request.Language ?? DefaultLanguage,
+            IterationIndex: iter,
+            PriorRejections: state.RejectMemory.Entries.ToArray(),
+            PlanPng: state.PngRenderer.Render(state.Working),
+            FocusedIntent: focusedIntent,
+            CandidateMoves: iterCandidates);
+
+    /// <summary>
+    /// An empty batches array ends the run when the LLM signals satisfaction. Without that signal no batch survived
+    /// parsing and the model never signalled convergence either; treating that as success is how a broken model used
+    /// to look like a finished run, so it counts as an unusable response.
+    /// </summary>
+    private HolisticHarmonizerIterationOutcome HandleResponseWithoutBatches(
+        HolisticHarmonizerRunState state,
+        int iter,
+        PlanProposalResponse response)
+    {
+        if (response.LlmSignaledSatisfied)
+        {
+            _logger.LogInformation("Holistic Harmonizer iter={Iter} returned an empty batches array — LLM signals satisfied", iter);
+            return HolisticHarmonizerIterationOutcome.Stop;
+        }
+
+        state.LastParsingError = NoUsableBatchError;
+        _logger.LogWarning("Holistic Harmonizer iter={Iter} produced no usable batch without signalling satisfaction", iter);
+        return RegisterUnusableResponse(state);
+    }
+
+    /// <summary>
+    /// An unparsable response or one without batches counts toward the plateau and toward the unusable-response limit;
+    /// the iteration is skipped without a progress report, or the run aborts once the limit is reached.
+    /// </summary>
+    private static HolisticHarmonizerIterationOutcome RegisterUnusableResponse(HolisticHarmonizerRunState state)
+    {
+        state.PlateauCounter++;
+        state.ConsecutiveUnusable++;
+        if (state.ConsecutiveUnusable >= MaxConsecutiveUnusableResponses)
+        {
+            state.AbortedOnUnusableResponses = true;
+            return HolisticHarmonizerIterationOutcome.Stop;
+        }
+
+        return HolisticHarmonizerIterationOutcome.Skipped;
+    }
+
+    private (bool IterImproved, bool EvaluatedAnyBatch) EvaluateBatches(
+        HolisticHarmonizerRunState state,
+        int iter,
+        IReadOnlyList<MutationBatch> batches,
+        IReadOnlyList<MoveCandidate> iterCandidates,
+        CancellationToken cancellationToken)
+    {
+        var iterImproved = false;
+        var evaluatedAnyBatch = false;
+        foreach (var rawBatch in batches)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var batch = FilterToCandidates(iter, rawBatch, iterCandidates);
+            if (batch.Steps.Count == 0)
+            {
+                continue;
+            }
+
+            var evaluation = state.Components.Evaluator.Evaluate(state.Working, batch);
+            evaluatedAnyBatch = true;
+            state.Iterations.Add(evaluation);
+            LogBatchOutcome(iter, evaluation);
+
+            state.IntentTracker.Note(batch.Intent, evaluation.Result);
+
+            if (RecordEvaluation(state, evaluation))
+            {
+                iterImproved = true;
+            }
+        }
+
+        return (iterImproved, evaluatedAnyBatch);
+    }
+
+    /// <summary>
+    /// Strict-candidate mode: steps the LLM proposed outside the candidate list are dropped before the evaluation.
+    /// </summary>
+    private MutationBatch FilterToCandidates(int iter, MutationBatch rawBatch, IReadOnlyList<MoveCandidate> iterCandidates)
+    {
+        var fromCandidates = CandidateStepFilter.CountStepsInCandidates(rawBatch, iterCandidates);
+        var batch = CandidateStepFilter.FilterToCandidates(rawBatch, iterCandidates);
+        var droppedSelfProposed = rawBatch.Steps.Count - batch.Steps.Count;
+        _logger.LogInformation(
+            "Holistic Harmonizer iter={Iter} batch intent={Intent} steps={Steps} fromCandidates={Hits}/{Total} droppedSelfProposed={Dropped}",
+            iter, rawBatch.Intent, rawBatch.Steps.Count, fromCandidates, rawBatch.Steps.Count, droppedSelfProposed);
+
+        if (batch.Steps.Count == 0 && droppedSelfProposed > 0)
+        {
+            _logger.LogInformation(
+                "Holistic Harmonizer iter={Iter} batch intent={Intent} skipped: all steps were self-proposed and dropped (strict-candidate mode)",
+                iter, rawBatch.Intent);
+        }
+
+        return batch;
+    }
+
+    /// <summary>
+    /// Feeds one evaluation into the batch cap, the counters and (for a reject) the reject memory.
+    /// </summary>
+    /// <returns>True when the evaluation raised the best fitness of the run.</returns>
+    private static bool RecordEvaluation(HolisticHarmonizerRunState state, BatchEvaluation evaluation)
+    {
+        if (evaluation.Result == BatchAcceptance.Accepted || evaluation.Result == BatchAcceptance.PartiallyAccepted)
+        {
+            state.Cap.RecordAccept();
+            state.AcceptedCount++;
+            if (evaluation.ScoreAfter > state.BestFitness)
+            {
+                state.BestFitness = evaluation.ScoreAfter;
+                return true;
+            }
+
+            return false;
+        }
+
+        state.Cap.RecordReject();
+        state.RejectedCount++;
+        state.RejectMemory.Note(evaluation);
+        return false;
+    }
+
+    /// <summary>
+    /// When every step was dropped by the candidate filter nothing was evaluated, so the iteration is as unusable as an
+    /// unparsable response (but it does not count toward the plateau twice). Otherwise the unusable streak and the last
+    /// parsing error are reset; the plateau counter follows the best-fitness improvement.
+    /// </summary>
+    private static HolisticHarmonizerIterationOutcome CompleteIteration(
+        HolisticHarmonizerRunState state,
+        bool iterImproved,
+        bool evaluatedAnyBatch)
+    {
+        if (evaluatedAnyBatch)
+        {
+            state.ConsecutiveUnusable = 0;
+            state.LastParsingError = null;
+        }
+        else
+        {
+            state.ConsecutiveUnusable++;
+            if (state.ConsecutiveUnusable >= MaxConsecutiveUnusableResponses)
+            {
+                state.AbortedOnUnusableResponses = true;
+                return HolisticHarmonizerIterationOutcome.Stop;
+            }
+        }
+
+        state.PlateauCounter = iterImproved ? 0 : state.PlateauCounter + 1;
+        return HolisticHarmonizerIterationOutcome.Completed;
+    }
+
+    private HolisticHarmonizerRunResult BuildRunResult(
+        HolisticHarmonizerRunState state,
+        BitmapInput input,
+        HarmonyBitmap original,
+        double fitnessBefore)
+    {
+        var fitnessAfter = state.Components.Fitness.Evaluate(state.Working).Fitness;
 
         _logger.LogInformation(
             "Holistic Harmonizer run finished: model={Model} iterations={Iter} acceptedBatches={A} rejectedBatches={R} fitness {Before:F3} -> {After:F3} elapsed={Ms}ms",
-            request.LlmModelId, iterations.Count, acceptedCountSoFar, rejectedCountSoFar, fitnessBefore, fitnessAfter, stopwatch.ElapsedMilliseconds);
+            state.Request.LlmModelId, state.Iterations.Count, state.AcceptedCount, state.RejectedCount, fitnessBefore, fitnessAfter, state.Stopwatch.ElapsedMilliseconds);
 
-        var rawPreview = lastRawResponse is not null && lastRawResponse.Length > RawResponsePreviewLength
-            ? lastRawResponse[..RawResponsePreviewLength] + "..."
-            : lastRawResponse;
-
-        if (abortedOnUnusableResponses && lastParsingError is null)
-        {
-            lastParsingError =
-                $"Model produced {MaxConsecutiveUnusableResponses} consecutive responses without a usable batch.";
-        }
+        var rawPreview = BuildRawResponsePreview(state.LastRawResponse);
+        var lastParsingError = state.AbortedOnUnusableResponses && state.LastParsingError is null
+            ? $"Model produced {MaxConsecutiveUnusableResponses} consecutive responses without a usable batch."
+            : state.LastParsingError;
 
         return new HolisticHarmonizerRunResult(
             OriginalBitmap: original,
-            FinalBitmap: working,
-            Iterations: iterations,
+            FinalBitmap: state.Working,
+            Iterations: state.Iterations,
             FitnessBefore: fitnessBefore,
             FitnessAfter: fitnessAfter,
-            LlmModelId: request.LlmModelId,
+            LlmModelId: state.Request.LlmModelId,
             LlmParsingError: lastParsingError,
             LlmRawResponsePreview: lastParsingError is not null ? rawPreview : null,
-            AbortedOnUnusableResponses: abortedOnUnusableResponses)
+            AbortedOnUnusableResponses: state.AbortedOnUnusableResponses)
         {
             InvalidPlanningRuleIds = input.Rules?.InvalidHardRuleIds ?? [],
-            PlanningRuleHardCounts = components.Rules?.CountHard(original, working),
+            PlanningRuleHardCounts = state.Components.Rules?.CountHard(original, state.Working),
         };
     }
+
+    private static string? BuildRawResponsePreview(string? lastRawResponse)
+        => lastRawResponse is not null && lastRawResponse.Length > RawResponsePreviewLength
+            ? lastRawResponse[..RawResponsePreviewLength] + RawResponsePreviewEllipsis
+            : lastRawResponse;
 
     /// <summary>
     /// A text ping only proves the model answers at all - a text-only model passes it and then fails on every

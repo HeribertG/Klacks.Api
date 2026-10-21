@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-﻿using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
@@ -11,8 +11,41 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Exceptions;
 
+/// <summary>
+/// Turns every exception that escapes the request pipeline into a problem+json response (or a bare 499 for a cancelled
+/// request). The exception types are matched in a fixed order - a subclass always ahead of its base - and each type has
+/// its own handler that logs it and writes its status, title, detail and extension fields. UnauthorizedException maps to
+/// 401 by design; a missing right is a ForbiddenException (403).
+/// </summary>
+/// <param name="next">The rest of the request pipeline</param>
+/// <param name="logger">Logs each mapped exception at the level of its handler</param>
 public class ErrorHandlingMiddleware
 {
+    private const string ProblemJsonContentType = "application/problem+json";
+    private const int ClientClosedRequestStatus = 499;
+    private const string QueryCanceledSqlState = "57014";
+
+    private const string ErrorCodeKey = "errorCode";
+    private const string CodeKey = "code";
+    private const string ErrorsKey = "errors";
+    private const string StackTraceKey = "stackTrace";
+    private const string StaleWizardResultErrorCode = "staleWizardResult";
+
+    private const string BadRequestTitle = "Bad Request";
+    private const string ConflictTitle = "Conflict";
+    private const string NotFoundTitle = "Not Found";
+    private const string InvalidRequestTitle = "Invalid request";
+    private const string ValidationTitle = "One or more validation failures occurred.";
+    private const string ValidationDetail = "Please refer to the errors property for additional details.";
+    private const string DatabaseUpdateTitle = "Database Update Error";
+    private const string DatabaseUpdateDetail = "A database error occurred. Please check your input.";
+    private const string ContainerLockedTitle = "Container Locked";
+    private const string UnprocessableEntityTitle = "Unprocessable Entity";
+    private const string ForbiddenTitle = "Forbidden";
+    private const string UnauthorizedTitle = "Unauthorized";
+    private const string UnexpectedErrorTitle = "An unexpected error occurred";
+    private const string UnexpectedErrorDetail = "An internal server error has occurred.";
+
     private readonly RequestDelegate next;
     private readonly ILogger<ErrorHandlingMiddleware> _logger;
 
@@ -28,309 +61,150 @@ public class ErrorHandlingMiddleware
         {
             await next(context);
         }
-        catch (ValidationException ex)
+        catch (Exception exception)
         {
-            _logger.LogWarning(ex, "FluentValidation ValidationException caught by middleware");
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "One or more validation failures occurred.",
-                Status = StatusCodes.Status400BadRequest,
-                Detail = "Please refer to the errors property for additional details."
-            };
-
-            problem.Extensions.Add("errors", ex.Errors.GroupBy(x => x.PropertyName)
-                .ToDictionary(g => g.Key, g => g.Select(x => x.ErrorMessage).ToArray()));
-
-            await context.Response.WriteAsJsonAsync(problem);
-        }
-        catch (AccountRegistrationRejectedException ex)
-        {
-            _logger.LogWarning("AccountRegistrationRejectedException caught by middleware: {Reasons}", string.Join(',', ex.Reasons));
-            await WriteAccountRegistrationRejectedAsync(context, ex);
-        }
-        catch (ClientImportRejectedException ex)
-        {
-            _logger.LogWarning(ex, "ClientImportRejectedException caught by middleware: {Code}", ex.Code);
-            await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Bad Request", ex.Message, ex.Code);
-        }
-        catch (ClientImportConflictException ex)
-        {
-            _logger.LogWarning(ex, "ClientImportConflictException caught by middleware: {Code}", ex.Code);
-            await WriteProblemAsync(context, StatusCodes.Status409Conflict, "Conflict", ex.Message, ex.Code);
-        }
-        catch (InvalidRequestException ex)
-        {
-            _logger.LogWarning(ex, "InvalidRequestException caught by middleware: {Message}", ex.Message);
-            if (ex is ICodedRejection coded)
-            {
-                await WriteCodedProblemAsync(context, StatusCodes.Status400BadRequest, "Invalid request", ex.Message, coded);
-            }
-            else
-            {
-                await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Invalid request", ex.Message);
-            }
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "KeyNotFoundException caught by middleware: {Message}", ex.Message);
-            await WriteProblemAsync(context, StatusCodes.Status404NotFound, "Not Found", ex.Message);
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "DbUpdateException caught by middleware: {Message}", ex.Message);
-            await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Database Update Error", "A database error occurred. Please check your input.");
-        }
-        catch (ContainerLockedException ex)
-        {
-            _logger.LogWarning(ex, "ContainerLockedException caught by middleware: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status423Locked;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Container Locked",
-                Status = StatusCodes.Status423Locked,
-                Detail = ex.Message
-            };
-
-            await context.Response.WriteAsJsonAsync(problem);
-        }
-        catch (AutofillRunConflictException ex)
-        {
-            _logger.LogInformation(
-                "Autofill run conflict: {Family} for the same selection is already running as {JobId}",
-                ex.Family, ex.RunningJobId);
-            context.Response.StatusCode = StatusCodes.Status409Conflict;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Conflict",
-                Status = StatusCodes.Status409Conflict,
-                Detail = ex.Message,
-            };
-            // The client attaches to the running job instead of starting a competing one, so it must be
-            // able to tell this 409 apart from every other conflict.
-            problem.Extensions["errorCode"] = AutofillLimits.RunConflictErrorCode;
-            problem.Extensions["runningJobId"] = ex.RunningJobId;
-
-            await context.Response.WriteAsJsonAsync(problem);
-        }
-        catch (PlanningRuleConfigurationException ex)
-        {
-            _logger.LogError(ex, "PlanningRuleConfigurationException caught by middleware: {ConstraintId}", ex.ConstraintId);
-            await WriteProblemAsync(context, StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity", ex.Message, PlanningRuleConfigurationException.ErrorCode);
-        }
-        catch (PeriodValidationConflictException ex)
-        {
-            _logger.LogWarning(
-                ex, "PeriodValidationConflictException caught by middleware: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status409Conflict;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Conflict",
-                Status = StatusCodes.Status409Conflict,
-                Detail = ex.Message,
-            };
-            // The client re-confirms against the count it was shown, so the figure has to travel as a
-            // field. Parsing it back out of the message would break on the first wording change.
-            problem.Extensions["errorCode"] = PeriodValidationConflictException.ErrorCode;
-            problem.Extensions["currentErrorCount"] = ex.CurrentErrorCount;
-
-            await context.Response.WriteAsJsonAsync(problem);
-        }
-        catch (PayrollExportBlockedException ex)
-        {
-            _logger.LogWarning(ex, "PayrollExportBlockedException caught by middleware: {BlockerTotal} blockers", ex.Completeness.BlockerTotal);
-            await WritePayrollExportBlockedAsync(context, ex);
-        }
-        catch (ConflictException ex)
-        {
-            _logger.LogWarning(ex, "ConflictException caught by middleware: {Message}", ex.Message);
-            await WriteConflictAsync(context, ex);
-        }
-        catch (StaleWizardResultException ex)
-        {
-            _logger.LogWarning(ex, "StaleWizardResultException caught by middleware: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status409Conflict;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Conflict",
-                Status = StatusCodes.Status409Conflict,
-                Detail = ex.Message,
-            };
-            // The client must tell a stale wizard result apart from any other 409 to offer a re-run.
-            problem.Extensions["errorCode"] = "staleWizardResult";
-            problem.Extensions["expectedWorkCount"] = ex.ExpectedWorkCount;
-            problem.Extensions["actualWorkCount"] = ex.ActualWorkCount;
-            problem.Extensions["expectedBreakCount"] = ex.ExpectedBreakCount;
-            problem.Extensions["actualBreakCount"] = ex.ActualBreakCount;
-            problem.Extensions["placementChanged"] = ex.PlacementChanged;
-
-            await context.Response.WriteAsJsonAsync(problem);
-        }
-        catch (ForbiddenException ex)
-        {
-            _logger.LogWarning(ex, "ForbiddenException caught by middleware: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Forbidden",
-                Status = StatusCodes.Status403Forbidden,
-                Detail = ex.Message
-            };
-
-            await context.Response.WriteAsJsonAsync(problem);
-        }
-        catch (UnauthorizedException ex)
-        {
-            _logger.LogWarning(ex, "UnauthorizedException caught by middleware: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Unauthorized",
-                Status = StatusCodes.Status401Unauthorized,
-                Detail = ex.Message
-            };
-
-            await context.Response.WriteAsJsonAsync(problem);
-        }
-        catch (NotFoundException ex)
-        {
-            _logger.LogWarning(ex, "NotFoundException caught by middleware: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status404NotFound;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Not Found",
-                Status = StatusCodes.Status404NotFound,
-                Detail = ex.Message
-            };
-
-            await context.Response.WriteAsJsonAsync(problem);
-        }
-        catch (AutofillLimitExceededException ex)
-        {
-            _logger.LogInformation(
-                "Autofill run refused: {Family} with {Agents} agents, {Shifts} shifts, {Days} days",
-                ex.Family, ex.Agents, ex.Shifts, ex.PeriodDays);
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Bad Request",
-                Status = StatusCodes.Status400BadRequest,
-                Detail = ex.Message,
-            };
-            // The dialog shows which limit was hit and by how much, so it needs the figures, not prose.
-            // "code" is what the existing clients read; "errorCode" is the convention the newer error
-            // bodies use. Emitting both keeps the limit toast working without a lockstep deployment.
-            problem.Extensions["errorCode"] = ex.Code;
-            problem.Extensions["code"] = ex.Code;
-            problem.Extensions["agents"] = ex.Agents;
-            problem.Extensions["shifts"] = ex.Shifts;
-            problem.Extensions["periodDays"] = ex.PeriodDays;
-            problem.Extensions["maxAgents"] = ex.MaxAgents;
-            problem.Extensions["maxShifts"] = ex.MaxShifts;
-            problem.Extensions["maxPeriodDays"] = ex.MaxPeriodDays;
-            problem.Extensions["slotProduct"] = ex.SlotProduct;
-            problem.Extensions["maxSlotProduct"] = ex.MaxSlotProduct;
-
-            await context.Response.WriteAsJsonAsync(problem);
-        }
-        catch (BadRequestException ex)
-        {
-            _logger.LogWarning(ex, "BadRequestException caught by middleware: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Bad Request",
-                Status = StatusCodes.Status400BadRequest,
-                Detail = ex.Message
-            };
-
-            await context.Response.WriteAsJsonAsync(problem);
-        }
-        catch (OperationCanceledException)
-        {
-            _logger.LogDebug("Request cancelled: {Method} {Path}", context.Request.Method.ForLog(), context.Request.Path.ToString().ForLog());
-            context.Response.StatusCode = 499;
-        }
-        catch (Npgsql.PostgresException ex) when (ex.SqlState == "57014")
-        {
-            _logger.LogDebug("PostgreSQL query cancelled: {Method} {Path}", context.Request.Method.ForLog(), context.Request.Path.ToString().ForLog());
-            context.Response.StatusCode = 499;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An unhandled exception occurred: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "An unexpected error occurred",
-                Status = StatusCodes.Status500InternalServerError,
-                Detail = "An internal server error has occurred." // Generic message for client
-            };
-
-            // In development, you might want to expose more details
-            if (context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
-            {
-                problem.Detail = ex.Message;
-                problem.Extensions.Add("stackTrace", ex.StackTrace);
-            }
-
-            await context.Response.WriteAsJsonAsync(problem);
+            await HandleExceptionAsync(context, exception);
         }
     }
 
-    private static async Task WritePayrollExportBlockedAsync(HttpContext context, PayrollExportBlockedException exception)
+    /// <summary>
+    /// First match wins, exactly like an ordered catch list: every subclass arm stands before its base arm
+    /// (AccountRegistrationRejected/ClientImportRejected before InvalidRequest; ClientImportConflict, AutofillRunConflict,
+    /// PeriodValidationConflict and PayrollExportBlocked before Conflict; AutofillLimitExceeded before BadRequest).
+    /// </summary>
+    private Task HandleExceptionAsync(HttpContext context, Exception exception) => exception switch
     {
-        context.Response.StatusCode = StatusCodes.Status409Conflict;
-        context.Response.ContentType = "application/problem+json";
+        ValidationException ex => HandleValidationAsync(context, ex),
+        AccountRegistrationRejectedException ex => HandleAccountRegistrationRejectedAsync(context, ex),
+        ClientImportRejectedException ex => HandleClientImportRejectedAsync(context, ex),
+        ClientImportConflictException ex => HandleClientImportConflictAsync(context, ex),
+        InvalidRequestException ex => HandleInvalidRequestAsync(context, ex),
+        KeyNotFoundException ex => HandleKeyNotFoundAsync(context, ex),
+        DbUpdateException ex => HandleDbUpdateAsync(context, ex),
+        ContainerLockedException ex => HandleContainerLockedAsync(context, ex),
+        AutofillRunConflictException ex => HandleAutofillRunConflictAsync(context, ex),
+        PlanningRuleConfigurationException ex => HandlePlanningRuleConfigurationAsync(context, ex),
+        PeriodValidationConflictException ex => HandlePeriodValidationConflictAsync(context, ex),
+        PayrollExportBlockedException ex => HandlePayrollExportBlockedAsync(context, ex),
+        ConflictException ex => HandleConflictAsync(context, ex),
+        StaleWizardResultException ex => HandleStaleWizardResultAsync(context, ex),
+        ForbiddenException ex => HandleForbiddenAsync(context, ex),
+        UnauthorizedException ex => HandleUnauthorizedAsync(context, ex),
+        NotFoundException ex => HandleNotFoundAsync(context, ex),
+        AutofillLimitExceededException ex => HandleAutofillLimitExceededAsync(context, ex),
+        BadRequestException ex => HandleBadRequestAsync(context, ex),
+        OperationCanceledException => HandleRequestCancelled(context),
+        Npgsql.PostgresException { SqlState: QueryCanceledSqlState } => HandleQueryCancelled(context),
+        _ => HandleUnexpectedAsync(context, exception),
+    };
 
-        var problem = new ProblemDetails
-        {
-            Title = "Conflict",
-            Status = StatusCodes.Status409Conflict,
-            Detail = exception.Message
-        };
-        problem.Extensions["errorCode"] = PayrollExportErrorCodes.Blocked;
-        problem.Extensions["blockers"] = exception.Completeness.Blockers;
-        problem.Extensions["blockerTotal"] = exception.Completeness.BlockerTotal;
+    private async Task HandleValidationAsync(HttpContext context, ValidationException ex)
+    {
+        _logger.LogWarning(ex, "FluentValidation ValidationException caught by middleware");
+        var problem = StartProblem(context, StatusCodes.Status400BadRequest, ValidationTitle, ValidationDetail);
+        problem.Extensions.Add(ErrorsKey, ex.Errors.GroupBy(x => x.PropertyName)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.ErrorMessage).ToArray()));
 
         await context.Response.WriteAsJsonAsync(problem);
     }
 
-    private static async Task WriteAccountRegistrationRejectedAsync(HttpContext context, AccountRegistrationRejectedException exception)
+    private async Task HandleAccountRegistrationRejectedAsync(HttpContext context, AccountRegistrationRejectedException ex)
     {
-        context.Response.StatusCode = StatusCodes.Status400BadRequest;
-        context.Response.ContentType = "application/problem+json";
+        _logger.LogWarning("AccountRegistrationRejectedException caught by middleware: {Reasons}", string.Join(',', ex.Reasons));
+        var problem = StartProblem(context, StatusCodes.Status400BadRequest, BadRequestTitle, ex.Message);
+        problem.Extensions[ErrorCodeKey] = AccountRegistrationErrorCodes.ErrorCode;
+        problem.Extensions["reasons"] = ex.Reasons;
 
-        var problem = new ProblemDetails
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+
+    private async Task HandleClientImportRejectedAsync(HttpContext context, ClientImportRejectedException ex)
+    {
+        _logger.LogWarning(ex, "ClientImportRejectedException caught by middleware: {Code}", ex.Code);
+        await WriteProblemAsync(context, StatusCodes.Status400BadRequest, BadRequestTitle, ex.Message, ex.Code);
+    }
+
+    private async Task HandleClientImportConflictAsync(HttpContext context, ClientImportConflictException ex)
+    {
+        _logger.LogWarning(ex, "ClientImportConflictException caught by middleware: {Code}", ex.Code);
+        await WriteProblemAsync(context, StatusCodes.Status409Conflict, ConflictTitle, ex.Message, ex.Code);
+    }
+
+    private async Task HandleInvalidRequestAsync(HttpContext context, InvalidRequestException ex)
+    {
+        _logger.LogWarning(ex, "InvalidRequestException caught by middleware: {Message}", ex.Message);
+        if (ex is ICodedRejection coded)
         {
-            Title = "Bad Request",
-            Status = StatusCodes.Status400BadRequest,
-            Detail = exception.Message
-        };
-        problem.Extensions["errorCode"] = AccountRegistrationErrorCodes.ErrorCode;
-        problem.Extensions["reasons"] = exception.Reasons;
+            await WriteCodedProblemAsync(context, StatusCodes.Status400BadRequest, InvalidRequestTitle, ex.Message, coded);
+        }
+        else
+        {
+            await WriteProblemAsync(context, StatusCodes.Status400BadRequest, InvalidRequestTitle, ex.Message);
+        }
+    }
+
+    private async Task HandleKeyNotFoundAsync(HttpContext context, KeyNotFoundException ex)
+    {
+        _logger.LogWarning(ex, "KeyNotFoundException caught by middleware: {Message}", ex.Message);
+        await WriteProblemAsync(context, StatusCodes.Status404NotFound, NotFoundTitle, ex.Message);
+    }
+
+    private async Task HandleDbUpdateAsync(HttpContext context, DbUpdateException ex)
+    {
+        _logger.LogError(ex, "DbUpdateException caught by middleware: {Message}", ex.Message);
+        await WriteProblemAsync(context, StatusCodes.Status400BadRequest, DatabaseUpdateTitle, DatabaseUpdateDetail);
+    }
+
+    private async Task HandleContainerLockedAsync(HttpContext context, ContainerLockedException ex)
+    {
+        _logger.LogWarning(ex, "ContainerLockedException caught by middleware: {Message}", ex.Message);
+        await WriteProblemAsync(context, StatusCodes.Status423Locked, ContainerLockedTitle, ex.Message);
+    }
+
+    /// <summary>
+    /// The client attaches to the running job instead of starting a competing one, so it must be able to tell this 409
+    /// apart from every other conflict: errorCode plus the running job id.
+    /// </summary>
+    private async Task HandleAutofillRunConflictAsync(HttpContext context, AutofillRunConflictException ex)
+    {
+        _logger.LogInformation(
+            "Autofill run conflict: {Family} for the same selection is already running as {JobId}",
+            ex.Family, ex.RunningJobId);
+        var problem = StartProblem(context, StatusCodes.Status409Conflict, ConflictTitle, ex.Message);
+        problem.Extensions[ErrorCodeKey] = AutofillLimits.RunConflictErrorCode;
+        problem.Extensions["runningJobId"] = ex.RunningJobId;
+
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+
+    private async Task HandlePlanningRuleConfigurationAsync(HttpContext context, PlanningRuleConfigurationException ex)
+    {
+        _logger.LogError(ex, "PlanningRuleConfigurationException caught by middleware: {ConstraintId}", ex.ConstraintId);
+        await WriteProblemAsync(context, StatusCodes.Status422UnprocessableEntity, UnprocessableEntityTitle, ex.Message, PlanningRuleConfigurationException.ErrorCode);
+    }
+
+    /// <summary>
+    /// The client re-confirms against the count it was shown, so the figure has to travel as a field. Parsing it back out
+    /// of the message would break on the first wording change.
+    /// </summary>
+    private async Task HandlePeriodValidationConflictAsync(HttpContext context, PeriodValidationConflictException ex)
+    {
+        _logger.LogWarning(
+            ex, "PeriodValidationConflictException caught by middleware: {Message}", ex.Message);
+        var problem = StartProblem(context, StatusCodes.Status409Conflict, ConflictTitle, ex.Message);
+        problem.Extensions[ErrorCodeKey] = PeriodValidationConflictException.ErrorCode;
+        problem.Extensions["currentErrorCount"] = ex.CurrentErrorCount;
+
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+
+    private async Task HandlePayrollExportBlockedAsync(HttpContext context, PayrollExportBlockedException ex)
+    {
+        _logger.LogWarning(ex, "PayrollExportBlockedException caught by middleware: {BlockerTotal} blockers", ex.Completeness.BlockerTotal);
+        var problem = StartProblem(context, StatusCodes.Status409Conflict, ConflictTitle, ex.Message);
+        problem.Extensions[ErrorCodeKey] = PayrollExportErrorCodes.Blocked;
+        problem.Extensions["blockers"] = ex.Completeness.Blockers;
+        problem.Extensions["blockerTotal"] = ex.Completeness.BlockerTotal;
 
         await context.Response.WriteAsJsonAsync(problem);
     }
@@ -339,26 +213,125 @@ public class ErrorHandlingMiddleware
     /// A conflict answered with 409. A coded conflict writes its detail fields first and its code last, so no detail field
     /// can overwrite "errorCode" (the same order as the coded 400 body).
     /// </summary>
-    private static async Task WriteConflictAsync(HttpContext context, ConflictException exception)
+    private async Task HandleConflictAsync(HttpContext context, ConflictException ex)
     {
-        context.Response.StatusCode = StatusCodes.Status409Conflict;
-        context.Response.ContentType = "application/problem+json";
+        _logger.LogWarning(ex, "ConflictException caught by middleware: {Message}", ex.Message);
+        var problem = StartProblem(context, StatusCodes.Status409Conflict, ConflictTitle, ex.Message);
 
-        var problem = new ProblemDetails
+        if (ex.ConflictCode is { } conflictCode)
         {
-            Title = "Conflict",
-            Status = StatusCodes.Status409Conflict,
-            Detail = exception.Message
-        };
-
-        if (exception.ConflictCode is { } conflictCode)
-        {
-            foreach (var (field, value) in exception.ConflictDetails ?? new Dictionary<string, object?>())
+            foreach (var (field, value) in ex.ConflictDetails ?? new Dictionary<string, object?>())
             {
                 problem.Extensions[field] = value;
             }
 
-            problem.Extensions["errorCode"] = conflictCode;
+            problem.Extensions[ErrorCodeKey] = conflictCode;
+        }
+
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+
+    /// <summary>
+    /// The client must tell a stale wizard result apart from any other 409 to offer a re-run, so the code and the
+    /// expected/actual counts travel as fields.
+    /// </summary>
+    private async Task HandleStaleWizardResultAsync(HttpContext context, StaleWizardResultException ex)
+    {
+        _logger.LogWarning(ex, "StaleWizardResultException caught by middleware: {Message}", ex.Message);
+        var problem = StartProblem(context, StatusCodes.Status409Conflict, ConflictTitle, ex.Message);
+        problem.Extensions[ErrorCodeKey] = StaleWizardResultErrorCode;
+        problem.Extensions["expectedWorkCount"] = ex.ExpectedWorkCount;
+        problem.Extensions["actualWorkCount"] = ex.ActualWorkCount;
+        problem.Extensions["expectedBreakCount"] = ex.ExpectedBreakCount;
+        problem.Extensions["actualBreakCount"] = ex.ActualBreakCount;
+        problem.Extensions["placementChanged"] = ex.PlacementChanged;
+
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+
+    private async Task HandleForbiddenAsync(HttpContext context, ForbiddenException ex)
+    {
+        _logger.LogWarning(ex, "ForbiddenException caught by middleware: {Message}", ex.Message);
+        await WriteProblemAsync(context, StatusCodes.Status403Forbidden, ForbiddenTitle, ex.Message);
+    }
+
+    private async Task HandleUnauthorizedAsync(HttpContext context, UnauthorizedException ex)
+    {
+        _logger.LogWarning(ex, "UnauthorizedException caught by middleware: {Message}", ex.Message);
+        await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, UnauthorizedTitle, ex.Message);
+    }
+
+    private async Task HandleNotFoundAsync(HttpContext context, NotFoundException ex)
+    {
+        _logger.LogWarning(ex, "NotFoundException caught by middleware: {Message}", ex.Message);
+        await WriteProblemAsync(context, StatusCodes.Status404NotFound, NotFoundTitle, ex.Message);
+    }
+
+    /// <summary>
+    /// The dialog shows which limit was hit and by how much, so it needs the figures, not prose. "code" is what the
+    /// existing clients read; "errorCode" is the convention the newer error bodies use. Emitting both keeps the limit
+    /// toast working without a lockstep deployment.
+    /// </summary>
+    private async Task HandleAutofillLimitExceededAsync(HttpContext context, AutofillLimitExceededException ex)
+    {
+        _logger.LogInformation(
+            "Autofill run refused: {Family} with {Agents} agents, {Shifts} shifts, {Days} days",
+            ex.Family, ex.Agents, ex.Shifts, ex.PeriodDays);
+        var problem = StartProblem(context, StatusCodes.Status400BadRequest, BadRequestTitle, ex.Message);
+        problem.Extensions[ErrorCodeKey] = ex.Code;
+        problem.Extensions[CodeKey] = ex.Code;
+        problem.Extensions["agents"] = ex.Agents;
+        problem.Extensions["shifts"] = ex.Shifts;
+        problem.Extensions["periodDays"] = ex.PeriodDays;
+        problem.Extensions["maxAgents"] = ex.MaxAgents;
+        problem.Extensions["maxShifts"] = ex.MaxShifts;
+        problem.Extensions["maxPeriodDays"] = ex.MaxPeriodDays;
+        problem.Extensions["slotProduct"] = ex.SlotProduct;
+        problem.Extensions["maxSlotProduct"] = ex.MaxSlotProduct;
+
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+
+    private async Task HandleBadRequestAsync(HttpContext context, BadRequestException ex)
+    {
+        _logger.LogWarning(ex, "BadRequestException caught by middleware: {Message}", ex.Message);
+        await WriteProblemAsync(context, StatusCodes.Status400BadRequest, BadRequestTitle, ex.Message);
+    }
+
+    /// <summary>
+    /// A cancelled request gets the status alone: no content type, no body.
+    /// </summary>
+    private Task HandleRequestCancelled(HttpContext context)
+    {
+        _logger.LogDebug("Request cancelled: {Method} {Path}", context.Request.Method.ForLog(), context.Request.Path.ToString().ForLog());
+        context.Response.StatusCode = ClientClosedRequestStatus;
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// PostgreSQL reports a cancelled statement (SQLSTATE 57014) as its own exception; it is answered like a cancelled
+    /// request. Every other PostgresException falls through to the unexpected-error handler.
+    /// </summary>
+    private Task HandleQueryCancelled(HttpContext context)
+    {
+        _logger.LogDebug("PostgreSQL query cancelled: {Method} {Path}", context.Request.Method.ForLog(), context.Request.Path.ToString().ForLog());
+        context.Response.StatusCode = ClientClosedRequestStatus;
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// The client gets a generic message; only in Development the exception message and stack trace are exposed.
+    /// Status and content type are set before the environment is resolved, as they always were.
+    /// </summary>
+    private async Task HandleUnexpectedAsync(HttpContext context, Exception ex)
+    {
+        _logger.LogError(ex, "An unhandled exception occurred: {Message}", ex.Message);
+        var problem = StartProblem(context, StatusCodes.Status500InternalServerError, UnexpectedErrorTitle, UnexpectedErrorDetail);
+
+        if (context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+        {
+            problem.Detail = ex.Message;
+            problem.Extensions.Add(StackTraceKey, ex.StackTrace);
         }
 
         await context.Response.WriteAsJsonAsync(problem);
@@ -371,45 +344,49 @@ public class ErrorHandlingMiddleware
     /// </summary>
     private static async Task WriteCodedProblemAsync(HttpContext context, int status, string title, string detail, ICodedRejection rejection)
     {
-        context.Response.StatusCode = status;
-        context.Response.ContentType = "application/problem+json";
-
-        var problem = new ProblemDetails
-        {
-            Title = title,
-            Status = status,
-            Detail = detail
-        };
+        var problem = StartProblem(context, status, title, detail);
 
         foreach (var (field, value) in rejection.Details)
         {
             problem.Extensions[field] = value;
         }
 
-        problem.Extensions["errorCode"] = rejection.ErrorCode;
-        problem.Extensions["code"] = rejection.ErrorCode;
+        problem.Extensions[ErrorCodeKey] = rejection.ErrorCode;
+        problem.Extensions[CodeKey] = rejection.ErrorCode;
 
         await context.Response.WriteAsJsonAsync(problem);
     }
 
     private static async Task WriteProblemAsync(HttpContext context, int status, string title, string detail, string? code = null)
     {
-        context.Response.StatusCode = status;
-        context.Response.ContentType = "application/problem+json";
+        var problem = StartProblem(context, status, title, detail);
 
-        var problem = new ProblemDetails
+        if (code != null)
+        {
+            problem.Extensions[ErrorCodeKey] = code;
+            problem.Extensions[CodeKey] = code;
+        }
+
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+
+    /// <summary>
+    /// Sets status and problem+json content type on the response and returns the problem body for the caller to extend
+    /// and write. WriteAsJsonAsync later replaces the content type with its own JSON type.
+    /// </summary>
+    /// <param name="status">HTTP status for both the response and the body</param>
+    /// <param name="title">Short problem title</param>
+    /// <param name="detail">Message shown to the client</param>
+    private static ProblemDetails StartProblem(HttpContext context, int status, string title, string detail)
+    {
+        context.Response.StatusCode = status;
+        context.Response.ContentType = ProblemJsonContentType;
+
+        return new ProblemDetails
         {
             Title = title,
             Status = status,
             Detail = detail
         };
-
-        if (code != null)
-        {
-            problem.Extensions["errorCode"] = code;
-            problem.Extensions["code"] = code;
-        }
-
-        await context.Response.WriteAsJsonAsync(problem);
     }
 }
