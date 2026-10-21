@@ -106,6 +106,7 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
             storageWeekday,
             precheckTemplate.FromTime,
             precheckTemplate.UntilTime,
+            isHoliday: precheckTemplate.IsHoliday, isWeekdayAndHoliday: precheckTemplate.IsWeekdayAndHoliday,
             cancellationToken: cancellationToken);
 
         if (!availableTasks.Any(s => s.Id == taskShiftId))
