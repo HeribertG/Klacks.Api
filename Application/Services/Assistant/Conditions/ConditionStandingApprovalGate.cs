@@ -3,9 +3,8 @@
 /// <summary>
 /// The approval-free path of the action dispatcher (Owner decisions 2026-09-21): decides whether one
 /// candidate row may be remediated under an administrator's standing approval instead of under an answer
-/// to this very finding, and prepares everything that decision needs. Lives in its own class rather than
-/// in AgentConditionActionService for the same two reasons ConditionActionBudget does - that class is
-/// against its size-guard ceiling, and this is one cohesive rule with its own failure modes.
+/// to this very finding, and prepares everything that decision needs. One cohesive rule with its own
+/// failure modes, called by ConditionCandidatePipeline.
 ///
 /// It is reached only after every gate of the dispatcher has already passed (effective MaxAction at
 /// Execute, cascade guard, attempt limit, quiet window, per-tick cap, governance daily budget and circuit

@@ -9,9 +9,8 @@
 /// carry no group at all. Governance is resolved per group one gate earlier, so a per-kind count would
 /// compare a group's own limit against every group's activity and let a busy group exhaust a quiet one.
 /// Window counts are cached per window length within a bucket, because governance may configure a
-/// different window per scope and the same length must not be re-queried per condition. Lives in its
-/// own file rather than nested in AgentConditionActionService so that class stays under its size-guard
-/// ceiling.
+/// different window per scope and the same length must not be re-queried per condition. One instance
+/// per ConditionActionKindRun, so it never counts another kind's claims.
 /// </summary>
 /// <param name="repository">Counts the budget-consuming claim events.</param>
 /// <param name="triggerKind">The kind whose claims are counted.</param>

@@ -6,8 +6,8 @@
 /// AFTER it against the row as it stands then. The second pass exists because PayloadJson is no longer
 /// write-once (2026-08-26): any detector tick can rewrite it while the row sits between the tick's
 /// snapshot and the claim, and executing the pre-flight arguments could write a container template from
-/// a definition a human has since corrected. Extracted from AgentConditionActionService so that class
-/// stays under its size-guard ceiling; the semantics are unchanged.
+/// a definition a human has since corrected. The pre-flight pass runs in ConditionCandidatePipeline, the
+/// post-claim pass in ConditionRemediationExecutor.
 /// </summary>
 /// <param name="repository">Re-reads the claimed row (AsNoTracking) for the post-claim pass.</param>
 /// <param name="logger">Names the missing arguments and the payload changes; neither is an error.</param>

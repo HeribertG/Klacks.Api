@@ -4,8 +4,8 @@
 /// Governance decisions already resolved in one action tick, per scope. A plain dictionary keyed by
 /// Guid? cannot express this - Dictionary's key is constrained to notnull - and "no group" is a real,
 /// distinct scope here (the installation-wide rule), not an absent one, so it gets its own slot rather
-/// than a Guid.Empty sentinel that a real group id could one day collide with. Lives in its own file
-/// rather than nested in AgentConditionActionService so that class stays under its size-guard ceiling.
+/// than a Guid.Empty sentinel that a real group id could one day collide with. Keyed by group only, so
+/// it lives in ConditionActionKindRun and is never shared between kinds.
 /// </summary>
 /// <param name="groupId">Scope key: a group id, or null for the installation-wide rule.</param>
 /// <param name="decision">The resolved governance decision for that scope.</param>

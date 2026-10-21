@@ -40,6 +40,11 @@
 /// Claim BEFORE act, always. The claim is a compare-and-swap that raises AttemptCount in the same
 /// UPDATE, so a run that dies between claim and outcome still counts as an attempt and the row escalates
 /// instead of retrying forever. A lost claim means SKIP THIS ROW - never "the budget was not consumed".
+///
+/// The gates and the acting end live in collaborators the constructor composes - ConditionCandidatePipeline
+/// (gate order), ConditionActionGovernance, ConditionCascadeGuard, ConditionApprovalHandler,
+/// ConditionRemediationExecutor, ConditionActionClaimer and ConditionActionOutcomeRecorder - all sharing this
+/// class's logger; this class owns the tick: one "now", the company day, and one ConditionActionKindRun per kind.
 /// </summary>
 /// <param name="repository">Ledger reads: candidates, budget counts, recent executions for the cascade guard.</param>
 /// <param name="ledgerService">Ledger writes: claims, reclaims, transitions, approvals, attempt and provenance events.</param>
@@ -55,9 +60,7 @@
 /// <param name="companyClock">Resolves the company's time zone, so the daily action budget resets at the company's midnight rather than the UTC calendar day's.</param>
 /// <param name="logger">Structured log per kind and per skipped row - the counterpart of "no silent caps".</param>
 
-using System.Globalization;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -67,81 +70,24 @@ namespace Klacks.Api.Application.Services.Assistant.Conditions;
 
 public sealed class AgentConditionActionService : IAgentConditionActionService
 {
-    private const string ClaimDetailFormat = "{0}skill={1} attempt={2}";
-    private const string StandingApprovalClaimSuffixFormat = " standing-approval={0}";
-    private const string StandingApprovalDetailFormat = "standingApprovalId={0} grantedByUserId={1}";
-    private const string OutcomeDetailFormat = "{0}{1}";
-    private const string ExecutedDetail = "executed {0}";
-    private const string FailedDetail = "attempt failed: {0}";
-    private const string EscalatedDetail = "ineffective after {0} attempt(s)";
-    private const string ApprovalExpiredDetail = "approval older than {0} minute(s) when the tick reached the row";
-    private const string ApprovalRefusedDetail = "approver no longer qualifies: {0}";
+    private const string KindFailedMessage = "Proactive action dispatcher failed for kind {Kind}";
 
-    private const string ExecutedReportFormat =
-        "I have carried out a remediation on my own.\n\n"
-        + "Finding: {0} (condition {1})\nAction: {2}\nResult: {3}";
-
-    private const string ExecutedUnderStandingApprovalReportFormat =
-        "I have carried out a remediation under a standing approval, without asking anybody about this "
-        + "finding.\n\n"
-        + "Finding: {0} (condition {1})\nAction: {2}\nResult: {3}\n"
-        + "Standing approval {4} of user {5}, valid until {6:u}.\n"
-        + "If this should not have happened: revoke the standing approval to stop further runs, and ask me "
-        + "to roll this change back - there is no one-click undo on this report.";
-
-    private const string FailedReportFormat =
-        "A remediation I attempted on my own did not work.\n\n"
-        + "Finding: {0} (condition {1})\nAction: {2}\nProblem: {3}\n"
-        + "Attempt {4} of {5}; after that I stop trying and leave it to you.";
-
-    private const string EscalatedReportFormat =
-        "I am giving up on a finding and leaving it to you.\n\n"
-        + "Finding: {0} (condition {1})\nI attempted the remediation {2} time(s) without success.";
-
-    private const string BudgetReportFormat =
-        "I stopped acting on '{0}' for now: {1}.\n"
-        + "{2} further finding(s) of this kind stay open and unhandled until the limit frees up again.";
-
-    private const string ApprovalWithdrawnReportFormat =
-        "An approved remediation was NOT carried out.\n\n"
-        + "Finding: {0} (condition {1})\nAction: {2}\nReason: {3}\n"
-        + "The finding stays open; I will ask for approval again on the next company day at the earliest.";
-
-    private const string TickCapReason =
-        "the absolute cap of {0} action(s) per kind per scan is reached";
-
-    private const string PrepareWithoutScenarioMessage =
-        "Kind {Kind} is governed at Prepare, but its remediation {Skill} is execute-only and cannot be "
-        + "staged as a scenario; condition {ConditionId} is reported and left to a human";
-
-    private const string NoResultMessage = "no message";
-
-    private const string UnbindableAfterClaimReason =
-        "the condition's payload changed after the claim and no longer supplies the remediation's arguments";
-
-    private const string UnbindableAfterClaimMessage =
-        "Condition {ConditionId} no longer binds {Skill} after the claim, so nothing was executed; the row "
-        + "stays claimed and is left to the stale-claim reclaim";
-
-    private const string NoApproverForClaimedRowMessage =
-        "Condition {ConditionId} of kind {Kind} is claimed but carries no approval, so it is left to escalate";
+    private const string TickSummaryMessage =
+        "Proactive action tick: {Considered} considered, {Executed} executed, {Failed} failed, "
+        + "{Escalated} escalated, {SkippedCascade} cascade, {SkippedQuiet} quiet, "
+        + "{SkippedUnbindable} unbindable, {SkippedNoApprover} claimed without approver, {SkippedClaimLost} claim lost, "
+        + "{LeftForBudget} left for budget, {ApprovalsRequested} approvals requested, "
+        + "{AwaitingApproval} awaiting approval, {ApprovalsUnavailable} approvals unavailable, "
+        + "{ApprovalsWithdrawn} approvals withdrawn";
 
     private static readonly AgentConditionActionTickResult EmptyResult = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
     private readonly IAgentConditionRepository _repository;
-    private readonly IAgentConditionLedgerService _ledgerService;
-    private readonly IProactiveGovernanceResolver _governanceResolver;
     private readonly IConditionRemediationRegistry _registry;
-    private readonly IQuietWindowService _quietWindow;
-    private readonly IProactiveActionIdentityProvider _identityProvider;
-    private readonly ISkillExecutor _skillExecutor;
-    private readonly IProactiveActionReporter _reporter;
-    private readonly IConditionApprovalChainStarter _approvalStarter;
     private readonly TimeProvider _timeProvider;
     private readonly ICompanyClock _companyClock;
     private readonly ILogger<AgentConditionActionService> _logger;
-    private readonly ConditionRemediationArgumentBinder _argumentBinder;
-    private readonly ConditionStandingApprovalGate _standingApprovalGate;
+    private readonly ConditionCandidatePipeline _pipeline;
 
     public AgentConditionActionService(
         IAgentConditionRepository repository,
@@ -159,20 +105,28 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         ILogger<AgentConditionActionService> logger)
     {
         _repository = repository;
-        _ledgerService = ledgerService;
-        _governanceResolver = governanceResolver;
         _registry = registry;
-        _quietWindow = quietWindow;
-        _identityProvider = identityProvider;
-        _skillExecutor = skillExecutor;
-        _reporter = reporter;
-        _approvalStarter = approvalStarter;
         _timeProvider = timeProvider;
         _companyClock = companyClock;
         _logger = logger;
-        _argumentBinder = new ConditionRemediationArgumentBinder(repository, logger);
-        _standingApprovalGate = new ConditionStandingApprovalGate(
-            standingApprovals, identityProvider, ledgerService, logger);
+
+        var argumentBinder = new ConditionRemediationArgumentBinder(repository, logger);
+        var outcomeRecorder = new ConditionActionOutcomeRecorder(ledgerService, reporter, logger);
+        var approvalHandler = new ConditionApprovalHandler(approvalStarter, ledgerService, outcomeRecorder, logger);
+        var executor = new ConditionRemediationExecutor(
+            identityProvider, skillExecutor, new ConditionActionClaimer(ledgerService),
+            argumentBinder, approvalHandler, outcomeRecorder, logger);
+
+        _pipeline = new ConditionCandidatePipeline(
+            new ConditionActionGovernance(governanceResolver, registry),
+            new ConditionCascadeGuard(ledgerService, logger),
+            quietWindow,
+            argumentBinder,
+            approvalHandler,
+            outcomeRecorder,
+            executor,
+            new ConditionStandingApprovalGate(standingApprovals, identityProvider, ledgerService, logger),
+            logger);
     }
 
     public async Task<AgentConditionActionTickResult> RunAsync(CancellationToken cancellationToken = default)
@@ -201,22 +155,12 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Proactive action dispatcher failed for kind {Kind}", triggerKind);
+                _logger.LogError(ex, KindFailedMessage, triggerKind);
             }
         }
 
         var result = tally.ToResult();
-        _logger.LogInformation(
-            "Proactive action tick: {Considered} considered, {Executed} executed, {Failed} failed, "
-            + "{Escalated} escalated, {SkippedCascade} cascade, {SkippedQuiet} quiet, "
-            + "{SkippedUnbindable} unbindable, {SkippedNoApprover} claimed without approver, {SkippedClaimLost} claim lost, "
-            + "{LeftForBudget} left for budget, {ApprovalsRequested} approvals requested, "
-            + "{AwaitingApproval} awaiting approval, {ApprovalsUnavailable} approvals unavailable, "
-            + "{ApprovalsWithdrawn} approvals withdrawn",
-            result.Considered, result.Executed, result.Failed, result.Escalated, result.SkippedCascade,
-            result.SkippedQuiet, result.SkippedUnbindable, result.SkippedNoApprover, result.SkippedClaimLost,
-            result.LeftForBudget, result.ApprovalsRequested, result.AwaitingApproval, result.ApprovalsUnavailable,
-            result.ApprovalsWithdrawn);
+        LogTickSummary(result);
 
         return result;
     }
@@ -235,6 +179,10 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         return CompanyWallClockToUtcConverter.ConvertToUtc(localToday.ToDateTime(TimeOnly.MinValue), zone);
     }
 
+    /// <summary>
+    /// Walks one kind's candidates with a fresh ConditionActionKindRun, so the governance cache, the
+    /// budget and the per-tick cap never carry over from one kind to the next.
+    /// </summary>
     private async Task RunKindAsync(
         string triggerKind,
         DateTime nowUtc,
@@ -255,7 +203,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             return;
         }
 
-        var run = new KindRun(
+        var run = new ConditionActionKindRun(
             triggerKind,
             entry,
             nowUtc,
@@ -270,677 +218,18 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             cancellationToken.ThrowIfCancellationRequested();
             tally.Considered++;
 
-            if (await ProcessCandidateAsync(run, index, cancellationToken))
+            if (await _pipeline.ProcessAsync(run, index, cancellationToken))
             {
                 return;
             }
         }
     }
 
-    /// <summary>
-    /// One candidate through the gates. Returns true when the kind must stop for this tick (the absolute
-    /// per-tick cap), false to walk on to the next row - including after a group's budget block, because
-    /// the candidates behind it may belong to groups that have spent nothing.
-    /// </summary>
-    private async Task<bool> ProcessCandidateAsync(KindRun run, int index, CancellationToken cancellationToken)
-    {
-        var condition = run.Candidates[index];
-        var governance = await ResolveGovernanceAsync(run.GovernanceCache, condition, cancellationToken);
-        var maxAction = EffectiveMaxActionFor(governance, condition);
-        if (maxAction < ProactiveMaxAction.Execute)
-        {
-            if (maxAction == ProactiveMaxAction.Prepare && !run.Entry.IsScenarioCapable)
-            {
-                _logger.LogDebug(
-                    PrepareWithoutScenarioMessage, run.TriggerKind, run.Entry.RemediationSkillName, condition.Id);
-            }
-
-            return false;
-        }
-
-        if (await IsCascadeAsync(condition, run.RecentExecutions, cancellationToken))
-        {
-            run.Tally.SkippedCascade++;
-            return false;
-        }
-
-        var approver = ResolveApprover(condition);
-
-        if (condition.AttemptCount >= AgentConditionActionDefaults.MaxAttemptsBeforeEscalation)
-        {
-            if (await EscalateAsync(condition, approver, cancellationToken))
-            {
-                run.Tally.Escalated++;
-            }
-
-            return false;
-        }
-
-        if (await _quietWindow.IsQuietForAsync(condition, cancellationToken))
-        {
-            run.Tally.SkippedQuiet++;
-            return false;
-        }
-
-        var arguments = _argumentBinder.TryBind(run.Entry, condition);
-        if (arguments is null)
-        {
-            run.Tally.SkippedUnbindable++;
-            return false;
-        }
-
-        if (approver is Guid freshApprover
-            && condition.Status == AgentConditionStatus.Reported
-            && await WithdrawIfApprovalIsStaleAsync(run, condition, freshApprover, cancellationToken))
-        {
-            return false;
-        }
-
-        if (run.ActionsThisTick >= AgentConditionActionDefaults.MaxExecutionsPerKindPerTick)
-        {
-            var remaining = run.Candidates.Count - index;
-            await ReportBudgetStopAsync(
-                run, condition, approver,
-                string.Format(CultureInfo.InvariantCulture, TickCapReason, AgentConditionActionDefaults.MaxExecutionsPerKindPerTick),
-                remaining, cancellationToken);
-            run.Tally.LeftForBudget += remaining;
-            return true;
-        }
-
-        var blockedReason = await run.Budget.DescribeBlockAsync(condition.GroupId, governance, cancellationToken);
-        if (blockedReason is not null)
-        {
-            if (run.Budget.TryMarkStopReported(condition.GroupId))
-            {
-                var leftInGroup = run.Candidates.Skip(index).Count(remaining => remaining.GroupId == condition.GroupId);
-                await ReportBudgetStopAsync(run, condition, approver, blockedReason, leftInGroup, cancellationToken);
-                run.Tally.LeftForBudget += leftInGroup;
-            }
-
-            return false;
-        }
-
-        if (approver is Guid approverUserId)
-        {
-            await ClaimAndExecuteAsync(
-                run, condition, new ConditionExecutionAuthority(approverUserId), arguments, cancellationToken);
-            return false;
-        }
-
-        var standing = await _standingApprovalGate.TryApplyAsync(
-            condition, run.Entry, run.Budget, run.NowUtc, cancellationToken);
-
-        if (standing.Authority is { } grantedAuthority)
-        {
-            await ClaimAndExecuteAsync(run, condition, grantedAuthority, arguments, cancellationToken);
-        }
-        else if (standing.AskForApproval)
-        {
-            await AskForApprovalOrSkipAsync(run, condition, cancellationToken);
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Whose rights this row would run under: the stamped approver - the approval chain's or the
-    /// delegation's answer - or null when nobody has released it yet.
-    /// </summary>
-    private static Guid? ResolveApprover(AgentCondition condition) =>
-        condition.ApprovedByUserId is Guid approverUserId && approverUserId != Guid.Empty ? approverUserId : null;
-
-    /// <summary>
-    /// A Reported row with nobody behind it gets its approval chain asked for; a Prepared row with nobody
-    /// behind it is a claim this regime cannot resume (no approval to run under) and is left to age into
-    /// escalation. Every non-Started outcome of the starter is fail closed: counted, logged by the starter
-    /// itself, and never retried within this tick. A started chain counts against the per-tick cap so one
-    /// busy kind cannot flood a planner's inbox with requests in a single scan.
-    /// </summary>
-    private async Task AskForApprovalOrSkipAsync(KindRun run, AgentCondition condition, CancellationToken cancellationToken)
-    {
-        if (condition.Status != AgentConditionStatus.Reported)
-        {
-            _logger.LogDebug(NoApproverForClaimedRowMessage, condition.Id, condition.TriggerKind);
-            run.Tally.SkippedNoApprover++;
-            return;
-        }
-
-        var outcome = await _approvalStarter.TryStartAsync(condition, run.Entry, run.CompanyDayStartUtc, cancellationToken);
-        switch (outcome)
-        {
-            case ConditionApprovalStartOutcome.Started:
-                run.Tally.ApprovalsRequested++;
-                run.ActionsThisTick++;
-                break;
-            case ConditionApprovalStartOutcome.ChainAlreadyRunning:
-            case ConditionApprovalStartOutcome.WaitingForNextCompanyDay:
-                run.Tally.AwaitingApproval++;
-                break;
-            default:
-                run.Tally.ApprovalsUnavailable++;
-                break;
-        }
-    }
-
-    /// <summary>
-    /// The execution window of a fresh approval: a stamp older than ApprovalExecutionWindowMinutes when
-    /// the tick reaches the row is withdrawn rather than acted on, because the finding may no longer be
-    /// what the approver looked at. The window is measured in scan intervals, not in the stale-claim
-    /// minutes: an approval is answered by a LATER tick, so it must survive at least the one tick that may
-    /// legitimately pass the row over. Returns true when the row was withdrawn (or the withdrawal was lost
-    /// to a concurrent tick), in which case the caller must not act on it.
-    /// </summary>
-    private async Task<bool> WithdrawIfApprovalIsStaleAsync(
-        KindRun run, AgentCondition condition, Guid approverUserId, CancellationToken cancellationToken)
-    {
-        var freshAfterUtc = run.NowUtc.AddMinutes(-AgentConditionActionDefaults.ApprovalExecutionWindowMinutes);
-        if (condition.ApprovedAtUtc is { } approvedAtUtc && approvedAtUtc >= freshAfterUtc)
-        {
-            return false;
-        }
-
-        await WithdrawApprovalAsync(
-            run, condition, approverUserId,
-            string.Format(
-                CultureInfo.InvariantCulture, ApprovalExpiredDetail, AgentConditionActionDefaults.ApprovalExecutionWindowMinutes),
-            cancellationToken);
-        return true;
-    }
-
-    private async Task WithdrawApprovalAsync(
-        KindRun run, AgentCondition condition, Guid approverUserId, string reason, CancellationToken cancellationToken)
-    {
-        var withdrawn = await _ledgerService.TryWithdrawApprovalAsync(condition.Id, approverUserId, reason, cancellationToken);
-        if (!withdrawn)
-        {
-            return;
-        }
-
-        run.Tally.ApprovalsWithdrawn++;
-        await ReportAsync(
-            condition, approverUserId,
-            string.Format(
-                CultureInfo.InvariantCulture, ApprovalWithdrawnReportFormat,
-                condition.TriggerKind, condition.Id, run.Entry.RemediationSkillName, reason),
-            cancellationToken);
-    }
-
-    /// <summary>
-    /// Claim, re-bind, execute. On a fresh approval the identity is resolved BEFORE the claim so an
-    /// approver who lost their account, role or the skill's permission since acknowledging costs no
-    /// attempt: the approval is withdrawn, reported, and the finding waits for a new chain. On a resumed
-    /// claim (Prepared) the identity is resolved after the claim, so a refusal there consumes an attempt
-    /// and the row escalates instead of spinning. Under a standing approval the identity arrives already
-    /// resolved - the approval-free path has to know before it stamps anything whether the granting
-    /// administrator can still act - so neither branch re-mints a token for it.
-    /// </summary>
-    private async Task ClaimAndExecuteAsync(
-        KindRun run,
-        AgentCondition condition,
-        ConditionExecutionAuthority authority,
-        IReadOnlyDictionary<string, object?> arguments,
-        CancellationToken cancellationToken)
-    {
-        var approverUserId = authority.UserId;
-        var identity = authority.Identity;
-        if (identity is null && condition.Status == AgentConditionStatus.Reported)
-        {
-            identity = await _identityProvider.ResolveForSkillAsync(
-                approverUserId, condition.Id, run.Entry.RemediationSkillName, cancellationToken);
-            if (!identity.Success || identity.Context is null)
-            {
-                await WithdrawApprovalAsync(
-                    run, condition, approverUserId,
-                    string.Format(CultureInfo.InvariantCulture, ApprovalRefusedDetail, identity.Reason ?? string.Empty),
-                    cancellationToken);
-                return;
-            }
-        }
-
-        if (!await TryClaimAsync(
-            condition, run.Entry, approverUserId, authority.Grant?.Id, run.NowUtc, cancellationToken))
-        {
-            run.Tally.SkippedClaimLost++;
-            return;
-        }
-
-        run.Budget.RecordClaim(condition.GroupId);
-        run.ActionsThisTick++;
-
-        var claimedArguments = await _argumentBinder.RebindAfterClaimAsync(run.Entry, condition, arguments, cancellationToken);
-        if (claimedArguments is null)
-        {
-            _logger.LogWarning(UnbindableAfterClaimMessage, condition.Id, run.Entry.RemediationSkillName);
-            await RecordFailureAsync(condition, run.Entry, approverUserId, UnbindableAfterClaimReason, cancellationToken);
-            run.Tally.Failed++;
-            return;
-        }
-
-        if (await ExecuteAsync(condition, run.Entry, claimedArguments, authority, identity, cancellationToken))
-        {
-            run.Tally.Executed++;
-        }
-        else
-        {
-            run.Tally.Failed++;
-        }
-    }
-
-    /// <summary>
-    /// Governance folded with the Etappe-4e delegation, re-capped by the global autonomy level and then
-    /// capped by the remediation registry. Precedence is not negotiable in three places: the global kill
-    /// switch and a disabled kind pin the result at Hint BEFORE the delegation is looked at, because a
-    /// human's earlier "you handle this one" grant must never survive the emergency stop; the global
-    /// autonomy level caps the delegation too (Owner decision 2026-08-28); and the registry cap applies
-    /// LAST, so no delegation can steer a kind that has no remediation past Hint.
-    /// </summary>
-    private ProactiveMaxAction EffectiveMaxActionFor(ProactiveGovernanceDecision governance, AgentCondition condition)
-    {
-        if (governance.KillSwitchActive || !governance.Enabled)
-        {
-            return ProactiveMaxAction.Hint;
-        }
-
-        var requested = condition.DelegatedMaxAction is { } delegated && delegated > governance.EffectiveMaxAction
-            ? delegated
-            : governance.EffectiveMaxAction;
-
-        var levelCapped = requested < governance.GlobalAutonomyCap ? requested : governance.GlobalAutonomyCap;
-
-        return _registry.TryGetEffectiveMaxAction(condition.TriggerKind, levelCapped);
-    }
-
-    private async Task<ProactiveGovernanceDecision> ResolveGovernanceAsync(
-        ConditionGovernanceCache cache,
-        AgentCondition condition,
-        CancellationToken cancellationToken)
-    {
-        if (cache.TryGet(condition.GroupId, out var cached))
-        {
-            return cached!;
-        }
-
-        var decision = await _governanceResolver.ResolveAsync(
-            condition.TriggerKind, condition.GroupId, cancellationToken);
-        cache.Set(condition.GroupId, decision);
-
-        return decision;
-    }
-
-    /// <summary>
-    /// True when this row must never be auto-handled because Klacksy itself may have produced it: either
-    /// it already carries a provenance link, or it was detected after a Klacksy execution on the same
-    /// entity within one scan interval - in which case the link is written now, so the attribution
-    /// survives this tick. Matching is on EntityId when the candidate has one and falls back to GroupId
-    /// only when it does not: the cascade guard exists to catch "my fix broke the thing I touched", not
-    /// "something happened nearby".
-    /// </summary>
-    private async Task<bool> IsCascadeAsync(
-        AgentCondition condition,
-        IReadOnlyList<AgentCondition> recentExecutions,
-        CancellationToken cancellationToken)
-    {
-        if (condition.CausedByConditionId is not null)
-        {
-            return true;
-        }
-
-        var cause = FindCause(condition, recentExecutions);
-        if (cause is not Guid causeId)
-        {
-            return false;
-        }
-
-        await _ledgerService.TrySetCausedByAsync(condition.Id, causeId, cancellationToken);
+    private void LogTickSummary(AgentConditionActionTickResult result) =>
         _logger.LogInformation(
-            "Condition {ConditionId} appeared after Klacksy executed condition {CauseId} on the same "
-            + "target and is only ever hinted from now on",
-            condition.Id, causeId);
-
-        return true;
-    }
-
-    private static Guid? FindCause(AgentCondition condition, IReadOnlyList<AgentCondition> recentExecutions)
-    {
-        foreach (var executed in recentExecutions)
-        {
-            if (executed.Id == condition.Id || executed.HandledAtUtc is not { } handledAtUtc)
-            {
-                continue;
-            }
-
-            if (condition.DetectedAtUtc < handledAtUtc)
-            {
-                continue;
-            }
-
-            if (condition.EntityId is { } entityId)
-            {
-                if (executed.EntityId == entityId)
-                {
-                    return executed.Id;
-                }
-
-                continue;
-            }
-
-            if (condition.GroupId is { } groupId && executed.GroupId == groupId)
-            {
-                return executed.Id;
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Takes the row for this run. A Reported row is moved to Prepared; a Prepared row is a claim
-    /// somebody else made, and is taken over only when it has gone stale - both raise AttemptCount and
-    /// stamp LastAttemptAtUtc inside the same conditional UPDATE. The claim event names the approver as
-    /// UserId, so the audit trail shows on whose authority the row was taken.
-    ///
-    /// A claim made under a standing approval carries that grant's id in the same detail string. It has to
-    /// stay a SUFFIX: the budget and the circuit breaker recognise a budget-consuming event by the
-    /// AgentConditionActionDefaults.ActionClaimDetailPrefix at the START of Detail, so anything appended
-    /// is invisible to them while a changed prefix would silently stop the claim from counting.
-    /// </summary>
-    private async Task<bool> TryClaimAsync(
-        AgentCondition condition,
-        ConditionRemediationEntry entry,
-        Guid approverUserId,
-        Guid? standingApprovalId,
-        DateTime nowUtc,
-        CancellationToken cancellationToken)
-    {
-        var detail = string.Format(
-            CultureInfo.InvariantCulture,
-            ClaimDetailFormat,
-            AgentConditionActionDefaults.ActionClaimDetailPrefix,
-            entry.RemediationSkillName,
-            condition.AttemptCount + 1);
-
-        if (standingApprovalId is Guid grantId)
-        {
-            detail += string.Format(
-                CultureInfo.InvariantCulture, StandingApprovalClaimSuffixFormat, grantId);
-        }
-
-        if (condition.Status == AgentConditionStatus.Reported)
-        {
-            return await _ledgerService.TryTransitionAsync(
-                condition.Id,
-                AgentConditionStatus.Reported,
-                AgentConditionStatus.Prepared,
-                userId: approverUserId,
-                detail: detail,
-                fields: new AgentConditionTransitionFields(
-                    LastAttemptAtUtc: nowUtc,
-                    AttemptIncrement: 1),
-                cancellationToken);
-        }
-
-        return await _ledgerService.TryReclaimStaleAsync(
-            condition.Id,
-            TimeSpan.FromMinutes(AgentConditionActionDefaults.StaleClaimMinutes),
-            detail,
-            cancellationToken);
-    }
-
-    private async Task<bool> ExecuteAsync(
-        AgentCondition condition,
-        ConditionRemediationEntry entry,
-        IReadOnlyDictionary<string, object?> arguments,
-        ConditionExecutionAuthority authority,
-        ProactiveActionIdentity? preResolvedIdentity,
-        CancellationToken cancellationToken)
-    {
-        var approverUserId = authority.UserId;
-        var identity = preResolvedIdentity ?? await _identityProvider.ResolveForSkillAsync(
-            approverUserId, condition.Id, entry.RemediationSkillName, cancellationToken);
-
-        if (!identity.Success || identity.Context is null)
-        {
-            await RecordFailureAsync(condition, entry, approverUserId, identity.Reason ?? string.Empty, cancellationToken);
-            return false;
-        }
-
-        SkillResult result;
-        try
-        {
-            result = await _skillExecutor.ExecuteAsync(
-                new SkillInvocation
-                {
-                    SkillName = entry.RemediationSkillName,
-                    Parameters = arguments
-                        .Where(argument => argument.Value is not null)
-                        .ToDictionary(argument => argument.Key, argument => argument.Value!, StringComparer.Ordinal)
-                },
-                identity.Context,
-                cancellationToken);
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                ex, "Remediation {Skill} threw on condition {ConditionId}", entry.RemediationSkillName, condition.Id);
-            await RecordFailureAsync(condition, entry, approverUserId, ex.Message, cancellationToken);
-            return false;
-        }
-
-        var message = string.IsNullOrWhiteSpace(result.Message) ? NoResultMessage : result.Message!;
-        if (!result.Success)
-        {
-            await RecordFailureAsync(condition, entry, approverUserId, message, cancellationToken);
-            return false;
-        }
-
-        var recorded = await _ledgerService.TryTransitionAsync(
-            condition.Id,
-            AgentConditionStatus.Prepared,
-            AgentConditionStatus.Executed,
-            userId: approverUserId,
-            detail: Outcome(string.Format(CultureInfo.InvariantCulture, ExecutedDetail, entry.RemediationSkillName)),
-            fields: new AgentConditionTransitionFields(
-                HandlingKind: AgentConditionHandlingKind.Executed,
-                ApprovedByUserId: approverUserId),
-            cancellationToken);
-
-        if (!recorded)
-        {
-            _logger.LogWarning(
-                "Remediation {Skill} on condition {ConditionId} succeeded but the row had already been "
-                + "moved by somebody else; the execution is not recorded on the ledger",
-                entry.RemediationSkillName, condition.Id);
-        }
-
-        if (authority.Grant is { } standing)
-        {
-            await _ledgerService.RecordEventAsync(
-                condition.Id,
-                AgentConditionEventTypes.ExecutedUnderStandingApproval,
-                Outcome(string.Format(
-                    CultureInfo.InvariantCulture,
-                    StandingApprovalDetailFormat, standing.Id, standing.GrantedByUserId)),
-                cancellationToken);
-        }
-
-        await ReportAsync(condition, approverUserId, ExecutedReport(condition, entry, authority, message), cancellationToken);
-
-        return true;
-    }
-
-    /// <summary>
-    /// The mandatory post-action report. Under a standing approval it is a DIFFERENT statement of fact,
-    /// not the same sentence with an extra line: nobody was asked about this finding, so the report has to
-    /// say under whose advance consent it happened, until when that consent runs, and that there is no
-    /// one-click undo on the note itself.
-    /// </summary>
-    private static string ExecutedReport(
-        AgentCondition condition,
-        ConditionRemediationEntry entry,
-        ConditionExecutionAuthority authority,
-        string message)
-    {
-        if (authority.Grant is not { } standing)
-        {
-            return string.Format(
-                CultureInfo.InvariantCulture, ExecutedReportFormat,
-                condition.TriggerKind, condition.Id, entry.RemediationSkillName, message);
-        }
-
-        return string.Format(
-            CultureInfo.InvariantCulture, ExecutedUnderStandingApprovalReportFormat,
-            condition.TriggerKind, condition.Id, entry.RemediationSkillName, message,
-            standing.Id, standing.GrantedByUserId, standing.ExpiresAtUtc);
-    }
-
-    /// <summary>
-    /// Records a failed attempt WITHOUT moving the row: it stays Prepared so the stale-claim path can
-    /// take it over on a later tick, and AttemptCount - already raised by the claim - carries it towards
-    /// escalation. The report goes out for a failure too; a report only on success would let a
-    /// remediation fail three times in silence before anybody hears about it.
-    /// </summary>
-    private async Task RecordFailureAsync(
-        AgentCondition condition,
-        ConditionRemediationEntry entry,
-        Guid approverUserId,
-        string reason,
-        CancellationToken cancellationToken)
-    {
-        var attempt = condition.AttemptCount + 1;
-
-        await _ledgerService.RecordEventAsync(
-            condition.Id,
-            AgentConditionEventTypes.AttemptFailed,
-            Outcome(string.Format(CultureInfo.InvariantCulture, FailedDetail, reason)),
-            cancellationToken);
-
-        await ReportAsync(
-            condition, approverUserId,
-            string.Format(
-                CultureInfo.InvariantCulture, FailedReportFormat,
-                condition.TriggerKind, condition.Id, entry.RemediationSkillName, reason,
-                attempt, AgentConditionActionDefaults.MaxAttemptsBeforeEscalation),
-            cancellationToken);
-    }
-
-    /// <summary>
-    /// Hands one row to a human after MaxAttemptsBeforeEscalation attempts. Returns whether THIS caller
-    /// escalated it: a lost compare-and-swap means another instance got there first, and counting it
-    /// anyway would over-report the one number a planner reads to spot a stuck kind.
-    /// </summary>
-    private async Task<bool> EscalateAsync(AgentCondition condition, Guid? approverUserId, CancellationToken cancellationToken)
-    {
-        var escalated = await _ledgerService.TryTransitionAsync(
-            condition.Id,
-            condition.Status,
-            AgentConditionStatus.Escalated,
-            userId: approverUserId,
-            detail: Outcome(string.Format(CultureInfo.InvariantCulture, EscalatedDetail, condition.AttemptCount)),
-            cancellationToken: cancellationToken);
-
-        if (!escalated)
-        {
-            return false;
-        }
-
-        await ReportAsync(
-            condition, approverUserId,
-            string.Format(
-                CultureInfo.InvariantCulture, EscalatedReportFormat,
-                condition.TriggerKind, condition.Id, condition.AttemptCount),
-            cancellationToken);
-
-        return true;
-    }
-
-    /// <summary>
-    /// A budget stop is never silent: it is logged on EVERY tick it happens. The durable note is
-    /// deliberately narrower - only on a tick that actually acted - because once a day's budget is spent
-    /// every remaining tick of that day stops on its first candidate, and the tick on which the budget
-    /// ran out is the one that carries the information.
-    /// </summary>
-    private async Task ReportBudgetStopAsync(
-        KindRun run,
-        AgentCondition condition,
-        Guid? approverUserId,
-        string reason,
-        int remaining,
-        CancellationToken cancellationToken)
-    {
-        _logger.LogWarning(
-            "Proactive actions on {Kind} stopped: {Reason}. {Remaining} finding(s) stay open this tick",
-            run.TriggerKind, reason, remaining);
-
-        if (run.ActionsThisTick == 0)
-        {
-            return;
-        }
-
-        await ReportAsync(
-            condition, approverUserId,
-            string.Format(CultureInfo.InvariantCulture, BudgetReportFormat, run.TriggerKind, reason, remaining),
-            cancellationToken);
-    }
-
-    /// <summary>
-    /// Who hears about this row (Owner decision 2026-09-20): the approver plus the finding's planning
-    /// audience (or the admins without a group); before any approval exists the audience alone.
-    /// </summary>
-    private Task ReportAsync(
-        AgentCondition condition, Guid? approverUserId, string message, CancellationToken cancellationToken) =>
-        _reporter.ReportToApprovalAudienceAsync(approverUserId, condition.GroupId, message, cancellationToken);
-
-    private static string Outcome(string detail) =>
-        string.Format(
-            CultureInfo.InvariantCulture,
-            OutcomeDetailFormat,
-            AgentConditionActionDefaults.ActionOutcomeDetailPrefix,
-            detail);
-
-    private sealed class KindRun
-    {
-        public KindRun(
-            string triggerKind,
-            ConditionRemediationEntry entry,
-            DateTime nowUtc,
-            DateTime companyDayStartUtc,
-            IReadOnlyList<AgentCondition> recentExecutions,
-            IReadOnlyList<AgentCondition> candidates,
-            ConditionActionBudget budget,
-            ConditionActionTally tally)
-        {
-            TriggerKind = triggerKind;
-            Entry = entry;
-            NowUtc = nowUtc;
-            CompanyDayStartUtc = companyDayStartUtc;
-            RecentExecutions = recentExecutions;
-            Candidates = candidates;
-            Budget = budget;
-            Tally = tally;
-        }
-
-        public string TriggerKind { get; }
-
-        public ConditionRemediationEntry Entry { get; }
-
-        public DateTime NowUtc { get; }
-
-        public DateTime CompanyDayStartUtc { get; }
-
-        public IReadOnlyList<AgentCondition> RecentExecutions { get; }
-
-        public IReadOnlyList<AgentCondition> Candidates { get; }
-
-        public ConditionActionBudget Budget { get; }
-
-        public ConditionActionTally Tally { get; }
-
-        public ConditionGovernanceCache GovernanceCache { get; } = new();
-
-        public int ActionsThisTick { get; set; }
-    }
+            TickSummaryMessage,
+            result.Considered, result.Executed, result.Failed, result.Escalated, result.SkippedCascade,
+            result.SkippedQuiet, result.SkippedUnbindable, result.SkippedNoApprover, result.SkippedClaimLost,
+            result.LeftForBudget, result.ApprovalsRequested, result.AwaitingApproval, result.ApprovalsUnavailable,
+            result.ApprovalsWithdrawn);
 }
