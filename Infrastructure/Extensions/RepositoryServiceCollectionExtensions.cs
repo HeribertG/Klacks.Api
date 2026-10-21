@@ -31,7 +31,6 @@ using Klacks.Api.Application.Common;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Services.ScheduleEntries;
-using Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 using Klacks.Api.Infrastructure.Services.PeriodHours;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Services.Assistant;
@@ -144,7 +143,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IScheduleSnapshotMarkerService,
                            Klacks.Api.Infrastructure.Services.Schedules.ScheduleSnapshotMarkerService>();
         services.AddScoped<IWizardRunCaptureMeasurementService, Klacks.Api.Infrastructure.Services.Schedules.WizardRunCaptureMeasurementService>();
-        services.AddScoped<IAnalyseScenarioService, AnalyseScenarioService>();
+        services.AddAnalyseScenarioServices();
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<IShiftVisibilityReader, Klacks.Api.Infrastructure.Repositories.Schedules.ShiftVisibilityReadRepository>();
         services.AddScoped<IShiftGroupScopeReader, Klacks.Api.Infrastructure.Repositories.Schedules.ShiftGroupScopeReadRepository>();

@@ -6,14 +6,23 @@
 /// AND on accept - accepting a scenario adopts its plan, never its what-if rules: promoting them to real rules
 /// would approve a rule outside the UI pending list (owner decision 2026-10-03).
 /// </summary>
+/// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
 
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 
-public partial class AnalyseScenarioService
+public sealed class ScenarioOwnedRowStager
 {
+    private readonly DataBaseContext _context;
+
+    public ScenarioOwnedRowStager(DataBaseContext context)
+    {
+        _context = context;
+    }
+
     public async Task AddScenarioMembershipAsync(
         Guid token, Guid clientId, Guid groupId, DateOnly validFrom, DateOnly validUntil, CancellationToken cancellationToken)
     {
@@ -30,7 +39,7 @@ public partial class AnalyseScenarioService
         await _context.Set<GroupItem>().AddAsync(membership, cancellationToken);
     }
 
-    private async Task SoftDeleteScenarioPlanningConstraintsAsync(Guid token, DateTime nowUtc, CancellationToken ct)
+    public async Task SoftDeleteScenarioPlanningConstraintsAsync(Guid token, DateTime nowUtc, CancellationToken ct)
     {
         var constraints = await _context.PlanningConstraint
             .Where(c => c.AnalyseToken == token && !c.IsDeleted)

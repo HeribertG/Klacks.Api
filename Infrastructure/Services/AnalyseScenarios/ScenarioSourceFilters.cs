@@ -12,11 +12,10 @@
 
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 
-public partial class AnalyseScenarioService
+internal static class ScenarioSourceFilters
 {
     internal static IQueryable<Work> WhereFromSource(IQueryable<Work> query, ScenarioCloneSource source)
     {
@@ -150,34 +149,5 @@ public partial class AnalyseScenarioService
         var withSource = clients.WithSource;
         return query.Where(sc => (sc.AnalyseToken == null && real.Contains(sc.ClientId))
             || (sc.AnalyseToken != null && withSource.Contains(sc.ClientId)));
-    }
-
-    /// <summary>
-    /// Shifts of the group hierarchy: the real memberships, plus with a source scenario the memberships of its clone
-    /// shifts (a source clone stands in for its real root, see LoadShiftsToCloneAsync).
-    /// </summary>
-    private async Task<List<Guid>> LoadGroupShiftIdsAsync(List<Guid> groupIds, ScenarioCloneSource source, CancellationToken ct)
-        => await WhereEitherWorld(_context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null), source)
-            .Select(gi => gi.ShiftId!.Value)
-            .Distinct()
-            .ToListAsync(ct);
-
-    /// <summary>
-    /// Employees of the group hierarchy: Real = the real members (the only employees whose real rows accept replaces);
-    /// WithSource = additionally, with a source scenario, its temporary cross-group members (borrowed employees), whose
-    /// rows OF THE SOURCE SCENARIO belong to the clone. Without a source both lists are the real members.
-    /// </summary>
-    private async Task<(List<Guid> Real, List<Guid> WithSource)> LoadGroupClientScopeAsync(
-        List<Guid> groupIds, ScenarioCloneSource source, CancellationToken ct)
-    {
-        var memberships = await WhereEitherWorld(_context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null), source)
-            .Select(gi => new { ClientId = gi.ClientId!.Value, gi.AnalyseToken })
-            .ToListAsync(ct);
-
-        var real = memberships.Where(m => m.AnalyseToken == null).Select(m => m.ClientId).Distinct().ToList();
-        var withSource = memberships.Select(m => m.ClientId).Distinct().ToList();
-        return (real, withSource);
     }
 }

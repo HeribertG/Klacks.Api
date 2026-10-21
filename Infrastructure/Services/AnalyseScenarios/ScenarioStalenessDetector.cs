@@ -3,7 +3,7 @@
 /// <summary>
 /// Staleness check of a scenario before it is accepted: counts the real rows inside the scope the accept replaces that
 /// were created, updated or deleted after the scenario's snapshot was taken AND that the accept actually overwrites. The
-/// scope is resolved by the same helper the accept delete uses (ResolveRealAcceptScopeAsync), and the rows the accept
+/// scope is resolved by the same helper the accept delete uses (ScenarioAcceptScopeResolver), and the rows the accept
 /// leaves in place are dropped with the same day-lock plan the accept builds (AcceptDayLockPlan): rows on a locked day,
 /// locked works and breaks, a work with a work change shown on a locked day, kept slots, and the children and
 /// pauses of every kept work. Such a change survives the accept, so the warning must not call it overwritten. Deleted
@@ -12,21 +12,24 @@
 /// the snapshot instant is the earliest creation along the SourceToken chain. The changed rows are filtered in memory,
 /// because the locked (client, day) pairs do not translate into SQL.
 /// </summary>
+/// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
+/// <param name="scopeResolver">Resolves the real shifts and clients the accept replaces</param>
+/// <param name="dayLockPlanBuilder">Builds the day-lock plan of the accept</param>
+/// <param name="logger">Logs a missing creation time and a cut-short source chain</param>
 
 using System.Linq.Expressions;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 
-public partial class AnalyseScenarioService
+public sealed class ScenarioStalenessDetector
 {
     private const int MaxReportedAcceptedScenarioNames = 5;
-
-    private const int MaxSourceChainDepth = 16;
 
     private const string MissingCreateTimeMessage =
         "Scenario {ScenarioId} has no creation time; the staleness check before accepting it is skipped";
@@ -36,6 +39,23 @@ public partial class AnalyseScenarioService
 
     private const string SourceChainCycleMessage =
         "Scenario {ScenarioId}: the SourceToken chain contains a cycle at token {Token}; the staleness check uses the earliest creation found so far";
+
+    private readonly DataBaseContext _context;
+    private readonly ScenarioAcceptScopeResolver _scopeResolver;
+    private readonly AcceptDayLockPlanBuilder _dayLockPlanBuilder;
+    private readonly ILogger<ScenarioStalenessDetector> _logger;
+
+    public ScenarioStalenessDetector(
+        DataBaseContext context,
+        ScenarioAcceptScopeResolver scopeResolver,
+        AcceptDayLockPlanBuilder dayLockPlanBuilder,
+        ILogger<ScenarioStalenessDetector> logger)
+    {
+        _context = context;
+        _scopeResolver = scopeResolver;
+        _dayLockPlanBuilder = dayLockPlanBuilder;
+        _logger = logger;
+    }
 
     public async Task<ScenarioStaleness?> FindRealPlanChangesSinceCreationAsync(AnalyseScenario scenario, CancellationToken ct)
     {
@@ -48,8 +68,37 @@ public partial class AnalyseScenarioService
         var since = await EarliestCreationAlongSourceChainAsync(scenario, ct);
         var fromDate = scenario.FromDate;
         var untilDate = scenario.UntilDate;
-        var (shiftIds, clientIds) = await ResolveRealAcceptScopeAsync(scenario.GroupId, scenario.Token, fromDate, untilDate, ct);
+        var (shiftIds, clientIds) = await _scopeResolver.ResolveRealAcceptScopeAsync(scenario.GroupId, scenario.Token, fromDate, untilDate, ct);
 
+        var changed = await LoadChangedRowsAsync(since, fromDate, untilDate, shiftIds, clientIds, ct);
+
+        if (changed.Count == 0)
+        {
+            return null;
+        }
+
+        var overwritten = await KeepOverwrittenRowsAsync(scenario.Token, fromDate, untilDate, shiftIds, changed, ct);
+        if (overwritten.Count == 0)
+        {
+            return null;
+        }
+
+        var lastChange = overwritten
+            .SelectMany(r => new[] { r.CreateTime, r.UpdateTime, r.DeletedTime })
+            .Where(t => t > since)
+            .Max()!.Value;
+        var acceptedScenarioNames = await AcceptedSiblingNamesSinceAsync(scenario, since, ct);
+
+        return new ScenarioStaleness(overwritten.Count, lastChange, acceptedScenarioNames);
+    }
+
+    /// <summary>
+    /// The real rows of the accept scope created, updated or deleted after the snapshot: works, the work changes and
+    /// expenses of movable works, breaks and schedule notes.
+    /// </summary>
+    private async Task<List<StaleRow>> LoadChangedRowsAsync(
+        DateTime since, DateOnly fromDate, DateOnly untilDate, List<Guid>? shiftIds, List<Guid>? clientIds, CancellationToken ct)
+    {
         var scopedWorks = _context.Work.IgnoreQueryFilters()
             .Where(w => w.AnalyseToken == null && w.CurrentDate >= fromDate && w.CurrentDate <= untilDate);
         if (shiftIds != null)
@@ -93,24 +142,7 @@ public partial class AnalyseScenarioService
             .Select(sn => new StaleRow(StaleRowKind.Note, sn.Id, sn.ClientId, sn.CurrentDate, WorkLockLevel.None, null, sn.CreateTime, sn.UpdateTime, sn.DeletedTime))
             .ToListAsync(ct));
 
-        if (changed.Count == 0)
-        {
-            return null;
-        }
-
-        var overwritten = await KeepOverwrittenRowsAsync(scenario.Token, fromDate, untilDate, shiftIds, changed, ct);
-        if (overwritten.Count == 0)
-        {
-            return null;
-        }
-
-        var lastChange = overwritten
-            .SelectMany(r => new[] { r.CreateTime, r.UpdateTime, r.DeletedTime })
-            .Where(t => t > since)
-            .Max()!.Value;
-        var acceptedScenarioNames = await AcceptedSiblingNamesSinceAsync(scenario, since, ct);
-
-        return new ScenarioStaleness(overwritten.Count, lastChange, acceptedScenarioNames);
+        return changed;
     }
 
     /// <summary>
@@ -134,7 +166,7 @@ public partial class AnalyseScenarioService
             : await _context.Work.IgnoreQueryFilters()
                 .AsNoTracking()
                 .Where(w => pauseParentIds.Contains(w.Id) && w.AnalyseToken == null)
-                .Select(WorkSnapshot)
+                .Select(AcceptRowSnapshots.Work)
                 .ToDictionaryAsync(w => w.Id, ct);
 
         var workIds = changed.Where(r => r.Kind != StaleRowKind.Note && r.Kind != StaleRowKind.Break)
@@ -143,7 +175,7 @@ public partial class AnalyseScenarioService
             .Distinct()
             .ToList();
         var clientIds = changed.Select(r => r.ClientId).Concat(pauseParents.Values.Select(p => p.ClientId)).Distinct().ToList();
-        var plan = await BuildAcceptDayLockPlanAsync(token, fromDate, untilDate, clientIds, workIds, ct);
+        var plan = await _dayLockPlanBuilder.BuildAcceptDayLockPlanAsync(token, fromDate, untilDate, clientIds, workIds, ct);
 
         var keptWorkIds = plan.KeptRealWorkIds
             .Concat(pauseParents.Values
@@ -174,7 +206,7 @@ public partial class AnalyseScenarioService
     /// <summary>
     /// The instant of the snapshot the scenario's rows stand for: its own creation, or the earlier creation of a source
     /// scenario it was built on (transitively). Deleted or decided ancestors still count. A cycle or a chain deeper than
-    /// <see cref="MaxSourceChainDepth"/> stops the walk with a warning.
+    /// <see cref="ScenarioSourceChainLimits.MaxDepth"/> stops the walk with a warning.
     /// </summary>
     private async Task<DateTime> EarliestCreationAlongSourceChainAsync(AnalyseScenario scenario, CancellationToken ct)
     {
@@ -184,9 +216,9 @@ public partial class AnalyseScenarioService
 
         for (var depth = 0; next is { } sourceToken; depth++)
         {
-            if (depth == MaxSourceChainDepth)
+            if (depth == ScenarioSourceChainLimits.MaxDepth)
             {
-                _logger.LogWarning(SourceChainTooDeepMessage, scenario.Id, MaxSourceChainDepth);
+                _logger.LogWarning(SourceChainTooDeepMessage, scenario.Id, ScenarioSourceChainLimits.MaxDepth);
                 break;
             }
 

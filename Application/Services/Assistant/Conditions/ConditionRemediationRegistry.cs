@@ -10,7 +10,7 @@
 /// and none of them can travel through the AnalyseScenario mechanism -
 /// AcceptAnalyseScenarioCommandHandler.PromoteScenarioWorksAsync only ever promotes Work, WorkChange and
 /// Expenses rows back out of a scenario, never Shift structure, status transitions or newly created
-/// Shifts (AnalyseScenarioService.cs:336-390). So all three became Execute-only, and with no execution
+/// Shifts (ScenarioPromoter.PromoteScenarioWorksAsync). So all three became Execute-only, and with no execution
 /// stage in existence, an entry would have granted a permission nothing could use.
 ///
 /// Etappe 5b built that execution stage, so the rule "an entry only once a remediation is genuinely

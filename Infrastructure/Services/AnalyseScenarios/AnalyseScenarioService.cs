@@ -1,930 +1,104 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// EF Core-backed implementation of AnalyseScenario data operations.
-/// Owns the DataBaseContext-level bulk operations that command handlers
-/// used to perform inline; extracted so Create / Accept / Reject / Delete
-/// handlers share one source of truth for cloning, promoting, and the
-/// soft-delete + orphan sweep.
+/// EF Core-backed implementation of AnalyseScenario data operations. A thin entry point over the scenario
+/// collaborators of this folder, so Create / Accept / Reject / Delete handlers and the wizard, harmonizer and cover
+/// paths share one source of truth for cloning, promoting, the accept checks and the soft-delete + orphan sweep. All
+/// collaborators share the scope's DataBaseContext and only stage changes; the caller commits.
 /// </summary>
+/// <param name="cloneCoordinator">Clones the real plan (or a source scenario) into a new scenario</param>
+/// <param name="groupScopeReader">Resolves group hierarchies</param>
+/// <param name="rowLookup">Read-only lookups over the rows of a scenario</param>
+/// <param name="ownedRowStager">Stages the temporary memberships a scenario owns</param>
+/// <param name="dataDiscarder">Reject/delete sweep of a scenario</param>
+/// <param name="realPlanReplacer">Accept delete step on the real plan</param>
+/// <param name="stalenessDetector">Accept staleness check</param>
+/// <param name="conflictValidator">Accept conflict checks</param>
+/// <param name="promoter">Accept promote step</param>
+/// <param name="slotReplacer">Wizard slot replacement in a scenario</param>
 
-using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules;
-using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 
-public partial class AnalyseScenarioService : IAnalyseScenarioService
+public sealed class AnalyseScenarioService : IAnalyseScenarioService
 {
-    private readonly DataBaseContext _context;
-    private readonly ILogger<AnalyseScenarioService> _logger;
+    private readonly ScenarioCloneCoordinator _cloneCoordinator;
+    private readonly ScenarioGroupScopeReader _groupScopeReader;
+    private readonly ScenarioRowLookup _rowLookup;
+    private readonly ScenarioOwnedRowStager _ownedRowStager;
+    private readonly ScenarioDataDiscarder _dataDiscarder;
+    private readonly ScenarioRealPlanReplacer _realPlanReplacer;
+    private readonly ScenarioStalenessDetector _stalenessDetector;
+    private readonly ScenarioAcceptConflictValidator _conflictValidator;
+    private readonly ScenarioPromoter _promoter;
+    private readonly ScenarioSlotReplacer _slotReplacer;
 
-    public AnalyseScenarioService(DataBaseContext context, ILogger<AnalyseScenarioService>? logger = null)
+    public AnalyseScenarioService(
+        ScenarioCloneCoordinator cloneCoordinator,
+        ScenarioGroupScopeReader groupScopeReader,
+        ScenarioRowLookup rowLookup,
+        ScenarioOwnedRowStager ownedRowStager,
+        ScenarioDataDiscarder dataDiscarder,
+        ScenarioRealPlanReplacer realPlanReplacer,
+        ScenarioStalenessDetector stalenessDetector,
+        ScenarioAcceptConflictValidator conflictValidator,
+        ScenarioPromoter promoter,
+        ScenarioSlotReplacer slotReplacer)
     {
-        _context = context;
-        _logger = logger ?? NullLogger<AnalyseScenarioService>.Instance;
+        _cloneCoordinator = cloneCoordinator;
+        _groupScopeReader = groupScopeReader;
+        _rowLookup = rowLookup;
+        _ownedRowStager = ownedRowStager;
+        _dataDiscarder = dataDiscarder;
+        _realPlanReplacer = realPlanReplacer;
+        _stalenessDetector = stalenessDetector;
+        _conflictValidator = conflictValidator;
+        _promoter = promoter;
+        _slotReplacer = slotReplacer;
     }
 
-    public async Task<List<Guid>> GetGroupHierarchyIdsAsync(Guid groupId, CancellationToken ct)
-    {
-        var allGroups = await _context.Group
-            .Where(g => !g.IsDeleted)
-            .Select(g => new { g.Id, g.Parent })
-            .ToListAsync(ct);
+    public Task<List<Guid>> GetGroupHierarchyIdsAsync(Guid groupId, CancellationToken ct)
+        => _groupScopeReader.GetGroupHierarchyIdsAsync(groupId, ct);
 
-        var result = new List<Guid> { groupId };
-        var queue = new Queue<Guid>();
-        queue.Enqueue(groupId);
-
-        while (queue.Count > 0)
-        {
-            var currentId = queue.Dequeue();
-            foreach (var childId in allGroups.Where(g => g.Parent == currentId).Select(g => g.Id))
-            {
-                result.Add(childId);
-                queue.Enqueue(childId);
-            }
-        }
-
-        return result;
-    }
-
-    public async Task SoftDeleteScenarioDataAsync(Guid token, CancellationToken ct)
-    {
-        var works = await _context.Work.IgnoreQueryFilters()
-            .Where(w => w.AnalyseToken == token && !w.IsDeleted).ToListAsync(ct);
-        var workIds = works.Select(w => w.Id).ToList();
-
-        var orphanSubWorks = workIds.Count == 0
-            ? new List<Work>()
-            : await _context.Work.IgnoreQueryFilters()
-                .Where(w => !w.IsDeleted
-                    && w.ParentWorkId.HasValue
-                    && workIds.Contains(w.ParentWorkId.Value))
-                .ToListAsync(ct);
-        var allWorkIds = workIds.Concat(orphanSubWorks.Select(w => w.Id)).ToList();
-
-        var workChanges = await _context.WorkChange
-            .Where(wc => !wc.IsDeleted && allWorkIds.Contains(wc.WorkId)).ToListAsync(ct);
-        foreach (var wc in workChanges) { wc.IsDeleted = true; wc.DeletedTime = DateTime.UtcNow; }
-
-        var expenses = await _context.Expenses
-            .Where(e => !e.IsDeleted && allWorkIds.Contains(e.WorkId)).ToListAsync(ct);
-        foreach (var exp in expenses) { exp.IsDeleted = true; exp.DeletedTime = DateTime.UtcNow; }
-
-        foreach (var w in works) { w.IsDeleted = true; w.DeletedTime = DateTime.UtcNow; }
-        foreach (var w in orphanSubWorks) { w.IsDeleted = true; w.DeletedTime = DateTime.UtcNow; }
-
-        var breaks = await _context.Break.IgnoreQueryFilters()
-            .Where(b => b.AnalyseToken == token && !b.IsDeleted).ToListAsync(ct);
-        foreach (var b in breaks) { b.IsDeleted = true; b.DeletedTime = DateTime.UtcNow; }
-
-        var orphanSubBreaks = workIds.Count == 0
-            ? new List<Break>()
-            : await _context.Break.IgnoreQueryFilters()
-                .Where(b => !b.IsDeleted
-                    && b.ParentWorkId.HasValue
-                    && workIds.Contains(b.ParentWorkId.Value))
-                .ToListAsync(ct);
-        foreach (var b in orphanSubBreaks) { b.IsDeleted = true; b.DeletedTime = DateTime.UtcNow; }
-
-        var shifts = await _context.Shift.IgnoreQueryFilters()
-            .Where(s => s.AnalyseToken == token && !s.IsDeleted).ToListAsync(ct);
-        foreach (var s in shifts) { s.IsDeleted = true; s.DeletedTime = DateTime.UtcNow; }
-
-        var cloneShiftIds = shifts.Select(s => s.Id).ToList();
-        if (cloneShiftIds.Count > 0)
-        {
-            var requiredQualifications = await _context.ShiftRequiredQualification.IgnoreQueryFilters()
-                .Where(srq => !srq.IsDeleted && cloneShiftIds.Contains(srq.ShiftId)).ToListAsync(ct);
-            foreach (var srq in requiredQualifications) { srq.IsDeleted = true; srq.DeletedTime = DateTime.UtcNow; }
-        }
-
-        var notes = await _context.ScheduleNotes.IgnoreQueryFilters()
-            .Where(sn => sn.AnalyseToken == token && !sn.IsDeleted).ToListAsync(ct);
-        foreach (var sn in notes) { sn.IsDeleted = true; sn.DeletedTime = DateTime.UtcNow; }
-
-        var commands = await _context.ScheduleCommands.IgnoreQueryFilters()
-            .Where(sc => sc.AnalyseToken == token && !sc.IsDeleted).ToListAsync(ct);
-        foreach (var sc in commands) { sc.IsDeleted = true; sc.DeletedTime = DateTime.UtcNow; }
-
-        var softenings = await _context.WorkSoftening.IgnoreQueryFilters()
-            .Where(ws => ws.AnalyseToken == token && !ws.IsDeleted).ToListAsync(ct);
-        foreach (var ws in softenings) { ws.IsDeleted = true; ws.DeletedTime = DateTime.UtcNow; }
-
-        var preferences = await _context.Set<ClientShiftPreference>().IgnoreQueryFilters()
-            .Where(p => p.AnalyseToken == token && !p.IsDeleted).ToListAsync(ct);
-        foreach (var p in preferences) { p.IsDeleted = true; p.DeletedTime = DateTime.UtcNow; }
-
-        var expenses2 = await _context.Set<ShiftExpenses>().IgnoreQueryFilters()
-            .Where(e => e.AnalyseToken == token && !e.IsDeleted).ToListAsync(ct);
-        foreach (var e in expenses2) { e.IsDeleted = true; e.DeletedTime = DateTime.UtcNow; }
-
-        // group_item: discard every scenario membership (cloned-shift AND temporary cross-group client)
-        // so a rejected borrow never leaves a permanent membership behind.
-        var memberships = await _context.Set<GroupItem>().IgnoreQueryFilters()
-            .Where(gi => gi.AnalyseToken == token && !gi.IsDeleted).ToListAsync(ct);
-        foreach (var gi in memberships) { gi.IsDeleted = true; gi.DeletedTime = DateTime.UtcNow; }
-        await StageProposedReplacementRequestsDeletedAsync(token, DateTime.UtcNow, ct);
-        await SoftDeleteScenarioPlanningConstraintsAsync(token, DateTime.UtcNow, ct);
-    }
+    public Task SoftDeleteScenarioDataAsync(Guid token, CancellationToken ct)
+        => _dataDiscarder.SoftDeleteScenarioDataAsync(token, ct);
 
     public async Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken ct)
-        => (await CloneScenarioDataWithMapsAsync(groupId, fromDate, untilDate, token, additionalShiftIds, sourceToken, ct)).ShiftIdMap;
+        => (await _cloneCoordinator.CloneScenarioDataWithMapsAsync(groupId, fromDate, untilDate, token, additionalShiftIds, sourceToken, ct)).ShiftIdMap;
 
-    public async Task<(Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CloneScenarioDataWithMapsAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken ct)
-    {
-        var (source, scopeGroupId) = await ResolveCloneSourceAsync(sourceToken, groupId, ct);
+    public Task<(Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CloneScenarioDataWithMapsAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken ct)
+        => _cloneCoordinator.CloneScenarioDataWithMapsAsync(groupId, fromDate, untilDate, token, additionalShiftIds, sourceToken, ct);
 
-        var groupIds = scopeGroupId.HasValue
-            ? await GetGroupHierarchyIdsAsync(scopeGroupId.Value, ct)
-            : null;
+    public Task<IReadOnlyDictionary<Guid, Guid>> ResolveRootShiftIdsAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken)
+        => _rowLookup.ResolveRootShiftIdsAsync(shiftIds, cancellationToken);
 
-        var boundaryFrom = fromDate.AddDays(-ScenarioConstants.BoundaryDays);
-        var boundaryUntil = untilDate.AddDays(ScenarioConstants.BoundaryDays);
+    public Task<IReadOnlySet<Guid>> GetScenarioShiftIdsWithRootsAsync(Guid token, CancellationToken cancellationToken)
+        => _rowLookup.GetScenarioShiftIdsWithRootsAsync(token, cancellationToken);
 
-        var (shiftIdMap, clonedShifts) = await CloneShifts(groupIds, additionalShiftIds, token, source, ct);
-        var workShiftIdMap = WithRootAliases(clonedShifts, shiftIdMap, source);
-        var workIdMap = await CloneWorks(groupIds, boundaryFrom, boundaryUntil, token, workShiftIdMap, source, ct);
-        await CloneBreaks(groupIds, boundaryFrom, boundaryUntil, token, workIdMap, source, ct);
-        await CloneScheduleNotes(groupIds, boundaryFrom, boundaryUntil, token, source, ct);
-        await CloneScheduleCommands(groupIds, boundaryFrom, boundaryUntil, token, source, ct);
-        await CloneClientShiftPreferences(shiftIdMap, token, source, ct);
-        await CloneShiftExpenses(shiftIdMap, token, source, ct);
-        await CloneShiftRequiredQualifications(shiftIdMap, token, ct);
-        await CloneScenarioMemberships(source, token, ct);
-        await CloneOpenReplacementRequests(source, token, ct);
+    public Task AddScenarioMembershipAsync(Guid token, Guid clientId, Guid groupId, DateOnly validFrom, DateOnly validUntil, CancellationToken cancellationToken)
+        => _ownedRowStager.AddScenarioMembershipAsync(token, clientId, groupId, validFrom, validUntil, cancellationToken);
 
-        return (workShiftIdMap, workIdMap);
-    }
+    public Task SoftDeleteRealScheduleDataAsync(Guid? groupId, Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
+        => _realPlanReplacer.SoftDeleteRealScheduleDataAsync(groupId, token, fromDate, untilDate, ct);
 
-    public async Task SoftDeleteRealScheduleDataAsync(Guid? groupId, Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
-    {
-        var (shiftIds, clientIds) = await ResolveRealAcceptScopeAsync(groupId, token, fromDate, untilDate, ct);
+    public Task<ScenarioStaleness?> FindRealPlanChangesSinceCreationAsync(AnalyseScenario scenario, CancellationToken ct)
+        => _stalenessDetector.FindRealPlanChangesSinceCreationAsync(scenario, ct);
 
-        var realWorks = await LoadRealWorksInScopeAsync(shiftIds, fromDate, untilDate, ct);
-        var plan = await BuildAcceptDayLockPlanAsync(
-            token, fromDate, untilDate, realWorks.Select(w => w.ClientId).Concat(clientIds ?? []), realWorks.Select(w => w.Id), ct);
+    public Task ValidateNoAcceptConflictsAsync(Guid token, CancellationToken ct)
+        => _conflictValidator.ValidateNoAcceptConflictsAsync(token, ct);
 
-        var keptWorkIds = SoftDeleteRealWorks(realWorks, plan);
-        await SoftDeleteRealWorkChildrenAsync(realWorks.Where(w => w.IsDeleted).Select(w => w.Id).ToList(), ct);
-        await SoftDeleteRealBreaks(clientIds, fromDate, untilDate, plan, keptWorkIds, ct);
-        await SoftDeleteRealScheduleNotes(clientIds, fromDate, untilDate, plan, ct);
-    }
+    public Task<ScenarioAcceptLockSkips> PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
+        => _promoter.PromoteScenarioWorksAsync(token, fromDate, untilDate, ct);
 
-    /// <summary>
-    /// The real shifts whose works and the real clients whose breaks and notes an accept replaces. Shared by the
-    /// accept delete and the staleness check, so both always look at exactly the same rows.
-    /// </summary>
-    private async Task<(List<Guid>? ShiftIds, List<Guid>? ClientIds)> ResolveRealAcceptScopeAsync(
-        Guid? groupId, Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
-    {
-        List<Guid>? shiftIds;
-        List<Guid>? clientIds;
+    public Task<IReadOnlyList<Guid>> GetScenarioBreakIdsAsync(Guid token, CancellationToken ct)
+        => _rowLookup.GetScenarioBreakIdsAsync(token, ct);
 
-        if (groupId.HasValue)
-        {
-            var groupIds = await GetGroupHierarchyIdsAsync(groupId.Value, ct);
+    public Task<IReadOnlyList<Guid>> SoftDeleteClonedWorksOnSlotsAsync(Guid token, DateOnly fromDate, DateOnly untilDate, IReadOnlySet<(Guid ShiftId, DateOnly Date)> plannedSlots, CancellationToken ct)
+        => _slotReplacer.SoftDeleteClonedWorksOnSlotsAsync(token, fromDate, untilDate, plannedSlots, ct);
 
-            shiftIds = await _context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
-                    && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
-                .Select(gi => gi.ShiftId!.Value)
-                .Distinct()
-                .ToListAsync(ct);
-
-            clientIds = await _context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
-                    && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
-                .Select(gi => gi.ClientId!.Value)
-                .Distinct()
-                .ToListAsync(ct);
-        }
-        else
-        {
-            // No group on the scenario: scope the delete to the scenario's OWN footprint — the real shifts its
-            // works will promote onto, and the clients its works, breaks and notes touch — instead of deleting the
-            // whole date window company-wide. An empty footprint deletes nothing.
-            var cloneToSource = await _context.Shift.IgnoreQueryFilters()
-                .Where(s => s.AnalyseToken == token && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
-                .Select(s => new { s.Id, SourceId = s.ScenarioSourceShiftId!.Value })
-                .ToDictionaryAsync(s => s.Id, s => s.SourceId, ct);
-
-            var scenarioWorks = await _context.Work.IgnoreQueryFilters()
-                .Where(w => w.AnalyseToken == token && !w.IsDeleted
-                    && w.CurrentDate >= fromDate && w.CurrentDate <= untilDate)
-                .Select(w => new { w.ShiftId, w.ClientId })
-                .ToListAsync(ct);
-
-            shiftIds = scenarioWorks
-                .Select(w => cloneToSource.TryGetValue(w.ShiftId, out var src) ? src : w.ShiftId)
-                .Distinct()
-                .ToList();
-
-            var breakClientIds = await _context.Break.IgnoreQueryFilters()
-                .Where(b => b.AnalyseToken == token && !b.IsDeleted
-                    && b.CurrentDate >= fromDate && b.CurrentDate <= untilDate)
-                .Select(b => b.ClientId)
-                .ToListAsync(ct);
-
-            var noteClientIds = await _context.ScheduleNotes.IgnoreQueryFilters()
-                .Where(sn => sn.AnalyseToken == token && !sn.IsDeleted
-                    && sn.CurrentDate >= fromDate && sn.CurrentDate <= untilDate)
-                .Select(sn => sn.ClientId)
-                .ToListAsync(ct);
-
-            clientIds = scenarioWorks.Select(w => w.ClientId)
-                .Concat(breakClientIds)
-                .Concat(noteClientIds)
-                .Distinct()
-                .ToList();
-        }
-
-        return (shiftIds, clientIds);
-    }
-
-    public async Task ValidateNoAcceptConflictsAsync(Guid token, CancellationToken ct)
-    {
-        await EnsureNoRootlessScenarioShiftInUseAsync(token, ct);
-
-        var clones = await _context.Shift.IgnoreQueryFilters()
-            .Where(s => s.AnalyseToken == token && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
-            .Select(s => new { s.Id, SourceId = s.ScenarioSourceShiftId!.Value, s.SourceChildCountSnapshot })
-            .ToListAsync(ct);
-
-        if (clones.Count == 0) return;
-
-        var sourceIds = clones.Select(c => c.SourceId).Distinct().ToList();
-
-        var existingSources = await _context.Shift.IgnoreQueryFilters()
-            .Where(s => sourceIds.Contains(s.Id))
-            .Select(s => new { s.Id, s.IsDeleted })
-            .ToListAsync(ct);
-
-        var sourcesById = existingSources.ToDictionary(s => s.Id, s => s.IsDeleted);
-
-        var missing = sourceIds.Where(id => !sourcesById.ContainsKey(id)).ToList();
-        if (missing.Count > 0)
-        {
-            throw new ConflictException(
-                $"Cannot accept scenario: source shifts no longer exist: {string.Join(", ", missing)}.");
-        }
-
-        var deleted = sourceIds.Where(id => sourcesById[id]).ToList();
-        if (deleted.Count > 0)
-        {
-            throw new ConflictException(
-                $"Cannot accept scenario: source shifts have been deleted: {string.Join(", ", deleted)}.");
-        }
-
-        var currentChildCounts = await _context.Shift.IgnoreQueryFilters()
-            .Where(s => !s.IsDeleted
-                && s.AnalyseToken == null
-                && s.ParentId.HasValue
-                && sourceIds.Contains(s.ParentId.Value))
-            .GroupBy(s => s.ParentId!.Value)
-            .Select(g => new { ParentId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.ParentId, x => x.Count, ct);
-
-        foreach (var clone in clones)
-        {
-            var snapshot = clone.SourceChildCountSnapshot ?? 0;
-            var current = currentChildCounts.GetValueOrDefault(clone.SourceId, 0);
-            if (snapshot != current)
-            {
-                throw new ConflictException(
-                    $"Cannot accept scenario: source shift {clone.SourceId} subtree changed after scenario creation (children snapshot={snapshot}, current={current}). Likely a concurrent cut by another user.");
-            }
-        }
-    }
-
-    public async Task<IReadOnlyList<Guid>> GetScenarioBreakIdsAsync(Guid token, CancellationToken ct)
-    {
-        return await _context.Break.IgnoreQueryFilters()
-            .Where(b => b.AnalyseToken == token && !b.IsDeleted)
-            .Select(b => b.Id)
-            .ToListAsync(ct);
-    }
-
-    public async Task<ScenarioAcceptLockSkips> PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
-    {
-        var plan = await BuildAcceptDayLockPlanAsync(token, fromDate, untilDate, [], [], ct);
-
-        var cloneShifts = await _context.Shift.IgnoreQueryFilters()
-            .Where(s => s.AnalyseToken == token && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
-            .Select(s => new { s.Id, SourceId = s.ScenarioSourceShiftId!.Value })
-            .ToListAsync(ct);
-
-        var cloneToSource = cloneShifts.ToDictionary(c => c.Id, c => c.SourceId);
-        var now = DateTime.UtcNow;
-
-        var scenarioWorks = await _context.Work.IgnoreQueryFilters()
-            .Where(w => w.AnalyseToken == token && !w.IsDeleted).ToListAsync(ct);
-        var promotedWorkIds = new List<Guid>();
-        var boundaryWorkIds = new List<Guid>();
-        var skippedWorks = 0;
-        var discardedInPeriod = new List<Guid>();
-        foreach (var w in scenarioWorks)
-        {
-            if (w.CurrentDate < fromDate || w.CurrentDate > untilDate)
-            {
-                w.IsDeleted = true;
-                w.DeletedTime = now;
-                boundaryWorkIds.Add(w.Id);
-            }
-            else if (plan.DiscardsClone(w.Id))
-            {
-                // Locked slot (locked clone or origin, or a locked day on either side): the delete keeps the real
-                // work, so promoting this clone would duplicate it or apply half a move. Discard the clone instead.
-                w.IsDeleted = true;
-                w.DeletedTime = now;
-                boundaryWorkIds.Add(w.Id);
-                discardedInPeriod.Add(w.Id);
-                if (DiffersFromOrigin(w, plan.RealOriginOf(w.Id), cloneToSource))
-                {
-                    skippedWorks++;
-                }
-            }
-            else
-            {
-                w.AnalyseToken = null;
-                w.ClonedFromWorkId = null;
-                if (cloneToSource.TryGetValue(w.ShiftId, out var sourceShiftId))
-                {
-                    w.ShiftId = sourceShiftId;
-                }
-                promotedWorkIds.Add(w.Id);
-            }
-        }
-
-        await StageReplacementRequestsAppliedAsync(token, promotedWorkIds, cloneToSource, now, ct);
-
-        if (promotedWorkIds.Count > 0)
-        {
-            var promotedWorkChanges = await _context.WorkChange.IgnoreQueryFilters()
-                .Where(wc => wc.AnalyseToken == token && !wc.IsDeleted && promotedWorkIds.Contains(wc.WorkId))
-                .ToListAsync(ct);
-            foreach (var wc in promotedWorkChanges) wc.AnalyseToken = null;
-
-            var promotedExpenses = await _context.Expenses.IgnoreQueryFilters()
-                .Where(e => e.AnalyseToken == token && !e.IsDeleted && promotedWorkIds.Contains(e.WorkId))
-                .ToListAsync(ct);
-            foreach (var e in promotedExpenses) e.AnalyseToken = null;
-        }
-
-        if (boundaryWorkIds.Count > 0)
-        {
-            var boundaryWorkChanges = await _context.WorkChange.IgnoreQueryFilters()
-                .Where(wc => wc.AnalyseToken == token && !wc.IsDeleted && boundaryWorkIds.Contains(wc.WorkId))
-                .ToListAsync(ct);
-            foreach (var wc in boundaryWorkChanges) { wc.IsDeleted = true; wc.DeletedTime = now; }
-
-            var boundaryExpenses = await _context.Expenses.IgnoreQueryFilters()
-                .Where(e => e.AnalyseToken == token && !e.IsDeleted && boundaryWorkIds.Contains(e.WorkId))
-                .ToListAsync(ct);
-            foreach (var e in boundaryExpenses) { e.IsDeleted = true; e.DeletedTime = now; }
-        }
-
-        var (skippedWorkChanges, skippedExpenses) = await CountDiscardedChildChangesAsync(discardedInPeriod, plan, ct);
-        var skippedBreaks = await PromoteScenarioBreaksAsync(token, fromDate, untilDate, plan, now, ct);
-        var skippedNotes = await PromoteScenarioNotesAsync(token, fromDate, untilDate, plan, now, ct);
-
-        var scenarioShifts = await _context.Shift.IgnoreQueryFilters()
-            .Where(s => s.AnalyseToken == token && !s.IsDeleted).ToListAsync(ct);
-        foreach (var s in scenarioShifts) { s.IsDeleted = true; s.DeletedTime = now; }
-
-        var cloneShiftIds = scenarioShifts.Select(s => s.Id).ToList();
-        if (cloneShiftIds.Count > 0)
-        {
-            var requiredQualifications = await _context.ShiftRequiredQualification.IgnoreQueryFilters()
-                .Where(srq => !srq.IsDeleted && cloneShiftIds.Contains(srq.ShiftId)).ToListAsync(ct);
-            foreach (var srq in requiredQualifications) { srq.IsDeleted = true; srq.DeletedTime = now; }
-        }
-
-        var cloneCommands = await _context.ScheduleCommands.IgnoreQueryFilters()
-            .Where(sc => sc.AnalyseToken == token && !sc.IsDeleted).ToListAsync(ct);
-        foreach (var sc in cloneCommands) { sc.IsDeleted = true; sc.DeletedTime = now; }
-
-        var clonePreferences = await _context.Set<ClientShiftPreference>().IgnoreQueryFilters()
-            .Where(p => p.AnalyseToken == token && !p.IsDeleted).ToListAsync(ct);
-        foreach (var p in clonePreferences) { p.IsDeleted = true; p.DeletedTime = now; }
-
-        var cloneShiftExpenses = await _context.Set<ShiftExpenses>().IgnoreQueryFilters()
-            .Where(e => e.AnalyseToken == token && !e.IsDeleted).ToListAsync(ct);
-        foreach (var e in cloneShiftExpenses) { e.IsDeleted = true; e.DeletedTime = now; }
-
-        // group_item: promote the temporary cross-group client memberships to real (time-bounded) ones,
-        // and drop the cloned-shift memberships along with their (discarded) cloned shifts.
-        var scenarioMemberships = await _context.Set<GroupItem>().IgnoreQueryFilters()
-            .Where(gi => gi.AnalyseToken == token && !gi.IsDeleted).ToListAsync(ct);
-        foreach (var gi in scenarioMemberships)
-        {
-            if (gi.ShiftId != null)
-            {
-                gi.IsDeleted = true;
-                gi.DeletedTime = now;
-            }
-            else
-            {
-                gi.AnalyseToken = null;
-            }
-        }
-
-        await SoftDeleteScenarioPlanningConstraintsAsync(token, now, ct);
-
-        var skips = new ScenarioAcceptLockSkips(
-            skippedWorks, skippedBreaks, skippedNotes, skippedWorkChanges, skippedExpenses);
-        LogLockSkips(token, skips);
-        return skips;
-    }
-
-    private async Task<(Dictionary<Guid, Guid> IdMap, List<Shift> Shifts)> CloneShifts(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, Guid token, ScenarioCloneSource source, CancellationToken ct)
-    {
-        var shifts = await LoadShiftsToCloneAsync(groupIds, additionalShiftIds, source, ct);
-        var idMap = new Dictionary<Guid, Guid>();
-
-        foreach (var shift in shifts)
-        {
-            idMap[shift.Id] = Guid.NewGuid();
-        }
-
-        var sourceIds = shifts.Select(RootShiftIdOf).OfType<Guid>().ToList();
-        var childCountBySource = sourceIds.Count == 0
-            ? new Dictionary<Guid, int>()
-            : await _context.Shift.IgnoreQueryFilters()
-                .Where(s => !s.IsDeleted
-                    && s.AnalyseToken == null
-                    && s.ParentId.HasValue
-                    && sourceIds.Contains(s.ParentId.Value))
-                .GroupBy(s => s.ParentId!.Value)
-                .Select(g => new { ParentId = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.ParentId, x => x.Count, ct);
-        var linkMap = await BuildCloneLinkMapAsync(shifts, idMap, ct);
-
-        foreach (var shift in shifts)
-        {
-            var clone = new Shift
-            {
-                Id = idMap[shift.Id],
-                AnalyseToken = token,
-                // Resolve to the real ROOT shift, not the immediate parent, so a clone-of-a-clone
-                // (chained AutoWizard W1->W2->W3) still remaps to the real shift on accept. Keep source
-                // and snapshot keyed on the same id, or ValidateNoAcceptConflictsAsync throws a false conflict.
-                ScenarioSourceShiftId = RootShiftIdOf(shift),
-                SourceChildCountSnapshot = RootShiftIdOf(shift) is { } rootId ? childCountBySource.GetValueOrDefault(rootId, 0) : 0,
-                CuttingAfterMidnight = shift.CuttingAfterMidnight,
-                Abbreviation = shift.Abbreviation,
-                Description = shift.Description,
-                MacroId = shift.MacroId,
-                Name = shift.Name,
-                Status = shift.Status,
-                AfterShift = shift.AfterShift,
-                BeforeShift = shift.BeforeShift,
-                EndShift = shift.EndShift,
-                FromDate = shift.FromDate,
-                StartShift = shift.StartShift,
-                UntilDate = shift.UntilDate,
-                BriefingTime = shift.BriefingTime,
-                DebriefingTime = shift.DebriefingTime,
-                TravelTimeAfter = shift.TravelTimeAfter,
-                TravelTimeBefore = shift.TravelTimeBefore,
-                IsFriday = shift.IsFriday,
-                IsHoliday = shift.IsHoliday,
-                IsMonday = shift.IsMonday,
-                IsSaturday = shift.IsSaturday,
-                IsSunday = shift.IsSunday,
-                IsThursday = shift.IsThursday,
-                IsTuesday = shift.IsTuesday,
-                IsWednesday = shift.IsWednesday,
-                IsWeekdayAndHoliday = shift.IsWeekdayAndHoliday,
-                IsSporadic = shift.IsSporadic,
-                SporadicScope = shift.SporadicScope,
-                IsTimeRange = shift.IsTimeRange,
-                Quantity = shift.Quantity,
-                SumEmployees = shift.SumEmployees,
-                WorkTime = shift.WorkTime,
-                ShiftType = shift.ShiftType,
-                OriginalId = ResolveCloneLink(shift.OriginalId, linkMap),
-                ParentId = ResolveCloneLink(shift.ParentId, linkMap),
-                RootId = ResolveCloneLink(shift.RootId, linkMap),
-                Lft = shift.Lft,
-                Rgt = shift.Rgt,
-                ClientId = shift.ClientId,
-                GroupItems = shift.GroupItems.Select(gi => new GroupItem
-                {
-                    Id = Guid.NewGuid(),
-                    GroupId = gi.GroupId,
-                    ClientId = gi.ClientId,
-                    ShiftId = idMap[shift.Id],
-                    AnalyseToken = token
-                }).ToList()
-            };
-
-            await _context.Shift.AddAsync(clone, ct);
-        }
-
-        return (idMap, shifts);
-    }
-
-    private async Task<List<Shift>> LoadShiftsToCloneAsync(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, ScenarioCloneSource source, CancellationToken ct)
-    {
-        var listedIds = additionalShiftIds is { Count: > 0 }
-            ? additionalShiftIds.Distinct().ToList()
-            : [];
-
-        var shifts = listedIds.Count > 0
-            ? await _context.Shift.IgnoreQueryFilters()
-                .Where(s => !s.IsDeleted && listedIds.Contains(s.Id))
-                .Include(s => s.GroupItems.Where(gi => !gi.IsDeleted))
-                .AsNoTracking()
-                .ToListAsync(ct)
-            : [];
-
-        if (listedIds.Count > 0 && groupIds == null && source.Token is null)
-        {
-            return shifts;
-        }
-
-        IQueryable<Shift> baseShiftQuery = WhereEitherWorld(_context.Shift.Where(s => !s.IsDeleted), source);
-
-        if (groupIds != null)
-        {
-            var groupShiftIds = await LoadGroupShiftIdsAsync(groupIds, source, ct);
-
-            baseShiftQuery = baseShiftQuery.Where(s => groupShiftIds.Contains(s.Id));
-        }
-
-        var baseShifts = await baseShiftQuery
-            .Include(s => s.GroupItems.Where(gi => !gi.IsDeleted))
-            .AsNoTracking()
-            .ToListAsync(ct);
-
-        var knownIds = shifts.Select(s => s.Id).ToHashSet();
-        shifts.AddRange(baseShifts.Where(s => !knownIds.Contains(s.Id)));
-
-        // A listed clone of a clone (or a source scenario's clone) stands in for its real root; keeping both would
-        // clone one logical shift twice.
-        var supersededRootIds = shifts
-            .Where(s => s.ScenarioSourceShiftId.HasValue)
-            .Select(s => s.ScenarioSourceShiftId!.Value)
-            .ToHashSet();
-        shifts.RemoveAll(s => supersededRootIds.Contains(s.Id));
-
-        return shifts;
-    }
-
-    private async Task<Dictionary<Guid, Guid>> CloneWorks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> shiftIdMap, ScenarioCloneSource source, CancellationToken ct)
-    {
-        IQueryable<Work> topLevelQuery = WhereFromSource(_context.Work
-            .Where(w => !w.IsDeleted
-                && w.ParentWorkId == null
-                && w.CurrentDate >= fromDate
-                && w.CurrentDate <= untilDate), source);
-
-        if (groupIds != null)
-        {
-            var shiftIds = await LoadGroupShiftIdsAsync(groupIds, source, ct);
-
-            topLevelQuery = topLevelQuery.Where(w => shiftIds.Contains(w.ShiftId));
-        }
-
-        var topLevelWorks = await topLevelQuery.AsNoTracking().ToListAsync(ct);
-        var topLevelIds = topLevelWorks.Select(w => w.Id).ToList();
-
-        var subWorks = topLevelIds.Count == 0
-            ? new List<Work>()
-            : await WhereEitherWorld(_context.Work
-                .Where(w => !w.IsDeleted
-                    && w.ParentWorkId.HasValue
-                    && topLevelIds.Contains(w.ParentWorkId.Value)), source)
-                .AsNoTracking()
-                .ToListAsync(ct);
-
-        var works = topLevelWorks.Concat(subWorks).ToList();
-
-        var workIdMap = new Dictionary<Guid, Guid>();
-
-        foreach (var work in works)
-        {
-            workIdMap[work.Id] = Guid.NewGuid();
-        }
-
-        foreach (var work in works)
-        {
-            var clone = new Work
-            {
-                Id = workIdMap[work.Id],
-                AnalyseToken = token,
-                ClientId = work.ClientId,
-                CurrentDate = work.CurrentDate,
-                Information = work.Information,
-                WorkTime = work.WorkTime,
-                Surcharges = work.Surcharges,
-                StartTime = work.StartTime,
-                EndTime = work.EndTime,
-                LockLevel = work.LockLevel,
-                SealedAt = work.SealedAt,
-                SealedBy = work.SealedBy,
-                ShiftId = shiftIdMap.TryGetValue(work.ShiftId, out var newShiftId) ? newShiftId : work.ShiftId,
-                ParentWorkId = work.ParentWorkId.HasValue && workIdMap.TryGetValue(work.ParentWorkId.Value, out var newParentId)
-                    ? newParentId
-                    : null,
-                ClonedFromWorkId = work.Id,
-                TransportMode = work.TransportMode
-            };
-
-            await _context.Work.AddAsync(clone, ct);
-        }
-
-        await CloneWorkChanges(workIdMap, token, source, ct);
-        await CloneExpenses(workIdMap, token, source, ct);
-
-        return workIdMap;
-    }
-
-    private async Task CloneWorkChanges(Dictionary<Guid, Guid> workIdMap, Guid token, ScenarioCloneSource source, CancellationToken ct)
-    {
-        if (workIdMap.Count == 0) return;
-
-        var originalWorkIds = workIdMap.Keys.ToList();
-        var workChanges = await WhereEitherWorld(_context.WorkChange
-            .Where(wc => !wc.IsDeleted && originalWorkIds.Contains(wc.WorkId)), source)
-            .AsNoTracking()
-            .ToListAsync(ct);
-
-        foreach (var wc in workChanges)
-        {
-            var clone = new WorkChange
-            {
-                Id = Guid.NewGuid(),
-                AnalyseToken = token,
-                WorkId = workIdMap[wc.WorkId],
-                StartTime = wc.StartTime,
-                EndTime = wc.EndTime,
-                ChangeTime = wc.ChangeTime,
-                Surcharges = wc.Surcharges,
-                Type = wc.Type,
-                Description = wc.Description,
-                ToInvoice = wc.ToInvoice,
-                ReplaceClientId = wc.ReplaceClientId
-            };
-
-            await _context.WorkChange.AddAsync(clone, ct);
-        }
-    }
-
-    private async Task CloneExpenses(Dictionary<Guid, Guid> workIdMap, Guid token, ScenarioCloneSource source, CancellationToken ct)
-    {
-        if (workIdMap.Count == 0) return;
-
-        var originalWorkIds = workIdMap.Keys.ToList();
-        var expenses = await WhereEitherWorld(_context.Expenses
-            .Where(e => !e.IsDeleted && originalWorkIds.Contains(e.WorkId)), source)
-            .AsNoTracking()
-            .ToListAsync(ct);
-
-        foreach (var exp in expenses)
-        {
-            var clone = new Expenses
-            {
-                Id = Guid.NewGuid(),
-                AnalyseToken = token,
-                WorkId = workIdMap[exp.WorkId],
-                Description = exp.Description,
-                Amount = exp.Amount,
-                Taxable = exp.Taxable
-            };
-
-            await _context.Expenses.AddAsync(clone, ct);
-        }
-    }
-
-    private async Task CloneBreaks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> workIdMap, ScenarioCloneSource source, CancellationToken ct)
-    {
-        var breaks = source.Token is null
-            ? await LoadRealPlanBreaksAsync(groupIds, fromDate, untilDate, workIdMap, ct)
-            : await LoadSourcedBreaksAsync(groupIds, fromDate, untilDate, workIdMap, source, ct);
-
-        foreach (var brk in breaks)
-        {
-            var clone = new Break
-            {
-                Id = Guid.NewGuid(),
-                AnalyseToken = token,
-                ClientId = brk.ClientId,
-                CurrentDate = brk.CurrentDate,
-                Information = brk.Information,
-                WorkTime = brk.WorkTime,
-                Surcharges = brk.Surcharges,
-                StartTime = brk.StartTime,
-                EndTime = brk.EndTime,
-                LockLevel = brk.LockLevel,
-                SealedAt = brk.SealedAt,
-                SealedBy = brk.SealedBy,
-                AbsenceId = brk.AbsenceId,
-                Description = brk.Description,
-                ParentWorkId = brk.ParentWorkId.HasValue && workIdMap.TryGetValue(brk.ParentWorkId.Value, out var newParentId)
-                    ? newParentId
-                    : null
-            };
-
-            await _context.Break.AddAsync(clone, ct);
-        }
-    }
-
-    private async Task<List<Break>> LoadRealPlanBreaksAsync(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Dictionary<Guid, Guid> workIdMap, CancellationToken ct)
-    {
-        IQueryable<Break> breakQuery = _context.Break
-            .Where(b => !b.IsDeleted
-                && b.AnalyseToken == null
-                && b.CurrentDate >= fromDate
-                && b.CurrentDate <= untilDate);
-
-        if (groupIds != null)
-        {
-            var clientIds = (await LoadGroupClientScopeAsync(groupIds, ScenarioCloneSource.RealPlan, ct)).Real;
-
-            var parentWorkIds = workIdMap.Keys.ToList();
-            breakQuery = breakQuery.Where(b =>
-                clientIds.Contains(b.ClientId)
-                || (b.ParentWorkId.HasValue && parentWorkIds.Contains(b.ParentWorkId.Value)));
-        }
-
-        return await breakQuery.AsNoTracking().ToListAsync(ct);
-    }
-
-    private async Task CloneScheduleNotes(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, ScenarioCloneSource source, CancellationToken ct)
-    {
-        IQueryable<ScheduleNote> noteQuery = WhereFromSource(_context.ScheduleNotes
-            .Where(sn => !sn.IsDeleted
-                && sn.CurrentDate >= fromDate
-                && sn.CurrentDate <= untilDate), source);
-
-        if (groupIds != null)
-        {
-            noteQuery = WhereClientInScope(noteQuery, await LoadGroupClientScopeAsync(groupIds, source, ct), source);
-        }
-
-        var notes = await noteQuery.AsNoTracking().ToListAsync(ct);
-
-        foreach (var note in notes)
-        {
-            var clone = new ScheduleNote
-            {
-                Id = Guid.NewGuid(),
-                AnalyseToken = token,
-                ClientId = note.ClientId,
-                CurrentDate = note.CurrentDate,
-                Content = note.Content
-            };
-
-            await _context.ScheduleNotes.AddAsync(clone, ct);
-        }
-    }
-
-    private async Task CloneScheduleCommands(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, ScenarioCloneSource source, CancellationToken ct)
-    {
-        IQueryable<ScheduleCommand> commandQuery = WhereFromSource(_context.ScheduleCommands
-            .Where(sc => !sc.IsDeleted
-                && sc.CurrentDate >= fromDate
-                && sc.CurrentDate <= untilDate), source);
-
-        if (groupIds != null)
-        {
-            commandQuery = WhereClientInScope(commandQuery, await LoadGroupClientScopeAsync(groupIds, source, ct), source);
-        }
-
-        var commands = await commandQuery.AsNoTracking().ToListAsync(ct);
-
-        foreach (var command in commands)
-        {
-            var clone = new ScheduleCommand
-            {
-                Id = Guid.NewGuid(),
-                AnalyseToken = token,
-                ClientId = command.ClientId,
-                CurrentDate = command.CurrentDate,
-                CommandKeyword = command.CommandKeyword
-            };
-
-            await _context.ScheduleCommands.AddAsync(clone, ct);
-        }
-    }
-
-    private async Task<List<Work>> LoadRealWorksInScopeAsync(List<Guid>? shiftIds, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
-    {
-        IQueryable<Work> workQuery = _context.Work
-            .Where(w => !w.IsDeleted && w.AnalyseToken == null
-                && w.CurrentDate >= fromDate && w.CurrentDate <= untilDate);
-
-        if (shiftIds != null)
-        {
-            workQuery = workQuery.Where(w => shiftIds.Contains(w.ShiftId));
-        }
-
-        return await workQuery.ToListAsync(ct);
-    }
-
-    /// <summary>
-    /// Soft-deletes the movable real works of the scope; a locked work, a work on a locked day, a work replacing with an
-    /// employee whose day is locked and a work whose slot the day-lock plan keeps survive. Returns the ids of every real
-    /// work the accept keeps.
-    /// </summary>
-    private static HashSet<Guid> SoftDeleteRealWorks(List<Work> realWorks, AcceptDayLockPlan plan)
-    {
-        var keptWorkIds = plan.KeptRealWorkIds.ToHashSet();
-        var now = DateTime.UtcNow;
-
-        foreach (var work in realWorks)
-        {
-            if (plan.LeavesRealWork(work.Id, work.ClientId, work.CurrentDate, work.LockLevel))
-            {
-                keptWorkIds.Add(work.Id);
-                continue;
-            }
-
-            work.IsDeleted = true;
-            work.DeletedTime = now;
-        }
-
-        return keptWorkIds;
-    }
-
-    private async Task SoftDeleteRealWorkChildrenAsync(List<Guid> deletedWorkIds, CancellationToken ct)
-    {
-        if (deletedWorkIds.Count == 0)
-        {
-            return;
-        }
-
-        var workChanges = await _context.WorkChange
-            .Where(wc => !wc.IsDeleted && deletedWorkIds.Contains(wc.WorkId))
-            .ToListAsync(ct);
-
-        var expenses = await _context.Expenses
-            .Where(e => !e.IsDeleted && deletedWorkIds.Contains(e.WorkId))
-            .ToListAsync(ct);
-
-        var now = DateTime.UtcNow;
-        foreach (var wc in workChanges) { wc.IsDeleted = true; wc.DeletedTime = now; }
-        foreach (var exp in expenses) { exp.IsDeleted = true; exp.DeletedTime = now; }
-    }
-
-    /// <summary>
-    /// Soft-deletes the real breaks of the scope, except locked breaks, breaks on a locked day and pauses of a work the
-    /// accept keeps.
-    /// </summary>
-    private async Task SoftDeleteRealBreaks(
-        List<Guid>? clientIds, DateOnly fromDate, DateOnly untilDate, AcceptDayLockPlan plan, HashSet<Guid> keptWorkIds, CancellationToken ct)
-    {
-        IQueryable<Break> breakQuery = _context.Break
-            .Where(b => !b.IsDeleted && b.AnalyseToken == null
-                && b.CurrentDate >= fromDate && b.CurrentDate <= untilDate);
-
-        if (clientIds != null)
-        {
-            breakQuery = breakQuery.Where(b => clientIds.Contains(b.ClientId));
-        }
-
-        var realBreaks = await breakQuery.ToListAsync(ct);
-        var now = DateTime.UtcNow;
-
-        foreach (var brk in realBreaks)
-        {
-            if (!plan.LeavesRealBreak(brk.LockLevel, brk.ClientId, brk.CurrentDate, brk.ParentWorkId, keptWorkIds))
-            {
-                brk.IsDeleted = true;
-                brk.DeletedTime = now;
-            }
-        }
-    }
-
-    private async Task SoftDeleteRealScheduleNotes(
-        List<Guid>? clientIds, DateOnly fromDate, DateOnly untilDate, AcceptDayLockPlan plan, CancellationToken ct)
-    {
-        IQueryable<ScheduleNote> noteQuery = _context.ScheduleNotes
-            .Where(sn => !sn.IsDeleted && sn.AnalyseToken == null
-                && sn.CurrentDate >= fromDate && sn.CurrentDate <= untilDate);
-
-        if (clientIds != null)
-        {
-            noteQuery = noteQuery.Where(sn => clientIds.Contains(sn.ClientId));
-        }
-
-        var realNotes = await noteQuery.ToListAsync(ct);
-        var now = DateTime.UtcNow;
-
-        foreach (var note in realNotes.Where(n => !plan.IsLocked(n.ClientId, n.CurrentDate)))
-        {
-            note.IsDeleted = true;
-            note.DeletedTime = now;
-        }
-    }
+    public Task<int> ResolveDisplacedWorksAsync(Guid token, IReadOnlyList<Guid> displacedWorkIds, IReadOnlyList<Guid> createdWorkIds, CancellationToken ct)
+        => _slotReplacer.ResolveDisplacedWorksAsync(token, displacedWorkIds, createdWorkIds, ct);
 }

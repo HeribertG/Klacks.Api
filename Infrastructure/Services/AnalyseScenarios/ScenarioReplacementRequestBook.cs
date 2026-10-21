@@ -9,15 +9,18 @@
 /// untouched Proposed rows are soft-deleted; recorded answers are facts and stay. Both only stage changes, so
 /// they commit atomically with the accept or reject itself.
 /// </summary>
+/// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
+/// <param name="logger">Logs a recorded answer that contradicts the applied plan</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 
-public partial class AnalyseScenarioService
+public sealed class ScenarioReplacementRequestBook
 {
     private const string DeclinedButAppliedMessage =
         "Replacement request {RequestId} has outcome {Outcome} but its replacement was applied with scenario {Token}; not stamped as applied";
@@ -29,7 +32,16 @@ public partial class AnalyseScenarioService
         ReplacementRequestOutcome.Accepted,
     ];
 
-    private async Task StageReplacementRequestsAppliedAsync(
+    private readonly DataBaseContext _context;
+    private readonly ILogger<ScenarioReplacementRequestBook> _logger;
+
+    public ScenarioReplacementRequestBook(DataBaseContext context, ILogger<ScenarioReplacementRequestBook> logger)
+    {
+        _context = context;
+        _logger = logger;
+    }
+
+    public async Task StageReplacementRequestsAppliedAsync(
         Guid token,
         IReadOnlyCollection<Guid> promotedWorkIds,
         IReadOnlyDictionary<Guid, Guid> cloneToSourceShift,
@@ -84,7 +96,7 @@ public partial class AnalyseScenarioService
         }
     }
 
-    private async Task StageProposedReplacementRequestsDeletedAsync(Guid token, DateTime nowUtc, CancellationToken ct)
+    public async Task StageProposedReplacementRequestsDeletedAsync(Guid token, DateTime nowUtc, CancellationToken ct)
     {
         var proposed = await _context.ReplacementRequests
             .Where(r => r.AnalyseToken == token && r.Outcome == ReplacementRequestOutcome.Proposed)

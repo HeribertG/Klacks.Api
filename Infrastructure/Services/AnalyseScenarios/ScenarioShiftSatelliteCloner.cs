@@ -2,24 +2,32 @@
 
 /// <summary>
 /// Clones the shift-scoped satellites of a scenario (client shift preferences, required qualifications and
-/// shift expenses) onto the cloned shifts. Split out of AnalyseScenarioService.cs to keep that file under its
-/// size ceiling; behaviour unchanged.
+/// shift expenses) onto the cloned shifts.
 /// </summary>
+/// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
 
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 
-public partial class AnalyseScenarioService
+public sealed class ScenarioShiftSatelliteCloner
 {
-    private async Task CloneClientShiftPreferences(Dictionary<Guid, Guid> shiftIdMap, Guid token, ScenarioCloneSource source, CancellationToken ct)
+    private readonly DataBaseContext _context;
+
+    public ScenarioShiftSatelliteCloner(DataBaseContext context)
+    {
+        _context = context;
+    }
+
+    internal async Task CloneClientShiftPreferences(Dictionary<Guid, Guid> shiftIdMap, Guid token, ScenarioCloneSource source, CancellationToken ct)
     {
         if (shiftIdMap.Count == 0) return;
 
         var sourceShiftIds = shiftIdMap.Keys.ToList();
-        var preferences = await WhereEitherWorld(_context.Set<ClientShiftPreference>()
+        var preferences = await ScenarioSourceFilters.WhereEitherWorld(_context.Set<ClientShiftPreference>()
             .Where(p => !p.IsDeleted
                 && sourceShiftIds.Contains(p.ShiftId)), source)
             .AsNoTracking()
@@ -40,7 +48,7 @@ public partial class AnalyseScenarioService
         }
     }
 
-    private async Task CloneShiftRequiredQualifications(Dictionary<Guid, Guid> shiftIdMap, Guid token, CancellationToken ct)
+    internal async Task CloneShiftRequiredQualifications(Dictionary<Guid, Guid> shiftIdMap, Guid token, CancellationToken ct)
     {
         if (shiftIdMap.Count == 0) return;
 
@@ -66,12 +74,12 @@ public partial class AnalyseScenarioService
         }
     }
 
-    private async Task CloneShiftExpenses(Dictionary<Guid, Guid> shiftIdMap, Guid token, ScenarioCloneSource source, CancellationToken ct)
+    internal async Task CloneShiftExpenses(Dictionary<Guid, Guid> shiftIdMap, Guid token, ScenarioCloneSource source, CancellationToken ct)
     {
         if (shiftIdMap.Count == 0) return;
 
         var sourceShiftIds = shiftIdMap.Keys.ToList();
-        var expenses = await WhereEitherWorld(_context.Set<ShiftExpenses>()
+        var expenses = await ScenarioSourceFilters.WhereEitherWorld(_context.Set<ShiftExpenses>()
             .Where(e => !e.IsDeleted
                 && sourceShiftIds.Contains(e.ShiftId)), source)
             .AsNoTracking()

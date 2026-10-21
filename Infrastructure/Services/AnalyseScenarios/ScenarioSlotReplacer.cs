@@ -9,15 +9,24 @@
 /// employee's own new work that day, and only without one does the displaced work carrying expenses stay with its children.
 /// A work on a locked day (sealed for its employee) is never displaced: a scenario must not delete it (owner 2026-10-13).
 /// </summary>
+/// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
 
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 
-public partial class AnalyseScenarioService
+public sealed class ScenarioSlotReplacer
 {
+    private readonly DataBaseContext _context;
+
+    public ScenarioSlotReplacer(DataBaseContext context)
+    {
+        _context = context;
+    }
+
     public async Task<IReadOnlyList<Guid>> SoftDeleteClonedWorksOnSlotsAsync(Guid token, DateOnly fromDate, DateOnly untilDate, IReadOnlySet<(Guid ShiftId, DateOnly Date)> plannedSlots, CancellationToken ct)
     {
         // A movable work on a slot the planner did NOT plan is preserved: the wizard run can cover a narrower
@@ -87,19 +96,8 @@ public partial class AnalyseScenarioService
             .GroupBy(w => (w.ShiftId, w.CurrentDate))
             .ToDictionary(g => g.Key, g => g.ToList());
 
-        var displacedIds = displacedWorks.Select(w => w.Id).ToList();
-        var expensesByWork = (await _context.Expenses
-                .Where(e => !e.IsDeleted && displacedIds.Contains(e.WorkId))
-                .ToListAsync(ct))
-            .GroupBy(e => e.WorkId)
-            .ToDictionary(g => g.Key, g => g.ToList());
-
-        var createdIds = createdWorks.Select(w => w.Id).ToList();
-        var templateExpensesByWork = (await _context.Expenses
-                .Where(e => !e.IsDeleted && createdIds.Contains(e.WorkId))
-                .ToListAsync(ct))
-            .GroupBy(e => e.WorkId)
-            .ToDictionary(g => g.Key, g => g.ToList());
+        var expensesByWork = await LoadExpensesByWorkAsync(displacedWorks.Select(w => w.Id).ToList(), ct);
+        var templateExpensesByWork = await LoadExpensesByWorkAsync(createdWorks.Select(w => w.Id).ToList(), ct);
 
         var slotSuccessors = new Dictionary<Guid, Work>();
         var oneToOne = new HashSet<Guid>();
@@ -111,13 +109,28 @@ public partial class AnalyseScenarioService
             }
         }
 
-        var claimed = new HashSet<Guid>();
-        var expensesChangingEmployee = 0;
         var processingOrder = displacedWorks
             .OrderBy(w => oneToOne.Contains(w.Id) ? 0 : 1)
             .ThenBy(w => w.StartTime)
             .ThenBy(w => w.Id)
             .ToList();
+        return await HandOverDisplacedWorksAsync(processingOrder, createdWorks, slotSuccessors, expensesByWork, templateExpensesByWork, ct);
+    }
+
+    /// <summary>
+    /// Hands each displaced work over to its successor (lineage and expenses), in the given order. Returns how many
+    /// expenses moved to another employee's work.
+    /// </summary>
+    private async Task<int> HandOverDisplacedWorksAsync(
+        IReadOnlyList<Work> processingOrder,
+        IReadOnlyList<Work> createdWorks,
+        IReadOnlyDictionary<Guid, Work> slotSuccessors,
+        IReadOnlyDictionary<Guid, List<Expenses>> expensesByWork,
+        IReadOnlyDictionary<Guid, List<Expenses>> templateExpensesByWork,
+        CancellationToken ct)
+    {
+        var claimed = new HashSet<Guid>();
+        var expensesChangingEmployee = 0;
         foreach (var displaced in processingOrder)
         {
             if (!slotSuccessors.TryGetValue(displaced.Id, out var successor))
@@ -147,33 +160,48 @@ public partial class AnalyseScenarioService
                 successor.ClonedFromWorkId ??= displaced.ClonedFromWorkId;
             }
 
-            if (!expensesByWork.TryGetValue(displaced.Id, out var expenses))
+            if (expensesByWork.TryGetValue(displaced.Id, out var expenses))
             {
-                continue;
-            }
-
-            // A work created in this apply only carries its shift's default expenses (BulkAdd stages them); the
-            // displaced work's expenses already hold them (or the planner removed them deliberately), so the defaults
-            // are dropped instead of doubling the payroll.
-            if (claimed.Add(successor.Id) && templateExpensesByWork.TryGetValue(successor.Id, out var templates))
-            {
-                var now = DateTime.UtcNow;
-                foreach (var template in templates) { template.IsDeleted = true; template.DeletedTime = now; }
-            }
-
-            foreach (var expense in expenses)
-            {
-                expense.WorkId = successor.Id;
-            }
-
-            if (successor.ClientId != displaced.ClientId)
-            {
-                expensesChangingEmployee += expenses.Count;
+                expensesChangingEmployee += MoveExpenses(displaced, successor, expenses, claimed, templateExpensesByWork);
             }
         }
 
         return expensesChangingEmployee;
     }
+
+    /// <summary>
+    /// Moves the displaced work's expenses to its successor. Returns how many of them changed employee.
+    /// </summary>
+    private static int MoveExpenses(
+        Work displaced,
+        Work successor,
+        List<Expenses> expenses,
+        ISet<Guid> claimed,
+        IReadOnlyDictionary<Guid, List<Expenses>> templateExpensesByWork)
+    {
+        // A work created in this apply only carries its shift's default expenses (BulkAdd stages them); the
+        // displaced work's expenses already hold them (or the planner removed them deliberately), so the defaults
+        // are dropped instead of doubling the payroll.
+        if (claimed.Add(successor.Id) && templateExpensesByWork.TryGetValue(successor.Id, out var templates))
+        {
+            var now = DateTime.UtcNow;
+            foreach (var template in templates) { template.IsDeleted = true; template.DeletedTime = now; }
+        }
+
+        foreach (var expense in expenses)
+        {
+            expense.WorkId = successor.Id;
+        }
+
+        return successor.ClientId != displaced.ClientId ? expenses.Count : 0;
+    }
+
+    private async Task<Dictionary<Guid, List<Expenses>>> LoadExpensesByWorkAsync(List<Guid> workIds, CancellationToken ct)
+        => (await _context.Expenses
+                .Where(e => !e.IsDeleted && workIds.Contains(e.WorkId))
+                .ToListAsync(ct))
+            .GroupBy(e => e.WorkId)
+            .ToDictionary(g => g.Key, g => g.ToList());
 
     /// <summary>
     /// Assigns the displaced works of one (shift, date) slot to the planner's works of that slot (Shift.Quantity can put
@@ -223,6 +251,7 @@ public partial class AnalyseScenarioService
             next++;
         }
     }
+
     /// <summary>
     /// Undoes the slot replacement of one displaced work that carries expenses: the work and the sub-breaks and WorkChanges soft-deleted
     /// together with it (same deletion stamp) come back; its expenses were never deleted.

@@ -176,7 +176,7 @@ public sealed class RestrictedTimeWindowEvaluator : IRestrictedTimeWindowEvaluat
     // Group-tag scope is resolved by SHIFT ID with NO AnalyseToken filter - the same token-independent
     // treatment the wizard qualification eligibility uses (ShiftRequiredQualification is queried by shift
     // id, no token). Correctness comes from the shift-id scoping, not a token filter: a scenario clones a
-    // shift under a FRESH id and clones its GroupItem links to that clone id (AnalyseScenarioService.
+    // shift under a FRESH id and clones its GroupItem links to that clone id (ScenarioShiftCloner.
     // CloneShifts), so a cloned work references the clone shift id and finds the cloned link, while a real
     // work references the real shift id and finds the real link. The two id spaces are disjoint, so an
     // unfiltered query never double-counts or leaks across worlds. Filtering AnalyseToken == null here
