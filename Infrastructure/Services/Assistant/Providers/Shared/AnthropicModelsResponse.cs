@@ -12,12 +12,3 @@ internal sealed class AnthropicModelsResponse
     [JsonPropertyName("data")]
     public List<AnthropicModelEntry> Data { get; set; } = [];
 }
-
-internal sealed class AnthropicModelEntry
-{
-    [JsonPropertyName("id")]
-    public string Id { get; set; } = string.Empty;
-
-    [JsonPropertyName("display_name")]
-    public string? DisplayName { get; set; }
-}

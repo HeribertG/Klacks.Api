@@ -56,37 +56,3 @@ public class OpenAIToolsRequest
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public List<string>? Stop { get; set; }
 }
-
-public class OpenAITool
-{
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = "function";
-
-    [JsonPropertyName("function")]
-    public OpenAIToolFunction Function { get; set; } = new();
-}
-
-public class OpenAIToolFunction
-{
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [JsonPropertyName("description")]
-    public string Description { get; set; } = string.Empty;
-
-    [JsonPropertyName("parameters")]
-    public OpenAIToolFunctionParameters Parameters { get; set; } = new();
-}
-
-public class OpenAIToolFunctionParameters
-{
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = "object";
-
-    [JsonPropertyName("properties")]
-    public Dictionary<string, object> Properties { get; set; } = new();
-
-    [JsonPropertyName("required")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<string>? Required { get; set; }
-}

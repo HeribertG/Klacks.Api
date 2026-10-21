@@ -29,33 +29,3 @@ internal sealed class AnthropicStreamEvent
     [JsonPropertyName("usage")]
     public AnthropicUsage? Usage { get; set; }
 }
-
-internal sealed class AnthropicStreamMessage
-{
-    [JsonPropertyName("usage")]
-    public AnthropicUsage? Usage { get; set; }
-}
-
-internal sealed class AnthropicStreamDelta
-{
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = string.Empty;
-
-    [JsonPropertyName("text")]
-    public string? Text { get; set; }
-
-    [JsonPropertyName("partial_json")]
-    public string? PartialJson { get; set; }
-}
-
-internal sealed class AnthropicStreamContentBlock
-{
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = string.Empty;
-
-    [JsonPropertyName("name")]
-    public string? Name { get; set; }
-
-    [JsonPropertyName("id")]
-    public string? Id { get; set; }
-}

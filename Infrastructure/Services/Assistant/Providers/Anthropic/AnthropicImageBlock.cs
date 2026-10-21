@@ -18,15 +18,3 @@ public sealed class AnthropicImageBlock
     [JsonPropertyName("source")]
     public AnthropicImageSource Source { get; init; } = new();
 }
-
-public sealed class AnthropicImageSource
-{
-    [JsonPropertyName("type")]
-    public string Type { get; init; } = "base64";
-
-    [JsonPropertyName("media_type")]
-    public string MediaType { get; init; } = "image/png";
-
-    [JsonPropertyName("data")]
-    public string Data { get; init; } = string.Empty;
-}

@@ -16,7 +16,3 @@ public sealed record OpenAIImageContent(
     [JsonPropertyName("type")]
     public string Type => "image_url";
 }
-
-/// <param name="Url">Either a remote https URL or an inline <c>data:image/png;base64,...</c> URI.</param>
-public sealed record OpenAIImageUrl(
-    [property: JsonPropertyName("url")] string Url);

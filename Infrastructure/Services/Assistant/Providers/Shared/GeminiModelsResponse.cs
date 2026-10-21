@@ -12,12 +12,3 @@ internal sealed class GeminiModelsResponse
     [JsonPropertyName("models")]
     public List<GeminiModelEntry> Models { get; set; } = [];
 }
-
-internal sealed class GeminiModelEntry
-{
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [JsonPropertyName("displayName")]
-    public string? DisplayName { get; set; }
-}

@@ -21,9 +21,3 @@ internal sealed class AnthropicSystemBlock
     [JsonPropertyName("cache_control")]
     public AnthropicCacheControl? CacheControl { get; set; }
 }
-
-internal sealed class AnthropicCacheControl
-{
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = "ephemeral";
-}

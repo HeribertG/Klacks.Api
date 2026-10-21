@@ -45,9 +45,3 @@ public class OpenAIRequest
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public OpenAIStreamOptions? StreamOptions { get; set; }
 }
-
-public class OpenAIStreamOptions
-{
-    [JsonPropertyName("include_usage")]
-    public bool IncludeUsage { get; set; }
-}

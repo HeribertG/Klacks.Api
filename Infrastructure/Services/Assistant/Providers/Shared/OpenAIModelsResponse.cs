@@ -12,12 +12,3 @@ internal sealed class OpenAIModelsResponse
     [JsonPropertyName("data")]
     public List<OpenAIModelEntry> Data { get; set; } = [];
 }
-
-internal sealed class OpenAIModelEntry
-{
-    [JsonPropertyName("id")]
-    public string Id { get; set; } = string.Empty;
-
-    [JsonPropertyName("name")]
-    public string? Name { get; set; }
-}

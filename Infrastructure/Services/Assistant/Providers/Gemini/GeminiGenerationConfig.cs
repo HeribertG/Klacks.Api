@@ -20,9 +20,3 @@ public class GeminiGenerationConfig
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public List<string>? StopSequences { get; set; }
 }
-
-public class GeminiThinkingConfig
-{
-    [JsonPropertyName("thinkingBudget")]
-    public int ThinkingBudget { get; set; }
-}
