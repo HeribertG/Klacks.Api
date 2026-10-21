@@ -83,7 +83,7 @@ public class TurnCompletionRecorder
                 turn.Context.UserId, turn.Model, turn.Conversation,
                 turn.Usage, turn.ElapsedMs,
                 ttftMs: turn.TtftMs, toolsetAssemblyMs: turn.Context.ToolsetAssemblyMs, toolIterations: turn.ToolIterations,
-                turnId: turn.Context.TurnId, functionsCalledJson: LLMService.SerializeFunctionsCalled(turn.FunctionCalls),
+                turnId: turn.Context.TurnId, functionsCalledJson: TurnTelemetry.SerializeFunctionsCalled(turn.FunctionCalls),
                 toolChoiceRequested: turn.ToolChoiceRequested,
                 toolChoiceSupported: turn.ProviderSupportsToolChoice,
                 toolCallReturned: turn.FunctionCalls.Count > 0);
@@ -211,7 +211,7 @@ public class TurnCompletionRecorder
                 errorMessage: hasError ? TurnInterruptionDefaults.ErroredUsageMessage : null,
                 ttftMs: _turnState.TtftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs,
                 toolIterations: _turnState.ToolIterations,
-                turnId: context.TurnId, functionsCalledJson: LLMService.SerializeFunctionsCalled(executedCalls),
+                turnId: context.TurnId, functionsCalledJson: TurnTelemetry.SerializeFunctionsCalled(executedCalls),
                 toolChoiceRequested: _turnState.ToolChoiceRequested,
                 toolChoiceSupported: _turnState.ProviderSupportsToolChoice,
                 toolCallReturned: _turnState.Calls.Count > 0));
@@ -251,7 +251,7 @@ public class TurnCompletionRecorder
         LLMUsageAccumulator.Add(usage, _turnState.Usage);
         if (usage.OutputTokens == 0)
         {
-            usage.OutputTokens = _turnState.StreamedContent.Length / LLMService.CharsPerToken;
+            usage.OutputTokens = _turnState.StreamedContent.Length / ConversationHistoryBudget.CharsPerToken;
         }
 
         return usage;

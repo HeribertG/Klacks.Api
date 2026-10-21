@@ -61,7 +61,7 @@ public static class LLMLoopConstants
     /// function executor logs its outcome (Success, ResultKind), so the rate of outside calls that succeeded is
     /// countable. Switching to Enforce is this constant; the rest of the Enforce path is already in place: a
     /// rejected call is flagged (LLMFunctionCall.IsRejectedWithoutRunning), left out of the functions_called record
-    /// (LLMService.SerializeFunctionsCalled), never counted as a skill failure by the failure consumers, never
+    /// (TurnTelemetry.SerializeFunctionsCalled), never counted as a skill failure by the failure consumers, never
     /// offered as the failure to surface (TurnClosingNotices.LastUnrecoveredFailure), and it counts as a failed
     /// write attempt for the nothing-stored notice (TurnClosingNotices.NothingExecuted).
     /// </summary>

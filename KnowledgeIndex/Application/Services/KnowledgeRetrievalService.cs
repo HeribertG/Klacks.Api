@@ -202,7 +202,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
 
     // One grep-able line per pass. Until this existed, not a single stopwatch sat anywhere in the
     // retrieval chain, and the LLM-Stage timings do not help: AssembleAsync runs outside
-    // LLMService.PrepareContextAsync, where that measurement lives. Neither the duration of a pass nor
+    // ChatTurnContextPreparer.PrepareAsync, where that measurement lives. Neither the duration of a pass nor
     // how many passes a turn triggered was readable from any log.
     //
     // "turn" is the ambient chat-turn id, the join key: count the lines carrying the same turn to see

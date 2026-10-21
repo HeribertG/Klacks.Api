@@ -47,7 +47,7 @@ internal sealed class StreamedToolRound
             yield return SseChunk.FunctionCallChunk(call.FunctionName, call.Parameters);
         }
 
-        yield return SseChunk.Status(SseStatusStages.ExecutingTool, LLMService.ElapsedMsFor(context), turn.ToolIterations);
+        yield return SseChunk.Status(SseStatusStages.ExecutingTool, TurnTelemetry.ElapsedMsFor(context), turn.ToolIterations);
 
         await _functionExecutor.ProcessFunctionCallsAsync(context, executableCalls, turn.StopToken);
         recipe.Forcing?.Observe(functionCalls);

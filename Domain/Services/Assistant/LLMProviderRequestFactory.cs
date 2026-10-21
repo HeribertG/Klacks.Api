@@ -42,7 +42,7 @@ internal static class LLMProviderRequestFactory
         string stepInstruction,
         List<LLMMessage> history) =>
         WithoutThinking(ToolLess(
-            model, message, systemPrompt, LLMService.CombineVolatile(volatileSystemPrompt, stepInstruction), history));
+            model, message, systemPrompt, VolatilePromptComposer.CombineVolatile(volatileSystemPrompt, stepInstruction), history));
 
     /// <summary>
     /// The one extra call of the empty-answer recovery: tool-less, with the recovery instruction appended
@@ -65,7 +65,7 @@ internal static class LLMProviderRequestFactory
         string recoveryInstruction,
         List<LLMMessage> history) =>
         WithoutThinking(ToolLess(
-            model, message, systemPrompt, LLMService.CombineVolatile(volatileSystemPrompt, recoveryInstruction), history));
+            model, message, systemPrompt, VolatilePromptComposer.CombineVolatile(volatileSystemPrompt, recoveryInstruction), history));
 
     /// <summary>
     /// A request with no tools at all (recipe steps, empty-answer recovery): the model must not be able to

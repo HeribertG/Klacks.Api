@@ -65,7 +65,7 @@ internal sealed class StreamedModelCall
                 {
                     turn.TtftMs = stopwatch.ElapsedMilliseconds;
                     _logger.LogInformation(
-                        "LLM TTFT: {Ms}ms turn={Turn}", turn.TtftMs, LLMService.TurnCorrelationFor(turn.Context!));
+                        "LLM TTFT: {Ms}ms turn={Turn}", turn.TtftMs, TurnTelemetry.TurnCorrelationFor(turn.Context!));
                 }
 
                 turn.StreamedContent.Append(token);

@@ -312,10 +312,10 @@ public class TurnReplayService : ITurnReplayService
                 MutationIntentDetector.IsMutationIntent(item.Message), context.TurnIntentVetoesForcedToolCall)
             || NavigationIntentDetector.IsNavigationIntent(item.Message);
 
-        var volatilePrompt = LLMService.CombineVolatile(
+        var volatilePrompt = VolatilePromptComposer.CombineVolatile(
             temporalContext,
-            LLMService.CombineVolatile(
-                LLMService.CombineVolatile(
+            VolatilePromptComposer.CombineVolatile(
+                VolatilePromptComposer.CombineVolatile(
                     LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt),
                 correction?.ContextNote));
 

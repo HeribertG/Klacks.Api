@@ -123,7 +123,7 @@ internal sealed class StreamedTurnClosing
             yield break;
         }
 
-        yield return SseChunk.Status(SseStatusStages.CallingModel, LLMService.ElapsedMsFor(turn.Context!), turn.ToolIterations);
+        yield return SseChunk.Status(SseStatusStages.CallingModel, TurnTelemetry.ElapsedMsFor(turn.Context!), turn.ToolIterations);
 
         var continuesEarlierContent = !string.IsNullOrWhiteSpace(streamedContent.ToString());
         await using var tokens = recovery.StreamAsync(turn.Calls.Count, continuesEarlierContent, cancellationToken)
@@ -166,7 +166,7 @@ internal sealed class StreamedTurnClosing
     {
         return new EmptyAnswerRecovery(logger, provider, totalUsage, language, instruction =>
         {
-            LLMService.FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
+            ConversationHistoryBudget.FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
             return LLMProviderRequestFactory.Recovery(
                 model, currentMessage, systemPrompt, volatilePrompt, instruction, runningHistory);
         });

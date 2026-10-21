@@ -56,7 +56,7 @@ internal static class RecipePauseStep
             }
 
             var confirmInstruction = enginePlan.ConfirmationInstruction;
-            yield return SseChunk.Status(SseStatusStages.CallingModel, LLMService.ElapsedMsFor(context), turn.ToolIterations);
+            yield return SseChunk.Status(SseStatusStages.CallingModel, TurnTelemetry.ElapsedMsFor(context), turn.ToolIterations);
             if (turn.StopRequested)
             {
                 yield break;
@@ -87,7 +87,7 @@ internal static class RecipePauseStep
             var askInstruction = string.Format(
                 System.Globalization.CultureInfo.InvariantCulture,
                 RecipeEngineDefaults.AskStepInstructionTemplate, enginePlan.CurrentAskPrompt);
-            yield return SseChunk.Status(SseStatusStages.CallingModel, LLMService.ElapsedMsFor(context), turn.ToolIterations);
+            yield return SseChunk.Status(SseStatusStages.CallingModel, TurnTelemetry.ElapsedMsFor(context), turn.ToolIterations);
             if (turn.StopRequested)
             {
                 yield break;

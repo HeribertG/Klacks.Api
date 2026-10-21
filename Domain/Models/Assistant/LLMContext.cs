@@ -170,7 +170,7 @@ public class LLMContext
     /// The note is combined into the turn's VOLATILE prompt rather than into the per-iteration note
     /// slot: the pending/recipe/plan notes are alternatives to each other, while a correction note
     /// applies to every iteration of the turn it belongs to. It therefore also counts against
-    /// LLMService.HistoryBudgetFor and shrinks a correction turn's history budget by its own length
+    /// ConversationHistoryBudget.HistoryBudgetFor and shrinks a correction turn's history budget by its own length
     /// (~120 tokens), which is harmless - MinHistoryBudgetTokens remains the floor and the note lives
     /// exactly one turn.
     /// </summary>
