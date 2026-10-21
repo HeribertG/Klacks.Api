@@ -5,9 +5,9 @@
 /// </summary>
 /// <param name="ContainerId">ID of the container</param>
 /// <param name="Weekday">Weekday (0=Sun, 1=Mon, ..., 6=Sat)</param>
-/// <param name="IsHoliday">Whether a public holiday falling on Weekday is filled. Candidates are the tasks the schedule engine
-/// runs on that day (ShiftDayActivityFilter): on a holiday IsHoliday tasks and tasks of the weekday with IsWeekdayAndHoliday,
-/// on a normal day every task of the weekday; tasks in AdditionalAvailableWorkIds are added regardless</param>
+/// <param name="IsHoliday">Holiday flag of the container template slot that is filled. Candidates are the tasks the schedule
+/// engine runs on the days the slot applies on (ShiftDayActivityFilter); tasks in AdditionalAvailableWorkIds are added
+/// regardless</param>
 /// <param name="StartBase">Start address of the route</param>
 /// <param name="EndBase">End address of the route</param>
 /// <param name="FromTime">Start of the time window</param>
@@ -18,6 +18,9 @@
 /// 0 or less disables the check</param>
 /// <param name="CancellationToken">Token for cancelling the operation</param>
 /// <param name="TimeBlocks">Optional time blocks (breaks) for route optimization</param>
+/// <param name="AdditionalAvailableWorkIds">Tasks that are candidates whatever the slot (locked or original children)</param>
+/// <param name="IsWeekdayAndHoliday">Only read with IsHoliday: true = the holiday slot of Weekday, false = the generic holiday
+/// slot of every public holiday</param>
 
 using Klacks.Api.Domain.Enums;
 
@@ -35,4 +38,5 @@ public record ContainerAutofillRequest(
     double TimeRangeTolerance = 0.5,
     CancellationToken CancellationToken = default,
     List<TimeBlock>? TimeBlocks = null,
-    IReadOnlyCollection<Guid>? AdditionalAvailableWorkIds = null);
+    IReadOnlyCollection<Guid>? AdditionalAvailableWorkIds = null,
+    bool IsWeekdayAndHoliday = false);

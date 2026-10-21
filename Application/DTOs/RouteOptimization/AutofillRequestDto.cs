@@ -5,8 +5,11 @@
 /// </summary>
 /// <param name="ContainerId">Container ID</param>
 /// <param name="Weekday">Weekday (0-6)</param>
-/// <param name="IsHoliday">True fills a public holiday falling on Weekday (holiday tasks and tasks of the weekday that also run
-/// on holidays), false or omitted a normal day (every task of the weekday)</param>
+/// <param name="IsHoliday">Holiday flag of the container template slot that is filled: false or omitted = the normal
+/// template of Weekday, true = a holiday template (see IsWeekdayAndHoliday)</param>
+/// <param name="IsWeekdayAndHoliday">Only read with IsHoliday: true = the holiday template of Weekday (applies on public
+/// holidays falling on Weekday), false or omitted = the generic holiday template (applies on every public holiday; its
+/// Weekday is only a storage key)</param>
 /// <param name="StartBase">Start address</param>
 /// <param name="EndBase">End address</param>
 /// <param name="FromTime">Time window start (HH:mm)</param>
@@ -25,6 +28,7 @@ public class AutofillRequestDto
     public Guid ContainerId { get; set; }
     public int Weekday { get; set; }
     public bool IsHoliday { get; set; }
+    public bool IsWeekdayAndHoliday { get; set; }
     public string StartBase { get; set; } = string.Empty;
     public string EndBase { get; set; } = string.Empty;
     public string FromTime { get; set; } = string.Empty;

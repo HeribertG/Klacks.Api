@@ -61,6 +61,7 @@ public class ContainerAutofillService : IContainerAutofillService
         var availableTasks = await _availableTasksService.GetAvailableTasksAsync(
             request.ContainerId, request.Weekday, request.FromTime, request.UntilTime,
             isHoliday: request.IsHoliday,
+            isWeekdayAndHoliday: request.IsWeekdayAndHoliday,
             additionalAvailableWorkIds: request.AdditionalAvailableWorkIds,
             cancellationToken: request.CancellationToken);
 

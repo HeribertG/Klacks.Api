@@ -195,7 +195,7 @@ public class RouteOptimizationController : BaseController
             var autofillRequest = new ContainerAutofillRequest(
                 request.ContainerId, request.Weekday, request.IsHoliday, request.StartBase, request.EndBase,
                 parsedFromTime, parsedUntilTime, request.TransportMode, request.TimeRangeTolerance,
-                cancellationToken, domainTimeBlocks, request.AdditionalAvailableWorkIds);
+                cancellationToken, domainTimeBlocks, request.AdditionalAvailableWorkIds, request.IsWeekdayAndHoliday);
 
             var result = await _containerAutofillService.AutofillAsync(autofillRequest);
 
