@@ -25,5 +25,3 @@ public class ReportUiActionResultCommand : IRequest<ReportUiActionResultResult>
 
     public string? ErrorMessage { get; set; }
 }
-
-public sealed record ReportUiActionResultResult(bool Found, bool Updated, string? Error);

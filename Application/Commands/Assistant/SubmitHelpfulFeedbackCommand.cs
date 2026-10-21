@@ -33,5 +33,3 @@ public class SubmitHelpfulFeedbackCommand : IRequest<SubmitHelpfulFeedbackResult
     /// </summary>
     public string? Comment { get; set; }
 }
-
-public sealed record SubmitHelpfulFeedbackResult(bool Found, Guid? TrajectoryId);

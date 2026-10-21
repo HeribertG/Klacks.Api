@@ -31,5 +31,3 @@ public class ReportNavigationOutcomeCommand : IRequest<ReportNavigationOutcomeRe
 
     public string? Utterance { get; set; }
 }
-
-public sealed record ReportNavigationOutcomeResult(bool Recorded);

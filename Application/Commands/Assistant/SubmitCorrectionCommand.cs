@@ -12,5 +12,3 @@ public class SubmitCorrectionCommand : IRequest<SubmitCorrectionResult>
     public string? ExpectedSkill { get; set; }
     public Guid? TurnId { get; set; }
 }
-
-public sealed record SubmitCorrectionResult(bool Found, Guid? TrajectoryId);
