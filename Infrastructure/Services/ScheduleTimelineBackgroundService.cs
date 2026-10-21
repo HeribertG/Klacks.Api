@@ -798,10 +798,9 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         return lookup;
     }
 
-}
-
-file class WorkIdComparer : IEqualityComparer<Work>
-{
-    public bool Equals(Work? x, Work? y) => x?.Id == y?.Id;
-    public int GetHashCode(Work obj) => obj.Id.GetHashCode();
+    private sealed class WorkIdComparer : IEqualityComparer<Work>
+    {
+        public bool Equals(Work? x, Work? y) => x?.Id == y?.Id;
+        public int GetHashCode(Work obj) => obj.Id.GetHashCode();
+    }
 }

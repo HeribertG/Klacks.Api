@@ -5,15 +5,6 @@ using System.Runtime.InteropServices;
 
 namespace Klacks.Api.Infrastructure.Scripting;
 
-public enum ScriptValueType : byte
-{
-    Null = 0,
-    Number = 1,
-    Boolean = 2,
-    String = 3,
-    Object = 4
-}
-
 [StructLayout(LayoutKind.Auto)]
 public readonly struct ScriptValue : IEquatable<ScriptValue>
 {

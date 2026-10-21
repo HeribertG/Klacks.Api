@@ -228,9 +228,3 @@ public class MacroEngine : IDisposable, IMacroEngine
 
     #endregion Import Handling
 }
-
-public class ResultMessage
-{
-    public int Type { get; set; }
-    public string Message { get; set; } = string.Empty;
-}

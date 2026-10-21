@@ -12,15 +12,6 @@
 
 namespace Klacks.Api.Infrastructure.Scripting;
 
-public record InterpreterErrorInfo(
-    int Number,
-    string Source,
-    string Description,
-    int Line,
-    int Col,
-    int Index,
-    string ErrSource = "");
-
 public class InterpreterError
 {
     const int OBJECTERROR = -2147221504;
