@@ -35280,7 +35280,7 @@
         },
         {
           "name": "timeRangeTolerance",
-          "description": "Tolerance factor (0.0-1.0) for matching TimeRange task shifts against the day's time budget. Defaults to 0.5, the same default used by the UI container autofill.",
+          "description": "How strictly each task's own TimeRange window is enforced on its planned arrival (0.0-1.0): 1.0 = strict, the arrival must lie inside the window; lower values widen the window on both sides by (1 - value) times its length; 0 disables the check. Defaults to 0.5, the same default used by the UI container autofill.",
           "type": "Decimal",
           "required": false,
           "defaultValue": 0.5,
@@ -35350,7 +35350,7 @@
         "fr": "Regrouper des services à plage horaire proches dans un conteneur",
         "it": "Raggruppa turni a fascia oraria vicini in un contenitore"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_klacksy_memory",

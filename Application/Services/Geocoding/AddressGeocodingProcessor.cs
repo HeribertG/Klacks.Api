@@ -56,7 +56,7 @@ public class AddressGeocodingProcessor : IAddressGeocodingProcessor
             ?? await _countryResolver.GetDefaultAsync(cancellationToken);
 
         var result = await _geocodingService.ValidateExactAddressAsync(
-            address.Street, address.Zip, address.City, AddressGeocodingRules.CountryQueryName(country));
+            address.Street, address.Zip, address.City, GeocodingCountryName.Of(country));
         if (result.Disabled)
         {
             return;

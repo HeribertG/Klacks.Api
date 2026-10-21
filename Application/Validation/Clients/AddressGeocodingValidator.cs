@@ -62,7 +62,7 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
         var resolvedCountry = await _countryResolver.ResolveAsync(address.Country, cancellationToken)
             ?? await _countryResolver.GetDefaultAsync(cancellationToken);
 
-        var geocodingCountry = AddressGeocodingRules.CountryQueryName(resolvedCountry);
+        var geocodingCountry = GeocodingCountryName.Of(resolvedCountry);
 
         try
         {

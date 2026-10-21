@@ -11,7 +11,8 @@
 /// <param name="FromTime">Time window start (HH:mm)</param>
 /// <param name="UntilTime">Time window end (HH:mm)</param>
 /// <param name="TransportMode">Transport mode</param>
-/// <param name="TimeRangeTolerance">Tolerance (0.0-1.0)</param>
+/// <param name="TimeRangeTolerance">Strictness of the task TimeRange windows (0.0-1.0): 1.0 = strict, lower values widen
+/// the window by (1 - value) x its length, 0 disables the check; the UI slider sends 0 at "flexible", 1 at "exact"</param>
 /// <param name="TimeBlocks">Optional time blocks (breaks etc.)</param>
 
 using Klacks.Api.Domain.Enums;

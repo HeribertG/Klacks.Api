@@ -13,9 +13,9 @@
 using Klacks.Api.Application.Commands.Geocoding;
 using Klacks.Api.Application.DTOs.Geocoding;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Services.Geocoding;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Geocoding;
@@ -82,8 +82,7 @@ public class GeocodeAllAddressesCommandHandler : IRequestHandler<GeocodeAllAddre
     }
 
     /// <summary>
-    /// Same country naming as the interactive address validation (AddressGeocodingRules.CountryQueryName). An
-    /// empty code falls back to the default country; a code the resolver does not know is passed on unchanged.
+    /// Shared geocoding country naming (CountryResolverGeocodingExtensions), resolved once per distinct code.
     /// </summary>
     private async Task<string> ResolveCountryNameAsync(
         string countryCode, Dictionary<string, string> resolvedNames, CancellationToken cancellationToken)
@@ -93,14 +92,7 @@ public class GeocodeAllAddressesCommandHandler : IRequestHandler<GeocodeAllAddre
             return cached;
         }
 
-        var country = await _countryResolver.ResolveAsync(countryCode, cancellationToken);
-        if (country == null && string.IsNullOrWhiteSpace(countryCode))
-        {
-            country = await _countryResolver.GetDefaultAsync(cancellationToken);
-        }
-
-        var name = AddressGeocodingRules.CountryQueryName(country);
-        var resolved = string.IsNullOrEmpty(name) ? countryCode : name;
+        var resolved = await _countryResolver.ResolveGeocodingNameAsync(countryCode, cancellationToken);
         resolvedNames[countryCode] = resolved;
         return resolved;
     }

@@ -2,10 +2,12 @@
 
 /// <summary>
 /// Raises every leg of the autofill duration matrix to the configured minimum travel time of the transport mode
-/// (ROUTE_MIN_TRAVEL_TIME_BY_*, minutes). Diagonal and zero legs stay; a missing or unparsable setting means no floor.
+/// (ROUTE_MIN_TRAVEL_TIME_BY_*, minutes, dot as decimal separator whatever the server culture). Diagonal and zero legs
+/// stay; a missing or unparsable setting means no floor.
 /// </summary>
 /// <param name="settingsReader">Reads the minimum travel time setting of the transport mode</param>
 
+using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
@@ -55,7 +57,7 @@ public sealed class ContainerAutofillTravelTimeFloor
         };
 
         var setting = await _settingsReader.GetSetting(settingKey);
-        if (setting != null && double.TryParse(setting.Value, out var minutes))
+        if (setting != null && double.TryParse(setting.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var minutes))
         {
             return minutes * SecondsPerMinute;
         }

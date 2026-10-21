@@ -16,8 +16,8 @@
 /// <param name="untilDate">Optional end date of validity (YYYY-MM-DD).</param>
 /// <param name="transportMode">Optional: car|bicycle|foot|mix; defaults to car. Non-car modes require a
 /// configured OpenRouteService API key and OpenRouteService not being switched off by the operator.</param>
-/// <param name="timeRangeTolerance">Optional tolerance for TimeRange window violations (0.0 strict, 1.0
-/// no validation); defaults to 0.5.</param>
+/// <param name="timeRangeTolerance">Optional strictness of the task TimeRange windows (1.0 strict, lower values widen
+/// the window by (1 - value) x its length, 0 disables the check); defaults to 0.5.</param>
 /// <param name="groupIds">Optional comma-separated group UUIDs restricting which candidate services are
 /// considered; without any group the container has no group filter (all matching tasks are eligible).</param>
 /// <param name="name">Optional container name; defaults to "Mobile Dienste {location}".</param>

@@ -8,6 +8,7 @@
 /// <param name="_geocodingService">Service for geocoding addresses to coordinates</param>
 /// <param name="_distanceMatrixBuilder">Builds distance/duration matrices from locations</param>
 /// <param name="_routeDirectionsBuilder">Retrieves turn-by-turn directions for route segments</param>
+/// <param name="_countryResolver">Resolves the geocoding country name of an address and the company default country</param>
 
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -16,6 +17,7 @@ using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Common;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization;
 
@@ -27,6 +29,7 @@ public class RouteOptimizationService : IRouteOptimizationService
     private readonly IGeocodingService _geocodingService;
     private readonly IDistanceMatrixBuilder _distanceMatrixBuilder;
     private readonly IRouteDirectionsBuilder _routeDirectionsBuilder;
+    private readonly ICountryResolver _countryResolver;
     private readonly ILogger<RouteOptimizationService> _logger;
 
     public RouteOptimizationService(
@@ -36,6 +39,7 @@ public class RouteOptimizationService : IRouteOptimizationService
         IGeocodingService geocodingService,
         IDistanceMatrixBuilder distanceMatrixBuilder,
         IRouteDirectionsBuilder routeDirectionsBuilder,
+        ICountryResolver countryResolver,
         ILogger<RouteOptimizationService> logger)
     {
         _containerRepository = containerRepository;
@@ -44,6 +48,7 @@ public class RouteOptimizationService : IRouteOptimizationService
         _geocodingService = geocodingService;
         _distanceMatrixBuilder = distanceMatrixBuilder;
         _routeDirectionsBuilder = routeDirectionsBuilder;
+        _countryResolver = countryResolver;
         _logger = logger;
     }
 
@@ -545,13 +550,13 @@ public class RouteOptimizationService : IRouteOptimizationService
 
             double? lat = address.Latitude;
             double? lon = address.Longitude;
+            var country = address.Country;
 
             if (!lat.HasValue || !lon.HasValue)
             {
                 _logger.LogInformation("Geocoding address (no stored coordinates): {FullAddress}", fullAddress);
-                var coords = await _geocodingService.GeocodeAddressAsync(
-                    fullAddress,
-                    address.Country ?? "Switzerland");
+                country = await _countryResolver.ResolveGeocodingNameAsync(address.Country);
+                var coords = await _geocodingService.GeocodeAddressAsync(fullAddress, country);
                 lat = coords.Latitude;
                 lon = coords.Longitude;
             }
@@ -583,7 +588,7 @@ public class RouteOptimizationService : IRouteOptimizationService
             else
             {
                 _logger.LogWarning("Failed to geocode address: {City}, {Country}",
-                    address.City, address.Country ?? "Switzerland");
+                    address.City, country);
             }
         }
 
@@ -631,12 +636,13 @@ public class RouteOptimizationService : IRouteOptimizationService
         }
 
         var newLocations = new List<Location>(existingMatrix.Locations);
+        var country = await _countryResolver.ResolveDefaultGeocodingNameAsync();
 
         foreach (var address in addressesToAdd)
         {
             _logger.LogInformation("Geocoding base address: {Address}", address.ForLog());
 
-            var coords = await _geocodingService.GeocodeAddressAsync(address, "Switzerland");
+            var coords = await _geocodingService.GeocodeAddressAsync(address, country);
 
             if (coords.Latitude.HasValue && coords.Longitude.HasValue)
             {

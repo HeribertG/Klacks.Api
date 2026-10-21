@@ -11,7 +11,9 @@
 /// <param name="FromTime">Start of the time window</param>
 /// <param name="UntilTime">End of the time window</param>
 /// <param name="TransportMode">Transport mode for route calculation</param>
-/// <param name="TimeRangeTolerance">Tolerance for TimeRange violations (0.0 = strict, 1.0 = no validation)</param>
+/// <param name="TimeRangeTolerance">How strictly each task's own TimeRange window is enforced on its planned arrival:
+/// 1.0 = strict (arrival inside the window), lower values widen the window on both sides by (1 - value) x its length,
+/// 0 or less disables the check</param>
 /// <param name="CancellationToken">Token for cancelling the operation</param>
 /// <param name="TimeBlocks">Optional time blocks (breaks) for route optimization</param>
 

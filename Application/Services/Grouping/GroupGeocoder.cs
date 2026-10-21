@@ -2,20 +2,20 @@
 
 /// <summary>
 /// Shared geocoding for groups: resolves a place name to coordinates via the configured geocoder,
-/// using the system default country. Single place both the manual set_group_location skill and the
-/// automatic GroupLocationResolver call, so the "name -> coordinates" step never diverges.
+/// using the company default country (APP_ADDRESS_COUNTRY) named like every other geocoding query; without a
+/// configured default country no country is forced on the query. Single place both the manual set_group_location
+/// skill and the automatic GroupLocationResolver call, so the "name -> coordinates" step never diverges.
 /// </summary>
 
 using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Services.Common;
 
 namespace Klacks.Api.Application.Services.Grouping;
 
 public class GroupGeocoder : IGroupGeocoder
 {
-    private const string DefaultCountryName = "Switzerland";
-
     private readonly IGeocodingService _geocodingService;
     private readonly ICountryResolver _countryResolver;
 
@@ -30,16 +30,7 @@ public class GroupGeocoder : IGroupGeocoder
     public async Task<(double? Latitude, double? Longitude)> GeocodeAsync(
         string placeName, CancellationToken cancellationToken = default)
     {
-        var country = await ResolveCountryNameAsync(cancellationToken);
+        var country = await _countryResolver.ResolveDefaultGeocodingNameAsync(cancellationToken);
         return await _geocodingService.GeocodeAsync(placeName, country, cancellationToken);
-    }
-
-    private async Task<string> ResolveCountryNameAsync(CancellationToken cancellationToken)
-    {
-        var country = await _countryResolver.GetDefaultAsync(cancellationToken);
-        return country?.Name.En
-               ?? country?.Name.De
-               ?? country?.Abbreviation
-               ?? DefaultCountryName;
     }
 }

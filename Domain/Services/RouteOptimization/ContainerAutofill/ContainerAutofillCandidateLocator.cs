@@ -3,15 +3,22 @@
 /// <summary>
 /// Turns the TimeRange shifts of a container autofill into route candidates (one per distinct client address,
 /// stored coordinates first, then freshly geocoded ones whose coordinates are written back) and geocodes the bases.
+/// Addresses are geocoded with the name of their country (the company default country when they have none), the
+/// bases with the company default country. Country lookups and coordinate writes share the scoped DbContext, so they
+/// run one after another; only the geocoding requests themselves run in parallel.
 /// </summary>
 /// <param name="geocodingService">Geocodes addresses without stored coordinates and the base addresses</param>
-/// <param name="coordinateWriter">Persists freshly geocoded coordinates (fire-and-forget)</param>
-/// <param name="logger">Logs the extraction counts and base addresses that could not be geocoded</param>
+/// <param name="coordinateWriter">Persists freshly geocoded coordinates, awaited one by one on the request token</param>
+/// <param name="countryResolver">Resolves the geocoding country name of an address and the company default country</param>
+/// <param name="logger">Logs the extraction counts, base addresses that could not be geocoded and failed writes</param>
 
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Common;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization.ContainerAutofill;
 
@@ -19,15 +26,18 @@ public sealed class ContainerAutofillCandidateLocator
 {
     private readonly IGeocodingService _geocodingService;
     private readonly IAddressCoordinateWriter _coordinateWriter;
+    private readonly ICountryResolver _countryResolver;
     private readonly ILogger<ContainerAutofillCandidateLocator> _logger;
 
     public ContainerAutofillCandidateLocator(
         IGeocodingService geocodingService,
         IAddressCoordinateWriter coordinateWriter,
+        ICountryResolver countryResolver,
         ILogger<ContainerAutofillCandidateLocator> logger)
     {
         _geocodingService = geocodingService;
         _coordinateWriter = coordinateWriter;
+        _countryResolver = countryResolver;
         _logger = logger;
     }
 
@@ -50,7 +60,8 @@ public sealed class ContainerAutofillCandidateLocator
 
     public async Task<Location?> GeocodeBaseAddressAsync(string address, string label, CancellationToken cancellationToken)
     {
-        var coords = await _geocodingService.GeocodeAddressAsync(address, ContainerAutofillDefaults.GeocodingCountry, cancellationToken);
+        var country = await _countryResolver.ResolveDefaultGeocodingNameAsync(cancellationToken);
+        var coords = await _geocodingService.GeocodeAddressAsync(address, country, cancellationToken);
         if (!coords.Latitude.HasValue || !coords.Longitude.HasValue)
         {
             _logger.LogWarning("Could not geocode {Label} address: {Address}", label, address.ForLog());
@@ -67,12 +78,12 @@ public sealed class ContainerAutofillCandidateLocator
         };
     }
 
-    private static (List<Location> locations, List<(Shift shift, Klacks.Api.Domain.Models.Staffs.Address address, string fullAddress)> needsGeocoding)
+    private static (List<Location> locations, List<(Shift shift, Address address, string fullAddress)> needsGeocoding)
         CollectDistinctAddresses(List<Shift> shifts, ContainerTransportMode containerTransportMode)
     {
         var locations = new List<Location>();
         var uniqueAddresses = new HashSet<string>();
-        var needsGeocoding = new List<(Shift shift, Klacks.Api.Domain.Models.Staffs.Address address, string fullAddress)>();
+        var needsGeocoding = new List<(Shift shift, Address address, string fullAddress)>();
 
         foreach (var shift in shifts)
         {
@@ -107,25 +118,57 @@ public sealed class ContainerAutofillCandidateLocator
 
     private async Task AddGeocodedLocationsAsync(
         List<Location> locations,
-        List<(Shift shift, Klacks.Api.Domain.Models.Staffs.Address address, string fullAddress)> needsGeocoding,
+        List<(Shift shift, Address address, string fullAddress)> needsGeocoding,
         ContainerTransportMode containerTransportMode,
         CancellationToken cancellationToken)
     {
+        var countryNames = await ResolveCountryNamesAsync(needsGeocoding.Select(req => req.address.Country), cancellationToken);
+
         var geocodeTasks = needsGeocoding.Select(async req =>
         {
-            var coords = await _geocodingService.GeocodeAddressAsync(req.fullAddress, req.address.Country ?? ContainerAutofillDefaults.GeocodingCountry, cancellationToken);
+            var coords = await _geocodingService.GeocodeAddressAsync(req.fullAddress, countryNames[req.address.Country], cancellationToken);
             return (req.shift, req.address, req.fullAddress, coords);
         });
 
         var results = await Task.WhenAll(geocodeTasks);
+        var hits = new List<(Guid addressId, double latitude, double longitude)>();
 
         foreach (var (shift, address, fullAddress, coords) in results)
         {
             if (coords.Latitude.HasValue && coords.Longitude.HasValue)
             {
                 locations.Add(CreateLocationFromShift(shift, fullAddress, coords.Latitude.Value, coords.Longitude.Value, containerTransportMode));
+                hits.Add((address.Id, coords.Latitude.Value, coords.Longitude.Value));
+            }
+        }
 
-                _ = _coordinateWriter.UpdateCoordinatesAsync(address.Id, coords.Latitude.Value, coords.Longitude.Value, CancellationToken.None);
+        await WriteCoordinatesAsync(hits, cancellationToken);
+    }
+
+    private async Task<Dictionary<string, string>> ResolveCountryNamesAsync(
+        IEnumerable<string> countryCodes, CancellationToken cancellationToken)
+    {
+        var names = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var code in countryCodes.Distinct(StringComparer.Ordinal))
+        {
+            names[code] = await _countryResolver.ResolveGeocodingNameAsync(code, cancellationToken);
+        }
+
+        return names;
+    }
+
+    private async Task WriteCoordinatesAsync(
+        List<(Guid addressId, double latitude, double longitude)> hits, CancellationToken cancellationToken)
+    {
+        foreach (var (addressId, latitude, longitude) in hits)
+        {
+            try
+            {
+                await _coordinateWriter.UpdateCoordinatesAsync(addressId, latitude, longitude, cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogWarning(ex, "Could not save the geocoded coordinates of address {AddressId}", addressId);
             }
         }
     }

@@ -8,6 +8,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -113,13 +114,7 @@ public class ValidateAddressSkill : BaseSkillImplementation
         var resolvedCountry = await _countryResolver.ResolveAsync(countryInput, cancellationToken)
             ?? await _countryResolver.GetDefaultAsync(cancellationToken);
 
-        // Nominatim uses country= as a free-text name; passing the German name (e.g. "Schweiz")
-        // is more reliable than the ISO code ("CH") for that parameter. Fall back to abbreviation
-        // if no name is stored.
-        var geocodingCountry = resolvedCountry?.Name.De
-            ?? resolvedCountry?.Name.En
-            ?? resolvedCountry?.Abbreviation
-            ?? string.Empty;
+        var geocodingCountry = GeocodingCountryName.Of(resolvedCountry);
 
         var countryDisplayCode = resolvedCountry?.Abbreviation ?? countryInput ?? string.Empty;
 
