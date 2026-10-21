@@ -102,7 +102,7 @@ internal sealed class ConditionRemediationExecutor
         }
 
         run.Budget.RecordClaim(condition.GroupId);
-        run.ActionsThisTick++;
+        run.RecordAction();
 
         await ExecuteClaimedAsync(run, condition, authority, identity, arguments, cancellationToken);
     }

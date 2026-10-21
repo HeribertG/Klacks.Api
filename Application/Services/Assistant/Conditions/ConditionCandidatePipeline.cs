@@ -4,8 +4,8 @@
 /// One candidate row through the action dispatcher's gates, in the order AgentConditionActionService
 /// documents: effective MaxAction, cascade guard, attempt limit, quiet window, pre-flight binding, stale
 /// approval, per-tick cap, daily budget and circuit breaker - and only then the approver, the standing
-/// approval or the approval chain. The order is the safety; every step is a literal copy of the
-/// dispatcher's former gate sequence.
+/// approval or the approval chain. The order is the safety; the characterization tests pin each adjacent
+/// pair of gates.
 /// </summary>
 /// <param name="governance">Gate (0): the effective MaxAction of the row.</param>
 /// <param name="cascadeGuard">Gate (1): rows an earlier Klacksy execution may have produced.</param>

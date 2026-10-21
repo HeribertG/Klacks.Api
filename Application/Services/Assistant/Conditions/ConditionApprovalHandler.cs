@@ -64,7 +64,7 @@ internal sealed class ConditionApprovalHandler
         {
             case ConditionApprovalStartOutcome.Started:
                 run.Tally.ApprovalsRequested++;
-                run.ActionsThisTick++;
+                run.RecordAction();
                 break;
             case ConditionApprovalStartOutcome.ChainAlreadyRunning:
             case ConditionApprovalStartOutcome.WaitingForNextCompanyDay:

@@ -6,7 +6,7 @@
 /// budget counts one kind's claims and remembers which group's stop it has already reported, and
 /// ActionsThisTick is the per-kind cap's counter. A fresh instance per kind is what keeps a Hint kind from
 /// borrowing an Execute kind's decision and one busy kind from spending another kind's cap. A class, not a
-/// record, because the collaborators raise ActionsThisTick through it.
+/// record, because the collaborators count actions through RecordAction.
 /// </summary>
 /// <param name="triggerKind">The kind this run walks.</param>
 /// <param name="entry">The kind's remediation from the code-only registry.</param>
@@ -61,5 +61,8 @@ internal sealed class ConditionActionKindRun
 
     public ConditionGovernanceCache GovernanceCache { get; } = new();
 
-    public int ActionsThisTick { get; set; }
+    public int ActionsThisTick { get; private set; }
+
+    /// <summary>Counts one action against the per-kind tick cap: a successful claim or a started approval chain.</summary>
+    public void RecordAction() => ActionsThisTick++;
 }
