@@ -136,10 +136,63 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
 
     internal sealed record BundleOutcome(Guid ContainerId, string ContainerName, ContainerAutofillResult AutofillResult);
 
+    private sealed record BundleRequest(
+        string Location,
+        int IsoWeekday,
+        int StorageWeekday,
+        TimeOnly FromTime,
+        TimeOnly UntilTime,
+        DateOnly FromDate,
+        DateOnly? UntilDate,
+        string TransportModeText,
+        ContainerTransportMode TransportMode,
+        double TimeRangeTolerance,
+        string? GroupIdsRaw,
+        string Name);
+
     public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
+    {
+        var (request, requestError) = ParseRequest(parameters);
+        if (request is null)
+        {
+            return SkillResult.Error(requestError!);
+        }
+
+        var unavailableTransportMode = await CheckTransportModeAvailableAsync(request.TransportMode, request.TransportModeText);
+        if (unavailableTransportMode != null)
+        {
+            return unavailableTransportMode;
+        }
+
+        var (groupItems, groupError) = await ResolveGroupItemsAsync(request.GroupIdsRaw, request.FromDate, cancellationToken);
+        if (groupItems is null)
+        {
+            return SkillResult.Error(groupError!);
+        }
+
+        var defaultMacroId = await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync(cancellationToken);
+        var containerShift = BuildContainerShift(request, groupItems, defaultMacroId, context.UserName);
+
+        var instanceId = _userService.GetInstanceId() ?? string.Empty;
+
+        BundleOutcome outcome;
+        try
+        {
+            outcome = await _unitOfWork.ExecuteInTransactionAsync(
+                () => CreateAndFillContainerAsync(request, containerShift, instanceId, cancellationToken));
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
+
+        return BuildSuccessResult(request, outcome);
+    }
+
+    private static (BundleRequest? Request, string? Error) ParseRequest(Dictionary<string, object> parameters)
     {
         var location = GetRequiredString(parameters, "location");
         var isoWeekday = GetRequiredInt(parameters, "weekday");
@@ -158,27 +211,61 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
 
         if (isoWeekday < MinIsoWeekday || isoWeekday > MaxIsoWeekday)
         {
-            return SkillResult.Error("weekday must be between 1 (Monday) and 7 (Sunday).");
+            return (null, "weekday must be between 1 (Monday) and 7 (Sunday).");
         }
 
+        var (fromTime, untilTime, timeError) = ParseTimeBudget(fromTimeStr, untilTimeStr);
+        if (timeError != null)
+        {
+            return (null, timeError);
+        }
+
+        var (fromDate, untilDate, dateError) = ParseValidity(fromDateStr, untilDateStr);
+        if (dateError != null)
+        {
+            return (null, dateError);
+        }
+
+        var (transportMode, transportModeError) = ParseTransportMode(transportModeStr);
+        if (transportMode is null)
+        {
+            return (null, transportModeError!);
+        }
+
+        var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
+
+        return (new BundleRequest(
+            location, isoWeekday, storageWeekday, fromTime, untilTime, fromDate, untilDate,
+            transportModeStr, transportMode.Value, timeRangeTolerance, groupIdsRaw, name), null);
+    }
+
+    private static (TimeOnly FromTime, TimeOnly UntilTime, string? Error) ParseTimeBudget(
+        string fromTimeStr, string untilTimeStr)
+    {
         if (!TimeOnly.TryParse(fromTimeStr, out var fromTime))
         {
-            return SkillResult.Error($"Invalid fromTime format: {fromTimeStr}. Expected HH:mm");
+            return (default, default, $"Invalid fromTime format: {fromTimeStr}. Expected HH:mm");
         }
 
         if (!TimeOnly.TryParse(untilTimeStr, out var untilTime))
         {
-            return SkillResult.Error($"Invalid untilTime format: {untilTimeStr}. Expected HH:mm");
+            return (default, default, $"Invalid untilTime format: {untilTimeStr}. Expected HH:mm");
         }
 
         if (untilTime.ToTimeSpan() <= fromTime.ToTimeSpan())
         {
-            return SkillResult.Error($"untilTime ({untilTimeStr}) must be after fromTime ({fromTimeStr}).");
+            return (default, default, $"untilTime ({untilTimeStr}) must be after fromTime ({fromTimeStr}).");
         }
 
+        return (fromTime, untilTime, null);
+    }
+
+    private static (DateOnly FromDate, DateOnly? UntilDate, string? Error) ParseValidity(
+        string fromDateStr, string? untilDateStr)
+    {
         if (!DateOnly.TryParse(fromDateStr, out var fromDate))
         {
-            return SkillResult.Error($"Invalid fromDate format: {fromDateStr}. Expected YYYY-MM-DD (e.g. 2026-06-01).");
+            return (default, null, $"Invalid fromDate format: {fromDateStr}. Expected YYYY-MM-DD (e.g. 2026-06-01).");
         }
 
         DateOnly? untilDate = null;
@@ -186,29 +273,23 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         {
             if (!DateOnly.TryParse(untilDateStr, out var parsedUntilDate))
             {
-                return SkillResult.Error($"Invalid untilDate format: {untilDateStr}. Expected YYYY-MM-DD.");
+                return (default, null, $"Invalid untilDate format: {untilDateStr}. Expected YYYY-MM-DD.");
             }
 
             untilDate = parsedUntilDate;
             if (untilDate.Value < fromDate)
             {
-                return SkillResult.Error(
+                return (default, null,
                     $"untilDate ({untilDate:yyyy-MM-dd}) must not be before fromDate ({fromDate:yyyy-MM-dd}).");
             }
         }
 
-        var (transportMode, transportModeError) = ParseTransportMode(transportModeStr);
-        if (transportMode is null)
-        {
-            return SkillResult.Error(transportModeError!);
-        }
+        return (fromDate, untilDate, null);
+    }
 
-        var unavailableTransportMode = await CheckTransportModeAvailableAsync(transportMode.Value, transportModeStr);
-        if (unavailableTransportMode != null)
-        {
-            return unavailableTransportMode;
-        }
-
+    private async Task<(List<GroupItem>? GroupItems, string? Error)> ResolveGroupItemsAsync(
+        string? groupIdsRaw, DateOnly fromDate, CancellationToken cancellationToken)
+    {
         var groupItems = new List<GroupItem>();
         if (!string.IsNullOrEmpty(groupIdsRaw))
         {
@@ -223,7 +304,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
                 var group = await _groupRepository.Get(groupId);
                 if (group == null || !await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken))
                 {
-                    return SkillResult.Error($"Group with ID {groupId} not found.");
+                    return (null, $"Group with ID {groupId} not found.");
                 }
 
                 groupItems.Add(new GroupItem
@@ -234,12 +315,16 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             }
         }
 
-        var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
-        var (isMonday, isTuesday, isWednesday, isThursday, isFriday, isSaturday, isSunday) = BuildIsoWeekdayFlags(isoWeekday);
+        return (groupItems, null);
+    }
 
-        var defaultMacroId = await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync(cancellationToken);
+    private static Shift BuildContainerShift(
+        BundleRequest request, List<GroupItem> groupItems, Guid? defaultMacroId, string userName)
+    {
+        var (name, fromTime, untilTime) = (request.Name, request.FromTime, request.UntilTime);
+        var (isMonday, isTuesday, isWednesday, isThursday, isFriday, isSaturday, isSunday) = BuildIsoWeekdayFlags(request.IsoWeekday);
 
-        var containerShift = new Shift
+        return new Shift
         {
             Id = Guid.NewGuid(),
             Name = name,
@@ -252,8 +337,8 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             IsTimeRange = false,
             StartShift = fromTime,
             EndShift = untilTime,
-            FromDate = fromDate,
-            UntilDate = untilDate,
+            FromDate = request.FromDate,
+            UntilDate = request.UntilDate,
             WorkTime = CalculateWorkTime(fromTime, untilTime),
             SumEmployees = DefaultSumEmployees,
             Quantity = DefaultQuantity,
@@ -266,122 +351,159 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             IsSunday = isSunday,
             GroupItems = groupItems,
             CreateTime = DateTime.UtcNow,
-            CurrentUserCreated = context.UserName
+            CurrentUserCreated = userName
         };
+    }
 
-        var instanceId = _userService.GetInstanceId() ?? string.Empty;
+    /// <summary>
+    /// Runs inside the transaction: persists the container, autofills it, and writes and confirms its weekday
+    /// template while holding the container lock. Any SkillVerificationException rolls the whole operation back.
+    /// </summary>
+    /// <param name="request">Validated skill input</param>
+    /// <param name="containerShift">The sealed container order to persist</param>
+    /// <param name="instanceId">Instance id the container lock is acquired under</param>
+    private async Task<BundleOutcome> CreateAndFillContainerAsync(
+        BundleRequest request, Shift containerShift, string instanceId, CancellationToken cancellationToken)
+    {
+        var resultShift = await _shiftRepository.AddWithSealedOrderHandling(containerShift);
+        await _unitOfWork.CompleteAsync();
 
-        BundleOutcome outcome;
+        var containerId = resultShift.Id;
+
+        var autofillResult = await AutofillVisibleSelectionAsync(containerId, request, cancellationToken);
+        if (autofillResult.SelectedShiftIds.Count == 0)
+        {
+            throw new SkillVerificationException(SkillName, string.Format(NoMatchingServicesMessage, request.Location));
+        }
+
+        var lockResult = await _mediator.Send(
+            new AcquireContainerLockCommand(ContainerLockResourceTypes.ContainerTemplate, containerId, instanceId), cancellationToken);
+
+        if (!lockResult.Acquired)
+        {
+            throw new SkillVerificationException(
+                SkillName,
+                "The newly created container could not be locked for writing its template — the operation was rolled back.");
+        }
+
         try
         {
-            outcome = await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            await WriteAndConfirmTemplateAsync(containerId, request, autofillResult.SelectedShiftIds, cancellationToken);
+
+            return new BundleOutcome(containerId, resultShift.Name, autofillResult);
+        }
+        finally
+        {
+            await ReleaseLockQuietlyAsync(lockResult.Id, cancellationToken);
+        }
+    }
+
+    private async Task<ContainerAutofillResult> AutofillVisibleSelectionAsync(
+        Guid containerId, BundleRequest request, CancellationToken cancellationToken)
+    {
+        var (storageWeekday, location) = (request.StorageWeekday, request.Location);
+        var (fromTime, untilTime, timeRangeTolerance) = (request.FromTime, request.UntilTime, request.TimeRangeTolerance);
+
+        var rawAutofillResult = await _containerAutofillService.AutofillAsync(new ContainerAutofillRequest(
+            ContainerId: containerId,
+            Weekday: storageWeekday,
+            IsHoliday: false,
+            StartBase: location,
+            EndBase: location,
+            FromTime: fromTime,
+            UntilTime: untilTime,
+            TransportMode: request.TransportMode,
+            TimeRangeTolerance: timeRangeTolerance,
+            CancellationToken: cancellationToken));
+
+        return await KeepVisibleSelectionAsync(rawAutofillResult, cancellationToken);
+    }
+
+    private async Task WriteAndConfirmTemplateAsync(
+        Guid containerId, BundleRequest request, List<Guid> selectedShiftIds, CancellationToken cancellationToken)
+    {
+        var (isoWeekday, storageWeekday, location) = (request.IsoWeekday, request.StorageWeekday, request.Location);
+
+        var containerTemplateItems = await BuildTemplateItemsAsync(selectedShiftIds);
+
+        var templateResource = new ContainerTemplateResource
+        {
+            Id = Guid.Empty,
+            ContainerId = containerId,
+            FromTime = request.FromTime,
+            UntilTime = request.UntilTime,
+            Weekday = storageWeekday,
+            IsHoliday = false,
+            IsWeekdayAndHoliday = false,
+            StartBase = location,
+            EndBase = location,
+            TransportMode = request.TransportMode,
+            ContainerTemplateItems = containerTemplateItems
+        };
+
+        await _mediator.Send(
+            new PostContainerTemplatesCommand(containerId, new List<ContainerTemplateResource> { templateResource }),
+            cancellationToken);
+
+        await ConfirmPersistedAsync(
+            SkillName,
+            () => _mediator.Send(new GetContainerTemplatesQuery(containerId), cancellationToken),
+            templates => IsTemplateFullyPersisted(templates, storageWeekday, selectedShiftIds),
+            $"the container template for weekday {isoWeekday}");
+    }
+
+    private async Task<List<ContainerTemplateItemResource>> BuildTemplateItemsAsync(List<Guid> selectedShiftIds)
+    {
+        var containerTemplateItems = new List<ContainerTemplateItemResource>();
+        foreach (var shiftId in selectedShiftIds)
+        {
+            var taskShift = await _shiftRepository.Get(shiftId);
+            if (taskShift is null)
             {
-                var resultShift = await _shiftRepository.AddWithSealedOrderHandling(containerShift);
-                await _unitOfWork.CompleteAsync();
+                throw new SkillVerificationException(
+                    SkillName,
+                    $"Selected task shift {shiftId} could not be re-read while building the container template.");
+            }
 
-                var containerId = resultShift.Id;
-
-                var rawAutofillResult = await _containerAutofillService.AutofillAsync(new ContainerAutofillRequest(
-                    ContainerId: containerId,
-                    Weekday: storageWeekday,
-                    IsHoliday: false,
-                    StartBase: location,
-                    EndBase: location,
-                    FromTime: fromTime,
-                    UntilTime: untilTime,
-                    TransportMode: transportMode.Value,
-                    TimeRangeTolerance: timeRangeTolerance,
-                    CancellationToken: cancellationToken));
-
-                var autofillResult = await KeepVisibleSelectionAsync(rawAutofillResult, cancellationToken);
-                if (autofillResult.SelectedShiftIds.Count == 0)
-                {
-                    throw new SkillVerificationException(SkillName, string.Format(NoMatchingServicesMessage, location));
-                }
-
-                var lockResult = await _mediator.Send(
-                    new AcquireContainerLockCommand(ContainerLockResourceTypes.ContainerTemplate, containerId, instanceId), cancellationToken);
-
-                if (!lockResult.Acquired)
-                {
-                    throw new SkillVerificationException(
-                        SkillName,
-                        "The newly created container could not be locked for writing its template — the operation was rolled back.");
-                }
-
-                try
-                {
-                    var containerTemplateItems = new List<ContainerTemplateItemResource>();
-                    foreach (var shiftId in autofillResult.SelectedShiftIds)
-                    {
-                        var taskShift = await _shiftRepository.Get(shiftId);
-                        if (taskShift is null)
-                        {
-                            throw new SkillVerificationException(
-                                SkillName,
-                                $"Selected task shift {shiftId} could not be re-read while building the container template.");
-                        }
-
-                        containerTemplateItems.Add(new ContainerTemplateItemResource
-                        {
-                            Id = Guid.Empty,
-                            ShiftId = taskShift.Id,
-                            AbsenceId = null,
-                            StartItem = taskShift.StartShift,
-                            EndItem = taskShift.EndShift,
-                            BriefingTime = taskShift.BriefingTime,
-                            DebriefingTime = taskShift.DebriefingTime,
-                            TravelTimeAfter = taskShift.TravelTimeAfter,
-                            TravelTimeBefore = taskShift.TravelTimeBefore,
-                            TimeRangeStartItem = null,
-                            TimeRangeEndItem = null,
-                            TransportMode = Klacks.Api.Domain.Enums.TransportMode.ByCar
-                        });
-                    }
-
-                    var templateResource = new ContainerTemplateResource
-                    {
-                        Id = Guid.Empty,
-                        ContainerId = containerId,
-                        FromTime = fromTime,
-                        UntilTime = untilTime,
-                        Weekday = storageWeekday,
-                        IsHoliday = false,
-                        IsWeekdayAndHoliday = false,
-                        StartBase = location,
-                        EndBase = location,
-                        TransportMode = transportMode.Value,
-                        ContainerTemplateItems = containerTemplateItems
-                    };
-
-                    await _mediator.Send(
-                        new PostContainerTemplatesCommand(containerId, new List<ContainerTemplateResource> { templateResource }),
-                        cancellationToken);
-
-                    await ConfirmPersistedAsync(
-                        SkillName,
-                        () => _mediator.Send(new GetContainerTemplatesQuery(containerId), cancellationToken),
-                        templates => IsTemplateFullyPersisted(templates, storageWeekday, autofillResult.SelectedShiftIds),
-                        $"the container template for weekday {isoWeekday}");
-
-                    return new BundleOutcome(containerId, resultShift.Name, autofillResult);
-                }
-                finally
-                {
-                    try
-                    {
-                        await _mediator.Send(new ReleaseContainerLockCommand(lockResult.Id), cancellationToken);
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
+            containerTemplateItems.Add(new ContainerTemplateItemResource
+            {
+                Id = Guid.Empty,
+                ShiftId = taskShift.Id,
+                AbsenceId = null,
+                StartItem = taskShift.StartShift,
+                EndItem = taskShift.EndShift,
+                BriefingTime = taskShift.BriefingTime,
+                DebriefingTime = taskShift.DebriefingTime,
+                TravelTimeAfter = taskShift.TravelTimeAfter,
+                TravelTimeBefore = taskShift.TravelTimeBefore,
+                TimeRangeStartItem = null,
+                TimeRangeEndItem = null,
+                TransportMode = Klacks.Api.Domain.Enums.TransportMode.ByCar
             });
         }
-        catch (SkillVerificationException ex)
+
+        return containerTemplateItems;
+    }
+
+    /// <summary>
+    /// Releases the container lock on every exit path and swallows a failing release, so it can never mask the
+    /// operation's real outcome.
+    /// </summary>
+    /// <param name="lockId">Id of the lock acquired before the template write</param>
+    private async Task ReleaseLockQuietlyAsync(Guid lockId, CancellationToken cancellationToken)
+    {
+        try
         {
-            return SkillResult.Error(ex.Message);
+            await _mediator.Send(new ReleaseContainerLockCommand(lockId), cancellationToken);
         }
+        catch (Exception)
+        {
+        }
+    }
+
+    private static SkillResult BuildSuccessResult(BundleRequest request, BundleOutcome outcome)
+    {
+        var (isoWeekday, transportModeStr, location) = (request.IsoWeekday, request.TransportModeText, request.Location);
 
         var autofill = outcome.AutofillResult;
         var resultData = new

@@ -39,6 +39,10 @@ public class CreateShiftSkill : BaseSkillImplementation
     private const string MacroIdParameter = "macroId";
     private const string MacroNotFoundMessage =
         "Calculation macro with ID {0} not found. Use list_macros to pick a valid macro.";
+    private const string MissingClientIdMessage =
+        "Cannot create the order yet. Every order (Bestellung) must be billed to a customer. " +
+        "Ask the user which customer this order is for — list existing customers with find_customer_candidates, " +
+        "or create a new one with create_employee using entityType=Customer — then call create_shift again with clientId.";
     private const string NoShiftMacroMessage =
         "Cannot create the order yet. No calculation macro with category 'Shift' is configured, so the " +
         "order would have no way to compute its hours and surcharges. First set up a calculation macro " +
@@ -74,47 +78,41 @@ public class CreateShiftSkill : BaseSkillImplementation
         _defaultShiftMacroResolver = defaultShiftMacroResolver;
     }
 
+    private sealed record OrderInput(
+        string Name,
+        string Abbreviation,
+        string StartTimeText,
+        string EndTimeText,
+        string? FromDateText,
+        string? UntilDateText,
+        int SumEmployees,
+        int Quantity,
+        string? GroupIdsRaw,
+        string Description,
+        bool AsDraft,
+        string? ClientIdText,
+        string WeekdaysText);
+
+    private sealed record OrderSchedule(
+        TimeOnly StartTime,
+        TimeOnly EndTime,
+        DateOnly FromDate,
+        DateOnly? UntilDate,
+        decimal WorkTime);
+
+    private sealed record OrderBilling(Guid ClientId, string ClientName, Guid? MacroId, string? MacroName);
+
     public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var name = GetRequiredString(parameters, "name");
-        var abbreviation = GetParameter<string>(parameters, "abbreviation") ?? GenerateAbbreviation(name);
-        var startTimeStr = GetRequiredString(parameters, "startTime");
-        var endTimeStr = GetRequiredString(parameters, "endTime");
-        var fromDateStr = GetParameter<string>(parameters, "fromDate");
-        var untilDateStr = GetParameter<string>(parameters, "untilDate");
-        var sumEmployees = GetParameter<int>(parameters, "sumEmployees", 1);
-        var quantity = GetParameter<int>(parameters, "quantity", 1);
-        var groupIdsRaw = GetParameter<string>(parameters, "groupIds");
-        var description = GetParameter<string>(parameters, "description") ?? "";
-        var asDraft = GetParameter<bool>(parameters, "asDraft", false);
+        var input = ReadInput(parameters);
 
-        var clientIdStr = GetParameter<string>(parameters, "clientId");
-        if (string.IsNullOrWhiteSpace(clientIdStr) || !Guid.TryParse(clientIdStr, out var clientId))
+        var (clientId, clientName, clientError) = await ResolveCustomerAsync(input.ClientIdText, cancellationToken);
+        if (clientName is null)
         {
-            return SkillResult.Error(
-                "Cannot create the order yet. Every order (Bestellung) must be billed to a customer. " +
-                "Ask the user which customer this order is for — list existing customers with find_customer_candidates, " +
-                "or create a new one with create_employee using entityType=Customer — then call create_shift again with clientId.");
-        }
-
-        var client = await LoadVisibleCustomerAsync(clientId, cancellationToken);
-        if (client == null)
-        {
-            return SkillResult.Error($"Customer with ID {clientId} not found.");
-        }
-
-        var clientName = !string.IsNullOrWhiteSpace(client.Company)
-            ? client.Company
-            : $"{client.FirstName} {client.Name}".Trim();
-
-        if (client.Type != EntityTypeEnum.Customer)
-        {
-            return SkillResult.Error(
-                $"Client '{clientName}' is not a customer (type {client.Type}). An order must be billed to a customer. " +
-                "Pick a customer with find_customer_candidates or create one with create_employee using entityType=Customer.");
+            return SkillResult.Error(clientError!);
         }
 
         var (macroId, macroName, macroError) = await ResolveMacroAsync(parameters, cancellationToken);
@@ -123,21 +121,110 @@ public class CreateShiftSkill : BaseSkillImplementation
             return SkillResult.Error(macroError);
         }
 
-        var weekdaysStr = GetParameter<string>(parameters, "weekdays") ?? "all";
+        var (schedule, scheduleError) = ParseSchedule(input);
+        if (schedule is null)
+        {
+            return SkillResult.Error(scheduleError!);
+        }
+
+        var (groupItems, groupError) = await ResolveGroupItemsAsync(input.GroupIdsRaw, schedule.FromDate, cancellationToken);
+        if (groupItems is null)
+        {
+            return SkillResult.Error(groupError!);
+        }
+
+        var billing = new OrderBilling(clientId, clientName, macroId, macroName);
+        var shift = BuildOrder(input, schedule, billing, groupItems, context.UserName);
+
+        // ORD-5a idempotency: reuse a structurally identical uncut order instead of creating a duplicate
+        // (the deterministic guard lives in the repository — UI/REST stays unaffected). On a hit, route
+        // the model to cut the existing order instead of re-creating. Skipped when asDraft: the match
+        // is keyed on an existing OriginalShift (i.e. an already-sealed order with its plannable shift),
+        // which only makes sense once sealing has happened — reusing it here would silently skip past
+        // the very draft stage the caller asked for.
+        var reusable = input.AsDraft ? null : await _shiftRepository.FindReusableUncutOrderAsync(shift, cancellationToken);
+        if (reusable != null)
+        {
+            return ReusedOrderResult(reusable, input.Name, billing);
+        }
+
+        var resultShift = await _shiftRepository.AddWithSealedOrderHandling(shift);
+        await _unitOfWork.CompleteAsync();
+
+        return CreatedOrderResult(input, schedule, billing, groupItems, shift, resultShift);
+    }
+
+    private static OrderInput ReadInput(Dictionary<string, object> parameters)
+    {
+        var name = GetRequiredString(parameters, "name");
+        var abbreviation = GetParameter<string>(parameters, "abbreviation") ?? GenerateAbbreviation(name);
+        var startTimeStr = GetRequiredString(parameters, "startTime");
+        var endTimeStr = GetRequiredString(parameters, "endTime");
+
+        return new OrderInput(
+            name,
+            abbreviation,
+            startTimeStr,
+            endTimeStr,
+            GetParameter<string>(parameters, "fromDate"),
+            GetParameter<string>(parameters, "untilDate"),
+            GetParameter<int>(parameters, "sumEmployees", 1),
+            GetParameter<int>(parameters, "quantity", 1),
+            GetParameter<string>(parameters, "groupIds"),
+            GetParameter<string>(parameters, "description") ?? "",
+            GetParameter<bool>(parameters, "asDraft", false),
+            GetParameter<string>(parameters, "clientId"),
+            GetParameter<string>(parameters, "weekdays") ?? "all");
+    }
+
+    private async Task<(Guid ClientId, string? ClientName, string? Error)> ResolveCustomerAsync(
+        string? clientIdStr, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(clientIdStr) || !Guid.TryParse(clientIdStr, out var clientId))
+        {
+            return (Guid.Empty, null, MissingClientIdMessage);
+        }
+
+        var client = await LoadVisibleCustomerAsync(clientId, cancellationToken);
+        if (client == null)
+        {
+            return (clientId, null, $"Customer with ID {clientId} not found.");
+        }
+
+        var clientName = !string.IsNullOrWhiteSpace(client.Company)
+            ? client.Company
+            : $"{client.FirstName} {client.Name}".Trim();
+
+        if (client.Type != EntityTypeEnum.Customer)
+        {
+            return (clientId, null,
+                $"Client '{clientName}' is not a customer (type {client.Type}). An order must be billed to a customer. " +
+                "Pick a customer with find_customer_candidates or create one with create_employee using entityType=Customer.");
+        }
+
+        return (clientId, clientName, null);
+    }
+
+    private static (OrderSchedule? Schedule, string? Error) ParseSchedule(OrderInput input)
+    {
+        var startTimeStr = input.StartTimeText;
+        var endTimeStr = input.EndTimeText;
+        var fromDateStr = input.FromDateText;
+        var untilDateStr = input.UntilDateText;
 
         if (!TimeOnly.TryParse(startTimeStr, out var startTime))
         {
-            return SkillResult.Error($"Invalid start time format: {startTimeStr}. Expected HH:mm");
+            return (null, $"Invalid start time format: {startTimeStr}. Expected HH:mm");
         }
 
         if (!TimeOnly.TryParse(endTimeStr, out var endTime))
         {
-            return SkillResult.Error($"Invalid end time format: {endTimeStr}. Expected HH:mm");
+            return (null, $"Invalid end time format: {endTimeStr}. Expected HH:mm");
         }
 
         if (string.IsNullOrWhiteSpace(fromDateStr))
         {
-            return SkillResult.Error(
+            return (null,
                 "Cannot create the order yet. Ask the user from when the order is valid (ab wann / von wann gilt die Bestellung). " +
                 "When you ask, append a date picker so the user can pick it instead of typing: [REPLIES:date \"Ab wann gilt die Bestellung?\"]. " +
                 "Resolve casual phrases the user already gave you: \"heute\"/\"sofort\"/\"today\" -> today's date; " +
@@ -147,7 +234,7 @@ public class CreateShiftSkill : BaseSkillImplementation
 
         if (!DateOnly.TryParse(fromDateStr, out var fromDate))
         {
-            return SkillResult.Error($"Invalid fromDate format: {fromDateStr}. Expected YYYY-MM-DD (e.g. 2026-06-01).");
+            return (null, $"Invalid fromDate format: {fromDateStr}. Expected YYYY-MM-DD (e.g. 2026-06-01).");
         }
 
         DateOnly? untilDate = null;
@@ -158,25 +245,25 @@ public class CreateShiftSkill : BaseSkillImplementation
 
         if (untilDate.HasValue && untilDate.Value < fromDate)
         {
-            return SkillResult.Error(
-                $"untilDate ({untilDate:yyyy-MM-dd}) must not be before fromDate ({fromDate:yyyy-MM-dd}).");
+            return (null, $"untilDate ({untilDate:yyyy-MM-dd}) must not be before fromDate ({fromDate:yyyy-MM-dd}).");
         }
 
-        if (sumEmployees < 1)
+        if (input.SumEmployees < 1)
         {
-            return SkillResult.Error("sumEmployees (required staff count) must be at least 1.");
+            return (null, "sumEmployees (required staff count) must be at least 1.");
         }
 
-        if (quantity < 1)
+        if (input.Quantity < 1)
         {
-            return SkillResult.Error("quantity must be at least 1.");
+            return (null, "quantity must be at least 1.");
         }
 
-        var (isMonday, isTuesday, isWednesday, isThursday, isFriday, isSaturday, isSunday) =
-            ParseWeekdays(weekdaysStr);
+        return (new OrderSchedule(startTime, endTime, fromDate, untilDate, CalculateWorkTime(startTime, endTime)), null);
+    }
 
-        var workTime = CalculateWorkTime(startTime, endTime);
-
+    private async Task<(List<GroupItem>? GroupItems, string? Error)> ResolveGroupItemsAsync(
+        string? groupIdsRaw, DateOnly fromDate, CancellationToken cancellationToken)
+    {
         var groupItems = new List<GroupItem>();
         if (!string.IsNullOrEmpty(groupIdsRaw))
         {
@@ -188,7 +275,7 @@ public class CreateShiftSkill : BaseSkillImplementation
                     var group = await _groupRepository.Get(gid);
                     if (group == null || !await _groupVisibilityGuard.IsGroupVisibleAsync(gid, cancellationToken))
                     {
-                        return SkillResult.Error($"Group with ID {gid} not found.");
+                        return (null, $"Group with ID {gid} not found.");
                     }
 
                     groupItems.Add(new GroupItem
@@ -200,24 +287,33 @@ public class CreateShiftSkill : BaseSkillImplementation
             }
         }
 
-        var shift = new Shift
+        return (groupItems, null);
+    }
+
+    private static Shift BuildOrder(
+        OrderInput input, OrderSchedule schedule, OrderBilling billing, List<GroupItem> groupItems, string userName)
+    {
+        var (isMonday, isTuesday, isWednesday, isThursday, isFriday, isSaturday, isSunday) =
+            ParseWeekdays(input.WeekdaysText);
+
+        return new Shift
         {
             Id = Guid.NewGuid(),
-            Name = name,
-            Abbreviation = abbreviation,
-            Description = description,
-            ClientId = clientId,
-            MacroId = macroId,
-            Status = asDraft ? ShiftStatus.OriginalOrder : ShiftStatus.SealedOrder,
+            Name = input.Name,
+            Abbreviation = input.Abbreviation,
+            Description = input.Description,
+            ClientId = billing.ClientId,
+            MacroId = billing.MacroId,
+            Status = input.AsDraft ? ShiftStatus.OriginalOrder : ShiftStatus.SealedOrder,
             ShiftType = ShiftType.IsTask,
             IsTimeRange = true,
-            StartShift = startTime,
-            EndShift = endTime,
-            FromDate = fromDate,
-            UntilDate = untilDate,
-            WorkTime = workTime,
-            SumEmployees = sumEmployees,
-            Quantity = quantity,
+            StartShift = schedule.StartTime,
+            EndShift = schedule.EndTime,
+            FromDate = schedule.FromDate,
+            UntilDate = schedule.UntilDate,
+            WorkTime = schedule.WorkTime,
+            SumEmployees = input.SumEmployees,
+            Quantity = input.Quantity,
             IsMonday = isMonday,
             IsTuesday = isTuesday,
             IsWednesday = isWednesday,
@@ -227,36 +323,44 @@ public class CreateShiftSkill : BaseSkillImplementation
             IsSunday = isSunday,
             GroupItems = groupItems,
             CreateTime = DateTime.UtcNow,
-            CurrentUserCreated = context.UserName
+            CurrentUserCreated = userName
         };
+    }
 
-        // ORD-5a idempotency: reuse a structurally identical uncut order instead of creating a duplicate
-        // (the deterministic guard lives in the repository — UI/REST stays unaffected). On a hit, route
-        // the model to cut the existing order instead of re-creating. Skipped when asDraft: the match
-        // is keyed on an existing OriginalShift (i.e. an already-sealed order with its plannable shift),
-        // which only makes sense once sealing has happened — reusing it here would silently skip past
-        // the very draft stage the caller asked for.
-        var reusable = asDraft ? null : await _shiftRepository.FindReusableUncutOrderAsync(shift, cancellationToken);
-        if (reusable != null)
-        {
-            return SkillResult.SuccessResult(
-                new
-                {
-                    ShiftId = reusable.Id,
-                    SealedOrderId = reusable.OriginalId,
-                    reusable.Name,
-                    Reused = true,
-                    ClientId = clientId,
-                    ClientName = clientName
-                },
-                $"Order '{name}' already exists for customer '{clientName}' (not yet split) — no new order created. " +
-                $"If it should be split into parts, call cut_shift now with shiftId=\"{reusable.Id}\" and the requested parts " +
-                "(e.g. parts=\"07:00-15:00,15:00-23:00,23:00-07:00\", partNames=\"Frühdienst,Spätdienst,Nachtdienst\"). " +
-                "Do NOT navigate to the cut page and do NOT write manual cutting instructions.");
-        }
+    private static SkillResult ReusedOrderResult(Shift reusable, string name, OrderBilling billing)
+    {
+        var clientName = billing.ClientName;
 
-        var resultShift = await _shiftRepository.AddWithSealedOrderHandling(shift);
-        await _unitOfWork.CompleteAsync();
+        return SkillResult.SuccessResult(
+            new
+            {
+                ShiftId = reusable.Id,
+                SealedOrderId = reusable.OriginalId,
+                reusable.Name,
+                Reused = true,
+                ClientId = billing.ClientId,
+                ClientName = clientName
+            },
+            $"Order '{name}' already exists for customer '{clientName}' (not yet split) — no new order created. " +
+            $"If it should be split into parts, call cut_shift now with shiftId=\"{reusable.Id}\" and the requested parts " +
+            "(e.g. parts=\"07:00-15:00,15:00-23:00,23:00-07:00\", partNames=\"Frühdienst,Spätdienst,Nachtdienst\"). " +
+            "Do NOT navigate to the cut page and do NOT write manual cutting instructions.");
+    }
+
+    private static SkillResult CreatedOrderResult(
+        OrderInput input,
+        OrderSchedule schedule,
+        OrderBilling billing,
+        List<GroupItem> groupItems,
+        Shift shift,
+        Shift resultShift)
+    {
+        var name = input.Name;
+        var startTime = schedule.StartTime;
+        var endTime = schedule.EndTime;
+        var workTime = schedule.WorkTime;
+        var clientName = billing.ClientName;
+        var macroName = billing.MacroName;
 
         var resultData = new
         {
@@ -266,14 +370,14 @@ public class CreateShiftSkill : BaseSkillImplementation
             shift.Abbreviation,
             StartTime = startTime.ToString("HH:mm"),
             EndTime = endTime.ToString("HH:mm"),
-            FromDate = fromDate.ToString("yyyy-MM-dd"),
-            UntilDate = untilDate?.ToString("yyyy-MM-dd"),
+            FromDate = schedule.FromDate.ToString("yyyy-MM-dd"),
+            UntilDate = schedule.UntilDate?.ToString("yyyy-MM-dd"),
             WorkTime = workTime,
-            SumEmployees = sumEmployees,
+            SumEmployees = input.SumEmployees,
             GroupCount = groupItems.Count,
-            ClientId = clientId,
+            ClientId = billing.ClientId,
             ClientName = clientName,
-            MacroId = macroId,
+            MacroId = billing.MacroId,
             MacroName = macroName
         };
 
@@ -281,7 +385,7 @@ public class CreateShiftSkill : BaseSkillImplementation
             ? $" with calculation macro '{macroName}'"
             : " (no default calculation macro configured — set one with category Shift)";
 
-        var message = asDraft
+        var message = input.AsDraft
             ? $"Order '{name}' ({startTime:HH:mm}-{endTime:HH:mm}, {workTime}h) created as a DRAFT (status OriginalOrder) " +
               $"for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s) — NOT sealed yet, so it has no " +
               "plannable shift and cannot be booked or cut. Continue refining it, then call seal_shift with " +

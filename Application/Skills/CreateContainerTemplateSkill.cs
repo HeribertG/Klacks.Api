@@ -28,6 +28,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -65,10 +66,62 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
         _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
+    private sealed record TemplateRequest(
+        Guid ContainerId,
+        int IsoWeekday,
+        int StorageWeekday,
+        TimeOnly FromTime,
+        TimeOnly UntilTime,
+        bool IsHoliday,
+        bool IsWeekdayAndHoliday,
+        string? StartBase,
+        string? EndBase,
+        string TransportModeText,
+        ContainerTransportMode TransportMode);
+
     public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
+    {
+        var (request, requestError) = ParseRequest(parameters);
+        if (request is null)
+        {
+            return SkillResult.Error(requestError!);
+        }
+
+        var (container, containerError) = await LoadPlannableContainerAsync(request.ContainerId, cancellationToken);
+        if (container is null)
+        {
+            return SkillResult.Error(containerError!);
+        }
+
+        var duplicateError = await FindDuplicateTemplateAsync(request, container);
+        if (duplicateError != null)
+        {
+            return SkillResult.Error(duplicateError);
+        }
+
+        var containersRoute = _routes.Resolve(typeof(ContainerTemplateResource));
+        var templatesRoute = $"{containersRoute}/{request.ContainerId}/{TemplatesRouteSegment}";
+
+        var (acquiredLock, lockError) = await AcquireLockAsync(request.ContainerId, container, context, cancellationToken);
+        if (acquiredLock is null)
+        {
+            return SkillResult.Error(lockError!);
+        }
+
+        try
+        {
+            return await PostTemplateAsync(request, container, templatesRoute, context, cancellationToken);
+        }
+        finally
+        {
+            await ReleaseLockAsync(acquiredLock.Id, context);
+        }
+    }
+
+    private static (TemplateRequest? Request, string? Error) ParseRequest(Dictionary<string, object> parameters)
     {
         var containerId = GetRequiredGuid(parameters, "containerId");
         var isoWeekday = GetRequiredInt(parameters, "weekday");
@@ -82,67 +135,85 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
 
         if (isoWeekday < MinIsoWeekday || isoWeekday > MaxIsoWeekday)
         {
-            return SkillResult.Error("weekday must be between 1 (Monday) and 7 (Sunday).");
+            return (null, "weekday must be between 1 (Monday) and 7 (Sunday).");
         }
 
         if (!TimeOnly.TryParse(fromTimeStr, out var fromTime))
         {
-            return SkillResult.Error($"Invalid fromTime '{fromTimeStr}'. Expected format 'HH:mm'.");
+            return (null, $"Invalid fromTime '{fromTimeStr}'. Expected format 'HH:mm'.");
         }
 
         if (!TimeOnly.TryParse(untilTimeStr, out var untilTime))
         {
-            return SkillResult.Error($"Invalid untilTime '{untilTimeStr}'. Expected format 'HH:mm'.");
+            return (null, $"Invalid untilTime '{untilTimeStr}'. Expected format 'HH:mm'.");
         }
 
         if (untilTime <= fromTime)
         {
-            return SkillResult.Error(
-                $"untilTime ({untilTime:HH\\:mm}) must be after fromTime ({fromTime:HH\\:mm}).");
+            return (null, $"untilTime ({untilTime:HH\\:mm}) must be after fromTime ({fromTime:HH\\:mm}).");
         }
 
         var (transportMode, transportModeError) = ParseTransportMode(transportModeStr);
         if (transportMode is null)
         {
-            return SkillResult.Error(transportModeError!);
+            return (null, transportModeError!);
         }
 
         var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
 
+        return (new TemplateRequest(
+            containerId, isoWeekday, storageWeekday, fromTime, untilTime, isHoliday, isWeekdayAndHoliday,
+            startBase, endBase, transportModeStr, transportMode.Value), null);
+    }
+
+    private async Task<(Shift? Container, string? Error)> LoadPlannableContainerAsync(
+        Guid containerId, CancellationToken cancellationToken)
+    {
         var container = await _shiftRepository.Get(containerId);
         if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
         {
-            return SkillResult.Error($"Shift/container not found: {containerId}");
+            return (null, $"Shift/container not found: {containerId}");
         }
 
         if (container.ShiftType != ShiftType.IsContainer)
         {
-            return SkillResult.Error($"Shift {containerId} is not a container shift (ShiftType must be IsContainer).");
+            return (null, $"Shift {containerId} is not a container shift (ShiftType must be IsContainer).");
         }
 
         if (container.Status != ShiftStatus.OriginalShift)
         {
-            return SkillResult.Error(
+            return (null,
                 $"Container '{container.Name}' has status {container.Status}; a template belongs to the plannable " +
                 "container shift (status OriginalShift). Pass the plannable shift's id, not the order's — " +
                 "get_shift_details or search_shifts with status=container return it.");
         }
 
-        var existingTemplates = await _containerTemplateRepository.GetTemplatesForContainer(containerId);
+        return (container, null);
+    }
+
+    private async Task<string?> FindDuplicateTemplateAsync(TemplateRequest request, Shift container)
+    {
+        var (isoWeekday, storageWeekday) = (request.IsoWeekday, request.StorageWeekday);
+        var (isHoliday, isWeekdayAndHoliday) = (request.IsHoliday, request.IsWeekdayAndHoliday);
+
+        var existingTemplates = await _containerTemplateRepository.GetTemplatesForContainer(request.ContainerId);
         if (existingTemplates.Any(t =>
                 t.Weekday == storageWeekday
                 && t.IsHoliday == isHoliday
                 && t.IsWeekdayAndHoliday == isWeekdayAndHoliday))
         {
-            return SkillResult.Error(
+            return
                 $"Container '{container.Name}' already has a template for weekday {isoWeekday} " +
                 $"(isHoliday={isHoliday}, isWeekdayAndHoliday={isWeekdayAndHoliday}). " +
-                "Use list_container_template to inspect it and add_container_template_task to fill it.");
+                "Use list_container_template to inspect it and add_container_template_task to fill it.";
         }
 
-        var containersRoute = _routes.Resolve(typeof(ContainerTemplateResource));
-        var templatesRoute = $"{containersRoute}/{containerId}/{TemplatesRouteSegment}";
+        return null;
+    }
 
+    private async Task<(ContainerLockResource? Lock, string? Error)> AcquireLockAsync(
+        Guid containerId, Shift container, SkillExecutionContext context, CancellationToken cancellationToken)
+    {
         var lockResult = await _selfApi.PostAsync<ContainerLockResource>(
             $"{SelfApiRoutes.ContainerLocks}/{LockAcquireRouteSegment}",
             new AcquireContainerLockRequest
@@ -157,13 +228,13 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
 
         if (!lockResult.Success)
         {
-            return SkillResult.Error(lockResult.ErrorMessage!);
+            return (null, lockResult.ErrorMessage!);
         }
 
         var acquiredLock = lockResult.Value;
         if (acquiredLock is null)
         {
-            return SkillResult.Error("The container edit lock could not be acquired — nothing was written.");
+            return (null, "The container edit lock could not be acquired — nothing was written.");
         }
 
         if (!acquiredLock.Acquired)
@@ -171,80 +242,100 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
             // A self-conflict is the normal case here rather than an edge case: the browser holds the lock
             // under its X-Instance-Id, and the self-call cannot present that id, so the caller's own open
             // container page looks like a foreign session. Saying "another user" would be untrue.
-            return SkillResult.Error(acquiredLock.IsSelfConflict
+            return (null, acquiredLock.IsSelfConflict
                 ? $"You have container '{container.Name}' open for editing yourself, and an assistant-driven " +
                   "write cannot share that editing session. Close the container page and try again, or create " +
                   "the weekday template directly on the page you already have open."
                 : $"Container '{container.Name}' is currently being edited by {acquiredLock.UserName}.");
         }
 
-        try
+        return (acquiredLock, null);
+    }
+
+    private async Task<SkillResult> PostTemplateAsync(
+        TemplateRequest request,
+        Shift container,
+        string templatesRoute,
+        SkillExecutionContext context,
+        CancellationToken cancellationToken)
+    {
+        var (isoWeekday, storageWeekday) = (request.IsoWeekday, request.StorageWeekday);
+        var (isHoliday, isWeekdayAndHoliday) = (request.IsHoliday, request.IsWeekdayAndHoliday);
+
+        var templateResource = BuildEmptyTemplate(request);
+
+        var postResult = await _selfApi.PostAsync<List<ContainerTemplateResource>>(
+            templatesRoute,
+            new List<ContainerTemplateResource> { templateResource },
+            context,
+            SkillName,
+            cancellationToken);
+
+        if (!postResult.Success)
         {
-            var templateResource = new ContainerTemplateResource
-            {
-                Id = Guid.Empty,
-                ContainerId = containerId,
-                FromTime = fromTime,
-                UntilTime = untilTime,
-                Weekday = storageWeekday,
-                IsHoliday = isHoliday,
-                IsWeekdayAndHoliday = isWeekdayAndHoliday,
-                StartBase = startBase,
-                EndBase = endBase ?? startBase,
-                TransportMode = transportMode.Value,
-                ContainerTemplateItems = new List<ContainerTemplateItemResource>()
-            };
-
-            var postResult = await _selfApi.PostAsync<List<ContainerTemplateResource>>(
-                templatesRoute,
-                new List<ContainerTemplateResource> { templateResource },
-                context,
-                SkillName,
-                cancellationToken);
-
-            if (!postResult.Success)
-            {
-                return SkillResult.Error(postResult.ErrorMessage!);
-            }
-
-            var created = postResult.Value?.FirstOrDefault(t =>
-                t.Weekday == storageWeekday
-                && t.IsHoliday == isHoliday
-                && t.IsWeekdayAndHoliday == isWeekdayAndHoliday);
-
-            if (created is null || created.Id == Guid.Empty)
-            {
-                return SkillResult.Error(
-                    $"The template for weekday {isoWeekday} was posted but the API returned no persisted template, " +
-                    "so the write could not be confirmed.");
-            }
-
-            var resultData = new
-            {
-                ContainerTemplateId = created.Id,
-                ContainerId = containerId,
-                ContainerName = container.Name,
-                Weekday = isoWeekday,
-                FromTime = fromTime.ToString("HH\\:mm"),
-                UntilTime = untilTime.ToString("HH\\:mm"),
-                IsHoliday = isHoliday,
-                IsWeekdayAndHoliday = isWeekdayAndHoliday,
-                StartBase = templateResource.StartBase,
-                EndBase = templateResource.EndBase,
-                TransportMode = transportModeStr,
-                Verified = true
-            };
-
-            return SkillResult.SuccessResult(
-                resultData,
-                $"Weekday template for weekday {isoWeekday} created on container '{container.Name}' " +
-                $"({fromTime:HH\\:mm}-{untilTime:HH\\:mm}). It is still empty — add task shifts to it with " +
-                $"add_container_template_task using containerId=\"{containerId}\" and weekday={isoWeekday}.");
+            return SkillResult.Error(postResult.ErrorMessage!);
         }
-        finally
+
+        var created = postResult.Value?.FirstOrDefault(t =>
+            t.Weekday == storageWeekday
+            && t.IsHoliday == isHoliday
+            && t.IsWeekdayAndHoliday == isWeekdayAndHoliday);
+
+        if (created is null || created.Id == Guid.Empty)
         {
-            await ReleaseLockAsync(acquiredLock.Id, context);
+            return SkillResult.Error(
+                $"The template for weekday {isoWeekday} was posted but the API returned no persisted template, " +
+                "so the write could not be confirmed.");
         }
+
+        return CreatedTemplateResult(request, container, created.Id, templateResource);
+    }
+
+    private static ContainerTemplateResource BuildEmptyTemplate(TemplateRequest request)
+    {
+        return new ContainerTemplateResource
+        {
+            Id = Guid.Empty,
+            ContainerId = request.ContainerId,
+            FromTime = request.FromTime,
+            UntilTime = request.UntilTime,
+            Weekday = request.StorageWeekday,
+            IsHoliday = request.IsHoliday,
+            IsWeekdayAndHoliday = request.IsWeekdayAndHoliday,
+            StartBase = request.StartBase,
+            EndBase = request.EndBase ?? request.StartBase,
+            TransportMode = request.TransportMode,
+            ContainerTemplateItems = new List<ContainerTemplateItemResource>()
+        };
+    }
+
+    private static SkillResult CreatedTemplateResult(
+        TemplateRequest request, Shift container, Guid createdTemplateId, ContainerTemplateResource templateResource)
+    {
+        var (containerId, isoWeekday, fromTime, untilTime) =
+            (request.ContainerId, request.IsoWeekday, request.FromTime, request.UntilTime);
+
+        var resultData = new
+        {
+            ContainerTemplateId = createdTemplateId,
+            ContainerId = containerId,
+            ContainerName = container.Name,
+            Weekday = isoWeekday,
+            FromTime = fromTime.ToString("HH\\:mm"),
+            UntilTime = untilTime.ToString("HH\\:mm"),
+            IsHoliday = request.IsHoliday,
+            IsWeekdayAndHoliday = request.IsWeekdayAndHoliday,
+            StartBase = templateResource.StartBase,
+            EndBase = templateResource.EndBase,
+            TransportMode = request.TransportModeText,
+            Verified = true
+        };
+
+        return SkillResult.SuccessResult(
+            resultData,
+            $"Weekday template for weekday {isoWeekday} created on container '{container.Name}' " +
+            $"({fromTime:HH\\:mm}-{untilTime:HH\\:mm}). It is still empty — add task shifts to it with " +
+            $"add_container_template_task using containerId=\"{containerId}\" and weekday={isoWeekday}.");
     }
 
     private static (ContainerTransportMode? mode, string? error) ParseTransportMode(string value)
