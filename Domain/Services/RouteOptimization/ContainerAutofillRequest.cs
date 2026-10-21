@@ -5,7 +5,8 @@
 /// </summary>
 /// <param name="ContainerId">ID of the container</param>
 /// <param name="Weekday">Weekday (0=Sun, 1=Mon, ..., 6=Sat)</param>
-/// <param name="IsHoliday">Whether holiday variant</param>
+/// <param name="IsHoliday">Whether the holiday variant is filled: true offers only holiday tasks (Shift.IsHoliday), false
+/// never offers them; tasks in AdditionalAvailableWorkIds are added regardless</param>
 /// <param name="StartBase">Start address of the route</param>
 /// <param name="EndBase">End address of the route</param>
 /// <param name="FromTime">Start of the time window</param>
