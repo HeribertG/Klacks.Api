@@ -191,12 +191,3 @@ public sealed class WizardAgentSnapshotBuilder
         _ => CoreSurchargeRateMode.Multiplier,
     };
 }
-
-/// <summary>
-/// Result of <see cref="WizardAgentSnapshotBuilder.BuildAsync"/>.
-/// </summary>
-/// <param name="Agents">One CoreAgent per agent id that has an active contract on at least one day of the period, based on the first active day</param>
-/// <param name="ContractDays">One CoreContractDay per (agent, date) pair within the period; WorksOnDay is false on days without an active contract</param>
-public sealed record AgentSnapshotResult(
-    IReadOnlyList<CoreAgent> Agents,
-    IReadOnlyList<CoreContractDay> ContractDays);

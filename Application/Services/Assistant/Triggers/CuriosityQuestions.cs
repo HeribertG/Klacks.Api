@@ -11,8 +11,6 @@
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
-public sealed record CuriosityQuestion(string Topic, IReadOnlyList<string> Keywords);
-
 public static class CuriosityQuestions
 {
     public static readonly IReadOnlyList<CuriosityQuestion> Pool =

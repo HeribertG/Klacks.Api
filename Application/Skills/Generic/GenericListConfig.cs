@@ -28,10 +28,3 @@ public class GenericListConfig
     public List<string> OrderByFields { get; set; } = new();
     public List<GenericListFilter> AdditionalFilters { get; set; } = new();
 }
-
-public class GenericListFilter
-{
-    public string ParameterName { get; set; } = string.Empty;
-    public string PropertyName { get; set; } = string.Empty;
-    public string MatchType { get; set; } = "equals";
-}

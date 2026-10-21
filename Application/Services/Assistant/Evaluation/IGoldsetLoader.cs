@@ -11,5 +11,3 @@ public interface IGoldsetLoader
 {
     Task<IReadOnlyList<GoldsetItem>> LoadAsync(string goldset, CancellationToken cancellationToken = default);
 }
-
-public sealed record GoldsetItem(string Query, string ExpectedSourceId);

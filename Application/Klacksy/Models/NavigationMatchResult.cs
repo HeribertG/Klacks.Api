@@ -20,13 +20,3 @@ public sealed class NavigationMatchResult
     /// </summary>
     public bool IsFastPath => Tier == NavigationMatchTier.Exact && Candidates.Count == 1;
 }
-
-public enum NavigationMatchTier
-{
-    None,
-    Exact,
-    TokenOverlap,
-    Fuzzy,
-}
-
-public sealed record NavigationCandidate(string TargetId, string Route, double Score);
