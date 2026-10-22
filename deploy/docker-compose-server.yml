@@ -468,9 +468,12 @@ services:
           cpus: '0.25'
 
   # Speech-to-text for the assistant's voice input (OpenAI-compatible /v1/audio/transcriptions).
-  # Same orphan story as klacks-docs above, restored from the same 2026-07-11 revision. No profile:
-  # that revision had none either, and the voice input depends on this service being up.
+  # Same orphan story as klacks-docs above, restored from the same 2026-07-11 revision. Profile-gated
+  # since the klacks-stt (Parakeet) engine exists: only one local engine runs at a time and
+  # klacks-updater switches between them. The running container is kept by COMPOSE_PROFILES=whisper
+  # in the server .env, which the deploy workflow ensures before any compose command runs.
   whisper-stt:
+    profiles: ["whisper"]
     image: ghcr.io/speaches-ai/speaches:latest-cpu
     container_name: klacks-whisper-stt
     restart: unless-stopped
@@ -508,6 +511,37 @@ services:
           # plausible load-plus-inference peak, but the real peak is unmeasured. It is a ceiling,
           # not a reservation — the container idles at ~156 MiB.
           memory: 2560M
+          cpus: '2.0'
+
+  # Local speech-to-text (Parakeet TDT 0.6B v3 via sherpa-onnx, 25 European languages, CPU only).
+  # Profile-gated like whisper-stt: installed on demand by klacks-updater (`docker compose --profile
+  # parakeet up -d klacks-stt`) and kept across manual compose runs via COMPOSE_PROFILES=parakeet in
+  # .env. One engine at a time: the updater stops whisper-stt when this one is installed and vice
+  # versa. Peak RSS measured 1.1 GB at 24 s of input, hence the 2G ceiling.
+  klacks-stt:
+    image: ghcr.io/heribertg/klacks-stt:${KLACKS_STT_TAG:-latest}
+    container_name: klacks-stt
+    profiles: ["parakeet"]
+    restart: unless-stopped
+    expose:
+      - "8000"
+    environment:
+      - Stt__NumThreads=2
+      - Stt__IdleUnloadSeconds=300
+    volumes:
+      - stt_models:/models
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8000' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
           cpus: '2.0'
 
   # Renews the Let's Encrypt certificate every 12h. Renewal only runs when
@@ -620,4 +654,7 @@ volumes:
     driver: local
   # Existing volume on the server (apps_whisper_models); holds the downloaded Whisper weights.
   whisper_models:
+    driver: local
+  # Parakeet model files downloaded by klacks-stt (klacks-updater installs them on demand).
+  stt_models:
     driver: local

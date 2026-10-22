@@ -226,6 +226,67 @@ services:
           memory: 256M
           cpus: '0.25'
 
+  # Local speech-to-text, installed on demand from the settings card (klacks-updater runs `docker
+  # compose --profile whisper up -d whisper-stt`) and kept across manual compose runs via
+  # COMPOSE_PROFILES=whisper in .env. One local engine at a time: klacks-stt (Parakeet) below is the
+  # other one and the updater stops whichever is not selected.
+  whisper-stt:
+    profiles: ["whisper"]
+    image: ghcr.io/speaches-ai/speaches:latest-cpu
+    container_name: klacks-whisper-stt
+    restart: unless-stopped
+    expose:
+      - "8000"
+    environment:
+      - WHISPER__COMPUTE_TYPE=int8
+      - WHISPER__CPU_THREADS=2
+      - OMP_NUM_THREADS=2
+    volumes:
+      - whisper_models:/home/ubuntu/.cache/huggingface/hub
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8000' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          memory: 2560M
+          cpus: '2.0'
+
+  # Local speech-to-text (Parakeet TDT 0.6B v3 via sherpa-onnx, 25 European languages, CPU only).
+  # Profile-gated like whisper-stt: installed on demand by klacks-updater (`docker compose --profile
+  # parakeet up -d klacks-stt`) and kept across manual compose runs via COMPOSE_PROFILES=parakeet in
+  # .env. Peak RSS measured 1.1 GB at 24 s of input, hence the 2G ceiling.
+  klacks-stt:
+    image: ghcr.io/heribertg/klacks-stt:${KLACKS_STT_TAG:-latest}
+    container_name: klacks-stt
+    profiles: ["parakeet"]
+    restart: unless-stopped
+    expose:
+      - "8000"
+    environment:
+      - Stt__NumThreads=2
+      - Stt__IdleUnloadSeconds=300
+    volumes:
+      - stt_models:/models
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8000' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+
   nginx-proxy:
     image: nginx:alpine
     container_name: klacks-proxy
@@ -281,4 +342,8 @@ volumes:
   api-payroll-exports:
     driver: local
   api-update-backups:
+    driver: local
+  whisper_models:
+    driver: local
+  stt_models:
     driver: local
