@@ -4,9 +4,12 @@
 /// Shared helper for the absence-type skills: resolves an absence type from a UUID or from a
 /// name matched fuzzily (staged NameResolution) across all core-language names and
 /// abbreviations, absorbing type-label words like "Absenztyp". Ambiguous or unknown names
-/// return the real candidates instead of guessing.
+/// return the real candidates instead of guessing. Under the default Strict policy a name that only
+/// a fuzzy stage matched returns the ask-back text instead of the absence type.
 /// </summary>
+/// <param name="policy">Strict (default, every write) or Lenient (read-only skills only).</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Schedules;
@@ -21,7 +24,8 @@ internal static class AbsenceTypeResolver
     public static async Task<(Absence? Absence, string? Error)> ResolveAsync(
         string? idRaw,
         string? nameRaw,
-        IAbsenceRepository absenceRepository)
+        IAbsenceRepository absenceRepository,
+        NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         if (!string.IsNullOrWhiteSpace(idRaw))
         {
@@ -49,11 +53,18 @@ internal static class AbsenceTypeResolver
             a => MultiLanguage.CoreLanguages.SelectMany(l =>
                 new[] { a.Name.GetValue(l), a.Abbreviation.GetValue(l) }),
             query,
-            LabelWords);
+            LabelWords,
+            policy);
 
         if (resolution.Match != null)
         {
             return (resolution.Match, null);
+        }
+
+        if (resolution.Suggestion != null)
+        {
+            return (null, NameResolutionMessages.SuggestedName(
+                resolution.Suggestion.Name.De ?? resolution.Suggestion.Name.En ?? resolution.Suggestion.Id.ToString()));
         }
 
         if (resolution.Candidates.Count > 1)
@@ -61,7 +72,7 @@ internal static class AbsenceTypeResolver
             return (null,
                 $"The absence type name '{query}' is ambiguous — it matches: " +
                 string.Join(", ", resolution.Candidates.Select(a => $"{a.Name.De} ({a.Id})")) +
-                ". Ask the user which one they mean — do not guess.");
+                ". Ask the user which one they mean — do not guess. " + NameResolutionAskBack.Marker);
         }
 
         var available = all.Count > 0

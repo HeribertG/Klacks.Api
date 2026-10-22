@@ -88,7 +88,8 @@ public class GroupSearchRepository : IGroupSearchRepository
             .Select(g => new GroupSearchItem { Id = g.Id, Name = g.Name })
             .ToListAsync(cancellationToken);
 
-        var resolution = NameResolution.Resolve(candidates, item => item.Name ?? string.Empty, searchTerm, GroupResolver.LabelWords);
+        var resolution = NameResolution.Resolve(
+            candidates, item => item.Name ?? string.Empty, searchTerm, GroupResolver.LabelWords, NameMatchPolicy.Lenient);
         if (resolution.Match != null)
         {
             return [resolution.Match];

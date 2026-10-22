@@ -4,9 +4,11 @@
 /// Shared helper for the calendar-selection-targeting skills: resolves a calendar selection by
 /// id (takes precedence) or by a user-supplied name via the staged NameResolution matcher. When
 /// several calendar selections remain plausible the resolver returns a disambiguation error
-/// listing them instead of silently picking one.
+/// listing them instead of silently picking one. Under the default Strict policy a name that only a
+/// fuzzy stage matched returns the ask-back text instead of the selection.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.CalendarSelections;
 
 namespace Klacks.Api.Application.Skills;
@@ -24,10 +26,12 @@ internal static class CalendarSelectionResolver
     /// <param name="calendarSelectionId">Raw calendarSelectionId parameter value, or null/blank if omitted.</param>
     /// <param name="calendarSelectionName">Raw calendarSelectionName parameter value, or null/blank if omitted.</param>
     /// <param name="calendarSelections">Candidate calendar selections to resolve against (caller pre-filters deleted rows).</param>
+    /// <param name="policy">Strict (default, every write) or Lenient (read-only skills only).</param>
     public static (CalendarSelection? Selection, string? Error) ResolveFromParameters(
         string? calendarSelectionId,
         string? calendarSelectionName,
-        IReadOnlyList<CalendarSelection> calendarSelections)
+        IReadOnlyList<CalendarSelection> calendarSelections,
+        NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         if (!string.IsNullOrWhiteSpace(calendarSelectionId))
         {
@@ -47,21 +51,28 @@ internal static class CalendarSelectionResolver
             return (null, "Provide either calendarSelectionId or calendarSelectionName to identify the calendar selection.");
         }
 
-        return Resolve(calendarSelections, calendarSelectionName);
+        return Resolve(calendarSelections, calendarSelectionName, policy);
     }
 
     public static (CalendarSelection? Selection, string? Error) Resolve(
-        IReadOnlyList<CalendarSelection> calendarSelections, string? calendarSelectionName)
+        IReadOnlyList<CalendarSelection> calendarSelections,
+        string? calendarSelectionName,
+        NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         var active = calendarSelections
             .Where(c => !c.IsDeleted && !string.IsNullOrWhiteSpace(c.Name))
             .ToList();
         var query = (calendarSelectionName ?? string.Empty).Trim();
 
-        var resolution = NameResolution.Resolve(active, c => c.Name, query, LabelWords);
+        var resolution = NameResolution.Resolve(active, c => c.Name, query, LabelWords, policy);
         if (resolution.Match != null)
         {
             return (resolution.Match, null);
+        }
+
+        if (resolution.Suggestion != null)
+        {
+            return (null, NameResolutionMessages.SuggestedName(resolution.Suggestion.Name));
         }
 
         if (resolution.Candidates.Count > 1)
@@ -69,7 +80,7 @@ internal static class CalendarSelectionResolver
             return (null,
                 $"The calendar selection name '{query}' is ambiguous — it matches several calendar selections: " +
                 string.Join(", ", resolution.Candidates.Select(c => c.Name)) + ". " +
-                "Ask the user which exact calendar selection they mean — do not guess.");
+                "Ask the user which exact calendar selection they mean — do not guess. " + NameResolutionAskBack.Marker);
         }
 
         var available = active.Count > 0

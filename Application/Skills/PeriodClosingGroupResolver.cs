@@ -2,11 +2,12 @@
 
 /// <summary>
 /// Shared helper for the period-closing skills: resolves the optional group scope from a
-/// groupId UUID or a fuzzy groupName (lone-match via GroupResolver) and enforces the
-/// caller's group scope. Returns (null, null, null) when no group was supplied and the caller
+/// groupId UUID or a groupName (lone-match via GroupResolver; fuzzy only under the Lenient policy
+/// of the read-only period skills, Strict for close/reopen) and enforces the caller's group scope. Returns (null, null, null) when no group was supplied and the caller
 /// is unrestricted — the caller then operates globally. A group-restricted caller must name a
 /// group: an installation-wide answer would include clients outside their scope.
 /// </summary>
+/// <param name="policy">Strict (default, close/reopen) or Lenient (read-only period skills only).</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
@@ -29,7 +30,8 @@ internal static class PeriodClosingGroupResolver
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         SkillExecutionContext context,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         var scope = await groupScopeGuard.GetAccessAsync(context, cancellationToken);
 
@@ -67,7 +69,7 @@ internal static class PeriodClosingGroupResolver
         }
 
         var groups = scope.Filter(await groupRepository.List());
-        var (resolved, resolveError) = GroupResolver.Resolve(groups, groupNameRaw);
+        var (resolved, resolveError) = GroupResolver.Resolve(groups, groupNameRaw, policy);
         if (resolveError != null)
         {
             return (null, null, resolveError);

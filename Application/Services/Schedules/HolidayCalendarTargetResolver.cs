@@ -48,7 +48,7 @@ public sealed class HolidayCalendarTargetResolver : IHolidayCalendarTargetResolv
         if (!string.IsNullOrWhiteSpace(calendarSelectionName))
         {
             var selections = await _calendarSelectionRepository.List();
-            var (selection, error) = CalendarSelectionResolver.Resolve(selections, calendarSelectionName);
+            var (selection, error) = CalendarSelectionResolver.Resolve(selections, calendarSelectionName, NameMatchPolicy.Lenient);
             if (selection == null)
             {
                 return (null, error);

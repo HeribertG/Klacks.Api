@@ -54,7 +54,7 @@ public class ListMacrosSkill : BaseSkillImplementation
             // filter — fall back to the fuzzy resolver instead of reporting an empty list.
             if (macros.Count == 0)
             {
-                var (match, error) = MacroResolver.Resolve(allMacros, searchTerm);
+                var (match, error) = MacroResolver.Resolve(allMacros, searchTerm, NameMatchPolicy.Lenient);
                 if (match != null)
                 {
                     macros = [match];

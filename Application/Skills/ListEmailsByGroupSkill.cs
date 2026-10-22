@@ -49,7 +49,7 @@ public class ListEmailsByGroupSkill : BaseSkillImplementation
 
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
         var groups = scope.Filter(await _groupRepository.List());
-        var (group, resolveError) = GroupResolver.Resolve(groups, groupName);
+        var (group, resolveError) = GroupResolver.Resolve(groups, groupName, NameMatchPolicy.Lenient);
         if (resolveError != null)
         {
             return SkillResult.Error(resolveError);

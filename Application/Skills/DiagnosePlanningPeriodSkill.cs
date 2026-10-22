@@ -237,7 +237,7 @@ public class DiagnosePlanningPeriodSkill : BaseSkillImplementation
             return byId is null ? (null, GroupIdNotFoundMessage) : (byId, null);
         }
 
-        return GroupResolver.Resolve(groups, groupName);
+        return GroupResolver.Resolve(groups, groupName, NameMatchPolicy.Lenient);
     }
 
     private static DateOnly? ToDate(DateTime? value) => value.HasValue ? DateOnly.FromDateTime(value.Value) : null;

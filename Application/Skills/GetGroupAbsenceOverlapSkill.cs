@@ -72,7 +72,7 @@ public class GetGroupAbsenceOverlapSkill : BaseSkillImplementation
 
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
         var groups = scope.Filter(await _groupRepository.List());
-        var (group, groupError) = GroupResolver.Resolve(groups, groupName);
+        var (group, groupError) = GroupResolver.Resolve(groups, groupName, NameMatchPolicy.Lenient);
         if (group == null)
         {
             return SkillResult.Error(groupError!);

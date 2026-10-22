@@ -8,9 +8,13 @@
 /// specific covered group, and lightly damaged input (missing accents, mojibake) is matched
 /// fuzzily. When several groups remain plausible the resolver returns a disambiguation error
 /// listing them instead of silently picking one; each candidate carries its parent and root group and
-/// its id, because two groups may share the identical name under different parents.
+/// its id, because two groups may share the identical name under different parents. Under the
+/// default Strict policy a name that only a fuzzy stage matched is not acted on: the resolver
+/// returns the ask-back text naming the suggested group instead.
 /// </summary>
+/// <param name="policy">Strict (default, every write) or Lenient (read-only skills only).</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Associations;
 
 namespace Klacks.Api.Application.Skills;
@@ -20,17 +24,22 @@ internal static class GroupResolver
     internal static readonly string[] LabelWords = ["gruppe", "gruppen", "group", "groups", "groupe", "gruppo"];
 
     public static (Group? Group, string? Error) Resolve(
-        IReadOnlyList<Group> groups, string? groupName)
+        IReadOnlyList<Group> groups, string? groupName, NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         var active = groups
             .Where(g => !g.IsDeleted && !string.IsNullOrWhiteSpace(g.Name))
             .ToList();
         var query = (groupName ?? string.Empty).Trim();
 
-        var resolution = NameResolution.Resolve(active, g => g.Name, query, LabelWords);
+        var resolution = NameResolution.Resolve(active, g => g.Name, query, LabelWords, policy);
         if (resolution.Match != null)
         {
             return (resolution.Match, null);
+        }
+
+        if (resolution.Suggestion != null)
+        {
+            return (null, NameResolutionMessages.SuggestedName(resolution.Suggestion.Name));
         }
 
         if (resolution.Candidates.Count > 1)
@@ -43,7 +52,7 @@ internal static class GroupResolver
                 $"The group name '{query}' is ambiguous — it matches several groups: " +
                 string.Join("; ", resolution.Candidates.Select(g => DescribeCandidate(g, nameById))) + ". " +
                 "Ask the user which exact group they mean (name the parent group to tell groups with the same name apart) — do not guess. " +
-                "Where the skill accepts a groupId, pass the id of the chosen group.");
+                "Where the skill accepts a groupId, pass the id of the chosen group. " + NameResolutionAskBack.Marker);
         }
 
         var available = active.Count > 0

@@ -391,7 +391,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
                 .ToListAsync();
 
             var resolution = Application.Skills.NameResolution.Resolve(
-                candidates, g => g.Name, originalSearch, Application.Skills.GroupResolver.LabelWords);
+                candidates, g => g.Name, originalSearch, Application.Skills.GroupResolver.LabelWords, Application.Skills.NameMatchPolicy.Lenient);
             var matched = resolution.Match != null
                 ? new List<Group> { resolution.Match }
                 : resolution.Candidates.ToList();

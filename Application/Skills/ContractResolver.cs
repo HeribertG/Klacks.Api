@@ -8,8 +8,13 @@
 /// fuzzily, and when several contracts remain plausible the resolver returns a disambiguation
 /// error listing them instead of silently picking one. The not-found error explicitly tells the
 /// model not to retry with the same value, so an unusable slot value cannot cause a retry loop.
+/// Under the default Strict policy a name that only a fuzzy stage matched (typo, extra words,
+/// phonetics) is not acted on: the resolver returns the ask-back text naming the suggested contract.
+/// The label words make "Vertrag X" an exact match of contract "X" under both policies.
 /// </summary>
+/// <param name="policy">Strict (default, every write) or Lenient (read-only skills only).</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Associations;
 
 namespace Klacks.Api.Application.Skills;
@@ -18,16 +23,23 @@ internal static class ContractResolver
 {
     public const int MaxListedContractNames = 20;
 
+    private static readonly string[] LabelWords = ["vertrag", "contract", "contrat", "contratto"];
+
     public static (Contract? Contract, string? Error) Resolve(
-        IReadOnlyList<Contract> contracts, string? contractName)
+        IReadOnlyList<Contract> contracts, string? contractName, NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         var active = ActiveContracts(contracts);
         var query = (contractName ?? string.Empty).Trim();
 
-        var resolution = NameResolution.Resolve(active, c => c.Name, query);
+        var resolution = NameResolution.Resolve(active, c => c.Name, query, LabelWords, policy);
         if (resolution.Match != null)
         {
             return (resolution.Match, null);
+        }
+
+        if (resolution.Suggestion != null)
+        {
+            return (null, NameResolutionMessages.SuggestedName(resolution.Suggestion.Name));
         }
 
         return (null, resolution.Candidates.Count > 1
@@ -63,7 +75,7 @@ internal static class ContractResolver
     {
         var names = string.Join(", ", candidates.Select(c => $"'{c.Name}'"));
         return $"Multiple contracts match '{query}': {names}. Ask the user which exact contract " +
-               "they mean, then call this skill again with that exact name — do not guess.";
+               "they mean, then call this skill again with that exact name — do not guess. " + NameResolutionAskBack.Marker;
     }
 
     private static string NotFoundMessage(string query, IReadOnlyList<Contract> active)

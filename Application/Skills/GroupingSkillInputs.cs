@@ -9,6 +9,7 @@
 /// <param name="companyClock">Company today, anchor of the default period and of relative day words.</param>
 /// <param name="language">Caller's UI language for reading written dates.</param>
 /// <param name="groupName">Optional subtree name; blank means the whole installation.</param>
+/// <param name="policy">Strict (default, apply) or Lenient (read-only analysis only).</param>
 
 using System.Globalization;
 using Klacks.Api.Application.Interfaces;
@@ -59,7 +60,10 @@ internal static class GroupingSkillInputs
     }
 
     public static async Task<(Guid? GroupId, string? GroupName, string? Error)> ResolveScopeGroupAsync(
-        string? groupName, IGroupRepository groupRepository, GroupScopeAccess scope)
+        string? groupName,
+        IGroupRepository groupRepository,
+        GroupScopeAccess scope,
+        NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         if (string.IsNullOrWhiteSpace(groupName))
         {
@@ -67,7 +71,7 @@ internal static class GroupingSkillInputs
         }
 
         var groups = GroupingScopeVisibility.FilterByLineage(await groupRepository.List(), scope);
-        var (group, error) = GroupResolver.Resolve(groups, groupName);
+        var (group, error) = GroupResolver.Resolve(groups, groupName, policy);
         return group is null ? (null, null, error) : (group.Id, group.Name, null);
     }
 }

@@ -6,9 +6,12 @@
 /// or "all shift" still resolve the camel-case macro "AllShift": the type-label words
 /// ("makro"/"macro") are stripped and the compact stage bridges the missing word boundaries.
 /// When several macros remain plausible the resolver returns a disambiguation error listing
-/// them instead of silently picking one; an unknown name reports the real macro names.
+/// them instead of silently picking one; an unknown name reports the real macro names. Under the
+/// default Strict policy a name that only a fuzzy stage matched returns the ask-back text instead.
 /// </summary>
+/// <param name="policy">Strict (default, every write) or Lenient (read-only skills only).</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.DTOs.Settings;
 
 namespace Klacks.Api.Application.Skills;
@@ -18,17 +21,22 @@ internal static class MacroResolver
     private static readonly string[] LabelWords = ["makro", "makros", "macro", "macros"];
 
     public static (MacroResource? Macro, string? Error) Resolve(
-        IReadOnlyList<MacroResource> macros, string? macroName)
+        IReadOnlyList<MacroResource> macros, string? macroName, NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         var named = macros
             .Where(m => !string.IsNullOrWhiteSpace(m.Name))
             .ToList();
         var query = (macroName ?? string.Empty).Trim();
 
-        var resolution = NameResolution.Resolve(named, m => m.Name, query, LabelWords);
+        var resolution = NameResolution.Resolve(named, m => m.Name, query, LabelWords, policy);
         if (resolution.Match != null)
         {
             return (resolution.Match, null);
+        }
+
+        if (resolution.Suggestion != null)
+        {
+            return (null, NameResolutionMessages.SuggestedName(resolution.Suggestion.Name));
         }
 
         if (resolution.Candidates.Count > 1)
@@ -36,7 +44,7 @@ internal static class MacroResolver
             return (null,
                 $"The macro name '{query}' is ambiguous — it matches several macros: " +
                 string.Join(", ", resolution.Candidates.Select(m => $"{m.Name} ({m.Id})")) + ". " +
-                "Ask the user which exact macro they mean — do not guess.");
+                "Ask the user which exact macro they mean — do not guess. " + NameResolutionAskBack.Marker);
         }
 
         var available = named.Count > 0

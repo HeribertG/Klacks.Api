@@ -72,7 +72,7 @@ public class AnalyzeGroupingFeasibilitySkill : BaseSkillImplementation
 
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
         var (groupId, groupName, groupError) = await GroupingSkillInputs.ResolveScopeGroupAsync(
-            GetParameter<string>(parameters, GroupingSkillInputs.GroupNameParameter), _groupRepository, scope);
+            GetParameter<string>(parameters, GroupingSkillInputs.GroupNameParameter), _groupRepository, scope, NameMatchPolicy.Lenient);
         if (groupError is not null)
         {
             return SkillResult.Error(groupError);

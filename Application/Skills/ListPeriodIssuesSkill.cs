@@ -58,7 +58,7 @@ public class ListPeriodIssuesSkill : BaseSkillImplementation
         var (groupId, groupName, groupError) = await PeriodClosingGroupResolver.ResolveAsync(
             GetParameter<string>(parameters, "groupId"),
             GetParameter<string>(parameters, "groupName"),
-            _groupRepository, _groupScopeGuard, context, cancellationToken);
+            _groupRepository, _groupScopeGuard, context, cancellationToken, NameMatchPolicy.Lenient);
         if (groupError != null)
         {
             return SkillResult.Error(groupError);

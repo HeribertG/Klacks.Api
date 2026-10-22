@@ -44,7 +44,7 @@ public static class ContractReferenceResolver
         cancellationToken.ThrowIfCancellationRequested();
         var contracts = await contractRepository.List();
         var (contract, error) = mode == ContractNameMatchMode.WithFuzzy
-            ? ContractResolver.Resolve(contracts, trimmed)
+            ? ContractResolver.Resolve(contracts, trimmed, NameMatchPolicy.Lenient)
             : ContractResolver.ResolveExactOrUniquePartial(contracts, trimmed);
 
         return contract != null ? (contract.Id, null) : (null, error);

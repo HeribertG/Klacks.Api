@@ -58,6 +58,25 @@ internal static class NameMatching
         return normalized.Split(TokenSeparator, StringSplitOptions.RemoveEmptyEntries);
     }
 
+    public static string[] WordTokens(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return [];
+        }
+
+        var separated = new StringBuilder(value.Length);
+        foreach (var ch in value)
+        {
+            var keep = char.IsLetterOrDigit(ch)
+                       || char.IsWhiteSpace(ch)
+                       || CharUnicodeInfo.GetUnicodeCategory(ch) == UnicodeCategory.NonSpacingMark;
+            separated.Append(keep ? ch : TokenSeparator);
+        }
+
+        return Tokenize(Normalize(separated.ToString()));
+    }
+
     public static bool FuzzyEquals(string left, string right)
     {
         if (left == right)

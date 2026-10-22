@@ -13,10 +13,18 @@
 /// auto-picked when every other covered candidate is a strict token subset of it; otherwise the
 /// candidates are reported for disambiguation. It never silently picks one of several equally
 /// plausible matches.
+/// Under the default Strict policy only the stages that change no character of the query pick an
+/// entity (normalized equality, a forward match on WHOLE words - "Nord" finds "Region Nord" and
+/// "Nord-West" but not "Nordwest" -, compact equality after stripping label words that stand as
+/// WHOLE leading or trailing words - "Gruppe Leitung" finds "Leitung", "Gruppenleitung" does not); a substring
+/// that ends inside a word and every edit-distance, token or phonetic hit becomes a Suggested
+/// outcome (one entity) or stays Ambiguous (several), so a write never runs on a name the user did
+/// not say. Lenient runs every stage exactly as before and is meant for read-only call sites.
 /// </summary>
 /// <param name="labelWords">Optional type-label words ("makro", "macro") stripped from the
 /// compact query as prefix or suffix, because spoken queries often decorate the entity name
 /// with its type.</param>
+/// <param name="policy">Strict (default, fail-closed) or Lenient (read-only call sites).</param>
 
 namespace Klacks.Api.Application.Skills;
 
@@ -26,13 +34,47 @@ internal static class NameResolution
         IReadOnlyList<T> items,
         Func<T, string> nameSelector,
         string? query,
-        IReadOnlyList<string>? labelWords = null)
+        IReadOnlyList<string>? labelWords = null,
+        NameMatchPolicy policy = NameMatchPolicy.Strict)
+        where T : class
+    {
+        var (result, fromFuzzyStage) = ResolveStaged(items, nameSelector, query, labelWords, policy);
+        return ApplyPolicy(result, fromFuzzyStage, policy);
+    }
+
+    // Multilingual entities (absence types, qualifications) carry one name per language plus
+    // abbreviations: every non-empty variant competes in the staged matcher, and candidates
+    // pointing at the same entity collapse back into a single match.
+    public static NameResolutionResult<T> ResolveVariants<T>(
+        IReadOnlyList<T> items,
+        Func<T, IEnumerable<string?>> variantsSelector,
+        string? query,
+        IReadOnlyList<string>? labelWords = null,
+        NameMatchPolicy policy = NameMatchPolicy.Strict)
+        where T : class
+    {
+        var variants = items
+            .SelectMany(item => variantsSelector(item)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(value => new NameVariant<T>(item, value!)))
+            .ToList();
+
+        var (resolution, fromFuzzyStage) = ResolveStaged(variants, variant => variant.Value, query, labelWords, policy);
+        return ApplyPolicy(CollapseVariants(resolution), fromFuzzyStage, policy);
+    }
+
+    private static (NameResolutionResult<T> Result, bool FromFuzzyStage) ResolveStaged<T>(
+        IReadOnlyList<T> items,
+        Func<T, string> nameSelector,
+        string? query,
+        IReadOnlyList<string>? labelWords,
+        NameMatchPolicy policy)
         where T : class
     {
         var normalizedQuery = NameMatching.Normalize(query);
         if (normalizedQuery.Length == 0)
         {
-            return NameResolutionResult<T>.NotFound();
+            return (NameResolutionResult<T>.NotFound(), false);
         }
 
         var named = items
@@ -43,18 +85,104 @@ internal static class NameResolution
         var exact = named.Where(x => x.Normalized == normalizedQuery).ToList();
         if (exact.Count > 0)
         {
-            return FromStage(exact);
+            return (FromStage(exact), false);
         }
 
         var forward = named
             .Where(x => x.Normalized.Contains(normalizedQuery, StringComparison.Ordinal))
             .ToList();
-        if (forward.Count > 0)
+        var compactVariants = CompactQueryVariants(normalizedQuery, labelWords);
+        if (policy == NameMatchPolicy.Lenient)
         {
-            return FromStage(forward);
+            return forward.Count > 0
+                ? (FromStage(forward), false)
+                : (ResolveFuzzyStages(named, normalizedQuery, compactVariants), true);
         }
 
-        var compactVariants = CompactQueryVariants(normalizedQuery, labelWords);
+        var queryWords = NameMatching.WordTokens(query);
+        var wholeWordForward = named
+            .Where(x => ContainsWordSequence(NameMatching.WordTokens(nameSelector(x.Item)), queryWords))
+            .ToList();
+        if (wholeWordForward.Count > 0)
+        {
+            return (FromStage(wholeWordForward), false);
+        }
+
+        var strictCompactVariants = WholeWordCompactQueryVariants(query, labelWords);
+        var compactExact = named
+            .Where(x => strictCompactVariants.Contains(CompactOf(x.Normalized), StringComparer.Ordinal))
+            .ToList();
+        if (compactExact.Count > 0)
+        {
+            return (FromStage(compactExact), false);
+        }
+
+        return forward.Count > 0
+            ? (FromStage(forward), true)
+            : (ResolveFuzzyStages(named, normalizedQuery, compactVariants), true);
+    }
+
+    private static List<string> WholeWordCompactQueryVariants(string? query, IReadOnlyList<string>? labelWords)
+    {
+        var words = NameMatching.WordTokens(query);
+        var variants = new List<string> { string.Concat(words) };
+        if (labelWords == null)
+        {
+            return variants;
+        }
+
+        foreach (var labelWord in labelWords)
+        {
+            var label = NameMatching.WordTokens(labelWord);
+            if (label.Length == 0 || words.Length <= label.Length)
+            {
+                continue;
+            }
+
+            if (words.Take(label.Length).SequenceEqual(label, StringComparer.Ordinal))
+            {
+                variants.Add(string.Concat(words.Skip(label.Length)));
+            }
+
+            if (words.Skip(words.Length - label.Length).SequenceEqual(label, StringComparer.Ordinal))
+            {
+                variants.Add(string.Concat(words.Take(words.Length - label.Length)));
+            }
+        }
+
+        return variants.Distinct(StringComparer.Ordinal).ToList();
+    }
+
+    private static bool ContainsWordSequence(string[] nameWords, string[] queryWords)
+    {
+        if (queryWords.Length == 0 || queryWords.Length > nameWords.Length)
+        {
+            return false;
+        }
+
+        for (var start = 0; start <= nameWords.Length - queryWords.Length; start++)
+        {
+            var matches = true;
+            for (var offset = 0; offset < queryWords.Length && matches; offset++)
+            {
+                matches = string.Equals(nameWords[start + offset], queryWords[offset], StringComparison.Ordinal);
+            }
+
+            if (matches)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static NameResolutionResult<T> ResolveFuzzyStages<T>(
+        List<(T Item, string Normalized)> named,
+        string normalizedQuery,
+        List<string> compactVariants)
+        where T : class
+    {
         var compactMatches = named
             .Where(x =>
             {
@@ -119,23 +247,21 @@ internal static class NameResolution
         return NameResolutionResult<T>.NotFound();
     }
 
-    // Multilingual entities (absence types, qualifications) carry one name per language plus
-    // abbreviations: every non-empty variant competes in the staged matcher, and candidates
-    // pointing at the same entity collapse back into a single match.
-    public static NameResolutionResult<T> ResolveVariants<T>(
-        IReadOnlyList<T> items,
-        Func<T, IEnumerable<string?>> variantsSelector,
-        string? query,
-        IReadOnlyList<string>? labelWords = null)
+    private static NameResolutionResult<T> ApplyPolicy<T>(
+        NameResolutionResult<T> result, bool fromFuzzyStage, NameMatchPolicy policy)
         where T : class
     {
-        var variants = items
-            .SelectMany(item => variantsSelector(item)
-                .Where(value => !string.IsNullOrWhiteSpace(value))
-                .Select(value => new NameVariant<T>(item, value!)))
-            .ToList();
+        if (policy == NameMatchPolicy.Lenient || !fromFuzzyStage || result.Match == null)
+        {
+            return result;
+        }
 
-        var resolution = Resolve(variants, variant => variant.Value, query, labelWords);
+        return NameResolutionResult<T>.Suggested(result.Match);
+    }
+
+    private static NameResolutionResult<T> CollapseVariants<T>(NameResolutionResult<NameVariant<T>> resolution)
+        where T : class
+    {
         if (resolution.Match != null)
         {
             return NameResolutionResult<T>.Single(resolution.Match.Item);

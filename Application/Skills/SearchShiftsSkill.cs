@@ -10,6 +10,10 @@
 /// When the database text filter finds nothing, a fuzzy fallback ranks the spoken or decorated
 /// query ("Dienst All-Shift") against the real shift names and abbreviations in memory and suggests
 /// the closest shifts. Use this to find a shiftId for get_shift_details / update_shift / delete_shift.
+/// The fallback resolves with the Strict policy although the skill only reads: recipes capture the
+/// lone returned shift id and inject it into a write step, and the model reuses it for update/delete.
+/// A shift that only a typo or phonetic stage matched is therefore returned as an ask-back text with
+/// no rows, so no capture can pick it up before the user confirmed the name.
 /// </summary>
 /// <param name="searchString">Optional. Text filter on shift name, abbreviation or client name;
 /// falls back to fuzzy name resolution when the filter finds nothing.</param>
@@ -163,6 +167,11 @@ public class SearchShiftsSkill : BaseSkillImplementation
             return ([resolution.Match],
                 $"No direct match for '{searchString}'; closest shift is '{resolution.Match.Name}'. " +
                 $"Tell the user you assumed this shift.{truncationNote}");
+        }
+
+        if (resolution.Suggestion != null)
+        {
+            return ([], NameResolutionMessages.SuggestedName(resolution.Suggestion.Name) + truncationNote);
         }
 
         if (resolution.Candidates.Count > 1)

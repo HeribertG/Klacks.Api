@@ -4,9 +4,12 @@
 /// Shared helper for the qualification edit skills: resolves a qualification master entry by id
 /// or by a multilingual name matched fuzzily (staged NameResolution) across all core-language
 /// names, absorbing type-label words like "Qualifikation". Ambiguous or unknown names return
-/// the real candidates instead of guessing.
+/// the real candidates instead of guessing. Under the default Strict policy a name that only a fuzzy
+/// stage matched returns the ask-back text instead of the qualification.
 /// </summary>
+/// <param name="policy">Strict (default, every write) or Lenient (read-only skills only).</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.Queries.Qualifications;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Staffs;
@@ -23,7 +26,8 @@ internal static class QualificationResolver
         IMediator mediator,
         string? qualificationId,
         string? qualificationName,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         if (!string.IsNullOrWhiteSpace(qualificationId))
         {
@@ -50,17 +54,24 @@ internal static class QualificationResolver
             qualifications,
             q => MultiLanguage.CoreLanguages.Select(language => q.Name.GetValue(language)),
             qualificationName,
-            LabelWords);
+            LabelWords,
+            policy);
 
         if (resolution.Match != null)
         {
             return (resolution.Match, null);
         }
 
+        if (resolution.Suggestion != null)
+        {
+            return (null, NameResolutionMessages.SuggestedName(DisplayName(resolution.Suggestion)));
+        }
+
         if (resolution.Candidates.Count > 1)
         {
             var names = string.Join(", ", resolution.Candidates.Select(q => $"{DisplayName(q)} ({q.Id})"));
-            return (null, $"'{qualificationName}' is ambiguous. Matching qualifications: {names}. Provide qualificationId instead.");
+            return (null, $"'{qualificationName}' is ambiguous. Matching qualifications: {names}. Ask the user which one they mean, " +
+                          $"then provide qualificationId. {NameResolutionAskBack.Marker}");
         }
 
         var available = qualifications.Count > 0

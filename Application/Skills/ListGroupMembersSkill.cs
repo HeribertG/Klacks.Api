@@ -72,7 +72,7 @@ public class ListGroupMembersSkill : BaseSkillImplementation
             }
 
             var groups = scope.Filter(await _groupRepository.List());
-            var (resolved, resolveError) = GroupResolver.Resolve(groups, groupName);
+            var (resolved, resolveError) = GroupResolver.Resolve(groups, groupName, NameMatchPolicy.Lenient);
             if (resolveError != null)
             {
                 return SkillResult.Error(resolveError);
