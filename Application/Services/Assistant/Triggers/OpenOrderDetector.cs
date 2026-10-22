@@ -15,7 +15,7 @@
 /// candidates rather than an arbitrary storage-order subset. The background scanner calls this every
 /// 60 minutes.
 /// </summary>
-/// <param name="shiftRepository">Read-only Shift query source.</param>
+/// <param name="shiftReader">Read-only scan of the real-plan open orders.</param>
 /// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
 /// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
 /// <param name="logger">Structured log per tick.</param>
@@ -27,7 +27,6 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
@@ -35,18 +34,18 @@ public class OpenOrderDetector : IAgentTriggerDetector, IAgentConditionFingerpri
 {
     public const int MaxCandidatesToScan = 1000;
 
-    private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftReader _shiftReader;
     private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly ICompanyClock _companyClock;
     private readonly ILogger<OpenOrderDetector> _logger;
 
     public OpenOrderDetector(
-        IShiftRepository shiftRepository,
+        IShiftReader shiftReader,
         IShiftGroupScopeReader groupScopeReader,
         ICompanyClock companyClock,
         ILogger<OpenOrderDetector> logger)
     {
-        _shiftRepository = shiftRepository;
+        _shiftReader = shiftReader;
         _groupScopeReader = groupScopeReader;
         _companyClock = companyClock;
         _logger = logger;
@@ -58,11 +57,9 @@ public class OpenOrderDetector : IAgentTriggerDetector, IAgentConditionFingerpri
     {
         var today = await TodayAsync(cancellationToken);
 
-        var openOrders = await BuildCandidateQuery(today)
-            .OrderBy(s => s.FromDate)
-            .ThenBy(s => s.Id)
-            .Take(MaxCandidatesToScan)
-            .ToListAsync(cancellationToken);
+        var openOrders = await _shiftReader.ScanRealPlanAsync(
+            CandidateScan(today) with { OrderByFromDateThenId = true, MaxCount = MaxCandidatesToScan },
+            cancellationToken);
 
         if (openOrders.Count == 0)
         {
@@ -95,9 +92,8 @@ public class OpenOrderDetector : IAgentTriggerDetector, IAgentConditionFingerpri
 
     public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
     {
-        var keys = await BuildCandidateQuery(await TodayAsync(cancellationToken))
-            .Select(s => new { s.Id, s.FromDate })
-            .ToListAsync(cancellationToken);
+        var keys = await _shiftReader.ScanRealPlanKeysAsync(
+            CandidateScan(await TodayAsync(cancellationToken)), cancellationToken);
 
         return keys
             .Select(key => AgentConditionLedgerPolicy.FingerprintFor(
@@ -108,11 +104,6 @@ public class OpenOrderDetector : IAgentTriggerDetector, IAgentConditionFingerpri
 
     private Task<DateOnly> TodayAsync(CancellationToken cancellationToken) => _companyClock.GetTodayDateAsync(cancellationToken);
 
-    private IQueryable<Shift> BuildCandidateQuery(DateOnly today) =>
-        _shiftRepository.GetQuery()
-            .Where(s => s.Status == ShiftStatus.OriginalOrder
-                && s.FromDate >= today
-                && s.AnalyseToken == null
-                && s.ScenarioSourceShiftId == null
-                && !s.IsDeleted);
+    private static RealPlanShiftScan CandidateScan(DateOnly today) =>
+        new(ShiftStatus.OriginalOrder) { StartsOnOrAfter = today };
 }

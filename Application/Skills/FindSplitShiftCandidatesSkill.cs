@@ -14,7 +14,6 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -23,14 +22,14 @@ public class FindSplitShiftCandidatesSkill : BaseSkillImplementation
 {
     private const int GroupSearchLimit = 10;
 
-    private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftReader _shiftReader;
     private readonly IGroupSearchRepository _groupSearchRepository;
 
     public FindSplitShiftCandidatesSkill(
-        IShiftRepository shiftRepository,
+        IShiftReader shiftReader,
         IGroupSearchRepository groupSearchRepository)
     {
-        _shiftRepository = shiftRepository;
+        _shiftReader = shiftReader;
         _groupSearchRepository = groupSearchRepository;
     }
 
@@ -67,31 +66,7 @@ public class FindSplitShiftCandidatesSkill : BaseSkillImplementation
 
         var group = groupResult.Items.First();
 
-        var query = _shiftRepository.GetQuery()
-            .Where(s => s.GroupItems.Any(gi => gi.GroupId == group.Id && !gi.IsDeleted))
-            .Where(s => s.Status == ShiftStatus.SealedOrder
-                        || s.Status == ShiftStatus.OriginalShift
-                        || s.Status == ShiftStatus.SplitShift);
-
-        if (!string.IsNullOrWhiteSpace(searchString))
-        {
-            query = query.Where(s => EF.Functions.ILike(s.Name, $"%{searchString}%"));
-        }
-
-        var shifts = await query
-            .Select(s => new
-            {
-                s.Id,
-                s.Name,
-                s.Abbreviation,
-                s.Status,
-                s.StartShift,
-                s.EndShift,
-                s.FromDate,
-                s.UntilDate,
-                s.OriginalId
-            })
-            .ToListAsync(cancellationToken);
+        var shifts = await _shiftReader.GetOrderFamilyShiftsInGroupAsync(group.Id, searchString, cancellationToken);
 
         // Group every row by its order: a SealedOrder is keyed by its own Id, the plannable shift
         // and its split parts by their OriginalId. After a cut the plannable shift is converted into

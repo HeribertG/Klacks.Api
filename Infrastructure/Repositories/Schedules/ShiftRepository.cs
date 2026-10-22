@@ -237,14 +237,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return await Get(id);
     }
 
-    public IQueryable<Shift> GetQuery()
-    {
-        return context.Shift
-            .OrderBy(x => x.OriginalId)
-            .ThenBy(x => x.FromDate)
-            .ThenBy(x => x.StartShift)
-            .AsNoTracking();
-    }
+    public IQueryable<Shift> GetQuery() => ShiftBaseQueries.Ordered(context.Shift);
 
     public async Task<List<Guid>> GetShiftIdsByClientAsync(Guid clientId, CancellationToken cancellationToken = default)
     {
@@ -313,16 +306,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public IQueryable<Shift> GetQueryWithClient()
-    {
-        return context.Shift
-            .Include(x => x.Client!)
-            .ThenInclude(x => x.Addresses!.Where(a => a != null))
-            .OrderBy(x => x.OriginalId)
-            .ThenBy(x => x.FromDate)
-            .ThenBy(x => x.StartShift)
-            .AsNoTracking();
-    }
+    private IQueryable<Shift> GetQueryWithClient() => ShiftBaseQueries.OrderedWithClient(context.Shift);
 
     public Task<bool> HasOriginalShiftCopyAsync(Guid originalShiftId, CancellationToken cancellationToken = default) =>
         GetQuery().AnyAsync(s => s.OriginalId == originalShiftId && s.Status == ShiftStatus.OriginalShift, cancellationToken);

@@ -24,7 +24,6 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -32,14 +31,19 @@ namespace Klacks.Api.Application.Skills;
 public class CutShiftByDateSkill : BaseSkillImplementation
 {
     private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftReader _shiftReader;
     private readonly IShiftCutFacade _shiftCutFacade;
 
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public CutShiftByDateSkill(
-        IShiftRepository shiftRepository, IShiftCutFacade shiftCutFacade, IShiftVisibilityGuard shiftVisibilityGuard)
+        IShiftRepository shiftRepository,
+        IShiftReader shiftReader,
+        IShiftCutFacade shiftCutFacade,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
+        _shiftReader = shiftReader;
         _shiftCutFacade = shiftCutFacade;
         _shiftVisibilityGuard = shiftVisibilityGuard;
     }
@@ -166,15 +170,15 @@ public class CutShiftByDateSkill : BaseSkillImplementation
                 return (loadedShift, null);
 
             case ShiftStatus.SealedOrder:
-                var originalShift = await _shiftRepository.GetQuery()
-                    .FirstOrDefaultAsync(s => s.OriginalId == loadedShift.Id && s.Status == ShiftStatus.OriginalShift, cancellationToken);
+                var originalShift = await _shiftReader.FindFirstByOriginalIdAsync(
+                    loadedShift.Id, ShiftStatus.OriginalShift, cancellationToken);
                 if (originalShift != null)
                 {
                     return (originalShift, null);
                 }
 
-                var partCount = await _shiftRepository.GetQuery()
-                    .CountAsync(s => s.OriginalId == loadedShift.Id && s.Status == ShiftStatus.SplitShift, cancellationToken);
+                var partCount = await _shiftReader.CountByOriginalIdAsync(
+                    loadedShift.Id, ShiftStatus.SplitShift, cancellationToken);
                 if (partCount > 0)
                 {
                     return (null, $"Order '{loadedShift.Name}' is already split into {partCount} part(s). " +

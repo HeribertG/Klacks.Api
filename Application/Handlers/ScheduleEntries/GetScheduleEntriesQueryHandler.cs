@@ -9,11 +9,9 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Filters;
-using Klacks.Api.Domain.Services.Groups;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
-using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Handlers.ScheduleEntries;
 
@@ -93,9 +91,8 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
 
         var resources = _scheduleMapper.ToWorkScheduleResourceList(entries);
 
-        var availabilityEntries = await _clientAvailabilityScheduleService
-            .GetClientAvailabilityQuery(startDate, endDate, clientIds)
-            .ToListAsync(cancellationToken);
+        var availabilityEntries = await _clientAvailabilityScheduleService.GetClientAvailabilityAsync(
+            startDate, endDate, clientIds, cancellationToken);
 
         var clientAvailabilities = availabilityEntries
             .GroupBy(a => a.ClientId)
@@ -165,19 +162,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
     {
         if (visibleGroupIds.Count == 0) return;
 
-        var groupItems = await _groupItemRepository.GetQuery()
-            .Where(gi => !gi.IsDeleted
-                         && gi.ClientId.HasValue
-                         && clientIds.Contains(gi.ClientId.Value)
-                         && visibleGroupIds.Contains(gi.GroupId))
-            .Select(gi => new { gi.ClientId, gi.ValidFrom, gi.ValidUntil })
-            .ToListAsync(cancellationToken);
-
-        var rangeByClient = groupItems
-            .GroupBy(gi => gi.ClientId!.Value)
-            .ToDictionary(
-                g => g.Key,
-                g => GroupItemValidityRange.Combine(g.Select(gi => (gi.ValidFrom, gi.ValidUntil)).ToList()));
+        var rangeByClient = await _groupItemRepository.GetValidityRangesAsync(clientIds, visibleGroupIds, cancellationToken);
 
         foreach (var resource in clientResources)
         {

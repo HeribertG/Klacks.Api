@@ -16,6 +16,12 @@ public interface IContainerTemplateRepository : IBaseRepository<ContainerTemplat
 
     IQueryable<ContainerTemplate> GetQuery();
 
+    /// <summary>
+    /// Distinct ids of the containers that have at least one template that is not soft-deleted.
+    /// </summary>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<List<Guid>> GetContainerIdsWithTemplateAsync(CancellationToken cancellationToken = default);
+
     Task<List<Guid>> GetUsedShiftIds(Guid? excludeContainerId = null, CancellationToken cancellationToken = default);
 
     Task<List<ContainerTemplateItem>> GetItemsForTemplate(Guid templateId, bool tracked);

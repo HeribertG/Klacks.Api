@@ -169,6 +169,13 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
             .AsNoTracking();
     }
 
+    public async Task<List<Guid>> GetContainerIdsWithTemplateAsync(CancellationToken cancellationToken = default) =>
+        await GetQuery()
+            .Where(t => !t.IsDeleted)
+            .Select(t => t.ContainerId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
     public async Task<List<Guid>> GetUsedShiftIds(Guid? excludeContainerId = null, CancellationToken cancellationToken = default)
     {
         var query = context.ContainerTemplateItem.AsQueryable();

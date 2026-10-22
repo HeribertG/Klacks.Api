@@ -28,7 +28,7 @@
 /// deliberate trade for the previous behaviour, where the rows behind the fixed cap were never reported
 /// at all.
 /// </summary>
-/// <param name="shiftRepository">Read-only access to container shift candidates.</param>
+/// <param name="shiftReader">Read-only access to container shift candidates.</param>
 /// <param name="containerTemplateRepository">Read-only access to the set of container ids that already have a template.</param>
 /// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
 /// <param name="agentConditionRepository">Source of the ledger rows still open for this kind, whose LastSeenAtUtc drives the rotation.</param>
@@ -43,7 +43,6 @@ using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
@@ -66,7 +65,7 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
         (shift => shift.IsSunday, 7)
     ];
 
-    private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftReader _shiftReader;
     private readonly IContainerTemplateRepository _containerTemplateRepository;
     private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly IAgentConditionRepository _agentConditionRepository;
@@ -74,14 +73,14 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
     private readonly ILogger<EmptyContainerDetector> _logger;
 
     public EmptyContainerDetector(
-        IShiftRepository shiftRepository,
+        IShiftReader shiftReader,
         IContainerTemplateRepository containerTemplateRepository,
         IShiftGroupScopeReader groupScopeReader,
         IAgentConditionRepository agentConditionRepository,
         ICompanyClock companyClock,
         ILogger<EmptyContainerDetector> logger)
     {
-        _shiftRepository = shiftRepository;
+        _shiftReader = shiftReader;
         _containerTemplateRepository = containerTemplateRepository;
         _groupScopeReader = groupScopeReader;
         _agentConditionRepository = agentConditionRepository;
@@ -95,9 +94,8 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
     {
         var containerIdsWithTemplate = await LoadContainerIdsWithTemplateAsync(cancellationToken);
 
-        var candidates = await BuildCandidateQuery(containerIdsWithTemplate)
-            .Select(s => new ContainerCandidate(s.Id, s.FromDate))
-            .ToListAsync(cancellationToken);
+        var candidates = await _shiftReader.ScanRealPlanKeysAsync(
+            CandidateScan(containerIdsWithTemplate), cancellationToken);
 
         if (candidates.Count == 0)
         {
@@ -151,24 +149,22 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
     {
         var containerIdsWithTemplate = await LoadContainerIdsWithTemplateAsync(cancellationToken);
 
-        var containerIds = await BuildCandidateQuery(containerIdsWithTemplate)
-            .Select(s => s.Id)
-            .ToListAsync(cancellationToken);
+        var keys = await _shiftReader.ScanRealPlanKeysAsync(
+            CandidateScan(containerIdsWithTemplate), cancellationToken);
 
-        return containerIds
-            .Select(containerId => AgentConditionLedgerPolicy.FingerprintFor(
+        return keys
+            .Select(key => AgentConditionLedgerPolicy.FingerprintFor(
                 Kind,
-                EmptyContainerTriggerEvent.DedupKeyFor(containerId)))
+                EmptyContainerTriggerEvent.DedupKeyFor(key.Id)))
             .ToHashSet(StringComparer.Ordinal);
     }
 
     /// <summary>
-    /// Identity and business order of one candidate, kept as a projection so the rotation input costs two
-    /// columns per candidate instead of a full Shift row for a backlog that is deliberately uncapped here.
+    /// Business order of the candidates: oldest FromDate first, id as tiebreaker. The candidates are ShiftDateKey
+    /// projections, so the rotation input costs two columns per candidate instead of a full Shift row for a
+    /// backlog that is deliberately uncapped here.
     /// </summary>
-    private sealed record ContainerCandidate(Guid Id, DateOnly FromDate);
-
-    private static int CompareByFromDateThenId(ContainerCandidate left, ContainerCandidate right)
+    private static int CompareByFromDateThenId(ShiftDateKey left, ShiftDateKey right)
     {
         var byFromDate = left.FromDate.CompareTo(right.FromDate);
 
@@ -190,8 +186,8 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
                 group => group.Min(condition => condition.LastSeenAtUtc));
 
     /// <summary>
-    /// The full Shift rows behind the selected ids, re-sorted into the order the rotation produced -
-    /// GetQuery() carries an OrderBy of its own, so the database order is not the rotation order. Ids that
+    /// The full Shift rows behind the selected ids, re-sorted into the order the rotation produced - the scan
+    /// returns rows in the base order (original id, from date, start time), not the rotation order. Ids that
     /// no longer match the candidate predicates (a template added, or a soft delete, between the two
     /// queries) simply drop out rather than being reported from a stale projection.
     /// </summary>
@@ -200,9 +196,9 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
         List<Guid> selectedIds,
         CancellationToken cancellationToken)
     {
-        var containersById = await BuildCandidateQuery(containerIdsWithTemplate)
-            .Where(s => selectedIds.Contains(s.Id))
-            .ToDictionaryAsync(s => s.Id, cancellationToken);
+        var containers = await _shiftReader.ScanRealPlanAsync(
+            CandidateScan(containerIdsWithTemplate) with { OnlyIds = selectedIds }, cancellationToken);
+        var containersById = containers.ToDictionary(container => container.Id);
 
         return selectedIds
             .Where(containersById.ContainsKey)
@@ -210,12 +206,8 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
             .ToList();
     }
 
-    private async Task<List<Guid>> LoadContainerIdsWithTemplateAsync(CancellationToken cancellationToken) =>
-        await _containerTemplateRepository.GetQuery()
-            .Where(t => !t.IsDeleted)
-            .Select(t => t.ContainerId)
-            .Distinct()
-            .ToListAsync(cancellationToken);
+    private Task<List<Guid>> LoadContainerIdsWithTemplateAsync(CancellationToken cancellationToken) =>
+        _containerTemplateRepository.GetContainerIdsWithTemplateAsync(cancellationToken);
 
     /// <summary>
     /// The container's own definition, carried into the payload so the Etappe 5b remediation binder can
@@ -238,11 +230,10 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
             container.IsWeekdayAndHoliday);
     }
 
-    private IQueryable<Shift> BuildCandidateQuery(List<Guid> containerIdsWithTemplate) =>
-        _shiftRepository.GetQuery()
-            .Where(s => s.ShiftType == ShiftType.IsContainer)
-            .Where(s => s.Status == ShiftStatus.OriginalShift)
-            .Where(s => s.AnalyseToken == null && s.ScenarioSourceShiftId == null)
-            .Where(s => !s.IsDeleted)
-            .Where(s => !containerIdsWithTemplate.Contains(s.Id));
+    private static RealPlanShiftScan CandidateScan(List<Guid> containerIdsWithTemplate) =>
+        new(ShiftStatus.OriginalShift)
+        {
+            ShiftType = ShiftType.IsContainer,
+            ExcludedIds = containerIdsWithTemplate,
+        };
 }

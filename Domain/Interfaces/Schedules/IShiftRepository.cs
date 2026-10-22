@@ -25,8 +25,6 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<Shift?> PutCutUpdate(Shift shift);
 
     IQueryable<Shift> GetQuery();
-   
-    IQueryable<Shift> GetQueryWithClient();
 
     /// <summary>
     /// Whether a shift with status OriginalShift already carries <paramref name="originalShiftId"/> as its OriginalId.

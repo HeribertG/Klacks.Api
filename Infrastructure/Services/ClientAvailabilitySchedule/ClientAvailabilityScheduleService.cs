@@ -7,6 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.ClientAvailabilitySchedule;
 
+/// <summary>
+/// Reads the per-client, per-day availability ranges from get_client_availability_for_schedule.
+/// </summary>
+/// <param name="context">Database context the function is called on</param>
 public class ClientAvailabilityScheduleService : IClientAvailabilityScheduleService
 {
     private readonly DataBaseContext _context;
@@ -16,21 +20,23 @@ public class ClientAvailabilityScheduleService : IClientAvailabilityScheduleServ
         _context = context;
     }
 
-    public IQueryable<ClientAvailabilityScheduleEntry> GetClientAvailabilityQuery(
+    public async Task<IReadOnlyList<ClientAvailabilityScheduleEntry>> GetClientAvailabilityAsync(
         DateOnly startDate,
         DateOnly endDate,
-        List<Guid> clientIds)
+        IReadOnlyCollection<Guid> clientIds,
+        CancellationToken cancellationToken = default)
     {
         var startDateTime = DateTime.SpecifyKind(startDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
         var endDateTime = DateTime.SpecifyKind(endDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
         var clientIdArray = clientIds.ToArray();
 
-        return _context.ClientAvailabilityScheduleEntries
+        return await _context.ClientAvailabilityScheduleEntries
             .FromSqlInterpolated($@"
                 SELECT * FROM get_client_availability_for_schedule(
                     {startDateTime}::DATE,
                     {endDateTime}::DATE,
                     {clientIdArray}::UUID[]
-                )");
+                )")
+            .ToListAsync(cancellationToken);
     }
 }

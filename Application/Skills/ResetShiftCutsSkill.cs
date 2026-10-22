@@ -20,7 +20,6 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -28,13 +27,19 @@ namespace Klacks.Api.Application.Skills;
 public class ResetShiftCutsSkill : BaseSkillImplementation
 {
     private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftReader _shiftReader;
     private readonly IMediator _mediator;
 
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
-    public ResetShiftCutsSkill(IShiftRepository shiftRepository, IMediator mediator, IShiftVisibilityGuard shiftVisibilityGuard)
+    public ResetShiftCutsSkill(
+        IShiftRepository shiftRepository,
+        IShiftReader shiftReader,
+        IMediator mediator,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
+        _shiftReader = shiftReader;
         _mediator = mediator;
         _shiftVisibilityGuard = shiftVisibilityGuard;
     }
@@ -71,8 +76,8 @@ public class ResetShiftCutsSkill : BaseSkillImplementation
         var sealedOrder = await _shiftRepository.GetSealedOrder(sealedOrderId.Value);
         var orderName = sealedOrder?.Name ?? loadedShift.Name;
 
-        var isSplit = await _shiftRepository.GetQuery()
-            .AnyAsync(s => s.OriginalId == sealedOrderId && s.Status == ShiftStatus.SplitShift, cancellationToken);
+        var isSplit = await _shiftReader.AnyByOriginalIdAsync(
+            sealedOrderId.Value, ShiftStatus.SplitShift, cancellationToken);
         if (!isSplit)
         {
             return SkillResult.Error(

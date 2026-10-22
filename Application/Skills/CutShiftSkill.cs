@@ -24,7 +24,6 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -35,14 +34,19 @@ public class CutShiftSkill : BaseSkillImplementation
     private const int MaxParts = 12;
 
     private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftReader _shiftReader;
     private readonly IShiftCutFacade _shiftCutFacade;
 
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public CutShiftSkill(
-        IShiftRepository shiftRepository, IShiftCutFacade shiftCutFacade, IShiftVisibilityGuard shiftVisibilityGuard)
+        IShiftRepository shiftRepository,
+        IShiftReader shiftReader,
+        IShiftCutFacade shiftCutFacade,
+        IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
+        _shiftReader = shiftReader;
         _shiftCutFacade = shiftCutFacade;
         _shiftVisibilityGuard = shiftVisibilityGuard;
     }
@@ -130,8 +134,8 @@ public class CutShiftSkill : BaseSkillImplementation
                 "Create the order first (create_shift), then cut its plannable shift.");
         }
 
-        var alreadySplit = await _shiftRepository.GetQuery()
-            .AnyAsync(s => s.OriginalId == sealedOrderId && s.Status == ShiftStatus.SplitShift, cancellationToken);
+        var alreadySplit = await _shiftReader.AnyByOriginalIdAsync(
+            sealedOrderId.Value, ShiftStatus.SplitShift, cancellationToken);
         if (alreadySplit)
         {
             return (null,
@@ -141,8 +145,8 @@ public class CutShiftSkill : BaseSkillImplementation
 
         var originalShift = loadedShift.Status == ShiftStatus.OriginalShift
             ? loadedShift
-            : await _shiftRepository.GetQuery()
-                .FirstOrDefaultAsync(s => s.OriginalId == sealedOrderId && s.Status == ShiftStatus.OriginalShift, cancellationToken);
+            : await _shiftReader.FindFirstByOriginalIdAsync(
+                sealedOrderId.Value, ShiftStatus.OriginalShift, cancellationToken);
 
         if (originalShift == null)
         {

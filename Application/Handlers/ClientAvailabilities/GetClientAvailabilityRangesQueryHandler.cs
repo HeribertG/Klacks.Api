@@ -13,7 +13,6 @@ using Klacks.Api.Application.Queries.ClientAvailabilities;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.ClientAvailabilities;
 
@@ -41,9 +40,8 @@ public class GetClientAvailabilityRangesQueryHandler : BaseHandler, IRequestHand
             var visibleClientIds = await _clientVisibilityGuard.FilterVisibleAsync(
                 request.ClientIds, id => id, cancellationToken);
 
-            var entries = await _scheduleService
-                .GetClientAvailabilityQuery(request.StartDate, request.EndDate, visibleClientIds)
-                .ToListAsync(cancellationToken);
+            var entries = await _scheduleService.GetClientAvailabilityAsync(
+                request.StartDate, request.EndDate, visibleClientIds, cancellationToken);
 
             return entries.Select(MapToResource).ToList();
         }, "GetClientAvailabilityRanges", new { request.StartDate, request.EndDate });
