@@ -1,15 +1,17 @@
 # Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 #
 # Provisions a native Klacks installation on Windows: PostgreSQL cluster, secrets, configuration file, version layout
-# and the three services (KlacksPostgres, Klacks, KlacksUpdater). Re-running it is safe: existing secrets, the database
-# cluster and installed versions are kept. The Inno Setup installer only copies the payload and calls this script
-# elevated; everything up to the service registration can be run without administrator rights via -NoServices, which
+# and the three services (KlacksPostgres, Klacks, KlacksUpdater) plus, when the bundle ships it, the speech recognition
+# service KlacksStt (registered Disabled; the updater enables and starts it when the user installs the Parakeet engine).
+# Re-running it is safe: existing secrets, the database cluster and installed versions are kept. The Inno Setup
+# installer only copies the payload and calls this script elevated; everything up to the service registration can be run without administrator rights via -NoServices, which
 # starts PostgreSQL and the API as plain processes instead (development and CI smoke tests).
 #
 # Windows PowerShell 5.1 compatible on purpose: it is the only PowerShell every Windows 10/11 machine has.
 #
-# Layout:  <ProgramRoot>\versions\<x.y.z>\{app,ui,updater}   <ProgramRoot>\current -> junction   <ProgramRoot>\pgsql
-#          <DataRoot>\pgdata  <DataRoot>\config\klacks.native.json  <DataRoot>\backups  <DataRoot>\logs  (+ API data)
+# Layout:  <ProgramRoot>\versions\<x.y.z>\{app,ui,updater,stt}   <ProgramRoot>\current -> junction   <ProgramRoot>\pgsql
+#          <DataRoot>\pgdata  <DataRoot>\config\klacks.native.json  <DataRoot>\backups  <DataRoot>\logs  <DataRoot>\stt-models
+#          (+ API data)
 
 [CmdletBinding()]
 param(
@@ -33,6 +35,11 @@ $ErrorActionPreference = 'Stop'
 
 $ApiServiceName = 'Klacks'
 $UpdaterServiceName = 'KlacksUpdater'
+$SttServiceName = 'KlacksStt'
+# Loopback port of the local speech recognition service; must equal the SttBaseUrl the updater writes into the provider row.
+$SttPort = 5091
+$SttThreads = 2
+$SttModelDirectoryName = 'stt-models'
 $PostgresServiceName = 'KlacksPostgres'
 $PostgresSuperUser = 'klacks'
 $DatabaseName = 'Klacks'
@@ -304,6 +311,8 @@ $config = [ordered]@{
         HealthUrl            = "$loopbackUrl/internal/health/deep"
         VersionUrl           = "$loopbackUrl/api/Version"
         SignaturePublicKey   = $publicKey
+        SttBaseUrl           = "http://localhost:$SttPort"
+        NativeSttServiceName = $SttServiceName
     }
 }
 $config | ConvertTo-Json -Depth 5 | Set-Content -Encoding UTF8 $configFile
@@ -348,6 +357,29 @@ else {
             # Also recover when the service reports itself stopped with an error code, not only after a crash.
             sc.exe failureflag $service.Name 1 | Out-Null
         }
+    }
+    # The speech recognition service is registered but never started here: Disabled until the user installs the
+    # Parakeet engine, at which point the updater (LocalSystem) switches it to Automatic and starts it.
+    $sttExe = Join-Path $currentLink 'stt\Klacks.Stt.exe'
+    if (Test-Path $sttExe) {
+        if (-not (Get-Service -Name $SttServiceName -ErrorAction SilentlyContinue)) {
+            Write-Step "Registering service $SttServiceName (disabled)"
+            $sttModelDirectory = Join-Path $DataRoot $SttModelDirectoryName
+            New-Item -ItemType Directory -Force -Path $sttModelDirectory | Out-Null
+            Protect-Directory $sttModelDirectory
+            $sttEnvironment = @(
+                "ASPNETCORE_URLS=http://localhost:$SttPort", "Stt__ModelDirectory=$sttModelDirectory",
+                "Stt__NumThreads=$SttThreads", 'ASPNETCORE_ENVIRONMENT=Production', 'DOTNET_ENVIRONMENT=Production')
+            New-Service -Name $SttServiceName -BinaryPathName "`"$sttExe`"" -DisplayName 'Klacks Speech Recognition' `
+                -StartupType Disabled | Out-Null
+            $sttKey = "HKLM:\SYSTEM\CurrentControlSet\Services\$SttServiceName"
+            New-ItemProperty -Path $sttKey -Name 'Environment' -PropertyType MultiString -Value $sttEnvironment -Force | Out-Null
+            sc.exe failure $SttServiceName reset= 86400 actions= restart/60000/restart/60000/restart/300000 | Out-Null
+            sc.exe failureflag $SttServiceName 1 | Out-Null
+        }
+    }
+    else {
+        Write-Warning "The bundle contains no speech recognition service ($sttExe); service $SttServiceName is not registered."
     }
     foreach ($service in $services) {
         $controller = Get-Service -Name $service.Name

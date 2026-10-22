@@ -22,9 +22,9 @@ $ErrorActionPreference = 'Continue'
 # Windows PowerShell 5.1 leaves $PSScriptRoot empty in parameter defaults.
 if (-not $ReportDirectory) { $ReportDirectory = $PSScriptRoot }
 
-$ServiceNames = @('Klacks', 'KlacksUpdater', 'KlacksPostgres')
-$ProcessNames = @('Klacks.Api', 'Klacks.Updater', 'postgres')
-$EventProviders = @('Klacks.Api', 'Klacks.Updater', 'PostgreSQL', '.NET Runtime', 'Application Error')
+$ServiceNames = @('Klacks', 'KlacksUpdater', 'KlacksStt', 'KlacksPostgres')
+$ProcessNames = @('Klacks.Api', 'Klacks.Updater', 'Klacks.Stt', 'postgres')
+$EventProviders = @('Klacks.Api', 'Klacks.Updater', 'Klacks.Stt', 'KlacksStt', 'PostgreSQL', '.NET Runtime', 'Application Error')
 $EventLookbackHours = 24
 $MaxEvents = 80
 $MaxEventMessageLength = 1500

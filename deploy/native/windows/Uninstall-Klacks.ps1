@@ -1,8 +1,8 @@
 # Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 #
-# Removes a native Klacks installation made by Install-Klacks.ps1: stops and deletes the services Klacks, KlacksUpdater
-# and KlacksPostgres and deletes the program directory. The data directory (database, configuration, backups) is kept
-# unless -RemoveData is given, so a later installation can take it over. Run in an elevated PowerShell.
+# Removes a native Klacks installation made by Install-Klacks.ps1: stops and deletes the services Klacks, KlacksUpdater,
+# KlacksStt (when present) and KlacksPostgres and deletes the program directory. The data directory (database,
+# configuration, backups, speech models) is kept unless -RemoveData is given, so a later installation can take it over. Run in an elevated PowerShell.
 #
 # Example:
 #   .\Uninstall-Klacks.ps1               # keep C:\ProgramData\Klacks
@@ -17,9 +17,9 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$ServiceNames = @('KlacksUpdater', 'Klacks', 'KlacksPostgres')
+$ServiceNames = @('KlacksUpdater', 'KlacksStt', 'Klacks', 'KlacksPostgres')
 $ServiceStopTimeout = [TimeSpan]::FromMinutes(2)
-$KlacksProcessNames = @('Klacks.Api', 'Klacks.Updater')
+$KlacksProcessNames = @('Klacks.Api', 'Klacks.Updater', 'Klacks.Stt')
 $ProcessExitTimeoutSeconds = 60
 $RemoveAttempts = 10
 $RemoveRetryDelaySeconds = 3

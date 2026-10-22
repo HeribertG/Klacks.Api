@@ -165,6 +165,12 @@ jobs:
           repository: HeribertG/Klacks.Updater
           path: Klacks.Updater
 
+      - name: Checkout Klacks.Stt
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Stt
+          path: Klacks.Stt
+
       - name: Checkout pgvector
         uses: actions/checkout@v4
         with:
@@ -204,7 +210,8 @@ jobs:
           try {
             & Klacks.Api/deploy/native/build-native-bundle.ps1 -Rid win-x64 -Version $env:VERSION `
               -UiDist ui -OutputDirectory bundle -BundleBaseUrl "$env:RELEASE_DOWNLOAD_BASE/v$env:VERSION" `
-              -UpdaterProject Klacks.Updater/Klacks.Updater/Klacks.Updater.csproj -BuildKey $env:BUILD_KEY `
+              -UpdaterProject Klacks.Updater/Klacks.Updater/Klacks.Updater.csproj `
+              -SttProject Klacks.Stt/Klacks.Stt/Klacks.Stt.csproj -BuildKey $env:BUILD_KEY `
               -SigningKeyPath (Join-Path $env:RUNNER_TEMP 'update_priv.pem')
           }
           finally {
@@ -347,7 +354,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           # The manifest entry and the updater's artifact choice say win-x64; on ARM64 the services must still run the
           # x64 binaries (through emulation), so the PE machine type of every registered service binary is checked.
-          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater', 'KlacksStt') {
             $pathName = (Get-CimInstance Win32_Service -Filter "Name='$name'").PathName
             $exe = if ($pathName -match '^"([^"]+)"') { $Matches[1] } else { ($pathName -split ' ')[0] }
             $header = New-Object byte[] 4096
@@ -426,7 +433,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           & .\Klacks.Api\deploy\native\windows\Uninstall-Klacks.ps1 -RemoveData
-          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater', 'KlacksStt') {
             if (Get-Service -Name $name -ErrorAction SilentlyContinue) { throw "Service $name is still registered." }
           }
           if (Test-Path "$env:ProgramData\Klacks") { throw 'The data directory is still present after -RemoveData.' }
@@ -514,7 +521,7 @@ jobs:
           $uninstaller = "$env:ProgramFiles\Klacks Setup\unins000.exe"
           $exitCode = (Start-Process -FilePath $uninstaller -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/REMOVEDATA' -Wait -PassThru).ExitCode
           if ($exitCode -ne 0) { throw "Uninstaller exited with $exitCode." }
-          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater', 'KlacksStt') {
             if (Get-Service -Name $name -ErrorAction SilentlyContinue) { throw "Service $name is still registered." }
           }
           if (Test-Path "$env:ProgramData\Klacks") { throw 'The data directory is still present after /REMOVEDATA.' }
