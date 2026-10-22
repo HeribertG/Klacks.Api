@@ -13,6 +13,10 @@
 /// administrator whose scope is restricted - only reaches orders linked to at least one group they can see, never
 /// orders without a group, and may neither name a hidden group nor run the group assignment. That scope is resolved
 /// once and carried on the command, so the preview, the inline apply and the background job filter identically.
+/// groupName must match a reachable group exactly or be an unambiguous part of its name (type-label words aside):
+/// the shared resolver's fuzzy stages ("Region South" -> "Region North") are not accepted here, because sealing
+/// cannot be undone and a hidden or misspelled group must never be replaced by a different visible one. The resolved
+/// group is named in the preview and in the result.
 /// With apply=true, a batch whose sealable count (from the
 /// same count the preview reports) exceeds SealOpenOrdersSynchronousLimit is NOT sealed inline: it is
 /// handed to SealOpenOrdersJobBackgroundService and this call returns immediately with a job id. The
@@ -79,6 +83,15 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
     private const string ScopedPreviewNote =
         "Only orders in the groups you can see are included; orders without a group can only be sealed by an " +
         "administrator. ";
+
+    private const string InexactGroupNameError =
+        "Group '{0}' not found. Available groups: {1}. seal_open_orders only accepts a group's exact name or an " +
+        "unambiguous part of it, because sealing cannot be undone; a similarly spelled group is never substituted. " +
+        "Ask the user which of these groups they mean.";
+
+    private const string GroupNoteFormat = "Group: '{0}'. ";
+
+    private const char NameTokenSeparator = ' ';
 
     private const string InvalidMaxCountError =
         "maxCount must be greater than 0 when it is given.";
@@ -151,17 +164,19 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
             ? OpenOrderSealingScope.FullAccess()
             : OpenOrderSealingScope.ForGroups(reachableGroups.Select(g => g.Id));
 
-        Guid? groupId = null;
+        Group? targetGroup = null;
         if (!string.IsNullOrWhiteSpace(groupName))
         {
-            var (group, groupError) = GroupResolver.Resolve(reachableGroups, groupName);
+            var (group, groupError) = ResolveGroupStrictly(reachableGroups, groupName);
             if (group == null)
             {
                 return SkillResult.Error(groupError!);
             }
 
-            groupId = group.Id;
+            targetGroup = group;
         }
+
+        var groupNote = targetGroup == null ? string.Empty : string.Format(GroupNoteFormat, targetGroup.Name);
 
         var today = await _companyClock.GetTodayAsync(cancellationToken);
 
@@ -188,7 +203,7 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
             fromDate.HasValue ? DateOnly.FromDateTime(fromDate.Value) : null,
             untilDate.HasValue ? DateOnly.FromDateTime(untilDate.Value) : null,
             GetParameter<string>(parameters, "customerName"),
-            groupId,
+            targetGroup?.Id,
             maxCount,
             autoAssignGroups,
             ValidFrom: null,
@@ -206,7 +221,7 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
                 var previewResult = await _mediator.Send(command with { Apply = false }, cancellationToken);
                 if (previewResult.SealableCount > SealOpenOrdersSynchronousLimit)
                 {
-                    return EnqueueJob(context.UserId, command, previewResult);
+                    return EnqueueJob(context.UserId, command, previewResult, groupNote);
                 }
             }
 
@@ -217,7 +232,7 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
             return SkillResult.Error(ex.Message);
         }
 
-        return apply ? BuildAppliedResult(result) : BuildPreviewResult(result, scope);
+        return apply ? BuildAppliedResult(result, groupNote) : BuildPreviewResult(result, scope, groupNote);
     }
 
     private async Task<IReadOnlyList<Group>> LoadReachableGroupsAsync(GroupScopeAccess access, bool hasFullAccess)
@@ -226,7 +241,40 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
         return hasFullAccess ? groups : groups.Where(access.IsInScope).ToList();
     }
 
-    private SkillResult EnqueueJob(Guid userId, SealOpenOrdersCommand command, SealOpenOrdersResult previewResult)
+    private static (Group? Group, string? Error) ResolveGroupStrictly(IReadOnlyList<Group> reachableGroups, string groupName)
+    {
+        var (group, error) = GroupResolver.Resolve(reachableGroups, groupName);
+        if (group == null || IsLiteralMatch(group.Name, groupName))
+        {
+            return (group, error);
+        }
+
+        var available = reachableGroups
+            .Where(g => !g.IsDeleted && !string.IsNullOrWhiteSpace(g.Name))
+            .Select(g => g.Name);
+        return (null, string.Format(InexactGroupNameError, groupName.Trim(), string.Join(", ", available)));
+    }
+
+    private static bool IsLiteralMatch(string resolvedName, string groupName)
+    {
+        var name = NameMatching.Normalize(resolvedName);
+        var query = NameMatching.Normalize(groupName);
+        var queryWithoutLabels = string.Join(
+            NameTokenSeparator,
+            NameMatching.Tokenize(query).Where(token => !GroupResolver.LabelWords.Contains(token)));
+
+        return name.Contains(query, StringComparison.Ordinal)
+            || (queryWithoutLabels.Length > 0 && name.Contains(queryWithoutLabels, StringComparison.Ordinal))
+            || (queryWithoutLabels.Length > 0 && Compact(name) == Compact(queryWithoutLabels));
+    }
+
+    private static string Compact(string normalized)
+    {
+        return normalized.Replace(NameTokenSeparator.ToString(), string.Empty, StringComparison.Ordinal);
+    }
+
+    private SkillResult EnqueueJob(
+        Guid userId, SealOpenOrdersCommand command, SealOpenOrdersResult previewResult, string groupNote)
     {
         var jobId = Guid.NewGuid();
         if (!_sealOpenOrdersJobQueue.Enqueue(new SealOpenOrdersJob(jobId, userId, command)))
@@ -234,10 +282,10 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
             return SkillResult.Error(QueueFullError);
         }
 
-        return BuildEnqueuedResult(jobId, previewResult);
+        return BuildEnqueuedResult(jobId, previewResult, groupNote);
     }
 
-    private static SkillResult BuildEnqueuedResult(Guid jobId, SealOpenOrdersResult previewResult)
+    private static SkillResult BuildEnqueuedResult(Guid jobId, SealOpenOrdersResult previewResult, string groupNote)
     {
         var autoAssignNote = previewResult.AutoAssignRequested
             ? $"The group assignment will link {previewResult.AutoAssignedCount} order(s) first. "
@@ -245,13 +293,14 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             new SealOpenOrdersJobAcceptedResult(jobId, previewResult.SealableCount),
-            $"{previewResult.SealableCount} of {previewResult.TotalOrders} open order(s) are sealable, " +
+            $"{groupNote}{previewResult.SealableCount} of {previewResult.TotalOrders} open order(s) are sealable, " +
             $"more than the {SealOpenOrdersSynchronousLimit} this can seal within a chat reply, so it runs " +
             $"as a background job (id {jobId}) instead. {autoAssignNote}" +
             "You will be notified in your Klacksy inbox once it finishes.");
     }
 
-    private static SkillResult BuildPreviewResult(SealOpenOrdersResult result, OpenOrderSealingScope scope)
+    private static SkillResult BuildPreviewResult(
+        SealOpenOrdersResult result, OpenOrderSealingScope scope, string groupNote)
     {
         var scopeNote = scope.HasFullAccess ? string.Empty : ScopedPreviewNote;
 
@@ -268,18 +317,18 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
         {
             return SkillResult.SuccessResult(
                 result,
-                $"Preview: no open order matches the filter. {scopeNote}{autoAssignNote}Nothing was changed.");
+                $"Preview: {groupNote}no open order matches the filter. {scopeNote}{autoAssignNote}Nothing was changed.");
         }
 
         return SkillResult.SuccessResult(
             result,
-            $"Preview: {result.SealableCount} of {result.TotalOrders} open order(s) can be sealed as they " +
+            $"Preview: {groupNote}{result.SealableCount} of {result.TotalOrders} open order(s) can be sealed as they " +
             $"are now, {result.BlockedCount} are blocked. {scopeNote}{autoAssignNote}{BuildBlockedDetails(result)}" +
             "Nothing was changed yet. Sealing cannot be undone — ask the user to confirm, then call " +
             "again with apply=true.");
     }
 
-    private static SkillResult BuildAppliedResult(SealOpenOrdersResult result)
+    private static SkillResult BuildAppliedResult(SealOpenOrdersResult result, string groupNote)
     {
         var autoAssignNote = result.AutoAssignRequested
             ? $"The group assignment linked {result.AutoAssignedCount} order(s) first. "
@@ -292,7 +341,7 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             result,
-            $"Sealed {result.SealedCount} of {result.TotalOrders} open order(s); {result.BlockedCount} " +
+            $"{groupNote}Sealed {result.SealedCount} of {result.TotalOrders} open order(s); {result.BlockedCount} " +
             $"blocked, {result.FailedCount} failed. {autoAssignNote}{sealedSample}" +
             $"{BuildBlockedDetails(result)}{BuildFailureDetails(result)}" +
             "Each sealed order now has a plannable shift; the orders themselves are immutable from now on.");
