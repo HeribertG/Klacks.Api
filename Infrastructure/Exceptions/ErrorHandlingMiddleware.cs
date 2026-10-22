@@ -57,6 +57,9 @@ public class ErrorHandlingMiddleware
     private const string ValidationDetail = "Please refer to the errors property for additional details.";
     private const string DatabaseUpdateTitle = "Database Update Error";
     private const string DatabaseUpdateDetail = "A database error occurred. Please check your input.";
+    private const string DuplicateEntryDetail = "A duplicate entry already exists.";
+    private const string ReferencedDataDetail = "Referenced data not found or constraint violation.";
+    private const string DatabaseConstraintDetail = "Database constraint violation.";
     private const string ContainerLockedTitle = "Container Locked";
     private const string UnprocessableEntityTitle = "Unprocessable Entity";
     private const string ForbiddenTitle = "Forbidden";
@@ -99,6 +102,8 @@ public class ErrorHandlingMiddleware
         InvalidRequestException ex => HandleInvalidRequestAsync(context, ex),
         KeyNotFoundException ex => HandleKeyNotFoundAsync(context, ex),
         DbUpdateException ex => HandleDbUpdateAsync(context, ex),
+        DatabaseUpdateException ex => HandleDatabaseUpdateAsync(context, ex),
+        ConcurrencyException ex => HandleConcurrencyAsync(context, ex),
         ContainerLockedException ex => HandleContainerLockedAsync(context, ex),
         AutofillRunConflictException ex => HandleAutofillRunConflictAsync(context, ex),
         PlanningRuleConfigurationException ex => HandlePlanningRuleConfigurationAsync(context, ex),
@@ -171,6 +176,25 @@ public class ErrorHandlingMiddleware
     {
         _logger.LogError(ex, "DbUpdateException caught by middleware: {Message}", ex.Message);
         await WriteProblemAsync(context, StatusCodes.Status400BadRequest, DatabaseUpdateTitle, DatabaseUpdateDetail);
+    }
+
+    /// <summary>
+    /// Answers a Domain DatabaseUpdateException that no BaseHandler translated, with the status and wording BaseHandler
+    /// uses for it (400 invalid request); the operation name and the raw database message stay out of the response.
+    /// </summary>
+    private async Task HandleDatabaseUpdateAsync(HttpContext context, DatabaseUpdateException ex)
+    {
+        _logger.LogError(ex, "DatabaseUpdateException caught by middleware: {Message}", ex.Message);
+        var detail = ex.IsDuplicate ? DuplicateEntryDetail
+            : ex.IsForeignKeyViolation ? ReferencedDataDetail
+            : DatabaseConstraintDetail;
+        await WriteProblemAsync(context, StatusCodes.Status400BadRequest, InvalidRequestTitle, detail);
+    }
+
+    private async Task HandleConcurrencyAsync(HttpContext context, ConcurrencyException ex)
+    {
+        _logger.LogError(ex, "ConcurrencyException caught by middleware: {Message}", ex.Message);
+        await WriteProblemAsync(context, StatusCodes.Status400BadRequest, InvalidRequestTitle, ex.Message);
     }
 
     private async Task HandleContainerLockedAsync(HttpContext context, ContainerLockedException ex)
