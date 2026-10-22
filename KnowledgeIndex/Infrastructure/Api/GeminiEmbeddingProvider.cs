@@ -13,6 +13,7 @@
 /// (Windows ARM64) — production (Hetzner, x64) always uses the ONNX provider and never reaches this.
 /// </summary>
 
+using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
@@ -104,7 +105,7 @@ public sealed class GeminiEmbeddingProvider : IEmbeddingProvider
 
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}{ModelName}:batchEmbedContents")
         {
-            Content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json")
+            Content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, MediaTypeNames.Application.Json)
         };
         request.Headers.Add(GoogleApiConstants.ApiKeyHeaderName, apiKey);
 

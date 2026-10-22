@@ -8,6 +8,7 @@ using System.Web;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Klacks.Api.Infrastructure.Services.Identity;
 
@@ -127,7 +128,7 @@ public class OAuth2Service : IOAuth2Service
             throw new InvalidOperationException("User info URL not configured");
         }
 
-        _oauth2Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        _oauth2Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
 
         try
         {

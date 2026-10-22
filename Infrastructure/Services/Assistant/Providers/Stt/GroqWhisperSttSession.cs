@@ -6,6 +6,8 @@
 /// <param name="httpClientFactory">Factory for creating HTTP clients</param>
 /// <param name="config">STT configuration including API key and language</param>
 /// <param name="dictionaryService">Supplies transcription dictionary terms for the Whisper bias prompt</param>
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt;
 
 using System.Net.Http.Headers;
@@ -40,7 +42,7 @@ public sealed class GroqWhisperSttSession : ISttSession
             return null;
 
         var client = _httpClientFactory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config.ApiKey);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, _config.ApiKey);
 
         using var content = new MultipartFormDataContent();
         var audioContent = new ByteArrayContent(_audioBuffer.ToArray());

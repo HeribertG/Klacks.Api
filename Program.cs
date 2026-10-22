@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Net.Mime;
 using FluentValidation;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Validation;
@@ -760,7 +761,7 @@ static async Task InitializeFeaturePluginsThenLoadSkillSeedsAsync(WebApplication
 
 static async Task WriteDeepHealthResponse(HttpContext httpContext, HealthReport report)
 {
-    httpContext.Response.ContentType = "application/json";
+    httpContext.Response.ContentType = MediaTypeNames.Application.Json;
 
     var checks = new Dictionary<string, string>();
     foreach (var entry in report.Entries)

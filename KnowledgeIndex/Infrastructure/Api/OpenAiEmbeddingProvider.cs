@@ -13,12 +13,14 @@
 /// </summary>
 
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Klacks.Api.KnowledgeIndex.Infrastructure.Api;
 
@@ -100,9 +102,9 @@ public sealed class OpenAiEmbeddingProvider : IEmbeddingProvider
 
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}{EmbeddingsPath}")
         {
-            Content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json")
+            Content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, MediaTypeNames.Application.Json)
         };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+        request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, apiKey);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);

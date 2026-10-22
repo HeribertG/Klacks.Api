@@ -12,6 +12,7 @@
 /// </summary>
 
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
@@ -157,7 +158,7 @@ public class AnthropicProvider : ILLMProvider
 
             var options = BuildSerializerOptions();
             var json = JsonSerializer.Serialize(anthropicRequest, options);
-            var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var requestContent = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _httpClient.PostAsync("messages", requestContent, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
@@ -263,7 +264,7 @@ public class AnthropicProvider : ILLMProvider
             anthropicRequest.ToolChoice == null ? "null" : "any", anthropicRequest.Tools?.Count ?? 0);
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, "messages")
         {
-            Content = new StringContent(json, Encoding.UTF8, "application/json")
+            Content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json)
         };
 
         var response = await _httpClient.SendAsync(
@@ -398,7 +399,7 @@ public class AnthropicProvider : ILLMProvider
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://api.anthropic.com/v1/messages")
             {
-                Content = new StringContent(JsonSerializer.Serialize(testRequest), Encoding.UTF8, "application/json")
+                Content = new StringContent(JsonSerializer.Serialize(testRequest), Encoding.UTF8, MediaTypeNames.Application.Json)
             };
             request.Headers.Add("x-api-key", apiKey);
             request.Headers.Add(AnthropicVersionHeader, "2024-01-01");

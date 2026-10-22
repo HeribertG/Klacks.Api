@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Net.Mime;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
@@ -11,6 +12,7 @@ using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 
@@ -103,7 +105,7 @@ public abstract class BaseHttpProvider : ILLMProvider
     {
         if (!string.IsNullOrEmpty(_apiKey))
         {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, _apiKey);
         }
     }
 
@@ -147,7 +149,7 @@ public abstract class BaseHttpProvider : ILLMProvider
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var json = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
 
         _logger.LogDebug("{Provider} sending streaming request to {Endpoint}", ProviderName, RedactQuery(endpoint));
 
@@ -282,7 +284,7 @@ public abstract class BaseHttpProvider : ILLMProvider
         var loggedModelId = string.IsNullOrWhiteSpace(modelId) ? UnknownModelId : modelId;
 
         var json = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
 
         _logger.LogDebug("{Provider} sending request to {Endpoint} ({RequestLength} chars)", ProviderName, RedactQuery(endpoint), json.LengthForLog());
 

@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
@@ -72,7 +73,7 @@ public class DeepLTranslationService : ITranslationService
 
         var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)
         {
-            Content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json")
+            Content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, MediaTypeNames.Application.Json)
         };
         request.Headers.Add("Authorization", $"DeepL-Auth-Key {apiKey}");
 

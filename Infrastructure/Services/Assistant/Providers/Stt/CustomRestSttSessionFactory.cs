@@ -6,6 +6,8 @@
 /// </summary>
 /// <param name="httpClientFactory">Factory for creating HTTP clients used in sessions</param>
 /// <param name="dictionaryService">Supplies transcription dictionary terms for the Whisper bias prompt</param>
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt;
 
 using System.Net.Http.Headers;
@@ -37,7 +39,7 @@ public class CustomRestSttSessionFactory : ICustomSttSessionFactory
         var client = _httpClientFactory.CreateClient();
         if (!string.IsNullOrWhiteSpace(provider.ApiKey))
         {
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", provider.ApiKey);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, provider.ApiKey);
         }
 
         var url = provider.ApiUrl.TrimEnd('/') + SttProviderConstants.OpenAiModelsPath;

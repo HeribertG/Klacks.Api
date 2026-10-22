@@ -14,6 +14,7 @@ using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using LLMModelDiscovery = Klacks.Api.Domain.Models.Assistant.LLMModelDiscovery;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic;
 
@@ -294,7 +295,7 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
         try
         {
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, apiKey);
 
             var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode;

@@ -17,6 +17,7 @@ using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
@@ -68,7 +69,7 @@ public sealed class KlacksSelfApiClient : IKlacksSelfApiClient
         }
 
         using var request = new HttpRequestMessage(method, route);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken.Value);
+        request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, context.AccessToken.Value);
         request.Headers.TryAddWithoutValidation(SelfApiHeaders.SkillName, skillName);
         request.Headers.TryAddWithoutValidation(SelfApiHeaders.CorrelationId, ResolveCorrelationId(context));
 

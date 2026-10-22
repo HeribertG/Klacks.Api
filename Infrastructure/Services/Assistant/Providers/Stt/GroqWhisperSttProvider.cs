@@ -6,6 +6,8 @@
 /// </summary>
 /// <param name="httpClientFactory">Factory for creating HTTP clients used in sessions</param>
 /// <param name="dictionaryService">Supplies transcription dictionary terms for the Whisper bias prompt</param>
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt;
 
 using System.Net.Http.Headers;
@@ -35,7 +37,7 @@ public class GroqWhisperSttProvider : ISttProvider
     public async Task ValidateAsync(SttConfig config, CancellationToken ct = default)
     {
         var client = _httpClientFactory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", config.ApiKey);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, config.ApiKey);
 
         var response = await client.GetAsync(SttProviderConstants.GroqModelsUrl, ct);
         if (!response.IsSuccessStatusCode)

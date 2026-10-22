@@ -13,6 +13,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
@@ -71,7 +72,7 @@ public class OpenAiTtsService : ITtsProvider
                 instructions = OpenAiTtsConstants.VoiceInstructions
             })
         };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+        request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, apiKey);
 
         using var response = await client.SendAsync(request, ct);
         if (!response.IsSuccessStatusCode)

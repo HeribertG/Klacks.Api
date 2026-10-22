@@ -1,10 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
@@ -54,7 +56,7 @@ public class EmbeddingService : IEmbeddingService
             var model = _configuration[EmbeddingApiConfigKeys.Model] ?? DefaultModel;
 
             var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, apiKey);
 
             var requestBody = new
             {
@@ -64,7 +66,7 @@ public class EmbeddingService : IEmbeddingService
             };
 
             var json = JsonSerializer.Serialize(requestBody);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
 
             var response = await client.PostAsync($"{baseUrl}/embeddings", content, cancellationToken);
 

@@ -14,6 +14,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
@@ -67,7 +68,7 @@ public class ProviderConnectivityTester : IProviderConnectivityTester
             if (!string.IsNullOrWhiteSpace(apiKey))
             {
                 request.Headers.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+                    new System.Net.Http.Headers.AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, apiKey);
             }
 
             using var response = await client.SendAsync(request, timeoutCts.Token);

@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Net.Mime;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -51,6 +52,6 @@ public class KnowledgeIndexSnapshotController : ControllerBase
         }
 
         var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(document, SnapshotJsonOptions));
-        return File(bytes, "application/json", KnowledgeIndexConstants.SnapshotFileName);
+        return File(bytes, MediaTypeNames.Application.Json, KnowledgeIndexConstants.SnapshotFileName);
     }
 }

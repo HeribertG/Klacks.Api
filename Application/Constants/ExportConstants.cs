@@ -33,7 +33,7 @@ public static class ExportConstants
 
     public const string ContentTypeCsv = "text/csv";
     public const string ContentTypeZip = "application/zip";
-    public const string ContentTypeJson = "application/json";
+    public const string ContentTypeJson = System.Net.Mime.MediaTypeNames.Application.Json;
     public const string ContentTypeXml = "application/xml";
     public const string ContentTypeXlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     public const string ContentTypeOctetStream = "application/octet-stream";

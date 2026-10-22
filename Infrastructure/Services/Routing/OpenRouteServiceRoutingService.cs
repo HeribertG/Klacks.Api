@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -24,7 +25,6 @@ namespace Klacks.Api.Infrastructure.Services.Routing;
 public class OpenRouteServiceRoutingService : IRoutingService
 {
     private const string SettingsType = Application.Constants.Settings.OPENROUTESERVICE_API_KEY;
-    private const string JsonMediaType = "application/json";
     private const int MaxLoggedFailureLength = 300;
 
     private readonly HttpClient _httpClient;
@@ -73,7 +73,7 @@ public class OpenRouteServiceRoutingService : IRoutingService
                 HttpMethod.Post,
                 $"{_geoServicesPolicy.OpenRouteService.BaseUrl}{GeoServicePaths.OpenRouteServiceDirectionsDrivingCarGeoJson}")
             {
-                Content = new StringContent(payload, Encoding.UTF8, JsonMediaType)
+                Content = new StringContent(payload, Encoding.UTF8, MediaTypeNames.Application.Json)
             };
             request.Headers.TryAddWithoutValidation("Authorization", apiKey);
 

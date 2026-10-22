@@ -9,6 +9,7 @@
 /// <param name="_httpClient">Named routing HTTP client (carries the User-Agent the public OSRM server requires)</param>
 /// <param name="_geoServicesPolicy">Effective geo service configuration; a disabled OSRM/OpenRouteService falls back to Haversine without any request</param>
 
+using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -375,7 +376,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         };
 
         var jsonContent = JsonSerializer.Serialize(requestBody);
-        var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+        var httpContent = new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json);
 
         var request = new HttpRequestMessage(HttpMethod.Post, url);
         request.Content = httpContent;

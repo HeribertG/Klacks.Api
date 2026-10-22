@@ -8,6 +8,8 @@
 /// <param name="provider">Custom provider configuration (base URL, optional API key, model id)</param>
 /// <param name="dictionaryService">Supplies transcription dictionary terms for the Whisper bias prompt</param>
 /// <param name="locale">Requested transcription locale, mapped to a Whisper language code</param>
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt;
 
 using System.Net.Http.Headers;
@@ -46,7 +48,7 @@ public sealed class CustomRestSttSession : ISttSession
         var client = _httpClientFactory.CreateClient();
         if (!string.IsNullOrWhiteSpace(_provider.ApiKey))
         {
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _provider.ApiKey);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, _provider.ApiKey);
         }
 
         using var content = new MultipartFormDataContent();
