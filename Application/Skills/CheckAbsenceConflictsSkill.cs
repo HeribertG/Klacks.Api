@@ -13,6 +13,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Common;
@@ -79,8 +80,8 @@ public class CheckAbsenceConflictsSkill : BaseSkillImplementation
             {
                 PlaceholderId = bp.Id,
                 AbsenceType = typeLabels.GetValueOrDefault(bp.AbsenceId, "Unknown"),
-                From = DateOnly.FromDateTime(bp.From).ToString("yyyy-MM-dd"),
-                Until = DateOnly.FromDateTime(bp.Until).ToString("yyyy-MM-dd")
+                From = DateOnly.FromDateTime(bp.From).ToString(DateTimeFormats.IsoDate),
+                Until = DateOnly.FromDateTime(bp.Until).ToString(DateTimeFormats.IsoDate)
             })
             .ToList();
 
@@ -90,7 +91,7 @@ public class CheckAbsenceConflictsSkill : BaseSkillImplementation
             {
                 BreakId = b.Id,
                 AbsenceType = typeLabels.GetValueOrDefault(b.AbsenceId, "Unknown"),
-                Date = b.CurrentDate.ToString("yyyy-MM-dd")
+                Date = b.CurrentDate.ToString(DateTimeFormats.IsoDate)
             })
             .ToList();
 
@@ -100,7 +101,7 @@ public class CheckAbsenceConflictsSkill : BaseSkillImplementation
             .Select(w => new
             {
                 WorkId = w.Id,
-                Date = w.CurrentDate.ToString("yyyy-MM-dd"),
+                Date = w.CurrentDate.ToString(DateTimeFormats.IsoDate),
                 w.LockLevel
             })
             .ToList();

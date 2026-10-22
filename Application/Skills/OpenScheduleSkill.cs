@@ -20,6 +20,7 @@
 using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -35,7 +36,6 @@ public class OpenScheduleSkill : BaseSkillImplementation
     private const string GroupIdQueryParam = "groupId";
     private const string ClientIdQueryParam = "clientId";
     private const string DateQueryParam = "date";
-    private const string DateWireFormat = "yyyy-MM-dd";
     private const int GroupSearchLimit = 10;
 
     private readonly IGroupSearchRepository _groupSearchRepository;
@@ -73,7 +73,7 @@ public class OpenScheduleSkill : BaseSkillImplementation
             return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("date", dateRaw!));
         }
 
-        var dateText = date?.ToString(DateWireFormat, CultureInfo.InvariantCulture);
+        var dateText = date?.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
 
         var (client, clientError) = await ResolveClientAsync(parameters, cancellationToken);
         if (clientError != null)

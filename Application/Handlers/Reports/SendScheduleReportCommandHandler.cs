@@ -10,6 +10,7 @@
 using Klacks.Api.Application.Commands.Reports;
 using Klacks.Api.Application.DTOs.Reports;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
@@ -71,8 +72,8 @@ public class SendScheduleReportCommandHandler : BaseHandler,
             {
                 try
                 {
-                    var startDate = DateOnly.ParseExact(request.StartDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
-                    var endDate = DateOnly.ParseExact(request.EndDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+                    var startDate = DateOnly.ParseExact(request.StartDate, DateTimeFormats.IsoDate, System.Globalization.CultureInfo.InvariantCulture);
+                    var endDate = DateOnly.ParseExact(request.EndDate, DateTimeFormats.IsoDate, System.Globalization.CultureInfo.InvariantCulture);
                     await _scheduleChangeTracker.ClearChangesAsync(request.ClientId, startDate, endDate);
                 }
                 catch (Exception ex)

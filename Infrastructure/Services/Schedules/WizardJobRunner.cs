@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.Globalization;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -30,8 +31,6 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 public sealed class WizardJobRunner : IWizardJobRunner
 {
     private const int ClientJoinDelayMs = 500;
-    private const string IsoDateFormat = "yyyy-MM-dd";
-    private const string TimeOfDayFormat = "HH:mm";
     private static readonly TimeSpan WizardTimeBudget = TimeSpan.FromSeconds(90);
     private static readonly TimeSpan HardCancelGrace = TimeSpan.FromSeconds(20);
     private static readonly TimeSpan MinLoopBudget = TimeSpan.FromSeconds(10);
@@ -424,7 +423,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
         diagnoses
             .Select(d => new WizardUnfilledSlotDto(
                 ShiftId: d.ShiftId.ToString(),
-                Date: d.Date.ToString(IsoDateFormat, CultureInfo.InvariantCulture),
+                Date: d.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
                 MissingSeats: d.MissingSeats,
                 EligibleAgentCount: d.EligibleAgentCount,
                 PlaceableAgentCount: d.PlaceableAgentCount,
@@ -438,9 +437,9 @@ public sealed class WizardJobRunner : IWizardJobRunner
             .Select(t => new WizardTokenDto(
                 AgentId: t.AgentId,
                 ShiftId: t.ShiftRefId.ToString(),
-                Date: t.Date.ToString(IsoDateFormat, CultureInfo.InvariantCulture),
-                StartTime: t.StartAt.ToString(TimeOfDayFormat, CultureInfo.InvariantCulture),
-                EndTime: t.EndAt.ToString(TimeOfDayFormat, CultureInfo.InvariantCulture),
+                Date: t.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+                StartTime: t.StartAt.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+                EndTime: t.EndAt.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
                 Hours: t.TotalHours))
             .ToList();
 
@@ -466,7 +465,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 .ToList();
 
             var escalations = outcome.Escalation.Entries
-                .Select(e => new WizardEscalationDto(e.AgentId, e.Date.ToString(IsoDateFormat, CultureInfo.InvariantCulture), e.RuleName, e.Hint))
+                .Select(e => new WizardEscalationDto(e.AgentId, e.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture), e.RuleName, e.Hint))
                 .ToList();
 
             return (awards, escalations);

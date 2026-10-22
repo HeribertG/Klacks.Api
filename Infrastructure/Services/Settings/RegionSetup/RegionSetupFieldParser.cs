@@ -18,8 +18,6 @@ namespace Klacks.Api.Infrastructure.Services.Settings.RegionSetup;
 
 internal static class RegionSetupFieldParser
 {
-    private const string TimeOfDayFormat = "HH:mm";
-
     private const string RateModeMultiplier = CompanyRuleParameterValues.RateModeMultiplier;
     private const string RateModeFixedPerHour = CompanyRuleParameterValues.RateModeFixedPerHour;
     private const string RateModeFixedPerShift = CompanyRuleParameterValues.RateModeFixedPerShift;
@@ -54,7 +52,7 @@ internal static class RegionSetupFieldParser
 
     internal static void ValidateTimeOfDay(string value, string fieldName)
     {
-        if (!TimeOnly.TryParseExact(value.Trim(), TimeOfDayFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+        if (!TimeOnly.TryParseExact(value.Trim(), DateTimeFormats.HourMinute, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
         {
             throw new InvalidRequestException($"Region setup: '{value}' in {fieldName} is not a valid HH:mm time.");
         }

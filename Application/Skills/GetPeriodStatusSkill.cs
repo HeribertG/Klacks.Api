@@ -13,6 +13,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -70,7 +71,7 @@ public class GetPeriodStatusSkill : BaseSkillImplementation
 
         var openDayList = days
             .Where(d => !d.IsDaySealed && d.TotalWorkCount > 0)
-            .Select(d => d.Date.ToString("yyyy-MM-dd"))
+            .Select(d => d.Date.ToString(DateTimeFormats.IsoDate))
             .ToList();
 
         var scopeLabel = groupId.HasValue ? $" for group '{groupName}'" : " across all groups";

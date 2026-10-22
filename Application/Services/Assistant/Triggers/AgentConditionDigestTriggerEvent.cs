@@ -64,12 +64,12 @@ public sealed record AgentConditionDigestTriggerEvent(
     /// <summary>Per calendar day, so tomorrow's digest is never suppressed by today's already-persisted dispatch row for the same user+kind.</summary>
     public string DedupKey => DedupKeyFor(LocalDigestDate);
 
-    public static string DedupKeyFor(DateOnly localDigestDate) => localDigestDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+    public static string DedupKeyFor(DateOnly localDigestDate) => localDigestDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
 
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {
         ["plannerUserId"] = PlannerUserId,
-        ["digestDate"] = LocalDigestDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+        ["digestDate"] = LocalDigestDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
         ["highCount"] = HighCount,
         ["mediumCount"] = MediumCount,
         ["lowCount"] = LowCount,

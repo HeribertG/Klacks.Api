@@ -16,6 +16,7 @@
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -27,8 +28,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("validate_holiday_overlap")]
 public class ValidateHolidayOverlapSkill : BaseSkillImplementation
 {
-    private const string DateFormat = "yyyy-MM-dd";
-
     private const string CalendarSelectionNameParameter = "calendarSelectionName";
     private const string CountryParameter = "country";
     private const string StateParameter = "state";
@@ -69,14 +68,14 @@ public class ValidateHolidayOverlapSkill : BaseSkillImplementation
             return SkillResult.SuccessResult(
                 new
                 {
-                    Date = date.ToString(DateFormat),
+                    Date = date.ToString(DateTimeFormats.IsoDate),
                     Calendar = target.Label,
                     CalendarKind = target.Kind,
                     IsHoliday = false,
                     DayOfWeek = date.DayOfWeek.ToString(),
                     DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, date.DayOfWeek)
                 },
-                $"{date.ToString(DateFormat)} is NOT a holiday in '{calendarLabel}'.");
+                $"{date.ToString(DateTimeFormats.IsoDate)} is NOT a holiday in '{calendarLabel}'.");
         }
 
         var holidayName = hit.Name.GetValueOrFirstAvailable(context.UserLanguage);
@@ -86,7 +85,7 @@ public class ValidateHolidayOverlapSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(
             new
             {
-                Date = date.ToString(DateFormat),
+                Date = date.ToString(DateTimeFormats.IsoDate),
                 Calendar = target.Label,
                 CalendarKind = target.Kind,
                 IsHoliday = true,
@@ -97,7 +96,7 @@ public class ValidateHolidayOverlapSkill : BaseSkillImplementation
                 DayOfWeek = date.DayOfWeek.ToString(),
                 DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, date.DayOfWeek)
             },
-            $"{date.ToString(DateFormat)} is a holiday in '{calendarLabel}': {SkillMessageText.Name(holidayName)}" +
+            $"{date.ToString(DateTimeFormats.IsoDate)} is a holiday in '{calendarLabel}': {SkillMessageText.Name(holidayName)}" +
             (isOfficial ? " (official)" : " (not official - shown as a reminder only)") +
             (earnsSurcharge ? "; working on it earns the holiday time surcharge." : "; working on it earns no holiday time surcharge."));
     }

@@ -26,7 +26,6 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 public sealed class CompensatoryRestEvaluator : ICompensatoryRestEvaluator
 {
     private const string TrueValue = "true";
-    private const string DateFormat = "yyyy-MM-dd";
 
     private readonly ICompensatoryRestObligationRepository _obligationRepository;
     private readonly IComplianceEnforcementResolver _enforcementResolver;
@@ -83,8 +82,8 @@ public sealed class CompensatoryRestEvaluator : ICompensatoryRestEvaluator
         var commentParams = new Dictionary<string, string>
         {
             ["shortfallHours"] = obligation.ShortfallHours.ToString("F1", CultureInfo.InvariantCulture),
-            ["triggerDate"] = obligation.TriggerDate.ToString(DateFormat, CultureInfo.InvariantCulture),
-            ["dueDate"] = obligation.DueDate.ToString(DateFormat, CultureInfo.InvariantCulture),
+            ["triggerDate"] = obligation.TriggerDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+            ["dueDate"] = obligation.DueDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
         };
         if (isBlocked)
         {

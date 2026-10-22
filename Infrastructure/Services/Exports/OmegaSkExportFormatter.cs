@@ -28,6 +28,7 @@
 using System.Globalization;
 using System.Text;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Exports;
 using Klacks.Api.Domain.Models.Exports;
 
@@ -36,7 +37,6 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 public class OmegaSkExportFormatter : IExportFormatter
 {
     private const string Delimiter = ";";
-    private const string DateFormat = "dd.MM.yyyy";
     private const int Windows1250CodePage = 1250;
     private const string RecordTypeFormatHeader = "R00";
     private const string RecordTypeDocumentHeader = "R01";
@@ -77,7 +77,7 @@ public class OmegaSkExportFormatter : IExportFormatter
                 Delimiter,
                 RecordTypeDocumentHeader,
                 documentNumber.ToString(CultureInfo.InvariantCulture),
-                documentDate.ToString(DateFormat, CultureInfo.InvariantCulture),
+                documentDate.ToString(DateTimeFormats.DottedDate, CultureInfo.InvariantCulture),
                 Sanitize(order.CustomerName ?? order.OrderName),
                 currencyCode,
                 FormatAmount(totalAmount)));
@@ -116,7 +116,7 @@ public class OmegaSkExportFormatter : IExportFormatter
             RecordTypeDocumentItem,
             itemType,
             workerInternalNumber.ToString(CultureInfo.InvariantCulture),
-            itemDate.ToString(DateFormat, CultureInfo.InvariantCulture),
+            itemDate.ToString(DateTimeFormats.DottedDate, CultureInfo.InvariantCulture),
             Sanitize(text),
             FormatAmount(amount)));
         sb.Append(ExportConstants.LineEnding);

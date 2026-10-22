@@ -27,7 +27,6 @@ namespace Klacks.Api.Application.Skills;
 
 internal static class GroupingReportViewBuilder
 {
-    private const string DateFormat = "yyyy-MM-dd";
     private const string PeriodTemplate = "{0} to {1} ({2} to {3})";
 
     public static GroupingReportView Build(GroupingFeasibilityReport report, GroupScopeAccess scope, string? groupName)
@@ -59,8 +58,8 @@ internal static class GroupingReportViewBuilder
                 .Select(group => new GroupingOmittedCount(GroupingReportTexts.Actions[group.Key], group.Count() - limit)))
             .ToList();
 
-        var from = report.Request.From.ToString(DateFormat, CultureInfo.InvariantCulture);
-        var until = report.Request.Until.ToString(DateFormat, CultureInfo.InvariantCulture);
+        var from = report.Request.From.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
+        var until = report.Request.Until.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
         return new GroupingReportView(
             from,
             until,

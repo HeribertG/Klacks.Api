@@ -17,6 +17,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills;
@@ -28,7 +29,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("list_holidays_for_period")]
 public class ListHolidaysForPeriodSkill : BaseSkillImplementation
 {
-    private const string DateFormat = "yyyy-MM-dd";
     private const int MaxSpanYears = 5;
 
     private const string CalendarSelectionNameParameter = "calendarSelectionName";
@@ -94,7 +94,7 @@ public class ListHolidaysForPeriodSkill : BaseSkillImplementation
             .OrderBy(h => h.CurrentDate)
             .Select(h => new
             {
-                Date = h.CurrentDate.ToString(DateFormat),
+                Date = h.CurrentDate.ToString(DateTimeFormats.IsoDate),
                 CurrentName = h.Name.GetValueOrFirstAvailable(context.UserLanguage),
                 h.Officially,
                 h.IsPaid,
@@ -111,12 +111,12 @@ public class ListHolidaysForPeriodSkill : BaseSkillImplementation
             {
                 Calendar = target.Label,
                 CalendarKind = target.Kind,
-                FromDate = fromDate.ToString(DateFormat),
-                UntilDate = untilDate.ToString(DateFormat),
+                FromDate = fromDate.ToString(DateTimeFormats.IsoDate),
+                UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
                 Holidays = rows,
                 TotalCount = rows.Count
             },
-            $"Found {rows.Count} holiday(s) in '{calendarLabel}' between {fromDate.ToString(DateFormat)} and {untilDate.ToString(DateFormat)}. " +
+            $"Found {rows.Count} holiday(s) in '{calendarLabel}' between {fromDate.ToString(DateTimeFormats.IsoDate)} and {untilDate.ToString(DateTimeFormats.IsoDate)}. " +
             "Officially = counts as an official holiday in this calendar; only official holidays whose rule is marked " +
             "for the time surcharge earn the holiday time surcharge when worked.");
     }

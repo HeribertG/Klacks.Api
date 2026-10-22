@@ -4,11 +4,13 @@
 /// Formats the shift resolution and the booking diagnosis share when they write dates and open ends into skill text.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.Skills;
 
 internal static class SkillDisplayFormats
 {
-    public const string IsoDate = "yyyy-MM-dd";
+    public const string IsoDate = DateTimeFormats.IsoDate;
 
     public const string OpenEnd = "open";
 }

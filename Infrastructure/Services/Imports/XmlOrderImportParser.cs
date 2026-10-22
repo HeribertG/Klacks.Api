@@ -17,8 +17,6 @@ namespace Klacks.Api.Infrastructure.Services.Imports;
 
 public class XmlOrderImportParser : IOrderImportParser
 {
-    private const string DateFormat = "yyyy-MM-dd";
-    private const string TimeFormat = "HH:mm";
     private const int MinutesPerHour = 60;
 
     public OrderImportParseResult Parse(Stream xmlStream)
@@ -203,12 +201,12 @@ public class XmlOrderImportParser : IOrderImportParser
     private static DateOnly RequireDate(XElement parent, string elementName, List<OrderImportValidationError> errors)
     {
         var text = parent.Element(elementName)?.Value?.Trim();
-        if (DateOnly.TryParseExact(text, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var value))
+        if (DateOnly.TryParseExact(text, DateTimeFormats.IsoDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var value))
         {
             return value;
         }
 
-        errors.Add(new OrderImportValidationError { LineNumber = LineOf(parent), Field = elementName, Message = $"Missing or invalid <{elementName}> (expected {DateFormat})." });
+        errors.Add(new OrderImportValidationError { LineNumber = LineOf(parent), Field = elementName, Message = $"Missing or invalid <{elementName}> (expected {DateTimeFormats.IsoDate})." });
         return default;
     }
 
@@ -220,24 +218,24 @@ public class XmlOrderImportParser : IOrderImportParser
             return null;
         }
 
-        if (DateOnly.TryParseExact(text, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var value))
+        if (DateOnly.TryParseExact(text, DateTimeFormats.IsoDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var value))
         {
             return value;
         }
 
-        errors.Add(new OrderImportValidationError { LineNumber = LineOf(parent), Field = elementName, Message = $"Invalid <{elementName}> (expected {DateFormat})." });
+        errors.Add(new OrderImportValidationError { LineNumber = LineOf(parent), Field = elementName, Message = $"Invalid <{elementName}> (expected {DateTimeFormats.IsoDate})." });
         return null;
     }
 
     private static TimeOnly RequireTime(XElement parent, string elementName, List<OrderImportValidationError> errors)
     {
         var text = parent.Element(elementName)?.Value?.Trim();
-        if (TimeOnly.TryParseExact(text, TimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var value))
+        if (TimeOnly.TryParseExact(text, DateTimeFormats.HourMinute, CultureInfo.InvariantCulture, DateTimeStyles.None, out var value))
         {
             return value;
         }
 
-        errors.Add(new OrderImportValidationError { LineNumber = LineOf(parent), Field = elementName, Message = $"Missing or invalid <{elementName}> (expected {TimeFormat})." });
+        errors.Add(new OrderImportValidationError { LineNumber = LineOf(parent), Field = elementName, Message = $"Missing or invalid <{elementName}> (expected {DateTimeFormats.HourMinute})." });
         return default;
     }
 

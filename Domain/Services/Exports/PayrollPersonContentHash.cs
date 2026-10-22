@@ -11,6 +11,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Exports.Payroll;
 
 namespace Klacks.Api.Domain.Services.Exports;
@@ -19,7 +20,7 @@ public static class PayrollPersonContentHash
 {
     public const int QuantityDecimals = 4;
 
-    public const string DateFormat = "yyyy-MM-dd";
+    public const string DateFormat = DateTimeFormats.IsoDate;
 
     public const string HashVersionPrefix = "v1|";
 

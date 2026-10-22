@@ -92,7 +92,7 @@ public class AgentTriggerRateLimiter : IAgentTriggerRateLimiter
 
     private static string BuildKey(string userId, string triggerKind) => $"{userId}::{triggerKind}";
 
-    private string TodayKey() => _timeProvider.GetUtcNow().UtcDateTime.ToString("yyyyMMdd");
+    private string TodayKey() => _timeProvider.GetUtcNow().UtcDateTime.ToString(DateTimeFormats.CompactDate);
 
     private sealed record BudgetEntry(string DayKey, int Count);
 }

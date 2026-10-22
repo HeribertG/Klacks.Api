@@ -14,6 +14,7 @@
 
 using System.Text;
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant.Grounding;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -189,9 +190,9 @@ public static class ToolResultGroundingPoolBuilder
         }
 
         if (value.Length == 10
-            && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var date))
+            && DateOnly.TryParseExact(value, DateTimeFormats.IsoDate, out var date))
         {
-            pool.DateKeys.Add(date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture));
+            pool.DateKeys.Add(date.ToString(DateTimeFormats.IsoDate, System.Globalization.CultureInfo.InvariantCulture));
             return true;
         }
 

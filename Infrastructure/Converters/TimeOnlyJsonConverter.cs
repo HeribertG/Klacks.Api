@@ -3,6 +3,7 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Infrastructure.Converters
 {
@@ -17,7 +18,7 @@ namespace Klacks.Api.Infrastructure.Converters
                 return TimeOnly.MinValue;
             }
 
-            string[] formats = { "HH:mm:ss", "HH:mm", "H:mm:ss", "H:mm" };
+            string[] formats = { DateTimeFormats.HourMinuteSecond, DateTimeFormats.HourMinute, "H:mm:ss", "H:mm" };
 
             foreach (var format in formats)
             {
@@ -32,7 +33,7 @@ namespace Klacks.Api.Infrastructure.Converters
 
         public override void Write(Utf8JsonWriter writer, TimeOnly value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(value.ToString("HH:mm:ss"));
+            writer.WriteStringValue(value.ToString(DateTimeFormats.HourMinuteSecond));
         }
     }
 }

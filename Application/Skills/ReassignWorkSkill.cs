@@ -32,6 +32,7 @@ using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -47,7 +48,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("reassign_work")]
 public class ReassignWorkSkill : BaseSkillImplementation
 {
-    private const string DateFormat = "yyyy-MM-dd";
     private const string TimeFormat = "HH\\:mm";
     private const string WorkAction = "handed over";
     private const string TargetIdNumberParameterName = "targetIdNumber";
@@ -180,7 +180,7 @@ public class ReassignWorkSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             BuildResultData(work, target, shift, warnings, followUpFailed: false),
-            $"Work {work.Id} ({shift?.Name ?? work.ShiftId.ToString()}, {work.CurrentDate.ToString(DateFormat)}, " +
+            $"Work {work.Id} ({shift?.Name ?? work.ShiftId.ToString()}, {work.CurrentDate.ToString(DateTimeFormats.IsoDate)}, " +
             $"{work.StartTime.ToString(TimeFormat)}-{work.EndTime.ToString(TimeFormat)}) was handed over from client " +
             $"{work.ClientId} to {DisplayName(target)}.{warningNote}");
     }
@@ -265,7 +265,7 @@ public class ReassignWorkSkill : BaseSkillImplementation
 
         if (candidates.Count == 0)
         {
-            return (null, $"{DisplayName(holder)} has no work on {date.ToString(DateFormat)}; nothing was changed.");
+            return (null, $"{DisplayName(holder)} has no work on {date.ToString(DateTimeFormats.IsoDate)}; nothing was changed.");
         }
 
         if (candidates.Count > 1)
@@ -288,7 +288,7 @@ public class ReassignWorkSkill : BaseSkillImplementation
                 $"{candidate.StartTime.ToString(TimeFormat)}-{candidate.EndTime.ToString(TimeFormat)}");
         }
 
-        return $"{DisplayName(holder)} has {candidates.Count} works on {date.ToString(DateFormat)}: " +
+        return $"{DisplayName(holder)} has {candidates.Count} works on {date.ToString(DateTimeFormats.IsoDate)}: " +
                $"{string.Join("; ", lines)}. Ask the user which one is meant, then call again with that workId.";
     }
 
@@ -311,12 +311,12 @@ public class ReassignWorkSkill : BaseSkillImplementation
 
         if (await _sealedDayRepository.IsDayLockedAsync(work.CurrentDate, work.ClientId, cancellationToken))
         {
-            return string.Format(SealedDayMessage, work.CurrentDate.ToString(DateFormat), "the current holder");
+            return string.Format(SealedDayMessage, work.CurrentDate.ToString(DateTimeFormats.IsoDate), "the current holder");
         }
 
         if (await _sealedDayRepository.IsDayLockedAsync(work.CurrentDate, target.Id, cancellationToken))
         {
-            return string.Format(SealedDayMessage, work.CurrentDate.ToString(DateFormat), DisplayName(target));
+            return string.Format(SealedDayMessage, work.CurrentDate.ToString(DateTimeFormats.IsoDate), DisplayName(target));
         }
 
         return null;

@@ -10,13 +10,14 @@
 
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Application.Services.ClientImport;
 
 public static class ClientImportDateParser
 {
-    public const string IsoFormat = "yyyy-MM-dd";
+    public const string IsoFormat = DateTimeFormats.IsoDate;
 
     private const int CenturyDivisor = 100;
     private const int TwoDigitYearLength = 2;

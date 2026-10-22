@@ -22,7 +22,6 @@ public sealed record NextPeriodAutofillStartedTriggerEvent(
     bool AutoCommitIntended) : IAgentTriggerEvent
 {
     private const string AutofillDedupSuffix = ":autofill";
-    private const string PeriodDedupFormat = "yyyy-MM-dd";
 
     /// <summary>Payload key naming the wizard job this run started; read back by the detector.</summary>
     public const string JobIdPayloadKey = "jobId";
@@ -35,7 +34,7 @@ public sealed record NextPeriodAutofillStartedTriggerEvent(
     /// row of an earlier automatic start without owning a second copy of the spelling.
     /// </summary>
     public static string DedupKeyFor(Guid groupId, DateOnly periodStartDate) =>
-        $"{groupId}:{periodStartDate.ToString(PeriodDedupFormat, CultureInfo.InvariantCulture)}{AutofillDedupSuffix}";
+        $"{groupId}:{periodStartDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}{AutofillDedupSuffix}";
 
     public string Kind => AgentTriggerKinds.NextPeriodSchedulingDue;
 

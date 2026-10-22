@@ -11,6 +11,7 @@
 /// <param name="updatedWorkChanges">Work change entities to sync</param>
 
 using System.Globalization;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -23,7 +24,6 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
 {
-    private const string TimeFormat = "HH:mm";
     private const string OverhangListSeparator = ", ";
 
     private readonly DataBaseContext _context;
@@ -96,7 +96,7 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
     }
 
     private static string FormatSpan(TimeOnly start, TimeOnly end)
-        => $"{start.ToString(TimeFormat, CultureInfo.InvariantCulture)}-{end.ToString(TimeFormat, CultureInfo.InvariantCulture)}";
+        => $"{start.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-{end.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}";
 
     private static void UpdateParentProperties(
         Work? parentWork,

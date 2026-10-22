@@ -21,8 +21,6 @@ public class LLMSystemPromptBuilder
 
     private const string TemporalContextHeader = "=== CURRENT DATE & TIME ===";
     private const string TemporalContextFooter = "=== END CURRENT DATE & TIME ===";
-    private const string IsoDateFormat = "yyyy-MM-dd";
-    private const string IsoTimeFormat = "HH:mm";
     private const string DefaultDirectiveLanguage = "en";
 
     private const string ToolCallBatchingGuide = """
@@ -313,8 +311,8 @@ TEMPORAL CONTEXT (mandatory):
 
         var sb = new StringBuilder();
         sb.AppendLine(TemporalContextHeader);
-        sb.AppendLine($"- date: {now.ToString(IsoDateFormat, CultureInfo.InvariantCulture)} ({weekday})");
-        sb.AppendLine($"- time: {now.ToString(IsoTimeFormat, CultureInfo.InvariantCulture)}");
+        sb.AppendLine($"- date: {now.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} ({weekday})");
+        sb.AppendLine($"- time: {now.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}");
         sb.AppendLine($"- timeZone: {resolution.IanaId}");
         sb.Append(TemporalContextFooter);
         return sb.ToString();

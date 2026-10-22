@@ -18,6 +18,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -168,8 +169,8 @@ public class UpdateWorkSkill : BaseSkillImplementation
                 ChangedFields = changed,
                 persisted.ClientId,
                 persisted.CurrentDate,
-                StartTime = persisted.StartTime.ToString("HH:mm"),
-                EndTime = persisted.EndTime.ToString("HH:mm"),
+                StartTime = persisted.StartTime.ToString(DateTimeFormats.HourMinute),
+                EndTime = persisted.EndTime.ToString(DateTimeFormats.HourMinute),
                 persisted.WorkTime,
                 persisted.Information
             },

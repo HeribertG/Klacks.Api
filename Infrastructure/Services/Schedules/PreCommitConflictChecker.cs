@@ -348,7 +348,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
                     CommentParams = new Dictionary<string, string>
                     {
                         [QualificationValidationParamKeys.QualificationId] = expiring.QualificationId.ToString(),
-                        [QualificationValidationParamKeys.ValidUntil] = expiring.ValidUntil.ToString("yyyy-MM-dd"),
+                        [QualificationValidationParamKeys.ValidUntil] = expiring.ValidUntil.ToString(DateTimeFormats.IsoDate),
                     },
                 });
             }

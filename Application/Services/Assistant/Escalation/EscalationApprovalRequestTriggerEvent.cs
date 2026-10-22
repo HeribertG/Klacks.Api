@@ -36,7 +36,6 @@ public sealed record EscalationApprovalRequestTriggerEvent(
     public const string ActionParameter = EscalationHandoffPlaceholders.Action;
     public const string DueTimeParameter = "dueTime";
 
-    private const string DueTimeFormat = "HH:mm";
     private const string DedupSuffix = ":escalation-approval-request";
 
     public string Kind => AgentTriggerKinds.EscalationStageAlert;
@@ -50,7 +49,7 @@ public sealed record EscalationApprovalRequestTriggerEvent(
         [FindingParameter] = TriggerKind,
         [ActionParameter] = RemediationSkillName,
         [DueTimeParameter] = TimeZoneInfo.ConvertTimeFromUtc(DueAtUtc, CompanyTimeZone)
-            .ToString(DueTimeFormat, CultureInfo.InvariantCulture) + " " + IanaTimeZoneId.From(CompanyTimeZone)
+            .ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture) + " " + IanaTimeZoneId.From(CompanyTimeZone)
     };
 
     public string DedupKey => StageId + DedupSuffix;

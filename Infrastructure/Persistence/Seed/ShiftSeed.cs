@@ -3,15 +3,12 @@
 using System.Globalization;
 using System.Text;
 using Klacks.Api.Data.Seed.Demo;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Data.Seed
 {
     public static class ShiftSeed
     {
-        private const string ShiftTimeSqlFormat = "HH:mm:ss";
-
-        private const string ShiftDateSqlFormat = "yyyy-MM-dd";
-
         private const string SqlNullLiteral = "NULL";
 
         private const string SqlTrueLiteral = "true";
@@ -1098,10 +1095,10 @@ INSERT INTO public.shift (
             return (script.ToString(), shiftIds);
         }
 
-        private static string FormatShiftTime(TimeOnly value) => value.ToString(ShiftTimeSqlFormat, CultureInfo.InvariantCulture);
+        private static string FormatShiftTime(TimeOnly value) => value.ToString(DateTimeFormats.HourMinuteSecond, CultureInfo.InvariantCulture);
 
         private static string FormatUntilDate(DateOnly? value) =>
-            value is { } date ? $"'{date.ToString(ShiftDateSqlFormat, CultureInfo.InvariantCulture)}'" : SqlNullLiteral;
+            value is { } date ? $"'{date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}'" : SqlNullLiteral;
 
         private static string SqlBool(bool value) => value ? SqlTrueLiteral : SqlFalseLiteral;
     }

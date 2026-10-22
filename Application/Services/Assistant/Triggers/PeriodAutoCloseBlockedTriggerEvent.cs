@@ -29,7 +29,6 @@ public sealed record PeriodAutoCloseBlockedTriggerEvent(
     PeriodAutoCloseBlockReason Reason) : IAgentTriggerEvent
 {
     private const string BlockedDedupSegment = ":auto-close-blocked:";
-    private const string PeriodDedupFormat = "yyyy-MM-dd";
     private const string LimitParameter = "limit";
 
     public string Kind => AgentTriggerKinds.PeriodAutoClose;
@@ -63,7 +62,7 @@ public sealed record PeriodAutoCloseBlockedTriggerEvent(
     }
 
     public string DedupKey =>
-        $"{GroupId}:{PeriodEndDate.ToString(PeriodDedupFormat, CultureInfo.InvariantCulture)}{BlockedDedupSegment}{Reason}";
+        $"{GroupId}:{PeriodEndDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}{BlockedDedupSegment}{Reason}";
 
     // Bridges the record's non-nullable GroupId to the interface's nullable member: a plain public
     // property of type Guid does not implicitly satisfy a Guid? interface member.

@@ -10,6 +10,7 @@
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Models;
@@ -73,7 +74,7 @@ public static class QualificationGapReportBuilder
         foreach (var shift in shifts)
         {
             if (!Guid.TryParse(shift.Id, out var shiftId)
-                || !DateOnly.TryParseExact(shift.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+                || !DateOnly.TryParseExact(shift.Date, DateTimeFormats.IsoDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
             {
                 continue;
             }

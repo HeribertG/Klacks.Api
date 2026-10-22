@@ -51,8 +51,6 @@ public class BulkDeleteWorksSkill : BaseSkillImplementation
 {
     public const string SkillName = "bulk_delete_works";
 
-    private const string DateFormat = "yyyy-MM-dd";
-
     private const string RefusedMessage = "The works of {0} were refused, nothing was deleted: {1}";
 
     private const string CommittedWithFollowUpFailureMessage =
@@ -138,8 +136,8 @@ public class BulkDeleteWorksSkill : BaseSkillImplementation
                 plan.From,
                 plan.Until
             },
-            $"{response.SuccessCount} work(s) of {plan.EmployeeName} between {plan.From.ToString(DateFormat)} and " +
-            $"{plan.Until.ToString(DateFormat)} were deleted. A deleted work can only be restored one by one: an " +
+            $"{response.SuccessCount} work(s) of {plan.EmployeeName} between {plan.From.ToString(DateTimeFormats.IsoDate)} and " +
+            $"{plan.Until.ToString(DateTimeFormats.IsoDate)} were deleted. A deleted work can only be restored one by one: an " +
             "administrator at any time, the deleting user within the undo window.");
     }
 
@@ -167,7 +165,7 @@ public class BulkDeleteWorksSkill : BaseSkillImplementation
                 },
                 string.Format(
                     CommittedWithFollowUpFailureMessage,
-                    deletedIds.Count, plan.EmployeeName, plan.From.ToString(DateFormat), plan.Until.ToString(DateFormat),
+                    deletedIds.Count, plan.EmployeeName, plan.From.ToString(DateTimeFormats.IsoDate), plan.Until.ToString(DateTimeFormats.IsoDate),
                     failure));
         }
 

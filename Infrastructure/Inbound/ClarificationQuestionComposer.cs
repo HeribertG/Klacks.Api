@@ -67,7 +67,6 @@ public sealed class ClarificationQuestionComposer : IClarificationQuestionCompos
     private const string TodayLabel = InboundPromptLabels.Today + InboundPromptLabels.ValueSeparator;
     private const string AnalysedPeriodLabel = InboundPromptLabels.AnalysedPeriod + InboundPromptLabels.ValueSeparator;
     private const string PeriodSeparator = "..";
-    private const string PeriodDateFormat = "yyyy-MM-dd";
     private const string NoDraftMarker = "none";
     private const string NoShiftMarker = "none found in the plan";
     private const string NoPeriodMarker = "none";
@@ -201,8 +200,8 @@ public sealed class ClarificationQuestionComposer : IClarificationQuestionCompos
             return NoPeriodMarker;
         }
 
-        return from.ToString(PeriodDateFormat, CultureInfo.InvariantCulture) +
-               PeriodSeparator + until.ToString(PeriodDateFormat, CultureInfo.InvariantCulture) +
+        return from.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture) +
+               PeriodSeparator + until.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture) +
                (analysis.DateAssumed ? AssumedStartMarker : string.Empty);
     }
 

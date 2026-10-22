@@ -11,6 +11,7 @@
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 
@@ -19,7 +20,6 @@ namespace Klacks.Api.Application.Skills;
 internal static class ShiftResolver
 {
     private const int SearchResultLimit = 20;
-    private const string TimeFormat = "HH:mm";
 
     /// <summary>
     /// Resolves a shift by an id the model supplied, or by name or abbreviation.
@@ -107,6 +107,6 @@ internal static class ShiftResolver
         string.Join(", ", shifts.Select(s =>
             $"{s.Name} ({s.Abbreviation}, {s.FromDate.ToString(SkillDisplayFormats.IsoDate)} to " +
             $"{s.UntilDate?.ToString(SkillDisplayFormats.IsoDate) ?? SkillDisplayFormats.OpenEnd}, " +
-            $"{s.StartShift.ToString(TimeFormat)}-" +
-            $"{s.EndShift.ToString(TimeFormat)}, id {s.Id})"));
+            $"{s.StartShift.ToString(DateTimeFormats.HourMinute)}-" +
+            $"{s.EndShift.ToString(DateTimeFormats.HourMinute)}, id {s.Id})"));
 }

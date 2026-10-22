@@ -9,6 +9,7 @@
 /// </summary>
 /// <param name="scopeFactory">Creates an isolated DI scope per benchmark (fresh DbContext, repositories).</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.Constants;
 using System.Diagnostics;
@@ -199,7 +200,7 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
             .ToDictionary(g => g.Key, g => g.Count());
 
         var tokensPerSlot = nonLocked
-            .GroupBy(t => (t.ShiftRefId.ToString(), t.Date.ToString("yyyy-MM-dd")))
+            .GroupBy(t => (t.ShiftRefId.ToString(), t.Date.ToString(DateTimeFormats.IsoDate)))
             .ToDictionary(g => g.Key, g => g.Count());
 
         var metrics = ComputeSlotMetrics(capacityPerSlot, tokensPerSlot);

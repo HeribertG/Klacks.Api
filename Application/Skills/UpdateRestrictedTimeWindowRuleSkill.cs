@@ -18,6 +18,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -134,8 +135,8 @@ public class UpdateRestrictedTimeWindowRuleSkill : BaseSkillImplementation
                 RestrictedTimeWindowRuleId = restrictedTimeWindowRuleId,
                 ChangedFields = changed,
                 Season = $"{updated.SeasonFromMonth:00}-{updated.SeasonFromDay:00} to {updated.SeasonToMonth:00}-{updated.SeasonToDay:00}",
-                DailyStart = updated.DailyStart.ToString("HH:mm"),
-                DailyEnd = updated.DailyEnd.ToString("HH:mm"),
+                DailyStart = updated.DailyStart.ToString(DateTimeFormats.HourMinute),
+                DailyEnd = updated.DailyEnd.ToString(DateTimeFormats.HourMinute),
                 updated.AppliesToGroupTag
             },
             $"Restricted time window rule {restrictedTimeWindowRuleId} updated ({string.Join(", ", changed)}).");

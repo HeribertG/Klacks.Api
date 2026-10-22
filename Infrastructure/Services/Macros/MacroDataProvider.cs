@@ -56,8 +56,8 @@ public class MacroDataProvider : IMacroDataProvider
         var macroData = new MacroData
         {
             Hour = work.WorkTime,
-            FromHour = work.StartTime.ToString("HH:mm"),
-            UntilHour = work.EndTime.ToString("HH:mm"),
+            FromHour = work.StartTime.ToString(DateTimeFormats.HourMinute),
+            UntilHour = work.EndTime.ToString(DateTimeFormats.HourMinute),
             Weekday = ConvertToIsoWeekday(work.CurrentDate.DayOfWeek),
             NightRate = effectiveData.NightRate,
             HolidayRate = effectiveData.HolidayRate,
@@ -97,8 +97,8 @@ public class MacroDataProvider : IMacroDataProvider
         var macroData = new MacroData
         {
             Hour = effectiveData.DefaultWorkingHours,
-            FromHour = breakEntry.StartTime.ToString("HH:mm"),
-            UntilHour = breakEntry.EndTime.ToString("HH:mm"),
+            FromHour = breakEntry.StartTime.ToString(DateTimeFormats.HourMinute),
+            UntilHour = breakEntry.EndTime.ToString(DateTimeFormats.HourMinute),
             Weekday = ConvertToIsoWeekday(breakEntry.CurrentDate.DayOfWeek),
             NightRate = effectiveData.NightRate,
             HolidayRate = effectiveData.HolidayRate,
@@ -141,8 +141,8 @@ public class MacroDataProvider : IMacroDataProvider
         var macroData = new MacroData
         {
             Hour = workChange.ChangeTime,
-            FromHour = effectiveStart.ToString("HH:mm"),
-            UntilHour = effectiveEnd.ToString("HH:mm"),
+            FromHour = effectiveStart.ToString(DateTimeFormats.HourMinute),
+            UntilHour = effectiveEnd.ToString(DateTimeFormats.HourMinute),
             Weekday = ConvertToIsoWeekday(workChangeDate.DayOfWeek),
             NightRate = effectiveData.NightRate,
             HolidayRate = effectiveData.HolidayRate,

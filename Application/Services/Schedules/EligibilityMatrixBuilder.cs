@@ -149,7 +149,7 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
         foreach (var shift in shifts)
         {
             if (Guid.TryParse(shift.Id, out var shiftId)
-                && DateOnly.TryParseExact(shift.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+                && DateOnly.TryParseExact(shift.Date, DateTimeFormats.IsoDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
             {
                 set.Add(new EligibilitySlot(shiftId, date));
             }

@@ -11,7 +11,7 @@ public static class PlanningProfileDraftDefaults
 {
     public const int PendingDraftTtlMinutes = 60;
 
-    public const string TimeOfDayFormat = "HH:mm";
+    public const string TimeOfDayFormat = DateTimeFormats.HourMinute;
 
     public const string DefaultScratchRuleName = "Custom planning profile";
 }

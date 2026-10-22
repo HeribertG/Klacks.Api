@@ -34,6 +34,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Exports;
 using Klacks.Api.Domain.Models.Exports.Payroll;
@@ -67,7 +68,6 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
     private const string VersionValue = "2020.00";
     private const string TaskCountValue = "1";
 
-    private const string PeriodDateFormat = "yyyy-MM-dd";
     private const string PeriodNumberFormat = "00";
     private const string AmountFormat = "F6";
     private const decimal DefaultFactor = 1m;
@@ -90,7 +90,7 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
 
             foreach (var entry in employee.Entries)
             {
-                var periodDate = entry.Date.ToString(PeriodDateFormat, CultureInfo.InvariantCulture);
+                var periodDate = entry.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
                 var periodNumber = entry.Date.Month.ToString(PeriodNumberFormat, CultureInfo.InvariantCulture);
 
                 switch (entry.Kind)

@@ -9,6 +9,7 @@
 
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -38,8 +39,8 @@ public class GetCurrentTimeSkill : BaseSkillImplementation
 
         var formatted = format?.ToLower() switch
         {
-            "date" => now.ToString("yyyy-MM-dd"),
-            "time" => now.ToString("HH:mm:ss"),
+            "date" => now.ToString(DateTimeFormats.IsoDate),
+            "time" => now.ToString(DateTimeFormats.HourMinuteSecond),
             "iso" => now.ToString("o"),
             _ => now.ToString("yyyy-MM-dd HH:mm:ss")
         };

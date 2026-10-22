@@ -22,7 +22,7 @@ public static class SkillDateParsingDefaults
     /// </summary>
     public static readonly string[] IsoDateTimeFormats =
     {
-        "yyyy-MM-dd",
+        DateTimeFormats.IsoDate,
         "yyyy-MM-ddTHH:mmK",
         "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
         "yyyy-MM-dd HH:mmK",
@@ -31,8 +31,8 @@ public static class SkillDateParsingDefaults
 
     public static readonly string[] IsoTimeFormats =
     {
-        "HH:mm",
-        "HH:mm:ss",
+        DateTimeFormats.HourMinute,
+        DateTimeFormats.HourMinuteSecond,
         "HH:mm:ss.FFFFFFF"
     };
 

@@ -20,6 +20,7 @@
 using System.Globalization;
 using System.Text;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Exports;
 using Klacks.Api.Domain.Models.Exports.Payroll;
@@ -28,7 +29,6 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class GenericDelimitedPayrollExportFormatter : IPayrollExportFormatter
 {
-    private const string DateFormat = "yyyy-MM-dd";
     private const string QuantityFormat = "F2";
     private const string DefaultEncodingName = "utf-8";
     private const string HeaderPersonnelNumber = "PersonnelNumber";
@@ -60,7 +60,7 @@ public class GenericDelimitedPayrollExportFormatter : IPayrollExportFormatter
 
             foreach (var entry in employee.Entries)
             {
-                var date = entry.Date.ToString(DateFormat, CultureInfo.InvariantCulture);
+                var date = entry.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
                 var quantity = entry.Quantity.ToString(QuantityFormat, CultureInfo.InvariantCulture);
 
                 switch (entry.Kind)

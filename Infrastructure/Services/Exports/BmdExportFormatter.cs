@@ -9,6 +9,7 @@
 using System.Globalization;
 using System.Text;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Exports;
 using Klacks.Api.Domain.Models.Exports;
 
@@ -55,7 +56,7 @@ public class BmdExportFormatter : IExportFormatter
                     work.EmployeeIdNumber.ToString(),
                     "3600",
                     bookingNumber.ToString(),
-                    work.WorkDate.ToString("dd.MM.yyyy"),
+                    work.WorkDate.ToString(DateTimeFormats.DottedDate),
                     EscapeBmd(order.OrderAbbreviation),
                     "ER",
                     FormatAmount(totalAmount),
@@ -75,7 +76,7 @@ public class BmdExportFormatter : IExportFormatter
                         work.EmployeeIdNumber.ToString(),
                         expense.Taxable ? "7600" : "7800",
                         bookingNumber.ToString(),
-                        work.WorkDate.ToString("dd.MM.yyyy"),
+                        work.WorkDate.ToString(DateTimeFormats.DottedDate),
                         EscapeBmd(order.OrderAbbreviation),
                         "ER",
                         FormatAmount(expense.Amount),

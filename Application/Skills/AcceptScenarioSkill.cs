@@ -41,8 +41,6 @@ public class AcceptScenarioSkill : BaseSkillImplementation
 
     private const string ScenarioIdParameter = "scenarioId";
 
-    private const string CompanyTimeFormat = "yyyy-MM-dd HH:mm";
-
     private readonly IMediator _mediator;
     private readonly IPendingConfirmationStore _confirmationStore;
     private readonly ITurnConfirmationScope _turnScope;
@@ -137,7 +135,7 @@ public class AcceptScenarioSkill : BaseSkillImplementation
 
         var message =
             $"Scenario {scenarioId} was NOT accepted: the original plan was changed after this scenario was created " +
-            $"({staleness.ChangedEntryCount} changed entries in its scope, last change {lastChange.ToString(CompanyTimeFormat, CultureInfo.InvariantCulture)} company time).{acceptedSince} " +
+            $"({staleness.ChangedEntryCount} changed entries in its scope, last change {lastChange.ToString(DateTimeFormats.IsoDateHourMinute, CultureInfo.InvariantCulture)} company time).{acceptedSince} " +
             "Accepting replaces the whole scenario period of the original plan with the scenario, so those newer " +
             "changes (for example an accepted replacement or edits by hand) would be lost. The action is stored and " +
             "NOT executed yet. Explain this to the user and ask whether they want to accept anyway and overwrite the " +

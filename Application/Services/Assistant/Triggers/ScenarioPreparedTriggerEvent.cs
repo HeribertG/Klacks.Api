@@ -54,7 +54,7 @@ public sealed record ScenarioPreparedTriggerEvent(
     /// </summary>
     public IReadOnlyDictionary<string, string> SummaryParams => new Dictionary<string, string>
     {
-        ["from"] = FromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+        ["from"] = FromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)
     };
 
     public string DedupKey => ScenarioId.ToString();

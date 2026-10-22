@@ -14,6 +14,7 @@
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Setup;
 using Klacks.Api.Application.Services.Setup;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Models.Scheduling;
@@ -22,8 +23,6 @@ namespace Klacks.Api.Infrastructure.Services.Settings.RegionSetup;
 
 public sealed class SchedulingRuleRateRevisionImporter
 {
-    private const string RateRevisionDateFormat = "yyyy-MM-dd";
-
     private readonly ISchedulingRuleRateRevisionImportRepository _schedulingRuleRateRevisionImportRepository;
     private readonly ILogger<SchedulingRuleRateRevisionImporter> _logger;
 
@@ -59,12 +58,12 @@ public sealed class SchedulingRuleRateRevisionImporter
             var revision = preset.RateRevisions[i];
             if (string.IsNullOrWhiteSpace(revision.ValidFrom))
             {
-                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}] requires a 'validFrom' date ({RateRevisionDateFormat}).");
+                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}] requires a 'validFrom' date ({DateTimeFormats.IsoDate}).");
             }
 
-            if (!DateOnly.TryParseExact(revision.ValidFrom.Trim(), RateRevisionDateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var validFrom))
+            if (!DateOnly.TryParseExact(revision.ValidFrom.Trim(), DateTimeFormats.IsoDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var validFrom))
             {
-                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}].validFrom '{revision.ValidFrom}' is not a valid {RateRevisionDateFormat} date.");
+                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}].validFrom '{revision.ValidFrom}' is not a valid {DateTimeFormats.IsoDate} date.");
             }
 
             if (hasPrevious && validFrom <= previousValidFrom)
@@ -87,7 +86,7 @@ public sealed class SchedulingRuleRateRevisionImporter
                 throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}] must set at least one surcharge rate or an overtime tier.");
             }
 
-            var sourceKey = $"{presetSourceKey}:rev:{validFrom.ToString(RateRevisionDateFormat, CultureInfo.InvariantCulture)}";
+            var sourceKey = $"{presetSourceKey}:rev:{validFrom.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}";
             if (!seenKeys.Add(sourceKey))
             {
                 throw new InvalidRequestException(
@@ -203,7 +202,7 @@ public sealed class SchedulingRuleRateRevisionImporter
     private static string ComputeContentHash(SchedulingRuleRateRevisionImportValues values)
     {
         return ImportContentHasher.ComputeHash(
-            values.ValidFrom.ToString(RateRevisionDateFormat, CultureInfo.InvariantCulture),
+            values.ValidFrom.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             ImportFieldFormatter.Decimal(values.NightRate),
             ImportFieldFormatter.Decimal(values.HolidayRate),
             ImportFieldFormatter.Decimal(values.We1Rate),
@@ -228,7 +227,7 @@ public sealed class SchedulingRuleRateRevisionImporter
     private static string ComputeLegacyContentHash(SchedulingRuleRateRevisionImportValues values)
     {
         return ImportContentHasher.ComputeHash(
-            values.ValidFrom.ToString(RateRevisionDateFormat, CultureInfo.InvariantCulture),
+            values.ValidFrom.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             ImportFieldFormatter.Decimal(values.NightRate),
             ImportFieldFormatter.Decimal(values.HolidayRate),
             ImportFieldFormatter.Decimal(values.We1Rate),

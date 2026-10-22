@@ -14,6 +14,7 @@ using ClosedXML.Excel;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Reports;
 using Klacks.Api.Application.Interfaces.Exports;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Infrastructure.Services.Exports;
@@ -38,8 +39,8 @@ public class ReportXlsxBuilder : IReportXlsxBuilder
 
     private static readonly string[] DateFormats =
     [
-        "yyyy-MM-dd",
-        "dd.MM.yyyy",
+        DateTimeFormats.IsoDate,
+        DateTimeFormats.DottedDate,
         "d.M.yyyy",
         "dd/MM/yyyy",
         "yyyy-MM-ddTHH:mm:ss",

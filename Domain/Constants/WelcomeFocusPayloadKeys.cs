@@ -4,7 +4,7 @@
 /// Property names inside AgentCondition.PayloadJson that the welcome focus reads. The ledger
 /// stores JsonSerializer.Serialize(triggerEvent.Payload) verbatim, so these are exactly the
 /// dictionary keys the period trigger events declare - camelCase, DateOnly rendered as
-/// "yyyy-MM-dd" and the day counts as JSON numbers.
+/// DateTimeFormats.IsoDate and the day counts as JSON numbers.
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;

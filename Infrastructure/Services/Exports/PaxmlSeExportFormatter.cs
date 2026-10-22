@@ -28,6 +28,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Exports;
 using Klacks.Api.Domain.Models.Exports.Payroll;
@@ -37,7 +38,6 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 public class PaxmlSeExportFormatter : IPayrollExportFormatter
 {
     private const string PaxmlVersion = "2.0";
-    private const string DateFormat = "yyyy-MM-dd";
     private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss";
     private const string QuantityFormat = "F2";
 
@@ -129,7 +129,7 @@ public class PaxmlSeExportFormatter : IPayrollExportFormatter
             LonetransElement,
             new XAttribute(AnstidAttribute, anstid),
             new XElement(LonartElement, wageType),
-            new XElement(DatumElement, entry.Date.ToString(DateFormat, CultureInfo.InvariantCulture)),
+            new XElement(DatumElement, entry.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)),
             new XElement(AntalElement, entry.Quantity.ToString(QuantityFormat, CultureInfo.InvariantCulture)));
     }
 

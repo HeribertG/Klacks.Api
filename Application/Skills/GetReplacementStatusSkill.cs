@@ -50,7 +50,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("get_replacement_status")]
 public class GetReplacementStatusSkill : BaseSkillImplementation
 {
-    private const string DateFormat = "yyyy-MM-dd";
     private const string DateTimeFormat = "yyyy-MM-dd HH\\:mm";
     private const string TimeFormat = "HH\\:mm";
     private const int DefaultPastDays = 7;
@@ -187,8 +186,8 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         var data = new
         {
             AbsentClient = new { absent.Id, Name = absentName },
-            SearchFrom = fromDate.ToString(DateFormat),
-            SearchUntil = untilDate.ToString(DateFormat),
+            SearchFrom = fromDate.ToString(DateTimeFormats.IsoDate),
+            SearchUntil = untilDate.ToString(DateTimeFormats.IsoDate),
             DatesWithEntries = slots.Select(s => s.Date).Distinct().ToList(),
             TimeZone = timeZone.Id,
             SlotCount = slots.Count,
@@ -198,9 +197,9 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         };
 
         var message = slots.Count == 0 && chains.Count == 0
-            ? string.Format(NoRowsMessage, absentName, fromDate.ToString(DateFormat), untilDate.ToString(DateFormat))
+            ? string.Format(NoRowsMessage, absentName, fromDate.ToString(DateTimeFormats.IsoDate), untilDate.ToString(DateTimeFormats.IsoDate))
             : string.Format(
-                RowsMessage, absentName, slots.Count, fromDate.ToString(DateFormat), untilDate.ToString(DateFormat),
+                RowsMessage, absentName, slots.Count, fromDate.ToString(DateTimeFormats.IsoDate), untilDate.ToString(DateTimeFormats.IsoDate),
                 slots.Count(s => s.Status == nameof(ReplacementSlotStatus.Covered)), chains.Count);
 
         return SkillResult.SuccessResult(data, message);
@@ -297,7 +296,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         var absenceId = group.Select(r => r.AbsenceId).FirstOrDefault(id => id.HasValue);
 
         return new SlotView(
-            first.Date.ToString(DateFormat),
+            first.Date.ToString(DateTimeFormats.IsoDate),
             first.Date.DayOfWeek.ToString(),
             first.StartTime.ToString(TimeFormat),
             first.EndTime.ToString(TimeFormat),

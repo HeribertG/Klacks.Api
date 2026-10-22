@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -78,9 +79,9 @@ public sealed class WizardShiftBuilder : IWizardShiftBuilder
                     result.Add(new CoreShift(
                         Id: shift.Id.ToString(),
                         Name: string.IsNullOrWhiteSpace(shift.Name) ? shift.Abbreviation : shift.Name,
-                        Date: date.ToString("yyyy-MM-dd"),
-                        StartTime: shift.StartShift.ToString("HH:mm"),
-                        EndTime: shift.EndShift.ToString("HH:mm"),
+                        Date: date.ToString(DateTimeFormats.IsoDate),
+                        StartTime: shift.StartShift.ToString(DateTimeFormats.HourMinute),
+                        EndTime: shift.EndShift.ToString(DateTimeFormats.HourMinute),
                         Hours: (double)shift.WorkTime,
                         RequiredAssignments: SingleSeat,
                         Priority: 0)

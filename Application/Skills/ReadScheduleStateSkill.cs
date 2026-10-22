@@ -18,6 +18,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
@@ -103,8 +104,8 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
         var data = new
         {
             GroupId = groupId,
-            FromDate = fromDate.ToString("yyyy-MM-dd"),
-            UntilDate = untilDate.ToString("yyyy-MM-dd"),
+            FromDate = fromDate.ToString(DateTimeFormats.IsoDate),
+            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
             AnalyseToken = analyseToken,
             IsScenario = analyseToken.HasValue,
             EntryCount = entries.Count,
@@ -161,7 +162,7 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
                 cell.Id,
                 cell.ClientId,
                 ClientName = NameOf(lookup, cell.ClientId),
-                Date = DateOnly.FromDateTime(cell.EntryDate).ToString("yyyy-MM-dd"),
+                Date = DateOnly.FromDateTime(cell.EntryDate).ToString(DateTimeFormats.IsoDate),
                 EntryType = ResolveEnumName<ScheduleEntryType>(cell.EntryType),
                 Shift = cell.EntryName,
                 cell.Abbreviation,
@@ -184,7 +185,7 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
             cell.Id,
             cell.ClientId,
             ClientName = NameOf(lookup, cell.ClientId),
-            Date = DateOnly.FromDateTime(cell.EntryDate).ToString("yyyy-MM-dd"),
+            Date = DateOnly.FromDateTime(cell.EntryDate).ToString(DateTimeFormats.IsoDate),
             EntryType = ResolveEnumName<ScheduleEntryType>(cell.EntryType),
             Shift = cell.EntryName,
             cell.Abbreviation,

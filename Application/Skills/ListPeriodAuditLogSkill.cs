@@ -11,6 +11,7 @@
 
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -61,13 +62,13 @@ public class ListPeriodAuditLogSkill : BaseSkillImplementation
             .Select(e => new
             {
                 Action = e.Action.ToString(),
-                StartDate = e.StartDate.ToString("yyyy-MM-dd"),
-                EndDate = e.EndDate.ToString("yyyy-MM-dd"),
+                StartDate = e.StartDate.ToString(DateTimeFormats.IsoDate),
+                EndDate = e.EndDate.ToString(DateTimeFormats.IsoDate),
                 e.GroupId,
                 GroupName = e.GroupName ?? "(all groups)",
                 e.Reason,
                 e.AffectedCount,
-                PerformedAt = e.PerformedAt.ToString("yyyy-MM-dd HH:mm")
+                PerformedAt = e.PerformedAt.ToString(DateTimeFormats.IsoDateHourMinute)
             })
             .ToList();
 

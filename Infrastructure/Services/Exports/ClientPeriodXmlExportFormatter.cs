@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Text;
 using System.Xml;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Exports;
 using Klacks.Api.Domain.Models.Exports;
 
@@ -39,8 +40,8 @@ public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
             writer.WriteStartDocument();
             writer.WriteStartElement("ClientPeriodExport");
 
-            writer.WriteAttributeString("startDate", data.StartDate.ToString("yyyy-MM-dd"));
-            writer.WriteAttributeString("endDate", data.EndDate.ToString("yyyy-MM-dd"));
+            writer.WriteAttributeString("startDate", data.StartDate.ToString(DateTimeFormats.IsoDate));
+            writer.WriteAttributeString("endDate", data.EndDate.ToString(DateTimeFormats.IsoDate));
             writer.WriteAttributeString("exportDate", data.ExportDate.ToString("o"));
             writer.WriteAttributeString("currency", options.CurrencyCode);
 
@@ -91,8 +92,8 @@ public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
         foreach (var period in periodHours)
         {
             writer.WriteStartElement("Period");
-            writer.WriteAttributeString("startDate", period.StartDate.ToString("yyyy-MM-dd"));
-            writer.WriteAttributeString("endDate", period.EndDate.ToString("yyyy-MM-dd"));
+            writer.WriteAttributeString("startDate", period.StartDate.ToString(DateTimeFormats.IsoDate));
+            writer.WriteAttributeString("endDate", period.EndDate.ToString(DateTimeFormats.IsoDate));
             writer.WriteElementString("Hours", period.Hours.ToString("F2", CultureInfo.InvariantCulture));
             writer.WriteElementString("Surcharges", period.Surcharges.ToString("F2", CultureInfo.InvariantCulture));
             writer.WriteElementString("PaymentInterval", period.PaymentInterval);
@@ -107,9 +108,9 @@ public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
         writer.WriteStartElement("Work");
         writer.WriteAttributeString("id", work.WorkId.ToString());
 
-        writer.WriteElementString("Date", work.WorkDate.ToString("yyyy-MM-dd"));
-        writer.WriteElementString("StartTime", work.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture));
-        writer.WriteElementString("EndTime", work.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture));
+        writer.WriteElementString("Date", work.WorkDate.ToString(DateTimeFormats.IsoDate));
+        writer.WriteElementString("StartTime", work.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
+        writer.WriteElementString("EndTime", work.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
         writer.WriteElementString("Hours", work.WorkTime.ToString("F2", CultureInfo.InvariantCulture));
         writer.WriteElementString("Surcharges", work.Surcharges.ToString("F2", CultureInfo.InvariantCulture));
 

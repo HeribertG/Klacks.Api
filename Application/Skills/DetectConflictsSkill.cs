@@ -23,6 +23,7 @@ using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -96,7 +97,7 @@ public class DetectConflictsSkill : BaseSkillImplementation
         {
             i.ClientId,
             i.ClientName,
-            Date = i.Date.ToString("yyyy-MM-dd"),
+            Date = i.Date.ToString(DateTimeFormats.IsoDate),
             Severity = i.Severity.ToString(),
             i.Code,
             i.MessageKey,
@@ -113,8 +114,8 @@ public class DetectConflictsSkill : BaseSkillImplementation
         var data = new
         {
             GroupId = groupId,
-            FromDate = fromDate.ToString("yyyy-MM-dd"),
-            UntilDate = untilDate.ToString("yyyy-MM-dd"),
+            FromDate = fromDate.ToString(DateTimeFormats.IsoDate),
+            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
             AnalyseToken = analyseToken,
             IsScenario = analyseToken.HasValue,
             TotalConflicts = issues.Count,

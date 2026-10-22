@@ -25,7 +25,6 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public sealed class ScenarioNameGenerator : IScenarioNameGenerator
 {
-    private const string DateFormat = "yyyy-MM-dd";
     private const string SingleDayPattern = "{0} {1}";
     private const string PeriodPattern = "{0} {1} – {2}";
     private const string CounterPattern = "{0} ({1})";
@@ -95,13 +94,13 @@ public sealed class ScenarioNameGenerator : IScenarioNameGenerator
 
     private static string BuildBaseName(string prefix, DateOnly from, DateOnly until)
     {
-        var fromText = from.ToString(DateFormat, CultureInfo.InvariantCulture);
+        var fromText = from.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
         if (from == until)
         {
             return string.Format(CultureInfo.InvariantCulture, SingleDayPattern, prefix, fromText);
         }
 
-        var untilText = until.ToString(DateFormat, CultureInfo.InvariantCulture);
+        var untilText = until.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
         return string.Format(CultureInfo.InvariantCulture, PeriodPattern, prefix, fromText, untilText);
     }
 

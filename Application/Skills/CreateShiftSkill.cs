@@ -20,6 +20,7 @@
 using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Macros;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
@@ -368,10 +369,10 @@ public class CreateShiftSkill : BaseSkillImplementation
             SealedOrderId = shift.Id,
             shift.Name,
             shift.Abbreviation,
-            StartTime = startTime.ToString("HH:mm"),
-            EndTime = endTime.ToString("HH:mm"),
-            FromDate = schedule.FromDate.ToString("yyyy-MM-dd"),
-            UntilDate = schedule.UntilDate?.ToString("yyyy-MM-dd"),
+            StartTime = startTime.ToString(DateTimeFormats.HourMinute),
+            EndTime = endTime.ToString(DateTimeFormats.HourMinute),
+            FromDate = schedule.FromDate.ToString(DateTimeFormats.IsoDate),
+            UntilDate = schedule.UntilDate?.ToString(DateTimeFormats.IsoDate),
             WorkTime = workTime,
             SumEmployees = input.SumEmployees,
             GroupCount = groupItems.Count,

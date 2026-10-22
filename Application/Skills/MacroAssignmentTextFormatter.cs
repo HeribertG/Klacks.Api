@@ -19,6 +19,7 @@
 /// <param name="outcome">The written switch or undo, with the dry run of its preview</param>
 
 using System.Globalization;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Services.Macros;
 
@@ -42,7 +43,6 @@ public static class MacroAssignmentTextFormatter
     private const string DifferentMacrosText = "different macros";
     private const string NoValueText = "none";
     private const string QuotedNameFormat = "'{0}'";
-    private const string DateFormat = "yyyy-MM-dd";
     private const string GroupSuffix = " and {0} other cut(s) of its order";
     private const string AssignHeadline = "Switch the calculation macro of the {0} '{1}'{2} from {3} to {4}.";
     private const string AssignOthersHeadline =
@@ -186,7 +186,7 @@ public static class MacroAssignmentTextFormatter
 
     private static string DescribeSample(MacroDryRunSample sample)
     {
-        var date = sample.Date.ToString(DateFormat, CultureInfo.InvariantCulture);
+        var date = sample.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
         return sample.KeepsRecordedValue
             ? Format(RecordedSampleLine, date, Value(sample.StoredValue))
             : Format(SampleLine, date, Value(sample.StoredValue), Value(sample.CurrentValue), Value(sample.NewValue));

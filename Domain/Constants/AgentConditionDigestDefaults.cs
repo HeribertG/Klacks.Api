@@ -9,7 +9,7 @@ namespace Klacks.Api.Domain.Constants;
 
 public static class AgentConditionDigestDefaults
 {
-    /// <summary>Default local time of day the digest fires, as a TimeSpan-parseable "HH:mm" string. Configurable via BackgroundServiceOptions.AgentConditionDigestTimeOfDayLocal.</summary>
+    /// <summary>Default local time of day the digest fires, as a TimeSpan-parseable DateTimeFormats.HourMinute string. Configurable via BackgroundServiceOptions.AgentConditionDigestTimeOfDayLocal.</summary>
     public const string DefaultTimeOfDayLocal = "06:30";
 
     /// <summary>How many of a planner's most urgent findings are named individually in the digest's structured payload.</summary>

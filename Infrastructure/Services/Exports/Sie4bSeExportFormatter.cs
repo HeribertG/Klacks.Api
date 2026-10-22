@@ -38,6 +38,7 @@
 using System.Globalization;
 using System.Text;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Exports;
 using Klacks.Api.Domain.Models.Exports;
 
@@ -45,7 +46,6 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class Sie4bSeExportFormatter : IExportFormatter
 {
-    private const string DateFormat = "yyyyMMdd";
     private const string LineEnding = "\r\n";
     private const int Pc8CodePage = 437;
     private const string ProgramName = "Klacks";
@@ -77,7 +77,7 @@ public class Sie4bSeExportFormatter : IExportFormatter
         AppendLine(sb, "#FLAGGA 0");
         AppendLine(sb, $"#PROGRAM {Quote(ProgramName)} {ProgramVersion}");
         AppendLine(sb, "#FORMAT PC8");
-        AppendLine(sb, $"#GEN {data.ExportDate.ToString(DateFormat, CultureInfo.InvariantCulture)}");
+        AppendLine(sb, $"#GEN {data.ExportDate.ToString(DateTimeFormats.CompactDate, CultureInfo.InvariantCulture)}");
         AppendLine(sb, $"#SIETYP {SieFileType}");
         AppendLine(sb, $"#FNAMN {Quote(options.Company.Name)}");
 
@@ -136,7 +136,7 @@ public class Sie4bSeExportFormatter : IExportFormatter
         string creditAccount,
         decimal amount)
     {
-        var date = verificationDate.ToString(DateFormat, CultureInfo.InvariantCulture);
+        var date = verificationDate.ToString(DateTimeFormats.CompactDate, CultureInfo.InvariantCulture);
 
         AppendLine(sb, $"#VER {VerificationSeries} {verificationNumber} {date} {Quote(verificationText)}");
         AppendLine(sb, SubEntryOpen);

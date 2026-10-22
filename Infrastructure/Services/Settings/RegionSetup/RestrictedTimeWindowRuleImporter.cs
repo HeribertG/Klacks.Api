@@ -15,6 +15,7 @@ using System.Globalization;
 using Klacks.Api.Application.DTOs.Setup;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Setup;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Models.Scheduling;
@@ -23,7 +24,6 @@ namespace Klacks.Api.Infrastructure.Services.Settings.RegionSetup;
 
 public sealed class RestrictedTimeWindowRuleImporter
 {
-    private const string TimeOfDayFormat = "HH:mm";
     private const string SourceKeyTimeFormat = "HHmm";
     private const string AnyGroupTagKey = "*";
     private const char MonthDaySeparator = '-';
@@ -209,8 +209,8 @@ public sealed class RestrictedTimeWindowRuleImporter
             values.SeasonFromDay.ToString(CultureInfo.InvariantCulture),
             values.SeasonToMonth.ToString(CultureInfo.InvariantCulture),
             values.SeasonToDay.ToString(CultureInfo.InvariantCulture),
-            values.DailyStart.ToString(TimeOfDayFormat, CultureInfo.InvariantCulture),
-            values.DailyEnd.ToString(TimeOfDayFormat, CultureInfo.InvariantCulture),
+            values.DailyStart.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+            values.DailyEnd.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
             values.AppliesToGroupTag);
     }
 
@@ -231,7 +231,7 @@ public sealed class RestrictedTimeWindowRuleImporter
 
     private static TimeOnly ParseTimeOfDay(string value, string fieldName)
     {
-        if (!TimeOnly.TryParseExact(value, TimeOfDayFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var time))
+        if (!TimeOnly.TryParseExact(value, DateTimeFormats.HourMinute, CultureInfo.InvariantCulture, DateTimeStyles.None, out var time))
         {
             throw new InvalidRequestException(
                 $"Region setup: '{value}' in {fieldName} must be a valid 'HH:mm' time.");

@@ -13,6 +13,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant.Grounding;
 
 namespace Klacks.Api.Domain.Services.Assistant.Grounding;
@@ -154,7 +155,7 @@ public static class AnswerClaimExtractor
             return false;
         }
 
-        isoDate = new DateOnly(y, m, d).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        isoDate = new DateOnly(y, m, d).ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
         return true;
     }
 
@@ -227,7 +228,7 @@ public static class AnswerClaimExtractor
             return [];
         }
 
-        return [new DateOnly(y, month, d).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)];
+        return [new DateOnly(y, month, d).ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)];
     }
 
     private static void ExtractNumbers(string text, List<AnswerClaim> claims)

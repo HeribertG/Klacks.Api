@@ -8,6 +8,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Infrastructure.Converters;
 
@@ -37,6 +38,6 @@ public class DateOnlyJsonConverter : JsonConverter<DateOnly>
         DateOnly value,
         JsonSerializerOptions options)
     {
-        writer.WriteStringValue(value.ToString("yyyy-MM-dd"));
+        writer.WriteStringValue(value.ToString(DateTimeFormats.IsoDate));
     }
 }

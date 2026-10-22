@@ -22,6 +22,7 @@
 using System.Globalization;
 using Klacks.Api.Application.Common;
 using Klacks.Api.Application.DTOs.Groups;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
 
@@ -29,8 +30,6 @@ namespace Klacks.Api.Application.Services.Grouping;
 
 public sealed class GroupMembershipStartPlan
 {
-    private const string IsoDate = "yyyy-MM-dd";
-
     private readonly GroupMembershipStartMode _mode;
     private readonly bool _startDateGiven;
     private readonly DateTime _fixedStart;
@@ -108,9 +107,9 @@ public sealed class GroupMembershipStartPlan
             persons.Count,
             enteredEarlier.Count,
             withoutEntry,
-            enteredEarlier.Count == 0 ? null : enteredEarlier.Min().ToString(IsoDate, CultureInfo.InvariantCulture),
+            enteredEarlier.Count == 0 ? null : enteredEarlier.Min().ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             existing.Count,
-            existing.Count == 0 ? null : existing.Min().ToString(IsoDate, CultureInfo.InvariantCulture),
+            existing.Count == 0 ? null : existing.Min().ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             pullable.Count,
             pullable.Count == 0 ? null : Format(pullable.Min(candidate => candidate.NewStart)),
             notPulledForward,
@@ -208,5 +207,5 @@ public sealed class GroupMembershipStartPlan
     private static DateTime ToUtcMidnight(DateOnly date) =>
         DateTime.SpecifyKind(date.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
 
-    private static string Format(DateTime value) => value.ToString(IsoDate, CultureInfo.InvariantCulture);
+    private static string Format(DateTime value) => value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
 }

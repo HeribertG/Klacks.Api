@@ -9,6 +9,7 @@
 using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -37,8 +38,8 @@ public class ListRestrictedTimeWindowRulesSkill : BaseSkillImplementation
             {
                 r.Id,
                 Season = $"{r.SeasonFromMonth:00}-{r.SeasonFromDay:00} to {r.SeasonToMonth:00}-{r.SeasonToDay:00}",
-                DailyStart = r.DailyStart.ToString("HH:mm"),
-                DailyEnd = r.DailyEnd.ToString("HH:mm"),
+                DailyStart = r.DailyStart.ToString(DateTimeFormats.HourMinute),
+                DailyEnd = r.DailyEnd.ToString(DateTimeFormats.HourMinute),
                 r.AppliesToGroupTag
             })
             .ToList();

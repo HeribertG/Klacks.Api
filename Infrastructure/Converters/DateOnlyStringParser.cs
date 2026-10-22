@@ -12,6 +12,7 @@
 
 using System.Globalization;
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Infrastructure.Converters;
 
@@ -22,7 +23,7 @@ internal static class DateOnlyStringParser
     public static DateOnly Parse(ref Utf8JsonReader reader, string s)
     {
         if (DateOnly.TryParseExact(
-                s, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateOnly))
+                s, DateTimeFormats.IsoDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateOnly))
         {
             return dateOnly;
         }

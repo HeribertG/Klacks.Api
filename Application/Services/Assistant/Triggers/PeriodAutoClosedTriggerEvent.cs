@@ -26,7 +26,6 @@ public sealed record PeriodAutoClosedTriggerEvent(
     Guid DecidingAdminUserId) : IAgentTriggerEvent
 {
     private const string ClosedDedupSuffix = ":auto-closed";
-    private const string PeriodDedupFormat = "yyyy-MM-dd";
 
     public string Kind => AgentTriggerKinds.PeriodAutoClose;
 
@@ -44,7 +43,7 @@ public sealed record PeriodAutoClosedTriggerEvent(
     };
 
     public string DedupKey =>
-        $"{GroupId}:{PeriodEndDate.ToString(PeriodDedupFormat, CultureInfo.InvariantCulture)}{ClosedDedupSuffix}";
+        $"{GroupId}:{PeriodEndDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}{ClosedDedupSuffix}";
 
     // Bridges the record's non-nullable GroupId to the interface's nullable member: a plain public
     // property of type Guid does not implicitly satisfy a Guid? interface member.

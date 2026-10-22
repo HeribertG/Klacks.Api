@@ -30,7 +30,6 @@ namespace Klacks.Api.Infrastructure.Inbound;
 
 public sealed class ClarificationTextService : IClarificationTextService
 {
-    private const string LocalTimeFormat = "yyyy-MM-dd HH:mm";
     private const string Ellipsis = "…";
     private const string NoticeSeparator = "\n";
 
@@ -148,7 +147,7 @@ public sealed class ClarificationTextService : IClarificationTextService
         return ClarificationTexts.English(key);
     }
 
-    private static string Format(DateTime local) => local.ToString(LocalTimeFormat, CultureInfo.InvariantCulture);
+    private static string Format(DateTime local) => local.ToString(DateTimeFormats.IsoDateHourMinute, CultureInfo.InvariantCulture);
 
     private static string Shorten(string text) =>
         text.Length <= InboundClarificationConstants.MaxNotifiedOriginalTextLength

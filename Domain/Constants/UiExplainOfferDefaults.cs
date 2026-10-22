@@ -20,7 +20,7 @@ public static class UiExplainOfferDefaults
 
     public const char DedupKeySeparator = ':';
 
-    public const string PassiveDayFormat = "yyyy-MM-dd";
+    public const string PassiveDayFormat = DateTimeFormats.IsoDate;
 
     public static readonly IReadOnlySet<ExplainExperienceLevel> OfferedLevels =
         new HashSet<ExplainExperienceLevel> { ExplainExperienceLevel.Beginner };

@@ -41,7 +41,7 @@ public sealed record EscalationStageAlertTriggerEvent(
         ["date"] = TimeZoneInfo.ConvertTimeFromUtc(ShiftStartUtc, CompanyTimeZone)
             .ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture),
         ["dueTime"] = TimeZoneInfo.ConvertTimeFromUtc(DueAtUtc, CompanyTimeZone)
-            .ToString("HH:mm", CultureInfo.InvariantCulture) + " " + IanaTimeZoneId.From(CompanyTimeZone)
+            .ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture) + " " + IanaTimeZoneId.From(CompanyTimeZone)
     };
 
     public string DedupKey => $"{StageId}:escalation-stage-alert";

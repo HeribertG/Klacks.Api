@@ -18,6 +18,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
 using Klacks.Api.Application.Queries.PeriodHours;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
@@ -29,7 +30,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("get_group_hours_balance")]
 public class GetGroupHoursBalanceSkill : BaseSkillImplementation
 {
-    private const string DateFormat = "yyyy-MM-dd";
     private const int AverageBalanceDecimals = 1;
 
     private readonly IGroupRepository _groupRepository;
@@ -60,7 +60,7 @@ public class GetGroupHoursBalanceSkill : BaseSkillImplementation
         if (endDate < startDate)
         {
             return SkillResult.Error(
-                $"endDate {endDate.ToString(DateFormat)} must not be before startDate {startDate.ToString(DateFormat)}.");
+                $"endDate {endDate.ToString(DateTimeFormats.IsoDate)} must not be before startDate {startDate.ToString(DateTimeFormats.IsoDate)}.");
         }
 
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
@@ -84,8 +84,8 @@ public class GetGroupHoursBalanceSkill : BaseSkillImplementation
         {
             return SkillResult.SuccessResult(
                 new GroupHoursBalanceResult(group.Id, group.Name, startDate, endDate, 0, []),
-                $"Group '{group.Name}' has no active employee members between {startDate.ToString(DateFormat)} " +
-                $"and {endDate.ToString(DateFormat)} — nothing to balance.");
+                $"Group '{group.Name}' has no active employee members between {startDate.ToString(DateTimeFormats.IsoDate)} " +
+                $"and {endDate.ToString(DateTimeFormats.IsoDate)} — nothing to balance.");
         }
 
         var clientIds = activeEmployees.Select(m => m.ClientId!.Value).ToList();
@@ -113,8 +113,8 @@ public class GetGroupHoursBalanceSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             result,
-            $"Hours balance for group '{group.Name}' from {startDate.ToString(DateFormat)} to " +
-            $"{endDate.ToString(DateFormat)} across {balances.Count} active employee(s): average balance " +
+            $"Hours balance for group '{group.Name}' from {startDate.ToString(DateTimeFormats.IsoDate)} to " +
+            $"{endDate.ToString(DateTimeFormats.IsoDate)} across {balances.Count} active employee(s): average balance " +
             $"{FormatSigned(average)}h. Lowest: {lowest.FirstName} {lowest.LastName} " +
             $"({FormatSigned(lowest.Balance)}h). Highest: {highest.FirstName} {highest.LastName} " +
             $"({FormatSigned(highest.Balance)}h). Members are sorted from lowest to highest balance — " +

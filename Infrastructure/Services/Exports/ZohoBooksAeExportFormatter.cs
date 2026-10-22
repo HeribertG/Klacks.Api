@@ -23,6 +23,7 @@
 using System.Globalization;
 using System.Text;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Exports;
 using Klacks.Api.Domain.Models.Exports;
 
@@ -31,7 +32,6 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 public class ZohoBooksAeExportFormatter : IExportFormatter
 {
     private const string Separator = ",";
-    private const string DateFormat = "yyyy-MM-dd";
     private const string AmountFormat = "F2";
     private const int AmountDecimalPlaces = 2;
     private const string PlaceholderDebitAccount = "Salaries and Employee Wages";
@@ -128,7 +128,7 @@ public class ZohoBooksAeExportFormatter : IExportFormatter
         string currencyCode)
     {
         var rounded = Math.Round(amount, AmountDecimalPlaces, MidpointRounding.AwayFromZero);
-        var date = journalDate.ToString(DateFormat, CultureInfo.InvariantCulture);
+        var date = journalDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
         var journal = journalNumber.ToString(CultureInfo.InvariantCulture);
         var referenceValue = string.IsNullOrEmpty(reference) ? journal : reference;
         var amountText = rounded.ToString(AmountFormat, CultureInfo.InvariantCulture);

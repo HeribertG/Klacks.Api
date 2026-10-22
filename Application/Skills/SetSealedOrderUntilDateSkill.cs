@@ -14,6 +14,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
@@ -132,7 +133,7 @@ public class SetSealedOrderUntilDateSkill : BaseSkillImplementation
         var resultData = new
         {
             OrderId = shiftId,
-            UntilDate = untilDate.ToString("yyyy-MM-dd"),
+            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
             shift.Name,
             Verified = true
         };

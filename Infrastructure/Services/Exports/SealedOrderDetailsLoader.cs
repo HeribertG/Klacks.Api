@@ -10,6 +10,7 @@
 /// </summary>
 using Klacks.Api.Application.DTOs.Exports;
 using Klacks.Api.Application.Interfaces.Exports;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Common;
@@ -20,8 +21,6 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class SealedOrderDetailsLoader : ISealedOrderDetailsLoader
 {
-    private const string TimeFormat = "HH:mm";
-
     private readonly DataBaseContext _context;
     private readonly IShiftDescendantResolver _descendantResolver;
     private readonly IPeriodClosedEntryFilter _periodClosedEntryFilter;
@@ -132,8 +131,8 @@ public class SealedOrderDetailsLoader : ISealedOrderDetailsLoader
                 EmployeeName = ClientNameFormatter.LastFirst(w.Client),
                 EmployeeIdNumber = w.Client?.IdNumber ?? 0,
                 WorkDate = w.CurrentDate,
-                StartTime = w.StartTime.ToString(TimeFormat),
-                EndTime = w.EndTime.ToString(TimeFormat),
+                StartTime = w.StartTime.ToString(DateTimeFormats.HourMinute),
+                EndTime = w.EndTime.ToString(DateTimeFormats.HourMinute),
                 Hours = w.WorkTime,
                 Surcharges = w.Surcharges,
                 LockLevel = (int)w.LockLevel,

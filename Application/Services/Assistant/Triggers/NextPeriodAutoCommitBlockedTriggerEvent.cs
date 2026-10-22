@@ -35,7 +35,6 @@ public sealed record NextPeriodAutoCommitBlockedTriggerEvent(
 {
     private const string CommitBlockedDedupSuffix = ":commit-blocked";
     private const string DedupSeparator = ":";
-    private const string PeriodDedupFormat = "yyyy-MM-dd";
 
     /// <summary>Payload key of the draft that stays unaccepted; read back by ScenarioPendingDetector.</summary>
     public const string ScenarioIdPayloadKey = "scenarioId";
@@ -50,7 +49,7 @@ public sealed record NextPeriodAutoCommitBlockedTriggerEvent(
     /// indistinguishable, because both leave the scenario a draft and no job in the registry.
     /// </summary>
     public static string CommitOutcomeDedupPrefix(Guid groupId, DateOnly periodStartDate) =>
-        $"{groupId}{DedupSeparator}{periodStartDate.ToString(PeriodDedupFormat, CultureInfo.InvariantCulture)}{CommitBlockedDedupSuffix}";
+        $"{groupId}{DedupSeparator}{periodStartDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}{CommitBlockedDedupSuffix}";
 
     public string Kind => AgentTriggerKinds.NextPeriodSchedulingDue;
 

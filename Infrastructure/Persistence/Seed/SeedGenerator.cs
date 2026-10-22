@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
@@ -441,7 +442,7 @@ namespace Klacks.Api.Data.Seed
                 ("d5bbf185-b799-4aa4-86ca-c3fe879654f2", "appName", "Klacks-Net"),
                 ("1234567a-1234-1234-1234-123456789001", "defaultLanguage", "de"),
                 ("1234567a-1234-1234-1234-123456789003", "dateFormat", "dd.MM.yyyy"),
-                ("1234567a-1234-1234-1234-123456789004", "timeFormat", "HH:mm"),
+                ("1234567a-1234-1234-1234-123456789004", "timeFormat", DateTimeFormats.HourMinute),
                 ("1234567a-1234-1234-1234-123456789005", "currency", "CHF"),
                 
                 // UI Settings

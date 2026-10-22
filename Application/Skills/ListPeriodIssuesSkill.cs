@@ -15,6 +15,7 @@ using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -82,7 +83,7 @@ public class ListPeriodIssuesSkill : BaseSkillImplementation
             .Take(limit)
             .Select(i => new
             {
-                Date = i.Date.ToString("yyyy-MM-dd"),
+                Date = i.Date.ToString(DateTimeFormats.IsoDate),
                 i.ClientId,
                 i.ClientName,
                 Severity = i.Severity.ToString(),

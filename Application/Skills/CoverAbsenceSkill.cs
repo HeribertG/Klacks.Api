@@ -21,6 +21,7 @@
 
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -66,22 +67,22 @@ public class CoverAbsenceSkill : BaseSkillImplementation
             outcome.Token,
             outcome.ScenarioName,
             ClientId = clientId,
-            Date = date.ToString("yyyy-MM-dd"),
-            UntilDate = untilDate?.ToString("yyyy-MM-dd"),
+            Date = date.ToString(DateTimeFormats.IsoDate),
+            UntilDate = untilDate?.ToString(DateTimeFormats.IsoDate),
             GroupId = groupId,
             CoveredCount = outcome.Covered.Count,
             UncoveredCount = outcome.Uncovered.Count,
             Covered = outcome.Covered.Select(c => new
             {
                 c.ShiftId,
-                Date = c.Date.ToString("yyyy-MM-dd"),
+                Date = c.Date.ToString(DateTimeFormats.IsoDate),
                 c.ReplacementClientId,
                 c.ReplacementName
             }),
             Uncovered = outcome.Uncovered.Select(u => new
             {
                 u.ShiftId,
-                Date = u.Date.ToString("yyyy-MM-dd"),
+                Date = u.Date.ToString(DateTimeFormats.IsoDate),
                 u.Reason
             })
         };

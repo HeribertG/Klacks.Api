@@ -30,7 +30,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("get_planning_deadline")]
 public class GetPlanningDeadlineSkill : BaseSkillImplementation
 {
-    private const string IsoDateFormat = "yyyy-MM-dd";
     private const string ContextMode = "Context";
     private const string ComputedMode = "Computed";
     private const string PostChannel = "post";
@@ -189,7 +188,7 @@ public class GetPlanningDeadlineSkill : BaseSkillImplementation
         return 0;
     }
 
-    private static string FormatDate(DateOnly date) => date.ToString(IsoDateFormat, CultureInfo.InvariantCulture);
+    private static string FormatDate(DateOnly date) => date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
 
     private sealed record GroupDeadlineRow(
         string GroupName,

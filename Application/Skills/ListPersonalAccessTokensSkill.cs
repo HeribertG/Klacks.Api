@@ -8,6 +8,7 @@
 
 using Klacks.Api.Application.Queries.Authentification;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -39,9 +40,9 @@ public class ListPersonalAccessTokensSkill : BaseSkillImplementation
                 t.Id,
                 t.Name,
                 t.TokenPrefix,
-                CreatedAt = t.CreatedAt?.ToString("yyyy-MM-dd"),
-                ExpiresAt = t.ExpiresAt?.ToString("yyyy-MM-dd"),
-                LastUsedAt = t.LastUsedAt?.ToString("yyyy-MM-dd HH:mm"),
+                CreatedAt = t.CreatedAt?.ToString(DateTimeFormats.IsoDate),
+                ExpiresAt = t.ExpiresAt?.ToString(DateTimeFormats.IsoDate),
+                LastUsedAt = t.LastUsedAt?.ToString(DateTimeFormats.IsoDateHourMinute),
                 AccessMode = t.AccessMode.ToString()
             })
             .ToList();

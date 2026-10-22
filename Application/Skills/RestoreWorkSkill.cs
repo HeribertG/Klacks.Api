@@ -30,8 +30,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("restore_work")]
 public class RestoreWorkSkill : BaseSkillImplementation
 {
-    private const string DateFormat = "yyyy-MM-dd";
-
     private const string CommittedWithFollowUpFailureMessage =
         "Work {0} WAS restored (client {1} on {2}): the change is committed. A follow-up step failed afterwards ({3}), " +
         "so the period hours or overtime of the employee may be stale. Check the schedule; do not restore it again.";
@@ -69,7 +67,7 @@ public class RestoreWorkSkill : BaseSkillImplementation
                     restored.ShiftId,
                     Date = restored.CurrentDate
                 },
-                $"Work {workId} (client {restored.ClientId} on {restored.CurrentDate.ToString(DateFormat)}) was restored.");
+                $"Work {workId} (client {restored.ClientId} on {restored.CurrentDate.ToString(DateTimeFormats.IsoDate)}) was restored.");
         }
         catch (ValidationException ex)
         {
@@ -114,7 +112,7 @@ public class RestoreWorkSkill : BaseSkillImplementation
             },
             string.Format(
                 CommittedWithFollowUpFailureMessage,
-                workId, stored.ClientId, stored.CurrentDate.ToString(DateFormat), failure));
+                workId, stored.ClientId, stored.CurrentDate.ToString(DateTimeFormats.IsoDate), failure));
     }
 
     private static string DescribeValidationFailure(Guid workId, ValidationException exception)

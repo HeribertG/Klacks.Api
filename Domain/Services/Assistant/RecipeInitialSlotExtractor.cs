@@ -23,12 +23,12 @@
 
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class RecipeInitialSlotExtractor
 {
-    private const string IsoDateFormat = "yyyy-MM-dd";
     private const int TwoDigitYearBase = 2000;
 
     /// <summary>
@@ -244,7 +244,7 @@ public static class RecipeInitialSlotExtractor
     private static void AddDate(List<string> dates, string year, string month, string day)
     {
         var candidate = $"{year.PadLeft(4, '0')}-{month.PadLeft(2, '0')}-{day.PadLeft(2, '0')}";
-        if (DateTime.TryParseExact(candidate, IsoDateFormat, CultureInfo.InvariantCulture,
+        if (DateTime.TryParseExact(candidate, DateTimeFormats.IsoDate, CultureInfo.InvariantCulture,
                 DateTimeStyles.None, out _))
         {
             dates.Add(candidate);

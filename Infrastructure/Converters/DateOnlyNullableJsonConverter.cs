@@ -9,6 +9,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Infrastructure.Converters;
 
@@ -45,7 +46,7 @@ public class DateOnlyNullableJsonConverter : JsonConverter<DateOnly?>
     {
         if (value.HasValue)
         {
-            writer.WriteStringValue(value.Value.ToString("yyyy-MM-dd"));
+            writer.WriteStringValue(value.Value.ToString(DateTimeFormats.IsoDate));
         }
         else
         {

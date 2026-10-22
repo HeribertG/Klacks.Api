@@ -15,6 +15,7 @@ using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -26,7 +27,6 @@ public class GetGroupAbsenceOverlapSkill : BaseSkillImplementation
 {
     private const int MaxRangeDays = 366;
     private const string UnknownAbsenceLabel = "Unknown";
-    private const string DateFormat = "yyyy-MM-dd";
 
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
@@ -59,14 +59,14 @@ public class GetGroupAbsenceOverlapSkill : BaseSkillImplementation
         if (untilDate < fromDate)
         {
             return SkillResult.Error(
-                $"untilDate ({untilDate.ToString(DateFormat)}) must not be before fromDate ({fromDate.ToString(DateFormat)}).");
+                $"untilDate ({untilDate.ToString(DateTimeFormats.IsoDate)}) must not be before fromDate ({fromDate.ToString(DateTimeFormats.IsoDate)}).");
         }
 
         var rangeDays = untilDate.DayNumber - fromDate.DayNumber + 1;
         if (rangeDays > MaxRangeDays)
         {
             return SkillResult.Error(
-                $"The period {fromDate.ToString(DateFormat)}..{untilDate.ToString(DateFormat)} spans {rangeDays} days, " +
+                $"The period {fromDate.ToString(DateTimeFormats.IsoDate)}..{untilDate.ToString(DateTimeFormats.IsoDate)} spans {rangeDays} days, " +
                 $"which exceeds the maximum of {MaxRangeDays} days. Narrow the date range and try again.");
         }
 
@@ -99,7 +99,7 @@ public class GetGroupAbsenceOverlapSkill : BaseSkillImplementation
                     group.Id, group.Name, fromDate, untilDate, 0, 0,
                     Array.Empty<DateOnly>(), Array.Empty<GroupAbsenceOverlapDay>()),
                 $"Group '{group.Name}' has no active members in " +
-                $"{fromDate.ToString(DateFormat)}..{untilDate.ToString(DateFormat)}.");
+                $"{fromDate.ToString(DateTimeFormats.IsoDate)}..{untilDate.ToString(DateTimeFormats.IsoDate)}.");
         }
 
         var absenceLabels = (await _absenceRepository.List())
@@ -182,14 +182,14 @@ public class GetGroupAbsenceOverlapSkill : BaseSkillImplementation
         if (peakCount == 0)
         {
             return $"Group '{groupName}' has {groupSize} active member(s) in " +
-                   $"{fromDate.ToString(DateFormat)}..{untilDate.ToString(DateFormat)} and no booked or planned absences in that period.";
+                   $"{fromDate.ToString(DateTimeFormats.IsoDate)}..{untilDate.ToString(DateTimeFormats.IsoDate)} and no booked or planned absences in that period.";
         }
 
-        var peakDatesText = string.Join(", ", peakDates.Select(d => d.ToString(DateFormat)));
+        var peakDatesText = string.Join(", ", peakDates.Select(d => d.ToString(DateTimeFormats.IsoDate)));
         var peakPercent = Math.Round(peakCount * 100.0 / groupSize, 1);
 
         return $"Group '{groupName}' has {groupSize} active member(s) in " +
-               $"{fromDate.ToString(DateFormat)}..{untilDate.ToString(DateFormat)}. " +
+               $"{fromDate.ToString(DateTimeFormats.IsoDate)}..{untilDate.ToString(DateTimeFormats.IsoDate)}. " +
                $"Peak overlap: {peakCount} of {groupSize} ({peakPercent}%) absent on {peakDatesText}. " +
                "Relay these numbers to the user, and if the overlap is high, ask for confirmation before " +
                "planning further absences instead of proceeding blindly.";

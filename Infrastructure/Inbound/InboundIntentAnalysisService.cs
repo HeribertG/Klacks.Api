@@ -58,7 +58,6 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
     private const int MaxSummaryLength = 2000;
     private const int MaxUnparsedSummaryLength = 500;
     private const string LlmCallFailedPrefix = "LLM call failed: ";
-    private const string ReceivedDateFormat = "yyyy-MM-dd";
 
     internal const string ConfidenceLoweredLogMarker = "lowered from high confidence to low";
 
@@ -238,7 +237,7 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
     }
 
     internal static string FormatDateLine(DateOnly date) =>
-        $"{date.ToString(ReceivedDateFormat, CultureInfo.InvariantCulture)} ({date.DayOfWeek})";
+        $"{date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} ({date.DayOfWeek})";
 
     private static string TruncateBody(string body) =>
         body.Length > MaxBodyLengthForLlm ? body[..MaxBodyLengthForLlm] : body;

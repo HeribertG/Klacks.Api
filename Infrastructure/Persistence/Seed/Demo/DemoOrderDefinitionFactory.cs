@@ -62,7 +62,6 @@ public class DemoOrderDefinitionFactory
     private const int WorkflowRootGroupsExclusive = 2;
     private const int DayShiftAbbreviationCounterOffset = 100;
     private const int WorkTimeSqlDecimals = 4;
-    private const string SqlTimeFormat = "HH:mm:ss";
 
     private static readonly string[] AvailableRootGroups =
     [
@@ -248,8 +247,8 @@ public class DemoOrderDefinitionFactory
                 Description = DemoOrderDescriptions.SimpleShift(_language, shift.Name, shift.Employees),
                 OriginalShiftDescription = DemoOrderDescriptions.SimpleShift(_language, shift.Name, shift.Employees),
                 FromDate = _baseDate,
-                StartShift = TimeOnly.ParseExact(shift.Start, SqlTimeFormat, CultureInfo.InvariantCulture),
-                EndShift = TimeOnly.ParseExact(shift.End, SqlTimeFormat, CultureInfo.InvariantCulture),
+                StartShift = TimeOnly.ParseExact(shift.Start, DateTimeFormats.HourMinuteSecond, CultureInfo.InvariantCulture),
+                EndShift = TimeOnly.ParseExact(shift.End, DateTimeFormats.HourMinuteSecond, CultureInfo.InvariantCulture),
                 WorkTimeMinutes = shift.WorkTime * MinutesPerHour,
                 WorkTimeSqlLiteral = shift.WorkTime.ToString(CultureInfo.InvariantCulture),
                 IsTimeRange = shift.IsTimeRange,

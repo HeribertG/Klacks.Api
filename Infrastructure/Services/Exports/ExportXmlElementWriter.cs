@@ -6,6 +6,7 @@
 /// </summary>
 using System.Globalization;
 using System.Xml;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Exports;
 
 namespace Klacks.Api.Infrastructure.Services.Exports;
@@ -26,8 +27,8 @@ public static class ExportXmlElementWriter
                 writer.WriteStartElement("Change");
                 writer.WriteElementString("Type", change.Type.ToString());
                 writer.WriteElementString("ChangeTime", change.ChangeTime.ToString("F2", CultureInfo.InvariantCulture));
-                writer.WriteElementString("StartTime", change.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture));
-                writer.WriteElementString("EndTime", change.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture));
+                writer.WriteElementString("StartTime", change.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
+                writer.WriteElementString("EndTime", change.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
                 writer.WriteElementString("Description", change.Description);
                 writer.WriteElementString("Surcharges", change.Surcharges.ToString("F2", CultureInfo.InvariantCulture));
                 writer.WriteElementString("ToInvoice", change.ToInvoice.ToString().ToLowerInvariant());
@@ -65,9 +66,9 @@ public static class ExportXmlElementWriter
             {
                 writer.WriteStartElement("Break");
                 writer.WriteElementString("AbsenceName", breakEntry.AbsenceName);
-                writer.WriteElementString("Date", breakEntry.BreakDate.ToString("yyyy-MM-dd"));
-                writer.WriteElementString("StartTime", breakEntry.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture));
-                writer.WriteElementString("EndTime", breakEntry.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture));
+                writer.WriteElementString("Date", breakEntry.BreakDate.ToString(DateTimeFormats.IsoDate));
+                writer.WriteElementString("StartTime", breakEntry.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
+                writer.WriteElementString("EndTime", breakEntry.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
                 writer.WriteElementString("Hours", breakEntry.BreakTime.ToString("F2", CultureInfo.InvariantCulture));
                 if (breakEntry.IsOnCall)
                     writer.WriteElementString(OnCallElement, TrueValue);

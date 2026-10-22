@@ -12,6 +12,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -24,7 +25,6 @@ public class GetGroupDetailsSkill : BaseSkillImplementation
 {
     private const string PathSeparator = " > ";
     private const string OpenEndedLabel = "open-ended";
-    private const string DateFormat = "yyyy-MM-dd";
 
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
@@ -94,7 +94,7 @@ public class GetGroupDetailsSkill : BaseSkillImplementation
         var clientMemberCount = members.Count(m => m.ClientId.HasValue);
 
         var validUntilDisplay = group.ValidUntil.HasValue
-            ? group.ValidUntil.Value.ToString(DateFormat)
+            ? group.ValidUntil.Value.ToString(DateTimeFormats.IsoDate)
             : OpenEndedLabel;
 
         return SkillResult.SuccessResult(
@@ -103,7 +103,7 @@ public class GetGroupDetailsSkill : BaseSkillImplementation
                 GroupId = group.Id,
                 group.Name,
                 group.Description,
-                ValidFrom = group.ValidFrom.ToString(DateFormat),
+                ValidFrom = group.ValidFrom.ToString(DateTimeFormats.IsoDate),
                 ValidUntil = validUntilDisplay,
                 PaymentInterval = group.PaymentInterval.ToString(),
                 group.CalendarSelectionId,
@@ -114,7 +114,7 @@ public class GetGroupDetailsSkill : BaseSkillImplementation
                 DirectChildCount = children.Count,
                 ClientMemberCount = clientMemberCount
             },
-            $"Group '{group.Name}' ({pathDisplay}): valid {group.ValidFrom.ToString(DateFormat)} to {validUntilDisplay}, " +
+            $"Group '{group.Name}' ({pathDisplay}): valid {group.ValidFrom.ToString(DateTimeFormats.IsoDate)} to {validUntilDisplay}, " +
             $"payment interval {group.PaymentInterval}, {children.Count} direct child group(s), " +
             $"{clientMemberCount} client member(s). Use list_group_members for the member list.");
     }

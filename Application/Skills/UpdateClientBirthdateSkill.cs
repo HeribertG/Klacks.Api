@@ -12,6 +12,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
@@ -84,7 +85,7 @@ public class UpdateClientBirthdateSkill : BaseSkillImplementation
         }
 
         return SkillResult.SuccessResult(
-            new { ClientId = client.Id, client.FirstName, LastName = client.Name, Birthdate = birthdate.ToString("yyyy-MM-dd") },
+            new { ClientId = client.Id, client.FirstName, LastName = client.Name, Birthdate = birthdate.ToString(DateTimeFormats.IsoDate) },
             $"Birthdate of {client.FirstName} {client.Name} updated to {birthdate:yyyy-MM-dd}");
     }
 }

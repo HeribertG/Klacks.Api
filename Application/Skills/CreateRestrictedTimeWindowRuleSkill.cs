@@ -15,6 +15,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -81,8 +82,8 @@ public class CreateRestrictedTimeWindowRuleSkill : BaseSkillImplementation
             {
                 created.Id,
                 Season = $"{created.SeasonFromMonth:00}-{created.SeasonFromDay:00} to {created.SeasonToMonth:00}-{created.SeasonToDay:00}",
-                DailyStart = created.DailyStart.ToString("HH:mm"),
-                DailyEnd = created.DailyEnd.ToString("HH:mm"),
+                DailyStart = created.DailyStart.ToString(DateTimeFormats.HourMinute),
+                DailyEnd = created.DailyEnd.ToString(DateTimeFormats.HourMinute),
                 created.AppliesToGroupTag
             },
             $"Restricted time window rule created: {created.DailyStart:HH\\:mm}-{created.DailyEnd:HH\\:mm} " +

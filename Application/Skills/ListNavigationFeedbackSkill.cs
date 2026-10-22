@@ -11,6 +11,7 @@
 
 using Klacks.Api.Application.Handlers.Klacksy;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -54,7 +55,7 @@ public class ListNavigationFeedbackSkill : BaseSkillImplementation
                 e.MatchedScore,
                 e.UserAction,
                 e.ActualRoute,
-                Timestamp = e.Timestamp.ToString("yyyy-MM-dd HH:mm")
+                Timestamp = e.Timestamp.ToString(DateTimeFormats.IsoDateHourMinute)
             })
             .ToList();
 

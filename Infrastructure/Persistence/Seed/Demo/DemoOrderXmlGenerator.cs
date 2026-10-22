@@ -30,8 +30,6 @@ public class DemoOrderXmlGenerator : IDemoOrderXmlGenerator
         _timeProvider = timeProvider;
     }
 
-    private const string DateFormat = "yyyy-MM-dd";
-    private const string TimeFormat = "HH:mm";
     private const int MinutesPerHour = 60;
     private const string TrueText = "true";
     private const string FalseText = "false";
@@ -76,16 +74,16 @@ public class DemoOrderXmlGenerator : IDemoOrderXmlGenerator
                 ErpImportXmlElements.Duration,
                 new XElement(ErpImportXmlElements.DurationHours, definition.WorkTimeMinutes / MinutesPerHour),
                 new XElement(ErpImportXmlElements.DurationMinutes, definition.WorkTimeMinutes % MinutesPerHour)),
-            new XElement(ErpImportXmlElements.FromDate, definition.FromDate.ToString(DateFormat, CultureInfo.InvariantCulture)));
+            new XElement(ErpImportXmlElements.FromDate, definition.FromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)));
 
         if (definition.UntilDate is { } untilDate)
         {
-            order.Add(new XElement(ErpImportXmlElements.UntilDate, untilDate.ToString(DateFormat, CultureInfo.InvariantCulture)));
+            order.Add(new XElement(ErpImportXmlElements.UntilDate, untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)));
         }
 
         order.Add(
-            new XElement(ErpImportXmlElements.StartTime, definition.StartShift.ToString(TimeFormat, CultureInfo.InvariantCulture)),
-            new XElement(ErpImportXmlElements.EndTime, definition.EndShift.ToString(TimeFormat, CultureInfo.InvariantCulture)),
+            new XElement(ErpImportXmlElements.StartTime, definition.StartShift.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)),
+            new XElement(ErpImportXmlElements.EndTime, definition.EndShift.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)),
             new XElement(ErpImportXmlElements.IsTimeRange, Text(definition.IsTimeRange)),
             new XElement(ErpImportXmlElements.Quantity, definition.Quantity),
             new XElement(ErpImportXmlElements.SumEmployees, definition.SumEmployees),

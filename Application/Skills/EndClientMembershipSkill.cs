@@ -16,6 +16,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -34,7 +35,6 @@ public class EndClientMembershipSkill : BaseSkillImplementation
 {
     private const string SkillName = "end_client_membership";
     private const string OpenEndedLabel = "open-ended";
-    private const string DateFormat = "yyyy-MM-dd";
 
     private readonly IMembershipRepository _membershipRepository;
     private readonly IClientRepository _clientRepository;
@@ -127,7 +127,7 @@ public class EndClientMembershipSkill : BaseSkillImplementation
             if (activeMemberships.Count > 1)
             {
                 var options = string.Join("; ", activeMemberships.Select(m =>
-                    $"id={m.Id}, validFrom={m.ValidFrom.ToString(DateFormat)}, " +
+                    $"id={m.Id}, validFrom={m.ValidFrom.ToString(DateTimeFormats.IsoDate)}, " +
                     $"validUntil={FormatValidUntil(m.ValidUntil)}"));
                 return SkillResult.Error(
                     $"Client {clientId} has {activeMemberships.Count} active memberships — cannot decide which one to end. " +
@@ -142,8 +142,8 @@ public class EndClientMembershipSkill : BaseSkillImplementation
         if (exitDateTime < membership.ValidFrom.Date)
         {
             return SkillResult.Error(
-                $"exitDate {exitDate.ToString(DateFormat)} must not be before the membership's " +
-                $"validFrom {membership.ValidFrom.ToString(DateFormat)}.");
+                $"exitDate {exitDate.ToString(DateTimeFormats.IsoDate)} must not be before the membership's " +
+                $"validFrom {membership.ValidFrom.ToString(DateTimeFormats.IsoDate)}.");
         }
 
         var resource = new MembershipResource
@@ -177,11 +177,11 @@ public class EndClientMembershipSkill : BaseSkillImplementation
                 FirstUnplannableDay = firstUnplannableDay
             },
             $"Recorded the exit for client {clientId}: validUntil of membership '{membership.Id}' was set to " +
-            $"{exitDate.ToString(DateFormat)} and confirmed in the database (verified). The exit date is the last " +
+            $"{exitDate.ToString(DateTimeFormats.IsoDate)} and confirmed in the database (verified). The exit date is the last " +
             $"day of employment, so the client can no longer be planned in the schedule from " +
-            $"{firstUnplannableDay.ToString(DateFormat)} on (membership boundary).");
+            $"{firstUnplannableDay.ToString(DateTimeFormats.IsoDate)} on (membership boundary).");
     }
 
     private static string FormatValidUntil(DateTime? validUntil)
-        => validUntil.HasValue ? validUntil.Value.ToString(DateFormat) : OpenEndedLabel;
+        => validUntil.HasValue ? validUntil.Value.ToString(DateTimeFormats.IsoDate) : OpenEndedLabel;
 }

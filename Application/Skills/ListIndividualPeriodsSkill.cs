@@ -8,6 +8,7 @@
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -42,8 +43,8 @@ public class ListIndividualPeriodsSkill : BaseSkillImplementation
                     .Select(p => new
                     {
                         p.Id,
-                        FromDate = p.FromDate.ToString("yyyy-MM-dd"),
-                        UntilDate = p.UntilDate?.ToString("yyyy-MM-dd"),
+                        FromDate = p.FromDate.ToString(DateTimeFormats.IsoDate),
+                        UntilDate = p.UntilDate?.ToString(DateTimeFormats.IsoDate),
                         p.FullHours
                     })
                     .ToList()

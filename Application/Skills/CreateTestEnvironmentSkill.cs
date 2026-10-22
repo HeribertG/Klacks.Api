@@ -9,6 +9,7 @@
 /// <param name="defaultShiftMacroResolver">Supplies the default Shift-category macro every created shift carries</param>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
@@ -70,7 +71,7 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
         var canton = GetParameter<string>(parameters, "canton") ?? "BE";
         var guaranteedHours = GetParameter<decimal>(parameters, "guaranteedHours", 172.2m);
         var companyToday = await _companyClock.GetTodayDateAsync(cancellationToken);
-        var shiftStartDate = GetParameter<string>(parameters, "shiftStartDate") ?? companyToday.ToString("yyyy-MM-dd");
+        var shiftStartDate = GetParameter<string>(parameters, "shiftStartDate") ?? companyToday.ToString(DateTimeFormats.IsoDate);
         var createShifts = GetParameter<bool>(parameters, "createShifts", true);
         var sumEmployees = GetParameter<int>(parameters, "sumEmployees", 1);
 
@@ -294,8 +295,8 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
             {
                 Id = resultShift.Id,
                 def.Name,
-                Start = def.Start.ToString("HH:mm"),
-                End = def.End.ToString("HH:mm"),
+                Start = def.Start.ToString(DateTimeFormats.HourMinute),
+                End = def.End.ToString(DateTimeFormats.HourMinute),
                 WorkTime = workTime
             });
         }

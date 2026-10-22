@@ -44,7 +44,6 @@ public sealed record UnstaffedShiftSummaryTriggerEvent(
 {
     private const int HighSeverityLeadDays = 3;
     private const int MediumSeverityLeadDays = 7;
-    private const string DedupDateFormat = "yyyy-MM-dd";
     private const string GroupParam = "group";
     private const string CountParam = "count";
     private const string DaysParam = "days";
@@ -85,7 +84,7 @@ public sealed record UnstaffedShiftSummaryTriggerEvent(
     /// <param name="groupId">The root group</param>
     /// <param name="periodStart">First day of the running pay period</param>
     public static string DedupKeyFor(Guid groupId, DateOnly periodStart) =>
-        $"{groupId}:{periodStart.ToString(DedupDateFormat, CultureInfo.InvariantCulture)}";
+        $"{groupId}:{periodStart.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}";
 
     public string? ActionRoute => ProactiveActionRoutes.Schedule;
 

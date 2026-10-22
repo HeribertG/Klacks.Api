@@ -48,6 +48,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Exports;
 using Klacks.Api.Domain.Models.Exports.Payroll;
@@ -57,7 +58,6 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 public class PohodaCzExportFormatter : IPayrollExportFormatter
 {
     private const string SchemaVersion = "2.0";
-    private const string DateFormat = "yyyy-MM-dd";
     private const int MinutesPerHour = 60;
     private const char NameSeparator = ',';
     private const string ZipEntryNamePattern = "dochazka_{0}.xml";
@@ -164,7 +164,7 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
                         continue;
                     }
 
-                    var day = entry.Date.ToString(DateFormat, CultureInfo.InvariantCulture);
+                    var day = entry.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
                     nepritomnosti.Add(new XElement(
                         NepritomnostElement,
                         new XElement(KodElement, mapping.Kod),
@@ -259,7 +259,7 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
             var hours = workHoursByDate.TryGetValue(date, out var value) ? value : 0m;
             yield return new XElement(
                 UvazekElement,
-                new XAttribute(DatumAttribute, date.ToString(DateFormat, CultureInfo.InvariantCulture)),
+                new XAttribute(DatumAttribute, date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)),
                 ToHhMm(hours));
         }
     }

@@ -323,8 +323,8 @@ public sealed class RestrictedTimeWindowEvaluator : IRestrictedTimeWindowEvaluat
         var isBlocked = mode == RuleEnforcementMode.Block;
         var commentParams = new Dictionary<string, string>
         {
-            ["dailyStart"] = rule.DailyStart.ToString("HH:mm", CultureInfo.InvariantCulture),
-            ["dailyEnd"] = rule.DailyEnd.ToString("HH:mm", CultureInfo.InvariantCulture),
+            ["dailyStart"] = rule.DailyStart.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+            ["dailyEnd"] = rule.DailyEnd.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
             ["seasonFrom"] = FormatMonthDay(rule.SeasonFromMonth, rule.SeasonFromDay),
             ["seasonTo"] = FormatMonthDay(rule.SeasonToMonth, rule.SeasonToDay),
             ["groupTag"] = rule.AppliesToGroupTag,

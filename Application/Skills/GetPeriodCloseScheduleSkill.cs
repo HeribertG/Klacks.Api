@@ -60,7 +60,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("get_period_close_schedule")]
 public class GetPeriodCloseScheduleSkill : BaseSkillImplementation
 {
-    private const string IsoDateFormat = "yyyy-MM-dd";
     private const string ContextMode = "Context";
     private const string ComputedMode = "Computed";
     private const int MaxReportedGroups = 25;
@@ -317,7 +316,7 @@ public class GetPeriodCloseScheduleSkill : BaseSkillImplementation
         return await _activityProbe.HasDirectWorkInRangeAsync(group, periodStart, periodEnd, cancellationToken);
     }
 
-    private static string FormatDate(DateOnly date) => date.ToString(IsoDateFormat, CultureInfo.InvariantCulture);
+    private static string FormatDate(DateOnly date) => date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
 
     private sealed record ReasonGroups(string Reason, bool ClosesAutomatically, IReadOnlyList<string> Groups);
 

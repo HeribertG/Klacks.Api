@@ -35,7 +35,6 @@ namespace Klacks.Api.Application.Services.Assistant.Conditions;
 
 public class AgentConditionDigestService : IAgentConditionDigestService
 {
-    private const string DateKeyFormat = "yyyy-MM-dd";
     private const string NeverRanMarker = "";
 
     private static readonly TimeSpan FallbackTimeOfDay =
@@ -78,7 +77,7 @@ public class AgentConditionDigestService : IAgentConditionDigestService
         var localNow = await _companyClock.GetNowAsync(cancellationToken);
         var nowUtc = localNow.UtcDateTime;
         var nowLocal = localNow.DateTime;
-        var todayKey = nowLocal.ToString(DateKeyFormat, CultureInfo.InvariantCulture);
+        var todayKey = nowLocal.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
 
         var lastRunValue = await ReadOrSeedLastRunMarkerAsync(cancellationToken);
         if (lastRunValue == todayKey)

@@ -15,6 +15,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -74,8 +75,8 @@ public class GeneratePeriodSummarySkill : BaseSkillImplementation
         var summary = new
         {
             GroupId = groupId,
-            FromDate = fromDate.ToString("yyyy-MM-dd"),
-            UntilDate = untilDate.ToString("yyyy-MM-dd"),
+            FromDate = fromDate.ToString(DateTimeFormats.IsoDate),
+            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
             EmployeeCount = employeeIds.Count,
             EmployeeIds = employeeIds,
             DaysInPeriod = (untilDate.DayNumber - fromDate.DayNumber) + 1

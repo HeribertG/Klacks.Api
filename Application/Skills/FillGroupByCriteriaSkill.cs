@@ -28,6 +28,7 @@ using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.Qualifications;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -40,8 +41,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("fill_group_by_criteria")]
 public class FillGroupByCriteriaSkill : BaseSkillImplementation
 {
-    private const string IsoDateFormat = "yyyy-MM-dd";
-
     private const string RandomSelectionNote =
         " The clients were drawn at random; calling again today with the same parameters, random=true included, " +
         "and apply=true adds exactly these.";
@@ -175,7 +174,7 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
             ? SeededSample.StableSeed(
                 context.UserId.ToString(), group.Id.ToString(), resolvedCanton, trimmedCity, trimmedZipPrefix,
                 contractId?.ToString(), qualificationId?.ToString(), entityType.ToString(),
-                count?.ToString(CultureInfo.InvariantCulture), today.ToString(IsoDateFormat, CultureInfo.InvariantCulture))
+                count?.ToString(CultureInfo.InvariantCulture), today.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture))
             : null;
 
         if (apply && startDateOpen)

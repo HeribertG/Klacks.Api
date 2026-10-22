@@ -29,7 +29,6 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public sealed class ClientPlanningPeriodGuard : IClientPlanningPeriodGuard
 {
-    private const string DateFormat = "yyyy-MM-dd";
     private const string OpenEndText = "open";
 
     private const string OutsideMembershipMessage =
@@ -134,8 +133,8 @@ public sealed class ClientPlanningPeriodGuard : IClientPlanningPeriodGuard
             var message = string.Format(
                 OutsideMembershipMessage,
                 DisplayName(client),
-                date.ToString(DateFormat),
-                client.Membership.ValidFrom.ToString(DateFormat),
+                date.ToString(DateTimeFormats.IsoDate),
+                client.Membership.ValidFrom.ToString(DateTimeFormats.IsoDate),
                 Describe(client.Membership.ValidUntil));
             return new PlanningPeriodViolation(
                 client.Id,
@@ -152,7 +151,7 @@ public sealed class ClientPlanningPeriodGuard : IClientPlanningPeriodGuard
             var message = string.Format(
                 OutsideGroupPeriodMessage,
                 DisplayName(client),
-                date.ToString(DateFormat),
+                date.ToString(DateTimeFormats.IsoDate),
                 Describe(range.ValidFrom),
                 Describe(range.ValidUntil));
             return new PlanningPeriodViolation(
@@ -189,7 +188,7 @@ public sealed class ClientPlanningPeriodGuard : IClientPlanningPeriodGuard
         => value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
 
     private static string Describe(DateTime? value)
-        => value.HasValue ? value.Value.ToString(DateFormat) : OpenEndText;
+        => value.HasValue ? value.Value.ToString(DateTimeFormats.IsoDate) : OpenEndText;
 
     private static string DisplayName(Client client) => $"{client.FirstName} {client.Name}".Trim();
 }

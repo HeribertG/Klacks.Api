@@ -16,6 +16,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Filters;
@@ -119,8 +120,8 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
                     AbsenceType = absenceLookup.TryGetValue(bp.AbsenceId, out var absence)
                         ? (absence.Name.De ?? absence.Name.En ?? "Unknown")
                         : "Unknown",
-                    From = bp.From.ToString("yyyy-MM-dd"),
-                    Until = bp.Until.ToString("yyyy-MM-dd"),
+                    From = bp.From.ToString(DateTimeFormats.IsoDate),
+                    Until = bp.Until.ToString(DateTimeFormats.IsoDate),
                     Information = bp.Information
                 })
                 .Concat(c.Breaks
@@ -132,8 +133,8 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
                         AbsenceType = absenceLookup.TryGetValue(b.AbsenceId, out var absence)
                             ? (absence.Name.De ?? absence.Name.En ?? "Unknown")
                             : "Unknown",
-                        From = b.CurrentDate.ToString("yyyy-MM-dd"),
-                        Until = b.CurrentDate.ToString("yyyy-MM-dd"),
+                        From = b.CurrentDate.ToString(DateTimeFormats.IsoDate),
+                        Until = b.CurrentDate.ToString(DateTimeFormats.IsoDate),
                         Information = (string?)b.Information
                     }))
                 .OrderBy(a => a.From)

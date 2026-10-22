@@ -8,6 +8,7 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -43,8 +44,8 @@ public class DeleteRestrictedTimeWindowRuleSkill : BaseSkillImplementation
             new
             {
                 RestrictedTimeWindowRuleId = restrictedTimeWindowRuleId,
-                DailyStart = deleted.DailyStart.ToString("HH:mm"),
-                DailyEnd = deleted.DailyEnd.ToString("HH:mm"),
+                DailyStart = deleted.DailyStart.ToString(DateTimeFormats.HourMinute),
+                DailyEnd = deleted.DailyEnd.ToString(DateTimeFormats.HourMinute),
                 deleted.AppliesToGroupTag
             },
             $"Restricted time window rule {deleted.DailyStart:HH\\:mm}-{deleted.DailyEnd:HH\\:mm} removed.");

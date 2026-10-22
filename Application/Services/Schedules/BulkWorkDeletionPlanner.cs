@@ -34,7 +34,6 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public sealed class BulkWorkDeletionPlanner : IBulkWorkDeletionPlanner
 {
-    private const string DateFormat = "yyyy-MM-dd";
     private const string WorkAction = "deleted";
     private const int MaxListedProblems = 5;
 
@@ -142,14 +141,14 @@ public sealed class BulkWorkDeletionPlanner : IBulkWorkDeletionPlanner
         if (works.Count == 0)
         {
             return BulkWorkDeletionPlan.Refuse(string.Format(
-                NothingMatchesMessage, employeeName, from.ToString(DateFormat), until.ToString(DateFormat),
+                NothingMatchesMessage, employeeName, from.ToString(DateTimeFormats.IsoDate), until.ToString(DateTimeFormats.IsoDate),
                 shiftId.HasValue ? " for that shift" : string.Empty));
         }
 
         if (works.Count > BulkWorkDeletionDefaults.MaxWorksPerCall)
         {
             return BulkWorkDeletionPlan.Refuse(string.Format(
-                TooManyMessage, employeeName, works.Count, from.ToString(DateFormat), until.ToString(DateFormat),
+                TooManyMessage, employeeName, works.Count, from.ToString(DateTimeFormats.IsoDate), until.ToString(DateTimeFormats.IsoDate),
                 BulkWorkDeletionDefaults.MaxWorksPerCall));
         }
 
@@ -202,7 +201,7 @@ public sealed class BulkWorkDeletionPlanner : IBulkWorkDeletionPlanner
         var until = untilValue.HasValue ? DateOnly.FromDateTime(untilValue.Value) : from;
         if (from > until)
         {
-            return (default, string.Format(InvalidRangeMessage, from.ToString(DateFormat), until.ToString(DateFormat)));
+            return (default, string.Format(InvalidRangeMessage, from.ToString(DateTimeFormats.IsoDate), until.ToString(DateTimeFormats.IsoDate)));
         }
 
         return ((from, until), null);
@@ -217,7 +216,7 @@ public sealed class BulkWorkDeletionPlanner : IBulkWorkDeletionPlanner
         }
 
         return string.Format(
-            LockedMessage, locked.Count, from.ToString(DateFormat), until.ToString(DateFormat),
+            LockedMessage, locked.Count, from.ToString(DateTimeFormats.IsoDate), until.ToString(DateTimeFormats.IsoDate),
             WorkLockRefusal.Message(locked[0].Id, locked[0].LockLevel, WorkAction));
     }
 
@@ -236,7 +235,7 @@ public sealed class BulkWorkDeletionPlanner : IBulkWorkDeletionPlanner
             .Distinct()
             .OrderBy(date => date)
             .Take(MaxListedProblems)
-            .Select(date => date.ToString(DateFormat));
+            .Select(date => date.ToString(DateTimeFormats.IsoDate));
         return string.Format(SealedMessage, employeeName, string.Join(", ", days));
     }
 

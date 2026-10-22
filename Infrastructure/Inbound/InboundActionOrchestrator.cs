@@ -417,7 +417,7 @@ public partial class InboundActionOrchestrator : IInboundActionOrchestrator
             }
 
             parameters["dates"] = string.Join(",", dates.Select(d =>
-                d.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)));
+                d.ToString(DateTimeFormats.IsoDate, System.Globalization.CultureInfo.InvariantCulture)));
         }
         else
         {

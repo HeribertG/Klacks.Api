@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.Constants;
 
 public static class MyVersion
@@ -21,7 +23,7 @@ public static class MyVersion
         string version = BuildVariantConstant.CVar + "-" + VersionConstant.CMajor + "." + VersionConstant.CMinor + "." + VersionConstant.CPatch;
         if (includeBuildInformations)
         {
-            var timestamp = DateTime.TryParse(VersionConstant.CBuildTimestamp, out var d) ? d.ToString("dd.MM.yyyy") : VersionConstant.CBuildTimestamp;
+            var timestamp = DateTime.TryParse(VersionConstant.CBuildTimestamp, out var d) ? d.ToString(DateTimeFormats.DottedDate) : VersionConstant.CBuildTimestamp;
             version += " (" + VersionConstant.CBuildKey + " / " + timestamp + ")";
         }
 

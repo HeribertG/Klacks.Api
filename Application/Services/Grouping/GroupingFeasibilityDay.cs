@@ -7,12 +7,11 @@
 /// <param name="day">Company calendar day (from ICompanyClock) that is keyed.</param>
 
 using System.Globalization;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Application.Services.Grouping;
 
 public static class GroupingFeasibilityDay
 {
-    private const string DayKeyFormat = "yyyy-MM-dd";
-
-    public static string KeyFor(DateOnly day) => day.ToString(DayKeyFormat, CultureInfo.InvariantCulture);
+    public static string KeyFor(DateOnly day) => day.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
 }

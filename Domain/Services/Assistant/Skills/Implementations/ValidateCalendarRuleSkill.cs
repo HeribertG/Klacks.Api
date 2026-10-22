@@ -8,6 +8,7 @@
 
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -63,7 +64,7 @@ public class ValidateCalendarRuleSkill : BaseSkillImplementation
                     Year = year,
                     Rule = rule,
                     SubRule = subRule,
-                    CalculatedDate = holiday.CurrentDate.ToString("yyyy-MM-dd"),
+                    CalculatedDate = holiday.CurrentDate.ToString(DateTimeFormats.IsoDate),
                     FormattedDate = holiday.FormatDate,
                     DayOfWeek = holiday.CurrentDate.DayOfWeek.ToString(),
                     DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, holiday.CurrentDate.DayOfWeek)

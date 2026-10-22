@@ -39,8 +39,8 @@ public class XmlExportFormatter : IExportFormatter
             writer.WriteStartDocument();
             writer.WriteStartElement("OrderExport");
 
-            writer.WriteAttributeString("startDate", data.StartDate.ToString("yyyy-MM-dd"));
-            writer.WriteAttributeString("endDate", data.EndDate.ToString("yyyy-MM-dd"));
+            writer.WriteAttributeString("startDate", data.StartDate.ToString(DateTimeFormats.IsoDate));
+            writer.WriteAttributeString("endDate", data.EndDate.ToString(DateTimeFormats.IsoDate));
             writer.WriteAttributeString("exportDate", data.ExportDate.ToString("o"));
             writer.WriteAttributeString("currency", options.CurrencyCode);
 
@@ -69,13 +69,13 @@ public class XmlExportFormatter : IExportFormatter
             writer.WriteElementString(ErpImportXmlElements.ExternalOrderReference, order.ExternalOrderReference);
 
         if (order.OrderFromDate.HasValue)
-            writer.WriteElementString("FromDate", order.OrderFromDate.Value.ToString("yyyy-MM-dd"));
+            writer.WriteElementString("FromDate", order.OrderFromDate.Value.ToString(DateTimeFormats.IsoDate));
         if (order.OrderUntilDate.HasValue)
-            writer.WriteElementString("UntilDate", order.OrderUntilDate.Value.ToString("yyyy-MM-dd"));
+            writer.WriteElementString("UntilDate", order.OrderUntilDate.Value.ToString(DateTimeFormats.IsoDate));
         if (order.OrderStartShift.HasValue)
-            writer.WriteElementString("StartShift", order.OrderStartShift.Value.ToString("HH:mm", CultureInfo.InvariantCulture));
+            writer.WriteElementString("StartShift", order.OrderStartShift.Value.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
         if (order.OrderEndShift.HasValue)
-            writer.WriteElementString("EndShift", order.OrderEndShift.Value.ToString("HH:mm", CultureInfo.InvariantCulture));
+            writer.WriteElementString("EndShift", order.OrderEndShift.Value.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
 
         if (order.CustomerId.HasValue || !string.IsNullOrEmpty(order.CustomerName))
         {
@@ -110,9 +110,9 @@ public class XmlExportFormatter : IExportFormatter
         writer.WriteElementString("EmployeeId", work.EmployeeId.ToString());
         writer.WriteElementString("EmployeeName", work.EmployeeName);
         writer.WriteElementString("EmployeeIdNumber", work.EmployeeIdNumber.ToString());
-        writer.WriteElementString("Date", work.WorkDate.ToString("yyyy-MM-dd"));
-        writer.WriteElementString("StartTime", work.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture));
-        writer.WriteElementString("EndTime", work.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture));
+        writer.WriteElementString("Date", work.WorkDate.ToString(DateTimeFormats.IsoDate));
+        writer.WriteElementString("StartTime", work.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
+        writer.WriteElementString("EndTime", work.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
         writer.WriteElementString("Hours", work.WorkTime.ToString("F2", CultureInfo.InvariantCulture));
         writer.WriteElementString("Surcharges", work.Surcharges.ToString("F2", CultureInfo.InvariantCulture));
 

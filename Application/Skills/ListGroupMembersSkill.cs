@@ -13,6 +13,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Groups;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -25,7 +26,6 @@ public class ListGroupMembersSkill : BaseSkillImplementation
 {
     private const int DefaultLimit = 50;
     private const string OpenEndedLabel = "open-ended";
-    private const string DateFormat = "yyyy-MM-dd";
 
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
@@ -108,8 +108,8 @@ public class ListGroupMembersSkill : BaseSkillImplementation
                 m.Client!.FirstName,
                 LastName = m.Client.Name,
                 m.Client.IdNumber,
-                ValidFrom = m.ValidFrom?.ToString(DateFormat),
-                ValidUntil = m.ValidUntil.HasValue ? m.ValidUntil.Value.ToString(DateFormat) : OpenEndedLabel
+                ValidFrom = m.ValidFrom?.ToString(DateTimeFormats.IsoDate),
+                ValidUntil = m.ValidUntil.HasValue ? m.ValidUntil.Value.ToString(DateTimeFormats.IsoDate) : OpenEndedLabel
             })
             .ToList();
 

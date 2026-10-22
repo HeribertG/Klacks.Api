@@ -16,6 +16,7 @@ using System.Globalization;
 using Klacks.Api.Application.Commands.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -31,8 +32,6 @@ public class ApplyGroupingSkill : BaseSkillImplementation
     private const string EntityTypeParameterName = "entityType";
 
     private const string ValidFromParameterName = "validFrom";
-
-    private const string ValidFromFormat = "yyyy-MM-dd";
 
     private const string UnstructuredStartTemplate =
         "The new memberships start on {0} — state this date in the answer.";
@@ -90,7 +89,7 @@ public class ApplyGroupingSkill : BaseSkillImplementation
                 ? string.Format(
                     CultureInfo.InvariantCulture,
                     UnstructuredStartTemplate,
-                    result.AppliedValidFrom.ToString(ValidFromFormat, CultureInfo.InvariantCulture))
+                    result.AppliedValidFrom.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture))
                 : GroupMembershipStartHint.For(result.MembershipStart, applied: true)));
     }
 }

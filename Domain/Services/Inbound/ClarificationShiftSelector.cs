@@ -13,6 +13,7 @@
 /// <param name="companyTimeZone">The company's configured time zone (ICompanyClock)</param>
 
 using System.Globalization;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Inbound;
 using Klacks.Api.Domain.Services.Schedules;
 
@@ -20,8 +21,6 @@ namespace Klacks.Api.Domain.Services.Inbound;
 
 public static class ClarificationShiftSelector
 {
-    private const string DateFormat = "yyyy-MM-dd";
-    private const string TimeFormat = "HH:mm";
     private const string NameSeparator = " ";
     private const string TimeRangeSeparator = "-";
 
@@ -51,9 +50,9 @@ public static class ClarificationShiftSelector
     public static string Describe(ClarificationShift shift)
     {
         var window =
-            shift.Date.ToString(DateFormat, CultureInfo.InvariantCulture) + NameSeparator +
-            shift.StartTime.ToString(TimeFormat, CultureInfo.InvariantCulture) + TimeRangeSeparator +
-            shift.EndTime.ToString(TimeFormat, CultureInfo.InvariantCulture);
+            shift.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture) + NameSeparator +
+            shift.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture) + TimeRangeSeparator +
+            shift.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture);
 
         return string.IsNullOrWhiteSpace(shift.ShiftName) ? window : shift.ShiftName.Trim() + NameSeparator + window;
     }

@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.Constants;
 
 /// <summary>
@@ -62,11 +64,11 @@ public static class PayrollExportConstants
 
     public const string StorageKeyPrefix = "payroll-export";
 
-    public const string StorageKeyDateFormat = "yyyyMMdd";
+    public const string StorageKeyDateFormat = DateTimeFormats.CompactDate;
 
     public const string FileNamePrefix = "payroll-export";
 
-    public const string FileNameDateFormat = "yyyy-MM-dd";
+    public const string FileNameDateFormat = DateTimeFormats.IsoDate;
 
     public const string SupplementaryFileNameSuffix = "_supplement";
 

@@ -26,6 +26,7 @@ using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
@@ -93,7 +94,7 @@ public class FindReplacementSkill : BaseSkillImplementation
         {
             ShiftId = shiftId,
             ShiftName = shift.Name,
-            Date = date.ToString("yyyy-MM-dd"),
+            Date = date.ToString(DateTimeFormats.IsoDate),
             GroupId = groupId,
             IsScenario = analyseToken.HasValue,
             EligibleCount = result.Eligible.Count,
@@ -117,7 +118,7 @@ public class FindReplacementSkill : BaseSkillImplementation
         {
             Severity = conflict.Type.ToString(),
             conflict.Comment,
-            Date = conflict.Date.ToString("yyyy-MM-dd"),
+            Date = conflict.Date.ToString(DateTimeFormats.IsoDate),
             CommentParams = LocalizedCommentParams.ForLanguage(conflict.CommentParams, language)
         };
 }

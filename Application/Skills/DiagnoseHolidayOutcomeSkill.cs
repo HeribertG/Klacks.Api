@@ -30,9 +30,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("diagnose_holiday_outcome")]
 public class DiagnoseHolidayOutcomeSkill : BaseSkillImplementation
 {
-    private const string DateFormat = "yyyy-MM-dd";
-    private const string TimeFormat = "HH:mm";
-
     private const string StaleHint =
         "Works saved before a change of the contract calendar, the calendar entries or a holiday rule are not " +
         "recalculated automatically; if the stored surcharge of such a work differs from this verdict, that is the reason.";
@@ -89,7 +86,7 @@ public class DiagnoseHolidayOutcomeSkill : BaseSkillImplementation
         var data = new
         {
             Employee = clientName,
-            Date = date.ToString(DateFormat),
+            Date = date.ToString(DateTimeFormats.IsoDate),
             HasActiveContract = diagnosis.HasActiveContract,
             Contract = diagnosis.ContractName,
             HolidayCalendar = calendarName,
@@ -107,9 +104,9 @@ public class DiagnoseHolidayOutcomeSkill : BaseSkillImplementation
             ExemptionBoundToSchedulingRule = showDetails ? diagnosis.ExemptionSchedulingRuleName : null,
             WorksTouchingTheDate = diagnosis.WorksOnDate.Select(work => new
             {
-                WorkDate = work.WorkDate.ToString(DateFormat),
-                From = work.StartTime.ToString(TimeFormat),
-                Until = work.EndTime.ToString(TimeFormat),
+                WorkDate = work.WorkDate.ToString(DateTimeFormats.IsoDate),
+                From = work.StartTime.ToString(DateTimeFormats.HourMinute),
+                Until = work.EndTime.ToString(DateTimeFormats.HourMinute),
                 work.StartsTheDayBefore,
             }).ToList(),
             StaleHint,
@@ -129,7 +126,7 @@ public class DiagnoseHolidayOutcomeSkill : BaseSkillImplementation
         string? calendarName,
         bool showDetails)
     {
-        var day = date.ToString(DateFormat);
+        var day = date.ToString(DateTimeFormats.IsoDate);
         var calendar = calendarName == null
             ? "no holiday calendar applies"
             : $"holiday calendar '{SkillMessageText.Name(calendarName)}' ({diagnosis.Calendar.Source})";

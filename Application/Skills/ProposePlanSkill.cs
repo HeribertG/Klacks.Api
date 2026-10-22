@@ -19,6 +19,7 @@ using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -114,8 +115,8 @@ public class ProposePlanSkill : BaseSkillImplementation
             outcome.Token,
             outcome.ScenarioName,
             GroupId = groupId,
-            FromDate = fromDate.ToString("yyyy-MM-dd"),
-            UntilDate = untilDate.ToString("yyyy-MM-dd"),
+            FromDate = fromDate.ToString(DateTimeFormats.IsoDate),
+            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
             WrittenCount = outcome.Written.Count,
             RejectedCount = outcome.Rejected.Count,
             WarningCount = outcome.Warnings.Count,
@@ -123,20 +124,20 @@ public class ProposePlanSkill : BaseSkillImplementation
             {
                 w.ClientId,
                 w.ShiftId,
-                Date = w.Date.ToString("yyyy-MM-dd")
+                Date = w.Date.ToString(DateTimeFormats.IsoDate)
             }),
             Rejected = outcome.Rejected.Select(r => new
             {
                 r.ClientId,
                 r.ShiftId,
-                Date = r.Date.ToString("yyyy-MM-dd"),
+                Date = r.Date.ToString(DateTimeFormats.IsoDate),
                 r.Reason
             }),
             Warnings = outcome.Warnings.Select(c => new
             {
                 Severity = c.Type.ToString(),
                 c.Comment,
-                Date = c.Date.ToString("yyyy-MM-dd"),
+                Date = c.Date.ToString(DateTimeFormats.IsoDate),
                 c.ClientId,
                 CommentParams = LocalizedCommentParams.ForLanguage(c.CommentParams, context.UserLanguage)
             })

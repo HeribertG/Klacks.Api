@@ -20,6 +20,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
 using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Application.Services.Groups;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -126,7 +127,7 @@ public sealed class EvaluateScenarioQueryHandler
             cell.ClientId,
             cell.ReplaceClientId?.ToString() ?? string.Empty,
             cell.EntryName ?? string.Empty,
-            cell.EntryDate.ToString("yyyyMMdd"),
+            cell.EntryDate.ToString(DateTimeFormats.CompactDate),
             cell.StartTime,
             cell.EndTime);
 
@@ -150,7 +151,7 @@ public sealed class EvaluateScenarioQueryHandler
             .Select(i => new ScenarioConflictDto(
                 i.ClientId,
                 i.ClientName,
-                i.Date.ToString("yyyy-MM-dd"),
+                i.Date.ToString(DateTimeFormats.IsoDate),
                 i.Severity.ToString(),
                 i.Code,
                 i.MessageKey,
@@ -174,8 +175,8 @@ public sealed class EvaluateScenarioQueryHandler
             Name: scenario.Name,
             Status: scenario.Status.ToString(),
             GroupId: scenario.GroupId,
-            FromDate: scenario.FromDate.ToString("yyyy-MM-dd"),
-            UntilDate: scenario.UntilDate.ToString("yyyy-MM-dd"),
+            FromDate: scenario.FromDate.ToString(DateTimeFormats.IsoDate),
+            UntilDate: scenario.UntilDate.ToString(DateTimeFormats.IsoDate),
             TotalConflicts: issues.Count,
             Errors: errors,
             Warnings: warnings,
@@ -203,7 +204,7 @@ public sealed class EvaluateScenarioQueryHandler
         ClientId: cell.ClientId,
         ReplaceClientId: cell.ReplaceClientId,
         Shift: cell.EntryName,
-        Date: DateOnly.FromDateTime(cell.EntryDate).ToString("yyyy-MM-dd"),
+        Date: DateOnly.FromDateTime(cell.EntryDate).ToString(DateTimeFormats.IsoDate),
         StartTime: cell.StartTime.ToString(@"hh\:mm"),
         EndTime: cell.EndTime.ToString(@"hh\:mm"),
         IsReplacement: cell.IsReplacementEntry);

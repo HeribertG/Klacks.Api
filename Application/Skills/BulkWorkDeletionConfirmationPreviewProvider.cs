@@ -23,7 +23,6 @@ namespace Klacks.Api.Application.Skills;
 
 public class BulkWorkDeletionConfirmationPreviewProvider : ISkillConfirmationPreviewProvider
 {
-    private const string DateFormat = "yyyy-MM-dd";
     private const string TimeFormat = "HH\\:mm";
 
     private const string BoundNote =
@@ -54,12 +53,12 @@ public class BulkWorkDeletionConfirmationPreviewProvider : ISkillConfirmationPre
         }
 
         var lines = plan.Works.Select(work =>
-            $"- {work.Date.ToString(DateFormat)} {work.ShiftName} " +
+            $"- {work.Date.ToString(DateTimeFormats.IsoDate)} {work.ShiftName} " +
             $"{work.StartTime.ToString(TimeFormat)}-{work.EndTime.ToString(TimeFormat)}");
 
         var text =
             $"Delete {plan.Works.Count} work(s) of {plan.EmployeeName}{DescribeContainerEntries(plan)} between " +
-            $"{plan.From.ToString(DateFormat)} and {plan.Until.ToString(DateFormat)}:\n{string.Join("\n", lines)}\n" +
+            $"{plan.From.ToString(DateTimeFormats.IsoDate)} and {plan.Until.ToString(DateTimeFormats.IsoDate)}:\n{string.Join("\n", lines)}\n" +
             "The deletion cannot be undone in one step: each work can only be restored one by one, by an " +
             $"administrator at any time and by the deleting user within {WorkRestoreDefaults.UndoWindowSeconds} seconds.\n" +
             BoundNote;

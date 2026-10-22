@@ -6,6 +6,8 @@
 /// @param CurrencyCode - ISO 4217 currency code (EUR, USD, CHF)
 /// @param CompanyInfo - Company registration details for invoice formats (ZUGFeRD)
 /// </summary>
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Models.Exports;
 
 public class ExportOptions
@@ -14,9 +16,9 @@ public class ExportOptions
 
     public string CurrencyCode { get; set; } = "EUR";
 
-    public string DateFormat { get; set; } = "dd.MM.yyyy";
+    public string DateFormat { get; set; } = DateTimeFormats.DottedDate;
 
-    public string TimeFormat { get; set; } = "HH:mm";
+    public string TimeFormat { get; set; } = DateTimeFormats.HourMinute;
 
     public CompanyInfo Company { get; set; } = new();
 }
