@@ -10,7 +10,9 @@
 /// on whole words, first and last name in either order, company, client number). Every other row - a hit inside a
 /// word ("Meierhans" for "Meier") or only by similarity ("Mayer" for "Meier") - goes to OtherMatches without an id;
 /// when no row is picked the message is the name ask-back, the capture finds no row and the recipe rewinds to its
-/// question.
+/// question. A term is judged over the whole text-search result (up to 100 rows, re-queried when the first page is
+/// incomplete); when even that is incomplete nobody is picked, because a lone match on the page need not be the only
+/// person the term names. Results never shrink to a single row while more people match.
 /// </summary>
 /// <param name="searchTerm">Optional name, company or client number</param>
 /// <param name="canton">Optional canton/state code of the employee address</param>
@@ -19,6 +21,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
@@ -30,6 +33,8 @@ namespace Klacks.Api.Application.Skills;
 public class SearchEmployeesSkill : BaseSkillImplementation
 {
     private const int DefaultLimit = 10;
+    private const int JudgedRowLimit = 100;
+    private const int SmallestAmbiguousRowCount = 2;
 
     private readonly IClientSearchRepository _searchRepository;
 
@@ -74,20 +79,47 @@ public class SearchEmployeesSkill : BaseSkillImplementation
             result = await _searchRepository.SearchByFuzzyNameAsync(
                 searchTerm, canton, entityType, null, limit, cancellationToken);
         }
-
-        var partition = ClientNameMatch.Partition(result.Items, searchTerm);
-        var matchIds = partition.Matches.Select(item => item.Id).ToHashSet();
-        var suggestions = result.Items.Where(item => !matchIds.Contains(item.Id)).ToList();
-
-        if (partition.Matches.Count == 0 && suggestions.Count > 0)
+        else if (result.TotalCount > result.Items.Count)
         {
-            return SuggestionResult(searchTerm, suggestions);
+            result = await _searchRepository.SearchAsync(
+                searchTerm, canton, entityType, null, JudgedRowLimit, cancellationToken);
         }
 
-        var matches = result.Items.Where(item => matchIds.Contains(item.Id)).ToList();
-        var totalCount = suggestions.Count == 0 ? result.TotalCount : matches.Count;
+        if (result.TotalCount > result.Items.Count)
+        {
+            return IncompleteResult(searchTerm, result.Items.Count, result.Items.Take(limit).ToList());
+        }
+
+        var partition = ClientNameMatch.Partition(result.Items, searchTerm);
+        if (partition.Matches.Count == 0 && partition.Suggestions.Count > 0)
+        {
+            return SuggestionResult(searchTerm, partition.Suggestions.Take(limit).ToList());
+        }
+
+        var shownCount = partition.Matches.Count > 1 ? Math.Max(limit, SmallestAmbiguousRowCount) : limit;
+        var shown = partition.Matches.Take(shownCount).ToList();
         return ListResult(
-            matches, totalCount, result.TotalCount > result.Items.Count, limit, searchTerm, canton, suggestions);
+            shown, partition.Matches.Count, partition.Matches.Count > shown.Count, limit, searchTerm, canton,
+            partition.Suggestions.Take(limit).ToList());
+    }
+
+    private static SkillResult IncompleteResult(
+        string searchTerm, int judgedCount, IReadOnlyList<ClientSearchItem> sample)
+    {
+        var resultData = new
+        {
+            Results = Array.Empty<ClientSearchItem>(),
+            Count = 0,
+            TotalCount = 0,
+            HasMore = true,
+            OtherMatches = sample.Select(ToSuggestion).ToList()
+        };
+
+        return SkillResult.SuccessResult(
+            resultData,
+            $"More than {judgedCount} people match '{searchTerm}', so the list is incomplete and nobody was picked. " +
+            "Ask the user for the full first and last name or the client number; a sample is listed under " +
+            "OtherMatches without an id. " + NameResolutionAskBack.Marker);
     }
 
     private static SkillResult ListResult(
@@ -114,7 +146,7 @@ public class SearchEmployeesSkill : BaseSkillImplementation
             : $"Found {totalCount} employee(s)" +
               (!string.IsNullOrWhiteSpace(searchTerm) ? $" matching '{searchTerm}'" : "") +
               (!string.IsNullOrWhiteSpace(canton) ? $" in canton {canton}" : "") +
-              (hasMore ? $". Showing first {limit}." : ".");
+              (hasMore ? $". Showing first {items.Count}." : ".");
 
         if (suggestionRows.Count > 0)
         {

@@ -145,7 +145,8 @@ internal sealed class RecipeTurnState
             _context.AvailableFunctions);
 
     /// <summary>
-    /// True once a call of this turn failed with a name-resolution ask-back (NameResolutionAskBack). From then on
+    /// True once a call of this turn answered with a name-resolution ask-back (NameResolutionAskBack), failed or
+    /// successful (a search that only found similar names returns its suggestions as a success). From then on
     /// RejectWrites rejects every side-effecting call of the turn (NameAskBackWriteGuard), so neither the asked
     /// step nor any other write - for example one by id after a lenient read - runs before the user answered.
     /// </summary>
@@ -159,16 +160,19 @@ internal sealed class RecipeTurnState
     /// recipe rewinds to that question (the turn asks the user, the recipe continues with the answer); otherwise
     /// the forcing is released and the run is recorded as aborted. Every other failure keeps the forcing, so a
     /// step that failed for a fixable reason (for example a date format) is still retried with corrected
-    /// parameters in the same turn. A successful call carrying the marker text (a search that only suggested a
-    /// name) is ignored.
+    /// parameters in the same turn. A successful call carrying the marker text (a search that only found similar
+    /// names, such as search_employees or list_groups) also marks the turn, so no write can act on the suggested
+    /// name before the user confirmed it; the plan already rewound its own search step through the failed capture,
+    /// and a forcing that would still drive a further step is released because that step could not write anyway.
     /// </summary>
     /// <param name="executedCalls">All calls of the iteration, after execution.</param>
     internal void ObserveExecuted(IReadOnlyList<LLMFunctionCall> executedCalls)
     {
         Forcing?.Observe(executedCalls);
-        var askBack = executedCalls.FirstOrDefault(call =>
-            !call.Success && !call.IsRejectedWithoutRunning && NameResolutionAskBack.IsAskBack(call.Result));
-        if (askBack == null)
+        var askBacks = executedCalls
+            .Where(call => !call.IsRejectedWithoutRunning && NameResolutionAskBack.IsAskBack(call.Result))
+            .ToList();
+        if (askBacks.Count == 0)
         {
             return;
         }
@@ -176,6 +180,17 @@ internal sealed class RecipeTurnState
         NameAskBackSeen = true;
         if (Forcing == null)
         {
+            return;
+        }
+
+        var askBack = askBacks.FirstOrDefault(call => !call.Success);
+        if (askBack == null)
+        {
+            if (Forcing.IsActive && Forcing.CurrentSkill != null)
+            {
+                ReleaseOnNameAskBack();
+            }
+
             return;
         }
 

@@ -9,8 +9,11 @@
 /// resolved; when the rows hold only similar names ("Meier" for the only "Mayer", "Mei" for "Meier") nothing
 /// is loaded and the answer is the name ask-back (NameResolutionAskBack), so no write runs on a name the user
 /// did not say. Lenient keeps the previous behaviour (a lone row is taken) and is reserved for read-only skills.
+/// Under Strict the text search is judged up to 100 rows; when more rows match, the page is incomplete and nothing
+/// is picked unless the client number names one of the judged matches (ask-back with the marker otherwise).
 /// When several clients share the name, an exact (accent-insensitive) full-name match is
-/// preferred over looser search hits; genuine duplicates are disambiguated via the optional
+/// preferred over looser search hits (a company whose name equals a bare last name counts as exact too, so
+/// "Meier" with the company "Meier" and the person "Hans Meier" is asked back); genuine duplicates are disambiguated via the optional
 /// idNumber parameter (the visible client number), which the ambiguity error instructs the
 /// model to pass on the retry — duplicates are never resolved by silently picking one.
 /// Lookups by an id the model supplied go through the client visibility guard first: a client the
@@ -30,6 +33,7 @@ internal static class ClientResolver
     public const string IdNumberParameterName = "idNumber";
 
     private const int SearchResultLimit = 10;
+    private const int StrictSearchResultLimit = 100;
 
     /// <summary>
     /// Loads a client by an id the model supplied, or returns null when the client does not exist or
@@ -167,7 +171,8 @@ internal static class ClientResolver
             return (null, "Please provide the client's first and last name.");
         }
 
-        var items = await SearchAsync(searchRepository, term, cancellationToken);
+        var limit = policy == NameMatchPolicy.Strict ? StrictSearchResultLimit : SearchResultLimit;
+        var (items, truncated) = await SearchAsync(searchRepository, term, limit, cancellationToken);
         if (items.Count == 0)
         {
             return (null, NotFoundMessage(firstName, lastName));
@@ -176,9 +181,19 @@ internal static class ClientResolver
         if (policy == NameMatchPolicy.Strict)
         {
             var partition = ClientNameMatch.Partition(items, term);
+            if (truncated)
+            {
+                var numbered = idNumber.HasValue
+                    ? partition.Matches.Where(i => i.IdNumber == idNumber.Value).ToList()
+                    : [];
+                return numbered.Count == 1
+                    ? await LoadAsync(clientRepository, numbered[0].Id, term)
+                    : (null, TooManyMessage(term, items.Count, idNumberSupported, idNumberParameterName));
+            }
+
             if (partition.Matches.Count == 0)
             {
-                return (null, SuggestionMessage(term, partition.Suggestions.Count > 0 ? partition.Suggestions : items));
+                return (null, SuggestionMessage(term, partition.Suggestions));
             }
 
             items = partition.Matches;
@@ -221,19 +236,29 @@ internal static class ClientResolver
             "— do not open the edit page or ask the user to do it by hand." + askBack);
     }
 
-    private static async Task<IReadOnlyList<ClientSearchItem>> SearchAsync(
-        IClientSearchRepository searchRepository, string term, CancellationToken cancellationToken)
+    private static async Task<(IReadOnlyList<ClientSearchItem> Items, bool Truncated)> SearchAsync(
+        IClientSearchRepository searchRepository, string term, int limit, CancellationToken cancellationToken)
     {
         var search = await searchRepository.SearchAsync(
-            term, null, null, null, SearchResultLimit, cancellationToken);
+            term, null, null, null, limit, cancellationToken);
         if (search.Items.Count > 0)
         {
-            return search.Items;
+            return (search.Items, search.TotalCount > search.Items.Count);
         }
 
         var fuzzy = await searchRepository.SearchByFuzzyNameAsync(
-            term, null, null, null, SearchResultLimit, cancellationToken);
-        return fuzzy.Items;
+            term, null, null, null, limit, cancellationToken);
+        return (fuzzy.Items, false);
+    }
+
+    private static string TooManyMessage(
+        string term, int judgedCount, bool idNumberSupported, string idNumberParameterName)
+    {
+        var retry = idNumberSupported
+            ? $"ask the user for the client number and call again with it as '{idNumberParameterName}'"
+            : "ask the user for the full first and last name";
+        return $"More than {judgedCount} clients match '{term}', so the list is incomplete and none was picked. " +
+               $"Do not guess: {retry}. Nothing was changed. " + NameResolutionAskBack.Marker;
     }
 
     private static string SuggestionMessage(string term, IReadOnlyList<ClientSearchItem> suggestions)
@@ -254,8 +279,9 @@ internal static class ClientResolver
         }
 
         return items
-            .Where(i => (normalizedLast.Length == 0 || NameMatching.Normalize(i.LastName) == normalizedLast)
-                        && (normalizedFirst.Length == 0 || NameMatching.Normalize(i.FirstName) == normalizedFirst))
+            .Where(i => ((normalizedLast.Length == 0 || NameMatching.Normalize(i.LastName) == normalizedLast)
+                         && (normalizedFirst.Length == 0 || NameMatching.Normalize(i.FirstName) == normalizedFirst))
+                        || (normalizedFirst.Length == 0 && NameMatching.Normalize(i.Company) == normalizedLast))
             .ToList();
     }
 

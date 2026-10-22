@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Execution-time guard for the rest of a turn in which a call failed with a name-resolution ask-back
-/// (NameResolutionAskBack: a by-name resolver found only a suggestion or several matching names). From then on every
+/// Execution-time guard for the rest of a turn in which a call answered with a name-resolution ask-back
+/// (NameResolutionAskBack: a by-name resolver or a search found only a suggestion or several matching names, as a
+/// failure or as a successful search result). From then on every
 /// side-effecting call is rejected without running, whatever its skill: the repeated-write guard is keyed by skill
 /// name, so without this guard the model could still write through a different skill - for example by id, after a
 /// lenient read resolved the very name the user has not confirmed. Side-effect-free calls
@@ -21,7 +22,7 @@ internal static class NameAskBackWriteGuard
     /// calls that may execute.
     /// </summary>
     /// <param name="executableCalls">The calls the earlier guards already let through.</param>
-    /// <param name="nameAskBackSeen">True when an earlier call of the turn failed with a name ask-back.</param>
+    /// <param name="nameAskBackSeen">True when an earlier call of the turn answered with a name ask-back.</param>
     /// <param name="availableFunctions">The turn's toolset, source of each skill's curated effect.</param>
     internal static List<LLMFunctionCall> Reject(
         List<LLMFunctionCall> executableCalls,
