@@ -3,7 +3,7 @@
 /// <summary>
 /// Re-derives the frontend action route for a ledger-tracked TriggerKind, because AgentCondition does
 /// not persist IAgentTriggerEvent.ActionRoute itself - AgentTriggerBackgroundService serializes only
-/// triggerEvent.Payload into AgentCondition.PayloadJson (see RunDetectorAsync), never ActionRoute or
+/// triggerEvent.Payload into AgentCondition.PayloadJson (see AgentTriggerDetectorRunner.RunAsync), never ActionRoute or
 /// ActionParams. Almost every route below is a per-Kind constant read directly off the concrete
 /// TriggerEvent record's ActionRoute property. The one exception is empty_container, whose route
 /// carries the container shift id as path segment (the slot-template page has no route without it);

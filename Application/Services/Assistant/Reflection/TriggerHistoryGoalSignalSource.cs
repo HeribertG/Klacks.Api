@@ -16,14 +16,18 @@
 /// from OpenOrderMinimumReportedDays days on. Three of seven days means the backlog recurs on almost half of the week
 /// rather than after a single import day or a weekend; fewer would propose a goal after any ordinary import, more
 /// would only fire on a permanent backlog and come too late to be a nudge. Rows of the former per-order shape carry
-/// no company day in their key and are not counted.
+/// no company day in their key and are not counted. Only the last LookbackDays company days (today included, by the
+/// company's own calendar from ICompanyClock) count, so the measure can never exceed LookbackDays even when the UTC
+/// row window touches an eighth company day.
 /// </summary>
 /// <param name="dispatchRepository">Read-only access to the trigger dispatch history.</param>
+/// <param name="companyClock">The company's "today", which bounds the counted open-order days.</param>
 /// <param name="logger">Structured log of how many signals were collected per cycle.</param>
 
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 
@@ -62,13 +66,16 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
     };
 
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<TriggerHistoryGoalSignalSource> _logger;
 
     public TriggerHistoryGoalSignalSource(
         IProactiveTriggerDispatchRepository dispatchRepository,
+        ICompanyClock companyClock,
         ILogger<TriggerHistoryGoalSignalSource> logger)
     {
         _dispatchRepository = dispatchRepository;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -76,6 +83,7 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
     {
         var sinceUtc = DateTime.UtcNow.AddDays(-LookbackDays);
         var rows = await _dispatchRepository.GetSinceAsync(sinceUtc, MaxDispatchRows, cancellationToken);
+        var companyToday = await _companyClock.GetTodayDateAsync(cancellationToken);
 
         if (rows.Count == MaxDispatchRows)
         {
@@ -120,7 +128,7 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
 
                 var timestamps = g.Select(r => r.CreateTime!.Value).ToList();
                 var isOpenOrder = IsOpenOrder(g.Key.TriggerKind);
-                var count = isOpenOrder ? CountReportedCompanyDays(g) : timestamps.Count;
+                var count = isOpenOrder ? CountReportedCompanyDays(g, companyToday) : timestamps.Count;
                 if (isOpenOrder && count < OpenOrderMinimumReportedDays)
                 {
                     return null;
@@ -148,13 +156,24 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
     private static bool IsOpenOrder(string triggerKind) =>
         string.Equals(triggerKind, AgentTriggerKinds.OpenOrder, StringComparison.Ordinal);
 
-    private static int CountReportedCompanyDays(IEnumerable<ProactiveTriggerDispatchRow> rows) =>
-        rows
-            .Select(row => RisingCountDedupKey.BaseKeyOf(row.DedupKey))
-            .Where(baseKey => baseKey != null && DateOnly.TryParseExact(
-                baseKey, DateTimeFormats.IsoDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
-            .Distinct(StringComparer.Ordinal)
-            .Count();
+    private static int CountReportedCompanyDays(IEnumerable<ProactiveTriggerDispatchRow> rows, DateOnly companyToday)
+    {
+        var firstCountedDay = companyToday.AddDays(1 - LookbackDays);
+        var reportedDays = new HashSet<DateOnly>();
+        foreach (var row in rows)
+        {
+            var baseKey = RisingCountDedupKey.BaseKeyOf(row.DedupKey);
+            if (baseKey != null
+                && DateOnly.TryParseExact(baseKey, DateTimeFormats.IsoDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var day)
+                && day >= firstCountedDay
+                && day <= companyToday)
+            {
+                reportedDays.Add(day);
+            }
+        }
+
+        return reportedDays.Count;
+    }
 
     private static string BuildReportedDaysSummary(GoalTypeDefinition definition, int reportedDays) =>
         $"Reported on {reportedDays} of the last {LookbackDays} days: {definition.SignalDescription}.";

@@ -80,7 +80,6 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         ErpCronTimeZoneDriftNotifier driftNotifier,
         IOpenOrderSummaryRescan openOrderSummaryRescan)
     {
-        _openOrderSummaryRescan = openOrderSummaryRescan;
         _dropPointRepository = dropPointRepository;
         _defaultDropPointProvider = defaultDropPointProvider;
         _legacyFolderMigrator = legacyFolderMigrator;
@@ -95,6 +94,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         _timeProvider = timeProvider;
         _logger = logger;
         _driftNotifier = driftNotifier;
+        _openOrderSummaryRescan = openOrderSummaryRescan;
     }
 
     public async Task RunAsync(CancellationToken cancellationToken = default)

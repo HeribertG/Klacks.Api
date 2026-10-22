@@ -185,8 +185,12 @@ public class AgentTriggerService : IAgentTriggerService
                     ActionParamsJson = actionParamsJson,
                     ConditionId = conditionId,
                     // Only condition-linked rows join the reminder loop; everything else stays a
-                    // plain inbox message that never re-fires.
-                    NextReminderAtUtc = conditionId is null ? null : ProactiveReminderSchedule.FirstDueAfter(now)
+                    // plain inbox message that never re-fires. A rising-count summary never does: a newer
+                    // summary of the same day supersedes it, so reminding of the older row would resurface
+                    // stale numbers next to the current ones.
+                    NextReminderAtUtc = conditionId is null || variantEvent is IRisingCountTriggerEvent
+                        ? null
+                        : ProactiveReminderSchedule.FirstDueAfter(now)
                 }, cancellationToken);
                 _rateLimiter.RecordFire(userId, variantEvent.Kind);
                 tally.Persisted++;
@@ -284,7 +288,7 @@ public class AgentTriggerService : IAgentTriggerService
             return await _dispatchRepository.WasDispatchedAsync(
                 userId, variantEvent.Kind, RecipientDedupKey(variantEvent, dedupKey), conditionId, cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             return false;
         }
