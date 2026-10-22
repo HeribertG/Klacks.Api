@@ -44,10 +44,10 @@ Card anchor: `whisper-plugin-setting-container`.
   German, English, French, Italian, Czech, Danish, Greek, Spanish, Finnish, Dutch, Polish, Portuguese,
   Romanian and Swedish — **not** Arabic, Hebrew, Indonesian, Japanese, Korean, Malay, Norwegian Bokmal,
   Thai, Vietnamese or Chinese. Speech in an uncovered language is rejected with a clear message.
-- **Full** (de: "Voll (large-v3-turbo)") — a Whisper model for all languages, around 2 GB of memory.
+- **Full** (Whisper large-v3-turbo) — a Whisper model for all languages, around 2 GB of memory.
   When the installation language is not covered by Parakeet, an install without an explicit choice picks
   this one on a server installation.
-- **Compact** (de: "Kompakt (small)") — a smaller Whisper model, less memory, weaker on uncommon languages.
+- **Compact** (Whisper small) — a smaller Whisper model, less memory, weaker on uncommon languages.
 
 **Native office PC:** only Parakeet is offered, because the Whisper engines run in Docker. If the
 installation language is not covered by Parakeet, local dictation in that language is not possible there;
