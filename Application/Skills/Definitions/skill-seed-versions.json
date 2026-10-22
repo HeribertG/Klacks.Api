@@ -1174,7 +1174,7 @@
     },
     "install_whisper_plugin": {
       "version": 6,
-      "hash": "6EA95B361B58182BD3E25DFF016665F6EF6E50008EEC736BC61E2D601A3B2228"
+      "hash": "77C2EE9F0E14629C063DA1BD91DC66D2CE26E0DA453A6D6C31917729EFC9252F"
     },
     "interpret_resource_monitor": {
       "version": 4,
@@ -1977,8 +1977,8 @@
       "hash": "3158925386A51120A7712C37925325D0845FD22A01FDD10F7517F2168FE8B018"
     },
     "update_speech_settings": {
-      "version": 5,
-      "hash": "857A4A2BE8AA227D9AF2782BA79C7D27B3A86A8FB38CA72793E72C996D3E9839"
+      "version": 6,
+      "hash": "0545041D5F88A14C74ACC42693BA8CA1699D3AAC761CB66CF97358AEC2279AD1"
     },
     "update_surcharge_mode_settings": {
       "version": 7,

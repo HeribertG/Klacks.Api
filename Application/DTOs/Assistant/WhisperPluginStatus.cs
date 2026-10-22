@@ -4,7 +4,7 @@
 /// Status of the self-hosted Whisper plugin for the settings card: whether the provider is installed
 /// and enabled, which model it uses, and the active/last whisper operation from the hand-off queue.
 /// OtherOperationActive signals that a non-whisper operation (app update/rollback) currently blocks
-/// the single-active queue.
+/// the single-active queue. SupportedAliases lists the engine aliases this installation can run, preferred first.
 /// </summary>
 namespace Klacks.Api.Application.DTOs.Assistant;
 
@@ -21,4 +21,6 @@ public class WhisperPluginStatus
     public WhisperPluginOperationInfo? LastOperation { get; set; }
 
     public bool OtherOperationActive { get; set; }
+
+    public List<string> SupportedAliases { get; set; } = [];
 }

@@ -7,6 +7,8 @@
 /// deploy/whisper-stt-provider.sql; model aliases are what the UI sends, model ids are what Speaches
 /// downloads from Hugging Face (Whisper) or what Klacks.Stt reports as installed (Parakeet).
 /// </summary>
+using Klacks.Api.Domain.Models.Update;
+
 namespace Klacks.Api.Application.Constants;
 
 public static class WhisperPluginConstants
@@ -30,6 +32,24 @@ public static class WhisperPluginConstants
     public const string LargeModelId = SttProviderConstants.DefaultCustomWhisperModel;
 
     public const string ParakeetModelId = "parakeet-tdt-0.6b-v3-int8";
+
+    public const string LocalEngineValue = "local";
+
+    private static readonly IReadOnlyList<string> NativeAliases = Array.AsReadOnly([ModelAliasParakeet]);
+
+    private static readonly IReadOnlyList<string> AllAliases =
+        Array.AsReadOnly([ModelAliasParakeet, ModelAliasSmall, ModelAliasLarge]);
+
+    public static string ProviderEngineValue =>
+        $"{SttProviderConstants.CustomProviderPrefix}{ProviderId}";
+
+    public static IReadOnlyList<string> GetSupportedAliases(InstallationKind kind) =>
+        kind == InstallationKind.Native ? NativeAliases : AllAliases;
+
+    public static bool IsSupportedOn(InstallationKind kind, string? modelAlias) =>
+        modelAlias is not null && GetSupportedAliases(kind).Contains(modelAlias);
+
+    public static string GetDefaultAlias(InstallationKind kind) => GetSupportedAliases(kind)[0];
 
     public static string? ResolveModelId(string? modelAlias) => modelAlias switch
     {

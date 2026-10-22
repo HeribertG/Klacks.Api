@@ -41775,7 +41775,7 @@
       "parameters": [
         {
           "name": "sttEngine",
-          "description": "Engine that turns speech into text",
+          "description": "Engine that turns speech into text: browser, deepgram, groq-whisper, assemblyai or local (the installed local speech recognition)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -41949,7 +41949,7 @@
         "fr": "Modifier les paramètres vocaux",
         "it": "Modifica le impostazioni vocali"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "list_skill_relations",
@@ -42198,7 +42198,7 @@
     {
       "name": "install_whisper_plugin",
       "area": "settings",
-      "description": "Puts the component in place that transcribes speech on our own machine instead of sending it to an outside service. You choose the model size. The work runs in the background, so the answer says it was queued, not that it is already done.",
+      "description": "Puts the component in place that transcribes speech on our own machine instead of sending it to an outside service. You choose the engine. The work runs in the background, so the answer says it was queued, not that it is already done. Once it is installed, setting the speech engine to \"local\" switches dictation to it.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -42210,7 +42210,7 @@
           "description": "small, large-v3-turbo (Whisper, all languages) or parakeet-v3 (fast, 25 European languages)",
           "type": "Enum",
           "required": false,
-          "defaultValue": "small",
+          "defaultValue": "parakeet-v3",
           "enumValues": [
             "small",
             "large-v3-turbo",

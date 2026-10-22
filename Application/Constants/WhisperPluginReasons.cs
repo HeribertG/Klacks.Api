@@ -7,5 +7,6 @@ public static class WhisperPluginReasons
     public const string InstallEnqueued = "Whisper installation enqueued.";
     public const string UninstallEnqueued = "Whisper uninstallation enqueued.";
     public const string UnknownModel = "Unknown Whisper model.";
+    public const string UnsupportedOnInstallation = "Whisper model is not supported on this installation.";
     public const string NotInstalled = "Whisper is not installed.";
 }

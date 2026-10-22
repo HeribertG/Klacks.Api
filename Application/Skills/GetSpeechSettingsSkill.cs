@@ -3,10 +3,15 @@
 /// <summary>
 /// Reads the current speech (STT/TTS) settings: STT engine, transcription enhancement model
 /// and flag, output mode, TTS provider and voice, silence threshold, barge-in flag. For API
-/// keys it returns only whether a key is configured, never the key itself.
+/// keys it returns only whether a key is configured, never the key itself. When the stored engine is the
+/// installed self-hosted speech recognition it is reported as "local" together with the installed engine alias.
 /// </summary>
+/// <param name="settingsRepository">Reads the stored speech settings</param>
+/// <param name="customSttProviderResolver">Resolves the stored custom engine id to the enabled local provider</param>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -17,10 +22,14 @@ namespace Klacks.Api.Application.Skills;
 public class GetSpeechSettingsSkill : BaseSkillImplementation
 {
     private readonly ISettingsRepository _settingsRepository;
+    private readonly ICustomSttProviderResolver _customSttProviderResolver;
 
-    public GetSpeechSettingsSkill(ISettingsRepository settingsRepository)
+    public GetSpeechSettingsSkill(
+        ISettingsRepository settingsRepository,
+        ICustomSttProviderResolver customSttProviderResolver)
     {
         _settingsRepository = settingsRepository;
+        _customSttProviderResolver = customSttProviderResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -44,9 +53,12 @@ public class GetSpeechSettingsSkill : BaseSkillImplementation
         var elevenLabsTtsKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_TTS_API_KEY_ELEVENLABS);
         var googleTtsKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_TTS_API_KEY_GOOGLE);
 
+        var (reportedEngine, localEngine) = await ResolveEngineAsync(sttEngine?.Value, cancellationToken);
+
         var resultData = new
         {
-            SttEngine = sttEngine?.Value ?? "",
+            SttEngine = reportedEngine,
+            LocalEngine = localEngine,
             TranscriptionModel = transcriptionModel?.Value ?? "",
             EnhancementEnabled = enhancementEnabled?.Value ?? "",
             OutputMode = outputMode?.Value ?? "",
@@ -64,5 +76,24 @@ public class GetSpeechSettingsSkill : BaseSkillImplementation
         };
 
         return SkillResult.SuccessResult(resultData, "Speech settings retrieved successfully.");
+    }
+
+    private async Task<(string Engine, string LocalEngine)> ResolveEngineAsync(
+        string? storedEngine, CancellationToken cancellationToken)
+    {
+        var engine = storedEngine ?? "";
+        if (!string.Equals(engine, WhisperPluginConstants.ProviderEngineValue, StringComparison.OrdinalIgnoreCase))
+        {
+            return (engine, "");
+        }
+
+        var provider = await _customSttProviderResolver.TryResolveAsync(engine, cancellationToken);
+        if (provider is null)
+        {
+            return (engine, "");
+        }
+
+        return (WhisperPluginConstants.LocalEngineValue,
+            WhisperPluginConstants.ResolveModelAlias(provider.LanguageModel) ?? "");
     }
 }

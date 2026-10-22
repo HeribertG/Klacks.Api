@@ -3,7 +3,8 @@
 /// <summary>
 /// Enqueues a Whisper plugin installation as a Pending hand-off row for the out-of-process updater.
 /// TargetVersion carries the model alias (UI value), ArtifactRef the full Hugging Face model id the
-/// updater passes to Speaches. Rejected when the alias is unknown or another operation is active.
+/// updater passes to Speaches. Rejected when the alias is unknown, not supported on this installation
+/// (native installations run Parakeet only) or another operation is active.
 /// </summary>
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Constants;
@@ -18,10 +19,14 @@ namespace Klacks.Api.Application.Handlers.Assistant;
 public class InstallWhisperPluginCommandHandler : IRequestHandler<InstallWhisperPluginCommand, UpdateTriggerResult>
 {
     private readonly IUpdateHistoryRepository _repository;
+    private readonly IInstallationIdentityProvider _installationIdentityProvider;
 
-    public InstallWhisperPluginCommandHandler(IUpdateHistoryRepository repository)
+    public InstallWhisperPluginCommandHandler(
+        IUpdateHistoryRepository repository,
+        IInstallationIdentityProvider installationIdentityProvider)
     {
         _repository = repository;
+        _installationIdentityProvider = installationIdentityProvider;
     }
 
     public async Task<UpdateTriggerResult> Handle(InstallWhisperPluginCommand request, CancellationToken cancellationToken)
@@ -30,6 +35,11 @@ public class InstallWhisperPluginCommandHandler : IRequestHandler<InstallWhisper
         if (modelId is null)
         {
             return Rejected(WhisperPluginReasons.UnknownModel);
+        }
+
+        if (!WhisperPluginConstants.IsSupportedOn(_installationIdentityProvider.Get().Kind, request.ModelAlias))
+        {
+            return Rejected(WhisperPluginReasons.UnsupportedOnInstallation);
         }
 
         if (await _repository.GetActiveOperationAsync(cancellationToken) is not null)
