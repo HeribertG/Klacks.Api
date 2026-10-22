@@ -19,7 +19,7 @@ public sealed record ScheduleEntriesCriteria(
     IReadOnlyCollection<Guid>? VisibleGroupIds = null,
     Guid? AnalyseToken = null)
 {
-    public const int RefreshWindowDaysAroundDay = 1;
+    private const int RefreshWindowDaysAroundDay = 1;
 
     /// <summary>Only rows of these clients; null = every client, empty = no rows.</summary>
     public IReadOnlyCollection<Guid>? ClientIds { get; init; }

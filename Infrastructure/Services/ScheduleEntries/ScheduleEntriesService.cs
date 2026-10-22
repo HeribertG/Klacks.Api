@@ -11,6 +11,7 @@ namespace Klacks.Api.Infrastructure.Services.ScheduleEntries;
 /// start-time narrowing in the same SQL statement.
 /// </summary>
 /// <param name="context">Database context the function is called on</param>
+/// <param name="logger">Debug log of each function call's range, group count and token</param>
 public class ScheduleEntriesService : IScheduleEntriesService
 {
     private readonly DataBaseContext _context;
