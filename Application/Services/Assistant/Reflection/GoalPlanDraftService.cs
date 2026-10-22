@@ -13,11 +13,17 @@
 /// persisted, so no orphan "drafting" plan accumulates on each retry, matching how CreatePlanSkill treats
 /// a step-less plan as an error rather than a result to link. Any failure while drafting is caught and
 /// logged; the caller always gets null rather than an exception, because this runs on a fire-and-forget
-/// background path that must never take down the request that triggered it.
+/// background path that must never take down the request that triggered it. The goal type is resolved against
+/// the installation's current state first: a goal that no longer fits is not drafted, and a goal whose catalogue
+/// entry carries a ChatPromptKey (the setup stages without a plannable shift) is never drafted either - its first
+/// step (sealing orders, or creating the first ones) runs only in the chat, and PlanStepRunner refuses a preview
+/// skill in a plan anyway. That is what keeps an approved "no schedule yet" goal from ever becoming a scheduling
+/// plan while there is not a single plannable shift.
 /// </summary>
 /// <param name="goalCandidateRepository">Loads the candidate and persists the PlanId link.</param>
 /// <param name="planChatService">Decomposes the goal text into an unpersisted, non-executed AgentPlan draft.</param>
 /// <param name="planRepository">Persists the drafted plan once it is known to contain steps.</param>
+/// <param name="goalTypeResolver">Current catalogue entry and visibility of the candidate's goal type.</param>
 /// <param name="options">Feature flag gating the draft; see GoalReflectionPlanDrafting.</param>
 /// <param name="logger">Structured log of drafted plans and drafting failures.</param>
 
@@ -37,6 +43,7 @@ public class GoalPlanDraftService : IGoalPlanDraftService
     private readonly IGoalCandidateRepository _goalCandidateRepository;
     private readonly IPlanChatService _planChatService;
     private readonly IAgentPlanRepository _planRepository;
+    private readonly IGoalTypeResolver _goalTypeResolver;
     private readonly BackgroundServiceOptions _options;
     private readonly ILogger<GoalPlanDraftService> _logger;
 
@@ -44,12 +51,14 @@ public class GoalPlanDraftService : IGoalPlanDraftService
         IGoalCandidateRepository goalCandidateRepository,
         IPlanChatService planChatService,
         IAgentPlanRepository planRepository,
+        IGoalTypeResolver goalTypeResolver,
         IOptions<BackgroundServiceOptions> options,
         ILogger<GoalPlanDraftService> logger)
     {
         _goalCandidateRepository = goalCandidateRepository;
         _planChatService = planChatService;
         _planRepository = planRepository;
+        _goalTypeResolver = goalTypeResolver;
         _options = options.Value;
         _logger = logger;
     }
@@ -66,6 +75,16 @@ public class GoalPlanDraftService : IGoalPlanDraftService
             var candidate = await _goalCandidateRepository.GetByIdAsync(candidateId, cancellationToken);
             if (candidate == null || candidate.Status != GoalCandidateStatus.Approved || candidate.PlanId != null)
             {
+                return null;
+            }
+
+            var resolution = await _goalTypeResolver.ResolveAsync(candidate.GoalType, cancellationToken);
+            if (!resolution.IsVisible || resolution.Definition?.ChatPromptKey != null)
+            {
+                _logger.LogInformation(
+                    "Goal candidate {CandidateId} ({GoalType}) is not drafted into a plan: it no longer fits the " +
+                    "installation or it is handed to the chat",
+                    candidateId, candidate.GoalType);
                 return null;
             }
 

@@ -22,6 +22,8 @@
 /// <param name="goalCandidateRepository">Persists candidates and checks for recent duplicates.</param>
 /// <param name="cheapestModelResolver">Resolves the cheapest enabled LLM model and provider, same as PlanningAgent.</param>
 /// <param name="planningAudienceResolver">Resolves which users are planners, to gate Phase 2 delivery.</param>
+/// <param name="goalTypeResolver">Picks the selected goal type's current catalogue entry (the setup stage for "no
+/// schedule yet") and drops a goal that no longer fits the installation.</param>
 /// <param name="options">Feature flag deciding shadow (Status = Shadow) vs. delivery (Status = Proposed, planners only).</param>
 /// <param name="logger">Structured log of created/skipped/discarded candidates per cycle.</param>
 
@@ -71,6 +73,7 @@ public class GoalReflectionService : IGoalReflectionService
     private readonly IGoalCandidateRepository _goalCandidateRepository;
     private readonly ICheapestModelResolver _cheapestModelResolver;
     private readonly IPlanningAudienceResolver _planningAudienceResolver;
+    private readonly IGoalTypeResolver _goalTypeResolver;
     private readonly BackgroundServiceOptions _options;
     private readonly ILogger<GoalReflectionService> _logger;
 
@@ -79,6 +82,7 @@ public class GoalReflectionService : IGoalReflectionService
         IGoalCandidateRepository goalCandidateRepository,
         ICheapestModelResolver cheapestModelResolver,
         IPlanningAudienceResolver planningAudienceResolver,
+        IGoalTypeResolver goalTypeResolver,
         IOptions<BackgroundServiceOptions> options,
         ILogger<GoalReflectionService> logger)
     {
@@ -86,6 +90,7 @@ public class GoalReflectionService : IGoalReflectionService
         _goalCandidateRepository = goalCandidateRepository;
         _cheapestModelResolver = cheapestModelResolver;
         _planningAudienceResolver = planningAudienceResolver;
+        _goalTypeResolver = goalTypeResolver;
         _options = options.Value;
         _logger = logger;
     }
@@ -208,8 +213,9 @@ public class GoalReflectionService : IGoalReflectionService
                 continue;
             }
 
-            var definition = GoalTypeCatalog.Find(candidate.GoalType);
-            if (definition == null)
+            var resolution = await _goalTypeResolver.ResolveAsync(candidate.GoalType, cancellationToken);
+            var definition = resolution.Definition;
+            if (!resolution.IsVisible || definition == null)
             {
                 discarded++;
                 continue;

@@ -252,21 +252,43 @@ public class WelcomeFocusResolver : IWelcomeFocusResolver
 
     private static WelcomeFocusResource MapSetup(ScheduleSetupStage stage)
     {
-        var promptKey = stage switch
+        if (stage == ScheduleSetupStage.OrdersButNoShifts)
         {
-            ScheduleSetupStage.NothingYet => WelcomeFocusI18nKeys.NoOrdersPrompt,
-            ScheduleSetupStage.OrdersButNoShifts => WelcomeFocusI18nKeys.NoShiftsPrompt,
-            _ => WelcomeFocusI18nKeys.NoWorkPrompt
-        };
+            return MapSetupAction(
+                WelcomeFocusI18nKeys.NoShiftsPrompt,
+                WelcomeFocusActionKinds.Prompt,
+                WelcomeFocusI18nKeys.NoShiftsAction,
+                SetupChatPromptKeys.SealOpenOrdersRequest);
+        }
 
+        return stage == ScheduleSetupStage.NothingYet
+            ? MapSetupAction(
+                WelcomeFocusI18nKeys.NoOrdersPrompt,
+                WelcomeFocusActionKinds.Consultation,
+                WelcomeFocusI18nKeys.SetupConsultationAccept,
+                null)
+            : MapSetupAction(
+                WelcomeFocusI18nKeys.NoWorkPrompt,
+                WelcomeFocusActionKinds.Consultation,
+                WelcomeFocusI18nKeys.SetupConsultationAction,
+                null);
+    }
+
+    private static WelcomeFocusResource MapSetupAction(
+        string promptKey,
+        string actionKind,
+        string actionLabelKey,
+        string? actionPromptKey)
+    {
         return new WelcomeFocusResource
         {
             Kind = AgentTriggerKinds.NoScheduleYet,
             PromptKey = promptKey,
             PromptParams = new Dictionary<string, string>(StringComparer.Ordinal),
-            ActionKind = WelcomeFocusActionKinds.Consultation,
-            ActionLabelKey = WelcomeFocusI18nKeys.SetupConsultationAction,
+            ActionKind = actionKind,
+            ActionLabelKey = actionLabelKey,
             ActionRoute = null,
+            ActionPromptKey = actionPromptKey,
             ConditionId = null
         };
     }

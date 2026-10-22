@@ -13,6 +13,10 @@
 /// <param name="SignalDescription">Plain-language English description handed to the reflection LLM instead of the trigger kind.</param>
 /// <param name="PlannerTitle">Canonical English goal title used for plan drafting and the audit log.</param>
 /// <param name="PlannerRationaleFormat">Canonical English rationale, formatted with the occurrence count and the lookback window in days.</param>
+/// <param name="ChatPromptKey">Frontend i18n key of the chat request an approval hands over instead of drafting a plan; null when
+/// approving drafts a plan as usual. Set where the first step is a preview-gated skill no unattended plan may run.</param>
+/// <param name="RequiresPlannableShifts">The goal is neither proposed, listed nor drafted while the installation holds no
+/// plannable shift at all; the stage-aware setup goal speaks for that state instead.</param>
 
 namespace Klacks.Api.Domain.Models.Assistant;
 
@@ -22,4 +26,6 @@ public sealed record GoalTypeDefinition(
     string RationaleKey,
     string SignalDescription,
     string PlannerTitle,
-    string PlannerRationaleFormat);
+    string PlannerRationaleFormat,
+    string? ChatPromptKey = null,
+    bool RequiresPlannableShifts = false);

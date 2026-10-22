@@ -141,6 +141,7 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalSignalSource, Klacks.Api.Application.Services.Assistant.Reflection.TriggerHistoryGoalSignalSource>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalCandidateRevalidationService, Klacks.Api.Application.Services.Assistant.Reflection.GoalCandidateRevalidationService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IScheduleActivityProbe, Klacks.Api.Infrastructure.Repositories.Assistant.ScheduleActivityProbe>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalTypeResolver, Klacks.Api.Application.Services.Assistant.Reflection.GoalTypeResolver>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalPlanDraftService, Klacks.Api.Application.Services.Assistant.Reflection.GoalPlanDraftService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalPlanExecutionService, Klacks.Api.Application.Services.Assistant.Reflection.GoalPlanExecutionService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISlackOwnerBridgeService, Klacks.Api.Application.Services.Assistant.SlackOwnerBridgeService>();

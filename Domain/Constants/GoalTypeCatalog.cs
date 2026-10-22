@@ -10,6 +10,7 @@
 /// Klacksy's own output.
 /// </summary>
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Constants;
@@ -124,7 +125,8 @@ public static class GoalTypeCatalog
                 "openOrder",
                 "an imported or manually created order has not yet been sealed into a staffable shift",
                 "Seal open orders earlier",
-                "An open order came up {0} time(s) in the last {1} days."),
+                "An open order came up {0} time(s) in the last {1} days.",
+                requiresPlannableShifts: true),
 
             [AgentTriggerKinds.UncutFulldayShift] = Define(
                 AgentTriggerKinds.UncutFulldayShift,
@@ -190,6 +192,37 @@ public static class GoalTypeCatalog
                 "Duties without a group came up {0} time(s) in the last {1} days.")
         };
 
+    /// <summary>
+    /// The "no schedule yet" goal per setup stage. The trigger kind alone cannot say which step is missing, so the
+    /// stage is derived fresh from the installation (GoalTypeResolver) and picks the wording and the approval path:
+    /// only ShiftsButNoWork - the catalogue's own entry - leads to a scheduling plan; the two stages without a
+    /// plannable shift hand the approval to the chat.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<ScheduleSetupStage, GoalTypeDefinition> NoScheduleYetByStage =
+        new Dictionary<ScheduleSetupStage, GoalTypeDefinition>
+        {
+            [ScheduleSetupStage.NothingYet] = Define(
+                AgentTriggerKinds.NoScheduleYet,
+                "noScheduleYet.nothingYet",
+                "not a single order has been created yet, so there is nothing that could be planned",
+                "Capture the first orders",
+                "An installation without any order came up {0} time(s) in the last {1} days.",
+                chatPromptKey: SetupChatPromptKeys.SetupConsultationTrigger),
+
+            [ScheduleSetupStage.OrdersButNoShifts] = Define(
+                AgentTriggerKinds.NoScheduleYet,
+                "noScheduleYet.ordersButNoShifts",
+                "orders exist, but none has been sealed into a plannable shift yet, so nobody can be assigned",
+                "Seal the open orders",
+                "Orders without a single plannable shift came up {0} time(s) in the last {1} days.",
+                chatPromptKey: SetupChatPromptKeys.SealOpenOrdersRequest),
+        };
+
+    public static GoalTypeDefinition FindForStage(ScheduleSetupStage stage) =>
+        NoScheduleYetByStage.TryGetValue(stage, out var definition)
+            ? definition
+            : ByTriggerKind[AgentTriggerKinds.NoScheduleYet];
+
     public static GoalTypeDefinition? Find(string? triggerKind) =>
         string.IsNullOrWhiteSpace(triggerKind) ? null
             : ByTriggerKind.TryGetValue(triggerKind, out var definition) ? definition
@@ -200,12 +233,16 @@ public static class GoalTypeCatalog
         string keySegment,
         string signalDescription,
         string plannerTitle,
-        string plannerRationaleFormat) =>
+        string plannerRationaleFormat,
+        string? chatPromptKey = null,
+        bool requiresPlannableShifts = false) =>
         new(
             triggerKind,
             TitleKeyPrefix + keySegment + ".title",
             TitleKeyPrefix + keySegment + ".rationale",
             signalDescription,
             plannerTitle,
-            plannerRationaleFormat);
+            plannerRationaleFormat,
+            chatPromptKey,
+            requiresPlannableShifts);
 }

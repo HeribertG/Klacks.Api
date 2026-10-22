@@ -3,7 +3,8 @@
 /// <summary>
 /// The single most urgent open state the welcome toast asks about. Carries i18n keys and slot
 /// values only, never localized text. ActionRoute is filled for ActionKind "navigate" and null
-/// for "consultation". ConditionId is informational and null for the fresh setup candidate,
+/// otherwise; ActionPromptKey is filled for ActionKind "prompt" - the i18n key of the chat request the
+/// frontend submits when the user picks the action - and null otherwise. ConditionId is informational and null for the fresh setup candidate,
 /// which has no ledger row behind it.
 /// </summary>
 
@@ -22,6 +23,8 @@ public class WelcomeFocusResource
     public string ActionLabelKey { get; init; } = string.Empty;
 
     public string? ActionRoute { get; init; }
+
+    public string? ActionPromptKey { get; init; }
 
     public Guid? ConditionId { get; init; }
 }

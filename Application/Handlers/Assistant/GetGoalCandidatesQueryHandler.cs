@@ -8,9 +8,12 @@
 /// authorization snapshot, not something the client needs or should see. The dto also resolves the
 /// candidate's goal type against GoalTypeCatalog so the client receives the i18n keys it renders the
 /// proposal from; a candidate created before the catalogue existed resolves to no keys and the client
-/// falls back to its stored English text.
+/// falls back to its stored English text. The goal type is resolved against the installation's current state
+/// (IGoalTypeResolver): a "no schedule yet" candidate shows the wording of the current setup stage, and a
+/// candidate that no longer fits the installation is left out of the list.
 /// </summary>
 /// <param name="goalCandidateRepository">Persistence of GoalCandidate entities.</param>
+/// <param name="goalTypeResolver">Derives the goal type's current catalogue entry and visibility.</param>
 
 using System.Text.Json;
 using Klacks.Api.Application.DTOs.Assistant;
@@ -25,17 +28,31 @@ namespace Klacks.Api.Application.Handlers.Assistant;
 public class GetGoalCandidatesQueryHandler : IRequestHandler<GetGoalCandidatesQuery, IReadOnlyList<GoalCandidateDto>>
 {
     private readonly IGoalCandidateRepository _goalCandidateRepository;
+    private readonly IGoalTypeResolver _goalTypeResolver;
 
-    public GetGoalCandidatesQueryHandler(IGoalCandidateRepository goalCandidateRepository)
+    public GetGoalCandidatesQueryHandler(
+        IGoalCandidateRepository goalCandidateRepository,
+        IGoalTypeResolver goalTypeResolver)
     {
         _goalCandidateRepository = goalCandidateRepository;
+        _goalTypeResolver = goalTypeResolver;
     }
 
     public async Task<IReadOnlyList<GoalCandidateDto>> Handle(GetGoalCandidatesQuery request, CancellationToken cancellationToken)
     {
         var take = NormalizeTake(request.Take);
         var candidates = await _goalCandidateRepository.GetForUserAsync(request.UserId, request.Status, take, cancellationToken);
-        return candidates.Select(ToDto).ToList();
+        var result = new List<GoalCandidateDto>(candidates.Count);
+        foreach (var candidate in candidates)
+        {
+            var resolution = await _goalTypeResolver.ResolveAsync(candidate.GoalType, cancellationToken);
+            if (resolution.IsVisible)
+            {
+                result.Add(ToDto(candidate, resolution.Definition));
+            }
+        }
+
+        return result;
     }
 
     private static int NormalizeTake(int? take)
@@ -48,10 +65,8 @@ public class GetGoalCandidatesQueryHandler : IRequestHandler<GetGoalCandidatesQu
         return Math.Min(value, GoalCandidateInboxDefaults.MaxListTake);
     }
 
-    private static GoalCandidateDto ToDto(GoalCandidate candidate)
+    private static GoalCandidateDto ToDto(GoalCandidate candidate, GoalTypeDefinition? definition)
     {
-        var definition = GoalTypeCatalog.Find(candidate.GoalType);
-
         return new GoalCandidateDto
         {
             Id = candidate.Id,
@@ -66,7 +81,8 @@ public class GetGoalCandidatesQueryHandler : IRequestHandler<GetGoalCandidatesQu
             Status = candidate.Status,
             CreatedUtc = candidate.CreateTime,
             DecidedUtc = candidate.DecidedUtc,
-            PlanId = candidate.PlanId
+            PlanId = candidate.PlanId,
+            ChatPromptKey = definition?.ChatPromptKey
         };
     }
 

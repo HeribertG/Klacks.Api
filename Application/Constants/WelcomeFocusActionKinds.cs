@@ -12,4 +12,5 @@ public static class WelcomeFocusActionKinds
 {
     public const string Navigate = "navigate";
     public const string Consultation = "consultation";
+    public const string Prompt = "prompt";
 }
