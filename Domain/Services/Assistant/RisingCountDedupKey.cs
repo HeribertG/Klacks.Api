@@ -23,6 +23,23 @@ public static class RisingCountDedupKey
         PrefixFor(dedupKey) + count.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
+    /// The DedupKey a key spelled by <see cref="For"/> was built from, or null when the key carries no readable
+    /// count - the read-back the goal reflection uses to count the distinct days a summary was delivered on.
+    /// </summary>
+    /// <param name="deliveredKey">A dispatch row's dedup key.</param>
+    public static string? BaseKeyOf(string deliveredKey)
+    {
+        var separatorIndex = deliveredKey.LastIndexOf(Separator, StringComparison.Ordinal);
+        if (separatorIndex <= 0
+            || !int.TryParse(deliveredKey.AsSpan(separatorIndex + Separator.Length), NumberStyles.None, CultureInfo.InvariantCulture, out _))
+        {
+            return null;
+        }
+
+        return deliveredKey[..separatorIndex];
+    }
+
+    /// <summary>
     /// The highest count among the keys spelled by <see cref="For"/> for this DedupKey, or null when none was
     /// delivered. Keys of other DedupKeys and keys without a readable count are ignored.
     /// </summary>

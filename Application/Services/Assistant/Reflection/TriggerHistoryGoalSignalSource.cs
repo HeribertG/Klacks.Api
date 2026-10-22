@@ -8,13 +8,24 @@
 /// itself: the identifier used to reach the summary must not appear inside it, because the reflection
 /// LLM would otherwise repeat it and it would end up in a proposal a user reads. A trigger kind with
 /// no catalogue entry is skipped rather than described by its identifier.
+///
+/// open_order is measured differently (owner decision 2026-10-22): since it is one summary per planner and day
+/// (plus a further one only when the count rises), the number of messages says nothing. Its occurrence count is the
+/// number of distinct company days in the window on which the planner was told about open orders - read from the
+/// summary rows' dedup keys, which start with the company day (RisingCountDedupKey) - and a signal is only raised
+/// from OpenOrderMinimumReportedDays days on. Three of seven days means the backlog recurs on almost half of the week
+/// rather than after a single import day or a weekend; fewer would propose a goal after any ordinary import, more
+/// would only fire on a permanent backlog and come too late to be a nudge. Rows of the former per-order shape carry
+/// no company day in their key and are not counted.
 /// </summary>
 /// <param name="dispatchRepository">Read-only access to the trigger dispatch history.</param>
 /// <param name="logger">Structured log of how many signals were collected per cycle.</param>
 
+using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Reflection;
 
@@ -22,6 +33,7 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
 {
     private const int LookbackDays = 7;
     private const int MaxDispatchRows = 2000;
+    private const int OpenOrderMinimumReportedDays = 3;
 
     // CuriosityQuestion is Klacksy's own generated output — feeding it back into reflection would
     // recreate the self-referential loop the design spec calls out as Risk 1. MuteSuggestion is
@@ -107,11 +119,17 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
                 }
 
                 var timestamps = g.Select(r => r.CreateTime!.Value).ToList();
-                var count = timestamps.Count;
+                var isOpenOrder = IsOpenOrder(g.Key.TriggerKind);
+                var count = isOpenOrder ? CountReportedCompanyDays(g) : timestamps.Count;
+                if (isOpenOrder && count < OpenOrderMinimumReportedDays)
+                {
+                    return null;
+                }
+
                 return new GoalSignal(
                     g.Key.UserId,
                     g.Key.TriggerKind,
-                    BuildSummary(definition, count),
+                    isOpenOrder ? BuildReportedDaysSummary(definition, count) : BuildSummary(definition, count),
                     count,
                     timestamps.Min(),
                     timestamps.Max(),
@@ -126,6 +144,20 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
 
         return signals;
     }
+
+    private static bool IsOpenOrder(string triggerKind) =>
+        string.Equals(triggerKind, AgentTriggerKinds.OpenOrder, StringComparison.Ordinal);
+
+    private static int CountReportedCompanyDays(IEnumerable<ProactiveTriggerDispatchRow> rows) =>
+        rows
+            .Select(row => RisingCountDedupKey.BaseKeyOf(row.DedupKey))
+            .Where(baseKey => baseKey != null && DateOnly.TryParseExact(
+                baseKey, DateTimeFormats.IsoDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+            .Distinct(StringComparer.Ordinal)
+            .Count();
+
+    private static string BuildReportedDaysSummary(GoalTypeDefinition definition, int reportedDays) =>
+        $"Reported on {reportedDays} of the last {LookbackDays} days: {definition.SignalDescription}.";
 
     private static string BuildSummary(GoalTypeDefinition definition, int occurrenceCount) =>
         $"Noticed {occurrenceCount} time(s) in the last {LookbackDays} days: {definition.SignalDescription}.";

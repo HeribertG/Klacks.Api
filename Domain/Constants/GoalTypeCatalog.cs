@@ -125,7 +125,7 @@ public static class GoalTypeCatalog
                 "openOrder",
                 "an imported or manually created order has not yet been sealed into a staffable shift",
                 "Seal open orders earlier",
-                "An open order came up {0} time(s) in the last {1} days.",
+                "Open orders were present on {0} of the last {1} days.",
                 requiresPlannableShifts: true),
 
             [AgentTriggerKinds.UncutFulldayShift] = Define(
