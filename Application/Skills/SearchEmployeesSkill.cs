@@ -6,8 +6,8 @@
 /// To search AND directly navigate to a specific person, use search_and_navigate instead.
 /// A search term is looked up with the text search and, when that finds nobody, with the fuzzy (trigram and
 /// phonetic) search. Recipes capture the lone row of Results and inject its id into a writing step, so Results
-/// only holds the people the Strict name policy picks for the term (ClientNameMatch: equal words first, otherwise a
-/// forward match on whole words, in either name order). Every other row - one that matches less exactly, inside a
+/// only holds the people the term names under the Strict name policy (ClientNameMatch: equal words or a forward match
+/// on whole words, first and last name in either order, company, client number). Every other row - a hit inside a
 /// word ("Meierhans" for "Meier") or only by similarity ("Mayer" for "Meier") - goes to OtherMatches without an id;
 /// when no row is picked the message is the name ask-back, the capture finds no row and the recipe rewinds to its
 /// question.
@@ -118,8 +118,9 @@ public class SearchEmployeesSkill : BaseSkillImplementation
 
         if (suggestionRows.Count > 0)
         {
-            message += $" {suggestionRows.Count} further person(s) match the term less exactly and are listed under " +
-                       "OtherMatches without an id; search again with the full name if the user means one of them.";
+            message += $" {suggestionRows.Count} further person(s) only contain the term inside a word or have a " +
+                       "similar name; they are listed under OtherMatches without an id; search again with the full " +
+                       "name if the user means one of them.";
         }
 
         return SkillResult.SuccessResult(resultData, message);
@@ -137,23 +138,13 @@ public class SearchEmployeesSkill : BaseSkillImplementation
         };
 
         var message = suggestions.Count == 1
-            ? NameResolutionMessages.SuggestedName(Describe(suggestions[0]))
-            : NameResolutionMessages.SuggestedNames(searchTerm, string.Join(", ", suggestions.Select(Describe)));
+            ? NameResolutionMessages.SuggestedName(ClientResolver.DescribeOne(suggestions[0]))
+            : NameResolutionMessages.SuggestedNames(
+                searchTerm, string.Join(", ", suggestions.Select(ClientResolver.DescribeOne)));
 
         return SkillResult.SuccessResult(resultData, message);
     }
 
     private static object ToSuggestion(ClientSearchItem item) =>
         new { item.IdNumber, item.FirstName, item.LastName, item.Company, item.EntityType };
-
-    private static string Describe(ClientSearchItem item)
-    {
-        var name = $"{item.FirstName} {item.LastName}".Trim();
-        if (string.IsNullOrEmpty(name))
-        {
-            name = item.Company ?? string.Empty;
-        }
-
-        return $"{name} (#{item.IdNumber})";
-    }
 }

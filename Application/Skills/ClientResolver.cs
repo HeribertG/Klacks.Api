@@ -264,9 +264,15 @@ internal static class ClientResolver
         return string.Join(", ", items.Select(DescribeOne));
     }
 
-    private static string DescribeOne(ClientSearchItem item)
+    /// <summary>
+    /// The display form of a client in the answers: first and last name (or the company when there is no name) and
+    /// the visible client number in brackets.
+    /// </summary>
+    /// <param name="item">The search row to describe</param>
+    public static string DescribeOne(ClientSearchItem item)
     {
-        return $"{item.FirstName} {item.LastName} (#{item.IdNumber})";
+        var name = $"{item.FirstName} {item.LastName}".Trim();
+        return $"{(name.Length > 0 ? name : item.Company)} (#{item.IdNumber})";
     }
 
     private static async Task<(Client? Client, string? Error)> LoadAsync(
