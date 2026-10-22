@@ -43,4 +43,10 @@ public static class RecipeAbortReasons
     /// stopped calling tools before the last step.
     /// </summary>
     public const string CutRecipeIncomplete = "turn ended before the cut recipe completed";
+
+    /// <summary>
+    /// A skill answered with a name-resolution ask-back ("Did the user mean ...?" or several matching names), so
+    /// the forcing was released: the model has to ask the user before the step may run with a name.
+    /// </summary>
+    public const string NameAskBackEndedRecipe = "name ask-back ended the recipe";
 }

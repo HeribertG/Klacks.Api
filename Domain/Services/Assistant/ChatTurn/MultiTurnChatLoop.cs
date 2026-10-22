@@ -272,7 +272,7 @@ internal sealed class MultiTurnChatLoop
             ToolCallLoopSteps.InToolset(lastResponse.FunctionCalls, ctx.Context, _logger), state.CalledFunctionNames, forceRecipe));
 
         await _functionExecutor.ProcessFunctionCallsAsync(ctx.Context, executableCalls);
-        recipe.Forcing?.Observe(lastResponse.FunctionCalls);
+        recipe.ObserveExecuted(lastResponse.FunctionCalls);
         if (lastResponse.FunctionCalls.Any(c => c.RequiresConfirmation))
         {
             recipe.ReleaseOnAutonomyGateHold();

@@ -23,7 +23,7 @@ internal sealed class RecipeTurnState
     private readonly LLMContext _context;
     private readonly string _conversationId;
 
-    private bool _abortedByGateHold;
+    private string? _abortReason;
 
     private RecipeTurnState(
         IRecipeRunRecorder recorder,
@@ -140,6 +140,26 @@ internal sealed class RecipeTurnState
                 ? LLMLoopConstants.ReadOnlyRecipeWriteRejectedResult
                 : LLMLoopConstants.CompletedRecipeWriteRejectedResult,
             _context.AvailableFunctions);
+
+    /// <summary>
+    /// Feeds the executed calls of an iteration to the forcing plan and releases the forcing when one of them
+    /// returned a name-resolution ask-back (NameResolutionAskBack): the step is not advanced on a failure, so the
+    /// next iteration would force the very same skill with tool_choice=required, and the model could only call it
+    /// again with the suggested name instead of asking the user. Without forcing, the repeated-write guard rejects
+    /// that repeat like any other repeated write in an unforced iteration. Every other failure keeps the forcing,
+    /// so a step that failed for a fixable reason (for example a date format) is still retried with corrected
+    /// parameters in the same turn.
+    /// </summary>
+    /// <param name="executedCalls">All calls of the iteration, after execution.</param>
+    internal void ObserveExecuted(IReadOnlyList<LLMFunctionCall> executedCalls)
+    {
+        Forcing?.Observe(executedCalls);
+        if (Forcing != null
+            && executedCalls.Any(call => !call.Success && NameResolutionAskBack.IsAskBack(call.Result)))
+        {
+            ReleaseOnNameAskBack();
+        }
+    }
 
     /// <summary>
     /// Recipe forcing spine shared by both chat loops, so a hook can never land on only one path: while a
@@ -259,7 +279,23 @@ internal sealed class RecipeTurnState
         GateHoldNoteDue = wasActive;
         Plan?.DeactivateOnAutonomyGateHold();
         Forcing = null;
-        _abortedByGateHold = wasActive;
+        if (wasActive)
+        {
+            _abortReason = RecipeAbortReasons.AutonomyGateHoldEndedRecipe;
+        }
+    }
+
+    private void ReleaseOnNameAskBack()
+    {
+        _logger.LogInformation(
+            "Recipe forcing released: a skill asked the user to confirm a name — the model must now ask the user");
+        var wasActive = Plan is { IsActive: true };
+        Plan?.DeactivateOnNameAskBack();
+        Forcing = null;
+        if (wasActive)
+        {
+            _abortReason ??= RecipeAbortReasons.NameAskBackEndedRecipe;
+        }
     }
 
     /// <summary>
@@ -285,9 +321,9 @@ internal sealed class RecipeTurnState
     {
         if (Run != null && !PausedOnAsk)
         {
-            if (_abortedByGateHold)
+            if (_abortReason != null)
             {
-                await _recorder.AbortAsync(Run, RecipeAbortReasons.AutonomyGateHoldEndedRecipe, cancellationToken);
+                await _recorder.AbortAsync(Run, _abortReason, cancellationToken);
             }
             else if (Plan != null)
             {

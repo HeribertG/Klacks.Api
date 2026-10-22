@@ -50,7 +50,7 @@ internal sealed class StreamedToolRound
         yield return SseChunk.Status(SseStatusStages.ExecutingTool, TurnTelemetry.ElapsedMsFor(context), turn.ToolIterations);
 
         await _functionExecutor.ProcessFunctionCallsAsync(context, executableCalls, turn.StopToken);
-        recipe.Forcing?.Observe(functionCalls);
+        recipe.ObserveExecuted(functionCalls);
         if (functionCalls.Any(c => c.RequiresConfirmation))
         {
             recipe.ReleaseOnAutonomyGateHold();

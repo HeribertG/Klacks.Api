@@ -205,6 +205,15 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         _deactivated = true;
     }
 
+    /// <summary>
+    /// Ends the flow when a step skill answered with a name-resolution ask-back: the user has to confirm or pick
+    /// the name, and forcing the step again in this turn would leave the model no way to ask.
+    /// </summary>
+    public void DeactivateOnNameAskBack()
+    {
+        _deactivated = true;
+    }
+
     public RecipeStep? CurrentStep => IsActive ? _steps[_index] : null;
 
     public bool CurrentIsAsk => IsActive && string.Equals(_steps[_index].Kind, RecipeStepKinds.Ask, StringComparison.OrdinalIgnoreCase);
