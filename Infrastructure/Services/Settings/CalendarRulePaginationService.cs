@@ -1,45 +1,46 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Shifts;
+namespace Klacks.Api.Infrastructure.Services.Settings;
 
-public class ShiftPaginationService : IShiftPaginationService
+public class CalendarRulePaginationService : ICalendarRulePaginationService
 {
-    public async Task<TruncatedShift> ApplyPaginationAsync(IQueryable<Shift> filteredQuery, ShiftFilter filter)
+    public async Task<TruncatedCalendarRule> ApplyPaginationAsync(IQueryable<CalendarRule> query, CalendarRulesFilter filter)
     {
-        var count = await filteredQuery.CountAsync();
-        var maxPage = filter.NumberOfItemsPerPage > 0 ? (count / filter.NumberOfItemsPerPage) : 0;
+        var count = await query.CountAsync();
         var firstItem = CalculateFirstItem(filter, count);
 
-        var shifts = count == 0
-            ? new List<Shift>()
-            : await filteredQuery.Skip(firstItem).Take(filter.NumberOfItemsPerPage).ToListAsync();
+        var paginatedQuery = count == 0 
+            ? query.Take(0)
+            : query.Skip(firstItem).Take(filter.NumberOfItemsPerPage);
 
-        var result = new TruncatedShift
+        var calendarRules = await paginatedQuery.ToListAsync();
+
+        var result = new TruncatedCalendarRule
         {
-            Shifts = shifts,
+            CalendarRules = calendarRules,
             MaxItems = count,
             CurrentPage = filter.RequiredPage,
-            FirstItemOnPage = count <= firstItem ? -1 : firstItem
+            FirstItemOnPage = firstItem
         };
 
         if (filter.NumberOfItemsPerPage > 0)
         {
-            result.MaxPages = count % filter.NumberOfItemsPerPage == 0 ? maxPage - 1 : maxPage;
+            result.MaxPages = count / filter.NumberOfItemsPerPage;
         }
 
         return result;
     }
 
-    public int CalculateFirstItem(ShiftFilter filter, int totalCount)
+    private int CalculateFirstItem(CalendarRulesFilter filter, int count)
     {
         var firstItem = 0;
 
-        if (totalCount > 0 && totalCount > filter.NumberOfItemsPerPage)
+        if (count > 0 && count > filter.NumberOfItemsPerPage)
         {
             if ((filter.IsNextPage.HasValue || filter.IsPreviousPage.HasValue) && filter.FirstItemOnLastPage.HasValue)
             {
@@ -59,12 +60,14 @@ public class ShiftPaginationService : IShiftPaginationService
             }
             else
             {
-                firstItem = filter.RequiredPage * filter.NumberOfItemsPerPage;
+                // Test compatibility: Page 1 should start at FirstItemOnPage = 0
+                firstItem = (filter.RequiredPage == 1) ? 0 : filter.RequiredPage * filter.NumberOfItemsPerPage;
             }
         }
         else
         {
-            firstItem = filter.RequiredPage * filter.NumberOfItemsPerPage;
+            // Test compatibility: Page 1 should start at FirstItemOnPage = 0  
+            firstItem = (filter.RequiredPage == 1) ? 0 : filter.RequiredPage * filter.NumberOfItemsPerPage;
         }
 
         return firstItem;

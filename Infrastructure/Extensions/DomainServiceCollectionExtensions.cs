@@ -66,6 +66,7 @@ using Klacks.Api.Infrastructure.Repositories.Settings;
 using Klacks.Api.Infrastructure.Repositories.Exports;
 using Klacks.Api.Infrastructure.Repositories.Staffs;
 using Klacks.Api.Infrastructure.Services;
+using Klacks.Api.Infrastructure.Services.Absences;
 using Klacks.Api.Infrastructure.Services.Groups;
 using Klacks.Api.Infrastructure.Services.Settings;
 using Klacks.Api.Infrastructure.Services.Shifts;

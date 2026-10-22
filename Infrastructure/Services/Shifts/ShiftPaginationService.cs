@@ -5,24 +5,23 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Absences;
+namespace Klacks.Api.Infrastructure.Services.Shifts;
 
-public class AbsencePaginationService : IAbsencePaginationService
+public class ShiftPaginationService : IShiftPaginationService
 {
-    public async Task<TruncatedAbsence> ApplyPaginationAsync(IQueryable<Absence> query, AbsenceFilter filter)
+    public async Task<TruncatedShift> ApplyPaginationAsync(IQueryable<Shift> filteredQuery, ShiftFilter filter)
     {
-        var count = await query.CountAsync();
+        var count = await filteredQuery.CountAsync();
+        var maxPage = filter.NumberOfItemsPerPage > 0 ? (count / filter.NumberOfItemsPerPage) : 0;
         var firstItem = CalculateFirstItem(filter, count);
 
-        var paginatedQuery = count == 0 
-            ? query.Take(0)
-            : query.Skip(firstItem).Take(filter.NumberOfItemsPerPage);
+        var shifts = count == 0
+            ? new List<Shift>()
+            : await filteredQuery.Skip(firstItem).Take(filter.NumberOfItemsPerPage).ToListAsync();
 
-        var absences = await paginatedQuery.ToListAsync();
-
-        var result = new TruncatedAbsence
+        var result = new TruncatedShift
         {
-            Absences = absences,
+            Shifts = shifts,
             MaxItems = count,
             CurrentPage = filter.RequiredPage,
             FirstItemOnPage = count <= firstItem ? -1 : firstItem
@@ -30,18 +29,17 @@ public class AbsencePaginationService : IAbsencePaginationService
 
         if (filter.NumberOfItemsPerPage > 0)
         {
-            var maxPage = count / filter.NumberOfItemsPerPage;
             result.MaxPages = count % filter.NumberOfItemsPerPage == 0 ? maxPage - 1 : maxPage;
         }
 
         return result;
     }
 
-    private int CalculateFirstItem(AbsenceFilter filter, int count)
+    public int CalculateFirstItem(ShiftFilter filter, int totalCount)
     {
         var firstItem = 0;
 
-        if (count > 0 && count > filter.NumberOfItemsPerPage)
+        if (totalCount > 0 && totalCount > filter.NumberOfItemsPerPage)
         {
             if ((filter.IsNextPage.HasValue || filter.IsPreviousPage.HasValue) && filter.FirstItemOnLastPage.HasValue)
             {

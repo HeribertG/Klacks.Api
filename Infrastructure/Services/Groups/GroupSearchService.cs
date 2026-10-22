@@ -5,7 +5,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Groups;
+namespace Klacks.Api.Infrastructure.Services.Groups;
 
 public class GroupSearchService : IGroupSearchService
 {

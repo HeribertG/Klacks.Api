@@ -1,15 +1,15 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 
-namespace Klacks.Api.Domain.Services.Settings;
+namespace Klacks.Api.Infrastructure.Services.Absences;
 
-public class CalendarRulePaginationService : ICalendarRulePaginationService
+public class AbsencePaginationService : IAbsencePaginationService
 {
-    public async Task<TruncatedCalendarRule> ApplyPaginationAsync(IQueryable<CalendarRule> query, CalendarRulesFilter filter)
+    public async Task<TruncatedAbsence> ApplyPaginationAsync(IQueryable<Absence> query, AbsenceFilter filter)
     {
         var count = await query.CountAsync();
         var firstItem = CalculateFirstItem(filter, count);
@@ -18,25 +18,26 @@ public class CalendarRulePaginationService : ICalendarRulePaginationService
             ? query.Take(0)
             : query.Skip(firstItem).Take(filter.NumberOfItemsPerPage);
 
-        var calendarRules = await paginatedQuery.ToListAsync();
+        var absences = await paginatedQuery.ToListAsync();
 
-        var result = new TruncatedCalendarRule
+        var result = new TruncatedAbsence
         {
-            CalendarRules = calendarRules,
+            Absences = absences,
             MaxItems = count,
             CurrentPage = filter.RequiredPage,
-            FirstItemOnPage = firstItem
+            FirstItemOnPage = count <= firstItem ? -1 : firstItem
         };
 
         if (filter.NumberOfItemsPerPage > 0)
         {
-            result.MaxPages = count / filter.NumberOfItemsPerPage;
+            var maxPage = count / filter.NumberOfItemsPerPage;
+            result.MaxPages = count % filter.NumberOfItemsPerPage == 0 ? maxPage - 1 : maxPage;
         }
 
         return result;
     }
 
-    private int CalculateFirstItem(CalendarRulesFilter filter, int count)
+    private int CalculateFirstItem(AbsenceFilter filter, int count)
     {
         var firstItem = 0;
 
@@ -60,14 +61,12 @@ public class CalendarRulePaginationService : ICalendarRulePaginationService
             }
             else
             {
-                // Test compatibility: Page 1 should start at FirstItemOnPage = 0
-                firstItem = (filter.RequiredPage == 1) ? 0 : filter.RequiredPage * filter.NumberOfItemsPerPage;
+                firstItem = filter.RequiredPage * filter.NumberOfItemsPerPage;
             }
         }
         else
         {
-            // Test compatibility: Page 1 should start at FirstItemOnPage = 0  
-            firstItem = (filter.RequiredPage == 1) ? 0 : filter.RequiredPage * filter.NumberOfItemsPerPage;
+            firstItem = filter.RequiredPage * filter.NumberOfItemsPerPage;
         }
 
         return firstItem;
