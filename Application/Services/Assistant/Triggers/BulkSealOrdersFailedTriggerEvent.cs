@@ -29,9 +29,10 @@ public sealed record BulkSealOrdersFailedTriggerEvent(
     public Guid? TargetUserId => UserId;
 
     /// <summary>
-    /// seal_open_orders is restricted to users with unrestricted group scope, so its acting user is
-    /// always admin-tier; this only affects ProactiveLivePushPolicy's companion classification (already
-    /// loud here regardless, since Severity is High), kept for consistency with the completed event.
+    /// Has no effect on WHO receives this event - TargetUserId narrows the audience to the acting user
+    /// (an administrator or a supervisor) before AdminOnly is read. It only affects ProactiveLivePushPolicy's
+    /// companion classification (already loud here regardless, since Severity is High), kept for consistency
+    /// with the completed event.
     /// </summary>
     public bool AdminOnly => true;
 

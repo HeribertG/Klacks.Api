@@ -7,8 +7,13 @@
 /// refusals and failures are reported per order instead of aborting. With apply=false (default) it only
 /// reports how many orders are sealable and what blocks the others. With autoAssignGroups=true the group
 /// assignment runs first, so orders held back only by a missing group become sealable in the same call.
-/// Sealing can never be undone. Restricted to users with unrestricted group scope, because the run
-/// reaches every group in the installation. With apply=true, a batch whose sealable count (from the
+/// Sealing can never be undone. Requires CanEditShifts (administrators and supervisors, never the planner
+/// floor), checked here again on top of the executor's seed gate. An administrator with unrestricted group scope
+/// reaches every open order, including orders without a group; every other caller - a supervisor, or an
+/// administrator whose scope is restricted - only reaches orders linked to at least one group they can see, never
+/// orders without a group, and may neither name a hidden group nor run the group assignment. That scope is resolved
+/// once and carried on the command, so the preview, the inline apply and the background job filter identically.
+/// With apply=true, a batch whose sealable count (from the
 /// same count the preview reports) exceeds SealOpenOrdersSynchronousLimit is NOT sealed inline: it is
 /// handed to SealOpenOrdersJobBackgroundService and this call returns immediately with a job id. The
 /// user is notified in their Klacksy inbox once that job finishes (BulkSealOrdersCompletedTriggerEvent)
@@ -28,9 +33,11 @@ using Klacks.Api.Application.Commands.Orders;
 using Klacks.Api.Application.DTOs.Orders;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -56,10 +63,22 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
         "Try again shortly, or narrow the filter (fromDate/untilDate/groupName/maxCount) to fit within " +
         $"{SealOpenOrdersSynchronousLimit} sealable order(s) so it runs immediately instead.";
 
-    private const string RestrictedScopeError =
-        "This skill seals every open order in the installation and the sealing cannot be undone; " +
-        "it is only available to users with unrestricted group scope. Your scope is limited to: {0}. " +
-        "Ask an administrator to run it, or seal the orders inside your scope one at a time instead.";
+    private const string MissingPermissionError =
+        "Sealing orders requires the right to edit shifts, which only administrators and supervisors hold. " +
+        "Ask an administrator or a supervisor to seal the orders.";
+
+    private const string NoGroupScopeError =
+        "No group is assigned to your group scope, so there is no open order you may seal. " +
+        "Ask an administrator to assign you a group scope.";
+
+    private const string AutoAssignRequiresFullAccessError =
+        "autoAssignGroups is only available to administrators with unrestricted group scope: the group assignment " +
+        "works on orders that have no group yet, and those can only be sealed by an administrator. " +
+        "Seal the orders that already belong to your groups, or ask an administrator to run the group assignment.";
+
+    private const string ScopedPreviewNote =
+        "Only orders in the groups you can see are included; orders without a group can only be sealed by an " +
+        "administrator. ";
 
     private const string InvalidMaxCountError =
         "maxCount must be greater than 0 when it is given.";
@@ -94,11 +113,13 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
-        if (!scope.IsUnrestricted)
+        if (!Permissions.HasPermission(context.UserPermissions, Permissions.CanEditShifts))
         {
-            return SkillResult.Error(string.Format(RestrictedScopeError, string.Join(", ", scope.VisibleRootNames)));
+            return SkillResult.Error(MissingPermissionError);
         }
+
+        var access = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var hasFullAccess = access.IsUnrestricted && context.UserPermissions.Contains(Roles.Admin);
 
         var maxCount = GetParameter<int?>(parameters, "maxCount");
         if (maxCount is <= 0)
@@ -113,11 +134,27 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
             return SkillResult.Error(GroupNameWithAutoAssignError);
         }
 
+        if (autoAssignGroups && !hasFullAccess)
+        {
+            return SkillResult.Error(AutoAssignRequiresFullAccessError);
+        }
+
+        IReadOnlyList<Group> reachableGroups = hasFullAccess && string.IsNullOrWhiteSpace(groupName)
+            ? []
+            : await LoadReachableGroupsAsync(access, hasFullAccess);
+        if (!hasFullAccess && reachableGroups.Count == 0)
+        {
+            return SkillResult.Error(NoGroupScopeError);
+        }
+
+        var scope = hasFullAccess
+            ? OpenOrderSealingScope.FullAccess()
+            : OpenOrderSealingScope.ForGroups(reachableGroups.Select(g => g.Id));
+
         Guid? groupId = null;
         if (!string.IsNullOrWhiteSpace(groupName))
         {
-            var groups = await _groupRepository.List();
-            var (group, groupError) = GroupResolver.Resolve(groups, groupName);
+            var (group, groupError) = GroupResolver.Resolve(reachableGroups, groupName);
             if (group == null)
             {
                 return SkillResult.Error(groupError!);
@@ -156,7 +193,8 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
             autoAssignGroups,
             ValidFrom: null,
             apply,
-            context.UserName);
+            context.UserName,
+            scope);
 
         SealOpenOrdersResult result;
         try
@@ -179,7 +217,13 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
             return SkillResult.Error(ex.Message);
         }
 
-        return apply ? BuildAppliedResult(result) : BuildPreviewResult(result);
+        return apply ? BuildAppliedResult(result) : BuildPreviewResult(result, scope);
+    }
+
+    private async Task<IReadOnlyList<Group>> LoadReachableGroupsAsync(GroupScopeAccess access, bool hasFullAccess)
+    {
+        var groups = await _groupRepository.List();
+        return hasFullAccess ? groups : groups.Where(access.IsInScope).ToList();
     }
 
     private SkillResult EnqueueJob(Guid userId, SealOpenOrdersCommand command, SealOpenOrdersResult previewResult)
@@ -207,8 +251,10 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
             "You will be notified in your Klacksy inbox once it finishes.");
     }
 
-    private static SkillResult BuildPreviewResult(SealOpenOrdersResult result)
+    private static SkillResult BuildPreviewResult(SealOpenOrdersResult result, OpenOrderSealingScope scope)
     {
+        var scopeNote = scope.HasFullAccess ? string.Empty : ScopedPreviewNote;
+
         var autoAssignNote = result.AutoAssignRequested
             ? $"The group assignment would link {result.AutoAssignedCount} order(s) first, so up to " +
               $"{Math.Min(result.AutoAssignedCount, result.BlockedOnlyByMissingGroupCount)} of the blocked " +
@@ -222,13 +268,13 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
         {
             return SkillResult.SuccessResult(
                 result,
-                $"Preview: no open order matches the filter. {autoAssignNote}Nothing was changed.");
+                $"Preview: no open order matches the filter. {scopeNote}{autoAssignNote}Nothing was changed.");
         }
 
         return SkillResult.SuccessResult(
             result,
             $"Preview: {result.SealableCount} of {result.TotalOrders} open order(s) can be sealed as they " +
-            $"are now, {result.BlockedCount} are blocked. {autoAssignNote}{BuildBlockedDetails(result)}" +
+            $"are now, {result.BlockedCount} are blocked. {scopeNote}{autoAssignNote}{BuildBlockedDetails(result)}" +
             "Nothing was changed yet. Sealing cannot be undone — ask the user to confirm, then call " +
             "again with apply=true.");
     }

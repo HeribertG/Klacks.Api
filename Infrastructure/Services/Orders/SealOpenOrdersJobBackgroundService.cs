@@ -17,7 +17,11 @@
 /// reason a full recovery scan is not implemented here — unlike a group missing coordinates, a lost seal
 /// job leaves no marker to resume from (SealOpenOrdersCommand carries no persisted identity until it
 /// completes) and the caller already knows to check via seal_open_orders(apply=false) if the promised
-/// inbox message never arrives.
+/// inbox message never arrives. Group scope is enforced twice: the command carries the caller's
+/// OpenOrderSealingScope from the request, which the handler applies to the orders as they are when the job runs,
+/// and the run executes under ExecutionPrincipal of the job's user, so the per-order visibility check of
+/// IOrderSealingService judges against that user's live scope instead of treating the job as an unrestricted
+/// system caller.
 /// </summary>
 
 using System.Diagnostics;
@@ -25,6 +29,7 @@ using System.Threading.Channels;
 using Klacks.Api.Application.DTOs.Orders;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Assistant.Triggers;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -86,9 +91,14 @@ public class SealOpenOrdersJobBackgroundService : BackgroundService, ISealOpenOr
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            using var scope = _serviceProvider.CreateScope();
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            var result = await mediator.Send(job.Command, stoppingToken);
+            SealOpenOrdersResult result;
+            using (ExecutionPrincipal.Begin(job.UserId))
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                result = await mediator.Send(job.Command, stoppingToken);
+            }
+
             stopwatch.Stop();
 
             _logger.LogInformation(
