@@ -2,8 +2,8 @@
 name: explain_whisper_setup
 description: |
   Explains running speech recognition on the company's own server instead of sending recordings to
-  an outside service: the two model sizes and what they cost in memory, that installing downloads a
-  large model and can take a good while, how progress is shown, switching between the sizes, and
+  an outside service: the three engine options (two Whisper sizes and the faster Parakeet) and what
+  they cost in memory, that installing downloads a large model and can take a good while, how progress is shown, switching between the sizes, and
   what happens to dictation when it is removed again. Use this when the user asks whether recordings
   can stay in-house, why an installation is taking so long, or which size to pick.
 category: Query
@@ -33,16 +33,21 @@ synonyms:
 Installs a speech service on the company's own server so that recordings never leave the building —
 the deciding argument wherever staff data must not reach an outside provider.
 
-## The two sizes
+## The three options
 
 Card anchor: `whisper-plugin-setting-container`.
 
 - **Compact** (de: "Kompakt (small)") — less memory, weaker on uncommon languages.
 - **Full** (de: "Voll (large-v3-turbo)") — all 25 languages, around 2 GB of memory. This is the
   preselected choice.
+- **Parakeet** — a faster engine that runs well on CPU only and also works on the
+  office PC. It covers 25 European languages. Of the Klacks interface languages it covers German, English,
+  French, Italian, Czech, Danish, Greek, Spanish, Finnish, Dutch, Polish, Portuguese, Romanian and Swedish —
+  **not** Arabic, Hebrew, Indonesian, Japanese, Korean, Malay, Norwegian Bokmal, Thai, Vietnamese or Chinese.
+  Speech in an uncovered language is rejected with a clear message; for those languages Whisper is needed.
 
-Those are the only differences the product states. Anything more specific about accuracy or speed
-would be guesswork.
+Only one engine runs at a time: installing one stops the other. Beyond these differences the product
+states nothing about accuracy; anything more specific would be guesswork.
 
 ## Installing
 
@@ -56,9 +61,10 @@ failed. Buttons stay locked meanwhile.
 card says so plainly. The reverse holds too: installing here blocks an application update until it
 finishes.
 
-## Switching size
+## Switching size or engine
 
-Install the other size — that is the whole procedure. The switch button appears only once something
+Install the other option — that is the whole procedure. Installing Parakeet while Whisper runs (or the
+reverse) replaces the running engine. The switch button appears only once something
 is installed and a different size is selected.
 
 ## Removing it

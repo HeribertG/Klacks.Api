@@ -1173,8 +1173,8 @@
       "hash": "B064810B282A6DF6DA02EA5C079D0D5C39EA5DCE3CB16A35A529ACDCD94D6553"
     },
     "install_whisper_plugin": {
-      "version": 5,
-      "hash": "5825764B9AEF1CB0542F605D49BABDD7A99FB845FED9695785742D85F8790B2F"
+      "version": 6,
+      "hash": "6EA95B361B58182BD3E25DFF016665F6EF6E50008EEC736BC61E2D601A3B2228"
     },
     "interpret_resource_monitor": {
       "version": 4,

@@ -42207,13 +42207,14 @@
       "parameters": [
         {
           "name": "modelAlias",
-          "description": "Model size: small or large-v3-turbo",
+          "description": "small, large-v3-turbo (Whisper, all languages) or parakeet-v3 (fast, 25 European languages)",
           "type": "Enum",
           "required": false,
           "defaultValue": "small",
           "enumValues": [
             "small",
-            "large-v3-turbo"
+            "large-v3-turbo",
+            "parakeet-v3"
           ]
         }
       ],
@@ -42259,7 +42260,7 @@
         "fr": "Installer la reconnaissance vocale locale",
         "it": "Installa il riconoscimento vocale locale"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "uninstall_whisper_plugin",

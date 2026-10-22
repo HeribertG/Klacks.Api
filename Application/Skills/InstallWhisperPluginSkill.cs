@@ -5,7 +5,7 @@
 /// the background, so the skill reports whether it was queued rather than claiming it is finished —
 /// get_whisper_plugin_status shows how far it got.
 /// </summary>
-/// <param name="modelAlias">Model size to install: small or large-v3-turbo.</param>
+/// <param name="modelAlias">Engine to install: small, large-v3-turbo (Whisper) or parakeet-v3 (Parakeet).</param>
 
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Constants;
@@ -38,7 +38,8 @@ public class InstallWhisperPluginSkill : BaseSkillImplementation
         {
             return SkillResult.Error(
                 $"Unknown modelAlias '{modelAlias}'. Use one of: " +
-                $"{WhisperPluginConstants.ModelAliasSmall}, {WhisperPluginConstants.ModelAliasLarge}.");
+                $"{WhisperPluginConstants.ModelAliasSmall}, {WhisperPluginConstants.ModelAliasLarge}, " +
+                $"{WhisperPluginConstants.ModelAliasParakeet}.");
         }
 
         var result = await _mediator.Send(
