@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "Dicionário",
   "setting.speech.enhancement-enabled": "Aperfeiçoamento de texto por LLM ativo",
   "setting.speech.headline": "Klacksy Voz",
+  "setting.speech.local-stt.install-engine": "Instalar o {{engine}}",
   "setting.speech.local-stt.install-parakeet": "Instalar o Parakeet",
   "setting.speech.local-stt.languages": "Reconhece alemão, inglês, francês, italiano e mais 21 idiomas europeus. Não: árabe, hebraico, indonésio, japonês, coreano, malaio, norueguês, tailandês, vietnamita, chinês.",
   "setting.speech.local-stt.license": "Modelo: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · Runtime sherpa-onnx",

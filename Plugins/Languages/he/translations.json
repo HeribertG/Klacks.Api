@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "מילון",
   "setting.speech.enhancement-enabled": "שיפור טקסט על ידי LLM פעיל",
   "setting.speech.headline": "Klacksy דיבור",
+  "setting.speech.local-stt.install-engine": "התקן את {{engine}}",
   "setting.speech.local-stt.install-parakeet": "התקן את Parakeet",
   "setting.speech.local-stt.languages": "מזהה גרמנית, אנגלית, צרפתית, איטלקית ועוד 21 שפות אירופאיות. לא נתמכות: ערבית, עברית, אינדונזית, יפנית, קוריאנית, מלאית, נורווגית, תאית, וייטנאמית, סינית.",
   "setting.speech.local-stt.license": "מודל: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · סביבת ריצה sherpa-onnx",

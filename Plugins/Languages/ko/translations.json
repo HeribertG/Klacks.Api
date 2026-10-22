@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "사전",
   "setting.speech.enhancement-enabled": "LLM 텍스트 향상 활성화됨",
   "setting.speech.headline": "Klacksy 음성",
+  "setting.speech.local-stt.install-engine": "{{engine}} 설치",
   "setting.speech.local-stt.install-parakeet": "Parakeet 설치",
   "setting.speech.local-stt.languages": "독일어, 영어, 프랑스어, 이탈리아어 외에 유럽 언어 21개를 인식합니다. 지원하지 않음: 아랍어, 히브리어, 인도네시아어, 일본어, 한국어, 말레이어, 노르웨이어, 태국어, 베트남어, 중국어.",
   "setting.speech.local-stt.license": "모델: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · 런타임 sherpa-onnx",

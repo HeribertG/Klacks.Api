@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "พจนานุกรม",
   "setting.speech.enhancement-enabled": "เปิดใช้การปรับปรุงข้อความด้วย LLM",
   "setting.speech.headline": "Klacksy เสียง",
+  "setting.speech.local-stt.install-engine": "ติดตั้ง {{engine}}",
   "setting.speech.local-stt.install-parakeet": "ติดตั้ง Parakeet",
   "setting.speech.local-stt.languages": "รู้จำภาษาเยอรมัน อังกฤษ ฝรั่งเศส อิตาลี และภาษายุโรปอีก 21 ภาษา ไม่รองรับ: ภาษาอาหรับ ฮีบรู อินโดนีเซีย ญี่ปุ่น เกาหลี มลายู นอร์เวย์ ไทย เวียดนาม จีน",
   "setting.speech.local-stt.license": "โมเดล: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · รันไทม์ sherpa-onnx",

@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "Sanakirja",
   "setting.speech.enhancement-enabled": "LLM-tekstinkorjaus käytössä",
   "setting.speech.headline": "Klacksy Puhe",
+  "setting.speech.local-stt.install-engine": "Asenna {{engine}}",
   "setting.speech.local-stt.install-parakeet": "Asenna Parakeet",
   "setting.speech.local-stt.languages": "Tunnistaa saksan, englannin, ranskan, italian ja 21 muuta eurooppalaista kieltä. Ei tunnista: arabia, heprea, indonesia, japani, korea, malaiji, norja, thai, vietnam, kiina.",
   "setting.speech.local-stt.license": "Malli: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · Ajoympäristö sherpa-onnx",

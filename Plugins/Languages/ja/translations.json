@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "辞書",
   "setting.speech.enhancement-enabled": "LLMテキスト補正が有効",
   "setting.speech.headline": "Klacksy 音声",
+  "setting.speech.local-stt.install-engine": "{{engine}}をインストール",
   "setting.speech.local-stt.install-parakeet": "Parakeetをインストール",
   "setting.speech.local-stt.languages": "ドイツ語、英語、フランス語、イタリア語のほか、21のヨーロッパ言語を認識します。非対応：アラビア語、ヘブライ語、インドネシア語、日本語、韓国語、マレー語、ノルウェー語、タイ語、ベトナム語、中国語。",
   "setting.speech.local-stt.license": "モデル：NVIDIA Parakeet TDT 0.6B v3、CC-BY-4.0 · ランタイム sherpa-onnx",

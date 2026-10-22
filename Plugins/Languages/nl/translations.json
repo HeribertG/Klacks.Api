@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "Woordenboek",
   "setting.speech.enhancement-enabled": "LLM-tekstverbetering ingeschakeld",
   "setting.speech.headline": "Klacksy Spraak",
+  "setting.speech.local-stt.install-engine": "{{engine}} installeren",
   "setting.speech.local-stt.install-parakeet": "Parakeet installeren",
   "setting.speech.local-stt.languages": "Herkent Duits, Engels, Frans, Italiaans en 21 andere Europese talen. Niet: Arabisch, Hebreeuws, Indonesisch, Japans, Koreaans, Maleis, Noors, Thais, Vietnamees, Chinees.",
   "setting.speech.local-stt.license": "Model: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · Runtime sherpa-onnx",

@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "Słownik",
   "setting.speech.enhancement-enabled": "Ulepszanie tekstu przez LLM aktywne",
   "setting.speech.headline": "Klacksy Mowa",
+  "setting.speech.local-stt.install-engine": "Zainstaluj {{engine}}",
   "setting.speech.local-stt.install-parakeet": "Zainstaluj Parakeet",
   "setting.speech.local-stt.languages": "Rozpoznaje niemiecki, angielski, francuski, włoski i 21 innych języków europejskich. Nie obsługuje: arabskiego, hebrajskiego, indonezyjskiego, japońskiego, koreańskiego, malajskiego, norweskiego, tajskiego, wietnamskiego, chińskiego.",
   "setting.speech.local-stt.license": "Model: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · Runtime sherpa-onnx",

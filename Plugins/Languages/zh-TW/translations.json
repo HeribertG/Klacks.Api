@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "字典",
   "setting.speech.enhancement-enabled": "已啟用 LLM 文字增強",
   "setting.speech.headline": "Klacksy 語音",
+  "setting.speech.local-stt.install-engine": "安裝 {{engine}}",
   "setting.speech.local-stt.install-parakeet": "安裝 Parakeet",
   "setting.speech.local-stt.languages": "可辨識德語、英語、法語、義大利語以及另外 21 種歐洲語言。不支援：阿拉伯語、希伯來語、印尼語、日語、韓語、馬來語、挪威語、泰語、越南語、中文。",
   "setting.speech.local-stt.license": "模型：NVIDIA Parakeet TDT 0.6B v3，CC-BY-4.0 · 執行環境 sherpa-onnx",

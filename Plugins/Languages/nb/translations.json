@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "Ordbok",
   "setting.speech.enhancement-enabled": "LLM-tekstforbedring aktivert",
   "setting.speech.headline": "Klacksy Tale",
+  "setting.speech.local-stt.install-engine": "Installer {{engine}}",
   "setting.speech.local-stt.install-parakeet": "Installer Parakeet",
   "setting.speech.local-stt.languages": "Gjenkjenner tysk, engelsk, fransk, italiensk og 21 andre europeiske språk. Ikke: arabisk, hebraisk, indonesisk, japansk, koreansk, malayisk, norsk, thai, vietnamesisk, kinesisk.",
   "setting.speech.local-stt.license": "Modell: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · Runtime sherpa-onnx",

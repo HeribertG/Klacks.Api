@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "Kamus",
   "setting.speech.enhancement-enabled": "Penambahbaikan teks LLM didayakan",
   "setting.speech.headline": "Klacksy Suara",
+  "setting.speech.local-stt.install-engine": "Pasang {{engine}}",
   "setting.speech.local-stt.install-parakeet": "Pasang Parakeet",
   "setting.speech.local-stt.languages": "Mengecam bahasa Jerman, Inggeris, Perancis, Itali dan 21 bahasa Eropah lagi. Tidak: Arab, Ibrani, Indonesia, Jepun, Korea, Melayu, Norway, Thai, Vietnam, Cina.",
   "setting.speech.local-stt.license": "Model: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · Runtime sherpa-onnx",

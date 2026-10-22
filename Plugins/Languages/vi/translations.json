@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "Từ điển",
   "setting.speech.enhancement-enabled": "Đã bật cải thiện văn bản bằng LLM",
   "setting.speech.headline": "Klacksy Giọng nói",
+  "setting.speech.local-stt.install-engine": "Cài đặt {{engine}}",
   "setting.speech.local-stt.install-parakeet": "Cài đặt Parakeet",
   "setting.speech.local-stt.languages": "Nhận dạng tiếng Đức, tiếng Anh, tiếng Pháp, tiếng Ý và 21 ngôn ngữ châu Âu khác. Không hỗ trợ: tiếng Ả Rập, tiếng Do Thái, tiếng Indonesia, tiếng Nhật, tiếng Hàn, tiếng Mã Lai, tiếng Na Uy, tiếng Thái, tiếng Việt, tiếng Trung.",
   "setting.speech.local-stt.license": "Mô hình: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · Runtime sherpa-onnx",

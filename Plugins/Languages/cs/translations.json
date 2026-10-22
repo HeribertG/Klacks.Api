@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "Slovník",
   "setting.speech.enhancement-enabled": "Vylepšení textu pomocí LLM aktivní",
   "setting.speech.headline": "Klacksy řeč",
+  "setting.speech.local-stt.install-engine": "Nainstalovat {{engine}}",
   "setting.speech.local-stt.install-parakeet": "Nainstalovat Parakeet",
   "setting.speech.local-stt.languages": "Rozpoznává němčinu, angličtinu, francouzštinu, italštinu a dalších 21 evropských jazyků. Nepodporuje: arabštinu, hebrejštinu, indonéštinu, japonštinu, korejštinu, malajštinu, norštinu, thajštinu, vietnamštinu, čínštinu.",
   "setting.speech.local-stt.license": "Model: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · Runtime sherpa-onnx",

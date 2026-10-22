@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "Λεξικό",
   "setting.speech.enhancement-enabled": "Βελτίωση κειμένου μέσω LLM ενεργή",
   "setting.speech.headline": "Ομιλία Klacksy",
+  "setting.speech.local-stt.install-engine": "Εγκατάσταση {{engine}}",
   "setting.speech.local-stt.install-parakeet": "Εγκατάσταση Parakeet",
   "setting.speech.local-stt.languages": "Αναγνωρίζει γερμανικά, αγγλικά, γαλλικά, ιταλικά και 21 ακόμη ευρωπαϊκές γλώσσες. Όχι: αραβικά, εβραϊκά, ινδονησιακά, ιαπωνικά, κορεατικά, μαλαισιανά, νορβηγικά, ταϊλανδικά, βιετναμέζικα, κινεζικά.",
   "setting.speech.local-stt.license": "Μοντέλο: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · Runtime sherpa-onnx",

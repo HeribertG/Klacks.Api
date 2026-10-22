@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "Dicționar",
   "setting.speech.enhancement-enabled": "Îmbunătățire text prin LLM activă",
   "setting.speech.headline": "Klacksy Voce",
+  "setting.speech.local-stt.install-engine": "Instalează {{engine}}",
   "setting.speech.local-stt.install-parakeet": "Instalează Parakeet",
   "setting.speech.local-stt.languages": "Recunoaște germana, engleza, franceza, italiana și alte 21 de limbi europene. Nu: araba, ebraica, indoneziana, japoneza, coreeana, malaeziana, norvegiana, thailandeza, vietnameza, chineza.",
   "setting.speech.local-stt.license": "Model: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · Runtime sherpa-onnx",

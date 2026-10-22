@@ -3387,6 +3387,7 @@
   "setting.speech.dictionary-headline": "القاموس",
   "setting.speech.enhancement-enabled": "تحسين النص بواسطة LLM مفعل",
   "setting.speech.headline": "Klacksy الصوت",
+  "setting.speech.local-stt.install-engine": "تثبيت {{engine}}",
   "setting.speech.local-stt.install-parakeet": "تثبيت Parakeet",
   "setting.speech.local-stt.languages": "يتعرّف على الألمانية والإنجليزية والفرنسية والإيطالية و21 لغة أوروبية أخرى. لا يدعم: العربية والعبرية والإندونيسية واليابانية والكورية والملايوية والنرويجية والتايلاندية والفيتنامية والصينية.",
   "setting.speech.local-stt.license": "النموذج: NVIDIA Parakeet TDT 0.6B v3، CC-BY-4.0 · بيئة التشغيل sherpa-onnx",
