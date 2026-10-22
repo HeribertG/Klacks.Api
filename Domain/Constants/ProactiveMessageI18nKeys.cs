@@ -107,7 +107,12 @@ public static class ProactiveMessageI18nKeys
     /// MessengerProactiveTexts, because an approval request never goes out over the messenger.
     /// </summary>
     public const string EscalationApprovalRequest = "assistant.proactive.escalationApprovalRequest";
-    public const string OpenOrder = "assistant.proactive.openOrder";
+    /// <summary>
+    /// The daily open-order summary per planner; parameters count (open orders the planner may see) and
+    /// soonCount (of those, the ones starting within the next seven days). Replaces the per-order key
+    /// assistant.proactive.openOrder, which only inbox rows written before the switch still carry.
+    /// </summary>
+    public const string OpenOrdersSummary = "assistant.proactive.openOrdersSummary";
     public const string UncutFulldayShift = "assistant.proactive.uncutFulldayShift";
     public const string EmptyContainer = "assistant.proactive.emptyContainer";
     public const string DailyDigest = "assistant.proactive.dailyDigest";

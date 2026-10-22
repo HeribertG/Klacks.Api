@@ -19,6 +19,9 @@
 /// Migration, retention, registration and import are each guarded per drop point: an unexpected error is logged, the
 /// scope's tracked changes are discarded and the run continues with the next step or drop point.
 /// Cancellation stops the run between files and orders; an interrupted row ages into Interrupted.
+/// (4) When at least one file of the run finished Completed or CompletedWithWarnings, the open-order summary is
+/// rescanned once (IOpenOrderSummaryRescan), so new orders reach the planners right away instead of with the next
+/// hourly tick; a run without a completed file (only failures, nothing received) triggers nothing.
 /// </summary>
 /// <param name="legacyFolderMigrator">Moves files of the pre-ledger sub-folders into the ledger and the inbox</param>
 /// <param name="fileRepository">Ledger repository: stale-row reaper and the Received rows of a drop point</param>
@@ -26,7 +29,9 @@
 /// <param name="inboxRegistrationService">Registers files dropped directly into an inbox folder</param>
 /// <param name="fileImporter">Claims, imports and finishes one Received row</param>
 /// <param name="timeProvider">Clock for the stale-heartbeat cutoff</param>
+/// <param name="openOrderSummaryRescan">Reports the open orders once after a run that completed at least one file</param>
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Application.Services.Assistant.Scheduling;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -56,6 +61,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<ErpOrderImportRunner> _logger;
     private readonly ErpCronTimeZoneDriftNotifier _driftNotifier;
+    private readonly IOpenOrderSummaryRescan _openOrderSummaryRescan;
 
     public ErpOrderImportRunner(
         IErpDropPointRepository dropPointRepository,
@@ -71,8 +77,10 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         ErpImportRunState runState,
         TimeProvider timeProvider,
         ILogger<ErpOrderImportRunner> logger,
-        ErpCronTimeZoneDriftNotifier driftNotifier)
+        ErpCronTimeZoneDriftNotifier driftNotifier,
+        IOpenOrderSummaryRescan openOrderSummaryRescan)
     {
+        _openOrderSummaryRescan = openOrderSummaryRescan;
         _dropPointRepository = dropPointRepository;
         _defaultDropPointProvider = defaultDropPointProvider;
         _legacyFolderMigrator = legacyFolderMigrator;
@@ -118,9 +126,15 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
                 await RegisterInboxFilesAsync(dropPoint, cancellationToken);
             }
 
+            var completedFiles = 0;
             foreach (var dropPoint in dropPoints)
             {
-                await ImportReceivedFilesAsync(dropPoint, cancellationToken);
+                completedFiles += await ImportReceivedFilesAsync(dropPoint, cancellationToken);
+            }
+
+            if (completedFiles > 0)
+            {
+                await _openOrderSummaryRescan.RunAsync(cancellationToken);
             }
         }
         finally
@@ -256,8 +270,9 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         }
     }
 
-    private async Task ImportReceivedFilesAsync(ErpDropPoint dropPoint, CancellationToken cancellationToken)
+    private async Task<int> ImportReceivedFilesAsync(ErpDropPoint dropPoint, CancellationToken cancellationToken)
     {
+        var completedFiles = 0;
         try
         {
             var receivedFiles = await _fileRepository.ListReceivedAsync(dropPoint.Id, cancellationToken);
@@ -265,7 +280,10 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             foreach (var file in receivedFiles)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await _fileImporter.ImportAsync(file, cancellationToken);
+                if (await _fileImporter.ImportAsync(file, cancellationToken))
+                {
+                    completedFiles++;
+                }
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
@@ -273,5 +291,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             _unitOfWork.DiscardTrackedChanges();
             _logger.LogError(ex, "ERP import: files of drop point {DropPointId} could not be imported; the other drop points continue", dropPoint.Id);
         }
+
+        return completedFiles;
     }
 }

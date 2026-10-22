@@ -14,6 +14,13 @@ public interface IProactiveTriggerDispatchRepository
     /// </summary>
     Task<bool> WasDispatchedAsync(string userId, string triggerKind, string dedupKey, Guid? conditionId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// The dedup keys of a user's rows of one kind that start with the given prefix, regardless of the condition
+    /// link. Used by the rising-count dedup (RisingCountDedupKey), whose keys are a day prefix plus the delivered
+    /// count, to find the highest count already delivered that day. Soft-deleted rows are excluded.
+    /// </summary>
+    Task<IReadOnlyList<string>> ListDedupKeysAsync(string userId, string triggerKind, string dedupKeyPrefix, CancellationToken cancellationToken = default);
+
     Task RecordAsync(ProactiveTriggerDispatchRow row, CancellationToken cancellationToken = default);
 
     /// <summary>

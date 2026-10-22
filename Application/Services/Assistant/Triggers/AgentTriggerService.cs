@@ -21,7 +21,7 @@
 /// <param name="dispatchRepository">Persists dispatch rows serving as dedup log and inbox.</param>
 /// <param name="conditionRepository">Resolves the condition-ledger row a ledger-tracked event reports, so a later dismissal can write its reject reason back onto the finding.</param>
 /// <param name="activityTracker">Suppresses live pushes while the user is actively chatting.</param>
-/// <param name="planningAudienceResolver">Resolves the planner / admin audience, narrowed to the union of the GroupVisibility scopes of every group the event names, or per named employee for a client-scoped event, whose recipients each get only the employees they may see.</param>
+/// <param name="planningAudienceResolver">Resolves the planner / admin audience, narrowed to the union of the GroupVisibility scopes of every group the event names, or per named employee for a client-scoped event, whose recipients each get only the employees they may see, or per named group for a group-scoped aggregate, whose recipients each get only the counts of the groups they may see.</param>
 /// <param name="offlineMessengerNotifier">Loud channel for recipients without a live connection.</param>
 /// <param name="messengerTextComposer">Renders the messenger sentence in the installation language.</param>
 /// <param name="timeProvider">Clock the first reminder due date is stamped from, injected so a test can drive it.</param>
@@ -39,6 +39,7 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 public class AgentTriggerService : IAgentTriggerService
 {
     private const string VisibilityKeySeparator = ",";
+    private const string UngroupedVisibilityMarker = "*";
 
     private readonly IAgentTriggerRateLimiter _rateLimiter;
     private readonly IAgentTriggerPreferenceService _preferenceService;
@@ -154,7 +155,7 @@ public class AgentTriggerService : IAgentTriggerService
                 continue;
             }
 
-            if (await _dispatchRepository.WasDispatchedAsync(userId, variantEvent.Kind, dedupKey, conditionId, cancellationToken))
+            if (await WasDeliveredAsync(variantEvent, userId, dedupKey, conditionId, cancellationToken))
             {
                 tally.Deduped++;
                 continue;
@@ -176,7 +177,7 @@ public class AgentTriggerService : IAgentTriggerService
                     Id = messageId,
                     UserId = userId,
                     TriggerKind = variantEvent.Kind,
-                    DedupKey = dedupKey,
+                    DedupKey = RecipientDedupKey(variantEvent, dedupKey),
                     ContentKey = contentKey,
                     ContentParamsJson = contentParamsJson,
                     Severity = variantEvent.Severity,
@@ -192,6 +193,18 @@ public class AgentTriggerService : IAgentTriggerService
             }
             catch (Exception ex)
             {
+                if (await IsDuplicateOfAConcurrentWriterAsync(variantEvent, userId, dedupKey, conditionId, cancellationToken))
+                {
+                    // Lost the race against a concurrent dispatch of the very same row (the hourly tick and an
+                    // event-driven rescan): the unique dedup index rejected the second insert, and the recipient
+                    // has the message from the writer that won. Nothing is lost.
+                    tally.Deduped++;
+                    _logger.LogDebug(
+                        "Trigger {Kind} for user {UserId} was already recorded by a concurrent dispatch; the duplicate was suppressed",
+                        variantEvent.Kind, userId);
+                    continue;
+                }
+
                 // Error, not warning: a failed live push or messenger send still leaves the message
                 // readable in the inbox, but a failed row means this recipient never learns of the
                 // event at all. The loop still continues so one bad row cannot cost the remaining
@@ -222,6 +235,58 @@ public class AgentTriggerService : IAgentTriggerService
             {
                 tally.InboxSignaled++;
             }
+        }
+    }
+
+    /// <summary>
+    /// Whether this recipient already has this event. The default is one row per (user, kind, dedup key, condition).
+    /// An IRisingCountTriggerEvent is delivered again under the same DedupKey as soon as its count exceeds the highest
+    /// count this recipient already received under it - independent of the condition link, so a condition that was
+    /// resolved and re-opened on the same day does not reset the high-water mark.
+    /// </summary>
+    private async Task<bool> WasDeliveredAsync(
+        IAgentTriggerEvent variantEvent,
+        string userId,
+        string dedupKey,
+        Guid? conditionId,
+        CancellationToken cancellationToken)
+    {
+        if (variantEvent is not IRisingCountTriggerEvent risingEvent)
+        {
+            return await _dispatchRepository.WasDispatchedAsync(userId, variantEvent.Kind, dedupKey, conditionId, cancellationToken);
+        }
+
+        var deliveredKeys = await _dispatchRepository.ListDedupKeysAsync(
+            userId, variantEvent.Kind, RisingCountDedupKey.PrefixFor(dedupKey), cancellationToken);
+        var highestDelivered = RisingCountDedupKey.HighestDeliveredCount(deliveredKeys, dedupKey);
+
+        return highestDelivered is int delivered && risingEvent.RisingCount <= delivered;
+    }
+
+    private static string RecipientDedupKey(IAgentTriggerEvent variantEvent, string dedupKey) =>
+        variantEvent is IRisingCountTriggerEvent risingEvent
+            ? RisingCountDedupKey.For(dedupKey, risingEvent.RisingCount)
+            : dedupKey;
+
+    /// <summary>
+    /// After a rejected insert: whether the row this dispatch tried to write exists now, i.e. a concurrent writer
+    /// recorded it first. A lookup failure answers false, so the original error is still reported.
+    /// </summary>
+    private async Task<bool> IsDuplicateOfAConcurrentWriterAsync(
+        IAgentTriggerEvent variantEvent,
+        string userId,
+        string dedupKey,
+        Guid? conditionId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _dispatchRepository.WasDispatchedAsync(
+                userId, variantEvent.Kind, RecipientDedupKey(variantEvent, dedupKey), conditionId, cancellationToken);
+        }
+        catch (Exception)
+        {
+            return false;
         }
     }
 
@@ -381,7 +446,9 @@ public class AgentTriggerService : IAgentTriggerService
     /// except a client-scoped planner event yields exactly one variant - the event itself - for its whole
     /// audience. A client-scoped planner event (IClientScopedTriggerEvent) names employees, so its audience
     /// follows the client group-visibility rule per named employee instead, see
-    /// <see cref="ResolveClientScopedVariantsAsync"/>.
+    /// <see cref="ResolveClientScopedVariantsAsync"/>. A group-scoped aggregate (IGroupScopedAggregateTriggerEvent)
+    /// counts entities of many groups, so each recipient gets the counts of the groups they may see, see
+    /// <see cref="ResolveGroupScopedVariantsAsync"/>.
     /// </summary>
     private async Task<IReadOnlyList<RecipientVariant>> ResolveRecipientVariantsAsync(
         IAgentTriggerEvent triggerEvent,
@@ -394,6 +461,14 @@ public class AgentTriggerService : IAgentTriggerService
             && triggerEvent is IClientScopedTriggerEvent clientScopedEvent)
         {
             return await ResolveClientScopedVariantsAsync(clientScopedEvent, cancellationToken);
+        }
+
+        if (triggerEvent.TargetUserId is null
+            && !triggerEvent.AdminOnly
+            && triggerEvent.PlannersOnly
+            && triggerEvent is IGroupScopedAggregateTriggerEvent groupScopedEvent)
+        {
+            return await ResolveGroupScopedVariantsAsync(groupScopedEvent, cancellationToken);
         }
 
         var recipients = await ResolveRecipientsAsync(triggerEvent, connectedUserIds, cancellationToken);
@@ -448,8 +523,64 @@ public class AgentTriggerService : IAgentTriggerService
         return variants;
     }
 
+    /// <summary>
+    /// Per group the event names, the planners who may see that group
+    /// (IPlanningAudienceResolver.GetPlanningUserIdsForGroupAsync: every Admin plus the planners whose
+    /// GroupVisibility covers the group's Nested Set root) - the same rule the per-group audience of every other
+    /// shift-borne event follows. Each recipient then receives the event narrowed to the groups they may see;
+    /// Admins additionally see the entities without any group, so they are narrowed with includesUngrouped set and
+    /// receive the event even when it names no group at all. Recipients with an identical view share one variant,
+    /// so the narrowing is computed once per distinct view. The group audiences underneath are cached per root.
+    /// </summary>
+    private async Task<IReadOnlyList<RecipientVariant>> ResolveGroupScopedVariantsAsync(
+        IGroupScopedAggregateTriggerEvent groupScopedEvent,
+        CancellationToken cancellationToken)
+    {
+        var adminIds = await _planningAudienceResolver.GetAdminUserIdsAsync(cancellationToken);
+        var visibleGroupsByUser = new Dictionary<string, HashSet<Guid>>(StringComparer.OrdinalIgnoreCase);
+        foreach (var adminId in adminIds)
+        {
+            visibleGroupsByUser[adminId] = [];
+        }
+
+        foreach (var groupId in groupScopedEvent.GroupIds.Distinct())
+        {
+            var audience = await _planningAudienceResolver.GetPlanningUserIdsForGroupAsync(groupId, cancellationToken);
+            foreach (var userId in audience)
+            {
+                if (!visibleGroupsByUser.TryGetValue(userId, out var visibleGroups))
+                {
+                    visibleGroups = [];
+                    visibleGroupsByUser[userId] = visibleGroups;
+                }
+
+                visibleGroups.Add(groupId);
+            }
+        }
+
+        var variants = new List<RecipientVariant>();
+        var buckets = visibleGroupsByUser.GroupBy(
+            pair => BuildGroupVisibilityKey(pair.Value, adminIds.Contains(pair.Key)),
+            StringComparer.Ordinal);
+        foreach (var bucket in buckets)
+        {
+            var narrowedEvent = groupScopedEvent.NarrowTo(bucket.First().Value, adminIds.Contains(bucket.First().Key));
+            if (narrowedEvent is null)
+            {
+                continue;
+            }
+
+            variants.Add(new RecipientVariant(narrowedEvent, bucket.Select(pair => pair.Key).ToList()));
+        }
+
+        return variants;
+    }
+
     private static string BuildVisibilityKey(IEnumerable<Guid> visibleClientIds) =>
         string.Join(VisibilityKeySeparator, visibleClientIds.OrderBy(id => id));
+
+    private static string BuildGroupVisibilityKey(IEnumerable<Guid> visibleGroupIds, bool includesUngrouped) =>
+        (includesUngrouped ? UngroupedVisibilityMarker : string.Empty) + BuildVisibilityKey(visibleGroupIds);
 
     private async Task<IReadOnlyList<string>> ResolveRecipientsAsync(
         IAgentTriggerEvent triggerEvent,

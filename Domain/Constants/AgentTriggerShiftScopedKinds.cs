@@ -7,7 +7,8 @@
 /// Client id and were excluded anyway, because that audit stamp names the master-data maintainer rather
 /// than a planner; since both aggregate their findings into one event per period respectively per
 /// missing field, they name no single entity and fall under the general case. unstaffed_shift left the list with Paket D
-/// (2026-10-02): its events are one collective message per root group now and carry no shift id.
+/// (2026-10-02): its events are one collective message per root group now and carry no shift id. open_order
+/// left it the same way (2026-10-22): one daily summary per planner, no shift id.
 /// Curated beside AgentTriggerKinds for the same reason AgentTriggerGroupScopedKinds is:
 /// Domain must not depend on the Application layer the event types live in.
 /// </summary>
@@ -18,7 +19,6 @@ public static class AgentTriggerShiftScopedKinds
 {
     public static readonly string[] Values =
     [
-        AgentTriggerKinds.OpenOrder,
         AgentTriggerKinds.UncutFulldayShift,
         AgentTriggerKinds.EmptyContainer
     ];

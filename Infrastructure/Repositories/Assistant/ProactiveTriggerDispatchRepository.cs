@@ -51,6 +51,14 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
         return await query.AnyAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<string>> ListDedupKeysAsync(string userId, string triggerKind, string dedupKeyPrefix, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentTriggerDispatches
+            .Where(d => d.UserId == userId && d.TriggerKind == triggerKind && d.DedupKey.StartsWith(dedupKeyPrefix))
+            .Select(d => d.DedupKey)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task RecordAsync(ProactiveTriggerDispatchRow row, CancellationToken cancellationToken = default)
     {
         var alreadyRecorded = await WasDispatchedAsync(row.UserId, row.TriggerKind, row.DedupKey, row.ConditionId, cancellationToken);

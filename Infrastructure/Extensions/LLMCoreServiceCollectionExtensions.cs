@@ -238,7 +238,11 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.PeriodOverdueDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.ClientMissingCoreDataDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.CuriosityQuestionDetector>();
-        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.OpenOrderDetector>();
+        services.AddScoped<Klacks.Api.Application.Services.Assistant.Triggers.OpenOrderDetector>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector>(
+            sp => sp.GetRequiredService<Klacks.Api.Application.Services.Assistant.Triggers.OpenOrderDetector>());
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetectorRunner, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerDetectorRunner>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IOpenOrderSummaryRescan, Klacks.Api.Application.Services.Assistant.Triggers.OpenOrderSummaryRescan>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.UncutFullDayShiftDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.EmptyContainerDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.NextPeriodSchedulingDueDetector>();

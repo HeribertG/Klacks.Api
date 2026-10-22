@@ -19,6 +19,8 @@
 /// was reaped or reset elsewhere: the file is abandoned without a finish. Cancellation stops at once and
 /// leaves the row to age into Interrupted. Any other unexpected error finishes the attempt as Interrupted
 /// with the error message, so the next file still runs and the row can be retried.
+/// ImportAsync returns true exactly when this attempt finished the row as Completed or CompletedWithWarnings,
+/// which is what lets the run trigger the open-order summary rescan only after a completed import.
 /// The raw file is never moved: it stays at its storage key for audit and retry.
 /// All ledger transitions are self-committing ExecuteUpdate calls issued outside the per-order
 /// transactions; exceptions are staged and committed right away, before the next ledger call.
@@ -89,13 +91,13 @@ public class ErpImportFileImporter
         _logger = logger;
     }
 
-    public async Task ImportAsync(ErpImportFile file, CancellationToken cancellationToken = default)
+    public async Task<bool> ImportAsync(ErpImportFile file, CancellationToken cancellationToken = default)
     {
         var claimedAt = _timeProvider.GetUtcNow().UtcDateTime;
         if (!await _fileRepository.TryClaimAsync(file.Id, file.Attempt, _instanceIdentity.InstanceId, claimedAt, cancellationToken))
         {
             _logger.LogInformation("ERP import: file {Key} is already being imported elsewhere, skipping", file.StorageKey.ForLog());
-            return;
+            return false;
         }
 
         var attempt = new ErpImportFileAttempt(
@@ -103,23 +105,24 @@ public class ErpImportFileImporter
 
         try
         {
-            await ImportClaimedAsync(file, attempt, cancellationToken);
+            return await ImportClaimedAsync(file, attempt, cancellationToken);
         }
         catch (Exception ex) when (!IsCancellation(ex, cancellationToken))
         {
             _logger.LogError(ex, "ERP import: file {Key} aborted by an unexpected error", file.StorageKey.ForLog());
             _unitOfWork.DiscardTrackedChanges();
             await TryFinishInterruptedAsync(file, attempt, ex, cancellationToken);
+            return false;
         }
     }
 
-    private async Task ImportClaimedAsync(ErpImportFile file, ErpImportFileAttempt attempt, CancellationToken cancellationToken)
+    private async Task<bool> ImportClaimedAsync(ErpImportFile file, ErpImportFileAttempt attempt, CancellationToken cancellationToken)
     {
         var storedFile = await ErpImportStoredFileVerifier.ReadVerifiedAsync(_objectStorageService, file, cancellationToken);
         if (storedFile.Content == null)
         {
             await FailAsync(file, attempt, storedFile.FailureReason!, cancellationToken);
-            return;
+            return false;
         }
 
         OrderImportParseResult result;
@@ -131,7 +134,7 @@ public class ErpImportFileImporter
         if (IsUnparseable(result))
         {
             await FailAsync(file, attempt, string.Join(ReasonSeparator, result.Errors.Select(e => e.Message)), cancellationToken);
-            return;
+            return false;
         }
 
         var rejectedByParser = result.Errors
@@ -142,7 +145,7 @@ public class ErpImportFileImporter
         if (!await attempt.HeartbeatAsync(tally.ToProgress(), cancellationToken))
         {
             LogOwnershipLost(file);
-            return;
+            return false;
         }
 
         foreach (var rejectedOrder in rejectedByParser)
@@ -158,7 +161,7 @@ public class ErpImportFileImporter
             if (!await attempt.HeartbeatIfDueAsync(tally.ToProgress(), cancellationToken))
             {
                 LogOwnershipLost(file);
-                return;
+                return false;
             }
         }
 
@@ -170,7 +173,7 @@ public class ErpImportFileImporter
             if (!await attempt.HeartbeatIfDueAsync(tally.ToProgress(), cancellationToken))
             {
                 LogOwnershipLost(file);
-                return;
+                return false;
             }
         }
 
@@ -178,7 +181,10 @@ public class ErpImportFileImporter
         if (!await attempt.FinishAsync(status, tally.ToProgress(), failureReason: null, cancellationToken))
         {
             LogOwnershipLost(file);
+            return false;
         }
+
+        return true;
     }
 
     /// <summary>
