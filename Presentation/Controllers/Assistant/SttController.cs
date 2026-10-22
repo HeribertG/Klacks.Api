@@ -7,6 +7,8 @@
 /// </summary>
 /// <param name="sttProviders">All registered ISttProvider implementations</param>
 /// <param name="settingsRepository">Reads STT provider and API key from settings</param>
+/// <param name="customSttProviderRepository">Lists the enabled self-hosted STT providers</param>
+/// <param name="customSttProviderResolver">Resolves a custom:{guid} provider id to its enabled provider row</param>
 /// <param name="logger">Logger instance</param>
 namespace Klacks.Api.Presentation.Controllers.Assistant;
 
@@ -15,6 +17,8 @@ using System.Text;
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Assistant;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Logging;
@@ -35,6 +39,7 @@ public class SttController : ControllerBase
     private readonly IEnumerable<ISttProvider> _sttProviders;
     private readonly ISettingsRepository _settingsRepository;
     private readonly ICustomSttProviderRepository _customSttProviderRepository;
+    private readonly ICustomSttProviderResolver _customSttProviderResolver;
     private readonly ICustomSttSessionFactory _customSttSessionFactory;
     private readonly ISettingsEncryptionService _encryptionService;
     private readonly ILogger<SttController> _logger;
@@ -43,6 +48,7 @@ public class SttController : ControllerBase
         IEnumerable<ISttProvider> sttProviders,
         ISettingsRepository settingsRepository,
         ICustomSttProviderRepository customSttProviderRepository,
+        ICustomSttProviderResolver customSttProviderResolver,
         ICustomSttSessionFactory customSttSessionFactory,
         ISettingsEncryptionService encryptionService,
         ILogger<SttController> logger)
@@ -50,6 +56,7 @@ public class SttController : ControllerBase
         _sttProviders = sttProviders;
         _settingsRepository = settingsRepository;
         _customSttProviderRepository = customSttProviderRepository;
+        _customSttProviderResolver = customSttProviderResolver;
         _customSttSessionFactory = customSttSessionFactory;
         _encryptionService = encryptionService;
         _logger = logger;
@@ -73,7 +80,7 @@ public class SttController : ControllerBase
     [HttpPost("test")]
     public async Task<IActionResult> TestConnection([FromBody] SttTestRequest request)
     {
-        var customProvider = await TryResolveCustomProviderAsync(request.ProviderId);
+        var customProvider = await _customSttProviderResolver.TryResolveAsync(request.ProviderId);
         if (customProvider != null)
         {
             try
@@ -133,7 +140,7 @@ public class SttController : ControllerBase
                 return;
             }
 
-            if (IsCustomProviderId(providerId))
+            if (_customSttProviderResolver.IsCustomProviderId(providerId))
             {
                 await SendError(browserWs, "Custom STT providers support blob transcription only, not streaming");
                 return;
@@ -187,9 +194,9 @@ public class SttController : ControllerBase
 
         var effectiveLocale = string.IsNullOrWhiteSpace(locale) ? DefaultLocale : locale;
 
-        if (IsCustomProviderId(providerId))
+        if (_customSttProviderResolver.IsCustomProviderId(providerId))
         {
-            var customProvider = await TryResolveCustomProviderAsync(providerId, ct);
+            var customProvider = await _customSttProviderResolver.TryResolveAsync(providerId, ct);
             if (customProvider == null)
                 return BadRequest(new { error = $"Unknown STT provider: {providerId}" });
 
@@ -206,6 +213,11 @@ public class SttController : ControllerBase
                 var customResult = await customSession.ReceiveAsync(ct);
 
                 return Ok(new { text = customResult?.Text ?? string.Empty });
+            }
+            catch (UnsupportedSttLanguageException ex)
+            {
+                _logger.LogWarning("Custom STT engine does not support language {Language}", ex.Language.ForLog());
+                return BadRequest(new { error = ex.Message, code = SttProviderConstants.ErrorCodeUnsupportedLanguage });
             }
             catch (Exception ex) when (ex is NotSupportedException or InvalidOperationException or HttpRequestException)
             {
@@ -249,21 +261,6 @@ public class SttController : ControllerBase
 
     private ObjectResult AudioTooLargeResult()
         => StatusCode(StatusCodes.Status413PayloadTooLarge, new { error = SttUploadConstants.AudioTooLargeMessage });
-
-    private static bool IsCustomProviderId(string providerId)
-        => providerId.StartsWith(SttProviderConstants.CustomProviderPrefix, StringComparison.OrdinalIgnoreCase);
-
-    private async Task<CustomSttProvider?> TryResolveCustomProviderAsync(string providerId, CancellationToken ct = default)
-    {
-        if (!IsCustomProviderId(providerId))
-            return null;
-
-        if (!Guid.TryParse(providerId[SttProviderConstants.CustomProviderPrefix.Length..], out var id))
-            return null;
-
-        var provider = await _customSttProviderRepository.GetByIdAsync(id, ct);
-        return provider is { IsEnabled: true } ? provider : null;
-    }
 
     private static string? ResolveApiKeySettingType(string providerId) => providerId switch
     {

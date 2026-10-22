@@ -389,6 +389,7 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>();
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>());
         services.AddScoped<ICustomSttSessionFactory, Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.CustomRestSttSessionFactory>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.ICustomSttProviderResolver, Klacks.Api.Application.Services.Assistant.CustomSttProviderResolver>();
 
         services.AddSingleton<IPhoneticEncoderFactory, Klacks.Api.Domain.Services.Assistant.Phonetics.PhoneticEncoderFactory>();
         services.AddSingleton<IPhoneticConfigProvider>(sp =>

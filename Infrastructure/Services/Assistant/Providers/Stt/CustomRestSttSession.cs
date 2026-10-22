@@ -12,9 +12,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt;
 
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -71,6 +73,11 @@ public sealed class CustomRestSttSession : ISttSession
 
         if (!response.IsSuccessStatusCode)
         {
+            if (response.StatusCode == HttpStatusCode.BadRequest && IsUnsupportedLanguageBody(json))
+            {
+                throw new UnsupportedSttLanguageException(language ?? _locale);
+            }
+
             throw new InvalidOperationException($"Custom STT request failed ({(int)response.StatusCode}): {json}");
         }
 
@@ -90,6 +97,24 @@ public sealed class CustomRestSttSession : ISttSession
         return trimmed.EndsWith(SttProviderConstants.OpenAiTranscriptionsPath, StringComparison.OrdinalIgnoreCase)
             ? trimmed
             : trimmed + SttProviderConstants.OpenAiTranscriptionsPath;
+    }
+
+    private static bool IsUnsupportedLanguageBody(string json)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            return doc.RootElement.ValueKind == JsonValueKind.Object
+                && doc.RootElement.TryGetProperty(SttProviderConstants.ErrorProperty, out var error)
+                && error.ValueKind == JsonValueKind.Object
+                && error.TryGetProperty(SttProviderConstants.ErrorCodeProperty, out var code)
+                && code.ValueKind == JsonValueKind.String
+                && string.Equals(code.GetString(), SttProviderConstants.ErrorCodeUnsupportedLanguage, StringComparison.Ordinal);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     private string ResolveModel()

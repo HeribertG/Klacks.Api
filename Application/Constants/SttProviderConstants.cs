@@ -31,4 +31,8 @@ public static class SttProviderConstants
     public const string OpenAiTranscriptionsPath = "/v1/audio/transcriptions";
     public const string OpenAiModelsPath = "/v1/models";
     public const string DefaultCustomWhisperModel = "deepdml/faster-whisper-large-v3-turbo-ct2";
+
+    public const string ErrorCodeUnsupportedLanguage = "unsupported_language";
+    public const string ErrorProperty = "error";
+    public const string ErrorCodeProperty = "code";
 }
