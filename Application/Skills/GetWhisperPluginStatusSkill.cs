@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Reads the state of the self-hosted transcription plugin via GetWhisperPluginStatusQuery: whether
-/// it is installed, which model size it runs, and whether an install or removal is under way.
+/// it is installed, which engine it runs, which engines this installation can run, which languages the Parakeet
+/// engine covers, and whether an install or removal is under way.
 /// </summary>
 
 using Klacks.Api.Application.Queries.Assistant;
@@ -31,8 +32,8 @@ public class GetWhisperPluginStatusSkill : BaseSkillImplementation
         var status = await _mediator.Send(new GetWhisperPluginStatusQuery(), cancellationToken);
 
         var message = status.Installed
-            ? $"Self-hosted transcription is installed, running the '{status.ModelAlias}' model."
-            : "Self-hosted transcription is not installed.";
+            ? $"Self-hosted transcription is installed, running the '{status.ModelAlias}' engine."
+            : $"Self-hosted transcription is not installed. Engines this installation can run: {string.Join(", ", status.SupportedAliases)}.";
 
         if (status.ActiveOperation != null)
         {
@@ -47,7 +48,9 @@ public class GetWhisperPluginStatusSkill : BaseSkillImplementation
                 status.ModelId,
                 status.ActiveOperation,
                 status.LastOperation,
-                status.OtherOperationActive
+                status.OtherOperationActive,
+                status.SupportedAliases,
+                status.ParakeetLanguages
             },
             message);
     }

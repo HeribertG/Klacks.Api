@@ -3,14 +3,17 @@
 # Provisions a native Klacks installation on Windows: PostgreSQL cluster, secrets, configuration file, version layout
 # and the three services (KlacksPostgres, Klacks, KlacksUpdater) plus, when the bundle ships it, the speech recognition
 # service KlacksStt (registered Disabled; the updater enables and starts it when the user installs the Parakeet engine).
-# Re-running it is safe: existing secrets, the database cluster and installed versions are kept. The Inno Setup
-# installer only copies the payload and calls this script elevated; everything up to the service registration can be run without administrator rights via -NoServices, which
-# starts PostgreSQL and the API as plain processes instead (development and CI smoke tests).
+# Re-running it is safe: existing secrets, the database cluster and installed versions are kept, and a half-configured
+# KlacksStt registration is completed (same steps and values as the updater's WindowsSttServiceRegistrar).
+# The Inno Setup installer only copies the payload and calls this script elevated; everything up to the service
+# registration can be run without administrator rights via -NoServices, which starts PostgreSQL and the API as plain
+# processes instead (development and CI smoke tests).
 #
 # Windows PowerShell 5.1 compatible on purpose: it is the only PowerShell every Windows 10/11 machine has.
 #
 # Layout:  <ProgramRoot>\versions\<x.y.z>\{app,ui,updater,stt}   <ProgramRoot>\current -> junction   <ProgramRoot>\pgsql
-#          <DataRoot>\pgdata  <DataRoot>\config\klacks.native.json  <DataRoot>\backups  <DataRoot>\logs  <DataRoot>\stt-models
+#          <DataRoot>\pgdata  <DataRoot>\config\klacks.native.json  <DataRoot>\backups  <DataRoot>\logs
+#          <DataRoot>\stt-models
 #          (+ API data)
 
 [CmdletBinding()]
@@ -36,7 +39,8 @@ $ErrorActionPreference = 'Stop'
 $ApiServiceName = 'Klacks'
 $UpdaterServiceName = 'KlacksUpdater'
 $SttServiceName = 'KlacksStt'
-# Loopback port of the local speech recognition service; must equal the SttBaseUrl the updater writes into the provider row.
+# Loopback port of the local speech recognition service; must equal the SttBaseUrl the updater writes into the provider
+# row (SttServiceRegistration.Port in the updater).
 $SttPort = 5091
 $SttThreads = 2
 $SttModelDirectoryName = 'stt-models'
@@ -95,12 +99,16 @@ function New-DataProtectionCertificate($password) {
     return [Convert]::ToBase64String($pfx)
 }
 
-function Set-DirectoryAccess($path, [string[]]$fullControlSids, [string[]]$readSids = @()) {
+function Set-DirectoryAccess($path, [string[]]$fullControlSids, [string[]]$readSids = @(), [string[]]$modifySids = @()) {
     # Replaces the inherited rights (C:\ProgramData grants every user read and create) with an explicit list.
     # Well-known SIDs, because account names are localised (e.g. VORDEFINIERT\Administratoren on German Windows).
     $acl = New-Object System.Security.AccessControl.DirectorySecurity
     $acl.SetAccessRuleProtection($true, $false)
-    foreach ($entry in @(@{ Sids = $fullControlSids; Rights = 'FullControl' }, @{ Sids = $readSids; Rights = 'ReadAndExecute' })) {
+    $entries = @(
+        @{ Sids = $fullControlSids; Rights = 'FullControl' },
+        @{ Sids = $readSids; Rights = 'ReadAndExecute' },
+        @{ Sids = $modifySids; Rights = 'Modify' })
+    foreach ($entry in $entries) {
         foreach ($sid in $entry.Sids) {
             $identity = New-Object System.Security.Principal.SecurityIdentifier($sid)
             $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
@@ -120,6 +128,45 @@ function Protect-Directory($path) {
 function Invoke-Native($file, [string[]]$arguments) {
     & $file @arguments
     if ($LASTEXITCODE -ne 0) { throw "'$file $($arguments -join ' ')' exited with $LASTEXITCODE." }
+}
+
+function Get-ServiceSid([string]$serviceName) {
+    # The per-service SID Windows derives from the name (S-1-5-80 plus the five little-endian DWORDs of the SHA-1 of
+    # the upper-cased UTF-16 name); same computation as ServiceSid in the updater, so no account lookup is needed.
+    $sha1 = [System.Security.Cryptography.SHA1]::Create()
+    $hash = $sha1.ComputeHash([System.Text.Encoding]::Unicode.GetBytes($serviceName.ToUpperInvariant()))
+    $subAuthorities = for ($i = 0; $i -lt 5; $i++) { [BitConverter]::ToUInt32($hash, $i * 4) }
+    return 'S-1-5-80-' + ($subAuthorities -join '-')
+}
+
+# Brings KlacksStt to the registered state, whatever a previous run left behind. Mirrors the updater's
+# WindowsSttServiceRegistrar: the service is created (Disabled) only when it is missing, every other step is
+# idempotent, and the Environment value is written last as the "fully registered" marker. The start type of an
+# existing service is left alone: the updater switches it to Automatic once the Parakeet engine is installed.
+function Register-SttService($serviceName, $executable, $dataRoot) {
+    $modelDirectory = Join-Path $dataRoot $SttModelDirectoryName
+    $sttEnvironment = @(
+        "ASPNETCORE_URLS=http://localhost:$SttPort", "Stt__ModelDirectory=$modelDirectory",
+        "Stt__NumThreads=$SttThreads", "AllowedHosts=$AllowedHosts",
+        'ASPNETCORE_ENVIRONMENT=Production', 'DOTNET_ENVIRONMENT=Production')
+    New-Item -ItemType Directory -Force -Path $modelDirectory | Out-Null
+    if (-not (Get-Service -Name $serviceName -ErrorAction SilentlyContinue)) {
+        Write-Step "Registering service $serviceName (disabled)"
+        New-Service -Name $serviceName -BinaryPathName "`"$executable`"" -DisplayName 'Klacks Speech Recognition' `
+            -StartupType Disabled | Out-Null
+    }
+    else {
+        Write-Step "Completing the registration of service $serviceName"
+    }
+    Invoke-Native 'sc.exe' @('sidtype', $serviceName, 'unrestricted') | Out-Null
+    Invoke-Native 'sc.exe' @('config', $serviceName, 'obj=', "NT SERVICE\$serviceName") | Out-Null
+    Invoke-Native 'sc.exe' @('failure', $serviceName, 'reset=', '86400',
+        'actions=', 'restart/60000/restart/60000/restart/300000') | Out-Null
+    Invoke-Native 'sc.exe' @('failureflag', $serviceName, '1') | Out-Null
+    # Model downloads land here as the service account; nobody else on the PC may read or change the models.
+    Set-DirectoryAccess $modelDirectory @($LocalSystemSid, $AdministratorsSid) @() @((Get-ServiceSid $serviceName))
+    $key = "HKLM:\SYSTEM\CurrentControlSet\Services\$serviceName"
+    New-ItemProperty -Path $key -Name 'Environment' -PropertyType MultiString -Value $sttEnvironment -Force | Out-Null
 }
 
 function Test-VcRuntime {
@@ -362,21 +409,7 @@ else {
     # Parakeet engine, at which point the updater (LocalSystem) switches it to Automatic and starts it.
     $sttExe = Join-Path $currentLink 'stt\Klacks.Stt.exe'
     if (Test-Path $sttExe) {
-        if (-not (Get-Service -Name $SttServiceName -ErrorAction SilentlyContinue)) {
-            Write-Step "Registering service $SttServiceName (disabled)"
-            $sttModelDirectory = Join-Path $DataRoot $SttModelDirectoryName
-            New-Item -ItemType Directory -Force -Path $sttModelDirectory | Out-Null
-            Protect-Directory $sttModelDirectory
-            $sttEnvironment = @(
-                "ASPNETCORE_URLS=http://localhost:$SttPort", "Stt__ModelDirectory=$sttModelDirectory",
-                "Stt__NumThreads=$SttThreads", 'ASPNETCORE_ENVIRONMENT=Production', 'DOTNET_ENVIRONMENT=Production')
-            New-Service -Name $SttServiceName -BinaryPathName "`"$sttExe`"" -DisplayName 'Klacks Speech Recognition' `
-                -StartupType Disabled | Out-Null
-            $sttKey = "HKLM:\SYSTEM\CurrentControlSet\Services\$SttServiceName"
-            New-ItemProperty -Path $sttKey -Name 'Environment' -PropertyType MultiString -Value $sttEnvironment -Force | Out-Null
-            sc.exe failure $SttServiceName reset= 86400 actions= restart/60000/restart/60000/restart/300000 | Out-Null
-            sc.exe failureflag $SttServiceName 1 | Out-Null
-        }
+        Register-SttService $SttServiceName $sttExe $DataRoot
     }
     else {
         Write-Warning "The bundle contains no speech recognition service ($sttExe); service $SttServiceName is not registered."

@@ -869,8 +869,8 @@
       "hash": "EDA9773EE7EB0490577A5CE140803EDCF5FAC6ED05439501C1E68D315458453C"
     },
     "explain_whisper_setup": {
-      "version": 4,
-      "hash": "E94A255E2CEA35DD7276570AAE1765951BBDF53181D879C804BC0D2E467F3C68"
+      "version": 5,
+      "hash": "78C0520545DDE0D010EFED86D145CD4F3E023D111730B0309BA6DBCFAF81B198"
     },
     "explain_why_cannot_book": {
       "version": 1,
@@ -1109,8 +1109,8 @@
       "hash": "3A5862B280AB7C8723F900362DB3C81CCE4FEA164B0D1A740EC83D2EC19BCF74"
     },
     "get_speech_settings": {
-      "version": 4,
-      "hash": "32D3C07489CA2833D31A0DF4A7B3FC5645C5062A0EE2A7CE93BB81E67FCA2D98"
+      "version": 5,
+      "hash": "AAE05B288A0A6BBC77F96FC4751F888AA2F6CAF764C9A4AEAC16B6873C1EAD49"
     },
     "get_surcharge_mode_settings": {
       "version": 6,
@@ -1145,8 +1145,8 @@
       "hash": "96373A14B742E8654D270B44D94B7301F009967AC0BAE65CB7AA4AAF40A8F363"
     },
     "get_whisper_plugin_status": {
-      "version": 5,
-      "hash": "A27D4B44E768DB23BA83A462293CA687A04F4AE41087AA049B0D89C34316F614"
+      "version": 6,
+      "hash": "503C63B7C940EA3F7FBE8DE8652B45FB30353B74FA4C67C9E963CFECB840F7F3"
     },
     "get_wizard_settings": {
       "version": 6,
@@ -1173,8 +1173,8 @@
       "hash": "B064810B282A6DF6DA02EA5C079D0D5C39EA5DCE3CB16A35A529ACDCD94D6553"
     },
     "install_whisper_plugin": {
-      "version": 6,
-      "hash": "77C2EE9F0E14629C063DA1BD91DC66D2CE26E0DA453A6D6C31917729EFC9252F"
+      "version": 7,
+      "hash": "2C2EB956B50AEED6F14898E7AAD975188057E7AE88E8501D4227FA753379CDB2"
     },
     "interpret_resource_monitor": {
       "version": 4,

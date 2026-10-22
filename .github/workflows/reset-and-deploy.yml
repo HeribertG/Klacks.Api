@@ -68,6 +68,25 @@ jobs:
           echo ""
 
           # ==========================================
+          # STEP 0: Keep the local STT engines manageable
+          # ==========================================
+          # `down` plus `docker rm -f` below remove every container, and the final `up -d` only brings back
+          # profile-gated services (whisper-stt, klacks-stt) that .env still lists in COMPOSE_PROFILES. Record
+          # the engines that are running NOW. The repository is refreshed first so the shared script is current;
+          # all of this is non-fatal, the reset itself does not depend on it.
+          if [ -d "Klacks.Api" ]; then
+            (cd Klacks.Api && git fetch origin && git reset --hard "origin/$(git rev-parse --abbrev-ref HEAD)") \
+              || echo "⚠️  Could not refresh Klacks.Api before the profile guard (non-fatal)"
+          fi
+          if [ -f Klacks.Api/deploy/scripts/ensure-compose-profile.sh ]; then
+            . Klacks.Api/deploy/scripts/ensure-compose-profile.sh
+            ensure_local_stt_compose_profiles
+          else
+            echo "⚠️  Klacks.Api/deploy/scripts/ensure-compose-profile.sh not found - COMPOSE_PROFILES not ensured (non-fatal)"
+          fi
+          echo ""
+
+          # ==========================================
           # STEP 1: Stop all containers
           # ==========================================
           echo "=============================================="

@@ -165,10 +165,22 @@ jobs:
           repository: HeribertG/Klacks.Updater
           path: Klacks.Updater
 
+      - name: Read pinned Klacks.Stt version
+        id: sttver
+        shell: bash
+        run: |
+          version="$(tr -d '[:space:]' < Klacks.Api/deploy/stt-version)"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "deploy/stt-version must hold X.Y.Z, found '$version'"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
       - name: Checkout Klacks.Stt
         uses: actions/checkout@v4
         with:
           repository: HeribertG/Klacks.Stt
+          ref: v${{ steps.sttver.outputs.version }}
           path: Klacks.Stt
 
       - name: Checkout pgvector
@@ -384,6 +396,13 @@ jobs:
             Write-Host "$name : $status"
             if ($status -ne 'Running') { throw "Service $name is $status." }
           }
+          # The speech recognition service is registered but stays off until the Parakeet engine is installed.
+          $stt = Get-Service -Name KlacksStt -ErrorAction SilentlyContinue
+          if (-not $stt) { throw 'Service KlacksStt is not registered.' }
+          if ($stt.StartType -ne 'Disabled') { throw "Service KlacksStt start type is $($stt.StartType), expected Disabled." }
+          if ($stt.Status -ne 'Stopped') { throw "Service KlacksStt is $($stt.Status), expected Stopped." }
+          $sttAccount = (Get-CimInstance Win32_Service -Filter "Name='KlacksStt'").StartName
+          if ($sttAccount -ne 'NT SERVICE\KlacksStt') { throw "Service KlacksStt runs as $sttAccount, expected NT SERVICE\KlacksStt." }
           $users = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-32-545')
           foreach ($path in "$env:ProgramData\Klacks", "$env:ProgramData\Klacks\pgdata", "$env:ProgramData\Klacks\backups") {
             $open = (Get-Acl $path).Access | Where-Object { $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]) -eq $users }
@@ -509,6 +528,10 @@ jobs:
             $status = (Get-Service -Name $name).Status
             if ($status -ne 'Running') { throw "Service $name is $status." }
           }
+          $stt = Get-Service -Name KlacksStt -ErrorAction SilentlyContinue
+          if (-not $stt) { throw 'Service KlacksStt is not registered.' }
+          if ($stt.StartType -ne 'Disabled') { throw "Service KlacksStt start type is $($stt.StartType), expected Disabled." }
+          if ($stt.Status -ne 'Stopped') { throw "Service KlacksStt is $($stt.Status), expected Stopped." }
           $login = Invoke-RestMethod -Method Post -ContentType 'application/json' -Uri "$base/api/backend/Accounts/LoginUser" `
             -Body (@{ email = $env:SEED_ADMIN_EMAIL; password = $env:SEED_ADMIN_PASSWORD } | ConvertTo-Json)
           if (-not $login.token) { throw 'Login with the seeded admin returned no token.' }

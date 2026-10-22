@@ -5,7 +5,8 @@
 /// row serves all engines (Whisper small, Whisper large-v3-turbo, Parakeet): the updater rewrites its name,
 /// url and model per engine. The provider id is the well-known row in custom_stt_providers shared with
 /// deploy/whisper-stt-provider.sql; model aliases are what the UI sends, model ids are what Speaches
-/// downloads from Hugging Face (Whisper) or what Klacks.Stt reports as installed (Parakeet).
+/// downloads from Hugging Face (Whisper) or what Klacks.Stt reports as installed (Parakeet). The default alias
+/// is Parakeet unless the installation can choose Whisper (Docker) and its language is not covered by Parakeet.
 /// </summary>
 using Klacks.Api.Domain.Models.Update;
 
@@ -18,8 +19,6 @@ public static class WhisperPluginConstants
     public const string ProviderName = "Whisper (self-hosted)";
 
     public const string ParakeetProviderName = "Parakeet (self-hosted)";
-
-    public const string ProviderApiUrl = "http://whisper-stt:8000";
 
     public const string ModelAliasSmall = "small";
 
@@ -49,7 +48,10 @@ public static class WhisperPluginConstants
     public static bool IsSupportedOn(InstallationKind kind, string? modelAlias) =>
         modelAlias is not null && GetSupportedAliases(kind).Contains(modelAlias);
 
-    public static string GetDefaultAlias(InstallationKind kind) => GetSupportedAliases(kind)[0];
+    public static string GetDefaultAlias(InstallationKind kind, string? installationLanguage) =>
+        kind == InstallationKind.Native || ParakeetLanguageCoverage.IsCovered(installationLanguage)
+            ? ModelAliasParakeet
+            : ModelAliasLarge;
 
     public static string? ResolveModelId(string? modelAlias) => modelAlias switch
     {

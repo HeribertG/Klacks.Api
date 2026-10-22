@@ -26003,7 +26003,7 @@
     {
       "name": "get_speech_settings",
       "area": "settings",
-      "description": "Reads the current voice/speech configuration from the settings store: the active speech-to-text engine (browser, deepgram, groq-whisper, assemblyai), the LLM model and enabled-flag used for transcription enhancement, the assistant output mode, the text-to-speech provider and voice, and the silence threshold in milliseconds. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Reads the current voice/speech configuration from the settings store: the active speech-to-text engine (browser, deepgram, groq-whisper, assemblyai or local, with LocalEngine naming the installed self-hosted engine), the transcription-enhancement model and flag, the assistant output mode, the text-to-speech provider and voice, and the silence threshold in milliseconds. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -26066,7 +26066,7 @@
         "fr": "Paramètres de reconnaissance vocale",
         "it": "Impostazioni di riconoscimento vocale"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_languages",
@@ -42144,7 +42144,7 @@
     {
       "name": "get_whisper_plugin_status",
       "area": "settings",
-      "description": "Shows whether speech is transcribed on our own machine rather than by an outside service: whether that component is in place, which model size it runs, and whether an installation or removal is under way right now.",
+      "description": "Shows whether speech is transcribed on our own machine rather than by an outside service: whether that component is in place, which engine it runs, which engines this installation can run (SupportedAliases, the preferred one first), which languages the Parakeet engine covers (ParakeetLanguages), and whether an installation or removal is under way right now.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -42193,7 +42193,7 @@
         "fr": "État de la reconnaissance vocale locale",
         "it": "Stato del riconoscimento vocale locale"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "install_whisper_plugin",
@@ -42207,10 +42207,10 @@
       "parameters": [
         {
           "name": "modelAlias",
-          "description": "small, large-v3-turbo (Whisper, all languages) or parakeet-v3 (fast, 25 European languages)",
+          "description": "small, large-v3-turbo (Whisper, all languages) or parakeet-v3 (fast, 25 European languages). Leave empty to let the installation language decide: Parakeet when it covers that language, otherwise large-v3-turbo",
           "type": "Enum",
           "required": false,
-          "defaultValue": "parakeet-v3",
+          "defaultValue": null,
           "enumValues": [
             "small",
             "large-v3-turbo",
@@ -42260,7 +42260,7 @@
         "fr": "Installer la reconnaissance vocale locale",
         "it": "Installa il riconoscimento vocale locale"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "uninstall_whisper_plugin",
@@ -43648,7 +43648,7 @@
     {
       "name": "explain_whisper_setup",
       "area": "klacksy",
-      "description": "Explains running speech recognition on the company's own server instead of sending recordings to an outside service: the two model sizes and what they cost in memory, that installing downloads a large model and can take a good while, how progress is shown, switching between the sizes, and what happens to dictation when it is removed again. Use this when the user asks whether recordings can stay in-house, why an installation is taking so long, or which size to pick.",
+      "description": "Explains running speech recognition on the company's own server instead of an outside service: the three engines (Parakeet, the default, fast, 25 European languages; two Whisper sizes covering all languages), that a native office PC offers Parakeet only, that installing downloads a large model and takes a while, switching engines, and what happens to dictation on removal. Use when the user asks whether recordings can stay in-house, why an installation is slow, or which engine to pick.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -43715,7 +43715,7 @@
         "fr": "Expliquer la reconnaissance vocale locale (Whisper)",
         "it": "Spiega il riconoscimento vocale locale (Whisper)"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_klacksy_skill_relations",

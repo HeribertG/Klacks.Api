@@ -4,7 +4,9 @@
 /// Status of the self-hosted Whisper plugin for the settings card: whether the provider is installed
 /// and enabled, which model it uses, and the active/last whisper operation from the hand-off queue.
 /// OtherOperationActive signals that a non-whisper operation (app update/rollback) currently blocks
-/// the single-active queue. SupportedAliases lists the engine aliases this installation can run, preferred first.
+/// the single-active queue. SupportedAliases lists the engine aliases this installation can run (Parakeet first);
+/// ParakeetLanguages lists the base languages the Parakeet engine can transcribe, so the card can compare them
+/// with the interface language.
 /// </summary>
 namespace Klacks.Api.Application.DTOs.Assistant;
 
@@ -23,4 +25,6 @@ public class WhisperPluginStatus
     public bool OtherOperationActive { get; set; }
 
     public List<string> SupportedAliases { get; set; } = [];
+
+    public List<string> ParakeetLanguages { get; set; } = [];
 }

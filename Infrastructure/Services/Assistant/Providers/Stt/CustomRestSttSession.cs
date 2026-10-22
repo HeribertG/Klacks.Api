@@ -19,6 +19,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 public sealed class CustomRestSttSession : ISttSession
 {
@@ -55,8 +56,8 @@ public sealed class CustomRestSttSession : ISttSession
 
         using var content = new MultipartFormDataContent();
         var audioContent = new ByteArrayContent(_audioBuffer.ToArray());
-        audioContent.Headers.ContentType = new MediaTypeHeaderValue("audio/wav");
-        content.Add(audioContent, SttProviderConstants.FormFieldFile, "audio.wav");
+        audioContent.Headers.ContentType = new MediaTypeHeaderValue(SttProviderConstants.WavMediaType);
+        content.Add(audioContent, SttProviderConstants.FormFieldFile, SttProviderConstants.WavFileName);
         content.Add(new StringContent(ResolveModel()), SttProviderConstants.FormFieldModel);
 
         var language = WhisperLanguageMapper.ToWhisperLanguage(_locale);
@@ -75,7 +76,7 @@ public sealed class CustomRestSttSession : ISttSession
         {
             if (response.StatusCode == HttpStatusCode.BadRequest && IsUnsupportedLanguageBody(json))
             {
-                throw new UnsupportedSttLanguageException(language ?? _locale);
+                throw new UnsupportedSttLanguageException(language);
             }
 
             throw new InvalidOperationException($"Custom STT request failed ({(int)response.StatusCode}): {json}");
@@ -105,9 +106,9 @@ public sealed class CustomRestSttSession : ISttSession
         {
             using var doc = JsonDocument.Parse(json);
             return doc.RootElement.ValueKind == JsonValueKind.Object
-                && doc.RootElement.TryGetProperty(SttProviderConstants.ErrorProperty, out var error)
+                && doc.RootElement.TryGetProperty(SttProviderConstants.SttErrorProperty, out var error)
                 && error.ValueKind == JsonValueKind.Object
-                && error.TryGetProperty(SttProviderConstants.ErrorCodeProperty, out var code)
+                && error.TryGetProperty(SttProviderConstants.SttErrorCodeProperty, out var code)
                 && code.ValueKind == JsonValueKind.String
                 && string.Equals(code.GetString(), SttProviderConstants.ErrorCodeUnsupportedLanguage, StringComparison.Ordinal);
         }

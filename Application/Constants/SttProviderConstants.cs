@@ -5,6 +5,8 @@
 /// </summary>
 namespace Klacks.Api.Application.Constants;
 
+using Klacks.Api.Domain.Constants;
+
 public static class SttProviderConstants
 {
     public const string Deepgram = "deepgram";
@@ -23,6 +25,8 @@ public static class SttProviderConstants
     public const string GroqWhisperModel = "whisper-large-v3";
 
     public const string CustomProviderPrefix = "custom:";
+    public const string WavMediaType = "audio/wav";
+    public const string WavFileName = "audio.wav";
     public const string FormFieldFile = "file";
     public const string FormFieldModel = "model";
     public const string FormFieldLanguage = "language";
@@ -32,7 +36,7 @@ public static class SttProviderConstants
     public const string OpenAiModelsPath = "/v1/models";
     public const string DefaultCustomWhisperModel = "deepdml/faster-whisper-large-v3-turbo-ct2";
 
-    public const string ErrorCodeUnsupportedLanguage = "unsupported_language";
-    public const string ErrorProperty = "error";
-    public const string ErrorCodeProperty = "code";
+    public const string ErrorCodeUnsupportedLanguage = SttErrorCodes.UnsupportedLanguage;
+    public const string SttErrorProperty = "error";
+    public const string SttErrorCodeProperty = "code";
 }

@@ -427,45 +427,17 @@ jobs:
           fi
           echo "Using: $COMPOSE_CMD"
 
-          # whisper-stt is profile-gated in the compose file (one local STT engine at a time, see
-          # klacks-stt). A host that already runs the Whisper container must keep COMPOSE_PROFILES=whisper in
-          # .env, otherwise compose stops managing it. Idempotent and additive only: profiles are never
-          # removed, other entries and lines are kept. Mirrors the comma-list semantics of
-          # Klacks.Updater ComposeEnvFile.WithProfile. Runs before the first compose command of this
-          # deploy; non-fatal because it only reads docker state and edits .env, and the deploy itself
-          # does not depend on it.
-          ensure_compose_profile_for_running_container() {
-            local container="$1" profile="$2" env_file=".env"
-            if [ -z "$(docker ps --filter "name=^${container}\$" --filter "status=running" --quiet 2>/dev/null)" ]; then
-              echo "ℹ️  ${container} is not running - COMPOSE_PROFILES left untouched"
-              return 0
-            fi
-            touch "$env_file"
-            local profiles_line value tokens
-            profiles_line=$(grep -m1 -E '^[[:space:]]*COMPOSE_PROFILES=' "$env_file" || true)
-            if [ -z "$profiles_line" ]; then
-              if [ -s "$env_file" ] && [ -n "$(tail -c1 "$env_file")" ]; then echo >> "$env_file"; fi
-              echo "COMPOSE_PROFILES=${profile}" >> "$env_file"
-              echo "✅ ${container} is running: added COMPOSE_PROFILES=${profile} to ${env_file}"
-              return 0
-            fi
-            value="${profiles_line#"${profiles_line%%[![:space:]]*}"}"
-            value="${value#COMPOSE_PROFILES=}"
-            tokens=$(printf '%s' "$value" | tr ',' '\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e '/^$/d' | paste -sd, -)
-            case ",${tokens,,}," in
-              *",${profile},"*)
-                echo "ℹ️  ${container} is running and COMPOSE_PROFILES already contains ${profile}"
-                return 0
-                ;;
-            esac
-            tokens="${tokens:+${tokens},}${profile}"
-            awk -v line="COMPOSE_PROFILES=${tokens}" 'BEGIN { done = 0 } !done && /^[ \t]*COMPOSE_PROFILES=/ { print line; done = 1; next } { print }' "$env_file" > "${env_file}.profiles.tmp"
-            cat "${env_file}.profiles.tmp" > "$env_file"
-            rm -f "${env_file}.profiles.tmp"
-            echo "✅ ${container} is running: COMPOSE_PROFILES extended to ${tokens}"
-          }
-          ensure_compose_profile_for_running_container klacks-whisper-stt whisper \
-            || echo "⚠️  Could not ensure COMPOSE_PROFILES for klacks-whisper-stt (non-fatal)"
+          # whisper-stt and klacks-stt are profile-gated in the compose file (one local STT engine at a time).
+          # A host that already runs one of them must keep the matching COMPOSE_PROFILES entry in .env,
+          # otherwise compose stops managing it. The additive, idempotent guard lives in one shared script
+          # (also used by reset-and-deploy.yml) and runs before the first compose command of this deploy.
+          # Non-fatal: it only reads docker state and edits .env.
+          if [ -f Klacks.Api/deploy/scripts/ensure-compose-profile.sh ]; then
+            . Klacks.Api/deploy/scripts/ensure-compose-profile.sh
+            ensure_local_stt_compose_profiles
+          else
+            echo "⚠️  Klacks.Api/deploy/scripts/ensure-compose-profile.sh not found - COMPOSE_PROFILES not ensured (non-fatal)"
+          fi
 
           # Klacks.Api runs image-mode: pull the release image that build-and-push pushed to ghcr
           # for this tag. Persist the tag in .env so a plain `compose up` (server reboot, or the

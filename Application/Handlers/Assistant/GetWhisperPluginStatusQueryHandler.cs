@@ -6,7 +6,7 @@
 /// terminal whisper operation (for result display), and whether a foreign operation blocks the queue.
 /// The active operation carries StartedAt so the card can tell a claimed, running installation from
 /// one that is merely queued because no updater is there to pick it up. SupportedAliases depends on the
-/// installation kind (native installations run Parakeet only).
+/// installation kind (native installations run Parakeet only); ParakeetLanguages is the fixed coverage list.
 /// </summary>
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Assistant;
@@ -45,6 +45,7 @@ public class GetWhisperPluginStatusQueryHandler : IRequestHandler<GetWhisperPlug
         var status = new WhisperPluginStatus
         {
             SupportedAliases = [.. WhisperPluginConstants.GetSupportedAliases(_installationIdentityProvider.Get().Kind)],
+            ParakeetLanguages = [.. ParakeetLanguageCoverage.Languages],
         };
 
         var provider = await _providerRepository.GetByIdAsync(WhisperPluginConstants.ProviderId, cancellationToken);

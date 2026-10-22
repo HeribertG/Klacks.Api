@@ -138,6 +138,7 @@ public static class ConceptExplainSkillKeywords
         ("barge-in", "explain_klacksy_speech_setup"),
         ("diktier", "explain_klacksy_speech_setup"),
         ("whisper", "explain_whisper_setup"),
+        ("parakeet", "explain_whisper_setup"),
         ("skill-beziehung", "explain_klacksy_skill_relations"),
         ("konfidenz", "explain_klacksy_skill_relations"),
 
