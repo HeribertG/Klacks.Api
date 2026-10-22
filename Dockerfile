@@ -47,6 +47,11 @@ RUN dotnet publish Klacks.Api/Klacks.Api.csproj -c Release -o /app/publish
 # Runtime stage — pinned version to prevent breaking changes from base image updates
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble
 WORKDIR /app
+
+# Pinned Klacks.Stt version (deploy/stt-version). The on-prem updater reads this label after pulling a new
+# Api image and moves KLACKS_STT_TAG along, so customers never edit .env for a speech service update.
+ARG KLACKS_STT_VERSION=
+LABEL org.klacks.stt-version="${KLACKS_STT_VERSION}"
 EXPOSE 5000
 EXPOSE 443
 

@@ -261,8 +261,9 @@ services:
   # Profile-gated like whisper-stt: installed on demand by klacks-updater (`docker compose --profile
   # parakeet up -d klacks-stt`) and kept across manual compose runs via COMPOSE_PROFILES=parakeet in
   # .env. Peak RSS measured 1.1 GB at 24 s of input, hence the 2G ceiling.
-  # The image tag is pinned to the version in deploy/stt-version (guarded by a unit test); set
-  # KLACKS_STT_TAG in .env to move to another released version. cap_drop/no-new-privileges: the
+  # The image tag is pinned to the version in deploy/stt-version (guarded by a unit test); on every app
+  # update the updater writes KLACKS_STT_TAG from the Api image label org.klacks.stt-version and restarts an
+  # active klacks-stt, so nobody edits .env by hand. cap_drop/no-new-privileges: the
   # service runs as a non-root user and needs no capability.
   klacks-stt:
     image: ghcr.io/heribertg/klacks-stt:${KLACKS_STT_TAG:-1.0.0}

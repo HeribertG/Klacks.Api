@@ -204,6 +204,15 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Read pinned Klacks.Stt version
+      id: sttver
+      run: |
+        version="$(tr -d '[:space:]' < Klacks.Api/deploy/stt-version)"
+        if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "::error::deploy/stt-version must hold X.Y.Z, found '$version'"; exit 1
+        fi
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+
     - name: Build and push Klacks.Api image (linux/arm64)
       id: build
       uses: docker/build-push-action@v6
@@ -222,6 +231,7 @@ jobs:
           KLACKS_VERSION_PATCH=${{ steps.version.outputs.patch }}
           KLACKS_BUILD_KEY=${{ github.sha }}
           KLACKS_VARIANT=RELEASE
+          KLACKS_STT_VERSION=${{ steps.sttver.outputs.version }}
 
     # Stable releases only: build the signed update manifest and publish it as a GitHub Release
     # asset. The out-of-process updater verifies the RSA-SHA256 signature over the canonical
