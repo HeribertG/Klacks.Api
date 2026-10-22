@@ -73,6 +73,11 @@ public class SearchAndNavigateSkill : BaseSkillImplementation
             searchTerm: searchQuery,
             limit: 10,
             cancellationToken: cancellationToken);
+        if (result.TotalCount == 0)
+        {
+            result = await _clientSearchRepository.SearchByFuzzyNameAsync(
+                searchQuery, limit: 10, cancellationToken: cancellationToken);
+        }
 
         if (result.TotalCount == 0)
         {

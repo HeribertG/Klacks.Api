@@ -8,6 +8,8 @@
 /// transaction and every changed field is re-read fresh from the database; a mismatch rolls
 /// the update back.
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
+/// Without a clientId the client is found by name through ClientResolver with the Strict policy, so a similar
+/// name ("Meier" for "Mayer") is answered with the name ask-back instead of being updated.
 /// </summary>
 /// <param name="clientId">Required. UUID of the client to update.</param>
 /// <param name="firstName">Optional. New first name.</param>
@@ -333,21 +335,7 @@ public class UpdateClientSkill : BaseSkillImplementation
             return (null, "Provide either clientId or the client's first and last name to identify the client.");
         }
 
-        var search = await _searchRepository.SearchAsync(term, null, null, null, 5, cancellationToken);
-        if (search.Items.Count == 0)
-        {
-            return (null, $"No client found matching '{term}'.");
-        }
-
-        if (search.Items.Count > 1)
-        {
-            var names = string.Join(", ", search.Items.Select(i => $"{i.FirstName} {i.LastName} (#{i.IdNumber})"));
-            return (null, $"Multiple clients match '{term}': {names}. Please specify which one.");
-        }
-
-        var full = await _clientRepository.Get(search.Items[0].Id);
-        return full == null
-            ? (null, $"Client '{term}' could not be loaded.")
-            : (full, null);
+        return await ClientResolver.ResolveByNameAsync(
+            _searchRepository, _clientRepository, firstName, lastName, cancellationToken);
     }
 }

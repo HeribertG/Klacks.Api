@@ -30,8 +30,29 @@ public interface IClientSearchRepository
 
     Task<List<ClientForReplacementResource>> GetClientsForReplacement();
 
+    /// <summary>
+    /// Text search over first name, last name, company and client number: every word of the term must be contained
+    /// in one of them. There is no fuzzy fallback, so a misheard name finds nothing here.
+    /// </summary>
+    /// <param name="searchTerm">Optional words that must each be contained in a name, the company or the number</param>
     Task<ClientSearchResult> SearchAsync(
         string? searchTerm = null,
+        string? canton = null,
+        EntityTypeEnum? entityType = null,
+        Guid? contractId = null,
+        int limit = 10,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Ranks the term by name similarity (trigram and phonetics) for a spoken or misheard name that the text search
+    /// did not find, scoped to the caller's visible groups and the structured filters. Its rows are similar names,
+    /// never proof that the user named that person: a caller that writes must treat them as suggestions the user
+    /// has to confirm (ClientResolver under NameMatchPolicy.Strict), and ClientFuzzySearchGuardTests restricts the
+    /// callers to read-only skills and an allowlist.
+    /// </summary>
+    /// <param name="searchTerm">The name as the user said it</param>
+    Task<ClientSearchResult> SearchByFuzzyNameAsync(
+        string searchTerm,
         string? canton = null,
         EntityTypeEnum? entityType = null,
         Guid? contractId = null,

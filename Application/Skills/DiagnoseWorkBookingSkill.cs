@@ -102,7 +102,8 @@ public class DiagnoseWorkBookingSkill : BaseSkillImplementation
 
         var (client, clientError) = await ClientResolver.ResolveByIdOrNameAsync(
             _clientSearchRepository, _clientRepository, _clientVisibilityGuard, clientIdRaw, firstName, lastName,
-            GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName), cancellationToken);
+            GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName), cancellationToken,
+            policy: NameMatchPolicy.Lenient);
         if (client == null || !await _clientVisibilityGuard.IsVisibleAsync(client.Id, cancellationToken))
         {
             return SkillResult.Error(clientError ?? ClientResolver.NotFoundMessage(firstName, lastName));

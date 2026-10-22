@@ -70,7 +70,8 @@ public class DiagnoseHolidayOutcomeSkill : BaseSkillImplementation
             firstName,
             lastName,
             GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName),
-            cancellationToken);
+            cancellationToken,
+            policy: NameMatchPolicy.Lenient);
         if (client == null || !await _clientVisibilityGuard.IsVisibleAsync(client.Id, cancellationToken))
         {
             return SkillResult.Error(error ?? ClientResolver.NotFoundMessage(firstName, lastName));

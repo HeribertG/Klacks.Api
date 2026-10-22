@@ -281,7 +281,7 @@ public class UpdateContractSkill : BaseSkillImplementation
     {
         var (contractId, referenceError) = await ContractReferenceResolver.ResolveIdAsync(
             _contractRepository, GetParameter<string>(parameters, ContractFieldNames.ContractId),
-            ContractFieldNames.ContractId, ContractNameMatchMode.ExactOrUniquePartial, cancellationToken);
+            ContractFieldNames.ContractId, ContractNameMatchMode.Strict, cancellationToken);
         if (contractId == null)
         {
             return (null, referenceError);

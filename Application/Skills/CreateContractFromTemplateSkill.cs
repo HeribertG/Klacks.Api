@@ -71,7 +71,7 @@ public class CreateContractFromTemplateSkill : BaseSkillImplementation
     {
         var (resolvedTemplateId, templateError) = await ContractReferenceResolver.ResolveIdAsync(
             _contractRepository, GetParameter<string>(parameters, ContractFieldNames.TemplateContractId),
-            ContractFieldNames.TemplateContractId, ContractNameMatchMode.ExactOrUniquePartial, cancellationToken);
+            ContractFieldNames.TemplateContractId, ContractNameMatchMode.Strict, cancellationToken);
         if (resolvedTemplateId == null)
         {
             return SkillResult.Error(templateError!);

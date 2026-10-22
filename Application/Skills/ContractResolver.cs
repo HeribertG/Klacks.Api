@@ -47,27 +47,6 @@ internal static class ContractResolver
             : NotFoundMessage(query, active));
     }
 
-    public static (Contract? Contract, string? Error) ResolveExactOrUniquePartial(
-        IReadOnlyList<Contract> contracts, string? contractName)
-    {
-        var active = ActiveContracts(contracts);
-        var query = (contractName ?? string.Empty).Trim();
-
-        var exact = active.Where(c => string.Equals(c.Name.Trim(), query, StringComparison.OrdinalIgnoreCase)).ToList();
-        var matches = exact.Count > 0
-            ? exact
-            : query.Length == 0
-                ? []
-                : active.Where(c => c.Name.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
-
-        return matches.Count switch
-        {
-            1 => (matches[0], null),
-            > 1 => (null, AmbiguousMessage(query, matches)),
-            _ => (null, NotFoundMessage(query, active))
-        };
-    }
-
     private static List<Contract> ActiveContracts(IReadOnlyList<Contract> contracts) =>
         contracts.Where(c => !c.IsDeleted && !string.IsNullOrWhiteSpace(c.Name)).ToList();
 

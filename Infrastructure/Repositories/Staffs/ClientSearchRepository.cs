@@ -9,7 +9,8 @@
 /// Group visibility is NOT applied uniformly across this repository, so read the per-method
 /// contract before adding a caller:
 /// <list type="bullet">
-/// <item><description><c>SearchAsync</c> (both overloads, including its fuzzy fallback),
+/// <item><description><c>SearchAsync</c> (both overloads, plain text match without a fuzzy fallback),
+/// <c>SearchByFuzzyNameAsync</c> (trigram and phonetic ranking, only for callers allowed by ClientFuzzySearchGuardTests),
 /// <c>IsVisibleToCallerAsync</c>, <c>FilterVisibleToCallerAsync</c> and <c>GetClientsForReplacement</c> run every result through
 /// <see cref="IClientGroupFilterService"/> and are therefore scoped to the caller's visible
 /// groups — the total count is taken after that scoping so an invisible client never shows up
@@ -228,28 +229,36 @@ public class ClientSearchRepository : IClientSearchRepository
                 .Take(limit))
             .ToListAsync(cancellationToken);
 
-        // A spoken or misheard name never survives the substring token filter — rank the term
-        // fuzzily (trigram + phonetics) and keep only candidates the caller may see and the
-        // structured filters permit.
-        if (items.Count == 0 && !string.IsNullOrWhiteSpace(searchTerm))
-        {
-            var fuzzyItems = await SearchFuzzyAsync(
-                searchTerm, canton, entityType, contractId, city, zipPrefix,
-                qualificationId, qualificationValidityDate, limit, cancellationToken);
-            if (fuzzyItems.Count > 0)
-            {
-                return new ClientSearchResult
-                {
-                    Items = fuzzyItems,
-                    TotalCount = fuzzyItems.Count
-                };
-            }
-        }
-
         return new ClientSearchResult
         {
             Items = items,
             TotalCount = totalCount
+        };
+    }
+
+    public async Task<ClientSearchResult> SearchByFuzzyNameAsync(
+        string searchTerm,
+        string? canton = null,
+        EntityTypeEnum? entityType = null,
+        Guid? contractId = null,
+        int limit = 10,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return new ClientSearchResult { Items = [], TotalCount = 0 };
+        }
+
+        if (limit > MaxSearchLimit) limit = MaxSearchLimit;
+
+        var items = await SearchFuzzyAsync(
+            searchTerm, canton, entityType, contractId, city: null, zipPrefix: null,
+            qualificationId: null, qualificationValidityDate: null, limit, cancellationToken);
+
+        return new ClientSearchResult
+        {
+            Items = items,
+            TotalCount = items.Count
         };
     }
 

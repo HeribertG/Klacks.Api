@@ -5,8 +5,13 @@
 /// validity filter (active / former / future). The group description is deliberately not part of the result: it is free text
 /// written by supervisors, and this list runs on nearly every group turn, so the description is read where it is flagged as
 /// untrusted content (get_group_details).
+/// Recipes capture the lone row of Groups and inject its id into a writing step, so a search term selects groups with
+/// the Strict name policy (NameResolution.Partition with the group label words): equal words win, otherwise a forward
+/// match on whole words ("Nord" finds "Region Nord" and "Nord-West", not "Nordwest"). Groups that match the term less
+/// exactly, inside a word or only by similarity are listed by name under OtherMatches, without an id; when no group is
+/// selected the message is the name ask-back, the capture finds no row and the recipe rewinds to its question.
 /// </summary>
-/// <param name="searchTerm">Optional search term to filter groups by name</param>
+/// <param name="searchTerm">Optional group name; whole words select, other similar names are only listed</param>
 /// <param name="rootOnly">If true, only return root-level groups</param>
 /// <param name="canton">Optional canton/state code (e.g. "BE") to filter groups by CalendarSelection</param>
 /// <param name="activeDateRange">Optional. Include groups that are currently valid. When none of the three validity parameters is set, this defaults to true (legacy behavior: active groups only)</param>
@@ -71,9 +76,7 @@ public class ListGroupsSkill : BaseSkillImplementation
                          ((activeDateRange && g.ValidFrom <= today && (g.ValidUntil == null || g.ValidUntil >= today)) ||
                           (formerDateRange && g.ValidUntil != null && g.ValidUntil < today) ||
                           (futureDateRange && g.ValidFrom > today))))
-            .Where(g => !rootOnly || g.Parent == null)
-            .Where(g => string.IsNullOrEmpty(searchTerm) ||
-                       (g.Name != null && g.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
+            .Where(g => !rootOnly || g.Parent == null);
 
         if (!string.IsNullOrWhiteSpace(canton))
         {
@@ -90,7 +93,34 @@ public class ListGroupsSkill : BaseSkillImplementation
             }
         }
 
-        var groups = filteredGroups
+        var selected = filteredGroups.ToList();
+        var otherMatches = new List<string>();
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var candidates = selected.Where(g => !string.IsNullOrWhiteSpace(g.Name)).ToList();
+            var partition = NameResolution.Partition(candidates, g => g.Name, searchTerm, GroupResolver.LabelWords);
+            selected = partition.Matches.ToList();
+            var selectedIds = selected.Select(g => g.Id).ToHashSet();
+            otherMatches = candidates
+                .Where(g => !selectedIds.Contains(g.Id)
+                            && (g.Name.Contains(searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)
+                                || partition.Suggestions.Contains(g)))
+                .Select(g => g.Name)
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        if (selected.Count == 0 && otherMatches.Count > 0)
+        {
+            return SkillResult.SuccessResult(
+                new { Groups = Array.Empty<object>(), TotalCount = 0, SearchTerm = searchTerm, OtherMatches = otherMatches },
+                otherMatches.Count == 1
+                    ? NameResolutionMessages.SuggestedName(otherMatches[0])
+                    : NameResolutionMessages.SuggestedNames(searchTerm!, string.Join(", ", otherMatches)));
+        }
+
+        var groups = selected
             .OrderBy(g => g.Name)
             .Select(g => new
             {
@@ -108,6 +138,7 @@ public class ListGroupsSkill : BaseSkillImplementation
             Groups = groups,
             TotalCount = groups.Count,
             SearchTerm = searchTerm,
+            OtherMatches = otherMatches,
             RootOnly = rootOnly,
             Canton = canton,
             ActiveDateRange = activeDateRange,
@@ -150,7 +181,10 @@ public class ListGroupsSkill : BaseSkillImplementation
                       (rootOnly ? " (root level only)" : "") +
                       (!string.IsNullOrWhiteSpace(canton) ? $" for canton {canton.ToUpperInvariant()}" : "") +
                       validityNote +
-                      ".";
+                      "." +
+                      (otherMatches.Count > 0
+                          ? $" Groups that match the term less exactly (OtherMatches, names only): {string.Join(", ", otherMatches)}."
+                          : string.Empty);
 
         return SkillResult.SuccessResult(resultData, message);
     }

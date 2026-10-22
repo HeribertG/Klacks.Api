@@ -156,7 +156,8 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
 
         var (absent, clientError) = await ClientResolver.ResolveByIdOrNameAsync(
             _searchRepository, _clientRepository, _clientVisibilityGuard, clientIdRaw, firstName, lastName,
-            GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName), cancellationToken);
+            GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName), cancellationToken,
+            policy: NameMatchPolicy.Lenient);
         if (absent == null)
         {
             return SkillResult.Error(clientError!);

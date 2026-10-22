@@ -53,7 +53,8 @@ public class ListEmailsByClientSkill : BaseSkillImplementation
         var idNumber = GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName);
 
         var (client, error) = await ClientResolver.ResolveByNameAsync(
-            _searchRepository, _clientRepository, firstName, lastName, idNumber, cancellationToken);
+            _searchRepository, _clientRepository, firstName, lastName, idNumber, cancellationToken,
+            policy: NameMatchPolicy.Lenient);
         if (error != null)
         {
             return SkillResult.Error(error);

@@ -78,6 +78,60 @@ internal static class NameResolution
         return fromFuzzyStage ? Downgrade(collapsed) : collapsed;
     }
 
+    /// <summary>
+    /// Splits the items for a list result: Matches holds what the Strict policy would pick (the single match or
+    /// the candidates of the first strict stage that hit), Suggestions holds what only a fuzzy stage found. A list
+    /// that a recipe captures from may only offer the Matches as selectable rows.
+    /// </summary>
+    /// <param name="items">Entities to rank</param>
+    /// <param name="nameSelector">The name of an entity</param>
+    /// <param name="query">The name as the user said it</param>
+    /// <param name="labelWords">Optional type-label words stripped as whole leading or trailing words</param>
+    public static NamePartition<T> Partition<T>(
+        IReadOnlyList<T> items,
+        Func<T, string> nameSelector,
+        string? query,
+        IReadOnlyList<string>? labelWords = null)
+        where T : class
+    {
+        var (result, fromFuzzyStage) = ResolveStrict(items, nameSelector, query, labelWords);
+        return ToPartition(result, fromFuzzyStage);
+    }
+
+    /// <summary>
+    /// Partition over several name variants per entity (for a person: "first last", "last first", company); the
+    /// variants of one entity collapse back into that entity.
+    /// </summary>
+    /// <param name="items">Entities to rank</param>
+    /// <param name="variantsSelector">All names an entity may be called by</param>
+    /// <param name="query">The name as the user said it</param>
+    /// <param name="labelWords">Optional type-label words stripped as whole leading or trailing words</param>
+    public static NamePartition<T> PartitionVariants<T>(
+        IReadOnlyList<T> items,
+        Func<T, IEnumerable<string?>> variantsSelector,
+        string? query,
+        IReadOnlyList<string>? labelWords = null)
+        where T : class
+    {
+        var variants = items
+            .SelectMany(item => variantsSelector(item)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(value => new NameVariant<T>(item, value!)))
+            .ToList();
+
+        var (result, fromFuzzyStage) = ResolveStrict(variants, variant => variant.Value, query, labelWords);
+        return ToPartition(CollapseVariants(result), fromFuzzyStage);
+    }
+
+    private static NamePartition<T> ToPartition<T>(NameResolutionResult<T> result, bool fromFuzzyStage)
+        where T : class
+    {
+        IReadOnlyList<T> hits = result.Match != null ? [result.Match] : result.Candidates;
+        return fromFuzzyStage
+            ? new NamePartition<T>([], hits)
+            : new NamePartition<T>(hits, []);
+    }
+
     private static (NameResolutionResult<T> Result, bool FromFuzzyStage) ResolveStrict<T>(
         IReadOnlyList<T> items,
         Func<T, string> nameSelector,

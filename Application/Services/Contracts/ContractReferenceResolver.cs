@@ -5,7 +5,8 @@
 /// A reference that parses as a GUID is taken as the id (the caller loads the contract and reports a missing one).
 /// Anything else is treated as a contract name and resolved against the non-deleted contracts with the staged name
 /// matcher the other contract skills use; the ContractNameMatchMode decides how far that goes: skills that write
-/// accept only an exact or unique partial name (a fuzzy hit could change a contract other than the one the user
+/// resolve with the Strict policy (equal words or a forward match on whole words; a partial word, a typo or a
+/// phonetic hit is answered with the name ask-back, because it could change a contract other than the one the user
 /// confirmed), read-only skills may add the typo and phonetic stages. No match or several matches produce an error that lists the real contract names, so the model never has to guess or invent an id. A weak
 /// model that only knows the name from the conversation ("Vollzeit 160 BE") is the reason: it passes the name
 /// where an id is expected. ParseStrictId is for destructive skills that must stay id-only: it never matches by
@@ -14,7 +15,7 @@
 /// <param name="contractRepository">Lists the contracts a name reference is resolved against</param>
 /// <param name="reference">The raw parameter value: a contract id or a contract name</param>
 /// <param name="parameterName">The skill parameter the value came from, used in the error text</param>
-/// <param name="mode">How a name reference is matched: exact or unique partial only, or with the fuzzy stages</param>
+/// <param name="mode">How a name reference is matched: Strict, or with the fuzzy stages</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Skills;
@@ -45,7 +46,7 @@ public static class ContractReferenceResolver
         var contracts = await contractRepository.List();
         var (contract, error) = mode == ContractNameMatchMode.WithFuzzy
             ? ContractResolver.Resolve(contracts, trimmed, NameMatchPolicy.Lenient)
-            : ContractResolver.ResolveExactOrUniquePartial(contracts, trimmed);
+            : ContractResolver.Resolve(contracts, trimmed, NameMatchPolicy.Strict);
 
         return contract != null ? (contract.Id, null) : (null, error);
     }

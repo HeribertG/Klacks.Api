@@ -4,12 +4,15 @@
 /// Detects person-name candidates in the user message (capitalized token pairs, hyphenated
 /// names and tokens following title markers like Herr/Frau/Mr/Mme; for short all-lowercase
 /// voice transcripts, trailing token bigrams under a stricter validation), resolves them via
-/// the client search repository — whose own trigram/phonetic fallback supplies the misheard-name
-/// second chance and keeps the result scoped to the caller's visible groups — validates hits with
-/// normalized fuzzy plus Kölner Phonetik name matching and renders the grounding block with
-/// canonical spellings and visible id numbers. Because the rendered block is injected into the
-/// system prompt, it must never carry a client the caller may not see. Purely additive: failures
-/// are swallowed and leave the context untouched.
+/// the client text search and, when that finds nobody, its fuzzy (trigram/phonetic) search — which
+/// supplies the misheard-name second chance and keeps the result scoped to the caller's visible groups —
+/// validates hits with normalized fuzzy plus Kölner Phonetik name matching and renders the grounding block
+/// with canonical spellings and visible id numbers. Only people the message really names (ClientNameMatch,
+/// the Strict name policy) are offered as spellings to copy; a person found only through a similar name
+/// ("Mayer" for "Meier") is listed separately as a name the user has to confirm first, because the write
+/// skills resolve the copied spelling strictly and would otherwise act on a name the user never said.
+/// Because the rendered block is injected into the system prompt, it must never carry a client the caller
+/// may not see. Purely additive: failures are swallowed and leave the context untouched.
 /// </summary>
 
 using System.Text;
@@ -34,6 +37,13 @@ public partial class ClientNameCandidateGrounder : IEntityCandidateGrounder
     private const string BlockInstruction =
         "When calling a tool for one of these people, copy EXACTLY this spelling into firstName/lastName. "
         + "If several entries could be meant, ask the user which one instead of picking silently.";
+
+    private const string SimilarBlockHeader =
+        "SIMILAR_NAMED_PEOPLE (the message does NOT contain these names, only similar ones):";
+
+    private const string SimilarBlockInstruction =
+        "Before changing anything for one of these people, ask the user to confirm the name; do not pass "
+        + "their spelling to a tool that changes data until the user has confirmed it.";
 
     private static readonly string[] TitleMarkers =
     {
@@ -71,7 +81,7 @@ public partial class ClientNameCandidateGrounder : IEntityCandidateGrounder
                 return;
             }
 
-            var grounded = new List<(int? IdNumber, string? FirstName, string? LastName)>();
+            var grounded = new List<(int? IdNumber, string? FirstName, string? LastName, bool Named)>();
             var seen = new HashSet<Guid>();
 
             foreach (var term in terms)
@@ -85,7 +95,8 @@ public partial class ClientNameCandidateGrounder : IEntityCandidateGrounder
                         continue;
                     }
 
-                    grounded.Add((item.IdNumber, item.FirstName, item.LastName));
+                    var named = terms.Any(candidate => ClientNameMatch.Partition([item], candidate).Matches.Count > 0);
+                    grounded.Add((item.IdNumber, item.FirstName, item.LastName, named));
                     if (grounded.Count >= MaxGroundedEntities)
                     {
                         break;
@@ -184,13 +195,17 @@ public partial class ClientNameCandidateGrounder : IEntityCandidateGrounder
         return terms;
     }
 
-    // SearchAsync already runs the trigram/phonetic fallback itself, over a larger candidate pool
-    // and scoped to the caller's visible groups. A second direct call to the fuzzy service could
-    // only ever return rows this one already rejected — and would return them unscoped.
+    // SearchByFuzzyNameAsync runs the trigram/phonetic ranking over a larger candidate pool and
+    // scoped to the caller's visible groups; a direct call to the fuzzy service would be unscoped.
     private async Task<List<ClientSearchItem>> SearchTermAsync(string term, CancellationToken cancellationToken)
     {
         var result = await _clientSearchRepository.SearchAsync(
             term, limit: SearchLimitPerTerm, cancellationToken: cancellationToken);
+        if (result.Items.Count == 0)
+        {
+            result = await _clientSearchRepository.SearchByFuzzyNameAsync(
+                term, limit: SearchLimitPerTerm, cancellationToken: cancellationToken);
+        }
 
         return result.Items.ToList();
     }
@@ -229,18 +244,33 @@ public partial class ClientNameCandidateGrounder : IEntityCandidateGrounder
         return phoneticLeft != null && phoneticLeft == ClientPhoneticTokenBuilder.Build(right);
     }
 
-    private static string RenderBlock(List<(int? IdNumber, string? FirstName, string? LastName)> grounded)
+    private static string RenderBlock(List<(int? IdNumber, string? FirstName, string? LastName, bool Named)> grounded)
     {
         var sb = new StringBuilder();
-        sb.AppendLine(BlockHeader);
-        foreach (var entry in grounded)
+        AppendSection(sb, BlockHeader, BlockInstruction, grounded.Where(entry => entry.Named).ToList());
+        AppendSection(sb, SimilarBlockHeader, SimilarBlockInstruction, grounded.Where(entry => !entry.Named).ToList());
+        return sb.ToString().TrimEnd();
+    }
+
+    private static void AppendSection(
+        StringBuilder sb,
+        string header,
+        string instruction,
+        List<(int? IdNumber, string? FirstName, string? LastName, bool Named)> entries)
+    {
+        if (entries.Count == 0)
+        {
+            return;
+        }
+
+        sb.AppendLine(header);
+        foreach (var entry in entries)
         {
             var idSuffix = entry.IdNumber.HasValue ? $" (#{entry.IdNumber.Value})" : string.Empty;
             sb.AppendLine($"- {entry.LastName}, {entry.FirstName}{idSuffix}");
         }
 
-        sb.Append(BlockInstruction);
-        return sb.ToString();
+        sb.AppendLine(instruction);
     }
 
     [GeneratedRegex(@"[\p{L}][\p{L}'-]*", RegexOptions.CultureInvariant)]

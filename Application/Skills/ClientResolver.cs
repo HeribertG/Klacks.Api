@@ -3,6 +3,12 @@
 /// <summary>
 /// Shared helper for the small client-edit skills: resolves a client by first/last name
 /// (via the search repository) and loads the full tracked-capable entity for an update.
+/// The name is looked up with the text search and, when that finds nobody, with the fuzzy (trigram and
+/// phonetic) search. Under the default Strict policy every row is then judged by ClientNameMatch: only a
+/// client the user really named (equal words or whole words, first and last name in either order) can be
+/// resolved; when the rows hold only similar names ("Meier" for the only "Mayer", "Mei" for "Meier") nothing
+/// is loaded and the answer is the name ask-back (NameResolutionAskBack), so no write runs on a name the user
+/// did not say. Lenient keeps the previous behaviour (a lone row is taken) and is reserved for read-only skills.
 /// When several clients share the name, an exact (accent-insensitive) full-name match is
 /// preferred over looser search hits; genuine duplicates are disambiguated via the optional
 /// idNumber parameter (the visible client number), which the ambiguity error instructs the
@@ -10,9 +16,11 @@
 /// Lookups by an id the model supplied go through the client visibility guard first: a client the
 /// caller may not see is answered exactly like an unknown id and is never loaded.
 /// </summary>
+/// <param name="policy">Strict (default, every write) or Lenient (read-only skills only).</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Clients;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Staffs;
 
 namespace Klacks.Api.Application.Skills;
@@ -61,11 +69,12 @@ internal static class ClientResolver
         IClientRepository clientRepository,
         string? firstName,
         string? lastName,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         return ResolveCoreAsync(
             searchRepository, clientRepository, firstName, lastName,
-            idNumber: null, idNumberSupported: false, IdNumberParameterName, cancellationToken);
+            idNumber: null, idNumberSupported: false, IdNumberParameterName, policy, cancellationToken);
     }
 
     /// <summary>
@@ -75,6 +84,7 @@ internal static class ClientResolver
     /// </summary>
     /// <param name="idNumber">Visible client number that disambiguates duplicate names</param>
     /// <param name="idNumberParameterName">Name of the skill parameter carrying the number, named in the answers</param>
+    /// <param name="policy">Strict (default, every write) or Lenient (read-only skills only)</param>
     public static Task<(Client? Client, string? Error)> ResolveByNameAsync(
         IClientSearchRepository searchRepository,
         IClientRepository clientRepository,
@@ -82,11 +92,12 @@ internal static class ClientResolver
         string? lastName,
         int? idNumber,
         CancellationToken cancellationToken,
-        string idNumberParameterName = IdNumberParameterName)
+        string idNumberParameterName = IdNumberParameterName,
+        NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         return ResolveCoreAsync(
             searchRepository, clientRepository, firstName, lastName,
-            idNumber, idNumberSupported: true, idNumberParameterName, cancellationToken);
+            idNumber, idNumberSupported: true, idNumberParameterName, policy, cancellationToken);
     }
 
     /// <summary>
@@ -100,6 +111,7 @@ internal static class ClientResolver
     /// <param name="idNumber">Visible client number that disambiguates duplicate names</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <param name="idNumberParameterName">Name of the skill parameter carrying the number, named in the answers</param>
+    /// <param name="policy">Strict (default, every write) or Lenient (read-only skills only)</param>
     public static async Task<(Client? Client, string? Error)> ResolveByIdOrNameAsync(
         IClientSearchRepository searchRepository,
         IClientRepository clientRepository,
@@ -109,13 +121,14 @@ internal static class ClientResolver
         string? lastName,
         int? idNumber,
         CancellationToken cancellationToken,
-        string idNumberParameterName = IdNumberParameterName)
+        string idNumberParameterName = IdNumberParameterName,
+        NameMatchPolicy policy = NameMatchPolicy.Strict)
     {
         if (string.IsNullOrWhiteSpace(clientIdRaw))
         {
             return await ResolveByNameAsync(
                 searchRepository, clientRepository, firstName, lastName, idNumber, cancellationToken,
-                idNumberParameterName);
+                idNumberParameterName, policy);
         }
 
         if (!Guid.TryParse(clientIdRaw, out var clientId))
@@ -136,6 +149,7 @@ internal static class ClientResolver
     public static string NotFoundMessage(string? firstName, string? lastName) =>
         $"No client found matching '{$"{firstName} {lastName}".Trim()}'. Check the spelling with the user — " +
         "do not call this skill again with the same name.";
+
     private static async Task<(Client? Client, string? Error)> ResolveCoreAsync(
         IClientSearchRepository searchRepository,
         IClientRepository clientRepository,
@@ -144,6 +158,7 @@ internal static class ClientResolver
         int? idNumber,
         bool idNumberSupported,
         string idNumberParameterName,
+        NameMatchPolicy policy,
         CancellationToken cancellationToken)
     {
         var term = $"{firstName} {lastName}".Trim();
@@ -152,14 +167,22 @@ internal static class ClientResolver
             return (null, "Please provide the client's first and last name.");
         }
 
-        var search = await searchRepository.SearchAsync(
-            term, null, null, null, SearchResultLimit, cancellationToken);
-        if (search.Items.Count == 0)
+        var items = await SearchAsync(searchRepository, term, cancellationToken);
+        if (items.Count == 0)
         {
             return (null, NotFoundMessage(firstName, lastName));
         }
 
-        var items = search.Items;
+        if (policy == NameMatchPolicy.Strict)
+        {
+            var partition = ClientNameMatch.Partition(items, term);
+            if (partition.Matches.Count == 0)
+            {
+                return (null, SuggestionMessage(term, partition.Suggestions.Count > 0 ? partition.Suggestions : items));
+            }
+
+            items = partition.Matches;
+        }
 
         if (idNumber.HasValue)
         {
@@ -190,11 +213,34 @@ internal static class ClientResolver
         var nextStep = idNumberSupported
             ? "then call this skill again with the same name plus the additional parameter " +
               $"'{idNumberParameterName}' set to that client number "
-            : "then complete the requested action for that specific person yourself ";
+            : "then, once the user has answered, complete the requested action for that specific person yourself ";
+        var askBack = policy == NameMatchPolicy.Strict ? " " + NameResolutionAskBack.Marker : string.Empty;
         return (null,
             $"Multiple clients match '{term}': {Describe(pool)}. Ask the user which one they mean " +
             $"(the number in brackets is the client number), {nextStep}" +
-            "— do not open the edit page or ask the user to do it by hand.");
+            "— do not open the edit page or ask the user to do it by hand." + askBack);
+    }
+
+    private static async Task<IReadOnlyList<ClientSearchItem>> SearchAsync(
+        IClientSearchRepository searchRepository, string term, CancellationToken cancellationToken)
+    {
+        var search = await searchRepository.SearchAsync(
+            term, null, null, null, SearchResultLimit, cancellationToken);
+        if (search.Items.Count > 0)
+        {
+            return search.Items;
+        }
+
+        var fuzzy = await searchRepository.SearchByFuzzyNameAsync(
+            term, null, null, null, SearchResultLimit, cancellationToken);
+        return fuzzy.Items;
+    }
+
+    private static string SuggestionMessage(string term, IReadOnlyList<ClientSearchItem> suggestions)
+    {
+        return suggestions.Count == 1
+            ? NameResolutionMessages.SuggestedName(DescribeOne(suggestions[0]))
+            : NameResolutionMessages.SuggestedNames(term, Describe(suggestions));
     }
 
     private static List<ClientSearchItem> ExactNameMatches(
@@ -215,7 +261,12 @@ internal static class ClientResolver
 
     private static string Describe(IReadOnlyList<ClientSearchItem> items)
     {
-        return string.Join(", ", items.Select(i => $"{i.FirstName} {i.LastName} (#{i.IdNumber})"));
+        return string.Join(", ", items.Select(DescribeOne));
+    }
+
+    private static string DescribeOne(ClientSearchItem item)
+    {
+        return $"{item.FirstName} {item.LastName} (#{item.IdNumber})";
     }
 
     private static async Task<(Client? Client, string? Error)> LoadAsync(
