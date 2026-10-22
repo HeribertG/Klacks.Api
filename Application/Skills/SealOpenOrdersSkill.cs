@@ -13,10 +13,11 @@
 /// administrator whose scope is restricted - only reaches orders linked to at least one group they can see, never
 /// orders without a group, and may neither name a hidden group nor run the group assignment. That scope is resolved
 /// once and carried on the command, so the preview, the inline apply and the background job filter identically.
-/// groupName must match a reachable group exactly or be an unambiguous part of its name (type-label words aside):
-/// the shared resolver's fuzzy stages ("Region South" -> "Region North") are not accepted here, because sealing
-/// cannot be undone and a hidden or misspelled group must never be replaced by a different visible one. The resolved
-/// group is named in the preview and in the result.
+/// groupName is resolved against the reachable groups with the shared GroupResolver under the default Strict
+/// policy: an exact name, whole words of one name or a label-decorated name ("Gruppe X") resolve, while a fuzzy
+/// match ("Region South" -> "Region North", "Regoin North") is answered with the resolver's ask-back and seals
+/// nothing, because sealing cannot be undone and a hidden or misspelled group must never be replaced by a different
+/// visible one. The resolved group is named in the preview and in the result.
 /// With apply=true, a batch whose sealable count (from the
 /// same count the preview reports) exceeds SealOpenOrdersSynchronousLimit is NOT sealed inline: it is
 /// handed to SealOpenOrdersJobBackgroundService and this call returns immediately with a job id. The
@@ -84,14 +85,7 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
         "Only orders in the groups you can see are included; orders without a group can only be sealed by an " +
         "administrator. ";
 
-    private const string InexactGroupNameError =
-        "Group '{0}' not found. Available groups: {1}. seal_open_orders only accepts a group's exact name or an " +
-        "unambiguous part of it, because sealing cannot be undone; a similarly spelled group is never substituted. " +
-        "Ask the user which of these groups they mean.";
-
     private const string GroupNoteFormat = "Group: '{0}'. ";
-
-    private const char NameTokenSeparator = ' ';
 
     private const string InvalidMaxCountError =
         "maxCount must be greater than 0 when it is given.";
@@ -167,7 +161,7 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
         Group? targetGroup = null;
         if (!string.IsNullOrWhiteSpace(groupName))
         {
-            var (group, groupError) = ResolveGroupStrictly(reachableGroups, groupName);
+            var (group, groupError) = GroupResolver.Resolve(reachableGroups, groupName);
             if (group == null)
             {
                 return SkillResult.Error(groupError!);
@@ -239,38 +233,6 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
     {
         var groups = await _groupRepository.List();
         return hasFullAccess ? groups : groups.Where(access.IsInScope).ToList();
-    }
-
-    private static (Group? Group, string? Error) ResolveGroupStrictly(IReadOnlyList<Group> reachableGroups, string groupName)
-    {
-        var (group, error) = GroupResolver.Resolve(reachableGroups, groupName);
-        if (group == null || IsLiteralMatch(group.Name, groupName))
-        {
-            return (group, error);
-        }
-
-        var available = reachableGroups
-            .Where(g => !g.IsDeleted && !string.IsNullOrWhiteSpace(g.Name))
-            .Select(g => g.Name);
-        return (null, string.Format(InexactGroupNameError, groupName.Trim(), string.Join(", ", available)));
-    }
-
-    private static bool IsLiteralMatch(string resolvedName, string groupName)
-    {
-        var name = NameMatching.Normalize(resolvedName);
-        var query = NameMatching.Normalize(groupName);
-        var queryWithoutLabels = string.Join(
-            NameTokenSeparator,
-            NameMatching.Tokenize(query).Where(token => !GroupResolver.LabelWords.Contains(token)));
-
-        return name.Contains(query, StringComparison.Ordinal)
-            || (queryWithoutLabels.Length > 0 && name.Contains(queryWithoutLabels, StringComparison.Ordinal))
-            || (queryWithoutLabels.Length > 0 && Compact(name) == Compact(queryWithoutLabels));
-    }
-
-    private static string Compact(string normalized)
-    {
-        return normalized.Replace(NameTokenSeparator.ToString(), string.Empty, StringComparison.Ordinal);
     }
 
     private SkillResult EnqueueJob(
