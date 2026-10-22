@@ -114,157 +114,32 @@ public class SkillExecutorService : ISkillExecutor
             descriptor = _registry.GetSkillByName(invocation.SkillName);
             if (descriptor == null)
             {
-                _logger.LogWarning("Skill not found: {SkillName}", invocation.SkillName);
-                var notFound = SkillResult.Error($"Skill '{invocation.SkillName}' not found");
-                await TrackFailureAsync(invocation.SkillName, SkillFailureKind.NotFound, context, invocation.Parameters, notFound.Message, stopwatch.Elapsed, category: null, cancellationToken: cancellationToken);
-                return notFound;
+                return await RejectUnknownSkillAsync(invocation, context, stopwatch, cancellationToken);
             }
 
-            var permissionResult = ValidatePermissions(descriptor, context);
-            if (!permissionResult.Success)
+            var refusal = await CheckInvocationAsync(descriptor, invocation, context, stopwatch, cancellationToken);
+            if (refusal != null)
             {
-                await TrackFailureAsync(descriptor.Name, SkillFailureKind.PermissionDenied, context, invocation.Parameters, permissionResult.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
-                return permissionResult;
+                return refusal;
             }
 
-            var parameterResult = ValidateParameters(descriptor, invocation.Parameters, context.UserLanguage);
-            if (!parameterResult.Success)
+            var dispatch = await DispatchAsync(descriptor, invocation, context, stopwatch, cancellationToken);
+            if (dispatch.IsRefusal)
             {
-                await TrackFailureAsync(descriptor.Name, SkillFailureKind.ParameterInvalid, context, invocation.Parameters, parameterResult.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
-                return parameterResult;
+                return dispatch.Result;
             }
 
-            var isUiAction = string.Equals(descriptor.ExecutionType, LlmExecutionTypes.UiAction, StringComparison.OrdinalIgnoreCase);
-            if (isUiAction && !context.SupportsUiActions)
-            {
-                var uiContextError = SkillResult.Error(
-                    $"Skill '{invocation.SkillName}' requires an interactive UI session and cannot be executed in this context.");
-                await TrackFailureAsync(descriptor.Name, SkillFailureKind.UiActionContext, context, invocation.Parameters, uiContextError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
-                return uiContextError;
-            }
-
-            if (isUiAction && UiActionStepInspector.ContainsApiCallStep(descriptor.HandlerConfig))
-            {
-                _logger.LogWarning(
-                    "UiAction skill {SkillName} carries an apiCall step in its stored handler config and is not delivered to the client",
-                    descriptor.Name);
-                var apiCallError = SkillResult.Error(UiActionStepActions.ApiCallRejectedMessage);
-                await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, apiCallError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
-                return apiCallError;
-            }
-
-            var gateResult = await CheckPreExecutionGatesAsync(descriptor, invocation, context, stopwatch.Elapsed, cancellationToken);
-            if (gateResult != null)
-            {
-                return gateResult;
-            }
-
-            _logger.LogInformation("Executing skill: {SkillName} for user {UserId}",
-                descriptor.Name, context.UserId);
-
-            SkillResult result;
-            Guid? uiActionTrackingId = null;
-
-            if (isUiAction)
-            {
-                // W1.4: the tracking id is the usage-row id the frontend reports back under, so the
-                // dispatch can later be resolved to a truthful Completed/Failed outcome.
-                uiActionTrackingId = Guid.NewGuid();
-                result = SkillResult.UiAction(
-                    string.IsNullOrWhiteSpace(descriptor.HandlerConfig) ? EmptyUiActionSteps : descriptor.HandlerConfig,
-                    invocation.Parameters,
-                    $"Function '{descriptor.Name}' will be executed as UI action in the user's browser.",
-                    uiActionTrackingId);
-            }
-            else if (_genericDispatcher.CanHandle(descriptor.HandlerType))
-            {
-                if (string.IsNullOrWhiteSpace(descriptor.HandlerConfig))
-                {
-                    var noConfigError = SkillResult.Error($"Skill '{invocation.SkillName}' has HandlerType '{descriptor.HandlerType}' but no HandlerConfig.");
-                    await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, noConfigError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
-                    return noConfigError;
-                }
-
-                result = await _genericDispatcher.ExecuteAsync(
-                    descriptor.HandlerType!,
-                    descriptor.HandlerConfig,
-                    invocation.Parameters,
-                    context.ExplainDepth, context.UserPermissions,
-                    cancellationToken);
-            }
-            else if (descriptor.ImplementationType != null)
-            {
-                var instance = _serviceProvider.GetRequiredService(descriptor.ImplementationType);
-                var skillParameters = WithExecutionContextKeys(invocation.Parameters, context);
-
-                if (instance is ISkillImplementation impl)
-                {
-                    result = await impl.ExecuteAsync(context, skillParameters, cancellationToken);
-                }
-                else if (instance is Klacks.Plugin.Contracts.Skills.ISkillImplementation pluginImpl)
-                {
-                    result = await ExecutePluginSkillAsync(pluginImpl, invocation, context, cancellationToken);
-                }
-                else if (instance is ISkill skill)
-                {
-                    result = await skill.ExecuteAsync(context, skillParameters, cancellationToken);
-                }
-                else
-                {
-                    var noImplError = SkillResult.Error($"Skill '{invocation.SkillName}' does not implement ISkillImplementation or ISkill.");
-                    await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, noImplError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
-                    return noImplError;
-                }
-            }
-            else
-            {
-                var noHandlerError = SkillResult.Error($"No implementation or handler found for skill '{invocation.SkillName}'.");
-                await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, noHandlerError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
-                return noHandlerError;
-            }
-
-            stopwatch.Stop();
-
-            await _usageTracker.TrackAsync(
-                descriptor,
-                context,
-                invocation.Parameters,
-                result,
-                stopwatch.Elapsed,
-                CancellationToken.None,
-                recordId: uiActionTrackingId);
-
-            _logger.LogInformation("Skill executed: {SkillName}, Success: {Success}, Duration: {Duration}ms",
-                descriptor.Name, result.Success, stopwatch.ElapsedMilliseconds);
-
-            if (result.UiActionSteps == null)
-            {
-                await NotifyEntityChangeAsync(descriptor, context, result, cancellationToken);
-
-                await RegisterRecentEntityAsync(descriptor, context, result, cancellationToken);
-            }
-
-            return MarkExternalContent(descriptor.Name, result);
+            return await CompleteSuccessfulRunAsync(descriptor, invocation, context, dispatch, stopwatch, cancellationToken);
         }
         catch (SkillException ex)
         {
             stopwatch.Stop();
-            _logger.LogWarning(ex, "Skill error in {SkillName}: {ErrorCode} - {Message}",
-                invocation.SkillName, ex.ErrorCode, ex.Message);
-            var result = SkillResult.Error(ex.Message, new Dictionary<string, object>
-            {
-                { SkillErrorKeys.ErrorCode, ex.ErrorCode ?? SkillErrorKeys.Unknown },
-                { SkillErrorKeys.SkillName, ex.SkillName }
-            });
-            return await CompleteWithExceptionResultAsync(descriptor, invocation, context, result, stopwatch.Elapsed);
+            return await CompleteWithExceptionResultAsync(descriptor, invocation, context, SkillErrorResult(invocation.SkillName, ex), stopwatch.Elapsed);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             stopwatch.Stop();
-            _logger.LogInformation("Skill execution cancelled: {SkillName}", invocation.SkillName);
-            var result = SkillResult.Cancelled($"Skill '{invocation.SkillName}' execution was cancelled");
-            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Cancelled, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, CancellationToken.None);
-            return result;
+            return await CompleteCancelledAsync(descriptor, invocation, context, stopwatch.Elapsed);
         }
         catch (Exception ex) when (ex is IUserFacingRejection)
         {
@@ -276,6 +151,235 @@ public class SkillExecutorService : ISkillExecutor
             stopwatch.Stop();
             return await CompleteWithExceptionResultAsync(descriptor, invocation, context, UnexpectedErrorResult(invocation.SkillName, ex), stopwatch.Elapsed);
         }
+    }
+
+    private async Task<SkillResult> RejectUnknownSkillAsync(
+        SkillInvocation invocation,
+        SkillExecutionContext context,
+        Stopwatch stopwatch,
+        CancellationToken cancellationToken)
+    {
+        _logger.LogWarning("Skill not found: {SkillName}", invocation.SkillName);
+        var notFound = SkillResult.Error($"Skill '{invocation.SkillName}' not found");
+        await TrackFailureAsync(invocation.SkillName, SkillFailureKind.NotFound, context, invocation.Parameters, notFound.Message, stopwatch.Elapsed, category: null, cancellationToken: cancellationToken);
+        return notFound;
+    }
+
+    /// <summary>
+    /// Runs the checks that may refuse a resolved skill, in order: permissions, parameters, the UI context of a UI
+    /// action, an apiCall step in a UI action's stored config, then the pre-execution gates. Returns the refusal
+    /// (already tracked as a failure) or null when the skill may be dispatched.
+    /// </summary>
+    private async Task<SkillResult?> CheckInvocationAsync(
+        SkillDescriptor descriptor,
+        SkillInvocation invocation,
+        SkillExecutionContext context,
+        Stopwatch stopwatch,
+        CancellationToken cancellationToken)
+    {
+        var permissionResult = ValidatePermissions(descriptor, context);
+        if (!permissionResult.Success)
+        {
+            await TrackFailureAsync(descriptor.Name, SkillFailureKind.PermissionDenied, context, invocation.Parameters, permissionResult.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+            return permissionResult;
+        }
+
+        var parameterResult = ValidateParameters(descriptor, invocation.Parameters, context.UserLanguage);
+        if (!parameterResult.Success)
+        {
+            await TrackFailureAsync(descriptor.Name, SkillFailureKind.ParameterInvalid, context, invocation.Parameters, parameterResult.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+            return parameterResult;
+        }
+
+        var isUiAction = IsUiAction(descriptor);
+        if (isUiAction && !context.SupportsUiActions)
+        {
+            var uiContextError = SkillResult.Error(
+                $"Skill '{invocation.SkillName}' requires an interactive UI session and cannot be executed in this context.");
+            await TrackFailureAsync(descriptor.Name, SkillFailureKind.UiActionContext, context, invocation.Parameters, uiContextError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+            return uiContextError;
+        }
+
+        if (isUiAction && UiActionStepInspector.ContainsApiCallStep(descriptor.HandlerConfig))
+        {
+            _logger.LogWarning(
+                "UiAction skill {SkillName} carries an apiCall step in its stored handler config and is not delivered to the client",
+                descriptor.Name);
+            var apiCallError = SkillResult.Error(UiActionStepActions.ApiCallRejectedMessage);
+            await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, apiCallError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+            return apiCallError;
+        }
+
+        return await CheckPreExecutionGatesAsync(descriptor, invocation, context, stopwatch.Elapsed, cancellationToken);
+    }
+
+    private static bool IsUiAction(SkillDescriptor descriptor) =>
+        string.Equals(descriptor.ExecutionType, LlmExecutionTypes.UiAction, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Logs the execution and hands the invocation to its route: a UI action is returned to the browser, a generic handler type goes to the
+    /// generic dispatcher, an implementation type is resolved from DI and run. A route that cannot run tracks the
+    /// failure and returns it as a refusal, which skips the success post-processing.
+    /// </summary>
+    private async Task<SkillDispatchOutcome> DispatchAsync(
+        SkillDescriptor descriptor,
+        SkillInvocation invocation,
+        SkillExecutionContext context,
+        Stopwatch stopwatch,
+        CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Executing skill: {SkillName} for user {UserId}",
+            descriptor.Name, context.UserId);
+
+        if (IsUiAction(descriptor))
+        {
+            // W1.4: the tracking id is the usage-row id the frontend reports back under, so the
+            // dispatch can later be resolved to a truthful Completed/Failed outcome.
+            var uiActionTrackingId = Guid.NewGuid();
+            var uiAction = SkillResult.UiAction(
+                string.IsNullOrWhiteSpace(descriptor.HandlerConfig) ? EmptyUiActionSteps : descriptor.HandlerConfig,
+                invocation.Parameters,
+                $"Function '{descriptor.Name}' will be executed as UI action in the user's browser.",
+                uiActionTrackingId);
+            return SkillDispatchOutcome.Ran(uiAction, uiActionTrackingId);
+        }
+
+        if (_genericDispatcher.CanHandle(descriptor.HandlerType))
+        {
+            return await DispatchGenericHandlerAsync(descriptor, invocation, context, stopwatch, cancellationToken);
+        }
+
+        if (descriptor.ImplementationType != null)
+        {
+            return await DispatchImplementationAsync(descriptor, descriptor.ImplementationType, invocation, context, stopwatch, cancellationToken);
+        }
+
+        var noHandlerError = SkillResult.Error($"No implementation or handler found for skill '{invocation.SkillName}'.");
+        await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, noHandlerError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+        return SkillDispatchOutcome.Refused(noHandlerError);
+    }
+
+    private async Task<SkillDispatchOutcome> DispatchGenericHandlerAsync(
+        SkillDescriptor descriptor,
+        SkillInvocation invocation,
+        SkillExecutionContext context,
+        Stopwatch stopwatch,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(descriptor.HandlerConfig))
+        {
+            var noConfigError = SkillResult.Error($"Skill '{invocation.SkillName}' has HandlerType '{descriptor.HandlerType}' but no HandlerConfig.");
+            await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, noConfigError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+            return SkillDispatchOutcome.Refused(noConfigError);
+        }
+
+        var result = await _genericDispatcher.ExecuteAsync(
+            descriptor.HandlerType!,
+            descriptor.HandlerConfig,
+            invocation.Parameters,
+            context.ExplainDepth, context.UserPermissions,
+            cancellationToken);
+        return SkillDispatchOutcome.Ran(result, null);
+    }
+
+    private async Task<SkillDispatchOutcome> DispatchImplementationAsync(
+        SkillDescriptor descriptor,
+        Type implementationType,
+        SkillInvocation invocation,
+        SkillExecutionContext context,
+        Stopwatch stopwatch,
+        CancellationToken cancellationToken)
+    {
+        var instance = _serviceProvider.GetRequiredService(implementationType);
+        var skillParameters = WithExecutionContextKeys(invocation.Parameters, context);
+
+        if (instance is ISkillImplementation impl)
+        {
+            return SkillDispatchOutcome.Ran(await impl.ExecuteAsync(context, skillParameters, cancellationToken), null);
+        }
+
+        if (instance is Klacks.Plugin.Contracts.Skills.ISkillImplementation pluginImpl)
+        {
+            return SkillDispatchOutcome.Ran(await ExecutePluginSkillAsync(pluginImpl, invocation, context, cancellationToken), null);
+        }
+
+        if (instance is ISkill skill)
+        {
+            return SkillDispatchOutcome.Ran(await skill.ExecuteAsync(context, skillParameters, cancellationToken), null);
+        }
+
+        var noImplError = SkillResult.Error($"Skill '{invocation.SkillName}' does not implement ISkillImplementation or ISkill.");
+        await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, noImplError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+        return SkillDispatchOutcome.Refused(noImplError);
+    }
+
+    /// <summary>
+    /// Writes the usage row of a dispatched skill (never cancelled, under the UI action's tracking id), logs the run,
+    /// lets every non-UI result notify entity changes and register the recent entity, and taints the result of an
+    /// untrusted-output skill.
+    /// </summary>
+    private async Task<SkillResult> CompleteSuccessfulRunAsync(
+        SkillDescriptor descriptor,
+        SkillInvocation invocation,
+        SkillExecutionContext context,
+        SkillDispatchOutcome dispatch,
+        Stopwatch stopwatch,
+        CancellationToken cancellationToken)
+    {
+        var result = dispatch.Result;
+
+        stopwatch.Stop();
+
+        await _usageTracker.TrackAsync(
+            descriptor,
+            context,
+            invocation.Parameters,
+            result,
+            stopwatch.Elapsed,
+            CancellationToken.None,
+            recordId: dispatch.UiActionTrackingId);
+
+        _logger.LogInformation("Skill executed: {SkillName}, Success: {Success}, Duration: {Duration}ms",
+            descriptor.Name, result.Success, stopwatch.ElapsedMilliseconds);
+
+        if (result.UiActionSteps == null)
+        {
+            await NotifyEntityChangeAsync(descriptor, context, result, cancellationToken);
+
+            await RegisterRecentEntityAsync(descriptor, context, result, cancellationToken);
+        }
+
+        return MarkExternalContent(descriptor.Name, result);
+    }
+
+    /// <summary>
+    /// Answers a SkillException with its own message, error code (UNKNOWN when it has none) and the skill name it
+    /// carries, logged as a warning under the invoked name.
+    /// </summary>
+    private SkillResult SkillErrorResult(string skillName, SkillException exception)
+    {
+        _logger.LogWarning(exception, "Skill error in {SkillName}: {ErrorCode} - {Message}",
+            skillName, exception.ErrorCode, exception.Message);
+        return SkillResult.Error(exception.Message, new Dictionary<string, object>
+        {
+            { SkillErrorKeys.ErrorCode, exception.ErrorCode ?? SkillErrorKeys.Unknown },
+            { SkillErrorKeys.SkillName, exception.SkillName }
+        });
+    }
+
+    /// <summary>
+    /// Records a run the caller stopped as a failure of kind Cancelled, with a token no cancellation can reach.
+    /// </summary>
+    private async Task<SkillResult> CompleteCancelledAsync(
+        SkillDescriptor? descriptor,
+        SkillInvocation invocation,
+        SkillExecutionContext context,
+        TimeSpan elapsed)
+    {
+        _logger.LogInformation("Skill execution cancelled: {SkillName}", invocation.SkillName);
+        var result = SkillResult.Cancelled($"Skill '{invocation.SkillName}' execution was cancelled");
+        await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Cancelled, context, invocation.Parameters, result.Message, elapsed, descriptor?.Category, CancellationToken.None);
+        return result;
     }
 
     /// <summary>
@@ -654,5 +758,19 @@ public class SkillExecutorService : ISkillExecutor
         {
             _logger.LogWarning(ex, "Recent-entity registration failed for skill {SkillName}", descriptor.Name);
         }
+    }
+
+    /// <summary>
+    /// What a dispatch route produced: either a result for the success post-processing, or a refusal that was
+    /// already tracked as a failure and is returned as it is.
+    /// </summary>
+    /// <param name="Result">The skill result or the refusal.</param>
+    /// <param name="IsRefusal">True when the route could not run the skill.</param>
+    /// <param name="UiActionTrackingId">Usage-row id of a UI action, null for every other route.</param>
+    private sealed record SkillDispatchOutcome(SkillResult Result, bool IsRefusal, Guid? UiActionTrackingId)
+    {
+        public static SkillDispatchOutcome Ran(SkillResult result, Guid? uiActionTrackingId) => new(result, false, uiActionTrackingId);
+
+        public static SkillDispatchOutcome Refused(SkillResult refusal) => new(refusal, true, null);
     }
 }
