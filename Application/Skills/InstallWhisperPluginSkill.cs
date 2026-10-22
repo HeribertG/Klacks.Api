@@ -44,7 +44,8 @@ public class InstallWhisperPluginSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var installationLanguage = await _installationLanguageResolver.ResolveAsync(cancellationToken);
-        var requestedAlias = GetParameter<string>(parameters, "modelAlias")?.Trim();
+        var rawAlias = GetParameter<string>(parameters, "modelAlias");
+        var requestedAlias = string.IsNullOrWhiteSpace(rawAlias) ? null : rawAlias.Trim().ToLowerInvariant();
         var modelAlias = requestedAlias
                          ?? WhisperPluginConstants.GetDefaultAlias(_installationIdentityProvider.Get().Kind, installationLanguage);
 
