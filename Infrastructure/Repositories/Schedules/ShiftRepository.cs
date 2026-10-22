@@ -239,9 +239,9 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     /// <summary>
     /// The shift base query (original id, from date, start time; untracked). Not on IShiftRepository: Application and
-    /// Domain read through IShiftReader; the repository itself and the legacy-composition tests compose on it.
+    /// Domain read through IShiftReader; internal, the repository itself and the legacy-composition tests compose on it.
     /// </summary>
-    public IQueryable<Shift> GetQuery() => ShiftBaseQueries.Ordered(context.Shift);
+    internal IQueryable<Shift> GetQuery() => ShiftBaseQueries.Ordered(context.Shift);
 
     public async Task<List<Guid>> GetShiftIdsByClientAsync(Guid clientId, CancellationToken cancellationToken = default)
     {

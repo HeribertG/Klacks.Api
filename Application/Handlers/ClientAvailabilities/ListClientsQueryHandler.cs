@@ -17,14 +17,14 @@ namespace Klacks.Api.Application.Handlers.ClientAvailabilities;
 
 public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAvailabilityClientsQuery, ClientAvailabilityClientListResponse>
 {
-    private readonly IClientPageReader _baseQueryService;
+    private readonly IClientPageReader _clientPageReader;
 
     public ListClientsQueryHandler(
-        IClientPageReader baseQueryService,
+        IClientPageReader clientPageReader,
         ILogger<ListClientsQueryHandler> logger)
         : base(logger)
     {
-        _baseQueryService = baseQueryService;
+        _clientPageReader = clientPageReader;
     }
 
     public async Task<ClientAvailabilityClientListResponse> Handle(
@@ -46,7 +46,7 @@ public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAv
                 IndividualSort = request.Filter.IndividualSort,
             };
 
-            var (clients, totalCount) = await _baseQueryService.GetPageWithGroupItemsAsync(
+            var (clients, totalCount) = await _clientPageReader.GetPageWithGroupItemsAsync(
                 baseFilter, request.Filter.StartRow, request.Filter.RowCount, cancellationToken);
 
             return new ClientAvailabilityClientListResponse

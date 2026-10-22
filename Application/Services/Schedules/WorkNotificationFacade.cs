@@ -7,7 +7,7 @@
 /// </summary>
 /// <param name="notificationService">SignalR notifications for Work/Schedule/PeriodHours events</param>
 /// <param name="shiftStatsNotificationService">SignalR notifications for ShiftStats updates</param>
-/// <param name="shiftScheduleService">Provides partial ShiftSchedule data for affected shift-date pairs</param>
+/// <param name="shiftScheduleReader">Provides partial ShiftSchedule data for affected shift-date pairs</param>
 /// <param name="scheduleMapper">Mapper for notification DTOs</param>
 /// <param name="httpContextAccessor">Access to the SignalR ConnectionId header</param>
 using Klacks.Api.Application.Constants;
@@ -25,20 +25,20 @@ public class WorkNotificationFacade : IWorkNotificationFacade
 {
     private readonly IWorkNotificationService _notificationService;
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
-    private readonly IShiftScheduleReader _shiftScheduleService;
+    private readonly IShiftScheduleReader _shiftScheduleReader;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public WorkNotificationFacade(
         IWorkNotificationService notificationService,
         IShiftStatsNotificationService shiftStatsNotificationService,
-        IShiftScheduleReader shiftScheduleService,
+        IShiftScheduleReader shiftScheduleReader,
         ScheduleMapper scheduleMapper,
         IHttpContextAccessor httpContextAccessor)
     {
         _notificationService = notificationService;
         _shiftStatsNotificationService = shiftStatsNotificationService;
-        _shiftScheduleService = shiftScheduleService;
+        _shiftScheduleReader = shiftScheduleReader;
         _scheduleMapper = scheduleMapper;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -130,7 +130,7 @@ public class WorkNotificationFacade : IWorkNotificationFacade
         string connectionId, Guid? analyseToken, CancellationToken cancellationToken)
     {
         var shiftDatePairs = affectedShifts.ToList();
-        var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, analyseToken, cancellationToken: cancellationToken);
+        var shiftStats = await _shiftScheduleReader.GetShiftSchedulePartialAsync(shiftDatePairs, analyseToken, cancellationToken: cancellationToken);
 
         foreach (var shiftData in shiftStats)
         {
@@ -144,7 +144,7 @@ public class WorkNotificationFacade : IWorkNotificationFacade
         string connectionId, Guid? analyseToken, CancellationToken cancellationToken)
     {
         var shiftDatePairs = new List<(Guid ShiftId, DateOnly Date)> { (shiftId, date) };
-        var shiftStats = await _shiftScheduleService.GetShiftSchedulePartialAsync(shiftDatePairs, analyseToken, cancellationToken: cancellationToken);
+        var shiftStats = await _shiftScheduleReader.GetShiftSchedulePartialAsync(shiftDatePairs, analyseToken, cancellationToken: cancellationToken);
         var shiftData = shiftStats.FirstOrDefault();
 
         if (shiftData != null)

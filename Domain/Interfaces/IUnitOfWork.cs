@@ -2,6 +2,12 @@
 
 namespace Klacks.Api.Domain.Interfaces;
 
+/// <summary>
+/// Commits the changes staged in the shared scoped context. CompleteAsync and Complete report a rejected write as
+/// Klacks.Api.Domain.Exceptions.DatabaseUpdateException (IsDuplicate / IsForeignKeyViolation / ConstraintName from the
+/// database) or ConcurrencyException; the final save inside ExecuteInTransactionAsync does not translate (EF Core's
+/// exception propagates).
+/// </summary>
 public interface IUnitOfWork
 {
     Task CompleteAsync();

@@ -6,7 +6,7 @@
 /// its engaged employees capped at that demand as covered slots.
 /// </summary>
 /// <param name="readRepository">Read-side repository for shift/group assignments, group names and work-lock entries</param>
-/// <param name="shiftScheduleService">Service for shift schedule queries</param>
+/// <param name="shiftScheduleReader">Service for shift schedule queries</param>
 /// <param name="groupVisibilityService">Service for determining the user's group visibility scope</param>
 /// <param name="companyClock">Resolves the company's current calendar date for the statistics month</param>
 using Klacks.Api.Application.DTOs.Dashboard;
@@ -26,20 +26,20 @@ namespace Klacks.Api.Application.Handlers.Dashboard;
 public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandler<GetShiftCoverageStatisticsQuery, IEnumerable<ShiftCoverageStatisticsResource>>
 {
     private readonly IShiftCoverageReadRepository _readRepository;
-    private readonly IShiftScheduleReader _shiftScheduleService;
+    private readonly IShiftScheduleReader _shiftScheduleReader;
     private readonly IGroupVisibilityService _groupVisibilityService;
     private readonly ICompanyClock _companyClock;
 
     public GetShiftCoverageStatisticsQueryHandler(
         IShiftCoverageReadRepository readRepository,
-        IShiftScheduleReader shiftScheduleService,
+        IShiftScheduleReader shiftScheduleReader,
         IGroupVisibilityService groupVisibilityService,
         ICompanyClock companyClock,
         ILogger<GetShiftCoverageStatisticsQueryHandler> logger)
         : base(logger)
     {
         _readRepository = readRepository;
-        _shiftScheduleService = shiftScheduleService;
+        _shiftScheduleReader = shiftScheduleReader;
         _groupVisibilityService = groupVisibilityService;
         _companyClock = companyClock;
     }
@@ -60,7 +60,7 @@ public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandl
 
             var visibleGroupIdSet = scope.IsUnrestricted ? null : scope.VisibleGroupIds.ToHashSet();
 
-            var shiftAssignments = await _shiftScheduleService.GetShiftScheduleListAsync(
+            var shiftAssignments = await _shiftScheduleReader.GetShiftScheduleListAsync(
                 startDate,
                 endDate,
                 visibleGroupIds: scope.IsUnrestricted ? null : scope.VisibleRootIds.ToList(),
