@@ -1505,7 +1505,10 @@
       "自架語音辨識",
       "本機語音辨識",
       "自架語音服務",
-      "本機whisper服務"
+      "本機whisper服務",
+      "parakeet",
+      "離線語音辨識",
+      "parakeet語音辨識"
     ],
     "status": "generated"
   }

@@ -1472,7 +1472,10 @@
       "セルフホスト型音声認識",
       "ローカル音声認識",
       "whisperの設定",
-      "whisperプラグイン"
+      "whisperプラグイン",
+      "parakeet",
+      "オフライン音声認識",
+      "parakeet音声認識"
     ],
     "status": "generated"
   }

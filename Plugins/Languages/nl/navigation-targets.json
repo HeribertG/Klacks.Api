@@ -1454,7 +1454,10 @@
       "whisper plugin",
       "lokale spraakherkenning",
       "whisper spraakdienst",
-      "zelf-gehoste spraakherkenning"
+      "zelf-gehoste spraakherkenning",
+      "parakeet",
+      "offline spraakherkenning",
+      "parakeet spraakherkenning"
     ],
     "status": "generated"
   }

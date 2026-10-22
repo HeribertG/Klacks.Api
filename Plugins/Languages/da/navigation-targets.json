@@ -1460,7 +1460,10 @@
       "talegenkendelse",
       "selv-hostet talegenkendelse",
       "whisper-taletjeneste",
-      "lokal whisper"
+      "lokal whisper",
+      "parakeet",
+      "lokal talegenkendelse",
+      "offline talegenkendelse"
     ],
     "status": "generated"
   }

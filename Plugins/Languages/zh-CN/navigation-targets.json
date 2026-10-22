@@ -1487,7 +1487,10 @@
       "本地whisper",
       "whisper插件",
       "自托管whisper",
-      "自托管语音识别插件"
+      "自托管语音识别插件",
+      "parakeet",
+      "本地语音识别",
+      "离线语音识别"
     ],
     "status": "generated"
   }

@@ -1388,7 +1388,10 @@
       "recunoaștere vocală",
       "recunoaștere vocală auto-găzduită",
       "serviciu vocal local",
-      "plugin whisper"
+      "plugin whisper",
+      "parakeet",
+      "recunoaștere vocală locală",
+      "recunoaștere vocală offline"
     ],
     "status": "generated"
   },

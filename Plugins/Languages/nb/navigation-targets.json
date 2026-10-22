@@ -1438,7 +1438,10 @@
       "selvhostet talegjenkjenning",
       "whisper-plugin",
       "lokal talegjenkjenning",
-      "selvhostet whisper"
+      "selvhostet whisper",
+      "parakeet",
+      "offline talegjenkjenning",
+      "parakeet talegjenkjenning"
     ],
     "status": "generated"
   }

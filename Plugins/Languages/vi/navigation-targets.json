@@ -1311,7 +1311,10 @@
       "whisper",
       "dịch vụ whisper",
       "whisper cục bộ",
-      "nhận dạng giọng nói whisper"
+      "nhận dạng giọng nói whisper",
+      "parakeet",
+      "nhận dạng giọng nói cục bộ",
+      "nhận dạng giọng nói ngoại tuyến"
     ],
     "status": "generated"
   }

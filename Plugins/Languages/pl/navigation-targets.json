@@ -1349,7 +1349,10 @@
       "whisper",
       "lokalna usługa mowy",
       "samodzielnie hostowane whisper",
-      "wtyczka whisper"
+      "wtyczka whisper",
+      "parakeet",
+      "lokalne rozpoznawanie mowy",
+      "rozpoznawanie mowy offline"
     ],
     "status": "generated"
   }

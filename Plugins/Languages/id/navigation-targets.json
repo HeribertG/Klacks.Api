@@ -1361,7 +1361,10 @@
       "pengenalan suara mandiri",
       "layanan suara whisper",
       "whisper lokal",
-      "pengenalan suara lokal"
+      "pengenalan suara lokal",
+      "parakeet",
+      "pengenalan suara offline",
+      "parakeet pengenalan suara"
     ],
     "status": "generated"
   }

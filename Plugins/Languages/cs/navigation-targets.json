@@ -1362,7 +1362,10 @@
       "rozpoznávání řeči",
       "vlastní rozpoznávání řeči",
       "lokální hlasová služba whisper",
-      "hostované rozpoznávání řeči"
+      "hostované rozpoznávání řeči",
+      "parakeet",
+      "lokální rozpoznávání řeči",
+      "offline rozpoznávání řeči"
     ],
     "status": "generated"
   }

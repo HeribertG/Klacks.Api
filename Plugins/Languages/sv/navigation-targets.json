@@ -1441,7 +1441,10 @@
       "självhostad taligenkänning",
       "lokal rösttjänst",
       "whisper-rösttjänst",
-      "whisper-inställningar"
+      "whisper-inställningar",
+      "parakeet",
+      "lokal taligenkänning",
+      "taligenkänning offline"
     ],
     "status": "generated"
   }

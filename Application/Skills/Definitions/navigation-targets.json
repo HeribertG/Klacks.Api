@@ -6390,25 +6390,33 @@
         "sprachdienst",
         "lokaler whisper",
         "selbst gehostete spracherkennung",
-        "whisper sprachdienst"
+        "whisper sprachdienst",
+        "parakeet",
+        "lokale spracherkennung"
       ],
       "en": [
         "whisper",
         "self-hosted speech recognition",
         "local whisper service",
-        "whisper speech service"
+        "whisper speech service",
+        "parakeet",
+        "local speech recognition"
       ],
       "fr": [
         "whisper",
         "reconnaissance vocale whisper",
         "service vocal whisper",
-        "reconnaissance vocale auto-hébergée"
+        "reconnaissance vocale auto-hébergée",
+        "parakeet",
+        "reconnaissance vocale locale"
       ],
       "it": [
         "whisper",
         "riconoscimento vocale whisper",
         "whisper self-hosted",
-        "servizio vocale whisper"
+        "servizio vocale whisper",
+        "parakeet",
+        "riconoscimento vocale locale"
       ]
     },
     "synonymStatus": "generated",

@@ -1299,7 +1299,10 @@
       "plugin whisper",
       "reconhecimento de voz whisper",
       "serviço de voz local",
-      "reconhecimento de voz autoalojado"
+      "reconhecimento de voz autoalojado",
+      "parakeet",
+      "reconhecimento de voz local",
+      "reconhecimento de voz offline"
     ],
     "status": "generated"
   }

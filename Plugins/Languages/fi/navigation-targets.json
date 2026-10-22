@@ -1426,7 +1426,10 @@
       "whisper-puhepalvelu",
       "paikallinen puheentunnistus",
       "itse ylläpidetty puheentunnistus",
-      "whisper-puheentunnistus"
+      "whisper-puheentunnistus",
+      "parakeet",
+      "parakeet-puheentunnistus",
+      "offline-puheentunnistus"
     ],
     "status": "generated"
   }

@@ -1322,7 +1322,10 @@
       "whisper",
       "plugin whisper",
       "reconocimiento de voz autoalojado",
-      "servicio de voz local"
+      "servicio de voz local",
+      "parakeet",
+      "reconocimiento de voz local",
+      "reconocimiento de voz sin conexión"
     ],
     "status": "generated"
   }
