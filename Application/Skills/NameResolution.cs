@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Shared staged by-name resolution used by the entity resolvers (group, contract, macro,
-/// absence type, qualification). Matching stages, in order: exact normalized equality, forward
+/// absence type, qualification). Lenient stages, in order: exact normalized equality, forward
 /// substring (the stored name contains the query), compact equality (all spaces removed on both
 /// sides and optional label words stripped from the query, so "Makro-All-Shift" and "All Shift"
 /// both resolve the camel-case macro "AllShift" — normalization drops hyphens without a
@@ -13,13 +13,17 @@
 /// auto-picked when every other covered candidate is a strict token subset of it; otherwise the
 /// candidates are reported for disambiguation. It never silently picks one of several equally
 /// plausible matches.
-/// Under the default Strict policy only the stages that change no character of the query pick an
-/// entity (normalized equality, a forward match on WHOLE words - "Nord" finds "Region Nord" and
-/// "Nord-West" but not "Nordwest" -, compact equality after stripping label words that stand as
-/// WHOLE leading or trailing words - "Gruppe Leitung" finds "Leitung", "Gruppenleitung" does not); a substring
-/// that ends inside a word and every edit-distance, token or phonetic hit becomes a Suggested
-/// outcome (one entity) or stays Ambiguous (several), so a write never runs on a name the user did
-/// not say. Lenient runs every stage exactly as before and is meant for read-only call sites.
+/// The default Strict policy picks an entity only on: equal words (case- and punctuation-insensitive;
+/// diacritic-insensitive only when the query carries no diacritics, otherwise they must match exactly,
+/// so "Zurich" finds "Zürich" but "Bác" never finds "Bắc"), a forward match on WHOLE words ("Nord" finds
+/// "Region Nord" and "Nord-West", not "Nordwest"), a substring for scripts written without word
+/// separators (CJK, Thai, Lao, Khmer, Myanmar: "東京" finds "東京支店"), and compact equality after
+/// stripping label words that stand as whole leading or trailing words ("Gruppe Leitung" finds
+/// "Leitung", "Gruppenleitung" does not). A query that is nothing but a label word finds nothing. Every
+/// other hit — a substring ending inside a word, a diacritic mismatch, an edit-distance, token or
+/// phonetic match — is the Lenient result downgraded to Suggested (one entity) or left Ambiguous
+/// (several), so a write never runs on a name the user did not say. Lenient is meant for read-only call
+/// sites and runs exactly the previous stages.
 /// </summary>
 /// <param name="labelWords">Optional type-label words ("makro", "macro") stripped from the
 /// compact query as prefix or suffix, because spoken queries often decorate the entity name
@@ -38,8 +42,13 @@ internal static class NameResolution
         NameMatchPolicy policy = NameMatchPolicy.Strict)
         where T : class
     {
-        var (result, fromFuzzyStage) = ResolveStaged(items, nameSelector, query, labelWords, policy);
-        return ApplyPolicy(result, fromFuzzyStage, policy);
+        if (policy == NameMatchPolicy.Lenient)
+        {
+            return ResolveLenient(items, nameSelector, query, labelWords);
+        }
+
+        var (result, fromFuzzyStage) = ResolveStrict(items, nameSelector, query, labelWords);
+        return fromFuzzyStage ? Downgrade(result) : result;
     }
 
     // Multilingual entities (absence types, qualifications) carry one name per language plus
@@ -59,22 +68,82 @@ internal static class NameResolution
                 .Select(value => new NameVariant<T>(item, value!)))
             .ToList();
 
-        var (resolution, fromFuzzyStage) = ResolveStaged(variants, variant => variant.Value, query, labelWords, policy);
-        return ApplyPolicy(CollapseVariants(resolution), fromFuzzyStage, policy);
+        if (policy == NameMatchPolicy.Lenient)
+        {
+            return CollapseVariants(ResolveLenient(variants, variant => variant.Value, query, labelWords));
+        }
+
+        var (result, fromFuzzyStage) = ResolveStrict(variants, variant => variant.Value, query, labelWords);
+        var collapsed = CollapseVariants(result);
+        return fromFuzzyStage ? Downgrade(collapsed) : collapsed;
     }
 
-    private static (NameResolutionResult<T> Result, bool FromFuzzyStage) ResolveStaged<T>(
+    private static (NameResolutionResult<T> Result, bool FromFuzzyStage) ResolveStrict<T>(
         IReadOnlyList<T> items,
         Func<T, string> nameSelector,
         string? query,
-        IReadOnlyList<string>? labelWords,
-        NameMatchPolicy policy)
+        IReadOnlyList<string>? labelWords)
+        where T : class
+    {
+        var keepDiacritics = NameMatching.HasDiacritics(query);
+        var queryWords = NameMatching.WordTokens(query, keepDiacritics);
+        if (queryWords.Length == 0 || IsOnlyLabelWords(queryWords, labelWords, keepDiacritics))
+        {
+            return (NameResolutionResult<T>.NotFound(), false);
+        }
+
+        var named = items
+            .Select(item => (Item: item, Words: NameMatching.WordTokens(nameSelector(item), keepDiacritics)))
+            .Where(x => x.Words.Length > 0)
+            .ToList();
+
+        var exact = named.Where(x => x.Words.SequenceEqual(queryWords, StringComparer.Ordinal)).ToList();
+        if (exact.Count > 0)
+        {
+            return (FromMatches(exact.Select(x => x.Item).ToList()), false);
+        }
+
+        var wholeWordForward = named.Where(x => ContainsWordSequence(x.Words, queryWords)).ToList();
+        if (wholeWordForward.Count > 0)
+        {
+            return (FromMatches(wholeWordForward.Select(x => x.Item).ToList()), false);
+        }
+
+        var joinedQuery = string.Join(' ', queryWords);
+        if (NameMatching.IsUnsegmentedScript(joinedQuery))
+        {
+            var substring = named
+                .Where(x => string.Join(' ', x.Words).Contains(joinedQuery, StringComparison.Ordinal))
+                .ToList();
+            if (substring.Count > 0)
+            {
+                return (FromMatches(substring.Select(x => x.Item).ToList()), false);
+            }
+        }
+
+        var compactVariants = WholeWordCompactQueryVariants(queryWords, labelWords, keepDiacritics);
+        var compactExact = named
+            .Where(x => compactVariants.Contains(string.Concat(x.Words), StringComparer.Ordinal))
+            .ToList();
+        if (compactExact.Count > 0)
+        {
+            return (FromMatches(compactExact.Select(x => x.Item).ToList()), false);
+        }
+
+        return (ResolveLenient(items, nameSelector, query, labelWords), true);
+    }
+
+    private static NameResolutionResult<T> ResolveLenient<T>(
+        IReadOnlyList<T> items,
+        Func<T, string> nameSelector,
+        string? query,
+        IReadOnlyList<string>? labelWords)
         where T : class
     {
         var normalizedQuery = NameMatching.Normalize(query);
         if (normalizedQuery.Length == 0)
         {
-            return (NameResolutionResult<T>.NotFound(), false);
+            return NameResolutionResult<T>.NotFound();
         }
 
         var named = items
@@ -85,104 +154,18 @@ internal static class NameResolution
         var exact = named.Where(x => x.Normalized == normalizedQuery).ToList();
         if (exact.Count > 0)
         {
-            return (FromStage(exact), false);
+            return FromStage(exact);
         }
 
         var forward = named
             .Where(x => x.Normalized.Contains(normalizedQuery, StringComparison.Ordinal))
             .ToList();
+        if (forward.Count > 0)
+        {
+            return FromStage(forward);
+        }
+
         var compactVariants = CompactQueryVariants(normalizedQuery, labelWords);
-        if (policy == NameMatchPolicy.Lenient)
-        {
-            return forward.Count > 0
-                ? (FromStage(forward), false)
-                : (ResolveFuzzyStages(named, normalizedQuery, compactVariants), true);
-        }
-
-        var queryWords = NameMatching.WordTokens(query);
-        var wholeWordForward = named
-            .Where(x => ContainsWordSequence(NameMatching.WordTokens(nameSelector(x.Item)), queryWords))
-            .ToList();
-        if (wholeWordForward.Count > 0)
-        {
-            return (FromStage(wholeWordForward), false);
-        }
-
-        var strictCompactVariants = WholeWordCompactQueryVariants(query, labelWords);
-        var compactExact = named
-            .Where(x => strictCompactVariants.Contains(CompactOf(x.Normalized), StringComparer.Ordinal))
-            .ToList();
-        if (compactExact.Count > 0)
-        {
-            return (FromStage(compactExact), false);
-        }
-
-        return forward.Count > 0
-            ? (FromStage(forward), true)
-            : (ResolveFuzzyStages(named, normalizedQuery, compactVariants), true);
-    }
-
-    private static List<string> WholeWordCompactQueryVariants(string? query, IReadOnlyList<string>? labelWords)
-    {
-        var words = NameMatching.WordTokens(query);
-        var variants = new List<string> { string.Concat(words) };
-        if (labelWords == null)
-        {
-            return variants;
-        }
-
-        foreach (var labelWord in labelWords)
-        {
-            var label = NameMatching.WordTokens(labelWord);
-            if (label.Length == 0 || words.Length <= label.Length)
-            {
-                continue;
-            }
-
-            if (words.Take(label.Length).SequenceEqual(label, StringComparer.Ordinal))
-            {
-                variants.Add(string.Concat(words.Skip(label.Length)));
-            }
-
-            if (words.Skip(words.Length - label.Length).SequenceEqual(label, StringComparer.Ordinal))
-            {
-                variants.Add(string.Concat(words.Take(words.Length - label.Length)));
-            }
-        }
-
-        return variants.Distinct(StringComparer.Ordinal).ToList();
-    }
-
-    private static bool ContainsWordSequence(string[] nameWords, string[] queryWords)
-    {
-        if (queryWords.Length == 0 || queryWords.Length > nameWords.Length)
-        {
-            return false;
-        }
-
-        for (var start = 0; start <= nameWords.Length - queryWords.Length; start++)
-        {
-            var matches = true;
-            for (var offset = 0; offset < queryWords.Length && matches; offset++)
-            {
-                matches = string.Equals(nameWords[start + offset], queryWords[offset], StringComparison.Ordinal);
-            }
-
-            if (matches)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static NameResolutionResult<T> ResolveFuzzyStages<T>(
-        List<(T Item, string Normalized)> named,
-        string normalizedQuery,
-        List<string> compactVariants)
-        where T : class
-    {
         var compactMatches = named
             .Where(x =>
             {
@@ -247,16 +230,72 @@ internal static class NameResolution
         return NameResolutionResult<T>.NotFound();
     }
 
-    private static NameResolutionResult<T> ApplyPolicy<T>(
-        NameResolutionResult<T> result, bool fromFuzzyStage, NameMatchPolicy policy)
+    private static NameResolutionResult<T> Downgrade<T>(NameResolutionResult<T> result)
         where T : class
     {
-        if (policy == NameMatchPolicy.Lenient || !fromFuzzyStage || result.Match == null)
+        return result.Match == null ? result : NameResolutionResult<T>.Suggested(result.Match);
+    }
+
+    private static bool IsOnlyLabelWords(string[] queryWords, IReadOnlyList<string>? labelWords, bool keepDiacritics)
+    {
+        return labelWords != null
+               && labelWords.Any(label =>
+                   NameMatching.WordTokens(label, keepDiacritics).SequenceEqual(queryWords, StringComparer.Ordinal));
+    }
+
+    private static List<string> WholeWordCompactQueryVariants(
+        string[] queryWords, IReadOnlyList<string>? labelWords, bool keepDiacritics)
+    {
+        var variants = new List<string> { string.Concat(queryWords) };
+        if (labelWords == null)
         {
-            return result;
+            return variants;
         }
 
-        return NameResolutionResult<T>.Suggested(result.Match);
+        foreach (var labelWord in labelWords)
+        {
+            var label = NameMatching.WordTokens(labelWord, keepDiacritics);
+            if (label.Length == 0 || queryWords.Length <= label.Length)
+            {
+                continue;
+            }
+
+            if (queryWords.Take(label.Length).SequenceEqual(label, StringComparer.Ordinal))
+            {
+                variants.Add(string.Concat(queryWords.Skip(label.Length)));
+            }
+
+            if (queryWords.Skip(queryWords.Length - label.Length).SequenceEqual(label, StringComparer.Ordinal))
+            {
+                variants.Add(string.Concat(queryWords.Take(queryWords.Length - label.Length)));
+            }
+        }
+
+        return variants.Distinct(StringComparer.Ordinal).ToList();
+    }
+
+    private static bool ContainsWordSequence(string[] nameWords, string[] queryWords)
+    {
+        if (queryWords.Length > nameWords.Length)
+        {
+            return false;
+        }
+
+        for (var start = 0; start <= nameWords.Length - queryWords.Length; start++)
+        {
+            var matches = true;
+            for (var offset = 0; offset < queryWords.Length && matches; offset++)
+            {
+                matches = string.Equals(nameWords[start + offset], queryWords[offset], StringComparison.Ordinal);
+            }
+
+            if (matches)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static NameResolutionResult<T> CollapseVariants<T>(NameResolutionResult<NameVariant<T>> resolution)
@@ -281,12 +320,18 @@ internal static class NameResolution
     private sealed record NameVariant<T>(T Item, string Value)
         where T : class;
 
-    private static NameResolutionResult<T> FromStage<T>(List<(T Item, string Normalized)> matches)
+    private static NameResolutionResult<T> FromMatches<T>(List<T> matches)
         where T : class
     {
         return matches.Count == 1
-            ? NameResolutionResult<T>.Single(matches[0].Item)
-            : NameResolutionResult<T>.Ambiguous(matches.Select(m => m.Item).ToList());
+            ? NameResolutionResult<T>.Single(matches[0])
+            : NameResolutionResult<T>.Ambiguous(matches);
+    }
+
+    private static NameResolutionResult<T> FromStage<T>(List<(T Item, string Normalized)> matches)
+        where T : class
+    {
+        return FromMatches(matches.Select(m => m.Item).ToList());
     }
 
     private static string CompactOf(string normalized)

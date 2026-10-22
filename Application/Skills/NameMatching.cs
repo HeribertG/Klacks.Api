@@ -5,7 +5,8 @@
 /// punctuation-insensitive normalization, tokenization, length-scaled fuzzy comparison and
 /// Kölner Phonetik token codes, so user-supplied names still resolve when accents are missing,
 /// single characters are damaged (e.g. console-encoding mojibake) or a spoken name was
-/// misheard by STT ("Meier" vs "Mayer").
+/// misheard by STT ("Meier" vs "Mayer"). The diacritic-keeping variants of Normalize and WordTokens
+/// and the unsegmented-script check serve the Strict policy of NameResolution.
 /// </summary>
 
 using System.Globalization;
@@ -24,7 +25,23 @@ internal static class NameMatching
 
     private static readonly KoelnerPhoneticEncoder PhoneticEncoder = new();
 
-    public static string Normalize(string? value)
+    private static readonly (char First, char Last)[] UnsegmentedScriptRanges =
+    [
+        ('\u0E00', '\u0E7F'),
+        ('\u0E80', '\u0EFF'),
+        ('\u1000', '\u109F'),
+        ('\u1780', '\u17FF'),
+        ('\u3040', '\u30FF'),
+        ('\u31F0', '\u31FF'),
+        ('\u3400', '\u4DBF'),
+        ('\u4E00', '\u9FFF'),
+        ('\uF900', '\uFAFF'),
+        ('\uFF66', '\uFF9F'),
+    ];
+
+    public static string Normalize(string? value) => Normalize(value, keepDiacritics: false);
+
+    public static string Normalize(string? value, bool keepDiacritics)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -37,6 +54,11 @@ internal static class NameMatching
         {
             if (CharUnicodeInfo.GetUnicodeCategory(ch) == UnicodeCategory.NonSpacingMark)
             {
+                if (keepDiacritics && builder.Length > 0 && builder[^1] != TokenSeparator)
+                {
+                    builder.Append(ch);
+                }
+
                 continue;
             }
 
@@ -58,7 +80,23 @@ internal static class NameMatching
         return normalized.Split(TokenSeparator, StringSplitOptions.RemoveEmptyEntries);
     }
 
-    public static string[] WordTokens(string? value)
+    public static bool HasDiacritics(string? value)
+    {
+        return !string.IsNullOrEmpty(value)
+               && value.Normalize(NormalizationForm.FormD)
+                   .Any(ch => CharUnicodeInfo.GetUnicodeCategory(ch) == UnicodeCategory.NonSpacingMark);
+    }
+
+    public static bool IsUnsegmentedScript(string normalized)
+    {
+        var letters = normalized.Where(char.IsLetter).ToList();
+        return letters.Count > 0
+               && letters.All(ch => UnsegmentedScriptRanges.Any(range => ch >= range.First && ch <= range.Last));
+    }
+
+    public static string[] WordTokens(string? value) => WordTokens(value, keepDiacritics: false);
+
+    public static string[] WordTokens(string? value, bool keepDiacritics)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -74,7 +112,7 @@ internal static class NameMatching
             separated.Append(keep ? ch : TokenSeparator);
         }
 
-        return Tokenize(Normalize(separated.ToString()));
+        return Tokenize(Normalize(separated.ToString(), keepDiacritics));
     }
 
     public static bool FuzzyEquals(string left, string right)
