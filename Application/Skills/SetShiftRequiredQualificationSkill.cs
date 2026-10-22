@@ -19,6 +19,7 @@ using Klacks.Api.Application.Commands.Qualifications;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -75,7 +76,7 @@ public class SetShiftRequiredQualificationSkill : BaseSkillImplementation
                 new { Id = id, ShiftId = shiftId, QualificationId = qualificationId, IsMandatory = isMandatory, MinLevel = ((QualificationLevel)minLevel).ToString(), LevelBindingOverride = levelBinding },
                 $"Shift {shiftId} now requires the qualification at minimum level {(QualificationLevel)minLevel} (mandatory: {isMandatory}{levelBindingNote}).");
         }
-        catch (KeyNotFoundException)
+        catch (Exception ex) when (ex is KeyNotFoundException || ex is DatabaseUpdateException { IsForeignKeyViolation: true })
         {
             return SkillResult.Error("Could not set the required qualification — the shift or qualification id may not exist.");
         }
