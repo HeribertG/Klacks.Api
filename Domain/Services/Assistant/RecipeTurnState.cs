@@ -128,37 +128,68 @@ internal sealed class RecipeTurnState
             : RecipeEngineDefaults.WritingRecipeCompletedNotePrefix) + Plan.CompletionNote;
 
     /// <summary>
-    /// Rejects the side-effecting calls of an iteration that follows a completed recipe and returns the calls
-    /// that may execute; see ReadOnlyRecipeWriteGuard.
+    /// Rejects the side-effecting calls of an iteration that follows a completed recipe (ReadOnlyRecipeWriteGuard)
+    /// or a name ask-back earlier in the turn (NameAskBackWriteGuard) and returns the calls that may execute.
     /// </summary>
     /// <param name="executableCalls">The calls the repeat guard already let through.</param>
     internal List<LLMFunctionCall> RejectWrites(List<LLMFunctionCall> executableCalls) =>
-        ReadOnlyRecipeWriteGuard.Reject(
-            executableCalls,
-            RecipeCompleted,
-            ReadOnlyRecipeCompleted
-                ? LLMLoopConstants.ReadOnlyRecipeWriteRejectedResult
-                : LLMLoopConstants.CompletedRecipeWriteRejectedResult,
+        NameAskBackWriteGuard.Reject(
+            ReadOnlyRecipeWriteGuard.Reject(
+                executableCalls,
+                RecipeCompleted,
+                ReadOnlyRecipeCompleted
+                    ? LLMLoopConstants.ReadOnlyRecipeWriteRejectedResult
+                    : LLMLoopConstants.CompletedRecipeWriteRejectedResult,
+                _context.AvailableFunctions),
+            NameAskBackSeen,
             _context.AvailableFunctions);
 
     /// <summary>
-    /// Feeds the executed calls of an iteration to the forcing plan and releases the forcing when one of them
-    /// returned a name-resolution ask-back (NameResolutionAskBack): the step is not advanced on a failure, so the
-    /// next iteration would force the very same skill with tool_choice=required, and the model could only call it
-    /// again with the suggested name instead of asking the user. Without forcing, the repeated-write guard rejects
-    /// that repeat like any other repeated write in an unforced iteration. Every other failure keeps the forcing,
-    /// so a step that failed for a fixable reason (for example a date format) is still retried with corrected
-    /// parameters in the same turn.
+    /// True once a call of this turn failed with a name-resolution ask-back (NameResolutionAskBack). From then on
+    /// RejectWrites rejects every side-effecting call of the turn (NameAskBackWriteGuard), so neither the asked
+    /// step nor any other write - for example one by id after a lenient read - runs before the user answered.
+    /// </summary>
+    internal bool NameAskBackSeen { get; private set; }
+
+    /// <summary>
+    /// Feeds the executed calls of an iteration to the forcing plan and handles a name-resolution ask-back: the
+    /// turn is marked (NameAskBackSeen), and a failed step is not advanced, so the next iteration would force the
+    /// very same skill with tool_choice=required and the model could only call it again with the suggested name.
+    /// When the asked call is the current step of a data-driven recipe whose name comes from a question step, the
+    /// recipe rewinds to that question (the turn asks the user, the recipe continues with the answer); otherwise
+    /// the forcing is released and the run is recorded as aborted. Every other failure keeps the forcing, so a
+    /// step that failed for a fixable reason (for example a date format) is still retried with corrected
+    /// parameters in the same turn. A successful call carrying the marker text (a search that only suggested a
+    /// name) is ignored.
     /// </summary>
     /// <param name="executedCalls">All calls of the iteration, after execution.</param>
     internal void ObserveExecuted(IReadOnlyList<LLMFunctionCall> executedCalls)
     {
         Forcing?.Observe(executedCalls);
-        if (Forcing != null
-            && executedCalls.Any(call => !call.Success && NameResolutionAskBack.IsAskBack(call.Result)))
+        var askBack = executedCalls.FirstOrDefault(call =>
+            !call.Success && !call.IsRejectedWithoutRunning && NameResolutionAskBack.IsAskBack(call.Result));
+        if (askBack == null)
         {
-            ReleaseOnNameAskBack();
+            return;
         }
+
+        NameAskBackSeen = true;
+        if (Forcing == null)
+        {
+            return;
+        }
+
+        if (Plan is { IsActive: true } plan
+            && string.Equals(askBack.FunctionName, plan.CurrentSkill, StringComparison.OrdinalIgnoreCase)
+            && plan.TryRewindCurrentStepAfterNameAskBack())
+        {
+            _logger.LogInformation(
+                "Recipe '{Recipe}' rewound to the question of its step after a name ask-back of {Skill}",
+                plan.Name, askBack.FunctionName);
+            return;
+        }
+
+        ReleaseOnNameAskBack();
     }
 
     /// <summary>

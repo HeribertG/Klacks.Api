@@ -50,14 +50,22 @@ public class LLMFunctionCall
     public bool IsRejectedByReadOnlyRecipeGuard { get; set; }
 
     /// <summary>
+    /// True when the call was rejected without running because an earlier call of the same turn asked the user to
+    /// confirm or pick a name (NameAskBackWriteGuard) and the skill is side-effecting. Like IsRejectedRepeat it sets
+    /// Success=false without being a skill failure, so failure-driven consumers and the record of what the turn
+    /// executed must exclude it.
+    /// </summary>
+    public bool IsRejectedAfterNameAskBack { get; set; }
+
+    /// <summary>
     /// True when the loop rejected the call without running it, whatever the reason: a repeat of a write, a skill
-    /// outside the toolset, or a write after a completed recipe. Such a call stored nothing and is no skill failure;
+    /// outside the toolset, a write after a completed recipe, or a write after a name ask-back. Such a call stored nothing and is no skill failure;
     /// its result text is addressed to the model and must never reach the user. A call skipped by the user's stop
     /// is not part of this: it belongs to a stopped turn, which never reaches the consumers of this property.
     /// </summary>
     [JsonIgnore]
     public bool IsRejectedWithoutRunning =>
-        IsRejectedRepeat || IsRejectedOutsideToolset || IsRejectedByReadOnlyRecipeGuard;
+        IsRejectedRepeat || IsRejectedOutsideToolset || IsRejectedByReadOnlyRecipeGuard || IsRejectedAfterNameAskBack;
 
     /// <summary>
     /// True when the skill's result was a navigation: the server only worked out where to go, and the page is

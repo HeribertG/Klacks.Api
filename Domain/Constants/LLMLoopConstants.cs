@@ -46,6 +46,10 @@ public static class LLMLoopConstants
         "further may be stored, changed or confirmed in this turn and this action did NOT run. Reply to the " +
         "user from that result now; any follow-up change needs the user's answer first.";
 
+    public const string NameAskBackWriteRejectedResult =
+        "Rejected: an earlier call in this turn asked the user to confirm or choose a name, so nothing may be " +
+        "stored, changed or confirmed before the user has answered and this action did NOT run. Ask the user now.";
+
     public const string RepeatedWriteCallRejectedResult =
         "Rejected: this action already ran in this turn and must not run twice. " +
         "Use its earlier result from the previous function results instead of calling it again.";

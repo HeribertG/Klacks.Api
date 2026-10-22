@@ -206,12 +206,24 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     }
 
     /// <summary>
-    /// Ends the flow when a step skill answered with a name-resolution ask-back: the user has to confirm or pick
-    /// the name, and forcing the step again in this turn would leave the model no way to ask.
+    /// Ends the flow when a step skill answered with a name-resolution ask-back and the step has no question step
+    /// to rewind to: the user has to confirm or pick the name, and forcing the step again in this turn would leave
+    /// the model no way to ask.
     /// </summary>
     public void DeactivateOnNameAskBack()
     {
         _deactivated = true;
+    }
+
+    /// <summary>
+    /// Handles a name-resolution ask-back of the current step like an ambiguous capture: the slot injected into the
+    /// step is cleared and the flow rewinds to the question step that filled it (TryRewindToDisambiguate, with its
+    /// one rewind per recipe lifetime), so the turn asks the user and the recipe continues with the answer.
+    /// Returns false when the step has no injected slot with a question step or the rewind was already spent.
+    /// </summary>
+    public bool TryRewindCurrentStepAfterNameAskBack()
+    {
+        return IsActive && TryRewindToDisambiguate(_steps[_index]);
     }
 
     public RecipeStep? CurrentStep => IsActive ? _steps[_index] : null;
