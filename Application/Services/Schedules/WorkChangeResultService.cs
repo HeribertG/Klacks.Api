@@ -5,7 +5,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Services.Schedules;
 
@@ -32,17 +32,16 @@ public class WorkChangeResultService : IWorkChangeResultService
         Guid clientId,
         DateOnly periodStart,
         DateOnly periodEnd,
-        DateOnly threeDayStart,
-        DateOnly threeDayEnd,
+        DateOnly workDay,
         CancellationToken cancellationToken,
         Guid? analyseToken = null)
     {
         var periodHours = await _periodHoursService.CalculatePeriodHoursAsync(clientId, periodStart, periodEnd, analyseToken);
 
         var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
-        var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, analyseToken)
-            .Where(e => e.ClientId == clientId)
-            .ToListAsync(cancellationToken);
+        var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesAsync(
+            ScheduleEntriesCriteria.RefreshWindowAround(workDay, [clientId], visibleGroupIds, analyseToken),
+            cancellationToken);
 
         return new WorkChangeClientResult
         {

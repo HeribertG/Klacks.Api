@@ -168,25 +168,22 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
                 work.AnalyseToken,
                 replaceClientChanged ? previousReplaceClientId : null);
 
-            var threeDayStart = currentDate.AddDays(-1);
-            var threeDayEnd = currentDate.AddDays(1);
-
             var resource = _scheduleMapper.ToWorkChangeResource(updatedWorkChange);
             resource.PeriodStart = periodStart;
             resource.PeriodEnd = periodEnd;
 
-            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
+            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, currentDate, cancellationToken, work.AnalyseToken);
             resource.ClientResults.Add(clientResult);
 
             if (updatedWorkChange.ReplaceClientId.HasValue)
             {
-                var replaceClientResult = await _resultService.GetClientResultAsync(updatedWorkChange.ReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
+                var replaceClientResult = await _resultService.GetClientResultAsync(updatedWorkChange.ReplaceClientId.Value, periodStart, periodEnd, currentDate, cancellationToken, work.AnalyseToken);
                 resource.ClientResults.Add(replaceClientResult);
             }
 
             if (replaceClientChanged && previousReplaceClientId.HasValue)
             {
-                var previousReplaceClientResult = await _resultService.GetClientResultAsync(previousReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
+                var previousReplaceClientResult = await _resultService.GetClientResultAsync(previousReplaceClientId.Value, periodStart, periodEnd, currentDate, cancellationToken, work.AnalyseToken);
                 resource.ClientResults.Add(previousReplaceClientResult);
             }
 

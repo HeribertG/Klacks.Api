@@ -20,7 +20,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
-using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Expenses;
 
@@ -160,13 +160,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
 
                 await _periodHoursService.RecalculateAndNotifyAsync(work.ClientId, periodStart, periodEnd, work.AnalyseToken, connectionId);
 
-                var threeDayStart = work.CurrentDate.AddDays(-1);
-                var threeDayEnd = work.CurrentDate.AddDays(1);
                 var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
-                var scheduleEntries = await _scheduleEntriesService
-                    .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, work.AnalyseToken)
-                    .Where(e => e.ClientId == work.ClientId)
-                    .ToListAsync(cancellationToken);
+                var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesAsync(
+                    ScheduleEntriesCriteria.RefreshWindowAround(
+                        work.CurrentDate, [work.ClientId], visibleGroupIds, work.AnalyseToken),
+                    cancellationToken);
 
                 resultResource.ScheduleEntries = scheduleEntries
                     .Select(_scheduleMapper.ToWorkScheduleResource)

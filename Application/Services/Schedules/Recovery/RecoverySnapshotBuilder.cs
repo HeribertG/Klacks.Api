@@ -13,7 +13,6 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.ScheduleOptimizer.Models;
 using Klacks.ScheduleRecovery.Model;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Services.Schedules.Recovery;
@@ -176,7 +175,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             ? await _groupClientService.GetAllClientIdsFromGroupAndSubgroups(sourceGroupId)
             : null;
 
-    private async Task<List<ScheduleCell>> LoadCellsAsync(
+    private async Task<IReadOnlyList<ScheduleCell>> LoadCellsAsync(
         DateOnly windowStart,
         DateOnly windowEnd,
         Guid rootGroupId,
@@ -184,17 +183,17 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IReadOnlyCollection<Guid>? coveredClientIds,
         CancellationToken cancellationToken)
     {
-        var real = await _scheduleEntriesService
-            .GetScheduleEntriesQuery(windowStart, windowEnd, [rootGroupId], null)
-            .ToListAsync(cancellationToken);
+        var real = await _scheduleEntriesService.GetScheduleEntriesAsync(
+            new ScheduleEntriesCriteria(windowStart, windowEnd, [rootGroupId]),
+            cancellationToken);
         if (source is null)
         {
             return real;
         }
 
-        var scenario = await _scheduleEntriesService
-            .GetScheduleEntriesQuery(windowStart, windowEnd, [rootGroupId], source.Token)
-            .ToListAsync(cancellationToken);
+        var scenario = await _scheduleEntriesService.GetScheduleEntriesAsync(
+            new ScheduleEntriesCriteria(windowStart, windowEnd, [rootGroupId], source.Token),
+            cancellationToken);
         return ScenarioSourceRowMerger.Merge(
             real, scenario, source, coveredClientIds, c => c.ClientId, c => DateOnly.FromDateTime(c.EntryDate),
             c => c.EntryType != (int)ScheduleEntryType.Break && source.OwnedShiftIds.Contains(c.EntryId));

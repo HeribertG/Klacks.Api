@@ -25,7 +25,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
@@ -143,14 +143,12 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
             var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)> { (work.ShiftId, work.CurrentDate) };
             await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, work.AnalyseToken, cancellationToken);
 
-            var threeDayStart = work.CurrentDate.AddDays(-1);
-            var threeDayEnd = work.CurrentDate.AddDays(1);
             var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
 
-            var allEntries = await _scheduleEntriesService
-                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, work.AnalyseToken)
-                .Where(e => e.ClientId == work.ClientId || e.ClientId == existingWork.ClientId)
-                .ToListAsync(cancellationToken);
+            var allEntries = await _scheduleEntriesService.GetScheduleEntriesAsync(
+                ScheduleEntriesCriteria.RefreshWindowAround(
+                    work.CurrentDate, [work.ClientId, existingWork.ClientId], visibleGroupIds, work.AnalyseToken),
+                cancellationToken);
 
             var workResource = _scheduleMapper.ToWorkResource(work);
             workResource.PeriodHours = periodHours;

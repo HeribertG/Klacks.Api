@@ -25,7 +25,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
-using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Breaks;
 
@@ -122,15 +122,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             var periodHours = await _completionService.SaveAndTrackAsync(
                 updated.ClientId, updated.CurrentDate, periodStart, periodEnd, updated.AnalyseToken);
 
-            var currentDate = updated.CurrentDate;
-            var threeDayStart = currentDate.AddDays(-1);
-            var threeDayEnd = currentDate.AddDays(1);
-
             var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
-            var scheduleEntries = await _scheduleEntriesService
-                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, updated.AnalyseToken)
-                .Where(e => e.ClientId == updated.ClientId)
-                .ToListAsync(cancellationToken);
+            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesAsync(
+                ScheduleEntriesCriteria.RefreshWindowAround(
+                    updated.CurrentDate, [updated.ClientId], visibleGroupIds, updated.AnalyseToken),
+                cancellationToken);
 
             var breakResource = _scheduleMapper.ToBreakResource(updated);
             breakResource.PeriodHours = periodHours;

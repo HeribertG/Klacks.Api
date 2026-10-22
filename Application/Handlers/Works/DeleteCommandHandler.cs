@@ -18,7 +18,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
@@ -119,15 +119,11 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             await _notificationFacade.NotifyPeriodHoursUpdatedAsync(work.ClientId, periodStart, periodEnd, periodHours, connectionId, work.AnalyseToken);
             await _notificationFacade.NotifyShiftStatsAsync(shiftId, workDate, connectionId, work.AnalyseToken, cancellationToken);
 
-            var currentDate = work.CurrentDate;
-            var threeDayStart = currentDate.AddDays(-1);
-            var threeDayEnd = currentDate.AddDays(1);
-
             var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
-            var scheduleEntries = await _scheduleEntriesService
-                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, work.AnalyseToken)
-                .Where(e => e.ClientId == work.ClientId)
-                .ToListAsync(cancellationToken);
+            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesAsync(
+                ScheduleEntriesCriteria.RefreshWindowAround(
+                    work.CurrentDate, [work.ClientId], visibleGroupIds, work.AnalyseToken),
+                cancellationToken);
 
             var workResource = _scheduleMapper.ToWorkResource(work);
             workResource.PeriodHours = periodHours;

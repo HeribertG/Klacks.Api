@@ -55,7 +55,6 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Schedules;
@@ -129,10 +128,12 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             return new ReplacementSearchResult([], []);
         }
 
-        var onLeaveCells = await _scheduleEntriesService
-            .GetScheduleEntriesQuery(request.Date, request.Date, new List<Guid> { request.GroupId }, request.AnalyseToken)
-            .Where(c => c.EntryType == (int)ScheduleEntryType.Break)
-            .ToListAsync(cancellationToken);
+        var onLeaveCells = await _scheduleEntriesService.GetScheduleEntriesAsync(
+            new ScheduleEntriesCriteria(request.Date, request.Date, [request.GroupId], request.AnalyseToken)
+            {
+                EntryType = ScheduleEntryType.Break,
+            },
+            cancellationToken);
         var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
         var onLeaveClientIds = onLeaveCells
             .Where(c => !onCallAbsenceIds.Contains(c.EntryId))

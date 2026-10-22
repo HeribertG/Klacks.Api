@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Handlers.ScheduleEntries;
 
@@ -79,13 +80,16 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
 
         await EnrichWithGroupItemInfo(clientResources, clientIds, visibleGroupIds, cancellationToken);
 
-        var entries = await _scheduleEntriesService.GetScheduleEntriesQuery(
-            startDate,
-            endDate,
-            visibleGroupIds.Count > 0 ? visibleGroupIds : null,
-            request.Filter.AnalyseToken)
-            .Where(e => clientIds.Contains(e.ClientId))
-            .ToListAsync(cancellationToken);
+        var entries = await _scheduleEntriesService.GetScheduleEntriesAsync(
+            new ScheduleEntriesCriteria(
+                startDate,
+                endDate,
+                visibleGroupIds.Count > 0 ? visibleGroupIds : null,
+                request.Filter.AnalyseToken)
+            {
+                ClientIds = clientIds,
+            },
+            cancellationToken);
 
         var resources = _scheduleMapper.ToWorkScheduleResourceList(entries);
 

@@ -24,7 +24,6 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Schedules;
 
@@ -68,12 +67,12 @@ public sealed class EvaluateScenarioQueryHandler
         var issues = await _validationLoader.LoadAsync(
             scenario.FromDate, scenario.UntilDate, scenario.GroupId, scenario.Token, cancellationToken: cancellationToken);
 
-        var realCells = await _scheduleEntriesService
-            .GetScheduleEntriesQuery(scenario.FromDate, scenario.UntilDate, groupIds, null)
-            .ToListAsync(cancellationToken);
-        var scenarioCells = await _scheduleEntriesService
-            .GetScheduleEntriesQuery(scenario.FromDate, scenario.UntilDate, groupIds, scenario.Token)
-            .ToListAsync(cancellationToken);
+        var realCells = await _scheduleEntriesService.GetScheduleEntriesAsync(
+            new ScheduleEntriesCriteria(scenario.FromDate, scenario.UntilDate, groupIds),
+            cancellationToken);
+        var scenarioCells = await _scheduleEntriesService.GetScheduleEntriesAsync(
+            new ScheduleEntriesCriteria(scenario.FromDate, scenario.UntilDate, groupIds, scenario.Token),
+            cancellationToken);
 
         var added = DiffCells(scenarioCells, realCells);
         var removed = DiffCells(realCells, scenarioCells);

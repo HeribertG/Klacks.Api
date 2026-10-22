@@ -117,19 +117,16 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             await _completionService.SaveAndTrackWithReplaceClientAsync(
                 parentWork.ClientId, parentWork.CurrentDate, periodStart, periodEnd, workChange.ReplaceClientId, parentWork.AnalyseToken);
 
-            var threeDayStart = currentDate.AddDays(-1);
-            var threeDayEnd = currentDate.AddDays(1);
-
             var resource = _scheduleMapper.ToWorkChangeResource(workChange);
             resource.PeriodStart = periodStart;
             resource.PeriodEnd = periodEnd;
 
-            var clientResult = await _resultService.GetClientResultAsync(parentWork.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, parentWork.AnalyseToken);
+            var clientResult = await _resultService.GetClientResultAsync(parentWork.ClientId, periodStart, periodEnd, currentDate, cancellationToken, parentWork.AnalyseToken);
             resource.ClientResults.Add(clientResult);
 
             if (workChange.ReplaceClientId.HasValue)
             {
-                var replaceClientResult = await _resultService.GetClientResultAsync(workChange.ReplaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, parentWork.AnalyseToken);
+                var replaceClientResult = await _resultService.GetClientResultAsync(workChange.ReplaceClientId.Value, periodStart, periodEnd, currentDate, cancellationToken, parentWork.AnalyseToken);
                 resource.ClientResults.Add(replaceClientResult);
             }
 

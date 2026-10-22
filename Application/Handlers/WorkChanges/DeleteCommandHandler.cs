@@ -120,18 +120,15 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
             await _completionService.SaveAndTrackWithReplaceClientAsync(
                 work.ClientId, work.CurrentDate, periodStart, periodEnd, replaceClientId, work.AnalyseToken);
 
-            var threeDayStart = currentDate.AddDays(-1);
-            var threeDayEnd = currentDate.AddDays(1);
-
             workChangeResource.PeriodStart = periodStart;
             workChangeResource.PeriodEnd = periodEnd;
 
-            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
+            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, currentDate, cancellationToken, work.AnalyseToken);
             workChangeResource.ClientResults.Add(clientResult);
 
             if (replaceClientId.HasValue)
             {
-                var replaceClientResult = await _resultService.GetClientResultAsync(replaceClientId.Value, periodStart, periodEnd, threeDayStart, threeDayEnd, cancellationToken, work.AnalyseToken);
+                var replaceClientResult = await _resultService.GetClientResultAsync(replaceClientId.Value, periodStart, periodEnd, currentDate, cancellationToken, work.AnalyseToken);
                 workChangeResource.ClientResults.Add(replaceClientResult);
             }
 

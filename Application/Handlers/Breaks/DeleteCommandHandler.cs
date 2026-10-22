@@ -15,7 +15,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
-using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Breaks;
 
@@ -80,15 +80,11 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
             var periodHours = await _completionService.SaveAndTrackAsync(
                 breakEntry.ClientId, breakEntry.CurrentDate, periodStart, periodEnd, breakEntry.AnalyseToken);
 
-            var currentDate = breakEntry.CurrentDate;
-            var threeDayStart = currentDate.AddDays(-1);
-            var threeDayEnd = currentDate.AddDays(1);
-
             var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
-            var scheduleEntries = await _scheduleEntriesService
-                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, breakEntry.AnalyseToken)
-                .Where(e => e.ClientId == breakEntry.ClientId)
-                .ToListAsync(cancellationToken);
+            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesAsync(
+                ScheduleEntriesCriteria.RefreshWindowAround(
+                    breakEntry.CurrentDate, [breakEntry.ClientId], visibleGroupIds, breakEntry.AnalyseToken),
+                cancellationToken);
 
             var breakResource = _scheduleMapper.ToBreakResource(breakEntry);
             breakResource.PeriodHours = periodHours;

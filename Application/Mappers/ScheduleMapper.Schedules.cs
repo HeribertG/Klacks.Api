@@ -35,7 +35,7 @@ public partial class ScheduleMapper
     [MapProperty(nameof(ScheduleCell.Description), nameof(WorkScheduleResource.Description), Use = nameof(MapDescriptionJsonToMultiLanguage))]
     public partial WorkScheduleResource ToWorkScheduleResource(ScheduleCell entry);
 
-    public partial List<WorkScheduleResource> ToWorkScheduleResourceList(List<ScheduleCell> entries);
+    public partial List<WorkScheduleResource> ToWorkScheduleResourceList(IReadOnlyList<ScheduleCell> entries);
 
     private MultiLanguage? MapDescriptionJsonToMultiLanguage(string? json)
     {

@@ -23,7 +23,6 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -81,9 +80,9 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
             return SkillResult.Error($"Group with ID {groupId} not found.");
         }
 
-        var cells = await _scheduleEntriesService
-            .GetScheduleEntriesQuery(fromDate, untilDate, new List<Guid> { groupId }, analyseToken)
-            .ToListAsync(cancellationToken);
+        var cells = await _scheduleEntriesService.GetScheduleEntriesAsync(
+            new ScheduleEntriesCriteria(fromDate, untilDate, [groupId], analyseToken),
+            cancellationToken);
         var visibleCells = await _clientVisibilityGuard.FilterVisibleAsync(cells, c => c.ClientId, cancellationToken);
 
         var ordered = visibleCells

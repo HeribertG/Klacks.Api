@@ -32,7 +32,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
@@ -200,15 +200,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
             await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, updatedWork.AnalyseToken, cancellationToken);
 
-            var currentDate = updatedWork.CurrentDate;
-            var threeDayStart = currentDate.AddDays(-1);
-            var threeDayEnd = currentDate.AddDays(1);
-
             var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();
-            var scheduleEntries = await _scheduleEntriesService
-                .GetScheduleEntriesQuery(threeDayStart, threeDayEnd, visibleGroupIds, updatedWork.AnalyseToken)
-                .Where(e => e.ClientId == updatedWork.ClientId)
-                .ToListAsync(cancellationToken);
+            var scheduleEntries = await _scheduleEntriesService.GetScheduleEntriesAsync(
+                ScheduleEntriesCriteria.RefreshWindowAround(
+                    updatedWork.CurrentDate, [updatedWork.ClientId], visibleGroupIds, updatedWork.AnalyseToken),
+                cancellationToken);
 
             var workResource = _scheduleMapper.ToWorkResource(updatedWork);
             workResource.PeriodHours = periodHours;

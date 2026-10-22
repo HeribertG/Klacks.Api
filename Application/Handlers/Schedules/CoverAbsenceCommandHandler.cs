@@ -59,7 +59,6 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.ScheduleRecovery.Engine;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rec = Klacks.ScheduleRecovery.Model;
 
@@ -322,11 +321,14 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         Guid clientId, DateOnly date, Guid groupId, ScenarioSourceScope? source, CancellationToken cancellationToken)
     {
         var readToken = source is not null && source.OwnsDate(date) ? source.Token : (Guid?)null;
-        var slots = await _scheduleEntriesService
-            .GetScheduleEntriesQuery(date, date, [groupId], readToken)
-            .Where(c => c.EntryType == (int)ScheduleEntryType.Work && c.ClientId == clientId)
-            .OrderBy(c => c.StartTime)
-            .ToListAsync(cancellationToken);
+        var slots = await _scheduleEntriesService.GetScheduleEntriesAsync(
+            new ScheduleEntriesCriteria(date, date, [groupId], readToken)
+            {
+                ClientIds = [clientId],
+                EntryType = ScheduleEntryType.Work,
+                OrderByStartTime = true,
+            },
+            cancellationToken);
 
         if (slots.Count == 0)
         {
