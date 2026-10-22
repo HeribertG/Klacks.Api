@@ -14,7 +14,6 @@ using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Application.Services.Clients;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Clients;
@@ -49,29 +48,28 @@ public class ExportClientListQueryHandler : IRequestHandler<ExportClientListQuer
             _logger.LogInformation("ShowDeleteEntries was requested for an export by a non-admin user and has been ignored");
         }
 
-        var query = await _clientFilterRepository.FilterClients(clientFilter);
-
         var selection = request.Request.Selection ?? [];
+        List<Guid>? onlyIds = null;
+        List<Guid>? excludedIds = null;
 
         if (!request.Request.SelectAll && !request.Request.InvertedSelection && selection.Count > 0)
-            query = query.Where(c => selection.Contains(c.Id));
+            onlyIds = selection;
         else if (request.Request.InvertedSelection && selection.Count > 0)
-            query = query.Where(c => !selection.Contains(c.Id));
+            excludedIds = selection;
 
-        var clients = await query
-            .OrderBy(c => c.IdNumber)
-            .Select(c => new ExportClientItemDto
-            {
-                IdNumber = c.IdNumber,
-                Company = c.Company ?? string.Empty,
-                FirstName = c.FirstName ?? string.Empty,
-                Name = c.Name ?? string.Empty,
-                Birthdate = c.Birthdate,
-                Gender = (int)c.Gender,
-                Type = (int)c.Type,
-                LegalEntity = c.LegalEntity,
-            })
-            .ToListAsync(cancellationToken);
+        var rows = await _clientFilterRepository.GetExportRowsAsync(clientFilter, onlyIds, excludedIds, cancellationToken);
+
+        var clients = rows.Select(r => new ExportClientItemDto
+        {
+            IdNumber = r.IdNumber,
+            Company = r.Company,
+            FirstName = r.FirstName,
+            Name = r.Name,
+            Birthdate = r.Birthdate,
+            Gender = (int)r.Gender,
+            Type = (int)r.Type,
+            LegalEntity = r.LegalEntity,
+        }).ToList();
 
         _logger.LogInformation("Exported {Count} clients", clients.Count);
         return clients;

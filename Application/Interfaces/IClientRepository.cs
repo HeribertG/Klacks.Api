@@ -12,7 +12,20 @@ public interface IClientRepository : IBaseRepository<Client>
 {
     Task<int> CountAsync();
     Task<LastChangeMetaData> LastChangeMetaData();
-    IQueryable<Client> GetQuery();
+
+    /// <summary>
+    /// Id, first name and name of every client that is neither deleted nor a customer (employees and external
+    /// employees), untracked and in no particular order.
+    /// </summary>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<IReadOnlyList<ClientNameParts>> GetNonCustomerClientNamesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Ids of the same clients as GetNonCustomerClientNamesAsync, in no particular order.
+    /// </summary>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<IReadOnlyList<Guid>> GetNonCustomerClientIdsAsync(CancellationToken cancellationToken = default);
+
     Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default);
     Task<List<Client>> GetByTypeWithAddressesAndGroupItemsAsync(EntityTypeEnum type, CancellationToken cancellationToken = default);
     Task<List<Client>> GetByTypeWithQualificationsAsync(EntityTypeEnum type, CancellationToken cancellationToken = default);

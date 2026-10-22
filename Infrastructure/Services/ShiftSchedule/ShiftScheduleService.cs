@@ -110,6 +110,17 @@ public class ShiftScheduleService : IShiftScheduleService
                 )");
     }
 
+    public async Task<IReadOnlyList<ShiftDayAssignment>> GetShiftScheduleListAsync(
+        DateOnly startDate,
+        DateOnly endDate,
+        List<DateOnly>? holidayDates = null,
+        List<Guid>? visibleGroupIds = null,
+        bool showUngroupedShifts = false,
+        Guid? analyseToken = null,
+        CancellationToken cancellationToken = default) =>
+        await GetShiftScheduleQuery(startDate, endDate, holidayDates, visibleGroupIds, showUngroupedShifts, analyseToken)
+            .ToListAsync(cancellationToken);
+
     public async Task<List<ShiftDayAssignment>> GetShiftSchedulePartialAsync(
         List<(Guid ShiftId, DateOnly Date)> shiftDatePairs,
         Guid? analyseToken = null,

@@ -159,7 +159,7 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
         return templates;
     }
 
-    public IQueryable<ContainerTemplate> GetQuery()
+    private IQueryable<ContainerTemplate> GetQuery()
     {
         return context.ContainerTemplate
             .Include(t => t.Shift)

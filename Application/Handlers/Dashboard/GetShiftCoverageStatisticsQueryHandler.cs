@@ -19,7 +19,6 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Dashboard;
@@ -61,9 +60,11 @@ public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandl
 
             var visibleGroupIdSet = scope.IsUnrestricted ? null : scope.VisibleGroupIds.ToHashSet();
 
-            var shiftAssignments = await _shiftScheduleService
-                .GetShiftScheduleQuery(startDate, endDate, visibleGroupIds: scope.IsUnrestricted ? null : scope.VisibleRootIds.ToList())
-                .ToListAsync(cancellationToken);
+            var shiftAssignments = await _shiftScheduleService.GetShiftScheduleListAsync(
+                startDate,
+                endDate,
+                visibleGroupIds: scope.IsUnrestricted ? null : scope.VisibleRootIds.ToList(),
+                cancellationToken: cancellationToken);
 
             var groupItems = await _readRepository.GetShiftGroupAssignments(cancellationToken);
 

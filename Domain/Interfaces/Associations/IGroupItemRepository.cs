@@ -52,7 +52,32 @@ public interface IGroupItemRepository : IBaseRepository<GroupItem>
     /// </summary>
     Task<int> RemoveByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default);
 
-    IQueryable<GroupItem> GetQuery();
+    /// <summary>
+    /// Each shift linked to one of the groups once, as id, name and abbreviation, ordered by name. A link counts when it
+    /// is not deleted (scenario links included, validity not checked); deleted shifts are left out.
+    /// </summary>
+    /// <param name="groupIds">Groups whose shift links are read, matched exactly (not by subtree)</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<IReadOnlyList<LinkedShiftName>> GetLinkedShiftNamesAsync(
+        IReadOnlyCollection<Guid> groupIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Per group, the number of its real client rows: items with a client, without a scenario token and not deleted;
+    /// their validity is not checked, so ended memberships count too. Groups without such a row are missing.
+    /// </summary>
+    /// <param name="groupIds">Groups whose client rows are counted</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<Dictionary<Guid, int>> CountRealClientRowsPerGroupAsync(
+        IReadOnlyCollection<Guid> groupIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Id of a link between the shift and the group that is not deleted, or null when there is none. Neither ordered nor
+    /// restricted to the real plan: when a scenario link exists next to the real one, either id may come back.
+    /// </summary>
+    /// <param name="shiftId">Linked shift</param>
+    /// <param name="groupId">Group the shift is linked to</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<Guid?> FindShiftLinkIdAsync(Guid shiftId, Guid groupId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Per client, the period the schedule grid derives from its items in the given groups: the earliest ValidFrom and

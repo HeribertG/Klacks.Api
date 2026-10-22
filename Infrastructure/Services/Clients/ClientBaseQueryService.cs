@@ -5,7 +5,8 @@
 /// Unifies membership, group, search, type filters and sorting for all client lists.
 /// When the sharp name search finds nothing, falls back to fuzzy ranking (trigram + phonetics)
 /// and intersects the candidates with the already permission/group-filtered query.
-/// Returns IQueryable - Count, paging and includes are added by the caller.
+/// BuildBaseQuery returns IQueryable for the Infrastructure callers that add count, paging and includes themselves;
+/// GetPageWithGroupItemsAsync materialises one page with group items for the Application layer.
 /// </summary>
 /// <param name="context">Database context</param>
 /// <param name="groupFilterService">Service for group filtering</param>
@@ -65,6 +66,21 @@ public class ClientBaseQueryService : IClientBaseQueryService
         query = ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.IndividualSort, filter.StartDate);
 
         return query;
+    }
+
+    public async Task<(IReadOnlyList<Client> Clients, int TotalCount)> GetPageWithGroupItemsAsync(
+        ClientBaseFilter filter, int startRow, int rowCount, CancellationToken cancellationToken = default)
+    {
+        var query = (await BuildBaseQuery(filter)).Include(c => c.GroupItems);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var clients = await query
+            .Skip(startRow)
+            .Take(rowCount)
+            .ToListAsync(cancellationToken);
+
+        return (clients, totalCount);
     }
 
     private async Task<IQueryable<Client>> ApplySearchWithFuzzyFallback(IQueryable<Client> query, string searchString)

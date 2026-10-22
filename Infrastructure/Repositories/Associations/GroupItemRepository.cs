@@ -124,10 +124,37 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
         return items.Count;
     }
 
-    public IQueryable<GroupItem> GetQuery()
+    public async Task<IReadOnlyList<LinkedShiftName>> GetLinkedShiftNamesAsync(
+        IReadOnlyCollection<Guid> groupIds, CancellationToken cancellationToken = default)
     {
-        return context.GroupItem.AsQueryable();
+        var groupIdList = groupIds.ToList();
+        var shifts = await context.GroupItem
+            .Where(gi => groupIdList.Contains(gi.GroupId) && gi.ShiftId != null)
+            .Where(gi => gi.Shift != null)
+            .Select(gi => new { gi.Shift!.Id, gi.Shift.Name, gi.Shift.Abbreviation })
+            .Distinct()
+            .OrderBy(s => s.Name)
+            .ToListAsync(cancellationToken);
+
+        return shifts.Select(s => new LinkedShiftName(s.Id, s.Name, s.Abbreviation)).ToList();
     }
+
+    public async Task<Dictionary<Guid, int>> CountRealClientRowsPerGroupAsync(
+        IReadOnlyCollection<Guid> groupIds, CancellationToken cancellationToken = default)
+    {
+        var groupIdList = groupIds.ToList();
+        return await context.GroupItem
+            .Where(gi => groupIdList.Contains(gi.GroupId) && gi.ClientId != null && gi.AnalyseToken == null)
+            .GroupBy(gi => gi.GroupId)
+            .Select(g => new { GroupId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);
+    }
+
+    public Task<Guid?> FindShiftLinkIdAsync(Guid shiftId, Guid groupId, CancellationToken cancellationToken = default) =>
+        context.GroupItem
+            .Where(gi => gi.ShiftId == shiftId && gi.GroupId == groupId)
+            .Select(gi => (Guid?)gi.Id)
+            .FirstOrDefaultAsync(cancellationToken);
 
     public async Task<Dictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)>> GetValidityRangesAsync(
         IReadOnlyCollection<Guid> clientIds,

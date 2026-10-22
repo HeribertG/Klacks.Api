@@ -10,7 +10,6 @@ using Klacks.Api.Application.DTOs;
 using Klacks.Api.Domain.DTOs.Registrations;
 using Klacks.Api.Application.DTOs.Registrations;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Services.Authentication;
 
@@ -21,6 +20,7 @@ namespace Klacks.Api.Application.Services.Authentication;
 /// delete, reversible only via ReactivateUserAsync.
 /// </summary>
 /// <param name="userManager">ASP.NET Identity store for AppUser.</param>
+/// <param name="userReader">Materialising reads over the same Identity user set (list, reset token, untracked id).</param>
 /// <param name="logger">Records deactivation/reactivation outcomes.</param>
 public class UserManagementService : IUserManagementService
 {
@@ -31,13 +31,16 @@ public class UserManagementService : IUserManagementService
     private const string UserReactivatedMessage = "User reactivated successfully.";
     private const string UserNotDeactivatedMessage = "User is not deactivated.";
     private readonly UserManager<AppUser> _userManager;
+    private readonly IAppUserReader _userReader;
     private readonly ILogger<UserManagementService> _logger;
 
     public UserManagementService(
         UserManager<AppUser> userManager,
+        IAppUserReader userReader,
         ILogger<UserManagementService> logger)
     {
         _userManager = userManager;
+        _userReader = userReader;
         _logger = logger;
     }
 
@@ -208,10 +211,7 @@ public class UserManagementService : IUserManagementService
     {
         var authorisedIds = (await _userManager.GetUsersInRoleAsync(Roles.Authorised)).Select(u => u.Id).ToHashSet();
         var adminIds = (await _userManager.GetUsersInRoleAsync(Roles.Admin)).Select(u => u.Id).ToHashSet();
-        var users = await _userManager.Users
-            .Where(u => u.DeactivatedAt == null)
-            .OrderBy(u => u.DisplayOrder)
-            .ToListAsync();
+        var users = await _userReader.GetActiveUsersInDisplayOrderAsync();
         var userResources = new List<UserResource>(users.Count);
 
         foreach (var user in users)
@@ -249,15 +249,12 @@ public class UserManagementService : IUserManagementService
     public async Task<AppUser?> FindUserByTokenAsync(string token)
     {
         var tokenHash = PasswordResetTokenHasher.Hash(token);
-        return await _userManager.Users
-            .FirstOrDefaultAsync(u => u.PasswordResetToken == tokenHash);
+        return await _userReader.FindByPasswordResetTokenHashAsync(tokenHash);
     }
 
     public async Task<AppUser?> FindUserByIdNoTrackingAsync(string userId)
     {
-        return await _userManager.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == userId);
+        return await _userReader.FindByIdNoTrackingAsync(userId);
     }
 
     public async Task<IList<string>> GetUserRolesAsync(AppUser user)

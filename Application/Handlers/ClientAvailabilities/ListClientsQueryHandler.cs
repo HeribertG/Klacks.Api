@@ -11,7 +11,6 @@ using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 
 using Klacks.Api.Domain.DTOs.Filter;
 namespace Klacks.Api.Application.Handlers.ClientAvailabilities;
@@ -47,16 +46,8 @@ public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAv
                 IndividualSort = request.Filter.IndividualSort,
             };
 
-            var query = await _baseQueryService.BuildBaseQuery(baseFilter);
-
-            query = query.Include(c => c.GroupItems);
-
-            var totalCount = await query.CountAsync(cancellationToken);
-
-            var clients = await query
-                .Skip(request.Filter.StartRow)
-                .Take(request.Filter.RowCount)
-                .ToListAsync(cancellationToken);
+            var (clients, totalCount) = await _baseQueryService.GetPageWithGroupItemsAsync(
+                baseFilter, request.Filter.StartRow, request.Filter.RowCount, cancellationToken);
 
             return new ClientAvailabilityClientListResponse
             {

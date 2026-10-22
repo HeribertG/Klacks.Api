@@ -9,7 +9,6 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ClientShiftPreferences;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.ClientShiftPreferences;
 
@@ -44,14 +43,7 @@ public class GetAvailableShiftsQueryHandler : BaseHandler,
             if (treeGroupIds.Count == 0)
                 return [];
 
-            var shifts = await _groupItemRepository.GetQuery()
-                .Include(gi => gi.Shift)
-                .Where(gi => treeGroupIds.Contains(gi.GroupId) && gi.ShiftId != null)
-                .Where(gi => gi.Shift != null)
-                .Select(gi => new { gi.Shift!.Id, gi.Shift.Name, gi.Shift.Abbreviation })
-                .Distinct()
-                .OrderBy(s => s.Name)
-                .ToListAsync(cancellationToken);
+            var shifts = await _groupItemRepository.GetLinkedShiftNamesAsync(treeGroupIds, cancellationToken);
 
             return shifts.Select(s => new AvailableShiftResource
             {

@@ -5,13 +5,14 @@
 /// guaranteed hours by more than DriftThresholdHours. Emits ONE aggregated TargetHoursDriftTriggerEvent
 /// listing every affected client, never one event per client; severity is set from the largest absolute
 /// drift in the event record itself.
-/// Uses IClientRepository.GetQuery to enumerate the workforce and IWorkRepository.GetPeriodHoursForClients
-/// for the bulk hours read. Customers are excluded, see BuildCandidateQuery. Unlike its sibling
-/// detectors this one carries no cap - the roster it scans is the entire active, non-customer client
-/// base, so GetActiveFingerprintsAsync re-runs the identical candidate query and threshold check
-/// instead of lifting a cap, projecting only the client id (no name, no navigation properties).
+/// Uses IClientRepository.GetNonCustomerClientNamesAsync to enumerate the workforce and
+/// IWorkRepository.GetPeriodHoursForClients for the bulk hours read. Customers are excluded: a customer is never
+/// scheduled and ClientBaseQueryService keeps them out of the schedule entirely, so a drift message about one leads to
+/// a page that cannot show them. Unlike its sibling detectors this one carries no cap - the roster it scans is the
+/// entire active, non-customer client base, so GetActiveFingerprintsAsync reads the same roster
+/// (GetNonCustomerClientIdsAsync, only the client id) and repeats the threshold check instead of lifting a cap.
 /// </summary>
-/// <param name="clientRepository">Active client roster, customers included.</param>
+/// <param name="clientRepository">Roster of the clients that are neither deleted nor customers.</param>
 /// <param name="workRepository">Bulk period-hours read with GuaranteedHours per client.</param>
 /// <param name="activityProbe">Answers whether the scanned period was ever planned at all.</param>
 /// <param name="logger">Structured log per tick.</param>
@@ -20,12 +21,9 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Schedules;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
-using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
@@ -64,9 +62,7 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
             return Array.Empty<IAgentTriggerEvent>();
         }
 
-        var clients = await BuildCandidateQuery()
-            .Select(c => new { c.Id, c.FirstName, c.Name })
-            .ToListAsync(cancellationToken);
+        var clients = await _clientRepository.GetNonCustomerClientNamesAsync(cancellationToken);
         if (clients.Count == 0)
         {
             return Array.Empty<IAgentTriggerEvent>();
@@ -106,9 +102,7 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
             return new HashSet<string>(StringComparer.Ordinal);
         }
 
-        var clientIds = await BuildCandidateQuery()
-            .Select(c => c.Id)
-            .ToListAsync(cancellationToken);
+        var clientIds = (await _clientRepository.GetNonCustomerClientIdsAsync(cancellationToken)).ToList();
         if (clientIds.Count == 0)
         {
             return new HashSet<string>(StringComparer.Ordinal);
@@ -172,10 +166,4 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
 
         return (periodStart, periodEnd, periodLabel);
     }
-
-    // A customer is never scheduled and ClientBaseQueryService keeps them out of the schedule
-    // entirely, so a drift message about one leads to a page that cannot show them.
-    private IQueryable<Client> BuildCandidateQuery() =>
-        _clientRepository.GetQuery()
-            .Where(c => !c.IsDeleted && c.Type != EntityTypeEnum.Customer);
 }

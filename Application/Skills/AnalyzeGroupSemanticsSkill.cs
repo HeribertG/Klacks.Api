@@ -23,7 +23,6 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -208,14 +207,7 @@ public class AnalyzeGroupSemanticsSkill : BaseSkillImplementation
         List<Group> groups, CancellationToken cancellationToken)
     {
         var groupIds = groups.Select(g => g.Id).ToList();
-        var activeMemberGroupIds = await _groupItemRepository.GetQuery()
-            .Where(gi => groupIds.Contains(gi.GroupId) && gi.ClientId != null && gi.AnalyseToken == null)
-            .Select(gi => gi.GroupId)
-            .ToListAsync(cancellationToken);
-
-        var countsByGroupId = activeMemberGroupIds
-            .GroupBy(id => id)
-            .ToDictionary(g => g.Key, g => g.Count());
+        var countsByGroupId = await _groupItemRepository.CountRealClientRowsPerGroupAsync(groupIds, cancellationToken);
 
         return groups
             .Select(g => new GroupMemberCount(g.Id, g.Name, countsByGroupId.GetValueOrDefault(g.Id)))

@@ -176,6 +176,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddErpObjectStorage();
         services.AddScoped<IPersonalAccessTokenRepository, PersonalAccessTokenRepository>();
         services.AddScoped<IAppUserRepository, AppUserRepository>();
+        services.AddScoped<IAppUserReader, AppUserReader>();
         services.AddScoped<IOAuthClientRepository, OAuthClientRepository>();
         services.AddScoped<IOAuthAuthorizationCodeStore,Klacks.Api.Infrastructure.Authentication.OAuthAuthorizationCodeStore>();
         services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();

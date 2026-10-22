@@ -85,6 +85,40 @@ public class ClientFilterRepository : IClientFilterRepository
         };
     }
 
+    public async Task<IReadOnlyList<ClientExportRow>> GetExportRowsAsync(
+        ClientFilter filter,
+        IReadOnlyCollection<Guid>? onlyIds,
+        IReadOnlyCollection<Guid>? excludedIds,
+        CancellationToken cancellationToken = default)
+    {
+        var query = await FilterClients(filter);
+
+        if (onlyIds != null)
+        {
+            var only = onlyIds.ToList();
+            query = query.Where(c => only.Contains(c.Id));
+        }
+
+        if (excludedIds != null)
+        {
+            var excluded = excludedIds.ToList();
+            query = query.Where(c => !excluded.Contains(c.Id));
+        }
+
+        return await query
+            .OrderBy(c => c.IdNumber)
+            .Select(c => new ClientExportRow(
+                c.IdNumber,
+                c.Company ?? string.Empty,
+                c.FirstName ?? string.Empty,
+                c.Name ?? string.Empty,
+                c.Birthdate,
+                c.Gender,
+                c.Type,
+                c.LegalEntity))
+            .ToListAsync(cancellationToken);
+    }
+
     private bool IsFuzzyEligible(ClientFilter filter)
     {
         return !string.IsNullOrWhiteSpace(filter.SearchString)

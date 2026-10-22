@@ -14,8 +14,6 @@ public interface IContainerTemplateRepository : IBaseRepository<ContainerTemplat
 
     Task<List<ContainerTemplate>> GetTemplatesForContainerWithTracking(Guid containerId);
 
-    IQueryable<ContainerTemplate> GetQuery();
-
     /// <summary>
     /// Distinct ids of the containers that have at least one template that is not soft-deleted.
     /// </summary>

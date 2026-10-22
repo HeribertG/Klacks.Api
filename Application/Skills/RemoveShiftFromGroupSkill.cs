@@ -15,7 +15,6 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
-using Microsoft.EntityFrameworkCore;
 
 using Klacks.Api.Application.DTOs.Associations;
 
@@ -86,9 +85,8 @@ public class RemoveShiftFromGroupSkill : BaseSkillImplementation
             return SkillResult.Error(scope.BuildOutOfScopeError(group.Name));
         }
 
-        var groupItem = await _groupItemRepository.GetQuery()
-            .FirstOrDefaultAsync(gi => gi.ShiftId == shiftId && gi.GroupId == groupId, cancellationToken);
-        if (groupItem == null)
+        var groupItemId = await _groupItemRepository.FindShiftLinkIdAsync(shiftId, groupId, cancellationToken);
+        if (groupItemId == null)
         {
             var otherGroupIds = await _groupItemRepository.GetGroupIdsByShiftId(shiftId, cancellationToken);
             var suffix = otherGroupIds.Count > 0
@@ -98,7 +96,7 @@ public class RemoveShiftFromGroupSkill : BaseSkillImplementation
         }
 
         var result = await _selfApi.DeleteAsync<GroupItemResource>(
-            $"{_routes.Resolve(typeof(GroupItemResource))}/{groupItem.Id}", context, SkillName, cancellationToken);
+            $"{_routes.Resolve(typeof(GroupItemResource))}/{groupItemId.Value}", context, SkillName, cancellationToken);
 
         if (!result.Success)
         {

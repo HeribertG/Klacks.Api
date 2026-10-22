@@ -384,10 +384,24 @@ public class ClientRepository : IClientRepository
         this.context.Entry(client).State = EntityState.Detached;
     }
 
-    public IQueryable<Client> GetQuery()
+    public async Task<IReadOnlyList<ClientNameParts>> GetNonCustomerClientNamesAsync(CancellationToken cancellationToken = default)
     {
-        return context.Client.AsNoTracking();
+        var rows = await NonCustomerClients()
+            .Select(c => new { c.Id, c.FirstName, c.Name })
+            .ToListAsync(cancellationToken);
+
+        return rows.Select(c => new ClientNameParts(c.Id, c.FirstName, c.Name)).ToList();
     }
+
+    public async Task<IReadOnlyList<Guid>> GetNonCustomerClientIdsAsync(CancellationToken cancellationToken = default) =>
+        await NonCustomerClients()
+            .Select(c => c.Id)
+            .ToListAsync(cancellationToken);
+
+    private IQueryable<Client> NonCustomerClients() =>
+        context.Client
+            .AsNoTracking()
+            .Where(c => !c.IsDeleted && c.Type != EntityTypeEnum.Customer);
 
     public async Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default)
     {
