@@ -22,17 +22,24 @@ namespace Klacks.Api.Application.Handlers.Assistant;
 public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeResource>
 {
     private const int SuggestionCount = 4;
+    private const string LlmProviderSectionTarget = "llm-provider";
 
-    private static readonly Dictionary<string, string> SuggestionKeyRoutes = new(StringComparer.Ordinal)
+    internal static readonly IReadOnlyDictionary<string, string> SuggestionKeyRoutes = new Dictionary<string, string>(StringComparer.Ordinal)
     {
         [WelcomeI18nKeys.Suggestion.EditSettings] = "/workplace/settings",
-        [WelcomeI18nKeys.Suggestion.ManageProviders] = "/workplace/settings/llm",
+        [WelcomeI18nKeys.Suggestion.ManageProviders] = "/workplace/settings",
         [WelcomeI18nKeys.Suggestion.ViewSchedule] = "/workplace/schedule",
         [WelcomeI18nKeys.Suggestion.ReviewWeek] = "/workplace/schedule",
         [WelcomeI18nKeys.Suggestion.ReviewAbsences] = "/workplace/absence",
-        [WelcomeI18nKeys.Suggestion.CreateEmployee] = "/workplace/new-employee",
+        [WelcomeI18nKeys.Suggestion.CreateEmployee] = "/workplace/edit-address",
         [WelcomeI18nKeys.Suggestion.FindPerson] = "/workplace/client",
     };
+
+    internal static readonly IReadOnlyDictionary<string, string> SuggestionKeyTargets = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        [WelcomeI18nKeys.Suggestion.ManageProviders] = LlmProviderSectionTarget,
+    };
+
     private const int MorningEndHour = 12;
     private const int AfternoonEndHour = 18;
 
@@ -138,6 +145,9 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             SuggestionRoutes = suggestionKeys
                 .Where(k => SuggestionKeyRoutes.ContainsKey(k))
                 .ToDictionary(k => k, k => SuggestionKeyRoutes[k]),
+            SuggestionTargets = suggestionKeys
+                .Where(k => SuggestionKeyTargets.ContainsKey(k))
+                .ToDictionary(k => k, k => SuggestionKeyTargets[k]),
             Onboarding = onboarding,
             Focus = focus,
         };

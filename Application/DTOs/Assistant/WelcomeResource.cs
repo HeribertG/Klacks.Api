@@ -64,10 +64,17 @@ public class WelcomeResource
     /// <summary>
     /// Maps each navigation-type suggestion key to its Angular route, e.g.
     /// "klacksy.welcome.suggestion.edit_settings" → "/workplace/settings".
-    /// The frontend uses the route as the option value so clicking navigates directly
-    /// without going through the LLM.
+    /// The frontend uses the route (plus the SuggestionTargets entry, if any) as the option value so
+    /// clicking navigates directly without going through the LLM.
     /// </summary>
     public Dictionary<string, string> SuggestionRoutes { get; set; } = new();
+
+    /// <summary>
+    /// Maps a navigation-type suggestion key to the data-klacksy-target of the section it opens on its route,
+    /// e.g. "klacksy.welcome.suggestion.manage_providers" → "llm-provider" on "/workplace/settings". Keys
+    /// without a section are absent; the frontend then only navigates.
+    /// </summary>
+    public Dictionary<string, string> SuggestionTargets { get; set; } = new();
 
     /// <summary>
     /// Tour slice: the admin's setup tour while it is open (Kind "setup"), otherwise the caller's own intro tour

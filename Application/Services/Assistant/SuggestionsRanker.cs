@@ -47,13 +47,13 @@ public sealed class SuggestionsRanker : ISuggestionsRanker
         ["edit_provider"] = WelcomeI18nKeys.Suggestion.ManageProviders,
     };
 
-    private static readonly (string RouteFragment, string[] SuggestionKeys)[] RouteHints =
+    internal static readonly IReadOnlyList<(string RouteFragment, string[] SuggestionKeys)> RouteHints =
+    new (string RouteFragment, string[] SuggestionKeys)[]
     {
         ("/workplace/schedule", new[] { WelcomeI18nKeys.Suggestion.ViewSchedule, WelcomeI18nKeys.Suggestion.ReviewWeek }),
-        ("/workplace/clients", new[] { WelcomeI18nKeys.Suggestion.FindPerson, WelcomeI18nKeys.Suggestion.CreateEmployee }),
+        ("/workplace/client", new[] { WelcomeI18nKeys.Suggestion.FindPerson, WelcomeI18nKeys.Suggestion.CreateEmployee }),
         ("/workplace/absence", new[] { WelcomeI18nKeys.Suggestion.ReviewAbsences }),
-        ("/workplace/settings/llm", new[] { WelcomeI18nKeys.Suggestion.ManageProviders }),
-        ("/workplace/settings", new[] { WelcomeI18nKeys.Suggestion.EditSettings }),
+        ("/workplace/settings", new[] { WelcomeI18nKeys.Suggestion.EditSettings, WelcomeI18nKeys.Suggestion.ManageProviders }),
     };
 
     private readonly ISkillUsageRepository _skillUsageRepository;

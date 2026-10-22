@@ -9,7 +9,7 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class PageExplainSkillRoutes
 {
-    private static readonly IReadOnlyDictionary<string, string> RouteToSkill =
+    internal static readonly IReadOnlyDictionary<string, string> RouteToSkill =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["/workplace/dashboard"] = "explain_page_dashboard",
@@ -24,7 +24,6 @@ public static class PageExplainSkillRoutes
             ["/workplace/client"] = "explain_page_employees",
             ["/workplace/edit-address"] = "explain_page_employees",
             ["/workplace/group"] = "explain_page_groups",
-            ["/workplace/group-structure"] = "explain_page_groups",
             ["/workplace/edit-group"] = "explain_page_groups",
             ["/workplace/period-closing"] = "explain_page_period_closing",
             ["/workplace/inbox"] = "explain_page_inbox",

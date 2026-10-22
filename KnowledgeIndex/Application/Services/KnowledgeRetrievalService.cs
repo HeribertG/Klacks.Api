@@ -43,13 +43,17 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     // Enough to tell queries apart when counting repeats in a log, short enough to stay readable.
     private const int ShortHashBytes = 4;
 
-    private static readonly (string RouteFragment, string[] SkillNames)[] RouteSkillBoosts =
+    internal static readonly IReadOnlyList<(string RouteFragment, string[] SkillNames)> RouteSkillBoosts =
+    new (string RouteFragment, string[] SkillNames)[]
     {
         ("/workplace/schedule", new[] { "open_schedule", "read_schedule_state", "create_shift", "cut_shift", "search_shifts" }),
-        ("/workplace/clients", new[] { "search_employees", "get_client_details", "update_client", "add_client_to_group" }),
+        ("/workplace/client", new[] { "search_employees", "get_client_details", "update_client", "add_client_to_group" }),
         ("/workplace/absence", new[] { "create_absence", "list_absence_types", "cover_absence" }),
-        ("/workplace/settings/llm", new[] { "list_llm_providers", "create_llm_provider", "update_llm_provider" }),
-        ("/workplace/settings", new[] { "get_general_settings", "update_general_settings" }),
+        ("/workplace/settings", new[]
+        {
+            "get_general_settings", "update_general_settings",
+            "list_llm_providers", "create_llm_provider", "update_llm_provider"
+        }),
     };
 
     private readonly IEmbeddingProvider _embeddingProvider;
