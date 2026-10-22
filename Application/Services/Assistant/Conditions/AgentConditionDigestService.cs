@@ -132,6 +132,7 @@ public class AgentConditionDigestService : IAgentConditionDigestService
         }
         catch (DatabaseUpdateException ex) when (ex.IsDuplicate)
         {
+            _unitOfWork.DiscardTrackedChanges();
             var seededByAnotherInstance = await _settingsRepository.GetSettingNoTracking(Settings.AGENT_CONDITION_DIGEST_LAST_RUN_DATE);
             return seededByAnotherInstance?.Value ?? NeverRanMarker;
         }
