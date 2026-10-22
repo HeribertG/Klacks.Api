@@ -2,12 +2,15 @@
 
 using Klacks.Api.Application.Commands.Geocoding;
 using Klacks.Api.Application.DTOs.RouteOptimization;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
@@ -344,6 +347,7 @@ public class RouteOptimizationController : BaseController
         return TimeSpan.FromSeconds(result.DurationMatrix[fromIndex, toIndex]);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpPost("geocode-all")]
     public async Task<ActionResult> GeocodeAllAddresses(CancellationToken cancellationToken)
     {
