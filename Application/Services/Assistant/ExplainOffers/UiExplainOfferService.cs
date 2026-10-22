@@ -36,7 +36,6 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Services.Assistant.ExplainOffers;
 
@@ -150,17 +149,8 @@ public sealed class UiExplainOfferService : IUiExplainOfferService
         var row = NewRow(userId, kind, outcome,
             topic.Key + UiExplainOfferDefaults.DedupKeySeparator + outcome + UiExplainOfferDefaults.DedupKeySeparator
                 + today.ToString(UiExplainOfferDefaults.PassiveDayFormat, CultureInfo.InvariantCulture));
-        try
+        if (!await _dispatches.TryRecordAsync(row, cancellationToken))
         {
-            await _dispatches.RecordAsync(row, cancellationToken);
-        }
-        catch (DbUpdateException)
-        {
-            if (!await _dispatches.WasDispatchedAsync(userId, kind, row.DedupKey, null, cancellationToken))
-            {
-                throw;
-            }
-
             _logger.LogDebug("A concurrent click of the passive UI explain topic {TopicKey} was already recorded", topic.Key);
         }
     }

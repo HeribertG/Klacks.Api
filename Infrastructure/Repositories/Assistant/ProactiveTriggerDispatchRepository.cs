@@ -12,7 +12,8 @@
 /// finding (new AgentCondition with a new id under the same fingerprint) deliberately gets its own
 /// row instead of being swallowed by the old entry. Linked, unacknowledged rows additionally carry a
 /// reminder schedule (NextReminderAtUtc): GetDueForReminderAsync feeds the sweep, the two Try*Reminder
-/// methods advance or stop it under a compare-and-swap guard, and AcknowledgeAsync is the only stop.
+/// methods advance or stop it under a compare-and-swap guard, and AcknowledgeAsync is the only stop. TryRecordAsync is
+/// RecordAsync for callers that race a concurrent writer of the same row (the passive UI explain click).
 /// </summary>
 /// <param name="context">The database context.</param>
 /// <param name="timeProvider">Clock ReadAtUtc is stamped from, injected so a test can drive it.</param>
@@ -67,6 +68,24 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
         {
             _context.Entry(row).State = EntityState.Detached;
             throw;
+        }
+    }
+
+    public async Task<bool> TryRecordAsync(ProactiveTriggerDispatchRow row, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await RecordAsync(row, cancellationToken);
+            return true;
+        }
+        catch (DbUpdateException)
+        {
+            if (!await WasDispatchedAsync(row.UserId, row.TriggerKind, row.DedupKey, row.ConditionId, cancellationToken))
+            {
+                throw;
+            }
+
+            return false;
         }
     }
 

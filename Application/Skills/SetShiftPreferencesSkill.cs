@@ -18,7 +18,6 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -47,18 +46,11 @@ public class SetShiftPreferencesSkill : BaseSkillImplementation
             return SkillResult.Error("preference must be 'preferred' or 'blacklist'.");
         }
 
-        try
-        {
-            var id = await _mediator.Send(
-                new SetShiftPreferenceCommand(clientId, shiftId, preferenceType), cancellationToken);
+        var id = await _mediator.Send(
+            new SetShiftPreferenceCommand(clientId, shiftId, preferenceType), cancellationToken);
 
-            return SkillResult.SuccessResult(
-                new { Id = id, ClientId = clientId, ShiftId = shiftId, Preference = preferenceType.ToString() },
-                $"Employee {clientId} is now {preferenceType} for shift {shiftId}.");
-        }
-        catch (DbUpdateException)
-        {
-            return SkillResult.Error("Could not set the preference — the employee or shift id may not exist.");
-        }
+        return SkillResult.SuccessResult(
+            new { Id = id, ClientId = clientId, ShiftId = shiftId, Preference = preferenceType.ToString() },
+            $"Employee {clientId} is now {preferenceType} for shift {shiftId}.");
     }
 }

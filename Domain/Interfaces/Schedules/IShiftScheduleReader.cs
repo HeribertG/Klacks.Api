@@ -5,23 +5,20 @@ using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Domain.Interfaces.Schedules;
 
-public interface IShiftScheduleService
+/// <summary>
+/// The materialising shift-schedule reads (get_shift_schedule / get_shift_schedule_partial) and the required
+/// qualifications shown on the schedule. The composable query of the same function stays on the Infrastructure-only
+/// IShiftScheduleService.
+/// </summary>
+public interface IShiftScheduleReader
 {
     Task<Dictionary<Guid, List<ShiftRequiredQualification>>> GetRequiredQualificationsByShiftAsync(
         IReadOnlyCollection<Guid> shiftIds,
         CancellationToken cancellationToken = default);
 
-    IQueryable<ShiftDayAssignment> GetShiftScheduleQuery(
-        DateOnly startDate,
-        DateOnly endDate,
-        List<DateOnly>? holidayDates = null,
-        List<Guid>? visibleGroupIds = null,
-        bool showUngroupedShifts = false,
-        Guid? analyseToken = null);
-
     /// <summary>
     /// The rows of get_shift_schedule for the period, materialised in the function's own order: the same call as
-    /// GetShiftScheduleQuery, for callers that use every row and add no filter of their own.
+    /// IShiftScheduleService.GetShiftScheduleQuery, for callers that use every row and add no filter of their own.
     /// </summary>
     /// <param name="startDate">First day of the period, inclusive</param>
     /// <param name="endDate">Last day of the period, inclusive</param>

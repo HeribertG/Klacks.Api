@@ -12,10 +12,10 @@
 using Klacks.Api.Application.Commands.Update;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Update;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Update;
 using Klacks.Api.Domain.Models.Update;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Update;
 
@@ -45,7 +45,7 @@ public class DeleteUpdateHistoryCommandHandler : IRequestHandler<DeleteUpdateHis
         {
             await _repository.DeleteAsync(entry, cancellationToken);
         }
-        catch (DbUpdateConcurrencyException)
+        catch (ConcurrencyException)
         {
             return UpdateHistoryDeletionOutcome.BlockedByLiveOperation;
         }

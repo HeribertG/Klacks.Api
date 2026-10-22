@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Facade for work-related notifications. Bundles IWorkNotificationService,
-/// IShiftStatsNotificationService, IShiftScheduleService and ScheduleMapper
+/// IShiftStatsNotificationService, IShiftScheduleReader and ScheduleMapper
 /// to reduce DI overload and code duplication in the Works handlers.
 /// </summary>
 /// <param name="notificationService">SignalR notifications for Work/Schedule/PeriodHours events</param>
@@ -25,14 +25,14 @@ public class WorkNotificationFacade : IWorkNotificationFacade
 {
     private readonly IWorkNotificationService _notificationService;
     private readonly IShiftStatsNotificationService _shiftStatsNotificationService;
-    private readonly IShiftScheduleService _shiftScheduleService;
+    private readonly IShiftScheduleReader _shiftScheduleService;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public WorkNotificationFacade(
         IWorkNotificationService notificationService,
         IShiftStatsNotificationService shiftStatsNotificationService,
-        IShiftScheduleService shiftScheduleService,
+        IShiftScheduleReader shiftScheduleService,
         ScheduleMapper scheduleMapper,
         IHttpContextAccessor httpContextAccessor)
     {

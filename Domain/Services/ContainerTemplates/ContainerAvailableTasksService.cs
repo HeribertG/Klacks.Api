@@ -2,28 +2,36 @@
 
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Schedules;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Services.ContainerTemplates;
 
+/// <summary>
+/// The available-task list of a container template slot, also the candidate source of the container autofill: the
+/// tasks of the container's group (or of every group when the group has at most one shift) that fit the slot
+/// (AvailableTaskCandidateCriteria), minus the tasks used in another container, plus the extra task ids an override
+/// request names.
+/// </summary>
+/// <param name="shiftReader">Reads the candidate tasks and the override tasks</param>
+/// <param name="groupItemRepository">Resolves the container's groups and their shifts</param>
+/// <param name="containerTemplateRepository">Lists the tasks already used in container templates</param>
+/// <param name="logger">Diagnostics of each lookup</param>
 public class ContainerAvailableTasksService : IContainerAvailableTasksService
 {
-    private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftReader _shiftReader;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IContainerTemplateRepository _containerTemplateRepository;
     private readonly ILogger<ContainerAvailableTasksService> _logger;
 
     public ContainerAvailableTasksService(
-        IShiftRepository shiftRepository,
+        IShiftReader shiftReader,
         IGroupItemRepository groupItemRepository,
         IContainerTemplateRepository containerTemplateRepository,
         ILogger<ContainerAvailableTasksService> logger)
     {
-        _shiftRepository = shiftRepository;
+        _shiftReader = shiftReader;
         _groupItemRepository = groupItemRepository;
         _containerTemplateRepository = containerTemplateRepository;
         _logger = logger;
@@ -70,23 +78,21 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
             _logger.LogInformation("Container has no groups - skipping group filter");
         }
 
-        var query = BuildAvailableTasksQuery(
-            fromTime,
-            untilTime,
-            weekday,
-            usedShiftIds,
-            shiftsInSameGroups,
-            searchString,
-            isHoliday,
-            isWeekdayAndHoliday);
+        if (shiftsInSameGroups == null || shiftsInSameGroups.Count == 0)
+        {
+            _logger.LogWarning("No group filter applied - this will return ALL tasks matching time/weekday criteria");
+        }
 
-        var availableTasks = await query
-            .Include(s => s.Client)
-                .ThenInclude(c => c!.Addresses)
-            .AsNoTracking()
-            .OrderBy(s => s.StartShift)
-            .ThenBy(s => s.Client!.Name)
-            .ToListAsync(cancellationToken);
+        var criteria = new AvailableTaskCandidateCriteria(weekday, fromTime, untilTime)
+        {
+            IsHoliday = isHoliday,
+            IsWeekdayAndHoliday = isWeekdayAndHoliday,
+            ExcludedShiftIds = usedShiftIds,
+            OnlyShiftIds = shiftsInSameGroups is { Count: > 0 } ? shiftsInSameGroups : null,
+            SearchFragment = searchString,
+        };
+
+        var availableTasks = (await _shiftReader.GetAvailableTaskCandidatesAsync(criteria, cancellationToken)).ToList();
 
         _logger.LogInformation("Found {Count} available tasks", availableTasks.Count);
 
@@ -103,12 +109,7 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
 
             if (overrideIds.Count > 0)
             {
-                var overrideShifts = await _shiftRepository.GetQuery()
-                    .Where(s => overrideIds.Contains(s.Id) && s.ShiftType == ShiftType.IsTask)
-                    .Include(s => s.Client)
-                        .ThenInclude(c => c!.Addresses)
-                    .AsNoTracking()
-                    .ToListAsync(cancellationToken);
+                var overrideShifts = await _shiftReader.GetTasksWithClientByIdsAsync(overrideIds, cancellationToken);
 
                 _logger.LogInformation(
                     "Added {Count} override shifts (hard override): [{Abbrevs}]",
@@ -120,59 +121,5 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
         }
 
         return availableTasks;
-    }
-
-    private IQueryable<Shift> BuildAvailableTasksQuery(
-        TimeOnly fromTime,
-        TimeOnly untilTime,
-        int weekday,
-        List<Guid> usedShiftIds,
-        List<Guid>? shiftsInSameGroups,
-        string? searchString,
-        bool? isHoliday,
-        bool? isWeekdayAndHoliday)
-    {
-        var timeframeCrossesMidnight = fromTime > untilTime;
-
-        var query = _shiftRepository.GetQuery()
-            .Where(s => s.ShiftType == ShiftType.IsTask)
-            .Where(s => s.Status >= ShiftStatus.OriginalShift)
-            .Where(s => !usedShiftIds.Contains(s.Id))
-            .Where(s => !s.IsSporadic);
-
-        if (timeframeCrossesMidnight)
-        {
-            query = query.Where(s =>
-                (s.IsTimeRange && (s.StartShift < untilTime || s.EndShift > fromTime)) ||
-                (!s.IsTimeRange && s.StartShift < s.EndShift && (s.StartShift >= fromTime || s.EndShift <= untilTime)));
-        }
-        else
-        {
-            query = query.Where(s =>
-                (s.IsTimeRange && s.StartShift < untilTime && s.EndShift > fromTime) ||
-                (!s.IsTimeRange && s.StartShift >= fromTime && s.EndShift <= untilTime && s.StartShift < s.EndShift));
-        }
-
-        if (shiftsInSameGroups != null && shiftsInSameGroups.Count > 0)
-        {
-            query = query.Where(s => shiftsInSameGroups.Contains(s.Id));
-        }
-        else
-        {
-            _logger.LogWarning("No group filter applied - this will return ALL tasks matching time/weekday criteria");
-        }
-
-        query = ShiftDayActivityFilter.Apply(query, weekday, isHoliday, isWeekdayAndHoliday);
-
-        if (!string.IsNullOrWhiteSpace(searchString))
-        {
-            var searchLower = searchString.ToLower();
-            query = query.Where(s =>
-                s.Name.ToLower().Contains(searchLower) ||
-                s.Abbreviation.ToLower().Contains(searchLower) ||
-                s.Description.ToLower().Contains(searchLower));
-        }
-
-        return query;
     }
 }

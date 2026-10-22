@@ -29,7 +29,6 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Klacks.Api.Application.Services.Assistant.Conditions;
@@ -109,8 +108,8 @@ public class AgentConditionDigestService : IAgentConditionDigestService
     /// Reads the persisted watermark, seeding it once - as the CAS-comparable "never ran" value - when a
     /// fresh installation has no row yet. Without this, TryAdvanceSettingAsync's WHERE clause would never
     /// match any row and the digest would never fire, silently, forever. A unique-constraint collision
-    /// from a second instance seeding concurrently is not an error: it means the row now exists, so the
-    /// caller just re-reads it.
+    /// from a second instance seeding concurrently surfaces from the unit of work as DatabaseUpdateException
+    /// and fails this run; the next tick reads the row the other instance stored.
     /// </summary>
     private async Task<string> ReadOrSeedLastRunMarkerAsync(CancellationToken cancellationToken)
     {
@@ -120,22 +119,14 @@ public class AgentConditionDigestService : IAgentConditionDigestService
             return existing.Value;
         }
 
-        try
+        await _settingsRepository.AddSetting(new Domain.Models.Settings.Settings
         {
-            await _settingsRepository.AddSetting(new Domain.Models.Settings.Settings
-            {
-                Id = Guid.NewGuid(),
-                Type = Settings.AGENT_CONDITION_DIGEST_LAST_RUN_DATE,
-                Value = NeverRanMarker
-            });
-            await _unitOfWork.CompleteAsync();
-            return NeverRanMarker;
-        }
-        catch (DbUpdateException)
-        {
-            var seededByAnotherInstance = await _settingsRepository.GetSettingNoTracking(Settings.AGENT_CONDITION_DIGEST_LAST_RUN_DATE);
-            return seededByAnotherInstance?.Value ?? NeverRanMarker;
-        }
+            Id = Guid.NewGuid(),
+            Type = Settings.AGENT_CONDITION_DIGEST_LAST_RUN_DATE,
+            Value = NeverRanMarker
+        });
+        await _unitOfWork.CompleteAsync();
+        return NeverRanMarker;
     }
 
     private bool IsPastTargetTimeOfDay(TimeSpan nowLocalTimeOfDay)

@@ -24,8 +24,6 @@ public interface IShiftRepository : IBaseRepository<Shift>
     /// <param name="shift">The shift as sent by the cut dialog, with the id of the stored shift.</param>
     Task<Shift?> PutCutUpdate(Shift shift);
 
-    IQueryable<Shift> GetQuery();
-
     /// <summary>
     /// Whether a shift with status OriginalShift already carries <paramref name="originalShiftId"/> as its OriginalId.
     /// </summary>
@@ -36,15 +34,6 @@ public interface IShiftRepository : IBaseRepository<Shift>
     /// </summary>
     Task<List<Shift>> GetWithClientByIdsAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Filters shifts by the given criteria. <paramref name="today"/> is the company's own local day
-    /// (per ICompanyClock), resolved by the caller since this method itself is synchronous.
-    /// <paramref name="visibleGroupIds"/> is the caller's group restriction from
-    /// IShiftGroupFilterService.ResolveShiftListGroupIdsAsync (null = unrestricted, empty = only group-less
-    /// shifts); it is deliberately not optional so no caller can forget the security boundary.
-    /// </summary>
-    IQueryable<Shift> FilterShifts(ShiftFilter filter, DateOnly today, IReadOnlyCollection<Guid>? visibleGroupIds);
-
     Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter, IReadOnlyCollection<Guid>? visibleGroupIds);
 
     Task UpdateGroupItems(Guid shiftId, List<Guid> actualGroupIds);
@@ -54,8 +43,6 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<List<Shift>> CutList(Guid id, DateOnly? filterClosedBefore = null, bool tracked = false);
 
     Task<Shift?> GetSealedOrder(Guid originalId);
-
-    Task<TruncatedShift> GetPaginatedShifts(IQueryable<Shift> filteredQuery, ShiftFilter filter);
 
     Task<Shift> AddWithSealedOrderHandling(Shift shift);
 
@@ -87,7 +74,7 @@ public interface IShiftRepository : IBaseRepository<Shift>
     /// </summary>
     /// <param name="nameOrAbbreviation">Shift name or abbreviation as the user typed it</param>
     /// <param name="visibleGroupIds">The caller's restriction from IShiftGroupFilterService.ResolveShiftListGroupIdsAsync
-    /// (null = unrestricted, empty = only group-less shifts); deliberately not optional, like for FilterShifts</param>
+    /// (null = unrestricted, empty = only group-less shifts); deliberately not optional, like for GetFilteredAndPaginatedShifts</param>
     /// <param name="limit">Maximum number of shifts returned</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task<List<Shift>> FindPlannableByNameAsync(

@@ -17,6 +17,7 @@ using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Infrastructure.Services.ShiftSchedule;
 
 namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 

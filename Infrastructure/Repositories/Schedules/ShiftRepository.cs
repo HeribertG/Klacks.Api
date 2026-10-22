@@ -237,6 +237,10 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return await Get(id);
     }
 
+    /// <summary>
+    /// The shift base query (original id, from date, start time; untracked). Not on IShiftRepository: Application and
+    /// Domain read through IShiftReader; the repository itself and the legacy-composition tests compose on it.
+    /// </summary>
     public IQueryable<Shift> GetQuery() => ShiftBaseQueries.Ordered(context.Shift);
 
     public async Task<List<Guid>> GetShiftIdsByClientAsync(Guid clientId, CancellationToken cancellationToken = default)
@@ -369,7 +373,14 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .FirstOrDefaultAsync();
     }
 
-    public IQueryable<Shift> FilterShifts(ShiftFilter filter, DateOnly today, IReadOnlyCollection<Guid>? visibleGroupIds)
+    /// <summary>
+    /// The shift list query behind GetFilteredAndPaginatedShifts. <paramref name="today"/> is the company's own local
+    /// day (per ICompanyClock). <paramref name="visibleGroupIds"/> is the caller's group restriction from
+    /// IShiftGroupFilterService.ResolveShiftListGroupIdsAsync (null = unrestricted, empty = only group-less shifts); it
+    /// is deliberately not optional so no caller can forget the security boundary. Internal: only this repository and
+    /// the tests compose on it.
+    /// </summary>
+    internal IQueryable<Shift> FilterShifts(ShiftFilter filter, DateOnly today, IReadOnlyCollection<Guid>? visibleGroupIds)
     {
         Logger.LogInformation("Applying filters to shifts query");
 
@@ -408,11 +419,6 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         Logger.LogInformation("Getting filtered and paginated shifts");
         var today = await _companyClock.GetTodayDateAsync();
         var filteredQuery = FilterShifts(filter, today, visibleGroupIds);
-        return await _queryPipeline.ApplyPaginationAsync(filteredQuery, filter);
-    }
-
-    public async Task<TruncatedShift> GetPaginatedShifts(IQueryable<Shift> filteredQuery, ShiftFilter filter)
-    {
         return await _queryPipeline.ApplyPaginationAsync(filteredQuery, filter);
     }
 

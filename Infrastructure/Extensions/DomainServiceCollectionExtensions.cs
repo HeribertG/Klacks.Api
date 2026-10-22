@@ -140,6 +140,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IShiftCutFacade, ShiftCutFacade>();
         services.AddScoped<ISealedOrderFamilyDeletion, SealedOrderFamilyDeletion>();
         services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
+        services.AddScoped<IShiftScheduleReader>(sp => sp.GetRequiredService<IShiftScheduleService>());
         services.AddScoped<IShiftGroupFilterService, ShiftGroupFilterService>();
         services.AddScoped<ISelectedGroupContextResolver, SelectedGroupContextResolver>();
         services.AddScoped<IShiftScheduleFilterService, ShiftScheduleFilterService>();
@@ -152,6 +153,7 @@ internal static class DomainServiceCollectionExtensions
     {
         services.AddScoped<IClientFilterService, ClientFilterService>();
         services.AddScoped<IClientGroupFilterService, ClientGroupFilterService>();
+        services.AddScoped<ICallerGroupRestriction>(sp => sp.GetRequiredService<IClientGroupFilterService>());
         services.AddScoped<IClientVisibilityGuard, ClientVisibilityGuard>();
         services.AddScoped<IClientReferenceGuard, ClientReferenceGuard>();
         services.AddScoped<IGroupVisibilityGuard, GroupVisibilityGuard>();

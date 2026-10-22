@@ -36,6 +36,7 @@ using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.Staffs;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Infrastructure.Services.Clients;
 
 namespace Klacks.Api.Infrastructure.Repositories.Staffs;
 

@@ -3,7 +3,10 @@
 /// <summary>
 /// EF Core repository for UpdateHistory rows (audit log + hand-off queue). Queries that answer what
 /// physically happened must ignore the soft-delete filter, because deleting a row only hides it from
-/// the admin history; queries that feed that history keep the filter.
+/// the admin history; queries that feed that history keep the filter. Every write commits at once; a rejected insert
+/// surfaces as the Domain DatabaseUpdateException or ConcurrencyException, a status that moved underneath an update or
+/// delete (status is a concurrency token) as ConcurrencyException, and any other failed update or delete stays EF Core's
+/// DbUpdateException, which the error middleware answers with 400 as before.
 /// </summary>
 /// <param name="context">The database context for the update_history table</param>
 using Klacks.Api.Domain.Interfaces.Update;
@@ -28,20 +31,28 @@ public class UpdateHistoryRepository : IUpdateHistoryRepository
     public async Task<UpdateHistory> AddAsync(UpdateHistory entry, CancellationToken cancellationToken = default)
     {
         await _context.UpdateHistory.AddAsync(entry, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException exception)
+        {
+            throw DbUpdateExceptionTranslator.Translate(exception);
+        }
+
         return entry;
     }
 
     public async Task UpdateAsync(UpdateHistory entry, CancellationToken cancellationToken = default)
     {
         _context.UpdateHistory.Update(entry);
-        await _context.SaveChangesAsync(cancellationToken);
+        await SaveTranslatingConcurrencyAsync(cancellationToken);
     }
 
     public async Task DeleteAsync(UpdateHistory entry, CancellationToken cancellationToken = default)
     {
         _context.UpdateHistory.Remove(entry);
-        await _context.SaveChangesAsync(cancellationToken);
+        await SaveTranslatingConcurrencyAsync(cancellationToken);
     }
 
     public async Task<UpdateHistory?> GetActiveOperationAsync(CancellationToken cancellationToken = default)
@@ -83,5 +94,17 @@ public class UpdateHistoryRepository : IUpdateHistoryRepository
             .OrderByDescending(h => h.RequestedAt)
             .AsNoTracking()
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task SaveTranslatingConcurrencyAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException exception)
+        {
+            throw DbUpdateExceptionTranslator.ToConcurrencyException(exception);
+        }
     }
 }

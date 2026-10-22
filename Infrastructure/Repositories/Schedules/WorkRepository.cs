@@ -21,6 +21,7 @@ using Klacks.Api.Infrastructure.Repositories.Associations;
 using Microsoft.EntityFrameworkCore;
 
 using Klacks.Api.Domain.DTOs.Filter;
+using Klacks.Api.Infrastructure.Services.Clients;
 namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 public class WorkRepository : BaseRepository<Work>, IWorkRepository

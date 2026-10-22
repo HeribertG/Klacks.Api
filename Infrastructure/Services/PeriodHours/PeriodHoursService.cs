@@ -16,6 +16,7 @@ using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Infrastructure.Services.Clients;
 
 namespace Klacks.Api.Infrastructure.Services.PeriodHours;
 

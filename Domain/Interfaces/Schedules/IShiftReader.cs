@@ -6,8 +6,9 @@ using Klacks.Api.Domain.Models.Schedules;
 namespace Klacks.Api.Domain.Interfaces.Schedules;
 
 /// <summary>
-/// Read-only, materialising shift reads of the Application layer: the real-plan scans of the proactive detectors,
-/// the order lineage of the cut skills, the group read of find_split_shift_candidates and Shifts/ByIds. Every read
+/// Read-only, materialising shift reads of the Application and Domain layers: the real-plan scans of the proactive
+/// detectors, the order lineage of the cut skills, the group read of find_split_shift_candidates, Shifts/ByIds and the
+/// candidate tasks of a container template slot. Every read
 /// keeps the shift base order (original id, from date, start time) unless it says otherwise and loads untracked.
 /// </summary>
 public interface IShiftReader
@@ -54,15 +55,36 @@ public interface IShiftReader
     Task<bool> AnyByOriginalIdAsync(Guid originalId, ShiftStatus status, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Sealed orders, plannable shifts and split parts with a live link to the group, untracked, in the repository
-    /// order (original id, from date, start time). Scenario rows are not excluded.
+    /// Sealed orders, plannable shifts and split parts with a live link to the group, projected to the columns
+    /// find_split_shift_candidates reads, in the repository order (original id, from date, start time). Scenario rows
+    /// are not excluded.
     /// </summary>
     /// <param name="groupId">Group the shifts must be linked to</param>
     /// <param name="nameFragment">Case-insensitive ILike fragment of the shift name (not escaped, so % and _ act as
     /// wildcards); null or blank = every name</param>
     /// <param name="cancellationToken">Cancels the query</param>
-    Task<IReadOnlyList<Shift>> GetOrderFamilyShiftsInGroupAsync(
+    Task<IReadOnlyList<OrderFamilyShiftRow>> GetOrderFamilyShiftsInGroupAsync(
         Guid groupId, string? nameFragment, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The candidate tasks of a container template slot (see AvailableTaskCandidateCriteria), untracked, with their
+    /// client and all the client's addresses, ordered by start time, then client name (client-less tasks last in
+    /// PostgreSQL).
+    /// </summary>
+    /// <param name="criteria">Slot time frame and days, excluded and allowed shifts, search fragment</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<IReadOnlyList<Shift>> GetAvailableTaskCandidatesAsync(
+        AvailableTaskCandidateCriteria criteria, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The given shifts that are tasks, whatever their status, sporadic flag or time, untracked, with their client and
+    /// all the client's addresses, in the base order (original id, from date, start time). Unknown ids and non-task
+    /// shifts are dropped; scenario rows are not excluded.
+    /// </summary>
+    /// <param name="shiftIds">Requested shift ids</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<IReadOnlyList<Shift>> GetTasksWithClientByIdsAsync(
+        IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The given real-plan shifts (no scenario copy, no scenario source link) the caller may see, untracked, with
@@ -70,7 +92,7 @@ public interface IShiftReader
     /// </summary>
     /// <param name="shiftIds">Requested shift ids; unknown ids are dropped</param>
     /// <param name="visibleGroupIds">The caller's restriction from IShiftGroupFilterService.ResolveShiftListGroupIdsAsync
-    /// (null = unrestricted, empty = only group-less shifts); deliberately not optional, like for FilterShifts</param>
+    /// (null = unrestricted, empty = only group-less shifts); deliberately not optional, like for GetFilteredAndPaginatedShifts</param>
     /// <param name="cancellationToken">Cancels the query</param>
     Task<IReadOnlyList<Shift>> GetVisibleRealPlanWithClientByIdsAsync(
         IReadOnlyCollection<Guid> shiftIds,

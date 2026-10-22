@@ -26,13 +26,13 @@ namespace Klacks.Api.Application.Handlers.Dashboard;
 public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandler<GetShiftCoverageStatisticsQuery, IEnumerable<ShiftCoverageStatisticsResource>>
 {
     private readonly IShiftCoverageReadRepository _readRepository;
-    private readonly IShiftScheduleService _shiftScheduleService;
+    private readonly IShiftScheduleReader _shiftScheduleService;
     private readonly IGroupVisibilityService _groupVisibilityService;
     private readonly ICompanyClock _companyClock;
 
     public GetShiftCoverageStatisticsQueryHandler(
         IShiftCoverageReadRepository readRepository,
-        IShiftScheduleService shiftScheduleService,
+        IShiftScheduleReader shiftScheduleService,
         IGroupVisibilityService groupVisibilityService,
         ICompanyClock companyClock,
         ILogger<GetShiftCoverageStatisticsQueryHandler> logger)

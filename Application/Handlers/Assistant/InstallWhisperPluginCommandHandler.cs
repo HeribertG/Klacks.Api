@@ -8,10 +8,10 @@
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Update;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Update;
 using Klacks.Api.Domain.Models.Update;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
 
@@ -54,7 +54,7 @@ public class InstallWhisperPluginCommandHandler : IRequestHandler<InstallWhisper
         {
             await _repository.AddAsync(entry, cancellationToken);
         }
-        catch (DbUpdateException)
+        catch (Exception exception) when (exception is DatabaseUpdateException or ConcurrencyException)
         {
             return Rejected(UpdateReasons.OperationInProgress);
         }

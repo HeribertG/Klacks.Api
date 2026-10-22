@@ -1,21 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Npgsql;
 
 namespace Klacks.Api.Infrastructure.Persistence;
 
 public class UnitOfWork : IUnitOfWork
 {
-    // Postgres SQLSTATE codes (locale-independent, unlike ex.Message which is
-    // localized by the server's lc_messages setting — e.g. "doppelter
-    // Schlüsselwert" on a German-locale server never contains "duplicate").
-    private const string UniqueViolationSqlState = "23505";
-    private const string ForeignKeyViolationSqlState = "23503";
-
     private readonly DataBaseContext context;
     private readonly ILogger<UnitOfWork> _logger;
 
@@ -31,22 +23,9 @@ public class UnitOfWork : IUnitOfWork
         {
             await context.SaveChangesAsync();
         }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            throw new ConcurrencyException(
-                "The record was modified by another user. Please refresh and try again.", ex);
-        }
         catch (DbUpdateException ex)
         {
-            var innerMessage = ex.InnerException?.Message ?? string.Empty;
-            var postgresException = ex.InnerException as PostgresException;
-            var sqlState = postgresException?.SqlState;
-            var isDuplicate = sqlState == UniqueViolationSqlState;
-            var isForeignKey = sqlState == ForeignKeyViolationSqlState;
-
-            throw new DatabaseUpdateException(innerMessage, ex,
-                isDuplicate: isDuplicate, isForeignKeyViolation: isForeignKey,
-                constraintName: postgresException?.ConstraintName);
+            throw DbUpdateExceptionTranslator.Translate(ex);
         }
     }
 
@@ -56,22 +35,9 @@ public class UnitOfWork : IUnitOfWork
         {
             return context.SaveChanges();
         }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            throw new ConcurrencyException(
-                "The record was modified by another user. Please refresh and try again.", ex);
-        }
         catch (DbUpdateException ex)
         {
-            var innerMessage = ex.InnerException?.Message ?? string.Empty;
-            var postgresException = ex.InnerException as PostgresException;
-            var sqlState = postgresException?.SqlState;
-            var isDuplicate = sqlState == UniqueViolationSqlState;
-            var isForeignKey = sqlState == ForeignKeyViolationSqlState;
-
-            throw new DatabaseUpdateException(innerMessage, ex,
-                isDuplicate: isDuplicate, isForeignKeyViolation: isForeignKey,
-                constraintName: postgresException?.ConstraintName);
+            throw DbUpdateExceptionTranslator.Translate(ex);
         }
     }
 

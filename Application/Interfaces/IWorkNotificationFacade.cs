@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Facade for work-related notifications (work, period hours, shift stats, schedule notifications).
-/// Bundles IWorkNotificationService, IShiftStatsNotificationService, IShiftScheduleService and ScheduleMapper
+/// Bundles IWorkNotificationService, IShiftStatsNotificationService, IShiftScheduleReader and ScheduleMapper
 /// to reduce DI overload and code duplication in the Works handlers.
 /// </summary>
 using Klacks.Api.Application.DTOs.Schedules;

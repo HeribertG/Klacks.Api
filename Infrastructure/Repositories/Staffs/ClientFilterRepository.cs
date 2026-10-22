@@ -8,6 +8,7 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Infrastructure.Services.Clients;
 
 namespace Klacks.Api.Infrastructure.Repositories.Staffs;
 

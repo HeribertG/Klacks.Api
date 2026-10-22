@@ -16,6 +16,13 @@ public interface IProactiveTriggerDispatchRepository
 
     Task RecordAsync(ProactiveTriggerDispatchRow row, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Records the row like RecordAsync, but tolerates losing the race against a concurrent writer: when the insert is
+    /// rejected and a row for the same (user, kind, dedup key, condition) exists afterwards, it answers false instead of
+    /// throwing. Any other rejected insert propagates unchanged. True = recorded now or already recorded before.
+    /// </summary>
+    Task<bool> TryRecordAsync(ProactiveTriggerDispatchRow row, CancellationToken cancellationToken = default);
+
     Task<ProactiveTriggerDispatchRow?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(ProactiveTriggerDispatchRow row, CancellationToken cancellationToken = default);

@@ -3,6 +3,7 @@
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.ContainerTemplates;
 using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 /// <summary>
-/// Materialising shift reads of the Application layer (proactive scans, order lineage of the cut skills,
-/// find_split_shift_candidates, Shifts/ByIds). Each one composes on ShiftBaseQueries, the same base query
-/// ShiftRepository.GetQuery() uses, so the base order (original id, from date, start time) and the no-tracking load
-/// are the same as when the callers composed IShiftRepository.GetQuery() themselves.
+/// Materialising shift reads of the Application and Domain layers (proactive scans, order lineage of the cut skills,
+/// find_split_shift_candidates, Shifts/ByIds, the candidate tasks of a container template slot). Each one composes on
+/// ShiftBaseQueries, the same base query ShiftRepository.GetQuery() uses, so the base order (original id, from date,
+/// start time) and the no-tracking load are the same as when the callers composed IShiftRepository.GetQuery()
+/// themselves; the slot candidates replace that order with start time, then client name, as the service did before.
 /// </summary>
 /// <param name="context">Database context the shifts are read from</param>
 public class ShiftReader : IShiftReader
@@ -47,7 +49,7 @@ public class ShiftReader : IShiftReader
         Guid originalId, ShiftStatus status, CancellationToken cancellationToken = default) =>
         Ordered().AnyAsync(s => s.OriginalId == originalId && s.Status == status, cancellationToken);
 
-    public async Task<IReadOnlyList<Shift>> GetOrderFamilyShiftsInGroupAsync(
+    public async Task<IReadOnlyList<OrderFamilyShiftRow>> GetOrderFamilyShiftsInGroupAsync(
         Guid groupId, string? nameFragment, CancellationToken cancellationToken = default)
     {
         var query = Ordered()
@@ -61,7 +63,59 @@ public class ShiftReader : IShiftReader
             query = query.Where(s => EF.Functions.ILike(s.Name, $"%{nameFragment}%"));
         }
 
-        return await query.ToListAsync(cancellationToken);
+        return await query
+            .Select(s => new OrderFamilyShiftRow(
+                s.Id, s.Name, s.Abbreviation, s.Status, s.StartShift, s.EndShift, s.FromDate, s.UntilDate, s.OriginalId))
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Shift>> GetAvailableTaskCandidatesAsync(
+        AvailableTaskCandidateCriteria criteria, CancellationToken cancellationToken = default)
+    {
+        var excludedIds = criteria.ExcludedShiftIds.ToList();
+        var query = _context.Shift
+            .Where(s => s.ShiftType == ShiftType.IsTask)
+            .Where(s => s.Status >= ShiftStatus.OriginalShift)
+            .Where(s => !excludedIds.Contains(s.Id))
+            .Where(s => !s.IsSporadic);
+
+        query = ShiftTimeFrameFilter.Apply(query, criteria.FromTime, criteria.UntilTime);
+
+        if (criteria.OnlyShiftIds != null)
+        {
+            var onlyIds = criteria.OnlyShiftIds.ToList();
+            query = query.Where(s => onlyIds.Contains(s.Id));
+        }
+
+        query = ShiftDayActivityFilter.Apply(query, criteria.Weekday, criteria.IsHoliday, criteria.IsWeekdayAndHoliday);
+
+        if (!string.IsNullOrWhiteSpace(criteria.SearchFragment))
+        {
+            var searchLower = criteria.SearchFragment.ToLower();
+            query = query.Where(s =>
+                s.Name.ToLower().Contains(searchLower) ||
+                s.Abbreviation.ToLower().Contains(searchLower) ||
+                s.Description.ToLower().Contains(searchLower));
+        }
+
+        return await query
+            .Include(s => s.Client)
+                .ThenInclude(c => c!.Addresses)
+            .AsNoTracking()
+            .OrderBy(s => s.StartShift)
+            .ThenBy(s => s.Client!.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Shift>> GetTasksWithClientByIdsAsync(
+        IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var ids = shiftIds.ToList();
+        return await Ordered()
+            .Where(s => ids.Contains(s.Id) && s.ShiftType == ShiftType.IsTask)
+            .Include(s => s.Client)
+                .ThenInclude(c => c!.Addresses)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<Shift>> GetVisibleRealPlanWithClientByIdsAsync(

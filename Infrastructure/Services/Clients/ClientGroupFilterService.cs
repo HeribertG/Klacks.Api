@@ -6,9 +6,8 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Domain.Services.Common;
 
-namespace Klacks.Api.Application.Services.Clients;
+namespace Klacks.Api.Infrastructure.Services.Clients;
 
 /// <summary>
 /// Filters client queries by group membership, including subgroups. A selected group is always

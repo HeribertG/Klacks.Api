@@ -9,7 +9,7 @@
 /// clients (the handler's own existence check decides).
 /// </summary>
 /// <param name="clientSearchRepository">Answers which client ids the calling user may see</param>
-/// <param name="clientGroupFilterService">Tells whether the caller is limited by group visibility at all</param>
+/// <param name="callerGroupRestriction">Tells whether the caller is limited by group visibility at all</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Services.Common;
@@ -19,18 +19,18 @@ namespace Klacks.Api.Application.Services.Clients;
 public class ClientVisibilityGuard : IClientVisibilityGuard
 {
     private readonly IClientSearchRepository _clientSearchRepository;
-    private readonly IClientGroupFilterService _clientGroupFilterService;
+    private readonly ICallerGroupRestriction _callerGroupRestriction;
 
     public ClientVisibilityGuard(
-        IClientSearchRepository clientSearchRepository, IClientGroupFilterService clientGroupFilterService)
+        IClientSearchRepository clientSearchRepository, ICallerGroupRestriction callerGroupRestriction)
     {
         _clientSearchRepository = clientSearchRepository;
-        _clientGroupFilterService = clientGroupFilterService;
+        _callerGroupRestriction = callerGroupRestriction;
     }
 
     public async Task<bool> IsVisibleAsync(Guid clientId, CancellationToken cancellationToken = default)
     {
-        if (await _clientGroupFilterService.IsCallerUnrestrictedAsync())
+        if (await _callerGroupRestriction.IsCallerUnrestrictedAsync())
         {
             return true;
         }
@@ -42,7 +42,7 @@ public class ClientVisibilityGuard : IClientVisibilityGuard
         IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken = default)
     {
         var distinctIds = clientIds.Distinct().ToList();
-        if (distinctIds.Count == 0 || await _clientGroupFilterService.IsCallerUnrestrictedAsync())
+        if (distinctIds.Count == 0 || await _callerGroupRestriction.IsCallerUnrestrictedAsync())
         {
             return true;
         }
@@ -59,7 +59,7 @@ public class ClientVisibilityGuard : IClientVisibilityGuard
             return [];
         }
 
-        if (await _clientGroupFilterService.IsCallerUnrestrictedAsync())
+        if (await _callerGroupRestriction.IsCallerUnrestrictedAsync())
         {
             return items.ToList();
         }

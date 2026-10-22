@@ -109,6 +109,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IShiftSearchRepository, ShiftSearchRepository>();
         services.AddScoped<IClientSearchFilterService, ClientSearchFilterService>();
         services.AddScoped<IClientBaseQueryService, ClientBaseQueryService>();
+        services.AddScoped<IClientPageReader>(sp => sp.GetRequiredService<IClientBaseQueryService>());
         services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<IAnnotationRepository, AnnotationRepository>();
         services.AddScoped<ICommunicationRepository, CommunicationRepository>();

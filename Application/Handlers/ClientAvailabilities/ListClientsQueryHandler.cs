@@ -17,10 +17,10 @@ namespace Klacks.Api.Application.Handlers.ClientAvailabilities;
 
 public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAvailabilityClientsQuery, ClientAvailabilityClientListResponse>
 {
-    private readonly IClientBaseQueryService _baseQueryService;
+    private readonly IClientPageReader _baseQueryService;
 
     public ListClientsQueryHandler(
-        IClientBaseQueryService baseQueryService,
+        IClientPageReader baseQueryService,
         ILogger<ListClientsQueryHandler> logger)
         : base(logger)
     {
