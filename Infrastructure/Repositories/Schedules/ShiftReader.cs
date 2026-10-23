@@ -79,7 +79,7 @@ public class ShiftReader : IShiftReader
             .Where(s => !excludedIds.Contains(s.Id))
             .Where(s => !s.IsSporadic);
 
-        query = ShiftTimeFrameFilter.Apply(query, criteria.FromTime, criteria.UntilTime);
+        query = query.Where(ShiftTimeFrameFilter.FitsInto(criteria.FromTime, criteria.UntilTime));
 
         if (criteria.OnlyShiftIds != null)
         {
@@ -87,7 +87,7 @@ public class ShiftReader : IShiftReader
             query = query.Where(s => onlyIds.Contains(s.Id));
         }
 
-        query = ShiftDayActivityFilter.Apply(query, criteria.Weekday, criteria.IsHoliday, criteria.IsWeekdayAndHoliday);
+        query = query.Where(ShiftDayActivityFilter.RunsOn(criteria.Weekday, criteria.IsHoliday, criteria.IsWeekdayAndHoliday));
 
         if (!string.IsNullOrWhiteSpace(criteria.SearchFragment))
         {
@@ -129,7 +129,7 @@ public class ShiftReader : IShiftReader
                 && s.AnalyseToken == null
                 && s.ScenarioSourceShiftId == null);
 
-        return await ShiftGroupVisibilityFilter.Apply(query, visibleGroupIds).ToListAsync(cancellationToken);
+        return await ShiftGroupVisibilityQuery.Apply(query, visibleGroupIds).ToListAsync(cancellationToken);
     }
 
     private IQueryable<Shift> Ordered() => ShiftBaseQueries.Ordered(_context.Shift);

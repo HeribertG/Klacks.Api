@@ -33,7 +33,7 @@ public class ShiftVisibilityReadRepository : IShiftVisibilityReader
         }
 
         var query = _context.Shift.AsNoTracking().Where(s => distinctIds.Contains(s.Id));
-        return await ShiftGroupVisibilityFilter.Apply(query, visibleGroupIds)
+        return await ShiftGroupVisibilityQuery.Apply(query, visibleGroupIds)
             .Select(s => s.Id)
             .ToListAsync(cancellationToken);
     }

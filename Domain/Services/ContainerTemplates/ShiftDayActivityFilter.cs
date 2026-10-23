@@ -2,7 +2,7 @@
 
 /// <summary>
 /// The one rule for which tasks belong into a container template slot, used by the available-task list and the container
-/// autofill. A slot applies on the days get_shift_schedule's container_lookup gives it, and a task is a candidate when the
+/// autofill. RunsOn returns the rule as an expression; ShiftReader applies it with Where, so it runs in the database. A slot applies on the days get_shift_schedule's container_lookup gives it, and a task is a candidate when the
 /// engine runs it (get_shift_schedule's task rule) on every one of those days:
 /// - normal slot of a weekday (not a holiday): the task's weekday is ticked, whatever its holiday flags;
 /// - holiday slot of a weekday (IsWeekdayAndHoliday, applies on public holidays falling on that weekday): IsHoliday, or the
@@ -35,16 +35,16 @@ public static class ShiftDayActivityFilter
         nameof(Shift.IsSaturday)
     ];
 
-    public static IQueryable<Shift> Apply(IQueryable<Shift> query, int weekday, bool? isHoliday, bool? isWeekdayAndHoliday)
+    public static Expression<Func<Shift, bool>> RunsOn(int weekday, bool? isHoliday, bool? isWeekdayAndHoliday)
     {
         if (isHoliday != true)
         {
-            return query.Where(RunsOnNormalDay(weekday));
+            return RunsOnNormalDay(weekday);
         }
 
         return isWeekdayAndHoliday == true
-            ? query.Where(RunsOnHolidayOfWeekday(weekday))
-            : query.Where(RunsOnEveryHoliday());
+            ? RunsOnHolidayOfWeekday(weekday)
+            : RunsOnEveryHoliday();
     }
 
     private static Expression<Func<Shift, bool>> RunsOnNormalDay(int weekday)

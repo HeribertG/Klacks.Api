@@ -190,7 +190,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         var query = context.Shift.AsNoTracking()
             .Where(s => s.AnalyseToken == null && s.Status >= ShiftStatus.OriginalShift)
             .Where(s => s.Name.ToLower() == term || s.Abbreviation.ToLower() == term);
-        return await ShiftGroupVisibilityFilter.Apply(query, visibleGroupIds)
+        return await ShiftGroupVisibilityQuery.Apply(query, visibleGroupIds)
             .OrderBy(s => s.FromDate)
             .ThenBy(s => s.Id)
             .Take(limit)
@@ -408,7 +408,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             ? query
             : _queryPipeline.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange, today);
         query = _queryPipeline.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
-        query = ShiftGroupVisibilityFilter.Apply(query, visibleGroupIds);
+        query = ShiftGroupVisibilityQuery.Apply(query, visibleGroupIds);
         query = _queryPipeline.ApplySorting(query, filter.OrderBy, filter.SortOrder);
 
         Logger.LogInformation("Filters applied to shifts query");
