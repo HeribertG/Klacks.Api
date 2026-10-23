@@ -275,6 +275,16 @@ public class LanguageConfigController : ControllerBase
             }
         }
 
+        if (root.TryGetProperty(LanguagePluginConstants.StoreBundleFilesProperty, out var files)
+            && files.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var file in files.EnumerateObject())
+            {
+                if (LanguagePluginConstants.StoreBundleFiles.Contains(file.Name))
+                    await WriteJsonFileAsync(Path.Combine(packageDir, file.Name), file.Value, jsonWriteOptions);
+            }
+        }
+
         await _languagePluginService.RefreshPluginsAsync();
         await _languagePluginService.InstallAsync(code);
 

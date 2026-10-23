@@ -41,6 +41,33 @@ public static class LanguagePluginConstants
     public const string PhoneticsFileName = "phonetics.json";
     public const string PhoneticsCoreFileName = "phonetics-core.json";
     public const string SettingPrefix = "INSTALLED_LANGUAGE_";
+    public const string StoreBundleFilesProperty = "files";
+
+    /// <summary>
+    /// Pack files the store bundle carries under "files" (besides manifest, translations, docs, countries, states and
+    /// calendar rules, which have their own bundle keys). Installing a pack from the store writes only these names,
+    /// so a bundle can never place a file Klacks does not read. A guard test fails when a pack in Plugins/Languages
+    /// ships a file that is neither here nor a bundle key, so new pack files reach store installs too.
+    /// </summary>
+    public static readonly IReadOnlySet<string> StoreBundleFiles = new HashSet<string>(StringComparer.Ordinal)
+    {
+        CalendarRuleLegacyIdsFileName,
+        SkillSynonymsFileName,
+        SkillLabelsFileName,
+        RecipeSynonymsFileName,
+        RecipeVetoesFileName,
+        RecipeAnchorsFileName,
+        SentimentKeywordsFileName,
+        WakeWordsFileName,
+        NavigationTargetsFileName,
+        NavigationIntentFileName,
+        MutationIntentFileName,
+        GroupingIntentFileName,
+        CompletionClaimFileName,
+        ConversationSignalsFileName,
+        AssistantTextsFileName,
+        PhoneticsFileName,
+    };
 
     /// <summary>
     /// The languages Klacks ships in itself, i.e. the ones a language plugin never supplies. Not a list

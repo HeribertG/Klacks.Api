@@ -25,6 +25,8 @@ OPTIONAL_FILES = {
     "statesJson": "states.json",
     "calendarRulesJson": "calendar-rules.json",
 }
+BUNDLE_KEY_FILES = {"manifest.json", "translations.json", *OPTIONAL_FILES.values()}
+JSON_SUFFIX = ".json"
 
 
 def read_text(path):
@@ -54,6 +56,13 @@ def build_payload(code, version):
         path = os.path.join(pack_dir, file_name)
         if os.path.exists(path):
             payload[field] = read_text(path)
+    extra_files = {
+        file_name: json.loads(read_text(os.path.join(pack_dir, file_name)))
+        for file_name in sorted(os.listdir(pack_dir))
+        if file_name.endswith(JSON_SUFFIX) and file_name not in BUNDLE_KEY_FILES
+    }
+    if extra_files:
+        payload["extraFilesJson"] = json.dumps(extra_files, ensure_ascii=False)
     return payload
 
 
@@ -91,8 +100,9 @@ def main():
         try:
             payload = build_payload(code, version)
             if dry_run:
+                extra = sorted(json.loads(payload.get("extraFilesJson", "{}")))
                 print(f"{code}: would upload version {version}, {payload['translationCount']} translations, "
-                      f"store has {published_version(code)}")
+                      f"{len(extra)} further files, store has {published_version(code)}")
                 continue
             status = upload(payload, key)
             live = published_version(code)
