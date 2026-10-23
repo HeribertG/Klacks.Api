@@ -11,6 +11,7 @@
 
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
@@ -21,8 +22,10 @@ public sealed record LockConflictDetectedTriggerEvent(
     int LockLevel,
     IReadOnlyCollection<Guid> GroupIds) : IAgentTriggerEvent
 {
+    private const int HighSeverityMinLockLevel = (int)WorkLockLevel.Approved;
+
     public string Kind => AgentTriggerKinds.LockConflict;
-    public string Severity => LockLevel >= 2 ? AgentTriggerSeverity.High : AgentTriggerSeverity.Medium;
+    public string Severity => LockLevel >= HighSeverityMinLockLevel ? AgentTriggerSeverity.High : AgentTriggerSeverity.Medium;
     public bool PlannersOnly => true;
     public bool RequiresGroupScope => true;
     public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.LockConflict;

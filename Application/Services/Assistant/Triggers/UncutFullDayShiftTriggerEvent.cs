@@ -23,9 +23,12 @@ public sealed record UncutFullDayShiftTriggerEvent(
     int DaysUntil,
     IReadOnlyCollection<Guid> GroupIds) : IAgentTriggerEvent
 {
+    private const int HighSeverityMaxDaysUntil = 7;
+    private const int MediumSeverityMaxDaysUntil = 30;
+
     public string Kind => AgentTriggerKinds.UncutFulldayShift;
-    public string Severity => DaysUntil <= 7 ? AgentTriggerSeverity.High
-        : DaysUntil <= 30 ? AgentTriggerSeverity.Medium
+    public string Severity => DaysUntil <= HighSeverityMaxDaysUntil ? AgentTriggerSeverity.High
+        : DaysUntil <= MediumSeverityMaxDaysUntil ? AgentTriggerSeverity.Medium
         : AgentTriggerSeverity.Low;
     public bool PlannersOnly => true;
     public bool RequiresGroupScope => true;

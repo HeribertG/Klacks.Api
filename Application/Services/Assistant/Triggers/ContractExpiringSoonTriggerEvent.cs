@@ -18,9 +18,12 @@ public sealed record ContractExpiringSoonTriggerEvent(
     DateOnly ValidUntil,
     int DaysUntilExpiry) : IClientScopedTriggerEvent
 {
+    private const int HighSeverityMaxDaysUntilExpiry = 7;
+    private const int MediumSeverityMaxDaysUntilExpiry = 30;
+
     public string Kind => AgentTriggerKinds.ContractExpiringSoon;
-    public string Severity => DaysUntilExpiry <= 7 ? AgentTriggerSeverity.High
-        : DaysUntilExpiry <= 30 ? AgentTriggerSeverity.Medium
+    public string Severity => DaysUntilExpiry <= HighSeverityMaxDaysUntilExpiry ? AgentTriggerSeverity.High
+        : DaysUntilExpiry <= MediumSeverityMaxDaysUntilExpiry ? AgentTriggerSeverity.Medium
         : AgentTriggerSeverity.Low;
     public bool PlannersOnly => true;
     public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.ContractExpiringSoon;

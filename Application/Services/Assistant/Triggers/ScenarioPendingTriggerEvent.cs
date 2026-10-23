@@ -16,9 +16,12 @@ public sealed record ScenarioPendingTriggerEvent(
     Guid? GroupId,
     string GroupName) : IAgentTriggerEvent
 {
+    private const int HighSeverityMinHoursPending = 168;
+    private const int MediumSeverityMinHoursPending = 72;
+
     public string Kind => AgentTriggerKinds.ScenarioPending;
-    public string Severity => HoursPending >= 168 ? AgentTriggerSeverity.High
-        : HoursPending >= 72 ? AgentTriggerSeverity.Medium
+    public string Severity => HoursPending >= HighSeverityMinHoursPending ? AgentTriggerSeverity.High
+        : HoursPending >= MediumSeverityMinHoursPending ? AgentTriggerSeverity.Medium
         : AgentTriggerSeverity.Low;
     public bool PlannersOnly => true;
     public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.ScenarioPending;

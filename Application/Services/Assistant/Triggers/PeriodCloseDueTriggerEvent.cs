@@ -28,11 +28,14 @@ public sealed record PeriodCloseDueTriggerEvent(
     int LagDays = 0,
     DateOnly? AutoCloseDate = null) : IAgentTriggerEvent
 {
+    private const int HighSeverityMaxDaysUntilDue = 1;
+    private const int MediumSeverityMaxDaysUntilDue = 3;
+
     public DateOnly CloseDate => PeriodEndDate.AddDays(LagDays);
 
     public string Kind => AgentTriggerKinds.PeriodCloseDue;
-    public string Severity => DaysUntilDue <= 1 ? AgentTriggerSeverity.High
-        : DaysUntilDue <= 3 ? AgentTriggerSeverity.Medium
+    public string Severity => DaysUntilDue <= HighSeverityMaxDaysUntilDue ? AgentTriggerSeverity.High
+        : DaysUntilDue <= MediumSeverityMaxDaysUntilDue ? AgentTriggerSeverity.Medium
         : AgentTriggerSeverity.Low;
     public bool PlannersOnly => true;
     public string Summary => ProactiveMessageMarkers.I18nPrefix
