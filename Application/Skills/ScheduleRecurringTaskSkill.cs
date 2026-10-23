@@ -108,54 +108,21 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
                 $"Unknown actionType '{actionType}'. Use '{ScheduledTaskActionTypes.Reminder}' or '{ScheduledTaskActionTypes.Skill}'.");
         }
 
-        var resolvedTimeZone = await ResolveTimeZoneAsync(timeZoneId, context, cancellationToken);
-
-        if (!IanaTimeZoneId.TryFrom(resolvedTimeZone, out var normalizedTimeZone))
+        var (resolvedTimeZone, scheduleError) = await ValidateScheduleAsync(
+            timeZoneId, cronExpression, context, cancellationToken);
+        if (scheduleError is not null)
         {
-            return SkillResult.Error(
-                $"Unknown time zone '{resolvedTimeZone}'. Use a valid IANA time zone id (e.g. 'Continent/City').");
+            return scheduleError;
         }
 
-        resolvedTimeZone = normalizedTimeZone!;
-
-        if (!CronSchedule.IsValidExpression(cronExpression))
+        (skillName, var normalizedParameters, var actionError) =
+            ResolveActionTarget(actionType, messageText, skillName, skillParameters, context);
+        if (actionError is not null)
         {
-            return SkillResult.Error(
-                $"Invalid cron expression '{cronExpression}'. Use standard 5-field cron, e.g. '0 8 * * 1' for Mondays at 08:00.");
+            return actionError;
         }
 
-        var parametersJson = "{}";
-        if (actionType == ScheduledTaskActionTypes.Reminder)
-        {
-            if (string.IsNullOrWhiteSpace(messageText))
-            {
-                return SkillResult.Error("A reminder needs messageText.");
-            }
-
-            skillName = null;
-        }
-        else
-        {
-            if (string.IsNullOrWhiteSpace(skillName))
-            {
-                return SkillResult.Error("A skill action needs skillName.");
-            }
-
-            if (DescribeSkillTargetRefusal(skillName, context) is { } refusal)
-            {
-                return SkillResult.Error(refusal);
-            }
-
-            if (!string.IsNullOrWhiteSpace(skillParameters))
-            {
-                if (!TryNormalizeJsonObject(skillParameters, out var normalized))
-                {
-                    return SkillResult.Error("skillParameters must be a JSON object, e.g. {\"key\":\"value\"}.");
-                }
-
-                parametersJson = normalized;
-            }
-        }
+        var parametersJson = normalizedParameters ?? "{}";
 
         var now = DateTime.UtcNow;
         var nextRunUtc = CronSchedule.GetNextOccurrenceUtc(cronExpression, resolvedTimeZone, now);
@@ -168,25 +135,12 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
         var effectiveMaxRuns = maxRuns is { } m && m > 0 ? m : (int?)null;
 
         var existing = await _repository.GetByOwnerAndNameAsync(context.UserId, name, cancellationToken);
+        var allowIrreversibleUnattended = ResolveIrreversibleOptIn(requestedIrreversibleOptIn, existing);
 
-        // Omitting the opt-in KEEPS the value an existing task already carries instead of clearing it.
-        // A missing opt-in is one of the two causes that pause a task, and the pause note tells the owner
-        // to schedule the task again under the same name — so a silent reset here would put an owner who
-        // followed that instruction straight back into the pause they just left.
-        var allowIrreversibleUnattended =
-            requestedIrreversibleOptIn ?? existing?.AllowIrreversibleUnattended ?? false;
-
-        var preview = new
-        {
-            name,
-            cronExpression,
-            timeZone = resolvedTimeZone,
-            actionType,
-            skillName,
-            nextRun = nextRunLocal,
-            maxRuns = effectiveMaxRuns,
-            allowIrreversibleUnattended
-        };
+        var authoring = new ScheduledTaskAuthoring(
+            cronExpression, resolvedTimeZone, actionType, messageText, skillName, parametersJson,
+            nextRunUtc, effectiveMaxRuns, allowIrreversibleUnattended);
+        var preview = BuildPreview(name, authoring, nextRunLocal);
 
         if (!apply)
         {
@@ -197,9 +151,104 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
                 "Ask the user to confirm, then call again with apply=true.");
         }
 
-        var authoring = new ScheduledTaskAuthoring(
-            cronExpression, resolvedTimeZone, actionType, messageText, skillName, parametersJson,
-            nextRunUtc, effectiveMaxRuns, allowIrreversibleUnattended);
+        var wasPaused = await SaveAsync(existing, name, authoring, context, cancellationToken);
+
+        var resumedHint = wasPaused ? " The task was paused and is running again." : string.Empty;
+
+        return SkillResult.SuccessResult(
+            preview,
+            $"Scheduled '{name}' [{cronExpression}] in {resolvedTimeZone}. Next run: {nextRunLocal}.{resumedHint}");
+    }
+
+    private async Task<(string TimeZone, SkillResult? Error)> ValidateScheduleAsync(
+        string? timeZoneId, string cronExpression, SkillExecutionContext context, CancellationToken cancellationToken)
+    {
+        var resolvedTimeZone = await ResolveTimeZoneAsync(timeZoneId, context, cancellationToken);
+
+        if (!IanaTimeZoneId.TryFrom(resolvedTimeZone, out var normalizedTimeZone))
+        {
+            return (resolvedTimeZone, SkillResult.Error(
+                $"Unknown time zone '{resolvedTimeZone}'. Use a valid IANA time zone id (e.g. 'Continent/City')."));
+        }
+
+        resolvedTimeZone = normalizedTimeZone!;
+
+        if (!CronSchedule.IsValidExpression(cronExpression))
+        {
+            return (resolvedTimeZone, SkillResult.Error(
+                $"Invalid cron expression '{cronExpression}'. Use standard 5-field cron, e.g. '0 8 * * 1' for Mondays at 08:00."));
+        }
+
+        return (resolvedTimeZone, null);
+    }
+
+    private static bool ResolveIrreversibleOptIn(bool? requestedIrreversibleOptIn, ScheduledTask? existing)
+    {
+        // Omitting the opt-in KEEPS the value an existing task already carries instead of clearing it.
+        // A missing opt-in is one of the two causes that pause a task, and the pause note tells the owner
+        // to schedule the task again under the same name — so a silent reset here would put an owner who
+        // followed that instruction straight back into the pause they just left.
+        return requestedIrreversibleOptIn ?? existing?.AllowIrreversibleUnattended ?? false;
+    }
+
+    private static object BuildPreview(string name, ScheduledTaskAuthoring authoring, string nextRunLocal)
+    {
+        return new
+        {
+            name,
+            cronExpression = authoring.CronExpression,
+            timeZone = authoring.TimeZoneId,
+            actionType = authoring.ActionType,
+            skillName = authoring.SkillName,
+            nextRun = nextRunLocal,
+            maxRuns = authoring.MaxRuns,
+            allowIrreversibleUnattended = authoring.AllowIrreversibleUnattended
+        };
+    }
+
+    private (string? SkillName, string? ParametersJson, SkillResult? Error) ResolveActionTarget(
+        string actionType, string? messageText, string? skillName, string? skillParameters, SkillExecutionContext context)
+    {
+        if (actionType == ScheduledTaskActionTypes.Reminder)
+        {
+            if (string.IsNullOrWhiteSpace(messageText))
+            {
+                return (skillName, null, SkillResult.Error("A reminder needs messageText."));
+            }
+
+            return (null, null, null);
+        }
+
+        if (string.IsNullOrWhiteSpace(skillName))
+        {
+            return (skillName, null, SkillResult.Error("A skill action needs skillName."));
+        }
+
+        if (DescribeSkillTargetRefusal(skillName, context) is { } refusal)
+        {
+            return (skillName, null, SkillResult.Error(refusal));
+        }
+
+        if (!string.IsNullOrWhiteSpace(skillParameters))
+        {
+            if (!TryNormalizeJsonObject(skillParameters, out var normalized))
+            {
+                return (skillName, null, SkillResult.Error("skillParameters must be a JSON object, e.g. {\"key\":\"value\"}."));
+            }
+
+            return (skillName, normalized, null);
+        }
+
+        return (skillName, null, null);
+    }
+
+    private async Task<bool> SaveAsync(
+        ScheduledTask? existing,
+        string name,
+        ScheduledTaskAuthoring authoring,
+        SkillExecutionContext context,
+        CancellationToken cancellationToken)
+    {
         var wasPaused = false;
 
         if (existing is null)
@@ -224,11 +273,7 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
             await _repository.UpdateAsync(existing, cancellationToken);
         }
 
-        var resumedHint = wasPaused ? " The task was paused and is running again." : string.Empty;
-
-        return SkillResult.SuccessResult(
-            preview,
-            $"Scheduled '{name}' [{cronExpression}] in {resolvedTimeZone}. Next run: {nextRunLocal}.{resumedHint}");
+        return wasPaused;
     }
 
     private static string? DescribeUnschedulable(string skillName)
