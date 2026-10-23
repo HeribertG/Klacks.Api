@@ -11,6 +11,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Groups;
@@ -77,12 +78,68 @@ public sealed class GroupUngroupedByCityNameCommandHandler
             .ToList();
 
         var groups = await _groupRepository.List();
-        var groupsByName = groups
+        var groupsByName = BuildUniqueGroupNameIndex(groups);
+
+        var (assignments, unmatchedByCity, noAddress) = MatchByCity(ungrouped, groupsByName);
+
+        if (request.Count is > 0 && assignments.Count > request.Count.Value)
+        {
+            assignments = assignments.Take(request.Count.Value).ToList();
+        }
+
+        var unmatchedCities = OrderUnmatchedCities(unmatchedByCity);
+
+        var now = DateTime.UtcNow;
+        var assignedClientIds = assignments.Select(a => a.ClientId).Distinct().ToList();
+        var startPlan = await _startPlanner.PlanAsync(
+            assignedClientIds, request.ValidFrom, request.StartMode, defaultStart: null, cancellationToken);
+        var (existingMembers, newItems) = await SplitExistingFromNewAsync(assignments, startPlan, now, request.UserName);
+
+        var membershipStart = startPlan.Describe(newItems.Select(i => i.ClientId!.Value), existingMembers);
+
+        if (!request.Apply)
+        {
+            return new GroupUngroupedByCityNameResult(
+                Applied: false,
+                TotalUngrouped: ungrouped.Count,
+                MatchCount: assignments.Count,
+                AddedCount: 0,
+                VerifiedCount: 0,
+                NoAddressCount: noAddress,
+                Assignments: assignments,
+                UnmatchedCities: unmatchedCities,
+                MembershipStart: membershipStart);
+        }
+
+        var verified = 0;
+        var pulledForward = PullForwardBatch.Empty;
+        if (newItems.Count > 0 || membershipStart.ExistingMembersPulledForwardCount > 0)
+        {
+            (verified, pulledForward) = await PersistAndVerifyAsync(newItems, startPlan, existingMembers, cancellationToken);
+        }
+
+        return new GroupUngroupedByCityNameResult(
+            Applied: true,
+            TotalUngrouped: ungrouped.Count,
+            MatchCount: assignments.Count,
+            AddedCount: newItems.Count,
+            VerifiedCount: verified,
+            NoAddressCount: noAddress,
+            Assignments: assignments,
+            UnmatchedCities: unmatchedCities,
+            MembershipStart: pulledForward.ReportOn(membershipStart));
+    }
+
+    private static Dictionary<string, Group> BuildUniqueGroupNameIndex(IEnumerable<Group> groups) =>
+        groups
             .Where(g => !g.IsDeleted && !string.IsNullOrWhiteSpace(g.Name))
             .GroupBy(g => g.Name.Trim(), StringComparer.OrdinalIgnoreCase)
             .Where(byName => byName.Count() == 1)
             .ToDictionary(byName => byName.Key, byName => byName.First(), StringComparer.OrdinalIgnoreCase);
 
+    private static (List<GroupCityAssignment> Assignments, Dictionary<string, int> UnmatchedByCity, int NoAddress) MatchByCity(
+        IEnumerable<Client> ungrouped, IReadOnlyDictionary<string, Group> groupsByName)
+    {
         var assignments = new List<GroupCityAssignment>();
         var unmatchedByCity = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var noAddress = 0;
@@ -112,21 +169,19 @@ public sealed class GroupUngroupedByCityNameCommandHandler
             }
         }
 
-        if (request.Count is > 0 && assignments.Count > request.Count.Value)
-        {
-            assignments = assignments.Take(request.Count.Value).ToList();
-        }
+        return (assignments, unmatchedByCity, noAddress);
+    }
 
-        var unmatchedCities = unmatchedByCity
+    private static List<UnmatchedCityCount> OrderUnmatchedCities(Dictionary<string, int> unmatchedByCity) =>
+        unmatchedByCity
             .Select(kv => new UnmatchedCityCount(kv.Key, kv.Value))
             .OrderByDescending(u => u.EmployeeCount)
             .ThenBy(u => u.City, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        var now = DateTime.UtcNow;
-        var assignedClientIds = assignments.Select(a => a.ClientId).Distinct().ToList();
-        var startPlan = await _startPlanner.PlanAsync(
-            assignedClientIds, request.ValidFrom, request.StartMode, defaultStart: null, cancellationToken);
+    private async Task<(List<ExistingMembershipStart> ExistingMembers, List<GroupItem> NewItems)> SplitExistingFromNewAsync(
+        List<GroupCityAssignment> assignments, GroupMembershipStartPlan startPlan, DateTime now, string userName)
+    {
         var existingMembers = new List<ExistingMembershipStart>();
         var newItems = new List<GroupItem>();
 
@@ -146,65 +201,45 @@ public sealed class GroupUngroupedByCityNameCommandHandler
                 GroupId = assignment.GroupId,
                 ValidFrom = startPlan.StartFor(assignment.ClientId),
                 CreateTime = now,
-                CurrentUserCreated = request.UserName
+                CurrentUserCreated = userName
             });
         }
 
-        var membershipStart = startPlan.Describe(newItems.Select(i => i.ClientId!.Value), existingMembers);
+        return (existingMembers, newItems);
+    }
 
-        if (!request.Apply)
-        {
-            return new GroupUngroupedByCityNameResult(
-                Applied: false,
-                TotalUngrouped: ungrouped.Count,
-                MatchCount: assignments.Count,
-                AddedCount: 0,
-                VerifiedCount: 0,
-                NoAddressCount: noAddress,
-                Assignments: assignments,
-                UnmatchedCities: unmatchedCities,
-                MembershipStart: membershipStart);
-        }
-
-        var verified = 0;
+    private async Task<(int Verified, PullForwardBatch PulledForward)> PersistAndVerifyAsync(
+        List<GroupItem> newItems,
+        GroupMembershipStartPlan startPlan,
+        List<ExistingMembershipStart> existingMembers,
+        CancellationToken cancellationToken)
+    {
         var pulledForward = PullForwardBatch.Empty;
-        if (newItems.Count > 0 || membershipStart.ExistingMembersPulledForwardCount > 0)
+        var verified = await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            verified = await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            foreach (var item in newItems)
             {
-                foreach (var item in newItems)
-                {
-                    await _groupItemRepository.Add(item);
-                }
+                await _groupItemRepository.Add(item);
+            }
 
-                pulledForward = await _startPlanner.StagePullForwardAsync(startPlan, existingMembers, cancellationToken);
-                await _unitOfWork.CompleteAsync();
+            pulledForward = await _startPlanner.StagePullForwardAsync(startPlan, existingMembers, cancellationToken);
+            await _unitOfWork.CompleteAsync();
 
-                var confirmed = newItems.Count == 0
-                    ? 0
-                    : await _groupItemRepository.CountExistingByIds(newItems.Select(i => i.Id).ToList(), cancellationToken);
-                if (confirmed != newItems.Count)
-                {
-                    throw new SkillVerificationException(
-                        SkillName,
-                        $"Database verification failed: expected {newItems.Count} new memberships but only " +
-                        $"{confirmed} were confirmed — the changes were rolled back.");
-                }
+            var confirmed = newItems.Count == 0
+                ? 0
+                : await _groupItemRepository.CountExistingByIds(newItems.Select(i => i.Id).ToList(), cancellationToken);
+            if (confirmed != newItems.Count)
+            {
+                throw new SkillVerificationException(
+                    SkillName,
+                    $"Database verification failed: expected {newItems.Count} new memberships but only " +
+                    $"{confirmed} were confirmed — the changes were rolled back.");
+            }
 
-                await _startPlanner.VerifyPullForwardAsync(pulledForward, cancellationToken);
-                return confirmed;
-            });
-        }
+            await _startPlanner.VerifyPullForwardAsync(pulledForward, cancellationToken);
+            return confirmed;
+        });
 
-        return new GroupUngroupedByCityNameResult(
-            Applied: true,
-            TotalUngrouped: ungrouped.Count,
-            MatchCount: assignments.Count,
-            AddedCount: newItems.Count,
-            VerifiedCount: verified,
-            NoAddressCount: noAddress,
-            Assignments: assignments,
-            UnmatchedCities: unmatchedCities,
-            MembershipStart: pulledForward.ReportOn(membershipStart));
+        return (verified, pulledForward);
     }
 }
