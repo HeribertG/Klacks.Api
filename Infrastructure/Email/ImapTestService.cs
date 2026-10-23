@@ -29,136 +29,192 @@ public class ImapTestService : IImapTestService
             _logger.LogInformation("Testing IMAP configuration for server: {Server}:{Port} with username: {Username}",
                 request.Server.ForLog(), request.Port, request.Username.ForLog());
 
-            if (string.IsNullOrWhiteSpace(request.Server) ||
-                string.IsNullOrWhiteSpace(request.Username) ||
-                string.IsNullOrWhiteSpace(request.Password))
+            var validationError = Validate(request);
+            if (validationError != null)
             {
-                return new ImapTestResult
-                {
-                    Success = false,
-                    Message = "Missing required fields. Please fill in all required fields.",
-                    MessageKey = "IMAP_TEST_MISSING_FIELDS"
-                };
+                return validationError;
             }
 
-            var port = request.Port;
-            var secureSocketOptions = GetSecureSocketOptions(port, request.EnableSSL);
-
-            using var client = new ImapClient();
-            client.Timeout = 30000;
-
-            _logger.LogInformation("Connecting to IMAP server {Server}:{Port} with {Options}...",
-                request.Server.ForLog(), port, secureSocketOptions);
-
-            await client.ConnectAsync(request.Server, port, secureSocketOptions);
-
-            _logger.LogInformation("Connected successfully. Authenticating as {Username}...", request.Username.ForLog());
-
-            await client.AuthenticateAsync(request.Username, request.Password);
-
-            _logger.LogInformation("Authentication successful. Opening folder {Folder}...", request.Folder.ForLog());
-
-            var folder = await client.GetFolderAsync(request.Folder);
-            await folder.OpenAsync(FolderAccess.ReadOnly);
-
-            var messageCount = folder.Count;
-
-            _logger.LogInformation("IMAP test successful. Folder {Folder} contains {Count} messages",
-                request.Folder.ForLog(), messageCount);
-
-            await client.DisconnectAsync(true);
-
-            return new ImapTestResult
-            {
-                Success = true,
-                Message = $"Connection successful! Folder '{request.Folder}' contains {messageCount} messages.",
-                MessageKey = "IMAP_TEST_SUCCESS",
-                MessageParams = new Dictionary<string, string>
-                {
-                    { "folder", request.Folder },
-                    { "count", messageCount.ToString() }
-                },
-                MessageCount = messageCount
-            };
+            return await OpenFolderAsync(request);
         }
         catch (AuthenticationException authEx)
         {
-            _logger.LogWarning("IMAP Authentication failed: {Message}", authEx.Message);
-            return new ImapTestResult
-            {
-                Success = false,
-                Message = "Authentication failed. Please check your username and password.",
-                MessageKey = "IMAP_TEST_AUTH_FAILED",
-                ErrorDetails = authEx.Message
-            };
+            return AuthenticationFailed(authEx);
         }
         catch (SslHandshakeException sslEx)
         {
-            _logger.LogWarning("SSL/TLS handshake failed: {Message}", sslEx.Message);
-            return new ImapTestResult
-            {
-                Success = false,
-                Message = "SSL/TLS handshake failed. Please check your SSL settings and try a different port (993 or 143).",
-                MessageKey = "IMAP_TEST_SSL_FAILED",
-                ErrorDetails = sslEx.Message
-            };
+            return SslHandshakeFailed(sslEx);
         }
         catch (ImapProtocolException protocolEx)
         {
-            _logger.LogWarning("IMAP protocol error: {Message}", protocolEx.Message);
-            return new ImapTestResult
-            {
-                Success = false,
-                Message = "IMAP protocol error occurred. Please check your server settings.",
-                MessageKey = "IMAP_TEST_PROTOCOL_ERROR",
-                ErrorDetails = protocolEx.Message
-            };
+            return ImapProtocolFailed(protocolEx);
         }
         catch (System.Net.Sockets.SocketException socketEx)
         {
-            _logger.LogWarning("Network error: {Message}", socketEx.Message);
-            return new ImapTestResult
-            {
-                Success = false,
-                Message = "Network connection failed. Please check server address and port.",
-                MessageKey = "IMAP_TEST_NETWORK_ERROR",
-                ErrorDetails = socketEx.Message
-            };
+            return NetworkFailed(socketEx);
         }
         catch (TimeoutException timeoutEx)
         {
-            _logger.LogWarning("Connection timeout: {Message}", timeoutEx.Message);
-            return new ImapTestResult
-            {
-                Success = false,
-                Message = "Connection timeout. Please check server address, port, and network connectivity.",
-                MessageKey = "IMAP_TEST_TIMEOUT",
-                ErrorDetails = timeoutEx.Message
-            };
+            return ConnectionTimedOut(timeoutEx);
         }
         catch (FolderNotFoundException folderEx)
         {
-            _logger.LogWarning("Folder not found: {Message}", folderEx.Message);
-            return new ImapTestResult
-            {
-                Success = false,
-                Message = $"Folder '{request.Folder}' not found on the server.",
-                MessageKey = "IMAP_TEST_FOLDER_NOT_FOUND",
-                MessageParams = new Dictionary<string, string> { { "folder", request.Folder } },
-                ErrorDetails = folderEx.Message
-            };
+            return FolderNotFound(request, folderEx);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error during IMAP configuration test");
+            return UnexpectedFailure(ex);
+        }
+    }
+
+    private static ImapTestResult? Validate(ImapTestRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Server) ||
+            string.IsNullOrWhiteSpace(request.Username) ||
+            string.IsNullOrWhiteSpace(request.Password))
+        {
             return new ImapTestResult
             {
                 Success = false,
-                Message = "An unexpected error occurred: " + ex.GetType().Name,
-                MessageKey = "IMAP_TEST_UNEXPECTED",
-                ErrorDetails = ex.Message
+                Message = "Missing required fields. Please fill in all required fields.",
+                MessageKey = "IMAP_TEST_MISSING_FIELDS"
             };
         }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Connects, authenticates, opens the configured folder read-only, counts its messages and disconnects. MailKit
+    /// exceptions propagate to TestConnectionAsync, which maps them to the user-facing result.
+    /// </summary>
+    /// <param name="request">The validated configuration.</param>
+    private async Task<ImapTestResult> OpenFolderAsync(ImapTestRequest request)
+    {
+        var port = request.Port;
+        var secureSocketOptions = GetSecureSocketOptions(port, request.EnableSSL);
+
+        using var client = new ImapClient();
+        client.Timeout = 30000;
+
+        _logger.LogInformation("Connecting to IMAP server {Server}:{Port} with {Options}...",
+            request.Server.ForLog(), port, secureSocketOptions);
+
+        await client.ConnectAsync(request.Server, port, secureSocketOptions);
+
+        _logger.LogInformation("Connected successfully. Authenticating as {Username}...", request.Username.ForLog());
+
+        await client.AuthenticateAsync(request.Username, request.Password);
+
+        _logger.LogInformation("Authentication successful. Opening folder {Folder}...", request.Folder.ForLog());
+
+        var folder = await client.GetFolderAsync(request.Folder);
+        await folder.OpenAsync(FolderAccess.ReadOnly);
+
+        var messageCount = folder.Count;
+
+        _logger.LogInformation("IMAP test successful. Folder {Folder} contains {Count} messages",
+            request.Folder.ForLog(), messageCount);
+
+        await client.DisconnectAsync(true);
+
+        return new ImapTestResult
+        {
+            Success = true,
+            Message = $"Connection successful! Folder '{request.Folder}' contains {messageCount} messages.",
+            MessageKey = "IMAP_TEST_SUCCESS",
+            MessageParams = new Dictionary<string, string>
+            {
+                { "folder", request.Folder },
+                { "count", messageCount.ToString() }
+            },
+            MessageCount = messageCount
+        };
+    }
+
+    private ImapTestResult AuthenticationFailed(AuthenticationException authEx)
+    {
+        _logger.LogWarning("IMAP Authentication failed: {Message}", authEx.Message);
+        return new ImapTestResult
+        {
+            Success = false,
+            Message = "Authentication failed. Please check your username and password.",
+            MessageKey = "IMAP_TEST_AUTH_FAILED",
+            ErrorDetails = authEx.Message
+        };
+    }
+
+    private ImapTestResult SslHandshakeFailed(SslHandshakeException sslEx)
+    {
+        _logger.LogWarning("SSL/TLS handshake failed: {Message}", sslEx.Message);
+        return new ImapTestResult
+        {
+            Success = false,
+            Message = "SSL/TLS handshake failed. Please check your SSL settings and try a different port (993 or 143).",
+            MessageKey = "IMAP_TEST_SSL_FAILED",
+            ErrorDetails = sslEx.Message
+        };
+    }
+
+    private ImapTestResult ImapProtocolFailed(ImapProtocolException protocolEx)
+    {
+        _logger.LogWarning("IMAP protocol error: {Message}", protocolEx.Message);
+        return new ImapTestResult
+        {
+            Success = false,
+            Message = "IMAP protocol error occurred. Please check your server settings.",
+            MessageKey = "IMAP_TEST_PROTOCOL_ERROR",
+            ErrorDetails = protocolEx.Message
+        };
+    }
+
+    private ImapTestResult NetworkFailed(System.Net.Sockets.SocketException socketEx)
+    {
+        _logger.LogWarning("Network error: {Message}", socketEx.Message);
+        return new ImapTestResult
+        {
+            Success = false,
+            Message = "Network connection failed. Please check server address and port.",
+            MessageKey = "IMAP_TEST_NETWORK_ERROR",
+            ErrorDetails = socketEx.Message
+        };
+    }
+
+    private ImapTestResult ConnectionTimedOut(TimeoutException timeoutEx)
+    {
+        _logger.LogWarning("Connection timeout: {Message}", timeoutEx.Message);
+        return new ImapTestResult
+        {
+            Success = false,
+            Message = "Connection timeout. Please check server address, port, and network connectivity.",
+            MessageKey = "IMAP_TEST_TIMEOUT",
+            ErrorDetails = timeoutEx.Message
+        };
+    }
+
+    private ImapTestResult FolderNotFound(ImapTestRequest request, FolderNotFoundException folderEx)
+    {
+        _logger.LogWarning("Folder not found: {Message}", folderEx.Message);
+        return new ImapTestResult
+        {
+            Success = false,
+            Message = $"Folder '{request.Folder}' not found on the server.",
+            MessageKey = "IMAP_TEST_FOLDER_NOT_FOUND",
+            MessageParams = new Dictionary<string, string> { { "folder", request.Folder } },
+            ErrorDetails = folderEx.Message
+        };
+    }
+
+    private ImapTestResult UnexpectedFailure(Exception ex)
+    {
+        _logger.LogError(ex, "Unexpected error during IMAP configuration test");
+        return new ImapTestResult
+        {
+            Success = false,
+            Message = "An unexpected error occurred: " + ex.GetType().Name,
+            MessageKey = "IMAP_TEST_UNEXPECTED",
+            ErrorDetails = ex.Message
+        };
     }
 
     private static SecureSocketOptions GetSecureSocketOptions(int port, bool enableSsl)

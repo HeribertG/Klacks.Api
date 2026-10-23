@@ -205,20 +205,7 @@ public class EmailPollingBackgroundService : BackgroundService
 
             if (string.Equals(email.Folder, inboxFolder, StringComparison.OrdinalIgnoreCase))
             {
-                var emailService = scope.ServiceProvider.GetRequiredService<IImapEmailService>();
-                var spamFilterService = scope.ServiceProvider.GetRequiredService<ISpamFilterService>();
-
-                var spamResult = await spamFilterService.ClassifyAsync(email, stoppingToken);
-                if (spamResult.IsSpam)
-                {
-                    email.Folder = junkFolder;
-                    await emailService.MoveEmailOnImapAsync(email.ImapUid, inboxFolder, junkFolder, stoppingToken);
-                    _logger.LogInformation("Email from {From} classified as spam: {Reason}", email.FromAddress, spamResult.Reason);
-                }
-                else
-                {
-                    await assignmentService.AssignNewEmailAsync(email);
-                }
+                await ClassifyInboxEmailAsync(scope, assignmentService, email, inboxFolder, junkFolder, stoppingToken);
             }
 
             if (string.Equals(email.Folder, junkFolder, StringComparison.OrdinalIgnoreCase))
@@ -228,22 +215,15 @@ public class EmailPollingBackgroundService : BackgroundService
                 return;
             }
 
-            var settingsRepository = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
-
-            var emailAnalysisSetting = await settingsRepository.GetSetting(Settings.EMAIL_ANALYSIS_ENABLED);
-            var emailAnalysisEnabled = emailAnalysisSetting?.Value != null && bool.TryParse(emailAnalysisSetting.Value, out var enabled) && enabled;
+            var emailAnalysisEnabled = await IsEmailAnalysisEnabledAsync(scope);
 
             var source = ToInboundSource(email);
 
             (Guid ClientId, EntityTypeEnum ClientType)? client = null;
             if (emailAnalysisEnabled)
             {
-                var alreadyAnalyzed = await scope.ServiceProvider.GetRequiredService<IInboundAnalysisRepository>()
-                    .ExistsBySourceAsync(InboundSourceKind.Email, email.Id, stoppingToken);
-                if (alreadyAnalyzed)
+                if (await IsAlreadyAnalyzedAsync(scope, email, stoppingToken))
                 {
-                    _logger.LogWarning(
-                        "message {SourceId} already analyzed — skipped; hard-delete the inbound_analyses row to reprocess", email.Id);
                     email.ProcessedAt = DateTime.UtcNow;
                     await unitOfWork.CompleteAsync();
                     return;
@@ -262,48 +242,7 @@ public class EmailPollingBackgroundService : BackgroundService
             var (clientId, clientType) = client.Value;
             await unitOfWork.CompleteAsync();
 
-            var clarificationRequest = ToClarificationRequest(email, clientId, clientType, source);
-            var preAnalysis = await ClarificationDialogSafeGuard.BeforeAnalysisSafelyAsync(
-                scope.ServiceProvider, clarificationRequest, _logger, stoppingToken);
-
-            var analysis = preAnalysis.AnswerAnalysis
-                ?? await scope.ServiceProvider.GetRequiredService<IInboundIntentAnalysisService>()
-                    .AnalyzeAsync(clientId, clientType, source, stoppingToken);
-
-            email.ProcessedAt = DateTime.UtcNow;
-
-            var analysisRepository = scope.ServiceProvider.GetRequiredService<IInboundAnalysisRepository>();
-            await analysisRepository.AddAsync(analysis, stoppingToken);
-            await unitOfWork.CompleteAsync();
-
-            var clarificationContext = preAnalysis.NotifierContext;
-            if (preAnalysis.AnswerAnalysis == null)
-            {
-                var postAnalysis = await ClarificationDialogSafeGuard.AfterAnalysisSafelyAsync(
-                    scope.ServiceProvider, clarificationRequest, analysis, _logger, stoppingToken);
-                if (postAnalysis.QuestionSent)
-                {
-                    return;
-                }
-
-                clarificationContext = ClarificationContextBlocks.Join(clarificationContext, postAnalysis.NotifierContext);
-            }
-
-            var actionOrchestrator = scope.ServiceProvider.GetRequiredService<IInboundActionOrchestrator>();
-            var resolvedClientId = analysis.ClientId ?? clientId;
-            var actionOutcome = await actionOrchestrator.ExecuteAsync(resolvedClientId, source, analysis, stoppingToken);
-
-            string? periodLoadSummary = null;
-            if (analysis.FromDate != null && analysis.ClientType != EntityTypeEnum.Customer)
-            {
-                var periodLoadService = scope.ServiceProvider.GetRequiredService<IEmailPeriodLoadService>();
-                periodLoadSummary = await periodLoadService.BuildSummaryAsync(
-                    resolvedClientId, analysis.FromDate.Value,
-                    analysis.UntilDate ?? analysis.FromDate.Value, stoppingToken);
-            }
-
-            var analysisNotifier = scope.ServiceProvider.GetRequiredService<IInboundAnalysisNotifier>();
-            await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, clarificationContext, stoppingToken);
+            await AnalyzeAndDispatchAsync(scope, unitOfWork, email, clientId, clientType, source, stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
@@ -315,6 +254,124 @@ public class EmailPollingBackgroundService : BackgroundService
                 "Email processing failed for email {EmailId} from {From}, will retry next cycle",
                 email.Id, email.FromAddress);
         }
+    }
+
+    /// <summary>
+    /// Spam-classifies a mail found in the inbox: spam is moved to the junk folder (locally first, then on the IMAP
+    /// server), anything else is handed to the client assignment.
+    /// </summary>
+    private async Task ClassifyInboxEmailAsync(
+        IServiceScope scope,
+        IEmailClientAssignmentService assignmentService,
+        ReceivedEmail email,
+        string inboxFolder,
+        string junkFolder,
+        CancellationToken stoppingToken)
+    {
+        var emailService = scope.ServiceProvider.GetRequiredService<IImapEmailService>();
+        var spamFilterService = scope.ServiceProvider.GetRequiredService<ISpamFilterService>();
+
+        var spamResult = await spamFilterService.ClassifyAsync(email, stoppingToken);
+        if (spamResult.IsSpam)
+        {
+            email.Folder = junkFolder;
+            await emailService.MoveEmailOnImapAsync(email.ImapUid, inboxFolder, junkFolder, stoppingToken);
+            _logger.LogInformation("Email from {From} classified as spam: {Reason}", email.FromAddress, spamResult.Reason);
+        }
+        else
+        {
+            await assignmentService.AssignNewEmailAsync(email);
+        }
+    }
+
+    private static async Task<bool> IsEmailAnalysisEnabledAsync(IServiceScope scope)
+    {
+        var settingsRepository = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
+
+        var emailAnalysisSetting = await settingsRepository.GetSetting(Settings.EMAIL_ANALYSIS_ENABLED);
+        return emailAnalysisSetting?.Value != null && bool.TryParse(emailAnalysisSetting.Value, out var enabled) && enabled;
+    }
+
+    private async Task<bool> IsAlreadyAnalyzedAsync(IServiceScope scope, ReceivedEmail email, CancellationToken stoppingToken)
+    {
+        var alreadyAnalyzed = await scope.ServiceProvider.GetRequiredService<IInboundAnalysisRepository>()
+            .ExistsBySourceAsync(InboundSourceKind.Email, email.Id, stoppingToken);
+        if (alreadyAnalyzed)
+        {
+            _logger.LogWarning(
+                "message {SourceId} already analyzed — skipped; hard-delete the inbound_analyses row to reprocess", email.Id);
+        }
+
+        return alreadyAnalyzed;
+    }
+
+    /// <summary>
+    /// Runs the clarification answer check, the intent analysis (unless the mail answered an open clarification),
+    /// persists and commits the analysis together with ProcessedAt, lets the coordinator ask back once and, unless a
+    /// question went out, hands the analysis to the action orchestrator and the notifier.
+    /// </summary>
+    private async Task AnalyzeAndDispatchAsync(
+        IServiceScope scope,
+        IUnitOfWork unitOfWork,
+        ReceivedEmail email,
+        Guid clientId,
+        EntityTypeEnum clientType,
+        InboundSource source,
+        CancellationToken stoppingToken)
+    {
+        var clarificationRequest = ToClarificationRequest(email, clientId, clientType, source);
+        var preAnalysis = await ClarificationDialogSafeGuard.BeforeAnalysisSafelyAsync(
+            scope.ServiceProvider, clarificationRequest, _logger, stoppingToken);
+
+        var analysis = preAnalysis.AnswerAnalysis
+            ?? await scope.ServiceProvider.GetRequiredService<IInboundIntentAnalysisService>()
+                .AnalyzeAsync(clientId, clientType, source, stoppingToken);
+
+        email.ProcessedAt = DateTime.UtcNow;
+
+        var analysisRepository = scope.ServiceProvider.GetRequiredService<IInboundAnalysisRepository>();
+        await analysisRepository.AddAsync(analysis, stoppingToken);
+        await unitOfWork.CompleteAsync();
+
+        var clarificationContext = preAnalysis.NotifierContext;
+        if (preAnalysis.AnswerAnalysis == null)
+        {
+            var postAnalysis = await ClarificationDialogSafeGuard.AfterAnalysisSafelyAsync(
+                scope.ServiceProvider, clarificationRequest, analysis, _logger, stoppingToken);
+            if (postAnalysis.QuestionSent)
+            {
+                return;
+            }
+
+            clarificationContext = ClarificationContextBlocks.Join(clarificationContext, postAnalysis.NotifierContext);
+        }
+
+        await ExecuteActionsAndNotifyAsync(scope, source, analysis, clientId, clarificationContext, stoppingToken);
+    }
+
+    private async Task ExecuteActionsAndNotifyAsync(
+        IServiceScope scope,
+        InboundSource source,
+        InboundAnalysis analysis,
+        Guid clientId,
+        string? clarificationContext,
+        CancellationToken stoppingToken)
+    {
+        var actionOrchestrator = scope.ServiceProvider.GetRequiredService<IInboundActionOrchestrator>();
+        var resolvedClientId = analysis.ClientId ?? clientId;
+        var actionOutcome = await actionOrchestrator.ExecuteAsync(resolvedClientId, source, analysis, stoppingToken);
+
+        string? periodLoadSummary = null;
+        if (analysis.FromDate != null && analysis.ClientType != EntityTypeEnum.Customer)
+        {
+            var periodLoadService = scope.ServiceProvider.GetRequiredService<IEmailPeriodLoadService>();
+            periodLoadSummary = await periodLoadService.BuildSummaryAsync(
+                resolvedClientId, analysis.FromDate.Value,
+                analysis.UntilDate ?? analysis.FromDate.Value, stoppingToken);
+        }
+
+        var analysisNotifier = scope.ServiceProvider.GetRequiredService<IInboundAnalysisNotifier>();
+        await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, clarificationContext, stoppingToken);
     }
 
     private static InboundSource ToInboundSource(ReceivedEmail email) => new(
