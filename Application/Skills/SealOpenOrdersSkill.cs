@@ -1,6 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
+/// Switched off for Klacksy since the owner decision of 2026-10-23 ("Massen-Versiegeln: nein"): its seed is disabled, so
+/// the registry never loads it and no chat, plan, MCP or background path can call it; mass sealing returns only as part of
+/// the guided order review. The implementation stays as defense in depth should the row ever be switched on again.
 /// Seals every open order matching the filter in one server-side call, turning each of them into an
 /// immutable sealed order plus its plannable shift — the bulk counterpart of sealing one order at a time.
 /// Each order is sealed in its own transaction, so a single failure never rolls back the rest of the run;

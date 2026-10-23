@@ -179,6 +179,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // skills also carry a server preview (SealOpenOrdersConfirmationPreviewProvider,
         // SealShiftConfirmationPreviewProvider): they seal only as the confirmed replay of what that preview
         // showed, and no agent plan can run them (PlanningAgent leaves them out, PlanStepRunner fails the step).
+        // seal_open_orders is moreover switched off in its seed (owner decision 2026-10-23, no mass sealing by Klacksy).
         "seal_shift",
         "seal_open_orders",
         "set_sealed_order_until_date",

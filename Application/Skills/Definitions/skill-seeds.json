@@ -20918,7 +20918,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "effect": "Mutate",
-      "isEnabled": true,
+      "isEnabled": false,
       "alwaysOn": false,
       "triggerKeywords": {
         "de": [
@@ -20973,7 +20973,7 @@
         "fr": "Sceller plusieurs commandes ouvertes",
         "it": "Sigilla più ordini aperti"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "remove_client_from_group",
