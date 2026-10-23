@@ -23,6 +23,9 @@ namespace Klacks.Api.Domain.Services.RouteOptimization;
 
 public class RouteOptimizationService : IRouteOptimizationService
 {
+    private const int MinRouteLocations = 2;
+    private const int SecondToLastOffset = 2;
+
     private readonly IContainerTemplateRepository _containerRepository;
     private readonly IBranchRepository _branchRepository;
     private readonly IShiftRepository _shiftRepository;
@@ -73,7 +76,7 @@ public class RouteOptimizationService : IRouteOptimizationService
 
         var locations = await ExtractLocationsFromTemplateAsync(template);
 
-        if (locations.Count < 2)
+        if (locations.Count < MinRouteLocations)
         {
             _logger.LogWarning("Not enough locations found ({Count}). Need at least 2.", locations.Count);
             return new DistanceMatrix(locations, new double[0, 0], new double[0, 0]);
@@ -127,7 +130,7 @@ public class RouteOptimizationService : IRouteOptimizationService
             }
         }
 
-        if (distanceMatrix.Locations.Count < 2)
+        if (distanceMatrix.Locations.Count < MinRouteLocations)
         {
             _logger.LogWarning("Cannot optimize route with less than 2 locations (after adding branches)");
             return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], new double[0, 0], TimeSpan.Zero, new List<int>(), 0.0, 0.0, TimeSpan.Zero, new List<int>());
@@ -212,7 +215,7 @@ public class RouteOptimizationService : IRouteOptimizationService
 
         var locations = ExtractLocationsFromShifts(shifts, transportMode);
 
-        if (locations.Count < 2)
+        if (locations.Count < MinRouteLocations)
         {
             _logger.LogWarning("Not enough geocoded locations ({Count}). Need at least 2.", locations.Count);
             return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], new double[0, 0], TimeSpan.Zero, new List<int>(), 0.0, 0.0, TimeSpan.Zero, new List<int>());
@@ -222,7 +225,7 @@ public class RouteOptimizationService : IRouteOptimizationService
 
         distanceMatrix = await AddBranchesToDistanceMatrixAsync(distanceMatrix, startBase, endBase, transportMode);
 
-        if (distanceMatrix.Locations.Count < 2)
+        if (distanceMatrix.Locations.Count < MinRouteLocations)
         {
             return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], new double[0, 0], TimeSpan.Zero, new List<int>(), 0.0, 0.0, TimeSpan.Zero, new List<int>());
         }
@@ -235,7 +238,7 @@ public class RouteOptimizationService : IRouteOptimizationService
         if (timeBlocks is { Count: > 0 } && containerFromTime.HasValue)
         {
             var unmovable = timeBlocks.Where(b => !b.IsMovable).ToList();
-            if (unmovable.Count > 0 && route.Count >= 2)
+            if (unmovable.Count > 0 && route.Count >= MinRouteLocations)
             {
                 var startBaseIdx = startIndex ?? (route.Count > 0 ? route[0] : 0);
                 route = ApplyTimeAwareImprovement(
@@ -394,7 +397,7 @@ public class RouteOptimizationService : IRouteOptimizationService
         List<Location> locations,
         ContainerTransportMode transportMode)
     {
-        if (locations.Count < 2)
+        if (locations.Count < MinRouteLocations)
         {
             return new DistanceMatrix(locations, new double[0, 0], new double[0, 0]);
         }
@@ -466,9 +469,9 @@ public class RouteOptimizationService : IRouteOptimizationService
                     endIndex.Value, distanceMatrix.Locations[endIndex.Value].Name,
                     distanceToEndBase);
             }
-            else if (route.Count >= 2)
+            else if (route.Count >= MinRouteLocations)
             {
-                var secondToLastIndex = route[route.Count - 2];
+                var secondToLastIndex = route[route.Count - SecondToLastOffset];
                 distanceToEndBase = distanceMatrix.Matrix[secondToLastIndex, endIndex.Value];
                 _logger.LogInformation("  Return (last segment): [{FromIdx}]{FromName} -> [{ToIdx}]{ToName} = {Distance:F2} km",
                     secondToLastIndex, distanceMatrix.Locations[secondToLastIndex].Name,

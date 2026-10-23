@@ -5,12 +5,14 @@
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Services.Geo;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization;
 
 public static class TravelTimeCalculator
 {
-    private const double EARTH_RADIUS_KM = 6371.0;
+    private const int MinRouteStops = 2;
+    private const int SecondToLastOffset = 2;
 
     public static TimeSpan CalculateMixedTravelTime(
         List<int> route,
@@ -89,7 +91,7 @@ public static class TravelTimeCalculator
         TimeSpan travelTimeToEndBase = TimeSpan.Zero;
         if (distanceToEnd > 0 && endIndex.HasValue && route.Count > 0)
         {
-            var lastRouteIndex = route.Last() != endIndex.Value ? route.Last() : (route.Count >= 2 ? route[route.Count - 2] : route[0]);
+            var lastRouteIndex = route.Last() != endIndex.Value ? route.Last() : (route.Count >= MinRouteStops ? route[route.Count - SecondToLastOffset] : route[0]);
             travelTimeToEndBase = GetMixedTravelTimeForSegment(lastRouteIndex, endIndex.Value, distanceMatrix, transportMode);
         }
 
@@ -104,21 +106,7 @@ public static class TravelTimeCalculator
 
     public static double CalculateHaversineDistance(double lat1, double lon1, double lat2, double lon2)
     {
-        var dLat = ToRadians(lat2 - lat1);
-        var dLon = ToRadians(lon2 - lon1);
-
-        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2)) *
-                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-
-        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-        return EARTH_RADIUS_KM * c;
-    }
-
-    public static double ToRadians(double degrees)
-    {
-        return degrees * Math.PI / 180.0;
+        return HaversineDistanceCalculator.DistanceKm(lat1, lon1, lat2, lon2);
     }
 
     public static double CalculateTotalDistance(List<int> route, double[,] matrix)
