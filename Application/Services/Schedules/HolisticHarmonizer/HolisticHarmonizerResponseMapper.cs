@@ -3,6 +3,7 @@
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Services.Schedules.PlanningRules;
+using Klacks.ScheduleOptimizer.Harmonizer.Global;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
@@ -76,6 +77,16 @@ public static class HolisticHarmonizerResponseMapper
             PlanningRuleWarnings: PlanningRuleNotificationMapper.ToSkippedRuleWarnings(
                 result.InvalidPlanningRuleIds,
                 result.OriginalBitmap.DayCount > 0 ? result.OriginalBitmap.Days[0] : default),
-            PlanningRuleRemaining: PlanningRuleNotificationMapper.ToRemaining(result.PlanningRuleHardCounts));
+            PlanningRuleRemaining: PlanningRuleNotificationMapper.ToRemaining(result.PlanningRuleHardCounts),
+            HarmonyBefore: ToDto(result.HarmonyBefore),
+            HarmonyAfter: ToDto(result.HarmonyAfter));
     }
+
+    private static GlobalHarmonyDto? ToDto(GlobalHarmonyScore? score)
+        => score is null
+            ? null
+            : new GlobalHarmonyDto(
+                Math.Round(score.Total, RoundingDigits, MidpointRounding.AwayFromZero),
+                Math.Round(score.Rhythm, RoundingDigits, MidpointRounding.AwayFromZero),
+                Math.Round(score.Fairness, RoundingDigits, MidpointRounding.AwayFromZero));
 }

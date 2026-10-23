@@ -39,7 +39,8 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
     // pre-flight + inner loop + one full LLM call so a straddling call does not discard
     // every batch accepted so far.
     // The deterministic engine (default mode) ends on its evaluation budget and at the latest after its
-    // 90 s wall-clock safety net (DeterministicSearchOptions), inside this budget.
+    // 90 s wall-clock safety net (DeterministicSearchOptions); the region rebuild that follows has its own
+    // 30 s net (RegionRebuildOptions) and is skipped once the 90 s are spent, so both stay inside this budget.
     private static readonly TimeSpan TimeBudget = TimeSpan.FromSeconds(180);
 
     // The plan critic runs after the run, outside TimeBudget: one LLM call of at most 60 s plus rendering.
