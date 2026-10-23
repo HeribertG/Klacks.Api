@@ -116,25 +116,7 @@ public class TurnReplayService : ITurnReplayService
                 "TurnReplay item {ItemId}: correction ended in the deterministic clarification, no provider call",
                 item.Id);
 
-            return new TurnReplayResult
-            {
-                Success = true,
-                ChosenTool = null,
-                Content = replayClarification,
-                AvailableToolNames = prep.Context.AvailableFunctions.Select(f => f.Name).ToList(),
-                ToolEffects = TurnReplayToolEffects.From(prep.Context.AvailableFunctions),
-                RecipeWouldForce = prep.RecipeWouldForce,
-                EngineRecipeWouldTrigger = prep.EngineRecipeWouldTrigger,
-                ForcedRecipeName = prep.ForcingPlan?.Name,
-                TriggeredRecipeName = prep.TriggeredRecipeName,
-                ToolChoiceRequired = prep.ToolChoiceRequired,
-                ProviderId = model.ProviderId,
-                ApiModelId = model.ApiModelId,
-                LatencyMs = stopwatch.ElapsedMilliseconds,
-                CorrectionApplied = true,
-                CorrectionClarificationOffered = true,
-                UndoOfferedSkill = prep.Correction?.Undo?.SkillName
-            };
+            return BuildClarificationResult(prep, model, replayClarification, stopwatch);
         }
 
         stopwatch.Restart();
@@ -143,6 +125,70 @@ public class TurnReplayService : ITurnReplayService
 
         var firstCall = response.FunctionCalls.FirstOrDefault();
 
+        var result = BuildFirstStepResult(prep, model, response, firstCall, stopwatch.ElapsedMilliseconds);
+
+        if (followUpLookups && firstCall != null
+            && await QualifiesForFollowUpAsync(item, result, cancellationToken))
+        {
+            await RunLookupFollowUpAsync(item, prep, model, provider, response, firstCall, result, cancellationToken);
+        }
+
+        if (result.Steps.Count > TurnEvalDefaults.MaxReplaySteps)
+        {
+            throw new InvalidOperationException(TurnEvalDefaults.ReplayStepLimitExceededMessage);
+        }
+
+        _logger.LogInformation(
+            "TurnReplay item {ItemId} model {Model}: tool={Tool}, latency={LatencyMs}ms, success={Success}",
+            item.Id, modelId, result.ChosenTool ?? "(none)", result.LatencyMs, result.Success);
+
+        return result;
+    }
+
+    /// <summary>
+    /// The result of a replay whose correction ended in the deterministic clarification: no provider call, the
+    /// clarification as content and the time the deterministic work took as latency.
+    /// </summary>
+    /// <param name="prep">The prepared replay prompt and its assembled context</param>
+    /// <param name="model">The replayed model</param>
+    /// <param name="replayClarification">The clarification question the correction ended in</param>
+    /// <param name="stopwatch">The replay's running stopwatch, read when the latency is set</param>
+    private static TurnReplayResult BuildClarificationResult(
+        ReplayPromptPreparation prep, LLMModel model, string replayClarification, Stopwatch stopwatch) => new()
+    {
+        Success = true,
+        ChosenTool = null,
+        Content = replayClarification,
+        AvailableToolNames = prep.Context.AvailableFunctions.Select(f => f.Name).ToList(),
+        ToolEffects = TurnReplayToolEffects.From(prep.Context.AvailableFunctions),
+        RecipeWouldForce = prep.RecipeWouldForce,
+        EngineRecipeWouldTrigger = prep.EngineRecipeWouldTrigger,
+        ForcedRecipeName = prep.ForcingPlan?.Name,
+        TriggeredRecipeName = prep.TriggeredRecipeName,
+        ToolChoiceRequired = prep.ToolChoiceRequired,
+        ProviderId = model.ProviderId,
+        ApiModelId = model.ApiModelId,
+        LatencyMs = stopwatch.ElapsedMilliseconds,
+        CorrectionApplied = true,
+        CorrectionClarificationOffered = true,
+        UndoOfferedSkill = prep.Correction?.Undo?.SkillName
+    };
+
+    /// <summary>
+    /// The result of the first provider call, with that call recorded as the first step.
+    /// </summary>
+    /// <param name="prep">The prepared replay prompt and its assembled context</param>
+    /// <param name="model">The replayed model</param>
+    /// <param name="response">The provider's answer to the first request</param>
+    /// <param name="firstCall">The first tool call of that answer, if any</param>
+    /// <param name="latencyMs">The duration of the provider call</param>
+    private static TurnReplayResult BuildFirstStepResult(
+        ReplayPromptPreparation prep,
+        LLMModel model,
+        LLMProviderResponse response,
+        Domain.Services.Assistant.Providers.LLMFunctionCall? firstCall,
+        long latencyMs)
+    {
         var result = new TurnReplayResult
         {
             Success = response.Success,
@@ -150,7 +196,7 @@ public class TurnReplayService : ITurnReplayService
             ChosenTool = firstCall?.FunctionName,
             ToolParameters = firstCall?.Parameters ?? new Dictionary<string, object>(),
             Content = response.Content,
-            LatencyMs = stopwatch.ElapsedMilliseconds,
+            LatencyMs = latencyMs,
             Cost = response.Usage.Cost,
             InputTokens = response.Usage.InputTokens,
             OutputTokens = response.Usage.OutputTokens,
@@ -178,46 +224,56 @@ public class TurnReplayService : ITurnReplayService
             Error = result.Error
         });
 
-        if (followUpLookups && firstCall != null
-            && await QualifiesForFollowUpAsync(item, result, cancellationToken))
-        {
-            firstCall.Result = SyntheticLookupResultFactory.Build(firstCall.Parameters);
-
-            var followUpHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>(prep.ReplayHistory)
-            {
-                new() { Role = LLMMessageRoles.User, Content = item.Message },
-                new()
-                {
-                    Role = LLMMessageRoles.Assistant,
-                    Content = AnswerPlaceholder.ForToolCallTurn(response.Content, [firstCall])
-                }
-            };
-
-            var followUpRequest = BuildProviderRequest(
-                model, prep.SystemPrompt, prep.VolatilePrompt, prep.Context,
-                ToolResultFormatter.Format([firstCall], prep.BudgetProfile.MaxToolResultChars),
-                followUpHistory,
-                ToolChoicePolicy.ResolveToolChoice(
-                    forceRecipe: false,
-                    isMutationIntent: MutationIntentDetector.IsMutationIntent(item.Message),
-                    isNavigationIntent: NavigationIntentDetector.IsNavigationIntent(item.Message),
-                    forceConfirmation: false,
-                    toolCallCount: 1,
-                    turnIntentVeto: prep.Context.TurnIntentVetoesForcedToolCall));
-
-            await RunFollowUpStepAsync(provider, followUpRequest, result, cancellationToken);
-        }
-
-        if (result.Steps.Count > TurnEvalDefaults.MaxReplaySteps)
-        {
-            throw new InvalidOperationException(TurnEvalDefaults.ReplayStepLimitExceededMessage);
-        }
-
-        _logger.LogInformation(
-            "TurnReplay item {ItemId} model {Model}: tool={Tool}, latency={LatencyMs}ms, success={Success}",
-            item.Id, modelId, result.ChosenTool ?? "(none)", result.LatencyMs, result.Success);
-
         return result;
+    }
+
+    /// <summary>
+    /// Feeds the first lookup a synthetic result in the production result format and asks the model a second,
+    /// never-forced time, recording the answer as the second step on the result.
+    /// </summary>
+    /// <param name="item">The replayed goldset item</param>
+    /// <param name="prep">The prepared replay prompt and its assembled context</param>
+    /// <param name="model">The replayed model</param>
+    /// <param name="provider">The provider the follow-up request is sent to</param>
+    /// <param name="response">The provider's answer to the first request</param>
+    /// <param name="firstCall">The lookup call of that answer; receives the synthetic result</param>
+    /// <param name="result">The first-step result the follow-up step is added to</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    private async Task RunLookupFollowUpAsync(
+        TurnGoldsetItem item,
+        ReplayPromptPreparation prep,
+        LLMModel model,
+        Domain.Services.Assistant.Providers.ILLMProvider provider,
+        LLMProviderResponse response,
+        Domain.Services.Assistant.Providers.LLMFunctionCall firstCall,
+        TurnReplayResult result,
+        CancellationToken cancellationToken)
+    {
+        firstCall.Result = SyntheticLookupResultFactory.Build(firstCall.Parameters);
+
+        var followUpHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>(prep.ReplayHistory)
+        {
+            new() { Role = LLMMessageRoles.User, Content = item.Message },
+            new()
+            {
+                Role = LLMMessageRoles.Assistant,
+                Content = AnswerPlaceholder.ForToolCallTurn(response.Content, [firstCall])
+            }
+        };
+
+        var followUpRequest = BuildProviderRequest(
+            model, prep.SystemPrompt, prep.VolatilePrompt, prep.Context,
+            ToolResultFormatter.Format([firstCall], prep.BudgetProfile.MaxToolResultChars),
+            followUpHistory,
+            ToolChoicePolicy.ResolveToolChoice(
+                forceRecipe: false,
+                isMutationIntent: MutationIntentDetector.IsMutationIntent(item.Message),
+                isNavigationIntent: NavigationIntentDetector.IsNavigationIntent(item.Message),
+                forceConfirmation: false,
+                toolCallCount: 1,
+                turnIntentVeto: prep.Context.TurnIntentVetoesForcedToolCall));
+
+        await RunFollowUpStepAsync(provider, followUpRequest, result, cancellationToken);
     }
 
     /// <summary>
