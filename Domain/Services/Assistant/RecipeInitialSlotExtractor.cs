@@ -29,6 +29,10 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class RecipeInitialSlotExtractor
 {
+    private const int YearDigits = 4;
+    private const int MonthDayDigits = 2;
+    private const int TwoDigitYearLength = 2;
+
     private const int TwoDigitYearBase = 2000;
 
     /// <summary>
@@ -243,7 +247,7 @@ public static class RecipeInitialSlotExtractor
     /// </summary>
     private static void AddDate(List<string> dates, string year, string month, string day)
     {
-        var candidate = $"{year.PadLeft(4, '0')}-{month.PadLeft(2, '0')}-{day.PadLeft(2, '0')}";
+        var candidate = $"{year.PadLeft(YearDigits, '0')}-{month.PadLeft(MonthDayDigits, '0')}-{day.PadLeft(MonthDayDigits, '0')}";
         if (DateTime.TryParseExact(candidate, DateTimeFormats.IsoDate, CultureInfo.InvariantCulture,
                 DateTimeStyles.None, out _))
         {
@@ -258,7 +262,7 @@ public static class RecipeInitialSlotExtractor
             return DateTime.UtcNow.Year.ToString(CultureInfo.InvariantCulture);
         }
 
-        return yearGroup.Value.Length == 2
+        return yearGroup.Value.Length == TwoDigitYearLength
             ? (TwoDigitYearBase + int.Parse(yearGroup.Value, CultureInfo.InvariantCulture))
                 .ToString(CultureInfo.InvariantCulture)
             : yearGroup.Value;

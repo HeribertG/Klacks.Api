@@ -16,6 +16,8 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills;
 
 public static class SkillDateCultureResolver
 {
+    private const int ThaiCultureVariantCount = 3;
+
     private const string ThaiLanguageCode = "th";
     private const string ThaiCultureName = "th-TH";
 
@@ -158,7 +160,7 @@ public static class SkillDateCultureResolver
             return FallbackCultures;
         }
 
-        var cultures = new List<CultureInfo>(3);
+        var cultures = new List<CultureInfo>(ThaiCultureVariantCount);
         var gregorian = TryBuildGregorianVariant(buddhist);
         if (gregorian is not null)
         {

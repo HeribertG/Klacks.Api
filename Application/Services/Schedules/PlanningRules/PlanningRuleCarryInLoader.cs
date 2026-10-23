@@ -19,6 +19,8 @@ namespace Klacks.Api.Application.Services.Schedules.PlanningRules;
 
 public sealed class PlanningRuleCarryInLoader : IPlanningRuleCarryInLoader
 {
+    private const int MaxUncoveredRanges = 2;
+
     private readonly IPlanningRuleDataReader _dataReader;
 
     public PlanningRuleCarryInLoader(IPlanningRuleDataReader dataReader)
@@ -62,7 +64,7 @@ public sealed class PlanningRuleCarryInLoader : IPlanningRuleCarryInLoader
         var coveredFrom = from.AddDays(-coveredBoundaryDays);
         var coveredUntil = until.AddDays(coveredBoundaryDays);
 
-        var ranges = new List<(DateOnly, DateOnly)>(2);
+        var ranges = new List<(DateOnly, DateOnly)>(MaxUncoveredRanges);
         if (windowFrom < coveredFrom)
         {
             ranges.Add((windowFrom, coveredFrom.AddDays(-1)));

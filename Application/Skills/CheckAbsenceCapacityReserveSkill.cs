@@ -27,6 +27,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("check_absence_capacity_reserve")]
 public class CheckAbsenceCapacityReserveSkill : AbsenceCapacitySkillBase
 {
+    private const int FindingDecimals = 2;
+
     private const int MaxReportedWindows = 12;
 
     public CheckAbsenceCapacityReserveSkill(
@@ -136,8 +138,8 @@ public class CheckAbsenceCapacityReserveSkill : AbsenceCapacitySkillBase
         Window = finding.Kind.ToString(),
         From = finding.From,
         Until = finding.Until,
-        Demand = Math.Round(finding.Demand, 2),
-        Available = Math.Round(finding.Available, 2),
+        Demand = Math.Round(finding.Demand, FindingDecimals),
+        Available = Math.Round(finding.Available, FindingDecimals),
         UtilizationPercent = finding.Utilization.HasValue
             ? ToPercent(finding.Utilization.Value)
             : (double?)null,

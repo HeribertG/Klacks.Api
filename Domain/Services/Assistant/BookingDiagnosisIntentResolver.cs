@@ -20,6 +20,8 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class BookingDiagnosisIntentResolver
 {
+    private const int MaxGermanNegationEndingLength = 2;
+
     private const string EnglishContractedNegation = "n't";
     private const string EnglishContractedNegationTypographic = "n’t";
     private const string GermanNegationStem = "kein";
@@ -69,5 +71,5 @@ public static class BookingDiagnosisIntentResolver
     }
 
     private static bool IsGermanNegationArticle(string word) =>
-        word.StartsWith(GermanNegationStem, StringComparison.Ordinal) && word.Length <= GermanNegationStem.Length + 2;
+        word.StartsWith(GermanNegationStem, StringComparison.Ordinal) && word.Length <= GermanNegationStem.Length + MaxGermanNegationEndingLength;
 }

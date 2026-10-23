@@ -25,6 +25,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("get_group_absence_overlap")]
 public class GetGroupAbsenceOverlapSkill : BaseSkillImplementation
 {
+    private const double PercentFactor = 100.0;
+
     private const int MaxRangeDays = 366;
     private const string UnknownAbsenceLabel = "Unknown";
 
@@ -166,7 +168,7 @@ public class GetGroupAbsenceOverlapSkill : BaseSkillImplementation
             .Concat(planned.Select(m => m.ClientId))
             .Distinct()
             .Count();
-        var percentAbsent = Math.Round(totalAbsent * 100.0 / groupSize, 1);
+        var percentAbsent = Math.Round(totalAbsent * PercentFactor / groupSize, 1);
 
         return new GroupAbsenceOverlapDay(day, booked.Count, booked, planned.Count, planned, totalAbsent, percentAbsent);
     }
@@ -186,7 +188,7 @@ public class GetGroupAbsenceOverlapSkill : BaseSkillImplementation
         }
 
         var peakDatesText = string.Join(", ", peakDates.Select(d => d.ToString(DateTimeFormats.IsoDate)));
-        var peakPercent = Math.Round(peakCount * 100.0 / groupSize, 1);
+        var peakPercent = Math.Round(peakCount * PercentFactor / groupSize, 1);
 
         return $"Group '{groupName}' has {groupSize} active member(s) in " +
                $"{fromDate.ToString(DateTimeFormats.IsoDate)}..{untilDate.ToString(DateTimeFormats.IsoDate)}. " +

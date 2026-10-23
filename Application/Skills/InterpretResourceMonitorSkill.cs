@@ -24,6 +24,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("interpret_resource_monitor")]
 public class InterpretResourceMonitorSkill : BaseSkillImplementation
 {
+    private const int CoverageRatioDecimals = 2;
+
     private const int MinReasonableYear = 2000;
     private const int MaxReasonableYear = 3000;
 
@@ -105,7 +107,7 @@ public class InterpretResourceMonitorSkill : BaseSkillImplementation
             c.CoveredSlots,
             UncoveredSlots = c.TotalSlots - c.CoveredSlots,
             CoverageRatio = c.TotalSlots > 0
-                ? Math.Round((double)c.CoveredSlots / c.TotalSlots, 2)
+                ? Math.Round((double)c.CoveredSlots / c.TotalSlots, CoverageRatioDecimals)
                 : (double?)null,
             c.SealedWorkEntries,
             c.TotalWorkEntries

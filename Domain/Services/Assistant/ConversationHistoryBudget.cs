@@ -15,6 +15,8 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 internal static class ConversationHistoryBudget
 {
+    private const int PercentBase = 100;
+
     private const int MaxHistoryMessages = 20;
 
     // Rough characters-per-token ratio used for all local prompt-size estimates. Deliberately
@@ -102,7 +104,7 @@ internal static class ConversationHistoryBudget
             return 0;
 
         var rawTokens = functions.Sum(EstimateToolDefinitionTokens);
-        return rawTokens + (rawTokens * ToolDefinitionSafetyMarginPercent / 100);
+        return rawTokens + (rawTokens * ToolDefinitionSafetyMarginPercent / PercentBase);
     }
 
     internal static List<Providers.LLMMessage> TruncateHistory(

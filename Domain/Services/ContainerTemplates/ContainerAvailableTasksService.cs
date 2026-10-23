@@ -20,6 +20,8 @@ namespace Klacks.Api.Domain.Services.ContainerTemplates;
 /// <param name="logger">Diagnostics of each lookup</param>
 public class ContainerAvailableTasksService : IContainerAvailableTasksService
 {
+    private const int LoggedShiftIdsMax = 5;
+
     private readonly IShiftReader _shiftReader;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IContainerTemplateRepository _containerTemplateRepository;
@@ -65,7 +67,7 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
             shiftsInSameGroups = await _groupItemRepository.GetShiftIdsByGroupIds(containerGroupIds, cancellationToken);
             _logger.LogInformation("Found {Count} shifts in container's direct groups. Shifts: [{ShiftIds}]",
                 shiftsInSameGroups.Count,
-                string.Join(", ", shiftsInSameGroups.Take(5)));
+                string.Join(", ", shiftsInSameGroups.Take(LoggedShiftIdsMax)));
 
             if (shiftsInSameGroups.Count <= 1)
             {
