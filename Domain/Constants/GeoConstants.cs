@@ -5,4 +5,6 @@ namespace Klacks.Api.Domain.Constants;
 public static class GeoConstants
 {
     public const double EarthRadiusKm = 6371.0;
+
+    public const double MetersPerKm = 1000.0;
 }

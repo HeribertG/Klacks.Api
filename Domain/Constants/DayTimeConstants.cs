@@ -16,6 +16,10 @@ public static class DayTimeConstants
 
     public const int MinutesPerDay = HoursPerDay * MinutesPerHour;
 
+    public const int SecondsPerMinute = 60;
+
+    public const int SecondsPerHour = MinutesPerHour * SecondsPerMinute;
+
     /// <summary>
     /// Midnight, the start of a day. Also the value TimeOnlyJsonConverter substitutes for an
     /// omitted time field, so an omitted pair is indistinguishable from a deliberate 00:00-00:00.

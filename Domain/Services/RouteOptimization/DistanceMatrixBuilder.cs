@@ -24,6 +24,14 @@ namespace Klacks.Api.Domain.Services.RouteOptimization;
 
 public class DistanceMatrixBuilder : IDistanceMatrixBuilder
 {
+    private const double EstimatedCarSpeedKmh = 50.0;
+    private const double OsrmDerivedCarSpeedKmh = 40.0;
+    private const double BicycleSpeedKmh = 15.0;
+    private const double FootSpeedKmh = 5.0;
+    private const double MixedSpeedKmh = 30.0;
+
+    private static readonly TimeSpan MatrixCacheLifetime = TimeSpan.FromDays(7);
+
     private readonly ISettingsReader _settingsReader;
     private readonly ISettingsEncryptionService _encryptionService;
     private readonly IMemoryCache _cache;
@@ -97,7 +105,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
                 result = await GetOsrmDistanceMatrixAsync(locations, transportMode);
             }
 
-            _cache.Set(cacheKey, result, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(7)).SetSize(1));
+            _cache.Set(cacheKey, result, new MemoryCacheEntryOptions().SetAbsoluteExpiration(MatrixCacheLifetime).SetSize(1));
             _logger.LogInformation("Successfully retrieved distance/duration matrix");
             return new DistanceMatrix(locations, result.distanceMatrix, result.durationMatrix);
         }
@@ -161,7 +169,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
                 };
 
                 var result = await GetOsrmDistanceMatrixAsync(locations, transportMode);
-                _cache.Set(cacheKey, result, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(7)).SetSize(1));
+                _cache.Set(cacheKey, result, new MemoryCacheEntryOptions().SetAbsoluteExpiration(MatrixCacheLifetime).SetSize(1));
 
                 durationMatricesByProfile[profile] = result.durationMatrix;
 
@@ -211,11 +219,11 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
 
         double speedKmh = transportMode switch
         {
-            ContainerTransportMode.ByCar => 50.0,
-            ContainerTransportMode.ByBicycle => 15.0,
-            ContainerTransportMode.ByFoot => 5.0,
-            ContainerTransportMode.Mix => 30.0,
-            _ => 50.0
+            ContainerTransportMode.ByCar => EstimatedCarSpeedKmh,
+            ContainerTransportMode.ByBicycle => BicycleSpeedKmh,
+            ContainerTransportMode.ByFoot => FootSpeedKmh,
+            ContainerTransportMode.Mix => MixedSpeedKmh,
+            _ => EstimatedCarSpeedKmh
         };
 
         for (int i = 0; i < size; i++)
@@ -224,7 +232,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
             {
                 var distanceKm = distanceMatrix[i, j];
                 var hours = distanceKm / speedKmh;
-                durationMatrix[i, j] = hours * 3600;
+                durationMatrix[i, j] = hours * DayTimeConstants.SecondsPerHour;
             }
         }
 
@@ -277,11 +285,11 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
     {
         return transportMode switch
         {
-            ContainerTransportMode.ByCar => 40.0,
-            ContainerTransportMode.ByBicycle => 15.0,
-            ContainerTransportMode.ByFoot => 5.0,
-            ContainerTransportMode.Mix => 30.0,
-            _ => 40.0
+            ContainerTransportMode.ByCar => OsrmDerivedCarSpeedKmh,
+            ContainerTransportMode.ByBicycle => BicycleSpeedKmh,
+            ContainerTransportMode.ByFoot => FootSpeedKmh,
+            ContainerTransportMode.Mix => MixedSpeedKmh,
+            _ => OsrmDerivedCarSpeedKmh
         };
     }
 
@@ -323,7 +331,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
             for (int j = 0; j < size; j++)
             {
                 var distanceMeters = distanceRow[j].GetDouble();
-                var distanceKm = distanceMeters / 1000.0;
+                var distanceKm = distanceMeters / GeoConstants.MetersPerKm;
                 distanceMatrix[i, j] = distanceKm;
 
                 if (transportMode == ContainerTransportMode.ByCar)
@@ -334,7 +342,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
                 else
                 {
                     var hours = distanceKm / speedKmh;
-                    durationMatrix[i, j] = hours * 3600;
+                    durationMatrix[i, j] = hours * DayTimeConstants.SecondsPerHour;
                 }
             }
         }
@@ -405,7 +413,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
             for (int j = 0; j < size; j++)
             {
                 var distanceMeters = distanceRow[j].GetDouble();
-                distanceMatrix[i, j] = distanceMeters / 1000.0;
+                distanceMatrix[i, j] = distanceMeters / GeoConstants.MetersPerKm;
 
                 var durationSeconds = durationRow[j].GetDouble();
                 durationMatrix[i, j] = durationSeconds;
