@@ -23,6 +23,10 @@ namespace Klacks.Api.Application.Skills;
 public class CreateUserSkill : BaseSkillImplementation
 {
     private const string SkillName = "create_user";
+    private const int GeneratedPasswordLength = 12;
+    private const int DigitSlot = 2;
+    private const int SpecialSlot = 3;
+    private const int GuaranteedCharacterClassCount = 4;
 
     private readonly IUserManagementService _userManagementService;
     private readonly IUsernameGeneratorService _usernameGeneratorService;
@@ -118,15 +122,15 @@ public class CreateUserSkill : BaseSkillImplementation
         const string digits = "0123456789";
         const string special = "@$!%*?&";
 
-        var password = new char[12];
+        var password = new char[GeneratedPasswordLength];
 
         password[0] = upper[RandomNumberGenerator.GetInt32(upper.Length)];
         password[1] = lower[RandomNumberGenerator.GetInt32(lower.Length)];
-        password[2] = digits[RandomNumberGenerator.GetInt32(digits.Length)];
-        password[3] = special[RandomNumberGenerator.GetInt32(special.Length)];
+        password[DigitSlot] = digits[RandomNumberGenerator.GetInt32(digits.Length)];
+        password[SpecialSlot] = special[RandomNumberGenerator.GetInt32(special.Length)];
 
         var allChars = upper + lower + digits + special;
-        for (var i = 4; i < password.Length; i++)
+        for (var i = GuaranteedCharacterClassCount; i < password.Length; i++)
         {
             password[i] = allChars[RandomNumberGenerator.GetInt32(allChars.Length)];
         }

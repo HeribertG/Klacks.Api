@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.OAuth2;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Mediator;
@@ -48,7 +49,7 @@ public class GetOAuth2LogoutUrlQueryHandler : IRequestHandler<GetOAuth2LogoutUrl
         }
 
         var protocol = provider.UseSsl ? "https" : "http";
-        var port = provider.Port.HasValue && provider.Port.Value != 443 && provider.Port.Value != 80
+        var port = provider.Port.HasValue && provider.Port.Value != OAuthConstants.DefaultHttpsPort && provider.Port.Value != OAuthConstants.DefaultHttpPort
             ? $":{provider.Port.Value}"
             : "";
 

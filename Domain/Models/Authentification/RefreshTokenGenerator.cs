@@ -6,9 +6,11 @@ namespace Klacks.Api.Domain.Models.Authentification;
 
 public class RefreshTokenGenerator
 {
+    private const int RefreshTokenByteLength = 32;
+
     public string GenerateRefreshToken()
     {
-        var randomNumber = new byte[32];
+        var randomNumber = new byte[RefreshTokenByteLength];
         using (var rng = RandomNumberGenerator.Create())
         {
             rng.GetBytes(randomNumber);

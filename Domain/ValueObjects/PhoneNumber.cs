@@ -6,6 +6,9 @@ namespace Klacks.Api.Domain.ValueObjects;
 
 public sealed partial class PhoneNumber : IEquatable<PhoneNumber>
 {
+    private const int MinNormalizedLength = 7;
+    private const int MaxNormalizedLength = 15;
+
     private static readonly Regex PhoneRegex = GeneratePhoneRegex();
 
     public string Value { get; }
@@ -42,7 +45,7 @@ public sealed partial class PhoneNumber : IEquatable<PhoneNumber>
             return false;
 
         var normalized = Normalize(phoneNumber);
-        return normalized.Length >= 7 && normalized.Length <= 15;
+        return normalized.Length >= MinNormalizedLength && normalized.Length <= MaxNormalizedLength;
     }
 
     private static string Normalize(string phoneNumber)

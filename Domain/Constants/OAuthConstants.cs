@@ -8,6 +8,10 @@ namespace Klacks.Api.Domain.Constants;
 
 public static class OAuthConstants
 {
+    public const int DefaultHttpsPort = 443;
+
+    public const int DefaultHttpPort = 80;
+
     public const string WellKnownSegment = ".well-known";
 
     public const string AuthorizationServerMetadataEndpointName = "oauth-authorization-server";

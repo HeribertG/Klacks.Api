@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Email;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Email;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
@@ -50,7 +51,7 @@ public class TestImapConnectionSkill : BaseSkillImplementation
         var request = new ImapTestRequest
         {
             Server = server,
-            Port = int.TryParse(port, out var parsedPort) ? parsedPort : 993,
+            Port = int.TryParse(port, out var parsedPort) ? parsedPort : EmailConstants.DefaultImapSslPort,
             Username = username,
             Password = password,
             EnableSSL = string.Equals(enableSsl, "true", StringComparison.OrdinalIgnoreCase),

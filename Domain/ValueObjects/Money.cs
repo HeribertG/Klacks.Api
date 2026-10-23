@@ -4,12 +4,15 @@ namespace Klacks.Api.Domain.ValueObjects;
 
 public sealed class Money : IEquatable<Money>, IComparable<Money>
 {
+    private const int DecimalPlaces = 2;
+    private const decimal CentsPerUnit = 100m;
+
     public decimal Amount { get; }
     public string Currency { get; }
 
     private Money(decimal amount, string currency)
     {
-        Amount = Math.Round(amount, 2);
+        Amount = Math.Round(amount, DecimalPlaces);
         Currency = currency.ToUpperInvariant();
     }
 
@@ -24,7 +27,7 @@ public sealed class Money : IEquatable<Money>, IComparable<Money>
     public static Money Zero(string currency = "CHF") => new(0, currency);
 
     public static Money FromCents(int cents, string currency = "CHF") =>
-        new(cents / 100m, currency);
+        new(cents / CentsPerUnit, currency);
 
     public Money Add(Money other)
     {

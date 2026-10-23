@@ -13,6 +13,9 @@ namespace Klacks.Api.Domain.Services.Accounts;
 
 public class AccountPasswordService : IAccountPasswordService
 {
+    private const int ResetTokenValidityHours = 24;
+    private const int ResetTokenByteLength = 64;
+
     private readonly IAuthenticationService _authenticationService;
     private readonly IUserManagementService _userManagementService;
     private readonly IAccountNotificationService _notificationService;
@@ -122,7 +125,7 @@ public class AccountPasswordService : IAccountPasswordService
             var rawToken = GenerateSecureToken();
 
             user.PasswordResetToken = PasswordResetTokenHasher.Hash(rawToken);
-            user.PasswordResetTokenExpires = DateTime.UtcNow.AddHours(24);
+            user.PasswordResetTokenExpires = DateTime.UtcNow.AddHours(ResetTokenValidityHours);
             
             await _userManagementService.UpdateUserAsync(user);
 
@@ -134,7 +137,7 @@ public class AccountPasswordService : IAccountPasswordService
                     <p>You have requested to reset your password.</p>
                     <p>Click the following link to reset your password:</p>
                     <p><a href=""{resetLink}"">Reset Password</a></p>
-                    <p>This link is valid for 24 hours.</p>
+                    <p>This link is valid for {ResetTokenValidityHours} hours.</p>
                     <p>If you did not make this request, please ignore this email.</p>";
 
                 await _notificationService.SendEmailAsync("Reset Password", email, message);
@@ -174,7 +177,7 @@ public class AccountPasswordService : IAccountPasswordService
     private static string GenerateSecureToken()
     {
         using var rng = RandomNumberGenerator.Create();
-        var bytes = new byte[64];
+        var bytes = new byte[ResetTokenByteLength];
         rng.GetBytes(bytes);
         return Convert.ToBase64String(bytes).Replace('+', '-').Replace('/', '_').TrimEnd('=');
     }

@@ -1,12 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.DTOs.Email;
 
 public class ImapTestRequest
 {
     public string Server { get; set; } = string.Empty;
 
-    public int Port { get; set; } = 993;
+    public int Port { get; set; } = EmailConstants.DefaultImapSslPort;
 
     public string Username { get; set; } = string.Empty;
 

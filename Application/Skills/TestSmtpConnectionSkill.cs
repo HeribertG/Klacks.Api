@@ -3,6 +3,7 @@
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -46,7 +47,7 @@ public class TestSmtpConnectionSkill : BaseSkillImplementation
                 "SMTP password not configured. Please enter it in the Email Settings UI (Settings > Email > Password).");
         }
 
-        var timeoutMs = int.TryParse(timeout, out var t) ? t : 10000;
+        var timeoutMs = int.TryParse(timeout, out var t) ? t : EmailConstants.DefaultConnectionTestTimeoutMs;
 
         var request = new EmailTestRequest
         {

@@ -11,6 +11,7 @@ namespace Klacks.Api.Domain.Models.Update;
 public readonly record struct SemanticVersion(int Major, int Minor, int Patch) : IComparable<SemanticVersion>
 {
     private const int ComponentCount = 3;
+    private const int PatchIndex = 2;
 
     public static SemanticVersion Parse(string value)
     {
@@ -45,7 +46,7 @@ public readonly record struct SemanticVersion(int Major, int Minor, int Patch) :
 
         if (!int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var major)
             || !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var minor)
-            || !int.TryParse(parts[2], NumberStyles.None, CultureInfo.InvariantCulture, out var patch))
+            || !int.TryParse(parts[PatchIndex], NumberStyles.None, CultureInfo.InvariantCulture, out var patch))
         {
             return false;
         }

@@ -9,4 +9,8 @@ public static class EmailConstants
     public const string InboundChannel = "Email";
 
     public const string SendSucceededResult = "true";
+
+    public const int DefaultImapSslPort = 993;
+
+    public const int DefaultConnectionTestTimeoutMs = 10000;
 }

@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.DTOs.Settings;
 
 public class EmailTestRequest
@@ -10,5 +12,5 @@ public class EmailTestRequest
     public string Password { get; set; } = string.Empty;
     public bool EnableSSL { get; set; }
     public string AuthenticationType { get; set; } = string.Empty;
-    public int Timeout { get; set; } = 10000;
+    public int Timeout { get; set; } = EmailConstants.DefaultConnectionTestTimeoutMs;
 }
