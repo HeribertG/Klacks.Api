@@ -25,7 +25,7 @@ public class DateRangeFilterService : IDateRangeFilterService
 
         if (!activeDateRange && !formerDateRange && !futureDateRange)
         {
-            return Enumerable.Empty<Shift>().AsQueryable();
+            return query.Where(_ => false);
         }
 
         var predicate = PredicateBuilder.False<Shift>();
