@@ -33,6 +33,10 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("cut_shift")]
 public class CutShiftSkill : BaseSkillImplementation
 {
+    private const int SingleWordAbbreviationLength = 3;
+    private const int MaxInitials = 3;
+    private const int MaxAbbreviationLength = 10;
+
     private const int MinParts = 2;
     private const int MaxParts = 12;
 
@@ -320,9 +324,9 @@ public class CutShiftSkill : BaseSkillImplementation
         }
 
         var abbreviation = parts.Length == 1
-            ? (parts[0].Length >= 3 ? parts[0][..3].ToUpperInvariant() : parts[0].ToUpperInvariant())
-            : string.Concat(parts.Take(3).Select(p => char.ToUpperInvariant(p[0])));
+            ? (parts[0].Length >= SingleWordAbbreviationLength ? parts[0][..SingleWordAbbreviationLength].ToUpperInvariant() : parts[0].ToUpperInvariant())
+            : string.Concat(parts.Take(MaxInitials).Select(p => char.ToUpperInvariant(p[0])));
 
-        return abbreviation.Length > 10 ? abbreviation[..10] : abbreviation;
+        return abbreviation.Length > MaxAbbreviationLength ? abbreviation[..MaxAbbreviationLength] : abbreviation;
     }
 }

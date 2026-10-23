@@ -189,7 +189,7 @@ public static class ToolResultGroundingPoolBuilder
             return true;
         }
 
-        if (value.Length == 10
+        if (value.Length == DateTimeFormats.IsoDate.Length
             && DateOnly.TryParseExact(
                 value,
                 DateTimeFormats.IsoDate,

@@ -33,6 +33,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("add_break")]
 public class AddBreakSkill : BaseSkillImplementation
 {
+    private const decimal DefaultBreakWorkTimeHours = 8m;
+
     private readonly IMediator _mediator;
     private readonly IAbsenceRepository _absenceRepository;
     private readonly IClientRepository _clientRepository;
@@ -80,8 +82,8 @@ public class AddBreakSkill : BaseSkillImplementation
         var startTime = !string.IsNullOrWhiteSpace(startTimeRaw) && SkillCalendarStringParser.TryParseTimeOnly(startTimeRaw, context.UserLanguage, out var sParsed)
             ? sParsed : new TimeOnly(0, 0);
         var endTime = !string.IsNullOrWhiteSpace(endTimeRaw) && SkillCalendarStringParser.TryParseTimeOnly(endTimeRaw, context.UserLanguage, out var eParsed)
-            ? eParsed : new TimeOnly(23, 59);
-        var workTime = workTimeRaw ?? 8m;
+            ? eParsed : DayTimeConstants.LastMinuteOfDay;
+        var workTime = workTimeRaw ?? DefaultBreakWorkTimeHours;
 
         if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {

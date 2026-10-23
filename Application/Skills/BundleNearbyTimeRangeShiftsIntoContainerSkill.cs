@@ -57,6 +57,14 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("bundle_nearby_timerange_shifts_into_container")]
 public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementation
 {
+    private const int IsoMonday = 1;
+    private const int IsoTuesday = 2;
+    private const int IsoWednesday = 3;
+    private const int IsoThursday = 4;
+    private const int IsoFriday = 5;
+    private const int IsoSaturday = 6;
+    private const int IsoSunday = 7;
+
     private const string SkillName = "bundle_nearby_timerange_shifts_into_container";
     private const int MinIsoWeekday = 1;
     private const int MaxIsoWeekday = 7;
@@ -583,13 +591,13 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     {
         return isoWeekday switch
         {
-            1 => (true, false, false, false, false, false, false),
-            2 => (false, true, false, false, false, false, false),
-            3 => (false, false, true, false, false, false, false),
-            4 => (false, false, false, true, false, false, false),
-            5 => (false, false, false, false, true, false, false),
-            6 => (false, false, false, false, false, true, false),
-            7 => (false, false, false, false, false, false, true),
+            IsoMonday => (true, false, false, false, false, false, false),
+            IsoTuesday => (false, true, false, false, false, false, false),
+            IsoWednesday => (false, false, true, false, false, false, false),
+            IsoThursday => (false, false, false, true, false, false, false),
+            IsoFriday => (false, false, false, false, true, false, false),
+            IsoSaturday => (false, false, false, false, false, true, false),
+            IsoSunday => (false, false, false, false, false, false, true),
             _ => (false, false, false, false, false, false, false)
         };
     }

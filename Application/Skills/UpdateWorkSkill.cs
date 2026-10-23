@@ -31,6 +31,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("update_work")]
 public class UpdateWorkSkill : BaseSkillImplementation
 {
+    private const int HoursDecimals = 2;
+
     private const decimal MinutesPerHour = 60m;
     private const int HoursPerDay = 24;
 
@@ -189,6 +191,6 @@ public class UpdateWorkSkill : BaseSkillImplementation
             minutes += HoursPerDay * (double)MinutesPerHour;
         }
 
-        return Math.Round((decimal)minutes / MinutesPerHour, 2);
+        return Math.Round((decimal)minutes / MinutesPerHour, HoursDecimals);
     }
 }

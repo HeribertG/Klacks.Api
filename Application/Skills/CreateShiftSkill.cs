@@ -451,7 +451,7 @@ public class CreateShiftSkill : BaseSkillImplementation
                 return (false, false, false, false, false, true, true);
         }
 
-        var days = new bool[7];
+        var days = new bool[CalendarConstants.DaysPerWeek];
         foreach (var token in value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             var index = CanonicalDayIndex(token);
@@ -461,18 +461,25 @@ public class CreateShiftSkill : BaseSkillImplementation
             }
         }
 
-        return (days[0], days[1], days[2], days[3], days[4], days[5], days[6]);
+        return (
+            days[(int)ShiftDayType.Monday],
+            days[(int)ShiftDayType.Tuesday],
+            days[(int)ShiftDayType.Wednesday],
+            days[(int)ShiftDayType.Thursday],
+            days[(int)ShiftDayType.Friday],
+            days[(int)ShiftDayType.Saturday],
+            days[(int)ShiftDayType.Sunday]);
     }
 
     private static int CanonicalDayIndex(string token) => token switch
     {
-        "mon" or "monday" => 0,
-        "tue" or "tuesday" => 1,
-        "wed" or "wednesday" => 2,
-        "thu" or "thursday" => 3,
-        "fri" or "friday" => 4,
-        "sat" or "saturday" => 5,
-        "sun" or "sunday" => 6,
+        "mon" or "monday" => (int)ShiftDayType.Monday,
+        "tue" or "tuesday" => (int)ShiftDayType.Tuesday,
+        "wed" or "wednesday" => (int)ShiftDayType.Wednesday,
+        "thu" or "thursday" => (int)ShiftDayType.Thursday,
+        "fri" or "friday" => (int)ShiftDayType.Friday,
+        "sat" or "saturday" => (int)ShiftDayType.Saturday,
+        "sun" or "sunday" => (int)ShiftDayType.Sunday,
         _ => -1
     };
 }
