@@ -1,0 +1,77 @@
+# .github/workflows/language-packs-publish.yml for Klacks.Api
+#
+# Uploads the language packs to the Klacks Store on every stable release tag (vX.Y.Z, set only by scripts/release.ps1).
+# Installations get their packs with the API image; the store copy serves direct downloads and the in-app store, and
+# carries the release version so it never looks like an unrelated "v1.0.38". Only packs whose folder changed since the
+# previous release tag are uploaded (each upload replaces the single stored version). Run it manually with
+# all=true to upload every pack, e.g. after a failed run, and dry_run=true to only list what would be uploaded.
+# Independent of deploy.yml and native-release.yml: it touches no release asset, stable.json or the office-pc prerelease,
+# and a failed upload never turns the release red.
+
+name: Language packs to store
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      all:
+        description: 'Upload every language pack, not only the ones changed since the previous release tag'
+        type: boolean
+        default: true
+      dry_run:
+        description: 'Only list the packs and versions that would be uploaded'
+        type: boolean
+        default: true
+
+concurrency:
+  group: language-packs-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: ${{ !contains(github.ref, '-') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version and packs
+        id: plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag=$(git describe --tags --exact-match --match 'v[0-9]*' HEAD 2>/dev/null || git describe --tags --abbrev=0 --match 'v[0-9]*' HEAD)
+          version="${tag#v}"
+          all_codes=$(find Plugins/Languages -mindepth 2 -maxdepth 2 -name manifest.json -printf '%h\n' | xargs -n1 basename | sort)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.all }}" = "true" ]; then
+            codes="$all_codes"
+          else
+            previous=$(git describe --tags --abbrev=0 --match 'v[0-9]*' "${tag}^" 2>/dev/null || true)
+            if [ -z "$previous" ]; then
+              codes="$all_codes"
+            else
+              codes=""
+              for code in $all_codes; do
+                if ! git diff --quiet "$previous" "$tag" -- "Plugins/Languages/$code"; then
+                  codes="$codes $code"
+                fi
+              done
+            fi
+          fi
+          codes=$(echo $codes)
+          echo "Release $version, previous ${previous:-none}, packs: ${codes:-none}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "codes=$codes" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to store
+        if: ${{ steps.plan.outputs.codes != '' }}
+        env:
+          MARKETPLACE_UPLOAD_KEY: ${{ secrets.MARKETPLACE_UPLOAD_KEY }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '--dry-run' || '' }}
+        run: python3 .github/scripts/publish_language_packs.py $DRY_RUN "${{ steps.plan.outputs.version }}" ${{ steps.plan.outputs.codes }}
