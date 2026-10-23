@@ -15,6 +15,8 @@ public class AntColonyOptimizer
     private const double EVAPORATION_RATE = 0.5;
     private const double PHEROMONE_CONSTANT = 100.0;
     private const double INITIAL_PHEROMONE = 1.0;
+    private const double MIN_IMPROVEMENT = 0.001;
+    private const double MIN_VISIBILITY_DISTANCE = 0.001;
 
     private double[,] _pheromones;
     private int _cityCount;
@@ -95,7 +97,7 @@ public class AntColonyOptimizer
                     var newRoute = TwoOptSwap(bestRoute, i, j);
                     var newDistance = CalculateTourDistance(newRoute, isRoundTrip);
 
-                    if (newDistance < bestDistance - 0.001)
+                    if (newDistance < bestDistance - MIN_IMPROVEMENT)
                     {
                         bestRoute = newRoute;
                         bestDistance = newDistance;
@@ -259,7 +261,7 @@ public class AntColonyOptimizer
 
                 var distance = distances[currentCity, city];
                 if (distance == 0.0)
-                    distance = 0.001;
+                    distance = MIN_VISIBILITY_DISTANCE;
 
                 var pheromone = Math.Pow(pheromones[currentCity, city], alpha);
                 var visibility = Math.Pow(1.0 / distance, beta);

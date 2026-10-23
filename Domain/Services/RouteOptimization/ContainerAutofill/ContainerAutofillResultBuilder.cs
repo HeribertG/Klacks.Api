@@ -11,6 +11,8 @@ namespace Klacks.Api.Domain.Services.RouteOptimization.ContainerAutofill;
 
 public static class ContainerAutofillResultBuilder
 {
+    private const int TotalDistanceDecimals = 2;
+
     public static ContainerAutofillResult BuildResult(
         ContainerAutofillRouteContext context,
         List<int> optimizedRoute,
@@ -51,7 +53,7 @@ public static class ContainerAutofillResultBuilder
         return new ContainerAutofillResult(
             fullRoute,
             selectedShiftIds,
-            Math.Round(SumDistance(matrix, fullRouteIndices), 2),
+            Math.Round(SumDistance(matrix, fullRouteIndices), TotalDistanceDecimals),
             estimatedTravelTime,
             totalWorkTime,
             remainingTime > TimeSpan.Zero ? remainingTime : TimeSpan.Zero,

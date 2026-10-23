@@ -148,12 +148,12 @@ public sealed class WizardAgentSnapshotBuilder
             Motivation: WizardSchedulingDefaults.DefaultMotivation,
             MaxDailyHours: data.MaxDailyHours > 0 ? (double)data.MaxDailyHours : WizardSchedulingDefaults.MaxDailyHours,
             MaxWeeklyHours: data.MaxWeeklyHours > 0 ? (double)data.MaxWeeklyHours : WizardSchedulingDefaults.MaxWeeklyHours,
-            MaxOptimalGap: data.MaxOptimalGap > 0 ? (double)data.MaxOptimalGap : 2)
+            MaxOptimalGap: data.MaxOptimalGap > 0 ? (double)data.MaxOptimalGap : WizardSchedulingDefaults.MaxOptimalGap)
         {
             FullTime = Prorate(data.FullTime, membershipFactor),
             MaximumHours = (double)data.MaximumHours,
             MinimumHours = Prorate(data.MinimumHours, membershipFactor),
-            MaxWorkDays = data.MaxWorkDays > 0 ? data.MaxWorkDays : 5,
+            MaxWorkDays = data.MaxWorkDays > 0 ? data.MaxWorkDays : WizardSchedulingDefaults.MaxWorkDays,
             // CoreAgent plans whole calendar days; a fractional legal minimum (e.g. Spain's 1.5/week)
             // is rounded UP so the optimizer never targets fewer rest days than required - the exact
             // decimal threshold is still what ScheduleValidationBuilder checks post-hoc.

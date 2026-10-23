@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.Constants;
+
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
 /// <param name="PeriodFrom">Start of the date range to load (inclusive).</param>
@@ -18,5 +20,5 @@ public sealed record HolisticHarmonizerRunInput(
     IReadOnlyList<Guid> AgentIds,
     Guid? AnalyseToken,
     string? Language,
-    int ContextDaysBefore = 14,
-    int ContextDaysAfter = 14);
+    int ContextDaysBefore = ScenarioConstants.BoundaryDays,
+    int ContextDaysAfter = ScenarioConstants.BoundaryDays);

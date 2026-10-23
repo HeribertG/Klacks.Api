@@ -19,6 +19,7 @@
 /// the window by (1 - value) x its length, 0 disables the check; the UI slider sends 0 at "flexible", 1 at "exact"</param>
 /// <param name="TimeBlocks">Optional time blocks (breaks etc.)</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Application.DTOs.RouteOptimization;
@@ -34,7 +35,7 @@ public class AutofillRequestDto
     public string FromTime { get; set; } = string.Empty;
     public string UntilTime { get; set; } = string.Empty;
     public ContainerTransportMode TransportMode { get; set; } = ContainerTransportMode.ByCar;
-    public double TimeRangeTolerance { get; set; } = 0.5;
+    public double TimeRangeTolerance { get; set; } = ContainerAutofillDefaults.RequestTimeRangeTolerance;
     public List<TimeBlockDto> TimeBlocks { get; set; } = new();
     public List<Guid> AdditionalAvailableWorkIds { get; set; } = new();
 }

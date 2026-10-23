@@ -27,6 +27,7 @@
 /// that order is then used as the top-down priority order unchanged. False (default) means the order is the
 /// regular list sort and the builder reshapes it by contractually guaranteed hours (descending, stable).
 /// </param>
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Services.Schedules;
 
 namespace Klacks.Api.Application.Interfaces.Schedules;
@@ -38,7 +39,7 @@ public sealed record WizardContextRequest(
     IReadOnlyList<Guid>? ShiftIds,
     Guid? AnalyseToken,
     WizardTrainingOverrides? TrainingOverrides = null,
-    int ContextDaysBefore = 14,
-    int ContextDaysAfter = 14,
+    int ContextDaysBefore = ScenarioConstants.BoundaryDays,
+    int ContextDaysAfter = ScenarioConstants.BoundaryDays,
     bool AgentOrderIsUserDefined = false,
     DateOnly? ReplanFrom = null);

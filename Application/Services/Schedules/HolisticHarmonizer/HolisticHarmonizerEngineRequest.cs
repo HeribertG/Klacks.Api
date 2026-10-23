@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.Constants;
+
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
 /// <summary>
@@ -21,5 +23,5 @@ public sealed record HolisticHarmonizerEngineRequest(
     Guid? AnalyseToken,
     string LlmModelId,
     string? Language,
-    int ContextDaysBefore = 14,
-    int ContextDaysAfter = 14);
+    int ContextDaysBefore = ScenarioConstants.BoundaryDays,
+    int ContextDaysAfter = ScenarioConstants.BoundaryDays);

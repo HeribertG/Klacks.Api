@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.Constants;
+
 namespace Klacks.Api.Application.Services.Schedules;
 
 /// <summary>
@@ -31,7 +33,7 @@ public sealed record HarmonizerContextRequest(
     DateOnly PeriodUntil,
     IReadOnlyList<Guid> AgentIds,
     Guid? AnalyseToken,
-    int ContextDaysBefore = 14,
-    int ContextDaysAfter = 14,
+    int ContextDaysBefore = ScenarioConstants.BoundaryDays,
+    int ContextDaysAfter = ScenarioConstants.BoundaryDays,
     int? Seed = null,
     bool LoadPlanningRules = true);

@@ -5,11 +5,16 @@
 /// Selects and inserts shifts greedily to maximize collected work time within a time budget.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Services.RouteOptimization;
 
 public static class ContainerAutofillAlgorithm
 {
     public const double GREEDY_ONSITE_COST_WEIGHT = -1.0;
+
+    private const int RoundTripDepotCount = 1;
+    private const int OpenRouteDepotCount = 2;
 
     public static List<int> GreedySelect(
         double[,] durationMatrix,
@@ -19,11 +24,11 @@ public static class ContainerAutofillAlgorithm
         double fromSec,
         double endSec,
         List<TimeBlock>? unmovable = null,
-        double tolerance = 0.8,
+        double tolerance = ContainerAutofillDefaults.AlgorithmTimeRangeTolerance,
         IReadOnlyList<int>? lockedIndices = null)
     {
         var blocks = unmovable ?? [];
-        var candidateCount = locations.Count - (endIdx != startIdx ? 2 : 1);
+        var candidateCount = locations.Count - (endIdx != startIdx ? OpenRouteDepotCount : RoundTripDepotCount);
         var lockedSet = lockedIndices != null ? new HashSet<int>(lockedIndices) : [];
 
         var selected = new List<int>();
@@ -92,7 +97,7 @@ public static class ContainerAutofillAlgorithm
         double endSec,
         double budgetSec,
         List<TimeBlock>? unmovable = null,
-        double tolerance = 0.8)
+        double tolerance = ContainerAutofillDefaults.AlgorithmTimeRangeTolerance)
     {
         if (remaining.Count == 0) return route;
 

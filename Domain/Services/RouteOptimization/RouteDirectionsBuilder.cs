@@ -134,7 +134,7 @@ public class RouteDirectionsBuilder : IRouteDirectionsBuilder
             "",
             "",
             "",
-            distanceMeters / 1000.0,
+            distanceMeters / GeoConstants.MetersPerKm,
             TimeSpan.FromSeconds(durationSeconds),
             steps);
     }

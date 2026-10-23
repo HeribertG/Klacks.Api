@@ -22,6 +22,7 @@
 /// <param name="IsWeekdayAndHoliday">Only read with IsHoliday: true = the holiday slot of Weekday, false = the generic holiday
 /// slot of every public holiday</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization;
@@ -35,7 +36,7 @@ public record ContainerAutofillRequest(
     TimeOnly FromTime,
     TimeOnly UntilTime,
     ContainerTransportMode TransportMode = ContainerTransportMode.ByCar,
-    double TimeRangeTolerance = 0.5,
+    double TimeRangeTolerance = ContainerAutofillDefaults.RequestTimeRangeTolerance,
     CancellationToken CancellationToken = default,
     List<TimeBlock>? TimeBlocks = null,
     IReadOnlyCollection<Guid>? AdditionalAvailableWorkIds = null,

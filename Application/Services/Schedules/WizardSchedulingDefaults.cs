@@ -21,4 +21,8 @@ public static class WizardSchedulingDefaults
     public const double MaxDailyHours = 10.0;
 
     public const double DefaultMotivation = 0.5;
+
+    public const double MaxOptimalGap = 2.0;
+
+    public const int MaxWorkDays = 5;
 }
