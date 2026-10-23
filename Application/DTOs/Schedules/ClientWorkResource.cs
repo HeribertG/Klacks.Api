@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.DTOs.Associations;
@@ -32,7 +33,7 @@ public class ClientWorkResource
 
     public string? Name { get; set; } = string.Empty;
 
-    public int NeededRows { get; set; } = 3;
+    public int NeededRows { get; set; } = ClientScheduleDefaults.NeededRows;
 
     public string? SecondName { get; set; } = string.Empty;
 

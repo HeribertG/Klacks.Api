@@ -7,6 +7,8 @@
 /// <param name="SelectedGroup">Optional group ID for filtering</param>
 /// <param name="StartRow">Start index for paging</param>
 /// <param name="RowCount">Number of results per page</param>
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.DTOs.Filter;
 
 public class ClientAvailabilityClientFilter
@@ -21,5 +23,5 @@ public class ClientAvailabilityClientFilter
     public bool ShowEmployees { get; set; } = true;
     public bool ShowExtern { get; set; } = true;
     public int StartRow { get; set; } = 0;
-    public int RowCount { get; set; } = 200;
+    public int RowCount { get; set; } = PagingDefaults.DefaultRowCount;
 }

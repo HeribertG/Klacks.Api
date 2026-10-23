@@ -5,6 +5,7 @@
 /// </summary>
 /// <param name="StartDate">Start of the visible period</param>
 /// <param name="EndDate">End of the visible period</param>
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Filter;
 namespace Klacks.Api.Domain.Models.Filters;
 
@@ -30,5 +31,5 @@ public class ClientBaseFilter
 
     public int StartRow { get; set; } = 0;
 
-    public int RowCount { get; set; } = 200;
+    public int RowCount { get; set; } = PagingDefaults.DefaultRowCount;
 }

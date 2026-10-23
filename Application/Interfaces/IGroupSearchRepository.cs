@@ -6,6 +6,6 @@ public interface IGroupSearchRepository
 {
     Task<GroupSearchResult> SearchAsync(
         string? searchTerm = null,
-        int limit = 10,
+        int limit = Domain.Constants.PagingDefaults.DefaultSearchResultLimit,
         CancellationToken cancellationToken = default);
 }

@@ -1,9 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Models.Filters;
 
 public class WorkFilter
 {
+    private const int DefaultPaymentInterval = (int)Klacks.Api.Domain.Enums.PaymentInterval.Monthly;
+
     public string SearchString { get; set; } = string.Empty;
 
     public DateOnly StartDate { get; set; }
@@ -24,9 +28,9 @@ public class WorkFilter
 
     public int StartRow { get; set; } = 0;
 
-    public int RowCount { get; set; } = 200;
+    public int RowCount { get; set; } = PagingDefaults.DefaultRowCount;
 
-    public int PaymentInterval { get; set; } = 2;
+    public int PaymentInterval { get; set; } = DefaultPaymentInterval;
 
     /// <summary>
     /// Optional single-client scope. When set, WorkList returns only that client

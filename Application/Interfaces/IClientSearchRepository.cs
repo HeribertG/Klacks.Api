@@ -40,7 +40,7 @@ public interface IClientSearchRepository
         string? canton = null,
         EntityTypeEnum? entityType = null,
         Guid? contractId = null,
-        int limit = 10,
+        int limit = Domain.Constants.PagingDefaults.DefaultSearchResultLimit,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -56,7 +56,7 @@ public interface IClientSearchRepository
         string? canton = null,
         EntityTypeEnum? entityType = null,
         Guid? contractId = null,
-        int limit = 10,
+        int limit = Domain.Constants.PagingDefaults.DefaultSearchResultLimit,
         CancellationToken cancellationToken = default);
 
     /// <summary>

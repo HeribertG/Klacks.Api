@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Reports;
@@ -7,7 +8,7 @@ namespace Klacks.Api.Domain.Models.Reports;
 public class FieldStyle
 {
     public string FontFamily { get; set; } = "Arial";
-    public float FontSize { get; set; } = 10;
+    public float FontSize { get; set; } = ReportDefaults.FontSize;
     public bool Bold { get; set; }
     public bool Italic { get; set; }
     public bool Underline { get; set; }

@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.DTOs.Reports;
 
 public class ReportFieldResource
@@ -10,8 +12,8 @@ public class ReportFieldResource
     public int Type { get; set; }
     public float X { get; set; }
     public float Y { get; set; }
-    public float Width { get; set; } = 100;
-    public float Height { get; set; } = 20;
+    public float Width { get; set; } = ReportDefaults.FieldWidth;
+    public float Height { get; set; } = ReportDefaults.FieldHeight;
     public FieldStyleResource Style { get; set; } = new();
     public string? Format { get; set; }
     public string? Formula { get; set; }

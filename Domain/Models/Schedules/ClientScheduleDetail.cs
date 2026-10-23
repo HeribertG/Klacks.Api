@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Models.Schedules;
 
 public class ClientScheduleDetail
@@ -12,5 +14,5 @@ public class ClientScheduleDetail
 
     public Guid Id { get; set; }
 
-    public int NeededRows { get; set; } = 3;
+    public int NeededRows { get; set; } = ClientScheduleDefaults.NeededRows;
 }

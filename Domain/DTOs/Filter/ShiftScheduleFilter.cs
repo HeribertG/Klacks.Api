@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 ﻿namespace Klacks.Api.Domain.DTOs.Filter;
 
 public class ShiftScheduleFilter
@@ -30,7 +32,7 @@ public class ShiftScheduleFilter
 
     public int StartRow { get; set; } = 0;
 
-    public int RowCount { get; set; } = 100;
+    public int RowCount { get; set; } = PagingDefaults.ShiftScheduleRowCount;
 
     public DateTime? SpecificDate { get; set; }
 

@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Criteria;
 using Klacks.Api.Domain.Models.Filters;
@@ -15,6 +16,8 @@ namespace Klacks.Api.Application.Mappers;
 [Mapper]
 public partial class FilterMapper
 {
+    private const AddressTypeEnum InvoiceAddressFilterType = (AddressTypeEnum)3;
+
     public ClientSearchCriteria ToClientSearchCriteria(FilterResource filter)
     {
         return new ClientSearchCriteria
@@ -32,7 +35,7 @@ public partial class FilterMapper
                      filter.LegalEntity == true ? GenderEnum.LegalEntity : null,
             AddressType = filter.HomeAddress == true ? AddressTypeEnum.Workplace :
                           filter.CompanyAddress == true ? AddressTypeEnum.InvoicingAddress :
-                          filter.InvoiceAddress == true ? (AddressTypeEnum)3 : null,
+                          filter.InvoiceAddress == true ? InvoiceAddressFilterType : null,
             HasAnnotation = filter.HasAnnotation,
             IsActiveMember = filter.ActiveMembership,
             IsFormerMember = filter.FormerMembership,
@@ -122,7 +125,7 @@ public partial class FilterMapper
         return new PaginationParams
         {
             PageIndex = filter.RequiredPage,
-            PageSize = filter.NumberOfItemsPerPage > 0 ? filter.NumberOfItemsPerPage : 20,
+            PageSize = filter.NumberOfItemsPerPage > 0 ? filter.NumberOfItemsPerPage : PagingDefaults.DefaultPageSize,
             SortBy = filter.OrderBy,
             IsDescending = filter.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase)
         };

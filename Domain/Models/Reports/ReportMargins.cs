@@ -1,11 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Models.Reports;
 
 public class ReportMargins
 {
-    public float Top { get; set; } = 20;
-    public float Bottom { get; set; } = 20;
-    public float Left { get; set; } = 20;
-    public float Right { get; set; } = 20;
+    public float Top { get; set; } = ReportDefaults.Margin;
+    public float Bottom { get; set; } = ReportDefaults.Margin;
+    public float Left { get; set; } = ReportDefaults.Margin;
+    public float Right { get; set; } = ReportDefaults.Margin;
 }

@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Models.Criteria;
 
 public abstract class BaseCriteria
@@ -12,7 +14,7 @@ public abstract class BaseCriteria
 
     public int? NumberOfItemOnPreviousPage { get; set; }
 
-    public int NumberOfItemsPerPage { get; set; } = 10;
+    public int NumberOfItemsPerPage { get; set; } = PagingDefaults.DefaultItemsPerPage;
 
     public string OrderBy { get; set; } = string.Empty;
 

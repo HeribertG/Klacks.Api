@@ -12,6 +12,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Guidance;
@@ -22,7 +23,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("search_and_navigate")]
 public class SearchAndNavigateSkill : BaseSkillImplementation
 {
-    private const int SearchResultLimit = 10;
     private const string ClientEditRoute = "/workplace/edit-address";
     private const string ClientListRoute = "/workplace/client";
     private const string GroupEditRoute = "/workplace/edit-group";
@@ -72,12 +72,12 @@ public class SearchAndNavigateSkill : BaseSkillImplementation
     {
         var result = await _clientSearchRepository.SearchAsync(
             searchTerm: searchQuery,
-            limit: SearchResultLimit,
+            limit: PagingDefaults.DefaultSearchResultLimit,
             cancellationToken: cancellationToken);
         if (result.TotalCount == 0)
         {
             result = await _clientSearchRepository.SearchByFuzzyNameAsync(
-                searchQuery, limit: SearchResultLimit, cancellationToken: cancellationToken);
+                searchQuery, limit: PagingDefaults.DefaultSearchResultLimit, cancellationToken: cancellationToken);
         }
 
         if (result.TotalCount == 0)
@@ -137,7 +137,7 @@ public class SearchAndNavigateSkill : BaseSkillImplementation
     {
         var result = await _groupSearchRepository.SearchAsync(
             searchTerm: searchQuery,
-            limit: SearchResultLimit,
+            limit: PagingDefaults.DefaultSearchResultLimit,
             cancellationToken: cancellationToken);
 
         if (result.TotalCount == 0)
@@ -170,7 +170,7 @@ public class SearchAndNavigateSkill : BaseSkillImplementation
     {
         var result = await _shiftSearchRepository.SearchAsync(
             searchTerm: searchQuery,
-            limit: SearchResultLimit,
+            limit: PagingDefaults.DefaultSearchResultLimit,
             cancellationToken: cancellationToken);
 
         if (result.TotalCount == 0)
