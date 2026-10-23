@@ -10,6 +10,7 @@
 /// <param name="userService">Resolves the calling user and their administrator role</param>
 
 using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -22,9 +23,6 @@ public class UpdateAgentMemoryCommandHandler : IRequestHandler<UpdateAgentMemory
     private readonly IAgentMemoryRepository _memoryRepository;
     private readonly IEmbeddingService _embeddingService;
     private readonly IUserService _userService;
-
-    private const int MinImportance = 1;
-    private const int MaxImportance = 10;
 
     public UpdateAgentMemoryCommandHandler(
         IAgentMemoryRepository memoryRepository,
@@ -53,7 +51,7 @@ public class UpdateAgentMemoryCommandHandler : IRequestHandler<UpdateAgentMemory
         if (request.Key != null) { memory.Key = request.Key; contentChanged = true; }
         if (request.Content != null) { memory.Content = request.Content; contentChanged = true; }
         if (request.Category != null) memory.Category = request.Category;
-        if (request.Importance.HasValue) memory.Importance = Math.Clamp(request.Importance.Value, MinImportance, MaxImportance);
+        if (request.Importance.HasValue) memory.Importance = Math.Clamp(request.Importance.Value, AgentMemoryDefaults.MinImportance, AgentMemoryDefaults.MaxImportance);
         if (request.IsPinned.HasValue) memory.IsPinned = request.IsPinned.Value;
 
         if (contentChanged && _embeddingService.IsAvailable)

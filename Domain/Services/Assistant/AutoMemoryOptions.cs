@@ -12,7 +12,9 @@ public class AutoMemoryOptions
 {
     public const string SectionName = "Assistant:AutoMemory";
 
+    public const int DefaultContextTtlDays = 30;
+
     public bool Enabled { get; set; } = true;
 
-    public int ContextTtlDays { get; set; } = 30;
+    public int ContextTtlDays { get; set; } = DefaultContextTtlDays;
 }

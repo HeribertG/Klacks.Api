@@ -32,7 +32,6 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
     private const int MaxExtractedMemoriesPerTurn = 3;
     private const int ExtractionMaxTokens = 512;
     private const double ExtractionTemperature = 0.1;
-    private const int MinimumImportance = 5;
 
     internal static readonly string ExtractionSystemPrompt =
         "You are a memory extraction assistant. Analyze the conversation turn and extract 0-" +
@@ -171,8 +170,8 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
                     : MemoryCategories.LearnedFact;
 
                 var importance = item.TryGetProperty("importance", out var impEl) && impEl.TryGetInt32(out var imp)
-                    ? Math.Clamp(imp, 1, 10)
-                    : MinimumImportance;
+                    ? Math.Clamp(imp, AgentMemoryDefaults.MinImportance, AgentMemoryDefaults.MaxImportance)
+                    : AgentMemoryDefaults.DefaultImportance;
 
                 result.Add(new ExtractedFact(key, content, category, importance));
             }
@@ -217,7 +216,7 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
         if (embedding != null)
         {
             var similar = await _agentMemoryRepository.HybridSearchAsync(
-                agentId, $"{fact.Key} {fact.Content}", embedding, limit: 3, userId: scopedUserId);
+                agentId, $"{fact.Key} {fact.Content}", embedding, limit: AgentMemoryDefaults.DuplicateCheckNeighbourLimit, userId: scopedUserId);
 
             if (similar.Any(s => s.Score >= DuplicateSimilarityThreshold))
             {

@@ -166,7 +166,7 @@ public class TurnReflectionService : ITurnReflectionService
         }
 
         var similar = await _agentMemoryRepository.HybridSearchAsync(
-            request.AgentId, $"{request.ScopeKey} {lesson}", embedding, limit: 3);
+            request.AgentId, $"{request.ScopeKey} {lesson}", embedding, limit: AgentMemoryDefaults.DuplicateCheckNeighbourLimit);
 
         var duplicate = similar.FirstOrDefault(s => s.Score >= DuplicateSimilarityThreshold);
         if (duplicate != null)

@@ -45,7 +45,7 @@ public class AddPersonalMemorySkill : BaseSkillImplementation
         var category = MemoryCategories.IsPersonal(requestedCategory)
             ? requestedCategory
             : MemoryCategories.UserInfo;
-        var importance = Math.Clamp(GetParameter<int?>(parameters, "importance", 5) ?? 5, 1, 10);
+        var importance = Math.Clamp(GetParameter<int?>(parameters, "importance", AgentMemoryDefaults.DefaultImportance) ?? AgentMemoryDefaults.DefaultImportance, AgentMemoryDefaults.MinImportance, AgentMemoryDefaults.MaxImportance);
         var isPinned = GetParameter<bool?>(parameters, "isPinned") ?? false;
         var tagsStr = GetParameter<string>(parameters, "tags");
 

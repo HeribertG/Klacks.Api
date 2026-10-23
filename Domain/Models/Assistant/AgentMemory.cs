@@ -21,7 +21,7 @@ public class AgentMemory : BaseEntity
 
     public string Content { get; set; } = string.Empty;
 
-    public int Importance { get; set; } = 5;
+    public int Importance { get; set; } = AgentMemoryDefaults.DefaultImportance;
 
     public float[]? Embedding { get; set; }
 

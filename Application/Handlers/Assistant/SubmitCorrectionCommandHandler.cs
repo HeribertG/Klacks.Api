@@ -24,6 +24,8 @@ namespace Klacks.Api.Application.Handlers.Assistant;
 
 public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCommand, SubmitCorrectionResult>
 {
+    private const int ReflectionLessonLookupLimit = 10;
+
     private static readonly HashSet<string> AllowedCorrectionTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         CorrectionTypes.WrongSkill,
@@ -157,7 +159,7 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
     private async Task RevokeLatestUncoveredClaimLessonAsync(Guid agentId, string scopeKey, CancellationToken cancellationToken)
     {
         var lessons = await _agentMemoryRepository.GetByCategoryAndKeysAsync(
-            agentId, MemoryCategories.Reflection, new[] { scopeKey }, limit: 10, cancellationToken);
+            agentId, MemoryCategories.Reflection, new[] { scopeKey }, limit: ReflectionLessonLookupLimit, cancellationToken);
         var latest = lessons
             .Where(l => string.Equals(l.SourceRef, ReflectionTriggers.UncoveredClaim, StringComparison.Ordinal))
             .OrderByDescending(l => l.CreateTime)

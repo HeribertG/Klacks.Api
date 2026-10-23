@@ -33,11 +33,11 @@ public class AddAiMemorySkill : BaseSkillImplementation
         var key = GetRequiredString(parameters, "key");
         var content = GetRequiredString(parameters, "content");
         var category = GetParameter<string>(parameters, "category", MemoryCategories.LearnedFact)!;
-        var importance = GetParameter<int?>(parameters, "importance", 5) ?? 5;
+        var importance = GetParameter<int?>(parameters, "importance", AgentMemoryDefaults.DefaultImportance) ?? AgentMemoryDefaults.DefaultImportance;
         var isPinnedExplicit = GetParameter<bool?>(parameters, "isPinned");
         var tagsStr = GetParameter<string>(parameters, "tags");
 
-        importance = Math.Clamp(importance, 1, 10);
+        importance = Math.Clamp(importance, AgentMemoryDefaults.MinImportance, AgentMemoryDefaults.MaxImportance);
 
         var isCompanyInvariant = MemoryCategories.IsCompanyInvariant(category);
         var isPinned = isPinnedExplicit ?? isCompanyInvariant;

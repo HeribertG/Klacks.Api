@@ -25,10 +25,6 @@ public class CreateAgentMemoryCommandHandler : IRequestHandler<CreateAgentMemory
     private readonly IEmbeddingService _embeddingService;
     private readonly IUserService _userService;
 
-    private const int DefaultImportance = 5;
-    private const int MinImportance = 1;
-    private const int MaxImportance = 10;
-
     public CreateAgentMemoryCommandHandler(
         IAgentMemoryRepository memoryRepository,
         IEmbeddingService embeddingService,
@@ -50,7 +46,7 @@ public class CreateAgentMemoryCommandHandler : IRequestHandler<CreateAgentMemory
             Category = category,
             Key = request.Key,
             Content = request.Content,
-            Importance = Math.Clamp(request.Importance ?? DefaultImportance, MinImportance, MaxImportance),
+            Importance = Math.Clamp(request.Importance ?? AgentMemoryDefaults.DefaultImportance, AgentMemoryDefaults.MinImportance, AgentMemoryDefaults.MaxImportance),
             IsPinned = request.IsPinned ?? false,
             Source = MemorySources.UserExplicit,
             ExpiresAt = request.ExpiresAt

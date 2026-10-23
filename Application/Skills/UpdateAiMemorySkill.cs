@@ -72,7 +72,7 @@ public class UpdateAiMemorySkill : BaseSkillImplementation
             memory.Category = category;
 
         if (importance.HasValue)
-            memory.Importance = Math.Clamp(importance.Value, 1, 10);
+            memory.Importance = Math.Clamp(importance.Value, AgentMemoryDefaults.MinImportance, AgentMemoryDefaults.MaxImportance);
 
         if (isPinned.HasValue)
             memory.IsPinned = isPinned.Value;

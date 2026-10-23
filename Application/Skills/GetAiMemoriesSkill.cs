@@ -47,7 +47,7 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
         {
             var queryEmbedding = await _embeddingService.GenerateEmbeddingAsync(searchQuery, cancellationToken);
             var searchResults = await _agentMemoryRepository.HybridSearchAsync(
-                agent.Id, searchQuery, queryEmbedding, 15, context.UserId, cancellationToken);
+                agent.Id, searchQuery, queryEmbedding, SearchResultLimit, context.UserId, cancellationToken);
 
             var pinnedResults = await _agentMemoryRepository.GetPinnedAsync(agent.Id, context.UserId, cancellationToken);
 
@@ -119,6 +119,7 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
                 removedFromSample));
     }
 
+    private const int SearchResultLimit = 15;
     private const int OverviewSampleSize = 25;
     private const int PreviewChars = 100;
     private const string AlreadyInContextFormat = "{0} additional matches are already in your context above.";
