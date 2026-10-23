@@ -32,7 +32,7 @@ public class GroupValidityService : IGroupValidityService
         if (!activeDateRange && !formerDateRange && !futureDateRange)
         {
             _logger.LogDebug("No date ranges selected - returning empty result");
-            return Enumerable.Empty<Group>().AsQueryable();
+            return query.Where(_ => false);
         }
 
         // Must be Kind=Utc, not Local: this value goes into an EF predicate against timestamptz
