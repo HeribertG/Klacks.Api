@@ -19,6 +19,10 @@ namespace Klacks.Api.Domain.Services.Accounts;
 public class UsernameGeneratorService : IUsernameGeneratorService
 {
     private const string FallbackUsername = "usr";
+    private const int BaseUsernameLength = 3;
+    private const int LastNamePrefixLength = 2;
+    private const int MaxNumericSuffix = 999;
+    private const int RandomSuffixLength = 4;
 
     private static readonly IReadOnlyDictionary<string, string> Transliterations = new Dictionary<string, string>
     {
@@ -52,9 +56,9 @@ public class UsernameGeneratorService : IUsernameGeneratorService
             username = $"{baseUsername}{counter}";
             counter++;
 
-            if (counter > 999)
+            if (counter > MaxNumericSuffix)
             {
-                username = $"{baseUsername}{Guid.NewGuid().ToString()[..4]}";
+                username = $"{baseUsername}{Guid.NewGuid().ToString()[..RandomSuffixLength]}";
                 break;
             }
         }
@@ -76,17 +80,17 @@ public class UsernameGeneratorService : IUsernameGeneratorService
 
         if (string.IsNullOrEmpty(last))
         {
-            return first.Length >= 3 ? first[..3].ToLowerInvariant() : PadToThree(first);
+            return first.Length >= BaseUsernameLength ? first[..BaseUsernameLength].ToLowerInvariant() : PadToThree(first);
         }
 
         if (string.IsNullOrEmpty(first))
         {
-            return last.Length >= 3 ? last[..3].ToLowerInvariant() : PadToThree(last);
+            return last.Length >= BaseUsernameLength ? last[..BaseUsernameLength].ToLowerInvariant() : PadToThree(last);
         }
 
         // First letter of firstName + first 2 letters of lastName (e.g., "Max Mustermann" -> "mmu")
         var result = first[0].ToString();
-        result += last.Length >= 2 ? last[..2] : last + "x";
+        result += last.Length >= LastNamePrefixLength ? last[..LastNamePrefixLength] : last + "x";
 
         return result.ToLowerInvariant();
     }
@@ -94,7 +98,7 @@ public class UsernameGeneratorService : IUsernameGeneratorService
     private static string PadToThree(string input)
     {
         var result = input.ToLowerInvariant();
-        while (result.Length < 3)
+        while (result.Length < BaseUsernameLength)
         {
             result += "x";
         }
