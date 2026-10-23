@@ -2,7 +2,7 @@
 
 using Klacks.Api.Domain.Models.Settings;
 
-namespace Klacks.Api.Domain.Interfaces.CalendarSelections;
+namespace Klacks.Api.Infrastructure.Services.Settings;
 
 public interface ICalendarRuleSortingService
 {

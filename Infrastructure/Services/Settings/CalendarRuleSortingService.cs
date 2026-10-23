@@ -9,7 +9,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
 
-namespace Klacks.Api.Domain.Services.Settings;
+namespace Klacks.Api.Infrastructure.Services.Settings;
 
 public class CalendarRuleSortingService : ICalendarRuleSortingService
 {

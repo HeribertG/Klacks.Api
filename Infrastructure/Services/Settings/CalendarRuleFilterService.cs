@@ -4,7 +4,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.DTOs.Filter;
 
-namespace Klacks.Api.Domain.Services.Settings;
+namespace Klacks.Api.Infrastructure.Services.Settings;
 
 public class CalendarRuleFilterService : ICalendarRuleFilterService
 {

@@ -3,7 +3,7 @@
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.DTOs.Filter;
 
-namespace Klacks.Api.Domain.Interfaces.CalendarSelections;
+namespace Klacks.Api.Infrastructure.Services.Settings;
 
 public interface ICalendarRulePaginationService
 {

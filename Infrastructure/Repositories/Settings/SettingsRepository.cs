@@ -8,6 +8,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Infrastructure.Services.Settings;
 
 namespace Klacks.Api.Infrastructure.Repositories.Settings;
 
