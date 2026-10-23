@@ -16,6 +16,7 @@ namespace Klacks.Api.Application.Services.Schedules;
 public static class DailyReadinessCalculator
 {
     private const int FullWeekDays = 7;
+    private const int CountDecimalPlaces = 2;
 
     /// <summary>
     /// Builds one entry per calendar day in the range.
@@ -106,11 +107,11 @@ public static class DailyReadinessCalculator
             dailyData.Add(new ResourceMonitorDayResource
             {
                 Date = date,
-                WunschCount = Math.Round(wunschCount, 2),
-                MaxCount = Math.Round(maxCount, 2),
+                WunschCount = Math.Round(wunschCount, CountDecimalPlaces),
+                MaxCount = Math.Round(maxCount, CountDecimalPlaces),
                 TotalCount = totalCount,
                 DienstCount = dienstCount,
-                AbsenzCount = Math.Round(absenzCount, 2),
+                AbsenzCount = Math.Round(absenzCount, CountDecimalPlaces),
             });
         }
 
