@@ -210,152 +210,196 @@ public sealed class WizardApplyService : IWizardApplyService
 
         try
         {
-            var sourceScenario = await LoadSourceScenarioAsync(sourceAnalyseToken, ct);
-            var runGroupId = sourceScenario?.RunGroupId ?? Guid.NewGuid();
-            groupId = ScenarioGroupInheritance.Resolve(groupId, sourceScenario);
-
-            var items = cachedScenario.Tokens
-                .Where(t => !t.IsLocked)
-                .ToList();
-
-            var periodFrom = items.Count > 0
-                ? items.Min(t => t.Date)
-                : await _companyClock.GetTodayDateAsync(ct);
-            var periodUntil = items.Count > 0
-                ? items.Max(t => t.Date)
-                : periodFrom;
-
-            var name = await _scenarioNameGenerator.GenerateAsync(
-                nameKind ?? ScenarioNameKind.Plan, periodFrom, periodUntil, groupId, language, ct);
-            var token = Guid.NewGuid();
-            var (scenarioFrom, scenarioUntil) = ScenarioSourceRange.Widen(
-                periodFrom, periodUntil, sourceScenario?.FromDate, sourceScenario?.UntilDate);
+            var plan = await BuildScenarioPlanAsync(cachedScenario, sourceAnalyseToken, groupId, nameKind, language, ct);
 
             // Scenario row, clone, slot cleanup and the planner works must land together - a failure in
             // between used to leave a scenario whose schedule was half-written.
-            var (createdIds, partition, skipped, analyseScenario) = await _unitOfWork
-                .ExecuteInTransactionAsync<(IReadOnlyList<Guid> Ids, CompliancePartitionResult Partition, IReadOnlyList<SkippedPlacementDto> Skipped, AnalyseScenario Scenario)>(async () =>
-            {
-                // A transient retry replays this delegate; without clearing, the first attempt's entities
-                // would still be tracked and inserted a second time.
-                _context.ChangeTracker.Clear();
-
-                var analyseScenario = new AnalyseScenario
-                {
-                    Name = name,
-                    GroupId = groupId,
-                    FromDate = scenarioFrom,
-                    UntilDate = scenarioUntil,
-                    Token = token,
-                    RunGroupId = runGroupId,
-                    SourceToken = sourceAnalyseToken,
-                };
-
-                await _scenarioRepository.Add(analyseScenario);
-                var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, scenarioFrom, scenarioUntil, token, additionalShiftIds: null, sourceAnalyseToken, ct);
-                await _unitOfWork.CompleteAsync();
-
-                // The planner REPLACES the incumbent on exactly the (shift, date) slots it fills. Remove the cloned
-                // movable works on those slots before materialising the planner works, so an accepted plan does not
-                // double-book them (grill H2). Slots the planner did not plan keep their cloned work (the run can
-                // cover a narrower agent/shift set than the group-scoped clone); locks/breaks are always preserved.
-                var plannedSlots = items
-                    .Select(t => (ShiftId: shiftIdMap.TryGetValue(t.ShiftRefId, out var mapped) ? mapped : t.ShiftRefId, t.Date))
-                    .ToHashSet();
-                var displacedWorkIds = await _scenarioService.SoftDeleteClonedWorksOnSlotsAsync(token, periodFrom, periodUntil, plannedSlots, ct);
-                await _unitOfWork.CompleteAsync();
-
-                // Partition AFTER the slot soft-delete has been flushed: the guardrail reads the DB via
-                // AsNoTracking under the NEW scenario token, so it must see the clone world exactly as the
-                // planner works will land in it (unflushed changes would make the check silently pass or
-                // report phantom collisions with the removed incumbents).
-                var rows = items
-                    .Select(t => new PlannedWorkRow(
-                        Guid.Parse(t.AgentId),
-                        t.Date,
-                        TimeOnly.FromDateTime(t.StartAt),
-                        TimeOnly.FromDateTime(t.EndAt),
-                        t.ShiftRefId))
-                    .ToList();
-                var partition = await _partitionService.PartitionAsync(rows, token, overrideBlock, ct);
-
-                var unplaceable = FindPlacementsWithoutClone(items, partition.AcceptedIndexes, shiftIdMap, sourceAnalyseToken, jobId);
-                var outsidePeriod = await FindOutsidePeriodIndexesAsync(
-                    rows, partition.AcceptedIndexes.Except(unplaceable).ToList(), groupId, jobId, ct);
-                var acceptedTokens = partition.AcceptedIndexes.Except(unplaceable).Except(outsidePeriod).Select(i => items[i]).ToList();
-                var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes, unplaceable, outsidePeriod);
-
-                var bulkItems = acceptedTokens
-                    .Select(t => BuildBulkItem(t, token, shiftIdMap))
-                    .ToList();
-
-                IReadOnlyList<Guid> ids = [];
-
-                if (bulkItems.Count > 0)
-                {
-                    var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
-                    {
-                        Works = bulkItems,
-                        PeriodStart = periodFrom,
-                        PeriodEnd = periodUntil,
-                    }, PlanningPeriodCheck.SkipForPlannerOutput));
-                    ids = response.CreatedIds;
-                }
-
-                // Expenses of a displaced incumbent are payroll data and must never be dropped: they follow the
-                // planner's work on the same slot; a slot left empty (blocked placement) is emptied, except for an
-                // incumbent carrying expenses that have no other work of its employee to go to.
-                var expensesChangingEmployee = await _scenarioService.ResolveDisplacedWorksAsync(token, displacedWorkIds, ids, ct);
-                await _unitOfWork.CompleteAsync();
-                if (expensesChangingEmployee > 0)
-                {
-                    _logger.LogInformation(
-                        "Wizard job {JobId}: {Count} expenses of replaced works moved to a work of another employee in scenario {Token}",
-                        jobId, expensesChangingEmployee, token);
-                }
-
-                await PersistEscalationsAsync(bulkItems, escalations, token, periodFrom, periodUntil, ct);
-
-                return (ids, partition, skipped, analyseScenario);
-            });
+            var materialised = await _unitOfWork.ExecuteInTransactionAsync(
+                () => MaterialiseScenarioAsync(plan, escalations, jobId, overrideBlock, ct));
 
             // Range checks run on a background context that would read the pre-commit state from inside
             // the transaction; re-queueing after the commit is idempotent and heals that.
-            _timelineService.QueueRangeCheck(scenarioFrom, scenarioUntil, token);
+            _timelineService.QueueRangeCheck(plan.ScenarioFrom, plan.ScenarioUntil, plan.Token);
 
             await CaptureRunAsync(
                 jobId,
                 WizardApplyKind.Scenario,
-                scenarioId: analyseScenario.Id,
-                runGroupId: runGroupId,
-                groupId: groupId,
-                periodFrom,
-                periodUntil,
+                scenarioId: materialised.Scenario.Id,
+                runGroupId: plan.RunGroupId,
+                groupId: plan.GroupId,
+                plan.PeriodFrom,
+                plan.PeriodUntil,
                 subScoreJson,
                 stage0Violations,
-                createdIds,
+                materialised.Ids,
                 ct);
 
-            var resource = new AnalyseScenarioResource
-            {
-                Id = analyseScenario.Id,
-                Name = analyseScenario.Name,
-                Description = analyseScenario.Description,
-                GroupId = analyseScenario.GroupId,
-                FromDate = analyseScenario.FromDate,
-                UntilDate = analyseScenario.UntilDate,
-                Token = analyseScenario.Token,
-                RunGroupId = analyseScenario.RunGroupId,
-                CreatedByUser = analyseScenario.CreatedByUser,
-                Status = (int)analyseScenario.Status,
-            };
-
-            return (resource, new WizardApplyOutcome(createdIds, partition.ReportableConflicts, skipped, partition.OverrideApplied));
+            return (
+                AppliedScenarioBuilder.ToResource(materialised.Scenario),
+                new WizardApplyOutcome(materialised.Ids, materialised.Partition.ReportableConflicts, materialised.Skipped, materialised.Partition.OverrideApplied));
         }
         catch
         {
             _resultCache.Store(jobId, cachedScenario, sourceAnalyseToken, escalations, subScoreJson, stage0Violations);
             throw;
+        }
+    }
+
+    private async Task<WizardScenarioApplyPlan> BuildScenarioPlanAsync(
+        CoreScenario cachedScenario,
+        Guid? sourceAnalyseToken,
+        Guid? requestedGroupId,
+        ScenarioNameKind? nameKind,
+        string? language,
+        CancellationToken ct)
+    {
+        var sourceScenario = await LoadSourceScenarioAsync(sourceAnalyseToken, ct);
+        var runGroupId = sourceScenario?.RunGroupId ?? Guid.NewGuid();
+        var groupId = ScenarioGroupInheritance.Resolve(requestedGroupId, sourceScenario);
+
+        var items = cachedScenario.Tokens
+            .Where(t => !t.IsLocked)
+            .ToList();
+
+        var periodFrom = items.Count > 0
+            ? items.Min(t => t.Date)
+            : await _companyClock.GetTodayDateAsync(ct);
+        var periodUntil = items.Count > 0
+            ? items.Max(t => t.Date)
+            : periodFrom;
+
+        var name = await _scenarioNameGenerator.GenerateAsync(
+            nameKind ?? ScenarioNameKind.Plan, periodFrom, periodUntil, groupId, language, ct);
+        var (scenarioFrom, scenarioUntil) = ScenarioSourceRange.Widen(
+            periodFrom, periodUntil, sourceScenario?.FromDate, sourceScenario?.UntilDate);
+
+        return new WizardScenarioApplyPlan(
+            items, groupId, name, Guid.NewGuid(), runGroupId, sourceAnalyseToken, periodFrom, periodUntil, scenarioFrom, scenarioUntil);
+    }
+
+    private async Task<(IReadOnlyList<Guid> Ids, CompliancePartitionResult Partition, IReadOnlyList<SkippedPlacementDto> Skipped, AnalyseScenario Scenario)> MaterialiseScenarioAsync(
+        WizardScenarioApplyPlan plan,
+        IReadOnlyList<WizardEscalationDto> escalations,
+        Guid jobId,
+        bool overrideBlock,
+        CancellationToken ct)
+    {
+        // A transient retry replays this delegate; without clearing, the first attempt's entities
+        // would still be tracked and inserted a second time.
+        _context.ChangeTracker.Clear();
+
+        var (analyseScenario, shiftIdMap) = await CreateScenarioWithCloneAsync(plan, ct);
+        var displacedWorkIds = await SoftDeleteDisplacedWorksAsync(plan, shiftIdMap, ct);
+        var (partition, acceptedTokens, skipped) = await PartitionPlacementsAsync(plan, shiftIdMap, overrideBlock, jobId, ct);
+
+        var bulkItems = acceptedTokens
+            .Select(t => BuildBulkItem(t, plan.Token, shiftIdMap))
+            .ToList();
+        var createdIds = await AddPlannerWorksAsync(bulkItems, plan);
+
+        await ResolveDisplacedWorksAsync(plan, displacedWorkIds, createdIds, jobId, ct);
+        await PersistEscalationsAsync(bulkItems, escalations, plan.Token, plan.PeriodFrom, plan.PeriodUntil, ct);
+
+        return (createdIds, partition, skipped, analyseScenario);
+    }
+
+    private async Task<(AnalyseScenario Scenario, Dictionary<Guid, Guid> ShiftIdMap)> CreateScenarioWithCloneAsync(
+        WizardScenarioApplyPlan plan,
+        CancellationToken ct)
+    {
+        var analyseScenario = AppliedScenarioBuilder.Create(
+            plan.Name, plan.GroupId, plan.ScenarioFrom, plan.ScenarioUntil, plan.Token, plan.RunGroupId, plan.SourceAnalyseToken);
+
+        await _scenarioRepository.Add(analyseScenario);
+        var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(
+            plan.GroupId, plan.ScenarioFrom, plan.ScenarioUntil, plan.Token, additionalShiftIds: null, plan.SourceAnalyseToken, ct);
+        await _unitOfWork.CompleteAsync();
+
+        return (analyseScenario, shiftIdMap);
+    }
+
+    // The planner REPLACES the incumbent on exactly the (shift, date) slots it fills. Remove the cloned
+    // movable works on those slots before materialising the planner works, so an accepted plan does not
+    // double-book them (grill H2). Slots the planner did not plan keep their cloned work (the run can
+    // cover a narrower agent/shift set than the group-scoped clone); locks/breaks are always preserved.
+    private async Task<IReadOnlyList<Guid>> SoftDeleteDisplacedWorksAsync(
+        WizardScenarioApplyPlan plan,
+        IReadOnlyDictionary<Guid, Guid> shiftIdMap,
+        CancellationToken ct)
+    {
+        var plannedSlots = plan.Items
+            .Select(t => (ShiftId: shiftIdMap.TryGetValue(t.ShiftRefId, out var mapped) ? mapped : t.ShiftRefId, t.Date))
+            .ToHashSet();
+        var displacedWorkIds = await _scenarioService.SoftDeleteClonedWorksOnSlotsAsync(plan.Token, plan.PeriodFrom, plan.PeriodUntil, plannedSlots, ct);
+        await _unitOfWork.CompleteAsync();
+
+        return displacedWorkIds;
+    }
+
+    // Partition AFTER the slot soft-delete has been flushed: the guardrail reads the DB via
+    // AsNoTracking under the NEW scenario token, so it must see the clone world exactly as the
+    // planner works will land in it (unflushed changes would make the check silently pass or
+    // report phantom collisions with the removed incumbents).
+    private async Task<(CompliancePartitionResult Partition, List<CoreToken> AcceptedTokens, List<SkippedPlacementDto> Skipped)> PartitionPlacementsAsync(
+        WizardScenarioApplyPlan plan,
+        IReadOnlyDictionary<Guid, Guid> shiftIdMap,
+        bool overrideBlock,
+        Guid jobId,
+        CancellationToken ct)
+    {
+        var items = plan.Items;
+        var rows = items
+            .Select(t => new PlannedWorkRow(
+                Guid.Parse(t.AgentId),
+                t.Date,
+                TimeOnly.FromDateTime(t.StartAt),
+                TimeOnly.FromDateTime(t.EndAt),
+                t.ShiftRefId))
+            .ToList();
+        var partition = await _partitionService.PartitionAsync(rows, plan.Token, overrideBlock, ct);
+
+        var unplaceable = FindPlacementsWithoutClone(items, partition.AcceptedIndexes, shiftIdMap, plan.SourceAnalyseToken, jobId);
+        var outsidePeriod = await FindOutsidePeriodIndexesAsync(
+            rows, partition.AcceptedIndexes.Except(unplaceable).ToList(), plan.GroupId, jobId, ct);
+        var acceptedTokens = partition.AcceptedIndexes.Except(unplaceable).Except(outsidePeriod).Select(i => items[i]).ToList();
+        var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes, unplaceable, outsidePeriod);
+
+        return (partition, acceptedTokens, skipped);
+    }
+
+    private async Task<IReadOnlyList<Guid>> AddPlannerWorksAsync(List<BulkWorkItem> bulkItems, WizardScenarioApplyPlan plan)
+    {
+        if (bulkItems.Count == 0)
+        {
+            return [];
+        }
+
+        var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
+        {
+            Works = bulkItems,
+            PeriodStart = plan.PeriodFrom,
+            PeriodEnd = plan.PeriodUntil,
+        }, PlanningPeriodCheck.SkipForPlannerOutput));
+        return response.CreatedIds;
+    }
+
+    // Expenses of a displaced incumbent are payroll data and must never be dropped: they follow the
+    // planner's work on the same slot; a slot left empty (blocked placement) is emptied, except for an
+    // incumbent carrying expenses that have no other work of its employee to go to.
+    private async Task ResolveDisplacedWorksAsync(
+        WizardScenarioApplyPlan plan,
+        IReadOnlyList<Guid> displacedWorkIds,
+        IReadOnlyList<Guid> createdIds,
+        Guid jobId,
+        CancellationToken ct)
+    {
+        var expensesChangingEmployee = await _scenarioService.ResolveDisplacedWorksAsync(plan.Token, displacedWorkIds, createdIds, ct);
+        await _unitOfWork.CompleteAsync();
+        if (expensesChangingEmployee > 0)
+        {
+            _logger.LogInformation(
+                "Wizard job {JobId}: {Count} expenses of replaced works moved to a work of another employee in scenario {Token}",
+                jobId, expensesChangingEmployee, plan.Token);
         }
     }
 

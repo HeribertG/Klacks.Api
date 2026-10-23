@@ -168,110 +168,29 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         {
             await EnsureSnapshotUnchangedAsync(jobId, snapshotMarker, originalBitmap, bestBitmap, sourceAnalyseToken, subScoreJson, stage0Violations, ct);
 
-            var sourceScenario = await LoadSourceScenarioAsync(sourceAnalyseToken, ct);
-            var runGroupId = sourceScenario?.RunGroupId ?? Guid.NewGuid();
-            groupId = ScenarioGroupInheritance.Resolve(groupId, sourceScenario);
-
-            var workIds = CollectWorkIds(bestBitmap);
-            var originalWorks = await LoadWorksAsync(workIds, ct);
-
-            var periodFrom = bestBitmap.Days.Count > 0 ? bestBitmap.Days[0] : await _companyClock.GetTodayDateAsync(ct);
-            var periodUntil = bestBitmap.Days.Count > 0 ? bestBitmap.Days[^1] : periodFrom;
-            var (scenarioFrom, scenarioUntil) = ScenarioSourceRange.Widen(
-                periodFrom, periodUntil, sourceScenario?.FromDate, sourceScenario?.UntilDate);
-
-            var bitmapShiftIds = CollectBitmapShiftIds(bestBitmap, originalWorks);
-            var shiftIdsToClone = await ResolveShiftIdsToCloneAsync(groupId, sourceAnalyseToken, bitmapShiftIds, ct);
-
-            _logger.LogInformation(
-                "HarmonizerApply jobId={JobId} bitmap rows={Rows} days={Days} periodFrom={From} periodUntil={Until} workIds={WorkIds} originalWorks={OriginalWorks} bitmapShifts={BitmapShifts}",
-                jobId, bestBitmap.RowCount, bestBitmap.DayCount, periodFrom, periodUntil, workIds.Count, originalWorks.Count, bitmapShiftIds.Count);
+            var plan = await BuildScenarioPlanAsync(jobId, bestBitmap, sourceAnalyseToken, groupId, nameKind ?? DefaultScenarioNameKind, language, ct);
 
             // Scenario row, clone and materialisation must land together - a failure in between used to
             // leave a scenario whose schedule was half-written.
-            var (createdIds, token, analyseScenario) = await _unitOfWork.ExecuteInTransactionAsync<(IReadOnlyList<Guid> Ids, Guid Token, AnalyseScenario Scenario)>(async () =>
-            {
-                // A transient retry replays this delegate; without clearing, the first attempt's entities
-                // would still be tracked and inserted a second time.
-                _context.ChangeTracker.Clear();
-
-                var name = await _scenarioNameGenerator.GenerateAsync(
-                    nameKind ?? DefaultScenarioNameKind, periodFrom, periodUntil, groupId, language, ct);
-                var token = Guid.NewGuid();
-
-                var analyseScenario = new AnalyseScenario
-                {
-                    Name = name,
-                    GroupId = groupId,
-                    FromDate = scenarioFrom,
-                    UntilDate = scenarioUntil,
-                    Token = token,
-                    RunGroupId = runGroupId,
-                    SourceToken = sourceAnalyseToken,
-                };
-
-                await _scenarioRepository.Add(analyseScenario);
-                var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(groupId, scenarioFrom, scenarioUntil, token, shiftIdsToClone, sourceAnalyseToken, ct);
-                await _unitOfWork.CompleteAsync();
-
-                // CloneScenarioDataAsync clones the source schedule (Works + their WorkChange/Expense/sub-Break
-                // children) into the new scenario; workIdMap maps every cloned source work id to its clone. The
-                // harmonised result is materialised by RE-POINTING the movable clones in place (ClientId/date from
-                // the bitmap), so expenses, corrections and pauses survive (C4; payroll export must never lose an
-                // expense). This holds for a scenario source too: the bitmap holds the source scenario's work ids,
-                // and inside the source scenario's range the clone copies exactly those works.
-                // Outside that range the clone takes the real plan, while the bitmap carries the source scenario's
-                // boundary copies; those are correlated through Work.ClonedFromWorkId (copy -> real work -> clone) when
-                // shift and date still match, else the real plan's state wins (ScenarioSourceWorkCorrelator); legacy
-                // copies without the link fall back to a unique key match. Only works correlated neither way are
-                // recreated from the bitmap without their children, with a warning; their real-plan clones have no
-                // re-point target and are removed by the re-point. Locked works, replacement covers and absence
-                // breaks are left intact either way.
-                var correlation = sourceAnalyseToken is null
-                    ? ScenarioSourceWorkCorrelation.Direct(workIdMap)
-                    : await new ScenarioSourceWorkCorrelator(_context, _scenarioService)
-                        .CorrelateAsync(workIds, originalWorks, workIdMap, ct);
-                if (correlation.SupersededBitmapWorkIds.Count > 0)
-                {
-                    _logger.LogWarning(
-                        "HarmonizerApply jobId={JobId} (scenario source): {Count} bitmap works stand for real works that moved to another shift or date since the source scenario was made; the real plan's state is kept for them (not re-pointed, not recreated).",
-                        jobId, correlation.SupersededBitmapWorkIds.Count);
-                }
-
-                var correlatedWorkIdMap = correlation.WorkIdMap;
-                var ids = new List<Guid>(await RepointClonedWorksAsync(
-                    token, periodFrom, periodUntil, bestBitmap, correlatedWorkIdMap, ct, correlation.SupersededCloneIds));
-                await _unitOfWork.CompleteAsync();
-                _logger.LogInformation(
-                    "HarmonizerApply jobId={JobId} re-pointed {Count} cloned works in place (children preserved).",
-                    jobId, ids.Count);
-
-                if (sourceAnalyseToken is not null)
-                {
-                    ids.AddRange(await RecreateUncorrelatedWorksAsync(
-                        jobId, bestBitmap, originalWorks, correlatedWorkIdMap, correlation.SupersededBitmapWorkIds, shiftIdMap, token, sourceAnalyseToken, periodFrom, periodUntil, ct));
-                }
-
-                return ((IReadOnlyList<Guid>)ids, token, analyseScenario);
-            });
+            var materialised = await _unitOfWork.ExecuteInTransactionAsync(() => MaterialiseScenarioAsync(plan, ct));
 
             // Range checks run on a background context that would read the pre-commit state from inside
             // the transaction; re-queueing after the commit is idempotent and heals that.
-            _timelineService.QueueRangeCheck(scenarioFrom, scenarioUntil, token);
+            _timelineService.QueueRangeCheck(plan.ScenarioFrom, plan.ScenarioUntil, materialised.Token);
 
             if (captureRun)
             {
                 await CaptureRunAsync(
                     jobId,
-                    analyseScenario.Id,
-                    runGroupId,
-                    groupId,
-                    periodFrom,
-                    periodUntil,
+                    materialised.Scenario.Id,
+                    plan.RunGroupId,
+                    plan.GroupId,
+                    plan.PeriodFrom,
+                    plan.PeriodUntil,
                     subScoreJson,
                     stage0Violations,
                     BitmapChurn.Ratio(originalBitmap!, bestBitmap),
-                    createdIds,
+                    materialised.Ids,
                     ct);
             }
 
@@ -282,30 +201,128 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             if (evaluateCompliance)
             {
                 complianceReport = await _scenarioComplianceService.EvaluateAsync(
-                    periodFrom, periodUntil, groupId, token, ct);
+                    plan.PeriodFrom, plan.PeriodUntil, plan.GroupId, materialised.Token, ct);
             }
 
-            var resource = new AnalyseScenarioResource
-            {
-                Id = analyseScenario.Id,
-                Name = analyseScenario.Name,
-                Description = analyseScenario.Description,
-                GroupId = analyseScenario.GroupId,
-                FromDate = analyseScenario.FromDate,
-                UntilDate = analyseScenario.UntilDate,
-                Token = analyseScenario.Token,
-                RunGroupId = analyseScenario.RunGroupId,
-                CreatedByUser = analyseScenario.CreatedByUser,
-                Status = (int)analyseScenario.Status,
-            };
-
-            return (resource, createdIds, complianceReport);
+            return (AppliedScenarioBuilder.ToResource(materialised.Scenario), materialised.Ids, complianceReport);
         }
         catch
         {
             _resultCache.Store(jobId, originalBitmap!, bestBitmap, sourceAnalyseToken, subScoreJson, stage0Violations, snapshotMarker);
             throw;
         }
+    }
+
+    private async Task<HarmonizerScenarioApplyPlan> BuildScenarioPlanAsync(
+        Guid jobId,
+        HarmonyBitmap bestBitmap,
+        Guid? sourceAnalyseToken,
+        Guid? requestedGroupId,
+        ScenarioNameKind nameKind,
+        string? language,
+        CancellationToken ct)
+    {
+        var sourceScenario = await LoadSourceScenarioAsync(sourceAnalyseToken, ct);
+        var runGroupId = sourceScenario?.RunGroupId ?? Guid.NewGuid();
+        var groupId = ScenarioGroupInheritance.Resolve(requestedGroupId, sourceScenario);
+
+        var workIds = CollectWorkIds(bestBitmap);
+        var originalWorks = await LoadWorksAsync(workIds, ct);
+
+        var periodFrom = bestBitmap.Days.Count > 0 ? bestBitmap.Days[0] : await _companyClock.GetTodayDateAsync(ct);
+        var periodUntil = bestBitmap.Days.Count > 0 ? bestBitmap.Days[^1] : periodFrom;
+        var (scenarioFrom, scenarioUntil) = ScenarioSourceRange.Widen(
+            periodFrom, periodUntil, sourceScenario?.FromDate, sourceScenario?.UntilDate);
+
+        var bitmapShiftIds = CollectBitmapShiftIds(bestBitmap, originalWorks);
+        var shiftIdsToClone = await ResolveShiftIdsToCloneAsync(groupId, sourceAnalyseToken, bitmapShiftIds, ct);
+
+        _logger.LogInformation(
+            "HarmonizerApply jobId={JobId} bitmap rows={Rows} days={Days} periodFrom={From} periodUntil={Until} workIds={WorkIds} originalWorks={OriginalWorks} bitmapShifts={BitmapShifts}",
+            jobId, bestBitmap.RowCount, bestBitmap.DayCount, periodFrom, periodUntil, workIds.Count, originalWorks.Count, bitmapShiftIds.Count);
+
+        return new HarmonizerScenarioApplyPlan(
+            jobId, bestBitmap, sourceAnalyseToken, groupId, runGroupId, nameKind, language, workIds, originalWorks,
+            periodFrom, periodUntil, scenarioFrom, scenarioUntil, shiftIdsToClone);
+    }
+
+    private async Task<(IReadOnlyList<Guid> Ids, Guid Token, AnalyseScenario Scenario)> MaterialiseScenarioAsync(HarmonizerScenarioApplyPlan plan, CancellationToken ct)
+    {
+        // A transient retry replays this delegate; without clearing, the first attempt's entities
+        // would still be tracked and inserted a second time.
+        _context.ChangeTracker.Clear();
+
+        var (analyseScenario, shiftIdMap, workIdMap) = await CreateScenarioWithCloneAsync(plan, ct);
+        var token = analyseScenario.Token;
+
+        var correlation = await CorrelateClonedWorksAsync(plan, workIdMap, ct);
+        var correlatedWorkIdMap = correlation.WorkIdMap;
+
+        var ids = new List<Guid>(await RepointClonedWorksAsync(
+            token, plan.PeriodFrom, plan.PeriodUntil, plan.BestBitmap, correlatedWorkIdMap, ct, correlation.SupersededCloneIds));
+        await _unitOfWork.CompleteAsync();
+        _logger.LogInformation(
+            "HarmonizerApply jobId={JobId} re-pointed {Count} cloned works in place (children preserved).",
+            plan.JobId, ids.Count);
+
+        if (plan.SourceAnalyseToken is not null)
+        {
+            ids.AddRange(await RecreateUncorrelatedWorksAsync(
+                plan.JobId, plan.BestBitmap, plan.OriginalWorks, correlatedWorkIdMap, correlation.SupersededBitmapWorkIds, shiftIdMap, token, plan.SourceAnalyseToken, plan.PeriodFrom, plan.PeriodUntil, ct));
+        }
+
+        return (ids, token, analyseScenario);
+    }
+
+    private async Task<(AnalyseScenario Scenario, Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CreateScenarioWithCloneAsync(
+        HarmonizerScenarioApplyPlan plan,
+        CancellationToken ct)
+    {
+        var name = await _scenarioNameGenerator.GenerateAsync(
+            plan.NameKind, plan.PeriodFrom, plan.PeriodUntil, plan.GroupId, plan.Language, ct);
+        var token = Guid.NewGuid();
+
+        var analyseScenario = AppliedScenarioBuilder.Create(
+            name, plan.GroupId, plan.ScenarioFrom, plan.ScenarioUntil, token, plan.RunGroupId, plan.SourceAnalyseToken);
+
+        await _scenarioRepository.Add(analyseScenario);
+        var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(
+            plan.GroupId, plan.ScenarioFrom, plan.ScenarioUntil, token, plan.ShiftIdsToClone, plan.SourceAnalyseToken, ct);
+        await _unitOfWork.CompleteAsync();
+
+        return (analyseScenario, shiftIdMap, workIdMap);
+    }
+
+    // CloneScenarioDataAsync clones the source schedule (Works + their WorkChange/Expense/sub-Break
+    // children) into the new scenario; workIdMap maps every cloned source work id to its clone. The
+    // harmonised result is materialised by RE-POINTING the movable clones in place (ClientId/date from
+    // the bitmap), so expenses, corrections and pauses survive (C4; payroll export must never lose an
+    // expense). This holds for a scenario source too: the bitmap holds the source scenario's work ids,
+    // and inside the source scenario's range the clone copies exactly those works.
+    // Outside that range the clone takes the real plan, while the bitmap carries the source scenario's
+    // boundary copies; those are correlated through Work.ClonedFromWorkId (copy -> real work -> clone) when
+    // shift and date still match, else the real plan's state wins (ScenarioSourceWorkCorrelator); legacy
+    // copies without the link fall back to a unique key match. Only works correlated neither way are
+    // recreated from the bitmap without their children, with a warning; their real-plan clones have no
+    // re-point target and are removed by the re-point. Locked works, replacement covers and absence
+    // breaks are left intact either way.
+    private async Task<ScenarioSourceWorkCorrelation> CorrelateClonedWorksAsync(
+        HarmonizerScenarioApplyPlan plan,
+        IReadOnlyDictionary<Guid, Guid> workIdMap,
+        CancellationToken ct)
+    {
+        var correlation = plan.SourceAnalyseToken is null
+            ? ScenarioSourceWorkCorrelation.Direct(workIdMap)
+            : await new ScenarioSourceWorkCorrelator(_context, _scenarioService)
+                .CorrelateAsync(plan.WorkIds, plan.OriginalWorks, workIdMap, ct);
+        if (correlation.SupersededBitmapWorkIds.Count > 0)
+        {
+            _logger.LogWarning(
+                "HarmonizerApply jobId={JobId} (scenario source): {Count} bitmap works stand for real works that moved to another shift or date since the source scenario was made; the real plan's state is kept for them (not re-pointed, not recreated).",
+                plan.JobId, correlation.SupersededBitmapWorkIds.Count);
+        }
+
+        return correlation;
     }
 
     /// <summary>
