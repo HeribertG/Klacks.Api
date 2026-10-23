@@ -282,7 +282,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             if (untilDate.Value < fromDate)
             {
                 return (default, null,
-                    $"untilDate ({untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) must not be before fromDate ({fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}).");
+                    $"untilDate ({untilDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) must not be before fromDate ({fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}).");
             }
         }
 

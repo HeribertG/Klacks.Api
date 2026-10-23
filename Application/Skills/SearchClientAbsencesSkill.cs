@@ -153,7 +153,7 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
             HasMore = totalCount > limit,
             Year = year,
             DateRange = startDate.HasValue && endDate.HasValue
-                ? $"{startDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} to {endDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}"
+                ? $"{startDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} to {endDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}"
                 : (object?)null
         };
 
@@ -162,8 +162,8 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
             : $"Found {results.Count} client(s) with absences" +
               (!string.IsNullOrWhiteSpace(searchTerm) ? $" matching '{searchTerm}'" : "") +
               (!string.IsNullOrWhiteSpace(absenceTypeName) ? $" of type '{absenceTypeName}'" : "") +
-              (startDate.HasValue ? $" from {startDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}" : $" in {year}") +
-              (endDate.HasValue ? $" to {endDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}" : "") +
+              (startDate.HasValue ? $" from {startDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}" : $" in {year}") +
+              (endDate.HasValue ? $" to {endDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}" : "") +
               (totalCount > limit ? $". Showing first {limit} of {totalCount}." : ".");
 
         return SkillResult.SuccessResult(resultData, message);

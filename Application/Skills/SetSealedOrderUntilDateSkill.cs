@@ -83,7 +83,7 @@ public class SetSealedOrderUntilDateSkill : BaseSkillImplementation
         if (shift.UntilDate.HasValue)
         {
             return SkillResult.Error(
-                $"Sealed order '{shift.Name}' already has an until-date ({shift.UntilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) set. " +
+                $"Sealed order '{shift.Name}' already has an until-date ({shift.UntilDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) set. " +
                 "This is a one-time change and the field is now locked like every other field on a sealed order.");
         }
 

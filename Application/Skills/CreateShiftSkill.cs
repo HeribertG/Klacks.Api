@@ -247,7 +247,7 @@ public class CreateShiftSkill : BaseSkillImplementation
 
         if (untilDate.HasValue && untilDate.Value < fromDate)
         {
-            return (null, $"untilDate ({untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) must not be before fromDate ({fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}).");
+            return (null, $"untilDate ({untilDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) must not be before fromDate ({fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}).");
         }
 
         if (input.SumEmployees < 1)
