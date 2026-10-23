@@ -5,6 +5,7 @@ using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
+using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.Critic;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Hubs;
@@ -40,6 +41,9 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
     // The deterministic engine (default mode) ends on its evaluation budget and at the latest after its
     // 90 s wall-clock safety net (DeterministicSearchOptions), inside this budget.
     private static readonly TimeSpan TimeBudget = TimeSpan.FromSeconds(180);
+
+    // The plan critic runs after the run, outside TimeBudget: one LLM call of at most 60 s plus rendering.
+    private static readonly TimeSpan CriticBudget = TimeSpan.FromSeconds(75);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHubContext<HolisticHarmonizerJobHub, IHolisticHarmonizerJobClient> _hubContext;
@@ -138,6 +142,10 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
             var qualificationGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(eligibilityMatrix, finalAssignments);
 
             var response = HolisticHarmonizerResponseMapper.ToResponse(outcome.JobId.Value, outcome.Result, qualificationGaps);
+            response = response with
+            {
+                PlanCritic = await ReviewFinalPlanAsync(scope, jobId, outcome.Result.FinalBitmap, input.Language),
+            };
             // CancellationToken.None: the run is already finished. The time budget may fire during the
             // post-run eligibility scan, and a cancelled store would drop the result and report the
             // finished run as a timeout instead.
@@ -187,6 +195,34 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
             _startGuard.ReleaseRunLock(jobId);
             _registry.Remove(jobId);
         }
+    }
+
+    /// <summary>
+    /// Runs the vision critic over the finished plan. It has its own budget and does not use the job token: the run is
+    /// already done, and the job's time budget firing during the review must not turn a finished run into a timeout.
+    /// The critic never changes the plan and never fails the job; any problem is reported inside the returned DTO.
+    /// </summary>
+    private async Task<PlanCriticResultDto> ReviewFinalPlanAsync(IServiceScope scope, Guid jobId, HarmonyBitmap plan, string? language)
+    {
+        using var criticCts = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.ApplicationStopping);
+        criticCts.CancelAfter(CriticBudget);
+
+        PlanCriticOutcome outcome;
+        try
+        {
+            var critic = scope.ServiceProvider.GetRequiredService<PlanCriticService>();
+            outcome = await critic.ReviewAsync(plan, language, criticCts.Token);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Holistic Harmonizer job {JobId}: plan critic could not run", jobId);
+            outcome = PlanCriticOutcome.Failed(null, ex.Message);
+        }
+
+        _logger.LogInformation(
+            "Holistic Harmonizer job {JobId}: plan critic {Status} (findings {Findings}, discarded {Discarded})",
+            jobId, outcome.Status, outcome.Findings.Count, outcome.DiscardedFindingCount);
+        return PlanCriticResponseMapper.ToDto(outcome);
     }
 
     private static IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> ExtractIncumbentAssignments(HarmonyBitmap original)
