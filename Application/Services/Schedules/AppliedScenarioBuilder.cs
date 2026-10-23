@@ -37,7 +37,10 @@ public static class AppliedScenarioBuilder
             SourceToken = sourceToken,
         };
 
-    public static AnalyseScenarioResource ToResource(AnalyseScenario scenario)
+    /// <summary>
+    /// Describes a freshly created scenario only; SubScoreJson, ChurnRatio and Stage0Violations are not set on the resource.
+    /// </summary>
+    public static AnalyseScenarioResource ToAppliedResource(AnalyseScenario scenario)
         => new()
         {
             Id = scenario.Id,

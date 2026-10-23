@@ -204,7 +204,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                     plan.PeriodFrom, plan.PeriodUntil, plan.GroupId, materialised.Token, ct);
             }
 
-            return (AppliedScenarioBuilder.ToResource(materialised.Scenario), materialised.Ids, complianceReport);
+            return (AppliedScenarioBuilder.ToAppliedResource(materialised.Scenario), materialised.Ids, complianceReport);
         }
         catch
         {
@@ -242,8 +242,20 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             jobId, bestBitmap.RowCount, bestBitmap.DayCount, periodFrom, periodUntil, workIds.Count, originalWorks.Count, bitmapShiftIds.Count);
 
         return new HarmonizerScenarioApplyPlan(
-            jobId, bestBitmap, sourceAnalyseToken, groupId, runGroupId, nameKind, language, workIds, originalWorks,
-            periodFrom, periodUntil, scenarioFrom, scenarioUntil, shiftIdsToClone);
+            JobId: jobId,
+            BestBitmap: bestBitmap,
+            SourceAnalyseToken: sourceAnalyseToken,
+            GroupId: groupId,
+            RunGroupId: runGroupId,
+            NameKind: nameKind,
+            Language: language,
+            WorkIds: workIds,
+            OriginalWorks: originalWorks,
+            PeriodFrom: periodFrom,
+            PeriodUntil: periodUntil,
+            ScenarioFrom: scenarioFrom,
+            ScenarioUntil: scenarioUntil,
+            ShiftIdsToClone: shiftIdsToClone);
     }
 
     private async Task<(IReadOnlyList<Guid> Ids, Guid Token, AnalyseScenario Scenario)> MaterialiseScenarioAsync(HarmonizerScenarioApplyPlan plan, CancellationToken ct)
@@ -283,7 +295,13 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         var token = Guid.NewGuid();
 
         var analyseScenario = AppliedScenarioBuilder.Create(
-            name, plan.GroupId, plan.ScenarioFrom, plan.ScenarioUntil, token, plan.RunGroupId, plan.SourceAnalyseToken);
+            name: name,
+            groupId: plan.GroupId,
+            fromDate: plan.ScenarioFrom,
+            untilDate: plan.ScenarioUntil,
+            token: token,
+            runGroupId: plan.RunGroupId,
+            sourceToken: plan.SourceAnalyseToken);
 
         await _scenarioRepository.Add(analyseScenario);
         var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(

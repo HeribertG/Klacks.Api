@@ -235,7 +235,7 @@ public sealed class WizardApplyService : IWizardApplyService
                 ct);
 
             return (
-                AppliedScenarioBuilder.ToResource(materialised.Scenario),
+                AppliedScenarioBuilder.ToAppliedResource(materialised.Scenario),
                 new WizardApplyOutcome(materialised.Ids, materialised.Partition.ReportableConflicts, materialised.Skipped, materialised.Partition.OverrideApplied));
         }
         catch
@@ -274,7 +274,16 @@ public sealed class WizardApplyService : IWizardApplyService
             periodFrom, periodUntil, sourceScenario?.FromDate, sourceScenario?.UntilDate);
 
         return new WizardScenarioApplyPlan(
-            items, groupId, name, Guid.NewGuid(), runGroupId, sourceAnalyseToken, periodFrom, periodUntil, scenarioFrom, scenarioUntil);
+            Items: items,
+            GroupId: groupId,
+            Name: name,
+            Token: Guid.NewGuid(),
+            RunGroupId: runGroupId,
+            SourceAnalyseToken: sourceAnalyseToken,
+            PeriodFrom: periodFrom,
+            PeriodUntil: periodUntil,
+            ScenarioFrom: scenarioFrom,
+            ScenarioUntil: scenarioUntil);
     }
 
     private async Task<(IReadOnlyList<Guid> Ids, CompliancePartitionResult Partition, IReadOnlyList<SkippedPlacementDto> Skipped, AnalyseScenario Scenario)> MaterialiseScenarioAsync(
@@ -308,7 +317,13 @@ public sealed class WizardApplyService : IWizardApplyService
         CancellationToken ct)
     {
         var analyseScenario = AppliedScenarioBuilder.Create(
-            plan.Name, plan.GroupId, plan.ScenarioFrom, plan.ScenarioUntil, plan.Token, plan.RunGroupId, plan.SourceAnalyseToken);
+            name: plan.Name,
+            groupId: plan.GroupId,
+            fromDate: plan.ScenarioFrom,
+            untilDate: plan.ScenarioUntil,
+            token: plan.Token,
+            runGroupId: plan.RunGroupId,
+            sourceToken: plan.SourceAnalyseToken);
 
         await _scenarioRepository.Add(analyseScenario);
         var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(
