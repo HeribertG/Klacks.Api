@@ -156,7 +156,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var (request, requestError) = ParseRequest(parameters);
+        var (request, requestError) = ParseRequest(parameters, context.UserLanguage);
         if (request is null)
         {
             return SkillResult.Error(requestError!);
@@ -193,7 +193,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         return BuildSuccessResult(request, outcome);
     }
 
-    private static (BundleRequest? Request, string? Error) ParseRequest(Dictionary<string, object> parameters)
+    private static (BundleRequest? Request, string? Error) ParseRequest(Dictionary<string, object> parameters, string? language)
     {
         var location = GetRequiredString(parameters, "location");
         var isoWeekday = GetRequiredInt(parameters, "weekday");
@@ -215,13 +215,13 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             return (null, "weekday must be between 1 (Monday) and 7 (Sunday).");
         }
 
-        var (fromTime, untilTime, timeError) = ParseTimeBudget(fromTimeStr, untilTimeStr, context.UserLanguage);
+        var (fromTime, untilTime, timeError) = ParseTimeBudget(fromTimeStr, untilTimeStr, language);
         if (timeError != null)
         {
             return (null, timeError);
         }
 
-        var (fromDate, untilDate, dateError) = ParseValidity(fromDateStr, untilDateStr, context.UserLanguage);
+        var (fromDate, untilDate, dateError) = ParseValidity(fromDateStr, untilDateStr, language);
         if (dateError != null)
         {
             return (null, dateError);
