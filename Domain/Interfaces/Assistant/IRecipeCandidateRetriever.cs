@@ -3,7 +3,9 @@
 /// <summary>
 /// Port for the semantic recipe search: ranks the indexed recipes (and only recipes) against a message and
 /// returns the best of them ordered by descending score. Implemented outside the Domain on top of the
-/// knowledge index, which the Domain never references.
+/// knowledge index, which the Domain never references. The implementation borrows the database connection of the
+/// scope it is resolved from, so RecipeEngineService resolves it per lookup from its own child scope, never through
+/// its constructor: the request scope's connection is shared with fire-and-forget tasks of the chat pipeline.
 /// </summary>
 
 using Klacks.Api.Domain.Models.Assistant.Recipes;
