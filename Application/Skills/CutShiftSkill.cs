@@ -12,7 +12,8 @@
 /// confirmation (owner decision 2026-10-23): it runs only as the confirmed replay of its server preview
 /// (CutShiftConfirmationPreviewProvider). The binding of that preview (ShiftTimeCutBinding: plannable shift, parts, default
 /// expenses) travels with the token, confirm_pending_action hands it over, and the skill cuts only when its fresh plan still
-/// matches it; without a binding it refuses before it reads anything.
+/// matches it; without a binding it refuses before it reads anything. The result names the default expenses every part
+/// carries (each part owns its copy, ShiftCutFacade), so the user is told what every part is booked with.
 /// </summary>
 /// <param name="shiftId">UUID of the plannable shift (OriginalShift) or its order to cut.</param>
 /// <param name="parts">Comma-separated time ranges "HH:mm-HH:mm" that tile the order span (e.g. "07:00-15:00,15:00-23:00,23:00-07:00").</param>
@@ -104,8 +105,14 @@ public class CutShiftSkill : BaseSkillImplementation
             $"Cut the plannable shift '{plan.OriginalShift.Name}' into {results.Count} part(s): " +
             string.Join(", ", plan.Parts.Select(part => part.Name)) +
             ". The first part reuses the plannable shift (reduced, status -> SplitShift); " +
-            "the order (Bestellung) itself stays unchanged.");
+            "the order (Bestellung) itself stays unchanged. Default expenses booked with every work of a part - " +
+            string.Join("; ", plan.Parts.Select(part =>
+                $"'{part.Name}': {CutPieceExpenseSummary.Describe(DefaultExpensesOf(results, part.Id))}")) +
+            ". Tell the user these expenses per part.");
     }
+
+    private static List<ShiftExpenses> DefaultExpensesOf(IEnumerable<Shift> results, Guid partId)
+        => results.FirstOrDefault(shift => shift.Id == partId)?.ShiftExpenses ?? [];
 
     private static string FormatTime(TimeOnly time) => time.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture);
 }
