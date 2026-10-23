@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Services.Shifts;
@@ -32,8 +33,8 @@ public static class SporadicRangeCalculator
 
     private static (DateOnly, DateOnly) Week(DateOnly d)
     {
-        var monday = d.AddDays(-((int)d.DayOfWeek + 6) % 7);
-        return (monday, monday.AddDays(6));
+        var monday = d.AddDays(-((int)d.DayOfWeek + CalendarConstants.DaysPerWeek - 1) % CalendarConstants.DaysPerWeek);
+        return (monday, monday.AddDays(CalendarConstants.DaysPerWeek - 1));
     }
 
     private static (DateOnly, DateOnly) Month(DateOnly d)
@@ -42,25 +43,17 @@ public static class SporadicRangeCalculator
         return (first, first.AddMonths(1).AddDays(-1));
     }
 
-    private static (DateOnly, DateOnly) Quarter(DateOnly d)
-    {
-        var qIndex = (d.Month - 1) / 3;
-        var first = new DateOnly(d.Year, qIndex * 3 + 1, 1);
-        return (first, first.AddMonths(3).AddDays(-1));
-    }
+    private static (DateOnly, DateOnly) Quarter(DateOnly d) => MonthBlock(d, CalendarConstants.MonthsPerQuarter);
 
-    private static (DateOnly, DateOnly) Semester(DateOnly d)
-    {
-        if (d.Month <= 6)
-        {
-            return (new DateOnly(d.Year, 1, 1), new DateOnly(d.Year, 6, 30));
-        }
-        return (new DateOnly(d.Year, 7, 1), new DateOnly(d.Year, 12, 31));
-    }
+    private static (DateOnly, DateOnly) Semester(DateOnly d) => MonthBlock(d, CalendarConstants.MonthsPerSemester);
 
-    private static (DateOnly, DateOnly) Year(DateOnly d)
+    private static (DateOnly, DateOnly) Year(DateOnly d) => MonthBlock(d, CalendarConstants.MonthsPerYear);
+
+    private static (DateOnly, DateOnly) MonthBlock(DateOnly d, int monthsPerBlock)
     {
-        return (new DateOnly(d.Year, 1, 1), new DateOnly(d.Year, 12, 31));
+        var firstMonth = (d.Month - 1) / monthsPerBlock * monthsPerBlock + 1;
+        var lastMonth = firstMonth + monthsPerBlock - 1;
+        return (new DateOnly(d.Year, firstMonth, 1), new DateOnly(d.Year, lastMonth, DateTime.DaysInMonth(d.Year, lastMonth)));
     }
 
     private static (DateOnly, DateOnly) ContractualTerm(SporadicShiftInfo shift)
