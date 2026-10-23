@@ -171,17 +171,12 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // into a permanently immutable SealedOrder, and set_sealed_order_until_date is the single change
         // that row ever accepts again ("only allowed once", and only while no work exists after the date).
         // Both guard their data-losing edge in the handler, but neither can be undone at all afterwards.
-        // seal_open_orders runs exactly that transition over a whole batch through the same service, so it
-        // cannot be gated more weakly than the single-order skill it shares its code with: one confirmed
-        // call turns every matching order into an immutable SealedOrder at once. The price is that its
-        // apply=false preview asks for a confirmation too, unlike the Irreversible bulk group writers
-        // below — deliberate, because there is no counterpart skill that could take any of it back. Both seal
-        // skills also carry a server preview (SealOpenOrdersConfirmationPreviewProvider,
-        // SealShiftConfirmationPreviewProvider): they seal only as the confirmed replay of what that preview
-        // showed, and no agent plan can run them (PlanningAgent leaves them out, PlanStepRunner fails the step).
-        // seal_open_orders is moreover switched off in its seed (owner decision 2026-10-23, no mass sealing by Klacksy).
+        // seal_shift also carries a server preview (SealShiftConfirmationPreviewProvider): it seals only as the
+        // confirmed replay of what that preview showed, and no agent plan can run it. seal_open_orders, the batch
+        // form, is switched off in its seed (owner decision 2026-10-23, no mass sealing by Klacksy) and is
+        // therefore not listed here; should it ever be switched on again it falls through to the fail-closed
+        // Sensitive default and still seals only as the confirmed replay of its own server preview.
         "seal_shift",
-        "seal_open_orders",
         "set_sealed_order_until_date",
         // Membership dates are the plannability boundary - the exact reason delete_membership is listed
         // above. end_client_membership writes validUntil on the active membership without needing its
