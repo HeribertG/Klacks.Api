@@ -138,6 +138,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IShiftTreeService, ShiftTreeService>();
         services.AddScoped<IShiftResetService, ShiftResetService>();
         services.AddScoped<IShiftCutFacade, ShiftCutFacade>();
+        services.AddScoped<IShiftTimeCutPlanner, ShiftTimeCutPlanner>();
         services.AddScoped<ISealedOrderFamilyDeletion, SealedOrderFamilyDeletion>();
         services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
         services.AddScoped<IShiftScheduleReader>(sp => sp.GetRequiredService<IShiftScheduleService>());
