@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "인원에서는 연락처, 계약, 그룹이 포함된 직원과 주소를 찾을 수 있습니다. 근무표는 이 데이터를 가용성과 근무 시간에 사용합니다.",
   "assistant-chat.onboarding.intro.explain.period-closing": "기간 마감에서는 기간을 승인하고 봉인합니다. 이후 데이터는 보고서와 내보내기의 구속력 있는 기준이 됩니다.",
   "assistant-chat.onboarding.intro.explain.klacksy": "그리고 저는 Klacksy입니다. 알고 싶은 것을 그냥 물어보세요. 답변이 너무 길면 \"더 쉽게\" 또는 \"더 짧게\"라고 말씀해 주세요. 계획 명령도 대신 실행할 수 있으니 필요한 것을 말씀만 해 주세요.",
-  "assistant-chat.onboarding.intro.explain.messaging": "메시지로 직원에게 직접 연락할 수 있습니다. 예를 들어 Telegram으로 보내고 여기서 답장을 확인합니다. 이동 중인 팀에게도 연락할 수 있습니다."
+  "assistant-chat.onboarding.intro.explain.messaging": "메시지로 직원에게 직접 연락할 수 있습니다. 예를 들어 Telegram으로 보내고 여기서 답장을 확인합니다. 이동 중인 팀에게도 연락할 수 있습니다.",
+  "holisticHarmonizer.critic.title": "계획에 대한 AI 의견",
+  "holisticHarmonizer.critic.intro": "비전 모델이 완성된 계획을 검토했습니다. 의견은 제안일 뿐이며 계획은 변경되지 않았습니다.",
+  "holisticHarmonizer.critic.none": "눈에 띄는 점이 없습니다.",
+  "holisticHarmonizer.critic.failed": "AI 계획 검토를 실행할 수 없습니다.",
+  "holisticHarmonizer.critic.discarded": "계획과 일치하지 않아 {{count}}개의 의견을 제외했습니다.",
+  "holisticHarmonizer.critic.model": "모델: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "낮음",
+  "holisticHarmonizer.critic.severity-medium": "보통",
+  "holisticHarmonizer.critic.severity-high": "높음"
 }

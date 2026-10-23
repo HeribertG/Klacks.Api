@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "Em Pessoas encontra colaboradores e endereços com contactos, contratos e grupos. O plano de serviço usa estes dados para disponibilidade e horas.",
   "assistant-chat.onboarding.intro.explain.period-closing": "No fecho de período aprova um intervalo de tempo e sela-o. A partir daí, os dados são a base vinculativa para avaliações e exportações.",
   "assistant-chat.onboarding.intro.explain.klacksy": "E eu sou o Klacksy: pergunte-me o que quiser saber. Se uma resposta for longa demais, diga «mais simples» ou «mais curto». Também posso executar comandos de planeamento por si; diga-me apenas o que precisa.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Com as mensagens escreve diretamente aos seus colaboradores, por exemplo via Telegram, e vê aqui as respostas. Assim chega à sua equipa também em movimento."
+  "assistant-chat.onboarding.intro.explain.messaging": "Com as mensagens escreve diretamente aos seus colaboradores, por exemplo via Telegram, e vê aqui as respostas. Assim chega à sua equipa também em movimento.",
+  "holisticHarmonizer.critic.title": "Notas da IA sobre o plano",
+  "holisticHarmonizer.critic.intro": "Um modelo de visão analisou o plano concluído. Estas notas são apenas sugestões – o plano não foi alterado.",
+  "holisticHarmonizer.critic.none": "Nada digno de nota encontrado.",
+  "holisticHarmonizer.critic.failed": "Não foi possível executar a análise do plano pela IA.",
+  "holisticHarmonizer.critic.discarded": "{{count}} nota(s) descartada(s) por não corresponderem ao plano.",
+  "holisticHarmonizer.critic.model": "Modelo: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Baixa",
+  "holisticHarmonizer.critic.severity-medium": "Média",
+  "holisticHarmonizer.critic.severity-high": "Alta"
 }

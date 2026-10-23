@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "Under Personer hittar du medarbetare och adresser med kontaktuppgifter, avtal och grupper. Schemat använder dessa uppgifter för tillgänglighet och timmar.",
   "assistant-chat.onboarding.intro.explain.period-closing": "Vid periodavslutet godkänner du ett tidsintervall och förseglar det. Därefter är uppgifterna det bindande underlaget för rapporter och exporter.",
   "assistant-chat.onboarding.intro.explain.klacksy": "Och jag är Klacksy: fråga mig bara det du vill veta. Är ett svar för långt, säg \"enklare\" eller \"kortare\". Jag kan också utföra planeringskommandon åt dig; säg bara vad du behöver.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Med meddelanden skriver du direkt till dina medarbetare, till exempel via Telegram, och ser deras svar här. Så når du ditt team även när de är på språng."
+  "assistant-chat.onboarding.intro.explain.messaging": "Med meddelanden skriver du direkt till dina medarbetare, till exempel via Telegram, och ser deras svar här. Så når du ditt team även när de är på språng.",
+  "holisticHarmonizer.critic.title": "AI-anmärkningar om schemat",
+  "holisticHarmonizer.critic.intro": "En visionsmodell har granskat det färdiga schemat. Anmärkningarna är bara förslag – schemat har inte ändrats.",
+  "holisticHarmonizer.critic.none": "Inget anmärkningsvärt hittades.",
+  "holisticHarmonizer.critic.failed": "AI-granskningen av schemat kunde inte köras.",
+  "holisticHarmonizer.critic.discarded": "{{count}} anmärkning(ar) kasserades eftersom de inte stämde med schemat.",
+  "holisticHarmonizer.critic.model": "Modell: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Låg",
+  "holisticHarmonizer.critic.severity-medium": "Medel",
+  "holisticHarmonizer.critic.severity-high": "Hög"
 }

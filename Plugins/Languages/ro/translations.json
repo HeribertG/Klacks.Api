@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "La Persoane găsești angajați și adrese cu date de contact, contracte și grupuri. Planificarea folosește aceste date pentru disponibilitate și ore.",
   "assistant-chat.onboarding.intro.explain.period-closing": "La închiderea perioadei aprobi un interval de timp și îl sigilezi. După aceea, datele sunt baza obligatorie pentru evaluări și exporturi.",
   "assistant-chat.onboarding.intro.explain.klacksy": "Iar eu sunt Klacksy: întreabă-mă orice vrei să știi. Dacă un răspuns e prea lung, spune „mai simplu” sau „mai scurt”. Pot și să execut comenzi de planificare pentru tine; spune-mi doar de ce ai nevoie.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Cu mesageria le scrii direct angajaților, de exemplu prin Telegram, și le vezi aici răspunsurile. Așa îți contactezi echipa și când e pe drum."
+  "assistant-chat.onboarding.intro.explain.messaging": "Cu mesageria le scrii direct angajaților, de exemplu prin Telegram, și le vezi aici răspunsurile. Așa îți contactezi echipa și când e pe drum.",
+  "holisticHarmonizer.critic.title": "Observațiile AI despre plan",
+  "holisticHarmonizer.critic.intro": "Un model de viziune a analizat planul finalizat. Observațiile sunt doar sugestii – planul nu a fost modificat.",
+  "holisticHarmonizer.critic.none": "Nu s-a găsit nimic deosebit.",
+  "holisticHarmonizer.critic.failed": "Analiza planului de către AI nu a putut fi executată.",
+  "holisticHarmonizer.critic.discarded": "{{count}} observație(i) eliminată(e) deoarece nu corespundeau planului.",
+  "holisticHarmonizer.critic.model": "Model: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Scăzută",
+  "holisticHarmonizer.critic.severity-medium": "Medie",
+  "holisticHarmonizer.critic.severity-high": "Ridicată"
 }

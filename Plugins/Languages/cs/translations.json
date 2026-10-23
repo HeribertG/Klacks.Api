@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "V sekci Osoby najdete zaměstnance a adresy s kontakty, smlouvami a skupinami. Rozpis tato data používá pro dostupnost a hodiny.",
   "assistant-chat.onboarding.intro.explain.period-closing": "Při uzávěrce období schválíte časový úsek a zapečetíte ho. Poté jsou data závazným podkladem pro vyhodnocení a exporty.",
   "assistant-chat.onboarding.intro.explain.klacksy": "A já jsem Klacksy: zeptejte se mě na cokoli, co chcete vědět. Je-li odpověď příliš dlouhá, řekněte „jednodušeji“ nebo „kratší“. Umím za vás také provádět plánovací příkazy; stačí říct, co potřebujete.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Pomocí zpráv píšete svým zaměstnancům přímo, například přes Telegram, a jejich odpovědi vidíte zde. Svůj tým tak zastihnete i na cestách."
+  "assistant-chat.onboarding.intro.explain.messaging": "Pomocí zpráv píšete svým zaměstnancům přímo, například přes Telegram, a jejich odpovědi vidíte zde. Svůj tým tak zastihnete i na cestách.",
+  "holisticHarmonizer.critic.title": "Poznámky AI k plánu",
+  "holisticHarmonizer.critic.intro": "Vizuální model zkontroloval hotový plán. Poznámky jsou jen návrhy – plán nebyl změněn.",
+  "holisticHarmonizer.critic.none": "Nebylo nalezeno nic nápadného.",
+  "holisticHarmonizer.critic.failed": "Kontrolu plánu pomocí AI nebylo možné provést.",
+  "holisticHarmonizer.critic.discarded": "{{count}} poznámek vyřazeno, protože neodpovídaly plánu.",
+  "holisticHarmonizer.critic.model": "Model: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Nízká",
+  "holisticHarmonizer.critic.severity-medium": "Střední",
+  "holisticHarmonizer.critic.severity-high": "Vysoká"
 }

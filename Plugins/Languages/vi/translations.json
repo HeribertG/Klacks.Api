@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "Trong Nhân sự bạn tìm thấy nhân viên và địa chỉ với thông tin liên hệ, hợp đồng và nhóm. Lịch làm việc dùng các dữ liệu này cho khả năng sẵn sàng và số giờ.",
   "assistant-chat.onboarding.intro.explain.period-closing": "Khi khóa kỳ, bạn phê duyệt một khoảng thời gian và niêm phong nó. Sau đó dữ liệu là cơ sở ràng buộc cho báo cáo và xuất dữ liệu.",
   "assistant-chat.onboarding.intro.explain.klacksy": "Còn tôi là Klacksy: cứ hỏi tôi điều bạn muốn biết. Nếu câu trả lời quá dài, hãy nói \"đơn giản hơn\" hoặc \"ngắn hơn\". Tôi cũng có thể thực hiện lệnh lập kế hoạch cho bạn; chỉ cần nói bạn cần gì.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Với tin nhắn, bạn viết trực tiếp cho nhân viên, ví dụ qua Telegram, và xem phản hồi của họ tại đây. Nhờ vậy bạn liên lạc được với đội ngũ cả khi họ đang di chuyển."
+  "assistant-chat.onboarding.intro.explain.messaging": "Với tin nhắn, bạn viết trực tiếp cho nhân viên, ví dụ qua Telegram, và xem phản hồi của họ tại đây. Nhờ vậy bạn liên lạc được với đội ngũ cả khi họ đang di chuyển.",
+  "holisticHarmonizer.critic.title": "Ghi chú của AI về kế hoạch",
+  "holisticHarmonizer.critic.intro": "Một mô hình thị giác đã xem xét kế hoạch hoàn chỉnh. Các ghi chú chỉ là gợi ý – kế hoạch không bị thay đổi.",
+  "holisticHarmonizer.critic.none": "Không tìm thấy điểm đáng chú ý.",
+  "holisticHarmonizer.critic.failed": "Không thể chạy việc kiểm tra kế hoạch bằng AI.",
+  "holisticHarmonizer.critic.discarded": "Đã loại bỏ {{count}} ghi chú vì không khớp với kế hoạch.",
+  "holisticHarmonizer.critic.model": "Mô hình: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Thấp",
+  "holisticHarmonizer.critic.severity-medium": "Trung bình",
+  "holisticHarmonizer.critic.severity-high": "Cao"
 }

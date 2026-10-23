@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "Under Personer finner du medarbeidere og adresser med kontaktinformasjon, kontrakter og grupper. Vaktplanen bruker disse dataene til tilgjengelighet og timer.",
   "assistant-chat.onboarding.intro.explain.period-closing": "Ved periodeavslutningen godkjenner du et tidsrom og forsegler det. Deretter er dataene det bindende grunnlaget for rapporter og eksporter.",
   "assistant-chat.onboarding.intro.explain.klacksy": "Og jeg er Klacksy: bare spør meg om det du vil vite. Er et svar for langt, si \"enklere\" eller \"kortere\". Jeg kan også utføre planleggingskommandoer for deg; bare si hva du trenger.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Med meldinger skriver du direkte til medarbeiderne dine, for eksempel via Telegram, og ser svarene deres her. Slik når du teamet ditt også når de er på farten."
+  "assistant-chat.onboarding.intro.explain.messaging": "Med meldinger skriver du direkte til medarbeiderne dine, for eksempel via Telegram, og ser svarene deres her. Slik når du teamet ditt også når de er på farten.",
+  "holisticHarmonizer.critic.title": "AI-merknader til planen",
+  "holisticHarmonizer.critic.intro": "En visjonsmodell har gjennomgått den ferdige planen. Merknadene er bare forslag – planen er ikke endret.",
+  "holisticHarmonizer.critic.none": "Ingenting påfallende funnet.",
+  "holisticHarmonizer.critic.failed": "AI-gjennomgangen av planen kunne ikke kjøres.",
+  "holisticHarmonizer.critic.discarded": "{{count}} merknad(er) forkastet fordi de ikke stemte med planen.",
+  "holisticHarmonizer.critic.model": "Modell: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Lav",
+  "holisticHarmonizer.critic.severity-medium": "Middels",
+  "holisticHarmonizer.critic.severity-high": "Høy"
 }

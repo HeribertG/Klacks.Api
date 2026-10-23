@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "תחת אנשים תמצא עובדים וכתובות עם פרטי קשר, חוזים וקבוצות. סידור העבודה משתמש בנתונים האלה לזמינות ולשעות.",
   "assistant-chat.onboarding.intro.explain.period-closing": "בסגירת תקופה אתה מאשר טווח זמן וחותם אותו. לאחר מכן הנתונים הם הבסיס המחייב לדוחות ולייצוא.",
   "assistant-chat.onboarding.intro.explain.klacksy": "ואני Klacksy: פשוט שאל אותי מה שתרצה לדעת. אם תשובה ארוכה מדי, אמור \"פשוט יותר\" או \"קצר יותר\". אני יכול גם לבצע עבורך פקודות תכנון; פשוט אמור לי מה אתה צריך.",
-  "assistant-chat.onboarding.intro.explain.messaging": "עם ההודעות אתה כותב ישירות לעובדים שלך, למשל דרך Telegram, ורואה כאן את התשובות שלהם. כך אתה מגיע לצוות גם כשהוא בדרכים."
+  "assistant-chat.onboarding.intro.explain.messaging": "עם ההודעות אתה כותב ישירות לעובדים שלך, למשל דרך Telegram, ורואה כאן את התשובות שלהם. כך אתה מגיע לצוות גם כשהוא בדרכים.",
+  "holisticHarmonizer.critic.title": "הערות בינה מלאכותית לתוכנית",
+  "holisticHarmonizer.critic.intro": "מודל ראייה בדק את התוכנית המוגמרת. ההערות הן הצעות בלבד – התוכנית לא שונתה.",
+  "holisticHarmonizer.critic.none": "לא נמצא דבר חריג.",
+  "holisticHarmonizer.critic.failed": "לא ניתן היה להריץ את בדיקת התוכנית בבינה מלאכותית.",
+  "holisticHarmonizer.critic.discarded": "{{count}} הערות נפסלו כי לא התאימו לתוכנית.",
+  "holisticHarmonizer.critic.model": "מודל: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "נמוכה",
+  "holisticHarmonizer.critic.severity-medium": "בינונית",
+  "holisticHarmonizer.critic.severity-high": "גבוהה"
 }

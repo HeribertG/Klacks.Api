@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "在人員中可以找到員工和地址，以及聯絡資料、合約和群組。排班表使用這些資料來計算可用性和工時。",
   "assistant-chat.onboarding.intro.explain.period-closing": "在期間結帳中，你核准一個時間區段並將其封存。之後這些資料就是報表和匯出的具約束力依據。",
   "assistant-chat.onboarding.intro.explain.klacksy": "我是 Klacksy：想知道什麼儘管問我。如果回答太長，就說「簡單一點」或「短一點」。我也可以替你執行排班指令；告訴我你需要什麼就好。",
-  "assistant-chat.onboarding.intro.explain.messaging": "透過訊息功能你可以直接傳訊息給員工，例如透過 Telegram，並在這裡查看他們的回覆。這樣即使團隊在外也能聯絡上。"
+  "assistant-chat.onboarding.intro.explain.messaging": "透過訊息功能你可以直接傳訊息給員工，例如透過 Telegram，並在這裡查看他們的回覆。這樣即使團隊在外也能聯絡上。",
+  "holisticHarmonizer.critic.title": "AI 對計畫的提示",
+  "holisticHarmonizer.critic.intro": "視覺模型檢查了完成的計畫。這些提示僅為建議，計畫未被變更。",
+  "holisticHarmonizer.critic.none": "未發現明顯問題。",
+  "holisticHarmonizer.critic.failed": "無法執行 AI 對計畫的檢查。",
+  "holisticHarmonizer.critic.discarded": "已捨棄 {{count}} 則與計畫不符的提示。",
+  "holisticHarmonizer.critic.model": "模型：{{model}}",
+  "holisticHarmonizer.critic.severity-low": "低",
+  "holisticHarmonizer.critic.severity-medium": "中",
+  "holisticHarmonizer.critic.severity-high": "高"
 }
