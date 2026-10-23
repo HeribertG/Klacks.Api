@@ -43,6 +43,7 @@ public static class RecipeReplyGuard
     };
 
     private const string FallbackLanguage = "en";
+    private const int LanguagePrefixLength = 2;
 
     private const char BlockEnd = ']';
 
@@ -83,12 +84,12 @@ public static class RecipeReplyGuard
     public static string? TryDeterministicProposal(
         string goal, IReadOnlyDictionary<string, string>? goalTranslations, string? language)
     {
-        if (goalTranslations == null || string.IsNullOrWhiteSpace(language) || language.Length < 2)
+        if (goalTranslations == null || string.IsNullOrWhiteSpace(language) || language.Length < LanguagePrefixLength)
         {
             return null;
         }
 
-        var prefix = language[..2].ToLowerInvariant();
+        var prefix = language[..LanguagePrefixLength].ToLowerInvariant();
         if (!SingleFrames.ContainsKey(prefix) || FindTranslation(goalTranslations, prefix) == null)
         {
             return null;
@@ -241,12 +242,12 @@ public static class RecipeReplyGuard
 
     private static string NormaliseLanguage(string? language)
     {
-        if (string.IsNullOrWhiteSpace(language) || language.Length < 2)
+        if (string.IsNullOrWhiteSpace(language) || language.Length < LanguagePrefixLength)
         {
             return FallbackLanguage;
         }
 
-        var prefix = language[..2].ToLowerInvariant();
+        var prefix = language[..LanguagePrefixLength].ToLowerInvariant();
         return SingleFrames.ContainsKey(prefix) ? prefix : FallbackLanguage;
     }
 }
