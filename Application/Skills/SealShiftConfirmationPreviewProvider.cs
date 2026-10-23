@@ -10,6 +10,7 @@
 /// </summary>
 /// <param name="orderSealingService">Loads the order and tells whether it may be sealed right now</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -20,7 +21,6 @@ namespace Klacks.Api.Application.Skills;
 
 public class SealShiftConfirmationPreviewProvider : ISkillConfirmationPreviewProvider
 {
-    private const string TimeFormat = "HH\:mm";
     private const string OpenEnd = "open end";
 
     private const string InvalidShiftIdError =
@@ -58,10 +58,11 @@ public class SealShiftConfirmationPreviewProvider : ISkillConfirmationPreviewPro
         }
 
         var order = check.SealableOrder!;
-        var until = order.UntilDate?.ToString(DateTimeFormats.IsoDate) ?? OpenEnd;
-        var text =
-            $"Seal the order '{order.Name}' ({order.Abbreviation}), {order.FromDate.ToString(DateTimeFormats.IsoDate)} to " +
-            $"{until}, {order.StartShift.ToString(TimeFormat)}-{order.EndShift.ToString(TimeFormat)}. {SealNote}";
+        var from = order.FromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
+        var until = order.UntilDate?.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture) ?? OpenEnd;
+        var start = order.StartShift.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture);
+        var end = order.EndShift.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture);
+        var text = $"Seal the order '{order.Name}' ({order.Abbreviation}), {from} to {until}, {start}-{end}. {SealNote}";
         return SkillConfirmationPreview.Show(text, SealShiftSkill.BindingFor(orderId));
     }
 }
