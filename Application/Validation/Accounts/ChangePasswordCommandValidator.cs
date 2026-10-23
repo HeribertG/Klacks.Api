@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using FluentValidation;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.Commands.Accounts;
 
 namespace Klacks.Api.Application.Validation.Accounts;
@@ -20,7 +21,7 @@ public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCo
 
         RuleFor(x => x.ChangePassword.Password)
             .NotEmpty().WithMessage("New password is required.")
-            .MinimumLength(8).WithMessage("New password must be at least 8 characters long.")
+            .MinimumLength(PasswordPolicyDefaults.RequiredLength).WithMessage($"New password must be at least {PasswordPolicyDefaults.RequiredLength} characters long.")
             .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]")
             .WithMessage("New password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.");
 

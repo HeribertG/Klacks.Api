@@ -10,6 +10,8 @@ namespace Klacks.Api.Application.Validation.Schedules;
 
 public class ContainerTemplateResourceValidator : AbstractValidator<ContainerTemplateResource>
 {
+    private const int MaxWeekday = 8;
+
     private readonly IShiftRepository _shiftRepository;
 
     public ContainerTemplateResourceValidator(IShiftRepository shiftRepository)
@@ -27,7 +29,7 @@ public class ContainerTemplateResourceValidator : AbstractValidator<ContainerTem
             .NotEmpty().WithMessage("Until Time is required");
 
         RuleFor(x => x.Weekday)
-            .InclusiveBetween(0, 8).WithMessage("Weekday must be between 0 and 8");
+            .InclusiveBetween(0, MaxWeekday).WithMessage($"Weekday must be between 0 and {MaxWeekday}");
     }
 
     private async Task<bool> BeValidContainerShift(Guid containerId, CancellationToken cancellationToken)
