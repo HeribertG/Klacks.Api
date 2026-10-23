@@ -17,6 +17,10 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 public class SentimentAnalyzer : ISentimentAnalyzer
 {
+    private const int UrgentScoreThreshold = 2;
+    private const int UrgentConfidenceSaturationHits = 3;
+    private const int MoodConfidenceSaturationHits = 4;
+
     private static readonly string[] UniversalPositiveKeywords = ["👍", "😊", "🎉", "✅"];
 
     private static readonly Regex MultipleExclamationRegex = new(@"!{2,}", RegexOptions.Compiled);
@@ -47,8 +51,8 @@ public class SentimentAnalyzer : ISentimentAnalyzer
         var multiQuestionCount = MultipleQuestionRegex.Matches(userMessage).Count;
 
         var urgentScore = CountKeywordHits(lower, GetCategory(SentimentCategories.Urgent)) + allCapsCount;
-        if (urgentScore >= 2)
-            return new SentimentResult(SentimentMood.Urgent, CalculateConfidence(urgentScore, 3));
+        if (urgentScore >= UrgentScoreThreshold)
+            return new SentimentResult(SentimentMood.Urgent, CalculateConfidence(urgentScore, UrgentConfidenceSaturationHits));
 
         var frustratedScore = CountKeywordHits(lower, GetCategory(SentimentCategories.Frustrated)) + exclamationCount;
         var stressedScore = CountKeywordHits(lower, GetCategory(SentimentCategories.Stressed));
@@ -69,7 +73,7 @@ public class SentimentAnalyzer : ISentimentAnalyzer
         if (best.Item2 == 0)
             return new SentimentResult(SentimentMood.Neutral, 1f);
 
-        return new SentimentResult(best.Item1, CalculateConfidence(best.Item2, 4));
+        return new SentimentResult(best.Item1, CalculateConfidence(best.Item2, MoodConfidenceSaturationHits));
     }
 
     public void ReloadKeywords()
