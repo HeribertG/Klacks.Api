@@ -12,7 +12,8 @@
 #                    stable.json - only after every install is green and every check passed (fail-closed). Finally the
 #                    package replaces the asset of the rolling prerelease office-pc, the stable download link of the
 #                    marketplace: it always serves the last green package, also while a newer release is still
-#                    building or after a failed native run.
+#                    building or after a failed native run. A last, read-only job (verify-office-pc) turns the run
+#                    red when office-pc does not serve this release's ZIP and setup EXE (deploy/native/verify-rolling-download.sh).
 # Callers: native-windows-gate.yml (workflow_dispatch) and native-release.yml (v* tags). Callers pass secrets: inherit.
 
 name: Native Windows (reusable)
@@ -797,3 +798,28 @@ jobs:
             gh release delete "$tag" -R "$GITHUB_REPOSITORY" --yes || status=1
           done
           exit $status
+
+  # Read-only check after publish has finished: stable.json and artifacts.native are already written, the setup
+  # installer step stays fail-soft, and nothing here can hold them back. It turns the run red when the public office-PC
+  # download (ZIP and EXE on office-pc) does not serve this release, e.g. after a red installer job or a failed swap;
+  # the download itself is left on the last good version. Runs whenever the version is known, also when publish was
+  # skipped or failed, so the summary always states what the download serves. A newer rolling title is not an error.
+  verify-office-pc:
+    name: verify office-PC download
+    needs: [ui, publish]
+    if: ${{ always() && inputs.mode == 'release' && needs.ui.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.ui.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+
+      - name: office-pc serves this release
+        run: |
+          bash deploy/native/verify-rolling-download.sh "$GITHUB_REPOSITORY" "$VERSION" "$ROLLING_TAG" \
+            "$PACKAGE_FILE" "$INSTALLER_FILE"
