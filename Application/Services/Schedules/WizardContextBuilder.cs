@@ -2,6 +2,7 @@
 
 using System.Globalization;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.ScheduleOptimizer.Models;
@@ -193,9 +194,9 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         foreach (var shift in shifts)
         {
             if (Guid.TryParse(shift.Id, out var shiftId)
-                && DateOnly.TryParse(shift.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
-                && TimeOnly.TryParse(shift.StartTime, CultureInfo.InvariantCulture, DateTimeStyles.None, out var start)
-                && TimeOnly.TryParse(shift.EndTime, CultureInfo.InvariantCulture, DateTimeStyles.None, out var end))
+                && DateOnly.TryParseExact(shift.Date, DateTimeFormats.IsoDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
+                && TimeOnly.TryParseExact(shift.StartTime, DateTimeFormats.HourMinute, CultureInfo.InvariantCulture, DateTimeStyles.None, out var start)
+                && TimeOnly.TryParseExact(shift.EndTime, DateTimeFormats.HourMinute, CultureInfo.InvariantCulture, DateTimeStyles.None, out var end))
             {
                 slots.Add(new AvailabilityShiftSlot(shiftId, date, start, end));
             }

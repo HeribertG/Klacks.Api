@@ -13,12 +13,14 @@
 /// <param name="parts">Comma-separated time ranges "HH:mm-HH:mm" that tile the order span (e.g. "07:00-15:00,15:00-23:00,23:00-07:00").</param>
 /// <param name="partNames">Optional comma-separated names for the parts, aligned by index (e.g. "Frühdienst,Spätdienst,Nachtdienst").</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Commands.Shifts;
 using Klacks.Api.Application.Common;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
@@ -171,7 +173,7 @@ public class CutShiftSkill : BaseSkillImplementation
         for (var i = 0; i < ranges.Count; i++)
         {
             var (start, end) = ranges[i];
-            var partName = i < names.Count ? names[i] : $"{originalShift.Name} ({start:HH\\:mm}-{end:HH\\:mm})";
+            var partName = i < names.Count ? names[i] : $"{originalShift.Name} ({start.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-{end.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)})";
 
             // The first part REUSES the plannable shift (UPDATE: OriginalShift -> SplitShift), so the
             // order is converted instead of left over as a duplicate. Further parts are created.
@@ -192,8 +194,8 @@ public class CutShiftSkill : BaseSkillImplementation
             {
                 data.Id,
                 data.Name,
-                StartTime = start.ToString("HH\\:mm"),
-                EndTime = end.ToString("HH\\:mm"),
+                StartTime = start.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+                EndTime = end.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
                 WorkTime = data.WorkTime,
                 data.CuttingAfterMidnight,
                 Converted = isConversion

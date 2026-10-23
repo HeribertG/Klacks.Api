@@ -11,8 +11,10 @@
 /// <param name="untilDate">Optional contract end date (YYYY-MM-DD); leave empty for indefinite.</param>
 /// <param name="idNumber">Optional visible client number to disambiguate duplicate names.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
@@ -145,6 +147,6 @@ public class AssignContractByNameSkill : BaseSkillImplementation
                 FromDate = fromDate,
                 UntilDate = untilDate
             },
-            $"Contract '{contract.Name}' assigned to {client.FirstName} {client.Name} from {fromDate}.");
+            $"Contract '{contract.Name}' assigned to {client.FirstName} {client.Name} from {fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}.");
     }
 }

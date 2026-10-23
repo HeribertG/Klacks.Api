@@ -247,7 +247,7 @@ public class CreateShiftSkill : BaseSkillImplementation
 
         if (untilDate.HasValue && untilDate.Value < fromDate)
         {
-            return (null, $"untilDate ({untilDate:yyyy-MM-dd}) must not be before fromDate ({fromDate:yyyy-MM-dd}).");
+            return (null, $"untilDate ({untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) must not be before fromDate ({fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}).");
         }
 
         if (input.SumEmployees < 1)
@@ -370,10 +370,10 @@ public class CreateShiftSkill : BaseSkillImplementation
             SealedOrderId = shift.Id,
             shift.Name,
             shift.Abbreviation,
-            StartTime = startTime.ToString(DateTimeFormats.HourMinute),
-            EndTime = endTime.ToString(DateTimeFormats.HourMinute),
-            FromDate = schedule.FromDate.ToString(DateTimeFormats.IsoDate),
-            UntilDate = schedule.UntilDate?.ToString(DateTimeFormats.IsoDate),
+            StartTime = startTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+            EndTime = endTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+            FromDate = schedule.FromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+            UntilDate = schedule.UntilDate?.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             WorkTime = workTime,
             SumEmployees = input.SumEmployees,
             GroupCount = groupItems.Count,
@@ -388,12 +388,12 @@ public class CreateShiftSkill : BaseSkillImplementation
             : " (no default calculation macro configured — set one with category Shift)";
 
         var message = input.AsDraft
-            ? $"Order '{name}' ({startTime:HH:mm}-{endTime:HH:mm}, {workTime}h) created as a DRAFT (status OriginalOrder) " +
+            ? $"Order '{name}' ({startTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-{endTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}, {workTime}h) created as a DRAFT (status OriginalOrder) " +
               $"for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s) — NOT sealed yet, so it has no " +
               "plannable shift and cannot be booked or cut. Continue refining it, then call seal_shift with " +
               $"shiftId=\"{resultShift.Id}\" once name, abbreviation, fromDate, at least one weekday or holiday, at " +
               "least one group, quantity>0 and sumEmployees>0 are all set."
-            : $"Order '{name}' ({startTime:HH:mm}-{endTime:HH:mm}, {workTime}h) created for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s). " +
+            : $"Order '{name}' ({startTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-{endTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}, {workTime}h) created for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s). " +
               "NEXT STEP: if this order is meant to be split into several parts (e.g. a 24h service into early/late/night), " +
               $"call cut_shift now with shiftId=\"{resultShift.Id}\" and parts like \"07:00-15:00,15:00-23:00,23:00-07:00\" " +
               "(optionally partNames=\"Frühdienst,Spätdienst,Nachtdienst\"). Do NOT navigate to the cut page and do NOT write manual cutting instructions. " +

@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Globalization;
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Application.Commands.ContainerShiftOverrides;
@@ -38,12 +39,14 @@ public class ContainersController : InputBaseController<ContainerTemplateResourc
             "GetAvailableTasks called: containerId={ContainerId}, weekday={Weekday}, fromTime={FromTime}, untilTime={UntilTime}, isHoliday={IsHoliday}, isWeekdayAndHoliday={IsWeekdayAndHoliday}",
             containerId, weekday, fromTime.ForLog(), untilTime.ForLog(), isHoliday, isWeekdayAndHoliday);
 
-        if (!TimeOnly.TryParse(fromTime, out var parsedFromTime))
+        if (!TimeOnly.TryParseExact(
+                fromTime, DateTimeFormats.HourMinuteOrSecond, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedFromTime))
         {
             return BadRequest($"Invalid fromTime format: {fromTime}. Expected format: HH:mm:ss or HH:mm");
         }
 
-        if (!TimeOnly.TryParse(untilTime, out var parsedUntilTime))
+        if (!TimeOnly.TryParseExact(
+                untilTime, DateTimeFormats.HourMinuteOrSecond, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedUntilTime))
         {
             return BadRequest($"Invalid untilTime format: {untilTime}. Expected format: HH:mm:ss or HH:mm");
         }

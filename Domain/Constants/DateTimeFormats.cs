@@ -18,4 +18,6 @@ public static class DateTimeFormats
     public const string IsoDateHourMinute = "yyyy-MM-dd HH:mm";
 
     public const string CompactDate = "yyyyMMdd";
+
+    public static readonly string[] HourMinuteOrSecond = [HourMinute, HourMinuteSecond];
 }

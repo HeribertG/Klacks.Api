@@ -14,6 +14,7 @@
 /// <param name="absenceType">Optional absence type name to filter by</param>
 /// <param name="limit">Maximum number of clients to return (default: 10)</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
@@ -121,8 +122,8 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
                     AbsenceType = absenceLookup.TryGetValue(bp.AbsenceId, out var absence)
                         ? (absence.Name.De ?? absence.Name.En ?? "Unknown")
                         : "Unknown",
-                    From = bp.From.ToString(DateTimeFormats.IsoDate),
-                    Until = bp.Until.ToString(DateTimeFormats.IsoDate),
+                    From = bp.From.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+                    Until = bp.Until.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
                     Information = bp.Information
                 })
                 .Concat(c.Breaks
@@ -134,8 +135,8 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
                         AbsenceType = absenceLookup.TryGetValue(b.AbsenceId, out var absence)
                             ? (absence.Name.De ?? absence.Name.En ?? "Unknown")
                             : "Unknown",
-                        From = b.CurrentDate.ToString(DateTimeFormats.IsoDate),
-                        Until = b.CurrentDate.ToString(DateTimeFormats.IsoDate),
+                        From = b.CurrentDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+                        Until = b.CurrentDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
                         Information = (string?)b.Information
                     }))
                 .OrderBy(a => a.From)
@@ -152,7 +153,7 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
             HasMore = totalCount > limit,
             Year = year,
             DateRange = startDate.HasValue && endDate.HasValue
-                ? $"{startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}"
+                ? $"{startDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} to {endDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}"
                 : (object?)null
         };
 
@@ -161,8 +162,8 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
             : $"Found {results.Count} client(s) with absences" +
               (!string.IsNullOrWhiteSpace(searchTerm) ? $" matching '{searchTerm}'" : "") +
               (!string.IsNullOrWhiteSpace(absenceTypeName) ? $" of type '{absenceTypeName}'" : "") +
-              (startDate.HasValue ? $" from {startDate:yyyy-MM-dd}" : $" in {year}") +
-              (endDate.HasValue ? $" to {endDate:yyyy-MM-dd}" : "") +
+              (startDate.HasValue ? $" from {startDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}" : $" in {year}") +
+              (endDate.HasValue ? $" to {endDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}" : "") +
               (totalCount > limit ? $". Showing first {limit} of {totalCount}." : ".");
 
         return SkillResult.SuccessResult(resultData, message);

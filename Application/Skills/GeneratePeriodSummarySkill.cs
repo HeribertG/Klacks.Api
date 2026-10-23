@@ -13,6 +13,7 @@
 /// <param name="groupRepository">Loads the requested group for the scope check</param>
 /// <param name="groupScopeGuard">Resolves the executing user's group scope</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
@@ -76,8 +77,8 @@ public class GeneratePeriodSummarySkill : BaseSkillImplementation
         var summary = new
         {
             GroupId = groupId,
-            FromDate = fromDate.ToString(DateTimeFormats.IsoDate),
-            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
+            FromDate = fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             EmployeeCount = employeeIds.Count,
             EmployeeIds = employeeIds,
             DaysInPeriod = (untilDate.DayNumber - fromDate.DayNumber) + 1
@@ -85,7 +86,7 @@ public class GeneratePeriodSummarySkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             summary,
-            $"Period summary for group {groupId} between {fromDate:yyyy-MM-dd} and {untilDate:yyyy-MM-dd}: " +
+            $"Period summary for group {groupId} between {fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} and {untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}: " +
             $"{employeeIds.Count} employee(s), {summary.DaysInPeriod} day(s).");
     }
 }

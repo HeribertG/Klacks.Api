@@ -27,6 +27,7 @@
 /// <param name="defaultShiftMacroResolver">Supplies the default Shift-category macro of the new container, exactly as a
 /// container created in the shift editor receives it</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Commands.Schedules;
@@ -281,7 +282,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             if (untilDate.Value < fromDate)
             {
                 return (default, null,
-                    $"untilDate ({untilDate:yyyy-MM-dd}) must not be before fromDate ({fromDate:yyyy-MM-dd}).");
+                    $"untilDate ({untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) must not be before fromDate ({fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}).");
             }
         }
 

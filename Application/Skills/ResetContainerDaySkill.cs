@@ -12,11 +12,13 @@
 /// <param name="date">Required. ISO date of the day to reset, e.g. 2026-07-09.</param>
 /// <param name="shiftVisibilityGuard">Answers a hidden container exactly like a missing one</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Commands.ContainerShiftOverrides;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerShiftOverrides;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
@@ -71,7 +73,7 @@ public class ResetContainerDaySkill : BaseSkillImplementation
         {
             return SkillResult.SuccessResult(
                 new { ContainerId = containerId, Date = date, Reset = false },
-                $"No override exists for {date:yyyy-MM-dd} — this day already follows the template, nothing to reset.");
+                $"No override exists for {date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} — this day already follows the template, nothing to reset.");
         }
 
         try
@@ -79,7 +81,7 @@ public class ResetContainerDaySkill : BaseSkillImplementation
             var deleted = await _mediator.Send(new DeleteContainerShiftOverrideCommand(containerId, existing.Id), cancellationToken);
             if (!deleted)
             {
-                return SkillResult.Error($"Override for {date:yyyy-MM-dd} could not be found when attempting to delete it (it may have just been reset by someone else).");
+                return SkillResult.Error($"Override for {date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} could not be found when attempting to delete it (it may have just been reset by someone else).");
             }
         }
         catch (ConflictException ex)
@@ -95,6 +97,6 @@ public class ResetContainerDaySkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             new { ContainerId = containerId, Date = date, Reset = true, Verified = true },
-            $"Override for {date:yyyy-MM-dd} removed — the day now falls back to the template (verified).");
+            $"Override for {date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} removed — the day now falls back to the template (verified).");
     }
 }

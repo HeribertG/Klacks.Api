@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Globalization;
 using Klacks.Api.Application.Commands.Geocoding;
 using Klacks.Api.Application.DTOs.RouteOptimization;
 using Klacks.Api.Domain.Constants;
@@ -99,7 +100,9 @@ public class RouteOptimizationController : BaseController
             var domainTimeBlocks = ConvertTimeBlockDtos(request.TimeBlocks);
             TimeOnly? parsedContainerFromTime = null;
             if (!string.IsNullOrEmpty(request.ContainerFromTime) &&
-                TimeOnly.TryParse(request.ContainerFromTime, out var fromTime))
+                TimeOnly.TryParseExact(
+                    request.ContainerFromTime, DateTimeFormats.HourMinuteOrSecond, CultureInfo.InvariantCulture,
+                    DateTimeStyles.None, out var fromTime))
             {
                 parsedContainerFromTime = fromTime;
             }
@@ -182,8 +185,12 @@ public class RouteOptimizationController : BaseController
             return BadRequest("fromTime and untilTime are required for autofill");
         }
 
-        if (!TimeOnly.TryParse(request.FromTime, out var parsedFromTime) ||
-            !TimeOnly.TryParse(request.UntilTime, out var parsedUntilTime))
+        if (!TimeOnly.TryParseExact(
+                request.FromTime, DateTimeFormats.HourMinuteOrSecond, CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out var parsedFromTime) ||
+            !TimeOnly.TryParseExact(
+                request.UntilTime, DateTimeFormats.HourMinuteOrSecond, CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out var parsedUntilTime))
         {
             return BadRequest("Invalid time format. Use HH:mm format.");
         }
@@ -259,13 +266,16 @@ public class RouteOptimizationController : BaseController
         }
     }
 
+    private static TimeOnly ParseClockTime(string value) =>
+        TimeOnly.ParseExact(value, DateTimeFormats.HourMinuteOrSecond, CultureInfo.InvariantCulture, DateTimeStyles.None);
+
     private static List<TimeBlock> ConvertTimeBlockDtos(List<TimeBlockDto> dtos)
     {
         return dtos.Select(dto => new TimeBlock(
             dto.Id,
             dto.Name ?? string.Empty,
-            string.IsNullOrEmpty(dto.FixedStartTime) ? null : TimeOnly.Parse(dto.FixedStartTime),
-            string.IsNullOrEmpty(dto.FixedEndTime) ? null : TimeOnly.Parse(dto.FixedEndTime),
+            string.IsNullOrEmpty(dto.FixedStartTime) ? null : ParseClockTime(dto.FixedStartTime),
+            string.IsNullOrEmpty(dto.FixedEndTime) ? null : ParseClockTime(dto.FixedEndTime),
             TimeSpan.FromMinutes(dto.DurationMinutes),
             dto.IsMovable)).ToList();
     }

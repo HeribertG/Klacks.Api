@@ -9,6 +9,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -108,6 +109,7 @@ public class SkillExecutorService : ISkillExecutor
         SkillDescriptor? descriptor = null;
         using var principal = BeginContextPrincipal(context);
         invocation = WithoutReservedParameters(invocation);
+        context = await WithInstallationLanguageFallbackAsync(context, cancellationToken);
 
         try
         {
@@ -151,6 +153,34 @@ public class SkillExecutorService : ISkillExecutor
             stopwatch.Stop();
             return await CompleteWithExceptionResultAsync(descriptor, invocation, context, UnexpectedErrorResult(invocation.SkillName, ex), stopwatch.Elapsed);
         }
+    }
+
+    /// <summary>
+    /// Paths without a browser session (scheduled tasks, goal plans, proactive actions, inbound messages, MCP and
+    /// REST skill calls) arrive without a UI language. Left null, an ambiguous date or time would be read with the
+    /// historical culture list, whose first entries are Swiss; the installation language is the closest answer to
+    /// "how do this installation's users write dates" and keeps the reading identical for every channel.
+    /// </summary>
+    /// <param name="context">Execution context as built by the calling path.</param>
+    /// <param name="cancellationToken">Cancels the settings read.</param>
+    private async Task<SkillExecutionContext> WithInstallationLanguageFallbackAsync(
+        SkillExecutionContext context,
+        CancellationToken cancellationToken)
+    {
+        if (!string.IsNullOrWhiteSpace(context.UserLanguage))
+        {
+            return context;
+        }
+
+        if (_serviceProvider.GetService(typeof(IInstallationLanguageResolver)) is not IInstallationLanguageResolver resolver)
+        {
+            return context;
+        }
+
+        var installationLanguage = await resolver.ResolveAsync(cancellationToken);
+        return string.IsNullOrWhiteSpace(installationLanguage)
+            ? context
+            : context with { UserLanguage = installationLanguage };
     }
 
     private async Task<SkillResult> RejectUnknownSkillAsync(

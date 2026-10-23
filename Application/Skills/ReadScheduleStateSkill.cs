@@ -16,6 +16,7 @@
 /// <param name="clientVisibilityGuard">Filters the entries down to clients the calling user may see</param>
 /// <param name="clientRepository">Resolves, in one batched read, the display names of the visible employees named in the entries</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
@@ -105,8 +106,8 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
         var data = new
         {
             GroupId = groupId,
-            FromDate = fromDate.ToString(DateTimeFormats.IsoDate),
-            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
+            FromDate = fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             AnalyseToken = analyseToken,
             IsScenario = analyseToken.HasValue,
             EntryCount = entries.Count,
@@ -118,7 +119,7 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
         var scenarioNote = analyseToken.HasValue ? " (scenario view)" : string.Empty;
         var truncatedNote = truncated ? $" Result truncated to {MaxEntries} entries." : string.Empty;
         var message =
-            $"Schedule state for group {groupId} between {fromDate:yyyy-MM-dd} and {untilDate:yyyy-MM-dd}{scenarioNote}: " +
+            $"Schedule state for group {groupId} between {fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} and {untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}{scenarioNote}: " +
             $"{entries.Count} entr{(entries.Count == 1 ? "y" : "ies")}, {distinctEmployees} employee(s).{truncatedNote}";
 
         return SkillResult.SuccessResult(data, message);
@@ -163,7 +164,7 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
                 cell.Id,
                 cell.ClientId,
                 ClientName = NameOf(lookup, cell.ClientId),
-                Date = DateOnly.FromDateTime(cell.EntryDate).ToString(DateTimeFormats.IsoDate),
+                Date = DateOnly.FromDateTime(cell.EntryDate).ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
                 EntryType = ResolveEnumName<ScheduleEntryType>(cell.EntryType),
                 Shift = cell.EntryName,
                 cell.Abbreviation,
@@ -186,7 +187,7 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
             cell.Id,
             cell.ClientId,
             ClientName = NameOf(lookup, cell.ClientId),
-            Date = DateOnly.FromDateTime(cell.EntryDate).ToString(DateTimeFormats.IsoDate),
+            Date = DateOnly.FromDateTime(cell.EntryDate).ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             EntryType = ResolveEnumName<ScheduleEntryType>(cell.EntryType),
             Shift = cell.EntryName,
             cell.Abbreviation,
