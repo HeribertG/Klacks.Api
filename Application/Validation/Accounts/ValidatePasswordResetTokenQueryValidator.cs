@@ -7,12 +7,14 @@ namespace Klacks.Api.Application.Validation.Accounts;
 
 public class ValidatePasswordResetTokenQueryValidator : AbstractValidator<ValidatePasswordResetTokenQuery>
 {
+    private const int MinTokenLength = 10;
+
     public ValidatePasswordResetTokenQueryValidator()
     {
         RuleFor(x => x.Token)
             .NotEmpty()
             .WithMessage("Token is required.")
-            .MinimumLength(10)
+            .MinimumLength(MinTokenLength)
             .WithMessage("Invalid token format.");
     }
 }
