@@ -23,6 +23,22 @@ public static class AnswerClaimExtractor
     private const int MinSignificantInteger = 100;
     private const int IgnoredYearFrom = 1990;
     private const int IgnoredYearTo = 2035;
+    private const int MaxCalendarYear = 9999;
+    private const int MinMonthNameLength = 3;
+    private const int DigitsPerThousandsGroup = 3;
+    private const int MinDecimalTailLength = 2;
+    private const int MaxDecimalParts = 2;
+    private const int MaxUnambiguousFractionDigits = 2;
+
+    private const int YearFirstYearGroup = 1;
+    private const int YearFirstMonthGroup = 2;
+    private const int YearFirstDayGroup = 3;
+    private const int DayFirstDayGroup = 1;
+    private const int DayFirstMonthGroup = 2;
+    private const int DayFirstYearGroup = 3;
+    private const int MonthFirstMonthGroup = 1;
+    private const int MonthFirstDayGroup = 2;
+    private const int MonthFirstYearGroup = 3;
 
     private static readonly Regex UuidRegex = new(
         @"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b",
@@ -90,23 +106,23 @@ public static class AnswerClaimExtractor
     private static string ExtractDates(string text, string? language, List<AnswerClaim> claims)
     {
         text = ReplaceDates(text, IsoDateRegex, claims, m =>
-            TryDate(m.Groups[1], m.Groups[2], m.Groups[3], out var d) ? [d] : []);
+            TryDate(m.Groups[YearFirstYearGroup], m.Groups[YearFirstMonthGroup], m.Groups[YearFirstDayGroup], out var d) ? [d] : []);
 
         text = ReplaceDates(text, CjkDateRegex, claims, m =>
-            TryDate(m.Groups[1], m.Groups[2], m.Groups[3], out var d) ? [d] : []);
+            TryDate(m.Groups[YearFirstYearGroup], m.Groups[YearFirstMonthGroup], m.Groups[YearFirstDayGroup], out var d) ? [d] : []);
 
         text = ReplaceDates(text, DottedDateRegex, claims, m =>
-            TryDate(m.Groups[3], m.Groups[2], m.Groups[1], out var d) ? [d] : []);
+            TryDate(m.Groups[DayFirstYearGroup], m.Groups[DayFirstMonthGroup], m.Groups[DayFirstDayGroup], out var d) ? [d] : []);
 
         text = ReplaceDates(text, SlashDateRegex, claims, m =>
         {
             var readings = new List<string>();
-            if (TryDate(m.Groups[3], m.Groups[2], m.Groups[1], out var dayFirst))
+            if (TryDate(m.Groups[DayFirstYearGroup], m.Groups[DayFirstMonthGroup], m.Groups[DayFirstDayGroup], out var dayFirst))
             {
                 readings.Add(dayFirst);
             }
 
-            if (TryDate(m.Groups[3], m.Groups[1], m.Groups[2], out var monthFirst) && !readings.Contains(monthFirst))
+            if (TryDate(m.Groups[DayFirstYearGroup], m.Groups[DayFirstDayGroup], m.Groups[DayFirstMonthGroup], out var monthFirst) && !readings.Contains(monthFirst))
             {
                 readings.Add(monthFirst);
             }
@@ -150,7 +166,7 @@ public static class AnswerClaimExtractor
             return false;
         }
 
-        if (m is < 1 or > 12 || d < 1 || d > DateTime.DaysInMonth(Math.Clamp(y, 1, 9999), Math.Clamp(m, 1, 12)))
+        if (m is < 1 or > CalendarConstants.MonthsPerYear || d < 1 || d > DateTime.DaysInMonth(Math.Clamp(y, 1, MaxCalendarYear), Math.Clamp(m, 1, CalendarConstants.MonthsPerYear)))
         {
             return false;
         }
@@ -173,7 +189,7 @@ public static class AnswerClaimExtractor
         }
 
         var monthByName = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        for (var month = 1; month <= 12; month++)
+        for (var month = 1; month <= CalendarConstants.MonthsPerYear; month++)
         {
             AddMonthName(monthByName, culture.DateTimeFormat.MonthNames[month - 1], month);
             AddMonthName(monthByName, culture.DateTimeFormat.AbbreviatedMonthNames[month - 1], month);
@@ -191,12 +207,12 @@ public static class AnswerClaimExtractor
         var dayFirst = new Regex(
             $@"\b(\d{{1,2}})\.?\s+({alternation})\.?\s+(\d{{4}})\b",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        result.Add((dayFirst, m => MonthNameReading(monthByName, m.Groups[3], m.Groups[2], m.Groups[1])));
+        result.Add((dayFirst, m => MonthNameReading(monthByName, m.Groups[DayFirstYearGroup], m.Groups[DayFirstMonthGroup], m.Groups[DayFirstDayGroup])));
 
         var monthFirst = new Regex(
             $@"\b({alternation})\.?\s+(\d{{1,2}})(?:st|nd|rd|th)?,?\s+(\d{{4}})\b",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        result.Add((monthFirst, m => MonthNameReading(monthByName, m.Groups[3], m.Groups[1], m.Groups[2])));
+        result.Add((monthFirst, m => MonthNameReading(monthByName, m.Groups[MonthFirstYearGroup], m.Groups[MonthFirstMonthGroup], m.Groups[MonthFirstDayGroup])));
 
         return result;
     }
@@ -204,7 +220,7 @@ public static class AnswerClaimExtractor
     private static void AddMonthName(Dictionary<string, int> map, string name, int month)
     {
         var trimmed = name.Trim().TrimEnd('.');
-        if (trimmed.Length >= 3)
+        if (trimmed.Length >= MinMonthNameLength)
         {
             map[trimmed] = month;
         }
@@ -280,10 +296,10 @@ public static class AnswerClaimExtractor
         var decimalTailValid = decimalIndex < 0
             || (lastGroup.Length > decimalIndex + 1 && lastGroup[(decimalIndex + 1)..].All(char.IsDigit));
         var validGrouping = groups.Length > 1
-            && groups[0].Length is >= 1 and <= 3
+            && groups[0].Length is >= 1 and <= DigitsPerThousandsGroup
             && groups[0].All(char.IsDigit)
-            && groups[1..^1].All(g => g.Length == 3 && g.All(char.IsDigit))
-            && lastDigits.Length == 3
+            && groups[1..^1].All(g => g.Length == DigitsPerThousandsGroup && g.All(char.IsDigit))
+            && lastDigits.Length == DigitsPerThousandsGroup
             && lastDigits.All(char.IsDigit)
             && decimalTailValid;
 
@@ -324,17 +340,17 @@ public static class AnswerClaimExtractor
             {
                 decimalTail = lastGroup[decimalIndex..];
                 lastGroup = lastGroup[..decimalIndex];
-                if (decimalTail.Length < 2 || !decimalTail[1..].All(char.IsDigit))
+                if (decimalTail.Length < MinDecimalTailLength || !decimalTail[1..].All(char.IsDigit))
                 {
                     return readings;
                 }
             }
 
             var validGrouping = groups.Length > 1
-                && groups[0].Length is >= 1 and <= 3
+                && groups[0].Length is >= 1 and <= DigitsPerThousandsGroup
                 && groups[0].All(char.IsDigit)
-                && groups[1..^1].All(g => g.Length == 3 && g.All(char.IsDigit))
-                && lastGroup.Length == 3
+                && groups[1..^1].All(g => g.Length == DigitsPerThousandsGroup && g.All(char.IsDigit))
+                && lastGroup.Length == DigitsPerThousandsGroup
                 && lastGroup.All(char.IsDigit);
 
             if (!validGrouping)
@@ -371,9 +387,9 @@ public static class AnswerClaimExtractor
         var parts = token.Split(single);
         var tail = parts[^1];
 
-        if (parts.Length > 2 || tail.Length == 0 || parts[0].Length == 0)
+        if (parts.Length > MaxDecimalParts || tail.Length == 0 || parts[0].Length == 0)
         {
-            if (parts.Skip(1).All(p => p.Length == 3) && parts[0].Length is >= 1 and <= 3)
+            if (parts.Skip(1).All(p => p.Length == DigitsPerThousandsGroup) && parts[0].Length is >= 1 and <= DigitsPerThousandsGroup)
             {
                 AddReading(readings, string.Concat(parts));
             }
@@ -381,13 +397,13 @@ public static class AnswerClaimExtractor
             return readings;
         }
 
-        if (tail.Length is 1 or 2)
+        if (tail.Length is 1 or MaxUnambiguousFractionDigits)
         {
             AddReading(readings, parts[0] + "." + tail);
             return readings;
         }
 
-        if (tail.Length == 3 && parts[0].Length is >= 1 and <= 3)
+        if (tail.Length == DigitsPerThousandsGroup && parts[0].Length is >= 1 and <= DigitsPerThousandsGroup)
         {
             AddReading(readings, string.Concat(parts));
             AddReading(readings, parts[0] + "." + tail);
