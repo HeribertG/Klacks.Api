@@ -3,7 +3,7 @@
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.DTOs.Filter;
 
-namespace Klacks.Api.Domain.Interfaces.Schedules;
+namespace Klacks.Api.Infrastructure.Services.Absences;
 
 public interface IAbsencePaginationService
 {

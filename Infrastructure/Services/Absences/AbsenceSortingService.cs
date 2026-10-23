@@ -9,7 +9,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 
-namespace Klacks.Api.Domain.Services.Absences;
+namespace Klacks.Api.Infrastructure.Services.Absences;
 
 public class AbsenceSortingService : IAbsenceSortingService
 {
