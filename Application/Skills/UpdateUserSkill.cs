@@ -42,12 +42,38 @@ public class UpdateUserSkill : BaseSkillImplementation
     {
         var users = await _mediator.Send(new GetUserListQuery(), cancellationToken);
 
+        var (account, accountError) = ResolveAccount(parameters, users);
+        if (accountError != null)
+        {
+            return accountError;
+        }
+
+        var changed = new List<string>();
+        var fieldError = ApplyAccountFields(parameters, account!, changed);
+        if (fieldError != null)
+        {
+            return fieldError;
+        }
+
+        if (changed.Count == 0)
+        {
+            return SkillResult.SuccessResult(
+                new { AccountId = account!.Id, ChangedFields = Array.Empty<string>() },
+                "No fields supplied for update — the account was left unchanged.");
+        }
+
+        return await UpdateAndVerifyAsync(account!, changed, cancellationToken);
+    }
+
+    private static (UserResource? Account, SkillResult? Error) ResolveAccount(
+        Dictionary<string, object> parameters, List<UserResource> users)
+    {
         var userId = GetParameter<string>(parameters, "userId")?.Trim();
         var userName = GetParameter<string>(parameters, "userName")?.Trim();
 
         if (string.IsNullOrWhiteSpace(userId) && string.IsNullOrWhiteSpace(userName))
         {
-            return SkillResult.Error("Either 'userId' or 'userName' is required to identify the account.");
+            return (null, SkillResult.Error("Either 'userId' or 'userName' is required to identify the account."));
         }
 
         UserResource? account;
@@ -56,7 +82,7 @@ public class UpdateUserSkill : BaseSkillImplementation
             account = users.FirstOrDefault(u => string.Equals(u.Id, userId, StringComparison.OrdinalIgnoreCase));
             if (account == null)
             {
-                return SkillResult.Error($"No login account with id '{userId}'.");
+                return (null, SkillResult.Error($"No login account with id '{userId}'."));
             }
         }
         else
@@ -68,24 +94,28 @@ public class UpdateUserSkill : BaseSkillImplementation
 
             if (matches.Count == 0)
             {
-                return SkillResult.Error(
+                return (null, SkillResult.Error(
                     $"No login account matches '{userName}'. Available accounts: " +
-                    string.Join(", ", users.Take(MaxListedCandidates).Select(u => u.UserName)));
+                    string.Join(", ", users.Take(MaxListedCandidates).Select(u => u.UserName))));
             }
 
             if (matches.Count > 1)
             {
-                return SkillResult.Error(
+                return (null, SkillResult.Error(
                     $"'{userName}' matches {matches.Count} accounts: " +
                     string.Join(", ", matches.Select(u => $"{u.UserName} ({u.Email})")) +
-                    ". Repeat the call with userId.");
+                    ". Repeat the call with userId."));
             }
 
             account = matches[0];
         }
 
-        var changed = new List<string>();
+        return (account, null);
+    }
 
+    private static SkillResult? ApplyAccountFields(
+        Dictionary<string, object> parameters, UserResource account, List<string> changed)
+    {
         var firstName = GetParameter<string>(parameters, "firstName");
         if (!string.IsNullOrWhiteSpace(firstName) && firstName.Trim() != account.FirstName)
         {
@@ -119,13 +149,12 @@ public class UpdateUserSkill : BaseSkillImplementation
             changed.Add("userName");
         }
 
-        if (changed.Count == 0)
-        {
-            return SkillResult.SuccessResult(
-                new { AccountId = account.Id, ChangedFields = Array.Empty<string>() },
-                "No fields supplied for update — the account was left unchanged.");
-        }
+        return null;
+    }
 
+    private async Task<SkillResult> UpdateAndVerifyAsync(
+        UserResource account, List<string> changed, CancellationToken cancellationToken)
+    {
         var update = new UpdateAccountResource
         {
             Id = Guid.Parse(account.Id),

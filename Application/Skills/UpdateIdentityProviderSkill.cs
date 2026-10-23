@@ -73,44 +73,13 @@ public class UpdateIdentityProviderSkill : BaseSkillImplementation
             return SkillResult.Error("Missing or invalid required parameter 'id'. Use list_identity_providers to find the provider id.");
         }
 
-        var name = GetParameter<string>(parameters, "name");
-        var typeRaw = GetParameter<string>(parameters, "type");
-        var isEnabled = GetParameter<bool?>(parameters, "isEnabled");
-        var sortOrder = GetParameter<int?>(parameters, "sortOrder");
-        var useForAuthentication = GetParameter<bool?>(parameters, "useForAuthentication");
-        var useForClientImport = GetParameter<bool?>(parameters, "useForClientImport");
-        var host = GetParameter<string>(parameters, "host");
-        var port = GetParameter<int?>(parameters, "port");
-        var useSsl = GetParameter<bool?>(parameters, "useSsl");
-        var baseDn = GetParameter<string>(parameters, "baseDn");
-        var bindDn = GetParameter<string>(parameters, "bindDn");
-        var bindPassword = GetParameter<string>(parameters, "bindPassword");
-        var userFilter = GetParameter<string>(parameters, "userFilter");
-        var clientId = GetParameter<string>(parameters, "clientId");
-        var clientSecret = GetParameter<string>(parameters, "clientSecret");
-        var authorizationUrl = GetParameter<string>(parameters, "authorizationUrl");
-        var tokenUrl = GetParameter<string>(parameters, "tokenUrl");
-        var userInfoUrl = GetParameter<string>(parameters, "userInfoUrl");
-        var scopes = GetParameter<string>(parameters, "scopes");
-        var tenantId = GetParameter<string>(parameters, "tenantId");
-
-        var hasUpdate = isEnabled.HasValue
-                        || sortOrder.HasValue
-                        || useForAuthentication.HasValue
-                        || useForClientImport.HasValue
-                        || port.HasValue
-                        || useSsl.HasValue
-                        || new[]
-                        {
-                            name, typeRaw, host, baseDn, bindDn, bindPassword, userFilter, clientId,
-                            clientSecret, authorizationUrl, tokenUrl, userInfoUrl, scopes, tenantId
-                        }.Any(value => !string.IsNullOrWhiteSpace(value));
-        if (!hasUpdate)
+        var changes = ReadRequestedChanges(parameters);
+        if (!changes.HasAnyValue())
         {
             return SkillResult.Error("Nothing to update. Provide at least one field to change.");
         }
 
-        var portError = IdentityProviderSkillSupport.ValidatePort(port);
+        var portError = IdentityProviderSkillSupport.ValidatePort(changes.Port);
         if (portError != null)
         {
             return SkillResult.Error(portError);
@@ -122,40 +91,11 @@ public class UpdateIdentityProviderSkill : BaseSkillImplementation
             return SkillResult.Error($"Identity provider '{id}' not found.");
         }
 
-        if (!string.IsNullOrWhiteSpace(typeRaw))
+        var typeError = ApplyRequestedChanges(existing, changes);
+        if (typeError != null)
         {
-            var typeError = IdentityProviderSkillSupport.TryParseType(typeRaw, out var parsedType);
-            if (typeError != null)
-            {
-                return SkillResult.Error(typeError);
-            }
-
-            existing.Type = parsedType;
+            return typeError;
         }
-
-        if (!string.IsNullOrWhiteSpace(name))
-        {
-            existing.Name = name.Trim();
-        }
-
-        existing.IsEnabled = isEnabled ?? existing.IsEnabled;
-        existing.SortOrder = sortOrder ?? existing.SortOrder;
-        existing.UseForAuthentication = useForAuthentication ?? existing.UseForAuthentication;
-        existing.UseForClientImport = useForClientImport ?? existing.UseForClientImport;
-        existing.Port = port ?? existing.Port;
-        existing.UseSsl = useSsl ?? existing.UseSsl;
-        existing.Host = Merge(host, existing.Host);
-        existing.BaseDn = Merge(baseDn, existing.BaseDn);
-        existing.BindDn = Merge(bindDn, existing.BindDn);
-        existing.BindPassword = Merge(bindPassword, existing.BindPassword);
-        existing.UserFilter = Merge(userFilter, existing.UserFilter);
-        existing.ClientId = Merge(clientId, existing.ClientId);
-        existing.ClientSecret = Merge(clientSecret, existing.ClientSecret);
-        existing.AuthorizationUrl = Merge(authorizationUrl, existing.AuthorizationUrl);
-        existing.TokenUrl = Merge(tokenUrl, existing.TokenUrl);
-        existing.UserInfoUrl = Merge(userInfoUrl, existing.UserInfoUrl);
-        existing.Scopes = Merge(scopes, existing.Scopes);
-        existing.TenantId = Merge(tenantId, existing.TenantId);
 
         IdentityProviderResource? updated = null;
 
@@ -172,11 +112,7 @@ public class UpdateIdentityProviderSkill : BaseSkillImplementation
                 await ConfirmPersistedAsync(
                     SkillName,
                     () => _repository.GetNoTracking(id),
-                    persisted => MatchesRequestedChanges(
-                        persisted, existing,
-                        name, typeRaw, isEnabled, sortOrder, useForAuthentication, useForClientImport,
-                        host, port, useSsl, baseDn, bindDn, bindPassword, userFilter,
-                        clientId, clientSecret, authorizationUrl, tokenUrl, userInfoUrl, scopes, tenantId),
+                    persisted => MatchesRequestedChanges(persisted, existing, changes),
                     $"the identity provider '{existing.Name}' update");
 
                 return updated.Id;
@@ -192,6 +128,72 @@ public class UpdateIdentityProviderSkill : BaseSkillImplementation
             $"Identity provider '{updated!.Name}' ({updated.Type}) updated (id {updated.Id}) and confirmed in the database (verified). Secrets are stored but never returned.");
     }
 
+    private static IdentityProviderChanges ReadRequestedChanges(Dictionary<string, object> parameters)
+    {
+        return new IdentityProviderChanges
+        {
+            Name = GetParameter<string>(parameters, "name"),
+            TypeRaw = GetParameter<string>(parameters, "type"),
+            IsEnabled = GetParameter<bool?>(parameters, "isEnabled"),
+            SortOrder = GetParameter<int?>(parameters, "sortOrder"),
+            UseForAuthentication = GetParameter<bool?>(parameters, "useForAuthentication"),
+            UseForClientImport = GetParameter<bool?>(parameters, "useForClientImport"),
+            Host = GetParameter<string>(parameters, "host"),
+            Port = GetParameter<int?>(parameters, "port"),
+            UseSsl = GetParameter<bool?>(parameters, "useSsl"),
+            BaseDn = GetParameter<string>(parameters, "baseDn"),
+            BindDn = GetParameter<string>(parameters, "bindDn"),
+            BindPassword = GetParameter<string>(parameters, "bindPassword"),
+            UserFilter = GetParameter<string>(parameters, "userFilter"),
+            ClientId = GetParameter<string>(parameters, "clientId"),
+            ClientSecret = GetParameter<string>(parameters, "clientSecret"),
+            AuthorizationUrl = GetParameter<string>(parameters, "authorizationUrl"),
+            TokenUrl = GetParameter<string>(parameters, "tokenUrl"),
+            UserInfoUrl = GetParameter<string>(parameters, "userInfoUrl"),
+            Scopes = GetParameter<string>(parameters, "scopes"),
+            TenantId = GetParameter<string>(parameters, "tenantId")
+        };
+    }
+
+    private static SkillResult? ApplyRequestedChanges(IdentityProviderResource existing, IdentityProviderChanges changes)
+    {
+        if (!string.IsNullOrWhiteSpace(changes.TypeRaw))
+        {
+            var typeError = IdentityProviderSkillSupport.TryParseType(changes.TypeRaw, out var parsedType);
+            if (typeError != null)
+            {
+                return SkillResult.Error(typeError);
+            }
+
+            existing.Type = parsedType;
+        }
+
+        if (!string.IsNullOrWhiteSpace(changes.Name))
+        {
+            existing.Name = changes.Name.Trim();
+        }
+
+        existing.IsEnabled = changes.IsEnabled ?? existing.IsEnabled;
+        existing.SortOrder = changes.SortOrder ?? existing.SortOrder;
+        existing.UseForAuthentication = changes.UseForAuthentication ?? existing.UseForAuthentication;
+        existing.UseForClientImport = changes.UseForClientImport ?? existing.UseForClientImport;
+        existing.Port = changes.Port ?? existing.Port;
+        existing.UseSsl = changes.UseSsl ?? existing.UseSsl;
+        existing.Host = Merge(changes.Host, existing.Host);
+        existing.BaseDn = Merge(changes.BaseDn, existing.BaseDn);
+        existing.BindDn = Merge(changes.BindDn, existing.BindDn);
+        existing.BindPassword = Merge(changes.BindPassword, existing.BindPassword);
+        existing.UserFilter = Merge(changes.UserFilter, existing.UserFilter);
+        existing.ClientId = Merge(changes.ClientId, existing.ClientId);
+        existing.ClientSecret = Merge(changes.ClientSecret, existing.ClientSecret);
+        existing.AuthorizationUrl = Merge(changes.AuthorizationUrl, existing.AuthorizationUrl);
+        existing.TokenUrl = Merge(changes.TokenUrl, existing.TokenUrl);
+        existing.UserInfoUrl = Merge(changes.UserInfoUrl, existing.UserInfoUrl);
+        existing.Scopes = Merge(changes.Scopes, existing.Scopes);
+        existing.TenantId = Merge(changes.TenantId, existing.TenantId);
+        return null;
+    }
+
     private static string? Merge(string? provided, string? current)
     {
         return string.IsNullOrWhiteSpace(provided) ? current : provided.Trim();
@@ -200,32 +202,66 @@ public class UpdateIdentityProviderSkill : BaseSkillImplementation
     private static bool MatchesRequestedChanges(
         IdentityProvider persisted,
         IdentityProviderResource intended,
-        string? name, string? typeRaw, bool? isEnabled, int? sortOrder,
-        bool? useForAuthentication, bool? useForClientImport,
-        string? host, int? port, bool? useSsl,
-        string? baseDn, string? bindDn, string? bindPassword, string? userFilter,
-        string? clientId, string? clientSecret, string? authorizationUrl,
-        string? tokenUrl, string? userInfoUrl, string? scopes, string? tenantId)
+        IdentityProviderChanges changes)
     {
-        return (string.IsNullOrWhiteSpace(name) || persisted.Name == intended.Name)
-            && (string.IsNullOrWhiteSpace(typeRaw) || persisted.Type == intended.Type)
-            && (!isEnabled.HasValue || persisted.IsEnabled == intended.IsEnabled)
-            && (!sortOrder.HasValue || persisted.SortOrder == intended.SortOrder)
-            && (!useForAuthentication.HasValue || persisted.UseForAuthentication == intended.UseForAuthentication)
-            && (!useForClientImport.HasValue || persisted.UseForClientImport == intended.UseForClientImport)
-            && (!port.HasValue || persisted.Port == intended.Port)
-            && (!useSsl.HasValue || persisted.UseSsl == intended.UseSsl)
-            && (string.IsNullOrWhiteSpace(host) || persisted.Host == intended.Host)
-            && (string.IsNullOrWhiteSpace(baseDn) || persisted.BaseDn == intended.BaseDn)
-            && (string.IsNullOrWhiteSpace(bindDn) || persisted.BindDn == intended.BindDn)
-            && (string.IsNullOrWhiteSpace(bindPassword) || persisted.BindPassword == intended.BindPassword)
-            && (string.IsNullOrWhiteSpace(userFilter) || persisted.UserFilter == intended.UserFilter)
-            && (string.IsNullOrWhiteSpace(clientId) || persisted.ClientId == intended.ClientId)
-            && (string.IsNullOrWhiteSpace(clientSecret) || persisted.ClientSecret == intended.ClientSecret)
-            && (string.IsNullOrWhiteSpace(authorizationUrl) || persisted.AuthorizationUrl == intended.AuthorizationUrl)
-            && (string.IsNullOrWhiteSpace(tokenUrl) || persisted.TokenUrl == intended.TokenUrl)
-            && (string.IsNullOrWhiteSpace(userInfoUrl) || persisted.UserInfoUrl == intended.UserInfoUrl)
-            && (string.IsNullOrWhiteSpace(scopes) || persisted.Scopes == intended.Scopes)
-            && (string.IsNullOrWhiteSpace(tenantId) || persisted.TenantId == intended.TenantId);
+        return (string.IsNullOrWhiteSpace(changes.Name) || persisted.Name == intended.Name)
+            && (string.IsNullOrWhiteSpace(changes.TypeRaw) || persisted.Type == intended.Type)
+            && (!changes.IsEnabled.HasValue || persisted.IsEnabled == intended.IsEnabled)
+            && (!changes.SortOrder.HasValue || persisted.SortOrder == intended.SortOrder)
+            && (!changes.UseForAuthentication.HasValue || persisted.UseForAuthentication == intended.UseForAuthentication)
+            && (!changes.UseForClientImport.HasValue || persisted.UseForClientImport == intended.UseForClientImport)
+            && (!changes.Port.HasValue || persisted.Port == intended.Port)
+            && (!changes.UseSsl.HasValue || persisted.UseSsl == intended.UseSsl)
+            && (string.IsNullOrWhiteSpace(changes.Host) || persisted.Host == intended.Host)
+            && (string.IsNullOrWhiteSpace(changes.BaseDn) || persisted.BaseDn == intended.BaseDn)
+            && (string.IsNullOrWhiteSpace(changes.BindDn) || persisted.BindDn == intended.BindDn)
+            && (string.IsNullOrWhiteSpace(changes.BindPassword) || persisted.BindPassword == intended.BindPassword)
+            && (string.IsNullOrWhiteSpace(changes.UserFilter) || persisted.UserFilter == intended.UserFilter)
+            && (string.IsNullOrWhiteSpace(changes.ClientId) || persisted.ClientId == intended.ClientId)
+            && (string.IsNullOrWhiteSpace(changes.ClientSecret) || persisted.ClientSecret == intended.ClientSecret)
+            && (string.IsNullOrWhiteSpace(changes.AuthorizationUrl) || persisted.AuthorizationUrl == intended.AuthorizationUrl)
+            && (string.IsNullOrWhiteSpace(changes.TokenUrl) || persisted.TokenUrl == intended.TokenUrl)
+            && (string.IsNullOrWhiteSpace(changes.UserInfoUrl) || persisted.UserInfoUrl == intended.UserInfoUrl)
+            && (string.IsNullOrWhiteSpace(changes.Scopes) || persisted.Scopes == intended.Scopes)
+            && (string.IsNullOrWhiteSpace(changes.TenantId) || persisted.TenantId == intended.TenantId);
+    }
+
+    private sealed class IdentityProviderChanges
+    {
+        public string? Name { get; init; }
+        public string? TypeRaw { get; init; }
+        public bool? IsEnabled { get; init; }
+        public int? SortOrder { get; init; }
+        public bool? UseForAuthentication { get; init; }
+        public bool? UseForClientImport { get; init; }
+        public string? Host { get; init; }
+        public int? Port { get; init; }
+        public bool? UseSsl { get; init; }
+        public string? BaseDn { get; init; }
+        public string? BindDn { get; init; }
+        public string? BindPassword { get; init; }
+        public string? UserFilter { get; init; }
+        public string? ClientId { get; init; }
+        public string? ClientSecret { get; init; }
+        public string? AuthorizationUrl { get; init; }
+        public string? TokenUrl { get; init; }
+        public string? UserInfoUrl { get; init; }
+        public string? Scopes { get; init; }
+        public string? TenantId { get; init; }
+
+        public bool HasAnyValue()
+        {
+            return IsEnabled.HasValue
+                   || SortOrder.HasValue
+                   || UseForAuthentication.HasValue
+                   || UseForClientImport.HasValue
+                   || Port.HasValue
+                   || UseSsl.HasValue
+                   || new[]
+                   {
+                       Name, TypeRaw, Host, BaseDn, BindDn, BindPassword, UserFilter, ClientId,
+                       ClientSecret, AuthorizationUrl, TokenUrl, UserInfoUrl, Scopes, TenantId
+                   }.Any(value => !string.IsNullOrWhiteSpace(value));
+        }
     }
 }
