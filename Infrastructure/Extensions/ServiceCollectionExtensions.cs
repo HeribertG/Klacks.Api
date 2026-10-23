@@ -354,6 +354,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.AgentSoulSectionSeedService>();
         services.AddScoped<Persistence.Seed.UiControlSeedService>();
         services.AddScoped<Persistence.Seed.EmailFolderSeedService>();
+        services.AddScoped<Persistence.Seed.UpdatePolicySeedService>();
         services.AddScoped<Persistence.Seed.SkillSeedLoader>();
         services.AddScoped<Persistence.Seed.SkillRelationSeedLoader>();
         services.AddScoped<Persistence.Seed.TurnGoldsetGoldenCaseSeedLoader>();

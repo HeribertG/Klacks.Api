@@ -88,6 +88,10 @@ builder.Services.Configure<Klacks.Api.Domain.Models.Settings.PasswordResetSettin
 builder.Services.Configure<Klacks.Api.Application.Configuration.UpdateTrustOptions>(
     builder.Configuration.GetSection(Klacks.Api.Application.Configuration.UpdateTrustOptions.SectionName));
 
+// Set only by the customer installers (on-prem compose, native installer); unset on the vendor's own stack.
+builder.Services.Configure<Klacks.Api.Application.Configuration.UpdateInitialPolicyOptions>(
+    builder.Configuration.GetSection(Klacks.Api.Application.Configuration.UpdateInitialPolicyOptions.SectionName));
+
 builder.Services.AddOpenApi("v1", options =>
 {
     options.AddDocumentTransformer((document, context, cancellationToken) =>
@@ -692,6 +696,10 @@ if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
         await dbInitializer.InitializeAsync();
     }
 }
+
+// Customer installations start with the auto-update policy their installer configured; a no-op without
+// Update:InitialAutoEnabled/InitialNotifyOnly and never overwrites a saved setting.
+await app.SeedUpdatePolicyAsync();
 
 // Startup seeders run in parallel. Feature plugins and skill seeds are chained inside one
 // task: LoadSkillSeedsAsync reads the in-memory plugin map that only

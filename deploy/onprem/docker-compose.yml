@@ -89,6 +89,12 @@ services:
       # keyless installation compatible with a marketplace that does not sign downloads yet.
       - Update__SignaturePublicKey=${UPDATE_SIGNATURE_PUBLIC_KEY:-}
       - Update__RequireSignedRegionPackages=${UPDATE_REQUIRE_SIGNED_REGION_PACKAGES:-false}
+      # Auto-update policy this installation starts with: written into the database once, on the
+      # first boot that finds no saved value. From then on the admin UI (Settings > Software Updates) decides;
+      # changing these lines later never overrides a saved choice. Only this customer stack sets them,
+      # the vendor's own servers do not - so automatic updates are on for customers by default.
+      - Update__InitialAutoEnabled=${UPDATE_AUTO_ENABLED:-true}
+      - Update__InitialNotifyOnly=${UPDATE_NOTIFY_ONLY:-false}
       # Public vendor marketplace used for region-package auto-updates and language-plugin
       # downloads. Override only for mirrored or air-gapped setups.
       - LanguagePlugins__MarketplaceUrl=${KLACKS_MARKETPLACE_URL:-https://klacks-software.ch/store}

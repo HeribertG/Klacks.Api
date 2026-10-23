@@ -154,6 +154,9 @@ if (-not $envMap['DATAPROTECTION_CERT_BASE64']) {
 }
 Set-IfEmpty 'KLACKS_UPDATER_TAG' 'latest'
 Set-IfEmpty 'UPDATE_MANIFEST_BASE_URL' 'https://github.com/HeribertG/Klacks.Api/releases/latest/download'
+# Initial auto-update policy (on by default), seeded once into the database; afterwards the admin UI decides.
+Set-IfEmpty 'UPDATE_AUTO_ENABLED' 'true'
+Set-IfEmpty 'UPDATE_NOTIFY_ONLY' 'false'
 # Geo services: traffic stays on by default, see README.md for the no-outbound mode. The CSP key is
 # only filled when absent, because an empty value is a deliberate operator choice (no tile host).
 Set-IfEmpty 'GEO_NO_OUTBOUND_TRAFFIC' 'false'

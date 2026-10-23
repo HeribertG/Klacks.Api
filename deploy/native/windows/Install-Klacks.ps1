@@ -350,7 +350,14 @@ $config = [ordered]@{
     Cors              = [ordered]@{ Host = $baseUrl; Home = $baseUrl }
     PasswordReset     = [ordered]@{ BaseUrl = $baseUrl }
     Mcp               = [ordered]@{ PublicBaseUrl = $baseUrl }
-    Update            = [ordered]@{ ManifestBaseUrl = $UpdateManifestBaseUrl; SignaturePublicKey = $publicKey }
+    # InitialAutoEnabled/InitialNotifyOnly: automatic updates are on for a new office-PC installation. Seeded into the
+    # database only while no update setting is saved, so re-running this installer never overrides the admin UI.
+    Update            = [ordered]@{
+        ManifestBaseUrl    = $UpdateManifestBaseUrl
+        SignaturePublicKey = $publicKey
+        InitialAutoEnabled = 'true'
+        InitialNotifyOnly  = 'false'
+    }
     RegionSetup       = [ordered]@{ File = $regionFile }
     Updater           = [ordered]@{
         Mode                 = 'Native'

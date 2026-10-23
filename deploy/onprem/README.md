@@ -109,5 +109,10 @@ Installations made before these settings existed: the auto-updater only swaps th
 versions. Take `docker-compose.yml` and `nginx/nginx.onprem.conf.template` from a current
 bundle (and re-run the installer) before the switch has any effect.
 
+Automatic updates are on for a new installation. The installer writes `UPDATE_AUTO_ENABLED=true`
+and `UPDATE_NOTIFY_ONLY=false` into `.env`; they are applied once, on the first start, and only
+if no update setting was saved yet. Afterwards switch updates off or to notify-only in the admin
+UI (Settings > Software Updates); editing `.env` later has no effect on a saved choice.
+
 Full guide (update, backup/restore, rollback, BYO certificate): see
 [`docs/onprem-docker-install.md`](../../../docs/onprem-docker-install.md).
