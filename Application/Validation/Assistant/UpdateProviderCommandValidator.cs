@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using FluentValidation;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Commands.Assistant;
 
 namespace Klacks.Api.Application.Validation.Assistant;
@@ -16,8 +17,8 @@ public class UpdateProviderCommandValidator : AbstractValidator<UpdateProviderCo
             .WithMessage("Id is required");
 
         RuleFor(x => x.ApiKey)
-            .MinimumLength(10)
-            .WithMessage("ApiKey must be at least 10 characters long")
+            .MinimumLength(LLMValidationLimits.MinApiKeyLength)
+            .WithMessage($"ApiKey must be at least {LLMValidationLimits.MinApiKeyLength} characters long")
             .When(x => !string.IsNullOrEmpty(x.ApiKey));
 
         RuleFor(x => x.BaseUrl)
@@ -26,8 +27,8 @@ public class UpdateProviderCommandValidator : AbstractValidator<UpdateProviderCo
             .When(x => !string.IsNullOrEmpty(x.BaseUrl));
 
         RuleFor(x => x.Priority)
-            .InclusiveBetween(1, 100)
-            .WithMessage("Priority must be between 1 and 100");
+            .InclusiveBetween(1, LLMValidationLimits.MaxProviderPriority)
+            .WithMessage($"Priority must be between 1 and {LLMValidationLimits.MaxProviderPriority}");
     }
 
     private bool BeAValidUrl(string? url)
