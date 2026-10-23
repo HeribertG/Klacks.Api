@@ -130,7 +130,6 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IDateRangeFilterService, DateRangeFilterService>();
         services.AddScoped<IShiftSearchService, ShiftSearchService>();
         services.AddScoped<IShiftSortingService, ShiftSortingService>();
-        services.AddScoped<IScheduleDateRangeService, ScheduleDateRangeService>();
         services.AddScoped<IShiftStatusFilterService, ShiftStatusFilterService>();
         services.AddScoped<IShiftPaginationService, ShiftPaginationService>();
         services.AddScoped<IShiftQueryPipelineService, ShiftQueryPipelineService>();
@@ -169,7 +168,6 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IClientChangeTrackingService, ClientChangeTrackingService>();
         services.AddScoped<IClientEntityManagementService, ClientEntityManagementService>();
         services.AddScoped<IClientValidator, ClientValidator>();
-        services.AddScoped<IClientWorkFilterService, ClientWorkFilterService>();
     }
 
     private static void AddGroupServices(this IServiceCollection services)
