@@ -36,8 +36,7 @@ public class ShiftSearchRepository : IShiftSearchRepository
         var query = _context.Shift
             .Include(s => s.Client)
             .Where(s => !s.IsDeleted && (s.Status == ShiftStatus.OriginalShift || s.Status == ShiftStatus.SplitShift))
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {

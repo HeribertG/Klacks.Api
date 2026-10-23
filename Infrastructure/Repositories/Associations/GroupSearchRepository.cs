@@ -36,8 +36,7 @@ public class GroupSearchRepository : IGroupSearchRepository
 
         var query = _context.Group
             .Where(g => !g.IsDeleted)
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {

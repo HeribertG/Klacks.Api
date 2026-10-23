@@ -56,7 +56,7 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
     {
         Logger.LogInformation("Getting truncated absences with filter");
         
-        var query = context.Absence.AsQueryable();
+        IQueryable<Absence> query = context.Absence;
         
         query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.Language);
         

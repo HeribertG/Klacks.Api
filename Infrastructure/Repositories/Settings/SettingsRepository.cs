@@ -206,7 +206,7 @@ public class SettingsRepository : ISettingsRepository
 
     public async Task<TruncatedCalendarRule> GetTruncatedCalendarRuleList(CalendarRulesFilter filter)
     {
-        var query = context.CalendarRule.AsQueryable();
+        IQueryable<CalendarRule> query = context.CalendarRule;
         
         query = _filterService.ApplyFilters(query, filter);
         query = _sortingService.ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.Language);

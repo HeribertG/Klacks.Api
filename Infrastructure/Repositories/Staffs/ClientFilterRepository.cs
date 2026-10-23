@@ -191,8 +191,7 @@ public class ClientFilterRepository : IClientFilterRepository
                                     .ThenInclude(cc => cc.Contract)
                                 .AsSplitQuery()
                                 .Where(cu => cu.IsDeleted)
-                                .AsNoTracking()
-                                .AsQueryable();
+                                .AsNoTracking();
         }
         else
         {
@@ -206,8 +205,7 @@ public class ClientFilterRepository : IClientFilterRepository
                                 .Include(cu => cu.ClientContracts)
                                     .ThenInclude(cc => cc.Contract)
                                 .AsSplitQuery()
-                                .AsNoTracking()
-                                .AsQueryable();
+                                .AsNoTracking();
         }
 
        query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query, filter.WithoutGroup);

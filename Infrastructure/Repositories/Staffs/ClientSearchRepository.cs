@@ -81,7 +81,7 @@ public class ClientSearchRepository : IClientSearchRepository
             return [];
         }
 
-        var query = this.context.Client.AsQueryable();
+        IQueryable<Client> query = this.context.Client;
 
         if (!string.IsNullOrWhiteSpace(company))
         {
@@ -145,8 +145,7 @@ public class ClientSearchRepository : IClientSearchRepository
         var query = this.context.Client
             .Include(c => c.GroupItems)
             .Where(c => c.Type != EntityTypeEnum.Customer)
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         query = await _groupFilterService.FilterClientsByGroupId(null, query);
 
@@ -196,8 +195,7 @@ public class ClientSearchRepository : IClientSearchRepository
         var query = context.Client
             .Include(c => c.Addresses)
             .Where(c => !c.IsDeleted)
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         query = await _groupFilterService.FilterClientsByGroupId(null, query);
 
@@ -274,8 +272,7 @@ public class ClientSearchRepository : IClientSearchRepository
     {
         var query = context.Client
             .Where(c => !c.IsDeleted)
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         query = await _groupFilterService.FilterClientsByGroupId(null, query);
 
@@ -302,8 +299,7 @@ public class ClientSearchRepository : IClientSearchRepository
         var query = context.Client
             .Include(c => c.Addresses)
             .Where(c => !c.IsDeleted && ids.Contains(c.Id))
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         query = await _groupFilterService.FilterClientsByGroupId(null, query);
 
@@ -339,8 +335,7 @@ public class ClientSearchRepository : IClientSearchRepository
         var query = context.Client
             .Include(c => c.Addresses)
             .Where(c => !c.IsDeleted && rankedIds.Contains(c.Id))
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         // The fuzzy service ranks by name similarity across all groups; the caller-visible
         // subset is established here, exactly as the other fuzzy fallbacks do it.

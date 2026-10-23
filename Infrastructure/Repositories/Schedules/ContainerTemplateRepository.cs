@@ -178,7 +178,7 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
 
     public async Task<List<Guid>> GetUsedShiftIds(Guid? excludeContainerId = null, CancellationToken cancellationToken = default)
     {
-        var query = context.ContainerTemplateItem.AsQueryable();
+        IQueryable<ContainerTemplateItem> query = context.ContainerTemplateItem;
 
         if (excludeContainerId.HasValue)
         {

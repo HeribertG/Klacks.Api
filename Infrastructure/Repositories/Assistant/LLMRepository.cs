@@ -72,8 +72,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
                 provider => provider.ProviderId,
                 (model, provider) => new { Model = model, Provider = provider })
             .Where(joined => !joined.Provider.IsDeleted && joined.Provider.IsEnabled)
-            .Select(joined => joined.Model)
-            .AsQueryable();
+            .Select(joined => joined.Model);
 
         if (onlyEnabled)
         {

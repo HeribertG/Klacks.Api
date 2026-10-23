@@ -77,7 +77,7 @@ public class GroupValidityService : IGroupValidityService
     {
         _logger.LogInformation("Getting groups valid on {Date} for root {RootId}", date.Date, rootId?.ToString() ?? "all");
 
-        var query = _context.Group.AsQueryable();
+        IQueryable<Group> query = _context.Group;
 
         if (rootId.HasValue)
         {
