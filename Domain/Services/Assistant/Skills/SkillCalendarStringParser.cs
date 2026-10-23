@@ -74,9 +74,9 @@ public static class SkillCalendarStringParser
             return true;
         }
 
-        foreach (var culture in SkillDateCultureResolver.CulturesFor(language))
+        foreach (var parseCulture in SkillDateCultureResolver.CulturesFor(language))
         {
-            if (TimeOnly.TryParse(trimmed, culture, DateTimeStyles.AllowWhiteSpaces, out value))
+            if (TimeOnly.TryParse(trimmed, parseCulture, DateTimeStyles.AllowWhiteSpaces, out value))
             {
                 return true;
             }
