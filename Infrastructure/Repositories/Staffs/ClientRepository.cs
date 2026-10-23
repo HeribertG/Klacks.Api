@@ -10,6 +10,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Klacks.Api.Infrastructure.Services.Clients;
 
 namespace Klacks.Api.Infrastructure.Repositories.Staffs;
 

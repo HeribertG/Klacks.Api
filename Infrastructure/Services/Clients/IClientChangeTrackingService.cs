@@ -3,7 +3,7 @@
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.DTOs.Filter;
 
-namespace Klacks.Api.Domain.Interfaces.Staffs;
+namespace Klacks.Api.Infrastructure.Services.Clients;
 
 public interface IClientChangeTrackingService
 {

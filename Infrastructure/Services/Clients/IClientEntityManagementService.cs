@@ -2,7 +2,7 @@
 
 using Klacks.Api.Domain.Models.Staffs;
 
-namespace Klacks.Api.Domain.Interfaces.Staffs;
+namespace Klacks.Api.Infrastructure.Services.Clients;
 
 public interface IClientEntityManagementService
 {

@@ -5,7 +5,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Models.Filters;
 
-namespace Klacks.Api.Domain.Services.Clients;
+namespace Klacks.Api.Infrastructure.Services.Clients;
 
 public class ClientFilterService : IClientFilterService
 {

@@ -5,7 +5,7 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Domain.DTOs.Filter;
 
-namespace Klacks.Api.Domain.Services.Clients;
+namespace Klacks.Api.Infrastructure.Services.Clients;
 
 public class ClientMembershipFilterService : IClientMembershipFilterService
 {

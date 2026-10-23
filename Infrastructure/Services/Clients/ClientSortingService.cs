@@ -3,7 +3,7 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
 
-namespace Klacks.Api.Domain.Services.Clients;
+namespace Klacks.Api.Infrastructure.Services.Clients;
 
 public class ClientSortingService : IClientSortingService
 {
