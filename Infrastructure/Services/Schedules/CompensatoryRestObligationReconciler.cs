@@ -88,6 +88,32 @@ public sealed class CompensatoryRestObligationReconciler : ICompensatoryRestObli
         var existing = await _obligationRepository.GetActiveByClientInWindowAsync(clientId, windowStart, windowEnd);
         var openExisting = existing.Where(o => o.FulfilledOn == null).ToList();
 
+        var (effectiveStart, effectiveEnd) = ExtendWindowToOpenObligations(openExisting, windowStart, windowEnd);
+
+        var timeline = await BuildTimelineAsync(clientId, effectiveStart, effectiveEnd, cancellationToken);
+        var policy = await _policyResolver.GetForClientAsync(clientId, windowStart);
+
+        var violationsByKey = timeline
+            .GetRestViolations(policy.MinRestHours, policy.DailyWorkFrame)
+            .GroupBy(v => v.PreviousBlock.End)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        var gaps = BuildGaps(timeline, policy);
+        var existingByKey = existing
+            .GroupBy(o => o.RestGapStart)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        AddNewObligations(clientId, windowStart, windowEnd, deadlineDays, violationsByKey, existingByKey, gaps);
+        ReconcileOpenObligations(openExisting, gaps);
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    private static (DateOnly Start, DateOnly End) ExtendWindowToOpenObligations(
+        List<CompensatoryRestObligation> openExisting,
+        DateOnly windowStart,
+        DateOnly windowEnd)
+    {
         var effectiveStart = windowStart;
         var effectiveEnd = windowEnd;
         foreach (var o in openExisting)
@@ -103,19 +129,18 @@ public sealed class CompensatoryRestObligationReconciler : ICompensatoryRestObli
             }
         }
 
-        var timeline = await BuildTimelineAsync(clientId, effectiveStart, effectiveEnd, cancellationToken);
-        var policy = await _policyResolver.GetForClientAsync(clientId, windowStart);
+        return (effectiveStart, effectiveEnd);
+    }
 
-        var violationsByKey = timeline
-            .GetRestViolations(policy.MinRestHours, policy.DailyWorkFrame)
-            .GroupBy(v => v.PreviousBlock.End)
-            .ToDictionary(g => g.Key, g => g.First());
-
-        var gaps = BuildGaps(timeline, policy);
-        var existingByKey = existing
-            .GroupBy(o => o.RestGapStart)
-            .ToDictionary(g => g.Key, g => g.First());
-
+    private void AddNewObligations(
+        Guid clientId,
+        DateOnly windowStart,
+        DateOnly windowEnd,
+        int deadlineDays,
+        Dictionary<DateTime, RestViolation> violationsByKey,
+        Dictionary<DateTime, CompensatoryRestObligation> existingByKey,
+        List<(DateTime GapStart, TimeSpan Duration)> gaps)
+    {
         foreach (var (restGapStart, violation) in violationsByKey)
         {
             if (existingByKey.ContainsKey(restGapStart))
@@ -153,7 +178,12 @@ public sealed class CompensatoryRestObligationReconciler : ICompensatoryRestObli
             };
             _obligationRepository.Add(obligation);
         }
+    }
 
+    private void ReconcileOpenObligations(
+        List<CompensatoryRestObligation> openExisting,
+        List<(DateTime GapStart, TimeSpan Duration)> gaps)
+    {
         foreach (var obligation in openExisting)
         {
             var currentGap = gaps.FirstOrDefault(g => g.GapStart == obligation.RestGapStart);
@@ -191,8 +221,6 @@ public sealed class CompensatoryRestObligationReconciler : ICompensatoryRestObli
                 _obligationRepository.Update(obligation);
             }
         }
-
-        await _context.SaveChangesAsync(cancellationToken);
     }
 
     private async Task<ClientTimeline> BuildTimelineAsync(

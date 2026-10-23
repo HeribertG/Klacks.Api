@@ -89,71 +89,14 @@ public class RegionPackageUpdateRunner : IRegionPackageUpdateRunner
         var autoUpdateValue = (await _settingsRepository.GetSettingNoTracking(SettingKeys.RegionPackageAutoUpdate))?.Value;
         var autoUpdateEnabled = !string.Equals(autoUpdateValue?.Trim(), AutoUpdateDisabledValue, StringComparison.OrdinalIgnoreCase);
 
-        var lookup = await _marketplaceClient.GetLatestAsync(country, cancellationToken);
-        if (lookup.NotFound)
-        {
-            _logger.LogInformation(
-                "Region package update: marketplace has no published package for country '{Country}'",
-                country.ForLog());
-            await WriteStatusAsync(installedVersion, null, RegionPackageUpdateResults.PackageNotFound, null);
-            return;
-        }
-
-        var latest = lookup.Package;
+        var latest = await LookupLatestPackageAsync(country, installedVersion, cancellationToken);
         if (latest == null)
         {
-            await WriteStatusAsync(
-                installedVersion,
-                null,
-                RegionPackageUpdateResults.Error,
-                $"Marketplace region package lookup for country '{country}' failed (network, server or payload error).");
             return;
         }
 
-        if (!SemanticVersion.TryParse(installedVersion, out var installedSemanticVersion))
+        if (!await IsNewerCompatibleVersionAsync(country, installedVersion, latest))
         {
-            await WriteStatusAsync(
-                installedVersion,
-                latest.Version,
-                RegionPackageUpdateResults.Error,
-                $"Installed region package version '{installedVersion}' is not a valid semantic version (major.minor.patch).");
-            return;
-        }
-
-        if (!SemanticVersion.TryParse(latest.Version, out var latestSemanticVersion))
-        {
-            await WriteStatusAsync(
-                installedVersion,
-                latest.Version,
-                RegionPackageUpdateResults.Error,
-                $"Marketplace version '{latest.Version}' for country '{country}' is not a valid semantic version (major.minor.patch).");
-            return;
-        }
-
-        if (latestSemanticVersion <= installedSemanticVersion)
-        {
-            await WriteStatusAsync(installedVersion, latest.Version, RegionPackageUpdateResults.UpToDate, null);
-            return;
-        }
-
-        if (!SemanticVersion.TryParse(latest.MinKlacksVersion, out var minKlacksVersion))
-        {
-            await WriteStatusAsync(
-                installedVersion,
-                latest.Version,
-                RegionPackageUpdateResults.Error,
-                $"Marketplace minKlacksVersion '{latest.MinKlacksVersion}' for country '{country}' is not a valid semantic version (major.minor.patch).");
-            return;
-        }
-
-        var appVersion = new SemanticVersion(MyVersion.Major, MyVersion.Minor, MyVersion.Patch);
-        if (minKlacksVersion > appVersion)
-        {
-            await WriteStatusAsync(
-                installedVersion,
-                latest.Version,
-                RegionPackageUpdateResults.BlockedByMinVersion,
-                $"Package version {latest.Version} requires Klacks {latest.MinKlacksVersion}, but this installation runs {appVersion}.");
             return;
         }
 
@@ -165,26 +108,9 @@ public class RegionPackageUpdateRunner : IRegionPackageUpdateRunner
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        var download = await _marketplaceClient.DownloadProfileAsync(country, cancellationToken);
+        var download = await DownloadVerifiedPackageAsync(country, installedVersion, latest, cancellationToken);
         if (download == null)
         {
-            await WriteStatusAsync(
-                installedVersion,
-                latest.Version,
-                RegionPackageUpdateResults.Error,
-                $"Download of package version {latest.Version} for country '{country}' failed.");
-            return;
-        }
-
-        var verification = _signatureVerifier.Verify(download.Content, download.Signature);
-        if (!verification.Accepted)
-        {
-            _logger.LogWarning(
-                "Region package update: signature check rejected package '{Country}' version {AvailableVersion}: {Error}",
-                country.ForLog(),
-                latest.Version,
-                verification.Error);
-            await WriteStatusAsync(installedVersion, latest.Version, RegionPackageUpdateResults.SignatureRejected, verification.Error);
             return;
         }
 
@@ -221,6 +147,122 @@ public class RegionPackageUpdateRunner : IRegionPackageUpdateRunner
             _logger.LogError(ex, "Region package update: import of package '{Country}' failed", country.ForLog());
             await WriteStatusAsync(installedVersion, latest.Version, RegionPackageUpdateResults.Error, ex.Message);
         }
+    }
+
+    private async Task<MarketplaceRegionPackageInfo?> LookupLatestPackageAsync(
+        string country,
+        string installedVersion,
+        CancellationToken cancellationToken)
+    {
+        var lookup = await _marketplaceClient.GetLatestAsync(country, cancellationToken);
+        if (lookup.NotFound)
+        {
+            _logger.LogInformation(
+                "Region package update: marketplace has no published package for country '{Country}'",
+                country.ForLog());
+            await WriteStatusAsync(installedVersion, null, RegionPackageUpdateResults.PackageNotFound, null);
+            return null;
+        }
+
+        var latest = lookup.Package;
+        if (latest == null)
+        {
+            await WriteStatusAsync(
+                installedVersion,
+                null,
+                RegionPackageUpdateResults.Error,
+                $"Marketplace region package lookup for country '{country}' failed (network, server or payload error).");
+            return null;
+        }
+
+        return latest;
+    }
+
+    private async Task<bool> IsNewerCompatibleVersionAsync(
+        string country,
+        string installedVersion,
+        MarketplaceRegionPackageInfo latest)
+    {
+        if (!SemanticVersion.TryParse(installedVersion, out var installedSemanticVersion))
+        {
+            await WriteStatusAsync(
+                installedVersion,
+                latest.Version,
+                RegionPackageUpdateResults.Error,
+                $"Installed region package version '{installedVersion}' is not a valid semantic version (major.minor.patch).");
+            return false;
+        }
+
+        if (!SemanticVersion.TryParse(latest.Version, out var latestSemanticVersion))
+        {
+            await WriteStatusAsync(
+                installedVersion,
+                latest.Version,
+                RegionPackageUpdateResults.Error,
+                $"Marketplace version '{latest.Version}' for country '{country}' is not a valid semantic version (major.minor.patch).");
+            return false;
+        }
+
+        if (latestSemanticVersion <= installedSemanticVersion)
+        {
+            await WriteStatusAsync(installedVersion, latest.Version, RegionPackageUpdateResults.UpToDate, null);
+            return false;
+        }
+
+        if (!SemanticVersion.TryParse(latest.MinKlacksVersion, out var minKlacksVersion))
+        {
+            await WriteStatusAsync(
+                installedVersion,
+                latest.Version,
+                RegionPackageUpdateResults.Error,
+                $"Marketplace minKlacksVersion '{latest.MinKlacksVersion}' for country '{country}' is not a valid semantic version (major.minor.patch).");
+            return false;
+        }
+
+        var appVersion = new SemanticVersion(MyVersion.Major, MyVersion.Minor, MyVersion.Patch);
+        if (minKlacksVersion > appVersion)
+        {
+            await WriteStatusAsync(
+                installedVersion,
+                latest.Version,
+                RegionPackageUpdateResults.BlockedByMinVersion,
+                $"Package version {latest.Version} requires Klacks {latest.MinKlacksVersion}, but this installation runs {appVersion}.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task<MarketplaceRegionPackageDownload?> DownloadVerifiedPackageAsync(
+        string country,
+        string installedVersion,
+        MarketplaceRegionPackageInfo latest,
+        CancellationToken cancellationToken)
+    {
+        var download = await _marketplaceClient.DownloadProfileAsync(country, cancellationToken);
+        if (download == null)
+        {
+            await WriteStatusAsync(
+                installedVersion,
+                latest.Version,
+                RegionPackageUpdateResults.Error,
+                $"Download of package version {latest.Version} for country '{country}' failed.");
+            return null;
+        }
+
+        var verification = _signatureVerifier.Verify(download.Content, download.Signature);
+        if (!verification.Accepted)
+        {
+            _logger.LogWarning(
+                "Region package update: signature check rejected package '{Country}' version {AvailableVersion}: {Error}",
+                country.ForLog(),
+                latest.Version,
+                verification.Error);
+            await WriteStatusAsync(installedVersion, latest.Version, RegionPackageUpdateResults.SignatureRejected, verification.Error);
+            return null;
+        }
+
+        return download;
     }
 
     private async Task UpsertVersionIfChangedAsync(string version)
