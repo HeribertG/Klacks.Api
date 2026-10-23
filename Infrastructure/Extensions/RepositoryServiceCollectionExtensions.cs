@@ -101,20 +101,20 @@ internal static class RepositoryServiceCollectionExtensions
     {
         RegisterClientAndSearchRepositories(services);
         RegisterClientDetailAndSettingsRepositories(services);
-        RegisterAbsenceRepositories(services);
-        RegisterGeoAndCalendarRepositories(services);
-        RegisterScheduleRepositories(services);
-        RegisterShiftRepositories(services);
-        RegisterGroupAndQualificationRepositories(services);
-        RegisterContractAndPlanningDataRepositories(services);
-        RegisterIdentityAndImportRepositories(services);
-        RegisterShiftScheduleAndReportRepositories(services);
-        RegisterAssistantRepositories(services);
+        RegisterAbsenceAndBreakPlaceholderRepositories(services);
+        RegisterGeoBranchAndCalendarRepositories(services);
+        RegisterScheduleEntryScenarioAndWizardRunRepositories(services);
+        RegisterShiftContainerAndGroupAbsenceRepositories(services);
+        RegisterGroupQualificationAndClientPreferenceRepositories(services);
+        RegisterContractAvailabilityAndMasterDataRepositories(services);
+        RegisterIdentityAccessAndErpImportRepositories(services);
+        RegisterShiftScheduleAndReportTemplateRepositories(services);
+        RegisterAssistantAgentSkillAndScheduledTaskRepositories(services);
         RegisterUpdateServices(services);
-        RegisterAssistantLearningRepositories(services);
-        RegisterEmailRepositories(services);
-        RegisterPeriodClosingAndDashboardRepositories(services);
-        RegisterScheduleSortAndCommandKeywordServices(services);
+        RegisterAssistantSkillLearningAndEvaluationRepositories(services);
+        RegisterEmailAndSentimentRepositories(services);
+        RegisterPeriodClosingExportAndDashboardRepositories(services);
+        RegisterClientSortAndScheduleCommandKeywordServices(services);
     }
 
     private static void RegisterClientAndSearchRepositories(IServiceCollection services)
@@ -143,14 +143,14 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IActiveIndustriesProvider, ActiveIndustriesProvider>();
     }
 
-    private static void RegisterAbsenceRepositories(IServiceCollection services)
+    private static void RegisterAbsenceAndBreakPlaceholderRepositories(IServiceCollection services)
     {
         services.AddScoped<IAbsenceRepository, AbsenceRepository>();
         services.AddScoped<IBreakPlaceholderRepository, BreakPlaceholderRepository>();
         services.AddScoped<IAbsenceDetailRepository, AbsenceDetailRepository>();
     }
 
-    private static void RegisterGeoAndCalendarRepositories(IServiceCollection services)
+    private static void RegisterGeoBranchAndCalendarRepositories(IServiceCollection services)
     {
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IStateRepository, StateRepository>();
@@ -163,7 +163,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<ISelectedCalendarRepository, SelectedCalendarRepository>();
     }
 
-    private static void RegisterScheduleRepositories(IServiceCollection services)
+    private static void RegisterScheduleEntryScenarioAndWizardRunRepositories(IServiceCollection services)
     {
         services.AddScoped<IWorkRepository, WorkRepository>();
         services.AddScoped<IBreakRepository, BreakRepository>();
@@ -183,7 +183,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddAnalyseScenarioServices();
     }
 
-    private static void RegisterShiftRepositories(IServiceCollection services)
+    private static void RegisterShiftContainerAndGroupAbsenceRepositories(IServiceCollection services)
     {
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<IShiftReader, ShiftReader>();
@@ -194,7 +194,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IContainerWorkChildrenReadRepository, ContainerWorkChildrenReadRepository>();
     }
 
-    private static void RegisterGroupAndQualificationRepositories(IServiceCollection services)
+    private static void RegisterGroupQualificationAndClientPreferenceRepositories(IServiceCollection services)
     {
         services.AddScoped<IGroupRepository, GroupRepository>();
         services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
@@ -207,7 +207,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
     }
 
-    private static void RegisterContractAndPlanningDataRepositories(IServiceCollection services)
+    private static void RegisterContractAvailabilityAndMasterDataRepositories(IServiceCollection services)
     {
         services.AddScoped<IContractRepository, ContractRepository>();
         services.AddScoped<ISchedulingRuleRepository, SchedulingRuleRepository>();
@@ -220,7 +220,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IPostcodeChRepository, PostcodeChRepository>();
     }
 
-    private static void RegisterIdentityAndImportRepositories(IServiceCollection services)
+    private static void RegisterIdentityAccessAndErpImportRepositories(IServiceCollection services)
     {
         services.AddScoped<IIdentityProviderRepository, IdentityProviderRepository>();
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
@@ -234,13 +234,13 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IOAuthAuthorizationCodeStore,Klacks.Api.Infrastructure.Authentication.OAuthAuthorizationCodeStore>();
     }
 
-    private static void RegisterShiftScheduleAndReportRepositories(IServiceCollection services)
+    private static void RegisterShiftScheduleAndReportTemplateRepositories(IServiceCollection services)
     {
         services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();
         services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
     }
 
-    private static void RegisterAssistantRepositories(IServiceCollection services)
+    private static void RegisterAssistantAgentSkillAndScheduledTaskRepositories(IServiceCollection services)
     {
         services.AddScoped<ILLMRepository, LLMRepository>();
         services.AddScoped<ISkillUsageRepository, SkillUsageRepository>();
@@ -272,7 +272,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddHttpClient(Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader.HttpClientName);
     }
 
-    private static void RegisterAssistantLearningRepositories(IServiceCollection services)
+    private static void RegisterAssistantSkillLearningAndEvaluationRepositories(IServiceCollection services)
     {
         services.AddScoped<ISkillLearningClusterRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningClusterRepository>();
         services.AddScoped<ISkillLearningCaseRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningCaseRepository>();
@@ -288,7 +288,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<ISkillDescriptionOptimizer, Klacks.Api.Application.Services.Assistant.Evaluation.SkillDescriptionOptimizer>();
     }
 
-    private static void RegisterEmailRepositories(IServiceCollection services)
+    private static void RegisterEmailAndSentimentRepositories(IServiceCollection services)
     {
         services.AddScoped<IReceivedEmailRepository, ReceivedEmailRepository>();
         services.AddScoped<IEmailQueryRepository, EmailQueryRepository>();
@@ -297,7 +297,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<ISentimentKeywordRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SentimentKeywordRepository>();
     }
 
-    private static void RegisterPeriodClosingAndDashboardRepositories(IServiceCollection services)
+    private static void RegisterPeriodClosingExportAndDashboardRepositories(IServiceCollection services)
     {
         services.AddScoped<IPeriodAuditLogRepository, PeriodAuditLogRepository>();
         services.AddScoped<IExportLogRepository, ExportLogRepository>();
@@ -308,7 +308,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<ISealedDayRepository, SealedDayRepository>();
     }
 
-    private static void RegisterScheduleSortAndCommandKeywordServices(IServiceCollection services)
+    private static void RegisterClientSortAndScheduleCommandKeywordServices(IServiceCollection services)
     {
         services.AddScoped<IClientSortPreferenceRepository, ClientSortPreferenceRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Schedules.IScheduleCommandKeywordProvider,

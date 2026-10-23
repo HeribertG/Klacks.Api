@@ -222,7 +222,7 @@ public class EmailPollingBackgroundService : BackgroundService
             (Guid ClientId, EntityTypeEnum ClientType)? client = null;
             if (emailAnalysisEnabled)
             {
-                if (await IsAlreadyAnalyzedAsync(scope, email, stoppingToken))
+                if (await ShouldSkipAlreadyAnalyzedAsync(scope, email, stoppingToken))
                 {
                     email.ProcessedAt = DateTime.UtcNow;
                     await unitOfWork.CompleteAsync();
@@ -292,7 +292,7 @@ public class EmailPollingBackgroundService : BackgroundService
         return emailAnalysisSetting?.Value != null && bool.TryParse(emailAnalysisSetting.Value, out var enabled) && enabled;
     }
 
-    private async Task<bool> IsAlreadyAnalyzedAsync(IServiceScope scope, ReceivedEmail email, CancellationToken stoppingToken)
+    private async Task<bool> ShouldSkipAlreadyAnalyzedAsync(IServiceScope scope, ReceivedEmail email, CancellationToken stoppingToken)
     {
         var alreadyAnalyzed = await scope.ServiceProvider.GetRequiredService<IInboundAnalysisRepository>()
             .ExistsBySourceAsync(InboundSourceKind.Email, email.Id, stoppingToken);

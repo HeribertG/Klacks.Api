@@ -141,13 +141,13 @@ namespace Klacks.Api.Infrastructure.Scripting
                     LexGreaterThan(nextSymbol);
                     break;
                 default:
-                    return ScanOperandOrDelimiter(nextSymbol, c, key);
+                    return ScanLiteralIdentifierOrDelimiter(nextSymbol, c, key);
             }
 
             return (false, string.Empty);
         }
 
-        private (bool ReturnNumberSymbol, string SymbolText) ScanOperandOrDelimiter(Symbol nextSymbol, string c, string key)
+        private (bool ReturnNumberSymbol, string SymbolText) ScanLiteralIdentifierOrDelimiter(Symbol nextSymbol, string c, string key)
         {
             switch (key)
             {
