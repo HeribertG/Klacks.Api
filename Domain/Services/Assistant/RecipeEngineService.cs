@@ -23,8 +23,6 @@ using System.Text.Json;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Assistant.Recipes;
-using Klacks.Api.KnowledgeIndex.Application.Interfaces;
-using Klacks.Api.KnowledgeIndex.Domain;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -327,18 +325,16 @@ public class RecipeEngineService
         IServiceScope scope, List<AgentRecipe> recipes, string message, string? language,
         RecipeRightsGate? rightsGate, CancellationToken cancellationToken)
     {
-        var retrieval = scope.ServiceProvider.GetRequiredService<IKnowledgeRetrievalService>();
+        var retriever = scope.ServiceProvider.GetRequiredService<IRecipeCandidateRetriever>();
 
-        RetrievalResult result;
+        IReadOnlyList<RecipeCandidate> recipeCandidates;
         try
         {
             // The raw message, deliberately - not the history-widened query the toolset assembler
             // builds through RetrievalQueryBuilder. A recipe answers what the user is asking for now;
             // folding earlier turns in would let a finished topic keep proposing its recipe. The two
             // passes therefore ask different questions, which is why their scores are not comparable.
-            result = await retrieval.RetrieveAsync(
-                message, [], isAdmin: false, SemanticMatchTopK, currentRoute: null, cancellationToken,
-                KnowledgeEntryKind.Recipe);
+            recipeCandidates = await retriever.RetrieveAsync(message, SemanticMatchTopK, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -348,13 +344,11 @@ public class RecipeEngineService
 
         // Restricted to recipes and ordered by score inside RetrieveAsync. Filtering here instead
         // would arrive too late: topK is applied there, so the recipes would already be gone.
-        var recipeCandidates = result.Candidates;
-
         if (recipeCandidates.Count > 0)
         {
             _logger.LogInformation(
                 "Semantic recipe candidate scores (calibration): {Scores}",
-                string.Join(", ", recipeCandidates.Select(c => $"{c.Entry.SourceId}={c.Score:F3}")));
+                string.Join(", ", recipeCandidates.Select(c => $"{c.RecipeName}={c.Score:F3}")));
         }
 
         // A recipe's noneOf guard is its authored exclusion vocabulary ("never fire for messages
@@ -363,7 +357,7 @@ public class RecipeEngineService
         // company-rule intake mentioning shifts) re-enters the recipe flow through the embedding
         // ranking and hijacks the turn into a confirmation gate. A candidate that passed both guards is a real match: if the
         // user's rights refuse it, the loop ends with that refusal instead of walking on to the next, lower-ranked recipe.
-        RetrievalCandidate? top = null;
+        RecipeCandidate? top = null;
         AgentRecipe? recipe = null;
         var topIndex = -1;
         for (var i = 0; i < recipeCandidates.Count; i++)
@@ -374,7 +368,7 @@ public class RecipeEngineService
                 break;
             }
 
-            var resolved = FindRecipeByName(recipes, candidate.Entry.SourceId);
+            var resolved = FindRecipeByName(recipes, candidate.RecipeName);
             if (resolved == null)
             {
                 continue;
@@ -426,12 +420,12 @@ public class RecipeEngineService
                 break;
             }
 
-            if (string.Equals(candidate.Entry.SourceId, top.Entry.SourceId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(candidate.RecipeName, top.RecipeName, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
 
-            var alternativeRecipe = FindRecipeByName(recipes, candidate.Entry.SourceId);
+            var alternativeRecipe = FindRecipeByName(recipes, candidate.RecipeName);
             if (alternativeRecipe != null
                 && (IsVetoedByNoneOfGuard(alternativeRecipe, message, _logger, language)
                     || !HasSemanticAnchor(alternativeRecipe, message, _logger, language)))
@@ -445,7 +439,7 @@ public class RecipeEngineService
                 continue;
             }
 
-            alternativeGoal = alternativeRecipe?.Goal ?? candidate.Entry.SourceId;
+            alternativeGoal = alternativeRecipe?.Goal ?? candidate.RecipeName;
             alternativeGoalTranslations = alternativeRecipe?.GoalTranslations;
             break;
         }

@@ -7,8 +7,8 @@
 /// <param name="repository">Reads knowledge index rows by (kind, source id)</param>
 
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
-using Klacks.Api.KnowledgeIndex.Application.Services;
 using Klacks.Api.KnowledgeIndex.Domain;
 
 namespace Klacks.Api.Application.Services.Assistant.Learning;

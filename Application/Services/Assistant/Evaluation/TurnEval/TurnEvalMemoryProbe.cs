@@ -14,7 +14,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.KnowledgeIndex.Application.Services;
+using Klacks.Api.Domain.Logging;
 
 namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 

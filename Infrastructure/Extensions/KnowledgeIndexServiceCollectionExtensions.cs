@@ -187,6 +187,7 @@ internal static class KnowledgeIndexServiceCollectionExtensions
         // process-wide. It resolves the scoped synchronizer from a fresh scope per run.
         services.AddSingleton<IKnowledgeIndexSyncScheduler, KnowledgeIndexSyncScheduler>();
         services.AddScoped<IKnowledgeRetrievalService, KnowledgeRetrievalService>();
+        services.AddScoped<IRecipeCandidateRetriever, KnowledgeIndexRecipeCandidateRetriever>();
 
         // Scoped, so the pass ordinal in the [retrieval] log line counts within one turn. Note the
         // recipe engine resolves retrieval from a fresh scope of its own, so its ordinals restart at

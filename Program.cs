@@ -215,6 +215,7 @@ builder.Services.AddHostedService<GeoServicesStartupReporter>();
 
 Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtensions.RegisterPlugin(new Klacks.Plugin.Messaging.MessagingPluginRegistrar());
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddKlacksPatAuthentication();
 builder.Services.AddKlacksMcpServer();
 builder.Services.AddErpImportServices(builder.Configuration);
 builder.Services.AddClientImportServices(builder.Configuration);

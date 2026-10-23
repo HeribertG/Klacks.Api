@@ -11,9 +11,7 @@ using System.Threading.RateLimiting;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Infrastructure.Authentication;
 using Klacks.Api.Presentation.Extensions;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
@@ -40,7 +38,6 @@ public static class McpEndpointExtensions
             .BindConfiguration(McpPublicEndpointOptions.SectionName);
 
         services.AddAuthentication()
-            .AddScheme<AuthenticationSchemeOptions, PatAuthenticationHandler>(PatConstants.SchemeName, configureOptions: null)
             .AddMcp();
 
         services.AddOptions<McpAuthenticationOptions>(McpAuthenticationDefaults.AuthenticationScheme)

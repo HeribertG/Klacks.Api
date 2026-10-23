@@ -7,7 +7,7 @@
 /// </summary>
 /// <param name="skillName">Registry name of the skill, the index source id</param>
 /// <param name="description">The description the text is built from</param>
-namespace Klacks.Api.KnowledgeIndex.Application.Services;
+namespace Klacks.Api.KnowledgeIndex.Application.Constants;
 
 public static class SkillEmbeddingTextPrefix
 {

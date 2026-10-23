@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 
-namespace Klacks.Api.KnowledgeIndex.Application.Services;
+namespace Klacks.Api.Domain.Logging;
 
 /// <summary>
 /// One reading of how much memory this process holds, split into the resident total and the managed
