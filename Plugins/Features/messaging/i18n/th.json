@@ -61,6 +61,7 @@
   "settings.messaging-providers.field.enabled": "เปิดใช้งานแล้ว",
   "settings.messaging-providers.token.checking": "กำลังตรวจสอบโทเค็น…",
   "settings.messaging-providers.token.invalid": "โทเค็นไม่ถูกต้อง — คัดลอกโทเค็นฉบับเต็มจาก BotFather",
+  "settings.messaging-providers.token.valid": "บอท: @{{botName}}",
   "settings.messaging-providers.success.create": "สร้างผู้ให้บริการส่งข้อความแล้ว",
   "settings.messaging-providers.success.update": "อัปเดตผู้ให้บริการส่งข้อความแล้ว",
   "settings.messaging-providers.success.delete": "ลบผู้ให้บริการส่งข้อความแล้ว",

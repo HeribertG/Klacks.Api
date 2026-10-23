@@ -61,6 +61,7 @@
   "settings.messaging-providers.field.enabled": "Aktivert",
   "settings.messaging-providers.token.checking": "Kontrollerer token…",
   "settings.messaging-providers.token.invalid": "Ugyldig token — kopier hele tokenet fra BotFather",
+  "settings.messaging-providers.token.valid": "Bot: @{{botName}}",
   "settings.messaging-providers.success.create": "Meldingsleverandør opprettet",
   "settings.messaging-providers.success.update": "Meldingsleverandør oppdatert",
   "settings.messaging-providers.success.delete": "Meldingsleverandør slettet",

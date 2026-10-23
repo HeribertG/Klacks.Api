@@ -61,6 +61,7 @@
   "settings.messaging-providers.field.enabled": "Diaktifkan",
   "settings.messaging-providers.token.checking": "Memeriksa token…",
   "settings.messaging-providers.token.invalid": "Token tidak valid — salin token lengkap dari BotFather",
+  "settings.messaging-providers.token.valid": "Bot: @{{botName}}",
   "settings.messaging-providers.success.create": "Penyedia pesan dibuat",
   "settings.messaging-providers.success.update": "Penyedia pesan diperbarui",
   "settings.messaging-providers.success.delete": "Penyedia pesan dihapus",

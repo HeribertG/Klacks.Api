@@ -61,6 +61,7 @@
   "settings.messaging-providers.field.enabled": "Käytössä",
   "settings.messaging-providers.token.checking": "Tarkistetaan tokenia…",
   "settings.messaging-providers.token.invalid": "Virheellinen token — kopioi koko token BotFatherilta",
+  "settings.messaging-providers.token.valid": "Bot: @{{botName}}",
   "settings.messaging-providers.success.create": "Viestipalveluntarjoaja luotu",
   "settings.messaging-providers.success.update": "Viestipalveluntarjoaja päivitetty",
   "settings.messaging-providers.success.delete": "Viestipalveluntarjoaja poistettu",

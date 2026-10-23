@@ -61,6 +61,7 @@
   "settings.messaging-providers.field.enabled": "Ativado",
   "settings.messaging-providers.token.checking": "A verificar o token…",
   "settings.messaging-providers.token.invalid": "Token inválido — copia o token completo do BotFather",
+  "settings.messaging-providers.token.valid": "Bot: @{{botName}}",
   "settings.messaging-providers.success.create": "Fornecedor de mensagens criado",
   "settings.messaging-providers.success.update": "Fornecedor de mensagens atualizado",
   "settings.messaging-providers.success.delete": "Fornecedor de mensagens eliminado",

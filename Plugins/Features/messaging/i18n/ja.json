@@ -61,6 +61,7 @@
   "settings.messaging-providers.field.enabled": "有効",
   "settings.messaging-providers.token.checking": "トークンを確認中…",
   "settings.messaging-providers.token.invalid": "トークンが無効です — BotFather から完全なトークンをコピーしてください",
+  "settings.messaging-providers.token.valid": "ボット: @{{botName}}",
   "settings.messaging-providers.success.create": "メッセージングプロバイダーを作成しました",
   "settings.messaging-providers.success.update": "メッセージングプロバイダーを更新しました",
   "settings.messaging-providers.success.delete": "メッセージングプロバイダーを削除しました",

@@ -61,6 +61,7 @@
   "settings.messaging-providers.field.enabled": "已启用",
   "settings.messaging-providers.token.checking": "正在检查令牌…",
   "settings.messaging-providers.token.invalid": "令牌无效 — 请从 BotFather 复制完整的令牌",
+  "settings.messaging-providers.token.valid": "机器人: @{{botName}}",
   "settings.messaging-providers.success.create": "消息服务提供商已创建",
   "settings.messaging-providers.success.update": "消息服务提供商已更新",
   "settings.messaging-providers.success.delete": "消息服务提供商已删除",

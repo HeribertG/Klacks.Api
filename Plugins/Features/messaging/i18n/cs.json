@@ -61,6 +61,7 @@
   "settings.messaging-providers.field.enabled": "Aktivováno",
   "settings.messaging-providers.token.checking": "Kontrola tokenu…",
   "settings.messaging-providers.token.invalid": "Neplatný token — zkopírujte celý token z BotFather",
+  "settings.messaging-providers.token.valid": "Bot: @{{botName}}",
   "settings.messaging-providers.success.create": "Poskytovatel zpráv vytvořen",
   "settings.messaging-providers.success.update": "Poskytovatel zpráv aktualizován",
   "settings.messaging-providers.success.delete": "Poskytovatel zpráv smazán",

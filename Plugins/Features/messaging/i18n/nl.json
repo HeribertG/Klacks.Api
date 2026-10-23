@@ -61,6 +61,7 @@
   "settings.messaging-providers.field.enabled": "Ingeschakeld",
   "settings.messaging-providers.token.checking": "Token controleren…",
   "settings.messaging-providers.token.invalid": "Ongeldig token — kopieer het volledige token van BotFather",
+  "settings.messaging-providers.token.valid": "Bot: @{{botName}}",
   "settings.messaging-providers.success.create": "Messaging-aanbieder aangemaakt",
   "settings.messaging-providers.success.update": "Messaging-aanbieder bijgewerkt",
   "settings.messaging-providers.success.delete": "Messaging-aanbieder verwijderd",
