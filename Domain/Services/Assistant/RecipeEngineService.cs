@@ -13,10 +13,10 @@
 /// RecipeResolution.Denial and no other recipe is offered in its place. The rights are part of the match memo key, so a
 /// scope that serves several users never hands one user the match computed for another.
 ///
-/// Database reads run in their OWN service scope (not the request-scoped DataBaseContext): the chat
-/// pipeline launches fire-and-forget tasks (e.g. MemoryRetrievalService updating access counts) that
-/// touch the request context concurrently, so a read on the shared context here races with them. A
-/// fresh scope per lookup is fully isolated; recipes are startup-seeded, so a fresher read is correct.
+/// Database reads run in their OWN service scope, one child scope per lookup, never on the request-scoped
+/// DataBaseContext: the recipe and skill reads and the semantic recipe search (IRecipeCandidateRetriever, which
+/// borrows the connection of the scope it is resolved from) all share that child scope, so a lookup is isolated
+/// from whatever else the request does on its context. Recipes are startup-seeded, so a fresher read is correct.
 /// </summary>
 
 using System.Text.Json;

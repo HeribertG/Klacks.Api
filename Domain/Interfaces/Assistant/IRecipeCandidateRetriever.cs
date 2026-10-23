@@ -4,8 +4,9 @@
 /// Port for the semantic recipe search: ranks the indexed recipes (and only recipes) against a message and
 /// returns the best of them ordered by descending score. Implemented outside the Domain on top of the
 /// knowledge index, which the Domain never references. The implementation borrows the database connection of the
-/// scope it is resolved from, so RecipeEngineService resolves it per lookup from its own child scope, never through
-/// its constructor: the request scope's connection is shared with fire-and-forget tasks of the chat pipeline.
+/// scope it is resolved from, so resolve it from the scope the caller's other database reads run in:
+/// RecipeEngineService keeps all its reads in one child scope of its own, so the KNN query shares that scope's
+/// connection instead of the request's.
 /// </summary>
 
 using Klacks.Api.Domain.Models.Assistant.Recipes;
