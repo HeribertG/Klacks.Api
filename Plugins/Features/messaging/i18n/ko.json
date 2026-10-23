@@ -59,6 +59,8 @@
   "settings.messaging-providers.field.type": "제공업체 유형",
   "settings.messaging-providers.field.config-title": "연결 정보",
   "settings.messaging-providers.field.enabled": "활성화됨",
+  "settings.messaging-providers.token.checking": "토큰 확인 중…",
+  "settings.messaging-providers.token.invalid": "유효하지 않은 토큰입니다 — BotFather에서 전체 토큰을 복사하세요",
   "settings.messaging-providers.success.create": "메시징 제공업체를 생성했습니다",
   "settings.messaging-providers.success.update": "메시징 제공업체를 업데이트했습니다",
   "settings.messaging-providers.success.delete": "메시징 제공업체를 삭제했습니다",

@@ -59,6 +59,8 @@
   "settings.messaging-providers.field.type": "Typ dostawcy",
   "settings.messaging-providers.field.config-title": "Dane połączenia",
   "settings.messaging-providers.field.enabled": "Włączony",
+  "settings.messaging-providers.token.checking": "Sprawdzanie tokenu…",
+  "settings.messaging-providers.token.invalid": "Nieprawidłowy token — skopiuj pełny token z BotFather",
   "settings.messaging-providers.success.create": "Dostawca wiadomości utworzony",
   "settings.messaging-providers.success.update": "Dostawca wiadomości zaktualizowany",
   "settings.messaging-providers.success.delete": "Dostawca wiadomości usunięty",

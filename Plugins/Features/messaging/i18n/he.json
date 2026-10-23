@@ -59,6 +59,8 @@
   "settings.messaging-providers.field.type": "סוג ספק",
   "settings.messaging-providers.field.config-title": "פרטי החיבור",
   "settings.messaging-providers.field.enabled": "מופעל",
+  "settings.messaging-providers.token.checking": "בודק אסימון…",
+  "settings.messaging-providers.token.invalid": "האסימון אינו תקין — יש להעתיק את האסימון המלא מ-BotFather",
   "settings.messaging-providers.success.create": "ספק ההודעות נוצר",
   "settings.messaging-providers.success.update": "ספק ההודעות עודכן",
   "settings.messaging-providers.success.delete": "ספק ההודעות נמחק",

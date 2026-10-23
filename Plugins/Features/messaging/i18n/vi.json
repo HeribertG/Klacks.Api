@@ -59,6 +59,8 @@
   "settings.messaging-providers.field.type": "Loại nhà cung cấp",
   "settings.messaging-providers.field.config-title": "Thông tin kết nối",
   "settings.messaging-providers.field.enabled": "Đã kích hoạt",
+  "settings.messaging-providers.token.checking": "Đang kiểm tra token…",
+  "settings.messaging-providers.token.invalid": "Token không hợp lệ — hãy sao chép toàn bộ token từ BotFather",
   "settings.messaging-providers.success.create": "Đã tạo nhà cung cấp tin nhắn",
   "settings.messaging-providers.success.update": "Đã cập nhật nhà cung cấp tin nhắn",
   "settings.messaging-providers.success.delete": "Đã xóa nhà cung cấp tin nhắn",

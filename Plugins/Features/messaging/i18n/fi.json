@@ -59,6 +59,8 @@
   "settings.messaging-providers.field.type": "Palveluntarjoajan tyyppi",
   "settings.messaging-providers.field.config-title": "Yhteyden tiedot",
   "settings.messaging-providers.field.enabled": "Käytössä",
+  "settings.messaging-providers.token.checking": "Tarkistetaan tokenia…",
+  "settings.messaging-providers.token.invalid": "Virheellinen token — kopioi koko token BotFatherilta",
   "settings.messaging-providers.success.create": "Viestipalveluntarjoaja luotu",
   "settings.messaging-providers.success.update": "Viestipalveluntarjoaja päivitetty",
   "settings.messaging-providers.success.delete": "Viestipalveluntarjoaja poistettu",

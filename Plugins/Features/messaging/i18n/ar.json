@@ -59,6 +59,8 @@
   "settings.messaging-providers.field.type": "نوع المزوّد",
   "settings.messaging-providers.field.config-title": "تفاصيل الاتصال",
   "settings.messaging-providers.field.enabled": "مفعّل",
+  "settings.messaging-providers.token.checking": "جارٍ التحقق من الرمز…",
+  "settings.messaging-providers.token.invalid": "الرمز غير صالح — انسخ الرمز الكامل من BotFather",
   "settings.messaging-providers.success.create": "تم إنشاء مزوّد المراسلة",
   "settings.messaging-providers.success.update": "تم تحديث مزوّد المراسلة",
   "settings.messaging-providers.success.delete": "تم حذف مزوّد المراسلة",

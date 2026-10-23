@@ -59,6 +59,8 @@
   "settings.messaging-providers.field.type": "Τύπος παρόχου",
   "settings.messaging-providers.field.config-title": "Στοιχεία σύνδεσης",
   "settings.messaging-providers.field.enabled": "Ενεργοποιημένο",
+  "settings.messaging-providers.token.checking": "Έλεγχος διακριτικού…",
+  "settings.messaging-providers.token.invalid": "Μη έγκυρο διακριτικό — αντιγράψτε ολόκληρο το διακριτικό από το BotFather",
   "settings.messaging-providers.success.create": "Ο πάροχος μηνυμάτων δημιουργήθηκε",
   "settings.messaging-providers.success.update": "Ο πάροχος μηνυμάτων ενημερώθηκε",
   "settings.messaging-providers.success.delete": "Ο πάροχος μηνυμάτων διαγράφηκε",

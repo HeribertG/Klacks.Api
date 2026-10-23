@@ -59,6 +59,8 @@
   "settings.messaging-providers.field.type": "Udbydertype",
   "settings.messaging-providers.field.config-title": "Forbindelsesoplysninger",
   "settings.messaging-providers.field.enabled": "Aktiveret",
+  "settings.messaging-providers.token.checking": "Kontrollerer token…",
+  "settings.messaging-providers.token.invalid": "Ugyldigt token — kopiér hele tokenet fra BotFather",
   "settings.messaging-providers.success.create": "Beskedudbyder oprettet",
   "settings.messaging-providers.success.update": "Beskedudbyder opdateret",
   "settings.messaging-providers.success.delete": "Beskedudbyder slettet",

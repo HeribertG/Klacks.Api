@@ -59,6 +59,8 @@
   "settings.messaging-providers.field.type": "Tipo di provider",
   "settings.messaging-providers.field.config-title": "Dati di connessione",
   "settings.messaging-providers.field.enabled": "Abilitato",
+  "settings.messaging-providers.token.checking": "Verifica del token…",
+  "settings.messaging-providers.token.invalid": "Token non valido — copia il token completo da BotFather",
   "settings.messaging-providers.success.create": "Provider di messaggistica creato",
   "settings.messaging-providers.success.update": "Provider di messaggistica aggiornato",
   "settings.messaging-providers.success.delete": "Provider di messaggistica eliminato",

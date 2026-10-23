@@ -59,6 +59,8 @@
   "settings.messaging-providers.field.type": "服務商類型",
   "settings.messaging-providers.field.config-title": "連線資訊",
   "settings.messaging-providers.field.enabled": "已啟用",
+  "settings.messaging-providers.token.checking": "正在檢查權杖…",
+  "settings.messaging-providers.token.invalid": "權杖無效 — 請從 BotFather 複製完整的權杖",
   "settings.messaging-providers.success.create": "訊息服務商已建立",
   "settings.messaging-providers.success.update": "訊息服務商已更新",
   "settings.messaging-providers.success.delete": "訊息服務商已刪除",

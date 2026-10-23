@@ -59,6 +59,8 @@
   "settings.messaging-providers.field.type": "Tip de furnizor",
   "settings.messaging-providers.field.config-title": "Detalii de conexiune",
   "settings.messaging-providers.field.enabled": "Activat",
+  "settings.messaging-providers.token.checking": "Se verifică tokenul…",
+  "settings.messaging-providers.token.invalid": "Token invalid — copiați tokenul complet de la BotFather",
   "settings.messaging-providers.success.create": "Furnizorul de mesagerie a fost creat",
   "settings.messaging-providers.success.update": "Furnizorul de mesagerie a fost actualizat",
   "settings.messaging-providers.success.delete": "Furnizorul de mesagerie a fost șters",
