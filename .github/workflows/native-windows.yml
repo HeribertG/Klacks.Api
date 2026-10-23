@@ -160,10 +160,22 @@ jobs:
           repository: HeribertG/Klacks.ScheduleRecovery
           path: Klacks.ScheduleRecovery
 
+      # A release ships exactly the updater commit that scripts/release.ps1 tagged with the same vX.Y.Z, the one the
+      # klacks-updater:X.Y.Z / :latest image is built from. gate and release-dry-run test the current main instead.
+      - name: Check Klacks.Updater release tag
+        if: ${{ inputs.mode == 'release' }}
+        shell: bash
+        run: |
+          if ! git ls-remote --exit-code --tags https://github.com/HeribertG/Klacks.Updater "refs/tags/v${VERSION}" >/dev/null; then
+            echo "::error::Klacks.Updater has no tag v${VERSION}. Release only via scripts/release.ps1, which tags Klacks.Updater with Api and Ui."
+            exit 1
+          fi
+
       - name: Checkout Klacks.Updater
         uses: actions/checkout@v4
         with:
           repository: HeribertG/Klacks.Updater
+          ref: ${{ inputs.mode == 'release' && format('v{0}', env.VERSION) || '' }}
           path: Klacks.Updater
 
       - name: Read pinned Klacks.Stt version

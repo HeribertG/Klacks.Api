@@ -516,17 +516,39 @@ jobs:
           # `--no-build` is kept as a guard: the service has no build: stanza anymore, so compose can
           # only pull — the flag ensures a future build: stanza could never silently reintroduce the
           # 2033 s server build.
+          # The updater is released with the app: scripts/release.ps1 tags Klacks.Updater with the same vX.Y.Z and its
+          # build-push.yml publishes klacks-updater:X.Y.Z (pushes to main only publish :edge / :sha-<commit>). That exact
+          # tag is persisted in .env, but only after a successful pull, so a later `compose up` never resolves a tag
+          # that is missing on ghcr. Without the image (Updater tag missing or its build failed) the updater stays as is.
+          UPDATER_TAG="${KLACKS_API_TAG}"
+          UPDATER_IMAGE_WAIT_ATTEMPTS=10
+          UPDATER_IMAGE_WAIT_SECONDS=30
           UPDATER_PULL_TIMEOUT_SECONDS=300
           UPDATER_START_TIMEOUT_SECONDS=120
           UPDATER_PULL_LOG=/tmp/klacks-updater-pull.log
-          echo "📥 Pulling klacks-updater image (timeout ${UPDATER_PULL_TIMEOUT_SECONDS}s)..."
-          if timeout -k 10 "$UPDATER_PULL_TIMEOUT_SECONDS" $COMPOSE_CMD --profile updater pull klacks-updater >"$UPDATER_PULL_LOG" 2>&1; then
-            tail -3 "$UPDATER_PULL_LOG" || true
-            echo "✅ klacks-updater image pulled"
+          UPDATER_IMAGE_READY=false
+          for attempt in $(seq 1 "$UPDATER_IMAGE_WAIT_ATTEMPTS"); do
+            if image_exists "ghcr.io/heribertg/klacks-updater:${UPDATER_TAG}"; then
+              UPDATER_IMAGE_READY=true
+              break
+            fi
+            echo "⏳ klacks-updater:${UPDATER_TAG} not on ghcr yet (attempt $attempt/$UPDATER_IMAGE_WAIT_ATTEMPTS), retrying in ${UPDATER_IMAGE_WAIT_SECONDS}s..."
+            sleep "$UPDATER_IMAGE_WAIT_SECONDS"
+          done
+          if [ "$UPDATER_IMAGE_READY" = true ]; then
+            echo "📥 Pulling klacks-updater:${UPDATER_TAG} (timeout ${UPDATER_PULL_TIMEOUT_SECONDS}s)..."
+            if KLACKS_UPDATER_TAG="$UPDATER_TAG" timeout -k 10 "$UPDATER_PULL_TIMEOUT_SECONDS" $COMPOSE_CMD --profile updater pull klacks-updater >"$UPDATER_PULL_LOG" 2>&1; then
+              tail -3 "$UPDATER_PULL_LOG" || true
+              sed -i '/^KLACKS_UPDATER_TAG=/d' .env 2>/dev/null || true
+              echo "KLACKS_UPDATER_TAG=${UPDATER_TAG}" >> .env
+              echo "✅ klacks-updater:${UPDATER_TAG} pulled and pinned in .env"
+            else
+              UPDATER_PULL_RC=$?
+              tail -3 "$UPDATER_PULL_LOG" || true
+              echo "⚠️  updater pull failed (exit $UPDATER_PULL_RC, non-fatal) — keeping the existing updater, retried on the next deploy"
+            fi
           else
-            UPDATER_PULL_RC=$?
-            tail -3 "$UPDATER_PULL_LOG" || true
-            echo "⚠️  updater pull failed (exit $UPDATER_PULL_RC, non-fatal) — keeping the existing updater, retried on the next deploy"
+            echo "⚠️  klacks-updater:${UPDATER_TAG} is not on ghcr (Klacks.Updater tag missing or its build failed, non-fatal) — keeping the existing updater"
           fi
           echo "🔄 Ensuring klacks-updater sidecar is up (profile: updater)..."
           if timeout -k 10 "$UPDATER_START_TIMEOUT_SECONDS" $COMPOSE_CMD --profile updater up -d --no-build klacks-updater >"$UPDATER_PULL_LOG" 2>&1; then
