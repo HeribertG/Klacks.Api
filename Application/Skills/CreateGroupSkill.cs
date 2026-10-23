@@ -80,68 +80,30 @@ public class CreateGroupSkill : BaseSkillImplementation
 
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
 
-        Guid? parentId = null;
-        if (!string.IsNullOrWhiteSpace(parentIdStr))
+        var (parentId, parentError) = await ResolveParentAsync(parentIdStr, scope);
+        if (parentError != null)
         {
-            if (!Guid.TryParse(parentIdStr, out var parsedParent))
-            {
-                return SkillResult.Error($"Invalid parentId UUID: {parentIdStr}");
-            }
-
-            var parent = await _groupRepository.Get(parsedParent);
-            if (parent == null)
-            {
-                return SkillResult.Error($"Parent group '{parsedParent}' not found.");
-            }
-
-            if (!scope.IsInScope(parent))
-            {
-                return SkillResult.Error(scope.BuildOutOfScopeError(parent.Name));
-            }
-            parentId = parsedParent;
-        }
-        else if (!scope.IsUnrestricted)
-        {
-            return SkillResult.Error(scope.BuildRootCreationError());
+            return parentError;
         }
 
-        Guid? calendarSelectionId = null;
-        if (!string.IsNullOrWhiteSpace(calendarIdStr))
+        var (calendarSelectionId, calendarError) = await ResolveCalendarAsync(calendarIdStr);
+        if (calendarError != null)
         {
-            if (!Guid.TryParse(calendarIdStr, out var parsedCalendar))
-            {
-                return SkillResult.Error($"Invalid calendarId UUID: {calendarIdStr}");
-            }
-
-            if (!await _calendarSelectionRepository.Exists(parsedCalendar))
-            {
-                return SkillResult.Error($"Calendar selection '{parsedCalendar}' not found. Use list_calendars to see available IDs.");
-            }
-            calendarSelectionId = parsedCalendar;
+            return calendarError;
         }
 
-        var paymentInterval = PaymentInterval.Monthly;
-        if (!string.IsNullOrWhiteSpace(paymentIntervalStr))
+        var (paymentInterval, paymentIntervalError) = ParsePaymentInterval(paymentIntervalStr);
+        if (paymentIntervalError != null)
         {
-            if (!Enum.TryParse(paymentIntervalStr, ignoreCase: true, out paymentInterval))
-            {
-                return SkillResult.Error($"Invalid paymentInterval '{paymentIntervalStr}'. Allowed: Weekly, Biweekly, Monthly, Individual.");
-            }
+            return paymentIntervalError;
         }
 
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (parsedValidFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(
-            validFromStr, today, context.UserLanguage);
-        var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(
-            validUntilStr, today, context.UserLanguage);
-        if (invalidValidFrom)
+        var (parsedValidFrom, validUntil, dateError) = ParseValidity(
+            validFromStr, validUntilStr, today, context.UserLanguage);
+        if (dateError != null)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
-        }
-
-        if (invalidValidUntil)
-        {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
+            return dateError;
         }
 
         var validFrom = parsedValidFrom ?? today;
@@ -176,12 +138,109 @@ public class CreateGroupSkill : BaseSkillImplementation
                 $"Creating the group '{name}' returned no result — the operation may have failed.");
         }
 
+        return BuildCreatedResult(
+            result.Value.Id, group, name, parentId, paymentInterval, calendarSelectionId, usersKeepingFullVisibility);
+    }
+
+    private async Task<(Guid? ParentId, SkillResult? Error)> ResolveParentAsync(string? parentIdStr, GroupScopeAccess scope)
+    {
+        Guid? parentId = null;
+        if (!string.IsNullOrWhiteSpace(parentIdStr))
+        {
+            if (!Guid.TryParse(parentIdStr, out var parsedParent))
+            {
+                return (null, SkillResult.Error($"Invalid parentId UUID: {parentIdStr}"));
+            }
+
+            var parent = await _groupRepository.Get(parsedParent);
+            if (parent == null)
+            {
+                return (null, SkillResult.Error($"Parent group '{parsedParent}' not found."));
+            }
+
+            if (!scope.IsInScope(parent))
+            {
+                return (null, SkillResult.Error(scope.BuildOutOfScopeError(parent.Name)));
+            }
+            parentId = parsedParent;
+        }
+        else if (!scope.IsUnrestricted)
+        {
+            return (null, SkillResult.Error(scope.BuildRootCreationError()));
+        }
+
+        return (parentId, null);
+    }
+
+    private async Task<(Guid? CalendarSelectionId, SkillResult? Error)> ResolveCalendarAsync(string? calendarIdStr)
+    {
+        Guid? calendarSelectionId = null;
+        if (!string.IsNullOrWhiteSpace(calendarIdStr))
+        {
+            if (!Guid.TryParse(calendarIdStr, out var parsedCalendar))
+            {
+                return (null, SkillResult.Error($"Invalid calendarId UUID: {calendarIdStr}"));
+            }
+
+            if (!await _calendarSelectionRepository.Exists(parsedCalendar))
+            {
+                return (null, SkillResult.Error($"Calendar selection '{parsedCalendar}' not found. Use list_calendars to see available IDs."));
+            }
+            calendarSelectionId = parsedCalendar;
+        }
+
+        return (calendarSelectionId, null);
+    }
+
+    private static (PaymentInterval Interval, SkillResult? Error) ParsePaymentInterval(string? paymentIntervalStr)
+    {
+        var paymentInterval = PaymentInterval.Monthly;
+        if (!string.IsNullOrWhiteSpace(paymentIntervalStr))
+        {
+            if (!Enum.TryParse(paymentIntervalStr, ignoreCase: true, out paymentInterval))
+            {
+                return (paymentInterval, SkillResult.Error($"Invalid paymentInterval '{paymentIntervalStr}'. Allowed: Weekly, Biweekly, Monthly, Individual."));
+            }
+        }
+
+        return (paymentInterval, null);
+    }
+
+    private static (DateTime? ValidFrom, DateTime? ValidUntil, SkillResult? Error) ParseValidity(
+        string? validFromStr, string? validUntilStr, DateTime today, string? userLanguage)
+    {
+        var (parsedValidFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(
+            validFromStr, today, userLanguage);
+        var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(
+            validUntilStr, today, userLanguage);
+        if (invalidValidFrom)
+        {
+            return (null, null, SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!)));
+        }
+
+        if (invalidValidUntil)
+        {
+            return (null, null, SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!)));
+        }
+
+        return (parsedValidFrom, validUntil, null);
+    }
+
+    private static SkillResult BuildCreatedResult(
+        Guid createdGroupId,
+        Group group,
+        string name,
+        Guid? parentId,
+        PaymentInterval paymentInterval,
+        Guid? calendarSelectionId,
+        int usersKeepingFullVisibility)
+    {
         var visibilityAdvisory = FirstGroupVisibilityAdvisory.For(usersKeepingFullVisibility);
 
         return SkillResult.SuccessResult(
             new
             {
-                GroupId = result.Value.Id,
+                GroupId = createdGroupId,
                 group.Name,
                 ParentId = parentId,
                 group.ValidFrom,

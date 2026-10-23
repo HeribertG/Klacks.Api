@@ -84,6 +84,75 @@ public class UpdateGroupSkill : BaseSkillImplementation
         var changed = new List<string>();
         var verifications = new List<Func<Group, bool>>();
 
+        ApplyName(group, parameters, changed, verifications);
+        ApplyDescription(group, parameters, changed, verifications);
+
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+
+        var validFromError = ApplyValidFrom(group, parameters, today, context.UserLanguage, changed, verifications);
+        if (validFromError != null)
+        {
+            return validFromError;
+        }
+
+        var validUntilError = ApplyValidUntil(group, parameters, today, context.UserLanguage, changed, verifications);
+        if (validUntilError != null)
+        {
+            return validUntilError;
+        }
+
+        var paymentIntervalError = ApplyPaymentInterval(group, parameters, changed, verifications);
+        if (paymentIntervalError != null)
+        {
+            return paymentIntervalError;
+        }
+
+        var calendarError = await ApplyCalendarAsync(group, parameters, changed, verifications);
+        if (calendarError != null)
+        {
+            return calendarError;
+        }
+
+        if (changed.Count == 0)
+        {
+            return SkillResult.SuccessResult(
+                new { GroupId = groupId, ChangedFields = Array.Empty<string>() },
+                "No fields supplied for update — group left unchanged.");
+        }
+
+        group.UpdateTime = DateTime.UtcNow;
+        group.CurrentUserUpdated = context.UserName;
+
+        var result = await _selfApi.PutAsync<GroupResource>(
+            SelfApiRoutes.Groups, _groupMapper.ToGroupResource(group), context, SkillName, cancellationToken);
+
+        if (!result.Success)
+        {
+            return SkillResult.Error(result.ErrorMessage!);
+        }
+
+        return BuildUpdatedResult(groupId, group, changed);
+    }
+
+    private static SkillResult BuildUpdatedResult(Guid groupId, Group group, List<string> changed)
+    {
+        return SkillResult.SuccessResult(
+            new
+            {
+                GroupId = groupId,
+                ChangedFields = changed,
+                group.Name,
+                group.ValidFrom,
+                group.ValidUntil,
+                PaymentInterval = group.PaymentInterval.ToString(),
+                group.CalendarSelectionId
+            },
+            $"Group '{group.Name}' updated ({string.Join(", ", changed)})");
+    }
+
+    private static void ApplyName(
+        Group group, Dictionary<string, object> parameters, List<string> changed, List<Func<Group, bool>> verifications)
+    {
         var name = GetParameter<string>(parameters, "name");
         if (!string.IsNullOrWhiteSpace(name) && name != group.Name)
         {
@@ -91,7 +160,11 @@ public class UpdateGroupSkill : BaseSkillImplementation
             changed.Add("name");
             verifications.Add(persisted => persisted.Name == name);
         }
+    }
 
+    private static void ApplyDescription(
+        Group group, Dictionary<string, object> parameters, List<string> changed, List<Func<Group, bool>> verifications)
+    {
         var description = GetParameter<string>(parameters, "description");
         if (description != null && description != group.Description)
         {
@@ -99,12 +172,19 @@ public class UpdateGroupSkill : BaseSkillImplementation
             changed.Add("description");
             verifications.Add(persisted => persisted.Description == description);
         }
+    }
 
-        var today = await _companyClock.GetTodayAsync(cancellationToken);
-
+    private static SkillResult? ApplyValidFrom(
+        Group group,
+        Dictionary<string, object> parameters,
+        DateTime today,
+        string? userLanguage,
+        List<string> changed,
+        List<Func<Group, bool>> verifications)
+    {
         var validFromStr = GetParameter<string>(parameters, "validFrom");
         var (parsedValidFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(
-            validFromStr, today, context.UserLanguage);
+            validFromStr, today, userLanguage);
         if (invalidValidFrom)
         {
             return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
@@ -118,11 +198,22 @@ public class UpdateGroupSkill : BaseSkillImplementation
             verifications.Add(persisted => persisted.ValidFrom == newValidFrom);
         }
 
+        return null;
+    }
+
+    private static SkillResult? ApplyValidUntil(
+        Group group,
+        Dictionary<string, object> parameters,
+        DateTime today,
+        string? userLanguage,
+        List<string> changed,
+        List<Func<Group, bool>> verifications)
+    {
         var validUntilStr = GetParameter<string>(parameters, "validUntil");
         if (validUntilStr != null)
         {
             var (newValidUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(
-                validUntilStr, today, context.UserLanguage);
+                validUntilStr, today, userLanguage);
             if (invalidValidUntil)
             {
                 return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
@@ -136,6 +227,12 @@ public class UpdateGroupSkill : BaseSkillImplementation
             }
         }
 
+        return null;
+    }
+
+    private static SkillResult? ApplyPaymentInterval(
+        Group group, Dictionary<string, object> parameters, List<string> changed, List<Func<Group, bool>> verifications)
+    {
         var paymentIntervalStr = GetParameter<string>(parameters, "paymentInterval");
         if (!string.IsNullOrWhiteSpace(paymentIntervalStr))
         {
@@ -153,6 +250,12 @@ public class UpdateGroupSkill : BaseSkillImplementation
             }
         }
 
+        return null;
+    }
+
+    private async Task<SkillResult?> ApplyCalendarAsync(
+        Group group, Dictionary<string, object> parameters, List<string> changed, List<Func<Group, bool>> verifications)
+    {
         var calendarIdStr = GetParameter<string>(parameters, "calendarId");
         if (calendarIdStr != null)
         {
@@ -181,35 +284,6 @@ public class UpdateGroupSkill : BaseSkillImplementation
             }
         }
 
-        if (changed.Count == 0)
-        {
-            return SkillResult.SuccessResult(
-                new { GroupId = groupId, ChangedFields = Array.Empty<string>() },
-                "No fields supplied for update — group left unchanged.");
-        }
-
-        group.UpdateTime = DateTime.UtcNow;
-        group.CurrentUserUpdated = context.UserName;
-
-        var result = await _selfApi.PutAsync<GroupResource>(
-            SelfApiRoutes.Groups, _groupMapper.ToGroupResource(group), context, SkillName, cancellationToken);
-
-        if (!result.Success)
-        {
-            return SkillResult.Error(result.ErrorMessage!);
-        }
-
-        return SkillResult.SuccessResult(
-            new
-            {
-                GroupId = groupId,
-                ChangedFields = changed,
-                group.Name,
-                group.ValidFrom,
-                group.ValidUntil,
-                PaymentInterval = group.PaymentInterval.ToString(),
-                group.CalendarSelectionId
-            },
-            $"Group '{group.Name}' updated ({string.Join(", ", changed)})");
+        return null;
     }
 }

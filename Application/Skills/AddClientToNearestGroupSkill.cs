@@ -102,15 +102,7 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
                 "This client has no address with coordinates, so the nearest group could not be determined. Nothing was changed.");
         }
 
-        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
-        var groups = scope.Filter(await _groupRepository.List())
-            .Where(g => !g.IsDeleted)
-            .ToList();
-
-        var anchors = groups
-            .Where(g => g.Latitude.HasValue && g.Longitude.HasValue)
-            .Select(g => new GroupAnchor(g.Id, g.Latitude!.Value, g.Longitude!.Value))
-            .ToList();
+        var (groups, anchors) = await LoadGroupAnchorsAsync(context, cancellationToken);
         if (anchors.Count == 0)
         {
             return SkillResult.SuccessResult(
@@ -134,17 +126,7 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
             .Any(gi => !gi.IsDeleted && gi.GroupId == targetGroup.Id);
         if (alreadyInTarget)
         {
-            return SkillResult.SuccessResult(
-                new
-                {
-                    ClientId = clientId,
-                    GroupId = targetGroup.Id,
-                    GroupName = targetGroup.Name,
-                    Added = false,
-                    DistanceKm = Math.Round(nearest.DistanceKm, 2),
-                    Reason = "client already in nearest group"
-                },
-                $"Client is already in the nearest group '{targetGroup.Name}'. Nothing was changed.");
+            return BuildAlreadyInGroupResult(clientId, targetGroup, nearest);
         }
 
         if (givenStart is null && startMode == GroupMembershipStartMode.Fixed)
@@ -154,6 +136,50 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
                     $"add this client to the nearest group '{targetGroup.Name}'"));
         }
 
+        return await AddToGroupAsync(
+            context, clientId, targetGroup, nearest, givenStart, startMode, cancellationToken);
+    }
+
+    private async Task<(List<Group> Groups, List<GroupAnchor> Anchors)> LoadGroupAnchorsAsync(
+        SkillExecutionContext context, CancellationToken cancellationToken)
+    {
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var groups = scope.Filter(await _groupRepository.List())
+            .Where(g => !g.IsDeleted)
+            .ToList();
+
+        var anchors = groups
+            .Where(g => g.Latitude.HasValue && g.Longitude.HasValue)
+            .Select(g => new GroupAnchor(g.Id, g.Latitude!.Value, g.Longitude!.Value))
+            .ToList();
+        return (groups, anchors);
+    }
+
+    private static SkillResult BuildAlreadyInGroupResult(
+        Guid clientId, Group targetGroup, CustomerGroupAssignment nearest)
+    {
+        return SkillResult.SuccessResult(
+            new
+            {
+                ClientId = clientId,
+                GroupId = targetGroup.Id,
+                GroupName = targetGroup.Name,
+                Added = false,
+                DistanceKm = Math.Round(nearest.DistanceKm, 2),
+                Reason = "client already in nearest group"
+            },
+            $"Client is already in the nearest group '{targetGroup.Name}'. Nothing was changed.");
+    }
+
+    private async Task<SkillResult> AddToGroupAsync(
+        SkillExecutionContext context,
+        Guid clientId,
+        Group targetGroup,
+        CustomerGroupAssignment nearest,
+        DateTime? givenStart,
+        GroupMembershipStartMode startMode,
+        CancellationToken cancellationToken)
+    {
         var startPlan = await _startPlanner.PlanAsync(
             [clientId], givenStart, startMode, defaultStart: null, cancellationToken);
         var startInfo = startPlan.Describe([clientId]);
