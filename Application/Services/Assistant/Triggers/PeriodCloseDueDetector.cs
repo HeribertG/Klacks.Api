@@ -213,7 +213,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
         var lagDays = storedLagDays ?? 0;
         var referenceDay = today.AddDays(-lagDays);
         var weekStart = await _weekConfiguration.GetWeekStartAsync(referenceDay, cancellationToken);
-        var endOfConfiguredWeek = weekStart.AddDays(6);
+        var endOfConfiguredWeek = weekStart.AddDays(CalendarConstants.DaysPerWeek - 1);
         var staffing = GroupStaffingLookup.Build(
             groups,
             await _groupRepository.GetGroupIdsWithMembersAsync(cancellationToken));
@@ -268,7 +268,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
     {
         var anchor = DateOnly.FromDateTime(groupAnchor);
         var daysSinceAnchor = today.DayNumber - anchor.DayNumber;
-        var positionInCycle = ((daysSinceAnchor % 14) + 14) % 14;
-        return today.AddDays(13 - positionInCycle);
+        var positionInCycle = ((daysSinceAnchor % CalendarConstants.DaysPerFortnight) + CalendarConstants.DaysPerFortnight) % CalendarConstants.DaysPerFortnight;
+        return today.AddDays(CalendarConstants.DaysPerFortnight - 1 - positionInCycle);
     }
 }
