@@ -21,13 +21,17 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// parent) and the reset order must be visible to a group-restricted caller; a hidden one is answered with exactly the
 /// error a missing one gets, before anything is validated or written. The hierarchy is server-owned: an update keeps the
 /// stored order reference, customer and tree fields, a new piece takes order reference and customer from its parent,
-/// whatever the request carries. The sealed order and a draft cannot be the target of a cut update.
+/// whatever the request carries. The sealed order and a draft cannot be the target of a cut update. Every new piece starts
+/// with default expenses of its own (fresh rows): the rows the request carries, else copies of the rows of the shift it is
+/// cut from, so each part of a cut order carries the same expenses as the plannable shift.
 /// </summary>
 /// <param name="shiftVisibilityGuard">Decides whether the caller may touch a shift and the groups a piece changes</param>
+/// <param name="shiftExpensesRepository">Reads the stored default expenses a new piece copies</param>
 public class ShiftCutFacade : IShiftCutFacade
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftRequiredQualificationRepository _requirementRepository;
+    private readonly IShiftExpensesRepository _shiftExpensesRepository;
     private readonly IShiftTreeService _shiftTreeService;
     private readonly IShiftResetService _shiftResetService;
     private readonly IShiftValidator _shiftValidator;
@@ -45,8 +49,10 @@ public class ShiftCutFacade : IShiftCutFacade
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IShiftVisibilityGuard shiftVisibilityGuard,
+        IShiftExpensesRepository shiftExpensesRepository,
         ILogger<ShiftCutFacade> logger)
     {
+        _shiftExpensesRepository = shiftExpensesRepository;
         _shiftVisibilityGuard = shiftVisibilityGuard;
         _shiftRepository = shiftRepository;
         _requirementRepository = requirementRepository;
@@ -71,6 +77,7 @@ public class ShiftCutFacade : IShiftCutFacade
 
         var processedShifts = new List<Shift>();
         var requirementsOfCreated = new Dictionary<Guid, List<ShiftRequiredQualification>>();
+        var expenseSources = new CutExpenseSources(PlannableShiftsConvertedInBatch(lineages));
 
         _logger.LogInformation("=== PHASE 1: Processing operations and setting hierarchy relations ===");
 
@@ -86,7 +93,7 @@ public class ShiftCutFacade : IShiftCutFacade
             {
                 _logger.LogInformation("Processing CREATE with ShiftId={ShiftId}, ParentId={ParentId}",
                     op.Data.Id, op.ParentId);
-                var createdShift = await ProcessCreate(op, lineages[op], requirementsOfCreated);
+                var createdShift = await ProcessCreate(op, lineages[op], requirementsOfCreated, expenseSources);
                 processedShifts.Add(createdShift);
             }
             else
@@ -348,7 +355,8 @@ public class ShiftCutFacade : IShiftCutFacade
     private async Task<Shift> ProcessCreate(
         CutOperation op,
         CutOperationLineage lineage,
-        Dictionary<Guid, List<ShiftRequiredQualification>> requirementsOfCreated)
+        Dictionary<Guid, List<ShiftRequiredQualification>> requirementsOfCreated,
+        CutExpenseSources expenseSources)
     {
         if (op.Data.Id == Guid.Empty)
         {
@@ -399,6 +407,9 @@ public class ShiftCutFacade : IShiftCutFacade
 
         requirementsOfCreated[shift.Id] = shift.RequiredQualifications;
 
+        shift.ShiftExpenses = await DefaultExpensesForNewPieceAsync(shift, parentShift, expenseSources);
+        expenseSources.OfCreated[shift.Id] = shift.ShiftExpenses;
+
         _logger.LogInformation("Adding shift to repository: ID={Id}", shift.Id);
         await _shiftRepository.Add(shift);
 
@@ -433,6 +444,48 @@ public class ShiftCutFacade : IShiftCutFacade
         requirementsOfCreated[parentId] = parentRows;
         return ShiftRequirementMaterializer.CopyAll(parentRows, pieceId);
     }
+
+    /// <summary>
+    /// The default expense rows a new cut piece starts with, always as fresh rows of the piece. Rows the request carries
+    /// are taken as they are (the UI form clones its parent, rows included, so copying the parent as well would double
+    /// them). Otherwise the piece copies the rows of the shift it is cut from: a piece created earlier in this batch passes
+    /// on its rows; a sealed order passes on the rows of its plannable shift converted in this batch (the planner edits
+    /// that copy, so it is authoritative and the first part keeps exactly those rows), or its own rows when the batch
+    /// converts none; any other stored parent passes on its stored rows.
+    /// </summary>
+    /// <param name="piece">The new piece as mapped from the request</param>
+    /// <param name="parentShift">Shift the piece is cut from</param>
+    /// <param name="sources">Rows of the pieces created so far and the plannable shifts converted in this batch</param>
+    private async Task<List<ShiftExpenses>> DefaultExpensesForNewPieceAsync(
+        Shift piece, Shift parentShift, CutExpenseSources sources)
+    {
+        if (piece.ShiftExpenses.Count > 0)
+        {
+            return ShiftDefaultExpenseCopier.CopyAll(piece.ShiftExpenses, piece.Id);
+        }
+
+        var sourceId = parentShift.Status == ShiftStatus.SealedOrder
+            && sources.PlannableByOrder.TryGetValue(parentShift.Id, out var plannableId)
+                ? plannableId
+                : parentShift.Id;
+
+        if (sources.OfCreated.TryGetValue(sourceId, out var batchRows))
+        {
+            return ShiftDefaultExpenseCopier.CopyAll(batchRows, piece.Id);
+        }
+
+        var storedRows = await _shiftExpensesRepository.GetByShiftIdsAsync([sourceId]);
+        return ShiftDefaultExpenseCopier.CopyAll(storedRows, piece.Id);
+    }
+
+    private static Dictionary<Guid, Guid> PlannableShiftsConvertedInBatch(
+        Dictionary<CutOperation, CutOperationLineage> lineages)
+        => lineages
+            .Where(entry => entry.Key.Type == CutOperation.UpdateType
+                && entry.Value.StoredStatus == ShiftStatus.OriginalShift
+                && entry.Value.OriginalId.HasValue)
+            .GroupBy(entry => entry.Value.OriginalId!.Value)
+            .ToDictionary(group => group.Key, group => group.First().Key.Data.Id);
 
     private Guid ResolveParentId(string parentId)
     {
