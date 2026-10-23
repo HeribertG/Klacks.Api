@@ -65,7 +65,7 @@ public sealed class HolisticHarmonizerDeterministicEngine
 
         var fitness = new MemoizedHarmonyFitnessEvaluator(new HarmonyScorer());
         var components = HolisticHarmonizerComponents.Build(context, fitness, HolisticHarmonizerComponents.UntrimmedPool);
-        var options = DeterministicSearchOptions.Default;
+        var options = DeterministicSearchOptions.Harmonized;
         var optimizer = new DeterministicHarmonyOptimizer(components, options);
 
         var result = optimizer.Run(working, progress, cancellationToken);
@@ -94,6 +94,20 @@ public sealed class HolisticHarmonizerDeterministicEngine
             result.TotalEvaluationBudgetHit,
             fitness.Hits,
             fitness.Misses);
+
+        if (result.HarmonyBefore is { } harmonyBefore && result.HarmonyAfter is { } harmonyAfter)
+        {
+            _logger.LogInformation(
+                "Holistic Harmonizer (deterministic) global harmony {Before:F3} -> {After:F3} (rhythm {Rhythm:F3}, fairness {Fairness:F3}); region rebuild rounds={Rounds} candidates={Candidates} kept={Kept} budgetHit={BudgetHit}",
+                harmonyBefore.Total,
+                harmonyAfter.Total,
+                harmonyAfter.Rhythm,
+                harmonyAfter.Fairness,
+                result.RegionRebuild?.RoundsRun ?? 0,
+                result.RegionRebuild?.CandidatesFound ?? 0,
+                result.RegionRebuild?.AppliedBatches.Count ?? 0,
+                result.RegionRebuild?.WallClockBudgetHit ?? false);
+        }
 
         PlanningRuleHardCounts? hardCounts = null;
         if (components.Rules is { } rules)
@@ -129,6 +143,8 @@ public sealed class HolisticHarmonizerDeterministicEngine
         {
             InvalidPlanningRuleIds = context.Rules?.InvalidHardRuleIds ?? [],
             PlanningRuleHardCounts = hardCounts,
+            HarmonyBefore = result.HarmonyBefore,
+            HarmonyAfter = result.HarmonyAfter,
         };
     }
 
