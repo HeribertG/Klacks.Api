@@ -3,7 +3,9 @@
 ; Inno Setup wrapper of the office-PC installation: one Klacks-Setup-win-x64.exe instead of a ZIP with Installieren.cmd.
 ; It only asks for the country, runs scripts\Install-KlacksPackage.ps1 hidden and shows its progress; all installation
 ; logic stays in the PowerShell scripts (proven by the native Windows gate). Uninstall runs Uninstall-Klacks.ps1 hidden
-; and keeps the database unless the user agrees (or /REMOVEDATA is given).
+; and keeps the database unless the user agrees (or /REMOVEDATA is given). If that script fails or cannot be started,
+; the uninstallation is aborted before Inno removes anything, so Klacks stays listed under installed apps and can be
+; uninstalled again; the script's report is kept as {app}\Deinstallationsbericht-*.txt.
 ;
 ; Defines (iscc /D...): Version = x.y.z[-suffix], VersionCore = x.y.z (defaults to Version), SourceDir = package staging folder (as built by New-KlacksOfficePackage.ps1),
 ; OutputDir = target folder, Sign = sign setup and uninstaller (needs /Ssigntool=<command>), TestStub = dev build that needs no administrator rights (never shipped).
@@ -11,6 +13,7 @@
 ; Silent use:  Klacks-Setup-win-x64.exe /VERYSILENT /SUPPRESSMSGBOXES /REGION=CH /PORT=5180 /LOG=setup.log
 ;              unins000.exe /VERYSILENT [/REMOVEDATA]
 ; Exit code 0 = Klacks installed (it may still be starting), 1 = installation failed (report path in the log).
+; Uninstaller exit code 0 = Klacks removed, non-zero = not removed (Klacks stays registered; see the uninstall report).
 
 #ifndef Version
   #error Pass /DVersion=x.y.z
@@ -30,6 +33,8 @@
 #define ReadyMarker "READY"
 #define CompletedMarker "COMPLETED"
 #define FailedMarker "FAILED"
+#define ReportTimestampFormat "yyyymmdd-hhnnss"
+#define UninstallReportPrefix "Deinstallationsbericht-"
 #ifdef TestStub
   #define PowerShellExe "{sysnative}\WindowsPowerShell\v1.0\powershell.exe"
 #else
@@ -90,6 +95,9 @@ english.FinishFailed=The installation did not finish. Please send the installati
 english.AskRemoveData=Also delete the database, settings and backups of Klacks?%n%nChoose No to keep your data for a later installation.
 english.NewerInstalled=Klacks %1 is already installed (it updated itself). This setup contains the older version %2 and will not replace it.
 english.InvalidParameter=Invalid value for /%1.
+english.UninstallFailed=Klacks could not be removed completely. It stays in the list of installed apps so that you can start the uninstallation again from there.%n%nPlease restart the computer and then start the uninstallation again.
+english.UninstallFailedReport=If it fails again, please send the uninstallation report to your contact person:
+english.UninstallFailedContact=If it fails again, please contact your contact person.
 german.RegionTitle=Land
 german.RegionDescription=In welchem Land wird Klacks eingesetzt?
 german.RegionPrompt=Klacks übernimmt die Feiertage, die Zeitzone und die Arbeitszeitregeln dieses Landes:
@@ -103,6 +111,9 @@ german.FinishFailed=Die Installation wurde nicht abgeschlossen. Bitte senden Sie
 german.AskRemoveData=Sollen auch die Datenbank, die Einstellungen und die Sicherungen von Klacks gelöscht werden?%n%nMit Nein bleiben Ihre Daten für eine spätere Installation erhalten.
 german.NewerInstalled=Klacks %1 ist bereits installiert (es hat sich selbst aktualisiert). Dieses Setup enthält die ältere Version %2 und ersetzt sie nicht.
 german.InvalidParameter=Ungültiger Wert für /%1.
+german.UninstallFailed=Klacks konnte nicht vollständig entfernt werden. Klacks bleibt in der Liste der installierten Apps, damit Sie die Deinstallation dort erneut starten können.%n%nBitte starten Sie den Computer neu und starten Sie die Deinstallation danach noch einmal.
+german.UninstallFailedReport=Falls es wieder nicht klappt, senden Sie bitte den Deinstallationsbericht an Ihre Ansprechperson:
+german.UninstallFailedContact=Falls es wieder nicht klappt, wenden Sie sich bitte an Ihre Ansprechperson.
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -121,6 +132,7 @@ Name: "{autodesktop}\Klacks"; Filename: "{app}\Klacks.url"; Tasks: desktopicon
 
 [UninstallDelete]
 Type: files; Name: "{app}\Installationsbericht-*.txt"
+Type: files; Name: "{app}\{#UninstallReportPrefix}*.txt"
 
 [Run]
 Filename: "http://localhost:{code:GetPort}"; Description: "{cm:OpenKlacks}"; Flags: postinstall shellexec nowait skipifsilent; Check: InstallSucceeded
@@ -399,7 +411,7 @@ begin
   InstallStatusFile := ExpandConstant('{tmp}\klacks-install-status.txt');
   DeleteFile(InstallStatusFile);
   ReportFile := ExpandConstant('{commonappdata}\Klacks\logs\Installationsbericht-') +
-    GetDateTimeString('yyyymmdd-hhnnss', #0, #0) + '.txt';
+    GetDateTimeString('{#ReportTimestampFormat}', #0, #0) + '.txt';
   Region := GetRegion;
 
   Arguments := '-NoProfile -ExecutionPolicy Bypass -File "' +
@@ -457,19 +469,43 @@ begin
     Result := SuppressibleMsgBox(CustomMessage('AskRemoveData'), mbConfirmation, MB_YESNO or MB_DEFBUTTON2, IDNO) = IDYES;
 end;
 
+procedure AbortUninstall(const UninstallReport: String);
+var
+  MessageText: String;
+begin
+  MessageText := CustomMessage('UninstallFailed') + #13#10#13#10;
+  if FileExists(UninstallReport) then
+    MessageText := MessageText + CustomMessage('UninstallFailedReport') + #13#10 + UninstallReport
+  else
+    MessageText := MessageText + CustomMessage('UninstallFailedContact');
+  Log('Uninstallation aborted before removing anything; Klacks stays registered so that it can be uninstalled again.');
+  if not UninstallSilent then
+    SuppressibleMsgBox(MessageText, mbError, MB_OK, IDOK);
+  Abort;
+end;
+
+{ Runs in usUninstall: after the user confirmed, before Inno removes files and the uninstall entry. Abort here ends
+  the uninstaller with a non-zero exit code and leaves the installation registered (see the Abort topic of the help). }
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var
-  Arguments: String;
+  Arguments, UninstallReport: String;
   ResultCode: Integer;
+  Started: Boolean;
 begin
   if CurUninstallStep <> usUninstall then
     Exit;
-  Arguments := '-NoProfile -ExecutionPolicy Bypass -File "' + ExpandConstant('{app}\scripts\Uninstall-Klacks.ps1') + '"';
+  UninstallReport := ExpandConstant('{app}\{#UninstallReportPrefix}') +
+    GetDateTimeString('{#ReportTimestampFormat}', #0, #0) + '.txt';
+  Arguments := '-NoProfile -ExecutionPolicy Bypass -File "' + ExpandConstant('{app}\scripts\Uninstall-Klacks.ps1') + '"' +
+    ' -LogPath "' + UninstallReport + '"';
   if AskRemoveData then
     Arguments := Arguments + ' -RemoveData';
   Log('Uninstall script arguments: ' + Arguments);
-  if not Exec(ExpandConstant('{#PowerShellExe}'), Arguments, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-    Log('Uninstall script could not be started')
+  Started := Exec(ExpandConstant('{#PowerShellExe}'), Arguments, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  if not Started then
+    Log('Uninstall script could not be started: ' + SysErrorMessage(ResultCode))
   else
     Log('Uninstall script exit code ' + IntToStr(ResultCode));
+  if (not Started) or (ResultCode <> 0) then
+    AbortUninstall(UninstallReport);
 end;

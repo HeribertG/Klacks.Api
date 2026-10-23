@@ -452,6 +452,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           & .\Klacks.Api\deploy\native\windows\Uninstall-Klacks.ps1 -RemoveData
+          if ($LASTEXITCODE -ne 0) { throw "Uninstall-Klacks.ps1 exited with $LASTEXITCODE." }
           foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater', 'KlacksStt') {
             if (Get-Service -Name $name -ErrorAction SilentlyContinue) { throw "Service $name is still registered." }
           }
@@ -542,8 +543,17 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $uninstaller = "$env:ProgramFiles\Klacks Setup\unins000.exe"
-          $exitCode = (Start-Process -FilePath $uninstaller -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/REMOVEDATA' -Wait -PassThru).ExitCode
-          if ($exitCode -ne 0) { throw "Uninstaller exited with $exitCode." }
+          $log = Join-Path $env:RUNNER_TEMP 'uninstall.log'
+          $exitCode = (Start-Process -FilePath $uninstaller -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/REMOVEDATA', "/LOG=$log" -Wait -PassThru).ExitCode
+          if ($exitCode -ne 0) {
+            Get-ChildItem "$env:ProgramFiles\Klacks Setup" -Filter 'Deinstallationsbericht-*.txt' -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName }
+            Get-Content $log -Tail 40 -ErrorAction SilentlyContinue
+            throw "Uninstaller exited with $exitCode."
+          }
+          # The uninstall entry is removed before the uninstaller reports its exit code; only the setup folder with
+          # unins000.exe is deleted afterwards by the uninstaller's temporary copy, so it is not checked here.
+          $entry = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue | Where-Object DisplayName -eq 'Klacks'
+          if ($entry) { throw 'Klacks is still listed under Apps & Features after the uninstall.' }
           foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater', 'KlacksStt') {
             if (Get-Service -Name $name -ErrorAction SilentlyContinue) { throw "Service $name is still registered." }
           }
