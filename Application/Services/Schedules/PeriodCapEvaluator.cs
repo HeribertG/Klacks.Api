@@ -624,12 +624,12 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
                 return (monthStart, monthStart.AddMonths(1).AddDays(-1));
 
             case PeriodCapPeriod.Quarter:
-                var quarterStartMonth = (((date.Month - 1) / 3) * 3) + 1;
+                var quarterStartMonth = (((date.Month - 1) / CalendarConstants.MonthsPerQuarter) * CalendarConstants.MonthsPerQuarter) + 1;
                 var quarterStart = new DateOnly(date.Year, quarterStartMonth, 1);
-                return (quarterStart, quarterStart.AddMonths(3).AddDays(-1));
+                return (quarterStart, quarterStart.AddMonths(CalendarConstants.MonthsPerQuarter).AddDays(-1));
 
             case PeriodCapPeriod.Year:
-                return (new DateOnly(date.Year, 1, 1), new DateOnly(date.Year, 12, 31));
+                return (new DateOnly(date.Year, 1, 1), new DateOnly(date.Year, CalendarConstants.MonthsPerYear, DateTime.DaysInMonth(date.Year, CalendarConstants.MonthsPerYear)));
 
             case PeriodCapPeriod.CustomWeeks:
                 if (!rule.CustomPeriodWeeks.HasValue || rule.CustomPeriodWeeks.Value <= 0)
