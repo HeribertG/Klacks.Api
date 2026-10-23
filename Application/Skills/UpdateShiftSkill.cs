@@ -29,6 +29,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -71,14 +72,27 @@ public class UpdateShiftSkill : BaseSkillImplementation
         var description = GetParameter<string>(parameters, "description");
 
         var startRaw = GetParameter<string>(parameters, "startTime");
-        if (!string.IsNullOrWhiteSpace(startRaw) && !TimeOnly.TryParse(startRaw, out _))
+        TimeOnly? startTime = null;
+        if (!string.IsNullOrWhiteSpace(startRaw))
         {
-            return SkillResult.Error($"Invalid startTime: {startRaw}.");
+            if (!SkillCalendarStringParser.TryParseTimeOnly(startRaw, context.UserLanguage, out var parsedStart))
+            {
+                return SkillResult.Error($"Invalid startTime: {startRaw}.");
+            }
+
+            startTime = parsedStart;
         }
+
         var endRaw = GetParameter<string>(parameters, "endTime");
-        if (!string.IsNullOrWhiteSpace(endRaw) && !TimeOnly.TryParse(endRaw, out _))
+        TimeOnly? endTime = null;
+        if (!string.IsNullOrWhiteSpace(endRaw))
         {
-            return SkillResult.Error($"Invalid endTime: {endRaw}.");
+            if (!SkillCalendarStringParser.TryParseTimeOnly(endRaw, context.UserLanguage, out var parsedEnd))
+            {
+                return SkillResult.Error($"Invalid endTime: {endRaw}.");
+            }
+
+            endTime = parsedEnd;
         }
         var sumEmployees = GetParameter<int?>(parameters, "sumEmployees");
         var fromDate = GetParameter<DateOnly?>(parameters, "fromDate");
@@ -100,8 +114,8 @@ public class UpdateShiftSkill : BaseSkillImplementation
         var resource = _scheduleMapper.ToShiftResource(existing);
         ApplyMetadata(resource, name, abbreviation, description);
 
-        if (!string.IsNullOrWhiteSpace(startRaw)) resource.StartShift = TimeOnly.Parse(startRaw);
-        if (!string.IsNullOrWhiteSpace(endRaw)) resource.EndShift = TimeOnly.Parse(endRaw);
+        if (startTime.HasValue) resource.StartShift = startTime.Value;
+        if (endTime.HasValue) resource.EndShift = endTime.Value;
         if (sumEmployees.HasValue && sumEmployees.Value > 0) resource.SumEmployees = sumEmployees.Value;
         if (fromDate.HasValue) resource.FromDate = fromDate.Value;
         if (untilDate.HasValue) resource.UntilDate = untilDate.Value;

@@ -23,6 +23,7 @@ using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -80,7 +81,7 @@ public class UpdateWorkChangeSkill : BaseSkillImplementation
         var startTimeRaw = GetParameter<string>(parameters, "startTime");
         if (!string.IsNullOrWhiteSpace(startTimeRaw))
         {
-            if (!TimeOnly.TryParse(startTimeRaw, out var startTime))
+            if (!SkillCalendarStringParser.TryParseTimeOnly(startTimeRaw, context.UserLanguage, out var startTime))
             {
                 return SkillResult.Error($"Invalid startTime '{startTimeRaw}'. Expected HH:mm.");
             }
@@ -94,7 +95,7 @@ public class UpdateWorkChangeSkill : BaseSkillImplementation
         var endTimeRaw = GetParameter<string>(parameters, "endTime");
         if (!string.IsNullOrWhiteSpace(endTimeRaw))
         {
-            if (!TimeOnly.TryParse(endTimeRaw, out var endTime))
+            if (!SkillCalendarStringParser.TryParseTimeOnly(endTimeRaw, context.UserLanguage, out var endTime))
             {
                 return SkillResult.Error($"Invalid endTime '{endTimeRaw}'. Expected HH:mm.");
             }

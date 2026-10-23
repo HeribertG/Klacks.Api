@@ -22,6 +22,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -74,9 +75,9 @@ public class AddBreakSkill : BaseSkillImplementation
             return SkillResult.Error($"Absence type {absenceId} not found. Use list_absence_types to see available IDs.");
         }
 
-        var startTime = !string.IsNullOrWhiteSpace(startTimeRaw) && TimeOnly.TryParse(startTimeRaw, out var sParsed)
+        var startTime = !string.IsNullOrWhiteSpace(startTimeRaw) && SkillCalendarStringParser.TryParseTimeOnly(startTimeRaw, context.UserLanguage, out var sParsed)
             ? sParsed : new TimeOnly(0, 0);
-        var endTime = !string.IsNullOrWhiteSpace(endTimeRaw) && TimeOnly.TryParse(endTimeRaw, out var eParsed)
+        var endTime = !string.IsNullOrWhiteSpace(endTimeRaw) && SkillCalendarStringParser.TryParseTimeOnly(endTimeRaw, context.UserLanguage, out var eParsed)
             ? eParsed : new TimeOnly(23, 59);
         var workTime = workTimeRaw ?? 8m;
 

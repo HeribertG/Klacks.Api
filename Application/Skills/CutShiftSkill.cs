@@ -23,6 +23,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -66,7 +67,7 @@ public class CutShiftSkill : BaseSkillImplementation
         var partsRaw = GetRequiredString(parameters, "parts");
         var namesRaw = GetParameter<string>(parameters, "partNames") ?? string.Empty;
 
-        var (ranges, rangeError) = ParseParts(partsRaw);
+        var (ranges, rangeError) = ParseParts(partsRaw, context.UserLanguage);
         if (ranges is null)
         {
             return SkillResult.Error(rangeError!);
@@ -101,9 +102,9 @@ public class CutShiftSkill : BaseSkillImplementation
         return BuildSuccessResult(originalShift, sealedOrderId, results, groupResources, plan.Summaries);
     }
 
-    private static (List<(TimeOnly Start, TimeOnly End)>? Ranges, string? Error) ParseParts(string partsRaw)
+    private static (List<(TimeOnly Start, TimeOnly End)>? Ranges, string? Error) ParseParts(string partsRaw, string? language)
     {
-        var ranges = ParseRanges(partsRaw, out var rangeError);
+        var ranges = ParseRanges(partsRaw, language, out var rangeError);
         if (rangeError != null)
         {
             return (null, rangeError);
@@ -278,7 +279,7 @@ public class CutShiftSkill : BaseSkillImplementation
         };
     }
 
-    private static List<(TimeOnly Start, TimeOnly End)> ParseRanges(string raw, out string? error)
+    private static List<(TimeOnly Start, TimeOnly End)> ParseRanges(string raw, string? language, out string? error)
     {
         error = null;
         var ranges = new List<(TimeOnly, TimeOnly)>();
@@ -296,7 +297,7 @@ public class CutShiftSkill : BaseSkillImplementation
             var startStr = entry[..dash].Trim();
             var endStr = entry[(dash + 1)..].Trim();
 
-            if (!TimeOnly.TryParse(startStr, out var start) || !TimeOnly.TryParse(endStr, out var end))
+            if (!SkillCalendarStringParser.TryParseTimeOnly(startStr, language, out var start) || !SkillCalendarStringParser.TryParseTimeOnly(endStr, language, out var end))
             {
                 error = $"Invalid time in part '{entry}'. Expected format 'HH:mm-HH:mm'.";
                 return ranges;

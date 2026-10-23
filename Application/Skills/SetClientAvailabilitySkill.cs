@@ -20,6 +20,7 @@ using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -66,7 +67,7 @@ public class SetClientAvailabilitySkill : BaseSkillImplementation
             days = [];
             foreach (var token in datesRaw.Split(DateListSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                if (!DateOnly.TryParse(token, out var parsed))
+                if (!SkillCalendarStringParser.TryParseDateOnly(token, context.UserLanguage, out var parsed))
                 {
                     return SkillResult.Error($"Invalid date '{token}' in parameter 'dates'. Use ISO format yyyy-MM-dd.");
                 }

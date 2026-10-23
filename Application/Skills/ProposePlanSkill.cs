@@ -21,6 +21,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -48,11 +49,11 @@ public class ProposePlanSkill : BaseSkillImplementation
         var untilStr = GetRequiredString(parameters, "untilDate");
         var placementsJson = GetRequiredString(parameters, "placements");
 
-        if (!DateOnly.TryParse(fromStr, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(fromStr, context.UserLanguage, out var fromDate))
         {
             return SkillResult.Error($"Invalid fromDate: {fromStr}.");
         }
-        if (!DateOnly.TryParse(untilStr, out var untilDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(untilStr, context.UserLanguage, out var untilDate))
         {
             return SkillResult.Error($"Invalid untilDate: {untilStr}.");
         }
@@ -87,7 +88,7 @@ public class ProposePlanSkill : BaseSkillImplementation
             {
                 return SkillResult.Error($"Invalid shiftId in placements: {entry.ShiftId}.");
             }
-            if (!DateOnly.TryParse(entry.Date, out var date))
+            if (!SkillCalendarStringParser.TryParseDateOnly(entry.Date, context.UserLanguage, out var date))
             {
                 return SkillResult.Error($"Invalid date in placements: {entry.Date}.");
             }

@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 using Klacks.Api.Application.DTOs.Staffs;
@@ -68,7 +69,7 @@ public class AssignContractToClientSkill : BaseSkillImplementation
             return SkillResult.Error($"Invalid contract ID format: {contractIdStr}");
         }
 
-        if (!DateOnly.TryParse(fromDateStr, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(fromDateStr, context.UserLanguage, out var fromDate))
         {
             return SkillResult.Error($"Invalid from date format: {fromDateStr}. Expected format: YYYY-MM-DD");
         }
@@ -76,7 +77,7 @@ public class AssignContractToClientSkill : BaseSkillImplementation
         DateOnly? untilDate = null;
         if (!string.IsNullOrEmpty(untilDateStr))
         {
-            if (!DateOnly.TryParse(untilDateStr, out var parsedUntil))
+            if (!SkillCalendarStringParser.TryParseDateOnly(untilDateStr, context.UserLanguage, out var parsedUntil))
             {
                 return SkillResult.Error($"Invalid until date format: {untilDateStr}. Expected format: YYYY-MM-DD");
             }

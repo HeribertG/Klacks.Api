@@ -21,6 +21,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -68,11 +69,11 @@ public class AddWorkChangeSkill : BaseSkillImplementation
                 string.Join(", ", Enum.GetNames<WorkChangeType>()));
         }
 
-        if (!TimeOnly.TryParse(startTimeStr, out var startTime))
+        if (!SkillCalendarStringParser.TryParseTimeOnly(startTimeStr, context.UserLanguage, out var startTime))
         {
             return SkillResult.Error($"Invalid startTime '{startTimeStr}'. Expected HH:mm.");
         }
-        if (!TimeOnly.TryParse(endTimeStr, out var endTime))
+        if (!SkillCalendarStringParser.TryParseTimeOnly(endTimeStr, context.UserLanguage, out var endTime))
         {
             return SkillResult.Error($"Invalid endTime '{endTimeStr}'. Expected HH:mm.");
         }

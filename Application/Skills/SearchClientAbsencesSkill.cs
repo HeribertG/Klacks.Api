@@ -20,6 +20,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Filters;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -90,12 +91,12 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
             RowCount = limit
         };
 
-        if (TryParseDateOnly(startDateParam, out var startDate))
+        if (TryParseDateOnly(startDateParam, context.UserLanguage, out var startDate))
         {
             filter.StartDate = startDate;
         }
 
-        if (TryParseDateOnly(endDateParam, out var endDate))
+        if (TryParseDateOnly(endDateParam, context.UserLanguage, out var endDate))
         {
             filter.EndDate = endDate;
         }
@@ -184,13 +185,13 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
                source.Contains(search, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool TryParseDateOnly(string? value, out DateOnly? result)
+    private static bool TryParseDateOnly(string? value, string? language, out DateOnly? result)
     {
         result = null;
         if (string.IsNullOrWhiteSpace(value))
             return false;
 
-        if (DateOnly.TryParse(value, out var parsed))
+        if (SkillCalendarStringParser.TryParseDateOnly(value, language, out var parsed))
         {
             result = parsed;
             return true;

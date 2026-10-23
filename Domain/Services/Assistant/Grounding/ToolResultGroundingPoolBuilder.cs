@@ -190,7 +190,12 @@ public static class ToolResultGroundingPoolBuilder
         }
 
         if (value.Length == 10
-            && DateOnly.TryParseExact(value, DateTimeFormats.IsoDate, out var date))
+            && DateOnly.TryParseExact(
+                value,
+                DateTimeFormats.IsoDate,
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out var date))
         {
             pool.DateKeys.Add(date.ToString(DateTimeFormats.IsoDate, System.Globalization.CultureInfo.InvariantCulture));
             return true;

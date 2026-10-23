@@ -34,6 +34,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -107,10 +108,10 @@ public class PlaceWorkSkill : BaseSkillImplementation
             return SkillResult.Error($"{periodViolations[0].Message} Nothing was placed.");
         }
 
-        var startTime = !string.IsNullOrWhiteSpace(startTimeRaw) && TimeOnly.TryParse(startTimeRaw, out var sParsed)
+        var startTime = !string.IsNullOrWhiteSpace(startTimeRaw) && SkillCalendarStringParser.TryParseTimeOnly(startTimeRaw, context.UserLanguage, out var sParsed)
             ? sParsed
             : shift.StartShift;
-        var endTime = !string.IsNullOrWhiteSpace(endTimeRaw) && TimeOnly.TryParse(endTimeRaw, out var eParsed)
+        var endTime = !string.IsNullOrWhiteSpace(endTimeRaw) && SkillCalendarStringParser.TryParseTimeOnly(endTimeRaw, context.UserLanguage, out var eParsed)
             ? eParsed
             : shift.EndShift;
         var workTime = workTimeRaw ?? CalculateWorkTime(startTime, endTime);

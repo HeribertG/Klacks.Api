@@ -23,6 +23,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -58,11 +59,11 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
         var fromStr = GetRequiredString(parameters, "fromDate");
         var untilStr = GetRequiredString(parameters, "untilDate");
 
-        if (!DateOnly.TryParse(fromStr, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(fromStr, context.UserLanguage, out var fromDate))
         {
             return SkillResult.Error($"Invalid fromDate: {fromStr}.");
         }
-        if (!DateOnly.TryParse(untilStr, out var untilDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(untilStr, context.UserLanguage, out var untilDate))
         {
             return SkillResult.Error($"Invalid untilDate: {untilStr}.");
         }

@@ -29,6 +29,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -122,7 +123,7 @@ public class CreateShiftSkill : BaseSkillImplementation
             return SkillResult.Error(macroError);
         }
 
-        var (schedule, scheduleError) = ParseSchedule(input);
+        var (schedule, scheduleError) = ParseSchedule(input, context.UserLanguage);
         if (schedule is null)
         {
             return SkillResult.Error(scheduleError!);
@@ -206,19 +207,19 @@ public class CreateShiftSkill : BaseSkillImplementation
         return (clientId, clientName, null);
     }
 
-    private static (OrderSchedule? Schedule, string? Error) ParseSchedule(OrderInput input)
+    private static (OrderSchedule? Schedule, string? Error) ParseSchedule(OrderInput input, string? language)
     {
         var startTimeStr = input.StartTimeText;
         var endTimeStr = input.EndTimeText;
         var fromDateStr = input.FromDateText;
         var untilDateStr = input.UntilDateText;
 
-        if (!TimeOnly.TryParse(startTimeStr, out var startTime))
+        if (!SkillCalendarStringParser.TryParseTimeOnly(startTimeStr, language, out var startTime))
         {
             return (null, $"Invalid start time format: {startTimeStr}. Expected HH:mm");
         }
 
-        if (!TimeOnly.TryParse(endTimeStr, out var endTime))
+        if (!SkillCalendarStringParser.TryParseTimeOnly(endTimeStr, language, out var endTime))
         {
             return (null, $"Invalid end time format: {endTimeStr}. Expected HH:mm");
         }
@@ -233,13 +234,13 @@ public class CreateShiftSkill : BaseSkillImplementation
                 "Then call create_shift again with fromDate in YYYY-MM-DD format.");
         }
 
-        if (!DateOnly.TryParse(fromDateStr, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(fromDateStr, language, out var fromDate))
         {
             return (null, $"Invalid fromDate format: {fromDateStr}. Expected YYYY-MM-DD (e.g. 2026-06-01).");
         }
 
         DateOnly? untilDate = null;
-        if (!string.IsNullOrEmpty(untilDateStr) && DateOnly.TryParse(untilDateStr, out var parsedUntil))
+        if (!string.IsNullOrEmpty(untilDateStr) && SkillCalendarStringParser.TryParseDateOnly(untilDateStr, language, out var parsedUntil))
         {
             untilDate = parsedUntil;
         }

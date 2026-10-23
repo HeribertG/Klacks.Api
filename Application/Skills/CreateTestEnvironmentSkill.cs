@@ -20,6 +20,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -75,7 +76,7 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
         var createShifts = GetParameter<bool>(parameters, "createShifts", true);
         var sumEmployees = GetParameter<int>(parameters, "sumEmployees", 1);
 
-        if (!DateOnly.TryParse(shiftStartDate, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(shiftStartDate, context.UserLanguage, out var fromDate))
         {
             fromDate = companyToday;
         }

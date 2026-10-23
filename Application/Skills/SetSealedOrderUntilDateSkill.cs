@@ -20,6 +20,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -50,7 +51,7 @@ public class SetSealedOrderUntilDateSkill : BaseSkillImplementation
         var shiftId = GetRequiredGuid(parameters, "shiftId");
         var untilDateStr = GetRequiredString(parameters, "untilDate");
 
-        if (!DateOnly.TryParse(untilDateStr, out var untilDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(untilDateStr, context.UserLanguage, out var untilDate))
         {
             return SkillResult.Error($"Invalid untilDate format: {untilDateStr}. Expected YYYY-MM-DD (e.g. 2026-06-01).");
         }

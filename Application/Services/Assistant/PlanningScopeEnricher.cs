@@ -15,6 +15,7 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 
 namespace Klacks.Api.Application.Services.Assistant;
 
@@ -48,12 +49,13 @@ public class PlanningScopeEnricher : IPlanningScopeEnricher
             return;
         }
 
-        var date = await ParsePeriodFromOrTodayAsync(context.PageContext?.SelectedPeriodFrom, cancellationToken);
+        var date = await ParsePeriodFromOrTodayAsync(context.PageContext?.SelectedPeriodFrom, context.Language, cancellationToken);
         context.ScopedClientPolicy = await _policyResolver.GetForClientAsync(clientId, date);
     }
 
-    private async Task<DateOnly> ParsePeriodFromOrTodayAsync(string? periodFrom, CancellationToken cancellationToken)
-        => DateOnly.TryParse(periodFrom, out var parsed)
+    private async Task<DateOnly> ParsePeriodFromOrTodayAsync(
+        string? periodFrom, string? language, CancellationToken cancellationToken)
+        => SkillCalendarStringParser.TryParseDateOnly(periodFrom, language, out var parsed)
             ? parsed
             : await _companyClock.GetTodayDateAsync(cancellationToken);
 }

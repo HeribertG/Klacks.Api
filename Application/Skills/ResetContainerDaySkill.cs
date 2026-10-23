@@ -20,6 +20,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -52,7 +53,7 @@ public class ResetContainerDaySkill : BaseSkillImplementation
         }
 
         var dateRaw = GetParameter<string>(parameters, "date");
-        if (string.IsNullOrWhiteSpace(dateRaw) || !DateOnly.TryParse(dateRaw, out var date))
+        if (string.IsNullOrWhiteSpace(dateRaw) || !SkillCalendarStringParser.TryParseDateOnly(dateRaw, context.UserLanguage, out var date))
         {
             return SkillResult.Error("Please give a date in ISO format, e.g. 2026-07-09.");
         }

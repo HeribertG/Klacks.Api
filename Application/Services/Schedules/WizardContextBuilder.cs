@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -192,9 +193,9 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         foreach (var shift in shifts)
         {
             if (Guid.TryParse(shift.Id, out var shiftId)
-                && DateOnly.TryParse(shift.Date, out var date)
-                && TimeOnly.TryParse(shift.StartTime, out var start)
-                && TimeOnly.TryParse(shift.EndTime, out var end))
+                && DateOnly.TryParse(shift.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
+                && TimeOnly.TryParse(shift.StartTime, CultureInfo.InvariantCulture, DateTimeStyles.None, out var start)
+                && TimeOnly.TryParse(shift.EndTime, CultureInfo.InvariantCulture, DateTimeStyles.None, out var end))
             {
                 slots.Add(new AvailabilityShiftSlot(shiftId, date, start, end));
             }
