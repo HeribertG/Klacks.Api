@@ -36,6 +36,8 @@ public class ConversationCompactionService : IConversationCompactionService
     private const int MaxSummaryTokens = 700;
     private const double SummaryTemperature = 0.3;
     private const int MaxSummaryLength = 2000;
+    private const int MaxMessagesPerCompaction = 40;
+    private const int MaxSummarizedMessageChars = 300;
 
     private static readonly string CompactionSystemPrompt =
         "You are a conversation summarizer. Read the conversation below and output a single JSON object " +
@@ -89,7 +91,7 @@ public class ConversationCompactionService : IConversationCompactionService
             }
 
             var oldMessages = await _llmRepository.GetOldestMessagesAsync(
-                conversationId, userId, skipNewest: KeepRecentMessages, limit: 40);
+                conversationId, userId, skipNewest: KeepRecentMessages, limit: MaxMessagesPerCompaction);
 
             if (oldMessages.Count == 0)
             {
@@ -201,8 +203,8 @@ public class ConversationCompactionService : IConversationCompactionService
             var isUser = msg.Role == "user";
             var role = isUser ? "User" : "Assistant";
             var text = isUser ? msg.Content : EmptyAnswerNoticeText.ToStateMarkers(msg.Content);
-            var content = text.Length > 300
-                ? text[..300] + "..."
+            var content = text.Length > MaxSummarizedMessageChars
+                ? text[..MaxSummarizedMessageChars] + "..."
                 : text;
             sb.AppendLine($"{role}: {content}");
         }
