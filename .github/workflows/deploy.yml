@@ -72,6 +72,17 @@ jobs:
           src/assets/i18n
         sparse-checkout-cone-mode: false
 
+    - name: Checkout Klacks.Marketplace (on-prem template and region profiles for guard tests)
+      uses: actions/checkout@v4
+      with:
+        repository: HeribertG/Klacks.Marketplace
+        path: Klacks.Marketplace
+        token: ${{ secrets.GH_PAT || github.token }}
+        sparse-checkout: |
+          Resources/OnPremTemplate
+          Resources/RegionProfiles
+        sparse-checkout-cone-mode: false
+
     - name: Checkout Klacks.ScheduleOptimizer
       uses: actions/checkout@v4
       with:
