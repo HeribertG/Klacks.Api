@@ -5,6 +5,8 @@
 /// Native installations start with an unrelated working directory (System32 for a Windows service, / under launchd),
 /// so their content root is pinned to the program directory and all writable paths move below Hosting:DataRoot.
 /// Their settings and secrets come from &lt;DataRoot&gt;/config/klacks.native.json, which overrides every other source.
+/// As a Windows service it also logs Warning and above to the Windows event log, wrapped in FailSafeLoggerProvider so
+/// that a failing event log write never reaches the code that logged.
 /// Without a Windows service and without the Hosting__DataRoot environment variable the builder is identical to
 /// WebApplication.CreateBuilder(args).
 /// </summary>
@@ -13,6 +15,7 @@
 using System.Runtime.Versioning;
 using Klacks.Api.Application.Configuration;
 using Microsoft.Extensions.Hosting.WindowsServices;
+using Microsoft.Extensions.Logging.EventLog;
 
 namespace Klacks.Api.Infrastructure.Hosting;
 
@@ -46,7 +49,10 @@ public static class KlacksWebApplicationBuilder
         service.StartDispatcher();
         builder.Services.AddSingleton(service);
         builder.Services.AddHostedService<KlacksWindowsServiceStatusBridge>();
-        builder.Logging.AddEventLog(settings => settings.SourceName = builder.Environment.ApplicationName);
+        var eventLogSettings = new EventLogSettings { SourceName = builder.Environment.ApplicationName };
+        builder.Services.AddSingleton<ILoggerProvider>(_ =>
+            new FailSafeLoggerProvider(new EventLogLoggerProvider(eventLogSettings), Console.Error));
+        builder.Logging.AddFilter<FailSafeLoggerProvider>(level => level >= LogLevel.Warning);
     }
 
     private static void AddNativeConfigurationFile(ConfigurationManager configuration)

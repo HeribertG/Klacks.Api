@@ -45,6 +45,10 @@ $SttPort = 5091
 $SttThreads = 2
 $SttModelDirectoryName = 'stt-models'
 $PostgresServiceName = 'KlacksPostgres'
+# Windows event log sources of the API and the updater (their ApplicationName). Registered at install time, while
+# elevated, so the services never have to create them on their first log write.
+$EventLogSources = @('Klacks.Api', 'Klacks.Updater')
+$EventLogName = 'Application'
 $PostgresSuperUser = 'klacks'
 $DatabaseName = 'Klacks'
 $ConfigFileName = 'klacks.native.json'
@@ -392,6 +396,18 @@ else {
     }
     else {
         Write-Warning "The bundle contains no updater ($updaterExe); service $UpdaterServiceName is not registered."
+    }
+    foreach ($source in $EventLogSources) {
+        # Best effort: the services log through a fail-safe provider and can still create the source themselves.
+        try {
+            if (-not [System.Diagnostics.EventLog]::SourceExists($source)) {
+                Write-Step "Registering event log source $source"
+                [System.Diagnostics.EventLog]::CreateEventSource($source, $EventLogName)
+            }
+        }
+        catch {
+            Write-Warning "Event log source $source could not be registered: $($_.Exception.Message)"
+        }
     }
     foreach ($service in $services) {
         if (-not (Get-Service -Name $service.Name -ErrorAction SilentlyContinue)) {
