@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Klacks.Api.Domain.Common;
@@ -58,9 +59,9 @@ public class LLMModel : BaseEntity
     /// </summary>
     public string? SupportedParameters { get; set; }
 
-    public int MaxTokens { get; set; } = 4096;
+    public int MaxTokens { get; set; } = LLMModelDefaults.DefaultModelMaxTokens;
     
-    public int ContextWindow { get; set; } = 128000;
+    public int ContextWindow { get; set; } = LLMModelDefaults.DefaultContextWindow;
     
     [MaxLength(500)]
     public string? Description { get; set; }

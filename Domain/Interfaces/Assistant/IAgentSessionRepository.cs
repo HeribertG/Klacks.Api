@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
@@ -12,6 +13,6 @@ public interface IAgentSessionRepository
     Task UpdateSessionAsync(AgentSession session, CancellationToken cancellationToken = default);
     Task<int> GetTokenCountEstAsync(Guid sessionId, CancellationToken cancellationToken = default);
     Task CompactMessagesAsync(Guid sessionId, string summaryContent, CancellationToken cancellationToken = default);
-    Task<List<AgentSession>> GetUserSessionsAsync(string userId, int limit = 20, CancellationToken cancellationToken = default);
-    Task ArchiveStaleSessionsAsync(int daysInactive = 30, CancellationToken cancellationToken = default);
+    Task<List<AgentSession>> GetUserSessionsAsync(string userId, int limit = AssistantLimitDefaults.UserSessionsLimit, CancellationToken cancellationToken = default);
+    Task ArchiveStaleSessionsAsync(int daysInactive = AssistantLimitDefaults.StaleSessionDays, CancellationToken cancellationToken = default);
 }

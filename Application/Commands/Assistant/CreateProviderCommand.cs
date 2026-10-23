@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -21,5 +22,5 @@ public class CreateProviderCommand : IRequest<LLMProvider>
 
     public bool IsEnabled { get; set; } = true;
 
-    public int Priority { get; set; } = 10;
+    public int Priority { get; set; } = AssistantLimitDefaults.ProviderPriority;
 }

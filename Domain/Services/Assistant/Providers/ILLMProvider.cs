@@ -39,7 +39,7 @@ public interface ILLMProvider
     /// this to report the actually enforced limit, so history truncation adapts per model automatically.
     /// </summary>
     int GetEffectiveInputTokenLimit(Models.Assistant.LLMModel model) =>
-        model.ContextWindow > 0 ? model.ContextWindow : 128_000;
+        model.ContextWindow > 0 ? model.ContextWindow : Domain.Constants.LLMModelDefaults.DefaultContextWindow;
 
     IAsyncEnumerable<string> ProcessStreamAsync(
         LLMProviderRequest request,

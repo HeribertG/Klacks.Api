@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.Queries.Assistant;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -17,7 +18,7 @@ public class GetAgentSessionsQueryHandler : IRequestHandler<GetAgentSessionsQuer
 
     public async Task<object> Handle(GetAgentSessionsQuery request, CancellationToken cancellationToken)
     {
-        var sessions = await _sessionRepository.GetUserSessionsAsync(request.UserId, 50, cancellationToken);
+        var sessions = await _sessionRepository.GetUserSessionsAsync(request.UserId, AssistantLimitDefaults.UserSessionsListLimit, cancellationToken);
         return sessions.Select(s => new
         {
             s.Id, s.SessionId, s.Title, s.Status,

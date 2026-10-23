@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
@@ -23,7 +24,7 @@ public interface IOpenMeteoClient
     /// <param name="latitude">Latitude in decimal degrees</param>
     /// <param name="longitude">Longitude in decimal degrees</param>
     /// <param name="forecastDays">Number of daily forecast entries to include (clamped to 1..7)</param>
-    Task<WeatherSnapshot?> GetCurrentWeatherAsync(double latitude, double longitude, int forecastDays = 3, CancellationToken cancellationToken = default);
+    Task<WeatherSnapshot?> GetCurrentWeatherAsync(double latitude, double longitude, int forecastDays = AssistantLimitDefaults.WeatherForecastDays, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Returns the current US Air Quality Index (0-500, the internationally used scale; 0 = best,

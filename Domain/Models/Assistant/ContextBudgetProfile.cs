@@ -11,6 +11,8 @@
 /// <param name="MaxPinnedMemories">Ceiling on pinned agent memories rendered into the prompt.</param>
 /// <param name="MaxMemoriesPerTurn">Ceiling on hybrid-searched (non-pinned) memories rendered per turn.</param>
 /// <param name="MaxToolResultChars">Ceiling on characters of a single tool-call result fed back into the loop.</param>
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Models.Assistant;
 
 public sealed record ContextBudgetProfile(
@@ -19,4 +21,4 @@ public sealed record ContextBudgetProfile(
     int MaxPinnedMemories,
     int MaxMemoriesPerTurn,
     int MaxToolResultChars,
-    int MaxLessonsPerTurn = 5);
+    int MaxLessonsPerTurn = AssistantLimitDefaults.MaxLessonsPerTurn);

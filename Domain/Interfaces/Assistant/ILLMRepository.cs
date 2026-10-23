@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
@@ -36,8 +37,8 @@ public interface ILLMRepository : IBaseRepository<LLMModel>
     Task<bool> ArchiveConversationAsync(string conversationId, string userId);
     
     Task<LLMMessage> SaveMessageAsync(LLMMessage message);
-    Task<List<LLMMessage>> GetConversationMessagesAsync(string conversationId, string userId, int limit = 20);
-    Task<List<LLMMessage>> GetOldestMessagesAsync(string conversationId, string userId, int skipNewest, int limit = 40);
+    Task<List<LLMMessage>> GetConversationMessagesAsync(string conversationId, string userId, int limit = AssistantLimitDefaults.ConversationMessagesLimit);
+    Task<List<LLMMessage>> GetOldestMessagesAsync(string conversationId, string userId, int skipNewest, int limit = AssistantLimitDefaults.OldestMessagesLimit);
     Task<LLMConversation?> GetConversationByConversationIdAsync(string conversationId, string userId);
     Task<int> GetConversationTokenCountAsync(string conversationId, string userId);
 

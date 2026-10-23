@@ -8,4 +8,12 @@ namespace Klacks.Api.Domain.Constants;
 public static class LLMModelDefaults
 {
     public const string FallbackModelId = "claude-sonnet-5";
+
+    public const double DefaultTemperature = 0.7;
+
+    public const int DefaultRequestMaxTokens = 2000;
+
+    public const int DefaultModelMaxTokens = 4096;
+
+    public const int DefaultContextWindow = 128000;
 }

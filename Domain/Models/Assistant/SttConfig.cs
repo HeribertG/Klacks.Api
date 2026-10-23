@@ -6,6 +6,8 @@
 /// <param name="ApiKey">Provider API key</param>
 /// <param name="Language">BCP-47 language code (e.g. "de", "en")</param>
 /// <param name="SampleRate">Audio sample rate in Hz (default 16000)</param>
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Models.Assistant;
 
-public record SttConfig(string ApiKey, string Language, int SampleRate = 16000);
+public record SttConfig(string ApiKey, string Language, int SampleRate = SttDefaults.SampleRateHz);

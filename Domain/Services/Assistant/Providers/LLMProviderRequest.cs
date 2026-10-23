@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant.Providers;
@@ -54,8 +55,8 @@ public class LLMProviderRequest
     private ModelParameterSupport? _declaredParameterSupport;
     public List<LLMMessage> ConversationHistory { get; set; } = new();
     public List<LLMFunction> AvailableFunctions { get; set; } = new();
-    public double Temperature { get; set; } = 0.7;
-    public int MaxTokens { get; set; } = 2000;
+    public double Temperature { get; set; } = LLMModelDefaults.DefaultTemperature;
+    public int MaxTokens { get; set; } = LLMModelDefaults.DefaultRequestMaxTokens;
     public decimal CostPerInputToken { get; set; }
     public decimal CostPerOutputToken { get; set; }
 

@@ -1,12 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IAgentMemoryRepository
 {
-    Task<List<MemorySearchResult>> HybridSearchAsync(Guid agentId, string query, float[]? queryEmbedding, int limit = 10, Guid? userId = null, CancellationToken cancellationToken = default);
+    Task<List<MemorySearchResult>> HybridSearchAsync(Guid agentId, string query, float[]? queryEmbedding, int limit = AssistantLimitDefaults.MemorySearchLimit, Guid? userId = null, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetPinnedAsync(Guid agentId, Guid? userId = null, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetAllAsync(Guid agentId, Guid? userId = null, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetAllWithTagsAsync(Guid agentId, CancellationToken cancellationToken = default);
@@ -52,7 +53,7 @@ public interface IAgentMemoryRepository
 
     Task UpdateAsync(AgentMemory memory, CancellationToken cancellationToken = default);
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<List<AgentMemory>> GetPendingEmbeddingsAsync(int limit = 100, CancellationToken cancellationToken = default);
+    Task<List<AgentMemory>> GetPendingEmbeddingsAsync(int limit = AssistantLimitDefaults.PendingEmbeddingsBatchSize, CancellationToken cancellationToken = default);
     Task CleanupExpiredAsync(CancellationToken cancellationToken = default);
     Task UpdateAccessCountsAsync(List<Guid> memoryIds, CancellationToken cancellationToken = default);
     Task<int> AdjustImportanceByUsageAsync(CancellationToken cancellationToken = default);

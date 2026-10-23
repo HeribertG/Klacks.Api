@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
@@ -10,5 +11,5 @@ public interface IGlobalAgentRuleRepository
     Task<GlobalAgentRule?> GetRuleAsync(string name, CancellationToken cancellationToken = default);
     Task<GlobalAgentRule> UpsertRuleAsync(string name, string content, int sortOrder, string? source = null, string? changedBy = null, CancellationToken cancellationToken = default);
     Task DeactivateRuleAsync(string name, CancellationToken cancellationToken = default);
-    Task<List<GlobalAgentRuleHistory>> GetHistoryAsync(int limit = 50, CancellationToken cancellationToken = default);
+    Task<List<GlobalAgentRuleHistory>> GetHistoryAsync(int limit = AssistantLimitDefaults.HistoryLimit, CancellationToken cancellationToken = default);
 }
