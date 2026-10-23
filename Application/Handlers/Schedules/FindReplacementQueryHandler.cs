@@ -133,22 +133,31 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             return new ReplacementSearchResult([], []);
         }
 
-        var onLeaveCells = await _scheduleEntriesService.GetScheduleEntriesAsync(
-            new ScheduleEntriesCriteria(request.Date, request.Date, [request.GroupId], request.AnalyseToken)
-            {
-                EntryType = ScheduleEntryType.Break,
-            },
-            cancellationToken);
-        var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
-        var onLeaveClientIds = onLeaveCells
-            .Where(c => !onCallAbsenceIds.Contains(c.EntryId))
-            .Select(c => c.ClientId)
-            .ToHashSet();
-        var onCallClientIds = onLeaveCells
-            .Where(c => onCallAbsenceIds.Contains(c.EntryId)
-                && OverlapsSlot(c, request.Date, request.StartTime, request.EndTime))
-            .Select(c => c.ClientId)
-            .ToHashSet();
+        var signals = await LoadCandidateSignalsAsync(request, members, cancellationToken);
+
+        var eligible = new List<ReplacementCandidate>();
+        var excluded = new List<ExcludedCandidate>();
+
+        foreach (var member in members)
+        {
+            EvaluateCandidate(member, request, signals, eligible, excluded);
+        }
+
+        var ranked = Rank(eligible);
+
+        return new ReplacementSearchResult(ranked, excluded);
+    }
+
+    /// <summary>
+    /// Everything the per-candidate evaluation needs, loaded once for the whole pool: absences and on-call breaks,
+    /// availability windows, shift preferences, period hours, the conflicts each placement would introduce,
+    /// whether the caller may override a Block-mode escalation, and the members' row shift kinds around the slot.
+    /// </summary>
+    /// <param name="members">The visible candidate pool</param>
+    private async Task<CandidateSignals> LoadCandidateSignalsAsync(
+        FindReplacementQuery request, List<Client> members, CancellationToken cancellationToken)
+    {
+        var (onLeaveClientIds, onCallClientIds) = await ResolveAbsencesAsync(request, cancellationToken);
 
         var availabilityEntries = await _availabilityRepository.GetByDateRange(request.Date, request.Date);
         var availabilityByClient = availabilityEntries
@@ -176,80 +185,131 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         var rowKinds = await LoadRowKindsAsync(request, cancellationToken);
         var slotKind = ShiftCategoryClassifier.CategoryOf(request.StartTime.ToTimeSpan(), request.EndTime.ToTimeSpan());
 
-        var eligible = new List<ReplacementCandidate>();
-        var excluded = new List<ExcludedCandidate>();
+        return new CandidateSignals(
+            onLeaveClientIds,
+            onCallClientIds,
+            availabilityByClient,
+            preferenceByClient,
+            periodHoursByClient,
+            conflictsByClient,
+            authorized,
+            rowKinds,
+            slotKind);
+    }
 
-        foreach (var member in members)
+    /// <summary>
+    /// The clients absent on the requested day (a Break whose absence type is not on-call) and the clients on call
+    /// during the requested slot (an on-call Break whose window overlaps it).
+    /// </summary>
+    private async Task<(HashSet<Guid> OnLeaveClientIds, HashSet<Guid> OnCallClientIds)> ResolveAbsencesAsync(
+        FindReplacementQuery request, CancellationToken cancellationToken)
+    {
+        var onLeaveCells = await _scheduleEntriesService.GetScheduleEntriesAsync(
+            new ScheduleEntriesCriteria(request.Date, request.Date, [request.GroupId], request.AnalyseToken)
+            {
+                EntryType = ScheduleEntryType.Break,
+            },
+            cancellationToken);
+        var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
+        var onLeaveClientIds = onLeaveCells
+            .Where(c => !onCallAbsenceIds.Contains(c.EntryId))
+            .Select(c => c.ClientId)
+            .ToHashSet();
+        var onCallClientIds = onLeaveCells
+            .Where(c => onCallAbsenceIds.Contains(c.EntryId)
+                && OverlapsSlot(c, request.Date, request.StartTime, request.EndTime))
+            .Select(c => c.ClientId)
+            .ToHashSet();
+
+        return (onLeaveClientIds, onCallClientIds);
+    }
+
+    /// <summary>
+    /// Adds the member either to the excluded list with the first reason that applies (absent, unavailable, a hard
+    /// conflict that may not be overridden, blacklisted) or to the eligible list with its ranking signals; an
+    /// overridden Block-mode escalation is audit-logged.
+    /// </summary>
+    private void EvaluateCandidate(
+        Client member,
+        FindReplacementQuery request,
+        CandidateSignals signals,
+        List<ReplacementCandidate> eligible,
+        List<ExcludedCandidate> excluded)
+    {
+        var name = DisplayName(member);
+
+        if (signals.OnLeaveClientIds.Contains(member.Id))
         {
-            var name = DisplayName(member);
-
-            if (onLeaveClientIds.Contains(member.Id))
-            {
-                excluded.Add(new ExcludedCandidate(member.Id, name, AbsentReason));
-                continue;
-            }
-
-            if (availabilityByClient.TryGetValue(member.Id, out var availability) &&
-                AvailabilityMatcher.IsUnavailable(availability, request.Date, request.StartTime, request.EndTime))
-            {
-                excluded.Add(new ExcludedCandidate(member.Id, name, UnavailableReason));
-                continue;
-            }
-
-            var conflicts = conflictsByClient.TryGetValue(member.Id, out var found)
-                ? found
-                : new List<ScheduleValidationNotificationDto>();
-
-            // Hard exclusion: ANY Error-level conflict the placement would newly introduce (structural
-            // or Block-mode enforcement escalation), plus the precise pair checks that exclude even in
-            // Warn mode (rest violation) and the qualification gaps. Only a Block-mode escalation
-            // (Type=Error tagged with EnforcementRuleParamKey) may be overridden by an authorized
-            // supervisor; a structural Error never can.
-            var hardConflicts = conflicts
-                .Where(c => c.Type == ScheduleValidationType.Error || IsAlwaysExcluding(c))
-                .ToList();
-            if (hardConflicts.Count > 0)
-            {
-                var nonOverridable = hardConflicts.FirstOrDefault(c => !authorized || !IsOverridableBlocking(c));
-                if (nonOverridable != null)
-                {
-                    excluded.Add(new ExcludedCandidate(member.Id, name, nonOverridable.Comment));
-                    continue;
-                }
-                LogOverride(member.Id, hardConflicts);
-            }
-
-            // ShiftPreferenceType.Preferred is 0 (the enum default), so the bool result MUST gate the
-            // lookup — otherwise a miss leaves preferenceType = Preferred and every member without a
-            // preference would be treated as preferred.
-            var hasPreference = preferenceByClient.TryGetValue(member.Id, out var preferenceType);
-            if (hasPreference && preferenceType == ShiftPreferenceType.Blacklist)
-            {
-                excluded.Add(new ExcludedCandidate(member.Id, name, BlacklistedReason));
-                continue;
-            }
-
-            // Missing entry or a zero target means "no fairness signal" (deficit 0), mirroring the
-            // opt-in availability discipline; the candidate is never excluded on this basis.
-            var deficit = periodHoursByClient.TryGetValue(member.Id, out var hours)
-                ? hours.GuaranteedHours - hours.Hours
-                : 0m;
-
-            eligible.Add(new ReplacementCandidate(
-                member.Id,
-                name,
-                IsPreferred: hasPreference && preferenceType == ShiftPreferenceType.Preferred,
-                SoftConflicts: conflicts,
-                TargetHoursDeficit: deficit,
-                IsOnCall: onCallClientIds.Contains(member.Id),
-                LevelShortfall: SumLevelShortfall(conflicts),
-                RhythmDelta: RowRhythm.CoverDelta(
-                    day => rowKinds.TryGetValue((member.Id, day), out var kind) ? kind : ShiftCategory.Free,
-                    request.Date,
-                    slotKind)));
+            excluded.Add(new ExcludedCandidate(member.Id, name, AbsentReason));
+            return;
         }
 
-        var ranked = eligible
+        if (signals.AvailabilityByClient.TryGetValue(member.Id, out var availability) &&
+            AvailabilityMatcher.IsUnavailable(availability, request.Date, request.StartTime, request.EndTime))
+        {
+            excluded.Add(new ExcludedCandidate(member.Id, name, UnavailableReason));
+            return;
+        }
+
+        var conflicts = signals.ConflictsByClient.TryGetValue(member.Id, out var found)
+            ? found
+            : new List<ScheduleValidationNotificationDto>();
+
+        // Hard exclusion: ANY Error-level conflict the placement would newly introduce (structural
+        // or Block-mode enforcement escalation), plus the precise pair checks that exclude even in
+        // Warn mode (rest violation) and the qualification gaps. Only a Block-mode escalation
+        // (Type=Error tagged with EnforcementRuleParamKey) may be overridden by an authorized
+        // supervisor; a structural Error never can.
+        var hardConflicts = conflicts
+            .Where(c => c.Type == ScheduleValidationType.Error || IsAlwaysExcluding(c))
+            .ToList();
+        if (hardConflicts.Count > 0)
+        {
+            var nonOverridable = hardConflicts.FirstOrDefault(c => !signals.IsOverrideAuthorized || !IsOverridableBlocking(c));
+            if (nonOverridable != null)
+            {
+                excluded.Add(new ExcludedCandidate(member.Id, name, nonOverridable.Comment));
+                return;
+            }
+            LogOverride(member.Id, hardConflicts);
+        }
+
+        // ShiftPreferenceType.Preferred is 0 (the enum default), so the bool result MUST gate the
+        // lookup — otherwise a miss leaves preferenceType = Preferred and every member without a
+        // preference would be treated as preferred.
+        var hasPreference = signals.PreferenceByClient.TryGetValue(member.Id, out var preferenceType);
+        if (hasPreference && preferenceType == ShiftPreferenceType.Blacklist)
+        {
+            excluded.Add(new ExcludedCandidate(member.Id, name, BlacklistedReason));
+            return;
+        }
+
+        // Missing entry or a zero target means "no fairness signal" (deficit 0), mirroring the
+        // opt-in availability discipline; the candidate is never excluded on this basis.
+        var deficit = signals.PeriodHoursByClient.TryGetValue(member.Id, out var hours)
+            ? hours.GuaranteedHours - hours.Hours
+            : 0m;
+
+        eligible.Add(new ReplacementCandidate(
+            member.Id,
+            name,
+            IsPreferred: hasPreference && preferenceType == ShiftPreferenceType.Preferred,
+            SoftConflicts: conflicts,
+            TargetHoursDeficit: deficit,
+            IsOnCall: signals.OnCallClientIds.Contains(member.Id),
+            LevelShortfall: SumLevelShortfall(conflicts),
+            RhythmDelta: RowRhythm.CoverDelta(
+                day => signals.RowKinds.TryGetValue((member.Id, day), out var kind) ? kind : ShiftCategory.Free,
+                request.Date,
+                signals.SlotKind)));
+    }
+
+    /// <summary>
+    /// On-call first, then preferred, then fewer missing qualification levels, fewer soft conflicts, the smaller
+    /// row-rhythm delta, the larger target-hours deficit, and finally the name.
+    /// </summary>
+    private static List<ReplacementCandidate> Rank(List<ReplacementCandidate> eligible)
+        => eligible
             .OrderByDescending(c => c.IsOnCall)
             .ThenByDescending(c => c.IsPreferred)
             .ThenBy(c => c.LevelShortfall)
@@ -258,9 +318,6 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             .ThenByDescending(c => c.TargetHoursDeficit)
             .ThenBy(c => c.Name)
             .ToList();
-
-        return new ReplacementSearchResult(ranked, excluded);
-    }
 
     /// <summary>
     /// The shift kind of every work the group's members start in the days around the slot (the reach of the row
@@ -396,4 +453,15 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         => string.IsNullOrWhiteSpace(client.FirstName)
             ? client.Name
             : $"{client.FirstName} {client.Name}";
+
+    private sealed record CandidateSignals(
+        HashSet<Guid> OnLeaveClientIds,
+        HashSet<Guid> OnCallClientIds,
+        Dictionary<Guid, IReadOnlyList<ClientAvailability>> AvailabilityByClient,
+        Dictionary<Guid, ShiftPreferenceType> PreferenceByClient,
+        Dictionary<Guid, Domain.DTOs.Schedules.PeriodHoursResource> PeriodHoursByClient,
+        Dictionary<Guid, List<ScheduleValidationNotificationDto>> ConflictsByClient,
+        bool IsOverrideAuthorized,
+        IReadOnlyDictionary<(Guid ClientId, DateOnly Date), ShiftCategory> RowKinds,
+        ShiftCategory SlotKind);
 }

@@ -86,96 +86,23 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         {
             await EnsureClientsAndShiftsVisibleAsync(command.Request.Works, cancellationToken);
 
-            await _dayLockService.EnsureNoneLockedAsync(
-                command.Request.Works
-                    .Select(w => (w.CurrentDate, w.ClientId, w.AnalyseToken))
-                    .Distinct()
-                    .ToList(),
-                cancellationToken);
-
-            if (command.PeriodCheck == PlanningPeriodCheck.Enforce)
-            {
-                await _planningPeriodGuard.EnsureWithinPeriodsAsync(
-                    command.Request.Works.Select(w => (w.ClientId, w.CurrentDate)).Distinct().ToList(),
-                    cancellationToken);
-            }
+            await EnsureDaysWritableAsync(command, cancellationToken);
 
             var response = new BulkWorksResponse();
-            var works = new List<Work>();
             var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>();
-
-            foreach (var item in command.Request.Works)
-            {
-                try
-                {
-                    var work = new Work
-                    {
-                        Id = Guid.NewGuid(),
-                        ShiftId = item.ShiftId,
-                        ClientId = item.ClientId,
-                        CurrentDate = item.CurrentDate,
-                        WorkTime = item.WorkTime,
-                        Surcharges = item.Surcharges,
-                        StartTime = item.StartTime,
-                        EndTime = item.EndTime,
-                        Information = item.Information,
-                        AnalyseToken = item.AnalyseToken
-                    };
-
-                    works.Add(work);
-                    response.CreatedIds.Add(work.Id);
-                    response.SuccessCount++;
-                    affectedShifts.Add((item.ShiftId, item.CurrentDate));
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to create work for client {ClientId} on {Date}",
-                        item.ClientId, item.CurrentDate);
-                    response.FailedCount++;
-                }
-            }
+            var works = BuildWorks(command.Request.Works, response, affectedShifts);
 
             await EnsureNoHardBlockingConflictAsync(works, cancellationToken);
 
             if (works.Count > 0)
             {
-                foreach (var work in works)
-                {
-                    await _workRepository.Add(work);
-                }
-
-                foreach (var work in works)
-                {
-                    await _expansionService.ExpandAsync(work, work.CurrentDate);
-                }
-
-                await _defaultExpensesApplier.ApplyAsync(works, cancellationToken);
+                await StageWorksAsync(works, cancellationToken);
 
                 var affected = works.Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken)).ToList();
                 var bulkToken = works.Select(w => w.AnalyseToken).Distinct().Count() == 1 ? works[0].AnalyseToken : null;
 
-                var distinctDates = works.Select(w => w.CurrentDate).Distinct().ToList();
-                var periodBoundariesByDate = new Dictionary<DateOnly, (DateOnly Start, DateOnly End)>();
-                foreach (var date in distinctDates)
-                {
-                    periodBoundariesByDate[date] = await _periodHoursService.GetPeriodBoundariesAsync(date);
-                }
-
-                var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
-                foreach (var work in works)
-                {
-                    var (start, end) = periodBoundariesByDate[work.CurrentDate];
-                    if (!clientPeriods.TryGetValue(work.ClientId, out var existing))
-                    {
-                        clientPeriods[work.ClientId] = (start, end);
-                    }
-                    else
-                    {
-                        clientPeriods[work.ClientId] = (
-                            start < existing.Start ? start : existing.Start,
-                            end > existing.End ? end : existing.End);
-                    }
-                }
+                var periodBoundariesByDate = await ResolvePeriodBoundariesByDateAsync(works);
+                var clientPeriods = MergeClientPeriods(works, periodBoundariesByDate);
 
                 var rangeStart = clientPeriods.Values.Min(p => p.Start);
                 var rangeEnd = clientPeriods.Values.Max(p => p.End);
@@ -194,25 +121,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
                 await _notificationFacade.NotifyWorksBulkCreatedAsync(works, connectionId, periodBoundariesByDate);
 
-                if (affectedClients.Count > 0)
-                {
-                    response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
-
-                    foreach (var clientId in affectedClients)
-                    {
-                        var clientTokens = works.Where(w => w.ClientId == clientId).Select(w => w.AnalyseToken).Distinct().ToList();
-                        var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
-                        var (clientStart, clientEnd) = clientPeriods[clientId];
-
-                        var periodHours = await _periodHoursService.RecalculateAndNotifyAsync(
-                            clientId,
-                            clientStart,
-                            clientEnd,
-                            clientToken,
-                            connectionId);
-                        response.PeriodHours[clientId] = periodHours;
-                    }
-                }
+                await RecalculatePeriodHoursAsync(works, affectedClients, clientPeriods, connectionId, response);
 
                 await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, bulkToken, cancellationToken);
             }
@@ -223,6 +132,164 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
             return response;
         }, "BulkAddWorks", new { Count = command.Request.Works.Count });
+    }
+
+    /// <summary>
+    /// Refuses the whole request when one of its days is sealed, and - unless the command comes from a planner that
+    /// skips this check - when one of its employees is not plannable on the day.
+    /// </summary>
+    private async Task EnsureDaysWritableAsync(BulkAddWorksCommand command, CancellationToken cancellationToken)
+    {
+        await _dayLockService.EnsureNoneLockedAsync(
+            command.Request.Works
+                .Select(w => (w.CurrentDate, w.ClientId, w.AnalyseToken))
+                .Distinct()
+                .ToList(),
+            cancellationToken);
+
+        if (command.PeriodCheck == PlanningPeriodCheck.Enforce)
+        {
+            await _planningPeriodGuard.EnsureWithinPeriodsAsync(
+                command.Request.Works.Select(w => (w.ClientId, w.CurrentDate)).Distinct().ToList(),
+                cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Builds the new Works of the request, records their ids and counts in the response and collects the shift
+    /// days they touch; an item that cannot be built is logged and counted as failed.
+    /// </summary>
+    private List<Work> BuildWorks(
+        IReadOnlyCollection<BulkWorkItem> items,
+        BulkWorksResponse response,
+        HashSet<(Guid ShiftId, DateOnly Date)> affectedShifts)
+    {
+        var works = new List<Work>();
+
+        foreach (var item in items)
+        {
+            try
+            {
+                var work = new Work
+                {
+                    Id = Guid.NewGuid(),
+                    ShiftId = item.ShiftId,
+                    ClientId = item.ClientId,
+                    CurrentDate = item.CurrentDate,
+                    WorkTime = item.WorkTime,
+                    Surcharges = item.Surcharges,
+                    StartTime = item.StartTime,
+                    EndTime = item.EndTime,
+                    Information = item.Information,
+                    AnalyseToken = item.AnalyseToken
+                };
+
+                works.Add(work);
+                response.CreatedIds.Add(work.Id);
+                response.SuccessCount++;
+                affectedShifts.Add((item.ShiftId, item.CurrentDate));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create work for client {ClientId} on {Date}",
+                    item.ClientId, item.CurrentDate);
+                response.FailedCount++;
+            }
+        }
+
+        return works;
+    }
+
+    /// <summary>
+    /// Stages the new Works, expands container Works into their children and stages the shifts' default expenses,
+    /// all before the single bulk save.
+    /// </summary>
+    private async Task StageWorksAsync(List<Work> works, CancellationToken cancellationToken)
+    {
+        foreach (var work in works)
+        {
+            await _workRepository.Add(work);
+        }
+
+        foreach (var work in works)
+        {
+            await _expansionService.ExpandAsync(work, work.CurrentDate);
+        }
+
+        await _defaultExpensesApplier.ApplyAsync(works, cancellationToken);
+    }
+
+    /// <summary>
+    /// The pay-period boundaries of every distinct Work date, resolved once per date in the order the dates first occur.
+    /// </summary>
+    private async Task<Dictionary<DateOnly, (DateOnly Start, DateOnly End)>> ResolvePeriodBoundariesByDateAsync(List<Work> works)
+    {
+        var distinctDates = works.Select(w => w.CurrentDate).Distinct().ToList();
+        var periodBoundariesByDate = new Dictionary<DateOnly, (DateOnly Start, DateOnly End)>();
+        foreach (var date in distinctDates)
+        {
+            periodBoundariesByDate[date] = await _periodHoursService.GetPeriodBoundariesAsync(date);
+        }
+
+        return periodBoundariesByDate;
+    }
+
+    /// <summary>
+    /// Per client, the union range from the earliest period start to the latest period end over all its new Works.
+    /// </summary>
+    private static Dictionary<Guid, (DateOnly Start, DateOnly End)> MergeClientPeriods(
+        List<Work> works,
+        Dictionary<DateOnly, (DateOnly Start, DateOnly End)> periodBoundariesByDate)
+    {
+        var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
+        foreach (var work in works)
+        {
+            var (start, end) = periodBoundariesByDate[work.CurrentDate];
+            if (!clientPeriods.TryGetValue(work.ClientId, out var existing))
+            {
+                clientPeriods[work.ClientId] = (start, end);
+            }
+            else
+            {
+                clientPeriods[work.ClientId] = (
+                    start < existing.Start ? start : existing.Start,
+                    end > existing.End ? end : existing.End);
+            }
+        }
+
+        return clientPeriods;
+    }
+
+    /// <summary>
+    /// Recalculates and broadcasts the period hours of every affected client over its merged range and puts them into
+    /// the response; a client's scenario token is passed only when all its new Works share it.
+    /// </summary>
+    private async Task RecalculatePeriodHoursAsync(
+        List<Work> works,
+        List<Guid> affectedClients,
+        Dictionary<Guid, (DateOnly Start, DateOnly End)> clientPeriods,
+        string connectionId,
+        BulkWorksResponse response)
+    {
+        if (affectedClients.Count > 0)
+        {
+            response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
+
+            foreach (var clientId in affectedClients)
+            {
+                var clientTokens = works.Where(w => w.ClientId == clientId).Select(w => w.AnalyseToken).Distinct().ToList();
+                var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
+                var (clientStart, clientEnd) = clientPeriods[clientId];
+
+                var periodHours = await _periodHoursService.RecalculateAndNotifyAsync(
+                    clientId,
+                    clientStart,
+                    clientEnd,
+                    clientToken,
+                    connectionId);
+                response.PeriodHours[clientId] = periodHours;
+            }
+        }
     }
 
     /// <summary>
