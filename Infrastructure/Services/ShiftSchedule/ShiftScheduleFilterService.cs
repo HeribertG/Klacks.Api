@@ -4,7 +4,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.DTOs.Filter;
 
-namespace Klacks.Api.Domain.Services.ShiftSchedule;
+namespace Klacks.Api.Infrastructure.Services.ShiftSchedule;
 
 public class ShiftScheduleFilterService : IShiftScheduleFilterService
 {

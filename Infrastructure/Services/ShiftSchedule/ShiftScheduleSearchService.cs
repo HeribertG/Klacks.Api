@@ -5,7 +5,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Common;
 
-namespace Klacks.Api.Domain.Services.ShiftSchedule;
+namespace Klacks.Api.Infrastructure.Services.ShiftSchedule;
 
 public class ShiftScheduleSearchService : IShiftScheduleSearchService
 {
