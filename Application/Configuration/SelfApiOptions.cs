@@ -11,6 +11,8 @@ namespace Klacks.Api.Application.Configuration;
 
 public class SelfApiOptions
 {
+    public const int DefaultTimeoutSeconds = 30;
+
     public const string SectionName = "SelfApi";
 
     public string BaseUrl { get; set; } = string.Empty;
@@ -21,5 +23,5 @@ public class SelfApiOptions
     /// </summary>
     public bool AcceptAnyServerCertificate { get; set; }
 
-    public int TimeoutSeconds { get; set; } = 30;
+    public int TimeoutSeconds { get; set; } = DefaultTimeoutSeconds;
 }

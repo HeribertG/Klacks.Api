@@ -13,9 +13,11 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// </summary>
 public sealed class WizardResultCache
 {
+    private const int DefaultTtlMinutes = 15;
+
     private readonly ConcurrentDictionary<Guid, CacheEntry> _entries = new();
 
-    public int TtlMinutes { get; init; } = 15;
+    public int TtlMinutes { get; init; } = DefaultTtlMinutes;
 
     public void Store(
         Guid jobId,

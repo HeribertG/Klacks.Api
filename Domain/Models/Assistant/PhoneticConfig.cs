@@ -4,9 +4,12 @@ namespace Klacks.Api.Domain.Models.Assistant;
 
 public class PhoneticConfig
 {
+    public const int DefaultMinWordLength = 4;
+    public const int DefaultMaxEditDistance = 4;
+
     public bool Enabled { get; set; } = true;
     public string Encoder { get; set; } = "rule_based";
-    public int MinWordLength { get; set; } = 4;
-    public int MaxEditDistance { get; set; } = 4;
+    public int MinWordLength { get; set; } = DefaultMinWordLength;
+    public int MaxEditDistance { get; set; } = DefaultMaxEditDistance;
     public List<PhoneticRule> Rules { get; set; } = [];
 }

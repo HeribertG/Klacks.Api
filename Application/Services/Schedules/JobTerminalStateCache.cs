@@ -20,6 +20,8 @@ namespace Klacks.Api.Application.Services.Schedules;
 public sealed class JobTerminalStateCache<TResult>
     where TResult : class
 {
+    private const int DefaultTtlMinutes = 15;
+
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<JobTerminalStateCache<TResult>> _logger;
 
@@ -29,7 +31,7 @@ public sealed class JobTerminalStateCache<TResult>
         _logger = logger;
     }
 
-    public int TtlMinutes { get; init; } = 15;
+    public int TtlMinutes { get; init; } = DefaultTtlMinutes;
 
     public Task StoreCompletedAsync(Guid jobId, TResult result, CancellationToken cancellationToken = default) =>
         StoreAsync(jobId, WizardJobStatusValues.Completed, result, null, cancellationToken);

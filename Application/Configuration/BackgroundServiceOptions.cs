@@ -17,6 +17,17 @@ namespace Klacks.Api.Application.Configuration;
 
 public class BackgroundServiceOptions
 {
+    public const int DefaultInboundClarificationSweepIntervalSeconds = 60;
+    public const int DefaultInboundClarificationSweepStartupDelaySeconds = 15;
+    public const int DefaultLLMModelSyncIntervalHours = 24;
+    public const int DefaultGoalReflectionIntervalHours = 24;
+    public const int DefaultPlanApprovalTimeoutDays = 7;
+    public const int DefaultPlanApprovalTimeoutIntervalHours = 6;
+    public const int DefaultGoalPlanExecutionRetryIntervalHours = 6;
+    public const int DefaultSlackOwnerBridgeIntervalSeconds = 15;
+    public const int DefaultEscalationChainSweepIntervalSeconds = 30;
+    public const int DefaultEscalationChainStartupDelaySeconds = 15;
+
     public const string SectionName = "BackgroundServices";
 
     public bool ScheduleTimeline { get; set; } = true;
@@ -54,10 +65,10 @@ public class BackgroundServiceOptions
     public bool InboundClarificationSweep { get; set; } = true;
 
     /// <summary>Cadence in seconds between inbound clarification expiry sweeps.</summary>
-    public int InboundClarificationSweepIntervalSeconds { get; set; } = 60;
+    public int InboundClarificationSweepIntervalSeconds { get; set; } = DefaultInboundClarificationSweepIntervalSeconds;
 
     /// <summary>Startup delay in seconds before the first inbound clarification expiry sweep.</summary>
-    public int InboundClarificationSweepStartupDelaySeconds { get; set; } = 15;
+    public int InboundClarificationSweepStartupDelaySeconds { get; set; } = DefaultInboundClarificationSweepStartupDelaySeconds;
 
     /// <summary>
     /// Days after which the sweep clears the raw original message text of an ended inbound clarification
@@ -72,7 +83,7 @@ public class BackgroundServiceOptions
     public bool MessageRetention { get; set; } = true;
     public bool DataRetention { get; set; } = true;
     public bool LLMModelSync { get; set; } = true;
-    public int LLMModelSyncIntervalHours { get; set; } = 24;
+    public int LLMModelSyncIntervalHours { get; set; } = DefaultLLMModelSyncIntervalHours;
     public bool UpdateDetection { get; set; } = true;
 
     /// <summary>
@@ -118,7 +129,7 @@ public class BackgroundServiceOptions
     /// <summary>
     /// Interval in hours between goal-reflection cycles when <see cref="GoalReflection"/> is enabled.
     /// </summary>
-    public int GoalReflectionIntervalHours { get; set; } = 24;
+    public int GoalReflectionIntervalHours { get; set; } = DefaultGoalReflectionIntervalHours;
 
     /// <summary>
     /// Switches goal-reflection candidates from Phase 1 shadow mode to Phase 2 delivery (see
@@ -169,13 +180,13 @@ public class BackgroundServiceOptions
     /// Number of days an AgentPlan may remain in PausedForApproval before
     /// <see cref="PlanApprovalTimeout"/> aborts it.
     /// </summary>
-    public int PlanApprovalTimeoutDays { get; set; } = 7;
+    public int PlanApprovalTimeoutDays { get; set; } = DefaultPlanApprovalTimeoutDays;
 
     /// <summary>
     /// Interval in hours between plan-approval-timeout sweeps when <see cref="PlanApprovalTimeout"/> is
     /// enabled.
     /// </summary>
-    public int PlanApprovalTimeoutIntervalHours { get; set; } = 6;
+    public int PlanApprovalTimeoutIntervalHours { get; set; } = DefaultPlanApprovalTimeoutIntervalHours;
 
     /// <summary>
     /// Enables the Phase 4 execution-retry sweep (GoalPlanExecutionRetryBackgroundService, see
@@ -194,7 +205,7 @@ public class BackgroundServiceOptions
     /// Interval in hours between goal-plan-execution-retry sweeps when
     /// <see cref="GoalPlanExecutionRetry"/> is enabled.
     /// </summary>
-    public int GoalPlanExecutionRetryIntervalHours { get; set; } = 6;
+    public int GoalPlanExecutionRetryIntervalHours { get; set; } = DefaultGoalPlanExecutionRetryIntervalHours;
 
     /// <summary>
     /// Enables the Slack owner bridge: polls inbound Slack messages from the owner's registered
@@ -211,7 +222,7 @@ public class BackgroundServiceOptions
     /// Poll interval in seconds between Slack owner bridge cycles when <see cref="SlackOwnerBridge"/>
     /// is enabled.
     /// </summary>
-    public int SlackOwnerBridgeIntervalSeconds { get; set; } = 15;
+    public int SlackOwnerBridgeIntervalSeconds { get; set; } = DefaultSlackOwnerBridgeIntervalSeconds;
 
     /// <summary>
     /// Enables the group geocoding worker, which sweeps unattempted groups at startup and then drains
@@ -344,13 +355,13 @@ public class BackgroundServiceOptions
     /// Settings table: changing it needs a restart on every instance anyway, since each instance runs
     /// its own PeriodicTimer.
     /// </summary>
-    public int EscalationChainSweepIntervalSeconds { get; set; } = 30;
+    public int EscalationChainSweepIntervalSeconds { get; set; } = DefaultEscalationChainSweepIntervalSeconds;
 
     /// <summary>
     /// Startup delay in SECONDS, not minutes like most services in this file: a restart at 03:05 must
     /// not leave the chain standing while planners wait unnotified.
     /// </summary>
-    public int EscalationChainStartupDelaySeconds { get; set; } = 15;
+    public int EscalationChainStartupDelaySeconds { get; set; } = DefaultEscalationChainStartupDelaySeconds;
 
     /// <summary>
     /// Enables the daily condition-ledger digest (Etappe 3h of the Klacksy-proactive plan): once per
