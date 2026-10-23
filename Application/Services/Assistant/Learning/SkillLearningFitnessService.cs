@@ -21,6 +21,7 @@
 /// <param name="logger">One summary line per pass</param>
 
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -133,7 +134,7 @@ public class SkillLearningFitnessService : ISkillLearningFitnessService
     private static DateTime StartOfWeek(DateTime moment)
     {
         var date = moment.Date;
-        var offset = ((int)date.DayOfWeek + 6) % 7;
+        var offset = date.DayOfWeek.DaysSinceMonday();
         return DateTime.SpecifyKind(date.AddDays(-offset), DateTimeKind.Utc);
     }
 }

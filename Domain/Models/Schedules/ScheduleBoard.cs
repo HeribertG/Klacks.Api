@@ -4,11 +4,14 @@
 /// 2D container for all clients over a period.
 /// Enables cross-client analyses such as coverage and understaffing.
 /// </summary>
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Models.Schedules;
 
 public class ScheduleBoard
 {
     private const int MaxUnderstaffedResults = 100;
+    private const int HourlyCoverageSampleMinute = 30;
 
     private readonly Dictionary<Guid, ClientTimeline> _timelines = new();
 
@@ -98,9 +101,9 @@ public class ScheduleBoard
     public Dictionary<int, int> GetHourlyCoverage(DateOnly date)
     {
         var coverage = new Dictionary<int, int>();
-        for (var hour = 0; hour < 24; hour++)
+        for (var hour = 0; hour < DayTimeConstants.HoursPerDay; hour++)
         {
-            var point = date.ToDateTime(new TimeOnly(hour, 30));
+            var point = date.ToDateTime(new TimeOnly(hour, HourlyCoverageSampleMinute));
             coverage[hour] = GetStaffCount(point);
         }
         return coverage;

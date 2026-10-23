@@ -12,6 +12,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -59,7 +60,7 @@ public class GetClientAbsenceSummarySkill : BaseSkillImplementation
         }
 
         var yearStart = new DateOnly(year, 1, 1);
-        var yearEnd = new DateOnly(year, 12, 31);
+        var yearEnd = new DateOnly(year, CalendarConstants.MonthsPerYear, CalendarConstants.DaysInDecember);
         var yearStartUtc = yearStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
         var yearEndUtc = yearEnd.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 

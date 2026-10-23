@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Extensions;
 using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Services.Schedules;
@@ -115,7 +116,7 @@ public static class WarmStartWeekdayMapper
 
     private static DateOnly MondayOf(DateOnly date)
     {
-        var mondayOffset = ((int)date.DayOfWeek + 6) % 7;
+        var mondayOffset = date.DayOfWeek.DaysSinceMonday();
         return date.AddDays(-mondayOffset);
     }
 }

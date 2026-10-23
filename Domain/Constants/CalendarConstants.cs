@@ -17,4 +17,6 @@ public static class CalendarConstants
     public const int MonthsPerSemester = 6;
 
     public const int MonthsPerYear = 12;
+
+    public const int DaysInDecember = 31;
 }

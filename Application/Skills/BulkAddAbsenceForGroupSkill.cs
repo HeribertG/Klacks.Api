@@ -21,6 +21,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -151,7 +152,7 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
                 AbsenceId = absence.Id,
                 CurrentDate = date,
                 StartTime = new TimeOnly(0, 0),
-                EndTime = new TimeOnly(23, 59),
+                EndTime = DayTimeConstants.LastMinuteOfDay,
                 WorkTime = workTime,
                 Information = information,
                 AnalyseToken = null

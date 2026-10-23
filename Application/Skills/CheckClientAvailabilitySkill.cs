@@ -16,6 +16,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -98,7 +99,7 @@ public class CheckClientAvailabilitySkill : BaseSkillImplementation
             : availableHours.Count > 0 ? "positive" : "legacy-negative";
 
         var windowStart = new TimeOnly(startHour, 0);
-        var windowEnd = endHour == MaxHour ? new TimeOnly(23, 59) : new TimeOnly(endHour + 1, 0);
+        var windowEnd = endHour == MaxHour ? DayTimeConstants.LastMinuteOfDay : new TimeOnly(endHour + 1, 0);
         var availabilityBlocks = AvailabilityMatcher.IsUnavailable(entries, date, windowStart, windowEnd);
 
         string governingLayer;

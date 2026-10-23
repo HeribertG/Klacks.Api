@@ -17,6 +17,8 @@ namespace Klacks.Api.Application.Handlers.ScheduleEntries;
 
 public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntriesQuery, WorkScheduleResponse>
 {
+    private const int FallbackWindowMarginDays = 10;
+
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IShiftGroupFilterService _groupFilterService;
     private readonly IWorkRepository _workRepository;
@@ -54,8 +56,8 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
         {
             _logger.LogError("Invalid dates received - using current month as fallback");
             var now = DateTime.UtcNow;
-            startDate = new DateOnly(now.Year, now.Month, 1).AddDays(-10);
-            endDate = new DateOnly(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month)).AddDays(10);
+            startDate = new DateOnly(now.Year, now.Month, 1).AddDays(-FallbackWindowMarginDays);
+            endDate = new DateOnly(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month)).AddDays(FallbackWindowMarginDays);
         }
 
         _logger.LogInformation(

@@ -18,6 +18,7 @@
 /// limitation, since records are keyed by date + hour).
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Staffs;
 
 namespace Klacks.Api.Application.Services.Schedules;
@@ -77,7 +78,7 @@ public static class AvailabilityMatcher
         }
         else
         {
-            lastHour = 23;
+            lastHour = DayTimeConstants.LastHourOfDay;
         }
 
         for (var hour = firstHour; hour <= lastHour; hour++)

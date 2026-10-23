@@ -1,11 +1,17 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-﻿using Klacks.Api.Domain.Enums;
+﻿using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Extensions;
 
 public static class DayOfWeekExtensions
 {
+    public static int DaysSinceMonday(this DayOfWeek dayOfWeek)
+    {
+        return ((int)dayOfWeek + CalendarConstants.DaysPerWeek - 1) % CalendarConstants.DaysPerWeek;
+    }
+
     public static ShiftDayType ToShiftDayType(this DayOfWeek dayOfWeek)
     {
         return dayOfWeek switch

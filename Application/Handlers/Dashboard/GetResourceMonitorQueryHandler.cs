@@ -22,6 +22,7 @@
 /// </summary>
 /// <param name="readRepository">Read-side repository for contracts, clients, shifts, absences and settings</param>
 /// <param name="logger">Logger for error handling via BaseHandler</param>
+using Klacks.Api.Domain.Constants;
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Application.Handlers;
@@ -56,7 +57,7 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
         return await ExecuteAsync(async () =>
         {
             var startDate = new DateOnly(request.Year, 1, 1);
-            var endDate = new DateOnly(request.Year, 12, 31);
+            var endDate = new DateOnly(request.Year, CalendarConstants.MonthsPerYear, CalendarConstants.DaysInDecember);
 
             var settings = await ResourceMonitorSettingsReader.ReadAsync(_readRepository, cancellationToken);
 

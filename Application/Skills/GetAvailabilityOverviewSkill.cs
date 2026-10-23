@@ -19,6 +19,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ClientAvailabilities;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -107,7 +108,7 @@ public class GetAvailabilityOverviewSkill : BaseSkillImplementation
             .ToDictionary(g => g.Key, g => g.ToList());
 
         var windowStart = new TimeOnly(startHour, 0);
-        var windowEnd = endHour == MaxHour ? new TimeOnly(23, 59) : new TimeOnly(endHour + 1, 0);
+        var windowEnd = endHour == MaxHour ? DayTimeConstants.LastMinuteOfDay : new TimeOnly(endHour + 1, 0);
 
         var rows = clientResponse.Clients.Select(c =>
         {
