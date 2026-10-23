@@ -63,7 +63,6 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private const int IsoThursday = 4;
     private const int IsoFriday = 5;
     private const int IsoSaturday = 6;
-    private const int IsoSunday = 7;
 
     private const string SkillName = "bundle_nearby_timerange_shifts_into_container";
     private const int MinIsoWeekday = 1;
