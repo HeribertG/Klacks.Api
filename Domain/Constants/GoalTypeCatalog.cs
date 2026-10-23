@@ -126,6 +126,7 @@ public static class GoalTypeCatalog
                 "an imported or manually created order has not yet been sealed into a staffable shift",
                 "Seal open orders earlier",
                 "Open orders were present on {0} of the last {1} days.",
+                chatPromptKey: SetupChatPromptKeys.OrdersReviewRequest,
                 requiresPlannableShifts: true),
 
             [AgentTriggerKinds.UncutFulldayShift] = Define(
@@ -215,7 +216,7 @@ public static class GoalTypeCatalog
                 "orders exist, but none has been sealed into a plannable shift yet, so nobody can be assigned",
                 "Seal the open orders",
                 "Orders without a single plannable shift came up {0} time(s) in the last {1} days.",
-                chatPromptKey: SetupChatPromptKeys.SealOpenOrdersRequest),
+                chatPromptKey: SetupChatPromptKeys.OrdersReviewRequest),
         };
 
     public static GoalTypeDefinition FindForStage(ScheduleSetupStage stage) =>

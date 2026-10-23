@@ -15,8 +15,9 @@
 /// logged; the caller always gets null rather than an exception, because this runs on a fire-and-forget
 /// background path that must never take down the request that triggered it. The goal type is resolved against
 /// the installation's current state first: a goal that no longer fits is not drafted, and a goal whose catalogue
-/// entry carries a ChatPromptKey (the setup stages without a plannable shift) is never drafted either - its first
-/// step (sealing orders, or creating the first ones) runs only in the chat, and PlanStepRunner refuses a preview
+/// entry carries a ChatPromptKey (the setup stages without a plannable shift, and the open-order goal) is never drafted
+/// either - its first step (going through and sealing orders, or creating the first ones) runs only in the chat, and
+/// PlanStepRunner refuses a preview
 /// skill in a plan anyway. That is what keeps an approved "no schedule yet" goal from ever becoming a scheduling
 /// plan while there is not a single plannable shift.
 /// </summary>

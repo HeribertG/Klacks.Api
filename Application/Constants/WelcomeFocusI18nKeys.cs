@@ -5,8 +5,9 @@
 /// the frontend resolves them via TranslateService - no localized text lives in C# code. All
 /// lists exactly the thirteen keys this feature introduces, which is what the i18n gate test walks;
 /// SetupConsultationAction and SetupConsultationAccept deliberately stay out of it, because they are the
-/// pre-existing setup consultation keys and are not owned by this feature. SealOpenOrdersRequest is the chat
-/// request the "yes, seal" answer submits; it is shared with the setup goal and lives in SetupChatPromptKeys.
+/// pre-existing setup consultation keys and are not owned by this feature. The action of the
+/// no-shifts question submits SetupChatPromptKeys.OrdersReviewRequest, a request to go through the open orders together
+/// that seals nothing; it is shared with the order goals and lives in SetupChatPromptKeys.
 /// </summary>
 
 namespace Klacks.Api.Application.Constants;

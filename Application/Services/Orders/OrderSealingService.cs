@@ -116,12 +116,12 @@ public sealed class OrderSealingService : IOrderSealingService
         return missing;
     }
 
-    public async Task<OrderSealingOutcome> SealAsync(Guid orderId, CancellationToken cancellationToken = default)
+    public async Task<OrderSealingCheck> CheckAsync(Guid orderId, CancellationToken cancellationToken = default)
     {
         var order = await _shiftRepository.Get(orderId);
         if (order == null || !await _shiftVisibilityGuard.IsVisibleAsync(order, cancellationToken))
         {
-            return Refused(orderId, string.Empty, string.Format(NotFoundFormat, orderId), []);
+            return new OrderSealingCheck(null, Refused(orderId, string.Empty, string.Format(NotFoundFormat, orderId), []));
         }
 
         if (order.Status != ShiftStatus.OriginalOrder)
@@ -130,19 +130,31 @@ public sealed class OrderSealingService : IOrderSealingService
                 ? string.Format(AlreadySealedFormat, order.Name)
                 : string.Format(NotAnOrderFormat, order.Name, order.Status);
 
-            return Refused(orderId, order.Name, reason, []);
+            return new OrderSealingCheck(null, Refused(orderId, order.Name, reason, []));
         }
 
         var missing = CollectMissingRequirements(order);
         if (missing.Count > 0)
         {
-            return Refused(
+            return new OrderSealingCheck(null, Refused(
                 orderId,
                 order.Name,
                 string.Format(MissingRequirementsFormat, order.Name, string.Join(", ", missing)),
-                missing);
+                missing));
         }
 
+        return new OrderSealingCheck(order, null);
+    }
+
+    public async Task<OrderSealingOutcome> SealAsync(Guid orderId, CancellationToken cancellationToken = default)
+    {
+        var check = await CheckAsync(orderId, cancellationToken);
+        if (check.Refusal != null)
+        {
+            return check.Refusal;
+        }
+
+        var order = check.SealableOrder!;
         order.Status = ShiftStatus.SealedOrder;
 
         try

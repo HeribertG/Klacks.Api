@@ -175,7 +175,10 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // cannot be gated more weakly than the single-order skill it shares its code with: one confirmed
         // call turns every matching order into an immutable SealedOrder at once. The price is that its
         // apply=false preview asks for a confirmation too, unlike the Irreversible bulk group writers
-        // below — deliberate, because there is no counterpart skill that could take any of it back.
+        // below — deliberate, because there is no counterpart skill that could take any of it back. Both seal
+        // skills also carry a server preview (SealOpenOrdersConfirmationPreviewProvider,
+        // SealShiftConfirmationPreviewProvider): they seal only as the confirmed replay of what that preview
+        // showed, and no agent plan can run them (PlanningAgent leaves them out, PlanStepRunner fails the step).
         "seal_shift",
         "seal_open_orders",
         "set_sealed_order_until_date",

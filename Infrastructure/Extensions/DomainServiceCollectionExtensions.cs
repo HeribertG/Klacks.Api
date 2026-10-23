@@ -329,6 +329,10 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Application.Skills.BulkWorkDeletionConfirmationPreviewProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
                            Klacks.Api.Application.Skills.SendMessageConfirmationPreviewProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
+                           Klacks.Api.Application.Skills.SealOpenOrdersConfirmationPreviewProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
+                           Klacks.Api.Application.Skills.SealShiftConfirmationPreviewProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IConfirmationPreviewCatalog,
                            Klacks.Api.Application.Services.Assistant.Autonomy.ConfirmationPreviewCatalog>();
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
@@ -512,6 +516,8 @@ internal static class DomainServiceCollectionExtensions
             Klacks.Api.Application.Services.Grouping.CustomerGroupingPlanner>();
         services.AddScoped<Klacks.Api.Application.Interfaces.IOrderSealingService,
             Klacks.Api.Application.Services.Orders.OrderSealingService>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.ISealOpenOrdersPlanner,
+                           Klacks.Api.Application.Services.Orders.SealOpenOrdersPlanner>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupGeocoder,
             Klacks.Api.Application.Services.Grouping.GroupGeocoder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupPlaceClassifier,

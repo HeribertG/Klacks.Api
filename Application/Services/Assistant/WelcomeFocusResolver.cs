@@ -258,7 +258,7 @@ public class WelcomeFocusResolver : IWelcomeFocusResolver
                 WelcomeFocusI18nKeys.NoShiftsPrompt,
                 WelcomeFocusActionKinds.Prompt,
                 WelcomeFocusI18nKeys.NoShiftsAction,
-                SetupChatPromptKeys.SealOpenOrdersRequest);
+                SetupChatPromptKeys.OrdersReviewRequest);
         }
 
         return stage == ScheduleSetupStage.NothingYet

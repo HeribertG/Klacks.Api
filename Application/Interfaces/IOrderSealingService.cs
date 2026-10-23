@@ -20,6 +20,14 @@ public interface IOrderSealingService
     IReadOnlyList<string> CollectMissingRequirements(Shift order);
 
     /// <summary>
+    /// Loads the order and decides, without writing, whether SealAsync would seal it right now; a refusal carries the
+    /// very outcome SealAsync returns for it. Used to preview a single sealing before it is confirmed.
+    /// </summary>
+    /// <param name="orderId">Id of the order (status OriginalOrder) to check.</param>
+    /// <param name="cancellationToken">Token cancelling the read of the order.</param>
+    Task<OrderSealingCheck> CheckAsync(Guid orderId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Loads the order, refuses it when its status or its fields do not allow sealing, and otherwise
     /// performs the transition inside its own transaction, re-reading both the sealed order and the
     /// created plannable shift before the commit.
