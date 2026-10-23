@@ -9,7 +9,7 @@ using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 
-namespace Klacks.Api.Domain.Interfaces.Schedules;
+namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public interface IShiftQueryPipelineService
 {

@@ -15,6 +15,7 @@ using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Infrastructure.Services.Schedules;
 
 namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 

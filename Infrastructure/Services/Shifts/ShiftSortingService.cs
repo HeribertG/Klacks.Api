@@ -3,7 +3,7 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 
-namespace Klacks.Api.Domain.Services.Shifts;
+namespace Klacks.Api.Infrastructure.Services.Shifts;
 
 public class ShiftSortingService : IShiftSortingService
 {

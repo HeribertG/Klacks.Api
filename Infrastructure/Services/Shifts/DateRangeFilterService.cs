@@ -12,7 +12,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using System.Linq.Expressions;
 
-namespace Klacks.Api.Domain.Services.Shifts;
+namespace Klacks.Api.Infrastructure.Services.Shifts;
 
 public class DateRangeFilterService : IDateRangeFilterService
 {

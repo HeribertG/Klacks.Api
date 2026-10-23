@@ -13,6 +13,7 @@ using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Infrastructure.Services.Shifts;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
