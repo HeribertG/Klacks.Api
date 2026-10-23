@@ -242,28 +242,12 @@ public class ChatController : ControllerBase
 
         var normalized = _normalizer.Normalize(request.Message, locale);
 
-        Response.ContentType = "text/event-stream";
-        Response.Headers.Append("Cache-Control", "no-cache");
-        Response.Headers.Append("Connection", "keep-alive");
-        Response.Headers.Append("X-Accel-Buffering", "no");
-
-        await Response.StartAsync(cancellationToken);
-
-        // Sent here rather than where the assembly is actually started: everything between this line
-        // and the orchestrator - the navigation match and its feedback log, which is a DB write - runs
-        // before the browser would otherwise learn that anything is happening. The event is advisory,
-        // so every path below stays free to continue with its own events; the fast path just sends
-        // metadata, content and done on top of it.
-        await WriteSseEventAsync(
-            SseChunk.Status(SseStatusStages.AssemblingToolset, ElapsedMsSince(turnStartTimestamp)),
-            cancellationToken);
+        await StartEventStreamAsync(cancellationToken);
+        await WriteAssemblingStatusAsync(turnStartTimestamp, cancellationToken);
 
         if (normalized.IsEmptyAfterNormalization)
         {
-            await _navLogger.LogAsync(request.Message, locale, null, 0, null, currentUserGuid, cancellationToken);
-            await WriteSseEventAsync(
-                SseChunk.Content(NavigationResponseKeys.EmptyUtteranceGreeting), cancellationToken);
-            await WriteSseEventAsync(SseChunk.Done(), cancellationToken);
+            await WriteEmptyUtteranceAnswerAsync(request.Message, locale, currentUserGuid, cancellationToken);
             return;
         }
 
@@ -272,17 +256,7 @@ public class ChatController : ControllerBase
 
         if (await ShouldFastPathAsync(navMatch, request.Message, request.ConversationId, userId))
         {
-            await WriteSseEventAsync(
-                new SseChunk
-                {
-                    Type = SseChunkType.Metadata,
-                    NavigateTo = navMatch.Route,
-                    Target = ResolveInPageTarget(navMatch),
-                    ActionPerformed = true
-                },
-                cancellationToken);
-            await WriteSseEventAsync(SseChunk.Content(NavigationResponseKeys.FastPathAck), cancellationToken);
-            await WriteSseEventAsync(SseChunk.Done(), cancellationToken);
+            await WriteFastPathAnswerAsync(navMatch, cancellationToken);
             return;
         }
 
@@ -294,27 +268,8 @@ public class ChatController : ControllerBase
         var turnId = Guid.NewGuid();
         TurnCorrelation.Set(turnId);
 
-        var streamRequest = new LLMStreamRequest
-        {
-            TurnId = turnId,
-            TurnStartTimestamp = turnStartTimestamp,
-            Message = request.Message,
-            UserId = userId,
-            ConversationId = request.ConversationId,
-            ModelId = request.ModelId,
-            Language = request.Language,
-            UserRights = userRights,
-            AccessToken = Request.GetBearerToken(),
-            PageContext = request.PageContext,
-            IsVoiceMode = request.IsVoiceMode
-        };
-
-        // No user id means the turn can never be stopped by anyone (the registry refuses an empty owner and
-        // the cancel endpoint answers 404 for it), so it streams unregistered instead of failing. Registered
-        // directly before the try so that nothing between the registration and the finally can leak an entry.
-        streamRequest.StopToken = string.IsNullOrWhiteSpace(userId)
-            ? CancellationToken.None
-            : _turnRegistry.Register(turnId, userId);
+        var streamRequest = BuildStreamRequest(request, turnId, turnStartTimestamp, userId, userRights);
+        streamRequest.StopToken = RegisterForStopRequests(turnId, userId);
 
         var endedInError = false;
         var stopEscaped = false;
@@ -346,20 +301,137 @@ public class ChatController : ControllerBase
         catch (Exception ex)
         {
             endedInError = true;
-            _logger.LogError(ex, "Error during SSE streaming for user {UserId}", userId);
-            try
-            {
-                await WriteSseEventAsync(
-                    SseChunk.Error(AssistantStreamErrorMessages.UnexpectedFailure), cancellationToken);
-            }
-            catch (Exception writeEx)
-            {
-                _logger.LogDebug(writeEx, "Failed to send error chunk to disconnected client for user {UserId}", userId);
-            }
+            await ReportStreamFailureAsync(ex, userId, cancellationToken);
         }
         finally
         {
             await FinalizeTurnAsync(turnId, userId, endedInError, stopEscaped && !stopReported, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Switches the response to an unbuffered server-sent event stream and sends its headers.
+    /// </summary>
+    /// <param name="cancellationToken">Aborts the header write when the client disconnects</param>
+    private async Task StartEventStreamAsync(CancellationToken cancellationToken)
+    {
+        Response.ContentType = "text/event-stream";
+        Response.Headers.Append("Cache-Control", "no-cache");
+        Response.Headers.Append("Connection", "keep-alive");
+        Response.Headers.Append("X-Accel-Buffering", "no");
+
+        await Response.StartAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Sends the first status event right after the headers rather than where the assembly is actually started:
+    /// everything between this event and the orchestrator - the navigation match and its feedback log, which is a DB
+    /// write - runs before the browser would otherwise learn that anything is happening. The event is advisory, so
+    /// every path after it stays free to continue with its own events; the fast path just sends metadata, content and
+    /// done on top of it.
+    /// </summary>
+    /// <param name="turnStartTimestamp">Stopwatch timestamp the request arrived at</param>
+    /// <param name="cancellationToken">Aborts the write when the client disconnects</param>
+    private async Task WriteAssemblingStatusAsync(long turnStartTimestamp, CancellationToken cancellationToken)
+    {
+        await WriteSseEventAsync(
+            SseChunk.Status(SseStatusStages.AssemblingToolset, ElapsedMsSince(turnStartTimestamp)),
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Registers the turn so its owner can stop it and returns the stop token. No user id means the turn can never be
+    /// stopped by anyone (the registry refuses an empty owner and the cancel endpoint answers 404 for it), so it
+    /// streams unregistered instead of failing. The caller registers directly before its try so that nothing between
+    /// the registration and the finally can leak an entry.
+    /// </summary>
+    /// <param name="turnId">The turn to register</param>
+    /// <param name="userId">The turn's owner</param>
+    private CancellationToken RegisterForStopRequests(Guid turnId, string userId) =>
+        string.IsNullOrWhiteSpace(userId)
+            ? CancellationToken.None
+            : _turnRegistry.Register(turnId, userId);
+
+    /// <summary>
+    /// Answers a message that is empty after normalization (e.g. only the wake word) with the greeting, without an
+    /// LLM turn; the utterance is still booked as navigation feedback.
+    /// </summary>
+    /// <param name="message">The raw user message, for the feedback log</param>
+    /// <param name="locale">The request language, "en" when none was sent</param>
+    /// <param name="currentUserGuid">The calling user, null when the id is no GUID</param>
+    /// <param name="cancellationToken">Aborts the log and the writes when the client disconnects</param>
+    private async Task WriteEmptyUtteranceAnswerAsync(
+        string message, string locale, Guid? currentUserGuid, CancellationToken cancellationToken)
+    {
+        await _navLogger.LogAsync(message, locale, null, 0, null, currentUserGuid, cancellationToken);
+        await WriteSseEventAsync(
+            SseChunk.Content(NavigationResponseKeys.EmptyUtteranceGreeting), cancellationToken);
+        await WriteSseEventAsync(SseChunk.Done(), cancellationToken);
+    }
+
+    /// <summary>
+    /// Answers a navigation fast-path match without an LLM turn: the route and in-page target as metadata, then the
+    /// acknowledgment and done.
+    /// </summary>
+    /// <param name="navMatch">The exact, single-candidate match the fast-path answers</param>
+    /// <param name="cancellationToken">Aborts the writes when the client disconnects</param>
+    private async Task WriteFastPathAnswerAsync(NavigationMatchResult navMatch, CancellationToken cancellationToken)
+    {
+        await WriteSseEventAsync(
+            new SseChunk
+            {
+                Type = SseChunkType.Metadata,
+                NavigateTo = navMatch.Route,
+                Target = ResolveInPageTarget(navMatch),
+                ActionPerformed = true
+            },
+            cancellationToken);
+        await WriteSseEventAsync(SseChunk.Content(NavigationResponseKeys.FastPathAck), cancellationToken);
+        await WriteSseEventAsync(SseChunk.Done(), cancellationToken);
+    }
+
+    /// <summary>
+    /// Builds the orchestrator request of a streaming turn; the stop token is set by the caller after registration.
+    /// </summary>
+    /// <param name="request">The client request</param>
+    /// <param name="turnId">Id the turn is logged and stored under, already published as TurnCorrelation</param>
+    /// <param name="turnStartTimestamp">Stopwatch timestamp the request arrived at</param>
+    /// <param name="userId">The calling user</param>
+    /// <param name="userRights">The calling user's expanded rights</param>
+    private LLMStreamRequest BuildStreamRequest(
+        LLMRequest request, Guid turnId, long turnStartTimestamp, string userId, List<string> userRights) => new()
+    {
+        TurnId = turnId,
+        TurnStartTimestamp = turnStartTimestamp,
+        Message = request.Message,
+        UserId = userId,
+        ConversationId = request.ConversationId,
+        ModelId = request.ModelId,
+        Language = request.Language,
+        UserRights = userRights,
+        AccessToken = Request.GetBearerToken(),
+        PageContext = request.PageContext,
+        IsVoiceMode = request.IsVoiceMode
+    };
+
+    /// <summary>
+    /// Logs an unexpected streaming failure and tries to tell the client with the generic error event; a client that
+    /// is already gone only produces a debug line.
+    /// </summary>
+    /// <param name="ex">The failure that ended the turn</param>
+    /// <param name="userId">The turn's user, for the log only</param>
+    /// <param name="cancellationToken">Aborts the error write when the client disconnects</param>
+    private async Task ReportStreamFailureAsync(Exception ex, string userId, CancellationToken cancellationToken)
+    {
+        _logger.LogError(ex, "Error during SSE streaming for user {UserId}", userId);
+        try
+        {
+            await WriteSseEventAsync(
+                SseChunk.Error(AssistantStreamErrorMessages.UnexpectedFailure), cancellationToken);
+        }
+        catch (Exception writeEx)
+        {
+            _logger.LogDebug(writeEx, "Failed to send error chunk to disconnected client for user {UserId}", userId);
         }
     }
 
