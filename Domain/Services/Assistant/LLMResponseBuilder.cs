@@ -17,6 +17,12 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 public class LLMResponseBuilder
 {
+    private const int RepliesModeGroup = 1;
+    private const int RepliesPromptGroup = 2;
+    private const int RepliesOptionsGroup = 3;
+    private const int NumericBoundNameGroup = 1;
+    private const int NumericBoundValueGroup = 2;
+
     internal static readonly Regex SuggestionsBlockRegex = new(
         @"\[SUGGESTIONS:\s*(.*?)\]",
         RegexOptions.Compiled | RegexOptions.Singleline);
@@ -126,13 +132,13 @@ public class LLMResponseBuilder
 
         foreach (Match bound in RepliesNumericBoundRegex.Matches(optionsRaw))
         {
-            var raw = bound.Groups[2].Value.Replace(',', '.');
+            var raw = bound.Groups[NumericBoundValueGroup].Value.Replace(',', '.');
             if (!decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
             {
                 continue;
             }
 
-            switch (bound.Groups[1].Value.ToLowerInvariant())
+            switch (bound.Groups[NumericBoundNameGroup].Value.ToLowerInvariant())
             {
                 case "min": min = value; break;
                 case "max": max = value; break;
@@ -158,11 +164,11 @@ public class LLMResponseBuilder
         if (!match.Success)
             return (content, null);
 
-        var mode = match.Groups[1].Value;
-        var prompt = match.Groups[2].Success && !string.IsNullOrWhiteSpace(match.Groups[2].Value)
-            ? match.Groups[2].Value.Trim()
+        var mode = match.Groups[RepliesModeGroup].Value;
+        var prompt = match.Groups[RepliesPromptGroup].Success && !string.IsNullOrWhiteSpace(match.Groups[RepliesPromptGroup].Value)
+            ? match.Groups[RepliesPromptGroup].Value.Trim()
             : null;
-        var optionsRaw = match.Groups[3].Value;
+        var optionsRaw = match.Groups[RepliesOptionsGroup].Value;
 
         SuggestedRepliesConfig config;
 
