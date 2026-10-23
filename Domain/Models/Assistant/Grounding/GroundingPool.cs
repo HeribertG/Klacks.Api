@@ -17,6 +17,11 @@ namespace Klacks.Api.Domain.Models.Assistant.Grounding;
 public sealed class GroundingPool
 {
     public const int PairArithmeticNumberCap = 200;
+    private const int MaxRoundedDecimalPlaces = 2;
+    private const int MonthsPerYear = 12;
+    private const int MaxDaysPerMonth = 31;
+    private const int YearlessDayGroup = 1;
+    private const int YearlessMonthGroup = 2;
 
     public HashSet<string> NumberKeys { get; } = new(StringComparer.Ordinal);
 
@@ -81,7 +86,7 @@ public sealed class GroundingPool
         }
 
         var decimals = DecimalPlaces(reading);
-        if (decimals <= 2 && Numbers.Any(n => SafeRound(n, decimals) == value))
+        if (decimals <= MaxRoundedDecimalPlaces && Numbers.Any(n => SafeRound(n, decimals) == value))
         {
             return true;
         }
@@ -117,9 +122,9 @@ public sealed class GroundingPool
             return false;
         }
 
-        var day = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-        var month = int.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
-        if (month is < 1 or > 12 || day < 1 || day > 31)
+        var day = int.Parse(match.Groups[YearlessDayGroup].Value, CultureInfo.InvariantCulture);
+        var month = int.Parse(match.Groups[YearlessMonthGroup].Value, CultureInfo.InvariantCulture);
+        if (month is < 1 or > MonthsPerYear || day < 1 || day > MaxDaysPerMonth)
         {
             return false;
         }
