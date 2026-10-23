@@ -138,5 +138,8 @@ public static class RecipeConstants
     public const string CutShiftStepNote =
         "RECIPE 'dienst-aus-bestellung-schneiden' — step 3 of 3: now call cut_shift to split the order you just " +
         "created. Use the ShiftId returned by the previous create_shift result as cut_shift's shiftId. " +
+        "A cut always needs the user's explicit confirmation: the server holds the call and nothing is cut yet. Then " +
+        "list the parts for the user (times and names) and say that every part carries the order's default expenses, " +
+        "ask for the confirmation and stop. " +
         "Do NOT navigate to the cut page and do NOT call create_shift again.";
 }
