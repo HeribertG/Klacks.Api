@@ -5,6 +5,7 @@
 /// Metadata (name, description, parameters) comes from the database via SkillDescriptor.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -13,6 +14,8 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 public abstract class BaseSkillImplementation : ISkillImplementation
 {
+    private const int AbbreviationLength = 3;
+
     public abstract Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
@@ -52,7 +55,7 @@ public abstract class BaseSkillImplementation : ISkillImplementation
         var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 1)
         {
-            return name.Length >= 3 ? name[..3].ToUpper() : name.ToUpper();
+            return name.Length >= AbbreviationLength ? name[..AbbreviationLength].ToUpper() : name.ToUpper();
         }
 
         return string.Concat(parts.Select(p => char.ToUpper(p[0])));
@@ -63,7 +66,7 @@ public abstract class BaseSkillImplementation : ISkillImplementation
         var duration = end.ToTimeSpan() - start.ToTimeSpan();
         if (duration.TotalHours <= 0)
         {
-            duration = duration.Add(TimeSpan.FromHours(24));
+            duration = duration.Add(TimeSpan.FromHours(DayTimeConstants.HoursPerDay));
         }
 
         return (decimal)duration.TotalHours;
