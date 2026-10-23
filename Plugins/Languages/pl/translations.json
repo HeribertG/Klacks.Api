@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "W sekcji Osoby znajdziesz pracowników i adresy z danymi kontaktowymi, umowami i grupami. Grafik korzysta z tych danych przy dostępności i godzinach.",
   "assistant-chat.onboarding.intro.explain.period-closing": "Przy zamknięciu okresu zatwierdzasz przedział czasu i go pieczętujesz. Od tej chwili dane są wiążącą podstawą raportów i eksportów.",
   "assistant-chat.onboarding.intro.explain.klacksy": "A ja jestem Klacksy: po prostu zapytaj mnie, o co chcesz. Jeśli odpowiedź jest za długa, powiedz „prościej” albo „krócej”. Mogę też wykonywać za Ciebie polecenia planowania; powiedz tylko, czego potrzebujesz.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Dzięki wiadomościom piszesz bezpośrednio do pracowników, na przykład przez Telegram, i widzisz tu ich odpowiedzi. Tak dotrzesz do zespołu także w drodze."
+  "assistant-chat.onboarding.intro.explain.messaging": "Dzięki wiadomościom piszesz bezpośrednio do pracowników, na przykład przez Telegram, i widzisz tu ich odpowiedzi. Tak dotrzesz do zespołu także w drodze.",
+  "holisticHarmonizer.critic.title": "Uwagi AI do planu",
+  "holisticHarmonizer.critic.intro": "Model wizyjny sprawdził gotowy plan. Uwagi są tylko sugestiami – plan nie został zmieniony.",
+  "holisticHarmonizer.critic.none": "Nie znaleziono nic godnego uwagi.",
+  "holisticHarmonizer.critic.failed": "Nie udało się wykonać sprawdzenia planu przez AI.",
+  "holisticHarmonizer.critic.discarded": "Odrzucono uwagi ({{count}}), ponieważ nie pasowały do planu.",
+  "holisticHarmonizer.critic.model": "Model: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Niska",
+  "holisticHarmonizer.critic.severity-medium": "Średnia",
+  "holisticHarmonizer.critic.severity-high": "Wysoka"
 }

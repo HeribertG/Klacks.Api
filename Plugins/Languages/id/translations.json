@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "Di Orang Anda menemukan karyawan dan alamat beserta kontak, kontrak, dan grup. Jadwal menggunakan data ini untuk ketersediaan dan jam kerja.",
   "assistant-chat.onboarding.intro.explain.period-closing": "Pada penutupan periode Anda menyetujui rentang waktu lalu menyegelnya. Setelah itu data menjadi dasar yang mengikat untuk laporan dan ekspor.",
   "assistant-chat.onboarding.intro.explain.klacksy": "Dan saya Klacksy: tanyakan saja apa pun yang ingin Anda ketahui. Jika jawaban terlalu panjang, katakan \"lebih sederhana\" atau \"lebih singkat\". Saya juga dapat menjalankan perintah perencanaan untuk Anda; cukup katakan apa yang Anda butuhkan.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Dengan pesan Anda menulis langsung kepada karyawan, misalnya lewat Telegram, dan melihat balasan mereka di sini. Dengan begitu Anda menjangkau tim Anda saat mereka di perjalanan juga."
+  "assistant-chat.onboarding.intro.explain.messaging": "Dengan pesan Anda menulis langsung kepada karyawan, misalnya lewat Telegram, dan melihat balasan mereka di sini. Dengan begitu Anda menjangkau tim Anda saat mereka di perjalanan juga.",
+  "holisticHarmonizer.critic.title": "Catatan AI tentang jadwal",
+  "holisticHarmonizer.critic.intro": "Model visi meninjau jadwal yang sudah selesai. Catatan ini hanya saran – jadwal tidak diubah.",
+  "holisticHarmonizer.critic.none": "Tidak ditemukan hal yang mencolok.",
+  "holisticHarmonizer.critic.failed": "Peninjauan jadwal oleh AI tidak dapat dijalankan.",
+  "holisticHarmonizer.critic.discarded": "{{count}} catatan dibuang karena tidak sesuai dengan jadwal.",
+  "holisticHarmonizer.critic.model": "Model: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Rendah",
+  "holisticHarmonizer.critic.severity-medium": "Sedang",
+  "holisticHarmonizer.critic.severity-high": "Tinggi"
 }

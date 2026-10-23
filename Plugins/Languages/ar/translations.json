@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "في قسم الأشخاص تجد الموظفين والعناوين مع بيانات الاتصال والعقود والمجموعات. يستخدم جدول المناوبات هذه البيانات للتوفر وساعات العمل.",
   "assistant-chat.onboarding.intro.explain.period-closing": "عند إغلاق الفترة تعتمد فترة زمنية وتختمها. بعد ذلك تصبح البيانات الأساس الملزم للتقارير والتصدير.",
   "assistant-chat.onboarding.intro.explain.klacksy": "وأنا Klacksy: اسألني ببساطة عما تريد معرفته. إذا كانت الإجابة طويلة جداً، قل «أبسط» أو «أقصر». يمكنني أيضاً تنفيذ أوامر التخطيط نيابة عنك؛ فقط أخبرني بما تحتاجه.",
-  "assistant-chat.onboarding.intro.explain.messaging": "باستخدام الرسائل تكتب مباشرة إلى موظفيك، مثلاً عبر Telegram، وترى ردودهم هنا. هكذا تصل إلى فريقك حتى أثناء التنقل."
+  "assistant-chat.onboarding.intro.explain.messaging": "باستخدام الرسائل تكتب مباشرة إلى موظفيك، مثلاً عبر Telegram، وترى ردودهم هنا. هكذا تصل إلى فريقك حتى أثناء التنقل.",
+  "holisticHarmonizer.critic.title": "ملاحظات الذكاء الاصطناعي على الخطة",
+  "holisticHarmonizer.critic.intro": "راجع نموذج رؤية الخطة النهائية. هذه الملاحظات اقتراحات فقط – لم يتم تغيير الخطة.",
+  "holisticHarmonizer.critic.none": "لم يتم العثور على أي ملاحظات.",
+  "holisticHarmonizer.critic.failed": "تعذر تشغيل مراجعة الذكاء الاصطناعي للخطة.",
+  "holisticHarmonizer.critic.discarded": "تم استبعاد {{count}} ملاحظة لأنها لا تطابق الخطة.",
+  "holisticHarmonizer.critic.model": "النموذج: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "منخفضة",
+  "holisticHarmonizer.critic.severity-medium": "متوسطة",
+  "holisticHarmonizer.critic.severity-high": "عالية"
 }

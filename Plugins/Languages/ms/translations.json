@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "Di Orang anda menemui pekerja dan alamat beserta butiran hubungan, kontrak dan kumpulan. Jadual menggunakan data ini untuk ketersediaan dan jam.",
   "assistant-chat.onboarding.intro.explain.period-closing": "Semasa penutupan tempoh anda meluluskan satu julat masa dan memeterainya. Selepas itu data menjadi asas yang mengikat untuk laporan dan eksport.",
   "assistant-chat.onboarding.intro.explain.klacksy": "Dan saya Klacksy: tanya sahaja apa yang anda mahu tahu. Jika jawapan terlalu panjang, sebut \"lebih mudah\" atau \"lebih ringkas\". Saya juga boleh melaksanakan arahan perancangan untuk anda; beritahu sahaja apa yang anda perlukan.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Dengan pemesejan anda menulis terus kepada pekerja anda, contohnya melalui Telegram, dan melihat balasan mereka di sini. Dengan itu anda dapat menghubungi pasukan anda walaupun mereka di luar."
+  "assistant-chat.onboarding.intro.explain.messaging": "Dengan pemesejan anda menulis terus kepada pekerja anda, contohnya melalui Telegram, dan melihat balasan mereka di sini. Dengan itu anda dapat menghubungi pasukan anda walaupun mereka di luar.",
+  "holisticHarmonizer.critic.title": "Catatan AI tentang jadual",
+  "holisticHarmonizer.critic.intro": "Model penglihatan telah menyemak jadual yang siap. Catatan ini hanya cadangan – jadual tidak diubah.",
+  "holisticHarmonizer.critic.none": "Tiada perkara ketara ditemui.",
+  "holisticHarmonizer.critic.failed": "Semakan jadual oleh AI tidak dapat dijalankan.",
+  "holisticHarmonizer.critic.discarded": "{{count}} catatan dibuang kerana tidak sepadan dengan jadual.",
+  "holisticHarmonizer.critic.model": "Model: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Rendah",
+  "holisticHarmonizer.critic.severity-medium": "Sederhana",
+  "holisticHarmonizer.critic.severity-high": "Tinggi"
 }

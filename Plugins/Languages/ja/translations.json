@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "人員では、連絡先、契約、グループを含む従業員と住所を確認できます。勤務表はこれらのデータを稼働可否と時間に使います。",
   "assistant-chat.onboarding.intro.explain.period-closing": "期間締めでは期間を承認して封印します。その後、データは集計とエクスポートの拘束力のある基盤になります。",
   "assistant-chat.onboarding.intro.explain.klacksy": "そして私はKlacksyです。知りたいことは何でも聞いてください。回答が長すぎるときは「もっと簡単に」や「もっと短く」と言ってください。計画のコマンドも代わりに実行できます。必要なことを言ってください。",
-  "assistant-chat.onboarding.intro.explain.messaging": "メッセージ機能で従業員に直接連絡できます。たとえばTelegramで送信し、返信をここで確認します。外出中のチームにも届きます。"
+  "assistant-chat.onboarding.intro.explain.messaging": "メッセージ機能で従業員に直接連絡できます。たとえばTelegramで送信し、返信をここで確認します。外出中のチームにも届きます。",
+  "holisticHarmonizer.critic.title": "計画に対するAIの指摘",
+  "holisticHarmonizer.critic.intro": "ビジョンモデルが完成した計画を確認しました。指摘は提案にすぎず、計画は変更されていません。",
+  "holisticHarmonizer.critic.none": "目立った点は見つかりませんでした。",
+  "holisticHarmonizer.critic.failed": "AIによる計画の確認を実行できませんでした。",
+  "holisticHarmonizer.critic.discarded": "計画と一致しなかったため、{{count}}件の指摘を破棄しました。",
+  "holisticHarmonizer.critic.model": "モデル: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "低",
+  "holisticHarmonizer.critic.severity-medium": "中",
+  "holisticHarmonizer.critic.severity-high": "高"
 }

@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "ในส่วนบุคคลคุณจะพบพนักงานและที่อยู่พร้อมข้อมูลติดต่อ สัญญา และกลุ่ม ตารางงานใช้ข้อมูลเหล่านี้สำหรับความพร้อมและชั่วโมงทำงาน",
   "assistant-chat.onboarding.intro.explain.period-closing": "ในการปิดงวด คุณอนุมัติช่วงเวลาหนึ่งแล้วปิดผนึก หลังจากนั้นข้อมูลจะเป็นฐานที่มีผลผูกพันสำหรับรายงานและการส่งออก",
   "assistant-chat.onboarding.intro.explain.klacksy": "และฉันคือ Klacksy: ถามฉันได้เลยว่าอยากรู้อะไร ถ้าคำตอบยาวเกินไป ให้พูดว่า \"ง่ายกว่านี้\" หรือ \"สั้นกว่านี้\" ฉันยังทำคำสั่งวางแผนแทนคุณได้ด้วย แค่บอกว่าคุณต้องการอะไร",
-  "assistant-chat.onboarding.intro.explain.messaging": "ด้วยระบบข้อความ คุณเขียนถึงพนักงานได้โดยตรง เช่น ผ่าน Telegram และดูคำตอบได้ที่นี่ จึงติดต่อทีมได้แม้อยู่นอกสถานที่"
+  "assistant-chat.onboarding.intro.explain.messaging": "ด้วยระบบข้อความ คุณเขียนถึงพนักงานได้โดยตรง เช่น ผ่าน Telegram และดูคำตอบได้ที่นี่ จึงติดต่อทีมได้แม้อยู่นอกสถานที่",
+  "holisticHarmonizer.critic.title": "ข้อสังเกตจาก AI เกี่ยวกับแผน",
+  "holisticHarmonizer.critic.intro": "โมเดลวิชันได้ตรวจสอบแผนที่เสร็จแล้ว ข้อสังเกตเป็นเพียงข้อเสนอแนะ – แผนไม่ได้ถูกเปลี่ยนแปลง",
+  "holisticHarmonizer.critic.none": "ไม่พบสิ่งที่น่าสังเกต",
+  "holisticHarmonizer.critic.failed": "ไม่สามารถเรียกใช้การตรวจสอบแผนโดย AI ได้",
+  "holisticHarmonizer.critic.discarded": "ตัดข้อสังเกต {{count}} รายการออกเนื่องจากไม่ตรงกับแผน",
+  "holisticHarmonizer.critic.model": "โมเดล: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "ต่ำ",
+  "holisticHarmonizer.critic.severity-medium": "ปานกลาง",
+  "holisticHarmonizer.critic.severity-high": "สูง"
 }

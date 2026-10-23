@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "Kohdasta Henkilöt löydät työntekijät ja osoitteet yhteystietoineen, sopimuksineen ja ryhmineen. Työvuorolista käyttää näitä tietoja saatavuuteen ja tunteihin.",
   "assistant-chat.onboarding.intro.explain.period-closing": "Jakson päättämisessä hyväksyt aikavälin ja sinetöit sen. Sen jälkeen tiedot ovat sitova perusta raporteille ja vienneille.",
   "assistant-chat.onboarding.intro.explain.klacksy": "Ja minä olen Klacksy: kysy minulta vain, mitä haluat tietää. Jos vastaus on liian pitkä, sano \"yksinkertaisemmin\" tai \"lyhyemmin\". Voin myös suorittaa suunnittelukomentoja puolestasi; kerro vain, mitä tarvitset.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Viesteillä kirjoitat työntekijöillesi suoraan, esimerkiksi Telegramin kautta, ja näet heidän vastauksensa täällä. Näin tavoitat tiimisi myös liikkeellä ollessa."
+  "assistant-chat.onboarding.intro.explain.messaging": "Viesteillä kirjoitat työntekijöillesi suoraan, esimerkiksi Telegramin kautta, ja näet heidän vastauksensa täällä. Näin tavoitat tiimisi myös liikkeellä ollessa.",
+  "holisticHarmonizer.critic.title": "Tekoälyn huomiot suunnitelmasta",
+  "holisticHarmonizer.critic.intro": "Näkömalli tarkasti valmiin suunnitelman. Huomiot ovat vain ehdotuksia – suunnitelmaa ei muutettu.",
+  "holisticHarmonizer.critic.none": "Mitään huomionarvoista ei löytynyt.",
+  "holisticHarmonizer.critic.failed": "Suunnitelman tekoälytarkastusta ei voitu suorittaa.",
+  "holisticHarmonizer.critic.discarded": "{{count}} huomiota hylättiin, koska ne eivät vastanneet suunnitelmaa.",
+  "holisticHarmonizer.critic.model": "Malli: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Matala",
+  "holisticHarmonizer.critic.severity-medium": "Keskitaso",
+  "holisticHarmonizer.critic.severity-high": "Korkea"
 }

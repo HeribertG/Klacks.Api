@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "Onder Personen vindt u medewerkers en adressen met contactgegevens, contracten en groepen. Het rooster gebruikt deze gegevens voor beschikbaarheid en uren.",
   "assistant-chat.onboarding.intro.explain.period-closing": "Bij de periodeafsluiting keurt u een tijdvak goed en verzegelt u het. Daarna vormen de gegevens de bindende basis voor rapportages en exports.",
   "assistant-chat.onboarding.intro.explain.klacksy": "En ik ben Klacksy: vraag mij gewoon wat u wilt weten. Is een antwoord te lang, zeg dan \"eenvoudiger\" of \"korter\". Ik kan ook planningsopdrachten voor u uitvoeren; zeg gewoon wat u nodig heeft.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Met berichten schrijft u uw medewerkers rechtstreeks, bijvoorbeeld via Telegram, en ziet u hier hun antwoorden. Zo bereikt u uw team ook onderweg."
+  "assistant-chat.onboarding.intro.explain.messaging": "Met berichten schrijft u uw medewerkers rechtstreeks, bijvoorbeeld via Telegram, en ziet u hier hun antwoorden. Zo bereikt u uw team ook onderweg.",
+  "holisticHarmonizer.critic.title": "AI-opmerkingen bij het rooster",
+  "holisticHarmonizer.critic.intro": "Een visiemodel heeft het voltooide rooster bekeken. De opmerkingen zijn alleen suggesties – het rooster is niet gewijzigd.",
+  "holisticHarmonizer.critic.none": "Niets opvallends gevonden.",
+  "holisticHarmonizer.critic.failed": "De AI-controle van het rooster kon niet worden uitgevoerd.",
+  "holisticHarmonizer.critic.discarded": "{{count}} opmerking(en) verworpen omdat ze niet bij het rooster pasten.",
+  "holisticHarmonizer.critic.model": "Model: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Laag",
+  "holisticHarmonizer.critic.severity-medium": "Middel",
+  "holisticHarmonizer.critic.severity-high": "Hoog"
 }

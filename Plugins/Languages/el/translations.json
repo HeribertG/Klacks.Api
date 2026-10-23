@@ -4748,5 +4748,14 @@
   "assistant-chat.onboarding.intro.explain.people": "Στα Άτομα βρίσκεις εργαζομένους και διευθύνσεις με στοιχεία επικοινωνίας, συμβάσεις και ομάδες. Το πρόγραμμα χρησιμοποιεί αυτά τα στοιχεία για διαθεσιμότητα και ώρες.",
   "assistant-chat.onboarding.intro.explain.period-closing": "Στο κλείσιμο περιόδου εγκρίνεις ένα χρονικό διάστημα και το σφραγίζεις. Από εκεί και πέρα τα δεδομένα είναι η δεσμευτική βάση για αναφορές και εξαγωγές.",
   "assistant-chat.onboarding.intro.explain.klacksy": "Κι εγώ είμαι ο Klacksy: ρώτα με απλώς ό,τι θέλεις να μάθεις. Αν μια απάντηση είναι πολύ μεγάλη, πες «πιο απλά» ή «πιο σύντομα». Μπορώ επίσης να εκτελώ εντολές προγραμματισμού για σένα· απλώς πες μου τι χρειάζεσαι.",
-  "assistant-chat.onboarding.intro.explain.messaging": "Με τα μηνύματα γράφεις απευθείας στους εργαζομένους σου, για παράδειγμα μέσω Telegram, και βλέπεις εδώ τις απαντήσεις τους. Έτσι βρίσκεις την ομάδα σου και εν κινήσει."
+  "assistant-chat.onboarding.intro.explain.messaging": "Με τα μηνύματα γράφεις απευθείας στους εργαζομένους σου, για παράδειγμα μέσω Telegram, και βλέπεις εδώ τις απαντήσεις τους. Έτσι βρίσκεις την ομάδα σου και εν κινήσει.",
+  "holisticHarmonizer.critic.title": "Σημειώσεις AI για το πρόγραμμα",
+  "holisticHarmonizer.critic.intro": "Ένα μοντέλο όρασης εξέτασε το ολοκληρωμένο πρόγραμμα. Οι σημειώσεις είναι μόνο προτάσεις – το πρόγραμμα δεν άλλαξε.",
+  "holisticHarmonizer.critic.none": "Δεν βρέθηκε κάτι αξιοσημείωτο.",
+  "holisticHarmonizer.critic.failed": "Ο έλεγχος του προγράμματος από την AI δεν ήταν δυνατό να εκτελεστεί.",
+  "holisticHarmonizer.critic.discarded": "{{count}} σημείωση(-εις) απορρίφθηκε(-αν) επειδή δεν ταίριαζε(-αν) με το πρόγραμμα.",
+  "holisticHarmonizer.critic.model": "Μοντέλο: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Χαμηλή",
+  "holisticHarmonizer.critic.severity-medium": "Μέτρια",
+  "holisticHarmonizer.critic.severity-high": "Υψηλή"
 }
