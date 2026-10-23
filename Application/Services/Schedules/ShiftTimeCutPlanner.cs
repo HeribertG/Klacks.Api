@@ -5,11 +5,13 @@
 /// an order that is already split or has no plannable shift is refused), checks that the parts tile the order span and
 /// builds the cut batch. SPLIT RULE: the plannable shift itself is REDUCED to the first part (UPDATE, OriginalShift ->
 /// SplitShift), the remaining parts are created, so no duplicate plannable shift is left over; the order (SealedOrder) is
-/// never changed. Writes nothing; the skill and its confirmation preview both plan through here.
+/// never changed. The plan carries the default expenses of the plannable shift, which every part carries after the cut
+/// (the same rule ShiftCutFacade copies by). Writes nothing; the skill and its confirmation preview both plan through here.
 /// </summary>
 /// <param name="shiftRepository">Loads the shift and its groups</param>
 /// <param name="shiftReader">Finds the plannable shift and existing parts of an order</param>
 /// <param name="shiftVisibilityGuard">Answers a hidden shift like a missing one</param>
+/// <param name="shiftExpensesRepository">Reads the default expenses of the plannable shift</param>
 
 using System.Globalization;
 using Klacks.Api.Application.Commands.Shifts;
@@ -39,12 +41,15 @@ public class ShiftTimeCutPlanner : IShiftTimeCutPlanner
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftReader _shiftReader;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly IShiftExpensesRepository _shiftExpensesRepository;
 
     public ShiftTimeCutPlanner(
         IShiftRepository shiftRepository,
         IShiftReader shiftReader,
-        IShiftVisibilityGuard shiftVisibilityGuard)
+        IShiftVisibilityGuard shiftVisibilityGuard,
+        IShiftExpensesRepository shiftExpensesRepository)
     {
+        _shiftExpensesRepository = shiftExpensesRepository;
         _shiftRepository = shiftRepository;
         _shiftReader = shiftReader;
         _shiftVisibilityGuard = shiftVisibilityGuard;
@@ -93,7 +98,9 @@ public class ShiftTimeCutPlanner : IShiftTimeCutPlanner
             })
             .ToList();
 
-        return new ShiftTimeCutPlan(null, originalShift, sealedOrderId, operations, parts, groupResources);
+        var defaultExpenses = await _shiftExpensesRepository.GetByShiftIdsAsync([originalShift.Id], cancellationToken);
+
+        return new ShiftTimeCutPlan(null, originalShift, sealedOrderId, operations, parts, groupResources, defaultExpenses);
     }
 
     private static (List<(TimeOnly Start, TimeOnly End)>? Ranges, string? Error) ParseParts(string partsRaw, string? language)

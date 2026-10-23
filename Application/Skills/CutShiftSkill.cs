@@ -8,7 +8,11 @@
 /// are created. So no duplicate plannable shift is left over next to its parts.
 /// The order (Bestellung / SealedOrder, status 1) is IMMUTABLE and is NEVER changed by a cut.
 /// This is the correct way to model an early/late/night rotation: create ONE order, then cut it here.
-/// The plan (parsing, target, tiling, operations) comes from IShiftTimeCutPlanner.
+/// The plan (parsing, target, tiling, operations) comes from IShiftTimeCutPlanner. A cut always needs the user's
+/// confirmation (owner decision 2026-10-23): it runs only as the confirmed replay of its server preview
+/// (CutShiftConfirmationPreviewProvider). The binding of that preview (ShiftTimeCutBinding: plannable shift, parts, default
+/// expenses) travels with the token, confirm_pending_action hands it over, and the skill cuts only when its fresh plan still
+/// matches it; without a binding it refuses before it reads anything.
 /// </summary>
 /// <param name="shiftId">UUID of the plannable shift (OriginalShift) or its order to cut.</param>
 /// <param name="parts">Comma-separated time ranges "HH:mm-HH:mm" that tile the order span (e.g. "07:00-15:00,15:00-23:00,23:00-07:00").</param>
@@ -47,6 +51,11 @@ public class CutShiftSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        if (context.ConfirmedActionBinding is not { Kind: ConfirmationBindingKinds.ShiftCut } confirmed)
+        {
+            return SkillResult.Error(string.Format(CultureInfo.InvariantCulture, ConfirmationBindingMessages.BindingRequired, SkillName));
+        }
+
         var shiftId = GetRequiredGuid(parameters, ShiftIdParameter);
         var partsRaw = GetRequiredString(parameters, PartsParameter);
         var namesRaw = GetParameter<string>(parameters, PartNamesParameter) ?? string.Empty;
@@ -55,6 +64,12 @@ public class CutShiftSkill : BaseSkillImplementation
         if (plan.IsRefused)
         {
             return SkillResult.Error(plan.Refusal!);
+        }
+
+        var current = ShiftTimeCutBinding.Of(plan);
+        if (!confirmed.Matches(current))
+        {
+            return SkillResult.Error(ConfirmationBindingMessages.Describe(confirmed, current));
         }
 
         var results = await _shiftCutFacade.ProcessBatchCutsAsync(plan.Operations.ToList());
