@@ -3,7 +3,7 @@
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.DTOs.Filter;
 
-namespace Klacks.Api.Domain.Interfaces.Associations;
+namespace Klacks.Api.Infrastructure.Services.Groups;
 
 /// <summary>
 /// Domain service for group search and filtering operations

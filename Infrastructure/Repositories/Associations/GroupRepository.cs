@@ -14,6 +14,7 @@ using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using Klacks.Api.Infrastructure.Services.Groups;
 
 namespace Klacks.Api.Infrastructure.Repositories.Associations;
 

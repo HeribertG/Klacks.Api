@@ -2,7 +2,7 @@
 
 using Klacks.Api.Domain.Models.Associations;
 
-namespace Klacks.Api.Domain.Interfaces.Associations;
+namespace Klacks.Api.Infrastructure.Services.Groups;
 
 /// <summary>
 /// Domain service for handling group temporal validity and date-based business rules

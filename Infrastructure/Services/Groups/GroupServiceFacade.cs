@@ -3,7 +3,7 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 
-namespace Klacks.Api.Domain.Services.Groups;
+namespace Klacks.Api.Infrastructure.Services.Groups;
 
 /// <summary>
 /// Façade implementation that provides unified access to all group-related services.
