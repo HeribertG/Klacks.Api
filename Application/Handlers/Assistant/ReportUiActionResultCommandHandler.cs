@@ -22,6 +22,8 @@ namespace Klacks.Api.Application.Handlers.Assistant;
 public class ReportUiActionResultCommandHandler
     : IRequestHandler<ReportUiActionResultCommand, ReportUiActionResultResult>
 {
+    private const int MaxResultTextChars = 500;
+
     private readonly ISkillUsageRepository _repository;
     private readonly ILogger<ReportUiActionResultCommandHandler> _logger;
 
@@ -103,6 +105,6 @@ public class ReportUiActionResultCommandHandler
         }
 
         var trimmed = value.Trim();
-        return trimmed.Length <= 500 ? trimmed : trimmed[..500];
+        return trimmed.Length <= MaxResultTextChars ? trimmed : trimmed[..MaxResultTextChars];
     }
 }

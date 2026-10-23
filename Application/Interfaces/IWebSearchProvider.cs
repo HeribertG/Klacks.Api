@@ -8,6 +8,6 @@ public interface IWebSearchProvider
 
     Task<DTOs.WebSearch.WebSearchResult> SearchAsync(
         string query,
-        int maxResults = 5,
+        int maxResults = Constants.WebSearchDefaults.MaxResults,
         CancellationToken ct = default);
 }

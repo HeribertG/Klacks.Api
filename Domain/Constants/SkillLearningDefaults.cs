@@ -25,6 +25,8 @@ public static class SkillLearningDefaults
     /// </summary>
     public const int ExcerptMaxLength = 120;
 
+    public const int LocaleMaxLength = 8;
+
     /// <summary>
     /// Shortest utterance that may open a case at all. Below this the refusal phrases match noise
     /// ("nein", "was?") far more often than a real capability wish.

@@ -381,7 +381,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     {
         if (string.IsNullOrWhiteSpace(language)) return "??";
         var trimmed = language.Trim();
-        return trimmed.Length <= 8 ? trimmed : trimmed[..8];
+        return trimmed.Length <= TurnEvalDefaults.LocaleMaxLength ? trimmed : trimmed[..TurnEvalDefaults.LocaleMaxLength];
     }
 
     // W1.6: each candidate carries its provenance (why it was in the toolset) plus the 1-based rank

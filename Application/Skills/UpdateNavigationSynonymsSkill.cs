@@ -20,6 +20,7 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("update_navigation_synonyms")]
 public class UpdateNavigationSynonymsSkill : BaseSkillImplementation
 {
+    private const int KnownTargetsListed = 30;
     private const string NeedsReviewStatus = "needs-review";
 
     private readonly IMediator _mediator;
@@ -53,7 +54,7 @@ public class UpdateNavigationSynonymsSkill : BaseSkillImplementation
         var target = targets.FirstOrDefault(t => string.Equals(t.TargetId, targetId, StringComparison.OrdinalIgnoreCase));
         if (target == null)
         {
-            var known = string.Join(", ", targets.Where(t => !t.Obsolete).Select(t => t.TargetId).Take(30));
+            var known = string.Join(", ", targets.Where(t => !t.Obsolete).Select(t => t.TargetId).Take(KnownTargetsListed));
             return SkillResult.Error(
                 $"Navigation target '{targetId}' not found. Known targets: {known}. " +
                 "Use list_navigation_targets and pick a real target id — do not invent one.");

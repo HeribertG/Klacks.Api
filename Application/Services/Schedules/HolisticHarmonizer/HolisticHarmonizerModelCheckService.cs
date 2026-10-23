@@ -17,6 +17,7 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 public sealed class HolisticHarmonizerModelCheckService
 {
     private const decimal EvalPreferenceThreshold = 0.7m;
+    private const int BelowThresholdEvidenceTier = 2;
 
     private readonly ILLMRepository _llmRepository;
     private readonly IPlanProposalProvider _proposalProvider;
@@ -117,6 +118,6 @@ public sealed class HolisticHarmonizerModelCheckService
         {
             null => 1,
             >= EvalPreferenceThreshold => 0,
-            _ => 2
+            _ => BelowThresholdEvidenceTier
         };
 }

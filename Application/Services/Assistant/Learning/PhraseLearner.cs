@@ -30,6 +30,7 @@ namespace Klacks.Api.Application.Services.Assistant.Learning;
 
 public class PhraseLearner : IPhraseLearner
 {
+    private const int LanguageSubtagLength = 2;
     private const string ActivationReason = "learned phrase activated";
     private const string RollbackReason = "learned phrase withdrawn after a failed routing probe";
 
@@ -276,7 +277,7 @@ public class PhraseLearner : IPhraseLearner
         var separator = trimmed.IndexOfAny(['-', '_']);
         var baseTag = separator > 0 ? trimmed[..separator] : trimmed;
 
-        return baseTag.Length == 2 && baseTag.All(char.IsLetter)
+        return baseTag.Length == LanguageSubtagLength && baseTag.All(char.IsLetter)
             ? baseTag.ToLowerInvariant()
             : SkillPhraseLanguages.Undetermined;
     }

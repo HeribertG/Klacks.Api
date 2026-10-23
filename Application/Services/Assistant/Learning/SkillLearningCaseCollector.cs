@@ -342,7 +342,7 @@ public class SkillLearningCaseCollector : ISkillLearningCaseCollector
         }
 
         var trimmed = language.Trim();
-        return trimmed.Length <= 8 ? trimmed : trimmed[..8];
+        return trimmed.Length <= SkillLearningDefaults.LocaleMaxLength ? trimmed : trimmed[..SkillLearningDefaults.LocaleMaxLength];
     }
 
     // The expected skill is free text from the correction menu, while the column is only

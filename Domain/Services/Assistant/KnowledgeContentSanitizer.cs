@@ -15,6 +15,7 @@ namespace Klacks.Api.Domain.Services.Assistant;
 public static class KnowledgeContentSanitizer
 {
     private const char InlineCodeDelimiter = '`';
+    private const int ProseCodeSegmentCycle = 2;
     private const string FenceMarker = "```";
 
     public static string Sanitize(string? content)
@@ -63,14 +64,14 @@ public static class KnowledgeContentSanitizer
 
         // An odd backtick count leaves no valid inline code span on the line (CommonMark),
         // so treat the whole line as prose — otherwise a stray backtick could hide a name.
-        if (segments.Length % 2 == 0)
+        if (segments.Length % ProseCodeSegmentCycle == 0)
         {
             return ReplaceInternalNames(line);
         }
 
         var changed = false;
 
-        for (var i = 0; i < segments.Length; i += 2)
+        for (var i = 0; i < segments.Length; i += ProseCodeSegmentCycle)
         {
             var replaced = ReplaceInternalNames(segments[i]);
             if (!ReferenceEquals(replaced, segments[i]))

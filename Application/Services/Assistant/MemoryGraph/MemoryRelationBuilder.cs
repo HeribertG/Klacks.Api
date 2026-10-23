@@ -20,6 +20,8 @@ namespace Klacks.Api.Application.Services.Assistant.MemoryGraph;
 
 public class MemoryRelationBuilder : IMemoryRelationBuilder
 {
+    private const int MinMemoriesForRelation = 2;
+
     private readonly IAgentRepository _agentRepository;
     private readonly IAgentMemoryRepository _memoryRepository;
     private readonly IMemoryRelationRepository _relationRepository;
@@ -46,7 +48,7 @@ public class MemoryRelationBuilder : IMemoryRelationBuilder
         }
 
         var memories = await _memoryRepository.GetAllWithTagsAsync(agent.Id, cancellationToken);
-        if (memories.Count < 2)
+        if (memories.Count < MinMemoriesForRelation)
         {
             return 0;
         }

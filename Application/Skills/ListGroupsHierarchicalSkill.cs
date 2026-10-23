@@ -20,6 +20,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("list_groups_hierarchical")]
 public class ListGroupsHierarchicalSkill : BaseSkillImplementation
 {
+    private const int MaxHierarchyDepth = 32;
+
     private readonly IGroupRepository _groupRepository;
 
     public ListGroupsHierarchicalSkill(IGroupRepository groupRepository)
@@ -85,7 +87,7 @@ public class ListGroupsHierarchicalSkill : BaseSkillImplementation
         {
             depth++;
             current = parent;
-            if (depth > 32) break;
+            if (depth > MaxHierarchyDepth) break;
         }
         return depth;
     }

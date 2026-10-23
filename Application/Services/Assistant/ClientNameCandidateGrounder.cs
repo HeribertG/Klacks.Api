@@ -31,6 +31,7 @@ public partial class ClientNameCandidateGrounder : IEntityCandidateGrounder
     private const int MaxGroundedEntities = 5;
     private const int SearchLimitPerTerm = 5;
     private const int MinTermLength = 2;
+    private const int BigramTokenCount = 2;
     private const int MaxTokensForLowercaseScan = 12;
 
     private const string BlockHeader = "KNOWN_MATCHING_PEOPLE (deterministically resolved from this message):";
@@ -177,14 +178,14 @@ public partial class ClientNameCandidateGrounder : IEntityCandidateGrounder
         }
 
         var tokens = TokenPattern().Matches(message).Select(m => m.Value).ToList();
-        if (tokens.Count < 2 || tokens.Count > MaxTokensForLowercaseScan)
+        if (tokens.Count < BigramTokenCount || tokens.Count > MaxTokensForLowercaseScan)
         {
             return terms;
         }
 
         // Spoken search phrases put the name last ("suche petra meier"), so scan bigrams
         // from the end of the message.
-        for (var i = tokens.Count - 2; i >= 0 && terms.Count < MaxCandidateTerms; i--)
+        for (var i = tokens.Count - BigramTokenCount; i >= 0 && terms.Count < MaxCandidateTerms; i--)
         {
             if (tokens[i].Length >= MinTermLength && tokens[i + 1].Length >= MinTermLength)
             {

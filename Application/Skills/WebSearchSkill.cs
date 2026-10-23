@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
@@ -23,7 +24,7 @@ public class WebSearchSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var query = GetRequiredString(parameters, "query");
-        var maxResults = GetParameter<int?>(parameters, "maxResults") ?? 5;
+        var maxResults = GetParameter<int?>(parameters, "maxResults") ?? WebSearchDefaults.MaxResults;
 
         var provider = await _providerFactory.CreateAsync(cancellationToken);
         if (provider == null)

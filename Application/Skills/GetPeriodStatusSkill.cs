@@ -23,6 +23,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("get_period_status")]
 public class GetPeriodStatusSkill : BaseSkillImplementation
 {
+    private const int OpenDaysListed = 15;
+
     private readonly IMediator _mediator;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
@@ -76,8 +78,8 @@ public class GetPeriodStatusSkill : BaseSkillImplementation
 
         var scopeLabel = groupId.HasValue ? $" for group '{groupName}'" : " across all groups";
         var openNote = openDayList.Count > 0
-            ? $" Unsealed days with works: {string.Join(", ", openDayList.Take(15))}" +
-              (openDayList.Count > 15 ? $" … and {openDayList.Count - 15} more." : ".")
+            ? $" Unsealed days with works: {string.Join(", ", openDayList.Take(OpenDaysListed))}" +
+              (openDayList.Count > OpenDaysListed ? $" … and {openDayList.Count - OpenDaysListed} more." : ".")
             : string.Empty;
 
         return SkillResult.SuccessResult(

@@ -6,6 +6,7 @@
 /// Used by the LLM to confirm "did my last mutating skill succeed?" or to inform a rollback decision.
 /// </summary>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -28,7 +29,7 @@ public class VerifyMyLastActionSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var userIdStr = context.UserId.ToString();
-        var since = DateTime.UtcNow.AddMinutes(-30);
+        var since = DateTime.UtcNow.AddMinutes(-MyLastActionDefaults.LookbackMinutes);
 
         var execution = await _executionRepository.GetLastForUserAsync(userIdStr, since, cancellationToken);
 

@@ -25,6 +25,7 @@ public sealed class KlacksyModelCheckService
     private const int MinContextWindowForKlacksy = 32000;
     private const string EvalGoldsetName = "turn-selection-v1";
     private const decimal EvalPreferenceThreshold = 0.7m;
+    private const int BelowThresholdEvidenceTier = 2;
     private static readonly TimeSpan ProbeTimeout = TimeSpan.FromSeconds(30);
 
     private const string ProbeFunctionName = "create_employee";
@@ -272,6 +273,6 @@ public sealed class KlacksyModelCheckService
         {
             null => 1,
             >= EvalPreferenceThreshold => 0,
-            _ => 2
+            _ => BelowThresholdEvidenceTier
         };
 }

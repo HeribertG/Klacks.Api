@@ -25,6 +25,9 @@ public sealed class SuggestionsRanker : ISuggestionsRanker
     private const double RoleNonAdminFallback = 0.3;
     private const double TimeMatchScore = 0.4;
     private const double FallbackBaseScore = 0.05;
+    private const double FallbackCreateEmployeeBoost = 0.4;
+    private const double FallbackFindPersonBoost = 0.3;
+    private const double FallbackShowHelpBoost = 0.2;
 
     private const int MondayWeekday = 1;
     private const int FridayWeekday = 5;
@@ -170,9 +173,9 @@ public sealed class SuggestionsRanker : ISuggestionsRanker
 
     private static void ApplyFallbackScores(Dictionary<string, double> scores)
     {
-        Bump(scores, WelcomeI18nKeys.Suggestion.CreateEmployee, FallbackBaseScore + 0.4);
-        Bump(scores, WelcomeI18nKeys.Suggestion.FindPerson, FallbackBaseScore + 0.3);
-        Bump(scores, WelcomeI18nKeys.Suggestion.ShowHelp, FallbackBaseScore + 0.2);
+        Bump(scores, WelcomeI18nKeys.Suggestion.CreateEmployee, FallbackBaseScore + FallbackCreateEmployeeBoost);
+        Bump(scores, WelcomeI18nKeys.Suggestion.FindPerson, FallbackBaseScore + FallbackFindPersonBoost);
+        Bump(scores, WelcomeI18nKeys.Suggestion.ShowHelp, FallbackBaseScore + FallbackShowHelpBoost);
     }
 
     private static void Bump(Dictionary<string, double> scores, string key, double delta)

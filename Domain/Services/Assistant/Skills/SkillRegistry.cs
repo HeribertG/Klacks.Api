@@ -18,6 +18,9 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills;
 
 public class SkillRegistry : ISkillRegistry
 {
+    private const int SlidingExpirationMinutes = 5;
+    private const int AbsoluteExpirationMinutes = 30;
+
     private volatile ConcurrentDictionary<string, SkillDescriptor> _skills = new(StringComparer.OrdinalIgnoreCase);
     private volatile int _cacheVersion = 0;
     private readonly ISkillAdapterFactory _adapterFactory;
@@ -34,8 +37,8 @@ public class SkillRegistry : ISkillRegistry
         _logger = logger;
         _cache = cache;
         _cacheOptions = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(5))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30))
+            .SetSlidingExpiration(TimeSpan.FromMinutes(SlidingExpirationMinutes))
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(AbsoluteExpirationMinutes))
             .SetSize(1);
     }
 

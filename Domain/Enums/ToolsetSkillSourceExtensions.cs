@@ -10,12 +10,17 @@ namespace Klacks.Api.Domain.Enums;
 
 public static class ToolsetSkillSourceExtensions
 {
+    private const int RecipeStepPriority = 5;
+    private const int LearnedPhrasePriority = 4;
+    private const int KeywordPriority = 3;
+    private const int HintPriority = 2;
+
     public static int Priority(this ToolsetSkillSource source) => source switch
     {
-        ToolsetSkillSource.RecipeStep => 5,
-        ToolsetSkillSource.LearnedPhrase => 4,
-        ToolsetSkillSource.Keyword => 3,
-        ToolsetSkillSource.Hint => 2,
+        ToolsetSkillSource.RecipeStep => RecipeStepPriority,
+        ToolsetSkillSource.LearnedPhrase => LearnedPhrasePriority,
+        ToolsetSkillSource.Keyword => KeywordPriority,
+        ToolsetSkillSource.Hint => HintPriority,
         _ => 1
     };
 }

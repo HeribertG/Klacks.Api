@@ -21,6 +21,8 @@ namespace Klacks.Api.Domain.Services.Schedules;
 public class TimelineCalculationService : ITimelineCalculationService
 {
     private const string LogPrefix = "[SCHEDULE-DST] ";
+    private const int TravelOrder = 2;
+    private const int UnrelatedOrder = 99;
 
     private readonly ScheduleTimeOptions _options;
     private readonly ILogger<TimelineCalculationService> _logger;
@@ -152,16 +154,16 @@ public class TimelineCalculationService : ITimelineCalculationService
     {
         WorkChangeType.CorrectionStart => 0,
         WorkChangeType.Briefing => 1,
-        WorkChangeType.TravelStart => 2,
-        _ => 99
+        WorkChangeType.TravelStart => TravelOrder,
+        _ => UnrelatedOrder
     };
 
     private static int GetAfterPriority(WorkChangeType type) => type switch
     {
         WorkChangeType.CorrectionEnd => 0,
         WorkChangeType.Debriefing => 1,
-        WorkChangeType.TravelEnd => 2,
-        _ => 99
+        WorkChangeType.TravelEnd => TravelOrder,
+        _ => UnrelatedOrder
     };
 
     /// <summary>

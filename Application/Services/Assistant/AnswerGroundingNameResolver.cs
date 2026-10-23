@@ -19,6 +19,7 @@ namespace Klacks.Api.Application.Services.Assistant;
 public class AnswerGroundingNameResolver : IAnswerGroundingNameResolver
 {
     private const int SearchLimitPerCandidate = 3;
+    private const int FullNameTokenCount = 2;
 
     private readonly IClientSearchRepository _clientSearchRepository;
     private readonly ILogger<AnswerGroundingNameResolver> _logger;
@@ -61,7 +62,7 @@ public class AnswerGroundingNameResolver : IAnswerGroundingNameResolver
     private async Task<bool> ResolvesToClientAsync(string candidate, CancellationToken cancellationToken)
     {
         var candidateTokens = AnswerNameMatching.Tokenize(candidate);
-        if (candidateTokens.Length != 2)
+        if (candidateTokens.Length != FullNameTokenCount)
         {
             return false;
         }

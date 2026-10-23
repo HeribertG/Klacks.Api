@@ -32,6 +32,7 @@ namespace Klacks.Api.Application.Services.Assistant.Learning;
 public class RecipeDraftValidator : IRecipeDraftValidator
 {
     private const int MaxCanonicalSentences = 24;
+    private const int MaxTermsPerCondition = 2;
     private const int MaxSkillPhrasesChecked = 4000;
     private const string Identifier = "[A-Za-z_][A-Za-z0-9_]*";
 
@@ -348,7 +349,7 @@ public class RecipeDraftValidator : IRecipeDraftValidator
     private static IReadOnlyList<string> CanonicalSentences(RecipeTrigger trigger)
     {
         var perCondition = trigger.AllOf
-            .Select(condition => TermsOf([condition]).Take(2).ToList())
+            .Select(condition => TermsOf([condition]).Take(MaxTermsPerCondition).ToList())
             .Where(terms => terms.Count > 0)
             .ToList();
 

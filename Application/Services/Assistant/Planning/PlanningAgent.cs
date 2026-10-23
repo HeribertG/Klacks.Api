@@ -29,6 +29,7 @@ public class PlanningAgent : IPlanningAgent
     private const int MaxOutputTokens = 1024;
     private const double Temperature = 0.2;
     private const int MaxSkillsInPrompt = 40;
+    private const int MaxSkillDescriptionChars = 180;
 
     private static readonly HashSet<string> ReversibleSkills = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -160,7 +161,7 @@ public class PlanningAgent : IPlanningAgent
         foreach (var s in skills.Where(s => s.IsEnabled).Take(MaxSkillsInPrompt))
         {
             var desc = (s.Description ?? string.Empty).Replace('\n', ' ').Trim();
-            if (desc.Length > 180) desc = desc[..180] + "...";
+            if (desc.Length > MaxSkillDescriptionChars) desc = desc[..MaxSkillDescriptionChars] + "...";
             sb.Append("- ").Append(s.Name).Append(": ").AppendLine(desc);
         }
         return sb.ToString();

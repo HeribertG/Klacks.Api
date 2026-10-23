@@ -30,6 +30,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
     private const string OrderEntryPattern = "order_{0}{1}";
     private const string ClientPeriodEntryPattern = "client-period-export_{0:yyyy-MM-dd}_{1:yyyy-MM-dd}{2}";
     private const string CollisionSuffixPattern = "{0}_{1}";
+    private const int FirstCollisionSuffix = 2;
     private const char SanitizedReplacement = '-';
 
     private readonly ISealedOrderIdLoader _sealedOrderIdLoader;
@@ -289,7 +290,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
         var safe = Sanitize(label);
         var entryName = string.Format(OrderEntryPattern, safe, extension);
 
-        var suffix = 2;
+        var suffix = FirstCollisionSuffix;
         while (!usedEntryNames.Add(entryName))
         {
             entryName = string.Format(OrderEntryPattern, string.Format(CollisionSuffixPattern, safe, suffix), extension);

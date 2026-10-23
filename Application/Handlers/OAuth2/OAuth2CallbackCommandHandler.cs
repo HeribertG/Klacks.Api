@@ -18,6 +18,7 @@ namespace Klacks.Api.Application.Handlers.OAuth2;
 
 public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackCommand, TokenResource>
 {
+    private const int StatePartCount = 2;
     private const string E2ETestCode = "E2E_TEST_CODE_FOR_OAUTH2";
 
     private readonly IIdentityProviderRepository _providerRepository;
@@ -59,7 +60,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
         }
 
         var stateParts = request.State.Split('_');
-        if (stateParts.Length < 2 || !Guid.TryParse(stateParts[0], out var providerId))
+        if (stateParts.Length < StatePartCount || !Guid.TryParse(stateParts[0], out var providerId))
         {
             _logger.LogWarning("[OAUTH2] Invalid state parameter format");
             throw new BadRequestException("Invalid state parameter");
