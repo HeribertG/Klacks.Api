@@ -10,6 +10,11 @@ namespace Klacks.Api.Application.Mappers;
 [Mapper]
 public partial class SkillMapper
 {
+    private const int PercentFactor = 100;
+    private const decimal FullSuccessRatePercent = 100m;
+    private const int MostUsedSkillsLimit = 10;
+    private const int MaxUsageOverTimeDays = 30;
+
     public SkillDto ToDto(SkillDescriptor descriptor)
     {
         return new SkillDto
@@ -113,26 +118,26 @@ public partial class SkillMapper
         {
             TotalExecutions = totalExecutions,
             SuccessRate = totalExecutions > 0
-                ? (decimal)successfulExecutions / totalExecutions * 100
-                : 100m,
+                ? (decimal)successfulExecutions / totalExecutions * PercentFactor
+                : FullSuccessRatePercent,
             MostUsedSkills = usageRecords
                 .GroupBy(r => r.SkillName)
                 .OrderByDescending(g => g.Count())
-                .Take(10)
+                .Take(MostUsedSkillsLimit)
                 .Select(g => new SkillUsageSummaryDto
                 {
                     SkillName = g.Key,
                     ExecutionCount = g.Count(),
                     SuccessRate = g.Count() > 0
-                        ? (decimal)g.Count(r => r.Success) / g.Count() * 100
-                        : 100m,
+                        ? (decimal)g.Count(r => r.Success) / g.Count() * PercentFactor
+                        : FullSuccessRatePercent,
                     AvgDurationMs = g.Average(r => r.DurationMs)
                 })
                 .ToList(),
             UsageByCategory = descriptors
                 .GroupBy(s => s.Category.ToString())
                 .ToDictionary(g => g.Key, g => g.Count()),
-            UsageOverTime = Enumerable.Range(0, Math.Min(days, 30))
+            UsageOverTime = Enumerable.Range(0, Math.Min(days, MaxUsageOverTimeDays))
                 .Select(d =>
                 {
                     var date = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-d));
