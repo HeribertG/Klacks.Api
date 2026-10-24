@@ -52,6 +52,8 @@ public sealed class OrderReviewDraftItem
 
     public bool HasGroup { get; set; }
 
+    public Guid? CurrentGroupId { get; set; }
+
     public string? CurrentGroupName { get; set; }
 
     public Guid? ProposedGroupId { get; set; }

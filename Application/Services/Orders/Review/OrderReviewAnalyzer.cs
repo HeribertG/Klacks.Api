@@ -77,6 +77,7 @@ public static class OrderReviewAnalyzer
         if (existing != null)
         {
             item.HasGroup = true;
+            item.CurrentGroupId = existing.GroupId;
             item.CurrentGroupName = input.GroupNamesById.GetValueOrDefault(existing.GroupId);
             return existing.GroupId;
         }

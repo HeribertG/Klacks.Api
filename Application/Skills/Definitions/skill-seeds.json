@@ -48853,6 +48853,321 @@
         "it": "Valuta l'impostazione delle ore obiettivo"
       },
       "version": 1
+    },
+    {
+      "name": "start_order_review",
+      "area": "shift",
+      "description": "Goes through the open orders (Bestellungen) with the planner before they are sealed: groups orders with the same pattern into bundles and lists outliers one by one, proposes for 24-hour orders a start at 07:00 and a split into three 8-hour services checked against the working-time rules of the group members, proposes the staffing group and required qualifications, and asks for travel costs, meals or other expenses per order.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "customerName",
+          "description": "Optional. Restricts the review to the orders of customers whose name contains this text.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "offene bestellungen durchgehen",
+          "bestellungen mit mir durchgehen",
+          "bestellungen gemeinsam durchgehen"
+        ],
+        "en": [
+          "go through the open orders",
+          "review the open orders",
+          "open orders with me"
+        ],
+        "fr": [
+          "passer en revue les commandes ouvertes",
+          "commandes ouvertes avec moi"
+        ],
+        "it": [
+          "esaminare gli ordini aperti",
+          "ordini aperti con me"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "offene bestellungen durchgehen",
+          "bestellungen gemeinsam prüfen",
+          "bestellungen vor dem versiegeln besprechen"
+        ],
+        "en": [
+          "go through the open orders",
+          "walk through the open orders together",
+          "discuss the orders before sealing"
+        ],
+        "fr": [
+          "passer en revue les commandes ouvertes",
+          "examiner les commandes ensemble"
+        ],
+        "it": [
+          "esaminare gli ordini aperti",
+          "rivedere gli ordini insieme"
+        ]
+      },
+      "labels": {
+        "de": "Offene Bestellungen gemeinsam durchgehen",
+        "en": "Go through the open orders together",
+        "fr": "Passer en revue les commandes ouvertes ensemble",
+        "it": "Esaminare insieme gli ordini aperti"
+      },
+      "version": 1
+    },
+    {
+      "name": "set_order_review_decision",
+      "area": "shift",
+      "description": "Records the planner's answer in the running walk-through of the open orders for one bundle or single order: the new start time of a 24-hour order, the split into services (3x8, 2x12, none or explicit times), the staffing group, the required qualifications, the travel costs, meals or other expenses, or that there are none. Invalid answers are refused with the reason.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "target",
+          "description": "Review key(s) such as B1 or S2, order id(s), several separated by commas, or 'all'.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startTime",
+          "description": "Optional. New start HH:mm of a 24-hour order, e.g. 07:00; 00:00 keeps midnight.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "split",
+          "description": "Optional. '3x8', '2x12', 'none' or explicit parts 'HH:mm-HH:mm,...' that cover the order exactly.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "partNames",
+          "description": "Optional. Names of the parts, comma separated, in part order.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Optional. Group that staffs orders without a group (administrators only).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "qualifications",
+          "description": "Optional. 'none' or qualification names, comma separated.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "expenses",
+          "description": "Optional. 'description:amount' or 'description:amount:taxable', several separated by ';'.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "noExpenses",
+          "description": "Optional. 'this' when the targeted orders have no expenses, 'all' when no order left in the review has any.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "acceptProposals",
+          "description": "Optional. true takes the proposed start, split, group and qualifications where still undecided.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "skip",
+          "description": "Optional. true leaves the targeted orders out of this review.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "antwort im bestellungsdurchgang"
+        ],
+        "en": [
+          "order walk-through answer"
+        ],
+        "fr": [
+          "réponse revue des commandes"
+        ],
+        "it": [
+          "risposta revisione ordini"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "antwort im bestellungsdurchgang festhalten"
+        ],
+        "en": [
+          "record the order walk-through answer"
+        ],
+        "fr": [
+          "enregistrer la réponse de la revue des commandes"
+        ],
+        "it": [
+          "registrare la risposta della revisione ordini"
+        ]
+      },
+      "labels": {
+        "de": "Antwort im Bestellungsdurchgang festhalten",
+        "en": "Record an answer in the order review",
+        "fr": "Enregistrer une réponse dans la revue des commandes",
+        "it": "Registrare una risposta nella revisione degli ordini"
+      },
+      "version": 1
+    },
+    {
+      "name": "preview_order_review",
+      "area": "shift",
+      "description": "Shows the state of the running walk-through of the open orders: per bundle or single order the decided start, split, group, qualifications and expenses, what is still to be asked, and for the orders that are complete the exact text of what will change, be sealed and be cut into services when the planner confirms.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "target",
+          "description": "Optional. Review key(s) such as B1 or S2, order id(s), comma separated, or 'all'. Default: every key with orders still to do.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "vorschau bestellungsdurchgang"
+        ],
+        "en": [
+          "order walk-through preview"
+        ],
+        "fr": [
+          "aperçu revue des commandes"
+        ],
+        "it": [
+          "anteprima revisione ordini"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "stand des bestellungsdurchgangs"
+        ],
+        "en": [
+          "state of the order walk-through"
+        ],
+        "fr": [
+          "état de la revue des commandes"
+        ],
+        "it": [
+          "stato della revisione degli ordini"
+        ]
+      },
+      "labels": {
+        "de": "Vorschau des Bestellungsdurchgangs",
+        "en": "Preview the order review",
+        "fr": "Aperçu de la revue des commandes",
+        "it": "Anteprima della revisione degli ordini"
+      },
+      "version": 1
+    },
+    {
+      "name": "cancel_order_review",
+      "area": "shift",
+      "description": "Ends the running walk-through of the open orders and discards its unanswered decisions; orders already sealed during the walk-through stay sealed.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "bestellungsdurchgang abbrechen"
+        ],
+        "en": [
+          "cancel the order walk-through"
+        ],
+        "fr": [
+          "annuler la revue des commandes"
+        ],
+        "it": [
+          "annullare la revisione degli ordini"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "bestellungsdurchgang beenden"
+        ],
+        "en": [
+          "stop the order walk-through"
+        ],
+        "fr": [
+          "arrêter la revue des commandes"
+        ],
+        "it": [
+          "interrompere la revisione degli ordini"
+        ]
+      },
+      "labels": {
+        "de": "Bestellungsdurchgang abbrechen",
+        "en": "Cancel the order review",
+        "fr": "Annuler la revue des commandes",
+        "it": "Annullare la revisione degli ordini"
+      },
+      "version": 1
     }
   ]
 }

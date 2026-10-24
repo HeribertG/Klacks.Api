@@ -525,6 +525,12 @@ internal static class DomainServiceCollectionExtensions
             Klacks.Api.Application.Services.Orders.SealShiftTargetResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.ISealOpenOrdersPlanner,
                            Klacks.Api.Application.Services.Orders.SealOpenOrdersPlanner>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.IGroupMemberPolicyReader,
+            Klacks.Api.Application.Services.Orders.Review.GroupMemberPolicyReader>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.IOrderReviewLoader,
+            Klacks.Api.Application.Services.Orders.Review.OrderReviewLoader>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.IOrderReviewDecisionApplier,
+            Klacks.Api.Application.Services.Orders.Review.OrderReviewDecisionApplier>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupGeocoder,
             Klacks.Api.Application.Services.Grouping.GroupGeocoder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupPlaceClassifier,
