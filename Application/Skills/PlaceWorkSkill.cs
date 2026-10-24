@@ -23,6 +23,7 @@
 /// <param name="planningPeriodGuard">Names a day outside the client's membership or group period</param>
 /// <param name="shiftVisibilityGuard">Decides whether the calling user may book the shift</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -30,10 +31,12 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -98,7 +101,7 @@ public class PlaceWorkSkill : BaseSkillImplementation
 
         if (await _sealedDayRepository.IsDayLockedAsync(date, clientId, cancellationToken))
         {
-            return SkillResult.Error($"Day {date:yyyy-MM-dd} is sealed for client {clientId}; nothing was placed.");
+            return SkillResult.Error($"Day {date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} is sealed for client {clientId}; nothing was placed.");
         }
 
         var periodViolations = await _planningPeriodGuard.FindViolationsAsync([(clientId, date)], cancellationToken);
@@ -107,10 +110,10 @@ public class PlaceWorkSkill : BaseSkillImplementation
             return SkillResult.Error($"{periodViolations[0].Message} Nothing was placed.");
         }
 
-        var startTime = !string.IsNullOrWhiteSpace(startTimeRaw) && TimeOnly.TryParse(startTimeRaw, out var sParsed)
+        var startTime = !string.IsNullOrWhiteSpace(startTimeRaw) && SkillCalendarStringParser.TryParseTimeOnly(startTimeRaw, context.UserLanguage, out var sParsed)
             ? sParsed
             : shift.StartShift;
-        var endTime = !string.IsNullOrWhiteSpace(endTimeRaw) && TimeOnly.TryParse(endTimeRaw, out var eParsed)
+        var endTime = !string.IsNullOrWhiteSpace(endTimeRaw) && SkillCalendarStringParser.TryParseTimeOnly(endTimeRaw, context.UserLanguage, out var eParsed)
             ? eParsed
             : shift.EndShift;
         var workTime = workTimeRaw ?? CalculateWorkTime(startTime, endTime);
@@ -130,7 +133,7 @@ public class PlaceWorkSkill : BaseSkillImplementation
                 .Select(c => new { c.Comment, c.Date, CommentParams = LocalizedCommentParams.ForLanguage(c.CommentParams, context.UserLanguage) })
                 .ToList();
             return SkillResult.Error(
-                $"Placement blocked: client {clientId} on shift '{shift.Name}' for {date} would introduce " +
+                $"Placement blocked: client {clientId} on shift '{shift.Name}' for {date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} would introduce " +
                 $"{blocking.Count} schedule conflict(s) (e.g. a collision). Not committed.",
                 new Dictionary<string, object> { ["conflicts"] = blocking });
         }
@@ -167,7 +170,7 @@ public class PlaceWorkSkill : BaseSkillImplementation
         catch (Exception ex) when (ex is InvalidRequestException or ConflictException)
         {
             return SkillResult.Error(
-                $"Placement of client {clientId} on shift '{shift.Name}' for {date} was refused: {ex.Message}");
+                $"Placement of client {clientId} on shift '{shift.Name}' for {date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} was refused: {ex.Message}");
         }
 
         var warningNote = warnings.Count > 0
@@ -188,6 +191,6 @@ public class PlaceWorkSkill : BaseSkillImplementation
                 Warnings = warnings,
                 BulkResponse = response
             },
-            $"Placed client {clientId} on shift '{shift.Name}' for {date} ({startTime}–{endTime}, {workTime}h).{warningNote}");
+            $"Placed client {clientId} on shift '{shift.Name}' for {date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} ({startTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}–{endTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}, {workTime}h).{warningNote}");
     }
 }

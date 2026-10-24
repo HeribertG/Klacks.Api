@@ -13,10 +13,12 @@
 /// <param name="groupRepository">Loads the requested group for the scope check</param>
 /// <param name="groupScopeGuard">Resolves the executing user's group scope</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -47,11 +49,11 @@ public class GeneratePeriodSummarySkill : BaseSkillImplementation
         var fromStr = GetRequiredString(parameters, "fromDate");
         var untilStr = GetRequiredString(parameters, "untilDate");
 
-        if (!DateOnly.TryParse(fromStr, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(fromStr, context.UserLanguage, out var fromDate))
         {
             return SkillResult.Error($"Invalid fromDate: {fromStr}.");
         }
-        if (!DateOnly.TryParse(untilStr, out var untilDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(untilStr, context.UserLanguage, out var untilDate))
         {
             return SkillResult.Error($"Invalid untilDate: {untilStr}.");
         }
@@ -75,8 +77,8 @@ public class GeneratePeriodSummarySkill : BaseSkillImplementation
         var summary = new
         {
             GroupId = groupId,
-            FromDate = fromDate.ToString(DateTimeFormats.IsoDate),
-            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
+            FromDate = fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             EmployeeCount = employeeIds.Count,
             EmployeeIds = employeeIds,
             DaysInPeriod = (untilDate.DayNumber - fromDate.DayNumber) + 1
@@ -84,7 +86,7 @@ public class GeneratePeriodSummarySkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             summary,
-            $"Period summary for group {groupId} between {fromDate:yyyy-MM-dd} and {untilDate:yyyy-MM-dd}: " +
+            $"Period summary for group {groupId} between {fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} and {untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}: " +
             $"{employeeIds.Count} employee(s), {summary.DaysInPeriod} day(s).");
     }
 }

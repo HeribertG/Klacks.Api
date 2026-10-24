@@ -8,6 +8,7 @@
 /// <param name="numberOfEmployees">Number of employees to create</param>
 /// <param name="defaultShiftMacroResolver">Supplies the default Shift-category macro every created shift carries</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -20,6 +21,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -71,11 +73,11 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
         var canton = GetParameter<string>(parameters, "canton") ?? "BE";
         var guaranteedHours = GetParameter<decimal>(parameters, "guaranteedHours", 172.2m);
         var companyToday = await _companyClock.GetTodayDateAsync(cancellationToken);
-        var shiftStartDate = GetParameter<string>(parameters, "shiftStartDate") ?? companyToday.ToString(DateTimeFormats.IsoDate);
+        var shiftStartDate = GetParameter<string>(parameters, "shiftStartDate") ?? companyToday.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
         var createShifts = GetParameter<bool>(parameters, "createShifts", true);
         var sumEmployees = GetParameter<int>(parameters, "sumEmployees", 1);
 
-        if (!DateOnly.TryParse(shiftStartDate, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(shiftStartDate, context.UserLanguage, out var fromDate))
         {
             fromDate = companyToday;
         }
@@ -134,7 +136,7 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
 
         if (createdShifts.Count > 0)
         {
-            message += $" and {createdShifts.Count} shifts (24/7 from {fromDate:yyyy-MM-dd})";
+            message += $" and {createdShifts.Count} shifts (24/7 from {fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)})";
         }
 
         return SkillResult.SuccessResult(resultData, message + ".");
@@ -295,8 +297,8 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
             {
                 Id = resultShift.Id,
                 def.Name,
-                Start = def.Start.ToString(DateTimeFormats.HourMinute),
-                End = def.End.ToString(DateTimeFormats.HourMinute),
+                Start = def.Start.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+                End = def.End.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
                 WorkTime = workTime
             });
         }

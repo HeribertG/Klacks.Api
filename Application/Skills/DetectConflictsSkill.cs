@@ -18,6 +18,7 @@
 /// <param name="groupScopeGuard">Resolves the executing user's group scope</param>
 /// <param name="clientVisibilityGuard">Keeps only the findings of clients the caller may see</param>
 
+using System.Globalization;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
@@ -26,6 +27,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -59,11 +61,11 @@ public class DetectConflictsSkill : BaseSkillImplementation
         var fromStr = GetRequiredString(parameters, "fromDate");
         var untilStr = GetRequiredString(parameters, "untilDate");
 
-        if (!DateOnly.TryParse(fromStr, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(fromStr, context.UserLanguage, out var fromDate))
         {
             return SkillResult.Error($"Invalid fromDate: {fromStr}.");
         }
-        if (!DateOnly.TryParse(untilStr, out var untilDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(untilStr, context.UserLanguage, out var untilDate))
         {
             return SkillResult.Error($"Invalid untilDate: {untilStr}.");
         }
@@ -97,7 +99,7 @@ public class DetectConflictsSkill : BaseSkillImplementation
         {
             i.ClientId,
             i.ClientName,
-            Date = i.Date.ToString(DateTimeFormats.IsoDate),
+            Date = i.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             Severity = i.Severity.ToString(),
             i.Code,
             i.MessageKey,
@@ -114,8 +116,8 @@ public class DetectConflictsSkill : BaseSkillImplementation
         var data = new
         {
             GroupId = groupId,
-            FromDate = fromDate.ToString(DateTimeFormats.IsoDate),
-            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
+            FromDate = fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             AnalyseToken = analyseToken,
             IsScenario = analyseToken.HasValue,
             TotalConflicts = issues.Count,
@@ -128,8 +130,8 @@ public class DetectConflictsSkill : BaseSkillImplementation
 
         var scenarioNote = analyseToken.HasValue ? " (scenario view)" : string.Empty;
         var message = issues.Count == 0
-            ? $"No conflicts for group {groupId} between {fromDate:yyyy-MM-dd} and {untilDate:yyyy-MM-dd}{scenarioNote}."
-            : $"{issues.Count} conflict(s) for group {groupId} between {fromDate:yyyy-MM-dd} and {untilDate:yyyy-MM-dd}{scenarioNote}: " +
+            ? $"No conflicts for group {groupId} between {fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} and {untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}{scenarioNote}."
+            : $"{issues.Count} conflict(s) for group {groupId} between {fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} and {untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}{scenarioNote}: " +
               $"{errors} error(s), {warnings} warning(s).";
 
         return SkillResult.SuccessResult(data, message);

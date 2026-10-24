@@ -11,11 +11,14 @@
 /// <param name="untilDate">Optional contract end date (YYYY-MM-DD); leave empty for indefinite.</param>
 /// <param name="idNumber">Optional visible client number to disambiguate duplicate names.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 using Klacks.Api.Application.DTOs.Staffs;
@@ -65,7 +68,7 @@ public class AssignContractByNameSkill : BaseSkillImplementation
         var fromDateStr = GetRequiredString(parameters, "fromDate");
         var untilDateStr = GetParameter<string>(parameters, "untilDate");
 
-        if (!DateOnly.TryParse(fromDateStr, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(fromDateStr, context.UserLanguage, out var fromDate))
         {
             return SkillResult.Error($"Invalid fromDate format: '{fromDateStr}'. Expected YYYY-MM-DD.");
         }
@@ -73,7 +76,7 @@ public class AssignContractByNameSkill : BaseSkillImplementation
         DateOnly? untilDate = null;
         if (!string.IsNullOrEmpty(untilDateStr))
         {
-            if (!DateOnly.TryParse(untilDateStr, out var parsedUntil))
+            if (!SkillCalendarStringParser.TryParseDateOnly(untilDateStr, context.UserLanguage, out var parsedUntil))
             {
                 return SkillResult.Error($"Invalid untilDate format: '{untilDateStr}'. Expected YYYY-MM-DD.");
             }
@@ -144,6 +147,6 @@ public class AssignContractByNameSkill : BaseSkillImplementation
                 FromDate = fromDate,
                 UntilDate = untilDate
             },
-            $"Contract '{contract.Name}' assigned to {client.FirstName} {client.Name} from {fromDate}.");
+            $"Contract '{contract.Name}' assigned to {client.FirstName} {client.Name} from {fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}.");
     }
 }

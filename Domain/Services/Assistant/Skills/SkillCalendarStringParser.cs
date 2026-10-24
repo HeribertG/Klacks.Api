@@ -11,7 +11,8 @@
 /// about the day. The written calendar day and wall clock are kept exactly as given and the result is
 /// forced to Kind=Utc: callers store it in a 'timestamp with time zone' column as a calendar boundary,
 /// and converting an offset to its UTC instant would silently move "2026-08-01T00:00:00+02:00" to the
-/// previous day. A parsed year outside the plausible band is rejected rather than stored as written.
+/// previous day. A parsed year outside the plausible band is rejected rather than stored as written, ISO values included. A time is read
+/// with TimeOnly only, so a bare date is never accepted as midnight.
 /// </summary>
 
 using System.Globalization;
@@ -59,10 +60,26 @@ public static class SkillCalendarStringParser
     /// <param name="value">Parsed wall-clock time</param>
     public static bool TryParseTimeOnly(string? raw, string? language, out TimeOnly value)
     {
-        if (TryParseOffset(raw, language, SkillDateParsingDefaults.IsoTimeFormats, out var parsed))
+        value = default;
+        if (string.IsNullOrWhiteSpace(raw))
         {
-            value = TimeOnly.FromDateTime(parsed.DateTime);
+            return false;
+        }
+
+        var trimmed = raw.Trim();
+        if (TimeOnly.TryParseExact(
+                trimmed, SkillDateParsingDefaults.IsoTimeFormats, CultureInfo.InvariantCulture,
+                DateTimeStyles.AllowWhiteSpaces, out value))
+        {
             return true;
+        }
+
+        foreach (var parseCulture in SkillDateCultureResolver.CulturesFor(language))
+        {
+            if (TimeOnly.TryParse(trimmed, parseCulture, DateTimeStyles.AllowWhiteSpaces, out value))
+            {
+                return true;
+            }
         }
 
         value = default;
@@ -82,7 +99,13 @@ public static class SkillCalendarStringParser
         if (DateTimeOffset.TryParseExact(
                 trimmed, isoFormats, CultureInfo.InvariantCulture, CalendarParseStyles, out value))
         {
-            return true;
+            if (SkillDateParsingDefaults.IsPlausibleCalendarYear(value.Year))
+            {
+                return true;
+            }
+
+            value = default;
+            return false;
         }
 
         foreach (var culture in SkillDateCultureResolver.CulturesFor(language))

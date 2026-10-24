@@ -305,7 +305,7 @@ public class LdapService : ILdapService
         var strValue = GetStringAttribute(entry, attributeName);
         if (!string.IsNullOrEmpty(strValue))
         {
-            if (DateTime.TryParseExact(strValue, "yyyyMMddHHmmss.f'Z'", null, System.Globalization.DateTimeStyles.AssumeUniversal, out var result))
+            if (DateTime.TryParseExact(strValue, "yyyyMMddHHmmss.f'Z'", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal, out var result))
             {
                 return result;
             }

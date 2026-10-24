@@ -20,6 +20,7 @@
 /// <param name="endBase">Optional. End location of that route; falls back to startBase when omitted.</param>
 /// <param name="transportMode">Optional: car|bicycle|foot|mix; defaults to car.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
@@ -29,6 +30,7 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -84,7 +86,7 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var (request, requestError) = ParseRequest(parameters);
+        var (request, requestError) = ParseRequest(parameters, context.UserLanguage);
         if (request is null)
         {
             return SkillResult.Error(requestError!);
@@ -121,7 +123,7 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
         }
     }
 
-    private static (TemplateRequest? Request, string? Error) ParseRequest(Dictionary<string, object> parameters)
+    private static (TemplateRequest? Request, string? Error) ParseRequest(Dictionary<string, object> parameters, string? language)
     {
         var containerId = GetRequiredGuid(parameters, "containerId");
         var isoWeekday = GetRequiredInt(parameters, "weekday");
@@ -138,19 +140,19 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
             return (null, "weekday must be between 1 (Monday) and 7 (Sunday).");
         }
 
-        if (!TimeOnly.TryParse(fromTimeStr, out var fromTime))
+        if (!SkillCalendarStringParser.TryParseTimeOnly(fromTimeStr, language, out var fromTime))
         {
             return (null, $"Invalid fromTime '{fromTimeStr}'. Expected format 'HH:mm'.");
         }
 
-        if (!TimeOnly.TryParse(untilTimeStr, out var untilTime))
+        if (!SkillCalendarStringParser.TryParseTimeOnly(untilTimeStr, language, out var untilTime))
         {
             return (null, $"Invalid untilTime '{untilTimeStr}'. Expected format 'HH:mm'.");
         }
 
         if (untilTime <= fromTime)
         {
-            return (null, $"untilTime ({untilTime:HH\\:mm}) must be after fromTime ({fromTime:HH\\:mm}).");
+            return (null, $"untilTime ({untilTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}) must be after fromTime ({fromTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}).");
         }
 
         var (transportMode, transportModeError) = ParseTransportMode(transportModeStr);
@@ -321,8 +323,8 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
             ContainerId = containerId,
             ContainerName = container.Name,
             Weekday = isoWeekday,
-            FromTime = fromTime.ToString("HH\\:mm"),
-            UntilTime = untilTime.ToString("HH\\:mm"),
+            FromTime = fromTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+            UntilTime = untilTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
             IsHoliday = request.IsHoliday,
             IsWeekdayAndHoliday = request.IsWeekdayAndHoliday,
             StartBase = templateResource.StartBase,
@@ -334,7 +336,7 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(
             resultData,
             $"Weekday template for weekday {isoWeekday} created on container '{container.Name}' " +
-            $"({fromTime:HH\\:mm}-{untilTime:HH\\:mm}). It is still empty — add task shifts to it with " +
+            $"({fromTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-{untilTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}). It is still empty — add task shifts to it with " +
             $"add_container_template_task using containerId=\"{containerId}\" and weekday={isoWeekday}.");
     }
 

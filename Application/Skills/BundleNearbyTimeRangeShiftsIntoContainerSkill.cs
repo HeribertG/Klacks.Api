@@ -27,6 +27,7 @@
 /// <param name="defaultShiftMacroResolver">Supplies the default Shift-category macro of the new container, exactly as a
 /// container created in the shift editor receives it</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Commands.Schedules;
@@ -46,6 +47,7 @@ using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Services.RouteOptimization;
 using Klacks.Api.Infrastructure.Mediator;
@@ -155,7 +157,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var (request, requestError) = ParseRequest(parameters);
+        var (request, requestError) = ParseRequest(parameters, context.UserLanguage);
         if (request is null)
         {
             return SkillResult.Error(requestError!);
@@ -192,7 +194,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         return BuildSuccessResult(request, outcome);
     }
 
-    private static (BundleRequest? Request, string? Error) ParseRequest(Dictionary<string, object> parameters)
+    private static (BundleRequest? Request, string? Error) ParseRequest(Dictionary<string, object> parameters, string? language)
     {
         var location = GetRequiredString(parameters, "location");
         var isoWeekday = GetRequiredInt(parameters, "weekday");
@@ -214,13 +216,13 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             return (null, "weekday must be between 1 (Monday) and 7 (Sunday).");
         }
 
-        var (fromTime, untilTime, timeError) = ParseTimeBudget(fromTimeStr, untilTimeStr);
+        var (fromTime, untilTime, timeError) = ParseTimeBudget(fromTimeStr, untilTimeStr, language);
         if (timeError != null)
         {
             return (null, timeError);
         }
 
-        var (fromDate, untilDate, dateError) = ParseValidity(fromDateStr, untilDateStr);
+        var (fromDate, untilDate, dateError) = ParseValidity(fromDateStr, untilDateStr, language);
         if (dateError != null)
         {
             return (null, dateError);
@@ -240,14 +242,14 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     }
 
     private static (TimeOnly FromTime, TimeOnly UntilTime, string? Error) ParseTimeBudget(
-        string fromTimeStr, string untilTimeStr)
+        string fromTimeStr, string untilTimeStr, string? language)
     {
-        if (!TimeOnly.TryParse(fromTimeStr, out var fromTime))
+        if (!SkillCalendarStringParser.TryParseTimeOnly(fromTimeStr, language, out var fromTime))
         {
             return (default, default, $"Invalid fromTime format: {fromTimeStr}. Expected HH:mm");
         }
 
-        if (!TimeOnly.TryParse(untilTimeStr, out var untilTime))
+        if (!SkillCalendarStringParser.TryParseTimeOnly(untilTimeStr, language, out var untilTime))
         {
             return (default, default, $"Invalid untilTime format: {untilTimeStr}. Expected HH:mm");
         }
@@ -261,9 +263,9 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     }
 
     private static (DateOnly FromDate, DateOnly? UntilDate, string? Error) ParseValidity(
-        string fromDateStr, string? untilDateStr)
+        string fromDateStr, string? untilDateStr, string? language)
     {
-        if (!DateOnly.TryParse(fromDateStr, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(fromDateStr, language, out var fromDate))
         {
             return (default, null, $"Invalid fromDate format: {fromDateStr}. Expected YYYY-MM-DD (e.g. 2026-06-01).");
         }
@@ -271,7 +273,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         DateOnly? untilDate = null;
         if (!string.IsNullOrWhiteSpace(untilDateStr))
         {
-            if (!DateOnly.TryParse(untilDateStr, out var parsedUntilDate))
+            if (!SkillCalendarStringParser.TryParseDateOnly(untilDateStr, language, out var parsedUntilDate))
             {
                 return (default, null, $"Invalid untilDate format: {untilDateStr}. Expected YYYY-MM-DD.");
             }
@@ -280,7 +282,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             if (untilDate.Value < fromDate)
             {
                 return (default, null,
-                    $"untilDate ({untilDate:yyyy-MM-dd}) must not be before fromDate ({fromDate:yyyy-MM-dd}).");
+                    $"untilDate ({untilDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) must not be before fromDate ({fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}).");
             }
         }
 

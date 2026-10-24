@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Globalization;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
@@ -79,9 +80,9 @@ public sealed class WizardShiftBuilder : IWizardShiftBuilder
                     result.Add(new CoreShift(
                         Id: shift.Id.ToString(),
                         Name: string.IsNullOrWhiteSpace(shift.Name) ? shift.Abbreviation : shift.Name,
-                        Date: date.ToString(DateTimeFormats.IsoDate),
-                        StartTime: shift.StartShift.ToString(DateTimeFormats.HourMinute),
-                        EndTime: shift.EndShift.ToString(DateTimeFormats.HourMinute),
+                        Date: date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+                        StartTime: shift.StartShift.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+                        EndTime: shift.EndShift.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
                         Hours: (double)shift.WorkTime,
                         RequiredAssignments: SingleSeat,
                         Priority: 0)

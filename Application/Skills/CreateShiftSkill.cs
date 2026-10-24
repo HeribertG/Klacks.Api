@@ -29,6 +29,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -122,7 +123,7 @@ public class CreateShiftSkill : BaseSkillImplementation
             return SkillResult.Error(macroError);
         }
 
-        var (schedule, scheduleError) = ParseSchedule(input);
+        var (schedule, scheduleError) = ParseSchedule(input, context.UserLanguage);
         if (schedule is null)
         {
             return SkillResult.Error(scheduleError!);
@@ -206,19 +207,19 @@ public class CreateShiftSkill : BaseSkillImplementation
         return (clientId, clientName, null);
     }
 
-    private static (OrderSchedule? Schedule, string? Error) ParseSchedule(OrderInput input)
+    private static (OrderSchedule? Schedule, string? Error) ParseSchedule(OrderInput input, string? language)
     {
         var startTimeStr = input.StartTimeText;
         var endTimeStr = input.EndTimeText;
         var fromDateStr = input.FromDateText;
         var untilDateStr = input.UntilDateText;
 
-        if (!TimeOnly.TryParse(startTimeStr, out var startTime))
+        if (!SkillCalendarStringParser.TryParseTimeOnly(startTimeStr, language, out var startTime))
         {
             return (null, $"Invalid start time format: {startTimeStr}. Expected HH:mm");
         }
 
-        if (!TimeOnly.TryParse(endTimeStr, out var endTime))
+        if (!SkillCalendarStringParser.TryParseTimeOnly(endTimeStr, language, out var endTime))
         {
             return (null, $"Invalid end time format: {endTimeStr}. Expected HH:mm");
         }
@@ -233,20 +234,20 @@ public class CreateShiftSkill : BaseSkillImplementation
                 "Then call create_shift again with fromDate in YYYY-MM-DD format.");
         }
 
-        if (!DateOnly.TryParse(fromDateStr, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(fromDateStr, language, out var fromDate))
         {
             return (null, $"Invalid fromDate format: {fromDateStr}. Expected YYYY-MM-DD (e.g. 2026-06-01).");
         }
 
         DateOnly? untilDate = null;
-        if (!string.IsNullOrEmpty(untilDateStr) && DateOnly.TryParse(untilDateStr, out var parsedUntil))
+        if (!string.IsNullOrEmpty(untilDateStr) && SkillCalendarStringParser.TryParseDateOnly(untilDateStr, language, out var parsedUntil))
         {
             untilDate = parsedUntil;
         }
 
         if (untilDate.HasValue && untilDate.Value < fromDate)
         {
-            return (null, $"untilDate ({untilDate:yyyy-MM-dd}) must not be before fromDate ({fromDate:yyyy-MM-dd}).");
+            return (null, $"untilDate ({untilDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) must not be before fromDate ({fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}).");
         }
 
         if (input.SumEmployees < 1)
@@ -369,10 +370,10 @@ public class CreateShiftSkill : BaseSkillImplementation
             SealedOrderId = shift.Id,
             shift.Name,
             shift.Abbreviation,
-            StartTime = startTime.ToString(DateTimeFormats.HourMinute),
-            EndTime = endTime.ToString(DateTimeFormats.HourMinute),
-            FromDate = schedule.FromDate.ToString(DateTimeFormats.IsoDate),
-            UntilDate = schedule.UntilDate?.ToString(DateTimeFormats.IsoDate),
+            StartTime = startTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+            EndTime = endTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+            FromDate = schedule.FromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+            UntilDate = schedule.UntilDate?.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             WorkTime = workTime,
             SumEmployees = input.SumEmployees,
             GroupCount = groupItems.Count,
@@ -387,12 +388,12 @@ public class CreateShiftSkill : BaseSkillImplementation
             : " (no default calculation macro configured — set one with category Shift)";
 
         var message = input.AsDraft
-            ? $"Order '{name}' ({startTime:HH:mm}-{endTime:HH:mm}, {workTime}h) created as a DRAFT (status OriginalOrder) " +
+            ? $"Order '{name}' ({startTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-{endTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}, {workTime}h) created as a DRAFT (status OriginalOrder) " +
               $"for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s) — NOT sealed yet, so it has no " +
               "plannable shift and cannot be booked or cut. Continue refining it, then call seal_shift with " +
               $"shiftId=\"{resultShift.Id}\" once name, abbreviation, fromDate, at least one weekday or holiday, at " +
               "least one group, quantity>0 and sumEmployees>0 are all set."
-            : $"Order '{name}' ({startTime:HH:mm}-{endTime:HH:mm}, {workTime}h) created for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s). " +
+            : $"Order '{name}' ({startTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-{endTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}, {workTime}h) created for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s). " +
               "NEXT STEP: if this order is meant to be split into several parts (e.g. a 24h service into early/late/night), " +
               $"call cut_shift now with shiftId=\"{resultShift.Id}\" and parts like \"07:00-15:00,15:00-23:00,23:00-07:00\" " +
               "(optionally partNames=\"Frühdienst,Spätdienst,Nachtdienst\"). Do NOT navigate to the cut page and do NOT write manual cutting instructions. " +

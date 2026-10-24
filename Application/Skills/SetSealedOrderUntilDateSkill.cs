@@ -12,6 +12,7 @@
 /// <param name="shiftId">UUID of the sealed order (status SealedOrder) to set the until-date on.</param>
 /// <param name="untilDate">ISO date (YYYY-MM-DD) the order ends on; must not be before fromDate.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
@@ -20,6 +21,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -50,7 +52,7 @@ public class SetSealedOrderUntilDateSkill : BaseSkillImplementation
         var shiftId = GetRequiredGuid(parameters, "shiftId");
         var untilDateStr = GetRequiredString(parameters, "untilDate");
 
-        if (!DateOnly.TryParse(untilDateStr, out var untilDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(untilDateStr, context.UserLanguage, out var untilDate))
         {
             return SkillResult.Error($"Invalid untilDate format: {untilDateStr}. Expected YYYY-MM-DD (e.g. 2026-06-01).");
         }
@@ -81,21 +83,21 @@ public class SetSealedOrderUntilDateSkill : BaseSkillImplementation
         if (shift.UntilDate.HasValue)
         {
             return SkillResult.Error(
-                $"Sealed order '{shift.Name}' already has an until-date ({shift.UntilDate:yyyy-MM-dd}) set. " +
+                $"Sealed order '{shift.Name}' already has an until-date ({shift.UntilDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) set. " +
                 "This is a one-time change and the field is now locked like every other field on a sealed order.");
         }
 
         if (untilDate < shift.FromDate)
         {
             return SkillResult.Error(
-                $"untilDate ({untilDate:yyyy-MM-dd}) must not be before fromDate ({shift.FromDate:yyyy-MM-dd}).");
+                $"untilDate ({untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) must not be before fromDate ({shift.FromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}).");
         }
 
         var hasFutureWorks = await _shiftRepository.HasWorksAfterDateForOrderTreeAsync(shiftId, untilDate, cancellationToken);
         if (hasFutureWorks)
         {
             return SkillResult.Error(
-                $"Cannot set the until-date to {untilDate:yyyy-MM-dd}: work is already planned after that date on " +
+                $"Cannot set the until-date to {untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}: work is already planned after that date on " +
                 $"order '{shift.Name}' (on its plannable shift or one of its split parts). Move or cancel those " +
                 "bookings first, or choose a later until-date.");
         }
@@ -133,14 +135,14 @@ public class SetSealedOrderUntilDateSkill : BaseSkillImplementation
         var resultData = new
         {
             OrderId = shiftId,
-            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
+            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             shift.Name,
             Verified = true
         };
 
         return SkillResult.SuccessResult(
             resultData,
-            $"Until-date {untilDate:yyyy-MM-dd} set on sealed order '{shift.Name}' and confirmed in the database " +
+            $"Until-date {untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} set on sealed order '{shift.Name}' and confirmed in the database " +
             "(verified). This field is now locked. Note: the order's plannable shift and any split parts keep their " +
             "own until-date unchanged — they are not automatically resynced from the order.");
     }

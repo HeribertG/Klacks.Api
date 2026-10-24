@@ -14,6 +14,7 @@
 /// <param name="untilDate">Required. ISO date yyyy-MM-dd (scenario period end, inclusive).</param>
 /// <param name="placements">Required. JSON array of {clientId, shiftId, date} placements to propose.</param>
 
+using System.Globalization;
 using System.Text.Json;
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Commands.Schedules;
@@ -21,6 +22,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -48,11 +50,11 @@ public class ProposePlanSkill : BaseSkillImplementation
         var untilStr = GetRequiredString(parameters, "untilDate");
         var placementsJson = GetRequiredString(parameters, "placements");
 
-        if (!DateOnly.TryParse(fromStr, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(fromStr, context.UserLanguage, out var fromDate))
         {
             return SkillResult.Error($"Invalid fromDate: {fromStr}.");
         }
-        if (!DateOnly.TryParse(untilStr, out var untilDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(untilStr, context.UserLanguage, out var untilDate))
         {
             return SkillResult.Error($"Invalid untilDate: {untilStr}.");
         }
@@ -87,13 +89,13 @@ public class ProposePlanSkill : BaseSkillImplementation
             {
                 return SkillResult.Error($"Invalid shiftId in placements: {entry.ShiftId}.");
             }
-            if (!DateOnly.TryParse(entry.Date, out var date))
+            if (!SkillCalendarStringParser.TryParseDateOnly(entry.Date, context.UserLanguage, out var date))
             {
                 return SkillResult.Error($"Invalid date in placements: {entry.Date}.");
             }
             if (date < fromDate || date > untilDate)
             {
-                return SkillResult.Error($"Placement date {entry.Date} is outside the period {fromDate:yyyy-MM-dd}..{untilDate:yyyy-MM-dd}.");
+                return SkillResult.Error($"Placement date {entry.Date} is outside the period {fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}..{untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}.");
             }
             placements.Add(new PlacementInput(clientId, shiftId, date));
         }
@@ -115,8 +117,8 @@ public class ProposePlanSkill : BaseSkillImplementation
             outcome.Token,
             outcome.ScenarioName,
             GroupId = groupId,
-            FromDate = fromDate.ToString(DateTimeFormats.IsoDate),
-            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate),
+            FromDate = fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+            UntilDate = untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
             WrittenCount = outcome.Written.Count,
             RejectedCount = outcome.Rejected.Count,
             WarningCount = outcome.Warnings.Count,
@@ -124,20 +126,20 @@ public class ProposePlanSkill : BaseSkillImplementation
             {
                 w.ClientId,
                 w.ShiftId,
-                Date = w.Date.ToString(DateTimeFormats.IsoDate)
+                Date = w.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)
             }),
             Rejected = outcome.Rejected.Select(r => new
             {
                 r.ClientId,
                 r.ShiftId,
-                Date = r.Date.ToString(DateTimeFormats.IsoDate),
+                Date = r.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
                 r.Reason
             }),
             Warnings = outcome.Warnings.Select(c => new
             {
                 Severity = c.Type.ToString(),
                 c.Comment,
-                Date = c.Date.ToString(DateTimeFormats.IsoDate),
+                Date = c.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
                 c.ClientId,
                 CommentParams = LocalizedCommentParams.ForLanguage(c.CommentParams, context.UserLanguage)
             })

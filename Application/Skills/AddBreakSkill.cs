@@ -17,11 +17,14 @@
 /// <param name="information">Free-text note.</param>
 /// <param name="analyseToken">Optional scenario UUID; null = main schedule.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -74,9 +77,9 @@ public class AddBreakSkill : BaseSkillImplementation
             return SkillResult.Error($"Absence type {absenceId} not found. Use list_absence_types to see available IDs.");
         }
 
-        var startTime = !string.IsNullOrWhiteSpace(startTimeRaw) && TimeOnly.TryParse(startTimeRaw, out var sParsed)
+        var startTime = !string.IsNullOrWhiteSpace(startTimeRaw) && SkillCalendarStringParser.TryParseTimeOnly(startTimeRaw, context.UserLanguage, out var sParsed)
             ? sParsed : new TimeOnly(0, 0);
-        var endTime = !string.IsNullOrWhiteSpace(endTimeRaw) && TimeOnly.TryParse(endTimeRaw, out var eParsed)
+        var endTime = !string.IsNullOrWhiteSpace(endTimeRaw) && SkillCalendarStringParser.TryParseTimeOnly(endTimeRaw, context.UserLanguage, out var eParsed)
             ? eParsed : new TimeOnly(23, 59);
         var workTime = workTimeRaw ?? 8m;
 
@@ -114,7 +117,7 @@ public class AddBreakSkill : BaseSkillImplementation
         if (!verified)
         {
             return SkillResult.Error(
-                $"Database verification failed: the break for client {clientId} on {date} " +
+                $"Database verification failed: the break for client {clientId} on {date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} " +
                 $"(absence {absenceId}) could not be confirmed in the database after the write. " +
                 "The write may still have been applied (this skill does not roll back). " +
                 "Do not report it as placed and do not retry with the same parameters; " +
@@ -136,7 +139,7 @@ public class AddBreakSkill : BaseSkillImplementation
                 Verified = verified,
                 BulkResponse = response
             },
-            $"Break placed for client {clientId} on {date} (absence {absenceId}, {workTime}h)." +
+            $"Break placed for client {clientId} on {date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} (absence {absenceId}, {workTime}h)." +
             verifyNote +
             " Counts toward TargetHours; immutable for wizards.");
     }

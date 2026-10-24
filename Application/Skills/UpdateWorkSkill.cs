@@ -14,6 +14,7 @@
 /// <param name="workTime">Optional. New work time in hours; when only times change, it is recomputed from them.</param>
 /// <param name="information">Optional. New free-text note.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Queries;
@@ -21,6 +22,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -71,7 +73,7 @@ public class UpdateWorkSkill : BaseSkillImplementation
         var startTimeRaw = GetParameter<string>(parameters, "startTime");
         if (!string.IsNullOrWhiteSpace(startTimeRaw))
         {
-            if (!TimeOnly.TryParse(startTimeRaw, out var startTime))
+            if (!SkillCalendarStringParser.TryParseTimeOnly(startTimeRaw, context.UserLanguage, out var startTime))
             {
                 return SkillResult.Error($"Invalid startTime value: {startTimeRaw}. Expected format HH:mm.");
             }
@@ -86,7 +88,7 @@ public class UpdateWorkSkill : BaseSkillImplementation
         var endTimeRaw = GetParameter<string>(parameters, "endTime");
         if (!string.IsNullOrWhiteSpace(endTimeRaw))
         {
-            if (!TimeOnly.TryParse(endTimeRaw, out var endTime))
+            if (!SkillCalendarStringParser.TryParseTimeOnly(endTimeRaw, context.UserLanguage, out var endTime))
             {
                 return SkillResult.Error($"Invalid endTime value: {endTimeRaw}. Expected format HH:mm.");
             }
@@ -169,13 +171,13 @@ public class UpdateWorkSkill : BaseSkillImplementation
                 ChangedFields = changed,
                 persisted.ClientId,
                 persisted.CurrentDate,
-                StartTime = persisted.StartTime.ToString(DateTimeFormats.HourMinute),
-                EndTime = persisted.EndTime.ToString(DateTimeFormats.HourMinute),
+                StartTime = persisted.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
+                EndTime = persisted.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
                 persisted.WorkTime,
                 persisted.Information
             },
-            $"Work '{workId}' on {persisted.CurrentDate:yyyy-MM-dd} was updated ({string.Join(", ", changed)}) " +
-            $"to {persisted.StartTime:HH\\:mm}–{persisted.EndTime:HH\\:mm} ({persisted.WorkTime}h) and confirmed " +
+            $"Work '{workId}' on {persisted.CurrentDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} was updated ({string.Join(", ", changed)}) " +
+            $"to {persisted.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}–{persisted.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)} ({persisted.WorkTime}h) and confirmed " +
             "in the database (verified).");
     }
 

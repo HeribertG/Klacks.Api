@@ -108,6 +108,7 @@ public class SkillExecutorService : ISkillExecutor
         SkillDescriptor? descriptor = null;
         using var principal = BeginContextPrincipal(context);
         invocation = WithoutReservedParameters(invocation);
+        context = await InstallationLanguageFallback.ApplyAsync(context, _serviceProvider, cancellationToken);
 
         try
         {

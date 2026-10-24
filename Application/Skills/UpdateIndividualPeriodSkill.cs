@@ -16,6 +16,7 @@ using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -77,7 +78,7 @@ public class UpdateIndividualPeriodSkill : BaseSkillImplementation
             var replacement = new List<PeriodResource>();
             foreach (var input in inputs)
             {
-                if (!DateOnly.TryParse(input.FromDate, out var fromDate))
+                if (!SkillCalendarStringParser.TryParseDateOnly(input.FromDate, context.UserLanguage, out var fromDate))
                 {
                     return SkillResult.Error($"fromDate '{input.FromDate}' is not a valid date (expected yyyy-MM-dd).");
                 }
@@ -85,7 +86,7 @@ public class UpdateIndividualPeriodSkill : BaseSkillImplementation
                 DateOnly? untilDate = null;
                 if (!string.IsNullOrWhiteSpace(input.UntilDate))
                 {
-                    if (!DateOnly.TryParse(input.UntilDate, out var parsedUntil))
+                    if (!SkillCalendarStringParser.TryParseDateOnly(input.UntilDate, context.UserLanguage, out var parsedUntil))
                     {
                         return SkillResult.Error($"untilDate '{input.UntilDate}' is not a valid date (expected yyyy-MM-dd).");
                     }
