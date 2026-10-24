@@ -3360,5 +3360,8 @@
   ],
   "cancel_order_review": [
     "stop ordregennemgangen"
+  ],
+  "execute_order_review": [
+    "anvend den bekræftede ordregennemgang"
   ]
 }

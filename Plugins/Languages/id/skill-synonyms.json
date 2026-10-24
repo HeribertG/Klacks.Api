@@ -3335,5 +3335,8 @@
   ],
   "cancel_order_review": [
     "hentikan peninjauan pesanan"
+  ],
+  "execute_order_review": [
+    "terapkan peninjauan pesanan yang dikonfirmasi"
   ]
 }

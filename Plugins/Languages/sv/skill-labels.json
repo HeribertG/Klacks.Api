@@ -512,5 +512,6 @@
   "start_order_review": "Gå igenom de öppna beställningarna tillsammans",
   "set_order_review_decision": "Registrera ett svar i beställningsgenomgången",
   "preview_order_review": "Förhandsgranska beställningsgenomgången",
-  "cancel_order_review": "Avbryt beställningsgenomgången"
+  "cancel_order_review": "Avbryt beställningsgenomgången",
+  "execute_order_review": "Utför beställningsgenomgången"
 }

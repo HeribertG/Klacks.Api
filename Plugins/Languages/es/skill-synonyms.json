@@ -3403,5 +3403,8 @@
   ],
   "cancel_order_review": [
     "detener la revisión de pedidos"
+  ],
+  "execute_order_review": [
+    "aplicar la revisión de pedidos confirmada"
   ]
 }

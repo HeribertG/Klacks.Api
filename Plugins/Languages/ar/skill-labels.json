@@ -512,5 +512,6 @@
   "start_order_review": "مراجعة الطلبات المفتوحة معًا",
   "set_order_review_decision": "تسجيل إجابة في مراجعة الطلبات",
   "preview_order_review": "معاينة مراجعة الطلبات",
-  "cancel_order_review": "إلغاء مراجعة الطلبات"
+  "cancel_order_review": "إلغاء مراجعة الطلبات",
+  "execute_order_review": "تنفيذ مراجعة الطلبات"
 }

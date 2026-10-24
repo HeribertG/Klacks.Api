@@ -184,6 +184,11 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Sensitive default and still seals only as the confirmed replay of its own server preview.
         "seal_shift",
         "set_sealed_order_until_date",
+        // execute_order_review changes, seals and cuts the orders of the guided order review - the only way Klacksy seals
+        // orders since 2026-10-23. It carries a server preview (OrderReviewConfirmationPreviewProvider) and runs only as
+        // the confirmed replay of what that preview showed; it is deliberately NOT a preview/apply pair
+        // (PreviewApplySkillCalls), the preview is the gate's own.
+        "execute_order_review",
         // Membership dates are the plannability boundary - the exact reason delete_membership is listed
         // above. end_client_membership writes validUntil on the active membership without needing its
         // UUID, and update_membership can move either end of the affiliation period, so both move that

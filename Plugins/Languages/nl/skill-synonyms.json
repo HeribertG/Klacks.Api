@@ -3417,5 +3417,8 @@
   ],
   "cancel_order_review": [
     "orderdoorloop stoppen"
+  ],
+  "execute_order_review": [
+    "bevestigde orderdoorloop toepassen"
   ]
 }

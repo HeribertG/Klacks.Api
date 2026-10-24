@@ -512,5 +512,6 @@
   "start_order_review": "一起查看未处理订单",
   "set_order_review_decision": "在订单审核中记录回答",
   "preview_order_review": "预览订单审核",
-  "cancel_order_review": "取消订单审核"
+  "cancel_order_review": "取消订单审核",
+  "execute_order_review": "执行订单审核"
 }

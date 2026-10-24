@@ -512,5 +512,6 @@
   "start_order_review": "Parcurge împreună comenzile deschise",
   "set_order_review_decision": "Înregistrează un răspuns în revizuirea comenzilor",
   "preview_order_review": "Previzualizează revizuirea comenzilor",
-  "cancel_order_review": "Anulează revizuirea comenzilor"
+  "cancel_order_review": "Anulează revizuirea comenzilor",
+  "execute_order_review": "Execută revizuirea comenzilor"
 }

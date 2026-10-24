@@ -512,5 +512,6 @@
   "start_order_review": "Wspólny przegląd otwartych zamówień",
   "set_order_review_decision": "Zapisz odpowiedź w przeglądzie zamówień",
   "preview_order_review": "Podgląd przeglądu zamówień",
-  "cancel_order_review": "Anuluj przegląd zamówień"
+  "cancel_order_review": "Anuluj przegląd zamówień",
+  "execute_order_review": "Wykonaj przegląd zamówień"
 }

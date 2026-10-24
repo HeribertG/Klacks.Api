@@ -3354,5 +3354,8 @@
   ],
   "cancel_order_review": [
     "stopp bestillingsgjennomgangen"
+  ],
+  "execute_order_review": [
+    "bruk den bekreftede bestillingsgjennomgangen"
   ]
 }

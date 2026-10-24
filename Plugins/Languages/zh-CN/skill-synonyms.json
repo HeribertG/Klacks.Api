@@ -3355,5 +3355,8 @@
   ],
   "cancel_order_review": [
     "停止订单审核"
+  ],
+  "execute_order_review": [
+    "应用已确认的订单审核"
   ]
 }

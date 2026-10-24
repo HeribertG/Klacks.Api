@@ -512,5 +512,6 @@
   "start_order_review": "未確定の注文を一緒に確認する",
   "set_order_review_decision": "注文確認で回答を記録する",
   "preview_order_review": "注文確認のプレビュー",
-  "cancel_order_review": "注文確認を中止する"
+  "cancel_order_review": "注文確認を中止する",
+  "execute_order_review": "注文確認を実行する"
 }

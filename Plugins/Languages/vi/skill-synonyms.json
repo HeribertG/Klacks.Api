@@ -3354,5 +3354,8 @@
   ],
   "cancel_order_review": [
     "dừng rà soát đơn hàng"
+  ],
+  "execute_order_review": [
+    "áp dụng buổi rà soát đơn hàng đã xác nhận"
   ]
 }

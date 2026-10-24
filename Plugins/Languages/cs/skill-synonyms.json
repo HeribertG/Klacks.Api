@@ -3415,5 +3415,8 @@
   ],
   "cancel_order_review": [
     "ukončit revizi objednávek"
+  ],
+  "execute_order_review": [
+    "uplatnit potvrzenou revizi objednávek"
   ]
 }

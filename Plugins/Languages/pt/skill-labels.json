@@ -512,5 +512,6 @@
   "start_order_review": "Rever juntos as encomendas abertas",
   "set_order_review_decision": "Registar uma resposta na revisão de encomendas",
   "preview_order_review": "Pré-visualizar a revisão de encomendas",
-  "cancel_order_review": "Cancelar a revisão de encomendas"
+  "cancel_order_review": "Cancelar a revisão de encomendas",
+  "execute_order_review": "Executar a revisão de encomendas"
 }

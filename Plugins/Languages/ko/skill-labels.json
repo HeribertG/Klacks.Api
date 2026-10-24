@@ -512,5 +512,6 @@
   "start_order_review": "열린 주문 함께 검토하기",
   "set_order_review_decision": "주문 검토에 답변 기록",
   "preview_order_review": "주문 검토 미리 보기",
-  "cancel_order_review": "주문 검토 취소"
+  "cancel_order_review": "주문 검토 취소",
+  "execute_order_review": "주문 검토 실행"
 }

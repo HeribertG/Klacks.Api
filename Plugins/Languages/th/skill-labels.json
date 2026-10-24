@@ -512,5 +512,6 @@
   "start_order_review": "ตรวจคำสั่งซื้อที่เปิดอยู่ร่วมกัน",
   "set_order_review_decision": "บันทึกคำตอบในการตรวจคำสั่งซื้อ",
   "preview_order_review": "ดูตัวอย่างการตรวจคำสั่งซื้อ",
-  "cancel_order_review": "ยกเลิกการตรวจคำสั่งซื้อ"
+  "cancel_order_review": "ยกเลิกการตรวจคำสั่งซื้อ",
+  "execute_order_review": "ดำเนินการตรวจคำสั่งซื้อ"
 }

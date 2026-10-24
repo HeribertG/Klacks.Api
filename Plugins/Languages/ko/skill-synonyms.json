@@ -3336,5 +3336,8 @@
   ],
   "cancel_order_review": [
     "주문 검토 중단"
+  ],
+  "execute_order_review": [
+    "확인된 주문 검토 적용"
   ]
 }

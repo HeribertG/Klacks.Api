@@ -3351,5 +3351,8 @@
   ],
   "cancel_order_review": [
     "hentikan semakan pesanan"
+  ],
+  "execute_order_review": [
+    "gunakan semakan pesanan yang disahkan"
   ]
 }

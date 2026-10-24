@@ -3367,5 +3367,8 @@
   ],
   "cancel_order_review": [
     "lopeta tilausten läpikäynti"
+  ],
+  "execute_order_review": [
+    "toteuta vahvistettu tilausten läpikäynti"
   ]
 }

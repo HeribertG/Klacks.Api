@@ -49168,6 +49168,74 @@
         "it": "Annullare la revisione degli ordini"
       },
       "version": 1
+    },
+    {
+      "name": "execute_order_review",
+      "area": "shift",
+      "description": "Carries out the confirmed part of the walk-through of the open orders: writes the decided start time, staffing group, required qualifications and expenses to each order, seals it into its plannable shift and cuts it into the decided services, every service carrying the expenses. Runs only after the planner confirmed the shown preview; at most 25 orders per confirmation.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "target",
+          "description": "Review key(s) such as B1 or S2, order id(s), several separated by commas, or 'all'.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "acknowledgedOrderChange",
+          "description": "true when the user confirmed that the start of an order changes (the preview lists it under 'Changes to orders'). Required whenever a start changes.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "bestellungsdurchgang ausführen"
+        ],
+        "en": [
+          "carry out the order walk-through"
+        ],
+        "fr": [
+          "exécuter la revue des commandes"
+        ],
+        "it": [
+          "eseguire la revisione degli ordini"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "bestellungsdurchgang umsetzen"
+        ],
+        "en": [
+          "apply the order walk-through"
+        ],
+        "fr": [
+          "appliquer la revue des commandes"
+        ],
+        "it": [
+          "applicare la revisione degli ordini"
+        ]
+      },
+      "labels": {
+        "de": "Bestellungsdurchgang ausführen",
+        "en": "Carry out the order review",
+        "fr": "Exécuter la revue des commandes",
+        "it": "Eseguire la revisione degli ordini"
+      },
+      "version": 1
     }
   ]
 }

@@ -3400,5 +3400,8 @@
   ],
   "cancel_order_review": [
     "parar a revisão de encomendas"
+  ],
+  "execute_order_review": [
+    "aplicar a revisão de encomendas confirmada"
   ]
 }

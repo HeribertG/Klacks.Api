@@ -3347,5 +3347,8 @@
   ],
   "cancel_order_review": [
     "注文確認の打ち切り"
+  ],
+  "execute_order_review": [
+    "確定済みの注文確認を適用"
   ]
 }

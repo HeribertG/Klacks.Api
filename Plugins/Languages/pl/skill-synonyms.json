@@ -3433,5 +3433,8 @@
   ],
   "cancel_order_review": [
     "zatrzymaj przegląd zamówień"
+  ],
+  "execute_order_review": [
+    "zastosuj potwierdzony przegląd zamówień"
   ]
 }

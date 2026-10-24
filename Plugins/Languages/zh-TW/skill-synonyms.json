@@ -3346,5 +3346,8 @@
   ],
   "cancel_order_review": [
     "停止訂單審核"
+  ],
+  "execute_order_review": [
+    "套用已確認的訂單審核"
   ]
 }

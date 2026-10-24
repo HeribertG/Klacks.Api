@@ -512,5 +512,6 @@
   "start_order_review": "מעבר משותף על ההזמנות הפתוחות",
   "set_order_review_decision": "רישום תשובה בסקירת ההזמנות",
   "preview_order_review": "תצוגה מקדימה של סקירת ההזמנות",
-  "cancel_order_review": "ביטול סקירת ההזמנות"
+  "cancel_order_review": "ביטול סקירת ההזמנות",
+  "execute_order_review": "ביצוע סקירת ההזמנות"
 }

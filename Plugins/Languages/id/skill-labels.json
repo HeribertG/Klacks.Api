@@ -512,5 +512,6 @@
   "start_order_review": "Tinjau pesanan terbuka bersama",
   "set_order_review_decision": "Catat jawaban dalam peninjauan pesanan",
   "preview_order_review": "Pratinjau peninjauan pesanan",
-  "cancel_order_review": "Batalkan peninjauan pesanan"
+  "cancel_order_review": "Batalkan peninjauan pesanan",
+  "execute_order_review": "Jalankan peninjauan pesanan"
 }

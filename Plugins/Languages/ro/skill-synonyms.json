@@ -3382,5 +3382,8 @@
   ],
   "cancel_order_review": [
     "oprește revizuirea comenzilor"
+  ],
+  "execute_order_review": [
+    "aplică revizuirea confirmată a comenzilor"
   ]
 }

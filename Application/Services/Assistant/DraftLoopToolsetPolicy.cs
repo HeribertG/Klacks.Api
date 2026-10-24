@@ -36,7 +36,7 @@ public sealed class DraftLoopToolsetPolicy : IDraftLoopToolsetPolicy
     [
         SetOrderReviewDecisionSkill.SkillName,
         PreviewOrderReviewSkill.SkillName,
-        ExecuteOrderReviewSkillName,
+        ExecuteOrderReviewSkill.SkillName,
         CancelOrderReviewSkill.SkillName
     ];
 
@@ -50,8 +50,6 @@ public sealed class DraftLoopToolsetPolicy : IDraftLoopToolsetPolicy
         "assign_orders_to_groups",
         "add_shift_to_group"
     };
-
-    private const string ExecuteOrderReviewSkillName = "execute_order_review";
 
     private readonly IPendingPlanningProfileDraftStore _planningProfileDraftStore;
     private readonly IPendingOrderReviewDraftStore _orderReviewDraftStore;
