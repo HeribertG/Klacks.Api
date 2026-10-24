@@ -157,9 +157,9 @@ public class AddressGeocodingStateRepository : IAddressGeocodingStateRepository
     }
 
     private IQueryable<CandidateRow> MissingCoordinates() =>
-        from address in _context.Address
-        join client in _context.Client on address.ClientId equals client.Id
-        join state in _context.AddressGeocodingStates on address.Id equals state.AddressId into states
+        from address in _context.Address.AsNoTracking()
+        join client in _context.Client.AsNoTracking() on address.ClientId equals client.Id
+        join state in _context.AddressGeocodingStates.AsNoTracking() on address.Id equals state.AddressId into states
         from state in states.DefaultIfEmpty()
         where !address.IsDeleted && address.Latitude == null && address.Longitude == null
         select new CandidateRow { Address = address, Client = client, State = state };
