@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "גבוהה",
   "assistant-chat.goal-candidates.confidence.low": "נמוכה",
   "assistant-chat.goal-candidates.heading": "הצעות יעדים מ-Klacksy",
-  "assistant-chat.goal-candidates.hint": "בעת האישור Klacksy מכין טיוטת תוכנית. אם Klacksy רואה את המטרה כמבוססת בבירור ועבודה עצמאית מותרת, הוא מבצע לאחר מכן את התוכנית בעצמו. צעדים רגישים ממתינים לאישורך; Klacksy לעולם אינו חותם הזמנות בתוך תוכנית, אלא רק בצ'אט לאחר שאישרת את התצוגה המקדימה.",
+  "assistant-chat.goal-candidates.hint": "בעת האישור Klacksy מכין טיוטת תוכנית. אם Klacksy רואה את המטרה כמבוססת בבירור ועבודה עצמאית מותרת, הוא מבצע לאחר מכן את התוכנית בעצמו. צעדים רגישים ממתינים לאישורך; Klacksy לעולם אינו חותם הזמנות פתוחות קיימות בתוך תוכנית, אלא רק בצ'אט לאחר שאישרת את התצוגה המקדימה, והזמנות חדשות הוא תמיד יוצר כהזמנות פתוחות.",
   "assistant-chat.goal-candidates.chat-hint": "לאחר האישור ממשיכים בצ'אט – שום דבר לא משתנה עד שתאשר שם.",
   "assistant-chat.goal-candidates.chat-busy": "היעד אושר. הצ'אט עסוק כרגע – שלח את הבקשה ל-Klacksy ברגע שהוא יתפנה: \"{{request}}\"",
   "assistant-chat.goal-candidates.load-error": "לא ניתן היה לטעון את הצעות היעדים.",

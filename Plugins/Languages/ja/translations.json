@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "高い",
   "assistant-chat.goal-candidates.confidence.low": "低い",
   "assistant-chat.goal-candidates.heading": "Klacksyの目標提案",
-  "assistant-chat.goal-candidates.hint": "承認すると、Klacksy がプランの下書きを作成します。Klacksy が目標を明確に裏付けられていると判断し、自律的な作業が許可されている場合は、その後プランを自ら実行します。重要な手順はあなたの承認を待ちます。Klacksy がプランの中で注文を封印することはなく、プレビューを確認した後のチャットでのみ封印します。",
+  "assistant-chat.goal-candidates.hint": "承認すると、Klacksy がプランの下書きを作成します。Klacksy が目標を明確に裏付けられていると判断し、自律的な作業が許可されている場合は、その後プランを自ら実行します。重要な手順はあなたの承認を待ちます。Klacksy がプランの中で既存の未確定の注文を封印することはなく、プレビューを確認した後のチャットでのみ封印します。新しい注文は常に未確定の注文として作成します。",
   "assistant-chat.goal-candidates.chat-hint": "承認するとチャットで続きます — そこで確認するまで何も変更されません。",
   "assistant-chat.goal-candidates.chat-busy": "目標を承認しました。チャットは現在使用中です — 空いたら Klacksy にこの依頼を送ってください:「{{request}}」",
   "assistant-chat.goal-candidates.load-error": "目標提案を読み込めませんでした。",

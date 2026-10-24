@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "hoog",
   "assistant-chat.goal-candidates.confidence.low": "laag",
   "assistant-chat.goal-candidates.heading": "Klacksy doelvoorstellen",
-  "assistant-chat.goal-candidates.hint": "Bij het accepteren maakt Klacksy een conceptplan. Als Klacksy het doel duidelijk onderbouwd vindt en zelfstandig werken is toegestaan, voert Klacksy het plan daarna zelf uit. Gevoelige stappen wachten op jouw goedkeuring; Klacksy verzegelt nooit orders in een plan, alleen in de chat nadat je de voorvertoning hebt bevestigd.",
+  "assistant-chat.goal-candidates.hint": "Bij het accepteren maakt Klacksy een conceptplan. Als Klacksy het doel duidelijk onderbouwd vindt en zelfstandig werken is toegestaan, voert Klacksy het plan daarna zelf uit. Gevoelige stappen wachten op jouw goedkeuring; Klacksy verzegelt nooit bestaande open orders in een plan, alleen in de chat nadat je de voorvertoning hebt bevestigd, en nieuwe orders maakt Klacksy altijd aan als open orders.",
   "assistant-chat.goal-candidates.chat-hint": "Na het accepteren gaat het verder in de chat — er wordt niets gewijzigd voordat je het daar bevestigt.",
   "assistant-chat.goal-candidates.chat-busy": "Doel aanvaard. De chat is nu bezet — stuur Klacksy het verzoek zodra hij vrij is: \"{{request}}\"",
   "assistant-chat.goal-candidates.load-error": "Doelvoorstellen konden niet worden geladen.",

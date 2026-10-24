@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "ridicată",
   "assistant-chat.goal-candidates.confidence.low": "scăzută",
   "assistant-chat.goal-candidates.heading": "Sugestii de obiective de la Klacksy",
-  "assistant-chat.goal-candidates.hint": "La acceptare, Klacksy întocmește o schiță de plan. Dacă Klacksy consideră obiectivul clar fundamentat și lucrul independent este permis, execută apoi planul singur. Pașii sensibili așteaptă aprobarea ta; Klacksy nu sigilează niciodată comenzi într-un plan, ci doar în chat, după ce ai confirmat previzualizarea.",
+  "assistant-chat.goal-candidates.hint": "La acceptare, Klacksy întocmește o schiță de plan. Dacă Klacksy consideră obiectivul clar fundamentat și lucrul independent este permis, execută apoi planul singur. Pașii sensibili așteaptă aprobarea ta; Klacksy nu sigilează niciodată comenzile deschise existente într-un plan, ci doar în chat, după ce ai confirmat previzualizarea, iar comenzile noi le creează întotdeauna ca deschise.",
   "assistant-chat.goal-candidates.chat-hint": "După acceptare se continuă în chat – nimic nu se modifică până nu confirmi acolo.",
   "assistant-chat.goal-candidates.chat-busy": "Obiectiv acceptat. Chatul este ocupat acum – trimite-i lui Klacksy cererea imediat ce se eliberează: „{{request}}”",
   "assistant-chat.goal-candidates.load-error": "Sugestiile de obiective nu au putut fi încărcate.",

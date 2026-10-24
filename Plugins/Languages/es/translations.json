@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "alta",
   "assistant-chat.goal-candidates.confidence.low": "baja",
   "assistant-chat.goal-candidates.heading": "Sugerencias de objetivos de Klacksy",
-  "assistant-chat.goal-candidates.hint": "Al aceptar, Klacksy redacta un borrador de plan. Si Klacksy considera el objetivo claramente fundamentado y tiene permitido trabajar por su cuenta, ejecuta después el plan por sí mismo. Los pasos delicados esperan tu aprobación; Klacksy nunca sella pedidos en un plan, solo en el chat después de que hayas confirmado la vista previa.",
+  "assistant-chat.goal-candidates.hint": "Al aceptar, Klacksy redacta un borrador de plan. Si Klacksy considera el objetivo claramente fundamentado y tiene permitido trabajar por su cuenta, ejecuta después el plan por sí mismo. Los pasos delicados esperan tu aprobación; Klacksy nunca sella pedidos abiertos existentes en un plan, solo en el chat después de que hayas confirmado la vista previa, y siempre crea los pedidos nuevos como pedidos abiertos.",
   "assistant-chat.goal-candidates.chat-hint": "Al aceptar, se continúa en el chat: no se cambia nada hasta que lo confirmes allí.",
   "assistant-chat.goal-candidates.chat-busy": "Objetivo aceptado. El chat está ocupado ahora mismo: envía la solicitud a Klacksy en cuanto esté libre: «{{request}}»",
   "assistant-chat.goal-candidates.load-error": "No se pudieron cargar las sugerencias de objetivos.",

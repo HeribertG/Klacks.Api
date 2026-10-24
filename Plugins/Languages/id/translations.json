@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "tinggi",
   "assistant-chat.goal-candidates.confidence.low": "rendah",
   "assistant-chat.goal-candidates.heading": "Saran Tujuan Klacksy",
-  "assistant-chat.goal-candidates.hint": "Saat menyetujui, Klacksy menyusun draf rencana. Jika Klacksy menilai tujuan itu jelas didukung dan kerja mandiri diizinkan, Klacksy kemudian menjalankan rencana itu sendiri. Langkah sensitif menunggu persetujuanmu; Klacksy tidak pernah menyegel pesanan di dalam rencana, hanya di chat setelah kamu mengonfirmasi pratinjaunya.",
+  "assistant-chat.goal-candidates.hint": "Saat menyetujui, Klacksy menyusun draf rencana. Jika Klacksy menilai tujuan itu jelas didukung dan kerja mandiri diizinkan, Klacksy kemudian menjalankan rencana itu sendiri. Langkah sensitif menunggu persetujuanmu; Klacksy tidak pernah menyegel pesanan terbuka yang sudah ada di dalam rencana, hanya di chat setelah kamu mengonfirmasi pratinjaunya, dan pesanan baru selalu dibuat sebagai pesanan terbuka.",
   "assistant-chat.goal-candidates.chat-hint": "Setelah diterima, prosesnya berlanjut di obrolan — tidak ada yang diubah sebelum kamu mengonfirmasinya di sana.",
   "assistant-chat.goal-candidates.chat-busy": "Tujuan diterima. Obrolan sedang sibuk — kirim permintaan ke Klacksy begitu sudah tersedia: \"{{request}}\"",
   "assistant-chat.goal-candidates.load-error": "Saran tujuan tidak dapat dimuat.",

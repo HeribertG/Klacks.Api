@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "høj",
   "assistant-chat.goal-candidates.confidence.low": "lav",
   "assistant-chat.goal-candidates.heading": "Klacksys målforslag",
-  "assistant-chat.goal-candidates.hint": "Når du godkender, udarbejder Klacksy et planudkast. Hvis Klacksy vurderer målet som klart underbygget, og selvstændigt arbejde er tilladt, udfører Klacksy derefter planen på egen hånd. Følsomme trin venter på din godkendelse; Klacksy forsegler aldrig ordrer i en plan, kun i chatten, efter at du har bekræftet forhåndsvisningen.",
+  "assistant-chat.goal-candidates.hint": "Når du godkender, udarbejder Klacksy et planudkast. Hvis Klacksy vurderer målet som klart underbygget, og selvstændigt arbejde er tilladt, udfører Klacksy derefter planen på egen hånd. Følsomme trin venter på din godkendelse; Klacksy forsegler aldrig eksisterende åbne ordrer i en plan, kun i chatten, efter at du har bekræftet forhåndsvisningen, og nye ordrer oprettes altid som åbne ordrer.",
   "assistant-chat.goal-candidates.chat-hint": "Når du accepterer, fortsætter det i chatten – intet ændres, før du bekræfter det der.",
   "assistant-chat.goal-candidates.chat-busy": "Målet er accepteret. Chatten er optaget lige nu – send Klacksy anmodningen, når den er ledig: \"{{request}}\"",
   "assistant-chat.goal-candidates.load-error": "Målforslag kunne ikke indlæses.",

@@ -12264,7 +12264,7 @@
     {
       "name": "create_shift",
       "area": "shift",
-      "description": "Skill for creating ONE single shift/order (Bestellung) in the system. Every order MUST be billed to a customer, so a valid clientId of a customer (EntityTypeEnum.Customer) is required. A multi-part 24h service is modelled as ONE order with the full span (e.g. 07:00-07:00) and is afterwards cut into parts via cut_shift — never by calling this skill several times.",
+      "description": "Creates ONE single order (Bestellung) as an open order (status OriginalOrder); it never seals. Every order MUST be billed to a customer, so a valid clientId of a customer (EntityTypeEnum.Customer) is required. Sealing is a separate step via seal_shift that the user confirms after its preview. A multi-part 24h service is ONE order with the full span (e.g. 07:00-07:00), cut into parts via cut_shift once sealed - never by calling this skill several times.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -12374,14 +12374,6 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
-        },
-        {
-          "name": "asDraft",
-          "description": "Optional, defaults to false. When true, creates the order as an editable draft (status OriginalOrder) instead of sealing it immediately — no plannable shift is created yet and cut_shift cannot be used until seal_shift runs. Structural reuse-matching against existing sealed orders is skipped for drafts.",
-          "type": "Boolean",
-          "required": false,
-          "defaultValue": false,
-          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -12446,7 +12438,7 @@
         "fr": "Créer un nouveau service",
         "it": "Crea un nuovo turno"
       },
-      "version": 15
+      "version": 16
     },
     {
       "name": "find_customer_candidates",

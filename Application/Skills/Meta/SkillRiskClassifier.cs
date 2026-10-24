@@ -473,7 +473,8 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "assign_shifts_to_city_groups",
         // Shift and container structure: creates, updates, cuts and template additions. The destructive
         // counterparts (delete_shift, reset_shift_cuts, reset_container_day, remove_container_template_task) are
-        // Sensitive.
+        // Sensitive. create_shift creates only an open, still editable order and never seals (owner decision
+        // 2026-10-24); the one-way sealing step is seal_shift, which is Sensitive and bound to a confirmed preview.
         "create_shift",
         "update_shift",
         "cut_shift",

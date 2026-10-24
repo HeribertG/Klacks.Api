@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "hög",
   "assistant-chat.goal-candidates.confidence.low": "låg",
   "assistant-chat.goal-candidates.heading": "Klacksys målförslag",
-  "assistant-chat.goal-candidates.hint": "När du godkänner tar Klacksy fram ett planutkast. Om Klacksy bedömer målet som tydligt underbyggt och självständigt arbete är tillåtet, genomför Klacksy sedan planen på egen hand. Känsliga steg väntar på ditt godkännande; Klacksy förseglar aldrig beställningar i en plan, bara i chatten efter att du har bekräftat förhandsvisningen.",
+  "assistant-chat.goal-candidates.hint": "När du godkänner tar Klacksy fram ett planutkast. Om Klacksy bedömer målet som tydligt underbyggt och självständigt arbete är tillåtet, genomför Klacksy sedan planen på egen hand. Känsliga steg väntar på ditt godkännande; Klacksy förseglar aldrig befintliga öppna beställningar i en plan, bara i chatten efter att du har bekräftat förhandsvisningen, och nya beställningar skapas alltid som öppna beställningar.",
   "assistant-chat.goal-candidates.chat-hint": "När du godkänner fortsätter det i chatten – inget ändras förrän du bekräftar det där.",
   "assistant-chat.goal-candidates.chat-busy": "Målet är godkänt. Chatten är upptagen just nu – skicka begäran till Klacksy när den är ledig: ”{{request}}”",
   "assistant-chat.goal-candidates.load-error": "Målförslagen kunde inte laddas.",

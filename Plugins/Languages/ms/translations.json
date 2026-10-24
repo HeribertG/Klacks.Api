@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "tinggi",
   "assistant-chat.goal-candidates.confidence.low": "rendah",
   "assistant-chat.goal-candidates.heading": "Cadangan Matlamat Klacksy",
-  "assistant-chat.goal-candidates.hint": "Apabila diluluskan, Klacksy menyediakan draf pelan. Jika Klacksy menganggap matlamat itu jelas disokong dan kerja secara bebas dibenarkan, Klacksy kemudian menjalankan pelan itu sendiri. Langkah sensitif menunggu kelulusan anda; Klacksy tidak pernah memeterai pesanan dalam pelan, hanya dalam sembang selepas anda mengesahkan pratonton.",
+  "assistant-chat.goal-candidates.hint": "Apabila diluluskan, Klacksy menyediakan draf pelan. Jika Klacksy menganggap matlamat itu jelas disokong dan kerja secara bebas dibenarkan, Klacksy kemudian menjalankan pelan itu sendiri. Langkah sensitif menunggu kelulusan anda; Klacksy tidak pernah memeterai pesanan terbuka sedia ada dalam pelan, hanya dalam sembang selepas anda mengesahkan pratonton, dan pesanan baharu sentiasa dicipta sebagai pesanan terbuka.",
   "assistant-chat.goal-candidates.chat-hint": "Selepas diterima, prosesnya diteruskan dalam sembang — tiada apa-apa yang diubah sebelum anda mengesahkannya di sana.",
   "assistant-chat.goal-candidates.chat-busy": "Matlamat diterima. Sembang sedang sibuk — hantar permintaan kepada Klacksy sebaik sahaja ia tersedia: \"{{request}}\"",
   "assistant-chat.goal-candidates.load-error": "Cadangan matlamat tidak dapat dimuatkan.",

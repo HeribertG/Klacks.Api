@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "wysoka",
   "assistant-chat.goal-candidates.confidence.low": "niska",
   "assistant-chat.goal-candidates.heading": "Propozycje celów Klacksy",
-  "assistant-chat.goal-candidates.hint": "Po zaakceptowaniu Klacksy przygotowuje projekt planu. Jeśli Klacksy uzna cel za jasno uzasadniony, a samodzielna praca jest dozwolona, wykona następnie plan sam. Wrażliwe kroki czekają na twoją zgodę; Klacksy nigdy nie pieczętuje zamówień w planie, tylko w czacie, po tym jak potwierdzisz podgląd.",
+  "assistant-chat.goal-candidates.hint": "Po zaakceptowaniu Klacksy przygotowuje projekt planu. Jeśli Klacksy uzna cel za jasno uzasadniony, a samodzielna praca jest dozwolona, wykona następnie plan sam. Wrażliwe kroki czekają na twoją zgodę; Klacksy nigdy nie pieczętuje istniejących otwartych zamówień w planie, tylko w czacie, po tym jak potwierdzisz podgląd, a nowe zamówienia zawsze tworzy jako otwarte.",
   "assistant-chat.goal-candidates.chat-hint": "Po akceptacji dalsze kroki odbywają się na czacie — nic nie zostanie zmienione, dopóki tam tego nie potwierdzisz.",
   "assistant-chat.goal-candidates.chat-busy": "Cel zaakceptowany. Czat jest teraz zajęty — wyślij Klacksy prośbę, gdy tylko będzie wolny: „{{request}}”",
   "assistant-chat.goal-candidates.load-error": "Nie udało się załadować propozycji celów.",

@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "cao",
   "assistant-chat.goal-candidates.confidence.low": "thấp",
   "assistant-chat.goal-candidates.heading": "Đề xuất mục tiêu từ Klacksy",
-  "assistant-chat.goal-candidates.hint": "Khi chấp nhận, Klacksy soạn một bản nháp kế hoạch. Nếu Klacksy cho rằng mục tiêu được chứng minh rõ ràng và được phép làm việc độc lập, Klacksy sau đó sẽ tự thực hiện kế hoạch. Các bước nhạy cảm sẽ chờ bạn phê duyệt; Klacksy không bao giờ niêm phong đơn hàng trong một kế hoạch, chỉ trong cuộc trò chuyện sau khi bạn đã xác nhận bản xem trước.",
+  "assistant-chat.goal-candidates.hint": "Khi chấp nhận, Klacksy soạn một bản nháp kế hoạch. Nếu Klacksy cho rằng mục tiêu được chứng minh rõ ràng và được phép làm việc độc lập, Klacksy sau đó sẽ tự thực hiện kế hoạch. Các bước nhạy cảm sẽ chờ bạn phê duyệt; Klacksy không bao giờ niêm phong các đơn hàng đang mở hiện có trong một kế hoạch, chỉ trong cuộc trò chuyện sau khi bạn đã xác nhận bản xem trước, và luôn tạo đơn hàng mới ở trạng thái đang mở.",
   "assistant-chat.goal-candidates.chat-hint": "Khi chấp nhận, việc tiếp theo diễn ra trong khung trò chuyện – không có gì bị thay đổi cho đến khi bạn xác nhận ở đó.",
   "assistant-chat.goal-candidates.chat-busy": "Đã chấp nhận mục tiêu. Khung trò chuyện đang bận – hãy gửi yêu cầu cho Klacksy khi rảnh: \"{{request}}\"",
   "assistant-chat.goal-candidates.load-error": "Không thể tải các đề xuất mục tiêu.",

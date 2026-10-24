@@ -255,9 +255,10 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     public async Task<Shift?> FindReusableUncutOrderAsync(Shift candidate, CancellationToken cancellationToken = default)
     {
-        // ORD-5a: an existing UNCUT order (status OriginalShift) that is STRUCTURALLY identical to the
-        // candidate is the same order — reuse it instead of creating a duplicate (e.g. the operator says
-        // "weiter" after a partially built split). Structural identity (name case/whitespace-insensitive,
+        // ORD-5a: an existing open order (status OriginalOrder, which is what create_shift creates) or an
+        // UNCUT plannable shift (status OriginalShift) that is STRUCTURALLY identical to the candidate is the
+        // same order — reuse it instead of creating a duplicate (e.g. the operator says "weiter" or the
+        // request is repeated in a later turn). Structural identity (name case/whitespace-insensitive,
         // dates, times, all weekdays, macro, counts, and the EXACT set of groups) prevents both a
         // duplicate-on-replay and the wrong-merge of genuinely distinct orders (e.g. weekend vs weekday,
         // or a different billing macro). Scenario rows are excluded; the global soft-delete query filter
@@ -270,7 +271,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .ToList();
 
         return await context.Shift
-            .Where(s => s.Status == ShiftStatus.OriginalShift
+            .Where(s => (s.Status == ShiftStatus.OriginalOrder || s.Status == ShiftStatus.OriginalShift)
                         && s.ClientId == candidate.ClientId
                         && s.FromDate == candidate.FromDate
                         && s.UntilDate == candidate.UntilDate

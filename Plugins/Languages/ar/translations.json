@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "عالية",
   "assistant-chat.goal-candidates.confidence.low": "منخفضة",
   "assistant-chat.goal-candidates.heading": "اقتراحات أهداف من Klacksy",
-  "assistant-chat.goal-candidates.hint": "عند القبول يُعِدّ Klacksy مسودة خطة. إذا رأى Klacksy أن الهدف مدعوم بوضوح وكان العمل المستقل مسموحًا، فإنه ينفّذ الخطة بعد ذلك بنفسه. تنتظر الخطوات الحساسة موافقتك؛ ولا يختم Klacksy الطلبات أبدًا ضمن خطة، بل في المحادثة فقط بعد أن تؤكد المعاينة.",
+  "assistant-chat.goal-candidates.hint": "عند القبول يُعِدّ Klacksy مسودة خطة. إذا رأى Klacksy أن الهدف مدعوم بوضوح وكان العمل المستقل مسموحًا، فإنه ينفّذ الخطة بعد ذلك بنفسه. تنتظر الخطوات الحساسة موافقتك؛ ولا يختم Klacksy أبدًا الطلبات المفتوحة الموجودة ضمن خطة، بل في المحادثة فقط بعد أن تؤكد المعاينة، وينشئ الطلبات الجديدة دائمًا كطلبات مفتوحة.",
   "assistant-chat.goal-candidates.chat-hint": "عند القبول تتم المتابعة في المحادثة – ولا يتم تغيير أي شيء قبل أن تؤكد هناك.",
   "assistant-chat.goal-candidates.chat-busy": "تم قبول الهدف. المحادثة مشغولة الآن – أرسل الطلب إلى Klacksy عندما تصبح متاحة: «{{request}}»",
   "assistant-chat.goal-candidates.load-error": "تعذّر تحميل اقتراحات الأهداف.",

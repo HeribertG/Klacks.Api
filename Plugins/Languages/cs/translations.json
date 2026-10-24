@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "vysoká",
   "assistant-chat.goal-candidates.confidence.low": "nízká",
   "assistant-chat.goal-candidates.heading": "Návrhy cílů od Klacksy",
-  "assistant-chat.goal-candidates.hint": "Po přijetí Klacksy vytvoří návrh plánu. Pokud Klacksy považuje cíl za jasně podložený a samostatná práce je povolena, provede plán poté sám. Citlivé kroky čekají na tvé schválení; objednávky Klacksy nikdy nezapečetí v plánu, ale jen v chatu poté, co potvrdíš náhled.",
+  "assistant-chat.goal-candidates.hint": "Po přijetí Klacksy vytvoří návrh plánu. Pokud Klacksy považuje cíl za jasně podložený a samostatná práce je povolena, provede plán poté sám. Citlivé kroky čekají na tvé schválení; existující otevřené objednávky Klacksy nikdy nezapečetí v plánu, ale jen v chatu poté, co potvrdíš náhled, a nové objednávky vždy zakládá jako otevřené.",
   "assistant-chat.goal-candidates.chat-hint": "Po přijetí se pokračuje v chatu – nic se nezmění, dokud to tam nepotvrdíš.",
   "assistant-chat.goal-candidates.chat-busy": "Cíl přijat. Chat je teď zaneprázdněný – pošli Klacksymu požadavek, jakmile bude volný: „{{request}}“",
   "assistant-chat.goal-candidates.load-error": "Návrhy cílů se nepodařilo načíst.",

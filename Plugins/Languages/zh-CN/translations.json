@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "高",
   "assistant-chat.goal-candidates.confidence.low": "低",
   "assistant-chat.goal-candidates.heading": "Klacksy的目标建议",
-  "assistant-chat.goal-candidates.hint": "接受后，Klacksy 会起草一份计划。如果 Klacksy 认为该目标有明确依据且允许自主工作，随后会自行执行该计划。敏感步骤会等待你的批准；Klacksy 绝不会在计划中封存订单，只会在你确认预览后在聊天中进行。",
+  "assistant-chat.goal-candidates.hint": "接受后，Klacksy 会起草一份计划。如果 Klacksy 认为该目标有明确依据且允许自主工作，随后会自行执行该计划。敏感步骤会等待你的批准；Klacksy 绝不会在计划中封存已有的未处理订单，只会在你确认预览后在聊天中进行，并且新订单始终以未处理订单的形式创建。",
   "assistant-chat.goal-candidates.chat-hint": "接受后将在聊天中继续——在你于聊天中确认之前，不会更改任何内容。",
   "assistant-chat.goal-candidates.chat-busy": "目标已接受。聊天当前正忙——空闲后请将此请求发送给 Klacksy：“{{request}}”",
   "assistant-chat.goal-candidates.load-error": "无法加载目标建议。",

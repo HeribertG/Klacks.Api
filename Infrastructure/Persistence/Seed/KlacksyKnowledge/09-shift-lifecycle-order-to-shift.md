@@ -150,7 +150,7 @@ In einem Spital, einem Restaurant oder einem Salon ist der kundenlose Dienst dam
 
 Container sind davon nicht betroffen: sie sind Vorlagen, keine Bestellungen, und tragen nie einen Kunden.
 
-**Ganze Bestellungs-Stapel versiegeln und Gruppen ableiten (über Klacksy):** Der Skill `seal_open_orders` versiegelt alle offenen Bestellungen eines Filters (Quellsystem, Zeitraum, Kunde, Gruppe) auf einmal — jede einzeln, blockierte und fehlgeschlagene werden ausgewiesen statt den Lauf abzubrechen; mit `apply=false` ist es nur eine Vorschau. Ab mehr als 25 versiegelbaren Bestellungen läuft er als Hintergrund-Auftrag: Klacksy antwortet sofort mit einer Auftrags-Id, das Ergebnis landet als Meldung im Klacksy-Postfach. Weil eine Bestellung ohne Gruppe nicht versiegelbar ist, leitet der Skill `assign_orders_to_groups` die Gruppe jeder noch gruppenlosen Bestellung aus der Adresse ihres Kunden ab (Ort, sonst Kanton, sonst nächstgelegene Gruppe mit Koordinaten) — vorab als eigener Aufruf oder direkt über den Parameter `autoAssignGroups`.
+**Bestellungen über Klacksy anlegen und versiegeln:** Eine Bestellung, die Klacksy anlegt (`create_shift`), entsteht immer als offene **Bestellung** (`OriginalOrder`), nie direkt versiegelt. Versiegelt wird sie in einem eigenen Schritt mit `seal_shift`: Klacksy zeigt zuerst eine Vorschau der Bestellung, und versiegelt wird erst, wenn du diese Vorschau in deiner nächsten Antwort ausdrücklich bestätigst; erst danach entsteht der planbare Dienst, der gebucht und zugeschnitten werden kann. Klacksy versiegelt nie mehrere Bestellungen auf einmal. Weil eine Bestellung ohne Gruppe nicht versiegelbar ist, leitet der Skill `assign_orders_to_groups` die Gruppe jeder noch gruppenlosen Bestellung aus der Adresse ihres Kunden ab (Ort, sonst Kanton, sonst nächstgelegene Gruppe mit Koordinaten).
 
 **Beispiel-Lebenszyklus**
 
@@ -179,7 +179,7 @@ Container sind davon nicht betroffen: sie sind Vorlagen, keine Bestellungen, und
 - `explain_shift_sporadic` / `explain_shift_time_range` / `explain_shift_container`
 - `explain_planning_assistant` — der Assistent bucht an OriginalShift/SplitShift
 - `assign_orders_to_groups` — leitet die fehlenden Gruppen importierter Bestellungen aus der Kundenadresse ab
-- `seal_open_orders` — versiegelt alle offenen Bestellungen eines Filters in einem Lauf
+- `seal_shift` — versiegelt eine einzelne Bestellung, erst nachdem du ihre Vorschau bestätigt hast
 
 ## Trigger-Phrasen
 
@@ -213,5 +213,5 @@ Container sind davon nicht betroffen: sie sind Vorlagen, keine Bestellungen, und
 **Grenzfälle**
 
 - **Beim Anlegen wird ein Entwurf ohne Kunde abgelehnt.** Ausnahme sind Container: sie sind Vorlagen und tragen nie einen Kunden.
-- **Stapel-Versiegeln ist endgültig und nicht für jeden.** `seal_open_orders` steht nur Nutzern mit uneingeschränktem Gruppenumfang offen; eine Bestellung ohne Gruppe wird nicht versiegelt (blockiert), und was versiegelt ist, bleibt es. Vorschau mit `apply=false` zuerst.
+- **Klacksy versiegelt nie beim Anlegen und nie im Stapel.** Jede Versiegelung über Klacksy betrifft genau eine Bestellung und läuft erst, nachdem du ihre Vorschau bestätigt hast; eine Bestellung ohne Gruppe lässt sich nicht versiegeln, und was versiegelt ist, bleibt es.
 - **Dieselbe Bezeichnung, drei Dinge:** "Versiegeln" einer Bestellung (Stufenwechsel des Dienstes) ist nicht dasselbe wie die Sperrstufe eines Einsatzes (de: "Bestätigt", "Freigegeben", "Geschlossen"; en: "Confirmed", "Approved", "Closed"; fr: "Confirmé", "Approuvé", "Clôturé"; it: "Confermato", "Approvato", "Chiuso") und nicht die Tagessperre.

@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "korkea",
   "assistant-chat.goal-candidates.confidence.low": "matala",
   "assistant-chat.goal-candidates.heading": "Klacksyn ehdottamat tavoitteet",
-  "assistant-chat.goal-candidates.hint": "Hyväksyessäsi Klacksy laatii suunnitelmaluonnoksen. Jos Klacksy pitää tavoitetta selvästi perusteltuna ja itsenäinen työskentely on sallittu, se suorittaa suunnitelman sen jälkeen itse. Arkaluonteiset vaiheet odottavat hyväksyntääsi; Klacksy ei koskaan sinetöi tilauksia suunnitelmassa, vaan vain chatissa sen jälkeen, kun olet vahvistanut esikatselun.",
+  "assistant-chat.goal-candidates.hint": "Hyväksyessäsi Klacksy laatii suunnitelmaluonnoksen. Jos Klacksy pitää tavoitetta selvästi perusteltuna ja itsenäinen työskentely on sallittu, se suorittaa suunnitelman sen jälkeen itse. Arkaluonteiset vaiheet odottavat hyväksyntääsi; Klacksy ei koskaan sinetöi olemassa olevia avoimia tilauksia suunnitelmassa, vaan vain chatissa sen jälkeen, kun olet vahvistanut esikatselun, ja uudet tilaukset se luo aina avoimina.",
   "assistant-chat.goal-candidates.chat-hint": "Hyväksymisen jälkeen jatketaan keskustelussa – mitään ei muuteta ennen kuin vahvistat sen siellä.",
   "assistant-chat.goal-candidates.chat-busy": "Tavoite hyväksytty. Keskustelu on juuri nyt varattu – lähetä pyyntö Klacksylle, kun se vapautuu: ”{{request}}”",
   "assistant-chat.goal-candidates.load-error": "Tavoite-ehdotuksia ei voitu ladata.",

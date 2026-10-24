@@ -476,7 +476,7 @@
   "assistant-chat.goal-candidates.confidence.high": "alta",
   "assistant-chat.goal-candidates.confidence.low": "baixa",
   "assistant-chat.goal-candidates.heading": "Sugestões de objetivos do Klacksy",
-  "assistant-chat.goal-candidates.hint": "Ao aceitar, o Klacksy elabora um rascunho de plano. Se o Klacksy considerar o objetivo claramente fundamentado e tiver permissão para trabalhar de forma autónoma, executa depois o plano por si próprio. Os passos sensíveis aguardam a tua aprovação; o Klacksy nunca sela encomendas num plano, apenas no chat depois de confirmares a pré-visualização.",
+  "assistant-chat.goal-candidates.hint": "Ao aceitar, o Klacksy elabora um rascunho de plano. Se o Klacksy considerar o objetivo claramente fundamentado e tiver permissão para trabalhar de forma autónoma, executa depois o plano por si próprio. Os passos sensíveis aguardam a tua aprovação; o Klacksy nunca sela encomendas abertas existentes num plano, apenas no chat depois de confirmares a pré-visualização, e cria sempre as novas encomendas como encomendas abertas.",
   "assistant-chat.goal-candidates.chat-hint": "Ao aceitar, continua-se no chat – nada é alterado até que o confirmes lá.",
   "assistant-chat.goal-candidates.chat-busy": "Objetivo aceite. O chat está ocupado neste momento – envia o pedido ao Klacksy assim que estiver livre: «{{request}}»",
   "assistant-chat.goal-candidates.load-error": "Não foi possível carregar as sugestões de objetivos.",
