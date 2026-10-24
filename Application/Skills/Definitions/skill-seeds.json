@@ -21554,7 +21554,7 @@
     {
       "name": "geocode_addresses",
       "area": "client",
-      "description": "Fills in missing map coordinates of client addresses from their postcode and city (approximate position of the locality). Only addresses WITHOUT coordinates are filled - existing coordinates are never changed - so this runs without asking for confirmation; afterwards tell the user exactly what was written. Covers one client when a client is named, otherwise every client the user may see. Customer addresses are always covered; employee addresses only when the installation allows it. A few addresses are located at once, the rest in the background.",
+      "description": "Fills in missing map coordinates of client addresses from postcode and city (approximate position of the locality). Only addresses WITHOUT coordinates are filled, existing ones are never changed, so it runs without confirmation; afterwards tell the user what was written. One named client, otherwise every client the user may see. Employee addresses only when the installation allows it. A few are located at once, the rest in the background.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
