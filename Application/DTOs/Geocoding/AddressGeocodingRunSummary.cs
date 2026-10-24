@@ -3,7 +3,8 @@
 /// <summary>
 /// What a synchronous geocoding run did: the addresses it filled (with source), how many the geocoder could not
 /// place, how many met an unreachable geocoder, how many had changed or got coordinates in the meantime
-/// (superseded, left alone) and how many were handed to the background backfill.
+/// (superseded, left alone), how many were handed to the background backfill and how many were left over without
+/// being handed on (deferred: the backfill does not run on this instance, so only another call reaches them).
 /// </summary>
 
 namespace Klacks.Api.Application.DTOs.Geocoding;
@@ -14,7 +15,8 @@ public sealed record AddressGeocodingRunSummary(
     int NotFound,
     int Unavailable,
     int Superseded,
-    int Queued)
+    int Queued,
+    int Deferred = 0)
 {
     public static AddressGeocodingRunSummary Disabled { get; } = new(true, [], 0, 0, 0, 0);
 }

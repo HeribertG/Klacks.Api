@@ -6,7 +6,7 @@
 /// single coordinate is left as it is, because the fill never overwrites. The coordinate write is one ExecuteUpdate
 /// whose WHERE pins id, empty coordinates and the geocoded postcode, city and country (a user edit in between
 /// wins) and that sets no user stamp; it and the state upsert share one transaction under the retrying execution
-/// strategy. State rows are written with INSERT ... ON CONFLICT so the backfill and a Klacksy call racing on the
+/// strategy, or the caller's transaction when one is open. State rows are written with INSERT ... ON CONFLICT so the backfill and a Klacksy call racing on the
 /// same address never fail.
 /// </summary>
 /// <param name="context">Database context</param>
@@ -107,29 +107,21 @@ public class AddressGeocodingStateRepository : IAddressGeocodingStateRepository
 
     public async Task<bool> TryFillAsync(AddressGeocodingFill fill, CancellationToken cancellationToken = default)
     {
+        if (_context.Database.CurrentTransaction != null)
+        {
+            return await WriteFillAsync(fill, cancellationToken);
+        }
+
         var strategy = _context.Database.CreateExecutionStrategy();
         return await strategy.ExecuteAsync(async () =>
         {
             await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-            var updated = await UpdateCoordinatesAsync(fill, cancellationToken);
-            if (updated == 0)
+            if (!await WriteFillAsync(fill, cancellationToken))
             {
                 await transaction.RollbackAsync(cancellationToken);
                 return false;
             }
 
-            await _context.Database.ExecuteSqlRawAsync(
-                RecordFillSql,
-                AttemptParameters(fill.AddressId, fill.ExpectedZip, fill.ExpectedCity, fill.ExpectedCountry, AddressGeocodingOutcome.Filled, fill.At)
-                    .Concat(
-                    [
-                        GeocodingSqlParameter.Create("fill_source", NpgsqlDbType.Integer, (int)fill.Source),
-                        GeocodingSqlParameter.Create("filled_by", NpgsqlDbType.Integer, (int)fill.Attribution.Trigger),
-                        GeocodingSqlParameter.Create("filled_by_user_id", NpgsqlDbType.Uuid, fill.Attribution.UserId),
-                        GeocodingSqlParameter.Create("filled_latitude", NpgsqlDbType.Double, fill.Latitude),
-                        GeocodingSqlParameter.Create("filled_longitude", NpgsqlDbType.Double, fill.Longitude)
-                    ]),
-                cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return true;
         });
@@ -171,6 +163,28 @@ public class AddressGeocodingStateRepository : IAddressGeocodingStateRepository
         from state in states.DefaultIfEmpty()
         where !address.IsDeleted && address.Latitude == null && address.Longitude == null
         select new CandidateRow { Address = address, Client = client, State = state };
+
+    private async Task<bool> WriteFillAsync(AddressGeocodingFill fill, CancellationToken cancellationToken)
+    {
+        if (await UpdateCoordinatesAsync(fill, cancellationToken) == 0)
+        {
+            return false;
+        }
+
+        await _context.Database.ExecuteSqlRawAsync(
+            RecordFillSql,
+            AttemptParameters(fill.AddressId, fill.ExpectedZip, fill.ExpectedCity, fill.ExpectedCountry, AddressGeocodingOutcome.Filled, fill.At)
+                .Concat(
+                [
+                    GeocodingSqlParameter.Create("fill_source", NpgsqlDbType.Integer, (int)fill.Source),
+                    GeocodingSqlParameter.Create("filled_by", NpgsqlDbType.Integer, (int)fill.Attribution.Trigger),
+                    GeocodingSqlParameter.Create("filled_by_user_id", NpgsqlDbType.Uuid, fill.Attribution.UserId),
+                    GeocodingSqlParameter.Create("filled_latitude", NpgsqlDbType.Double, fill.Latitude),
+                    GeocodingSqlParameter.Create("filled_longitude", NpgsqlDbType.Double, fill.Longitude)
+                ]),
+            cancellationToken);
+        return true;
+    }
 
     private Task<int> UpdateCoordinatesAsync(AddressGeocodingFill fill, CancellationToken cancellationToken)
     {

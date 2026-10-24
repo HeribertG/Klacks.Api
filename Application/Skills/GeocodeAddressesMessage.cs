@@ -28,6 +28,10 @@ internal static class GeocodeAddressesMessage
     private const string Queued =
         "{0} more address(es) are being located in the background; that takes a few minutes. Nothing else is needed.";
 
+    private const string Deferred =
+        "{0} more address(es) were not processed in this turn and the background geocoding does not run on this " +
+        "installation; the user can ask again to continue.";
+
     private const string NotFound =
         "{0} address(es) could not be located from their postcode and city; their coordinates stay empty. " +
         "Suggest checking postcode and city.";
@@ -64,6 +68,7 @@ internal static class GeocodeAddressesMessage
         }
 
         AppendIfAny(text, Queued, summary.Queued);
+        AppendIfAny(text, Deferred, summary.Deferred);
         AppendIfAny(text, NotFound, summary.NotFound);
         AppendIfAny(text, PrivacySkipped, selection.PrivacyBlocked.Count);
         AppendIfAny(text, Incomplete, selection.Incomplete.Count);

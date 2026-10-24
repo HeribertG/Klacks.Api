@@ -107,6 +107,7 @@ public class GeocodeAddressesSkill : BaseSkillImplementation
     {
         FilledCount = summary.Filled.Count,
         QueuedCount = summary.Queued,
+        DeferredCount = summary.Deferred,
         NotFoundCount = summary.NotFound,
         PrivacySkippedCount = selection.PrivacyBlocked.Count,
         IncompleteCount = selection.Incomplete.Count,

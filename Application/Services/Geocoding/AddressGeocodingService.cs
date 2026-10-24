@@ -137,7 +137,7 @@ public class AddressGeocodingService : IAddressGeocodingService
             ? await RequestEligibleAsync(remainder.Select(c => c.AddressId).ToList(), attribution, cancellationToken)
             : 0;
 
-        return new AddressGeocodingRunSummary(false, filled, notFound, unavailable, superseded, queued);
+        return new AddressGeocodingRunSummary(false, filled, notFound, unavailable, superseded, queued, remainder.Count - queued);
     }
 
     public async Task<int> RequestAsync(
