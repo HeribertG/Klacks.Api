@@ -73,6 +73,13 @@ public static class KnowledgeIndexConstants
     // leads with the current message (RetrievalQueryBuilder), so the cut drops the oldest turns first.
     public const int MaxRerankerQueryTokens = 256;
 
+    // Skill rerank switch, see SkillRerankOptions. The margin default is a placeholder until
+    // KnowledgeIndexPhraseFacetDiagnosticsTests.AdaptiveReranking_MarginThresholdSweep has been run on today's
+    // catalogue; it only matters in Adaptive mode, and the shipped mode is Always.
+    public const string SkillRerankModeConfigKey = "KnowledgeIndex:SkillRerankMode";
+    public const string SkillRerankMarginConfigKey = "KnowledgeIndex:SkillRerankMarginThreshold";
+    public const double DefaultSkillRerankMarginThreshold = 0.03;
+
     // How many pg_trgm lexical candidates are fetched per query, mirroring MaxRerankerCandidates so
     // the fused (semantic + lexical) candidate set feeding the reranker never grows past the existing
     // reranker budget — hybrid retrieval changes which candidates reach the reranker, not how many.

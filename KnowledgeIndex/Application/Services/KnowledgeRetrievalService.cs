@@ -61,19 +61,23 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     private readonly IKnowledgeIndexRepository _repository;
     private readonly ILogger<KnowledgeRetrievalService> _logger;
     private readonly RetrievalCallCounter? _callCounter;
+    private readonly SkillRerankOptions _skillRerank;
 
+    /// <param name="skillRerank">Whether skill passes are reranked; null keeps the shipped default (Always).</param>
     public KnowledgeRetrievalService(
         IEmbeddingProvider embeddingProvider,
         IRerankerProvider rerankerProvider,
         IKnowledgeIndexRepository repository,
         ILogger<KnowledgeRetrievalService>? logger = null,
-        RetrievalCallCounter? callCounter = null)
+        RetrievalCallCounter? callCounter = null,
+        SkillRerankOptions? skillRerank = null)
     {
         _embeddingProvider = embeddingProvider;
         _rerankerProvider = rerankerProvider;
         _repository = repository;
         _logger = logger ?? NullLogger<KnowledgeRetrievalService>.Instance;
         _callCounter = callCounter;
+        _skillRerank = skillRerank ?? SkillRerankOptions.Default;
     }
 
     public async Task<RetrievalResult> RetrieveAsync(
@@ -132,11 +136,28 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
 
         var texts = filtered.Select(f => f.Text).ToList();
 
-        await rerankerReady;
+        // Skill passes may keep the vector order (SkillRerankOptions). The cosine margin between the first two
+        // candidates is logged on every skill pass, reranked or not, so live traffic keeps calibrating the
+        // Adaptive threshold: the starting value is a middle value meant to be sharpened from these lines.
+        var vectorScores = kindFilter == KnowledgeEntryKind.Skill
+            ? DecideVectorOrder(call, queryVec, filtered)
+            : null;
 
-        var rerankWatch = Stopwatch.StartNew();
-        var scores = await _rerankerProvider.ScoreAsync(userQuery, texts, cancellationToken);
-        var rerankMs = rerankWatch.ElapsedMilliseconds;
+        double[] scores;
+        long rerankMs;
+        if (vectorScores != null)
+        {
+            scores = vectorScores;
+            rerankMs = 0;
+        }
+        else
+        {
+            await rerankerReady;
+
+            var rerankWatch = Stopwatch.StartNew();
+            scores = await _rerankerProvider.ScoreAsync(userQuery, texts, cancellationToken);
+            rerankMs = rerankWatch.ElapsedMilliseconds;
+        }
 
         if (_logger.IsEnabled(LogLevel.Debug))
         {
@@ -162,7 +183,12 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
             .Zip(scores, (e, s) => (Entry: e, RawScore: s))
             .Where(p => p.RawScore >= KnowledgeIndexConstants.DefaultScoreCutoff)
             .Where(p => kindFilter is null || p.Entry.Kind == kindFilter.Value)
-            .Select(p => new RetrievalCandidate(p.Entry, ApplyRouteBoost(p.Entry, p.RawScore, routeBoostedSkills)))
+            // The route boost is a factor tuned for the cross-encoder's spread-out scores. On cosine scores, which
+            // sit within a few hundredths of each other, x1.5 would lift every page skill above everything else,
+            // so the vector order is kept without it.
+            .Select(p => new RetrievalCandidate(
+                p.Entry,
+                vectorScores != null ? p.RawScore : ApplyRouteBoost(p.Entry, p.RawScore, routeBoostedSkills)))
             .OrderByDescending(c => c.Score)
             .Take(topK)
             .ToList();
@@ -170,6 +196,74 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         LogPass(call, userQuery, userPermissions, kindFilter, embedMs, knnMs, rerankMs, texts, topK, ranked.Count);
 
         return new RetrievalResult(ranked);
+    }
+
+    /// <summary>
+    /// Returns the cosine scores of the candidates when this skill pass keeps the vector order, or null when the
+    /// cross-encoder has to run. The margin is the gap between the first two candidates in KNN order - the same
+    /// definition as KnowledgeIndexPhraseFacetDiagnosticsTests.AdaptiveReranking_MarginThresholdSweep, so a threshold
+    /// read off that sweep means the same thing here. Logged on every skill pass, whatever the mode.
+    /// </summary>
+    /// <param name="call">Pass ordinal for the log line</param>
+    /// <param name="queryVector">The embedded query</param>
+    /// <param name="candidates">The KNN candidates, nearest first</param>
+    private double[]? DecideVectorOrder(int call, float[] queryVector, IReadOnlyList<KnowledgeEntry> candidates)
+    {
+        var cosines = CosineScores(queryVector, candidates);
+        var margin = cosines.Length > 1 ? cosines[0] - cosines[1] : 1.0;
+
+        var keepVectorOrder = _skillRerank.Mode switch
+        {
+            SkillRerankMode.Never => true,
+            SkillRerankMode.Adaptive => margin >= _skillRerank.MarginThreshold,
+            _ => false
+        };
+
+        _logger.LogInformation(
+            "[retrieval] turn={Turn} call={Call} kind=Skill rerankMode={Mode} margin={Margin:F4} threshold={Threshold:F4} reranked={Reranked}",
+            TurnCorrelation.CurrentOrNone, call, _skillRerank.Mode, margin, _skillRerank.MarginThreshold, !keepVectorOrder);
+
+        return keepVectorOrder ? cosines : null;
+    }
+
+    /// <summary>
+    /// Cosine similarity of every candidate to the query, in candidate order. Both sides are normalised here rather
+    /// than trusting the stored vectors to be unit length; a candidate without a stored vector scores 0.
+    /// </summary>
+    private static double[] CosineScores(float[] queryVector, IReadOnlyList<KnowledgeEntry> candidates)
+    {
+        var queryNorm = Norm(queryVector);
+        var scores = new double[candidates.Count];
+        for (var i = 0; i < candidates.Count; i++)
+        {
+            var vector = candidates[i].Embedding;
+            var norm = Norm(vector);
+            if (queryNorm == 0 || norm == 0 || vector.Length != queryVector.Length)
+            {
+                continue;
+            }
+
+            double dot = 0;
+            for (var j = 0; j < vector.Length; j++)
+            {
+                dot += queryVector[j] * vector[j];
+            }
+
+            scores[i] = dot / (queryNorm * norm);
+        }
+
+        return scores;
+    }
+
+    private static double Norm(float[] vector)
+    {
+        double sum = 0;
+        foreach (var value in vector)
+        {
+            sum += value * value;
+        }
+
+        return Math.Sqrt(sum);
     }
 
     private static HashSet<string>? ResolveRouteBoostedSkills(string? currentRoute)

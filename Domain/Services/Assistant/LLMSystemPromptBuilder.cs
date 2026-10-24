@@ -30,6 +30,14 @@ TOOL CALL BATCHING:
   instead of one call per turn — each extra turn costs the user a full round-trip of waiting.
 - Only sequence tool calls when a later call genuinely needs the result of an earlier one
   (e.g. look up an id first, then use it).
+
+DIRECT ACTION:
+- A tool that takes names (lastName, groupName, contractName, ...) resolves them itself and asks back
+  when a name is unknown or ambiguous. Call it directly with the names from the request - do NOT
+  search, list or open details first.
+- To change settings, call the update tool directly with the new values. Read the current values first
+  only when the new value depends on them ("raise it by 2").
+- Look something up first only when the tool needs an id you do not have yet.
 """;
 
     private const string InternalDisclosureGuide = """
