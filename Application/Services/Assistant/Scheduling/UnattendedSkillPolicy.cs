@@ -70,7 +70,7 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
         return riskClass switch
         {
             SkillRiskClass.ReadOnly => UnattendedSkillDecision.Allow(),
-            SkillRiskClass.FillEmptyOnly => UnattendedSkillDecision.Allow(),
+            SkillRiskClass.FillEmptyOnly => DenyFillEmptyOnly(request.SkillName),
             SkillRiskClass.Reversible => DecideByAutonomyLevel(
                 request, riskClass, UnattendedSkillPolicyDefaults.MinimumLevelForReversible),
             SkillRiskClass.ScenarioGated => DecideByAutonomyLevel(
@@ -147,6 +147,18 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
         }
 
         return UnattendedSkillDecision.Allow();
+    }
+
+    // A fill-empty-only skill runs unconfirmed only because a user asked for it and is told what was written.
+    // Unattended there is nobody to tell, and the client visibility guard treats a run without a calling user as
+    // unrestricted, so its report could list clients the owner may not see. The background work it would do is
+    // done by the system's own backfill anyway.
+    private static UnattendedSkillDecision DenyFillEmptyOnly(string skillName)
+    {
+        return UnattendedSkillDecision.Deny(
+            $"Skill '{skillName}' only runs when a user asks for it in the chat; the background geocoding already " +
+            "fills missing coordinates by itself. Remove it from the background run.",
+            UnattendedDenyReason.InteractiveOnly);
     }
 
     private static UnattendedSkillDecision DenySensitive(string skillName)

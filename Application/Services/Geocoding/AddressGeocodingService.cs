@@ -6,7 +6,9 @@
 /// conditional write), employee addresses only when the installation allows it (AddressGeocodingPrivacy), and what
 /// is not done synchronously is requested for the background backfill, which the persisted request survives a
 /// restart. A run or request without a user (import, admin batch) is attributed to the signed-in user of the request.
-/// Visibility is not checked here: callers pass only addresses the acting user may see.
+/// Visibility is not checked here: callers pass only addresses the acting user may see. GeocodeAsync applies the
+/// privacy rule again itself (fresh setting), so a caller that skipped SelectAsync cannot send an employee address,
+/// and a failing hand-over to the backfill never hides what was already written (the rest counts as deferred).
 /// </summary>
 /// <param name="filler">Geocodes and fills one address</param>
 /// <param name="stateRepository">Reads candidates by id and writes requests</param>
@@ -15,6 +17,7 @@
 /// <param name="availability">Whether this instance drains requests</param>
 /// <param name="httpContextAccessor">Signed-in user for requests that name none</param>
 /// <param name="timeProvider">UTC clock of the request timestamps</param>
+/// <param name="logger">Failed hand-over to the backfill (the run itself is still reported)</param>
 
 using System.Security.Claims;
 using Klacks.Api.Application.DTOs.Geocoding;
@@ -34,6 +37,7 @@ public class AddressGeocodingService : IAddressGeocodingService
     private readonly AddressGeocodingBackfillAvailability _availability;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly TimeProvider _timeProvider;
+    private readonly ILogger<AddressGeocodingService> _logger;
 
     public AddressGeocodingService(
         IAddressGeocodingFiller filler,
@@ -42,7 +46,8 @@ public class AddressGeocodingService : IAddressGeocodingService
         IGeocodingService geocodingService,
         AddressGeocodingBackfillAvailability availability,
         IHttpContextAccessor httpContextAccessor,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        ILogger<AddressGeocodingService> logger)
     {
         _filler = filler;
         _stateRepository = stateRepository;
@@ -51,6 +56,7 @@ public class AddressGeocodingService : IAddressGeocodingService
         _availability = availability;
         _httpContextAccessor = httpContextAccessor;
         _timeProvider = timeProvider;
+        _logger = logger;
     }
 
     public bool IsGeocodingEnabled => _geocodingService.IsEnabled;
@@ -94,12 +100,13 @@ public class AddressGeocodingService : IAddressGeocodingService
         }
 
         attribution = WithSignedInUser(attribution);
+        var employeeAddressesAllowed = await _settings.AreEmployeeAddressesAllowedAsync(cancellationToken);
         var filled = new List<AddressGeocodingFilledAddress>();
         var remainder = new List<AddressGeocodingCandidate>();
         int notFound = 0, unavailable = 0, superseded = 0, processed = 0, geocoderCalls = 0;
         var stopped = false;
 
-        foreach (var candidate in eligible)
+        foreach (var candidate in eligible.Where(c => AddressGeocodingPrivacy.MayGeocode(c.ClientType, employeeAddressesAllowed)))
         {
             if (stopped || IsExhausted(budget, processed, geocoderCalls))
             {
@@ -133,9 +140,7 @@ public class AddressGeocodingService : IAddressGeocodingService
             }
         }
 
-        var queued = budget.QueueRemainder
-            ? await RequestEligibleAsync(remainder.Select(c => c.AddressId).ToList(), attribution, cancellationToken)
-            : 0;
+        var queued = budget.QueueRemainder ? await TryRequestRemainderAsync(remainder, attribution, cancellationToken) : 0;
 
         return new AddressGeocodingRunSummary(false, filled, notFound, unavailable, superseded, queued, remainder.Count - queued);
     }
@@ -151,6 +156,20 @@ public class AddressGeocodingService : IAddressGeocodingService
         var candidates = await _stateRepository.GetMissingCoordinatesByIdsAsync(addressIds, cancellationToken);
         var selection = await SelectAsync(candidates, cancellationToken);
         return await RequestEligibleAsync(selection.Eligible.Select(c => c.AddressId).ToList(), attribution, cancellationToken);
+    }
+
+    private async Task<int> TryRequestRemainderAsync(
+        IReadOnlyList<AddressGeocodingCandidate> remainder, AddressGeocodingAttribution attribution, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await RequestEligibleAsync(remainder.Select(c => c.AddressId).ToList(), attribution, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Requesting {Count} address(es) for the background geocoding failed; reported as deferred", remainder.Count);
+            return 0;
+        }
     }
 
     private static bool IsExhausted(AddressGeocodingBudget budget, int processed, int geocoderCalls) =>

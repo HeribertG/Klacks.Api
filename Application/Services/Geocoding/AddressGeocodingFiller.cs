@@ -7,7 +7,9 @@
 /// until the not-found window ends. Only the postcode, city and country name are sent, never the street.
 /// A hit is written through the conditional fill (coordinates only while still empty, state only when empty);
 /// a miss or an unreachable geocoder is recorded as an attempt, an unreachable one is never cached. With geocoding
-/// switched off by the operator nothing is read, asked or written.
+/// switched off by the operator nothing is read, asked or written. Postcode or city that are blank after
+/// normalization (tabs, line breaks, non-breaking spaces) are recorded as not found, so the scan does not pick the
+/// address again and again.
 /// </summary>
 /// <param name="geocodingService">Rate-limited Nominatim geocoder honouring the geo service policy</param>
 /// <param name="localityRepository">Persistent per-locality cache</param>
@@ -15,6 +17,7 @@
 /// <param name="countryResolver">Resolves the stored country code; the default country stands in for an unknown one</param>
 /// <param name="stateResolver">Maps the geocoder's state/county to the state abbreviation</param>
 /// <param name="timeProvider">UTC clock of the attempt and fill timestamps</param>
+/// <param name="logger">Unreachable geocoder and discarded results</param>
 
 using Klacks.Api.Application.DTOs.Geocoding;
 using Klacks.Api.Application.Interfaces.Geocoding;
@@ -67,12 +70,13 @@ public class AddressGeocodingFiller : IAddressGeocodingFiller
             ?? await _countryResolver.GetDefaultAsync(cancellationToken);
         var countryCode = country?.Abbreviation ?? candidate.Country;
         var key = GeocodingLocalityKey.Create(countryCode, candidate.Zip, candidate.City);
+        var now = _timeProvider.GetUtcNow().UtcDateTime;
         if (key == null)
         {
+            await _stateRepository.RecordAttemptAsync(candidate, AddressGeocodingOutcome.NotFound, now, cancellationToken);
             return new AddressGeocodingFillResult(AddressGeocodingFillStatus.NotFound, false);
         }
 
-        var now = _timeProvider.GetUtcNow().UtcDateTime;
         var cached = await _localityRepository.GetAsync(key, cancellationToken);
         if (cached != null && IsUsable(cached, now))
         {

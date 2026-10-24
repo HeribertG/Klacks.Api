@@ -17,5 +17,6 @@ public enum UnattendedDenyReason
     AutonomyLevelTooLow = 4,
     IrreversibleWithoutOptIn = 5,
     UnknownRiskClass = 6,
-    ConfirmationRedemption = 7
+    ConfirmationRedemption = 7,
+    InteractiveOnly = 8
 }

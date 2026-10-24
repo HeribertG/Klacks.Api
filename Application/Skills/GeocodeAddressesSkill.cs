@@ -32,6 +32,10 @@ public class GeocodeAddressesSkill : BaseSkillImplementation
 {
     public const string SkillName = "geocode_addresses";
 
+    private const string IdNumberWithoutNameMessage =
+        "The client number only tells apart clients with the same name. Pass the client's name (or id) together with it, " +
+        "or no client at all to cover every visible client. Nothing was written.";
+
     private readonly IClientSearchRepository _searchRepository;
     private readonly IClientRepository _clientRepository;
     private readonly IClientVisibilityGuard _visibilityGuard;
@@ -92,14 +96,14 @@ public class GeocodeAddressesSkill : BaseSkillImplementation
         var clientId = GetParameter<string>(parameters, "clientId");
         var firstName = GetParameter<string>(parameters, "firstName");
         var lastName = GetParameter<string>(parameters, "lastName");
+        var idNumber = GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName);
         if (string.IsNullOrWhiteSpace(clientId) && string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName))
         {
-            return (null, null);
+            return idNumber.HasValue ? (null, IdNumberWithoutNameMessage) : (null, null);
         }
 
         var (client, error) = await ClientResolver.ResolveByIdOrNameAsync(
-            _searchRepository, _clientRepository, _visibilityGuard, clientId, firstName, lastName,
-            GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName), cancellationToken);
+            _searchRepository, _clientRepository, _visibilityGuard, clientId, firstName, lastName, idNumber, cancellationToken);
         return client == null ? (null, error) : ([client.Id], null);
     }
 

@@ -40,6 +40,9 @@ internal static class GeocodeAddressesMessage
         "{0} employee address(es) were left out: this installation does not allow private employee addresses to be " +
         "sent to the map service. An administrator can allow it in the settings.";
 
+    private const string Superseded =
+        "{0} address(es) changed or received coordinates in the meantime and were left as they are.";
+
     private const string Incomplete = "{0} address(es) have no postcode or city and cannot be located.";
 
     public static string Build(AddressGeocodingSelection selection, AddressGeocodingRunSummary summary)
@@ -70,6 +73,7 @@ internal static class GeocodeAddressesMessage
         AppendIfAny(text, Queued, summary.Queued);
         AppendIfAny(text, Deferred, summary.Deferred);
         AppendIfAny(text, NotFound, summary.NotFound);
+        AppendIfAny(text, Superseded, summary.Superseded);
         AppendIfAny(text, PrivacySkipped, selection.PrivacyBlocked.Count);
         AppendIfAny(text, Incomplete, selection.Incomplete.Count);
 

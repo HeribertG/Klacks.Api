@@ -13,6 +13,7 @@
 /// <param name="settings">Employee-address privacy switch</param>
 /// <param name="geocodingService">Tells whether geocoding is enabled</param>
 /// <param name="timeProvider">UTC clock of the retry windows and the pause timer</param>
+/// <param name="logger">Pass summary, early stops and per-address failures (which never end the pass)</param>
 
 using Klacks.Api.Application.DTOs.Geocoding;
 using Klacks.Api.Application.Interfaces.Geocoding;
@@ -81,8 +82,12 @@ public class AddressGeocodingBackfillRunner : IAddressGeocodingBackfillRunner
         foreach (var candidate in candidates)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var result = await _filler.FillAsync(
-                candidate, candidate.PendingRequest ?? AddressGeocodingAttribution.SystemScan, cancellationToken);
+            var result = await TryFillAsync(candidate, cancellationToken);
+            if (result == null)
+            {
+                continue;
+            }
+
             filled += result.Status == AddressGeocodingFillStatus.Filled ? 1 : 0;
 
             if (result.UsedGeocoder)
@@ -103,5 +108,19 @@ public class AddressGeocodingBackfillRunner : IAddressGeocodingBackfillRunner
         }
 
         return candidates.Count >= AddressGeocodingLimits.ScanBatchSize;
+    }
+
+    private async Task<AddressGeocodingFillResult?> TryFillAsync(AddressGeocodingCandidate candidate, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _filler.FillAsync(
+                candidate, candidate.PendingRequest ?? AddressGeocodingAttribution.SystemScan, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Geocoding address {AddressId} failed; the pass goes on with the next one", candidate.AddressId);
+            return null;
+        }
     }
 }

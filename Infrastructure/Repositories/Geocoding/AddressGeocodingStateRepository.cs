@@ -2,8 +2,10 @@
 
 /// <summary>
 /// Reads geocoding candidates and writes coordinates, attempts and requests (self-committing, see
-/// IAddressGeocodingStateRepository). Only addresses with neither latitude nor longitude are candidates: one with a
-/// single coordinate is left as it is, because the fill never overwrites. The coordinate write is one ExecuteUpdate
+/// IAddressGeocodingStateRepository). Candidates are projected to the few fields the geocoding needs (no entity
+/// loading). Only addresses with neither latitude nor longitude are candidates: one with a single coordinate is left
+/// as it is, because the fill never overwrites. An address whose earlier fill was lost (coordinates empty again,
+/// e.g. a stale client save) is due again. The coordinate write is one ExecuteUpdate
 /// whose WHERE pins id, empty coordinates and the geocoded postcode, city and country (a user edit in between
 /// wins) and that sets no user stamp; it and the state upsert share one transaction under the retrying execution
 /// strategy, or the caller's transaction when one is open. State rows are written with INSERT ... ON CONFLICT so the backfill and a Klacksy call racing on the
@@ -14,8 +16,6 @@
 using Klacks.Api.Application.DTOs.Geocoding;
 using Klacks.Api.Application.Interfaces.Geocoding;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Models.Geocoding;
-using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -65,16 +65,17 @@ public class AddressGeocodingStateRepository : IAddressGeocodingStateRepository
     {
         var rows = await (
                 from row in MissingCoordinates()
-                where row.Address.Zip.Trim() != string.Empty && row.Address.City.Trim() != string.Empty
-                    && (query.IncludeEmployeeAddresses || row.Client.Type == EntityTypeEnum.Customer)
-                    && (row.State == null
-                        || row.State.RequestedAt != null
-                        || row.State.AttemptedZip != row.Address.Zip
-                        || row.State.AttemptedCity != row.Address.City
-                        || row.State.AttemptedCountry != row.Address.Country
-                        || (row.State.Outcome == AddressGeocodingOutcome.NotFound && row.State.AttemptedAt < query.NotFoundRetryBefore)
-                        || (row.State.Outcome == AddressGeocodingOutcome.Unavailable && row.State.AttemptedAt < query.UnavailableRetryBefore))
-                orderby row.State != null && row.State.RequestedAt != null descending, row.Address.Id
+                where row.Zip.Trim() != string.Empty && row.City.Trim() != string.Empty
+                    && (query.IncludeEmployeeAddresses || row.ClientType == EntityTypeEnum.Customer)
+                    && (row.AttemptedAt == null
+                        || row.RequestedAt != null
+                        || row.Outcome == AddressGeocodingOutcome.Filled
+                        || row.AttemptedZip != row.Zip
+                        || row.AttemptedCity != row.City
+                        || row.AttemptedCountry != row.Country
+                        || (row.Outcome == AddressGeocodingOutcome.NotFound && row.AttemptedAt < query.NotFoundRetryBefore)
+                        || (row.Outcome == AddressGeocodingOutcome.Unavailable && row.AttemptedAt < query.UnavailableRetryBefore))
+                orderby row.RequestedAt != null descending, row.AddressId
                 select row)
             .Take(query.Limit)
             .ToListAsync(cancellationToken);
@@ -88,10 +89,10 @@ public class AddressGeocodingStateRepository : IAddressGeocodingStateRepository
         var rows = MissingCoordinates();
         if (clientIds != null)
         {
-            rows = rows.Where(row => clientIds.Contains(row.Client.Id));
+            rows = rows.Where(row => clientIds.Contains(row.ClientId));
         }
 
-        var list = await rows.OrderBy(row => row.Client.Id).ThenBy(row => row.Address.Id).ToListAsync(cancellationToken);
+        var list = await rows.OrderBy(row => row.ClientId).ThenBy(row => row.AddressId).ToListAsync(cancellationToken);
         return list.Select(ToCandidate).ToList();
     }
 
@@ -99,8 +100,8 @@ public class AddressGeocodingStateRepository : IAddressGeocodingStateRepository
         IReadOnlyCollection<Guid> addressIds, CancellationToken cancellationToken = default)
     {
         var list = await MissingCoordinates()
-            .Where(row => addressIds.Contains(row.Address.Id))
-            .OrderBy(row => row.Address.Id)
+            .Where(row => addressIds.Contains(row.AddressId))
+            .OrderBy(row => row.AddressId)
             .ToListAsync(cancellationToken);
         return list.Select(ToCandidate).ToList();
     }
@@ -162,7 +163,28 @@ public class AddressGeocodingStateRepository : IAddressGeocodingStateRepository
         join state in _context.AddressGeocodingStates.AsNoTracking() on address.Id equals state.AddressId into states
         from state in states.DefaultIfEmpty()
         where !address.IsDeleted && address.Latitude == null && address.Longitude == null
-        select new CandidateRow { Address = address, Client = client, State = state };
+        select new CandidateRow
+        {
+            AddressId = address.Id,
+            ClientId = client.Id,
+            ClientType = client.Type,
+            FirstName = client.FirstName,
+            Name = client.Name,
+            Company = client.Company,
+            LegalEntity = client.LegalEntity,
+            Zip = address.Zip,
+            City = address.City,
+            Country = address.Country,
+            State = address.State,
+            AttemptedAt = state == null ? null : state.AttemptedAt,
+            AttemptedZip = state == null ? null : state.AttemptedZip,
+            AttemptedCity = state == null ? null : state.AttemptedCity,
+            AttemptedCountry = state == null ? null : state.AttemptedCountry,
+            Outcome = state == null ? null : state.Outcome,
+            RequestedAt = state == null ? null : state.RequestedAt,
+            RequestedBy = state == null ? null : state.RequestedBy,
+            RequestedByUserId = state == null ? null : state.RequestedByUserId
+        };
 
     private async Task<bool> WriteFillAsync(AddressGeocodingFill fill, CancellationToken cancellationToken)
     {
@@ -223,30 +245,62 @@ public class AddressGeocodingStateRepository : IAddressGeocodingStateRepository
     ];
 
     private static AddressGeocodingCandidate ToCandidate(CandidateRow row) => new(
-        row.Address.Id,
-        row.Client.Id,
-        row.Client.Type,
-        DisplayName(row.Client),
-        row.Address.Zip,
-        row.Address.City,
-        row.Address.Country,
-        row.Address.State,
-        row.State?.RequestedAt != null && row.State.RequestedBy.HasValue
-            ? new AddressGeocodingAttribution(row.State.RequestedBy.Value, row.State.RequestedByUserId)
+        row.AddressId,
+        row.ClientId,
+        row.ClientType,
+        DisplayName(row),
+        row.Zip,
+        row.City,
+        row.Country,
+        row.State,
+        row.RequestedAt != null && row.RequestedBy.HasValue
+            ? new AddressGeocodingAttribution(row.RequestedBy.Value, row.RequestedByUserId)
             : null);
 
-    private static string DisplayName(Client client)
+    private static string DisplayName(CandidateRow row)
     {
-        var person = $"{client.FirstName} {client.Name}".Trim();
-        return client.LegalEntity && !string.IsNullOrWhiteSpace(client.Company) ? client.Company! : person;
+        var person = $"{row.FirstName} {row.Name}".Trim();
+        return row.LegalEntity && !string.IsNullOrWhiteSpace(row.Company) ? row.Company! : person;
     }
 
     private sealed class CandidateRow
     {
-        public Address Address { get; init; } = null!;
+        public Guid AddressId { get; init; }
 
-        public Client Client { get; init; } = null!;
+        public Guid ClientId { get; init; }
 
-        public AddressGeocodingState? State { get; init; }
+        public EntityTypeEnum ClientType { get; init; }
+
+        public string? FirstName { get; init; }
+
+        public string Name { get; init; } = string.Empty;
+
+        public string? Company { get; init; }
+
+        public bool LegalEntity { get; init; }
+
+        public string Zip { get; init; } = string.Empty;
+
+        public string City { get; init; } = string.Empty;
+
+        public string Country { get; init; } = string.Empty;
+
+        public string State { get; init; } = string.Empty;
+
+        public DateTime? AttemptedAt { get; init; }
+
+        public string? AttemptedZip { get; init; }
+
+        public string? AttemptedCity { get; init; }
+
+        public string? AttemptedCountry { get; init; }
+
+        public AddressGeocodingOutcome? Outcome { get; init; }
+
+        public DateTime? RequestedAt { get; init; }
+
+        public AddressGeocodingTrigger? RequestedBy { get; init; }
+
+        public Guid? RequestedByUserId { get; init; }
     }
 }
