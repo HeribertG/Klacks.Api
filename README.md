@@ -201,7 +201,7 @@ Klacks.Api/
     └── DTOs/              # Data transfer objects
 ```
 
-The folders listed above are the core of each layer; the repository contains further folders (for example `Infrastructure/MCP`, `Presentation/Mcp`, `Plugins`, `deploy`).
+The folders listed above are the core of each layer; the repository contains further folders (for example `Presentation/Mcp`, `Plugins`, `deploy`).
 
 ### Tech stack
 
