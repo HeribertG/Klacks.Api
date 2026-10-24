@@ -1479,6 +1479,12 @@
     "berapa orang di grup pada bulan",
     "ikhtisar jadwal grup"
   ],
+  "geocode_addresses": [
+    "lengkapi koordinat alamat yang hilang",
+    "geokode alamat-alamat",
+    "tempatkan alamat pelanggan di peta",
+    "tentukan koordinat untuk alamat"
+  ],
   "geocode_location_groups": [
     "cari koordinat otomatis untuk semua grup",
     "lakukan geokodifikasi untuk semua grup lokasi",

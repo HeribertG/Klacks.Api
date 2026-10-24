@@ -227,6 +227,7 @@
   "find_replacement": "Cari pengganti untuk shift",
   "find_split_shift_candidates": "Cari shift terbagi yang bisa dipakai ulang",
   "generate_period_summary": "Buat ringkasan periode",
+  "geocode_addresses": "Lengkapi koordinat alamat yang hilang",
   "geocode_location_groups": "Geokodekan grup lokasi secara otomatis",
   "get_active_industries_settings": "Pengaturan industri aktif",
   "get_ai_guidelines": "Lihat pedoman AI yang aktif",

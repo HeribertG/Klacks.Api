@@ -77,6 +77,10 @@ public class McpToolCatalog : IMcpToolCatalog
             {
                 ReadOnlyHint = false, DestructiveHint = false, OpenWorldHint = openWorldHint
             },
+            SkillRiskClass.FillEmptyOnly => new ToolAnnotations
+            {
+                ReadOnlyHint = false, DestructiveHint = false, IdempotentHint = true, OpenWorldHint = true
+            },
             SkillRiskClass.ScenarioGated => new ToolAnnotations
             {
                 ReadOnlyHint = false, DestructiveHint = false, OpenWorldHint = openWorldHint

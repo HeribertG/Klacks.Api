@@ -1507,6 +1507,12 @@
     "statistik för period",
     "översikt över period"
   ],
+  "geocode_addresses": [
+    "fyll i saknade koordinater för adresserna",
+    "geokoda adresserna",
+    "placera kundadresser på kartan",
+    "ta fram koordinater för adresserna"
+  ],
   "geocode_location_groups": [
     "hitta koordinater för alla grupper",
     "geokoda platsgrupperna",

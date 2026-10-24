@@ -37,10 +37,6 @@ public static class ClientImportLimits
 
     public const long MaxGridChars = MaxFileBytes;
 
-    public const int GeocodingPauseMilliseconds = 500;
-
-    public const int GeocodingQueueCapacity = MaxRows * 2;
-
     public const int MaxPersonFieldLength = 100;
 
     public const int MaxCompanyLength = 100;

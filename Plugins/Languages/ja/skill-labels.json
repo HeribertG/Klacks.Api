@@ -227,6 +227,7 @@
   "find_replacement": "シフトの代替要員を検索",
   "find_split_shift_candidates": "再利用できる既存の分割シフトを検索",
   "generate_period_summary": "期間サマリーを生成",
+  "geocode_addresses": "住所の不足している座標を補完",
   "geocode_location_groups": "拠点グループを自動でジオコーディング",
   "get_active_industries_settings": "有効な業種の設定を確認",
   "get_ai_guidelines": "有効なAIガイドラインを表示",

@@ -223,6 +223,7 @@ builder.Services.AddKlacksPatAuthentication();
 builder.Services.AddKlacksMcpServer();
 builder.Services.AddErpImportServices(builder.Configuration);
 builder.Services.AddClientImportServices(builder.Configuration);
+builder.Services.AddAddressGeocodingServices(builder.Configuration);
 builder.Services.AddKlacksBotAuthentication();
 
 var signalRBackplaneOptions = builder.Configuration

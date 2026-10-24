@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-using Klacks.Api.Application.DTOs.Geocoding;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
@@ -50,15 +49,6 @@ public class AddressRepository : BaseRepository<Address>, IAddressRepository
                 g.Average(a => a.Latitude!.Value),
                 g.Average(a => a.Longitude!.Value),
                 g.Count()))
-            .ToListAsync(cancellationToken);
-    }
-
-    public async Task<List<AddressWithoutCoordinates>> GetWithoutCoordinatesAsync(CancellationToken cancellationToken = default)
-    {
-        return await this.context.Address
-            .AsNoTracking()
-            .Where(a => (a.Latitude == null || a.Longitude == null) && !a.IsDeleted && a.City != string.Empty)
-            .Select(a => new AddressWithoutCoordinates(a.Id, a.Street, a.Zip, a.City, a.Country))
             .ToListAsync(cancellationToken);
     }
 }

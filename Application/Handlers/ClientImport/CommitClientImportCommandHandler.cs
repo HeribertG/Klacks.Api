@@ -7,8 +7,9 @@
 /// saved in one transaction, so a double click fails on the unique token index (409) instead of
 /// importing twice; any other unique violation is not an "already committed" and is rethrown. After the
 /// commit, like a manual client create, inbox e-mails are re-assigned to clients when e-mail addresses
-/// were imported, and the new addresses are offered to the background geocoding queue without waiting:
-/// a full or disabled queue never delays the response, and GeocodingQueued counts only accepted ids.
+/// were imported, and the new addresses are requested for the background geocoding (persisted, so a restart
+/// loses nothing). Only addresses the privacy rule allows are requested - employee addresses only when the
+/// installation allows it - so GeocodingQueued counts exactly those; with geocoding or the backfill off it is 0.
 /// Both follow-ups only log on failure: the import is already committed.
 /// </summary>
 /// <param name="evaluator">Shared evaluation path of preview and commit</param>
@@ -16,13 +17,15 @@
 /// <param name="batchRepository">Stages the batch record and checks the token</param>
 /// <param name="unitOfWork">Owns the transaction</param>
 /// <param name="emailAssignmentService">Assigns inbox e-mails to clients by address</param>
-/// <param name="geocodingQueue">Background geocoding of the new addresses</param>
+/// <param name="geocodingService">Requests the background geocoding of the new addresses</param>
 
 using Klacks.Api.Application.Commands.ClientImport;
 using Klacks.Api.Application.DTOs.ClientImport;
+using Klacks.Api.Application.DTOs.Geocoding;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.ClientImport;
+using Klacks.Api.Application.Interfaces.Geocoding;
 using Klacks.Api.Application.Services.ClientImport;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -41,7 +44,7 @@ public class CommitClientImportCommandHandler : BaseHandler, IRequestHandler<Com
     private readonly IClientImportBatchRepository _batchRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailClientAssignmentService _emailAssignmentService;
-    private readonly IAddressGeocodingQueue _geocodingQueue;
+    private readonly IAddressGeocodingService _geocodingService;
 
     public CommitClientImportCommandHandler(
         ClientImportEvaluator evaluator,
@@ -49,7 +52,7 @@ public class CommitClientImportCommandHandler : BaseHandler, IRequestHandler<Com
         IClientImportBatchRepository batchRepository,
         IUnitOfWork unitOfWork,
         IEmailClientAssignmentService emailAssignmentService,
-        IAddressGeocodingQueue geocodingQueue,
+        IAddressGeocodingService geocodingService,
         ILogger<CommitClientImportCommandHandler> logger)
         : base(logger)
     {
@@ -58,7 +61,7 @@ public class CommitClientImportCommandHandler : BaseHandler, IRequestHandler<Com
         _batchRepository = batchRepository;
         _unitOfWork = unitOfWork;
         _emailAssignmentService = emailAssignmentService;
-        _geocodingQueue = geocodingQueue;
+        _geocodingService = geocodingService;
     }
 
     public async Task<ClientImportCommitResult> Handle(CommitClientImportCommand request, CancellationToken cancellationToken)
@@ -102,7 +105,7 @@ public class CommitClientImportCommandHandler : BaseHandler, IRequestHandler<Com
                 batch.Id, batch.CreatedCount, batch.SkippedCount);
 
             await AssignInboxEmailsAsync(clients);
-            var queued = QueueGeocoding(clients);
+            var queued = await RequestGeocodingAsync(clients, cancellationToken);
 
             return new ClientImportCommitResult
             {
@@ -158,33 +161,21 @@ public class CommitClientImportCommandHandler : BaseHandler, IRequestHandler<Com
         }
     }
 
-    private int QueueGeocoding(List<Client> clients)
+    private async Task<int> RequestGeocodingAsync(List<Client> clients, CancellationToken cancellationToken)
     {
-        var addresses = clients.SelectMany(c => c.Addresses).ToList();
-        var queued = 0;
+        var addressIds = clients.SelectMany(c => c.Addresses).Select(a => a.Id).ToList();
 
         try
         {
-            foreach (var address in addresses)
-            {
-                if (_geocodingQueue.TryQueue(address.Id))
-                {
-                    queued++;
-                }
-            }
+            var requested = await _geocodingService.RequestAsync(
+                addressIds, new AddressGeocodingAttribution(AddressGeocodingTrigger.Import, null), cancellationToken);
+            _logger.LogInformation("{Requested} of {Total} imported addresses requested for geocoding", requested, addressIds.Count);
+            return requested;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Queueing addresses for geocoding failed; the import itself is committed");
+            _logger.LogError(ex, "Requesting the geocoding of the imported addresses failed; the import itself is committed");
+            return 0;
         }
-
-        var notQueued = addresses.Count - queued;
-        if (notQueued > 0)
-        {
-            _logger.LogWarning("{NotQueued} of {Total} imported addresses were not queued for geocoding (queue full or geocoding disabled)",
-                notQueued, addresses.Count);
-        }
-
-        return queued;
     }
 }

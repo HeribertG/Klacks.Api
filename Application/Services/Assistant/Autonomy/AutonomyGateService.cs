@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Decides per invocation whether the user's autonomy level allows direct execution.
-/// Read-only skills always pass; sensitive skills always require confirmation; reversible
+/// Read-only and fill-empty-only skills always pass; sensitive skills always require confirmation; reversible
 /// and scenario-gated skills need level Assisted or higher; irreversible skills need level
 /// Autonomous or higher. A valid one-time confirmation token bypasses the gate exactly once
 /// and only for the exact parameters it was issued for — on any mismatch the token is burned
@@ -138,6 +138,7 @@ public class AutonomyGateService : IAutonomyGate
         return riskClass switch
         {
             SkillRiskClass.ReadOnly => true,
+            SkillRiskClass.FillEmptyOnly => true,
             SkillRiskClass.Reversible => level >= AutonomyLevel.Assisted,
             SkillRiskClass.ScenarioGated => level >= AutonomyLevel.Assisted,
             SkillRiskClass.Irreversible => level >= AutonomyLevel.Autonomous,

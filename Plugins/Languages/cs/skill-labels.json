@@ -227,6 +227,7 @@
   "find_replacement": "Najít náhradníka na jednu směnu",
   "find_split_shift_candidates": "Vyhledat stávající kandidáty na dělené směny pro opětovné použití",
   "generate_period_summary": "Vytvořit souhrn za určité období",
+  "geocode_addresses": "Doplnit chybějící souřadnice adres",
   "geocode_location_groups": "Automatické geokódování skupin lokalit",
   "get_active_industries_settings": "Aktivní nastavení pro jednotlivá odvětví",
   "get_ai_guidelines": "Zobrazit platné směrnice týkající se umělé inteligence",

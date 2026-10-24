@@ -227,6 +227,7 @@
   "find_replacement": "العثور على بديل لفترة عمل",
   "find_split_shift_candidates": "التحقق من صلاحية الطبقات الجزئية الموجودة لإعادة استخدامها",
   "generate_period_summary": "إنشاء ملخص لفترة معينة",
+  "geocode_addresses": "إكمال إحداثيات العناوين المفقودة",
   "geocode_location_groups": "الترميز الجغرافي التلقائي لمجموعات المواقع",
   "get_active_industries_settings": "الإعدادات السارية للقطاع",
   "get_ai_guidelines": "عرض إرشادات الذكاء الاصطناعي النشطة",

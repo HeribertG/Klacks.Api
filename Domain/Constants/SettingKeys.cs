@@ -144,6 +144,14 @@ public static class SettingKeys
     /// </summary>
     public const string KlacksyExplainOffersEnabled = "KLACKSY_EXPLAIN_OFFERS_ENABLED";
 
+    /// <summary>
+    /// Allows the automatic address geocoding (background backfill, import, Klacksy, admin batch) to send the
+    /// private addresses of employees and external employees to the geocoder (Nominatim / OpenStreetMap
+    /// Foundation). Only "true" switches it on; absent, empty or unparseable means off (privacy default).
+    /// Customer addresses are geocoded regardless. The address validation on save is not governed by it.
+    /// </summary>
+    public const string GeocodingEmployeeAddressesEnabled = "GEOCODING_EMPLOYEE_ADDRESSES_ENABLED";
+
     public const string SurchargeStackingMode = "SURCHARGE_STACKING_MODE";
     public const string OvertimeBasis = "OVERTIME_BASIS";
     public const string OvertimeRateMode = "OVERTIME_RATE_MODE";

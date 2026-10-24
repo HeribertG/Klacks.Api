@@ -70,6 +70,7 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
         return riskClass switch
         {
             SkillRiskClass.ReadOnly => UnattendedSkillDecision.Allow(),
+            SkillRiskClass.FillEmptyOnly => UnattendedSkillDecision.Allow(),
             SkillRiskClass.Reversible => DecideByAutonomyLevel(
                 request, riskClass, UnattendedSkillPolicyDefaults.MinimumLevelForReversible),
             SkillRiskClass.ScenarioGated => DecideByAutonomyLevel(

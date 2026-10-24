@@ -227,6 +227,7 @@
   "find_replacement": "ค้นหาผู้แทนสำหรับกะ",
   "find_split_shift_candidates": "ค้นหากะแยกที่มีอยู่เพื่อนำมาใช้ซ้ำ",
   "generate_period_summary": "สร้างสรุปช่วงเวลา",
+  "geocode_addresses": "เติมพิกัดที่ขาดหายของที่อยู่",
   "geocode_location_groups": "แปลงที่อยู่กลุ่มสถานที่อัตโนมัติ",
   "get_active_industries_settings": "ตั้งค่าประเภทธุรกิจที่ใช้งาน",
   "get_ai_guidelines": "ดูแนวปฏิบัติ AI ที่ใช้งานอยู่",

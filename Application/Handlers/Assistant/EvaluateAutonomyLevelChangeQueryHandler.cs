@@ -30,7 +30,8 @@ public class EvaluateAutonomyLevelChangeQueryHandler
         SkillRiskClass.Reversible,
         SkillRiskClass.ScenarioGated,
         SkillRiskClass.Irreversible,
-        SkillRiskClass.Sensitive
+        SkillRiskClass.Sensitive,
+        SkillRiskClass.FillEmptyOnly
     ];
 
     private readonly IAgentAutonomyPreferenceRepository _preferenceRepository;

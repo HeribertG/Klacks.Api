@@ -227,6 +227,7 @@
   "find_replacement": "Een vervanger voor een dienst vinden",
   "find_split_shift_candidates": "Controleer of bestaande deellagen geschikt zijn voor hergebruik",
   "generate_period_summary": "Een overzicht van een periode maken",
+  "geocode_addresses": "Ontbrekende coördinaten van adressen aanvullen",
   "geocode_location_groups": "Locatiegroepen automatisch geocoderen",
   "get_active_industries_settings": "Actieve sectorinstellingen",
   "get_ai_guidelines": "Actieve AI-richtlijnen weergeven",

@@ -1521,6 +1521,12 @@
     "quantas pessoas no período",
     "resumo mensal"
   ],
+  "geocode_addresses": [
+    "preencher as coordenadas em falta dos endereços",
+    "geocodificar os endereços",
+    "colocar os endereços dos clientes no mapa",
+    "determinar as coordenadas dos endereços"
+  ],
   "geocode_location_groups": [
     "encontrar coordenadas para todos os grupos de localização automaticamente",
     "calcular as coordenadas dos grupos de localização de uma vez",

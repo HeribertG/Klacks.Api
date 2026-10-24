@@ -1517,6 +1517,12 @@
     "oversigt over måned for gruppe",
     "periodestatistik"
   ],
+  "geocode_addresses": [
+    "udfyld manglende koordinater for adresserne",
+    "geokod adresserne",
+    "placer kundeadresser på kortet",
+    "find koordinater til adresserne"
+  ],
   "geocode_location_groups": [
     "kør geokodning af alle lokationsgrupper",
     "find koordinater for alle bygrupper automatisk",

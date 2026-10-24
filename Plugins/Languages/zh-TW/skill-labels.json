@@ -227,6 +227,7 @@
   "find_replacement": "為班次尋找替代人員",
   "find_split_shift_candidates": "尋找可重複使用的現有分段班次",
   "generate_period_summary": "產生期間摘要",
+  "geocode_addresses": "補齊地址缺少的座標",
   "geocode_location_groups": "自動地理編碼地點群組",
   "get_active_industries_settings": "啟用中的產業設定",
   "get_ai_guidelines": "檢視啟用中的 AI 準則",
