@@ -20,6 +20,10 @@ public static class OrderReviewDefaults
 
     public const int HoursPerDay = 24;
 
+    public const int MinCutParts = 2;
+
+    public const int MaxCutParts = 12;
+
     public const int MinBundleSize = 3;
 
     public const int MaxOrdersPerExecution = 25;

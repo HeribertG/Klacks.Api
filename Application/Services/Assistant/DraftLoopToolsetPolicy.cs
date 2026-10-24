@@ -7,13 +7,17 @@
 /// draft keeps its loop skills in the toolset and keeps out every skill that would change, seal, cut or regroup the
 /// orders past the review's own confirmed preview (update_shift, seal_shift, seal_open_orders, cut_shift,
 /// cut_shift_by_date, assign_orders_to_groups, add_shift_to_group). Each loop is keyed by the same scope its skills
-/// write the draft under. A store failure degrades to no rule for that loop instead of taking toolset assembly down.
+/// write the draft under; the order review is probed with HasDraft, which does not load the (possibly large) draft.
+/// A store failure degrades to no rule for that loop instead of taking toolset assembly down. Visibility only: a step skill
+/// a recipe guarantees (add_shift_to_group in add-shift-to-group) stays exempt from the exclusion, and every excluded skill
+/// still runs through the autonomy gate.
 /// </summary>
 /// <param name="planningProfileDraftStore">Tells whether a planning-profile setup is open in the conversation.</param>
 /// <param name="orderReviewDraftStore">Tells whether an order review is open in the conversation.</param>
 /// <param name="logger">Logs a failing store read.</param>
 
 using Klacks.Api.Application.Interfaces.Assistant;
+using Klacks.Api.Application.Services.Orders.Review;
 using Klacks.Api.Application.Skills;
 using Klacks.Api.Application.Skills.OrderReview;
 using Klacks.Api.Application.Skills.PlanningProfile;
@@ -82,7 +86,7 @@ public sealed class DraftLoopToolsetPolicy : IDraftLoopToolsetPolicy
         }
 
         if (IsOpen("Order-review", () =>
-                _orderReviewDraftStore.Get(draftUserId, OrderReviewDraftScope.ConversationKey(conversationId)) is not null))
+                _orderReviewDraftStore.HasDraft(draftUserId, OrderReviewDraftScope.ConversationKey(conversationId))))
         {
             guaranteed.AddRange(OrderReviewLoopSkillNames);
             excluded.UnionWith(OrderReviewExcludedSkillNames);

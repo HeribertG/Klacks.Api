@@ -74,6 +74,13 @@ public class PersistentPendingOrderReviewDraftStore : IPendingOrderReviewDraftSt
         return DeserializeDraft(row.DraftJson);
     }
 
+    public bool HasDraft(Guid userId, string conversationId)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IPendingOrderReviewDraftRepository>();
+        return repository.ExistsAsync(userId, conversationId, DateTime.UtcNow).GetAwaiter().GetResult();
+    }
+
     public void Clear(Guid userId, string conversationId)
     {
         using var scope = _scopeFactory.CreateScope();

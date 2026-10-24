@@ -10,9 +10,9 @@
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 
-namespace Klacks.Api.Application.Skills.OrderReview;
+namespace Klacks.Api.Application.Services.Orders.Review;
 
-internal static class OrderReviewDraftScope
+public static class OrderReviewDraftScope
 {
     public static string ConversationKey(SkillExecutionContext context) => ConversationKey(context.SessionId);
 

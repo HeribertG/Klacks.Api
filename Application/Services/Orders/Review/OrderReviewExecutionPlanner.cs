@@ -3,7 +3,8 @@
 /// <summary>
 /// Plans execute_order_review from the review draft of the conversation: the ready orders of the target (at most
 /// OrderReviewDefaults.MaxOrdersPerExecution), each loaded as it is now and refused when it is gone, hidden or no longer
-/// an open order. A start change changes the order itself, so it needs acknowledgedOrderChange=true and the role
+/// an open order, and refused when its times or its group changed since the review analysed it (the decisions would
+/// no longer fit). A start change changes the order itself, so it needs acknowledgedOrderChange=true and the role
 /// Admin or Authorised (supervisor); giving an order its first group needs an administrator with unrestricted group
 /// scope. The text is the shared execution text plus the default expenses an order already carries (every part carries
 /// them too). Reads only.
@@ -17,13 +18,13 @@ using System.Globalization;
 using System.Text;
 using Klacks.Api.Application.DTOs.Orders.Review;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Application.Skills.OrderReview;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Assistant.OrderReview;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 
 namespace Klacks.Api.Application.Services.Orders.Review;
@@ -48,6 +49,9 @@ public sealed class OrderReviewExecutionPlanner : IOrderReviewExecutionPlanner
     private const string OrderChangedFormat =
         "Order '{0}' is no longer an open order you can see (sealed, deleted or moved out of your scope since the review " +
         "started). Leave it out with set_order_review_decision skip=true or start the review again. Nothing was changed.";
+    private const string OrderDriftedFormat =
+        "Order '{0}' was edited since the review started (its times or its group changed), so the decisions no longer fit " +
+        "it. Start the review again (start_order_review) to analyse it afresh. Nothing was changed.";
     private const string ExistingExpensesFormat = "'{0}' already carries default expenses {1}; every part carries them as well.";
     private const string ExpenseSeparator = ", ";
     private const string TaxableMarker = " (taxable)";
@@ -107,12 +111,23 @@ public sealed class OrderReviewExecutionPlanner : IOrderReviewExecutionPlanner
                 return OrderReviewExecutionPlan.Refuse(string.Format(OrderChangedFormat, item.OrderName));
             }
 
+            if (DriftedFromReview(item, order))
+            {
+                return OrderReviewExecutionPlan.Refuse(string.Format(OrderDriftedFormat, item.OrderName));
+            }
+
             loaded.Add(new OrderReviewExecutionTarget(item, order));
         }
 
         return new OrderReviewExecutionPlan(
             null, draft, loaded, moreReady, notReady.Count, OrderReviewBinding.Of(loaded), Text(loaded, moreReady));
     }
+
+    private static bool DriftedFromReview(OrderReviewDraftItem item, Shift order) =>
+        FullDayOrderRule.IsFullDay(order) != item.IsFullDay
+        || order.StartShift != item.CurrentStart
+        || order.EndShift != item.CurrentEnd
+        || order.GroupItems.Any(link => !link.IsDeleted && link.AnalyseToken == null) != item.HasGroup;
 
     private async Task<string?> CheckRightsAsync(
         SkillExecutionContext context,

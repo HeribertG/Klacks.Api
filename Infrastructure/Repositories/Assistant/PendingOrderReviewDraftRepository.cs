@@ -29,6 +29,12 @@ public class PendingOrderReviewDraftRepository : IPendingOrderReviewDraftReposit
             .FirstOrDefaultAsync(p => p.UserId == userId && p.ConversationId == conversationId, cancellationToken);
     }
 
+    public Task<bool> ExistsAsync(Guid userId, string conversationId, DateTime nowUtc, CancellationToken cancellationToken = default)
+    {
+        return _context.PendingOrderReviewDrafts
+            .AnyAsync(p => p.UserId == userId && p.ConversationId == conversationId && p.ExpiresAtUtc >= nowUtc, cancellationToken);
+    }
+
     public async Task UpsertAsync(PendingOrderReviewDraftRow row, CancellationToken cancellationToken = default)
     {
         var existing = await GetAsync(row.UserId, row.ConversationId, cancellationToken);

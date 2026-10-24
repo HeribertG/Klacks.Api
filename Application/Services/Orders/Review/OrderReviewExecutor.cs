@@ -8,7 +8,10 @@
 /// is checked and sealed with the sealing core inside this transaction (IOrderSealingService.SealWithinTransactionAsync).
 /// 3) When a split was decided, the new plannable shift is cut through the cut_shift planner and the cut facade; the
 /// planned parts must be exactly the decided ones, and every part carries the default expenses (ShiftCutFacade). Any
-/// refusal or exception rolls the whole order back, clears the change tracker and is returned as a failure.
+/// refusal or exception rolls the whole order back, clears the change tracker, is logged and is returned as a failure.
+/// The change is idempotent (a group, qualification or expense already on the order is not added again), because the
+/// execution strategy may run the transaction body a second time after a transient failure. Unnamed parts are named
+/// like the cut names them by default, so the names keep their positions.
 /// </summary>
 /// <param name="shiftRepository">Writes the changed order.</param>
 /// <param name="unitOfWork">Opens the per-order transaction and saves the change before sealing.</param>
@@ -16,6 +19,7 @@
 /// <param name="cutPlanner">Plans the cut of the plannable shift into the decided parts.</param>
 /// <param name="cutFacade">Writes the cut.</param>
 /// <param name="companyClock">The company's today, the start of a new group link.</param>
+/// <param name="logger">Logs a failed order with its exception.</param>
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Orders.Review;
@@ -36,6 +40,7 @@ public sealed class OrderReviewExecutor : IOrderReviewExecutor
     private const string OperationName = "execute_order_review";
     private const string PartSeparator = ",";
     private const string RangeSeparator = "-";
+    private const string DefaultPartNameFormat = "{0} ({1}-{2})";
     private const string OrderVanishedFormat = "Order '{0}' could not be changed - it was not found any more.";
     private const string CutMismatchFormat =
         "The cut of '{0}' would not produce the decided parts ({1}); nothing was changed.";
@@ -47,6 +52,7 @@ public sealed class OrderReviewExecutor : IOrderReviewExecutor
     private readonly IShiftTimeCutPlanner _cutPlanner;
     private readonly IShiftCutFacade _cutFacade;
     private readonly ICompanyClock _companyClock;
+    private readonly ILogger<OrderReviewExecutor> _logger;
 
     public OrderReviewExecutor(
         IShiftRepository shiftRepository,
@@ -54,7 +60,8 @@ public sealed class OrderReviewExecutor : IOrderReviewExecutor
         IOrderSealingService orderSealingService,
         IShiftTimeCutPlanner cutPlanner,
         IShiftCutFacade cutFacade,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        ILogger<OrderReviewExecutor> logger)
     {
         _shiftRepository = shiftRepository;
         _unitOfWork = unitOfWork;
@@ -62,6 +69,7 @@ public sealed class OrderReviewExecutor : IOrderReviewExecutor
         _cutPlanner = cutPlanner;
         _cutFacade = cutFacade;
         _companyClock = companyClock;
+        _logger = logger;
     }
 
     public async Task<OrderReviewExecutionOutcome> ExecuteAsync(
@@ -83,11 +91,13 @@ public sealed class OrderReviewExecutor : IOrderReviewExecutor
         }
         catch (OperationCanceledException)
         {
+            _unitOfWork.DiscardTrackedChanges();
             throw;
         }
         catch (Exception ex)
         {
             _unitOfWork.DiscardTrackedChanges();
+            _logger.LogError(ex, "Order review execution failed for order {OrderId}; rolled back.", item.OrderId);
             return new OrderReviewExecutionOutcome(item.OrderId, false, null, 0, ex.Message);
         }
     }
@@ -126,7 +136,9 @@ public sealed class OrderReviewExecutor : IOrderReviewExecutor
             });
         }
 
-        foreach (var expense in item.Expenses)
+        foreach (var expense in item.Expenses.Where(expense => !order.ShiftExpenses.Any(existing => !existing.IsDeleted
+                     && existing.Description == expense.Description && existing.Amount == expense.Amount
+                     && existing.Taxable == expense.Taxable)))
         {
             order.ShiftExpenses.Add(new ShiftExpenses
             {
@@ -166,7 +178,12 @@ public sealed class OrderReviewExecutor : IOrderReviewExecutor
 
         var partsRaw = string.Join(PartSeparator, parts.Select(part =>
             OrderReviewPresenter.Time(part.Start) + RangeSeparator + OrderReviewPresenter.Time(part.End)));
-        var namesRaw = string.Join(PartSeparator, parts.Select(part => part.Name));
+        var namesRaw = parts.All(part => string.IsNullOrWhiteSpace(part.Name))
+            ? string.Empty
+            : string.Join(PartSeparator, parts.Select(part => string.IsNullOrWhiteSpace(part.Name)
+                ? string.Format(CultureInfo.InvariantCulture, DefaultPartNameFormat, item.OrderName,
+                    OrderReviewPresenter.Time(part.Start), OrderReviewPresenter.Time(part.End))
+                : part.Name));
         var plan = await _cutPlanner.PlanAsync(plannableShiftId, partsRaw, namesRaw, language, cancellationToken);
         if (plan.IsRefused)
         {

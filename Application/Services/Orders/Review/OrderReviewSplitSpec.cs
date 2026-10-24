@@ -26,6 +26,7 @@ public static class OrderReviewSplitSpec
 
     private const string EqualSplitNeedsFullDayFormat =
         "'{0}' splits a full-day order; '{1}' runs {2}-{3}. Give explicit parts or 'none'.";
+    private const string PartCountFormat = "A split needs between {0} and {1} parts; received {2}. Use 'none' to keep the order whole.";
     private const string InvalidPartFormat = "Part '{0}' cannot be read. Use 'HH:mm-HH:mm', several separated by commas.";
 
     public static (List<OrderReviewPart>? Parts, string? Error) Resolve(
@@ -82,6 +83,11 @@ public static class OrderReviewSplitSpec
             }
 
             ranges.Add((partStart, partEnd));
+        }
+
+        if (ranges.Count < OrderReviewDefaults.MinCutParts || ranges.Count > OrderReviewDefaults.MaxCutParts)
+        {
+            return (null, string.Format(PartCountFormat, OrderReviewDefaults.MinCutParts, OrderReviewDefaults.MaxCutParts, ranges.Count));
         }
 
         var orderStart = item.IsFullDay ? start : item.CurrentStart;

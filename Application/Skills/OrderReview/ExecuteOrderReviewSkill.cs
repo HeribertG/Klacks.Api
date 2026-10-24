@@ -8,7 +8,8 @@
 /// confirmed replay of its server preview (OrderReviewConfirmationPreviewProvider): without a confirmed binding of kind
 /// OrderReview - a plan step, an accepted goal, MCP or any other path that bypasses the autonomy gate - it refuses before
 /// it reads anything, and when the orders or decisions differ from the confirmed preview it refuses with the binding
-/// mismatch text. The draft records what became of every order, so the review can be resumed.
+/// mismatch text. The draft records what became of every order, so the review can be resumed; once no order of the
+/// review is left to do, the draft is cleared, which also ends the toolset exclusions of the open review.
 /// </summary>
 /// <param name="target">Required. Review key(s) such as B1 or S2, order id(s), comma separated, or 'all'.</param>
 /// <param name="acknowledgedOrderChange">true when the user confirmed that the start of an order changes.</param>
@@ -16,6 +17,7 @@
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Orders.Review;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Orders.Review;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -80,6 +82,11 @@ public class ExecuteOrderReviewSkill : BaseSkillImplementation
             target.Item.PlannableShiftId = outcome.PlannableShiftId;
             _draftStore.Set(context.UserId, conversationKey, plan.Draft!);
             outcomes.Add(outcome);
+        }
+
+        if (!plan.Draft!.Items.Any(OrderReviewReadiness.IsPending))
+        {
+            _draftStore.Clear(context.UserId, conversationKey);
         }
 
         var succeeded = outcomes.Count(outcome => outcome.Succeeded);
