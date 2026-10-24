@@ -96,6 +96,13 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             excludedSkillNames: null, pinnedSkillNames: null, previousTurnSkillNames: null,
             continuationSkillNames: null, cancellationToken);
 
+    /// <summary>
+    /// Every failure inside the assembly degrades to the permitted always-on skills instead of reaching the
+    /// caller. The caller's own catch (CorrectionTurnPreparer) can only fall back to an EMPTY toolset, and a
+    /// turn without a single tool answers as if it had acted - the always-on set (navigation, search, user
+    /// context, confirm_pending_action) at least keeps the assistant honest about what it can do. Only when
+    /// even the skill cache fails does the exception travel on.
+    /// </summary>
     public async Task<SkillToolsetResult> AssembleAsync(
         Agent? agent,
         List<string> userRights,
@@ -116,6 +123,54 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         {
             return new SkillToolsetResult();
         }
+
+        try
+        {
+            return await AssembleCoreAsync(
+                agent, userRights, userMessage, conversationId, currentRoute, userId, language,
+                maxToolsForProvider, applyLearnedPhraseGuarantee, excludedSkillNames, pinnedSkillNames,
+                previousTurnSkillNames, continuationSkillNames, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex,
+                "Skill toolset assembly failed for user {UserId}; this turn runs with the always-on skills only.",
+                userId);
+            return await AssembleAlwaysOnOnlyAsync(agent, userRights, cancellationToken);
+        }
+    }
+
+    private async Task<SkillToolsetResult> AssembleAlwaysOnOnlyAsync(
+        Agent agent, List<string> userRights, CancellationToken cancellationToken)
+    {
+        var skills = await _skillCacheService.GetEnabledSkillsAsync(agent.Id, cancellationToken);
+        var alwaysOnSkills = skills
+            .Where(s => s.AlwaysOn && Permissions.HasAllRequiredPermissions(userRights, s.RequiredPermission))
+            .ToList();
+
+        return new SkillToolsetResult
+        {
+            Functions = ToStableOrderedFunctions(alwaysOnSkills),
+            HasDomainSkillContext = true
+        };
+    }
+
+    private async Task<SkillToolsetResult> AssembleCoreAsync(
+        Agent agent,
+        List<string> userRights,
+        string userMessage,
+        string? conversationId,
+        string? currentRoute,
+        string userId,
+        string? language,
+        int maxToolsForProvider,
+        bool applyLearnedPhraseGuarantee,
+        IReadOnlyCollection<string>? excludedSkillNames,
+        IReadOnlyCollection<string>? pinnedSkillNames,
+        IReadOnlyList<string>? previousTurnSkillNames,
+        IReadOnlyList<string>? continuationSkillNames,
+        CancellationToken cancellationToken)
+    {
 
         var assemblyWatch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -251,7 +306,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         int maxToolsForProvider) =>
         selectedSkills
             .OrderByDescending(s => s.AlwaysOn)
-            .ThenByDescending(s => guarantees.GuaranteedSkills.Contains(s))
+            .ThenByDescending(s => HoldsGuaranteeTier(s, guarantees))
             .ThenByDescending(s => guarantees.GuaranteedSources.TryGetValue(s.Name, out var source) ? source.Priority() : 0)
             .ThenBy(s => guarantees.LowestRankedSkillNames.Contains(s.Name))
             .ThenByDescending(s => retrievalScores.TryGetValue(s.Name, out var score) ? score : double.NegativeInfinity)
@@ -259,6 +314,16 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             .ThenBy(s => s.Name, StringComparer.Ordinal)
             .Take(maxToolsForProvider)
             .ToList();
+
+    /// <summary>
+    /// Whether a skill survives the cap ahead of every retrieved skill. True for a guaranteed skill unless its
+    /// only claim is a BroadKeyword match: that one stays in the retrieval tier and is ordered there by its
+    /// retrieval score (BroadKeyword's priority of 0 equals an unguaranteed skill's), so a generic noun can no
+    /// longer push the best-ranked retrieved skill out of a 12-tool budget.
+    /// </summary>
+    private static bool HoldsGuaranteeTier(AgentSkill skill, SkillToolsetGuaranteeResult guarantees) =>
+        guarantees.GuaranteedSkills.Contains(skill)
+        && (!guarantees.GuaranteedSources.TryGetValue(skill.Name, out var source) || source.HoldsAboveRetrieval());
 
     /// <summary>
     /// Retrieves the candidate skills for this turn and the domain-context signal for the world-model

@@ -154,7 +154,8 @@ public static class CorrectionOutcomeComposer
     /// <param name="functions">The toolset re-assembled from the corrected intent</param>
     internal static List<LLMFunction> DeterministicCandidates(IReadOnlyList<LLMFunction> functions) =>
         functions
-            .Where(f => f.ToolsetSource is ToolsetSkillSource.Keyword or ToolsetSkillSource.RecipeStep)
+            .Where(f => f.ToolsetSource is ToolsetSkillSource.Keyword or ToolsetSkillSource.BroadKeyword
+                or ToolsetSkillSource.RecipeStep)
             .Where(f => !string.Equals(
                 f.Name, AutonomyDefaults.ConfirmPendingActionSkillName, StringComparison.OrdinalIgnoreCase))
             .ToList();

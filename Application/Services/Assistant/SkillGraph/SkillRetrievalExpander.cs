@@ -19,11 +19,17 @@ public class SkillRetrievalExpander : ISkillRetrievalExpander
 {
     private readonly ISkillRelationRepository _repository;
     private readonly ILogger<SkillRetrievalExpander> _logger;
+    private readonly double _explorationEpsilon;
 
-    public SkillRetrievalExpander(ISkillRelationRepository repository, ILogger<SkillRetrievalExpander> logger)
+    /// <param name="options">Exploration setting; null keeps the shipped SkillGraphConstants default</param>
+    public SkillRetrievalExpander(
+        ISkillRelationRepository repository,
+        ILogger<SkillRetrievalExpander> logger,
+        SkillGraphExpansionOptions? options = null)
     {
         _repository = repository;
         _logger = logger;
+        _explorationEpsilon = Math.Clamp((options ?? SkillGraphExpansionOptions.Default).ExplorationEpsilon, 0, 1);
     }
 
     public async Task<IReadOnlyList<AgentSkill>> ExpandAsync(
@@ -38,7 +44,7 @@ public class SkillRetrievalExpander : ISkillRetrievalExpander
             return Array.Empty<AgentSkill>();
         }
 
-        if (Random.Shared.NextDouble() < SkillGraphConstants.ExpansionExplorationEpsilon)
+        if (_explorationEpsilon > 0 && Random.Shared.NextDouble() < _explorationEpsilon)
         {
             return Array.Empty<AgentSkill>();
         }

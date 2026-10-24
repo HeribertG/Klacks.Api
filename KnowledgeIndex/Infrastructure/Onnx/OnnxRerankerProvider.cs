@@ -87,11 +87,12 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IUnloadableInferen
             // therefore inflated all 16 rows to 512 tokens, and roughly 72% of the compute went into
             // padding. Grouping similar lengths together removes that waste without touching a single
             // score: identical inputs, identical logits, only the batch composition changes.
+            var cappedQuery = CapQueryToTokenBudget(lease.Tokenizer, query);
             var encoded = new long[candidates.Count][];
             for (var i = 0; i < candidates.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
-                encoded[i] = lease.Tokenizer.Encode(query + " </s></s> " + candidates[i])
+                encoded[i] = lease.Tokenizer.Encode(cappedQuery + " </s></s> " + candidates[i])
                     .Select(id => (long)id)
                     .Take(MaxSequenceLength)
                     .ToArray();
@@ -119,6 +120,32 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IUnloadableInferen
 
     public Task<bool> TryUnloadIfIdleAsync(TimeSpan idleFor, CancellationToken cancellationToken)
         => _holder.TryUnloadIfIdleAsync(idleFor, cancellationToken);
+
+    /// <summary>
+    /// Keeps the query half of each pair inside KnowledgeIndexConstants.MaxRerankerQueryTokens so the 512-token
+    /// cap of the pair can never cut the candidate text away. The cut is proportional in characters - one
+    /// extra encode of the query per call, not per candidate - and keeps the head of the query, which holds
+    /// the current message. A query inside the budget is returned unchanged, so short questions score
+    /// exactly as before.
+    /// </summary>
+    /// <param name="tokenizer">The session's tokenizer, the same one the pairs are encoded with</param>
+    /// <param name="query">The full retrieval query</param>
+    internal static string CapQueryToTokenBudget(Tokenizer tokenizer, string query)
+    {
+        var tokenCount = tokenizer.Encode(query).Count();
+        if (tokenCount <= KnowledgeIndexConstants.MaxRerankerQueryTokens)
+        {
+            return query;
+        }
+
+        var keep = (int)((long)query.Length * KnowledgeIndexConstants.MaxRerankerQueryTokens / tokenCount);
+        if (keep > 0 && char.IsHighSurrogate(query[keep - 1]))
+        {
+            keep--;
+        }
+
+        return query[..keep];
+    }
 
     private double[] ScoreInBatches(in OnnxSessionLease lease, long[][] encoded, int[] order, CancellationToken ct)
     {

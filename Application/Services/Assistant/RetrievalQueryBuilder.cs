@@ -57,7 +57,12 @@ public class RetrievalQueryBuilder : IRetrievalQueryBuilder
                             && !string.IsNullOrWhiteSpace(m.Content))
                 .ToList();
 
-            var parts = new List<string>();
+            // Most important first. Both the embedder and the cross-encoder cap their input at 512 tokens
+            // and cut from the TAIL, so whatever stands last is what a long conversation loses. Until
+            // 2026-10 the current message stood last and was the first thing to go; now it leads, the
+            // workflow anchor follows, and the recent turns trail newest first so the oldest of them is
+            // what the cap drops.
+            var parts = new List<string> { userMessage };
 
             // Anchor with the first user message: it carries the workflow intent
             // (e.g. "create a new employee") which must keep the task skill retrievable
@@ -65,15 +70,16 @@ public class RetrievalQueryBuilder : IRetrievalQueryBuilder
             var firstUserMessage = userMessages.FirstOrDefault();
             if (firstUserMessage != null)
             {
-                parts.Add(firstUserMessage.Content);
+                AddDistinct(parts, firstUserMessage.Content);
             }
 
-            parts.AddRange(userMessages
-                .Skip(1)
-                .TakeLast(RecentMessagesForRetrieval)
-                .Select(m => m.Content));
-
-            parts.Add(userMessage);
+            foreach (var recent in userMessages
+                         .Skip(1)
+                         .TakeLast(RecentMessagesForRetrieval)
+                         .Reverse())
+            {
+                AddDistinct(parts, recent.Content);
+            }
 
             return string.Join("\n", parts);
         }
@@ -81,6 +87,18 @@ public class RetrievalQueryBuilder : IRetrievalQueryBuilder
         {
             _logger.LogWarning(ex, "Failed to enrich retrieval query with conversation history; using current message only");
             return userMessage;
+        }
+    }
+
+    /// <summary>
+    /// A repeated wording ("ja", the same request sent twice) adds no signal and only spends tokens the
+    /// 512-token cap would otherwise leave to the older turns.
+    /// </summary>
+    private static void AddDistinct(List<string> parts, string candidate)
+    {
+        if (!parts.Contains(candidate, StringComparer.Ordinal))
+        {
+            parts.Add(candidate);
         }
     }
 }

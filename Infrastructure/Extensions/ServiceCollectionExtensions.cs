@@ -368,6 +368,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Services.Assistant.ISkillCatalogRefresher, Application.Services.Assistant.SkillCatalogRefresher>();
         services.AddScoped<ISubstratePriorDeriver, Application.Services.Assistant.SkillGraph.SubstratePriorDeriver>();
         services.AddScoped<ISkillRelationLearner, Application.Services.Assistant.SkillGraph.SkillRelationLearner>();
+        services.AddSingleton(provider => new Application.Services.Assistant.SkillGraph.SkillGraphExpansionOptions(
+            provider.GetRequiredService<IConfiguration>().GetValue(
+                Application.Services.Assistant.SkillGraph.SkillGraphConstants.ExpansionExplorationEpsilonConfigKey,
+                Application.Services.Assistant.SkillGraph.SkillGraphConstants.ExpansionExplorationEpsilon)));
         services.AddScoped<ISkillRetrievalExpander, Application.Services.Assistant.SkillGraph.SkillRetrievalExpander>();
         services.AddScoped<ISkillSequenceSuggester, Application.Services.Assistant.SkillGraph.SkillSequenceSuggester>();
         services.AddScoped<ISkillSequenceProactiveNotifier, Application.Services.Assistant.SkillGraph.SkillSequenceProactiveNotifier>();

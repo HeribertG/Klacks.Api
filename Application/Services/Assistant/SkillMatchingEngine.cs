@@ -39,13 +39,27 @@ public static class SkillMatchingEngine
     private static readonly SkillRiskClassifier RiskClassifier = new();
 
     public static IReadOnlyList<string> TopKeywordMatchedSkillNames(
+        IEnumerable<AgentSkill> skills, string userMessage, int cap = GuaranteedMatchCap) =>
+        TopKeywordMatches(skills, userMessage, cap).Select(match => match.Name).ToList();
+
+    /// <summary>
+    /// The same selection as TopKeywordMatchedSkillNames, each skill flagged when it got there on BROAD terms
+    /// only. A term is broad when it matched more skills in this message than the cap holds: it cannot single
+    /// out the skill the user meant, the cap then falls to the tie-breakers, and the guaranteed slots would
+    /// otherwise evict a better-ranked retrieved skill. The selection and its order are unchanged; only the
+    /// flag is new, and the caller decides what a broad match is worth.
+    /// </summary>
+    /// <param name="skills">Candidate skills (already rights-filtered by the caller)</param>
+    /// <param name="userMessage">The message to match against</param>
+    /// <param name="cap">Maximum number of skills returned; also the breadth limit of a term</param>
+    public static IReadOnlyList<KeywordSkillMatch> TopKeywordMatches(
         IEnumerable<AgentSkill> skills, string userMessage, int cap = GuaranteedMatchCap)
     {
         if (string.IsNullOrWhiteSpace(userMessage))
             return [];
 
         var messageLower = userMessage.ToLowerInvariant();
-        var scored = new List<(string Name, int DistinctMatches, int BestLength, bool IsReadOnly)>();
+        var scored = new List<(string Name, int DistinctMatches, int BestLength, bool IsReadOnly, HashSet<string> Terms)>();
 
         foreach (var skill in skills)
         {
@@ -75,8 +89,14 @@ public static class SkillMatchingEngine
 
             if (matchedTerms.Count > 0)
             {
-                scored.Add((skill.Name, matchedTerms.Count, bestLength, IsReadOnly(skill)));
+                scored.Add((skill.Name, matchedTerms.Count, bestLength, IsReadOnly(skill), matchedTerms));
             }
+        }
+
+        var skillsPerTerm = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var term in scored.SelectMany(x => x.Terms))
+        {
+            skillsPerTerm[term] = skillsPerTerm.GetValueOrDefault(term) + 1;
         }
 
         return scored
@@ -84,8 +104,8 @@ public static class SkillMatchingEngine
             .ThenByDescending(x => x.BestLength)
             .ThenByDescending(x => x.IsReadOnly)
             .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-            .Select(x => x.Name)
             .Take(cap)
+            .Select(x => new KeywordSkillMatch(x.Name, x.Terms.All(term => skillsPerTerm[term] > cap)))
             .ToList();
     }
 

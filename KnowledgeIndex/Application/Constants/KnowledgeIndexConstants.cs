@@ -66,6 +66,13 @@ public static class KnowledgeIndexConstants
     // otherwise the reranker can never surface enough candidates to fill topK.
     public const int MaxRerankerCandidates = 25;
 
+    // Token budget of the QUERY half of a cross-encoder pair. The pair (query + separator + candidate) is
+    // capped at 512 tokens from the tail, so a long history-anchored query used to push the candidate text
+    // out of the window entirely and every candidate was scored on the query alone. Half the window leaves
+    // the candidate at least ~250 tokens; the index texts measured a median of 144 (2026-08-03). The query
+    // leads with the current message (RetrievalQueryBuilder), so the cut drops the oldest turns first.
+    public const int MaxRerankerQueryTokens = 256;
+
     // How many pg_trgm lexical candidates are fetched per query, mirroring MaxRerankerCandidates so
     // the fused (semantic + lexical) candidate set feeding the reranker never grows past the existing
     // reranker budget — hybrid retrieval changes which candidates reach the reranker, not how many.

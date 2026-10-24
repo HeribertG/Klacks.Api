@@ -101,14 +101,18 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         // Deterministic keyword guarantee: skills whose trigger keywords or synonyms literally occur
         // in the message are always in the tool set. Weak models cannot compensate for a missing tool,
         // so the obviously-requested skill must never depend on the embedding ranking alone (capped,
-        // longest match wins).
-        var keywordMatchedSkills = SkillMatchingEngine.TopKeywordMatchedSkillNames(
+        // longest match wins). A skill that got there on broad terms only ("mitarbeiter" alone, shared by more
+        // skills than the cap holds) is still offered, but as BroadKeyword: at truncation it competes with the
+        // retrieved skills on its score instead of evicting the best-ranked one (owner decision 2026-10-24).
+        var keywordMatches = SkillMatchingEngine.TopKeywordMatches(
             permittedSkills.Where(s => !s.AlwaysOn), request.UserMessage);
 
-        foreach (var keywordSkillName in keywordMatchedSkills)
+        foreach (var keywordMatch in keywordMatches)
         {
             SkillGuaranteeCollector.Add(
-                guaranteedSkills, permittedSkills, keywordSkillName, ToolsetSkillSource.Keyword, guaranteedSources);
+                guaranteedSkills, permittedSkills, keywordMatch.Name,
+                keywordMatch.IsBroadOnly ? ToolsetSkillSource.BroadKeyword : ToolsetSkillSource.Keyword,
+                guaranteedSources);
         }
 
         // Learned-phrase guarantee: the same deterministic promise for a wording the learning loop

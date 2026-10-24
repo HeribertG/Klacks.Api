@@ -40,6 +40,10 @@ public static class SkillGraphConstants
     public const int MaxExpansionSlots = 3;
     public const double ExpansionExplorationEpsilon = 0.1;
 
+    // Overrides ExpansionExplorationEpsilon per installation. 0 switches the random skip off, which an evaluation or
+    // replay run needs: the skip is not recorded on the turn, so it only shows up there as unexplained variance.
+    public const string ExpansionExplorationEpsilonConfigKey = "Assistant:SkillGraph:ExpansionExplorationEpsilon";
+
     // Phase 4 — acting (proactive suggestion / hero); frequency cap per chat session
     public const int MaxProactiveSuggestionsPerSession = 2;
 }

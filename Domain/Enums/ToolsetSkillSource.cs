@@ -36,5 +36,12 @@ public enum ToolsetSkillSource
     /// skill graph leads from it to this one (follow-through guarantee), or the previous turn last ran this Mutate skill
     /// itself (same-skill continuation). Appended last: the lowest-priority guarantee, so it never evicts the
     /// current message's own keyword, learned-phrase or recipe guarantees at truncation.</summary>
-    FollowThrough = 8
+    FollowThrough = 8,
+
+    /// <summary>A keyword/synonym match on BROAD terms only: every term the skill matched also matched more
+    /// skills than the keyword guarantee cap holds ("mitarbeiter", "schicht", "planung"), so the term cannot
+    /// tell which of them the user meant. The skill is still offered, but at truncation it competes with the
+    /// retrieved skills on its retrieval score instead of evicting them. The weakest source: any other layer
+    /// that claims the same skill replaces it.</summary>
+    BroadKeyword = 9
 }
