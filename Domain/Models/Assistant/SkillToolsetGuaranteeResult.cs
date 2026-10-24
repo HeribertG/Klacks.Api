@@ -8,6 +8,8 @@
 /// <param name="LowestRankedSkillNames">Guaranteed skills that rank below every other guarantee of the same source at
 /// truncation (the same-skill continuation), so they are the first guaranteed skills the provider cap drops.</param>
 /// <param name="TurnIntentVetoesForcedToolCall">The turn-intent classifier lifts the tool call the mutation detector would force.</param>
+/// <param name="ExcludedSkillNames">Skills an open draft loop keeps out of this turn's toolset; null when none.</param>
+
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Assistant;
@@ -16,4 +18,5 @@ public sealed record SkillToolsetGuaranteeResult(
     HashSet<AgentSkill> GuaranteedSkills,
     Dictionary<string, ToolsetSkillSource> GuaranteedSources,
     IReadOnlySet<string> LowestRankedSkillNames,
-    bool TurnIntentVetoesForcedToolCall = false);
+    bool TurnIntentVetoesForcedToolCall = false,
+    IReadOnlySet<string>? ExcludedSkillNames = null);

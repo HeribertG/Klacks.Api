@@ -34,6 +34,7 @@ public static class SkillToolsetServiceCollectionExtensions
         services.AddScoped<ITurnIntentExplainGuarantee, TurnIntentExplainGuarantee>();
         services.AddScoped<IScenarioActivityProbe, ScenarioActivityProbe>();
         services.AddScoped<ISkillToolsetGuaranteeResolver, SkillToolsetGuaranteeResolver>();
+        services.AddScoped<IDraftLoopToolsetPolicy, DraftLoopToolsetPolicy>();
         services.AddScoped<ISkillToolsetAssembler, SkillToolsetAssembler>();
         services.AddScoped<ICorrectionTurnPreparer, CorrectionTurnPreparer>();
 

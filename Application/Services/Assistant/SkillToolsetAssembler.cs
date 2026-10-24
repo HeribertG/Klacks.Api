@@ -257,7 +257,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // corrected turn's skill back, and a filter that ran earlier would be undone by any of them.
         // Accepted noise: a co-required partner the expansion pulled in for an excluded skill is not
         // itself excluded and survives in the tool set.
-        var excludedSkillNameSet = ResolveExclusionSet(excludedSkillNames);
+        var excludedSkillNameSet = ResolveExclusionSet(excludedSkillNames, guaranteeResult.ExcludedSkillNames);
         selectedSkills = DropExcluded(selectedSkills, excludedSkillNameSet, guaranteedSources);
         var postExclusionRetrievedCount = retrievedSkills.Count(
             s => !IsExcluded(s, excludedSkillNameSet, guaranteedSources));
@@ -452,17 +452,24 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     private sealed record SkillToolsetProvenance(ToolsetSkillSource Source, double? RetrievalScore);
 
     /// <summary>
-    /// Normalizes a correction turn's excluded-skill input into a case-insensitive set, with
+    /// Normalizes a correction turn's excluded-skill input, together with the skills an open draft loop keeps out
+    /// (DraftLoopToolsetPolicy), into a case-insensitive set, with
     /// confirm_pending_action removed unconditionally: it is the user's only way to redeem a held
     /// pending action and must never leave the tool set, even if a caller lists it by name. A null or
     /// empty input yields an empty set.
     /// </summary>
-    private static HashSet<string> ResolveExclusionSet(IReadOnlyCollection<string>? excludedSkillNames)
+    private static HashSet<string> ResolveExclusionSet(
+        IReadOnlyCollection<string>? excludedSkillNames, IReadOnlySet<string>? draftLoopExcludedSkillNames)
     {
         var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if (excludedSkillNames is { Count: > 0 })
         {
             excluded.UnionWith(excludedSkillNames);
+        }
+
+        if (draftLoopExcludedSkillNames is { Count: > 0 })
+        {
+            excluded.UnionWith(draftLoopExcludedSkillNames);
         }
 
         excluded.Remove(AutonomyDefaults.ConfirmPendingActionSkillName);
