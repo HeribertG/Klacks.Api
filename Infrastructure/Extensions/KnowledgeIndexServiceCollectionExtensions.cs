@@ -188,11 +188,17 @@ internal static class KnowledgeIndexServiceCollectionExtensions
         services.AddSingleton<IKnowledgeIndexSyncScheduler, KnowledgeIndexSyncScheduler>();
         // Read once at startup: whether skill passes are reranked (Always, the default, Adaptive or Never) and the
         // Adaptive margin threshold. An unknown mode falls back to Always.
+        // The threshold itself is live state, one per process: the tuner sharpens it from real turns and restores the
+        // persisted value after a restart, every skill pass reads it.
         services.AddSingleton(SkillRerankOptions.FromConfiguration(
             configuration.GetValue<string>(KnowledgeIndexConstants.SkillRerankModeConfigKey),
             configuration.GetValue(
                 KnowledgeIndexConstants.SkillRerankMarginConfigKey,
-                KnowledgeIndexConstants.DefaultSkillRerankMarginThreshold)));
+                KnowledgeIndexConstants.DefaultSkillRerankMarginThreshold),
+            configuration.GetValue(
+                KnowledgeIndexConstants.SkillRerankExplorationConfigKey,
+                KnowledgeIndexConstants.DefaultSkillRerankExplorationRate)));
+        services.AddSingleton<ISkillRerankThreshold, SkillRerankThresholdState>();
         services.AddScoped<IKnowledgeRetrievalService, KnowledgeRetrievalService>();
         services.AddScoped<IRecipeCandidateRetriever, KnowledgeIndexRecipeCandidateRetriever>();
 

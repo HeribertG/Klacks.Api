@@ -260,6 +260,15 @@ public class BackgroundServiceOptions
     public bool SkillRelationLearning { get; set; } = true;
 
     /// <summary>
+    /// Enables the skill rerank threshold tuner, which restores the learned Adaptive rerank threshold at
+    /// startup and sharpens it from real turns every few hours. Default ON; it does nothing unless
+    /// KnowledgeIndex:SkillRerankMode is Adaptive. Keep it on for every instance when scaling out: each one holds
+    /// its own live threshold and needs the restore, and all of them tune from the same shared turns towards the
+    /// same value. Override via env <c>BackgroundServices__SkillRerankTuning=false</c>.
+    /// </summary>
+    public bool SkillRerankTuning { get; set; } = true;
+
+    /// <summary>
     /// Enables the agent trigger worker, which evaluates the proactive trigger detectors hourly and
     /// dispatches the messages they fire. Default ON: it is the behaviour every installation runs
     /// today. The detectors are database and configuration only, so this costs no LLM tokens, but it

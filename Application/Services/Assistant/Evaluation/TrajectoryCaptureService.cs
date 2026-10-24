@@ -27,6 +27,13 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
 {
     private const int ExcerptMaxLength = SkillLearningDefaults.ExcerptMaxLength;
     private const int CandidatesMax = 30;
+
+    // The four keys every candidate entry has carried since W1.6, spelled exactly as the anonymous type wrote them
+    // before 2026-10-24, so the stored JSON of a turn without a skill pass is byte-for-byte unchanged.
+    private const string CandidateNameKey = "name";
+    private const string CandidateSourceKey = "source";
+    private const string CandidateRankKey = "rank";
+    private const string CandidateScoreKey = "score";
     private const int OwnerNameMaxLength = 128;
 
     // Shared with gate G0 of the graceful-correction path: two copies of the same two minutes would let
@@ -92,7 +99,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
                 Locale = NormalizeLocale(context.Language),
                 UserMessageHash = MessageNormalizer.Hash(context.Message),
                 IntentExcerpt = MessageNormalizer.Excerpt(context.Message, ExcerptMaxLength),
-                KnowledgeIndexCandidatesJson = SerializeCandidates(context.AvailableFunctions),
+                KnowledgeIndexCandidatesJson = SerializeCandidates(context.AvailableFunctions, context.SkillRerank),
                 LlmChosenSkill = allFunctionCalls.FirstOrDefault()?.FunctionName,
                 WasExecuted = allFunctionCalls.Count > 0,
                 WasSuccessful = interrupted ? null : await ComputeWasSuccessfulAsync(context.TurnId),
@@ -387,16 +394,31 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     // W1.6: each candidate carries its provenance (why it was in the toolset) plus the 1-based rank
     // in the offered list and the retrieval score where one exists. This turns "which source won" into
     // a SQL query over the jsonb column instead of a guess.
-    private static string SerializeCandidates(List<LLMFunction>? functions)
+    // Since 2026-10-24 each candidate of a turn whose skill pass ran also carries how that pass was ordered
+    // (rerankMargin, reranked, rerankExplored) - the same three values on every entry, because the jsonb column
+    // is the turn's only free-form slot and a new column would need a migration. Turns without a skill pass keep
+    // exactly the old four keys. SkillRerankThresholdTuner reads the values back from the first entry.
+    private static string SerializeCandidates(List<LLMFunction>? functions, SkillRerankObservation? skillRerank)
     {
         if (functions == null || functions.Count == 0) return "[]";
         var trimmed = functions.Count > CandidatesMax ? functions.GetRange(0, CandidatesMax) : functions;
-        var payload = trimmed.Select((f, index) => new
+        var payload = trimmed.Select((f, index) =>
         {
-            name = f.Name,
-            source = f.ToolsetSource?.ToString(),
-            rank = index + 1,
-            score = f.RetrievalScore
+            var entry = new Dictionary<string, object?>
+            {
+                [CandidateNameKey] = f.Name,
+                [CandidateSourceKey] = f.ToolsetSource?.ToString(),
+                [CandidateRankKey] = index + 1,
+                [CandidateScoreKey] = f.RetrievalScore
+            };
+            if (skillRerank != null)
+            {
+                entry[SkillRerankJsonKeys.Margin] = skillRerank.Margin;
+                entry[SkillRerankJsonKeys.Reranked] = skillRerank.Reranked;
+                entry[SkillRerankJsonKeys.Explored] = skillRerank.Explored;
+            }
+
+            return entry;
         });
         return JsonSerializer.Serialize(payload);
     }

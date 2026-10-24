@@ -184,7 +184,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         var pendingTurnIntent = _guaranteeResolver.StartTurnIntent(userMessage, language, pinnedSkillNames, cancellationToken);
 
-        var (retrievedSkills, hasDomainSkillContext, retrievalScores) = await RetrieveSkillCandidatesAsync(
+        var (retrievedSkills, hasDomainSkillContext, retrievalScores, skillRerank) = await RetrieveSkillCandidatesAsync(
             permittedSkills, userRights, isAdmin, userMessage, conversationId, currentRoute, userId, cancellationToken);
 
         // Every deterministic skill guarantee for this turn - see ISkillToolsetGuaranteeResolver for the
@@ -218,7 +218,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
                 Functions = ToStableOrderedFunctionsWithProvenance(alwaysOnSkills, alwaysOnProvenance),
                 HasDomainSkillContext = hasDomainSkillContext,
                 AssemblyMs = assemblyWatch.ElapsedMilliseconds,
-                TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall
+                TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall,
+                SkillRerank = skillRerank
             };
         }
 
@@ -281,7 +282,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             Functions = ToStableOrderedFunctionsWithProvenance(selectedSkills, selectedProvenance),
             HasDomainSkillContext = true,
             AssemblyMs = assemblyWatch.ElapsedMilliseconds,
-            TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall
+            TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall,
+            SkillRerank = skillRerank
         };
     }
 
@@ -332,7 +334,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     /// retrievedSkills itself drops via the !AlwaysOn filter, and stays true on a retrieval failure so
     /// the world model is never lost on an error path.
     /// </summary>
-    private async Task<(List<AgentSkill> RetrievedSkills, bool HasDomainSkillContext, Dictionary<string, double> RetrievalScores)>
+    private async Task<(List<AgentSkill> RetrievedSkills, bool HasDomainSkillContext, Dictionary<string, double> RetrievalScores, SkillRerankObservation? SkillRerank)>
         RetrieveSkillCandidatesAsync(
             List<AgentSkill> permittedSkills, List<string> userRights, bool isAdmin, string userMessage,
             string? conversationId, string? currentRoute, string userId, CancellationToken cancellationToken)
@@ -357,7 +359,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
             if (retrieval.IsEmpty)
             {
-                return ([], false, retrievalScores);
+                return ([], false, retrievalScores, ToObservation(retrieval.SkillRerank));
             }
 
             foreach (var candidate in retrieval.Candidates)
@@ -373,14 +375,17 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
                 .Where(s => !s.AlwaysOn && retrievedNames.Contains(s.Name))
                 .ToList();
 
-            return (retrievedSkills, true, retrievalScores);
+            return (retrievedSkills, true, retrievalScores, ToObservation(retrieval.SkillRerank));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Skill retrieval failed; falling back to always-on skills only");
-            return ([], true, retrievalScores);
+            return ([], true, retrievalScores, null);
         }
     }
+
+    private static SkillRerankObservation? ToObservation(SkillRerankDecision? decision) =>
+        decision == null ? null : new SkillRerankObservation(decision.Margin, decision.Reranked, decision.Explored);
 
     // The tool array is part of the prompt prefix every provider caches (explicitly or implicitly).
     // Retrieval scores and guarantee insertions arrive in a turn-dependent order, so without this

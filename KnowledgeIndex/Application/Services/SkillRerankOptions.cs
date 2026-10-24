@@ -24,15 +24,27 @@ public sealed record SkillRerankOptions(SkillRerankMode Mode, double MarginThres
         new(SkillRerankMode.Always, KnowledgeIndexConstants.DefaultSkillRerankMarginThreshold);
 
     /// <summary>
+    /// Adaptive only: the share of passes whose decision is flipped at random for the threshold tuner. 0 unless
+    /// configured, so a hand-built options object (tests, tools) is deterministic; the configuration supplies
+    /// DefaultSkillRerankExplorationRate.
+    /// </summary>
+    public double ExplorationRate { get; init; }
+
+    /// <summary>
     /// An unknown or empty mode falls back to Always, so a typo in the configuration never silently switches the
     /// cross-encoder off.
     /// </summary>
     /// <param name="mode">The configured mode name, case-insensitive</param>
-    /// <param name="marginThreshold">The configured margin threshold</param>
-    public static SkillRerankOptions FromConfiguration(string? mode, double marginThreshold) =>
+    /// <param name="marginThreshold">The configured starting margin threshold</param>
+    /// <param name="explorationRate">The configured exploration rate</param>
+    public static SkillRerankOptions FromConfiguration(
+        string? mode, double marginThreshold, double explorationRate = KnowledgeIndexConstants.DefaultSkillRerankExplorationRate) =>
         new(
             Enum.TryParse<SkillRerankMode>(mode, ignoreCase: true, out var parsed) && Enum.IsDefined(parsed)
                 ? parsed
                 : SkillRerankMode.Always,
-            marginThreshold);
+            marginThreshold)
+        {
+            ExplorationRate = explorationRate
+        };
 }

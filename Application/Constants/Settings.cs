@@ -179,6 +179,13 @@ namespace Klacks.Api.Application.Constants
         /// if that is also absent, the learning loop has no reference run at all rather than guess one.
         /// </summary>
         public const string KLACKSY_LEARNING_REFERENCE_MODEL = "KLACKSY_LEARNING_REFERENCE_MODEL";
+
+        /// <summary>
+        /// The learned margin threshold of the Adaptive skill rerank (invariant culture), written by
+        /// SkillRerankThresholdTuner and restored at startup. One value per installation; missing means the
+        /// configured start value (KnowledgeIndex:SkillRerankMarginThreshold) is still in force.
+        /// </summary>
+        public const string KLACKSY_SKILL_RERANK_MARGIN = "KLACKSY_SKILL_RERANK_MARGIN";
     }
 }
 

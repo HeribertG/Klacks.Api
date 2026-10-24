@@ -300,6 +300,8 @@ if (bgOptions.LLMModelSync)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<LLMModelSyncBackgroundService>());
 if (bgOptions.SkillRelationLearning)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.SkillRelationLearningBackgroundService>());
+if (bgOptions.SkillRerankTuning)
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.SkillRerankTuningBackgroundService>());
 if (bgOptions.DataRetention)
     builder.Services.AddHostedService<DataRetentionBackgroundService>();
 if (bgOptions.UpdateDetection)

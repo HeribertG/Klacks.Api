@@ -218,6 +218,12 @@ public class LLMContext
     public bool TurnIntentVetoesForcedToolCall { get; set; }
 
     /// <summary>
+    /// How this turn's skill retrieval was ordered, copied by the chat entry points from SkillToolsetResult.SkillRerank;
+    /// TrajectoryCaptureService records it for the skill rerank threshold tuner. Null when no skill pass ran.
+    /// </summary>
+    public SkillRerankObservation? SkillRerank { get; set; }
+
+    /// <summary>
     /// Explanation depth resolved for the user of this turn (persisted override, usage heuristic or beginner
     /// default). Set by every chat entry point via IExplainDepthResolver; rendered as a style block in the volatile
     /// prompt and copied onto the SkillExecutionContext. Null on paths without a resolvable user.

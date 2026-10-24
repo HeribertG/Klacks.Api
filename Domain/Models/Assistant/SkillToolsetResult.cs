@@ -20,4 +20,10 @@ public class SkillToolsetResult
     /// detector matched a state-changing word: the chat loop then does not force a tool call for that reason.
     /// </summary>
     public bool TurnIntentVetoesForcedToolCall { get; init; }
+
+    /// <summary>
+    /// How this turn's skill retrieval was ordered (margin, reranked, explored); null when no skill pass ran. Carried
+    /// into the trajectory for the skill rerank threshold tuner.
+    /// </summary>
+    public SkillRerankObservation? SkillRerank { get; init; }
 }

@@ -376,6 +376,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISkillSequenceSuggester, Application.Services.Assistant.SkillGraph.SkillSequenceSuggester>();
         services.AddScoped<ISkillSequenceProactiveNotifier, Application.Services.Assistant.SkillGraph.SkillSequenceProactiveNotifier>();
         services.AddSingleton<Infrastructure.Services.Assistant.SkillRelationLearningBackgroundService>();
+        services.AddScoped<ISkillRerankThresholdTuner, Application.Services.Assistant.SkillRerankThresholdTuner>();
+        services.AddSingleton<Infrastructure.Services.Assistant.SkillRerankTuningBackgroundService>();
 
         services.AddScoped<GenericListExecutor>();
         services.AddScoped<GenericDeleteExecutor>();

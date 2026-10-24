@@ -80,6 +80,19 @@ public static class KnowledgeIndexConstants
     public const string SkillRerankMarginConfigKey = "KnowledgeIndex:SkillRerankMarginThreshold";
     public const double DefaultSkillRerankMarginThreshold = 0.03;
 
+    // Bounds the tuner can never leave (owner decision 2026-10-24: learn automatically, inside fixed limits).
+    // 0.15 is the top of the margin sweep in KnowledgeIndexPhraseFacetDiagnosticsTests; above it nearly every pass
+    // would be reranked again, which is the Always mode with extra steps.
+    public const double MinSkillRerankMarginThreshold = 0.0;
+    public const double MaxSkillRerankMarginThreshold = 0.15;
+
+    // Share of Adaptive passes whose decision is flipped at random. Without it the tuner would see only one order per
+    // margin and could never tell whether the other one would have done better. 5 % keeps the cost of the sample
+    // small; the cap stops a configuration typo from turning the experiment into the main path.
+    public const string SkillRerankExplorationConfigKey = "KnowledgeIndex:SkillRerankExplorationRate";
+    public const double DefaultSkillRerankExplorationRate = 0.05;
+    public const double MaxSkillRerankExplorationRate = 0.2;
+
     // How many pg_trgm lexical candidates are fetched per query, mirroring MaxRerankerCandidates so
     // the fused (semantic + lexical) candidate set feeding the reranker never grows past the existing
     // reranker budget — hybrid retrieval changes which candidates reach the reranker, not how many.
