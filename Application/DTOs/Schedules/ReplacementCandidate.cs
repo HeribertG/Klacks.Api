@@ -20,6 +20,9 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="TargetHoursDeficit">Period target hours minus already-assigned hours; positive means below target (ranks higher), zero when no data/target</param>
 /// <param name="IsOnCall">True when the employee holds an on-call absence on the date (ranks first)</param>
 /// <param name="LevelShortfall">Missing levels over the mandatory qualifications held below a non-binding minimum level; 0 = fully qualified</param>
+/// <param name="RhythmDelta">How the cover changes the rhythm of the candidate's own row (the same measure the
+/// automatic replacement uses): negative = it closes or extends a block of the same kind, 0 = neutral, positive = a
+/// lonely shift, a mixed block or a backward rotation. A tie-break only, right before the target-hours deficit.</param>
 /// <param name="Phone">Number to call the candidate on (mobile before fixed line); only filled on the planner endpoint, never in skill output</param>
 public sealed record ReplacementCandidate(
     Guid ClientId,
@@ -29,4 +32,5 @@ public sealed record ReplacementCandidate(
     decimal TargetHoursDeficit,
     bool IsOnCall = false,
     string? Phone = null,
-    int LevelShortfall = 0);
+    int LevelShortfall = 0,
+    int RhythmDelta = 0);

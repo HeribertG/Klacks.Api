@@ -14,7 +14,9 @@
 /// a soft ranking signal (less headroom -> lower rank). On-call candidates rank first, then preferred
 /// employees, then the candidates holding every mandatory qualification at the required level ahead of those
 /// below a non-binding level (fewer missing levels first, LevelShortfall); among equally
-/// clean candidates the one furthest below their period target hours ranks higher (fairness, 3b/3c).
+/// clean candidates the one whose own row keeps its rhythm best ranks higher (RhythmDelta, the same row measure
+/// the automatic replacement uses: a cover that closes a block of the same kind before a lonely shift), then the one
+/// furthest below their period target hours (fairness, 3b/3c).
 /// The candidate pool is resolved in two steps because IClientRepository filters on the group ROOT
 /// (Group.Root ?? Group.Id): a subgroup id matches no root and would silently yield an empty pool, so
 /// the root is resolved first and the root-wide result is then narrowed back to the requested group's
@@ -47,6 +49,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Application.Services.Schedules.Recovery;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -56,6 +59,8 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Klacks.ScheduleRecovery.Engine;
+using ShiftCategory = Klacks.ScheduleRecovery.Model.ShiftCategory;
 
 namespace Klacks.Api.Application.Handlers.Schedules;
 
@@ -168,6 +173,8 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             .ToDictionary(g => g.Key, g => g.ToList());
 
         var authorized = await _overrideAuthorizer.IsAuthorizedAsync(request.OverrideBlock);
+        var rowKinds = await LoadRowKindsAsync(request, cancellationToken);
+        var slotKind = ShiftCategoryClassifier.CategoryOf(request.StartTime.ToTimeSpan(), request.EndTime.ToTimeSpan());
 
         var eligible = new List<ReplacementCandidate>();
         var excluded = new List<ExcludedCandidate>();
@@ -235,7 +242,11 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
                 SoftConflicts: conflicts,
                 TargetHoursDeficit: deficit,
                 IsOnCall: onCallClientIds.Contains(member.Id),
-                LevelShortfall: SumLevelShortfall(conflicts)));
+                LevelShortfall: SumLevelShortfall(conflicts),
+                RhythmDelta: RowRhythm.CoverDelta(
+                    day => rowKinds.TryGetValue((member.Id, day), out var kind) ? kind : ShiftCategory.Free,
+                    request.Date,
+                    slotKind)));
         }
 
         var ranked = eligible
@@ -243,11 +254,41 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             .ThenByDescending(c => c.IsPreferred)
             .ThenBy(c => c.LevelShortfall)
             .ThenBy(c => c.SoftConflicts.Count)
+            .ThenBy(c => c.RhythmDelta)
             .ThenByDescending(c => c.TargetHoursDeficit)
             .ThenBy(c => c.Name)
             .ToList();
 
         return new ReplacementSearchResult(ranked, excluded);
+    }
+
+    /// <summary>
+    /// The shift kind of every work the group's members start in the days around the slot (the reach of the row
+    /// rhythm plus one day on each side, the neighbours the measure looks at), keyed by member and day; for a day
+    /// with several works the earliest start decides. Read on the same plan as the rest of the search (the real plan
+    /// or the requested scenario).
+    /// </summary>
+    private async Task<IReadOnlyDictionary<(Guid ClientId, DateOnly Date), ShiftCategory>> LoadRowKindsAsync(
+        FindReplacementQuery request, CancellationToken cancellationToken)
+    {
+        var reach = RowRhythm.Reach + 1;
+        var cells = await _scheduleEntriesService.GetScheduleEntriesAsync(
+            new ScheduleEntriesCriteria(request.Date.AddDays(-reach), request.Date.AddDays(reach), [request.GroupId], request.AnalyseToken)
+            {
+                EntryType = ScheduleEntryType.Work,
+            },
+            cancellationToken);
+
+        return cells
+            .Where(c => c.EntryType == (int)ScheduleEntryType.Work)
+            .GroupBy(c => (c.ClientId, DateOnly.FromDateTime(c.EntryDate)))
+            .ToDictionary(
+                g => g.Key,
+                g =>
+                {
+                    var first = g.OrderBy(c => c.StartTime).First();
+                    return ShiftCategoryClassifier.CategoryOf(first.StartTime, first.EndTime);
+                });
     }
 
     /// <summary>
