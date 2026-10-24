@@ -115,9 +115,13 @@ public static class OrderReviewAnalyzer
         item.ProposedParts = FullDayOrderRule.EqualParts(
             item.ProposedStart ?? item.CurrentStart, OrderReviewDefaults.StandardPartCount);
 
-        var policies = executingGroupId.HasValue
-            ? input.MemberPoliciesByGroupId.GetValueOrDefault(executingGroupId.Value) ?? []
-            : (IReadOnlyList<SchedulingPolicy>)[];
+        IReadOnlyList<SchedulingPolicy> policies = [];
+        if (executingGroupId.HasValue
+            && input.MemberPoliciesByGroupId.TryGetValue(executingGroupId.Value, out var memberPolicies))
+        {
+            policies = memberPolicies;
+        }
+
         var verdict = OrderSplitRuleEvaluator.Evaluate(FullDayOrderRule.PartHours(item.ProposedParts[0]), policies);
         item.SplitVerdict = verdict.Kind;
         item.SplitAllowedMembers = verdict.AllowedMembers;

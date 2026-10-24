@@ -243,7 +243,7 @@ public sealed class OrderReviewDecisionApplier : IOrderReviewDecisionApplier
                 }
                 else
                 {
-                    item.ChosenParts = item.ProposedParts.Select(Copy).ToList();
+                    item.ChosenParts = item.ProposedParts.Select(CopyPart).ToList();
                 }
             }
 
@@ -307,7 +307,7 @@ public sealed class OrderReviewDecisionApplier : IOrderReviewDecisionApplier
         {
             foreach (var item in items)
             {
-                item.Expenses = expenses.Select(Copy).ToList();
+                item.Expenses = expenses.Select(CopyExpense).ToList();
                 item.ExpenseStatus = OrderReviewExpenseStatus.Provided;
             }
 
@@ -359,9 +359,9 @@ public sealed class OrderReviewDecisionApplier : IOrderReviewDecisionApplier
             && qualification.Name.GetAllValues().Values.Any(value =>
                 string.Equals(value?.Trim(), name, StringComparison.OrdinalIgnoreCase)));
 
-    private static OrderReviewPart Copy(OrderReviewPart part) => new() { Start = part.Start, End = part.End, Name = part.Name };
+    private static OrderReviewPart CopyPart(OrderReviewPart part) => new() { Start = part.Start, End = part.End, Name = part.Name };
 
-    private static OrderReviewExpense Copy(OrderReviewExpense expense) =>
+    private static OrderReviewExpense CopyExpense(OrderReviewExpense expense) =>
         new() { Description = expense.Description, Amount = expense.Amount, Taxable = expense.Taxable };
 
     /// <summary>
