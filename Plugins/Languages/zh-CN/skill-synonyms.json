@@ -3342,5 +3342,18 @@
     "进行网络搜索",
     "在互联网上搜索",
     "执行在线查询"
+  ],
+  "start_order_review": [
+    "封存前审核未处理订单",
+    "共同检查未处理订单"
+  ],
+  "set_order_review_decision": [
+    "记录订单审核的回答"
+  ],
+  "preview_order_review": [
+    "订单审核进度"
+  ],
+  "cancel_order_review": [
+    "停止订单审核"
   ]
 }

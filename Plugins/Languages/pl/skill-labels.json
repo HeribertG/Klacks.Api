@@ -508,5 +508,9 @@
   "validate_calendar_rule": "Sprawdź regułę kalendarza",
   "validate_holiday_overlap": "Sprawdź, czy święta się pokrywają",
   "verify_my_last_action": "Sprawdź ostatnią akcję",
-  "web_search": "Przeszukiwać Internet"
+  "web_search": "Przeszukiwać Internet",
+  "start_order_review": "Wspólny przegląd otwartych zamówień",
+  "set_order_review_decision": "Zapisz odpowiedź w przeglądzie zamówień",
+  "preview_order_review": "Podgląd przeglądu zamówień",
+  "cancel_order_review": "Anuluj przegląd zamówień"
 }

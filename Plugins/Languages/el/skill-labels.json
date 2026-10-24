@@ -508,5 +508,9 @@
   "validate_calendar_rule": "Έλεγχος κανόνα ημερολογίου",
   "validate_holiday_overlap": "Έλεγχος αλληλεπικάλυψης αργιών",
   "verify_my_last_action": "Έλεγχος τελευταίας ενέργειας",
-  "web_search": "Αναζήτηση στο Διαδίκτυο"
+  "web_search": "Αναζήτηση στο Διαδίκτυο",
+  "start_order_review": "Κοινός έλεγχος των ανοιχτών παραγγελιών",
+  "set_order_review_decision": "Καταγραφή απάντησης στον έλεγχο παραγγελιών",
+  "preview_order_review": "Προεπισκόπηση του ελέγχου παραγγελιών",
+  "cancel_order_review": "Ακύρωση του ελέγχου παραγγελιών"
 }

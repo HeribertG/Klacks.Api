@@ -3390,5 +3390,18 @@
     "búsqueda web",
     "buscar en internet",
     "búsqueda en línea"
+  ],
+  "start_order_review": [
+    "revisar los pedidos abiertos antes de sellar",
+    "repasar juntos los pedidos abiertos"
+  ],
+  "set_order_review_decision": [
+    "registrar respuesta de la revisión de pedidos"
+  ],
+  "preview_order_review": [
+    "estado de la revisión de pedidos"
+  ],
+  "cancel_order_review": [
+    "detener la revisión de pedidos"
   ]
 }

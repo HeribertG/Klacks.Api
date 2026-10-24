@@ -508,5 +508,9 @@
   "validate_calendar_rule": "Kalenderregel controleren",
   "validate_holiday_overlap": "Controleer of feestdagen elkaar overlappen",
   "verify_my_last_action": "Laatste actie controleren",
-  "web_search": "Op internet zoeken"
+  "web_search": "Op internet zoeken",
+  "start_order_review": "De open orders samen doornemen",
+  "set_order_review_decision": "Een antwoord vastleggen in de orderdoorloop",
+  "preview_order_review": "Voorbeeld van de orderdoorloop",
+  "cancel_order_review": "De orderdoorloop annuleren"
 }

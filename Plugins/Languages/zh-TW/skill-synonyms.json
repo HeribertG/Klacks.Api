@@ -3333,5 +3333,18 @@
     "網路搜尋",
     "上網查詢",
     "線上搜尋"
+  ],
+  "start_order_review": [
+    "封存前審核未處理訂單",
+    "共同檢查未處理訂單"
+  ],
+  "set_order_review_decision": [
+    "記錄訂單審核的回答"
+  ],
+  "preview_order_review": [
+    "訂單審核進度"
+  ],
+  "cancel_order_review": [
+    "停止訂單審核"
   ]
 }

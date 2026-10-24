@@ -508,5 +508,9 @@
   "validate_calendar_rule": "التحقق من قاعدة التقويم",
   "validate_holiday_overlap": "التحقق من تداخل أيام العطلات",
   "verify_my_last_action": "التحقق من آخر إجراء",
-  "web_search": "البحث في الإنترنت"
+  "web_search": "البحث في الإنترنت",
+  "start_order_review": "مراجعة الطلبات المفتوحة معًا",
+  "set_order_review_decision": "تسجيل إجابة في مراجعة الطلبات",
+  "preview_order_review": "معاينة مراجعة الطلبات",
+  "cancel_order_review": "إلغاء مراجعة الطلبات"
 }

@@ -508,5 +508,9 @@
   "validate_calendar_rule": "Verificarea regulii din calendar",
   "validate_holiday_overlap": "Verificarea suprapunerii sărbătorilor",
   "verify_my_last_action": "Verifică ultima acțiune",
-  "web_search": "Căutare pe internet"
+  "web_search": "Căutare pe internet",
+  "start_order_review": "Parcurge împreună comenzile deschise",
+  "set_order_review_decision": "Înregistrează un răspuns în revizuirea comenzilor",
+  "preview_order_review": "Previzualizează revizuirea comenzilor",
+  "cancel_order_review": "Anulează revizuirea comenzilor"
 }

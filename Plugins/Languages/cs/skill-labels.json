@@ -508,5 +508,9 @@
   "validate_calendar_rule": "Zkontrolovat pravidlo kalendáře",
   "validate_holiday_overlap": "Zkontrolovat překrývání svátků",
   "verify_my_last_action": "Zkontrolovat poslední akci",
-  "web_search": "Prohledávat internet"
+  "web_search": "Prohledávat internet",
+  "start_order_review": "Společně projít otevřené objednávky",
+  "set_order_review_decision": "Zaznamenat odpověď v revizi objednávek",
+  "preview_order_review": "Náhled revize objednávek",
+  "cancel_order_review": "Zrušit revizi objednávek"
 }

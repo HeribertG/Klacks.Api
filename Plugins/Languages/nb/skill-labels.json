@@ -508,5 +508,9 @@
   "validate_calendar_rule": "Kontroller kalenderregelen",
   "validate_holiday_overlap": "Sjekk om helligdager overlapper hverandre",
   "verify_my_last_action": "Kontroller siste handling",
-  "web_search": "Søk på Internett"
+  "web_search": "Søk på Internett",
+  "start_order_review": "Gå gjennom de åpne bestillingene sammen",
+  "set_order_review_decision": "Registrer et svar i bestillingsgjennomgangen",
+  "preview_order_review": "Forhåndsvis bestillingsgjennomgangen",
+  "cancel_order_review": "Avbryt bestillingsgjennomgangen"
 }

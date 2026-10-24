@@ -3354,5 +3354,18 @@
     "verkkohaku",
     "etsi internetistä",
     "haku verkosta"
+  ],
+  "start_order_review": [
+    "avoimien tilausten läpikäynti ennen sinetöintiä",
+    "yhteinen avoimien tilausten tarkistus"
+  ],
+  "set_order_review_decision": [
+    "kirjaa tilausten läpikäynnin vastaus"
+  ],
+  "preview_order_review": [
+    "tilausten läpikäynnin tila"
+  ],
+  "cancel_order_review": [
+    "lopeta tilausten läpikäynti"
   ]
 }

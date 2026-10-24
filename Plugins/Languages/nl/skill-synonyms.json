@@ -3404,5 +3404,18 @@
     "webzoeken",
     "internet zoeken",
     "online zoeken"
+  ],
+  "start_order_review": [
+    "open orders doornemen voor het verzegelen",
+    "samen de open orders bekijken"
+  ],
+  "set_order_review_decision": [
+    "antwoord in orderdoorloop vastleggen"
+  ],
+  "preview_order_review": [
+    "stand van de orderdoorloop"
+  ],
+  "cancel_order_review": [
+    "orderdoorloop stoppen"
   ]
 }

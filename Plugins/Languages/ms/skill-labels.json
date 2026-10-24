@@ -508,5 +508,9 @@
   "validate_calendar_rule": "Sahkan peraturan kalendar",
   "validate_holiday_overlap": "Semak pertindihan cuti umum",
   "verify_my_last_action": "Sahkan tindakan terakhir saya",
-  "web_search": "Cari di internet"
+  "web_search": "Cari di internet",
+  "start_order_review": "Semak pesanan terbuka bersama",
+  "set_order_review_decision": "Rekod jawapan dalam semakan pesanan",
+  "preview_order_review": "Pratonton semakan pesanan",
+  "cancel_order_review": "Batalkan semakan pesanan"
 }

@@ -3420,5 +3420,18 @@
     "szukaj w sieci",
     "szukaj online",
     "wyszukiwarka"
+  ],
+  "start_order_review": [
+    "przejrzeć otwarte zamówienia przed zapieczętowaniem",
+    "wspólny przegląd otwartych zamówień"
+  ],
+  "set_order_review_decision": [
+    "zapisz odpowiedź przeglądu zamówień"
+  ],
+  "preview_order_review": [
+    "stan przeglądu zamówień"
+  ],
+  "cancel_order_review": [
+    "zatrzymaj przegląd zamówień"
   ]
 }

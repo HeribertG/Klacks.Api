@@ -3334,5 +3334,18 @@
     "Web検索",
     "インターネット検索",
     "オンライン検索"
+  ],
+  "start_order_review": [
+    "封印前に未確定の注文を見直す",
+    "未確定注文の一斉確認"
+  ],
+  "set_order_review_decision": [
+    "注文確認の回答を記録"
+  ],
+  "preview_order_review": [
+    "注文確認の進捗状況"
+  ],
+  "cancel_order_review": [
+    "注文確認の打ち切り"
   ]
 }

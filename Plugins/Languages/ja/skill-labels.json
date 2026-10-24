@@ -508,5 +508,9 @@
   "validate_calendar_rule": "カレンダールールを検証",
   "validate_holiday_overlap": "祝日の重複を確認",
   "verify_my_last_action": "最後の操作を確認",
-  "web_search": "インターネットで検索"
+  "web_search": "インターネットで検索",
+  "start_order_review": "未確定の注文を一緒に確認する",
+  "set_order_review_decision": "注文確認で回答を記録する",
+  "preview_order_review": "注文確認のプレビュー",
+  "cancel_order_review": "注文確認を中止する"
 }

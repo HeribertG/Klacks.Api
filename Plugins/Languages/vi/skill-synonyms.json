@@ -3341,5 +3341,18 @@
     "tìm kiếm trên web",
     "tìm kiếm trực tuyến",
     "tra cứu trên internet"
+  ],
+  "start_order_review": [
+    "rà soát đơn hàng đang mở trước khi niêm phong",
+    "cùng rà soát các đơn hàng đang mở"
+  ],
+  "set_order_review_decision": [
+    "ghi câu trả lời rà soát đơn hàng"
+  ],
+  "preview_order_review": [
+    "tình trạng rà soát đơn hàng"
+  ],
+  "cancel_order_review": [
+    "dừng rà soát đơn hàng"
   ]
 }

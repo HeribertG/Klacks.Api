@@ -3341,5 +3341,18 @@
     "websøk",
     "internettsøk",
     "søk på nett"
+  ],
+  "start_order_review": [
+    "gå gjennom åpne bestillinger før forsegling",
+    "felles gjennomgang av åpne bestillinger"
+  ],
+  "set_order_review_decision": [
+    "registrer svar i bestillingsgjennomgang"
+  ],
+  "preview_order_review": [
+    "status for bestillingsgjennomgang"
+  ],
+  "cancel_order_review": [
+    "stopp bestillingsgjennomgangen"
   ]
 }

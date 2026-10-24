@@ -3338,5 +3338,18 @@
     "carian di internet",
     "cari maklumat dalam talian",
     "lakukan carian web"
+  ],
+  "start_order_review": [
+    "semak pesanan terbuka sebelum dimeterai",
+    "semakan bersama pesanan terbuka"
+  ],
+  "set_order_review_decision": [
+    "rekod jawapan semakan pesanan"
+  ],
+  "preview_order_review": [
+    "status semakan pesanan"
+  ],
+  "cancel_order_review": [
+    "hentikan semakan pesanan"
   ]
 }

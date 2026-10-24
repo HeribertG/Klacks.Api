@@ -3402,5 +3402,18 @@
     "webové vyhledávání",
     "hledat na internetu",
     "online vyhledávání"
+  ],
+  "start_order_review": [
+    "projít otevřené objednávky před zapečetěním",
+    "společná revize otevřených objednávek"
+  ],
+  "set_order_review_decision": [
+    "zaznamenat odpověď revize objednávek"
+  ],
+  "preview_order_review": [
+    "stav revize objednávek"
+  ],
+  "cancel_order_review": [
+    "ukončit revizi objednávek"
   ]
 }

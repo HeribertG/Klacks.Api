@@ -508,5 +508,9 @@
   "validate_calendar_rule": "Kiểm tra quy tắc lịch",
   "validate_holiday_overlap": "Kiểm tra trùng ngày lễ",
   "verify_my_last_action": "Kiểm tra hành động gần nhất của tôi",
-  "web_search": "Tìm kiếm trên internet"
+  "web_search": "Tìm kiếm trên internet",
+  "start_order_review": "Cùng xem lại các đơn hàng đang mở",
+  "set_order_review_decision": "Ghi câu trả lời trong buổi rà soát đơn hàng",
+  "preview_order_review": "Xem trước buổi rà soát đơn hàng",
+  "cancel_order_review": "Hủy buổi rà soát đơn hàng"
 }

@@ -3354,5 +3354,18 @@
     "internetsökning",
     "sök på nätet",
     "googla"
+  ],
+  "start_order_review": [
+    "gå igenom öppna beställningar före försegling",
+    "gemensam genomgång av öppna beställningar"
+  ],
+  "set_order_review_decision": [
+    "registrera svar i beställningsgenomgång"
+  ],
+  "preview_order_review": [
+    "status för beställningsgenomgång"
+  ],
+  "cancel_order_review": [
+    "stoppa beställningsgenomgången"
   ]
 }

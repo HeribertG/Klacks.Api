@@ -3322,5 +3322,18 @@
     "melakukan pencarian di web",
     "mencari informasi di internet",
     "menelusuri sesuatu secara daring"
+  ],
+  "start_order_review": [
+    "tinjau pesanan terbuka sebelum disegel",
+    "peninjauan bersama pesanan terbuka"
+  ],
+  "set_order_review_decision": [
+    "catat jawaban peninjauan pesanan"
+  ],
+  "preview_order_review": [
+    "status peninjauan pesanan"
+  ],
+  "cancel_order_review": [
+    "hentikan peninjauan pesanan"
   ]
 }

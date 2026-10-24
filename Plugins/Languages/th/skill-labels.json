@@ -508,5 +508,9 @@
   "validate_calendar_rule": "ตรวจสอบกฎปฏิทิน",
   "validate_holiday_overlap": "ตรวจสอบวันหยุดทับซ้อน",
   "verify_my_last_action": "ตรวจสอบการกระทำล่าสุดของฉัน",
-  "web_search": "ค้นหาบนอินเทอร์เน็ต"
+  "web_search": "ค้นหาบนอินเทอร์เน็ต",
+  "start_order_review": "ตรวจคำสั่งซื้อที่เปิดอยู่ร่วมกัน",
+  "set_order_review_decision": "บันทึกคำตอบในการตรวจคำสั่งซื้อ",
+  "preview_order_review": "ดูตัวอย่างการตรวจคำสั่งซื้อ",
+  "cancel_order_review": "ยกเลิกการตรวจคำสั่งซื้อ"
 }

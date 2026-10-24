@@ -508,5 +508,9 @@
   "validate_calendar_rule": "验证日历规则",
   "validate_holiday_overlap": "检查节假日重叠",
   "verify_my_last_action": "核实我的上一步操作",
-  "web_search": "搜索互联网"
+  "web_search": "搜索互联网",
+  "start_order_review": "一起查看未处理订单",
+  "set_order_review_decision": "在订单审核中记录回答",
+  "preview_order_review": "预览订单审核",
+  "cancel_order_review": "取消订单审核"
 }

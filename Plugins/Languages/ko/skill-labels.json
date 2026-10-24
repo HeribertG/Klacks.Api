@@ -508,5 +508,9 @@
   "validate_calendar_rule": "캘린더 규칙 검사",
   "validate_holiday_overlap": "공휴일 중복 확인",
   "verify_my_last_action": "내 마지막 작업 확인",
-  "web_search": "인터넷 검색"
+  "web_search": "인터넷 검색",
+  "start_order_review": "열린 주문 함께 검토하기",
+  "set_order_review_decision": "주문 검토에 답변 기록",
+  "preview_order_review": "주문 검토 미리 보기",
+  "cancel_order_review": "주문 검토 취소"
 }

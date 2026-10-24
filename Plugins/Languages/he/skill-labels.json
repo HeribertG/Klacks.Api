@@ -508,5 +508,9 @@
   "validate_calendar_rule": "בדיקת כלל בלוח השנה",
   "validate_holiday_overlap": "לבדוק חפיפה בין ימי חג",
   "verify_my_last_action": "בדוק את הפעולה האחרונה",
-  "web_search": "לחפש באינטרנט"
+  "web_search": "לחפש באינטרנט",
+  "start_order_review": "מעבר משותף על ההזמנות הפתוחות",
+  "set_order_review_decision": "רישום תשובה בסקירת ההזמנות",
+  "preview_order_review": "תצוגה מקדימה של סקירת ההזמנות",
+  "cancel_order_review": "ביטול סקירת ההזמנות"
 }

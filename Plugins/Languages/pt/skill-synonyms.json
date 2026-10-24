@@ -3387,5 +3387,18 @@
     "pesquisa web",
     "procurar na internet",
     "pesquisa online"
+  ],
+  "start_order_review": [
+    "rever as encomendas abertas antes de selar",
+    "revisão conjunta das encomendas abertas"
+  ],
+  "set_order_review_decision": [
+    "registar resposta da revisão de encomendas"
+  ],
+  "preview_order_review": [
+    "estado da revisão de encomendas"
+  ],
+  "cancel_order_review": [
+    "parar a revisão de encomendas"
   ]
 }

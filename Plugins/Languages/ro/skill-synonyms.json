@@ -3369,5 +3369,18 @@
     "căutare web",
     "caută pe internet",
     "căutare online"
+  ],
+  "start_order_review": [
+    "revizuirea comenzilor deschise înainte de sigilare",
+    "parcurgerea comună a comenzilor deschise"
+  ],
+  "set_order_review_decision": [
+    "înregistrează răspunsul revizuirii comenzilor"
+  ],
+  "preview_order_review": [
+    "starea revizuirii comenzilor"
+  ],
+  "cancel_order_review": [
+    "oprește revizuirea comenzilor"
   ]
 }

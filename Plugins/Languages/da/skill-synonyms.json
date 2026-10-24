@@ -3347,5 +3347,18 @@
     "internetsøgning",
     "onlinesøgning",
     "søg på nettet"
+  ],
+  "start_order_review": [
+    "gennemgå åbne ordrer før forsegling",
+    "fælles gennemgang af åbne ordrer"
+  ],
+  "set_order_review_decision": [
+    "registrér svar i ordregennemgang"
+  ],
+  "preview_order_review": [
+    "status for ordregennemgang"
+  ],
+  "cancel_order_review": [
+    "stop ordregennemgangen"
   ]
 }

@@ -508,5 +508,9 @@
   "validate_calendar_rule": "Tarkista kalenterisääntö",
   "validate_holiday_overlap": "Tarkista lomien päällekkäisyydet",
   "verify_my_last_action": "Tarkista viimeisin toiminto",
-  "web_search": "Hae Internetistä"
+  "web_search": "Hae Internetistä",
+  "start_order_review": "Käy avoimet tilaukset läpi yhdessä",
+  "set_order_review_decision": "Kirjaa vastaus tilausten läpikäyntiin",
+  "preview_order_review": "Tilausten läpikäynnin esikatselu",
+  "cancel_order_review": "Peru tilausten läpikäynti"
 }

@@ -3323,5 +3323,18 @@
     "웹에서 검색하기",
     "인터넷 검색",
     "온라인 검색하기"
+  ],
+  "start_order_review": [
+    "봉인 전에 열린 주문 검토",
+    "열린 주문 함께 살펴보기"
+  ],
+  "set_order_review_decision": [
+    "주문 검토 답변 기록"
+  ],
+  "preview_order_review": [
+    "주문 검토 진행 상태"
+  ],
+  "cancel_order_review": [
+    "주문 검토 중단"
   ]
 }

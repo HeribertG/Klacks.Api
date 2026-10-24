@@ -508,5 +508,9 @@
   "validate_calendar_rule": "驗證行事曆規則",
   "validate_holiday_overlap": "檢查假日是否重疊",
   "verify_my_last_action": "驗證我的上一個動作",
-  "web_search": "搜尋網際網路"
+  "web_search": "搜尋網際網路",
+  "start_order_review": "一起查看未處理訂單",
+  "set_order_review_decision": "在訂單審核中記錄回答",
+  "preview_order_review": "預覽訂單審核",
+  "cancel_order_review": "取消訂單審核"
 }
