@@ -53,4 +53,15 @@ public interface IOrderSealingService
     /// <param name="groupToAttach">The group derived from the customer's address; null seals exactly like SealAsync.</param>
     /// <param name="cancellationToken">Token cancelling the read of the order.</param>
     Task<OrderSealingOutcome> SealAsync(Guid orderId, Guid? groupToAttach, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Performs the sealing transition of an order CheckAsync returned as sealable inside the caller's open transaction,
+    /// without opening one of its own, and re-reads the sealed order and the created plannable shift. Returns the id of
+    /// the plannable shift; throws SkillVerificationException when the write or its verification fails, so the caller's
+    /// transaction rolls back.
+    /// </summary>
+    /// <param name="sealableOrder">The order as CheckAsync loaded it; its status is set to SealedOrder.</param>
+    /// <param name="cancellationToken">Token cancelling the verification reads.</param>
+    /// <param name="groupToAttach">Group to add to the order (valid from its start) inside the same transaction; null adds none.</param>
+    Task<Guid> SealWithinTransactionAsync(Shift sealableOrder, CancellationToken cancellationToken = default, Guid? groupToAttach = null);
 }

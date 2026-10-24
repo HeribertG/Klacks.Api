@@ -6,7 +6,9 @@
 /// moves OriginalOrder to SealedOrder, PutWithSealedOrderHandling clones the row into the plannable
 /// OriginalShift (carrying its group items and expenses, and copying its required qualifications), and
 /// both rows are re-read before the commit so a write that did not land rolls back instead of being
-/// reported as a success. There is no counterpart operation: a sealed order can never be unsealed.
+/// reported as a success. SealWithinTransactionAsync is the same transition without a transaction of its own, for a
+/// caller that changes, seals and cuts an order in one transaction (execute_order_review). There is no counterpart
+/// operation: a sealed order can never be unsealed.
 /// seal_shift may hand over a group to attach (groupToAttach, the group derived from the customer's address for an order
 /// without a group): it then satisfies the group requirement, is added to the order inside the same transaction (valid
 /// from the order's start, so the clone carries it to the plannable shift) and is verified on the plannable shift after
@@ -182,50 +184,11 @@ public sealed class OrderSealingService : IOrderSealingService
         }
 
         var order = check.SealableOrder!;
-        order.Status = ShiftStatus.SealedOrder;
-        if (groupToAttach.HasValue)
-        {
-            order.GroupItems.Add(new GroupItem
-            {
-                Id = Guid.NewGuid(),
-                ShiftId = order.Id,
-                GroupId = groupToAttach.Value,
-                ValidFrom = order.FromDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
-            });
-        }
 
         try
         {
-            var plannableShiftId = await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                var sealedResult = await _shiftRepository.PutWithSealedOrderHandling(order);
-                if (sealedResult == null)
-                {
-                    throw new SkillVerificationException(
-                        OperationName,
-                        string.Format(OrderVanishedFormat, order.Name));
-                }
-
-                await _unitOfWork.CompleteAsync();
-
-                await ConfirmPersistedAsync(
-                    () => _shiftRepository.GetNoTracking(orderId),
-                    persisted => persisted.Status == ShiftStatus.SealedOrder,
-                    string.Format(SealedOrderDescriptionFormat, order.Name));
-
-                var newPlannableShiftId = sealedResult.Id;
-                await ConfirmPersistedAsync(
-                    () => _shiftRepository.GetNoTracking(newPlannableShiftId),
-                    persisted => persisted.Status == ShiftStatus.OriginalShift && persisted.OriginalId == orderId,
-                    string.Format(PlannableShiftDescriptionFormat, order.Name));
-
-                if (groupToAttach.HasValue)
-                {
-                    await ConfirmGroupLinkAsync(newPlannableShiftId, groupToAttach.Value, order.Name);
-                }
-
-                return newPlannableShiftId;
-            });
+            var plannableShiftId = await _unitOfWork.ExecuteInTransactionAsync(
+                () => SealWithinTransactionAsync(order, cancellationToken, groupToAttach));
 
             return new OrderSealingOutcome(orderId, order.Name, true, plannableShiftId, null, []);
         }
@@ -246,6 +209,51 @@ public sealed class OrderSealingService : IOrderSealingService
                 OperationName,
                 string.Format(VerificationFailedFormat, string.Format(GroupLinkDescriptionFormat, orderName)));
         }
+    }
+
+    public async Task<Guid> SealWithinTransactionAsync(
+        Shift sealableOrder, CancellationToken cancellationToken = default, Guid? groupToAttach = null)
+    {
+        var orderId = sealableOrder.Id;
+        sealableOrder.Status = ShiftStatus.SealedOrder;
+        if (groupToAttach.HasValue)
+        {
+            sealableOrder.GroupItems.Add(new GroupItem
+            {
+                Id = Guid.NewGuid(),
+                ShiftId = sealableOrder.Id,
+                GroupId = groupToAttach.Value,
+                ValidFrom = sealableOrder.FromDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+            });
+        }
+
+        var sealedResult = await _shiftRepository.PutWithSealedOrderHandling(sealableOrder);
+        if (sealedResult == null)
+        {
+            throw new SkillVerificationException(
+                OperationName,
+                string.Format(OrderVanishedFormat, sealableOrder.Name));
+        }
+
+        await _unitOfWork.CompleteAsync();
+
+        await ConfirmPersistedAsync(
+            () => _shiftRepository.GetNoTracking(orderId),
+            persisted => persisted.Status == ShiftStatus.SealedOrder,
+            string.Format(SealedOrderDescriptionFormat, sealableOrder.Name));
+
+        var plannableShiftId = sealedResult.Id;
+        await ConfirmPersistedAsync(
+            () => _shiftRepository.GetNoTracking(plannableShiftId),
+            persisted => persisted.Status == ShiftStatus.OriginalShift && persisted.OriginalId == orderId,
+            string.Format(PlannableShiftDescriptionFormat, sealableOrder.Name));
+
+        if (groupToAttach.HasValue)
+        {
+            await ConfirmGroupLinkAsync(plannableShiftId, groupToAttach.Value, sealableOrder.Name);
+        }
+
+        return plannableShiftId;
     }
 
     private static OrderSealingOutcome Refused(
