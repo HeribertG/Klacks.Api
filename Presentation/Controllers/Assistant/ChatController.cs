@@ -20,6 +20,7 @@ using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Klacks.Api.Presentation.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -550,8 +551,13 @@ public class ChatController : ControllerBase
 
     [HttpGet("warmup")]
     [DisableRateLimiting]
-    public async Task<ActionResult> Warmup(CancellationToken cancellationToken)
+    public async Task<ActionResult> Warmup(
+        [FromServices] IInferenceSessionPrewarmer inferenceSessionPrewarmer,
+        CancellationToken cancellationToken)
     {
+        // Started first and not awaited: the panel just opened, the question is seconds away, and a cold
+        // embedder plus reranker would otherwise cost that question 3-4 s.
+        inferenceSessionPrewarmer.RequestPrewarm();
         await _skillCacheService.WarmupAsync(cancellationToken);
         return Ok();
     }

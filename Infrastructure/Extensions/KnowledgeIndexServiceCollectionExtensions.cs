@@ -220,6 +220,11 @@ internal static class KnowledgeIndexServiceCollectionExtensions
         // singleton because every registration of that interface above is itself a singleton; on a host
         // without ONNX the sequence is empty and the service returns without starting a timer.
         services.AddHostedService<OnnxSessionIdleUnloadService>();
+
+        // The counterpart of the idle sweep: chat/warmup (called when the assistant panel opens) rebuilds the
+        // released sessions while the user is still typing. Singleton for its single-flight flag; the same
+        // IEnumerable<IUnloadableInferenceSession> reasoning as the sweep applies.
+        services.AddSingleton<IInferenceSessionPrewarmer, InferenceSessionPrewarmer>();
     }
 
     internal static bool IsOnnxRuntimeSupported(IConfiguration configuration)
