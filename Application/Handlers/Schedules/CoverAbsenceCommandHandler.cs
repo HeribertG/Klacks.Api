@@ -249,8 +249,11 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         // Computed after the partition: a blocked swap must not be reported as a tier the result reached.
         var highestTier = (int)HighestTierOf(materializable, uncovered.Count > 0);
 
+        // The engine's rhythm value is only true for the result when every proposed cover was materialised.
+        int? harmonyDelta = materializable.Count == proposal.Deltas.Count ? proposal.HarmonyDelta : null;
+
         var outcome = new CoverAbsenceOutcome(
-            scenario.Id, token, name, covered, uncovered, complianceWarnings, highestTier);
+            scenario.Id, token, name, covered, uncovered, complianceWarnings, highestTier, harmonyDelta);
         return (outcome, snapshot, absenceDays);
     }
 
