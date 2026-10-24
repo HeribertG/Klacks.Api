@@ -18,6 +18,10 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="HighestTier">Escalation tier (CoveredSlot.Tier values) furthest along the escalation order
 /// that the accepted result actually needed (4 when anything stayed uncovered). Computed after the compliance partition, so a blocked swap is not
 /// reported as a cover that never happened.</param>
+/// <param name="HarmonyDelta">Rhythm change the replacements cause on the rows they land in (after minus before;
+/// 0 = the rhythm is kept, positive = broken somewhere, negative = improved). Null when the compliance gate or the
+/// visibility filter dropped part of the engine's proposal, because the value then describes covers that did not
+/// happen.</param>
 public sealed record CoverAbsenceOutcome(
     Guid ScenarioId,
     Guid Token,
@@ -25,4 +29,5 @@ public sealed record CoverAbsenceOutcome(
     IReadOnlyList<CoveredSlot> Covered,
     IReadOnlyList<UncoveredSlot> Uncovered,
     IReadOnlyList<ScheduleValidationNotificationDto> ComplianceWarnings,
-    int HighestTier = 0);
+    int HighestTier = 0,
+    int? HarmonyDelta = null);
