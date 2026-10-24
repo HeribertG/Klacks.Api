@@ -103,6 +103,16 @@
     },
     {
       "skillAName": "create_shift",
+      "skillBName": "seal_shift",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "create_shift",
       "skillBName": "cut_shift",
       "type": 0,
       "confidence": 0.95,
