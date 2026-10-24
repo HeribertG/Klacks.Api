@@ -7772,6 +7772,23 @@
       "trigger": {
         "allOf": [
           {
+            "anyWordStart": [
+              "durchgeh",
+              "geh",
+              "prüf",
+              "go",
+              "review",
+              "walk",
+              "pass",
+              "revoi",
+              "examin",
+              "parcour",
+              "esamin",
+              "rived",
+              "ripass"
+            ]
+          },
+          {
             "anySubstring": [
               "offenen bestellungen",
               "offene bestellungen",
@@ -7782,14 +7799,10 @@
           },
           {
             "anySubstring": [
-              "mit mir durch",
-              "gemeinsam durch",
+              "mit mir",
               "with me",
-              "go through",
               "avec moi",
-              "passe en revue",
-              "con me",
-              "esamina"
+              "con me"
             ]
           }
         ],
@@ -7820,6 +7833,7 @@
               "what ",
               "why ",
               "show",
+              "show ",
               "list",
               "which ",
               "explain",

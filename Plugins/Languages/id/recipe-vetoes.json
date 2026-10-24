@@ -322,5 +322,17 @@
     "siapa ",
     "di mana ",
     "dimana "
+  ],
+  "review-open-orders": [
+    "apakah ",
+    "bagaimana ",
+    "gimana ",
+    "apa ",
+    "kenapa ",
+    "mengapa ",
+    "kapan ",
+    "siapa ",
+    "di mana ",
+    "dimana "
   ]
 }

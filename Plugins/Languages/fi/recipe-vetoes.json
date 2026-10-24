@@ -295,5 +295,16 @@
     "kuka ",
     "onko ",
     "voiko "
+  ],
+  "review-open-orders": [
+    "miten ",
+    "kuinka ",
+    "mitä ",
+    "miksi ",
+    "milloin ",
+    "missä ",
+    "kuka ",
+    "onko ",
+    "voiko "
   ]
 }

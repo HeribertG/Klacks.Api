@@ -322,5 +322,17 @@
     "który ",
     "która ",
     "które "
+  ],
+  "review-open-orders": [
+    "czy ",
+    "jak ",
+    "co ",
+    "dlaczego ",
+    "kiedy ",
+    "gdzie ",
+    "kto ",
+    "który ",
+    "która ",
+    "które "
   ]
 }
