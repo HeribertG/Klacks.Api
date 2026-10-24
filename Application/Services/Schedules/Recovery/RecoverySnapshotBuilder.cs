@@ -677,12 +677,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     /// Consequence of the fix, deliberate: 00-03 starts are now closed for non-shift workers.
     /// </summary>
     private static ShiftCategory CategoryOf(TimeSpan start, TimeSpan end)
-        => ShiftTypeInference.FromSpan(TimeOnly.FromTimeSpan(start), TimeOnly.FromTimeSpan(end)) switch
-        {
-            0 => ShiftCategory.Early,
-            1 => ShiftCategory.Late,
-            _ => ShiftCategory.Night,
-        };
+        => ShiftCategoryClassifier.CategoryOf(start, end);
 
     private static EffectiveContractData ContractOf(
         IReadOnlyDictionary<Guid, EffectiveContractData> contracts, Guid clientId)
