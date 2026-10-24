@@ -18,5 +18,9 @@ public interface IRecipeCandidateRetriever
     /// <param name="message">Text the recipes are scored against</param>
     /// <param name="topK">How many recipes are returned at most</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    Task<IReadOnlyList<RecipeCandidate>> RetrieveAsync(string message, int topK, CancellationToken cancellationToken);
+    /// <param name="admissibleRecipeNames">Only these recipes are scored (the rest cost no rerank time); an empty
+    /// collection returns nothing without any model call. Null scores every recipe.</param>
+    Task<IReadOnlyList<RecipeCandidate>> RetrieveAsync(
+        string message, int topK, CancellationToken cancellationToken,
+        IReadOnlyCollection<string>? admissibleRecipeNames = null);
 }

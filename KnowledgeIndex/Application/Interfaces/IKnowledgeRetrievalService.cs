@@ -18,6 +18,10 @@ public interface IKnowledgeRetrievalService
     /// <param name="kindFilter">Restricts the result to one entry kind. Applied BEFORE topK, so a
     /// caller that wants the best N recipes gets N recipes rather than the best N of everything
     /// filtered down afterwards. Null returns every kind.</param>
+    /// <param name="sourceIdFilter">Restricts the result to these source ids (case-insensitive), applied after the KNN
+    /// pass and BEFORE the cross-encoder, so excluded entries cost no rerank time; an empty collection returns nothing
+    /// without embedding the query. Null applies no filter. The cross-encoder scores every pair on its own, so the
+    /// scores of the entries that remain are the same as without the filter.</param>
     Task<RetrievalResult> RetrieveAsync(
         string userQuery,
         IReadOnlyCollection<string> userPermissions,
@@ -25,5 +29,6 @@ public interface IKnowledgeRetrievalService
         int topK,
         string? currentRoute,
         CancellationToken cancellationToken,
-        KnowledgeEntryKind? kindFilter = null);
+        KnowledgeEntryKind? kindFilter = null,
+        IReadOnlyCollection<string>? sourceIdFilter = null);
 }

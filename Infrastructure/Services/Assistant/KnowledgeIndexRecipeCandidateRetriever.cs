@@ -25,11 +25,12 @@ public sealed class KnowledgeIndexRecipeCandidateRetriever : IRecipeCandidateRet
     }
 
     public async Task<IReadOnlyList<RecipeCandidate>> RetrieveAsync(
-        string message, int topK, CancellationToken cancellationToken)
+        string message, int topK, CancellationToken cancellationToken,
+        IReadOnlyCollection<string>? admissibleRecipeNames = null)
     {
         var result = await _retrieval.RetrieveAsync(
             message, [], isAdmin: false, topK, currentRoute: null, cancellationToken,
-            KnowledgeEntryKind.Recipe);
+            KnowledgeEntryKind.Recipe, admissibleRecipeNames);
 
         return result.Candidates
             .Select(candidate => new RecipeCandidate(candidate.Entry.SourceId, candidate.Score))
