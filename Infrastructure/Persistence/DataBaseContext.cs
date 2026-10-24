@@ -255,6 +255,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<Klacks.Api.Domain.Models.Authentification.OAuthAuthorizationCodeRow> OAuthAuthorizationCodes { get; set; }
     public DbSet<Klacks.Api.Domain.Models.Schedules.JobTerminalStateRow> JobTerminalStates { get; set; }
     public DbSet<PendingPlanningProfileDraftRow> PendingPlanningProfileDrafts { get; set; }
+    public DbSet<PendingOrderReviewDraftRow> PendingOrderReviewDrafts { get; set; }
     public DbSet<RecentEntityRow> RecentEntities { get; set; }
     public DbSet<AgentSession> AgentSessions { get; set; }
     public DbSet<AgentSessionMessage> AgentSessionMessages { get; set; }

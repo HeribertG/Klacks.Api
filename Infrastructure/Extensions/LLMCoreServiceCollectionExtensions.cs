@@ -209,6 +209,8 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Settings.ICompanyRuleDraftValidator, Klacks.Api.Domain.Services.Settings.CompanyRuleDraftValidator>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingPlanningProfileDraftRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingPlanningProfileDraftRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingPlanningProfileDraftStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingPlanningProfileDraftStore>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingOrderReviewDraftRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingOrderReviewDraftRepository>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingOrderReviewDraftStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingOrderReviewDraftStore>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Settings.IPlanningProfileParameterCatalog, Klacks.Api.Domain.Services.Settings.PlanningProfileParameterCatalog>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Settings.IPlanningProfileDraftValidator, Klacks.Api.Domain.Services.Settings.PlanningProfileDraftValidator>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Settings.ISettingValueValidator, Klacks.Api.Domain.Services.Settings.SettingValueValidator>();
