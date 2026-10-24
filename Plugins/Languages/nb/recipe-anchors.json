@@ -220,5 +220,8 @@
     "planleggbarhet",
     "gruppetilhørighet",
     "gruppeinndeling"
+  ],
+  "review-open-orders": [
+    "bestilling"
   ]
 }

@@ -233,5 +233,8 @@
     "planificabilidad",
     "asignación de grupos",
     "preparación de los grupos"
+  ],
+  "review-open-orders": [
+    "pedido"
   ]
 }

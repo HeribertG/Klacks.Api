@@ -208,5 +208,8 @@
     "planlægbarhed",
     "gruppetilknytning",
     "gruppeinddeling"
+  ],
+  "review-open-orders": [
+    "ordre"
   ]
 }

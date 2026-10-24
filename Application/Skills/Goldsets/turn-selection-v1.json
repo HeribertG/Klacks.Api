@@ -5627,6 +5627,17 @@
       "expectedSlots": [],
       "source": "curated",
       "comment": "Question about what the colours of the cells mean: the schedule page explanation is the answer; the planning-period diagnosis is the accepted alternative when the user means a concrete group or day."
+    },
+    {
+      "id": "w05-recipe-review-open-orders",
+      "message": "Geh die offenen Bestellungen mit mir durch, bevor etwas versiegelt wird.",
+      "locale": "de",
+      "source": "w0.5-recipe",
+      "expectedTool": null,
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "recipe coverage: review-open-orders, the request the welcome focus and the open-order goal send",
+      "expectedRecipe": "review-open-orders"
     }
   ]
 }

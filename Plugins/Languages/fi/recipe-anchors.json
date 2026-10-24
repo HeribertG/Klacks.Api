@@ -253,5 +253,8 @@
     "suunniteltavuus",
     "ryhmäjako",
     "ryhmien valmius"
+  ],
+  "review-open-orders": [
+    "tilau"
   ]
 }

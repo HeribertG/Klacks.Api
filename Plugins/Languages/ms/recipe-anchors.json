@@ -200,5 +200,8 @@
     "kebolehrancangan",
     "pembahagian kumpulan",
     "kesediaan kumpulan"
+  ],
+  "review-open-orders": [
+    "pesanan"
   ]
 }

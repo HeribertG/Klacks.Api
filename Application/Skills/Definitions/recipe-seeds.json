@@ -7756,6 +7756,132 @@
           "note": "RECIPE 'prepare-groups-for-planning' step 1 of 1: call the skill. Pass fromDate/untilDate only if the user named a period and groupName only if the user named a group; otherwise call it without parameters. Your NEXT reply presents the result in the user's language and changes nothing. Part one, from Data: the period (From, Until) and the numbers in Data.Counts; then the findings grouped by their Finding sentence, each with the names it carries (Group, Shift, Client) and, where present, the Reason or ReasonsByCount; say for capacity findings that they are arithmetic only - enough people is necessary, not sufficient; mention Data.Omitted when present; then the proposed changes in their Step order (Action, Group, Client or Shift) and say that employees are always added before anybody is removed. Use only facts from Data, never invent names or numbers, and never quote field names or internal codes other than the plan code. If Data.Proposals is empty say that no group change is needed. Part two, the LAST sentence, only when Data.Proposals is not empty: offer to carry out the changes, followed by [REPLIES:single \"<yes label>=<value>\" | \"<no label>=No\"] where the value of the yes chip is the exact label of the apply skill in the user's language, a colon, Data.PlanCode and then the checked period Data.From to Data.Until and, when Data.Group is set, that group name, because carrying out the plan needs the same period and group: German \"Gruppenplan anwenden: <code>, <From> bis <Until>, <Group>\", English \"Apply the group plan: <code>, <From> to <Until>, <Group>\", French \"Appliquer le plan de groupes : <code>, du <From> au <Until>, <Group>\", Italian \"Applicare il piano dei gruppi: <code>, dal <From> al <Until>, <Group>\", where <Group> is Data.Group and the part \", <Group>\" is left out when Data.Group is not set; for any other language use that skill's label in that language. Nothing is changed by this recipe: never say that anything was changed, and never call any skill that writes or confirms anything in this reply."
         }
       ]
+    },
+    {
+      "name": "review-open-orders",
+      "goal": "Go through the open orders with the planner before anything is sealed: open the order review, which bundles the orders by pattern, proposes start, split, group and qualifications and asks for the expenses, then continue the review key by key.",
+      "goalTranslations": {
+        "de": "Die offenen Bestellungen gemeinsam durchgehen, bevor etwas versiegelt wird: Der Durchgang bündelt die Bestellungen nach Muster, schlägt Beginn, Aufteilung, Gruppe und Qualifikationen vor und fragt nach den Spesen; danach geht es Schlüssel für Schlüssel weiter.",
+        "en": "Go through the open orders together before anything is sealed: the review bundles the orders by pattern, proposes start, split, group and qualifications and asks for the expenses, then continues key by key.",
+        "fr": "Passer en revue ensemble les commandes ouvertes avant de sceller quoi que ce soit : la revue regroupe les commandes par modèle, propose le début, le découpage, le groupe et les qualifications et demande les frais, puis continue clé par clé.",
+        "it": "Esaminare insieme gli ordini aperti prima di sigillare qualsiasi cosa: la revisione raggruppa gli ordini per schema, propone inizio, suddivisione, gruppo e qualifiche e chiede le spese, poi prosegue chiave per chiave."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 78,
+      "trigger": {
+        "allOf": [
+          {
+            "anySubstring": [
+              "offenen bestellungen",
+              "offene bestellungen",
+              "open orders",
+              "commandes ouvertes",
+              "ordini aperti"
+            ]
+          },
+          {
+            "anySubstring": [
+              "mit mir durch",
+              "gemeinsam durch",
+              "with me",
+              "go through",
+              "avec moi",
+              "passe en revue",
+              "con me",
+              "esamina"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "ist ",
+              "sind ",
+              "how ",
+              "what ",
+              "why ",
+              "show",
+              "list",
+              "which ",
+              "explain",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "is there",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anySubstring": [
+              "abbrech",
+              "abbruch",
+              "verwerf",
+              "cancel",
+              "discard",
+              "annul",
+              "abandonn",
+              "annulla",
+              "scarta"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "mutate",
+          "skill": "start_order_review",
+          "note": "Open the order review. The skill returns the review keys - bundles (B..) of orders with one pattern and singles (S..) with their outlier reason - with the proposed start, split, group, qualifications and the rule verdict of the split. Give the user a short overview (how many orders, bundles and singles), then start with the first key and ask exactly one question: for a full-day order the start, naming the proposed time and what it covers on the first and the last day. Nothing is sealed in this turn; every later answer is recorded with set_order_review_decision."
+        }
+      ]
     }
   ]
 }

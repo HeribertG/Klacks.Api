@@ -243,5 +243,9 @@
     "planificabilitate",
     "alocarea grupurilor",
     "pregătirea grupurilor"
+  ],
+  "review-open-orders": [
+    "comenz",
+    "comand"
   ]
 }

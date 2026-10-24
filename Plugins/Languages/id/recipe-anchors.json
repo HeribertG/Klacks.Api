@@ -229,5 +229,8 @@
     "kelayakan perencanaan",
     "pembagian grup",
     "kesiapan grup"
+  ],
+  "review-open-orders": [
+    "pesanan"
   ]
 }

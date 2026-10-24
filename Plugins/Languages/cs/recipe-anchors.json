@@ -249,5 +249,8 @@
     "plánovatelnost",
     "přiřazení do skupin",
     "připravenost skupin"
+  ],
+  "review-open-orders": [
+    "objednávk"
   ]
 }

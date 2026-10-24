@@ -253,5 +253,8 @@
     "planeabilidade",
     "afetação aos grupos",
     "preparação dos grupos"
+  ],
+  "review-open-orders": [
+    "encomenda"
   ]
 }

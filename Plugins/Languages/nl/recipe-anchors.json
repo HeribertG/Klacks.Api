@@ -218,5 +218,9 @@
     "planbaarheid",
     "groepsindeling",
     "groepstoewijzing"
+  ],
+  "review-open-orders": [
+    "bestelling",
+    "order"
   ]
 }
