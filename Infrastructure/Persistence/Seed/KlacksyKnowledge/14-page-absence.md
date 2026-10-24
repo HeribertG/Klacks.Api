@@ -66,7 +66,8 @@ in der Einsatzplanung gebuchten Absenz-Dienste. Erreichbar über das Navi-Icon
 ### Globale Kopfleiste der App (oberster Rand, wirkt auf diese Seite)
 
 - **Suche** (Suchfeld in der Kopfleiste): filtert auf dieser Seite die Mitarbeiterzeilen des
-  Kalenders nach **Name oder ID-Nummer** — der eingegebene Begriff wird als Suchfilter an die
+  Kalenders nach **Name oder ID-Nummer** (Suchregeln wie auf der Seite Alle Adressen: mehrere
+  Wörter = alle müssen vorkommen, Anführungszeichen = Phrase, `+` = ODER) — der eingegebene Begriff wird als Suchfilter an die
   Jahres-Abfrage übergeben und die Zeilenliste neu geladen; Leeren der Suche zeigt wieder alle
   Mitarbeitenden.
 - **Gruppen-Auswahl** (Dropdown mit Gruppenbaum, Option **Alle Gruppen** (de: "Alle Gruppen",

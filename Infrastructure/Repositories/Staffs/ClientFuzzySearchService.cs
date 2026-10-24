@@ -23,6 +23,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Clients;
+using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,7 +44,7 @@ public class ClientFuzzySearchService : IClientFuzzySearchService
 
     public async Task<List<Client>> SearchAsync(string query, int limit, CancellationToken cancellationToken = default)
     {
-        var trimmed = (query ?? string.Empty).Trim();
+        var trimmed = SearchStringTokenizer.StripQuotes(query ?? string.Empty).Trim();
         if (trimmed.Length == 0 || limit <= 0)
         {
             return [];

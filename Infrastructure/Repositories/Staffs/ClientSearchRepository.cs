@@ -201,7 +201,7 @@ public class ClientSearchRepository : IClientSearchRepository
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            var tokens = searchTerm.ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var tokens = SearchStringTokenizer.Tokenize(searchTerm);
             foreach (var rawToken in tokens)
             {
                 var token = rawToken;

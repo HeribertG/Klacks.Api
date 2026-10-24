@@ -17,9 +17,9 @@ public class ClientSearchService : IClientSearchService
             return query;
         }
 
-        if (searchString.Contains("+"))
+        if (SearchStringTokenizer.HasAlternatives(searchString))
         {
-            var keywordList = searchString.ToLower().Split("+");
+            var keywordList = SearchStringTokenizer.SplitAlternatives(searchString);
             return ApplyExactSearch(query, keywordList, includeAddress);
         }
         else

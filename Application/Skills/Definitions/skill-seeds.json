@@ -4417,7 +4417,7 @@
         },
         {
           "name": "searchQuery",
-          "description": "Optional search term to pre-fill into the list's name filter. Omit or leave empty to show all items (filtered only by entityTypeFilter if provided).",
+          "description": "Optional search term to pre-fill into the list's name filter. Omit or leave empty to show all items (filtered only by entityTypeFilter if provided). Syntax: words separated by spaces must ALL match (Hans Müller); wrap name particles in double quotes to keep a phrase together (\"von Oberhausen\"); '+' means OR (Müller+Meier finds both) — never join first and last name with '+'; on person lists digits search the ID number, several IDs separated by ';'.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -4525,7 +4525,7 @@
         "fr": "Ouvrir une page de liste et la filtrer",
         "it": "Apri una pagina elenco e filtrala"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "select_group",

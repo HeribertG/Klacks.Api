@@ -82,9 +82,21 @@ Verträge, Gruppen, Qualifikationen, Notizen und Bild.
 ### Globale Kopfleiste der App (oberster Rand, wirkt auf diese Seite)
 
 - **Suche** (Suchfeld in der Kopfleiste): filtert auf der Listen-Seite die Adress-Tabelle.
-  Text sucht in **Vorname, Zweitname, Nachname, Ledigname und Firma**; eine eingegebene
-  **Zahl** sucht nach der ID-Nummer; **mehrere ID-Nummern** können mit `;` getrennt werden;
-  mehrere Wörter mit `+` verknüpft suchen exakt nach jedem Begriff. Nur auf dieser Seite
+  Text sucht in **Vorname, Zweitname, Nachname, Ledigname und Firma** (Teilwort genügt,
+  Gross-/Kleinschreibung egal). Suchregeln, die Klacksy dem Nutzer bei Bedarf erklärt:
+  - Mehrere Wörter (getrennt durch Leerzeichen, Komma, Punkt, Bindestrich oder `/`) müssen
+    **alle** vorkommen, Reihenfolge egal: `Hans Müller` findet dasselbe wie `Müller, Hans`.
+  - Text in **Anführungszeichen** bleibt eine zusammenhängende Phrase — für Namen mit Partikel:
+    `"von Oberhausen"`, `"de Caprio"`, `"van Felden"`; kombinierbar: `Hans "von Oberhausen"`.
+  - Mit `+` verbundene Begriffe sind **ODER**-verknüpft: `Müller+Meier` findet alle Müller UND
+    alle Meier. Vor- und Nachname daher nie mit `+` verbinden (`Hans+Müller` findet alle Hans
+    und alle Müller).
+  - Ein **einzelnes Zeichen** findet Namen, die damit beginnen.
+  - Eine **Zahl** sucht nach der ID-Nummer; **mehrere ID-Nummern** mit `;` getrennt (`12;15;20`).
+  - Findet die Suche gar nichts, sucht Klacks automatisch nach ähnlich geschriebenen oder
+    klingenden Namen (`Mayer` findet `Meier`); Umlaute werden sonst nicht gleichgesetzt.
+
+  Nur auf dieser Seite
   erscheint zusätzlich die Checkbox **inklusive Adresseanangabe** (`search-include-address`,
   de: "inklusive Adresseanangabe", en: "Include address information", fr: "Inclure
   l'adresse", it: "incluso l'indirizzo") — damit durchsucht der Text auch die Adressfelder,

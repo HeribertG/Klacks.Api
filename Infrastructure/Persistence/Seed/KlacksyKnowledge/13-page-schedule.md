@@ -107,6 +107,8 @@ verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder ni
 - **Suche** (Suchfeld in der Kopfleiste): filtert die Mitarbeiterzeilen des Rasters nach
   **Name** (Nachname, Vorname, Zweitname, Ledigname oder Firma); eine rein numerische
   Eingabe sucht stattdessen nach der **ID-Nummer** (mehrere IDs mit Semikolon getrennt).
+  Suchregeln wie auf der Seite Alle Adressen (`explain_page_employees`): mehrere Wörter =
+  alle müssen vorkommen, Anführungszeichen = Phrase (`"von Oberhausen"`), `+` = ODER.
   Die Eingabe wird als Suchfilter an die Planungs-Abfrage übergeben und das Raster neu
   geladen; Leeren der Suche zeigt wieder alle Mitarbeitenden.
 - **Gruppen-Auswahl** (Dropdown mit Gruppenbaum): begrenzt das Raster auf die gewählte

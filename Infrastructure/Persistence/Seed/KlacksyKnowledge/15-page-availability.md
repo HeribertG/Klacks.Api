@@ -69,7 +69,8 @@ Navi-Icon `open-availability` (Tastenkürzel **Alt+3**) oder die Route
 
 - **Suche** (Suchfeld in der Kopfleiste): filtert auf dieser Seite die Mitarbeiterzeilen
   des Rasters nach **Name oder ID-Nummer** (rein numerische Eingabe = ID-Suche; mehrere
-  IDs mit Semikolon möglich). Der Begriff wird als Suchfilter an die Mitarbeiter-Abfrage
+  IDs mit Semikolon möglich; sonst Suchregeln wie auf der Seite Alle Adressen: mehrere Wörter =
+  alle müssen vorkommen, Anführungszeichen = Phrase, `+` = ODER). Der Begriff wird als Suchfilter an die Mitarbeiter-Abfrage
   übergeben und die Zeilenliste neu geladen; Leeren der Suche zeigt wieder alle.
 - **Gruppen-Auswahl** (Dropdown mit Gruppenbaum, Option **Alle Gruppen** (de: "Alle
   Gruppen", en: "All groups", fr: "Tous les groupes", it: "Tutti i gruppi")): begrenzt

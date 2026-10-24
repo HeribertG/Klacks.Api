@@ -87,8 +87,8 @@ Unterseiten sind `/workplace/edit-shift/:id` (neu: `/workplace/new-shift`),
   **inklusive Kundenname** (de: "inklusive Kundenname", en: "Include client name", fr:
   "Inclure le nom du client", it: "incluso il nome del cliente") — dann wird auch in
   Vorname, Nachname, Name, Ledigname und Firma des zugeordneten Kunden gesucht. Mehrere
-  Wörter werden UND-verknüpft; mit `+` verbundene Begriffe ODER-verknüpft; ein einzelnes
-  Zeichen sucht nach Anfangsbuchstaben.
+  Wörter werden UND-verknüpft; Text in Anführungszeichen bleibt eine Phrase (`"von Oberhausen"`);
+  mit `+` verbundene Begriffe ODER-verknüpft; ein einzelnes Zeichen sucht nach Anfangsbuchstaben.
 - **Gruppen-Auswahl** (Dropdown mit Gruppenbaum): Der globale Gruppen-Scope wirkt auf diese
   Seite — die Wahl setzt den Gruppenfilter der Dienstliste und lädt sie neu. Besonderheit:
   In der Sicht "Bestellungen" (ohne Versiegelt-Häkchen) wird der Gruppenfilter NICHT
