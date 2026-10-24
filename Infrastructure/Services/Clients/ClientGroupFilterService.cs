@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Clients;
 
 namespace Klacks.Api.Infrastructure.Services.Clients;
 
@@ -82,12 +83,7 @@ public class ClientGroupFilterService : IClientGroupFilterService
             return query;
         }
 
-        var visibleGroupIds = scope.VisibleGroupIds.ToList();
-
-        return from client in query
-               where !client.GroupItems.Any()
-                     || client.GroupItems.Any(gi => visibleGroupIds.Contains(gi.GroupId) && gi.AnalyseToken == null)
-               select client;
+        return query.Where(ClientGroupVisibilityFilter.VisibleTo(scope.VisibleGroupIds.ToList()));
     }
 
     public async Task<bool> IsCallerUnrestrictedAsync()

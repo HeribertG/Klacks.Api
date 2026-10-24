@@ -2617,7 +2617,9 @@
     "listar turnos disponíveis",
     "buscar por turno",
     "quais turnos existem",
-    "procurar turnos por nome"
+    "procurar turnos por nome",
+    "pedidos por localidade",
+    "pedidos no cantão"
   ],
   "select_group": [
     "mostra apenas o grupo",

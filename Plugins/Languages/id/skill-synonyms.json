@@ -2569,7 +2569,9 @@
     "temukan shift",
     "daftar shift",
     "shift apa saja yang ada",
-    "cari jadwal shift"
+    "cari jadwal shift",
+    "pesanan berdasarkan lokasi",
+    "pesanan di kanton"
   ],
   "select_group": [
     "pilih grup",

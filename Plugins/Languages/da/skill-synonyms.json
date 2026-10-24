@@ -2595,7 +2595,9 @@
     "find vagt",
     "vis vagter",
     "hvilke vagter findes",
-    "opslag vagt"
+    "opslag vagt",
+    "ordrer efter sted",
+    "ordrer i kantonen"
   ],
   "select_group": [
     "vis kun gruppen bern",

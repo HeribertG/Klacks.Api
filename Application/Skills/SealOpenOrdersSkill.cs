@@ -29,7 +29,8 @@
 /// <param name="fromDate">Only orders starting on or after this date (YYYY-MM-DD or 'today').</param>
 /// <param name="untilDate">Only orders starting on or before this date (YYYY-MM-DD or 'today').</param>
 /// <param name="customerName">Fragment the customer's name or company must contain, case-insensitive.</param>
-/// <param name="groupName">Only orders already linked to this group; omit to ignore group membership.</param>
+/// <param name="groupName">Only orders already linked to this group; omit to ignore group membership. The preview then
+/// says that orders without a group are not counted, so a group filter is never read as a location filter.</param>
 /// <param name="maxCount">Upper bound on the number of orders processed in this run.</param>
 /// <param name="autoAssignGroups">When true, derives and writes the missing group links before sealing.</param>
 /// <param name="apply">When false (default) only previews the batch; when true performs the sealing.</param>
@@ -86,6 +87,11 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
         "administrator. ";
 
     private const string GroupNoteFormat = "Group: '{0}'. ";
+
+    private const string GroupScopeNote =
+        "This counts only orders already linked to that group (group membership, not the customer address); orders " +
+        "without any group are not included, so never conclude from it that a place has no orders - search_shifts " +
+        "with city or state finds orders by address, assign_orders_to_groups links them. ";
 
     private const string InvalidMaxCountError =
         "maxCount must be greater than 0 when it is given.";
@@ -264,7 +270,8 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
     private static SkillResult BuildPreviewResult(
         SealOpenOrdersResult result, OpenOrderSealingScope scope, string groupNote)
     {
-        var scopeNote = scope.HasFullAccess ? string.Empty : ScopedPreviewNote;
+        var scopeNote = (scope.HasFullAccess ? string.Empty : ScopedPreviewNote) +
+                        (string.IsNullOrEmpty(groupNote) ? string.Empty : GroupScopeNote);
 
         var autoAssignNote = result.AutoAssignRequested
             ? $"The group assignment would link {result.AutoAssignedCount} order(s) first, so up to " +

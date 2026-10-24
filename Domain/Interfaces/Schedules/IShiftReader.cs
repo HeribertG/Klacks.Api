@@ -67,6 +67,14 @@ public interface IShiftReader
         Guid groupId, string? nameFragment, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// How many real-plan orders (task orders, no scenario rows, not deleted) carry no live group link, split into
+    /// unsealed and sealed orders. Group-less orders are visible to every caller (ShiftGroupVisibilityFilter), so the
+    /// counts need no caller restriction.
+    /// </summary>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<UngroupedOrderCounts> CountUngroupedOrdersAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// The candidate tasks of a container template slot (see AvailableTaskCandidateCriteria), untracked, with their
     /// client and all the client's addresses, ordered by start time, then client name (client-less tasks last in
     /// PostgreSQL).

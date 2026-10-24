@@ -2578,7 +2578,9 @@
     "liệt kê các ca",
     "ca nào có trong hệ thống",
     "tìm ca theo tên",
-    "danh sách ca làm"
+    "danh sách ca làm",
+    "đơn hàng theo địa điểm",
+    "đơn hàng trong bang"
   ],
   "select_group": [
     "chỉ hiển thị nhóm bán hàng",

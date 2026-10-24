@@ -3,8 +3,8 @@
 /// <summary>
 /// Searches and filters clients by combinable criteria — search term, canton, entity type,
 /// active contract, city, zip prefix and currently valid qualification. The canton/city/zip
-/// filters intentionally match ANY address type of the client, while the returned display
-/// columns always show the employee address.
+/// filters intentionally match ANY address type of the client (one non-deleted address must meet all of them,
+/// the shared AddressLocationPredicate), while the returned display columns always show the employee address.
 /// <para>
 /// Group visibility is NOT applied uniformly across this repository, so read the per-method
 /// contract before adding a caller:
@@ -32,8 +32,10 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Models.Geo;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
+using Klacks.Api.Domain.Services.Geo;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.Staffs;
 using Microsoft.EntityFrameworkCore;
@@ -378,24 +380,10 @@ public class ClientSearchRepository : IClientSearchRepository
         Guid? qualificationId,
         DateOnly? qualificationValidityDate)
     {
-        if (!string.IsNullOrWhiteSpace(canton))
+        var location = AddressLocationCriteria.ForStateCode(canton, city, zipPrefix);
+        if (!location.IsEmpty)
         {
-            query = query.Where(c =>
-                c.Addresses.Any(a => a.State != null && a.State.ToUpper() == canton.ToUpper()));
-        }
-
-        if (!string.IsNullOrWhiteSpace(city))
-        {
-            var trimmedCity = city.Trim();
-            query = query.Where(c =>
-                c.Addresses.Any(a => a.City != null && a.City.ToUpper() == trimmedCity.ToUpper()));
-        }
-
-        if (!string.IsNullOrWhiteSpace(zipPrefix))
-        {
-            var trimmedZipPrefix = zipPrefix.Trim().ToLower();
-            query = query.Where(c =>
-                c.Addresses.Any(a => a.Zip != null && a.Zip.ToLower().StartsWith(trimmedZipPrefix)));
+            query = query.Where(AddressLocationPredicate.AnyAddressOf(location));
         }
 
         if (entityType.HasValue)

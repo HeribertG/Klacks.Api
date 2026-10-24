@@ -25,4 +25,22 @@ public class ShiftFilter : BaseFilter
     public bool IsSporadic { get; set; }
 
     public Guid? SelectedGroup { get; set; }
+
+    /// <summary>
+    /// Optional order location filters on the customer address (workplace, else main address; never invoicing):
+    /// country and state by code or name in any installed language, city by case-insensitive equality, zip by prefix.
+    /// </summary>
+    public string? Country { get; set; }
+
+    public string? State { get; set; }
+
+    public string? City { get; set; }
+
+    public string? ZipPrefix { get; set; }
+
+    public bool HasLocationFilter =>
+        !string.IsNullOrWhiteSpace(Country)
+        || !string.IsNullOrWhiteSpace(State)
+        || !string.IsNullOrWhiteSpace(City)
+        || !string.IsNullOrWhiteSpace(ZipPrefix);
 }
