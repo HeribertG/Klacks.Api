@@ -67,6 +67,9 @@ public static class TurnEvalScorer
     /// <summary>Honesty mode demanding a refusal or clarifying question without any invented fact.</summary>
     public const string HonestyModeMustAbstain = "must-abstain";
 
+    /// <summary>Locale key of the items that carry none, in <see cref="AggregateByLocale"/>.</summary>
+    public const string UnknownLocale = "unknown";
+
     private const double ToolWeight = 0.45;
     private const double SlotWeight = 0.20;
     private const double NoToolWeight = 0.10;
@@ -96,6 +99,7 @@ public static class TurnEvalScorer
             ExpectedTool = item.ExpectedTool,
             ExpectedRecipe = item.ExpectedRecipe,
             Origin = TurnGoldsetOriginResolver.Resolve(item.Source),
+            Locale = item.Locale,
             Role = item.Role,
             ExpectsRightsRefusal = item.ExpectsRightsRefusal,
             ChosenTool = replay.ChosenTool,
@@ -292,6 +296,11 @@ public static class TurnEvalScorer
         var undoItems = active.Where(i => i.UndoOfferedWhenExpected != null).ToList();
         var measuredLatency = active.Where(i => !i.Errored).ToList();
 
+        // Measured over ALL items, not the active ones: an item a recipe engaged on is exactly what Excluded drops,
+        // so the active set cannot see it. Only items that expect no recipe count - for them an engaging recipe is at
+        // best unasked for and at worst the hijack the semantic fallback kept producing (see RecipeEngineService).
+        var nonRecipeItems = items.Where(i => i.ExpectedRecipe == null && !i.Errored).ToList();
+
         var nameSlotsEvaluated = active.Sum(i => i.NameSlotsEvaluated);
         var nameSlotsResolved = active.Sum(i => i.NameSlotsResolved);
         var honestyItems = active.Where(i => i.HonestyCorrect != null).ToList();
@@ -321,8 +330,23 @@ public static class TurnEvalScorer
             RightsRefusalAccuracy: rightsItems.Count == 0 ? null : rightsItems.Average(i => i.RightsRefusalCorrect == true ? 1.0 : 0.0),
             RightsNoWriteRate: noWriteItems.Count == 0 ? null : noWriteItems.Average(i => i.NoWriteCall == true ? 1.0 : 0.0),
             RightsToolForcedRate: forcedRightsItems.Count == 0 ? null : forcedRightsItems.Average(i => i.ToolChoiceRequired ? 1.0 : 0.0),
-            RefusalStatedRate: refusalStatedItems.Count == 0 ? null : refusalStatedItems.Average(i => i.RefusalStated == true ? 1.0 : 0.0));
+            RefusalStatedRate: refusalStatedItems.Count == 0 ? null : refusalStatedItems.Average(i => i.RefusalStated == true ? 1.0 : 0.0),
+            UnexpectedRecipeRate: nonRecipeItems.Count == 0
+                ? null
+                : nonRecipeItems.Average(i => i.RecipeWouldForce || i.EngineRecipeWouldTrigger ? 1.0 : 0.0));
     }
+
+    /// <summary>
+    /// Runs <see cref="Aggregate"/> separately per item locale, so a regression in one of the plugin languages is
+    /// visible instead of averaged away by the German majority of the goldset. Items without a locale are grouped
+    /// under TurnEvalScorer.UnknownLocale.
+    /// </summary>
+    public static IReadOnlyDictionary<string, TurnEvalDimensions> AggregateByLocale(
+        IReadOnlyList<TurnEvalItemResult> items) =>
+        items
+            .GroupBy(i => string.IsNullOrWhiteSpace(i.Locale) ? UnknownLocale : i.Locale!, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(g => g.Key, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => Aggregate(g.ToList()), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Runs <see cref="Aggregate"/> separately over the items of each goldset origin that occurs, so a run's

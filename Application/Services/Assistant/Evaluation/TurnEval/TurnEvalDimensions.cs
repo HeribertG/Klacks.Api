@@ -17,6 +17,9 @@
 /// RightsToolForcedRate (share of rights-refusal items on which production forces a tool call, tool_choice required,
 /// so a refusal text is impossible by construction) are likewise outside the composite and omitted from the persisted JSON while null,
 /// so the dimensions of every run without rights items serialize exactly as before.
+/// UnexpectedRecipeRate (2026-10-24) is the share of items expecting NO recipe on which a recipe would force or
+/// engage. It is computed over all non-errored items because those turns are what Excluded removes from every
+/// other dimension - without it a rising hijack rate only showed as a smaller denominator. Outside the composite.
 /// </summary>
 
 using System.Text.Json.Serialization;
@@ -46,4 +49,5 @@ public sealed record TurnEvalDimensions(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RightsRefusalAccuracy = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RefusalStatedRate = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RightsNoWriteRate = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RightsToolForcedRate = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RightsToolForcedRate = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? UnexpectedRecipeRate = null);

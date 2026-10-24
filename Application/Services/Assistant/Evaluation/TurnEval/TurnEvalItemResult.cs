@@ -100,6 +100,9 @@ public class TurnEvalItemResult
     /// <summary>Where the goldset item came from, copied from its Source so a run can be reported per origin.</summary>
     public TurnGoldsetOrigin Origin { get; set; }
 
+    /// <summary>The item's locale, copied from the goldset so a run can be reported per language; null when unset.</summary>
+    public string? Locale { get; set; }
+
     /// <summary>The role the item was replayed as; null when it ran with the rights of the whole run.</summary>
     public TurnGoldsetRole? Role { get; set; }
 

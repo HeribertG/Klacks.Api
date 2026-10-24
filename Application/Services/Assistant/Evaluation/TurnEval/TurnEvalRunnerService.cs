@@ -116,6 +116,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         var dimensions = TurnEvalScorer.Aggregate(itemResults);
         var composite = TurnEvalScorer.ComputeComposite(dimensions);
         var dimensionsByOrigin = TurnEvalScorer.AggregateByOrigin(itemResults);
+        var dimensionsByLocale = TurnEvalScorer.AggregateByLocale(itemResults);
 
         // IsPartial means "not comparable to a completed run", for either of two reasons: the run was
         // capped and covers a different population, or it is no measurement of the model - too many
@@ -165,14 +166,44 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             baselineMedian, baselineComposites.Count);
 
         LogOriginBreakdown(goldset, modelId, dimensionsByOrigin);
+        LogLocaleBreakdown(goldset, modelId, dimensions, dimensionsByLocale);
 
         return new TurnEvalRunResult
         {
             Run = evalRun,
             Dimensions = dimensions,
             Items = itemResults,
-            DimensionsByOrigin = dimensionsByOrigin
+            DimensionsByOrigin = dimensionsByOrigin,
+            DimensionsByLocale = dimensionsByLocale
         };
+    }
+
+    /// <summary>
+    /// One line per locale plus the run-wide unexpected-recipe rate. The rate is logged here rather than in the
+    /// headline line above, whose template is matched by existing log readers and is left byte-for-byte as it was.
+    /// </summary>
+    private void LogLocaleBreakdown(
+        string goldset,
+        string modelId,
+        TurnEvalDimensions dimensions,
+        IReadOnlyDictionary<string, TurnEvalDimensions> dimensionsByLocale)
+    {
+        _logger.LogInformation(
+            "TurnEvalRun {Goldset} model {Model}: unexpectedRecipe={UnexpectedRecipe:F3} (items expecting no recipe on which one would engage)",
+            goldset.ForLog(), modelId.ForLog(), dimensions.UnexpectedRecipeRate ?? -1);
+
+        foreach (var (locale, localeDimensions) in dimensionsByLocale)
+        {
+            _logger.LogInformation(
+                "TurnEvalRun {Goldset} model {Model} locale={Locale}: composite={Composite:F4}, tool={Tool:F2}, noTool={NoTool:F2}, recipe={Recipe:F2}, retrievalHit={RetrievalHit:F3}, selectionHit={SelectionHit:F3}, unexpectedRecipe={UnexpectedRecipe:F3}, items={Items}, passed={Passed}, excluded={Excluded}, errored={Errored}",
+                goldset.ForLog(), modelId.ForLog(), locale.ForLog(),
+                TurnEvalScorer.ComputeComposite(localeDimensions),
+                localeDimensions.ToolAccuracy ?? -1, localeDimensions.NoToolAccuracy ?? -1,
+                localeDimensions.RecipeAccuracy ?? -1, localeDimensions.RetrievalHit ?? -1,
+                localeDimensions.SelectionHit ?? -1, localeDimensions.UnexpectedRecipeRate ?? -1,
+                localeDimensions.ItemsTotal, localeDimensions.ItemsPassed,
+                localeDimensions.ItemsExcluded, localeDimensions.ItemsErrored);
+        }
     }
 
     private void LogOriginBreakdown(

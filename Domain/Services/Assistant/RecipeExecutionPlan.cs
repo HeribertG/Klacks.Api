@@ -216,6 +216,15 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     }
 
     /// <summary>
+    /// Ends the flow when the current step's skill is not in the turn's toolset: the step cannot be forced, and a
+    /// plan left active would neither run nor pause, so the turn continues as an ordinary turn instead.
+    /// </summary>
+    public void DeactivateOnMissingStepSkill()
+    {
+        _deactivated = true;
+    }
+
+    /// <summary>
     /// Handles a name-resolution ask-back of the current step like an ambiguous capture: the slot injected into the
     /// step is cleared and the flow rewinds to the question step that filled it (TryRewindToDisambiguate, with its
     /// one rewind per recipe lifetime), so the turn asks the user and the recipe continues with the answer.

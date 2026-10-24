@@ -49,4 +49,12 @@ public static class RecipeAbortReasons
     /// the forcing was released: the model has to ask the user before the step may run with a name.
     /// </summary>
     public const string NameAskBackEndedRecipe = "name ask-back ended the recipe";
+
+    /// <summary>
+    /// The skill of the step to force was not in the turn's toolset (permission lost, skill disabled, or a
+    /// correction that re-resolved to a recipe the toolset was not assembled for), so the step could not be
+    /// forced. Before 2026-10-24 the forcing silently did nothing, the plan stayed active without ever pausing,
+    /// and the run row lingered as Running until the 24-hour expiry sweep.
+    /// </summary>
+    public const string StepSkillMissingFromToolset = "step skill missing from the toolset";
 }

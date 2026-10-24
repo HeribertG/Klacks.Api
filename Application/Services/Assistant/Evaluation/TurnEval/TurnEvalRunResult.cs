@@ -25,4 +25,12 @@ public class TurnEvalRunResult
     /// </summary>
     public IReadOnlyDictionary<TurnGoldsetOrigin, TurnEvalDimensions> DimensionsByOrigin { get; set; } =
         new Dictionary<TurnGoldsetOrigin, TurnEvalDimensions>();
+
+    /// <summary>
+    /// The same dimensions computed over the items of each locale present in the run, so a regression in one
+    /// language is not averaged away by the German majority. Not persisted, like DimensionsByOrigin; logged per
+    /// locale by TurnEvalRunnerService.
+    /// </summary>
+    public IReadOnlyDictionary<string, TurnEvalDimensions> DimensionsByLocale { get; set; } =
+        new Dictionary<string, TurnEvalDimensions>();
 }

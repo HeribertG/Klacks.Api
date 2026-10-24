@@ -230,10 +230,37 @@ internal sealed class RecipeTurnState
             f => string.Equals(f.Name, Forcing.CurrentSkill, StringComparison.OrdinalIgnoreCase));
         if (recipeFunction == null)
         {
+            // An ask step has no skill: a turn that runs while the plan waits on its question (the topic-switch
+            // turn) must leave the plan alone. Only a step that names a skill the toolset lacks ends the recipe.
+            if (!string.IsNullOrWhiteSpace(Forcing.CurrentSkill))
+            {
+                ReleaseOnMissingStepSkill(Forcing.CurrentSkill);
+            }
+
             return (false, iterationFunctions, null);
         }
 
         return (true, new List<LLMFunction> { recipeFunction }, Forcing.CurrentStepNote);
+    }
+
+    /// <summary>
+    /// The step skill is not in this turn's toolset, so the step cannot be forced. Logged as a warning because it
+    /// means the toolset and the recipe disagree, which the guarantees are meant to prevent; the plan is ended and
+    /// the run recorded as aborted, and the turn continues with the full toolset as an ordinary turn.
+    /// </summary>
+    /// <param name="missingSkill">The step skill that was not found.</param>
+    private void ReleaseOnMissingStepSkill(string? missingSkill)
+    {
+        _logger.LogWarning(
+            "Recipe forcing released: step skill {Skill} of recipe {Recipe} is not in the turn's toolset",
+            missingSkill, Plan?.Name ?? _context.ActiveRecipeName);
+        var wasActive = Plan is { IsActive: true };
+        Plan?.DeactivateOnMissingStepSkill();
+        Forcing = null;
+        if (wasActive)
+        {
+            _abortReason ??= RecipeAbortReasons.StepSkillMissingFromToolset;
+        }
     }
 
     /// <summary>
