@@ -46,9 +46,11 @@ public static class AddressLocationPredicate
 
         var city = Normalize(criteria.City);
         var hasCity = city != null;
+        var cityUpper = (city ?? string.Empty).ToUpperInvariant();
 
-        var zipPrefix = Normalize(criteria.ZipPrefix)?.ToLowerInvariant();
+        var zipPrefix = Normalize(criteria.ZipPrefix);
         var hasZip = zipPrefix != null;
+        var zipPrefixLower = (zipPrefix ?? string.Empty).ToLowerInvariant();
 
         return a => !a.IsDeleted
             && (!hasCountry || a.Country.ToUpper() == countryCode)
@@ -56,8 +58,8 @@ public static class AddressLocationPredicate
                 || anyCountryStateCodes.Contains(a.State.ToUpper())
                 || stateCountryKeys.Contains(a.State.ToUpper() + StateCountryKeySeparator + a.Country.ToUpper())
                 || (a.Country == string.Empty && countryBoundStateCodes.Contains(a.State.ToUpper())))
-            && (!hasCity || a.City.ToUpper() == city!.ToUpper())
-            && (!hasZip || a.Zip.ToLower().StartsWith(zipPrefix!));
+            && (!hasCity || a.City.ToUpper() == cityUpper)
+            && (!hasZip || a.Zip.ToLower().StartsWith(zipPrefixLower));
     }
 
     public static Expression<Func<Client, bool>> AnyAddressOf(AddressLocationCriteria criteria)

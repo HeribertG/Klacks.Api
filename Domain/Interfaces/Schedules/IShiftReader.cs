@@ -72,7 +72,7 @@ public interface IShiftReader
     /// counts need no caller restriction.
     /// </summary>
     /// <param name="cancellationToken">Cancels the query</param>
-    Task<UngroupedOrderCounts> CountUngroupedOrdersAsync(CancellationToken cancellationToken = default);
+    Task<OrderStatusCounts> CountUngroupedOrdersAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The candidate tasks of a container template slot (see AvailableTaskCandidateCriteria), untracked, with their

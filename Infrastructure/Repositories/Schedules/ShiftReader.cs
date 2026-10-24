@@ -69,7 +69,7 @@ public class ShiftReader : IShiftReader
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<UngroupedOrderCounts> CountUngroupedOrdersAsync(CancellationToken cancellationToken = default)
+    public async Task<OrderStatusCounts> CountUngroupedOrdersAsync(CancellationToken cancellationToken = default)
     {
         var counts = await _context.Shift
             .Where(s => !s.IsDeleted
@@ -82,7 +82,7 @@ public class ShiftReader : IShiftReader
             .Select(g => new { Status = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
 
-        return new UngroupedOrderCounts(
+        return new OrderStatusCounts(
             counts.Where(c => c.Status == ShiftStatus.OriginalOrder).Sum(c => c.Count),
             counts.Where(c => c.Status == ShiftStatus.SealedOrder).Sum(c => c.Count));
     }

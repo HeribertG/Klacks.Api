@@ -127,15 +127,15 @@ public class FindSplitShiftCandidatesSkill : BaseSkillImplementation
                           ? $"Group '{group.Name}' has no orders linked to it. "
                           : $"Group '{group.Name}' has {orders.Count} order(s) linked to it, {splitCount} already split. ") +
                       ScopeNote(group.Name, orders.Count, ungrouped, inCity, inState) +
-                      NextStep(orders.Count, inCity + inState);
+                      NextStep(orders.Count, inCity.Total > 0 || inState.Total > 0);
 
         var scope = new
         {
             CountedBy = "direct group membership of sealed orders and their shifts, not the customer address",
             UngroupedOpenOrders = ungrouped.OpenOrders,
             UngroupedSealedOrders = ungrouped.SealedOrders,
-            OrdersByAddressInCity = inCity,
-            OrdersByAddressInState = inState
+            OrdersByAddressInCity = new { inCity.OpenOrders, inCity.SealedOrders },
+            OrdersByAddressInState = new { inState.OpenOrders, inState.SealedOrders }
         };
 
         return SkillResult.SuccessResult(
@@ -143,7 +143,8 @@ public class FindSplitShiftCandidatesSkill : BaseSkillImplementation
             message);
     }
 
-    private static string ScopeNote(string groupName, int linkedCount, UngroupedOrderCounts ungrouped, int inCity, int inState)
+    private static string ScopeNote(
+        string groupName, int linkedCount, OrderStatusCounts ungrouped, OrderStatusCounts inCity, OrderStatusCounts inState)
     {
         var note = "Scope: this counts group membership only (sealed orders and their shifts linked to this group), " +
                    "not where the customers are - never conclude from it that a place has no orders. ";
@@ -153,18 +154,21 @@ public class FindSplitShiftCandidatesSkill : BaseSkillImplementation
             note += $"{ungrouped.OpenOrders} open (unsealed) and {ungrouped.SealedOrders} sealed order(s) belong to no group at all. ";
         }
 
-        if (inCity + inState > 0)
+        if (inCity.Total > 0 || inState.Total > 0)
         {
-            note += $"By customer address (workplace, else main address) {inCity} order(s) are in the city '{groupName}' and " +
-                    $"{inState} in the state '{groupName}' - tell the user the difference ({inCity + inState} by address, " +
-                    $"{linkedCount} by group). search_shifts with city or state and status draft_order or sealed_order lists " +
-                    "them; assign_orders_to_groups can link open orders to their groups. ";
+            note += "By customer address (workplace, else main address): " +
+                    $"city '{groupName}' {inCity.OpenOrders} open and {inCity.SealedOrders} sealed order(s), " +
+                    $"state '{groupName}' {inState.OpenOrders} open and {inState.SealedOrders} sealed order(s) - the city " +
+                    "lies inside the state, so never add the two up. " +
+                    $"Tell the user the difference to the {linkedCount} sealed order(s) linked to the group. search_shifts " +
+                    "with city or state and status draft_order or sealed_order lists them; assign_orders_to_groups can link " +
+                    "open orders to their groups. ";
         }
 
         return note;
     }
 
-    private static string NextStep(int linkedCount, int locatedCount)
+    private static string NextStep(int linkedCount, bool foundByAddress)
     {
         if (linkedCount > 0)
         {
@@ -172,34 +176,36 @@ public class FindSplitShiftCandidatesSkill : BaseSkillImplementation
                    "do not create anything before the user decides.";
         }
 
-        return locatedCount > 0
+        return foundByAddress
             ? "ASK THE USER whether one of the orders found by address should be used or a NEW order created; " +
               "do not create anything before the user decides."
             : "Ask the user to confirm creating a NEW order, then create_shift + cut_shift.";
     }
 
-    private async Task<int> CountOrdersAtAsync(string? city, string? state, CancellationToken cancellationToken)
+    private async Task<OrderStatusCounts> CountOrdersAtAsync(string? city, string? state, CancellationToken cancellationToken)
     {
-        var total = 0;
-        foreach (var isSealedOrder in new[] { false, true })
-        {
-            var filter = new ShiftFilter
-            {
-                FilterType = ShiftFilterType.Original,
-                IsSealedOrder = isSealedOrder,
-                ActiveDateRange = true,
-                FormerDateRange = true,
-                FutureDateRange = true,
-                IsTimeRange = true,
-                IsSporadic = true,
-                NumberOfItemsPerPage = CountOnlyPageSize,
-                City = city,
-                State = state
-            };
-            var result = await _mediator.Send(new GetTruncatedListQuery(filter), cancellationToken);
-            total += Math.Max(result?.MaxItems ?? 0, 0);
-        }
+        var open = await CountOrdersInViewAsync(city, state, isSealedOrder: false, cancellationToken);
+        var sealedOrders = await CountOrdersInViewAsync(city, state, isSealedOrder: true, cancellationToken);
+        return new OrderStatusCounts(open, sealedOrders);
+    }
 
-        return total;
+    private async Task<int> CountOrdersInViewAsync(
+        string? city, string? state, bool isSealedOrder, CancellationToken cancellationToken)
+    {
+        var filter = new ShiftFilter
+        {
+            FilterType = ShiftFilterType.Original,
+            IsSealedOrder = isSealedOrder,
+            ActiveDateRange = true,
+            FormerDateRange = true,
+            FutureDateRange = true,
+            IsTimeRange = true,
+            IsSporadic = true,
+            NumberOfItemsPerPage = CountOnlyPageSize,
+            City = city,
+            State = state
+        };
+        var result = await _mediator.Send(new GetTruncatedListQuery(filter), cancellationToken);
+        return Math.Max(result?.MaxItems ?? 0, 0);
     }
 }
