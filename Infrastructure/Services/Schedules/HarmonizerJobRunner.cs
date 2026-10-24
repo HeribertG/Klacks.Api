@@ -11,6 +11,7 @@ using Klacks.Api.Infrastructure.Hubs;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Harmonizer.Conductor;
 using Klacks.ScheduleOptimizer.Harmonizer.Evolution;
+using Klacks.ScheduleOptimizer.Harmonizer.Global;
 using Klacks.ScheduleOptimizer.Harmonizer.Rules;
 using Klacks.ScheduleOptimizer.Harmonizer.Scorer;
 using Klacks.ScheduleOptimizer.Harmonizer.Telemetry;
@@ -48,6 +49,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
     private readonly ILogger<HarmonizerJobRunner> _logger;
     private readonly IHostApplicationLifetime _lifetime;
     private readonly bool _useEvolution;
+    private readonly bool _harmonyGuard;
 
     public HarmonizerJobRunner(
         IServiceScopeFactory scopeFactory,
@@ -67,6 +69,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
         _resultCache = resultCache;
         _stateCache = stateCache;
         _useEvolution = harmonizerOptions.Value.UseEvolution;
+        _harmonyGuard = harmonizerOptions.Value.HarmonyGuard;
         _lifetime = lifetime;
         _logger = logger;
     }
@@ -221,7 +224,13 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
         var originalForCache = CloneBitmap(sortedBitmap);
 
         var scorer = new HarmonyScorer();
-        var validator = DomainAwareReplaceValidator.ForInput(input, BitmapRuleRuntime.TryCreate(input));
+        IReplaceValidator validator = DomainAwareReplaceValidator.ForInput(input, BitmapRuleRuntime.TryCreate(input));
+        if (_harmonyGuard)
+        {
+            // Second instance: no move of the run may take the global harmony below the start plan's.
+            validator = HarmonyGuardReplaceValidator.ForStart(validator, sortedBitmap);
+        }
+
         var fitness = new HarmonyFitnessEvaluator(scorer);
         var stochasticMutation = new StochasticBitmapMutation(validator);
 
