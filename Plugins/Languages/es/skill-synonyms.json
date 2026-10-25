@@ -2620,7 +2620,9 @@
     "listar turnos",
     "qué turnos existen",
     "mostrar turnos",
-    "consultar turno"
+    "consultar turno",
+    "pedidos por localidad",
+    "pedidos en el cantón"
   ],
   "select_group": [
     "muestra solo el grupo de barcelona",

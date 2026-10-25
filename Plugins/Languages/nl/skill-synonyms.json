@@ -2625,7 +2625,9 @@
     "welke diensten zijn er",
     "toon de dienstlijst",
     "zoek naar een shift",
-    "lijst met shifts"
+    "lijst met shifts",
+    "orders per plaats",
+    "orders in het kanton"
   ],
   "select_group": [
     "filter op groep...",

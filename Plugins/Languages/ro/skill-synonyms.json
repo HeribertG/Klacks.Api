@@ -2602,7 +2602,9 @@
     "arată schimburile disponibile",
     "listează schimburile",
     "caută schimb după nume",
-    "care schimburi există"
+    "care schimburi există",
+    "comenzi după localitate",
+    "comenzi în canton"
   ],
   "select_group": [
     "arată doar grupul vânzări",

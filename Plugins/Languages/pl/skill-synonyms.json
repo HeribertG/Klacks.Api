@@ -2645,7 +2645,9 @@
     "pokaż listę zmian",
     "wyszukaj zmianę po nazwie",
     "jakie są zmiany",
-    "znajdź dyżur"
+    "znajdź dyżur",
+    "zlecenia według miejscowości",
+    "zlecenia w kantonie"
   ],
   "select_group": [
     "pokaż tylko grupę",

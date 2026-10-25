@@ -4810,7 +4810,7 @@
     {
       "name": "search_employees",
       "area": "client",
-      "description": "Search for employees or customers by criteria (name, canton, type) and return a list of matches. Use this for filtered searches and lists. To search AND directly navigate to a specific person, use search_and_navigate instead.",
+      "description": "Search for employees or customers by criteria (name, canton or other state of their address, type) and return a list of matches. Use this for filtered searches and lists. To search AND directly navigate to a specific person, use search_and_navigate instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -4827,24 +4827,11 @@
         },
         {
           "name": "canton",
-          "description": "Filter by Swiss canton code",
-          "type": "Enum",
+          "description": "Optional state of the person's address - canton, Bundesland, departement, region - as code or name in any language (e.g. 'BE', 'Bern', 'Tessin'); resolved to the stored code.",
+          "type": "String",
           "required": false,
           "defaultValue": null,
-          "enumValues": [
-            "BE",
-            "ZH",
-            "SG",
-            "VD",
-            "AG",
-            "LU",
-            "BS",
-            "BL",
-            "GR",
-            "TG",
-            "GE",
-            "NE"
-          ]
+          "enumValues": null
         },
         {
           "name": "entityType",
@@ -4966,7 +4953,7 @@
         "fr": "Rechercher des employés",
         "it": "Cerca dipendenti"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "set_user_group_scope",
@@ -12509,7 +12496,7 @@
     {
       "name": "find_split_shift_candidates",
       "area": "shift",
-      "description": "Lists existing orders (Bestellungen) and already-split shifts of a group so you can ASK the user, before building a multi-part service, whether to reuse an existing already-split order or open a NEW one. ALWAYS call this FIRST when the user asks for a split / 24h-rotation / early-late-night service. Returns each order with its time span and, if already split, its parts. Do not create or cut anything before the user has chosen.",
+      "description": "Lists existing orders (Bestellungen) and already-split shifts of a group so you can ASK the user, before building a multi-part service, whether to reuse an existing already-split order or open a NEW one. ALWAYS call this FIRST when the user asks for a split / 24h-rotation / early-late-night service. Counts group membership only, not where the customer is: 0 in a group never means 0 orders in that place. Do not create or cut anything before the user has chosen.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -12580,7 +12567,7 @@
         "fr": "Trouver des services fractionnés existants à réutiliser",
         "it": "Trova turni frazionati esistenti da riutilizzare"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "cut_shift",
@@ -22320,7 +22307,7 @@
     {
       "name": "search_shifts",
       "area": "shift",
-      "description": "Finds shifts by name, abbreviation or customer - the shift templates a plan is built from, not the concrete assignments of a person. Use when someone looks for a particular shift, wants to know which shifts exist for a customer, asks for a shift by its name, or needs to check when a shift is valid and at which times it runs. Includes current, expired and future shifts. Also answers which night, early or late shifts exist.",
+      "description": "Finds shifts and orders by name, abbreviation or customer - the shift templates a plan is built from, not a person's assignments - and orders by where they take place: the customer's workplace, else main address (city, canton or other state, country, zip prefix), not the group they are linked to. Use for a particular shift, a customer's shifts, the orders in a city or canton, or when and at which times a shift runs. Includes current, expired and future shifts and night, early or late shifts.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22355,6 +22342,38 @@
             "sealed_order",
             "container"
           ]
+        },
+        {
+          "name": "city",
+          "description": "Optional city where the order takes place (customer workplace, else main address), e.g. 'Bern'; exact, case-insensitive.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "state",
+          "description": "Optional state of the order location - canton, Bundesland, departement, region - as code or name in any language (e.g. 'BE', 'Bern', 'Berne'). A city and a state can share a name: use city for the town, state for the whole canton.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "country",
+          "description": "Optional country of the order location as code or name in any language (e.g. 'CH', 'Schweiz').",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "zipPrefix",
+          "description": "Optional prefix the order location's zip code must start with (e.g. '30' matches 3000-3099).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -22381,7 +22400,10 @@
           "dienst suchen",
           "schichtliste",
           "welche schichten gibt es",
-          "dienste auflisten"
+          "dienste auflisten",
+          "bestellungen nach ort",
+          "bestellungen im kanton",
+          "aufträge nach adresse"
         ],
         "en": [
           "search shifts",
@@ -22389,19 +22411,26 @@
           "list shifts",
           "shift list",
           "which shifts exist",
-          "lookup shift"
+          "lookup shift",
+          "orders by location",
+          "orders in a city",
+          "orders in a canton"
         ],
         "fr": [
           "chercher des postes",
           "trouver un poste",
           "liste des postes",
-          "rechercher un service"
+          "rechercher un service",
+          "commandes par localité",
+          "commandes dans le canton"
         ],
         "it": [
           "cercare turni",
           "trovare un turno",
           "elenco turni",
-          "lista dei turni"
+          "lista dei turni",
+          "ordini per località",
+          "ordini nel cantone"
         ]
       },
       "labels": {
@@ -22410,7 +22439,7 @@
         "fr": "Rechercher des services",
         "it": "Cerca turni"
       },
-      "version": 13
+      "version": 14
     },
     {
       "name": "get_shift_details",

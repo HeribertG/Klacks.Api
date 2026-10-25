@@ -2577,7 +2577,9 @@
     "senarai syif",
     "cari nama syif",
     "apa syif yang ada",
-    "tunjukkan syif"
+    "tunjukkan syif",
+    "pesanan mengikut lokasi",
+    "pesanan di kanton"
   ],
   "select_group": [
     "tunjukkan hanya kumpulan pemasaran",

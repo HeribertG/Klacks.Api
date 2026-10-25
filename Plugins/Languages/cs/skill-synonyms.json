@@ -2630,7 +2630,9 @@
     "vyhledat směny v systému",
     "ukázat seznam směn",
     "které směny existují",
-    "prohledat směny"
+    "prohledat směny",
+    "objednávky podle místa",
+    "objednávky v kantonu"
   ],
   "select_group": [
     "zobraz jen skupinu brno",

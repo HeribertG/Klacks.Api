@@ -2589,7 +2589,9 @@
     "hitta pass",
     "lista pass",
     "vilka pass finns",
-    "sök pass med text"
+    "sök pass med text",
+    "beställningar efter ort",
+    "beställningar i kantonen"
   ],
   "select_group": [
     "visa endast gruppen",

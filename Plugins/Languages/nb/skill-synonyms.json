@@ -2568,7 +2568,9 @@
     "vis vakter",
     "list opp vakter",
     "hvilke vakter finnes",
-    "slå opp vakt"
+    "slå opp vakt",
+    "ordrer etter sted",
+    "ordrer i kantonen"
   ],
   "select_group": [
     "vis bare gruppe oslo",

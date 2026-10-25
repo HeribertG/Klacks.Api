@@ -2602,7 +2602,9 @@
     "näytä vuorot",
     "luettele vuorot",
     "mitä vuoroja on olemassa",
-    "haista vuoro"
+    "haista vuoro",
+    "tilaukset paikkakunnan mukaan",
+    "tilaukset kantonissa"
   ],
   "select_group": [
     "näytä vain tiimi espoo",
