@@ -38,7 +38,8 @@
 /// <param name="fromDate">Only orders starting on or after this date (YYYY-MM-DD or 'today').</param>
 /// <param name="untilDate">Only orders starting on or before this date (YYYY-MM-DD or 'today').</param>
 /// <param name="customerName">Fragment the customer's name or company must contain, case-insensitive.</param>
-/// <param name="groupName">Only orders already linked to this group; omit to ignore group membership.</param>
+/// <param name="groupName">Only orders already linked to this group; omit to ignore group membership. The preview then
+/// says that orders without a group are not counted, so a group filter is never read as a location filter.</param>
 /// <param name="maxCount">Upper bound on the number of orders processed in this run.</param>
 /// <param name="autoAssignGroups">When true, derives and writes the missing group links before sealing.</param>
 /// <param name="apply">When false (default) only previews the batch; when true performs the sealing.</param>
