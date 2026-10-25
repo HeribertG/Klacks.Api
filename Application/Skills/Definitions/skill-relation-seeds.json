@@ -312,16 +312,6 @@
       "status": 1
     },
     {
-      "skillAName": "find_split_shift_candidates",
-      "skillBName": "search_shifts",
-      "type": 0,
-      "confidence": 0.95,
-      "supportCount": 0,
-      "contradictionCount": 0,
-      "provenance": "curated:corequired",
-      "status": 1
-    },
-    {
       "skillAName": "get_data_retention_settings",
       "skillBName": "explain_page_settings_overview",
       "type": 1,
