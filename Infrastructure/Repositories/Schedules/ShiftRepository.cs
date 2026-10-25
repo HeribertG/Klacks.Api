@@ -448,6 +448,11 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
                 && s.ScenarioSourceShiftId == null
                 && !s.IsDeleted);
 
+        if (filter.OrderId.HasValue)
+        {
+            query = query.Where(s => s.Id == filter.OrderId.Value);
+        }
+
         if (!string.IsNullOrWhiteSpace(filter.SourceSystemId))
         {
             var sourceSystemId = filter.SourceSystemId.Trim();

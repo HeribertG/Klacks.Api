@@ -7,6 +7,11 @@
 /// OriginalShift (carrying its group items and expenses, and copying its required qualifications), and
 /// both rows are re-read before the commit so a write that did not land rolls back instead of being
 /// reported as a success. There is no counterpart operation: a sealed order can never be unsealed.
+/// seal_shift may hand over a group to attach (groupToAttach, the group derived from the customer's address for an order
+/// without a group): it then satisfies the group requirement, is added to the order inside the same transaction (valid
+/// from the order's start, so the clone carries it to the plannable shift) and is verified on the plannable shift after
+/// the commit. An order that has a group of its own by then is refused instead of getting a second one. Without a group to
+/// attach every path (seal_open_orders, the UI) behaves exactly as before.
 /// </summary>
 /// <param name="shiftRepository">Loads the order and performs the sealing write and its verification read.</param>
 /// <param name="unitOfWork">Opens the per-order transaction the whole transition runs in.</param>
@@ -18,6 +23,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Services.Orders;
@@ -46,6 +52,12 @@ public sealed class OrderSealingService : IOrderSealingService
     private const string VerificationFailedFormat =
         "Database verification failed: {0} could not be confirmed in the database " +
         "after the write — the change was rolled back.";
+
+    private const string GroupAppearedFormat =
+        "Order '{0}' got a group of its own since the preview, so the group derived from the customer's address is not " +
+        "attached and nothing was sealed. Repeat seal_shift without a confirmation token to get a fresh preview.";
+
+    private const string GroupLinkDescriptionFormat = "the group link of the plannable shift created for sealed order '{0}'";
 
     private const string SealedOrderDescriptionFormat = "the sealing of order '{0}'";
 
@@ -116,7 +128,11 @@ public sealed class OrderSealingService : IOrderSealingService
         return missing;
     }
 
-    public async Task<OrderSealingCheck> CheckAsync(Guid orderId, CancellationToken cancellationToken = default)
+    public Task<OrderSealingCheck> CheckAsync(Guid orderId, CancellationToken cancellationToken = default) =>
+        CheckAsync(orderId, groupToAttach: null, cancellationToken);
+
+    public async Task<OrderSealingCheck> CheckAsync(
+        Guid orderId, Guid? groupToAttach, CancellationToken cancellationToken = default)
     {
         var order = await _shiftRepository.Get(orderId);
         if (order == null || !await _shiftVisibilityGuard.IsVisibleAsync(order, cancellationToken))
@@ -133,7 +149,14 @@ public sealed class OrderSealingService : IOrderSealingService
             return new OrderSealingCheck(null, Refused(orderId, order.Name, reason, []));
         }
 
-        var missing = CollectMissingRequirements(order);
+        if (groupToAttach.HasValue && HasActiveGroup(order))
+        {
+            return new OrderSealingCheck(null, Refused(orderId, order.Name, string.Format(GroupAppearedFormat, order.Name), []));
+        }
+
+        var missing = CollectMissingRequirements(order)
+            .Where(requirement => !groupToAttach.HasValue || requirement != MissingGroupRequirement)
+            .ToList();
         if (missing.Count > 0)
         {
             return new OrderSealingCheck(null, Refused(
@@ -146,9 +169,13 @@ public sealed class OrderSealingService : IOrderSealingService
         return new OrderSealingCheck(order, null);
     }
 
-    public async Task<OrderSealingOutcome> SealAsync(Guid orderId, CancellationToken cancellationToken = default)
+    public Task<OrderSealingOutcome> SealAsync(Guid orderId, CancellationToken cancellationToken = default) =>
+        SealAsync(orderId, groupToAttach: null, cancellationToken);
+
+    public async Task<OrderSealingOutcome> SealAsync(
+        Guid orderId, Guid? groupToAttach, CancellationToken cancellationToken = default)
     {
-        var check = await CheckAsync(orderId, cancellationToken);
+        var check = await CheckAsync(orderId, groupToAttach, cancellationToken);
         if (check.Refusal != null)
         {
             return check.Refusal;
@@ -156,6 +183,16 @@ public sealed class OrderSealingService : IOrderSealingService
 
         var order = check.SealableOrder!;
         order.Status = ShiftStatus.SealedOrder;
+        if (groupToAttach.HasValue)
+        {
+            order.GroupItems.Add(new GroupItem
+            {
+                Id = Guid.NewGuid(),
+                ShiftId = order.Id,
+                GroupId = groupToAttach.Value,
+                ValidFrom = order.FromDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+            });
+        }
 
         try
         {
@@ -182,6 +219,11 @@ public sealed class OrderSealingService : IOrderSealingService
                     persisted => persisted.Status == ShiftStatus.OriginalShift && persisted.OriginalId == orderId,
                     string.Format(PlannableShiftDescriptionFormat, order.Name));
 
+                if (groupToAttach.HasValue)
+                {
+                    await ConfirmGroupLinkAsync(newPlannableShiftId, groupToAttach.Value, order.Name);
+                }
+
                 return newPlannableShiftId;
             });
 
@@ -190,6 +232,19 @@ public sealed class OrderSealingService : IOrderSealingService
         catch (SkillVerificationException ex)
         {
             return Refused(orderId, order.Name, ex.Message, []);
+        }
+    }
+
+    private static bool HasActiveGroup(Shift order) => order.GroupItems.Any(gi => !gi.IsDeleted);
+
+    private async Task ConfirmGroupLinkAsync(Guid plannableShiftId, Guid groupId, string orderName)
+    {
+        var groups = await _shiftRepository.GetGroupsForShift(plannableShiftId);
+        if (!groups.Any(group => group.Id == groupId))
+        {
+            throw new SkillVerificationException(
+                OperationName,
+                string.Format(VerificationFailedFormat, string.Format(GroupLinkDescriptionFormat, orderName)));
         }
     }
 

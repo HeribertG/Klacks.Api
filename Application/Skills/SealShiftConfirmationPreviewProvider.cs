@@ -1,14 +1,16 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Confirmation preview of seal_shift: when the autonomy gate holds the call, this provider checks the order with the
-/// sealing service's own read-only check (IOrderSealingService.CheckAsync, the same refusals SealAsync gives) and
-/// describes it - name, abbreviation, period and times - together with what sealing does and that it can never be undone.
-/// It refuses, so the gate issues no token, when the shiftId is missing or the order cannot be sealed. The order id is the
-/// preview's binding (ConfirmationBindingKinds.OrderSeal): the confirmed replay seals exactly this order or nothing.
-/// It only reads.
+/// Confirmation preview of seal_shift: when the autonomy gate holds the call, this provider works out what would be sealed
+/// with the very resolver the confirmed call uses (ISealShiftTargetResolver: the sealing service's read-only check, and for
+/// an order without a group the group derived from the customer's address) and describes it - name, abbreviation, period
+/// and times, the derived group and why it was chosen - together with what sealing does and that it can never be undone.
+/// It refuses, so the gate issues no token, when the shiftId is missing or the order cannot be sealed; for an order whose
+/// group cannot be derived the refusal tells the model to ask the user for the group. The order id, and the derived group
+/// when there is one, are the preview's binding (ConfirmationBindingKinds.OrderSeal): the confirmed replay seals exactly
+/// this order into exactly this group or nothing. It only reads.
 /// </summary>
-/// <param name="orderSealingService">Loads the order and tells whether it may be sealed right now</param>
+/// <param name="targetResolver">Works out the order and the group it would be placed in</param>
 
 using System.Globalization;
 using Klacks.Api.Application.Interfaces;
@@ -30,11 +32,15 @@ public class SealShiftConfirmationPreviewProvider : ISkillConfirmationPreviewPro
         "Sealing turns this order into an immutable sealed order and creates its plannable shift; it can never be undone. " +
         "Exactly this order is bound to the confirmation.";
 
-    private readonly IOrderSealingService _orderSealingService;
+    private const string DerivedGroupNote =
+        " The order has no group yet: sealing places it in group '{0}' ({1}), derived from the customer's address; a " +
+        "different group derived before the confirmation voids it.";
 
-    public SealShiftConfirmationPreviewProvider(IOrderSealingService orderSealingService)
+    private readonly ISealShiftTargetResolver _targetResolver;
+
+    public SealShiftConfirmationPreviewProvider(ISealShiftTargetResolver targetResolver)
     {
-        _orderSealingService = orderSealingService;
+        _targetResolver = targetResolver;
     }
 
     public bool Supports(string skillName) =>
@@ -51,18 +57,22 @@ public class SealShiftConfirmationPreviewProvider : ISkillConfirmationPreviewPro
             return SkillConfirmationPreview.Refuse(InvalidShiftIdError);
         }
 
-        var check = await _orderSealingService.CheckAsync(orderId, cancellationToken);
-        if (check.Refusal != null)
+        var target = await _targetResolver.ResolveAsync(orderId, cancellationToken);
+        if (target.Refusal != null)
         {
-            return SkillConfirmationPreview.Refuse(check.Refusal.FailureReason!);
+            return SkillConfirmationPreview.Refuse(target.Refusal);
         }
 
-        var order = check.SealableOrder!;
+        var order = target.Order!;
         var from = order.FromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
         var until = order.UntilDate?.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture) ?? OpenEnd;
         var start = order.StartShift.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture);
         var end = order.EndShift.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture);
-        var text = $"Seal the order '{order.Name}' ({order.Abbreviation}), {from} to {until}, {start}-{end}. {SealNote}";
-        return SkillConfirmationPreview.Show(text, SealShiftSkill.BindingFor(orderId));
+        var groupNote = target.DerivedGroup == null
+            ? string.Empty
+            : string.Format(
+                CultureInfo.InvariantCulture, DerivedGroupNote, target.DerivedGroup.GroupName, target.DerivedGroup.MatchReason);
+        var text = $"Seal the order '{order.Name}' ({order.Abbreviation}), {from} to {until}, {start}-{end}.{groupNote} {SealNote}";
+        return SkillConfirmationPreview.Show(text, SealShiftSkill.BindingFor(orderId, target.DerivedGroup?.GroupId));
     }
 }
