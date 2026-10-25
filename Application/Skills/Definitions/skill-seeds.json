@@ -12585,7 +12585,7 @@
     {
       "name": "cut_shift",
       "area": "shift",
-      "description": "Cuts ONE existing plannable shift (an OriginalShift, e.g. a 24h order 07:00-07:00) into several time parts (split shifts) that all stay linked to the same order — the correct way to model an early/late/night rotation. NEVER create several independent shifts for the parts of one service: create ONE order with create_shift, then cut it here.",
+      "description": "Cuts ONE existing plannable shift (an OriginalShift, e.g. a 24h order 07:00-07:00) into several time parts (split shifts) that all stay linked to the same order — the correct way to model an early/late/night rotation. NEVER create several independent shifts for the parts of one service: create ONE order with create_shift and seal it (the user confirms the seal), then cut its plannable shift here. An open, unsealed order cannot be cut.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -12594,7 +12594,7 @@
       "parameters": [
         {
           "name": "shiftId",
-          "description": "UUID of the plannable shift (OriginalShift) to cut — the ShiftId returned by create_shift, or an order id found via find_split_shift_candidates.",
+          "description": "UUID of the plannable shift (OriginalShift) to cut — the PlannableShiftId the seal returned (the sealed order id resolves to the same plannable shift), or an order id found via find_split_shift_candidates. A freshly created open order cannot be cut until it is sealed.",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -12664,7 +12664,7 @@
         "fr": "Découper un service en parties",
         "it": "Taglia un turno in parti"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "create_test_environment",

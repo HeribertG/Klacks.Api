@@ -7,7 +7,7 @@
 /// of the next part — and its status changes OriginalShift(2) -> SplitShift(3). The remaining parts
 /// are created. So no duplicate plannable shift is left over next to its parts.
 /// The order (Bestellung / SealedOrder, status 1) is IMMUTABLE and is NEVER changed by a cut.
-/// This is the correct way to model an early/late/night rotation: create ONE order, then cut it here.
+/// This is the correct way to model an early/late/night rotation: create ONE order, seal it, then cut its plannable shift here.
 /// The plan (parsing, target, tiling, operations) comes from IShiftTimeCutPlanner. A cut always needs the user's
 /// confirmation (owner decision 2026-10-23): it runs only as the confirmed replay of its server preview
 /// (CutShiftConfirmationPreviewProvider). The binding of that preview (ShiftTimeCutBinding: plannable shift, parts, default
