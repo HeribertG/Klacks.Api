@@ -330,6 +330,7 @@ public class CreateShiftSkill : BaseSkillImplementation
             ShiftId = reusable.Id,
             reusable.Name,
             Reused = true,
+            IsSealed = reusable.Status != ShiftStatus.OriginalOrder,
             ClientId = billing.ClientId,
             ClientName = clientName
         };
@@ -351,10 +352,11 @@ public class CreateShiftSkill : BaseSkillImplementation
     }
 
     private static string SealStepHint(Guid orderId) =>
-        "Klacksy never seals an order on create. Once name, abbreviation, fromDate, at least one weekday or holiday, at " +
-        "least one group, quantity>0 and sumEmployees>0 are all set, call seal_shift with " +
-        $"shiftId=\"{orderId}\": the user confirms its preview, and only the sealed order gets the plannable shift that " +
-        "can be booked - and split with cut_shift if it should be cut into parts.";
+        "Klacksy never seals an order on create. Once name, abbreviation, fromDate, at least one weekday or holiday, " +
+        "quantity>0 and sumEmployees>0 are all set, call seal_shift with " +
+        $"shiftId=\"{orderId}\": the user confirms its preview (an order without a group is placed in the group " +
+        "derived from the customer's address, which the preview names), and only the sealed order gets the plannable shift " +
+        "that can be booked - and split with cut_shift if it should be cut into parts.";
 
     private static SkillResult CreatedOrderResult(
         OrderInput input,

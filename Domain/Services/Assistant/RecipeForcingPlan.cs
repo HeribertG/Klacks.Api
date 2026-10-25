@@ -13,7 +13,8 @@
 /// (AwaitsConfirmation) and the turn that confirms the seal builds a new plan on the seal step that waits for the
 /// confirmed replay (confirm_pending_action replaying seal_shift) instead of forcing the seal again
 /// (CutRecipeContinuationResolver). A refused seal, a failed replay or a replay of another order ends the plan
-/// (IsStoppedAtSeal).
+/// (IsStoppedAtSeal). A create_shift that reused an order that is already sealed (Data.IsSealed) skips the seal step: the
+/// cut runs on the plannable shift id it returned.
 /// </summary>
 /// <param name="name">The recipe identifier (e.g. "dienst-aus-bestellung-schneiden").</param>
 /// <param name="steps">The ordered steps.</param>
@@ -145,6 +146,14 @@ public sealed class RecipeForcingPlan : IRecipeForcingPlan
         if (step.CapturesOrder)
         {
             _capturedOrderId = ExtractDataString(call.Result, RecipeConstants.CreatedOrderIdDataProperty);
+            if (IsReusedSealedOrder(call.Result) && NextStepSeals())
+            {
+                // create_shift reused an order that is already sealed: its ShiftId is the plannable shift, so the seal
+                // step is skipped and the cut runs on that shift directly.
+                _capturedPlannableShiftId = _capturedOrderId;
+                _index += 2;
+                return;
+            }
         }
 
         _index++;
@@ -183,6 +192,21 @@ public sealed class RecipeForcingPlan : IRecipeForcingPlan
         _awaitsConfirmedReplay = false;
         AwaitsConfirmation = false;
         _index++;
+    }
+
+    private bool NextStepSeals() => _index + 1 < _steps.Count && _steps[_index + 1].SealsOrder;
+
+    private bool IsReusedSealedOrder(string? result)
+    {
+        if (_capturedOrderId == null)
+        {
+            return false;
+        }
+
+        using var doc = ParseResultData(result);
+        return doc != null
+            && doc.RootElement.TryGetPropertyCaseInsensitive(RecipeConstants.CreatedOrderIsSealedDataProperty, out var value)
+            && value.ValueKind == JsonValueKind.True;
     }
 
     private static string? ExtractDataString(string? result, string property)

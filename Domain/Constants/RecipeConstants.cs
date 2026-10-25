@@ -27,9 +27,12 @@ public static class RecipeConstants
 
     public const string ShiftIdParam = "shiftId";
 
-    // Result data properties the plan reads between steps: create_shift names the created order ShiftId, seal_shift
-    // names the sealed order OrderId and the plannable shift it created PlannableShiftId.
+    // Result data properties the plan reads between steps: create_shift names the created order ShiftId (and flags a
+    // reused order that is already sealed with IsSealed - its ShiftId is then the plannable shift), seal_shift names the
+    // sealed order OrderId and the plannable shift it created PlannableShiftId.
     public const string CreatedOrderIdDataProperty = "ShiftId";
+
+    public const string CreatedOrderIsSealedDataProperty = "IsSealed";
 
     public const string SealedOrderIdDataProperty = "OrderId";
 
@@ -147,8 +150,9 @@ public static class RecipeConstants
         "RECIPE 'dienst-aus-bestellung-schneiden' — step 2 of 4: the customer is ALREADY chosen and its clientId is " +
         "supplied for you. Do NOT ask the user anything and do NOT navigate — call create_shift NOW to create EXACTLY " +
         "ONE shift (the order; it is created as an open order). Ignore any earlier instruction to ask which customer or " +
-        "to wait for the user. Never call create_shift more than once. Pass groupIds when the request names group UUIDs: " +
-        "an order without a group cannot be sealed. The next step seals this order, the cut follows after that.";
+        "to wait for the user. Never call create_shift more than once. Pass groupIds only when the request names group " +
+        "UUIDs; without them the seal places the order in the group derived from the customer's address. The next step " +
+        "seals this order, the cut follows after that.";
 
     public const string SealShiftStepNote =
         "RECIPE 'dienst-aus-bestellung-schneiden' — step 3 of 4: now call seal_shift for the order you just created; its " +
@@ -169,4 +173,12 @@ public static class RecipeConstants
     // their names are only in that request, the confirmation turn itself just says "yes".
     public const string CutShiftContinuationStepNoteTemplate =
         CutShiftStepNote + " The user's request that started this flow was: \"{0}\"";
+
+    // Appended once to the tool results when the recipe stopped on its seal step, so the recipe never ends silently.
+    public const string CutRecipeSealStoppedNote =
+        "\n\n[RECIPE 'dienst-aus-bestellung-schneiden' PAUSED — the order exists, but seal_shift did not seal it (its " +
+        "result above says why), so the cut into the requested parts did not run either. Tell the user why in one or two " +
+        "sentences and that sealing and the cut are still open. If the order has no group, ask the user which group it " +
+        "belongs to; once the user names it, find it with list_groups, link it to the order with add_shift_to_group and " +
+        "call seal_shift again. Do NOT call cut_shift before the order is sealed.]";
 }

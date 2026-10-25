@@ -25,6 +25,10 @@ internal sealed class RecipeTurnState
 
     private string? _abortReason;
 
+    private bool _sealStopNoted;
+
+    private bool _sealStopNoteDue;
+
     private RecipeTurnState(
         IRecipeRunRecorder recorder,
         RecipeEngineService engine,
@@ -172,6 +176,11 @@ internal sealed class RecipeTurnState
     internal void ObserveExecuted(IReadOnlyList<LLMFunctionCall> executedCalls)
     {
         Forcing?.Observe(executedCalls);
+        if (!_sealStopNoted && CutPlan is { IsStoppedAtSeal: true })
+        {
+            _sealStopNoted = true;
+            _sealStopNoteDue = true;
+        }
         var askBacks = executedCalls
             .Where(call => !call.IsRejectedWithoutRunning && NameResolutionAskBack.IsAskBack(call.Result))
             .ToList();
@@ -377,18 +386,22 @@ internal sealed class RecipeTurnState
     }
 
     /// <summary>
-    /// Returns the one-shot note that tells the model its recipe ended on a gate hold, or null when none is
-    /// due. Consuming it clears the flag, so the note is appended to exactly one tool-result message.
+    /// Returns the one-shot notes due after an iteration, or null when none is: that the recipe ended on a gate hold, and
+    /// that the cut recipe stopped on its seal (RecipeConstants.CutRecipeSealStoppedNote: what is still open and that the
+    /// model asks for a missing group, so the recipe never ends silently). Consuming them clears the flags, so each note
+    /// is appended to exactly one tool-result message.
     /// </summary>
     internal string? TakeGateHoldNote()
     {
-        if (!GateHoldNoteDue)
+        var note = GateHoldNoteDue ? RecipeEngineDefaults.GateHoldEndsRecipeNote : null;
+        GateHoldNoteDue = false;
+        if (_sealStopNoteDue)
         {
-            return null;
+            _sealStopNoteDue = false;
+            note += RecipeConstants.CutRecipeSealStoppedNote;
         }
 
-        GateHoldNoteDue = false;
-        return RecipeEngineDefaults.GateHoldEndsRecipeNote;
+        return note;
     }
 
     /// <summary>
