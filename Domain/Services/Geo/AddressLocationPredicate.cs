@@ -26,6 +26,14 @@ public static class AddressLocationPredicate
         var countryCode = Normalize(criteria.CountryCode)?.ToUpperInvariant();
         var hasCountry = countryCode != null;
 
+        var countryCodes = (criteria.CountryCodes ?? [])
+            .Select(Normalize)
+            .OfType<string>()
+            .Select(c => c.ToUpperInvariant())
+            .Distinct()
+            .ToList();
+        var hasCountryCodes = countryCodes.Count > 0;
+
         var hasState = criteria.States.Count > 0;
         var anyCountryStateCodes = criteria.States
             .Where(s => string.IsNullOrWhiteSpace(s.CountryCode))
@@ -54,6 +62,7 @@ public static class AddressLocationPredicate
 
         return a => !a.IsDeleted
             && (!hasCountry || a.Country.ToUpper() == countryCode)
+            && (!hasCountryCodes || countryCodes.Contains(a.Country.ToUpper()))
             && (!hasState
                 || anyCountryStateCodes.Contains(a.State.ToUpper())
                 || stateCountryKeys.Contains(a.State.ToUpper() + StateCountryKeySeparator + a.Country.ToUpper())

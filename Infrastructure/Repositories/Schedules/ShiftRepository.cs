@@ -410,6 +410,11 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         query = isUnsealedDraftView
             ? query
             : _queryPipeline.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange, today);
+        if (!isUnsealedDraftView && ShiftValidityOverlap.HasPeriod(filter.ValidFrom, filter.ValidUntil))
+        {
+            query = query.Where(ShiftValidityOverlap.Overlaps(filter.ValidFrom, filter.ValidUntil));
+        }
+
         query = _queryPipeline.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
         query = ShiftLocationQuery.Apply(query, context.Client, location);
         query = ShiftGroupVisibilityQuery.Apply(query, visibleGroupIds);

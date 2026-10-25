@@ -18,7 +18,7 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 /// <summary>
 /// Handler for the paginated shift/order list. Restricts the list to the shifts the caller may see by group
 /// (group-less shifts stay visible to everyone); a selected group the caller may not see yields only group-less shifts.
-/// Location filters (country, state, city, zip prefix) are resolved to address codes and narrow the list to orders whose
+/// Location filters (country, state, city, zip prefix text fields, plus the country and state code lists of the list filter) are resolved to address codes and narrow the list to orders whose
 /// customer location matches and whose customer the caller may see; they never widen what the caller sees.
 /// </summary>
 /// <param name="shiftRepository">Filters and paginates the shifts</param>
@@ -77,8 +77,9 @@ public class GetTruncatedListQueryHandler : IRequestHandler<GetTruncatedListQuer
             return null;
         }
 
-        var criteria = await _locationResolver.ResolveAsync(
+        var resolved = await _locationResolver.ResolveAsync(
             filter.Country, filter.State, filter.City, filter.ZipPrefix, cancellationToken);
+        var criteria = ShiftListLocationCriteria.Extend(resolved, filter);
         var customerVisibleGroupIds = await _shiftGroupFilterService.ResolveShiftListGroupIdsAsync(null);
         return new ShiftLocationFilter(criteria, customerVisibleGroupIds);
     }

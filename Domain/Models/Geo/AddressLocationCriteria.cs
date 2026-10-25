@@ -11,16 +11,19 @@ namespace Klacks.Api.Domain.Models.Geo;
 /// <param name="States">States the address may lie in (any of them); empty = any state</param>
 /// <param name="City">City the address must carry, compared case-insensitively; null = any city</param>
 /// <param name="ZipPrefix">Prefix the address zip code must start with; null = any zip code</param>
+/// <param name="CountryCodes">Countries the address may lie in (any of them, multi-select); null or empty = any country. Must hold in addition to CountryCode</param>
 public sealed record AddressLocationCriteria(
     string? CountryCode,
     IReadOnlyList<StateCodeMatch> States,
     string? City,
-    string? ZipPrefix)
+    string? ZipPrefix,
+    IReadOnlyList<string>? CountryCodes = null)
 {
     public static AddressLocationCriteria None { get; } = new(null, [], null, null);
 
     public bool IsEmpty =>
         string.IsNullOrWhiteSpace(CountryCode)
+        && (CountryCodes == null || CountryCodes.Count == 0)
         && States.Count == 0
         && string.IsNullOrWhiteSpace(City)
         && string.IsNullOrWhiteSpace(ZipPrefix);
