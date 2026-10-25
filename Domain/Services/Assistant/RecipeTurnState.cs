@@ -57,7 +57,10 @@ internal sealed class RecipeTurnState
     /// <summary>The data-driven recipe plan of this turn, null when no recipe was resolved or resumed.</summary>
     internal RecipeExecutionPlan? Plan { get; }
 
-    /// <summary>The hard-coded cut plan, resolved only when no data-driven plan applies.</summary>
+    /// <summary>
+    /// The hard-coded cut plan, resolved only when no data-driven plan applies: the continuation of a turn that redeems
+    /// the recipe's held seal (TurnPreparation.CutContinuation), otherwise a fresh match on the message.
+    /// </summary>
     internal RecipeForcingPlan? CutPlan { get; }
 
     /// <summary>
@@ -292,7 +295,9 @@ internal sealed class RecipeTurnState
     {
         var preparation = await turnPreparation.PrepareAsync(
             new TurnPreparationRequest(context, provider, model, conversationId), cancellationToken);
-        var cutPlan = preparation.Plan == null ? RecipeForcingResolver.Resolve(context.Message) : null;
+        var cutPlan = preparation.Plan == null
+            ? preparation.CutContinuation ?? RecipeForcingResolver.Resolve(context.Message)
+            : null;
         var forcing = (IRecipeForcingPlan?)preparation.Plan ?? cutPlan;
 
         context.ActiveRecipeName = forcing?.Name;
@@ -388,7 +393,8 @@ internal sealed class RecipeTurnState
 
     /// <summary>
     /// Closes the run row and clears the pending plan when the turn ended without pausing. A turn that
-    /// paused leaves both alone: the pending store carries the plan and the Running row to the next turn.
+    /// paused leaves both alone: the pending store carries the plan and the Running row to the next turn. A cut plan
+    /// held on its seal also leaves the Running row alone; the turn that confirms the seal resumes it.
     /// </summary>
     internal async Task FinalizeAsync(CancellationToken cancellationToken)
     {
@@ -408,6 +414,16 @@ internal sealed class RecipeTurnState
             else if (CutPlan is { IsDeactivated: true })
             {
                 await _recorder.AbortAsync(Run, RecipeAbortReasons.AmbiguousCutRecipeMatch, cancellationToken);
+            }
+            else if (CutPlan is { IsStoppedAtSeal: true })
+            {
+                await _recorder.AbortAsync(Run, RecipeAbortReasons.CutRecipeStoppedAtSeal, cancellationToken);
+            }
+            else if (CutPlan is { AwaitsConfirmation: true })
+            {
+                // The gate held the seal: the run stays Running, the turn that confirms the seal resumes it
+                // (CutRecipeContinuationResolver) and closes it.
+                _logger.LogInformation("Recipe '{Recipe}' waits for the confirmation of its seal", CutPlan.Name);
             }
             else if (CutPlan is { IsActive: false })
             {

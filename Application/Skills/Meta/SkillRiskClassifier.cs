@@ -301,8 +301,9 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Owner decision 2026-10-23 ("cutting always with confirmation"): a cut turns the plannable shift of an order
         // into parts, and every part carries its own copy of the default expenses, so each part is booked with them;
         // undoing it takes reset_shift_cuts, which is Sensitive itself. Held at every level. Price, stated plainly: the
-        // hard-coded recipe "dienst-aus-bestellung-schneiden" ends on the gate hold of its cut step (the user confirms the
-        // cut in the next turn), UnattendedSkillPolicy refuses both cuts on every background path, McpSkillExposurePolicy
+        // hard-coded recipe "dienst-aus-bestellung-schneiden" runs over three turns - its request turn ends on the held seal,
+        // the turn that confirms the seal forces the cut and ends on its hold (CutRecipeContinuationResolver), the user
+        // confirms the cut in the turn after that -, UnattendedSkillPolicy refuses both cuts on every background path, McpSkillExposurePolicy
         // hides them from MCP, ScheduleRecurringTaskSkill cannot schedule them and a plan step pauses for approval.
         "cut_shift",
         "cut_shift_by_date",

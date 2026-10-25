@@ -588,8 +588,8 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         skills.Where(s => s.Effect == effect).Select(s => s.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// The guarantees resolvable from the message and permitted skills alone, without any store or
-    /// service call: page/concept explain, the create_shift/cut_shift workflow pair, recipe-forcing and
+    /// The guarantees resolvable from the request alone (message, permitted, retrieved and continuation skills), without
+    /// any store or service call: page/concept explain, the create_shift/cut_shift workflow pair, recipe-forcing and
     /// grouping intent. Split out of ResolveAsync because it is the stateless half of the resolution;
     /// the forcing recipe names are returned because the plan-candidate guarantee downstream needs them
     /// alongside the engine-recipe names ResolveAsync resolves itself.
@@ -619,14 +619,17 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
                 guaranteedSkills, permittedSkills, conceptSkillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
-        // Workflow-pair guarantee: an order is created (create_shift) and then split into parts
-        // (cut_shift), usually in the same turn. cut_shift is not always-on and both vector retrieval
-        // and the (probabilistic) co-required expansion can miss it on the create/confirm turn, so the
-        // model navigates to the cut page or writes manual instructions instead of cutting. Guarantee
-        // cut_shift deterministically whenever create_shift is in play (it survives truncation because
-        // guaranteed skills are kept first).
+        // Workflow-pair guarantee: an order is created (create_shift), sealed (seal_shift) and then split into
+        // parts (cut_shift). cut_shift is not always-on and both vector retrieval and the (probabilistic)
+        // co-required expansion can miss it on the create/confirm turn, so the model navigates to the cut page
+        // or writes manual instructions instead of cutting. Guarantee cut_shift deterministically whenever
+        // create_shift is in play (it survives truncation because guaranteed skills are kept first) - also on
+        // the turn right after a create_shift (ContinuationSkillNames): the cut recipe confirms its held seal
+        // in that turn ("Ja") and forces cut_shift afterwards (CutRecipeContinuationResolver), and a "Ja"
+        // retrieves nothing that would bring cut_shift along.
         if (request.RetrievedSkills.Any(
-                s => string.Equals(s.Name, CreateShiftSkillName, StringComparison.OrdinalIgnoreCase)))
+                s => string.Equals(s.Name, CreateShiftSkillName, StringComparison.OrdinalIgnoreCase))
+            || request.ContinuationSkillNames?.Contains(CreateShiftSkillName, StringComparer.OrdinalIgnoreCase) == true)
         {
             SkillGuaranteeCollector.Add(
                 guaranteedSkills, permittedSkills, CutShiftSkillName, ToolsetSkillSource.Hint, guaranteedSources);
