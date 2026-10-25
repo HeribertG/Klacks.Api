@@ -4395,7 +4395,7 @@
     {
       "name": "search_in_list",
       "area": "navigation",
-      "description": "Open a workplace list page (clients, groups, shifts, absence calendar) and optionally narrow it by search term and/or address type. Do NOT use propose_grouping or apply_grouping for listing/showing clients — those skills MOVE data and must never be called for browse/view intents.",
+      "description": "Open a workplace list page (clients, groups, shifts, absence calendar) and optionally narrow it by search term and/or address type. On shift lists the search term matches ONLY name and abbreviation, never city, canton, country or group: set a place like Bern via city, a postal code start via zipPrefix; canton and country cannot be set here. Do NOT use propose_grouping or apply_grouping for listing/showing clients — those skills MOVE data and must never be called for browse/view intents.",
       "category": "Query",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -4417,7 +4417,7 @@
         },
         {
           "name": "searchQuery",
-          "description": "Optional search term to pre-fill into the list's name filter. Omit or leave empty to show all items (filtered only by entityTypeFilter if provided). Syntax: words separated by spaces must ALL match (Hans Müller); wrap name particles in double quotes to keep a phrase together (\"von Oberhausen\"); '+' means OR (Müller+Meier finds both) — never join first and last name with '+'; on person lists digits search the ID number, several IDs separated by ';'.",
+          "description": "Optional search term to pre-fill into the list's name filter. Omit or leave empty to show all items (filtered only by entityTypeFilter, city and zipPrefix if provided). On shift lists it matches only shift name and abbreviation, never a place - use city or zipPrefix for places. Syntax: words separated by spaces must ALL match (Hans Müller); wrap name particles in double quotes to keep a phrase together (\"von Oberhausen\"); '+' means OR (Müller+Meier finds both) — never join first and last name with '+'; on person lists digits search the ID number, several IDs separated by ';'.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -4434,6 +4434,22 @@
             "employee",
             "extern"
           ]
+        },
+        {
+          "name": "city",
+          "description": "Optional, only for entityType=shift: customer city to narrow the shift list to (case-insensitive exact match on the customer address city), e.g. Bern or Zürich. Use this instead of searchQuery for place names. Each call replaces the previous city filter; omit it to show all cities.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "zipPrefix",
+          "description": "Optional, only for entityType=shift: start of the customer postal code to narrow the shift list to, e.g. 30 for all codes beginning with 30. Each call replaces the previous postal-code filter; omit it to show all.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": {
@@ -4448,7 +4464,9 @@
               "absence": "/workplace/absence"
             },
             "valueFrom": "params.searchQuery",
-            "entityTypeFilterFrom": "params.entityTypeFilter"
+            "entityTypeFilterFrom": "params.entityTypeFilter",
+            "cityFrom": "params.city",
+            "zipPrefixFrom": "params.zipPrefix"
           }
         ]
       },
@@ -4525,7 +4543,7 @@
         "fr": "Ouvrir une page de liste et la filtrer",
         "it": "Apri una pagina elenco e filtrala"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "select_group",
