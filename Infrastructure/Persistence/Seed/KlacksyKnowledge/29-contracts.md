@@ -37,7 +37,7 @@ A contract is a **template** describing working conditions; it only takes effect
 
 ## Stage 1 — What it is and what it is for
 
-A contract says under which working conditions a person works: how many hours they are meant to work, on which weekdays, and which extra time credits apply for night, Saturday, Sunday or public-holiday work. It is written once as a template and then handed to every person it fits, so ten part-timers can share one template. The hours a person is meant to work (their target hours) come from the contract that is currently active for them. Example: the template "Part time 80 %" is assigned to Maria from 1 January, and from that day Maria's target hours follow it. A person without any contract is not left without conditions — the company-wide defaults apply — but that is better avoided.
+A contract says under which working conditions a person works: how many hours they are meant to work, on which weekdays, and which extra time credits apply for night, Saturday, Sunday or public-holiday work. It is written once as a template and then handed to every person it fits, so ten part-timers can share one template. The hours a person is meant to work (their target hours) come from the contract that is currently active for them. Example: the template "Part time 80 %" is assigned to Maria from 1 January, and from that day Maria's target hours follow it. A person without any contract is not left without conditions — the company-wide value applies at 100 % (the monthly value of the table for that month, otherwise the company guaranteed hours) — but any other workload share needs a contract; `explain_target_hours` has the full guide.
 
 <!-- level:elements -->
 
@@ -86,9 +86,9 @@ The template alone changes nothing. Assigning it to a person is a separate step 
 
 For a given day only the **active** assignment whose dates contain that day counts; if several overlap, the one with the latest start wins. Its values are resolved per field:
 
-- Hours, weekdays and similar limits come from an attached **planning rule** first, then the **contract**, and finally the **company-wide defaults**.
+- Weekdays, daily hours and similar limits come from an attached **planning rule** first, then the **contract**, and finally the **company-wide defaults**. The guaranteed hours follow that order only for a contract with fixed hours; a contract that inherits the company value (empty guaranteed hours) or sits on the interval "monthly target hours" with a month row takes the company value × percent and ignores the rule's guaranteed hours.
 - The **surcharge** rates resolve contract first: an explicit value on the contract, also 0, wins; an empty value means "standard", which is the rule and then the company-wide setting. While the shift-work flag is effectively off, the contract's own rates are skipped and the standard applies.
-- A person without a matching contract takes the company-wide monthly value for that month when the monthly table has a row for it, otherwise the company-wide setting.
+- A person without a matching contract takes the company-wide monthly value for that month when the monthly table has a row for it, otherwise the company-wide setting — always at 100 %, never scaled.
 
 ### Target hours
 
@@ -101,7 +101,7 @@ The target hours of a pay period are **not stored**: the schedule recalculates t
 
 ### Changes are propagated
 
-Adding, removing, re-dating or re-binding an assignment recalculates the work surcharges already stored for that person, starting at the earliest affected assignment date. The target hours need no such step because they are computed on read.
+The displayed target hours are computed on read and need no step. The stored hours of work and absence entries are recalculated when a change is saved — an assignment added, removed, re-dated or re-bound, a contract template's hours or rates, a scheduling rule, a row of the monthly table, or the company guaranteed hours, full time or daily hours — over the span of the unlocked entries of the affected people; sealed days are never touched. A change without any work entries in that span queues nothing; the recalculation in the schedule toolbar (de: "Stunden berechnen und zusammenzählen", en: "Calculate and sum hours") does it on demand.
 
 ### Related skills
 

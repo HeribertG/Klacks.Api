@@ -2614,7 +2614,7 @@
   "setting.microphone-test.transcribing": "Mentranskripsi Rakaman…",
   "setting.microphone-test.transcription-result": "Transkripsi",
   "setting.microphone-test.web-speech-device-info": "Nota: Pengecaman pertuturan terbina dalam pelayar sentiasa menggunakan mikrofon sistem lalai.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Medan kosong bermaksud tiada penggantian: jam sasaran daripada kontrak digunakan untuk bulan ini.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Nilai bulanan ialah masa sasaran untuk jawatan 100% bagi bulan ini. Ia terpakai kepada pekerja tanpa kontrak (pada 100%) dan kepada kontrak dengan selang pembayaran “Bulanan (jadual jam sasaran)” atau tanpa jam terjamin – di sana nilai bulanan × peratus beban kerja. Kontrak dengan jam terjamin tetap tidak terjejas. Medan kosong: tanpa kontrak, tetapan digunakan; dengan kontrak, jam terjaminnya atau tetapan × peratus beban kerja digunakan.",
   "setting.monthlyTargetHours.next-year": "Tahun depan",
   "setting.monthlyTargetHours.previous-year": "Tahun lepas",
   "setting.monthlyTargetHours.save-failed": "Jam sasaran tidak dapat disimpan",

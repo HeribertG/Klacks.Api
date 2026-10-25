@@ -3370,6 +3370,326 @@
       "contradictionCount": 0,
       "provenance": "curated:explains",
       "status": 1
+    },
+    {
+      "skillAName": "evaluate_absence_hours_setup",
+      "skillBName": "update_contract",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_absence_hours_setup",
+      "skillBName": "assign_contract_by_name",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "get_absence_hours_calculation",
+      "skillBName": "explain_absence_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_absence_hours_setup",
+      "skillBName": "explain_absence_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_contract",
+      "skillBName": "explain_absence_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "assign_contract_by_name",
+      "skillBName": "explain_absence_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_absence_hours",
+      "skillBName": "explain_contracts",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_absence_hours",
+      "skillBName": "explain_contract_setup",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_absence_hours",
+      "skillBName": "explain_absence_value_vs_hours",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_absence_hours",
+      "skillBName": "get_absence_hours_calculation",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_absence_hours",
+      "skillBName": "evaluate_absence_hours_setup",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_target_hours_setup",
+      "skillBName": "update_contract",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_target_hours_setup",
+      "skillBName": "create_monthly_target_hours",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_target_hours_setup",
+      "skillBName": "update_monthly_target_hours",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_target_hours_setup",
+      "skillBName": "assign_contract_by_name",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_target_hours_setup",
+      "skillBName": "create_contract_from_template",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "get_target_hours_calculation",
+      "skillBName": "explain_target_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_target_hours_setup",
+      "skillBName": "explain_target_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_contract",
+      "skillBName": "explain_target_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_monthly_target_hours",
+      "skillBName": "explain_target_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_monthly_target_hours",
+      "skillBName": "explain_target_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "assign_contract_by_name",
+      "skillBName": "explain_target_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_contract_from_template",
+      "skillBName": "explain_target_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_period_hours",
+      "skillBName": "explain_target_hours",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_target_hours",
+      "skillBName": "explain_absence_hours",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_target_hours",
+      "skillBName": "explain_contracts",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_target_hours",
+      "skillBName": "explain_contract_setup",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_target_hours",
+      "skillBName": "get_target_hours_calculation",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_target_hours",
+      "skillBName": "evaluate_target_hours_setup",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_absence_hours",
+      "skillBName": "explain_target_hours",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_contracts",
+      "skillBName": "explain_target_hours",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_contract_setup",
+      "skillBName": "explain_target_hours",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
     }
   ]
 }

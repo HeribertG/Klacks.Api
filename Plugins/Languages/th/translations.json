@@ -2610,7 +2610,7 @@
   "setting.microphone-test.transcribing": "กำลังถอดเสียงการบันทึก...",
   "setting.microphone-test.transcription-result": "การถอดเสียง",
   "setting.microphone-test.web-speech-device-info": "หมายเหตุ: การรู้จำเสียงในตัวเบราว์เซอร์จะใช้ไมโครโฟนเริ่มต้นของระบบเสมอ",
-  "setting.monthlyTargetHours.empty-means-no-override": "ฟิลด์ว่างหมายถึงไม่มีการเขียนทับ: เดือนนี้จะใช้ชั่วโมงเป้าหมายตามสัญญา",
+  "setting.monthlyTargetHours.empty-means-no-override": "ค่ารายเดือนคือเวลาเป้าหมายของตำแหน่งงาน 100% สำหรับเดือนนี้ ใช้กับพนักงานที่ไม่มีสัญญา (ที่ 100%) และกับสัญญาที่มีช่วงการจ่ายเงินแบบ “รายเดือน (ตารางชั่วโมงเป้าหมาย)” หรือไม่มีชั่วโมงรับประกัน – ในกรณีนั้นใช้ค่ารายเดือน × เปอร์เซ็นต์ภาระงาน สัญญาที่มีชั่วโมงรับประกันคงที่ไม่ได้รับผลกระทบ ฟิลด์ว่าง: หากไม่มีสัญญาจะใช้การตั้งค่า หากมีสัญญาจะใช้ชั่วโมงรับประกันของสัญญานั้น หรือการตั้งค่า × เปอร์เซ็นต์ภาระงาน",
   "setting.monthlyTargetHours.next-year": "ปีถัดไป",
   "setting.monthlyTargetHours.previous-year": "ปีก่อนหน้า",
   "setting.monthlyTargetHours.save-failed": "ไม่สามารถบันทึกชั่วโมงเป้าหมายได้",

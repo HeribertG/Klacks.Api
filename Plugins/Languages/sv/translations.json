@@ -2610,7 +2610,7 @@
   "setting.microphone-test.transcribing": "Transkriberar inspelning…",
   "setting.microphone-test.transcription-result": "Transkription",
   "setting.microphone-test.web-speech-device-info": "Obs: Webbläsarens inbyggda taligenkänning använder alltid systemets standardmikrofon.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Ett tomt fält innebär ingen överstyrning: för denna månad gäller måltimmarna enligt avtalet.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Månadsvärdet är måltiden för en 100 %-tjänst denna månad. Det gäller för medarbetare utan avtal (till 100 %) samt för avtal med betalningsintervallet ”Månadsvis (måltimmar-tabell)” eller utan garanterade timmar – där månadsvärde × tjänstgöringsgrad. Avtal med fasta garanterade timmar påverkas inte. Tomt fält: utan avtal gäller inställningarna, med avtal dess garanterade timmar eller inställningar × tjänstgöringsgrad.",
   "setting.monthlyTargetHours.next-year": "Nästa år",
   "setting.monthlyTargetHours.previous-year": "Föregående år",
   "setting.monthlyTargetHours.save-failed": "Måltimmarna kunde inte sparas",

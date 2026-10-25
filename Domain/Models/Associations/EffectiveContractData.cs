@@ -21,9 +21,25 @@ public sealed record EffectiveContractData
     /// Workload share in percent used by absence macros. Contracts whose guaranteed hours derive from
     /// the company-wide value carry their contract percent; explicitly valued contracts derive it as
     /// guaranteed hours / full time (so a part-timer's absence day never credits more than a worked
-    /// day); clients without a contract count as full workload.
+    /// day); clients without a contract count as full workload, exactly like a contract that inherits
+    /// the company value with an empty percent field (owner decision 2026-10-25).
     /// </summary>
     public decimal WorkloadPercent { get; init; } = MonthlyTargetHoursConstants.FullWorkloadPercent;
+
+    /// <summary>How <see cref="WorkloadPercent"/> was derived (which master data decides it).</summary>
+    public WorkloadPercentSource WorkloadPercentSource { get; init; } = WorkloadPercentSource.NoContractFullWorkload;
+
+    /// <summary>The figures behind a ratio-based <see cref="WorkloadPercent"/>; null for a Percent field or a fallback.</summary>
+    public WorkloadRatioBasis? WorkloadRatioBasis { get; init; }
+
+    /// <summary>Where <see cref="GuaranteedHours"/> was taken from before any percent scaling.</summary>
+    public ContractValueSource GuaranteedHoursSource { get; init; } = ContractValueSource.Settings;
+
+    /// <summary>True when <see cref="GuaranteedHours"/> is an inherited or monthly basis scaled by the contract's Percent field.</summary>
+    public bool GuaranteedHoursScaledByContractPercent { get; init; }
+
+    /// <summary>Where <see cref="DefaultWorkingHours"/> was taken from (the scheduling rule or the settings; a contract has no such field).</summary>
+    public ContractValueSource DefaultWorkingHoursSource { get; init; } = ContractValueSource.Settings;
 
     public decimal MaximumHours { get; init; }
     public decimal MinimumHours { get; init; }

@@ -2610,7 +2610,7 @@
   "setting.microphone-test.transcribing": "Se transcrie înregistrarea...",
   "setting.microphone-test.transcription-result": "Transcriere",
   "setting.microphone-test.web-speech-device-info": "Notă: Recunoașterea vocală integrată a browserului utilizează întotdeauna microfonul implicit al sistemului.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Câmp gol înseamnă fără suprascriere: pentru această lună se aplică timpul țintă din contract.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Valoarea lunară este timpul țintă al unui post de 100 % pentru această lună. Se aplică angajaților fără contract (la 100 %) și contractelor cu intervalul de plată „Lunar (tabel ore țintă)” sau fără ore garantate – acolo valoare lunară × procent de normă. Contractele cu ore garantate fixe nu sunt afectate. Câmp gol: fără contract se aplică setările, cu contract orele sale garantate sau setările × procent de normă.",
   "setting.monthlyTargetHours.next-year": "Anul următor",
   "setting.monthlyTargetHours.previous-year": "Anul precedent",
   "setting.monthlyTargetHours.save-failed": "Orele țintă nu au putut fi salvate",

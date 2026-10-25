@@ -2610,7 +2610,7 @@
   "setting.microphone-test.transcribing": "Đang phiên âm bản ghi…",
   "setting.microphone-test.transcription-result": "Phiên âm",
   "setting.microphone-test.web-speech-device-info": "Lưu ý: Nhận dạng giọng nói tích hợp trình duyệt luôn sử dụng micro mặc định của hệ thống.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Trường trống nghĩa là không ghi đè: đối với tháng này, giờ mục tiêu theo hợp đồng sẽ được áp dụng.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Giá trị tháng là thời gian mục tiêu của một vị trí 100% cho tháng này. Nó áp dụng cho nhân viên không có hợp đồng (ở mức 100%) và cho các hợp đồng có kỳ thanh toán “Hàng tháng (bảng giờ mục tiêu)” hoặc không có giờ đảm bảo – khi đó giá trị tháng × tỷ lệ khối lượng công việc. Các hợp đồng có giờ đảm bảo cố định không bị ảnh hưởng. Trường trống: không có hợp đồng thì áp dụng cài đặt, có hợp đồng thì áp dụng giờ đảm bảo của hợp đồng đó hoặc cài đặt × tỷ lệ khối lượng công việc.",
   "setting.monthlyTargetHours.next-year": "Năm sau",
   "setting.monthlyTargetHours.previous-year": "Năm trước",
   "setting.monthlyTargetHours.save-failed": "Không thể lưu giờ mục tiêu",

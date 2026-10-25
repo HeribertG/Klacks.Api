@@ -886,6 +886,11 @@
     "päättää työntekijän jäsenyys",
     "asettaa työntekijän lähtöpäivä"
   ],
+  "evaluate_absence_hours_setup": [
+    "miksi hän saa liian vähän lomatunteja",
+    "lomapäivän pitäisi laskea kahdeksan tuntia",
+    "tarkista poissaolotuntien asetukset"
+  ],
   "evaluate_autonomy_level_change": [
     "mitä muuttuu tällä autonomiatasolla",
     "mitä seurauksia korkeammalla autonomiatasolla on",
@@ -917,6 +922,11 @@
     "näytä skenaarion arviointi",
     "onko skenaario turvallinen hyväksyä"
   ],
+  "evaluate_target_hours_setup": [
+    "miksi tavoitetunnit ovat väärin",
+    "mikä sopimus tälle työaikaprosentille",
+    "tavoitetuntitaulukossa on aukkoja"
+  ],
   "explain_absence_blocks_planning": [
     "estääkö lomavaraus automaattisen suunnittelun?",
     "voiko avustaja siirtää loman, jos se on jo laskutettu?",
@@ -924,6 +934,12 @@
     "katkaiseeko sairauspoissaolo työpäivien jatkumon?",
     "onko laskutettu loma lukittu suunnittelijalta?",
     "miksi sairauspäivääni ei siirretty?"
+  ],
+  "explain_absence_hours": [
+    "montako tuntia lomapäivä lasketaan",
+    "miksi lomapäivä lasketaan niin monena tuntina",
+    "mistä asetan lomatunnit",
+    "työaikaprosentti poissaolopäiville"
   ],
   "explain_absence_model": [
     "miksi lomatoive ei näy suunnitelmassa",
@@ -1420,6 +1436,11 @@
     "mitkä tiedot lähtevät yrityksestä",
     "ovatko testitiedot oikeita tietueita"
   ],
+  "explain_target_hours": [
+    "miten tavoitetunnit muodostuvat",
+    "tavoitetunnit ilman sopimusta",
+    "tavoitetunnit työaikaprosentilla"
+  ],
   "explain_terms_with_several_meanings": [
     "mikä ero on tilauksella ja vuorolla",
     "tarkoittaako sinetöity kaikkialla samaa",
@@ -1510,6 +1531,11 @@
     "päivitä ryhmien sijaintikoordinaatit",
     "etsi kaikkien ryhmien maantieteelliset koordinaatit",
     "geokoodaa sijaintiryhmät"
+  ],
+  "get_absence_hours_calculation": [
+    "näytä lomatuntien laskenta",
+    "montako tuntia hän saa lomapäivästä",
+    "tarkista työntekijän lomatunnit"
   ],
   "get_active_industries_settings": [
     "mitä toimialoja järjestelmässä on",
@@ -1809,6 +1835,11 @@
   ],
   "get_system_info": [
     "järjestelmätiedot"
+  ],
+  "get_target_hours_calculation": [
+    "näytä tavoitetuntien laskenta",
+    "miksi hänellä on nämä tavoitetunnit",
+    "tarkista työntekijän tavoitetunnit"
   ],
   "get_translation_status": [
     "onko deepl käytössä",

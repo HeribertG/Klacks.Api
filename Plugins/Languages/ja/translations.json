@@ -2614,7 +2614,7 @@
   "setting.microphone-test.transcribing": "録音を文字起こし中…",
   "setting.microphone-test.transcription-result": "文字起こし",
   "setting.microphone-test.web-speech-device-info": "注意: ブラウザの組み込み音声認識は常にシステムのデフォルトマイクを使用します。",
-  "setting.monthlyTargetHours.empty-means-no-override": "空欄の場合は上書きなしを意味します: この月には契約の所定時間が適用されます。",
+  "setting.monthlyTargetHours.empty-means-no-override": "月次値は、この月の100%ポジションの所定時間です。契約のない従業員（100%として）、および支払間隔が「月次（所定時間テーブル）」の契約または保証時間のない契約に適用され、そこでは月次値 × 稼働率となります。固定の保証時間がある契約は影響を受けません。空欄の場合: 契約がなければ設定が適用され、契約があればその保証時間、または設定 × 稼働率が適用されます。",
   "setting.monthlyTargetHours.next-year": "翌年",
   "setting.monthlyTargetHours.previous-year": "前年",
   "setting.monthlyTargetHours.save-failed": "所定時間を保存できませんでした",

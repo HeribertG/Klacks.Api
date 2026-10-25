@@ -8,6 +8,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Associations;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,13 +22,6 @@ namespace Klacks.Api.Infrastructure.Services.Associations;
 /// </summary>
 public class ClientContractDataProvider : IClientContractDataProvider
 {
-    // Plausibility ceiling for the workload share derived from GuaranteedHours / FullTime. Modest
-    // over-full-time contracts (up to 150 percent) are legitimate and pass through; anything above is
-    // treated as broken master data (observed live: a monthly GuaranteedHours of 172.2 against a
-    // WEEKLY full-time of 45 would compute 383 percent and credit ~32 hours per vacation day) and
-    // falls back to full workload with a warning instead of scaling absurdly up.
-    private const decimal MaximumPlausibleWorkloadPercent = 150m;
-
     private readonly DataBaseContext _context;
     private readonly ILogger<ClientContractDataProvider> _logger;
     private readonly ISettingsChangeVersion _settingsChangeVersion;
@@ -171,8 +165,8 @@ public class ClientContractDataProvider : IClientContractDataProvider
 
         if (paymentInterval.HasValue)
         {
-            var interval = (Domain.Enums.PaymentInterval)paymentInterval.Value;
-            query = query.Where(cc => cc.Contract.PaymentInterval == interval);
+            var accepted = PaymentIntervalViewMatcher.AcceptedContractIntervals(paymentInterval.Value);
+            query = query.Where(cc => accepted.Contains(cc.Contract.PaymentInterval));
         }
 
         var rows = await query
@@ -182,7 +176,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
 
         return rows
             .GroupBy(cc => cc.ClientId)
-            .ToDictionary(g => g.Key, g => g.OrderByDescending(cc => cc.FromDate).ToList());
+            .ToDictionary(g => g.Key, g => OrderByPrecedence(g).ToList());
     }
 
     private static Contract? ResolveContractOn(
@@ -376,8 +370,8 @@ public class ClientContractDataProvider : IClientContractDataProvider
 
         if (paymentInterval.HasValue)
         {
-            var interval = (Domain.Enums.PaymentInterval)paymentInterval.Value;
-            query = query.Where(cc => cc.Contract.PaymentInterval == interval);
+            var accepted = PaymentIntervalViewMatcher.AcceptedContractIntervals(paymentInterval.Value);
+            query = query.Where(cc => accepted.Contains(cc.Contract.PaymentInterval));
         }
 
         var clientContracts = await query
@@ -389,8 +383,17 @@ public class ClientContractDataProvider : IClientContractDataProvider
             .GroupBy(cc => cc.ClientId)
             .ToDictionary(
                 g => g.Key,
-                g => g.OrderByDescending(cc => cc.FromDate).First().Contract);
+                g => OrderByPrecedence(g).First().Contract);
     }
+
+    // The latest FromDate wins; among assignments starting on the same day the one created last, then the id,
+    // so a client with a Monthly and a MonthlyTargetHours contract from the same day resolves deterministically
+    // in every path instead of in database order.
+    private static IOrderedEnumerable<ClientContract> OrderByPrecedence(IEnumerable<ClientContract> assignments) =>
+        assignments
+            .OrderByDescending(cc => cc.FromDate)
+            .ThenByDescending(cc => cc.CreateTime)
+            .ThenBy(cc => cc.Id);
 
     private async Task<ContractDefaultSettings> LoadDefaultSettingsAsync()
     {
@@ -432,11 +435,18 @@ public class ClientContractDataProvider : IClientContractDataProvider
         var we2RateStandard = rateSnapshot != null ? rateSnapshot.WE2Rate : rule?.WE2Rate;
         var we3RateStandard = rateSnapshot != null ? rateSnapshot.WE3Rate : rule?.WE3Rate;
 
+        var workload = ResolveWorkloadPercent(contract, rule, defaults);
+
         return new EffectiveContractData
         {
             GuaranteedHours = ResolveGuaranteedHours(contract, rule, defaults, monthlyTargetHours),
             GuaranteedHoursBasisInterval = ResolveGuaranteedHoursBasisInterval(contract, defaults, monthlyTargetHours),
-            WorkloadPercent = ResolveWorkloadPercent(contract, rule, defaults),
+            GuaranteedHoursSource = ResolveGuaranteedHoursSource(contract, rule, monthlyTargetHours),
+            GuaranteedHoursScaledByContractPercent = IsScaledByContractPercent(contract, monthlyTargetHours),
+            WorkloadPercent = workload.Percent,
+            WorkloadPercentSource = workload.Source,
+            WorkloadRatioBasis = workload.RatioBasis,
+            DefaultWorkingHoursSource = rule?.DefaultWorkingHours != null ? ContractValueSource.SchedulingRule : ContractValueSource.Settings,
             MaximumHours = rule?.MaximumHours ?? contract.MaximumHours ?? defaults.MaximumHours,
             MinimumHours = rule?.MinimumHours ?? contract.MinimumHours ?? defaults.MinimumHours,
             FullTime = rule?.FullTimeHours ?? contract.FullTime ?? defaults.FullTime,
@@ -522,6 +532,29 @@ public class ClientContractDataProvider : IClientContractDataProvider
         return rule?.GuaranteedHours ?? contract.GuaranteedHours.Value;
     }
 
+    // Mirrors ResolveGuaranteedHours: the percent scales the month row (MonthlyTargetHours interval with a
+    // row) and the inherited basis (GuaranteedHours = null), never an explicit contract or rule value.
+    private static bool IsScaledByContractPercent(Contract contract, MonthlyTargetHours? monthlyTargetHours) =>
+        (contract.PaymentInterval == PaymentInterval.MonthlyTargetHours && monthlyTargetHours != null)
+        || contract.GuaranteedHours is null;
+
+    // Mirrors ResolveGuaranteedHours once more, for the place the value was read from before scaling.
+    private static ContractValueSource ResolveGuaranteedHoursSource(
+        Contract contract, SchedulingRule? rule, MonthlyTargetHours? monthlyTargetHours)
+    {
+        if (contract.PaymentInterval == PaymentInterval.MonthlyTargetHours && monthlyTargetHours != null)
+        {
+            return ContractValueSource.MonthlyTargetHours;
+        }
+
+        if (contract.GuaranteedHours is null)
+        {
+            return monthlyTargetHours != null ? ContractValueSource.MonthlyTargetHours : ContractValueSource.Settings;
+        }
+
+        return rule?.GuaranteedHours != null ? ContractValueSource.SchedulingRule : ContractValueSource.Contract;
+    }
+
     // Mirrors ResolveGuaranteedHours: an inherited value is stated per calendar month (month row) or per the
     // company interval (settings); null means it is stated per the contract's own PaymentInterval.
     private static int? ResolveGuaranteedHoursBasisInterval(
@@ -538,11 +571,14 @@ public class ClientContractDataProvider : IClientContractDataProvider
     // 2026-08-19). Implausible master data (no full-time basis, or a ratio above the plausibility
     // ceiling) falls back to full workload and is logged once per contract per scope instead of
     // silently scaling absurdly.
-    private decimal ResolveWorkloadPercent(Contract contract, SchedulingRule? rule, ContractDefaultSettings defaults)
+    private WorkloadPercentResolution ResolveWorkloadPercent(Contract contract, SchedulingRule? rule, ContractDefaultSettings defaults)
     {
         if (UsesMonthlyTargetHours(contract))
         {
-            return contract.Percent ?? MonthlyTargetHoursConstants.FullWorkloadPercent;
+            return contract.Percent is { } percent
+                ? new WorkloadPercentResolution(percent, WorkloadPercentSource.ContractPercent, null)
+                : new WorkloadPercentResolution(
+                    MonthlyTargetHoursConstants.FullWorkloadPercent, WorkloadPercentSource.ContractPercentDefault, null);
         }
 
         var guaranteedHours = rule?.GuaranteedHours ?? contract.GuaranteedHours!.Value;
@@ -555,23 +591,30 @@ public class ClientContractDataProvider : IClientContractDataProvider
             ?? (contract.FullTime is > 0 ? contract.FullTime : null)
             ?? defaults.FullTime;
 
-        if (fullTime <= 0)
+        var resolved = WorkloadPercentCalculator.Resolve(guaranteedHours, fullTime, out var implausibilityReason);
+        if (implausibilityReason != null)
         {
-            WarnImplausibleWorkload(contract, guaranteedHours, fullTime, "no positive full-time basis");
-            return MonthlyTargetHoursConstants.FullWorkloadPercent;
+            WarnImplausibleContractWorkload(contract, guaranteedHours, fullTime, implausibilityReason);
+            return new WorkloadPercentResolution(resolved, WorkloadPercentSource.ImplausibleMasterDataFallback, null);
         }
 
-        var percent = guaranteedHours / fullTime * MonthlyTargetHoursConstants.FullWorkloadPercent;
-        if (percent > MaximumPlausibleWorkloadPercent)
-        {
-            WarnImplausibleWorkload(contract, guaranteedHours, fullTime, "ratio exceeds the plausibility ceiling");
-            return MonthlyTargetHoursConstants.FullWorkloadPercent;
-        }
-
-        return percent;
+        var source = rule?.GuaranteedHours != null
+            ? WorkloadPercentSource.SchedulingRuleRatio
+            : WorkloadPercentSource.ContractRatio;
+        return new WorkloadPercentResolution(resolved, source, new WorkloadRatioBasis(guaranteedHours, fullTime));
     }
 
-    private void WarnImplausibleWorkload(Contract contract, decimal guaranteedHours, decimal fullTime, string reason)
+    // A client without a contract behaves exactly like a contract that inherits the company value with an
+    // empty percent field: full workload, with or without a monthly target hours row (owner decision
+    // 2026-10-25, reverting the settings-ratio variant of the same day). Another workload share needs a
+    // contract. Only the source differs, so a reader can name the basis (month row or settings).
+    private static WorkloadPercentResolution ResolveDefaultWorkloadPercent(MonthlyTargetHours? monthlyTargetHours) =>
+        new(
+            MonthlyTargetHoursConstants.FullWorkloadPercent,
+            monthlyTargetHours != null ? WorkloadPercentSource.MonthlyTargetHoursFullWorkload : WorkloadPercentSource.NoContractFullWorkload,
+            null);
+
+    private void WarnImplausibleContractWorkload(Contract contract, decimal guaranteedHours, decimal fullTime, string reason)
     {
         if (!_workloadWarnedContractIds.Add(contract.Id))
         {
@@ -585,19 +628,22 @@ public class ClientContractDataProvider : IClientContractDataProvider
             reason,
             guaranteedHours,
             fullTime,
-            MaximumPlausibleWorkloadPercent);
+            WorkloadPercentCalculator.MaximumPlausiblePercent);
     }
 
-    // A client without a contract takes the company-wide monthly value at full workload when a row
-    // exists for that month (there is no contract percent to scale by); otherwise the settings value
-    // applies as before.
     private static EffectiveContractData BuildFromDefaults(ContractDefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours)
     {
+        var workload = ResolveDefaultWorkloadPercent(monthlyTargetHours);
+
         return new EffectiveContractData
         {
             GuaranteedHours = monthlyTargetHours?.Hours ?? defaults.GuaranteedHours,
             GuaranteedHoursBasisInterval = monthlyTargetHours != null ? (int)PaymentInterval.MonthlyTargetHours : null,
-            WorkloadPercent = MonthlyTargetHoursConstants.FullWorkloadPercent,
+            GuaranteedHoursSource = monthlyTargetHours != null ? ContractValueSource.MonthlyTargetHours : ContractValueSource.Settings,
+            WorkloadPercent = workload.Percent,
+            WorkloadPercentSource = workload.Source,
+            WorkloadRatioBasis = workload.RatioBasis,
+            DefaultWorkingHoursSource = ContractValueSource.Settings,
             MaximumHours = defaults.MaximumHours,
             MinimumHours = defaults.MinimumHours,
             FullTime = defaults.FullTime,

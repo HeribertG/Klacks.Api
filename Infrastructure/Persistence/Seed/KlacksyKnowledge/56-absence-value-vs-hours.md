@@ -88,6 +88,6 @@ The hours of all absences, work entries and corrections of a person are summed p
 
 **Booking a wish writes one entry per calendar day.** Weekends and public holidays included; the macro of the kind then decides the hours of each day separately.
 
-**Changing the rule later does not change existing bookings.** The recalculation (de: "Stunden berechnen und zusammenzählen") runs the macros again for the entries that are still open, and skips every entry that is confirmed, approved or closed. To correct such a day, reopen it first.
+**Changing the macro of a kind does not change existing bookings by itself.** Changes to a contract, an assignment, a scheduling rule, a row of the monthly target hours table or the company guaranteed hours, full time or daily hours queue a recalculation of the open entries automatically (within the span of unlocked work entries). For a changed macro, run the recalculation (de: "Stunden berechnen und zusammenzählen") yourself: it runs the macros again for the entries that are still open, and skips every entry that is confirmed, approved or closed. To correct such a day, reopen it first.
 
 **The Saturday, Sunday and holiday switches of the kind do not take part.** They are stored but no calculation reads them, so they cannot make the calendar value or the hours skip a weekend.

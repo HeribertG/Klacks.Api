@@ -127,6 +127,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayWorkEvaluator, Klacks.Api.Application.Services.Schedules.HolidayWorkEvaluator>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayCalendarSourceResolver, Klacks.Api.Application.Services.Schedules.HolidayCalendarSourceResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayOutcomeDiagnosisService, Klacks.Api.Application.Services.Schedules.HolidayOutcomeDiagnosisService>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IAbsenceHoursCalculationService, Klacks.Api.Application.Services.Breaks.AbsenceHoursCalculationService>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IEmployeeContractFactsLoader, Klacks.Api.Application.Services.Schedules.EmployeeContractFactsLoader>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ITargetHoursCalculationService, Klacks.Api.Application.Services.Schedules.TargetHoursCalculationService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayCalendarLookupService, Klacks.Api.Application.Services.Schedules.HolidayCalendarLookupService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayCalendarTargetResolver, Klacks.Api.Application.Services.Schedules.HolidayCalendarTargetResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IClientWorkCoverageReader, Klacks.Api.Infrastructure.Services.Schedules.ClientWorkCoverageReader>();
