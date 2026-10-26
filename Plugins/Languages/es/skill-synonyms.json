@@ -910,6 +910,11 @@
     "finalizar la afiliación del empleado",
     "establecer la fecha de salida del empleado"
   ],
+  "evaluate_absence_hours_setup": [
+    "por qué recibe tan pocas horas de vacaciones",
+    "el día de vacaciones debería contar ocho horas",
+    "comprobar la configuración de las horas de ausencia"
+  ],
   "evaluate_autonomy_level_change": [
     "qué cambia con este nivel de autonomía",
     "qué efecto tiene subir el nivel de autonomía",
@@ -941,6 +946,11 @@
     "analizar el escenario",
     "comprobar si el plan es seguro"
   ],
+  "evaluate_target_hours_setup": [
+    "por qué las horas objetivo están mal",
+    "qué contrato para esta jornada",
+    "la tabla de horas objetivo tiene huecos"
+  ],
   "explain_absence_blocks_planning": [
     "¿una ausencia bloquea la planificación?",
     "¿puede el asistente mover unas vacaciones ya reservadas?",
@@ -948,6 +958,12 @@
     "¿la ausencia interrumpe la racha de días consecutivos?",
     "¿una ausencia reservada está bloqueada para el planificador?",
     "¿por qué no se ha movido mi día de baja?"
+  ],
+  "explain_absence_hours": [
+    "cuántas horas cuenta un día de vacaciones",
+    "por qué el día de vacaciones cuenta tantas horas",
+    "dónde configuro las horas de vacaciones",
+    "jornada para los días de ausencia"
   ],
   "explain_absence_model": [
     "por qué la solicitud de vacaciones no aparece en el plan",
@@ -1430,6 +1446,11 @@
     "qué datos salen de la empresa",
     "los datos de prueba son registros reales"
   ],
+  "explain_target_hours": [
+    "cómo se calculan las horas objetivo",
+    "horas objetivo sin contrato",
+    "horas objetivo con porcentaje de jornada"
+  ],
   "explain_terms_with_several_meanings": [
     "cuál es la diferencia entre pedido y servicio",
     "sellado significa lo mismo en todas partes",
@@ -1527,6 +1548,11 @@
     "buscar las coordenadas de todos los grupos de ciudades automáticamente",
     "geocodificar todos los grupos de ubicación de una vez",
     "obtener las coordenadas gps de cada grupo"
+  ],
+  "get_absence_hours_calculation": [
+    "muéstrame el cálculo de las horas de vacaciones",
+    "cuántas horas recibe por el día de vacaciones",
+    "comprobar las horas de vacaciones de un empleado"
   ],
   "get_active_industries_settings": [
     "ver para qué sectores está configurado el sistema",
@@ -1826,6 +1852,11 @@
   ],
   "get_system_info": [
     "información del sistema"
+  ],
+  "get_target_hours_calculation": [
+    "muéstrame el cálculo de las horas objetivo",
+    "por qué tiene estas horas objetivo",
+    "comprobar las horas objetivo de un empleado"
   ],
   "get_translation_status": [
     "está configurado deepl",
@@ -2626,7 +2657,9 @@
     "listar turnos",
     "qué turnos existen",
     "mostrar turnos",
-    "consultar turno"
+    "consultar turno",
+    "pedidos por localidad",
+    "pedidos en el cantón"
   ],
   "select_group": [
     "muestra solo el grupo de barcelona",

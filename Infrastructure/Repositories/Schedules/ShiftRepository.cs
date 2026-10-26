@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Geo;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Domain.Services.Shifts;
@@ -255,9 +256,10 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     public async Task<Shift?> FindReusableUncutOrderAsync(Shift candidate, CancellationToken cancellationToken = default)
     {
-        // ORD-5a: an existing UNCUT order (status OriginalShift) that is STRUCTURALLY identical to the
-        // candidate is the same order — reuse it instead of creating a duplicate (e.g. the operator says
-        // "weiter" after a partially built split). Structural identity (name case/whitespace-insensitive,
+        // ORD-5a: an existing open order (status OriginalOrder, which is what create_shift creates) or an
+        // UNCUT plannable shift (status OriginalShift) that is STRUCTURALLY identical to the candidate is the
+        // same order — reuse it instead of creating a duplicate (e.g. the operator says "weiter" or the
+        // request is repeated in a later turn). Structural identity (name case/whitespace-insensitive,
         // dates, times, all weekdays, macro, counts, and the EXACT set of groups) prevents both a
         // duplicate-on-replay and the wrong-merge of genuinely distinct orders (e.g. weekend vs weekday,
         // or a different billing macro). Scenario rows are excluded; the global soft-delete query filter
@@ -270,7 +272,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .ToList();
 
         return await context.Shift
-            .Where(s => s.Status == ShiftStatus.OriginalShift
+            .Where(s => (s.Status == ShiftStatus.OriginalOrder || s.Status == ShiftStatus.OriginalShift)
                         && s.ClientId == candidate.ClientId
                         && s.FromDate == candidate.FromDate
                         && s.UntilDate == candidate.UntilDate
@@ -381,7 +383,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     /// is deliberately not optional so no caller can forget the security boundary. Internal: only this repository and
     /// the tests compose on it.
     /// </summary>
-    internal IQueryable<Shift> FilterShifts(ShiftFilter filter, DateOnly today, IReadOnlyCollection<Guid>? visibleGroupIds)
+    internal IQueryable<Shift> FilterShifts(
+        ShiftFilter filter, DateOnly today, IReadOnlyCollection<Guid>? visibleGroupIds, ShiftLocationFilter? location = null)
     {
         Logger.LogInformation("Applying filters to shifts query");
 
@@ -407,7 +410,13 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         query = isUnsealedDraftView
             ? query
             : _queryPipeline.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange, today);
+        if (!isUnsealedDraftView && ShiftValidityOverlap.HasPeriod(filter.ValidFrom, filter.ValidUntil))
+        {
+            query = query.Where(ShiftValidityOverlap.Overlaps(filter.ValidFrom, filter.ValidUntil));
+        }
+
         query = _queryPipeline.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
+        query = ShiftLocationQuery.Apply(query, context.Client, location);
         query = ShiftGroupVisibilityQuery.Apply(query, visibleGroupIds);
         query = _queryPipeline.ApplySorting(query, filter.OrderBy, filter.SortOrder);
 
@@ -415,11 +424,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return query;
     }
 
-    public async Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter, IReadOnlyCollection<Guid>? visibleGroupIds)
+    public async Task<TruncatedShift> GetFilteredAndPaginatedShifts(
+        ShiftFilter filter, IReadOnlyCollection<Guid>? visibleGroupIds, ShiftLocationFilter? location = null)
     {
         Logger.LogInformation("Getting filtered and paginated shifts");
         var today = await _companyClock.GetTodayDateAsync();
-        var filteredQuery = FilterShifts(filter, today, visibleGroupIds);
+        var filteredQuery = FilterShifts(filter, today, visibleGroupIds, location);
         return await _queryPipeline.ApplyPaginationAsync(filteredQuery, filter);
     }
 
@@ -446,6 +456,11 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
                 && s.AnalyseToken == null
                 && s.ScenarioSourceShiftId == null
                 && !s.IsDeleted);
+
+        if (filter.OrderId.HasValue)
+        {
+            query = query.Where(s => s.Id == filter.OrderId.Value);
+        }
 
         if (!string.IsNullOrWhiteSpace(filter.SourceSystemId))
         {

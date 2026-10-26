@@ -111,6 +111,12 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // recommends validUntil over deletion, so an actual delete is rare enough that the
         // confirmation friction is low while a wrong delete would silently affect future computation.
         "delete_contract",
+        // Owner decision 2026-10-25: the two assignment skills are the targets of the absence-hours and target-hours
+        // advisory skills, whose findings and knowledge texts promise one confirmation before a contract is assigned
+        // (an assignment deactivates the previously active contract and changes the person's target from that day).
+        // Sensitive is the only mechanism that enforces that promise at every autonomy level (precedent: create_group).
+        "assign_contract_to_client",
+        "assign_contract_by_name",
         // delete_email_folder is the only skill in the catalogue whose loss reaches past the database:
         // the handler calls DeleteFolderOnImapAsync, which removes the folder and every message still
         // living on the mail server for good. Locally synced copies survive under trash, so the damage
@@ -172,13 +178,12 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // into a permanently immutable SealedOrder, and set_sealed_order_until_date is the single change
         // that row ever accepts again ("only allowed once", and only while no work exists after the date).
         // Both guard their data-losing edge in the handler, but neither can be undone at all afterwards.
-        // seal_open_orders runs exactly that transition over a whole batch through the same service, so it
-        // cannot be gated more weakly than the single-order skill it shares its code with: one confirmed
-        // call turns every matching order into an immutable SealedOrder at once. The price is that its
-        // apply=false preview asks for a confirmation too, unlike the Irreversible bulk group writers
-        // below — deliberate, because there is no counterpart skill that could take any of it back.
+        // seal_shift also carries a server preview (SealShiftConfirmationPreviewProvider): it seals only as the
+        // confirmed replay of what that preview showed, and no agent plan can run it. seal_open_orders, the batch
+        // form, is switched off in its seed (owner decision 2026-10-23, no mass sealing by Klacksy) and is
+        // therefore not listed here; should it ever be switched on again it falls through to the fail-closed
+        // Sensitive default and still seals only as the confirmed replay of its own server preview.
         "seal_shift",
-        "seal_open_orders",
         "set_sealed_order_until_date",
         // Membership dates are the plannability boundary - the exact reason delete_membership is listed
         // above. end_client_membership writes validUntil on the active membership without needing its
@@ -300,6 +305,15 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "remove_shift_from_group",
         "remove_container_template_task",
         "remove_shift_required_qualification",
+        // Owner decision 2026-10-23 ("cutting always with confirmation"): a cut turns the plannable shift of an order
+        // into parts, and every part carries its own copy of the default expenses, so each part is booked with them;
+        // undoing it takes reset_shift_cuts, which is Sensitive itself. Held at every level. Price, stated plainly: the
+        // hard-coded recipe "dienst-aus-bestellung-schneiden" runs over three turns - its request turn ends on the held seal,
+        // the turn that confirms the seal forces the cut and ends on its hold (CutRecipeContinuationResolver), the user
+        // confirms the cut in the turn after that -, UnattendedSkillPolicy refuses both cuts on every background path, McpSkillExposurePolicy
+        // hides them from MCP, ScheduleRecurringTaskSkill cannot schedule them and a plan step pauses for approval.
+        "cut_shift",
+        "cut_shift_by_date",
         // Schedule day-to-day deletes that carry content or payroll weight (expenses, work changes, notes, planned
         // absences). delete_work is Reversible through its registered inverse restore_work (InverseSkillRegistry) and
         // delete_break stays Reversible (ReversibleExtras) without a registered inverse of its own: it is the inverse of
@@ -448,8 +462,6 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "add_client_note",
         "update_communication",
         "update_annotation",
-        "assign_contract_to_client",
-        "assign_contract_by_name",
         "set_client_qualification",
         "create_qualification",
         "update_qualification",
@@ -486,13 +498,13 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Sensitive would gate the preview too; a wrong move is corrected by remove_shift_from_group and
         // add_shift_to_group.
         "assign_shifts_to_city_groups",
-        // Shift and container structure: creates, updates, cuts and template additions. The destructive
-        // counterparts (delete_shift, reset_shift_cuts, reset_container_day, remove_container_template_task) are
-        // Sensitive.
+        // Shift and container structure: creates, updates and template additions. The cuts and the destructive
+        // counterparts (cut_shift, cut_shift_by_date, delete_shift, reset_shift_cuts, reset_container_day,
+        // remove_container_template_task) are Sensitive. create_shift creates only an open, still editable order and
+        // never seals (owner decision 2026-10-24); the one-way sealing step is seal_shift, which is Sensitive and bound
+        // to a confirmed preview.
         "create_shift",
         "update_shift",
-        "cut_shift",
-        "cut_shift_by_date",
         "bundle_nearby_timerange_shifts_into_container",
         "add_container_template_task",
         "set_shift_required_qualification",

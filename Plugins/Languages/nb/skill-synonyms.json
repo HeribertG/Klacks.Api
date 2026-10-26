@@ -886,6 +886,11 @@
     "avslutte medarbeiderens medlemskap",
     "sette sluttdato for medarbeideren"
   ],
+  "evaluate_absence_hours_setup": [
+    "hvorfor får han for få ferietimer",
+    "feriedagen skal telle åtte timer",
+    "sjekk oppsettet for fraværstimer"
+  ],
   "evaluate_autonomy_level_change": [
     "hva endrer seg med dette autonominivået",
     "hva skjer hvis jeg øker autonominivået",
@@ -916,6 +921,11 @@
     "sjekk scenario for feil",
     "analyse av scenario"
   ],
+  "evaluate_target_hours_setup": [
+    "hvorfor er måltimene feil",
+    "hvilken kontrakt for stillingsprosenten",
+    "tabellen med måltimer har hull"
+  ],
   "explain_absence_blocks_planning": [
     "blokkerer en fraværsmelding planleggingen?",
     "kan veiviseren flytte en registrert ferie?",
@@ -923,6 +933,12 @@
     "avbryter fravær rekkefølgen av arbeidsdager?",
     "er en registrert fraværsmelding låst for planleggeren?",
     "hvorfor ble ikke sykemeldingen min flyttet?"
+  ],
+  "explain_absence_hours": [
+    "hvor mange timer teller en feriedag",
+    "hvorfor teller feriedagen så mange timer",
+    "hvor stiller jeg inn ferietimene",
+    "stillingsprosent for fraværsdager"
   ],
   "explain_absence_model": [
     "hvorfor står ikke ferieønsket i planen",
@@ -1404,6 +1420,11 @@
     "hvilke data forlater bedriften",
     "er testdata ekte oppføringer"
   ],
+  "explain_target_hours": [
+    "hvordan oppstår måltimene",
+    "måltimer uten kontrakt",
+    "måltimer med stillingsprosent"
+  ],
   "explain_terms_with_several_meanings": [
     "hva er forskjellen på en bestilling og en vakt",
     "betyr forseglet det samme overalt",
@@ -1500,6 +1521,11 @@
     "beregn koordinater for lokasjonsgruppene samlet",
     "geokod alle bygrupper automatisk",
     "hent koordinater for gruppene basert på by"
+  ],
+  "get_absence_hours_calculation": [
+    "vis meg beregningen av ferietimene",
+    "hvor mange timer får hun for feriedagen",
+    "sjekk ferietimene til en ansatt"
   ],
   "get_active_industries_settings": [
     "hvilke bransjer er satt opp",
@@ -1803,6 +1829,11 @@
   ],
   "get_system_info": [
     "systeminformasjon"
+  ],
+  "get_target_hours_calculation": [
+    "vis meg beregningen av måltimene",
+    "hvorfor har hun disse måltimene",
+    "sjekk måltimene til en ansatt"
   ],
   "get_translation_status": [
     "er deepl oversettelse konfigurert",
@@ -2574,7 +2605,9 @@
     "vis vakter",
     "list opp vakter",
     "hvilke vakter finnes",
-    "slå opp vakt"
+    "slå opp vakt",
+    "ordrer etter sted",
+    "ordrer i kantonen"
   ],
   "select_group": [
     "vis bare gruppe oslo",

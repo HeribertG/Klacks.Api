@@ -12,10 +12,12 @@ namespace Klacks.Api.Domain.DTOs.Filter;
 /// <param name="CustomerName">Case-insensitive fragment the customer's name or company must contain; null for every customer.</param>
 /// <param name="GroupId">Only orders already linked to this group; null ignores group membership.</param>
 /// <param name="MaxCount">Upper bound on the number of orders returned; null returns all matches.</param>
+/// <param name="OrderId">Only this order (seal_shift loads the one order it derives a group for); null for every order.</param>
 public sealed record OpenOrderFilter(
     string? SourceSystemId,
     DateOnly? FromDate,
     DateOnly? UntilDate,
     string? CustomerName,
     Guid? GroupId,
-    int? MaxCount);
+    int? MaxCount,
+    Guid? OrderId = null);

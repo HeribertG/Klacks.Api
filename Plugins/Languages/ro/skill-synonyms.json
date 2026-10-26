@@ -892,6 +892,11 @@
     "încheierea apartenenței angajatului",
     "stabilirea datei de plecare a angajatului"
   ],
+  "evaluate_absence_hours_setup": [
+    "de ce primește prea puține ore de concediu",
+    "ziua de concediu ar trebui să se socotească opt ore",
+    "verifică configurarea orelor de absență"
+  ],
   "evaluate_autonomy_level_change": [
     "ce se schimbă la acest nivel de autonomie",
     "care e efectul creșterii nivelului de autonomie",
@@ -922,6 +927,11 @@
     "e bine planul propus?",
     "verifică scenariul"
   ],
+  "evaluate_target_hours_setup": [
+    "de ce sunt greșite orele țintă",
+    "ce contract pentru această normă",
+    "tabelul orelor țintă are lipsuri"
+  ],
   "explain_absence_blocks_planning": [
     "o vacanță blocată împiedică planificarea?",
     "poate asistentul să mute o vacanță rezervată?",
@@ -929,6 +939,12 @@
     "o absență întrerupe seria de zile lucrate?",
     "o absență rezervată este blocată pentru planificator?",
     "de ce nu mi-am mutat ziua de boală?"
+  ],
+  "explain_absence_hours": [
+    "câte ore se socotesc pentru o zi de concediu",
+    "de ce ziua de concediu se socotește cu atâtea ore",
+    "unde setez orele de concediu",
+    "norma pentru zilele de absență"
   ],
   "explain_absence_model": [
     "de ce cererea de concediu nu apare în plan",
@@ -1426,6 +1442,11 @@
     "ce date părăsesc firma",
     "datele de test sunt înregistrări reale"
   ],
+  "explain_target_hours": [
+    "cum se stabilesc orele țintă",
+    "ore țintă fără contract",
+    "ore țintă cu normă în procente"
+  ],
   "explain_terms_with_several_meanings": [
     "care este diferența dintre comandă și tură",
     "sigilat înseamnă același lucru peste tot",
@@ -1519,6 +1540,11 @@
     "geocodează grupurile de locații",
     "determină automat coordonatele grupurilor",
     "actualizează coordonatele geografice ale tuturor grupurilor"
+  ],
+  "get_absence_hours_calculation": [
+    "arată-mi calculul orelor de concediu",
+    "câte ore primește pentru ziua de concediu",
+    "verifică orele de concediu ale unui angajat"
   ],
   "get_active_industries_settings": [
     "în ce domenii e configurat sistemul?",
@@ -1822,6 +1848,11 @@
   ],
   "get_system_info": [
     "informații despre sistem"
+  ],
+  "get_target_hours_calculation": [
+    "arată-mi calculul orelor țintă",
+    "de ce are aceste ore țintă",
+    "verifică orele țintă ale unui angajat"
   ],
   "get_translation_status": [
     "funcționează traducerea automată?",
@@ -2608,7 +2639,9 @@
     "arată schimburile disponibile",
     "listează schimburile",
     "caută schimb după nume",
-    "care schimburi există"
+    "care schimburi există",
+    "comenzi după localitate",
+    "comenzi în canton"
   ],
   "select_group": [
     "arată doar grupul vânzări",

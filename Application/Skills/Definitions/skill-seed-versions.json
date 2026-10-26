@@ -113,12 +113,12 @@
       "hash": "CB20A94636FB005B9780CB1925FCA2987D3F5E2AFAD7E0B35FC02245F3E8AF10"
     },
     "assign_contract_by_name": {
-      "version": 9,
-      "hash": "86F29ACA3CA1D7DBBD2F60F60E3B5BD87533B0AE872C51FD253593CCF5B6B872"
+      "version": 10,
+      "hash": "7610409D2A813F52B8E864F58C9A3DB11F4EF6DC02A4B3193016B38C3C28E232"
     },
     "assign_contract_to_client": {
-      "version": 10,
-      "hash": "7F7B63532D5DF598F02D68DD0A82DF1256B32FDAFA8E3E6A81D003E9493A2912"
+      "version": 11,
+      "hash": "FA3FC3AF317DD141ADE1AE7009DF980133F5DE8CDE43C04F29490509B888DBAD"
     },
     "assign_macro_to_absence_type": {
       "version": 1,
@@ -333,8 +333,8 @@
       "hash": "B8C6D39F3664B25299B9C9EED02515C7C117D4BB87539625D731DF36B55434B8"
     },
     "create_shift": {
-      "version": 15,
-      "hash": "E6F801EA0FB451DAA2959C3F817A593342F119FCB4761B43FD670FA4E86A2B3C"
+      "version": 16,
+      "hash": "51E671CF0A0B3D17A70B510B63FB657E616608007FF81863D53B6A08D810BFF2"
     },
     "create_spam_rule": {
       "version": 5,
@@ -349,8 +349,8 @@
       "hash": "6D88A58A71C4A0C623B0E7DD2130BAD6B6A407E09BFFDEFEF4A19436A121FCDF"
     },
     "cut_shift": {
-      "version": 6,
-      "hash": "E3F6B7A89F1C78C7DE68F7AE4426D7A940378510C2F8003837CF607056E68F85"
+      "version": 7,
+      "hash": "A24EDB6A3F6FFDA8D0E672A458AD783B063135C07D56E9319700F3472CBF1DAE"
     },
     "cut_shift_by_date": {
       "version": 4,
@@ -552,6 +552,10 @@
       "version": 4,
       "hash": "6194966743BB9970230711C1339BB8FDCB43FE62FEF10AA9B0BABA3E01056666"
     },
+    "evaluate_absence_hours_setup": {
+      "version": 1,
+      "hash": "83675F4C4D7E6E62EE19C476782B1BFB0C22FD2A00AD8E0856CBCE8899E2DA54"
+    },
     "evaluate_autonomy_level_change": {
       "version": 3,
       "hash": "76D723E7AEA27550C808EA955D496F8DAEE8A0CBF848B8958268DDFCD9533F24"
@@ -572,9 +576,17 @@
       "version": 4,
       "hash": "C9383486A639A9DBB57008560A4EE6747A38862E2A59DBB733F53675B343BC6B"
     },
+    "evaluate_target_hours_setup": {
+      "version": 1,
+      "hash": "DF45C48B93D3B37B82C8F5F3AF000F85D24870556940E8D2F7FF8E35300E0E6D"
+    },
     "explain_absence_blocks_planning": {
       "version": 5,
       "hash": "FA2545A22E2EA761C358808A0B8584DE8E0D9F0735FD4C7732BD1444751CEB93"
+    },
+    "explain_absence_hours": {
+      "version": 1,
+      "hash": "CCB0747268EEBB56A84B3B4E8AC87B41AE283508C06A79A5FBD9B5AB8E0A2758"
     },
     "explain_absence_model": {
       "version": 5,
@@ -860,6 +872,10 @@
       "version": 3,
       "hash": "0BA6692D817DED0809BE8998946BE98F32D39A63FF045843F4A082232B206A6C"
     },
+    "explain_target_hours": {
+      "version": 1,
+      "hash": "E5BB912C313D17A60C20920A8573D94C153ED7ABF43F51CC8B39DDCAB6479A2D"
+    },
     "explain_terms_with_several_meanings": {
       "version": 1,
       "hash": "3ECB47E428157146D731EBED0200BC8BDDC4CBA5AF0B788EFBD9EB7ED8F918BE"
@@ -909,8 +925,8 @@
       "hash": "C281B67C75C100FD6656A9ED97B92DA8B2C45EE45F7DFCBA3899603B4A291218"
     },
     "find_split_shift_candidates": {
-      "version": 4,
-      "hash": "BFEE8CE566CDE2C94B40E99B15E68E63D0AC39A331749ED9C3DB716A9FA0F257"
+      "version": 5,
+      "hash": "9EA925227E56C87F6484D1175C426FBB1B98EF26DE0430A0B33EDD388CA43961"
     },
     "generate_period_summary": {
       "version": 4,
@@ -919,6 +935,10 @@
     "geocode_location_groups": {
       "version": 4,
       "hash": "4005AA2FF7FB7DC447228FBCE5874B870A88B3C7AFB658BAD1561B5DFC04DE65"
+    },
+    "get_absence_hours_calculation": {
+      "version": 1,
+      "hash": "12CBB78F6B2D9C8BC4E86E73AD71038611F1AF24A860FC8CFE26250B79C28D02"
     },
     "get_active_industries_settings": {
       "version": 5,
@@ -1119,6 +1139,10 @@
     "get_system_info": {
       "version": 6,
       "hash": "2A5750BED6D999E2A72BEA5E194CC8A6533BE2F094FE43211EB5E728A3C92102"
+    },
+    "get_target_hours_calculation": {
+      "version": 1,
+      "hash": "9263559ACC8E731D800134138CD696E285083FD3688C826806A14D08C9ED015D"
     },
     "get_translation_status": {
       "version": 4,
@@ -1577,8 +1601,8 @@
       "hash": "B2A56E6E35FEDB151EC8C705EA85DD6B1B01559E2B56814128C9EA143A4CB8E8"
     },
     "seal_open_orders": {
-      "version": 4,
-      "hash": "C49A63432D268EA97460314C626C9E5E0D0DBD3D9A14006BF995CDE6FB65BE41"
+      "version": 5,
+      "hash": "7FEBD242EC95032B450DBBB457C924944046530A25B3078E708E0787A2EAF6D6"
     },
     "seal_shift": {
       "version": 5,
@@ -1593,16 +1617,16 @@
       "hash": "13BFAA4B8812D469B857C7C5597094C741A933BCF55A0CE6A8ABC90D2593D3D6"
     },
     "search_employees": {
-      "version": 9,
-      "hash": "9FD1E5D6DDA5F3361FB60D428FC013C6A8064868F0BF4B6A13A95F49B1C45218"
+      "version": 10,
+      "hash": "0B6C7622690DA0BEC0FC3816728CA4446DA8974DFFBFA2D2EADCAB5CE4CEE44E"
     },
     "search_in_list": {
-      "version": 7,
-      "hash": "5763EFA13F8EA1AFF48FAD1E69E47B23FEC1B8D8BCF9F1D4886FCD52B453D99F"
+      "version": 8,
+      "hash": "002A8A514F6BA56058F22EB67F59DEC95382F6C09E1AE246C064A3350BB53150"
     },
     "search_shifts": {
-      "version": 13,
-      "hash": "94E15037282FBB6CFFD733119BE230BA996F5265F214B67A881DC7691EA4677F"
+      "version": 14,
+      "hash": "2FA39D33236B823976E2BD997ECC40F2235AFF3B18656B5C55F219E16F25CC7B"
     },
     "select_group": {
       "version": 4,

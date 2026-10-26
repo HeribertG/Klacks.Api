@@ -326,6 +326,7 @@ public class RecipeEngineService
         RecipeRightsGate? rightsGate, CancellationToken cancellationToken)
     {
         var retriever = scope.ServiceProvider.GetRequiredService<IRecipeCandidateRetriever>();
+        var admissible = AdmissibleRecipeNames(recipes, message, language);
 
         IReadOnlyList<RecipeCandidate> recipeCandidates;
         try
@@ -334,7 +335,8 @@ public class RecipeEngineService
             // builds through RetrievalQueryBuilder. A recipe answers what the user is asking for now;
             // folding earlier turns in would let a finished topic keep proposing its recipe. The two
             // passes therefore ask different questions, which is why their scores are not comparable.
-            recipeCandidates = await retriever.RetrieveAsync(message, SemanticMatchTopK, cancellationToken);
+            recipeCandidates = await retriever.RetrieveAsync(
+                message, SemanticMatchTopK, cancellationToken, admissible);
         }
         catch (Exception ex)
         {
@@ -598,6 +600,29 @@ public class RecipeEngineService
         var corrected = await FindMatchingRecipeAsync(
             scope, recipes, composite, language, userRights, cancellationToken, paused.Name);
         return corrected.Recipe;
+    }
+
+    /// <summary>
+    /// The recipes the semantic fallback could hand back for this message at all: a candidate that fails its noneOf
+    /// guard or its subject anchor is skipped in FindMatchingRecipeSemanticAsync whatever it scores. Both checks read
+    /// only the message, so they run before the retrieval and only the survivors are scored by the cross-encoder - the
+    /// recipe pass cost ~1 s per turn scoring the whole catalogue (eval 2026-10-24) to throw most of it away. Because
+    /// topK is applied to the survivors, an admissible recipe ranked below an excluded one now still gets its turn.
+    /// With no survivor the retrieval returns nothing without any model call. The checks in the candidate loop stay:
+    /// they keep the result independent of the retriever honouring the filter.
+    /// </summary>
+    private IReadOnlyList<string> AdmissibleRecipeNames(List<AgentRecipe> recipes, string message, string? language)
+    {
+        var admissible = recipes
+            .Where(r => !IsVetoedByNoneOfGuard(r, message, _logger, language)
+                        && HasSemanticAnchor(r, message, _logger, language))
+            .Select(r => r.Name)
+            .ToList();
+
+        _logger.LogInformation(
+            "Semantic recipe fallback: {Admissible} of {Total} recipes admissible for the message",
+            admissible.Count, recipes.Count);
+        return admissible;
     }
 
     private static AgentRecipe? FindRecipeByName(List<AgentRecipe> recipes, string? name)

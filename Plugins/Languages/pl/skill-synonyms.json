@@ -914,6 +914,11 @@
     "zakończyć członkostwo pracownika",
     "ustawić datę odejścia pracownika"
   ],
+  "evaluate_absence_hours_setup": [
+    "dlaczego dostaje za mało godzin urlopu",
+    "dzień urlopu powinien liczyć osiem godzin",
+    "sprawdzić ustawienia godzin nieobecności"
+  ],
   "evaluate_autonomy_level_change": [
     "co się zmienia przy tym poziomie autonomii",
     "jaki jest efekt podniesienia poziomu autonomii",
@@ -945,6 +950,11 @@
     "zanalizuj scenariusz",
     "jaki jest wynik oceny propozycji"
   ],
+  "evaluate_target_hours_setup": [
+    "dlaczego godziny docelowe są błędne",
+    "która umowa do tego wymiaru etatu",
+    "tabela godzin docelowych ma luki"
+  ],
   "explain_absence_blocks_planning": [
     "czy urlop blokuje planowanie",
     "czy planista może przesunąć wakacje",
@@ -952,6 +962,12 @@
     "czy absencja przerywa ciąg dni pracy",
     "czy zaksięgowana nieobecność jest zablokowana dla planisty",
     "dlaczego mój dzień chorobowy nie został przesunięty"
+  ],
+  "explain_absence_hours": [
+    "ile godzin liczy się za dzień urlopu",
+    "dlaczego dzień urlopu liczy tyle godzin",
+    "gdzie ustawiam godziny urlopu",
+    "wymiar etatu dla dni nieobecności"
   ],
   "explain_absence_model": [
     "dlaczego wniosek urlopowy nie widnieje w planie",
@@ -1442,6 +1458,11 @@
     "jakie dane opuszczają firmę",
     "czy dane testowe to prawdziwe rekordy"
   ],
+  "explain_target_hours": [
+    "jak powstają godziny docelowe",
+    "godziny docelowe bez umowy",
+    "godziny docelowe z wymiarem etatu"
+  ],
   "explain_terms_with_several_meanings": [
     "jaka jest różnica między zamówieniem a dyżurem",
     "czy zapieczętowany wszędzie znaczy to samo",
@@ -1541,6 +1562,11 @@
     "zaktualizuj współrzędne geograficzne grup",
     "wyznacz lokalizację geograficzną każdej grupy",
     "oblicz współrzędne dla wszystkich grup"
+  ],
+  "get_absence_hours_calculation": [
+    "pokaż mi obliczenie godzin urlopu",
+    "ile godzin dostaje za dzień urlopu",
+    "sprawdzić godziny urlopu pracownika"
   ],
   "get_active_industries_settings": [
     "dla jakich branż jest skonfigurowany system",
@@ -1842,6 +1868,11 @@
   ],
   "get_system_info": [
     "informacje o systemie"
+  ],
+  "get_target_hours_calculation": [
+    "pokaż mi obliczenie godzin docelowych",
+    "dlaczego ma takie godziny docelowe",
+    "sprawdzić godziny docelowe pracownika"
   ],
   "get_translation_status": [
     "czy deepl jest skonfigurowane",
@@ -2651,7 +2682,9 @@
     "pokaż listę zmian",
     "wyszukaj zmianę po nazwie",
     "jakie są zmiany",
-    "znajdź dyżur"
+    "znajdź dyżur",
+    "zlecenia według miejscowości",
+    "zlecenia w kantonie"
   ],
   "select_group": [
     "pokaż tylko grupę",

@@ -880,6 +880,11 @@
     "menamatkan keahlian pekerja",
     "menetapkan tarikh keluar pekerja"
   ],
+  "evaluate_absence_hours_setup": [
+    "mengapa dia mendapat jam cuti terlalu sedikit",
+    "hari cuti sepatutnya dikira lapan jam",
+    "semak tetapan jam ketidakhadiran"
+  ],
   "evaluate_autonomy_level_change": [
     "apa yang berubah dengan tahap autonomi ini",
     "kesan menaikkan tahap autonomi",
@@ -910,6 +915,11 @@
     "ulas senario yang dicadangkan",
     "nilai pelan cadangan"
   ],
+  "evaluate_target_hours_setup": [
+    "mengapa jam sasaran salah",
+    "kontrak mana untuk beban kerja ini",
+    "jadual jam sasaran tidak lengkap"
+  ],
   "explain_absence_blocks_planning": [
     "adakah cuti yang ditempah menghalang perancangan?",
     "bolehkah wizard gerakkan cuti yang sudah ditempah?",
@@ -917,6 +927,12 @@
     "adakah cuti mengganggu siri hari bekerja berturut-turut?",
     "adakah cuti yang ditempah dikunci untuk perancang?",
     "kenapa hari sakit saya tidak digerakkan?"
+  ],
+  "explain_absence_hours": [
+    "berapa jam dikira untuk satu hari cuti",
+    "mengapa hari cuti dikira sebanyak itu",
+    "di mana saya menetapkan jam cuti",
+    "beban kerja untuk hari ketidakhadiran"
   ],
   "explain_absence_model": [
     "kenapa permohonan cuti tidak muncul dalam pelan",
@@ -1398,6 +1414,11 @@
     "data apa yang keluar dari syarikat",
     "adakah data ujian rekod sebenar"
   ],
+  "explain_target_hours": [
+    "bagaimana jam sasaran ditentukan",
+    "jam sasaran tanpa kontrak",
+    "jam sasaran dengan peratus beban kerja"
+  ],
   "explain_terms_with_several_meanings": [
     "apakah beza antara pesanan dan syif",
     "adakah dimeterai bermaksud sama di mana-mana",
@@ -1491,6 +1512,11 @@
     "kira koordinat kumpulan lokasi sekali gus",
     "geokod semua kumpulan bandar secara automatik",
     "dapatkan koordinat kumpulan lokasi berdasarkan bandar"
+  ],
+  "get_absence_hours_calculation": [
+    "tunjukkan pengiraan jam cuti",
+    "berapa jam dia dapat untuk hari cuti",
+    "semak jam cuti seorang pekerja"
   ],
   "get_active_industries_settings": [
     "apakah industri yang aktif?",
@@ -1805,6 +1831,11 @@
   ],
   "get_system_info": [
     "maklumat sistem"
+  ],
+  "get_target_hours_calculation": [
+    "tunjukkan pengiraan jam sasaran",
+    "mengapa dia mempunyai jam sasaran ini",
+    "semak jam sasaran seorang pekerja"
   ],
   "get_translation_status": [
     "status terjemahan",
@@ -2583,7 +2614,9 @@
     "senarai syif",
     "cari nama syif",
     "apa syif yang ada",
-    "tunjukkan syif"
+    "tunjukkan syif",
+    "pesanan mengikut lokasi",
+    "pesanan di kanton"
   ],
   "select_group": [
     "tunjukkan hanya kumpulan pemasaran",

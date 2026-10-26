@@ -91,9 +91,10 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         int topK,
         string? currentRoute,
         CancellationToken cancellationToken,
-        KnowledgeEntryKind? kindFilter = null)
+        KnowledgeEntryKind? kindFilter = null,
+        IReadOnlyCollection<string>? sourceIdFilter = null)
     {
-        if (string.IsNullOrWhiteSpace(userQuery))
+        if (string.IsNullOrWhiteSpace(userQuery) || sourceIdFilter is { Count: 0 })
             return new RetrievalResult([]);
 
         var call = _callCounter?.NextCall() ?? 0;
@@ -131,8 +132,12 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
             .Select(c => c.ExposedEndpointKey!)
             .ToHashSet();
 
+        var allowedSourceIds = sourceIdFilter == null
+            ? null
+            : new HashSet<string>(sourceIdFilter, StringComparer.OrdinalIgnoreCase);
         var filtered = candidates
             .Where(c => c.Kind == KnowledgeEntryKind.Skill || !wrappedEndpoints.Contains(c.SourceId))
+            .Where(c => allowedSourceIds == null || allowedSourceIds.Contains(c.SourceId))
             .ToList();
 
         if (filtered.Count == 0)

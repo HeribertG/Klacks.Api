@@ -1,11 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Text.Json.Serialization;
+
 namespace Klacks.Api.Application.DTOs.Orders;
 
 /// <summary>
 /// Outcome of seal_open_orders: how many of the matched orders are sealable, how many were sealed, how
 /// many are blocked by missing fields and how many failed while being sealed. With Applied=false nothing
-/// was written and SealedCount is 0.
+/// was written and SealedCount is 0. Selection holds every matched order id with its classification; it binds a confirmed
+/// apply to what the preview showed and is never serialized, so a large batch does not flood the model with ids.
 /// </summary>
 /// <param name="Applied">False for a preview, true when the batch was actually sealed.</param>
 /// <param name="TotalOrders">Number of open orders that matched the filter.</param>
@@ -31,4 +34,8 @@ public sealed record SealOpenOrdersResult(
     bool AutoAssignRequested,
     IReadOnlyList<SealedOrderInfo> SealedSample,
     IReadOnlyList<BlockedOrder> BlockedSample,
-    IReadOnlyList<FailedOrder> Failures);
+    IReadOnlyList<FailedOrder> Failures)
+{
+    [JsonIgnore]
+    public OpenOrderSealingSelection Selection { get; init; } = OpenOrderSealingSelection.Empty;
+}

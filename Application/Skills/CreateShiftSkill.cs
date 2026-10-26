@@ -1,10 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Skill for creating ONE single shift/order (Bestellung) in the system. Every order MUST be billed
-/// to a customer, so a valid clientId of a customer (EntityTypeEnum.Customer) is required. A multi-part
-/// 24h service is modelled as ONE order with the full span (e.g. 07:00-07:00) and is afterwards cut
-/// into parts via <see cref="CutShiftSkill"/> — never by calling this skill several times.
+/// Skill for creating ONE single order (Bestellung) in the system. Owner decision 2026-10-24: the order is always created
+/// as an open order (status OriginalOrder) and never sealed on create - an asDraft argument is ignored. Sealing it is a
+/// separate step through seal_shift, which runs only as the confirmed replay of its server preview; only the sealed order
+/// gets the plannable shift that can be booked and cut. Every order MUST be billed to a customer, so a valid clientId of a
+/// customer (EntityTypeEnum.Customer) is required. A multi-part 24h service is modelled as ONE order with the full span
+/// (e.g. 07:00-07:00) and is cut into parts via <see cref="CutShiftSkill"/> once sealed - never by calling this skill
+/// several times. A structurally identical open order, or the plannable shift of an identical sealed one, is reused
+/// instead of creating a duplicate (ORD-5a).
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="name">Name of the shift (e.g. "Early shift Bern")</param>
@@ -13,9 +17,6 @@
 /// <param name="endTime">End time of the shift (e.g. "15:00"); may equal startTime for a 24h order</param>
 /// <param name="macroId">Optional UUID of the calculation macro; defaults to the standard macro (category Shift, function Standard).
 /// A macro created by the assistant (origin Assistant or AssistantExtension) is refused via <see cref="MacroAssistantGuard"/>.</param>
-/// <param name="asDraft">Optional; defaults to false. When true, creates the order as an editable draft
-/// (status OriginalOrder) instead of sealing it immediately — no plannable shift is created yet. Use
-/// seal_shift once the draft is complete.</param>
 
 using System.Globalization;
 using Klacks.Api.Application.Interfaces;
@@ -91,7 +92,6 @@ public class CreateShiftSkill : BaseSkillImplementation
         int Quantity,
         string? GroupIdsRaw,
         string Description,
-        bool AsDraft,
         string? ClientIdText,
         string WeekdaysText);
 
@@ -138,13 +138,7 @@ public class CreateShiftSkill : BaseSkillImplementation
         var billing = new OrderBilling(clientId, clientName, macroId, macroName);
         var shift = BuildOrder(input, schedule, billing, groupItems, context.UserName);
 
-        // ORD-5a idempotency: reuse a structurally identical uncut order instead of creating a duplicate
-        // (the deterministic guard lives in the repository — UI/REST stays unaffected). On a hit, route
-        // the model to cut the existing order instead of re-creating. Skipped when asDraft: the match
-        // is keyed on an existing OriginalShift (i.e. an already-sealed order with its plannable shift),
-        // which only makes sense once sealing has happened — reusing it here would silently skip past
-        // the very draft stage the caller asked for.
-        var reusable = input.AsDraft ? null : await _shiftRepository.FindReusableUncutOrderAsync(shift, cancellationToken);
+        var reusable = await _shiftRepository.FindReusableUncutOrderAsync(shift, cancellationToken);
         if (reusable != null)
         {
             return ReusedOrderResult(reusable, input.Name, billing);
@@ -174,7 +168,6 @@ public class CreateShiftSkill : BaseSkillImplementation
             GetParameter<int>(parameters, "quantity", 1),
             GetParameter<string>(parameters, "groupIds"),
             GetParameter<string>(parameters, "description") ?? "",
-            GetParameter<bool>(parameters, "asDraft", false),
             GetParameter<string>(parameters, "clientId"),
             GetParameter<string>(parameters, "weekdays") ?? "all");
     }
@@ -306,7 +299,7 @@ public class CreateShiftSkill : BaseSkillImplementation
             Description = input.Description,
             ClientId = billing.ClientId,
             MacroId = billing.MacroId,
-            Status = input.AsDraft ? ShiftStatus.OriginalOrder : ShiftStatus.SealedOrder,
+            Status = ShiftStatus.OriginalOrder,
             ShiftType = ShiftType.IsTask,
             IsTimeRange = true,
             StartShift = schedule.StartTime,
@@ -332,22 +325,38 @@ public class CreateShiftSkill : BaseSkillImplementation
     private static SkillResult ReusedOrderResult(Shift reusable, string name, OrderBilling billing)
     {
         var clientName = billing.ClientName;
+        var data = new
+        {
+            ShiftId = reusable.Id,
+            reusable.Name,
+            Reused = true,
+            IsSealed = reusable.Status != ShiftStatus.OriginalOrder,
+            ClientId = billing.ClientId,
+            ClientName = clientName
+        };
+
+        if (reusable.Status == ShiftStatus.OriginalOrder)
+        {
+            return SkillResult.SuccessResult(
+                data,
+                $"Order '{name}' already exists as an open order for customer '{clientName}' (shiftId=\"{reusable.Id}\") — " +
+                "no new order created. It is not sealed yet, so it cannot be booked or cut. " + SealStepHint(reusable.Id));
+        }
 
         return SkillResult.SuccessResult(
-            new
-            {
-                ShiftId = reusable.Id,
-                SealedOrderId = reusable.OriginalId,
-                reusable.Name,
-                Reused = true,
-                ClientId = billing.ClientId,
-                ClientName = clientName
-            },
+            data,
             $"Order '{name}' already exists for customer '{clientName}' (not yet split) — no new order created. " +
             $"If it should be split into parts, call cut_shift now with shiftId=\"{reusable.Id}\" and the requested parts " +
             "(e.g. parts=\"07:00-15:00,15:00-23:00,23:00-07:00\", partNames=\"Frühdienst,Spätdienst,Nachtdienst\"). " +
             "Do NOT navigate to the cut page and do NOT write manual cutting instructions.");
     }
+
+    private static string SealStepHint(Guid orderId) =>
+        "Klacksy never seals an order on create. Once name, abbreviation, fromDate, at least one weekday or holiday, " +
+        "quantity>0 and sumEmployees>0 are all set, call seal_shift with " +
+        $"shiftId=\"{orderId}\": the user confirms its preview (an order without a group is placed in the group " +
+        "derived from the customer's address, which the preview names), and only the sealed order gets the plannable shift " +
+        "that can be booked - and split with cut_shift if it should be cut into parts.";
 
     private static SkillResult CreatedOrderResult(
         OrderInput input,
@@ -367,7 +376,6 @@ public class CreateShiftSkill : BaseSkillImplementation
         var resultData = new
         {
             ShiftId = resultShift.Id,
-            SealedOrderId = shift.Id,
             shift.Name,
             shift.Abbreviation,
             StartTime = startTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture),
@@ -387,17 +395,11 @@ public class CreateShiftSkill : BaseSkillImplementation
             ? $" with calculation macro '{macroName}'"
             : " (no default calculation macro configured — set one with category Shift)";
 
-        var message = input.AsDraft
-            ? $"Order '{name}' ({startTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-{endTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}, {workTime}h) created as a DRAFT (status OriginalOrder) " +
-              $"for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s) — NOT sealed yet, so it has no " +
-              "plannable shift and cannot be booked or cut. Continue refining it, then call seal_shift with " +
-              $"shiftId=\"{resultShift.Id}\" once name, abbreviation, fromDate, at least one weekday or holiday, at " +
-              "least one group, quantity>0 and sumEmployees>0 are all set."
-            : $"Order '{name}' ({startTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-{endTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}, {workTime}h) created for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s). " +
-              "NEXT STEP: if this order is meant to be split into several parts (e.g. a 24h service into early/late/night), " +
-              $"call cut_shift now with shiftId=\"{resultShift.Id}\" and parts like \"07:00-15:00,15:00-23:00,23:00-07:00\" " +
-              "(optionally partNames=\"Frühdienst,Spätdienst,Nachtdienst\"). Do NOT navigate to the cut page and do NOT write manual cutting instructions. " +
-              "If it is a single shift, the order is already complete.";
+        var message =
+            $"Order '{name}' ({startTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-" +
+            $"{endTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}, {workTime}h) created as an open order " +
+            $"(status OriginalOrder) for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s) — NOT sealed, so " +
+            "it has no plannable shift yet and cannot be booked or cut. " + SealStepHint(resultShift.Id);
 
         return SkillResult.SuccessResult(resultData, message);
     }
