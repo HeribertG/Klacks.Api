@@ -883,6 +883,11 @@
     "kết thúc tư cách thành viên của nhân viên",
     "đặt ngày nghỉ việc cho nhân viên"
   ],
+  "evaluate_absence_hours_setup": [
+    "tại sao anh ấy nhận được quá ít giờ nghỉ phép",
+    "ngày nghỉ phép phải được tính tám giờ",
+    "kiểm tra thiết lập giờ nghỉ phép"
+  ],
   "evaluate_autonomy_level_change": [
     "điều gì thay đổi ở mức độ tự chủ này",
     "tăng mức độ tự chủ thì có tác động gì",
@@ -913,6 +918,11 @@
     "phân tích rủi ro scenario",
     "đánh giá trước khi duyệt"
   ],
+  "evaluate_target_hours_setup": [
+    "tại sao giờ mục tiêu bị sai",
+    "hợp đồng nào phù hợp với tỷ lệ làm việc này",
+    "bảng giờ mục tiêu còn thiếu tháng"
+  ],
   "explain_absence_blocks_planning": [
     "một ngày ốm có cản trở lập lịch không",
     "trợ lý có dời được ngày nghỉ đã đặt không",
@@ -920,6 +930,12 @@
     "nghỉ phép có làm gián đoạn chuỗi ngày làm việc không",
     "vì sao ngày ốm không được tự động chuyển",
     "tại sao kế hoạch không được phép động vào ngày nghỉ"
+  ],
+  "explain_absence_hours": [
+    "một ngày nghỉ phép được tính bao nhiêu giờ",
+    "tại sao ngày nghỉ phép được tính nhiều giờ như vậy",
+    "tôi đặt giờ nghỉ phép ở đâu",
+    "tỷ lệ làm việc cho các ngày nghỉ"
   ],
   "explain_absence_model": [
     "tại sao đơn xin nghỉ không hiện trong kế hoạch",
@@ -1393,6 +1409,11 @@
     "dữ liệu nào rời khỏi công ty",
     "dữ liệu thử nghiệm có phải bản ghi thật không"
   ],
+  "explain_target_hours": [
+    "giờ mục tiêu được tính như thế nào",
+    "giờ mục tiêu khi không có hợp đồng",
+    "giờ mục tiêu với tỷ lệ làm việc"
+  ],
   "explain_terms_with_several_meanings": [
     "đơn hàng và ca khác nhau thế nào",
     "niêm phong có cùng một nghĩa ở mọi nơi không",
@@ -1478,6 +1499,11 @@
     "định vị địa lý cho các nhóm địa điểm",
     "tự động xác định tọa độ của nhóm",
     "cập nhật tọa độ địa lý cho mọi nhóm"
+  ],
+  "get_absence_hours_calculation": [
+    "cho tôi xem cách tính giờ nghỉ phép",
+    "cô ấy nhận được bao nhiêu giờ cho ngày nghỉ phép",
+    "kiểm tra giờ nghỉ phép của một nhân viên"
   ],
   "get_active_industries_settings": [
     "xem cài đặt ngành nghề",
@@ -1790,6 +1816,11 @@
   ],
   "get_system_info": [
     "thông tin hệ thống"
+  ],
+  "get_target_hours_calculation": [
+    "cho tôi xem cách tính giờ mục tiêu",
+    "tại sao cô ấy có giờ mục tiêu này",
+    "kiểm tra giờ mục tiêu của một nhân viên"
   ],
   "get_translation_status": [
     "trạng thái dịch thuật",
@@ -2578,7 +2609,9 @@
     "liệt kê các ca",
     "ca nào có trong hệ thống",
     "tìm ca theo tên",
-    "danh sách ca làm"
+    "danh sách ca làm",
+    "đơn hàng theo địa điểm",
+    "đơn hàng trong bang"
   ],
   "select_group": [
     "chỉ hiển thị nhóm bán hàng",

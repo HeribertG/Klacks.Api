@@ -5,7 +5,9 @@ using Klacks.Api.Application.DTOs.Orders;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Orders;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Filter;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -20,7 +22,10 @@ namespace Klacks.Api.Application.Handlers.Orders;
 /// before the loop, never inside it, because it opens a transaction of its own as well. Every order outside
 /// request.Scope is dropped right after loading, before anything is classified, counted or named, so a preview and
 /// an apply - inline or as the deferred background job - see exactly the same scoped set, re-evaluated against the
-/// orders as they are when the command runs. The group assignment works on orders without any group, which only full
+/// orders as they are when the command runs. An apply that carries the confirmed preview (ExpectedSelection) first
+/// classifies the matched orders again, before the group assignment or any seal writes, and throws
+/// InvalidRequestException with the binding mismatch text when they no longer classify exactly as shown; afterwards it
+/// only ever looks at the confirmed orders, so an order that appeared in the meantime is never sealed. The group assignment works on orders without any group, which only full
 /// access may touch, so it is refused for every other scope.
 /// </summary>
 /// <param name="shiftRepository">Loads the open orders that match the filter, with their group links.</param>
@@ -57,6 +62,11 @@ public sealed class SealOpenOrdersCommandHandler
             throw new ForbiddenException(AutoAssignOutsideFullAccessError);
         }
 
+        if (request.Apply && request.ExpectedSelection != null)
+        {
+            await EnsureStillAsConfirmedAsync(request, request.ExpectedSelection, cancellationToken);
+        }
+
         var autoAssignedCount = 0;
         if (request.AutoAssignGroups)
         {
@@ -76,25 +86,17 @@ public sealed class SealOpenOrdersCommandHandler
         }
 
         var orders = await LoadOrdersInScopeAsync(request, cancellationToken);
-
-        var sealable = new List<Shift>();
-        var blocked = new List<BlockedOrder>();
-
-        foreach (var order in orders)
+        var expected = request.ExpectedSelection;
+        if (expected != null)
         {
-            var missing = _orderSealingService.CollectMissingRequirements(order);
-            if (missing.Count > 0)
-            {
-                blocked.Add(new BlockedOrder(order.Id, order.Name, missing));
-                continue;
-            }
-
-            sealable.Add(order);
+            orders = orders.Where(order => expected.Contains(order.Id)).ToList();
         }
+
+        var (sealable, blocked) = Classify(orders);
 
         if (!request.Apply)
         {
-            return BuildResult(request, orders.Count, sealable.Count, [], blocked, [], autoAssignedCount);
+            return BuildResult(request, orders.Count, sealable, [], blocked, [], autoAssignedCount);
         }
 
         var sealedOrders = new List<SealedOrderInfo>();
@@ -126,7 +128,39 @@ public sealed class SealOpenOrdersCommandHandler
             }
         }
 
-        return BuildResult(request, orders.Count, sealable.Count, sealedOrders, blocked, failures, autoAssignedCount);
+        return BuildResult(request, orders.Count, sealable, sealedOrders, blocked, failures, autoAssignedCount);
+    }
+
+    private async Task EnsureStillAsConfirmedAsync(
+        SealOpenOrdersCommand request, OpenOrderSealingSelection confirmed, CancellationToken cancellationToken)
+    {
+        var (sealable, blocked) = Classify(await LoadOrdersInScopeAsync(request, cancellationToken));
+        var current = OpenOrderSealingSelection.Of(sealable.Select(order => order.Id), blocked.Select(order => order.OrderId));
+        if (!current.HasSameEntriesAs(confirmed))
+        {
+            throw new InvalidRequestException(ConfirmationBindingMessages.Describe(
+                SealOpenOrdersBinding.Of(confirmed), SealOpenOrdersBinding.Of(current)));
+        }
+    }
+
+    private (List<Shift> Sealable, List<BlockedOrder> Blocked) Classify(IEnumerable<Shift> orders)
+    {
+        var sealable = new List<Shift>();
+        var blocked = new List<BlockedOrder>();
+
+        foreach (var order in orders)
+        {
+            var missing = _orderSealingService.CollectMissingRequirements(order);
+            if (missing.Count > 0)
+            {
+                blocked.Add(new BlockedOrder(order.Id, order.Name, missing));
+                continue;
+            }
+
+            sealable.Add(order);
+        }
+
+        return (sealable, blocked);
     }
 
     private async Task<List<Shift>> LoadOrdersInScopeAsync(
@@ -155,7 +189,7 @@ public sealed class SealOpenOrdersCommandHandler
     private static SealOpenOrdersResult BuildResult(
         SealOpenOrdersCommand request,
         int totalOrders,
-        int sealableCount,
+        IReadOnlyList<Shift> sealable,
         IReadOnlyList<SealedOrderInfo> sealedOrders,
         IReadOnlyList<BlockedOrder> blocked,
         IReadOnlyList<FailedOrder> failures,
@@ -163,7 +197,7 @@ public sealed class SealOpenOrdersCommandHandler
         new(
             Applied: request.Apply,
             TotalOrders: totalOrders,
-            SealableCount: sealableCount,
+            SealableCount: sealable.Count,
             SealedCount: sealedOrders.Count,
             BlockedCount: blocked.Count,
             FailedCount: failures.Count,
@@ -174,5 +208,8 @@ public sealed class SealOpenOrdersCommandHandler
             AutoAssignRequested: request.AutoAssignGroups,
             SealedSample: sealedOrders.Take(MaxSample).ToList(),
             BlockedSample: blocked.Take(MaxSample).ToList(),
-            Failures: failures.Take(MaxSample).ToList());
+            Failures: failures.Take(MaxSample).ToList())
+        {
+            Selection = OpenOrderSealingSelection.Of(sealable.Select(order => order.Id), blocked.Select(order => order.OrderId))
+        };
 }

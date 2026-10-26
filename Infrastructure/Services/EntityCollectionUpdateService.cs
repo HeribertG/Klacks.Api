@@ -95,7 +95,10 @@ public class EntityCollectionUpdateService
 
             setParentId(newEntity, parentId);
             _context.Entry(newEntity).State = EntityState.Added;
-            existingCollection.Add(newEntity);
+            if (!existingCollection.Contains(newEntity))
+            {
+                existingCollection.Add(newEntity);
+            }
         }
     }
 

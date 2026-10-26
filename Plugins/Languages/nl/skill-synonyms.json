@@ -906,6 +906,11 @@
     "het lidmaatschap van de medewerker beëindigen",
     "de uitdienstdatum van de medewerker instellen"
   ],
+  "evaluate_absence_hours_setup": [
+    "waarom krijgt hij te weinig vakantie-uren",
+    "de vakantiedag moet acht uur tellen",
+    "instelling van de afwezigheidsuren controleren"
+  ],
   "evaluate_autonomy_level_change": [
     "wat verandert er met dit autonomieniveau",
     "wat is het effect van een hoger autonomieniveau",
@@ -937,6 +942,11 @@
     "beoordeel of het scenario veilig is om te accepteren",
     "controleer het scenario op overtredingen"
   ],
+  "evaluate_target_hours_setup": [
+    "waarom zijn de doeluren verkeerd",
+    "welk contract voor dit deeltijdpercentage",
+    "de tabel met doeluren heeft gaten"
+  ],
   "explain_absence_blocks_planning": [
     "blokkeert een geboekte afwezigheid de planning",
     "kan de assistent een geboekte vakantie verplaatsen",
@@ -944,6 +954,12 @@
     "onderbreekt afwezigheid de opeenvolgende werkdagen",
     "is een geboekte afwezigheid vergrendeld voor de planner",
     "waarom is mijn ziektedag niet verplaatst"
+  ],
+  "explain_absence_hours": [
+    "hoeveel uren telt een vakantiedag",
+    "waarom telt de vakantiedag zoveel uren",
+    "waar stel ik de vakantie-uren in",
+    "deeltijdfactor voor afwezigheidsdagen"
   ],
   "explain_absence_model": [
     "waarom staat de vakantieaanvraag niet in het rooster",
@@ -1441,6 +1457,11 @@
     "welke gegevens verlaten het bedrijf",
     "zijn testgegevens echte records"
   ],
+  "explain_target_hours": [
+    "hoe komen de doeluren tot stand",
+    "doeluren zonder contract",
+    "doeluren met deeltijdpercentage"
+  ],
   "explain_terms_with_several_meanings": [
     "wat is het verschil tussen een bestelling en een dienst",
     "betekent verzegeld overal hetzelfde",
@@ -1534,6 +1555,11 @@
     "werk de geografische coördinaten van alle groepen bij",
     "zoek de coördinaten van elke groep op",
     "voer geocodering uit voor alle groepen"
+  ],
+  "get_absence_hours_calculation": [
+    "toon mij de berekening van de vakantie-uren",
+    "hoeveel uren krijgt zij voor de vakantiedag",
+    "vakantie-uren van een medewerker controleren"
   ],
   "get_active_industries_settings": [
     "voor welke branches is het systeem ingesteld",
@@ -1829,6 +1855,11 @@
   ],
   "get_system_info": [
     "systeeminformatie"
+  ],
+  "get_target_hours_calculation": [
+    "toon mij de berekening van de doeluren",
+    "waarom heeft zij deze doeluren",
+    "doeluren van een medewerker controleren"
   ],
   "get_translation_status": [
     "is deepl geconfigureerd",
@@ -2625,7 +2656,9 @@
     "welke diensten zijn er",
     "toon de dienstlijst",
     "zoek naar een shift",
-    "lijst met shifts"
+    "lijst met shifts",
+    "orders per plaats",
+    "orders in het kanton"
   ],
   "select_group": [
     "filter op groep...",

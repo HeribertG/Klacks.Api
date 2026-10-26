@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Common;
@@ -240,7 +241,7 @@ public class SkillExecutorService : ISkillExecutor
             var uiAction = SkillResult.UiAction(
                 string.IsNullOrWhiteSpace(descriptor.HandlerConfig) ? EmptyUiActionSteps : descriptor.HandlerConfig,
                 invocation.Parameters,
-                $"Function '{descriptor.Name}' will be executed as UI action in the user's browser.",
+                string.Format(CultureInfo.InvariantCulture, UiActionResultMessages.DispatchedFormat, descriptor.Name),
                 uiActionTrackingId);
             return SkillDispatchOutcome.Ran(uiAction, uiActionTrackingId);
         }

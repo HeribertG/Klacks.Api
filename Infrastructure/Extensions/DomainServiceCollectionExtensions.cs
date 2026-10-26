@@ -138,6 +138,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IShiftTreeService, ShiftTreeService>();
         services.AddScoped<IShiftResetService, ShiftResetService>();
         services.AddScoped<IShiftCutFacade, ShiftCutFacade>();
+        services.AddScoped<IShiftTimeCutPlanner, ShiftTimeCutPlanner>();
         services.AddScoped<ISealedOrderFamilyDeletion, SealedOrderFamilyDeletion>();
         services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
         services.AddScoped<IShiftScheduleReader>(sp => sp.GetRequiredService<IShiftScheduleService>());
@@ -328,7 +329,13 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
                            Klacks.Api.Application.Skills.BulkWorkDeletionConfirmationPreviewProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
+                           Klacks.Api.Application.Skills.CutShiftConfirmationPreviewProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
                            Klacks.Api.Application.Skills.SendMessageConfirmationPreviewProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
+                           Klacks.Api.Application.Skills.SealOpenOrdersConfirmationPreviewProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
+                           Klacks.Api.Application.Skills.SealShiftConfirmationPreviewProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IConfirmationPreviewCatalog,
                            Klacks.Api.Application.Services.Assistant.Autonomy.ConfirmationPreviewCatalog>();
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
@@ -512,6 +519,12 @@ internal static class DomainServiceCollectionExtensions
             Klacks.Api.Application.Services.Grouping.CustomerGroupingPlanner>();
         services.AddScoped<Klacks.Api.Application.Interfaces.IOrderSealingService,
             Klacks.Api.Application.Services.Orders.OrderSealingService>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.IOrderGroupPlacementResolver,
+            Klacks.Api.Application.Services.Orders.OrderGroupPlacementResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.ISealShiftTargetResolver,
+            Klacks.Api.Application.Services.Orders.SealShiftTargetResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.ISealOpenOrdersPlanner,
+                           Klacks.Api.Application.Services.Orders.SealOpenOrdersPlanner>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupGeocoder,
             Klacks.Api.Application.Services.Grouping.GroupGeocoder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupPlaceClassifier,

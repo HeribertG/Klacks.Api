@@ -2,6 +2,7 @@
 
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Geo;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.Services.Shifts;
@@ -34,7 +35,15 @@ public interface IShiftRepository : IBaseRepository<Shift>
     /// </summary>
     Task<List<Shift>> GetWithClientByIdsAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
 
-    Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter, IReadOnlyCollection<Guid>? visibleGroupIds);
+    /// <summary>
+    /// The filtered, paginated shift/order list. The location filter (optional) narrows the list to orders whose
+    /// location (OrderLocationAddressRule) matches; it is ANDed with every other filter and with the group visibility.
+    /// </summary>
+    /// <param name="filter">List view, date range, text search, sorting and paging</param>
+    /// <param name="visibleGroupIds">The caller's group restriction (null = unrestricted)</param>
+    /// <param name="location">Resolved order location filter with the caller's customer visibility; null = none</param>
+    Task<TruncatedShift> GetFilteredAndPaginatedShifts(
+        ShiftFilter filter, IReadOnlyCollection<Guid>? visibleGroupIds, ShiftLocationFilter? location = null);
 
     Task UpdateGroupItems(Guid shiftId, List<Guid> actualGroupIds);
     

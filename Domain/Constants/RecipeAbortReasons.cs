@@ -45,6 +45,12 @@ public static class RecipeAbortReasons
     public const string CutRecipeIncomplete = "turn ended before the cut recipe completed";
 
     /// <summary>
+    /// The cut recipe stopped on its seal step: seal_shift refused the order (for example one without a group), the
+    /// confirmed replay of the seal failed, or it sealed another order than the one the recipe created.
+    /// </summary>
+    public const string CutRecipeStoppedAtSeal = "cut recipe stopped at the seal of its order";
+
+    /// <summary>
     /// A skill answered with a name-resolution ask-back ("Did the user mean ...?" or several matching names), so
     /// the forcing was released: the model has to ask the user before the step may run with a name.
     /// </summary>

@@ -4,7 +4,8 @@
 /// The decisions both chat loops need before their first provider call, produced by ONE call so the
 /// streaming and the non-streaming path cannot drift apart: the recipe plan (null when none is active),
 /// whether an outstanding confirmation must be forced this turn together with the tool to narrow to,
-/// and the volatile note that belongs to that decision.
+/// and the volatile note that belongs to that decision. CutContinuation is the plan of the hard-coded cut recipe when
+/// this turn redeems that recipe's held seal (CutRecipeContinuationResolver), null otherwise.
 ///
 /// The graceful correction is deliberately NOT a field here. Its outcome depends on the assembled
 /// toolset, which does not exist when PrepareAsync runs, and it is already on the LLMContext by then -
@@ -19,4 +20,5 @@ public sealed record TurnPreparation(
     RecipeExecutionPlan? Plan,
     bool ForceConfirm,
     LLMFunction? ConfirmFunction,
-    string? VolatileNote);
+    string? VolatileNote,
+    RecipeForcingPlan? CutContinuation = null);

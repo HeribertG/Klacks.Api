@@ -20,12 +20,9 @@ namespace Klacks.Api.Application.Services.Assistant;
 
 internal static class SkillMessageGuarantees
 {
-    private const string CreateShiftSkillName = "create_shift";
-    private const string CutShiftSkillName = "cut_shift";
-
     /// <summary>
-    /// The guarantees resolvable from the message and permitted skills alone, without any store or
-    /// service call: page/concept explain, the create_shift/cut_shift workflow pair, recipe-forcing and
+    /// The guarantees resolvable from the request alone (message, permitted, retrieved and continuation skills), without
+    /// any store or service call: page/concept explain, the order workflow (create, seal, cut), recipe-forcing and
     /// grouping intent. Split out of ResolveAsync because it is the stateless half of the resolution;
     /// the forcing recipe names are returned because the plan-candidate guarantee downstream needs them
     /// alongside the engine-recipe names ResolveAsync resolves itself.
@@ -55,18 +52,8 @@ internal static class SkillMessageGuarantees
                 guaranteedSkills, permittedSkills, conceptSkillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
-        // Workflow-pair guarantee: an order is created (create_shift) and then split into parts
-        // (cut_shift), usually in the same turn. cut_shift is not always-on and both vector retrieval
-        // and the (probabilistic) co-required expansion can miss it on the create/confirm turn, so the
-        // model navigates to the cut page or writes manual instructions instead of cutting. Guarantee
-        // cut_shift deterministically whenever create_shift is in play (it survives truncation because
-        // guaranteed skills are kept first).
-        if (request.RetrievedSkills.Any(
-                s => string.Equals(s.Name, CreateShiftSkillName, StringComparison.OrdinalIgnoreCase)))
-        {
-            SkillGuaranteeCollector.Add(
-                guaranteedSkills, permittedSkills, CutShiftSkillName, ToolsetSkillSource.Hint, guaranteedSources);
-        }
+        // Order-workflow guarantee: seal_shift and cut_shift follow create_shift (OrderWorkflowSkillGuarantee).
+        OrderWorkflowSkillGuarantee.ApplyFollowUps(guaranteedSkills, guaranteedSources, permittedSkills, request);
 
         // Recipe skill guarantee: when an operator-authored recipe engages, ALL of its step skills must
         // be in the tool set so the forcing spine can narrow the iteration to them. find_customer_candidates

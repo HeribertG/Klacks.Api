@@ -63,7 +63,7 @@ public class ShiftValidator : IShiftValidator
                     $"Cut fromDate ({fromDate}) cannot be later than SealedOrder untilDate ({sealedOrder.UntilDate.Value})");
             }
 
-            if (untilDate.HasValue && untilDate.Value >= sealedOrder.UntilDate.Value)
+            if (untilDate.HasValue && untilDate.Value > sealedOrder.UntilDate.Value)
             {
                 throw new InvalidOperationException(
                     $"Cut untilDate ({untilDate.Value}) cannot be later than SealedOrder untilDate ({sealedOrder.UntilDate.Value})");

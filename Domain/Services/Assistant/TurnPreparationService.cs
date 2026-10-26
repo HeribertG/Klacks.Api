@@ -68,12 +68,45 @@ public class TurnPreparationService : ITurnPreparationService
     public async Task<TurnPreparation> PrepareAsync(
         TurnPreparationRequest request, CancellationToken cancellationToken = default)
     {
-        var (force, confirmFunction, note) = ResolvePendingConfirmation(request.Context);
+        var (force, confirmFunction, note, redeemedSkill) = ResolvePendingConfirmationWithSkill(request.Context);
 
         var plan = await ResolveOrResumeRecipeAsync(
             request.Context, request.Provider, request.Model, request.ConversationId, force, cancellationToken);
 
-        return new TurnPreparation(plan, force, confirmFunction, note ?? BuildRecipeDeniedNote(plan, request.Context.RecipeDenial));
+        var cutContinuation = force ? ResolveCutContinuation(request.Context, request.ConversationId, redeemedSkill) : null;
+
+        return new TurnPreparation(
+            plan, force, confirmFunction, note ?? BuildRecipeDeniedNote(plan, request.Context.RecipeDenial), cutContinuation);
+    }
+
+    /// <summary>
+    /// The cut recipe's plan for a turn that redeems its held seal (CutRecipeContinuationResolver), read off the previous
+    /// turn's record. A failing read costs only the continuation: the seal is still redeemed, the cut is just not forced.
+    /// </summary>
+    private RecipeForcingPlan? ResolveCutContinuation(LLMContext context, string conversationId, string? redeemedSkill)
+    {
+        if (redeemedSkill == null || !Guid.TryParse(context.UserId, out var userGuid) || string.IsNullOrEmpty(conversationId))
+        {
+            return null;
+        }
+
+        try
+        {
+            var continuation = CutRecipeContinuationResolver.Resolve(
+                redeemedSkill, _lastActionStore.Peek(userGuid, conversationId));
+            if (continuation != null)
+            {
+                _logger.LogInformation(
+                    "Recipe '{Recipe}' continues after the confirmation of its held {Skill}", continuation.Name, redeemedSkill);
+            }
+
+            return continuation;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Could not read the previous action for the cut recipe continuation of user {UserId}", context.UserId);
+            return null;
+        }
     }
 
     private static string? BuildRecipeDeniedNote(RecipeExecutionPlan? plan, RecipeDenial? denial)
@@ -126,9 +159,20 @@ public class TurnPreparationService : ITurnPreparationService
     /// </summary>
     internal (bool Force, LLMFunction? ConfirmFunction, string? ContextNote) ResolvePendingConfirmation(LLMContext context)
     {
+        var (force, confirmFunction, note, _) = ResolvePendingConfirmationWithSkill(context);
+        return (force, confirmFunction, note);
+    }
+
+    /// <summary>
+    /// ResolvePendingConfirmation plus the skill of the held action the turn is forced to confirm (null when nothing is
+    /// forced), which the cut recipe continuation is decided by.
+    /// </summary>
+    private (bool Force, LLMFunction? ConfirmFunction, string? ContextNote, string? RedeemedSkill) ResolvePendingConfirmationWithSkill(
+        LLMContext context)
+    {
         if (!Guid.TryParse(context.UserId, out var userGuid))
         {
-            return (false, null, null);
+            return (false, null, null, null);
         }
 
         var undoIsOfferedThisTurn = context.CorrectionUndoOffered;
@@ -136,7 +180,8 @@ public class TurnPreparationService : ITurnPreparationService
         var assessment = AffirmationDetector.AssessExplicitConfirmation(context.Message, context.Language);
         if (assessment.IsAmbiguous)
         {
-            return ResolveAmbiguousReply(userGuid, assessment, undoIsOfferedThisTurn);
+            var (ambiguousForce, ambiguousFunction, ambiguousNote) = ResolveAmbiguousReply(userGuid, assessment, undoIsOfferedThisTurn);
+            return (ambiguousForce, ambiguousFunction, ambiguousNote, null);
         }
 
         if (!assessment.IsConfirmed)
@@ -146,7 +191,7 @@ public class TurnPreparationService : ITurnPreparationService
                 _pendingConfirmationStore.DiscardCorrectionUndo(userGuid);
             }
 
-            return (false, null, null);
+            return (false, null, null, null);
         }
 
         var forceWindow = TimeSpan.FromSeconds(AutonomyDefaults.ConfirmationForceWindowSeconds);
@@ -161,14 +206,14 @@ public class TurnPreparationService : ITurnPreparationService
             userGuid, forceWindow, PendingConfirmationPurposes.GateReplay, PendingConfirmationChannels.Chat);
         if (pending == null)
         {
-            return (false, null, null);
+            return (false, null, null, null);
         }
 
         var confirmFunction = context.AvailableFunctions.FirstOrDefault(
             f => string.Equals(f.Name, AutonomyDefaults.ConfirmPendingActionSkillName, StringComparison.OrdinalIgnoreCase));
         if (confirmFunction == null)
         {
-            return (false, null, null);
+            return (false, null, null, null);
         }
 
         var note = string.Format(
@@ -177,7 +222,7 @@ public class TurnPreparationService : ITurnPreparationService
             pending.SkillName,
             pending.Token);
 
-        return (true, confirmFunction, note);
+        return (true, confirmFunction, note, pending.SkillName);
     }
 
     /// <summary>

@@ -15,7 +15,8 @@
 /// person the term names. Results never shrink to a single row while more people match.
 /// </summary>
 /// <param name="searchTerm">Optional name, company or client number</param>
-/// <param name="canton">Optional canton/state code of the employee address</param>
+/// <param name="canton">Optional state of any of the person's addresses - canton, Bundesland, département, ... - as
+/// code or as name in any installed language; resolved to the stored code (IAddressLocationResolver)</param>
 /// <param name="entityType">Optional Employee, ExternEmp or Customer</param>
 /// <param name="limit">Optional maximum number of rows (default 10)</param>
 
@@ -24,6 +25,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -37,10 +39,12 @@ public class SearchEmployeesSkill : BaseSkillImplementation
     private const int SmallestAmbiguousRowCount = 2;
 
     private readonly IClientSearchRepository _searchRepository;
+    private readonly IAddressLocationResolver _locationResolver;
 
-    public SearchEmployeesSkill(IClientSearchRepository searchRepository)
+    public SearchEmployeesSkill(IClientSearchRepository searchRepository, IAddressLocationResolver locationResolver)
     {
         _searchRepository = searchRepository;
+        _locationResolver = locationResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -49,7 +53,8 @@ public class SearchEmployeesSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var searchTerm = GetParameter<string>(parameters, "searchTerm");
-        var canton = GetParameter<string>(parameters, "canton");
+        var canton = await _locationResolver.ResolveStateCodeAsync(
+            GetParameter<string>(parameters, "canton"), cancellationToken);
         var entityTypeValue = GetParameter<string>(parameters, "entityType");
         var limit = GetParameter<int?>(parameters, "limit") ?? DefaultLimit;
 

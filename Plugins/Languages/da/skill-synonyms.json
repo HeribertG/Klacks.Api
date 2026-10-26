@@ -900,6 +900,11 @@
     "afslutte medarbejderens medlemskab",
     "fastsætte medarbejderens fratrædelsesdato"
   ],
+  "evaluate_absence_hours_setup": [
+    "hvorfor får han for få ferietimer",
+    "feriedagen skal tælle otte timer",
+    "tjek opsætningen af fraværstimer"
+  ],
   "evaluate_autonomy_level_change": [
     "hvad ændrer sig med dette autonominiveau",
     "hvilken effekt har det at hæve autonominiveauet",
@@ -930,6 +935,11 @@
     "evaluer planforslag",
     "bedøm scenario mod regler"
   ],
+  "evaluate_target_hours_setup": [
+    "hvorfor er måltimerne forkerte",
+    "hvilken kontrakt til beskæftigelsesgraden",
+    "tabellen med måltimer har huller"
+  ],
   "explain_absence_blocks_planning": [
     "kan planlæggeren flytte en booket ferie?",
     "blokerer en fraværsmængde for planlægningen?",
@@ -937,6 +947,12 @@
     "afbryder fravær en kæde af arbejdsdage?",
     "hvorfor blev min sygedag ikke flyttet?",
     "er en booket ferie låst for planlæggeren?"
+  ],
+  "explain_absence_hours": [
+    "hvor mange timer tæller en feriedag",
+    "hvorfor tæller feriedagen så mange timer",
+    "hvor indstiller jeg ferietimerne",
+    "arbejdstid for fraværsdage"
   ],
   "explain_absence_model": [
     "hvorfor står ferieønsket ikke i planen",
@@ -1433,6 +1449,11 @@
     "hvilke data forlader virksomheden",
     "er testdata rigtige poster"
   ],
+  "explain_target_hours": [
+    "hvordan opstår måltimerne",
+    "måltimer uden kontrakt",
+    "måltimer med beskæftigelsesgrad"
+  ],
   "explain_terms_with_several_meanings": [
     "hvad er forskellen på en bestilling og en vagt",
     "betyder forseglet det samme overalt",
@@ -1522,6 +1543,11 @@
     "find koordinater for alle bygrupper automatisk",
     "geokod alle lokationsgrupper på én gang",
     "hent gps-koordinater for samtlige grupper"
+  ],
+  "get_absence_hours_calculation": [
+    "vis mig beregningen af ferietimerne",
+    "hvor mange timer får hun for feriedagen",
+    "tjek ferietimerne for en medarbejder"
   ],
   "get_active_industries_settings": [
     "vis brancheindstillinger",
@@ -1818,6 +1844,11 @@
   ],
   "get_system_info": [
     "systemoplysninger"
+  ],
+  "get_target_hours_calculation": [
+    "vis mig beregningen af måltimerne",
+    "hvorfor har hun disse måltimer",
+    "tjek måltimerne for en medarbejder"
   ],
   "get_translation_status": [
     "oversættelsesstatus",
@@ -2595,7 +2626,9 @@
     "find vagt",
     "vis vagter",
     "hvilke vagter findes",
-    "opslag vagt"
+    "opslag vagt",
+    "ordrer efter sted",
+    "ordrer i kantonen"
   ],
   "select_group": [
     "vis kun gruppen bern",

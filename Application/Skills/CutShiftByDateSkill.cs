@@ -7,7 +7,8 @@
 /// starting on cutDate that inherits the old UntilDate, groups and weekly pattern. Cutting the plannable
 /// shift of an uncut order produces two flat sibling parts of that order (like cut_shift); cutting an
 /// already-split part nests the new piece as its child (sub-cut), matching the documented cut-tree
-/// conventions (root-id/parent-id semantics of ShiftCutFacade).
+/// conventions (root-id/parent-id semantics of ShiftCutFacade). Both pieces carry the default expenses of the cut piece
+/// (the new one as its own copy) and the result names them per piece, so the user is told what every piece is booked with.
 /// </summary>
 /// <param name="shiftId">UUID of the plannable shift (OriginalShift), an existing split part (SplitShift), or the order — an order id is resolved to its single not-yet-split plannable shift.</param>
 /// <param name="cutDate">ISO date (yyyy-MM-dd) where the cut happens; the new piece starts on this date.</param>
@@ -127,7 +128,9 @@ public class CutShiftByDateSkill : BaseSkillImplementation
             }
         };
 
-        await _shiftCutFacade.ProcessBatchCutsAsync(operations);
+        var processed = await _shiftCutFacade.ProcessBatchCutsAsync(operations);
+        var keptPieceExpenses = DefaultExpensesOf(processed, target.Id);
+        var newPieceExpenses = DefaultExpensesOf(processed, newPartId);
 
         var freshCuts = await _shiftRepository.CutList(sealedOrderId.Value);
         var updatedPiece = freshCuts.FirstOrDefault(s => s.Id == target.Id);
@@ -155,11 +158,18 @@ public class CutShiftByDateSkill : BaseSkillImplementation
                 NewPieceId = newPartId,
                 NewPieceName = createData.Name,
                 NewPieceFromDate = cutDate,
+                OriginalPieceDefaultExpenses = CutPieceExpenseSummary.ToData(keptPieceExpenses),
+                NewPieceDefaultExpenses = CutPieceExpenseSummary.ToData(newPieceExpenses),
                 Verified = true
             },
             $"Cut '{target.Name}' at {cutDate}: the existing piece now ends {updatedPiece.UntilDate}, " +
-            $"and a new piece '{createData.Name}' starts {cutDate}. Confirmed in the database (verified).");
+            $"and a new piece '{createData.Name}' starts {cutDate}. Confirmed in the database (verified). " +
+            $"Default expenses booked with every work of a piece - existing piece: {CutPieceExpenseSummary.Describe(keptPieceExpenses)}; " +
+            $"new piece: {CutPieceExpenseSummary.Describe(newPieceExpenses)}. Tell the user these expenses per piece.");
     }
+
+    private static List<ShiftExpenses> DefaultExpensesOf(IEnumerable<Shift> processed, Guid pieceId)
+        => processed.FirstOrDefault(shift => shift.Id == pieceId)?.ShiftExpenses ?? [];
 
     private async Task<(Shift? Target, string? Error)> ResolveTarget(Shift loadedShift, CancellationToken cancellationToken)
     {

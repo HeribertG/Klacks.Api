@@ -893,6 +893,11 @@
     "mengakhiri keanggotaan karyawan",
     "menetapkan tanggal keluar karyawan"
   ],
+  "evaluate_absence_hours_setup": [
+    "mengapa dia mendapat jam cuti terlalu sedikit",
+    "hari cuti seharusnya dihitung delapan jam",
+    "periksa pengaturan jam ketidakhadiran"
+  ],
   "evaluate_autonomy_level_change": [
     "apa yang berubah pada level otonomi ini",
     "efek dari menaikkan level otonomi",
@@ -923,12 +928,23 @@
     "apakah skenario ini aman",
     "review skenario sebelum terima"
   ],
+  "evaluate_target_hours_setup": [
+    "mengapa jam target salah",
+    "kontrak mana untuk beban kerja ini",
+    "tabel jam target tidak lengkap"
+  ],
   "explain_absence_blocks_planning": [
     "apakah absensi yang sudah dibooking menghalangi perencanaan?",
     "bisakah asisten memindahkan liburan yang sudah dibooking?",
     "apakah absensi dihitung dalam batas jam mingguan?",
     "apakah absensi mengganggu rangkaian hari kerja berturut-turut?",
     "kenapa hari sakit saya tidak dipindahkan oleh perencana?"
+  ],
+  "explain_absence_hours": [
+    "berapa jam yang dihitung untuk satu hari cuti",
+    "mengapa hari cuti dihitung sebanyak itu",
+    "di mana saya mengatur jam cuti",
+    "beban kerja untuk hari ketidakhadiran"
   ],
   "explain_absence_model": [
     "kenapa permintaan cuti tidak muncul di rencana",
@@ -1398,6 +1414,11 @@
     "data apa yang keluar dari perusahaan",
     "apakah data uji adalah catatan nyata"
   ],
+  "explain_target_hours": [
+    "bagaimana jam target ditentukan",
+    "jam target tanpa kontrak",
+    "jam target dengan persentase beban kerja"
+  ],
   "explain_terms_with_several_meanings": [
     "apa beda pesanan dan sif",
     "apakah disegel artinya sama di mana-mana",
@@ -1485,6 +1506,11 @@
     "perbarui koordinat geografis semua grup",
     "temukan lokasi geografis setiap grup secara otomatis",
     "hitung koordinat untuk semua grup lokasi"
+  ],
+  "get_absence_hours_calculation": [
+    "tunjukkan perhitungan jam cuti",
+    "berapa jam yang dia dapat untuk hari cuti",
+    "periksa jam cuti seorang karyawan"
   ],
   "get_active_industries_settings": [
     "bidang usaha apa saja yang aktif",
@@ -1793,6 +1819,11 @@
   ],
   "get_system_info": [
     "informasi sistem"
+  ],
+  "get_target_hours_calculation": [
+    "tunjukkan perhitungan jam target",
+    "mengapa dia memiliki jam target ini",
+    "periksa jam target seorang karyawan"
   ],
   "get_translation_status": [
     "status terjemahan",
@@ -2569,7 +2600,9 @@
     "temukan shift",
     "daftar shift",
     "shift apa saja yang ada",
-    "cari jadwal shift"
+    "cari jadwal shift",
+    "pesanan berdasarkan lokasi",
+    "pesanan di kanton"
   ],
   "select_group": [
     "pilih grup",

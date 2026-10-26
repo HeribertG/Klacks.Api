@@ -5248,14 +5248,14 @@
     },
     {
       "name": "create-shift-order",
-      "goal": "Create a new shift order for a customer with times, weekdays and a group; it is sealed and immediately plannable.",
+      "goal": "Create a new shift order for a customer with times, weekdays and a group; it is created as an open order and sealed separately after a confirmed preview.",
       "goalTranslations": {
-        "de": "Eine neue Bestellung (Dienst) für einen Kunden mit Zeiten, Wochentagen und Gruppe erstellen; sie wird versiegelt und ist sofort planbar.",
-        "en": "Create a new shift order for a customer with times, weekdays and a group; it is sealed and immediately plannable.",
-        "fr": "Créer une nouvelle commande (service) pour un client avec horaires, jours de semaine et groupe ; elle est scellée et immédiatement planifiable.",
-        "it": "Creare un nuovo ordine (servizio) per un cliente con orari, giorni della settimana e gruppo; viene sigillato ed è subito pianificabile."
+        "de": "Eine neue Bestellung (Dienst) für einen Kunden mit Zeiten, Wochentagen und Gruppe erstellen; sie wird als offene Bestellung angelegt und erst nach bestätigter Vorschau separat versiegelt.",
+        "en": "Create a new shift order for a customer with times, weekdays and a group; it is created as an open order and sealed separately after a confirmed preview.",
+        "fr": "Créer une nouvelle commande (service) pour un client avec horaires, jours de semaine et groupe ; elle est créée comme commande ouverte et scellée séparément après confirmation de l'aperçu.",
+        "it": "Creare un nuovo ordine (servizio) per un cliente con orari, giorni della settimana e gruppo; viene creato come ordine aperto e sigillato separatamente dopo la conferma dell'anteprima."
       },
-      "version": 8,
+      "version": 9,
       "isEnabled": true,
       "sortOrder": 41,
       "trigger": {
@@ -5560,7 +5560,7 @@
             "weekdays": "$weekdays",
             "groupIds": "$groupId"
           },
-          "note": "Create the order. Normalize the weekdays slot to comma-separated English day tokens (mon,tue,wed,thu,fri,sat,sun) or 'all' before injecting. quantity and sumEmployees default to 1. The order is sealed and immediately plannable — relay the returned order and plannable shift information verbatim. If the user explicitly asked for a draft to refine later, call create_shift directly with asDraft=true instead."
+          "note": "Create the order. Normalize the weekdays slot to comma-separated English day tokens (mon,tue,wed,thu,fri,sat,sun) or 'all' before injecting. quantity and sumEmployees default to 1. The order is created as an open order (status OriginalOrder) and is NOT sealed — relay the returned order information verbatim, including its next step: sealing runs only through seal_shift after the user has confirmed its preview."
         }
       ]
     },
