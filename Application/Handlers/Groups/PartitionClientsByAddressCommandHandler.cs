@@ -99,11 +99,7 @@ public sealed class PartitionClientsByAddressCommandHandler
             throw new ForbiddenException(RestrictedCallerMessage);
         }
 
-        var clients = new List<Client>();
-        foreach (var entityType in request.EntityTypes.Distinct())
-        {
-            clients.AddRange(await _clientRepository.GetByTypeWithAddressesAndGroupItemsAsync(entityType, cancellationToken));
-        }
+        var clients = await LoadClientsAsync(request.EntityTypes, cancellationToken);
 
         var existingGroups = (await _groupRepository.List()).ToList();
         var usersKeepingFullVisibility =
@@ -133,59 +129,9 @@ public sealed class PartitionClientsByAddressCommandHandler
 
         var outcome = await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var alreadyMember = 0;
-            var resolvedGroupIds = new Dictionary<string, Guid>(StringComparer.Ordinal);
-
-            foreach (var planned in plan.Groups)
-            {
-                if (planned.Existed)
-                {
-                    resolvedGroupIds[planned.Key] = planned.ExistingGroupId!.Value;
-                    continue;
-                }
-
-                var parentId = planned.ParentKey is null ? request.RootGroupId : resolvedGroupIds[planned.ParentKey];
-                var hasCoordinates = planned.Latitude.HasValue && planned.Longitude.HasValue;
-                var group = new Group
-                {
-                    Id = Guid.NewGuid(),
-                    Name = planned.Name,
-                    Description = planned.Description,
-                    Parent = parentId,
-                    ValidFrom = groupStarts[planned.Key],
-                    PaymentInterval = PaymentInterval.Monthly,
-                    Latitude = planned.Latitude,
-                    Longitude = planned.Longitude,
-                    GeocodingAttempted = hasCoordinates,
-                    CreateTime = now,
-                    CurrentUserCreated = request.UserName
-                };
-
-                await _groupRepository.Add(group);
-                resolvedGroupIds[planned.Key] = group.Id;
-            }
-
-            var newItems = new List<GroupItem>();
-            foreach (var assignment in plan.Assignments)
-            {
-                var groupId = resolvedGroupIds[assignment.LeafGroupKey];
-                var existing = await _groupItemRepository.GetByClientAndGroup(assignment.ClientId, groupId);
-                if (existing != null && !existing.IsDeleted)
-                {
-                    alreadyMember++;
-                    continue;
-                }
-
-                newItems.Add(new GroupItem
-                {
-                    Id = Guid.NewGuid(),
-                    ClientId = assignment.ClientId,
-                    GroupId = groupId,
-                    ValidFrom = startPlan.StartFor(assignment.ClientId),
-                    CreateTime = now,
-                    CurrentUserCreated = request.UserName
-                });
-            }
+            var resolvedGroupIds = await CreateMissingGroupsAsync(plan, groupStarts, request.RootGroupId, now, request.UserName);
+            var (newItems, alreadyMember) = await CollectNewMembershipsAsync(
+                plan, resolvedGroupIds, startPlan, now, request.UserName);
 
             pulledForward = await _startPlanner.StagePullForwardAsync(startPlan, existingMembers, cancellationToken);
             if (newItems.Count == 0 && pulledForward.Count == 0)
@@ -202,16 +148,7 @@ public sealed class PartitionClientsByAddressCommandHandler
 
             await _unitOfWork.CompleteAsync();
 
-            var confirmed = newItems.Count == 0
-                ? 0
-                : await _groupItemRepository.CountExistingByIds(newItems.Select(i => i.Id).ToList(), cancellationToken);
-            if (confirmed != newItems.Count)
-            {
-                throw new SkillVerificationException(
-                    SkillName,
-                    $"Database verification failed: expected {newItems.Count} new memberships but only " +
-                    $"{confirmed} were confirmed — the changes were rolled back.");
-            }
+            var confirmed = await ConfirmNewMembershipsAsync(newItems, cancellationToken);
 
             await _startPlanner.VerifyPullForwardAsync(pulledForward, cancellationToken);
             return new PartitionApplyOutcome(confirmed, alreadyMember, resolvedGroupIds);
@@ -227,6 +164,108 @@ public sealed class PartitionClientsByAddressCommandHandler
             assignedCount: assignedCount, verifiedCount: outcome.VerifiedCount, alreadyMemberCount: outcome.AlreadyMemberCount,
             usersKeepingFullVisibilityCount: usersKeepingFullVisibility,
             membershipStart: pulledForward.ReportOn(startPlan.Describe(newMemberIds, existingMembers)));
+    }
+
+    private async Task<List<Client>> LoadClientsAsync(
+        IReadOnlyList<EntityTypeEnum> entityTypes, CancellationToken cancellationToken)
+    {
+        var clients = new List<Client>();
+        foreach (var entityType in entityTypes.Distinct())
+        {
+            clients.AddRange(await _clientRepository.GetByTypeWithAddressesAndGroupItemsAsync(entityType, cancellationToken));
+        }
+
+        return clients;
+    }
+
+    private async Task<Dictionary<string, Guid>> CreateMissingGroupsAsync(
+        GroupPartitionPlan plan,
+        Dictionary<string, DateTime> groupStarts,
+        Guid? rootGroupId,
+        DateTime now,
+        string userName)
+    {
+        var resolvedGroupIds = new Dictionary<string, Guid>(StringComparer.Ordinal);
+
+        foreach (var planned in plan.Groups)
+        {
+            if (planned.Existed)
+            {
+                resolvedGroupIds[planned.Key] = planned.ExistingGroupId!.Value;
+                continue;
+            }
+
+            var parentId = planned.ParentKey is null ? rootGroupId : resolvedGroupIds[planned.ParentKey];
+            var hasCoordinates = planned.Latitude.HasValue && planned.Longitude.HasValue;
+            var group = new Group
+            {
+                Id = Guid.NewGuid(),
+                Name = planned.Name,
+                Description = planned.Description,
+                Parent = parentId,
+                ValidFrom = groupStarts[planned.Key],
+                PaymentInterval = PaymentInterval.Monthly,
+                Latitude = planned.Latitude,
+                Longitude = planned.Longitude,
+                GeocodingAttempted = hasCoordinates,
+                CreateTime = now,
+                CurrentUserCreated = userName
+            };
+
+            await _groupRepository.Add(group);
+            resolvedGroupIds[planned.Key] = group.Id;
+        }
+
+        return resolvedGroupIds;
+    }
+
+    private async Task<(List<GroupItem> NewItems, int AlreadyMember)> CollectNewMembershipsAsync(
+        GroupPartitionPlan plan,
+        Dictionary<string, Guid> resolvedGroupIds,
+        GroupMembershipStartPlan startPlan,
+        DateTime now,
+        string userName)
+    {
+        var alreadyMember = 0;
+        var newItems = new List<GroupItem>();
+        foreach (var assignment in plan.Assignments)
+        {
+            var groupId = resolvedGroupIds[assignment.LeafGroupKey];
+            var existing = await _groupItemRepository.GetByClientAndGroup(assignment.ClientId, groupId);
+            if (existing != null && !existing.IsDeleted)
+            {
+                alreadyMember++;
+                continue;
+            }
+
+            newItems.Add(new GroupItem
+            {
+                Id = Guid.NewGuid(),
+                ClientId = assignment.ClientId,
+                GroupId = groupId,
+                ValidFrom = startPlan.StartFor(assignment.ClientId),
+                CreateTime = now,
+                CurrentUserCreated = userName
+            });
+        }
+
+        return (newItems, alreadyMember);
+    }
+
+    private async Task<int> ConfirmNewMembershipsAsync(List<GroupItem> newItems, CancellationToken cancellationToken)
+    {
+        var confirmed = newItems.Count == 0
+            ? 0
+            : await _groupItemRepository.CountExistingByIds(newItems.Select(i => i.Id).ToList(), cancellationToken);
+        if (confirmed != newItems.Count)
+        {
+            throw new SkillVerificationException(
+                SkillName,
+                $"Database verification failed: expected {newItems.Count} new memberships but only " +
+                $"{confirmed} were confirmed — the changes were rolled back.");
+        }
+
+        return confirmed;
     }
 
     private static (List<Guid> NewClientIds, List<ExistingMembershipStart> ExistingMembers) SplitNewFromExisting(

@@ -353,6 +353,45 @@ public class RecipeEngineService
                 string.Join(", ", recipeCandidates.Select(c => $"{c.RecipeName}={c.Score:F3}")));
         }
 
+        var (top, recipe, topIndex, refused) = await SelectTopSemanticCandidateAsync(
+            recipeCandidates, recipes, message, language, rightsGate, cancellationToken);
+        if (refused != null)
+        {
+            return (null, null, null, refused);
+        }
+
+        if (top == null || recipe == null)
+        {
+            return (null, null, null, null);
+        }
+
+        var (alternativeGoal, alternativeGoalTranslations) = await FindSemanticAlternativeAsync(
+            recipeCandidates, top, topIndex, recipes, message, language, rightsGate, cancellationToken);
+
+        _logger.LogInformation(
+            "Recipe '{Recipe}' matched via semantic fallback (score={Score:F3}, confidence={Confidence}, alternative={Alternative})",
+            recipe.Name,
+            top.Score,
+            top.Score >= SemanticHighConfidenceLogThreshold ? "high" : "grey-zone",
+            alternativeGoal ?? "none");
+
+        return (recipe, alternativeGoal, alternativeGoalTranslations, null);
+    }
+
+    /// <summary>
+    /// Walks the ranked candidates above the grey-zone floor and returns the first one that resolves to an enabled
+    /// recipe and passes its veto and anchor guards, or the refusal when the user's rights deny that candidate.
+    /// </summary>
+    /// <param name="recipeCandidates">The semantic candidates, ordered by descending score</param>
+    /// <param name="recipes">The eligible recipes the candidates are resolved against by name</param>
+    /// <param name="message">The user's message the guards are checked on</param>
+    /// <param name="language">The request language</param>
+    /// <param name="rightsGate">The rights check, null for a probe without rights</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    private async Task<(RecipeCandidate? Top, AgentRecipe? Recipe, int TopIndex, RecipeDenial? Refused)> SelectTopSemanticCandidateAsync(
+        IReadOnlyList<RecipeCandidate> recipeCandidates, List<AgentRecipe> recipes, string message, string? language,
+        RecipeRightsGate? rightsGate, CancellationToken cancellationToken)
+    {
         // A recipe's noneOf guard is its authored exclusion vocabulary ("never fire for messages
         // containing these terms"). The keyword trigger honors it inside RecipeTriggerMatcher; the
         // semantic path must honor it too, otherwise a message the author explicitly excluded (e.g. a
@@ -398,7 +437,7 @@ public class RecipeEngineService
                 _logger.LogInformation(
                     "Recipe '{Recipe}' is the best semantic candidate (score={Score:F3}) but the user lacks its rights; no other recipe is offered in its place.",
                     resolved.Name, candidate.Score);
-                return (null, null, null, refused);
+                return (null, null, topIndex, refused);
             }
 
             top = candidate;
@@ -407,11 +446,26 @@ public class RecipeEngineService
             break;
         }
 
-        if (top == null || recipe == null)
-        {
-            return (null, null, null, null);
-        }
+        return (top, recipe, topIndex, null);
+    }
 
+    /// <summary>
+    /// The runner-up surfaced next to the top match in the confirmation question: the first lower-ranked candidate
+    /// inside the ambiguity margin that names a different recipe and, when it resolves, passes its veto, anchor and
+    /// rights checks. An unresolvable name is surfaced as the goal itself.
+    /// </summary>
+    /// <param name="recipeCandidates">The semantic candidates, ordered by descending score</param>
+    /// <param name="top">The selected top candidate</param>
+    /// <param name="topIndex">The position of the top candidate in recipeCandidates</param>
+    /// <param name="recipes">The eligible recipes the candidates are resolved against by name</param>
+    /// <param name="message">The user's message the guards are checked on</param>
+    /// <param name="language">The request language</param>
+    /// <param name="rightsGate">The rights check, null for a probe without rights</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    private async Task<(string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)> FindSemanticAlternativeAsync(
+        IReadOnlyList<RecipeCandidate> recipeCandidates, RecipeCandidate top, int topIndex, List<AgentRecipe> recipes,
+        string message, string? language, RecipeRightsGate? rightsGate, CancellationToken cancellationToken)
+    {
         string? alternativeGoal = null;
         Dictionary<string, string>? alternativeGoalTranslations = null;
         foreach (var candidate in recipeCandidates.Skip(topIndex + 1))
@@ -446,14 +500,7 @@ public class RecipeEngineService
             break;
         }
 
-        _logger.LogInformation(
-            "Recipe '{Recipe}' matched via semantic fallback (score={Score:F3}, confidence={Confidence}, alternative={Alternative})",
-            recipe.Name,
-            top.Score,
-            top.Score >= SemanticHighConfidenceLogThreshold ? "high" : "grey-zone",
-            alternativeGoal ?? "none");
-
-        return (recipe, alternativeGoal, alternativeGoalTranslations, null);
+        return (alternativeGoal, alternativeGoalTranslations);
     }
 
     public async Task<RecipeExecutionPlan?> ResumeAsync(Guid userId, string conversationId, CancellationToken cancellationToken = default)

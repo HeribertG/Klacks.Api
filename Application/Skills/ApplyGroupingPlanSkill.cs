@@ -97,6 +97,8 @@ public class ApplyGroupingPlanSkill : BaseSkillImplementation
     private readonly IGroupingPlanPreviewRegistry _previewRegistry;
     private readonly ILogger<ApplyGroupingPlanSkill> _logger;
 
+    private sealed record MembershipStartChoice(bool AddsMembers, DateTime? ValidFrom, DateTime EffectiveValidFrom);
+
     public ApplyGroupingPlanSkill(
         IGroupingFeasibilityAnalyzer analyzer,
         IGroupingPlanApplier applier,
@@ -129,65 +131,38 @@ public class ApplyGroupingPlanSkill : BaseSkillImplementation
         }
 
         var apply = GetParameter<bool?>(parameters, ApplyParameter) ?? false;
-        var (from, until, periodError) = await GroupingSkillInputs.ResolvePeriodAsync(
-            parameters, _companyClock, context.UserLanguage, cancellationToken);
-        if (periodError is not null)
+        var (report, scope, planError) = await LoadCurrentPlanAsync(context, parameters, fingerprint, cancellationToken);
+        if (planError is not null)
         {
-            return SkillResult.Error(periodError);
+            return planError;
         }
 
-        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
-        var (groupId, _, groupError) = await GroupingSkillInputs.ResolveScopeGroupAsync(
-            GetParameter<string>(parameters, GroupingSkillInputs.GroupNameParameter), _groupRepository, scope);
-        if (groupError is not null)
-        {
-            return SkillResult.Error(groupError);
-        }
-
-        var report = await _analyzer.AnalyzeAsync(new GroupingAnalysisRequest(from, until, groupId), cancellationToken);
-        if (!GroupingFingerprint.Matches(report.Fingerprint, fingerprint))
-        {
-            return SkillResult.Error(string.Format(
-                CultureInfo.InvariantCulture, StalePlanMessage, GroupingFingerprint.Shorten(report.Fingerprint)));
-        }
-
-        if (report.Proposals.Count == 0)
+        if (report!.Proposals.Count == 0)
         {
             return SkillResult.SuccessResult(new { Applied = false }, NothingToChangeMessage);
         }
 
         if (apply)
         {
-            var previewStatus = _previewRegistry.GetPreviewStatus(context.UserId, report.Fingerprint, context.TurnId);
-            if (previewStatus == GroupingPreviewStatus.Missing)
+            var gateError = CheckPreviewGate(context, report);
+            if (gateError is not null)
             {
-                return SkillResult.Error(string.Format(
-                    CultureInfo.InvariantCulture, PreviewRequiredMessage, GroupingFeasibilityDefaults.PreviewValidityMinutes));
-            }
-
-            if (previewStatus == GroupingPreviewStatus.SameTurn)
-            {
-                return SkillResult.Error(SameTurnMessage);
+                return gateError;
             }
         }
 
-        var decision = GroupingProposalPermissionFilter.Partition(report, context.UserPermissions, scope);
+        var decision = GroupingProposalPermissionFilter.Partition(report, context.UserPermissions, scope!);
         var steps = decision.Permitted
             .OrderBy(proposal => (int)proposal.Kind)
             .Select((proposal, index) => GroupingReportViewBuilder.ToView(report, proposal, index + 1))
             .ToList();
         var skipped = decision.Skipped
-            .Where(item => GroupingScopeVisibility.IsProposalVisible(report, scope, item.Proposal))
+            .Where(item => GroupingScopeVisibility.IsProposalVisible(report, scope!, item.Proposal))
             .Select(item => new { Change = GroupingReportViewBuilder.ToView(report, item.Proposal, 0), item.Reason })
             .ToList();
         var hiddenSkippedCount = decision.Skipped.Count - skipped.Count;
-        var skippedText = (skipped.Count == 0
-                ? string.Empty
-                : string.Format(CultureInfo.InvariantCulture, SkippedTemplate, skipped.Count,
-                    string.Join(ListSeparator, skipped.Select(item => $"{item.Change.Action} ({item.Reason})"))))
-            + (hiddenSkippedCount == 0
-                ? string.Empty
-                : string.Format(CultureInfo.InvariantCulture, HiddenSkippedTemplate, hiddenSkippedCount));
+        var skippedText = BuildSkippedText(
+            skipped.Count, skipped.Select(item => $"{item.Change.Action} ({item.Reason})"), hiddenSkippedCount);
 
         if (decision.Permitted.Count == 0)
         {
@@ -195,36 +170,20 @@ public class ApplyGroupingPlanSkill : BaseSkillImplementation
                 string.Join(ListSeparator, decision.Skipped.Select(item => item.Reason).Distinct())));
         }
 
-        var addsMembers = decision.Permitted.Any(proposal => proposal.Kind is not GroupingProposalKind.RemoveClient);
         var createsGroup = decision.Permitted.Any(proposal => proposal.Kind == GroupingProposalKind.CreateGroup);
-        var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var rawValidFrom = GetParameter<string>(parameters, ValidFromParameter);
-        var (validFrom, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(rawValidFrom, today, context.UserLanguage);
-        if (invalidDate)
+        var (command, start, today, startError) = await PrepareApplyCommandAsync(
+            context, parameters, report, decision, cancellationToken);
+        if (startError is not null)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor(ValidFromParameter, rawValidFrom!));
+            return startError;
         }
-
-        var newGroupName = GetParameter<string>(parameters, NewGroupNameParameter)?.Trim();
-        var periodStart = report.Request.From.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        var effectiveValidFrom = validFrom ?? periodStart;
-        var command = new GroupingApplyCommand(
-            decision.Permitted, effectiveValidFrom, newGroupName, context.UserName, startMode, StartDateGiven: validFrom is not null);
-        var data = new { Applied = false, Changes = steps, Skipped = skipped };
 
         if (!apply)
         {
-            var askName = createsGroup && string.IsNullOrWhiteSpace(newGroupName) ? AskForGroupNameInPreview : string.Empty;
-            var startDateNote = StartNote(
-                addsMembers, validFrom, effectiveValidFrom, await _applier.PreviewStartAsync(command, cancellationToken), applied: false);
-            _previewRegistry.RecordPreview(context.UserId, report.Fingerprint, context.TurnId);
-            return SkillResult.SuccessResult(data, string.Format(
-                CultureInfo.InvariantCulture, PreviewTemplate, steps.Count,
-                string.Join(ListSeparator, steps.Select(step => $"{step.Step}. {step.Action}: {step.Group} {step.Client ?? step.Shift}".TrimEnd())),
-                skippedText, startDateNote, askName));
+            return await PreviewAsync(context, report, command!, start!, steps, skipped, skippedText, createsGroup, cancellationToken);
         }
 
-        if (createsGroup && string.IsNullOrWhiteSpace(newGroupName))
+        if (createsGroup && string.IsNullOrWhiteSpace(command!.NewGroupName))
         {
             return SkillResult.Error(MissingGroupNameMessage);
         }
@@ -232,13 +191,132 @@ public class ApplyGroupingPlanSkill : BaseSkillImplementation
         GroupingApplyResult result;
         try
         {
-            result = await _applier.ApplyAsync(command, cancellationToken);
+            result = await _applier.ApplyAsync(command!, cancellationToken);
         }
         catch (SkillVerificationException ex)
         {
             return SkillResult.Error(ex.Message);
         }
 
+        return await CompleteApplyAsync(context, report, scope!, result, start!, skipped, skippedText, today, cancellationToken);
+    }
+
+    private async Task<(GroupingApplyCommand? Command, MembershipStartChoice? Start, DateTime Today, SkillResult? Error)> PrepareApplyCommandAsync(
+        SkillExecutionContext context,
+        Dictionary<string, object> parameters,
+        GroupingFeasibilityReport report,
+        GroupingProposalDecision decision,
+        CancellationToken cancellationToken)
+    {
+        var addsMembers = decision.Permitted.Any(proposal => proposal.Kind is not GroupingProposalKind.RemoveClient);
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+        var rawValidFrom = GetParameter<string>(parameters, ValidFromParameter);
+        var (validFrom, startMode, invalidDate) = SkillDateParser.ParseMembershipStart(rawValidFrom, today, context.UserLanguage);
+        if (invalidDate)
+        {
+            return (null, null, today, SkillResult.Error(SkillDateParser.InvalidDateMessageFor(ValidFromParameter, rawValidFrom!)));
+        }
+
+        var newGroupName = GetParameter<string>(parameters, NewGroupNameParameter)?.Trim();
+        var periodStart = report.Request.From.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var effectiveValidFrom = validFrom ?? periodStart;
+        var command = new GroupingApplyCommand(
+            decision.Permitted, effectiveValidFrom, newGroupName, context.UserName, startMode, StartDateGiven: validFrom is not null);
+        return (command, new MembershipStartChoice(addsMembers, validFrom, effectiveValidFrom), today, null);
+    }
+
+    private async Task<(GroupingFeasibilityReport? Report, GroupScopeAccess? Scope, SkillResult? Error)> LoadCurrentPlanAsync(
+        SkillExecutionContext context,
+        Dictionary<string, object> parameters,
+        string fingerprint,
+        CancellationToken cancellationToken)
+    {
+        var (from, until, periodError) = await GroupingSkillInputs.ResolvePeriodAsync(
+            parameters, _companyClock, context.UserLanguage, cancellationToken);
+        if (periodError is not null)
+        {
+            return (null, null, SkillResult.Error(periodError));
+        }
+
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var (groupId, _, groupError) = await GroupingSkillInputs.ResolveScopeGroupAsync(
+            GetParameter<string>(parameters, GroupingSkillInputs.GroupNameParameter), _groupRepository, scope);
+        if (groupError is not null)
+        {
+            return (null, null, SkillResult.Error(groupError));
+        }
+
+        var report = await _analyzer.AnalyzeAsync(new GroupingAnalysisRequest(from, until, groupId), cancellationToken);
+        if (!GroupingFingerprint.Matches(report.Fingerprint, fingerprint))
+        {
+            return (null, null, SkillResult.Error(string.Format(
+                CultureInfo.InvariantCulture, StalePlanMessage, GroupingFingerprint.Shorten(report.Fingerprint))));
+        }
+
+        return (report, scope, null);
+    }
+
+    private SkillResult? CheckPreviewGate(SkillExecutionContext context, GroupingFeasibilityReport report)
+    {
+        var previewStatus = _previewRegistry.GetPreviewStatus(context.UserId, report.Fingerprint, context.TurnId);
+        if (previewStatus == GroupingPreviewStatus.Missing)
+        {
+            return SkillResult.Error(string.Format(
+                CultureInfo.InvariantCulture, PreviewRequiredMessage, GroupingFeasibilityDefaults.PreviewValidityMinutes));
+        }
+
+        if (previewStatus == GroupingPreviewStatus.SameTurn)
+        {
+            return SkillResult.Error(SameTurnMessage);
+        }
+
+        return null;
+    }
+
+    private static string BuildSkippedText(int visibleCount, IEnumerable<string> visibleChanges, int hiddenCount)
+    {
+        return (visibleCount == 0
+                ? string.Empty
+                : string.Format(CultureInfo.InvariantCulture, SkippedTemplate, visibleCount,
+                    string.Join(ListSeparator, visibleChanges)))
+            + (hiddenCount == 0
+                ? string.Empty
+                : string.Format(CultureInfo.InvariantCulture, HiddenSkippedTemplate, hiddenCount));
+    }
+
+    private async Task<SkillResult> PreviewAsync<TSkipped>(
+        SkillExecutionContext context,
+        GroupingFeasibilityReport report,
+        GroupingApplyCommand command,
+        MembershipStartChoice start,
+        List<GroupingProposalView> steps,
+        List<TSkipped> skipped,
+        string skippedText,
+        bool createsGroup,
+        CancellationToken cancellationToken)
+    {
+        var data = new { Applied = false, Changes = steps, Skipped = skipped };
+        var askName = createsGroup && string.IsNullOrWhiteSpace(command.NewGroupName) ? AskForGroupNameInPreview : string.Empty;
+        var startDateNote = StartNote(
+            start, await _applier.PreviewStartAsync(command, cancellationToken), applied: false);
+        _previewRegistry.RecordPreview(context.UserId, report.Fingerprint, context.TurnId);
+        return SkillResult.SuccessResult(data, string.Format(
+            CultureInfo.InvariantCulture, PreviewTemplate, steps.Count,
+            string.Join(ListSeparator, steps.Select(step => $"{step.Step}. {step.Action}: {step.Group} {step.Client ?? step.Shift}".TrimEnd())),
+            skippedText, startDateNote, askName));
+    }
+
+    private async Task<SkillResult> CompleteApplyAsync<TSkipped>(
+        SkillExecutionContext context,
+        GroupingFeasibilityReport report,
+        GroupScopeAccess scope,
+        GroupingApplyResult result,
+        MembershipStartChoice start,
+        List<TSkipped> skipped,
+        string skippedText,
+        DateTime today,
+        CancellationToken cancellationToken)
+    {
         _snapshotStore.Remove(GroupingFeasibilityDay.KeyFor(DateOnly.FromDateTime(today)));
         _previewRegistry.Forget(context.UserId, report.Fingerprint);
 
@@ -248,12 +326,11 @@ public class ApplyGroupingPlanSkill : BaseSkillImplementation
             string.Format(CultureInfo.InvariantCulture, AppliedTemplate,
                 result.CreatedGroups, result.AddedShifts, result.AddedClients, result.RemovedClients,
                 result.AlreadyInPlace, skippedText,
-                StartNote(addsMembers, validFrom, effectiveValidFrom, result.MembershipStart, applied: true))
+                StartNote(start, result.MembershipStart, applied: true))
             + (remaining is null ? GroupingReportTexts.RecomputeFailedSentence : GroupingReportTexts.RemainingGaps(remaining)));
     }
 
-    private static string StartNote(
-        bool addsMembers, DateTime? validFrom, DateTime effectiveValidFrom, GroupMembershipStartInfo? info, bool applied)
+    private static string StartNote(MembershipStartChoice start, GroupMembershipStartInfo? info, bool applied)
     {
         var hint = GroupMembershipStartHint.For(info, applied);
         if (hint.Length > 0)
@@ -261,11 +338,11 @@ public class ApplyGroupingPlanSkill : BaseSkillImplementation
             return " " + hint;
         }
 
-        return addsMembers
+        return start.AddsMembers
             ? string.Format(
                 CultureInfo.InvariantCulture,
-                validFrom is null ? StartDateDefaultedTemplate : StartDateGivenTemplate,
-                effectiveValidFrom)
+                start.ValidFrom is null ? StartDateDefaultedTemplate : StartDateGivenTemplate,
+                start.EffectiveValidFrom)
             : string.Empty;
     }
 

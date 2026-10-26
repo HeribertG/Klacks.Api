@@ -245,20 +245,69 @@ public class AnthropicProvider : ILLMProvider
         if (IsRequiredApiKeyMissing)
             throw new InvalidOperationException("The provider for the selected model is not available.");
 
-        var anthropicRequest = new AnthropicRequest
-        {
-            Model = request.ModelId,
-            Messages = BuildMessages(request),
-            System = BuildSystemContent(request.SystemPrompt, request.VolatileSystemPrompt),
-            Temperature = ResolveTemperature(request),
-            MaxTokens = request.MaxTokens,
-            Tools = MapTools(request.AvailableFunctions),
-            ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions),
-            Stream = true,
-            StopSequences = LLMStopSequences.Merge(request.StopSequences)
-        };
+        var anthropicRequest = BuildStreamRequest(request);
 
         var options = BuildSerializerOptions();
+        var response = await SendStreamRequestAsync(anthropicRequest, options, cancellationToken);
+
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var reader = new StreamReader(stream);
+
+        var accumulator = new StreamEventAccumulator(options);
+
+        while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
+        {
+            var line = await reader.ReadLineAsync(cancellationToken);
+            if (line == null) break;
+
+            var (stopReading, text) = accumulator.ApplyLine(line);
+            if (stopReading)
+            {
+                break;
+            }
+
+            if (text != null)
+            {
+                yield return text;
+            }
+        }
+
+        _logger.LogInformation("Anthropic stream result: hasToolCalls={HasToolCalls} toolCallCount={ToolCallCount}",
+            accumulator.HasToolCalls, accumulator.ToolCallCount);
+
+        ReportStreamUsage(request, accumulator.Usage);
+
+        foreach (var toolCallToken in accumulator.ToolCallTokens())
+        {
+            yield return toolCallToken;
+        }
+
+        if (accumulator.HasToolCalls)
+            yield return LLMStreamingTokens.ToolCallEnd;
+    }
+
+    private AnthropicRequest BuildStreamRequest(LLMProviderRequest request) => new()
+    {
+        Model = request.ModelId,
+        Messages = BuildMessages(request),
+        System = BuildSystemContent(request.SystemPrompt, request.VolatileSystemPrompt),
+        Temperature = ResolveTemperature(request),
+        MaxTokens = request.MaxTokens,
+        Tools = MapTools(request.AvailableFunctions),
+        ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions),
+        Stream = true,
+        StopSequences = LLMStopSequences.Merge(request.StopSequences)
+    };
+
+    /// <summary>
+    /// Posts the streaming request and returns the response once its headers arrived; a non-success status is logged
+    /// and thrown as an InvalidOperationException carrying the user-facing Anthropic error message.
+    /// </summary>
+    /// <param name="anthropicRequest">The request body, already built with Stream = true</param>
+    /// <param name="options">Serializer options shared with the event parsing of the same stream</param>
+    private async Task<HttpResponseMessage> SendStreamRequestAsync(
+        AnthropicRequest anthropicRequest, JsonSerializerOptions options, CancellationToken cancellationToken)
+    {
         var json = JsonSerializer.Serialize(anthropicRequest, options);
         _logger.LogInformation("Anthropic stream request: tool_choice={ToolChoice} toolCount={ToolCount}",
             anthropicRequest.ToolChoice == null ? "null" : "any", anthropicRequest.Tools?.Count ?? 0);
@@ -278,84 +327,16 @@ public class AnthropicProvider : ILLMProvider
             throw new InvalidOperationException(errorMessage);
         }
 
-        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        using var reader = new StreamReader(stream);
+        return response;
+    }
 
-        var toolJsonAccumulators = new Dictionary<int, (string Name, StringBuilder Json)>();
-        string? currentEventType = null;
-        bool hasToolCalls = false;
-        AnthropicUsage? streamUsage = null;
-
-        while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
-        {
-            var line = await reader.ReadLineAsync(cancellationToken);
-            if (line == null) break;
-
-            if (line.StartsWith(SseEventPrefix, StringComparison.Ordinal))
-            {
-                currentEventType = line[SseEventPrefix.Length..];
-                continue;
-            }
-
-            if (!line.StartsWith(SseDataPrefix, StringComparison.Ordinal))
-                continue;
-
-            var data = line[SseDataPrefix.Length..];
-            if (string.IsNullOrWhiteSpace(data)) continue;
-
-            if (currentEventType == SseEventMessageStop)
-            {
-                break;
-            }
-
-            AnthropicStreamEvent? evt;
-            try
-            {
-                evt = JsonSerializer.Deserialize<AnthropicStreamEvent>(data, options);
-            }
-            catch
-            {
-                continue;
-            }
-
-            if (evt == null) continue;
-
-            if (currentEventType == SseEventMessageStart && evt.Message?.Usage != null)
-            {
-                streamUsage = evt.Message.Usage;
-            }
-            else if (currentEventType == SseEventMessageDelta && evt.Usage != null && streamUsage != null)
-            {
-                streamUsage.OutputTokens = evt.Usage.OutputTokens;
-            }
-
-            if (currentEventType == SseEventContentBlockStart
-                && evt.ContentBlock?.Type == ContentBlockTypeToolUse
-                && evt.ContentBlock.Name != null)
-            {
-                toolJsonAccumulators[evt.Index] = (evt.ContentBlock.Name, new StringBuilder());
-                hasToolCalls = true;
-            }
-            else if (currentEventType == SseEventContentBlockDelta && evt.Delta != null)
-            {
-                if (evt.Delta.Type == DeltaTypeTextDelta && evt.Delta.Text != null)
-                {
-                    yield return evt.Delta.Text;
-                }
-                else if (evt.Delta.Type == DeltaTypeInputJsonDelta && evt.Delta.PartialJson != null)
-                {
-                    if (toolJsonAccumulators.TryGetValue(evt.Index, out var acc))
-                    {
-                        acc.Json.Append(evt.Delta.PartialJson);
-                        toolJsonAccumulators[evt.Index] = acc;
-                    }
-                }
-            }
-        }
-
-        _logger.LogInformation("Anthropic stream result: hasToolCalls={HasToolCalls} toolCallCount={ToolCallCount}",
-            hasToolCalls, toolJsonAccumulators.Count);
-
+    /// <summary>
+    /// Logs the cache telemetry of a finished stream and hands its usage to the caller; does nothing when the stream
+    /// never reported usage in a message_start event.
+    /// </summary>
+    /// <param name="streamUsage">Usage from message_start with the output count of the last message_delta, or null</param>
+    private void ReportStreamUsage(LLMProviderRequest request, AnthropicUsage? streamUsage)
+    {
         if (streamUsage != null)
         {
             LogCacheTelemetry("stream", streamUsage, request);
@@ -369,21 +350,6 @@ public class AnthropicProvider : ILLMProvider
                 Cost = CalculateCost(request, streamUsage)
             });
         }
-
-        foreach (var (index, (name, jsonBuilder)) in toolJsonAccumulators)
-        {
-            var tcJson = JsonSerializer.Serialize(new
-            {
-                toolCall = true,
-                index,
-                name,
-                arguments = jsonBuilder.ToString()
-            }, options);
-            yield return $"{LLMStreamingTokens.ToolCallPrefix}{tcJson}";
-        }
-
-        if (hasToolCalls)
-            yield return LLMStreamingTokens.ToolCallEnd;
     }
 
     public async Task<bool> ValidateApiKeyAsync(string apiKey)
@@ -705,5 +671,122 @@ public class AnthropicProvider : ILLMProvider
             System.Net.HttpStatusCode.NotFound => "Anthropic model not found",
             _ => $"Anthropic API error: {(int)statusCode}"
         };
+    }
+
+    /// <summary>
+    /// Parses the SSE lines of one Anthropic stream: remembers the current event type, collects the usage of
+    /// message_start (output count overwritten by message_delta) and accumulates tool-call JSON per block index in
+    /// first-seen order. Blank and malformed data lines are skipped; the first data line of message_stop ends reading.
+    /// </summary>
+    /// <param name="options">Serializer options for the events and the emitted tool-call tokens</param>
+    private sealed class StreamEventAccumulator
+    {
+        private readonly JsonSerializerOptions _options;
+        private readonly Dictionary<int, (string Name, StringBuilder Json)> _toolJsonAccumulators = new();
+        private string? _currentEventType;
+
+        public StreamEventAccumulator(JsonSerializerOptions options)
+        {
+            _options = options;
+        }
+
+        public bool HasToolCalls { get; private set; }
+
+        public int ToolCallCount => _toolJsonAccumulators.Count;
+
+        public AnthropicUsage? Usage { get; private set; }
+
+        /// <summary>
+        /// Applies one SSE line; returns whether reading must stop and the text delta to yield, if any.
+        /// </summary>
+        public (bool StopReading, string? Text) ApplyLine(string line)
+        {
+            if (line.StartsWith(SseEventPrefix, StringComparison.Ordinal))
+            {
+                _currentEventType = line[SseEventPrefix.Length..];
+                return (false, null);
+            }
+
+            if (!line.StartsWith(SseDataPrefix, StringComparison.Ordinal))
+                return (false, null);
+
+            var data = line[SseDataPrefix.Length..];
+            if (string.IsNullOrWhiteSpace(data)) return (false, null);
+
+            if (_currentEventType == SseEventMessageStop)
+            {
+                return (true, null);
+            }
+
+            AnthropicStreamEvent? evt;
+            try
+            {
+                evt = JsonSerializer.Deserialize<AnthropicStreamEvent>(data, _options);
+            }
+            catch
+            {
+                return (false, null);
+            }
+
+            if (evt == null) return (false, null);
+
+            ApplyUsage(evt);
+            return (false, ApplyContentBlock(evt));
+        }
+
+        public IEnumerable<string> ToolCallTokens()
+        {
+            foreach (var (index, (name, jsonBuilder)) in _toolJsonAccumulators)
+            {
+                var tcJson = JsonSerializer.Serialize(new
+                {
+                    toolCall = true,
+                    index,
+                    name,
+                    arguments = jsonBuilder.ToString()
+                }, _options);
+                yield return $"{LLMStreamingTokens.ToolCallPrefix}{tcJson}";
+            }
+        }
+
+        private void ApplyUsage(AnthropicStreamEvent evt)
+        {
+            if (_currentEventType == SseEventMessageStart && evt.Message?.Usage != null)
+            {
+                Usage = evt.Message.Usage;
+            }
+            else if (_currentEventType == SseEventMessageDelta && evt.Usage != null && Usage != null)
+            {
+                Usage.OutputTokens = evt.Usage.OutputTokens;
+            }
+        }
+
+        private string? ApplyContentBlock(AnthropicStreamEvent evt)
+        {
+            if (_currentEventType == SseEventContentBlockStart
+                && evt.ContentBlock?.Type == ContentBlockTypeToolUse
+                && evt.ContentBlock.Name != null)
+            {
+                _toolJsonAccumulators[evt.Index] = (evt.ContentBlock.Name, new StringBuilder());
+                HasToolCalls = true;
+            }
+            else if (_currentEventType == SseEventContentBlockDelta && evt.Delta != null)
+            {
+                if (evt.Delta.Type == DeltaTypeTextDelta && evt.Delta.Text != null)
+                {
+                    return evt.Delta.Text;
+                }
+                else if (evt.Delta.Type == DeltaTypeInputJsonDelta && evt.Delta.PartialJson != null)
+                {
+                    if (_toolJsonAccumulators.TryGetValue(evt.Index, out var acc))
+                    {
+                        acc.Json.Append(evt.Delta.PartialJson);
+                        _toolJsonAccumulators[evt.Index] = acc;
+                    }
+                }
+            }
+
+            return null;
+        }
     }
 }

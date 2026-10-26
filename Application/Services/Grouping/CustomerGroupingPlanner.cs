@@ -92,32 +92,14 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
             entityType, cancellationToken);
         var clients = await _clientVisibilityGuard.FilterVisibleAsync(allClients, c => c.Id, cancellationToken);
 
-        var candidates = clients
-            .Select(client =>
-            {
-                var cityAddress = SelectPreferredAddress(client, HasCity);
-                return (
-                    Client: client,
-                    CityAddress: cityAddress,
-                    CoordinateAddress: SelectPreferredAddress(client, HasCoordinates),
-                    NameTarget: ResolveNameTarget(cityAddress, groupsByUniqueName));
-            })
-            .ToList();
+        var candidates = BuildCandidates(clients, groupsByUniqueName);
 
         var anchorGroupIds = geoAnchors
             .Select(a => a.GroupId)
             .Concat(candidates.Where(c => c.NameTarget != null).Select(c => c.NameTarget!.Id))
             .ToHashSet();
 
-        // Location-hierarchy groups: every anchor plus every group that lives in the same tree (region root)
-        // as an anchor. A membership in one of these is the location membership a move replaces, even when
-        // the client's own canton has no anchor of its own. Groups in unrelated trees (e.g. qualification
-        // systems with their own root) are left untouched.
-        var anchorRoots = anchorGroupIds.Select(id => groupById[id]).Select(RootKey).ToHashSet();
-        var locationGroupIds = groups
-            .Where(g => anchorGroupIds.Contains(g.Id) || anchorRoots.Contains(RootKey(g)))
-            .Select(g => g.Id)
-            .ToHashSet();
+        var locationGroupIds = CollectLocationGroupIds(groups, groupById, anchorGroupIds);
 
         var assignments = new List<CustomerGroupingAssignment>();
         var unassigned = new List<UnassignedCustomer>();
@@ -125,29 +107,8 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
         foreach (var candidate in candidates)
         {
             var client = candidate.Client;
-            Group targetGroup;
-            double? distanceKm = null;
-            string matchReason;
-
-            if (candidate.NameTarget != null)
-            {
-                targetGroup = candidate.NameTarget;
-                matchReason = DescribeMatch(MatchByCityName, candidate.CityAddress!.Type);
-            }
-            else if (candidate.CoordinateAddress != null && geoAnchors.Count > 0)
-            {
-                var nearest = CustomerGroupAssigner.FindNearest(
-                    new CustomerLocation(
-                        client.Id,
-                        candidate.CoordinateAddress.Latitude!.Value,
-                        candidate.CoordinateAddress.Longitude!.Value),
-                    geoAnchors)!;
-
-                targetGroup = groupById[nearest.GroupId];
-                distanceKm = nearest.DistanceKm;
-                matchReason = DescribeMatch(MatchByCoordinates, candidate.CoordinateAddress.Type);
-            }
-            else
+            var target = ResolveTarget(candidate, geoAnchors, groupById);
+            if (target is null)
             {
                 unassigned.Add(new UnassignedCustomer(
                     client.Id,
@@ -160,44 +121,111 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
                 continue;
             }
 
-            var activeMemberships = client.GroupItems
-                .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null)
-                .ToList();
-
-            var alreadyInTarget = activeMemberships.Any(gi => gi.GroupId == targetGroup.Id);
-            var retireGroupIds = activeMemberships
-                .Where(gi => gi.GroupId != targetGroup.Id && locationGroupIds.Contains(gi.GroupId))
-                .Select(gi => gi.GroupId)
-                .Distinct()
-                .ToList();
-
-            if (alreadyInTarget && retireGroupIds.Count == 0)
+            var assignment = BuildAssignment(client, target.Value, locationGroupIds, groupById);
+            if (assignment != null)
             {
-                continue;
+                assignments.Add(assignment);
             }
-
-            var retireGroupNames = retireGroupIds
-                .Select(id => groupById[id].Name)
-                .ToList();
-
-            var currentGroupNames = activeMemberships
-                .Where(gi => groupById.ContainsKey(gi.GroupId))
-                .Select(gi => groupById[gi.GroupId].Name)
-                .ToList();
-
-            assignments.Add(new CustomerGroupingAssignment(
-                client.Id,
-                DisplayName(client),
-                currentGroupNames,
-                targetGroup.Id,
-                targetGroup.Name,
-                distanceKm,
-                retireGroupIds,
-                retireGroupNames,
-                matchReason));
         }
 
         return new CustomerGroupingProposal(anchorGroupIds.Count, assignments, unassigned);
+    }
+
+    private static List<(Client Client, Address? CityAddress, Address? CoordinateAddress, Group? NameTarget)> BuildCandidates(
+        List<Client> clients, IReadOnlyDictionary<string, Group> groupsByUniqueName) =>
+        clients
+            .Select(client =>
+            {
+                var cityAddress = SelectPreferredAddress(client, HasCity);
+                return (
+                    Client: client,
+                    CityAddress: cityAddress,
+                    CoordinateAddress: SelectPreferredAddress(client, HasCoordinates),
+                    NameTarget: ResolveNameTarget(cityAddress, groupsByUniqueName));
+            })
+            .ToList();
+
+    private static HashSet<Guid> CollectLocationGroupIds(
+        List<Group> groups, Dictionary<Guid, Group> groupById, HashSet<Guid> anchorGroupIds)
+    {
+        // Location-hierarchy groups: every anchor plus every group that lives in the same tree (region root)
+        // as an anchor. A membership in one of these is the location membership a move replaces, even when
+        // the client's own canton has no anchor of its own. Groups in unrelated trees (e.g. qualification
+        // systems with their own root) are left untouched.
+        var anchorRoots = anchorGroupIds.Select(id => groupById[id]).Select(RootKey).ToHashSet();
+        return groups
+            .Where(g => anchorGroupIds.Contains(g.Id) || anchorRoots.Contains(RootKey(g)))
+            .Select(g => g.Id)
+            .ToHashSet();
+    }
+
+    private static (Group TargetGroup, double? DistanceKm, string MatchReason)? ResolveTarget(
+        (Client Client, Address? CityAddress, Address? CoordinateAddress, Group? NameTarget) candidate,
+        List<GroupAnchor> geoAnchors,
+        Dictionary<Guid, Group> groupById)
+    {
+        if (candidate.NameTarget != null)
+        {
+            return (candidate.NameTarget, (double?)null, DescribeMatch(MatchByCityName, candidate.CityAddress!.Type));
+        }
+
+        if (candidate.CoordinateAddress != null && geoAnchors.Count > 0)
+        {
+            var nearest = CustomerGroupAssigner.FindNearest(
+                new CustomerLocation(
+                    candidate.Client.Id,
+                    candidate.CoordinateAddress.Latitude!.Value,
+                    candidate.CoordinateAddress.Longitude!.Value),
+                geoAnchors)!;
+
+            return (groupById[nearest.GroupId], nearest.DistanceKm, DescribeMatch(MatchByCoordinates, candidate.CoordinateAddress.Type));
+        }
+
+        return null;
+    }
+
+    private static CustomerGroupingAssignment? BuildAssignment(
+        Client client,
+        (Group TargetGroup, double? DistanceKm, string MatchReason) target,
+        HashSet<Guid> locationGroupIds,
+        Dictionary<Guid, Group> groupById)
+    {
+        var (targetGroup, distanceKm, matchReason) = target;
+        var activeMemberships = client.GroupItems
+            .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null)
+            .ToList();
+
+        var alreadyInTarget = activeMemberships.Any(gi => gi.GroupId == targetGroup.Id);
+        var retireGroupIds = activeMemberships
+            .Where(gi => gi.GroupId != targetGroup.Id && locationGroupIds.Contains(gi.GroupId))
+            .Select(gi => gi.GroupId)
+            .Distinct()
+            .ToList();
+
+        if (alreadyInTarget && retireGroupIds.Count == 0)
+        {
+            return null;
+        }
+
+        var retireGroupNames = retireGroupIds
+            .Select(id => groupById[id].Name)
+            .ToList();
+
+        var currentGroupNames = activeMemberships
+            .Where(gi => groupById.ContainsKey(gi.GroupId))
+            .Select(gi => groupById[gi.GroupId].Name)
+            .ToList();
+
+        return new CustomerGroupingAssignment(
+            client.Id,
+            DisplayName(client),
+            currentGroupNames,
+            targetGroup.Id,
+            targetGroup.Name,
+            distanceKm,
+            retireGroupIds,
+            retireGroupNames,
+            matchReason);
     }
 
     private static Group? ResolveNameTarget(Address? cityAddress, IReadOnlyDictionary<string, Group> groupsByUniqueName)

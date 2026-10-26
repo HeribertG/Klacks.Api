@@ -286,88 +286,18 @@ public class TurnPreparationService : ITurnPreparationService
         {
             if (resumed.NeedsConfirmation)
             {
-                var gateAnswer = AffirmationDetector.AssessAffirmation(context.Message, context.Language);
-                if (gateAnswer.IsAmbiguous)
+                var gate = await SettleConfirmationGateAsync(resumed, context, userGuid, conversationId, cancellationToken);
+                if (gate.Settled)
                 {
-                    resumed.NoteAmbiguousReply(BuildAmbiguousReplyNote(gateAnswer));
                     return resumed;
                 }
 
-                if (!gateAnswer.IsConfirmed)
-                {
-                    context.RecipeConfirmationDeclined = true;
-                    declinedRecipe = DeclineDetector.LeadsWithNegation(context.Message, context.Language) ? resumed.Name : null;
-                    await _recipeRunRecorder.AbortRunningAsync(
-                        resumed.Name, userGuid, conversationId, RecipeAbortReasons.ConfirmationDeclined, cancellationToken);
-                    _recipeEngine.Clear(userGuid, conversationId);
-                    resumed = null;
-                }
-                else
-                {
-                    context.RecipeConfirmationAccepted = true;
-                    resumed.ConfirmAndProceed();
-                    resumed.AdvanceOverSatisfied();
-                    return resumed;
-                }
+                declinedRecipe = gate.DeclinedRecipe;
             }
             else
             {
-                var step = resumed.CurrentStep;
-                if (resumed.CurrentIsAsk && !string.IsNullOrWhiteSpace(step?.Slot))
-                {
-                    // An explicit abort ("abbrechen", "vergiss es", "cancel") must end the recipe, not be
-                    // raw-filled into the slot as if it were the answer to the ask question.
-                    if (RecipeCancellationDetector.IsCancellation(context.Message))
-                    {
-                        await _recipeRunRecorder.AbortRunningAsync(
-                            resumed.Name, userGuid, conversationId,
-                            RecipeAbortReasons.CancelledDuringAskStep, cancellationToken);
-                        _recipeEngine.Clear(userGuid, conversationId);
-                        _logger.LogInformation(
-                            "Recipe '{Recipe}' cancelled by user during ask step (slot {Slot})", resumed.Name, step!.Slot);
-                        return null;
-                    }
-
-                    // An independent question ("Wie kann ich die XML einbinden?") is not an answer to the
-                    // pending slot either — raw-filling it would silence every skill the tool-less ask-step
-                    // call could otherwise have used to answer it. Leave the slot unfilled and let the loop
-                    // run this one turn with its full toolset instead; the recipe stays on this same ask
-                    // step and is re-asked once that turn's own answer is done.
-                    if (RecipeTopicSwitchDetector.IsTopicSwitch(context.Message))
-                    {
-                        resumed.MarkTopicSwitchThisTurn();
-                        _logger.LogInformation(
-                            "Recipe '{Recipe}' ask step (slot {Slot}) bypassed for one turn: message reads " +
-                            "as an independent question, running a normal full-tool turn and re-asking afterwards",
-                            resumed.Name, step!.Slot);
-                    }
-                    // Checked after the topic switch, not before it. A topic switch requires a question
-                    // mark, an interrogative lead and two words, so it is the more specific finding — and
-                    // the recoverable one, since it answers the question and re-asks the same slot on the
-                    // next turn. A message satisfying both ("Nein, nicht so — wie finde ich heraus, welche
-                    // Gruppen ein Mitarbeiter schon hat?") is far more likely an independent question, and
-                    // aborting for it would trade a recoverable turn for a lost recipe. The correction this
-                    // branch exists for carries no question mark, so the ordering costs it nothing.
-                    else if (RecipeCorrectionDetector.IsStrongCorrection(context.Message, resumed))
-                    {
-                        await _recipeRunRecorder.AbortRunningAsync(
-                            resumed.Name, userGuid, conversationId, RecipeAbortReasons.CorrectedDuringAskStep, cancellationToken);
-                        _recipeEngine.Clear(userGuid, conversationId);
-                        _logger.LogInformation(
-                            "Recipe '{Recipe}' aborted during ask step (slot {Slot}): message reads as a " +
-                            "correction of the recipe", resumed.Name, step!.Slot);
-
-                        return await ResolveAfterCorrectionAsync(
-                            resumed.Name, resumed.TriggerMessage, context, provider, model, cancellationToken);
-                    }
-                    else
-                    {
-                        resumed.FillSlot(step!.Slot!, context.Message);
-                    }
-                }
-
-                resumed.AdvanceOverSatisfied();
-                return resumed;
+                return await ResumeAskStepAsync(
+                    resumed, context, provider, model, userGuid, conversationId, cancellationToken);
             }
         }
 
@@ -397,6 +327,144 @@ public class TurnPreparationService : ITurnPreparationService
         // selber random die Mitarbeiter"), and the semantic fallback ranked one into an unrelated flow (live
         // 2026-10-20: setup-planning-profile). Without a keyword match the turn runs with its full toolset, which
         // still carries the declined recipe's step skills, so the model can serve the refined request directly.
+        return await EngageFreshRecipeAsync(context, provider, model, declinedRecipe, cancellationToken);
+    }
+
+    /// <summary>
+    /// Answers the confirmation gate a resumed recipe is paused on. An ambiguous reply keeps the gate and notes the
+    /// re-ask, an affirmation clears it and proceeds; both settle the turn on the resumed plan. Any other reply marks
+    /// the gate as declined, aborts the run and clears the pending recipe, so the caller falls through to a fresh match.
+    /// </summary>
+    /// <param name="resumed">The recipe paused on its confirmation gate</param>
+    /// <param name="context">The turn context; receives the accepted/declined gate flag</param>
+    /// <param name="userGuid">The user the recipe belongs to</param>
+    /// <param name="conversationId">The conversation the recipe belongs to</param>
+    /// <param name="cancellationToken">The request token</param>
+    private async Task<(bool Settled, string? DeclinedRecipe)> SettleConfirmationGateAsync(
+        RecipeExecutionPlan resumed,
+        LLMContext context,
+        Guid userGuid,
+        string conversationId,
+        CancellationToken cancellationToken)
+    {
+        var gateAnswer = AffirmationDetector.AssessAffirmation(context.Message, context.Language);
+        if (gateAnswer.IsAmbiguous)
+        {
+            resumed.NoteAmbiguousReply(BuildAmbiguousReplyNote(gateAnswer));
+            return (true, null);
+        }
+
+        if (!gateAnswer.IsConfirmed)
+        {
+            context.RecipeConfirmationDeclined = true;
+            var declinedRecipe = DeclineDetector.LeadsWithNegation(context.Message, context.Language) ? resumed.Name : null;
+            await _recipeRunRecorder.AbortRunningAsync(
+                resumed.Name, userGuid, conversationId, RecipeAbortReasons.ConfirmationDeclined, cancellationToken);
+            _recipeEngine.Clear(userGuid, conversationId);
+            return (false, declinedRecipe);
+        }
+
+        context.RecipeConfirmationAccepted = true;
+        resumed.ConfirmAndProceed();
+        resumed.AdvanceOverSatisfied();
+        return (true, null);
+    }
+
+    /// <summary>
+    /// Continues a recipe resumed on an ordinary step: on an ask step the user's message ends the recipe (explicit
+    /// cancellation), bypasses the slot for one turn (independent question), aborts and re-resolves it (strong
+    /// correction) or is raw-filled into the slot; the plan then advances past every satisfied step.
+    /// </summary>
+    /// <param name="resumed">The recipe resumed from the pending store, not paused on its confirmation gate</param>
+    /// <param name="context">The turn context carrying the user's message</param>
+    /// <param name="provider">The provider a re-resolved recipe extracts its slots with</param>
+    /// <param name="model">The model a re-resolved recipe extracts its slots with</param>
+    /// <param name="userGuid">The user the recipe belongs to</param>
+    /// <param name="conversationId">The conversation the recipe belongs to</param>
+    /// <param name="cancellationToken">The request token</param>
+    private async Task<RecipeExecutionPlan?> ResumeAskStepAsync(
+        RecipeExecutionPlan resumed,
+        LLMContext context,
+        ILLMProvider provider,
+        LLMModel model,
+        Guid userGuid,
+        string conversationId,
+        CancellationToken cancellationToken)
+    {
+        var step = resumed.CurrentStep;
+        if (resumed.CurrentIsAsk && !string.IsNullOrWhiteSpace(step?.Slot))
+        {
+            // An explicit abort ("abbrechen", "vergiss es", "cancel") must end the recipe, not be
+            // raw-filled into the slot as if it were the answer to the ask question.
+            if (RecipeCancellationDetector.IsCancellation(context.Message))
+            {
+                await _recipeRunRecorder.AbortRunningAsync(
+                    resumed.Name, userGuid, conversationId,
+                    RecipeAbortReasons.CancelledDuringAskStep, cancellationToken);
+                _recipeEngine.Clear(userGuid, conversationId);
+                _logger.LogInformation(
+                    "Recipe '{Recipe}' cancelled by user during ask step (slot {Slot})", resumed.Name, step!.Slot);
+                return null;
+            }
+
+            // An independent question ("Wie kann ich die XML einbinden?") is not an answer to the
+            // pending slot either — raw-filling it would silence every skill the tool-less ask-step
+            // call could otherwise have used to answer it. Leave the slot unfilled and let the loop
+            // run this one turn with its full toolset instead; the recipe stays on this same ask
+            // step and is re-asked once that turn's own answer is done.
+            if (RecipeTopicSwitchDetector.IsTopicSwitch(context.Message))
+            {
+                resumed.MarkTopicSwitchThisTurn();
+                _logger.LogInformation(
+                    "Recipe '{Recipe}' ask step (slot {Slot}) bypassed for one turn: message reads " +
+                    "as an independent question, running a normal full-tool turn and re-asking afterwards",
+                    resumed.Name, step!.Slot);
+            }
+            // Checked after the topic switch, not before it. A topic switch requires a question
+            // mark, an interrogative lead and two words, so it is the more specific finding — and
+            // the recoverable one, since it answers the question and re-asks the same slot on the
+            // next turn. A message satisfying both ("Nein, nicht so — wie finde ich heraus, welche
+            // Gruppen ein Mitarbeiter schon hat?") is far more likely an independent question, and
+            // aborting for it would trade a recoverable turn for a lost recipe. The correction this
+            // branch exists for carries no question mark, so the ordering costs it nothing.
+            else if (RecipeCorrectionDetector.IsStrongCorrection(context.Message, resumed))
+            {
+                await _recipeRunRecorder.AbortRunningAsync(
+                    resumed.Name, userGuid, conversationId, RecipeAbortReasons.CorrectedDuringAskStep, cancellationToken);
+                _recipeEngine.Clear(userGuid, conversationId);
+                _logger.LogInformation(
+                    "Recipe '{Recipe}' aborted during ask step (slot {Slot}): message reads as a " +
+                    "correction of the recipe", resumed.Name, step!.Slot);
+
+                return await ResolveAfterCorrectionAsync(
+                    resumed.Name, resumed.TriggerMessage, context, provider, model, cancellationToken);
+            }
+            else
+            {
+                resumed.FillSlot(step!.Slot!, context.Message);
+            }
+        }
+
+        resumed.AdvanceOverSatisfied();
+        return resumed;
+    }
+
+    /// <summary>
+    /// Matches a fresh recipe on the current message, remembers a rights denial on the context and, when a recipe
+    /// matched, pre-fills its slots from the message and advances past the satisfied steps.
+    /// </summary>
+    /// <param name="context">The turn context; receives the denial of a refused match</param>
+    /// <param name="provider">The provider the slot extraction is put to</param>
+    /// <param name="model">The model the slot extraction is put to</param>
+    /// <param name="declinedRecipe">The recipe the user just declined, excluded from this match</param>
+    /// <param name="cancellationToken">The request token</param>
+    private async Task<RecipeExecutionPlan?> EngageFreshRecipeAsync(
+        LLMContext context,
+        ILLMProvider provider,
+        LLMModel model,
+        string? declinedRecipe,
+        CancellationToken cancellationToken)
+    {
         var resolution = await _recipeEngine.ResolveWithDenialAsync(
             context.Message, context.Language, context.UserRights, declinedRecipe,
             allowSemanticFallback: !context.RecipeConfirmationDeclined, cancellationToken);

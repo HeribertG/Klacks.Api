@@ -61,61 +61,18 @@ public class UpdateAddressSkill : BaseSkillImplementation
         }
 
         var changed = new List<string>();
+        ApplyTextFields(parameters, address, changed);
 
-        var stringFields = new (string Key, Func<string> Get, Action<string> Set)[]
+        var typeError = await ApplyTypeAsync(parameters, address, changed, cancellationToken);
+        if (typeError != null)
         {
-            ("street", () => address.Street, v => address.Street = v),
-            ("zip", () => address.Zip, v => address.Zip = v),
-            ("city", () => address.City, v => address.City = v),
-            ("country", () => address.Country, v => address.Country = v),
-            ("state", () => address.State, v => address.State = v),
-        };
-
-        foreach (var field in stringFields)
-        {
-            var value = GetParameter<string>(parameters, field.Key);
-            if (value == null || value == field.Get())
-            {
-                continue;
-            }
-
-            field.Set(value);
-            changed.Add(field.Key);
+            return typeError;
         }
 
-        var type = GetParameter<int?>(parameters, "type");
-        if (type.HasValue && (int)address.Type != type.Value)
+        var validFromError = await ApplyValidFromAsync(context, parameters, address, changed, cancellationToken);
+        if (validFromError != null)
         {
-            var newType = (AddressTypeEnum)type.Value;
-            var owner = await _clientRepository.GetTypeAndDisplayNameAsync(address.ClientId, cancellationToken);
-            if (owner != null && !ClientAddressTypeRules.IsAllowed(owner.Type, newType))
-            {
-                return SkillResult.Error(ClientAddressTypeRules.DescribeViolation(owner.Type, newType));
-            }
-
-            address.Type = newType;
-            changed.Add("type");
-        }
-
-        var validFromRaw = GetParameter<string>(parameters, "validFrom");
-        if (!string.IsNullOrWhiteSpace(validFromRaw))
-        {
-            var today = await _companyClock.GetTodayAsync(cancellationToken);
-            var (parsed, invalid) = SkillDateParser.ParseOptionalUtcDate(
-                validFromRaw, today, context.UserLanguage);
-            if (invalid)
-            {
-                return SkillResult.Error(
-                    SkillDateParser.InvalidDateMessageFor("validFrom", validFromRaw));
-            }
-
-            var validFrom = parsed!.Value;
-
-            if (address.ValidFrom != validFrom)
-            {
-                address.ValidFrom = validFrom;
-                changed.Add("validFrom");
-            }
+            return validFromError;
         }
 
         if (changed.Count == 0)
@@ -141,6 +98,87 @@ public class UpdateAddressSkill : BaseSkillImplementation
             persisted = null;
         }
 
+        return BuildVerifiedResult(addressId, address, persisted, changed);
+    }
+
+    private static void ApplyTextFields(Dictionary<string, object> parameters, AddressResource address, List<string> changed)
+    {
+        var stringFields = new (string Key, Func<string> Get, Action<string> Set)[]
+        {
+            ("street", () => address.Street, v => address.Street = v),
+            ("zip", () => address.Zip, v => address.Zip = v),
+            ("city", () => address.City, v => address.City = v),
+            ("country", () => address.Country, v => address.Country = v),
+            ("state", () => address.State, v => address.State = v),
+        };
+
+        foreach (var field in stringFields)
+        {
+            var value = GetParameter<string>(parameters, field.Key);
+            if (value == null || value == field.Get())
+            {
+                continue;
+            }
+
+            field.Set(value);
+            changed.Add(field.Key);
+        }
+    }
+
+    private async Task<SkillResult?> ApplyTypeAsync(
+        Dictionary<string, object> parameters, AddressResource address, List<string> changed, CancellationToken cancellationToken)
+    {
+        var type = GetParameter<int?>(parameters, "type");
+        if (type.HasValue && (int)address.Type != type.Value)
+        {
+            var newType = (AddressTypeEnum)type.Value;
+            var owner = await _clientRepository.GetTypeAndDisplayNameAsync(address.ClientId, cancellationToken);
+            if (owner != null && !ClientAddressTypeRules.IsAllowed(owner.Type, newType))
+            {
+                return SkillResult.Error(ClientAddressTypeRules.DescribeViolation(owner.Type, newType));
+            }
+
+            address.Type = newType;
+            changed.Add("type");
+        }
+
+        return null;
+    }
+
+    private async Task<SkillResult?> ApplyValidFromAsync(
+        SkillExecutionContext context,
+        Dictionary<string, object> parameters,
+        AddressResource address,
+        List<string> changed,
+        CancellationToken cancellationToken)
+    {
+        var validFromRaw = GetParameter<string>(parameters, "validFrom");
+        if (!string.IsNullOrWhiteSpace(validFromRaw))
+        {
+            var today = await _companyClock.GetTodayAsync(cancellationToken);
+            var (parsed, invalid) = SkillDateParser.ParseOptionalUtcDate(
+                validFromRaw, today, context.UserLanguage);
+            if (invalid)
+            {
+                return SkillResult.Error(
+                    SkillDateParser.InvalidDateMessageFor("validFrom", validFromRaw));
+            }
+
+            var validFrom = parsed!.Value;
+
+            if (address.ValidFrom != validFrom)
+            {
+                address.ValidFrom = validFrom;
+                changed.Add("validFrom");
+            }
+        }
+
+        return null;
+    }
+
+    private static SkillResult BuildVerifiedResult(
+        Guid addressId, AddressResource address, AddressResource? persisted, List<string> changed)
+    {
         if (persisted == null)
         {
             return SkillResult.Error(

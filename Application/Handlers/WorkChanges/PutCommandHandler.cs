@@ -117,29 +117,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
 
             workChange.AnalyseToken = parentWork.AnalyseToken;
 
-            _parentWorkLockGuard.EnsureChildWritableForCaller(parentWork, _httpContextAccessor);
-            if (isMoved)
-            {
-                _parentWorkLockGuard.EnsureChildWritableForCaller(oldParentWork, _httpContextAccessor);
-            }
-
-            await _dayLockService.EnsureNotLockedAsync(
-                parentWork.CurrentDate,
-                parentWork.ClientId,
-                parentWork.AnalyseToken,
-                cancellationToken);
-
-            if (isMoved)
-            {
-                await _dayLockService.EnsureNotLockedAsync(
-                    oldParentWork.CurrentDate,
-                    oldParentWork.ClientId,
-                    oldParentWork.AnalyseToken,
-                    cancellationToken);
-            }
-
-            await _dayLockService.EnsureWorkChangeNotLockedAsync(parentWork, workChange, cancellationToken);
-            await _dayLockService.EnsureWorkChangeNotLockedAsync(oldParentWork, existingWorkChange, cancellationToken);
+            await EnsureWritableAsync(parentWork, oldParentWork, isMoved, workChange, existingWorkChange, cancellationToken);
 
             var updatedWorkChange = await _workChangeRepository.Put(workChange);
 
@@ -148,59 +126,157 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
                 return null;
             }
 
-            var work = await _workRepository.Get(updatedWorkChange.WorkId);
-            if (work == null)
-            {
-                _logger.LogWarning("Work not found for WorkChange: {WorkId}", updatedWorkChange.WorkId);
-                return _scheduleMapper.ToWorkChangeResource(updatedWorkChange);
-            }
-
-            await _replacementRequestRecorder.SyncManualReplacementAsync(work, updatedWorkChange, cancellationToken);
-
-            var currentDate = work.CurrentDate;
-            var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);
-
-            var replaceClientChanged = previousReplaceClientId != updatedWorkChange.ReplaceClientId;
-
-            await _completionService.SaveAndTrackWithReplaceClientAsync(
-                work.ClientId, work.CurrentDate, periodStart, periodEnd,
-                updatedWorkChange.ReplaceClientId,
-                work.AnalyseToken,
-                replaceClientChanged ? previousReplaceClientId : null);
-
-            var resource = _scheduleMapper.ToWorkChangeResource(updatedWorkChange);
-            resource.PeriodStart = periodStart;
-            resource.PeriodEnd = periodEnd;
-
-            var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, currentDate, cancellationToken, work.AnalyseToken);
-            resource.ClientResults.Add(clientResult);
-
-            if (updatedWorkChange.ReplaceClientId.HasValue)
-            {
-                var replaceClientResult = await _resultService.GetClientResultAsync(updatedWorkChange.ReplaceClientId.Value, periodStart, periodEnd, currentDate, cancellationToken, work.AnalyseToken);
-                resource.ClientResults.Add(replaceClientResult);
-            }
-
-            if (replaceClientChanged && previousReplaceClientId.HasValue)
-            {
-                var previousReplaceClientResult = await _resultService.GetClientResultAsync(previousReplaceClientId.Value, periodStart, periodEnd, currentDate, cancellationToken, work.AnalyseToken);
-                resource.ClientResults.Add(previousReplaceClientResult);
-            }
-
-            var connectionId = _notificationFacade.GetConnectionId();
-            await _notificationFacade.NotifyScheduleUpdatedAsync(work.ClientId, work.CurrentDate, connectionId, periodStart, periodEnd, work.AnalyseToken);
-
-            if (updatedWorkChange.ReplaceClientId.HasValue)
-            {
-                await _notificationFacade.NotifyScheduleUpdatedAsync(updatedWorkChange.ReplaceClientId.Value, work.CurrentDate, connectionId, periodStart, periodEnd, work.AnalyseToken);
-            }
-
-            if (replaceClientChanged && previousReplaceClientId.HasValue)
-            {
-                await _notificationFacade.NotifyScheduleUpdatedAsync(previousReplaceClientId.Value, work.CurrentDate, connectionId, periodStart, periodEnd, work.AnalyseToken);
-            }
-
-            return resource;
+            return await CompleteUpdateAsync(updatedWorkChange, previousReplaceClientId, cancellationToken);
         }, "UpdateWorkChange", new { request.Resource.Id });
+    }
+
+    /// <summary>
+    /// After the write: keeps the replacement request book in step, saves and tracks the period hours of the Work's
+    /// employee and of the current and replaced replacement, and answers the change with the refreshed client results
+    /// after notifying every touched client. When the Work is gone, the change is answered as written without a refresh.
+    /// </summary>
+    /// <param name="updatedWorkChange">The change as written</param>
+    /// <param name="previousReplaceClientId">Replacement client stored before the write</param>
+    private async Task<WorkChangeResource> CompleteUpdateAsync(
+        Domain.Models.Schedules.WorkChange updatedWorkChange,
+        Guid? previousReplaceClientId,
+        CancellationToken cancellationToken)
+    {
+        var work = await _workRepository.Get(updatedWorkChange.WorkId);
+        if (work == null)
+        {
+            _logger.LogWarning("Work not found for WorkChange: {WorkId}", updatedWorkChange.WorkId);
+            return _scheduleMapper.ToWorkChangeResource(updatedWorkChange);
+        }
+
+        await _replacementRequestRecorder.SyncManualReplacementAsync(work, updatedWorkChange, cancellationToken);
+
+        var currentDate = work.CurrentDate;
+        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);
+
+        var replaceClientChanged = previousReplaceClientId != updatedWorkChange.ReplaceClientId;
+
+        await _completionService.SaveAndTrackWithReplaceClientAsync(
+            work.ClientId, work.CurrentDate, periodStart, periodEnd,
+            updatedWorkChange.ReplaceClientId,
+            work.AnalyseToken,
+            replaceClientChanged ? previousReplaceClientId : null);
+
+        var resource = _scheduleMapper.ToWorkChangeResource(updatedWorkChange);
+        resource.PeriodStart = periodStart;
+        resource.PeriodEnd = periodEnd;
+
+        await AddClientResultsAsync(
+            resource, work, updatedWorkChange, previousReplaceClientId, replaceClientChanged,
+            periodStart, periodEnd, currentDate, cancellationToken);
+
+        await NotifyTouchedClientsAsync(
+            work, updatedWorkChange, previousReplaceClientId, replaceClientChanged, periodStart, periodEnd);
+
+        return resource;
+    }
+
+    /// <summary>
+    /// Refuses the write when the lock level of the new parent Work (and of the old one on a move) forbids it for the
+    /// caller, or when the day of the new parent Work (and of the old one on a move) or the day the new or stored change
+    /// is shown on is sealed.
+    /// </summary>
+    /// <param name="parentWork">Parent Work the change belongs to after the write</param>
+    /// <param name="oldParentWork">Parent Work the change belonged to before the write (the same Work unless moved)</param>
+    /// <param name="isMoved">True when the change is moved to another parent Work</param>
+    /// <param name="workChange">The change as it will be written</param>
+    /// <param name="existingWorkChange">The change as it is stored</param>
+    private async Task EnsureWritableAsync(
+        Domain.Models.Schedules.Work parentWork,
+        Domain.Models.Schedules.Work oldParentWork,
+        bool isMoved,
+        Domain.Models.Schedules.WorkChange workChange,
+        Domain.Models.Schedules.WorkChange existingWorkChange,
+        CancellationToken cancellationToken)
+    {
+        _parentWorkLockGuard.EnsureChildWritableForCaller(parentWork, _httpContextAccessor);
+        if (isMoved)
+        {
+            _parentWorkLockGuard.EnsureChildWritableForCaller(oldParentWork, _httpContextAccessor);
+        }
+
+        await _dayLockService.EnsureNotLockedAsync(
+            parentWork.CurrentDate,
+            parentWork.ClientId,
+            parentWork.AnalyseToken,
+            cancellationToken);
+
+        if (isMoved)
+        {
+            await _dayLockService.EnsureNotLockedAsync(
+                oldParentWork.CurrentDate,
+                oldParentWork.ClientId,
+                oldParentWork.AnalyseToken,
+                cancellationToken);
+        }
+
+        await _dayLockService.EnsureWorkChangeNotLockedAsync(parentWork, workChange, cancellationToken);
+        await _dayLockService.EnsureWorkChangeNotLockedAsync(oldParentWork, existingWorkChange, cancellationToken);
+    }
+
+    /// <summary>
+    /// Adds the refreshed period hours and schedule entries of the Work's employee, of the current replacement and of a
+    /// replaced previous replacement to the response, in that order.
+    /// </summary>
+    /// <param name="previousReplaceClientId">Replacement client stored before the write</param>
+    /// <param name="replaceClientChanged">True when the write changed the replacement client</param>
+    private async Task AddClientResultsAsync(
+        WorkChangeResource resource,
+        Domain.Models.Schedules.Work work,
+        Domain.Models.Schedules.WorkChange updatedWorkChange,
+        Guid? previousReplaceClientId,
+        bool replaceClientChanged,
+        DateOnly periodStart,
+        DateOnly periodEnd,
+        DateOnly currentDate,
+        CancellationToken cancellationToken)
+    {
+        var clientResult = await _resultService.GetClientResultAsync(work.ClientId, periodStart, periodEnd, currentDate, cancellationToken, work.AnalyseToken);
+        resource.ClientResults.Add(clientResult);
+
+        if (updatedWorkChange.ReplaceClientId.HasValue)
+        {
+            var replaceClientResult = await _resultService.GetClientResultAsync(updatedWorkChange.ReplaceClientId.Value, periodStart, periodEnd, currentDate, cancellationToken, work.AnalyseToken);
+            resource.ClientResults.Add(replaceClientResult);
+        }
+
+        if (replaceClientChanged && previousReplaceClientId.HasValue)
+        {
+            var previousReplaceClientResult = await _resultService.GetClientResultAsync(previousReplaceClientId.Value, periodStart, periodEnd, currentDate, cancellationToken, work.AnalyseToken);
+            resource.ClientResults.Add(previousReplaceClientResult);
+        }
+    }
+
+    /// <summary>
+    /// Broadcasts the schedule update to the Work's employee, the current replacement and a replaced previous
+    /// replacement, in that order, all with the calling connection's id.
+    /// </summary>
+    /// <param name="previousReplaceClientId">Replacement client stored before the write</param>
+    /// <param name="replaceClientChanged">True when the write changed the replacement client</param>
+    private async Task NotifyTouchedClientsAsync(
+        Domain.Models.Schedules.Work work,
+        Domain.Models.Schedules.WorkChange updatedWorkChange,
+        Guid? previousReplaceClientId,
+        bool replaceClientChanged,
+        DateOnly periodStart,
+        DateOnly periodEnd)
+    {
+        var connectionId = _notificationFacade.GetConnectionId();
+        await _notificationFacade.NotifyScheduleUpdatedAsync(work.ClientId, work.CurrentDate, connectionId, periodStart, periodEnd, work.AnalyseToken);
+
+        if (updatedWorkChange.ReplaceClientId.HasValue)
+        {
+            await _notificationFacade.NotifyScheduleUpdatedAsync(updatedWorkChange.ReplaceClientId.Value, work.CurrentDate, connectionId, periodStart, periodEnd, work.AnalyseToken);
+        }
+
+        if (replaceClientChanged && previousReplaceClientId.HasValue)
+        {
+            await _notificationFacade.NotifyScheduleUpdatedAsync(previousReplaceClientId.Value, work.CurrentDate, connectionId, periodStart, periodEnd, work.AnalyseToken);
+        }
     }
 }

@@ -55,6 +55,49 @@ public class UpdatePeriodCapRuleSkill : BaseSkillImplementation
 
         var changed = new List<string>();
 
+        var periodError = ApplyPeriod(parameters, existing, changed);
+        if (periodError != null)
+        {
+            return periodError;
+        }
+
+        var scopeError = ApplyScope(parameters, existing, changed);
+        if (scopeError != null)
+        {
+            return scopeError;
+        }
+
+        ApplyLimits(parameters, existing, changed);
+
+        if (changed.Count == 0)
+        {
+            return SkillResult.SuccessResult(
+                new { PeriodCapRuleId = periodCapRuleId, ChangedFields = Array.Empty<string>() },
+                "No fields supplied for update — period cap rule left unchanged.");
+        }
+
+        PeriodCapRuleResource? updated;
+        try
+        {
+            updated = await _mediator.Send(new PutCommand<PeriodCapRuleResource>(existing), cancellationToken);
+        }
+        catch (InvalidRequestException exception)
+        {
+            return SkillResult.Error(exception.Message);
+        }
+
+        if (updated == null)
+        {
+            return SkillResult.Error(
+                $"Update of period cap rule {periodCapRuleId} returned no result — operation may have failed.");
+        }
+
+        return BuildUpdatedResult(periodCapRuleId, changed, updated);
+    }
+
+    private static SkillResult? ApplyPeriod(
+        Dictionary<string, object> parameters, PeriodCapRuleResource existing, List<string> changed)
+    {
         var periodRaw = GetParameter<string>(parameters, "period");
         if (!string.IsNullOrWhiteSpace(periodRaw))
         {
@@ -78,6 +121,12 @@ public class UpdatePeriodCapRuleSkill : BaseSkillImplementation
             }
         }
 
+        return null;
+    }
+
+    private static SkillResult? ApplyScope(
+        Dictionary<string, object> parameters, PeriodCapRuleResource existing, List<string> changed)
+    {
         var scopeRaw = GetParameter<string>(parameters, "scope");
         if (!string.IsNullOrWhiteSpace(scopeRaw))
         {
@@ -95,6 +144,12 @@ public class UpdatePeriodCapRuleSkill : BaseSkillImplementation
             }
         }
 
+        return null;
+    }
+
+    private static void ApplyLimits(
+        Dictionary<string, object> parameters, PeriodCapRuleResource existing, List<string> changed)
+    {
         var capHours = GetParameter<decimal?>(parameters, "capHours");
         if (capHours.HasValue && capHours.Value != existing.CapHours)
         {
@@ -132,30 +187,11 @@ public class UpdatePeriodCapRuleSkill : BaseSkillImplementation
             existing.MaxAverageWeeklyHours = maxAverageWeeklyHours.Value;
             changed.Add("maxAverageWeeklyHours");
         }
+    }
 
-        if (changed.Count == 0)
-        {
-            return SkillResult.SuccessResult(
-                new { PeriodCapRuleId = periodCapRuleId, ChangedFields = Array.Empty<string>() },
-                "No fields supplied for update — period cap rule left unchanged.");
-        }
-
-        PeriodCapRuleResource? updated;
-        try
-        {
-            updated = await _mediator.Send(new PutCommand<PeriodCapRuleResource>(existing), cancellationToken);
-        }
-        catch (InvalidRequestException exception)
-        {
-            return SkillResult.Error(exception.Message);
-        }
-
-        if (updated == null)
-        {
-            return SkillResult.Error(
-                $"Update of period cap rule {periodCapRuleId} returned no result — operation may have failed.");
-        }
-
+    private static SkillResult BuildUpdatedResult(
+        Guid periodCapRuleId, List<string> changed, PeriodCapRuleResource updated)
+    {
         return SkillResult.SuccessResult(
             new
             {

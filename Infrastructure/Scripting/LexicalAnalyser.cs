@@ -54,9 +54,33 @@ namespace Klacks.Api.Infrastructure.Scripting
         {
             var nextSymbol = new Symbol();
 
-            string c = string.Empty;
             string symbolText = string.Empty;
             bool returnNumberSymbol = false;
+
+            var c = ReadFirstSignificantChar();
+
+            nextSymbol.Position(source!.Line, source.Col, source.Index);
+
+            if (!source.Eof)
+            {
+                (returnNumberSymbol, symbolText) = ScanSymbol(nextSymbol, c);
+            }
+            else
+            {
+                nextSymbol.Init(Symbol.Tokens.tokEof);
+            }
+
+            if (returnNumberSymbol)
+            {
+                nextSymbol.Init(Symbol.Tokens.tokNumber, symbolText, double.Parse(symbolText, System.Globalization.CultureInfo.InvariantCulture));
+            }
+
+            return nextSymbol;
+        }
+
+        private string ReadFirstSignificantChar()
+        {
+            string c = string.Empty;
 
             if (!source!.Eof)
             {
@@ -72,119 +96,119 @@ namespace Klacks.Api.Infrastructure.Scripting
                 while (c == " " & !source.Eof);
             }
 
-            nextSymbol.Position(source.Line, source.Col, source.Index);
+            return c;
+        }
 
-            if (!source.Eof)
+        private (bool ReturnNumberSymbol, string SymbolText) ScanSymbol(Symbol nextSymbol, string c)
+        {
+            var key = c.ToUpper();
+            switch (key)
             {
-                switch (c.ToUpper())
-                {
-                    case "+":
-                    case "-":
-                    case "*":
-                    case "/":
-                    case "&":
-                    case "\\":
-                    case "%":
-                        MathOperatorOrAssignments(nextSymbol, c);
-                        break;
-                    case "^":
-                        nextSymbol.Init(Symbol.Tokens.tokPower, c);
-                        break;
-                    case "!":
-                        nextSymbol.Init(Symbol.Tokens.tokFactorial, c);
-                        break;
-                    case "~":
-                        nextSymbol.Init(Symbol.Tokens.tokNot, c);
-                        break;
-                    case "(":
-                        nextSymbol.Init(Symbol.Tokens.tokLeftParent, c);
-                        break;
-                    case ")":
-                        nextSymbol.Init(Symbol.Tokens.tokRightParent, c);
-                        break;
-                    case ",":
-                        nextSymbol.Init(Symbol.Tokens.tokComma, c);
-                        break;
-                    case "=":
-                        nextSymbol.Init(Symbol.Tokens.tokEq, c);
-                        break;
-                    case "<":
-                        LexLessThan(nextSymbol);
-                        break;
-                    case ">":
-                        LexGreaterThan(nextSymbol);
-                        break;
-                    case "0":
-                    case "1":
-                    case "2":
-                    case "3":
-                    case "4":
-                    case "5":
-                    case "6":
-                    case "7":
-                    case "8":
-                    case "9":
-                        var res = Numbers(nextSymbol, c);
-                        returnNumberSymbol = res.Item1;
-                        symbolText = res.Item2;
-                        break;
-                    case "@":
-                    case "A":
-                    case "B":
-                    case "C":
-                    case "D":
-                    case "E":
-                    case "F":
-                    case "G":
-                    case "H":
-                    case "I":
-                    case "J":
-                    case "K":
-                    case "L":
-                    case "M":
-                    case "N":
-                    case "O":
-                    case "P":
-                    case "Q":
-                    case "R":
-                    case "S":
-                    case "T":
-                    case "U":
-                    case "V":
-                    case "W":
-                    case "X":
-                    case "Y":
-                    case "Z":
-                    case "Ä":
-                    case "Ö":
-                    case "Ü":
-                    case "ß":
-                    case "_":
-                        symbolText = this.Identifier(nextSymbol, c);
-                        break;
-                    case "\"":
-                        LexString(nextSymbol);
-                        break;
-                    case ":":
-                    case "\n":
-                        nextSymbol.Init(Symbol.Tokens.tokStatementDelimiter, c);
-                        break;
-                    default:
-                        errorObject!.Raise(new InterpreterErrorInfo(Convert.ToInt32(LexErrors.errUnknownSymbol), "LexicalAnalyser.GetNextSymbol", "Unknown symbol starting with character ASCII " + c, nextSymbol.Line, nextSymbol.Col, nextSymbol.Index));
-                        break;
-                }
-            }
-            else
-            {
-                nextSymbol.Init(Symbol.Tokens.tokEof);
+                case "+":
+                case "-":
+                case "*":
+                case "/":
+                case "&":
+                case "\\":
+                case "%":
+                    MathOperatorOrAssignments(nextSymbol, c);
+                    break;
+                case "^":
+                    nextSymbol.Init(Symbol.Tokens.tokPower, c);
+                    break;
+                case "!":
+                    nextSymbol.Init(Symbol.Tokens.tokFactorial, c);
+                    break;
+                case "~":
+                    nextSymbol.Init(Symbol.Tokens.tokNot, c);
+                    break;
+                case "(":
+                    nextSymbol.Init(Symbol.Tokens.tokLeftParent, c);
+                    break;
+                case ")":
+                    nextSymbol.Init(Symbol.Tokens.tokRightParent, c);
+                    break;
+                case ",":
+                    nextSymbol.Init(Symbol.Tokens.tokComma, c);
+                    break;
+                case "=":
+                    nextSymbol.Init(Symbol.Tokens.tokEq, c);
+                    break;
+                case "<":
+                    LexLessThan(nextSymbol);
+                    break;
+                case ">":
+                    LexGreaterThan(nextSymbol);
+                    break;
+                default:
+                    return ScanLiteralIdentifierOrDelimiter(nextSymbol, c, key);
             }
 
-            if (returnNumberSymbol)
+            return (false, string.Empty);
+        }
+
+        private (bool ReturnNumberSymbol, string SymbolText) ScanLiteralIdentifierOrDelimiter(Symbol nextSymbol, string c, string key)
+        {
+            switch (key)
             {
-                nextSymbol.Init(Symbol.Tokens.tokNumber, symbolText, double.Parse(symbolText, System.Globalization.CultureInfo.InvariantCulture));
+                case "0":
+                case "1":
+                case "2":
+                case "3":
+                case "4":
+                case "5":
+                case "6":
+                case "7":
+                case "8":
+                case "9":
+                    var res = Numbers(nextSymbol, c);
+                    return (res.Item1, res.Item2);
+                case "@":
+                case "A":
+                case "B":
+                case "C":
+                case "D":
+                case "E":
+                case "F":
+                case "G":
+                case "H":
+                case "I":
+                case "J":
+                case "K":
+                case "L":
+                case "M":
+                case "N":
+                case "O":
+                case "P":
+                case "Q":
+                case "R":
+                case "S":
+                case "T":
+                case "U":
+                case "V":
+                case "W":
+                case "X":
+                case "Y":
+                case "Z":
+                case "Ä":
+                case "Ö":
+                case "Ü":
+                case "ß":
+                case "_":
+                    return (false, this.Identifier(nextSymbol, c));
+                case "\"":
+                    LexString(nextSymbol);
+                    break;
+                case ":":
+                case "\n":
+                    nextSymbol.Init(Symbol.Tokens.tokStatementDelimiter, c);
+                    break;
+                default:
+                    errorObject!.Raise(new InterpreterErrorInfo(Convert.ToInt32(LexErrors.errUnknownSymbol), "LexicalAnalyser.GetNextSymbol", "Unknown symbol starting with character ASCII " + c, nextSymbol.Line, nextSymbol.Col, nextSymbol.Index));
+                    break;
             }
 
-            return nextSymbol;
+            return (false, string.Empty);
         }
 
         private void LexLessThan(Symbol nextSymbol)

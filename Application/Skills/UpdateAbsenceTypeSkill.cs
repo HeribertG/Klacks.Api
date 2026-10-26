@@ -50,7 +50,7 @@ public class UpdateAbsenceTypeSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var (absence, resolveError) = await AbsenceTypeResolver.ResolveAsync(
+        var (resolvedAbsence, resolveError) = await AbsenceTypeResolver.ResolveAsync(
             GetParameter<string>(parameters, "absenceTypeId"),
             GetParameter<string>(parameters, "typeName"),
             _absenceRepository);
@@ -59,75 +59,19 @@ public class UpdateAbsenceTypeSkill : BaseSkillImplementation
             return SkillResult.Error(resolveError);
         }
 
+        var absence = resolvedAbsence!;
         var changed = new List<string>();
         var verifications = new List<Func<Absence, bool>>();
 
-        var name = GetParameter<string>(parameters, "name");
-        if (!string.IsNullOrWhiteSpace(name) && name != absence!.Name.De)
+        ApplyTextFields(parameters, absence, changed, verifications);
+
+        var defaultsError = ApplyDefaults(parameters, absence, changed, verifications);
+        if (defaultsError != null)
         {
-            SetAllLanguages(absence.Name, name);
-            changed.Add("name");
-            verifications.Add(p => string.Equals(p.Name.De, name, StringComparison.Ordinal));
+            return defaultsError;
         }
 
-        var abbreviation = GetParameter<string>(parameters, "abbreviation");
-        if (!string.IsNullOrWhiteSpace(abbreviation) && abbreviation != absence!.Abbreviation.De)
-        {
-            SetAllLanguages(absence.Abbreviation, abbreviation);
-            changed.Add("abbreviation");
-            verifications.Add(p => string.Equals(p.Abbreviation.De, abbreviation, StringComparison.Ordinal));
-        }
-
-        var color = GetParameter<string>(parameters, "color");
-        if (!string.IsNullOrWhiteSpace(color) && color != absence!.Color)
-        {
-            absence.Color = color;
-            changed.Add("color");
-            verifications.Add(p => p.Color == color);
-        }
-
-        var defaultLength = GetParameter<int?>(parameters, "defaultLength");
-        if (defaultLength.HasValue && defaultLength.Value != absence!.DefaultLength)
-        {
-            if (defaultLength.Value < 0)
-            {
-                return SkillResult.Error("defaultLength must be >= 0.");
-            }
-
-            absence.DefaultLength = defaultLength.Value;
-            changed.Add("defaultLength");
-            verifications.Add(p => p.DefaultLength == defaultLength.Value);
-        }
-
-        var defaultValueRaw = GetParameter<decimal?>(parameters, "defaultValue");
-        if (defaultValueRaw.HasValue)
-        {
-            var defaultValue = (double)defaultValueRaw.Value;
-            if (defaultValue < 0 || defaultValue > 1)
-            {
-                return SkillResult.Error("defaultValue must be between 0 and 1.");
-            }
-
-            if (Math.Abs(absence!.DefaultValue - defaultValue) > double.Epsilon)
-            {
-                absence.DefaultValue = defaultValue;
-                changed.Add("defaultValue");
-                verifications.Add(p => Math.Abs(p.DefaultValue - defaultValue) < 0.0001);
-            }
-        }
-
-        ApplyFlag(parameters, "withSaturday", absence!, changed, verifications,
-            a => a.WithSaturday, (a, v) => a.WithSaturday = v, p => p.WithSaturday);
-        ApplyFlag(parameters, "withSunday", absence, changed, verifications,
-            a => a.WithSunday, (a, v) => a.WithSunday = v, p => p.WithSunday);
-        ApplyFlag(parameters, "withHoliday", absence, changed, verifications,
-            a => a.WithHoliday, (a, v) => a.WithHoliday = v, p => p.WithHoliday);
-        ApplyFlag(parameters, "isUnpaid", absence, changed, verifications,
-            a => a.IsUnpaid, (a, v) => a.IsUnpaid = v, p => p.IsUnpaid);
-        ApplyFlag(parameters, "isOnCall", absence, changed, verifications,
-            a => a.IsOnCall, (a, v) => a.IsOnCall = v, p => p.IsOnCall);
-        ApplyFlag(parameters, "hideInGantt", absence, changed, verifications,
-            a => a.HideInGantt, (a, v) => a.HideInGantt = v, p => p.HideInGantt);
+        ApplyFlags(parameters, absence, changed, verifications);
 
         if (changed.Count == 0)
         {
@@ -169,6 +113,96 @@ public class UpdateAbsenceTypeSkill : BaseSkillImplementation
             },
             $"Absence type '{absence.Name.De}' updated ({string.Join(", ", changed)}) and confirmed in the " +
             "database (verified). The change affects future bookings; existing bookings keep their values.");
+    }
+
+    private static void ApplyTextFields(
+        Dictionary<string, object> parameters,
+        Absence absence,
+        List<string> changed,
+        List<Func<Absence, bool>> verifications)
+    {
+        var name = GetParameter<string>(parameters, "name");
+        if (!string.IsNullOrWhiteSpace(name) && name != absence.Name.De)
+        {
+            SetAllLanguages(absence.Name, name);
+            changed.Add("name");
+            verifications.Add(p => string.Equals(p.Name.De, name, StringComparison.Ordinal));
+        }
+
+        var abbreviation = GetParameter<string>(parameters, "abbreviation");
+        if (!string.IsNullOrWhiteSpace(abbreviation) && abbreviation != absence.Abbreviation.De)
+        {
+            SetAllLanguages(absence.Abbreviation, abbreviation);
+            changed.Add("abbreviation");
+            verifications.Add(p => string.Equals(p.Abbreviation.De, abbreviation, StringComparison.Ordinal));
+        }
+
+        var color = GetParameter<string>(parameters, "color");
+        if (!string.IsNullOrWhiteSpace(color) && color != absence.Color)
+        {
+            absence.Color = color;
+            changed.Add("color");
+            verifications.Add(p => p.Color == color);
+        }
+    }
+
+    private static SkillResult? ApplyDefaults(
+        Dictionary<string, object> parameters,
+        Absence absence,
+        List<string> changed,
+        List<Func<Absence, bool>> verifications)
+    {
+        var defaultLength = GetParameter<int?>(parameters, "defaultLength");
+        if (defaultLength.HasValue && defaultLength.Value != absence.DefaultLength)
+        {
+            if (defaultLength.Value < 0)
+            {
+                return SkillResult.Error("defaultLength must be >= 0.");
+            }
+
+            absence.DefaultLength = defaultLength.Value;
+            changed.Add("defaultLength");
+            verifications.Add(p => p.DefaultLength == defaultLength.Value);
+        }
+
+        var defaultValueRaw = GetParameter<decimal?>(parameters, "defaultValue");
+        if (defaultValueRaw.HasValue)
+        {
+            var defaultValue = (double)defaultValueRaw.Value;
+            if (defaultValue < 0 || defaultValue > 1)
+            {
+                return SkillResult.Error("defaultValue must be between 0 and 1.");
+            }
+
+            if (Math.Abs(absence.DefaultValue - defaultValue) > double.Epsilon)
+            {
+                absence.DefaultValue = defaultValue;
+                changed.Add("defaultValue");
+                verifications.Add(p => Math.Abs(p.DefaultValue - defaultValue) < 0.0001);
+            }
+        }
+
+        return null;
+    }
+
+    private void ApplyFlags(
+        Dictionary<string, object> parameters,
+        Absence absence,
+        List<string> changed,
+        List<Func<Absence, bool>> verifications)
+    {
+        ApplyFlag(parameters, "withSaturday", absence, changed, verifications,
+            a => a.WithSaturday, (a, v) => a.WithSaturday = v, p => p.WithSaturday);
+        ApplyFlag(parameters, "withSunday", absence, changed, verifications,
+            a => a.WithSunday, (a, v) => a.WithSunday = v, p => p.WithSunday);
+        ApplyFlag(parameters, "withHoliday", absence, changed, verifications,
+            a => a.WithHoliday, (a, v) => a.WithHoliday = v, p => p.WithHoliday);
+        ApplyFlag(parameters, "isUnpaid", absence, changed, verifications,
+            a => a.IsUnpaid, (a, v) => a.IsUnpaid = v, p => p.IsUnpaid);
+        ApplyFlag(parameters, "isOnCall", absence, changed, verifications,
+            a => a.IsOnCall, (a, v) => a.IsOnCall = v, p => p.IsOnCall);
+        ApplyFlag(parameters, "hideInGantt", absence, changed, verifications,
+            a => a.HideInGantt, (a, v) => a.HideInGantt = v, p => p.HideInGantt);
     }
 
     private void ApplyFlag(

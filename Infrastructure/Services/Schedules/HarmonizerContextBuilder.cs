@@ -101,6 +101,59 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays, correctedWorkHours);
         var hints = BuildSofteningHints(softenings);
 
+        var ineligible = await BuildIneligibleAsync(
+            agentIds, assignments, works, freeCommandDates, keywordRestrictions, breakDates, ct);
+
+        var contextDaysBefore = Math.Max(0, request.ContextDaysBefore);
+        var contextDaysAfter = Math.Max(0, request.ContextDaysAfter);
+        var contextFrom = request.PeriodFrom.AddDays(-contextDaysBefore);
+        var contextUntil = request.PeriodUntil.AddDays(contextDaysAfter);
+
+        IReadOnlyList<BitmapAssignment> boundaryAssignments = [];
+        List<Work> boundaryWorks = [];
+        if (contextFrom < request.PeriodFrom || contextUntil > request.PeriodUntil)
+        {
+            (boundaryAssignments, boundaryWorks) = await LoadBoundaryAsync(request, agentIds, agentIdSet, contextFrom, contextUntil, ct);
+        }
+
+        var restrictedTimeWindows = await BuildRestrictedTimeWindowsAsync(assignments, request, ct);
+
+        BitmapPlanningRules? planningRules = null;
+        if (request.LoadPlanningRules)
+        {
+            (planningRules, agents) = await ApplyPlanningRulesAsync(
+                request,
+                agentIds,
+                agents,
+                Math.Min(contextDaysBefore, contextDaysAfter),
+                contextFrom,
+                contextUntil,
+                works.Concat(boundaryWorks),
+                ct);
+        }
+
+        return new BitmapInput(
+            agents,
+            request.PeriodFrom,
+            request.PeriodUntil,
+            assignments,
+            hints,
+            availability,
+            boundaryAssignments,
+            ineligible,
+            restrictedTimeWindows,
+            planningRules);
+    }
+
+    private async Task<IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)>> BuildIneligibleAsync(
+        List<Guid> agentIds,
+        List<BitmapAssignment> assignments,
+        List<Work> works,
+        IReadOnlySet<(Guid AgentId, DateOnly Date)> freeCommandDates,
+        IReadOnlyDictionary<(Guid AgentId, DateOnly Date), (CellSymbol? Required, CellSymbol? Forbidden)> keywordRestrictions,
+        IReadOnlySet<(Guid AgentId, DateOnly Date)> breakDates,
+        CancellationToken ct)
+    {
         // The harmonizer only swaps within existing assignments, so the eligibility slots that matter
         // are the (shift, date) pairs already present in the plan; a swap may move any agent onto them.
         var eligibilitySlots = assignments
@@ -130,79 +183,87 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         availabilityIneligible = AvailabilitySuppression.RemoveGovernedDays(
             availabilityIneligible,
             CollectGovernedDays(freeCommandDates, keywordRestrictions.Keys, breakDates));
-        var ineligible = MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
+        return MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
+    }
 
-        // Boundary context: load works + breaks on the days adjacent to the period and place them in
-        // BitmapInput.BoundaryAssignments. The bitmap itself stays sized to [PeriodFrom, PeriodUntil] —
-        // boundary entries are never rendered into cells, never mutated, and never scored. They are
-        // available for boundary-aware validators (MaxConsecutiveDays / MinRestHours crossing period edges).
-        var contextDaysBefore = Math.Max(0, request.ContextDaysBefore);
-        var contextDaysAfter = Math.Max(0, request.ContextDaysAfter);
-        var contextFrom = request.PeriodFrom.AddDays(-contextDaysBefore);
-        var contextUntil = request.PeriodUntil.AddDays(contextDaysAfter);
+    /// <summary>
+    /// Boundary context: load works + breaks on the days adjacent to the period and place them in
+    /// BitmapInput.BoundaryAssignments. The bitmap itself stays sized to [PeriodFrom, PeriodUntil] —
+    /// boundary entries are never rendered into cells, never mutated, and never scored. They are
+    /// available for boundary-aware validators (MaxConsecutiveDays / MinRestHours crossing period edges).
+    /// </summary>
+    private async Task<(IReadOnlyList<BitmapAssignment> Assignments, List<Work> Works)> LoadBoundaryAsync(
+        HarmonizerContextRequest request,
+        List<Guid> agentIds,
+        IReadOnlySet<Guid> agentIdSet,
+        DateOnly contextFrom,
+        DateOnly contextUntil,
+        CancellationToken ct)
+    {
+        var boundaryWorks = (await LoadWorksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
+            .Where(w => w.CurrentDate < request.PeriodFrom || w.CurrentDate > request.PeriodUntil)
+            .ToList();
+        var boundaryBreaks = (await LoadBreaksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
+            .Where(b => b.CurrentDate < request.PeriodFrom || b.CurrentDate > request.PeriodUntil)
+            .ToList();
+        var boundaryCovers = (await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct))
+            .Where(c => c.Date < request.PeriodFrom || c.Date > request.PeriodUntil)
+            .ToList();
+        var boundaryCorrectedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct);
+        var boundaryAssignments = BuildAssignments(boundaryWorks, boundaryBreaks, boundaryCovers, agentIdSet, correctedWorkHours: boundaryCorrectedWorkHours);
+        return (boundaryAssignments, boundaryWorks);
+    }
 
-        IReadOnlyList<BitmapAssignment> boundaryAssignments = [];
-        List<Work> boundaryWorks = [];
-        if (contextFrom < request.PeriodFrom || contextUntil > request.PeriodUntil)
-        {
-            boundaryWorks = (await LoadWorksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
-                .Where(w => w.CurrentDate < request.PeriodFrom || w.CurrentDate > request.PeriodUntil)
-                .ToList();
-            var boundaryBreaks = (await LoadBreaksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
-                .Where(b => b.CurrentDate < request.PeriodFrom || b.CurrentDate > request.PeriodUntil)
-                .ToList();
-            var boundaryCovers = (await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct))
-                .Where(c => c.Date < request.PeriodFrom || c.Date > request.PeriodUntil)
-                .ToList();
-            var boundaryCorrectedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct);
-            boundaryAssignments = BuildAssignments(boundaryWorks, boundaryBreaks, boundaryCovers, agentIdSet, correctedWorkHours: boundaryCorrectedWorkHours);
-        }
-
-        // K16 restricted time windows: resolved once per run from the active rule set and the period's shift
-        // ids present in the plan (group-tag scope is token-independent master data). Wizard 3's cross-day
-        // veto reads them; Wizard 2/4 use the same-day validator directly and ignore the field.
+    /// <summary>
+    /// K16 restricted time windows: resolved once per run from the active rule set and the period's shift
+    /// ids present in the plan (group-tag scope is token-independent master data). Wizard 3's cross-day
+    /// veto reads them; Wizard 2/4 use the same-day validator directly and ignore the field.
+    /// </summary>
+    private async Task<IReadOnlyList<CoreRestrictedTimeWindow>> BuildRestrictedTimeWindowsAsync(
+        List<BitmapAssignment> assignments,
+        HarmonizerContextRequest request,
+        CancellationToken ct)
+    {
         var periodShiftIds = assignments
             .Where(a => a.ShiftRefId != Guid.Empty)
             .Select(a => a.ShiftRefId)
             .Distinct()
             .ToList();
-        var restrictedTimeWindows = await _restrictedWindowBuilder.BuildAsync(
+        return await _restrictedWindowBuilder.BuildAsync(
             periodShiftIds, request.PeriodFrom, request.PeriodUntil, ct);
+    }
 
+    private async Task<(BitmapPlanningRules? Rules, List<BitmapAgent> Agents)> ApplyPlanningRulesAsync(
+        HarmonizerContextRequest request,
+        List<Guid> agentIds,
+        List<BitmapAgent> agents,
+        int coveredBoundaryDays,
+        DateOnly contextFrom,
+        DateOnly contextUntil,
+        IEnumerable<Work> loadedWorks,
+        CancellationToken ct)
+    {
         BitmapPlanningRules? planningRules = null;
-        if (request.LoadPlanningRules)
-        {
-            var ruleSet = await _ruleSetLoader.LoadRuleSetAsync(
-                agentIds,
-                request.PeriodFrom,
-                request.PeriodUntil,
-                request.AnalyseToken,
-                Math.Min(contextDaysBefore, contextDaysAfter),
-                PlanningRuleSources.All,
-                InvalidHardRuleHandling.Report,
-                ct);
-            if (ruleSet.Rules.Count > 0 || ruleSet.InvalidHardRuleIds is { Count: > 0 })
-            {
-                planningRules = ToBitmapPlanningRules(ruleSet, contextFrom, contextUntil, works.Concat(boundaryWorks));
-            }
-
-            if (ruleSet.Rules.Count > 0)
-            {
-                agents = WithRuleAgents(agents, ruleSet.Agents);
-            }
-        }
-
-        return new BitmapInput(
-            agents,
+        var ruleSet = await _ruleSetLoader.LoadRuleSetAsync(
+            agentIds,
             request.PeriodFrom,
             request.PeriodUntil,
-            assignments,
-            hints,
-            availability,
-            boundaryAssignments,
-            ineligible,
-            restrictedTimeWindows,
-            planningRules);
+            request.AnalyseToken,
+            coveredBoundaryDays,
+            PlanningRuleSources.All,
+            InvalidHardRuleHandling.Report,
+            ct);
+        if (ruleSet.Rules.Count > 0 || ruleSet.InvalidHardRuleIds is { Count: > 0 })
+        {
+            planningRules = ToBitmapPlanningRules(ruleSet, contextFrom, contextUntil, loadedWorks);
+        }
+
+        if (ruleSet.Rules.Count > 0)
+        {
+            agents = WithRuleAgents(agents, ruleSet.Agents);
+        }
+
+        return (planningRules, agents);
     }
 
     /// <summary>

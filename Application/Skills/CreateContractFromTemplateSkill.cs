@@ -79,62 +79,16 @@ public class CreateContractFromTemplateSkill : BaseSkillImplementation
 
         var templateId = resolvedTemplateId.Value;
 
-        var name = GetParameter<string>(parameters, ContractFieldNames.Name)?.Trim();
-        if (string.IsNullOrEmpty(name))
+        var (name, validFrom, today, basicsError) = await ReadNameAndValidFromAsync(parameters, context, cancellationToken);
+        if (basicsError is not null)
         {
-            return SkillResult.Error($"Missing required parameter '{ContractFieldNames.Name}'.");
+            return basicsError;
         }
 
-        var validFromRaw = GetParameter<string>(parameters, ContractFieldNames.ValidFrom);
-        if (string.IsNullOrWhiteSpace(validFromRaw))
+        var (adaptations, adaptationsError) = ReadAdaptations(parameters);
+        if (adaptationsError is not null)
         {
-            return SkillResult.Error($"Missing required parameter '{ContractFieldNames.ValidFrom}' (YYYY-MM-DD).");
-        }
-
-        var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromRaw, today, context.UserLanguage);
-        if (invalidValidFrom || !validFrom.HasValue)
-        {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor(ContractFieldNames.ValidFrom, validFromRaw));
-        }
-
-        if (!ContractTemplateOverrides.TryRead(parameters, out var overrides, out var overridesError))
-        {
-            return SkillResult.Error(overridesError!);
-        }
-
-        var guaranteedHours = overrides.GuaranteedHours;
-        var percent = overrides.Percent;
-        if (guaranteedHours.HasValue && percent.HasValue)
-        {
-            return SkillResult.Error(
-                $"Parameters '{ContractFieldNames.GuaranteedHours}' and '{ContractFieldNames.Percent}' are mutually " +
-                "exclusive: fixed guaranteed hours or a workload percent of the company-wide value. Ask the " +
-                "administrator which one applies.");
-        }
-
-        PaymentInterval? paymentInterval = null;
-        var paymentIntervalRaw = GetParameter<string>(parameters, ContractFieldNames.PaymentInterval);
-        if (!string.IsNullOrWhiteSpace(paymentIntervalRaw))
-        {
-            if (!ContractPaymentIntervalParser.TryParse(paymentIntervalRaw, out var parsedInterval, out var intervalError))
-            {
-                return SkillResult.Error(intervalError!);
-            }
-
-            paymentInterval = parsedInterval;
-        }
-
-        IReadOnlySet<DayOfWeek>? workdays = null;
-        var workdaysRaw = GetParameter<string>(parameters, ContractFieldNames.Workdays);
-        if (!string.IsNullOrWhiteSpace(workdaysRaw))
-        {
-            if (!ContractWorkdays.TryParse(workdaysRaw, out var parsedDays, out var workdaysError))
-            {
-                return SkillResult.Error(workdaysError!);
-            }
-
-            workdays = parsedDays;
+            return adaptationsError;
         }
 
         ContractResource template;
@@ -157,7 +111,102 @@ public class CreateContractFromTemplateSkill : BaseSkillImplementation
 
         var resource = ContractTemplateCopier.CopyAsNew(template);
         resource.Name = name;
-        resource.ValidFrom = validFrom.Value;
+        resource.ValidFrom = validFrom;
+
+        var adaptError = await ApplyAdaptationsAsync(resource, adaptations!, parameters, cancellationToken);
+        if (adaptError is not null)
+        {
+            return adaptError;
+        }
+
+        var created = await _mediator.Send(new PostCommand<ContractResource>(resource), cancellationToken);
+        if (created == null)
+        {
+            return SkillResult.Error($"Contract '{name}' could not be created.");
+        }
+
+        return BuildResult(template, created, adaptations!.Overrides.GuaranteedHours.HasValue, today);
+    }
+
+    private async Task<(string Name, DateTime ValidFrom, DateTime Today, SkillResult? Error)> ReadNameAndValidFromAsync(
+        Dictionary<string, object> parameters, SkillExecutionContext context, CancellationToken cancellationToken)
+    {
+        var name = GetParameter<string>(parameters, ContractFieldNames.Name)?.Trim();
+        if (string.IsNullOrEmpty(name))
+        {
+            return (string.Empty, default, default, SkillResult.Error($"Missing required parameter '{ContractFieldNames.Name}'."));
+        }
+
+        var validFromRaw = GetParameter<string>(parameters, ContractFieldNames.ValidFrom);
+        if (string.IsNullOrWhiteSpace(validFromRaw))
+        {
+            return (name, default, default,
+                SkillResult.Error($"Missing required parameter '{ContractFieldNames.ValidFrom}' (YYYY-MM-DD)."));
+        }
+
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromRaw, today, context.UserLanguage);
+        if (invalidValidFrom || !validFrom.HasValue)
+        {
+            return (name, default, today,
+                SkillResult.Error(SkillDateParser.InvalidDateMessageFor(ContractFieldNames.ValidFrom, validFromRaw)));
+        }
+
+        return (name, validFrom.Value, today, null);
+    }
+
+    private static (RequestedAdaptations? Adaptations, SkillResult? Error) ReadAdaptations(
+        Dictionary<string, object> parameters)
+    {
+        if (!ContractTemplateOverrides.TryRead(parameters, out var overrides, out var overridesError))
+        {
+            return (null, SkillResult.Error(overridesError!));
+        }
+
+        var guaranteedHours = overrides.GuaranteedHours;
+        var percent = overrides.Percent;
+        if (guaranteedHours.HasValue && percent.HasValue)
+        {
+            return (null, SkillResult.Error(
+                $"Parameters '{ContractFieldNames.GuaranteedHours}' and '{ContractFieldNames.Percent}' are mutually " +
+                "exclusive: fixed guaranteed hours or a workload percent of the company-wide value. Ask the " +
+                "administrator which one applies."));
+        }
+
+        PaymentInterval? paymentInterval = null;
+        var paymentIntervalRaw = GetParameter<string>(parameters, ContractFieldNames.PaymentInterval);
+        if (!string.IsNullOrWhiteSpace(paymentIntervalRaw))
+        {
+            if (!ContractPaymentIntervalParser.TryParse(paymentIntervalRaw, out var parsedInterval, out var intervalError))
+            {
+                return (null, SkillResult.Error(intervalError!));
+            }
+
+            paymentInterval = parsedInterval;
+        }
+
+        IReadOnlySet<DayOfWeek>? workdays = null;
+        var workdaysRaw = GetParameter<string>(parameters, ContractFieldNames.Workdays);
+        if (!string.IsNullOrWhiteSpace(workdaysRaw))
+        {
+            if (!ContractWorkdays.TryParse(workdaysRaw, out var parsedDays, out var workdaysError))
+            {
+                return (null, SkillResult.Error(workdaysError!));
+            }
+
+            workdays = parsedDays;
+        }
+
+        return (new RequestedAdaptations(overrides, paymentInterval, workdays), null);
+    }
+
+    private async Task<SkillResult?> ApplyAdaptationsAsync(
+        ContractResource resource,
+        RequestedAdaptations adaptations,
+        Dictionary<string, object> parameters,
+        CancellationToken cancellationToken)
+    {
+        var (overrides, paymentInterval, workdays) = adaptations;
 
         ApplyWorkload(resource, overrides);
 
@@ -199,13 +248,7 @@ public class CreateContractFromTemplateSkill : BaseSkillImplementation
             return SkillResult.Error($"The adapted contract would be invalid: {violation}");
         }
 
-        var created = await _mediator.Send(new PostCommand<ContractResource>(resource), cancellationToken);
-        if (created == null)
-        {
-            return SkillResult.Error($"Contract '{name}' could not be created.");
-        }
-
-        return BuildResult(template, created, guaranteedHours.HasValue, today);
+        return null;
     }
 
     private static void ApplyWorkload(ContractResource resource, ContractTemplateOverrides overrides)
@@ -343,4 +386,7 @@ public class CreateContractFromTemplateSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(data, message);
     }
+
+    private sealed record RequestedAdaptations(
+        ContractTemplateOverrides Overrides, PaymentInterval? Interval, IReadOnlySet<DayOfWeek>? Workdays);
 }

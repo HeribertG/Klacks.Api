@@ -99,6 +99,26 @@ internal static class RepositoryServiceCollectionExtensions
 {
     internal static void AddRepositories(this IServiceCollection services)
     {
+        RegisterClientAndSearchRepositories(services);
+        RegisterClientDetailAndSettingsRepositories(services);
+        RegisterAbsenceAndBreakPlaceholderRepositories(services);
+        RegisterGeoBranchAndCalendarRepositories(services);
+        RegisterScheduleEntryScenarioAndWizardRunRepositories(services);
+        RegisterShiftContainerAndGroupAbsenceRepositories(services);
+        RegisterGroupQualificationAndClientPreferenceRepositories(services);
+        RegisterContractAvailabilityAndMasterDataRepositories(services);
+        RegisterIdentityAccessAndErpImportRepositories(services);
+        RegisterShiftScheduleAndReportTemplateRepositories(services);
+        RegisterAssistantAgentSkillAndScheduledTaskRepositories(services);
+        RegisterUpdateServices(services);
+        RegisterAssistantSkillLearningAndEvaluationRepositories(services);
+        RegisterEmailAndSentimentRepositories(services);
+        RegisterPeriodClosingExportAndDashboardRepositories(services);
+        RegisterClientSortAndScheduleCommandKeywordServices(services);
+    }
+
+    private static void RegisterClientAndSearchRepositories(IServiceCollection services)
+    {
         services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<IGroupPlanningAgentRepository, GroupPlanningAgentRepository>();
         services.AddScoped<IClientFilterRepository, ClientFilterRepository>();
@@ -110,6 +130,10 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IClientSearchFilterService, ClientSearchFilterService>();
         services.AddScoped<IClientBaseQueryService, ClientBaseQueryService>();
         services.AddScoped<IClientPageReader>(sp => sp.GetRequiredService<IClientBaseQueryService>());
+    }
+
+    private static void RegisterClientDetailAndSettingsRepositories(IServiceCollection services)
+    {
         services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<IAnnotationRepository, AnnotationRepository>();
         services.AddScoped<ICommunicationRepository, CommunicationRepository>();
@@ -117,9 +141,17 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<ISettingsReader>(sp => sp.GetRequiredService<ISettingsRepository>());
         services.AddScoped<IActiveIndustriesProvider, ActiveIndustriesProvider>();
+    }
+
+    private static void RegisterAbsenceAndBreakPlaceholderRepositories(IServiceCollection services)
+    {
         services.AddScoped<IAbsenceRepository, AbsenceRepository>();
         services.AddScoped<IBreakPlaceholderRepository, BreakPlaceholderRepository>();
         services.AddScoped<IAbsenceDetailRepository, AbsenceDetailRepository>();
+    }
+
+    private static void RegisterGeoBranchAndCalendarRepositories(IServiceCollection services)
+    {
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IStateRepository, StateRepository>();
         services.AddScoped<ICountryResolver, Klacks.Api.Domain.Services.Common.CountryResolver>();
@@ -130,6 +162,10 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IBranchRepository, BranchRepository>();
         services.AddScoped<ICalendarSelectionRepository, CalendarSelectionRepository>();
         services.AddScoped<ISelectedCalendarRepository, SelectedCalendarRepository>();
+    }
+
+    private static void RegisterScheduleEntryScenarioAndWizardRunRepositories(IServiceCollection services)
+    {
         services.AddScoped<IWorkRepository, WorkRepository>();
         services.AddScoped<IBreakRepository, BreakRepository>();
         services.AddScoped<IWorkChangeRepository, WorkChangeRepository>();
@@ -146,6 +182,10 @@ internal static class RepositoryServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Services.Schedules.ScheduleSnapshotMarkerService>();
         services.AddScoped<IWizardRunCaptureMeasurementService, Klacks.Api.Infrastructure.Services.Schedules.WizardRunCaptureMeasurementService>();
         services.AddAnalyseScenarioServices();
+    }
+
+    private static void RegisterShiftContainerAndGroupAbsenceRepositories(IServiceCollection services)
+    {
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<IShiftReader, ShiftReader>();
         services.AddScoped<IShiftVisibilityReader, Klacks.Api.Infrastructure.Repositories.Schedules.ShiftVisibilityReadRepository>();
@@ -153,6 +193,10 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IGroupAbsenceReadRepository, Klacks.Api.Infrastructure.Repositories.Schedules.GroupAbsenceReadRepository>();
         services.AddScoped<IContainerLockRepository, ContainerLockRepository>();
         services.AddScoped<IContainerWorkChildrenReadRepository, ContainerWorkChildrenReadRepository>();
+    }
+
+    private static void RegisterGroupQualificationAndClientPreferenceRepositories(IServiceCollection services)
+    {
         services.AddScoped<IGroupRepository, GroupRepository>();
         services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
         services.AddScoped<IGroupItemRepository, GroupItemRepository>();
@@ -162,6 +206,10 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IMembershipWindowReader, MembershipWindowReader>();
         services.AddScoped<IQualificationRepository, QualificationRepository>();
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
+    }
+
+    private static void RegisterContractAvailabilityAndMasterDataRepositories(IServiceCollection services)
+    {
         services.AddScoped<IContractRepository, ContractRepository>();
         services.AddScoped<ISchedulingRuleRepository, SchedulingRuleRepository>();
         services.AddScoped<IClientAvailabilityRepository, ClientAvailabilityRepository>();
@@ -171,6 +219,10 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IIndividualPeriodRepository, IndividualPeriodRepository>();
         services.AddScoped<IMonthlyTargetHoursRepository, MonthlyTargetHoursRepository>();
         services.AddScoped<IPostcodeChRepository, PostcodeChRepository>();
+    }
+
+    private static void RegisterIdentityAccessAndErpImportRepositories(IServiceCollection services)
+    {
         services.AddScoped<IIdentityProviderRepository, IdentityProviderRepository>();
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
         services.AddScoped<IErpDropPointRepository, ErpDropPointRepository>();
@@ -181,8 +233,16 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IAppUserReader, AppUserReader>();
         services.AddScoped<IOAuthClientRepository, OAuthClientRepository>();
         services.AddScoped<IOAuthAuthorizationCodeStore,Klacks.Api.Infrastructure.Authentication.OAuthAuthorizationCodeStore>();
+    }
+
+    private static void RegisterShiftScheduleAndReportTemplateRepositories(IServiceCollection services)
+    {
         services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();
         services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
+    }
+
+    private static void RegisterAssistantAgentSkillAndScheduledTaskRepositories(IServiceCollection services)
+    {
         services.AddScoped<ILLMRepository, LLMRepository>();
         services.AddScoped<ISkillUsageRepository, SkillUsageRepository>();
         services.AddScoped<IAgentRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentRepository>();
@@ -202,11 +262,19 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<INavigationTargetSynonymRepository, Klacks.Api.Infrastructure.Repositories.Assistant.NavigationTargetSynonymRepository>();
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
         services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
+    }
+
+    private static void RegisterUpdateServices(IServiceCollection services)
+    {
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateHistoryRepository, Klacks.Api.Infrastructure.Repositories.Update.UpdateHistoryRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateAvailabilityEvaluator, Klacks.Api.Application.Services.Update.UpdateAvailabilityEvaluator>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Update.IInstallationIdentityProvider, Klacks.Api.Infrastructure.Hosting.InstallationIdentityProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateManifestReader, Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader>();
         services.AddHttpClient(Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader.HttpClientName);
+    }
+
+    private static void RegisterAssistantSkillLearningAndEvaluationRepositories(IServiceCollection services)
+    {
         services.AddScoped<ISkillLearningClusterRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningClusterRepository>();
         services.AddScoped<ISkillLearningCaseRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningCaseRepository>();
         services.AddScoped<ISkillLearningCandidateRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningCandidateRepository>();
@@ -219,11 +287,19 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<ISkillEffectivenessRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillEffectivenessRepository>();
         services.AddScoped<IProposedSkillChangeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ProposedSkillChangeRepository>();
         services.AddScoped<ISkillDescriptionOptimizer, Klacks.Api.Application.Services.Assistant.Evaluation.SkillDescriptionOptimizer>();
+    }
+
+    private static void RegisterEmailAndSentimentRepositories(IServiceCollection services)
+    {
         services.AddScoped<IReceivedEmailRepository, ReceivedEmailRepository>();
         services.AddScoped<IEmailQueryRepository, EmailQueryRepository>();
         services.AddScoped<IEmailFolderRepository, EmailFolderRepository>();
         services.AddScoped<ISpamRuleRepository, SpamRuleRepository>();
         services.AddScoped<ISentimentKeywordRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SentimentKeywordRepository>();
+    }
+
+    private static void RegisterPeriodClosingExportAndDashboardRepositories(IServiceCollection services)
+    {
         services.AddScoped<IPeriodAuditLogRepository, PeriodAuditLogRepository>();
         services.AddScoped<IExportLogRepository, ExportLogRepository>();
         services.AddScoped<IExportLogItemRepository, ExportLogItemRepository>();
@@ -231,6 +307,10 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IResourceMonitorReadRepository, Klacks.Api.Infrastructure.Repositories.Dashboard.ResourceMonitorReadRepository>();
         services.AddScoped<IShiftCoverageReadRepository, Klacks.Api.Infrastructure.Repositories.Dashboard.ShiftCoverageReadRepository>();
         services.AddScoped<ISealedDayRepository, SealedDayRepository>();
+    }
+
+    private static void RegisterClientSortAndScheduleCommandKeywordServices(IServiceCollection services)
+    {
         services.AddScoped<IClientSortPreferenceRepository, ClientSortPreferenceRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Schedules.IScheduleCommandKeywordProvider,
                            Klacks.Api.Infrastructure.Services.Schedules.ScheduleCommandKeywordProvider>();

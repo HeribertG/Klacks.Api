@@ -65,54 +65,17 @@ public class UpdateMembershipSkill : BaseSkillImplementation
 
         var today = await _companyClock.GetTodayAsync(cancellationToken);
 
-        var validFromStr = GetParameter<string>(parameters, "validFrom");
-        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today, context.UserLanguage);
-        if (invalidValidFrom)
+        var dateError = ApplyValidFrom(membership, parameters, today, context.UserLanguage, changed)
+            ?? ApplyValidUntil(membership, parameters, today, context.UserLanguage, changed);
+        if (dateError != null)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
+            return dateError;
         }
 
-        if (validFrom.HasValue && validFrom.Value != membership.ValidFrom)
+        var changeSetResult = CheckChangeSet(membershipId, membership, changed);
+        if (changeSetResult != null)
         {
-            membership.ValidFrom = validFrom.Value;
-            changed.Add(ValidFromField);
-        }
-
-        var clearValidUntil = GetParameter<bool>(parameters, "clearValidUntil", false);
-        if (clearValidUntil)
-        {
-            if (membership.ValidUntil != null)
-            {
-                membership.ValidUntil = null;
-                changed.Add("validUntil");
-            }
-        }
-        else
-        {
-            var validUntilStr = GetParameter<string>(parameters, "validUntil");
-            var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today, context.UserLanguage);
-            if (invalidValidUntil)
-            {
-                return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
-            }
-
-            if (validUntil.HasValue && validUntil.Value != membership.ValidUntil)
-            {
-                membership.ValidUntil = validUntil.Value;
-                changed.Add("validUntil");
-            }
-        }
-
-        if (changed.Count == 0)
-        {
-            return SkillResult.SuccessResult(
-                new { MembershipId = membershipId, ChangedFields = Array.Empty<string>() },
-                "No fields supplied for update — membership left unchanged.");
-        }
-
-        if (membership.ValidUntil.HasValue && membership.ValidUntil.Value < membership.ValidFrom)
-        {
-            return SkillResult.Error("validUntil must not be before validFrom.");
+            return changeSetResult;
         }
 
         var validFromConfirmed = GetParameter<bool>(
@@ -156,6 +119,30 @@ public class UpdateMembershipSkill : BaseSkillImplementation
                 "Use list_client_memberships to check the current state before retrying.");
         }
 
+        return CheckPersistedValues(membershipId, membership, persisted)
+            ?? BuildVerifiedResult(membershipId, persisted, changed);
+    }
+
+    private static SkillResult? CheckChangeSet(Guid membershipId, MembershipResource membership, List<string> changed)
+    {
+        if (changed.Count == 0)
+        {
+            return SkillResult.SuccessResult(
+                new { MembershipId = membershipId, ChangedFields = Array.Empty<string>() },
+                "No fields supplied for update — membership left unchanged.");
+        }
+
+        if (membership.ValidUntil.HasValue && membership.ValidUntil.Value < membership.ValidFrom)
+        {
+            return SkillResult.Error("validUntil must not be before validFrom.");
+        }
+
+        return null;
+    }
+
+    private static SkillResult? CheckPersistedValues(
+        Guid membershipId, MembershipResource membership, MembershipResource persisted)
+    {
         if (persisted.ValidFrom != membership.ValidFrom
             || persisted.ValidUntil != membership.ValidUntil)
         {
@@ -164,6 +151,69 @@ public class UpdateMembershipSkill : BaseSkillImplementation
                 "Use list_client_memberships to check the current state before retrying.");
         }
 
+        return null;
+    }
+
+    private static SkillResult? ApplyValidFrom(
+        MembershipResource membership,
+        Dictionary<string, object> parameters,
+        DateTime today,
+        string? userLanguage,
+        List<string> changed)
+    {
+        var validFromStr = GetParameter<string>(parameters, "validFrom");
+        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today, userLanguage);
+        if (invalidValidFrom)
+        {
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
+        }
+
+        if (validFrom.HasValue && validFrom.Value != membership.ValidFrom)
+        {
+            membership.ValidFrom = validFrom.Value;
+            changed.Add(ValidFromField);
+        }
+
+        return null;
+    }
+
+    private static SkillResult? ApplyValidUntil(
+        MembershipResource membership,
+        Dictionary<string, object> parameters,
+        DateTime today,
+        string? userLanguage,
+        List<string> changed)
+    {
+        var clearValidUntil = GetParameter<bool>(parameters, "clearValidUntil", false);
+        if (clearValidUntil)
+        {
+            if (membership.ValidUntil != null)
+            {
+                membership.ValidUntil = null;
+                changed.Add("validUntil");
+            }
+        }
+        else
+        {
+            var validUntilStr = GetParameter<string>(parameters, "validUntil");
+            var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today, userLanguage);
+            if (invalidValidUntil)
+            {
+                return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
+            }
+
+            if (validUntil.HasValue && validUntil.Value != membership.ValidUntil)
+            {
+                membership.ValidUntil = validUntil.Value;
+                changed.Add("validUntil");
+            }
+        }
+
+        return null;
+    }
+
+    private static SkillResult BuildVerifiedResult(Guid membershipId, MembershipResource persisted, List<string> changed)
+    {
         return SkillResult.SuccessResult(
             new
             {

@@ -9,6 +9,7 @@
 using Klacks.Api.Application.DTOs.Exports;
 using Klacks.Api.Application.Interfaces.Exports;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,31 @@ public class SealedOrderListLoader : ISealedOrderListLoader
             .AsNoTracking()
             .Where(s => !s.IsDeleted && s.Status == ShiftStatus.SealedOrder);
 
+        query = ApplyPeriodAndCustomerFilters(query, fromDate, untilDate, customerId);
+        query = await ApplySearchAsync(query, searchTerm, cancellationToken);
+
+        var rawOrders = await LoadOrderRowsAsync(query, cancellationToken);
+
+        if (rawOrders.Count == 0)
+        {
+            return [];
+        }
+
+        var orderIds = rawOrders.Select(o => o.Id).ToList();
+        var descendantMap = await _descendantResolver.ResolveAsync(orderIds, includeRoot: false, cancellationToken);
+
+        var allDescendantIds = descendantMap.Values.SelectMany(v => v).Distinct().ToList();
+        var countersByShift = await LoadWorkCountersAsync(allDescendantIds, fromDate, untilDate, cancellationToken);
+
+        return ToListItems(rawOrders, descendantMap, countersByShift);
+    }
+
+    private static IQueryable<Shift> ApplyPeriodAndCustomerFilters(
+        IQueryable<Shift> query,
+        DateOnly? fromDate,
+        DateOnly? untilDate,
+        Guid? customerId)
+    {
         if (fromDate.HasValue)
         {
             var from = fromDate.Value;
@@ -57,6 +83,14 @@ public class SealedOrderListLoader : ISealedOrderListLoader
             query = query.Where(s => s.ClientId == cust);
         }
 
+        return query;
+    }
+
+    private async Task<IQueryable<Shift>> ApplySearchAsync(
+        IQueryable<Shift> query,
+        string? searchTerm,
+        CancellationToken cancellationToken)
+    {
         var search = (searchTerm ?? string.Empty).Trim();
         if (search.Length > 0)
         {
@@ -85,7 +119,14 @@ public class SealedOrderListLoader : ISealedOrderListLoader
                 || (idNumberMatch != null && s.Client != null && s.Client.IdNumber == idNumberMatch));
         }
 
-        var rawOrders = await query
+        return query;
+    }
+
+    private static async Task<List<SealedOrderRow>> LoadOrderRowsAsync(
+        IQueryable<Shift> query,
+        CancellationToken cancellationToken)
+    {
+        return await query
             .OrderByDescending(s => s.FromDate)
             .ThenBy(s => s.Name)
             .Take(MaxResults)
@@ -103,16 +144,14 @@ public class SealedOrderListLoader : ISealedOrderListLoader
                 s.Client != null ? s.Client.Name : null,
                 s.Client != null ? (EntityTypeEnum?)s.Client.Type : null))
             .ToListAsync(cancellationToken);
+    }
 
-        if (rawOrders.Count == 0)
-        {
-            return [];
-        }
-
-        var orderIds = rawOrders.Select(o => o.Id).ToList();
-        var descendantMap = await _descendantResolver.ResolveAsync(orderIds, includeRoot: false, cancellationToken);
-
-        var allDescendantIds = descendantMap.Values.SelectMany(v => v).Distinct().ToList();
+    private async Task<Dictionary<Guid, (int Total, int Closed)>> LoadWorkCountersAsync(
+        List<Guid> allDescendantIds,
+        DateOnly? fromDate,
+        DateOnly? untilDate,
+        CancellationToken cancellationToken)
+    {
         var countersByShift = new Dictionary<Guid, (int Total, int Closed)>();
 
         if (allDescendantIds.Count > 0)
@@ -149,6 +188,14 @@ public class SealedOrderListLoader : ISealedOrderListLoader
             }
         }
 
+        return countersByShift;
+    }
+
+    private static List<SealedOrderListItem> ToListItems(
+        List<SealedOrderRow> rawOrders,
+        Dictionary<Guid, HashSet<Guid>> descendantMap,
+        Dictionary<Guid, (int Total, int Closed)> countersByShift)
+    {
         return rawOrders.Select(o =>
         {
             var totalWorks = 0;

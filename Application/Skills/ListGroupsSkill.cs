@@ -23,6 +23,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -69,47 +70,12 @@ public class ListGroupsSkill : BaseSkillImplementation
         var allGroups = await _groupRepository.List();
         var today = await _companyClock.GetTodayAsync(cancellationToken);
 
-        var filteredGroups = allGroups
-            .Where(g => !g.IsDeleted)
-            .Where(g => includeAllValidity ||
-                        (!includeNoValidity &&
-                         ((activeDateRange && g.ValidFrom <= today && (g.ValidUntil == null || g.ValidUntil >= today)) ||
-                          (formerDateRange && g.ValidUntil != null && g.ValidUntil < today) ||
-                          (futureDateRange && g.ValidFrom > today))))
-            .Where(g => !rootOnly || g.Parent == null);
+        var filteredGroups = FilterByValidityAndLevel(
+            allGroups, today, activeDateRange, formerDateRange, futureDateRange, includeAllValidity, includeNoValidity, rootOnly);
 
-        if (!string.IsNullOrWhiteSpace(canton))
-        {
-            var defaultCountry = await _countryResolver.GetDefaultAsync(cancellationToken);
-            var countryCode = defaultCountry?.Abbreviation ?? string.Empty;
+        filteredGroups = await ApplyCantonFilterAsync(filteredGroups, canton, cancellationToken);
 
-            var calendarSelectionIds = await _calendarSelectionRepository
-                .GetIdsByStateAsync(countryCode, canton.Trim().ToUpperInvariant(), cancellationToken);
-
-            if (calendarSelectionIds.Count > 0)
-            {
-                filteredGroups = filteredGroups
-                    .Where(g => g.CalendarSelectionId != null && calendarSelectionIds.Contains(g.CalendarSelectionId.Value));
-            }
-        }
-
-        var selected = filteredGroups.ToList();
-        var otherMatches = new List<string>();
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            var candidates = selected.Where(g => !string.IsNullOrWhiteSpace(g.Name)).ToList();
-            var partition = NameResolution.Partition(candidates, g => g.Name, searchTerm, GroupResolver.LabelWords);
-            selected = partition.Matches.ToList();
-            var selectedIds = selected.Select(g => g.Id).ToHashSet();
-            otherMatches = candidates
-                .Where(g => !selectedIds.Contains(g.Id)
-                            && (g.Name.Contains(searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)
-                                || partition.Suggestions.Contains(g)))
-                .Select(g => g.Name)
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-        }
+        var (selected, otherMatches) = SelectBySearchTerm(filteredGroups.ToList(), searchTerm);
 
         if (selected.Count == 0 && otherMatches.Count > 0)
         {
@@ -146,6 +112,100 @@ public class ListGroupsSkill : BaseSkillImplementation
             FutureDateRange = futureDateRange
         };
 
+        var validityNote = BuildValidityNote(
+            validitySpecified, includeNoValidity, activeDateRange, formerDateRange, futureDateRange);
+
+        var message = BuildMessage(groups, searchTerm, rootOnly, canton, validityNote, otherMatches);
+
+        return SkillResult.SuccessResult(resultData, message);
+    }
+
+    private static string BuildMessage<TGroup>(
+        List<TGroup> groups,
+        string? searchTerm,
+        bool rootOnly,
+        string? canton,
+        string validityNote,
+        List<string> otherMatches)
+    {
+        return $"Found {groups.Count} group(s)" +
+               (!string.IsNullOrEmpty(searchTerm) ? $" matching '{searchTerm}'" : "") +
+               (rootOnly ? " (root level only)" : "") +
+               (!string.IsNullOrWhiteSpace(canton) ? $" for canton {canton.ToUpperInvariant()}" : "") +
+               validityNote +
+               "." +
+               (otherMatches.Count > 0
+                   ? $" Groups that match the term less exactly (OtherMatches, names only): {string.Join(", ", otherMatches)}."
+                   : string.Empty);
+    }
+
+    private static IEnumerable<Group> FilterByValidityAndLevel(
+        IEnumerable<Group> allGroups,
+        DateTime today,
+        bool activeDateRange,
+        bool formerDateRange,
+        bool futureDateRange,
+        bool includeAllValidity,
+        bool includeNoValidity,
+        bool rootOnly)
+    {
+        return allGroups
+            .Where(g => !g.IsDeleted)
+            .Where(g => includeAllValidity ||
+                        (!includeNoValidity &&
+                         ((activeDateRange && g.ValidFrom <= today && (g.ValidUntil == null || g.ValidUntil >= today)) ||
+                          (formerDateRange && g.ValidUntil != null && g.ValidUntil < today) ||
+                          (futureDateRange && g.ValidFrom > today))))
+            .Where(g => !rootOnly || g.Parent == null);
+    }
+
+    private async Task<IEnumerable<Group>> ApplyCantonFilterAsync(
+        IEnumerable<Group> filteredGroups, string? canton, CancellationToken cancellationToken)
+    {
+        if (!string.IsNullOrWhiteSpace(canton))
+        {
+            var defaultCountry = await _countryResolver.GetDefaultAsync(cancellationToken);
+            var countryCode = defaultCountry?.Abbreviation ?? string.Empty;
+
+            var calendarSelectionIds = await _calendarSelectionRepository
+                .GetIdsByStateAsync(countryCode, canton.Trim().ToUpperInvariant(), cancellationToken);
+
+            if (calendarSelectionIds.Count > 0)
+            {
+                filteredGroups = filteredGroups
+                    .Where(g => g.CalendarSelectionId != null && calendarSelectionIds.Contains(g.CalendarSelectionId.Value));
+            }
+        }
+
+        return filteredGroups;
+    }
+
+    private static (List<Group> Selected, List<string> OtherMatches) SelectBySearchTerm(
+        List<Group> selected, string? searchTerm)
+    {
+        var otherMatches = new List<string>();
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var candidates = selected.Where(g => !string.IsNullOrWhiteSpace(g.Name)).ToList();
+            var partition = NameResolution.Partition(candidates, g => g.Name, searchTerm, GroupResolver.LabelWords);
+            selected = partition.Matches.ToList();
+            var selectedIds = selected.Select(g => g.Id).ToHashSet();
+            otherMatches = candidates
+                .Where(g => !selectedIds.Contains(g.Id)
+                            && (g.Name.Contains(searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)
+                                || partition.Suggestions.Contains(g)))
+                .Select(g => g.Name)
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        return (selected, otherMatches);
+    }
+
+    private static string BuildValidityNote(
+        bool validitySpecified, bool includeNoValidity, bool activeDateRange, bool formerDateRange, bool futureDateRange)
+    {
         string validityNote;
         if (!validitySpecified)
         {
@@ -176,16 +236,6 @@ public class ListGroupsSkill : BaseSkillImplementation
             validityNote = $" (validity: {string.Join("+", validityLabels)})";
         }
 
-        var message = $"Found {groups.Count} group(s)" +
-                      (!string.IsNullOrEmpty(searchTerm) ? $" matching '{searchTerm}'" : "") +
-                      (rootOnly ? " (root level only)" : "") +
-                      (!string.IsNullOrWhiteSpace(canton) ? $" for canton {canton.ToUpperInvariant()}" : "") +
-                      validityNote +
-                      "." +
-                      (otherMatches.Count > 0
-                          ? $" Groups that match the term less exactly (OtherMatches, names only): {string.Join(", ", otherMatches)}."
-                          : string.Empty);
-
-        return SkillResult.SuccessResult(resultData, message);
+        return validityNote;
     }
 }

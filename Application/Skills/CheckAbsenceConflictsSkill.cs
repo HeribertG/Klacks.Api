@@ -15,6 +15,8 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Common;
 
@@ -68,6 +70,12 @@ public class CheckAbsenceConflictsSkill : BaseSkillImplementation
             return SkillResult.Error($"Client {clientId} not found.");
         }
 
+        return await ReportConflictsAsync(client, clientId, fromDate, untilDate, cancellationToken);
+    }
+
+    private async Task<SkillResult> ReportConflictsAsync(
+        Client client, Guid clientId, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken)
+    {
         var fromUtc = fromDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
         var untilUtc = untilDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
@@ -106,16 +114,42 @@ public class CheckAbsenceConflictsSkill : BaseSkillImplementation
             })
             .ToList();
 
+        var membershipWarning = DescribeMembershipProblem(client.Membership, fromDate, untilDate);
+
+        var feasible = plannedOverlaps.Count == 0 && bookedOverlaps.Count == 0 && membershipWarning is null;
+
+        var clientName = $"{client.FirstName} {client.Name}".Trim();
+        var message = BuildVerdictMessage(
+            feasible, fromDate, untilDate, clientName, plannedOverlaps, bookedOverlaps, scheduledWork, membershipWarning);
+
+        return SkillResult.SuccessResult(
+            new
+            {
+                ClientId = clientId,
+                ClientName = clientName,
+                FromDate = fromDate,
+                UntilDate = untilDate,
+                Feasible = feasible,
+                PlannedAbsenceOverlaps = plannedOverlaps,
+                BookedAbsenceOverlaps = bookedOverlaps,
+                ScheduledWorkInPeriod = scheduledWork,
+                MembershipWarning = membershipWarning
+            },
+            message);
+    }
+
+    private static string? DescribeMembershipProblem(Membership? membership, DateOnly fromDate, DateOnly untilDate)
+    {
         string? membershipWarning = null;
-        if (client.Membership is null)
+        if (membership is null)
         {
             membershipWarning = "The client has no membership record; plannability cannot be confirmed.";
         }
         else
         {
-            var memberFrom = DateOnly.FromDateTime(client.Membership.ValidFrom);
-            var memberUntil = client.Membership.ValidUntil.HasValue
-                ? DateOnly.FromDateTime(client.Membership.ValidUntil.Value)
+            var memberFrom = DateOnly.FromDateTime(membership.ValidFrom);
+            var memberUntil = membership.ValidUntil.HasValue
+                ? DateOnly.FromDateTime(membership.ValidUntil.Value)
                 : (DateOnly?)null;
 
             if (fromDate < memberFrom)
@@ -128,9 +162,19 @@ public class CheckAbsenceConflictsSkill : BaseSkillImplementation
             }
         }
 
-        var feasible = plannedOverlaps.Count == 0 && bookedOverlaps.Count == 0 && membershipWarning is null;
+        return membershipWarning;
+    }
 
-        var clientName = $"{client.FirstName} {client.Name}".Trim();
+    private static string BuildVerdictMessage(
+        bool feasible,
+        DateOnly fromDate,
+        DateOnly untilDate,
+        string clientName,
+        IReadOnlyCollection<object> plannedOverlaps,
+        IReadOnlyCollection<object> bookedOverlaps,
+        IReadOnlyCollection<object> scheduledWork,
+        string? membershipWarning)
+    {
         var issues = new List<string>();
         if (plannedOverlaps.Count > 0)
         {
@@ -152,28 +196,13 @@ public class CheckAbsenceConflictsSkill : BaseSkillImplementation
             issues.Add("a membership period problem");
         }
 
-        var message = feasible
+        return feasible
             ? $"The period {fromDate:yyyy-MM-dd}..{untilDate:yyyy-MM-dd} is free of absence conflicts for {clientName}." +
               (scheduledWork.Count > 0
                   ? $" Note: {scheduledWork.Count} scheduled work assignment(s) fall into the period and would need to be re-planned (e.g. via cover_absence)."
                   : string.Empty)
             : $"The period {fromDate:yyyy-MM-dd}..{untilDate:yyyy-MM-dd} has issues for {clientName}: " +
               string.Join(", ", issues) + ". Relay the details to the user before entering the absence.";
-
-        return SkillResult.SuccessResult(
-            new
-            {
-                ClientId = clientId,
-                ClientName = clientName,
-                FromDate = fromDate,
-                UntilDate = untilDate,
-                Feasible = feasible,
-                PlannedAbsenceOverlaps = plannedOverlaps,
-                BookedAbsenceOverlaps = bookedOverlaps,
-                ScheduledWorkInPeriod = scheduledWork,
-                MembershipWarning = membershipWarning
-            },
-            message);
     }
 
     private static string Label(MultiLanguage name) =>

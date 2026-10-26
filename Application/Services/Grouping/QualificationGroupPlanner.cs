@@ -47,21 +47,33 @@ public static class QualificationGroupPlanner
         QualificationGroupPlanContext context)
     {
         var activeQualificationIds = qualifications.Where(q => !q.IsDeleted).Select(q => q.Id).ToHashSet();
-        var nameByQualificationId = qualifications
+        var nameByQualificationId = IndexQualificationNames(qualifications, context.NameLanguages);
+
+        var holders = CollectHolders(clients, context, nameByQualificationId, activeQualificationIds);
+        var warnings = BuildCountWarnings(holders);
+        var groupsUnderParent = GroupsUnderParent(existingGroups, context.ParentGroupId);
+        var (planned, skipped) = PlanGroups(holders, groupsUnderParent, clients, context, warnings);
+
+        return new QualificationGroupPlan(
+            clients.Count, holders.Considered, holders.SkippedAlreadyGrouped, holders.WithoutQualification, planned, skipped, warnings);
+    }
+
+    private static Dictionary<Guid, string> IndexQualificationNames(
+        IReadOnlyList<Qualification> qualifications, IReadOnlyList<string> nameLanguages) =>
+        qualifications
             .Where(q => !q.IsDeleted)
-            .Select(q => (q.Id, Name: ResolveName(q, context.NameLanguages)))
+            .Select(q => (q.Id, Name: ResolveName(q, nameLanguages)))
             .Where(q => !string.IsNullOrWhiteSpace(q.Name))
             .GroupBy(q => q.Id)
             .ToDictionary(g => g.Key, g => g.First().Name!);
 
-        var considered = 0;
-        var skippedAlreadyGrouped = 0;
-        var withoutQualification = 0;
-        var missingMaster = 0;
-        var unnamed = 0;
-        var membersByName = new Dictionary<string, SortedSet<Guid>>(StringComparer.OrdinalIgnoreCase);
-        var qualificationIdsByName = new Dictionary<string, SortedSet<Guid>>(StringComparer.OrdinalIgnoreCase);
-        var displayNameByName = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    private static QualificationHolders CollectHolders(
+        IReadOnlyList<Client> clients,
+        QualificationGroupPlanContext context,
+        Dictionary<Guid, string> nameByQualificationId,
+        HashSet<Guid> activeQualificationIds)
+    {
+        var holders = new QualificationHolders();
 
         foreach (var client in clients)
         {
@@ -71,12 +83,12 @@ public static class QualificationGroupPlanner
                 continue;
             }
 
-            considered++;
+            holders.Considered++;
 
             if (!context.IncludeAlreadyGrouped
                 && currentMemberships.Any(gi => context.OwnSubtreeGroupIds == null || !context.OwnSubtreeGroupIds.Contains(gi.GroupId)))
             {
-                skippedAlreadyGrouped++;
+                holders.SkippedAlreadyGrouped++;
                 continue;
             }
 
@@ -88,66 +100,92 @@ public static class QualificationGroupPlanner
 
             if (validQualificationIds.Count == 0)
             {
-                withoutQualification++;
+                holders.WithoutQualification++;
                 continue;
             }
 
-            foreach (var qualificationId in validQualificationIds)
+            AddHolder(holders, client.Id, validQualificationIds, nameByQualificationId, activeQualificationIds);
+        }
+
+        return holders;
+    }
+
+    private static void AddHolder(
+        QualificationHolders holders,
+        Guid clientId,
+        List<Guid> validQualificationIds,
+        Dictionary<Guid, string> nameByQualificationId,
+        HashSet<Guid> activeQualificationIds)
+    {
+        foreach (var qualificationId in validQualificationIds)
+        {
+            if (!nameByQualificationId.TryGetValue(qualificationId, out var name))
             {
-                if (!nameByQualificationId.TryGetValue(qualificationId, out var name))
+                if (activeQualificationIds.Contains(qualificationId))
                 {
-                    if (activeQualificationIds.Contains(qualificationId))
-                    {
-                        unnamed++;
-                    }
-                    else
-                    {
-                        missingMaster++;
-                    }
-
-                    continue;
+                    holders.Unnamed++;
+                }
+                else
+                {
+                    holders.MissingMaster++;
                 }
 
-                var key = name.Trim();
-                if (!membersByName.TryGetValue(key, out var members))
-                {
-                    members = new SortedSet<Guid>();
-                    membersByName[key] = members;
-                    qualificationIdsByName[key] = new SortedSet<Guid>();
-                    displayNameByName[key] = key;
-                }
-
-                members.Add(client.Id);
-                qualificationIdsByName[key].Add(qualificationId);
+                continue;
             }
-        }
 
+            var key = name.Trim();
+            if (!holders.MembersByName.TryGetValue(key, out var members))
+            {
+                members = new SortedSet<Guid>();
+                holders.MembersByName[key] = members;
+                holders.QualificationIdsByName[key] = new SortedSet<Guid>();
+                holders.DisplayNameByName[key] = key;
+            }
+
+            members.Add(clientId);
+            holders.QualificationIdsByName[key].Add(qualificationId);
+        }
+    }
+
+    private static List<string> BuildCountWarnings(QualificationHolders holders)
+    {
         var warnings = new List<string>();
-        if (missingMaster > 0)
+        if (holders.MissingMaster > 0)
         {
-            warnings.Add(string.Format(MissingMasterWarning, missingMaster));
+            warnings.Add(string.Format(MissingMasterWarning, holders.MissingMaster));
         }
 
-        if (unnamed > 0)
+        if (holders.Unnamed > 0)
         {
-            warnings.Add(string.Format(UnnamedQualificationWarning, unnamed));
+            warnings.Add(string.Format(UnnamedQualificationWarning, holders.Unnamed));
         }
 
-        var groupsUnderParent = context.ParentGroupId is { } parentId
+        return warnings;
+    }
+
+    private static ILookup<string, Group> GroupsUnderParent(IReadOnlyList<Group> existingGroups, Guid? parentGroupId) =>
+        parentGroupId is { } parentId
             ? existingGroups
                 .Where(g => !g.IsDeleted && g.Parent == parentId && !string.IsNullOrWhiteSpace(g.Name))
                 .ToLookup(g => g.Name.Trim(), StringComparer.OrdinalIgnoreCase)
             : Enumerable.Empty<Group>().ToLookup(g => g.Name, StringComparer.OrdinalIgnoreCase);
 
+    private static (List<PlannedQualificationGroup> Planned, List<SkippedQualificationGroup> Skipped) PlanGroups(
+        QualificationHolders holders,
+        ILookup<string, Group> groupsUnderParent,
+        IReadOnlyList<Client> clients,
+        QualificationGroupPlanContext context,
+        List<string> warnings)
+    {
         var clientById = clients.GroupBy(c => c.Id).ToDictionary(g => g.Key, g => g.First());
         var planned = new List<PlannedQualificationGroup>();
         var skipped = new List<SkippedQualificationGroup>();
 
-        foreach (var name in membersByName.Keys.OrderBy(n => displayNameByName[n], StringComparer.Ordinal))
+        foreach (var name in holders.MembersByName.Keys.OrderBy(n => holders.DisplayNameByName[n], StringComparer.Ordinal))
         {
-            var displayName = displayNameByName[name];
-            var members = membersByName[name].ToList();
-            var qualificationIds = qualificationIdsByName[name].ToList();
+            var displayName = holders.DisplayNameByName[name];
+            var members = holders.MembersByName[name].ToList();
+            var qualificationIds = holders.QualificationIdsByName[name].ToList();
 
             if (qualificationIds.Count > 1)
             {
@@ -175,8 +213,7 @@ public static class QualificationGroupPlanner
                 existing?.Name ?? displayName, qualificationIds, existing != null, existing?.Id, members, newMembers));
         }
 
-        return new QualificationGroupPlan(
-            clients.Count, considered, skippedAlreadyGrouped, withoutQualification, planned, skipped, warnings);
+        return (planned, skipped);
     }
 
     /// <summary>
@@ -207,4 +244,23 @@ public static class QualificationGroupPlanner
 
     private static bool IsCurrentMemberOf(Client client, Guid groupId, DateOnly today) =>
         client.GroupItems.Any(gi => gi.GroupId == groupId && IsCurrentMembership(gi, today));
+
+    private sealed class QualificationHolders
+    {
+        public int Considered { get; set; }
+
+        public int SkippedAlreadyGrouped { get; set; }
+
+        public int WithoutQualification { get; set; }
+
+        public int MissingMaster { get; set; }
+
+        public int Unnamed { get; set; }
+
+        public Dictionary<string, SortedSet<Guid>> MembersByName { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        public Dictionary<string, SortedSet<Guid>> QualificationIdsByName { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        public Dictionary<string, string> DisplayNameByName { get; } = new(StringComparer.OrdinalIgnoreCase);
+    }
 }

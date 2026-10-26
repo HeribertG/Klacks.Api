@@ -25,6 +25,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -76,23 +77,70 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
 
         var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
 
+        var (taskShift, lookupError) = await LoadContainerAndTaskShiftAsync(containerId, taskShiftId, cancellationToken);
+        if (lookupError is not null)
+        {
+            return lookupError;
+        }
+
+        var eligibilityError = await CheckTaskEligibilityAsync(containerId, storageWeekday, taskShiftId, cancellationToken);
+        if (eligibilityError is not null)
+        {
+            return eligibilityError;
+        }
+
+        var instanceId = _userService.GetInstanceId() ?? string.Empty;
+        var lockResult = await _mediator.Send(
+            new AcquireContainerLockCommand(ContainerLockResourceTypes.ContainerTemplate, containerId, instanceId), cancellationToken);
+
+        if (!lockResult.Acquired)
+        {
+            return SkillResult.Error("The container is currently being edited by another user.");
+        }
+
+        try
+        {
+            return await AddTaskToTemplateAsync(
+                containerId, isoWeekday, storageWeekday, taskShiftId, taskShift!, position, cancellationToken);
+        }
+        finally
+        {
+            try
+            {
+                await _mediator.Send(new ReleaseContainerLockCommand(lockResult.Id), cancellationToken);
+            }
+            catch (Exception)
+            {
+            }
+        }
+    }
+
+    private async Task<(Shift? TaskShift, SkillResult? Error)> LoadContainerAndTaskShiftAsync(
+        Guid containerId, Guid taskShiftId, CancellationToken cancellationToken)
+    {
         var container = await _shiftRepository.Get(containerId);
         if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
         {
-            return SkillResult.Error($"Shift/container not found: {containerId}");
+            return (null, SkillResult.Error($"Shift/container not found: {containerId}"));
         }
 
         if (container.ShiftType != ShiftType.IsContainer)
         {
-            return SkillResult.Error($"Shift {containerId} is not a container shift (ShiftType must be IsContainer).");
+            return (null, SkillResult.Error($"Shift {containerId} is not a container shift (ShiftType must be IsContainer)."));
         }
 
         var taskShift = await _shiftRepository.Get(taskShiftId);
         if (taskShift is null || !await _shiftVisibilityGuard.IsVisibleAsync(taskShiftId, cancellationToken))
         {
-            return SkillResult.Error($"Task shift not found: {taskShiftId}");
+            return (null, SkillResult.Error($"Task shift not found: {taskShiftId}"));
         }
 
+        return (taskShift, null);
+    }
+
+    private async Task<SkillResult?> CheckTaskEligibilityAsync(
+        Guid containerId, int storageWeekday, Guid taskShiftId, CancellationToken cancellationToken)
+    {
         var precheckTemplates = await _mediator.Send(new GetContainerTemplatesQuery(containerId), cancellationToken);
         var precheckTemplate = SelectTemplateForWeekday(precheckTemplates, storageWeekday);
         if (precheckTemplate is null)
@@ -119,95 +167,90 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
                 $"template's time window, or already used elsewhere). Currently available tasks: {sampleText}.");
         }
 
-        var instanceId = _userService.GetInstanceId() ?? string.Empty;
-        var lockResult = await _mediator.Send(
-            new AcquireContainerLockCommand(ContainerLockResourceTypes.ContainerTemplate, containerId, instanceId), cancellationToken);
+        return null;
+    }
 
-        if (!lockResult.Acquired)
+    private async Task<SkillResult> AddTaskToTemplateAsync(
+        Guid containerId, int isoWeekday, int storageWeekday, Guid taskShiftId, Shift taskShift, int? position,
+        CancellationToken cancellationToken)
+    {
+        var templates = await _mediator.Send(new GetContainerTemplatesQuery(containerId), cancellationToken);
+        var targetTemplate = SelectTemplateForWeekday(templates, storageWeekday);
+        if (targetTemplate is null)
         {
-            return SkillResult.Error("The container is currently being edited by another user.");
+            return SkillResult.Error(
+                "No container template configured for this weekday yet — configure the container template for this weekday first.");
         }
 
+        var insertIndex = InsertItem(targetTemplate, BuildTemplateItem(taskShift), position);
+
+        List<ContainerTemplateResource> putResult;
         try
         {
-            var templates = await _mediator.Send(new GetContainerTemplatesQuery(containerId), cancellationToken);
-            var targetTemplate = SelectTemplateForWeekday(templates, storageWeekday);
-            if (targetTemplate is null)
-            {
-                return SkillResult.Error(
-                    "No container template configured for this weekday yet — configure the container template for this weekday first.");
-            }
-
-            var newItem = new ContainerTemplateItemResource
-            {
-                Id = Guid.Empty,
-                ShiftId = taskShift.Id,
-                AbsenceId = null,
-                StartItem = taskShift.StartShift,
-                EndItem = taskShift.EndShift,
-                BriefingTime = taskShift.BriefingTime,
-                DebriefingTime = taskShift.DebriefingTime,
-                TravelTimeAfter = taskShift.TravelTimeAfter,
-                TravelTimeBefore = taskShift.TravelTimeBefore,
-                TimeRangeStartItem = null,
-                TimeRangeEndItem = null,
-                TransportMode = TransportMode.ByCar
-            };
-
-            var items = new List<ContainerTemplateItemResource>(targetTemplate.ContainerTemplateItems);
-            var insertIndex = items.Count;
-            if (position.HasValue && position.Value >= 1 && position.Value <= items.Count + 1)
-            {
-                insertIndex = position.Value - 1;
-            }
-
-            items.Insert(insertIndex, newItem);
-            targetTemplate.ContainerTemplateItems = items;
-
-            List<ContainerTemplateResource> putResult;
-            try
-            {
-                putResult = await _mediator.Send(new PutContainerTemplatesCommand(containerId, templates), cancellationToken);
-            }
-            catch (ContainerLockedException ex)
-            {
-                return SkillResult.Error(ex.Message);
-            }
-
-            var updatedTemplate = putResult.FirstOrDefault(t =>
-                t.Weekday == targetTemplate.Weekday
-                && t.IsHoliday == targetTemplate.IsHoliday
-                && t.IsWeekdayAndHoliday == targetTemplate.IsWeekdayAndHoliday);
-
-            var verified = updatedTemplate?.ContainerTemplateItems.Any(i => i.ShiftId == taskShiftId) ?? false;
-            if (!verified)
-            {
-                return SkillResult.Error(
-                    $"Verification failed: task shift {taskShiftId} could not be confirmed in the container template after the write.");
-            }
-
-            return SkillResult.SuccessResult(
-                new
-                {
-                    ContainerId = containerId,
-                    Weekday = isoWeekday,
-                    TaskShiftId = taskShiftId,
-                    TaskAbbreviation = taskShift.Abbreviation,
-                    Position = insertIndex + 1,
-                    Verified = true
-                },
-                $"Task '{taskShift.Abbreviation}' added to the container template for weekday {isoWeekday} and confirmed in the database (verified).");
+            putResult = await _mediator.Send(new PutContainerTemplatesCommand(containerId, templates), cancellationToken);
         }
-        finally
+        catch (ContainerLockedException ex)
         {
-            try
-            {
-                await _mediator.Send(new ReleaseContainerLockCommand(lockResult.Id), cancellationToken);
-            }
-            catch (Exception)
-            {
-            }
+            return SkillResult.Error(ex.Message);
         }
+
+        var updatedTemplate = putResult.FirstOrDefault(t =>
+            t.Weekday == targetTemplate.Weekday
+            && t.IsHoliday == targetTemplate.IsHoliday
+            && t.IsWeekdayAndHoliday == targetTemplate.IsWeekdayAndHoliday);
+
+        var verified = updatedTemplate?.ContainerTemplateItems.Any(i => i.ShiftId == taskShiftId) ?? false;
+        if (!verified)
+        {
+            return SkillResult.Error(
+                $"Verification failed: task shift {taskShiftId} could not be confirmed in the container template after the write.");
+        }
+
+        return SkillResult.SuccessResult(
+            new
+            {
+                ContainerId = containerId,
+                Weekday = isoWeekday,
+                TaskShiftId = taskShiftId,
+                TaskAbbreviation = taskShift.Abbreviation,
+                Position = insertIndex + 1,
+                Verified = true
+            },
+            $"Task '{taskShift.Abbreviation}' added to the container template for weekday {isoWeekday} and confirmed in the database (verified).");
+    }
+
+    private static ContainerTemplateItemResource BuildTemplateItem(Shift taskShift)
+    {
+        return new ContainerTemplateItemResource
+        {
+            Id = Guid.Empty,
+            ShiftId = taskShift.Id,
+            AbsenceId = null,
+            StartItem = taskShift.StartShift,
+            EndItem = taskShift.EndShift,
+            BriefingTime = taskShift.BriefingTime,
+            DebriefingTime = taskShift.DebriefingTime,
+            TravelTimeAfter = taskShift.TravelTimeAfter,
+            TravelTimeBefore = taskShift.TravelTimeBefore,
+            TimeRangeStartItem = null,
+            TimeRangeEndItem = null,
+            TransportMode = TransportMode.ByCar
+        };
+    }
+
+    private static int InsertItem(
+        ContainerTemplateResource targetTemplate, ContainerTemplateItemResource newItem, int? position)
+    {
+        var items = new List<ContainerTemplateItemResource>(targetTemplate.ContainerTemplateItems);
+        var insertIndex = items.Count;
+        if (position.HasValue && position.Value >= 1 && position.Value <= items.Count + 1)
+        {
+            insertIndex = position.Value - 1;
+        }
+
+        items.Insert(insertIndex, newItem);
+        targetTemplate.ContainerTemplateItems = items;
+        return insertIndex;
     }
 
     private static ContainerTemplateResource? SelectTemplateForWeekday(List<ContainerTemplateResource> templates, int storageWeekday)

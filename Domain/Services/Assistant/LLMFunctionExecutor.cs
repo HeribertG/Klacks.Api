@@ -284,7 +284,50 @@ public class LLMFunctionExecutor
             return $"Function '{call.FunctionName}' is not available.";
         }
 
-        var skillContext = new SkillExecutionContext
+        var skillContext = BuildSkillContext(context);
+
+        var skillCall = new Providers.LLMFunctionCall
+        {
+            FunctionName = call.FunctionName,
+            Parameters = call.Parameters
+        };
+
+        var skillToken = stopToken.CanBeCanceled && _cancellableSkillPolicy.ReceivesStopToken(call.FunctionName)
+            ? stopToken
+            : CancellationToken.None;
+        var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(skillCall, skillContext, skillToken);
+        if (skillToken.CanBeCanceled && stopToken.IsCancellationRequested && !result.Success)
+        {
+            MarkSkippedByStop(call);
+            return call.Result!;
+        }
+
+        ApplyBridgeOutcome(call, result);
+
+        if (result.Success)
+        {
+            if (result.Data != null)
+            {
+                return await BuildDataResponseAsync(context, call, result, skillContext);
+            }
+
+            call.ResultKind = LLMFunctionResultKind.MessageOnly;
+            return ApplyVoiceModeInstructionOverride(context, result.Message);
+        }
+
+        if (result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Confirmation))
+        {
+            call.ResultKind = LLMFunctionResultKind.Confirmation;
+            return $"Confirmation required: {result.Message}";
+        }
+
+        call.ResultKind = LLMFunctionResultKind.Error;
+        return $"Error: {result.Message}";
+    }
+
+    private static SkillExecutionContext BuildSkillContext(LLMContext context)
+    {
+        return new SkillExecutionContext
         {
             UserId = Guid.TryParse(context.UserId, out var uid) ? uid : Guid.Empty,
             TenantId = Guid.Empty,
@@ -306,23 +349,10 @@ public class LLMFunctionExecutor
             CappedChannel = context.CappedChannel,
             ExplainDepth = context.ExplainDepth
         };
+    }
 
-        var skillCall = new Providers.LLMFunctionCall
-        {
-            FunctionName = call.FunctionName,
-            Parameters = call.Parameters
-        };
-
-        var skillToken = stopToken.CanBeCanceled && _cancellableSkillPolicy.ReceivesStopToken(call.FunctionName)
-            ? stopToken
-            : CancellationToken.None;
-        var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(skillCall, skillContext, skillToken);
-        if (skillToken.CanBeCanceled && stopToken.IsCancellationRequested && !result.Success)
-        {
-            MarkSkippedByStop(call);
-            return call.Result!;
-        }
-
+    private void ApplyBridgeOutcome(LLMFunctionCall call, SkillBridgeResult result)
+    {
         call.Success = result.Success;
         call.IsNavigation = result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Navigation);
         if (!string.IsNullOrEmpty(result.ConfirmationToken))
@@ -345,68 +375,62 @@ public class LLMFunctionExecutor
                 call.Parameters = result.UiActionParameters;
             }
         }
+    }
 
-        if (result.Success)
+    private async Task<string> BuildDataResponseAsync(
+        LLMContext context, LLMFunctionCall call, SkillBridgeResult result, SkillExecutionContext skillContext)
+    {
+        var dataJson = JsonSerializer.Serialize(result.Data, SerializerOptions);
+        call.ResultKind = LLMFunctionResultKind.Data;
+        call.DataJson.Add(dataJson);
+        var response = $"{result.Message}\nData: {dataJson}";
+
+        if (result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Navigation))
         {
-            if (result.Data != null)
+            response = await ApplyNavigationResultAsync(call, skillContext, dataJson, response);
+        }
+
+        return ApplyVoiceModeInstructionOverride(context, response);
+    }
+
+    private async Task<string> ApplyNavigationResultAsync(
+        LLMFunctionCall call, SkillExecutionContext skillContext, string dataJson, string response)
+    {
+        string? route = null;
+        string? scrollTarget = null;
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(dataJson);
+            if (doc.RootElement.TryGetProperty("Route", out var routeProp))
+                route = routeProp.GetString();
+            if (doc.RootElement.TryGetProperty("Target", out var targetProp))
+                scrollTarget = targetProp.GetString();
+        }
+        catch { }
+
+        if (route != null)
+        {
+            NavigationRoute = route;
+        }
+        if (!string.IsNullOrEmpty(scrollTarget))
+        {
+            NavigationTarget = scrollTarget;
+        }
+
+        if (call.FunctionName == SkillNames.NavigateTo)
+        {
+            var (knowledgeAppendix, appendixDataJson) = await BuildPageKnowledgeAppendixAsync(skillContext with { ExplainDepth = null }, route);
+            if (knowledgeAppendix != null)
             {
-                var dataJson = JsonSerializer.Serialize(result.Data, SerializerOptions);
-                call.ResultKind = LLMFunctionResultKind.Data;
-                call.DataJson.Add(dataJson);
-                var response = $"{result.Message}\nData: {dataJson}";
-
-                if (result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Navigation))
+                response = $"{response}\n{knowledgeAppendix}";
+                if (appendixDataJson != null)
                 {
-                    string? route = null;
-                    string? scrollTarget = null;
-                    try
-                    {
-                        using var doc = System.Text.Json.JsonDocument.Parse(dataJson);
-                        if (doc.RootElement.TryGetProperty("Route", out var routeProp))
-                            route = routeProp.GetString();
-                        if (doc.RootElement.TryGetProperty("Target", out var targetProp))
-                            scrollTarget = targetProp.GetString();
-                    }
-                    catch { }
-
-                    if (route != null)
-                    {
-                        NavigationRoute = route;
-                    }
-                    if (!string.IsNullOrEmpty(scrollTarget))
-                    {
-                        NavigationTarget = scrollTarget;
-                    }
-
-                    if (call.FunctionName == SkillNames.NavigateTo)
-                    {
-                        var (knowledgeAppendix, appendixDataJson) = await BuildPageKnowledgeAppendixAsync(skillContext with { ExplainDepth = null }, route);
-                        if (knowledgeAppendix != null)
-                        {
-                            response = $"{response}\n{knowledgeAppendix}";
-                            if (appendixDataJson != null)
-                            {
-                                call.DataJson.Add(appendixDataJson);
-                            }
-                        }
-                    }
+                    call.DataJson.Add(appendixDataJson);
                 }
-
-                return ApplyVoiceModeInstructionOverride(context, response);
             }
-
-            call.ResultKind = LLMFunctionResultKind.MessageOnly;
-            return ApplyVoiceModeInstructionOverride(context, result.Message);
         }
 
-        if (result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Confirmation))
-        {
-            call.ResultKind = LLMFunctionResultKind.Confirmation;
-            return $"Confirmation required: {result.Message}";
-        }
-
-        call.ResultKind = LLMFunctionResultKind.Error;
-        return $"Error: {result.Message}";
+        return response;
     }
 
     private static string ApplyVoiceModeInstructionOverride(LLMContext context, string response)

@@ -3,13 +3,15 @@
 /// <summary>
 /// Computes the deterministic skill guarantees for one turn: skills that must be in the toolset
 /// independent of retrieval quality, because a weak model cannot compensate for a missing tool and
-/// several of these signals (a proposal reply, a draft-loop answer, a clarification's own
+/// several of these signals (a proposal reply, a planning-profile draft answer, a clarification's own
 /// answer) carry no keyword vector retrieval could rank on. Extracted out of SkillToolsetAssembler,
 /// whose own job is what happens with the RESULT of this resolution (merge, expand, exclude, truncate),
-/// not how the guarantees themselves are found.
+/// not how the guarantees themselves are found. The content-match, keyword, plan-candidate and hint-list guarantees,
+/// which need nothing but the message, route and skills, live in SkillMessageGuarantees.
 /// </summary>
 
 using Klacks.Api.Application.Interfaces.Assistant;
+using Klacks.Api.Application.Skills.PlanningProfile;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -23,10 +25,18 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 {
     private const string ManagePendingNotesSkillName = "manage_pending_notes";
 
+    private static readonly string[] PlanningProfileLoopSkillNames =
+    [
+        "set_planning_profile_parameters",
+        "preview_planning_profile",
+        "apply_planning_profile",
+        "cancel_planning_profile_setup"
+    ];
+
     private readonly IPendingUserNoteRepository _pendingUserNoteRepository;
     private readonly RecipeEngineService _recipeEngine;
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
-    private readonly IDraftLoopToolsetPolicy _draftLoopToolsetPolicy;
+    private readonly IPendingPlanningProfileDraftStore _planningProfileDraftStore;
     private readonly ISkillPhraseRepository _skillPhraseRepository;
     private readonly ISkillRelationRepository _skillRelationRepository;
     private readonly ITurnIntentExplainGuarantee _turnIntentExplainGuarantee;
@@ -37,7 +47,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         IPendingUserNoteRepository pendingUserNoteRepository,
         RecipeEngineService recipeEngine,
         IPendingConfirmationStore pendingConfirmationStore,
-        IDraftLoopToolsetPolicy draftLoopToolsetPolicy,
+        IPendingPlanningProfileDraftStore planningProfileDraftStore,
         ISkillPhraseRepository skillPhraseRepository,
         ISkillRelationRepository skillRelationRepository,
         ITurnIntentExplainGuarantee turnIntentExplainGuarantee,
@@ -47,7 +57,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         _pendingUserNoteRepository = pendingUserNoteRepository;
         _recipeEngine = recipeEngine;
         _pendingConfirmationStore = pendingConfirmationStore;
-        _draftLoopToolsetPolicy = draftLoopToolsetPolicy;
+        _planningProfileDraftStore = planningProfileDraftStore;
         _skillPhraseRepository = skillPhraseRepository;
         _skillRelationRepository = skillRelationRepository;
         _turnIntentExplainGuarantee = turnIntentExplainGuarantee;
@@ -66,128 +76,40 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         var guaranteedSkills = new HashSet<AgentSkill>();
         var guaranteedSources = new Dictionary<string, ToolsetSkillSource>(StringComparer.OrdinalIgnoreCase);
 
-        var forcingRecipeNames = AddContentMatchGuarantees(guaranteedSkills, guaranteedSources, permittedSkills, request);
+        var forcingRecipeNames = SkillMessageGuarantees.AddContentMatchGuarantees(
+            guaranteedSkills, guaranteedSources, permittedSkills, request);
 
         var turnIntent = await _turnIntentExplainGuarantee.ResolveAsync(request, cancellationToken);
-        foreach (var explainSkillName in turnIntent.ExplainSkillNames)
-        {
-            SkillGuaranteeCollector.Add(
-                guaranteedSkills, permittedSkills, explainSkillName, ToolsetSkillSource.Hint, guaranteedSources);
-        }
+        SkillMessageGuarantees.AddHints(guaranteedSkills, guaranteedSources, permittedSkills, turnIntent.ExplainSkillNames);
 
-        // Proposal-confirmation guarantee: a propose_* skill produces a read-only dry run and asks the
-        // user to confirm. The reply carries no domain word, so retrieval and every keyword rule above
-        // miss the paired apply_* skill and the model can only improvise prose instead of executing what
-        // it just offered. The reply is NOT reliably a yes/no either: the model routinely asks a
-        // follow-up question first ("from which date?") and the user answers with the bare value — a
-        // date like "2026-06-01" contains no word token at all, so gating this on an affirmation closed
-        // the tool set exactly on the turn that needed it. The live pending hint alone is therefore the
-        // signal; only an explicit negation discards it. Visibility only: the apply call still runs
-        // through the autonomy gate like any other invocation.
         ApplyProposalConfirmationGuarantee(
             guaranteedSkills, guaranteedSources, permittedSkills, request.UserMessage, request.UserId, request.Language);
 
-        // Deterministic keyword guarantee: skills whose trigger keywords or synonyms literally occur
-        // in the message are always in the tool set. Weak models cannot compensate for a missing tool,
-        // so the obviously-requested skill must never depend on the embedding ranking alone (capped,
-        // longest match wins). A skill that got there on broad terms only ("mitarbeiter" alone, shared by more
-        // skills than the cap holds) is still offered, but as BroadKeyword: at truncation it competes with the
-        // retrieved skills on its score instead of evicting the best-ranked one (owner decision 2026-10-24).
-        var keywordMatches = SkillMatchingEngine.TopKeywordMatches(
-            permittedSkills.Where(s => !s.AlwaysOn), request.UserMessage);
+        SkillMessageGuarantees.ApplyKeywordGuarantee(guaranteedSkills, guaranteedSources, permittedSkills, request.UserMessage);
 
-        foreach (var keywordMatch in keywordMatches)
-        {
-            SkillGuaranteeCollector.Add(
-                guaranteedSkills, permittedSkills, keywordMatch.Name,
-                keywordMatch.IsBroadOnly ? ToolsetSkillSource.BroadKeyword : ToolsetSkillSource.Keyword,
-                guaranteedSources);
-        }
-
-        // Learned-phrase guarantee: the same deterministic promise for a wording the learning loop
-        // stored, which the keyword guarantee above structurally cannot see. A learned row lands in
-        // skill_phrase and from there only in the embedding text; SkillMatchingEngine reads
-        // AgentSkill.TriggerKeywords/Synonyms, which no learning path ever writes. So a learned wording
-        // could only nudge the ranking, and the skills it is learned for are by definition the ones the
-        // ranking already places badly - they kept losing their place at the provider cap, which is what
-        // made phrase learning look ineffective in the end-to-end runs of 2026-08-29. Capped and
-        // longest-wording-first so the loop can complement retrieval without crowding it out.
         if (request.ApplyLearnedPhraseGuarantee)
         {
             await ApplyLearnedPhraseGuaranteeAsync(
                 guaranteedSkills, guaranteedSources, permittedSkills, request.UserMessage, cancellationToken);
         }
 
-        // Data-driven recipe guarantee: the same, for an engine recipe that is engaging now (matched on
-        // this message) or resuming (paused on an ask in this conversation). Its step skills — e.g.
-        // search_employees and add_client_to_group, neither always-on — must be present so the forcing
-        // spine can narrow to them across the multi-turn flow.
-        var engineRecipeNames = (await _recipeEngine.GuaranteedSkillNamesAsync(
-            request.UserId, request.ConversationId, request.UserMessage, request.Language, request.UserRights,
-            cancellationToken)).ToList();
-        foreach (var recipeSkillName in engineRecipeNames)
-        {
-            SkillGuaranteeCollector.Add(
-                guaranteedSkills, permittedSkills, recipeSkillName, ToolsetSkillSource.RecipeStep, guaranteedSources);
-        }
+        var engineRecipeNames = await ApplyEngineRecipeGuaranteeAsync(
+            guaranteedSkills, guaranteedSources, request, cancellationToken);
 
-        // Plan-candidate guarantee: a message that requests several state-changing actions at once and
-        // that no recipe covers is a candidate for create_plan. Surface create_plan so the model can
-        // PROPOSE a multi-step plan instead of running the actions one by one; LLMService adds the
-        // matching system-prompt nudge on the same turns. Non-candidate turns are unchanged.
         var recipeMatched = forcingRecipeNames.Count > 0 || engineRecipeNames.Count > 0;
-        if (PlanTriggerHeuristic.IsPlanCandidate(request.UserMessage, recipeMatched))
-        {
-            SkillGuaranteeCollector.Add(
-                guaranteedSkills, permittedSkills, PlanSkillDefaults.CreatePlanSkillName,
-                ToolsetSkillSource.Hint, guaranteedSources);
-        }
+        SkillMessageGuarantees.ApplyPlanCandidateGuarantee(
+            guaranteedSkills, guaranteedSources, permittedSkills, request.UserMessage, recipeMatched);
 
-        // Draft-loop guarantee: while a planning-profile setup or an order review is open, keep its loop skills in
-        // the tool set (the answers that continue it carry no keyword) and keep out what would bypass the loop's
-        // own confirmed preview. See DraftLoopToolsetPolicy.
-        var draftLoop = _draftLoopToolsetPolicy.Resolve(request.UserId, request.ConversationId);
-        foreach (var loopSkillName in draftLoop.GuaranteedSkillNames)
-        {
-            SkillGuaranteeCollector.Add(
-                guaranteedSkills, permittedSkills, loopSkillName, ToolsetSkillSource.Hint, guaranteedSources);
-        }
+        AddPlanningProfileDraftGuarantee(
+            guaranteedSkills, guaranteedSources, permittedSkills, request.UserId, request.ConversationId);
 
-        // Pending-notes guarantee: surface manage_pending_notes only on turns where the current user
-        // actually has undelivered notes, so the proactive hint can be acted on (read + mark) without
-        // permanently occupying an always-on tool slot. It survives truncation (guaranteed skills first).
-        if (Guid.TryParse(request.UserId, out var pendingNotesUserId))
-        {
-            var pendingNotesSkill = permittedSkills.FirstOrDefault(s =>
-                string.Equals(s.Name, ManagePendingNotesSkillName, StringComparison.OrdinalIgnoreCase));
-            if (pendingNotesSkill != null &&
-                await _pendingUserNoteRepository.CountPendingAsync(
-                    request.AgentId, pendingNotesUserId, cancellationToken) > 0)
-            {
-                SkillGuaranteeCollector.Add(
-                    guaranteedSkills, permittedSkills, pendingNotesSkill.Name, ToolsetSkillSource.Hint, guaranteedSources);
-            }
-        }
+        await ApplyPendingNotesGuaranteeAsync(guaranteedSkills, guaranteedSources, request, cancellationToken);
 
-        // Clarification pin: the two options the previous turn asked about. The answer ("die erste",
-        // "die Gruppe") carries no keyword of either skill, so without this the toolset of the turn that
-        // answers the question is the one turn that no longer contains the answer's own skill.
         if (request.PinnedSkillNames != null)
         {
-            foreach (var pinnedSkillName in request.PinnedSkillNames)
-            {
-                SkillGuaranteeCollector.Add(
-                    guaranteedSkills, permittedSkills, pinnedSkillName, ToolsetSkillSource.Hint, guaranteedSources);
-            }
+            SkillMessageGuarantees.AddHints(guaranteedSkills, guaranteedSources, permittedSkills, request.PinnedSkillNames);
         }
 
-        // Follow-through guarantee: the previous turn ran a KnowHow (Explain) or Advise skill that opens an
-        // advisory chain, and the user's answer to it ("80 Prozent, monatlich, Kanton Zürich ...") carries no
-        // keyword of the skill that is meant to act on it. Same class of gap as the planning-profile loop above,
-        // but derived from the skill graph instead of a hand-kept list. Explain skills without an advised Act
-        // skill guarantee nothing. Visibility only, like every guarantee. The same-skill continuation after it
-        // keeps the Mutate skill the immediately preceding turn last ran, including one a confirm_pending_action
-        // replayed, ranked below the advised skills at truncation.
         await ApplyFollowThroughGuaranteeAsync(
             guaranteedSkills, guaranteedSources, permittedSkills, request, cancellationToken);
 
@@ -199,27 +121,66 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         await ApplyScenarioFollowUpGuaranteeAsync(
             guaranteedSkills, guaranteedSources, request, cancellationToken);
 
-        ApplyPageAndQuestionGuarantees(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+        ApplyScheduleReadGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+        ApplyShiftListReadGuarantee(guaranteedSkills, guaranteedSources, request);
+
+        ApplyGridMarkingGuarantee(guaranteedSkills, guaranteedSources, request);
+
+        ApplyBookingDiagnosisGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
 
         return new SkillToolsetGuaranteeResult(
-            guaranteedSkills, guaranteedSources, lowestRankedNames, turnIntent.VetoesForcedToolCall,
-            draftLoop.ExcludedSkillNames);
+            guaranteedSkills, guaranteedSources, lowestRankedNames, turnIntent.VetoesForcedToolCall);
     }
 
     /// <summary>
-    /// The read-only guarantees keyed on the current page and the wording of the question: schedule read, shift list read,
-    /// grid marking and booking diagnosis. Split out of ResolveAsync to keep it within the method size ceiling.
+    /// Data-driven recipe guarantee: like the keyword guarantee, for an engine recipe that is engaging now (matched on
+    /// this message) or resuming (paused on an ask in this conversation). Its step skills — e.g. search_employees and
+    /// add_client_to_group, neither always-on — must be present so the forcing spine can narrow to them across the
+    /// multi-turn flow. Returns the engine's skill names, which the plan-candidate guarantee needs.
     /// </summary>
-    private static void ApplyPageAndQuestionGuarantees(
+    private async Task<List<string>> ApplyEngineRecipeGuaranteeAsync(
         HashSet<AgentSkill> guaranteedSkills,
         IDictionary<string, ToolsetSkillSource> guaranteedSources,
-        HashSet<string> lowestRankedNames,
-        SkillToolsetGuaranteeRequest request)
+        SkillToolsetGuaranteeRequest request,
+        CancellationToken cancellationToken)
     {
-        ApplyScheduleReadGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
-        ApplyShiftListReadGuarantee(guaranteedSkills, guaranteedSources, request);
-        ApplyGridMarkingGuarantee(guaranteedSkills, guaranteedSources, request);
-        ApplyBookingDiagnosisGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+        var engineRecipeNames = (await _recipeEngine.GuaranteedSkillNamesAsync(
+            request.UserId, request.ConversationId, request.UserMessage, request.Language, request.UserRights,
+            cancellationToken)).ToList();
+        foreach (var recipeSkillName in engineRecipeNames)
+        {
+            SkillGuaranteeCollector.Add(
+                guaranteedSkills, request.PermittedSkills, recipeSkillName, ToolsetSkillSource.RecipeStep, guaranteedSources);
+        }
+
+        return engineRecipeNames;
+    }
+
+    /// <summary>
+    /// Pending-notes guarantee: surface manage_pending_notes only on turns where the current user actually has
+    /// undelivered notes, so the proactive hint can be acted on (read + mark) without permanently occupying an
+    /// always-on tool slot. It survives truncation (guaranteed skills first). The notes are only counted for a GUID
+    /// user id and a permitted skill.
+    /// </summary>
+    private async Task ApplyPendingNotesGuaranteeAsync(
+        HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
+        SkillToolsetGuaranteeRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (Guid.TryParse(request.UserId, out var pendingNotesUserId))
+        {
+            var permittedSkills = request.PermittedSkills;
+            var pendingNotesSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, ManagePendingNotesSkillName, StringComparison.OrdinalIgnoreCase));
+            if (pendingNotesSkill != null &&
+                await _pendingUserNoteRepository.CountPendingAsync(
+                    request.AgentId, pendingNotesUserId, cancellationToken) > 0)
+            {
+                SkillGuaranteeCollector.Add(
+                    guaranteedSkills, permittedSkills, pendingNotesSkill.Name, ToolsetSkillSource.Hint, guaranteedSources);
+            }
+        }
     }
 
     /// <summary>
@@ -453,6 +414,10 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     }
 
     /// <summary>
+    /// Follow-through guarantee: the previous turn ran a KnowHow (Explain) or Advise skill that opens an advisory
+    /// chain, and the user's answer to it ("80 Prozent, monatlich, Kanton Zürich ...") carries no keyword of the skill
+    /// that is meant to act on it. Same class of gap as the planning-profile loop, but derived from the skill graph
+    /// instead of a hand-kept list. Visibility only, like every guarantee.
     /// Keeps, for the skills the previous turn executed, what they lead to - advisory chains only. For an
     /// Explain skill K that is the Act skills A with an active ExplainedBy edge A to K that ALSO have at least one
     /// permitted Advise skill with an active AdvisesFor edge to A, plus those Advise skills. An Act skill without
@@ -610,64 +575,53 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         skills.Where(s => s.Effect == effect).Select(s => s.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// The guarantees resolvable from the request alone (message, permitted, retrieved and continuation skills), without
-    /// any store or service call: page/concept explain, the order workflow (create, seal, cut), recipe-forcing and
-    /// grouping intent. Split out of ResolveAsync because it is the stateless half of the resolution;
-    /// the forcing recipe names are returned because the plan-candidate guarantee downstream needs them
-    /// alongside the engine-recipe names ResolveAsync resolves itself.
+    /// Adds the planning-profile loop skills when the user has an open draft in this conversation.
+    /// A store failure degrades to no guarantee rather than taking toolset assembly down with it.
+    /// The recipe guarantee only covers the turn a recipe engages or resumes on, and the answers that follow
+    /// ("security", "8.5") carry no keyword at all — so without this the loop skills drop out exactly on the turns
+    /// that continue the dialogue, and the model reaches for create_scheduling_rule instead (observed live
+    /// 2026-08-10). Keyed by the same scope the skills write the draft under.
     /// </summary>
-    private static List<string> AddContentMatchGuarantees(
+    private void AddPlanningProfileDraftGuarantee(
         HashSet<AgentSkill> guaranteedSkills,
-        Dictionary<string, ToolsetSkillSource> guaranteedSources,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
         IReadOnlyList<AgentSkill> permittedSkills,
-        SkillToolsetGuaranteeRequest request)
+        string userId,
+        string? conversationId)
     {
-        // Guarantee the explain skill of the page the user is on, independent of retrieval quality:
-        // follow-up questions about page sections otherwise dilute the retrieval query and the LLM
-        // hallucinates UI descriptions because the explain_page_* function is missing from its tools.
-        var pageExplainSkill = ResolvePageExplainSkill(permittedSkills, request.CurrentRoute);
-        if (pageExplainSkill != null)
+        if (!Guid.TryParse(userId, out var draftUserId))
         {
-            SkillGuaranteeCollector.Add(
-                guaranteedSkills, permittedSkills, pageExplainSkill.Name, ToolsetSkillSource.Hint, guaranteedSources);
+            return;
         }
 
-        // Same guarantee for concept explain skills triggered by keywords in the current message
-        // (e.g. orders/sealing): vector retrieval misses these phrasings, so the LLM answers thin
-        // instead of calling the curated concept skill.
-        foreach (var conceptSkillName in ConceptExplainSkillKeywords.ResolveSkillNames(request.UserMessage))
+        try
         {
-            SkillGuaranteeCollector.Add(
-                guaranteedSkills, permittedSkills, conceptSkillName, ToolsetSkillSource.Hint, guaranteedSources);
+            var conversationKey = PlanningProfileDraftScope.ConversationKey(conversationId);
+            if (_planningProfileDraftStore.Get(draftUserId, conversationKey) is null)
+            {
+                return;
+            }
+
+            foreach (var skillName in PlanningProfileLoopSkillNames)
+            {
+                SkillGuaranteeCollector.Add(
+                    guaranteedSkills, permittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
+            }
         }
-
-        // Order-workflow guarantee: seal_shift and cut_shift follow create_shift (OrderWorkflowSkillGuarantee).
-        OrderWorkflowSkillGuarantee.ApplyFollowUps(guaranteedSkills, guaranteedSources, permittedSkills, request);
-
-        // Recipe skill guarantee: when an operator-authored recipe engages, ALL of its step skills must
-        // be in the tool set so the forcing spine can narrow the iteration to them. find_customer_candidates
-        // in particular is not otherwise surfaced for a "create an order for customer X and cut it" request,
-        // so without this the spine cannot force the lookup step and the model calls unrelated skills.
-        var forcingRecipeNames = RecipeForcingResolver.GuaranteedSkillNames(request.UserMessage).ToList();
-        foreach (var recipeSkillName in forcingRecipeNames)
+        catch (Exception ex)
         {
-            SkillGuaranteeCollector.Add(
-                guaranteedSkills, permittedSkills, recipeSkillName, ToolsetSkillSource.RecipeStep, guaranteedSources);
+            _logger.LogError(ex, "Planning-profile draft guarantee failed; continuing without it.");
         }
-
-        // Grouping-intent guarantee: when the user asks to group or assign clients/employees
-        // geographically (by address/region/nearest), the real grouping skills must be in the tool set so
-        // the model calls one instead of inventing a non-existent tool name (which never executes).
-        foreach (var groupingSkillName in GroupingIntentResolver.GuaranteedSkillNames(request.UserMessage, request.Language))
-        {
-            SkillGuaranteeCollector.Add(
-                guaranteedSkills, permittedSkills, groupingSkillName, ToolsetSkillSource.Hint, guaranteedSources);
-        }
-
-        return forcingRecipeNames;
     }
 
     /// <summary>
+    /// Learned-phrase guarantee: the same deterministic promise as the keyword guarantee for a wording the learning
+    /// loop stored, which the keyword guarantee structurally cannot see. A learned row lands in skill_phrase and from
+    /// there only in the embedding text; SkillMatchingEngine reads AgentSkill.TriggerKeywords/Synonyms, which no
+    /// learning path ever writes. So a learned wording could only nudge the ranking, and the skills it is learned for
+    /// are by definition the ones the ranking already places badly - they kept losing their place at the provider
+    /// cap, which is what made phrase learning look ineffective in the end-to-end runs of 2026-08-29. Capped and
+    /// longest-wording-first so the loop can complement retrieval without crowding it out.
     /// Adds the skills whose learned wording literally occurs in this message. Best-effort like every
     /// other guarantee: a failing phrase read degrades to no guarantee instead of taking the turn down.
     /// One indexed-free read of skill_phrase per turn, the same query trajectory capture already runs;
@@ -708,6 +662,16 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         }
     }
 
+    /// <summary>
+    /// Proposal-confirmation guarantee: a propose_* skill produces a read-only dry run and asks the user to confirm.
+    /// The reply carries no domain word, so retrieval and every keyword rule miss the paired apply_* skill and the
+    /// model can only improvise prose instead of executing what it just offered. The reply is NOT reliably a yes/no
+    /// either: the model routinely asks a follow-up question first ("from which date?") and the user answers with the
+    /// bare value — a date like "2026-06-01" contains no word token at all, so gating this on an affirmation closed
+    /// the tool set exactly on the turn that needed it. The live pending hint alone is therefore the signal; only an
+    /// explicit negation discards it. Visibility only: the apply call still runs through the autonomy gate like any
+    /// other invocation.
+    /// </summary>
     private void ApplyProposalConfirmationGuarantee(
         HashSet<AgentSkill> guaranteedSkills,
         IDictionary<string, ToolsetSkillSource> guaranteedSources,
@@ -744,16 +708,5 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         {
             _logger.LogError(ex, "Proposal-confirmation guarantee failed; continuing without it.");
         }
-    }
-
-    private static AgentSkill? ResolvePageExplainSkill(IReadOnlyList<AgentSkill> permittedSkills, string? currentRoute)
-    {
-        var skillName = PageExplainSkillRoutes.ResolveSkillName(currentRoute);
-        if (skillName == null)
-        {
-            return null;
-        }
-
-        return permittedSkills.FirstOrDefault(s => string.Equals(s.Name, skillName, StringComparison.OrdinalIgnoreCase));
     }
 }

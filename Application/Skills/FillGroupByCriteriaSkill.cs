@@ -101,6 +101,99 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
             return SkillResult.Error(groupError!);
         }
 
+        var (criteria, criteriaError) = await ResolveCriteriaAsync(
+            contractName, qualificationName, entityTypeValue, canton, city, zipPrefix, cancellationToken);
+        if (criteria == null)
+        {
+            return criteriaError!;
+        }
+
+        var entityType = criteria.EntityType;
+        int? randomSeed = random
+            ? BuildRandomSeed(context, group.Id, criteria, count, today)
+            : null;
+
+        if (apply && startDateOpen)
+        {
+            return SkillResult.Error(
+                SkillDateParser.MissingStartDateMessage(
+                    $"add the matching {entityType}(s) to group '{group.Name}'"));
+        }
+
+        FillGroupByCriteriaResult result;
+        try
+        {
+            result = await _mediator.Send(
+                BuildCommand(group.Id, group.Name, criteria, count, validFrom, apply, context.UserName, startMode, randomSeed),
+                cancellationToken);
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
+
+        return BuildResult(result, group.Name, entityType, apply, startDateOpen, random);
+    }
+
+    private async Task<(ResolvedCriteria? Criteria, SkillResult? Error)> ResolveCriteriaAsync(
+        string? contractName,
+        string? qualificationName,
+        string? entityTypeValue,
+        string? canton,
+        string? city,
+        string? zipPrefix,
+        CancellationToken cancellationToken)
+    {
+        var (contractId, contractError) = await ResolveContractIdAsync(contractName);
+        if (contractError != null)
+        {
+            return (null, contractError);
+        }
+
+        var (qualificationId, qualificationError) = await ResolveQualificationIdAsync(qualificationName, cancellationToken);
+        if (qualificationError != null)
+        {
+            return (null, qualificationError);
+        }
+
+        var entityType = ParseEntityType(entityTypeValue);
+
+        var resolvedCanton = await _locationResolver.ResolveStateCodeAsync(canton, cancellationToken);
+        var trimmedCity = string.IsNullOrWhiteSpace(city) ? null : city.Trim();
+        var trimmedZipPrefix = string.IsNullOrWhiteSpace(zipPrefix) ? null : zipPrefix.Trim();
+        return (new ResolvedCriteria(resolvedCanton, trimmedCity, trimmedZipPrefix, contractId, qualificationId, entityType), null);
+    }
+
+    private static FillGroupByCriteriaCommand BuildCommand(
+        Guid groupId,
+        string groupName,
+        ResolvedCriteria criteria,
+        int? count,
+        DateTime? validFrom,
+        bool apply,
+        string userName,
+        GroupMembershipStartMode startMode,
+        int? randomSeed)
+    {
+        return new FillGroupByCriteriaCommand(
+            groupId,
+            groupName,
+            criteria.Canton,
+            criteria.ContractId,
+            criteria.City,
+            criteria.ZipPrefix,
+            criteria.QualificationId,
+            criteria.EntityType,
+            count,
+            validFrom,
+            apply,
+            userName,
+            startMode,
+            randomSeed);
+    }
+
+    private async Task<(Guid? ContractId, SkillResult? Error)> ResolveContractIdAsync(string? contractName)
+    {
         Guid? contractId = null;
         if (!string.IsNullOrWhiteSpace(contractName))
         {
@@ -115,21 +208,27 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
                 var available = availableContracts.Count > 0
                     ? "Available contracts: " + string.Join(", ", availableContracts) + "."
                     : "There are no contracts yet.";
-                return SkillResult.Error(
+                return (null, SkillResult.Error(
                     $"No contract found matching '{contractName}'. {available} " +
-                    "Offer the user only these real contract names — do not invent contracts.");
+                    "Offer the user only these real contract names — do not invent contracts."));
             }
 
             if (matches.Count > 1)
             {
                 var names = string.Join(", ", matches.Select(c => $"'{c.Name}'"));
-                return SkillResult.Error(
-                    $"Multiple contracts match '{contractName}': {names}. Please be more specific.");
+                return (null, SkillResult.Error(
+                    $"Multiple contracts match '{contractName}': {names}. Please be more specific."));
             }
 
             contractId = matches[0].Id;
         }
 
+        return (contractId, null);
+    }
+
+    private async Task<(Guid? QualificationId, SkillResult? Error)> ResolveQualificationIdAsync(
+        string? qualificationName, CancellationToken cancellationToken)
+    {
         Guid? qualificationId = null;
         if (!string.IsNullOrWhiteSpace(qualificationName))
         {
@@ -147,73 +246,50 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
                 var available = availableQualifications.Count > 0
                     ? "Available qualifications: " + string.Join(", ", availableQualifications) + "."
                     : "There are no qualifications yet.";
-                return SkillResult.Error(
+                return (null, SkillResult.Error(
                     $"No qualification found matching '{qualificationName}'. {available} " +
-                    "Offer the user only these real qualification names — do not invent qualifications.");
+                    "Offer the user only these real qualification names — do not invent qualifications."));
             }
 
             if (matches.Count > 1)
             {
                 var names = string.Join(", ", matches.Select(q => $"'{QualificationResolver.DisplayName(q)}'"));
-                return SkillResult.Error(
-                    $"Multiple qualifications match '{qualificationName}': {names}. Please be more specific.");
+                return (null, SkillResult.Error(
+                    $"Multiple qualifications match '{qualificationName}': {names}. Please be more specific."));
             }
 
             qualificationId = matches[0].Id;
         }
 
-        var entityType = entityTypeValue switch
+        return (qualificationId, null);
+    }
+
+    private static EntityTypeEnum ParseEntityType(string? entityTypeValue)
+    {
+        return entityTypeValue switch
         {
             "ExternEmp" => EntityTypeEnum.ExternEmp,
             "Customer" => EntityTypeEnum.Customer,
             _ => EntityTypeEnum.Employee
         };
-
-        var resolvedCanton = await _locationResolver.ResolveStateCodeAsync(canton, cancellationToken);
-        var trimmedCity = string.IsNullOrWhiteSpace(city) ? null : city.Trim();
-        var trimmedZipPrefix = string.IsNullOrWhiteSpace(zipPrefix) ? null : zipPrefix.Trim();
-        int? randomSeed = random
-            ? SeededSample.StableSeed(
-                context.UserId.ToString(), group.Id.ToString(), resolvedCanton, trimmedCity, trimmedZipPrefix,
-                contractId?.ToString(), qualificationId?.ToString(), entityType.ToString(),
-                count?.ToString(CultureInfo.InvariantCulture), today.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture))
-            : null;
-
-        if (apply && startDateOpen)
-        {
-            return SkillResult.Error(
-                SkillDateParser.MissingStartDateMessage(
-                    $"add the matching {entityType}(s) to group '{group.Name}'"));
-        }
-
-        FillGroupByCriteriaResult result;
-        try
-        {
-            result = await _mediator.Send(
-                new FillGroupByCriteriaCommand(
-                    group.Id,
-                    group.Name,
-                    resolvedCanton,
-                    contractId,
-                    trimmedCity,
-                    trimmedZipPrefix,
-                    qualificationId,
-                    entityType,
-                    count,
-                    validFrom,
-                    apply,
-                    context.UserName,
-                    startMode,
-                    randomSeed),
-                cancellationToken);
-        }
-        catch (SkillVerificationException ex)
-        {
-            return SkillResult.Error(ex.Message);
-        }
-
-        return BuildResult(result, group.Name, entityType, apply, startDateOpen, random);
     }
+
+    private static int BuildRandomSeed(
+        SkillExecutionContext context, Guid groupId, ResolvedCriteria criteria, int? count, DateTime today)
+    {
+        return SeededSample.StableSeed(
+            context.UserId.ToString(), groupId.ToString(), criteria.Canton, criteria.City, criteria.ZipPrefix,
+            criteria.ContractId?.ToString(), criteria.QualificationId?.ToString(), criteria.EntityType.ToString(),
+            count?.ToString(CultureInfo.InvariantCulture), today.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
+    }
+
+    private sealed record ResolvedCriteria(
+        string? Canton,
+        string? City,
+        string? ZipPrefix,
+        Guid? ContractId,
+        Guid? QualificationId,
+        EntityTypeEnum EntityType);
 
     private static SkillResult BuildResult(
         FillGroupByCriteriaResult result, string groupName, EntityTypeEnum entityType, bool apply, bool startDateOpen, bool random)

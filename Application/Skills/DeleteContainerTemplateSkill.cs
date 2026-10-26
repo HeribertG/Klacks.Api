@@ -24,6 +24,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -65,25 +66,13 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
     {
         var containerId = GetRequiredGuid(parameters, "containerId");
 
-        var container = await _shiftRepository.Get(containerId);
-        if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
+        var (loadedContainer, containerError) = await LoadPlannableContainerAsync(containerId, cancellationToken);
+        if (containerError is not null)
         {
-            return SkillResult.Error($"Shift/container not found: {containerId}");
+            return containerError;
         }
 
-        if (container.ShiftType != ShiftType.IsContainer)
-        {
-            return SkillResult.Error($"Shift {containerId} is not a container shift (ShiftType must be IsContainer).");
-        }
-
-        if (container.Status != ShiftStatus.OriginalShift)
-        {
-            return SkillResult.Error(
-                $"Container '{container.Name}' has status {container.Status}; templates belong to the plannable " +
-                "container shift (status OriginalShift). Pass the plannable shift's id, not the order's — " +
-                "get_shift_details or search_shifts with status=container return it.");
-        }
-
+        var container = loadedContainer!;
         var existingTemplates = await _containerTemplateRepository.GetTemplatesForContainer(containerId);
         if (existingTemplates.Count == 0)
         {
@@ -92,6 +81,50 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
                 $"Container '{container.Name}' has no weekday templates; nothing was deleted.");
         }
 
+        var (acquiredLock, lockError) = await AcquireLockAsync(containerId, container, context, cancellationToken);
+        if (lockError is not null)
+        {
+            return lockError;
+        }
+
+        try
+        {
+            return await DeleteTemplatesAsync(containerId, container, existingTemplates, context, cancellationToken);
+        }
+        finally
+        {
+            await ReleaseLockAsync(acquiredLock!.Id, context);
+        }
+    }
+
+    private async Task<(Shift? Container, SkillResult? Error)> LoadPlannableContainerAsync(
+        Guid containerId, CancellationToken cancellationToken)
+    {
+        var container = await _shiftRepository.Get(containerId);
+        if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
+        {
+            return (null, SkillResult.Error($"Shift/container not found: {containerId}"));
+        }
+
+        if (container.ShiftType != ShiftType.IsContainer)
+        {
+            return (null, SkillResult.Error($"Shift {containerId} is not a container shift (ShiftType must be IsContainer)."));
+        }
+
+        if (container.Status != ShiftStatus.OriginalShift)
+        {
+            return (null, SkillResult.Error(
+                $"Container '{container.Name}' has status {container.Status}; templates belong to the plannable " +
+                "container shift (status OriginalShift). Pass the plannable shift's id, not the order's — " +
+                "get_shift_details or search_shifts with status=container return it."));
+        }
+
+        return (container, null);
+    }
+
+    private async Task<(ContainerLockResource? Lock, SkillResult? Error)> AcquireLockAsync(
+        Guid containerId, Shift container, SkillExecutionContext context, CancellationToken cancellationToken)
+    {
         var lockResult = await _selfApi.PostAsync<ContainerLockResource>(
             $"{SelfApiRoutes.ContainerLocks}/{LockAcquireRouteSegment}",
             new AcquireContainerLockRequest
@@ -106,88 +139,96 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
 
         if (!lockResult.Success)
         {
-            return SkillResult.Error(lockResult.ErrorMessage!);
+            return (null, SkillResult.Error(lockResult.ErrorMessage!));
         }
 
         var acquiredLock = lockResult.Value;
         if (acquiredLock is null)
         {
-            return SkillResult.Error("The container edit lock could not be acquired — nothing was deleted.");
+            return (null, SkillResult.Error("The container edit lock could not be acquired — nothing was deleted."));
         }
 
         if (!acquiredLock.Acquired)
         {
-            return SkillResult.Error(acquiredLock.IsSelfConflict
+            return (null, SkillResult.Error(acquiredLock.IsSelfConflict
                 ? $"You have container '{container.Name}' open for editing yourself, and an assistant-driven " +
                   "write cannot share that editing session. Close the container page and try again, or delete " +
                   "the weekday templates directly on the page you already have open."
-                : $"Container '{container.Name}' is currently being edited by {acquiredLock.UserName}.");
+                : $"Container '{container.Name}' is currently being edited by {acquiredLock.UserName}."));
         }
 
-        try
+        return (acquiredLock, null);
+    }
+
+    private async Task<SkillResult> DeleteTemplatesAsync(
+        Guid containerId,
+        Shift container,
+        List<ContainerTemplate> existingTemplates,
+        SkillExecutionContext context,
+        CancellationToken cancellationToken)
+    {
+        var containersRoute = _routes.Resolve(typeof(ContainerTemplateResource));
+        var templatesRoute = $"{containersRoute}/{containerId}/{TemplatesRouteSegment}";
+
+        var deleteResult = await _selfApi.DeleteAsync<List<ContainerTemplateResource>>(
+            templatesRoute,
+            context,
+            SkillName,
+            cancellationToken);
+
+        if (!deleteResult.Success)
         {
-            var containersRoute = _routes.Resolve(typeof(ContainerTemplateResource));
-            var templatesRoute = $"{containersRoute}/{containerId}/{TemplatesRouteSegment}";
-
-            var deleteResult = await _selfApi.DeleteAsync<List<ContainerTemplateResource>>(
-                templatesRoute,
-                context,
-                SkillName,
-                cancellationToken);
-
-            if (!deleteResult.Success)
-            {
-                return SkillResult.Error(deleteResult.ErrorMessage!);
-            }
-
-            // Confirmed from the endpoint's own response (the deleted rows) rather than by re-reading the
-            // repository: the delete ran in the API's own request scope over the self-call, so this
-            // instance's DbContext would answer a re-read from state it never saw change.
-            var removed = deleteResult.Value;
-            if (removed is null || removed.Count == 0)
-            {
-                return SkillResult.Error(
-                    $"The delete of the weekday templates of container '{container.Name}' returned no removed " +
-                    "template, so the write could not be confirmed.");
-            }
-
-            var deleted = existingTemplates
-                .Select(t => new
-                {
-                    ContainerTemplateId = t.Id,
-                    Weekday = ToIsoWeekday(t.Weekday),
-                    FromTime = t.FromTime.ToString("HH\\:mm"),
-                    UntilTime = t.UntilTime.ToString("HH\\:mm"),
-                    t.IsHoliday,
-                    t.IsWeekdayAndHoliday,
-                    t.StartBase,
-                    t.EndBase,
-                    ItemCount = t.ContainerTemplateItems.Count
-                })
-                .OrderBy(t => t.Weekday)
-                .ToList();
-
-            var itemCount = existingTemplates.Sum(t => t.ContainerTemplateItems.Count);
-            var deletedCount = removed.Count;
-
-            return SkillResult.SuccessResult(
-                new
-                {
-                    ContainerId = containerId,
-                    ContainerName = container.Name,
-                    DeletedTemplateCount = deletedCount,
-                    DeletedItemCount = itemCount,
-                    DeletedTemplates = deleted,
-                    Verified = true
-                },
-                $"Deleted all {deletedCount} weekday template(s) of container '{container.Name}' " +
-                $"({itemCount} configured task(s) removed with them). Re-create them with " +
-                "create_container_template and add_container_template_task.");
+            return SkillResult.Error(deleteResult.ErrorMessage!);
         }
-        finally
+
+        // Confirmed from the endpoint's own response (the deleted rows) rather than by re-reading the
+        // repository: the delete ran in the API's own request scope over the self-call, so this
+        // instance's DbContext would answer a re-read from state it never saw change.
+        var removed = deleteResult.Value;
+        if (removed is null || removed.Count == 0)
         {
-            await ReleaseLockAsync(acquiredLock.Id, context);
+            return SkillResult.Error(
+                $"The delete of the weekday templates of container '{container.Name}' returned no removed " +
+                "template, so the write could not be confirmed.");
         }
+
+        return BuildDeletedResult(containerId, container, existingTemplates, removed.Count);
+    }
+
+    private static SkillResult BuildDeletedResult(
+        Guid containerId, Shift container, List<ContainerTemplate> existingTemplates, int deletedCount)
+    {
+        var deleted = existingTemplates
+            .Select(t => new
+            {
+                ContainerTemplateId = t.Id,
+                Weekday = ToIsoWeekday(t.Weekday),
+                FromTime = t.FromTime.ToString("HH\\:mm"),
+                UntilTime = t.UntilTime.ToString("HH\\:mm"),
+                t.IsHoliday,
+                t.IsWeekdayAndHoliday,
+                t.StartBase,
+                t.EndBase,
+                ItemCount = t.ContainerTemplateItems.Count
+            })
+            .OrderBy(t => t.Weekday)
+            .ToList();
+
+        var itemCount = existingTemplates.Sum(t => t.ContainerTemplateItems.Count);
+
+        return SkillResult.SuccessResult(
+            new
+            {
+                ContainerId = containerId,
+                ContainerName = container.Name,
+                DeletedTemplateCount = deletedCount,
+                DeletedItemCount = itemCount,
+                DeletedTemplates = deleted,
+                Verified = true
+            },
+            $"Deleted all {deletedCount} weekday template(s) of container '{container.Name}' " +
+            $"({itemCount} configured task(s) removed with them). Re-create them with " +
+            "create_container_template and add_container_template_task.");
     }
 
     private static int ToIsoWeekday(int storageWeekday) =>

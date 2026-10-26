@@ -199,6 +199,114 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         var guaranteedSkills = guaranteeResult.GuaranteedSkills;
         var guaranteedSources = guaranteeResult.GuaranteedSources;
 
+        PrependUnretrievedGuarantees(guaranteedSkills, retrievedSkills);
+
+        if (retrievedSkills.Count == 0)
+        {
+            return BuildAlwaysOnOnlyResult(
+                alwaysOnSkills, guaranteeResult, retrievalScores, hasDomainSkillContext, skillRerank, maxToolsForProvider,
+                assemblyWatch);
+        }
+
+        var selectedSkills = alwaysOnSkills.Concat(retrievedSkills).DistinctBy(s => s.Name).ToList();
+        var expansionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        selectedSkills = await ExpandIntoFreeBudgetAsync(
+            agent.Id, selectedSkills, permittedSkills, maxToolsForProvider, expansionNames, cancellationToken);
+
+        (selectedSkills, var postExclusionRetrievedCount) = ApplyCorrectionExclusion(
+            selectedSkills, retrievedSkills, excludedSkillNames, guaranteeResult.ExcludedSkillNames, guaranteedSources);
+
+        return BuildCappedResult(
+            selectedSkills, alwaysOnSkills.Count, postExclusionRetrievedCount, guaranteeResult, retrievalScores,
+            expansionNames, skillRerank, maxToolsForProvider, assemblyWatch);
+    }
+
+    /// <summary>
+    /// Drops the skills a correction turn must not offer again and counts the retrieved skills that survive the
+    /// exclusion. Applied once, after the expansion rather than before the selection: the keyword guarantee, the
+    /// learned-phrase guarantee and the co-required expansion can each put the corrected turn's skill back, and a
+    /// filter that ran earlier would be undone by any of them. Accepted noise: a co-required partner the expansion
+    /// pulled in for an excluded skill is not itself excluded and survives in the tool set.
+    /// </summary>
+    /// <param name="selectedSkills">The selection after expansion</param>
+    /// <param name="retrievedSkills">The retrieved candidates including the prepended guarantees</param>
+    /// <param name="excludedSkillNames">The correction turn's excluded skill names; null outside a correction</param>
+    /// <param name="draftLoopExcludedSkillNames">The skills an open draft loop keeps out (DraftLoopToolsetPolicy)</param>
+    /// <param name="guaranteedSources">This turn's guarantee sources, which exempt RecipeStep skills</param>
+    private (List<AgentSkill> SelectedSkills, int RetrievedCount) ApplyCorrectionExclusion(
+        List<AgentSkill> selectedSkills,
+        List<AgentSkill> retrievedSkills,
+        IReadOnlyCollection<string>? excludedSkillNames,
+        IReadOnlySet<string>? draftLoopExcludedSkillNames,
+        IReadOnlyDictionary<string, ToolsetSkillSource> guaranteedSources)
+    {
+        var excludedSkillNameSet = ResolveExclusionSet(excludedSkillNames, draftLoopExcludedSkillNames);
+        selectedSkills = DropExcluded(selectedSkills, excludedSkillNameSet, guaranteedSources);
+        var postExclusionRetrievedCount = retrievedSkills.Count(
+            s => !IsExcluded(s, excludedSkillNameSet, guaranteedSources));
+
+        return (selectedSkills, postExclusionRetrievedCount);
+    }
+
+    /// <summary>
+    /// Cuts the selection to the provider cap when it exceeds it, logs the tool budget with the guaranteed skills that
+    /// were actually sent and builds the toolset with the provenance of every selected skill.
+    /// </summary>
+    /// <param name="selectedSkills">The selection after expansion and exclusion</param>
+    /// <param name="alwaysOnCount">Number of permitted always-on skills, for the budget log</param>
+    /// <param name="postExclusionRetrievedCount">Retrieved skills left after the exclusion, for the budget log</param>
+    /// <param name="guaranteeResult">This turn's guarantees, their sources and the veto</param>
+    /// <param name="retrievalScores">The retrieval score per surfaced skill name</param>
+    /// <param name="expansionNames">Names the co-required expansion added</param>
+    /// <param name="skillRerank">The retrieval's skill-rerank decision for this turn, if any</param>
+    /// <param name="maxToolsForProvider">The provider cap</param>
+    /// <param name="assemblyWatch">Started when the assembly began; read last for the assembly time</param>
+    private SkillToolsetResult BuildCappedResult(
+        List<AgentSkill> selectedSkills,
+        int alwaysOnCount,
+        int postExclusionRetrievedCount,
+        SkillToolsetGuaranteeResult guaranteeResult,
+        Dictionary<string, double> retrievalScores,
+        HashSet<string> expansionNames,
+        SkillRerankObservation? skillRerank,
+        int maxToolsForProvider,
+        System.Diagnostics.Stopwatch assemblyWatch)
+    {
+        var preCapCount = selectedSkills.Count;
+        var truncated = preCapCount > maxToolsForProvider;
+
+        if (truncated)
+        {
+            selectedSkills = TruncateToBudget(selectedSkills, guaranteeResult, retrievalScores, maxToolsForProvider);
+        }
+
+        LogToolBudget(
+            alwaysOnCount, postExclusionRetrievedCount, selectedSkills.Count, truncated,
+            maxToolsForProvider, guaranteeResult.GuaranteedSkills.Where(selectedSkills.Contains).ToList());
+
+        var selectedProvenance = ResolveProvenance(
+            selectedSkills, guaranteeResult.GuaranteedSources, retrievalScores, expansionNames);
+
+        return new SkillToolsetResult
+        {
+            Functions = ToStableOrderedFunctionsWithProvenance(selectedSkills, selectedProvenance),
+            HasDomainSkillContext = true,
+            AssemblyMs = assemblyWatch.ElapsedMilliseconds,
+            TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall,
+            SkillRerank = skillRerank
+        };
+    }
+
+    /// <summary>
+    /// Puts every guaranteed skill that is not always-on and that retrieval did not surface at the front of the
+    /// retrieved list, so the guarantees join the selection whatever the retrieval returned.
+    /// </summary>
+    /// <param name="guaranteedSkills">This turn's guaranteed skills</param>
+    /// <param name="retrievedSkills">The retrieved candidates; extended in place</param>
+    private static void PrependUnretrievedGuarantees(
+        IEnumerable<AgentSkill> guaranteedSkills, List<AgentSkill> retrievedSkills)
+    {
         foreach (var guaranteed in guaranteedSkills)
         {
             if (!guaranteed.AlwaysOn &&
@@ -207,36 +315,69 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
                 retrievedSkills.Insert(0, guaranteed);
             }
         }
+    }
 
-        if (retrievedSkills.Count == 0)
+    /// <summary>
+    /// The toolset of a turn without any retrieved or guaranteed non-always-on skill: the always-on skills only, with
+    /// the domain-context signal of the retrieval (false when it surfaced nothing, true after a retrieval failure).
+    /// </summary>
+    /// <param name="alwaysOnSkills">The permitted always-on skills</param>
+    /// <param name="guaranteeResult">This turn's guarantees, logged and used for the provenance and the veto</param>
+    /// <param name="retrievalScores">The retrieval score per surfaced skill name</param>
+    /// <param name="hasDomainSkillContext">The domain-context signal of the retrieval</param>
+    /// <param name="skillRerank">The retrieval's skill-rerank decision for this turn, if any</param>
+    /// <param name="maxToolsForProvider">The provider cap, for the budget log</param>
+    /// <param name="assemblyWatch">Started when the assembly began; read last for the assembly time</param>
+    private SkillToolsetResult BuildAlwaysOnOnlyResult(
+        List<AgentSkill> alwaysOnSkills,
+        SkillToolsetGuaranteeResult guaranteeResult,
+        Dictionary<string, double> retrievalScores,
+        bool hasDomainSkillContext,
+        SkillRerankObservation? skillRerank,
+        int maxToolsForProvider,
+        System.Diagnostics.Stopwatch assemblyWatch)
+    {
+        LogToolBudget(
+            alwaysOnSkills.Count, 0, alwaysOnSkills.Count, false, maxToolsForProvider, guaranteeResult.GuaranteedSkills);
+        var alwaysOnProvenance = ResolveProvenance(
+            alwaysOnSkills, guaranteeResult.GuaranteedSources, retrievalScores, new HashSet<string>());
+        return new SkillToolsetResult
         {
-            LogToolBudget(alwaysOnSkills.Count, 0, alwaysOnSkills.Count, false, maxToolsForProvider, guaranteedSkills);
-            var alwaysOnProvenance = ResolveProvenance(
-                alwaysOnSkills, guaranteedSources, retrievalScores, new HashSet<string>());
-            return new SkillToolsetResult
-            {
-                Functions = ToStableOrderedFunctionsWithProvenance(alwaysOnSkills, alwaysOnProvenance),
-                HasDomainSkillContext = hasDomainSkillContext,
-                AssemblyMs = assemblyWatch.ElapsedMilliseconds,
-                TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall,
-                SkillRerank = skillRerank
-            };
-        }
+            Functions = ToStableOrderedFunctionsWithProvenance(alwaysOnSkills, alwaysOnProvenance),
+            HasDomainSkillContext = hasDomainSkillContext,
+            AssemblyMs = assemblyWatch.ElapsedMilliseconds,
+            TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall,
+            SkillRerank = skillRerank
+        };
+    }
 
-        var selectedSkills = alwaysOnSkills.Concat(retrievedSkills).DistinctBy(s => s.Name).ToList();
-        var expansionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        // Silent expansion: pull in high-confidence co-required neighbours of the selected skills into
-        // FREE budget only (never evict). Best-effort — a failure must never break skill selection.
-        // freeBudget is computed pre-exclusion; the exclusion filter and the truncation both run after
-        // this block, so nothing is cut prematurely — a correction turn only ever sees a SMALLER
-        // expansion fill, because the skills it excluded still count against selectedSkills.Count here.
+    /// <summary>
+    /// Silent expansion: pulls in high-confidence co-required neighbours of the selected skills into FREE budget only
+    /// (never evict). Best-effort — a failure must never break skill selection. The free budget is computed
+    /// pre-exclusion; the exclusion filter and the truncation both run after this, so nothing is cut prematurely — a
+    /// correction turn only ever sees a SMALLER expansion fill, because the skills it excluded still count against the
+    /// selection here.
+    /// </summary>
+    /// <param name="agentId">Agent whose skill relations drive the expansion</param>
+    /// <param name="selectedSkills">The always-on and retrieved selection</param>
+    /// <param name="permittedSkills">Skills the user may use; the expansion only picks among them</param>
+    /// <param name="maxToolsForProvider">The provider cap the free budget is measured against</param>
+    /// <param name="expansionNames">Receives the names of the skills the expansion added</param>
+    /// <returns>The selection with the expansion appended, or the unchanged selection</returns>
+    private async Task<List<AgentSkill>> ExpandIntoFreeBudgetAsync(
+        Guid agentId,
+        List<AgentSkill> selectedSkills,
+        List<AgentSkill> permittedSkills,
+        int maxToolsForProvider,
+        HashSet<string> expansionNames,
+        CancellationToken cancellationToken)
+    {
         var freeBudget = maxToolsForProvider - selectedSkills.Count;
         if (freeBudget > 0)
         {
             try
             {
-                var expansion = await _expander.ExpandAsync(agent.Id, selectedSkills, permittedSkills, freeBudget, cancellationToken);
+                var expansion = await _expander.ExpandAsync(agentId, selectedSkills, permittedSkills, freeBudget, cancellationToken);
                 if (expansion.Count > 0)
                 {
                     selectedSkills = selectedSkills.Concat(expansion).DistinctBy(s => s.Name).ToList();
@@ -252,39 +393,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             }
         }
 
-        // Applied once, here, and after the expansion rather than before the selection: the keyword
-        // guarantee, the learned-phrase guarantee and the co-required expansion can each put the
-        // corrected turn's skill back, and a filter that ran earlier would be undone by any of them.
-        // Accepted noise: a co-required partner the expansion pulled in for an excluded skill is not
-        // itself excluded and survives in the tool set.
-        var excludedSkillNameSet = ResolveExclusionSet(excludedSkillNames, guaranteeResult.ExcludedSkillNames);
-        selectedSkills = DropExcluded(selectedSkills, excludedSkillNameSet, guaranteedSources);
-        var postExclusionRetrievedCount = retrievedSkills.Count(
-            s => !IsExcluded(s, excludedSkillNameSet, guaranteedSources));
-
-        var preCapCount = selectedSkills.Count;
-        var truncated = preCapCount > maxToolsForProvider;
-
-        if (truncated)
-        {
-            selectedSkills = TruncateToBudget(selectedSkills, guaranteeResult, retrievalScores, maxToolsForProvider);
-        }
-
-        LogToolBudget(
-            alwaysOnSkills.Count, postExclusionRetrievedCount, selectedSkills.Count, truncated,
-            maxToolsForProvider, guaranteedSkills.Where(selectedSkills.Contains).ToList());
-
-        var selectedProvenance = ResolveProvenance(
-            selectedSkills, guaranteedSources, retrievalScores, expansionNames);
-
-        return new SkillToolsetResult
-        {
-            Functions = ToStableOrderedFunctionsWithProvenance(selectedSkills, selectedProvenance),
-            HasDomainSkillContext = true,
-            AssemblyMs = assemblyWatch.ElapsedMilliseconds,
-            TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall,
-            SkillRerank = skillRerank
-        };
+        return selectedSkills;
     }
 
     /// <summary>
@@ -483,7 +592,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     /// too — the recipe engine's step decision on a composite recipe is more specific than the
     /// turn-level exclusion, and the forcing spine must never be pointed at a step skill missing from
     /// its own tool set. This is the single predicate both DropExcluded and the retrieved-count
-    /// bookkeeping in AssembleAsync use, so the two can never disagree about what "excluded" means.
+    /// bookkeeping in ApplyCorrectionExclusion use, so the two can never disagree about what "excluded" means.
     /// </summary>
     private static bool IsExcluded(
         AgentSkill skill,
