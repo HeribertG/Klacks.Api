@@ -21,6 +21,15 @@ public class ContractRepository : BaseRepository<Contract>, IContractRepository
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
+    public async Task<int> CountActiveOrFutureAssignmentsAsync(Guid contractId, DateOnly today)
+    {
+        return await context.ClientContract.CountAsync(cc =>
+            !cc.IsDeleted
+            && cc.ContractId == contractId
+            && !cc.Client.IsDeleted
+            && (cc.UntilDate == null || cc.UntilDate >= today));
+    }
+
     public async Task<int> CountActiveContractsByIndividualPeriodAsync(Guid individualPeriodId)
     {
         return await context.Contract.CountAsync(c => !c.IsDeleted && c.IndividualPeriodId == individualPeriodId);

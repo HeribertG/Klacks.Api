@@ -23461,7 +23461,7 @@
     {
       "name": "delete_contract",
       "area": "contract",
-      "description": "Soft-deletes a contract template after verifying it exists. Existing client-contract assignments are not touched by this skill — check with list_contracts / get_contract_details before removal and prefer setting validUntil via update_contract if the contract is still referenced. Use list_contracts to find the contract ID. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Soft-deletes a contract template by its contractId (UUID). Refused while the contract is still assigned to employees with an active or future assignment; assignments that already ended do not block it. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23523,7 +23523,7 @@
         "fr": "Supprimer un modèle de contrat",
         "it": "Elimina un modello di contratto"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_client_availabilities",

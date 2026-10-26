@@ -9,6 +9,7 @@
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Services.Contracts;
 using Klacks.Api.Domain.Attributes;
@@ -53,7 +54,16 @@ public class DeleteContractSkill : BaseSkillImplementation
             return SkillResult.Error($"Contract '{contractId}' not found.");
         }
 
-        var deleted = await _mediator.Send(new DeleteCommand<ContractResource>(contractId), cancellationToken);
+        ContractResource? deleted;
+        try
+        {
+            deleted = await _mediator.Send(new DeleteCommand<ContractResource>(contractId), cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
+
         if (deleted == null)
         {
             return SkillResult.Error($"Deleting contract '{contractId}' failed.");
