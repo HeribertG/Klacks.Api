@@ -2289,7 +2289,7 @@
     {
       "name": "get_ai_soul",
       "area": "klacksy",
-      "description": "Retrieves the AI assistant's personality definition (soul sections). Use this when the user asks about the assistant's personality, identity, or behavior rules, or when you need to check current settings before updating them. Sections: identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Retrieves the AI assistant's personality definition (soul sections). Use this when the user asks about the assistant's personality, identity, or behavior rules. Sections: identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2378,7 +2378,7 @@
         "fr": "Consulter la définition de personnalité de Klacksy",
         "it": "Visualizza la definizione della personalità di Klacksy"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "get_client_details",
@@ -2585,7 +2585,7 @@
     {
       "name": "get_data_retention_settings",
       "area": "settings",
-      "description": "Retrieves the current GDPR data retention period in days. This value controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Use this to check the current value before explaining it. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Retrieves the current GDPR data retention period in days. This value controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Use this when the user asks how long soft-deleted records are kept before they are purged. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14706,7 +14706,7 @@
     {
       "name": "list_period_issues",
       "area": "period",
-      "description": "Lists the validation findings of a billing period (the issues card of the period-closing page): errors, warnings and notes per day and employee — the pre-flight check to run for closing a period. Optionally group-scoped (UUID or name).",
+      "description": "Lists the validation findings of a billing period (the issues card of the period-closing page): errors, warnings and notes per day and employee — the pre-flight check before a period is closed. Optionally group-scoped (UUID or name).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -26203,7 +26203,7 @@
     {
       "name": "list_languages",
       "area": "settings",
-      "description": "Lists the active UI languages (with fallback order) and all known language packs: the core languages de/en/fr/it plus optional plugin packs (e.g. Swiss German 'gsw', Romansh 'rm') with installation state, version, translation coverage, translation count and text direction. Use this when the user asks which languages Klacks supports, which language packs are installed, or to find the pack code of a language pack. Read-only.",
+      "description": "Lists the active UI languages (with fallback order) and all known language packs: the core languages de/en/fr/it plus optional plugin packs (e.g. Swiss German 'gsw', Romansh 'rm') with installation state, version, translation coverage, translation count and text direction. Use this when the user asks which languages Klacks supports, which language packs are installed, or to find a language pack's code. Read-only.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32211,7 +32211,7 @@
     {
       "name": "check_absence_conflicts",
       "area": "absence",
-      "description": "Advisory pre-flight check BEFORE entering an absence: for a client and date range it reports overlapping planned absences (placeholders), overlapping booked absences, scheduled work assignments in the period, and membership-window problems. The server enforces none of these — run this whenever the user asks whether an absence is possible, and before booking absences on longer periods. Use for: 'kann Anna vom 3.-10.8.",
+      "description": "Advisory pre-flight check BEFORE entering an absence: for a client and date range it reports overlapping planned absences (placeholders), overlapping booked absences, scheduled work assignments in the period, and membership-window problems. The server enforces none of these — run this whenever the user asks whether an absence is possible, and before booking absences on longer periods. Use for: 'kann Anna vom 3.-10.8. in die Ferien?', 'passt eine Absenz von Max im Mai?'.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33642,7 +33642,7 @@
     {
       "name": "check_client_availability",
       "area": "availability",
-      "description": "Advisory check whether a client is deployable on a given day / hour window, applying the REAL planning hierarchy: a booked absence (Break) overrides everything, a schedule keyword (FREE/EARLY/...) overrides availability, and availability itself is opt-in per date (no record = fully open; a positively marked day restricts work to exactly the marked hours; an only-false day blocks just those hours). Use for: 'ist Anna am Montag verfügbar?', 'kann Max am 12.8.",
+      "description": "Advisory check whether a client is deployable on a given day / hour window, applying the REAL planning hierarchy: a booked absence (Break) overrides everything, a schedule keyword (FREE/EARLY/...) overrides availability, and availability itself is opt-in per date (no record = fully open; a positively marked day restricts work to exactly the marked hours; an only-false day blocks just those hours). Use for: 'ist Anna am Montag verfügbar?', 'kann Max am 12.8. arbeiten?'.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33727,7 +33727,7 @@
         "fr": "Vérifier si un employé est mobilisable",
         "it": "Verifica se un dipendente è impiegabile"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_availability_overview",
