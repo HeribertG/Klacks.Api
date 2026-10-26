@@ -1052,7 +1052,7 @@
     {
       "name": "list_calendars",
       "area": "settings",
-      "description": "Lists the available calendar selections (holiday calendars, e.g. 'Kanton Zürich'), optionally filtered by a name search term. Use this to resolve a calendar name to its id before create_group.",
+      "description": "Lists the available calendar selections (holiday calendars, e.g. 'Kanton Zürich'), optionally filtered by a name search term. Use this to resolve a calendar name to its id.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -1118,7 +1118,7 @@
         "fr": "Lister les sélections de calendrier",
         "it": "Elenca le selezioni di calendario"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "assign_contract_to_client",
@@ -2105,7 +2105,7 @@
     {
       "name": "get_ai_guidelines",
       "area": "klacksy",
-      "description": "Retrieves the AI assistant's active guidelines. Use this when the user asks about current rules, or to check guidelines before updating them with update_ai_guidelines. Guidelines define rules for behavior and function usage. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Retrieves the AI assistant's active guidelines. Use this when the user asks about current rules. Guidelines define rules for behavior and function usage. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2170,7 +2170,7 @@
         "fr": "Consulter les directives IA actives",
         "it": "Visualizza le linee guida IA attive"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "get_ai_memories",
@@ -2585,7 +2585,7 @@
     {
       "name": "get_data_retention_settings",
       "area": "settings",
-      "description": "Retrieves the current GDPR data retention period in days. This value controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Use this to check the current value before explaining it or before updating it with update_data_retention_settings. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Retrieves the current GDPR data retention period in days. This value controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Use this to check the current value before explaining it. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2619,7 +2619,7 @@
         "fr": "Paramètres de conservation des données",
         "it": "Impostazioni di conservazione dei dati"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_user_permissions",
@@ -2940,7 +2940,7 @@
     {
       "name": "list_personal_access_tokens",
       "area": "security",
-      "description": "Lists the requesting user's OWN personal access tokens: name, token prefix, creation, expiry and last-use timestamps — never the token value itself. Use it to find the token id before calling revoke_personal_access_token. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Lists the requesting user's OWN personal access tokens: name, token prefix, creation, expiry and last-use timestamps — never the token value itself. Use it to find the token id. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -2986,7 +2986,7 @@
         "fr": "Lister ses jetons d'accès",
         "it": "Elenca i propri token di accesso"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "revoke_personal_access_token",
@@ -6109,7 +6109,7 @@
     {
       "name": "update_data_retention_settings",
       "area": "settings",
-      "description": "Updates the GDPR data retention period in days. Controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Minimum 30 days, maximum 36500 days (100 years), default 3650 days (10 years). Use get_data_retention_settings first to check the current value. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Updates the GDPR data retention period in days. Controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Minimum 30 days, maximum 36500 days (100 years), default 3650 days (10 years). Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -6205,7 +6205,7 @@
         "fr": "Modifier la durée de conservation des données",
         "it": "Modifica il periodo di conservazione dei dati"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_owner_address",
@@ -14706,7 +14706,7 @@
     {
       "name": "list_period_issues",
       "area": "period",
-      "description": "Lists the validation findings of a billing period (the issues card of the period-closing page): errors, warnings and notes per day and employee — the pre-flight check to run BEFORE close_period. Optionally group-scoped (UUID or name).",
+      "description": "Lists the validation findings of a billing period (the issues card of the period-closing page): errors, warnings and notes per day and employee — the pre-flight check to run for closing a period. Optionally group-scoped (UUID or name).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14795,7 +14795,7 @@
         "fr": "Lister les problèmes de validation d'une période",
         "it": "Elenca i problemi di validazione di un periodo"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "list_period_audit_log",
@@ -15068,7 +15068,7 @@
     {
       "name": "verify_my_last_action",
       "area": "klacksy",
-      "description": "Meta-skill: reports the most recent skill execution for the current user in the last 30 minutes. Returns the skill name, success/failure, duration, error message and parameters. Use after a mutating skill call to confirm the action took effect, or before rollback_my_last_change. Does not mutate any data.",
+      "description": "Meta-skill: reports the most recent skill execution for the current user in the last 30 minutes. Returns the skill name, success/failure, duration, error message and parameters. Use after a mutating skill call to confirm the action took effect, or before a rollback. Does not mutate any data.",
       "category": "Read",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -15114,7 +15114,7 @@
         "fr": "Vérifier ma dernière action",
         "it": "Verifica la mia ultima azione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "rollback_my_last_change",
@@ -22623,7 +22623,7 @@
     {
       "name": "list_schedule_notes",
       "area": "schedule",
-      "description": "Lists schedule notes — free-text per-client/per-day annotations shown in the schedule (e.g. handover remarks or planning hints). Returns id, clientId, date, content and analyseToken (scenario notes carry a token, main-schedule notes have null), ordered by date. Optionally filter by clientId. Use this to find the noteId before delete_schedule_note. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Lists schedule notes — free-text per-client/per-day annotations shown in the schedule (e.g. handover remarks or planning hints). Returns id, clientId, date, content and analyseToken (scenario notes carry a token, main-schedule notes have null), ordered by date. Optionally filter by clientId. Use this to find the noteId. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22686,7 +22686,7 @@
         "fr": "Lister les notes de planning",
         "it": "Elenca le note del planning"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "add_schedule_note",
@@ -22847,7 +22847,7 @@
     {
       "name": "list_client_memberships",
       "area": "client",
-      "description": "Lists memberships (client affiliation periods). A membership's ValidFrom is the plannability boundary in the schedule: an employee can only be planned from that date on, regardless of contract dates. Optionally filter by clientId to see one employee's membership history. Use this before update_membership to find the membership ID, or when the user asks since when someone can be planned.",
+      "description": "Lists memberships (client affiliation periods). A membership's ValidFrom is the plannability boundary in the schedule: an employee can only be planned from that date on, regardless of contract dates. Optionally filter by clientId to see one employee's membership history. Use this to find the membership ID, or when the user asks since when someone can be planned.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22917,7 +22917,7 @@
         "fr": "Lister les affiliations",
         "it": "Elenca le affiliazioni"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_membership",
@@ -23528,7 +23528,7 @@
     {
       "name": "list_client_availabilities",
       "area": "availability",
-      "description": "Lists client availability entries (per client, date and hour granularity) for a date range. Each entry says whether a client declared themselves available or unavailable for a specific hour on a specific day. Use this before planning or placing work to respect employee availability; entries are written with set_client_availability. Returns clientId, date, hour and isAvailable per entry.",
+      "description": "Lists client availability entries (per client, date and hour granularity) for a date range. Each entry says whether a client declared themselves available or unavailable for a specific hour on a specific day. Use this before planning or placing work to respect employee availability. Returns clientId, date, hour and isAvailable per entry.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23607,7 +23607,7 @@
         "fr": "Lister les disponibilités d'un employé",
         "it": "Elenca le disponibilità di un dipendente"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "set_client_availability",
@@ -24428,7 +24428,7 @@
     {
       "name": "evaluate_autonomy_level_change",
       "area": "klacksy",
-      "description": "Explains what would concretely change if the autonomy level were set to a given value: how many currently registered skills would start or stop needing a confirmation before running, broken down by risk (reversible, scenario-bound, irreversible; sensitive actions always keep asking regardless of level). Use this before recommending a level change, so the user sees the real effect first — changing the level itself still happens via set_autonomy_level.",
+      "description": "Explains what would concretely change if the autonomy level were set to a given value: how many currently registered skills would start or stop needing a confirmation before running, broken down by risk (reversible, scenario-bound, irreversible; sensitive actions always keep asking regardless of level). Use this before recommending a level change, so the user sees the real effect first — changing the level itself is a separate step.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -24496,7 +24496,7 @@
         "fr": "Évaluer l'effet d'un changement de niveau d'autonomie",
         "it": "Valuta l'effetto di una modifica del livello di autonomia"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_dashboard_summary",
@@ -26203,7 +26203,7 @@
     {
       "name": "list_languages",
       "area": "settings",
-      "description": "Lists the active UI languages (with fallback order) and all known language packs: the core languages de/en/fr/it plus optional plugin packs (e.g. Swiss German 'gsw', Romansh 'rm') with installation state, version, translation coverage, translation count and text direction. Use this when the user asks which languages Klacks supports, which language packs are installed, or to find the pack code before install_language_pack / uninstall_language_pack. Read-only.",
+      "description": "Lists the active UI languages (with fallback order) and all known language packs: the core languages de/en/fr/it plus optional plugin packs (e.g. Swiss German 'gsw', Romansh 'rm') with installation state, version, translation coverage, translation count and text direction. Use this when the user asks which languages Klacks supports, which language packs are installed, or to find the pack code of a language pack. Read-only.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -26265,7 +26265,7 @@
         "fr": "Lister les langues et packs de langue",
         "it": "Elenca lingue e pacchetti lingua"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_translation_status",
@@ -32211,7 +32211,7 @@
     {
       "name": "check_absence_conflicts",
       "area": "absence",
-      "description": "Advisory pre-flight check BEFORE entering an absence: for a client and date range it reports overlapping planned absences (placeholders), overlapping booked absences, scheduled work assignments in the period, and membership-window problems. The server enforces none of these — run this whenever the user asks whether an absence is possible, and before add_break_placeholder/add_break on longer periods. Use for: 'kann Anna vom 3.-10.8.",
+      "description": "Advisory pre-flight check BEFORE entering an absence: for a client and date range it reports overlapping planned absences (placeholders), overlapping booked absences, scheduled work assignments in the period, and membership-window problems. The server enforces none of these — run this whenever the user asks whether an absence is possible, and before booking absences on longer periods. Use for: 'kann Anna vom 3.-10.8.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32286,7 +32286,7 @@
         "fr": "Vérifier les conflits d'une absence",
         "it": "Verifica i conflitti di un'assenza"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "check_absence_capacity_reserve",
