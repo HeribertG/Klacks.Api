@@ -199,16 +199,27 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         await ApplyScenarioFollowUpGuaranteeAsync(
             guaranteedSkills, guaranteedSources, request, cancellationToken);
 
-        ApplyScheduleReadGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
-        ApplyShiftListReadGuarantee(guaranteedSkills, guaranteedSources, request);
-
-        ApplyGridMarkingGuarantee(guaranteedSkills, guaranteedSources, request);
-
-        ApplyBookingDiagnosisGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+        ApplyPageAndQuestionGuarantees(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
 
         return new SkillToolsetGuaranteeResult(
             guaranteedSkills, guaranteedSources, lowestRankedNames, turnIntent.VetoesForcedToolCall,
             draftLoop.ExcludedSkillNames);
+    }
+
+    /// <summary>
+    /// The read-only guarantees keyed on the current page and the wording of the question: schedule read, shift list read,
+    /// grid marking and booking diagnosis. Split out of ResolveAsync to keep it within the method size ceiling.
+    /// </summary>
+    private static void ApplyPageAndQuestionGuarantees(
+        HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
+        HashSet<string> lowestRankedNames,
+        SkillToolsetGuaranteeRequest request)
+    {
+        ApplyScheduleReadGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+        ApplyShiftListReadGuarantee(guaranteedSkills, guaranteedSources, request);
+        ApplyGridMarkingGuarantee(guaranteedSkills, guaranteedSources, request);
+        ApplyBookingDiagnosisGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
     }
 
     /// <summary>
