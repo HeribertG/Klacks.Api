@@ -19,12 +19,18 @@ internal static class SealOpenOrdersPreviewText
         "Only orders in the groups you can see are included; orders without a group can only be sealed by an " +
         "administrator. ";
 
+    private const string GroupScopeNote =
+        "This counts only orders already linked to that group (group membership, not the customer address); orders " +
+        "without any group are not included, so never conclude from it that a place has no orders - search_shifts " +
+        "with city or state finds orders by address, assign_orders_to_groups links them. ";
+
     /// <param name="result">The dry-run result</param>
     /// <param name="scope">The scope the run was resolved with</param>
     /// <param name="groupNote">The note naming the resolved group, empty when none was named</param>
     public static string Describe(SealOpenOrdersResult result, OpenOrderSealingScope scope, string groupNote)
     {
-        var scopeNote = scope.HasFullAccess ? string.Empty : ScopedPreviewNote;
+        var scopeNote = (scope.HasFullAccess ? string.Empty : ScopedPreviewNote) +
+                        (string.IsNullOrEmpty(groupNote) ? string.Empty : GroupScopeNote);
 
         var autoAssignNote = result.AutoAssignRequested
             ? $"The group assignment would link {result.AutoAssignedCount} order(s) first, so up to " +

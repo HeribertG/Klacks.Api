@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Geo;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Domain.Services.Shifts;
@@ -382,7 +383,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     /// is deliberately not optional so no caller can forget the security boundary. Internal: only this repository and
     /// the tests compose on it.
     /// </summary>
-    internal IQueryable<Shift> FilterShifts(ShiftFilter filter, DateOnly today, IReadOnlyCollection<Guid>? visibleGroupIds)
+    internal IQueryable<Shift> FilterShifts(
+        ShiftFilter filter, DateOnly today, IReadOnlyCollection<Guid>? visibleGroupIds, ShiftLocationFilter? location = null)
     {
         Logger.LogInformation("Applying filters to shifts query");
 
@@ -408,7 +410,13 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         query = isUnsealedDraftView
             ? query
             : _queryPipeline.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange, today);
+        if (!isUnsealedDraftView && ShiftValidityOverlap.HasPeriod(filter.ValidFrom, filter.ValidUntil))
+        {
+            query = query.Where(ShiftValidityOverlap.Overlaps(filter.ValidFrom, filter.ValidUntil));
+        }
+
         query = _queryPipeline.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
+        query = ShiftLocationQuery.Apply(query, context.Client, location);
         query = ShiftGroupVisibilityQuery.Apply(query, visibleGroupIds);
         query = _queryPipeline.ApplySorting(query, filter.OrderBy, filter.SortOrder);
 
@@ -416,11 +424,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return query;
     }
 
-    public async Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter, IReadOnlyCollection<Guid>? visibleGroupIds)
+    public async Task<TruncatedShift> GetFilteredAndPaginatedShifts(
+        ShiftFilter filter, IReadOnlyCollection<Guid>? visibleGroupIds, ShiftLocationFilter? location = null)
     {
         Logger.LogInformation("Getting filtered and paginated shifts");
         var today = await _companyClock.GetTodayDateAsync();
-        var filteredQuery = FilterShifts(filter, today, visibleGroupIds);
+        var filteredQuery = FilterShifts(filter, today, visibleGroupIds, location);
         return await _queryPipeline.ApplyPaginationAsync(filteredQuery, filter);
     }
 

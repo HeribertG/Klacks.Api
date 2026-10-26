@@ -22,7 +22,6 @@
 using System.Globalization;
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
-using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.Qualifications;
@@ -50,14 +49,17 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
     private readonly IContractRepository _contractRepository;
     private readonly IMediator _mediator;
     private readonly ICompanyClock _companyClock;
+    private readonly IAddressLocationResolver _locationResolver;
 
     public FillGroupByCriteriaSkill(
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         IContractRepository contractRepository,
         IMediator mediator,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IAddressLocationResolver locationResolver)
     {
+        _locationResolver = locationResolver;
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _contractRepository = contractRepository;
@@ -167,7 +169,7 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
             _ => EntityTypeEnum.Employee
         };
 
-        var resolvedCanton = await ResolveCantonAsync(canton, cancellationToken);
+        var resolvedCanton = await _locationResolver.ResolveStateCodeAsync(canton, cancellationToken);
         var trimmedCity = string.IsNullOrWhiteSpace(city) ? null : city.Trim();
         var trimmedZipPrefix = string.IsNullOrWhiteSpace(zipPrefix) ? null : zipPrefix.Trim();
         int? randomSeed = random
@@ -246,28 +248,5 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
             $"Added {result.AddedCount} {entityType}(s) to group '{groupName}' " +
             $"and confirmed {result.VerifiedCount} in the database (verified){alreadyNote}. " +
             GroupMembershipStartHint.For(result.MembershipStart, applied: true));
-    }
-
-    private async Task<string?> ResolveCantonAsync(string? canton, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(canton))
-        {
-            return null;
-        }
-
-        var trimmed = canton.Trim();
-        var states = (await _mediator.Send(new ListQuery<StateResource>(), cancellationToken)).ToList();
-
-        var byAbbreviation = states.FirstOrDefault(s =>
-            string.Equals(s.Abbreviation, trimmed, StringComparison.OrdinalIgnoreCase));
-        if (byAbbreviation != null)
-        {
-            return byAbbreviation.Abbreviation;
-        }
-
-        var byName = states.FirstOrDefault(s => s.Name != null &&
-            s.Name.ToDictionary().Values.Any(v => string.Equals(v, trimmed, StringComparison.OrdinalIgnoreCase)));
-
-        return byName?.Abbreviation ?? trimmed;
     }
 }

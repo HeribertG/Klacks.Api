@@ -14,12 +14,20 @@
 /// lone returned shift id and inject it into a write step, and the model reuses it for update/delete.
 /// A shift that only a typo or phonetic stage matched is therefore returned as an ask-back text with
 /// no rows, so no capture can pick it up before the user confirmed the name.
+/// Optional location filters (country, state, city, zip prefix) narrow the list to orders by their location: the
+/// customer's workplace address, else the main address, never the invoicing address (OrderLocationAddressRule); it has
+/// nothing to do with the group an order is linked to. A location search skips the fuzzy name fallback, which would
+/// suggest shifts from anywhere, and the rows never carry the address itself.
 /// </summary>
 /// <param name="searchString">Optional. Text filter on shift name, abbreviation or client name;
 /// falls back to fuzzy name resolution when the filter finds nothing.</param>
 /// <param name="maxResults">Optional. Maximum number of shifts to return (default 20, capped at 100).</param>
 /// <param name="status">Optional. List view: shift (default, plannable shifts and cuts), draft_order (unsealed
 /// orders), sealed_order (sealed orders) or container.</param>
+/// <param name="country">Optional. Country of the order location (code or name in any language).</param>
+/// <param name="state">Optional. State of the order location - canton, Bundesland, département, ... (code or name).</param>
+/// <param name="city">Optional. City of the order location (case-insensitive equality).</param>
+/// <param name="zipPrefix">Optional. Prefix of the order location's zip code.</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Staffs;
@@ -46,6 +54,11 @@ public class SearchShiftsSkill : BaseSkillImplementation
     private const string StatusDraftOrder = "draft_order";
     private const string StatusSealedOrder = "sealed_order";
     private const string StatusContainer = "container";
+
+    private const string CountryParameter = "country";
+    private const string StateParameter = "state";
+    private const string CityParameter = "city";
+    private const string ZipPrefixParameter = "zipPrefix";
 
     private static readonly string[] ShiftLabelWords = ["dienst", "schicht", "shift", "service", "turno"];
 
@@ -90,7 +103,9 @@ public class SearchShiftsSkill : BaseSkillImplementation
                 $"Parameter '{StatusParameter}' must be one of: {string.Join(", ", Views.Keys)}.");
         }
 
+        var location = ReadLocation(parameters);
         var filter = BuildFilter(searchString, maxResults, view);
+        ApplyLocation(filter, location);
 
         var result = await _mediator.Send(new GetTruncatedListQuery(filter), cancellationToken);
 
@@ -98,11 +113,13 @@ public class SearchShiftsSkill : BaseSkillImplementation
         var matched = result.Shifts ?? new List<ShiftResource>();
         var message = $"Found {totalCount} shift(s)" +
                       (!string.IsNullOrWhiteSpace(searchString) ? $" matching '{searchString}'" : string.Empty) +
-                      $"; returning {matched.Count}.";
+                      DescribeLocation(location) +
+                      $"; returning {matched.Count}." +
+                      (totalCount == 0 && filter.HasLocationFilter ? EmptyLocationHint(status) : string.Empty);
 
         // A spoken or decorated name ("Dienst All-Shift") rarely survives the database text
         // filter — rank it against the real shift names instead of reporting an empty list.
-        if (totalCount == 0 && !string.IsNullOrWhiteSpace(searchString))
+        if (totalCount == 0 && !string.IsNullOrWhiteSpace(searchString) && !filter.HasLocationFilter)
         {
             (matched, message) = await ResolveFuzzyAsync(searchString, maxResults, view, cancellationToken);
             totalCount = matched.Count;
@@ -126,6 +143,48 @@ public class SearchShiftsSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(new { TotalCount = totalCount, Shifts = shifts }, message);
     }
+
+    private static (string? Country, string? State, string? City, string? ZipPrefix) ReadLocation(
+        Dictionary<string, object> parameters)
+        => (Clean(GetParameter<string>(parameters, CountryParameter)),
+            Clean(GetParameter<string>(parameters, StateParameter)),
+            Clean(GetParameter<string>(parameters, CityParameter)),
+            Clean(GetParameter<string>(parameters, ZipPrefixParameter)));
+
+    private static void ApplyLocation(
+        ShiftFilter filter, (string? Country, string? State, string? City, string? ZipPrefix) location)
+    {
+        filter.Country = location.Country;
+        filter.State = location.State;
+        filter.City = location.City;
+        filter.ZipPrefix = location.ZipPrefix;
+    }
+
+    private static string DescribeLocation((string? Country, string? State, string? City, string? ZipPrefix) location)
+    {
+        string?[] candidates =
+        [
+            location.City == null ? null : $"city '{location.City}'",
+            location.ZipPrefix == null ? null : $"zip starting '{location.ZipPrefix}'",
+            location.State == null ? null : $"state '{location.State}'",
+            location.Country == null ? null : $"country '{location.Country}'"
+        ];
+        var parts = candidates.OfType<string>().ToList();
+
+        return parts.Count == 0
+            ? string.Empty
+            : " whose customer location (workplace, else main address) is in " + string.Join(", ", parts);
+    }
+
+    private static string EmptyLocationHint(string status)
+        => " No customer address matches there in this list. A city and a state can share a name (Bern): retry with the " +
+           "other parameter if the user may have meant it" +
+           (string.Equals(status, StatusShift, StringComparison.OrdinalIgnoreCase)
+               ? $", and for orders use {StatusParameter}={StatusDraftOrder} or {StatusSealedOrder}"
+               : string.Empty) +
+           ". Never say there are no orders in a place before both were checked.";
+
+    private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     private static ShiftFilter BuildFilter(
         string searchString, int pageSize, (ShiftFilterType FilterType, bool IsSealedOrder) view)

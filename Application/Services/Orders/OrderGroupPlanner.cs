@@ -5,11 +5,11 @@
 /// from its customer, in a fixed precedence — the customer's own active membership in a group carrying
 /// coordinates (the cluster the address partition placed it in), then exact city-name match, then exact
 /// state-code match, then the nearest group carrying coordinates, then unassigned with a reason. It never
-/// touches the database; the command handler is the only place that writes. Address choice differs from
-/// the staff planners in one point: an order is fulfilled where the customer works, so the workplace
-/// address wins over the main address, and only below that the same rule as CustomerGroupingPlanner
-/// applies. Scenario rows are the caller's responsibility to exclude; scenario memberships (AnalyseToken
-/// set) are ignored here so an analysis scenario never hides a needed placement.
+/// touches the database; the command handler is the only place that writes. The address follows the shared
+/// order-location rule (OrderLocationAddressRule): an order is fulfilled where the customer works, so the
+/// workplace address wins over the main address, and the invoicing address never places an order. Scenario
+/// rows are the caller's responsibility to exclude; scenario memberships (AnalyseToken set) are ignored here
+/// so an analysis scenario never hides a needed placement.
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Orders;
@@ -19,13 +19,12 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Geo;
+using Klacks.Api.Domain.Services.Shifts;
 
 namespace Klacks.Api.Application.Services.Orders;
 
 public static class OrderGroupPlanner
 {
-    private const AddressTypeEnum PreferredOrderAddressType = AddressTypeEnum.Workplace;
-
     private const string ReasonNoCustomer = "the order has no customer";
     private const string ReasonNoUsableAddress = "the customer has no address with a city, a state or coordinates";
     private const string ReasonNoAnchors = "no group is named after the customer's city or state and no group carries coordinates";
@@ -126,14 +125,7 @@ public static class OrderGroupPlanner
     }
 
     internal static Address? SelectOrderAddress(Client customer, Func<Address, bool> isUsable)
-    {
-        var workplace = customer.Addresses
-            .Where(a => !a.IsDeleted && a.Type == PreferredOrderAddressType && isUsable(a))
-            .OrderByDescending(a => a.ValidFrom)
-            .FirstOrDefault();
-
-        return workplace ?? CustomerGroupingPlanner.SelectPreferredAddress(customer, isUsable);
-    }
+        => OrderLocationAddressRule.Select(customer.Addresses, isUsable);
 
     private static bool HasState(Address address) => !string.IsNullOrWhiteSpace(address.State);
 

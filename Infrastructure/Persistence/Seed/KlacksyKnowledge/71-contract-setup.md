@@ -82,7 +82,7 @@ Creating the contract does not assign it. Assigning it to an employee is a separ
 
 ### Payment interval
 
-*Individual* only works when the template already carries a custom pay period, and that period is copied only while the interval stays *Individual*: any other interval drops it. *Monthly target hours* makes the company-wide table of hours per calendar month decide the hours of every month that has a row there, scaled by the percent; fixed guaranteed hours apply only in months without a row in that table.
+*Individual* only works when the template already carries a custom pay period, and that period is copied only while the interval stays *Individual*: any other interval drops it. *Monthly target hours* makes the company-wide table of hours per calendar month decide the hours of every month that has a row there, scaled by the percent; fixed guaranteed hours apply only in months without a row in that table. A contract that leaves the guaranteed hours empty reads the same table on any interval (month row, otherwise the company guaranteed hours, × percent); `explain_target_hours` compares the two ways.
 
 ### The workload paths and their implied changes
 

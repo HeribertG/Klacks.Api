@@ -913,6 +913,11 @@
     "encerrar a afiliação do funcionário",
     "definir a data de saída do funcionário"
   ],
+  "evaluate_absence_hours_setup": [
+    "porque recebe tão poucas horas de férias",
+    "o dia de férias devia contar oito horas",
+    "verificar a configuração das horas de ausência"
+  ],
   "evaluate_autonomy_level_change": [
     "o que muda com este nível de autonomia",
     "qual o efeito de aumentar o nível de autonomia",
@@ -944,6 +949,11 @@
     "verificar cenário",
     "analisar cenário"
   ],
+  "evaluate_target_hours_setup": [
+    "porque as horas-alvo estão erradas",
+    "que contrato para esta ocupação",
+    "a tabela de horas-alvo tem lacunas"
+  ],
   "explain_absence_blocks_planning": [
     "uma ausência bloqueia o planejamento?",
     "o assistente pode mover uma licença já marcada?",
@@ -951,6 +961,12 @@
     "uma ausência interrompe a sequência de dias trabalhados?",
     "uma ausência registrada fica travada para o planejador?",
     "por que meu dia de doença não foi movido?"
+  ],
+  "explain_absence_hours": [
+    "quantas horas conta um dia de férias",
+    "porque o dia de férias conta tantas horas",
+    "onde defino as horas de férias",
+    "percentagem de ocupação para dias de ausência"
   ],
   "explain_absence_model": [
     "porque o pedido de férias não aparece no plano",
@@ -1435,6 +1451,11 @@
     "que dados saem da empresa",
     "os dados de teste são registos reais"
   ],
+  "explain_target_hours": [
+    "como se calculam as horas-alvo",
+    "horas-alvo sem contrato",
+    "horas-alvo com percentagem de ocupação"
+  ],
   "explain_terms_with_several_meanings": [
     "qual é a diferença entre encomenda e serviço",
     "selado significa o mesmo em todo o lado",
@@ -1526,6 +1547,11 @@
     "calcular as coordenadas dos grupos de localização de uma vez",
     "geocodificar todos os grupos de cidades automaticamente",
     "obter coordenadas dos grupos com base na cidade"
+  ],
+  "get_absence_hours_calculation": [
+    "mostra-me o cálculo das horas de férias",
+    "quantas horas recebe pelo dia de férias",
+    "verificar as horas de férias de um colaborador"
   ],
   "get_active_industries_settings": [
     "quais setores estão ativos no sistema",
@@ -1823,6 +1849,11 @@
   ],
   "get_system_info": [
     "informações do sistema"
+  ],
+  "get_target_hours_calculation": [
+    "mostra-me o cálculo das horas-alvo",
+    "porque tem estas horas-alvo",
+    "verificar as horas-alvo de um colaborador"
   ],
   "get_translation_status": [
     "o serviço de tradução está configurado",
@@ -2617,7 +2648,9 @@
     "listar turnos disponíveis",
     "buscar por turno",
     "quais turnos existem",
-    "procurar turnos por nome"
+    "procurar turnos por nome",
+    "pedidos por localidade",
+    "pedidos no cantão"
   ],
   "select_group": [
     "mostra apenas o grupo",

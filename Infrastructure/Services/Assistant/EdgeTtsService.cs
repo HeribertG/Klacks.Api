@@ -4,6 +4,8 @@
 /// Text-to-speech service using Microsoft Edge's online TTS via WebSocket.
 /// </summary>
 /// <param name="_logger">Logger for diagnostics and error tracking</param>
+using System.Globalization;
+using System.Net;
 using System.Net.WebSockets;
 using System.Security.Cryptography;
 using System.Text;
@@ -19,13 +21,13 @@ public class EdgeTtsService : ITtsProvider
     private readonly ILogger<EdgeTtsService> _logger;
 
     private const int MaxTextLength = 5000;
-    private const string TrustedClientToken = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
     private const string WssBaseUrl = "wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1";
     private const string OutputFormat = "audio-24khz-48kbitrate-mono-mp3";
     private const string ChromiumVersion = "143.0.0.0";
     private const string EdgeVersion = "143.0.0.0";
-    private const string SecMsGecVersion = "1-143.0.3650.75";
-    private const long WindowsEpochOffset = 11644473600L;
+    private const string SecMsGecVersion = "2-143.0.3650.75";
+    private const int MuidByteLength = 16;
+    private const int MaxClockSkewRetries = 1;
     private const string FallbackVoiceShortName = "en-US-GuyNeural";
     private const string FallbackSsmlLang = "en-US";
 
@@ -90,7 +92,58 @@ public class EdgeTtsService : ITtsProvider
     {
         var connectionId = Guid.NewGuid().ToString("N");
 
-        using var ws = new ClientWebSocket();
+        using var ws = await ConnectAsync(connectionId, ct);
+
+        await SendSpeechConfig(ws, ct);
+        await SendSsml(ws, connectionId, voice, text, ct);
+
+        return await ReceiveAudio(ws, ct);
+    }
+
+    private async Task<ClientWebSocket> ConnectAsync(string connectionId, CancellationToken ct)
+    {
+        var clockSkewSeconds = 0L;
+        for (var attempt = 0; ; attempt++)
+        {
+            var ws = CreateWebSocket();
+            try
+            {
+                var secMsGec = EdgeTtsSecMsGecGenerator.Generate(DateTimeOffset.UtcNow.ToUnixTimeSeconds() + clockSkewSeconds);
+                var url = $"{WssBaseUrl}?TrustedClientToken={EdgeTtsSecMsGecGenerator.TrustedClientToken}&ConnectionId={connectionId}&Sec-MS-GEC={secMsGec}&Sec-MS-GEC-Version={SecMsGecVersion}";
+                await ws.ConnectAsync(new Uri(url), ct);
+                return ws;
+            }
+            catch (WebSocketException) when (ws.HttpStatusCode == HttpStatusCode.Forbidden)
+            {
+                var serverTime = ws.HttpResponseHeaders is not null
+                    && ws.HttpResponseHeaders.TryGetValue("Date", out var dateValues)
+                    && DateTimeOffset.TryParse(dateValues.FirstOrDefault(), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed)
+                        ? parsed
+                        : (DateTimeOffset?)null;
+                ws.Dispose();
+
+                if (attempt < MaxClockSkewRetries && serverTime is not null)
+                {
+                    clockSkewSeconds = serverTime.Value.ToUnixTimeSeconds() - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    _logger.LogWarning("Edge TTS returned HTTP 403, retrying with server clock offset of {Skew}s", clockSkewSeconds);
+                    continue;
+                }
+
+                _logger.LogError("Edge TTS rejected the Sec-MS-GEC token (HTTP 403, clock offset {Skew}s). Microsoft may have changed the DRM scheme; compare with edge-tts drm.py", clockSkewSeconds);
+                throw;
+            }
+            catch
+            {
+                ws.Dispose();
+                throw;
+            }
+        }
+    }
+
+    private static ClientWebSocket CreateWebSocket()
+    {
+        var ws = new ClientWebSocket();
+        ws.Options.CollectHttpResponseDetails = true;
         ws.Options.SetRequestHeader("Pragma", "no-cache");
         ws.Options.SetRequestHeader("Cache-Control", "no-cache");
         ws.Options.SetRequestHeader("Origin", "chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold");
@@ -98,16 +151,8 @@ public class EdgeTtsService : ITtsProvider
             $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{ChromiumVersion} Safari/537.36 Edg/{EdgeVersion}");
         ws.Options.SetRequestHeader("Accept-Encoding", "gzip, deflate, br, zstd");
         ws.Options.SetRequestHeader("Accept-Language", "en-US,en;q=0.9");
-
-        var secMsGec = GenerateSecMsGec();
-        var url = $"{WssBaseUrl}?TrustedClientToken={TrustedClientToken}&ConnectionId={connectionId}&Sec-MS-GEC={secMsGec}&Sec-MS-GEC-Version={SecMsGecVersion}";
-
-        await ws.ConnectAsync(new Uri(url), ct);
-
-        await SendSpeechConfig(ws, ct);
-        await SendSsml(ws, connectionId, voice, text, ct);
-
-        return await ReceiveAudio(ws, ct);
+        ws.Options.SetRequestHeader("Cookie", $"muid={Convert.ToHexString(RandomNumberGenerator.GetBytes(MuidByteLength))};");
+        return ws;
     }
 
     private static string ResolveVoice(string locale)
@@ -130,18 +175,6 @@ public class EdgeTtsService : ITtsProvider
     {
         var parts = voiceShortName.Split('-');
         return parts.Length >= 2 ? $"{parts[0]}-{parts[1]}" : FallbackSsmlLang;
-    }
-
-    private static string GenerateSecMsGec()
-    {
-        var unixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        var windowsTicks = (unixSeconds + WindowsEpochOffset);
-        windowsTicks -= windowsTicks % 300;
-        var scaledTicks = (long)(windowsTicks * 1e9 / 100);
-
-        var input = $"{scaledTicks}{TrustedClientToken}";
-        var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
-        return Convert.ToHexString(hashBytes);
     }
 
     private static async Task SendSpeechConfig(ClientWebSocket ws, CancellationToken ct)
