@@ -7473,6 +7473,121 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("export_log_item", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Geocoding.AddressGeocodingState", b =>
+                {
+                    b.Property<Guid>("AddressId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("address_id");
+
+                    b.Property<DateTime?>("AttemptedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("attempted_at");
+
+                    b.Property<string>("AttemptedCity")
+                        .HasColumnType("text")
+                        .HasColumnName("attempted_city");
+
+                    b.Property<string>("AttemptedCountry")
+                        .HasColumnType("text")
+                        .HasColumnName("attempted_country");
+
+                    b.Property<string>("AttemptedZip")
+                        .HasColumnType("text")
+                        .HasColumnName("attempted_zip");
+
+                    b.Property<int?>("FillSource")
+                        .HasColumnType("integer")
+                        .HasColumnName("fill_source");
+
+                    b.Property<DateTime?>("FilledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("filled_at");
+
+                    b.Property<int?>("FilledBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("filled_by");
+
+                    b.Property<Guid?>("FilledByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("filled_by_user_id");
+
+                    b.Property<double?>("FilledLatitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("filled_latitude");
+
+                    b.Property<double?>("FilledLongitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("filled_longitude");
+
+                    b.Property<int?>("Outcome")
+                        .HasColumnType("integer")
+                        .HasColumnName("outcome");
+
+                    b.Property<DateTime?>("RequestedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("requested_at");
+
+                    b.Property<int?>("RequestedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("requested_by");
+
+                    b.Property<Guid?>("RequestedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("requested_by_user_id");
+
+                    b.HasKey("AddressId")
+                        .HasName("pk_address_geocoding_state");
+
+                    b.HasIndex("RequestedAt")
+                        .HasDatabaseName("ix_address_geocoding_state_requested_at");
+
+                    b.ToTable("address_geocoding_state", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Geocoding.GeocodedLocality", b =>
+                {
+                    b.Property<string>("CountryCode")
+                        .HasColumnType("text")
+                        .HasColumnName("country_code");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("text")
+                        .HasColumnName("postal_code");
+
+                    b.Property<string>("City")
+                        .HasColumnType("text")
+                        .HasColumnName("city");
+
+                    b.Property<string>("County")
+                        .HasColumnType("text")
+                        .HasColumnName("county");
+
+                    b.Property<bool>("Found")
+                        .HasColumnType("boolean")
+                        .HasColumnName("found");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("latitude");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("longitude");
+
+                    b.Property<DateTime>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resolved_at");
+
+                    b.Property<string>("State")
+                        .HasColumnType("text")
+                        .HasColumnName("state");
+
+                    b.HasKey("CountryCode", "PostalCode", "City")
+                        .HasName("pk_geocoded_locality");
+
+                    b.ToTable("geocoded_locality", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Histories.History", b =>
                 {
                     b.Property<Guid>("Id")
@@ -15195,6 +15310,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_export_log_item_export_log_export_log_id");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Geocoding.AddressGeocodingState", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Staffs.Address", null)
+                        .WithOne()
+                        .HasForeignKey("Klacks.Api.Domain.Models.Geocoding.AddressGeocodingState", "AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_address_geocoding_state_address_address_id");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Histories.History", b =>
