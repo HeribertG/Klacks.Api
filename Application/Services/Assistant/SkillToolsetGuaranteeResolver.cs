@@ -207,6 +207,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
             guaranteedSkills, guaranteedSources, request, cancellationToken);
 
         ApplyScheduleReadGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+        ApplyShiftListReadGuarantee(guaranteedSkills, guaranteedSources, request);
 
         ApplyGridMarkingGuarantee(guaranteedSkills, guaranteedSources, request);
 
@@ -239,6 +240,22 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
                 continue;
             }
 
+            SkillGuaranteeCollector.Add(
+                guaranteedSkills, request.PermittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
+        }
+    }
+
+    /// <summary>
+    /// Keeps search_shifts on the shift list page (ShiftListReadIntentResolver): only it counts the rows the list holds,
+    /// search_in_list reads nothing back. Visibility only: the skill reads.
+    /// </summary>
+    private static void ApplyShiftListReadGuarantee(
+        HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
+        SkillToolsetGuaranteeRequest request)
+    {
+        foreach (var skillName in ShiftListReadIntentResolver.GuaranteedSkillNames(request.CurrentRoute))
+        {
             SkillGuaranteeCollector.Add(
                 guaranteedSkills, request.PermittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
