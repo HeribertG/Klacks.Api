@@ -3,7 +3,7 @@
 /// <summary>
 /// Computes the deterministic skill guarantees for one turn: skills that must be in the toolset
 /// independent of retrieval quality, because a weak model cannot compensate for a missing tool and
-/// several of these signals (a proposal reply, a planning-profile draft answer, a clarification's own
+/// several of these signals (a proposal reply, a draft-loop answer, a clarification's own
 /// answer) carry no keyword vector retrieval could rank on. Extracted out of SkillToolsetAssembler,
 /// whose own job is what happens with the RESULT of this resolution (merge, expand, exclude, truncate),
 /// not how the guarantees themselves are found. The content-match, keyword, plan-candidate and hint-list guarantees,
@@ -11,7 +11,6 @@
 /// </summary>
 
 using Klacks.Api.Application.Interfaces.Assistant;
-using Klacks.Api.Application.Skills.PlanningProfile;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -25,18 +24,10 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 {
     private const string ManagePendingNotesSkillName = "manage_pending_notes";
 
-    private static readonly string[] PlanningProfileLoopSkillNames =
-    [
-        "set_planning_profile_parameters",
-        "preview_planning_profile",
-        "apply_planning_profile",
-        "cancel_planning_profile_setup"
-    ];
-
     private readonly IPendingUserNoteRepository _pendingUserNoteRepository;
     private readonly RecipeEngineService _recipeEngine;
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
-    private readonly IPendingPlanningProfileDraftStore _planningProfileDraftStore;
+    private readonly IDraftLoopToolsetPolicy _draftLoopToolsetPolicy;
     private readonly ISkillPhraseRepository _skillPhraseRepository;
     private readonly ISkillRelationRepository _skillRelationRepository;
     private readonly ITurnIntentExplainGuarantee _turnIntentExplainGuarantee;
@@ -47,7 +38,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         IPendingUserNoteRepository pendingUserNoteRepository,
         RecipeEngineService recipeEngine,
         IPendingConfirmationStore pendingConfirmationStore,
-        IPendingPlanningProfileDraftStore planningProfileDraftStore,
+        IDraftLoopToolsetPolicy draftLoopToolsetPolicy,
         ISkillPhraseRepository skillPhraseRepository,
         ISkillRelationRepository skillRelationRepository,
         ITurnIntentExplainGuarantee turnIntentExplainGuarantee,
@@ -57,7 +48,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         _pendingUserNoteRepository = pendingUserNoteRepository;
         _recipeEngine = recipeEngine;
         _pendingConfirmationStore = pendingConfirmationStore;
-        _planningProfileDraftStore = planningProfileDraftStore;
+        _draftLoopToolsetPolicy = draftLoopToolsetPolicy;
         _skillPhraseRepository = skillPhraseRepository;
         _skillRelationRepository = skillRelationRepository;
         _turnIntentExplainGuarantee = turnIntentExplainGuarantee;
@@ -100,8 +91,15 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         SkillMessageGuarantees.ApplyPlanCandidateGuarantee(
             guaranteedSkills, guaranteedSources, permittedSkills, request.UserMessage, recipeMatched);
 
-        AddPlanningProfileDraftGuarantee(
-            guaranteedSkills, guaranteedSources, permittedSkills, request.UserId, request.ConversationId);
+        // Draft-loop guarantee: while a planning-profile setup or an order review is open, keep its loop skills in
+        // the tool set (the answers that continue it carry no keyword) and keep out what would bypass the loop's
+        // own confirmed preview. See DraftLoopToolsetPolicy.
+        var draftLoop = _draftLoopToolsetPolicy.Resolve(request.UserId, request.ConversationId);
+        foreach (var loopSkillName in draftLoop.GuaranteedSkillNames)
+        {
+            SkillGuaranteeCollector.Add(
+                guaranteedSkills, permittedSkills, loopSkillName, ToolsetSkillSource.Hint, guaranteedSources);
+        }
 
         await ApplyPendingNotesGuaranteeAsync(guaranteedSkills, guaranteedSources, request, cancellationToken);
 
@@ -121,15 +119,27 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         await ApplyScenarioFollowUpGuaranteeAsync(
             guaranteedSkills, guaranteedSources, request, cancellationToken);
 
-        ApplyScheduleReadGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
-        ApplyShiftListReadGuarantee(guaranteedSkills, guaranteedSources, request);
-
-        ApplyGridMarkingGuarantee(guaranteedSkills, guaranteedSources, request);
-
-        ApplyBookingDiagnosisGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+        ApplyPageAndQuestionGuarantees(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
 
         return new SkillToolsetGuaranteeResult(
-            guaranteedSkills, guaranteedSources, lowestRankedNames, turnIntent.VetoesForcedToolCall);
+            guaranteedSkills, guaranteedSources, lowestRankedNames, turnIntent.VetoesForcedToolCall,
+            draftLoop.ExcludedSkillNames);
+    }
+
+    /// <summary>
+    /// The read-only guarantees keyed on the current page and the wording of the question: schedule read, shift list read,
+    /// grid marking and booking diagnosis. Split out of ResolveAsync to keep it within the method size ceiling.
+    /// </summary>
+    private static void ApplyPageAndQuestionGuarantees(
+        HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
+        HashSet<string> lowestRankedNames,
+        SkillToolsetGuaranteeRequest request)
+    {
+        ApplyScheduleReadGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+        ApplyShiftListReadGuarantee(guaranteedSkills, guaranteedSources, request);
+        ApplyGridMarkingGuarantee(guaranteedSkills, guaranteedSources, request);
+        ApplyBookingDiagnosisGuarantee(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
     }
 
     /// <summary>
@@ -573,46 +583,6 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
     private static HashSet<string> NamesWithEffect(IEnumerable<AgentSkill> skills, SkillEffect effect) =>
         skills.Where(s => s.Effect == effect).Select(s => s.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-    /// <summary>
-    /// Adds the planning-profile loop skills when the user has an open draft in this conversation.
-    /// A store failure degrades to no guarantee rather than taking toolset assembly down with it.
-    /// The recipe guarantee only covers the turn a recipe engages or resumes on, and the answers that follow
-    /// ("security", "8.5") carry no keyword at all — so without this the loop skills drop out exactly on the turns
-    /// that continue the dialogue, and the model reaches for create_scheduling_rule instead (observed live
-    /// 2026-08-10). Keyed by the same scope the skills write the draft under.
-    /// </summary>
-    private void AddPlanningProfileDraftGuarantee(
-        HashSet<AgentSkill> guaranteedSkills,
-        IDictionary<string, ToolsetSkillSource> guaranteedSources,
-        IReadOnlyList<AgentSkill> permittedSkills,
-        string userId,
-        string? conversationId)
-    {
-        if (!Guid.TryParse(userId, out var draftUserId))
-        {
-            return;
-        }
-
-        try
-        {
-            var conversationKey = PlanningProfileDraftScope.ConversationKey(conversationId);
-            if (_planningProfileDraftStore.Get(draftUserId, conversationKey) is null)
-            {
-                return;
-            }
-
-            foreach (var skillName in PlanningProfileLoopSkillNames)
-            {
-                SkillGuaranteeCollector.Add(
-                    guaranteedSkills, permittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Planning-profile draft guarantee failed; continuing without it.");
-        }
-    }
 
     /// <summary>
     /// Learned-phrase guarantee: the same deterministic promise as the keyword guarantee for a wording the learning
