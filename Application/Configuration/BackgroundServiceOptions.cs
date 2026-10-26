@@ -240,13 +240,13 @@ public class BackgroundServiceOptions
     public bool GroupGeocoding { get; set; } = true;
 
     /// <summary>
-    /// Enables the address geocoding worker (AddressGeocodingBackgroundService), which drains the
-    /// in-process queue the employee import fills with the ids of the addresses it created and resolves
-    /// their coordinates through Nominatim, one address at a time with a pause in between. Default ON:
-    /// without it imported addresses never get coordinates. There is no startup resume scan, so ids still
-    /// queued at a restart are lost (those addresses stay without coordinates). With the flag off the
-    /// import queues nothing and reports geocodingQueued = 0. The queue lives in the process that accepted
-    /// the import, so keep it on for every instance that serves imports when scaling out.
+    /// Enables the address geocoding backfill (AddressGeocodingBackfillService): a single worker that scans the
+    /// database for addresses without coordinates (requested ones first - import, Klacksy, admin batch - then never
+    /// attempted ones, then expired retries) and gives them the centroid of their postcode and city through
+    /// Nominatim and the persistent locality cache, pausing after every real request. Customer addresses always,
+    /// employee addresses only with GEOCODING_EMPLOYEE_ADDRESSES_ENABLED. Default ON. Nothing lives in memory, so a
+    /// restart loses nothing. With the flag off nothing is geocoded in the background and requests on this instance
+    /// report 0 queued. It is a sweeper over shared data: keep it on for exactly one instance when scaling out.
     /// Override via env <c>BackgroundServices__AddressGeocoding=false</c>.
     /// </summary>
     public bool AddressGeocoding { get; set; } = true;

@@ -231,6 +231,7 @@
   "find_replacement": "למצוא מחליף למשמרת",
   "find_split_shift_candidates": "לבדוק אם ניתן לעשות שימוש חוזר בשכבות הקיימות",
   "generate_period_summary": "יצירת סיכום של תקופה",
+  "geocode_addresses": "השלמת קואורדינטות חסרות של כתובות",
   "geocode_location_groups": "קידוד גיאוגרפי אוטומטי של קבוצות מיקומים",
   "get_absence_hours_calculation": "הצגת חישוב שעות ההיעדרות",
   "get_active_industries_settings": "הגדרות ענף פעילות",

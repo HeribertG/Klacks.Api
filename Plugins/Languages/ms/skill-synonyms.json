@@ -1501,6 +1501,12 @@
     "statistik tempoh ini",
     "berapa ramai pekerja dalam tempoh ini"
   ],
+  "geocode_addresses": [
+    "lengkapkan koordinat alamat yang tiada",
+    "geokod alamat",
+    "letakkan alamat pelanggan pada peta",
+    "tentukan koordinat bagi alamat"
+  ],
   "geocode_location_groups": [
     "cari koordinat untuk semua kumpulan lokasi secara automatik",
     "kira koordinat kumpulan lokasi sekali gus",

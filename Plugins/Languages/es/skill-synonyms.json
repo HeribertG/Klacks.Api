@@ -1537,6 +1537,12 @@
     "cuántas personas hay en este mes",
     "resumen de planificación"
   ],
+  "geocode_addresses": [
+    "completar las coordenadas que faltan de las direcciones",
+    "geocodificar las direcciones",
+    "ubicar las direcciones de los clientes en el mapa",
+    "determinar las coordenadas de las direcciones"
+  ],
   "geocode_location_groups": [
     "ejecutar la geocodificación de todos los grupos de ubicación",
     "buscar las coordenadas de todos los grupos de ciudades automáticamente",

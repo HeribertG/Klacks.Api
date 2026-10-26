@@ -231,6 +231,7 @@
   "find_replacement": "Εύρεση αντικαταστάτη για μια βάρδια",
   "find_split_shift_candidates": "Ελέγξτε τα υπάρχοντα τμήματα στρώσεων για επαναχρησιμοποίηση",
   "generate_period_summary": "Δημιουργία σύνοψης μιας περιόδου",
+  "geocode_addresses": "Συμπλήρωση συντεταγμένων διευθύνσεων που λείπουν",
   "geocode_location_groups": "Αυτόματη γεωκωδικοποίηση ομάδων τοποθεσιών",
   "get_absence_hours_calculation": "Εμφάνιση υπολογισμού ωρών απουσίας",
   "get_active_industries_settings": "Ενεργές ρυθμίσεις ανά κλάδο",

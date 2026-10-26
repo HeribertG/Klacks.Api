@@ -8,5 +8,6 @@ public enum SkillRiskClass
     Reversible = 1,
     ScenarioGated = 2,
     Irreversible = 3,
-    Sensitive = 4
+    Sensitive = 4,
+    FillEmptyOnly = 5
 }

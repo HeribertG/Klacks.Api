@@ -231,6 +231,7 @@
   "find_replacement": "근무 대체 인력 찾기",
   "find_split_shift_candidates": "재사용할 기존 분할 시프트 후보 찾기",
   "generate_period_summary": "기간 요약 생성",
+  "geocode_addresses": "주소의 누락된 좌표 채우기",
   "geocode_location_groups": "위치 그룹 자동 지오코딩",
   "get_absence_hours_calculation": "부재 시간 계산 표시",
   "get_active_industries_settings": "활성 업종 설정",

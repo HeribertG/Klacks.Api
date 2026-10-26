@@ -1510,6 +1510,12 @@
     "månedsoversikt stab",
     "antall dager i mai"
   ],
+  "geocode_addresses": [
+    "fyll inn manglende koordinater for adressene",
+    "geokod adressene",
+    "plasser kundeadresser på kartet",
+    "finn koordinater for adressene"
+  ],
   "geocode_location_groups": [
     "finn koordinater for alle lokasjonsgrupper automatisk",
     "beregn koordinater for lokasjonsgruppene samlet",

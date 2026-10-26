@@ -1549,6 +1549,12 @@
     "periodestatistieken opvragen",
     "geef een korte rapportage van de periode"
   ],
+  "geocode_addresses": [
+    "ontbrekende coördinaten van de adressen aanvullen",
+    "de adressen geocoderen",
+    "klantadressen op de kaart plaatsen",
+    "coördinaten voor de adressen bepalen"
+  ],
   "geocode_location_groups": [
     "bepaal automatisch de coördinaten van alle groepen",
     "geocodeer alle locatiegroepen",

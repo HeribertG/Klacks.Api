@@ -231,6 +231,7 @@
   "find_replacement": "为班次寻找替补",
   "find_split_shift_candidates": "查找可复用的现有拆分班次",
   "generate_period_summary": "生成周期摘要",
+  "geocode_addresses": "补全地址缺失的坐标",
   "geocode_location_groups": "自动对地点分组进行地理编码",
   "get_absence_hours_calculation": "显示缺勤小时数的计算",
   "get_active_industries_settings": "已启用行业设置",

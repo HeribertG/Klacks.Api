@@ -231,6 +231,7 @@
   "find_replacement": "Löytää sijainen yhdelle vuorolle",
   "find_split_shift_candidates": "Tarkista olemassa olevat osakerrokset uudelleenkäytön kannalta",
   "generate_period_summary": "Luo yhteenveto tietyltä ajanjaksolta",
+  "geocode_addresses": "Täydennä osoitteiden puuttuvat koordinaatit",
   "geocode_location_groups": "Sijaintiryhmien automaattinen geokoodaus",
   "get_absence_hours_calculation": "Näytä poissaolotuntien laskenta",
   "get_active_industries_settings": "Voimassa olevat toimialakohtaiset asetukset",

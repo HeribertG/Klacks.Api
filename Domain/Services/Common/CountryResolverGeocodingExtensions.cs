@@ -4,8 +4,8 @@
 /// Resolves the country name a geocoding query is sent with, shared by route optimization, container autofill, group
 /// geocoding and the batch geocoding so none of them falls back to a hard-coded country. An empty country code means the company default country (APP_ADDRESS_COUNTRY); a code the
 /// resolver does not know is passed on unchanged; without any known country the name is empty (no country filter).
-/// The interactive address validation (AddressGeocodingProcessor, AddressGeocodingValidator, validate_address) keeps
-/// its own resolution, which falls back to the default country for an unknown code, and shares only GeocodingCountryName.
+/// The interactive address validation (AddressGeocodingValidator, validate_address) and the address backfill (AddressGeocodingFiller) keep
+/// their own resolution, which falls back to the default country for an unknown code, and shares only GeocodingCountryName.
 /// The resolver is scoped and reads the database, so callers must not run these lookups in parallel.
 /// </summary>
 /// <param name="resolver">Scoped country resolver (ISO code or any language name, default from the settings)</param>

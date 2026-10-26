@@ -1,99 +1,69 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Geocodes every stored address that still has no coordinates (e.g. addresses saved while the geo services
-/// were switched off) and writes each hit back. A disabled geocoder is reported instead of attempted.
+/// Admin batch (POST RouteOptimization/geocode-all): geocodes now every address without coordinates that the
+/// geocoding rules allow, through the same system function as Klacksy and the background backfill - locality
+/// centroid via the persistent cache, only empty coordinates filled, employee addresses only when the installation
+/// allows it, attributed to the admin. Total counts the eligible addresses, Geocoded the filled ones and Failed the
+/// rest (not found, changed meanwhile, or handed to the backfill after the geocoder became unreachable). A disabled
+/// geocoder is reported instead of attempted. The background backfill fills the same addresses on its own; this
+/// call only does it at once.
 /// </summary>
-/// <param name="addressRepository">Lists the addresses without coordinates</param>
-/// <param name="geocodingService">Rate-limited geocoder honouring the geo service policy</param>
-/// <param name="countryResolver">Resolves the stored country code to the name the geocoder is queried with</param>
-/// <param name="coordinateWriter">Writes the coordinates of a hit to the address</param>
-/// <param name="logger">Batch progress and misses</param>
+/// <param name="stateRepository">Lists the addresses without coordinates</param>
+/// <param name="geocodingService">Selects eligible addresses and geocodes them</param>
+/// <param name="logger">Batch summary</param>
 
 using Klacks.Api.Application.Commands.Geocoding;
 using Klacks.Api.Application.DTOs.Geocoding;
-using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Interfaces.RouteOptimization;
-using Klacks.Api.Domain.Interfaces.Settings;
-using Klacks.Api.Domain.Services.Common;
+using Klacks.Api.Application.Interfaces.Geocoding;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Geocoding;
 
 public class GeocodeAllAddressesCommandHandler : IRequestHandler<GeocodeAllAddressesCommand, GeocodeAllAddressesResult>
 {
-    private readonly IAddressRepository _addressRepository;
-    private readonly IGeocodingService _geocodingService;
-    private readonly ICountryResolver _countryResolver;
-    private readonly IAddressCoordinateWriter _coordinateWriter;
+    private readonly IAddressGeocodingStateRepository _stateRepository;
+    private readonly IAddressGeocodingService _geocodingService;
     private readonly ILogger<GeocodeAllAddressesCommandHandler> _logger;
 
     public GeocodeAllAddressesCommandHandler(
-        IAddressRepository addressRepository,
-        IGeocodingService geocodingService,
-        ICountryResolver countryResolver,
-        IAddressCoordinateWriter coordinateWriter,
+        IAddressGeocodingStateRepository stateRepository,
+        IAddressGeocodingService geocodingService,
         ILogger<GeocodeAllAddressesCommandHandler> logger)
     {
-        _addressRepository = addressRepository;
+        _stateRepository = stateRepository;
         _geocodingService = geocodingService;
-        _countryResolver = countryResolver;
-        _coordinateWriter = coordinateWriter;
         _logger = logger;
     }
 
     public async Task<GeocodeAllAddressesResult> Handle(GeocodeAllAddressesCommand request, CancellationToken cancellationToken)
     {
-        if (!_geocodingService.IsEnabled)
+        if (!_geocodingService.IsGeocodingEnabled)
         {
             return GeocodeAllAddressesResult.Disabled;
         }
 
-        var addresses = await _addressRepository.GetWithoutCoordinatesAsync(cancellationToken);
-        _logger.LogInformation("Batch geocoding: {Count} addresses without coordinates", addresses.Count);
+        var missing = await _stateRepository.GetMissingCoordinatesAsync(null, cancellationToken);
+        var selection = await _geocodingService.SelectAsync(missing, cancellationToken);
+        var summary = await _geocodingService.GeocodeAsync(
+            selection.Eligible,
+            new AddressGeocodingAttribution(AddressGeocodingTrigger.AdminBatch, null),
+            AddressGeocodingBudget.Unlimited,
+            cancellationToken);
 
-        var countryNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var geocoded = 0;
-        var failed = 0;
-
-        foreach (var address in addresses)
+        if (summary.GeocodingDisabled)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var country = await ResolveCountryNameAsync(address.Country, countryNames, cancellationToken);
-            var fullAddress = $"{address.Street}, {address.Zip} {address.City}";
-            var (latitude, longitude) = await _geocodingService.GeocodeAddressAsync(fullAddress, country, cancellationToken);
-
-            if (latitude.HasValue && longitude.HasValue)
-            {
-                await _coordinateWriter.UpdateCoordinatesAsync(address.Id, latitude.Value, longitude.Value, cancellationToken);
-                geocoded++;
-            }
-            else
-            {
-                failed++;
-                _logger.LogWarning("Batch geocoding found no coordinates for address {AddressId}", address.Id);
-            }
+            return GeocodeAllAddressesResult.Disabled;
         }
 
-        _logger.LogInformation("Batch geocoding complete: {Geocoded} geocoded, {Failed} failed", geocoded, failed);
+        var total = selection.Eligible.Count;
+        var geocoded = summary.Filled.Count;
+        _logger.LogInformation(
+            "Batch geocoding: {Geocoded} of {Total} eligible address(es) filled, {Queued} handed to the backfill, " +
+            "{PrivacyBlocked} employee address(es) skipped by the privacy setting, {Incomplete} without postcode or city",
+            geocoded, total, summary.Queued, selection.PrivacyBlocked.Count, selection.Incomplete.Count);
 
-        return new GeocodeAllAddressesResult(false, addresses.Count, geocoded, failed);
-    }
-
-    /// <summary>
-    /// Shared geocoding country naming (CountryResolverGeocodingExtensions), resolved once per distinct code.
-    /// </summary>
-    private async Task<string> ResolveCountryNameAsync(
-        string countryCode, Dictionary<string, string> resolvedNames, CancellationToken cancellationToken)
-    {
-        if (resolvedNames.TryGetValue(countryCode, out var cached))
-        {
-            return cached;
-        }
-
-        var resolved = await _countryResolver.ResolveGeocodingNameAsync(countryCode, cancellationToken);
-        resolvedNames[countryCode] = resolved;
-        return resolved;
+        return new GeocodeAllAddressesResult(false, total, geocoded, total - geocoded);
     }
 }

@@ -231,6 +231,7 @@
   "find_replacement": "Finne en vikar for et skift",
   "find_split_shift_candidates": "Vurdere om eksisterende dellag kan gjenbrukes",
   "generate_period_summary": "Opprette et sammendrag for en periode",
+  "geocode_addresses": "Fyll inn manglende koordinater for adresser",
   "geocode_location_groups": "Geokode lokasjonsgrupper automatisk",
   "get_absence_hours_calculation": "Vis beregningen av fraværstimer",
   "get_active_industries_settings": "Aktive bransjeinnstillinger",

@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Classifies skills into risk classes for autonomy gating. Order: explicit sensitive list,
-/// scenario-gated writers (mutations land in an AnalyseScenario that a human accepts),
+/// scenario-gated writers (mutations land in an AnalyseScenario that a human accepts), fill-empty-only
+/// system writers (FillEmptyOnlySkills),
 /// reversible skills (InverseSkillRegistry mapping or explicit extras), read-only detection
 /// (explicit allow-list, then read-only categories; a read-only name prefix is ignored for
 /// write categories so a write skill cannot bypass the gate via its name), then the explicit
@@ -376,6 +377,19 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "cover_absence"
     };
 
+    // Writers that only fill EMPTY system-derived values and never overwrite anything a person entered
+    // (owner decision 2026-10-24): they run without confirmation at every autonomy level, like a read, but are
+    // writes everywhere else (never in read-only toolsets, MCP read mode or the learning replay).
+    // geocode_addresses gives addresses without coordinates the centroid of their postcode and city through
+    // IAddressGeocodingService: the write is conditional on still-empty coordinates and unchanged postcode/city/
+    // country, it is a system write (audited in address_geocoding_state with the user it ran for), employee
+    // addresses only when the installation allows it, and Klacksy reports what it wrote ("without asking, but
+    // not without telling"). Its worst case is an approximate map position that any address edit replaces.
+    internal static readonly HashSet<string> FillEmptyOnlySkills = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "geocode_addresses"
+    };
+
     internal static readonly HashSet<string> ReversibleExtras = new(StringComparer.OrdinalIgnoreCase)
     {
         "delete_break",
@@ -622,6 +636,11 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         if (ScenarioGatedSkills.Contains(descriptor.Name))
         {
             return SkillRiskClass.ScenarioGated;
+        }
+
+        if (FillEmptyOnlySkills.Contains(descriptor.Name))
+        {
+            return SkillRiskClass.FillEmptyOnly;
         }
 
         if (IsReversible(descriptor.Name))

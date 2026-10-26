@@ -231,6 +231,7 @@
   "find_replacement": "Găsirea unui înlocuitor pentru un schimb",
   "find_split_shift_candidates": "Verificați dacă straturile parțiale existente pot fi reutilizate",
   "generate_period_summary": "Crearea unui rezumat al unei perioade",
+  "geocode_addresses": "Completează coordonatele lipsă ale adreselor",
   "geocode_location_groups": "Geocodarea automată a grupurilor de locații",
   "get_absence_hours_calculation": "Afișează calculul orelor de absență",
   "get_active_industries_settings": "Setări pentru domeniile de activitate active",

@@ -24,6 +24,7 @@ public static class PlanStepApprovalPolicy
     public static bool RequiresApproval(SkillRiskClass riskClass, AutonomyLevel level) => riskClass switch
     {
         SkillRiskClass.ReadOnly => false,
+        SkillRiskClass.FillEmptyOnly => false,
         SkillRiskClass.Sensitive => true,
         SkillRiskClass.Reversible => level < AutonomyLevel.Assisted,
         SkillRiskClass.ScenarioGated => level < AutonomyLevel.Assisted,

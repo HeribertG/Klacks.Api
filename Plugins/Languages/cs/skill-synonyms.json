@@ -1538,6 +1538,12 @@
     "statistiky období",
     "sumář za skupinu a termín"
   ],
+  "geocode_addresses": [
+    "doplnit chybějící souřadnice adres",
+    "geokódovat adresy",
+    "umístit adresy zákazníků na mapu",
+    "zjistit souřadnice adres"
+  ],
   "geocode_location_groups": [
     "spustit geokódování všech skupin lokalit",
     "najít souřadnice pro všechny skupiny měst",

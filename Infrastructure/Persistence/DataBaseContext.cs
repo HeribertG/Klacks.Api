@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Email;
+using Klacks.Api.Domain.Models.Geocoding;
 using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.Inbound;
 using Klacks.Api.Domain.Models.Imports;
@@ -54,6 +55,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Address> Address { get; set; }  
 
+    public DbSet<AddressGeocodingState> AddressGeocodingStates { get; set; }
+
     public DbSet<Annotation> Annotation { get; set; }  
 
     public virtual DbSet<AppUser> AppUser { get; set; }
@@ -71,6 +74,8 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<Client> Client { get; set; }  
 
     public DbSet<ClientImportBatch> ClientImportBatches { get; set; }
+
+    public DbSet<GeocodedLocality> GeocodedLocalities { get; set; }
 
     public DbSet<ClientScheduleDetail> ClientScheduleDetail { get; set; }  
 

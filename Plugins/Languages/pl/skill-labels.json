@@ -231,6 +231,7 @@
   "find_replacement": "Znaleźć zastępstwo na jedną zmianę",
   "find_split_shift_candidates": "Znajdź istniejące zmiany dzielone do ponownego wykorzystania",
   "generate_period_summary": "Utworzenie podsumowania okresu",
+  "geocode_addresses": "Uzupełnij brakujące współrzędne adresów",
   "geocode_location_groups": "Automatyczne geokodowanie grup lokalizacji",
   "get_absence_hours_calculation": "Pokaż obliczenie godzin nieobecności",
   "get_active_industries_settings": "Ustawienia aktywnych branż",
