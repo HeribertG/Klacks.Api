@@ -286,7 +286,13 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             ChosenArgsJson = replay.ToolParameters.Count == 0 ? null : JsonSerializer.Serialize(replay.ToolParameters),
             ResponseText = Truncate(replay.Content),
             ToolSequenceJson = JsonSerializer.Serialize(
-                replay.Steps.Select(step => new { tool = step.Tool, parameters = step.Parameters })),
+                replay.Steps.Select(step => new
+                {
+                    tool = step.Tool,
+                    parameters = step.Parameters,
+                    content = Truncate(step.Content),
+                    error = step.Error
+                })),
             Passed = scored.Passed,
             LatencyMs = (int)Math.Min(scored.LatencyMs, int.MaxValue),
             CreateTime = DateTime.UtcNow

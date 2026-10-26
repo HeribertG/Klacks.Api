@@ -1719,7 +1719,9 @@
       "locale": "de",
       "source": "w0.5-hijack",
       "expectedTool": "create_absence_type",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence"
+      ],
       "expectedSlots": [],
       "comment": "recipe-vs-skill synonym hijack pair from Teil C §6"
     },
@@ -2734,7 +2736,9 @@
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_absence",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence_type"
+      ],
       "expectedSlots": [],
       "comment": "mutating-skill coverage: keyword-carrying natural request",
       "tags": [

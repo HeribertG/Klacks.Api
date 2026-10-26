@@ -108,7 +108,9 @@
       "locale": "ar",
       "currentRoute": null,
       "expectedTool": "create_absence",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence_type"
+      ],
       "expectedSlots": [],
       "source": "translation",
       "comment": "Translation of w05-coverage-create-absence."
@@ -2820,7 +2822,9 @@
       "locale": "fi",
       "currentRoute": null,
       "expectedTool": "create_absence_type",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence"
+      ],
       "expectedSlots": [],
       "source": "translation",
       "comment": "Translation of w05-hijack-create-absence-type."
@@ -3518,7 +3522,9 @@
       "locale": "he",
       "currentRoute": null,
       "expectedTool": "create_absence",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence_type"
+      ],
       "expectedSlots": [],
       "source": "translation",
       "comment": "Translation of w05-coverage-create-absence."
@@ -6526,7 +6532,9 @@
       "locale": "nb",
       "currentRoute": null,
       "expectedTool": "create_absence_type",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence"
+      ],
       "expectedSlots": [],
       "source": "translation",
       "comment": "Translation of w05-hijack-create-absence-type."
@@ -7297,7 +7305,9 @@
       "locale": "nl",
       "currentRoute": null,
       "expectedTool": "create_absence",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence_type"
+      ],
       "expectedSlots": [],
       "source": "translation",
       "comment": "Translation of w05-coverage-create-absence."
@@ -10391,7 +10401,9 @@
       "locale": "zh-CN",
       "currentRoute": null,
       "expectedTool": "create_absence_type",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence"
+      ],
       "expectedSlots": [],
       "source": "translation",
       "comment": "Translation of w05-hijack-create-absence-type."
@@ -11196,7 +11208,9 @@
       "locale": "zh-TW",
       "currentRoute": null,
       "expectedTool": "create_absence",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence_type"
+      ],
       "expectedSlots": [],
       "source": "translation",
       "comment": "Translation of w05-coverage-create-absence."
