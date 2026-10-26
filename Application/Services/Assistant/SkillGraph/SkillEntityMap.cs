@@ -109,5 +109,6 @@ public static class SkillEntityMap
         ["update_membership"] = new[] { "Membership", "Client" },
         ["update_shift"] = new[] { "Shift" },
         ["validate_address"] = new[] { "Address" },
+        ["geocode_addresses"] = new[] { "Address" },
     };
 }

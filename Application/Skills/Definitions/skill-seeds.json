@@ -21549,6 +21549,99 @@
       "version": 4
     },
     {
+      "name": "geocode_addresses",
+      "area": "client",
+      "description": "Fills in missing map coordinates of client addresses from postcode and city (approximate position of the locality). Only addresses WITHOUT coordinates are filled, existing ones are never changed, so it runs without confirmation; afterwards tell the user what was written. One named client, otherwise every client the user may see. Employee addresses only when the installation allows it. A few are located at once, the rest in the background.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "Optional. UUID of the client whose addresses to locate.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "Optional. First name of the client.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Optional. Last name or company name of the client. Omit every client parameter to cover all visible clients.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Optional. Visible client number, only to tell apart clients with the same name.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "koordinaten",
+          "geokodieren",
+          "verorten"
+        ],
+        "en": [
+          "coordinates",
+          "geocode"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "fehlende koordinaten der adressen ergänzen",
+          "adressen geokodieren",
+          "kundenadressen auf der karte verorten",
+          "koordinaten für die adressen ermitteln"
+        ],
+        "en": [
+          "fill in missing address coordinates",
+          "geocode the addresses",
+          "place customer addresses on the map",
+          "determine coordinates for the addresses"
+        ],
+        "fr": [
+          "compléter les coordonnées manquantes des adresses",
+          "géocoder les adresses",
+          "placer les adresses des clients sur la carte",
+          "déterminer les coordonnées des adresses"
+        ],
+        "it": [
+          "completare le coordinate mancanti degli indirizzi",
+          "geocodificare gli indirizzi",
+          "posizionare gli indirizzi dei clienti sulla mappa",
+          "determinare le coordinate degli indirizzi"
+        ]
+      },
+      "labels": {
+        "de": "Fehlende Koordinaten von Adressen ergänzen",
+        "en": "Fill in missing address coordinates",
+        "fr": "Compléter les coordonnées manquantes des adresses",
+        "it": "Completare le coordinate mancanti degli indirizzi"
+      },
+      "version": 1
+    },
+    {
       "name": "check_group_geocoding_status",
       "area": "group",
       "description": "READ-ONLY. Reports progress of the background group-geocoding queue started by geocode_location_groups: how many groups already have coordinates, how many were checked but are not a real place or could not be geocoded (left without coordinates on purpose), and how many have not been processed yet. Use this when the user asks whether the geocoding is done, or before proposing a customer/employee grouping whose nearest-group fallback depends on groups having coordinates.",

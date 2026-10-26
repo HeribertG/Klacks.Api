@@ -1529,6 +1529,12 @@
     "prezentare generală a perioadei",
     "statistici perioadă"
   ],
+  "geocode_addresses": [
+    "completează coordonatele lipsă ale adreselor",
+    "geocodează adresele",
+    "plasează adresele clienților pe hartă",
+    "determină coordonatele adreselor"
+  ],
   "geocode_location_groups": [
     "găsește coordonatele pentru toate grupurile",
     "geocodează grupurile de locații",

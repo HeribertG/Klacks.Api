@@ -1550,6 +1550,12 @@
     "podsumowanie miesiąca dla zespołu",
     "przegląd okresu od do"
   ],
+  "geocode_addresses": [
+    "uzupełnij brakujące współrzędne adresów",
+    "geokoduj adresy",
+    "umieść adresy klientów na mapie",
+    "ustal współrzędne adresów"
+  ],
   "geocode_location_groups": [
     "znajdź automatycznie współrzędne dla wszystkich grup",
     "wykonaj geokodowanie wszystkich grup lokalizacji",

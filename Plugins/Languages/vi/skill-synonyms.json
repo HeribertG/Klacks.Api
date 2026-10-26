@@ -1494,6 +1494,12 @@
     "thống kê kỳ",
     "xem tóm tắt nhóm trong tháng"
   ],
+  "geocode_addresses": [
+    "bổ sung tọa độ còn thiếu của các địa chỉ",
+    "mã hóa địa lý các địa chỉ",
+    "đặt địa chỉ khách hàng lên bản đồ",
+    "xác định tọa độ cho các địa chỉ"
+  ],
   "geocode_location_groups": [
     "tìm tọa độ cho tất cả các nhóm",
     "định vị địa lý cho các nhóm địa điểm",

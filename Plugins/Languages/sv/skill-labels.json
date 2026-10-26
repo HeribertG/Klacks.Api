@@ -231,6 +231,7 @@
   "find_replacement": "Hitta ersättare för ett pass",
   "find_split_shift_candidates": "Hitta befintliga delade pass att återanvända",
   "generate_period_summary": "Skapa periodsammanfattning",
+  "geocode_addresses": "Fyll i saknade koordinater för adresser",
   "geocode_location_groups": "Geokoda platsgrupper automatiskt",
   "get_absence_hours_calculation": "Visa beräkningen av frånvarotimmar",
   "get_active_industries_settings": "Inställningar för aktiva branscher",

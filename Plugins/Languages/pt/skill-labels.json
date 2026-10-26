@@ -231,6 +231,7 @@
   "find_replacement": "Encontrar um substituto para um turno",
   "find_split_shift_candidates": "Verificar se as subcamadas existentes podem ser reutilizadas",
   "generate_period_summary": "Criar um resumo de um período",
+  "geocode_addresses": "Preencher as coordenadas em falta dos endereços",
   "geocode_location_groups": "Geocodificar automaticamente grupos de localizações",
   "get_absence_hours_calculation": "Mostrar o cálculo das horas de ausência",
   "get_active_industries_settings": "Configurações de setores ativos",

@@ -80,8 +80,10 @@ Consequences with `GEO_NO_OUTBOUND_TRAFFIC=true` and no own instances:
   OpenStreetMap / Street View links.
 - Coordinate gap: addresses created or imported while the switch is on get no coordinates,
   so they have no map marker and route planning only uses coordinates that already exist.
-  Addresses stay saveable. After switching back, the API call (Admin role only)
-  `POST api/backend/RouteOptimization/geocode-all` fills in the missing coordinates.
+  Addresses stay saveable. After switching back, the background address geocoding fills in the
+  missing coordinates by itself (postcode/city position, about one request per two seconds; customer
+  addresses always, employee addresses only with the setting `GEOCODING_EMPLOYEE_ADDRESSES_ENABLED=true`).
+  The API call (Admin role only) `POST api/backend/RouteOptimization/geocode-all` does the same at once.
 - Weather for the company location (Klacksy, greeting) is derived from the company address
   by geocoding and is therefore unavailable; weather for explicit coordinates still works.
 - Only these geo services are covered. Other outbound services are separate and keep

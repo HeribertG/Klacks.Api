@@ -1525,6 +1525,12 @@
     "ryhmän työntekijämäärä ajanjaksolla",
     "näytä ryhmän jakson tiedot"
   ],
+  "geocode_addresses": [
+    "täydennä osoitteiden puuttuvat koordinaatit",
+    "geokoodaa osoitteet",
+    "sijoita asiakkaiden osoitteet kartalle",
+    "selvitä osoitteiden koordinaatit"
+  ],
   "geocode_location_groups": [
     "geokoodaa kaikki ryhmät",
     "hae ryhmille koordinaatit automaattisesti",
