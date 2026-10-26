@@ -2614,7 +2614,7 @@
   "setting.microphone-test.transcribing": "Litteroidaan tallennetta…",
   "setting.microphone-test.transcription-result": "Litterointi",
   "setting.microphone-test.web-speech-device-info": "Huomautus: Selaimen sisäänrakennettu puheentunnistus käyttää aina järjestelmän oletusmikrofonia.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Tyhjä kenttä tarkoittaa, ettei ohitusta tehdä: tälle kuukaudelle pätee sopimuksen mukainen tavoiteaika.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Kuukausiarvo on 100 %:n toimen tavoiteaika tälle kuukaudelle. Se koskee työntekijöitä ilman sopimusta (100 %:lla) sekä sopimuksia, joiden maksuväli on ”Kuukausittain (tavoitetuntitaulukko)” tai joissa ei ole taattuja tunteja – niissä kuukausiarvo × työaikaprosentti. Sopimukset, joissa on kiinteät taatut tunnit, eivät ole vaikutuksen alaisia. Tyhjä kenttä: ilman sopimusta pätevät asetukset, sopimuksen kanssa sen taatut tunnit tai asetukset × työaikaprosentti.",
   "setting.monthlyTargetHours.next-year": "Seuraava vuosi",
   "setting.monthlyTargetHours.previous-year": "Edellinen vuosi",
   "setting.monthlyTargetHours.save-failed": "Tavoitetunteja ei voitu tallentaa",

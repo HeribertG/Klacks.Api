@@ -2614,7 +2614,7 @@
   "setting.microphone-test.transcribing": "Přepisuji nahrávku…",
   "setting.microphone-test.transcription-result": "Transkripce",
   "setting.microphone-test.web-speech-device-info": "Poznámka: Integrované rozpoznávání řeči prohlížeče vždy používá výchozí systémový mikrofon.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Prázdné pole znamená žádný override: pro tento měsíc platí cílové hodiny podle smlouvy.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Měsíční hodnota je cílová doba pro úvazek 100 % v tomto měsíci. Platí pro zaměstnance bez smlouvy (na 100 %) a pro smlouvy s platebním intervalem „Měsíčně (tabulka cílových hodin)“ nebo bez garantovaných hodin – tam měsíční hodnota × úvazek. Smlouvy s pevnými garantovanými hodinami nejsou dotčeny. Prázdné pole: bez smlouvy platí nastavení, se smlouvou její garantované hodiny, resp. nastavení × úvazek.",
   "setting.monthlyTargetHours.next-year": "Příští rok",
   "setting.monthlyTargetHours.previous-year": "Předchozí rok",
   "setting.monthlyTargetHours.save-failed": "Cílové hodiny se nepodařilo uložit.",

@@ -2610,7 +2610,7 @@
   "setting.microphone-test.transcribing": "A transcrever gravação…",
   "setting.microphone-test.transcription-result": "Transcrição",
   "setting.microphone-test.web-speech-device-info": "Nota: O reconhecimento de voz integrado do navegador utiliza sempre o microfone padrão do sistema.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Campo vazio significa nenhuma substituição: para este mês aplicam-se as horas-alvo do contrato.",
+  "setting.monthlyTargetHours.empty-means-no-override": "O valor mensal é o tempo-alvo de um posto a 100 % para este mês. Aplica-se a colaboradores sem contrato (a 100 %) e a contratos com intervalo de pagamento «Mensal (tabela de horas-alvo)» ou sem horas garantidas – aí valor mensal × percentagem de ocupação. Os contratos com horas garantidas fixas não são afetados. Campo vazio: sem contrato aplicam-se as definições, com contrato as suas horas garantidas ou definições × percentagem de ocupação.",
   "setting.monthlyTargetHours.next-year": "Ano seguinte",
   "setting.monthlyTargetHours.previous-year": "Ano anterior",
   "setting.monthlyTargetHours.save-failed": "Não foi possível guardar as horas-alvo",

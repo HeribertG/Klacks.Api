@@ -2614,7 +2614,7 @@
   "setting.microphone-test.transcribing": "جارٍ نسخ التسجيل…",
   "setting.microphone-test.transcription-result": "النسخ",
   "setting.microphone-test.web-speech-device-info": "ملاحظة: التعرف على الكلام المدمج في المتصفح يستخدم دائماً ميكروفون النظام الافتراضي.",
-  "setting.monthlyTargetHours.empty-means-no-override": "الحقل الفارغ يعني عدم وجود تجاوز: يُطبَّق على هذا الشهر الوقت المستهدف المحدد في العقد.",
+  "setting.monthlyTargetHours.empty-means-no-override": "القيمة الشهرية هي الوقت المستهدف لوظيفة بنسبة 100% لهذا الشهر. تُطبَّق على الموظفين بدون عقد (بنسبة 100%) وعلى العقود ذات فترة الدفع «شهريًا (جدول الساعات المستهدفة)» أو بدون ساعات مضمونة – وهناك القيمة الشهرية × نسبة التوظيف. العقود ذات الساعات المضمونة الثابتة غير متأثرة. حقل فارغ: بدون عقد تُطبَّق الإعدادات، ومع عقد تُطبَّق ساعاته المضمونة أو الإعدادات × نسبة التوظيف.",
   "setting.monthlyTargetHours.next-year": "السنة القادمة",
   "setting.monthlyTargetHours.previous-year": "السنة السابقة",
   "setting.monthlyTargetHours.save-failed": "تعذّر حفظ الساعات المستهدفة",

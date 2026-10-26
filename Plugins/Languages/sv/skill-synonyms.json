@@ -896,6 +896,11 @@
     "avsluta medarbetarens medlemskap",
     "ange slutdatum för medarbetaren"
   ],
+  "evaluate_absence_hours_setup": [
+    "varför får han för få semestertimmar",
+    "semesterdagen ska räknas som åtta timmar",
+    "kontrollera inställningen av frånvarotimmar"
+  ],
   "evaluate_autonomy_level_change": [
     "vad ändras med den här autonominivån",
     "vad blir effekten av att höja autonominivån",
@@ -926,6 +931,11 @@
     "granska scenario",
     "scenariobedömning"
   ],
+  "evaluate_target_hours_setup": [
+    "varför är måltimmarna fel",
+    "vilket kontrakt för sysselsättningsgraden",
+    "tabellen med måltimmar har luckor"
+  ],
   "explain_absence_blocks_planning": [
     "kan planeraren flytta en bokad semester",
     "blockerar en bokad frånvaro planeringen",
@@ -933,6 +943,12 @@
     "avbryter frånvaro serien av arbetsdagar",
     "kan assistenten schemalägga över en bokad semester",
     "varför flyttades inte min sjukdag"
+  ],
+  "explain_absence_hours": [
+    "hur många timmar räknas en semesterdag",
+    "varför räknas semesterdagen som så många timmar",
+    "var ställer jag in semestertimmarna",
+    "sysselsättningsgrad för frånvarodagar"
   ],
   "explain_absence_model": [
     "varför syns semesteransökan inte i schemat",
@@ -1424,6 +1440,11 @@
     "vilka data lämnar företaget",
     "är testdata riktiga poster"
   ],
+  "explain_target_hours": [
+    "hur uppstår måltimmarna",
+    "måltimmar utan kontrakt",
+    "måltimmar med sysselsättningsgrad"
+  ],
   "explain_terms_with_several_meanings": [
     "vad är skillnaden mellan en beställning och ett pass",
     "betyder förseglad samma sak överallt",
@@ -1512,6 +1533,11 @@
     "geokoda platsgrupperna",
     "bestäm automatiskt koordinaterna för grupperna",
     "uppdatera geografiska koordinater för alla grupper"
+  ],
+  "get_absence_hours_calculation": [
+    "visa mig beräkningen av semestertimmarna",
+    "hur många timmar får hon för semesterdagen",
+    "kontrollera semestertimmarna för en medarbetare"
   ],
   "get_active_industries_settings": [
     "vilka branscher är systemet inställt för?",
@@ -1813,6 +1839,11 @@
   ],
   "get_system_info": [
     "systeminformation"
+  ],
+  "get_target_hours_calculation": [
+    "visa mig beräkningen av måltimmarna",
+    "varför har hon dessa måltimmar",
+    "kontrollera måltimmarna för en medarbetare"
   ],
   "get_translation_status": [
     "är deepl konfigurerad",

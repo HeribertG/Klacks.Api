@@ -2614,7 +2614,7 @@
   "setting.microphone-test.transcribing": "Transkrypcja nagrania…",
   "setting.microphone-test.transcription-result": "Transkrypcja",
   "setting.microphone-test.web-speech-device-info": "Uwaga: Wbudowane rozpoznawanie mowy przeglądarki zawsze używa domyślnego mikrofonu systemowego.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Puste pole oznacza brak nadpisania: dla tego miesiąca obowiązuje czas docelowy z umowy.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Wartość miesięczna to czas docelowy etatu 100 % w tym miesiącu. Obowiązuje dla pracowników bez umowy (na 100 %) oraz dla umów z interwałem płatności „Miesięcznie (tabela godzin docelowych)” lub bez gwarantowanych godzin – tam wartość miesięczna × wymiar etatu. Umowy ze stałymi gwarantowanymi godzinami nie są objęte. Puste pole: bez umowy obowiązują ustawienia, z umową jej gwarantowane godziny lub ustawienia × wymiar etatu.",
   "setting.monthlyTargetHours.next-year": "Następny rok",
   "setting.monthlyTargetHours.previous-year": "Poprzedni rok",
   "setting.monthlyTargetHours.save-failed": "Nie udało się zapisać godzin docelowych",

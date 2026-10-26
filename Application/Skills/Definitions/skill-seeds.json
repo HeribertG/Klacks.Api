@@ -1123,7 +1123,7 @@
     {
       "name": "assign_contract_to_client",
       "area": "contract",
-      "description": "Assigns an existing contract to a client/employee. This creates a client-contract association with validity dates. Only one contract can be active at a time per client. Use this to set up employment contracts.",
+      "description": "Assigns an existing contract to a client/employee. This creates a client-contract association with validity dates. Only one contract can be active at a time per client; the system asks for one confirmation before anything is written. Use this to set up employment contracts.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -1241,7 +1241,7 @@
         "fr": "Attribuer un contrat à un employé",
         "it": "Assegna un contratto a un dipendente"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "create_branch",
@@ -21211,7 +21211,7 @@
     {
       "name": "assign_contract_by_name",
       "area": "contract",
-      "description": "Assigns a contract to a client/employee — both identified by name. Use this for chat-driven contract assignments where only names are known. Sets the new contract as active and deactivates any previous active contract.",
+      "description": "Assigns a contract to a client/employee — both identified by name. Use this for chat-driven contract assignments where only names are known. Sets the new contract as active and deactivates any previous active contract; the system asks for one confirmation before anything is written.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21309,7 +21309,7 @@
         "fr": "Attribuer un contrat par nom",
         "it": "Assegna un contratto per nome"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "set_group_location",
@@ -48219,6 +48219,638 @@
         "en": "Set the explanation depth",
         "fr": "Définir le niveau d'explication",
         "it": "Imposta il livello di spiegazione"
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_absence_hours",
+      "area": "absence",
+      "description": "Explains how many hours a paid absence day (vacation, accident, military service) credits and which master data decides it: daily working hours times the workload share, the 0-hours gate, weekend and holiday days, the override order scheduling rule before contract before company settings, the no-contract and payment-interval cases, recorded durations, and why existing entries keep their hours until recalculated. Use when somebody asks why an absence day counts so many hours or where to set it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "handlerConfig": {
+        "memoryKey": "explain_absence_hours"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "ferienstunden",
+          "urlaubsstunden",
+          "ferientag",
+          "absenztag",
+          "absenzstunden",
+          "stunden pro ferientag",
+          "wie werden absenzstunden berechnet"
+        ],
+        "en": [
+          "vacation hours",
+          "vacation day",
+          "absence day",
+          "absence hours",
+          "hours per vacation day",
+          "how are absence hours calculated"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wie viele stunden zählt ein ferientag",
+          "warum zählt der ferientag so viele stunden",
+          "wo stelle ich die ferienstunden ein",
+          "pensum für absenztage"
+        ],
+        "en": [
+          "how many hours does a vacation day count",
+          "why does the vacation day count that many hours",
+          "where do I set the vacation hours",
+          "workload for absence days"
+        ],
+        "fr": [
+          "combien d'heures compte un jour de vacances",
+          "où régler les heures de vacances",
+          "taux d'occupation pour les absences"
+        ],
+        "it": [
+          "quante ore conta un giorno di ferie",
+          "dove impostare le ore di ferie",
+          "percentuale di impiego per le assenze"
+        ]
+      },
+      "labels": {
+        "de": "Absenzstunden erklären",
+        "en": "Explain absence hours",
+        "fr": "Expliquer les heures d'absence",
+        "it": "Spiega le ore di assenza"
+      },
+      "version": 1
+    },
+    {
+      "name": "get_absence_hours_calculation",
+      "area": "absence",
+      "description": "Lays open the real absence-hours calculation of one employee on one day: daily working hours and their source, workload percent and its source (contract, scheduling rule, company settings or monthly target hours row), guaranteed hours, weekend and holiday flags, the macro of the absence type and the resulting hours, plus contracts ignored because of the payment interval and the hours of an existing entry. Read-only; use when somebody asks how many hours a person's vacation day counts and why.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the employee the question is about",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the employee the question is about",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Client number to tell apart several employees with the same name",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "The calendar day of the absence in ISO yyyy-MM-dd",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "absenceName",
+          "description": "Absence type by name or abbreviation in any language; omit for the type booked on that day, else vacation",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "paymentInterval",
+          "description": "Payment interval of the schedule view the absence is booked in; omit for the company setting",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Weekly",
+            "Biweekly",
+            "Monthly",
+            "Individual",
+            "MonthlyTargetHours"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "berechnung der ferienstunden",
+          "ferienstunden von",
+          "absenzstunden berechnen",
+          "absenzstunden von",
+          "rechnung offenlegen"
+        ],
+        "en": [
+          "absence hours calculation",
+          "hours calculation",
+          "absence hours of",
+          "vacation hours of",
+          "calculate vacation hours"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "zeig mir die berechnung der ferienstunden",
+          "wie viele stunden bekommt sie für den ferientag",
+          "absenzstunden einer person nachrechnen",
+          "ferienstunden von mitarbeiter prüfen"
+        ],
+        "en": [
+          "show me the calculation of the vacation hours",
+          "how many hours does she get for the vacation day",
+          "recalculate the absence hours of a person",
+          "check the vacation hours of an employee"
+        ],
+        "fr": [
+          "montre le calcul des heures de vacances",
+          "combien d'heures reçoit-elle pour le jour de vacances",
+          "vérifier les heures d'absence d'une personne"
+        ],
+        "it": [
+          "mostra il calcolo delle ore di ferie",
+          "quante ore riceve per il giorno di ferie",
+          "verificare le ore di assenza di una persona"
+        ]
+      },
+      "labels": {
+        "de": "Absenzstunden-Berechnung offenlegen",
+        "en": "Show the absence hours calculation",
+        "fr": "Afficher le calcul des heures d'absence",
+        "it": "Mostra il calcolo delle ore di assenza"
+      },
+      "version": 1
+    },
+    {
+      "name": "evaluate_absence_hours_setup",
+      "area": "absence",
+      "description": "Advises on an employee's absence-hours setup: runs the real calculation for a day and derives findings - no contract, contract ignored by the payment interval, 0 guaranteed hours by design, percent field contradicting the hours ratio, scheduling rule overriding the contract, gaps or odd values in the monthly table, desired hours per day - each with the place to change, preferably the contract. Read-only advice; a contract change or assignment is a separate step the system confirms once.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the employee the question is about",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the employee the question is about",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Client number to tell apart several employees with the same name",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "Calendar day to evaluate in ISO yyyy-MM-dd; omit for today",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "absenceName",
+          "description": "Absence type by name or abbreviation in any language; omit for the type booked on that day, else vacation",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "desiredHoursPerDay",
+          "description": "Hours an absence day should credit; the advice then names the field to change",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "paymentInterval",
+          "description": "Payment interval of the schedule view the absence is booked in; omit for the company setting",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Weekly",
+            "Biweekly",
+            "Monthly",
+            "Individual",
+            "MonthlyTargetHours"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Advise",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "ferienstunden",
+          "ferienstunden stimmen nicht",
+          "zu wenig ferienstunden",
+          "zu viele ferienstunden",
+          "ferientag soll"
+        ],
+        "en": [
+          "vacation hours",
+          "vacation hours are wrong",
+          "too few vacation hours",
+          "too many vacation hours",
+          "vacation day should credit"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "warum bekommt er zu wenig ferienstunden",
+          "ferientag soll acht stunden zählen",
+          "was muss ich ändern damit der ferientag mehr stunden zählt",
+          "absenzstunden einstellung prüfen"
+        ],
+        "en": [
+          "why does he get too few vacation hours",
+          "the vacation day should count eight hours",
+          "what do I change so the vacation day counts more hours",
+          "check the absence hours setup"
+        ],
+        "fr": [
+          "pourquoi reçoit-il trop peu d'heures de vacances",
+          "le jour de vacances devrait compter huit heures",
+          "vérifier le paramétrage des heures d'absence"
+        ],
+        "it": [
+          "perché riceve troppo poche ore di ferie",
+          "il giorno di ferie dovrebbe contare otto ore",
+          "verificare l'impostazione delle ore di assenza"
+        ]
+      },
+      "labels": {
+        "de": "Absenzstunden-Einstellung beurteilen",
+        "en": "Evaluate the absence hours setup",
+        "fr": "Évaluer le paramétrage des heures d'absence",
+        "it": "Valuta l'impostazione delle ore di assenza"
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_target_hours",
+      "area": "contract",
+      "description": "Explains how the target hours of an employee for a month are resolved, first to last source: no contract (monthly row, otherwise settings, at 100 %), fixed contract hours, Weg 1 (interval Monthly (target hours table) plus percent) and Weg 2 (empty guaranteed hours plus percent), which contract a view interval sees, the 150 % guard and the proration, with a decision guide which way fits and where each value is set. Use when somebody asks why an employee has a certain target or how to set it up.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "handlerConfig": {
+        "memoryKey": "explain_target_hours"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "sollzeit",
+          "sollstunden berechnet",
+          "wie werden die sollstunden",
+          "woher kommen die sollstunden",
+          "kommen die sollstunden",
+          "sollstunden eines mitarbeiters",
+          "pensum und sollstunden"
+        ],
+        "en": [
+          "target time",
+          "target hours calculated",
+          "how are the target hours",
+          "where do the target hours come from",
+          "target hours come from",
+          "target hours of an employee",
+          "workload and target hours"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wie kommen die sollstunden zustande",
+          "welcher weg für die sollstunden",
+          "sollstunden ohne vertrag",
+          "sollstunden mit pensum"
+        ],
+        "en": [
+          "how do the target hours come about",
+          "which way for the target hours",
+          "target hours without a contract",
+          "target hours with a workload percent"
+        ],
+        "fr": [
+          "comment sont calculées les heures cibles",
+          "heures cibles sans contrat",
+          "heures cibles avec taux d'occupation"
+        ],
+        "it": [
+          "come si calcolano le ore obiettivo",
+          "ore obiettivo senza contratto",
+          "ore obiettivo con percentuale di impiego"
+        ]
+      },
+      "labels": {
+        "de": "Sollstunden erklären",
+        "en": "Explain target hours",
+        "fr": "Expliquer les heures cibles",
+        "it": "Spiega le ore obiettivo"
+      },
+      "version": 1
+    },
+    {
+      "name": "get_target_hours_calculation",
+      "area": "contract",
+      "description": "Lays open the real target-hours resolution of one employee for a month: the way (no contract, fixed hours, Weg 1 or Weg 2), guaranteed hours with source (contract, scheduling rule, settings or monthly row) and formula, workload percent, the contract that won and the contracts a schedule view does not see, the monthly row used or missing, and the period target prorated by membership - the figures of the schedule row header. Read-only; use when somebody asks why an employee has that target.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the employee the question is about",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the employee the question is about",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Client number to tell apart several employees with the same name",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "month",
+          "description": "Month to resolve as yyyy-MM or any date in it; omit for the current month",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "paymentInterval",
+          "description": "Payment interval of the schedule view to check which contracts it sees; omit for the company setting",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Weekly",
+            "Biweekly",
+            "Monthly",
+            "Individual",
+            "MonthlyTargetHours"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "sollstunden von",
+          "sollstunden für",
+          "berechnung der sollstunden",
+          "sollstunden im"
+        ],
+        "en": [
+          "target hours of",
+          "target hours for",
+          "target hours calculation",
+          "hours calculation",
+          "target hours in"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "zeig mir die berechnung der sollstunden",
+          "warum hat sie diese sollstunden",
+          "sollstunden einer person nachrechnen",
+          "woher kommt das soll von"
+        ],
+        "en": [
+          "show me the calculation of the target hours",
+          "why does she have these target hours",
+          "recalculate the target hours of a person",
+          "where does the target of come from"
+        ],
+        "fr": [
+          "montre le calcul des heures cibles",
+          "pourquoi a-t-elle ces heures cibles",
+          "vérifier les heures cibles d'une personne"
+        ],
+        "it": [
+          "mostra il calcolo delle ore obiettivo",
+          "perché ha queste ore obiettivo",
+          "verificare le ore obiettivo di una persona"
+        ]
+      },
+      "labels": {
+        "de": "Sollstunden-Berechnung offenlegen",
+        "en": "Show the target hours calculation",
+        "fr": "Afficher le calcul des heures cibles",
+        "it": "Mostra il calcolo delle ore obiettivo"
+      },
+      "version": 1
+    },
+    {
+      "name": "evaluate_target_hours_setup",
+      "area": "contract",
+      "description": "Advises on the target-hours setup of an employee or, without a name, of the whole company: which way fits (no contract, fixed hours, Weg 1, Weg 2), gaps and odd values in the monthly target hours table, a workload percent without effect, contradictory contract fields, a contract a schedule view does not see, and a no-contract employee who should not be at 100 %. Read-only, deterministic advice; a change of a contract, the table or an assignment is a separate step the system confirms once.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the employee; omit both names for the company-wide view",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the employee; omit both names for the company-wide view",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Client number to tell apart several employees with the same name",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "month",
+          "description": "Month to evaluate as yyyy-MM or any date in it; omit for the current month",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "desiredWorkloadPercent",
+          "description": "Workload share the employee should have; the advice then names the way and fields",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "paymentInterval",
+          "description": "Payment interval of the schedule view to check which contracts it sees; omit for the company setting",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Weekly",
+            "Biweekly",
+            "Monthly",
+            "Individual",
+            "MonthlyTargetHours"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Advise",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "sollstunden stimmen nicht",
+          "falsche sollstunden",
+          "zu wenig sollstunden",
+          "zu viele sollstunden",
+          "sollstunden einrichten",
+          "sollstunden-tabelle prüfen"
+        ],
+        "en": [
+          "target hours are wrong",
+          "wrong target hours",
+          "too few target hours",
+          "too many target hours",
+          "target hours setup",
+          "check the target hours table"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "warum stimmen die sollstunden nicht",
+          "welcher vertrag für das pensum",
+          "sollstunden-tabelle lückenhaft",
+          "sollstunden einstellung prüfen"
+        ],
+        "en": [
+          "why are the target hours wrong",
+          "which contract for the workload",
+          "target hours table has gaps",
+          "check the target hours setup"
+        ],
+        "fr": [
+          "pourquoi les heures cibles sont-elles fausses",
+          "vérifier le paramétrage des heures cibles",
+          "table des heures cibles incomplète"
+        ],
+        "it": [
+          "perché le ore obiettivo sono sbagliate",
+          "verificare l'impostazione delle ore obiettivo",
+          "tabella delle ore obiettivo incompleta"
+        ]
+      },
+      "labels": {
+        "de": "Sollstunden-Einstellung beurteilen",
+        "en": "Evaluate the target hours setup",
+        "fr": "Évaluer le paramétrage des heures cibles",
+        "it": "Valuta l'impostazione delle ore obiettivo"
       },
       "version": 1
     }

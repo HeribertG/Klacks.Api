@@ -2614,7 +2614,7 @@
   "setting.microphone-test.transcribing": "Transskriberer optagelse…",
   "setting.microphone-test.transcription-result": "Transskription",
   "setting.microphone-test.web-speech-device-info": "Bemærk: Browserens indbyggede talegenkendelse bruger altid systemets standardmikrofon.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Tomt felt betyder ingen overstyring: for denne måned gælder normtiden fra kontrakten.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Månedsværdien er normtiden for en 100 %-stilling i denne måned. Den gælder for medarbejdere uden kontrakt (til 100 %) samt for kontrakter med betalingsintervallet «Månedlig (normtimetabel)» eller uden garanterede timer – der månedsværdi × beskæftigelsesgrad. Kontrakter med faste garanterede timer berøres ikke. Tomt felt: uden kontrakt gælder indstillingerne, med kontrakt dens garanterede timer eller indstillinger × beskæftigelsesgrad.",
   "setting.monthlyTargetHours.next-year": "Næste år",
   "setting.monthlyTargetHours.previous-year": "Forrige år",
   "setting.monthlyTargetHours.save-failed": "Normtimerne kunne ikke gemmes",

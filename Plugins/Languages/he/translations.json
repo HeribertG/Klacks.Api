@@ -2614,7 +2614,7 @@
   "setting.microphone-test.transcribing": "מתמלל הקלטה…",
   "setting.microphone-test.transcription-result": "תמלול",
   "setting.microphone-test.web-speech-device-info": "הערה: זיהוי הדיבור המובנה בדפדפן משתמש תמיד במיקרופון ברירת המחדל של המערכת.",
-  "setting.monthlyTargetHours.empty-means-no-override": "שדה ריק פירושו ללא דריסה: עבור חודש זה חלות שעות היעד מהחוזה.",
+  "setting.monthlyTargetHours.empty-means-no-override": "הערך החודשי הוא זמן היעד של משרה בשיעור 100% לחודש זה. הוא חל על עובדים ללא חוזה (בשיעור 100%) ועל חוזים עם מרווח תשלום “חודשי (טבלת שעות יעד)” או ללא שעות מובטחות – שם ערך חודשי × אחוז משרה. חוזים עם שעות מובטחות קבועות אינם מושפעים. שדה ריק: ללא חוזה חלות ההגדרות, עם חוזה חלות שעותיו המובטחות או ההגדרות × אחוז משרה.",
   "setting.monthlyTargetHours.next-year": "שנה הבאה",
   "setting.monthlyTargetHours.previous-year": "שנה קודמת",
   "setting.monthlyTargetHours.save-failed": "לא ניתן היה לשמור את שעות היעד",

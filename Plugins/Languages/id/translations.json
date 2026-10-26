@@ -2614,7 +2614,7 @@
   "setting.microphone-test.transcribing": "Mentranskripsikan rekaman…",
   "setting.microphone-test.transcription-result": "Transkripsi",
   "setting.microphone-test.web-speech-device-info": "Catatan: Pengenalan suara bawaan browser selalu menggunakan mikrofon default sistem.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Bidang kosong berarti tidak ada override: untuk bulan ini berlaku jam target dari kontrak.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Nilai bulanan adalah waktu target untuk posisi 100% pada bulan ini. Nilai ini berlaku untuk karyawan tanpa kontrak (pada 100%) dan untuk kontrak dengan interval pembayaran “Bulanan (tabel jam target)” atau tanpa jam terjamin – di sana nilai bulanan × persentase beban kerja. Kontrak dengan jam terjamin tetap tidak terpengaruh. Bidang kosong: tanpa kontrak berlaku pengaturan, dengan kontrak berlaku jam terjaminnya atau pengaturan × persentase beban kerja.",
   "setting.monthlyTargetHours.next-year": "Tahun berikutnya",
   "setting.monthlyTargetHours.previous-year": "Tahun sebelumnya",
   "setting.monthlyTargetHours.save-failed": "Jam target tidak dapat disimpan",

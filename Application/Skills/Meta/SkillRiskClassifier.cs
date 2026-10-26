@@ -110,6 +110,12 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // recommends validUntil over deletion, so an actual delete is rare enough that the
         // confirmation friction is low while a wrong delete would silently affect future computation.
         "delete_contract",
+        // Owner decision 2026-10-25: the two assignment skills are the targets of the absence-hours and target-hours
+        // advisory skills, whose findings and knowledge texts promise one confirmation before a contract is assigned
+        // (an assignment deactivates the previously active contract and changes the person's target from that day).
+        // Sensitive is the only mechanism that enforces that promise at every autonomy level (precedent: create_group).
+        "assign_contract_to_client",
+        "assign_contract_by_name",
         // delete_email_folder is the only skill in the catalogue whose loss reaches past the database:
         // the handler calls DeleteFolderOnImapAsync, which removes the folder and every message still
         // living on the mail server for good. Locally synced copies survive under trash, so the damage
@@ -433,8 +439,6 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "add_client_note",
         "update_communication",
         "update_annotation",
-        "assign_contract_to_client",
-        "assign_contract_by_name",
         "set_client_qualification",
         "create_qualification",
         "update_qualification",

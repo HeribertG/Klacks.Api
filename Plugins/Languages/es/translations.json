@@ -2614,7 +2614,7 @@
   "setting.microphone-test.transcribing": "Transcribiendo grabación…",
   "setting.microphone-test.transcription-result": "Transcripción",
   "setting.microphone-test.web-speech-device-info": "Nota: El reconocimiento de voz integrado del navegador siempre utiliza el micrófono predeterminado del sistema.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Un campo vacío significa que no hay ninguna anulación: para este mes se aplican las horas objetivo del contrato.",
+  "setting.monthlyTargetHours.empty-means-no-override": "El valor mensual es el tiempo objetivo de un puesto al 100 % para este mes. Se aplica a los empleados sin contrato (al 100 %) y a los contratos con intervalo de pago «Mensual (tabla de horas objetivo)» o sin horas garantizadas – allí valor mensual × porcentaje de jornada. Los contratos con horas garantizadas fijas no se ven afectados. Campo vacío: sin contrato se aplican los ajustes, con contrato sus horas garantizadas o ajustes × porcentaje de jornada.",
   "setting.monthlyTargetHours.next-year": "Año siguiente",
   "setting.monthlyTargetHours.previous-year": "Año anterior",
   "setting.monthlyTargetHours.save-failed": "No se pudieron guardar las horas objetivo",

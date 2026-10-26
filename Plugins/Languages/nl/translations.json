@@ -2614,7 +2614,7 @@
   "setting.microphone-test.transcribing": "Opname transcriberen…",
   "setting.microphone-test.transcription-result": "Transcriptie",
   "setting.microphone-test.web-speech-device-info": "Opmerking: De ingebouwde spraakherkenning van de browser gebruikt altijd de standaardmicrofoon van het systeem.",
-  "setting.monthlyTargetHours.empty-means-no-override": "Een leeg veld betekent geen overschrijving: voor deze maand gelden de streefuren uit het contract.",
+  "setting.monthlyTargetHours.empty-means-no-override": "De maandwaarde is de streeftijd van een 100%-functie voor deze maand. Ze geldt voor medewerkers zonder contract (op 100%) en voor contracten met betalingsinterval “Maandelijks (streefurentabel)” of zonder gegarandeerde uren – daar maandwaarde × deeltijdpercentage. Contracten met vaste gegarandeerde uren worden niet beïnvloed. Leeg veld: zonder contract gelden de instellingen, met contract zijn gegarandeerde uren of instellingen × deeltijdpercentage.",
   "setting.monthlyTargetHours.next-year": "Volgend jaar",
   "setting.monthlyTargetHours.previous-year": "Vorig jaar",
   "setting.monthlyTargetHours.save-failed": "Streefuren konden niet worden opgeslagen",

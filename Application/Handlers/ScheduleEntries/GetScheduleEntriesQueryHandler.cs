@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Services.Associations;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
@@ -197,7 +198,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             var activeContract = client.ClientContracts
                 .Where(cc => cc.IsActive && !cc.IsDeleted)
                 .Where(cc => cc.FromDate <= endDate && (!cc.UntilDate.HasValue || cc.UntilDate >= startDate))
-                .Where(cc => cc.Contract != null && MatchesViewInterval(cc.Contract.PaymentInterval, paymentInterval))
+                .Where(cc => cc.Contract != null && PaymentIntervalViewMatcher.Matches(cc.Contract.PaymentInterval, paymentInterval))
                 .OrderByDescending(cc => cc.FromDate)
                 .FirstOrDefault();
 
@@ -209,20 +210,5 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             if (client.Membership?.ValidUntil is { } validUntil)
                 resource.MemberUntil = DateOnly.FromDateTime(validUntil);
         }
-    }
-
-    /// <summary>
-    /// MonthlyTargetHours contracts follow a calendar-month cadence like Monthly contracts, but the
-    /// view-interval selector never offers MonthlyTargetHours as a choice — so a Monthly-interval
-    /// view must also match MonthlyTargetHours contracts, or those clients falsely show as
-    /// contract-less in the schedule.
-    /// </summary>
-    private static bool MatchesViewInterval(PaymentInterval contractInterval, int viewInterval)
-    {
-        if ((int)contractInterval == viewInterval)
-            return true;
-
-        return contractInterval == PaymentInterval.MonthlyTargetHours
-            && viewInterval == (int)PaymentInterval.Monthly;
     }
 }

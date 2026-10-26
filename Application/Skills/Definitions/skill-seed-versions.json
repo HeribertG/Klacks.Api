@@ -113,12 +113,12 @@
       "hash": "CB20A94636FB005B9780CB1925FCA2987D3F5E2AFAD7E0B35FC02245F3E8AF10"
     },
     "assign_contract_by_name": {
-      "version": 9,
-      "hash": "86F29ACA3CA1D7DBBD2F60F60E3B5BD87533B0AE872C51FD253593CCF5B6B872"
+      "version": 10,
+      "hash": "7610409D2A813F52B8E864F58C9A3DB11F4EF6DC02A4B3193016B38C3C28E232"
     },
     "assign_contract_to_client": {
-      "version": 10,
-      "hash": "7F7B63532D5DF598F02D68DD0A82DF1256B32FDAFA8E3E6A81D003E9493A2912"
+      "version": 11,
+      "hash": "FA3FC3AF317DD141ADE1AE7009DF980133F5DE8CDE43C04F29490509B888DBAD"
     },
     "assign_macro_to_absence_type": {
       "version": 1,
@@ -552,6 +552,10 @@
       "version": 4,
       "hash": "6194966743BB9970230711C1339BB8FDCB43FE62FEF10AA9B0BABA3E01056666"
     },
+    "evaluate_absence_hours_setup": {
+      "version": 1,
+      "hash": "83675F4C4D7E6E62EE19C476782B1BFB0C22FD2A00AD8E0856CBCE8899E2DA54"
+    },
     "evaluate_autonomy_level_change": {
       "version": 3,
       "hash": "76D723E7AEA27550C808EA955D496F8DAEE8A0CBF848B8958268DDFCD9533F24"
@@ -572,9 +576,17 @@
       "version": 4,
       "hash": "C9383486A639A9DBB57008560A4EE6747A38862E2A59DBB733F53675B343BC6B"
     },
+    "evaluate_target_hours_setup": {
+      "version": 1,
+      "hash": "DF45C48B93D3B37B82C8F5F3AF000F85D24870556940E8D2F7FF8E35300E0E6D"
+    },
     "explain_absence_blocks_planning": {
       "version": 5,
       "hash": "FA2545A22E2EA761C358808A0B8584DE8E0D9F0735FD4C7732BD1444751CEB93"
+    },
+    "explain_absence_hours": {
+      "version": 1,
+      "hash": "CCB0747268EEBB56A84B3B4E8AC87B41AE283508C06A79A5FBD9B5AB8E0A2758"
     },
     "explain_absence_model": {
       "version": 5,
@@ -860,6 +872,10 @@
       "version": 3,
       "hash": "0BA6692D817DED0809BE8998946BE98F32D39A63FF045843F4A082232B206A6C"
     },
+    "explain_target_hours": {
+      "version": 1,
+      "hash": "E5BB912C313D17A60C20920A8573D94C153ED7ABF43F51CC8B39DDCAB6479A2D"
+    },
     "explain_terms_with_several_meanings": {
       "version": 1,
       "hash": "3ECB47E428157146D731EBED0200BC8BDDC4CBA5AF0B788EFBD9EB7ED8F918BE"
@@ -919,6 +935,10 @@
     "geocode_location_groups": {
       "version": 4,
       "hash": "4005AA2FF7FB7DC447228FBCE5874B870A88B3C7AFB658BAD1561B5DFC04DE65"
+    },
+    "get_absence_hours_calculation": {
+      "version": 1,
+      "hash": "12CBB78F6B2D9C8BC4E86E73AD71038611F1AF24A860FC8CFE26250B79C28D02"
     },
     "get_active_industries_settings": {
       "version": 5,
@@ -1119,6 +1139,10 @@
     "get_system_info": {
       "version": 6,
       "hash": "2A5750BED6D999E2A72BEA5E194CC8A6533BE2F094FE43211EB5E728A3C92102"
+    },
+    "get_target_hours_calculation": {
+      "version": 1,
+      "hash": "9263559ACC8E731D800134138CD696E285083FD3688C826806A14D08C9ED015D"
     },
     "get_translation_status": {
       "version": 4,
