@@ -36,6 +36,7 @@ public sealed class RecipeForcingPlan : IRecipeForcingPlan
     private const string ResultDataMarker = "Data: ";
     private const string CustomersProperty = "Customers";
     private const string CustomerIdProperty = "CustomerId";
+    private const int StepsConsumedWhenSealIsSkipped = 2;
 
     private readonly IReadOnlyList<RecipeForcingStep> _steps;
     private int _index;
@@ -151,7 +152,7 @@ public sealed class RecipeForcingPlan : IRecipeForcingPlan
                 // create_shift reused an order that is already sealed: its ShiftId is the plannable shift, so the seal
                 // step is skipped and the cut runs on that shift directly.
                 _capturedPlannableShiftId = _capturedOrderId;
-                _index += 2;
+                _index += StepsConsumedWhenSealIsSkipped;
                 return;
             }
         }
