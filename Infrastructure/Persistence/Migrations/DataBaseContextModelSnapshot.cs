@@ -3420,6 +3420,45 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("pending_confirmations", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.PendingOrderReviewDraftRow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ConversationId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("conversation_id");
+
+                    b.Property<string>("DraftJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("draft_json");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at_utc");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_pending_order_review_drafts");
+
+                    b.HasIndex("ExpiresAtUtc")
+                        .HasDatabaseName("ix_pending_order_review_drafts_expires_at_utc");
+
+                    b.HasIndex("UserId", "ConversationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_pending_order_review_drafts_user_id_conversation_id");
+
+                    b.ToTable("pending_order_review_drafts", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.PendingPlanningProfileDraftRow", b =>
                 {
                     b.Property<Guid>("Id")
