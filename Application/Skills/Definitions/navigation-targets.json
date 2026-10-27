@@ -242,8 +242,8 @@
     "labelKey": "settings.activeIndustries",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-compliance-section/settings-compliance-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "aktive branchen",
@@ -566,8 +566,8 @@
     "labelKey": "settings.assistantLearning",
     "category": "settings.ai",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-klacksy-section/settings-klacksy-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "skill-vorschläge",
@@ -611,8 +611,8 @@
     "labelKey": "settings.assistantPersonality",
     "category": "settings.ai",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-klacksy-section/settings-klacksy-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "klacksy persönlichkeit",
@@ -656,8 +656,8 @@
     "labelKey": "settings.assistantSkillRelations",
     "category": "settings.ai",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-klacksy-section/settings-klacksy-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "skill-beziehungen",
@@ -695,8 +695,8 @@
     "labelKey": "settings.assistantSpeech",
     "category": "settings.ai",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-klacksy-section/settings-klacksy-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "sprachsteuerung",
@@ -1346,8 +1346,8 @@
     "labelKey": "settings.compensatoryRest",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-compliance-section/settings-compliance-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "ersatzruhe",
@@ -1385,8 +1385,8 @@
     "labelKey": "settings.complianceEnforcement",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-compliance-section/settings-compliance-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "compliance-durchsetzung",
@@ -1654,8 +1654,8 @@
     "labelKey": "settings.counterRule",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-compliance-section/settings-compliance-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "zählerregeln",
@@ -2107,8 +2107,8 @@
     "labelKey": "settings.deepl",
     "category": "settings.integrations",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-external-services-section/settings-external-services-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "deepl",
@@ -3313,8 +3313,8 @@
     "labelKey": "settings.holidayWorkExemption",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-compliance-section/settings-compliance-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "feiertagsarbeit-ausnahme",
@@ -3549,8 +3549,8 @@
     "labelKey": "settings.individualPeriods",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-work-section/settings-work-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "individuelle perioden",
@@ -3583,8 +3583,8 @@
     "labelKey": "settings.klacksyAutonomy",
     "category": "settings.ai",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-klacksy-section/settings-klacksy-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "autonomiegrad",
@@ -3655,8 +3655,8 @@
     "labelKey": "settings.klacksyProactiveGovernance",
     "category": "settings.ai",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-klacksy-section/settings-klacksy-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "handlungsspielraum",
@@ -4086,8 +4086,8 @@
     "labelKey": "settings.messagingProviders",
     "category": "settings.integrations",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-external-services-section/settings-external-services-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "messaging-anbieter",
@@ -4120,8 +4120,8 @@
     "labelKey": "settings.monthlyTargetHours",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-work-section/settings-work-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "monatliche sollstunden",
@@ -4313,8 +4313,8 @@
     "labelKey": "settings.openroute",
     "category": "settings.integrations",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-external-services-section/settings-external-services-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "openroute",
@@ -4356,8 +4356,8 @@
     "labelKey": "settings.overtime",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-compliance-section/settings-compliance-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "überstunden",
@@ -4432,8 +4432,8 @@
     "labelKey": "settings.ownerMessengers",
     "category": "settings.integrations",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-external-services-section/settings-external-services-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "messenger sekretariat",
@@ -4465,8 +4465,8 @@
     "labelKey": "settings.periodCapRule",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-compliance-section/settings-compliance-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "perioden-obergrenzen",
@@ -5414,8 +5414,8 @@
     "labelKey": "settings.restrictedTimeWindowRule",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-compliance-section/settings-compliance-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "gesperrtes zeitfenster",
@@ -5488,8 +5488,8 @@
     "labelKey": "settings.schedulingDefaults",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-work-section/settings-work-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "planungsstandardwerte",
@@ -5520,8 +5520,8 @@
     "labelKey": "settings.schedulingRules",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-work-section/settings-work-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "planungsregel",
@@ -6221,8 +6221,8 @@
     "labelKey": "settings.surchargeMode",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-compliance-section/settings-compliance-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "zuschlagsmodus",
@@ -6344,8 +6344,8 @@
     "labelKey": "settings.web-search",
     "category": "settings.integrations",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-external-services-section/settings-external-services-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "websuche",
@@ -6382,8 +6382,8 @@
     "labelKey": "settings.whisperPlugin",
     "category": "settings.ai",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-klacksy-section/settings-klacksy-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "whisper",
@@ -6428,8 +6428,8 @@
     "labelKey": "setting.holisticHarmonizer.menu",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-work-section/settings-work-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "holistic harmonizer",
@@ -6518,8 +6518,8 @@
     "labelKey": "settings.workSetting",
     "category": "settings.scheduling",
     "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-work-section/settings-work-section.component.html",
+    "lastScannedAt": "2026-10-27T21:32:00.461Z",
     "synonyms": {
       "de": [
         "planungen grundeinstellungen",
