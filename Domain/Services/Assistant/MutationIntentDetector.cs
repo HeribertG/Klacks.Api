@@ -81,23 +81,6 @@ public static class MutationIntentDetector
         // "Setz den Haken", "Leg einen Kunden an"). Only unambiguous forms — "macht" is skipped
         // because it collides with the noun "Macht", "stelle" with the noun "Stelle".
         "leg", "lege", "mach", "mache", "setz", "setze", "füg", "füge",
-        // German imperatives and infinitives of further change verbs. Exact tokens only: the stems would also match nouns
-        // and participles ("Sperrzeit", "Streichung", "Einrichtung", "installierte Module", "Schaltfläche", "Merkmal").
-        "korrigier", "korrigiere", "korrigieren", "berichtig", "berichtige", "berichtigen",
-        "sperr", "sperre", "sperren", "verwerf", "verwerfe", "verwerfen", "verwirf",
-        "streich", "streiche", "streichen", "stopp", "stoppe", "stoppen",
-        "deaktivier", "deaktiviere", "deaktivieren", "aktivier", "aktiviere", "aktivieren",
-        "fixier", "fixiere", "fixieren", "importier", "importiere", "importieren",
-        "installier", "installiere", "installieren", "uninstallier", "uninstalliere", "deinstalliere",
-        "übernimm", "übernehme", "übernehmen", "schalt", "schalte", "bündel", "bündle", "merk", "merke",
-        "lös", "löse", "starte", "füll", "fülle", "erhöh", "erhöhe", "erhöhen", "wechsl", "wechsle", "wechseln",
-    };
-
-    // German separable verbs: the stem and its particle stand apart in the sentence ("häng … an", "stell … um").
-    private static readonly (string Stem, string Particle)[] SeparableVerbs =
-    {
-        ("häng", "an"), ("stell", "um"), ("benenn", "um"), ("teil", "auf"), ("heb", "an"), ("richt", "ein"),
-        ("hol", "zurück"), ("pass", "an"), ("schliess", "ab"), ("schließ", "ab"),
     };
 
     /// <summary>
@@ -207,12 +190,6 @@ public static class MutationIntentDetector
         }
 
         if (tokens.Contains("ein") && tokens.Any(t => t.StartsWith("trag", StringComparison.OrdinalIgnoreCase)))
-        {
-            return true;
-        }
-
-        if (SeparableVerbs.Any(verb =>
-                tokens.Contains(verb.Particle) && tokens.Any(t => t.StartsWith(verb.Stem, StringComparison.OrdinalIgnoreCase))))
         {
             return true;
         }
