@@ -7,6 +7,7 @@
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 
@@ -47,6 +48,12 @@ public class TurnReplayResult
     public string? TriggeredRecipeName { get; set; }
 
     public List<string> AvailableToolNames { get; set; } = new();
+
+    /// <summary>
+    /// Where skills entered or left the toolset of this replay (retrieved, selected before the cap, cut by the cap);
+    /// null when the assembly produced none. Diagnosis only - nothing scores on it.
+    /// </summary>
+    public SkillToolsetTrace? ToolsetTrace { get; set; }
 
     /// <summary>
     /// Curated skill effect of every offered function that has one, keyed by skill name. Lets the scorer tell a

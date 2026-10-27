@@ -42,6 +42,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
     private readonly IEvalRunItemRepository _evalRunItemRepository;
     private readonly ILogger<TurnEvalRunnerService> _logger;
     private readonly TurnEvalMemoryProbe _memoryProbe;
+    private readonly ISkillCacheService? _skillCacheService;
 
     public TurnEvalRunnerService(
         ITurnGoldsetLoader goldsetLoader,
@@ -50,8 +51,10 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         IEvalRunRepository evalRunRepository,
         IEvalRunItemRepository evalRunItemRepository,
         ILogger<TurnEvalRunnerService> logger,
-        TurnEvalMemoryProbe? memoryProbe = null)
+        TurnEvalMemoryProbe? memoryProbe = null,
+        ISkillCacheService? skillCacheService = null)
     {
+        _skillCacheService = skillCacheService;
         _goldsetLoader = goldsetLoader;
         _replayService = replayService;
         _slotEntityResolver = slotEntityResolver;
@@ -90,6 +93,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         var itemResults = new List<TurnEvalItemResult>(items.Count);
         var itemRows = new List<EvalRunItem>(items.Count);
         string? providerId = null;
+        var skillCatalog = await LoadSkillCatalogAsync(cancellationToken);
 
         foreach (var item in items)
         {
@@ -101,6 +105,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
 
             var resolvedNameSlots = await ResolveNameSlotsAsync(item, replay, cancellationToken);
             var scored = TurnEvalScorer.ScoreItem(item, replay, resolvedNameSlots);
+            scored.MissKind = TurnEvalMissClassifier.Classify(item, scored, replay, skillCatalog);
             itemResults.Add(scored);
             itemRows.Add(BuildItemRow(runId, item, replay, scored));
             if (_memoryProbe.ShouldProbe(itemResults.Count))
@@ -165,6 +170,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             dimensions.ReachedHit ?? -1, dimensions.LookupDetourRate ?? -1, regression,
             baselineMedian, baselineComposites.Count);
 
+        LogMissKindBreakdown(goldset, modelId, dimensions);
         LogOriginBreakdown(goldset, modelId, dimensionsByOrigin);
         LogLocaleBreakdown(goldset, modelId, dimensions, dimensionsByLocale);
 
@@ -176,6 +182,41 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             DimensionsByOrigin = dimensionsByOrigin,
             DimensionsByLocale = dimensionsByLocale
         };
+    }
+
+    /// <summary>
+    /// Loads the installed skills once per run for the miss classifier. A failure leaves the catalog unknown (null) and
+    /// never fails the run: the label is diagnosis, not measurement.
+    /// </summary>
+    private async Task<TurnEvalSkillCatalog?> LoadSkillCatalogAsync(CancellationToken cancellationToken)
+    {
+        if (_skillCacheService == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return new TurnEvalSkillCatalog(await _skillCacheService.GetAllEnabledSkillsAsync(cancellationToken));
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "TurnEval could not load the skill catalog; items are classified without it.");
+            return null;
+        }
+    }
+
+    private void LogMissKindBreakdown(string goldset, string modelId, TurnEvalDimensions dimensions)
+    {
+        if (dimensions.MissKindCounts == null)
+        {
+            return;
+        }
+
+        _logger.LogInformation(
+            "TurnEvalRun {Goldset} model {Model} missKinds: {MissKinds}",
+            goldset.ForLog(), modelId.ForLog(),
+            string.Join(", ", dimensions.MissKindCounts.Select(pair => $"{pair.Key}={pair.Value}")));
     }
 
     /// <summary>
@@ -280,6 +321,8 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             ExpectedTool = item.ExpectedTool,
             ChosenTool = scored.ChosenTool,
             ToolsetNamesJson = JsonSerializer.Serialize(replay.AvailableToolNames),
+            ToolsetTraceJson = replay.ToolsetTrace == null ? null : JsonSerializer.Serialize(replay.ToolsetTrace),
+            MissKind = scored.MissKind == null ? null : EvalMissKindNames.Of(scored.MissKind.Value),
             RetrievalHit = scored.RetrievalHit,
             SelectionHit = scored.SelectionHit,
             ReachedHit = scored.ReachedHit,

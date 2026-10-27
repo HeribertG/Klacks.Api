@@ -160,6 +160,7 @@ public class TurnReplayService : ITurnReplayService
         ChosenTool = null,
         Content = replayClarification,
         AvailableToolNames = prep.Context.AvailableFunctions.Select(f => f.Name).ToList(),
+        ToolsetTrace = prep.ToolsetTrace,
         ToolEffects = TurnReplayToolEffects.From(prep.Context.AvailableFunctions),
         RecipeWouldForce = prep.RecipeWouldForce,
         EngineRecipeWouldTrigger = prep.EngineRecipeWouldTrigger,
@@ -205,6 +206,7 @@ public class TurnReplayService : ITurnReplayService
             ForcedRecipeName = prep.ForcingPlan?.Name,
             TriggeredRecipeName = prep.TriggeredRecipeName,
             AvailableToolNames = prep.Context.AvailableFunctions.Select(f => f.Name).ToList(),
+            ToolsetTrace = prep.ToolsetTrace,
             ToolEffects = TurnReplayToolEffects.From(prep.Context.AvailableFunctions),
             ToolChoiceRequired = prep.ToolChoiceRequired,
             ProviderId = model.ProviderId,
@@ -381,7 +383,8 @@ public class TurnReplayService : ITurnReplayService
 
         return new ReplayPromptPreparation(
             context, correction, replayHistory, forcingPlan, forcingPlan != null, triggeredRecipeName,
-            triggeredRecipeName != null, toolChoiceRequired, budgetProfile, systemPrompt, volatilePrompt, request);
+            triggeredRecipeName != null, toolChoiceRequired, budgetProfile, systemPrompt, volatilePrompt, request,
+            toolset.Trace);
     }
 
     private static LLMProviderRequest BuildProviderRequest(
@@ -424,7 +427,8 @@ public class TurnReplayService : ITurnReplayService
         ContextBudgetProfile BudgetProfile,
         string SystemPrompt,
         string? VolatilePrompt,
-        LLMProviderRequest Request);
+        LLMProviderRequest Request,
+        SkillToolsetTrace? ToolsetTrace);
 
     /// <summary>
     /// Seeds the replay with the turn a correction item refers to, in the same role/content shape

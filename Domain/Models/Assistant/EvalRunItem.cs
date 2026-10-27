@@ -32,6 +32,10 @@ public class EvalRunItem : BaseEntity
 
     public bool? ReachedHit { get; set; }
 
+    public string? MissKind { get; set; }
+
+    public string? ToolsetTraceJson { get; set; }
+
     public string? ChosenArgsJson { get; set; }
 
     public string? ResponseText { get; set; }

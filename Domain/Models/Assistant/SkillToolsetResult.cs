@@ -26,4 +26,10 @@ public class SkillToolsetResult
     /// into the trajectory for the skill rerank threshold tuner.
     /// </summary>
     public SkillRerankObservation? SkillRerank { get; init; }
+
+    /// <summary>
+    /// Where skills entered or left the selection this turn; observation only, never an input to the assembly. Null
+    /// on every path that does not build a capped or always-on-only selection.
+    /// </summary>
+    public SkillToolsetTrace? Trace { get; init; }
 }

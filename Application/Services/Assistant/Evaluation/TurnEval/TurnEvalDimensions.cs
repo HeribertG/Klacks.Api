@@ -20,6 +20,8 @@
 /// UnexpectedRecipeRate (2026-10-24) is the share of items expecting NO recipe on which a recipe would force or
 /// engage. It is computed over all non-errored items because those turns are what Excluded removes from every
 /// other dimension - without it a rising hijack rate only showed as a smaller denominator. Outside the composite.
+/// MissKindCounts is the number of items per EvalMissKind wire name (EvalMissKindNames); it is null, and omitted from the
+/// persisted JSON, while no item has been classified. It labels the other dimensions' misses and feeds none of them.
 /// </summary>
 
 using System.Text.Json.Serialization;
@@ -50,4 +52,5 @@ public sealed record TurnEvalDimensions(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RefusalStatedRate = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RightsNoWriteRate = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RightsToolForcedRate = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? UnexpectedRecipeRate = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? UnexpectedRecipeRate = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Dictionary<string, int>? MissKindCounts = null);

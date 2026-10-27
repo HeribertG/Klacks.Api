@@ -333,7 +333,29 @@ public static class TurnEvalScorer
             RefusalStatedRate: refusalStatedItems.Count == 0 ? null : refusalStatedItems.Average(i => i.RefusalStated == true ? 1.0 : 0.0),
             UnexpectedRecipeRate: nonRecipeItems.Count == 0
                 ? null
-                : nonRecipeItems.Average(i => i.RecipeWouldForce || i.EngineRecipeWouldTrigger ? 1.0 : 0.0));
+                : nonRecipeItems.Average(i => i.RecipeWouldForce || i.EngineRecipeWouldTrigger ? 1.0 : 0.0),
+            MissKindCounts: CountMissKinds(items));
+    }
+
+    private static Dictionary<string, int>? CountMissKinds(IReadOnlyList<TurnEvalItemResult> items)
+    {
+        var classified = items.Where(i => i.MissKind != null).ToList();
+        if (classified.Count == 0)
+        {
+            return null;
+        }
+
+        var counts = new Dictionary<string, int>();
+        foreach (var kind in Enum.GetValues<EvalMissKind>())
+        {
+            var count = classified.Count(i => i.MissKind == kind);
+            if (count > 0)
+            {
+                counts[EvalMissKindNames.Of(kind)] = count;
+            }
+        }
+
+        return counts;
     }
 
     /// <summary>

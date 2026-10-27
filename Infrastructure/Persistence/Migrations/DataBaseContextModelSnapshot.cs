@@ -2050,6 +2050,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(8)")
                         .HasColumnName("locale");
 
+                    b.Property<string>("MissKind")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("miss_kind");
+
                     b.Property<bool>("Passed")
                         .HasColumnType("boolean")
                         .HasColumnName("passed");
@@ -2082,6 +2087,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb")
                         .HasColumnName("toolset_names_json");
+
+                    b.Property<string>("ToolsetTraceJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("toolset_trace_json");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")

@@ -64,6 +64,8 @@ public static class TurnEvalDefaults
 
     public const int ToolNameMaxLength = 128;
 
+    public const int MissKindMaxLength = 40;
+
     /// <summary>
     /// A replay asks the model at most twice: the first choice and, when that was a lookup in front of
     /// an expected mutation, one more choice on a synthetic lookup result. Enforced as a post-condition

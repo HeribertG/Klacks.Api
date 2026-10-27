@@ -214,11 +214,11 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         selectedSkills = await ExpandIntoFreeBudgetAsync(
             agent.Id, selectedSkills, permittedSkills, maxToolsForProvider, expansionNames, cancellationToken);
 
-        (selectedSkills, var postExclusionRetrievedCount) = ApplyCorrectionExclusion(
+        (selectedSkills, var postExclusionRetrieved) = ApplyCorrectionExclusion(
             selectedSkills, retrievedSkills, excludedSkillNames, guaranteeResult.ExcludedSkillNames, guaranteedSources);
 
         return BuildCappedResult(
-            selectedSkills, alwaysOnSkills.Count, postExclusionRetrievedCount, guaranteeResult, retrievalScores,
+            selectedSkills, alwaysOnSkills.Count, postExclusionRetrieved, guaranteeResult, retrievalScores,
             expansionNames, skillRerank, maxToolsForProvider, assemblyWatch);
     }
 
@@ -234,7 +234,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     /// <param name="excludedSkillNames">The correction turn's excluded skill names; null outside a correction</param>
     /// <param name="draftLoopExcludedSkillNames">The skills an open draft loop keeps out (DraftLoopToolsetPolicy)</param>
     /// <param name="guaranteedSources">This turn's guarantee sources, which exempt RecipeStep skills</param>
-    private (List<AgentSkill> SelectedSkills, int RetrievedCount) ApplyCorrectionExclusion(
+    private (List<AgentSkill> SelectedSkills, List<AgentSkill> RetrievedSkills) ApplyCorrectionExclusion(
         List<AgentSkill> selectedSkills,
         List<AgentSkill> retrievedSkills,
         IReadOnlyCollection<string>? excludedSkillNames,
@@ -243,10 +243,11 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     {
         var excludedSkillNameSet = ResolveExclusionSet(excludedSkillNames, draftLoopExcludedSkillNames);
         selectedSkills = DropExcluded(selectedSkills, excludedSkillNameSet, guaranteedSources);
-        var postExclusionRetrievedCount = retrievedSkills.Count(
-            s => !IsExcluded(s, excludedSkillNameSet, guaranteedSources));
+        var postExclusionRetrieved = retrievedSkills
+            .Where(s => !IsExcluded(s, excludedSkillNameSet, guaranteedSources))
+            .ToList();
 
-        return (selectedSkills, postExclusionRetrievedCount);
+        return (selectedSkills, postExclusionRetrieved);
     }
 
     /// <summary>
@@ -255,7 +256,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     /// </summary>
     /// <param name="selectedSkills">The selection after expansion and exclusion</param>
     /// <param name="alwaysOnCount">Number of permitted always-on skills, for the budget log</param>
-    /// <param name="postExclusionRetrievedCount">Retrieved skills left after the exclusion, for the budget log</param>
+    /// <param name="postExclusionRetrieved">Retrieved skills left after the exclusion, for the budget log and the trace</param>
     /// <param name="guaranteeResult">This turn's guarantees, their sources and the veto</param>
     /// <param name="retrievalScores">The retrieval score per surfaced skill name</param>
     /// <param name="expansionNames">Names the co-required expansion added</param>
@@ -265,7 +266,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     private SkillToolsetResult BuildCappedResult(
         List<AgentSkill> selectedSkills,
         int alwaysOnCount,
-        int postExclusionRetrievedCount,
+        List<AgentSkill> postExclusionRetrieved,
         SkillToolsetGuaranteeResult guaranteeResult,
         Dictionary<string, double> retrievalScores,
         HashSet<string> expansionNames,
@@ -273,16 +274,18 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         int maxToolsForProvider,
         System.Diagnostics.Stopwatch assemblyWatch)
     {
-        var preCapCount = selectedSkills.Count;
-        var truncated = preCapCount > maxToolsForProvider;
+        var preCapSkills = selectedSkills;
+        var truncated = preCapSkills.Count > maxToolsForProvider;
 
         if (truncated)
         {
             selectedSkills = TruncateToBudget(selectedSkills, guaranteeResult, retrievalScores, maxToolsForProvider);
         }
 
+        var trace = SkillToolsetTraceBuilder.Build(postExclusionRetrieved, retrievalScores, preCapSkills, selectedSkills);
+
         LogToolBudget(
-            alwaysOnCount, postExclusionRetrievedCount, selectedSkills.Count, truncated,
+            alwaysOnCount, postExclusionRetrieved.Count, selectedSkills.Count, truncated,
             maxToolsForProvider, guaranteeResult.GuaranteedSkills.Where(selectedSkills.Contains).ToList());
 
         var selectedProvenance = ResolveProvenance(
@@ -294,7 +297,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             HasDomainSkillContext = true,
             AssemblyMs = assemblyWatch.ElapsedMilliseconds,
             TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall,
-            SkillRerank = skillRerank
+            SkillRerank = skillRerank,
+            Trace = trace
         };
     }
 
@@ -347,7 +351,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             HasDomainSkillContext = hasDomainSkillContext,
             AssemblyMs = assemblyWatch.ElapsedMilliseconds,
             TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall,
-            SkillRerank = skillRerank
+            SkillRerank = skillRerank,
+            Trace = SkillToolsetTraceBuilder.Build([], retrievalScores, alwaysOnSkills, alwaysOnSkills)
         };
     }
 

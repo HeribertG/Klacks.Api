@@ -133,6 +133,12 @@ public class TurnEvalItemResult
     /// </summary>
     public bool? RefusalStated { get; set; }
 
+    /// <summary>
+    /// Why the item hit or missed, set by the runner after scoring (see <see cref="TurnEvalMissClassifier"/>). A label
+    /// only: no verdict, dimension or composite reads it. Null until the runner classified the item.
+    /// </summary>
+    public EvalMissKind? MissKind { get; set; }
+
     public long LatencyMs { get; set; }
 
     public decimal Cost { get; set; }

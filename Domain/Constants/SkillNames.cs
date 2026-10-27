@@ -6,6 +6,9 @@ public static class SkillNames
 {
     public const string NavigateTo = "navigate_to";
     public const string SearchAndNavigate = "search_and_navigate";
+    public const string SearchInList = "search_in_list";
+    public const string GetPageControls = "get_page_controls";
+    public const string GetUserContext = "get_user_context";
     public const string ManagePendingNotes = "manage_pending_notes";
     public const string ExplainShiftLifecycle = "explain_shift_lifecycle_order_to_shift";
     public const string ExplainFinalVsCorrectable = "explain_final_vs_correctable";
