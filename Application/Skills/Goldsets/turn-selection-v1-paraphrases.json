@@ -1858,7 +1858,9 @@
       "locale": "de",
       "currentRoute": null,
       "expectedTool": "create_absence_type",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence"
+      ],
       "expectedSlots": [],
       "source": "paraphrase",
       "comment": "Paraphrase 1 of w05-hijack-create-absence-type."
@@ -1869,7 +1871,9 @@
       "locale": "de",
       "currentRoute": null,
       "expectedTool": "create_absence_type",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence"
+      ],
       "expectedSlots": [],
       "source": "paraphrase",
       "comment": "Paraphrase 2 of w05-hijack-create-absence-type."
@@ -1880,7 +1884,9 @@
       "locale": "de",
       "currentRoute": null,
       "expectedTool": "create_absence_type",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence"
+      ],
       "expectedSlots": [],
       "source": "paraphrase",
       "comment": "Paraphrase 3 of w05-hijack-create-absence-type."
@@ -3679,7 +3685,9 @@
       "locale": "de",
       "currentRoute": null,
       "expectedTool": "create_absence",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence_type"
+      ],
       "expectedSlots": [],
       "source": "paraphrase",
       "comment": "Paraphrase 1 of w05-coverage-create-absence."
@@ -3690,7 +3698,9 @@
       "locale": "de",
       "currentRoute": null,
       "expectedTool": "create_absence",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence_type"
+      ],
       "expectedSlots": [],
       "source": "paraphrase",
       "comment": "Paraphrase 2 of w05-coverage-create-absence."
@@ -3701,7 +3711,9 @@
       "locale": "de",
       "currentRoute": null,
       "expectedTool": "create_absence",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "create_absence_type"
+      ],
       "expectedSlots": [],
       "source": "paraphrase",
       "comment": "Paraphrase 3 of w05-coverage-create-absence."
