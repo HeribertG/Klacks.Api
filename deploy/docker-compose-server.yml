@@ -111,6 +111,21 @@ services:
       # Never set this on a customer's on-prem stack (deploy/onprem/docker-compose.yml has no such
       # variable, so it defaults to false there).
       - Deployment__IsPlayground=${DEPLOYMENT_IS_PLAYGROUND:-true}
+      # Daily LLM token budgets of the Playground (only effective while Deployment__IsPlayground is true;
+      # the day rolls at 02:00 UTC). Numeric defaults on purpose: an empty value would fall back to the same defaults.
+      - Playground__TokenLimit__GlobalDailyTokens=${PLAYGROUND_TOKEN_LIMIT_GLOBAL:-1500000}
+      - Playground__TokenLimit__PerIpDailyTokens=${PLAYGROUND_TOKEN_LIMIT_PER_IP:-300000}
+      - Playground__TokenLimit__PerDeviceDailyTokens=${PLAYGROUND_TOKEN_LIMIT_PER_DEVICE:-150000}
+      # Playground: no visitor text may land in the database (every visitor is the shared demo admin). Chat history
+      # lives in process memory only (code, Deployment__IsPlayground); these switch off the learning writers that
+      # have a configuration flag. Customer stacks (deploy/onprem) keep the defaults.
+      - Assistant__AutoMemory__Enabled=false
+      - BackgroundServices__KlacksyLearning=false
+      - BackgroundServices__SkillRelationLearning=false
+      - BackgroundServices__GoalReflection=false
+      - BackgroundServices__GoalReflectionDelivery=false
+      - BackgroundServices__GoalReflectionPlanDrafting=false
+      - BackgroundServices__GoalReflectionExecution=false
       # DataProtection key ring. Set both to move the ring into the database, so a single pg_dump
       # covers it - the ring rotates every 90 days, which makes a separate volume backup go stale
       # unnoticed. The certificate is what keeps the dump from becoming the master key; without it

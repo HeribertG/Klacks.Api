@@ -7,6 +7,8 @@
 /// <param name="apiKey">API key for the selected provider</param>
 /// <param name="maxResults">Maximum number of search results per query</param>
 
+using Klacks.Api.Domain.Interfaces.Playground;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
@@ -23,15 +25,18 @@ public class UpdateWebSearchSettingsSkill : BaseSkillImplementation
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISettingsEncryptionService _encryptionService;
+    private readonly IPlaygroundMode _playgroundMode;
 
     public UpdateWebSearchSettingsSkill(
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
-        ISettingsEncryptionService encryptionService)
+        ISettingsEncryptionService encryptionService,
+        IPlaygroundMode playgroundMode)
     {
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
         _encryptionService = encryptionService;
+        _playgroundMode = playgroundMode;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -39,6 +44,11 @@ public class UpdateWebSearchSettingsSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        if (_playgroundMode.IsActive)
+        {
+            return SkillResult.Error(PlaygroundHardeningConstants.FeatureBlockedMessage);
+        }
+
         var updatedFields = new List<string>();
 
         var provider = GetParameter<string>(parameters, "provider");

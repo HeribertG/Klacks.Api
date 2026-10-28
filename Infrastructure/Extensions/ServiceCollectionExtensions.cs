@@ -275,6 +275,7 @@ public static class ServiceCollectionExtensions
     private static void AddAssistantServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<AutoMemoryOptions>(configuration.GetSection(AutoMemoryOptions.SectionName));
+        services.AddPlaygroundTokenLimit(configuration);
         services.AddLLMCoreServices();
         services.AddLLMProviders();
         services.AddSkillServices();

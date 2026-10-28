@@ -17,6 +17,7 @@ public static class RateLimitingPolicies
     public const string ConnectionTest = "connection-test";
     public const string ClientImport = "client-import";
     public const string GeoProxy = "geo-proxy";
+    public const string PlaygroundStatus = "playground-status";
 
     public const int LoginPermitLimit = 20;
     public const int UploadPermitLimit = 30;
@@ -28,6 +29,12 @@ public static class RateLimitingPolicies
     public const int ConnectionTestPermitLimit = 10;
     public const int ClientImportPermitLimit = 120;
     public const int GeoProxyPermitLimit = 20;
+    public const int PlaygroundStatusPermitLimit = 120;
+
+    public const string AnonymousPartitionKey = "anonymous";
+    public const string PlaygroundPartitionPrefix = "playground:";
+    public const string PlaygroundNoDeviceKey = "no-device";
+    public const char PlaygroundPartitionSeparator = '|';
     public const int MaxBulkOperationItems = 500;
     public const int MaxFunctionBatchSize = 20;
 

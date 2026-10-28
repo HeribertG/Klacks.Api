@@ -12,6 +12,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Klacks.Api.Presentation.Filters;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Bots;
 
@@ -36,6 +37,7 @@ public class KlacksBotTokensController : BaseController
         return Ok(tokens);
     }
 
+    [BlockedOnPlayground]
     [HttpPost]
     public async Task<ActionResult<KlacksBotTokenCreatedDto>> Create([FromBody] CreateKlacksBotTokenRequest request)
     {
@@ -46,6 +48,7 @@ public class KlacksBotTokensController : BaseController
         return Ok(created);
     }
 
+    [BlockedOnPlayground]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Revoke(Guid id)
     {

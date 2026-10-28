@@ -34,6 +34,13 @@ public interface ISettingsRepository : ISettingsReader
 
     Task<Klacks.Api.Domain.Models.Settings.Settings?> GetSettingNoTracking(string type);
 
+    /// <summary>
+    /// Reads the stored row of one setting by its primary key without tracking it, so a caller that later updates a
+    /// detached copy of the same row on this context does not hit an already-tracked entity.
+    /// </summary>
+    /// <param name="id">Primary key of the setting row</param>
+    Task<Klacks.Api.Domain.Models.Settings.Settings?> GetSettingByIdNoTracking(Guid id);
+
     Task<IEnumerable<Klacks.Api.Domain.Models.Settings.Settings>> GetSettingsList();
 
     Task<TruncatedCalendarRule> GetTruncatedCalendarRuleList(CalendarRulesFilter filter);

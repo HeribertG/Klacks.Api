@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
@@ -35,6 +36,7 @@ public class WhisperPluginController : ControllerBase
         return Ok(await _mediator.Send(new GetWhisperPluginStatusQuery()));
     }
 
+    [BlockedOnPlayground]
     [HttpPost("install")]
     public async Task<ActionResult<UpdateTriggerResult>> Install([FromBody] Presentation.DTOs.Assistant.WhisperPluginInstallRequest request)
     {
@@ -42,6 +44,7 @@ public class WhisperPluginController : ControllerBase
         return result.Enqueued ? Ok(result) : Conflict(result);
     }
 
+    [BlockedOnPlayground]
     [HttpPost("uninstall")]
     public async Task<ActionResult<UpdateTriggerResult>> Uninstall()
     {

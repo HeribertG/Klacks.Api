@@ -6,6 +6,7 @@ using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 /// <param name="modelCheckService">Pings every configured LLM model so the UI can highlight unhealthy ones.</param>
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+[BlockedOnPlayground]
 public sealed class HolisticHarmonizerController : BaseController
 {
     private readonly IHolisticHarmonizerJobRunner _jobRunner;

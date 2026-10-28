@@ -5,9 +5,11 @@
 /// Routes synthesis requests to the appropriate ITtsProvider based on ProviderId.
 /// </summary>
 /// <param name="ttsProviders">All registered ITtsProvider implementations</param>
+/// <param name="playgroundMode">Tells whether the instance is the Playground, where the provider is always Edge</param>
 /// <param name="logger">Logger for diagnostics and error tracking</param>
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Playground;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Presentation.DTOs.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,21 +25,27 @@ public class TtsController : ControllerBase
 {
     private readonly ILogger<TtsController> _logger;
     private readonly IEnumerable<ITtsProvider> _ttsProviders;
+    private readonly IPlaygroundMode _playgroundMode;
 
     private const string TestText = "Test.";
 
     public TtsController(
         ILogger<TtsController> logger,
-        IEnumerable<ITtsProvider> ttsProviders)
+        IEnumerable<ITtsProvider> ttsProviders,
+        IPlaygroundMode playgroundMode)
     {
         _logger = logger;
         _ttsProviders = ttsProviders;
+        _playgroundMode = playgroundMode;
     }
+
+    private string? ResolveProviderId(string? requestedProviderId) =>
+        _playgroundMode.IsActive ? TtsProviderConstants.Edge : requestedProviderId;
 
     [HttpGet("voices")]
     public async Task<IActionResult> GetVoices([FromQuery] string? providerId = null, CancellationToken ct = default)
     {
-        var effectiveProviderId = providerId ?? TtsProviderConstants.Edge;
+        var effectiveProviderId = ResolveProviderId(providerId) ?? TtsProviderConstants.Edge;
         var provider = _ttsProviders.FirstOrDefault(p => p.ProviderId == effectiveProviderId);
         if (provider == null)
             return BadRequest($"Unknown TTS provider: {effectiveProviderId}");
@@ -49,10 +57,11 @@ public class TtsController : ControllerBase
     [HttpPost("test")]
     public async Task<IActionResult> TestConnection([FromBody] TtsTestRequest request, CancellationToken ct)
     {
-        var provider = _ttsProviders.FirstOrDefault(p => p.ProviderId == request.ProviderId);
+        var testProviderId = ResolveProviderId(request.ProviderId);
+        var provider = _ttsProviders.FirstOrDefault(p => p.ProviderId == testProviderId);
         if (provider == null)
         {
-            return BadRequest(new TtsTestResult(false, $"Unknown provider: {request.ProviderId}"));
+            return BadRequest(new TtsTestResult(false, $"Unknown provider: {testProviderId}"));
         }
 
         try
@@ -81,7 +90,7 @@ public class TtsController : ControllerBase
             return BadRequest($"Text exceeds maximum length of {TtsProviderConstants.MaxSynthesisTextLength} characters");
         }
 
-        var providerId = request.ProviderId ?? TtsProviderConstants.Edge;
+        var providerId = ResolveProviderId(request.ProviderId) ?? TtsProviderConstants.Edge;
         var provider = _ttsProviders.FirstOrDefault(p => p.ProviderId == providerId);
         if (provider == null)
         {

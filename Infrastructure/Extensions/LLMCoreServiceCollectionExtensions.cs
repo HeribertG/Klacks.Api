@@ -116,7 +116,10 @@ internal static class LLMCoreServiceCollectionExtensions
     private static void AddAssistantEvaluationServices(this IServiceCollection services)
     {
         services.AddScoped<ILLMService, LLMService>();
-        services.AddScoped<ILLMBackgroundTaskService, LLMBackgroundTaskService>();
+        services.AddScoped<LLMBackgroundTaskService>();
+        services.AddScoped<ILLMBackgroundTaskService>(provider => new Klacks.Api.Application.Services.Playground.PlaygroundSilentBackgroundTaskService(
+            provider.GetRequiredService<LLMBackgroundTaskService>(),
+            provider.GetRequiredService<Klacks.Api.Domain.Interfaces.Playground.IPlaygroundMode>()));
         services.AddScoped<ITrajectoryCaptureService, Klacks.Api.Application.Services.Assistant.Evaluation.TrajectoryCaptureService>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.IGoldsetLoader, Klacks.Api.Application.Services.Assistant.Evaluation.FileGoldsetLoader>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.IEvalRunnerService, Klacks.Api.Application.Services.Assistant.Evaluation.EvalRunnerService>();

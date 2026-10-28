@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Interfaces.Playground;
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Email;
@@ -16,13 +17,16 @@ public class TestImapConnectionSkill : BaseSkillImplementation
 {
     private readonly ISettingsRepository _settingsRepository;
     private readonly IImapTestService _imapTestService;
+    private readonly IPlaygroundMode _playgroundMode;
 
     public TestImapConnectionSkill(
         ISettingsRepository settingsRepository,
-        IImapTestService imapTestService)
+        IImapTestService imapTestService,
+        IPlaygroundMode playgroundMode)
     {
         _settingsRepository = settingsRepository;
         _imapTestService = imapTestService;
+        _playgroundMode = playgroundMode;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -30,6 +34,11 @@ public class TestImapConnectionSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        if (_playgroundMode.IsActive)
+        {
+            return SkillResult.Error(PlaygroundHardeningConstants.FeatureBlockedMessage);
+        }
+
         var server = await GetSettingValue(Constants.Settings.APP_INCOMING_SERVER);
         var port = await GetSettingValue(Constants.Settings.APP_INCOMING_SERVER_PORT);
         var enableSsl = await GetSettingValue(Constants.Settings.APP_INCOMING_SERVER_SSL);

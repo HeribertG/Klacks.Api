@@ -8,6 +8,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -31,6 +32,7 @@ public class GeneralSettingsController : BaseController
         this.secretResolver = secretResolver;
     }
 
+    [BlockedSettingKeysOnPlayground]
     [HttpPost("AddSetting")]
     public async Task<Klacks.Api.Domain.Models.Settings.Settings> AddSetting([FromBody] Klacks.Api.Domain.Models.Settings.Settings setting)
     {
@@ -52,6 +54,7 @@ public class GeneralSettingsController : BaseController
         return settings;
     }
 
+    [BlockedSettingKeysOnPlayground]
     [HttpPut("PutSetting")]
     public async Task<Klacks.Api.Domain.Models.Settings.Settings> PutSetting([FromBody] Klacks.Api.Domain.Models.Settings.Settings setting)
     {
@@ -59,6 +62,7 @@ public class GeneralSettingsController : BaseController
         return res;
     }
 
+    [BlockedOnPlayground]
     [HttpPost("TestEmailConfiguration")]
     [EnableRateLimiting(Application.Constants.RateLimitingPolicies.ConnectionTest)]
     public async Task<ActionResult<EmailTestResult>> TestEmailConfiguration([FromBody] EmailTestRequest request)

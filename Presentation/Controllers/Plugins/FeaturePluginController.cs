@@ -12,6 +12,7 @@ using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Domain.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.Plugins;
@@ -54,6 +55,7 @@ public class FeaturePluginController : ControllerBase
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [BlockedOnPlayground]
     [HttpPost("{name}/install")]
     public async Task<ActionResult> InstallPlugin(string name)
     {
@@ -65,6 +67,7 @@ public class FeaturePluginController : ControllerBase
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [BlockedOnPlayground]
     [HttpDelete("{name}/uninstall")]
     public async Task<ActionResult> UninstallPlugin(string name)
     {
@@ -75,6 +78,7 @@ public class FeaturePluginController : ControllerBase
         return Ok();
     }
 
+    [BlockedOnPlayground]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpPost("{name}/enable")]
     public async Task<ActionResult> EnablePlugin(string name)
@@ -86,6 +90,7 @@ public class FeaturePluginController : ControllerBase
         return Ok();
     }
 
+    [BlockedOnPlayground]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpPost("{name}/disable")]
     public async Task<ActionResult> DisablePlugin(string name)
@@ -111,6 +116,7 @@ public class FeaturePluginController : ControllerBase
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [BlockedOnPlayground]
     [HttpPost("{name}/install-from-marketplace")]
     public async Task<ActionResult> InstallFromMarketplace(string name)
     {

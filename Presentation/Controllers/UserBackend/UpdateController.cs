@@ -12,6 +12,7 @@ using Klacks.Api.Application.Queries.Update;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
@@ -46,12 +47,14 @@ public class UpdateController : BaseController
         return Ok(await _mediator.Send(new GetUpdateConfigQuery()));
     }
 
+    [BlockedOnPlayground]
     [HttpPut("Config")]
     public async Task<ActionResult<UpdateConfig>> SaveConfig([FromBody] UpdateConfig config)
     {
         return Ok(await _mediator.Send(new SaveUpdateConfigCommand(config)));
     }
 
+    [BlockedOnPlayground]
     [HttpPost("Trigger")]
     public async Task<ActionResult<UpdateTriggerResult>> Trigger()
     {
@@ -59,6 +62,7 @@ public class UpdateController : BaseController
         return result.Enqueued ? Ok(result) : Conflict(result);
     }
 
+    [BlockedOnPlayground]
     [HttpPost("Rollback")]
     public async Task<ActionResult<UpdateTriggerResult>> Rollback()
     {
@@ -66,6 +70,7 @@ public class UpdateController : BaseController
         return result.Enqueued ? Ok(result) : Conflict(result);
     }
 
+    [BlockedOnPlayground]
     [HttpPost("{id}/Cancel")]
     public async Task<ActionResult> Cancel(Guid id)
     {
@@ -78,6 +83,7 @@ public class UpdateController : BaseController
         };
     }
 
+    [BlockedOnPlayground]
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(Guid id)
     {

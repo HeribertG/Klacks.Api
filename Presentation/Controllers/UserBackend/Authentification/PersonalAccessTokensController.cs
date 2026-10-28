@@ -13,6 +13,7 @@ using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Klacks.Api.Presentation.Filters;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Authentification;
 
@@ -30,6 +31,7 @@ public class PersonalAccessTokensController : ControllerBase
         _logger = logger;
     }
 
+    [BlockedOnPlayground]
     [HttpPost]
     public async Task<ActionResult<PersonalAccessTokenCreatedDto>> Create([FromBody] CreatePersonalAccessTokenRequest request)
     {
@@ -60,6 +62,7 @@ public class PersonalAccessTokensController : ControllerBase
         return Ok(tokens);
     }
 
+    [BlockedOnPlayground]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Revoke(Guid id)
     {

@@ -3,6 +3,7 @@
 /// <summary>
 /// Controller for CRUD operations on custom speech-to-text provider configurations.
 /// </summary>
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -37,6 +38,7 @@ public class CustomSttProviderController : ControllerBase
         return Ok(dtos);
     }
 
+    [BlockedOnPlayground]
     [HttpPost]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> Create([FromBody] CustomSttProviderDto dto, CancellationToken ct)
@@ -61,6 +63,7 @@ public class CustomSttProviderController : ControllerBase
         return CreatedAtAction(nameof(GetAll), result);
     }
 
+    [BlockedOnPlayground]
     [HttpPut("{id:guid}")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> Update(Guid id, [FromBody] CustomSttProviderDto dto, CancellationToken ct)
@@ -88,6 +91,7 @@ public class CustomSttProviderController : ControllerBase
         return Ok(result);
     }
 
+    [BlockedOnPlayground]
     [HttpDelete("{id:guid}")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)

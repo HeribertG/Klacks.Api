@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,6 +33,7 @@ public class ProvidersController : ControllerBase
         return Ok(_mapper.ToProviderResources(providers));
     }
 
+    [BlockedOnPlayground]
     [HttpPost("discover")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> DiscoverProviders()
@@ -52,6 +54,7 @@ public class ProvidersController : ControllerBase
         return Ok(_mapper.ToProviderResource(provider));
     }
 
+    [BlockedOnPlayground]
     [HttpPost]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> CreateProvider([FromBody] CreateProviderCommand command)
@@ -60,6 +63,7 @@ public class ProvidersController : ControllerBase
         return CreatedAtAction(nameof(GetProvider), new { id = provider.Id }, _mapper.ToProviderResource(provider));
     }
 
+    [BlockedOnPlayground]
     [HttpPut("{id}")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> UpdateProvider(Guid id, [FromBody] UpdateProviderCommand command)
@@ -74,6 +78,7 @@ public class ProvidersController : ControllerBase
         return Ok(_mapper.ToProviderResource(provider));
     }
 
+    [BlockedOnPlayground]
     [HttpDelete("{id}")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> DeleteProvider(Guid id)

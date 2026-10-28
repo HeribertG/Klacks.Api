@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.DTOs.Translation;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
@@ -26,6 +27,7 @@ public class TranslationController : BaseController
         return Ok(await _translationService.IsConfiguredAsync());
     }
 
+    [BlockedOnPlayground]
     [HttpPost("translate-all")]
     public async Task<ActionResult<TranslationResponse>> TranslateToAll([FromBody] TranslationRequest request)
     {

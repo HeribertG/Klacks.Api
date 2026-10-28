@@ -12,6 +12,7 @@
 /// </summary>
 /// <param name="mediator">Dispatches the learning queries and commands</param>
 
+using Klacks.Api.Presentation.Filters;
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Commands.Assistant.Learning;
@@ -135,6 +136,7 @@ public class KlacksyLearningController : ControllerBase
     /// Hands a wish the loop gave up on back to the learning loop, with a fresh attempt budget. The way
     /// out of unfulfillable the state machine always described, now reachable.
     /// </summary>
+    [BlockedOnPlayground]
     [HttpPost("unfulfillable/{id:guid}/retry")]
     public async Task<IActionResult> RetryUnfulfillable([FromRoute] Guid id, CancellationToken cancellationToken)
     {
@@ -147,6 +149,7 @@ public class KlacksyLearningController : ControllerBase
     /// under way, because a run rebuilds the knowledge index several times; a run that was already going
     /// is reported as not started rather than queued behind the first.
     /// </summary>
+    [BlockedOnPlayground]
     [HttpPost("run")]
     public async Task<ActionResult<SkillLearningRunResponse>> Run(CancellationToken cancellationToken)
     {

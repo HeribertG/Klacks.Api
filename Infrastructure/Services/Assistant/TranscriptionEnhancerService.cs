@@ -8,12 +8,14 @@
 /// <param name="dictionaryService">Service for building the domain-specific terminology context</param>
 /// <param name="settingsRepository">Repository for reading the transcription model setting</param>
 /// <param name="llmRepository">Repository for translating the internal model ID into the provider-side API model ID</param>
+/// <param name="playgroundModelPin">Pins provider and model on the public Playground; inert on every other installation</param>
 /// <param name="logger">Logger for diagnostic output</param>
 
 using System.Text.RegularExpressions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Playground;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using SettingsConstants = Klacks.Api.Application.Constants.Settings;
@@ -50,6 +52,7 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
     private readonly IDictionaryService _dictionaryService;
     private readonly ISettingsRepository _settingsRepository;
     private readonly ILLMRepository _llmRepository;
+    private readonly IPlaygroundModelPin _playgroundModelPin;
     private readonly ILogger<TranscriptionEnhancerService> _logger;
 
     public TranscriptionEnhancerService(
@@ -57,12 +60,14 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
         IDictionaryService dictionaryService,
         ISettingsRepository settingsRepository,
         ILLMRepository llmRepository,
+        IPlaygroundModelPin playgroundModelPin,
         ILogger<TranscriptionEnhancerService> logger)
     {
         _providerFactory = providerFactory;
         _dictionaryService = dictionaryService;
         _settingsRepository = settingsRepository;
         _llmRepository = llmRepository;
+        _playgroundModelPin = playgroundModelPin;
         _logger = logger;
     }
 
@@ -83,20 +88,14 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
                 return preprocessed;
             }
 
-            var effectiveModelId = !string.IsNullOrWhiteSpace(modelId)
-                ? modelId
-                : await GetModelIdFromSettingsAsync();
-
-            var provider = await _providerFactory.GetProviderForModelAsync(effectiveModelId);
-
-            if (provider == null || !provider.IsEnabled)
+            var target = await ResolveTargetAsync(modelId);
+            if (target is null)
             {
-                _logger.LogWarning("No enabled LLM provider found for model {ModelId}", effectiveModelId.ForLog());
                 return preprocessed;
             }
 
-            var model = await _llmRepository.GetModelByIdAsync(effectiveModelId);
-            var apiModelId = string.IsNullOrWhiteSpace(model?.ApiModelId) ? effectiveModelId : model.ApiModelId;
+            var provider = target.Provider;
+            var apiModelId = target.ApiModelId;
 
             var dictionaryContext = await _dictionaryService.BuildContextAsync(ct);
 
@@ -162,6 +161,43 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
             return preprocessed;
         }
     }
+
+    private async Task<TranscriptionTarget?> ResolveTargetAsync(string? requestedModelId)
+    {
+        var pinned = _playgroundModelPin.GetTranscriptionTarget();
+        if (pinned is not null)
+        {
+            var pinnedProvider = await _providerFactory.GetProviderAsync(pinned.ProviderId);
+            if (pinnedProvider == null || !pinnedProvider.IsEnabled)
+            {
+                _logger.LogError(
+                    "Playground transcription provider {ProviderId} is not available or not enabled; no fallback model is used",
+                    pinned.ProviderId.ForLog());
+                return null;
+            }
+
+            return new TranscriptionTarget(pinnedProvider, pinned.ApiModelId);
+        }
+
+        var effectiveModelId = !string.IsNullOrWhiteSpace(requestedModelId)
+            ? requestedModelId
+            : await GetModelIdFromSettingsAsync();
+
+        var provider = await _providerFactory.GetProviderForModelAsync(effectiveModelId);
+
+        if (provider == null || !provider.IsEnabled)
+        {
+            _logger.LogWarning("No enabled LLM provider found for model {ModelId}", effectiveModelId.ForLog());
+            return null;
+        }
+
+        var model = await _llmRepository.GetModelByIdAsync(effectiveModelId);
+        var apiModelId = string.IsNullOrWhiteSpace(model?.ApiModelId) ? effectiveModelId : model.ApiModelId;
+
+        return new TranscriptionTarget(provider, apiModelId);
+    }
+
+    private sealed record TranscriptionTarget(ILLMProvider Provider, string ApiModelId);
 
     private static bool RequiresLlmCleanup(string text)
     {

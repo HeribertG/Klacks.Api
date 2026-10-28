@@ -12,6 +12,7 @@ using Klacks.Api.Domain.Logging;
 using Klacks.Api.Presentation.DTOs.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
@@ -33,6 +34,7 @@ public class TranscriptionController : ControllerBase
     }
 
     [HttpPost("enhance")]
+    [PlaygroundPromptLimit]
     public async Task<ActionResult<TranscriptionEnhanceResponse>> Enhance(
         [FromBody] TranscriptionEnhanceRequest request,
         CancellationToken ct)

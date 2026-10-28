@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Playground;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure;
@@ -9,6 +10,7 @@ using Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.OpenAI;
+using Klacks.Api.Infrastructure.Services.Assistant.Providers.Playground;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
@@ -17,15 +19,21 @@ public class LLMProviderFactory : ILLMProviderFactory
     private readonly IServiceProvider _serviceProvider;
     private readonly ILLMRepository _repository;
     private readonly ILogger<LLMProviderFactory> _logger;
+    private readonly IPlaygroundMode _playgroundMode;
+    private readonly IPlaygroundTokenBudget _playgroundBudget;
 
     public LLMProviderFactory(
         IServiceProvider serviceProvider,
         ILLMRepository repository,
-        ILogger<LLMProviderFactory> logger)
+        ILogger<LLMProviderFactory> logger,
+        IPlaygroundMode playgroundMode,
+        IPlaygroundTokenBudget playgroundBudget)
     {
         _serviceProvider = serviceProvider;
         _repository = repository;
         this._logger = logger;
+        _playgroundMode = playgroundMode;
+        _playgroundBudget = playgroundBudget;
     }
 
     public async Task<ILLMProvider?> GetProviderAsync(string providerId)
@@ -47,12 +55,18 @@ public class LLMProviderFactory : ILLMProviderFactory
             _ => _serviceProvider.GetService<GenericOpenAICompatibleProvider>()
         };
 
-        if (provider != null)
+        if (provider == null)
         {
-            provider.Configure(providerConfig);
+            return null;
         }
 
-        return provider;
+        provider.Configure(providerConfig);
+
+        // The single wrap point: GetProviderForModelAsync and GetEnabledProvidersAsync both resolve through
+        // here, so wrapping in the other two getters as well would charge every call twice.
+        return _playgroundMode.IsActive
+            ? new PlaygroundBudgetedLLMProvider(provider, _playgroundBudget)
+            : provider;
     }
 
     public async Task<ILLMProvider?> GetProviderForModelAsync(string modelId)

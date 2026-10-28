@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Interfaces.Playground;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
@@ -14,13 +15,16 @@ public class TestSmtpConnectionSkill : BaseSkillImplementation
 {
     private readonly ISettingsRepository _settingsRepository;
     private readonly IEmailTestService _emailTestService;
+    private readonly IPlaygroundMode _playgroundMode;
 
     public TestSmtpConnectionSkill(
         ISettingsRepository settingsRepository,
-        IEmailTestService emailTestService)
+        IEmailTestService emailTestService,
+        IPlaygroundMode playgroundMode)
     {
         _settingsRepository = settingsRepository;
         _emailTestService = emailTestService;
+        _playgroundMode = playgroundMode;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -28,6 +32,11 @@ public class TestSmtpConnectionSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        if (_playgroundMode.IsActive)
+        {
+            return SkillResult.Error(PlaygroundHardeningConstants.FeatureBlockedMessage);
+        }
+
         var server = await GetSettingValue(Constants.Settings.APP_OUTGOING_SERVER);
         var port = await GetSettingValue(Constants.Settings.APP_OUTGOING_SERVER_PORT);
         var timeout = await GetSettingValue(Constants.Settings.APP_OUTGOING_SERVER_TIMEOUT);
