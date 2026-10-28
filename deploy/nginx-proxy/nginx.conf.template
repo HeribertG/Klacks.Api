@@ -54,8 +54,10 @@ http {
     # NOT covered: URL-encoded parameter names (access%5Ftoken=...), ';' as parameter separator, and
     # secrets in the PATH. A name outside the suffix list is not caught either - extend the
     # alternation in the three stages and in the fail-closed stage together.
+    # DevKnowledge lead search (/api/leads?q=<name or e-mail>) carries personal data in the query string.
     map $request_uri $log_uri_stage0 {
         ~^(?<log_hub_path>/(?:hubs|ws)(?:/[^?]*)?)\?    "${log_hub_path}?REDACTED";
+        ~^(?<log_leads_path>/api/leads(?:/[^?]*)?)\?      "${log_leads_path}?REDACTED";
         default                                         $request_uri;
     }
 
