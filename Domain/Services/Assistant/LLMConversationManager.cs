@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Playground;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant;
@@ -9,6 +10,7 @@ public class LLMConversationManager
 {
     private readonly ILogger<LLMConversationManager> _logger;
     private readonly ILLMRepository _repository;
+    private readonly IPlaygroundConversationStore _playgroundStore;
 
     // Scoped per request. Both the skill-retrieval query builder and the prompt preparation
     // load the same conversation history within one turn — memoize to save a duplicate DB read.
@@ -27,17 +29,25 @@ public class LLMConversationManager
 
     public LLMConversationManager(
         ILogger<LLMConversationManager> logger,
-        ILLMRepository repository)
+        ILLMRepository repository,
+        IPlaygroundConversationStore playgroundStore)
     {
         _logger = logger;
         _repository = repository;
+        _playgroundStore = playgroundStore;
     }
+
+    private bool UsesPlaygroundStore => _playgroundStore.IsActive;
 
     public async Task<LLMConversation> GetOrCreateConversationAsync(string? conversationId, string userId)
     {
-        return await _repository.GetOrCreateConversationAsync(
-            conversationId ?? Guid.NewGuid().ToString(),
-            userId);
+        var effectiveConversationId = conversationId ?? Guid.NewGuid().ToString();
+        if (UsesPlaygroundStore)
+        {
+            return _playgroundStore.GetOrCreate(effectiveConversationId, userId);
+        }
+
+        return await _repository.GetOrCreateConversationAsync(effectiveConversationId, userId);
     }
 
     public async Task<List<Providers.LLMMessage>> GetConversationHistoryAsync(string conversationId, string userId)
@@ -48,7 +58,9 @@ public class LLMConversationManager
             return new List<Providers.LLMMessage>(cached);
         }
 
-        var history = await _repository.GetConversationMessagesAsync(conversationId, userId);
+        IEnumerable<LLMMessage> history = UsesPlaygroundStore
+            ? _playgroundStore.GetMessages(conversationId, userId)
+            : await _repository.GetConversationMessagesAsync(conversationId, userId);
         var mapped = history.Select(m => new Providers.LLMMessage
         {
             Role = m.Role,
@@ -70,6 +82,12 @@ public class LLMConversationManager
         string modelId,
         DateTime? turnStartedUtc = null)
     {
+        if (UsesPlaygroundStore)
+        {
+            SavePlaygroundTurn(conversation, userMessage, assistantMessage, modelId, turnStartedUtc);
+            return;
+        }
+
         await _repository.SaveMessageAsync(new LLMMessage
         {
             ConversationId = conversation.Id,
@@ -100,6 +118,19 @@ public class LLMConversationManager
             MessagesPerTurn,
             turnStartedUtc ?? DateTime.UtcNow,
             modelId,
+            GenerateConversationTitle(userMessage, assistantMessage));
+        _historyCache.Remove(BuildHistoryCacheKey(conversation.ConversationId, conversation.UserId));
+    }
+
+    private void SavePlaygroundTurn(
+        LLMConversation conversation, string userMessage, string assistantMessage, string modelId, DateTime? turnStartedUtc)
+    {
+        _playgroundStore.AppendTurn(
+            conversation,
+            userMessage,
+            ToolCallMarkupSanitizer.Sanitize(assistantMessage),
+            modelId,
+            turnStartedUtc ?? DateTime.UtcNow,
             GenerateConversationTitle(userMessage, assistantMessage));
         _historyCache.Remove(BuildHistoryCacheKey(conversation.ConversationId, conversation.UserId));
     }
@@ -147,7 +178,7 @@ public class LLMConversationManager
             CreateTime = DateTime.UtcNow
         });
 
-        if (!hasError)
+        if (!hasError && !UsesPlaygroundStore)
         {
             await _repository.AddConversationUsageAsync(conversation, usage.TotalTokens, usage.Cost);
         }

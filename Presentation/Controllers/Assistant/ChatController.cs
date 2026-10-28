@@ -16,12 +16,15 @@ using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Playground;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
+using Klacks.Api.Domain.Services.Playground;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Klacks.Api.Presentation.Extensions;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -53,6 +56,7 @@ public class ChatController : ControllerBase
     private readonly INavigationEntityRouteGuard _entityRouteGuard;
     private readonly IActiveTurnRegistry _turnRegistry;
     private readonly IInterruptedTurnFinalizer _turnFinalizer;
+    private readonly IPlaygroundConversationStore _playgroundConversations;
 
     public ChatController(
         ILogger<ChatController> logger,
@@ -70,7 +74,8 @@ public class ChatController : ControllerBase
         IUserActivityTracker activityTracker,
         INavigationEntityRouteGuard entityRouteGuard,
         IActiveTurnRegistry turnRegistry,
-        IInterruptedTurnFinalizer turnFinalizer)
+        IInterruptedTurnFinalizer turnFinalizer,
+        IPlaygroundConversationStore playgroundConversations)
     {
         _logger = logger;
         _mediator = mediator;
@@ -88,6 +93,7 @@ public class ChatController : ControllerBase
         _entityRouteGuard = entityRouteGuard;
         _turnRegistry = turnRegistry;
         _turnFinalizer = turnFinalizer;
+        _playgroundConversations = playgroundConversations;
     }
 
     private async Task<bool> IsOngoingConversationAsync(string? conversationId, string userId)
@@ -95,6 +101,11 @@ public class ChatController : ControllerBase
         if (string.IsNullOrWhiteSpace(conversationId))
         {
             return false;
+        }
+
+        if (_playgroundConversations.IsActive)
+        {
+            return _playgroundConversations.IsOngoing(conversationId, userId);
         }
 
         var conversation = await _llmRepository.GetConversationByConversationIdAsync(conversationId, userId);
@@ -156,6 +167,8 @@ public class ChatController : ControllerBase
     }
 
     [HttpPost]
+    [PlaygroundTokenLimit]
+    [PlaygroundPromptLimit]
     public async Task<ActionResult<LLMResponse>> ProcessMessage([FromBody] LLMRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Message))
@@ -225,6 +238,8 @@ public class ChatController : ControllerBase
     }
 
     [HttpPost("stream")]
+    [PlaygroundTokenLimit]
+    [PlaygroundPromptLimit]
     public async Task ProcessMessageStream([FromBody] LLMRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Message))
@@ -480,10 +495,28 @@ public class ChatController : ControllerBase
     /// <param name="cancellationToken">Aborts the write when the client disconnects</param>
     private async Task WriteSseEventAsync(SseChunk chunk, CancellationToken cancellationToken)
     {
+        StampPlaygroundTokenLimit(chunk);
         var data = System.Text.Json.JsonSerializer.Serialize(chunk, SseChunkJson.Options);
         await Response.WriteAsync(
             $"event: {SseEventNames.For(chunk.Type)}\ndata: {data}\n\n", cancellationToken);
         await Response.Body.FlushAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gives an error event the PLAYGROUND_TOKEN_LIMIT code when a provider call of this request was refused by the
+    /// Playground budget. The refusal travels up the stream as an ordinary provider failure, so the code is attached
+    /// here, at the one place every event passes through.
+    /// </summary>
+    /// <param name="chunk">The event about to be written</param>
+    private static void StampPlaygroundTokenLimit(SseChunk chunk)
+    {
+        if (chunk.Type != SseChunkType.Error || PlaygroundVisitorContext.Current?.TokenLimitHit != true)
+        {
+            return;
+        }
+
+        chunk.ErrorCode = PlaygroundTokenLimitConstants.ErrorCode;
+        chunk.ErrorMessage = PlaygroundTokenLimitConstants.LimitReachedMessage;
     }
 
     /// <param name="startTimestamp">Stopwatch timestamp the turn started at</param>
@@ -554,6 +587,8 @@ public class ChatController : ControllerBase
     }
 
     [HttpPost("execute-function")]
+    [PlaygroundTokenLimit]
+    [PlaygroundPromptLimit]
     public async Task<ActionResult<LLMFunctionResult>> ExecuteFunction([FromBody] LLMFunctionExecuteRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.FunctionName))
@@ -581,6 +616,8 @@ public class ChatController : ControllerBase
     }
 
     [HttpPost("execute-functions-batch")]
+    [PlaygroundTokenLimit]
+    [PlaygroundPromptLimit]
     public async Task<ActionResult<List<LLMFunctionResult>>> ExecuteFunctionsBatch([FromBody] List<LLMFunctionExecuteRequest> requests)
     {
         if (requests == null || !requests.Any())
@@ -646,6 +683,7 @@ public class ChatController : ControllerBase
     }
 
     [HttpPost("onboarding/state")]
+    [BlockedSetupOnboardingOnPlayground]
     public async Task<ActionResult<OnboardingResource>> SaveOnboardingState(
         [FromBody] SaveOnboardingStateCommand command,
         CancellationToken cancellationToken)

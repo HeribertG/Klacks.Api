@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -63,6 +64,7 @@ public class ModelsController : ControllerBase
         return Ok(response);
     }
 
+    [BlockedOnPlayground]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpPost("check-speech")]
     public async Task<ActionResult<SpeechModelCheckResponse>> CheckSpeechModels(CancellationToken ct)
@@ -83,6 +85,7 @@ public class ModelsController : ControllerBase
         return Ok(new SpeechModelCheckResponse(dtos));
     }
 
+    [BlockedOnPlayground]
     [HttpPost("optimize-for-klacksy")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult<KlacksyModelCheckResponse>> OptimizeForKlacksy(CancellationToken ct)
@@ -95,6 +98,7 @@ public class ModelsController : ControllerBase
         return Ok(response);
     }
 
+    [BlockedOnPlayground]
     [HttpPost("{modelId}/enable")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult> EnableModel(string modelId)
@@ -104,6 +108,7 @@ public class ModelsController : ControllerBase
         return Ok(new { Message = $"Model {modelId} enabled successfully" });
     }
 
+    [BlockedOnPlayground]
     [HttpPost("{modelId}/disable")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult> DisableModel(string modelId)
@@ -113,6 +118,7 @@ public class ModelsController : ControllerBase
         return Ok(new { Message = $"Model {modelId} disabled successfully" });
     }
 
+    [BlockedOnPlayground]
     [HttpPost("{modelId}/set-default")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult> SetDefaultModel(string modelId)
@@ -122,6 +128,7 @@ public class ModelsController : ControllerBase
         return Ok(new { Message = $"Model {modelId} set as default" });
     }
 
+    [BlockedOnPlayground]
     [HttpPost]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult<LLMModel>> CreateModel([FromBody] LLMModel model)
@@ -131,6 +138,7 @@ public class ModelsController : ControllerBase
         return CreatedAtAction(nameof(GetAvailableModels), new { id = result?.Id }, result);
     }
 
+    [BlockedOnPlayground]
     [HttpPut("{id}")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult<LLMModel>> UpdateModel(Guid id, [FromBody] LLMModel model)
@@ -141,6 +149,7 @@ public class ModelsController : ControllerBase
         return Ok(result);
     }
 
+    [BlockedOnPlayground]
     [HttpDelete("{id}")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult> DeleteModel(string id)

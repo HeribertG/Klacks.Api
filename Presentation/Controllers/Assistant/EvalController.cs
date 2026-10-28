@@ -5,6 +5,7 @@
 /// user-facing feedback routes (thumbs-up, correction, UiAction outcome report).
 /// </summary>
 
+using Klacks.Api.Presentation.Filters;
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
@@ -52,6 +53,7 @@ public class EvalController : ControllerBase
         _logger = logger;
     }
 
+    [BlockedOnPlayground]
     [HttpPost("run")]
     [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<EvalRun>> Run([FromQuery] string goldset, CancellationToken cancellationToken)
@@ -77,6 +79,7 @@ public class EvalController : ControllerBase
         }
     }
 
+    [BlockedOnPlayground]
     [HttpPost("run-turn")]
     [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<List<TurnEvalRunResult>>> RunTurn(
@@ -187,6 +190,7 @@ public class EvalController : ControllerBase
             new GetSkillEffectivenessQuery { Days = window }, cancellationToken));
     }
 
+    [BlockedOnPlayground]
     [HttpPost("correction")]
     public async Task<ActionResult<SubmitCorrectionResult>> SubmitCorrection(
         [FromBody] SubmitCorrectionRequest body,
@@ -227,6 +231,7 @@ public class EvalController : ControllerBase
     /// the body - a request to this route always means helpful, so nothing a caller sends can turn it
     /// into a negative judgement about somebody else's turn.
     /// </summary>
+    [BlockedOnPlayground]
     [HttpPost("feedback")]
     public async Task<ActionResult<SubmitHelpfulFeedbackResult>> SubmitHelpfulFeedback(
         [FromBody] SubmitHelpfulFeedbackRequest body,

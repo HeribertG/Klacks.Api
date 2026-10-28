@@ -7,9 +7,11 @@
 /// <param name="settingsRepository">Reads the dedicated per-provider TTS API key setting</param>
 /// <param name="encryptionService">Decrypts the stored setting value</param>
 /// <param name="llmRepository">Provides the legacy fallback credential from the LLM provider row</param>
+/// <param name="playgroundMode">Tells whether the instance is the Playground, where the LLM credential is never used for speech</param>
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Playground;
 using Klacks.Api.Domain.Interfaces.Settings;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
@@ -19,15 +21,18 @@ public class TtsApiKeyResolver : ITtsApiKeyResolver
     private readonly ISettingsRepository _settingsRepository;
     private readonly ISettingsEncryptionService _encryptionService;
     private readonly ILLMRepository _llmRepository;
+    private readonly IPlaygroundMode _playgroundMode;
 
     public TtsApiKeyResolver(
         ISettingsRepository settingsRepository,
         ISettingsEncryptionService encryptionService,
-        ILLMRepository llmRepository)
+        ILLMRepository llmRepository,
+        IPlaygroundMode playgroundMode)
     {
         _settingsRepository = settingsRepository;
         _encryptionService = encryptionService;
         _llmRepository = llmRepository;
+        _playgroundMode = playgroundMode;
     }
 
     public async Task<string?> ResolveAsync(string providerId, CancellationToken ct = default)
@@ -44,6 +49,11 @@ public class TtsApiKeyResolver : ITtsApiKeyResolver
                     return decrypted;
                 }
             }
+        }
+
+        if (_playgroundMode.IsActive)
+        {
+            return null;
         }
 
         var provider = await _llmRepository.GetProviderByIdAsync(providerId);

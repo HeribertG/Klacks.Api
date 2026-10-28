@@ -12,6 +12,7 @@
 /// <param name="logger">Logger instance</param>
 namespace Klacks.Api.Presentation.Controllers.Assistant;
 
+using Klacks.Api.Presentation.Filters;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -62,6 +63,7 @@ public class SttController : ControllerBase
         _logger = logger;
     }
 
+    [BlockedOnPlayground]
     [HttpGet("providers")]
     public async Task<IActionResult> GetProviders()
     {
@@ -77,6 +79,7 @@ public class SttController : ControllerBase
         return Ok(providers);
     }
 
+    [BlockedOnPlayground]
     [HttpPost("test")]
     public async Task<IActionResult> TestConnection([FromBody] SttTestRequest request)
     {
@@ -114,6 +117,7 @@ public class SttController : ControllerBase
         }
     }
 
+    [BlockedOnPlayground]
     [AcceptVerbs("GET", "CONNECT")]
     [Route("stream")]
     public async Task Stream([FromQuery] string? locale = null)
@@ -183,6 +187,7 @@ public class SttController : ControllerBase
         }
     }
 
+    [BlockedOnPlayground]
     [HttpPost("transcribe")]
     [RequestSizeLimit(SttUploadConstants.MaxAudioUploadSizeBytes)]
     public async Task<IActionResult> Transcribe([FromQuery] string? locale, CancellationToken ct)

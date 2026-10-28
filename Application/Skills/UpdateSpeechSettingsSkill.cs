@@ -25,6 +25,8 @@
 /// <param name="elevenLabsTtsApiKey">Key for the ElevenLabs voice service.</param>
 /// <param name="googleTtsApiKey">Key for the Google voice service.</param>
 
+using Klacks.Api.Domain.Interfaces.Playground;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Assistant;
@@ -44,15 +46,18 @@ public class UpdateSpeechSettingsSkill : SettingsWriterSkillBase
         "Install the local speech recognition first (install_whisper_plugin).";
 
     private readonly ICustomSttProviderResolver _customSttProviderResolver;
+    private readonly IPlaygroundMode _playgroundMode;
 
     public UpdateSpeechSettingsSkill(
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
         ISettingsEncryptionService encryptionService,
-        ICustomSttProviderResolver customSttProviderResolver)
+        ICustomSttProviderResolver customSttProviderResolver,
+        IPlaygroundMode playgroundMode)
         : base(settingsRepository, unitOfWork, encryptionService)
     {
         _customSttProviderResolver = customSttProviderResolver;
+        _playgroundMode = playgroundMode;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -60,6 +65,11 @@ public class UpdateSpeechSettingsSkill : SettingsWriterSkillBase
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        if (_playgroundMode.IsActive)
+        {
+            return SkillResult.Error(PlaygroundHardeningConstants.FeatureBlockedMessage);
+        }
+
         var pending = new List<PendingSetting>();
 
         CollectText(pending, parameters, SttEngineParameter, Settings.ASSISTANT_STT_ENGINE);

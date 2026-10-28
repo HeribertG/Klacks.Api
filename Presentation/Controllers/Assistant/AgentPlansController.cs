@@ -22,6 +22,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Presentation.Extensions;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -55,6 +56,7 @@ public class AgentPlansController : ControllerBase
         _logger = logger;
     }
 
+    [BlockedOnPlayground]
     [HttpPost]
     public async Task<IActionResult> CreateAndStartPlan([FromBody] CreatePlanRequest request, CancellationToken cancellationToken)
     {

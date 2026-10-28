@@ -21,6 +21,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Email;
@@ -136,6 +137,7 @@ public class ReceivedEmailController : BaseController
         return Ok(result);
     }
 
+    [BlockedOnPlayground]
     [HttpPost("{id:guid}/Translate")]
     public async Task<ActionResult<TranslatedEmailResource>> Translate(Guid id, [FromQuery] string targetLanguage)
     {
@@ -168,6 +170,7 @@ public class ReceivedEmailController : BaseController
         return Ok(result);
     }
 
+    [BlockedOnPlayground]
     [HttpPost("TestImapConnection")]
     [Authorize(Roles = Roles.Admin)]
     [EnableRateLimiting(RateLimitingPolicies.ConnectionTest)]

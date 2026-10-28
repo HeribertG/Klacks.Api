@@ -14,6 +14,7 @@ using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Klacks.Api.KnowledgeIndex.Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
@@ -173,6 +174,7 @@ public class LanguageConfigController : ControllerBase
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [BlockedOnPlayground]
     [HttpPost("language-plugins/{code}/install")]
     public async Task<ActionResult> InstallPlugin(string code)
     {
@@ -184,6 +186,7 @@ public class LanguageConfigController : ControllerBase
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [BlockedOnPlayground]
     [HttpDelete("language-plugins/{code}/uninstall")]
     public async Task<ActionResult> UninstallPlugin(string code)
     {
@@ -227,6 +230,7 @@ public class LanguageConfigController : ControllerBase
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [BlockedOnPlayground]
     [HttpPost("marketplace/packages/{code}/download-and-install")]
     public async Task<ActionResult> DownloadAndInstallPackage(string code)
     {
@@ -292,6 +296,7 @@ public class LanguageConfigController : ControllerBase
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [BlockedOnPlayground]
     [HttpPost("marketplace/packages/{code}/upload")]
     public async Task<ActionResult> UploadPackageToMarketplace(string code)
     {

@@ -9,6 +9,8 @@
 /// <param name="minTravelTimeByBicycle">Shortest journey by bicycle worth counting, in minutes.</param>
 /// <param name="minTravelTimeByFoot">Shortest journey on foot worth counting, in minutes.</param>
 
+using Klacks.Api.Domain.Interfaces.Playground;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Skills.Base;
@@ -22,12 +24,16 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("update_openroute_settings")]
 public class UpdateOpenRouteSettingsSkill : SettingsWriterSkillBase
 {
+    private readonly IPlaygroundMode _playgroundMode;
+
     public UpdateOpenRouteSettingsSkill(
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
-        ISettingsEncryptionService encryptionService)
+        ISettingsEncryptionService encryptionService,
+        IPlaygroundMode playgroundMode)
         : base(settingsRepository, unitOfWork, encryptionService)
     {
+        _playgroundMode = playgroundMode;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -35,6 +41,11 @@ public class UpdateOpenRouteSettingsSkill : SettingsWriterSkillBase
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        if (_playgroundMode.IsActive)
+        {
+            return SkillResult.Error(PlaygroundHardeningConstants.FeatureBlockedMessage);
+        }
+
         var pending = new List<PendingSetting>();
 
         CollectText(pending, parameters, "apiKey", Settings.OPENROUTESERVICE_API_KEY);

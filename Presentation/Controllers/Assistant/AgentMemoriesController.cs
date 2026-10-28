@@ -14,9 +14,11 @@ using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
 
+[BlockedOnPlayground]
 [ApiController]
 [Route("api/backend/assistant/agents")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

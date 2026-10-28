@@ -9,9 +9,11 @@ using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using System.Security.Claims;
+using Klacks.Api.Presentation.Filters;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
 
+[BlockedOnPlayground]
 [ApiController]
 [Route("api/backend/assistant/global-rules")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

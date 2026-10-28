@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Klacks.Api.Presentation.Filters;
 
 namespace Klacks.Api.Presentation.Controllers.Internal;
 
@@ -27,6 +28,7 @@ namespace Klacks.Api.Presentation.Controllers.Internal;
 ///
 /// Both endpoints can write calendar rules (migrations, seed), so they drop all cached holiday calculators afterwards - also after a failure, since part of the work may already be committed.
 /// </summary>
+[BlockedOnPlayground]
 [ApiController]
 [Route("api/internal/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]

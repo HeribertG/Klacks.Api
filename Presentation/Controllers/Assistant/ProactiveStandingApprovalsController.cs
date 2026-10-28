@@ -20,6 +20,7 @@ using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +48,7 @@ public class ProactiveStandingApprovalsController : ControllerBase
         return Ok(approvals);
     }
 
+    [BlockedOnPlayground]
     [HttpPost]
     public async Task<ActionResult<StandingApprovalDto>> Post(
         [FromBody] GrantStandingApprovalRequest request,
@@ -74,6 +76,7 @@ public class ProactiveStandingApprovalsController : ControllerBase
         };
     }
 
+    [BlockedOnPlayground]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {

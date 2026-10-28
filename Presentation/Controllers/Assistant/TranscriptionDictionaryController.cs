@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Presentation.DTOs.Assistant;
+using Klacks.Api.Presentation.Filters;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
 
@@ -37,6 +38,7 @@ public class TranscriptionDictionaryController : ControllerBase
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [BlockedOnPlayground]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] TranscriptionDictionaryDto dto, CancellationToken ct)
     {
@@ -59,6 +61,7 @@ public class TranscriptionDictionaryController : ControllerBase
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [BlockedOnPlayground]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] TranscriptionDictionaryDto dto, CancellationToken ct)
     {
@@ -80,6 +83,7 @@ public class TranscriptionDictionaryController : ControllerBase
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [BlockedOnPlayground]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {

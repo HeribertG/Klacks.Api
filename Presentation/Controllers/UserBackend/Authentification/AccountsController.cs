@@ -36,6 +36,7 @@ public class AccountsController : BaseController
         _usernameGeneratorService = usernameGeneratorService;
     }
 
+    [BlockedOnPlayground]
     [Authorize]
     [ExemptFromAdminSetupGate]
     [HttpPut("ChangePassword")]
@@ -48,6 +49,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
+    [BlockedOnPlayground]
     [Authorize]
     [ExemptFromAdminSetupGate]
     [HttpPost("ChangePasswordUser")]
@@ -60,6 +62,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
+    [BlockedOnPlayground]
     [Authorize(Roles = Roles.Admin)]
     [HttpPut("ChangeRoleUser")]
     public async Task<ActionResult> ChangeRoleUser([FromBody] ChangeRole changeRole)
@@ -69,6 +72,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
+    [BlockedOnPlayground]
     [Authorize(Roles = Roles.Admin)]
     [HttpPut("{id}/Deactivate")]
     public async Task<ActionResult> DeactivateAccountUser(Guid id)
@@ -78,6 +82,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
+    [BlockedOnPlayground]
     [Authorize(Roles = Roles.Admin)]
     [HttpPut("{id}/Reactivate")]
     public async Task<ActionResult> ReactivateAccountUser(Guid id)
@@ -87,6 +92,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
+    [BlockedOnPlayground]
     [Authorize(Roles = Roles.Admin)]
     [HttpPut]
     public async Task<ActionResult> UpdateAccount([FromBody] UpdateAccountResource model)
@@ -191,6 +197,7 @@ public class AccountsController : BaseController
         return Ok();
     }
 
+    [BlockedOnPlayground]
     [Authorize(Roles = Roles.Admin)]
     [HttpPost("RegisterUser")]
     public async Task<ActionResult> RegisterUser([FromBody] RegistrationResource model)
@@ -200,6 +207,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
+    [BlockedOnPlayground]
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitingPolicies.PasswordReset)]
     [HttpPost("RequestPasswordReset")]
@@ -219,6 +227,7 @@ public class AccountsController : BaseController
         return Ok(result);
     }
 
+    [BlockedOnPlayground]
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitingPolicies.PasswordReset)]
     [HttpPost("ResetPassword")]

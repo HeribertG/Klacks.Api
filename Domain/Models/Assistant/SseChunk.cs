@@ -31,6 +31,12 @@ public class SseChunk
     public bool ActionPerformed { get; set; }
     public List<object>? FunctionCalls { get; set; }
     public string? ErrorMessage { get; set; }
+
+    /// <summary>
+    /// Machine-readable code of an Error chunk (for example PLAYGROUND_TOKEN_LIMIT), so the client can tell a
+    /// known condition apart from a generic failure. Null for errors without a code.
+    /// </summary>
+    public string? ErrorCode { get; set; }
     public string? Stage { get; set; }
     public long? ElapsedMs { get; set; }
     public int? Iteration { get; set; }

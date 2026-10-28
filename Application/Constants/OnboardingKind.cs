@@ -10,4 +10,7 @@ public static class OnboardingKind
 {
     public const string Setup = "setup";
     public const string Intro = "intro";
+
+    public static string Resolve(string? rawKind) =>
+        string.IsNullOrWhiteSpace(rawKind) ? Setup : rawKind.Trim().ToLowerInvariant();
 }

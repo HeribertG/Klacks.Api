@@ -2,6 +2,7 @@
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Playground;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -13,6 +14,7 @@ public class LLMProviderOrchestrator
     private readonly ILogger<LLMProviderOrchestrator> _logger;
     private readonly ILLMProviderFactory _providerFactory;
     private readonly ILLMRepository _repository;
+    private readonly IPlaygroundModelPin _playgroundModelPin;
 
     // A chat turn resolves the same model twice — once early to size the tool budget, once inside
     // LLMService — costing up to three DB roundtrips each. This service is scoped, so caching the
@@ -23,15 +25,23 @@ public class LLMProviderOrchestrator
     public LLMProviderOrchestrator(
         ILogger<LLMProviderOrchestrator> logger,
         ILLMProviderFactory providerFactory,
-        ILLMRepository repository)
+        ILLMRepository repository,
+        IPlaygroundModelPin playgroundModelPin)
     {
         _logger = logger;
         _providerFactory = providerFactory;
         _repository = repository;
+        _playgroundModelPin = playgroundModelPin;
     }
 
     public async Task<(LLMModel? model, ILLMProvider? provider, string? error)> GetModelAndProviderAsync(string? modelId)
     {
+        var pinned = _playgroundModelPin.IsPinned;
+        if (pinned)
+        {
+            modelId = _playgroundModelPin.ResolveChatModelId(modelId);
+        }
+
         var cacheKey = modelId ?? string.Empty;
         if (_resolved.TryGetValue(cacheKey, out var hit))
         {
@@ -46,7 +56,9 @@ public class LLMProviderOrchestrator
             if (model == null || !model.IsEnabled)
             {
                 _logger.LogWarning("Model {ModelId} not found or not enabled", effectiveModelId.ForLog());
-                return (null, null, "The selected model is not available.");
+                return (null, null, pinned
+                    ? string.Format(PlaygroundHardeningConstants.ChatModelUnavailableMessageFormat, effectiveModelId)
+                    : "The selected model is not available.");
             }
 
             var provider = await _providerFactory.GetProviderForModelAsync(effectiveModelId);

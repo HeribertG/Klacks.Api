@@ -5,6 +5,7 @@
 /// </summary>
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,6 +49,7 @@ public class ModelSyncController : ControllerBase
         return Ok(response);
     }
 
+    [BlockedOnPlayground]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpPost("trigger")]
     public async Task<ActionResult> TriggerSync(CancellationToken cancellationToken)

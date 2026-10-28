@@ -11,6 +11,8 @@
 /// For an external agent (MCP, ExternalAgentAccessMode set) every step and verify skill must be one the caller could
 /// call over MCP directly (IMcpDelegatedSkillPolicy) - checked when the draft is proposed and again right before the
 /// confirmed execution starts, because the background executor itself does not know the MCP gates.
+/// On the public Playground the skill is refused before anything is drafted or stored, so visitor text never reaches
+/// the agent plans.
 /// </summary>
 /// <param name="planChatService">Shared create-and-start plan lifecycle.</param>
 /// <param name="planRepository">Persists a non-empty draft and loads it again on the confirmed execution replay.</param>
@@ -18,6 +20,7 @@
 /// <param name="turnScope">Blocks same-turn redemption of the freshly issued token.</param>
 /// <param name="skillRegistry">Resolves the plan's step and verify skills for the external-agent check.</param>
 /// <param name="mcpDelegatedSkillPolicy">Decides which skills an external agent may have run on its behalf.</param>
+/// <param name="playgroundMode">Tells whether the instance is the public Playground, where the skill is refused.</param>
 
 using System.Text;
 using Klacks.Api.Application.Interfaces.Assistant;
@@ -25,6 +28,7 @@ using Klacks.Api.Application.Services.Assistant.Planning;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Playground;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -47,6 +51,7 @@ public class CreatePlanSkill : BaseSkillImplementation
     private readonly ITurnConfirmationScope _turnScope;
     private readonly ISkillRegistry _skillRegistry;
     private readonly IMcpDelegatedSkillPolicy _mcpDelegatedSkillPolicy;
+    private readonly IPlaygroundMode _playgroundMode;
 
     public CreatePlanSkill(
         IPlanChatService planChatService,
@@ -54,8 +59,10 @@ public class CreatePlanSkill : BaseSkillImplementation
         IPendingConfirmationStore confirmationStore,
         ITurnConfirmationScope turnScope,
         ISkillRegistry skillRegistry,
-        IMcpDelegatedSkillPolicy mcpDelegatedSkillPolicy)
+        IMcpDelegatedSkillPolicy mcpDelegatedSkillPolicy,
+        IPlaygroundMode playgroundMode)
     {
+        _playgroundMode = playgroundMode;
         _planChatService = planChatService;
         _planRepository = planRepository;
         _confirmationStore = confirmationStore;
@@ -69,6 +76,11 @@ public class CreatePlanSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        if (_playgroundMode.IsActive)
+        {
+            return SkillResult.Error(PlaygroundHardeningConstants.FeatureBlockedMessage);
+        }
+
         var executeConfirmed = string.Equals(
             GetParameter<string>(parameters, PlanSkillDefaults.ExecuteConfirmedParameter),
             PlanSkillDefaults.ExecuteConfirmedValue,

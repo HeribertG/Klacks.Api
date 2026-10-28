@@ -10,6 +10,8 @@
 /// <param name="emailId">Required. UUID of the email (from list_emails).</param>
 /// <param name="targetLanguage">Required. ISO language code to translate into (e.g. de, en, fr, it).</param>
 
+using Klacks.Api.Domain.Interfaces.Playground;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Application.Queries.Email;
 using Klacks.Api.Domain.Attributes;
@@ -33,11 +35,13 @@ public class TranslateEmailSkill : BaseSkillImplementation
 
     private readonly IMediator _mediator;
     private readonly ITranslationService _translationService;
+    private readonly IPlaygroundMode _playgroundMode;
 
-    public TranslateEmailSkill(IMediator mediator, ITranslationService translationService)
+    public TranslateEmailSkill(IMediator mediator, ITranslationService translationService, IPlaygroundMode playgroundMode)
     {
         _mediator = mediator;
         _translationService = translationService;
+        _playgroundMode = playgroundMode;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -45,6 +49,11 @@ public class TranslateEmailSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        if (_playgroundMode.IsActive)
+        {
+            return SkillResult.Error(PlaygroundHardeningConstants.FeatureBlockedMessage);
+        }
+
         var emailId = GetRequiredGuid(parameters, "emailId");
         var targetLanguage = GetRequiredString(parameters, "targetLanguage").Trim().ToLowerInvariant();
 

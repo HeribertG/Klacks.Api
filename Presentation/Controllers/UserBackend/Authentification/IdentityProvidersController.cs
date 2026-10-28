@@ -9,6 +9,7 @@ using Klacks.Api.Application.DTOs.IdentityProviders;
 using Klacks.Api.Domain.DTOs.IdentityProviders;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Klacks.Api.Presentation.Filters;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Authentification;
 
@@ -45,6 +46,7 @@ public class IdentityProvidersController : BaseController
         return result;
     }
 
+    [BlockedOnPlayground]
     [HttpPost]
     public async Task<ActionResult<IdentityProviderResource>> PostIdentityProvider([FromBody] IdentityProviderResource resource)
     {
@@ -53,6 +55,7 @@ public class IdentityProvidersController : BaseController
         return result!;
     }
 
+    [BlockedOnPlayground]
     [HttpPut("{id}")]
     public async Task<ActionResult<IdentityProviderResource>> PutIdentityProvider(Guid id, [FromBody] IdentityProviderResource resource)
     {
@@ -82,6 +85,7 @@ public class IdentityProvidersController : BaseController
         return result;
     }
 
+    [BlockedOnPlayground]
     [HttpPost("{id}/TestConnection")]
     public async Task<ActionResult<TestConnectionResultResource>> TestConnection(Guid id)
     {
@@ -90,6 +94,7 @@ public class IdentityProvidersController : BaseController
         return result;
     }
 
+    [BlockedOnPlayground]
     [HttpPost("{id}/SyncClients")]
     public async Task<ActionResult<IdentityProviderSyncResultResource>> SyncClients(Guid id)
     {

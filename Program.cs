@@ -290,7 +290,7 @@ builder.Services.AddSingleton<IPluginNavigationRouteCatalog, PluginNavigationRou
 builder.Services.AddSingleton<INavigationEntityRouteGuard, NavigationEntityRouteGuard>();
 builder.Services.AddScoped<INavigationTargetMatcher, NavigationTargetMatcher>();
 builder.Services.AddScoped<IKlacksyNavigationFeedbackRepository, KlacksyNavigationFeedbackRepository>();
-builder.Services.AddScoped<INavigationFeedbackLogger, NavigationFeedbackLogger>();
+builder.Services.AddPlaygroundNavigationFeedbackLogger();
 builder.Services.AddScoped<INavigationMissDetector, NavigationMissDetector>();
 builder.Services.AddSingleton<LLMMapper>();
 builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
@@ -384,12 +384,19 @@ builder.Services.AddRateLimiter(options =>
 
     options.AddPolicy(RateLimitingPolicies.LlmChat, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.User?.Identity?.Name
-                ?? httpContext.Connection.RemoteIpAddress?.ToString()
-                ?? "anonymous",
+            partitionKey: RateLimitPartitionKeys.ForUserOrVisitor(httpContext),
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = RateLimitingPolicies.LlmChatPermitLimit,
+                Window = RateLimitingPolicies.DefaultWindow
+            }));
+
+    options.AddPolicy(RateLimitingPolicies.PlaygroundStatus, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: RateLimitPartitionKeys.ForNetworkAddress(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = RateLimitingPolicies.PlaygroundStatusPermitLimit,
                 Window = RateLimitingPolicies.DefaultWindow
             }));
 
@@ -404,9 +411,7 @@ builder.Services.AddRateLimiter(options =>
 
     options.AddPolicy(RateLimitingPolicies.ConnectionTest, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.User?.Identity?.Name
-                ?? httpContext.Connection.RemoteIpAddress?.ToString()
-                ?? "anonymous",
+            partitionKey: RateLimitPartitionKeys.ForUserOrVisitor(httpContext),
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = RateLimitingPolicies.ConnectionTestPermitLimit,
@@ -415,9 +420,7 @@ builder.Services.AddRateLimiter(options =>
 
     options.AddPolicy(RateLimitingPolicies.ClientImport, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.User?.Identity?.Name
-                ?? httpContext.Connection.RemoteIpAddress?.ToString()
-                ?? "anonymous",
+            partitionKey: RateLimitPartitionKeys.ForUserOrVisitor(httpContext),
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = RateLimitingPolicies.ClientImportPermitLimit,
@@ -426,7 +429,7 @@ builder.Services.AddRateLimiter(options =>
 
     options.AddPolicy(RateLimitingPolicies.GeoProxy, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.User?.Identity?.Name ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            partitionKey: RateLimitPartitionKeys.ForUserOrVisitor(httpContext),
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = RateLimitingPolicies.GeoProxyPermitLimit,
@@ -616,6 +619,7 @@ foreach (var cidr in trustedNetworks)
 }
 
 app.UseForwardedHeaders(forwardedHeadersOptions);
+app.UseMiddleware<PlaygroundVisitorMiddleware>();
 if (DataRootPaths.GetDataRoot(app.Configuration) is not null) app.UseMiddleware<NativeHostingSecurityMiddleware>();
 
 // global cors policy
