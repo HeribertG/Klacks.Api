@@ -395,6 +395,9 @@ services:
       - Anthropic__ApiKey=${ANTHROPIC_API_KEY}
       - OpenAI__ApiKey=${OPENAI_API_KEY:-}
       - KnowledgeBase__SourcePath=/data/knowledge
+      - Auth__JwtSigningKey=${DEVKNOWLEDGE_JWT_SIGNING_KEY:-}
+      - Auth__OwnerPasswordHash=${DEVKNOWLEDGE_OWNER_PASSWORD_HASH:-}
+      - Auth__ApiKeysJson=${DEVKNOWLEDGE_API_KEYS_JSON:-[]}
     volumes:
       - devknowledge_data:/data/knowledge
     depends_on:
