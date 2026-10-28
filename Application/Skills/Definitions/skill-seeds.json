@@ -939,17 +939,29 @@
         "de": [
           "alle dienste",
           "alle schichten",
-          "mehrere dienste"
+          "mehrere dienste",
+          "ordne sämtliche frühschichten dem team zu",
+          "hänge alle passenden dienste an die abteilung",
+          "ich möchte mehrere schichten gleichzeitig einer gruppe zuweisen"
         ],
         "en": [
           "all shifts",
-          "bulk shifts"
+          "bulk shifts",
+          "link every service with this abbreviation to the department",
+          "assign many shifts to a group at once",
+          "i want to put all night shifts into one group"
         ],
         "fr": [
-          "tous les services"
+          "tous les services",
+          "ajoute tous les services dont le nom correspond au groupe",
+          "rattache d'un coup tous les services de nuit au département",
+          "associer plusieurs services à une équipe en même temps",
+          "je veux affecter tous les services avec cette abréviation au groupe"
         ],
         "it": [
-          "tutti i turni"
+          "tutti i turni",
+          "collega in blocco i servizi con questa abbreviazione al reparto",
+          "associare più servizi a un team contemporaneamente"
         ]
       },
       "labels": {
@@ -958,7 +970,7 @@
         "fr": "Affecter en masse des services correspondants à un groupe",
         "it": "Assegna in blocco turni corrispondenti a un gruppo"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "add_client_to_nearest_group",
@@ -3026,20 +3038,36 @@
         "de": [
           "zugriffstoken widerrufen",
           "api-token sperren",
-          "persönlichen token entwerten"
+          "persönlichen token entwerten",
+          "meinen api-token zurückziehen",
+          "token sofort deaktivieren",
+          "ich möchte einen persönlichen zugriffstoken löschen",
+          "zugriffsschlüssel für die api widerrufen"
         ],
         "en": [
           "revoke access token",
           "invalidate api token",
-          "disable my personal token"
+          "disable my personal token",
+          "revoke one of my api tokens",
+          "i want to kill a personal access token",
+          "disable that access token for good",
+          "withdraw my api key"
         ],
         "fr": [
           "révoquer le jeton d'accès",
-          "invalider le jeton api"
+          "invalider le jeton api",
+          "révoque mon jeton personnel",
+          "je veux désactiver un de mes jetons api",
+          "retirer l'accès de ce jeton",
+          "supprimer mon jeton d'accès personnel"
         ],
         "it": [
           "revocare il token di accesso",
-          "invalidare il token api"
+          "invalidare il token api",
+          "revoca il mio token personale",
+          "voglio disattivare uno dei miei token api",
+          "ritira l'accesso a questo token",
+          "elimina il mio token di accesso personale"
         ]
       },
       "labels": {
@@ -3048,7 +3076,7 @@
         "fr": "Révoquer un jeton d'accès",
         "it": "Revoca un token di accesso"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_my_account",
@@ -3274,20 +3302,36 @@
         "de": [
           "navigations-synonym hinzufügen",
           "bring klacksy diese formulierung bei",
-          "merke dir diese navigation"
+          "merke dir diese navigation",
+          "füge diesem menüpunkt eine weitere bezeichnung hinzu",
+          "klacksy soll diesen ausdruck für die seite verstehen",
+          "neue suchformulierung für ein navigationsziel eintragen",
+          "ergänze die navigationsbegriffe um einen weiteren ausdruck"
         ],
         "en": [
           "add a navigation synonym",
           "teach klacksy this phrasing",
-          "remember this navigation wording"
+          "remember this navigation wording",
+          "add another wording for a navigation target",
+          "klacksy should understand this phrase for that page",
+          "register a new navigation phrase for a locale",
+          "extend the navigation synonyms of a page"
         ],
         "fr": [
           "ajouter un synonyme de navigation",
-          "apprendre cette formulation à klacksy"
+          "apprendre cette formulation à klacksy",
+          "ajouter une nouvelle formulation pour une page",
+          "klacksy doit comprendre cette expression pour la navigation",
+          "enregistrer un autre terme pour ce menu",
+          "compléter les synonymes de navigation d'une cible"
         ],
         "it": [
           "aggiungere un sinonimo di navigazione",
-          "insegnare questa formulazione a klacksy"
+          "insegnare questa formulazione a klacksy",
+          "aggiungere una nuova espressione per una pagina",
+          "klacksy deve capire questa frase per la navigazione",
+          "registrare un altro termine per questa voce di menu",
+          "completare i sinonimi di navigazione di una destinazione"
         ]
       },
       "labels": {
@@ -3296,7 +3340,7 @@
         "fr": "Ajouter des synonymes de navigation",
         "it": "Aggiungi sinonimi di navigazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "list_navigation_feedback",
@@ -11887,20 +11931,33 @@
         "de": [
           "neuen absenztyp anlegen",
           "abwesenheitsart erstellen",
-          "neue absenzart definieren"
+          "neue absenzart definieren",
+          "füge eine neue absenzart in den stammdaten hinzu",
+          "lege einen neuen grund für abwesenheiten an",
+          "neue absenz in den einstellungen erfassen mit samstag und feiertag zählen"
         ],
         "en": [
           "create a new absence type",
           "define a new absence category",
-          "add an absence kind"
+          "add an absence kind",
+          "add a new absence type to the settings",
+          "i want to set up another kind of leave with abbreviation and color",
+          "register a new leave type for sick days",
+          "new absence entry in master data with weekend counting"
         ],
         "fr": [
           "créer un nouveau type d'absence",
-          "définir une nouvelle catégorie d'absence"
+          "définir une nouvelle catégorie d'absence",
+          "ajoute un nouveau type d'absence dans les paramètres",
+          "nouveau type de congé dans les données de base",
+          "crée une nouvelle sorte d'absence comptant les jours fériés"
         ],
         "it": [
           "creare un nuovo tipo di assenza",
-          "definire una nuova categoria di assenza"
+          "definire una nuova categoria di assenza",
+          "aggiungi un nuovo tipo di assenza nelle impostazioni",
+          "nuovo tipo di permesso nei dati di base",
+          "crea una nuova voce di assenza che conta i giorni festivi"
         ]
       },
       "labels": {
@@ -11909,7 +11966,7 @@
         "fr": "Créer un type d'absence avec couleur et règles",
         "it": "Crea un tipo di assenza con colore e regole"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_absence_type",
@@ -12044,20 +12101,36 @@
         "de": [
           "absenztyp ändern",
           "farbe der absenzart ändern",
-          "abwesenheitsart umbenennen"
+          "abwesenheitsart umbenennen",
+          "passe die abkürzung der absenzart an",
+          "ändere die standarddauer des abwesenheitstyps",
+          "stelle die absenzart auf unbezahlt um",
+          "abwesenheitstyp im gantt ausblenden"
         ],
         "en": [
           "update an absence type",
           "change the absence type color",
-          "rename an absence category"
+          "rename an absence category",
+          "edit the abbreviation of an absence type",
+          "set the absence type to unpaid",
+          "change the default duration of the absence category",
+          "hide an absence type in the gantt"
         ],
         "fr": [
           "modifier un type d'absence",
-          "changer la couleur du type d'absence"
+          "changer la couleur du type d'absence",
+          "modifier l'abréviation du type d'absence",
+          "passer le type d'absence en non payé",
+          "changer la durée par défaut de la catégorie d'absence",
+          "masquer un type d'absence dans le gantt"
         ],
         "it": [
           "modificare un tipo di assenza",
-          "cambiare il colore del tipo di assenza"
+          "cambiare il colore del tipo di assenza",
+          "modifica l'abbreviazione del tipo di assenza",
+          "imposta il tipo di assenza come non retribuito",
+          "cambia la durata predefinita della categoria di assenza",
+          "nascondi un tipo di assenza nel gantt"
         ]
       },
       "labels": {
@@ -12066,7 +12139,7 @@
         "fr": "Modifier un type d'absence par nom ou ID",
         "it": "Modifica un tipo di assenza per nome o ID"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "delete_absence_type",
@@ -12112,17 +12185,30 @@
       "synonyms": {
         "de": [
           "absenztyp löschen",
-          "abwesenheitsart entfernen"
+          "abwesenheitsart entfernen",
+          "absenzart aus den stammdaten entfernen",
+          "diesen absenztyp aus der liste nehmen",
+          "absenztyp mit namen löschen"
         ],
         "en": [
           "delete an absence type",
-          "remove an absence category"
+          "remove an absence category",
+          "i want to delete an absence type",
+          "remove this absence type from the master data",
+          "get rid of the absence category",
+          "delete absence type by name"
         ],
         "fr": [
-          "supprimer un type d'absence"
+          "supprimer un type d'absence",
+          "je veux supprimer un type d'absence",
+          "effacer ce type d'absence",
+          "supprimer le type d'absence par son nom"
         ],
         "it": [
-          "eliminare un tipo di assenza"
+          "eliminare un tipo di assenza",
+          "voglio eliminare un tipo di assenza",
+          "cancella questo tipo di assenza",
+          "elimina il tipo di assenza per nome"
         ]
       },
       "labels": {
@@ -12131,7 +12217,7 @@
         "fr": "Supprimer un type d'absence par nom ou ID",
         "it": "Elimina un tipo di assenza per nome o ID"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "search_client_absences",
@@ -14381,21 +14467,37 @@
       "synonyms": {
         "de": [
           "freigabe zurücknehmen",
-          "abnehmen rückgängig"
+          "abnehmen rückgängig",
+          "tagesfreigabe wieder aufheben",
+          "freigegebenen tag zurück auf bestätigt setzen",
+          "die abnahme für diesen tag widerrufen",
+          "freigabe des tages zurückziehen"
         ],
         "en": [
           "revoke approval",
           "unapprove",
           "undo sign-off",
-          "cancel approval"
+          "cancel approval",
+          "withdraw the approval for this day",
+          "set the approved day back to confirmed",
+          "pull back the day sign-off",
+          "reverse the day approval"
         ],
         "fr": [
           "révoquer l'approbation",
-          "annuler la validation"
+          "annuler la validation",
+          "retirer l'approbation du jour",
+          "remettre la journée approuvée à confirmée",
+          "défaire la validation du jour",
+          "ramener la journée à l'état confirmé"
         ],
         "it": [
           "revocare l'approvazione",
-          "annullare la convalida"
+          "annullare la convalida",
+          "ritirare l'approvazione del giorno",
+          "riportare il giorno approvato a confermato",
+          "togliere la convalida a questa giornata",
+          "annullare l'approvazione della giornata"
         ]
       },
       "labels": {
@@ -14404,7 +14506,7 @@
         "fr": "Annuler l'approbation d'une journée",
         "it": "Revoca l'approvazione di una giornata"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "close_period",
@@ -15322,17 +15424,32 @@
         "de": [
           "alle mitarbeiter schulung",
           "gruppe abwesenheit",
-          "ganze gruppe schulung"
+          "ganze gruppe schulung",
+          "trage für alle in der gruppe am freitag eine schulung ein",
+          "ich möchte der ganzen gruppe für einen tag dieselbe absenz geben",
+          "schulungstag für sämtliche gruppenmitglieder buchen"
         ],
         "en": [
           "group training",
-          "absence for whole group"
+          "absence for whole group",
+          "book a training day for everyone in the group on friday",
+          "i want to give the whole group the same absence for one day",
+          "enter the same absence for every member of the team on one date",
+          "put a training absence on all employees of this group"
         ],
         "fr": [
-          "formation du groupe"
+          "formation du groupe",
+          "enregistre une journée de formation pour tous les membres du groupe",
+          "je voudrais donner la même absence à tout le groupe pour un jour",
+          "mets une absence formation à chaque employé du groupe à cette date",
+          "réserve un jour de formation pour toute l'équipe"
         ],
         "it": [
-          "formazione del gruppo"
+          "formazione del gruppo",
+          "registra una giornata di formazione per tutti i membri del gruppo",
+          "vorrei dare la stessa assenza a tutto il gruppo per un giorno",
+          "inserisci un'assenza per formazione a ogni dipendente del gruppo in quella data",
+          "prenota un giorno di formazione per l'intera squadra"
         ]
       },
       "labels": {
@@ -15341,7 +15458,7 @@
         "fr": "Enregistrer une absence pour tout un groupe",
         "it": "Registra un'assenza per l'intero gruppo"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "add_break",
@@ -17160,20 +17277,36 @@
         "de": [
           "kalenderauswahl löschen",
           "feiertagskalender löschen",
-          "feiertagskalender entfernen"
+          "feiertagskalender entfernen",
+          "kalenderauswahl entfernen",
+          "nicht mehr benötigte kalenderauswahl löschen",
+          "ich möchte eine kalenderauswahl wegwerfen",
+          "lösche den kalender mit den regionalen feiertagen"
         ],
         "en": [
           "delete calendar selection",
           "delete holiday calendar",
-          "remove holiday calendar"
+          "remove holiday calendar",
+          "remove a calendar selection",
+          "get rid of the unused holiday calendar",
+          "i want to delete this calendar selection",
+          "delete the calendar with the regional holidays"
         ],
         "fr": [
           "supprimer sélection de calendrier",
-          "supprimer calendrier des jours fériés"
+          "supprimer calendrier des jours fériés",
+          "supprimer une sélection de calendrier",
+          "retire le calendrier de jours fériés inutilisé",
+          "je veux effacer cette sélection de calendrier",
+          "efface le calendrier des fêtes régionales"
         ],
         "it": [
           "eliminare selezione calendario",
-          "eliminare calendario festivo"
+          "eliminare calendario festivo",
+          "eliminare una selezione di calendario",
+          "rimuovi il calendario festivo non più usato",
+          "voglio cancellare questa selezione di calendario",
+          "cancella il calendario delle feste regionali"
         ]
       },
       "labels": {
@@ -17182,7 +17315,7 @@
         "fr": "Supprimer une sélection de calendrier",
         "it": "Elimina una selezione di calendario"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_groups_hierarchical",
@@ -19412,20 +19545,36 @@
         "de": [
           "schicht löschen",
           "dienst entfernen",
-          "schicht entfernen"
+          "schicht entfernen",
+          "ich möchte den bestellungsentwurf löschen",
+          "diesen dienst aus der liste nehmen",
+          "dienst mit der id löschen",
+          "lösche den dienst wieder"
         ],
         "en": [
           "delete shift",
           "remove shift",
-          "drop shift"
+          "drop shift",
+          "i want to delete this shift",
+          "get rid of the draft order",
+          "erase the shift from the list",
+          "delete the shift with this id"
         ],
         "fr": [
           "supprimer le poste",
-          "effacer le poste"
+          "effacer le poste",
+          "je veux supprimer ce service",
+          "enlève cette commande brouillon",
+          "supprimer le poste de la liste",
+          "efface le service sélectionné"
         ],
         "it": [
           "eliminare il turno",
-          "rimuovere il turno"
+          "rimuovere il turno",
+          "voglio eliminare questo turno",
+          "togli l'ordine in bozza",
+          "cancella il servizio dall'elenco",
+          "elimina il turno con questo id"
         ]
       },
       "labels": {
@@ -19434,7 +19583,7 @@
         "fr": "Supprimer un service",
         "it": "Elimina un turno"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "email_schedule_to_client",
@@ -19742,25 +19891,40 @@
       "synonyms": {
         "de": [
           "email",
-          "mail"
+          "mail",
+          "füge dem mitarbeiter eine e-mail-adresse hinzu",
+          "trage die mailadresse von einem kunden ein",
+          "e-mail-adresse beim mitarbeiter ändern",
+          "neue mailadresse für den kunden erfassen"
         ],
         "en": [
           "email",
           "e-mail",
           "mail",
-          "add email"
+          "add email",
+          "set the email address of a customer",
+          "change the email for this employee",
+          "enter a new mail address for the client"
         ],
         "fr": [
           "e-mail",
           "courriel",
           "adresse e-mail",
-          "ajouter e-mail"
+          "ajouter e-mail",
+          "ajouter une adresse e-mail à un employé",
+          "enregistrer le courriel d'un client",
+          "changer l'adresse e-mail de cet employé",
+          "saisir une nouvelle adresse mail pour le client"
         ],
         "it": [
           "e-mail",
           "indirizzo e-mail",
           "aggiungi e-mail",
-          "posta elettronica"
+          "posta elettronica",
+          "aggiungi un indirizzo e-mail a un dipendente",
+          "inserisci la mail di un cliente",
+          "cambia l'indirizzo e-mail di questo dipendente",
+          "registra un nuovo indirizzo di posta per il cliente"
         ]
       },
       "labels": {
@@ -19769,7 +19933,7 @@
         "fr": "Ajouter une adresse e-mail pour une personne",
         "it": "Aggiungi un indirizzo e-mail per una persona"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "add_client_note",
@@ -19826,25 +19990,41 @@
         "de": [
           "notiz",
           "anmerkung",
-          "bemerkung"
+          "bemerkung",
+          "hinterlege eine notiz beim mitarbeiter",
+          "ich möchte beim kunden einen vermerk eintragen",
+          "füge dem mitarbeiter eine anmerkung hinzu",
+          "schreibe eine kurze bemerkung zur person"
         ],
         "en": [
           "note",
           "annotation",
           "remark",
-          "comment"
+          "comment",
+          "attach a note to this employee",
+          "i want to write a remark on the customer",
+          "add a comment to the person record",
+          "save a short memo on the employee"
         ],
         "fr": [
           "note client",
           "ajouter une note",
           "remarque",
-          "commentaire"
+          "commentaire",
+          "ajoute une note à cet employé",
+          "je voudrais inscrire une remarque sur la fiche du client",
+          "enregistre un petit mémo sur la personne",
+          "note une observation dans le dossier de l'employé"
         ],
         "it": [
           "nota cliente",
           "aggiungi nota",
           "osservazione",
-          "commento"
+          "commento",
+          "aggiungi una nota a questo dipendente",
+          "vorrei scrivere un'annotazione sulla scheda del cliente",
+          "salva un breve promemoria sulla persona",
+          "inserisci un'osservazione nella scheda del dipendente"
         ]
       },
       "labels": {
@@ -19853,7 +20033,7 @@
         "fr": "Ajouter une note à une personne",
         "it": "Aggiungi una nota a una persona"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "add_client_to_group_by_name",
@@ -19922,22 +20102,38 @@
       "synonyms": {
         "de": [
           "gruppe",
-          "zuordnen"
+          "zuordnen",
+          "füge den mitarbeiter zur gruppe hinzu",
+          "nimm die mitarbeiterin in das team auf",
+          "setze den kunden in die gruppe",
+          "ich möchte jemanden einer gruppe zuteilen"
         ],
         "en": [
           "group",
           "add to group",
-          "assign group"
+          "assign group",
+          "add the employee to the team",
+          "put this person into the group",
+          "i want to add a customer to a group",
+          "include the staff member in the department"
         ],
         "fr": [
           "ajouter au groupe",
           "affecter au groupe",
-          "assigner un groupe"
+          "assigner un groupe",
+          "ajoute l'employé à l'équipe",
+          "mets cette personne dans le groupe",
+          "je veux ajouter un client à un groupe",
+          "intègre la collaboratrice dans le département"
         ],
         "it": [
           "aggiungi al gruppo",
           "assegna al gruppo",
-          "assegnare gruppo"
+          "assegnare gruppo",
+          "aggiungi il dipendente alla squadra",
+          "inserisci questa persona nel gruppo",
+          "voglio aggiungere un cliente a un gruppo",
+          "inserisci la collaboratrice nel reparto"
         ]
       },
       "labels": {
@@ -19946,7 +20142,7 @@
         "fr": "Affecter une personne à un groupe par nom",
         "it": "Assegna una persona a un gruppo per nome"
       },
-      "version": 13
+      "version": 14
     },
     {
       "name": "add_selected_clients_to_group",
@@ -20005,22 +20201,36 @@
         "de": [
           "markierte mitarbeiter zur gruppe",
           "ausgewählte mitarbeiter zur gruppe",
-          "selektierte zur gruppe hinzufügen"
+          "selektierte zur gruppe hinzufügen",
+          "nimm die angehakten mitarbeiter in die gruppe auf",
+          "die markierten leute in eine gruppe packen",
+          "füge die ausgewählten zeilen der gruppe hinzu",
+          "alle angekreuzten mitarbeiter einer gruppe zuordnen"
         ],
         "en": [
           "add selected employees to group",
           "add ticked clients to group",
-          "add marked rows to group"
+          "add marked rows to group",
+          "put the checked employees into a group",
+          "assign the ticked staff to a group",
+          "add everyone i selected to the group",
+          "include the highlighted employees in the group"
         ],
         "fr": [
           "ajouter les employés sélectionnés au groupe",
           "ajouter les lignes cochées au groupe",
-          "employés marqués vers le groupe"
+          "employés marqués vers le groupe",
+          "mets les employés cochés dans le groupe",
+          "affecte les personnes sélectionnées à un groupe",
+          "intègre les lignes marquées dans le groupe"
         ],
         "it": [
           "aggiungi i dipendenti selezionati al gruppo",
           "aggiungi le righe spuntate al gruppo",
-          "dipendenti selezionati nel gruppo"
+          "dipendenti selezionati nel gruppo",
+          "metti i dipendenti spuntati nel gruppo",
+          "assegna le persone selezionate a un gruppo",
+          "inserisci le righe contrassegnate nel gruppo"
         ]
       },
       "labels": {
@@ -20029,7 +20239,7 @@
         "fr": "Affecter les personnes sélectionnées à un groupe",
         "it": "Assegna le persone selezionate a un gruppo"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "fill_group_by_criteria",
@@ -20308,22 +20518,37 @@
         "de": [
           "mitarbeiter ohne gruppe nach stadt zuordnen",
           "ungruppierte mitarbeiter nach gemeindename",
-          "gemäss adresse in gleichnamige gruppe"
+          "gemäss adresse in gleichnamige gruppe",
+          "mitarbeiter ohne gruppe in die gruppe ihres wohnorts einteilen",
+          "ordne die ungruppierten leute der gruppe mit dem namen ihrer stadt zu",
+          "gruppenlose nach wohnort in stadtgruppen einsortieren"
         ],
         "en": [
           "assign ungrouped employees by city name",
           "group employees without a group by town name",
-          "assign by matching address city to group name"
+          "assign by matching address city to group name",
+          "put employees without a group into the group named after their city",
+          "sort ungrouped staff into town groups by address",
+          "move all ungrouped employees into the group matching their city",
+          "file ungrouped employees under the group of their hometown"
         ],
         "fr": [
           "classer les employés sans groupe par ville",
           "regrouper les employés sans groupe par commune",
-          "affecter selon la ville de l'adresse"
+          "affecter selon la ville de l'adresse",
+          "ranger les employés sans groupe dans le groupe de leur ville",
+          "affecter les non-groupés au groupe portant le nom de leur commune",
+          "répartir les employés sans groupe selon leur lieu de résidence",
+          "placer chaque employé non groupé dans le groupe de sa ville"
         ],
         "it": [
           "classifica i dipendenti senza gruppo per città",
           "raggruppa i dipendenti senza gruppo per comune",
-          "assegna in base alla città dell'indirizzo"
+          "assegna in base alla città dell'indirizzo",
+          "inserisci i dipendenti senza gruppo nel gruppo della loro città",
+          "assegna i non raggruppati al gruppo con il nome del comune",
+          "smista i dipendenti senza gruppo secondo il luogo di residenza",
+          "metti ogni dipendente senza gruppo nel gruppo della sua città"
         ]
       },
       "labels": {
@@ -20332,7 +20557,7 @@
         "fr": "Affecter les employés sans groupe par nom de ville",
         "it": "Assegna i dipendenti senza gruppo per nome città"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "partition_clients_by_address",
@@ -20705,20 +20930,33 @@
         "de": [
           "importierte bestellungen gruppieren",
           "bestellungen ohne gruppe verteilen",
-          "gruppen für bestellungen aus der kundenadresse"
+          "gruppen für bestellungen aus der kundenadresse",
+          "ordne alle offenen bestellungen ihren gruppen zu",
+          "nach dem erp import die bestellungen in die ortsgruppen einsortieren",
+          "verteile die neuen aufträge anhand der kundenadresse auf gruppen"
         ],
         "en": [
           "group imported orders",
           "orders without a group",
-          "derive order groups from customer address"
+          "derive order groups from customer address",
+          "assign all open orders to their groups",
+          "sort the imported orders into the city groups after the erp import",
+          "automatically place ungrouped orders in the matching location group"
         ],
         "fr": [
           "regrouper les commandes importées",
-          "commandes sans groupe"
+          "commandes sans groupe",
+          "affecte toutes les commandes ouvertes à leurs groupes",
+          "après l'import erp, range les commandes dans les groupes de villes",
+          "place automatiquement les commandes sans groupe dans le groupe de lieu correspondant"
         ],
         "it": [
           "raggruppare gli ordini importati",
-          "ordini senza gruppo"
+          "ordini senza gruppo",
+          "assegna tutti gli ordini aperti ai loro gruppi",
+          "dopo l'importazione erp sistema gli ordini nei gruppi delle città",
+          "colloca automaticamente gli ordini senza gruppo nel gruppo di zona corrispondente",
+          "distribuisci i nuovi ordini nei gruppi in base all'indirizzo del cliente"
         ]
       },
       "labels": {
@@ -20727,7 +20965,7 @@
         "fr": "Affecter automatiquement les commandes ouvertes à leurs groupes",
         "it": "Assegna automaticamente gli ordini aperti ai loro gruppi"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "assign_shifts_to_city_groups",
@@ -21026,22 +21264,38 @@
       "synonyms": {
         "de": [
           "gruppe",
-          "entfernen"
+          "entfernen",
+          "nimm den mitarbeiter aus der gruppe",
+          "entferne die mitarbeiterin aus dem team",
+          "ich möchte jemanden aus einer gruppe austragen",
+          "kunde aus der gruppe herausnehmen"
         ],
         "en": [
           "group",
           "remove from group",
-          "leave group"
+          "leave group",
+          "take the employee out of the team",
+          "remove this person from the group",
+          "i want to drop a customer from a group",
+          "unassign the staff member from the department"
         ],
         "fr": [
           "retirer du groupe",
           "supprimer du groupe",
-          "quitter le groupe"
+          "quitter le groupe",
+          "enlève l'employé de l'équipe",
+          "sors cette personne du groupe",
+          "je veux retirer un client d'un groupe",
+          "désaffecte la collaboratrice du département"
         ],
         "it": [
           "rimuovi dipendente dal gruppo",
           "togli dal gruppo",
-          "esci dal gruppo"
+          "esci dal gruppo",
+          "togli il dipendente dalla squadra",
+          "rimuovi questa persona dal gruppo",
+          "voglio eliminare un cliente da un gruppo",
+          "disassegna la collaboratrice dal reparto"
         ]
       },
       "labels": {
@@ -21050,7 +21304,7 @@
         "fr": "Retirer une personne d'un groupe",
         "it": "Rimuovi una persona da un gruppo"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "update_client_birthdate",
@@ -21107,17 +21361,33 @@
       "synonyms": {
         "de": [
           "geburtsdatum ändern",
-          "geburtstag korrigieren"
+          "geburtstag korrigieren",
+          "geburtsdatum eines mitarbeiters anpassen",
+          "setze das geburtsdatum auf ein neues datum",
+          "ich möchte den geburtstag eines mitarbeiters ändern",
+          "geburtsdatum neu eintragen"
         ],
         "en": [
           "change birthdate",
-          "update date of birth"
+          "update date of birth",
+          "set a new birthdate for an employee",
+          "correct the date of birth of this person",
+          "i want to change an employee's birthday",
+          "enter a different birth date"
         ],
         "fr": [
-          "modifier la date de naissance"
+          "modifier la date de naissance",
+          "corriger la date de naissance d'un employé",
+          "mets une nouvelle date de naissance",
+          "je veux changer l'anniversaire d'un employé",
+          "saisir une autre date de naissance"
         ],
         "it": [
-          "modificare la data di nascita"
+          "modificare la data di nascita",
+          "correggere la data di nascita di un dipendente",
+          "imposta una nuova data di nascita",
+          "voglio cambiare il compleanno di un dipendente",
+          "inserire un'altra data di nascita"
         ]
       },
       "labels": {
@@ -21126,7 +21396,7 @@
         "fr": "Modifier la date de naissance d'une personne",
         "it": "Modifica la data di nascita di una persona"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_client_gender",
@@ -21188,16 +21458,32 @@
       "synonyms": {
         "de": [
           "geschlecht ändern",
-          "anrede anpassen"
+          "anrede anpassen",
+          "geschlecht von einem mitarbeiter setzen",
+          "setze das geschlecht des kunden auf weiblich",
+          "bei diesem mitarbeiter das geschlecht auf männlich stellen",
+          "geschlecht eines kunden korrigieren"
         ],
         "en": [
-          "change gender"
+          "change gender",
+          "set the gender of an employee",
+          "change the customer gender to female",
+          "update the gender field for this employee",
+          "mark this client as legal entity"
         ],
         "fr": [
-          "modifier le genre"
+          "modifier le genre",
+          "définir le genre d'un employé",
+          "mettre le client en genre féminin",
+          "mettre à jour le genre de cet employé",
+          "corriger le genre d'un client"
         ],
         "it": [
-          "modificare il genere"
+          "modificare il genere",
+          "impostare il genere di un dipendente",
+          "cambia il genere del cliente in maschile",
+          "aggiorna il genere di questo dipendente",
+          "correggere il genere di un cliente"
         ]
       },
       "labels": {
@@ -21206,7 +21492,7 @@
         "fr": "Modifier le genre d'une personne",
         "it": "Modifica il genere di una persona"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "assign_contract_by_name",
@@ -21351,16 +21637,32 @@
       "synonyms": {
         "de": [
           "gruppenstandort festlegen",
-          "standort der gruppe setzen"
+          "standort der gruppe setzen",
+          "hinterlege koordinaten für die gruppe",
+          "ich möchte der stadtgruppe einen ort mit breiten- und längengrad geben",
+          "gruppe bern geocodieren lassen",
+          "trage den standort für diese gruppe ein"
         ],
         "en": [
-          "set group location"
+          "set group location",
+          "store coordinates for the group",
+          "i want to give the city group a latitude and longitude",
+          "geocode the group from its name",
+          "enter the position for this group"
         ],
         "fr": [
-          "définir l'emplacement du groupe"
+          "définir l'emplacement du groupe",
+          "enregistre les coordonnées du groupe",
+          "je voudrais donner une latitude et une longitude au groupe de la ville",
+          "géocode le groupe à partir de son nom",
+          "indique le lieu de ce groupe"
         ],
         "it": [
-          "impostare la posizione del gruppo"
+          "impostare la posizione del gruppo",
+          "registra le coordinate del gruppo",
+          "vorrei dare latitudine e longitudine al gruppo della città",
+          "geocodifica il gruppo a partire dal suo nome",
+          "inserisci la località di questo gruppo"
         ]
       },
       "labels": {
@@ -21369,7 +21671,7 @@
         "fr": "Définir les coordonnées d'un groupe",
         "it": "Imposta le coordinate di un gruppo"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "evaluate_location_group_candidates",
@@ -21711,16 +22013,32 @@
       "synonyms": {
         "de": [
           "gruppierung anwenden",
-          "zuordnung übernehmen"
+          "zuordnung übernehmen",
+          "verschiebe alle mitarbeiter in ihre standortgruppen",
+          "gruppierung nach ort jetzt durchführen",
+          "die vorgeschlagene standortzuteilung speichern",
+          "wende die ortsgruppierung auf die mitarbeiter an"
         ],
         "en": [
-          "apply grouping"
+          "apply grouping",
+          "move all employees into their location groups",
+          "run the location grouping now",
+          "save the proposed location assignment",
+          "persist the grouping for the clients"
         ],
         "fr": [
-          "appliquer le regroupement"
+          "appliquer le regroupement",
+          "déplace tous les employés dans leurs groupes de lieu",
+          "exécute maintenant le regroupement par lieu",
+          "enregistre l'affectation proposée par localité",
+          "applique le regroupement aux clients"
         ],
         "it": [
-          "applicare il raggruppamento"
+          "applicare il raggruppamento",
+          "sposta tutti i dipendenti nei loro gruppi di zona",
+          "esegui ora il raggruppamento per località",
+          "salva l'assegnazione proposta per città",
+          "applica il raggruppamento ai clienti"
         ]
       },
       "labels": {
@@ -21729,7 +22047,7 @@
         "fr": "Appliquer et enregistrer le groupement par localisation",
         "it": "Applica e salva il raggruppamento per sede"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "update_macro",
@@ -21909,20 +22227,36 @@
         "de": [
           "makro als kopie erweitern",
           "erweiterte makrokopie",
-          "zusatzzuschlag in makrokopie"
+          "zusatzzuschlag in makrokopie",
+          "makro kopieren und um zuschlag ergänzen",
+          "ich möchte eine makrovorlage um eine zusatzberechnung erweitern",
+          "neue makrovariante mit extra zuschlag erstellen",
+          "formel kopieren und zusätzlichen zuschlag anhängen"
         ],
         "en": [
           "extend macro as a copy",
           "extended macro copy",
-          "extra surcharge in macro copy"
+          "extra surcharge in macro copy",
+          "copy a macro and append an extra surcharge",
+          "i want to add a surcharge block to a macro copy",
+          "create a macro variant with additional output",
+          "enhance the template formula in a new copy"
         ],
         "fr": [
           "étendre la macro en copie",
-          "copie étendue de la macro"
+          "copie étendue de la macro",
+          "copier une macro et y ajouter un supplément",
+          "je veux créer une variante de macro avec un bloc en plus",
+          "ajouter un supplément à la formule dans une copie",
+          "créer une copie de la macro avec une sortie supplémentaire"
         ],
         "it": [
           "estendere la macro come copia",
-          "copia estesa della macro"
+          "copia estesa della macro",
+          "copiare una macro e aggiungere un supplemento",
+          "voglio creare una variante della macro con un blocco extra",
+          "aggiungere una maggiorazione alla formula in una copia",
+          "crea una copia della macro con un output aggiuntivo"
         ]
       },
       "labels": {
@@ -21931,7 +22265,7 @@
         "fr": "Étendre une macro de calcul en copie",
         "it": "Estendi una macro di calcolo come copia"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "assign_macro_to_shift",
@@ -21982,20 +22316,36 @@
         "de": [
           "makro einer schicht zuweisen",
           "schichtmakro umhängen",
-          "zuschlagsformel der schicht wechseln"
+          "zuschlagsformel der schicht wechseln",
+          "nachtdienst auf erweiterte zuschlagsformel umstellen",
+          "dem dienst ein anderes makro geben",
+          "zurück zur standardformel für diesen dienst",
+          "makro für alle schnitte der bestellung wechseln"
         ],
         "en": [
           "assign macro to shift",
           "switch the shift macro",
-          "change the surcharge formula of a shift"
+          "change the surcharge formula of a shift",
+          "put the extended surcharge formula on the night shift",
+          "give this shift a different macro",
+          "go back to the standard formula for the shift",
+          "switch the macro for every cut of the order"
         ],
         "fr": [
           "attribuer une macro au service",
-          "changer la macro du service"
+          "changer la macro du service",
+          "mettre la formule de supplément étendue sur le service de nuit",
+          "donner une autre macro à ce service",
+          "revenir à la formule standard pour le service",
+          "changer la macro de toutes les coupes de la commande"
         ],
         "it": [
           "assegnare una macro al turno",
-          "cambiare la macro del turno"
+          "cambiare la macro del turno",
+          "applica la formula di supplemento estesa al turno di notte",
+          "dai un'altra macro a questo turno",
+          "torna alla formula standard per il turno",
+          "cambia la macro di tutti i tagli dell'ordine"
         ]
       },
       "labels": {
@@ -22004,7 +22354,7 @@
         "fr": "Attribuer une macro de calcul à un service et à toutes ses parties",
         "it": "Assegna una macro di calcolo a un turno e a tutte le sue parti"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "assign_macro_to_absence_type",
@@ -22055,20 +22405,36 @@
         "de": [
           "makro einer abwesenheitsart zuweisen",
           "absenzmakro umhängen",
-          "anrechnungsformel der absenzart wechseln"
+          "anrechnungsformel der absenzart wechseln",
+          "stelle die ferien auf ein anderes berechnungsmakro um",
+          "ich möchte für krankheit eine neue formel zur stundengutschrift hinterlegen",
+          "verknüpfe den unfall mit einem anderen makro",
+          "andere rechenregel für bezahlten urlaub einsetzen"
         ],
         "en": [
           "assign macro to absence type",
           "switch the absence type macro",
-          "change the crediting formula of an absence type"
+          "change the crediting formula of an absence type",
+          "switch vacation to a different calculation macro",
+          "i want to set a new hour crediting formula for sick leave",
+          "link the accident absence type to another macro",
+          "use a different calculation rule for paid leave"
         ],
         "fr": [
           "attribuer une macro au type d'absence",
-          "changer la macro du type d'absence"
+          "changer la macro du type d'absence",
+          "passe les vacances sur une autre macro de calcul",
+          "je voudrais définir une nouvelle formule de crédit d'heures pour la maladie",
+          "relie le type d'absence accident à une autre macro",
+          "applique une autre règle de calcul pour les congés payés"
         ],
         "it": [
           "assegnare una macro al tipo di assenza",
-          "cambiare la macro del tipo di assenza"
+          "cambiare la macro del tipo di assenza",
+          "passa le ferie a un'altra macro di calcolo",
+          "vorrei impostare una nuova formula di accredito ore per la malattia",
+          "collega il tipo di assenza infortunio a un'altra macro",
+          "usa una regola di calcolo diversa per i permessi retribuiti"
         ]
       },
       "labels": {
@@ -22077,7 +22443,7 @@
         "fr": "Attribuer une macro de calcul à un type d'absence",
         "it": "Assegna una macro di calcolo a un tipo di assenza"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "revert_macro_assignment",
@@ -22119,20 +22485,36 @@
         "de": [
           "makrozuweisung rückgängig machen",
           "vorheriges makro wiederherstellen",
-          "makro zurückhängen"
+          "makro zurückhängen",
+          "mach den makrowechsel bei den diensten rückgängig",
+          "setze die alte berechnungsformel wieder ein",
+          "die letzte makroumstellung zurücknehmen",
+          "ich möchte das umgestellte makro der absenzart zurücksetzen"
         ],
         "en": [
           "undo macro assignment",
           "restore the previous macro",
-          "switch the macro back"
+          "switch the macro back",
+          "roll back the macro switch on the shifts",
+          "put the old calculation formula back",
+          "revert the last macro change",
+          "i want to undo the macro switch on the absence type"
         ],
         "fr": [
           "annuler l'attribution de la macro",
-          "rétablir la macro précédente"
+          "rétablir la macro précédente",
+          "annule le changement de macro sur les services",
+          "remets l'ancienne formule de calcul",
+          "reviens sur la dernière modification de macro",
+          "je veux défaire le changement de macro du type d'absence"
         ],
         "it": [
           "annullare l'assegnazione della macro",
-          "ripristinare la macro precedente"
+          "ripristinare la macro precedente",
+          "annulla il cambio di macro sui turni",
+          "rimetti la vecchia formula di calcolo",
+          "ripristina l'ultima modifica della macro",
+          "voglio annullare il cambio di macro del tipo di assenza"
         ]
       },
       "labels": {
@@ -22141,7 +22523,7 @@
         "fr": "Annuler l'attribution d'une macro",
         "it": "Annulla l'assegnazione di una macro"
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_qualification",
@@ -25248,20 +25630,36 @@
         "de": [
           "e-mail als gelesen markieren",
           "e-mail als ungelesen markieren",
-          "mail auf gelesen setzen"
+          "mail auf gelesen setzen",
+          "mail als gelesen abhaken",
+          "diese nachricht wieder auf ungelesen stellen",
+          "ich möchte die e-mail als gelesen kennzeichnen",
+          "posteingang-eintrag als ungelesen setzen"
         ],
         "en": [
           "mark email as read",
           "mark email as unread",
-          "set mail to read"
+          "set mail to read",
+          "flag this email as read",
+          "put the message back to unread",
+          "i want to mark a mail as read",
+          "set the inbox message to unread"
         ],
         "fr": [
           "marquer l'email comme lu",
-          "marquer l'email comme non lu"
+          "marquer l'email comme non lu",
+          "marque ce mail comme lu",
+          "remets le message en non lu",
+          "je veux signaler l'email comme lu",
+          "passer le message de la boîte de réception en non lu"
         ],
         "it": [
           "segnare l'email come letta",
-          "segnare l'email come non letta"
+          "segnare l'email come non letta",
+          "segna questa mail come letta",
+          "rimetti il messaggio come non letto",
+          "voglio contrassegnare l'email come letta",
+          "imposta il messaggio in arrivo come non letto"
         ]
       },
       "labels": {
@@ -25270,7 +25668,7 @@
         "fr": "Marquer un e-mail comme lu ou non lu",
         "it": "Contrassegna un'e-mail come letta o non letta"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "fetch_new_emails",
@@ -25301,20 +25699,36 @@
         "de": [
           "neue e-mails abrufen",
           "posteingang jetzt aktualisieren",
-          "mails vom server holen"
+          "mails vom server holen",
+          "mails jetzt abholen",
+          "posteingang sofort neu laden",
+          "prüfe sofort auf neue nachrichten im postfach",
+          "imap-abruf auslösen"
         ],
         "en": [
           "fetch new emails",
           "refresh the inbox now",
-          "check for new mail"
+          "check for new mail",
+          "pull new mail from the server now",
+          "trigger an imap fetch",
+          "reload the inbox right away",
+          "get the latest emails immediately"
         ],
         "fr": [
           "récupérer les nouveaux emails",
-          "actualiser la boîte de réception"
+          "actualiser la boîte de réception",
+          "relever le courrier maintenant",
+          "déclencher une récupération imap",
+          "recharger la boîte de réception tout de suite",
+          "aller chercher les derniers e-mails immédiatement"
         ],
         "it": [
           "recuperare le nuove email",
-          "aggiornare la posta in arrivo"
+          "aggiornare la posta in arrivo",
+          "scarica subito la nuova posta",
+          "avvia il recupero imap",
+          "ricarica la posta in arrivo adesso",
+          "preleva subito le ultime e-mail"
         ]
       },
       "labels": {
@@ -25323,7 +25737,7 @@
         "fr": "Récupérer les nouveaux e-mails maintenant",
         "it": "Recupera subito le nuove e-mail"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "move_email_to_folder",
@@ -25438,19 +25852,35 @@
       "synonyms": {
         "de": [
           "e-mail löschen",
-          "mail in den papierkorb verschieben"
+          "mail in den papierkorb verschieben",
+          "diese mail entfernen",
+          "ich möchte die empfangene nachricht wegwerfen",
+          "verschiebe die e-mail in den papierkorb",
+          "nachricht aus dem posteingang löschen"
         ],
         "en": [
           "delete the email",
-          "move mail to trash"
+          "move mail to trash",
+          "remove this email",
+          "i want to throw away the received message",
+          "send the mail to the trash folder",
+          "delete the message from the inbox"
         ],
         "fr": [
           "supprimer l'email",
-          "mettre l'email à la corbeille"
+          "mettre l'email à la corbeille",
+          "supprime ce courriel",
+          "je voudrais jeter le message reçu",
+          "envoie le mail dans la corbeille",
+          "efface le message de la boîte de réception"
         ],
         "it": [
           "eliminare l'email",
-          "spostare l'email nel cestino"
+          "spostare l'email nel cestino",
+          "rimuovi questa mail",
+          "vorrei eliminare il messaggio ricevuto",
+          "manda la posta nel cestino",
+          "cancella il messaggio dalla posta in arrivo"
         ]
       },
       "labels": {
@@ -25459,7 +25889,7 @@
         "fr": "Supprimer un e-mail",
         "it": "Elimina un'e-mail"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "restore_email",
@@ -25497,19 +25927,35 @@
       "synonyms": {
         "de": [
           "e-mail wiederherstellen",
-          "mail aus dem papierkorb zurückholen"
+          "mail aus dem papierkorb zurückholen",
+          "hol die mail aus dem papierkorb zurück in den posteingang",
+          "gelöschte nachricht zurück in den posteingang legen",
+          "die e-mail wieder in den eingang verschieben",
+          "ich möchte eine gelöschte mail zurückholen"
         ],
         "en": [
           "restore the email",
-          "bring mail back from trash"
+          "bring mail back from trash",
+          "move the deleted mail back to the inbox",
+          "undelete this email",
+          "put the trashed message back in the inbox",
+          "i want to get a deleted email back"
         ],
         "fr": [
           "restaurer l'email",
-          "récupérer l'email de la corbeille"
+          "récupérer l'email de la corbeille",
+          "remets l'email supprimé dans la boîte de réception",
+          "annule la suppression de ce message",
+          "sors le courriel de la corbeille",
+          "je veux récupérer un email supprimé"
         ],
         "it": [
           "ripristinare l'email",
-          "recuperare l'email dal cestino"
+          "recuperare l'email dal cestino",
+          "rimetti l'email cancellata nella posta in arrivo",
+          "annulla l'eliminazione di questo messaggio",
+          "togli la mail dal cestino",
+          "voglio riavere un'email eliminata"
         ]
       },
       "labels": {
@@ -25518,7 +25964,7 @@
         "fr": "Restaurer un e-mail depuis la corbeille",
         "it": "Ripristina un'e-mail dal cestino"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_email_analysis",
@@ -25686,20 +26132,36 @@
         "de": [
           "ich kläre das selbst mit dem mitarbeiter",
           "rückfrage an den mitarbeiter beenden",
-          "klärung selbst übernehmen"
+          "klärung selbst übernehmen",
+          "rückfrage zur absenz abschliessen",
+          "ich übernehme die klärung persönlich",
+          "nicht mehr auf die antwort des mitarbeiters warten",
+          "offene nachfrage schliessen"
         ],
         "en": [
           "i will clarify it with the employee myself",
           "stop waiting for the employee's answer",
-          "close the follow-up question"
+          "close the follow-up question",
+          "i'll take over the clarification personally",
+          "close the open question to the employee",
+          "no longer wait for the reply about the absence",
+          "end the pending follow-up"
         ],
         "fr": [
           "je clarifie moi-même avec l'employé",
-          "clore la question de suivi"
+          "clore la question de suivi",
+          "je prends la clarification en main",
+          "fermer la question ouverte à l'employé",
+          "arrête d'attendre la réponse de l'employé",
+          "terminer la demande de précision en cours"
         ],
         "it": [
           "chiarisco io con il dipendente",
-          "chiudere la domanda di chiarimento"
+          "chiudere la domanda di chiarimento",
+          "mi occupo io del chiarimento",
+          "chiudi la domanda aperta al dipendente",
+          "smetti di aspettare la risposta del dipendente",
+          "termina la richiesta di chiarimento in sospeso"
         ]
       },
       "labels": {
@@ -25708,7 +26170,7 @@
         "fr": "Clore une question de suivi ouverte à un employé",
         "it": "Chiudi una domanda di chiarimento aperta a un dipendente"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "translate_email",
@@ -30465,23 +30927,39 @@
         "de": [
           "planungsnotiz bearbeiten",
           "notiz aktualisieren",
-          "tagesnotiz korrigieren"
+          "tagesnotiz korrigieren",
+          "text der planungsnotiz ändern",
+          "notiz im dienstplan auf anderen tag verschieben",
+          "bestehende tagesnotiz umformulieren",
+          "inhalt der notiz im plan anpassen"
         ],
         "en": [
           "update schedule note",
           "edit schedule note",
           "change note text",
-          "correct schedule note"
+          "correct schedule note",
+          "reword the note in the schedule",
+          "move a schedule note to another day",
+          "edit the text of an existing planning note",
+          "adjust the content of the day note"
         ],
         "fr": [
           "modifier la note de planning",
           "changer le texte de la note",
-          "corriger la note"
+          "corriger la note",
+          "reformuler la note du planning",
+          "déplacer une note de planning à un autre jour",
+          "modifier le contenu d'une note existante",
+          "ajuster le texte de la note du jour"
         ],
         "it": [
           "modificare la nota di pianificazione",
           "cambiare il testo della nota",
-          "correggere la nota"
+          "correggere la nota",
+          "riformulare la nota nel piano",
+          "spostare una nota di pianificazione su un altro giorno",
+          "modificare il contenuto di una nota esistente",
+          "aggiustare il testo della nota del giorno"
         ]
       },
       "labels": {
@@ -30490,7 +30968,7 @@
         "fr": "Modifier une note de planning",
         "it": "Modifica una nota del planning"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_break",
@@ -31015,17 +31493,33 @@
       "synonyms": {
         "de": [
           "notiz zurückstellen",
-          "notiz parken"
+          "notiz parken",
+          "merk dir das für später als notiz",
+          "ich möchte eine erinnerung hinterlegen die später ausgeliefert wird",
+          "speichere diese information zum späteren weitergeben",
+          "lege einen hinweis für den nächsten login ab"
         ],
         "en": [
           "stash note",
-          "park note"
+          "park note",
+          "remember this for later as a note",
+          "i want to leave a reminder to be passed on later",
+          "save this information to relay afterwards",
+          "keep a hint ready for the next login"
         ],
         "fr": [
-          "mettre la note de côté"
+          "mettre la note de côté",
+          "garde ça en mémoire pour plus tard sous forme de note",
+          "je voudrais laisser un rappel à transmettre plus tard",
+          "enregistre cette information pour la communiquer ensuite",
+          "prépare un message pour la prochaine connexion"
         ],
         "it": [
-          "accantonare la nota"
+          "accantonare la nota",
+          "tieni questo a mente per dopo come nota",
+          "vorrei lasciare un promemoria da riferire più tardi",
+          "salva questa informazione per comunicarla in seguito",
+          "prepara un avviso per il prossimo accesso"
         ]
       },
       "labels": {
@@ -31034,7 +31528,7 @@
         "fr": "Mettre une note de côté pour plus tard",
         "it": "Salva una nota per dopo"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "manage_pending_notes",
@@ -31072,16 +31566,32 @@
       "triggerKeywords": null,
       "synonyms": {
         "de": [
-          "zurückgestellte notizen verwalten"
+          "zurückgestellte notizen verwalten",
+          "offene notizen als erledigt markieren",
+          "ausstehende notizen archivieren",
+          "unzugestellte erinnerungen als zugestellt abhaken",
+          "ich möchte die offenen erinnerungen abarbeiten"
         ],
         "en": [
-          "manage pending notes"
+          "manage pending notes",
+          "mark the pending notes as delivered",
+          "archive my open reminders",
+          "check off undelivered notes",
+          "i want to deal with my outstanding reminder notes"
         ],
         "fr": [
-          "gérer les notes en attente"
+          "gérer les notes en attente",
+          "marque les notes en attente comme transmises",
+          "archive mes rappels non remis",
+          "coche les notes non délivrées",
+          "je veux traiter mes notes de rappel en suspens"
         ],
         "it": [
-          "gestire le note in sospeso"
+          "gestire le note in sospeso",
+          "segna le note in sospeso come consegnate",
+          "archivia i miei promemoria non recapitati",
+          "spunta le note non consegnate",
+          "voglio gestire i promemoria ancora aperti"
         ]
       },
       "labels": {
@@ -31090,7 +31600,7 @@
         "fr": "Gérer les notes en attente",
         "it": "Gestisci le note in sospeso"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "recall_delivered_notes",
@@ -31411,20 +31921,36 @@
         "de": [
           "lösche die erinnerung",
           "stoppe die geplante aufgabe",
-          "entferne wiederkehrende aufgabe"
+          "entferne wiederkehrende aufgabe",
+          "wiederkehrende erinnerung beenden",
+          "geplanten cron-job löschen",
+          "montagserinnerung abbrechen",
+          "regelmässigen task abbrechen"
         ],
         "en": [
           "cancel my reminder",
           "stop the scheduled task",
-          "delete recurring task"
+          "delete recurring task",
+          "stop my recurring reminder",
+          "cancel the scheduled cron task",
+          "remove the weekly reminder",
+          "end the repeating task"
         ],
         "fr": [
           "supprime le rappel",
-          "annule la tache planifiee"
+          "annule la tache planifiee",
+          "arrête mon rappel récurrent",
+          "annule la tâche cron programmée",
+          "supprime le rappel hebdomadaire",
+          "mettre fin à la tâche répétitive"
         ],
         "it": [
           "annulla il promemoria",
-          "elimina attivita pianificata"
+          "elimina attivita pianificata",
+          "ferma il mio promemoria ricorrente",
+          "annulla l'attività cron programmata",
+          "rimuovi il promemoria settimanale",
+          "termina l'attività ripetuta"
         ]
       },
       "labels": {
@@ -31433,7 +31959,7 @@
         "fr": "Annuler une tâche récurrente",
         "it": "Annulla un'attività ricorrente"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_erp_import_status",
@@ -34844,20 +35370,36 @@
         "de": [
           "planungsprofil",
           "eigene planungsregel",
-          "planungseinstellungen"
+          "planungseinstellungen",
+          "ich möchte ein eigenes planungsprofil einrichten",
+          "geführte einrichtung der planungsregeln starten",
+          "planungsprofil mit klacksy zusammen aufbauen",
+          "regelwerk für unseren betrieb anlegen lassen"
         ],
         "en": [
           "planning profile",
           "custom planning rule",
-          "planning settings"
+          "planning settings",
+          "i want to set up my own planning profile",
+          "start the guided planning rules setup",
+          "build a planning profile together with klacksy",
+          "create a rule set for our business"
         ],
         "fr": [
           "profil de planification",
-          "règle de planification"
+          "règle de planification",
+          "je veux configurer mon propre profil de planification",
+          "démarrer l'assistant des règles de planification",
+          "construire un profil de planification avec klacksy",
+          "créer un jeu de règles pour notre entreprise"
         ],
         "it": [
           "profilo di pianificazione",
-          "regola di pianificazione"
+          "regola di pianificazione",
+          "voglio configurare un mio profilo di pianificazione",
+          "avvia la configurazione guidata delle regole di pianificazione",
+          "costruire un profilo di pianificazione con klacksy",
+          "creare un set di regole per la nostra azienda"
         ]
       },
       "labels": {
@@ -34866,7 +35408,7 @@
         "fr": "Démarrer la configuration du profil de planification",
         "it": "Avvia la configurazione del profilo di pianificazione"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "set_planning_profile_parameters",
@@ -34915,20 +35457,36 @@
         "de": [
           "planungsprofil",
           "eigene planungsregel",
-          "planungseinstellungen"
+          "planungseinstellungen",
+          "setze die branche und die arbeitszeitgrenzen im planungsprofil",
+          "ich möchte im entwurf die ruhezeit und überstunden anpassen",
+          "trage die werte für das neue planungsprofil ein",
+          "zuschläge im profilentwurf festlegen"
         ],
         "en": [
           "planning profile",
           "custom planning rule",
-          "planning settings"
+          "planning settings",
+          "set the industry and working time limits in the planning profile",
+          "i want to adjust rest time and overtime in the draft",
+          "enter the values for the new planning profile",
+          "define surcharges in the profile draft"
         ],
         "fr": [
           "profil de planification",
-          "règle de planification"
+          "règle de planification",
+          "définis la branche et les limites de temps de travail dans le profil de planification",
+          "je voudrais ajuster le repos et les heures supplémentaires dans le brouillon",
+          "saisis les valeurs du nouveau profil de planification",
+          "fixe les suppléments dans le brouillon du profil"
         ],
         "it": [
           "profilo di pianificazione",
-          "regola di pianificazione"
+          "regola di pianificazione",
+          "imposta il settore e i limiti di orario di lavoro nel profilo di pianificazione",
+          "vorrei regolare riposo e straordinari nella bozza",
+          "inserisci i valori per il nuovo profilo di pianificazione",
+          "definisci le maggiorazioni nella bozza del profilo"
         ]
       },
       "labels": {
@@ -34937,7 +35495,7 @@
         "fr": "Définir les paramètres du profil de planification",
         "it": "Imposta i parametri del profilo di pianificazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "preview_planning_profile",
@@ -35040,20 +35598,36 @@
         "de": [
           "planungsprofil",
           "eigene planungsregel",
-          "planungseinstellungen"
+          "planungseinstellungen",
+          "übernimm das geplante planungsprofil",
+          "wende den entwurf des planungsprofils an",
+          "die eigenen planungsregeln aus dem entwurf aktivieren",
+          "planungsprofil jetzt anlegen und aktivieren"
         ],
         "en": [
           "planning profile",
           "custom planning rule",
-          "planning settings"
+          "planning settings",
+          "apply the planning profile draft",
+          "activate my custom planning rules from the draft",
+          "create the planning profile now",
+          "put the new scheduling rules into effect"
         ],
         "fr": [
           "profil de planification",
-          "règle de planification"
+          "règle de planification",
+          "applique le brouillon du profil de planification",
+          "active mes règles de planification personnalisées",
+          "crée le profil de planification maintenant",
+          "mets en vigueur les nouvelles règles de planning"
         ],
         "it": [
           "profilo di pianificazione",
-          "regola di pianificazione"
+          "regola di pianificazione",
+          "applica la bozza del profilo di pianificazione",
+          "attiva le mie regole di pianificazione personalizzate",
+          "crea ora il profilo di pianificazione",
+          "metti in vigore le nuove regole di turnazione"
         ]
       },
       "labels": {
@@ -35062,7 +35636,7 @@
         "fr": "Appliquer le brouillon du profil de planification",
         "it": "Applica la bozza del profilo di pianificazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "cancel_planning_profile_setup",
@@ -35102,20 +35676,36 @@
         "de": [
           "planungsprofil",
           "eigene planungsregel",
-          "planungseinstellungen"
+          "planungseinstellungen",
+          "einrichtung des planungsprofils abbrechen",
+          "planungsprofil-entwurf verwerfen",
+          "assistent für das planungsprofil beenden",
+          "profil-setup stoppen und entwurf löschen"
         ],
         "en": [
           "planning profile",
           "custom planning rule",
-          "planning settings"
+          "planning settings",
+          "cancel the planning profile setup",
+          "discard the planning profile draft",
+          "abort the profile wizard",
+          "stop setting up the planning profile"
         ],
         "fr": [
           "profil de planification",
-          "règle de planification"
+          "règle de planification",
+          "annuler la configuration du profil de planification",
+          "abandonner le brouillon du profil",
+          "interrompre l'assistant de profil",
+          "arrêter la mise en place du profil de planification"
         ],
         "it": [
           "profilo di pianificazione",
-          "regola di pianificazione"
+          "regola di pianificazione",
+          "annulla la configurazione del profilo di pianificazione",
+          "scarta la bozza del profilo",
+          "interrompi la procedura guidata del profilo",
+          "ferma l'impostazione del profilo di pianificazione"
         ]
       },
       "labels": {
@@ -35124,7 +35714,7 @@
         "fr": "Annuler la configuration du profil de planification",
         "it": "Annulla la configurazione del profilo di pianificazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_plan",
@@ -39224,20 +39814,36 @@
         "de": [
           "exportformat zurücksetzen",
           "anpassung am export entfernen",
-          "wieder standardformat exportieren"
+          "wieder standardformat exportieren",
+          "eigene anpassung des exportformats löschen",
+          "exportformat auf auslieferungszustand zurückstellen",
+          "angepasste exportdefinition verwerfen",
+          "änderung am lohnexport-format rückgängig machen"
         ],
         "en": [
           "reset an export format",
           "remove the export adjustment",
-          "export in the delivered shape again"
+          "export in the delivered shape again",
+          "delete the customization of an export format",
+          "restore the delivered export definition",
+          "discard my export format adjustment",
+          "revert the payroll export format to its default"
         ],
         "fr": [
           "reinitialiser un format d export",
-          "retirer l adaptation de l export"
+          "retirer l adaptation de l export",
+          "supprimer la personnalisation d'un format d'export",
+          "rétablir la définition d'export livrée",
+          "abandonner mon adaptation du format d'export",
+          "revenir au format d'export par défaut"
         ],
         "it": [
           "ripristinare un formato di esportazione",
-          "rimuovere l adattamento dell esportazione"
+          "rimuovere l adattamento dell esportazione",
+          "eliminare la personalizzazione di un formato di esportazione",
+          "ripristinare la definizione di esportazione fornita",
+          "scartare la mia modifica al formato di esportazione",
+          "tornare al formato di esportazione predefinito"
         ]
       },
       "labels": {
@@ -39246,7 +39852,7 @@
         "fr": "Supprimer une personnalisation de format d'export",
         "it": "Rimuovi una personalizzazione del formato di esportazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_erp_drop_point_settings",
@@ -39506,20 +40112,36 @@
         "de": [
           "anlieferungsschlüssel ausstellen",
           "neuen schlüssel für das fremdsystem",
-          "zugangsschlüssel für die dateiübergabe erzeugen"
+          "zugangsschlüssel für die dateiübergabe erzeugen",
+          "ich brauche einen zugangsschlüssel für die übergabestelle",
+          "neuen token für den datei import aus dem erp erstellen",
+          "fremdsystem braucht einen schlüssel zum anliefern von dateien",
+          "schlüssel für die übergabestelle einrichten"
         ],
         "en": [
           "issue a delivery key",
           "new key for the outside system",
-          "create a key for handing files in"
+          "create a key for handing files in",
+          "i need an access key for the handover point",
+          "create a new token for the erp file import",
+          "set up a key so the outside system can deliver files",
+          "generate an access token for the file drop"
         ],
         "fr": [
           "emettre une cle de livraison",
-          "nouvelle cle pour le systeme externe"
+          "nouvelle cle pour le systeme externe",
+          "j'ai besoin d'une clé d'accès pour le point de remise",
+          "créer un nouveau jeton pour l'import de fichiers erp",
+          "configure une clé pour que le système externe livre des fichiers",
+          "génère un jeton d'accès pour le dépôt de fichiers"
         ],
         "it": [
           "emettere una chiave di consegna",
-          "nuova chiave per il sistema esterno"
+          "nuova chiave per il sistema esterno",
+          "mi serve una chiave di accesso per il punto di consegna",
+          "creare un nuovo token per l'importazione di file erp",
+          "configura una chiave per far consegnare file al sistema esterno",
+          "genera un token di accesso per il deposito dei file"
         ]
       },
       "labels": {
@@ -39528,7 +40150,7 @@
         "fr": "Explication de l'émission d'une clé d'importation ERP",
         "it": "Spiegazione del rilascio di una chiave di importazione ERP"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "revoke_erp_import_token",
@@ -39577,20 +40199,36 @@
         "de": [
           "anlieferungsschlüssel sperren",
           "schlüssel des fremdsystems ungültig machen",
-          "dateiübergabe schlüssel zurückziehen"
+          "dateiübergabe schlüssel zurückziehen",
+          "token für den datenimport widerrufen",
+          "den zugangsschlüssel des erp-systems sperren",
+          "geleakten import-schlüssel ungültig machen",
+          "ich möchte den schlüssel für dateilieferungen zurückziehen"
         ],
         "en": [
           "withdraw a delivery key",
           "make the outside system's key invalid",
-          "stop a key from handing files in"
+          "stop a key from handing files in",
+          "revoke the erp import token",
+          "block the access key of the external system",
+          "invalidate the leaked import key",
+          "i want to cancel the key used for file deliveries"
         ],
         "fr": [
           "retirer une cle de livraison",
-          "invalider la cle du systeme externe"
+          "invalider la cle du systeme externe",
+          "révoque le jeton d'import erp",
+          "bloque la clé d'accès du système externe",
+          "invalide la clé d'import qui a fuité",
+          "je veux annuler la clé utilisée pour les livraisons de fichiers"
         ],
         "it": [
           "ritirare una chiave di consegna",
-          "invalidare la chiave del sistema esterno"
+          "invalidare la chiave del sistema esterno",
+          "revoca il token di importazione erp",
+          "blocca la chiave di accesso del sistema esterno",
+          "invalida la chiave di importazione trapelata",
+          "voglio annullare la chiave usata per le consegne di file"
         ]
       },
       "labels": {
@@ -39599,7 +40237,7 @@
         "fr": "Révoquer un jeton d'import ERP",
         "it": "Revoca un token di importazione ERP"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "create_report_template",
@@ -39786,20 +40424,36 @@
         "de": [
           "druckvorlage ändern",
           "auswertungsvorlage umbenennen",
-          "berichtsvorlage bearbeiten"
+          "berichtsvorlage bearbeiten",
+          "layout für den ausdruck anpassen",
+          "name der druckvorlage ändern",
+          "beschreibung der berichtsvorlage überarbeiten",
+          "einstellung für leere tage in der vorlage umstellen"
         ],
         "en": [
           "change a print layout",
           "rename a report layout",
-          "edit a printable template"
+          "edit a printable template",
+          "update the print template name",
+          "change the description of a report layout",
+          "adjust how repeated rows are merged in the template",
+          "modify the setting for empty days in a report template"
         ],
         "fr": [
           "modifier une mise en page imprimable",
-          "renommer un modele de rapport"
+          "renommer un modele de rapport",
+          "changer le nom du modèle d'impression",
+          "modifier la description d'un modèle de rapport",
+          "ajuster la fusion des lignes répétées dans le modèle",
+          "mettre à jour le paramètre des jours vides du modèle"
         ],
         "it": [
           "modificare un layout di stampa",
-          "rinominare un modello di rapporto"
+          "rinominare un modello di rapporto",
+          "cambiare il nome del modello di stampa",
+          "modificare la descrizione di un layout di rapporto",
+          "regolare l'unione delle righe ripetute nel modello",
+          "aggiornare l'impostazione dei giorni vuoti nel modello"
         ]
       },
       "labels": {
@@ -39808,7 +40462,7 @@
         "fr": "Modifier un modèle de rapport",
         "it": "Modifica un modello di report"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "delete_report_template",
@@ -39849,20 +40503,36 @@
         "de": [
           "druckvorlage löschen",
           "auswertungsvorlage entfernen",
-          "berichtsvorlage wegwerfen"
+          "berichtsvorlage wegwerfen",
+          "layout für den ausdruck löschen",
+          "berichtslayout samt blöcken entfernen",
+          "veraltete druckvorlage löschen",
+          "ersetzte berichtsvorlage entfernen"
         ],
         "en": [
           "delete a print layout",
           "remove a report layout",
-          "throw away a printable template"
+          "throw away a printable template",
+          "delete an outdated report template",
+          "remove the print template with all its blocks",
+          "get rid of a report layout",
+          "erase a layout that was created by mistake"
         ],
         "fr": [
           "supprimer une mise en page imprimable",
-          "retirer un modele de rapport"
+          "retirer un modele de rapport",
+          "supprimer un modèle de rapport obsolète",
+          "effacer la mise en page avec ses blocs",
+          "enlever un modèle d'impression créé par erreur",
+          "se débarrasser d'un modèle de rapport"
         ],
         "it": [
           "eliminare un layout di stampa",
-          "rimuovere un modello di rapporto"
+          "rimuovere un modello di rapporto",
+          "eliminare un modello di rapporto obsoleto",
+          "cancellare il layout di stampa con tutti i suoi blocchi",
+          "togliere un modello di stampa creato per errore",
+          "buttare via un layout di rapporto"
         ]
       },
       "labels": {
@@ -39871,7 +40541,7 @@
         "fr": "Supprimer un modèle de rapport",
         "it": "Elimina un modello di report"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_user",
@@ -40083,20 +40753,36 @@
         "de": [
           "funktionserweiterung installieren",
           "zusatzmodul einspielen",
-          "erweiterung hinzufügen"
+          "erweiterung hinzufügen",
+          "spiele das zusatzmodul ein",
+          "ich möchte ein optionales feature plugin installieren",
+          "modul nachinstallieren damit die funktion verfügbar wird",
+          "aktiviere die erweiterung durch installation"
         ],
         "en": [
           "install an optional module",
           "add an extension",
-          "bring in an add-on module"
+          "bring in an add-on module",
+          "install the add-on module",
+          "i want to install an optional feature plugin",
+          "set up the module so the function becomes available",
+          "enable the extension by installing it"
         ],
         "fr": [
           "installer un module optionnel",
-          "ajouter une extension"
+          "ajouter une extension",
+          "installe le module complémentaire",
+          "je voudrais installer un plugin de fonctionnalité optionnel",
+          "mets en place le module pour rendre la fonction disponible",
+          "active l'extension en l'installant"
         ],
         "it": [
           "installare un modulo opzionale",
-          "aggiungere un estensione"
+          "aggiungere un estensione",
+          "installa il modulo aggiuntivo",
+          "vorrei installare un plugin opzionale",
+          "configura il modulo così la funzione diventa disponibile",
+          "attiva l'estensione installandola"
         ]
       },
       "labels": {
@@ -40105,7 +40791,7 @@
         "fr": "Installer un module de fonctionnalité",
         "it": "Installa un modulo funzionalità"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "uninstall_feature_plugin",
@@ -40146,20 +40832,36 @@
         "de": [
           "funktionserweiterung entfernen",
           "zusatzmodul deinstallieren",
-          "erweiterung wieder loswerden"
+          "erweiterung wieder loswerden",
+          "entferne das zusatzmodul wieder",
+          "plugin deinstallieren",
+          "ich möchte die installierte erweiterung löschen",
+          "modul wieder aus dem system nehmen"
         ],
         "en": [
           "uninstall an optional module",
           "remove an extension",
-          "get rid of an add-on module"
+          "get rid of an add-on module",
+          "uninstall the plugin",
+          "i want to remove the installed feature module",
+          "take the add-on out of the system",
+          "delete an optional extension again"
         ],
         "fr": [
           "desinstaller un module optionnel",
-          "retirer une extension"
+          "retirer une extension",
+          "désinstalle le plugin",
+          "je veux supprimer le module installé",
+          "retire l'add-on du système",
+          "enlève l'extension optionnelle"
         ],
         "it": [
           "disinstallare un modulo opzionale",
-          "rimuovere un estensione"
+          "rimuovere un estensione",
+          "disinstalla il plugin",
+          "voglio rimuovere il modulo installato",
+          "togli il componente aggiuntivo dal sistema",
+          "elimina l'estensione opzionale"
         ]
       },
       "labels": {
@@ -40168,7 +40870,7 @@
         "fr": "Désinstaller un module de fonctionnalité",
         "it": "Disinstalla un modulo funzionale"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "enable_feature_plugin",
@@ -40209,20 +40911,36 @@
         "de": [
           "funktionserweiterung einschalten",
           "zusatzmodul aktivieren",
-          "erweiterung scharf schalten"
+          "erweiterung scharf schalten",
+          "installiertes modul einschalten",
+          "plugin aktivieren",
+          "ich möchte ein zusatzmodul anschalten",
+          "erweiterung in betrieb nehmen"
         ],
         "en": [
           "switch an optional module on",
           "activate an extension",
-          "turn an add-on module on"
+          "turn an add-on module on",
+          "enable an installed plugin",
+          "turn on the feature module",
+          "i want to activate an add-on",
+          "switch the extension on"
         ],
         "fr": [
           "activer un module optionnel",
-          "mettre en marche une extension"
+          "mettre en marche une extension",
+          "activer un plugin installé",
+          "allumer le module fonctionnel",
+          "je veux mettre en service une extension",
+          "activer le module complémentaire"
         ],
         "it": [
           "attivare un modulo opzionale",
-          "accendere un estensione"
+          "accendere un estensione",
+          "attivare un plugin installato",
+          "accendi il modulo funzionale",
+          "voglio abilitare un componente aggiuntivo",
+          "metti in funzione l'estensione"
         ]
       },
       "labels": {
@@ -40231,7 +40949,7 @@
         "fr": "Activer un module de fonctionnalité",
         "it": "Attiva un modulo funzionalità"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "disable_feature_plugin",
@@ -40272,20 +40990,36 @@
         "de": [
           "funktionserweiterung ausschalten",
           "zusatzmodul deaktivieren",
-          "erweiterung vorübergehend stilllegen"
+          "erweiterung vorübergehend stilllegen",
+          "modul vorübergehend abschalten",
+          "erweiterung deaktivieren und einstellungen behalten",
+          "funktionsmodul ausschalten",
+          "plugin pausieren"
         ],
         "en": [
           "switch an optional module off",
           "deactivate an extension",
-          "park an add-on module for now"
+          "park an add-on module for now",
+          "turn off a feature plugin",
+          "disable the module and keep its settings",
+          "temporarily disable a plugin",
+          "switch a feature module off"
         ],
         "fr": [
           "desactiver un module optionnel",
-          "mettre en pause une extension"
+          "mettre en pause une extension",
+          "désactiver un plugin de fonctionnalité",
+          "éteindre un module en gardant ses réglages",
+          "suspendre temporairement une extension",
+          "mettre un module hors service"
         ],
         "it": [
           "disattivare un modulo opzionale",
-          "mettere in pausa un estensione"
+          "mettere in pausa un estensione",
+          "disattivare un plugin funzionale",
+          "spegnere un modulo mantenendo le impostazioni",
+          "sospendere temporaneamente un'estensione",
+          "mettere un modulo fuori servizio"
         ]
       },
       "labels": {
@@ -40294,7 +41028,7 @@
         "fr": "Désactiver un module de fonctionnalité",
         "it": "Disattiva un modulo funzionalità"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_active_industries_settings",
@@ -40797,19 +41531,35 @@
       "synonyms": {
         "de": [
           "ersatzruhe einschalten",
-          "frist für den ausgleich ändern"
+          "frist für den ausgleich ändern",
+          "ausgleichsanspruch für feiertagsarbeit aktivieren",
+          "ich möchte die tage zum gewähren der ersatzruhe ändern",
+          "stelle die verfolgung des freizeitausgleichs ab",
+          "ersatzruhe frist auf 14 tage setzen"
         ],
         "en": [
           "switch tracking of owed time off on",
-          "change the deadline for the compensation"
+          "change the deadline for the compensation",
+          "activate the time off claim for working on holidays",
+          "i want to change the number of days to grant compensatory rest",
+          "turn off the tracking of time off in lieu",
+          "set the compensatory rest deadline to 14 days"
         ],
         "fr": [
           "activer le repos compensateur",
-          "modifier le delai de compensation"
+          "modifier le delai de compensation",
+          "active le droit à récupération pour le travail un jour férié",
+          "je voudrais modifier le nombre de jours pour accorder le repos compensateur",
+          "désactive le suivi du repos de compensation",
+          "fixe le délai du repos compensateur à 14 jours"
         ],
         "it": [
           "attivare il riposo compensativo",
-          "modificare il termine di compensazione"
+          "modificare il termine di compensazione",
+          "attiva il diritto al recupero per il lavoro nei giorni festivi",
+          "vorrei modificare i giorni entro cui concedere il riposo compensativo",
+          "disattiva il monitoraggio del riposo di compensazione",
+          "imposta il termine del riposo compensativo a 14 giorni"
         ]
       },
       "labels": {
@@ -40818,7 +41568,7 @@
         "fr": "Modifier les paramètres de repos compensatoire",
         "it": "Modifica le impostazioni di riposo compensativo"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_surcharge_mode_settings",
@@ -41222,20 +41972,36 @@
         "de": [
           "vergütung für mehrarbeit ändern",
           "stufe der mehrarbeit verschieben",
-          "satz für zusätzliche stunden anheben"
+          "satz für zusätzliche stunden anheben",
+          "stelle die überstundenregel anders ein",
+          "ändere ab welcher stunde mehrarbeit gutgeschrieben wird",
+          "erhöhe den faktor für überstunden",
+          "mehrarbeit statt faktor als feste zeitgutschrift einstellen"
         ],
         "en": [
           "change how extra hours are paid",
           "move a step for hours beyond the workload",
-          "raise the rate for additional hours"
+          "raise the rate for additional hours",
+          "change the overtime settings",
+          "adjust from which hour overtime is credited",
+          "raise the overtime multiplier",
+          "switch overtime to a fixed time credit"
         ],
         "fr": [
           "modifier la remuneration des heures supplementaires",
-          "deplacer un palier"
+          "deplacer un palier",
+          "modifie les réglages des heures supplémentaires",
+          "ajuste à partir de quelle heure les heures sup sont créditées",
+          "augmente le coefficient des heures supplémentaires",
+          "passe les heures sup en crédit de temps fixe"
         ],
         "it": [
           "modificare la retribuzione delle ore in piu",
-          "spostare uno scaglione"
+          "spostare uno scaglione",
+          "modifica le impostazioni dello straordinario",
+          "cambia da quale ora lo straordinario viene accreditato",
+          "aumenta il moltiplicatore degli straordinari",
+          "passa lo straordinario a un accredito di tempo fisso"
         ]
       },
       "labels": {
@@ -41244,7 +42010,7 @@
         "fr": "Modifier les paramètres des heures supplémentaires",
         "it": "Modifica le impostazioni degli straordinari"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "get_wizard_settings",
@@ -41349,17 +42115,33 @@
         "de": [
           "modell des harmonisierers wechseln",
           "anderes modell für die gesamtüberarbeitung",
-          "harmonisierer auf ein anderes modell stellen"
+          "harmonisierer auf ein anderes modell stellen",
+          "harmonisierer auf lokale suche umstellen",
+          "sprachmodell für den harmonisierer festlegen",
+          "einstellung des dienstplan-harmonisierers ändern",
+          "für die gesamtplanung ein ki-modell wählen"
         ],
         "en": [
           "switch the harmonizer to another model",
-          "set the model for reworking the whole roster"
+          "set the model for reworking the whole roster",
+          "set the harmonizer to local search",
+          "choose a language model for the schedule harmonizer",
+          "change the harmonizer settings",
+          "pick which model reworks the roster"
         ],
         "fr": [
-          "changer le modele de l harmonisateur"
+          "changer le modele de l harmonisateur",
+          "régler l'harmonisateur sur la recherche locale",
+          "choisir un modèle de langage pour l'harmonisateur",
+          "modifier les paramètres de l'harmonisateur",
+          "définir le modèle qui retravaille le planning"
         ],
         "it": [
-          "cambiare il modello dell armonizzatore"
+          "cambiare il modello dell armonizzatore",
+          "imposta l'armonizzatore sulla ricerca locale",
+          "scegli un modello linguistico per l'armonizzatore",
+          "modifica le impostazioni dell'armonizzatore",
+          "definisci il modello che rielabora il piano"
         ]
       },
       "labels": {
@@ -41368,7 +42150,7 @@
         "fr": "Modifier le modèle IA de l'assistant de planification",
         "it": "Modifica il modello IA dell'assistente di pianificazione"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "get_export_formats_settings",
@@ -41471,20 +42253,36 @@
         "de": [
           "dateiformat freigeben",
           "ausgabeformat abschalten",
-          "standard lohnsystem festlegen"
+          "standard lohnsystem festlegen",
+          "welche exportformate erlaubt sind festlegen",
+          "csv-ausgabe für lohndaten freischalten",
+          "standard-empfänger lohnsystem ändern",
+          "zusätzliche dateiformate für den export aktivieren"
         ],
         "en": [
           "allow a file format",
           "switch an output format off",
-          "set the default payroll system"
+          "set the default payroll system",
+          "enable another export file format",
+          "choose which export formats are permitted",
+          "change the default payroll receiver",
+          "turn on an optional output format"
         ],
         "fr": [
           "autoriser un format de fichier",
-          "definir le systeme de paie par defaut"
+          "definir le systeme de paie par defaut",
+          "choisir les formats d'export autorisés",
+          "activer un format de fichier supplémentaire",
+          "changer le système de paie par défaut",
+          "désactiver un format de sortie optionnel"
         ],
         "it": [
           "consentire un formato di file",
-          "impostare il sistema paghe predefinito"
+          "impostare il sistema paghe predefinito",
+          "scegliere i formati di esportazione consentiti",
+          "attivare un formato di file aggiuntivo",
+          "cambiare il sistema paghe predefinito",
+          "disattivare un formato di output opzionale"
         ]
       },
       "labels": {
@@ -41493,7 +42291,7 @@
         "fr": "Modifier les paramètres des formats d'export",
         "it": "Modifica le impostazioni dei formati di esportazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_grid_color_settings",
@@ -41871,20 +42669,36 @@
         "de": [
           "wegzeit schwelle ändern",
           "schlüssel für den routendienst hinterlegen",
-          "ab wann eine fahrt zählt festlegen"
+          "ab wann eine fahrt zählt festlegen",
+          "trage den api key für openroute ein",
+          "ich möchte die mindestfahrzeit für auto velo und fussweg ändern",
+          "minimale wegzeit zu fuss anpassen",
+          "routing schlüssel in den einstellungen aktualisieren"
         ],
         "en": [
           "change the journey time threshold",
           "store the routing service key",
-          "set from which trip length it counts"
+          "set from which trip length it counts",
+          "enter the api key for openroute",
+          "i want to change the minimum travel time for car bike and walking",
+          "adjust the minimum walking time",
+          "update the routing key in the settings"
         ],
         "fr": [
           "modifier le seuil de temps de trajet",
-          "enregistrer la cle du service d itineraire"
+          "enregistrer la cle du service d itineraire",
+          "saisis la clé api pour openroute",
+          "je voudrais changer le temps de trajet minimal en voiture, vélo et à pied",
+          "ajuste le temps de marche minimal",
+          "mets à jour la clé d'itinéraire dans les paramètres"
         ],
         "it": [
           "modificare la soglia del tempo di viaggio",
-          "salvare la chiave del servizio di percorso"
+          "salvare la chiave del servizio di percorso",
+          "inserisci la chiave api per openroute",
+          "vorrei cambiare il tempo di viaggio minimo in auto, bici e a piedi",
+          "regola il tempo minimo di camminata",
+          "aggiorna la chiave del percorso nelle impostazioni"
         ]
       },
       "labels": {
@@ -41893,7 +42707,7 @@
         "fr": "Modifier les paramètres de temps de trajet",
         "it": "Modifica le impostazioni dei tempi di percorrenza"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_speech_settings",
@@ -42186,20 +43000,36 @@
         "de": [
           "gelernten zusammenhang bestätigen",
           "verknüpfung freigeben",
-          "die erlernte abhängigkeit gilt"
+          "die erlernte abhängigkeit gilt",
+          "bestätige den vorschlag zur verknüpfung",
+          "übernimm die erkannte beziehung zwischen den fähigkeiten",
+          "diese vorgeschlagene abhängigkeit akzeptieren",
+          "ich möchte die gelernte verbindung gelten lassen"
         ],
         "en": [
           "confirm a worked-out connection",
           "approve the learned link",
-          "let that connection count"
+          "let that connection count",
+          "accept the proposed skill relation",
+          "confirm the suggested link between the two abilities",
+          "approve this pending connection",
+          "i want the learned relation to take effect"
         ],
         "fr": [
           "confirmer un lien appris",
-          "approuver le lien"
+          "approuver le lien",
+          "accepte la relation proposée entre les compétences",
+          "confirme le lien suggéré entre les deux capacités",
+          "valide cette liaison en attente",
+          "je veux que la relation apprise soit prise en compte"
         ],
         "it": [
           "confermare un collegamento appreso",
-          "approvare il collegamento"
+          "approvare il collegamento",
+          "accetta la relazione proposta tra le abilità",
+          "conferma il collegamento suggerito fra le due capacità",
+          "approva questa connessione in sospeso",
+          "voglio che la relazione appresa abbia effetto"
         ]
       },
       "labels": {
@@ -42208,7 +43038,7 @@
         "fr": "Confirmer une relation de compétences proposée",
         "it": "Conferma una relazione tra abilità proposta"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "dismiss_skill_relation",
@@ -42249,20 +43079,36 @@
         "de": [
           "gelernten zusammenhang verwerfen",
           "verknüpfung ablehnen",
-          "die erlernte abhängigkeit stimmt nicht"
+          "die erlernte abhängigkeit stimmt nicht",
+          "vorgeschlagene verknüpfung zwischen fähigkeiten ablehnen",
+          "diesen zusammenhang aussortieren",
+          "vorschlag für fähigkeitsverbindung verwerfen",
+          "die erkannte beziehung zwischen zwei skills abweisen"
         ],
         "en": [
           "turn down a worked-out connection",
           "reject the learned link",
-          "that connection is wrong"
+          "that connection is wrong",
+          "dismiss the proposed skill relation",
+          "discard that suggested connection between abilities",
+          "reject the pending link proposal",
+          "drop the learned relation between two skills"
         ],
         "fr": [
           "rejeter un lien appris",
-          "ce lien est faux"
+          "ce lien est faux",
+          "rejeter la relation proposée entre deux compétences",
+          "écarter ce lien suggéré",
+          "refuser la proposition de liaison en attente",
+          "abandonner la relation apprise entre deux skills"
         ],
         "it": [
           "rifiutare un collegamento appreso",
-          "quel collegamento e sbagliato"
+          "quel collegamento e sbagliato",
+          "scarta la relazione proposta tra due abilità",
+          "rifiuta il collegamento suggerito",
+          "respingi la proposta di legame in sospeso",
+          "elimina la relazione appresa tra due skill"
         ]
       },
       "labels": {
@@ -42271,7 +43117,7 @@
         "fr": "Rejeter une relation de compétences proposée",
         "it": "Rifiuta una relazione tra abilità proposta"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_whisper_plugin_status",
@@ -42370,20 +43216,36 @@
         "de": [
           "transkription auf eigenem server einrichten",
           "lokales spracherkennungsmodell installieren",
-          "sprache nicht mehr nach aussen schicken"
+          "sprache nicht mehr nach aussen schicken",
+          "whisper lokal installieren",
+          "diktat auf eigener hardware transkribieren lassen",
+          "spracherkennung lokal einrichten",
+          "offline-transkription installieren"
         ],
         "en": [
           "set up transcription on our own machine",
           "install the local speech model",
-          "stop sending speech to an outside service"
+          "stop sending speech to an outside service",
+          "install whisper locally",
+          "set up on-premise speech to text",
+          "get local dictation transcription running",
+          "install the offline transcription engine"
         ],
         "fr": [
           "installer la transcription sur notre serveur",
-          "installer le modele vocal local"
+          "installer le modele vocal local",
+          "installer whisper en local",
+          "mettre en place la reconnaissance vocale sur site",
+          "configurer la dictée avec transcription locale",
+          "installer le moteur de transcription hors ligne"
         ],
         "it": [
           "installare la trascrizione sul nostro server",
-          "installare il modello vocale locale"
+          "installare il modello vocale locale",
+          "installare whisper in locale",
+          "configurare il riconoscimento vocale on-premise",
+          "attivare la trascrizione locale della dettatura",
+          "installare il motore di trascrizione offline"
         ]
       },
       "labels": {
@@ -42392,7 +43254,7 @@
         "fr": "Installer la reconnaissance vocale locale",
         "it": "Installa il riconoscimento vocale locale"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "uninstall_whisper_plugin",
@@ -42424,20 +43286,36 @@
         "de": [
           "transkription vom eigenen server entfernen",
           "lokales spracherkennungsmodell deinstallieren",
-          "wieder externen dienst nutzen"
+          "wieder externen dienst nutzen",
+          "whisper plugin entfernen",
+          "ich möchte das lokale sprachmodell wieder loswerden",
+          "spracheingabe soll wieder über den externen dienst laufen",
+          "deinstalliere das whisper modell vom server"
         ],
         "en": [
           "remove transcription from our own machine",
           "uninstall the local speech model",
-          "go back to the outside service"
+          "go back to the outside service",
+          "remove the whisper plugin",
+          "i want to get rid of the local speech model",
+          "voice input should go back to the external service",
+          "uninstall the whisper model from the server"
         ],
         "fr": [
           "retirer la transcription de notre serveur",
-          "desinstaller le modele vocal local"
+          "desinstaller le modele vocal local",
+          "supprime le plugin whisper",
+          "je voudrais me débarrasser du modèle vocal local",
+          "la saisie vocale doit repasser par le service externe",
+          "désinstalle le modèle whisper du serveur"
         ],
         "it": [
           "rimuovere la trascrizione dal nostro server",
-          "disinstallare il modello vocale locale"
+          "disinstallare il modello vocale locale",
+          "rimuovi il plugin whisper",
+          "vorrei sbarazzarmi del modello vocale locale",
+          "l'input vocale deve tornare al servizio esterno",
+          "disinstalla il modello whisper dal server"
         ]
       },
       "labels": {
@@ -42446,7 +43324,7 @@
         "fr": "Désinstaller le modèle de reconnaissance vocale local",
         "it": "Disinstalla il modello di riconoscimento vocale locale"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "optimize_llm_models_for_klacksy",
@@ -47728,19 +48606,33 @@
         "de": [
           "gruppenplan anwenden",
           "vorgeschlagene gruppenänderungen übernehmen",
-          "gruppenplan übernehmen"
+          "gruppenplan übernehmen",
+          "führe den gruppenplan mit dem code aus",
+          "setze die vorgeschlagenen gruppenzuordnungen um",
+          "den genehmigten gruppenplan durchführen"
         ],
         "en": [
           "apply the group plan",
-          "carry out the proposed group changes"
+          "carry out the proposed group changes",
+          "execute the approved group plan",
+          "put the proposed membership changes into effect",
+          "run the grouping plan by its code",
+          "i want the planned group assignments carried out"
         ],
         "fr": [
           "appliquer le plan de groupes",
-          "effectuer les changements de groupes proposés"
+          "effectuer les changements de groupes proposés",
+          "exécute le plan de groupes approuvé",
+          "mets en œuvre les changements d'appartenance proposés",
+          "lance le plan de regroupement avec son code"
         ],
         "it": [
           "applicare il piano dei gruppi",
-          "eseguire le modifiche ai gruppi proposte"
+          "eseguire le modifiche ai gruppi proposte",
+          "esegui il piano dei gruppi approvato",
+          "attua le modifiche di appartenenza proposte",
+          "avvia il piano di raggruppamento con il suo codice",
+          "voglio che le assegnazioni ai gruppi previste vengano eseguite"
         ]
       },
       "labels": {
@@ -47749,7 +48641,7 @@
         "fr": "Appliquer le plan de groupes",
         "it": "Applicare il piano dei gruppi"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_contract_setup",
@@ -48995,20 +49887,36 @@
         "de": [
           "offene bestellungen durchgehen",
           "bestellungen gemeinsam prüfen",
-          "bestellungen vor dem versiegeln besprechen"
+          "bestellungen vor dem versiegeln besprechen",
+          "bestellungen vor dem versiegeln durchsprechen",
+          "starte die bestellungsprüfung",
+          "gehen wir die offenen aufträge zusammen durch",
+          "bestellungen bündeln und einzeln besprechen"
         ],
         "en": [
           "go through the open orders",
           "walk through the open orders together",
-          "discuss the orders before sealing"
+          "discuss the orders before sealing",
+          "start the order review",
+          "let's review the open orders together",
+          "bundle similar orders and go through the outliers",
+          "review orders before they get sealed"
         ],
         "fr": [
           "passer en revue les commandes ouvertes",
-          "examiner les commandes ensemble"
+          "examiner les commandes ensemble",
+          "démarre la revue des commandes",
+          "examinons ensemble les commandes ouvertes",
+          "regroupe les commandes similaires et passe en revue les cas isolés",
+          "revoir les commandes avant le scellement"
         ],
         "it": [
           "esaminare gli ordini aperti",
-          "rivedere gli ordini insieme"
+          "rivedere gli ordini insieme",
+          "avvia la revisione degli ordini",
+          "esaminiamo insieme gli ordini aperti",
+          "raggruppa gli ordini simili e rivedi quelli anomali",
+          "rivedere gli ordini prima di sigillarli"
         ]
       },
       "labels": {
@@ -49017,7 +49925,7 @@
         "fr": "Passer en revue les commandes ouvertes ensemble",
         "it": "Esaminare insieme gli ordini aperti"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "set_order_review_decision",
@@ -49131,16 +50039,31 @@
       },
       "synonyms": {
         "de": [
-          "antwort im bestellungsdurchgang festhalten"
+          "antwort im bestellungsdurchgang festhalten",
+          "bestellung in drei mal acht stunden aufteilen",
+          "reisekosten für diese bestellung eintragen",
+          "besetzungsgruppe für die bestellung festlegen"
         ],
         "en": [
-          "record the order walk-through answer"
+          "record the order walk-through answer",
+          "split the order into 3x8 services",
+          "set the start time of the 24-hour order",
+          "enter the travel costs for this bundle",
+          "choose the staffing group for the order"
         ],
         "fr": [
-          "enregistrer la réponse de la revue des commandes"
+          "enregistrer la réponse de la revue des commandes",
+          "diviser la commande en services de 3x8",
+          "fixer l'heure de début de la commande de 24 heures",
+          "saisir les frais de déplacement pour ce lot",
+          "choisir le groupe de dotation de la commande"
         ],
         "it": [
-          "registrare la risposta della revisione ordini"
+          "registrare la risposta della revisione ordini",
+          "dividere l'ordine in turni da 3x8",
+          "impostare l'orario di inizio dell'ordine da 24 ore",
+          "inserire le spese di viaggio per questo gruppo di ordini",
+          "scegliere il gruppo di personale per l'ordine"
         ]
       },
       "labels": {
@@ -49149,7 +50072,7 @@
         "fr": "Enregistrer une réponse dans la revue des commandes",
         "it": "Registrare una risposta nella revisione degli ordini"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "preview_order_review",
@@ -49242,16 +50165,32 @@
       },
       "synonyms": {
         "de": [
-          "bestellungsdurchgang beenden"
+          "bestellungsdurchgang beenden",
+          "brich den bestellungsrundgang ab",
+          "ich möchte die durchsicht der offenen bestellungen schliessen",
+          "durchgang verwerfen und aufhören",
+          "bestellungsdurchsicht jetzt stoppen"
         ],
         "en": [
-          "stop the order walk-through"
+          "stop the order walk-through",
+          "abort the order review",
+          "i want to close the walk-through of the open orders",
+          "discard the walk-through and quit",
+          "end going through the orders"
         ],
         "fr": [
-          "arrêter la revue des commandes"
+          "arrêter la revue des commandes",
+          "abandonne la revue des commandes",
+          "je voudrais clore le passage en revue des commandes ouvertes",
+          "annule le parcours et arrête",
+          "termine l'examen des commandes"
         ],
         "it": [
-          "interrompere la revisione degli ordini"
+          "interrompere la revisione degli ordini",
+          "annulla la revisione degli ordini",
+          "vorrei chiudere il giro degli ordini aperti",
+          "scarta il percorso e termina",
+          "concludi l'esame degli ordini"
         ]
       },
       "labels": {
@@ -49260,7 +50199,7 @@
         "fr": "Annuler la revue des commandes",
         "it": "Annullare la revisione degli ordini"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "execute_order_review",
@@ -49310,16 +50249,32 @@
       },
       "synonyms": {
         "de": [
-          "bestellungsdurchgang umsetzen"
+          "bestellungsdurchgang umsetzen",
+          "führe die bestätigte bestellungsprüfung aus",
+          "schreibe die entschiedenen werte in die offenen bestellungen",
+          "die bestätigte vorschau der bestellungen umsetzen",
+          "ich möchte die bestellungen jetzt in dienste schneiden lassen"
         ],
         "en": [
-          "apply the order walk-through"
+          "apply the order walk-through",
+          "execute the confirmed order review",
+          "write the decided values to the open orders",
+          "carry out the confirmed order preview",
+          "i want the orders cut into services now"
         ],
         "fr": [
-          "appliquer la revue des commandes"
+          "appliquer la revue des commandes",
+          "exécute la revue des commandes confirmée",
+          "écris les valeurs décidées dans les commandes ouvertes",
+          "réalise l'aperçu confirmé des commandes",
+          "je veux découper les commandes en services maintenant"
         ],
         "it": [
-          "applicare la revisione degli ordini"
+          "applicare la revisione degli ordini",
+          "esegui la revisione degli ordini confermata",
+          "scrivi i valori decisi negli ordini aperti",
+          "attua l'anteprima confermata degli ordini",
+          "voglio che gli ordini vengano suddivisi in servizi ora"
         ]
       },
       "labels": {
@@ -49328,7 +50283,7 @@
         "fr": "Exécuter la revue des commandes",
         "it": "Eseguire la revisione degli ordini"
       },
-      "version": 1
+      "version": 2
     }
   ]
 }
