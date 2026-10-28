@@ -38,7 +38,8 @@ kann per Copy-Paste oder Skript in die Definitions-Datei eingespielt werden.
 - **Variante A (DevKnowledge-Reingest)**:
   Die Dateien können über den DevKnowledge-Server eingespielt werden:
   `POST https://157.180.42.127:8443/api/knowledge/reingest` mit dem Inhalt
-  einer Datei als Body. Die DevKnowledge-Skill `devknowledge-upload` liest aus
+  einer Datei als Body (seit 2026-10-28 mit Header `X-Api-Key` und `space=dev`;
+  Key aus Env `DEVKNOWLEDGE_API_KEY` oder `~/.klacks/devknowledge-api-key-claude.txt`). Die DevKnowledge-Skill `devknowledge-upload` liest aus
   diesem Ordner standardmäßig.
 
 - **Variante B (Skill-Seed)**:
