@@ -4,14 +4,20 @@
     "neem het scenario over",
     "keur de planning goed",
     "bevestig de wizarduitvoer",
-    "aanvaard de analyse"
+    "aanvaard de analyse",
+    "neem het wizardvoorstel over in het echte rooster",
+    "zet het scenario in de hoofdplanning",
+    "ik wil het resultaat van de autowizard vastleggen"
   ],
   "accept_skill_relation": [
     "bevestig de relatie tussen deze vaardigheden",
     "keur het verband goed dat je hebt geleerd",
     "laat die koppeling meetellen",
     "accepteer de afhankelijkheid tussen je functies",
-    "geef het groen licht voor deze relatie"
+    "geef het groen licht voor deze relatie",
+    "accepteer de voorgestelde relatie tussen vaardigheden",
+    "bevestig de voorgestelde koppeling tussen de twee functies",
+    "ik wil dat het geleerde verband van kracht wordt"
   ],
   "add_ai_memory": [
     "geheugen",
@@ -32,28 +38,40 @@
   "add_break_placeholder": [
     "vakantiewens",
     "voorreservering afwezigheid",
-    "verlofaanvraag"
+    "verlofaanvraag",
+    "voer een vakantiewens in van 3 tot 14 augustus",
+    "boek de zomervakantiewensen van anna alvast voor",
+    "leg de verlofaanvraag van de medewerker vast als voorlopige boeking"
   ],
   "add_client_email": [
     "voeg e-mailadres toe",
     "mailadres toevoegen aan persoon",
     "e-mail toevoegen",
     "emailadres wijzigen",
-    "nieuw mailadres voor medewerker"
+    "nieuw mailadres voor medewerker",
+    "zet het e-mailadres van een klant erbij",
+    "wijzig het mailadres van deze medewerker",
+    "voer een nieuw mailadres in voor de cliënt"
   ],
   "add_client_note": [
     "voeg notitie toe",
     "noot toevoegen aan medewerker",
     "opmerking plaatsen",
     "notitie toevoegen",
-    "aantekening maken"
+    "aantekening maken",
+    "hang een notitie aan deze medewerker",
+    "ik wil een opmerking bij de klant schrijven",
+    "bewaar een kort memo bij de medewerker"
   ],
   "add_client_phone": [
     "voeg telefoonnummer toe aan medewerker",
     "telefoonnummer van persoon wijzigen",
     "nieuw telefoonnummer voor medewerker",
     "telefoon toevoegen",
-    "mobiel nummer toevoegen"
+    "mobiel nummer toevoegen",
+    "sla een nieuw mobiel nummer op voor een medewerker",
+    "voeg een contactnummer toe aan deze persoon",
+    "zet een telefoonnummer bij een klant"
   ],
   "add_client_to_group": [
     "aan groep toevoegen",
@@ -66,7 +84,10 @@
     "plaats persoon in groep",
     "wijs medewerker aan groep toe",
     "medewerker toevoegen aan team",
-    "persoon in groep stoppen"
+    "persoon in groep stoppen",
+    "zet de medewerker in het team",
+    "neem deze persoon op in de groep",
+    "ik wil een klant aan een groep toevoegen"
   ],
   "add_client_to_nearest_group": [
     "voeg klant toe aan dichtstbijzijnde groep",
@@ -79,21 +100,30 @@
     "voeg een taak toe aan de containertemplate",
     "zet een taakdienst in het containersjabloon",
     "neem een taak op in de template van de container",
-    "voeg een task toe aan een weekdag van het containersjabloon"
+    "voeg een task toe aan een weekdag van het containersjabloon",
+    "voeg nog een deeldienst toe aan het maandagsjabloon van de container",
+    "zet een taak op positie 2 in het containerplan",
+    "breid het dinsdagsjabloon uit met een extra taak"
   ],
   "add_expense": [
     "voeg een onkostenpost toe",
     "boek een uitgave in mijn shift",
     "registreer een onkostenbedrag",
     "log een expense voor deze dienst",
-    "verwerk een kost met beschrijving"
+    "verwerk een kost met beschrijving",
+    "voeg 25 euro treinkaartje als onkosten toe aan de inzet van gisteren",
+    "boek parkeerkosten bij de dienst",
+    "registreer een belastbare vergoeding van 30 euro op de inzet"
   ],
   "add_personal_memory": [
     "onthoud dat ik van... hou",
     "noteer voor me dat...",
     "mijn voorkeur is...",
     "bewaar voor mij dat...",
-    "persoonlijke notitie: ..."
+    "persoonlijke notitie: ...",
+    "onthoud dat ik liever vroege diensten draai",
+    "sla privé op dat ik korte antwoorden prettig vind",
+    "houd er rekening mee dat ik niet graag in het weekend plan"
   ],
   "add_schedule_command": [
     "zet yasmine vrij op 15 mei",
@@ -105,7 +135,10 @@
   "add_schedule_commands_range": [
     "vrije periode",
     "commando's voor periode",
-    "meerdere vrije dagen"
+    "meerdere vrije dagen",
+    "zij wil van 10 tot 20 mei elke dag vrij",
+    "hij wil in juli alleen vroege diensten",
+    "houd de eerste week van juni vrij voor hem"
   ],
   "add_schedule_note": [
     "voeg een notitie toe aan het rooster",
@@ -113,14 +146,20 @@
     "noteer iets voor een bepaalde dag",
     "voeg een aantekening toe voor de klant",
     "zet een notitie in het plan",
-    "maak een roosternotitie aan"
+    "maak een roosternotitie aan",
+    "laat een overdrachtsnotitie achter voor een medewerker op dinsdag",
+    "schrijf een opmerking bij een bepaalde dag in het rooster",
+    "vrije tekst voor één medewerker op één dag"
   ],
   "add_selected_clients_to_group": [
     "voeg geselecteerde medewerkers toe aan groep",
     "gemarkeerde medewerkers in groep plaatsen",
     "geselecteerde personen aan groep toevoegen",
     "aangevinkte medewerkers naar groep",
-    "selectie toevoegen aan groep"
+    "selectie toevoegen aan groep",
+    "zet de aangevinkte medewerkers in een groep",
+    "wijs het geselecteerde personeel aan een groep toe",
+    "voeg iedereen die ik heb geselecteerd aan de groep toe"
   ],
   "add_shift_to_group": [
     "koppel dienst aan groep",
@@ -134,7 +173,10 @@
     "leer een nieuwe term voor spraakherkenning",
     "voeg fonetische variant toe voor correctie",
     "maak een transcriptie entry voor 'klacksy'",
-    "registreer een correctie voor stt"
+    "registreer een correctie voor stt",
+    "leer de spraakherkenning dat klaxi klacksy betekent",
+    "voeg een nieuwe verhoring toe aan het transcriptiewoordenboek",
+    "laat dictaat deze term voortaan goed schrijven"
   ],
   "add_workchange": [
     "pas de dienst aan met een correctie",
@@ -157,36 +199,54 @@
   "apply_company_rule": [
     "de bedrijfsregel toepassen",
     "de bedrijfsregel opslaan en bevestigen",
-    "de bedrijfsregel activeren"
+    "de bedrijfsregel activeren",
+    "zet de voorbereide toeslagregel in werking",
+    "pas het regelconcept toe en leg het vast in het register",
+    "voorbeeld bevestigd, dus bewaar de huisregel"
   ],
   "apply_grouping": [
     "pas de groepsindeling nu toe",
     "bevestig en voer de groepsindeling uit",
     "verplaats de klanten nu naar hun groepen",
     "voer de voorgestelde indeling definitief door",
-    "activeer de groepsindeling"
+    "activeer de groepsindeling",
+    "verplaats alle medewerkers naar hun locatiegroepen",
+    "voer de groepering op plaats nu uit",
+    "sla de voorgestelde locatie-indeling op"
   ],
   "apply_grouping_plan": [
     "het groepsplan toepassen",
-    "de voorgestelde groepswijzigingen doorvoeren"
+    "de voorgestelde groepswijzigingen doorvoeren",
+    "voer het groepsplan uit met de plancode",
+    "ik wil dat de geplande groepsindeling wordt uitgevoerd",
+    "zet de goedgekeurde groepsindeling om in de praktijk"
   ],
   "apply_planning_profile": [
     "pas het planningsprofiel toe",
-    "sla het planningsprofiel op"
+    "sla het planningsprofiel op",
+    "activeer mijn eigen planningsregels uit het concept",
+    "maak het planningsprofiel nu aan en activeer het",
+    "zet de nieuwe roosterregels in werking"
   ],
   "approve_day": [
     "keur maandag goed",
     "geef de dag vrij voor groep a",
     "approve 15 mei",
     "teken de planning af voor 12 juni",
-    "release dinsdag"
+    "release dinsdag",
+    "keur alle inzetten van maandag goed voor de groep",
+    "teken 15 mei af voor dit team",
+    "ik wil de dag goedkeuren voor de groep"
   ],
   "assign_contract_by_name": [
     "wijs een contract toe op basis van de naam",
     "geef een contract aan iemand van wie ik alleen de naam weet",
     "koppel een contract aan een medewerker op naam",
     "zoek de klant op naam en wijs een contract toe",
-    "ken een contract toe aan een persoon op basis van de naam"
+    "ken een contract toe aan een persoon op basis van de naam",
+    "koppel een medewerker en een contract met alleen hun namen",
+    "geef de medewerker met deze naam het deeltijdcontract",
+    "maak een nieuw contract actief voor een medewerker op naam"
   ],
   "assign_contract_to_client": [
     "contract toewijzen",
@@ -198,15 +258,24 @@
   ],
   "assign_macro_to_absence_type": [
     "macro aan afwezigheidstype toewijzen",
-    "berekeningsmacro van het afwezigheidstype wisselen"
+    "berekeningsmacro van het afwezigheidstype wisselen",
+    "zet vakantie op een andere rekenmacro",
+    "ik wil een nieuwe formule voor het bijschrijven van uren bij ziekte instellen",
+    "koppel het type ongeval aan een andere macro"
   ],
   "assign_macro_to_shift": [
     "macro aan dienst toewijzen",
-    "berekeningsmacro van de dienst wisselen"
+    "berekeningsmacro van de dienst wisselen",
+    "zet de uitgebreide toeslagformule op de nachtdienst",
+    "geef deze dienst een andere macro",
+    "ga terug naar de standaardformule voor de dienst"
   ],
   "assign_orders_to_groups": [
     "geïmporteerde orders groeperen",
-    "orders zonder groep"
+    "orders zonder groep",
+    "wijs alle open orders aan hun groepen toe",
+    "sorteer na de erp-import de bestellingen in de plaatsgroepen",
+    "plaats orders zonder groep automatisch in de passende locatiegroep"
   ],
   "assign_shifts_to_city_groups": [
     "diensten verdelen over stadsgroepen op basis van het klantadres",
@@ -225,48 +294,72 @@
     "plan een vrije dag voor iedereen in de groep",
     "geef de hele ploeg een schooldag",
     "boeken van een collectieve afwezigheid",
-    "meld alle teamleden af op dezelfde datum"
+    "meld alle teamleden af op dezelfde datum",
+    "boek voor iedereen in de groep een trainingsdag op vrijdag",
+    "geef de hele groep voor één dag dezelfde afwezigheid",
+    "zet een cursusafwezigheid bij alle medewerkers van dit team"
   ],
   "bulk_add_shifts_to_group": [
     "voeg alle diensten met... toe aan groep",
     "bulk koppel shiften aan team",
     "wijs alle orders van... toe aan groep",
     "voeg meerdere shiften tegelijk aan groep",
-    "alle shiften met naam... aan groep toevoegen"
+    "alle shiften met naam... aan groep toevoegen",
+    "koppel alle nachtdiensten in één keer aan de afdeling",
+    "zet alle diensten met deze afkorting in het team",
+    "ik wil meerdere diensten tegelijk onder één groep hangen"
   ],
   "bulk_delete_works": [
     "alle diensten van een medewerker in een periode verwijderen",
     "alle inzetten in een datumbereik verwijderen",
     "alle toewijzingen in een periode weghalen",
-    "meerdere inzetten in één keer verwijderen"
+    "meerdere inzetten in één keer verwijderen",
+    "wis alle inzetten van deze medewerker voor volgende week",
+    "haal alle diensten van iemand in deze maand uit het rooster",
+    "maak de hele maand van één medewerker leeg"
   ],
   "bundle_nearby_timerange_shifts_into_container": [
     "mobiele diensten rond een stad bundelen",
     "nabijgelegen timerange-diensten verzamelen",
-    "mobiele diensten in de buurt combineren"
+    "mobiele diensten in de buurt combineren",
+    "bundel alle mobiele klussen rond utrecht in een nieuwe container",
+    "bouw een donderdagcontainer uit nabije timerange-diensten",
+    "vul een container voor één weekdag met routegeoptimaliseerde taken"
   ],
   "cancel_company_rule": [
     "het concept van de bedrijfsregel annuleren",
     "de lopende bedrijfsregel verwerpen",
-    "de definitie van de bedrijfsregel afbreken"
+    "de definitie van de bedrijfsregel afbreken",
+    "gooi de bedrijfsregel die ik begon weg",
+    "breek het concept van de huisregel af",
+    "ga niet verder met het vastleggen van de regel"
   ],
   "cancel_planning_profile_setup": [
     "annuleer het instellen van het planningsprofiel",
-    "verwijder het concept-planningsprofiel"
+    "verwijder het concept-planningsprofiel",
+    "breek de inrichting van het planningsprofiel af",
+    "gooi het concept van het planningsprofiel weg",
+    "stop de profielassistent"
   ],
   "cancel_recurring_task": [
     "annuleer mijn herinnering",
     "stop de geplande taak",
     "verwijder de terugkerende taak",
     "zeg de herinnering af",
-    "wis de cron-taak"
+    "wis de cron-taak",
+    "beëindig de herhaalde taak",
+    "zet de maandagherinnering stop",
+    "gooi de geplande cron-job weg"
   ],
   "cancel_wizard_job": [
     "stop het planningsproces",
     "annuleer de draaiende wizard",
     "breek de planning af",
     "stoppen met de wizard",
-    "kill de job"
+    "kill de job",
+    "stop de lopende planningsjob",
+    "de automatische planning moet ophouden",
+    "autowizard nu afbreken"
   ],
   "check_absence_capacity_reserve": [
     "capaciteitsreserve voor verlof",
@@ -288,7 +381,10 @@
   "check_erp_drop_point_folder_health": [
     "check de status van de afleverpuntmap",
     "overleeft de map een herstart",
-    "maak processed en error mappen aan"
+    "maak processed en error mappen aan",
+    "is de erp-map beschrijfbaar",
+    "controleer of de erp-overdrachtsmap bestaat en maak hem aan als hij ontbreekt",
+    "waarom worden orderbestanden niet opgepikt, test de map"
   ],
   "check_group_geocoding_status": [
     "geocoderingsstatus"
@@ -296,18 +392,27 @@
   "clear_client_availability": [
     "beschikbaarheid van de medewerker resetten",
     "beschikbaarheidsitems verwijderen",
-    "beschikbaarheid wissen zodat de dag weer open is"
+    "beschikbaarheid wissen zodat de dag weer open is",
+    "wis alle beschikbaarheidsitems in augustus",
+    "geef de dag weer volledig vrij voor de planning",
+    "haal alleen de beschikbaarheid van de ochtend weg"
   ],
   "close_clarification": [
     "ik stem het zelf af met de medewerker",
-    "verduidelijkingsvraag sluiten"
+    "verduidelijkingsvraag sluiten",
+    "ik handel de afstemming zelf af",
+    "sluit de openstaande vraag aan de medewerker",
+    "wacht niet meer op het antwoord over de afwezigheid"
   ],
   "close_period": [
     "sluit de periode mei 2026 af",
     "vergrendel de maand",
     "sluit de payrollperiode",
     "finaliseer van 1 tot 30 juni",
-    "verzegel de periode"
+    "verzegel de periode",
+    "sluit alle uren van vorige maand definitief af",
+    "verzegel de betaalperiode en log het in de audit",
+    "ik wil de periode nu afsluiten voor payroll"
   ],
   "confirm_break": [
     "bevestig deze afwezigheid",
@@ -315,21 +420,30 @@
     "vergrendel deze ziektedag",
     "bevestig mijn verlof",
     "leg deze afwezigheid vast",
-    "bevestig de boeking van mijn vakantie"
+    "bevestig de boeking van mijn vakantie",
+    "maak de geboekte vakantie bindend",
+    "zet deze ziekmelding op bevestigd",
+    "bevestig de afwezigheid met het break-id"
   ],
   "confirm_pending_action": [
     "bevestig de geplande actie",
     "voer de actie uit, ik bevestig",
     "ja, doe het",
     "akkoord, voer uit",
-    "ik bevestig de uitvoering"
+    "ik bevestig de uitvoering",
+    "ja, voer de wachtende actie uit",
+    "oké, bevestigd, ga je gang",
+    "goedgekeurd, precies zo uitvoeren"
   ],
   "confirm_work": [
     "bevestig de shift van yasmine",
     "lock deze dienst vast",
     "fixeer de toewijzing",
     "zet de werkentry op bevestigd",
-    "beveilig de vroege shift"
+    "beveilig de vroege shift",
+    "maak deze toewijzing definitief",
+    "bescherm deze dienst tegen de wizards",
+    "ik wil de inzet van morgen vastzetten"
   ],
   "cover_absence": [
     "organiseer vervanging bij afwezigheid",
@@ -345,18 +459,27 @@
     "definieer een type zoals vakantie of ziekte",
     "creeër een absentiesoort",
     "stel een nieuw verzuimtype in",
-    "registreer een nieuwe afwezigheidscategorie"
+    "registreer een nieuwe afwezigheidscategorie",
+    "definieer een nieuw afwezigheidstype voor studieverlof",
+    "ik heb een nieuwe soort afwezigheid nodig voor militaire dienst",
+    "voeg een type voor onbetaald verlof toe aan de stamgegevens"
   ],
   "create_absence_type": [
     "een nieuw afwezigheidstype aanmaken",
-    "een nieuwe afwezigheidscategorie definiëren"
+    "een nieuwe afwezigheidscategorie definiëren",
+    "ik wil een andere verlofsoort aanmaken met afkorting en kleur",
+    "nieuwe ziektesoort registreren in de stamgegevens",
+    "nieuwe afwezigheid in de stamgegevens waarbij zaterdagen meetellen"
   ],
   "create_address": [
     "nieuw adres aanmaken",
     "adres registreren voor deze klant",
     "woonplaats toevoegen",
     "nieuw postadres invoeren",
-    "adres aanmaken voor werknemer"
+    "adres aanmaken voor werknemer",
+    "sla een factuuradres op voor de klant",
+    "voeg een zakelijk adres toe aan dit contact",
+    "bewaar een postadres met land en regio"
   ],
   "create_agent_skill": [
     "vaardigheid aanmaken",
@@ -374,38 +497,56 @@
   ],
   "create_calendar_selection": [
     "kalenderselectie aanmaken",
-    "feestdagenkalender aanmaken"
+    "feestdagenkalender aanmaken",
+    "combineer de feestdagen van twee regio's in één kalender",
+    "nieuwe kalenderselectie met duitsland en oostenrijk",
+    "bouw mijn eigen feestdagenkalender uit meerdere landen"
   ],
   "create_container_template": [
     "maak een weekdagsjabloon voor de container",
     "maak een nieuwe containertemplate aan",
     "voeg een dagsjabloon toe aan de containerdienst",
-    "stel een weekdag van de container in"
+    "stel een weekdag van de container in",
+    "maak een dagplan met tijdsbudget voor de container op maandag",
+    "de container heeft nog een sjabloon voor woensdag nodig",
+    "maak het dinsdagsjabloon aan met start- en eindlocatie"
   ],
   "create_contract": [
     "contract aanmaken",
     "nieuw contract",
     "contract toevoegen",
-    "arbeidsovereenkomst"
+    "arbeidsovereenkomst",
+    "ik wil een nieuw contractsjabloon met 40 uur per week aanmaken",
+    "leg een contract vast met 8 uur per dag en 5 dagen",
+    "nieuw deeltijdcontract van 20 uur opslaan"
   ],
   "create_contract_from_template": [
     "contract maken op basis van sjabloon",
     "nieuw contract uit sjabloon",
     "sjabloon kopiëren voor contract",
-    "contract aanmaken via sjabloon"
+    "contract aanmaken via sjabloon",
+    "kopieer het voltijdcontract en pas alleen de startdatum aan",
+    "nieuw contract zoals het bestaande maar met 60 procent werkbelasting",
+    "gebruik het deeltijdcontract als sjabloon met een andere feestdagenregio"
   ],
   "create_counter_rule": [
     "maak een telregel aan",
     "stel een regel in dat iemand maximaal vier nachtdiensten per maand mag draaien",
     "beperk het aantal nachtdiensten per maand tot vier",
     "leg vast dat iemand maximaal vijf dagen per week mag werken",
-    "maak een regel die telt hoe vaak iets voorkomt"
+    "maak een regel die telt hoe vaak iets voorkomt",
+    "sta maximaal vijf werkdagen per week toe",
+    "waarschuw bij meer dan vier nachtdiensten per maand",
+    "stel een bovengrens in voor weekenddiensten"
   ],
   "create_donation_checkout": [
     "doneren aan klacks",
     "een donatie aanmaken",
     "ik wil een donatie doen",
-    "klacks steunen met een bedrag"
+    "klacks steunen met een bedrag",
+    "ik wil graag 50 euro geven",
+    "maak een betaallink voor een donatie aan het project",
+    "open de donatiepagina voor 20 dollar"
   ],
   "create_email_folder": [
     "nieuwe e-mailmap aanmaken",
@@ -431,14 +572,20 @@
     "stel een afleveringssleutel in",
     "genereer een token voor het overdragen van bestanden",
     "geef een toegangssleutel af voor het aanleveren van bestanden",
-    "maak een nieuwe sleutel voor de bestandsuitwisseling"
+    "maak een nieuwe sleutel voor de bestandsuitwisseling",
+    "ik heb een toegangssleutel voor het overdrachtspunt nodig",
+    "maak een nieuw token voor de erp-bestandsimport",
+    "stel een sleutel in zodat het externe systeem bestanden kan aanleveren"
   ],
   "create_group": [
     "maak een nieuwe groep aan",
     "richt een team op",
     "voeg een afdeling toe",
     "creeër een groep in de structuur",
-    "start een nieuwe locatie"
+    "start een nieuwe locatie",
+    "maak een nieuwe subgroep aan onder verkoop",
+    "ik wil een nieuw team oprichten voor de nachtwacht",
+    "splits het team in tweeën en maak de tweede groep aan"
   ],
   "create_identity_provider": [
     "maak een nieuwe identity provider aan",
@@ -452,7 +599,10 @@
     "voeg een afwijkende cyclus toe",
     "stel een eigen tijdvak in",
     "creëer een eigen periode",
-    "een nieuwe periode aanmaken"
+    "een nieuwe periode aanmaken",
+    "maak een periode die loopt van de 26e tot de 25e",
+    "bouw een telvenster voor medewerkers met een verschoven maandstart",
+    "definieer een afrekenperiode van de 26e tot de 25e"
   ],
   "create_llm_model": [
     "AI-model aanmaken",
@@ -473,21 +623,30 @@
     "nieuw berekeningsscript",
     "voeg formule toe",
     "creëer rekenmacro",
-    "nieuw script aanmaken"
+    "nieuw script aanmaken",
+    "maak een nieuwe macro met dit script",
+    "sla een nieuw rekenscript op in de instellingen",
+    "nieuwe formulemacro registreren onder deze naam"
   ],
   "create_monthly_target_hours": [
     "stel doeluren in voor februari 2026",
     "voer 160 uur in voor maand x",
     "leg vast hoeveel uur maand y telt",
     "maak een nieuw maanddoel aan",
-    "registreer de doeluren voor deze maand"
+    "registreer de doeluren voor deze maand",
+    "leg een maand met afwijkende doeluren vast",
+    "sla de urenwaarde per maand voor volgend jaar op",
+    "deze maand telt maar 150 uur bij een voltijdse baan"
   ],
   "create_period_cap_rule": [
     "stel een maximum van 170 uur per maand in",
     "leg een limiet op van gemiddeld 48 uur per week",
     "voeg een stundendeckel toe",
     "beperk het aantal werkuren per periode",
-    "maak een regel die het totaal aantal uren per kwartaal begrenst"
+    "maak een regel die het totaal aantal uren per kwartaal begrenst",
+    "maximaal gemiddeld 48 uur over twaalf weken",
+    "geef een waarschuwing bij 90 procent van de maanduren",
+    "maak een bovengrens voor overwerk per periode"
   ],
   "create_personal_access_token": [
     "maak persoonlijke toegangstoken aan",
@@ -500,14 +659,20 @@
     "maak een plan",
     "meerstappenplan",
     "meerdere taken tegelijk",
-    "stel een takenplan op"
+    "stel een takenplan op",
+    "ik wil een stappenplan voor klant, order en bezetting in één keer",
+    "zet dit om in een plan met meerdere stappen",
+    "stel voor hoe we al deze wijzigingen na elkaar doorvoeren"
   ],
   "create_qualification": [
     "maak een nieuwe kwalificatie aan",
     "voeg vaardigheid toe",
     "definieer een competentie",
     "certificaat aanmaken",
-    "kwalificatie toevoegen"
+    "kwalificatie toevoegen",
+    "registreer een nieuwe kwalificatie heftruckcertificaat",
+    "ik wil eerste hulp als kwalificatie vastleggen",
+    "definieer een kwalificatie rijbewijs c1"
   ],
   "create_report_template": [
     "maak een nieuw afdruklay-out",
@@ -515,14 +680,20 @@
     "creëer een afdrukbare template",
     "voeg een nieuwe printlay-out toe",
     "maak een nieuw rapportagejabloon aan",
-    "voeg een afdrukbare voorlage toe"
+    "voeg een afdrukbare voorlage toe",
+    "voeg een nieuwe lay-out toe voor het afdrukken van roosters",
+    "ik heb een sjabloon nodig voor het afwezigheidsrapport",
+    "maak een afdrukbaar factuursjabloon met samengevoegde rijen"
   ],
   "create_restricted_time_window_rule": [
     "leg een verbod op om tussen 22:00 en 06:00 te werken",
     "voeg een tijdsvenster toe waarin niet gewerkt mag worden",
     "maak een regel dat in de zomer tussen 08:00 en 16:00 gesperd is",
     "stel een seizoensgebonden verbod in",
-    "beperk werken tot bepaalde kloktijden in een seizoen"
+    "beperk werken tot bepaalde kloktijden in een seizoen",
+    "in de zomer niet werken tussen 12 en 15 uur",
+    "definieer elk jaar een geblokkeerd tijdvenster voor een seizoen",
+    "blokkeer de avonden van november tot maart voor iedereen met de tag buitendienst"
   ],
   "create_scheduling_rule": [
     "planningsregel aanmaken",
@@ -543,7 +714,10 @@
     "voeg een spamregel toe",
     "blokkeer deze domeinnaam",
     "voeg een spam patroon toe",
-    "stop mail van dit adres"
+    "stop mail van dit adres",
+    "filter alle mails van dit domein weg",
+    "classificeer berichten met dit onderwerp als spam",
+    "voeg een trefwoord uit de mailtekst toe aan het spamfilter"
   ],
   "create_test_environment": [
     "maak testgegevens aan",
@@ -551,7 +725,10 @@
     "genereer testmedewerkers",
     "voeg testdata toe",
     "maak voorbeelddata met diensten",
-    "zet testomgeving op"
+    "zet testomgeving op",
+    "zet een complete testomgeving op voor autofill",
+    "ik heb testpersoneel nodig met groep en gedeeld contract",
+    "genereer testdata met vroege, late en nachtdiensten"
   ],
   "create_user": [
     "gebruiker aanmaken",
@@ -566,30 +743,45 @@
     "verdeel een bestelling in shifts",
     "snijd een dienst in stukken",
     "deel een order op in delen",
-    "cut de shift in vroege/late/nachtdienst"
+    "cut de shift in vroege/late/nachtdienst",
+    "splits de order van 24 uur in vroege, late en nachtdienst",
+    "snijd deze bestelling in meerdere tijdsdelen",
+    "ik wil de dienst in twee deeldiensten opdelen"
   ],
   "cut_shift_by_date": [
     "knip de dienst op een specifieke datum",
     "deel de dienst in tweeën op een datum",
     "splits de dienst vanaf een bepaalde datum",
-    "snijd de dienst door op die datum"
+    "snijd de dienst door op die datum",
+    "laat de dienst opnieuw beginnen op 1 juli",
+    "scheid de dienst op een kalenderdag in twee stukken",
+    "kap de reeks af op de peildatum en begin daarna opnieuw"
   ],
   "delete_absence": [
     "verwijder het type afwezigheid",
     "haal de verlofsoort weg",
     "schrap de afwezigheidstype",
     "verwijder de vakantiesoort",
-    "deselecteer het type ziekteverlof"
+    "deselecteer het type ziekteverlof",
+    "verwijder het type onbetaald verlof uit de instellingen",
+    "haal een afwezigheidssoort weg die niet meer nodig is",
+    "ik wil een verouderd afwezigheidstype buiten gebruik stellen"
   ],
   "delete_absence_type": [
     "afwezigheidstype verwijderen",
-    "afwezigheidscategorie weghalen"
+    "afwezigheidscategorie weghalen",
+    "ik wil een afwezigheidstype verwijderen",
+    "haal dit afwezigheidstype uit de stamgegevens",
+    "deze verlofsoort is verouderd, graag wissen"
   ],
   "delete_address": [
     "adres verwijderen",
     "postadres weghalen",
     "dit adres wissen",
-    "woonplaats verwijderen"
+    "woonplaats verwijderen",
+    "haal het oude woonadres weg",
+    "schrap het postadres van een persoon",
+    "verwijder het verouderde adres uit het profiel"
   ],
   "delete_agent_skill": [
     "vaardigheid verwijderen",
@@ -610,7 +802,10 @@
     "notitie verwijderen",
     "aantekening wissen",
     "opmerking weghalen",
-    "annotatie verwijderen"
+    "annotatie verwijderen",
+    "wis de notitie bij de medewerker weer",
+    "verwijder de aantekening met dit id",
+    "bewaar deze aanwijzing niet meer in het profiel en wis hem"
   ],
   "delete_branch": [
     "filiaal verwijderen",
@@ -625,17 +820,26 @@
     "schrap de ziektemelding",
     "annuleer de afwezigheid",
     "haal de vrije dag weg",
-    "verwijder de training"
+    "verwijder de training",
+    "verwijder de ziekmelding van dinsdag",
+    "haal een geboekte vakantie weer weg",
+    "annuleer deze trainingsafwezigheid"
   ],
   "delete_break_placeholder": [
     "vakantiewens annuleren",
     "geplande afwezigheid verwijderen",
     "voorreservering van afwezigheid verwijderen",
-    "gepland verlof annuleren"
+    "gepland verlof annuleren",
+    "trek de ingevoerde vakantieaanvraag in",
+    "annuleer de voorlopige afwezigheid van 12 augustus",
+    "verwijder de placeholder voor de afwezigheid"
   ],
   "delete_calendar_selection": [
     "kalenderselectie verwijderen",
-    "feestdagenkalender verwijderen"
+    "feestdagenkalender verwijderen",
+    "ruim de overbodige kalenderselectie op",
+    "gooi de ongebruikte feestdagenkalender weg",
+    "wis de kalender met de regionale feestdagen"
   ],
   "delete_client": [
     "verwijder deze werknemer",
@@ -649,12 +853,18 @@
     "verwijder deze communicatie",
     "e-mailadres wissen",
     "telefoonnummer verwijderen",
-    "contactvermelding weghalen"
+    "contactvermelding weghalen",
+    "haal het mobiele nummer bij het contact weg",
+    "verwijder een contactgegeven van een medewerker",
+    "wis het verouderde vaste nummer van de klant"
   ],
   "delete_container_template": [
     "verwijder de weekdagsjablonen van de container",
     "wis alle sjablonen van de container",
-    "reset het weekplan van de container"
+    "reset het weekplan van de container",
+    "gooi de sjablonen van een containerdienst helemaal weg",
+    "ik wil de taken in de dagsjablonen van de container opruimen",
+    "leeg het weekraster van de container"
   ],
   "delete_contract": [
     "contract verwijderen",
@@ -662,18 +872,27 @@
     "arbeidsovereenkomst verwijderen",
     "verwijder een contract",
     "een contract template verwijderen",
-    "contract intrekken"
+    "contract intrekken",
+    "haal dit contractsjabloon definitief uit de lijst",
+    "ruim het contract op dat niet meer nodig is",
+    "verwijder het oude deeltijdcontract uit het systeem"
   ],
   "delete_counter_rule": [
     "verwijder de telregel",
     "schrap de telregel voor nachtdiensten",
     "laat het tellen van dit stoppen",
     "verwijder de regel die het aantal dagen beperkt",
-    "haal de telregel weg"
+    "haal de telregel weg",
+    "haal de regel die nachtdiensten telt weg",
+    "deze telregel was een vergissing, wis hem",
+    "we volgen dit cijfer niet meer, verwijder de regel"
   ],
   "delete_email": [
     "e-mail naar de prullenbak verwijderen",
-    "deze e-mail in de prullenbak gooien"
+    "deze e-mail in de prullenbak gooien",
+    "gooi deze mail weg",
+    "ik wil het ontvangen bericht weggooien",
+    "verwijder het bericht uit de inbox"
   ],
   "delete_email_folder": [
     "e-mailmap verwijderen",
@@ -688,35 +907,50 @@
     "annuleer de expense entry",
     "haal de uitgave weg",
     "schrap deze kostenpost",
-    "soft-delete de expense"
+    "soft-delete de expense",
+    "verwijder de bon van gisteren weer",
+    "haal de verkeerd geboekte uitgave weg",
+    "ik wil een onkostenregel terugdraaien"
   ],
   "delete_export_format_override": [
     "verwijder export aanpassing",
     "reset een exportformaat",
     "gebruik weer het standaard exportformaat",
     "schrap de exportafwijking",
-    "herstel een exportformaat"
+    "herstel een exportformaat",
+    "wis mijn eigen aanpassing van het exportformaat",
+    "zet het exportformaat terug naar de geleverde toestand",
+    "gooi de aangepaste exportdefinitie weg"
   ],
   "delete_group": [
     "verwijder de groep",
     "hef het team op",
     "verwijder de locatie",
     "archiveer de groep",
-    "ontbind de afdeling"
+    "ontbind de afdeling",
+    "verwijder de hele locatie inclusief subgroepen",
+    "los deze afdeling volledig op",
+    "haal de verouderde groep uit de boom"
   ],
   "delete_identity_provider": [
     "verwijder een identity provider",
     "schrap een sso provider",
     "haal een ldap configuratie weg",
     "verwijder een login provider",
-    "drop een authenticatieprovider"
+    "drop een authenticatieprovider",
+    "verwijder de active directory-koppeling",
+    "haal de openid connect-provider weg",
+    "zet de oauth2-loginbron uit en verwijder hem"
   ],
   "delete_individual_period": [
     "verwijder een eigen periode",
     "verwijder de afwijkende cyclus",
     "schrap het eigen tijdvak",
     "terug naar de kalendermaand",
-    "gooi de eigen periode weg"
+    "gooi de eigen periode weg",
+    "verwijder het schema met eigen afrekengrenzen",
+    "haal de individuele periode weg, contracten gaan terug naar de maand",
+    "dit periodemodel hebben we niet meer nodig"
   ],
   "delete_llm_model": [
     "AI-model verwijderen",
@@ -739,27 +973,39 @@
     "macro weghalen",
     "schrap berekeningsscript",
     "verwijder rekenregel",
-    "macro genaamd... verwijderen"
+    "macro genaamd... verwijderen",
+    "ik wil een rekenmacro verwijderen",
+    "haal de oude macro uit de instellingen",
+    "ruim het ongebruikte script op"
   ],
   "delete_membership": [
     "lidmaatschap verwijderen",
     "affiliatieperiode wissen",
     "lidrelatie beëindigen",
-    "membership weghalen"
+    "membership weghalen",
+    "schrap de lidmaatschapsperiode van een medewerker",
+    "verwijder het lidmaatschap met dit id",
+    "haal de affiliatieperiode uit het personeelsdossier"
   ],
   "delete_monthly_target_hours": [
     "verwijder de doeluren voor maand x",
     "schrap het maanddoel",
     "haal de doeluren voor februari weg",
     "verwijder de maanddoelstelling",
-    "laat de standaardwaarde weer gelden"
+    "laat de standaardwaarde weer gelden",
+    "hef de afwijkende doelwaarde voor maart op",
+    "zet de doeluren van deze maand terug op standaard",
+    "wis het urenaantal dat voor de maand is vastgelegd"
   ],
   "delete_period_cap_rule": [
     "verwijder de stundendeckel",
     "schrap de limiet voor aantal uren",
     "laat de stundendeckel los",
     "verwijder de regel die het aantal uren begrenst",
-    "haal de stundendeckel weg"
+    "haal de stundendeckel weg",
+    "schrap de urengrens voor deze periode",
+    "pas de maximale arbeidstijdregel niet meer toe",
+    "zet de vroege waarschuwing bij overschrijding van de urenlimiet uit"
   ],
   "delete_qualification": [
     "verwijder de kwalificatie",
@@ -767,7 +1013,10 @@
     "verwijder het vaardigheidsitem",
     "dop de kwalificatie",
     "schrap de kwalificatie",
-    "verwijder het certificaattype"
+    "verwijder het certificaattype",
+    "verwijder de kwalificatie heftruckcertificaat uit de stamgegevens",
+    "ik wil een verouderde kwalificatie opruimen",
+    "wis het kwalificatie-item met dit id"
   ],
   "delete_report_template": [
     "verwijder een afdruklay-out",
@@ -775,14 +1024,20 @@
     "gooi een afdrukbare template weg",
     "haal de afdrukvoorlage weg",
     "verwijder de printlay-out",
-    "verwijder de rapportagejabloon"
+    "verwijder de rapportagejabloon",
+    "verwijder een verouderd rapportsjabloon",
+    "haal het afdruksjabloon met al zijn blokken weg",
+    "wis een lay-out die per ongeluk is aangemaakt"
   ],
   "delete_restricted_time_window_rule": [
     "verwijder de blokkade van deze tijden",
     "hef de tijdsbeperking op",
     "maak dat deel van de dag weer vrij",
     "verwijder de sperperiode",
-    "laat deze tijden weer toe"
+    "laat deze tijden weer toe",
+    "verwijder het verbod op nachturen helemaal",
+    "dit seizoensverbod was fout, wis het",
+    "sta werk tussen 22 en 6 uur weer toe"
   ],
   "delete_schedule_note": [
     "verwijder de roosternotitie",
@@ -790,7 +1045,10 @@
     "verwijder de opmerking uit het schema",
     "dop de aantekening",
     "schrap de plannotitie",
-    "verwijder de notitie"
+    "verwijder de notitie",
+    "wis de planopmerking van 12 april",
+    "ik wil een notitie uit het rooster halen",
+    "haal die opmerking uit het plan"
   ],
   "delete_scheduling_rule": [
     "planningsregel verwijderen",
@@ -804,14 +1062,20 @@
     "verwijder dienst",
     "dienst verwijderen",
     "dienst wissen",
-    "schrap dienst"
+    "schrap dienst",
+    "ik wil deze dienst verwijderen",
+    "gooi de concept-bestelling weg",
+    "haal de dienst met dit id uit de lijst"
   ],
   "delete_spam_rule": [
     "verwijder een spamregel",
     "deblokkeer een afzender",
     "sta deze domein weer toe",
     "hef een blokkering op",
-    "schrap een spam patroon"
+    "schrap een spam patroon",
+    "haal het spamfilteritem voor dit domein weg",
+    "laat mail van deze afzender weer door",
+    "dat patroon vangt te veel, wis het"
   ],
   "delete_system_user": [
     "gebruiker verwijderen",
@@ -826,21 +1090,30 @@
     "haal een spraakcorrectie weg",
     "schrap een begrip uit het transcriptiewoordenboek",
     "verwijder een fonetisch woordenboekitem",
-    "drop een uitspraakvariant uit de spraakherkenning"
+    "drop een uitspraakvariant uit de spraakherkenning",
+    "haal deze term uit de spraakcorrecties",
+    "verwijder het item uit het transcriptiewoordenboek",
+    "wis een correctiewoord uit het dicteerwoordenboek"
   ],
   "delete_work": [
     "verwijder deze dienst",
     "annuleer de toewijzing van anna",
     "haal de shift weg",
     "schrap de werkentry",
-    "drop de ochtenddienst van jan"
+    "drop de ochtenddienst van jan",
+    "haal die inzet uit het rooster",
+    "verwijder de inzet van vrijdag",
+    "ik wil één ingeplande dienst uit het rooster halen"
   ],
   "delete_workchange": [
     "verwijder de werkwijziging",
     "haal de correctie weg",
     "verwijder de vervanging",
     "verwijder de reistijd",
-    "werkwijziging verwijderen"
+    "werkwijziging verwijderen",
+    "verwijder de extra regel op een inzet",
+    "haal de vastgelegde reistijd weg",
+    "schrap de briefingregel bij de dienst"
   ],
   "detect_conflicts": [
     "vind conflicten in de planning",
@@ -878,14 +1151,20 @@
     "zet een add-on module tijdelijk uit",
     "schakel een functie-uitbreiding uit",
     "deactiveer een extensie",
-    "zet een uitbreidingsmodule uit"
+    "zet een uitbreidingsmodule uit",
+    "zet een feature-plugin uit",
+    "schakel de module uit maar bewaar de instellingen",
+    "pauzeer een plugin tijdelijk"
   ],
   "dismiss_skill_relation": [
     "verwerp het verband tussen deze vaardigheden",
     "keur deze relatie af",
     "die koppeling klopt niet, haal hem weg",
     "negeer de afhankelijkheid die je hebt geleerd",
-    "wijs het verband tussen je functies af"
+    "wijs het verband tussen je functies af",
+    "wijs de voorgestelde skill-relatie af",
+    "gooi die voorgestelde koppeling tussen functies weg",
+    "negeer het openstaande koppelingsvoorstel"
   ],
   "email_schedule_to_client": [
     "mail het rooster naar klant",
@@ -900,11 +1179,17 @@
     "zet een add-on module aan",
     "schakel een functie-uitbreiding in",
     "activeer een extensie",
-    "zet een uitbreidingsmodule aan"
+    "zet een uitbreidingsmodule aan",
+    "schakel een geïnstalleerde plugin in",
+    "zet de functiemodule aan",
+    "ik wil een add-on activeren"
   ],
   "end_client_membership": [
     "het lidmaatschap van de medewerker beëindigen",
-    "de uitdienstdatum van de medewerker instellen"
+    "de uitdienstdatum van de medewerker instellen",
+    "een medewerker vertrekt aan het einde van de maand",
+    "voer de ontslagdatum van een medewerker in",
+    "laatste werkdag is de 30e"
   ],
   "evaluate_absence_hours_setup": [
     "waarom krijgt hij te weinig vakantie-uren",
@@ -1499,18 +1784,27 @@
   ],
   "extend_macro": [
     "macro als kopie uitbreiden",
-    "uitgebreide kopie van de berekeningsmacro"
+    "uitgebreide kopie van de berekeningsmacro",
+    "kopieer een macro en voeg een extra toeslag toe",
+    "ik wil een toeslagblok toevoegen aan een kopie van de macro",
+    "maak een macrovariant met extra uitvoer"
   ],
   "fetch_new_emails": [
     "nieuwe e-mails nu ophalen",
-    "postvak in direct verversen"
+    "postvak in direct verversen",
+    "haal nu nieuwe mail op van de server",
+    "start een imap-ophaalronde",
+    "ververs de inbox meteen"
   ],
   "fill_group_by_criteria": [
     "vul groep met medewerkers op basis van criteria",
     "voeg medewerkers toe aan groep via kenmerken",
     "groep vullen op basis van regio en contract",
     "medewerkers selecteren en aan groep toevoegen",
-    "populeer groep met werknemers"
+    "populeer groep met werknemers",
+    "zet tien willekeurige medewerkers uit kanton bern in de groep",
+    "voeg alle medewerkers met een postcode die begint met 80 toe aan de groep",
+    "vul de groep met iedereen uit zürich met het voltijdcontract"
   ],
   "find_absence_capacity_windows": [
     "zoek een geschikte periode voor verlof",
@@ -1553,14 +1847,20 @@
     "ontbrekende coördinaten van de adressen aanvullen",
     "de adressen geocoderen",
     "klantadressen op de kaart plaatsen",
-    "coördinaten voor de adressen bepalen"
+    "coördinaten voor de adressen bepalen",
+    "bepaal de positie van adressen zonder coördinaten via postcode en plaats",
+    "plaats klanten zonder kaartpunt automatisch op de kaart",
+    "bereken breedte- en lengtegraad voor alle adressen zonder positie"
   ],
   "geocode_location_groups": [
     "bepaal automatisch de coördinaten van alle groepen",
     "geocodeer alle locatiegroepen",
     "werk de geografische coördinaten van alle groepen bij",
     "zoek de coördinaten van elke groep op",
-    "voer geocodering uit voor alle groepen"
+    "voer geocodering uit voor alle groepen",
+    "geef de locatiegroepen automatisch coördinaten",
+    "zoek geodata op voor de groepen die steden en dorpen zijn",
+    "laat de plaatsgroepen zelf geocoderen"
   ],
   "get_absence_hours_calculation": [
     "toon mij de berekening van de vakantie-uren",
@@ -1938,14 +2238,20 @@
     "medewerkers zonder groep toewijzen op basis van woonplaats",
     "groep toewijzen op basis van stadnaam",
     "ongegroepeerde medewerkers indelen per gemeente",
-    "koppel ongegroepeerde medewerkers aan groep via adres stad"
+    "koppel ongegroepeerde medewerkers aan groep via adres stad",
+    "zet medewerkers zonder groep in de groep van hun woonplaats",
+    "sorteer groepsloze medewerkers op adres in plaatsgroepen",
+    "deel alle ongegroepeerden in bij de groep die hun stad heet"
   ],
   "import_calendar_rules": [
     "importeer feestdagen regels",
     "laad kalenderregels in",
     "bulk import feestdagen",
     "feestdagen toevoegen",
-    "kantonale feestdagen importeren"
+    "kantonale feestdagen importeren",
+    "laad de feestdagdefinities van een deelstaat in één keer in",
+    "importeer kalenderregels voor het kanton uit json",
+    "ik wil alle feestdagen van een land in één keer aanmaken"
   ],
   "install_feature_plugin": [
     "installeer een optionele module",
@@ -1953,21 +2259,30 @@
     "installeer een add-on module",
     "zet een nieuwe extensie op",
     "installeer een functie-uitbreiding",
-    "voeg een uitbreidingsmodule toe"
+    "voeg een uitbreidingsmodule toe",
+    "installeer de extra module",
+    "ik wil een optionele feature-plugin installeren",
+    "zet de module erop zodat de functie beschikbaar wordt"
   ],
   "install_language_pack": [
     "installeer een taalpakket",
     "voeg een nieuwe taal toe",
     "activeer een extra taal",
     "schakel een taalpakket in",
-    "installeer een taal zoals zwitserduits"
+    "installeer een taal zoals zwitserduits",
+    "installeer het zwitserduitse taalpakket gsw",
+    "activeer het taalpakket met de code gsw",
+    "ik wil nog een interfacetaal ontgrendelen"
   ],
   "install_whisper_plugin": [
     "installeer het lokale spraakherkenningsmodel",
     "zet spraakherkenning op onze eigen server",
     "installeer whisper voor lokale transcriptie",
     "schakel over naar lokale spraakherkenning",
-    "installeer het spraakmodel lokaal"
+    "installeer het spraakmodel lokaal",
+    "installeer whisper lokaal",
+    "zet spraak-naar-tekst on-premise op",
+    "laat dictaat-transcriptie lokaal draaien"
   ],
   "interpret_resource_monitor": [
     "toon de resource monitor",
@@ -2372,19 +2687,31 @@
     "waar ligt... in zwitserland"
   ],
   "manage_pending_notes": [
-    "wachtende notities beheren"
+    "wachtende notities beheren",
+    "markeer de openstaande notities als afgeleverd",
+    "archiveer mijn open herinneringen",
+    "vink niet-afgeleverde notities af"
   ],
   "mark_email_read": [
     "e-mail als gelezen markeren",
-    "e-mail als ongelezen markeren"
+    "e-mail als ongelezen markeren",
+    "vink deze mail af als gelezen",
+    "zet het bericht terug op ongelezen",
+    "ik wil een e-mail als gelezen aanmerken"
   ],
   "move_email_to_folder": [
     "e-mail naar een andere map verplaatsen",
-    "e-mail als spam markeren"
+    "e-mail als spam markeren",
+    "zet deze mail in de spammap",
+    "verplaats dit bericht naar de prullenbak",
+    "haal het bericht uit de spam terug naar de inbox"
   ],
   "move_group": [
     "groep naar een andere ouder verplaatsen",
-    "groep onder een nieuwe hoofdgroep hangen"
+    "groep onder een nieuwe hoofdgroep hangen",
+    "verplaats de groep bern onder regio midden",
+    "hang een groep in een andere tak van de boom",
+    "ik wil deze groep een nieuwe bovenliggende groep geven"
   ],
   "navigate_to": [
     "breng me naar de instellingen",
@@ -2397,7 +2724,10 @@
     "jaaroverzicht van afwezigheden als pdf",
     "afwezigheidskalender afdrukken",
     "afwezigheidsoverzicht om op te hangen",
-    "afwezigheden op papier zetten"
+    "afwezigheden op papier zetten",
+    "ik wil het vakantieoverzicht van het hele jaar als afdruk",
+    "download het jaarblad met alle ziekte- en vakantiedagen als pdf",
+    "afwezigheidsplan op papier voor het teamoverleg"
   ],
   "open_order_export": [
     "start export van de order",
@@ -2411,14 +2741,20 @@
     "toon rooster",
     "ga naar planning",
     "laat de dienstplanning zien",
-    "open inzetplan"
+    "open inzetplan",
+    "open het rooster voor volgende week",
+    "breng me naar de dienstplanner van deze maand",
+    "ik wil het rooster van één medewerker zien"
   ],
   "optimize_llm_models_for_klacksy": [
     "optimaliseer de taalmodellen voor klacksy",
     "test alle taalmodellen en kies de beste",
     "zoek uit welke modellen bruikbaar zijn",
     "laat de beste ai-modellen automatisch selecteren",
-    "probeer alle taalmodellen en sorteer ze uit"
+    "probeer alle taalmodellen en sorteer ze uit",
+    "controleer welke modellen geen tools kunnen aanroepen en schakel ze uit",
+    "optimaliseer de modellen van de assistent automatisch",
+    "laat het standaardmodel kiezen op snelheid en kosten"
   ],
   "partition_clients_by_address": [
     "maak groepen aan op basis van alle adressen",
@@ -2432,7 +2768,10 @@
     "maak groepen op basis van kwalificatie",
     "groepeer de medewerkers per kwalificatie",
     "maak een groep voor elke kwalificatie",
-    "deel het personeel in kwalificatiegroepen in"
+    "deel het personeel in kwalificatiegroepen in",
+    "verdeel al het personeel automatisch over groepen naar hun kwalificaties",
+    "maak per kwalificatie een eigen groep met alle houders",
+    "bouw groepen uit de kwalificaties onder een hoofdgroep"
   ],
   "place_work": [
     "zet yasmine op 15 mei vroege dienst",
@@ -2463,7 +2802,10 @@
     "creëer een scenario voor de diensten",
     "dien een voorstel in voor de bezetting",
     "genereer een voorstel op basis van toewijzingen",
-    "plan een voorstel in voor deze groep"
+    "plan een voorstel in voor deze groep",
+    "leg de gekozen inzetten als scenario voor ter goedkeuring",
+    "maak van deze keuzes een concept ter controle",
+    "stop deze toewijzingen in een scenario"
   ],
   "read_email": [
     "lees deze e-mail",
@@ -2490,7 +2832,10 @@
     "dienst aan een andere medewerker overdragen",
     "inzet overzetten naar een andere medewerker",
     "laat een andere medewerker de dienst overnemen",
-    "toewijzing aan een andere medewerker geven"
+    "toewijzing aan een andere medewerker geven",
+    "sleep deze inzet naar de rij van een collega",
+    "geef de dienst van vrijdag aan iemand anders, zelfde dag",
+    "wissel wie deze ingeplande dienst heeft"
   ],
   "recall_delivered_notes": [
     "afgeleverde notities ophalen"
@@ -2500,91 +2845,136 @@
     "verwerp het scenario",
     "gooi de voorgestelde planning weg",
     "annuleer het analyse scenario",
-    "keur het plan niet goed"
+    "keur het plan niet goed",
+    "gooi het voorgestelde scenario weg",
+    "wijs het autowizard-resultaat af",
+    "dit scenario is onbruikbaar, verwijder het"
   ],
   "remove_client_contract": [
     "contract van medewerker ontkoppelen",
     "contract van medewerker loskoppelen",
     "contractkoppeling verbreken",
     "contracttoewijzing verwijderen",
-    "arbeidscontract van medewerker beëindigen"
+    "arbeidscontract van medewerker beëindigen",
+    "neem het huidige contract van de medewerker weg",
+    "annuleer de contracttoewijzing bij deze persoon",
+    "maak de medewerker los van het contract, het contract zelf blijft"
   ],
   "remove_client_from_group": [
     "verwijder medewerker uit groep",
     "haal persoon uit groep",
     "medewerker uit team halen",
     "persoon verwijderen uit groep",
-    "uit groep zetten"
+    "uit groep zetten",
+    "schrijf deze persoon uit de groep uit",
+    "ik wil een klant uit een groep halen",
+    "ontkoppel de medewerker van de afdeling"
   ],
   "remove_client_qualification": [
     "kwalificatie van medewerker verwijderen",
     "certificaat van medewerker afnemen",
     "kwalificatie van medewerker loskoppelen",
     "competentie-item verwijderen",
-    "certificering van medewerker intrekken"
+    "certificering van medewerker intrekken",
+    "haal het heftruckcertificaat uit zijn dossier",
+    "verwijder het verlopen certificaat bij deze persoon",
+    "wis het vastgelegde vaardigheidsniveau in haar profiel"
   ],
   "remove_container_template_task": [
     "verwijder een taak uit de containertemplate",
     "haal de taak uit het containersjabloon",
     "schrap de taakdienst uit de containertemplate",
-    "verwijder een task uit het weeksjabloon van de container"
+    "verwijder een task uit het weeksjabloon van de container",
+    "verwijder een onderdeel uit het weekplan van de container",
+    "schrap een deeldienst uit het containersjabloon",
+    "haal dit element uit het containerplan"
   ],
   "remove_shift_from_group": [
     "verwijder de dienst uit de groep",
     "haal de dienst uit het team",
     "neem de shift weg uit de afdeling",
-    "ontkoppel de dienst van de groep"
+    "ontkoppel de dienst van de groep",
+    "verbreek de koppeling tussen een dienst en een team",
+    "deze dienst hoort niet meer bij de afdeling",
+    "maak de dienst los van de organisatie-eenheid"
   ],
   "remove_shift_required_qualification": [
     "verwijder de vereiste kwalificatie van de dienst",
     "haal de kwalificatie-eis van de shift af",
     "schrap de verplichte kwalificatie van de dienst",
-    "annuleer de kwalificatievereiste van de dienst"
+    "annuleer de kwalificatievereiste van de dienst",
+    "de dienst heeft het rijbewijs niet meer nodig",
+    "haal de gevraagde certificering van de dienst af",
+    "laat deze voorwaarde voor de dienst vallen"
   ],
   "reopen_period": [
     "open de periode weer",
     "heropen mei 2026",
     "ontgrendel de maand",
     "maak de payrollperiode weer bewerkbaar",
-    "verwijder de zegel"
+    "verwijder de zegel",
+    "maak het afsluiten van de periode ongedaan",
+    "geef de afgesloten periode weer vrij",
+    "de maandafsluiting terugdraaien"
   ],
   "reset_container_day": [
     "zet de containerdag terug naar het sjabloon",
     "verwijder de dagoverride van de container",
     "herstel de dag van de container naar de template",
-    "maak de dagaanpassing van de container ongedaan"
+    "maak de dagaanpassing van de container ongedaan",
+    "zet deze containerdag terug op het sjabloon",
+    "gooi de aanpassing van die ene dag bij de container weg",
+    "hef de afwijking van het weekdagpatroon op"
   ],
   "reset_shift_cuts": [
     "voeg de delen van de dienst weer samen vanaf een datum",
     "reset de knippen van de dienst",
     "maak de opdeling van de dienst ongedaan vanaf datum",
-    "voeg de dienstdelen weer bij elkaar"
+    "voeg de dienstdelen weer bij elkaar",
+    "voeg alle deeldiensten vanaf volgende maand weer samen tot één dienst",
+    "draai het opdelen van de bestelling terug vanaf 1 juli",
+    "zet de geknipte stukken terug naar één hele dienst"
   ],
   "restore_email": [
     "e-mail uit de prullenbak terugzetten",
-    "e-mail herstellen uit de prullenbak"
+    "e-mail herstellen uit de prullenbak",
+    "zet de verwijderde mail terug in de inbox",
+    "haal deze e-mail weer terug",
+    "ik wil een verwijderd bericht herstellen"
   ],
   "restore_work": [
     "verwijderde dienst herstellen",
     "verwijderde inzet terugzetten",
     "verwijdering van de toewijzing ongedaan maken",
-    "de verwijderde dienst terughalen"
+    "de verwijderde dienst terughalen",
+    "zet de net verwijderde inzet terug",
+    "ik heb per ongeluk een dienst gewist, herstel hem",
+    "haal de verwijderde inzet terug met het work-id"
   ],
   "revert_company_rule": [
     "de bedrijfsregel terugdraaien",
     "een toegepaste bedrijfsregel ongedaan maken",
-    "de vorige bedrijfsregel herstellen"
+    "de vorige bedrijfsregel herstellen",
+    "neem een toegepaste bedrijfsregel terug",
+    "draai de toeslagwijziging van een regel terug",
+    "verwijder een regel op naam en herstel de oude toestand"
   ],
   "revert_macro_assignment": [
     "macrotoewijzing ongedaan maken",
-    "vorige berekeningsmacro terugzetten"
+    "vorige berekeningsmacro terugzetten",
+    "draai de macrowissel bij de diensten terug",
+    "zet de oude rekenformule weer terug",
+    "ik wil de macrowissel bij het afwezigheidstype ongedaan maken"
   ],
   "revoke_day_approval": [
     "trek de goedkeuring van maandag in",
     "maak de dagvrijgave ongedaan",
     "herroep de approval voor 15 mei",
     "zet dinsdag terug naar bevestigd",
-    "undo de release"
+    "undo de release",
+    "trek de dagvrijgave weer in",
+    "zet de goedgekeurde dag terug naar bevestigd",
+    "maak de goedkeuring van deze dag ongedaan"
   ],
   "revoke_erp_import_token": [
     "trek de sleutel van het externe systeem in",
@@ -2592,18 +2982,27 @@
     "blokkeer de sleutel voor het aanleveren van bestanden",
     "trek de toegangssleutel terug",
     "stop deze sleutel voor het aanleveren van bestanden",
-    "annuleer de sleutel van het externe systeem"
+    "annuleer de sleutel van het externe systeem",
+    "trek het erp-importtoken in",
+    "blokkeer de toegangssleutel van het externe systeem",
+    "maak de uitgelekte importsleutel ongeldig"
   ],
   "revoke_personal_access_token": [
     "mijn toegangstoken intrekken",
-    "api-token ongeldig maken"
+    "api-token ongeldig maken",
+    "trek een van mijn api-tokens in",
+    "ik wil een persoonlijk toegangstoken blokkeren",
+    "deactiveer die api-sleutel van mij definitief"
   ],
   "rollback_my_last_change": [
     "maak mijn laatste wijziging ongedaan",
     "undo de vorige actie",
     "draai de laatste stap terug",
     "ongedaan maken van mijn laatste",
-    "herroep de laatste succesvolle actie"
+    "herroep de laatste succesvolle actie",
+    "draai mijn meest recente wijziging terug",
+    "mijn laatste actie was fout, maak hem ongedaan",
+    "neem terug wat ik als laatste heb opgeslagen"
   ],
   "run_analysis": [
     "analyseer het rooster",
@@ -2626,7 +3025,10 @@
     "verzegel deze bestelling",
     "verzegel de order zodat de dienst planbaar wordt",
     "maak de bestelling definitief met verzegeling",
-    "verzegel de klantorder"
+    "verzegel de klantorder",
+    "verzegel deze order en maak de planbare dienst aan",
+    "maak de oorspronkelijke bestelling onveranderlijk",
+    "geef de bestelling vrij als dienst en verzegel hem"
   ],
   "search_and_navigate": [
     "zoeken en navigeren",
@@ -2702,43 +3104,64 @@
     "stel het vaardigheidsniveau in",
     "voeg een certificaat toe voor een medewerker",
     "ken een kwalificatie toe met niveau",
-    "werk de kwalificatie van de medewerker bij"
+    "werk de kwalificatie van de medewerker bij",
+    "deze medewerker heeft een heftruckcertificaat",
+    "leg eerstehulpopleiding vast tot eind van het jaar",
+    "stel niveau vier in voor een kwalificatie"
   ],
   "set_company_rule_parameters": [
     "parameters van de bedrijfsregel instellen",
     "waarden voor de bedrijfsregel invoeren",
-    "parameters van de bedrijfsregel bepalen"
+    "parameters van de bedrijfsregel bepalen",
+    "vul de parameters van het regelconcept in",
+    "voer de waarden in voor de regel die ik opstel",
+    "zet de toeslagwaarde in het regelconcept"
   ],
   "set_default_llm_model": [
     "stel dit model in als standaard",
     "maak dit het standaardtaalmodel",
     "gebruik voortaan dit model voor antwoorden",
     "zet het standaardmodel op dit model",
-    "kies dit model als standaard"
+    "kies dit model als standaard",
+    "vanaf nu moet klacksy met een ander taalmodel antwoorden",
+    "wissel het standaardtaalmodel van de assistent",
+    "stel deepseek in als voorgeselecteerd model"
   ],
   "set_erp_import_schedule": [
     "pas het importschema aan",
     "stel de cron-expressie in voor erp-import",
     "hoe vaak moet de import draaien",
     "verander het importinterval",
-    "planning van erp-import instellen"
+    "planning van erp-import instellen",
+    "laat de erp-import elke nacht om twee uur draaien",
+    "stel tijdzone en cron in voor het erp-ophalen",
+    "haal erp-orders elk kwartier op"
   ],
   "set_explain_depth": [
     "leg het voortaan altijd eenvoudiger uit",
     "vanaf nu alleen het belangrijkste",
     "leg vanaf nu alles eenvoudiger uit",
     "sla vanaf nu de basis over",
-    "uitleg weer automatisch aanpassen"
+    "uitleg weer automatisch aanpassen",
+    "ik ben nieuw hier, leg voortaan elke stap uitgebreid uit",
+    "houd het altijd kort en ga alleen in op de gevolgen",
+    "zet de uitlegdiepte op beginner"
   ],
   "set_export_format_override": [
     "pas een exportformaat aan",
     "wijzig het scheidingsteken in de export",
     "verander een kolomnaam in de export",
     "pas het datumformaat aan",
-    "stel een exportafwijking in"
+    "stel een exportafwijking in",
+    "gebruik een puntkomma als scheidingsteken in de export",
+    "hernoem de kolom voor het ontvangende systeem",
+    "zet het datumformaat van het exportbestand om naar punten"
   ],
   "set_group_location": [
-    "locatie van groep instellen"
+    "locatie van groep instellen",
+    "sla coördinaten op voor de groep",
+    "ik wil de stadsgroep een breedte- en lengtegraad geven",
+    "geocodeer de groep op basis van zijn naam"
   ],
   "set_my_display_language": [
     "verander mijn weergavetaal",
@@ -2760,7 +3183,10 @@
   "set_period_close_lag": [
     "de afsluitvertraging opslaan",
     "het aantal dagen tot het afsluiten na periode-einde instellen",
-    "de wachttijd voor het afsluiten vastleggen"
+    "de wachttijd voor het afsluiten vastleggen",
+    "stel de vertraging voor het afsluiten van de periode in op 3 dagen",
+    "leg een afsluitvertraging van 10 dagen vast",
+    "perioden moeten een week na het einde worden afgesloten"
   ],
   "set_planning_deadline_lead": [
     "sla de planningsvoorlooptijd op",
@@ -2768,25 +3194,37 @@
   ],
   "set_planning_profile_parameters": [
     "stel parameters van het planningsprofiel in",
-    "voer waarden van het planningsprofiel in"
+    "voer waarden van het planningsprofiel in",
+    "stel de branche en de arbeidstijdgrenzen in het planningsprofiel in",
+    "ik wil rusttijd en overwerk in het concept aanpassen",
+    "bepaal de toeslagen in het profielconcept"
   ],
   "set_proactive_governance": [
     "laat dat zelf afhandelen",
     "meld dat alleen maar",
-    "zet de noodstop aan"
+    "zet de noodstop aan",
+    "stel in hoe zelfstandig klacksy mag zijn bij dit soort bevinding",
+    "voortaan alleen een melding sturen bij dit bevindingstype",
+    "klacksy mag dit geval voortaan zelf uitvoeren"
   ],
   "set_sealed_order_until_date": [
     "stel een einddatum in voor de verzegelde order",
     "beperk de verzegelde bestelling tot een datum",
     "beëindig de verzegelde order per datum",
-    "geef de verzegelde bestelling achteraf een einddatum"
+    "geef de verzegelde bestelling achteraf een einddatum",
+    "voer een einddatum in op de verzegelde order",
+    "zet een tot-datum op een verzegelde order",
+    "stel de eenmalige einddatum voor de vergrendelde order in"
   ],
   "set_shift_preferences": [
     "wijs voorkeur toe aan dienst",
     "zet medewerker op voorkeur voor dienst",
     "sluit medewerker uit van dienst",
     "zwarte lijst voor dienst instellen",
-    "voorkeur voor dienst aanpassen"
+    "voorkeur voor dienst aanpassen",
+    "maak deze medewerker de voorkeurskeuze voor de vroege dienst",
+    "zet een medewerker op de zwarte lijst voor deze dienst",
+    "leg een lievelingsdienst vast voor een medewerker"
   ],
   "set_shift_required_qualification": [
     "stel een vereiste kwalificatie in voor deze dienst",
@@ -2794,7 +3232,10 @@
     "maak een verplichte kwalificatie voor de dienst",
     "voeg een minimumniveau toe voor de dienst",
     "bepaal de vereiste competentie voor deze shift",
-    "registreer een vereiste kwalificatie voor de shift"
+    "registreer een vereiste kwalificatie voor de shift",
+    "maak een rijbewijs verplicht voor deze dienst",
+    "stel minimumniveau 3 in voor een kwalificatie op de dienst",
+    "deze dienst mag alleen met certificaat bezet worden"
   ],
   "set_user_group_scope": [
     "groepsbereik",
@@ -2819,7 +3260,10 @@
   "start_company_rule": [
     "een nieuwe bedrijfsregel aanmaken",
     "begin met het definiëren van een bedrijfsregel",
-    "een nieuwe bedrijfsregel toevoegen"
+    "een nieuwe bedrijfsregel toevoegen",
+    "ik wil een nieuwe huisregel instellen",
+    "help me een toeslagregel voor het bedrijf op te stellen",
+    "definieer samen met klacksy een nieuwe telregel"
   ],
   "start_guided_tour": [
     "start de rondleiding",
@@ -2831,7 +3275,10 @@
   ],
   "start_planning_profile_setup": [
     "maak een eigen planningsprofiel",
-    "start het instellen van het planningsprofiel"
+    "start het instellen van het planningsprofiel",
+    "ik wil een eigen planningsprofiel opzetten",
+    "start de begeleide inrichting van de planningsregels",
+    "bouw samen met klacksy een planningsprofiel"
   ],
   "start_wizard1": [
     "start wizard 1",
@@ -2839,7 +3286,10 @@
     "genereer eerste planning",
     "start de planner",
     "maak een initieel plan",
-    "voer wizard 1 uit"
+    "voer wizard 1 uit",
+    "draai alleen wizard 1 voor deze groep",
+    "start de tokenevolution-planner",
+    "maak een eerste concept dat eerst alle diensten dekt"
   ],
   "start_wizard2": [
     "start wizard 2",
@@ -2847,7 +3297,10 @@
     "balans aanbrengen in het plan",
     "plan gladstrijken",
     "herverdeel de diensten",
-    "voer wizard 2 uit"
+    "voer wizard 2 uit",
+    "laat de harmonizer los op het huidige plan",
+    "maak het plan vloeiender zonder de bezetting te wijzigen",
+    "start wizard 2 op het zojuist toegepaste scenario"
   ],
   "start_wizard3": [
     "start wizard 3",
@@ -2855,10 +3308,16 @@
     "holistische optimalisatie starten",
     "laatste polijsting met ai",
     "voer de visiepas uit",
-    "start de holistische wizard"
+    "start de holistische wizard",
+    "draai alleen de derde wizard",
+    "verfijn het al geharmoniseerde plan verder",
+    "start de holistische harmonizer met het analysetoken"
   ],
   "stash_pending_note": [
-    "notitie parkeren"
+    "notitie parkeren",
+    "bewaar dit voor later als notitie",
+    "ik wil een herinnering achterlaten die later wordt doorgegeven",
+    "leg deze informatie vast om straks door te geven"
   ],
   "test_imap_connection": [
     "IMAP-verbinding testen",
@@ -2885,7 +3344,10 @@
     "importeer de bestellingen nu",
     "draai de import direct",
     "voer de import meteen uit",
-    "import nu starten"
+    "import nu starten",
+    "verwerk het geüploade erp-bestand meteen",
+    "start de orderimport zonder te wachten",
+    "ik wil de erp-orders direct inlezen"
   ],
   "unconfirm_break": [
     "maak de bevestiging van deze afwezigheid ongedaan",
@@ -2893,14 +3355,20 @@
     "hef de vergrendeling van deze ziektedag op",
     "geef dit verlof weer vrij",
     "verwijder de bevestiging van mijn afwezigheid",
-    "maak deze afwezigheid weer bewerkbaar"
+    "maak deze afwezigheid weer bewerkbaar",
+    "hef de blokkade op deze ziekmelding op zodat hij weer weg kan",
+    "haal het slot van de vakantie af",
+    "neem de bevestiging van deze afwezigheid weg"
   ],
   "unconfirm_work": [
     "maak de bevestiging ongedaan",
     "unlock de dienst",
     "geef de shift vrij voor wizard",
     "zet bevestiging terug naar geen",
-    "herroep de lock"
+    "herroep de lock",
+    "hef de bevestiging van deze inzet op",
+    "maak de toewijzing weer aanpasbaar voor de wizards",
+    "zet een bevestigde inzet terug op open"
   ],
   "uninstall_feature_plugin": [
     "verwijder een optionele module",
@@ -2908,21 +3376,30 @@
     "haal een add-on module weg",
     "verwijder een functie-uitbreiding",
     "de-installeer een extensie",
-    "verwijder een uitbreidingsmodule"
+    "verwijder een uitbreidingsmodule",
+    "deïnstalleer de plugin",
+    "ik wil de geïnstalleerde functiemodule verwijderen",
+    "haal de add-on weer uit het systeem"
   ],
   "uninstall_language_pack": [
     "verwijder een taalpakket",
     "deactiveer een taal",
     "haal een taal uit de interface",
     "schakel een taal uit",
-    "verwijder de extra taal weer"
+    "verwijder de extra taal weer",
+    "deïnstalleer het poolse taalpakket",
+    "deactiveer een taalpakket via de code en verwijder de data",
+    "haal het geïnstalleerde taalpakket er weer af"
   ],
   "uninstall_whisper_plugin": [
     "verwijder het lokale spraakmodel",
     "ga terug naar externe spraakherkenning",
     "deïnstalleer whisper",
     "verwijder spraakherkenning van onze server",
-    "zet spraakherkenning weer uit op onze machine"
+    "zet spraakherkenning weer uit op onze machine",
+    "verwijder de whisper-plugin",
+    "ik wil van het lokale spraakmodel af",
+    "spraakinvoer moet weer via de externe dienst lopen"
   ],
   "update_absence": [
     "pas het type afwezigheid aan",
@@ -2930,11 +3407,17 @@
     "verander de kleur van de afwezigheid",
     "stel de afwezigheidstype bij",
     "configureer het afwezigheidstype",
-    "werk de verlofinstellingen bij"
+    "werk de verlofinstellingen bij",
+    "verander de kleur van het vakantietype",
+    "laat het afwezigheidstype ook weekenden meetellen",
+    "zet de betaald-vlag van een afwezigheidstype om"
   ],
   "update_absence_type": [
     "afwezigheidstype bewerken",
-    "kleur van het afwezigheidstype wijzigen"
+    "kleur van het afwezigheidstype wijzigen",
+    "wijzig de afkorting van een afwezigheidstype",
+    "zet het afwezigheidstype op onbetaald",
+    "verberg een afwezigheidstype in de gantt"
   ],
   "update_active_industries_settings": [
     "wijzig de actieve branches",
@@ -2942,14 +3425,20 @@
     "schakel over naar een andere branche",
     "pas de branche-instellingen aan",
     "zet het systeem naar een andere sector",
-    "verander de actieve branches"
+    "verander de actieve branches",
+    "richt de installatie in op zorg en beveiliging",
+    "activeer daarnaast de horeca",
+    "laat alleen logistiek als actieve branche over"
   ],
   "update_address": [
     "adres wijzigen",
     "straatnaam aanpassen",
     "postcode of stad corrigeren",
     "adres bijwerken",
-    "woonplaats veranderen"
+    "woonplaats veranderen",
+    "corrigeer straat en postcode van de medewerker",
+    "zet het adrestype van hoofd- naar factuuradres",
+    "pas de plaats in dit adres aan"
   ],
   "update_agent_skill": [
     "vaardigheid bijwerken",
@@ -2986,7 +3475,10 @@
     "notitie bijwerken",
     "aantekening aanpassen",
     "opmerking tekst wijzigen",
-    "annotatie bewerken"
+    "annotatie bewerken",
+    "herschrijf de tekst van een medewerkersnotitie",
+    "verbeter de formulering van de opmerking bij de medewerker",
+    "vervang de notitie bij de medewerker door nieuwe tekst"
   ],
   "update_branch": [
     "filiaal bijwerken",
@@ -3001,18 +3493,27 @@
     "afwezigheid aanpassen",
     "ziektedag corrigeren",
     "vakantie bijwerken",
-    "break gegevens aanpassen"
+    "break gegevens aanpassen",
+    "verleng de einddatum van de vakantie",
+    "zet de afwezigheid om naar een ander type",
+    "corrigeer de getelde uren van de afwezigheid"
   ],
   "update_break_placeholder": [
     "afwezigheid verplaatsen",
     "vakantie verschuiven",
     "afwezigheid verlengen",
     "afwezigheidstype wijzigen",
-    "geplande afwezigheid inkorten"
+    "geplande afwezigheid inkorten",
+    "schuif de geplande vakantie een week op",
+    "maak de afwezigheidsbalk korter",
+    "zet de geplande afwezigheid om in ziekte"
   ],
   "update_calendar_selection": [
     "kalenderselectie hernoemen",
-    "feestdagenkalenders samenvoegen"
+    "feestdagenkalenders samenvoegen",
+    "wijzig de naam van de kalenderselectie",
+    "haal een regio uit de feestdagenselectie",
+    "toon feestdagen alleen als herinnering zonder toeslag"
   ],
   "update_client": [
     "pas de gegevens van de werknemer aan",
@@ -3023,30 +3524,45 @@
     "voeg telefoonnummer toe aan de persoon"
   ],
   "update_client_birthdate": [
-    "geboortedatum wijzigen"
+    "geboortedatum wijzigen",
+    "stel een nieuwe geboortedatum in voor een medewerker",
+    "corrigeer de geboortedatum van deze persoon",
+    "ik wil de verjaardag van een medewerker aanpassen"
   ],
   "update_client_gender": [
-    "geslacht wijzigen"
+    "geslacht wijzigen",
+    "stel het geslacht van een medewerker in",
+    "zet het geslacht van de klant op vrouw",
+    "markeer deze klant als rechtspersoon"
   ],
   "update_client_type": [
     "herclassificeer als klant",
     "omzetten naar medewerker",
     "verander de klantcategorie",
     "verander de personenstatus",
-    "verander het type entiteit"
+    "verander het type entiteit",
+    "behandel deze persoon voortaan als klant",
+    "maak van een externe kracht een gewone medewerker",
+    "maak van de klant weer een inplanbare medewerker"
   ],
   "update_communication": [
     "pas de communicatie aan",
     "e-mailadres bijwerken",
     "telefoonnummer corrigeren",
     "contactvermelding bewerken",
-    "wijzig de omschrijving van het contact"
+    "wijzig de omschrijving van het contact",
+    "vervang het oude mobiele nummer van een medewerker door een nieuw",
+    "schrijf de contactnotitie van een medewerker om",
+    "wijzig het landnummer van een telefoonvermelding"
   ],
   "update_compensatory_rest_settings": [
     "wijzig hoe compensatie voor werken op een beschermde dag wordt afgehandeld",
     "verander de termijn waarbinnen de compensatie moet worden opgenomen",
     "schakel het bijhouden van tegoed voor werken op zondag in",
-    "pas de instellingen voor ersatzruhe aan"
+    "pas de instellingen voor ersatzruhe aan",
+    "activeer het recht op compensatie voor werken op feestdagen",
+    "ik wil het aantal dagen voor het toekennen van compenserende rust wijzigen",
+    "stel de termijn voor compenserende rust in op 14 dagen"
   ],
   "update_compliance_enforcement_settings": [
     "wijzig de strengheid van de controles",
@@ -3054,7 +3570,10 @@
     "verander de afdwingingsinstellingen",
     "stel de controle-regels anders in",
     "pas de strengheid van de regels aan",
-    "verander hoe de controles worden toegepast"
+    "verander hoe de controles worden toegepast",
+    "wijs overtredingen van de rusttijd voortaan af in plaats van alleen te waarschuwen",
+    "sta toe dat leidinggevenden de arbeidstijdregels overrulen",
+    "zet de reactie op overschreden maximale uren op weigeren"
   ],
   "update_contract": [
     "pas het contract aan",
@@ -3074,7 +3593,10 @@
     "wijzig het maximale aantal nachtdiensten naar drie",
     "verander de telregel zodat waarschuwen een weigering wordt",
     "pas de periode van de telregel aan",
-    "corrigeer de telregel voor het aantal dagen"
+    "corrigeer de telregel voor het aantal dagen",
+    "sta maximaal drie nachtdiensten per maand toe in plaats van twee",
+    "maak van de waarschuwing bij de telregel een harde blokkade",
+    "versoepel de regel voor maximale weekenddiensten"
   ],
   "update_data_retention_settings": [
     "pas de bewaartermijn van gegevens aan",
@@ -3105,20 +3627,29 @@
     "wijzig het leverpunt",
     "verander de ophaalmap",
     "schakel het ophalen uit",
-    "pas de drop point instellingen aan"
+    "pas de drop point instellingen aan",
+    "wijzig het mappad van het erp-afleverpunt",
+    "hernoem het overdrachtspunt voor het externe systeem",
+    "zet het ophalen van erp-bestanden weer aan"
   ],
   "update_expense": [
     "pas de onkostenpost aan",
     "wijzig het bedrag van deze expense",
     "corrigeer de beschrijving van de uitgave",
     "pas de belastingvlag van de onkostenpost aan",
-    "bewerk de expense met id"
+    "bewerk de expense met id",
+    "wijzig de omschrijving van een onkostenvergoeding",
+    "zet deze onkosten om naar belastbare vergoeding",
+    "stel de uitgave in op een nieuw bedrag"
   ],
   "update_export_formats_settings": [
     "sta een exportformaat toe",
     "schakel een exportformaat uit",
     "zet het standaard loonsysteem voor export",
-    "pas de exportformaten aan"
+    "pas de exportformaten aan",
+    "bepaal welke exportformaten zijn toegestaan",
+    "schakel csv-uitvoer voor loongegevens in",
+    "wijzig de standaardontvanger van het loonsysteem"
   ],
   "update_general_settings": [
     "pas de algemene instellingen aan",
@@ -3133,14 +3664,20 @@
     "geef het rooster een andere achtergrondkleur",
     "kleur de feestdagen anders",
     "wijzig de kleuren van de planning",
-    "pas de kleur van de kop van het plan aan"
+    "pas de kleur van de kop van het plan aan",
+    "kleur de zaterdagen in het rooster lichtgrijs",
+    "zet de tekstkleur van het rooster op #333333",
+    "pas de wisselende maandkleuren in het raster aan"
   ],
   "update_group": [
     "wijzig de naam van de groep",
     "pas de groep aan",
     "verander de omschrijving van het team",
     "werk de geldigheidsdata van de groep bij",
-    "update de groepsgegevens"
+    "update de groepsgegevens",
+    "wijzig de omschrijving van deze groep",
+    "pas de geldigheidsdatums van de groep aan",
+    "wijs de groep een andere feestdagenkalender toe"
   ],
   "update_identity_provider": [
     "pas een identity provider aan",
@@ -3162,7 +3699,10 @@
     "wijzig de afwijkende cyclus",
     "verander de streefdatum",
     "werk een eigen tijdvak bij",
-    "pas de periodes aan"
+    "pas de periodes aan",
+    "hernoem het tijdvakschema",
+    "stel nieuwe stukken in voor het eigen periodeschema",
+    "schuif de startdatum van een tijdvak in het schema op"
   ],
   "update_llm_model": [
     "AI-model bijwerken",
@@ -3186,7 +3726,10 @@
     "pas de berekening in het macro aan",
     "bewerk de formule van het macro",
     "update de macro met id",
-    "verander de naam of omschrijving van het macro"
+    "verander de naam of omschrijving van het macro",
+    "herschrijf de inhoud van een macro",
+    "hernoem een macro",
+    "vervang de omschrijving van een script"
   ],
   "update_membership": [
     "pas het lidmaatschap aan",
@@ -3194,35 +3737,53 @@
     "verander de planbaarheid vanaf",
     "stel de einddatum van het lidmaatschap in",
     "pas de affiliatie aan",
-    "werk de lidmaatschapsgegevens bij"
+    "werk de lidmaatschapsgegevens bij",
+    "verschuif de ingangsdatum van het lidmaatschap",
+    "maak het lidmaatschap open einde",
+    "leg opnieuw vast vanaf wanneer de medewerker inplanbaar is"
   ],
   "update_monthly_target_hours": [
     "wijzig de doeluren voor januari naar 176",
     "pas het maanddoel aan",
     "corrigeer de doeluren van maand x",
     "verhoog de doeluren voor maand y",
-    "pas de maandwaarde aan"
+    "pas de maandwaarde aan",
+    "zet de doeluren van januari 2026 van 184 naar 176",
+    "corrigeer de uren voor maart achteraf",
+    "verlaag de maandwaarde voor december"
   ],
   "update_my_account": [
     "mijn account bijwerken",
-    "mijn weergavenaam wijzigen"
+    "mijn weergavenaam wijzigen",
+    "ik wil de achternaam van mijn account wijzigen",
+    "pas het e-mailadres aan waarmee ik inlog",
+    "mijn voor- en achternaam in mijn profiel corrigeren"
   ],
   "update_navigation_synonyms": [
     "een nieuw navigatiesynoniem toevoegen",
-    "leer klacksy deze formulering"
+    "leer klacksy deze formulering",
+    "voeg nog een formulering toe voor een navigatiedoel",
+    "klacksy moet deze uitdrukking voor die pagina begrijpen",
+    "registreer een nieuwe navigatiezin voor een taal"
   ],
   "update_openroute_settings": [
     "wijzig de reistijdinstellingen",
     "verander de drempel voor reistijd",
     "sla de sleutel voor de route service op",
-    "stel vanaf welke reistijd er wordt gerekend"
+    "stel vanaf welke reistijd er wordt gerekend",
+    "voer de api-sleutel voor openroute in",
+    "ik wil de minimale reistijd voor auto, fiets en lopen wijzigen",
+    "pas de minimale looptijd aan"
   ],
   "update_overtime_settings": [
     "verander de overwerkvergoeding",
     "verschuif de grens voor een hoger overwerktarief",
     "verhoog het tarief voor overwerk",
     "pas de overwerktredes aan",
-    "wijzig de voorwaarden voor extra uren"
+    "wijzig de voorwaarden voor extra uren",
+    "stel de overwerkregeling anders in",
+    "wijzig vanaf welk uur extra uren worden bijgeschreven",
+    "zet overwerk om naar een vast tijdtegoed"
   ],
   "update_owner_address": [
     "werk het bedrijfsadres bij",
@@ -3238,14 +3799,20 @@
     "wijzig de land- en regiogegevens",
     "verander de locale instellingen van de eigenaar",
     "update de kalender voor het bedrijf",
-    "pas de tijdzone en kalender aan"
+    "pas de tijdzone en kalender aan",
+    "zet het bedrijf op kanton bern",
+    "wijzig de tijdzone van de installatie naar europe/amsterdam",
+    "gebruik de feestdagenkalender van zürich als globale kalender"
   ],
   "update_period_cap_rule": [
     "pas de stundendeckel aan",
     "wijzig de limiet naar 180 uur",
     "verhoog de stundendeckel",
     "pas de waarschuwingsdrempel aan",
-    "corrigeer de periode van de limiet"
+    "corrigeer de periode van de limiet",
+    "zet het plafond voor overwerk op 50 uur",
+    "wissel de urengrens van maandelijks naar per kwartaal",
+    "verschuif de waarschuwingsdrempel van de urenlimiet naar 80 procent"
   ],
   "update_qualification": [
     "pas de kwalificatie aan",
@@ -3253,7 +3820,10 @@
     "bewerk de vaardigheid",
     "pas de categorie van de kwalificatie aan",
     "verander de vervaldatum van het certificaat",
-    "update de kwalificatie"
+    "update de kwalificatie",
+    "corrigeer de naam van een kwalificatie",
+    "verplaats een kwalificatie naar een andere categorie",
+    "pas het vervalgedrag van een kwalificatie aan"
   ],
   "update_report_template": [
     "pas een afdruklay-out aan",
@@ -3261,20 +3831,29 @@
     "pas de afdrukvoorlage aan",
     "verander het afdruklay-out",
     "pas de rapportagejabloon aan",
-    "bewerk een afdrukbare template"
+    "bewerk een afdrukbare template",
+    "wijzig de naam van het afdruksjabloon",
+    "pas de omschrijving van een rapportlay-out aan",
+    "stel in hoe herhaalde rijen in het sjabloon worden samengevoegd"
   ],
   "update_restricted_time_window_rule": [
     "pas het tijdsvenster aan",
     "wijzig de gesperde uren",
     "verander de begintijd van de beperking",
     "pas de eindtijd van de beperking aan",
-    "corrigeer de regel voor de gesperde tijden"
+    "corrigeer de regel voor de gesperde tijden",
+    "zet de geblokkeerde uren van de regel op 22 tot 6 uur",
+    "laat het tijdverbod alleen in de zomer gelden",
+    "schuif het geblokkeerde tijdvenster een uur op"
   ],
   "update_schedule_note": [
     "planningsnotitie aanpassen",
     "tagesnotiz bijwerken",
     "notitie tekst wijzigen",
-    "schedule notitie bewerken"
+    "schedule notitie bewerken",
+    "herformuleer de notitie in het rooster",
+    "verschuif een roosternotitie naar een andere dag",
+    "wijzig de inhoud van de dagnotitie"
   ],
   "update_scheduling_defaults": [
     "planningsinstellingen bijwerken",
@@ -3297,7 +3876,10 @@
     "pas dienst aan",
     "dienst bewerken",
     "update dienst",
-    "dienst gegevens aanpassen"
+    "dienst gegevens aanpassen",
+    "zet de eindtijd van de conceptdienst op 18:00",
+    "verhoog de benodigde bezetting van de dienst naar 3",
+    "pas afkorting en omschrijving van de dienst aan"
   ],
   "update_spam_filter_settings": [
     "spaminstellingen",
@@ -3310,21 +3892,30 @@
     "wijzig een blokkering",
     "schakel een spamregel uit",
     "pas het spam patroon aan",
-    "verander de volgorde van spamregels"
+    "verander de volgorde van spamregels",
+    "vervang het trefwoord van een spamregel",
+    "zet een spamregel tijdelijk op inactief",
+    "sorteer de controlevolgorde van de spamregels opnieuw"
   ],
   "update_speech_settings": [
     "wijzig de stem van de assistent",
     "verander de spraakherkenning",
     "zet het voorlezen van antwoorden aan of uit",
     "sta onderbreken tijdens het spreken toe",
-    "pas de spraakinstellingen aan"
+    "pas de spraakinstellingen aan",
+    "zet de spraakuitvoer op een andere stem",
+    "wissel het transcriptiemodel voor spraakinvoer",
+    "stel in hoeveel stilte het einde van een zin betekent"
   ],
   "update_surcharge_mode_settings": [
     "zet toeslag op vast bedrag",
     "stel een minimum toeslag per uur in",
     "verplaats het nachtvenster",
     "voeg toeslagen niet meer samen",
-    "pas de toeslagmodus aan"
+    "pas de toeslagmodus aan",
+    "nachttoeslag moet een vast tijdtegoed zijn",
+    "leg het nachtvenster vast van 22 tot 6 uur",
+    "tel per uur alleen de hoogste toeslag"
   ],
   "update_transcription_dictionary_entry": [
     "pas het woordenboek aan voor spraakherkenning",
@@ -3332,7 +3923,10 @@
     "pas de fonetische varianten van een begrip aan",
     "werk de spraakcorrectie bij voor een woord",
     "verander de uitspraak van een term in het woordenboek",
-    "bewerk een bestaand woordenboekitem voor transcriptie"
+    "bewerk een bestaand woordenboekitem voor transcriptie",
+    "corrigeer de term in het spraakherkenningswoordenboek",
+    "wijzig de spelling van een item voor dictaat",
+    "voeg meer klankvarianten toe aan de woordenboekterm"
   ],
   "update_user": [
     "pas de inloggegevens van een andere gebruiker aan",
@@ -3340,7 +3934,10 @@
     "wijzig de mailadres van een gebruiker",
     "pas de naam van een gebruiker in de login aan",
     "verander de aanmeldnaam van een collega",
-    "corrigeer de naam van een gebruiker"
+    "corrigeer de naam van een gebruiker",
+    "verbeter een typefout in de naam van een gebruikersaccount",
+    "wijzig het e-mailadres van een andere gebruiker",
+    "hernoem de loginnaam van een collega"
   ],
   "update_web_search_settings": [
     "webzoekinstellingen",
@@ -3348,18 +3945,27 @@
     "zoekinstelling",
     "verander de zoekmachine provider voor webzoekopdrachten",
     "stel de api-sleutel in voor de internetzoekopdracht",
-    "pas het maximale aantal zoekresultaten aan"
+    "pas het maximale aantal zoekresultaten aan",
+    "wissel van aanbieder voor het zoeken op internet",
+    "nieuwe api-sleutel voor webzoeken invoeren",
+    "verhoog het maximum aantal resultaten per zoekopdracht"
   ],
   "update_wizard_settings": [
     "wijzig het model van de harmonisator",
     "zet de harmonisator op een ander model",
     "stel het taalmodel in voor de wizard",
     "verander het model voor de planning",
-    "pas de wizardinstellingen aan"
+    "pas de wizardinstellingen aan",
+    "zet de harmonizer op lokaal zoeken",
+    "kies een taalmodel voor de rooster-harmonizer",
+    "bepaal welk model het hele rooster bewerkt"
   ],
   "update_work": [
     "tijden van een geplaatste dienst wijzigen",
-    "uren van een inplanning aanpassen"
+    "uren van een inplanning aanpassen",
+    "verschuif begin en einde van een ingeplande dienst",
+    "corrigeer de uren van een geplaatste inzet",
+    "pas de notitie bij een ingeplande dienst aan"
   ],
   "update_work_settings": [
     "pas de arbeidsinstellingen aan",
@@ -3374,7 +3980,10 @@
     "bewerk de correctie",
     "wijzig de vervanging",
     "pas de reistijd aan",
-    "werk de werkverandering bij"
+    "werk de werkverandering bij",
+    "wijzig de urencorrectie op de dienst",
+    "pas de toeslagen van een vervanging achteraf aan",
+    "corrigeer begin en einde van de briefingtijd"
   ],
   "validate_address": [
     "adres controleren",
@@ -3413,18 +4022,30 @@
   ],
   "start_order_review": [
     "open orders doornemen voor het verzegelen",
-    "samen de open orders bekijken"
+    "samen de open orders bekijken",
+    "start de orderbeoordeling",
+    "laten we de open bestellingen samen doorlopen",
+    "bundel vergelijkbare orders en loop de uitschieters langs"
   ],
   "set_order_review_decision": [
-    "antwoord in orderdoorloop vastleggen"
+    "antwoord in orderdoorloop vastleggen",
+    "splits de order in 3x8 uur diensten",
+    "stel de starttijd van de order van 24 uur in",
+    "kies de bezettingsgroep voor de order"
   ],
   "preview_order_review": [
     "stand van de orderdoorloop"
   ],
   "cancel_order_review": [
-    "orderdoorloop stoppen"
+    "orderdoorloop stoppen",
+    "breek de orderronde af",
+    "ik wil de doorloop van de open orders sluiten",
+    "gooi de doorloop weg en stop"
   ],
   "execute_order_review": [
-    "bevestigde orderdoorloop toepassen"
+    "bevestigde orderdoorloop toepassen",
+    "voer de bevestigde orderbeoordeling uit",
+    "schrijf de beslissingen weg naar de open bestellingen",
+    "ik wil de orders nu in diensten laten knippen"
   ]
 }

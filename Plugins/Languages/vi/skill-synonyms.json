@@ -4,14 +4,20 @@
     "áp dụng đề xuất từ wizard",
     "duyệt scenario số 5",
     "đồng ý với phương án phân ca",
-    "nhận kịch bản tối ưu"
+    "nhận kịch bản tối ưu",
+    "đưa đề xuất của wizard vào lịch chính",
+    "tôi muốn chốt kết quả autowizard",
+    "duyệt kịch bản và đưa vào kế hoạch chính"
   ],
   "accept_skill_relation": [
     "xác nhận mối liên hệ này",
     "chấp nhận mối quan hệ đã học",
     "duyệt mối liên hệ này",
     "đồng ý với mối liên hệ này",
-    "xác nhận mối liên hệ đã phát hiện"
+    "xác nhận mối liên hệ đã phát hiện",
+    "chấp nhận quan hệ kỹ năng được đề xuất",
+    "xác nhận liên kết gợi ý giữa hai khả năng",
+    "tôi muốn cho mối liên hệ đã học có hiệu lực"
   ],
   "add_ai_memory": [
     "lưu bộ nhớ AI",
@@ -30,26 +36,38 @@
   "add_break_placeholder": [
     "nguyện vọng nghỉ phép",
     "đặt trước vắng mặt",
-    "yêu cầu nghỉ phép"
+    "yêu cầu nghỉ phép",
+    "nhập mong muốn nghỉ phép từ ngày 3 đến 14 tháng 8",
+    "ghi lại vắng mặt mong muốn trong lịch vắng mặt",
+    "lưu đơn xin nghỉ phép của nhân viên làm giữ chỗ"
   ],
   "add_client_email": [
     "thêm email cho",
     "ghi email",
     "lưu email",
-    "thêm hòm thư"
+    "thêm hòm thư",
+    "đặt địa chỉ email cho khách hàng",
+    "đổi email của nhân viên này",
+    "nhập địa chỉ thư mới cho khách"
   ],
   "add_client_note": [
     "thêm ghi chú cho",
     "viết chú thích",
     "thêm lưu ý",
     "ghi chú thêm",
-    "bổ sung nhận xét"
+    "bổ sung nhận xét",
+    "đính kèm ghi chú vào nhân viên này",
+    "tôi muốn viết nhận xét về khách hàng",
+    "thêm bình luận vào hồ sơ người này"
   ],
   "add_client_phone": [
     "thêm số điện thoại cho",
     "ghi số di động",
     "lưu số điện thoại",
-    "thêm sđt"
+    "thêm sđt",
+    "lưu số di động mới cho nhân viên",
+    "thêm số liên lạc cho người này",
+    "nhập số điện thoại của khách hàng"
   ],
   "add_client_to_group": [
     "thêm vào nhóm làm việc",
@@ -60,7 +78,10 @@
     "gán vào nhóm",
     "đưa vào tổ",
     "xếp vào nhóm",
-    "thêm vào đội"
+    "thêm vào đội",
+    "đưa nhân viên này gia nhập nhóm",
+    "cho chị ấy vào đội",
+    "tôi muốn phân một khách hàng vào nhóm"
   ],
   "add_client_to_nearest_group": [
     "thêm khách hàng này vào nhóm gần nhất",
@@ -73,14 +94,20 @@
     "thêm công việc vào mẫu container",
     "đưa ca nhiệm vụ vào mẫu container",
     "thêm task vào một ngày trong mẫu container",
-    "đăng ký công việc trong mẫu ca container"
+    "đăng ký công việc trong mẫu ca container",
+    "thêm một ca con vào mẫu thứ hai của container",
+    "đặt công việc ở vị trí số 2 trong mẫu container",
+    "bổ sung công việc cho mẫu thứ ba của container"
   ],
   "add_expense": [
     "thêm chi phí cho ca làm việc",
     "ghi nhận khoản chi",
     "nhập chi phí vào ca",
     "đăng ký chi phí mới",
-    "bổ sung chi phí cho công việc"
+    "bổ sung chi phí cho công việc",
+    "thêm 25 franc vé tàu làm chi phí cho ca hôm qua",
+    "ghi khoản tự ứng tiền phí đậu xe vào ca",
+    "nhập khoản chi phí kèm số tiền và mô tả vào ca làm"
   ],
   "add_personal_memory": [
     "nhớ giúp tôi là tôi thích làm việc buổi sáng",
@@ -88,7 +115,10 @@
     "lưu lại sở thích của tôi: tôi muốn nghỉ thứ bảy",
     "nhắc tôi rằng tôi thích uống cà phê lúc 9h",
     "cá nhân tôi nhớ là tôi đã từng làm ca đêm",
-    "ghi lại cho tôi: tôi thích làm việc với nhóm a"
+    "ghi lại cho tôi: tôi thích làm việc với nhóm a",
+    "hãy nhớ rằng tôi thích câu trả lời ngắn gọn",
+    "lưu riêng cho tôi một sở thích để dùng sau này",
+    "ghi nhớ giúp tôi là tôi hay chọn ca sớm"
   ],
   "add_schedule_command": [
     "đặt lệnh free cho yasmine ngày 15/5",
@@ -100,7 +130,10 @@
   "add_schedule_commands_range": [
     "khoảng thời gian rảnh",
     "lệnh theo khoảng thời gian",
-    "nhiều ngày rảnh"
+    "nhiều ngày rảnh",
+    "cô ấy muốn nghỉ mỗi ngày từ 10 đến 20 tháng 5",
+    "anh ấy chỉ muốn ca sáng suốt tháng bảy",
+    "giữ trống tuần đầu tháng 6 cho anh ấy"
   ],
   "add_schedule_note": [
     "thêm ghi chú vào lịch",
@@ -108,14 +141,20 @@
     "ghi chú cho khách hàng",
     "thêm nhận xét lịch làm",
     "đánh dấu ghi chú trong lịch",
-    "thêm ghi chú kế hoạch"
+    "thêm ghi chú kế hoạch",
+    "để lại ghi chú bàn giao cho nhân viên vào thứ ba",
+    "viết bình luận cho một ngày trong lịch",
+    "ghi chú tự do cho một nhân viên vào một ngày"
   ],
   "add_selected_clients_to_group": [
     "thêm nhân viên đã chọn vào nhóm",
     "gán những người đã tick vào nhóm",
     "đưa các dòng đã đánh dấu vào tổ",
     "thêm các mục đã chọn vào nhóm",
-    "gộp các lựa chọn vào nhóm"
+    "gộp các lựa chọn vào nhóm",
+    "đưa các nhân viên đã tick vào một nhóm",
+    "xếp những người đang chọn vào nhóm",
+    "thêm tất cả người tôi vừa chọn vào nhóm"
   ],
   "add_shift_to_group": [
     "thêm ca làm này vào nhóm bán hàng",
@@ -129,7 +168,10 @@
     "dạy cách phát âm",
     "thêm biến thể phiên âm",
     "đăng ký từ mới cho stt",
-    "thêm mục từ điển giọng nói"
+    "thêm mục từ điển giọng nói",
+    "dạy nhận dạng giọng nói rằng klaxi nghĩa là klacksy",
+    "thêm một từ nghe nhầm mới vào từ điển phiên âm",
+    "để chức năng đọc chính tả viết đúng thuật ngữ này từ giờ"
   ],
   "add_workchange": [
     "thay đổi ca làm",
@@ -151,35 +193,53 @@
   "apply_company_rule": [
     "áp dụng quy tắc công ty",
     "lưu và xác nhận quy tắc công ty",
-    "kích hoạt quy tắc công ty"
+    "kích hoạt quy tắc công ty",
+    "áp dụng bản nháp quy tắc công ty ngay",
+    "cho quy tắc phụ cấp đã soạn có hiệu lực",
+    "xem trước ổn rồi, lưu quy định nội bộ"
   ],
   "apply_grouping": [
     "áp dụng việc phân nhóm ngay",
     "chuyển khách hàng vào nhóm thật sự",
     "xác nhận và lưu kết quả phân nhóm",
     "thực hiện phân nhóm khách hàng",
-    "lưu vĩnh viễn việc phân nhóm"
+    "lưu vĩnh viễn việc phân nhóm",
+    "chuyển toàn bộ nhân viên vào nhóm địa điểm của họ",
+    "chạy việc phân nhóm theo địa điểm ngay",
+    "lưu phương án phân nhóm đã đề xuất"
   ],
   "apply_grouping_plan": [
     "áp dụng kế hoạch nhóm",
-    "thực hiện các thay đổi nhóm được đề xuất"
+    "thực hiện các thay đổi nhóm được đề xuất",
+    "thực hiện kế hoạch nhóm đã duyệt",
+    "triển khai các thay đổi thành viên nhóm đã đề xuất",
+    "chạy kế hoạch phân nhóm theo mã"
   ],
   "apply_planning_profile": [
     "áp dụng hồ sơ lập kế hoạch",
-    "lưu hồ sơ lập kế hoạch"
+    "lưu hồ sơ lập kế hoạch",
+    "áp dụng bản nháp hồ sơ lập kế hoạch",
+    "kích hoạt quy tắc lập kế hoạch riêng từ bản nháp",
+    "tạo hồ sơ lập kế hoạch ngay"
   ],
   "approve_day": [
     "phê duyệt tất cả ca ngày thứ hai",
     "duyệt ngày 15/5 cho nhóm a",
     "chấp thuận lịch làm của cả ngày",
     "ký duyệt ngày mai",
-    "release toàn bộ ca ngày 20/5"
+    "release toàn bộ ca ngày 20/5",
+    "phê duyệt mọi ca ngày thứ hai cho nhóm",
+    "ký duyệt ngày 15/5 cho nhóm này",
+    "tôi muốn khóa ngày này ở trạng thái đã duyệt cho đội"
   ],
   "assign_contract_by_name": [
     "gán hợp đồng cho người tên minh",
     "chỉ định hợp đồng theo tên nhân viên",
     "gắn hợp đồng cho khách hàng tên lan",
-    "thêm hợp đồng dựa trên tên người này"
+    "thêm hợp đồng dựa trên tên người này",
+    "gắn nhân viên với hợp đồng chỉ bằng tên",
+    "cho nhân viên tên này hợp đồng bán thời gian",
+    "đặt hợp đồng mới có hiệu lực cho nhân viên theo tên"
   ],
   "assign_contract_to_client": [
     "gán hợp đồng cho nhân viên",
@@ -191,15 +251,24 @@
   ],
   "assign_macro_to_absence_type": [
     "gán macro cho loại nghỉ phép",
-    "đổi macro tính toán của loại nghỉ phép"
+    "đổi macro tính toán của loại nghỉ phép",
+    "chuyển nghỉ phép sang macro tính toán khác",
+    "tôi muốn đặt công thức quy giờ mới cho nghỉ ốm",
+    "dùng quy tắc tính khác cho nghỉ có lương"
   ],
   "assign_macro_to_shift": [
     "gán macro cho ca làm",
-    "đổi macro tính toán của ca làm"
+    "đổi macro tính toán của ca làm",
+    "dùng công thức phụ cấp mở rộng cho ca đêm",
+    "cho ca này dùng macro khác",
+    "quay về công thức chuẩn cho ca"
   ],
   "assign_orders_to_groups": [
     "nhóm các đơn hàng đã nhập",
-    "đơn hàng không có nhóm"
+    "đơn hàng không có nhóm",
+    "đưa tất cả đơn hàng đang mở vào nhóm tương ứng",
+    "sau khi nhập erp, xếp đơn hàng vào nhóm theo thành phố",
+    "tự động đặt các đơn chưa có nhóm vào nhóm địa điểm phù hợp"
   ],
   "assign_shifts_to_city_groups": [
     "phân bổ ca làm việc vào các nhóm thành phố theo địa chỉ khách hàng",
@@ -219,48 +288,72 @@
     "gán vắng mặt hàng loạt cho nhóm",
     "đào tạo nhóm một ngày",
     "cho cả team nghỉ học/đào tạo",
-    "thêm ngày nghỉ chung cho nhóm"
+    "thêm ngày nghỉ chung cho nhóm",
+    "đặt ngày đào tạo cho cả nhóm vào thứ sáu",
+    "tôi muốn cho tất cả thành viên nhóm cùng một vắng mặt trong một ngày",
+    "nhập cùng một loại nghỉ cho mọi người trong đội vào một ngày"
   ],
   "bulk_add_shifts_to_group": [
     "thêm tất cả ca có tên 'sáng' vào nhóm a",
     "gán hàng loạt lịch trực khớp từ 'tối' cho team b",
     "xem trước các ca khớp 'cuối tuần' sẽ thêm vào nhóm c",
     "áp dụng thêm tất cả dịch vụ có mã 'dv01' vào nhóm d",
-    "thêm bulk các ca có chứa 'lễ' vào nhóm lễ tân"
+    "thêm bulk các ca có chứa 'lễ' vào nhóm lễ tân",
+    "gán tất cả dịch vụ có cùng ký hiệu vào phòng ban",
+    "đưa nhiều ca vào một nhóm trong một lần",
+    "tôi muốn cho toàn bộ ca đêm vào chung một nhóm"
   ],
   "bulk_delete_works": [
     "xóa tất cả ca của một nhân viên trong khoảng thời gian",
     "xóa mọi phân công trong khoảng ngày",
     "gỡ toàn bộ phân công trong một giai đoạn",
-    "xóa nhiều phân công cùng lúc"
+    "xóa nhiều phân công cùng lúc",
+    "xóa sạch ca của một nhân viên trong tuần sau",
+    "gỡ mọi phân công của một người trên một ca trong kỳ này",
+    "xóa tối đa 50 ca trong một khoảng ngày"
   ],
   "bundle_nearby_timerange_shifts_into_container": [
     "gộp các dịch vụ di động quanh một thành phố",
     "thu thập ca timerange gần đó",
-    "kết hợp dịch vụ di động lân cận"
+    "kết hợp dịch vụ di động lân cận",
+    "gom mọi việc lưu động quanh winterthur vào container mới",
+    "dựng container cho thứ năm từ các ca timerange gần nhau",
+    "ghép các tuyến gần basel thành container cho một ngày"
   ],
   "cancel_company_rule": [
     "hủy bản nháp quy tắc công ty",
     "loại bỏ quy tắc công ty đang tạo",
-    "hủy việc định nghĩa quy tắc công ty"
+    "hủy việc định nghĩa quy tắc công ty",
+    "bỏ quy tắc công ty tôi vừa bắt đầu",
+    "dừng bản nháp quy định nội bộ",
+    "không nhập tiếp quy tắc nữa"
   ],
   "cancel_planning_profile_setup": [
     "hủy thiết lập hồ sơ lập kế hoạch",
-    "loại bỏ bản nháp hồ sơ lập kế hoạch"
+    "loại bỏ bản nháp hồ sơ lập kế hoạch",
+    "dừng trình hướng dẫn hồ sơ",
+    "ngừng cài đặt hồ sơ lập kế hoạch và xóa bản nháp",
+    "thoát khỏi phần thiết lập hồ sơ lập kế hoạch"
   ],
   "cancel_recurring_task": [
     "hủy lịch nhắc",
     "xóa tác vụ định kỳ",
     "dừng cron job",
     "bỏ nhắc nhở",
-    "ngừng tác vụ tự động"
+    "ngừng tác vụ tự động",
+    "dừng lời nhắc lặp lại của tôi",
+    "hủy tác vụ cron đã lên lịch",
+    "xóa nhắc nhở hàng tuần"
   ],
   "cancel_wizard_job": [
     "hủy chạy wizard",
     "dừng tạo lịch",
     "hủy tiến trình lập lịch",
     "ngừng wizard",
-    "bỏ lệnh wizard"
+    "bỏ lệnh wizard",
+    "dừng ngay tiến trình lập kế hoạch đang chạy",
+    "kết thúc lượt xếp lịch tự động",
+    "dừng autowizard bây giờ"
   ],
   "check_absence_capacity_reserve": [
     "dự trữ năng lực cho nghỉ phép",
@@ -282,7 +375,10 @@
   "check_erp_drop_point_folder_health": [
     "kiểm tra tình trạng thư mục điểm giao nhận",
     "thư mục có còn tồn tại sau khi khởi động lại không",
-    "tạo thư mục processed và error"
+    "tạo thư mục processed và error",
+    "thư mục erp có ghi được không",
+    "kiểm tra thư mục giao nhận erp tồn tại và tạo nếu thiếu",
+    "tại sao file đơn hàng không được lấy, thử thư mục"
   ],
   "check_group_geocoding_status": [
     "trạng thái mã hóa địa lý"
@@ -290,39 +386,57 @@
   "clear_client_availability": [
     "đặt lại tình trạng sẵn sàng của nhân viên",
     "xóa các mục sẵn sàng",
-    "làm trống lịch rảnh để ngày mở lại"
+    "làm trống lịch rảnh để ngày mở lại",
+    "xóa mọi mục sẵn sàng trong tháng 8",
+    "mở lại hoàn toàn ngày cho việc lên lịch",
+    "chỉ xóa khả năng sẵn sàng buổi sáng"
   ],
   "close_clarification": [
     "tôi sẽ tự làm rõ với nhân viên",
-    "đóng câu hỏi làm rõ"
+    "đóng câu hỏi làm rõ",
+    "tôi sẽ tự làm rõ việc này",
+    "đóng câu hỏi đang mở gửi nhân viên",
+    "không cần chờ trả lời về vắng mặt nữa"
   ],
   "close_period": [
     "chốt kỳ lương tháng 5",
     "chốt kỳ thanh toán từ 1/5 đến 31/5",
     "khóa kỳ công tháng này",
     "seal period tháng 6",
-    "kết thúc kỳ lương và không cho sửa"
+    "kết thúc kỳ lương và không cho sửa",
+    "khóa toàn bộ giờ làm của tháng trước",
+    "niêm phong kỳ thanh toán và ghi nhật ký kiểm toán",
+    "tôi muốn đóng kỳ lương ngay bây giờ"
   ],
   "confirm_break": [
     "xác nhận đơn nghỉ phép",
     "chốt lịch nghỉ",
     "khóa ngày nghỉ phép",
     "xác nhận lịch nghỉ ốm",
-    "chốt đơn nghỉ phép"
+    "chốt đơn nghỉ phép",
+    "chốt ngày nghỉ phép đã đặt",
+    "đặt đơn nghỉ ốm này thành đã xác nhận",
+    "xác nhận mục vắng mặt theo break id"
   ],
   "confirm_pending_action": [
     "xác nhận hành động",
     "đồng ý thực hiện",
     "tôi xác nhận",
     "chấp thuận hành động đang chờ",
-    "thực hiện lệnh đã xác nhận"
+    "thực hiện lệnh đã xác nhận",
+    "đúng rồi, chạy hành động đang chờ đi",
+    "ok xác nhận, cứ tiến hành",
+    "đã duyệt, làm đúng như vậy"
   ],
   "confirm_work": [
     "khóa ca này lại",
     "xác nhận ca sáng của yasmine",
     "fix cứng ca cho linh",
     "chốt phân công ngày 15/5",
-    "giữ nguyên ca đó, đừng thay đổi"
+    "giữ nguyên ca đó, đừng thay đổi",
+    "chốt phân công này, không cho đổi nữa",
+    "bảo vệ ca này khỏi các wizard",
+    "tôi muốn cố định ca ngày mai"
   ],
   "cover_absence": [
     "xử lý vắng mặt đột xuất",
@@ -336,17 +450,26 @@
     "thêm kiểu vắng mặt",
     "định nghĩa loại phép",
     "tạo loại ốm mới",
-    "thêm loại nghỉ học"
+    "thêm loại nghỉ học",
+    "định nghĩa loại vắng mặt mới cho nghỉ học tập",
+    "tôi cần loại vắng mặt mới cho nghĩa vụ quân sự",
+    "thêm loại nghỉ không lương vào dữ liệu gốc"
   ],
   "create_absence_type": [
     "tạo loại vắng mặt mới",
-    "định nghĩa danh mục vắng mặt mới"
+    "định nghĩa danh mục vắng mặt mới",
+    "thêm một loại vắng mặt mới vào cài đặt",
+    "tôi muốn tạo loại nghỉ khác có viết tắt và màu sắc",
+    "đăng ký loại nghỉ ốm mới trong dữ liệu gốc"
   ],
   "create_address": [
     "thêm địa chỉ mới cho khách hàng",
     "tạo địa chỉ cho nhân viên",
     "đăng ký địa chỉ nơi làm việc",
-    "nhập địa chỉ thanh toán"
+    "nhập địa chỉ thanh toán",
+    "lưu địa chỉ xuất hóa đơn cho khách hàng",
+    "thêm địa chỉ công ty cho liên hệ này",
+    "ghi địa chỉ bưu điện kèm quốc gia và bang"
   ],
   "create_agent_skill": [
     "tạo kỹ năng mới cho trợ lý",
@@ -362,25 +485,37 @@
   ],
   "create_calendar_selection": [
     "tạo lựa chọn lịch",
-    "tạo lịch ngày lễ"
+    "tạo lịch ngày lễ",
+    "gộp ngày lễ của hai vùng vào một lịch",
+    "tạo lựa chọn lịch mới gồm đức và áo",
+    "tự tạo lịch ngày lễ từ nhiều quốc gia"
   ],
   "create_container_template": [
     "tạo mẫu ngày cho container",
     "tạo mẫu container mới",
     "thêm mẫu theo ngày vào ca container",
-    "thiết lập ngày trong tuần cho container"
+    "thiết lập ngày trong tuần cho container",
+    "lập kế hoạch ngày thứ hai cho container với quỹ thời gian",
+    "container còn thiếu mẫu cho thứ tư",
+    "tạo mẫu thứ ba kèm điểm đầu và điểm cuối"
   ],
   "create_contract": [
     "tạo hợp đồng mới",
     "hợp đồng lao động mới",
     "thêm hợp đồng làm việc",
-    "ký hợp đồng nhân viên"
+    "ký hợp đồng nhân viên",
+    "tạo mẫu hợp đồng mới 40 giờ mỗi tuần",
+    "lưu hợp đồng bán thời gian 20 giờ",
+    "lập cho tôi một mẫu hợp đồng với số giờ chuẩn cố định"
   ],
   "create_contract_from_template": [
     "tạo hợp đồng từ mẫu",
     "hợp đồng mới theo mẫu có sẵn",
     "sao chép mẫu hợp đồng",
-    "tạo hợp đồng dựa trên mẫu"
+    "tạo hợp đồng dựa trên mẫu",
+    "sao chép hợp đồng toàn thời gian và chỉ đổi ngày bắt đầu",
+    "hợp đồng mới giống hợp đồng có sẵn nhưng 60 phần trăm khối lượng",
+    "dùng hợp đồng bán thời gian làm mẫu với vùng ngày lễ khác"
   ],
   "create_counter_rule": [
     "tạo quy tắc đếm mới",
@@ -388,13 +523,19 @@
     "đặt quy tắc tối đa số ca đêm trong tháng",
     "tạo quy định về số ngày làm việc tối đa trong tuần",
     "thêm một quy tắc đếm sự kiện",
-    "cấu hình luật đếm số lần"
+    "cấu hình luật đếm số lần",
+    "cho phép tối đa năm ngày làm mỗi tuần",
+    "cảnh báo khi ai đó có hơn bốn ca đêm mỗi tháng",
+    "đặt giới hạn trên cho ca cuối tuần"
   ],
   "create_donation_checkout": [
     "quyên góp cho dự án klacks",
     "tạo liên kết quyên góp",
     "tôi muốn quyên góp",
-    "ủng hộ klacks một khoản tiền"
+    "ủng hộ klacks một khoản tiền",
+    "tôi muốn ủng hộ 50 franc",
+    "tạo liên kết thanh toán để quyên góp cho dự án",
+    "mở trang quyên góp 20 đô la"
   ],
   "create_email_folder": [
     "tạo thư mục email mới",
@@ -415,13 +556,19 @@
     "tạo khóa mới để nộp file",
     "cấp mã giao nhận file",
     "làm khóa cho hệ thống ngoài gửi file",
-    "tạo chìa khóa nhận file"
+    "tạo chìa khóa nhận file",
+    "tôi cần khóa truy cập cho điểm giao nhận",
+    "tạo token mới cho việc nhập file từ erp",
+    "thiết lập khóa để hệ thống ngoài giao file"
   ],
   "create_group": [
     "tạo nhóm mới",
     "lập đội mới",
     "mở bộ phận mới",
-    "tạo đơn vị tổ chức"
+    "tạo đơn vị tổ chức",
+    "tạo nhóm con mới dưới nhóm bán hàng",
+    "tôi muốn lập đội mới cho ca gác đêm",
+    "thêm đơn vị tổ chức mới có hiệu lực từ thứ hai tới"
   ],
   "create_identity_provider": [
     "tạo nhà cung cấp định danh mới",
@@ -436,7 +583,10 @@
     "thêm kỳ tính công cá nhân",
     "định nghĩa chu kỳ không theo tháng",
     "lập chu kỳ tính giờ mới",
-    "tạo khung thời gian tùy chỉnh"
+    "tạo khung thời gian tùy chỉnh",
+    "lập chu kỳ chạy từ ngày 26 đến ngày 25",
+    "tạo khoảng tính công cho nhân viên bắt đầu tháng lệch",
+    "xây dựng sơ đồ ngày có tên với ngày bắt đầu và giờ toàn thời gian"
   ],
   "create_llm_model": [
     "tạo mô hình AI mới",
@@ -455,7 +605,10 @@
     "thêm script tính công",
     "tạo công thức tính phụ cấp",
     "viết macro tính giờ làm thêm",
-    "tạo quy tắc tính thưởng"
+    "tạo quy tắc tính thưởng",
+    "tạo macro mới với nội dung script này",
+    "lưu một script tính toán mới trong phần cài đặt",
+    "đăng ký macro công thức với tên này"
   ],
   "create_monthly_target_hours": [
     "đặt giờ mục tiêu cho tháng",
@@ -463,7 +616,10 @@
     "lưu số giờ định mức cho tháng 2 năm 2026",
     "thiết lập giờ cần làm trong tháng",
     "tạo mới số giờ mục tiêu tháng",
-    "ghi nhận giờ chuẩn cho một tháng"
+    "ghi nhận giờ chuẩn cho một tháng",
+    "nhập 160 giờ chuẩn cho tháng hai",
+    "ghi nhận tháng có số giờ chuẩn khác thường",
+    "tháng này chỉ tính 150 giờ khi làm toàn thời gian"
   ],
   "create_period_cap_rule": [
     "tạo quy tắc trần giờ",
@@ -471,7 +627,10 @@
     "thêm quy định tối đa số giờ trong kỳ",
     "cấu hình trần giờ cho một khoảng thời gian",
     "tạo giới hạn giờ làm mới",
-    "đặt mức trần giờ trung bình tuần"
+    "đặt mức trần giờ trung bình tuần",
+    "tối đa trung bình 48 giờ trong mười hai tuần",
+    "cảnh báo khi đạt 90 phần trăm số giờ tháng",
+    "tạo mức trần cho giờ tăng ca mỗi kỳ"
   ],
   "create_personal_access_token": [
     "tạo token truy cập cá nhân",
@@ -485,14 +644,20 @@
     "tạo kế hoạch",
     "kế hoạch nhiều bước",
     "nhiều việc cùng lúc",
-    "lập kế hoạch công việc"
+    "lập kế hoạch công việc",
+    "tôi cần một chuỗi bước cho khách hàng, đơn hàng và nhân sự cùng lúc",
+    "gom việc này thành một kế hoạch nhiều bước",
+    "đề xuất cách thực hiện lần lượt tất cả thay đổi này"
   ],
   "create_qualification": [
     "tạo chứng chỉ mới",
     "thêm kỹ năng",
     "định nghĩa bằng cấp",
     "tạo loại chứng chỉ",
-    "thêm năng lực"
+    "thêm năng lực",
+    "đăng ký chứng chỉ mới là bằng lái xe nâng",
+    "tôi muốn lưu sơ cứu như một chứng chỉ",
+    "định nghĩa chứng chỉ bằng lái c1 trong dữ liệu gốc"
   ],
   "create_report_template": [
     "tạo mẫu báo cáo mới",
@@ -500,7 +665,10 @@
     "tạo mẫu in cho bảng kế hoạch",
     "thêm mẫu in hóa đơn",
     "tạo mẫu in danh sách nhân viên",
-    "tạo mẫu in mới"
+    "tạo mẫu in mới",
+    "thêm bố cục mới để in bảng phân ca",
+    "tôi cần mẫu cho báo cáo vắng mặt",
+    "tạo mẫu hóa đơn in được có gộp dòng"
   ],
   "create_restricted_time_window_rule": [
     "tạo quy tắc cấm giờ",
@@ -508,7 +676,10 @@
     "đặt quy định không được làm việc trong khoảng giờ này",
     "cấu hình thời gian cấm theo mùa",
     "tạo mới quy tắc cấm giờ",
-    "thiết lập khung giờ bị chặn"
+    "thiết lập khung giờ bị chặn",
+    "mùa hè không làm việc từ 12 đến 15 giờ",
+    "xác định khung giờ cấm theo mùa mỗi năm",
+    "cấm ca tối từ tháng mười một đến tháng ba cho nhóm gắn thẻ ngoài trời"
   ],
   "create_scheduling_rule": [
     "tạo quy tắc lập lịch mới",
@@ -530,14 +701,20 @@
     "tạo bộ lọc spam mới",
     "chặn một người gửi",
     "chặn tên miền",
-    "thêm mẫu lọc thư rác"
+    "thêm mẫu lọc thư rác",
+    "lọc hết thư từ tên miền này",
+    "xếp thư có tiêu đề này vào thư rác",
+    "thêm từ khóa trong nội dung thư vào bộ lọc spam"
   ],
   "create_test_environment": [
     "tạo môi trường kiểm thử",
     "thêm dữ liệu mẫu",
     "tạo nhân viên test",
     "thiết lập testdaten",
-    "tạo môi trường test với nhân viên và ca"
+    "tạo môi trường test với nhân viên và ca",
+    "dựng cho tôi môi trường thử nghiệm hoàn chỉnh cho autofill",
+    "tôi cần nhân viên thử nghiệm kèm nhóm và hợp đồng chung",
+    "sinh dữ liệu thử với ca sáng, chiều và đêm"
   ],
   "create_user": [
     "tạo người dùng mới",
@@ -550,30 +727,45 @@
     "chia ca làm việc",
     "cắt shift thành nhiều phần",
     "tách ca tổng thành các ca nhỏ",
-    "phân chia ca 24h"
+    "phân chia ca 24h",
+    "chia đơn 24 giờ thành ca sáng, chiều và đêm",
+    "tôi muốn tách ca này thành hai ca con",
+    "cắt ca từ 07:00 đến 07:00 thành các phần luân phiên"
   ],
   "cut_shift_by_date": [
     "cắt ca tại một ngày cụ thể",
     "chia ca làm hai phần theo ngày",
     "tách ca kể từ ngày chỉ định",
-    "cắt đôi ca vào ngày đó"
+    "cắt đôi ca vào ngày đó",
+    "cho ca bắt đầu lại từ ngày 1 tháng 7",
+    "tách ca thành hai đoạn tại một ngày trên lịch",
+    "cắt chuỗi ca ở ngày mốc rồi bắt đầu lại sau đó"
   ],
   "delete_absence": [
     "xóa loại nghỉ phép",
     "xóa loại vắng mặt",
     "gỡ bỏ loại nghỉ",
     "xóa loại absence",
-    "xóa vĩnh viễn loại nghỉ"
+    "xóa vĩnh viễn loại nghỉ",
+    "xóa loại nghỉ không lương khỏi cài đặt",
+    "bỏ kiểu vắng mặt không còn cần",
+    "tôi muốn ngừng dùng một loại vắng mặt lỗi thời"
   ],
   "delete_absence_type": [
     "xóa loại vắng mặt trong cài đặt",
-    "loại bỏ danh mục vắng mặt"
+    "loại bỏ danh mục vắng mặt",
+    "tôi muốn xóa một loại vắng mặt",
+    "bỏ loại vắng mặt đào tạo khỏi dữ liệu gốc",
+    "danh mục vắng mặt này lỗi thời, hãy xóa đi"
   ],
   "delete_address": [
     "xóa địa chỉ đã lưu",
     "bỏ địa chỉ này đi",
     "gỡ địa chỉ khỏi hồ sơ",
-    "xóa nơi cư trú cũ"
+    "xóa nơi cư trú cũ",
+    "bỏ địa chỉ nhà cũ",
+    "gỡ địa chỉ gửi thư của một người",
+    "xóa địa chỉ lỗi thời khỏi hồ sơ"
   ],
   "delete_agent_skill": [
     "xóa kỹ năng của trợ lý",
@@ -595,7 +787,10 @@
     "xóa ghi chú này",
     "bỏ chú thích đi",
     "gỡ nhận xét khỏi hồ sơ",
-    "xoá bình luận"
+    "xoá bình luận",
+    "xóa ghi chú ở nhân viên đó",
+    "gỡ bình luận khỏi khách hàng",
+    "bỏ chú thích có id này"
   ],
   "delete_branch": [
     "xóa chi nhánh",
@@ -610,17 +805,26 @@
     "hủy đơn nghỉ ốm của tuấn",
     "bỏ ngày nghỉ phép đã đăng ký",
     "gỡ break id 789",
-    "xóa lịch vắng mặt của hoa"
+    "xóa lịch vắng mặt của hoa",
+    "xóa mục nghỉ ốm hôm thứ ba",
+    "gỡ ngày nghỉ phép đã đặt ra khỏi lịch",
+    "hủy mục vắng mặt đào tạo này"
   ],
   "delete_break_placeholder": [
     "hủy yêu cầu nghỉ phép",
     "xóa lịch nghỉ đã lên kế hoạch",
     "gỡ đặt trước ngày nghỉ",
-    "hủy kỳ nghỉ đã lên kế hoạch"
+    "hủy kỳ nghỉ đã lên kế hoạch",
+    "rút lại yêu cầu nghỉ đã nhập",
+    "hủy vắng mặt dự kiến ngày 12/8",
+    "xóa mục giữ chỗ của vắng mặt"
   ],
   "delete_calendar_selection": [
     "xóa lựa chọn lịch",
-    "xóa lịch ngày lễ"
+    "xóa lịch ngày lễ",
+    "gỡ bỏ lịch ngày lễ không còn dùng",
+    "xóa lịch chứa ngày lễ theo vùng",
+    "tôi muốn vứt một lựa chọn lịch"
   ],
   "delete_client": [
     "xóa nhân viên",
@@ -632,12 +836,18 @@
     "xóa thông tin liên lạc này",
     "bỏ email đã lưu",
     "xóa số điện thoại khỏi danh bạ",
-    "gỡ mục liên hệ đó đi"
+    "gỡ mục liên hệ đó đi",
+    "xóa số di động khỏi liên hệ",
+    "gỡ mục thông tin liên hệ của một nhân viên",
+    "bỏ số điện bàn cũ của khách hàng"
   ],
   "delete_container_template": [
     "xóa các mẫu ngày trong tuần của container",
     "gỡ bỏ tất cả mẫu của container",
-    "đặt lại kế hoạch tuần của container"
+    "đặt lại kế hoạch tuần của container",
+    "xóa mọi mẫu theo thứ của container",
+    "xóa hẳn các mẫu của một ca container",
+    "dọn sạch công việc trong mẫu ngày của container"
   ],
   "delete_contract": [
     "xóa hợp đồng",
@@ -645,7 +855,10 @@
     "xóa hợp đồng mẫu",
     "xóa bỏ hợp đồng này",
     "hủy hợp đồng mẫu",
-    "xóa contract template"
+    "xóa contract template",
+    "gỡ mẫu hợp đồng này khỏi danh sách vĩnh viễn",
+    "bỏ hợp đồng không còn dùng",
+    "xóa hợp đồng bán thời gian cũ khỏi hệ thống"
   ],
   "delete_counter_rule": [
     "xóa quy tắc đếm",
@@ -653,11 +866,17 @@
     "hủy quy tắc đếm sự kiện",
     "loại bỏ quy tắc đếm số ca đêm",
     "xóa quy tắc đếm vì không cần nữa",
-    "gỡ quy tắc đếm này"
+    "gỡ quy tắc đếm này",
+    "quy tắc đếm này tạo nhầm, hãy xóa",
+    "chúng tôi không theo dõi chỉ số này nữa, xóa quy tắc",
+    "hủy mục đếm số lần xuất hiện"
   ],
   "delete_email": [
     "xóa email vào thùng rác",
-    "chuyển email này vào thùng rác"
+    "chuyển email này vào thùng rác",
+    "bỏ thư này đi",
+    "tôi muốn vứt tin nhắn đã nhận",
+    "xóa tin nhắn khỏi hộp thư đến"
   ],
   "delete_email_folder": [
     "xóa thư mục email",
@@ -671,20 +890,29 @@
     "hủy khoản chi",
     "loại bỏ chi phí",
     "xóa bỏ chi phí đã nhập",
-    "hủy bỏ ghi nhận chi phí"
+    "hủy bỏ ghi nhận chi phí",
+    "xóa phiếu chi hôm qua",
+    "bỏ khoản chi ghi nhầm",
+    "tôi muốn rút lại một khoản chi đã nhập"
   ],
   "delete_export_format_override": [
     "xóa điều chỉnh định dạng xuất",
     "bỏ tùy chỉnh xuất file",
     "khôi phục định dạng xuất mặc định",
     "gỡ thay đổi định dạng xuất",
-    "hủy cấu hình xuất tùy chỉnh"
+    "hủy cấu hình xuất tùy chỉnh",
+    "xóa phần tùy chỉnh của một định dạng xuất",
+    "trả định dạng xuất về định nghĩa gốc",
+    "hủy chỉnh sửa định dạng xuất lương"
   ],
   "delete_group": [
     "xóa nhóm",
     "giải tán đội",
     "xóa bộ phận",
-    "hủy nhóm khỏi hệ thống"
+    "hủy nhóm khỏi hệ thống",
+    "xóa cả địa điểm kèm các nhóm con",
+    "giải thể hẳn phòng ban này",
+    "gỡ nhóm lỗi thời khỏi cây"
   ],
   "delete_identity_provider": [
     "xóa nhà cung cấp định danh",
@@ -692,14 +920,20 @@
     "xóa cấu hình ldap",
     "loại bỏ nhà cung cấp đăng nhập",
     "xóa identity provider",
-    "hủy nhà cung cấp xác thực"
+    "hủy nhà cung cấp xác thực",
+    "xóa kết nối active directory",
+    "gỡ nhà cung cấp openid connect",
+    "bỏ nguồn đăng nhập oauth2"
   ],
   "delete_individual_period": [
     "xóa chu kỳ tính công riêng",
     "hủy kỳ tính công cá nhân",
     "gỡ chu kỳ không theo tháng",
     "xóa khung thời gian tùy chỉnh",
-    "bỏ chu kỳ tính giờ đặc biệt"
+    "bỏ chu kỳ tính giờ đặc biệt",
+    "xóa chu kỳ có ranh giới tính công riêng",
+    "gỡ chu kỳ riêng, hợp đồng quay về theo tháng",
+    "mô hình chu kỳ này không cần nữa"
   ],
   "delete_llm_model": [
     "xóa mô hình AI",
@@ -720,13 +954,19 @@
     "xóa script tên 'tinh-cong'",
     "gỡ bỏ công thức 'tinh-thuong'",
     "xóa macro tính phụ cấp",
-    "loại bỏ macro tên 'tinh-luong'"
+    "loại bỏ macro tên 'tinh-luong'",
+    "tôi muốn xóa một macro tính toán",
+    "bỏ macro cũ trong phần cài đặt",
+    "dẹp script không dùng nữa trong cài đặt"
   ],
   "delete_membership": [
     "xóa tư cách thành viên",
     "hủy liên kết khách hàng này",
     "gỡ bỏ giai đoạn gia nhập",
-    "xóa mối quan hệ khách hàng"
+    "xóa mối quan hệ khách hàng",
+    "gỡ giai đoạn membership của nhân viên",
+    "xóa membership có id này",
+    "hủy thời gian gia nhập của một nhân viên"
   ],
   "delete_monthly_target_hours": [
     "xóa giờ mục tiêu tháng",
@@ -734,7 +974,10 @@
     "hủy giờ chuẩn đã đặt cho tháng",
     "xóa giờ mục tiêu của tháng 2",
     "loại bỏ giờ định mức tháng",
-    "không muốn giờ mục tiêu cho tháng nữa"
+    "không muốn giờ mục tiêu cho tháng nữa",
+    "hủy giờ chuẩn khác thường của tháng ba",
+    "đưa giờ chuẩn của tháng này về mặc định",
+    "xóa số giờ đã ghi cho tháng"
   ],
   "delete_period_cap_rule": [
     "xóa quy tắc trần giờ",
@@ -742,35 +985,50 @@
     "hủy trần giờ cho kỳ này",
     "loại bỏ quy tắc trần giờ",
     "xóa giới hạn giờ làm không cần nữa",
-    "gỡ quy tắc trần giờ"
+    "gỡ quy tắc trần giờ",
+    "bỏ giới hạn giờ cho kỳ này",
+    "ngừng áp dụng quy tắc thời gian làm việc tối đa",
+    "tắt cảnh báo sớm khi vượt trần giờ"
   ],
   "delete_qualification": [
     "xóa chứng chỉ",
     "xóa bằng cấp khỏi danh sách",
     "loại bỏ kỹ năng",
     "hủy chứng chỉ không dùng",
-    "xóa trình độ nhân viên"
+    "xóa trình độ nhân viên",
+    "xóa chứng chỉ bằng lái xe nâng khỏi dữ liệu gốc",
+    "tôi muốn bỏ một chứng chỉ lỗi thời",
+    "xóa mục chứng chỉ theo id"
   ],
   "delete_report_template": [
     "xóa mẫu báo cáo",
     "xóa mẫu in",
     "bỏ mẫu in",
     "xóa mẫu in không dùng nữa",
-    "xóa mẫu báo cáo cũ"
+    "xóa mẫu báo cáo cũ",
+    "gỡ bố cục báo cáo cùng các khối",
+    "dẹp mẫu in đã được thay thế",
+    "xóa bố cục tạo nhầm"
   ],
   "delete_restricted_time_window_rule": [
     "xóa quy tắc cấm giờ",
     "bỏ giờ cấm hoạt động",
     "dỡ bỏ hạn chế thời gian",
     "hủy lệnh cấm giờ trong ngày",
-    "cho phép lại khoảng thời gian bị cấm"
+    "cho phép lại khoảng thời gian bị cấm",
+    "bỏ hẳn lệnh cấm giờ ban đêm",
+    "lệnh cấm giờ theo mùa này sai, hãy xóa",
+    "cho làm việc lại từ 22 giờ đến 6 giờ"
   ],
   "delete_schedule_note": [
     "xóa ghi chú lịch",
     "bỏ ghi chú đã thêm",
     "xóa nhận xét trong lịch",
     "hủy ghi chú kế hoạch",
-    "xóa ghi chú theo id"
+    "xóa ghi chú theo id",
+    "xóa ghi chú lịch ngày 12 tháng 4",
+    "bỏ lưu ý này khỏi kế hoạch",
+    "tôi muốn gỡ một ghi chú khỏi bảng phân ca"
   ],
   "delete_scheduling_rule": [
     "xóa quy tắc lập lịch",
@@ -785,14 +1043,20 @@
     "gỡ ca",
     "hủy ca",
     "xóa bỏ ca",
-    "loại bỏ ca"
+    "loại bỏ ca",
+    "dẹp đơn hàng nháp này",
+    "xóa ca có id này",
+    "bỏ ca ra khỏi danh sách"
   ],
   "delete_spam_rule": [
     "xóa quy tắc chặn thư rác",
     "bỏ bộ lọc spam",
     "hủy chặn người gửi",
     "gỡ quy tắc chặn thư rác",
-    "cho phép lại người gửi bị chặn"
+    "cho phép lại người gửi bị chặn",
+    "xóa mục lọc spam của tên miền này",
+    "cho thư từ người gửi này đi qua lại",
+    "mẫu đó chặn quá nhiều, hãy xóa"
   ],
   "delete_system_user": [
     "xóa người dùng hệ thống",
@@ -807,21 +1071,30 @@
     "bỏ từ khỏi từ điển phiên âm",
     "xóa lỗi phiên âm",
     "xóa mục phiên âm",
-    "loại bỏ mục khỏi từ điển phiên âm"
+    "loại bỏ mục khỏi từ điển phiên âm",
+    "bỏ thuật ngữ này khỏi phần sửa lỗi nhận dạng giọng nói",
+    "gỡ từ sửa lỗi khỏi từ điển chính tả giọng nói",
+    "xóa chỉnh sửa phiên âm cho cái tên này"
   ],
   "delete_work": [
     "xóa ca này đi",
     "hủy phân công ca cho tuấn",
     "bỏ lịch làm của hoa ngày hôm qua",
     "gỡ ca sáng của minh",
-    "xóa work id 123"
+    "xóa work id 123",
+    "gỡ phân công đó khỏi lịch",
+    "xóa ca đã xếp vào thứ sáu",
+    "bỏ nhân viên này khỏi ca ngày mai"
   ],
   "delete_workchange": [
     "xóa thay đổi ca",
     "xóa điều chỉnh công việc",
     "bỏ thay thế ca",
     "xóa mục công tác",
-    "xóa thông tin chỉnh sửa ca"
+    "xóa thông tin chỉnh sửa ca",
+    "xóa mục phụ trên một ca",
+    "gỡ thời gian di chuyển đã ghi",
+    "bỏ mục briefing khỏi ca"
   ],
   "detect_conflicts": [
     "kiểm tra xung đột lịch",
@@ -856,14 +1129,20 @@
     "vô hiệu hóa mô-đun mở rộng",
     "tắt tiện ích",
     "ngừng sử dụng module",
-    "tắt chức năng tạm thời"
+    "tắt chức năng tạm thời",
+    "vô hiệu mô-đun nhưng giữ lại cài đặt",
+    "tạm dừng plugin",
+    "ngắt mô-đun chức năng"
   ],
   "dismiss_skill_relation": [
     "từ chối mối liên hệ này",
     "bác bỏ mối quan hệ đã học",
     "loại bỏ mối liên hệ này",
     "không đồng ý với mối liên hệ này",
-    "hủy bỏ mối liên hệ này"
+    "hủy bỏ mối liên hệ này",
+    "bỏ quan hệ kỹ năng được đề xuất",
+    "loại liên kết gợi ý giữa các khả năng",
+    "từ chối đề xuất liên kết đang chờ"
   ],
   "email_schedule_to_client": [
     "gửi lịch qua email",
@@ -877,11 +1156,17 @@
     "kích hoạt mô-đun mở rộng",
     "bật tiện ích lên",
     "bật chức năng đã cài",
-    "kích hoạt module"
+    "kích hoạt module",
+    "bật plugin đã cài",
+    "mở mô-đun tính năng",
+    "tôi muốn kích hoạt một tiện ích bổ sung"
   ],
   "end_client_membership": [
     "kết thúc tư cách thành viên của nhân viên",
-    "đặt ngày nghỉ việc cho nhân viên"
+    "đặt ngày nghỉ việc cho nhân viên",
+    "nhân viên sẽ nghỉ việc vào cuối tháng",
+    "nhập ngày chấm dứt làm việc của nhân viên",
+    "ngày làm việc cuối cùng là ngày 30"
   ],
   "evaluate_absence_hours_setup": [
     "tại sao anh ấy nhận được quá ít giờ nghỉ phép",
@@ -1450,18 +1735,27 @@
   ],
   "extend_macro": [
     "mở rộng macro thành bản sao",
-    "bản sao mở rộng của macro tính toán"
+    "bản sao mở rộng của macro tính toán",
+    "sao chép macro và thêm một khoản phụ cấp",
+    "tôi muốn thêm khối phụ cấp vào bản sao của macro",
+    "tạo biến thể macro có thêm kết quả đầu ra"
   ],
   "fetch_new_emails": [
     "lấy email mới ngay bây giờ",
-    "làm mới hộp thư đến ngay"
+    "làm mới hộp thư đến ngay",
+    "lấy thư mới từ máy chủ ngay",
+    "kích hoạt lấy imap",
+    "tải lại hộp thư đến liền"
   ],
   "fill_group_by_criteria": [
     "tìm nhân viên theo tiêu chí và thêm vào nhóm",
     "thêm nhân viên từ khu vực vào nhóm",
     "lọc nhân viên theo hợp đồng vào nhóm",
     "thêm nhân viên phù hợp vào nhóm",
-    "điền nhóm bằng điều kiện"
+    "điền nhóm bằng điều kiện",
+    "lấy ngẫu nhiên mười nhân viên bang bern cho vào nhóm",
+    "thêm mọi nhân viên có mã bưu chính bắt đầu bằng 80 vào nhóm",
+    "điền nhóm bằng tất cả người ở zurich có hợp đồng toàn thời gian"
   ],
   "find_absence_capacity_windows": [
     "tìm khoảng thời gian phù hợp để nghỉ phép",
@@ -1498,13 +1792,19 @@
     "bổ sung tọa độ còn thiếu của các địa chỉ",
     "mã hóa địa lý các địa chỉ",
     "đặt địa chỉ khách hàng lên bản đồ",
-    "xác định tọa độ cho các địa chỉ"
+    "xác định tọa độ cho các địa chỉ",
+    "định vị các địa chỉ chưa có vị trí theo mã bưu chính và thành phố",
+    "tự động đặt khách hàng chưa có điểm bản đồ lên bản đồ",
+    "tính vĩ độ và kinh độ cho mọi địa chỉ thiếu tọa độ"
   ],
   "geocode_location_groups": [
     "tìm tọa độ cho tất cả các nhóm",
     "định vị địa lý cho các nhóm địa điểm",
     "tự động xác định tọa độ của nhóm",
-    "cập nhật tọa độ địa lý cho mọi nhóm"
+    "cập nhật tọa độ địa lý cho mọi nhóm",
+    "tự động thêm tọa độ cho các nhóm địa điểm",
+    "tra dữ liệu địa lý cho nhóm là thành phố và thị trấn",
+    "điền tọa độ gps còn thiếu của các nhóm địa điểm"
   ],
   "get_absence_hours_calculation": [
     "cho tôi xem cách tính giờ nghỉ phép",
@@ -1896,35 +2196,50 @@
     "xếp nhân viên vào nhóm trùng tên địa chỉ",
     "phân nhóm nhân viên theo thành phố",
     "gộp nhân viên không nhóm vào nhóm thành phố",
-    "đưa nhân viên vào nhóm cùng tên địa chỉ"
+    "đưa nhân viên vào nhóm cùng tên địa chỉ",
+    "cho nhân viên chưa có nhóm vào nhóm tên thành phố của họ",
+    "xếp người không nhóm vào nhóm theo nơi ở",
+    "dồn nhân viên chưa phân nhóm vào nhóm theo thị trấn của họ"
   ],
   "import_calendar_rules": [
     "nhập quy tắc ngày lễ",
     "tải lịch nghỉ lễ",
     "thêm ngày lễ hàng loạt",
     "nhập quy định lịch",
-    "đồng bộ ngày nghỉ"
+    "đồng bộ ngày nghỉ",
+    "nạp định nghĩa ngày lễ của một bang trong một lần",
+    "nhập quy tắc lịch của bang từ json",
+    "tôi muốn tạo toàn bộ ngày lễ của một quốc gia cùng lúc"
   ],
   "install_feature_plugin": [
     "cài đặt mô-đun mở rộng",
     "cài plugin tính năng",
     "thêm tiện ích mới",
     "cài đặt module bổ sung",
-    "cài thêm chức năng"
+    "cài thêm chức năng",
+    "triển khai module phụ vào hệ thống",
+    "tôi muốn cài một plugin tính năng tùy chọn",
+    "cài mô-đun để chức năng đó dùng được"
   ],
   "install_language_pack": [
     "cài gói ngôn ngữ",
     "kích hoạt ngôn ngữ mới",
     "thêm ngôn ngữ",
     "cài đặt gói tiếng",
-    "bật ngôn ngữ"
+    "bật ngôn ngữ",
+    "cài gói ngôn ngữ tiếng đức thụy sĩ gsw",
+    "kích hoạt gói ngôn ngữ có mã gsw",
+    "tôi muốn mở thêm một ngôn ngữ giao diện"
   ],
   "install_whisper_plugin": [
     "cài đặt plugin nhận dạng giọng nói nội bộ",
     "cài mô hình chuyển giọng nói thành văn bản trên máy",
     "thiết lập chuyển giọng nói thành văn bản cục bộ",
     "cài plugin speech-to-text trên hệ thống",
-    "bắt đầu sử dụng nhận dạng giọng nói trên máy"
+    "bắt đầu sử dụng nhận dạng giọng nói trên máy",
+    "cài whisper chạy tại máy",
+    "thiết lập chuyển giọng nói thành văn bản tại chỗ",
+    "cho phiên âm ngoại tuyến chạy được"
   ],
   "interpret_resource_monitor": [
     "xem tài nguyên nhóm",
@@ -2328,19 +2643,31 @@
     "xem thông tin vùng của thụy sĩ"
   ],
   "manage_pending_notes": [
-    "quản lý ghi chú đang chờ"
+    "quản lý ghi chú đang chờ",
+    "đánh dấu các ghi chú đang chờ là đã chuyển",
+    "lưu trữ các lời nhắc còn mở của tôi",
+    "xử lý các ghi chú trong hộp chờ gửi của tôi"
   ],
   "mark_email_read": [
     "đánh dấu email là đã đọc",
-    "đánh dấu email là chưa đọc"
+    "đánh dấu email là chưa đọc",
+    "chuyển thư này sang trạng thái đã đọc",
+    "đặt lại tin nhắn thành chưa đọc",
+    "tôi muốn gắn cờ đã đọc cho một thư"
   ],
   "move_email_to_folder": [
     "chuyển email sang thư mục khác",
-    "đánh dấu email là thư rác"
+    "đánh dấu email là thư rác",
+    "cho thư này vào thư mục rác",
+    "chuyển tin nhắn vào thùng rác",
+    "đưa thư từ mục rác về hộp thư đến"
   ],
   "move_group": [
     "chuyển nhóm sang nhóm cha khác",
-    "gắn nhóm vào nhóm cha mới"
+    "gắn nhóm vào nhóm cha mới",
+    "chuyển nhóm bern xuống dưới khu vực trung tâm",
+    "dời một nhóm sang nhánh khác của cây",
+    "tôi muốn đặt nhóm cha mới cho nhóm này"
   ],
   "navigate_to": [
     "đi đến trang cài đặt",
@@ -2353,7 +2680,10 @@
     "xuất bảng tổng kết nghỉ phép năm dạng pdf",
     "in lịch vắng mặt",
     "tạo bản sao giấy về các ngày nghỉ",
-    "in tổng quan nghỉ phép để treo tường"
+    "in tổng quan nghỉ phép để treo tường",
+    "tôi cần tổng quan nghỉ phép cả năm để in ra",
+    "tải bảng năm có tất cả ngày nghỉ ốm và nghỉ phép dạng pdf",
+    "kế hoạch vắng mặt trên giấy cho buổi họp nhóm"
   ],
   "open_order_export": [
     "xuất đơn hàng",
@@ -2367,14 +2697,20 @@
     "hiển thị bảng phân ca",
     "xem kế hoạch ca trực",
     "mở dienstplan cho nhóm a",
-    "vào trang lịch trình"
+    "vào trang lịch trình",
+    "mở lịch làm việc tuần sau",
+    "đưa tôi đến bảng phân ca của tháng này",
+    "tôi muốn xem lịch của một nhân viên"
   ],
   "optimize_llm_models_for_klacksy": [
     "tối ưu hóa mô hình ngôn ngữ cho klacksy",
     "kiểm tra tất cả mô hình và chọn mô hình tốt nhất",
     "sắp xếp các mô hình ngôn ngữ",
     "tự động tìm mô hình phù hợp nhất",
-    "thử nghiệm các mô hình và loại bỏ mô hình không dùng được"
+    "thử nghiệm các mô hình và loại bỏ mô hình không dùng được",
+    "xem mô hình nào không gọi được công cụ rồi tắt chúng",
+    "tự động tối ưu các mô hình của trợ lý",
+    "để mô hình mặc định được chọn theo tốc độ và chi phí"
   ],
   "partition_clients_by_address": [
     "tạo nhóm theo địa chỉ khách hàng",
@@ -2388,7 +2724,10 @@
     "tạo nhóm theo chuyên môn",
     "phân nhóm nhân viên theo chuyên môn",
     "tạo một nhóm cho mỗi chuyên môn",
-    "chia nhân sự vào các nhóm chuyên môn"
+    "chia nhân sự vào các nhóm chuyên môn",
+    "tự động chia nhân sự vào các nhóm theo chứng chỉ",
+    "sinh một nhóm riêng cho mỗi chứng chỉ gồm người sở hữu",
+    "dựng các nhóm từ chứng chỉ dưới một nhóm gốc"
   ],
   "place_work": [
     "gán yasmine vào ca sáng ngày 15/5",
@@ -2417,7 +2756,10 @@
     "tạo bản dự thảo phân ca",
     "lên kế hoạch thử",
     "tạo scenario phân công",
-    "draft lịch cho nhóm"
+    "draft lịch cho nhóm",
+    "đưa các phân công đã chọn vào một kịch bản để duyệt",
+    "biến những lựa chọn này thành bản nháp để xem xét",
+    "gói các phân công này lại thành một kịch bản"
   ],
   "read_email": [
     "đọc nội dung email",
@@ -2443,7 +2785,10 @@
     "giao ca cho nhân viên khác",
     "chuyển phân công sang nhân viên khác",
     "để nhân viên khác nhận ca",
-    "đổi người nhận ca sang nhân viên khác"
+    "đổi người nhận ca sang nhân viên khác",
+    "chuyển ca thứ hai sang đồng nghiệp khác",
+    "kéo ca đã xếp sang dòng của nhân viên khác",
+    "đổi người giữ ca thứ sáu cho người khác"
   ],
   "recall_delivered_notes": [
     "gọi lại ghi chú đã gửi"
@@ -2453,109 +2798,163 @@
     "loại bỏ bản đề xuất",
     "hủy phương án vừa tạo",
     "không chấp nhận scenario",
-    "xóa kịch bản lịch"
+    "xóa kịch bản lịch",
+    "bỏ kịch bản được đề xuất",
+    "từ chối kết quả autowizard và vứt đi",
+    "kịch bản này không dùng được, hãy xóa"
   ],
   "remove_client_contract": [
     "gỡ hợp đồng khỏi nhân viên",
     "hủy liên kết hợp đồng của nhân viên",
     "chấm dứt hợp đồng với nhân viên",
     "xóa gán hợp đồng cho nhân viên",
-    "bỏ hợp đồng lao động của nhân viên"
+    "bỏ hợp đồng lao động của nhân viên",
+    "rút hợp đồng hiện tại khỏi nhân viên",
+    "hủy gán hợp đồng lương cho người này",
+    "gỡ nhân viên khỏi hợp đồng, hợp đồng vẫn còn"
   ],
   "remove_client_from_group": [
     "xóa khỏi nhóm",
     "loại khỏi tổ",
     "gỡ ra khỏi nhóm",
     "rời nhóm",
-    "bỏ khỏi đội"
+    "bỏ khỏi đội",
+    "rút nhân viên ra khỏi đội",
+    "tháo người này khỏi nhóm",
+    "tôi muốn gỡ một khách hàng khỏi phòng ban"
   ],
   "remove_client_qualification": [
     "gỡ chứng chỉ của nhân viên",
     "xóa bằng cấp của nhân viên",
     "hủy ghi nhận kỹ năng cho nhân viên",
     "thu hồi chứng nhận của nhân viên",
-    "xóa trình độ chuyên môn của nhân viên"
+    "xóa trình độ chuyên môn của nhân viên",
+    "gạch bằng lái xe nâng khỏi hồ sơ anh ấy",
+    "xóa chứng chỉ hết hạn của người này",
+    "xóa mức kỹ năng đã ghi trong hồ sơ của cô ấy"
   ],
   "remove_container_template_task": [
     "xóa công việc khỏi mẫu container",
     "gỡ task khỏi mẫu container",
     "loại công việc khỏi mẫu ca container",
-    "bỏ công việc khỏi mẫu tuần của container"
+    "bỏ công việc khỏi mẫu tuần của container",
+    "xóa một mục khỏi kế hoạch tuần của container",
+    "gạch ca con khỏi mẫu container",
+    "bỏ phần tử này khỏi bản thiết kế container"
   ],
   "remove_shift_from_group": [
     "xóa ca khỏi nhóm",
     "đưa ca ra khỏi đội",
     "loại ca khỏi phòng ban",
-    "gỡ ca khỏi nhóm này"
+    "gỡ ca khỏi nhóm này",
+    "cắt liên kết giữa dịch vụ và đội",
+    "dịch vụ này không còn thuộc phòng ban nữa",
+    "tháo dịch vụ khỏi đơn vị tổ chức"
   ],
   "remove_shift_required_qualification": [
     "xóa chứng chỉ bắt buộc khỏi ca",
     "gỡ yêu cầu chứng chỉ của ca",
     "hủy điều kiện trình độ của ca",
-    "bỏ yêu cầu chứng chỉ khỏi ca làm"
+    "bỏ yêu cầu chứng chỉ khỏi ca làm",
+    "ca không còn cần bằng lái xe",
+    "bỏ chứng nhận yêu cầu khỏi ca",
+    "gạch điều kiện chứng chỉ bắt buộc của ca"
   ],
   "reopen_period": [
     "mở lại kỳ lương đã chốt",
     "bỏ chốt kỳ tháng 5",
     "reopen period từ 1/5 đến 15/5",
     "cho phép sửa lại kỳ đã đóng",
-    "giải phóng kỳ công"
+    "giải phóng kỳ công",
+    "hoàn tác việc đóng kỳ",
+    "mở khóa kỳ thanh toán đã niêm phong",
+    "tôi muốn mở lại kỳ tháng trước"
   ],
   "reset_container_day": [
     "đặt lại ngày container về mẫu",
     "xóa ghi đè ngày của container",
     "khôi phục ngày container về mẫu gốc",
-    "hủy tùy chỉnh ngày của container"
+    "hủy tùy chỉnh ngày của container",
+    "đặt ngày này của container về mẫu",
+    "bỏ thay đổi một ngày trên container",
+    "khôi phục container ngày 15 về mặc định"
   ],
   "reset_shift_cuts": [
     "gộp lại các phần của ca từ một ngày",
     "đặt lại các lần cắt của ca",
     "hủy việc chia ca từ ngày",
-    "nối lại các đoạn ca đã cắt"
+    "nối lại các đoạn ca đã cắt",
+    "gộp mọi phần chia lại thành một ca từ tháng sau",
+    "hủy việc chia đơn hàng từ một ngày nhất định",
+    "đưa các phần đã cắt về một ca nguyên"
   ],
   "restore_email": [
     "khôi phục email từ thùng rác",
-    "lấy lại email từ thùng rác"
+    "lấy lại email từ thùng rác",
+    "đưa thư đã xóa về hộp thư đến",
+    "hủy xóa email này",
+    "tôi muốn lấy lại một thư đã xóa"
   ],
   "restore_work": [
     "khôi phục ca đã xóa",
     "lấy lại phân công đã xóa",
     "hoàn tác việc xóa ca",
-    "phục hồi ca làm đã bị xóa"
+    "phục hồi ca làm đã bị xóa",
+    "đặt lại ca vừa xóa",
+    "tôi lỡ xóa nhầm một phân công, khôi phục giúp",
+    "hoàn tác việc xóa ca đó bằng work id"
   ],
   "revert_company_rule": [
     "hoàn tác quy tắc công ty",
     "khôi phục quy tắc công ty trước đó",
-    "thu hồi quy tắc công ty đã áp dụng"
+    "thu hồi quy tắc công ty đã áp dụng",
+    "hoàn lại thay đổi phụ cấp do một quy tắc gây ra",
+    "gỡ quy tắc theo tên và trả về trạng thái cũ",
+    "hoàn tác quy tắc đếm lúc nãy"
   ],
   "revert_macro_assignment": [
     "hoàn tác gán macro",
-    "khôi phục macro tính toán trước đó"
+    "khôi phục macro tính toán trước đó",
+    "hoàn lại việc đổi macro của các ca",
+    "đặt lại công thức tính cũ",
+    "tôi muốn hủy lần đổi macro của loại vắng mặt"
   ],
   "revoke_day_approval": [
     "hủy phê duyệt ngày hôm qua",
     "rút lại duyệt ngày 15/5",
     "bỏ ký duyệt cho thứ hai",
     "hoàn tác duyệt ngày",
-    "mở lại các ca đã duyệt"
+    "mở lại các ca đã duyệt",
+    "rút lại phê duyệt của ngày này",
+    "đưa ngày đã duyệt về trạng thái xác nhận",
+    "thu hồi chữ ký duyệt ngày"
   ],
   "revoke_erp_import_token": [
     "thu hồi chìa khóa giao file",
     "hủy khóa của hệ thống ngoài",
     "chặn chìa khóa giao file",
     "vô hiệu hóa khóa nộp file",
-    "hủy quyền giao file"
+    "hủy quyền giao file",
+    "thu hồi token nhập erp",
+    "chặn khóa truy cập của hệ thống ngoài",
+    "vô hiệu khóa nhập đã bị lộ"
   ],
   "revoke_personal_access_token": [
     "thu hồi mã truy cập của tôi",
-    "vô hiệu hóa mã API"
+    "vô hiệu hóa mã API",
+    "thu hồi một token api của tôi",
+    "tôi muốn xóa mã truy cập cá nhân",
+    "hủy khóa api của tôi ngay"
   ],
   "rollback_my_last_change": [
     "hoàn tác thay đổi cuối cùng",
     "undo lệnh vừa thực hiện",
     "lỡ tay, quay lại trạng thái trước",
     "hủy bỏ tác vụ vừa làm",
-    "rút lại thay đổi gần đây"
+    "rút lại thay đổi gần đây",
+    "hoàn tác thay đổi gần nhất của tôi",
+    "thao tác vừa rồi sai rồi, hãy quay lại",
+    "gợi ý cách đảo ngược thay đổi mới nhất của tôi"
   ],
   "run_analysis": [
     "phân tích lịch trực",
@@ -2579,7 +2978,10 @@
     "niêm phong đơn hàng này",
     "niêm phong đơn để tạo ca có thể xếp lịch",
     "khóa đơn hàng bằng niêm phong",
-    "niêm phong đơn hàng của khách"
+    "niêm phong đơn hàng của khách",
+    "niêm phong đơn này và tạo ca có thể xếp lịch",
+    "khiến đơn hàng gốc không thể thay đổi nữa",
+    "phát hành đơn thành ca và niêm phong nó"
   ],
   "search_and_navigate": [
     "tìm kiếm và điều hướng",
@@ -2654,43 +3056,64 @@
     "cập nhật kỹ năng nhân viên",
     "đặt trình độ cho nhân viên",
     "ghi nhận năng lực",
-    "xác nhận qualification"
+    "xác nhận qualification",
+    "nhân viên này có bằng lái xe nâng",
+    "ghi chứng chỉ sơ cứu có hiệu lực đến cuối năm",
+    "đặt mức thành thạo bốn cho một chứng chỉ"
   ],
   "set_company_rule_parameters": [
     "đặt tham số cho quy tắc công ty",
     "nhập giá trị cho quy tắc công ty",
-    "xác định tham số quy tắc công ty"
+    "xác định tham số quy tắc công ty",
+    "điền các tham số của bản nháp quy tắc công ty",
+    "nhập giá trị phụ cấp vào quy tắc",
+    "bổ sung các thông tin còn thiếu cho bản nháp quy tắc"
   ],
   "set_default_llm_model": [
     "đặt mô hình ngôn ngữ mặc định",
     "chọn mô hình trả lời tiêu chuẩn",
     "thiết lập mô hình mặc định cho trợ lý",
     "đổi mô hình trả lời chính",
-    "chỉ định mô hình ngôn ngữ mặc định"
+    "chỉ định mô hình ngôn ngữ mặc định",
+    "từ giờ klacksy trả lời bằng mô hình ngôn ngữ khác",
+    "đổi mô hình ngôn ngữ mặc định của trợ lý",
+    "đặt deepseek làm mô hình chọn sẵn"
   ],
   "set_erp_import_schedule": [
     "đặt lịch import erp",
     "lập lịch nhập đơn hàng",
     "thay đổi tần suất import",
     "cấu hình cron import erp",
-    "định giờ chạy import"
+    "định giờ chạy import",
+    "cho import erp chạy mỗi đêm lúc hai giờ",
+    "đặt múi giờ và cron cho lần lấy dữ liệu erp",
+    "lấy đơn hàng erp mỗi 15 phút"
   ],
   "set_explain_depth": [
     "luôn giải thích đơn giản hơn",
     "từ giờ chỉ những điều cốt lõi",
     "từ giờ giải thích mọi thứ đơn giản hơn",
     "từ giờ bỏ qua phần cơ bản",
-    "đặt lại giải thích về tự động"
+    "đặt lại giải thích về tự động",
+    "tôi mới dùng nên từ giờ giải thích từng bước chi tiết",
+    "luôn trả lời ngắn gọn và chỉ nói về hệ quả",
+    "đặt mức giải thích là người mới"
   ],
   "set_export_format_override": [
     "điều chỉnh định dạng xuất",
     "thay đổi định dạng xuất file",
     "tùy chỉnh cách xuất dữ liệu",
     "cài đặt định dạng xuất khác",
-    "sửa cấu hình xuất file"
+    "sửa cấu hình xuất file",
+    "dùng dấu chấm phẩy làm dấu ngăn cách khi xuất",
+    "đổi tên cột cho hệ thống nhận",
+    "đổi định dạng ngày của file xuất sang dấu chấm"
   ],
   "set_group_location": [
-    "đặt vị trí nhóm"
+    "đặt vị trí nhóm",
+    "lưu tọa độ cho nhóm",
+    "tôi muốn cho nhóm thành phố vĩ độ và kinh độ",
+    "tự định vị nhóm từ tên của nó"
   ],
   "set_my_display_language": [
     "đổi ngôn ngữ hiển thị",
@@ -2712,7 +3135,10 @@
   "set_period_close_lag": [
     "lưu độ trễ chốt kỳ",
     "đặt số ngày từ khi kết thúc kỳ đến khi chốt",
-    "ghi nhận thời gian chờ trước khi tự động chốt kỳ"
+    "ghi nhận thời gian chờ trước khi tự động chốt kỳ",
+    "đặt độ trễ chốt kỳ là 3 ngày",
+    "ghi nhận chốt kỳ sau khi kết thúc 10 ngày",
+    "kỳ được chốt một tuần sau khi kết thúc"
   ],
   "set_planning_deadline_lead": [
     "lưu thời gian chuẩn bị lập kế hoạch",
@@ -2720,32 +3146,47 @@
   ],
   "set_planning_profile_parameters": [
     "đặt tham số hồ sơ lập kế hoạch",
-    "nhập giá trị hồ sơ lập kế hoạch"
+    "nhập giá trị hồ sơ lập kế hoạch",
+    "đặt ngành nghề và giới hạn giờ làm trong hồ sơ lập kế hoạch",
+    "tôi muốn chỉnh giờ nghỉ và tăng ca trong bản nháp",
+    "điền giá trị cho hồ sơ lập kế hoạch mới"
   ],
   "set_proactive_governance": [
     "hãy để việc đó tự được xử lý",
     "chỉ báo cáo việc đó thôi",
-    "bật công tắc dừng khẩn"
+    "bật công tắc dừng khẩn",
+    "đặt mức độ tự chủ của klacksy cho loại phát hiện này",
+    "từ giờ chỉ thông báo cho tôi về loại phát hiện này",
+    "klacksy được tự thực hiện trường hợp này từ nay"
   ],
   "set_sealed_order_until_date": [
     "đặt ngày kết thúc cho đơn đã niêm phong",
     "giới hạn đơn niêm phong đến một ngày",
     "kết thúc đơn hàng đã niêm phong vào ngày",
-    "thêm ngày hết hạn cho đơn đã được niêm phong"
+    "thêm ngày hết hạn cho đơn đã được niêm phong",
+    "giới hạn đơn đã niêm phong đến cuối tháng",
+    "ghi thêm ngày đến cho đơn đã niêm phong sau khi niêm phong",
+    "đặt ngày kết thúc duy nhất cho đơn bị khóa"
   ],
   "set_shift_preferences": [
     "ưu tiên nhân viên cho ca",
     "chặn nhân viên khỏi ca",
     "đặt yêu thích cho ca",
     "gắn cờ đen cho ca",
-    "chọn ca ưu tiên"
+    "chọn ca ưu tiên",
+    "ưu tiên nhân viên này cho ca sáng",
+    "đưa nhân viên vào danh sách cấm cho ca này",
+    "đánh dấu ca này là ca yêu thích của nhân viên"
   ],
   "set_shift_required_qualification": [
     "yêu cầu chứng chỉ cho ca",
     "cài đặt điều kiện ca làm",
     "bắt buộc qualification cho ca",
     "thiết lập yêu cầu ca",
-    "đặt trình độ tối thiểu cho ca"
+    "đặt trình độ tối thiểu cho ca",
+    "bắt buộc có bằng lái xe cho ca này",
+    "đặt mức tối thiểu 3 cho chứng chỉ của ca",
+    "ca này chỉ được xếp người có chứng nhận"
   ],
   "set_user_group_scope": [
     "phạm vi nhóm của người dùng",
@@ -2769,7 +3210,10 @@
   "start_company_rule": [
     "tạo quy tắc công ty mới",
     "bắt đầu định nghĩa quy tắc công ty",
-    "thêm quy tắc công ty mới"
+    "thêm quy tắc công ty mới",
+    "tôi muốn thiết lập một quy định nội bộ mới",
+    "giúp tôi soạn quy tắc phụ cấp cho công ty",
+    "cùng klacksy bắt đầu một quy tắc đếm mới"
   ],
   "start_guided_tour": [
     "hướng dẫn tôi làm quen với klacks",
@@ -2780,31 +3224,46 @@
   ],
   "start_planning_profile_setup": [
     "tạo hồ sơ lập kế hoạch tùy chỉnh",
-    "bắt đầu thiết lập hồ sơ lập kế hoạch"
+    "bắt đầu thiết lập hồ sơ lập kế hoạch",
+    "tôi muốn thiết lập hồ sơ lập kế hoạch của riêng mình",
+    "bắt đầu hướng dẫn cài đặt quy tắc lập kế hoạch",
+    "cùng klacksy xây hồ sơ lập kế hoạch"
   ],
   "start_wizard1": [
     "chạy wizard 1",
     "tạo kế hoạch ban đầu",
     "lên lịch sơ bộ",
     "chạy planner coverage",
-    "bắt đầu wizard 1"
+    "bắt đầu wizard 1",
+    "chỉ chạy wizard 1 cho nhóm này",
+    "khởi động trình lập kế hoạch tokenevolution",
+    "tạo bản kế hoạch đầu tiên ưu tiên phủ hết các ca"
   ],
   "start_wizard2": [
     "chạy wizard 2",
     "cân bằng lịch làm",
     "làm mượt lịch",
     "hài hòa ca làm",
-    "chạy bước cân bằng"
+    "chạy bước cân bằng",
+    "chạy bộ hài hòa trên kế hoạch hiện tại",
+    "làm mượt kế hoạch mà không đổi phần phủ ca",
+    "khởi động wizard 2 cho kịch bản vừa áp dụng"
   ],
   "start_wizard3": [
     "chạy wizard 3",
     "tinh chỉnh lịch ai",
     "hoàn thiện lịch",
     "chạy bước polish",
-    "tối ưu hóa bằng ai"
+    "tối ưu hóa bằng ai",
+    "chỉ chạy wizard thứ ba",
+    "tinh chỉnh thêm kế hoạch đã hài hòa",
+    "khởi động bộ hài hòa tổng thể với analyse token"
   ],
   "stash_pending_note": [
-    "gác ghi chú"
+    "gác ghi chú",
+    "ghi nhớ điều này để sau làm ghi chú",
+    "tôi muốn để lại lời nhắc chuyển tiếp sau",
+    "lưu thông tin này để báo lại sau"
   ],
   "test_imap_connection": [
     "kiểm tra kết nối IMAP",
@@ -2829,42 +3288,60 @@
     "chạy import đơn hàng",
     "kích hoạt nhập dữ liệu erp",
     "import bây giờ",
-    "thực hiện import erp luôn"
+    "thực hiện import erp luôn",
+    "xử lý ngay file erp vừa tải lên",
+    "chạy nhập đơn hàng luôn, không chờ",
+    "tôi muốn đọc ngay các đơn hàng erp"
   ],
   "unconfirm_break": [
     "bỏ xác nhận đơn nghỉ phép",
     "mở khóa lịch nghỉ",
     "hủy xác nhận ngày nghỉ",
     "gỡ khóa đơn nghỉ",
-    "hủy chốt lịch nghỉ"
+    "hủy chốt lịch nghỉ",
+    "mở khóa mục nghỉ ốm để xóa được lại",
+    "gỡ khóa của mục nghỉ phép",
+    "bỏ xác nhận khỏi mục vắng mặt này"
   ],
   "unconfirm_work": [
     "mở khóa ca đã xác nhận",
     "bỏ xác nhận ca cho hùng",
     "cho phép sửa lại ca sáng",
     "giải phóng ca đã fix",
-    "hoàn tác xác nhận work 456"
+    "hoàn tác xác nhận work 456",
+    "bỏ trạng thái xác nhận của ca này",
+    "cho phép wizard sửa lại phân công này",
+    "đặt ca đã xác nhận về trạng thái mở"
   ],
   "uninstall_feature_plugin": [
     "gỡ cài đặt plugin",
     "xóa mô-đun mở rộng",
     "gỡ tiện ích không dùng",
     "hủy cài đặt module",
-    "gỡ bỏ chức năng mở rộng"
+    "gỡ bỏ chức năng mở rộng",
+    "gỡ plugin ra",
+    "tôi muốn bỏ mô-đun đã cài",
+    "đưa tiện ích bổ sung ra khỏi hệ thống"
   ],
   "uninstall_language_pack": [
     "gỡ gói ngôn ngữ",
     "tắt ngôn ngữ",
     "xóa ngôn ngữ khỏi hệ thống",
     "hủy kích hoạt ngôn ngữ",
-    "loại bỏ ngôn ngữ"
+    "loại bỏ ngôn ngữ",
+    "gỡ gói ngôn ngữ tiếng ba lan",
+    "tắt gói ngôn ngữ theo mã và xóa dữ liệu của nó",
+    "tắt ngôn ngữ bổ sung này trên giao diện"
   ],
   "uninstall_whisper_plugin": [
     "gỡ plugin nhận dạng giọng nói nội bộ",
     "gỡ mô hình chuyển giọng nói thành văn bản",
     "xóa plugin speech-to-text khỏi hệ thống",
     "quay lại sử dụng dịch vụ bên ngoài cho giọng nói",
-    "gỡ cài đặt mô hình nhận dạng giọng nói"
+    "gỡ cài đặt mô hình nhận dạng giọng nói",
+    "gỡ plugin whisper",
+    "tôi muốn bỏ mô hình giọng nói cục bộ",
+    "nhập giọng nói nên quay lại dịch vụ bên ngoài"
   ],
   "update_absence": [
     "cập nhật loại nghỉ phép",
@@ -2872,24 +3349,36 @@
     "đổi màu cho loại nghỉ",
     "cấu hình loại nghỉ phép",
     "thay đổi cài đặt loại vắng mặt",
-    "chỉnh sửa loại abwesenheit"
+    "chỉnh sửa loại abwesenheit",
+    "cho loại vắng mặt tính cả cuối tuần",
+    "chuyển loại vắng mặt giữa có lương và không lương",
+    "sửa tên viết tắt của loại nghỉ ốm"
   ],
   "update_absence_type": [
     "chỉnh sửa loại vắng mặt",
-    "đổi màu của loại vắng mặt"
+    "đổi màu của loại vắng mặt",
+    "sửa ký hiệu viết tắt của loại vắng mặt",
+    "chuyển loại vắng mặt này sang không lương",
+    "ẩn loại vắng mặt khỏi biểu đồ gantt"
   ],
   "update_active_industries_settings": [
     "thay đổi ngành nghề hoạt động",
     "cập nhật cài đặt ngành",
     "chuyển sang ngành khác",
     "đổi lĩnh vực cho hệ thống",
-    "cấu hình lại ngành nghề"
+    "cấu hình lại ngành nghề",
+    "thiết lập hệ thống cho ngành chăm sóc sức khỏe và bảo vệ",
+    "bật thêm lĩnh vực nhà hàng khách sạn",
+    "chỉ giữ logistics làm ngành đang hoạt động"
   ],
   "update_address": [
     "cập nhật địa chỉ này",
     "sửa thông tin địa chỉ",
     "thay đổi số nhà, đường",
-    "chỉnh lại mã bưu điện"
+    "chỉnh lại mã bưu điện",
+    "sửa đường và mã bưu chính của nhân viên",
+    "đổi loại địa chỉ từ chính sang hóa đơn",
+    "chỉnh thành phố trong địa chỉ này"
   ],
   "update_agent_skill": [
     "cập nhật kỹ năng trợ lý",
@@ -2927,7 +3416,10 @@
     "sửa nội dung ghi chú",
     "cập nhật chú thích cho khách hàng",
     "thay đổi ghi chú đó",
-    "sửa lại nhận xét"
+    "sửa lại nhận xét",
+    "viết lại nội dung ghi chú của nhân viên",
+    "sửa câu chữ trong nhận xét về nhân viên",
+    "thay ghi chú của nhân viên bằng nội dung mới"
   ],
   "update_branch": [
     "cập nhật chi nhánh",
@@ -2941,18 +3433,27 @@
     "sửa ngày nghỉ này",
     "cập nhật thời gian nghỉ phép",
     "chỉnh sửa ca ốm",
-    "thay đổi thông tin vắng mặt"
+    "thay đổi thông tin vắng mặt",
+    "kéo dài ngày kết thúc kỳ nghỉ phép",
+    "đổi vắng mặt sang loại khác",
+    "sửa số giờ được tính của vắng mặt"
   ],
   "update_break_placeholder": [
     "dời lịch nghỉ phép đã lên kế hoạch",
     "chuyển kỳ nghỉ sang ngày khác",
     "kéo dài thời gian nghỉ",
     "đổi loại nghỉ phép",
-    "rút ngắn kỳ nghỉ đã lên kế hoạch"
+    "rút ngắn kỳ nghỉ đã lên kế hoạch",
+    "dời kỳ nghỉ đã lên kế hoạch lùi một tuần",
+    "rút ngắn thanh vắng mặt",
+    "đổi vắng mặt dự kiến thành nghỉ ốm"
   ],
   "update_calendar_selection": [
     "đổi tên lựa chọn lịch",
-    "hợp nhất lịch ngày lễ"
+    "hợp nhất lịch ngày lễ",
+    "bỏ một vùng khỏi lựa chọn ngày lễ",
+    "chỉ hiển thị ngày lễ để nhắc, không tính phụ cấp",
+    "thêm một bang vào lựa chọn lịch"
   ],
   "update_client": [
     "cập nhật thông tin nhân viên",
@@ -2962,36 +3463,54 @@
     "chỉnh sửa thông tin cá nhân"
   ],
   "update_client_birthdate": [
-    "đổi ngày sinh"
+    "đổi ngày sinh",
+    "đặt ngày sinh mới cho nhân viên",
+    "sửa lại ngày sinh của người này",
+    "tôi muốn đổi sinh nhật của một nhân viên"
   ],
   "update_client_gender": [
-    "đổi giới tính"
+    "đổi giới tính",
+    "đặt giới tính cho nhân viên",
+    "đổi giới tính của khách hàng thành nữ",
+    "đánh dấu khách này là pháp nhân"
   ],
   "update_client_type": [
     "đổi loại thành khách hàng",
     "chuyển thành nhân viên",
     "thay đổi phân loại khách hàng",
     "đổi trạng thái người dùng",
-    "chuyển loại đối tượng"
+    "chuyển loại đối tượng",
+    "chuyển người này thành khách hàng từ giờ",
+    "biến nhân viên ngoài thành nhân viên chính thức",
+    "đưa khách hàng trở lại thành nhân viên có thể xếp lịch"
   ],
   "update_communication": [
     "sửa thông tin liên lạc",
     "cập nhật địa chỉ email",
     "chỉnh sửa số điện thoại",
-    "thay đổi ghi chú liên hệ"
+    "thay đổi ghi chú liên hệ",
+    "thay số di động cũ của nhân viên bằng số mới",
+    "viết lại ghi chú liên hệ của nhân viên",
+    "đổi mã vùng của một số điện thoại"
   ],
   "update_compensatory_rest_settings": [
     "bật theo dõi nghỉ bù",
     "đổi thời hạn nghỉ bù thành 30 ngày",
     "cập nhật cài đặt nghỉ bù",
-    "cho phép nghỉ bù sau khi làm ngày lễ"
+    "cho phép nghỉ bù sau khi làm ngày lễ",
+    "bật quyền nghỉ bù khi làm ngày lễ",
+    "tôi muốn đổi số ngày phải cấp nghỉ bù",
+    "tắt việc theo dõi nghỉ bù"
   ],
   "update_compliance_enforcement_settings": [
     "thay đổi cài đặt kiểm tra giờ làm",
     "cập nhật mức độ nghiêm ngặt của quy định",
     "đổi cảnh báo thành từ chối",
     "sửa cấu hình tuân thủ",
-    "thay đổi chính sách kiểm tra"
+    "thay đổi chính sách kiểm tra",
+    "từ giờ từ chối vi phạm giờ nghỉ thay vì chỉ cảnh báo",
+    "cho phép cấp trên vượt qua quy tắc giờ làm",
+    "đặt phản ứng khi vượt giờ tối đa là từ chối"
   ],
   "update_contract": [
     "cập nhật hợp đồng mẫu",
@@ -3011,7 +3530,10 @@
     "cập nhật quy tắc đếm số ca đêm",
     "điều chỉnh mức cho phép trong quy tắc đếm",
     "chỉnh quy tắc đếm từ cảnh báo thành chặn",
-    "sửa đổi quy tắc đếm sự kiện"
+    "sửa đổi quy tắc đếm sự kiện",
+    "cho phép tối đa ba ca đêm mỗi tháng thay vì hai",
+    "biến cảnh báo của quy tắc đếm thành chặn cứng",
+    "đổi khoảng thời gian đếm của quy tắc thành một tuần"
   ],
   "update_data_retention_settings": [
     "đổi thời gian lưu dữ liệu theo ngày",
@@ -3039,21 +3561,30 @@
     "thay đổi cấu hình nơi nhận file",
     "sửa thông tin thư mục nhận file",
     "đổi điểm giao file",
-    "điều chỉnh cài đặt nhận file"
+    "điều chỉnh cài đặt nhận file",
+    "đổi đường dẫn thư mục của điểm nhận erp",
+    "đặt tên mới cho điểm giao nhận của hệ thống ngoài",
+    "bật lại việc lấy file erp"
   ],
   "update_expense": [
     "sửa chi phí đã nhập",
     "cập nhật số tiền chi",
     "chỉnh sửa khoản chi",
     "thay đổi mô tả chi phí",
-    "điều chỉnh chi phí"
+    "điều chỉnh chi phí",
+    "đổi mô tả của một khoản chi",
+    "chuyển khoản chi này thành khoản chịu thuế",
+    "đặt số tiền mới cho khoản chi"
   ],
   "update_export_formats_settings": [
     "bật xuất định dạng csv",
     "tắt xuất định dạng excel",
     "đặt hệ thống lương mặc định",
     "thay đổi định dạng xuất",
-    "cho phép xuất tập tin pdf"
+    "cho phép xuất tập tin pdf",
+    "bật thêm một định dạng file xuất",
+    "chọn định dạng xuất nào được phép",
+    "đổi hệ thống nhận lương mặc định"
   ],
   "update_general_settings": [
     "cập nhật tên ứng dụng",
@@ -3067,13 +3598,19 @@
     "thay đổi màu nền lịch",
     "tô màu ngày lễ khác đi",
     "đổi màu tiêu đề lịch",
-    "cập nhật màu sắc lịch làm việc"
+    "cập nhật màu sắc lịch làm việc",
+    "tô màu xám nhạt cho các ngày thứ bảy trong lịch",
+    "đặt màu chữ của bảng là #333333",
+    "chỉnh màu xen kẽ theo tháng trong lưới"
   ],
   "update_group": [
     "cập nhật tên nhóm",
     "sửa thông tin nhóm",
     "chỉnh sửa mô tả nhóm",
-    "cập nhật ngày hiệu lực nhóm"
+    "cập nhật ngày hiệu lực nhóm",
+    "đổi mô tả của nhóm này",
+    "chỉnh ngày hiệu lực của nhóm",
+    "gán lịch ngày lễ khác cho nhóm"
   ],
   "update_identity_provider": [
     "cập nhật nhà cung cấp định danh",
@@ -3096,7 +3633,10 @@
     "đổi tên chu kỳ tính giờ riêng",
     "sửa kỳ tính công cá nhân",
     "thay đổi các khoảng thời gian trong chu kỳ",
-    "điều chỉnh chu kỳ không theo tháng"
+    "điều chỉnh chu kỳ không theo tháng",
+    "đổi tên sơ đồ khoảng ngày",
+    "đặt các khoảng mới cho chu kỳ riêng",
+    "dời ngày bắt đầu của một khoảng trong chu kỳ"
   ],
   "update_llm_model": [
     "cập nhật mô hình AI",
@@ -3120,7 +3660,10 @@
     "thay đổi tập lệnh macro",
     "chỉnh sửa công thức tính",
     "cập nhật script tính lương",
-    "sửa macro theo id"
+    "sửa macro theo id",
+    "viết lại nội dung của một macro",
+    "đổi tên macro",
+    "thay mô tả của một script"
   ],
   "update_membership": [
     "cập nhật thông tin tham gia khách hàng",
@@ -3128,7 +3671,10 @@
     "thay đổi ngày kết thúc membership",
     "điều chỉnh thời gian gia nhập",
     "cập nhật membership cho nhân viên",
-    "sửa membership theo id"
+    "sửa membership theo id",
+    "dời ngày bắt đầu hiệu lực của membership",
+    "đặt membership không giới hạn thời gian",
+    "xác định lại từ khi nào nhân viên có thể được xếp lịch"
   ],
   "update_monthly_target_hours": [
     "sửa số giờ mục tiêu tháng",
@@ -3136,22 +3682,34 @@
     "điều chỉnh giờ định mức tháng",
     "thay đổi số giờ cần làm trong tháng",
     "sửa lại giờ mục tiêu của tháng 1 từ 184 thành 176",
-    "chỉnh giờ chuẩn cho tháng đã có"
+    "chỉnh giờ chuẩn cho tháng đã có",
+    "sửa lại giờ chuẩn của tháng ba sau khi đã nhập",
+    "giảm số giờ của tháng mười hai",
+    "chỉnh số giờ tháng bị gõ sai"
   ],
   "update_my_account": [
     "cập nhật tài khoản của tôi",
-    "đổi tên hiển thị của tôi"
+    "đổi tên hiển thị của tôi",
+    "tôi muốn đổi họ trong tài khoản của mình",
+    "đổi địa chỉ email đăng nhập của tôi",
+    "sửa lại họ và tên trong hồ sơ cá nhân"
   ],
   "update_navigation_synonyms": [
     "thêm từ đồng nghĩa điều hướng mới",
-    "dạy klacksy cách diễn đạt này"
+    "dạy klacksy cách diễn đạt này",
+    "thêm một cách gọi khác cho mục điều hướng",
+    "klacksy cần hiểu cụm từ này cho trang đó",
+    "đăng ký cách diễn đạt điều hướng mới cho một ngôn ngữ"
   ],
   "update_openroute_settings": [
     "thay đổi ngưỡng thời gian di chuyển",
     "lưu khóa api định tuyến",
     "đặt thời gian tối thiểu cho xe đạp",
     "cập nhật cài đặt thời gian đi lại",
-    "chỉnh mức tối thiểu để tính giờ đi"
+    "chỉnh mức tối thiểu để tính giờ đi",
+    "nhập khóa api cho openroute",
+    "tôi muốn đổi thời gian di chuyển tối thiểu cho ô tô, xe đạp và đi bộ",
+    "chỉnh thời gian đi bộ tối thiểu"
   ],
   "update_overtime_settings": [
     "thay đổi cách tính tăng ca",
@@ -3159,7 +3717,10 @@
     "tăng lương tăng ca thêm 20%",
     "chỉnh mức phụ cấp tăng ca",
     "cập nhật cài đặt tăng ca",
-    "cập nhật giờ phụ trội cố định mỗi giờ cho tăng ca"
+    "cập nhật giờ phụ trội cố định mỗi giờ cho tăng ca",
+    "điều chỉnh bậc tính giờ làm thêm",
+    "tăng hệ số giờ làm thêm",
+    "chuyển giờ làm thêm sang thời gian cộng cố định"
   ],
   "update_owner_address": [
     "cập nhật địa chỉ công ty",
@@ -3173,7 +3734,10 @@
     "cài đặt lịch nghỉ lễ toàn cầu",
     "cập nhật quốc gia và tiểu bang cho doanh nghiệp",
     "thay đổi lịch làm việc mặc định",
-    "chỉnh cài đặt địa phương của công ty"
+    "chỉnh cài đặt địa phương của công ty",
+    "chuyển công ty sang bang bern",
+    "đặt quốc gia của công ty là áo",
+    "dùng lịch ngày lễ zurich làm lịch chung"
   ],
   "update_period_cap_rule": [
     "sửa quy tắc trần giờ",
@@ -3181,7 +3745,10 @@
     "cập nhật trần giờ của tháng",
     "điều chỉnh mức trần giờ trong kỳ",
     "chỉnh quy tắc trần giờ cho phù hợp",
-    "thay đổi giới hạn giờ làm tối đa"
+    "thay đổi giới hạn giờ làm tối đa",
+    "đặt trần tăng ca là 50 giờ",
+    "đổi trần giờ từ theo tháng sang theo quý",
+    "dời ngưỡng cảnh báo của giới hạn giờ lên 80 phần trăm"
   ],
   "update_qualification": [
     "cập nhật thông tin chứng chỉ",
@@ -3189,7 +3756,10 @@
     "đổi loại bằng cấp",
     "chỉnh sửa kỹ năng nhân viên",
     "cập nhật chứng chỉ hành nghề",
-    "sửa thông tin trình độ"
+    "sửa thông tin trình độ",
+    "sửa lại tên một chứng chỉ",
+    "chuyển chứng chỉ sang danh mục khác",
+    "chỉnh cách hết hạn của chứng chỉ"
   ],
   "update_report_template": [
     "sửa mẫu báo cáo",
@@ -3197,7 +3767,10 @@
     "chỉnh sửa mẫu in",
     "cập nhật mẫu báo cáo",
     "sửa mẫu in cho bảng kế hoạch",
-    "thay đổi mẫu in"
+    "thay đổi mẫu in",
+    "cập nhật bố cục báo cáo",
+    "sửa mô tả của mẫu báo cáo",
+    "chỉnh cách gộp các dòng lặp trong mẫu"
   ],
   "update_restricted_time_window_rule": [
     "sửa quy tắc cấm giờ",
@@ -3205,13 +3778,19 @@
     "cập nhật quy định cấm giờ theo mùa",
     "điều chỉnh thời gian bị cấm",
     "chỉnh quy tắc cấm giờ",
-    "sửa lại khung giờ bị chặn"
+    "sửa lại khung giờ bị chặn",
+    "đổi giờ cấm của quy tắc thành 22 giờ đến 6 giờ",
+    "chỉ áp dụng giờ cấm vào mùa hè",
+    "dời khung giờ bị cấm lùi một tiếng"
   ],
   "update_schedule_note": [
     "sửa ghi chú trên lịch",
     "cập nhật nội dung ghi chú ngày",
     "thay đổi ghi chú kế hoạch",
-    "chỉnh sửa nhắc nhở trong lịch"
+    "chỉnh sửa nhắc nhở trong lịch",
+    "viết lại ghi chú trong lịch",
+    "dời ghi chú lịch sang ngày khác",
+    "sửa nội dung ghi chú kế hoạch đã có"
   ],
   "update_scheduling_defaults": [
     "cập nhật cấu hình lập lịch mặc định",
@@ -3234,7 +3813,10 @@
     "cập nhật ca",
     "thay đổi giờ ca",
     "chỉnh sửa ca",
-    "điều chỉnh ca"
+    "điều chỉnh ca",
+    "đặt giờ kết thúc của ca nháp là 18:00",
+    "tăng số người cần cho ca lên 3",
+    "đổi ký hiệu và mô tả của ca"
   ],
   "update_spam_filter_settings": [
     "cấu hình chống thư rác",
@@ -3249,7 +3831,10 @@
     "sửa bộ lọc spam",
     "thay đổi mẫu chặn thư rác",
     "điều chỉnh quy tắc lọc spam",
-    "bật/tắt quy tắc chặn thư rác"
+    "bật/tắt quy tắc chặn thư rác",
+    "đổi từ khóa của một quy tắc spam",
+    "tắt một quy tắc thư rác",
+    "bật lại quy tắc cho thư không mong muốn"
   ],
   "update_speech_settings": [
     "đổi giọng nói của trợ lý",
@@ -3257,7 +3842,10 @@
     "bật đọc câu trả lời",
     "tắt tính năng ngắt lời khi đang nói",
     "đặt thời gian im lặng tối đa",
-    "cập nhật cài đặt giọng nói"
+    "cập nhật cài đặt giọng nói",
+    "đổi sang giọng đọc khác",
+    "chuyển mô hình phiên âm cho nhập bằng giọng nói",
+    "đặt bao lâu im lặng thì kết thúc một câu"
   ],
   "update_surcharge_mode_settings": [
     "đổi phụ cấp sang cố định",
@@ -3265,7 +3853,10 @@
     "thay đổi khung giờ ban đêm",
     "dừng cộng dồn các loại phụ cấp",
     "cập nhật chế độ tính phụ cấp",
-    "cập nhật giờ phụ trội tối thiểu và giờ phụ trội ban đêm"
+    "cập nhật giờ phụ trội tối thiểu và giờ phụ trội ban đêm",
+    "phụ cấp đêm tính theo giờ cộng cố định",
+    "đặt khung đêm từ 22 giờ đến 6 giờ",
+    "mỗi giờ chỉ tính mức phụ cấp cao nhất"
   ],
   "update_transcription_dictionary_entry": [
     "cập nhật mục từ điển phiên âm",
@@ -3273,32 +3864,47 @@
     "thay đổi cách phát âm trong từ điển",
     "chỉnh sửa mục phiên âm",
     "cập nhật biến thể phát âm",
-    "sửa lỗi phiên âm trong từ điển"
+    "sửa lỗi phiên âm trong từ điển",
+    "sửa lại thuật ngữ trong từ điển nhận dạng giọng nói",
+    "đổi cách viết của một mục cho chức năng chính tả",
+    "xóa danh mục và mô tả của một mục phiên âm"
   ],
   "update_user": [
     "sửa thông tin đăng nhập của nhân viên",
     "đổi email của người dùng",
     "cập nhật tên đăng nhập cho ai đó",
     "chỉnh sửa tên của nhân viên trong hệ thống",
-    "sửa họ tên người dùng"
+    "sửa họ tên người dùng",
+    "sửa lỗi chính tả trong tên tài khoản người dùng",
+    "đổi địa chỉ email của người dùng khác",
+    "đổi tên đăng nhập của đồng nghiệp"
   ],
   "update_web_search_settings": [
     "cài đặt công cụ tìm kiếm",
     "thay đổi cấu hình tìm kiếm web",
     "cập nhật công cụ tìm kiếm",
     "sửa api key cho web search",
-    "điều chỉnh nhà cung cấp tìm kiếm"
+    "điều chỉnh nhà cung cấp tìm kiếm",
+    "đổi nhà cung cấp tìm kiếm web",
+    "nhập khóa api mới cho tìm kiếm web",
+    "tăng số kết quả tối đa cho mỗi lần tìm kiếm"
   ],
   "update_wizard_settings": [
     "chuyển sang mô hình ai khác",
     "đổi mô hình lập lịch",
     "chọn mô hình nhanh hơn",
     "cập nhật mô hình cho trình lập lịch",
-    "đặt mô hình xử lý lịch"
+    "đặt mô hình xử lý lịch",
+    "đặt bộ hài hòa dùng tìm kiếm cục bộ",
+    "chọn mô hình ngôn ngữ cho bộ hài hòa lịch",
+    "đổi cài đặt bộ hài hòa"
   ],
   "update_work": [
     "thay đổi giờ của ca đã xếp",
-    "điều chỉnh giờ phân công trong lịch"
+    "điều chỉnh giờ phân công trong lịch",
+    "dời giờ bắt đầu và kết thúc của ca đã xếp",
+    "sửa số giờ làm của một ca đã phân công",
+    "đổi ghi chú của ca đã xếp trong lịch"
   ],
   "update_work_settings": [
     "cập nhật cài đặt làm việc",
@@ -3312,7 +3918,10 @@
     "sửa điều chỉnh công việc",
     "chỉnh sửa thay thế ca",
     "điều chỉnh giờ làm",
-    "sửa mục công tác"
+    "sửa mục công tác",
+    "đổi số giờ điều chỉnh trên ca",
+    "sửa phụ cấp của ca thay thế sau này",
+    "chỉnh giờ bắt đầu và kết thúc của buổi briefing"
   ],
   "validate_address": [
     "xác thực địa chỉ",
@@ -3350,18 +3959,30 @@
   ],
   "start_order_review": [
     "rà soát đơn hàng đang mở trước khi niêm phong",
-    "cùng rà soát các đơn hàng đang mở"
+    "cùng rà soát các đơn hàng đang mở",
+    "bắt đầu rà soát đơn hàng",
+    "gom các đơn giống nhau và xem từng đơn ngoại lệ",
+    "duyệt qua đơn hàng trước khi niêm phong"
   ],
   "set_order_review_decision": [
-    "ghi câu trả lời rà soát đơn hàng"
+    "ghi câu trả lời rà soát đơn hàng",
+    "chia đơn thành các ca 3x8",
+    "đặt giờ bắt đầu cho đơn 24 giờ",
+    "nhập chi phí đi lại cho nhóm đơn này"
   ],
   "preview_order_review": [
     "tình trạng rà soát đơn hàng"
   ],
   "cancel_order_review": [
-    "dừng rà soát đơn hàng"
+    "dừng rà soát đơn hàng",
+    "thoát khỏi phần xem xét các đơn đang mở",
+    "bỏ lượt duyệt và thoát",
+    "không tiếp tục xem xét đơn hàng nữa"
   ],
   "execute_order_review": [
-    "áp dụng buổi rà soát đơn hàng đã xác nhận"
+    "áp dụng buổi rà soát đơn hàng đã xác nhận",
+    "ghi các giá trị đã quyết vào đơn hàng đang mở",
+    "chạy bản xem trước đã xác nhận của các đơn",
+    "niêm phong đơn sau xác nhận và cắt thành các ca"
   ]
 }

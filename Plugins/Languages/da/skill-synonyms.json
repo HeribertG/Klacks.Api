@@ -4,14 +4,20 @@
     "overfør forslaget til hovedskemaet",
     "anvend wizard-resultatet",
     "acceptér det viste scenarie",
-    "brug dette forslag"
+    "brug dette forslag",
+    "flet wizard-forslaget ind i den rigtige plan",
+    "godkend scenariet og flyt det til hovedplanen",
+    "jeg vil gemme autowizardens resultat"
   ],
   "accept_skill_relation": [
     "bekræft den sammenhæng du har lært",
     "godkend forbindelsen mellem dine evner",
     "lad den lærte relation tælle",
     "accepter den afhængighed du har fundet",
-    "godkend det lærte link mellem funktionerne"
+    "godkend det lærte link mellem funktionerne",
+    "acceptér den foreslåede skill-relation",
+    "bekræft det foreslåede link mellem de to evner",
+    "godkend denne ventende forbindelse"
   ],
   "add_ai_memory": [
     "hukommelse",
@@ -32,28 +38,40 @@
   "add_break_placeholder": [
     "ferieønske",
     "forhåndsreservation af fravær",
-    "ferieanmodning"
+    "ferieanmodning",
+    "indtast et ferieønske fra 3. til 14. august",
+    "forhåndsbook sommerferieønsker for en medarbejder",
+    "gem en medarbejders orlovsanmodning som reservation"
   ],
   "add_client_email": [
     "tilføj email til",
     "opdater email for",
     "sæt email på",
     "tilføj mail til",
-    "registrer email til"
+    "registrer email til",
+    "sæt mailadressen på en kunde",
+    "ret mailen for denne medarbejder",
+    "indtast en ny e-mailadresse til klienten"
   ],
   "add_client_note": [
     "tilføj note til",
     "skriv bemærkning til",
     "tilføj kommentar til",
     "noter om",
-    "sæt note på"
+    "sæt note på",
+    "hæft en note på denne medarbejder",
+    "jeg vil skrive en bemærkning på kunden",
+    "gem et kort notat om medarbejderen"
   ],
   "add_client_phone": [
     "tilføj telefonnummer til",
     "opdater telefonnummer for",
     "sæt telefonnummer på",
     "tilføj mobil til",
-    "registrer telefon til"
+    "registrer telefon til",
+    "gem et nyt mobilnummer til en medarbejder",
+    "tilføj et kontaktnummer til denne person",
+    "indtast et telefonnummer for en kunde"
   ],
   "add_client_to_group": [
     "tilføj til team",
@@ -66,7 +84,10 @@
     "sæt i gruppe",
     "læg i gruppe",
     "tilknyt til gruppe",
-    "placér i gruppe"
+    "placér i gruppe",
+    "tilføj medarbejderen til teamet",
+    "sæt denne person ind i gruppen",
+    "jeg vil føje en kunde til en gruppe"
   ],
   "add_client_to_nearest_group": [
     "tilføj kunden til nærmeste gruppe",
@@ -80,14 +101,20 @@
     "tilføj en opgave til containerskabelonen",
     "sæt en opgavevagt ind i containerens skabelon",
     "optag opgave i containervagtens skabelon",
-    "tilføj task til containerskabelonen på en ugedag"
+    "tilføj task til containerskabelonen på en ugedag",
+    "tilføj endnu en delvagt til containerens mandagsskabelon",
+    "sæt en opgave på position 2 i containerens skabelon",
+    "udvid tirsdagsskabelonen med en ekstra opgave"
   ],
   "add_expense": [
     "tilføj en udgift til vagten",
     "registrer en ny spese",
     "bogfør udgift for 100 kr på mobilen",
     "indtast ekstraomkostning på arbejdet",
-    "gem en ny udlægspost"
+    "gem en ny udlægspost",
+    "tilføj 25 kr. togbillet som udgift på gårsdagens vagt",
+    "bogfør et udlæg til parkering på vagten",
+    "indtast en skattepligtig godtgørelse på 30 kr. på tildelingen"
   ],
   "add_personal_memory": [
     "husk at jeg foretrækker kaffe om morgenen",
@@ -95,7 +122,10 @@
     "gem at jeg altid vælger nattevagter",
     "min præference er at have fri om onsdagen",
     "skriv ned at jeg foretrækker korte vagter",
-    "personlig note: jeg undgår aftenarbejde"
+    "personlig note: jeg undgår aftenarbejde",
+    "husk at jeg helst vil have korte svar",
+    "gem en privat præference til mig til senere",
+    "bemærk at jeg ikke bryder mig om at planlægge i weekenden"
   ],
   "add_schedule_command": [
     "gør yasmine fri den 15. maj",
@@ -107,21 +137,30 @@
   "add_schedule_commands_range": [
     "fri periode",
     "kommandoer for periode",
-    "flere fridage"
+    "flere fridage",
+    "hun vil have fri hver dag fra den 10. til den 20. maj",
+    "han ønsker kun morgenvagter hele juli",
+    "hold den første uge i juni fri for ham"
   ],
   "add_schedule_note": [
     "tilføj notat",
     "opret plannotat",
     "skriv bemærkning",
     "annotér plan",
-    "tilføj kommentar i skema"
+    "tilføj kommentar i skema",
+    "skriv en overleveringsnote til medarbejderen tirsdag",
+    "læg en kommentar på en bestemt dag i skemaet",
+    "sæt en bemærkning på planen for fredag"
   ],
   "add_selected_clients_to_group": [
     "tilføj markerede til gruppe",
     "læg markerede medarbejdere i gruppe",
     "sæt valgte i gruppe",
     "tilføj afkrydsede til gruppe",
-    "gruppér markerede"
+    "gruppér markerede",
+    "læg de afkrydsede medarbejdere i en gruppe",
+    "tilføj alle jeg har valgt til gruppen",
+    "tag de markerede ansatte med i gruppen"
   ],
   "add_shift_to_group": [
     "tilføj vagten til team a",
@@ -136,7 +175,10 @@
     "lær stt 'müller' som 'møller'",
     "opret ny udtaleindgang",
     "tilføj fonetisk variant: 'taxi' → 'klacksy'",
-    "indtast nyt ord i ordbogen"
+    "indtast nyt ord i ordbogen",
+    "lær talegenkendelsen at klaxi betyder klacksy",
+    "indtast en ny misforståelse i transskriptionsordbogen",
+    "diktatet skal stave dette begreb rigtigt fremover"
   ],
   "add_workchange": [
     "tilføj rettelse til vagt",
@@ -159,34 +201,52 @@
   "apply_company_rule": [
     "anvend virksomhedsreglen",
     "gem og bekræft virksomhedsreglen",
-    "aktivér virksomhedsreglen"
+    "aktivér virksomhedsreglen",
+    "anvend udkastet til virksomhedsreglen nu",
+    "sæt den forberedte tillægsregel i kraft",
+    "forhåndsvisningen er bekræftet, så gem husreglen"
   ],
   "apply_grouping": [
     "anvend gruppeinddelingen nu og flyt alle klienter",
     "gennemfør den foreslåede gruppeinddeling for alle klienter",
     "bekræft og anvend gruppeinddelingen",
-    "flyt alle klienter til deres lokationsgrupper nu"
+    "flyt alle klienter til deres lokationsgrupper nu",
+    "flyt alle medarbejdere ind i deres lokationsgrupper",
+    "kør lokationsgrupperingen nu",
+    "gem den foreslåede lokationstildeling"
   ],
   "apply_grouping_plan": [
     "anvend gruppeplanen",
-    "gennemfør de foreslåede gruppeændringer"
+    "gennemfør de foreslåede gruppeændringer",
+    "udfør den godkendte gruppeplan",
+    "sæt de foreslåede medlemsændringer i værk",
+    "kør grupperingsplanen med dens kode"
   ],
   "apply_planning_profile": [
     "anvend planlægningsprofilen",
-    "gem planlægningsprofilen"
+    "gem planlægningsprofilen",
+    "anvend udkastet til planlægningsprofilen",
+    "aktivér mine egne planlægningsregler fra udkastet",
+    "opret planlægningsprofilen nu"
   ],
   "approve_day": [
     "godkend dagen den 15. maj",
     "frigiv hele mandagen",
     "approveér tirsdag for gruppen",
     "sign off på fredag",
-    "lås hele dagsplanen op for godkendelse"
+    "lås hele dagsplanen op for godkendelse",
+    "godkend alle vagter mandag for gruppen",
+    "godkend den 15. maj for denne gruppe",
+    "jeg vil låse dagen som godkendt for teamet"
   ],
   "assign_contract_by_name": [
     "tildel kontrakt til medarbejder kun ud fra navn",
     "tildel en kontrakt til en person, jeg kun kender navnet på",
     "sæt kontrakt på klient ved navn uden id",
-    "tildel kontrakt til medarbejderen der hedder Jensen"
+    "tildel kontrakt til medarbejderen der hedder Jensen",
+    "knyt en medarbejder og en kontrakt sammen kun med navne",
+    "giv medarbejderen med dette navn deltidskontrakten",
+    "gør en ny kontrakt aktiv for en medarbejder ud fra navn"
   ],
   "assign_contract_to_client": [
     "kontrakttildeling",
@@ -195,15 +255,24 @@
   ],
   "assign_macro_to_absence_type": [
     "tildel makro til fraværstype",
-    "udskift beregningsmakro for fraværstype"
+    "udskift beregningsmakro for fraværstype",
+    "skift ferie til en anden beregningsmakro",
+    "jeg vil sætte en ny timeformel for sygefravær",
+    "knyt ulykkesfraværstypen til en anden makro"
   ],
   "assign_macro_to_shift": [
     "tildel makro til vagt",
-    "udskift beregningsmakro for vagt"
+    "udskift beregningsmakro for vagt",
+    "sæt den udvidede tillægsformel på nattevagten",
+    "giv denne vagt en anden makro",
+    "gå tilbage til standardformlen for vagten"
   ],
   "assign_orders_to_groups": [
     "gruppér importerede ordrer",
-    "ordrer uden gruppe"
+    "ordrer uden gruppe",
+    "tildel alle åbne ordrer til deres grupper",
+    "sortér de importerede ordrer ind i bygrupperne efter erp-importen",
+    "placér ordrer uden gruppe automatisk i den passende lokationsgruppe"
   ],
   "assign_shifts_to_city_groups": [
     "fordel vagter på bygrupper efter kundens adresse",
@@ -224,7 +293,10 @@
     "masseopdater fravær for gruppe",
     "læg fravær ind på hele teamet",
     "opret træningsdag for alle i gruppen",
-    "giv hele gruppen fri"
+    "giv hele gruppen fri",
+    "book en kursusdag til alle i gruppen på fredag",
+    "jeg vil give hele gruppen samme fravær én dag",
+    "registrer samme fravær for alle teammedlemmer på en dato"
   ],
   "bulk_add_shifts_to_group": [
     "tilføj alle vagter med navnet 'morgen' til gruppen",
@@ -232,41 +304,62 @@
     "bulk-link ordrer der matcher 'nat' til afdelingen",
     "vis mig hvilke vagter der passer til 'weekend' i gruppen",
     "tildel alle job der hedder 'service' til holdet",
-    "sammenlæg vagter med 'vagt' til team b"
+    "sammenlæg vagter med 'vagt' til team b",
+    "knyt alle tjenester med denne forkortelse til afdelingen",
+    "læg mange vagter ind i en gruppe på én gang",
+    "jeg vil samle alle nattevagter i én gruppe"
   ],
   "bulk_delete_works": [
     "slet alle vagter for en medarbejder i en periode",
     "slet alle indsatser i et datointerval",
     "fjern alle tildelinger i en periode",
-    "slet flere indsatser på én gang"
+    "slet flere indsatser på én gang",
+    "ryd alle en medarbejders vagter for næste uge",
+    "fjern en persons tildelinger på en bestemt vagt i perioden",
+    "slet op til 50 vagter i et datointerval"
   ],
   "bundle_nearby_timerange_shifts_into_container": [
     "saml mobile tjenester omkring en by",
     "indsaml nærliggende timerange-vagter",
-    "kombiner mobile tjenester i nærheden"
+    "kombiner mobile tjenester i nærheden",
+    "pak alle mobile opgaver omkring winterthur i en ny container",
+    "byg en container til torsdag af nærliggende timerange-vagter",
+    "slå ruterne nær basel sammen til en dagscontainer"
   ],
   "cancel_company_rule": [
     "annuller udkast til virksomhedsregel",
     "kassér den igangværende virksomhedsregel",
-    "afbryd definitionen af virksomhedsreglen"
+    "afbryd definitionen af virksomhedsreglen",
+    "kassér den virksomhedsregel jeg er begyndt på",
+    "afbryd udkastet til husreglen",
+    "fortsæt ikke med at registrere reglen"
   ],
   "cancel_planning_profile_setup": [
     "annuller opsætning af planlægningsprofil",
-    "kassér udkast til planlægningsprofil"
+    "kassér udkast til planlægningsprofil",
+    "afbryd opsætningen af planlægningsprofilen",
+    "luk profilguiden uden at gemme",
+    "stop opsætningsguiden for profilen"
   ],
   "cancel_recurring_task": [
     "annuller min ugentlige påmindelse",
     "stop den gentagne opgave",
     "slet min planlagte opgave",
     "fjern cron job",
-    "afbryd opgaven"
+    "afbryd opgaven",
+    "stop min tilbagevendende påmindelse",
+    "slet det planlagte cron-job",
+    "fjern den ugentlige påmindelse"
   ],
   "cancel_wizard_job": [
     "stop planlægning",
     "afbryd wizard",
     "annuller plan",
     "stop job",
-    "afbryd beregning"
+    "afbryd beregning",
+    "stands det kørende planlægningsjob",
+    "afslut den automatiske planlægningskørsel",
+    "stop autowizard nu"
   ],
   "check_absence_capacity_reserve": [
     "kapacitetsreserve til ferie",
@@ -288,7 +381,10 @@
   "check_erp_drop_point_folder_health": [
     "tjek mappe-sundhed for afleveringspunktet",
     "overlever mappen en genstart",
-    "opret processed og error mapper"
+    "opret processed og error mapper",
+    "kan der skrives til erp-mappen",
+    "tjek at erp-afleveringsmappen findes, og opret den hvis den mangler",
+    "hvorfor bliver ordrefilerne ikke hentet, test mappen"
   ],
   "check_group_geocoding_status": [
     "geokodningsstatus"
@@ -296,18 +392,27 @@
   "clear_client_availability": [
     "nulstil medarbejderens tilgængelighed",
     "slet tilgængelighedsposter",
-    "ryd tilgængelighed så dagen er åben igen"
+    "ryd tilgængelighed så dagen er åben igen",
+    "slet alle tilgængelighedsposter i august",
+    "frigiv dagen helt til planlægning igen",
+    "fjern kun formiddagstilgængeligheden"
   ],
   "close_clarification": [
     "jeg afklarer det selv med medarbejderen",
-    "luk det opfølgende spørgsmål"
+    "luk det opfølgende spørgsmål",
+    "jeg tager afklaringen personligt",
+    "luk det åbne spørgsmål til medarbejderen",
+    "vent ikke længere på svaret om fraværet"
   ],
   "close_period": [
     "luk perioden for maj",
     "afslut lønperioden",
     "seal måneden",
     "lås alle vagter i maj",
-    "finalisér perioden fra 1. maj til 31. maj"
+    "finalisér perioden fra 1. maj til 31. maj",
+    "lås alle timer fra sidste måned endeligt",
+    "forsegl lønperioden og skriv auditloggen",
+    "jeg vil lukke perioden til lønkørsel nu"
   ],
   "confirm_break": [
     "bekræft ferieindtastningen",
@@ -315,21 +420,30 @@
     "fastlås sygefraværet",
     "bekræft fraværet",
     "godkend min ferie",
-    "markér ferien som bekræftet"
+    "markér ferien som bekræftet",
+    "gør den bookede ferie bindende",
+    "sæt dette sygefravær til bekræftet",
+    "bekræft fraværet med dets break-id"
   ],
   "confirm_pending_action": [
     "bekræft handling",
     "ja, gør det",
     "jeg bekræfter",
     "godkend ventende handling",
-    "udfør bekræftet handling"
+    "udfør bekræftet handling",
+    "ja, kør den ventende handling",
+    "okay bekræftet, fortsæt",
+    "godkendt, gør det præcis sådan"
   ],
   "confirm_work": [
     "lås vagten for yasmine",
     "bekræft morgenvagten den 15.",
     "fastlæg denne vagt",
     "godkend tildelingen",
-    "fixér arbejdet"
+    "fixér arbejdet",
+    "gør denne tildeling endelig",
+    "beskyt vagten mod wizarderne",
+    "sæt vagten til bekræftet"
   ],
   "cover_absence": [
     "dæk et fravær med forslag",
@@ -343,18 +457,27 @@
     "tilføj ny fraværsart",
     "definer ferietype",
     "opret sygeorlovstype",
-    "opret ny fraværskategori"
+    "opret ny fraværskategori",
+    "definer en ny fraværstype til studieorlov",
+    "jeg har brug for en ny fraværsart til militærtjeneste",
+    "tilføj endnu en type til ulønnet orlov i stamdata"
   ],
   "create_absence_type": [
     "opret en ny fraværstype",
-    "definer en ny fraværskategori"
+    "definer en ny fraværskategori",
+    "tilføj en ny fraværstype i indstillingerne",
+    "jeg vil oprette endnu en orlovsart med forkortelse og farve",
+    "ny fraværspost i stamdata hvor weekender tæller med"
   ],
   "create_address": [
     "opret en ny adresse",
     "tilføj adresse til medarbejderen",
     "registrer postadresse",
     "ny adresse til klienten",
-    "opret adresse med vej og by"
+    "opret adresse med vej og by",
+    "gem en faktureringsadresse til kunden",
+    "tilføj en forretningsadresse til denne kontakt",
+    "registrer en postadresse med land og kanton"
   ],
   "create_agent_skill": [
     "opret færdighed",
@@ -372,39 +495,57 @@
   ],
   "create_calendar_selection": [
     "opret kalendervalg",
-    "opret feriekalender"
+    "opret feriekalender",
+    "saml helligdagene for to regioner i én kalender",
+    "nyt kalendervalg med tyskland og østrig",
+    "byg min egen helligdagskalender af flere lande"
   ],
   "create_container_template": [
     "opret en ugedagsskabelon for containeren",
     "lav en ny containerskabelon",
     "tilføj en dagsskabelon til containervagten",
-    "konfigurer en ugedag på containervagten"
+    "konfigurer en ugedag på containervagten",
+    "lav en dagsplan med tidsbudget til containeren på mandag",
+    "containeren mangler stadig en skabelon til onsdag",
+    "opret tirsdagsskabelonen med start- og slutsted"
   ],
   "create_contract": [
     "opret kontrakt",
     "ny kontrakt",
     "tilføj kontrakt",
     "ansættelseskontrakt",
-    "arbejdskontrakt"
+    "arbejdskontrakt",
+    "jeg vil oprette en ny kontraktskabelon med 40 ugentlige timer",
+    "registrer en kontrakt med 8 timer om dagen og 5 dage",
+    "gem en ny deltidskontrakt med 20 timer"
   ],
   "create_contract_from_template": [
     "opret kontrakt ud fra skabelon",
     "ny kontrakt efter skabelon",
     "kopier kontraktskabelon",
-    "lav kontrakt på baggrund af skabelon"
+    "lav kontrakt på baggrund af skabelon",
+    "kopier fuldtidskontrakten og ændr kun startdatoen",
+    "ny kontrakt som den eksisterende, men med 60 procent beskæftigelse",
+    "brug deltidskontrakten som skabelon med en anden helligdagsregion"
   ],
   "create_counter_rule": [
     "opret en tælleregel",
     "tillad maksimalt fire nattjenester om måneden",
     "sæt en grænse for antal arbejdsdage per uge",
     "opret regel for hvor ofte noget må ske",
-    "tilføj en tælleregel for nattjenester"
+    "tilføj en tælleregel for nattjenester",
+    "tillad højst fem arbejdsdage pr. uge",
+    "advar når nogen får mere end fire nattevagter om måneden",
+    "sæt en øvre grænse for weekendvagter"
   ],
   "create_donation_checkout": [
     "donere til klacks",
     "opret en donation",
     "jeg vil give en donation",
-    "støt klacks med et beløb"
+    "støt klacks med et beløb",
+    "jeg vil gerne donere 50 franc",
+    "lav et betalingslink til en donation til projektet",
+    "åbn donationssiden for 20 dollar"
   ],
   "create_email_folder": [
     "opret ny e-mail-mappe",
@@ -429,14 +570,20 @@
     "lav en adgangsnøgle til filoverførsel",
     "generer en token til ekstern indlevering",
     "opret adgangsnøgle til eksternt system",
-    "nyt systemnøgle til filaflevering"
+    "nyt systemnøgle til filaflevering",
+    "jeg skal bruge en adgangsnøgle til afleveringsstedet",
+    "opret et nyt token til erp-filimporten",
+    "det eksterne system skal have en nøgle til at aflevere filer"
   ],
   "create_group": [
     "opret ny gruppe",
     "tilføj team",
     "opret afdeling",
     "opret enhed",
-    "læg lokation til"
+    "læg lokation til",
+    "opret en ny undergruppe under salgsgruppen",
+    "jeg vil stifte et nyt team til nattevagten",
+    "registrer en ny organisationsenhed gyldig fra næste mandag"
   ],
   "create_identity_provider": [
     "opret identity provider",
@@ -450,7 +597,10 @@
     "lav en ny periode med afvigende start",
     "definer et nyt tidsrum med startdato",
     "tilføj en periode med egen startdato",
-    "opret et skema med afvigende perioder"
+    "opret et skema med afvigende perioder",
+    "opret en periode der løber fra den 26. til den 25. i måneden",
+    "lav et navngivet tidsskema med startdatoer og fuldtidstimer",
+    "definer en afregningsperiode fra den 26. til den 25. hver måned"
   ],
   "create_llm_model": [
     "opret AI-model",
@@ -472,21 +622,30 @@
     "lav en formel til lønberegning",
     "opret makro med navn 'overtid'",
     "tilføj et nyt regelsæt",
-    "skriv et makro-script"
+    "skriv et makro-script",
+    "lav en ny makro med dette scriptindhold",
+    "jeg vil gemme et nyt beregningsscript i indstillingerne",
+    "ny makro under indstillinger"
   ],
   "create_monthly_target_hours": [
     "sæt måltimer for februar 2026",
     "angiv antal timer for en måned",
     "opret månedlig timekvote",
     "fastlæg måltimer for marts",
-    "indsæt hvor mange timer en måned tæller"
+    "indsæt hvor mange timer en måned tæller",
+    "indtast 160 måltimer for februar",
+    "registrer en måned med afvigende måltimer",
+    "denne måned tæller kun 150 timer ved fuld tid"
   ],
   "create_period_cap_rule": [
     "sæt et loft på 170 timer om måneden",
     "opret en grænse for timer per periode",
     "sæt et loft på 48 timer i gennemsnit per uge",
     "opret regel for maksimale timer pr. måned",
-    "tilføj en timebegrænsning for en periode"
+    "tilføj en timebegrænsning for en periode",
+    "højst 48 timer i gennemsnit over tolv uger",
+    "giv en advarsel ved 90 procent af månedstimerne",
+    "opret en øvre grænse for overtid pr. periode"
   ],
   "create_personal_access_token": [
     "opret en personlig adgangstoken",
@@ -500,7 +659,10 @@
     "opret en plan",
     "flertrinsplan",
     "flere opgaver på én gang",
-    "udarbejd en opgaveplan"
+    "udarbejd en opgaveplan",
+    "jeg skal bruge et forløb for kunde, ordre og bemanding i ét hug",
+    "saml det som en plan med flere trin",
+    "foreslå hvordan vi gennemfører alle disse ændringer efter hinanden"
   ],
   "create_qualification": [
     "opret kvalifikation",
@@ -508,7 +670,10 @@
     "definer kvalifikation",
     "opret certifikattype",
     "registrer kvalifikation",
-    "ny kvalifikation"
+    "ny kvalifikation",
+    "registrer en ny kvalifikation truckcertifikat",
+    "jeg vil gemme førstehjælp som kvalifikation",
+    "tilføj en kvalifikation med navne på fire sprog i stamdata"
   ],
   "create_report_template": [
     "opret en ny rapportskabelon",
@@ -516,14 +681,20 @@
     "tilføj en ny udskrivningsskabelon",
     "opret en skabelon til udskrivning",
     "ny skabelon til rapporter",
-    "lav en ny printskabelon"
+    "lav en ny printskabelon",
+    "tilføj et nyt layout til udskrift af vagtplaner",
+    "jeg skal bruge en skabelon til fraværsrapporten",
+    "opret en printbar fakturaskabelon med sammenlagte rækker"
   ],
   "create_restricted_time_window_rule": [
     "opret en spærretidsregel",
     "spær for arbejde mellem klokken 22 og 06",
     "opret regel for spærrede tidsrum i en sæson",
     "tilføj spærretid for en bestemt periode",
-    "opret forbud mod arbejde i tidsrummet"
+    "opret forbud mod arbejde i tidsrummet",
+    "intet arbejde mellem 12 og 15 om sommeren",
+    "definer et spærret tidsvindue for en sæson hvert år",
+    "spær aftener fra november til marts for alle med tagget udendørs"
   ],
   "create_scheduling_rule": [
     "opret planlægningsregel",
@@ -543,14 +714,20 @@
     "tilføj en spamregel",
     "blokér et domæne",
     "stop modtagelse fra denne adresse",
-    "lav en ny spamregel"
+    "lav en ny spamregel",
+    "sortér alle mails fra dette domæne fra",
+    "klassificér beskeder med dette emne som spam",
+    "tilføj et nøgleord i mailteksten til spamfilteret"
   ],
   "create_test_environment": [
     "opret testmiljø",
     "generer testmedarbejdere",
     "lav testdata",
     "opret testgruppe med vagter",
-    "tilføj testansatte"
+    "tilføj testansatte",
+    "sæt et komplet testmiljø op til autofill",
+    "jeg skal bruge testpersonale med gruppe og fælles kontrakt",
+    "generer testdata med morgen-, aften- og natvagter"
   ],
   "create_user": [
     "opret bruger",
@@ -565,31 +742,46 @@
     "opdel skift i tidssporer",
     "skær vagt i dele",
     "klip 24 timers vagt",
-    "del order i afsnit"
+    "del order i afsnit",
+    "del 24-timers ordren i morgen, aften og nat",
+    "skær denne ordre op i flere tidsafsnit",
+    "jeg vil dele vagten i to delvagter"
   ],
   "cut_shift_by_date": [
     "skær vagten over på en bestemt dato",
     "del vagten i to på en dato",
     "opdel vagten fra en given dato",
-    "klip vagten ved datoen"
+    "klip vagten ved datoen",
+    "lad vagten starte forfra fra den 1. juli",
+    "adskil vagten i to stykker på en kalenderdag",
+    "afslut serien på skæringsdatoen og start en ny efter den"
   ],
   "delete_absence": [
     "slet fraværstype",
     "fjern ferietype",
     "slet en orlovstype",
     "fjern sygdomsfraværstype",
-    "slet en fraværsstamdata"
+    "slet en fraværsstamdata",
+    "slet fraværstypen ulønnet orlov fra indstillingerne",
+    "fjern en fraværsart der ikke bruges længere",
+    "jeg vil udfase en forældet fraværstype"
   ],
   "delete_absence_type": [
     "slet fraværstypen",
-    "fjern fraværskategorien"
+    "fjern fraværskategorien",
+    "jeg vil slette en fraværstype",
+    "fjern fraværstypen fra stamdata",
+    "fraværskategorien er forældet, slet den"
   ],
   "delete_address": [
     "slet adressen",
     "fjern postadressen",
     "slet klientens adresse",
     "fjern den registrerede adresse",
-    "drop adressen"
+    "drop adressen",
+    "fjern den gamle hjemmeadresse",
+    "stryg en persons postadresse",
+    "tag den forældede adresse ud af profilen"
   ],
   "delete_agent_skill": [
     "slet færdighed",
@@ -608,7 +800,10 @@
     "fjern notatet",
     "slet bemærkningen",
     "slet noten",
-    "fjern klientens note"
+    "fjern klientens note",
+    "slet noten på medarbejderen igen",
+    "fjern kommentaren fra klienten",
+    "stryg annotationen med dette id"
   ],
   "delete_branch": [
     "slet filial",
@@ -621,17 +816,26 @@
     "slet sygefraværet for mette",
     "annuller kursusfraværet",
     "slet denne ferie",
-    "fjern fraværet"
+    "fjern fraværet",
+    "slet sygedagen fra tirsdag",
+    "tag en booket ferie ud igen",
+    "fjern feriedagen fra kalenderen"
   ],
   "delete_break_placeholder": [
     "annuller ferieønske",
     "slet planlagt fravær",
     "fjern forhåndsreservation af fravær",
-    "annuller planlagt orlov"
+    "annuller planlagt orlov",
+    "træk det indtastede ferieønske tilbage",
+    "annuller det foreløbige fravær den 12. august",
+    "slet pladsholderen for fraværet"
   ],
   "delete_calendar_selection": [
     "slet kalendervalg",
-    "slet feriekalender"
+    "slet feriekalender",
+    "fjern et kalendervalg",
+    "smid den ubrugte helligdagskalender ud",
+    "jeg vil slette dette kalendervalg"
   ],
   "delete_client": [
     "slet medarbejder",
@@ -646,12 +850,18 @@
     "fjern e-mailadressen",
     "slet telefonnummeret",
     "slet kontaktoplysningen",
-    "fjern kommunikationsposten"
+    "fjern kommunikationsposten",
+    "fjern mobilnummeret fra kontakten",
+    "slet en kontaktpost hos en medarbejder",
+    "slet kundens gamle fastnetnummer"
   ],
   "delete_container_template": [
     "slet containerens ugedagsskabeloner",
     "fjern alle skabeloner fra containeren",
-    "nulstil containerens ugeplan"
+    "nulstil containerens ugeplan",
+    "fjern alle ugedagsskabeloner fra containeren",
+    "slet containervagtens skabeloner helt",
+    "tøm containerens ugeraster"
   ],
   "delete_contract": [
     "slet kontrakt",
@@ -659,18 +869,27 @@
     "opsig kontrakt",
     "slet kontrakten",
     "fjern kontraktskabelonen",
-    "slet en eksisterende kontrakt"
+    "slet en eksisterende kontrakt",
+    "tag denne kontraktskabelon af listen for altid",
+    "fjern kontrakten der ikke bruges mere",
+    "slet den gamle deltidskontrakt fra systemet"
   ],
   "delete_counter_rule": [
     "slet tællereglen",
     "fjern reglen for nattjenester",
     "slet reglen for arbejdsdage",
     "fjern tællereglen",
-    "slet en tælleregel"
+    "slet en tælleregel",
+    "fjern reglen der tæller nattevagter",
+    "denne tælleregel var en fejl, slet den",
+    "vi følger ikke længere dette tal, slet reglen"
   ],
   "delete_email": [
     "slet e-mailen til papirkurven",
-    "flyt denne e-mail til papirkurven"
+    "flyt denne e-mail til papirkurven",
+    "fjern denne e-mail",
+    "jeg vil smide den modtagne besked ud",
+    "slet beskeden fra indbakken"
   ],
   "delete_email_folder": [
     "slet e-mail-mappen",
@@ -684,34 +903,49 @@
     "slet spese 78",
     "fjern udlægget for kørslen",
     "annuller udgift 56",
-    "stornér gruppens spese"
+    "stornér gruppens spese",
+    "slet i går udgiftsbilag igen",
+    "fjern det forkert registrerede udlæg",
+    "jeg vil tage en udgiftspost tilbage"
   ],
   "delete_export_format_override": [
     "fjern tilpasningen af eksportformatet",
     "nulstil eksportformatet",
     "slet ændringen i eksportformatet",
     "brug standardformatet igen",
-    "ophæv tilpasningen af eksporten"
+    "ophæv tilpasningen af eksporten",
+    "slet min egen tilpasning af et eksportformat",
+    "gendan den leverede eksportdefinition",
+    "forkast min justering af eksportformatet"
   ],
   "delete_group": [
     "slet gruppe",
     "nedlæg team",
     "luk afdeling",
-    "slet gruppe med børn"
+    "slet gruppe med børn",
+    "slet hele lokationen med alle undergrupper",
+    "opløs denne afdeling helt",
+    "fjern den forældede gruppe fra træet"
   ],
   "delete_identity_provider": [
     "slet identity provider",
     "fjern sso-udbyder",
     "slet ldap-konfiguration",
     "fjern login-udbyder",
-    "slet single sign-on"
+    "slet single sign-on",
+    "slet active directory-forbindelsen",
+    "fjern openid connect-udbyderen",
+    "drop oauth2-loginkilden"
   ],
   "delete_individual_period": [
     "slet den individuelle periode",
     "fjern perioden med afvigende start",
     "slet skemaet med egne perioder",
     "ophæv den individuelle periode",
-    "fjern perioden, så vi vender tilbage til kalendermåneden"
+    "fjern perioden, så vi vender tilbage til kalendermåneden",
+    "slet skemaet med egne afregningsgrænser",
+    "fjern den individuelle periode, kontrakterne går tilbage til måneden",
+    "ophæv den selvdefinerede regnskabsperiode"
   ],
   "delete_llm_model": [
     "slet AI-model",
@@ -735,34 +969,49 @@
     "slet formel 'overtidsberegning'",
     "fjern makroen fra indstillingerne",
     "slet den gamle beregningsregel",
-    "fjern scriptet"
+    "fjern scriptet",
+    "jeg vil slette en beregningsmakro",
+    "fjern den gamle makro fra indstillingerne",
+    "smid det ubrugte script ud af indstillingerne"
   ],
   "delete_membership": [
     "slet medlemskabet",
     "fjern medlemsperioden",
     "slet tilknytningen",
     "fjern affiliationsperioden",
-    "drop medlemskabet"
+    "drop medlemskabet",
+    "fjern en medarbejders medlemsperiode",
+    "slet medlemskabet med dette id",
+    "annuller en medarbejders tilknytningsperiode"
   ],
   "delete_monthly_target_hours": [
     "fjern måltimerne for april",
     "slet timekvoten for maj",
     "slet månedstimerne for juni",
     "nulstil måltimer for en måned",
-    "fjern registrerede timer for en måned"
+    "fjern registrerede timer for en måned",
+    "ophæv det afvigende mål for marts",
+    "sæt denne måneds måltimer tilbage til standard",
+    "slet det timetal der er registreret for måneden"
   ],
   "delete_period_cap_rule": [
     "slet loftet for timer per måned",
     "fjern timegrænsen for perioden",
     "slet reglen for maksimale timer",
     "fjern loftet på timer",
-    "slet en periodegrænse"
+    "slet en periodegrænse",
+    "drop timegrænsen for denne periode",
+    "brug ikke længere reglen om maksimal arbejdstid",
+    "sluk for tidlig advarsel ved overskridelse af timegrænsen"
   ],
   "delete_qualification": [
     "slet kvalifikation",
     "fjern kvalifikation",
     "drop kompetence",
-    "slet certifikattype"
+    "slet certifikattype",
+    "slet kvalifikationen truckcertifikat fra stamdata",
+    "jeg vil fjerne en forældet kvalifikation",
+    "slet kvalifikationen med dens id"
   ],
   "delete_report_template": [
     "slet en rapportskabelon",
@@ -770,7 +1019,10 @@
     "fjern en udskriftsskabelon",
     "slet en skabelon til udskrivning",
     "kassér en rapportskabelon",
-    "fjern en printskabelon"
+    "fjern en printskabelon",
+    "fjern udskriftsskabelonen med alle dens blokke",
+    "smid et rapportlayout ud",
+    "slet et layout der blev oprettet ved en fejl"
   ],
   "delete_restricted_time_window_rule": [
     "slet den spærrede tid",
@@ -778,13 +1030,19 @@
     "fjern spærretiden for det tidsrum",
     "gør den tid på dagen ledig igen",
     "slet reglen om spærretid",
-    "fjern begrænsningen på klokkeslæt"
+    "fjern begrænsningen på klokkeslæt",
+    "fjern spærringen af nattetimerne helt",
+    "denne sæsonbestemte tidsspærring var forkert, slet den",
+    "tillad arbejde mellem 22 og 6 igen"
   ],
   "delete_schedule_note": [
     "slet notat",
     "fjern plannotat",
     "slet bemærkning",
-    "fjern annotation"
+    "fjern annotation",
+    "slet plannotatet fra den 12. april",
+    "fjern denne bemærkning i planen",
+    "jeg vil tage en note ud af vagtplanen"
   ],
   "delete_scheduling_rule": [
     "slet planlægningsregel",
@@ -799,14 +1057,20 @@
     "fjern vagt",
     "slet en vagt",
     "fjern en vagt",
-    "slet vagten"
+    "slet vagten",
+    "jeg vil slette denne vagt",
+    "fjern udkastet til ordren",
+    "slet vagten med dette id"
   ],
   "delete_spam_rule": [
     "slet en spamregel",
     "fjern blokeringen af en afsender",
     "ophæv blokeringen af et domæne",
     "fjern spamreglen, så afsenderen kommer igennem igen",
-    "slet spamreglen"
+    "slet spamreglen",
+    "fjern spamfilterindgangen for dette domæne",
+    "lad mails fra denne afsender komme igennem igen",
+    "det mønster fanger for meget, slet det"
   ],
   "delete_system_user": [
     "slet bruger",
@@ -821,21 +1085,30 @@
     "fjern term fra transkriptionsordbog",
     "fjern talekorrektion",
     "slet fonetisk opslag",
-    "fjern ord fra ordbog"
+    "fjern ord fra ordbog",
+    "tag dette begreb ud af talekorrektionerne",
+    "slet indgangen i transskriptionsordbogen",
+    "fjern den fonetiske rettelse for dette navn"
   ],
   "delete_work": [
     "fjern denne vagt",
     "slet arbejdet for i morgen",
     "aflys vagten for lars",
     "tag vagten ud af skemaet",
-    "annuller tildelingen"
+    "annuller tildelingen",
+    "tag den tildeling ud af planen",
+    "slet vagtindtastningen for fredag",
+    "fjern personen fra morgendagens vagt"
   ],
   "delete_workchange": [
     "slet vagtændringen",
     "fjern korrektur",
     "slet erstatning",
     "fjern rejsetid",
-    "slet briefing"
+    "slet briefing",
+    "slet den ekstra post på en vagt",
+    "fjern den registrerede kørselstid",
+    "stryg briefingposten fra vagten"
   ],
   "detect_conflicts": [
     "find konflikter i vagtplan",
@@ -872,14 +1145,20 @@
     "slå et modul fra",
     "deaktivér en funktionsudvidelse",
     "læg et modul midlertidigt ned",
-    "sluk for en udvidelse"
+    "sluk for en udvidelse",
+    "sluk for et feature-plugin",
+    "deaktivér modulet og behold dets indstillinger",
+    "sæt et plugin på pause"
   ],
   "dismiss_skill_relation": [
     "afvis den sammenhæng du har lært",
     "afslå forbindelsen mellem dine evner",
     "den relation er forkert, slet den",
     "kassér den lærte afhængighed",
-    "afvis det link du har fundet mellem funktionerne"
+    "afvis det link du har fundet mellem funktionerne",
+    "afvis den foreslåede skill-relation",
+    "forkast det foreslåede link mellem evner",
+    "afvis det ventende linkforslag"
   ],
   "email_schedule_to_client": [
     "send vagtplan til kunde",
@@ -894,11 +1173,17 @@
     "slå et modul til",
     "aktivér en funktionsudvidelse",
     "tænd for en udvidelse",
-    "sæt et modul i gang"
+    "sæt et modul i gang",
+    "aktivér et installeret plugin",
+    "slå funktionsmodulet til",
+    "jeg vil aktivere en tilføjelse"
   ],
   "end_client_membership": [
     "afslutte medarbejderens medlemskab",
-    "fastsætte medarbejderens fratrædelsesdato"
+    "fastsætte medarbejderens fratrædelsesdato",
+    "en medarbejder stopper ved månedens udgang",
+    "indtast opsigelsesdatoen for en medarbejder",
+    "sidste arbejdsdag er den 30. i måneden"
   ],
   "evaluate_absence_hours_setup": [
     "hvorfor får han for få ferietimer",
@@ -1492,18 +1777,27 @@
   ],
   "extend_macro": [
     "udvid makro som kopi",
-    "udvidet kopi af beregningsmakro"
+    "udvidet kopi af beregningsmakro",
+    "kopier en makro og tilføj et ekstra tillæg",
+    "jeg vil udvide en makro med en ekstra beregning i en kopi",
+    "lav en makrovariant med ekstra output"
   ],
   "fetch_new_emails": [
     "hent nye e-mails nu",
-    "opdater indbakken med det samme"
+    "opdater indbakken med det samme",
+    "hent ny post fra serveren nu",
+    "udløs en imap-hentning",
+    "genindlæs indbakken med det samme"
   ],
   "fill_group_by_criteria": [
     "udfyld gruppe med medarbejdere",
     "tilføj medarbejdere til gruppe efter kriterier",
     "populér gruppe",
     "find medarbejdere og læg i gruppe",
-    "fyld gruppe op"
+    "fyld gruppe op",
+    "læg ti tilfældige medarbejdere fra kanton bern i gruppen",
+    "tilføj alle medarbejdere med postnummer der starter med 80",
+    "fyld gruppen med alle fra zürich med fuldtidskontrakt"
   ],
   "find_absence_capacity_windows": [
     "find en passende periode til ferie",
@@ -1542,13 +1836,19 @@
     "udfyld manglende koordinater for adresserne",
     "geokod adresserne",
     "placer kundeadresser på kortet",
-    "find koordinater til adresserne"
+    "find koordinater til adresserne",
+    "find placering til adresser uden position ud fra postnummer og by",
+    "sæt kunder uden kortpunkt automatisk på kortet",
+    "udfyld de manglende geodata på adresserne"
   ],
   "geocode_location_groups": [
     "kør geokodning af alle lokationsgrupper",
     "find koordinater for alle bygrupper automatisk",
     "geokod alle lokationsgrupper på én gang",
-    "hent gps-koordinater for samtlige grupper"
+    "hent gps-koordinater for samtlige grupper",
+    "tilføj automatisk koordinater til lokationsgrupperne",
+    "slå geodata op for de grupper der er byer",
+    "lad stedgrupperne geokode sig selv"
   ],
   "get_absence_hours_calculation": [
     "vis mig beregningen af ferietimerne",
@@ -1924,14 +2224,20 @@
     "tilknyt medarbejdere uden gruppe til bygruppe",
     "sæt ugrupperede i gruppe efter bynavn",
     "fordel medarbejdere uden gruppe efter by",
-    "match medarbejdere til bygruppe"
+    "match medarbejdere til bygruppe",
+    "læg medarbejdere uden gruppe i gruppen opkaldt efter deres by",
+    "sortér ugrupperede ind i bygrupper efter adresse",
+    "flyt alle medarbejdere uden gruppe til gruppen for deres hjemby"
   ],
   "import_calendar_rules": [
     "importer helligdagsregler",
     "indlæs kalenderregler",
     "bulk importer helligdage",
     "importer feriedage",
-    "tilføj helligdagsregler"
+    "tilføj helligdagsregler",
+    "indlæs helligdagsdefinitionerne for en delstat på én gang",
+    "importer kalenderreglerne for kantonen fra json",
+    "jeg vil oprette alle helligdage for et land på én gang"
   ],
   "install_feature_plugin": [
     "installér et udvidelsesmodul",
@@ -1939,21 +2245,30 @@
     "installér et nyt modul",
     "tilføj en ekstra modul",
     "installér en udvidelse",
-    "tilføj et nyt funktionsmodul"
+    "tilføj et nyt funktionsmodul",
+    "installer tilføjelsesmodulet",
+    "jeg vil installere et valgfrit feature-plugin",
+    "installer modulet så funktionen bliver tilgængelig"
   ],
   "install_language_pack": [
     "installer sprogpakke",
     "aktivér sprog",
     "tilføj sprog",
     "aktivér sprogpakke",
-    "slå sprog til"
+    "slå sprog til",
+    "installer den schweizertyske sprogpakke gsw",
+    "aktivér sprogpakken med koden gsw",
+    "jeg vil låse op for endnu et grænsefladesprog"
   ],
   "install_whisper_plugin": [
     "installer lokalt talegenkendelsesmodul",
     "sæt taletransskription op på vores egen maskine",
     "stop med at sende tale til ekstern tjeneste og kør det lokalt",
     "installer whisper-modellen lokalt",
-    "konfigurer lokal taletransskription"
+    "konfigurer lokal taletransskription",
+    "installer whisper lokalt",
+    "sæt tale til tekst op på vores egen server",
+    "få lokal diktattransskription til at køre"
   ],
   "interpret_resource_monitor": [
     "vis kapacitetsanalyse for år",
@@ -2343,19 +2658,31 @@
     "find by og kanton for plz 3000"
   ],
   "manage_pending_notes": [
-    "administrer ventende noter"
+    "administrer ventende noter",
+    "markér de ventende noter som leveret",
+    "arkivér mine åbne påmindelser",
+    "gå mine udestående udgangsnoter igennem"
   ],
   "mark_email_read": [
     "markér e-mailen som læst",
-    "markér e-mailen som ulæst"
+    "markér e-mailen som ulæst",
+    "markér denne mail som læst",
+    "sæt beskeden tilbage til ulæst",
+    "jeg vil markere en mail som læst"
   ],
   "move_email_to_folder": [
     "flyt e-mailen til en anden mappe",
-    "markér e-mailen som spam"
+    "markér e-mailen som spam",
+    "læg denne mail i spam-mappen",
+    "flyt beskeden til papirkurven",
+    "hent beskeden tilbage fra spam til indbakken"
   ],
   "move_group": [
     "flyt gruppen til en anden forælder",
-    "hæng gruppen under en ny overgruppe"
+    "hæng gruppen under en ny overgruppe",
+    "flyt bern-gruppen under region midt",
+    "flyt en gruppe til en anden gren af træet",
+    "jeg vil give gruppen en ny overgruppe"
   ],
   "navigate_to": [
     "gå til indstillinger",
@@ -2368,7 +2695,10 @@
     "årsoversigt over fravær som pdf",
     "print fraværskalenderen",
     "fraværsoversigt til at hænge op",
-    "få ferieåret på papir"
+    "få ferieåret på papir",
+    "jeg skal bruge ferieoversigten for hele året som udskrift",
+    "download årsarket med alle syge- og feriedage som pdf",
+    "fraværsplan på papir til teammødet"
   ],
   "open_order_export": [
     "start eksport af ordre",
@@ -2383,14 +2713,20 @@
     "gå til skemaet",
     "åbn planlægningsvisningen",
     "vis skema for team a",
-    "åbn planen for vagter"
+    "åbn planen for vagter",
+    "åbn vagtplanen for næste uge",
+    "tag mig til skemaet for denne måned",
+    "jeg vil se planen for én enkelt medarbejder"
   ],
   "optimize_llm_models_for_klacksy": [
     "test hvilke sprogmodeller der virker",
     "find den bedste sprogmodel automatisk",
     "sorter ubrugelige sprogmodeller fra",
     "gennemgå alle modeller og vælg den bedste",
-    "optimér sprogmodellerne til klacks"
+    "optimér sprogmodellerne til klacks",
+    "test alle sprogmodeller og vælg den bedste",
+    "tjek hvilke modeller der ikke kan kalde værktøjer, og slå dem fra",
+    "lad standardmodellen vælges efter hastighed og pris"
   ],
   "partition_clients_by_address": [
     "opret grupper ud fra alle adresser",
@@ -2404,7 +2740,10 @@
     "opret grupper efter kvalifikation",
     "gruppér medarbejderne efter kvalifikation",
     "opret en gruppe for hver kvalifikation",
-    "fordel medarbejderne i kvalifikationsgrupper"
+    "fordel medarbejderne i kvalifikationsgrupper",
+    "fordel alle medarbejdere automatisk i grupper efter kvalifikationer",
+    "lav en egen gruppe pr. kvalifikation med dens indehavere",
+    "byg grupper ud fra kvalifikationerne under en rodgruppe"
   ],
   "place_work": [
     "sæt yasmine på morgenvagt den 15. maj",
@@ -2434,7 +2773,10 @@
     "foreslå en dækningsplan",
     "generer forslag til vagter",
     "lav et udkast til ny plan",
-    "materialiser tildelinger som forslag"
+    "materialiser tildelinger som forslag",
+    "læg de valgte tildelinger i et scenarie til godkendelse",
+    "gør disse valg til et udkast til gennemsyn",
+    "pak disse tildelinger ind i et scenarie"
   ],
   "read_email": [
     "læs mail 42",
@@ -2460,7 +2802,10 @@
     "giv vagten videre til en anden medarbejder",
     "flyt indsatsen over til en anden medarbejder",
     "lad en anden medarbejder overtage vagten",
-    "overfør tildelingen til en anden medarbejder"
+    "overfør tildelingen til en anden medarbejder",
+    "overdrag mandagens vagt til en anden medarbejder",
+    "træk denne vagt over på en anden medarbejders række",
+    "lad en kollega få fredagens vagt"
   ],
   "recall_delivered_notes": [
     "hent leverede noter"
@@ -2471,91 +2816,136 @@
     "slet scenario",
     "kasser plan",
     "afvis scenarie",
-    "annuller forslag"
+    "annuller forslag",
+    "smid det foreslåede scenarie væk",
+    "afvis autowizard-resultatet",
+    "dette scenarie er ubrugeligt, slet det"
   ],
   "remove_client_contract": [
     "fjern medarbejderens kontrakt",
     "afbryd kontrakten fra medarbejderen",
     "afslut medarbejderens kontraktbinding",
     "fjern kontrakttildelingen",
-    "tag medarbejderkontrakten væk"
+    "tag medarbejderkontrakten væk",
+    "tag den nuværende kontrakt fra medarbejderen",
+    "ophæv lønkontrakttildelingen for denne person",
+    "løsn medarbejderen fra kontrakten, men lad kontrakten selv bestå"
   ],
   "remove_client_from_group": [
     "fjern fra gruppe",
     "slet fra gruppe",
     "tag ud af gruppe",
     "flyt fra gruppe",
-    "udmeld af gruppe"
+    "udmeld af gruppe",
+    "tag medarbejderen ud af teamet",
+    "fjern denne person fra gruppen",
+    "jeg vil tage en kunde ud af en gruppe"
   ],
   "remove_client_qualification": [
     "fjern medarbejderens kvalifikation",
     "tag certifikatet fra medarbejderen",
     "afmeld kvalifikation fra medarbejderen",
     "fjern registreret kompetenceniveau",
-    "tilbagekald medarbejdercertificering"
+    "tilbagekald medarbejdercertificering",
+    "stryg truckcertifikatet fra hans profil",
+    "fjern det udløbne certifikat fra denne person",
+    "slet det registrerede kompetenceniveau på hendes profil"
   ],
   "remove_container_template_task": [
     "fjern en opgave fra containerskabelonen",
     "slet opgaven fra containervagtens skabelon",
     "tag tasken ud af containerskabelonen",
-    "fjern opgavevagt fra containerens ugeskabelon"
+    "fjern opgavevagt fra containerens ugeskabelon",
+    "slet en post fra containerens ugeplan",
+    "stryg en delvagt fra containerskabelonen",
+    "fjern opgaven fra containeren for tirsdag"
   ],
   "remove_shift_from_group": [
     "fjern vagten fra gruppen",
     "tag vagten ud af teamet",
     "fjern tjenesten fra afdelingen",
-    "afkobl vagten fra gruppen"
+    "afkobl vagten fra gruppen",
+    "kobl tjenesten fra teamet",
+    "denne tjeneste skal ikke længere høre til afdelingen",
+    "ophæv gruppeforbindelsen for en vagtordre"
   ],
   "remove_shift_required_qualification": [
     "fjern krævet kvalifikation fra vagten",
     "slet kvalifikationskravet på vagten",
     "fjern obligatorisk kvalifikation fra skiftet",
-    "annuller vagtens kvalifikationskrav"
+    "annuller vagtens kvalifikationskrav",
+    "vagten kræver ikke længere kørekort",
+    "tag det krævede certifikat af vagten",
+    "stryg den obligatoriske kvalifikation fra vagten"
   ],
   "reopen_period": [
     "genåbn perioden for maj",
     "åbn lønperioden igen",
     "fjern seglet fra måneden",
     "gør maj redigerbar igen",
-    "reopen maj-perioden"
+    "reopen maj-perioden",
+    "fortryd periodeafslutningen",
+    "giv den lukkede periode fri igen",
+    "ophæv afslutningen af måneden"
   ],
   "reset_container_day": [
     "nulstil containerdagen til skabelonen",
     "fjern dagsoverstyringen på containeren",
     "sæt containerens dag tilbage til skabelon",
-    "fortryd overstyring af containerdag"
+    "fortryd overstyring af containerdag",
+    "kassér enkeltdagsændringen på containeren",
+    "ophæv afvigelsen fra ugedagsmønsteret",
+    "stil containeren for den 15. tilbage til standard"
   ],
   "reset_shift_cuts": [
     "saml vagtens dele igen fra en dato",
     "nulstil vagtens opdeling fra dato",
     "fortryd opskæring af vagten",
-    "flet vagtens snit sammen igen"
+    "flet vagtens snit sammen igen",
+    "gør de opskårne dele til én hel vagt igen",
+    "ophæv ordrens opdeling fra en bestemt dato",
+    "kassér vagtopdelingen fra 1. juli"
   ],
   "restore_email": [
     "gendan e-mailen fra papirkurven",
-    "hent e-mailen tilbage fra papirkurven"
+    "hent e-mailen tilbage fra papirkurven",
+    "flyt den slettede mail tilbage til indbakken",
+    "fortryd sletningen af denne e-mail",
+    "læg beskeden fra papirkurven tilbage i indbakken"
   ],
   "restore_work": [
     "gendan den slettede vagt",
     "hent den slettede indsats tilbage",
     "fortryd sletningen af tildelingen",
-    "genopret en slettet vagt"
+    "genopret en slettet vagt",
+    "jeg har slettet en vagt ved en fejl, sæt den ind igen",
+    "genindsæt den slettede vagt med dens work-id",
+    "gendan vagten jeg fjernede for lidt siden"
   ],
   "revert_company_rule": [
     "fortryd virksomhedsreglen",
     "tilbagefør en anvendt virksomhedsregel",
-    "gendan den tidligere virksomhedsregel"
+    "gendan den tidligere virksomhedsregel",
+    "tag en anvendt virksomhedsregel tilbage",
+    "gør tillægsændringen fra en regel om",
+    "fjern en regel ud fra navn og gendan den gamle tilstand"
   ],
   "revert_macro_assignment": [
     "fortryd makrotildeling",
-    "gendan tidligere beregningsmakro"
+    "gendan tidligere beregningsmakro",
+    "rul makroskiftet på vagterne tilbage",
+    "sæt den gamle beregningsformel tilbage",
+    "jeg vil fortryde makroskiftet på fraværstypen"
   ],
   "revoke_day_approval": [
     "tilbagekald godkendelsen af mandag",
     "annuller frigivelsen af dagen",
     "fjern dagens approval",
     "rull dagens godkendelse tilbage",
-    "ophæv sign off på fredag"
+    "ophæv sign off på fredag",
+    "træk godkendelsen af denne dag tilbage",
+    "sæt den godkendte dag tilbage til bekræftet",
+    "træk dagens sign off tilbage"
   ],
   "revoke_erp_import_token": [
     "tilbagekald en afleveringsnøgle",
@@ -2563,18 +2953,27 @@
     "gør en ekstern indlæser-nøgle ugyldig",
     "stop en nøgle til filoverførsel",
     "fjern adgangsnøgle til ekstern indlevering",
-    "slet en udstedt nøgle"
+    "slet en udstedt nøgle",
+    "tilbagekald erp-importtokenet",
+    "spær det eksterne systems adgangsnøgle",
+    "gør den lækkede importnøgle ugyldig"
   ],
   "revoke_personal_access_token": [
     "tilbagekald mit adgangstoken",
-    "ugyldiggør API-tokenet"
+    "ugyldiggør API-tokenet",
+    "træk et af mine api-tokens tilbage",
+    "jeg vil spærre et personligt adgangstoken",
+    "deaktiver det adgangstoken for altid"
   ],
   "rollback_my_last_change": [
     "fortryd min sidste ændring",
     "rul tilbage",
     "ups, fortryd",
     "annuller min seneste handling",
-    "gør sidste ændring om"
+    "gør sidste ændring om",
+    "min sidste handling var forkert, træk den tilbage",
+    "det jeg gemte sidst skal tilbage",
+    "foreslå hvordan jeg kan omgøre min seneste ændring"
   ],
   "run_analysis": [
     "analyser vagtplanen",
@@ -2597,7 +2996,10 @@
     "forsegl denne bestilling",
     "forsegl ordren så vagten kan planlægges",
     "gør bestillingen uforanderlig med forsegling",
-    "forsegl ordre nummer 123"
+    "forsegl ordre nummer 123",
+    "forsegl denne ordre og opret den planlagte vagt",
+    "gør den oprindelige ordre permanent uforanderlig",
+    "frigiv ordren som vagt og forsegl den"
   ],
   "search_and_navigate": [
     "søg og naviger",
@@ -2671,43 +3073,64 @@
     "registrer certifikat",
     "tildel kompetenceniveau",
     "opdater kvalifikation for ansat",
-    "indtast gyldighed for kvalifikation"
+    "indtast gyldighed for kvalifikation",
+    "denne medarbejder har truckcertifikat",
+    "registrer førstehjælpskursus gyldigt til årets udgang",
+    "sæt kompetenceniveau fire på en kvalifikation"
   ],
   "set_company_rule_parameters": [
     "angiv parametre for virksomhedsreglen",
     "indtast værdier for virksomhedsreglen",
-    "juster parametre for virksomhedsreglen"
+    "juster parametre for virksomhedsreglen",
+    "udfyld parametrene i udkastet til virksomhedsreglen",
+    "indtast værdierne for den regel jeg er i gang med",
+    "sæt tillægsværdien i regeludkastet"
   ],
   "set_default_llm_model": [
     "sæt standard sprogmodel",
     "brug denne model som standard",
     "skift til en anden sprogmodel",
     "vælg den model der skal svare",
-    "sæt hvilken model der er standard"
+    "sæt hvilken model der er standard",
+    "fra nu af skal klacksy svare med en anden sprogmodel",
+    "byt assistentens standardsprogmodel ud",
+    "sæt deepseek som forudvalgt model"
   ],
   "set_erp_import_schedule": [
     "sæt tidsplan for erp import",
     "hvornår skal import køre",
     "indstil cron udtryk for import",
     "skift importinterval",
-    "planlæg erp import"
+    "planlæg erp import",
+    "kør erp-importen hver nat klokken to",
+    "sæt tidszone og cron for erp-hentningen",
+    "hent erp-ordrer hvert kvarter"
   ],
   "set_explain_depth": [
     "forklar altid mere enkelt",
     "fra nu af kun det vigtigste",
     "fra nu af forklar alt mere enkelt",
     "spring det grundlæggende over fra nu af",
-    "forklaringer automatisk igen"
+    "forklaringer automatisk igen",
+    "jeg er ny her, så forklar hvert trin grundigt fra nu af",
+    "hold det altid kort og nævn kun konsekvenserne",
+    "sæt forklaringsniveauet til begynder"
   ],
   "set_export_format_override": [
     "tilpas et eksportformat",
     "ændr eksportformatet",
     "brug et andet skilletegn i eksporten",
     "ændr kolonnenavnet i eksporten",
-    "opdater eksportformatet"
+    "opdater eksportformatet",
+    "omdøb kolonnen til det modtagende system",
+    "skift datoformatet i eksportfilen til punktummer",
+    "gem en afvigende feltdefinition for et eksportformat"
   ],
   "set_group_location": [
-    "angiv gruppens placering"
+    "angiv gruppens placering",
+    "gem koordinater for gruppen",
+    "jeg vil give bygruppen en bredde- og længdegrad",
+    "geokod gruppen ud fra dens navn"
   ],
   "set_my_display_language": [
     "skift mit displaysprog",
@@ -2729,7 +3152,10 @@
   "set_period_close_lag": [
     "gem afslutningsforsinkelsen",
     "fastsæt antal dage til afslutning efter periodens slutning",
-    "registrer forsinkelsen for afslutningen af perioden"
+    "registrer forsinkelsen for afslutningen af perioden",
+    "sæt forsinkelsen for periodeafslutning til 3 dage",
+    "notér en afslutningsforsinkelse på 10 dage",
+    "perioder skal lukkes en uge efter slutningen"
   ],
   "set_planning_deadline_lead": [
     "gem planlægningsvarslet",
@@ -2737,32 +3163,47 @@
   ],
   "set_planning_profile_parameters": [
     "angiv parametre for planlægningsprofilen",
-    "indtast værdier for planlægningsprofilen"
+    "indtast værdier for planlægningsprofilen",
+    "sæt branchen og arbejdstidsgrænserne i planlægningsprofilen",
+    "jeg vil justere hviletid og overarbejde i udkastet",
+    "angiv tillæg i profiludkastet"
   ],
   "set_proactive_governance": [
     "lad det blive klaret selv",
     "meld det kun",
-    "slå hovedafbryderen til"
+    "slå hovedafbryderen til",
+    "bestem hvor selvstændig klacksy må være for denne type fund",
+    "giv mig kun besked om denne type fund fremover",
+    "klacksy må selv udføre denne sag fremover"
   ],
   "set_sealed_order_until_date": [
     "sæt slutdato på den forseglede ordre",
     "afslut den forseglede bestilling pr. dato",
     "begræns forseglet ordre til en dato",
-    "giv den forseglede ordre en slutdato bagefter"
+    "giv den forseglede ordre en slutdato bagefter",
+    "sæt en slutdato på den forseglede ordre",
+    "begræns den forseglede ordre til månedens udgang",
+    "tilføj til-datoen på en forseglet ordre bagefter"
   ],
   "set_shift_preferences": [
     "foretræk medarbejder til vagt",
     "sæt vagtpræference",
     "blacklist medarbejder fra vagt",
     "favoritvagt for medarbejder",
-    "tilføj præference til vagt"
+    "tilføj præference til vagt",
+    "gør denne medarbejder til førstevalg på morgenvagten",
+    "sæt en medarbejder på blacklist for denne vagt",
+    "udeluk en medarbejder fra nattevagten"
   ],
   "set_shift_required_qualification": [
     "sæt krav til kvalifikation på vagt",
     "krav til kvalifikation for skift",
     "obligatorisk kvalifikation på vagt",
     "angiv nødvendigt færdighedsniveau",
-    "kræv kvalifikation på vagt"
+    "kræv kvalifikation på vagt",
+    "gør kørekort obligatorisk for denne vagt",
+    "sæt minimumsniveau 3 for en kvalifikation på vagten",
+    "denne vagt må kun bemandes med certifikat"
   ],
   "set_user_group_scope": [
     "gruppeomfang",
@@ -2785,7 +3226,10 @@
   "start_company_rule": [
     "opret ny virksomhedsregel",
     "begynd at definere en virksomhedsregel",
-    "tilføj en ny virksomhedsregel"
+    "tilføj en ny virksomhedsregel",
+    "jeg vil oprette en ny husregel",
+    "hjælp mig med at udarbejde en tillægsregel til firmaet",
+    "definer en egen makroregel til vores virksomhed"
   ],
   "start_guided_tour": [
     "start en rundvisning i klacks",
@@ -2796,7 +3240,10 @@
   ],
   "start_planning_profile_setup": [
     "opret en egen planlægningsprofil",
-    "start opsætning af planlægningsprofil"
+    "start opsætning af planlægningsprofil",
+    "jeg vil sætte min egen planlægningsprofil op",
+    "start den guidede opsætning af planlægningsregler",
+    "byg en planlægningsprofil sammen med klacksy"
   ],
   "start_wizard1": [
     "start wizard 1",
@@ -2804,7 +3251,10 @@
     "opret grundplan",
     "generer første plan",
     "start planner",
-    "lav dækningsplan"
+    "lav dækningsplan",
+    "kør kun wizard 1 for gruppen",
+    "start tokenevolution-planlæggeren",
+    "lav et første udkast der dækker alle vagter"
   ],
   "start_wizard2": [
     "start wizard 2",
@@ -2812,7 +3262,10 @@
     "balancer vagter",
     "udjævn planen",
     "glat planen ud",
-    "kør harmonisering"
+    "kør harmonisering",
+    "start wizard 2 på det netop anvendte scenarie",
+    "fordel den eksisterende plan mere ensartet",
+    "kør harmonisereren uden at røre dækningen"
   ],
   "start_wizard3": [
     "start wizard 3",
@@ -2820,10 +3273,16 @@
     "finpuds planen",
     "vision polering",
     "holistisk finjustering",
-    "llm efterbehandling"
+    "llm efterbehandling",
+    "kør kun den tredje wizard",
+    "forfin den allerede harmoniserede plan yderligere",
+    "start den holistiske harmonisering med analysetoken"
   ],
   "stash_pending_note": [
-    "parkér note"
+    "parkér note",
+    "husk det til senere som en note",
+    "jeg vil lægge en påmindelse der skal videregives senere",
+    "gem denne oplysning til at give videre bagefter"
   ],
   "test_imap_connection": [
     "IMAP-forbindelsestest",
@@ -2850,7 +3309,10 @@
     "kør erp import med det samme",
     "importer ordrer nu",
     "udløs import af ordrer",
-    "kør importen nu"
+    "kør importen nu",
+    "behandl den uploadede erp-fil med det samme",
+    "sæt ordreimporten i gang uden at vente",
+    "start en importkørsel for ordrerne manuelt"
   ],
   "unconfirm_break": [
     "lås ferien op",
@@ -2858,14 +3320,20 @@
     "fortryd bekræftelsen af ferien",
     "frigiv sygefraværet",
     "annullér lås på ferieindtastningen",
-    "ophæv bekræftelsen af fraværet"
+    "ophæv bekræftelsen af fraværet",
+    "løft låsen på feriebookingen",
+    "tag bekræftelsen af denne fraværspost",
+    "lås sygefraværet op så det kan slettes igen"
   ],
   "unconfirm_work": [
     "fjern låsningen af vagten",
     "annuller bekræftelsen på arbejdet",
     "frigiv vagten igen",
     "ophæv lås på denne vagt",
-    "sæt arbejdet tilbage til ubekræftet"
+    "sæt arbejdet tilbage til ubekræftet",
+    "ophæv bekræftelsen af denne vagt",
+    "gør tildelingen redigerbar igen for wizarderne",
+    "sæt en bekræftet vagt tilbage til åben"
   ],
   "uninstall_feature_plugin": [
     "afinstallér et udvidelsesmodul",
@@ -2873,32 +3341,47 @@
     "afinstallér et modul",
     "tag et udvidelsesmodul ud",
     "fjern en ekstra modul",
-    "sluk for et modul permanent"
+    "sluk for et modul permanent",
+    "afinstaller pluginnet",
+    "jeg vil fjerne det installerede funktionsmodul",
+    "tag tilføjelsen ud af systemet igen"
   ],
   "uninstall_language_pack": [
     "fjern sprogpakke",
     "deaktivér sprog",
     "slet sprog",
     "sluk sprog",
-    "deaktivér sprogpakke"
+    "deaktivér sprogpakke",
+    "afinstaller den polske sprogpakke",
+    "deaktivér en sprogpakke via koden og fjern dens data",
+    "sluk for dette ekstra sprog i brugerfladen"
   ],
   "uninstall_whisper_plugin": [
     "fjern det lokale talegenkendelsesmodul",
     "afinstaller whisper pluginnet",
     "brug igen ekstern taletransskription",
     "slet den lokale talegenkendelsesmodel",
-    "stop med at transskribere tale på vores egen server"
+    "stop med at transskribere tale på vores egen server",
+    "fjern whisper-pluginnet",
+    "jeg vil af med den lokale talemodel",
+    "taleinput skal gå tilbage til den eksterne tjeneste"
   ],
   "update_absence": [
     "opdater ferietype",
     "skift farve på fraværstype",
     "omdøb en fraværstype",
     "konfigurer fraværstype",
-    "ændr indstillinger for orlovstype"
+    "ændr indstillinger for orlovstype",
+    "skift farven på ferie-fraværstypen",
+    "lad fraværstypen tælle weekender med",
+    "omstil lønnet-flaget på en fraværstype"
   ],
   "update_absence_type": [
     "rediger fraværstypen",
-    "ændre farven på fraværstypen"
+    "ændre farven på fraværstypen",
+    "ret forkortelsen på en fraværstype",
+    "sæt fraværstypen til ulønnet",
+    "skjul fraværstypen i gantt"
   ],
   "update_active_industries_settings": [
     "skift brancheindstillinger",
@@ -2906,14 +3389,20 @@
     "ændre hvilke brancher systemet bruger",
     "opdater brancheprofilen",
     "vælg hvilke brancher der er aktive",
-    "skift til egne regler"
+    "skift til egne regler",
+    "indstil installationen til sundhedspleje og sikkerhed",
+    "aktivér desuden hotel- og restaurationsbranchen",
+    "behold kun logistik som aktiv branche"
   ],
   "update_address": [
     "opdater adressen",
     "ændr vejnavnet på adressen",
     "rett postnummeret",
     "rediger adressen",
-    "korrigér adressen"
+    "korrigér adressen",
+    "ret vej og postnummer for medarbejderen",
+    "skift adressetypen fra hovedadresse til faktureringsadresse",
+    "justér byen i denne adresse"
   ],
   "update_agent_skill": [
     "opdater færdighed",
@@ -2946,7 +3435,10 @@
     "ændr notatet",
     "rett bemærkningen",
     "rediger annotationen",
-    "oplys ny note"
+    "oplys ny note",
+    "omskriv teksten i en medarbejdernote",
+    "ret ordlyden i bemærkningen på medarbejderen",
+    "erstat noten på medarbejderen med ny tekst"
   ],
   "update_branch": [
     "opdater filial",
@@ -2961,18 +3453,27 @@
     "ændr feriedagen",
     "rett sygedagen",
     "rediger pausen",
-    "oplys ny starttid for fravær"
+    "oplys ny starttid for fravær",
+    "forlæng slutdatoen på ferien",
+    "skift fraværet til en anden type",
+    "ret de medregnede timer på fraværet"
   ],
   "update_break_placeholder": [
     "flyt fravær",
     "flyt ferie",
     "forlæng fravær",
     "ændr fraværstype",
-    "forkort planlagt fravær"
+    "forkort planlagt fravær",
+    "skub den planlagte ferie en uge frem",
+    "gør fraværsbjælken kortere",
+    "omdan det planlagte fravær til sygdom"
   ],
   "update_calendar_selection": [
     "omdøb kalendervalg",
-    "flet feriekalendere"
+    "flet feriekalendere",
+    "ret navnet på kalendervalget",
+    "tag en region ud af helligdagsvalget",
+    "tilføj en kanton til kalendervalget"
   ],
   "update_client": [
     "opdater medarbejder",
@@ -2983,30 +3484,45 @@
     "ret telefonnummer"
   ],
   "update_client_birthdate": [
-    "ændre fødselsdato"
+    "ændre fødselsdato",
+    "sæt en ny fødselsdato på en medarbejder",
+    "ret personens fødselsdag",
+    "jeg vil ændre en medarbejders fødselsdag"
   ],
   "update_client_gender": [
-    "ændre køn"
+    "ændre køn",
+    "sæt køn på en medarbejder",
+    "ændr kundens køn til kvinde",
+    "opdater kønsfeltet for denne medarbejder"
   ],
   "update_client_type": [
     "omklassificer som kunde",
     "konverter til medarbejder",
     "ændre klientkategori",
     "skift personstatus",
-    "ændre enhedstype"
+    "ændre enhedstype",
+    "registrér denne person som kunde fra nu af",
+    "gør en ekstern medarbejder til fastansat",
+    "gør kunden til en planlægbar medarbejder igen"
   ],
   "update_communication": [
     "opdater kommunikationen",
     "ændr e-mailadressen",
     "rett telefonnummeret",
     "rediger kontaktoplysningen",
-    "oplys ny værdi for kommunikation"
+    "oplys ny værdi for kommunikation",
+    "erstat medarbejderens gamle mobilnummer med et nyt",
+    "omskriv kontaktnoten for en medarbejder",
+    "ændr landekoden på en telefonpost"
   ],
   "update_compensatory_rest_settings": [
     "slå sporing af kompensation til",
     "ændre fristen for kompensationen",
     "opdater indstillingerne for kompensationsfritid",
-    "juster reglerne for kompensation for helligdage"
+    "juster reglerne for kompensation for helligdage",
+    "aktivér krav på afspadsering for arbejde på helligdage",
+    "jeg vil ændre antal dage til at give kompensationshvile",
+    "slå sporingen af afspadsering fra"
   ],
   "update_compliance_enforcement_settings": [
     "ændre håndhævelsen af arbejdstidsregler",
@@ -3014,7 +3530,10 @@
     "juster hvor strengt reglerne overholdes",
     "skift mellem advarsel og afvisning",
     "ændre indstillinger for planlægning",
-    "opdater krav til planlægning"
+    "opdater krav til planlægning",
+    "afvis hvileperiodeovertrædelser fremover i stedet for kun at advare",
+    "tillad at ledere kan tilsidesætte arbejdstidsreglerne",
+    "sæt reaktionen på overskredet maksimal arbejdstid til afvis"
   ],
   "update_contract": [
     "opdater kontrakt",
@@ -3032,7 +3551,10 @@
     "juster grænsen for antal nattjenester",
     "opdater reglen for arbejdsdage",
     "ændr tællereglen fra advarsel til afvisning",
-    "ret tællereglen for hvor mange gange noget må ske"
+    "ret tællereglen for hvor mange gange noget må ske",
+    "tillad højst tre nattevagter pr. måned i stedet for to",
+    "gør advarslen på tællereglen til en hård spærring",
+    "skift reglens tælleperiode til én uge"
   ],
   "update_data_retention_settings": [
     "opdater opbevaringsperiode i dage",
@@ -3061,19 +3583,28 @@
     "opdater afhentningsmappen",
     "skift til en anden mappe",
     "slå afhentning fra",
-    "ændr overleveringspunktets navn"
+    "ændr overleveringspunktets navn",
+    "ændr mappestien til erp-afleveringsstedet",
+    "omdøb overleveringspunktet for det eksterne system",
+    "slå erp-filafhentningen til igen"
   ],
   "update_expense": [
     "ret spese 42 til 200 kr",
     "opdater beskrivelsen på udgiften",
     "justér beløbet på udlægget",
-    "ændr spese 123 til ikke-skattepligtig"
+    "ændr spese 123 til ikke-skattepligtig",
+    "ret beskrivelsen på en udgiftspost",
+    "gør denne udgift til skattepligtig godtgørelse",
+    "sæt udlægget til et nyt beløb"
   ],
   "update_export_formats_settings": [
     "tillad et filformat",
     "slå et eksportformat fra",
     "sæt standard løn systemet",
-    "opdater eksportindstillingerne"
+    "opdater eksportindstillingerne",
+    "slå endnu et eksportfilformat til",
+    "vælg hvilke eksportformater der er tilladt",
+    "skift standardmodtager for lønsystem"
   ],
   "update_general_settings": [
     "opdater applikationsnavnet",
@@ -3087,13 +3618,19 @@
     "ændre farven for søndage",
     "skift baggrundsfarven i planen",
     "giv helligdage en anden farve",
-    "opdater farveindstillingerne for kalenderen"
+    "opdater farveindstillingerne for kalenderen",
+    "farv lørdagene i vagtplanen lysegrå",
+    "sæt tekstfarven i planen til #333333",
+    "justér de skiftende månedsfarver i gitteret"
   ],
   "update_group": [
     "opdater gruppe",
     "omdøb team",
     "ændre gruppenavn",
-    "opdater teamoplysninger"
+    "opdater teamoplysninger",
+    "ret beskrivelsen af denne gruppe",
+    "justér gruppens gyldighedsdatoer",
+    "tildel gruppen en anden helligdagskalender"
   ],
   "update_identity_provider": [
     "opdater identity provider",
@@ -3114,7 +3651,10 @@
     "opdater periodens startdato",
     "ret tidsrummet i perioden",
     "ændr navnet på perioden",
-    "erstat periodens tidsrum"
+    "erstat periodens tidsrum",
+    "omdøb tidsskemaet",
+    "sæt nye afsnit på den individuelle periodeordning",
+    "skub startdatoen for et afsnit i skemaet"
   ],
   "update_llm_model": [
     "opdater AI-model",
@@ -3137,41 +3677,62 @@
     "redigér script",
     "ændr beregning",
     "modificer formel",
-    "opdater makroscript"
+    "opdater makroscript",
+    "omskriv indholdet af en makro",
+    "omdøb en makro",
+    "erstat beskrivelsen af et script"
   ],
   "update_membership": [
     "opdater medlemskab",
     "ændr startdato for medlemskab",
     "sæt slutdato for medlemskab",
     "justér medlemsperiode",
-    "ændr planlægningsstart"
+    "ændr planlægningsstart",
+    "flyt gyldig-fra-datoen på medlemskabet",
+    "gør medlemskabet tidsubegrænset",
+    "fastsæt igen fra hvornår medarbejderen kan planlægges"
   ],
   "update_monthly_target_hours": [
     "ændr måltimerne for januar til 176",
     "ret månedstimerne for februar",
     "juster timekvoten for marts",
     "opdater mål for timer i en måned",
-    "korriger antal timer for en måned"
+    "korriger antal timer for en måned",
+    "sæt måltimerne for januar 2026 fra 184 til 176",
+    "ret timemålet for marts bagefter",
+    "sænk månedsværdien for december"
   ],
   "update_my_account": [
     "opdater min konto",
-    "ændre mit visningsnavn"
+    "ændre mit visningsnavn",
+    "jeg vil ændre efternavnet på min konto",
+    "skift den mailadresse jeg logger ind med",
+    "ret mit for- og efternavn i min profil"
   ],
   "update_navigation_synonyms": [
     "tilføj et nyt navigationssynonym",
-    "lær klacksy denne formulering"
+    "lær klacksy denne formulering",
+    "tilføj endnu en formulering til et navigationsmål",
+    "klacksy skal forstå dette udtryk for den side",
+    "registrer en ny navigationsfrase for et sprog"
   ],
   "update_openroute_settings": [
     "ændre tærsklen for rejsetid",
     "gem nøglen til routingtjenesten",
     "sæt grænsen for, hvornår en kørsel tæller",
-    "opdater rejsetidsindstillingerne"
+    "opdater rejsetidsindstillingerne",
+    "indtast api-nøglen til openroute",
+    "jeg vil ændre mindste rejsetid for bil, cykel og gang",
+    "justér mindste gangtid"
   ],
   "update_overtime_settings": [
     "ændre hvordan overtid betales",
     "flyt et trin for overtid",
     "hæv satsen for ekstra timer",
-    "opdater overarbejdsindstillingerne"
+    "opdater overarbejdsindstillingerne",
+    "ændr overtidsindstillingerne",
+    "justér fra hvilken time overtid godskrives",
+    "hæv faktoren for overtid"
   ],
   "update_owner_address": [
     "opdater firmaadresse",
@@ -3185,21 +3746,30 @@
     "opdater land og stat",
     "ændre feriekalender",
     "sæt lokale indstillinger for firma",
-    "juster tidszone og kalender"
+    "juster tidszone og kalender",
+    "stil firmaet om til kanton bern",
+    "sæt installationens tidszone til europe/berlin",
+    "sæt firmaets land til østrig"
   ],
   "update_period_cap_rule": [
     "ændr loftet for timer per måned",
     "juster timegrænsen for kvartalet",
     "opdater loftet for gennemsnitlige ugentlige timer",
     "ændr timebegrænsningen for en periode",
-    "ret reglen for maksimale timer"
+    "ret reglen for maksimale timer",
+    "sæt overtidsloftet til 50 timer",
+    "skift timeloftet fra månedligt til kvartalsvist",
+    "flyt advarselsgrænsen for timegrænsen til 80 procent"
   ],
   "update_qualification": [
     "opdater kvalifikation",
     "redigér kvalifikation",
     "omdøb kvalifikation",
     "ændr kompetence",
-    "opdater certifikat"
+    "opdater certifikat",
+    "ret navnet på en kvalifikation",
+    "flyt en kvalifikation til en anden kategori",
+    "justér udløbsreglen for en kvalifikation"
   ],
   "update_report_template": [
     "ændre en rapportskabelon",
@@ -3207,21 +3777,30 @@
     "rediger en eksisterende skabelon",
     "omdøb en rapportskabelon",
     "justér indstillinger for en skabelon",
-    "ændre en udskriftsskabelon"
+    "ændre en udskriftsskabelon",
+    "opdater navnet på udskriftsskabelonen",
+    "ret beskrivelsen af et rapportlayout",
+    "justér hvordan gentagne rækker slås sammen i skabelonen"
   ],
   "update_restricted_time_window_rule": [
     "ændr spærretidsreglen",
     "juster spærretiden for en sæson",
     "opdater tidsrummet for spærringen",
     "ændr hvilke klokkeslæt der er spærret",
-    "ret spærretidsreglen"
+    "ret spærretidsreglen",
+    "ændr spærretimerne i reglen til 22 til 6",
+    "lad tidsspærringen kun gælde om sommeren",
+    "lad klokkeslætsspærringen gælde for en anden personkreds"
   ],
   "update_schedule_note": [
     "opdater planlægningsnoten",
     "ændr dagsnoten",
     "rett noten i vagtplanen",
     "rediger scheduletnoten",
-    "oplys ny indhold til dagsnoten"
+    "oplys ny indhold til dagsnoten",
+    "omformuler noten i skemaet",
+    "flyt en plannote til en anden dag",
+    "ret teksten i en eksisterende plannote"
   ],
   "update_scheduling_defaults": [
     "opdater planlægningsindstillinger",
@@ -3245,7 +3824,10 @@
     "ændre vagt",
     "modificer vagt",
     "ret vagt",
-    "juster vagt"
+    "juster vagt",
+    "sæt sluttidspunktet på udkastvagten til 18:00",
+    "hæv det krævede antal personer på vagten til 3",
+    "omdøb vagtens forkortelse og beskrivelse"
   ],
   "update_spam_filter_settings": [
     "spamindstillinger",
@@ -3257,28 +3839,40 @@
     "opdater blokeringen af en afsender",
     "juster spamreglen",
     "slå spamreglen fra midlertidigt",
-    "ændr rækkefølgen af spamreglerne"
+    "ændr rækkefølgen af spamreglerne",
+    "byt søgeordet i en spamregel ud",
+    "deaktivér en spamregel",
+    "slå en regel for uønskede beskeder til igen"
   ],
   "update_speech_settings": [
     "ændre assistentens stemme",
     "skift talegenkendelse",
     "slå oplæsning af svar til eller fra",
     "tillad afbrydelse under oplæsning",
-    "juster længden af pause før sætningen afsluttes"
+    "juster længden af pause før sætningen afsluttes",
+    "skift stemmeoutput til en anden stemme",
+    "skift transskriptionsmodel til taleinput",
+    "indstil hvor lang tavshed der markerer slutningen af en sætning"
   ],
   "update_surcharge_mode_settings": [
     "skift tillæg til fast beløb",
     "sæt et minimumstillæg per time",
     "flyt nattevinduet",
     "lad tillæg ikke længere lægges sammen",
-    "opdater tillægstillægsindstillingerne"
+    "opdater tillægstillægsindstillingerne",
+    "nattillægget skal være en fast tidsgodtgørelse",
+    "sæt nattevinduet fra 22 til 6",
+    "tæl kun det højeste tillæg pr. time"
   ],
   "update_transcription_dictionary_entry": [
     "opdater ordbogsindgang",
     "rediger transkriptionsordbog",
     "ændr fonetiske varianter",
     "rettelse af talegenkendelsesord",
-    "modificér ordbogsopslag"
+    "modificér ordbogsopslag",
+    "ret begrebet i talegenkendelsens ordbog",
+    "ændr stavemåden af et ord til diktatfunktionen",
+    "tilføj flere lydlignende varianter til ordbogsbegrebet"
   ],
   "update_user": [
     "opdater en anden brugers loginoplysninger",
@@ -3286,24 +3880,36 @@
     "ændre en persons brugernavn",
     "korriger en brugeres oplysninger",
     "opdater en brugers fornavn",
-    "rett en brugers navn"
+    "rett en brugers navn",
+    "ret en tastefejl i navnet på en brugerkonto",
+    "skift en anden brugers e-mailadresse",
+    "omdøb en kollegas loginnavn"
   ],
   "update_web_search_settings": [
     "websøgningsindstillinger",
     "søgemaskineindstillinger",
     "opdater websøgeindstillinger",
     "ændr søgeudbyder",
-    "justér websøgekonfiguration"
+    "justér websøgekonfiguration",
+    "skift udbyder til websøgning",
+    "indtast en ny api-nøgle til websøgningen",
+    "hæv det maksimale antal resultater pr. søgning"
   ],
   "update_wizard_settings": [
     "skift harmonisatoren til en anden model",
     "sæt modellen for omarbejdning af hele planen",
     "skift sprogmodel for harmonisatoren",
-    "opdater harmoniseringsindstillingerne"
+    "opdater harmoniseringsindstillingerne",
+    "sæt harmonisereren til lokal søgning",
+    "vælg en sprogmodel til planharmonisereren",
+    "ændr indstillingerne for vagtplanens harmonisering"
   ],
   "update_work": [
     "ændre tiderne for en planlagt vagt",
-    "justere timerne for en tildeling i planen"
+    "justere timerne for en tildeling i planen",
+    "flyt start og slut på en planlagt vagt",
+    "ret timerne på en placeret vagt",
+    "omskriv noten på en planlagt vagt"
   ],
   "update_work_settings": [
     "opdater feriedage og prøvetid",
@@ -3317,7 +3923,10 @@
     "ret korrektur på arbejdet",
     "juster erstatningen",
     "ændre rejsetid",
-    "rediger briefing på vagten"
+    "rediger briefing på vagten",
+    "ret timekorrekturen på vagten",
+    "justér tillæggene for en vikardækning bagefter",
+    "markér posten som ikke fakturerbar"
   ],
   "validate_address": [
     "adressevalidering",
@@ -3356,18 +3965,30 @@
   ],
   "start_order_review": [
     "gennemgå åbne ordrer før forsegling",
-    "fælles gennemgang af åbne ordrer"
+    "fælles gennemgang af åbne ordrer",
+    "start ordregennemgangen",
+    "lad os gennemgå de åbne ordrer sammen",
+    "saml ens ordrer i bundter og tag undtagelserne enkeltvis"
   ],
   "set_order_review_decision": [
-    "registrér svar i ordregennemgang"
+    "registrér svar i ordregennemgang",
+    "del ordren op i 3x8 timers vagter",
+    "sæt starttidspunktet for 24-timersordren",
+    "indtast rejseomkostningerne for dette bundt"
   ],
   "preview_order_review": [
     "status for ordregennemgang"
   ],
   "cancel_order_review": [
-    "stop ordregennemgangen"
+    "stop ordregennemgangen",
+    "afbryd ordregennemgangen",
+    "jeg vil lukke gennemgangen af de åbne ordrer",
+    "kassér gennemgangen og stop"
   ],
   "execute_order_review": [
-    "anvend den bekræftede ordregennemgang"
+    "anvend den bekræftede ordregennemgang",
+    "udfør den bekræftede ordregennemgang",
+    "skriv de besluttede værdier ind i de åbne ordrer",
+    "gennemfør den bekræftede ordreforhåndsvisning"
   ]
 }

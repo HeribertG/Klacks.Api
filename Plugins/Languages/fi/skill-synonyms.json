@@ -4,14 +4,20 @@
     "ota käyttöön ehdotus",
     "vahvista skenaario",
     "hyväksy analyysiskenaario",
-    "toteuta ehdotus"
+    "toteuta ehdotus",
+    "vie wizardin ehdotus oikeaan työvuorolistaan",
+    "hyväksy skenaario ja siirrä se pääsuunnitelmaan",
+    "haluan vahvistaa autowizardin tuloksen"
   ],
   "accept_skill_relation": [
     "hyväksy tämä yhteys",
     "vahvista oppimasi yhteys",
     "merkitse yhteys hyväksytyksi",
     "vahvista tämä riippuvuus",
-    "anna yhteyden jäädä voimaan"
+    "anna yhteyden jäädä voimaan",
+    "hyväksy ehdotettu taitojen välinen yhteys",
+    "vahvista ehdotettu kytkös kahden kyvyn välillä",
+    "haluan että opittu yhteys tulee voimaan"
   ],
   "add_ai_memory": [
     "muisti",
@@ -32,25 +38,37 @@
   "add_break_placeholder": [
     "lomatoive",
     "poissaolon ennakkovaraus",
-    "lomapyyntö"
+    "lomapyyntö",
+    "kirjaa lomatoive 3.-14. elokuulle",
+    "varaa työntekijälle kesälomatoiveet ennakkoon",
+    "tallenna työntekijän lomahakemus paikanvaraajaksi"
   ],
   "add_client_email": [
     "lisää sähköpostiosoite",
     "päivitä työntekijän sähköposti",
     "aseta sähköposti henkilölle",
-    "anna sähköpostiosoite"
+    "anna sähköpostiosoite",
+    "kirjaa asiakkaan sähköpostiosoite",
+    "vaihda tämän työntekijän sähköpostiosoite",
+    "syötä asiakkaalle uusi meiliosoite"
   ],
   "add_client_note": [
     "lisää muistiinpano asiakkaalle",
     "kirjoita kommentti henkilölle",
     "tee muistiinpano työntekijästä",
-    "lisää huomautus"
+    "lisää huomautus",
+    "liitä muistiinpano tähän työntekijään",
+    "haluan kirjoittaa huomautuksen asiakkaasta",
+    "tallenna lyhyt memo työntekijälle"
   ],
   "add_client_phone": [
     "lisää puhelinnumero asiakkaalle",
     "päivitä työntekijän puhelinnumero",
     "aseta puhelinnumero",
-    "anna numero henkilölle"
+    "anna numero henkilölle",
+    "tallenna työntekijälle uusi matkapuhelinnumero",
+    "lisää henkilölle yhteysnumero",
+    "kirjaa asiakkaan puhelinnumero"
   ],
   "add_client_to_group": [
     "lisää ryhmään",
@@ -62,7 +80,10 @@
     "lisää asiakas ryhmään",
     "liitä työntekijä ryhmään",
     "aseta henkilö ryhmään",
-    "siirrä asiakas ryhmään"
+    "siirrä asiakas ryhmään",
+    "lisää työntekijä tiimiin",
+    "laita tämä henkilö ryhmään",
+    "ota henkilökunnan jäsen mukaan osastoon"
   ],
   "add_client_to_nearest_group": [
     "lisää asiakas lähimpään ryhmään",
@@ -75,21 +96,30 @@
     "lisää tehtävä konttimalliin",
     "liitä tehtävävuoro kontin malliin",
     "lisää tehtävä konttipohjan viikonpäivälle",
-    "vie tehtävä konttivuoron malliin"
+    "vie tehtävä konttivuoron malliin",
+    "lisää kontin maanantaimalliin toinen osavuoro",
+    "aseta tehtävä paikalle 2 kontin pohjassa",
+    "täydennä tiistaimallia yhdellä lisätehtävällä"
   ],
   "add_expense": [
     "lisää kulukorvaus",
     "kirjaa kulu",
     "tallenna kuluerä",
     "merkitse kulu työvuorolle",
-    "syötä kulukorvaus työvuoroon"
+    "syötä kulukorvaus työvuoroon",
+    "lisää eilisen työvuoroon 25 euron junalippu kuluna",
+    "kirjaa pysäköintimaksu vuoron kuluksi",
+    "syötä vuorolle verollinen korvaus 30 euroa"
   ],
   "add_personal_memory": [
     "muista että pidän kahvista",
     "tallenna itsestäni että tykkään aamuvuoroista",
     "merkintä minulle: inhoan ylitöitä",
     "pane muistiin että olen kasvissyöjä",
-    "muistilappu: haluan käyttää vain tietokonetta"
+    "muistilappu: haluan käyttää vain tietokonetta",
+    "muista että haluan lyhyet vastaukset",
+    "tallenna yksityisesti että suosin aikaisia vuoroja",
+    "kirjaa muistiin vain minua varten että en pidä viikonloppusuunnittelusta"
   ],
   "add_schedule_command": [
     "aseta yasmine vapaaksi 15.5.",
@@ -101,20 +131,29 @@
   "add_schedule_commands_range": [
     "vapaa jakso",
     "jakson komennot",
-    "useita vapaapäiviä"
+    "useita vapaapäiviä",
+    "hän haluaa olla vapaalla joka päivä 10.-20. toukokuuta",
+    "hän toivoo koko heinäkuun vain aamuvuoroja",
+    "pidä kesäkuun ensimmäinen viikko vapaana hänelle"
   ],
   "add_schedule_note": [
     "lisää muistio aikatauluun",
     "tee huomautus päivälle",
     "lisää kommentti",
     "kirjaa muistiinpano",
-    "lisää aikataulumerkintä"
+    "lisää aikataulumerkintä",
+    "jätä työntekijälle luovutusmuistio tiistaiksi",
+    "kirjoita kommentti tietylle päivälle työvuorolistaan",
+    "lisää suunnitelmaan huomautus tälle työntekijälle perjantaille"
   ],
   "add_selected_clients_to_group": [
     "lisää valitut työntekijät ryhmään",
     "lisää merkityt rivit ryhmään",
     "lisää valitut henkilöt ryhmään",
-    "lisää tickatut asiakkaat ryhmään"
+    "lisää tickatut asiakkaat ryhmään",
+    "kokoa korostetut työntekijät yhteen ryhmään",
+    "liitä ruksatut henkilöt tiimiin",
+    "ota kaikki valitsemani mukaan ryhmään"
   ],
   "add_shift_to_group": [
     "lisää tämä vuoro ryhmään tiimi a",
@@ -129,7 +168,10 @@
     "opeta uusi ääntämismuoto",
     "lisää sana puheentunnistuksen sanakirjaan",
     "tallenna korjaus väärin kuullulle sanalle",
-    "lisää oikaisusana transkriptioon"
+    "lisää oikaisusana transkriptioon",
+    "opeta puheentunnistukselle että klaxi tarkoittaa klacksya",
+    "lisää uusi kuulovirhe transkriptiosanastoon",
+    "sanelun pitää kirjoittaa tämä termi jatkossa oikein"
   ],
   "add_workchange": [
     "lisää työvuoroon korjaus",
@@ -152,36 +194,54 @@
   "apply_company_rule": [
     "ota yrityssääntö käyttöön",
     "tallenna ja vahvista yrityssääntö",
-    "aktivoi yrityssääntö"
+    "aktivoi yrityssääntö",
+    "ota yrityssääntöluonnos käyttöön nyt",
+    "laita valmisteltu lisäsääntö voimaan",
+    "esikatselu vahvistettu, tallenna talosääntö"
   ],
   "apply_grouping": [
     "ota ryhmittely käyttöön",
     "vahvista ja toteuta ryhmittely",
     "siirrä asiakkaat nyt oikeisiin ryhmiin",
     "aja ehdotettu ryhmittely läpi",
-    "tee ryhmittely lopullisesti"
+    "tee ryhmittely lopullisesti",
+    "siirrä kaikki työntekijät sijaintiryhmiinsä",
+    "suorita sijaintiryhmittely nyt",
+    "tallenna ehdotettu sijaintijako"
   ],
   "apply_grouping_plan": [
     "ota ryhmäsuunnitelma käyttöön",
-    "toteuta ehdotetut ryhmämuutokset"
+    "toteuta ehdotetut ryhmämuutokset",
+    "toteuta hyväksytty ryhmäsuunnitelma",
+    "ota ehdotetut jäsenyysmuutokset käyttöön",
+    "aja ryhmittelysuunnitelma koodinsa mukaan"
   ],
   "apply_planning_profile": [
     "ota suunnitteluprofiili käyttöön",
-    "tallenna suunnitteluprofiili"
+    "tallenna suunnitteluprofiili",
+    "ota suunnitteluprofiililuonnos käyttöön",
+    "aktivoi omat suunnittelusääntöni luonnoksesta",
+    "luo suunnitteluprofiili nyt"
   ],
   "approve_day": [
     "hyväksy päivä",
     "vapauta 15.5.",
     "hyväksy maanantai",
     "hyväksy päivän vuorot",
-    "vahvista päivä"
+    "vahvista päivä",
+    "hyväksy kaikki maanantain työvuorot ryhmälle",
+    "kuittaa 15. toukokuuta tälle ryhmälle",
+    "haluan lukita päivän hyväksytyksi tiimille"
   ],
   "assign_contract_by_name": [
     "määritä sopimus nimen perusteella",
     "anna sopimus henkilölle pelkällä nimellä",
     "liitä sopimus työntekijään nimeä käyttäen",
     "etsi asiakas nimeltä ja kohdista sopimus",
-    "kohdista sopimus nimen mukaan"
+    "kohdista sopimus nimen mukaan",
+    "yhdistä työntekijä ja sopimus pelkillä nimillä",
+    "anna tämän nimiselle työntekijälle osa-aikasopimus",
+    "aseta uusi sopimus aktiiviseksi nimellä haetulle työntekijälle"
   ],
   "assign_contract_to_client": [
     "määritä sopimus",
@@ -193,15 +253,24 @@
   ],
   "assign_macro_to_absence_type": [
     "määritä makro poissaolotyypille",
-    "vaihda poissaolotyypin laskentamakro"
+    "vaihda poissaolotyypin laskentamakro",
+    "vaihda loma toiseen laskentamakroon",
+    "haluan asettaa sairauspoissaololle uuden tuntien hyvityskaavan",
+    "liitä tapaturma-poissaolotyyppi toiseen makroon"
   ],
   "assign_macro_to_shift": [
     "määritä makro vuorolle",
-    "vaihda vuoron laskentamakro"
+    "vaihda vuoron laskentamakro",
+    "ota yövuorolle käyttöön laajennettu lisäkaava",
+    "anna tälle vuorolle toinen makro",
+    "palaa vuoron vakiokaavaan"
   ],
   "assign_orders_to_groups": [
     "ryhmittele tuodut tilaukset",
-    "tilaukset ilman ryhmää"
+    "tilaukset ilman ryhmää",
+    "kohdista kaikki avoimet tilaukset ryhmiinsä",
+    "lajittele tuodut tilaukset kaupunkiryhmiin erp-tuonnin jälkeen",
+    "sijoita ryhmättömät tilaukset automaattisesti oikeaan sijaintiryhmään"
   ],
   "assign_shifts_to_city_groups": [
     "jaa vuorot kaupunkiryhmiin asiakkaan osoitteen mukaan",
@@ -221,48 +290,72 @@
     "aseta poissaolo ryhmän kaikille jäsenille",
     "tee koko ryhmälle loma samalle päivälle",
     "lisää ryhmäpoissaolo yhdellä kertaa",
-    "merkitse koko porukalle vapaa"
+    "merkitse koko porukalle vapaa",
+    "kirjaa koulutuspäivä koko ryhmälle perjantaille",
+    "haluan antaa koko ryhmälle saman poissaolon yhdeksi päiväksi",
+    "lisää sama poissaolo kaikille tiimin jäsenille yhdelle päivälle"
   ],
   "bulk_add_shifts_to_group": [
     "lisää kaikki palvelu-nimiset vuorot tiimille huolto",
     "kytke kaikki 'päivä' vuorot ryhmään tuotanto",
     "näytä esikatselu mitkä vuorot lisättäisiin ryhmään kesä",
     "lisää bulkilla kaikki 'yö'-vuorot osastolle turvallisuus",
-    "lisää kaikki vuorot joiden nimessä 'vuorovastaava' ryhmään johto"
+    "lisää kaikki vuorot joiden nimessä 'vuorovastaava' ryhmään johto",
+    "liitä kaikki tämän lyhenteen palvelut osastolle",
+    "lisää monta vuoroa kerralla yhteen ryhmään",
+    "haluan siirtää kaikki yövuorot samaan ryhmään"
   ],
   "bulk_delete_works": [
     "poista työntekijän kaikki vuorot jaksolta",
     "poista kaikki työvuorot aikaväliltä",
     "poista kaikki sijoitukset jaksolta",
-    "poista useita työvuoroja kerralla"
+    "poista useita työvuoroja kerralla",
+    "tyhjennä yhden työntekijän kaikki työmerkinnät ensi viikolta",
+    "poista henkilön kaikki sijoitukset tietyltä vuorolta jaksolla",
+    "poista koko kuukauden vuorot yhdeltä työntekijältä"
   ],
   "bundle_nearby_timerange_shifts_into_container": [
     "yhdistä mobiilipalvelut kaupungin ympärillä",
     "kerää lähellä olevat timerange-vuorot",
-    "kokoa mobiilipalvelut yhteen alueella"
+    "kokoa mobiilipalvelut yhteen alueella",
+    "pakkaa kaikki liikkuvat työt tampereen ympäriltä uuteen konttiin",
+    "rakenna torstaille kontti lähellä olevista timerange-vuoroista",
+    "täytä kontti yhdelle viikonpäivälle reittioptimoiduilla tehtävillä"
   ],
   "cancel_company_rule": [
     "peruuta yrityssäännön luonnos",
     "hylkää keskeneräinen yrityssääntö",
-    "peruuta yrityssäännön määrittely"
+    "peruuta yrityssäännön määrittely",
+    "hylkää aloittamani yrityssääntö",
+    "keskeytä talosäännön luonnos",
+    "älä jatka säännön kirjaamista"
   ],
   "cancel_planning_profile_setup": [
     "peruuta suunnitteluprofiilin määritys",
-    "hylkää suunnitteluprofiilin luonnos"
+    "hylkää suunnitteluprofiilin luonnos",
+    "keskeytä suunnitteluprofiilin luonti",
+    "hylkää profiililuonnos",
+    "lopeta profiiliavustaja"
   ],
   "cancel_recurring_task": [
     "peruuta muistutus",
     "poista toistuva tehtävä",
     "lopeta ajastettu tehtävä",
     "poista muistutus maanantailta",
-    "peruuta cron-tehtävä"
+    "peruuta cron-tehtävä",
+    "lopeta toistuva muistutukseni",
+    "pysäytä ajastettu toistuva ajo",
+    "poista viikoittainen muistutus"
   ],
   "cancel_wizard_job": [
     "peruuta wizard",
     "keskeytä suunnittelu",
     "lopeta wizard-ajo",
     "pysäytä wizard",
-    "peru suunnittelutyö"
+    "peru suunnittelutyö",
+    "pysäytä käynnissä oleva suunnitteluajo",
+    "lopeta automaattinen vuorosuunnittelu heti",
+    "keskeytä autowizard nyt"
   ],
   "check_absence_capacity_reserve": [
     "kapasiteettivara lomalle",
@@ -284,7 +377,10 @@
   "check_erp_drop_point_folder_health": [
     "tarkista pudotuspisteen kansion kunto",
     "selviääkö kansio uudelleenkäynnistyksestä",
-    "luo processed ja error kansiot"
+    "luo processed ja error kansiot",
+    "onko erp-kansioon kirjoitusoikeus",
+    "tarkista että erp-kansio on olemassa ja luo se jos puuttuu",
+    "miksi tilaustiedostoja ei noudeta, testaa kansio"
   ],
   "check_group_geocoding_status": [
     "geokoodauksen tila"
@@ -292,39 +388,57 @@
   "clear_client_availability": [
     "nollaa työntekijän saatavuus",
     "poista saatavuusmerkinnät",
-    "tyhjennä saatavuus jotta päivä avautuu uudelleen"
+    "tyhjennä saatavuus jotta päivä avautuu uudelleen",
+    "poista kaikki saatavuusmerkinnät elokuulta",
+    "vapauta päivä taas kokonaan suunnittelulle",
+    "poista vain aamun saatavuus"
   ],
   "close_clarification": [
     "selvitän asian itse työntekijän kanssa",
-    "sulje tarkentava kysymys"
+    "sulje tarkentava kysymys",
+    "hoidan selvityksen itse",
+    "sulje avoin kysymys työntekijälle",
+    "älä odota enää vastausta poissaolosta"
   ],
   "close_period": [
     "sulje jakso",
     "päätä toukokuu 2026",
     "lukitse palkkakausi",
     "sulje ajanjakso",
-    "sinetöi jakso"
+    "sinetöi jakso",
+    "lukitse viime kuun kaikki tunnit lopullisesti",
+    "sinetöi palkkakausi ja kirjoita auditointiloki",
+    "haluan sulkea jakson palkanlaskentaa varten"
   ],
   "confirm_break": [
     "vahvista poissaolo",
     "lukitse poissaolo",
     "vahvista lomapäivä",
     "vahvista sairauspoissaolo",
-    "lukitse poissaolomerkintä"
+    "lukitse poissaolomerkintä",
+    "tee kirjatusta lomamerkinnästä sitova",
+    "aseta tämä sairauspoissaolo vahvistetuksi",
+    "vahvista poissaolomerkintä breakid:n perusteella"
   ],
   "confirm_pending_action": [
     "vahvista odottava toimenpide",
     "kyllä, suorita",
     "vahvista toiminto",
     "tee se",
-    "hyväksy"
+    "hyväksy",
+    "joo, aja odottava toiminto",
+    "okei vahvistettu, jatka vain",
+    "hyväksytty, tee juuri noin"
   ],
   "confirm_work": [
     "vahvista työvuoro",
     "lukitse sijoitus",
     "vahvista yasmine aamuvuoro",
     "kiinnitä vuoro",
-    "lukitse työ"
+    "lukitse työ",
+    "tee tästä sijoituksesta lopullinen",
+    "suojaa tämä vuoro wizardeilta",
+    "haluan jäädyttää huomisen sijoituksen"
   ],
   "cover_absence": [
     "hoida poissaolon korvaaminen",
@@ -339,17 +453,26 @@
     "lisää uusi lomatyyppi",
     "määrittele uusi sairauspoissaolotyyppi",
     "luo uusi vapaatyyppi",
-    "lisää uusi poissaolon syy"
+    "lisää uusi poissaolon syy",
+    "määrittele uusi poissaolotyyppi opintovapaalle",
+    "tarvitsen uuden poissaolon lajin asevelvollisuudelle",
+    "lisää perustietoihin toinen tyyppi palkattomalle vapaalle"
   ],
   "create_absence_type": [
     "luo uusi poissaolotyyppi asetuksissa",
-    "määritä uusi poissaololuokka"
+    "määritä uusi poissaololuokka",
+    "lisää asetuksiin uusi poissaolon laji",
+    "haluan määrittää uuden vapaalajin lyhenteellä ja värillä",
+    "uusi poissaolo perustietoihin viikonloput mukaan laskettuna"
   ],
   "create_address": [
     "lisää uusi osoite",
     "tallenna osoite",
     "rekisteröi uusi osoite",
-    "lisää postiosoite"
+    "lisää postiosoite",
+    "tallenna asiakkaalle laskutusosoite",
+    "lisää tälle yhteyshenkilölle toimiosoite",
+    "tallenna osoite jossa on maa ja maakunta"
   ],
   "create_agent_skill": [
     "luo taito",
@@ -367,26 +490,38 @@
   ],
   "create_calendar_selection": [
     "luo kalenterivalinta",
-    "luo pyhäpäiväkalenteri"
+    "luo pyhäpäiväkalenteri",
+    "yhdistä kahden alueen pyhäpäivät yhdeksi kalenteriksi",
+    "uusi kalenterivalinta saksalla ja itävallalla",
+    "tee oma pyhäpäiväkalenteri usean maan päivistä"
   ],
   "create_container_template": [
     "luo viikonpäivän malli kontille",
     "tee uusi konttimalli",
     "lisää päivämalli konttivuoroon",
-    "määritä kontin viikonpäivä"
+    "määritä kontin viikonpäivä",
+    "tee kontille maanantaiksi päiväsuunnitelma aikabudjetilla",
+    "kontti tarvitsee vielä mallin keskiviikolle",
+    "luo tiistaimalli lähtö- ja päätepaikalla"
   ],
   "create_contract": [
     "luo sopimus",
     "uusi sopimus",
     "lisää sopimus",
     "työsopimus",
-    "työehtosopimus"
+    "työehtosopimus",
+    "haluan luoda uuden sopimuspohjan 40 viikkotunnilla",
+    "tallenna sopimus jossa 8 tuntia päivässä ja 5 päivää",
+    "tee osa-aikainen työsopimus 20 tunnilla"
   ],
   "create_contract_from_template": [
     "luo sopimus pohjasta",
     "uusi sopimus sopimuspohjasta",
     "kopioi sopimuspohja",
-    "luo sopimus mallista"
+    "luo sopimus mallista",
+    "kopioi kokoaikasopimus ja muuta vain alkupäivä",
+    "uusi sopimus kuten nykyinen mutta 60 prosentin työajalla",
+    "monista sopimuspohja uudella nimellä ja eri työpäivillä"
   ],
   "create_counter_rule": [
     "luo laskentasääntö",
@@ -394,13 +529,19 @@
     "rajoita yövuorot enintään neljään kuukaudessa",
     "aseta raja sille, kuinka monta kertaa saa tapahtua",
     "tee sääntö, joka laskee yövuorot",
-    "aseta enimmäismäärä yövuoroille"
+    "aseta enimmäismäärä yövuoroille",
+    "salli enintään viisi työpäivää viikossa",
+    "varoita jos joku saa yli neljä yövuoroa kuussa",
+    "aseta yläraja viikonloppuvuoroille"
   ],
   "create_donation_checkout": [
     "lahjoita klacks-projektille",
     "luo lahjoitus",
     "haluan tehdä lahjoituksen",
-    "tue klacksia summalla"
+    "tue klacksia summalla",
+    "haluan lahjoittaa 50 euroa",
+    "luo maksulinkki projektin lahjoitusta varten",
+    "avaa lahjoitussivu 20 dollarin summalle"
   ],
   "create_email_folder": [
     "luo uusi sähköpostikansio",
@@ -423,13 +564,19 @@
     "anna minulle uusi avain tiedostojen toimittamiseen",
     "luo siirtotunnus ulkoiselle järjestelmälle",
     "uusi toimitusavain tiedostojen luovutusta varten",
-    "luo tunnus tiedostojen toimittamiseen"
+    "luo tunnus tiedostojen toimittamiseen",
+    "tarvitsen toimitusavaimen kättelypaikkaa varten",
+    "luo uusi tunniste erp-tiedostojen tuontia varten",
+    "määritä avain jolla ulkoinen järjestelmä voi toimittaa tiedostoja"
   ],
   "create_group": [
     "luo uusi ryhmä",
     "perusta tiimi",
     "lisää uusi osasto",
-    "luo ryhmä"
+    "luo ryhmä",
+    "luo myynnin alle uusi aliryhmä",
+    "haluan perustaa uuden tiimin yövartiolle",
+    "lisää uusi organisaatioyksikkö voimassa ensi maanantaista"
   ],
   "create_identity_provider": [
     "luo uusi tunnistautumispalvelu",
@@ -443,7 +590,10 @@
     "lisää uusi jakso",
     "luo poikkeava laskentajakso",
     "määritä oma laskutusjakso",
-    "luo oma stichtag-jakso"
+    "luo oma stichtag-jakso",
+    "tee jakso joka kulkee 26. päivästä 25. päivään",
+    "luo laskentaikkuna henkilöille joiden kuukausi alkaa eri päivänä",
+    "määrittele laskutusjakso 26.-25."
   ],
   "create_llm_model": [
     "luo tekoälymalli",
@@ -463,7 +613,10 @@
     "tee makro nimellä 'vakiolaskelma' ja skriptillä...",
     "lisää laskentasääntö: jos tunteja yli 8, niin...",
     "luo makro laskemaan ylityöt",
-    "tallenna uusi makro nimellä 'bonuslaskenta'"
+    "tallenna uusi makro nimellä 'bonuslaskenta'",
+    "luo uusi makro tällä skriptillä",
+    "haluan tallentaa uuden laskentaskriptin asetuksiin",
+    "rekisteröi kaavamakro tällä nimellä"
   ],
   "create_monthly_target_hours": [
     "aseta helmikuun 2026 tavoitetunnit",
@@ -471,7 +624,10 @@
     "aseta kuukauden tuntimäärä",
     "tallenna tavoitetunnit kuukaudelle",
     "aseta helmikuulle 160 tuntia",
-    "määritä kuukausittainen tuntimäärä"
+    "määritä kuukausittainen tuntimäärä",
+    "kirjaa helmikuulle 160 tavoitetuntia",
+    "tallenna kuukausi poikkeavilla tavoitetunneilla",
+    "tämä kuukausi on täydellä työajalla vain 150 tuntia"
   ],
   "create_period_cap_rule": [
     "aseta tuntilimiitti kuukaudelle",
@@ -479,7 +635,10 @@
     "aseta kattoraja työtunneille",
     "rajoita viikoittainen keskiarvo enintään 48:aan tuntiin",
     "aseta ylitöiden enimmäismäärä",
-    "määritä kuukausittainen tuntilimiitti"
+    "määritä kuukausittainen tuntilimiitti",
+    "enintään 48 tunnin keskiarvo kahdentoista viikon ajalla",
+    "anna varoitus kun kuukauden tunneista on 90 prosenttia täynnä",
+    "luo ylitöille yläraja jaksoa kohden"
   ],
   "create_personal_access_token": [
     "luo henkilökohtainen pääsytunnus",
@@ -492,21 +651,30 @@
     "luo suunnitelma",
     "monivaiheinen suunnitelma",
     "useita tehtäviä kerralla",
-    "laadi tehtäväsuunnitelma"
+    "laadi tehtäväsuunnitelma",
+    "tarvitsen kokonaisuuden asiakkaalle, tilaukselle ja henkilöstölle yhdellä kertaa",
+    "kokoa tästä monivaiheinen suunnitelma",
+    "ehdota miten teemme nämä muutokset peräkkäin"
   ],
   "create_qualification": [
     "lisää uusi pätevyys",
     "luo pätevyys",
     "määrittele uusi taito",
     "lisää sertifikaattityyppi",
-    "luo uusi kelpoisuus"
+    "luo uusi kelpoisuus",
+    "rekisteröi uusi trukkikortti-pätevyys",
+    "haluan tallentaa ensiavun pätevyydeksi",
+    "määrittele c1-ajokortti pätevyydeksi"
   ],
   "create_report_template": [
     "luo uusi tulostuspohja",
     "tee uusi raporttipohja",
     "luo tulostusmalli vuorolistaa varten",
     "lisää uusi tulostettava pohja",
-    "luo raporttipohja"
+    "luo raporttipohja",
+    "lisää uusi pohja vuorolistojen tulostamiseen",
+    "tarvitsen pohjan poissaoloraportille",
+    "luo tulostettava laskupohja yhdistetyillä riveillä"
   ],
   "create_restricted_time_window_rule": [
     "aseta aikarajoitus",
@@ -514,7 +682,10 @@
     "aseta kausittainen aikarajoitus",
     "lukitse kellonajat, jolloin ei saa työskennellä",
     "rajoita työaikaa tiettyinä kellonaikoina",
-    "aseta kielletty aikaväli"
+    "aseta kielletty aikaväli",
+    "ei työtä kello 12-15 kesällä",
+    "määritä vuosittainen kausikohtainen työkieltoaika",
+    "estä illat marraskuusta maaliskuuhun kaikilta joilla on ulkotyö-tunniste"
   ],
   "create_scheduling_rule": [
     "luo suunnittelusääntö",
@@ -536,14 +707,20 @@
     "estä lähettäjä",
     "estä domain",
     "lisää roskapostisuodatin",
-    "blokkaa spämmi"
+    "blokkaa spämmi",
+    "suodata pois kaikki tämän domainin viestit",
+    "luokittele tällä otsikolla tulevat viestit roskapostiksi",
+    "lisää viestin tekstin avainsana roskapostisuodattimeen"
   ],
   "create_test_environment": [
     "luo testiympäristö",
     "lisää testityöntekijöitä",
     "tuo testidata",
     "luo testihenkilöstö",
-    "perusta testiasetelma"
+    "perusta testiasetelma",
+    "perusta täydellinen testiympäristö autofilliä varten",
+    "tarvitsen testihenkilöstön ryhmineen ja yhteisine sopimuksineen",
+    "tee testidataa aamu-, ilta- ja yövuoroilla"
   ],
   "create_user": [
     "luo käyttäjä",
@@ -558,13 +735,19 @@
     "leikkaa vuoro",
     "paloittele vuoro",
     "jätä vuoro",
-    "tee vuorosta osia"
+    "tee vuorosta osia",
+    "jaa 24 tunnin tilaus aamu-, ilta- ja yöosiin",
+    "pilko tämä tilaus useaksi aikajaksoksi",
+    "haluan katkaista vuoron kahdeksi osavuoroksi"
   ],
   "cut_shift_by_date": [
     "leikkaa vuoro tiettynä päivänä kahtia",
     "jaa vuoro kahteen osaan päivämäärän kohdalta",
     "katkaise vuoro annetusta päivästä",
-    "halkaise vuoro päivämäärän kohdalla"
+    "halkaise vuoro päivämäärän kohdalla",
+    "aloita vuoro uudestaan 1. heinäkuuta alkaen",
+    "erota vuoro kahdeksi jaksoksi kalenteripäivän kohdalta",
+    "katkaise sarja rajapäivään ja aloita sen jälkeen uusi"
   ],
   "delete_absence": [
     "poista poissaolotyyppi",
@@ -572,17 +755,26 @@
     "poista lomatyyppi",
     "poista sairauspoissaolotyyppi",
     "poista poissaolon tyyppi",
-    "poista poissaololaji"
+    "poista poissaololaji",
+    "poista palkattoman vapaan poissaolotyyppi asetuksista",
+    "ota tarpeeton poissaolon laji pois",
+    "haluan lopettaa vanhentuneen poissaolotyypin"
   ],
   "delete_absence_type": [
     "poista poissaolotyyppi asetuksista",
-    "poista poissaololuokka"
+    "poista poissaololuokka",
+    "haluan poistaa poissaolotyypin",
+    "ota tämä poissaololuokka pois perustiedoista",
+    "tämä poissaolotyyppi on vanhentunut, poista se"
   ],
   "delete_address": [
     "poista osoite",
     "poista postiosoite",
     "poista tämä osoite",
-    "poista osoitemerkintä"
+    "poista osoitemerkintä",
+    "poista vanha kotiosoite",
+    "ota henkilön postitusosoite pois",
+    "poista vanhentunut osoite profiilista"
   ],
   "delete_agent_skill": [
     "poista taito",
@@ -603,7 +795,10 @@
     "poista muistiinpano",
     "poista kommentti",
     "poista tämä muistiinpano",
-    "poista merkintä"
+    "poista merkintä",
+    "poista muistiinpano työntekijältä",
+    "ota kommentti pois asiakkaalta",
+    "hävitä tämä huomautus id:n perusteella"
   ],
   "delete_branch": [
     "poista toimipiste",
@@ -618,17 +813,26 @@
     "peru loma",
     "poista sairauspoissaolo",
     "poista koulutus",
-    "poista vapaa"
+    "poista vapaa",
+    "poista tiistain sairauspäivä",
+    "ota kirjattu lomapoissaolo pois",
+    "poista kalenterista lomamerkintä"
   ],
   "delete_break_placeholder": [
     "peruuta lomatoive",
     "poista suunniteltu poissaolo",
     "poista poissaolon ennakkovaraus",
-    "peru suunniteltu loma"
+    "peru suunniteltu loma",
+    "vedä takaisin kirjattu lomatoive",
+    "peruuta lyijykynällä merkitty poissaolo 12. elokuuta",
+    "poista poissaolon paikanvaraaja"
   ],
   "delete_calendar_selection": [
     "poista kalenterivalinta",
-    "poista pyhäpäiväkalenteri"
+    "poista pyhäpäiväkalenteri",
+    "hävitä käyttämätön pyhäpäiväkalenteri",
+    "haluan poistaa tämän kalenterivalinnan",
+    "poista alueellisten pyhäpäivien kalenteri"
   ],
   "delete_client": [
     "poista työntekijä",
@@ -640,19 +844,28 @@
     "poista tämä viestintä",
     "poista sähköpostiosoite",
     "poista puhelinnumero",
-    "poista yhteystieto"
+    "poista yhteystieto",
+    "poista matkapuhelinnumero yhteystiedoista",
+    "ota pois työntekijän yhteystietomerkintä",
+    "poista asiakkaan vanha lankaliittymä"
   ],
   "delete_container_template": [
     "poista kontin viikonpäiväpohjat",
     "poista kaikki kontin pohjat",
-    "nollaa kontin viikkosuunnitelma"
+    "nollaa kontin viikkosuunnitelma",
+    "poista kontin kaikki viikonpäivämallit",
+    "tyhjennä konttivuoron mallit kokonaan",
+    "haluan siivota tehtävät kontin päivämalleista"
   ],
   "delete_contract": [
     "poista sopimus",
     "poista työsopimus",
     "irtisano sopimus",
     "poista sopimusmalli",
-    "poista sopimuspohja"
+    "poista sopimuspohja",
+    "ota tämä sopimuspohja pois listalta lopullisesti",
+    "hävitä tarpeeton sopimus",
+    "poista vanha osa-aikasopimus järjestelmästä"
   ],
   "delete_counter_rule": [
     "poista laskentasääntö",
@@ -660,11 +873,17 @@
     "lopeta laskentasääntö",
     "poista sääntö, joka laskee työpäiviä",
     "poista rajoitus yövuoroille",
-    "poista yövuorojen raja"
+    "poista yövuorojen raja",
+    "tämä laskentasääntö oli virhe, poista se",
+    "emme seuraa enää tätä lukua, poista sääntö",
+    "kumoa esiintymien laskentamerkintä"
   ],
   "delete_email": [
     "poista sähköposti roskakoriin",
-    "siirrä tämä sähköposti roskakoriin"
+    "siirrä tämä sähköposti roskakoriin",
+    "poista tämä viesti",
+    "haluan heittää saapuneen meilin pois",
+    "poista viesti saapuneista"
   ],
   "delete_email_folder": [
     "poista sähköpostikansio",
@@ -677,34 +896,49 @@
     "poista kulukorvaus",
     "peruuta kuluerä",
     "poista kulukirjaus",
-    "poista kulukorvaus työvuorolta"
+    "poista kulukorvaus työvuorolta",
+    "poista eilinen kulukuitti",
+    "ota väärin kirjattu kulu pois",
+    "haluan perua kuluerän"
   ],
   "delete_export_format_override": [
     "palauta vientimuoto",
     "poista vientimuodon mukautus",
     "nollaa vientimuoto",
     "poista poikkeama vientimuodosta",
-    "palauta oletusvientimuoto"
+    "palauta oletusvientimuoto",
+    "palauta toimitettu vientimääritys",
+    "hylkää tekemäni vientimuodon muutos",
+    "peru palkkavientimuodon muokkaus"
   ],
   "delete_group": [
     "poista ryhmä",
     "lakkauta tiimi",
     "poista osasto",
-    "poista ryhmä ja aliryhmät"
+    "poista ryhmä ja aliryhmät",
+    "poista koko toimipiste aliryhmineen",
+    "lakkauta tämä osasto kokonaan",
+    "poista vanhentunut ryhmä puusta"
   ],
   "delete_identity_provider": [
     "poista tunnistautumispalvelu",
     "poista sso-palvelu",
     "poista ldap-määritys",
     "poista kirjautumispalvelu",
-    "poista identiteetinhallintapalvelu"
+    "poista identiteetinhallintapalvelu",
+    "poista active directory -yhteys",
+    "poista openid connect -palveluntarjoaja",
+    "poista oauth2-kirjautumislähde"
   ],
   "delete_individual_period": [
     "poista oma ajanjakso",
     "poista laskentajakso",
     "poista poikkeava jakso",
     "poista omat jaksot",
-    "poista stichtag-määritys"
+    "poista stichtag-määritys",
+    "poista malli jolla on omat laskentarajat",
+    "poista oma jakso, sopimukset palaavat kuukauteen",
+    "tätä jaksomallia ei enää tarvita"
   ],
   "delete_llm_model": [
     "poista tekoälymalli",
@@ -726,13 +960,19 @@
     "poista makro nimeltä 'vanha laskelma'",
     "poista tämä laskentasääntö",
     "poista makro 'testi'",
-    "poista kaikki makrot?"
+    "poista kaikki makrot?",
+    "haluan poistaa laskentamakron",
+    "poista vanha makro asetuksista",
+    "hävitä käyttämätön skripti asetuksista"
   ],
   "delete_membership": [
     "poista jäsenyys",
     "poista asiakassuhde",
     "poista jäsenyysjakso",
-    "poista liittymä"
+    "poista liittymä",
+    "poista työntekijän jäsenyysjakso",
+    "poista jäsenyys tällä id:llä",
+    "peruuta henkilön liittymisjakso"
   ],
   "delete_monthly_target_hours": [
     "poista tavoitetunnit kuukaudelta",
@@ -740,7 +980,10 @@
     "poista kuukauden tuntimäärä",
     "poista tavoitetunti asetus kuukaudelle",
     "poista kuukauden tuntimäärä asetus",
-    "poista tammikuun tunnit"
+    "poista tammikuun tunnit",
+    "kumoa maaliskuun poikkeava tavoite",
+    "palauta tämän kuun tavoitetunnit oletukseen",
+    "peru kuukauden poikkeama tavoitteessa"
   ],
   "delete_period_cap_rule": [
     "poista tuntilimiitti",
@@ -748,21 +991,30 @@
     "poista ylitöiden kattoraja",
     "poista tuntilimiitti asetus",
     "poista työtuntien rajoitus",
-    "poista jakson tuntilimiitti"
+    "poista jakson tuntilimiitti",
+    "pudota tämän jakson tuntiraja pois",
+    "lopeta enimmäistyöajan säännön soveltaminen",
+    "kytke pois varoitus tuntirajan ylittymisestä"
   ],
   "delete_qualification": [
     "poista pätevyys",
     "poista pätevyystieto",
     "poista tutkintotyyppi",
     "poista pätevyysmerkintä",
-    "poista pätevyysluettelosta"
+    "poista pätevyysluettelosta",
+    "poista trukkikortti-pätevyys perustiedoista",
+    "haluan poistaa vanhentuneen pätevyyden",
+    "poista pätevyysmerkintä id:n perusteella"
   ],
   "delete_report_template": [
     "poista tulostuspohja",
     "poista raporttipohja",
     "hävitä tulostusmalli",
     "poista tulostepohja käytöstä",
-    "poista tulostusmalli"
+    "poista tulostusmalli",
+    "poista vanhentunut raporttipohja",
+    "ota tulostuspohja pois kaikkine lohkoineen",
+    "hävitä virheellisesti luotu raporttiasettelu"
   ],
   "delete_restricted_time_window_rule": [
     "poista aikarajoitus",
@@ -770,12 +1022,18 @@
     "poista lukitus kellonajoilta",
     "poista työajan rajoitus",
     "vapauta kellonajat",
-    "poista ruuhka-aikojen esto"
+    "poista ruuhka-aikojen esto",
+    "poista yötuntien kielto kokonaan",
+    "tämä kausittainen kellonaikakielto oli väärä, poista se",
+    "salli työ kello 22-06 välillä taas"
   ],
   "delete_schedule_note": [
     "poista aikataulumuistio",
     "poista suunnitteluhuomio",
-    "poista merkintä aikataulusta"
+    "poista merkintä aikataulusta",
+    "poista 12. huhtikuun suunnitelmamuistiinpano",
+    "hävitä tämä suunnitelman huomautus",
+    "haluan ottaa muistiinpanon pois vuorolistasta"
   ],
   "delete_scheduling_rule": [
     "poista suunnittelusääntö",
@@ -787,14 +1045,20 @@
     "poista vuoro",
     "poista työvuoro",
     "poista vuoro kokonaan",
-    "hae poistoon vuoro"
+    "hae poistoon vuoro",
+    "haluan poistaa tämän vuoron",
+    "hävitä tilausluonnos",
+    "poista vuoro id:n perusteella"
   ],
   "delete_spam_rule": [
     "poista roskapostisääntö",
     "poista roskapostisuodatin",
     "poista estetty lähettäjä",
     "salli domain uudelleen",
-    "poista esto"
+    "poista esto",
+    "poista tämän domainin suodatinmerkintä",
+    "päästä tämän lähettäjän viestit taas läpi",
+    "tuo kuvio nappaa liikaa, poista se"
   ],
   "delete_system_user": [
     "poista käyttäjä",
@@ -809,21 +1073,30 @@
     "poista termi transkriptiosanakirjasta",
     "poista puhekorjaus",
     "poista foneettinen merkintä",
-    "tuhoa sanakirja-alkio"
+    "tuhoa sanakirja-alkio",
+    "ota tämä termi pois puheentunnistuksen korjauksista",
+    "heitä korjaussana pois saneluun liittyvästä sanakirjasta",
+    "poista tämän nimen foneettinen korjaus"
   ],
   "delete_work": [
     "poista tämä vuoro",
     "peru työvuoro",
     "poista työ",
     "poista sijoitus",
-    "peru asiakkaan vuoro"
+    "peru asiakkaan vuoro",
+    "ota tuo sijoitus pois suunnitelmasta",
+    "poista perjantain työmerkintä",
+    "poista tämä henkilö huomisesta vuorosta"
   ],
   "delete_workchange": [
     "poista työvuoron korjaus",
     "poista työaikapoikkeama",
     "poista korvausmerkintä",
     "poista työvuoromuutos",
-    "poista työajan muutos"
+    "poista työajan muutos",
+    "poista vuoron ylimääräinen merkintä",
+    "poista kirjattu matka-aika",
+    "ota perehdytysmerkintä pois vuorolta"
   ],
   "detect_conflicts": [
     "tarkista aikatauluristiriidat",
@@ -860,14 +1133,20 @@
     "deaktivoi laajennus",
     "kytke moduuli pois päältä",
     "poista toimintolisäosa käytöstä väliaikaisesti",
-    "sammuta lisäosa"
+    "sammuta lisäosa",
+    "sulje toimintolisäosa väliaikaisesti",
+    "poista moduuli käytöstä mutta säilytä asetukset",
+    "keskeytä laajennus toistaiseksi"
   ],
   "dismiss_skill_relation": [
     "hylkää tämä yhteys",
     "hylkää oppimasi yhteys",
     "tämä yhteys on väärin, hylkää se",
     "hylkää tämä riippuvuus",
-    "unohda tämä yhteys"
+    "unohda tämä yhteys",
+    "hylkää ehdotettu taitojen yhteys",
+    "heitä pois tuo ehdotettu kytkös",
+    "torju odottava yhteysehdotus"
   ],
   "email_schedule_to_client": [
     "lähetä vuorolista asiakkaalle",
@@ -880,11 +1159,17 @@
     "aktivoi laajennus",
     "kytke moduuli päälle",
     "ota toimintolisäosa käyttöön",
-    "laita lisäosa päälle"
+    "laita lisäosa päälle",
+    "kytke asennettu lisäosa toimintaan",
+    "käynnistä asennettu laajennus",
+    "haluan laittaa lisäosan toimimaan"
   ],
   "end_client_membership": [
     "päättää työntekijän jäsenyys",
-    "asettaa työntekijän lähtöpäivä"
+    "asettaa työntekijän lähtöpäivä",
+    "työntekijä lähtee kuun lopussa",
+    "kirjaa työntekijän irtisanomispäivä",
+    "viimeinen työpäivä on 30."
   ],
   "evaluate_absence_hours_setup": [
     "miksi hän saa liian vähän lomatunteja",
@@ -1478,17 +1763,26 @@
   ],
   "extend_macro": [
     "laajenna makro kopiona",
-    "laskentamakron laajennettu kopio"
+    "laskentamakron laajennettu kopio",
+    "kopioi makro ja lisää siihen ylimääräinen lisä",
+    "haluan lisätä makrokopioon lisäkorvauslohkon",
+    "tee makrosta variantti lisälaskennalla"
   ],
   "fetch_new_emails": [
     "nouda uudet sähköpostit nyt",
-    "päivitä saapuneet-kansio heti"
+    "päivitä saapuneet-kansio heti",
+    "hae uusi posti palvelimelta nyt",
+    "käynnistä imap-haku",
+    "lataa saapuneet uudelleen heti"
   ],
   "fill_group_by_criteria": [
     "täytä ryhmä hakuehdoilla",
     "lisää työntekijöitä ryhmään kriteerien mukaan",
     "etsi työntekijät ja lisää ryhmään",
-    "populoi ryhmä ehdoilla"
+    "populoi ryhmä ehdoilla",
+    "lisää kymmenen satunnaista työntekijää uudeltamaalta ryhmään",
+    "laita ryhmään kaikki joiden postinumero alkaa 80",
+    "täytä ryhmä kaikilla tamperelaisilla joilla on kokoaikasopimus"
   ],
   "find_absence_capacity_windows": [
     "etsi sopiva jakso lomalle",
@@ -1529,14 +1823,20 @@
     "täydennä osoitteiden puuttuvat koordinaatit",
     "geokoodaa osoitteet",
     "sijoita asiakkaiden osoitteet kartalle",
-    "selvitä osoitteiden koordinaatit"
+    "selvitä osoitteiden koordinaatit",
+    "paikanna ilman sijaintia olevat osoitteet postinumeron ja kaupungin perusteella",
+    "laske leveys- ja pituusaste kaikille osoitteille ilman koordinaatteja",
+    "tuo puuttuvat geotiedot osoitteille"
   ],
   "geocode_location_groups": [
     "geokoodaa kaikki ryhmät",
     "hae ryhmille koordinaatit automaattisesti",
     "päivitä ryhmien sijaintikoordinaatit",
     "etsi kaikkien ryhmien maantieteelliset koordinaatit",
-    "geokoodaa sijaintiryhmät"
+    "geokoodaa sijaintiryhmät",
+    "lisää sijaintiryhmille koordinaatit automaattisesti",
+    "hae kaupunki- ja kuntaryhmien paikkatiedot",
+    "anna paikkaryhmien geokoodautua itsekseen"
   ],
   "get_absence_hours_calculation": [
     "näytä lomatuntien laskenta",
@@ -1916,26 +2216,38 @@
     "ryhmittele työntekijät kotikaupungin mukaan",
     "lisää ryhmättömät työntekijät kaupungin nimellä",
     "aseta työntekijät ryhmään osoitekaupungin perusteella",
-    "jäsennä ryhmättömät työntekijät kaupunkiryhmiin"
+    "jäsennä ryhmättömät työntekijät kaupunkiryhmiin",
+    "lisää ryhmättömät henkilöt kotikaupunkinsa nimiseen ryhmään",
+    "lajittele ryhmättömät työntekijät kaupunkiryhmiin osoitteen mukaan",
+    "siirrä kaikki ilman ryhmää olevat asuinpaikkansa ryhmään"
   ],
   "import_calendar_rules": [
     "tuo lomapäiväsäännöt",
     "tuo kalenterisäännöt",
     "tuo vapaapäivät maakunnasta",
-    "tuo liputuspäiväsäännöt"
+    "tuo liputuspäiväsäännöt",
+    "lataa osavaltion pyhäpäivämääritykset kerralla",
+    "tuo maakunnan kalenterisäännöt jsonista",
+    "luo kaikki maan pyhäpäivät yhdellä kertaa"
   ],
   "install_feature_plugin": [
     "asenna lisäosa",
     "asenna laajennus",
     "lisää uusi moduuli",
     "asenna toimintolisäosa",
-    "asenna lisämoduuli"
+    "asenna lisämoduuli",
+    "asenna lisäosa jotta toiminto on käytettävissä",
+    "haluan asentaa valinnaisen toimintomoduulin",
+    "hanki järjestelmään lisäosa nyt"
   ],
   "install_language_pack": [
     "asenna kielipaketti",
     "ota kieli käyttöön",
     "lisää kieli",
-    "aktivoi kieliversio"
+    "aktivoi kieliversio",
+    "asenna sveitsinsaksan kielipaketti gsw",
+    "aktivoi kielipaketti koodilla gsw",
+    "haluan ottaa käyttöön lisäkielen käyttöliittymään"
   ],
   "install_whisper_plugin": [
     "asenna paikallinen puheentunnistus",
@@ -1943,7 +2255,10 @@
     "ota käyttöön paikallinen puheentunnistus",
     "asenna puheentunnistus omalle koneelle",
     "vaihda paikalliseen puheentunnistukseen",
-    "asenna whisper-malli"
+    "asenna whisper-malli",
+    "asenna whisper paikallisesti",
+    "ota käyttöön paikallinen puheesta tekstiksi -tunnistus",
+    "käynnistä offline-transkriptiomoottorin asennus"
   ],
   "interpret_resource_monitor": [
     "lue resurssimonitori",
@@ -2347,19 +2662,31 @@
     "kerro tiedot paikkakunnasta tampere"
   ],
   "manage_pending_notes": [
-    "hallitse odottavia muistiinpanoja"
+    "hallitse odottavia muistiinpanoja",
+    "merkitse odottavat muistiinpanot toimitetuiksi",
+    "arkistoi avoimet muistutukseni",
+    "kuittaa toimittamattomat muistiinpanot"
   ],
   "mark_email_read": [
     "merkitse sähköposti luetuksi",
-    "merkitse sähköposti lukemattomaksi"
+    "merkitse sähköposti lukemattomaksi",
+    "kuittaa tämä sähköposti luetuksi",
+    "aseta saapunut viesti lukemattomaksi",
+    "haluan että tämä meili näkyy luettuna"
   ],
   "move_email_to_folder": [
     "siirrä sähköposti toiseen kansioon",
-    "merkitse sähköposti roskapostiksi"
+    "merkitse sähköposti roskapostiksi",
+    "laita tämä viesti roskapostikansioon",
+    "työnnä viesti roskakoriin",
+    "tuo viesti roskapostista takaisin saapuneisiin"
   ],
   "move_group": [
     "siirrä ryhmä toisen vanhemman alle",
-    "kiinnitä ryhmä uuteen yläryhmään"
+    "kiinnitä ryhmä uuteen yläryhmään",
+    "siirrä turun ryhmä länsialueen alle",
+    "vie ryhmä puun toiseen haaraan",
+    "haluan antaa tälle ryhmälle uuden yläryhmän"
   ],
   "navigate_to": [
     "vie minut asetuksiin",
@@ -2373,7 +2700,10 @@
     "tulosta poissaolokalenteri",
     "poissaoloyhteenveto seinälle",
     "tulosta poissaolot paperille",
-    "tee vuosisuunnitelma poissaoloista"
+    "tee vuosisuunnitelma poissaoloista",
+    "tarvitsen koko vuoden lomayhteenvedon tulosteena",
+    "lataa pdf vuosilomakkeesta kaikista sairaus- ja lomapäivistä",
+    "poissaolosuunnitelma paperilla tiimipalaveria varten"
   ],
   "open_order_export": [
     "vie tilaus vientiin",
@@ -2387,7 +2717,10 @@
     "näytä dienstplan",
     "avaa aikataulunäkymä",
     "näytä vuorolista tiimille turku",
-    "avaa suunnittelunäkymä osastolle tuotanto"
+    "avaa suunnittelunäkymä osastolle tuotanto",
+    "avaa ensi viikon työvuorolista",
+    "vie minut tämän kuun vuorosuunnitelmaan",
+    "haluan nähdä yhden työntekijän aikataulun"
   ],
   "optimize_llm_models_for_klacksy": [
     "optimoi kielimallit",
@@ -2395,7 +2728,10 @@
     "etsi parhaat kielimallit automaattisesti",
     "käy läpi kaikki mallit ja valitse toimivat",
     "selvitä mitkä mallit toimivat parhaiten",
-    "mittoi kaikki mallit ja aseta paras oletukseksi"
+    "mittoi kaikki mallit ja aseta paras oletukseksi",
+    "testaa kaikki kielimallit ja valitse paras",
+    "tarkista mitkä mallit eivät osaa kutsua työkaluja ja poista ne käytöstä",
+    "valitse oletusmalli nopeuden ja hintojen mukaan"
   ],
   "partition_clients_by_address": [
     "jaa asiakkaat ryhmiin osoitteiden perusteella",
@@ -2409,7 +2745,10 @@
     "luo ryhmiä pätevyyden mukaan",
     "ryhmittele työntekijät pätevyyden mukaan",
     "luo oma ryhmä jokaiselle pätevyydelle",
-    "jaa henkilöstö pätevyysryhmiin"
+    "jaa henkilöstö pätevyysryhmiin",
+    "jaa kaikki työntekijät ryhmiin automaattisesti pätevyyksien mukaan",
+    "tee jokaiselle pätevyydelle oma ryhmä haltijoineen",
+    "rakenna pätevyyksistä ryhmät juuriryhmän alle"
   ],
   "place_work": [
     "sijoita yasmine aamuvuoroon 15.5.",
@@ -2440,7 +2779,10 @@
     "luo ehdotus vuorojakoon",
     "ehdota työvuorot",
     "laadi suunnitelmaehdotus",
-    "ehdota aikataulu"
+    "ehdota aikataulu",
+    "vie valitut sijoitukset skenaarioon hyväksyntää varten",
+    "tee näistä valinnoista luonnos tarkistettavaksi",
+    "paketoi nämä sijoitukset skenaarioksi"
   ],
   "read_email": [
     "lue sähköposti",
@@ -2468,7 +2810,10 @@
     "anna vuoro toiselle työntekijälle",
     "siirrä työvuoro toiselle työntekijälle",
     "toinen työntekijä ottaa vuoron",
-    "luovuta vuoro toiselle työntekijälle"
+    "luovuta vuoro toiselle työntekijälle",
+    "siirrä maanantain vuoro toiselle työntekijälle samana päivänä",
+    "vedä tämä sijoitus toisen työntekijän riville",
+    "anna perjantain vuoro kollegalle"
   ],
   "recall_delivered_notes": [
     "hae toimitetut muistiinpanot"
@@ -2478,7 +2823,10 @@
     "hylkää skenaario",
     "peruuta skenaario",
     "hylkää suunnitelma",
-    "älä käytä tätä skenaariota"
+    "älä käytä tätä skenaariota",
+    "hävitä ehdotettu skenaario",
+    "torju autowizardin tulos ja heitä se pois",
+    "tämä skenaario on käyttökelvoton, poista se"
   ],
   "remove_client_contract": [
     "poista työsopimus työntekijältä",
@@ -2486,101 +2834,152 @@
     "lopeta työntekijän sopimus",
     "poista sopimuskytkös",
     "poista työntekijän sopimus",
-    "ota pois työsopimus"
+    "ota pois työsopimus",
+    "ota nykyinen sopimus pois työntekijältä",
+    "peruuta henkilön palkkasopimuksen kohdistus",
+    "vapauta työntekijä sopimuksesta, sopimus itse säilyy"
   ],
   "remove_client_from_group": [
     "poista asiakas ryhmästä",
     "irrota työntekijä ryhmästä",
     "poista henkilö ryhmästä",
-    "poista ryhmästä"
+    "poista ryhmästä",
+    "ota työntekijä pois tiimistä",
+    "haluan erottaa asiakkaan ryhmästä",
+    "poista henkilökunnan jäsen osastolta"
   ],
   "remove_client_qualification": [
     "poista pätevyys työntekijältä",
     "poista työntekijän sertifikaatti",
     "irrota pätevyys työntekijästä",
     "peruuta työntekijän sertifiointi",
-    "poista työntekijän pätevyys"
+    "poista työntekijän pätevyys",
+    "poista trukkikortti hänen tiedoistaan",
+    "poista vanhentunut todistus tältä henkilöltä",
+    "poista hänen profiilistaan kirjattu taitotaso"
   ],
   "remove_container_template_task": [
     "poista tehtävä konttimallista",
     "ota tehtävä pois kontin mallista",
     "poista tehtävävuoro konttipohjasta",
-    "poista tehtävä konttivuoron mallista"
+    "poista tehtävä konttivuoron mallista",
+    "poista merkintä kontin viikkosuunnitelmasta",
+    "vedä osavuoro pois konttimallista",
+    "ota tämä elementti pois kontin pohjasta"
   ],
   "remove_shift_from_group": [
     "poista vuoro ryhmästä",
     "ota työvuoro pois ryhmästä",
     "irrota vuoro tiimistä",
-    "poista palvelu ryhmästä"
+    "poista palvelu ryhmästä",
+    "katkaise palvelun ja tiimin välinen yhteys",
+    "tämä palvelu ei enää kuulu osastolle",
+    "pura tilausvuoron ryhmäkytkentä"
   ],
   "remove_shift_required_qualification": [
     "poista vaadittu pätevyys vuorolta",
     "poista työvuoron pätevyysvaatimus",
     "peru vuoron pakollinen osaaminen",
-    "poista osaamisvaatimus vuorolta"
+    "poista osaamisvaatimus vuorolta",
+    "vuoro ei enää vaadi ajokorttia",
+    "ota vaadittu sertifikaatti pois vuorolta",
+    "poista tämä edellytys vuorosta"
   ],
   "reopen_period": [
     "avaa jakso uudelleen",
     "poista sinetöinti",
     "vapauta jakso",
     "avaa palkkakausi",
-    "palauta jakso muokattavaksi"
+    "palauta jakso muokattavaksi",
+    "kumoa jakson sulkeminen",
+    "peru kuukausisulku",
+    "haluan avata jo päätetyn palkkakauden uudelleen"
   ],
   "reset_container_day": [
     "palauta kontin päivä malliin",
     "poista päivän ohitus kontista",
     "nollaa konttivuoron päivä",
-    "palauta konttipäivä oletusmalliin"
+    "palauta konttipäivä oletusmalliin",
+    "kumoa kontin yhden päivän muutos",
+    "peru poikkeama viikonpäivämallista",
+    "aseta kontti 15. päivälle takaisin vakioon"
   ],
   "reset_shift_cuts": [
     "yhdistä vuoron osat takaisin päivämäärästä alkaen",
     "nollaa vuoron leikkaukset",
     "peru vuoron paloittelu päivämäärästä",
-    "liitä vuoron palat taas yhteen"
+    "liitä vuoron palat taas yhteen",
+    "yhdistä kaikki osavuorot yhdeksi vuoroksi ensi kuusta alkaen",
+    "peru tilauksen jako tietystä päivästä lähtien",
+    "palauta leikatut palat yhdeksi kokonaiseksi vuoroksi"
   ],
   "restore_email": [
     "palauta sähköposti roskakorista",
-    "tuo sähköposti takaisin roskakorista"
+    "tuo sähköposti takaisin roskakorista",
+    "siirrä poistettu viesti takaisin saapuneisiin",
+    "peru sähköpostin poisto",
+    "haluan saada poistetun meilin takaisin"
   ],
   "restore_work": [
     "palauta poistettu työvuoro",
     "tuo poistettu vuoro takaisin",
     "peru työvuoron poisto",
-    "palauta poistettu sijoitus"
+    "palauta poistettu sijoitus",
+    "laita äsken poistamani työmerkintä takaisin",
+    "kumoa tuon sijoituksen poisto",
+    "poistin vuoron vahingossa, palauta se"
   ],
   "revert_company_rule": [
     "peru yrityssääntö",
     "kumoa käytössä oleva yrityssääntö",
-    "palauta edellinen yrityssääntö"
+    "palauta edellinen yrityssääntö",
+    "kumoa käyttöön otettu yrityssääntö",
+    "peru säännön tekemä lisämuutos",
+    "poista sääntö nimellä ja palauta vanha tila"
   ],
   "revert_macro_assignment": [
     "peru makron määritys",
-    "palauta aiempi laskentamakro"
+    "palauta aiempi laskentamakro",
+    "kumoa makron vaihto vuoroilla",
+    "laita vanha laskentakaava takaisin",
+    "peru viimeisin makromuutos"
   ],
   "revoke_day_approval": [
     "peru päivän hyväksyntä",
     "pura hyväksyntä",
     "palauta vahvistetuksi",
     "peru päivän vapautus",
-    "kumoa päivän hyväksyntä"
+    "kumoa päivän hyväksyntä",
+    "vedä takaisin tämän päivän hyväksyntä",
+    "palauta hyväksytty päivä vahvistetuksi",
+    "kumoa päivän kuittaus"
   ],
   "revoke_erp_import_token": [
     "peruuta toimitusavain",
     "tee ulkoisen järjestelmän avain mitättömäksi",
     "estä toimitusavain",
     "poista toimitusavain käytöstä",
-    "peru tiedostojen toimitusavain"
+    "peru tiedostojen toimitusavain",
+    "peruuta erp-tuonnin tunniste",
+    "estä ulkoisen järjestelmän käyttöavain",
+    "mitätöi vuotanut tuontiavain"
   ],
   "revoke_personal_access_token": [
     "peruuta käyttöoikeustunnukseni",
-    "mitätöi API-tunnus"
+    "mitätöi API-tunnus",
+    "peru yksi omista api-tunnisteistani",
+    "haluan poistaa henkilökohtaisen käyttöoikeustunnisteen käytöstä",
+    "mitätöi tuo pääsytunniste lopullisesti"
   ],
   "rollback_my_last_change": [
     "peru viimeisin muutos",
     "kumoa edellinen",
     "palauta edellinen",
     "tee viimeisin toiminto takaisin",
-    "peru viimeisin onnistunut"
+    "peru viimeisin onnistunut",
+    "kumoa viimeisin tekemäni muutos",
+    "viimeisin toimintoni oli väärä, peru se",
+    "ehdota miten perun viimeksi tallentamani muutoksen"
   ],
   "run_analysis": [
     "analysoi työvuorolista",
@@ -2604,7 +3003,10 @@
     "sinetöi tämä tilaus",
     "sinetöi tilaus jotta vuoro on suunniteltavissa",
     "tee tilauksesta muuttumaton sinetöimällä",
-    "sinetöi asiakkaan tilaus"
+    "sinetöi asiakkaan tilaus",
+    "sinetöi tämä tilaus ja luo suunniteltava vuoro",
+    "tee alkuperäisestä tilauksesta pysyvästi muuttumaton",
+    "vapauta tilaus vuoroksi ja sinetöi se"
   ],
   "search_and_navigate": [
     "etsi ja navigoi",
@@ -2677,43 +3079,64 @@
     "päivitä työntekijän pätevyystaso",
     "rekisteröi sertifikaatti",
     "aseta työntekijälle taitotaso",
-    "tallenna pätevyys työntekijälle"
+    "tallenna pätevyys työntekijälle",
+    "tällä työntekijällä on trukkikortti",
+    "kirjaa ensiapukoulutus voimassa vuoden loppuun",
+    "aseta pätevyydelle taitotaso neljä"
   ],
   "set_company_rule_parameters": [
     "aseta yrityssäännön parametrit",
     "syötä yrityssäännön arvot",
-    "määritä yrityssäännön parametrit"
+    "määritä yrityssäännön parametrit",
+    "täytä yrityssääntöluonnoksen parametrit",
+    "syötä luonnoksen säännölle arvot",
+    "aseta lisän arvo sääntöluonnokseen"
   ],
   "set_default_llm_model": [
     "aseta oletusmalli",
     "vaihda oletuskielimalli",
     "käytä tätä mallia oletuksena",
     "aseta tämä malli vakioksi",
-    "valitse oletusmalli"
+    "valitse oletusmalli",
+    "klacksyn pitää vastata jatkossa toisella kielimallilla",
+    "vaihda avustajan oletuskielimalli",
+    "aseta deepseek ennalta valituksi malliksi"
   ],
   "set_erp_import_schedule": [
     "aseta erp-tuonnin aikataulu",
     "vaihda tuontiväliä",
     "kuinka usein erp-tuonti ajetaan",
     "aseta cron erp-tuonnille",
-    "muuta tuontiaikataulua"
+    "muuta tuontiaikataulua",
+    "aja erp-tuonti joka yö kahdelta",
+    "aseta erp-haun aikavyöhyke ja cron",
+    "hae erp-tilaukset 15 minuutin välein"
   ],
   "set_explain_depth": [
     "selitä aina yksinkertaisemmin",
     "tästä lähtien vain olennainen",
     "tästä lähtien selitä kaikki yksinkertaisemmin",
     "ohita perusasiat tästä lähtien",
-    "selitykset taas automaattisesti"
+    "selitykset taas automaattisesti",
+    "olen uusi täällä, selitä jatkossa jokainen vaihe tarkasti",
+    "pidä vastaukset aina lyhyinä ja kerro vain seuraukset",
+    "aseta selitystasoksi aloittelija"
   ],
   "set_export_format_override": [
     "mukauta vientimuotoa",
     "aseta vientimuodon poikkeama",
     "muuta erotinta",
     "muuta sarakkeen nimeä",
-    "muuta päivämäärän muotoa"
+    "muuta päivämäärän muotoa",
+    "käytä viennissä erottimena puolipistettä",
+    "nimeä sarake uudelleen vastaanottavaa järjestelmää varten",
+    "vaihda vientitiedoston päivämäärämuoto pisteisiin"
   ],
   "set_group_location": [
-    "aseta ryhmän sijainti"
+    "aseta ryhmän sijainti",
+    "tallenna ryhmän koordinaatit",
+    "haluan antaa kaupunkiryhmälle leveys- ja pituusasteen",
+    "geokoodaa ryhmä sen nimestä"
   ],
   "set_my_display_language": [
     "vaihda näyttökielen",
@@ -2735,7 +3158,10 @@
   "set_period_close_lag": [
     "tallenna sulkemisen viive",
     "määritä päivien määrä jakson päättymisestä sulkemiseen",
-    "kirjaa sulkemisviive ylös"
+    "kirjaa sulkemisviive ylös",
+    "aseta jakson sulkemisen viiveeksi 3 päivää",
+    "kirjaa sulkemisviiveeksi 10 päivää",
+    "jaksot suljetaan viikon kuluttua päättymisestä"
   ],
   "set_planning_deadline_lead": [
     "tallenna suunnittelun varoaika",
@@ -2743,25 +3169,37 @@
   ],
   "set_planning_profile_parameters": [
     "aseta suunnitteluprofiilin parametrit",
-    "syötä suunnitteluprofiilin arvot"
+    "syötä suunnitteluprofiilin arvot",
+    "aseta toimiala ja työaikarajat suunnitteluprofiiliin",
+    "haluan säätää luonnoksen lepoaikaa ja ylitöitä",
+    "määritä lisät profiililuonnokseen"
   ],
   "set_proactive_governance": [
     "anna sen hoitua itsestään",
     "ilmoita siitä vain",
-    "kytke pääkatkaisin päälle"
+    "kytke pääkatkaisin päälle",
+    "aseta kuinka itsenäinen klacksy saa olla tälle havaintotyypille",
+    "ilmoita minulle tästä havaintotyypistä vain jatkossa",
+    "klacksy saa hoitaa tämän tapauksen jatkossa itse"
   ],
   "set_sealed_order_until_date": [
     "aseta päättymispäivä sinetöidylle tilaukselle",
     "rajaa sinetöity tilaus päivämäärään",
     "päätä sinetöity tilaus tiettyyn päivään",
-    "lisää loppupäivä jo sinetöityyn tilaukseen"
+    "lisää loppupäivä jo sinetöityyn tilaukseen",
+    "merkitse sinetöidylle tilaukselle päättymispäivä",
+    "rajaa lukittu tilaus kuun loppuun jälkikäteen",
+    "aseta kertaluonteinen loppupäivä lukitulle tilaukselle"
   ],
   "set_shift_preferences": [
     "aseta työntekijän preferenssi vuorolle",
     "suosi työntekijää tähän vuoroon",
     "estä työntekijä tästä vuorosta",
     "aseta vuorolle musta lista",
-    "merkitse vuoro suosikiksi"
+    "merkitse vuoro suosikiksi",
+    "tee tästä työntekijästä ensisijainen valinta aamuvuoroon",
+    "laita työntekijä mustalle listalle tähän vuoroon",
+    "sulje työntekijä pois yövuorosta"
   ],
   "set_shift_required_qualification": [
     "aseta työvuoron vaadittu pätevyys",
@@ -2769,7 +3207,10 @@
     "työvuoro vaatii pätevyyden",
     "aseta työvuoron osaamisvaatimus",
     "määritä työvuoron taitotaso",
-    "tallenna työvuoron pätevyysvaatimus"
+    "tallenna työvuoron pätevyysvaatimus",
+    "tee ajokortista pakollinen tälle vuorolle",
+    "aseta pätevyydelle vähimmäistaso 3 vuorossa",
+    "tähän vuoroon saa sijoittaa vain todistuksen omaavan"
   ],
   "set_user_group_scope": [
     "ryhmän laajuus",
@@ -2793,7 +3234,10 @@
   "start_company_rule": [
     "luo uusi yrityssääntö",
     "aloita yrityssäännön määrittely",
-    "lisää uusi yrityssääntö"
+    "lisää uusi yrityssääntö",
+    "haluan ottaa käyttöön uuden talosäännön",
+    "auta laatimaan yrityksen lisäkorvaussääntö",
+    "aloita uusi laskentasääntö yhdessä klacksyn kanssa"
   ],
   "start_guided_tour": [
     "opasta minua klacksin läpi",
@@ -2805,31 +3249,46 @@
   ],
   "start_planning_profile_setup": [
     "luo oma suunnitteluprofiili",
-    "aloita suunnitteluprofiilin määritys"
+    "aloita suunnitteluprofiilin määritys",
+    "haluan määrittää oman suunnitteluprofiilin",
+    "aloita ohjattu suunnittelusääntöjen määritys",
+    "rakenna suunnitteluprofiili yhdessä klacksyn kanssa"
   ],
   "start_wizard1": [
     "käynnistä wizard 1",
     "tee alustava suunnitelma",
     "suunnittele peitto ensin",
     "aja planner",
-    "luo perussuunnitelma"
+    "luo perussuunnitelma",
+    "aja vain wizard 1 tälle ryhmälle",
+    "käynnistä tokenevolution-suunnittelija",
+    "laske ensimmäinen kattavuuteen perustuva vuorojako"
   ],
   "start_wizard2": [
     "käynnistä wizard 2",
     "tasaa työvuorot",
     "harmonisoi suunnitelma",
     "silitä suunnitelma",
-    "tasoita kuormitusta"
+    "tasoita kuormitusta",
+    "aja harmonisoija nykyiselle suunnitelmalle",
+    "tasoita suunnitelma koskematta kattavuuteen",
+    "käynnistä wizard 2 juuri käyttöön otetulle skenaariolle"
   ],
   "start_wizard3": [
     "käynnistä wizard 3",
     "tee loppukiillotus",
     "viimeistele suunnitelma llm:llä",
     "aja holistinen harmonisointi",
-    "tee vision pass"
+    "tee vision pass",
+    "aja pelkkä kolmas wizard",
+    "hienosäädä jo harmonisoitua suunnitelmaa vielä",
+    "käynnistä holistinen harmonisoija analyysitunnisteella"
   ],
   "stash_pending_note": [
-    "siirrä muistiinpano sivuun"
+    "siirrä muistiinpano sivuun",
+    "muista tämä myöhemmin muistiinpanona",
+    "haluan jättää muistutuksen välitettäväksi myöhemmin",
+    "tallenna tieto kerrottavaksi myöhemmin"
   ],
   "test_imap_connection": [
     "IMAP-yhteystesti",
@@ -2856,41 +3315,59 @@
     "aloita tuonti heti",
     "tuo tilaukset nyt",
     "pakota tuonti suoritettavaksi",
-    "käynnistä erp-ajo"
+    "käynnistä erp-ajo",
+    "käsittele ladattu erp-tiedosto heti",
+    "käynnistä tilaustuonti odottamatta",
+    "aja tuonti tilauksille käsin"
   ],
   "unconfirm_break": [
     "poista poissaolon vahvistus",
     "avaa poissaolon lukitus",
     "peru poissaolon vahvistus",
     "vapauta lomapäivä",
-    "poista lukitus poissaolosta"
+    "poista lukitus poissaolosta",
+    "avaa sairauspoissaolon lukitus jotta sen voi poistaa",
+    "pura lomamerkinnän lukitus",
+    "ota vahvistus pois tästä poissaolomerkinnästä"
   ],
   "unconfirm_work": [
     "vapauta vahvistus",
     "poista lukitus",
     "pura vahvistus",
     "vapauta työvuoro",
-    "peru vahvistus"
+    "peru vahvistus",
+    "poista tämän työmerkinnän vahvistus",
+    "tee sijoituksesta taas muokattava wizardeille",
+    "pura vuoron kiinnitys suunnitelmasta"
   ],
   "uninstall_feature_plugin": [
     "poista lisäosa",
     "poista laajennus",
     "asenna pois moduuli",
     "poista toimintolisäosa",
-    "poista lisämoduuli käytöstä"
+    "poista lisämoduuli käytöstä",
+    "poista lisäosan asennus",
+    "haluan ottaa asennetun toimintomoduulin pois",
+    "hävitä valinnainen laajennus järjestelmästä"
   ],
   "uninstall_language_pack": [
     "poista kielipaketti",
     "poista kieli käytöstä",
     "poista kieliversio",
-    "deaktivoi kieli"
+    "deaktivoi kieli",
+    "poista puolan kielipaketti",
+    "deaktivoi kielipaketti koodin perusteella ja poista sen tiedot",
+    "kytke tämä lisäkieli pois käyttöliittymästä"
   ],
   "uninstall_whisper_plugin": [
     "poista paikallinen puheentunnistus",
     "poista whisper asennus",
     "palauta ulkoinen puheentunnistus",
     "poista paikallinen puhemalli",
-    "siirry takaisin ulkoiseen puheentunnistukseen"
+    "siirry takaisin ulkoiseen puheentunnistukseen",
+    "poista whisper-lisäosa",
+    "haluan päästä eroon paikallisesta puhemallista",
+    "puhesyötteen pitää taas kulkea ulkoisen palvelun kautta"
   ],
   "update_absence": [
     "päivitä poissaolotyyppi",
@@ -2898,24 +3375,36 @@
     "vaihda poissaolon väriä",
     "muokkaa poissaolotyyppiä",
     "aseta poissaolon ominaisuuksia",
-    "konfiguroi lomatyyppi"
+    "konfiguroi lomatyyppi",
+    "poissaolotyypin pitää laskea myös viikonloput",
+    "vaihda poissaolotyypin palkallisuusmerkintä",
+    "nimeä sairauspoissaolon tyyppi uudelleen"
   ],
   "update_absence_type": [
     "muokkaa poissaolotyyppiä asetuksissa",
-    "vaihda poissaolotyypin väri"
+    "vaihda poissaolotyypin väri",
+    "muokkaa poissaolotyypin lyhennettä",
+    "aseta poissaolotyyppi palkattomaksi",
+    "piilota poissaolotyyppi gantt-näkymästä"
   ],
   "update_active_industries_settings": [
     "muuta toimialoja",
     "aseta aktiiviset toimialat",
     "vaihda toimiala-asetukset",
     "päivitä toimiala-asetukset",
-    "muuta toimialoja, joille järjestelmä on asennettu"
+    "muuta toimialoja, joille järjestelmä on asennettu",
+    "aseta asennus hoivalle ja turvallisuusalalle",
+    "ota ravintola-ala lisäksi käyttöön",
+    "jätä vain logistiikka aktiiviseksi toimialaksi"
   ],
   "update_address": [
     "päivitä osoite",
     "vaihda osoite",
     "korjaa osoite",
-    "muokkaa osoitetta"
+    "muokkaa osoitetta",
+    "korjaa työntekijän katuosoite ja postinumero",
+    "vaihda osoitetyyppi pääosoitteesta laskutusosoitteeksi",
+    "muuta osoitteen kaupunkia"
   ],
   "update_agent_skill": [
     "päivitä taito",
@@ -2951,7 +3440,10 @@
     "päivitä muistiinpano",
     "muokkaa muistiinpanoa",
     "vaihda kommentti",
-    "korjaa muistiinpanon teksti"
+    "korjaa muistiinpanon teksti",
+    "kirjoita työntekijän muistiinpanon teksti uudelleen",
+    "korjaa työntekijää koskevan huomautuksen sanamuoto",
+    "korvaa työntekijän merkintä uudella tekstillä"
   ],
   "update_branch": [
     "päivitä toimipiste",
@@ -2965,18 +3457,27 @@
     "päivitä poissaolo",
     "muokkaa poissaoloa",
     "vaihda lomajakso",
-    "korjaa sairauspoissaolo"
+    "korjaa sairauspoissaolo",
+    "pidennä loman loppupäivää",
+    "vaihda poissaolo toiseen tyyppiin",
+    "korjaa poissaolon huomioidut tunnit"
   ],
   "update_break_placeholder": [
     "siirrä poissaoloa",
     "siirrä lomaa",
     "pidennä poissaoloa",
     "muuta poissaolon tyyppiä",
-    "lyhennä suunniteltua poissaoloa"
+    "lyhennä suunniteltua poissaoloa",
+    "työnnä suunniteltua lomaa viikolla eteenpäin",
+    "muunna suunniteltu poissaolo sairaslomaksi",
+    "kiinnitä muistiinpano suunniteltuun poissaoloon"
   ],
   "update_calendar_selection": [
     "nimeä kalenterivalinta uudelleen",
-    "yhdistä pyhäpäiväkalenterit"
+    "yhdistä pyhäpäiväkalenterit",
+    "vaihda kalenterivalinnan nimi",
+    "ota alue pois pyhäpäivävalinnasta",
+    "näytä pyhäpäivät vain muistutuksina ilman lisää"
   ],
   "update_client": [
     "päivitä työntekijän tiedot",
@@ -2987,10 +3488,16 @@
     "muokkaa henkilötietoja"
   ],
   "update_client_birthdate": [
-    "muuta syntymäaika"
+    "muuta syntymäaika",
+    "aseta työntekijälle uusi syntymäpäivä",
+    "korjaa tämän henkilön syntymäaika",
+    "haluan vaihtaa työntekijän syntymäpäivän"
   ],
   "update_client_gender": [
-    "muuta sukupuoli"
+    "muuta sukupuoli",
+    "aseta työntekijän sukupuoli",
+    "vaihda asiakkaan sukupuoleksi nainen",
+    "merkitse tämä asiakas oikeushenkilöksi"
   ],
   "update_client_type": [
     "muuta henkilön tyyppi",
@@ -2998,26 +3505,38 @@
     "muuta asiakas työntekijäksi",
     "vaihda henkilön kategoria",
     "muuta henkilön asema",
-    "vaihda asiakastyyppi"
+    "vaihda asiakastyyppi",
+    "kirjaa tämä henkilö jatkossa asiakkaaksi",
+    "muuta ulkopuolinen työntekijä vakituiseksi työntekijäksi",
+    "tee asiakkaasta taas suunniteltava työntekijä"
   ],
   "update_communication": [
     "päivitä viestintä",
     "vaihda sähköpostiosoite",
     "korjaa puhelinnumero",
-    "muokkaa yhteystietoa"
+    "muokkaa yhteystietoa",
+    "vaihda työntekijän vanha matkapuhelinnumero uuteen",
+    "kirjoita työntekijän yhteysmuistiinpano uusiksi",
+    "muuta puhelinmerkinnän suuntanumero"
   ],
   "update_compensatory_rest_settings": [
     "muuta korvausvapaan asetuksia",
     "aseta korvausvapaan määräaika",
     "ota korvausvapaa käyttöön",
-    "muuta korvausvapaan käsittelyä"
+    "muuta korvausvapaan käsittelyä",
+    "ota käyttöön vapaa-aikakorvaus pyhätyöstä",
+    "haluan muuttaa korvaavan levon myöntämispäiviä",
+    "aseta korvaavan levon määräajaksi 14 päivää"
   ],
   "update_compliance_enforcement_settings": [
     "muuta työaikasuojausten tiukkuutta",
     "muuta varoitus hylkäykseksi",
     "päivitä työaikavalvonnan asetukset",
     "aseta esimiehelle mahdollisuus ohittaa",
-    "muuta säännöstön valvonta-asetuksia"
+    "muuta säännöstön valvonta-asetuksia",
+    "hylkää lepoaikarikkomukset jatkossa pelkän varoituksen sijaan",
+    "salli esimiehen ohittaa työaikasäännöt",
+    "aseta enimmäistyöajan ylityksen reaktioksi hylkäys"
   ],
   "update_contract": [
     "päivitä sopimus",
@@ -3035,7 +3554,10 @@
     "muuta yövuorojen enimmäismäärää",
     "aseta laskentasäännön raja uudelleen",
     "muuta kuinka monta kertaa jokin on sallittu",
-    "tarkista laskentasäännön asetuksia"
+    "tarkista laskentasäännön asetuksia",
+    "salli enintään kolme yövuoroa kuussa kahden sijaan",
+    "muuta laskentasäännön varoitus kovaksi esteeksi",
+    "vaihda säännön laskentaikkuna viikkoon"
   ],
   "update_data_retention_settings": [
     "muuta tietojen säilytysaikaa",
@@ -3064,21 +3586,30 @@
     "päivitä kättelyasetukset",
     "muuta kättelykansiota",
     "vaihda kättelypaikan nimeä",
-    "kytke tiedostojen haku pois päältä"
+    "kytke tiedostojen haku pois päältä",
+    "vaihda erp-kättelypaikan kansiopolku",
+    "nimeä ulkoisen järjestelmän kättelypaikka uudelleen",
+    "kytke erp-tiedostojen nouto takaisin päälle"
   ],
   "update_expense": [
     "muokkaa kulukorvausta",
     "korjaa kulun määrää",
     "päivitä kuluerän tiedot",
     "muuta kulukorvauksen kuvausta",
-    "tarkista kulukorvaus"
+    "tarkista kulukorvaus",
+    "vaihda kuluerän kuvaus",
+    "muuta kulu verolliseksi korvaukseksi",
+    "aseta kululle uusi summa"
   ],
   "update_export_formats_settings": [
     "muuta vientiasetuksia",
     "ota käyttöön tiedostomuoto",
     "poista vientimuoto käytöstä",
     "aseta oletuspalkkajärjestelmä",
-    "muuta sallittuja muotoja"
+    "muuta sallittuja muotoja",
+    "ota käyttöön toinen vientitiedostomuoto",
+    "valitse mitkä vientimuodot ovat sallittuja",
+    "muuta palkkatietojen oletusvastaanottajaa"
   ],
   "update_general_settings": [
     "muuta sovelluksen nimeä",
@@ -3092,13 +3623,19 @@
     "vaihda sunnuntain väri",
     "aseta taustaväri",
     "muuta vuorolistan värejä",
-    "päivitä värit"
+    "päivitä värit",
+    "värjää lauantait vaaleanharmaiksi vuorolistassa",
+    "aseta listan tekstiväriksi #333333",
+    "säädä ruudukon vaihtuvia kuukausisävyjä"
   ],
   "update_group": [
     "päivitä ryhmän tiedot",
     "muuta ryhmän nimeä",
     "vaihda ryhmän voimassaoloaikaa",
-    "muokkaa tiimin tietoja"
+    "muokkaa tiimin tietoja",
+    "vaihda tämän ryhmän kuvaus",
+    "muuta ryhmän voimassaoloaikaa",
+    "anna ryhmälle toinen pyhäpäiväkalenteri"
   ],
   "update_identity_provider": [
     "päivitä tunnistautumispalvelua",
@@ -3119,7 +3656,10 @@
     "vaihda omat jaksot",
     "päivitä oma laskentajakso",
     "muuta jakson alkamispäivää",
-    "päivitä jakson tiedot"
+    "päivitä jakson tiedot",
+    "nimeä jaksomalli uudelleen",
+    "aseta oman jakson malliin uudet osuudet",
+    "siirrä jaksomallin osuuden alkupäivää myöhemmäksi"
   ],
   "update_llm_model": [
     "päivitä tekoälymalli",
@@ -3142,14 +3682,20 @@
     "muokkaa laskentaskriptiä",
     "vaihda makron nimi tai sisältö",
     "päivitä laskentasääntö",
-    "muokkaa kaavaa"
+    "muokkaa kaavaa",
+    "kirjoita makron sisältö uudelleen",
+    "nimeä makro uudelleen",
+    "korvaa skriptin kuvaus"
   ],
   "update_membership": [
     "päivitä jäsenyys",
     "muokkaa jäsenyystietoja",
     "muuta liittymispäivää",
     "aseta jäsenyyden alkamispäivä",
-    "säädä jäsenyyden voimassaoloa"
+    "säädä jäsenyyden voimassaoloa",
+    "siirrä jäsenyyden alkamispäivää",
+    "tee jäsenyydestä toistaiseksi voimassa oleva",
+    "määritä uudelleen mistä lähtien työntekijä on suunniteltavissa"
   ],
   "update_monthly_target_hours": [
     "muuta tammikuun tavoitetunteja",
@@ -3157,28 +3703,43 @@
     "päivitä tavoitetunnit kuukaudelle",
     "muuta kuukauden tavoitetunteja",
     "aseta tammikuun tunnit uudelleen",
-    "korjaa kuukauden tuntimäärä"
+    "korjaa kuukauden tuntimäärä",
+    "muuta tammikuun 2026 tavoitetunnit 184:stä 176:een",
+    "korjaa maaliskuun tuntitavoite jälkikäteen",
+    "laske joulukuun kuukausiarvoa"
   ],
   "update_my_account": [
     "päivitä oma tilini",
-    "vaihda näyttönimeni"
+    "vaihda näyttönimeni",
+    "haluan vaihtaa sukunimeni tililläni",
+    "muuta sähköpostiosoite jolla kirjaudun sisään",
+    "korjaa etu- ja sukunimeni profiilissani"
   ],
   "update_navigation_synonyms": [
     "lisää uusi navigointisynonyymi",
-    "opeta klacksylle tämä muotoilu"
+    "opeta klacksylle tämä muotoilu",
+    "lisää toinen ilmaus navigointikohteelle",
+    "klacksyn pitää ymmärtää tämä fraasi tälle sivulle",
+    "rekisteröi uusi navigointifraasi kielelle"
   ],
   "update_openroute_settings": [
     "muuta matka-aika-asetuksia",
     "aseta reititysavain",
     "muuta matkakynnystä",
-    "päivitä matka-aika-asetukset"
+    "päivitä matka-aika-asetukset",
+    "syötä openroute-api-avain",
+    "haluan muuttaa auton, pyörän ja kävelyn vähimmäismatka-aikaa",
+    "säädä kävelyn vähimmäisaikaa"
   ],
   "update_overtime_settings": [
     "muuta ylityön korvausta",
     "aseta ylityöportaat",
     "muuta ylityön perustetta",
     "aseta ylityön korvausprosentti",
-    "muuta ylityön tuntirajaa"
+    "muuta ylityön tuntirajaa",
+    "muuta ylityösääntöä",
+    "säädä mistä tunnista alkaen ylityö hyvitetään",
+    "nosta ylityön kerrointa"
   ],
   "update_owner_address": [
     "päivitä yrityksen osoite",
@@ -3192,7 +3753,10 @@
     "päivitä yrityksen sijaintiasetukset",
     "vaihda lomakalenteri",
     "aseta maa ja osavaltio",
-    "päivitä kalenteriasetukset"
+    "päivitä kalenteriasetukset",
+    "aseta yrityksen maaksi itävalta",
+    "vaihda asennuksen aikavyöhykkeeksi europe/berlin",
+    "käytä zürichin pyhäpäiväkalenteria yleisenä kalenterina"
   ],
   "update_period_cap_rule": [
     "muuta tuntilimiittiä",
@@ -3200,21 +3764,30 @@
     "aseta tuntilimiitti uudelleen",
     "muuta kuukausittaista tuntilimiittiä",
     "nosta tuntilimiittiä",
-    "laske tuntilimiittiä"
+    "laske tuntilimiittiä",
+    "aseta ylityön katoksi 50 tuntia",
+    "vaihda tuntikatto kuukausittaisesta neljännesvuosittaiseksi",
+    "siirrä tuntirajan varoituskynnys 80 prosenttiin"
   ],
   "update_qualification": [
     "päivitä pätevyys",
     "muokkaa pätevyystietoja",
     "nimeä pätevyys uudelleen",
     "muuta pätevyyden kategoriaa",
-    "päivitä tutkintotieto"
+    "päivitä tutkintotieto",
+    "korjaa pätevyyden nimi",
+    "siirrä pätevyysmerkintä toiseen kategoriaan",
+    "muuta pätevyyden vanhenemistapaa"
   ],
   "update_report_template": [
     "muuta tulostuspohjaa",
     "päivitä raporttipohjan nimi",
     "muokkaa tulostusmallia",
     "muuta raportin asetuksia",
-    "päivitä tulostuspohjan tyyppiä"
+    "päivitä tulostuspohjan tyyppiä",
+    "vaihda raporttipohjan kuvaus",
+    "säädä miten toistuvat rivit yhdistetään pohjassa",
+    "muuta tyhjien päivien asetusta raporttipohjassa"
   ],
   "update_restricted_time_window_rule": [
     "muuta aikarajoitusta",
@@ -3222,13 +3795,19 @@
     "siirrä rajoitettua aikaväliä",
     "muuta kiellettyjä kellonaikoja",
     "säädä kausittaista aikarajoitusta",
-    "muuta aikarajoituksen ajanjaksoa"
+    "muuta aikarajoituksen ajanjaksoa",
+    "vaihda säännön kieltoajaksi 22-6",
+    "anna aikarajoituksen koskea vain kesää",
+    "siirrä kiellettyä aikaikkunaa tunnilla myöhemmäksi"
   ],
   "update_schedule_note": [
     "päivitä vuoromuistiinpano",
     "muokkaa vuoromuistiinpanoa",
     "vaihda muistiinpanon teksti",
-    "korjaa vuoromuistiinpano"
+    "korjaa vuoromuistiinpano",
+    "muotoile aikataulun muistiinpano uudelleen",
+    "siirrä suunnitelmamuistiinpano toiselle päivälle",
+    "muokkaa olemassa olevan suunnittelumuistion tekstiä"
   ],
   "update_scheduling_defaults": [
     "päivitä suunnitteluasetukset",
@@ -3251,7 +3830,10 @@
     "muokkaa vuoroa",
     "vaihda vuoron tietoja",
     "muuta vuoron aikataulua",
-    "korjaa vuoron asetuksia"
+    "korjaa vuoron asetuksia",
+    "aseta luonnosvuoron päättymisaika kello 18",
+    "nosta vuoron vaadittu henkilömäärä kolmeen",
+    "vaihda vuoron lyhenne ja kuvaus"
   ],
   "update_spam_filter_settings": [
     "ei-toivottu posti",
@@ -3265,52 +3847,76 @@
     "päivitä roskapostisuodatin",
     "muuta estettyä lähettäjää",
     "poista esto käytöstä",
-    "muuta roskapostisäännön järjestystä"
+    "muuta roskapostisäännön järjestystä",
+    "vaihda roskapostisäännön hakusana",
+    "ota roskapostisääntö pois päältä",
+    "kytke roskaviestisääntö takaisin päälle"
   ],
   "update_speech_settings": [
     "muuta puheasetuksia",
     "vaihda ääntä",
     "muuta puheentunnistusta",
     "ota lukeminen käyttöön",
-    "salli keskeytykset"
+    "salli keskeytykset",
+    "vaihda puheulostulo toiseen ääneen",
+    "muuta äänisyötteen transkriptiomallia",
+    "aseta kuinka pitkä hiljaisuus päättää lauseen"
   ],
   "update_surcharge_mode_settings": [
     "muuta lisien laskentatapaa",
     "aseta lisä kiinteäksi summaksi",
     "muuta yöajan alkamista",
     "muuta lisien yhdistämistapaa",
-    "aseta lisän vähimmäissumma"
+    "aseta lisän vähimmäissumma",
+    "yölisän pitää olla kiinteä aikahyvitys",
+    "aseta yöaika kello 22-06",
+    "aseta lisille tuntikohtainen vähimmäishyvitys"
   ],
   "update_transcription_dictionary_entry": [
     "päivitä sanakirjamerkintää",
     "muokkaa transkriptiosanakirjan termiä",
     "vaihda ääntämisvariantit",
     "korjaa puheentunnistuksen korjausta",
-    "muuta foneettisia muotoja"
+    "muuta foneettisia muotoja",
+    "korjaa termi puheentunnistuksen sanakirjassa",
+    "vaihda sanelutoiminnon merkinnän kirjoitusasu",
+    "lisää sanakirjan termille lisää äänteellisiä variantteja"
   ],
   "update_user": [
     "korjaa toisen käyttäjän kirjautumistiedot",
     "muuta käyttäjän sähköpostiosoitetta",
     "vaihda käyttäjän kirjautumisnimi",
     "päivitä käyttäjän etu- ja sukunimi",
-    "muuta toisen henkilön käyttäjätietoja"
+    "muuta toisen henkilön käyttäjätietoja",
+    "korjaa kirjoitusvirhe käyttäjätilin nimessä",
+    "päivitä kollegan tilin sähköpostiosoite",
+    "nimeä kollegan kirjautumisnimi uudelleen"
   ],
   "update_web_search_settings": [
     "hakukoneasetukset",
     "vaihda hakukonetta",
     "päivitä verkkohakuasetukset",
     "aseta uusi hakupalvelu",
-    "muuta hakukoneen asetuksia"
+    "muuta hakukoneen asetuksia",
+    "vaihda verkkohaun palveluntarjoaja",
+    "syötä uusi api-avain verkkohakua varten",
+    "nosta verkkohaun tulosten enimmäismäärää"
   ],
   "update_wizard_settings": [
     "vaihda harmonisoijan mallia",
     "aseta harmonisoijalle uusi malli",
     "vaihda kielimallia",
-    "päivitä harmonisoijan malli"
+    "päivitä harmonisoijan malli",
+    "aseta harmonisoija käyttämään paikallista hakua",
+    "valitse kielimalli vuorolistan harmonisoijalle",
+    "muuta harmonisoijan asetuksia"
   ],
   "update_work": [
     "muuta sijoitetun vuoron aikoja",
-    "säädä suunnitelman kiinnityksen tunteja"
+    "säädä suunnitelman kiinnityksen tunteja",
+    "siirrä sijoitetun työn alkua ja loppua",
+    "korjaa suunnitellun vuoron tunnit",
+    "kirjoita uusi muistiinpano sijoitettuun työhön"
   ],
   "update_work_settings": [
     "muuta työaika-asetuksia",
@@ -3324,7 +3930,10 @@
     "muokkaa työajan muutosta",
     "korjaa työvuoromerkintää",
     "muuta työaikapoikkeamaa",
-    "päivitä korvausmerkintä"
+    "päivitä korvausmerkintä",
+    "muuta vuoron tuntikorjausta",
+    "säädä sijaisuuden lisiä jälkikäteen",
+    "korjaa perehdytysajan alku ja loppu"
   ],
   "validate_address": [
     "vahvista osoite",
@@ -3363,18 +3972,30 @@
   ],
   "start_order_review": [
     "avoimien tilausten läpikäynti ennen sinetöintiä",
-    "yhteinen avoimien tilausten tarkistus"
+    "yhteinen avoimien tilausten tarkistus",
+    "aloita tilausten tarkistus",
+    "käydään avoimet tilaukset yhdessä läpi",
+    "niputa samanlaiset tilaukset ja käy poikkeukset läpi"
   ],
   "set_order_review_decision": [
-    "kirjaa tilausten läpikäynnin vastaus"
+    "kirjaa tilausten läpikäynnin vastaus",
+    "jaa tilaus kolmeen kahdeksan tunnin palveluun",
+    "kirjaa tälle nipulle matkakulut",
+    "valitse tilaukselle miehitysryhmä"
   ],
   "preview_order_review": [
     "tilausten läpikäynnin tila"
   ],
   "cancel_order_review": [
-    "lopeta tilausten läpikäynti"
+    "lopeta tilausten läpikäynti",
+    "keskeytä tilauskierros",
+    "haluan sulkea avoimien tilausten läpikäynnin",
+    "hylkää läpikäynti ja poistu"
   ],
   "execute_order_review": [
-    "toteuta vahvistettu tilausten läpikäynti"
+    "toteuta vahvistettu tilausten läpikäynti",
+    "kirjoita päätetyt arvot avoimiin tilauksiin",
+    "aja vahvistettu tilausten esikatselu nyt",
+    "sinetöi tilaukset vahvistuksen jälkeen ja pilko ne palveluiksi"
   ]
 }

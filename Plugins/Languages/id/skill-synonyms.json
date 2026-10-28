@@ -4,14 +4,20 @@
     "setujui usulan wizard",
     "gunakan hasil skenario",
     "komit skenario ke jadwal utama",
-    "apply proposal analisis"
+    "apply proposal analisis",
+    "gabungkan usulan wizard ke jadwal asli",
+    "setujui skenario dan pindahkan ke rencana utama",
+    "saya mau mengesahkan hasil autowizard"
   ],
   "accept_skill_relation": [
     "setujui hubungan ini",
     "konfirmasi keterkaitan itu",
     "terima hubungan antar skill tersebut",
     "validasi hubungan yang kamu temukan",
-    "izinkan hubungan itu berlaku"
+    "izinkan hubungan itu berlaku",
+    "terima usulan hubungan skill",
+    "konfirmasi tautan yang disarankan antara dua kemampuan",
+    "setujui keterkaitan yang tertunda ini"
   ],
   "add_ai_memory": [
     "menyimpan ingatan baru untuk asisten",
@@ -31,28 +37,40 @@
   "add_break_placeholder": [
     "permintaan cuti",
     "pemesanan awal absen",
-    "keinginan liburan"
+    "keinginan liburan",
+    "catat permintaan cuti dari 3 sampai 14 agustus",
+    "pesan awal keinginan liburan musim panas untuk karyawan",
+    "simpan pengajuan cuti karyawan sebagai placeholder"
   ],
   "add_client_email": [
     "tambah alamat email",
     "simpan email",
     "ubah email",
     "tambahkan email baru",
-    "masukkan alamat surel"
+    "masukkan alamat surel",
+    "atur alamat email pelanggan",
+    "ganti email karyawan ini",
+    "masukkan alamat email baru untuk klien"
   ],
   "add_client_note": [
     "tambah catatan",
     "simpan catatan untuk",
     "tulis catatan",
     "tambahkan keterangan",
-    "beri catatan"
+    "beri catatan",
+    "lampirkan catatan pada karyawan ini",
+    "saya mau menulis keterangan di data pelanggan",
+    "simpan memo singkat untuk karyawan"
   ],
   "add_client_phone": [
     "tambah nomor telepon",
     "masukkan nomor hp",
     "simpan nomor telepon",
     "ubah nomor telepon",
-    "tambahkan kontak telepon"
+    "tambahkan kontak telepon",
+    "simpan nomor ponsel baru untuk karyawan",
+    "tambahkan nomor kontak ke orang ini",
+    "catat nomor telepon pelanggan"
   ],
   "add_client_to_group": [
     "menambahkan klien ke dalam grup",
@@ -67,7 +85,10 @@
     "tambah ke grup",
     "tambahkan ke kelompok",
     "daftarkan ke grup",
-    "tetapkan ke grup"
+    "tetapkan ke grup",
+    "masukkan karyawan ke dalam tim",
+    "taruh orang ini di grup",
+    "saya mau menambahkan pelanggan ke sebuah grup"
   ],
   "add_client_to_nearest_group": [
     "tambahkan klien ke grup terdekat",
@@ -80,14 +101,20 @@
     "tambahkan tugas ke template container",
     "masukkan shift tugas ke template container",
     "tambah task ke hari di template container",
-    "daftarkan tugas dalam template shift container"
+    "daftarkan tugas dalam template shift container",
+    "tambahkan sub-shift lain ke template senin container",
+    "taruh tugas di posisi 2 pada cetak biru container",
+    "perluas template selasa dengan tugas tambahan"
   ],
   "add_expense": [
     "tambahkan biaya ke penugasan shift",
     "catat pengeluaran baru",
     "masukkan jumlah biaya",
     "booking biaya untuk shift ini",
-    "log pengeluaran"
+    "log pengeluaran",
+    "tambahkan tiket kereta 25 franc sebagai biaya pada penugasan kemarin",
+    "catat biaya parkir di shift",
+    "masukkan tunjangan kena pajak 30 franc pada penugasan"
   ],
   "add_personal_memory": [
     "catat preferensi saya",
@@ -95,7 +122,10 @@
     "simpan catatan pribadi tentang saya",
     "aku lebih suka",
     "note buat saya",
-    "jangan lupa saya"
+    "jangan lupa saya",
+    "tolong ingat bahwa saya suka jawaban singkat",
+    "simpan preferensi pribadi saya soal shift pagi",
+    "catat khusus untuk saya bahwa saya malas merencanakan akhir pekan"
   ],
   "add_schedule_command": [
     "buat yasmine bebas tanggal 15 mei",
@@ -107,21 +137,30 @@
   "add_schedule_commands_range": [
     "periode bebas",
     "perintah untuk periode",
-    "beberapa hari bebas"
+    "beberapa hari bebas",
+    "dia ingin libur setiap hari dari tanggal 10 sampai 20 mei",
+    "dia minta shift pagi saja sepanjang juli",
+    "kosongkan minggu pertama juni untuk dia"
   ],
   "add_schedule_note": [
     "tambah catatan jadwal",
     "buat catatan untuk klien",
     "tambahkan anotasi jadwal",
     "catat di jadwal",
-    "tulis catatan per hari"
+    "tulis catatan per hari",
+    "tinggalkan catatan serah terima untuk karyawan pada hari selasa",
+    "tulis komentar pada hari tertentu di jadwal",
+    "beri keterangan di rencana untuk karyawan ini hari jumat"
   ],
   "add_selected_clients_to_group": [
     "tambahkan yang dipilih ke grup",
     "masukkan karyawan yang dicentang ke grup",
     "tambahkan yang ditandai ke grup",
     "pindahkan seleksi ke grup",
-    "tambahkan baris terpilih ke grup"
+    "tambahkan baris terpilih ke grup",
+    "tugaskan staf yang dicentang ke sebuah grup",
+    "tambahkan semua yang saya pilih ke grup",
+    "sertakan karyawan yang disorot dalam grup"
   ],
   "add_shift_to_group": [
     "tambahkan shift ke grup",
@@ -135,7 +174,10 @@
     "ajarkan istilah baru ke sistem",
     "tambah variasi fonetik",
     "buat entri koreksi pengucapan",
-    "daftarkan kata agar tidak salah dengar"
+    "daftarkan kata agar tidak salah dengar",
+    "ajari pengenalan suara bahwa klaksi berarti klacksy",
+    "masukkan salah dengar baru ke kamus transkripsi",
+    "buat dikte mengeja istilah ini dengan benar mulai sekarang"
   ],
   "add_workchange": [
     "tambahkan koreksi pada work [workid] tipe [type]",
@@ -157,36 +199,54 @@
   "apply_company_rule": [
     "terapkan aturan perusahaan",
     "simpan dan konfirmasi aturan perusahaan",
-    "aktifkan aturan perusahaan"
+    "aktifkan aturan perusahaan",
+    "terapkan draf aturan perusahaan sekarang",
+    "berlakukan aturan tunjangan yang sudah disiapkan",
+    "pratinjau sudah oke, simpan aturan internal"
   ],
   "apply_grouping": [
     "terapkan pengelompokan sekarang",
     "konfirmasi dan jalankan pengelompokan",
     "pindahkan klien ke grup mereka sekarang",
     "eksekusi pengelompokan yang diusulkan",
-    "terapkan hasil pengelompokan secara permanen"
+    "terapkan hasil pengelompokan secara permanen",
+    "pindahkan semua karyawan ke grup lokasi mereka",
+    "jalankan pengelompokan lokasi sekarang",
+    "simpan penempatan lokasi yang diusulkan"
   ],
   "apply_grouping_plan": [
     "terapkan rencana grup",
-    "jalankan perubahan grup yang diusulkan"
+    "jalankan perubahan grup yang diusulkan",
+    "jalankan rencana grup yang sudah disetujui",
+    "berlakukan perubahan keanggotaan yang diusulkan",
+    "eksekusi rencana pengelompokan berdasarkan kodenya"
   ],
   "apply_planning_profile": [
     "terapkan profil perencanaan",
-    "simpan profil perencanaan"
+    "simpan profil perencanaan",
+    "terapkan draf profil perencanaan",
+    "aktifkan aturan perencanaan khusus saya dari draf",
+    "buat profil perencanaan sekarang"
   ],
   "approve_day": [
     "setujui hari senin",
     "approve tanggal 15 mei",
     "luluskan jadwal hari ini",
     "sahkan semua shift pada tanggal tersebut",
-    "tandai hari sebagai disetujui"
+    "tandai hari sebagai disetujui",
+    "setujui semua entri kerja hari senin untuk grup",
+    "sahkan tanggal 15 mei untuk grup ini",
+    "saya mau mengunci hari ini sebagai disetujui untuk tim"
   ],
   "assign_contract_by_name": [
     "tetapkan kontrak berdasarkan nama",
     "berikan kontrak ke orang yang saya kenal cuma namanya",
     "cari klien berdasarkan nama lalu berikan kontrak",
     "hubungkan kontrak dengan karyawan hanya berdasarkan nama",
-    "tetapkan kontrak untuk pegawai berdasarkan namanya saja"
+    "tetapkan kontrak untuk pegawai berdasarkan namanya saja",
+    "hubungkan karyawan dan kontrak hanya dengan namanya",
+    "berikan kontrak paruh waktu ke karyawan dengan nama ini",
+    "aktifkan kontrak baru untuk karyawan berdasarkan nama"
   ],
   "assign_contract_to_client": [
     "menetapkan kontrak untuk klien",
@@ -198,15 +258,24 @@
   ],
   "assign_macro_to_absence_type": [
     "tetapkan makro ke jenis ketidakhadiran",
-    "ganti makro perhitungan jenis ketidakhadiran"
+    "ganti makro perhitungan jenis ketidakhadiran",
+    "ganti cuti tahunan ke makro perhitungan lain",
+    "saya mau menetapkan rumus kredit jam baru untuk izin sakit",
+    "hubungkan jenis absen kecelakaan dengan makro lain"
   ],
   "assign_macro_to_shift": [
     "tetapkan makro ke shift",
-    "ganti makro perhitungan shift"
+    "ganti makro perhitungan shift",
+    "pasang rumus tunjangan yang diperluas ke shift malam",
+    "beri shift ini makro yang berbeda",
+    "kembali ke rumus standar untuk shift ini"
   ],
   "assign_orders_to_groups": [
     "kelompokkan pesanan impor",
-    "pesanan tanpa grup"
+    "pesanan tanpa grup",
+    "tempatkan semua pesanan terbuka ke grupnya",
+    "setelah impor erp, masukkan pesanan ke grup kota",
+    "otomatis tempatkan pesanan tanpa grup ke grup lokasi yang cocok"
   ],
   "assign_shifts_to_city_groups": [
     "bagikan shift ke grup kota sesuai alamat pelanggan",
@@ -225,48 +294,72 @@
     "beri cuti bersama untuk grup [groupname] pada [date]",
     "jadwalkan training untuk seluruh anggota grup [groupname] tanggal [date]",
     "buat absensi massal grup [groupname] tipe [absencetype] tanggal [date]",
-    "lihat pratinjau absensi grup [groupname] untuk tanggal [date]"
+    "lihat pratinjau absensi grup [groupname] untuk tanggal [date]",
+    "pesan hari pelatihan untuk semua orang di grup pada hari jumat",
+    "saya mau memberi satu grup absen yang sama untuk satu hari",
+    "masukkan absen yang sama untuk setiap anggota tim di satu tanggal"
   ],
   "bulk_add_shifts_to_group": [
     "tambahkan semua shift ke grup",
     "link massal shift ke grup",
     "tambah banyak shift ke grup",
     "bulk assign dinas ke tim",
-    "cari shift dan tambahkan ke grup"
+    "cari shift dan tambahkan ke grup",
+    "hubungkan semua layanan berinisial ini ke departemen",
+    "masukkan seluruh shift malam ke satu grup sekaligus",
+    "kaitkan banyak dinas ke tim dalam sekali jalan"
   ],
   "bulk_delete_works": [
     "hapus semua shift karyawan dalam satu periode",
     "hapus semua penugasan kerja dalam rentang tanggal",
     "buang semua penugasan dalam periode",
-    "hapus beberapa penugasan sekaligus"
+    "hapus beberapa penugasan sekaligus",
+    "bersihkan semua entri kerja satu karyawan untuk minggu depan",
+    "hapus semua penugasan seseorang di shift tertentu pada periode ini",
+    "hapus sampai 50 entri kerja dalam rentang tanggal sekaligus"
   ],
   "bundle_nearby_timerange_shifts_into_container": [
     "gabungkan layanan mobile di sekitar kota",
     "kumpulkan shift timerange terdekat",
-    "satukan layanan mobile di sekitar"
+    "satukan layanan mobile di sekitar",
+    "kumpulkan semua pekerjaan keliling di sekitar winterthur ke container baru",
+    "buat container untuk hari kamis dari shift timerange terdekat",
+    "gabungkan tur dekat basel jadi container harian"
   ],
   "cancel_company_rule": [
     "batalkan draf aturan perusahaan",
     "buang aturan perusahaan yang sedang dibuat",
-    "batalkan definisi aturan perusahaan"
+    "batalkan definisi aturan perusahaan",
+    "buang aturan perusahaan yang saya mulai",
+    "batalkan draf aturan internal",
+    "hentikan pencatatan aturan ini"
   ],
   "cancel_planning_profile_setup": [
     "batalkan penyiapan profil perencanaan",
-    "buang draf profil perencanaan"
+    "buang draf profil perencanaan",
+    "hentikan wizard profil perencanaan",
+    "setop penyusunan profil perencanaan dan hapus drafnya",
+    "keluar dari pengaturan profil perencanaan"
   ],
   "cancel_recurring_task": [
     "hapus pengingat",
     "batalkan tugas rutin",
     "hentikan cron job",
     "hapus jadwal berulang",
-    "batal reminder senin"
+    "batal reminder senin",
+    "hentikan pengingat berulang saya",
+    "batalkan tugas cron terjadwal",
+    "hapus pengingat mingguan"
   ],
   "cancel_wizard_job": [
     "batalkan wizard job [jobid]",
     "hentikan proses wizard [jobid]",
     "stop plan dengan id [jobid]",
     "cancel job wizard [jobid]",
-    "abort wizard id [jobid]"
+    "abort wizard id [jobid]",
+    "hentikan job perencanaan yang sedang berjalan",
+    "akhiri proses penjadwalan otomatis",
+    "matikan autowizard sekarang"
   ],
   "check_absence_capacity_reserve": [
     "cadangan kapasitas untuk cuti",
@@ -288,7 +381,10 @@
   "check_erp_drop_point_folder_health": [
     "periksa kesehatan folder titik penyerahan",
     "apakah folder bertahan setelah mulai ulang",
-    "buat folder processed dan error"
+    "buat folder processed dan error",
+    "apakah folder erp bisa ditulis",
+    "cek folder serah terima erp ada dan buat jika belum ada",
+    "kenapa file order tidak terambil, tes foldernya"
   ],
   "check_group_geocoding_status": [
     "status geokode"
@@ -296,18 +392,27 @@
   "clear_client_availability": [
     "atur ulang ketersediaan karyawan",
     "hapus entri ketersediaan",
-    "kosongkan ketersediaan agar hari terbuka lagi"
+    "kosongkan ketersediaan agar hari terbuka lagi",
+    "hapus semua entri ketersediaan di bulan agustus",
+    "buka penuh lagi hari itu untuk perencanaan",
+    "hilangkan ketersediaan pagi saja"
   ],
   "close_clarification": [
     "saya akan mengklarifikasi sendiri dengan karyawan",
-    "tutup pertanyaan klarifikasi"
+    "tutup pertanyaan klarifikasi",
+    "saya yang akan mengklarifikasi langsung",
+    "tutup pertanyaan terbuka ke karyawan",
+    "tidak perlu menunggu balasan soal absen lagi"
   ],
   "close_period": [
     "tutup periode mei 2026",
     "selesaikan periode pembayaran",
     "kunci bulan ini",
     "seal periode gaji",
-    "finalisir periode shift"
+    "finalisir periode shift",
+    "kunci semua jam bulan lalu secara permanen",
+    "segel periode pembayaran dan tulis log audit",
+    "saya mau menutup periode untuk penggajian sekarang"
   ],
   "confirm_break": [
     "konfirmasi cuti",
@@ -315,21 +420,30 @@
     "kunci jadwal libur",
     "kunci ketidakhadiran",
     "jadikan cuti terkunci",
-    "kunci cutiku"
+    "kunci cutiku",
+    "jadikan entri cuti yang sudah dipesan mengikat",
+    "set entri izin sakit ini menjadi terkonfirmasi",
+    "konfirmasi entri absen dengan break id"
   ],
   "confirm_pending_action": [
     "konfirmasi tindakan",
     "ya, lakukan",
     "saya setuju, jalankan",
     "tindakan disetujui",
-    "konfirmasi eksekusi"
+    "konfirmasi eksekusi",
+    "ya, jalankan tindakan yang menunggu",
+    "oke dikonfirmasi, silakan lanjutkan",
+    "disetujui, lakukan persis seperti itu"
   ],
   "confirm_work": [
     "kunci assignment ini",
     "konfirmasi shift yasmine",
     "fix jadwal kerja",
     "sahkan penempatan shift",
-    "setujui pekerjaan shift"
+    "setujui pekerjaan shift",
+    "jadikan penugasan ini final",
+    "lindungi shift ini dari wizard",
+    "saya mau membekukan penugasan besok"
   ],
   "cover_absence": [
     "tutupi absensi karyawan",
@@ -343,18 +457,27 @@
     "tambah tipe cuti [nameen]",
     "definisikan jenis sakit baru",
     "buat tipe absensi dengan warna [color]",
-    "tambah kategori absensi [namede]"
+    "tambah kategori absensi [namede]",
+    "definisikan jenis absen baru untuk cuti belajar",
+    "saya butuh jenis ketidakhadiran baru untuk wajib militer",
+    "tambah tipe cuti tanpa gaji ke data master"
   ],
   "create_absence_type": [
     "buat jenis absen baru",
-    "definisikan kategori absen baru"
+    "definisikan kategori absen baru",
+    "tambah jenis absen baru di pengaturan",
+    "saya mau membuat jenis cuti lain dengan singkatan dan warna",
+    "daftarkan jenis izin sakit baru di data master"
   ],
   "create_address": [
     "tambah alamat baru untuk klien",
     "buat alamat karyawan",
     "daftarkan alamat pelanggan",
     "input alamat baru",
-    "tambahkan alamat pos"
+    "tambahkan alamat pos",
+    "simpan alamat penagihan untuk pelanggan",
+    "tambahkan alamat bisnis ke kontak ini",
+    "catat alamat pos dengan negara dan negara bagian"
   ],
   "create_agent_skill": [
     "membuat kemampuan baru untuk asisten",
@@ -374,13 +497,19 @@
   ],
   "create_calendar_selection": [
     "buat pilihan kalender",
-    "buat kalender hari libur"
+    "buat kalender hari libur",
+    "gabungkan hari libur dua wilayah jadi satu kalender",
+    "buat pilihan kalender baru dengan jerman dan austria",
+    "bangun kalender hari libur sendiri dari beberapa negara"
   ],
   "create_container_template": [
     "buat template hari untuk container",
     "buat template container baru",
     "tambahkan template harian ke shift container",
-    "atur hari dalam seminggu untuk container"
+    "atur hari dalam seminggu untuk container",
+    "buat rencana harian dengan anggaran waktu untuk container hari senin",
+    "container masih butuh template untuk hari rabu",
+    "buat template selasa dengan lokasi awal dan akhir"
   ],
   "create_contract": [
     "membuat kontrak kerja baru",
@@ -388,26 +517,38 @@
     "mendaftarkan kontrak kerja",
     "buat template kontrak baru",
     "tambah kontrak baru",
-    "daftarkan perjanjian kerja"
+    "daftarkan perjanjian kerja",
+    "saya mau membuat template kontrak baru dengan 40 jam per minggu",
+    "daftarkan kontrak paruh waktu 20 jam",
+    "buatkan kontrak dengan jam target tetap 8 jam sehari 5 hari"
   ],
   "create_contract_from_template": [
     "buat kontrak dari templat",
     "kontrak baru berdasarkan templat",
     "salin templat kontrak",
-    "buat kontrak dari contoh yang ada"
+    "buat kontrak dari contoh yang ada",
+    "salin kontrak penuh waktu dan ubah tanggal mulainya saja",
+    "kontrak baru seperti yang ada tapi dengan beban kerja 60 persen",
+    "duplikat template kontrak dengan nama baru dan hari kerja berbeda"
   ],
   "create_counter_rule": [
     "buat aturan hitung baru",
     "tambah aturan batas berapa kali",
     "atur aturan maksimal dinas malam per bulan",
     "buat aturan batas jumlah hari kerja",
-    "tambahkan aturan penghitungan kejadian"
+    "tambahkan aturan penghitungan kejadian",
+    "izinkan maksimal lima hari kerja per minggu",
+    "beri peringatan jika seseorang dapat lebih dari empat dinas malam sebulan",
+    "tetapkan batas atas dinas akhir pekan"
   ],
   "create_donation_checkout": [
     "donasi untuk proyek klacks",
     "buat tautan donasi",
     "saya ingin berdonasi",
-    "dukung klacks dengan sejumlah uang"
+    "dukung klacks dengan sejumlah uang",
+    "saya ingin menyumbang 50 franc",
+    "buat tautan pembayaran untuk donasi proyek",
+    "buka halaman donasi untuk 20 dolar"
   ],
   "create_email_folder": [
     "buat folder email baru",
@@ -428,13 +569,19 @@
     "terbitkan kunci antar file",
     "buat token impor erp",
     "keluarkan kunci akses untuk kirim file",
-    "buat kunci baru untuk sistem eksternal"
+    "buat kunci baru untuk sistem eksternal",
+    "saya butuh kunci akses untuk titik serah",
+    "buat token baru untuk impor file dari erp",
+    "siapkan kunci agar sistem luar bisa mengirim file"
   ],
   "create_group": [
     "buat grup baru dengan nama [name]",
     "buka lokasi baru [name]",
     "buat unit organisasi [name]",
-    "tambah departemen [name]"
+    "tambah departemen [name]",
+    "buat subgrup baru di bawah grup penjualan",
+    "saya mau membentuk tim baru untuk jaga malam",
+    "daftarkan unit organisasi baru yang berlaku mulai senin depan"
   ],
   "create_identity_provider": [
     "buat penyedia identitas baru",
@@ -448,7 +595,10 @@
     "tambahkan siklus perhitungan sendiri",
     "buat skema tanggal custom",
     "definisikan periode dari tanggal 26 sampai 25",
-    "atur periode khusus dengan nama"
+    "atur periode khusus dengan nama",
+    "buat periode yang berjalan dari tanggal 26 sampai 25",
+    "buat jendela hitung untuk staf dengan awal bulan bergeser",
+    "bangun skema tanggal bernama dengan tanggal mulai dan jam penuh waktu"
   ],
   "create_llm_model": [
     "membuat model AI baru",
@@ -471,21 +621,30 @@
     "tambah script perhitungan",
     "buat formula baru",
     "simpan makro kalkulasi",
-    "tambah aturan perhitungan"
+    "tambah aturan perhitungan",
+    "buat makro baru dengan isi skrip ini",
+    "simpan skrip perhitungan baru di pengaturan",
+    "daftarkan makro rumus dengan nama ini"
   ],
   "create_monthly_target_hours": [
     "set jam target untuk bulan ini",
     "atur jam kerja standar bulan ini",
     "tambahkan jam target untuk bulan tertentu",
     "isi jam sasaran bulan februari",
-    "buat entri jam target bulanan"
+    "buat entri jam target bulanan",
+    "isi 160 jam target untuk februari",
+    "catat bulan dengan jam target yang berbeda",
+    "bulan ini hanya dihitung 150 jam untuk beban penuh"
   ],
   "create_period_cap_rule": [
     "buat aturan batas jam kerja",
     "tambahkan batas jam per bulan",
     "set batas jam kerja maksimal",
     "buat aturan batas lembur",
-    "tambahkan ceiling jam kerja untuk periode"
+    "tambahkan ceiling jam kerja untuk periode",
+    "rata-rata maksimal 48 jam selama dua belas minggu",
+    "beri peringatan di 90 persen jam bulanan",
+    "izinkan paling banyak 170 jam per bulan"
   ],
   "create_personal_access_token": [
     "buat token akses pribadi",
@@ -498,28 +657,40 @@
     "buat rencana",
     "rencana bertahap",
     "beberapa tugas sekaligus",
-    "susun rencana tugas"
+    "susun rencana tugas",
+    "saya butuh urutan langkah untuk pelanggan, order dan staf sekaligus",
+    "susun ini jadi rencana dengan beberapa langkah",
+    "usulkan cara menjalankan semua perubahan ini satu per satu"
   ],
   "create_qualification": [
     "tambah kualifikasi baru",
     "buat kualifikasi multibahasa",
     "definisikan sertifikat baru",
     "masukkan kualifikasi dengan nama",
-    "daftarkan kompetensi baru"
+    "daftarkan kompetensi baru",
+    "daftarkan kualifikasi lisensi forklift baru",
+    "saya mau menyimpan p3k sebagai kualifikasi",
+    "tambah kualifikasi sim c1 ke data master"
   ],
   "create_report_template": [
     "buat template laporan",
     "tambahkan layout cetak baru",
     "buat format cetak untuk jadwal",
     "template laporan baru untuk karyawan",
-    "buat desain cetak untuk absensi"
+    "buat desain cetak untuk absensi",
+    "tambah layout baru untuk mencetak jadwal",
+    "saya butuh template untuk laporan absen",
+    "buat template faktur cetak dengan baris digabung"
   ],
   "create_restricted_time_window_rule": [
     "buat aturan jam terlarang",
     "tambahkan jam dilarang untuk musim tertentu",
     "set jam terlarang antara jam berapa",
     "buat aturan pembatasan waktu musiman",
-    "tambahkan aturan jam dilarang"
+    "tambahkan aturan jam dilarang",
+    "dilarang bekerja jam 12 sampai 3 siang di musim panas",
+    "tetapkan jendela terlarang untuk satu musim tiap tahun",
+    "blokir malam hari dari november sampai maret untuk semua yang bertag outdoor"
   ],
   "create_scheduling_rule": [
     "membuat aturan penjadwalan baru",
@@ -541,14 +712,20 @@
     "blokir pengirim ini",
     "tambahkan pola spam",
     "blokir domain email",
-    "buat filter untuk subjek email"
+    "buat filter untuk subjek email",
+    "saring semua email dari domain ini",
+    "tandai pesan dengan subjek ini sebagai spam",
+    "tambahkan kata kunci di isi email ke filter spam"
   ],
   "create_test_environment": [
     "buat data test karyawan",
     "siapkan lingkungan uji coba",
     "buat test environment dengan karyawan dan shift",
     "buat testdaten untuk simulasi",
-    "ciptakan data sampel untuk testing"
+    "ciptakan data sampel untuk testing",
+    "siapkan lingkungan tes lengkap untuk autofill",
+    "saya butuh staf uji dengan grup dan kontrak bersama",
+    "generate data uji dengan shift pagi sore dan malam"
   ],
   "create_user": [
     "membuat akun pengguna baru",
@@ -561,31 +738,46 @@
     "bagi shift menjadi early dan late",
     "cut order 24 jam menjadi beberapa bagian",
     "split shift menjadi time part",
-    "bagi jadwal menjadi shift pagi siang malam"
+    "bagi jadwal menjadi shift pagi siang malam",
+    "iris shift 07:00 sampai 07:00 menjadi beberapa segmen waktu",
+    "saya mau memecah shift ini menjadi dua shift parsial",
+    "potong order ini jadi beberapa potongan rotasi"
   ],
   "cut_shift_by_date": [
     "potong shift pada tanggal tertentu",
     "bagi shift menjadi dua pada tanggal",
     "pisahkan shift mulai tanggal tertentu",
-    "belah shift di tanggal itu"
+    "belah shift di tanggal itu",
+    "mulai ulang shift dari tanggal 1 juli",
+    "pisahkan shift menjadi dua bagian pada hari kalender",
+    "hentikan seri pada tanggal batas lalu mulai lagi sesudahnya"
   ],
   "delete_absence": [
     "hapus tipe absensi",
     "copot jenis ketidakhadiran",
     "nonaktifkan tipe cuti",
     "buang jenis absen sakit",
-    "hapus jenis absensi dari daftar"
+    "hapus jenis absensi dari daftar",
+    "hapus jenis absen cuti tanpa gaji dari pengaturan",
+    "buang jenis ketidakhadiran yang sudah tidak dipakai",
+    "saya mau menonaktifkan jenis absen yang usang"
   ],
   "delete_absence_type": [
     "hapus jenis absen",
-    "hilangkan kategori absen"
+    "hilangkan kategori absen",
+    "saya mau menghapus jenis absen",
+    "hapus kategori absen pelatihan dari data master",
+    "jenis absen ini sudah usang, buang saja"
   ],
   "delete_address": [
     "hapus alamat klien",
     "hapus alamat karyawan",
     "hapus alamat pelanggan",
     "hapus alamat pos",
-    "hapus alamat dari data"
+    "hapus alamat dari data",
+    "singkirkan alamat rumah lama",
+    "coret alamat surat-menyurat seseorang",
+    "buang alamat usang dari profil"
   ],
   "delete_agent_skill": [
     "menghapus kemampuan asisten",
@@ -607,7 +799,10 @@
     "hapus catatan klien",
     "hapus anotasi",
     "hapus catatan dari profil",
-    "hapus catatan"
+    "hapus catatan",
+    "hapus lagi catatan pada karyawan",
+    "buang komentar dari klien",
+    "singkirkan anotasi dengan id ini"
   ],
   "delete_branch": [
     "menghapus kantor cabang",
@@ -622,17 +817,26 @@
     "batalkan izin sakit",
     "remove absensi liburan",
     "hapus data istirahat",
-    "cancel absence untuk hari ini"
+    "cancel absence untuk hari ini",
+    "hapus entri hari sakit di hari selasa",
+    "keluarkan lagi absen cuti yang sudah dipesan",
+    "buang entri pelatihan ini dari kalender"
   ],
   "delete_break_placeholder": [
     "batalkan permintaan cuti",
     "hapus ketidakhadiran terencana",
     "hapus pemesanan awal absensi",
-    "batalkan cuti yang direncanakan"
+    "batalkan cuti yang direncanakan",
+    "tarik kembali pengajuan cuti yang sudah dimasukkan",
+    "batalkan absen yang dipesan sementara pada 12 agustus",
+    "hapus placeholder untuk absen"
   ],
   "delete_calendar_selection": [
     "hapus pilihan kalender",
-    "hapus kalender hari libur"
+    "hapus kalender hari libur",
+    "hilangkan satu pilihan kalender",
+    "buang kalender hari libur yang sudah tidak terpakai",
+    "saya mau menghapus pilihan kalender ini"
   ],
   "delete_client": [
     "hapus karyawan [clientid]",
@@ -646,12 +850,18 @@
     "hapus alamat email klien",
     "hapus nomor telepon klien",
     "hapus catatan kontak",
-    "hapus entri komunikasi"
+    "hapus entri komunikasi",
+    "hapus nomor ponsel dari kontak",
+    "buang entri data kontak seorang karyawan",
+    "hapus nomor telepon rumah lama milik klien"
   ],
   "delete_container_template": [
     "hapus templat hari kontainer",
     "hapus semua templat kontainer",
-    "atur ulang rencana mingguan kontainer"
+    "atur ulang rencana mingguan kontainer",
+    "buang semua template hari dari container",
+    "hapus template sebuah shift container seluruhnya",
+    "kosongkan grid mingguan container"
   ],
   "delete_contract": [
     "menghapus kontrak kerja",
@@ -659,18 +869,27 @@
     "mengakhiri kontrak yang sudah ada",
     "hapus template kontrak",
     "nonaktifkan kontrak kerja",
-    "buang kontrak dari sistem"
+    "buang kontrak dari sistem",
+    "singkirkan template kontrak ini dari daftar",
+    "buang kontrak yang sudah tidak dipakai",
+    "hapus kontrak paruh waktu lama dari sistem"
   ],
   "delete_counter_rule": [
     "hapus aturan hitung",
     "hilangkan aturan batas berapa kali",
     "hapus aturan penghitungan kejadian",
     "buang aturan batas jumlah",
-    "hapus aturan hitung yang tidak dipakai"
+    "hapus aturan hitung yang tidak dipakai",
+    "singkirkan aturan yang menghitung dinas malam",
+    "aturan hitung ini keliru, tolong dihapus",
+    "cabut aturan penghitungan dinas malam"
   ],
   "delete_email": [
     "hapus email ke tempat sampah",
-    "buang email ini ke tempat sampah"
+    "buang email ini ke tempat sampah",
+    "buang email ini",
+    "saya mau menyingkirkan pesan yang masuk",
+    "hapus pesan dari kotak masuk"
   ],
   "delete_email_folder": [
     "hapus folder email",
@@ -685,34 +904,49 @@
     "batalkan biaya",
     "void pengeluaran",
     "buang catatan biaya",
-    "hapus entri biaya"
+    "hapus entri biaya",
+    "hapus bukti biaya kemarin",
+    "buang pengeluaran yang salah dicatat",
+    "saya mau menarik kembali entri biaya"
   ],
   "delete_export_format_override": [
     "hapus pengaturan export",
     "kembalikan format export ke standar",
     "reset format export",
     "hilangkan penyesuaian export",
-    "tidak usah ubah format export"
+    "tidak usah ubah format export",
+    "hapus kustomisasi format ekspor",
+    "pulihkan definisi ekspor bawaan",
+    "kembalikan format ekspor penggajian ke bawaan"
   ],
   "delete_group": [
     "hapus grup [groupid]",
     "bubarkan tim [groupid]",
     "nonaktifkan grup [groupid]",
-    "hapus paksa grup [groupid] dengan semua anak"
+    "hapus paksa grup [groupid] dengan semua anak",
+    "hapus seluruh lokasi beserta subgrupnya",
+    "bubarkan departemen ini sepenuhnya",
+    "buang grup usang dari pohon"
   ],
   "delete_identity_provider": [
     "hapus penyedia identitas",
     "buang sso provider",
     "nonaktifkan provider login",
     "hapus konfigurasi ldap",
-    "hilangkan single sign-on"
+    "hilangkan single sign-on",
+    "hapus koneksi active directory",
+    "singkirkan penyedia openid connect",
+    "buang sumber login oauth2"
   ],
   "delete_individual_period": [
     "hapus periode khusus ini",
     "hilangkan siklus perhitungan sendiri",
     "kembalikan ke kalender biasa",
     "hapus skema tanggal custom",
-    "tidak pakai periode khusus lagi"
+    "tidak pakai periode khusus lagi",
+    "hapus skema dengan batas penagihan sendiri",
+    "buang periode individual, kontrak kembali ke bulan kalender",
+    "batalkan periode perhitungan buatan sendiri"
   ],
   "delete_llm_model": [
     "menghapus model AI",
@@ -735,52 +969,76 @@
     "remove script perhitungan",
     "delete formula",
     "hapus aturan kalkulasi",
-    "buang makro"
+    "buang makro",
+    "saya mau menghapus makro perhitungan",
+    "singkirkan makro lama dari pengaturan",
+    "hapus makro berdasarkan id"
   ],
   "delete_membership": [
     "hapus keanggotaan klien",
     "hapus masa afiliasi",
     "hapus periode keanggotaan",
-    "hapus membership"
+    "hapus membership",
+    "buang periode keanggotaan seorang karyawan",
+    "hapus keanggotaan dengan id ini",
+    "batalkan periode afiliasi karyawan"
   ],
   "delete_monthly_target_hours": [
     "hapus jam target bulan ini",
     "hilangkan entri jam target untuk bulan",
     "reset jam target bulan ke standar",
     "hapus jam sasaran bulanan",
-    "buang data jam target bulan ini"
+    "buang data jam target bulan ini",
+    "batalkan jam target yang menyimpang untuk maret",
+    "angka jam target bulan ini balik ke nilai biasa",
+    "singkirkan penyimpangan bulanan pada target"
   ],
   "delete_period_cap_rule": [
     "hapus aturan batas jam kerja",
     "hilangkan ceiling jam kerja",
     "hapus batas jam per periode",
     "buang aturan batas lembur",
-    "hapus aturan batas jam"
+    "hapus aturan batas jam",
+    "lepaskan batas jam untuk periode ini",
+    "berhenti menerapkan aturan jam kerja maksimum",
+    "matikan peringatan dini saat melewati batas jam"
   ],
   "delete_qualification": [
     "hapus kualifikasi",
     "hilangkan kualifikasi",
     "buang jenis kualifikasi",
-    "hapus data kualifikasi"
+    "hapus data kualifikasi",
+    "hapus kualifikasi lisensi forklift dari data master",
+    "saya mau membuang kualifikasi yang usang",
+    "hapus entri kualifikasi berdasarkan id"
   ],
   "delete_report_template": [
     "hapus template laporan",
     "buang layout cetak",
     "hapus format cetak",
     "tidak pakai template laporan ini lagi",
-    "singkirkan template cetak"
+    "singkirkan template cetak",
+    "hapus template laporan yang usang",
+    "buang template cetak beserta semua bloknya",
+    "singkirkan layout laporan"
   ],
   "delete_restricted_time_window_rule": [
     "hapus aturan jam terlarang",
     "cabut larangan waktu ini",
     "buka lagi jam yang diblokir",
     "hilangkan pembatasan jam operasional",
-    "tidak usah pakai aturan jam terlarang lagi"
+    "tidak usah pakai aturan jam terlarang lagi",
+    "cabut larangan jam malam sepenuhnya",
+    "larangan jam musiman ini salah, tolong dihapus",
+    "izinkan lagi bekerja jam 10 malam sampai 6 pagi"
   ],
   "delete_schedule_note": [
     "hapus catatan jadwal",
     "buang catatan rencana",
-    "hilangkan anotasi"
+    "hilangkan anotasi",
+    "hapus catatan jadwal tanggal 12 april",
+    "singkirkan keterangan rencana ini",
+    "saya mau membuang catatan dari jadwal"
   ],
   "delete_scheduling_rule": [
     "menghapus aturan penjadwalan",
@@ -795,14 +1053,20 @@
     "nonaktifkan shift",
     "buang shift",
     "soft delete shift",
-    "arsipkan shift"
+    "arsipkan shift",
+    "saya mau menghapus shift ini",
+    "singkirkan draf order itu",
+    "hapus shift dengan id ini"
   ],
   "delete_spam_rule": [
     "hapus aturan spam ini",
     "unblokir pengirim ini",
     "hilangkan pola spam",
     "izinkan lagi domain ini",
-    "tidak usah blokir email ini"
+    "tidak usah blokir email ini",
+    "hapus entri filter spam untuk domain ini",
+    "loloskan lagi email dari pengirim ini",
+    "pola itu menjaring terlalu banyak, tolong dihapus"
   ],
   "delete_system_user": [
     "menghapus akun pengguna",
@@ -817,21 +1081,30 @@
     "buang istilah dari kamus transkripsi",
     "hapus koreksi pengucapan",
     "hilangkan entri fonetik",
-    "remove entri kamus transkripsi"
+    "remove entri kamus transkripsi",
+    "keluarkan istilah ini dari koreksi speech-to-text",
+    "coret kata koreksi dari kamus dikte",
+    "buang koreksi fonetik untuk nama ini"
   ],
   "delete_work": [
     "hapus shift ini",
     "batalkan penugasan",
     "hapus jadwal kerja",
     "remove pekerjaan shift",
-    "cancel assignment untuk hari ini"
+    "cancel assignment untuk hari ini",
+    "keluarkan penugasan itu dari rencana",
+    "hapus entri kerja hari jumat",
+    "batalkan penempatan orang ini di shift besok"
   ],
   "delete_workchange": [
     "hapus perubahan kerja",
     "batalkan koreksi",
     "hapus data penggantian",
     "buang workchange",
-    "soft delete perubahan shift"
+    "soft delete perubahan shift",
+    "hapus entri tambahan pada penugasan",
+    "buang waktu perjalanan yang tercatat",
+    "coret entri briefing dari shift"
   ],
   "detect_conflicts": [
     "cek pelanggaran aturan jadwal",
@@ -866,14 +1139,20 @@
     "matikan plugin",
     "pause ekstensi",
     "hentikan sementara modul",
-    "matikan modul tambahan"
+    "matikan modul tambahan",
+    "nonaktifkan modul tapi pertahankan pengaturannya",
+    "matikan sementara sebuah plugin",
+    "jeda modul fitur untuk sementara"
   ],
   "dismiss_skill_relation": [
     "tolak hubungan ini",
     "hapus keterkaitan itu",
     "batalkan hubungan antar skill tersebut",
     "jangan gunakan hubungan ini lagi",
-    "kaitan itu salah, tolak saja"
+    "kaitan itu salah, tolak saja",
+    "singkirkan usulan hubungan skill",
+    "buang tautan yang disarankan antar kemampuan",
+    "tolak usulan keterkaitan yang tertunda"
   ],
   "email_schedule_to_client": [
     "kirim jadwal ke klien",
@@ -887,11 +1166,17 @@
     "nyalakan plugin",
     "aktifkan ekstensi",
     "mulai pakai modul tambahan",
-    "hidupkan modul fitur"
+    "hidupkan modul fitur",
+    "aktifkan plugin yang sudah terpasang",
+    "hidupkan add-on yang terinstal",
+    "saya mau mengaktifkan add-on"
   ],
   "end_client_membership": [
     "mengakhiri keanggotaan karyawan",
-    "menetapkan tanggal keluar karyawan"
+    "menetapkan tanggal keluar karyawan",
+    "karyawan akan keluar di akhir bulan",
+    "catat tanggal pemutusan hubungan kerja karyawan",
+    "hari kerja terakhir adalah tanggal 30"
   ],
   "evaluate_absence_hours_setup": [
     "mengapa dia mendapat jam cuti terlalu sedikit",
@@ -1455,18 +1740,27 @@
   ],
   "extend_macro": [
     "perluas makro sebagai salinan",
-    "salinan makro perhitungan yang diperluas"
+    "salinan makro perhitungan yang diperluas",
+    "salin makro lalu tambahkan surcharge ekstra",
+    "saya mau menambah blok tunjangan ke salinan makro",
+    "buat varian makro dengan output tambahan"
   ],
   "fetch_new_emails": [
     "ambil email baru sekarang",
-    "segarkan kotak masuk segera"
+    "segarkan kotak masuk segera",
+    "tarik email baru dari server sekarang",
+    "jalankan pengambilan imap",
+    "muat ulang kotak masuk saat ini juga"
   ],
   "fill_group_by_criteria": [
     "isi grup berdasarkan kriteria",
     "tambahkan karyawan ke grup sesuai",
     "cari dan masukkan ke grup",
     "isi grup dengan karyawan dari",
-    "populasi grup dengan syarat"
+    "populasi grup dengan syarat",
+    "masukkan sepuluh karyawan acak dari kanton bern ke grup",
+    "tambahkan semua karyawan dengan kode pos awalan 80 ke grup",
+    "isi grup dengan semua orang dari zurich yang punya kontrak penuh waktu"
   ],
   "find_absence_capacity_windows": [
     "cari periode yang cocok untuk cuti",
@@ -1504,14 +1798,20 @@
     "lengkapi koordinat alamat yang hilang",
     "geokode alamat-alamat",
     "tempatkan alamat pelanggan di peta",
-    "tentukan koordinat untuk alamat"
+    "tentukan koordinat untuk alamat",
+    "lokasikan alamat tanpa posisi dari kode pos dan kota",
+    "petakan otomatis pelanggan yang belum punya titik peta",
+    "hitung lintang dan bujur untuk semua alamat tanpa koordinat"
   ],
   "geocode_location_groups": [
     "cari koordinat otomatis untuk semua grup",
     "lakukan geokodifikasi untuk semua grup lokasi",
     "perbarui koordinat geografis semua grup",
     "temukan lokasi geografis setiap grup secara otomatis",
-    "hitung koordinat untuk semua grup lokasi"
+    "hitung koordinat untuk semua grup lokasi",
+    "tambahkan koordinat ke grup lokasi secara otomatis",
+    "cari geodata untuk grup yang berupa kota dan desa",
+    "isi koordinat gps grup tempat yang masih kosong"
   ],
   "get_absence_hours_calculation": [
     "tunjukkan perhitungan jam cuti",
@@ -1897,35 +2197,50 @@
     "masukkan karyawan tak tergrup ke grup sesuai alamat",
     "tambahkan yang belum punya grup ke grup kota",
     "atur karyawan tak tergrup ke grup dengan nama kota",
-    "kelompokkan berdasarkan kota alamat"
+    "kelompokkan berdasarkan kota alamat",
+    "masukkan karyawan tanpa grup ke grup bernama sesuai kotanya",
+    "urutkan staf yang belum bergrup ke grup kota berdasarkan alamat",
+    "tempatkan karyawan tanpa grup di grup kota tempat tinggalnya"
   ],
   "import_calendar_rules": [
     "impor aturan libur",
     "upload aturan kalender",
     "impor hari libur negara",
     "tambahkan aturan libur massal",
-    "masukkan data libur"
+    "masukkan data libur",
+    "muat definisi hari libur satu negara bagian sekaligus",
+    "impor aturan kalender kanton dari json",
+    "saya mau membuat semua hari libur sebuah negara sekali jalan"
   ],
   "install_feature_plugin": [
     "pasang modul tambahan",
     "install plugin fitur",
     "tambahkan ekstensi baru",
     "aktifkan modul baru",
-    "install modul fitur"
+    "install modul fitur",
+    "pasang modul add-on",
+    "saya mau memasang plugin fitur opsional",
+    "siapkan modul agar fungsinya tersedia"
   ],
   "install_language_pack": [
     "pasang paket bahasa",
     "aktifkan bahasa baru",
     "tambah bahasa ke sistem",
     "install language pack kode tertentu",
-    "aktifkan paket bahasa"
+    "aktifkan paket bahasa",
+    "pasang paket bahasa swiss jerman gsw",
+    "aktifkan paket bahasa dengan kode gsw",
+    "saya mau membuka bahasa antarmuka tambahan"
   ],
   "install_whisper_plugin": [
     "pasang model transkripsi lokal",
     "install plugin whisper",
     "aktifkan transkripsi di server sendiri",
     "pasang model pengenal suara lokal",
-    "mulai transkripsi tanpa layanan eksternal"
+    "mulai transkripsi tanpa layanan eksternal",
+    "pasang whisper secara lokal",
+    "siapkan speech to text di server sendiri",
+    "jalankan transkripsi dikte lokal"
   ],
   "interpret_resource_monitor": [
     "analisis kapasitas grup",
@@ -2320,19 +2635,31 @@
     "cari tempat di swiss"
   ],
   "manage_pending_notes": [
-    "kelola catatan tertunda"
+    "kelola catatan tertunda",
+    "tandai catatan tertunda sebagai terkirim",
+    "arsipkan pengingat terbuka saya",
+    "centang catatan yang belum tersampaikan"
   ],
   "mark_email_read": [
     "tandai email sebagai sudah dibaca",
-    "tandai email sebagai belum dibaca"
+    "tandai email sebagai belum dibaca",
+    "beri tanda terbaca pada pesan ini",
+    "jadikan pesan ini belum dibaca lagi",
+    "set pesan kotak masuk jadi belum terbaca"
   ],
   "move_email_to_folder": [
     "pindahkan email ke folder lain",
-    "tandai email sebagai spam"
+    "tandai email sebagai spam",
+    "taruh email ini di folder junk",
+    "kirim pesan ini ke sampah",
+    "kembalikan pesan dari junk ke kotak masuk"
   ],
   "move_group": [
     "pindahkan grup ke induk lain",
-    "gantungkan grup di bawah induk baru"
+    "gantungkan grup di bawah induk baru",
+    "pindahkan grup bern ke bawah wilayah tengah",
+    "relokasi grup ke cabang lain di pohon",
+    "saya mau memberi grup ini induk baru"
   ],
   "navigate_to": [
     "bawa saya ke pengaturan",
@@ -2345,7 +2672,10 @@
     "tampilan tahunan absensi sebagai pdf",
     "cetak kalender absensi",
     "tampilan absensi untuk ditempel",
-    "buat kalender cuti tahunan"
+    "buat kalender cuti tahunan",
+    "saya butuh ringkasan libur setahun penuh dalam bentuk cetakan",
+    "unduh lembar tahunan semua hari sakit dan cuti sebagai pdf",
+    "rencana absen di atas kertas untuk rapat tim"
   ],
   "open_order_export": [
     "mulai ekspor pesanan",
@@ -2359,14 +2689,20 @@
     "tampilkan rencana shift",
     "lihat dienstplan",
     "buka perencanaan jadwal",
-    "tunjukkan rencana kerja"
+    "tunjukkan rencana kerja",
+    "buka jadwal minggu depan",
+    "bawa saya ke perencana shift bulan ini",
+    "tampilkan jadwal satu karyawan saja"
   ],
   "optimize_llm_models_for_klacksy": [
     "uji semua model bahasa dan pilih yang terbaik",
     "cari model mana saja yang bisa kamu gunakan",
     "optimalkan model untuk klacksy",
     "tes model yang tersedia dan nonaktifkan yang gagal",
-    "pilih model terbaik secara otomatis"
+    "pilih model terbaik secara otomatis",
+    "periksa model mana yang tidak bisa memanggil tools lalu matikan",
+    "optimalkan otomatis model asisten",
+    "pilih model standar berdasarkan kecepatan dan biaya"
   ],
   "partition_clients_by_address": [
     "bagi klien berdasarkan alamat",
@@ -2380,7 +2716,10 @@
     "buat grup berdasarkan kualifikasi",
     "kelompokkan karyawan menurut kualifikasi",
     "buat satu grup untuk setiap kualifikasi",
-    "bagi staf ke dalam grup kualifikasi"
+    "bagi staf ke dalam grup kualifikasi",
+    "bagi semua staf ke grup secara otomatis menurut kualifikasi",
+    "buat grup terpisah untuk tiap kualifikasi lengkap dengan pemegangnya",
+    "susun grup dari kualifikasi di bawah satu grup induk"
   ],
   "place_work": [
     "tugaskan yasmine ke shift pagi tanggal 15 mei",
@@ -2410,7 +2749,10 @@
     "buat usulan penempatan",
     "draft proposal shift",
     "saran jadwal untuk grup",
-    "buat skenario jadwal"
+    "buat skenario jadwal",
+    "masukkan penempatan yang dipilih ke satu skenario untuk disetujui",
+    "jadikan pilihan ini draf untuk ditinjau",
+    "siapkan shift terpilih sebagai usulan untuk disahkan"
   ],
   "read_email": [
     "baca email dengan id ini",
@@ -2437,7 +2779,10 @@
     "serahkan shift ke karyawan lain",
     "pindahkan penugasan ke karyawan lain",
     "biarkan karyawan lain mengambil alih shift",
-    "alihkan penugasan kerja ke karyawan lain"
+    "alihkan penugasan kerja ke karyawan lain",
+    "oper shift hari senin ke karyawan lain",
+    "seret entri kerja ini ke baris karyawan lain",
+    "berikan shift hari jumat ke rekan di hari yang sama"
   ],
   "recall_delivered_notes": [
     "panggil catatan terkirim"
@@ -2447,109 +2792,163 @@
     "buang proposal skenario [scenarioid]",
     "hapus skenario [scenarioid]",
     "reject scenario [scenarioid]",
-    "batalkan skenario [scenarioid]"
+    "batalkan skenario [scenarioid]",
+    "buang skenario yang diusulkan",
+    "tolak hasil autowizard dan singkirkan",
+    "skenario ini tidak berguna, tolong dihapus"
   ],
   "remove_client_contract": [
     "lepaskan kontrak karyawan",
     "putuskan kontrak dari karyawan",
     "akhiri kontrak karyawan",
     "hapus penugasan kontrak",
-    "ambil kontrak karyawan"
+    "ambil kontrak karyawan",
+    "cabut kontrak saat ini dari karyawan",
+    "batalkan penugasan kontrak gaji untuk orang ini",
+    "lepaskan karyawan dari kontrak, kontraknya sendiri tetap ada"
   ],
   "remove_client_from_group": [
     "keluarkan dari grup",
     "hapus dari grup",
     "keluarkan dari kelompok",
     "cabut dari grup",
-    "singkirkan dari grup"
+    "singkirkan dari grup",
+    "keluarkan karyawan dari tim",
+    "lepas orang ini dari grup",
+    "saya mau mencoret pelanggan dari sebuah grup"
   ],
   "remove_client_qualification": [
     "hapus kualifikasi karyawan",
     "ambil sertifikat staf",
     "hapus penugasan kualifikasi dari karyawan",
     "cabut level keterampilan yang tercatat",
-    "tarik kembali sertifikasi karyawan"
+    "tarik kembali sertifikasi karyawan",
+    "coret lisensi forklift dari datanya",
+    "hapus sertifikat kedaluwarsa dari orang ini",
+    "buang level keterampilan yang tercatat di profilnya"
   ],
   "remove_container_template_task": [
     "hapus tugas dari template container",
     "keluarkan task dari template container",
     "buang tugas dari template shift container",
-    "hilangkan tugas dari template mingguan container"
+    "hilangkan tugas dari template mingguan container",
+    "hapus satu entri dari rencana hari container",
+    "coret sub-shift dari template container",
+    "keluarkan tugas dari container untuk hari selasa"
   ],
   "remove_shift_from_group": [
     "hapus shift dari grup",
     "keluarkan shift dari tim",
     "lepaskan shift dari departemen",
-    "cabut shift dari grup"
+    "cabut shift dari grup",
+    "putuskan hubungan antara layanan dan tim",
+    "layanan ini tidak boleh lagi masuk departemen",
+    "lepas tautan grup dari order shift"
   ],
   "remove_shift_required_qualification": [
     "hapus kualifikasi wajib dari shift",
     "hilangkan syarat kualifikasi shift",
     "cabut persyaratan kualifikasi dari shift",
-    "batalkan kualifikasi yang diwajibkan shift"
+    "batalkan kualifikasi yang diwajibkan shift",
+    "shift ini tidak butuh sim lagi",
+    "copot sertifikasi yang diminta dari shift",
+    "buang syarat wajib kualifikasi pada shift"
   ],
   "reopen_period": [
     "buka kembali periode yang ditutup",
     "aktifkan ulang bulan mei",
     "unseal periode pembayaran",
     "reopen periode shift",
-    "buka kunci periode gaji"
+    "buka kunci periode gaji",
+    "batalkan penutupan periode",
+    "cabut segel periode bulan lalu",
+    "saya mau membuka lagi periode yang sudah ditutup"
   ],
   "reset_container_day": [
     "reset hari container ke template",
     "hapus override hari di container",
     "kembalikan hari container ke template asal",
-    "batalkan penyesuaian hari container"
+    "batalkan penyesuaian hari container",
+    "pakai lagi template untuk hari container ini",
+    "buang perubahan satu hari pada container",
+    "batalkan penyimpangan dari pola hari kerja"
   ],
   "reset_shift_cuts": [
     "gabungkan kembali potongan shift mulai tanggal",
     "reset potongan shift",
     "batalkan pemotongan shift dari tanggal",
-    "satukan lagi bagian shift yang terpotong"
+    "satukan lagi bagian shift yang terpotong",
+    "satukan semua potongan shift jadi satu mulai bulan depan",
+    "batalkan pembagian order sejak tanggal tertentu",
+    "ubah potongan-potongan menjadi satu shift utuh"
   ],
   "restore_email": [
     "pulihkan email dari tempat sampah",
-    "kembalikan email dari tempat sampah"
+    "kembalikan email dari tempat sampah",
+    "pindahkan email yang dihapus kembali ke kotak masuk",
+    "batalkan penghapusan email ini",
+    "saya mau mengambil kembali email yang terhapus"
   ],
   "restore_work": [
     "pulihkan shift yang sudah dihapus",
     "kembalikan penugasan yang dihapus",
     "batalkan penghapusan penugasan kerja",
-    "ambil kembali shift yang terhapus"
+    "ambil kembali shift yang terhapus",
+    "kembalikan entri kerja yang baru saja saya hapus",
+    "saya tidak sengaja menghapus penempatan shift, tolong dipulihkan",
+    "aktifkan kembali entri kerja yang terhapus pakai work id"
   ],
   "revert_company_rule": [
     "kembalikan aturan perusahaan",
     "batalkan aturan perusahaan yang diterapkan",
-    "pulihkan aturan perusahaan sebelumnya"
+    "pulihkan aturan perusahaan sebelumnya",
+    "tarik kembali aturan perusahaan yang sudah diterapkan",
+    "urungkan perubahan tunjangan dari sebuah aturan",
+    "hapus aturan berdasarkan nama dan pulihkan kondisi lama"
   ],
   "revert_macro_assignment": [
     "batalkan penetapan makro",
-    "kembalikan makro perhitungan sebelumnya"
+    "kembalikan makro perhitungan sebelumnya",
+    "gulung balik pergantian makro pada shift",
+    "kembalikan rumus perhitungan yang lama",
+    "saya mau membatalkan penggantian makro pada jenis absen"
   ],
   "revoke_day_approval": [
     "batalkan persetujuan hari ini",
     "cabut approval tanggal 15 mei",
     "kembalikan status ke confirmed",
     "undo approve day",
-    "revoke persetujuan shift"
+    "revoke persetujuan shift",
+    "tarik kembali persetujuan hari ini",
+    "turunkan hari yang disetujui kembali ke confirmed",
+    "batalkan pengesahan hari tersebut"
   ],
   "revoke_erp_import_token": [
     "cabut kunci antar file",
     "nonaktifkan kunci sistem luar",
     "batalkan token impor erp",
     "sistem luar tidak boleh kirim file lagi",
-    "hapus kunci akses untuk kirim file"
+    "hapus kunci akses untuk kirim file",
+    "blokir kunci akses sistem eksternal",
+    "matikan kunci impor yang bocor",
+    "tarik kunci yang dipakai untuk pengiriman file"
   ],
   "revoke_personal_access_token": [
     "cabut token akses saya",
-    "batalkan token API"
+    "batalkan token API",
+    "matikan salah satu token api saya",
+    "saya mau mencabut personal access token",
+    "nonaktifkan kunci api milik saya selamanya"
   ],
   "rollback_my_last_change": [
     "batalkan perubahan terakhir",
     "undo aksi terakhir",
     "kembalikan ke keadaan sebelumnya",
     "rollback tindakan yang baru saja dilakukan",
-    "balikkan perubahan terakhir"
+    "balikkan perubahan terakhir",
+    "urungkan perubahan terakhir saya",
+    "aksi terakhir saya salah, tolong dibatalkan",
+    "usulkan cara membalikkan perubahan saya yang terbaru"
   ],
   "run_analysis": [
     "analisis jadwal",
@@ -2573,7 +2972,10 @@
     "segel pesanan ini",
     "segel order supaya shift bisa direncanakan",
     "kunci pesanan dengan segel permanen",
-    "segel pesanan pelanggan"
+    "segel pesanan pelanggan",
+    "segel order ini dan buat shift yang bisa direncanakan",
+    "buat order asli tidak bisa diubah lagi",
+    "rilis order sebagai shift lalu kunci permanen"
   ],
   "search_and_navigate": [
     "mencari dan langsung membuka halamannya",
@@ -2642,43 +3044,64 @@
     "catat sertifikat pegawai",
     "isi level keahlian karyawan",
     "tambah kualifikasi pegawai",
-    "set kompetensi pegawai"
+    "set kompetensi pegawai",
+    "karyawan ini punya lisensi forklift",
+    "catat pelatihan p3k berlaku sampai akhir tahun",
+    "perbarui level kualifikasi seorang karyawan"
   ],
   "set_company_rule_parameters": [
     "atur parameter aturan perusahaan",
     "masukkan nilai aturan perusahaan",
-    "tentukan parameter aturan perusahaan"
+    "tentukan parameter aturan perusahaan",
+    "isi parameter draf aturan perusahaan",
+    "masukkan nilai untuk aturan yang sedang disusun",
+    "lengkapi parameter yang masih kosong di draf aturan"
   ],
   "set_default_llm_model": [
     "tetapkan model ini sebagai model bawaan",
     "atur model standar untuk asisten",
     "jadikan model ini sebagai model utama",
     "ganti model default",
-    "gunakan model ini untuk semua jawaban"
+    "gunakan model ini untuk semua jawaban",
+    "mulai sekarang klacksy menjawab dengan model bahasa lain",
+    "tukar model bahasa bawaan asisten",
+    "jadikan deepseek model yang dipilih awal"
   ],
   "set_erp_import_schedule": [
     "atur jadwal import erp",
     "ubah jadwal import order",
     "set cron import",
     "konfigurasi frekuensi import",
-    "tentukan waktu import otomatis"
+    "tentukan waktu import otomatis",
+    "jalankan impor erp setiap malam jam dua",
+    "atur zona waktu dan cron untuk polling erp",
+    "ambil order erp tiap 15 menit"
   ],
   "set_explain_depth": [
     "selalu jelaskan dengan lebih sederhana",
     "mulai sekarang hanya yang penting",
     "mulai sekarang jelaskan semuanya dengan lebih sederhana",
     "mulai sekarang lewati dasar-dasarnya",
-    "kembalikan penjelasan ke otomatis"
+    "kembalikan penjelasan ke otomatis",
+    "saya baru di sini, jelaskan setiap langkah secara rinci mulai sekarang",
+    "selalu singkat dan fokus pada konsekuensinya",
+    "setel kedalaman penjelasan ke pemula"
   ],
   "set_export_format_override": [
     "ubah format export",
     "atur format export khusus",
     "ganti pemisah pada export",
     "sesuaikan nama kolom export",
-    "ubah format tanggal pada export"
+    "ubah format tanggal pada export",
+    "pakai titik koma sebagai pemisah di ekspor",
+    "ganti nama kolom untuk sistem penerima",
+    "ubah bentuk tanggal file ekspor jadi pakai titik"
   ],
   "set_group_location": [
-    "atur lokasi grup"
+    "atur lokasi grup",
+    "simpan koordinat untuk grup",
+    "saya mau memberi grup kota lintang dan bujur",
+    "geocode grup dari namanya"
   ],
   "set_my_display_language": [
     "ganti bahasa tampilan",
@@ -2700,7 +3123,10 @@
   "set_period_close_lag": [
     "simpan jeda penutupan",
     "tetapkan jumlah hari sampai penutupan setelah akhir periode",
-    "catat tenggang waktu penutupan otomatis"
+    "catat tenggang waktu penutupan otomatis",
+    "setel jeda penutupan periode jadi 3 hari",
+    "tetapkan penutupan 10 hari setelah periode berakhir",
+    "periode ditutup seminggu setelah berakhir"
   ],
   "set_planning_deadline_lead": [
     "simpan tenggang waktu perencanaan",
@@ -2708,32 +3134,47 @@
   ],
   "set_planning_profile_parameters": [
     "atur parameter profil perencanaan",
-    "masukkan nilai profil perencanaan"
+    "masukkan nilai profil perencanaan",
+    "tentukan industri dan batas jam kerja di profil perencanaan",
+    "saya mau mengatur waktu istirahat dan lembur di draf",
+    "masukkan nilai untuk profil perencanaan baru"
   ],
   "set_proactive_governance": [
     "biarkan itu ditangani sendiri",
     "cukup laporkan saja itu",
-    "aktifkan sakelar mati utama"
+    "aktifkan sakelar mati utama",
+    "atur seberapa mandiri klacksy untuk jenis temuan ini",
+    "mulai sekarang cukup beri tahu saya untuk jenis temuan ini",
+    "klacksy boleh mengerjakan kasus ini sendiri ke depannya"
   ],
   "set_sealed_order_until_date": [
     "tetapkan tanggal akhir untuk pesanan yang disegel",
     "batasi order tersegel sampai tanggal tertentu",
     "akhiri pesanan tersegel pada tanggal",
-    "tambahkan tanggal akhir ke pesanan yang sudah disegel"
+    "tambahkan tanggal akhir ke pesanan yang sudah disegel",
+    "isi tanggal akhir pada order yang disegel",
+    "susulkan tanggal berakhir untuk order tersegel",
+    "tetapkan tanggal akhir satu kali untuk order terkunci"
   ],
   "set_shift_preferences": [
     "atur preferensi shift untuk karyawan",
     "prioritaskan karyawan di shift ini",
     "blacklist karyawan dari shift",
     "setel shift favorit",
-    "ubah preferensi shift"
+    "ubah preferensi shift",
+    "jadikan karyawan ini pilihan utama untuk shift pagi",
+    "masukkan karyawan ke daftar hitam untuk shift ini",
+    "kecualikan seorang karyawan dari shift malam"
   ],
   "set_shift_required_qualification": [
     "tetapkan kualifikasi yang dibutuhkan shift",
     "atur syarat kualifikasi shift",
     "wajibkan kualifikasi untuk shift ini",
     "tambah persyaratan kualifikasi shift",
-    "set minimal level untuk shift"
+    "set minimal level untuk shift",
+    "wajibkan sim untuk shift ini",
+    "tetapkan level minimal 3 untuk kualifikasi di shift",
+    "shift ini hanya boleh diisi yang punya sertifikat"
   ],
   "set_user_group_scope": [
     "menetapkan cakupan grup untuk pengguna",
@@ -2757,7 +3198,10 @@
   "start_company_rule": [
     "buat aturan perusahaan baru",
     "mulai mendefinisikan aturan perusahaan",
-    "tambahkan aturan perusahaan baru"
+    "tambahkan aturan perusahaan baru",
+    "saya mau membuat aturan internal baru",
+    "bantu saya menyusun aturan tunjangan untuk perusahaan",
+    "mulai aturan penghitungan baru bersama klacksy"
   ],
   "start_guided_tour": [
     "mulai tur panduan klacks",
@@ -2769,31 +3213,46 @@
   ],
   "start_planning_profile_setup": [
     "buat profil perencanaan khusus",
-    "mulai penyiapan profil perencanaan"
+    "mulai penyiapan profil perencanaan",
+    "saya mau menyiapkan profil perencanaan sendiri",
+    "mulai pengaturan aturan perencanaan terpandu",
+    "susun profil perencanaan bersama klacksy"
   ],
   "start_wizard1": [
     "jalankan wizard 1 untuk grup [groupid] periode [periodfrom] sampai [perioduntil]",
     "buat rencana awal coverage untuk grup [groupid]",
     "mulai planner coverage-first grup [groupid]",
     "generate rencana dasar dengan wizard 1",
-    "jalankan wizard 1 tanpa harmonisasi"
+    "jalankan wizard 1 tanpa harmonisasi",
+    "jalankan hanya wizard 1 untuk grup ini",
+    "mulai planner tokenevolution",
+    "buat draf rencana pertama yang menutup semua shift dulu"
   ],
   "start_wizard2": [
     "jalankan wizard 2 untuk menghaluskan rencana grup [groupid]",
     "seimbangkan jadwal grup [groupid] dengan wizard 2",
     "harmonisasi rencana dengan wizard 2",
     "smooth jadwal menggunakan wizard 2",
-    "jalankan harmonizer pada grup [groupid]"
+    "jalankan harmonizer pada grup [groupid]",
+    "jalankan harmonizer pada rencana sekarang",
+    "haluskan rencana tanpa mengubah cakupan",
+    "mulai wizard 2 pada skenario yang baru diterapkan"
   ],
   "start_wizard3": [
     "jalankan wizard 3 untuk polesan akhir grup [groupid]",
     "optimasi holistik dengan wizard 3",
     "terapkan llm polish pada rencana grup [groupid]",
     "finishing rencana dengan wizard 3",
-    "jalankan holistic harmonizer untuk grup [groupid]"
+    "jalankan holistic harmonizer untuk grup [groupid]",
+    "jalankan wizard ketiga saja",
+    "poles lagi rencana yang sudah diharmonisasi",
+    "mulai holistic harmonizer dengan analyse token"
   ],
   "stash_pending_note": [
-    "parkir catatan"
+    "parkir catatan",
+    "ingat ini untuk nanti sebagai catatan",
+    "saya mau menaruh pengingat untuk disampaikan nanti",
+    "simpan informasi ini untuk disampaikan setelahnya"
   ],
   "test_imap_connection": [
     "menguji koneksi IMAP",
@@ -2820,7 +3279,10 @@
     "jalankan import erp langsung",
     "proses file order sekarang",
     "paksa import pesanan",
-    "impor manual erp"
+    "impor manual erp",
+    "proses file erp yang diunggah sekarang juga",
+    "mulai impor order tanpa menunggu",
+    "jalankan impor pesanan secara manual"
   ],
   "unconfirm_break": [
     "buka kunci cuti",
@@ -2828,35 +3290,50 @@
     "lepas kunci absen",
     "buka kunci entri libur",
     "batalkan kunci ketidakhadiran",
-    "biarkan entri libur bisa dihapus"
+    "biarkan entri libur bisa dihapus",
+    "buka kunci entri izin sakit supaya bisa dihapus lagi",
+    "lepas penguncian pada entri cuti",
+    "hilangkan konfirmasi dari entri absen ini"
   ],
   "unconfirm_work": [
     "buka kunci assignment",
     "batalkan konfirmasi shift",
     "lepas kunci jadwal",
     "unconfirm pekerjaan shift",
-    "revoke konfirmasi"
+    "revoke konfirmasi",
+    "cabut konfirmasi entri kerja ini",
+    "buat penugasan bisa diedit lagi oleh wizard",
+    "kembalikan entri kerja terkonfirmasi menjadi terbuka"
   ],
   "uninstall_feature_plugin": [
     "hapus modul tambahan",
     "uninstall plugin fitur",
     "cabut ekstensi",
     "buang modul fitur",
-    "hilangkan add-on"
+    "hilangkan add-on",
+    "copot plugin",
+    "saya mau menghapus modul fitur yang terpasang",
+    "keluarkan add-on dari sistem"
   ],
   "uninstall_language_pack": [
     "hapus paket bahasa",
     "nonaktifkan bahasa",
     "buang bahasa dari sistem",
     "uninstall paket bahasa",
-    "matikan paket bahasa"
+    "matikan paket bahasa",
+    "copot paket bahasa polandia",
+    "nonaktifkan paket bahasa lewat kodenya dan hapus datanya",
+    "matikan bahasa tambahan ini di antarmuka"
   ],
   "uninstall_whisper_plugin": [
     "hapus plugin whisper",
     "uninstall model transkripsi lokal",
     "kembalikan transkripsi ke layanan eksternal",
     "hapus model speech-to-text lokal",
-    "nonaktifkan transkripsi lokal"
+    "nonaktifkan transkripsi lokal",
+    "buang model suara lokal dari server",
+    "input suara harus kembali ke layanan eksternal",
+    "saya mau menyingkirkan model suara lokal"
   ],
   "update_absence": [
     "ubah tipe absensi",
@@ -2864,25 +3341,37 @@
     "perbarui pengaturan absen",
     "konfigurasi ulang tipe absensi",
     "edit nama jenis ketidakhadiran",
-    "ubah apakah libur masuk hitungan"
+    "ubah apakah libur masuk hitungan",
+    "jenis absen ini harus menghitung akhir pekan juga",
+    "ubah tanda berbayar pada jenis absen",
+    "ganti nama jenis absen sakit"
   ],
   "update_absence_type": [
     "ubah jenis absen",
-    "ganti warna jenis absen"
+    "ganti warna jenis absen",
+    "ubah singkatan jenis absen",
+    "jadikan jenis absen ini tidak dibayar",
+    "ubah durasi bawaan kategori absen"
   ],
   "update_active_industries_settings": [
     "ubah bidang usaha",
     "set industri aktif",
     "ganti profil industri",
     "pilih industri untuk sistem",
-    "atur bidang usaha yang berjalan"
+    "atur bidang usaha yang berjalan",
+    "siapkan instalasi untuk perawatan kesehatan dan keamanan",
+    "aktifkan juga sektor perhotelan",
+    "pertahankan hanya logistik sebagai industri aktif"
   ],
   "update_address": [
     "ubah alamat klien",
     "edit alamat karyawan",
     "perbaiki alamat pelanggan",
     "perbarui detail alamat",
-    "koreksi alamat"
+    "koreksi alamat",
+    "koreksi jalan dan kode pos karyawan",
+    "ganti tipe alamat dari utama ke alamat penagihan",
+    "sesuaikan kota pada alamat ini"
   ],
   "update_agent_skill": [
     "memperbarui kemampuan asisten",
@@ -2921,7 +3410,10 @@
     "edit anotasi klien",
     "perbarui teks catatan",
     "ganti isi catatan",
-    "koreksi catatan"
+    "koreksi catatan",
+    "tulis ulang teks catatan karyawan",
+    "betulkan kalimat keterangan pada karyawan",
+    "ganti catatan karyawan dengan teks baru"
   ],
   "update_branch": [
     "memperbarui data kantor cabang",
@@ -2936,18 +3428,27 @@
     "edit cuti karyawan",
     "perbarui data sakit",
     "koreksi hari libur",
-    "ubah waktu absen"
+    "ubah waktu absen",
+    "perpanjang tanggal akhir cuti",
+    "ganti absen ke jenis lain",
+    "koreksi jam yang dihitung pada absen"
   ],
   "update_break_placeholder": [
     "geser absensi terencana",
     "pindahkan jadwal cuti",
     "perpanjang ketidakhadiran",
     "ubah jenis absensi",
-    "persingkat absensi yang direncanakan"
+    "persingkat absensi yang direncanakan",
+    "mundurkan cuti terencana seminggu",
+    "ubah absensi terencana menjadi izin sakit",
+    "tambahkan catatan pada absen terencana"
   ],
   "update_calendar_selection": [
     "ganti nama pilihan kalender",
-    "gabungkan kalender hari libur"
+    "gabungkan kalender hari libur",
+    "ubah nama pilihan kalender",
+    "keluarkan satu wilayah dari pilihan hari libur",
+    "tambahkan sebuah kanton ke pilihan kalender"
   ],
   "update_client": [
     "ubah alamat [firstname] [lastname] menjadi [street] [zip] [city]",
@@ -2958,36 +3459,54 @@
     "tambah alamat untuk [firstname] [lastname]"
   ],
   "update_client_birthdate": [
-    "ubah tanggal lahir"
+    "ubah tanggal lahir",
+    "atur tanggal lahir baru untuk karyawan",
+    "koreksi tanggal lahir orang ini",
+    "saya mau mengganti ulang tahun karyawan"
   ],
   "update_client_gender": [
-    "ubah jenis kelamin"
+    "ubah jenis kelamin",
+    "atur gender karyawan",
+    "ganti gender pelanggan jadi perempuan",
+    "tandai klien ini sebagai badan hukum"
   ],
   "update_client_type": [
     "ubah menjadi pelanggan",
     "ubah menjadi karyawan",
     "ubah kategori klien",
     "ubah status orang",
-    "ubah tipe entitas"
+    "ubah tipe entitas",
+    "catat orang ini sebagai pelanggan mulai sekarang",
+    "ubah pekerja eksternal menjadi karyawan tetap",
+    "jadikan pelanggan ini karyawan yang bisa dijadwalkan lagi"
   ],
   "update_communication": [
     "ubah alamat email klien",
     "perbaiki nomor telepon klien",
     "edit catatan kontak",
     "perbarui detail komunikasi",
-    "ubah nilai komunikasi"
+    "ubah nilai komunikasi",
+    "ganti nomor ponsel lama karyawan dengan yang baru",
+    "tulis ulang catatan kontak karyawan",
+    "ubah prefiks entri telepon"
   ],
   "update_compensatory_rest_settings": [
     "aktifkan pencatatan pengganti istirahat",
     "ubah batas hari pengajuan pengganti istirahat",
-    "ubah pengaturan pengganti istirahat untuk hari kerja yang dilindungi"
+    "ubah pengaturan pengganti istirahat untuk hari kerja yang dilindungi",
+    "aktifkan hak istirahat pengganti untuk kerja di hari libur",
+    "saya mau mengubah jumlah hari pemberian istirahat pengganti",
+    "setel tenggat istirahat pengganti 14 hari"
   ],
   "update_compliance_enforcement_settings": [
     "ubah tingkat kepatuhan",
     "set kepatuhan menjadi ketat",
     "ubah dari peringatan ke blokir",
     "atur apakah atasan bisa override",
-    "perbarui pengaturan kepatuhan"
+    "perbarui pengaturan kepatuhan",
+    "tolak pelanggaran waktu istirahat mulai sekarang",
+    "izinkan atasan menimpa aturan jam kerja",
+    "setel reaksi untuk jam maksimum terlampaui menjadi tolak"
   ],
   "update_contract": [
     "ubah kontrak",
@@ -3004,7 +3523,10 @@
     "perbarui aturan batas berapa kali",
     "modifikasi aturan hitung yang ada",
     "ubah batas jumlah dinas malam",
-    "ubah aturan dari peringatan menjadi larangan"
+    "ubah aturan dari peringatan menjadi larangan",
+    "naikkan batas shift malam menjadi tiga per bulan",
+    "ubah peringatan pada aturan hitung jadi blokir keras",
+    "ganti jendela hitung aturan jadi satu minggu"
   ],
   "update_data_retention_settings": [
     "atur masa retensi data",
@@ -3033,19 +3555,28 @@
     "perbarui folder pengambilan file",
     "ganti lokasi drop file erp",
     "ubah nama titik serah",
-    "aktifkan atau nonaktifkan pengambilan file"
+    "aktifkan atau nonaktifkan pengambilan file",
+    "ubah path folder titik serah erp",
+    "ganti nama titik serah untuk sistem luar",
+    "nyalakan lagi pengambilan file erp"
   ],
   "update_expense": [
     "ubah biaya yang sudah ada",
     "perbaiki jumlah biaya",
     "edit deskripsi biaya",
     "sesuaikan pengeluaran",
-    "koreksi biaya"
+    "koreksi biaya",
+    "ubah deskripsi entri biaya",
+    "jadikan biaya ini tunjangan kena pajak",
+    "set biaya ke jumlah baru"
   ],
   "update_export_formats_settings": [
     "izinkan format file ekspor tertentu",
     "nonaktifkan format output tertentu",
-    "setel sistem penggajian default untuk transfer"
+    "setel sistem penggajian default untuk transfer",
+    "aktifkan format file ekspor lain",
+    "pilih format ekspor mana yang diizinkan",
+    "ganti penerima penggajian bawaan"
   ],
   "update_general_settings": [
     "ubah nama aplikasi",
@@ -3057,13 +3588,19 @@
     "ubah warna untuk hari minggu di papan jadwal",
     "ganti warna latar belakang papan",
     "beri warna berbeda untuk hari libur",
-    "ubah warna header papan jadwal"
+    "ubah warna header papan jadwal",
+    "warnai hari sabtu di jadwal abu-abu muda",
+    "set warna teks papan ke #333333",
+    "sesuaikan warna selang-seling bulan di grid"
   ],
   "update_group": [
     "ubah nama grup [groupid] menjadi [name]",
     "perbarui deskripsi grup [groupid]",
     "edit tanggal berlaku grup [groupid]",
-    "ubah validitas grup [groupid]"
+    "ubah validitas grup [groupid]",
+    "ubah deskripsi grup ini",
+    "sesuaikan tanggal berlaku grup",
+    "pakai kalender libur lain untuk grup"
   ],
   "update_identity_provider": [
     "ubah penyedia identitas",
@@ -3085,7 +3622,10 @@
     "perbarui siklus perhitungan sendiri",
     "ganti nama periode khusus",
     "sesuaikan tanggal pada periode custom",
-    "ubah skema periode yang ada"
+    "ubah skema periode yang ada",
+    "ganti nama skema rentang tanggal",
+    "tetapkan segmen baru untuk skema periode individual",
+    "mundurkan tanggal mulai satu segmen dalam skema"
   ],
   "update_llm_model": [
     "memperbarui model AI",
@@ -3108,34 +3648,52 @@
     "perbarui skrip perhitungan",
     "edit formula kalkulasi",
     "sesuaikan skrip makro",
-    "ganti isi makro"
+    "ganti isi makro",
+    "tulis ulang isi sebuah makro",
+    "ganti nama makro",
+    "ganti deskripsi skrip"
   ],
   "update_membership": [
     "ubah keanggotaan",
     "edit masa afiliasi",
     "sesuaikan tanggal mulai",
     "ubah masa keanggotaan",
-    "perbarui keanggotaan"
+    "perbarui keanggotaan",
+    "geser tanggal mulai berlaku keanggotaan",
+    "buat keanggotaan tanpa batas akhir",
+    "tentukan ulang sejak kapan karyawan bisa dijadwalkan"
   ],
   "update_monthly_target_hours": [
     "ubah jam target bulan ini",
     "koreksi jam target untuk bulan januari",
     "perbaiki jam sasaran bulanan",
     "ubah jam kerja standar bulan ini",
-    "sesuaikan jam target bulan tertentu"
+    "sesuaikan jam target bulan tertentu",
+    "ubah jam target januari 2026 dari 184 jadi 176",
+    "koreksi jam target maret belakangan",
+    "turunkan angka bulanan untuk desember"
   ],
   "update_my_account": [
     "perbarui akun saya",
-    "ubah nama tampilan saya"
+    "ubah nama tampilan saya",
+    "saya mau ganti nama belakang di akun saya",
+    "ganti email yang saya pakai untuk login",
+    "atur nama login baru untuk akun saya sendiri"
   ],
   "update_navigation_synonyms": [
     "tambahkan sinonim navigasi baru",
-    "ajari klacksy frasa ini"
+    "ajari klacksy frasa ini",
+    "tambahkan sebutan lain untuk tujuan navigasi",
+    "klacksy harus paham frasa ini untuk halaman itu",
+    "daftarkan frasa navigasi baru untuk satu bahasa"
   ],
   "update_openroute_settings": [
     "ubah ambang waktu perjalanan minimum",
     "simpan kunci api untuk layanan routing",
-    "setel durasi perjalanan minimum yang dihitung"
+    "setel durasi perjalanan minimum yang dihitung",
+    "masukkan api key untuk openroute",
+    "saya mau mengubah waktu tempuh minimum untuk mobil sepeda dan jalan kaki",
+    "perbarui kunci routing di pengaturan"
   ],
   "update_overtime_settings": [
     "ubah pembayaran untuk jam lembur",
@@ -3144,7 +3702,10 @@
     "ubah basis perhitungan lembur",
     "setel tarif lembur untuk tahap kedua",
     "ubah koefisien tambahan waktu tingkat 1",
-    "setel kredit waktu tetap per jam untuk lembur"
+    "setel kredit waktu tetap per jam untuk lembur",
+    "ubah pengaturan lembur",
+    "atur mulai jam ke berapa lembur dikreditkan",
+    "tingkatkan faktor pengali jam lembur"
   ],
   "update_owner_address": [
     "ubah alamat perusahaan",
@@ -3158,42 +3719,60 @@
     "ganti pengaturan lokal perusahaan",
     "setel kalender hari libur global",
     "konfigurasi negara dan zona waktu",
-    "atur pengaturan regional perusahaan"
+    "atur pengaturan regional perusahaan",
+    "pindahkan perusahaan ke kanton bern",
+    "ganti zona waktu instalasi ke europe/berlin",
+    "pakai kalender libur zurich sebagai kalender global"
   ],
   "update_period_cap_rule": [
     "ubah aturan batas jam kerja",
     "perbarui batas jam per periode",
     "ubah ceiling jam kerja",
     "ubah batas jam lembur",
-    "modifikasi aturan batas jam"
+    "modifikasi aturan batas jam",
+    "set batas lembur menjadi 50 jam",
+    "ganti plafon jam dari bulanan ke kuartalan",
+    "geser ambang peringatan batas jam ke 80 persen"
   ],
   "update_qualification": [
     "ubah kualifikasi",
     "edit nama kualifikasi",
     "perbarui data kualifikasi",
     "ganti kategori kualifikasi",
-    "sesuaikan kualifikasi"
+    "sesuaikan kualifikasi",
+    "koreksi nama sebuah kualifikasi",
+    "pindahkan kualifikasi ke kategori lain",
+    "sesuaikan masa berlaku kualifikasi"
   ],
   "update_report_template": [
     "ubah template laporan",
     "edit layout cetak",
     "perbarui format cetak",
     "ganti nama template laporan",
-    "ubah pengaturan template cetak"
+    "ubah pengaturan template cetak",
+    "perbarui nama template cetak",
+    "ubah deskripsi layout laporan",
+    "atur cara baris berulang digabung di template"
   ],
   "update_restricted_time_window_rule": [
     "ubah aturan jam terlarang",
     "perbarui jam dilarang",
     "ubah jam terlarang untuk musim ini",
     "modifikasi aturan pembatasan waktu",
-    "ubah jam dilarang untuk grup tertentu"
+    "ubah jam dilarang untuk grup tertentu",
+    "ubah jam larangan aturan jadi jam 10 malam sampai 6 pagi",
+    "berlakukan larangan jam hanya di musim panas",
+    "geser jendela waktu terlarang mundur satu jam"
   ],
   "update_schedule_note": [
     "ubah catatan jadwal",
     "edit catatan harian di jadwal",
     "perbarui isi catatan jadwal",
     "koreksi catatan penjadwalan",
-    "ubah catatan tanggal"
+    "ubah catatan tanggal",
+    "ubah kalimat catatan di jadwal",
+    "pindahkan catatan jadwal ke hari lain",
+    "edit teks catatan perencanaan yang ada"
   ],
   "update_scheduling_defaults": [
     "memperbarui pengaturan penjadwalan",
@@ -3216,7 +3795,10 @@
     "ubah data shift",
     "perbarui shift",
     "modifikasi shift",
-    "sesuaikan shift"
+    "sesuaikan shift",
+    "ubah jam selesai shift draf menjadi 18:00",
+    "naikkan jumlah personel yang dibutuhkan shift jadi 3",
+    "ganti singkatan dan deskripsi shift"
   ],
   "update_spam_filter_settings": [
     "memperbarui pengaturan spam",
@@ -3231,7 +3813,10 @@
     "perbarui pola spam",
     "sesuaikan aturan blokir",
     "ubah urutan aturan spam",
-    "edit filter email"
+    "edit filter email",
+    "ganti kata kunci aturan spam",
+    "nonaktifkan satu aturan spam",
+    "hidupkan lagi aturan pesan sampah"
   ],
   "update_speech_settings": [
     "ubah suara asisten",
@@ -3239,7 +3824,10 @@
     "aktifkan atau nonaktifkan pembacaan jawaban",
     "izinkan menyela saat asisten berbicara",
     "ubah durasi hening sebelum kalimat selesai",
-    "atur pengaturan bicara asisten"
+    "atur pengaturan bicara asisten",
+    "ganti keluaran suara ke suara lain",
+    "ubah model transkripsi untuk input suara",
+    "atur berapa lama hening menandai akhir kalimat"
   ],
   "update_surcharge_mode_settings": [
     "ubah tunjangan menjadi jumlah tetap",
@@ -3248,21 +3836,30 @@
     "hentikan penambahan tunjangan bersamaan",
     "ubah cara tunjangan dihitung",
     "ubah mode tambahan waktu menjadi kredit waktu tetap per jam",
-    "atur kredit waktu minimum dan tambahan waktu malam"
+    "atur kredit waktu minimum dan tambahan waktu malam",
+    "jam malam diatur dari jam 22 sampai 6 pagi",
+    "tetapkan kredit minimum per jam untuk tunjangan",
+    "hitung hanya tunjangan tertinggi per jam"
   ],
   "update_transcription_dictionary_entry": [
     "perbarui entri kamus transkripsi",
     "ubah istilah di kamus transkripsi",
     "edit variasi fonetik entri kamus",
     "modifikasi koreksi pengucapan",
-    "perbaiki istilah pada kamus transkripsi"
+    "perbaiki istilah pada kamus transkripsi",
+    "koreksi istilah di kamus pengenalan suara",
+    "ubah ejaan sebuah entri untuk fitur dikte",
+    "tambahkan lebih banyak varian bunyi mirip pada istilah kamus"
   ],
   "update_user": [
     "perbaiki data login karyawan",
     "ubah nama pengguna",
     "koreksi email user",
     "ganti nama depan belakang user",
-    "perbarui detail akun user"
+    "perbarui detail akun user",
+    "betulkan salah ketik pada nama akun pengguna",
+    "ganti alamat email pengguna lain",
+    "ubah nama login rekan kerja"
   ],
   "update_web_search_settings": [
     "memperbarui pengaturan pencarian web",
@@ -3270,16 +3867,25 @@
     "ubah pengaturan pencarian web",
     "perbarui provider pencarian",
     "atur kunci api pencarian",
-    "setel hasil maksimal pencarian"
+    "setel hasil maksimal pencarian",
+    "ganti penyedia pencarian web",
+    "masukkan kunci api baru untuk pencarian web",
+    "naikkan jumlah hasil maksimal per pencarian internet"
   ],
   "update_wizard_settings": [
     "ganti model harmonisasi jadwal ke model lain",
     "atur model untuk merombak seluruh jadwal",
-    "pilih model bahasa untuk harmonisasi"
+    "pilih model bahasa untuk harmonisasi",
+    "ganti harmonizer ke pencarian lokal",
+    "pilih model bahasa untuk harmonizer jadwal",
+    "ubah pengaturan harmonizer"
   ],
   "update_work": [
     "ubah waktu tugas yang dijadwalkan",
-    "sesuaikan jam penugasan di jadwal"
+    "sesuaikan jam penugasan di jadwal",
+    "geser jam mulai dan selesai entri kerja yang sudah dijadwalkan",
+    "koreksi jam kerja pada shift yang sudah ditempatkan",
+    "ubah catatan di entri kerja terjadwal"
   ],
   "update_work_settings": [
     "ubah pengaturan kerja",
@@ -3294,7 +3900,10 @@
     "edit koreksi shift",
     "perbarui data penggantian",
     "ubah jam mulai atau selesai workchange",
-    "sesuaikan catatan perjalanan"
+    "sesuaikan catatan perjalanan",
+    "ubah koreksi jam pada shift",
+    "sesuaikan tunjangan penggantian setelahnya",
+    "tandai entri sebagai tidak dapat ditagih"
   ],
   "validate_address": [
     "memvalidasi alamat",
@@ -3331,18 +3940,30 @@
   ],
   "start_order_review": [
     "tinjau pesanan terbuka sebelum disegel",
-    "peninjauan bersama pesanan terbuka"
+    "peninjauan bersama pesanan terbuka",
+    "mulai tinjauan pesanan",
+    "ayo kita bahas pesanan terbuka bersama",
+    "kelompokkan pesanan serupa dan telusuri yang menyimpang"
   ],
   "set_order_review_decision": [
-    "catat jawaban peninjauan pesanan"
+    "catat jawaban peninjauan pesanan",
+    "pecah pesanan menjadi layanan 3x8",
+    "tetapkan jam mulai untuk pesanan 24 jam",
+    "isi biaya perjalanan untuk bundel ini"
   ],
   "preview_order_review": [
     "status peninjauan pesanan"
   ],
   "cancel_order_review": [
-    "hentikan peninjauan pesanan"
+    "hentikan peninjauan pesanan",
+    "akhiri penelusuran pesanan terbuka",
+    "buang sesi peninjauan dan keluar",
+    "keluar dari telusur pesanan terbuka"
   ],
   "execute_order_review": [
-    "terapkan peninjauan pesanan yang dikonfirmasi"
+    "terapkan peninjauan pesanan yang dikonfirmasi",
+    "jalankan tinjauan pesanan yang sudah dikonfirmasi",
+    "tulis nilai yang diputuskan ke pesanan terbuka",
+    "potong pesanan menjadi layanan sekarang"
   ]
 }

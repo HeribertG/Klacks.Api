@@ -4,14 +4,20 @@
     "ta i bruk dette forslaget",
     "bekreft planen fra veiviseren",
     "implementer scenario",
-    "godta veiviserens forslag"
+    "godta veiviserens forslag",
+    "ta veiviserens forslag inn i den ekte vaktplanen",
+    "godkjenn scenarioet og flytt det til hovedplanen",
+    "jeg vil bokføre resultatet fra autowizard"
   ],
   "accept_skill_relation": [
     "bekreft sammenhengen mellom ferdighetene",
     "godkjenn den lærte koblingen",
     "la denne sammenhengen telle",
     "bekreft at denne sammenhengen er riktig",
-    "godta forholdet mellom ferdighetene"
+    "godta forholdet mellom ferdighetene",
+    "godta den foreslåtte ferdighetskoblingen",
+    "bekreft den foreslåtte koblingen mellom de to evnene",
+    "godkjenn denne ventende sammenhengen"
   ],
   "add_ai_memory": [
     "hukommelse",
@@ -31,27 +37,39 @@
   "add_break_placeholder": [
     "ferieønske",
     "forhåndsreservasjon av fravær",
-    "feriesøknad"
+    "feriesøknad",
+    "legg inn et ferieønske fra 3. til 14. august",
+    "forhåndsregistrer sommerferieønskene til anna",
+    "lagre ferieforespørselen til den ansatte som plassholder"
   ],
   "add_client_email": [
     "legg til e-post for",
     "oppdater e-postadresse",
     "ny e-post til ansatt",
     "legg til epost",
-    "endre e-post"
+    "endre e-post",
+    "sett e-postadressen til en kunde",
+    "endre e-posten for denne ansatte",
+    "legg inn en ny mailadresse for klienten"
   ],
   "add_client_note": [
     "legg til merknad for",
     "skriv notat til",
     "angi kommentar for",
-    "legg til notat om ansatt"
+    "legg til notat om ansatt",
+    "fest et notat til denne ansatte",
+    "jeg vil skrive en merknad på kunden",
+    "legg en kommentar på personkortet"
   ],
   "add_client_phone": [
     "legg til telefonnummer for",
     "oppdater telefon til",
     "nytt mobilnummer for",
     "legg til telefon til ansatt",
-    "endre telefonnummer"
+    "endre telefonnummer",
+    "lagre et nytt mobilnummer for en ansatt",
+    "legg et kontaktnummer til denne personen",
+    "registrer telefonnummer for en kunde"
   ],
   "add_client_to_group": [
     "legg til i gruppe",
@@ -65,7 +83,10 @@
     "tilordne til gruppe",
     "sett inn i gruppe",
     "legg person i gruppe",
-    "flytt til gruppe"
+    "flytt til gruppe",
+    "legg den ansatte til i teamet",
+    "sett denne personen inn i gruppen",
+    "jeg vil ta en kunde med i en gruppe"
   ],
   "add_client_to_nearest_group": [
     "legg kunden i nærmeste gruppe",
@@ -78,14 +99,20 @@
     "legg til en oppgave i containermalen",
     "sett en oppgavevakt inn i containerens mal",
     "ta opp oppgave i containervaktens mal",
-    "legg til task i containermalen på en ukedag"
+    "legg til task i containermalen på en ukedag",
+    "legg en vakt til i containerens mandagsmal",
+    "sett en oppgave på posisjon 2 i containermalen",
+    "utvid tirsdagsmalen med en ekstra oppgave"
   ],
   "add_expense": [
     "legg til en utgift på arbeidsloggen",
     "registrer utgift",
     "før inn en utleggspost",
     "bokfør en kostnad på vakt",
-    "logg et utlegg"
+    "logg et utlegg",
+    "legg til 250 kroner togbillett som utlegg på gårsdagens vakt",
+    "før opp parkeringsutgifter på vakten",
+    "registrer et skattepliktig tillegg på 300 kroner på tildelingen"
   ],
   "add_personal_memory": [
     "husk at jeg foretrekker kaffe fremfor te",
@@ -93,7 +120,10 @@
     "jeg liker å ha tidligvakter",
     "personlig preferanse: jeg vil ha helgefri",
     "sett en påminnelse om at jeg skal ha ferie i uke 32",
-    "merk for meg: jeg er allergisk mot nøtter"
+    "merk for meg: jeg er allergisk mot nøtter",
+    "husk at jeg helst vil ha korte svar",
+    "lagre en privat preferanse for meg til senere",
+    "ta med deg at jeg misliker helgeplanlegging"
   ],
   "add_schedule_command": [
     "sett yasmine fri 15. mai",
@@ -105,21 +135,30 @@
   "add_schedule_commands_range": [
     "fri periode",
     "kommandoer for periode",
-    "flere fridager"
+    "flere fridager",
+    "hun vil ha fri hver dag fra 10. til 20. mai",
+    "han ønsker bare tidligvakter hele juli",
+    "hold første uke i juni fri for ham"
   ],
   "add_schedule_note": [
     "legg til notat i plan",
     "opprett planotat",
     "legg inn merknad",
     "noter for klient",
-    "skriv planmerknad"
+    "skriv planmerknad",
+    "legg igjen et overleveringsnotat til en ansatt på tirsdag",
+    "skriv en kommentar på en bestemt dag i planen",
+    "fritekstnotat for én ansatt på én dag"
   ],
   "add_selected_clients_to_group": [
     "legg merkede ansatte til gruppe",
     "tilføy valgte til gruppe",
     "sett hukede i gruppe",
     "legg markerte rader i gruppe",
-    "overfør merkede til gruppe"
+    "overfør merkede til gruppe",
+    "putt de avkryssede ansatte inn i en gruppe",
+    "tilordne de valgte medarbeiderne til en gruppe",
+    "legg alle jeg har valgt i gruppen"
   ],
   "add_shift_to_group": [
     "legg til vakt 123 i gruppe oslo",
@@ -133,7 +172,10 @@
     "lær opp en ny fonetisk variant",
     "registrer en talekorreksjon",
     "legg til fonetisk stavefeilretting",
-    "opprett ordboksoppføring"
+    "opprett ordboksoppføring",
+    "lær talegjenkjenningen at klaxi betyr klacksy",
+    "legg inn en ny feilhøring i transkripsjonsordboken",
+    "diktering skal stave dette begrepet riktig fra nå av"
   ],
   "add_workchange": [
     "legg til korreksjon på vakt",
@@ -155,34 +197,52 @@
   "apply_company_rule": [
     "bruk bedriftsregelen",
     "lagre og bekreft bedriftsregelen",
-    "aktiver bedriftsregelen"
+    "aktiver bedriftsregelen",
+    "ta i bruk utkastet til bedriftsregelen nå",
+    "sett den forberedte tilleggsregelen i kraft",
+    "bruk regelutkastet og før det inn i registeret"
   ],
   "apply_grouping": [
     "bruk den foreslåtte grupperingen nå",
     "bekreft og flytt kundene til lokasjonsgruppene",
     "gjennomfør grupperingen nå",
-    "gå videre med grupperingen som ble forhåndsvist"
+    "gå videre med grupperingen som ble forhåndsvist",
+    "flytt alle ansatte inn i stedsgruppene sine",
+    "kjør stedsgrupperingen nå",
+    "lagre det foreslåtte stedsoppsettet"
   ],
   "apply_grouping_plan": [
     "bruk gruppeplanen",
-    "gjennomfør de foreslåtte gruppeendringene"
+    "gjennomfør de foreslåtte gruppeendringene",
+    "gjennomfør den godkjente gruppeplanen",
+    "sett de foreslåtte gruppeendringene ut i livet",
+    "kjør grupperingsplanen med koden"
   ],
   "apply_planning_profile": [
     "bruk planleggingsprofilen",
-    "lagre planleggingsprofilen"
+    "lagre planleggingsprofilen",
+    "ta i bruk utkastet til planleggingsprofil",
+    "aktiver mine egne planleggingsregler fra utkastet",
+    "opprett planleggingsprofilen nå"
   ],
   "approve_day": [
     "godkjenn dagen 15. mai",
     "frigi dagen for en gruppe",
     "send godkjenning for en dag",
     "godkjenn alle vakter en dag",
-    "signér av en dag"
+    "signér av en dag",
+    "godkjenn alle vakter på mandag for gruppen",
+    "signer av 15. mai for denne gruppen",
+    "jeg vil låse dagen som godkjent for teamet"
   ],
   "assign_contract_by_name": [
     "tildel kontrakt bare basert på navn",
     "jeg har ikke ID så bruk navnet for kontrakten",
     "koble kontrakten til denne personen basert på navn",
-    "finn ansatt via navn og tildel kontrakt"
+    "finn ansatt via navn og tildel kontrakt",
+    "koble en ansatt og en kontrakt bare med navn",
+    "gi ansatt med dette navnet deltidskontrakten",
+    "sett en ny kontrakt som aktiv for en ansatt via navn"
   ],
   "assign_contract_to_client": [
     "kontrakttildeling",
@@ -193,15 +253,24 @@
   ],
   "assign_macro_to_absence_type": [
     "tildel makro til fraværstype",
-    "bytt beregningsmakro for fraværstype"
+    "bytt beregningsmakro for fraværstype",
+    "bytt ferie til en annen beregningsmakro",
+    "jeg vil sette en ny formel for timegutskrift på sykefravær",
+    "koble ulykkesfraværet til en annen makro"
   ],
   "assign_macro_to_shift": [
     "tildel makro til vakt",
-    "bytt beregningsmakro for vakt"
+    "bytt beregningsmakro for vakt",
+    "legg den utvidede tilleggsformelen på nattvakten",
+    "gi denne vakten en annen makro",
+    "gå tilbake til standardformelen for vakten"
   ],
   "assign_orders_to_groups": [
     "grupper importerte bestillinger",
-    "bestillinger uten gruppe"
+    "bestillinger uten gruppe",
+    "legg alle åpne bestillinger i gruppene sine",
+    "sorter de importerte bestillingene i bygruppene etter erp-importen",
+    "plasser bestillinger uten gruppe automatisk i riktig stedsgruppe"
   ],
   "assign_shifts_to_city_groups": [
     "fordel vakter på bygrupper etter kundens adresse",
@@ -220,48 +289,72 @@
     "sett opp felles fravær for gruppen",
     "gi alle i gruppen samme fravær",
     "registrer gruppefravær på én dato",
-    "legg til fravær for alle medlemmer i gruppen"
+    "legg til fravær for alle medlemmer i gruppen",
+    "legg inn kursdag for alle i gruppen på fredag",
+    "jeg vil gi hele gruppen samme fravær én dag",
+    "før samme fravær på alle teammedlemmene på én dato"
   ],
   "bulk_add_shifts_to_group": [
     "legg til alle vakter som heter 'natt' i gruppe trondheim",
     "masseoppdater: legg alle dagvakter til team a",
     "knytt alle tjenester med navn 'ekstra' til avdeling b",
     "forhåndsvis hvilke vakter som matcher 'hjemmetjeneste'",
-    "sett alle ordre med 'turnus' i gruppa oslo"
+    "sett alle ordre med 'turnus' i gruppa oslo",
+    "legg alle nattevakter inn i samme gruppe",
+    "tilordne mange vakter til en gruppe på en gang",
+    "knytt alle tjenester med denne forkortelsen til avdelingen"
   ],
   "bulk_delete_works": [
     "slett alle vakter for en ansatt i en periode",
     "slett alle oppdrag i et datoområde",
     "fjern alle tildelinger i en periode",
-    "slett flere oppdrag samtidig"
+    "slett flere oppdrag samtidig",
+    "slett alle vaktene til en ansatt neste uke",
+    "fjern alle tildelinger på en bestemt vakt i denne perioden",
+    "tøm hele måneden med tildelinger for én ansatt"
   ],
   "bundle_nearby_timerange_shifts_into_container": [
     "samle mobile tjenester rundt en by",
     "hent nærliggende timerange-vakter",
-    "kombiner mobile tjenester i nærheten"
+    "kombiner mobile tjenester i nærheten",
+    "pakk alle mobile oppdrag rundt trondheim i en ny container",
+    "bygg en container for torsdag av nærliggende tidsrom-vakter",
+    "slå sammen rundene i nærheten av bergen til en dagscontainer"
   ],
   "cancel_company_rule": [
     "avbryt utkastet til bedriftsregel",
     "forkast den pågående bedriftsregelen",
-    "avbryt definisjonen av bedriftsregelen"
+    "avbryt definisjonen av bedriftsregelen",
+    "forkast bedriftsregelen jeg begynte på",
+    "avbryt utkastet til husregelen",
+    "ikke fortsett med å registrere regelen"
   ],
   "cancel_planning_profile_setup": [
     "avbryt oppsett av planleggingsprofil",
-    "forkast utkast til planleggingsprofil"
+    "forkast utkast til planleggingsprofil",
+    "avbryt oppsettet av planleggingsprofilen",
+    "forkast utkastet til planleggingsprofilen",
+    "avslutt profilveiviseren"
   ],
   "cancel_recurring_task": [
     "avbryt påminnelsen",
     "stopp den gjentakende oppgaven",
     "slett cron-jobben",
     "fjern planlagt oppgave",
-    "kanseller mandagspåminnelsen"
+    "kanseller mandagspåminnelsen",
+    "stopp den gjentakende påminnelsen min",
+    "avlys den planlagte cron-oppgaven",
+    "fjern ukepåminnelsen"
   ],
   "cancel_wizard_job": [
     "stopp planleggingen",
     "avbryt wizard",
     "kanseller jobben",
     "stopp wizard-prosessen",
-    "abortér planen"
+    "abortér planen",
+    "stopp den pågående planleggingsjobben",
+    "avslutt den automatiske planleggingskjøringen",
+    "stopp autowizard nå"
   ],
   "check_absence_capacity_reserve": [
     "kapasitetsreserve for ferie",
@@ -283,7 +376,10 @@
   "check_erp_drop_point_folder_health": [
     "sjekk mappehelsen for leveringspunktet",
     "overlever mappen en omstart",
-    "opprett processed og error mapper"
+    "opprett processed og error mapper",
+    "kan det skrives til erp-mappen",
+    "sjekk at erp-overleveringsmappen finnes og opprett den hvis den mangler",
+    "hvorfor hentes ikke bestillingsfilene, test mappen"
   ],
   "check_group_geocoding_status": [
     "geokodingsstatus"
@@ -291,18 +387,27 @@
   "clear_client_availability": [
     "nullstill medarbeiderens tilgjengelighet",
     "slett tilgjengelighetsoppføringer",
-    "tøm tilgjengeligheten så dagen åpnes igjen"
+    "tøm tilgjengeligheten så dagen åpnes igjen",
+    "slett alle tilgjengelighetsoppføringer i august",
+    "frigi dagen helt for planlegging igjen",
+    "fjern bare tilgjengeligheten på formiddagen"
   ],
   "close_clarification": [
     "jeg avklarer det selv med den ansatte",
-    "lukk oppfølgingsspørsmålet"
+    "lukk oppfølgingsspørsmålet",
+    "jeg tar oppklaringen selv",
+    "avslutt det åpne spørsmålet til den ansatte",
+    "ikke vent lenger på svaret om fraværet"
   ],
   "close_period": [
     "lukk perioden",
     "avslutt perioden",
     "lukk mai 2026",
     "seal perioden",
-    "lønnsavslutning for perioden"
+    "lønnsavslutning for perioden",
+    "lås alle timene fra forrige måned for godt",
+    "forsegl lønnsperioden og skriv revisjonsloggen",
+    "jeg vil avslutte perioden for lønn nå"
   ],
   "confirm_break": [
     "bekreft fraværet",
@@ -310,20 +415,29 @@
     "bekreft ferien",
     "sperr fraværet",
     "fastsett fraværet",
-    "frys fraværet"
+    "frys fraværet",
+    "gjør den innlagte ferien bindende",
+    "sett sykefraværet til bekreftet",
+    "bekreft fraværsføringen med break-id"
   ],
   "confirm_pending_action": [
     "bekreft handlingen",
     "ja, gjør det",
     "jeg bekrefter",
-    "utfør den ventende handlingen"
+    "utfør den ventende handlingen",
+    "ja, kjør handlingen som venter",
+    "ok, bekreftet, gå videre",
+    "godkjent, gjør det nøyaktig slik"
   ],
   "confirm_work": [
     "bekreft denne vaktordren",
     "lås vaktordren",
     "fiks vaktordren",
     "sikre vaktordren",
-    "godkjenn vaktordren"
+    "godkjenn vaktordren",
+    "gjør denne tildelingen endelig",
+    "beskytt vakten mot veiviserne",
+    "sett vaktføringen til bekreftet"
   ],
   "cover_absence": [
     "dekk et fravær",
@@ -337,18 +451,27 @@
     "legg til ny ferietype",
     "definer ny sykefraværstype",
     "ny abwesenheitsart",
-    "opprett fraværskategori"
+    "opprett fraværskategori",
+    "definer en ny fraværstype for studiepermisjon",
+    "jeg trenger en ny type fravær for militærtjeneste",
+    "legg til enda en type for ulønnet permisjon i stamdata"
   ],
   "create_absence_type": [
     "opprett en ny fraværstype",
-    "definer en ny fraværskategori"
+    "definer en ny fraværskategori",
+    "legg til en ny fraværstype i innstillingene",
+    "jeg vil opprette en ny permisjonstype med forkortelse og farge",
+    "ny fraværstype i stamdata der lørdag og søndag teller med"
   ],
   "create_address": [
     "opprett ny adresse",
     "legg til en adresse",
     "registrer en adresse",
     "ny adresse for ansatt eller kunde",
-    "legg til postadresse"
+    "legg til postadresse",
+    "lagre en fakturaadresse for kunden",
+    "legg til en forretningsadresse på denne kontakten",
+    "registrer en postadresse med land og kanton"
   ],
   "create_agent_skill": [
     "opprett ferdighet",
@@ -366,38 +489,56 @@
   ],
   "create_calendar_selection": [
     "opprett kalendervalg",
-    "opprett feriekalender"
+    "opprett feriekalender",
+    "slå sammen helligdagene fra to regioner i én kalender",
+    "nytt kalendervalg med tyskland og østerrike",
+    "bygg min egen feriekalender av flere land"
   ],
   "create_container_template": [
     "opprett en ukedagsmal for containeren",
     "lag en ny containermal",
     "legg til en dagsmal på containervakten",
-    "konfigurer en ukedag på containervakten"
+    "konfigurer en ukedag på containervakten",
+    "lag en dagsplan med tidsbudsjett for containeren på mandag",
+    "containeren mangler fortsatt en mal for onsdag",
+    "opprett tirsdagsmalen med start- og sluttsted"
   ],
   "create_contract": [
     "opprett kontrakt",
     "ny kontrakt",
     "ansettelseskontrakt",
-    "arbeidskontrakt"
+    "arbeidskontrakt",
+    "jeg vil opprette en ny kontraktmal med 40 timer i uka",
+    "registrer en deltidskontrakt med 20 timer",
+    "lag en kontraktmal med faste timer og fem dager"
   ],
   "create_contract_from_template": [
     "opprett kontrakt fra mal",
     "ny kontrakt basert på mal",
     "kopier kontraktmal",
-    "lag kontrakt fra en eksisterende mal"
+    "lag kontrakt fra en eksisterende mal",
+    "kopier heltidskontrakten og endre bare startdatoen",
+    "ny kontrakt som den eksisterende, men med 60 prosent stilling",
+    "bruk deltidskontrakten som mal med en annen helligdagsregion"
   ],
   "create_counter_rule": [
     "opprett en telleregel",
     "lag en regel for maks antall nattevakter",
     "begrens antall vakter per uke",
     "sett en øvre grense for hvor ofte noe skjer",
-    "ny telleregel for overtid"
+    "ny telleregel for overtid",
+    "tillat maks fem arbeidsdager i uka",
+    "varsle når noen får mer enn fire nattevakter i måneden",
+    "sett en øvre grense for helgevakter"
   ],
   "create_donation_checkout": [
     "donere til klacks",
     "opprett en donasjon",
     "jeg vil gi en donasjon",
-    "støtt klacks med et beløp"
+    "støtt klacks med et beløp",
+    "jeg vil gjerne gi 50 euro",
+    "lag en betalingslenke for en donasjon til prosjektet",
+    "åpne donasjonssiden for 20 dollar"
   ],
   "create_email_folder": [
     "opprett ny e-postmappe",
@@ -422,14 +563,20 @@
     "lag en innleveringsnøkkel",
     "ny nøkkel for filoverføring",
     "lag tilgangsnøkkel for ekstern system",
-    "lag en token for innlevering"
+    "lag en token for innlevering",
+    "jeg trenger en tilgangsnøkkel til overleveringspunktet",
+    "lag et nytt token for erp-filimporten",
+    "sett opp en nøkkel så eksternt system kan levere filer"
   ],
   "create_group": [
     "opprett ny gruppe",
     "legg til ny avdeling",
     "opprett team",
     "nytt sted",
-    "opprett nytt kontor"
+    "opprett nytt kontor",
+    "opprett en ny undergruppe under salgsgruppen",
+    "jeg vil starte et nytt team for nattevakten",
+    "registrer en ny organisasjonsenhet fra neste mandag"
   ],
   "create_identity_provider": [
     "opprett ny identitetsleverandør",
@@ -443,7 +590,10 @@
     "lag en individuell periode",
     "definer en egendefinert periode",
     "lag en ny tidsperiode",
-    "opprett en egen tidsperiode"
+    "opprett en egen tidsperiode",
+    "sett opp en periode som går fra den 26. til den 25.",
+    "lag et navngitt tidsskjema med startdatoer og heltidstimer",
+    "definer en lønnsperiode fra den 26. til den 25."
   ],
   "create_llm_model": [
     "opprett AI-modell",
@@ -463,21 +613,30 @@
     "lag et skript som summerer timer",
     "ny beregningsregel: nattillegg",
     "definer en formel for helgetillegg",
-    "lag makro for feriepenger"
+    "lag makro for feriepenger",
+    "lag en ny makro med dette skriptet",
+    "jeg vil lagre et nytt beregningsskript i innstillingene",
+    "registrer en formelmakro med dette navnet"
   ],
   "create_monthly_target_hours": [
     "sett mål timer for februar",
     "definer antall timer for en måned",
     "legg inn mål timer for neste år",
     "registrer månedens timeantall",
-    "angi at februar skal ha 160 timer"
+    "angi at februar skal ha 160 timer",
+    "legg inn 160 måltimer for februar",
+    "registrer en måned med avvikende måltimer",
+    "denne måneden teller bare 150 timer ved full stilling"
   ],
   "create_period_cap_rule": [
     "sett et tak på 170 timer i måneden",
     "lag en regel for maks arbeidstid",
     "begrens timer per måned",
     "ny stundstak for kvartalet",
-    "definer maks gjennomsnitt per uke"
+    "definer maks gjennomsnitt per uke",
+    "maks 48 timer i snitt over tolv uker",
+    "gi en advarsel ved 90 prosent av månedstimene",
+    "lag en øvre grense for overtid per periode"
   ],
   "create_personal_access_token": [
     "lag et personlig tilgangstoken",
@@ -490,28 +649,40 @@
     "opprett en plan",
     "flertrinnsplan",
     "flere oppgaver samtidig",
-    "lag en oppgaveplan"
+    "lag en oppgaveplan",
+    "jeg trenger en rekkefølge for kunde, bestilling og bemanning i ett strekk",
+    "sett dette sammen til en plan med flere trinn",
+    "foreslå hvordan vi gjennomfører alle disse endringene etter hverandre"
   ],
   "create_qualification": [
     "opprett ny kvalifikasjon",
     "lag ny sertifisering",
     "definer en ny kompetanse",
     "legg til kvalifikasjonstype",
-    "nytt sertifikat"
+    "nytt sertifikat",
+    "registrer en ny kvalifikasjon truckførerbevis",
+    "jeg vil lagre førstehjelp som kvalifikasjon",
+    "legg inn en kvalifikasjon med navn på fire språk i stamdata"
   ],
   "create_report_template": [
     "lag ny rapportmal",
     "opprett utskriftsmal",
     "lag mal for rapport",
     "ny mal for utskrift",
-    "opprett en ny rapportlayout"
+    "opprett en ny rapportlayout",
+    "legg til en ny layout for utskrift av vaktplanene",
+    "jeg trenger en mal for fraværsrapporten",
+    "lag en utskriftsvennlig fakturamal med sammenslåtte rader"
   ],
   "create_restricted_time_window_rule": [
     "opprett en sperretidsregel",
     "sperr klokkeslett mellom 22 og 06",
     "lag en regel som forbyr arbeid om natten",
     "sett en sesongbasert sperre",
-    "ny regel for forbudte tidspunkter"
+    "ny regel for forbudte tidspunkter",
+    "ikke arbeid mellom tolv og tre om sommeren",
+    "definer et sperret tidsvindu for en sesong hvert år",
+    "sperr kveldene fra november til mars for alle merket utendørs"
   ],
   "create_scheduling_rule": [
     "opprett planleggingsregel",
@@ -532,7 +703,10 @@
     "legg til en spamregel",
     "blokker et domene",
     "legg til et spam-mønster",
-    "stopp e-post fra denne adressen"
+    "stopp e-post fra denne adressen",
+    "sorter ut alle mailer fra dette domenet",
+    "klassifiser meldinger med dette emnet som søppelpost",
+    "legg et nøkkelord i mailteksten til spamfilteret"
   ],
   "create_test_environment": [
     "opprett testansatte",
@@ -540,7 +714,10 @@
     "generer testdata for vaktplan",
     "sett opp testgruppe med kontrakt",
     "opprett testomgivelse med skift",
-    "lag testdata med sveitsiske adresser"
+    "lag testdata med sveitsiske adresser",
+    "sett opp et komplett testmiljø for autofill",
+    "jeg trenger testansatte med gruppe og felles kontrakt",
+    "generer testdata med tidlig-, sen- og nattvakter"
   ],
   "create_user": [
     "opprett bruker",
@@ -556,30 +733,45 @@
     "splitt ordren i delvakter",
     "kutt en eksisterende vakt",
     "lag delskift av ordre",
-    "del opp vakten"
+    "del opp vakten",
+    "del 24-timersvakten i tidlig, sen og natt",
+    "kutt denne ordren i flere tidsavsnitt",
+    "jeg vil dele vakten i to delvakter"
   ],
   "cut_shift_by_date": [
     "kutt vakten på en bestemt dato",
     "del vakten i to på en dato",
     "splitt vakten fra en gitt dato",
-    "klipp vakten ved datoen"
+    "klipp vakten ved datoen",
+    "la vakten starte på nytt fra 1. juli",
+    "del vakten i to biter på en kalenderdag",
+    "avslutt serien på stikkdatoen og start på nytt etter den"
   ],
   "delete_absence": [
     "slett fraværstype",
     "fjern ferietype",
     "ta bort sykefravær",
     "slett en fraværsgrunn",
-    "arkiver fraværstype"
+    "arkiver fraværstype",
+    "slett fraværstypen ulønnet permisjon fra innstillingene",
+    "fjern en fraværstype som ikke trengs lenger",
+    "jeg vil legge ned en utdatert fraværstype"
   ],
   "delete_absence_type": [
     "slett fraværstypen",
-    "fjern fraværskategorien"
+    "fjern fraværskategorien",
+    "jeg vil slette en fraværstype",
+    "fjern denne fraværstypen fra stamdata",
+    "fraværskategorien er utdatert, slett den"
   ],
   "delete_address": [
     "slett en adresse",
     "fjern en adresse",
     "slett postadresse",
-    "fjern en adresseoppføring"
+    "fjern en adresseoppføring",
+    "bli kvitt den gamle hjemmeadressen",
+    "stryk postadressen til en person",
+    "ta den utdaterte adressen ut av profilen"
   ],
   "delete_agent_skill": [
     "slett ferdighet",
@@ -601,7 +793,10 @@
     "slett en merknad",
     "fjern en notat",
     "slett en anmerkning",
-    "fjern en merknad"
+    "fjern en merknad",
+    "slett notatet på den ansatte igjen",
+    "fjern kommentaren fra klienten",
+    "bli kvitt merknaden med denne id-en"
   ],
   "delete_branch": [
     "slett filial",
@@ -616,17 +811,26 @@
     "fjern en sykemelding",
     "avbryt ferie",
     "ta bort en sykedag",
-    "slett en fraværsperiode"
+    "slett en fraværsperiode",
+    "slett sykedagen fra tirsdag",
+    "ta ut et innlagt feriefravær igjen",
+    "fjern dette kursfraværet"
   ],
   "delete_break_placeholder": [
     "kanseller ferieønske",
     "slett planlagt fravær",
     "fjern forhåndsreservasjon av fravær",
-    "annuller planlagt fravær"
+    "annuller planlagt fravær",
+    "trekk tilbake det innlagte ferieønsket",
+    "avlys det foreløpige fraværet 12. august",
+    "slett plassholderen for fraværet"
   ],
   "delete_calendar_selection": [
     "slett kalendervalg",
-    "slett feriekalender"
+    "slett feriekalender",
+    "fjern et kalendervalg",
+    "bli kvitt den ubrukte feriekalenderen",
+    "jeg vil slette dette kalendervalget"
   ],
   "delete_client": [
     "slett ansatt",
@@ -640,12 +844,18 @@
     "fjern en e-postadresse",
     "slett et telefonnummer",
     "fjern en kontaktoppføring",
-    "slett en kommunikasjon"
+    "slett en kommunikasjon",
+    "fjern mobilnummeret fra kontakten",
+    "ta bort en kontaktopplysning for en ansatt",
+    "slett kundens utdaterte fasttelefonnummer"
   ],
   "delete_container_template": [
     "slett ukedagsmalene til containeren",
     "fjern alle maler fra containeren",
-    "nullstill containerens ukeplan"
+    "nullstill containerens ukeplan",
+    "fjern alle ukedagsmaler fra containeren",
+    "slett malene til containervakten helt",
+    "tøm containerens ukerutenett"
   ],
   "delete_contract": [
     "slett kontrakt",
@@ -653,18 +863,27 @@
     "ansettelseskontrakt sletting",
     "slett en kontraktmal",
     "fjern en kontrakt",
-    "deaktiver en kontrakt"
+    "deaktiver en kontrakt",
+    "ta denne kontraktmalen av listen for godt",
+    "bli kvitt kontrakten som ikke trengs lenger",
+    "slett den gamle deltidskontrakten fra systemet"
   ],
   "delete_counter_rule": [
     "slett en telleregel",
     "fjern begrensningen for hvor ofte",
     "opphev telleregel for nattevakter",
     "slutt å telle dette",
-    "ta bort telleregel for arbeidsdager"
+    "ta bort telleregel for arbeidsdager",
+    "fjern regelen som teller nattevakter",
+    "denne telleregelen var en feil, slett den",
+    "vi følger ikke dette tallet lenger, slett regelen"
   ],
   "delete_email": [
     "slett e-posten til papirkurven",
-    "flytt denne e-posten til papirkurven"
+    "flytt denne e-posten til papirkurven",
+    "fjern denne e-posten",
+    "jeg vil kaste den mottatte meldingen",
+    "slett meldingen fra innboksen"
   ],
   "delete_email_folder": [
     "slett e-postmappe",
@@ -678,33 +897,48 @@
     "slett en utgiftspost",
     "fjern et utlegg",
     "stornér en kostnad",
-    "annuller utgiften"
+    "annuller utgiften",
+    "slett gårsdagens utleggskvittering",
+    "fjern det feilregistrerte utlegget",
+    "jeg vil trekke tilbake en utleggspost"
   ],
   "delete_export_format_override": [
     "tilbakestill et eksportformat",
     "fjern tilpasningen av eksportformatet",
     "eksporter i standardformat igjen",
     "fjern eksporttilpasningen",
-    "tilbakestill eksporten"
+    "tilbakestill eksporten",
+    "slett min egen tilpasning av eksportformatet",
+    "sett eksportformatet tilbake til leveringstilstand",
+    "forkast den endrede eksportdefinisjonen"
   ],
   "delete_group": [
     "slett gruppe",
     "lukk team",
     "oppløs gruppe",
-    "slett hele undergruppen"
+    "slett hele undergruppen",
+    "slett hele stedet med alle undergrupper",
+    "legg ned avdelingen fullstendig",
+    "fjern den utdaterte gruppen fra treet"
   ],
   "delete_identity_provider": [
     "slett identitetsleverandør",
     "fjern sso-leverandør",
     "ta bort ldap-konfigurasjon",
-    "slett innloggingsleverandør"
+    "slett innloggingsleverandør",
+    "slett active directory-koblingen",
+    "fjern openid connect-leverandøren",
+    "skru av oauth2-innloggingskilden og slett den"
   ],
   "delete_individual_period": [
     "slett en individuell periode",
     "fjern en periode",
     "slett en egendefinert periode",
     "fjern en tidsperiode",
-    "slett en periode som ikke brukes lenger"
+    "slett en periode som ikke brukes lenger",
+    "slett skjemaet med egne avregningsgrenser",
+    "fjern den individuelle perioden, kontraktene går tilbake til måneden",
+    "denne periodemodellen trengs ikke lenger"
   ],
   "delete_llm_model": [
     "slett AI-modell",
@@ -727,54 +961,78 @@
     "fjern beregningsregelen 'nattillegg'",
     "ta bort skriptet for helgetillegg",
     "slett formelen 'overtid'",
-    "fjern makroen som heter feriepenger"
+    "fjern makroen som heter feriepenger",
+    "jeg vil slette en beregningsmakro",
+    "fjern den gamle makroen fra innstillingene",
+    "bli kvitt det ubrukte skriptet i innstillingene"
   ],
   "delete_membership": [
     "slett et medlemskap",
     "fjern en tilknytning",
     "slett en medlemsperiode",
-    "opphør et medlemskap"
+    "opphør et medlemskap",
+    "fjern medlemsperioden til en ansatt",
+    "slett medlemskapet med denne id-en",
+    "kanseller en ansatts tilknytningsperiode"
   ],
   "delete_monthly_target_hours": [
     "fjern mål timer for mars",
     "slett månedens timeantall",
     "opphev måltimene for april",
     "ta bort mål timer for en måned",
-    "nullstill mål timer for mai"
+    "nullstill mål timer for mai",
+    "opphev det avvikende målet for mars",
+    "sett måltimene for denne måneden tilbake til standard",
+    "slett timetallet som er lagt inn for måneden"
   ],
   "delete_period_cap_rule": [
     "slett stundstaket",
     "fjern taket på timer",
     "opphev stundstak for måneden",
     "ta bort maksgrensen for arbeidstid",
-    "ingen tak lenger"
+    "ingen tak lenger",
+    "dropp timegrensen for denne perioden",
+    "slutt å bruke regelen for maksimal arbeidstid",
+    "skru av forhåndsvarselet ved overskridelse av timegrensen"
   ],
   "delete_qualification": [
     "slett kvalifikasjon",
     "fjern kvalifikasjon",
     "ta bort kompetanse",
     "slett kompetanseoppføring",
-    "fjern sertifiseringstype"
+    "fjern sertifiseringstype",
+    "slett truckførerbevis-kvalifikasjonen fra stamdata",
+    "jeg vil fjerne en utdatert kvalifikasjon",
+    "slett kvalifikasjonen med denne id-en"
   ],
   "delete_report_template": [
     "slett rapportmalen",
     "fjern utskriftsmalen",
     "ta bort rapportmalen",
     "slett malen",
-    "fjern malen for rapporter"
+    "fjern malen for rapporter",
+    "slett en utdatert rapportmal",
+    "fjern utskriftsmalen med alle blokkene",
+    "bli kvitt en rapportlayout"
   ],
   "delete_restricted_time_window_rule": [
     "fjern sperretiden",
     "opphev tidsbegrensningen",
     "frigjør den tiden av dagen igjen",
     "slett de blokkerte timene",
-    "ikke ha sperretid lenger"
+    "ikke ha sperretid lenger",
+    "fjern forbudet mot nattetimer helt",
+    "denne sesongbaserte tidssperren var feil, slett den",
+    "tillat arbeid mellom 22 og 6 igjen"
   ],
   "delete_schedule_note": [
     "slett planotat",
     "fjern notat",
     "ta bort merknad",
-    "slett notat fra plan"
+    "slett notat fra plan",
+    "slett plannotatet fra 12. april",
+    "bli kvitt denne planmerknaden",
+    "jeg vil fjerne et notat fra vaktplanen"
   ],
   "delete_scheduling_rule": [
     "slett planleggingsregel",
@@ -788,14 +1046,20 @@
     "slett vakt",
     "fjern vakt",
     "ta bort vakt",
-    "slett en vakt"
+    "slett en vakt",
+    "jeg vil slette denne vakten",
+    "bli kvitt bestillingsutkastet",
+    "slett vakten med denne id-en"
   ],
   "delete_spam_rule": [
     "fjern en spamregel",
     "opphev blokkeringen av en avsender",
     "slett et spam-mønster",
     "tillat dette domenet igjen",
-    "fjern blokkeringen"
+    "fjern blokkeringen",
+    "fjern spamfilteroppføringen for dette domenet",
+    "slipp mail fra denne avsenderen gjennom igjen",
+    "det mønsteret fanger for mye, slett det"
   ],
   "delete_system_user": [
     "slett bruker",
@@ -809,13 +1073,19 @@
     "slett et ord fra transkripsjonsordboka",
     "fjern en talekorreksjon",
     "ta bort en oppføring i transkripsjonsordboka",
-    "slett en fonetisk variant"
+    "slett en fonetisk variant",
+    "ta dette begrepet ut av talekorrigeringene",
+    "slett oppføringen i transkripsjonsordboken",
+    "stryk et korrigeringsord fra diktatordboken"
   ],
   "delete_work": [
     "fjern denne vaktordren",
     "avbryt en vakt",
     "ta bort en tildeling",
-    "opphev en vakt"
+    "opphev en vakt",
+    "fjern tildelingen fra planen",
+    "slett vaktføringen på fredag",
+    "ta personen av morgendagens vakt"
   ],
   "delete_workchange": [
     "slett arbeidsendring",
@@ -823,7 +1093,10 @@
     "ta bort vikariat",
     "slett reisetid",
     "fjern arbeidsendring",
-    "slett korrektur"
+    "slett korrektur",
+    "slett den ekstra oppføringen på en vakt",
+    "fjern den registrerte kjøretiden",
+    "stryk briefingoppføringen fra vakten"
   ],
   "detect_conflicts": [
     "sjekk for konflikter i planen",
@@ -859,14 +1132,20 @@
     "deaktiver utvidelsen",
     "skru av tilleggsmodulen",
     "stopp modulen midlertidig",
-    "slå av funksjonsmodulen"
+    "slå av funksjonsmodulen",
+    "deaktiver modulen og behold innstillingene",
+    "sett en plugin midlertidig på pause",
+    "skru av pluginen for en stund"
   ],
   "dismiss_skill_relation": [
     "avvis sammenhengen mellom ferdighetene",
     "forkast den lærte koblingen",
     "denne sammenhengen er feil",
     "avslå forholdet mellom ferdighetene",
-    "ikke godta denne sammenhengen"
+    "ikke godta denne sammenhengen",
+    "avvis den foreslåtte ferdighetskoblingen",
+    "forkast den foreslåtte forbindelsen mellom evner",
+    "avslå forslaget om kobling"
   ],
   "email_schedule_to_client": [
     "send timeplan til kunde",
@@ -880,11 +1159,17 @@
     "aktiver utvidelsen",
     "skru på tilleggsmodulen",
     "start modulen",
-    "slå på funksjonsmodulen"
+    "slå på funksjonsmodulen",
+    "aktiver en installert plugin",
+    "jeg vil aktivere et tillegg",
+    "ta utvidelsen i bruk"
   ],
   "end_client_membership": [
     "avslutte medarbeiderens medlemskap",
-    "sette sluttdato for medarbeideren"
+    "sette sluttdato for medarbeideren",
+    "en ansatt slutter ved månedsslutt",
+    "registrer oppsigelsesdatoen for en ansatt",
+    "siste arbeidsdag er den 30."
   ],
   "evaluate_absence_hours_setup": [
     "hvorfor får han for få ferietimer",
@@ -1462,18 +1747,27 @@
   ],
   "extend_macro": [
     "utvid makro som kopi",
-    "utvidet kopi av beregningsmakro"
+    "utvidet kopi av beregningsmakro",
+    "kopier en makro og legg til et ekstra tillegg",
+    "jeg vil legge en tilleggsblokk til en makrokopi",
+    "lag en makrovariant med ekstra utdata"
   ],
   "fetch_new_emails": [
     "hent nye e-poster nå",
-    "oppdater innboksen umiddelbart"
+    "oppdater innboksen umiddelbart",
+    "hent ny post fra serveren nå",
+    "utløs en imap-henting",
+    "last innboksen på nytt med en gang"
   ],
   "fill_group_by_criteria": [
     "fyll gruppe med ansatte fra kanton",
     "legg til ansatte i gruppe basert på kriterier",
     "populer gruppe med kontrakt",
     "finn ansatte i region og legg i gruppe",
-    "befolkn gruppe etter kriterier"
+    "befolkn gruppe etter kriterier",
+    "legg ti tilfeldige ansatte fra kanton bern i gruppen",
+    "ta med alle ansatte med postnummer som starter på 80 i gruppen",
+    "fyll gruppen med alle fra zürich som har heltidskontrakt"
   ],
   "find_absence_capacity_windows": [
     "finn en passende periode for ferie",
@@ -1514,13 +1808,19 @@
     "fyll inn manglende koordinater for adressene",
     "geokod adressene",
     "plasser kundeadresser på kartet",
-    "finn koordinater for adressene"
+    "finn koordinater for adressene",
+    "finn posisjonen til adresser uten koordinater ut fra postnummer og sted",
+    "plasser kunder uten kartpunkt automatisk",
+    "regn ut breddegrad og lengdegrad for alle adresser som mangler"
   ],
   "geocode_location_groups": [
     "finn koordinater for alle lokasjonsgrupper automatisk",
     "beregn koordinater for lokasjonsgruppene samlet",
     "geokod alle bygrupper automatisk",
-    "hent koordinater for gruppene basert på by"
+    "hent koordinater for gruppene basert på by",
+    "legg til koordinater på stedsgruppene automatisk",
+    "slå opp geodata for gruppene som er byer og tettsteder",
+    "la stedsgruppene geokodes av seg selv"
   ],
   "get_absence_hours_calculation": [
     "vis meg beregningen av ferietimene",
@@ -1904,34 +2204,49 @@
     "tilordne ugrupperte ansatte til bygruppe",
     "match adresseby til gruppenavn",
     "plasser ansatte uten gruppe i bygruppe",
-    "set ansatte i gruppe etter bosted"
+    "set ansatte i gruppe etter bosted",
+    "sett ansatte uten gruppe i gruppen oppkalt etter bostedsbyen",
+    "sorter ugrupperte ansatte inn i bygrupper etter adresse",
+    "legg alle ansatte uten gruppe i gruppen som matcher byen deres"
   ],
   "import_calendar_rules": [
     "importer helligdagsregler",
     "last inn feriedager",
     "bulk-importer høytidsregler",
     "legg inn helligdager for stat",
-    "import av kalenderregler"
+    "import av kalenderregler",
+    "last inn helligdagsdefinisjonene for en delstat på én gang",
+    "importer kalenderregler for kantonen fra json",
+    "jeg vil opprette alle helligdager for et land samtidig"
   ],
   "install_feature_plugin": [
     "installer en ny modul",
     "legg til en utvidelse",
     "installer tilleggsmodulen",
     "sett inn en ny modul",
-    "aktiver modulen ved installasjon"
+    "aktiver modulen ved installasjon",
+    "legg inn tilleggsmodulen",
+    "jeg vil installere en valgfri funksjonsplugin",
+    "installer modulen så funksjonen blir tilgjengelig"
   ],
   "install_language_pack": [
     "installer språkpakke",
     "aktiver et nytt språk",
     "legg til språkpakke",
-    "slå på et språk i systemet"
+    "slå på et språk i systemet",
+    "installer den sveitsertyske språkpakken gsw",
+    "aktiver språkpakken med koden gsw",
+    "jeg vil låse opp et språk til i grensesnittet"
   ],
   "install_whisper_plugin": [
     "sett opp transkripsjon på egen maskin",
     "installer den lokale talemodellen",
     "slutt å sende tale til ekstern tjeneste",
     "sett opp lokal tale-til-tekst",
-    "installer whisper for lokal transkribering"
+    "installer whisper for lokal transkribering",
+    "installer whisper lokalt",
+    "sett opp tale-til-tekst på egen server",
+    "få lokal diktering til å fungere"
   ],
   "interpret_resource_monitor": [
     "vis kapasitetsmonitor for i år",
@@ -2319,19 +2634,31 @@
     "vis by og kanton for 3000"
   ],
   "manage_pending_notes": [
-    "administrer ventende notater"
+    "administrer ventende notater",
+    "merk de ventende notatene som levert",
+    "arkiver mine åpne påminnelser",
+    "kryss av de uleverte notatene"
   ],
   "mark_email_read": [
     "merk e-posten som lest",
-    "merk e-posten som ulest"
+    "merk e-posten som ulest",
+    "marker denne e-posten som lest",
+    "sett meldingen tilbake som ulest",
+    "jeg vil merke en mail som lest"
   ],
   "move_email_to_folder": [
     "flytt e-posten til en annen mappe",
-    "merk e-posten som søppelpost"
+    "merk e-posten som søppelpost",
+    "legg denne mailen i søppelpostmappen",
+    "flytt meldingen til papirkurven",
+    "hent meldingen tilbake fra søppelpost til innboksen"
   ],
   "move_group": [
     "flytt gruppen til en annen forelder",
-    "heng gruppen under en ny overgruppe"
+    "heng gruppen under en ny overgruppe",
+    "flytt bergen-gruppen under region sentral",
+    "plasser en gruppe på en annen gren i treet",
+    "jeg vil gi denne gruppen en ny overordnet gruppe"
   ],
   "navigate_to": [
     "ta meg til innstillingssiden",
@@ -2344,7 +2671,10 @@
     "årsoversikt over fravær som pdf",
     "skriv ut fraværskalenderen",
     "ferieoversikt å henge opp",
-    "få fraværsåret på papir"
+    "få fraværsåret på papir",
+    "jeg trenger ferieoversikten for hele året som utskrift",
+    "last ned årsarket med alle syke- og feriedager som pdf",
+    "fraværsplan på papir til teammøtet"
   ],
   "open_order_export": [
     "start eksport av ordre",
@@ -2358,14 +2688,20 @@
     "vis meg timeplanen for team oslo",
     "gå til turnusplan",
     "åpne planleggingsskjermen",
-    "vis vaktplan for gruppe bergen"
+    "vis vaktplan for gruppe bergen",
+    "åpne vaktplanen for neste uke",
+    "ta meg til turnusplanen for denne måneden",
+    "jeg vil se planen til én ansatt"
   ],
   "optimize_llm_models_for_klacksy": [
     "hvilke språkmodeller kan du bruke?",
     "test modellene og finn de som virker",
     "slå av de ubrukelige modellene",
     "finn den beste modellen automatisk",
-    "prøv alle modeller og velg den beste"
+    "prøv alle modeller og velg den beste",
+    "test alle språkmodeller og velg den beste",
+    "sjekk hvilke modeller som ikke kan kalle verktøy og slå dem av",
+    "optimaliser assistentens modeller automatisk"
   ],
   "partition_clients_by_address": [
     "lag lokasjonsgrupper basert på alle adresser",
@@ -2379,7 +2715,10 @@
     "opprett grupper etter kvalifikasjon",
     "grupper de ansatte etter kvalifikasjon",
     "opprett en gruppe for hver kvalifikasjon",
-    "fordel de ansatte i kvalifikasjonsgrupper"
+    "fordel de ansatte i kvalifikasjonsgrupper",
+    "fordel alle ansatte automatisk på grupper etter kvalifikasjoner",
+    "lag én egen gruppe per kvalifikasjon med innehaverne",
+    "bygg grupper ut fra kvalifikasjonene under en rotgruppe"
   ],
   "place_work": [
     "sette yasmine på nattevakt 12. mai",
@@ -2408,7 +2747,10 @@
     "foreslå en vaktplan",
     "draft en plan for gruppen",
     "opprett et scenario med forslag",
-    "lag et utkast til plan"
+    "lag et utkast til plan",
+    "legg de valgte plasseringene i et scenario til godkjenning",
+    "gjør disse valgene om til et utkast til gjennomgang",
+    "pakk disse tildelingene inn i et scenario"
   ],
   "read_email": [
     "les e-post med id 123",
@@ -2434,7 +2776,10 @@
     "gi vakten videre til en annen ansatt",
     "flytt oppdraget over til en annen ansatt",
     "la en annen ansatt overta vakten",
-    "overfør tildelingen til en annen ansatt"
+    "overfør tildelingen til en annen ansatt",
+    "overfør mandagsvakten til en kollega",
+    "dra denne vakten over på en annen ansatts rad",
+    "bytt hvem som har vakten den dagen"
   ],
   "recall_delivered_notes": [
     "hent leverte notater"
@@ -2444,109 +2789,163 @@
     "forkast scenario",
     "kast scenarioet",
     "avslå planutkastet",
-    "ikke godta forslaget"
+    "ikke godta forslaget",
+    "forkast det foreslåtte scenarioet",
+    "avvis autowizard-resultatet og kast det",
+    "dette scenarioet er ubrukelig, slett det"
   ],
   "remove_client_contract": [
     "frigjør ansattkontrakt",
     "løsne kontrakten fra ansatt",
     "avslutt ansattens kontraktkobling",
     "fjern kontrakttildelingen",
-    "ta bort ansattkontrakten"
+    "ta bort ansattkontrakten",
+    "ta bort den nåværende kontrakten fra den ansatte",
+    "opphev lønnskontrakttildelingen for denne personen",
+    "løs den ansatte fra kontrakten mens selve kontrakten blir stående"
   ],
   "remove_client_from_group": [
     "fjern ansatt fra gruppe",
     "ta ut av gruppe",
     "slett fra gruppe",
     "fjern person fra gruppe",
-    "trekk ut av gruppe"
+    "trekk ut av gruppe",
+    "ta den ansatte ut av teamet",
+    "fjern denne personen fra gruppen",
+    "jeg vil melde en kunde ut av en gruppe"
   ],
   "remove_client_qualification": [
     "fjern kvalifikasjon fra ansatt",
     "ta bort sertifikat fra ansatt",
     "fjern kompetansetildelingen",
     "tilbakekall registrert ferdighetsnivå",
-    "trekk tilbake ansatts sertifisering"
+    "trekk tilbake ansatts sertifisering",
+    "stryk truckførerbeviset fra hans profil",
+    "fjern det utløpte sertifikatet fra denne personen",
+    "slett det registrerte ferdighetsnivået på profilen hennes"
   ],
   "remove_container_template_task": [
     "fjern en oppgave fra containermalen",
     "slett oppgaven fra containervaktens mal",
     "ta tasken ut av containermalen",
-    "fjern oppgavevakt fra containerens ukemal"
+    "fjern oppgavevakt fra containerens ukemal",
+    "slett en oppføring fra containerens ukeplan",
+    "stryk en delvakt fra containermalen",
+    "ta dette elementet ut av containerens mal"
   ],
   "remove_shift_from_group": [
     "fjern vakten fra gruppen",
     "ta vakten ut av teamet",
     "fjern tjenesten fra avdelingen",
-    "koble vakten fra gruppen"
+    "koble vakten fra gruppen",
+    "kutt koblingen mellom en tjeneste og et team",
+    "denne tjenesten skal ikke lenger tilhøre avdelingen",
+    "løsne denne tjenesten fra organisasjonsenheten"
   ],
   "remove_shift_required_qualification": [
     "fjern påkrevd kvalifikasjon fra vakten",
     "slett kvalifikasjonskravet på vakten",
     "fjern obligatorisk kvalifikasjon fra skiftet",
-    "annuller vaktens kvalifikasjonskrav"
+    "annuller vaktens kvalifikasjonskrav",
+    "vakten trenger ikke førerkort lenger",
+    "ta det påkrevde sertifikatet av vakten",
+    "stryk det obligatoriske kvalifikasjonskravet fra vakten"
   ],
   "reopen_period": [
     "åpne en lukket periode",
     "gjenåpne perioden",
     "lås opp perioden",
     "opphev avslutning av periode",
-    "gjenopprett perioden"
+    "gjenopprett perioden",
+    "angre avslutningen av perioden",
+    "åpne den forseglede perioden igjen",
+    "tilbakestill månedsavslutningen"
   ],
   "reset_container_day": [
     "tilbakestill containerdagen til malen",
     "fjern dagsoverstyringen på containeren",
     "sett containerens dag tilbake til mal",
-    "angre overstyring av containerdag"
+    "angre overstyring av containerdag",
+    "sett denne containerdagen tilbake til malen",
+    "forkast endringen for en enkeltdag på containeren",
+    "opphev avviket fra ukedagsmønsteret"
   ],
   "reset_shift_cuts": [
     "slå sammen vaktens deler igjen fra en dato",
     "nullstill kuttene i vakten",
     "angre oppdelingen av vakten fra dato",
-    "flett vaktens biter sammen igjen"
+    "flett vaktens biter sammen igjen",
+    "slå alle delene sammen til én vakt fra neste måned",
+    "opphev oppdelingen av ordren fra en bestemt dato",
+    "gjør de kuttede delene om til én hel vakt igjen"
   ],
   "restore_email": [
     "gjenopprett e-posten fra papirkurven",
-    "hent e-posten tilbake fra papirkurven"
+    "hent e-posten tilbake fra papirkurven",
+    "flytt den slettede mailen tilbake til innboksen",
+    "angre slettingen av denne e-posten",
+    "jeg vil ha tilbake en slettet e-post"
   ],
   "restore_work": [
     "gjenopprett den slettede vakten",
     "hent det slettede oppdraget tilbake",
     "angre slettingen av tildelingen",
-    "gjenopprett en slettet vakt"
+    "gjenopprett en slettet vakt",
+    "sett tilbake vakten jeg nettopp slettet",
+    "angre slettingen av den tildelingen",
+    "jeg slettet en vakt ved en feil, hent den tilbake"
   ],
   "revert_company_rule": [
     "angre bedriftsregelen",
     "tilbakestill en anvendt bedriftsregel",
-    "gjenopprett den forrige bedriftsregelen"
+    "gjenopprett den forrige bedriftsregelen",
+    "ta tilbake en anvendt bedriftsregel",
+    "omgjør tilleggsendringen som en regel gjorde",
+    "fjern en regel på navn og gjenopprett den gamle tilstanden"
   ],
   "revert_macro_assignment": [
     "angre makrotildeling",
-    "gjenopprett tidligere beregningsmakro"
+    "gjenopprett tidligere beregningsmakro",
+    "rull tilbake makrobyttet på vaktene",
+    "sett den gamle beregningsformelen tilbake",
+    "jeg vil angre makrobyttet på fraværstypen"
   ],
   "revoke_day_approval": [
     "trekk tilbake godkjenning for en dag",
     "opphev daggodkjenning",
     "angre frigivelse av en dag",
     "fjern godkjenning på en dag",
-    "avkreft en dag"
+    "avkreft en dag",
+    "ta tilbake avsigneringen av dagen",
+    "sett den godkjente dagen tilbake til bekreftet",
+    "omgjør dagsgodkjenningen"
   ],
   "revoke_erp_import_token": [
     "tilbakekall nøkkelen for eksternt system",
     "sperr innleveringsnøkkelen",
     "deaktiver nøkkelen for filoverføring",
     "gjør nøkkelen ugyldig",
-    "trekk tilbake leveringsnøkkelen"
+    "trekk tilbake leveringsnøkkelen",
+    "blokker tilgangsnøkkelen til det eksterne systemet",
+    "gjør den lekkede importnøkkelen ugyldig",
+    "jeg vil avlyse nøkkelen som brukes til filleveringer"
   ],
   "revoke_personal_access_token": [
     "tilbakekall mitt tilgangstoken",
-    "ugyldiggjør API-tokenet"
+    "ugyldiggjør API-tokenet",
+    "trekk tilbake en av api-tokenene mine",
+    "jeg vil slette et personlig tilgangstoken",
+    "deaktiver tilgangstokenet for godt"
   ],
   "rollback_my_last_change": [
     "angre min siste endring",
     "ta tilbake forrige handling",
     "rull tilbake siste",
     "opphev min siste endring",
-    "gå tilbake før siste endring"
+    "gå tilbake før siste endring",
+    "den siste handlingen min var feil, reverser den",
+    "ta tilbake det jeg lagret sist",
+    "foreslå hvordan jeg kan omgjøre siste endring"
   ],
   "run_analysis": [
     "analyser vaktplanen",
@@ -2570,7 +2969,10 @@
     "forsegl denne bestillingen",
     "forsegl ordren slik at vakten kan planlegges",
     "gjør bestillingen uforanderlig med forsegling",
-    "forsegl ordre nummer 123"
+    "forsegl ordre nummer 123",
+    "forsegl denne bestillingen og opprett den planbare vakten",
+    "gjør originalbestillingen varig uforanderlig",
+    "frigi bestillingen som vakt og forsegl den"
   ],
   "search_and_navigate": [
     "søk og naviger",
@@ -2644,43 +3046,64 @@
     "oppdater kompetanse",
     "sett sertifiseringsnivå",
     "legg til kvalifikasjon",
-    "angi ferdighetsnivå"
+    "angi ferdighetsnivå",
+    "denne ansatte har truckførerbevis",
+    "registrer førstehjelpskurs gyldig ut året",
+    "oppdater kvalifikasjonsnivået til en ansatt"
   ],
   "set_company_rule_parameters": [
     "angi parametere for bedriftsregelen",
     "skriv inn verdier for bedriftsregelen",
-    "juster parametere for bedriftsregelen"
+    "juster parametere for bedriftsregelen",
+    "fyll ut parametrene i utkastet til bedriftsregelen",
+    "legg inn verdiene for regelen som utarbeides",
+    "sett tilleggsverdien i regelutkastet"
   ],
   "set_default_llm_model": [
     "sett standardmodellen",
     "få assistenten til å bruke denne modellen",
     "bytt til en annen modell",
     "hvilken modell svarer som standard?",
-    "gjør denne modellen til standard"
+    "gjør denne modellen til standard",
+    "fra nå av skal klacksy svare med en annen språkmodell",
+    "bytt assistentens standard språkmodell",
+    "sett deepseek som forhåndsvalgt modell"
   ],
   "set_erp_import_schedule": [
     "endre importplan",
     "hvor ofte skal erp-import kjøre",
     "sett cron for erp-import",
     "juster importintervall",
-    "plan for erp-import"
+    "plan for erp-import",
+    "kjør erp-importen hver natt klokken to",
+    "sett tidssone og cron for erp-hentingen",
+    "hent erp-bestillinger hvert 15. minutt"
   ],
   "set_explain_depth": [
     "forklar alltid enklere",
     "fra nå av bare det viktigste",
     "fra nå av forklar alt enklere",
     "hopp over det grunnleggende fra nå av",
-    "forklaringer automatisk igjen"
+    "forklaringer automatisk igjen",
+    "jeg er ny her, forklar hvert trinn utførlig fra nå av",
+    "hold det alltid kort og ta bare konsekvensene",
+    "sett forklaringsnivået til nybegynner"
   ],
   "set_export_format_override": [
     "tilpass et eksportformat",
     "endre eksportformatet",
     "bruk et annet skilletegn i eksporten",
     "endre kolonnenavn i eksporten",
-    "endre datoformatet i eksporten"
+    "endre datoformatet i eksporten",
+    "eksporten skal ha semikolon mellom feltene",
+    "gi kolonnen nytt navn for mottakersystemet",
+    "bytt datoformatet i eksportfilen til punktum"
   ],
   "set_group_location": [
-    "angi gruppens plassering"
+    "angi gruppens plassering",
+    "lagre koordinater for gruppen",
+    "jeg vil gi bygruppen en breddegrad og lengdegrad",
+    "geokod gruppen ut fra navnet"
   ],
   "set_my_display_language": [
     "endre visningsspråket mitt",
@@ -2702,7 +3125,10 @@
   "set_period_close_lag": [
     "lagre avslutningsforsinkelsen",
     "fastsette antall dager til avslutning etter periodeslutt",
-    "registrere forsinkelsen for avslutning av perioden"
+    "registrere forsinkelsen for avslutning av perioden",
+    "sett etterslepet for periodeavslutning til 3 dager",
+    "legg inn en avslutningsforsinkelse på 10 dager",
+    "perioder skal avsluttes en uke etter slutten"
   ],
   "set_planning_deadline_lead": [
     "lagre forhåndstiden for planleggingen",
@@ -2710,32 +3136,47 @@
   ],
   "set_planning_profile_parameters": [
     "angi parametere for planleggingsprofilen",
-    "skriv inn verdier for planleggingsprofilen"
+    "skriv inn verdier for planleggingsprofilen",
+    "sett bransje og arbeidstidsgrenser i planleggingsprofilen",
+    "jeg vil justere hviletid og overtid i utkastet",
+    "skriv inn verdiene for den nye planleggingsprofilen"
   ],
   "set_proactive_governance": [
     "la det bli ordnet selv",
     "bare meld fra om det",
-    "slå på hovedbryteren"
+    "slå på hovedbryteren",
+    "still inn hvor selvstendig klacksy får være for denne funnstypen",
+    "varsle meg bare om denne typen funn fra nå av",
+    "klacksy kan utføre dette tilfellet selv i fremtiden"
   ],
   "set_sealed_order_until_date": [
     "sett sluttdato på den forseglede ordren",
     "avslutt den forseglede bestillingen per dato",
     "begrens forseglet ordre til en dato",
-    "gi den forseglede ordren en sluttdato i etterkant"
+    "gi den forseglede ordren en sluttdato i etterkant",
+    "legg inn en sluttdato på den forseglede ordren",
+    "begrens den forseglede ordren til månedsslutt",
+    "tilføy til-datoen på en forseglet ordre i ettertid"
   ],
   "set_shift_preferences": [
     "foretrekk ansatt for vakt",
     "svarteliste ansatt fra vakt",
     "angi vaktpreferanse",
     "favoriser ansatt på vakt",
-    "utelukk ansatt fra vakt"
+    "utelukk ansatt fra vakt",
+    "gjør denne ansatte til førstevalg for tidligvakten",
+    "den ansatte skal aldri settes opp på nattvakten",
+    "marker vakten som favoritt for den ansatte"
   ],
   "set_shift_required_qualification": [
     "angi nødvendig kvalifikasjon for vakt",
     "sett krav til kompetanse",
     "oppdater kvalifikasjonskrav på vakt",
     "hvilken kvalifikasjon kreves",
-    "sett minimumsnivå for vakt"
+    "sett minimumsnivå for vakt",
+    "gjør førerkort obligatorisk for denne vakten",
+    "sett minstenivå 3 for en kvalifikasjon på vakten",
+    "vakten skal bare kunne bemannes med sertifikat"
   ],
   "set_user_group_scope": [
     "gruppetilgang",
@@ -2760,7 +3201,10 @@
   "start_company_rule": [
     "opprett en ny bedriftsregel",
     "begynn å definere en bedriftsregel",
-    "legg til en ny bedriftsregel"
+    "legg til en ny bedriftsregel",
+    "jeg vil sette opp en ny husregel",
+    "hjelp meg å skissere en tilleggsregel for firmaet",
+    "start en ny telleregel sammen med klacksy"
   ],
   "start_guided_tour": [
     "start en omvisning i klacks",
@@ -2772,31 +3216,46 @@
   ],
   "start_planning_profile_setup": [
     "opprett en egen planleggingsprofil",
-    "start oppsett av planleggingsprofil"
+    "start oppsett av planleggingsprofil",
+    "jeg vil sette opp min egen planleggingsprofil",
+    "start den veiledede oppsettingen av planleggingsregler",
+    "bygg en planleggingsprofil sammen med klacksy"
   ],
   "start_wizard1": [
     "start wizard 1",
     "kjør planlegger",
     "lag første utkast av planen",
     "kjøre dekningsfokusert plan",
-    "start grunnplanlegging"
+    "start grunnplanlegging",
+    "kjør bare wizard 1 for gruppen",
+    "start tokenevolution-planleggeren",
+    "lag et første planutkast som dekker alle vakter først"
   ],
   "start_wizard2": [
     "start wizard 2",
     "harmoniser planen",
     "jevn ut bemanningen",
     "balanser skiftene",
-    "kjør harmonisering"
+    "kjør harmonisering",
+    "kjør harmonisereren på den gjeldende planen",
+    "glatt ut planen uten å endre dekningen",
+    "start wizard 2 på scenarioet som nettopp ble brukt"
   ],
   "start_wizard3": [
     "start wizard 3",
     "kjør helhetlig feinslip",
     "poler planen med llm",
     "gjør siste finpuss",
-    "kjør llm-polering"
+    "kjør llm-polering",
+    "kjør bare den tredje veiviseren",
+    "finpuss den harmoniserte planen videre",
+    "start den helhetlige harmoniseringen med analysetokenet"
   ],
   "stash_pending_note": [
-    "parker notat"
+    "parker notat",
+    "husk dette til senere som et notat",
+    "jeg vil legge igjen en påminnelse som skal formidles senere",
+    "lagre denne informasjonen så den kan videreformidles etterpå"
   ],
   "test_imap_connection": [
     "IMAP-tilkoblingstest",
@@ -2823,7 +3282,10 @@
     "start erp-importen umiddelbart",
     "kjør importen med én gang",
     "trigg erp-import",
-    "importer bestillinger nå"
+    "importer bestillinger nå",
+    "behandle den opplastede erp-filen med en gang",
+    "sett i gang bestillingsimporten uten å vente",
+    "start en importkjøring for ordrene manuelt"
   ],
   "unconfirm_break": [
     "opphev bekreftelsen på fraværet",
@@ -2831,58 +3293,85 @@
     "frigi ferien",
     "fjern låsen fra fraværet",
     "angre bekreftelsen av fraværet",
-    "opphev sperren på fraværet"
+    "opphev sperren på fraværet",
+    "lås opp sykefraværet så det kan slettes igjen",
+    "fjern låsen på feriefraværet",
+    "ta bekreftelsen bort fra denne fraværsføringen"
   ],
   "unconfirm_work": [
     "opphev bekreftelse på vakt",
     "lås opp en vakt",
     "frigjør en vakt",
     "fjern lås på vakt",
-    "avkreft vaktordren"
+    "avkreft vaktordren",
+    "gjør tildelingen redigerbar igjen for veiviserne",
+    "angre fikseringen av en vakt i planen",
+    "sett en bekreftet vakt tilbake til åpen"
   ],
   "uninstall_feature_plugin": [
     "avinstaller modulen",
     "fjern utvidelsen",
     "slett tilleggsmodulen",
     "ta vekk modulen",
-    "fjern funksjonsmodulen"
+    "fjern funksjonsmodulen",
+    "avinstaller pluginen",
+    "jeg vil fjerne den installerte funksjonsmodulen",
+    "ta tillegget ut av systemet"
   ],
   "uninstall_language_pack": [
     "avinstaller språkpakke",
     "deaktiver et språk",
     "fjern en språkpakke",
-    "slå av et språk"
+    "slå av et språk",
+    "avinstaller den polske språkpakken",
+    "deaktiver en språkpakke med koden og fjern dataene",
+    "slå av dette ekstra språket i grensesnittet"
   ],
   "uninstall_whisper_plugin": [
     "fjern transkripsjon fra egen maskin",
     "avinstaller den lokale talemodellen",
     "gå tilbake til ekstern tjeneste for tale",
     "fjern whisper-plugin",
-    "slutt å bruke lokal tale-til-tekst"
+    "slutt å bruke lokal tale-til-tekst",
+    "fjern whisper-pluginen",
+    "jeg vil bli kvitt den lokale talemodellen",
+    "taleinndata skal gå via den eksterne tjenesten igjen"
   ],
   "update_absence": [
     "oppdater fraværstype",
     "endre navn på fraværstype",
     "bytt farge på fraværsgrunn",
     "konfigurer ferietype",
-    "slå av/på helg i fraværstype"
+    "slå av/på helg i fraværstype",
+    "la fraværstypen telle med helger også",
+    "bytt lønnsflagget på en fraværstype",
+    "gi sykefraværstypen nytt navn"
   ],
   "update_absence_type": [
     "rediger fraværstypen",
-    "endre fargen på fraværstypen"
+    "endre fargen på fraværstypen",
+    "endre forkortelsen på en fraværstype",
+    "sett fraværstypen til ulønnet",
+    "endre standard varighet for fraværskategorien"
   ],
   "update_active_industries_settings": [
     "endre bransjeinnstillingene",
     "sett aktive bransjer",
     "bytt bransje",
     "oppdater bransjeprofilen",
-    "velg hvilke bransjer som skal være aktive"
+    "velg hvilke bransjer som skal være aktive",
+    "sett opp installasjonen for helse og sikkerhet",
+    "aktiver i tillegg bransjen servering",
+    "behold bare logistikk som aktiv bransje"
   ],
   "update_address": [
     "oppdater en adresse",
     "endre adresse",
     "korriger en adresse",
-    "rediger en adresse"
+    "rediger en adresse",
+    "korriger gate og postnummer for den ansatte",
+    "bytt adressetype fra hoved- til fakturaadresse",
+    "juster stedet i denne adressen"
   ],
   "update_agent_skill": [
     "oppdater ferdighet",
@@ -2920,7 +3409,10 @@
     "endre en notat",
     "rediger en merknad",
     "oppdater notatteks",
-    "oppdater notat"
+    "oppdater notat",
+    "skriv om teksten i et notat om en ansatt",
+    "rett formuleringen i merknaden på den ansatte",
+    "bytt ut notatet på den ansatte med ny tekst"
   ],
   "update_branch": [
     "oppdater filial",
@@ -2935,18 +3427,27 @@
     "endre en feriedag",
     "korriger en sykedag",
     "rediger et fraværselement",
-    "oppdater en pause"
+    "oppdater en pause",
+    "forleng sluttdatoen for ferien",
+    "bytt fraværet til en annen type",
+    "korriger de medregnede timene for fraværet"
   ],
   "update_break_placeholder": [
     "flytt fravær",
     "flytt ferie",
     "forleng fravær",
     "endre fraværstype",
-    "kort ned planlagt fravær"
+    "kort ned planlagt fravær",
+    "skyv den planlagte ferien en uke bakover",
+    "forkort fraværsstolpen",
+    "gjør det planlagte fraværet om til sykefravær"
   ],
   "update_calendar_selection": [
     "gi nytt navn til kalendervalg",
-    "slå sammen feriekalendere"
+    "slå sammen feriekalendere",
+    "endre navnet på kalendervalget",
+    "ta en region ut av helligdagsvalget",
+    "legg en kanton til kalendervalget"
   ],
   "update_client": [
     "oppdater ansattdata",
@@ -2956,37 +3457,55 @@
     "rediger ansattens adresse"
   ],
   "update_client_birthdate": [
-    "endre fødselsdato"
+    "endre fødselsdato",
+    "sett ny fødselsdato for en ansatt",
+    "korriger fødselsdatoen til denne personen",
+    "jeg vil endre bursdagen til en ansatt"
   ],
   "update_client_gender": [
-    "endre kjønn"
+    "endre kjønn",
+    "sett kjønnet til en ansatt",
+    "endre kundens kjønn til kvinne",
+    "oppdater kjønnsfeltet for denne ansatte"
   ],
   "update_client_type": [
     "endre til kunde",
     "gjør til ansatt",
     "endre klientkategori",
     "bytt personstatus",
-    "endre enhetstype"
+    "endre enhetstype",
+    "før denne personen som kunde fra nå av",
+    "gjør en ekstern arbeidstaker om til fast ansatt",
+    "gjør kunden om til en ansatt som kan planlegges igjen"
   ],
   "update_communication": [
     "oppdater kommunikasjonselement",
     "endre e-postadresse",
     "korriger telefonnummer",
     "rediger en kontaktoppføring",
-    "oppdater en kommunikasjon"
+    "oppdater en kommunikasjon",
+    "bytt ut det gamle mobilnummeret til en ansatt med et nytt",
+    "skriv om kontaktnotatet til en ansatt",
+    "endre prefikset på en telefonoppføring"
   ],
   "update_compensatory_rest_settings": [
     "slå på sporing av avspasering",
     "endre fristen for avspasering",
     "oppdater innstillinger for erstatningsfritid",
-    "juster reglene for kompensasjonsfri ved søndagsarbeid"
+    "juster reglene for kompensasjonsfri ved søndagsarbeid",
+    "aktiver kravet om fri for arbeid på helligdager",
+    "jeg vil endre antall dager for å gi erstatningsfri",
+    "sett fristen for kompensasjonsfri til 14 dager"
   ],
   "update_compliance_enforcement_settings": [
     "endre innstillingene for regeloverholdelse",
     "juster reglene for arbeidstid",
     "oppdater håndhevingsinnstillingene",
     "endre hvor strenge kontrollene er",
-    "juster innstillingene for arbeidstidsbeskyttelse"
+    "juster innstillingene for arbeidstidsbeskyttelse",
+    "avvis brudd på hviletid i stedet for bare å advare",
+    "la ledere overstyre arbeidstidsreglene",
+    "sett reaksjonen på overskredet maksimal arbeidstid til avvis"
   ],
   "update_contract": [
     "oppdater kontrakt",
@@ -3004,7 +3523,10 @@
     "juster antall tillatte ganger",
     "gjør advarsel til avvisning",
     "oppdater telleregelens grense",
-    "endre telleregel for nattevakter"
+    "endre telleregel for nattevakter",
+    "tillat høyst tre nattevakter i måneden i stedet for to",
+    "gjør advarselen på telleregelen om til en hard sperre",
+    "endre telleperioden i regelen til én uke"
   ],
   "update_data_retention_settings": [
     "endre oppbevaringstiden for data",
@@ -3034,13 +3556,19 @@
     "endre innstillingene for filoverlevering",
     "slå av henting av filer",
     "endre mappen som overvåkes",
-    "oppdater innstillingene for overleveringspunktet"
+    "oppdater innstillingene for overleveringspunktet",
+    "endre mappestien til erp-overleveringspunktet",
+    "gi overleveringspunktet for fremmedsystemet nytt navn",
+    "slå henting av erp-filer på igjen"
   ],
   "update_expense": [
     "endre utgiftsposten",
     "korriger beløpet på utgiften",
     "oppdater utleggsbeskrivelsen",
-    "rediger en eksisterende kostnad"
+    "rediger en eksisterende kostnad",
+    "endre beskrivelsen på et utlegg",
+    "gjør dette utlegget om til skattepliktig godtgjørelse",
+    "sett utlegget til et nytt beløp"
   ],
   "update_export_formats_settings": [
     "tillat et nytt eksportformat",
@@ -3048,7 +3576,10 @@
     "endre standard lønnssystem for eksport",
     "oppdater eksportformater",
     "legg til csv-eksport som et alternativ",
-    "sett standard mottaker for utveksling av data"
+    "sett standard mottaker for utveksling av data",
+    "aktiver enda et eksportfilformat",
+    "velg hvilke eksportformater som er tillatt",
+    "endre standardmottaker for lønnsdata"
   ],
   "update_general_settings": [
     "endre applikasjonsnavnet",
@@ -3064,14 +3595,20 @@
     "gi helligdager en annen farge",
     "oppdater fargeinnstillingene for planen",
     "endre fargen på overskriften i vaktplanen",
-    "juster fargene for helger og helligdager"
+    "juster fargene for helger og helligdager",
+    "farg lørdagene i vaktplanen lysegrå",
+    "sett tekstfargen i planen til #333333",
+    "juster de vekslende månedsfargene i rutenettet"
   ],
   "update_group": [
     "endre gruppenavn",
     "oppdater gruppeinformasjon",
     "juster gruppens gyldighet",
     "rediger gruppe",
-    "endre navn på avdeling"
+    "endre navn på avdeling",
+    "endre beskrivelsen til denne gruppen",
+    "juster gyldighetsdatoene for gruppen",
+    "gi gruppen en annen feriekalender"
   ],
   "update_identity_provider": [
     "oppdater identitetsleverandør",
@@ -3093,7 +3630,10 @@
     "oppdater en periode",
     "endre tidsperioden",
     "juster en periode",
-    "oppdater en eksisterende periode"
+    "oppdater en eksisterende periode",
+    "gi tidsskjemaet nytt navn",
+    "sett nye avsnitt for den individuelle periodeordningen",
+    "skyv startdatoen for et avsnitt i skjemaet"
   ],
   "update_llm_model": [
     "oppdater AI-modell",
@@ -3117,29 +3657,44 @@
     "rediger beregning",
     "modifiser makro",
     "oppdater formel",
-    "endre makro i innstillinger"
+    "endre makro i innstillinger",
+    "skriv om innholdet i en makro",
+    "gi en makro nytt navn",
+    "bytt ut beskrivelsen av et skript"
   ],
   "update_membership": [
     "oppdater medlemskap",
     "endre medlemskap",
     "juster planleggingsstart",
     "sett ny startdato for medlemskap",
-    "endre tilknytningsperiode"
+    "endre tilknytningsperiode",
+    "flytt gyldig-fra-datoen for medlemskapet",
+    "gjør medlemskapet tidsubegrenset",
+    "sett på nytt fra når den ansatte kan planlegges"
   ],
   "update_monthly_target_hours": [
     "endre mål timer for januar",
     "korriger timene for en måned",
     "oppdater mål timene til 176",
     "juster månedens timeantall",
-    "revider mål timer for februar"
+    "revider mål timer for februar",
+    "sett måltimene for januar 2026 fra 184 til 176",
+    "korriger måltimene for mars i etterkant",
+    "senk månedsverdien for desember"
   ],
   "update_my_account": [
     "oppdater kontoen min",
-    "endre visningsnavnet mitt"
+    "endre visningsnavnet mitt",
+    "jeg vil endre etternavnet på kontoen min",
+    "bytt e-postadressen jeg logger inn med",
+    "rett fornavn og etternavn i profilen min"
   ],
   "update_navigation_synonyms": [
     "legg til et nytt navigasjonssynonym",
-    "lær klacksy denne formuleringen"
+    "lær klacksy denne formuleringen",
+    "legg til en ny formulering for et navigasjonsmål",
+    "klacksy skal forstå denne frasen for siden",
+    "registrer en ny navigasjonsfrase for et språk"
   ],
   "update_openroute_settings": [
     "endre terskelen for reisetid",
@@ -3147,7 +3702,10 @@
     "sett hvor lang reise som skal telle",
     "oppdater reisetidsinnstillingene",
     "juster minimum reisetid for bil",
-    "endre nøkkelen for reiseplanlegging"
+    "endre nøkkelen for reiseplanlegging",
+    "legg inn api-nøkkelen for openroute",
+    "jeg vil endre minste reisetid for bil, sykkel og gange",
+    "juster minste gangtid"
   ],
   "update_overtime_settings": [
     "endre overtidsbetalingen",
@@ -3155,7 +3713,10 @@
     "flytt grensen for overtidstrinn 2",
     "sett høyere sats for overtid",
     "oppdater overtidsinnstillingene",
-    "endre grunnlaget for overtidsberegning"
+    "endre grunnlaget for overtidsberegning",
+    "endre overtidsreglene",
+    "juster fra hvilken time overtid godskrives",
+    "sett overtid som fast tidsgodtgjørelse i stedet for faktor"
   ],
   "update_owner_address": [
     "oppdater firmaadressen",
@@ -3171,14 +3732,20 @@
     "sett ny feriekalender",
     "bytt tidssone og kalender",
     "endre land og stat for firmaet",
-    "konfigurer tidssone og helligdager"
+    "konfigurer tidssone og helligdager",
+    "bytt firmaet til kanton bern",
+    "sett tidssonen for installasjonen til europe/oslo",
+    "bruk zürich-feriekalenderen som global kalender"
   ],
   "update_period_cap_rule": [
     "endre stundstaket",
     "juster taket på timer",
     "hev taket til 180 timer",
     "senk grensen for overtid",
-    "flytt forhåndsvarslet til 80 prosent"
+    "flytt forhåndsvarslet til 80 prosent",
+    "sett overtidstaket til 50 timer",
+    "bytt timetaket fra månedlig til kvartalsvis",
+    "flytt varselgrensen for timegrensen til 80 prosent"
   ],
   "update_qualification": [
     "oppdater kvalifikasjon",
@@ -3186,27 +3753,39 @@
     "gi nytt navn til kvalifikasjon",
     "rediger kompetanse",
     "modifiser kvalifikasjonsegenskaper",
-    "oppdater sertifisering"
+    "oppdater sertifisering",
+    "rett navnet på en kvalifikasjon",
+    "flytt en kvalifikasjon til en annen kategori",
+    "endre utløpsregelen til en kvalifikasjon"
   ],
   "update_report_template": [
     "endre rapportmalen",
     "oppdater utskriftsmalen",
     "rediger rapportmalen",
     "nytt navn på rapportmalen",
-    "juster rapportmalen"
+    "juster rapportmalen",
+    "endre navnet på utskriftsmalen",
+    "endre beskrivelsen av en rapportlayout",
+    "juster hvordan like rader slås sammen i malen"
   ],
   "update_restricted_time_window_rule": [
     "endre en sperretidsregel",
     "juster de sperrede klokkeslettene",
     "flytt sperretiden til 23-07",
     "endre sesongen for sperretiden",
-    "oppdater regelen for forbudte timer"
+    "oppdater regelen for forbudte timer",
+    "endre sperretimene i regelen til 22 til 6",
+    "la tidssperren bare gjelde om sommeren",
+    "la klokkeslettsperren gjelde en annen gruppe mennesker"
   ],
   "update_schedule_note": [
     "oppdater en planleggingsnotat",
     "endre en daglig notat",
     "rediger en planleggingsnotat",
-    "oppdater notatinnhold"
+    "oppdater notatinnhold",
+    "omformuler notatet i vaktplanen",
+    "flytt et plannotat til en annen dag",
+    "rediger teksten i et eksisterende planleggingsnotat"
   ],
   "update_scheduling_defaults": [
     "oppdater planleggingsinnstillinger",
@@ -3229,7 +3808,10 @@
     "oppdater vakt",
     "modifiser vakt",
     "rediger vaktinformasjon",
-    "juster vakttid"
+    "juster vakttid",
+    "sett sluttiden på utkastvakten til 18:00",
+    "øk påkrevd bemanning på vakten til 3",
+    "endre forkortelse og beskrivelse på vakten"
   ],
   "update_spam_filter_settings": [
     "spaminnstillinger",
@@ -3242,7 +3824,10 @@
     "juster en blokkert avsender",
     "slå av en blokkering midlertidig",
     "endre rekkefølgen på spamreglene",
-    "oppdater en spamregel"
+    "oppdater en spamregel",
+    "bytt ut søkeordet i en spamregel",
+    "deaktiver en spamregel",
+    "sett en regel for uønskede meldinger på igjen"
   ],
   "update_speech_settings": [
     "endre stemmen til assistenten",
@@ -3250,7 +3835,10 @@
     "slå på/av opplesing av svar",
     "tillat avbrytelse mens assistenten snakker",
     "oppdater taleinnstillingene",
-    "endre talegjenkjenning og taleinnstillinger"
+    "endre talegjenkjenning og taleinnstillinger",
+    "bytt taleutgangen til en annen stemme",
+    "endre transkripsjonsmodellen for taleinndata",
+    "still inn hvor lang stillhet som markerer slutten på en setning"
   ],
   "update_surcharge_mode_settings": [
     "endre tillegg til fast beløp",
@@ -3258,14 +3846,20 @@
     "flytt nattsjiktet",
     "slutt å legge sammen tillegg",
     "oppdater innstillingene for tillegg",
-    "juster reglene for overtillegg"
+    "juster reglene for overtillegg",
+    "nattillegget skal være en fast tidsgodtgjørelse",
+    "sett nattperioden fra 22 til 06",
+    "tell bare det høyeste tillegget per time"
   ],
   "update_transcription_dictionary_entry": [
     "oppdater ord i transkripsjonsordboka",
     "rediger en transkripsjonsterm",
     "endre fonetiske varianter for et ord",
     "modifiser talekorreksjon i ordboka",
-    "juster en oppføring i transkripsjonsordboka"
+    "juster en oppføring i transkripsjonsordboka",
+    "rett begrepet i talegjenkjenningsordboken",
+    "endre stavemåten på en oppføring for dikteringen",
+    "legg til flere lydlikende varianter på ordboksbegrepet"
   ],
   "update_user": [
     "oppdater brukerens opplysninger",
@@ -3273,7 +3867,10 @@
     "endre epostadressen til brukeren",
     "rett opp i brukerkontoen",
     "bytt brukernavnet til den ansatte",
-    "endre innloggingsdetaljene for brukeren"
+    "endre innloggingsdetaljene for brukeren",
+    "rett en skrivefeil i navnet på en brukerkonto",
+    "endre e-postadressen til en annen bruker",
+    "gi en kollega nytt innloggingsnavn"
   ],
   "update_web_search_settings": [
     "nettsøkinnstillinger",
@@ -3281,7 +3878,10 @@
     "søkemotorinnstillinger",
     "endre innstillingene for nettsøk",
     "oppdater søkemotorleverandøren",
-    "bytt api-nøkkel for nettsøk"
+    "bytt api-nøkkel for nettsøk",
+    "bytt leverandør for nettsøk",
+    "legg inn ny api-nøkkel for nettsøket",
+    "øk maks antall treff per søk"
   ],
   "update_wizard_settings": [
     "bytt modell for planleggingsveiviseren",
@@ -3289,11 +3889,17 @@
     "endre modellen som brukes til helautomatisk planlegging",
     "oppdater innstillingene for veiviseren",
     "bytt til en raskere modell for planrevisjon",
-    "sett modellen for å omarbeide hele vaktplanen"
+    "sett modellen for å omarbeide hele vaktplanen",
+    "sett harmonisereren til lokalt søk",
+    "velg en språkmodell for vaktplanharmonisereren",
+    "bestem hvilken modell som omarbeider hele planen"
   ],
   "update_work": [
     "endre tidene for en plassert vakt",
-    "justere timene for en tildeling i planen"
+    "justere timene for en tildeling i planen",
+    "flytt start og slutt på en planlagt vakt",
+    "korriger timene på en plassert vakt",
+    "endre tiden på tildelingen uten å opprette den på nytt"
   ],
   "update_work_settings": [
     "endre arbeidsinnstillingene",
@@ -3309,7 +3915,10 @@
     "juster vikariat",
     "rediger reisetid",
     "endre arbeidsendring med uuid",
-    "oppdater korrektur"
+    "oppdater korrektur",
+    "endre timekorreksjonen på vakten",
+    "juster tilleggene for en vikar i etterkant",
+    "korriger start og slutt for briefingtiden"
   ],
   "validate_address": [
     "adressebekreftelse",
@@ -3350,18 +3959,30 @@
   ],
   "start_order_review": [
     "gå gjennom åpne bestillinger før forsegling",
-    "felles gjennomgang av åpne bestillinger"
+    "felles gjennomgang av åpne bestillinger",
+    "start gjennomgangen av bestillingene",
+    "la oss gå gjennom de åpne bestillingene sammen",
+    "bunt like bestillinger og gå gjennom unntakene"
   ],
   "set_order_review_decision": [
-    "registrer svar i bestillingsgjennomgang"
+    "registrer svar i bestillingsgjennomgang",
+    "del bestillingen i 3x8-tjenester",
+    "sett starttiden for 24-timersbestillingen",
+    "legg inn reisekostnader for denne bunten"
   ],
   "preview_order_review": [
     "status for bestillingsgjennomgang"
   ],
   "cancel_order_review": [
-    "stopp bestillingsgjennomgangen"
+    "stopp bestillingsgjennomgangen",
+    "avbryt bestillingsrunden",
+    "jeg vil avslutte gjennomgangen av de åpne bestillingene",
+    "forkast gjennomgangen og slutt"
   ],
   "execute_order_review": [
-    "bruk den bekreftede bestillingsgjennomgangen"
+    "bruk den bekreftede bestillingsgjennomgangen",
+    "utfør den bekreftede bestillingsgjennomgangen",
+    "skriv de besluttede verdiene inn i de åpne bestillingene",
+    "jeg vil at bestillingene skal kuttes i tjenester nå"
   ]
 }

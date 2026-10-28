@@ -4,7 +4,10 @@
     "zaakceptuj propozycję",
     "przyjmij analizę",
     "zastosuj scenariusz",
-    "zatwierdź plan z wizarda"
+    "zatwierdź plan z wizarda",
+    "wnieś propozycję kreatora do właściwego grafiku",
+    "zatwierdź scenariusz i przenieś go do planu głównego",
+    "chcę zapisać wynik autowizarda"
   ],
   "accept_skill_relation": [
     "potwierdź powiązanie między umiejętnościami",
@@ -12,7 +15,10 @@
     "uznaj to powiązanie między funkcjami",
     "zatwierdź zależność między umiejętnościami",
     "niech to powiązanie będzie ważne",
-    "potwierdź relację między umiejętnościami"
+    "potwierdź relację między umiejętnościami",
+    "zaakceptuj proponowane powiązanie umiejętności",
+    "potwierdź sugerowaną więź między dwiema funkcjami",
+    "zatwierdź to oczekujące połączenie"
   ],
   "add_ai_memory": [
     "pamięć",
@@ -33,21 +39,30 @@
   "add_break_placeholder": [
     "życzenie urlopowe",
     "wstępna rezerwacja nieobecności",
-    "wniosek urlopowy"
+    "wniosek urlopowy",
+    "wpisz życzenie urlopowe od 3 do 14 sierpnia",
+    "zarezerwuj wstępnie letnie życzenia anny",
+    "zapisz życzenie nieobecności w kalendarzu absencji"
   ],
   "add_client_email": [
     "dodaj email [firstname] [lastname]",
     "zmień adres e-mail [firstname] [lastname]",
     "przypisz maila [firstname] [lastname]",
     "daj e-mail [firstname] [lastname] [email]",
-    "ustaw mail [firstname] [lastname]"
+    "ustaw mail [firstname] [lastname]",
+    "ustaw adres e-mail klienta",
+    "zmień e-mail tego pracownika",
+    "wpisz nowy adres pocztowy klienta"
   ],
   "add_client_note": [
     "dodaj notatkę do [firstname] [lastname]",
     "zapisz uwagę dla [firstname] [lastname]",
     "dopisz komentarz [firstname] [lastname]",
     "dodaj adnotację [firstname] [lastname]",
-    "przypisz notkę [firstname] [lastname]"
+    "przypisz notkę [firstname] [lastname]",
+    "dołącz notatkę do tego pracownika",
+    "chcę wpisać uwagę o kliencie",
+    "dodaj komentarz do karty osoby"
   ],
   "add_client_phone": [
     "dodaj telefon dla [firstname] [lastname]",
@@ -55,7 +70,10 @@
     "daj telefon [firstname] [lastname] [phone]",
     "przypisz numer [firstname] [lastname]",
     "dodaj komórkę [firstname] [lastname]",
-    "ustaw telefon [firstname] [lastname]"
+    "ustaw telefon [firstname] [lastname]",
+    "zapisz nowy numer komórkowy pracownika",
+    "dopisz numer kontaktowy tej osoby",
+    "wprowadź telefon klienta"
   ],
   "add_client_to_group": [
     "dodaj do grupy",
@@ -68,7 +86,10 @@
     "dodaj [firstname] [lastname] do grupy [groupname]",
     "przypisz [firstname] [lastname] do [groupname]",
     "dołącz [firstname] [lastname] do grupy [groupname]",
-    "umieść [firstname] [lastname] w grupie [groupname]"
+    "umieść [firstname] [lastname] w grupie [groupname]",
+    "dodaj pracownika do zespołu",
+    "włóż tę osobę do grupy",
+    "chcę przypisać klienta do grupy"
   ],
   "add_client_to_nearest_group": [
     "dodaj klienta do najbliższej grupy",
@@ -81,14 +102,20 @@
     "dodaj zadanie do szablonu kontenera",
     "wstaw zmianę zadaniową do szablonu kontenera",
     "dopisz zadanie do dnia w szablonie kontenera",
-    "umieść task w szablonie kontenera"
+    "umieść task w szablonie kontenera",
+    "dodaj kolejną podzmianę do poniedziałkowego szablonu kontenera",
+    "wstaw zadanie na pozycję 2 w planie kontenera",
+    "uzupełnij wtorkowy szablon o dodatkowe zadanie"
   ],
   "add_expense": [
     "dodaj wydatek",
     "wprowadź wydatek",
     "dodaj koszt do zmiany",
     "zaksięguj wydatek",
-    "wpisz nowy wydatek"
+    "wpisz nowy wydatek",
+    "dodaj 25 franków za bilet kolejowy jako wydatek do wczorajszej pracy",
+    "zaksięguj koszt opłaty parkingowej przy zmianie",
+    "wpisz opodatkowany dodatek 30 franków do przydziału"
   ],
   "add_personal_memory": [
     "zapamiętaj, że wolę pracować z rana",
@@ -96,7 +123,10 @@
     "moja preferencja: zawsze wybieram popołudniówki",
     "zanotuj, że mam alergię na koty",
     "chcę, żebyś pamiętał, że nie jadam mięsa",
-    "dla mnie: ważne, by mieć przerwę o 12"
+    "dla mnie: ważne, by mieć przerwę o 12",
+    "pamiętaj, że lubię krótkie odpowiedzi",
+    "zapisz prywatnie moją preferencję na później",
+    "zanotuj tylko dla mnie, że nie lubię planować weekendów"
   ],
   "add_schedule_command": [
     "ustaw wolne dla klienta 15 maja",
@@ -108,21 +138,30 @@
   "add_schedule_commands_range": [
     "wolny okres",
     "polecenia na okres",
-    "kilka wolnych dni"
+    "kilka wolnych dni",
+    "ma mieć wolne codziennie od 10 do 20 maja",
+    "on chce tylko zmian rannych przez cały lipiec",
+    "zostaw mu wolny pierwszy tydzień czerwca"
   ],
   "add_schedule_note": [
     "dodaj notatkę w grafiku",
     "dopisz uwagę do harmonogramu",
     "zanotuj coś w planie dla klienta",
     "wstaw adnotację w harmonogramie",
-    "dodaj uwagę dla klienta na konkretny dzień"
+    "dodaj uwagę dla klienta na konkretny dzień",
+    "zostaw notatkę przekazania dla pracownika na wtorek",
+    "wpisz komentarz do konkretnego dnia w grafiku",
+    "uwaga w planie dla pracownika na piątek"
   ],
   "add_selected_clients_to_group": [
     "dodaj zaznaczonych do grupy [groupname]",
     "przypisz wybranych pracowników do [groupname]",
     "dodaj oznaczone osoby do grupy [groupname]",
     "wstaw zaznaczonych do [groupname]",
-    "dołącz wybrane osoby do grupy [groupname]"
+    "dołącz wybrane osoby do grupy [groupname]",
+    "wrzuć zaznaczonych pracowników do grupy",
+    "przydziel odhaczonych do jednej grupy",
+    "dodaj wszystkich, których wybrałem, do grupy"
   ],
   "add_shift_to_group": [
     "dodaj dyżur do grupy",
@@ -137,7 +176,10 @@
     "dodaj korektę wymowy",
     "zapisz wariant fonetyczny",
     "dodaj termin do słownika transkrypcji",
-    "stwórz wpis korygujący mowę"
+    "stwórz wpis korygujący mowę",
+    "naucz rozpoznawanie mowy, że klaxi znaczy klacksy",
+    "dopisz nowe przesłyszenie do słownika transkrypcji",
+    "niech dyktowanie od teraz poprawnie pisze ten termin"
   ],
   "add_workchange": [
     "dodaj korektę do zmiany",
@@ -160,35 +202,53 @@
   "apply_company_rule": [
     "zastosuj regułę firmową",
     "zapisz i potwierdź regułę firmową",
-    "aktywuj regułę firmową"
+    "aktywuj regułę firmową",
+    "przyjmij teraz szkic reguły firmowej",
+    "wprowadź w życie przygotowaną regułę dodatków",
+    "zastosuj szkic reguły i wpisz go do rejestru"
   ],
   "apply_grouping": [
     "zastosuj grupowanie teraz",
     "potwierdź i wykonaj grupowanie",
     "przenieś klientów do ich grup już teraz",
     "wykonaj zaproponowane grupowanie",
-    "zatwierdź i uruchom grupowanie klientów"
+    "zatwierdź i uruchom grupowanie klientów",
+    "przenieś wszystkich pracowników do ich grup lokalizacyjnych",
+    "wykonaj teraz grupowanie według miejsca",
+    "zapisz proponowany podział na lokalizacje"
   ],
   "apply_grouping_plan": [
     "zastosuj plan grup",
-    "wprowadź proponowane zmiany w grupach"
+    "wprowadź proponowane zmiany w grupach",
+    "wykonaj zatwierdzony plan grup",
+    "wprowadź w życie zaproponowane zmiany członkostwa",
+    "uruchom plan grupowania po jego kodzie"
   ],
   "apply_planning_profile": [
     "zastosuj profil planowania",
-    "zapisz profil planowania"
+    "zapisz profil planowania",
+    "przyjmij zaplanowany profil planowania",
+    "zastosuj szkic profilu planowania",
+    "aktywuj własne reguły planowania ze szkicu"
   ],
   "approve_day": [
     "zatwierdź dzień",
     "zatwierdź harmonogram na poniedziałek",
     "zwolnij dzień do akceptacji",
     "aprobuj 15 maja",
-    "zatwierdź wszystkie zmiany w tym dniu"
+    "zatwierdź wszystkie zmiany w tym dniu",
+    "zatwierdź wszystkie wpisy pracy z poniedziałku dla grupy",
+    "odbierz 15 maja dla tej grupy",
+    "chcę zamknąć dzień jako zatwierdzony dla zespołu"
   ],
   "assign_contract_by_name": [
     "przypisz umowę po nazwisku",
     "nadaj umowę osobie, której znam tylko imię i nazwisko",
     "znajdź klienta po nazwisku i przypisz umowę",
-    "przydziel umowę pracownikowi na podstawie samego imienia"
+    "przydziel umowę pracownikowi na podstawie samego imienia",
+    "połącz pracownika z umową, znając tylko nazwy",
+    "daj pracownikowi o tym nazwisku umowę na część etatu",
+    "ustaw nową aktywną umowę dla pracownika według nazwiska"
   ],
   "assign_contract_to_client": [
     "przypisz umowę",
@@ -198,15 +258,24 @@
   ],
   "assign_macro_to_absence_type": [
     "przypisz makro do rodzaju nieobecności",
-    "zmień makro obliczeniowe rodzaju nieobecności"
+    "zmień makro obliczeniowe rodzaju nieobecności",
+    "przełącz urlop na inne makro obliczeniowe",
+    "chcę ustawić nową formułę zaliczania godzin dla chorobowego",
+    "powiąż typ nieobecności wypadek z innym makrem"
   ],
   "assign_macro_to_shift": [
     "przypisz makro do zmiany",
-    "zmień makro obliczeniowe zmiany"
+    "zmień makro obliczeniowe zmiany",
+    "ustaw rozszerzony wzór dodatków na zmianie nocnej",
+    "daj tej zmianie inne makro",
+    "wróć do standardowej formuły dla zmiany"
   ],
   "assign_orders_to_groups": [
     "pogrupuj zaimportowane zamówienia",
-    "zamówienia bez grupy"
+    "zamówienia bez grupy",
+    "przydziel wszystkie otwarte zamówienia do ich grup",
+    "po imporcie erp wrzuć zamówienia do grup miejskich",
+    "rozmieść automatycznie zamówienia bez grupy według adresu klienta"
   ],
   "assign_shifts_to_city_groups": [
     "rozdziel zmiany na grupy miejskie według adresu klienta",
@@ -225,41 +294,62 @@
     "masowo dodaj nieobecność do grupy",
     "szkolenie dla całej grupy",
     "dodaj dzień wolny dla wszystkich w grupie",
-    "urlop dla całego zespołu"
+    "urlop dla całego zespołu",
+    "wpisz szkolenie w piątek wszystkim z grupy",
+    "chcę dać całej grupie tę samą nieobecność na jeden dzień",
+    "dodaj taką samą absencję każdemu członkowi zespołu w danym dniu"
   ],
   "bulk_add_shifts_to_group": [
     "dodaj wszystkie zmiany pasujące do 'noc' do grupy 'nocna'",
     "masowo przypisz dyżury do zespołu",
     "dodaj do grupy wszystkie usługi z 'konsultacja'",
     "przypisz wszystkie zmiany z 'weekend' do grupy weekendowej",
-    "zbiorczo dodaj służby do działu"
+    "zbiorczo dodaj służby do działu",
+    "przypisz wszystkie usługi o tym skrócie do działu",
+    "dodaj od razu wiele zmian do jednej grupy",
+    "wrzuć wszystkie nocne dyżury do jednego zespołu"
   ],
   "bulk_delete_works": [
     "usuń wszystkie zmiany pracownika w okresie",
     "usuń wszystkie przydziały z zakresu dat",
     "skasuj wszystkie dyżury pracownika w okresie",
-    "usuń wiele przydziałów naraz"
+    "usuń wiele przydziałów naraz",
+    "wyczyść wszystkie wpisy pracy jednego pracownika na przyszły tydzień",
+    "skasuj wszystkie dyżury osoby na danej zmianie w tym okresie",
+    "usuń hurtem do 50 wpisów z zakresu dat"
   ],
   "bundle_nearby_timerange_shifts_into_container": [
     "połącz mobilne usługi wokół miasta",
     "zbierz pobliskie zmiany timerange",
-    "scal pobliskie usługi mobilne"
+    "scal pobliskie usługi mobilne",
+    "spakuj wszystkie zlecenia mobilne wokół winterthur do nowego kontenera",
+    "zbuduj kontener na czwartek z pobliskich zmian timerange",
+    "połącz trasy w okolicy bazylei w dzienny kontener"
   ],
   "cancel_company_rule": [
     "anuluj szkic reguły firmowej",
     "odrzuć tworzoną regułę firmową",
-    "przerwij definiowanie reguły firmowej"
+    "przerwij definiowanie reguły firmowej",
+    "odrzuć rozpoczętą regułę firmową",
+    "przerwij szkic zasady firmowej",
+    "nie kontynuuj już zapisywania reguły"
   ],
   "cancel_planning_profile_setup": [
     "anuluj konfigurację profilu planowania",
-    "odrzuć wersję roboczą profilu planowania"
+    "odrzuć wersję roboczą profilu planowania",
+    "przerwij konfigurację profilu planowania",
+    "odrzuć szkic profilu planowania",
+    "zakończ kreatora profilu"
   ],
   "cancel_recurring_task": [
     "usuń przypomnienie o poniedziałku",
     "anuluj zadanie cotygodniowe",
     "zakończ cykliczne przypomnienie",
     "skasuj harmonogram o nazwie raport",
-    "przestań przypominać o spotkaniu"
+    "przestań przypominać o spotkaniu",
+    "zatrzymaj moje cykliczne przypomnienie",
+    "anuluj zaplanowane zadanie cron",
+    "usuń cotygodniowe przypomnienie"
   ],
   "cancel_wizard_job": [
     "anuluj zadanie",
@@ -267,7 +357,10 @@
     "stop kreator",
     "zakończ proces",
     "odwołaj generowanie",
-    "zatrzymaj wizard"
+    "zatrzymaj wizard",
+    "zatrzymaj trwające planowanie",
+    "przerwij automatyczne układanie grafiku",
+    "zakończ właśnie działającego kreatora"
   ],
   "check_absence_capacity_reserve": [
     "rezerwa kadrowa na urlop",
@@ -289,7 +382,10 @@
   "check_erp_drop_point_folder_health": [
     "sprawdź stan folderu punktu odbioru",
     "czy folder przetrwa restart",
-    "utwórz foldery processed i error"
+    "utwórz foldery processed i error",
+    "czy do folderu erp można zapisywać",
+    "sprawdź, czy folder przekazania erp istnieje, i utwórz go, jeśli brakuje",
+    "czemu pliki zamówień nie są pobierane, przetestuj folder"
   ],
   "check_group_geocoding_status": [
     "status geokodowania"
@@ -297,18 +393,27 @@
   "clear_client_availability": [
     "zresetować dostępność pracownika",
     "usunąć wpisy dostępności",
-    "wyczyścić dostępność aby dzień był znowu otwarty"
+    "wyczyścić dostępność aby dzień był znowu otwarty",
+    "skasuj wszystkie wpisy dostępności w sierpniu",
+    "zwolnij dzień całkowicie dla planowania",
+    "usuń tylko dostępność przedpołudniową"
   ],
   "close_clarification": [
     "sam wyjaśnię to z pracownikiem",
-    "zamknij pytanie doprecyzowujące"
+    "zamknij pytanie doprecyzowujące",
+    "wyjaśnię to osobiście",
+    "zamknij otwarte pytanie do pracownika",
+    "nie czekaj już na odpowiedź w sprawie nieobecności"
   ],
   "close_period": [
     "zamknij okres",
     "zamknij miesiąc",
     "sfinalizuj okres rozliczeniowy",
     "zablokuj okres",
-    "zamknij maj 2026"
+    "zamknij maj 2026",
+    "zablokuj na dobre wszystkie godziny z zeszłego miesiąca",
+    "zapieczętuj okres płatności i zapisz w logu audytu",
+    "chcę teraz zamknąć okres do rozliczenia"
   ],
   "confirm_break": [
     "potwierdź ten urlop",
@@ -316,7 +421,10 @@
     "zablokuj wpis urlopu",
     "potwierdź zwolnienie chorobowe",
     "zatwierdź szkolenie",
-    "zablokuj tę absencję"
+    "zablokuj tę absencję",
+    "uczyń zapisany urlop wiążącym",
+    "ustaw wpis chorobowego jako potwierdzony",
+    "potwierdź nieobecność według id przerwy"
   ],
   "confirm_pending_action": [
     "potwierdzam wykonanie akcji",
@@ -324,14 +432,20 @@
     "aprobuję zaplanowaną operację",
     "wykonaj oczekującą akcję",
     "potwierdzam, kontynuuj",
-    "tak, potwierdzam tę czynność"
+    "tak, potwierdzam tę czynność",
+    "tak, uruchom oczekującą czynność",
+    "dobra, potwierdzone, rób dalej",
+    "zgoda, wykonaj dokładnie tak"
   ],
   "confirm_work": [
     "potwierdź zmianę",
     "zablokuj przypisanie",
     "ustal tę zmianę",
     "zatwierdź pracę",
-    "zablokuj shift"
+    "zablokuj shift",
+    "zrób to przypisanie ostatecznym",
+    "zabezpiecz tę zmianę przed kreatorami",
+    "ustaw wpis pracy jako potwierdzony"
   ],
   "cover_absence": [
     "pokryj nieobecność pracownika",
@@ -346,18 +460,27 @@
     "utwórz nowy rodzaj urlopu",
     "nowy typ absencji",
     "dodaj rodzaj zwolnienia",
-    "stwórz typ nieobecności"
+    "stwórz typ nieobecności",
+    "zdefiniuj nowy typ nieobecności na urlop szkoleniowy",
+    "potrzebuję nowego rodzaju absencji na służbę wojskową",
+    "dodaj do danych podstawowych typ na urlop bezpłatny"
   ],
   "create_absence_type": [
     "utwórz nowy typ nieobecności",
-    "zdefiniuj nową kategorię nieobecności"
+    "zdefiniuj nową kategorię nieobecności",
+    "dodaj w ustawieniach nowy rodzaj nieobecności",
+    "chcę założyć kolejny typ urlopu ze skrótem i kolorem",
+    "nowy typ absencji dla chorobowego"
   ],
   "create_address": [
     "dodaj nowy adres",
     "utwórz adres pracownika",
     "dodaj adres zamieszkania",
     "dodaj adres klienta",
-    "załóż adres"
+    "załóż adres",
+    "zapisz adres do faktur dla klienta",
+    "dodaj adres służbowy do tego kontaktu",
+    "zachowaj adres korespondencyjny z krajem i stanem"
   ],
   "create_agent_skill": [
     "utwórz umiejętność",
@@ -375,26 +498,38 @@
   ],
   "create_calendar_selection": [
     "utwórz wybór kalendarza",
-    "utwórz kalendarz świąt"
+    "utwórz kalendarz świąt",
+    "połącz święta dwóch regionów w jeden kalendarz",
+    "nowy wybór kalendarza z niemcami i austrią",
+    "stwórz własny kalendarz świąt z kilku krajów"
   ],
   "create_container_template": [
     "utwórz szablon dnia tygodnia dla kontenera",
     "załóż nowy szablon kontenera",
     "dodaj szablon dzienny do zmiany kontenerowej",
-    "skonfiguruj dzień tygodnia kontenera"
+    "skonfiguruj dzień tygodnia kontenera",
+    "załóż dzienny plan z budżetem czasu dla kontenera na poniedziałek",
+    "kontener potrzebuje jeszcze szablonu na środę",
+    "utwórz wtorkowy szablon z lokalizacją startu i końca"
   ],
   "create_contract": [
     "utwórz umowę",
     "nowa umowa",
     "dodaj umowę",
     "umowa o pracę",
-    "kontrakt"
+    "kontrakt",
+    "chcę założyć nowy wzór umowy na 40 godzin tygodniowo",
+    "zapisz umowę na 8 godzin dziennie i 5 dni",
+    "nowa umowa na część etatu, 20 godzin"
   ],
   "create_contract_from_template": [
     "utwórz umowę na podstawie szablonu",
     "nowa umowa z szablonu",
     "skopiuj szablon umowy",
-    "umowa według wzoru"
+    "umowa według wzoru",
+    "skopiuj umowę pełnoetatową i zmień tylko datę początku",
+    "nowa umowa jak obecna, ale na 60 procent etatu",
+    "użyj umowy na część etatu jako wzoru z innym regionem świąt"
   ],
   "create_counter_rule": [
     "ustaw regułę zliczania",
@@ -402,13 +537,19 @@
     "utwórz zasadę ograniczającą liczbę",
     "pozwól maksymalnie na 4 nocne zmiany",
     "ustaw, że można pracować maksymalnie 5 dni w tygodniu",
-    "dodaj regułę, która blokuje przekroczenie liczby"
+    "dodaj regułę, która blokuje przekroczenie liczby",
+    "pozwól na maksymalnie pięć dni pracy w tygodniu",
+    "ostrzegaj, gdy ktoś ma więcej niż cztery dyżury nocne w miesiącu",
+    "ustaw górną granicę dyżurów weekendowych"
   ],
   "create_donation_checkout": [
     "przekaż darowiznę na klacks",
     "utwórz darowiznę",
     "chcę wpłacić darowiznę",
-    "wesprzyj klacks kwotą"
+    "wesprzyj klacks kwotą",
+    "chciałbym wpłacić 50 franków",
+    "wygeneruj link do płatności na darowiznę dla projektu",
+    "otwórz stronę darowizny na 20 dolarów"
   ],
   "create_email_folder": [
     "utwórz nowy folder na e-maile",
@@ -433,7 +574,10 @@
     "utwórz nowy token dla systemu zewnętrznego",
     "wystaw klucz do przekazywania plików",
     "stwórz token api dla dostawcy",
-    "wygeneruj hasło do przesyłania plików"
+    "wygeneruj hasło do przesyłania plików",
+    "potrzebuję klucza dostępu do punktu przekazania",
+    "wystaw nowy token do importu plików z erp",
+    "system zewnętrzny potrzebuje klucza do dostarczania plików"
   ],
   "create_group": [
     "dodaj nową grupę",
@@ -441,7 +585,10 @@
     "załóż nowy zespół",
     "otwórz filię",
     "stworzyć jednostkę",
-    "dodaj lokalizację"
+    "dodaj lokalizację",
+    "załóż nową podgrupę pod grupą sprzedaż",
+    "chcę utworzyć zespół dla nocnej warty",
+    "zarejestruj nową jednostkę organizacyjną od przyszłego poniedziałku"
   ],
   "create_identity_provider": [
     "dodaj nowego dostawcę tożsamości",
@@ -457,7 +604,10 @@
     "ustaw własny okres rozliczeniowy",
     "utwórz nowy schemat okresów",
     "dodaj okres od 26 do 25",
-    "stwórz cykl z własnym dniem granicznym"
+    "stwórz cykl z własnym dniem granicznym",
+    "załóż okres biegnący od 26 do 25",
+    "stwórz okno zliczania dla pracowników z przesuniętym początkiem miesiąca",
+    "zdefiniuj okres rozliczeniowy od 26 do 25 z godzinami pełnego etatu"
   ],
   "create_llm_model": [
     "utwórz model AI",
@@ -478,21 +628,30 @@
     "stwórz skrypt kalkulacji",
     "dodaj nową regułę obliczeniową",
     "zdefiniuj makro o nazwie 'premia'",
-    "stwórz formułę do przeliczania stawek"
+    "stwórz formułę do przeliczania stawek",
+    "stwórz nowe makro z tym skryptem",
+    "chcę zapisać w ustawieniach nowy skrypt do obliczeń",
+    "nowe makro w ustawieniach"
   ],
   "create_monthly_target_hours": [
     "ustaw cel godzinowy na luty",
     "wpisz ile godzin ma mieć miesiąc",
     "zdefiniuj miesięczne godziny",
     "dodaj wpis dla miesiąca z liczbą godzin",
-    "określ normę godzin dla tego miesiąca"
+    "określ normę godzin dla tego miesiąca",
+    "wpisz 160 godzin normy na luty",
+    "zapisz miesiąc z odmienną liczbą godzin",
+    "zdefiniuj wartość godzin na każdy miesiąc przyszłego roku"
   ],
   "create_period_cap_rule": [
     "ustaw limit godzin na miesiąc",
     "dodaj ograniczenie godzin dla okresu",
     "ustaw maksymalnie 170 godzin w miesiącu",
     "wprowadź limit średniej tygodniowej",
-    "utwórz regułę limitującą godziny"
+    "utwórz regułę limitującą godziny",
+    "maksymalna średnia 48 godzin w dwanaście tygodni",
+    "ostrzegaj przy 90 procentach godzin miesięcznych",
+    "dopuść najwyżej 170 godzin miesięcznie"
   ],
   "create_personal_access_token": [
     "utwórz token dostępu",
@@ -506,28 +665,40 @@
     "utwórz plan",
     "plan wieloetapowy",
     "kilka zadań naraz",
-    "przygotuj plan zadań"
+    "przygotuj plan zadań",
+    "potrzebuję sekwencji dla klienta, zamówienia i obsady naraz",
+    "ułóż to jako plan z kilkoma krokami",
+    "zaproponuj, jak wykonamy te wszystkie zmiany po kolei"
   ],
   "create_qualification": [
     "utwórz nową kwalifikację",
     "dodaj typ kwalifikacji",
     "zdefiniuj umiejętność",
     "stwórz kwalifikację",
-    "dodaj nową kompetencję"
+    "dodaj nową kompetencję",
+    "zarejestruj nową kwalifikację uprawnienia na wózek widłowy",
+    "chcę zapisać pierwszą pomoc jako kwalifikację",
+    "dodaj do danych podstawowych kwalifikację prawo jazdy c1"
   ],
   "create_report_template": [
     "utwórz nowy szablon wydruku",
     "dodaj nową listę do druku",
     "przygotuj nowy układ raportu",
     "stwórz szablon raportu",
-    "dodaj nowy wzór wydruku"
+    "dodaj nowy wzór wydruku",
+    "dodaj nowy układ do drukowania grafików",
+    "potrzebuję szablonu raportu nieobecności",
+    "stwórz szablon faktury do druku ze scalonymi wierszami"
   ],
   "create_restricted_time_window_rule": [
     "ustaw zakaz pracy w godzinach nocnych",
     "dodaj zakaz pracy w określonych godzinach",
     "utwórz sezonowy zakaz pracy",
     "wprowadź zakaz od 22 do 6",
-    "ustaw, że nie można pracować w tych godzinach"
+    "ustaw, że nie można pracować w tych godzinach",
+    "latem zakaz pracy między 12 a 15",
+    "zdefiniuj okno zakazu na sezon w każdym roku",
+    "zablokuj wieczory od listopada do marca dla wszystkich z tagiem teren"
   ],
   "create_scheduling_rule": [
     "utwórz regułę planowania",
@@ -549,7 +720,10 @@
     "utwórz filtr spamu",
     "dodaj wzorzec spamu",
     "zablokuj domenę",
-    "nie przyjmuj wiadomości od tego nadawcy"
+    "nie przyjmuj wiadomości od tego nadawcy",
+    "odfiltruj wszystkie maile z tej domeny",
+    "uznawaj wiadomości z tym tematem za spam",
+    "odrzucaj od teraz maile z tego adresu nadawcy"
   ],
   "create_test_environment": [
     "utwórz środowisko testowe",
@@ -557,7 +731,10 @@
     "dodaj testowych pracowników",
     "przygotuj testowe zmiany",
     "utwórz testową grupę z kontraktem",
-    "stworzyć testowe dane dla harmonogramu"
+    "stworzyć testowe dane dla harmonogramu",
+    "przygotuj kompletne środowisko testowe do autofill",
+    "potrzebuję testowych pracowników z grupą i wspólną umową",
+    "wygeneruj dane testowe z zmianami rannymi, popołudniowymi i nocnymi"
   ],
   "create_user": [
     "utwórz użytkownika",
@@ -573,31 +750,46 @@
     "rozłóż usługę na okresy",
     "dokonaj podziału zmiany",
     "tnij zmianę na fragmenty",
-    "podziel zlecenie na rotacje"
+    "podziel zlecenie na rotacje",
+    "rozdziel 24-godzinne zlecenie na część wczesną, późną i nocną",
+    "potnij to zlecenie na kilka odcinków czasu",
+    "chcę rozbić zmianę na dwie części"
   ],
   "cut_shift_by_date": [
     "potnij zmianę w konkretnym dniu",
     "podziel zmianę na dwie części w dacie",
     "rozetnij zmianę od podanej daty",
-    "przetnij zmianę w tym dniu"
+    "przetnij zmianę w tym dniu",
+    "niech zmiana zaczyna się od nowa od 1 lipca",
+    "rozdziel zmianę na dwie części w danym dniu kalendarza",
+    "uciąć serię w dniu granicznym i zacząć ją od nowa"
   ],
   "delete_absence": [
     "usuń typ nieobecności",
     "usuń rodzaj urlopu",
     "usuń typ absencji",
     "usuń typ zwolnienia",
-    "usuń definicję nieobecności"
+    "usuń definicję nieobecności",
+    "skasuj z ustawień typ urlopu bezpłatnego",
+    "usuń rodzaj nieobecności, który nie jest już potrzebny",
+    "chcę wycofać przestarzały typ absencji"
   ],
   "delete_absence_type": [
     "usuń typ nieobecności w ustawieniach",
-    "usuń kategorię nieobecności"
+    "usuń kategorię nieobecności",
+    "chcę skasować typ nieobecności",
+    "wyrzuć ten typ nieobecności z danych podstawowych",
+    "ta kategoria absencji jest zbędna, usuń ją"
   ],
   "delete_address": [
     "usuń adres",
     "skasuj adres",
     "usuń dane adresowe",
     "usuń adres zamieszkania",
-    "usuń adres klienta"
+    "usuń adres klienta",
+    "pozbądź się starego adresu domowego",
+    "wykreśl adres korespondencyjny osoby",
+    "zdejmij przestarzały adres z profilu"
   ],
   "delete_agent_skill": [
     "usuń umiejętność",
@@ -614,7 +806,10 @@
     "usuń notatkę",
     "skasuj adnotację",
     "usuń uwagę",
-    "zlikwiduj notkę"
+    "zlikwiduj notkę",
+    "skasuj ponownie notatkę przy pracowniku",
+    "zdejmij komentarz z klienta",
+    "pozbądź się adnotacji o tym id"
   ],
   "delete_branch": [
     "usuń filię",
@@ -627,17 +822,26 @@
     "skasuj nieobecność",
     "anuluj zwolnienie",
     "usuń dzień wolny",
-    "usuń chorobowe"
+    "usuń chorobowe",
+    "skasuj wpis chorobowego z wtorku",
+    "wycofaj zapisaną nieobecność urlopową",
+    "usuń wpis szkolenia z kalendarza"
   ],
   "delete_break_placeholder": [
     "anuluj wniosek urlopowy",
     "usuń zaplanowaną nieobecność",
     "usuń wstępną rezerwację nieobecności",
-    "anuluj zaplanowany urlop"
+    "anuluj zaplanowany urlop",
+    "wycofaj wpisane życzenie urlopowe",
+    "anuluj wstępnie zapisaną nieobecność z 12 sierpnia",
+    "zdejmij zaplanowany urlop, zanim zostanie zaksięgowany"
   ],
   "delete_calendar_selection": [
     "usuń wybór kalendarza",
-    "usuń kalendarz świąt"
+    "usuń kalendarz świąt",
+    "usuń zestaw kalendarzy",
+    "pozbądź się nieużywanego kalendarza świąt",
+    "skasuj kalendarz ze świętami regionalnymi"
   ],
   "delete_client": [
     "usuń pracownika",
@@ -652,12 +856,18 @@
     "skasuj numer telefonu",
     "usuń wpis kontaktu",
     "usuń dane kontaktowe",
-    "usuń komunikację"
+    "usuń komunikację",
+    "usuń numer komórkowy z kontaktu",
+    "zdejmij wpis z danymi kontaktowymi pracownika",
+    "skasuj przestarzały numer stacjonarny klienta"
   ],
   "delete_container_template": [
     "usuń szablony dni tygodnia kontenera",
     "skasuj wszystkie szablony kontenera",
-    "zresetuj tygodniowy plan kontenera"
+    "zresetuj tygodniowy plan kontenera",
+    "usuń wszystkie szablony dni tygodnia kontenera",
+    "skasuj całkowicie szablony zmiany kontenerowej",
+    "wyczyść zadania w dziennych szablonach kontenera"
   ],
   "delete_contract": [
     "usuń umowę",
@@ -665,18 +875,27 @@
     "skasuj kontrakt",
     "usuń wzór umowy",
     "skasuj szablon kontraktu",
-    "usunięcie umowy z systemu"
+    "usunięcie umowy z systemu",
+    "zdejmij ten wzór umowy z listy na dobre",
+    "pozbądź się umowy, która nie jest już potrzebna",
+    "skasuj z systemu starą umowę na część etatu"
   ],
   "delete_counter_rule": [
     "usuń regułę zliczania",
     "usuń limit częstości",
     "przestań zliczać to",
     "usuń regułę blokującą liczbę zmian",
-    "usuń ograniczenie liczby"
+    "usuń ograniczenie liczby",
+    "skasuj regułę, która liczy zmiany nocne",
+    "ta reguła zliczająca to pomyłka, usuń ją",
+    "nie śledzimy już tej wartości, usuń regułę"
   ],
   "delete_email": [
     "usuń e-mail do kosza",
-    "przenieś ten e-mail do kosza"
+    "przenieś ten e-mail do kosza",
+    "usuń tego maila",
+    "chcę wyrzucić odebraną wiadomość",
+    "skasuj wiadomość ze skrzynki odbiorczej"
   ],
   "delete_email_folder": [
     "usuń folder e-mail",
@@ -691,7 +910,10 @@
     "skasuj wydatek",
     "anuluj wydatek",
     "usunąć pozycję wydatków",
-    "usuń koszt"
+    "usuń koszt",
+    "skasuj wczorajszy rachunek za wydatek",
+    "usuń błędnie zapisany koszt",
+    "chcę cofnąć wpis wydatku"
   ],
   "delete_export_format_override": [
     "usuń dostosowanie eksportu",
@@ -699,14 +921,20 @@
     "usuń nadpisanie formatu eksportu",
     "resetuj format eksportu",
     "przywróć standardowe ustawienia eksportu",
-    "usuń zmiany w eksporcie"
+    "usuń zmiany w eksporcie",
+    "skasuj własne dostosowanie formatu eksportu",
+    "przywróć format eksportu do stanu fabrycznego",
+    "odrzuć zmienioną definicję eksportu"
   ],
   "delete_group": [
     "usuń grupę",
     "zamknij oddział",
     "rozwiąż zespół",
     "usuń lokalizację",
-    "usuń dział"
+    "usuń dział",
+    "skasuj całą lokalizację razem z podgrupami",
+    "rozwiąż ten dział w całości",
+    "usuń grupę rekurencyjnie ze wszystkimi dziećmi"
   ],
   "delete_identity_provider": [
     "usuń dostawcę tożsamości",
@@ -714,7 +942,10 @@
     "usuń konfigurację ldap",
     "zlikwiduj dostawcę logowania",
     "usuń dostawcę uwierzytelniania",
-    "usunięcie dostawcy sso"
+    "usunięcie dostawcy sso",
+    "usuń połączenie z active directory",
+    "pozbądź się dostawcy openid connect",
+    "skasuj zewnętrzne źródło logowania oauth2"
   ],
   "delete_individual_period": [
     "usuń indywidualny okres",
@@ -722,7 +953,10 @@
     "usuń schemat okresów",
     "skasuj niestandardowy okres",
     "usuń okres i wróć do kalendarza",
-    "usuń własny cykl rozliczeniowy"
+    "usuń własny cykl rozliczeniowy",
+    "skasuj schemat z własnymi granicami rozliczeń",
+    "usuń okres indywidualny, umowy wracają do miesiąca",
+    "ten model okresów nie jest już potrzebny"
   ],
   "delete_llm_model": [
     "usuń model AI",
@@ -745,28 +979,40 @@
     "usuń formułę",
     "usuń regułę obliczeń",
     "skasuj makro o nazwie",
-    "usuń makro (podaj id)"
+    "usuń makro (podaj id)",
+    "chcę usunąć makro do obliczeń",
+    "wyrzuć stare makro z ustawień",
+    "usuń makro o tym id"
   ],
   "delete_membership": [
     "usuń członkostwo",
     "skasuj przynależność klienta",
     "usuń okres afiliacji",
     "zakończ członkostwo",
-    "usunięcie przypisania klienta"
+    "usunięcie przypisania klienta",
+    "wykreśl okres członkostwa pracownika",
+    "skasuj członkostwo o tym id",
+    "anuluj okres przynależności pracownika"
   ],
   "delete_monthly_target_hours": [
     "usuń cel godzinowy dla miesiąca",
     "skasuj wpis o godzinach na ten miesiąc",
     "usuń normę godzinową",
     "wyczyść miesięczne cele godzinowe dla tego miesiąca",
-    "usuń ustawienie godzin dla miesiąca"
+    "usuń ustawienie godzin dla miesiąca",
+    "anuluj odmienną normę na marzec",
+    "przywróć standardową normę godzin dla tego miesiąca",
+    "skasuj liczbę godzin zapisaną dla miesiąca"
   ],
   "delete_period_cap_rule": [
     "usuń limit godzinowy",
     "usuń ograniczenie godzin dla okresu",
     "usuń regułę limitującą godziny",
     "usuń limit nadgodzin",
-    "usuń limit średniej tygodniowej"
+    "usuń limit średniej tygodniowej",
+    "zdejmij limit godzin dla tego okresu",
+    "przestań stosować regułę maksymalnego czasu pracy",
+    "wyłącz wczesne ostrzeżenie o przekroczeniu limitu godzin"
   ],
   "delete_qualification": [
     "usuń kwalifikację",
@@ -774,14 +1020,20 @@
     "usuń typ kwalifikacji",
     "usunąć kwalifikację",
     "zlikwiduj kwalifikację",
-    "usuń kompetencję"
+    "usuń kompetencję",
+    "usuń z danych podstawowych kwalifikację uprawnienia na wózek",
+    "chcę pozbyć się przestarzałej kwalifikacji",
+    "skasuj kwalifikację po jej id"
   ],
   "delete_report_template": [
     "usuń szablon wydruku",
     "skasuj układ raportu",
     "pozbyć się wzoru wydruku",
     "usuń wzór wydruku",
-    "skasuj szablon raportu"
+    "skasuj szablon raportu",
+    "skasuj przestarzały szablon raportu",
+    "usuń szablon wydruku wraz z blokami",
+    "pozbądź się układu raportu"
   ],
   "delete_restricted_time_window_rule": [
     "usuń blokadę godzin",
@@ -789,14 +1041,20 @@
     "odblokuj godziny w ciągu dnia",
     "usuń zakaz na godziny",
     "usuń regułę zablokowanych godzin",
-    "usuń ograniczenie dotyczące pory dnia"
+    "usuń ograniczenie dotyczące pory dnia",
+    "zdejmij całkowicie zakaz godzin nocnych",
+    "ten sezonowy zakaz godzinowy był błędny, usuń go",
+    "pozwól znowu pracować między 22 a 6"
   ],
   "delete_schedule_note": [
     "usuń notatkę z grafiku",
     "skasuj uwagę w harmonogramie",
     "usuń adnotację z planu",
     "usuń notatkę o harmonogramie",
-    "zdejmij uwagę z grafiku"
+    "zdejmij uwagę z grafiku",
+    "usuń notatkę z grafiku z 12 kwietnia",
+    "pozbądź się tej uwagi w planie",
+    "chcę zdjąć notatkę z harmonogramu"
   ],
   "delete_scheduling_rule": [
     "usuń regułę planowania",
@@ -811,7 +1069,10 @@
     "skasuj zmianę",
     "usunięcie zmiany",
     "usuń zmianę z systemu",
-    "zlikwiduj zmianę"
+    "zlikwiduj zmianę",
+    "chcę skasować tę zmianę",
+    "wyrzuć szkic zlecenia",
+    "usuń zmianę o tym id"
   ],
   "delete_spam_rule": [
     "usuń regułę spamu",
@@ -819,7 +1080,10 @@
     "usuń filtr antyspamowy",
     "usuń blokadę",
     "pozwól ponownie na wiadomości od",
-    "usuń regułę blokującą domenę"
+    "usuń regułę blokującą domenę",
+    "usuń wpis filtra spamu dla tej domeny",
+    "przepuszczaj znowu maile od tego nadawcy",
+    "ten wzorzec łapie za dużo, skasuj go"
   ],
   "delete_system_user": [
     "usuń użytkownika",
@@ -834,7 +1098,10 @@
     "skasuj korektę wymowy",
     "usun termin ze słownika fonetycznego",
     "usuń poprawkę mowy",
-    "skasuj wpis w słowniku transkrypcji"
+    "skasuj wpis w słowniku transkrypcji",
+    "wyjmij ten termin z korekt rozpoznawania mowy",
+    "skasuj wpis ze słownika dyktowania",
+    "usuń poprawkę fonetyczną dla tego nazwiska"
   ],
   "delete_work": [
     "usuń przypisanie do zmiany",
@@ -842,14 +1109,20 @@
     "usuń dyżur pracownika",
     "anuluj przypisaną zmianę",
     "usuń wpis pracy",
-    "cofnij zaplanowanie pracownika"
+    "cofnij zaplanowanie pracownika",
+    "wyrzuć to przypisanie z planu",
+    "skasuj wpis pracy z piątku",
+    "zdejmij osobę z jutrzejszej zmiany"
   ],
   "delete_workchange": [
     "usuń zmianę pracy",
     "skasuj korektę",
     "usuń zastępstwo",
     "zlikwiduj wpis korekcyjny",
-    "usuń dodatek do zmiany"
+    "usuń dodatek do zmiany",
+    "skasuj dodatkowy wpis przy pracy",
+    "usuń zapisany czas dojazdu",
+    "wykreśl wpis odprawy przy zmianie"
   ],
   "detect_conflicts": [
     "sprawdź konflikty w harmonogramie",
@@ -886,7 +1159,10 @@
     "dezaktywuj wtyczkę",
     "wyłącz dodatek",
     "wstrzymaj moduł",
-    "dezaktywuj rozszerzenie"
+    "dezaktywuj rozszerzenie",
+    "wyłącz wtyczkę funkcji",
+    "dezaktywuj moduł, ale zachowaj jego ustawienia",
+    "wstrzymaj tymczasowo wtyczkę"
   ],
   "dismiss_skill_relation": [
     "odrzuć powiązanie między umiejętnościami",
@@ -894,7 +1170,10 @@
     "to powiązanie jest błędne",
     "odrzuć zależność między funkcjami",
     "anuluj to powiązanie między umiejętnościami",
-    "usuń powiązanie między umiejętnościami"
+    "usuń powiązanie między umiejętnościami",
+    "odrzuć proponowane powiązanie umiejętności",
+    "wyrzuć tę sugerowaną więź między funkcjami",
+    "odrzuć oczekującą propozycję powiązania"
   ],
   "email_schedule_to_client": [
     "wyślij grafik klientowi",
@@ -908,11 +1187,17 @@
     "aktywuj wtyczkę",
     "uruchom dodatek",
     "włącz zainstalowany moduł",
-    "aktywuj rozszerzenie"
+    "aktywuj rozszerzenie",
+    "włącz zainstalowaną wtyczkę",
+    "uruchom moduł funkcji",
+    "chcę aktywować dodatek"
   ],
   "end_client_membership": [
     "zakończyć członkostwo pracownika",
-    "ustawić datę odejścia pracownika"
+    "ustawić datę odejścia pracownika",
+    "pracownik odchodzi z końcem miesiąca",
+    "wpisz datę wypowiedzenia pracownika",
+    "ostatni dzień pracy to 30"
   ],
   "evaluate_absence_hours_setup": [
     "dlaczego dostaje za mało godzin urlopu",
@@ -1500,18 +1785,27 @@
   ],
   "extend_macro": [
     "rozszerz makro jako kopię",
-    "rozszerzona kopia makra obliczeniowego"
+    "rozszerzona kopia makra obliczeniowego",
+    "skopiuj makro i dopisz dodatkowy dodatek",
+    "chcę dołożyć blok dodatku do kopii makra",
+    "stwórz wariant makra z dodatkowym wynikiem"
   ],
   "fetch_new_emails": [
     "pobierz nowe e-maile teraz",
-    "odśwież skrzynkę odbiorczą natychmiast"
+    "odśwież skrzynkę odbiorczą natychmiast",
+    "pobierz teraz pocztę z serwera",
+    "wywołaj pobranie imap",
+    "odśwież skrzynkę od razu"
   ],
   "fill_group_by_criteria": [
     "wypełnij grupę [groupname] pracownikami z [canton]",
     "dodaj wszystkich z [canton] do grupy [groupname]",
     "znajdź [count] pracowników z umową [contractname] i dodaj do [groupname]",
     "przypisz osoby z regionu [canton] do grupy [groupname]",
-    "uzupełnij grupę [groupname] według kryteriów"
+    "uzupełnij grupę [groupname] według kryteriów",
+    "dodaj do grupy dziesięciu losowych pracowników z kantonu berno",
+    "wpisz do grupy wszystkich z kodem pocztowym od 80",
+    "wypełnij grupę wszystkimi z zurychu z umową pełnoetatową"
   ],
   "find_absence_capacity_windows": [
     "znajdź odpowiedni okres na urlop",
@@ -1554,14 +1848,20 @@
     "uzupełnij brakujące współrzędne adresów",
     "geokoduj adresy",
     "umieść adresy klientów na mapie",
-    "ustal współrzędne adresów"
+    "ustal współrzędne adresów",
+    "ustal położenie adresów bez pozycji na podstawie kodu i miasta",
+    "umieść automatycznie na mapie klientów bez punktu",
+    "uzupełnij brakujące dane geograficzne w adresach"
   ],
   "geocode_location_groups": [
     "znajdź automatycznie współrzędne dla wszystkich grup",
     "wykonaj geokodowanie wszystkich grup lokalizacji",
     "zaktualizuj współrzędne geograficzne grup",
     "wyznacz lokalizację geograficzną każdej grupy",
-    "oblicz współrzędne dla wszystkich grup"
+    "oblicz współrzędne dla wszystkich grup",
+    "dodaj automatycznie współrzędne grupom lokalizacji",
+    "sprawdź dane geograficzne grup będących miastami i wsiami",
+    "niech grupy miejscowości zgeokodują się same"
   ],
   "get_absence_hours_calculation": [
     "pokaż mi obliczenie godzin urlopu",
@@ -1946,28 +2246,40 @@
     "grupuj nieprzypisanych według miejscowości z adresu",
     "dopasuj pracowników bez grupy do grupy o nazwie miasta",
     "przydziel osoby bez grupy zgodnie z miastem zamieszkania",
-    "połącz niezgrupowanych z grupami o nazwach miast"
+    "połącz niezgrupowanych z grupami o nazwach miast",
+    "wrzuć pracowników bez grupy do grupy nazwanej jak ich miasto",
+    "posortuj niezgrupowanych do grup miejskich według adresu",
+    "przenieś wszystkich bez grupy do grupy pasującej do ich miejscowości"
   ],
   "import_calendar_rules": [
     "importuj święta z kraju i stanu",
     "załadować reguły kalendarza",
     "dodaj święta kantonalne",
     "zaimportuj dni wolne",
-    "wgraj reguły świąt"
+    "wgraj reguły świąt",
+    "wczytaj definicje świąt dla stanu za jednym razem",
+    "zaimportuj reguły kalendarza dla kantonu z json",
+    "chcę założyć od razu wszystkie święta kraju"
   ],
   "install_feature_plugin": [
     "zainstaluj moduł rozszerzenia",
     "dodaj nową wtyczkę",
     "aktywuj moduł dodatkowy",
     "zainstaluj dodatek do systemu",
-    "wgraj nowe rozszerzenie"
+    "wgraj nowe rozszerzenie",
+    "zainstaluj moduł dodatkowy",
+    "chcę zainstalować opcjonalną wtyczkę funkcji",
+    "doinstaluj moduł, żeby funkcja była dostępna"
   ],
   "install_language_pack": [
     "zainstaluj pakiet językowy",
     "aktywuj język",
     "dodaj pakiet językowy",
     "włącz nowy język",
-    "instaluj język o kodzie"
+    "instaluj język o kodzie",
+    "zainstaluj szwajcarsko-niemiecki pakiet językowy gsw",
+    "aktywuj pakiet językowy o kodzie gsw",
+    "chcę odblokować kolejny język interfejsu"
   ],
   "install_whisper_plugin": [
     "zainstaluj lokalny model mowy",
@@ -1975,7 +2287,10 @@
     "przestań wysyłać mowę do zewnętrznego serwisu",
     "zainstaluj whisper",
     "ustaw lokalne rozpoznawanie mowy",
-    "uruchom instalację modelu mowy"
+    "uruchom instalację modelu mowy",
+    "zainstaluj whisper lokalnie",
+    "skonfiguruj rozpoznawanie mowy na własnym serwerze",
+    "uruchom lokalny silnik transkrypcji offline"
   ],
   "interpret_resource_monitor": [
     "monitor zasobów na rok",
@@ -2384,19 +2699,31 @@
     "podaj dane miejscowości"
   ],
   "manage_pending_notes": [
-    "zarządzaj oczekującymi notatkami"
+    "zarządzaj oczekującymi notatkami",
+    "oznacz oczekujące notatki jako dostarczone",
+    "zarchiwizuj moje otwarte przypomnienia",
+    "odhacz niedostarczone notatki"
   ],
   "mark_email_read": [
     "oznacz e-mail jako przeczytany",
-    "oznacz e-mail jako nieprzeczytany"
+    "oznacz e-mail jako nieprzeczytany",
+    "oznacz tego maila jako przeczytanego",
+    "ustaw wiadomość z powrotem jako nieprzeczytaną",
+    "chcę zaznaczyć maila jako przeczytanego"
   ],
   "move_email_to_folder": [
     "przenieś e-mail do innego folderu",
-    "oznacz e-mail jako spam"
+    "oznacz e-mail jako spam",
+    "wrzuć tego maila do folderu spam",
+    "przenieś wiadomość do kosza",
+    "przywróć wiadomość ze spamu do skrzynki odbiorczej"
   ],
   "move_group": [
     "przenieś grupę do innego rodzica",
-    "podepnij grupę pod nową grupę nadrzędną"
+    "podepnij grupę pod nową grupę nadrzędną",
+    "przenieś grupę berno pod region centralny",
+    "przepnij grupę do innej gałęzi drzewa",
+    "chcę nadać tej grupie nowego rodzica"
   ],
   "navigate_to": [
     "przejdź do ustawień",
@@ -2410,7 +2737,10 @@
     "wydrukuj kalendarz nieobecności",
     "przygotuj zestawienie nieobecności do wydruku",
     "chcę mieć papierowy kalendarz urlopowy",
-    "pobierz roczne zestawienie absencji"
+    "pobierz roczne zestawienie absencji",
+    "potrzebuję rocznego zestawienia urlopów na wydruk",
+    "pobierz roczny arkusz ze wszystkimi dniami chorobowego i urlopu jako pdf",
+    "plan nieobecności na papierze na zebranie zespołu"
   ],
   "open_order_export": [
     "uruchom eksport zamówienia",
@@ -2426,7 +2756,10 @@
     "otwórz harmonogram",
     "przejdź do planowania",
     "wyświetl dienstplan",
-    "plan dla grupy"
+    "plan dla grupy",
+    "otwórz grafik na przyszły tydzień",
+    "pokaż mi harmonogram na ten miesiąc",
+    "chcę zobaczyć plan jednego pracownika"
   ],
   "optimize_llm_models_for_klacksy": [
     "przetestuj wszystkie modele i wybierz najlepszy",
@@ -2434,7 +2767,10 @@
     "sprawdź, które modele działają",
     "wyłącz niedziałające modele",
     "automatycznie wybierz najlepszy model",
-    "optymalizuj modele językowe"
+    "optymalizuj modele językowe",
+    "przetestuj wszystkie modele językowe i wybierz najlepszy",
+    "sprawdź, które modele nie wywołują narzędzi, i wyłącz je",
+    "zoptymalizuj modele asystenta automatycznie"
   ],
   "partition_clients_by_address": [
     "podziel klientów według adresów",
@@ -2448,7 +2784,10 @@
     "twórz grupy według kwalifikacji",
     "pogrupuj pracowników według kwalifikacji",
     "utwórz grupę dla każdej kwalifikacji",
-    "przydziel personel do grup kwalifikacji"
+    "przydziel personel do grup kwalifikacji",
+    "rozdziel cały personel automatycznie na grupy według kwalifikacji",
+    "wygeneruj osobną grupę dla każdej kwalifikacji z jej posiadaczami",
+    "zbuduj grupy z kwalifikacji pod grupą nadrzędną"
   ],
   "place_work": [
     "przypisz pracownika do zmiany",
@@ -2480,7 +2819,10 @@
     "stwórz wstępny plan dla grupy",
     "zaproponuj przypisania pracowników",
     "draft harmonogramu do zatwierdzenia",
-    "utwórz propozycję z wybranymi zmianami"
+    "utwórz propozycję z wybranymi zmianami",
+    "włóż wybrane przydziały do scenariusza do akceptacji",
+    "zrób z tych wyborów szkic do przeglądu",
+    "spakuj te przypisania w scenariusz"
   ],
   "read_email": [
     "przeczytaj maila o id 123",
@@ -2508,7 +2850,10 @@
     "przekaż zmianę innemu pracownikowi",
     "przenieś przydział na innego pracownika",
     "niech inny pracownik przejmie zmianę",
-    "przepisz dyżur na innego pracownika"
+    "przepisz dyżur na innego pracownika",
+    "przekaż poniedziałkową zmianę innemu pracownikowi",
+    "przeciągnij ten przydział do wiersza innego pracownika",
+    "oddaj piątkową zmianę koledze"
   ],
   "recall_delivered_notes": [
     "przywołaj dostarczone notatki"
@@ -2519,7 +2864,10 @@
     "usuń scenariusz",
     "nie akceptuj planu",
     "anuluj propozycję",
-    "wyrzuć scenariusz"
+    "wyrzuć scenariusz",
+    "odrzuć zaproponowany scenariusz",
+    "wyrzuć wynik autowizarda do kosza",
+    "ten scenariusz jest nieprzydatny, skasuj go"
   ],
   "remove_client_contract": [
     "usuń umowę pracownika",
@@ -2527,14 +2875,20 @@
     "usuń przypisaną umowę",
     "zdejmij umowę z pracownika",
     "usuń kontrakt dla tego pracownika",
-    "usuń przypisanie umowy"
+    "usuń przypisanie umowy",
+    "zabierz pracownikowi jego obecną umowę",
+    "anuluj przypisanie umowy płacowej tej osobie",
+    "odłącz pracownika od umowy, sama umowa zostaje"
   ],
   "remove_client_from_group": [
     "usuń pracownika z grupy",
     "wypisz klienta z grupy",
     "zdejmij osobę z grupy",
     "usuń z grupy",
-    "zabierz z grupy"
+    "zabierz z grupy",
+    "zabierz pracownika z zespołu",
+    "wyjmij tę osobę z grupy",
+    "chcę wypisać klienta z grupy"
   ],
   "remove_client_qualification": [
     "usuń kwalifikację pracownika",
@@ -2542,87 +2896,131 @@
     "usuń umiejętność z profilu",
     "usuń wpis o kwalifikacji",
     "usuń certyfikat dla tego pracownika",
-    "usuń kwalifikację z listy"
+    "usuń kwalifikację z listy",
+    "wykreśl uprawnienia na wózek z jego karty",
+    "zdejmij wygasły certyfikat z tej osoby",
+    "skasuj zapisany poziom umiejętności w jej profilu"
   ],
   "remove_container_template_task": [
     "usuń zadanie z szablonu kontenera",
     "wyjmij task z szablonu kontenera",
     "skasuj zadanie z szablonu zmiany kontenerowej",
-    "zabierz zadanie z tygodniowego szablonu kontenera"
+    "zabierz zadanie z tygodniowego szablonu kontenera",
+    "skasuj pozycję z tygodniowego planu kontenera",
+    "wykreśl część zmiany z szablonu kontenera",
+    "zdejmij ten element z planu kontenera"
   ],
   "remove_shift_from_group": [
     "usuń zmianę z grupy",
     "wyjmij dyżur z zespołu",
     "zabierz zmianę z działu",
-    "odłącz zmianę od grupy"
+    "odłącz zmianę od grupy",
+    "przerwij powiązanie usługi z zespołem",
+    "ta usługa nie ma już należeć do działu",
+    "zerwij połączenie zlecenia zmiany z grupą"
   ],
   "remove_shift_required_qualification": [
     "usuń wymaganą kwalifikację ze zmiany",
     "skasuj wymóg kwalifikacji zmiany",
     "cofnij obowiązkową kwalifikację zmiany",
-    "zdejmij wymaganie kwalifikacji ze zmiany"
+    "zdejmij wymaganie kwalifikacji ze zmiany",
+    "zmiana nie wymaga już prawa jazdy",
+    "zdejmij żądany certyfikat ze zmiany",
+    "skreśl obowiązkową kwalifikację przy zmianie"
   ],
   "reopen_period": [
     "odblokuj okres",
     "otwórz zamknięty okres",
     "ponownie otwórz okres rozliczeniowy",
     "cofnij zamknięcie okresu",
-    "odpieczętuj okres"
+    "odpieczętuj okres",
+    "otwórz ponownie zamknięty okres",
+    "wycofaj zamknięcie miesiąca",
+    "zdejmij pieczęć z okresu rozliczeniowego"
   ],
   "reset_container_day": [
     "przywróć dzień kontenera do szablonu",
     "usuń nadpisanie dnia w kontenerze",
     "zresetuj dzień zmiany kontenerowej",
-    "cofnij dzienny override kontenera"
+    "cofnij dzienny override kontenera",
+    "ustaw ten dzień kontenera z powrotem na szablon",
+    "odrzuć jednodniową zmianę w kontenerze",
+    "znieś odchylenie od wzorca dnia tygodnia"
   ],
   "reset_shift_cuts": [
     "scal ponownie części zmiany od daty",
     "zresetuj cięcia zmiany",
     "cofnij podział zmiany od daty",
-    "połącz fragmenty zmiany z powrotem"
+    "połącz fragmenty zmiany z powrotem",
+    "scal wszystkie części zmiany w jedną od przyszłego miesiąca",
+    "anuluj podział zlecenia od wybranej daty",
+    "zamień pocięte kawałki z powrotem w całą zmianę"
   ],
   "restore_email": [
     "przywróć e-mail z kosza",
-    "odzyskaj e-mail z kosza"
+    "odzyskaj e-mail z kosza",
+    "przenieś skasowanego maila z powrotem do skrzynki odbiorczej",
+    "cofnij usunięcie tego e-maila",
+    "chcę odzyskać usuniętą wiadomość"
   ],
   "restore_work": [
     "przywróć usuniętą zmianę",
     "odzyskaj usunięty przydział",
     "cofnij usunięcie dyżuru",
-    "przywróć usunięty dyżur pracownika"
+    "przywróć usunięty dyżur pracownika",
+    "przywróć wpis pracy, który przed chwilą skasowałem",
+    "cofnij usunięcie tego przydziału",
+    "przez pomyłkę usunąłem przypisanie do zmiany, odtwórz je"
   ],
   "revert_company_rule": [
     "cofnij regułę firmową",
     "wycofaj zastosowaną regułę firmową",
-    "przywróć poprzednią regułę firmową"
+    "przywróć poprzednią regułę firmową",
+    "cofnij zmianę dodatków wprowadzoną przez regułę",
+    "usuń regułę po nazwie i przywróć stary stan"
   ],
   "revert_macro_assignment": [
     "cofnij przypisanie makra",
-    "przywróć poprzednie makro obliczeniowe"
+    "przywróć poprzednie makro obliczeniowe",
+    "cofnij zmianę makra na zmianach",
+    "przywróć starą formułę obliczeniową",
+    "chcę wycofać przełączenie makra w typie nieobecności"
   ],
   "revoke_day_approval": [
     "cofnij zatwierdzenie dnia",
     "usuń aprobatę dnia",
     "anuluj zatwierdzenie harmonogramu",
     "cofnij akceptację na poniedziałek",
-    "odwołaj zatwierdzenie dnia"
+    "odwołaj zatwierdzenie dnia",
+    "wycofaj zatwierdzenie tego dnia",
+    "ustaw zatwierdzony dzień z powrotem na potwierdzony",
+    "cofnij odbiór dnia"
   ],
   "revoke_erp_import_token": [
     "unieważnij klucz dostępu do importu",
     "zablokuj token systemu zewnętrznego",
     "cofnij klucz do przekazywania plików",
-    "usuń dostęp dla dostawcy"
+    "usuń dostęp dla dostawcy",
+    "wycofaj token importu danych",
+    "zablokuj klucz dostępu systemu erp",
+    "unieważnij wyciekły klucz importu"
   ],
   "revoke_personal_access_token": [
     "odwołaj mój token dostępu",
-    "unieważnij token API"
+    "unieważnij token API",
+    "wycofaj jeden z moich tokenów api",
+    "chcę zablokować osobisty token dostępu",
+    "wyłącz ten token na stałe"
   ],
   "rollback_my_last_change": [
     "cofnij ostatnią zmianę",
     "undo ostatniej akcji",
     "odwróć ostatnie działanie",
     "popraw pomyłkę",
-    "anuluj ostatnią modyfikację"
+    "anuluj ostatnią modyfikację",
+    "wycofaj moją ostatnią zmianę",
+    "moja ostatnia akcja była błędna, odwróć ją",
+    "zaproponuj, jak cofnąć to, co zapisałem ostatnio"
   ],
   "run_analysis": [
     "przeanalizuj grafik",
@@ -2645,7 +3043,10 @@
     "zapieczętuj to zamówienie",
     "zapieczętuj zlecenie aby powstała planowalna zmiana",
     "zamknij zamówienie pieczęcią",
-    "zapieczętuj zamówienie klienta"
+    "zapieczętuj zamówienie klienta",
+    "zapieczętuj to zamówienie i utwórz planowalną zmianę",
+    "uczyń oryginalne zamówienie niezmiennym",
+    "zwolnij zamówienie jako zmianę i je zapieczętuj"
   ],
   "search_and_navigate": [
     "szukaj i przejdź",
@@ -2721,12 +3122,18 @@
     "ustaw poziom umiejętności dla pracownika",
     "dodaj certyfikat pracownikowi",
     "zapisz kwalifikację dla klienta",
-    "określ kwalifikację pracownika"
+    "określ kwalifikację pracownika",
+    "ten pracownik ma uprawnienia na wózek widłowy",
+    "wpisz kurs pierwszej pomocy ważny do końca roku",
+    "ustaw czwarty poziom biegłości w kwalifikacji"
   ],
   "set_company_rule_parameters": [
     "ustaw parametry reguły firmowej",
     "wprowadź wartości reguły firmowej",
-    "określ parametry reguły firmowej"
+    "określ parametry reguły firmowej",
+    "uzupełnij parametry szkicu reguły firmowej",
+    "wpisz wartości do reguły, którą tworzymy",
+    "ustaw wartość dodatku w szkicu reguły"
   ],
   "set_default_llm_model": [
     "ustaw domyślny model",
@@ -2734,21 +3141,30 @@
     "przełącz na inny model",
     "jakiego modelu używasz domyślnie?",
     "ustaw ten model jako standardowy",
-    "zmień domyślny model"
+    "zmień domyślny model",
+    "od teraz klacksy ma odpowiadać innym modelem językowym",
+    "podmień domyślny model językowy asystenta",
+    "ustaw deepseek jako model wstępnie wybrany"
   ],
   "set_erp_import_schedule": [
     "ustaw harmonogram importu erp na codziennie o 3:00",
     "zmień interwał importu zamówień",
     "zaplanuj import erp co 2 godziny",
     "skonfiguruj wyrażenie cron dla erp",
-    "kiedy ma odbywać się import erp"
+    "kiedy ma odbywać się import erp",
+    "import erp ma działać co noc o drugiej",
+    "ustaw strefę czasową i cron dla pobierania z erp",
+    "pobieraj zamówienia z erp co 15 minut"
   ],
   "set_explain_depth": [
     "zawsze wyjaśniaj prościej",
     "od teraz tylko najważniejsze",
     "od teraz wyjaśniaj wszystko prościej",
     "od teraz pomijaj podstawy",
-    "wyjaśnienia znowu automatycznie"
+    "wyjaśnienia znowu automatycznie",
+    "jestem tu nowy, wyjaśniaj mi od teraz każdy krok szczegółowo",
+    "odpowiadaj zawsze krótko i tylko o skutkach",
+    "ustaw poziom wyjaśnień na początkujący"
   ],
   "set_export_format_override": [
     "dostosuj format eksportu",
@@ -2756,10 +3172,16 @@
     "zmień nazwę kolumny w eksporcie",
     "ustaw inne formatowanie daty w eksporcie",
     "nadpisz ustawienia formatu eksportu",
-    "zmień ustawienia eksportu"
+    "zmień ustawienia eksportu",
+    "w eksporcie ma być średnik jako separator",
+    "zmień nazwę kolumny dla systemu odbiorcy",
+    "przestaw format daty w pliku eksportu na kropki"
   ],
   "set_group_location": [
-    "ustaw lokalizację grupy"
+    "ustaw lokalizację grupy",
+    "zapisz współrzędne grupy",
+    "chcę nadać grupie miejskiej szerokość i długość geograficzną",
+    "zgeokoduj grupę na podstawie jej nazwy"
   ],
   "set_my_display_language": [
     "zmień język interfejsu",
@@ -2781,7 +3203,10 @@
   "set_period_close_lag": [
     "ustaw opóźnienie zamknięcia",
     "określ liczbę dni do zamknięcia po końcu okresu",
-    "wprowadź zwłokę przed zamknięciem okresu"
+    "wprowadź zwłokę przed zamknięciem okresu",
+    "ustaw opóźnienie zamknięcia okresu na 3 dni",
+    "zapisz zwłokę zamknięcia wynoszącą 10 dni",
+    "okresy mają być zamykane tydzień po ich końcu"
   ],
   "set_planning_deadline_lead": [
     "ustaw czas wyprzedzenia planowania",
@@ -2789,32 +3214,47 @@
   ],
   "set_planning_profile_parameters": [
     "ustaw parametry profilu planowania",
-    "wprowadź wartości profilu planowania"
+    "wprowadź wartości profilu planowania",
+    "ustaw branżę i limity czasu pracy w profilu planowania",
+    "chcę w szkicu dostosować odpoczynek i nadgodziny",
+    "wpisz wartości dla nowego profilu planowania"
   ],
   "set_proactive_governance": [
     "pozwól to załatwić samodzielnie",
     "tylko to zgłaszaj",
-    "włącz wyłącznik awaryjny"
+    "włącz wyłącznik awaryjny",
+    "ustaw, jak samodzielny może być klacksy przy tym typie ustaleń",
+    "dla tego typu ustaleń tylko powiadamiaj",
+    "klacksy może od teraz sam realizować ten przypadek"
   ],
   "set_sealed_order_until_date": [
     "ustaw datę końca zapieczętowanego zamówienia",
     "ogranicz zapieczętowane zlecenie do daty",
     "zakończ zapieczętowane zamówienie w dniu",
-    "dodaj datę końcową do już zapieczętowanego zamówienia"
+    "dodaj datę końcową do już zapieczętowanego zamówienia",
+    "wpisz datę końca w zapieczętowanym zamówieniu",
+    "ogranicz zapieczętowane zamówienie do końca miesiąca",
+    "dopisz datę do w już zapieczętowanym zleceniu"
   ],
   "set_shift_preferences": [
     "ustaw preferencję zmiany dla pracownika",
     "preferuj pracownika na zmianę",
     "zablokuj pracownika na zmianie",
     "dodaj pracownika do czarnej listy zmiany",
-    "określ preferencje dla zmiany"
+    "określ preferencje dla zmiany",
+    "niech ten pracownik będzie preferowany na zmianie porannej",
+    "wpisz pracownika na czarną listę tej zmiany",
+    "oznacz tę zmianę jako ulubioną pracownika"
   ],
   "set_shift_required_qualification": [
     "ustaw wymaganą kwalifikację na zmianę",
     "dodaj wymóg kwalifikacji do zmiany",
     "określ minimalny poziom kwalifikacji dla zmiany",
     "zmiana wymaga kwalifikacji",
-    "ustaw obowiązkową kwalifikację na zmianę"
+    "ustaw obowiązkową kwalifikację na zmianę",
+    "ustaw prawo jazdy jako obowiązkowe na tę zmianę",
+    "wpisz minimalny poziom 3 kwalifikacji dla zmiany",
+    "ta zmiana może być obsadzona tylko osobą z certyfikatem"
   ],
   "set_user_group_scope": [
     "zakres grupy",
@@ -2839,7 +3279,10 @@
   "start_company_rule": [
     "utwórz nową regułę firmową",
     "rozpocznij definiowanie reguły firmowej",
-    "dodaj nową regułę firmową"
+    "dodaj nową regułę firmową",
+    "chcę ustawić nową zasadę firmową",
+    "pomóż mi sformułować regułę dodatków dla firmy",
+    "zdefiniuj własną regułę makro dla naszej firmy"
   ],
   "start_guided_tour": [
     "przeprowadź mnie przez aplikację",
@@ -2851,7 +3294,10 @@
   ],
   "start_planning_profile_setup": [
     "utwórz własny profil planowania",
-    "rozpocznij konfigurację profilu planowania"
+    "rozpocznij konfigurację profilu planowania",
+    "chcę skonfigurować własny profil planowania",
+    "uruchom prowadzoną konfigurację reguł planowania",
+    "zbudujmy razem z klacksy profil planowania"
   ],
   "start_wizard1": [
     "uruchom kreatora 1",
@@ -2859,7 +3305,10 @@
     "zaplanuj pokrycie",
     "wygeneruj plan początkowy",
     "odpal planner",
-    "stwórz podstawowy harmonogram"
+    "stwórz podstawowy harmonogram",
+    "uruchom tylko kreatora 1 dla grupy",
+    "włącz planer tokenowo-ewolucyjny",
+    "policz pierwsze przydziały pod kątem pokrycia"
   ],
   "start_wizard2": [
     "wygładź plan",
@@ -2867,7 +3316,10 @@
     "zbalansuj grafik",
     "odpal kreatora 2",
     "wyrównaj obciążenie",
-    "zastosuj wygładzanie"
+    "zastosuj wygładzanie",
+    "puść harmonizer na obecnym planie",
+    "wygładź grafik bez ruszania pokrycia",
+    "odpal kreatora 2 na świeżo zastosowanym scenariuszu"
   ],
   "start_wizard3": [
     "poleruj plan",
@@ -2875,10 +3327,16 @@
     "zastosuj llm",
     "odpal holistyczny kreator",
     "wykonaj ostateczne poprawki",
-    "zrobić wizję llm"
+    "zrobić wizję llm",
+    "uruchom tylko trzeciego kreatora",
+    "dopracuj jeszcze zharmonizowany plan",
+    "włącz harmonizer holistyczny z tokenem analizy"
   ],
   "stash_pending_note": [
-    "odłóż notatkę"
+    "odłóż notatkę",
+    "zapamiętaj to na później jako notatkę",
+    "chcę zostawić przypomnienie do przekazania później",
+    "zachowaj tę informację, żeby ją przekazać potem"
   ],
   "test_imap_connection": [
     "test połączenia IMAP",
@@ -2905,7 +3363,10 @@
     "wykonaj natychmiastowy import z erp",
     "zainicjuj import zamówień",
     "zacznij import plików erp od razu",
-    "przyspiesz import erp"
+    "przyspiesz import erp",
+    "przetwórz od razu wgrany plik erp",
+    "uruchom import zamówień bez czekania",
+    "ręcznie wystartuj przebieg importu zamówień"
   ],
   "unconfirm_break": [
     "cofnij potwierdzenie urlopu",
@@ -2913,28 +3374,40 @@
     "anuluj potwierdzenie absencji",
     "zwolnij blokadę urlopu",
     "cofnij zatwierdzenie zwolnienia",
-    "odblokuj ten wpis"
+    "odblokuj ten wpis",
+    "odblokuj wpis zwolnienia, żeby dało się go skasować",
+    "zdejmij blokadę z wpisu urlopu",
+    "usuń potwierdzenie z tej absencji"
   ],
   "unconfirm_work": [
     "odblokuj zmianę",
     "cofnij potwierdzenie",
     "zwolnij blokadę",
     "odblokuj przypisanie",
-    "usuń fixację zmiany"
+    "usuń fixację zmiany",
+    "zdejmij potwierdzenie z tego wpisu pracy",
+    "niech kreatory znów mogą zmieniać to przypisanie",
+    "ustaw potwierdzony wpis pracy z powrotem jako otwarty"
   ],
   "uninstall_feature_plugin": [
     "odinstaluj moduł rozszerzenia",
     "usuń wtyczkę z systemu",
     "pozbądź się dodatku",
     "usuń zainstalowane rozszerzenie",
-    "odinstaluj dodatek"
+    "odinstaluj dodatek",
+    "odinstaluj wtyczkę",
+    "chcę usunąć zainstalowany moduł funkcji",
+    "zabierz dodatek z systemu"
   ],
   "uninstall_language_pack": [
     "odinstaluj pakiet językowy",
     "dezaktywuj język",
     "usuń pakiet językowy",
     "wyłącz język",
-    "odinstaluj język o kodzie"
+    "odinstaluj język o kodzie",
+    "odinstaluj polski pakiet językowy",
+    "dezaktywuj pakiet językowy po kodzie i usuń jego dane",
+    "wyłącz ten dodatkowy język w interfejsie"
   ],
   "uninstall_whisper_plugin": [
     "odinstaluj lokalny model mowy",
@@ -2942,32 +3415,47 @@
     "przywróć transkrypcję przez zewnętrzny serwis",
     "przestań transkrybować lokalnie",
     "usuń lokalną wtyczkę mowy",
-    "przełącz na zewnętrzną transkrypcję"
+    "przełącz na zewnętrzną transkrypcję",
+    "usuń wtyczkę whisper",
+    "chcę pozbyć się lokalnego modelu mowy",
+    "wprowadzanie głosowe ma wrócić do usługi zewnętrznej"
   ],
   "update_absence": [
     "zmień typ nieobecności",
     "edytuj rodzaj urlopu",
     "zaktualizuj typ absencji",
     "zmień kolor nieobecności",
-    "zmodyfikuj typ zwolnienia"
+    "zmodyfikuj typ zwolnienia",
+    "zmień kolor typu urlopu",
+    "niech ten typ nieobecności liczy też weekendy",
+    "przestaw znacznik płatności w typie nieobecności"
   ],
   "update_absence_type": [
     "edytuj typ nieobecności",
-    "zmień kolor typu nieobecności"
+    "zmień kolor typu nieobecności",
+    "zmień skrót typu nieobecności",
+    "ustaw ten typ nieobecności jako bezpłatny",
+    "popraw domyślny czas trwania kategorii nieobecności"
   ],
   "update_active_industries_settings": [
     "zmień aktywne branże",
     "ustaw branże dla systemu",
     "przełącz na inną branżę",
     "skonfiguruj branże",
-    "wybierz profil branżowy"
+    "wybierz profil branżowy",
+    "ustaw instalację pod opiekę zdrowotną i ochronę",
+    "włącz dodatkowo branżę gastronomiczną",
+    "zostaw tylko logistykę jako aktywną branżę"
   ],
   "update_address": [
     "zmień adres",
     "popraw adres",
     "edytuj adres",
     "zaktualizuj dane adresowe",
-    "zmień miasto w adresie"
+    "zmień miasto w adresie",
+    "popraw ulicę i kod pocztowy pracownika",
+    "zmień typ adresu z głównego na adres do faktur",
+    "dostosuj miejscowość w tym adresie"
   ],
   "update_agent_skill": [
     "aktualizuj umiejętność",
@@ -3006,7 +3494,10 @@
     "edytuj adnotację",
     "zmień treść notatki",
     "popraw uwagę",
-    "nadpisz notkę"
+    "nadpisz notkę",
+    "przepisz treść notatki o pracowniku",
+    "popraw brzmienie uwagi przy pracowniku",
+    "zamień notatkę przy pracowniku na nowy tekst"
   ],
   "update_branch": [
     "aktualizuj filię",
@@ -3021,18 +3512,26 @@
     "zmień urlop",
     "popraw zwolnienie lekarskie",
     "aktualizuj przerwę",
-    "koryguj dni wolne"
+    "koryguj dni wolne",
+    "wydłuż datę końca urlopu",
+    "przestaw nieobecność na inny typ",
+    "popraw doliczone godziny nieobecności"
   ],
   "update_break_placeholder": [
     "przesuń nieobecność",
     "przesuń urlop",
     "przedłuż nieobecność",
     "zmień typ wstępnej nieobecności",
-    "skróć zaplanowaną nieobecność"
+    "skróć zaplanowaną nieobecność",
+    "przesuń zaplanowany urlop o tydzień",
+    "skróć pasek nieobecności",
+    "zamień zaplanowaną nieobecność na chorobowe"
   ],
   "update_calendar_selection": [
     "zmień nazwę wyboru kalendarza",
-    "połącz kalendarze świąt"
+    "połącz kalendarze świąt",
+    "wyjmij region z zestawu świąt",
+    "dorzuć kanton do wyboru kalendarza"
   ],
   "update_client": [
     "edytuj dane pracownika",
@@ -3042,10 +3541,16 @@
     "dodaj numer telefonu"
   ],
   "update_client_birthdate": [
-    "zmień datę urodzenia"
+    "zmień datę urodzenia",
+    "ustaw nową datę urodzenia pracownika",
+    "popraw datę urodzin tej osoby",
+    "wpisz inną datę urodzenia"
   ],
   "update_client_gender": [
-    "zmień płeć"
+    "zmień płeć",
+    "ustaw płeć pracownika",
+    "zmień płeć klienta na kobieta",
+    "oznacz tego klienta jako osobę prawną"
   ],
   "update_client_type": [
     "zmień typ osoby na klienta",
@@ -3053,27 +3558,39 @@
     "zmień kategorię osoby",
     "zmień status osoby",
     "przełącz osobę na klienta",
-    "ustaw jako pracownika"
+    "ustaw jako pracownika",
+    "od teraz prowadź tę osobę jako klienta",
+    "zamień pracownika zewnętrznego w etatowego",
+    "zrób z klienta znowu planowalnego pracownika"
   ],
   "update_communication": [
     "zmień adres e-mail",
     "popraw numer telefonu",
     "edytuj notatkę",
     "aktualizuj dane kontaktowe",
-    "zmień opis kontaktu"
+    "zmień opis kontaktu",
+    "zamień stary numer komórkowy pracownika na nowy",
+    "przepisz notatkę kontaktową pracownika",
+    "zmień numer kierunkowy w wpisie telefonu"
   ],
   "update_compensatory_rest_settings": [
     "włącz śledzenie zastępczego odpoczynku",
     "zmień termin na zastępczy odpoczynek",
     "zmodyfikuj ustawienia zastępczego czasu wolnego",
-    "zmień liczbę dni na wykorzystanie zastępczego odpoczynku"
+    "zmień liczbę dni na wykorzystanie zastępczego odpoczynku",
+    "włącz roszczenie o dzień wolny za pracę w święta",
+    "chcę zmienić liczbę dni na udzielenie odpoczynku zastępczego",
+    "ustaw termin odpoczynku zastępczego na 14 dni"
   ],
   "update_compliance_enforcement_settings": [
     "zmień ustawienia zgodności",
     "zmień limity czasu pracy",
     "ustaw ostrzeżenia zamiast blokad",
     "pozwól przełożonemu na nadpisanie",
-    "skonfiguruj wyprzedzenie publikacji planu"
+    "skonfiguruj wyprzedzenie publikacji planu",
+    "odrzucaj naruszenia czasu odpoczynku zamiast tylko ostrzegać",
+    "zezwól przełożonym na obejście reguł czasu pracy",
+    "ustaw reakcję na przekroczenie maksymalnych godzin na odmowę"
   ],
   "update_contract": [
     "zaktualizuj umowę",
@@ -3091,7 +3608,10 @@
     "dostosuj limit w regule",
     "zmień, ile razy coś jest dozwolone",
     "edytuj zasadę częstości",
-    "zmień z ostrzeżenia na blokadę"
+    "zmień z ostrzeżenia na blokadę",
+    "dopuść najwyżej trzy zmiany nocne w miesiącu zamiast dwóch",
+    "zrób z ostrzeżenia w regule liczącej twardą blokadę",
+    "zmień okno zliczania reguły na jeden tydzień"
   ],
   "update_data_retention_settings": [
     "zaktualizuj okres przechowywania danych",
@@ -3123,20 +3643,29 @@
     "zmień folder odbioru",
     "wyłącz odbiór plików",
     "zmień nazwę punktu odbioru",
-    "ustaw inny folder do odbioru"
+    "ustaw inny folder do odbioru",
+    "zmień ścieżkę folderu punktu przekazania erp",
+    "przemianuj punkt przekazania dla systemu zewnętrznego",
+    "włącz ponownie pobieranie plików erp"
   ],
   "update_expense": [
     "zmień wydatek",
     "popraw kwotę wydatku",
     "edytuj wydatek",
     "aktualizuj dane wydatku",
-    "skoryguj wydatek"
+    "skoryguj wydatek",
+    "zmień opis pozycji wydatku",
+    "przestaw ten wydatek na opodatkowany dodatek",
+    "ustaw nową kwotę wydatku"
   ],
   "update_export_formats_settings": [
     "włącz format csv do eksportu",
     "wyłącz format xlsx",
     "ustaw domyślny system płacowy",
-    "zmień formaty eksportu danych"
+    "zmień formaty eksportu danych",
+    "włącz kolejny format pliku eksportu",
+    "wybierz, które formaty eksportu są dozwolone",
+    "zmień domyślnego odbiorcę płac"
   ],
   "update_general_settings": [
     "zmień nazwę aplikacji",
@@ -3151,14 +3680,20 @@
     "przemaluj tło grafiku na niebiesko",
     "ustaw inny kolor dla świąt",
     "zmień kolory nagłówka w planie",
-    "dostosuj kolory planu grafikowego"
+    "dostosuj kolory planu grafikowego",
+    "pokoloruj soboty w grafiku na jasnoszaro",
+    "ustaw kolor tekstu planu na #333333",
+    "dostosuj naprzemienne odcienie miesięcy w siatce"
   ],
   "update_group": [
     "zmień nazwę grupy",
     "edytuj oddział",
     "zaktualizuj dane zespołu",
     "aktualizuj grupę",
-    "zmodyfikuj dział"
+    "zmodyfikuj dział",
+    "zmień opis tej grupy",
+    "dostosuj daty ważności grupy",
+    "przypisz grupie inny kalendarz świąt"
   ],
   "update_identity_provider": [
     "edytuj dostawcę tożsamości",
@@ -3182,7 +3717,10 @@
     "zmień nazwę okresu",
     "przesuń dzień graniczny",
     "zaktualizuj okres rozliczeniowy",
-    "zmodyfikuj schemat okresów"
+    "zmodyfikuj schemat okresów",
+    "zmień nazwę schematu okresów",
+    "ustaw nowe odcinki dla indywidualnego okresu",
+    "przesuń datę początku odcinka w schemacie"
   ],
   "update_llm_model": [
     "aktualizuj model AI",
@@ -3206,42 +3744,63 @@
     "zmień formułę w makrze",
     "popraw makro obliczeniowe",
     "zaktualizuj skrypt makra",
-    "zmień nazwę lub treść makra"
+    "zmień nazwę lub treść makra",
+    "przepisz treść makra",
+    "zmień nazwę makra",
+    "podmień opis skryptu"
   ],
   "update_membership": [
     "zaktualizuj członkostwo",
     "zmień datę rozpoczęcia członkostwa",
     "ustaw datę zakończenia członkostwa",
     "przesuń początek planowalności",
-    "edytuj przynależność pracownika"
+    "edytuj przynależność pracownika",
+    "przesuń datę ważności od w członkostwie",
+    "ustaw członkostwo bezterminowo",
+    "określ na nowo, od kiedy pracownika można planować"
   ],
   "update_monthly_target_hours": [
     "zmień cel godzinowy dla stycznia",
     "popraw miesięczne godziny",
     "zaktualizuj liczbę godzin dla miesiąca",
     "skoryguj normę godzinową",
-    "podnieś/obniż cel godzin na ten miesiąc"
+    "podnieś/obniż cel godzin na ten miesiąc",
+    "zmień normę godzin na styczeń 2026 ze 184 na 176",
+    "skoryguj po fakcie normę godzinową na marzec",
+    "obniż wartość miesięczną na grudzień"
   ],
   "update_my_account": [
     "zaktualizuj moje konto",
-    "zmień moją nazwę wyświetlaną"
+    "zmień moją nazwę wyświetlaną",
+    "chcę zmienić nazwisko na moim koncie",
+    "zmień adres e-mail, którym się loguję",
+    "popraw moje imię i nazwisko w profilu"
   ],
   "update_navigation_synonyms": [
     "dodaj nowy synonim nawigacji",
-    "naucz klacksy tego sformułowania"
+    "naucz klacksy tego sformułowania",
+    "dodaj kolejne sformułowanie dla celu nawigacji",
+    "klacksy ma rozumieć to wyrażenie dla tej strony",
+    "wpisz nową frazę nawigacyjną dla języka"
   ],
   "update_openroute_settings": [
     "zmień minimalny czas podróży",
     "zapisz klucz do usługi routingu",
     "ustaw próg czasu dojazdu",
-    "zmień ustawienia czasu dojazdu"
+    "zmień ustawienia czasu dojazdu",
+    "wpisz klucz api do openroute",
+    "chcę zmienić minimalny czas dojazdu samochodem, rowerem i pieszo",
+    "dostosuj minimalny czas marszu"
   ],
   "update_overtime_settings": [
     "zmień stawki za nadgodziny",
     "ustaw próg dla wyższej stawki nadgodzin",
     "podnieś stawkę za dodatkowe godziny",
     "zmodyfikuj zasady płacenia nadgodzin",
-    "przesuń próg drugiego progu nadgodzin"
+    "przesuń próg drugiego progu nadgodzin",
+    "zmień ustawienia nadgodzin",
+    "dostosuj, od której godziny nadgodziny są zaliczane",
+    "podnieś mnożnik nadgodzin"
   ],
   "update_owner_address": [
     "zmień adres firmy",
@@ -3257,14 +3816,20 @@
     "zaktualizuj ustawienia lokalne firmy",
     "zmień kraj lub stan dla firmy",
     "ustaw strefę czasową i kalendarz urlopowy",
-    "skonfiguruj ustawienia regionalne firmy"
+    "skonfiguruj ustawienia regionalne firmy",
+    "przestaw firmę na kanton berno",
+    "zmień strefę czasową instalacji na europe/berlin",
+    "ustaw kraj firmy na austrię"
   ],
   "update_period_cap_rule": [
     "zmień limit godzinowy",
     "podnieś limit godzin na miesiąc",
     "obniż limit nadgodzin",
     "zmień próg ostrzegawczy",
-    "edytuj regułę limitu godzin"
+    "edytuj regułę limitu godzin",
+    "ustaw limit nadgodzin na 50 godzin",
+    "zmień pułap godzin z miesięcznego na kwartalny",
+    "niech maksimum dotyczy tylko nadgodzin"
   ],
   "update_qualification": [
     "edytuj kwalifikację",
@@ -3272,27 +3837,39 @@
     "zaktualizuj dane kwalifikacji",
     "zmodyfikuj wpis kwalifikacji",
     "popraw kwalifikację",
-    "aktualizuj kompetencję"
+    "aktualizuj kompetencję",
+    "popraw nazwę kwalifikacji",
+    "przenieś kwalifikację do innej kategorii",
+    "zmień sposób wygasania kwalifikacji"
   ],
   "update_report_template": [
     "zmień szablon wydruku",
     "edytuj układ raportu",
     "przemianuj wzór wydruku",
     "zaktualizuj szablon raportu",
-    "zmodyfikuj listę wydruku"
+    "zmodyfikuj listę wydruku",
+    "zmień nazwę szablonu wydruku",
+    "popraw opis układu raportu",
+    "dostosuj ustawienie pustych dni w szablonie raportu"
   ],
   "update_restricted_time_window_rule": [
     "zmień strefę zakazu pracy",
     "przesuń zakazane godziny",
     "zmień godziny zakazu",
     "dostosuj sezonowy zakaz",
-    "edytuj regułę zakazu pracy"
+    "edytuj regułę zakazu pracy",
+    "zmień godziny zakazu w regule na 22 do 6",
+    "niech zakaz godzinowy obowiązuje tylko latem",
+    "przenieś zablokowane okno czasowe o godzinę później"
   ],
   "update_schedule_note": [
     "edytuj notatkę w harmonogramie",
     "zmień treść notatki dnia",
     "popraw notatkę planu",
-    "aktualizuj notkę w grafiku"
+    "aktualizuj notkę w grafiku",
+    "przeredaguj notatkę w grafiku",
+    "przenieś notatkę z planu na inny dzień",
+    "zmień tekst istniejącej notatki planistycznej"
   ],
   "update_scheduling_defaults": [
     "aktualizuj ustawienia planowania",
@@ -3314,7 +3891,10 @@
     "edytuj zmianę",
     "zmień parametry zmiany",
     "modyfikuj zmianę",
-    "popraw dane zmiany"
+    "popraw dane zmiany",
+    "ustaw koniec szkicu zmiany na 18:00",
+    "zwiększ wymaganą obsadę zmiany do 3",
+    "zmień skrót i opis zmiany"
   ],
   "update_spam_filter_settings": [
     "ustawienia spamu",
@@ -3328,21 +3908,30 @@
     "włącz lub wyłącz regułę spamu",
     "zmień kryteria blokowania",
     "zmień wzorzec spamu",
-    "przenieś regułę w kolejności"
+    "przenieś regułę w kolejności",
+    "podmień słowo kluczowe reguły spamu",
+    "wyłącz regułę spamu",
+    "włącz z powrotem regułę dla niechcianych wiadomości"
   ],
   "update_speech_settings": [
     "zmień głos asystenta na inny",
     "przełącz rozpoznawanie mowy na inny silnik",
     "włącz lub wyłącz czytanie odpowiedzi",
     "pozwól przerywać, gdy asystent mówi",
-    "zmień czas ciszy kończący wypowiedź"
+    "zmień czas ciszy kończący wypowiedź",
+    "przełącz syntezę mowy na inny głos",
+    "zmień model transkrypcji dla wprowadzania głosowego",
+    "ustaw, ile ciszy oznacza koniec zdania"
   ],
   "update_surcharge_mode_settings": [
     "zmień sposób naliczania dodatków",
     "ustaw dodatek jako stałą kwotę",
     "zmień stawkę minimalną dodatku za godzinę",
     "przesuń godziny nocne",
-    "wyłącz sumowanie dodatków"
+    "wyłącz sumowanie dodatków",
+    "dodatek nocny ma być stałym kredytem czasu",
+    "ustaw pasmo nocne od 22 do 6",
+    "ustaw minimalny kredyt na godzinę dla dodatków"
   ],
   "update_transcription_dictionary_entry": [
     "aktualizuj wpis w słowniku transkrypcji",
@@ -3350,31 +3939,46 @@
     "edytuj korektę mowy",
     "popraw wyrażenie w słowniku fonetycznym",
     "uaktualnij warianty fonetyczne dla terminu",
-    "zmodyfikuj wpis w słowniku transkrypcji"
+    "zmodyfikuj wpis w słowniku transkrypcji",
+    "popraw termin w słowniku rozpoznawania mowy",
+    "zmień pisownię wpisu dla dyktowania",
+    "dopisz więcej wariantów brzmieniowych do hasła słownika"
   ],
   "update_user": [
     "popraw dane logowania użytkownika",
     "zmień imię lub nazwisko pracownika",
     "zaktualizuj adres email konta",
     "zmień login innej osoby",
-    "skoryguj dane konta"
+    "skoryguj dane konta",
+    "popraw literówkę w nazwie konta użytkownika",
+    "zmień adres e-mail innego użytkownika",
+    "przemianuj login kolegi"
   ],
   "update_web_search_settings": [
     "ustawienia wyszukiwania",
     "ustawienia wyszukiwarki",
     "zaktualizuj ustawienia wyszukiwarki",
     "zmień provider wyszukiwania",
-    "skonfiguruj klucz api do wyszukiwania"
+    "skonfiguruj klucz api do wyszukiwania",
+    "zmień dostawcę wyszukiwania w internecie",
+    "wpisz nowy klucz api do wyszukiwarki",
+    "zwiększ maksymalną liczbę wyników zapytania"
   ],
   "update_wizard_settings": [
     "zmień model harmonizatora na inny",
     "przełącz harmonizator na model gpt-4",
     "ustaw model dla harmonizatora",
-    "zmień model językowy do harmonizacji planu"
+    "zmień model językowy do harmonizacji planu",
+    "przełącz harmonizer na wyszukiwanie lokalne",
+    "wybierz model językowy dla harmonizatora grafiku",
+    "zmień ustawienia harmonizatora"
   ],
   "update_work": [
     "zmień godziny umieszczonej zmiany",
-    "dostosuj godziny przydziału w grafiku"
+    "dostosuj godziny przydziału w grafiku",
+    "przesuń początek i koniec zaplanowanego wpisu pracy",
+    "popraw godziny wstawionej zmiany",
+    "zmień treść notatki przy zaplanowanej pracy"
   ],
   "update_work_settings": [
     "zmień ustawienia pracy",
@@ -3389,7 +3993,10 @@
     "popraw korektę grafiku",
     "zmień zastępstwo",
     "aktualizuj wpis korekcyjny",
-    "koryguj dodatek do zmiany"
+    "koryguj dodatek do zmiany",
+    "zmień korektę godzin przy zmianie",
+    "dostosuj dodatki do zastępstwa po fakcie",
+    "popraw początek i koniec czasu odprawy"
   ],
   "validate_address": [
     "weryfikacja adresu",
@@ -3429,18 +4036,30 @@
   ],
   "start_order_review": [
     "przejrzeć otwarte zamówienia przed zapieczętowaniem",
-    "wspólny przegląd otwartych zamówień"
+    "wspólny przegląd otwartych zamówień",
+    "rozpocznij przegląd zamówień",
+    "przejdźmy razem przez otwarte zamówienia",
+    "zgrupuj podobne zamówienia i omów wyjątki"
   ],
   "set_order_review_decision": [
-    "zapisz odpowiedź przeglądu zamówień"
+    "zapisz odpowiedź przeglądu zamówień",
+    "podziel zamówienie na usługi 3x8",
+    "ustaw godzinę startu zamówienia 24-godzinnego",
+    "wpisz koszty podróży dla tego pakietu"
   ],
   "preview_order_review": [
     "stan przeglądu zamówień"
   ],
   "cancel_order_review": [
-    "zatrzymaj przegląd zamówień"
+    "zatrzymaj przegląd zamówień",
+    "przerwij przegląd zamówień",
+    "chcę zakończyć omawianie otwartych zamówień",
+    "odrzuć przegląd i wyjdź"
   ],
   "execute_order_review": [
-    "zastosuj potwierdzony przegląd zamówień"
+    "zastosuj potwierdzony przegląd zamówień",
+    "wykonaj potwierdzony przegląd zamówień",
+    "zapisz ustalone wartości w otwartych zamówieniach",
+    "chcę teraz pociąć zamówienia na usługi"
   ]
 }

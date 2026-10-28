@@ -4,14 +4,20 @@
     "godkänn förslaget",
     "ta över scenariot",
     "bekräfta scenariot",
-    "införliva scenariot"
+    "införliva scenariot",
+    "för in wizardförslaget i det riktiga schemat",
+    "godkänn scenariot och lägg det i huvudplanen",
+    "spara autowizardens resultat i schemat"
   ],
   "accept_skill_relation": [
     "bekräfta kopplingen mellan dina färdigheter",
     "godkänn den inlärda relationen",
     "acceptera sambandet du hittat",
     "låt den här kopplingen räknas som giltig",
-    "godkänn sambandet mellan dina förmågor"
+    "godkänn sambandet mellan dina förmågor",
+    "godkänn det föreslagna sambandet mellan färdigheterna",
+    "bekräfta den föreslagna länken mellan de två förmågorna",
+    "jag vill att den inlärda relationen ska börja gälla"
   ],
   "add_ai_memory": [
     "minne",
@@ -32,28 +38,40 @@
   "add_break_placeholder": [
     "semesterönskemål",
     "förhandsbokning av frånvaro",
-    "ledighetsansökan"
+    "ledighetsansökan",
+    "lägg in ett semesterönskemål från 3 till 14 augusti",
+    "förboka sommarledigheten för anna",
+    "spara medarbetarens ledighetsansökan som en platshållare"
   ],
   "add_client_email": [
     "lägg till e-postadress",
     "registrera e-post",
     "sätt in e-post för medarbetare",
     "uppdatera e-postadress",
-    "lägg till mail"
+    "lägg till mail",
+    "sätt e-postadressen för en kund",
+    "byt mejladress på den här medarbetaren",
+    "skriv in en ny mejladress till kunden"
   ],
   "add_client_note": [
     "lägg till anteckning",
     "skriv en kommentar till medarbetare",
     "notering till anställd",
     "lägg till notis",
-    "gör en anmärkning"
+    "gör en anmärkning",
+    "fäst en anteckning på den här medarbetaren",
+    "jag vill skriva en kommentar på kunden",
+    "spara en kort not om medarbetaren"
   ],
   "add_client_phone": [
     "lägg till telefonnummer",
     "registrera mobilnummer",
     "sätt in telefon för medarbetare",
     "uppdatera telefonnummer",
-    "lägg till nytt nummer"
+    "lägg till nytt nummer",
+    "spara ett nytt mobilnummer för en anställd",
+    "lägg in ett kontaktnummer på personen",
+    "skriv in ett telefonnummer till en kund"
   ],
   "add_client_to_group": [
     "lägg till i grupp",
@@ -67,7 +85,10 @@
     "tilldela medarbetare till grupp",
     "sätt anställd i gruppen",
     "lägg till person i grupp",
-    "gruppera medarbetare"
+    "gruppera medarbetare",
+    "lägg medarbetaren i teamet",
+    "sätt in personen i gruppen",
+    "jag vill lägga till en kund i en grupp"
   ],
   "add_client_to_nearest_group": [
     "lägg till kunden i närmaste gruppen",
@@ -80,21 +101,30 @@
     "lägg till en uppgift i containermallen",
     "sätt in ett uppgiftspass i containerns mall",
     "ta upp en uppgift i containerpassets mall",
-    "lägg till en task på en veckodag i containermallen"
+    "lägg till en task på en veckodag i containermallen",
+    "lägg till ytterligare ett delpass i containerns måndagsmall",
+    "sätt en uppgift på plats 2 i containerns ritning",
+    "utöka tisdagsmallen med en extra uppgift"
   ],
   "add_expense": [
     "lägg till en utlägg",
     "registrera ett utlägg",
     "fört in en kostnad",
     "boka en utläggspost",
-    "logga ett utlägg"
+    "logga ett utlägg",
+    "lägg till 25 kronor tågbiljett som utlägg på gårdagens pass",
+    "bokför ett utlägg för parkeringsavgift på passet",
+    "registrera ett skattepliktigt tillägg på 30 kronor på tilldelningen"
   ],
   "add_personal_memory": [
     "kom ihåg att jag föredrar att jobba nattpass",
     "spara en personlig anteckning om att jag ogillar dubbla pass",
     "anteckna för mig att jag är ledig på fredagar",
     "min preferens är att börja klockan sju",
-    "kom ihåg att jag inte vill ha sena pass i rad"
+    "kom ihåg att jag inte vill ha sena pass i rad",
+    "minns att jag helst tar tidiga pass",
+    "spara privat att jag ogillar helgplanering",
+    "notera åt mig att jag föredrar korta svar"
   ],
   "add_schedule_command": [
     "sätt yasmine ledig den 15 maj",
@@ -106,21 +136,30 @@
   "add_schedule_commands_range": [
     "ledig period",
     "kommandon för period",
-    "flera lediga dagar"
+    "flera lediga dagar",
+    "hon vill vara ledig varje dag från 10 till 20 maj",
+    "han önskar bara tidiga pass hela juli",
+    "håll första veckan i juni ledig åt honom"
   ],
   "add_schedule_note": [
     "lägg till anteckning i schemat",
     "skapa schemanotering",
     "lägg till anmärkning",
     "notera i planeringen",
-    "anteckna för klient"
+    "anteckna för klient",
+    "lämna en överlämningsanteckning till en anställd på tisdag",
+    "skriv en kommentar för en viss dag i schemat",
+    "sätt en not i planen för medarbetaren på fredag"
   ],
   "add_selected_clients_to_group": [
     "lägg markerade till grupp",
     "tilldela valda anställda till grupp",
     "lägg de tickade medarbetarna i grupp",
     "för över markerade till grupp",
-    "gruppera valda rader"
+    "gruppera valda rader",
+    "lägg de ikryssade medarbetarna i en grupp",
+    "koppla de markerade anställda till gruppen",
+    "lägg till alla jag har valt i gruppen"
   ],
   "add_shift_to_group": [
     "lägg till passet i gruppen",
@@ -134,7 +173,10 @@
     "ny fonetisk variant",
     "lär in nytt begrepp",
     "skapa transkriptionskorrigering",
-    "lägg till uttalsvariant"
+    "lägg till uttalsvariant",
+    "lär taligenkänningen att klaxi betyder klacksy",
+    "lägg in en ny felhörning i transkriptionsordlistan",
+    "diktamen ska stava den här termen rätt framöver"
   ],
   "add_workchange": [
     "lägg till korrigering på ett pass",
@@ -156,35 +198,53 @@
   "apply_company_rule": [
     "tillämpa företagsregeln",
     "spara och bekräfta företagsregeln",
-    "aktivera företagsregeln"
+    "aktivera företagsregeln",
+    "tillämpa utkastet till företagsregeln nu",
+    "sätt den förberedda tilläggsregeln i kraft",
+    "förhandsvisningen är bekräftad, spara husregeln"
   ],
   "apply_grouping": [
     "verkställ grupperingen nu",
     "flytta faktiskt alla kunder till sina grupper",
     "bekräfta och verkställ den föreslagna grupperingen",
     "genomför grupperingen av kunder",
-    "spara grupperingen permanent"
+    "spara grupperingen permanent",
+    "flytta alla anställda till sina platsgrupper",
+    "kör ortsgrupperingen nu",
+    "spara den föreslagna platstilldelningen"
   ],
   "apply_grouping_plan": [
     "tillämpa gruppplanen",
-    "genomför de föreslagna gruppändringarna"
+    "genomför de föreslagna gruppändringarna",
+    "kör gruppplanen med koden",
+    "genomför de föreslagna gruppkopplingarna",
+    "verkställ den godkända gruppplanen"
   ],
   "apply_planning_profile": [
     "tillämpa planeringsprofilen",
-    "spara planeringsprofilen"
+    "spara planeringsprofilen",
+    "tillämpa utkastet till planeringsprofil",
+    "aktivera mina egna planeringsregler från utkastet",
+    "skapa planeringsprofilen nu"
   ],
   "approve_day": [
     "godkänn dagen",
     "frigör måndag",
     "approvera den 15 maj",
     "signera dagen",
-    "godkänn schemat för idag"
+    "godkänn schemat för idag",
+    "godkänn alla pass på måndag för gruppen",
+    "kvittera den 15 maj för det här teamet",
+    "jag vill godkänna dagen för gruppen"
   ],
   "assign_contract_by_name": [
     "tilldela ett avtal till andersson",
     "koppla kontrakt till medarbetaren maria",
     "tilldela avtal baserat på namn",
-    "knyt ett kontrakt till kunden lindqvist"
+    "knyt ett kontrakt till kunden lindqvist",
+    "koppla en anställd och ett avtal med bara namnen",
+    "ge medarbetaren med det här namnet deltidsavtalet",
+    "gör ett nytt avtal aktivt för en anställd utifrån namn"
   ],
   "assign_contract_to_client": [
     "tilldela avtal",
@@ -193,15 +253,24 @@
   ],
   "assign_macro_to_absence_type": [
     "tilldela makro till frånvarotyp",
-    "byt beräkningsmakro för frånvarotypen"
+    "byt beräkningsmakro för frånvarotypen",
+    "byt semester till ett annat beräkningsmakro",
+    "jag vill sätta en ny formel för timkrediteringen vid sjukdom",
+    "koppla olycksfallsfrånvaron till ett annat makro"
   ],
   "assign_macro_to_shift": [
     "tilldela makro till pass",
-    "byt beräkningsmakro för passet"
+    "byt beräkningsmakro för passet",
+    "lägg den utökade tilläggsformeln på nattpasset",
+    "ge det här passet ett annat makro",
+    "gå tillbaka till standardformeln för passet"
   ],
   "assign_orders_to_groups": [
     "gruppera importerade beställningar",
-    "beställningar utan grupp"
+    "beställningar utan grupp",
+    "lägg alla öppna beställningar i sina grupper",
+    "sortera in de importerade ordrarna i ortsgrupperna efter erp-importen",
+    "placera order utan grupp i rätt platsgrupp automatiskt"
   ],
   "assign_shifts_to_city_groups": [
     "fördela passen på stadsgrupper efter kundens adress",
@@ -220,34 +289,52 @@
     "sätt in utbildningsdag för alla i gruppen",
     "gruppfrånvaro för ett datum",
     "applicera frånvarotyp på hela teamet",
-    "schemalägg gemensam frånvaro för grupp"
+    "schemalägg gemensam frånvaro för grupp",
+    "boka in en utbildningsdag för alla i gruppen på fredag",
+    "jag vill ge hela gruppen samma frånvaro en dag",
+    "registrera samma frånvaro för varje gruppmedlem ett datum"
   ],
   "bulk_add_shifts_to_group": [
     "lägg till alla pass som matchar till gruppen",
     "koppla bulk alla tjänster med namnet till teamet",
     "tilldela samtliga skift med sökordet till gruppen",
     "förhandsgranska vilka pass som skulle läggas till",
-    "verkställ alla kopplingar till gruppen nu"
+    "verkställ alla kopplingar till gruppen nu",
+    "koppla alla nattpass till samma grupp på en gång",
+    "lägg in flera tjänster i avdelningen med ett kommando",
+    "jag vill lägga alla tjänster med förkortningen i en grupp"
   ],
   "bulk_delete_works": [
     "ta bort alla pass för en anställd under en period",
     "radera alla arbetsuppdrag inom ett datumintervall",
     "ta bort alla tilldelningar under en period",
-    "radera flera arbetsuppdrag på en gång"
+    "radera flera arbetsuppdrag på en gång",
+    "rensa alla pass för en medarbetare nästa vecka",
+    "ta bort upp till 50 pass i ett datumintervall på en gång",
+    "töm en anställds hela månad i planen"
   ],
   "bundle_nearby_timerange_shifts_into_container": [
     "samla mobila tjänster runt en stad",
     "hämta närliggande timerange-pass",
-    "kombinera mobila tjänster i närheten"
+    "kombinera mobila tjänster i närheten",
+    "packa alla mobila uppdrag runt göteborg i en ny container",
+    "bygg en container för torsdag av närliggande timerange-pass",
+    "slå ihop rundorna nära malmö till en dagscontainer"
   ],
   "cancel_company_rule": [
     "avbryt utkastet till företagsregel",
     "kasta den pågående företagsregeln",
-    "avbryt definitionen av företagsregeln"
+    "avbryt definitionen av företagsregeln",
+    "kasta företagsregeln jag började på",
+    "avbryt utkastet till husregeln",
+    "stoppa regelinmatningen och släng utkastet"
   ],
   "cancel_planning_profile_setup": [
     "avbryt konfigurationen av planeringsprofilen",
-    "kasta utkastet till planeringsprofilen"
+    "kasta utkastet till planeringsprofilen",
+    "avbryt uppsättningen av planeringsprofilen",
+    "släng utkastet till planeringsprofilen",
+    "avsluta profilguiden"
   ],
   "cancel_recurring_task": [
     "ta bort påminnelsen",
@@ -255,14 +342,20 @@
     "avbryt mitt måndagspåminnelse",
     "ta bort mitt cron-jobb",
     "ta bort uppgiften med namn",
-    "avaktivera den återkommande påminnelsen"
+    "avaktivera den återkommande påminnelsen",
+    "stoppa min återkommande påminnelse",
+    "avbryt det schemalagda cron-jobbet",
+    "ta bort den veckovisa påminnelsen"
   ],
   "cancel_wizard_job": [
     "avbryt pågående wizard",
     "stoppa wizarden",
     "cancel wizard",
     "ta bort wizardjobbet",
-    "avsluta planeringsjobbet"
+    "avsluta planeringsjobbet",
+    "stoppa den pågående planeringen",
+    "avbryt den automatiska schemaläggningen",
+    "stoppa autowizarden nu"
   ],
   "check_absence_capacity_reserve": [
     "kapacitetsreserv för semester",
@@ -284,7 +377,10 @@
   "check_erp_drop_point_folder_health": [
     "kolla mapphälsan för avlämningspunkten",
     "överlever mappen en omstart",
-    "skapa processed- och error-mappar"
+    "skapa processed- och error-mappar",
+    "går det att skriva i erp-mappen",
+    "kontrollera att erp-överlämningsmappen finns och skapa den om den saknas",
+    "varför hämtas inte orderfilerna, testa mappen"
   ],
   "check_group_geocoding_status": [
     "geokodningsstatus"
@@ -292,18 +388,27 @@
   "clear_client_availability": [
     "återställ medarbetarens tillgänglighet",
     "ta bort tillgänglighetsposter",
-    "rensa tillgängligheten så att dagen öppnas igen"
+    "rensa tillgängligheten så att dagen öppnas igen",
+    "radera alla tillgänglighetsposter i augusti",
+    "öppna dagen helt för planering igen",
+    "ta bara bort tillgängligheten på förmiddagen"
   ],
   "close_clarification": [
     "jag reder ut det själv med medarbetaren",
-    "stäng följdfrågan"
+    "stäng följdfrågan",
+    "jag tar över utredningen själv",
+    "avsluta den öppna frågan till medarbetaren",
+    "vänta inte längre på svaret om frånvaron"
   ],
   "close_period": [
     "stäng perioden",
     "avsluta maj",
     "stäng löneperioden",
     "försegla perioden",
-    "lås perioden"
+    "lås perioden",
+    "lås alla timmar för förra månaden",
+    "försegla löneperioden och skriv revisionsloggen",
+    "jag vill avsluta perioden för lön nu"
   ],
   "confirm_break": [
     "bekräfta frånvaron",
@@ -311,21 +416,30 @@
     "bekräfta ledigheten",
     "godkänn frånvaron",
     "spärra frånvaron",
-    "fastställ frånvaron"
+    "fastställ frånvaron",
+    "gör den bokade semestern bindande",
+    "sätt sjukfrånvaron som bekräftad",
+    "bekräfta frånvaroposten med break-id"
   ],
   "confirm_pending_action": [
     "bekräfta åtgärden",
     "ja, gör det",
     "jag godkänner",
     "utför den väntande åtgärden",
-    "bekräfta och kör"
+    "bekräfta och kör",
+    "ja, kör den väntande åtgärden",
+    "okej, bekräftat, sätt igång",
+    "godkänt, gör precis så"
   ],
   "confirm_work": [
     "lås arbetspasset",
     "bekräfta skiftet",
     "fixera skiftet",
     "lås tilldelningen",
-    "bekräfta yasmines morgonskift"
+    "bekräfta yasmines morgonskift",
+    "gör den här tilldelningen slutgiltig",
+    "skydda passet från wizarderna",
+    "jag vill frysa morgondagens tilldelning"
   ],
   "cover_absence": [
     "täck frånvaro",
@@ -339,18 +453,27 @@
     "lägg till semestertyp",
     "definiera ny frånvaroorsak",
     "ny frånvarokod",
-    "skapa ledighetstyp"
+    "skapa ledighetstyp",
+    "definiera en ny frånvarotyp för studieledighet",
+    "jag behöver en ny sorts frånvaro för militärtjänst",
+    "lägg till en typ för obetald ledighet i grunddata"
   ],
   "create_absence_type": [
     "skapa en ny frånvarotyp",
-    "definiera en ny frånvarokategori"
+    "definiera en ny frånvarokategori",
+    "lägg till en ny frånvarotyp i inställningarna",
+    "jag vill skapa en ny ledighetstyp med förkortning och färg",
+    "registrera en ny typ för sjukdagar i grunddata"
   ],
   "create_address": [
     "skapa ny adress",
     "lägg till adress till anställd",
     "registrera adress",
     "lägg till postadress",
-    "skapa adress för kund"
+    "skapa adress för kund",
+    "spara en fakturaadress för kunden",
+    "lägg till en företagsadress på den här kontakten",
+    "registrera en postadress med land och delstat"
   ],
   "create_agent_skill": [
     "skapa färdighet",
@@ -367,39 +490,57 @@
   ],
   "create_calendar_selection": [
     "skapa kalenderval",
-    "skapa helgdagskalender"
+    "skapa helgdagskalender",
+    "slå ihop helgdagarna från två regioner till en kalender",
+    "nytt kalenderval med tyskland och österrike",
+    "bygg min egen helgdagskalender av flera länder"
   ],
   "create_container_template": [
     "skapa en veckodagsmall för containern",
     "skapa en ny containermall",
     "lägg till en dagsmall på containerpasset",
-    "konfigurera en veckodag för containern"
+    "konfigurera en veckodag för containern",
+    "lägg upp en dagsplan med tidsbudget för containern på måndag",
+    "containern saknar fortfarande en mall för onsdag",
+    "skapa tisdagsmallen med start- och slutplats"
   ],
   "create_contract": [
     "skapa avtal",
     "nytt avtal",
     "nytt kontrakt",
     "anställningsavtal",
-    "arbetsavtal"
+    "arbetsavtal",
+    "jag vill lägga upp en ny avtalsmall med 40 timmar i veckan",
+    "registrera ett deltidsavtal på 20 timmar",
+    "skapa ett kontrakt med fasta timmar per dag"
   ],
   "create_contract_from_template": [
     "skapa avtal från mall",
     "nytt avtal utifrån mall",
     "kopiera avtalsmall",
-    "avtal baserat på mall"
+    "avtal baserat på mall",
+    "kopiera heltidsavtalet och ändra bara startdatumet",
+    "nytt avtal som det befintliga men med 60 procent sysselsättningsgrad",
+    "använd deltidsavtalet som mall med en annan helgdagsregion"
   ],
   "create_counter_rule": [
     "skapa en räkneregel",
     "lägg till en regel som begränsar antal nattpass",
     "sätt max antal arbetspass per vecka",
     "skapa en regel för högst fyra nattpass i månaden",
-    "inför en begränsning på hur ofta något får ske"
+    "inför en begränsning på hur ofta något får ske",
+    "tillåt högst fem arbetsdagar per vecka",
+    "varna när någon får fler än fyra nattpass i månaden",
+    "sätt en övre gräns för helgpass"
   ],
   "create_donation_checkout": [
     "donera till klacks",
     "skapa en donation",
     "jag vill ge en donation",
-    "stöd klacks med ett belopp"
+    "stöd klacks med ett belopp",
+    "jag vill skänka 50 kronor",
+    "skapa en betalningslänk för en donation till projektet",
+    "öppna donationssidan för 20 dollar"
   ],
   "create_email_folder": [
     "skapa ny e-postmapp",
@@ -424,14 +565,20 @@
     "generera en åtkomstnyckel för externa system",
     "skapa en nyckel för inlämning av filer",
     "utfärda en api-nyckel för filinlämning",
-    "skapa en integrationsnyckel"
+    "skapa en integrationsnyckel",
+    "jag behöver en åtkomstnyckel för överlämningspunkten",
+    "skapa en ny token för erp-filimporten",
+    "sätt upp en nyckel så att det externa systemet kan leverera filer"
   ],
   "create_group": [
     "skapa ny grupp",
     "lägg till avdelning",
     "öppna nytt kontor",
     "skapa team",
-    "nytt distrikt"
+    "nytt distrikt",
+    "skapa en ny undergrupp under försäljning",
+    "jag vill bilda ett nytt team för nattvakten",
+    "lägg upp en ny organisationsenhet som gäller från nästa måndag"
   ],
   "create_identity_provider": [
     "skapa en inloggningsleverantör",
@@ -445,7 +592,10 @@
     "lägg till ett eget tidsintervall",
     "skapa en avvikande cykel",
     "definiera en individuell period",
-    "lägg till ett nytt tidsintervall med startdatum"
+    "lägg till ett nytt tidsintervall med startdatum",
+    "lägg upp en period som löper från den 26:e till den 25:e",
+    "skapa ett räknefönster för personal med förskjuten månadsstart",
+    "definiera en avräkningsperiod från 26:e till 25:e"
   ],
   "create_llm_model": [
     "skapa AI-modell",
@@ -465,21 +615,30 @@
     "lägg till ett beräkningsskript",
     "skapa en formel i inställningarna",
     "skapa ett makro med namnet",
-    "definiera ett nytt skript för beräkning"
+    "definiera ett nytt skript för beräkning",
+    "lägg upp ett nytt makro med det här skriptet",
+    "jag vill spara ett nytt beräkningsskript i inställningarna",
+    "registrera ett formelmakro med namn"
   ],
   "create_monthly_target_hours": [
     "sätt måltimmar för en månad",
     "lägg till timmar för februari",
     "registrera antal timmar för en månad",
     "ställ in timmar för en specifik månad",
-    "skapa månatligt timmål"
+    "skapa månatligt timmål",
+    "lägg in 160 timmar som mål för februari",
+    "registrera en månad med avvikande måltimmar",
+    "spara timvärdet per månad för nästa år"
   ],
   "create_period_cap_rule": [
     "skapa ett timtak",
     "sätt max antal timmar per månad",
     "inför en övre gräns för timmar per kvartal",
     "lägg till en regel som begränsar övertid",
-    "skapa ett tak på 170 timmar i månaden"
+    "skapa ett tak på 170 timmar i månaden",
+    "högst 48 timmar i snitt över tolv veckor",
+    "larma vid 90 procent av månadens timmar",
+    "skapa en övre gräns för övertid per period"
   ],
   "create_personal_access_token": [
     "skapa en personlig åtkomsttoken",
@@ -492,14 +651,20 @@
     "skapa en plan",
     "flerstegsplan",
     "flera uppgifter samtidigt",
-    "upprätta en uppgiftsplan"
+    "upprätta en uppgiftsplan",
+    "jag behöver en sekvens för kund, beställning och bemanning i ett svep",
+    "sätt ihop det här som en plan i flera steg",
+    "föreslå hur vi genomför alla de här ändringarna efter varandra"
   ],
   "create_qualification": [
     "skapa ny kvalifikation",
     "lägg till certifikatstyp",
     "definiera en ny kompetens",
     "skapa kvalifikation med namn",
-    "registrera kvalifikation"
+    "registrera kvalifikation",
+    "lägg upp en ny kvalifikation truckkort",
+    "jag vill spara första hjälpen som kvalifikation",
+    "definiera kvalifikationen körkort c1"
   ],
   "create_report_template": [
     "skapa en utskriftsmall",
@@ -507,14 +672,20 @@
     "skapa en ny utskriftslayout",
     "skapa en mall för utskrift",
     "lägg till en utskrivbar mall",
-    "skapa en rapportlayout"
+    "skapa en rapportlayout",
+    "lägg till en ny layout för att skriva ut scheman",
+    "jag behöver en mall för frånvarorapporten",
+    "skapa en utskrivbar fakturamall med sammanslagna rader"
   ],
   "create_restricted_time_window_rule": [
     "skapa en spärrtid",
     "lägg till en spärr mellan klockan 22 och 06",
     "inför spärrtid under vintermånaderna",
     "spärra vissa tider på dygnet",
-    "skapa en säsongsbaserad spärr"
+    "skapa en säsongsbaserad spärr",
+    "inget arbete mellan tolv och tre på sommaren",
+    "definiera ett spärrfönster för en säsong varje år",
+    "spärra kvällar från november till mars för alla med taggen utomhus"
   ],
   "create_scheduling_rule": [
     "skapa planeringsregel",
@@ -534,14 +705,20 @@
     "blockera en avsändare",
     "lägg till ett spamfilter",
     "förhindra e-post från den adressen",
-    "stoppa skräppost från den domänen"
+    "stoppa skräppost från den domänen",
+    "sortera bort alla mejl från den här domänen",
+    "klassa meddelanden med den här rubriken som skräppost",
+    "lägg ett nyckelord i mejltexten i spamfiltret"
   ],
   "create_test_environment": [
     "skapa testpersonal med adresser",
     "generera testdata med anställda",
     "skapa testmiljö för schemaläggning",
     "lägg till testmedarbetare med kontrakt",
-    "skapa testgrupp med skift"
+    "skapa testgrupp med skift",
+    "sätt upp en komplett testmiljö för autofyll",
+    "jag behöver testpersonal med grupp och gemensamt avtal",
+    "generera testdata med tidiga, sena och nattpass"
   ],
   "create_user": [
     "skapa användare",
@@ -556,31 +733,46 @@
     "klipp skiftet i flera delpass",
     "skapa tidig/sen/natt från ett långt pass",
     "dela beställning i deltider",
-    "split shift i flera delar"
+    "split shift i flera delar",
+    "dela det 24 timmar långa passet i tidigt, sent och natt",
+    "jag vill klippa beställningen i flera tidsdelar",
+    "stycka passet 07:00 till 07:00 i rotationsdelar"
   ],
   "cut_shift_by_date": [
     "klipp passet på ett visst datum",
     "dela passet i två vid ett datum",
     "dela upp skiftet från ett angivet datum",
-    "skär passet vid datumet"
+    "skär passet vid datumet",
+    "låt passet börja om från den 1 juli",
+    "dela passet i två delar vid en kalenderdag",
+    "kapa serien vid brytdatumet och starta om efter det"
   ],
   "delete_absence": [
     "ta bort en frånvarotyp",
     "radera en ledighetsart",
     "släng en frånvarotyp",
     "avveckla semesterarten",
-    "ta bort frånvarotyper"
+    "ta bort frånvarotyper",
+    "ta bort frånvarotypen obetald ledighet ur inställningarna",
+    "rensa bort en frånvarotyp som inte behövs längre",
+    "jag vill lägga ner en föråldrad frånvarotyp"
   ],
   "delete_absence_type": [
     "ta bort frånvarotypen",
-    "radera frånvarokategorin"
+    "radera frånvarokategorin",
+    "jag vill radera en frånvarotyp",
+    "ta bort den här frånvarotypen ur grunddata",
+    "frånvarokategorin är föråldrad, ta bort den"
   ],
   "delete_address": [
     "ta bort adress",
     "radera adress",
     "ta bort postadress",
     "ta bort adress från kund",
-    "radera adressuppgift"
+    "radera adressuppgift",
+    "bli av med den gamla hemadressen",
+    "stryk personens postadress",
+    "ta bort den föråldrade adressen ur profilen"
   ],
   "delete_agent_skill": [
     "ta bort färdighet",
@@ -603,7 +795,10 @@
     "radera notering",
     "ta bort anmärkning",
     "radera anteckning",
-    "ta bort anteckning från kund"
+    "ta bort anteckning från kund",
+    "ta bort anteckningen på medarbetaren igen",
+    "radera kommentaren från kunden",
+    "bli av med anmärkningen med det här id:t"
   ],
   "delete_branch": [
     "ta bort filial",
@@ -618,17 +813,26 @@
     "radera semestern",
     "ta bort sjukfrånvaron",
     "stryk ledigheten",
-    "avboka frånvaroperioden"
+    "avboka frånvaroperioden",
+    "ta bort sjukdagen från tisdag",
+    "plocka bort en bokad semesterfrånvaro igen",
+    "radera den här utbildningsfrånvaron"
   ],
   "delete_break_placeholder": [
     "avboka semesterönskemål",
     "ta bort planerad frånvaro",
     "ta bort förhandsbokning av frånvaro",
-    "annullera planerad semester"
+    "annullera planerad semester",
+    "dra tillbaka det inlagda semesterönskemålet",
+    "häv den förbokade frånvaron den 12 augusti",
+    "ta bort platshållaren för frånvaron"
   ],
   "delete_calendar_selection": [
     "ta bort kalenderval",
-    "ta bort helgdagskalender"
+    "ta bort helgdagskalender",
+    "ta bort ett kalenderval",
+    "radera helgdagskalendern som inte används",
+    "jag vill bli av med det här kalendervalet"
   ],
   "delete_client": [
     "ta bort medarbetare",
@@ -641,12 +845,18 @@
     "ta bort kommunikation",
     "radera e-postadress",
     "ta bort telefonnummer",
-    "radera kontaktuppgift"
+    "radera kontaktuppgift",
+    "ta bort mobilnumret från kontakten",
+    "stryk en kontaktuppgift för en anställd",
+    "radera kundens gamla fasta nummer"
   ],
   "delete_container_template": [
     "ta bort containerns veckodagsmallar",
     "radera alla mallar för containern",
-    "återställ containerns veckoplan"
+    "återställ containerns veckoplan",
+    "ta bort alla veckodagsmallar för containern",
+    "radera mallarna för ett containerpass helt",
+    "töm containerns veckoschema"
   ],
   "delete_contract": [
     "ta bort avtal",
@@ -654,18 +864,27 @@
     "ta bort anställningsavtal",
     "ta bort ett kontrakt",
     "radera kontraktsmall",
-    "inaktivera kontrakt"
+    "inaktivera kontrakt",
+    "ta bort den här avtalsmallen för gott",
+    "bli av med avtalet som inte behövs längre",
+    "radera det gamla deltidsavtalet ur systemet"
   ],
   "delete_counter_rule": [
     "ta bort en räkneregel",
     "radera en räkneregel",
     "ta bort regeln för max antal pass",
     "sluta räkna nattpass",
-    "avskaffa en räkneregel"
+    "avskaffa en räkneregel",
+    "ta bort regeln som räknar nattpass",
+    "den här räkneregeln blev fel, radera den",
+    "vi har slutat följa den siffran, ta bort regeln"
   ],
   "delete_email": [
     "radera e-postmeddelandet till papperskorgen",
-    "flytta detta mejl till papperskorgen"
+    "flytta detta mejl till papperskorgen",
+    "ta bort det här mejlet",
+    "jag vill slänga det mottagna meddelandet",
+    "radera meddelandet från inkorgen"
   ],
   "delete_email_folder": [
     "ta bort e-postmapp",
@@ -679,34 +898,49 @@
     "ta bort utlägget",
     "radera utläggsposten",
     "annullera utlägget",
-    "stryk utlägget"
+    "stryk utlägget",
+    "ta bort gårdagens utläggskvitto igen",
+    "stryk det felaktigt registrerade utlägget",
+    "jag vill ta tillbaka en utläggspost"
   ],
   "delete_export_format_override": [
     "återställ exportformatet",
     "ta bort anpassningen av exportformatet",
     "ta bort exportinställningen",
     "återgå till standardexporten",
-    "radera justeringen av exporten"
+    "radera justeringen av exporten",
+    "radera min anpassning av exportformatet",
+    "återställ den levererade exportdefinitionen",
+    "kasta min justering av exportformatet"
   ],
   "delete_group": [
     "ta bort grupp",
     "radera avdelning",
     "stänga kontor",
-    "lägg ner team"
+    "lägg ner team",
+    "ta bort hela platsen inklusive undergrupperna",
+    "lös upp den här avdelningen helt",
+    "radera gruppen med alla underordnade"
   ],
   "delete_identity_provider": [
     "ta bort en inloggningsleverantör",
     "radera sso-leverantör",
     "ta bort ldap-konfiguration",
     "ta bort en autentiseringsleverantör",
-    "ta bort identitetsleverantören"
+    "ta bort identitetsleverantören",
+    "ta bort active directory-anslutningen",
+    "radera openid connect-leverantören",
+    "släng oauth2-inloggningskällan"
   ],
   "delete_individual_period": [
     "ta bort en individuell period",
     "radera min egen period",
     "ta bort den avvikande cykeln",
     "återgå till kalendermånaden",
-    "radera tidsintervallet"
+    "radera tidsintervallet",
+    "radera schemat med egna avräkningsgränser",
+    "ta bort den individuella perioden, avtalen går tillbaka till månad",
+    "avskaffa den egendefinierade avräkningsperioden"
   ],
   "delete_llm_model": [
     "ta bort AI-modell",
@@ -729,34 +963,49 @@
     "radera skriptet från inställningarna",
     "ta bort makrot med id",
     "radera formeln som heter",
-    "ta bort beräkningsskriptet"
+    "ta bort beräkningsskriptet",
+    "jag vill ta bort ett beräkningsmakro",
+    "rensa bort det gamla makrot ur inställningarna",
+    "radera makrot med det här id:t"
   ],
   "delete_membership": [
     "ta bort medlemskap",
     "radera medlemsperiod",
     "ta bort tillhörighet",
     "radera affiliationsperiod",
-    "ta bort medlemskap för kund"
+    "ta bort medlemskap för kund",
+    "ta bort en anställds medlemsperiod",
+    "radera medlemskapet med det här id:t",
+    "stryk en medarbetares tillhörighetsperiod"
   ],
   "delete_monthly_target_hours": [
     "ta bort måltimmar för en månad",
     "radera timmarna för april",
     "ta bort det månatliga timmålet",
-    "återställ timmarna för en månad till standard"
+    "återställ timmarna för en månad till standard",
+    "häv det avvikande målet för mars",
+    "sätt månadens måltimmar tillbaka till standard",
+    "radera timvärdet som registrerats för månaden"
   ],
   "delete_period_cap_rule": [
     "ta bort ett timtak",
     "radera timtaket",
     "ta bort övertidstaket",
     "avskaffa begränsningen på timmar per period",
-    "ta bort regeln om max timmar"
+    "ta bort regeln om max timmar",
+    "släpp timgränsen för den här perioden",
+    "sluta tillämpa regeln om maximal arbetstid",
+    "stäng av förvarningen när timgränsen överskrids"
   ],
   "delete_qualification": [
     "ta bort kvalifikationen",
     "radera kvalifikationsposten",
     "ta bort kompetensen",
     "avlägsna kvalifikationstypen",
-    "släng kvalifikationen"
+    "släng kvalifikationen",
+    "ta bort kvalifikationen truckkort ur grunddata",
+    "jag vill rensa bort en föråldrad kvalifikation",
+    "radera kvalifikationen med det här id:t"
   ],
   "delete_report_template": [
     "ta bort en utskriftsmall",
@@ -764,7 +1013,10 @@
     "ta bort en utskriftslayout",
     "kasta en utskriftsmall",
     "ta bort en rapportlayout",
-    "radera en utskriftslayout"
+    "radera en utskriftslayout",
+    "radera en föråldrad rapportmall",
+    "ta bort utskriftsmallen med alla dess block",
+    "bli av med en rapportlayout"
   ],
   "delete_restricted_time_window_rule": [
     "ta bort den blockerade tiden",
@@ -772,14 +1024,20 @@
     "frigör den tiden på dygnet igen",
     "ta bort spärrtiden",
     "sluta blockera de klockslagen",
-    "avaktivera spärren för klockslag"
+    "avaktivera spärren för klockslag",
+    "ta bort spärren för nattimmarna helt",
+    "den här säsongsspärren var fel, radera den",
+    "tillåt arbete mellan 22 och 06 igen"
   ],
   "delete_schedule_note": [
     "ta bort schemanoteringen",
     "radera anteckningen",
     "ta bort notisen",
     "släng anmärkningen",
-    "ta bort noteringen"
+    "ta bort noteringen",
+    "ta bort schemanoteringen från den 12 april",
+    "bli av med den här plananmärkningen",
+    "jag vill rensa en notering i schemat"
   ],
   "delete_scheduling_rule": [
     "ta bort planeringsregel",
@@ -794,14 +1052,20 @@
     "radera skift",
     "släng skift",
     "avaktivera skift",
-    "skift ska bort"
+    "skift ska bort",
+    "jag vill radera det här passet",
+    "ta bort beställningsutkastet",
+    "radera passet med det här id:t"
   ],
   "delete_spam_rule": [
     "ta bort en spamregel",
     "avblockera en avsändare",
     "ta bort spamfiltret",
     "släpp igenom domänen igen",
-    "lyft blockeringen"
+    "lyft blockeringen",
+    "ta bort spamfilterposten för den här domänen",
+    "släpp igenom mejl från den här avsändaren igen",
+    "mönstret fångar för mycket, radera det"
   ],
   "delete_system_user": [
     "ta bort användare",
@@ -816,14 +1080,20 @@
     "radera en term från transkriptionsordboken",
     "ta bort en uttalskorrigering",
     "släng en fonetisk post",
-    "ta bort en transkriptionskorrigering"
+    "ta bort en transkriptionskorrigering",
+    "ta bort den här termen ur talkorrigeringen",
+    "radera posten i transkriptionsordlistan",
+    "stryk ett korrigeringsord ur diktatordlistan"
   ],
   "delete_work": [
     "ta bort det här arbetspasset",
     "radera skiftet",
     "avboka arbetspasset",
     "ta bort tilldelningen",
-    "stryk skiftet"
+    "stryk skiftet",
+    "ta bort tilldelningen från planen",
+    "radera arbetspasset på fredag",
+    "ta bort personen från morgondagens pass"
   ],
   "delete_workchange": [
     "ta bort en arbetsändring",
@@ -831,7 +1101,10 @@
     "ta bort en ersättning",
     "ta bort en resepost",
     "radera en arbetsändring med id",
-    "släng en korrigering"
+    "släng en korrigering",
+    "ta bort extraposten på ett pass",
+    "radera den registrerade restiden",
+    "stryk briefingposten från passet"
   ],
   "detect_conflicts": [
     "hitta konflikter i schemat",
@@ -868,14 +1141,20 @@
     "stäng av ett plugin",
     "stäng av en tilläggsmodul",
     "parkera en tilläggsmodul tillfälligt",
-    "stäng av ett tillägg"
+    "stäng av ett tillägg",
+    "inaktivera modulen och behåll inställningarna",
+    "pausa ett plugin en stund",
+    "slå av en funktionsmodul men behåll den"
   ],
   "dismiss_skill_relation": [
     "avvisa den här kopplingen mellan dina färdigheter",
     "förkasta det inlärda sambandet",
     "ta bort relationen mellan dina förmågor",
     "den kopplingen stämmer inte – sluta använda den",
-    "avfärda sambandet du hittade"
+    "avfärda sambandet du hittade",
+    "avvisa det föreslagna sambandet mellan färdigheter",
+    "släng den föreslagna kopplingen mellan förmågor",
+    "avslå det väntande länkförslaget"
   ],
   "email_schedule_to_client": [
     "skicka schema till kund",
@@ -890,11 +1169,17 @@
     "sätt på ett tillägg",
     "aktivera ett plugin",
     "slå på en tilläggsmodul",
-    "sätt igång ett tillägg"
+    "sätt igång ett tillägg",
+    "aktivera ett installerat plugin",
+    "slå på funktionsmodulen",
+    "jag vill starta ett tillägg"
   ],
   "end_client_membership": [
     "avsluta medarbetarens medlemskap",
-    "ange slutdatum för medarbetaren"
+    "ange slutdatum för medarbetaren",
+    "en anställd slutar i slutet av månaden",
+    "registrera uppsägningsdatum för en medarbetare",
+    "sista arbetsdagen är den 30:e"
   ],
   "evaluate_absence_hours_setup": [
     "varför får han för få semestertimmar",
@@ -1482,18 +1767,27 @@
   ],
   "extend_macro": [
     "utöka makro som kopia",
-    "utökad kopia av beräkningsmakro"
+    "utökad kopia av beräkningsmakro",
+    "kopiera ett makro och lägg till ett extra tillägg",
+    "jag vill utöka en makromall med en tilläggsberäkning",
+    "skapa en makrovariant med extra utdata"
   ],
   "fetch_new_emails": [
     "hämta nya e-postmeddelanden nu",
-    "uppdatera inkorgen direkt"
+    "uppdatera inkorgen direkt",
+    "hämta nya mejl från servern nu",
+    "starta en imap-hämtning",
+    "ladda om inkorgen direkt"
   ],
   "fill_group_by_criteria": [
     "fyll grupp efter kriterier",
     "lägg till medarbetare med kontrakt",
     "sök och lägg i grupp",
     "befolka grupp från kanton",
-    "hitta anställda och lägg i grupp"
+    "hitta anställda och lägg i grupp",
+    "lägg tio slumpvalda anställda från kantonen bern i gruppen",
+    "lägg in alla med postnummer som börjar på 80 i gruppen",
+    "fyll gruppen med alla från zürich med heltidsavtal"
   ],
   "find_absence_capacity_windows": [
     "hitta en lämplig period för semester",
@@ -1532,13 +1826,19 @@
     "fyll i saknade koordinater för adresserna",
     "geokoda adresserna",
     "placera kundadresser på kartan",
-    "ta fram koordinater för adresserna"
+    "ta fram koordinater för adresserna",
+    "hitta position för adresser utan koordinater via postnummer och ort",
+    "placera kunder som saknar kartpunkt automatiskt",
+    "räkna ut latitud och longitud för alla adresser utan koordinater"
   ],
   "geocode_location_groups": [
     "hitta koordinater för alla grupper",
     "geokoda platsgrupperna",
     "bestäm automatiskt koordinaterna för grupperna",
-    "uppdatera geografiska koordinater för alla grupper"
+    "uppdatera geografiska koordinater för alla grupper",
+    "lägg automatiskt till koordinater på platsgrupperna",
+    "slå upp geodata för grupperna som är städer och orter",
+    "låt ortsgrupperna geokodas av sig själva"
   ],
   "get_absence_hours_calculation": [
     "visa mig beräkningen av semestertimmarna",
@@ -1918,35 +2218,50 @@
     "tilldela anställda utan grupp till stadgrupp",
     "matcha adressort till gruppnamn",
     "fördela ogrupperade efter ort",
-    "sätt i grupp enligt adressstad"
+    "sätt i grupp enligt adressstad",
+    "lägg medarbetare utan grupp i gruppen som heter som deras ort",
+    "sortera in ogrupperad personal i stadsgrupper efter adress",
+    "placera alla utan grupp i gruppen som matchar deras stad"
   ],
   "import_calendar_rules": [
     "importera helgdagar",
     "ladda kalenderregler",
     "massimportera helgdagar",
     "skapa helgdagsregler",
-    "lägg till helgdagar för land"
+    "lägg till helgdagar för land",
+    "ladda helgdagsdefinitionerna för en delstat på en gång",
+    "importera kalenderregler för kantonen från json",
+    "jag vill lägga upp alla helgdagar för ett land i ett svep"
   ],
   "install_feature_plugin": [
     "installera en tilläggsmodul",
     "lägg till ett tillägg",
     "installera en funktionsmodul",
     "lägg till en tilläggsmodul",
-    "installera ett plugin"
+    "installera ett plugin",
+    "installera tilläggsmodulen",
+    "jag vill installera ett valfritt funktionsplugin",
+    "sätt upp modulen så att funktionen blir tillgänglig"
   ],
   "install_language_pack": [
     "installera ett språkpaket",
     "aktivera ett nytt språk",
     "lägg till ett språkpaket",
     "slå på ett språk",
-    "aktivera språkpaket med kod"
+    "aktivera språkpaket med kod",
+    "installera det schweizertyska språkpaketet gsw",
+    "aktivera språkpaketet med koden gsw",
+    "jag vill låsa upp ett till gränssnittsspråk"
   ],
   "install_whisper_plugin": [
     "installera lokalt taligenkänningsmodell",
     "sätt upp transkribering på egen server",
     "installera whisper-plugin för lokal transkribering",
     "aktivera lokal tal-till-text",
-    "stoppa att skicka talet till extern tjänst och kör det lokalt"
+    "stoppa att skicka talet till extern tjänst och kör det lokalt",
+    "installera whisper lokalt",
+    "installera motorn för offline-transkribering",
+    "få lokal diktering att fungera"
   ],
   "interpret_resource_monitor": [
     "resursövervakning",
@@ -2341,19 +2656,31 @@
     "hitta vilken kanton tillhör orten"
   ],
   "manage_pending_notes": [
-    "hantera väntande anteckningar"
+    "hantera väntande anteckningar",
+    "markera de väntande anteckningarna som levererade",
+    "arkivera mina öppna påminnelser",
+    "bocka av anteckningar som inte levererats"
   ],
   "mark_email_read": [
     "markera e-postmeddelandet som läst",
-    "markera e-postmeddelandet som oläst"
+    "markera e-postmeddelandet som oläst",
+    "markera det här mejlet som läst",
+    "sätt tillbaka meddelandet som oläst",
+    "jag vill flagga ett mejl som läst"
   ],
   "move_email_to_folder": [
     "flytta e-postmeddelandet till en annan mapp",
-    "markera e-postmeddelandet som skräppost"
+    "markera e-postmeddelandet som skräppost",
+    "lägg det här mejlet i skräppostmappen",
+    "flytta tillbaka meddelandet från skräppost till inkorgen",
+    "sortera in mottaget mejl i en annan mapp"
   ],
   "move_group": [
     "flytta gruppen till en annan förälder",
-    "häng gruppen under en ny övergrupp"
+    "häng gruppen under en ny övergrupp",
+    "flytta gruppen bern under region mitt",
+    "placera om en grupp till en annan gren i trädet",
+    "jag vill ge gruppen en ny överordnad grupp"
   ],
   "navigate_to": [
     "gå till inställningar",
@@ -2366,7 +2693,10 @@
     "årlig frånvaroöversikt som pdf",
     "skriv ut frånvarokalendern",
     "frånvaroöversikt att sätta upp",
-    "få ledighetsåret på papper"
+    "få ledighetsåret på papper",
+    "jag behöver semesteröversikten för hela året som utskrift",
+    "ladda ner årsbladet med alla sjuk- och semesterdagar som pdf",
+    "frånvaroplan på papper till teammötet"
   ],
   "open_order_export": [
     "starta export av order",
@@ -2380,14 +2710,20 @@
     "visa skiftplaneringen",
     "gå till planeringsvyn",
     "öppna schemat för gruppen",
-    "starta planeringsläget"
+    "starta planeringsläget",
+    "öppna schemat för nästa vecka",
+    "ta mig till skiftplaneringen för den här månaden",
+    "jag vill se planen för en enskild medarbetare"
   ],
   "optimize_llm_models_for_klacksy": [
     "vilka modeller kan du använda? testa dem och välj bästa",
     "prova alla språkmodeller och stäng av de som inte funkar",
     "optimera dina llm-modeller automatiskt",
     "hitta den bästa språkmodellen för dig",
-    "testa vilka modeller som fungerar med klacks och ställ in bästa som standard"
+    "testa vilka modeller som fungerar med klacks och ställ in bästa som standard",
+    "testa alla språkmodeller och välj den bästa",
+    "kolla vilka modeller som inte kan anropa verktyg och stäng av dem",
+    "låt standardmodellen väljas efter hastighet och kostnad"
   ],
   "partition_clients_by_address": [
     "skapa platsgrupper från kundernas adresser",
@@ -2401,7 +2737,10 @@
     "skapa grupper efter kvalifikation",
     "gruppera medarbetarna efter kvalifikation",
     "skapa en grupp för varje kvalifikation",
-    "fördela personalen i kvalifikationsgrupper"
+    "fördela personalen i kvalifikationsgrupper",
+    "fördela all personal på grupper automatiskt efter kvalifikationer",
+    "generera en egen grupp per kvalifikation med dess innehavare",
+    "bygg grupper av kvalifikationerna under en rotgrupp"
   ],
   "place_work": [
     "sätt yasmine på morgonskiftet den 15 maj",
@@ -2430,7 +2769,10 @@
     "skapa planförslag",
     "drafta bemanning",
     "lägg förslag på pass",
-    "planera i scenario"
+    "planera i scenario",
+    "lägg de valda placeringarna i ett scenario för godkännande",
+    "gör ett planutkast av de här valen",
+    "paketera tilldelningarna som ett förslag för attest"
   ],
   "read_email": [
     "läs mail",
@@ -2456,7 +2798,10 @@
     "lämna över passet till en annan anställd",
     "flytta arbetsuppdraget till en annan anställd",
     "låt en annan anställd ta över passet",
-    "överför tilldelningen till en annan anställd"
+    "överför tilldelningen till en annan anställd",
+    "flytta måndagens pass till en annan medarbetare",
+    "dra det här passet till en annan anställds rad",
+    "byt vem som har passet samma dag"
   ],
   "recall_delivered_notes": [
     "hämta levererade anteckningar"
@@ -2466,91 +2811,136 @@
     "avvisa det föreslagna schemat",
     "släng bort scenariot",
     "ta bort scenario",
-    "avslå planförslaget"
+    "avslå planförslaget",
+    "kasta det föreslagna scenariot",
+    "avvisa autowizardens resultat och släng det",
+    "scenariot är oanvändbart, radera det"
   ],
   "remove_client_contract": [
     "ta bort kontrakt från anställd",
     "koppla loss kontrakt från anställd",
     "avsluta anställds kontraktskoppling",
     "ta bort kontraktstilldelning",
-    "avlägsna personalens kontrakt"
+    "avlägsna personalens kontrakt",
+    "dra in den anställdes nuvarande avtal",
+    "häv avtalskopplingen för den här personen",
+    "lös medarbetaren från avtalet så att avtalet självt finns kvar"
   ],
   "remove_client_from_group": [
     "ta bort från grupp",
     "avlägsna medarbetare ur grupp",
     "plocka ur gruppen",
     "lämna grupp",
-    "ta bort person från grupp"
+    "ta bort person från grupp",
+    "ta ut medarbetaren ur teamet",
+    "jag vill stryka en kund från en grupp",
+    "koppla bort medarbetaren från avdelningen"
   ],
   "remove_client_qualification": [
     "ta bort kvalifikation från anställd",
     "ta bort certifikat från personal",
     "koppla bort kvalifikation från anställd",
     "återkalla registrerad kompetensnivå",
-    "dra tillbaka anställds certifiering"
+    "dra tillbaka anställds certifiering",
+    "stryk truckkortet från hans profil",
+    "ta bort det utgångna certifikatet från personen",
+    "radera den registrerade kompetensnivån på hennes profil"
   ],
   "remove_container_template_task": [
     "ta bort en uppgift från containermallen",
     "radera uppgiften ur containerpassets mall",
     "plocka bort tasken från containermallen",
-    "ta bort uppgiftspasset från containerns veckomall"
+    "ta bort uppgiftspasset från containerns veckomall",
+    "radera en post ur containerns veckoplan",
+    "stryk ett delpass ur containermallen",
+    "plocka ut det här elementet ur containerns ritning"
   ],
   "remove_shift_from_group": [
     "ta bort passet från gruppen",
     "plocka ut skiftet ur teamet",
     "ta bort tjänsten från avdelningen",
-    "koppla loss passet från gruppen"
+    "koppla loss passet från gruppen",
+    "bryt kopplingen mellan en tjänst och ett team",
+    "den här tjänsten ska inte längre höra till avdelningen",
+    "lös upp gruppkopplingen för en beställning"
   ],
   "remove_shift_required_qualification": [
     "ta bort kravet på kvalifikation från passet",
     "radera passets kvalifikationskrav",
     "ta bort obligatorisk kompetens från skiftet",
-    "avlägsna kvalifikationskravet från passet"
+    "avlägsna kvalifikationskravet från passet",
+    "passet behöver inte längre körkort",
+    "ta bort det krävda certifikatet från passet",
+    "stryk den obligatoriska kvalifikationen på passet"
   ],
   "reopen_period": [
     "öppna perioden igen",
     "återöppna perioden",
     "lås upp perioden",
     "avsluta förseglingen",
-    "öppna löneperioden"
+    "öppna löneperioden",
+    "ångra periodavslutet",
+    "jag vill öppna den stängda perioden igen",
+    "häv förseglingen av månaden"
   ],
   "reset_container_day": [
     "återställ containerdagen till mallen",
     "ta bort dagens överstyrning i containern",
     "sätt tillbaka containerns dag till mall",
-    "ångra överstyrningen av containerdagen"
+    "ångra överstyrningen av containerdagen",
+    "sätt tillbaka den här containerdagen till mallen",
+    "kasta enstaka dagsändringen på containern",
+    "häv avvikelsen från veckodagsmönstret"
   ],
   "reset_shift_cuts": [
     "slå ihop passets delar igen från ett datum",
     "nollställ passets uppdelning",
     "ångra klippningen av passet från datum",
-    "foga samman skiftets delar igen"
+    "foga samman skiftets delar igen",
+    "slå ihop alla delpass till ett enda pass från nästa månad",
+    "häv uppdelningen av ordern från ett visst datum",
+    "gör de klippta delarna till ett helt pass igen"
   ],
   "restore_email": [
     "återställ e-postmeddelandet från papperskorgen",
-    "hämta tillbaka mejlet från papperskorgen"
+    "hämta tillbaka mejlet från papperskorgen",
+    "flytta tillbaka det raderade mejlet till inkorgen",
+    "ångra raderingen av det här mejlet",
+    "lägg det borttagna meddelandet i inkorgen igen"
   ],
   "restore_work": [
     "återställ det borttagna passet",
     "hämta tillbaka det raderade arbetsuppdraget",
     "ångra borttagningen av tilldelningen",
-    "återskapa ett borttaget skift"
+    "återskapa ett borttaget skift",
+    "lägg tillbaka passet jag precis tog bort",
+    "ångra raderingen av den tilldelningen",
+    "jag tog bort ett pass av misstag, återinför det"
   ],
   "revert_company_rule": [
     "ångra företagsregeln",
     "återställ en tillämpad företagsregel",
-    "återgå till den tidigare företagsregeln"
+    "återgå till den tidigare företagsregeln",
+    "ta tillbaka en tillämpad företagsregel",
+    "backa tilläggsändringen som en regel gjorde",
+    "ta bort en regel på namn och återställ det gamla läget"
   ],
   "revert_macro_assignment": [
     "ångra makrotilldelning",
-    "återställ tidigare beräkningsmakro"
+    "återställ tidigare beräkningsmakro",
+    "backa makrobytet på passen",
+    "sätt tillbaka den gamla beräkningsformeln",
+    "jag vill ångra makrobytet på frånvarotypen"
   ],
   "revoke_day_approval": [
     "återkalla dagens godkännande",
     "ta bort godkännande för dagen",
     "ångra godkännandet",
     "frigör godkännande",
-    "avgodkänn dagen"
+    "avgodkänn dagen",
+    "dra tillbaka godkännandet för den här dagen",
+    "sätt den godkända dagen tillbaka till bekräftad",
+    "häv dagens attestering"
   ],
   "revoke_erp_import_token": [
     "återkalla en leveransnyckel",
@@ -2558,18 +2948,27 @@
     "spärra en inlämningsnyckel",
     "dra tillbaka en filöverföringsnyckel",
     "ta bort en api-nyckel",
-    "stoppa en nyckel från att användas"
+    "stoppa en nyckel från att användas",
+    "återkalla erp-importtoken",
+    "spärra det externa systemets åtkomstnyckel",
+    "ogiltigförklara importnyckeln som läckt"
   ],
   "revoke_personal_access_token": [
     "återkalla mitt åtkomsttoken",
-    "ogiltigförklara API-tokenet"
+    "ogiltigförklara API-tokenet",
+    "jag vill dra tillbaka ett av mina api-tokens",
+    "inaktivera den där åtkomstnyckeln för gott",
+    "spärra min personliga åtkomsttoken"
   ],
   "rollback_my_last_change": [
     "ångra min senaste ändring",
     "backa senaste åtgärden",
     "rulla tillbaka",
     "oops, ångra",
-    "ta tillbaka senaste"
+    "ta tillbaka senaste",
+    "ångra det jag ändrade senast",
+    "min sista åtgärd blev fel, vänd på den",
+    "föreslå hur jag backar min senaste ändring"
   ],
   "run_analysis": [
     "analysera schemat",
@@ -2593,7 +2992,10 @@
     "försegla den här beställningen",
     "försegla ordern så att passet kan planeras",
     "gör beställningen oföränderlig genom försegling",
-    "försegla kundens order"
+    "försegla kundens order",
+    "försegla beställningen och skapa det planerbara passet",
+    "gör originalbeställningen permanent oföränderlig",
+    "släpp ordern som ett pass och lås den"
   ],
   "search_and_navigate": [
     "sök och navigera",
@@ -2663,19 +3065,28 @@
     "sätt kompetens",
     "lägg till certifikat",
     "uppdatera kompetensnivå",
-    "kvalificera anställd"
+    "kvalificera anställd",
+    "den här medarbetaren har truckkort",
+    "registrera första hjälpen-utbildning som gäller till årsskiftet",
+    "sätt kompetensnivå fyra för en kvalifikation"
   ],
   "set_company_rule_parameters": [
     "ange parametrar för företagsregeln",
     "mata in värden för företagsregeln",
-    "justera parametrar för företagsregeln"
+    "justera parametrar för företagsregeln",
+    "fyll i parametrarna i utkastet till företagsregeln",
+    "skriv in värdena för regeln som jag håller på med",
+    "sätt tilläggsvärdet i regelutkastet"
   ],
   "set_default_llm_model": [
     "sätt standardmodellen till den här modellen",
     "gör så att du använder den här språkmodellen som standard",
     "byt standardmodell till den jag anger",
     "vilken modell svarar du med som standard?",
-    "använd den här modellen som standard för svar"
+    "använd den här modellen som standard för svar",
+    "från och med nu ska klacksy svara med en annan språkmodell",
+    "byt ut assistentens standardspråkmodell",
+    "ställ in deepseek som förvald modell"
   ],
   "set_erp_import_schedule": [
     "ändra schema för erp-import",
@@ -2683,24 +3094,36 @@
     "sätt cron för orderimport",
     "ändra importintervallet",
     "ange tidsschema för erp-import",
-    "konfigurera importfrekvensen"
+    "konfigurera importfrekvensen",
+    "kör erp-importen varje natt klockan två",
+    "ställ in tidszon och cron för erp-hämtningen",
+    "hämta erp-order var 15:e minut"
   ],
   "set_explain_depth": [
     "förklara alltid enklare",
     "från och med nu bara det viktigaste",
     "från och med nu förklara allt enklare",
     "hoppa över grunderna från och med nu",
-    "förklaringar automatiskt igen"
+    "förklaringar automatiskt igen",
+    "jag är ny här, förklara varje steg utförligt framöver",
+    "håll det alltid kort och ta bara konsekvenserna",
+    "ställ förklaringsnivån på nybörjare"
   ],
   "set_export_format_override": [
     "anpassa ett exportformat",
     "ändra exportformatet med anpassningar",
     "sätt ett annat avgränsningstecken i exporten",
     "byt kolumnnamn i exporten",
-    "ändra datumformatet i exportfilen"
+    "ändra datumformatet i exportfilen",
+    "använd semikolon som avgränsare i exporten",
+    "döp om kolumnen för mottagarsystemet",
+    "byt datumformat i exportfilen till punkter"
   ],
   "set_group_location": [
-    "ange gruppens plats"
+    "ange gruppens plats",
+    "spara koordinater för gruppen",
+    "jag vill ge stadsgruppen latitud och longitud",
+    "geokoda gruppen utifrån namnet"
   ],
   "set_my_display_language": [
     "ändra mitt gränssnittsspråk",
@@ -2722,7 +3145,10 @@
   "set_period_close_lag": [
     "spara avslutsfördröjningen",
     "fastställ antalet dagar till avslut efter periodens slut",
-    "registrera fördröjningen för periodavslutet"
+    "registrera fördröjningen för periodavslutet",
+    "periodavslutet ska ske 5 dagar efter periodens slut",
+    "sätt eftersläpningen för periodavslut till 3 dagar",
+    "lägg in att perioder stängs en vecka efter slutet"
   ],
   "set_planning_deadline_lead": [
     "spara planeringens framförhållning",
@@ -2730,18 +3156,27 @@
   ],
   "set_planning_profile_parameters": [
     "ange parametrar för planeringsprofilen",
-    "mata in värden för planeringsprofilen"
+    "mata in värden för planeringsprofilen",
+    "sätt bransch och arbetstidsgränser i planeringsprofilen",
+    "jag vill justera vilotid och övertid i utkastet",
+    "skriv in värdena för den nya planeringsprofilen"
   ],
   "set_proactive_governance": [
     "låt det skötas själv",
     "rapportera bara det",
-    "slå på huvudbrytaren"
+    "slå på huvudbrytaren",
+    "bestäm hur självständig klacksy får vara för den här typen av fynd",
+    "meddela mig bara om den här typen av fynd framöver",
+    "klacksy får utföra det här fallet själv i fortsättningen"
   ],
   "set_sealed_order_until_date": [
     "sätt slutdatum på den förseglade ordern",
     "begränsa den förseglade beställningen till ett datum",
     "avsluta den förseglade ordern per datum",
-    "ge den förseglade beställningen ett slutdatum i efterhand"
+    "ge den förseglade beställningen ett slutdatum i efterhand",
+    "sätt ett slutdatum på den förseglade beställningen",
+    "tidsbegränsa den låsta ordern till månadens slut",
+    "lägg till till-datum på en förseglad order i efterhand"
   ],
   "set_shift_preferences": [
     "sätt skiftpreferens för medarbetare",
@@ -2749,14 +3184,20 @@
     "svartlista medarbetare från skift",
     "markera som favoritskift",
     "ändra preferens för skift",
-    "exkludera medarbetare från skift"
+    "exkludera medarbetare från skift",
+    "gör den här medarbetaren till förstahandsval för tidigt pass",
+    "sätt en anställd på svartlistan för passet",
+    "stäng ut en medarbetare från nattpasset"
   ],
   "set_shift_required_qualification": [
     "ange krav för pass",
     "kvalifikationskrav för skift",
     "obligatorisk kompetens för pass",
     "sätt miniminivå för skift",
-    "uppdatera krav för skift"
+    "uppdatera krav för skift",
+    "gör körkort obligatoriskt för det här passet",
+    "sätt miniminivå 3 för en kvalifikation på passet",
+    "passet får bara bemannas med certifikat"
   ],
   "set_user_group_scope": [
     "gruppomfång",
@@ -2780,7 +3221,10 @@
   "start_company_rule": [
     "skapa en ny företagsregel",
     "börja definiera en företagsregel",
-    "lägg till en ny företagsregel"
+    "lägg till en ny företagsregel",
+    "jag vill lägga upp en ny husregel",
+    "hjälp mig skriva ett utkast till en tilläggsregel för företaget",
+    "definiera en egen makroregel för vår verksamhet"
   ],
   "start_guided_tour": [
     "starta en guidad tur",
@@ -2792,31 +3236,46 @@
   ],
   "start_planning_profile_setup": [
     "skapa en egen planeringsprofil",
-    "starta konfigurationen av planeringsprofilen"
+    "starta konfigurationen av planeringsprofilen",
+    "jag vill sätta upp min egen planeringsprofil",
+    "starta den guidade uppsättningen av planeringsregler",
+    "bygg en planeringsprofil tillsammans med klacksy"
   ],
   "start_wizard1": [
     "kör wizard 1 för gruppen",
     "starta planeraren",
     "skapa grundplan med wizard 1",
     "kör täckningsförsta planering",
-    "starta wizard ett"
+    "starta wizard ett",
+    "kör endast wizard 1 för gruppen",
+    "starta tokenevolution-planeraren",
+    "ta fram ett första utkast som täcker alla pass"
   ],
   "start_wizard2": [
     "kör wizard 2 för utjämning",
     "starta harmoniseraren",
     "balansera planen med wizard 2",
     "kör utjämningswizard",
-    "starta andra wizarden"
+    "starta andra wizarden",
+    "kör harmoniseraren på nuvarande plan",
+    "jämna ut planen utan att ändra bemanningen",
+    "starta wizard 2 på det nyss tillämpade scenariot"
   ],
   "start_wizard3": [
     "kör wizard 3 för finslipning",
     "starta holistisk wizard",
     "gör llm-finslipning av planen",
     "kör sista wizarden",
-    "starta tredje wizarden"
+    "starta tredje wizarden",
+    "kör bara den tredje wizarden",
+    "förfina den redan harmoniserade planen",
+    "starta den holistiska harmoniseraren med analystoken"
   ],
   "stash_pending_note": [
-    "parkera anteckning"
+    "parkera anteckning",
+    "kom ihåg det här till senare som en anteckning",
+    "jag vill lämna en påminnelse som levereras senare",
+    "spara den här informationen att förmedla efteråt"
   ],
   "test_imap_connection": [
     "testa IMAP",
@@ -2844,7 +3303,10 @@
     "importera order nu",
     "starta orderimporten direkt",
     "utlös en importkörning nu",
-    "kör en manuell import"
+    "kör en manuell import",
+    "bearbeta den uppladdade erp-filen direkt",
+    "sätt igång orderimporten utan att vänta",
+    "jag vill läsa in erp-ordrarna med en gång"
   ],
   "unconfirm_break": [
     "lås upp frånvaron",
@@ -2852,14 +3314,20 @@
     "ta bort låset från frånvaron",
     "frigör frånvaron",
     "avbryt bekräftelsen",
-    "häva spärren på frånvaron"
+    "häva spärren på frånvaron",
+    "öppna sjukfrånvaron så att den kan tas bort igen",
+    "häv låsningen på semesterposten",
+    "ta bort bekräftelsemarkeringen på frånvaroposten"
   ],
   "unconfirm_work": [
     "lås upp arbetspasset",
     "avbekräfta skiftet",
     "frigör skiftet",
     "ta bort låsningen",
-    "återkalla bekräftelse"
+    "återkalla bekräftelse",
+    "häv bekräftelsen på det här arbetspasset",
+    "gör tilldelningen ändringsbar för wizarderna igen",
+    "sätt ett bekräftat pass tillbaka till öppet"
   ],
   "uninstall_feature_plugin": [
     "avinstallera en tilläggsmodul",
@@ -2867,32 +3335,47 @@
     "avinstallera en funktionsmodul",
     "ta bort ett plugin",
     "avinstallera ett tillägg",
-    "ta bort ett tillägg"
+    "ta bort ett tillägg",
+    "avinstallera pluginet",
+    "jag vill ta bort den installerade funktionsmodulen",
+    "plocka ut tillägget ur systemet"
   ],
   "uninstall_language_pack": [
     "avinstallera ett språkpaket",
     "ta bort ett språk",
     "inaktivera ett språk i systemet",
     "stäng av ett språkpaket",
-    "ta bort språktillägget"
+    "ta bort språktillägget",
+    "avinstallera det polska språkpaketet",
+    "inaktivera ett språkpaket med koden och ta bort dess data",
+    "stäng av det extra språket i gränssnittet"
   ],
   "uninstall_whisper_plugin": [
     "avinstallera den lokala talmodellen",
     "ta bort transkribering från vår egen maskin",
     "sluta använda lokal transkribering och gå tillbaka till extern tjänst",
     "avinstallera whisper-plugin",
-    "ta bort lokalt taligenkänningsmodell"
+    "ta bort lokalt taligenkänningsmodell",
+    "ta bort whisper-pluginet",
+    "jag vill bli av med den lokala talmodellen",
+    "röstinmatningen ska gå via den externa tjänsten igen"
   ],
   "update_absence": [
     "ändra en frånvarotyp",
     "byt namn på en ledighetsart",
     "ändra färg på frånvaro",
     "konfigurera en frånvarotyp",
-    "uppdatera inställningar för frånvaro"
+    "uppdatera inställningar för frånvaro",
+    "byt färg på frånvarotypen semester",
+    "låt frånvarotypen räkna med helger också",
+    "ändra betald-markeringen på en frånvarotyp"
   ],
   "update_absence_type": [
     "redigera frånvarotypen",
-    "ändra färgen på frånvarotypen"
+    "ändra färgen på frånvarotypen",
+    "ändra förkortningen på en frånvarotyp",
+    "sätt frånvarotypen som obetald",
+    "dölj frånvarotypen i gantt-vyn"
   ],
   "update_active_industries_settings": [
     "ändra branschinställningar",
@@ -2900,14 +3383,20 @@
     "byta till en annan branschprofil",
     "ändra vilka branscher som är aktiva",
     "ställ in branscher",
-    "uppdatera branscher"
+    "uppdatera branscher",
+    "rikta installationen mot vård och säkerhet",
+    "aktivera restaurangbranschen också",
+    "behåll bara logistik som aktiv bransch"
   ],
   "update_address": [
     "uppdatera adress",
     "ändra gatuadress",
     "korrigera postnummer",
     "redigera adress",
-    "ändra stad på adressen"
+    "ändra stad på adressen",
+    "rätta gata och postnummer för medarbetaren",
+    "byt adresstyp från huvudadress till fakturaadress",
+    "justera orten i den här adressen"
   ],
   "update_agent_skill": [
     "uppdatera färdighet",
@@ -2946,7 +3435,10 @@
     "ändra notering",
     "redigera anmärkning",
     "uppdatera anteckningstext",
-    "korrigera notering"
+    "korrigera notering",
+    "skriv om texten i en medarbetaranteckning",
+    "rätta formuleringen i anmärkningen på medarbetaren",
+    "byt ut anteckningen på medarbetaren mot ny text"
   ],
   "update_branch": [
     "uppdatera filial",
@@ -2962,18 +3454,27 @@
     "korrigera sjukdag",
     "ändra ledighet",
     "redigera frånvaropost",
-    "uppdatera frånvaro"
+    "uppdatera frånvaro",
+    "förläng slutdatumet för semestern",
+    "byt frånvaron till en annan typ",
+    "rätta de räknade timmarna för frånvaron"
   ],
   "update_break_placeholder": [
     "flytta frånvaro",
     "flytta semester",
     "förläng frånvaro",
     "ändra frånvarotyp",
-    "korta ner planerad frånvaro"
+    "korta ner planerad frånvaro",
+    "skjut på den planerade semestern en vecka",
+    "korta ner frånvarostapeln",
+    "gör om den planerade frånvaron till sjukfrånvaro"
   ],
   "update_calendar_selection": [
     "byt namn på kalenderval",
-    "slå ihop helgdagskalendrar"
+    "slå ihop helgdagskalendrar",
+    "ändra namnet på kalendervalet",
+    "ta bort en region ur helgdagsvalet",
+    "lägg till en kanton i kalendervalet"
   ],
   "update_client": [
     "uppdatera medarbetares uppgifter",
@@ -2983,29 +3484,44 @@
     "uppdatera telefonnummer för medarbetare"
   ],
   "update_client_birthdate": [
-    "ändra födelsedatum"
+    "ändra födelsedatum",
+    "sätt ett nytt födelsedatum för en anställd",
+    "rätta personens födelsedag",
+    "jag vill ändra en medarbetares födelsedag"
   ],
   "update_client_gender": [
-    "ändra kön"
+    "ändra kön",
+    "sätt könet på en anställd",
+    "ändra kundens kön till kvinna",
+    "uppdatera könsfältet för den här medarbetaren"
   ],
   "update_client_type": [
     "ändra personens kategori",
     "gör om till kund",
     "gör om till anställd",
     "ändra personstatus",
-    "ändra typ av kontakt"
+    "ändra typ av kontakt",
+    "för den här personen som kund från och med nu",
+    "gör om en extern medhjälpare till vanlig anställd",
+    "gör kunden till en planerbar medarbetare igen"
   ],
   "update_communication": [
     "uppdatera kommunikation",
     "ändra e-postadress",
     "korrigera telefonnummer",
     "redigera kontaktuppgift",
-    "uppdatera kontaktinformation"
+    "uppdatera kontaktinformation",
+    "byt ut en anställds gamla mobilnummer mot ett nytt",
+    "skriv om kontaktanteckningen för en medarbetare",
+    "ändra riktnumret på en telefonpost"
   ],
   "update_compensatory_rest_settings": [
     "ändra inställningar för ersättningsledighet",
     "aktivera spårning av ersättningsledighet",
-    "ändra tidsfristen för ersättningsledighet"
+    "ändra tidsfristen för ersättningsledighet",
+    "aktivera kompensationsanspråket för arbete på helgdagar",
+    "jag vill ändra antalet dagar för att bevilja kompensationsvila",
+    "sätt fristen för kompensationsvila till 14 dagar"
   ],
   "update_compliance_enforcement_settings": [
     "ändra inställningar för arbetstidsskydd",
@@ -3013,7 +3529,10 @@
     "ändra hur strikt man kontrollerar",
     "ändra inställningar för arbetstidsregler",
     "justera skyddsregler",
-    "uppdatera efterlevnadskontroll"
+    "uppdatera efterlevnadskontroll",
+    "avvisa brott mot vilotid framöver i stället för att bara varna",
+    "tillåt chefer att köra över arbetstidsreglerna",
+    "sätt reaktionen på överskriden maxarbetstid till avvisa"
   ],
   "update_contract": [
     "ändra kontraktet",
@@ -3031,7 +3550,10 @@
     "justera maxantalet i räkneregeln",
     "uppdatera räkneregeln för nattpass",
     "ändra så att varning blir spärr",
-    "korrigera en räkneregel"
+    "korrigera en räkneregel",
+    "tillåt högst tre nattpass i månaden i stället för två",
+    "gör varningen i räkneregeln till en hård spärr",
+    "byt räknefönstret i regeln till en vecka"
   ],
   "update_data_retention_settings": [
     "ändra lagringstiden för personuppgifter",
@@ -3060,20 +3582,29 @@
     "uppdatera var filerna lämnas",
     "byt mapp för filöverlämning",
     "aktivera eller inaktivera hämtning",
-    "ändra namnet på överlämningspunkten"
+    "ändra namnet på överlämningspunkten",
+    "ändra mappsökvägen för erp-avlämningen",
+    "byt namn på överlämningspunkten för det externa systemet",
+    "slå på hämtningen av erp-filer igen"
   ],
   "update_expense": [
     "ändra utlägget",
     "uppdatera utläggsposten",
     "korrigera utläggsbeloppet",
-    "redigera utlägget"
+    "redigera utlägget",
+    "ändra beskrivningen på ett utlägg",
+    "gör utlägget till ett skattepliktigt tillägg",
+    "sätt utlägget till ett nytt belopp"
   ],
   "update_export_formats_settings": [
     "aktivera ett exportformat",
     "inaktivera ett exportformat",
     "ändra standard lönesystem för export",
     "ställ in vilka exportformat som är tillåtna",
-    "sätt standard mottagare för export"
+    "sätt standard mottagare för export",
+    "aktivera ett till exportfilformat",
+    "välj vilka exportformat som får användas",
+    "byt standardmottagare för lönesystemet"
   ],
   "update_general_settings": [
     "ändra appens namn",
@@ -3087,13 +3618,19 @@
     "byta bakgrundsfärg i schemat",
     "ge helgdagar en annan färg",
     "ändra färgerna i personalplanen",
-    "anpassa färger för planvyn"
+    "anpassa färger för planvyn",
+    "färga lördagarna i schemat ljusgrå",
+    "sätt textfärgen i planen till #333333",
+    "justera de växlande månadsnyanserna i rutnätet"
   ],
   "update_group": [
     "ändra gruppnamn",
     "uppdatera gruppens giltighetstid",
     "redigera gruppbeskrivning",
-    "byta namn på avdelning"
+    "byta namn på avdelning",
+    "ändra beskrivningen på den här gruppen",
+    "justera gruppens giltighetsdatum",
+    "koppla en annan helgdagskalender till gruppen"
   ],
   "update_identity_provider": [
     "ändra en inloggningsleverantör",
@@ -3115,7 +3652,10 @@
     "uppdatera min egen period",
     "flytta stämpeldatum för perioden",
     "byt namn på perioden",
-    "ersätt tidsintervallen för perioden"
+    "ersätt tidsintervallen för perioden",
+    "byt namn på tidsschemat",
+    "sätt nya intervall för det individuella periodschemat",
+    "flytta fram startdatumet för ett intervall i schemat"
   ],
   "update_llm_model": [
     "uppdatera AI-modell",
@@ -3138,43 +3678,64 @@
     "ändra skriptet i makrot",
     "redigera beräkningsmakrot",
     "modifiera formeln i makrot",
-    "justera makrot med id"
+    "justera makrot med id",
+    "skriv om innehållet i ett makro",
+    "byt namn på ett makro",
+    "ersätt beskrivningen av ett skript"
   ],
   "update_membership": [
     "ändra medlemskapet",
     "uppdatera medlemskap",
     "justera anslutningen",
     "ändra planerbar från datum",
-    "uppdatera medlemskapstyp"
+    "uppdatera medlemskapstyp",
+    "flytta fram giltig-från på medlemskapet",
+    "gör medlemskapet tidsobegränsat",
+    "bestäm på nytt från vilket datum medarbetaren går att planera"
   ],
   "update_monthly_target_hours": [
     "ändra måltimmar för en månad",
     "korrigera timmarna för januari",
     "uppdatera timmarna för mars",
     "höj eller sänk timmarna för en månad",
-    "justera månatligt timmål"
+    "justera månatligt timmål",
+    "ändra måltimmarna för januari 2026 från 184 till 176",
+    "rätta timmålet för mars i efterhand",
+    "sänk månadsvärdet för december"
   ],
   "update_my_account": [
     "uppdatera mitt konto",
-    "ändra mitt visningsnamn"
+    "ändra mitt visningsnamn",
+    "jag vill byta efternamn på mitt konto",
+    "ändra e-postadressen jag loggar in med",
+    "rätta mitt för- och efternamn i profilen"
   ],
   "update_navigation_synonyms": [
     "lägg till ett nytt navigeringssynonym",
-    "lär klacksy den här formuleringen"
+    "lär klacksy den här formuleringen",
+    "lägg till ytterligare en formulering för ett navigeringsmål",
+    "klacksy ska förstå den här frasen för sidan",
+    "registrera en ny navigeringsfras för ett språk"
   ],
   "update_openroute_settings": [
     "ändra tröskelvärden för restid",
     "lägg in nyckel för ruttjänst",
     "ställ in från vilken restid det räknas",
     "ändra minsta restid för bil/cykel/gång",
-    "uppdatera inställningar för restider"
+    "uppdatera inställningar för restider",
+    "lägg in api-nyckeln för openroute",
+    "jag vill ändra minsta restid för bil, cykel och gång",
+    "justera minsta gångtid"
   ],
   "update_overtime_settings": [
     "ändra övertidsersättning",
     "justera gränserna för övertid",
     "höj ersättningen för extra timmar",
     "ändra basen för övertidsberäkning",
-    "sätt trappstegen för övertidsersättning"
+    "sätt trappstegen för övertidsersättning",
+    "ställ in övertidsregeln annorlunda",
+    "ändra från vilken timme extra tid krediteras",
+    "höj multiplikatorn för övertid"
   ],
   "update_owner_address": [
     "uppdatera företagets adress",
@@ -3188,21 +3749,30 @@
     "ändra företagets lokala inställningar",
     "välj tidzon och kalender för schemaläggning",
     "uppdatera språk- och regionsinställningar",
-    "byta land och stat för företaget"
+    "byta land och stat för företaget",
+    "flytta företaget till kantonen bern",
+    "ändra installationens tidszon till europe/berlin",
+    "sätt företagets land till österrike"
   ],
   "update_period_cap_rule": [
     "ändra ett timtak",
     "höj taket för timmar per månad",
     "sänk timtaket",
     "justera övertidstaket",
-    "uppdatera regeln för max antal timmar"
+    "uppdatera regeln för max antal timmar",
+    "sätt övertidstaket till 50 timmar",
+    "byt timtaket från månad till kvartal",
+    "flytta varningsgränsen för timgränsen till 80 procent"
   ],
   "update_qualification": [
     "ändra kvalifikationen",
     "uppdatera kvalifikationsposten",
     "byt namn på kvalifikationen",
     "redigera kompetensposten",
-    "modifiera kvalifikationens egenskaper"
+    "modifiera kvalifikationens egenskaper",
+    "rätta namnet på en kvalifikation",
+    "flytta en kvalifikation till en annan kategori",
+    "ändra hur en kvalifikation löper ut"
   ],
   "update_report_template": [
     "ändra en utskriftsmall",
@@ -3210,21 +3780,30 @@
     "redigera en utskriftslayout",
     "byta namn på en rapportmall",
     "ändra inställningar för en utskrift",
-    "uppdatera en utskriftslayout"
+    "uppdatera en utskriftslayout",
+    "ändra namnet på utskriftsmallen",
+    "byt beskrivning på en rapportlayout",
+    "justera hur upprepade rader slås ihop i mallen"
   ],
   "update_restricted_time_window_rule": [
     "ändra en spärrtid",
     "justera spärrtiden",
     "uppdatera spärrtiden för sommaren",
     "flytta spärrtiden till andra tider",
-    "ändra vilka tider som är spärrade"
+    "ändra vilka tider som är spärrade",
+    "ändra spärrtimmarna i regeln till 22 till 06",
+    "låt klockslagsspärren gälla bara på sommaren",
+    "låt tidsspärren gälla en annan grupp människor"
   ],
   "update_schedule_note": [
     "uppdatera schemanotering",
     "ändra anteckning i schemat",
     "redigera dagens notering",
     "korrigera schemanot",
-    "uppdatera notering för dag"
+    "uppdatera notering för dag",
+    "formulera om noteringen i schemat",
+    "flytta en schemanotering till en annan dag",
+    "redigera texten i en befintlig planeringsnotering"
   ],
   "update_scheduling_defaults": [
     "uppdatera schemainställningar",
@@ -3247,7 +3826,10 @@
     "ändra skiftinställningar",
     "redigera befintligt skift",
     "modifiera skift",
-    "justera skift"
+    "justera skift",
+    "sätt sluttiden för utkastet till 18:00",
+    "höj antalet personer som krävs på passet till 3",
+    "byt förkortning och beskrivning på passet"
   ],
   "update_spam_filter_settings": [
     "spaminställningar",
@@ -3260,7 +3842,10 @@
     "uppdatera spamfiltret",
     "justera blockeringen för avsändaren",
     "inaktivera spamregeln tillfälligt",
-    "ändra ordningen på spamreglerna"
+    "ändra ordningen på spamreglerna",
+    "byt sökord i en spamregel",
+    "stäng av en spamregel",
+    "slå på en skräppostregel igen"
   ],
   "update_speech_settings": [
     "ändra assistentens röst",
@@ -3268,7 +3853,10 @@
     "slå på eller av uppläsning av svar",
     "tillåt avbrott när assistenten pratar",
     "justera pauslängd innan assistenten slutar prata",
-    "ändra inställningar för tal"
+    "ändra inställningar för tal",
+    "byt röstuppläsningen till en annan röst",
+    "ändra transkriptionsmodellen för röstinmatning",
+    "ställ in hur lång tystnad som markerar slutet på en mening"
   ],
   "update_surcharge_mode_settings": [
     "ändra hur tillägg beräknas",
@@ -3276,14 +3864,20 @@
     "sätt minimitillägg per timme",
     "justera nattbandets tider",
     "sluta addera tillägg som sammanfaller",
-    "ändra inställningar för tillägg"
+    "ändra inställningar för tillägg",
+    "nattillägget ska vara en fast tidskredit",
+    "lägg nattbandet från 22 till 06",
+    "sätt en lägsta kredit per timme för tillägg"
   ],
   "update_transcription_dictionary_entry": [
     "uppdatera en transkriptionsordbokspost",
     "ändra en term i ordboken",
     "redigera uttalsvarianter för ett ord",
     "modifiera en stavningskorrigering",
-    "justera en transkriptionspost"
+    "justera en transkriptionspost",
+    "rätta termen i taligenkänningens ordlista",
+    "ändra stavningen på en post för dikteringen",
+    "lägg till fler uttalsvarianter på ordlistetermen"
   ],
   "update_user": [
     "ändra en användares uppgifter",
@@ -3291,24 +3885,36 @@
     "korrigera en annan persons användaruppgifter",
     "ändra en användares e-postadress",
     "byta inloggningsnamn för en användare",
-    "rätta en användares namn"
+    "rätta en användares namn",
+    "rätta ett stavfel i namnet på ett användarkonto",
+    "byt en annan användares mejladress",
+    "döp om en kollegas inloggningsnamn"
   ],
   "update_web_search_settings": [
     "sökmotorinställningar",
     "uppdatera sökmotorinställningarna",
     "ändra inställningar för webbsökning",
-    "ställ in sökmotorn och api-nyckel"
+    "ställ in sökmotorn och api-nyckel",
+    "byt leverantör för webbsökningen",
+    "lägg in en ny api-nyckel för webbsökning",
+    "höj max antal träffar per sökning på nätet"
   ],
   "update_wizard_settings": [
     "byt språkmodell för harmoniseraren",
     "sätt en annan modell för helhetsbearbetning",
     "ändra vilken modell harmoniseraren använder",
     "ställ in modell för omplanering",
-    "byt modell för schemaläggningsassistenten"
+    "byt modell för schemaläggningsassistenten",
+    "sätt harmoniseraren på lokal sökning",
+    "välj en språkmodell för schemaharmoniseraren",
+    "ändra inställningarna för harmoniseraren"
   ],
   "update_work": [
     "ändra tiderna för ett placerat pass",
-    "justera timmarna för en tilldelning i schemat"
+    "justera timmarna för en tilldelning i schemat",
+    "flytta start och slut på ett inplanerat pass",
+    "rätta timmarna på ett placerat arbetspass",
+    "skriv om anteckningen på ett inplanerat pass"
   ],
   "update_work_settings": [
     "ändra semesterdagar per år",
@@ -3324,7 +3930,10 @@
     "uppdatera en ersättning i schemat",
     "justera en resepost i ett arbetspass",
     "ändra typ eller tid på en arbetsändring",
-    "korrigera en befintlig arbetsändring"
+    "korrigera en befintlig arbetsändring",
+    "ändra timkorrigeringen på passet",
+    "justera tilläggen för en ersättning i efterhand",
+    "rätta start och slut för briefingtiden"
   ],
   "validate_address": [
     "validera adress",
@@ -3363,18 +3972,30 @@
   ],
   "start_order_review": [
     "gå igenom öppna beställningar före försegling",
-    "gemensam genomgång av öppna beställningar"
+    "gemensam genomgång av öppna beställningar",
+    "starta genomgången av beställningarna",
+    "låt oss gå igenom de öppna ordrarna tillsammans",
+    "gruppera liknande beställningar och gå igenom avvikarna"
   ],
   "set_order_review_decision": [
-    "registrera svar i beställningsgenomgång"
+    "registrera svar i beställningsgenomgång",
+    "dela beställningen i 3x8-pass",
+    "sätt starttiden för 24-timmarsbeställningen",
+    "skriv in resekostnaderna för det här paketet"
   ],
   "preview_order_review": [
     "status för beställningsgenomgång"
   ],
   "cancel_order_review": [
-    "stoppa beställningsgenomgången"
+    "stoppa beställningsgenomgången",
+    "avbryt beställningsgenomgången",
+    "jag vill avsluta genomgången av de öppna ordrarna",
+    "släng genomgången och sluta"
   ],
   "execute_order_review": [
-    "tillämpa den bekräftade beställningsgenomgången"
+    "tillämpa den bekräftade beställningsgenomgången",
+    "kör den bekräftade beställningsgranskningen",
+    "skriv de beslutade värdena i de öppna beställningarna",
+    "genomför den bekräftade förhandsvisningen av ordrarna"
   ]
 }
