@@ -199,7 +199,10 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingRecipeRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingRecipeStore>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAssistantLastActionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AssistantLastActionRepository>();
-        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IAssistantLastActionStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentAssistantLastActionStore>();
+        services.AddSingleton<Klacks.Api.Infrastructure.Services.Assistant.PersistentAssistantLastActionStore>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IAssistantLastActionStore>(provider => new Klacks.Api.Application.Services.Playground.PlaygroundSilentAssistantLastActionStore(
+            provider.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.PersistentAssistantLastActionStore>(),
+            provider.GetRequiredService<Klacks.Api.Domain.Interfaces.Playground.IPlaygroundMode>()));
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ITurnPreparationService, Klacks.Api.Domain.Services.Assistant.TurnPreparationService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IDeterministicRouteProbe, Klacks.Api.Application.Services.Assistant.DeterministicRouteProbe>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.ISkillInverseResolver, Klacks.Api.Application.Services.Assistant.SkillInverseResolver>();

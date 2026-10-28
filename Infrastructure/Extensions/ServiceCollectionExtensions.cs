@@ -288,7 +288,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISkillCacheService, SkillCacheService>();
         services.AddSingleton<Domain.Services.Assistant.Skills.Adapters.ISkillAdapterFactory, Domain.Services.Assistant.Skills.Adapters.SkillAdapterFactory>();
         services.AddSingleton<ISkillRegistry, Domain.Services.Assistant.Skills.SkillRegistry>();
-        services.AddScoped<ISkillExecutor, Domain.Services.Assistant.Skills.SkillExecutorService>();
+        services.AddScoped<Domain.Services.Assistant.Skills.SkillExecutorService>();
+        services.AddScoped<ISkillExecutor>(provider => new Application.Services.Playground.PlaygroundBlockedSkillExecutor(
+            provider.GetRequiredService<Domain.Services.Assistant.Skills.SkillExecutorService>(),
+            provider.GetRequiredService<Domain.Interfaces.Playground.IPlaygroundMode>()));
         services.AddScoped<ISkillUsageTracker, SkillUsageTrackerService>();
         services.AddScoped<Application.Interfaces.IGroupScopeGuard, Application.Services.Grouping.GroupScopeGuard>();
         services.AddScoped<Persistence.Seed.GlobalAgentRuleSeedService>();
