@@ -398,6 +398,7 @@ services:
       - Auth__JwtSigningKey=${DEVKNOWLEDGE_JWT_SIGNING_KEY:-}
       - Auth__OwnerPasswordHash=${DEVKNOWLEDGE_OWNER_PASSWORD_HASH:-}
       - Auth__ApiKeysJson=${DEVKNOWLEDGE_API_KEYS_JSON:-[]}
+      - Qwen__ApiKey=${DEVKNOWLEDGE_QWEN_API_KEY:-}
     volumes:
       - devknowledge_data:/data/knowledge
     depends_on:

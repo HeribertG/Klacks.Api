@@ -589,6 +589,11 @@ http {
         ssl_certificate /etc/letsencrypt/live/klacks-software.ch/fullchain.pem;
         ssl_certificate_key /etc/letsencrypt/live/klacks-software.ch/privkey.pem;
 
+        # DevKnowledge is internal only. The allow-list (allow <ip>; lines) lives outside git next to
+        # the certificates; without the file every client is denied (fail-closed).
+        include /etc/nginx/certs/devknowledge-allow*.conf;
+        deny all;
+
         location /api/ {
             proxy_pass http://devknowledge-api/api/;
             proxy_http_version 1.1;
