@@ -52,6 +52,7 @@ public class KlacksyLearningController : ControllerBase
         return Ok(phrases);
     }
 
+    [BlockedOnPlayground]
     [HttpPut("phrases/{id:guid}")]
     public async Task<IActionResult> UpdatePhrase(
         [FromRoute] Guid id,
@@ -64,6 +65,7 @@ public class KlacksyLearningController : ControllerBase
         return Respond(result);
     }
 
+    [BlockedOnPlayground]
     [HttpDelete("phrases/{id:guid}")]
     public async Task<IActionResult> DeletePhrase([FromRoute] Guid id, CancellationToken cancellationToken)
     {
@@ -76,6 +78,7 @@ public class KlacksyLearningController : ControllerBase
     /// the learned phrases. The reviewer comes from the JWT: an approvable proposal changes a live skill
     /// description, so who did it must be recorded, not merely known to be an admin.
     /// </summary>
+    [BlockedOnPlayground]
     [HttpPost("phrases/{id:guid}/approve")]
     public async Task<IActionResult> ApprovePhraseProposal([FromRoute] Guid id, CancellationToken cancellationToken)
     {
@@ -98,6 +101,7 @@ public class KlacksyLearningController : ControllerBase
         return Ok(capabilities);
     }
 
+    [BlockedOnPlayground]
     [HttpPut("capabilities/{id:guid}")]
     public async Task<IActionResult> UpdateCapability(
         [FromRoute] Guid id,
@@ -110,6 +114,7 @@ public class KlacksyLearningController : ControllerBase
         return Respond(result);
     }
 
+    [BlockedOnPlayground]
     [HttpDelete("capabilities/{id:guid}")]
     public async Task<IActionResult> DeleteCapability([FromRoute] Guid id, CancellationToken cancellationToken)
     {
@@ -125,6 +130,7 @@ public class KlacksyLearningController : ControllerBase
         return Ok(wishes);
     }
 
+    [BlockedOnPlayground]
     [HttpDelete("unfulfillable/{id:guid}")]
     public async Task<IActionResult> DismissUnfulfillable([FromRoute] Guid id, CancellationToken cancellationToken)
     {
@@ -184,6 +190,7 @@ public class KlacksyLearningController : ControllerBase
     /// <summary>
     /// Marks proposals as exported after the export script wrote them. The reviewer comes from the JWT.
     /// </summary>
+    [BlockedOnPlayground]
     [HttpPost("mark-exported")]
     public async Task<ActionResult<MarkProposalsExportedResult>> MarkExported(
         [FromBody] MarkProposalsExportedRequest request, CancellationToken cancellationToken)

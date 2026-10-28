@@ -33,9 +33,7 @@ public class SaveOnboardingStateCommandHandler : IRequestHandler<SaveOnboardingS
 
     public async Task<OnboardingResource?> Handle(SaveOnboardingStateCommand request, CancellationToken cancellationToken)
     {
-        var kind = string.IsNullOrWhiteSpace(request.Kind)
-            ? OnboardingKind.Setup
-            : request.Kind.Trim().ToLowerInvariant();
+        var kind = OnboardingKind.Resolve(request.Kind);
 
         if (kind == OnboardingKind.Intro)
         {

@@ -39,6 +39,7 @@ public static class PlaygroundServiceCollectionExtensions
         services.AddTransient<PlaygroundTokenLimitFilter>();
         services.AddTransient<BlockedOnPlaygroundFilter>();
         services.AddTransient<BlockedSettingKeysOnPlaygroundFilter>();
+        services.AddTransient<BlockedSetupOnboardingOnPlaygroundFilter>();
         services.AddTransient<PlaygroundPromptLimitFilter>();
 
         return services;

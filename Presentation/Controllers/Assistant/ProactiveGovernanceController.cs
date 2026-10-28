@@ -13,6 +13,7 @@ using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,7 @@ public class ProactiveGovernanceController : ControllerBase
         return Ok(governance);
     }
 
+    [BlockedOnPlayground]
     [HttpPut]
     public async Task<ActionResult<ProactiveGovernanceDto>> Put(
         [FromBody] UpdateProactiveGovernanceRequest request,

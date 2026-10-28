@@ -11,6 +11,7 @@ using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,6 +36,7 @@ public class SkillRelationsController : ControllerBase
         return Ok(await _mediator.Send(new GetSkillRelationsQuery(), cancellationToken));
     }
 
+    [BlockedOnPlayground]
     [HttpPost("{id:guid}/accept")]
     public async Task<ActionResult<SkillRelationDto>> Accept(Guid id, CancellationToken cancellationToken)
     {
@@ -42,6 +44,7 @@ public class SkillRelationsController : ControllerBase
         return dto == null ? NotFound() : Ok(dto);
     }
 
+    [BlockedOnPlayground]
     [HttpPost("{id:guid}/dismiss")]
     public async Task<ActionResult<SkillRelationDto>> Dismiss(Guid id, CancellationToken cancellationToken)
     {

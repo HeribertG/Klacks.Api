@@ -683,6 +683,7 @@ public class ChatController : ControllerBase
     }
 
     [HttpPost("onboarding/state")]
+    [BlockedSetupOnboardingOnPlayground]
     public async Task<ActionResult<OnboardingResource>> SaveOnboardingState(
         [FromBody] SaveOnboardingStateCommand command,
         CancellationToken cancellationToken)

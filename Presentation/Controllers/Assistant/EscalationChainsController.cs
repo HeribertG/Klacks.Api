@@ -19,6 +19,7 @@ using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.DTOs;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -61,6 +62,7 @@ public class EscalationChainsController : ControllerBase
             : Conflict(result);
     }
 
+    [BlockedOnPlayground]
     [HttpPut("{id:guid}/cancel")]
     public async Task<ActionResult<HttpResultResource>> Cancel(Guid id, [FromBody] CancelEscalationChainResource resource)
     {
