@@ -4,7 +4,8 @@
 /// Loads operator-authored recipe definitions from recipe-seeds.json and syncs them with the
 /// agent_recipe table. Performs INSERT for new recipes and UPDATE when the seed version exceeds the
 /// DB version; a DB row at an equal or higher version is left untouched, so recipes edited directly
-/// in the database survive a restart (no redeploy needed to change a recipe).
+/// in the database survive a restart (no redeploy needed to change a recipe). An enabled Seed row whose
+/// name the seed file no longer carries is disabled, not deleted.
 /// </summary>
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -128,9 +129,55 @@ public class RecipeSeedLoader
             }
         }
 
+        var retired = await RetireOrphanedSeedRecipesAsync(existing, seedFile.Recipes, cancellationToken);
+
         _logger.LogInformation(
-            "Recipe seed completed: {Total} definitions processed (inserted: {Inserted}, updated: {Updated}, skipped: {Skipped})",
-            seedFile.Recipes.Count, inserted, updated, skipped);
+            "Recipe seed completed: {Total} definitions processed (inserted: {Inserted}, updated: {Updated}, skipped: {Skipped}, retired: {Retired})",
+            seedFile.Recipes.Count, inserted, updated, skipped, retired);
+    }
+
+    /// <summary>
+    /// Disables every enabled Seed row whose name the seed file no longer carries. A recipe removed from the
+    /// seed file otherwise stayed active in every database seeded before the removal and kept competing with
+    /// the skill that replaced it. The row is disabled, not deleted, so its content survives a seed file that
+    /// shrank by accident; it is enabled again only when the seed carries it again with a higher version
+    /// (regular update path), a restore at the same version leaves it disabled. A seed file without a single
+    /// named recipe retires nothing. Learned and Admin rows are not touched.
+    /// </summary>
+    /// <param name="existing">All rows of the table, read before this run inserted anything</param>
+    /// <param name="definitions">The recipe definitions of the seed file</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The number of rows that were disabled</returns>
+    private async Task<int> RetireOrphanedSeedRecipesAsync(
+        IReadOnlyCollection<AgentRecipe> existing,
+        IReadOnlyCollection<RecipeSeedDefinition> definitions,
+        CancellationToken cancellationToken)
+    {
+        var seedNames = definitions
+            .Select(definition => definition.Name)
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (seedNames.Count == 0)
+        {
+            return 0;
+        }
+
+        var orphans = existing
+            .Where(recipe => recipe.IsEnabled
+                             && string.Equals(recipe.Origin, AgentRecipeOrigins.Seed, StringComparison.Ordinal)
+                             && !seedNames.Contains(recipe.Name))
+            .ToList();
+
+        foreach (var orphan in orphans)
+        {
+            orphan.IsEnabled = false;
+            await _recipeRepository.UpdateAsync(orphan, cancellationToken);
+            _logger.LogInformation(
+                "Recipe '{Recipe}' is no longer in the seed file and was disabled (not deleted)", orphan.Name);
+        }
+
+        return orphans.Count;
     }
 
     /// <summary>
