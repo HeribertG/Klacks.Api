@@ -31,9 +31,11 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("open_schedule")]
+[SkillImplementation(SkillName)]
 public class OpenScheduleSkill : BaseSkillImplementation
 {
+    public const string SkillName = "open_schedule";
+
     private const string ScheduleRoute = "/workplace/schedule";
     private const string GroupIdQueryParam = "groupId";
     private const string ClientIdQueryParam = "clientId";

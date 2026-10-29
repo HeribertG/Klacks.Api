@@ -117,6 +117,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
             guaranteedSkills, guaranteedSources, permittedSkills, request.ContinuationSkillNames);
 
         OrderWorkflowSkillGuarantee.ApplyGroupAnswer(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+        OrderReviewScheduleGuarantee.Apply(guaranteedSkills, guaranteedSources, request);
 
         await ApplyScenarioFollowUpGuaranteeAsync(
             guaranteedSkills, guaranteedSources, request, cancellationToken);
