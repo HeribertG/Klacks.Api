@@ -297,6 +297,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             HasDomainSkillContext = true,
             AssemblyMs = assemblyWatch.ElapsedMilliseconds,
             TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall,
+            DraftLoopOpen = guaranteeResult.DraftLoopOpen,
             SkillRerank = skillRerank,
             Trace = trace
         };
@@ -351,6 +352,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             HasDomainSkillContext = hasDomainSkillContext,
             AssemblyMs = assemblyWatch.ElapsedMilliseconds,
             TurnIntentVetoesForcedToolCall = guaranteeResult.TurnIntentVetoesForcedToolCall,
+            DraftLoopOpen = guaranteeResult.DraftLoopOpen,
             SkillRerank = skillRerank,
             Trace = SkillToolsetTraceBuilder.Build([], retrievalScores, alwaysOnSkills, alwaysOnSkills)
         };

@@ -156,6 +156,14 @@ public class LLMContext
     public bool RecipeConfirmationDeclined { get; set; }
 
     /// <summary>
+    /// True when a planning-profile setup or an order review is open in the conversation, copied by the chat entry
+    /// points from SkillToolsetResult.DraftLoopOpen. While a loop is open the user's replies answer its questions
+    /// ("Passt, übernimm alle Vorschläge, keine Spesen."), so TurnPreparationService matches a fresh recipe by keyword
+    /// trigger only: the semantic fallback ranked such an answer into unrelated group recipes (live 2026-10-28).
+    /// </summary>
+    public bool DraftLoopOpen { get; set; }
+
+    /// <summary>
     /// The recipe this turn's message matched but the user may not run because a step skill needs a right the user lacks
     /// (TurnPreparationService). Null on every turn that found nothing to refuse. Turn-scoped on purpose: it lives on the
     /// context, not on the recipe engine, which can serve several turns.
