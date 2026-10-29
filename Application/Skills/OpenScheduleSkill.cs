@@ -7,6 +7,8 @@
 /// name so the schedule opens with the correct group filter. The person (clientId, or first and
 /// last name) and the day (date) become the groupId / clientId / date query parameters the
 /// schedule page reads. A person scope replaces the group filter, exactly like the page does.
+/// A group name that several groups contain opens the group whose name equals it (ignoring case); only without
+/// such a single exact match are the candidates listed for the user to choose.
 /// A client hidden from the caller by group visibility is answered like an unknown client. The page narrows the
 /// schedule to a person through the client's ID number, so a client without one opens the schedule unfiltered and
 /// the answer says so.
@@ -105,7 +107,11 @@ public class OpenScheduleSkill : BaseSkillImplementation
                 dateText, $"No group found matching '{groupName}'. Opening schedule without group filter.");
         }
 
-        if (result.TotalCount > 1)
+        var exactMatches = result.Items
+            .Where(g => string.Equals(g.Name?.Trim(), groupName.Trim(), StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (result.TotalCount > 1 && exactMatches.Count != 1)
         {
             var matches = result.Items
                 .Select(g => new { g.Id, g.Name })
@@ -120,7 +126,7 @@ public class OpenScheduleSkill : BaseSkillImplementation
             };
         }
 
-        var group = result.Items.First();
+        var group = exactMatches.Count == 1 ? exactMatches[0] : result.Items.First();
         var route = BuildRoute((GroupIdQueryParam, group.Id.ToString()), (DateQueryParam, dateText));
 
         return SkillResult.Navigation(
