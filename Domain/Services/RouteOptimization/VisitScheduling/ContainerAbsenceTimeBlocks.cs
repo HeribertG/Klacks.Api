@@ -22,7 +22,7 @@ public static class ContainerAbsenceTimeBlocks
             {
                 var start = ContainerVisitScheduler.ClockMinutes(a.StartItem!.Value);
                 var end = ContainerVisitScheduler.ClockMinutes(a.EndItem!.Value);
-                return new FixedTimeInterval(start, end > start ? end : end + ContainerVisitDefaults.MinutesPerDay);
+                return new FixedTimeInterval(start, end > start ? end : end + DayTimeConstants.MinutesPerDay);
             })
             .OrderBy(interval => interval.StartMinutes)
             .ToList();
@@ -43,7 +43,7 @@ public static class ContainerAbsenceTimeBlocks
 
         if (durationMinutes < 0)
         {
-            durationMinutes += ContainerVisitDefaults.MinutesPerDay;
+            durationMinutes += DayTimeConstants.MinutesPerDay;
         }
 
         return new TimeBlock(

@@ -4,8 +4,8 @@
 /// The container template edit lock as a skill holds it for one write. The chat and the open container page run in
 /// the same browser tab, so they share user and instance id; acquiring then hands back the page's own lock
 /// (AlreadyHeld). Disposing releases only a lock this scope created, so a skill never deletes the lock the page still
-/// saves under. The release runs with CancellationToken.None and a failing release is swallowed, so it can never mask
-/// the outcome of the write.
+/// saves under. The release runs with CancellationToken.None and a failing release exception is swallowed, so it does
+/// not replace the result of the write; inside a database transaction a failed release still aborts that transaction.
 /// </summary>
 /// <param name="mediator">Sends the acquire and release commands</param>
 /// <param name="containerId">Container whose template lock is taken</param>

@@ -9,12 +9,6 @@ namespace Klacks.Api.Domain.Constants;
 
 public static class ContainerVisitDefaults
 {
-    public const int MinutesPerHour = 60;
-
-    public const int MinutesPerDay = 24 * MinutesPerHour;
-
-    public const double SecondsPerMinute = 60.0;
-
     public const double RoundingMidpoint = 0.5;
 
     public const int MinTravelMinutesByCar = 5;
@@ -28,6 +22,10 @@ public static class ContainerVisitDefaults
     public const int MovableBlockDefaultEndMinutes = 30;
 
     public const int MinBlockDurationMinutes = 1;
+
+    public const char SignMinus = '-';
+
+    public const char SignPlus = '+';
 
     public const string TimeSpanWireFormat = "c";
 

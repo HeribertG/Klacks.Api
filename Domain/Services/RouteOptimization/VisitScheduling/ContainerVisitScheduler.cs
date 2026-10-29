@@ -77,15 +77,15 @@ public static class ContainerVisitScheduler
     /// <summary>
     /// Minutes since midnight of a clock time; seconds are ignored.
     /// </summary>
-    public static int ClockMinutes(TimeOnly time) => time.Hour * ContainerVisitDefaults.MinutesPerHour + time.Minute;
+    public static int ClockMinutes(TimeOnly time) => time.Hour * DayTimeConstants.MinutesPerHour + time.Minute;
 
     /// <summary>
     /// Clock time of a minute count, wrapped into one day.
     /// </summary>
     public static TimeOnly ClockTime(int minutes)
     {
-        var minutesOfDay = minutes % ContainerVisitDefaults.MinutesPerDay;
-        return new TimeOnly(minutesOfDay / ContainerVisitDefaults.MinutesPerHour, minutesOfDay % ContainerVisitDefaults.MinutesPerHour);
+        var minutesOfDay = minutes % DayTimeConstants.MinutesPerDay;
+        return new TimeOnly(minutesOfDay / DayTimeConstants.MinutesPerHour, minutesOfDay % DayTimeConstants.MinutesPerHour);
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public static class ContainerVisitScheduler
     /// </summary>
     public static int WorkMinutes(double workTimeHours)
     {
-        var minutes = workTimeHours * ContainerVisitDefaults.MinutesPerHour;
+        var minutes = workTimeHours * DayTimeConstants.MinutesPerHour;
         var floor = Math.Floor(minutes);
         return (int)(minutes - floor >= ContainerVisitDefaults.RoundingMidpoint ? floor + 1 : floor);
     }
@@ -116,8 +116,8 @@ public static class ContainerVisitScheduler
         var seconds = parts.Length > ContainerVisitDefaults.TimeSpanSecondsPart
             ? LeadingInteger(parts[ContainerVisitDefaults.TimeSpanSecondsPart])
             : 0;
-        double totalMinutes = hours * ContainerVisitDefaults.MinutesPerHour + minutes;
-        totalMinutes += seconds / ContainerVisitDefaults.SecondsPerMinute;
+        double totalMinutes = hours * DayTimeConstants.MinutesPerHour + minutes;
+        totalMinutes += seconds / (double)DayTimeConstants.SecondsPerMinute;
 
         return totalMinutes > 0
             ? Math.Max(MinTravelMinutes(transportMode), (int)Math.Ceiling(totalMinutes))
@@ -134,7 +134,7 @@ public static class ContainerVisitScheduler
     private static int LeadingInteger(string text)
     {
         var length = 0;
-        if (length < text.Length && (text[length] == '-' || text[length] == '+'))
+        if (length < text.Length && (text[length] == ContainerVisitDefaults.SignMinus || text[length] == ContainerVisitDefaults.SignPlus))
         {
             length++;
         }

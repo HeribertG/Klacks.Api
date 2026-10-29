@@ -5,7 +5,7 @@
 /// it: route-optimize the visits (breaks as time blocks), place visit and travel times with ContainerVisitScheduler,
 /// order breaks between the visits, store the RouteInfo and submit the container's complete template list under the
 /// container template lock, then re-read and verify. Unlike the Ui page, it writes nothing when the optimizer finds
-/// no route or when a visit could not be placed (missing coordinates, shift not loaded, the same task listed twice),
+/// no route, when the same task is listed twice or when a visit could not be placed (missing coordinates, shift not loaded),
 /// because a full-list write would delete those visits, and nothing when a travel time does not fit a clock time.
 /// </summary>
 /// <param name="mediator">Reads and writes the container templates and takes the lock</param>
@@ -113,6 +113,11 @@ public class ContainerRouteWriteService : IContainerRouteWriteService
         List<ContainerTemplateItemResource> absenceItems,
         CancellationToken cancellationToken)
     {
+        if (visitItems.Select(i => i.ShiftId!.Value).Distinct().Count() != visitItems.Count)
+        {
+            return Failed("The template lists the same task more than once. Nothing was written, because saving would keep only one of them.");
+        }
+
         var startBase = await _baseAddressResolver.ResolveAsync(template.StartBase, cancellationToken);
         var endBase = await _baseAddressResolver.ResolveAsync(template.EndBase, cancellationToken);
         var absences = absenceItems.Select(ToAbsenceItem).ToList();
@@ -144,11 +149,11 @@ public class ContainerRouteWriteService : IContainerRouteWriteService
         {
             return Failed(
                 $"Only {scheduled.Count} of {visitItems.Count} visits could be placed on the route (a visit without address " +
-                "coordinates, without its task shift, or listed twice). Nothing was written, because saving would remove the others.");
+                "coordinates or without its task shift). Nothing was written, because saving would remove the others.");
         }
 
-        if (scheduled.Any(v => v.TravelBeforeMinutes >= ContainerVisitDefaults.MinutesPerDay
-            || v.TravelAfterMinutes >= ContainerVisitDefaults.MinutesPerDay))
+        if (scheduled.Any(v => v.TravelBeforeMinutes >= DayTimeConstants.MinutesPerDay
+            || v.TravelAfterMinutes >= DayTimeConstants.MinutesPerDay))
         {
             return Failed("A computed travel time is 24 hours or longer and cannot be stored. Nothing was written.");
         }
@@ -200,15 +205,18 @@ public class ContainerRouteWriteService : IContainerRouteWriteService
 
         var expectedVisits = written.ContainerTemplateItems.Where(i => i.ShiftId.HasValue).ToList();
         var storedVisits = stored.ContainerTemplateItems.Where(i => i.ShiftId.HasValue).ToList();
-        var allPresent = storedVisits.Count == expectedVisits.Count && expectedVisits.All(e => storedVisits.Any(s =>
-            s.ShiftId == e.ShiftId
-            && s.TimeRangeStartItem == e.TimeRangeStartItem
-            && s.TimeRangeEndItem == e.TimeRangeEndItem
-            && s.TravelTimeBefore == e.TravelTimeBefore));
+        var allPresent = stored.RouteInfo is not null
+            && storedVisits.Count == expectedVisits.Count
+            && expectedVisits.All(e => storedVisits.Any(s =>
+                s.ShiftId == e.ShiftId
+                && s.TimeRangeStartItem == e.TimeRangeStartItem
+                && s.TimeRangeEndItem == e.TimeRangeEndItem
+                && s.TravelTimeBefore == e.TravelTimeBefore
+                && s.TravelTimeAfter == e.TravelTimeAfter));
 
         return allPresent
             ? null
-            : "Verification failed: the planned visit times could not be confirmed in the container template after the write.";
+            : "Verification failed: the planned visit and travel times or the route info could not be confirmed in the container template after the write.";
     }
 
     private static ContainerRouteWriteResult BuildResult(RoutePlan plan, int breakCount)

@@ -107,7 +107,7 @@ public class OptimizeContainerRouteSkill : BaseSkillImplementation
             },
             $"Route of container '{container.Name}' for weekday {isoWeekday}{(isHoliday ? " (holiday)" : string.Empty)} optimized: " +
             $"{result.Stops.Count} visit(s), {result.TotalDistanceKm.ToString(DistanceFormat, CultureInfo.InvariantCulture)} km, {result.EstimatedTravelTime} travel and on-site time. " +
-            "Visit times and travel times were written to the template and confirmed in the database (verified)." +
+            "Visit times, travel times and the route info were written to the template; the visit and travel times were re-read and confirmed (verified)." +
             estimatedNote +
             " If the container page is open, reload it before saving there, otherwise its older state overwrites this route.");
     }

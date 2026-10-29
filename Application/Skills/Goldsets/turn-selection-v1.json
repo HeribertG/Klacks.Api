@@ -3780,7 +3780,7 @@
     },
     {
       "id": "w05-coverage-optimize-container-route",
-      "message": "Optimier die Route des Containers 'Mobile Dienste Bern' für Donnerstag und trag die Besuchszeiten ein.",
+      "message": "Optimiere die Route des Containers 'Mobile Dienste Bern' für Donnerstag und trag die Besuchszeiten ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "optimize_container_route",
