@@ -34,6 +34,7 @@ using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -385,26 +386,19 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             throw new SkillVerificationException(SkillName, string.Format(NoMatchingServicesMessage, request.Location));
         }
 
-        var lockResult = await _mediator.Send(
-            new AcquireContainerLockCommand(ContainerLockResourceTypes.ContainerTemplate, containerId, instanceId), cancellationToken);
+        await using var lockScope = await ContainerTemplateLockScope.AcquireAsync(
+            _mediator, containerId, instanceId, cancellationToken);
 
-        if (!lockResult.Acquired)
+        if (!lockScope.Acquired)
         {
             throw new SkillVerificationException(
                 SkillName,
                 "The newly created container could not be locked for writing its template — the operation was rolled back.");
         }
 
-        try
-        {
-            await WriteAndConfirmTemplateAsync(containerId, request, autofillResult.SelectedShiftIds, cancellationToken);
+        await WriteAndConfirmTemplateAsync(containerId, request, autofillResult.SelectedShiftIds, cancellationToken);
 
-            return new BundleOutcome(containerId, resultShift.Name, autofillResult);
-        }
-        finally
-        {
-            await ReleaseLockQuietlyAsync(lockResult.Id, cancellationToken);
-        }
+        return new BundleOutcome(containerId, resultShift.Name, autofillResult);
     }
 
     private async Task<ContainerAutofillResult> AutofillVisibleSelectionAsync(
@@ -492,22 +486,6 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         }
 
         return containerTemplateItems;
-    }
-
-    /// <summary>
-    /// Releases the container lock on every exit path and swallows a failing release, so it can never mask the
-    /// operation's real outcome.
-    /// </summary>
-    /// <param name="lockId">Id of the lock acquired before the template write</param>
-    private async Task ReleaseLockQuietlyAsync(Guid lockId, CancellationToken cancellationToken)
-    {
-        try
-        {
-            await _mediator.Send(new ReleaseContainerLockCommand(lockId), cancellationToken);
-        }
-        catch (Exception)
-        {
-        }
     }
 
     private static SkillResult BuildSuccessResult(BundleRequest request, BundleOutcome outcome)

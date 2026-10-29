@@ -3,7 +3,8 @@
 /// <summary>
 /// Adds a task shift as a new item to a container's weekday template. The task is validated against
 /// IContainerAvailableTasksService before the container edit lock is taken, and the container's complete
-/// template list (all weekdays, all holiday variants) is submitted on write — a partial list would delete
+/// template list (all weekdays, all holiday variants) is submitted on write (the lock is held through
+/// ContainerTemplateLockScope, which never releases the lock of an open container page) — a partial list would delete
 /// every other weekday's template. Item order within a template has no backing position column, so the
 /// requested position is best-effort and only item presence, never its index, is verified after the write.
 /// </summary>
@@ -18,6 +19,7 @@ using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -90,29 +92,16 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
         }
 
         var instanceId = _userService.GetInstanceId() ?? string.Empty;
-        var lockResult = await _mediator.Send(
-            new AcquireContainerLockCommand(ContainerLockResourceTypes.ContainerTemplate, containerId, instanceId), cancellationToken);
+        await using var lockScope = await ContainerTemplateLockScope.AcquireAsync(
+            _mediator, containerId, instanceId, cancellationToken);
 
-        if (!lockResult.Acquired)
+        if (!lockScope.Acquired)
         {
             return SkillResult.Error("The container is currently being edited by another user.");
         }
 
-        try
-        {
-            return await AddTaskToTemplateAsync(
-                containerId, isoWeekday, storageWeekday, taskShiftId, taskShift!, position, cancellationToken);
-        }
-        finally
-        {
-            try
-            {
-                await _mediator.Send(new ReleaseContainerLockCommand(lockResult.Id), cancellationToken);
-            }
-            catch (Exception)
-            {
-            }
-        }
+        return await AddTaskToTemplateAsync(
+            containerId, isoWeekday, storageWeekday, taskShiftId, taskShift!, position, cancellationToken);
     }
 
     private async Task<(Shift? TaskShift, SkillResult? Error)> LoadContainerAndTaskShiftAsync(
