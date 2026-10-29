@@ -41,8 +41,9 @@ public class ExecuteOrderReviewSkill : BaseSkillImplementation
         "open questions. Relay the counts and every failure reason, then continue with the next review key.";
 
     private const string NavigationFormat =
-        " The shift list is being opened so the new plannable shift(s) of the period {0} can be found there. They are " +
-        "ready for planning; nobody is assigned to them yet - never say they are planned or staffed. Ask the user " +
+        " The shift list is being opened for the new plannable shift(s) of the period {0}. They are plannable shifts, " +
+        "not orders: if the list still shows the open orders, tell the user to switch it to the plannable shifts. They " +
+        "are ready for planning; nobody is assigned to them yet - never say they are planned or staffed. Ask the user " +
         "whether to show them in the schedule as well; only on a yes call open_schedule with {1}date {2}.";
 
     private const string PeriodFormat = "{0} to {1}";
