@@ -127,7 +127,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         List<Location> locations)
     {
         var size = locations.Count;
-        var profiles = new[] { "driving", "cycling", "foot" };
+        var profiles = new[] { RoutingProfile.Driving, RoutingProfile.Cycling, RoutingProfile.Foot };
         var durationMatricesByProfile = new Dictionary<string, double[,]>();
         double[,] distanceMatrix = new double[size, size];
         double[,] defaultDurationMatrix = new double[size, size];
@@ -143,7 +143,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
             {
                 _logger.LogInformation("Using cached OSRM matrix for profile '{Profile}'", profile);
                 durationMatricesByProfile[profile] = cached.Value.dur;
-                if (profile == "driving")
+                if (profile == RoutingProfile.Driving)
                 {
                     distanceMatrix = cached.Value.dist;
                     defaultDurationMatrix = cached.Value.dur;
@@ -160,20 +160,14 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
 
             try
             {
-                var transportMode = profile switch
-                {
-                    "driving" => ContainerTransportMode.ByCar,
-                    "cycling" => ContainerTransportMode.ByBicycle,
-                    "foot" => ContainerTransportMode.ByFoot,
-                    _ => ContainerTransportMode.ByCar
-                };
+                var transportMode = ContainerTransportModeOf(profile);
 
                 var result = await GetOsrmDistanceMatrixAsync(locations, transportMode);
                 _cache.Set(cacheKey, result, new MemoryCacheEntryOptions().SetAbsoluteExpiration(MatrixCacheLifetime).SetSize(1));
 
                 durationMatricesByProfile[profile] = result.durationMatrix;
 
-                if (profile == "driving")
+                if (profile == RoutingProfile.Driving)
                 {
                     distanceMatrix = result.distanceMatrix;
                     defaultDurationMatrix = result.durationMatrix;
@@ -194,23 +188,24 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         void ApplyHaversineFallback(string profile)
         {
             var haversineMatrix = BuildHaversineDistanceMatrix(locations);
-            var transportMode = profile switch
-            {
-                "driving" => ContainerTransportMode.ByCar,
-                "cycling" => ContainerTransportMode.ByBicycle,
-                "foot" => ContainerTransportMode.ByFoot,
-                _ => ContainerTransportMode.ByCar
-            };
+            var transportMode = ContainerTransportModeOf(profile);
             var fallbackDuration = BuildEstimatedDurationMatrix(haversineMatrix, transportMode);
             durationMatricesByProfile[profile] = fallbackDuration;
 
-            if (profile == "driving")
+            if (profile == RoutingProfile.Driving)
             {
                 distanceMatrix = haversineMatrix;
                 defaultDurationMatrix = fallbackDuration;
             }
         }
     }
+
+    private static ContainerTransportMode ContainerTransportModeOf(string profile) => profile switch
+    {
+        RoutingProfile.Cycling => ContainerTransportMode.ByBicycle,
+        RoutingProfile.Foot => ContainerTransportMode.ByFoot,
+        _ => ContainerTransportMode.ByCar
+    };
 
     public double[,] BuildEstimatedDurationMatrix(double[,] distanceMatrix, ContainerTransportMode transportMode)
     {

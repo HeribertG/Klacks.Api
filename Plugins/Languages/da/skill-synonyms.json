@@ -3998,5 +3998,13 @@
     "beregn køretider i containeren",
     "planlæg mandagens tur igen og skriv besøgstiderne ind",
     "beregn containerens rute igen efter frokostpausen"
+  ],
+  "add_container_template_break": [
+    "tilføj en pause til containeren",
+    "tilføj frokostpause til containerens skabelon",
+    "tilføj en pause til containerens tur",
+    "planlæg en pause i containerens tur",
+    "tilføj en frokostpause kl. 12:00 til containeren om torsdagen",
+    "sæt en halv times pause ind i mandagens tur og optimer ruten igen"
   ]
 }

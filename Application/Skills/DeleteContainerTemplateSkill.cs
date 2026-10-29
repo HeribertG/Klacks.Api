@@ -19,6 +19,7 @@
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -36,8 +37,6 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
     private const string SelfCallInstanceId = "";
     private const string TemplatesRouteSegment = "templates";
     private const string LockAcquireRouteSegment = "Acquire";
-    private const int StorageSunday = 0;
-    private const int IsoSunday = 7;
 
     private readonly IShiftRepository _shiftRepository;
     private readonly IContainerTemplateRepository _containerTemplateRepository;
@@ -202,7 +201,7 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
             .Select(t => new
             {
                 ContainerTemplateId = t.Id,
-                Weekday = ToIsoWeekday(t.Weekday),
+                Weekday = IsoWeekday.FromStorage(t.Weekday),
                 FromTime = t.FromTime.ToString("HH\\:mm"),
                 UntilTime = t.UntilTime.ToString("HH\\:mm"),
                 t.IsHoliday,
@@ -230,9 +229,6 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
             $"({itemCount} configured task(s) removed with them). Re-create them with " +
             "create_container_template and add_container_template_task.");
     }
-
-    private static int ToIsoWeekday(int storageWeekday) =>
-        storageWeekday == StorageSunday ? IsoSunday : storageWeekday;
 
     /// <summary>
     /// Releases the lock on every exit path. It deliberately ignores the caller's cancellation token and

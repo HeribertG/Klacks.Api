@@ -19,6 +19,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
@@ -33,11 +34,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("remove_container_template_task")]
 public class RemoveContainerTemplateTaskSkill : BaseSkillImplementation
 {
-    private const int MinIsoWeekday = 1;
-    private const int MaxIsoWeekday = 7;
-    private const int IsoSunday = 7;
-    private const int StorageSunday = 0;
-
     private readonly IShiftRepository _shiftRepository;
     private readonly IMediator _mediator;
     private readonly IUserService _userService;
@@ -64,12 +60,12 @@ public class RemoveContainerTemplateTaskSkill : BaseSkillImplementation
         var isoWeekday = GetRequiredInt(parameters, "weekday");
         var taskShiftId = GetRequiredGuid(parameters, "taskShiftId");
 
-        if (isoWeekday < MinIsoWeekday || isoWeekday > MaxIsoWeekday)
+        if (!IsoWeekday.IsValid(isoWeekday))
         {
-            return SkillResult.Error("weekday must be between 1 (Monday) and 7 (Sunday).");
+            return SkillResult.Error(IsoWeekday.RangeError);
         }
 
-        var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
+        var storageWeekday = IsoWeekday.ToStorage(isoWeekday);
 
         var container = await _shiftRepository.Get(containerId);
         if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))

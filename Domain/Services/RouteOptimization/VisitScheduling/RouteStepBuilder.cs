@@ -8,7 +8,6 @@
 /// </summary>
 /// <param name="result">Optimizer result whose full route (with start and end base) becomes the steps</param>
 
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization.VisitScheduling;
@@ -77,12 +76,7 @@ public static class RouteStepBuilder
             return TimeSpan.FromSeconds(result.DurationMatrix[fromIndex, toIndex]);
         }
 
-        var profile = segmentTransportMode switch
-        {
-            TransportMode.ByBicycle => ContainerVisitDefaults.RoutingProfileCycling,
-            TransportMode.ByFoot => ContainerVisitDefaults.RoutingProfileFoot,
-            _ => ContainerVisitDefaults.RoutingProfileDriving
-        };
+        var profile = RoutingProfile.FromTransportMode(segmentTransportMode);
 
         return result.DurationMatricesByProfile.TryGetValue(profile, out var durationMatrix)
             ? TimeSpan.FromSeconds(durationMatrix[fromIndex, toIndex])

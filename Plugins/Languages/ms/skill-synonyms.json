@@ -3989,5 +3989,13 @@
     "kira masa perjalanan dalam kontena",
     "rancang semula pusingan hari isnin dan isikan masa lawatan",
     "kira semula laluan kontena selepas rehat makan tengah hari"
+  ],
+  "add_container_template_break": [
+    "tambah rehat ke kontena",
+    "tambah rehat makan tengah hari ke templat kontena",
+    "tambah rehat ke pusingan kontena",
+    "jadualkan rehat dalam pusingan kontena",
+    "tambah rehat makan tengah hari pada 12:00 ke kontena pada hari khamis",
+    "masukkan rehat setengah jam ke pusingan hari isnin dan optimumkan semula laluan"
   ]
 }

@@ -4038,5 +4038,13 @@
     "calcular os tempos de deslocação do contentor",
     "replaneia o percurso de segunda-feira e regista as horas das visitas",
     "recalcula a rota do contentor depois da pausa de almoço"
+  ],
+  "add_container_template_break": [
+    "adicionar uma pausa ao contentor",
+    "adicionar a pausa de almoço ao modelo do contentor",
+    "adicionar uma pausa ao percurso do contentor",
+    "planear uma pausa no percurso do contentor",
+    "adiciona uma pausa de almoço às 12:00 ao contentor na quinta-feira",
+    "põe meia hora de pausa no percurso de segunda-feira e volta a otimizar a rota"
   ]
 }

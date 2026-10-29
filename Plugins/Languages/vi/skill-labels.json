@@ -515,5 +515,6 @@
   "preview_order_review": "Xem trước buổi rà soát đơn hàng",
   "cancel_order_review": "Hủy buổi rà soát đơn hàng",
   "execute_order_review": "Thực hiện buổi rà soát đơn hàng",
-  "optimize_container_route": "Tối ưu tuyến đường của container và ghi giờ thăm"
+  "optimize_container_route": "Tối ưu tuyến đường của container và ghi giờ thăm",
+  "add_container_template_break": "Thêm giờ nghỉ vào mẫu của container"
 }

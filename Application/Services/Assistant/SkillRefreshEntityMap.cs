@@ -19,6 +19,7 @@ public static class SkillRefreshEntityMap
     public static readonly IReadOnlyDictionary<string, string[]> Map = new Dictionary<string, string[]>
     {
         ["add_container_template_task"] = ContainerTemplateEntities,
+        ["add_container_template_break"] = ContainerTemplateEntities,
         ["remove_container_template_task"] = ContainerTemplateEntities,
         ["create_container_template"] = ContainerTemplateEntities,
         ["delete_container_template"] = ContainerTemplateEntities,

@@ -44,6 +44,10 @@
       "version": 8,
       "hash": "A653B647F1D6B7198F12FE53AF8023D85D0FE7F805172A5E1DA2444237BCC586"
     },
+    "add_container_template_break": {
+      "version": 1,
+      "hash": "E3832664BA155411942FDDA22FAFB97ABAE15126F69D39DD62D4A087A11E3E8F"
+    },
     "add_container_template_task": {
       "version": 5,
       "hash": "C281E860AA6FECEC333A812A71BFFAC9FEEA408CE71A4A0D3876154C06184C45"

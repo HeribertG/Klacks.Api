@@ -515,5 +515,6 @@
   "preview_order_review": "Podgląd przeglądu zamówień",
   "cancel_order_review": "Anuluj przegląd zamówień",
   "execute_order_review": "Wykonaj przegląd zamówień",
-  "optimize_container_route": "Optymalizuj trasę kontenera i wpisz godziny wizyt"
+  "optimize_container_route": "Optymalizuj trasę kontenera i wpisz godziny wizyt",
+  "add_container_template_break": "Dodaj przerwę do szablonu kontenera"
 }

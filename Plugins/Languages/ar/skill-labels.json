@@ -515,5 +515,6 @@
   "preview_order_review": "معاينة مراجعة الطلبات",
   "cancel_order_review": "إلغاء مراجعة الطلبات",
   "execute_order_review": "تنفيذ مراجعة الطلبات",
-  "optimize_container_route": "تحسين مسار الحاوية وإدخال أوقات الزيارات"
+  "optimize_container_route": "تحسين مسار الحاوية وإدخال أوقات الزيارات",
+  "add_container_template_break": "إضافة استراحة إلى قالب حاوية"
 }

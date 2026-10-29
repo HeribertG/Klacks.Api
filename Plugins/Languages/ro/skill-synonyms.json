@@ -4020,5 +4020,13 @@
     "calculează timpii de deplasare din container",
     "replanifică turul de luni și completează orele vizitelor",
     "recalculează traseul containerului după pauza de prânz"
+  ],
+  "add_container_template_break": [
+    "adaugă o pauză în container",
+    "adaugă pauza de prânz în șablonul containerului",
+    "adaugă o pauză în turul containerului",
+    "planifică o pauză în turul containerului",
+    "adaugă joi o pauză de prânz la 12:00 în container",
+    "pune o pauză de jumătate de oră în turul de luni și optimizează din nou traseul"
   ]
 }

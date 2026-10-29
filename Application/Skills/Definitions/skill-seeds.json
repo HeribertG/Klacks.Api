@@ -36476,6 +36476,133 @@
       "version": 1
     },
     {
+      "name": "add_container_template_break",
+      "area": "shift",
+      "description": "Adds a break (a container absence type, default the unpaid break) to a container's weekday template: with startTime a fixed break, without it a movable break whose duration route optimization reserves. Verifies by re-reading. Visit times stay unchanged unless reoptimizeRoute is true, so a visit may overlap the break until the route is re-optimized. Keeps the edit lock of an open container page. Not for an employee's absence in the schedule.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "containerId",
+          "description": "UUID of the container shift (ShiftType must be IsContainer)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "weekday",
+          "description": "ISO weekday (1=Monday..7=Sunday) of the template to add the break to",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startTime",
+          "description": "Start of a fixed break (HH:mm); omit for a movable break whose duration route optimization reserves",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "durationMinutes",
+          "description": "Length of the break in minutes; defaults to 30",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 30,
+          "enumValues": null
+        },
+        {
+          "name": "absenceName",
+          "description": "Name or abbreviation of an absence type that applies to containers, in any language; defaults to the unpaid break",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "reoptimizeRoute",
+          "description": "True to re-optimize the route and visit times after adding the break; defaults to false",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "container"
+        ],
+        "de": [
+          "pause im container",
+          "mittagspause einfügen"
+        ],
+        "en": [
+          "container break",
+          "add lunch break to container"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "pause in den container einfügen",
+          "mittagspause in die containervorlage eintragen",
+          "pause zur tour hinzufügen",
+          "pause in der containertour einplanen",
+          "füge dem container 'mobile dienste bern' am donnerstag eine mittagspause um 12:00 ein",
+          "plane in der tour am montag eine halbe stunde pause ein und optimiere die route neu",
+          "trag eine bewegliche pause von 30 minuten in die containervorlage für freitag ein",
+          "ergänze die spitex-tour am dienstag um eine bezahlte pause"
+        ],
+        "en": [
+          "add a break to the container",
+          "add a lunch break to the container template",
+          "add a break to the tour",
+          "schedule a break in the container tour",
+          "add a lunch break at 12:00 to container 'mobile services bern' on thursday",
+          "put a half-hour break into monday's tour and re-optimize the route",
+          "add a movable 30 minute break to the container template for friday",
+          "add a paid break to the home care tour on tuesday"
+        ],
+        "fr": [
+          "ajouter une pause au conteneur",
+          "ajouter une pause de midi au modèle du conteneur",
+          "ajouter une pause à la tournée",
+          "planifier une pause dans la tournée du conteneur",
+          "ajoute une pause de midi à 12:00 au conteneur 'services mobiles berne' le jeudi",
+          "mets une demi-heure de pause dans la tournée du lundi et réoptimise l'itinéraire",
+          "ajoute une pause mobile de 30 minutes au modèle du conteneur pour vendredi",
+          "ajoute une pause payée à la tournée de soins à domicile du mardi"
+        ],
+        "it": [
+          "aggiungere una pausa al contenitore",
+          "aggiungere la pausa pranzo al modello del contenitore",
+          "aggiungere una pausa al giro",
+          "pianificare una pausa nel giro del contenitore",
+          "aggiungi una pausa pranzo alle 12:00 al contenitore 'servizi mobili berna' il giovedì",
+          "inserisci mezz'ora di pausa nel giro del lunedì e riottimizza il percorso",
+          "aggiungi una pausa mobile di 30 minuti al modello del contenitore per venerdì",
+          "aggiungi una pausa retribuita al giro di assistenza domiciliare del martedì"
+        ]
+      },
+      "labels": {
+        "de": "Pause in die Vorlage eines Containers einfügen",
+        "en": "Add a break to a container template",
+        "fr": "Ajouter une pause au modèle d'un conteneur",
+        "it": "Aggiungi una pausa al modello di un contenitore"
+      },
+      "version": 1
+    },
+    {
       "name": "create_container_template",
       "area": "shift",
       "description": "Creates the weekday template of a container shift (ShiftType IsContainer) — the empty day plan a container needs before any task can be added to that weekday. Takes the ISO weekday, the day's time budget (fromTime/untilTime) and optionally the route start/end location and transport mode. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",

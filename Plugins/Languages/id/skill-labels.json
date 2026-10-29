@@ -515,5 +515,6 @@
   "preview_order_review": "Pratinjau peninjauan pesanan",
   "cancel_order_review": "Batalkan peninjauan pesanan",
   "execute_order_review": "Jalankan peninjauan pesanan",
-  "optimize_container_route": "Optimalkan rute kontainer dan isi waktu kunjungan"
+  "optimize_container_route": "Optimalkan rute kontainer dan isi waktu kunjungan",
+  "add_container_template_break": "Tambahkan istirahat ke templat kontainer"
 }

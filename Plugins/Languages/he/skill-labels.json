@@ -515,5 +515,6 @@
   "preview_order_review": "תצוגה מקדימה של סקירת ההזמנות",
   "cancel_order_review": "ביטול סקירת ההזמנות",
   "execute_order_review": "ביצוע סקירת ההזמנות",
-  "optimize_container_route": "אופטימיזציה של מסלול מכולה ורישום זמני הביקורים"
+  "optimize_container_route": "אופטימיזציה של מסלול מכולה ורישום זמני הביקורים",
+  "add_container_template_break": "הוספת הפסקה לתבנית מכולה"
 }

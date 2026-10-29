@@ -4,9 +4,11 @@
 /// Optimizes the route of one container weekday template and writes the result the way the Ui container page saves
 /// it: route-optimize the visits (breaks as time blocks), place visit and travel times with ContainerVisitScheduler,
 /// order breaks between the visits, store the RouteInfo and submit the container's complete template list under the
-/// container template lock, then re-read and verify. Unlike the Ui page, it writes nothing when the optimizer finds
-/// no route, when the same task is listed twice or when a visit could not be placed (missing coordinates, shift not loaded),
-/// because a full-list write would delete those visits, and nothing when a travel time does not fit a clock time.
+/// container template lock, then re-read and verify. OptimizeAndWriteAsync takes the lock itself;
+/// OptimizeAndWriteUnderHeldLockAsync is for a caller that already holds it through a ContainerTemplateLockScope.
+/// Unlike the Ui page, it writes nothing when the optimizer finds no route, when the same task is listed twice or when
+/// a visit could not be placed (missing coordinates, shift not loaded), because a full-list write would delete those
+/// visits, and nothing when a travel time does not fit a clock time.
 /// </summary>
 /// <param name="mediator">Reads and writes the container templates and takes the lock</param>
 /// <param name="routeOptimizationService">Optimizes the visit order</param>
@@ -55,6 +57,13 @@ public class ContainerRouteWriteService : IContainerRouteWriteService
     {
         await using var lockScope = await ContainerTemplateLockScope.AcquireAsync(
             _mediator, containerId, instanceId, cancellationToken);
+        return await OptimizeAndWriteUnderHeldLockAsync(lockScope, containerId, storageWeekday, isHoliday, cancellationToken);
+    }
+
+    public async Task<ContainerRouteWriteResult> OptimizeAndWriteUnderHeldLockAsync(
+        ContainerTemplateLockScope lockScope, Guid containerId, int storageWeekday, bool isHoliday,
+        CancellationToken cancellationToken)
+    {
         if (!lockScope.Acquired)
         {
             return ContainerRouteWriteResult.Failure("The container is currently being edited by another user.");
@@ -185,7 +194,7 @@ public class ContainerRouteWriteService : IContainerRouteWriteService
         }
 
         template.ContainerTemplateItems = ContainerTemplateItemOrder.Interleave(
-            absenceItems, plan.Placed.Select(p => p.Item).ToList(), ItemStartMinutes);
+            absenceItems, plan.Placed.Select(p => p.Item).ToList(), ContainerTemplateItemStart.Minutes);
         template.RouteInfo = _scheduleMapper.ToRouteInfoResource(
             ContainerRouteInfoBuilder.Build(plan.StartBase, plan.EndBase, plan.Optimization!, plan.Steps));
     }
@@ -253,10 +262,6 @@ public class ContainerRouteWriteService : IContainerRouteWriteService
 
     private static string ClockText(int minutes) =>
         ContainerVisitScheduler.ClockTime(minutes).ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture);
-
-    private static int ItemStartMinutes(ContainerTemplateItemResource item) =>
-        ContainerTemplateItemOrder.StartMinutes(
-            !item.AbsenceId.HasValue && item.Shift?.IsTimeRange == true, item.StartItem, item.TimeRangeStartItem);
 
     private static VisitItem ToVisitItem(ContainerTemplateItemResource item) => new(
         item.ShiftId!.Value,

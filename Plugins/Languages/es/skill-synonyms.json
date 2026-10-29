@@ -4041,5 +4041,13 @@
     "calcular los tiempos de desplazamiento del contenedor",
     "vuelve a planificar el recorrido del lunes e introduce las horas de visita",
     "recalcula la ruta del contenedor después de la pausa del mediodía"
+  ],
+  "add_container_template_break": [
+    "añadir una pausa al contenedor",
+    "añadir la pausa del almuerzo a la plantilla del contenedor",
+    "añadir una pausa al recorrido del contenedor",
+    "planificar una pausa en el recorrido del contenedor",
+    "añade una pausa para comer a las 12:00 al contenedor el jueves",
+    "pon media hora de pausa en el recorrido del lunes y vuelve a optimizar la ruta"
   ]
 }

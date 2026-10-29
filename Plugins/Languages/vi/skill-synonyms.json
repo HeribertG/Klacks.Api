@@ -3992,5 +3992,13 @@
     "tính thời gian di chuyển trong container",
     "lập lại vòng đi thứ hai và ghi giờ thăm",
     "tính lại tuyến đường container sau giờ nghỉ trưa"
+  ],
+  "add_container_template_break": [
+    "thêm giờ nghỉ vào container",
+    "thêm giờ nghỉ trưa vào mẫu container",
+    "thêm giờ nghỉ vào tuyến của container",
+    "lên lịch giờ nghỉ trong tuyến của container",
+    "thêm giờ nghỉ trưa lúc 12:00 vào container ngày thứ năm",
+    "chèn nửa giờ nghỉ vào tuyến thứ hai rồi tối ưu lại tuyến đường"
   ]
 }

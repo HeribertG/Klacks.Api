@@ -512,6 +512,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "update_shift",
         "bundle_nearby_timerange_shifts_into_container",
         "add_container_template_task",
+        "add_container_template_break",
         // optimize_container_route rewrites the visit and travel times of one weekday template (re-enterable, the next
         // optimization or the container page rewrites them again); it never adds or removes a visit.
         "optimize_container_route",

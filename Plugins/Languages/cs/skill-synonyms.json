@@ -4053,5 +4053,13 @@
     "spočítat časy přejezdů v kontejneru",
     "přeplánuj pondělní okruh a zapiš časy návštěv",
     "po obědové pauze znovu spočítej trasu kontejneru"
+  ],
+  "add_container_template_break": [
+    "přidat pauzu do kontejneru",
+    "přidat polední pauzu do šablony kontejneru",
+    "přidat pauzu do okruhu kontejneru",
+    "naplánovat pauzu v okruhu kontejneru",
+    "přidej do kontejneru ve čtvrtek polední pauzu ve 12:00",
+    "vlož do pondělního okruhu půlhodinovou pauzu a znovu optimalizuj trasu"
   ]
 }

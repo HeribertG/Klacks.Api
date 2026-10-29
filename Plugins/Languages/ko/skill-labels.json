@@ -515,5 +515,6 @@
   "preview_order_review": "주문 검토 미리 보기",
   "cancel_order_review": "주문 검토 취소",
   "execute_order_review": "주문 검토 실행",
-  "optimize_container_route": "컨테이너 경로를 최적화하고 방문 시간 기록"
+  "optimize_container_route": "컨테이너 경로를 최적화하고 방문 시간 기록",
+  "add_container_template_break": "컨테이너 템플릿에 휴식 추가"
 }

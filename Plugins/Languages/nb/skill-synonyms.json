@@ -3992,5 +3992,13 @@
     "beregn kjøretider i containeren",
     "planlegg mandagsrunden på nytt og før inn besøkstidene",
     "beregn containerens rute på nytt etter lunsjpausen"
+  ],
+  "add_container_template_break": [
+    "legg til en pause i containeren",
+    "legg til lunsjpause i containerens mal",
+    "legg til en pause i containerens runde",
+    "planlegg en pause i containerens runde",
+    "legg til en lunsjpause kl. 12:00 i containeren på torsdag",
+    "sett inn en halvtimes pause i mandagens runde og optimaliser ruten på nytt"
   ]
 }

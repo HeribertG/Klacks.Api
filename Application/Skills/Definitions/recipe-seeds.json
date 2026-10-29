@@ -5573,7 +5573,7 @@
         "fr": "Ajouter un service-tâche existant au modèle hebdomadaire d'un conteneur.",
         "it": "Aggiungere un servizio-attività esistente al modello settimanale di un contenitore."
       },
-      "version": 10,
+      "version": 11,
       "isEnabled": true,
       "sortOrder": 46,
       "trigger": {
@@ -5710,6 +5710,13 @@
           {
             "anySubstring": [
               "container template"
+            ]
+          },
+          {
+            "anySubstring": [
+              "pause",
+              "break",
+              "pausa"
             ]
           }
         ]

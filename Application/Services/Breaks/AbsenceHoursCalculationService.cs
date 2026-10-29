@@ -30,6 +30,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Absences;
 using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Application.Services.Breaks;
@@ -76,14 +77,14 @@ public sealed class AbsenceHoursCalculationService : IAbsenceHoursCalculationSer
         {
             var wanted = absenceName.Trim();
             var byName = absences
-                .Where(absence => MatchesName(absence, wanted))
+                .Where(absence => AbsenceNameMatcher.Matches(absence, wanted))
                 .ToList();
 
             return byName.Count switch
             {
                 1 => (byName[0], null),
-                0 => (null, $"No absence type named '{wanted}'. Available: {DescribeNames(absences)}."),
-                _ => (null, $"Several absence types match '{wanted}': {DescribeNames(byName)}. Use the exact name.")
+                0 => (null, $"No absence type named '{wanted}'. Available: {AbsenceNameMatcher.DescribeNames(absences)}."),
+                _ => (null, $"Several absence types match '{wanted}': {AbsenceNameMatcher.DescribeNames(byName)}. Use the exact name.")
             };
         }
 
@@ -101,7 +102,7 @@ public sealed class AbsenceHoursCalculationService : IAbsenceHoursCalculationSer
             string.Equals(absence.Name.En?.Trim(), DefaultAbsenceEnglishName, StringComparison.OrdinalIgnoreCase));
         return vacation != null
             ? (vacation, null)
-            : (null, $"No vacation absence type exists; give the absence type by name. Available: {DescribeNames(absences)}.");
+            : (null, $"No vacation absence type exists; give the absence type by name. Available: {AbsenceNameMatcher.DescribeNames(absences)}.");
     }
 
     public async Task<AbsenceHoursCalculation> CalculateAsync(
@@ -210,19 +211,4 @@ public sealed class AbsenceHoursCalculationService : IAbsenceHoursCalculationSer
             : new AbsenceHoursExistingEntry(
                 entry.Id, entry.AbsenceId, entry.WorkTime, BreakDurationPredicate.HasDirectlyRecordedDuration(entry), entry.LockLevel);
     }
-
-    private static bool MatchesName(Absence absence, string wanted)
-    {
-        return absence.Name.GetAllValues().Values.Any(value => SameText(value, wanted))
-            || absence.Abbreviation.GetAllValues().Values.Any(value => SameText(value, wanted));
-    }
-
-    private static bool SameText(string? stored, string wanted) =>
-        !string.IsNullOrWhiteSpace(stored) && string.Equals(stored.Trim(), wanted, StringComparison.OrdinalIgnoreCase);
-
-    private static string DescribeNames(IEnumerable<Absence> absences) =>
-        string.Join(", ", absences
-            .Select(absence => absence.Name.En ?? absence.Name.GetValueOrFirstAvailable(null))
-            .Where(name => !string.IsNullOrWhiteSpace(name))
-            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase));
 }

@@ -36,6 +36,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
@@ -64,12 +65,9 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private const int IsoThursday = 4;
     private const int IsoFriday = 5;
     private const int IsoSaturday = 6;
+    private const int IsoSunday = IsoWeekday.Sunday;
 
     private const string SkillName = "bundle_nearby_timerange_shifts_into_container";
-    private const int MinIsoWeekday = 1;
-    private const int MaxIsoWeekday = 7;
-    private const int IsoSunday = 7;
-    private const int StorageSunday = 0;
     private const int DefaultSumEmployees = 1;
     private const int DefaultQuantity = 1;
     private const double DefaultTimeRangeTolerance = 0.5;
@@ -219,9 +217,9 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             name = $"Mobile Dienste {location}";
         }
 
-        if (isoWeekday < MinIsoWeekday || isoWeekday > MaxIsoWeekday)
+        if (!IsoWeekday.IsValid(isoWeekday))
         {
-            return (null, "weekday must be between 1 (Monday) and 7 (Sunday).");
+            return (null, IsoWeekday.RangeError);
         }
 
         var (fromTime, untilTime, timeError) = ParseTimeBudget(fromTimeStr, untilTimeStr, language);
@@ -242,7 +240,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             return (null, transportModeError!);
         }
 
-        var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
+        var storageWeekday = IsoWeekday.ToStorage(isoWeekday);
 
         return (new BundleRequest(
             location, isoWeekday, storageWeekday, fromTime, untilTime, fromDate, untilDate,

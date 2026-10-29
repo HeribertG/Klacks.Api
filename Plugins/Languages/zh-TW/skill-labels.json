@@ -515,5 +515,6 @@
   "preview_order_review": "預覽訂單審核",
   "cancel_order_review": "取消訂單審核",
   "execute_order_review": "執行訂單審核",
-  "optimize_container_route": "最佳化容器路線並寫入訪視時間"
+  "optimize_container_route": "最佳化容器路線並寫入訪視時間",
+  "add_container_template_break": "在容器範本中加入休息"
 }

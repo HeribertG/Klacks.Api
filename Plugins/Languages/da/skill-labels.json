@@ -515,5 +515,6 @@
   "preview_order_review": "Forhåndsvis ordregennemgangen",
   "cancel_order_review": "Annullér ordregennemgangen",
   "execute_order_review": "Udfør ordregennemgangen",
-  "optimize_container_route": "Optimer en containers rute og skriv besøgstiderne ind"
+  "optimize_container_route": "Optimer en containers rute og skriv besøgstiderne ind",
+  "add_container_template_break": "Tilføj en pause til en containers skabelon"
 }

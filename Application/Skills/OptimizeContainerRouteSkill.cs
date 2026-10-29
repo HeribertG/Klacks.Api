@@ -15,6 +15,7 @@ using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -26,10 +27,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("optimize_container_route")]
 public class OptimizeContainerRouteSkill : BaseSkillImplementation
 {
-    private const int MinIsoWeekday = 1;
-    private const int MaxIsoWeekday = 7;
-    private const int IsoSunday = 7;
-    private const int StorageSunday = 0;
     private const string DistanceFormat = "0.##";
 
     private readonly IShiftRepository _shiftRepository;
@@ -58,9 +55,9 @@ public class OptimizeContainerRouteSkill : BaseSkillImplementation
         var isoWeekday = GetRequiredInt(parameters, "weekday");
         var isHoliday = GetParameter<bool>(parameters, "isHoliday", false);
 
-        if (isoWeekday < MinIsoWeekday || isoWeekday > MaxIsoWeekday)
+        if (!IsoWeekday.IsValid(isoWeekday))
         {
-            return SkillResult.Error("weekday must be between 1 (Monday) and 7 (Sunday).");
+            return SkillResult.Error(IsoWeekday.RangeError);
         }
 
         var container = await _shiftRepository.Get(containerId);
@@ -74,7 +71,7 @@ public class OptimizeContainerRouteSkill : BaseSkillImplementation
             return SkillResult.Error($"Shift {containerId} is not a container shift (ShiftType must be IsContainer).");
         }
 
-        var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
+        var storageWeekday = IsoWeekday.ToStorage(isoWeekday);
         var instanceId = _userService.GetInstanceId() ?? string.Empty;
         var result = await _routeWriteService.OptimizeAndWriteAsync(
             containerId, storageWeekday, isHoliday, instanceId, cancellationToken);

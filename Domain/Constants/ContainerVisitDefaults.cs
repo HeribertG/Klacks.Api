@@ -21,6 +21,8 @@ public static class ContainerVisitDefaults
 
     public const int MovableBlockDefaultEndMinutes = 30;
 
+    public const int DefaultMovableBlockMinutes = MovableBlockDefaultEndMinutes - MovableBlockDefaultStartMinutes;
+
     public const int MinBlockDurationMinutes = 1;
 
     public const char SignMinus = '-';
@@ -36,10 +38,4 @@ public static class ContainerVisitDefaults
     public const int TimeSpanMinutesPart = 1;
 
     public const int TimeSpanSecondsPart = 2;
-
-    public const string RoutingProfileDriving = "driving";
-
-    public const string RoutingProfileCycling = "cycling";
-
-    public const string RoutingProfileFoot = "foot";
 }
