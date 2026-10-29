@@ -163,8 +163,9 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
             var sampleText = sample.Count > 0 ? string.Join(", ", sample) : "none";
             return SkillResult.Error(
                 $"Task shift {taskShiftId} is not currently eligible for this container on this weekday " +
-                "(it may be sporadic, the wrong shift type, below the minimum status, outside the " +
-                $"template's time window, or already used elsewhere). Currently available tasks: {sampleText}.");
+                "(it may be sporadic, the wrong shift type, below the minimum status, a scenario copy, outside the " +
+                "template's time window, not valid during the container's validity period, or already used elsewhere). " +
+                $"Currently available tasks: {sampleText}.");
         }
 
         return null;

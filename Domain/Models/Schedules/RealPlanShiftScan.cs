@@ -21,7 +21,11 @@ public sealed record RealPlanShiftScan(ShiftStatus Status)
     /// <summary>Only shifts without an end or ending on or after this day.</summary>
     public DateOnly? NotEndedBefore { get; init; }
 
-    /// <summary>Only full-day shifts: equal start and end time (TimeRange.ForWorkingTime's 24 hour convention).</summary>
+    /// <summary>
+    /// Only full-day shifts: equal start and end time (TimeRange.ForWorkingTime's 24 hour convention). Time-range shifts
+    /// with equal bounds are included on purpose (owner decision 2026-09-27 for UncutFullDayShiftDetector), unlike the order
+    /// review's FullDayOrderRule, which excludes them.
+    /// </summary>
     public bool FullDayOnly { get; init; }
 
     /// <summary>Only these shifts; null = no id restriction.</summary>

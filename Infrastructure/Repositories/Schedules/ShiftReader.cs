@@ -12,7 +12,8 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 /// <summary>
 /// Materialising shift reads of the Application and Domain layers (proactive scans, order lineage of the cut skills,
-/// find_split_shift_candidates, Shifts/ByIds, the candidate tasks of a container template slot). Each one composes on
+/// find_split_shift_candidates, Shifts/ByIds, the candidate tasks of a container template slot, the validity period of
+/// a shift). Each one composes on
 /// ShiftBaseQueries, the same base query ShiftRepository.GetQuery() uses, so the base order (original id, from date,
 /// start time) and the no-tracking load are the same as when the callers composed IShiftRepository.GetQuery()
 /// themselves; the slot candidates replace that order with start time, then client name, as the service did before.
@@ -88,42 +89,15 @@ public class ShiftReader : IShiftReader
     }
 
     public async Task<IReadOnlyList<Shift>> GetAvailableTaskCandidatesAsync(
-        AvailableTaskCandidateCriteria criteria, CancellationToken cancellationToken = default)
-    {
-        var excludedIds = criteria.ExcludedShiftIds.ToList();
-        var query = _context.Shift
-            .Where(s => s.ShiftType == ShiftType.IsTask)
-            .Where(s => s.Status >= ShiftStatus.OriginalShift)
-            .Where(s => !excludedIds.Contains(s.Id))
-            .Where(s => !s.IsSporadic);
+        AvailableTaskCandidateCriteria criteria, CancellationToken cancellationToken = default) =>
+        await BuildAvailableTaskCandidates(criteria).ToListAsync(cancellationToken);
 
-        query = query.Where(ShiftTimeFrameFilter.FitsInto(criteria.FromTime, criteria.UntilTime));
-
-        if (criteria.OnlyShiftIds != null)
-        {
-            var onlyIds = criteria.OnlyShiftIds.ToList();
-            query = query.Where(s => onlyIds.Contains(s.Id));
-        }
-
-        query = query.Where(ShiftDayActivityFilter.RunsOn(criteria.Weekday, criteria.IsHoliday, criteria.IsWeekdayAndHoliday));
-
-        if (!string.IsNullOrWhiteSpace(criteria.SearchFragment))
-        {
-            var searchLower = criteria.SearchFragment.ToLower();
-            query = query.Where(s =>
-                s.Name.ToLower().Contains(searchLower) ||
-                s.Abbreviation.ToLower().Contains(searchLower) ||
-                s.Description.ToLower().Contains(searchLower));
-        }
-
-        return await query
-            .Include(s => s.Client)
-                .ThenInclude(c => c!.Addresses)
+    public Task<ShiftValidityPeriod?> GetValidityPeriodAsync(Guid shiftId, CancellationToken cancellationToken = default) =>
+        _context.Shift
             .AsNoTracking()
-            .OrderBy(s => s.StartShift)
-            .ThenBy(s => s.Client!.Name)
-            .ToListAsync(cancellationToken);
-    }
+            .Where(s => s.Id == shiftId)
+            .Select(s => new ShiftValidityPeriod(s.FromDate, s.UntilDate))
+            .FirstOrDefaultAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Shift>> GetTasksWithClientByIdsAsync(
         IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
@@ -148,6 +122,52 @@ public class ShiftReader : IShiftReader
                 && s.ScenarioSourceShiftId == null);
 
         return await ShiftGroupVisibilityQuery.Apply(query, visibleGroupIds).ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// The query GetAvailableTaskCandidatesAsync materialises; internal so tests can render it against Npgsql
+    /// (ToQueryString) without a database.
+    /// </summary>
+    internal IQueryable<Shift> BuildAvailableTaskCandidates(AvailableTaskCandidateCriteria criteria)
+    {
+        var excludedIds = criteria.ExcludedShiftIds.ToList();
+        var query = _context.Shift
+            .Where(s => s.ShiftType == ShiftType.IsTask)
+            .Where(s => s.AnalyseToken == null)
+            .Where(s => s.Status >= ShiftStatus.OriginalShift)
+            .Where(s => !excludedIds.Contains(s.Id))
+            .Where(s => !s.IsSporadic);
+
+        query = query.Where(ShiftTimeFrameFilter.FitsInto(criteria.FromTime, criteria.UntilTime));
+
+        if (ShiftValidityOverlap.HasPeriod(criteria.ValidFrom, criteria.ValidUntil))
+        {
+            query = query.Where(ShiftValidityOverlap.Overlaps(criteria.ValidFrom, criteria.ValidUntil));
+        }
+
+        if (criteria.OnlyShiftIds != null)
+        {
+            var onlyIds = criteria.OnlyShiftIds.ToList();
+            query = query.Where(s => onlyIds.Contains(s.Id));
+        }
+
+        query = query.Where(ShiftDayActivityFilter.RunsOn(criteria.Weekday, criteria.IsHoliday, criteria.IsWeekdayAndHoliday));
+
+        if (!string.IsNullOrWhiteSpace(criteria.SearchFragment))
+        {
+            var searchLower = criteria.SearchFragment.ToLower();
+            query = query.Where(s =>
+                s.Name.ToLower().Contains(searchLower) ||
+                s.Abbreviation.ToLower().Contains(searchLower) ||
+                s.Description.ToLower().Contains(searchLower));
+        }
+
+        return query
+            .Include(s => s.Client)
+                .ThenInclude(c => c!.Addresses)
+            .AsNoTracking()
+            .OrderBy(s => s.StartShift)
+            .ThenBy(s => s.Client!.Name);
     }
 
     private IQueryable<Shift> Ordered() => ShiftBaseQueries.Ordered(_context.Shift);

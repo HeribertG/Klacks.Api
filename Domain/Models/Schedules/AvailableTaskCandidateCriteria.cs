@@ -3,9 +3,10 @@
 namespace Klacks.Api.Domain.Models.Schedules;
 
 /// <summary>
-/// Which tasks the available-task list of a container template slot reads: always tasks (ShiftType.IsTask) with a
-/// status from OriginalShift on that are not sporadic, inside the slot's time frame (ShiftTimeFrameFilter) and running
-/// on the slot's days (ShiftDayActivityFilter); soft-deleted shifts are dropped by the query filter.
+/// Which tasks the available-task list of a container template slot reads: always real-plan tasks (ShiftType.IsTask,
+/// AnalyseToken null) with a status from OriginalShift on that are not sporadic, inside the slot's time frame
+/// (ShiftTimeFrameFilter), running on the slot's days (ShiftDayActivityFilter) and, when a period is given, valid
+/// during it (ShiftValidityOverlap); soft-deleted shifts are dropped by the query filter.
 /// </summary>
 /// <param name="Weekday">Stored weekday of the slot (0=Sunday .. 6=Saturday)</param>
 /// <param name="FromTime">Start of the slot's time frame</param>
@@ -23,6 +24,12 @@ public sealed record AvailableTaskCandidateCriteria(int Weekday, TimeOnly FromTi
 
     /// <summary>Only these shifts (the container's group); null = no restriction, empty = no rows.</summary>
     public IReadOnlyCollection<Guid>? OnlyShiftIds { get; init; }
+
+    /// <summary>First day of the container's validity; a task that ended before it is no candidate. Null = no lower bound.</summary>
+    public DateOnly? ValidFrom { get; init; }
+
+    /// <summary>Last day of the container's validity; a task that starts after it is no candidate. Null = no upper bound.</summary>
+    public DateOnly? ValidUntil { get; init; }
 
     /// <summary>Fragment the name, abbreviation or description must contain, compared lower-cased; null or blank = all.</summary>
     public string? SearchFragment { get; init; }

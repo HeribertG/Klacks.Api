@@ -10,11 +10,12 @@ namespace Klacks.Api.Domain.Services.ContainerTemplates;
 
 /// <summary>
 /// The available-task list of a container template slot, also the candidate source of the container autofill: the
-/// tasks of the container's group (or of every group when the group has at most one shift) that fit the slot
-/// (AvailableTaskCandidateCriteria), minus the tasks used in another container, plus the extra task ids an override
+/// tasks of the container's group (or of every group when the group has at most one shift) that fit the slot and are
+/// valid during the container's validity period (AvailableTaskCandidateCriteria; no period filter when the container
+/// cannot be read, e.g. unknown or soft-deleted, as before the filter existed), minus the tasks used in another container, plus the extra task ids an override
 /// request names.
 /// </summary>
-/// <param name="shiftReader">Reads the candidate tasks and the override tasks</param>
+/// <param name="shiftReader">Reads the container's validity period, the candidate tasks and the override tasks</param>
 /// <param name="groupItemRepository">Resolves the container's groups and their shifts</param>
 /// <param name="containerTemplateRepository">Lists the tasks already used in container templates</param>
 /// <param name="logger">Diagnostics of each lookup</param>
@@ -85,8 +86,12 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
             _logger.LogWarning("No group filter applied - this will return ALL tasks matching time/weekday criteria");
         }
 
+        var containerValidity = await _shiftReader.GetValidityPeriodAsync(containerId, cancellationToken);
+
         var criteria = new AvailableTaskCandidateCriteria(weekday, fromTime, untilTime)
         {
+            ValidFrom = containerValidity?.FromDate,
+            ValidUntil = containerValidity?.UntilDate,
             IsHoliday = isHoliday,
             IsWeekdayAndHoliday = isWeekdayAndHoliday,
             ExcludedShiftIds = usedShiftIds,
