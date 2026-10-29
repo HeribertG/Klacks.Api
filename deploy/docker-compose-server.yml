@@ -114,8 +114,8 @@ services:
       # Daily LLM token budgets of the Playground (only effective while Deployment__IsPlayground is true;
       # the day rolls at 02:00 UTC). Numeric defaults on purpose: an empty value would fall back to the same defaults.
       - Playground__TokenLimit__GlobalDailyTokens=${PLAYGROUND_TOKEN_LIMIT_GLOBAL:-1500000}
-      - Playground__TokenLimit__PerIpDailyTokens=${PLAYGROUND_TOKEN_LIMIT_PER_IP:-300000}
-      - Playground__TokenLimit__PerDeviceDailyTokens=${PLAYGROUND_TOKEN_LIMIT_PER_DEVICE:-150000}
+      - Playground__TokenLimit__PerIpDailyTokens=${PLAYGROUND_TOKEN_LIMIT_PER_IP:-150000}
+      - Playground__TokenLimit__PerDeviceDailyTokens=${PLAYGROUND_TOKEN_LIMIT_PER_DEVICE:-75000}
       # Playground: no visitor text may land in the database (every visitor is the shared demo admin). Chat history
       # lives in process memory only (code, Deployment__IsPlayground); these switch off the learning writers that
       # have a configuration flag. Customer stacks (deploy/onprem) keep the defaults.

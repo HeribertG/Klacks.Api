@@ -23,9 +23,9 @@ public static class PlaygroundTokenLimitConstants
 
     public const int DefaultGlobalDailyTokens = 1_500_000;
 
-    public const int DefaultPerIpDailyTokens = 300_000;
+    public const int DefaultPerIpDailyTokens = 150_000;
 
-    public const int DefaultPerDeviceDailyTokens = 150_000;
+    public const int DefaultPerDeviceDailyTokens = 75_000;
 
     /// <summary>
     /// Ceiling of the estimate one provider call may hold in the buckets while it is in flight. A normal turn reserves
