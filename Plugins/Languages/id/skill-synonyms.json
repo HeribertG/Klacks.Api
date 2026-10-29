@@ -3965,5 +3965,13 @@
     "jalankan tinjauan pesanan yang sudah dikonfirmasi",
     "tulis nilai yang diputuskan ke pesanan terbuka",
     "potong pesanan menjadi layanan sekarang"
+  ],
+  "optimize_container_route": [
+    "optimalkan rute kontainer",
+    "optimalkan tur kontainer",
+    "rencanakan waktu kunjungan di kontainer",
+    "hitung waktu perjalanan di kontainer",
+    "rencanakan ulang tur hari senin dan isi waktu kunjungan",
+    "hitung ulang rute kontainer setelah istirahat makan siang"
   ]
 }

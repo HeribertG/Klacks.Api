@@ -514,5 +514,6 @@
   "set_order_review_decision": "Zaznamenat odpověď v revizi objednávek",
   "preview_order_review": "Náhled revize objednávek",
   "cancel_order_review": "Zrušit revizi objednávek",
-  "execute_order_review": "Provést revizi objednávek"
+  "execute_order_review": "Provést revizi objednávek",
+  "optimize_container_route": "Optimalizovat trasu kontejneru a zapsat časy návštěv"
 }

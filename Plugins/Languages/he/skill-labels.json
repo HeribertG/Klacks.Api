@@ -514,5 +514,6 @@
   "set_order_review_decision": "רישום תשובה בסקירת ההזמנות",
   "preview_order_review": "תצוגה מקדימה של סקירת ההזמנות",
   "cancel_order_review": "ביטול סקירת ההזמנות",
-  "execute_order_review": "ביצוע סקירת ההזמנות"
+  "execute_order_review": "ביצוע סקירת ההזמנות",
+  "optimize_container_route": "אופטימיזציה של מסלול מכולה ורישום זמני הביקורים"
 }

@@ -3984,5 +3984,13 @@
     "utfør den bekreftede bestillingsgjennomgangen",
     "skriv de besluttede verdiene inn i de åpne bestillingene",
     "jeg vil at bestillingene skal kuttes i tjenester nå"
+  ],
+  "optimize_container_route": [
+    "optimaliser containerens rute",
+    "optimaliser containerens runde",
+    "planlegg besøkstider i containeren",
+    "beregn kjøretider i containeren",
+    "planlegg mandagsrunden på nytt og før inn besøkstidene",
+    "beregn containerens rute på nytt etter lunsjpausen"
   ]
 }

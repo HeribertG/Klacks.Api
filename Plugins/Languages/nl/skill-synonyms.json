@@ -4047,5 +4047,13 @@
     "voer de bevestigde orderbeoordeling uit",
     "schrijf de beslissingen weg naar de open bestellingen",
     "ik wil de orders nu in diensten laten knippen"
+  ],
+  "optimize_container_route": [
+    "route van de container optimaliseren",
+    "ronde van de container optimaliseren",
+    "bezoektijden in de container plannen",
+    "reistijden in de container berekenen",
+    "plan de ronde van maandag opnieuw en vul de bezoektijden in",
+    "bereken de route van de container opnieuw na de lunchpauze"
   ]
 }

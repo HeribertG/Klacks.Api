@@ -4030,5 +4030,13 @@
     "executa a revisão de encomendas confirmada",
     "grava os valores decididos nas encomendas abertas",
     "quero as encomendas cortadas em serviços agora"
+  ],
+  "optimize_container_route": [
+    "otimizar a rota do contentor",
+    "otimizar o percurso do contentor",
+    "planear as horas das visitas do contentor",
+    "calcular os tempos de deslocação do contentor",
+    "replaneia o percurso de segunda-feira e regista as horas das visitas",
+    "recalcula a rota do contentor depois da pausa de almoço"
   ]
 }

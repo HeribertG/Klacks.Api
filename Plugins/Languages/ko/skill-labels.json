@@ -514,5 +514,6 @@
   "set_order_review_decision": "주문 검토에 답변 기록",
   "preview_order_review": "주문 검토 미리 보기",
   "cancel_order_review": "주문 검토 취소",
-  "execute_order_review": "주문 검토 실행"
+  "execute_order_review": "주문 검토 실행",
+  "optimize_container_route": "컨테이너 경로를 최적화하고 방문 시간 기록"
 }

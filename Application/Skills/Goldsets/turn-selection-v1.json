@@ -3779,6 +3779,32 @@
       ]
     },
     {
+      "id": "w05-coverage-optimize-container-route",
+      "message": "Optimier die Route des Containers 'Mobile Dienste Bern' für Donnerstag und trag die Besuchszeiten ein.",
+      "locale": "de",
+      "source": "w0.5-seed-coverage",
+      "expectedTool": "optimize_container_route",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "w05-coverage-optimize-container-route-en",
+      "message": "Re-optimize the route of container 'Mobile Services Bern' for Thursday after the lunch break.",
+      "locale": "en",
+      "source": "w0.5-seed-coverage",
+      "expectedTool": "optimize_container_route",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
       "id": "w05-coverage-create-container-template",
       "message": "Leg für den Container 'Route Süd' die Wochentagvorlage von 07:00 bis 19:00 an.",
       "locale": "de",

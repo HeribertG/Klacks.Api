@@ -36371,6 +36371,111 @@
       "version": 5
     },
     {
+      "name": "optimize_container_route",
+      "area": "shift",
+      "description": "Optimizes the visit order of a container's weekday template and writes the planned visit times, travel times and route info into the template, like 'optimize route' plus saving on the container page. Breaks stay fixed or movable time blocks. Verifies the written times by re-reading. Writes nothing when fewer than two visits exist, no route is found or a visit cannot be placed (no coordinates, duplicate). Never releases the edit lock of an open container page.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "containerId",
+          "description": "UUID of the container shift (ShiftType must be IsContainer)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "weekday",
+          "description": "ISO weekday (1=Monday..7=Sunday) of the template whose route is optimized",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "isHoliday",
+          "description": "True to optimize the holiday variant of the weekday template; defaults to false",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "container",
+          "route"
+        ],
+        "de": [
+          "route optimieren",
+          "tour optimieren",
+          "einsatzzeiten planen"
+        ],
+        "en": [
+          "optimize route",
+          "optimize tour"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "container route optimieren",
+          "tour des containers optimieren",
+          "besuchszeiten im container planen",
+          "wegzeiten im container berechnen",
+          "optimiere die route des containers 'mobile dienste bern' für donnerstag",
+          "plane die tour am montag neu und trag die besuchszeiten ein",
+          "berechne nach der mittagspause die route des containers neu",
+          "reihenfolge und einsatzzeiten der spitex-tour am freitag optimieren"
+        ],
+        "en": [
+          "optimize container route",
+          "optimize the container tour",
+          "plan visit times in the container",
+          "calculate travel times in the container",
+          "optimize the route of container 'mobile services bern' for thursday",
+          "re-plan monday's tour and fill in the visit times",
+          "recalculate the container route after the lunch break",
+          "optimize order and visit times of the home care tour on friday"
+        ],
+        "fr": [
+          "optimiser l'itinéraire du conteneur",
+          "optimiser la tournée du conteneur",
+          "planifier les heures de visite du conteneur",
+          "calculer les temps de trajet du conteneur",
+          "optimise l'itinéraire du conteneur 'services mobiles berne' pour jeudi",
+          "replanifie la tournée du lundi et inscris les heures de visite",
+          "recalcule l'itinéraire du conteneur après la pause de midi",
+          "optimise l'ordre et les heures des visites de la tournée du vendredi"
+        ],
+        "it": [
+          "ottimizzare il percorso del contenitore",
+          "ottimizzare il giro del contenitore",
+          "pianificare gli orari delle visite del contenitore",
+          "calcolare i tempi di viaggio del contenitore",
+          "ottimizza il percorso del contenitore 'servizi mobili berna' per giovedì",
+          "ripianifica il giro del lunedì e inserisci gli orari delle visite",
+          "ricalcola il percorso del contenitore dopo la pausa pranzo",
+          "ottimizza ordine e orari delle visite del giro di venerdì"
+        ]
+      },
+      "labels": {
+        "de": "Route eines Containers optimieren und Besuchszeiten eintragen",
+        "en": "Optimize a container route and write the visit times",
+        "fr": "Optimiser l'itinéraire d'un conteneur et inscrire les heures de visite",
+        "it": "Ottimizza il percorso di un contenitore e inserisci gli orari delle visite"
+      },
+      "version": 1
+    },
+    {
       "name": "create_container_template",
       "area": "shift",
       "description": "Creates the weekday template of a container shift (ShiftType IsContainer) — the empty day plan a container needs before any task can be added to that weekday. Takes the ISO weekday, the day's time budget (fromTime/untilTime) and optionally the route start/end location and transport mode. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",

@@ -3997,5 +3997,13 @@
     "kör den bekräftade beställningsgranskningen",
     "skriv de beslutade värdena i de öppna beställningarna",
     "genomför den bekräftade förhandsvisningen av ordrarna"
+  ],
+  "optimize_container_route": [
+    "optimera containerns rutt",
+    "optimera containerns runda",
+    "planera besökstider i containern",
+    "beräkna restider i containern",
+    "planera om måndagens runda och för in besökstiderna",
+    "beräkna containerns rutt på nytt efter lunchrasten"
   ]
 }

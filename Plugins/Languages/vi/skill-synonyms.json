@@ -3984,5 +3984,13 @@
     "ghi các giá trị đã quyết vào đơn hàng đang mở",
     "chạy bản xem trước đã xác nhận của các đơn",
     "niêm phong đơn sau xác nhận và cắt thành các ca"
+  ],
+  "optimize_container_route": [
+    "tối ưu tuyến đường container",
+    "tối ưu vòng đi của container",
+    "lập kế hoạch giờ thăm trong container",
+    "tính thời gian di chuyển trong container",
+    "lập lại vòng đi thứ hai và ghi giờ thăm",
+    "tính lại tuyến đường container sau giờ nghỉ trưa"
   ]
 }

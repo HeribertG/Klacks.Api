@@ -514,5 +514,6 @@
   "set_order_review_decision": "Kirjaa vastaus tilausten läpikäyntiin",
   "preview_order_review": "Tilausten läpikäynnin esikatselu",
   "cancel_order_review": "Peru tilausten läpikäynti",
-  "execute_order_review": "Toteuta tilausten läpikäynti"
+  "execute_order_review": "Toteuta tilausten läpikäynti",
+  "optimize_container_route": "Optimoi kontin reitti ja kirjaa käyntiajat"
 }

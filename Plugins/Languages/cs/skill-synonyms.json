@@ -4045,5 +4045,13 @@
     "proveď potvrzenou kontrolu objednávek",
     "zapiš rozhodnuté hodnoty do otevřených objednávek",
     "chci teď objednávky rozřezat na služby"
+  ],
+  "optimize_container_route": [
+    "optimalizovat trasu kontejneru",
+    "optimalizovat okruh kontejneru",
+    "naplánovat časy návštěv v kontejneru",
+    "spočítat časy přejezdů v kontejneru",
+    "přeplánuj pondělní okruh a zapiš časy návštěv",
+    "po obědové pauze znovu spočítej trasu kontejneru"
   ]
 }

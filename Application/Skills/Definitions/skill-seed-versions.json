@@ -1480,6 +1480,10 @@
       "version": 8,
       "hash": "92E324F3212C5EC8F82F6EDA764DFB287362B346210A8ECD04849ECDDD334CC2"
     },
+    "optimize_container_route": {
+      "version": 1,
+      "hash": "DE30CC7A19FFBDC1BE632E82B8FD1E4C3FF73507D87C6D85CA99A2E492B2F2F1"
+    },
     "optimize_llm_models_for_klacksy": {
       "version": 6,
       "hash": "B585EC05E6A93437B62FA259326E5CB80D8A401C40881ED67FC27E600C310BDC"

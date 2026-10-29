@@ -3990,5 +3990,13 @@
     "udfør den bekræftede ordregennemgang",
     "skriv de besluttede værdier ind i de åbne ordrer",
     "gennemfør den bekræftede ordreforhåndsvisning"
+  ],
+  "optimize_container_route": [
+    "optimer containerens rute",
+    "optimer containerens tur",
+    "planlæg besøgstider i containeren",
+    "beregn køretider i containeren",
+    "planlæg mandagens tur igen og skriv besøgstiderne ind",
+    "beregn containerens rute igen efter frokostpausen"
   ]
 }

@@ -514,5 +514,6 @@
   "set_order_review_decision": "บันทึกคำตอบในการตรวจคำสั่งซื้อ",
   "preview_order_review": "ดูตัวอย่างการตรวจคำสั่งซื้อ",
   "cancel_order_review": "ยกเลิกการตรวจคำสั่งซื้อ",
-  "execute_order_review": "ดำเนินการตรวจคำสั่งซื้อ"
+  "execute_order_review": "ดำเนินการตรวจคำสั่งซื้อ",
+  "optimize_container_route": "ปรับเส้นทางของคอนเทนเนอร์ให้เหมาะสมและบันทึกเวลาเยี่ยม"
 }

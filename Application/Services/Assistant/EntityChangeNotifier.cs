@@ -12,7 +12,9 @@ namespace Klacks.Api.Application.Services.Assistant;
 /// Decides whether a successful skill execution should trigger a client-side page reload and,
 /// if so, pushes an entity-changed notification to the acting user. Read-only and scenario-gated
 /// skills never notify (no direct DB write); schedule-domain entities are excluded because the
-/// work-notifications hub already pushes those live.
+/// work-notifications hub already pushes those live. The entities come from SkillRefreshEntityMap first (pages that
+/// reload on entities outside the skill-graph vocabulary, e.g. the container template page), then SkillEntityMap, then
+/// the skill name prefix.
 /// </summary>
 public class EntityChangeNotifier : IEntityChangeNotifier
 {
@@ -77,6 +79,11 @@ public class EntityChangeNotifier : IEntityChangeNotifier
 
     private static IReadOnlyList<string> ResolveEntities(string skillName)
     {
+        if (SkillRefreshEntityMap.Map.TryGetValue(skillName, out var refreshEntities) && refreshEntities.Length > 0)
+        {
+            return refreshEntities.Select(e => e.ToLowerInvariant()).ToList();
+        }
+
         if (SkillEntityMap.Map.TryGetValue(skillName, out var mapped) && mapped.Length > 0)
         {
             return mapped.Select(e => e.ToLowerInvariant()).ToList();

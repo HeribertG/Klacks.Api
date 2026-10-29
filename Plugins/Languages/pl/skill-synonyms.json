@@ -4061,5 +4061,13 @@
     "wykonaj potwierdzony przegląd zamówień",
     "zapisz ustalone wartości w otwartych zamówieniach",
     "chcę teraz pociąć zamówienia na usługi"
+  ],
+  "optimize_container_route": [
+    "optymalizuj trasę kontenera",
+    "optymalizuj objazd kontenera",
+    "zaplanuj godziny wizyt w kontenerze",
+    "oblicz czasy przejazdów w kontenerze",
+    "zaplanuj od nowa poniedziałkowy objazd i wpisz godziny wizyt",
+    "przelicz trasę kontenera po przerwie obiadowej"
   ]
 }

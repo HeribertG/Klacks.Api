@@ -4012,5 +4012,13 @@
     "execută revizuirea comenzilor confirmată",
     "scrie valorile hotărâte în comenzile deschise",
     "vreau acum comenzile tăiate în servicii"
+  ],
+  "optimize_container_route": [
+    "optimizează traseul containerului",
+    "optimizează turul containerului",
+    "planifică orele vizitelor din container",
+    "calculează timpii de deplasare din container",
+    "replanifică turul de luni și completează orele vizitelor",
+    "recalculează traseul containerului după pauza de prânz"
   ]
 }

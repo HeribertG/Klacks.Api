@@ -3981,5 +3981,13 @@
     "laksanakan semakan pesanan yang disahkan",
     "tulis nilai yang diputuskan ke pesanan terbuka",
     "saya nak pesanan dipotong kepada perkhidmatan sekarang"
+  ],
+  "optimize_container_route": [
+    "optimumkan laluan kontena",
+    "optimumkan pusingan kontena",
+    "rancang masa lawatan dalam kontena",
+    "kira masa perjalanan dalam kontena",
+    "rancang semula pusingan hari isnin dan isikan masa lawatan",
+    "kira semula laluan kontena selepas rehat makan tengah hari"
   ]
 }

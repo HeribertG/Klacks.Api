@@ -4033,5 +4033,13 @@
     "ejecuta la revisión de pedidos confirmada",
     "escribe los valores decididos en los pedidos abiertos",
     "quiero que los pedidos se corten ya en servicios"
+  ],
+  "optimize_container_route": [
+    "optimizar la ruta del contenedor",
+    "optimizar el recorrido del contenedor",
+    "planificar las horas de visita del contenedor",
+    "calcular los tiempos de desplazamiento del contenedor",
+    "vuelve a planificar el recorrido del lunes e introduce las horas de visita",
+    "recalcula la ruta del contenedor después de la pausa del mediodía"
   ]
 }

@@ -514,5 +514,6 @@
   "set_order_review_decision": "Rekod jawapan dalam semakan pesanan",
   "preview_order_review": "Pratonton semakan pesanan",
   "cancel_order_review": "Batalkan semakan pesanan",
-  "execute_order_review": "Laksanakan semakan pesanan"
+  "execute_order_review": "Laksanakan semakan pesanan",
+  "optimize_container_route": "Optimumkan laluan kontena dan isikan masa lawatan"
 }

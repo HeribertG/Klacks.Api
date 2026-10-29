@@ -514,5 +514,6 @@
   "set_order_review_decision": "Registrar una respuesta en la revisión de pedidos",
   "preview_order_review": "Vista previa de la revisión de pedidos",
   "cancel_order_review": "Cancelar la revisión de pedidos",
-  "execute_order_review": "Ejecutar la revisión de pedidos"
+  "execute_order_review": "Ejecutar la revisión de pedidos",
+  "optimize_container_route": "Optimizar la ruta de un contenedor e introducir las horas de visita"
 }
