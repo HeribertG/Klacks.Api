@@ -331,7 +331,8 @@
     "spojit mobilní služby v okolí",
     "slož všechny mobilní služby kolem plzně do nového kontejneru",
     "postav kontejner na čtvrtek z blízkých timerange směn",
-    "spoj trasy poblíž brna do denního kontejneru"
+    "spoj trasy poblíž brna do denního kontejneru",
+    "sdruž jen výjezdy skupiny spitex winterthur do kontejneru"
   ],
   "cancel_company_rule": [
     "zrušit rozpracované firemní pravidlo",

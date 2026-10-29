@@ -6994,7 +6994,7 @@
         "fr": "Trouver les services-tâches TimeRange mobiles autour d'une ville ou d'une localité pour un jour de la semaine et les regrouper automatiquement dans un nouveau service conteneur optimisé par itinéraire avec son modèle hebdomadaire.",
         "it": "Trovare i servizi-attività TimeRange mobili attorno a una città o una località per un giorno della settimana e raggrupparli automaticamente in un nuovo servizio contenitore ottimizzato per il percorso con il relativo modello settimanale."
       },
-      "version": 4,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 47,
       "trigger": {
@@ -7002,6 +7002,7 @@
           {
             "anyWordStart": [
               "bündel",
+              "bündl",
               "zusammenfass",
               "sammel",
               "kombinier",
@@ -7029,7 +7030,14 @@
               "services mobiles",
               "servizio mobile",
               "servizi mobili",
-              "servizio timerange"
+              "servizio timerange",
+              "einsätze",
+              "einsaetze",
+              "container",
+              "conteneur",
+              "contenitore",
+              "interventions",
+              "interventi"
             ]
           }
         ],
@@ -7114,6 +7122,18 @@
         },
         {
           "kind": "ask",
+          "slot": "groupFilter",
+          "prompt": "Ask the user whether only the services of one group should be bundled: name the group, or answer 'all' for the services of all groups.",
+          "promptTranslations": {
+            "de": "Nur die Einsätze einer Gruppe bündeln? Nenne die Gruppe – oder «alle» für alle Gruppen.",
+            "en": "Bundle only the services of one group? Name the group – or answer 'all' for all groups.",
+            "fr": "Regrouper seulement les interventions d'un groupe ? Indique le groupe – ou « tous » pour tous les groupes.",
+            "it": "Raggruppare solo gli interventi di un gruppo? Indica il gruppo – oppure «tutti» per tutti i gruppi."
+          },
+          "description": "the name of the group whose services are bundled (e.g. Spitex Winterthur), or 'all' when the user wants no group filter"
+        },
+        {
+          "kind": "ask",
           "slot": "transportMode",
           "prompt": "Ask the user for the transport mode: on foot, by bicycle, or by car. Mention that without a configured OpenRouteService key only car is possible.",
           "promptTranslations": {
@@ -7183,7 +7203,7 @@
             "untilTime": "$untilTime",
             "fromDate": "$fromDate"
           },
-          "note": "Create the container, find nearby TimeRange task shifts and fill the weekday template — all atomically. Normalize transportMode to one of car/bicycle/foot/mix before injecting. The skill rejects bicycle/foot/mix when no OpenRouteService key is configured; relay that error verbatim instead of retrying with car unless the user explicitly agrees to switch. Relay the verified confirmation including the container name, bundled task count and route summary."
+          "note": "Create the container, find nearby TimeRange task shifts and fill the weekday template — all atomically. Normalize transportMode to one of car/bicycle/foot/mix before injecting. Pass the groupFilter slot as groupName exactly as the user named the group; if the user answered all/none or named no group, omit groupName. If the skill answers that the group name is ambiguous or unknown, relay the listed groups and ask which one is meant. The skill rejects bicycle/foot/mix when no OpenRouteService key is configured; relay that error verbatim instead of retrying with car unless the user explicitly agrees to switch. Relay the verified confirmation including the container name, bundled task count and route summary."
         }
       ]
     },

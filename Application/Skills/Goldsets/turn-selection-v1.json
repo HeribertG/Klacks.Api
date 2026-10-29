@@ -4000,6 +4000,19 @@
       ]
     },
     {
+      "id": "spitex-bundle-by-group-name",
+      "message": "Bündle nur die Einsätze der Gruppe Spitex Winterthur am Donnerstag von 08:00 bis 17:00 in einen Container.",
+      "locale": "de",
+      "source": "curated",
+      "expectedTool": "bundle_nearby_timerange_shifts_into_container",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "Spitex clip 2026-10-29: a group named in the bundle request must reach the bundle skill (groupName), not a group recipe.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
       "id": "w05-coverage-create-monthly-target-hours",
       "message": "Leg fest, dass der Februar 2026 firmenweit mit 160 Sollstunden zählt.",
       "locale": "de",

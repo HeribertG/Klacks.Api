@@ -25,10 +25,13 @@
 /// configured OpenRouteService API key and OpenRouteService not being switched off by the operator.</param>
 /// <param name="timeRangeTolerance">Optional strictness of the task TimeRange windows (1.0 strict, lower values widen
 /// the window by (1 - value) x its length, 0 disables the check); defaults to 0.5.</param>
-/// <param name="groupIds">Optional comma-separated group UUIDs restricting which candidate services are
-/// considered; without any group the container has no group filter (all matching tasks are eligible).</param>
+/// <param name="groupName">Optional group name restricting which candidate services are considered, resolved by
+/// BundleGroupFilterResolver (exact name wins, ambiguous or unknown names are refused with the candidates).</param>
+/// <param name="groupIds">Optional comma-separated group UUIDs, combined with groupName; without any group the container
+/// has no group filter (all matching tasks are eligible), and the result says so.</param>
 /// <param name="name">Optional container name; defaults to "Mobile Dienste {location}".</param>
 /// <param name="groupVisibilityGuard">Answers a group a restricted caller may not see exactly like a missing group</param>
+/// <param name="groupItemRepository">Tells the group filter whether a requested group has any linked service</param>
 /// <param name="shiftVisibilityGuard">Drops autofill picks a restricted caller may not see, so a hidden task shift is
 /// never written into the template, reported back or named in an error</param>
 /// <param name="defaultShiftMacroResolver">Supplies the default Shift-category macro of the new container, exactly as a
@@ -84,12 +87,18 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private const double DefaultTimeRangeTolerance = 0.5;
     private const string TransportModeCar = "car";
     private const string TravelTimesEstimatedNote =
-        " The travel times are straight-line estimates, because the routing service could not be reached.";
+        " The travel times are straight-line estimates: the routing service returned no travel times for the {0} " +
+        "candidate service(s) — it could not be reached or the request exceeded its size limit (too many locations). " +
+        "Tell the user explicitly that the travel times are only estimates.";
+    private const string NarrowWithGroupNote =
+        " With groupName the candidates can be narrowed to one group, so the routing service can compute real travel times.";
+    private const string GroupFilterNote = " Only services of the group '{0}' were considered.";
+    private const string NoGroupFilterNote = " No group filter was applied: services of all groups were considered.";
+    private const string GroupNameSeparator = "', '";
     private const string NoMatchingServicesMessage =
         "No matching mobile TimeRange services were found around '{0}' within the given time budget — no container was created.";
 
     private readonly IShiftRepository _shiftRepository;
-    private readonly IGroupRepository _groupRepository;
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserService _userService;
@@ -97,7 +106,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private readonly ISettingsReader _settingsReader;
     private readonly ISettingsEncryptionService _encryptionService;
     private readonly IGeoServicesPolicy _geoServicesPolicy;
-    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly BundleGroupFilterResolver _groupFilterResolver;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
     private readonly ScheduleMapper _scheduleMapper;
@@ -113,6 +122,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         ISettingsEncryptionService encryptionService,
         IGeoServicesPolicy geoServicesPolicy,
         IGroupVisibilityGuard groupVisibilityGuard,
+        IGroupItemRepository groupItemRepository,
         IShiftVisibilityGuard shiftVisibilityGuard,
         IDefaultShiftMacroResolver defaultShiftMacroResolver,
         ScheduleMapper scheduleMapper)
@@ -120,14 +130,13 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         _scheduleMapper = scheduleMapper;
         _geoServicesPolicy = geoServicesPolicy;
         _shiftRepository = shiftRepository;
-        _groupRepository = groupRepository;
         _mediator = mediator;
         _unitOfWork = unitOfWork;
         _userService = userService;
         _containerAutofillService = containerAutofillService;
         _settingsReader = settingsReader;
         _encryptionService = encryptionService;
-        _groupVisibilityGuard = groupVisibilityGuard;
+        _groupFilterResolver = new BundleGroupFilterResolver(groupRepository, groupVisibilityGuard, groupItemRepository);
         _shiftVisibilityGuard = shiftVisibilityGuard;
         _defaultShiftMacroResolver = defaultShiftMacroResolver;
     }
@@ -175,6 +184,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         ContainerTransportMode TransportMode,
         double TimeRangeTolerance,
         string? GroupIdsRaw,
+        string? GroupName,
         string Name);
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -194,11 +204,14 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             return unavailableTransportMode;
         }
 
-        var (groupItems, groupError) = await ResolveGroupItemsAsync(request.GroupIdsRaw, request.FromDate, cancellationToken);
-        if (groupItems is null)
+        var (groups, groupError) = await _groupFilterResolver.ResolveAsync(
+            request.GroupIdsRaw, request.GroupName, cancellationToken);
+        if (groups is null)
         {
             return SkillResult.Error(groupError!);
         }
+
+        var groupItems = BuildGroupItems(groups, request.FromDate);
 
         var defaultMacroId = await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync(cancellationToken);
         var containerShift = BuildContainerShift(request, groupItems, defaultMacroId, context.UserName);
@@ -216,7 +229,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             return SkillResult.Error(ex.Message);
         }
 
-        return BuildSuccessResult(request, outcome);
+        return BuildSuccessResult(request, outcome, groups.Select(g => g.Name).ToList());
     }
 
     private static (BundleRequest? Request, string? Error) ParseRequest(Dictionary<string, object> parameters, string? language)
@@ -230,6 +243,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         var transportModeStr = GetParameter<string>(parameters, "transportMode") ?? TransportModeCar;
         var timeRangeTolerance = GetParameter<double>(parameters, "timeRangeTolerance", DefaultTimeRangeTolerance);
         var groupIdsRaw = GetParameter<string>(parameters, "groupIds");
+        var groupName = GetParameter<string>(parameters, "groupName");
         var name = GetParameter<string>(parameters, "name");
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -263,7 +277,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
 
         return (new BundleRequest(
             location, isoWeekday, storageWeekday, fromTime, untilTime, fromDate, untilDate,
-            transportModeStr, transportMode.Value, timeRangeTolerance, groupIdsRaw, name), null);
+            transportModeStr, transportMode.Value, timeRangeTolerance, groupIdsRaw, groupName, name), null);
     }
 
     private static (TimeOnly FromTime, TimeOnly UntilTime, string? Error) ParseTimeBudget(
@@ -314,36 +328,12 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         return (fromDate, untilDate, null);
     }
 
-    private async Task<(List<GroupItem>? GroupItems, string? Error)> ResolveGroupItemsAsync(
-        string? groupIdsRaw, DateOnly fromDate, CancellationToken cancellationToken)
-    {
-        var groupItems = new List<GroupItem>();
-        if (!string.IsNullOrEmpty(groupIdsRaw))
+    private static List<GroupItem> BuildGroupItems(List<Group> groups, DateOnly fromDate) =>
+        groups.Select(group => new GroupItem
         {
-            var groupIdStrings = groupIdsRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            foreach (var groupIdStr in groupIdStrings)
-            {
-                if (!Guid.TryParse(groupIdStr, out var groupId))
-                {
-                    continue;
-                }
-
-                var group = await _groupRepository.Get(groupId);
-                if (group == null || !await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken))
-                {
-                    return (null, $"Group with ID {groupId} not found.");
-                }
-
-                groupItems.Add(new GroupItem
-                {
-                    GroupId = groupId,
-                    ValidFrom = fromDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
-                });
-            }
-        }
-
-        return (groupItems, null);
-    }
+            GroupId = group.Id,
+            ValidFrom = fromDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
+        }).ToList();
 
     private static Shift BuildContainerShift(
         BundleRequest request, List<GroupItem> groupItems, Guid? defaultMacroId, string userName)
@@ -570,7 +560,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         };
     }
 
-    private static SkillResult BuildSuccessResult(BundleRequest request, BundleOutcome outcome)
+    private static SkillResult BuildSuccessResult(BundleRequest request, BundleOutcome outcome, List<string> groupNames)
     {
         var (isoWeekday, transportModeStr, location) = (request.IsoWeekday, request.TransportModeText, request.Location);
 
@@ -589,6 +579,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             BundledShiftIds = autofill.SelectedShiftIds,
             Stops = outcome.Stops,
             TravelTimesEstimated = autofill.IsEstimated,
+            GroupFilter = groupNames,
             Route = ContainerTemplateRoutes.ForContainer(outcome.ContainerId),
             Verified = true
         };
@@ -601,12 +592,29 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             "in the database (verified). " +
             $"Route: {autofill.TotalDistanceKm} km, {autofill.EstimatedTravelTime:hh\\:mm} travel+work time, " +
             $"{autofill.RemainingTime:hh\\:mm} of the time budget remaining." +
-            (autofill.IsEstimated ? TravelTimesEstimatedNote : string.Empty) +
+            BuildGroupNote(groupNames) +
+            BuildEstimationNote(autofill, groupNames) +
             " Candidates were not limited by a hard distance radius — only by the time budget and route " +
             "optimization. The chat opens the container page, where the user can check the tour on the map and change " +
             "it. To fill another weekday, call this skill again with a different weekday.";
 
         return SkillResult.SuccessResult(resultData, message);
+    }
+
+    private static string BuildGroupNote(List<string> groupNames) =>
+        groupNames.Count == 0
+            ? NoGroupFilterNote
+            : string.Format(GroupFilterNote, string.Join(GroupNameSeparator, groupNames));
+
+    private static string BuildEstimationNote(ContainerAutofillResult autofill, List<string> groupNames)
+    {
+        if (!autofill.IsEstimated)
+        {
+            return string.Empty;
+        }
+
+        var note = string.Format(TravelTimesEstimatedNote, autofill.TotalAvailableShifts);
+        return groupNames.Count == 0 ? note + NarrowWithGroupNote : note;
     }
 
     /// <summary>

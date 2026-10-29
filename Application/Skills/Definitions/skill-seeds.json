@@ -39090,7 +39090,7 @@
     {
       "name": "bundle_nearby_timerange_shifts_into_container",
       "area": "shift",
-      "description": "Finds all TimeRange task shifts (IsTimeRange=true) that fit a day's time budget around a city/town/location, creates a new container shift for one weekday and fills its weekday template in route order: each task gets its visit time and the travel time before it, and the template stores the route info (like the autofill on the container page). Creation, autofill and template write run in one transaction with a self-verifying re-read; the result lists the stops and opens the container page.",
+      "description": "Finds the TimeRange task shifts (IsTimeRange=true) that fit a day's time budget around a city/town/location, optionally only those of one group (groupName), creates a new container shift for one weekday and fills its weekday template in route order with visit times, travel times and the route info (like the autofill on the container page). Creation, autofill and template write run in one transaction with a self-verifying re-read; the result lists the stops and opens the container page.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -39167,8 +39167,16 @@
           "enumValues": null
         },
         {
+          "name": "groupName",
+          "description": "Optional name of the group whose services are bundled, exactly as the user said it (e.g. 'Spitex Winterthur'). Pass it whenever the user names a group, team or organisation unit; an exact name wins, an ambiguous or unknown name is answered with the candidates. Leave empty to consider the services of all groups.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
           "name": "groupIds",
-          "description": "Optional comma-separated list of group IDs (GUIDs) to restrict candidate task shifts to. Use list_groups to resolve names to IDs. Leave empty to consider all matching TimeRange tasks regardless of group.",
+          "description": "Optional comma-separated list of group IDs (GUIDs) to restrict candidate task shifts to; only real UUIDs are accepted. When the user names a group, pass groupName instead. Leave empty (and groupName empty) to consider all matching TimeRange tasks regardless of group.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -39209,7 +39217,8 @@
           "alle mobilen einsätze rund um winterthur in einen neuen container packen",
           "für den donnerstag einen container aus nahen timerange-diensten bauen",
           "fasse die touren in der nähe von basel zu einem tagescontainer zusammen",
-          "container für einen wochentag mit routenoptimierten aufgaben befüllen"
+          "container für einen wochentag mit routenoptimierten aufgaben befüllen",
+          "bündle nur die einsätze der gruppe spitex winterthur in einen container"
         ],
         "en": [
           "bundle mobile services around a city",
@@ -39219,7 +39228,8 @@
           "pack all mobile jobs around winterthur into a new container",
           "build a container for thursday from nearby timerange shifts",
           "merge the tours near basel into a day container",
-          "fill a container for one weekday with route-optimized tasks"
+          "fill a container for one weekday with route-optimized tasks",
+          "bundle only the visits of the spitex winterthur group into a container"
         ],
         "fr": [
           "regrouper les services mobiles autour d'une ville",
@@ -39228,7 +39238,8 @@
           "regroupe toutes les interventions mobiles autour de winterthour dans un nouveau conteneur",
           "construis un conteneur pour jeudi avec des services timerange proches",
           "fusionne les tournées près de bâle en un conteneur journalier",
-          "remplis un conteneur pour un jour de semaine avec des tâches optimisées par itinéraire"
+          "remplis un conteneur pour un jour de semaine avec des tâches optimisées par itinéraire",
+          "regroupe seulement les interventions du groupe spitex winterthur dans un conteneur"
         ],
         "it": [
           "raggruppare i servizi mobili attorno a una città",
@@ -39237,7 +39248,8 @@
           "raggruppa tutti gli interventi mobili intorno a winterthur in un nuovo contenitore",
           "costruisci un contenitore per giovedì con turni timerange vicini",
           "unisci i giri vicino a basilea in un contenitore giornaliero",
-          "riempi un contenitore per un giorno feriale con attività ottimizzate per il percorso"
+          "riempi un contenitore per un giorno feriale con attività ottimizzate per il percorso",
+          "raggruppa solo gli interventi del gruppo spitex winterthur in un contenitore"
         ]
       },
       "labels": {
@@ -39246,7 +39258,7 @@
         "fr": "Regrouper des services à plage horaire proches dans un conteneur",
         "it": "Raggruppa turni a fascia oraria vicini in un contenitore"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "explain_klacksy_memory",

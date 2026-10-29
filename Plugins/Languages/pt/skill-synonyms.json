@@ -325,7 +325,8 @@
     "combinar serviços móveis próximos",
     "junta todos os serviços móveis à volta de winterthur num novo contêiner",
     "monta um contêiner para quinta-feira com turnos timerange próximos",
-    "reúne as rotas perto de basileia num contêiner de dia"
+    "reúne as rotas perto de basileia num contêiner de dia",
+    "agrupe apenas as visitas do grupo spitex winterthur num contentor"
   ],
   "cancel_company_rule": [
     "cancelar o rascunho da regra da empresa",

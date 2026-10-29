@@ -319,7 +319,8 @@
     "kombinera mobila tjänster i närheten",
     "packa alla mobila uppdrag runt göteborg i en ny container",
     "bygg en container för torsdag av närliggande timerange-pass",
-    "slå ihop rundorna nära malmö till en dagscontainer"
+    "slå ihop rundorna nära malmö till en dagscontainer",
+    "samla bara besöken från gruppen spitex winterthur i en container"
   ],
   "cancel_company_rule": [
     "avbryt utkastet till företagsregel",

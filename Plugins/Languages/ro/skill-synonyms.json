@@ -321,7 +321,8 @@
     "combină serviciile mobile din apropiere",
     "adună toate lucrările mobile din jurul clujului într-un container nou",
     "construiește un container pentru joi din ture timerange apropiate",
-    "unește turele din apropierea brașovului într-un container zilnic"
+    "unește turele din apropierea brașovului într-un container zilnic",
+    "grupează doar vizitele grupului spitex winterthur într-un container"
   ],
   "cancel_company_rule": [
     "anulează schița regulii de companie",
