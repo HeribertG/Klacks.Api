@@ -264,18 +264,6 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         return _settingsReader.GetOpenRouteServiceApiKeyAsync(_encryptionService);
     }
 
-    private string GetOpenRouteServiceProfile(ContainerTransportMode transportMode)
-    {
-        return transportMode switch
-        {
-            ContainerTransportMode.ByCar => "driving-car",
-            ContainerTransportMode.ByBicycle => "cycling-regular",
-            ContainerTransportMode.ByFoot => "foot-walking",
-            ContainerTransportMode.Mix => "driving-car",
-            _ => "driving-car"
-        };
-    }
-
     private double GetSpeedForTransportMode(ContainerTransportMode transportMode)
     {
         return transportMode switch
@@ -365,7 +353,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         var distanceMatrix = new double[size, size];
         var durationMatrix = new double[size, size];
 
-        var profile = GetOpenRouteServiceProfile(transportMode);
+        var profile = RoutingProfile.OpenRouteServiceProfile(transportMode);
         var url = $"{_geoServicesPolicy.OpenRouteService.BaseUrl}{GeoServicePaths.OpenRouteServiceMatrix}/{profile}";
 
         _logger.LogInformation("Requesting OpenRouteService matrix API with profile '{Profile}': {Url}", profile, url);

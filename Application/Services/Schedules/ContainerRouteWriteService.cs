@@ -21,7 +21,6 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.ContainerTemplates;
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Domain.Services.RouteOptimization;
@@ -161,8 +160,7 @@ public class ContainerRouteWriteService : IContainerRouteWriteService
                 "coordinates or without its task shift). Nothing was written, because saving would remove the others.");
         }
 
-        if (scheduled.Any(v => v.TravelBeforeMinutes >= DayTimeConstants.MinutesPerDay
-            || v.TravelAfterMinutes >= DayTimeConstants.MinutesPerDay))
+        if (ContainerVisitPlacement.HasTravelOfADayOrMore(scheduled))
         {
             return Failed("A computed travel time is 24 hours or longer and cannot be stored. Nothing was written.");
         }
@@ -184,13 +182,7 @@ public class ContainerRouteWriteService : IContainerRouteWriteService
     {
         foreach (var (visit, item) in plan.Placed)
         {
-            item.TimeRangeStartItem = ContainerVisitScheduler.ClockTime(visit.StartMinutes);
-            item.TimeRangeEndItem = ContainerVisitScheduler.ClockTime(visit.EndMinutes);
-            item.TravelTimeBefore = ContainerVisitScheduler.ClockTime(visit.TravelBeforeMinutes);
-            if (visit.TravelAfterMinutes.HasValue)
-            {
-                item.TravelTimeAfter = ContainerVisitScheduler.ClockTime(visit.TravelAfterMinutes.Value);
-            }
+            ContainerVisitPlacement.ApplyTimes(visit, item);
         }
 
         template.ContainerTemplateItems = ContainerTemplateItemOrder.Interleave(
@@ -212,41 +204,14 @@ public class ContainerRouteWriteService : IContainerRouteWriteService
             return "Verification failed: the container template could not be re-read after the write.";
         }
 
-        var expectedVisits = written.ContainerTemplateItems.Where(i => i.ShiftId.HasValue).ToList();
-        var storedVisits = stored.ContainerTemplateItems.Where(i => i.ShiftId.HasValue).ToList();
-        var allPresent = stored.RouteInfo is not null
-            && storedVisits.Count == expectedVisits.Count
-            && expectedVisits.All(e => storedVisits.Any(s =>
-                s.ShiftId == e.ShiftId
-                && s.TimeRangeStartItem == e.TimeRangeStartItem
-                && s.TimeRangeEndItem == e.TimeRangeEndItem
-                && s.TravelTimeBefore == e.TravelTimeBefore
-                && s.TravelTimeAfter == e.TravelTimeAfter));
-
-        return allPresent
+        return ContainerVisitPlacement.StoredVisitTimesMatch(written, stored)
             ? null
             : "Verification failed: the planned visit and travel times or the route info could not be confirmed in the container template after the write.";
     }
 
     private static ContainerRouteWriteResult BuildResult(RoutePlan plan, int breakCount)
     {
-        var stepByShiftId = plan.Steps
-            .Where(s => s.ShiftId != Guid.Empty)
-            .GroupBy(s => s.ShiftId)
-            .ToDictionary(g => g.Key, g => g.First());
-
-        var stops = plan.Placed.Select((p, index) =>
-        {
-            stepByShiftId.TryGetValue(p.Visit.Item.ShiftId, out var step);
-            return new ContainerRouteStop(
-                index + 1,
-                p.Visit.Item.ShiftId,
-                step?.Name ?? string.Empty,
-                step?.Address ?? string.Empty,
-                ClockText(p.Visit.StartMinutes),
-                ClockText(p.Visit.EndMinutes),
-                ClockText(p.Visit.TravelBeforeMinutes));
-        }).ToList();
+        var stops = ContainerVisitPlacement.BuildStops(plan.Placed.Select(p => p.Visit), plan.Steps);
 
         var optimization = plan.Optimization!;
         return new ContainerRouteWriteResult(
@@ -259,9 +224,6 @@ public class ContainerRouteWriteService : IContainerRouteWriteService
             stops,
             breakCount);
     }
-
-    private static string ClockText(int minutes) =>
-        ContainerVisitScheduler.ClockTime(minutes).ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture);
 
     private static VisitItem ToVisitItem(ContainerTemplateItemResource item) => new(
         item.ShiftId!.Value,

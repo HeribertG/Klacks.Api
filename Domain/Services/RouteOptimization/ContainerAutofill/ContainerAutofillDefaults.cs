@@ -15,4 +15,6 @@ public static class ContainerAutofillDefaults
     public const string EndBaseLabel = "EndBase";
 
     public const int NoCandidate = -1;
+
+    public const int TotalDistanceDecimals = 2;
 }

@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Routing;
 using Klacks.Api.Application.Queries.Routing;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -12,8 +13,11 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Routing;
 /// <summary>
 /// Server-side proxy for map route geometries, so the OpenRouteService API key never reaches a browser and the
 /// browser never calls OSRM directly. OsrmRoute answers 200 with a status (Ok, NoRoute, Disabled, Unavailable).
+/// Both take the optional query parameter transportMode (ByCar, ByBicycle, ByFoot, Mix or 0-3; ByCar when omitted) and
+/// route with its profile; Mix routes as car, because one geometry cannot switch profiles per leg.
 /// </summary>
 /// <param name="coordinates">Waypoints in visiting order; at least a start and a destination</param>
+/// <param name="transportMode">Container transport mode whose routing profile is used</param>
 [ApiController]
 public class RoutingController : BaseController
 {
@@ -27,9 +31,10 @@ public class RoutingController : BaseController
     [HttpPost("Directions")]
     public async Task<ActionResult<IEnumerable<RoutePointResource>>> Directions(
         [FromBody] List<RoutePointResource> coordinates,
-        CancellationToken cancellationToken)
+        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
+        CancellationToken cancellationToken = default)
     {
-        var route = await _mediator.Send(new GetRouteQuery(coordinates), cancellationToken);
+        var route = await _mediator.Send(new GetRouteQuery(coordinates, transportMode), cancellationToken);
 
         if (route == null)
         {
@@ -43,9 +48,10 @@ public class RoutingController : BaseController
     [EnableRateLimiting(RateLimitingPolicies.GeoProxy)]
     public async Task<ActionResult<RouteGeometryResource>> OsrmRoute(
         [FromBody] List<RoutePointResource> coordinates,
-        CancellationToken cancellationToken)
+        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
+        CancellationToken cancellationToken = default)
     {
-        var route = await _mediator.Send(new GetOsrmRouteQuery(coordinates), cancellationToken);
+        var route = await _mediator.Send(new GetOsrmRouteQuery(coordinates, transportMode), cancellationToken);
         return Ok(route);
     }
 }

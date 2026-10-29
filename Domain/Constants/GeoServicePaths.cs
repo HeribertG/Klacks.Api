@@ -16,4 +16,6 @@ public static class GeoServicePaths
     public const string OpenRouteServiceMatrix = "/matrix";
     public const string OpenRouteServiceDirectionsDrivingCar = "/directions/driving-car";
     public const string OpenRouteServiceDirectionsDrivingCarGeoJson = "/directions/driving-car/geojson";
+    public const string OpenRouteServiceDirectionsCyclingRegularGeoJson = "/directions/cycling-regular/geojson";
+    public const string OpenRouteServiceDirectionsFootWalkingGeoJson = "/directions/foot-walking/geojson";
 }

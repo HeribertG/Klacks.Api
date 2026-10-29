@@ -39090,7 +39090,7 @@
     {
       "name": "bundle_nearby_timerange_shifts_into_container",
       "area": "shift",
-      "description": "Finds all TimeRange task shifts (IsTimeRange=true) that fit a given day's time budget around a city/town/location, creates a brand-new container shift for exactly one weekday, and fills its weekday template with the found tasks in route-optimized order — container creation, autofill and template persistence happen atomically in one transaction with a self-verifying re-read.",
+      "description": "Finds all TimeRange task shifts (IsTimeRange=true) that fit a day's time budget around a city/town/location, creates a new container shift for one weekday and fills its weekday template in route order: each task gets its visit time and the travel time before it, and the template stores the route info (like the autofill on the container page). Creation, autofill and template write run in one transaction with a self-verifying re-read; the result lists the stops and opens the container page.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -39246,7 +39246,7 @@
         "fr": "Regrouper des services à plage horaire proches dans un conteneur",
         "it": "Raggruppa turni a fascia oraria vicini in un contenitore"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_klacksy_memory",

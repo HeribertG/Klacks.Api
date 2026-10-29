@@ -10,12 +10,15 @@ using Klacks.Api.Domain.Interfaces.GeoServices;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces.Routing;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Services.RouteOptimization;
 
 namespace Klacks.Api.Infrastructure.Services.Routing;
 
 /// <summary>
-/// Server-side proxy for OpenRouteService directions. Keeps the API key on the server: the key is
-/// masked in every settings response, so a browser can never hold a usable one.
+/// Server-side proxy for OpenRouteService directions with the profile of the requested transport mode
+/// (driving-car, cycling-regular, foot-walking; mix routes as driving-car). Keeps the API key on the server: the key
+/// is masked in every settings response, so a browser can never hold a usable one.
 /// Answers null without any outbound call when the geo service policy switched OpenRouteService off.
 /// </summary>
 /// <param name="httpClient">Client used for the outbound call to the configured OpenRouteService instance</param>
@@ -47,7 +50,8 @@ public class OpenRouteServiceRoutingService : IRoutingService
         _logger = logger;
     }
 
-    public async Task<IReadOnlyList<RoutePoint>?> GetRouteAsync(IReadOnlyList<RoutePoint> waypoints, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<RoutePoint>?> GetRouteAsync(
+        IReadOnlyList<RoutePoint> waypoints, ContainerTransportMode transportMode, CancellationToken cancellationToken)
     {
         if (!_geoServicesPolicy.OpenRouteService.IsEnabled)
         {
@@ -71,7 +75,7 @@ public class OpenRouteServiceRoutingService : IRoutingService
 
             using var request = new HttpRequestMessage(
                 HttpMethod.Post,
-                $"{_geoServicesPolicy.OpenRouteService.BaseUrl}{GeoServicePaths.OpenRouteServiceDirectionsDrivingCarGeoJson}")
+                $"{_geoServicesPolicy.OpenRouteService.BaseUrl}{RoutingProfile.OpenRouteServiceDirectionsGeoJsonPath(transportMode)}")
             {
                 Content = new StringContent(payload, Encoding.UTF8, MediaTypeNames.Application.Json)
             };

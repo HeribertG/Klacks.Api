@@ -9,9 +9,9 @@ using Klacks.Api.Infrastructure.Mediator;
 namespace Klacks.Api.Application.Handlers.Routing;
 
 /// <summary>
-/// Resolves a driving route through the server-side OpenRouteService proxy.
+/// Resolves a road route through the server-side OpenRouteService proxy with the profile of the requested transport mode.
 /// </summary>
-/// <param name="request">Waypoints in visiting order; at least a start and a destination</param>
+/// <param name="request">Waypoints in visiting order (at least a start and a destination) and the transport mode</param>
 public class GetRouteQueryHandler : IRequestHandler<GetRouteQuery, List<RoutePointResource>?>
 {
     private readonly IRoutingService _routingService;
@@ -27,7 +27,7 @@ public class GetRouteQueryHandler : IRequestHandler<GetRouteQuery, List<RoutePoi
             .Select(c => new RoutePoint(c.Lat, c.Lon))
             .ToList();
 
-        var route = await _routingService.GetRouteAsync(waypoints, cancellationToken);
+        var route = await _routingService.GetRouteAsync(waypoints, request.TransportMode, cancellationToken);
 
         return route?
             .Select(p => new RoutePointResource { Lat = p.Lat, Lon = p.Lon })
