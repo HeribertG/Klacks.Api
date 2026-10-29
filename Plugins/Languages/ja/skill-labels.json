@@ -514,5 +514,7 @@
   "set_order_review_decision": "注文確認で回答を記録する",
   "preview_order_review": "注文確認のプレビュー",
   "cancel_order_review": "注文確認を中止する",
-  "execute_order_review": "注文確認を実行する"
+  "execute_order_review": "注文確認を実行する",
+  "optimize_container_route": "コンテナのルートを最適化して訪問時刻を書き込む",
+  "add_container_template_break": "コンテナのテンプレートに休憩を追加する"
 }

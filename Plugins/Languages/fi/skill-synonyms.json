@@ -3997,5 +3997,21 @@
     "kirjoita päätetyt arvot avoimiin tilauksiin",
     "aja vahvistettu tilausten esikatselu nyt",
     "sinetöi tilaukset vahvistuksen jälkeen ja pilko ne palveluiksi"
+  ],
+  "optimize_container_route": [
+    "optimoi kontin reitti",
+    "optimoi kontin kierros",
+    "suunnittele kontin käyntiajat",
+    "laske kontin siirtymäajat",
+    "suunnittele maanantain kierros uudelleen ja kirjaa käyntiajat",
+    "laske kontin reitti uudelleen lounastauon jälkeen"
+  ],
+  "add_container_template_break": [
+    "lisää tauko konttiin",
+    "lisää lounastauko kontin pohjaan",
+    "lisää tauko kontin kierrokseen",
+    "suunnittele tauko kontin kierrokseen",
+    "lisää konttiin torstaina lounastauko klo 12:00",
+    "lisää maanantain kierrokseen puolen tunnin tauko ja optimoi reitti uudelleen"
   ]
 }

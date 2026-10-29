@@ -17,7 +17,9 @@ using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
@@ -32,11 +34,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("remove_container_template_task")]
 public class RemoveContainerTemplateTaskSkill : BaseSkillImplementation
 {
-    private const int MinIsoWeekday = 1;
-    private const int MaxIsoWeekday = 7;
-    private const int IsoSunday = 7;
-    private const int StorageSunday = 0;
-
     private readonly IShiftRepository _shiftRepository;
     private readonly IMediator _mediator;
     private readonly IUserService _userService;
@@ -63,12 +60,12 @@ public class RemoveContainerTemplateTaskSkill : BaseSkillImplementation
         var isoWeekday = GetRequiredInt(parameters, "weekday");
         var taskShiftId = GetRequiredGuid(parameters, "taskShiftId");
 
-        if (isoWeekday < MinIsoWeekday || isoWeekday > MaxIsoWeekday)
+        if (!IsoWeekday.IsValid(isoWeekday))
         {
-            return SkillResult.Error("weekday must be between 1 (Monday) and 7 (Sunday).");
+            return SkillResult.Error(IsoWeekday.RangeError);
         }
 
-        var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
+        var storageWeekday = IsoWeekday.ToStorage(isoWeekday);
 
         var container = await _shiftRepository.Get(containerId);
         if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
@@ -111,71 +108,58 @@ public class RemoveContainerTemplateTaskSkill : BaseSkillImplementation
         }
 
         var instanceId = _userService.GetInstanceId() ?? string.Empty;
-        var lockResult = await _mediator.Send(
-            new AcquireContainerLockCommand(ContainerLockResourceTypes.ContainerTemplate, containerId, instanceId), cancellationToken);
+        await using var lockScope = await ContainerTemplateLockScope.AcquireAsync(
+            _mediator, containerId, instanceId, cancellationToken);
 
-        if (!lockResult.Acquired)
+        if (!lockScope.Acquired)
         {
             return SkillResult.Error("The container is currently being edited by another user.");
         }
 
+        var templates = await _mediator.Send(new GetContainerTemplatesQuery(containerId), cancellationToken);
+        var targetTemplate = SelectTemplateForWeekday(templates, storageWeekday);
+        var existingItem = targetTemplate?.ContainerTemplateItems.FirstOrDefault(i => i.ShiftId == taskShiftId);
+        if (targetTemplate is null || existingItem is null)
+        {
+            return SkillResult.Error(
+                $"Task shift {taskShiftId} is no longer present in the container template for this weekday.");
+        }
+
+        var items = new List<ContainerTemplateItemResource>(targetTemplate.ContainerTemplateItems);
+        items.Remove(existingItem);
+        targetTemplate.ContainerTemplateItems = items;
+
+        List<ContainerTemplateResource> putResult;
         try
         {
-            var templates = await _mediator.Send(new GetContainerTemplatesQuery(containerId), cancellationToken);
-            var targetTemplate = SelectTemplateForWeekday(templates, storageWeekday);
-            var existingItem = targetTemplate?.ContainerTemplateItems.FirstOrDefault(i => i.ShiftId == taskShiftId);
-            if (targetTemplate is null || existingItem is null)
-            {
-                return SkillResult.Error(
-                    $"Task shift {taskShiftId} is no longer present in the container template for this weekday.");
-            }
-
-            var items = new List<ContainerTemplateItemResource>(targetTemplate.ContainerTemplateItems);
-            items.Remove(existingItem);
-            targetTemplate.ContainerTemplateItems = items;
-
-            List<ContainerTemplateResource> putResult;
-            try
-            {
-                putResult = await _mediator.Send(new PutContainerTemplatesCommand(containerId, templates), cancellationToken);
-            }
-            catch (ContainerLockedException ex)
-            {
-                return SkillResult.Error(ex.Message);
-            }
-
-            var updatedTemplate = putResult.FirstOrDefault(t =>
-                t.Weekday == targetTemplate.Weekday
-                && t.IsHoliday == targetTemplate.IsHoliday
-                && t.IsWeekdayAndHoliday == targetTemplate.IsWeekdayAndHoliday);
-
-            var stillPresent = updatedTemplate?.ContainerTemplateItems.Any(i => i.ShiftId == taskShiftId) ?? false;
-            if (stillPresent)
-            {
-                return SkillResult.Error(
-                    $"Verification failed: task shift {taskShiftId} still appears in the container template after the removal.");
-            }
-
-            return SkillResult.SuccessResult(
-                new
-                {
-                    ContainerId = containerId,
-                    Weekday = isoWeekday,
-                    TaskShiftId = taskShiftId,
-                    Verified = true
-                },
-                $"Task removed from the container template for weekday {isoWeekday} and confirmed in the database (verified).");
+            putResult = await _mediator.Send(new PutContainerTemplatesCommand(containerId, templates), cancellationToken);
         }
-        finally
+        catch (ContainerLockedException ex)
         {
-            try
-            {
-                await _mediator.Send(new ReleaseContainerLockCommand(lockResult.Id), cancellationToken);
-            }
-            catch (Exception)
-            {
-            }
+            return SkillResult.Error(ex.Message);
         }
+
+        var updatedTemplate = putResult.FirstOrDefault(t =>
+            t.Weekday == targetTemplate.Weekday
+            && t.IsHoliday == targetTemplate.IsHoliday
+            && t.IsWeekdayAndHoliday == targetTemplate.IsWeekdayAndHoliday);
+
+        var stillPresent = updatedTemplate?.ContainerTemplateItems.Any(i => i.ShiftId == taskShiftId) ?? false;
+        if (stillPresent)
+        {
+            return SkillResult.Error(
+                $"Verification failed: task shift {taskShiftId} still appears in the container template after the removal.");
+        }
+
+        return SkillResult.SuccessResult(
+            new
+            {
+                ContainerId = containerId,
+                Weekday = isoWeekday,
+                TaskShiftId = taskShiftId,
+                Verified = true
+            },
+            $"Task removed from the container template for weekday {isoWeekday} and confirmed in the database (verified).");
     }
 
     private static ContainerTemplateResource? SelectTemplateForWeekday(List<ContainerTemplateResource> templates, int storageWeekday)

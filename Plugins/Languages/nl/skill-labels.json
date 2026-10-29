@@ -514,5 +514,7 @@
   "set_order_review_decision": "Een antwoord vastleggen in de orderdoorloop",
   "preview_order_review": "Voorbeeld van de orderdoorloop",
   "cancel_order_review": "De orderdoorloop annuleren",
-  "execute_order_review": "De orderdoorloop uitvoeren"
+  "execute_order_review": "De orderdoorloop uitvoeren",
+  "optimize_container_route": "Route van een container optimaliseren en bezoektijden invullen",
+  "add_container_template_break": "Pauze toevoegen aan het sjabloon van een container"
 }

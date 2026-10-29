@@ -47,7 +47,7 @@ public class RouteDirectionsBuilder : IRouteDirectionsBuilder
                 ? toLocation.TransportMode
                 : (TransportMode)(int)containerTransportMode;
 
-            var profile = GetOsrmProfileFromTransportMode(transportMode);
+            var profile = RoutingProfile.FromTransportMode(transportMode);
             var transportModeText = GetTransportModeText(transportMode);
 
             if (!_geoServicesPolicy.Routing.IsEnabled)
@@ -192,17 +192,6 @@ public class RouteDirectionsBuilder : IRouteDirectionsBuilder
             TransportMode.ByBicycle => "mit dem Fahrrad",
             TransportMode.ByFoot => "zu Fuss",
             _ => "mit dem Auto"
-        };
-    }
-
-    private static string GetOsrmProfileFromTransportMode(TransportMode transportMode)
-    {
-        return transportMode switch
-        {
-            TransportMode.ByCar => "driving",
-            TransportMode.ByBicycle => "cycling",
-            TransportMode.ByFoot => "foot",
-            _ => "driving"
         };
     }
 }

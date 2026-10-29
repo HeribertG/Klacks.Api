@@ -3981,5 +3981,21 @@
     "laksanakan semakan pesanan yang disahkan",
     "tulis nilai yang diputuskan ke pesanan terbuka",
     "saya nak pesanan dipotong kepada perkhidmatan sekarang"
+  ],
+  "optimize_container_route": [
+    "optimumkan laluan kontena",
+    "optimumkan pusingan kontena",
+    "rancang masa lawatan dalam kontena",
+    "kira masa perjalanan dalam kontena",
+    "rancang semula pusingan hari isnin dan isikan masa lawatan",
+    "kira semula laluan kontena selepas rehat makan tengah hari"
+  ],
+  "add_container_template_break": [
+    "tambah rehat ke kontena",
+    "tambah rehat makan tengah hari ke templat kontena",
+    "tambah rehat ke pusingan kontena",
+    "jadualkan rehat dalam pusingan kontena",
+    "tambah rehat makan tengah hari pada 12:00 ke kontena pada hari khamis",
+    "masukkan rehat setengah jam ke pusingan hari isnin dan optimumkan semula laluan"
   ]
 }

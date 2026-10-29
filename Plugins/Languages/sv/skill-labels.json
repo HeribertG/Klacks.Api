@@ -514,5 +514,7 @@
   "set_order_review_decision": "Registrera ett svar i beställningsgenomgången",
   "preview_order_review": "Förhandsgranska beställningsgenomgången",
   "cancel_order_review": "Avbryt beställningsgenomgången",
-  "execute_order_review": "Utför beställningsgenomgången"
+  "execute_order_review": "Utför beställningsgenomgången",
+  "optimize_container_route": "Optimera en containers rutt och för in besökstiderna",
+  "add_container_template_break": "Lägg till en paus i en containers mall"
 }

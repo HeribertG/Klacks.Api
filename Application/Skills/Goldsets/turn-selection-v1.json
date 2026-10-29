@@ -3779,6 +3779,58 @@
       ]
     },
     {
+      "id": "w05-coverage-optimize-container-route",
+      "message": "Optimiere die Route des Containers 'Mobile Dienste Bern' für Donnerstag und trag die Besuchszeiten ein.",
+      "locale": "de",
+      "source": "w0.5-seed-coverage",
+      "expectedTool": "optimize_container_route",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "w05-coverage-optimize-container-route-en",
+      "message": "Re-optimize the route of container 'Mobile Services Bern' for Thursday after the lunch break.",
+      "locale": "en",
+      "source": "w0.5-seed-coverage",
+      "expectedTool": "optimize_container_route",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "w05-coverage-add-container-template-break",
+      "message": "Füg dem Container 'Mobile Dienste Bern' am Donnerstag eine Mittagspause um 12:00 für 30 Minuten ein.",
+      "locale": "de",
+      "source": "w0.5-seed-coverage",
+      "expectedTool": "add_container_template_break",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "w05-coverage-add-container-template-break-en",
+      "message": "Put a 30 minute lunch break at 12:00 into the template of container 'Mobile Services Bern' for Thursday.",
+      "locale": "en",
+      "source": "w0.5-seed-coverage",
+      "expectedTool": "add_container_template_break",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
       "id": "w05-coverage-create-container-template",
       "message": "Leg für den Container 'Route Süd' die Wochentagvorlage von 07:00 bis 19:00 an.",
       "locale": "de",

@@ -44,6 +44,10 @@
       "version": 8,
       "hash": "A653B647F1D6B7198F12FE53AF8023D85D0FE7F805172A5E1DA2444237BCC586"
     },
+    "add_container_template_break": {
+      "version": 1,
+      "hash": "E3832664BA155411942FDDA22FAFB97ABAE15126F69D39DD62D4A087A11E3E8F"
+    },
     "add_container_template_task": {
       "version": 5,
       "hash": "C281E860AA6FECEC333A812A71BFFAC9FEEA408CE71A4A0D3876154C06184C45"
@@ -153,8 +157,8 @@
       "hash": "7C25CD5D052C36071AC0139736FE065054599D9660A69CC273C91F7533DA68A7"
     },
     "bundle_nearby_timerange_shifts_into_container": {
-      "version": 6,
-      "hash": "2183807940723D8FE88B277D7413A1CE00B1CCCEC29B8EBA4176213268B2CC07"
+      "version": 7,
+      "hash": "402BA5F6AC95C49A5FE121FAE223F8882B25B64F4DB8186B2663446BB3D8A2F5"
     },
     "cancel_company_rule": {
       "version": 5,
@@ -1479,6 +1483,10 @@
     "open_schedule": {
       "version": 8,
       "hash": "92E324F3212C5EC8F82F6EDA764DFB287362B346210A8ECD04849ECDDD334CC2"
+    },
+    "optimize_container_route": {
+      "version": 1,
+      "hash": "DE30CC7A19FFBDC1BE632E82B8FD1E4C3FF73507D87C6D85CA99A2E492B2F2F1"
     },
     "optimize_llm_models_for_klacksy": {
       "version": 6,

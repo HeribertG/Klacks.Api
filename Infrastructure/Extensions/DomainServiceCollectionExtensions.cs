@@ -537,6 +537,10 @@ internal static class DomainServiceCollectionExtensions
             Klacks.Api.Application.Services.Orders.Review.OrderReviewExecutionPlanner>();
         services.AddScoped<Klacks.Api.Application.Interfaces.IOrderReviewExecutor,
             Klacks.Api.Application.Services.Orders.Review.OrderReviewExecutor>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IContainerBaseAddressResolver,
+            Klacks.Api.Application.Services.Schedules.ContainerBaseAddressResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IContainerRouteWriteService,
+            Klacks.Api.Application.Services.Schedules.ContainerRouteWriteService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupGeocoder,
             Klacks.Api.Application.Services.Grouping.GroupGeocoder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupPlaceClassifier,

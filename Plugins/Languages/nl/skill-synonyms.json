@@ -4047,5 +4047,21 @@
     "voer de bevestigde orderbeoordeling uit",
     "schrijf de beslissingen weg naar de open bestellingen",
     "ik wil de orders nu in diensten laten knippen"
+  ],
+  "optimize_container_route": [
+    "route van de container optimaliseren",
+    "ronde van de container optimaliseren",
+    "bezoektijden in de container plannen",
+    "reistijden in de container berekenen",
+    "plan de ronde van maandag opnieuw en vul de bezoektijden in",
+    "bereken de route van de container opnieuw na de lunchpauze"
+  ],
+  "add_container_template_break": [
+    "pauze aan de container toevoegen",
+    "lunchpauze aan het containersjabloon toevoegen",
+    "pauze aan de ronde van de container toevoegen",
+    "pauze in de ronde van de container plannen",
+    "voeg op donderdag een lunchpauze om 12:00 toe aan de container",
+    "zet een halfuur pauze in de ronde van maandag en optimaliseer de route opnieuw"
   ]
 }

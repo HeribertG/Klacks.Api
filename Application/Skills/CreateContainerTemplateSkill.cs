@@ -24,6 +24,7 @@ using System.Globalization;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -43,10 +44,6 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
     private const string TemplatesRouteSegment = "templates";
     private const string LockAcquireRouteSegment = "Acquire";
     private const string TransportModeCar = "car";
-    private const int MinIsoWeekday = 1;
-    private const int MaxIsoWeekday = 7;
-    private const int IsoSunday = 7;
-    private const int StorageSunday = 0;
 
     private readonly IShiftRepository _shiftRepository;
     private readonly IContainerTemplateRepository _containerTemplateRepository;
@@ -135,9 +132,9 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
         var endBase = GetParameter<string>(parameters, "endBase");
         var transportModeStr = GetParameter<string>(parameters, "transportMode") ?? TransportModeCar;
 
-        if (isoWeekday < MinIsoWeekday || isoWeekday > MaxIsoWeekday)
+        if (!IsoWeekday.IsValid(isoWeekday))
         {
-            return (null, "weekday must be between 1 (Monday) and 7 (Sunday).");
+            return (null, IsoWeekday.RangeError);
         }
 
         if (!SkillCalendarStringParser.TryParseTimeOnly(fromTimeStr, language, out var fromTime))
@@ -161,7 +158,7 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
             return (null, transportModeError!);
         }
 
-        var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
+        var storageWeekday = IsoWeekday.ToStorage(isoWeekday);
 
         return (new TemplateRequest(
             containerId, isoWeekday, storageWeekday, fromTime, untilTime, isHoliday, isWeekdayAndHoliday,

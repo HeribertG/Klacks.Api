@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Server-side OSRM proxy for map route geometries. The browser asks the backend instead of a public OSRM server,
+/// Server-side OSRM proxy for map route geometries, routed with the OSRM profile of the requested transport mode. The browser asks the backend instead of a public OSRM server,
 /// so no client coordinate leaves the installation unless the operator allows routing. Answers Disabled without
 /// any outbound call when the geo service policy switched routing off, NoRoute when OSRM finds no connection and
 /// Unavailable on every other failure.
@@ -17,6 +17,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.GeoServices;
 using Klacks.Api.Domain.Interfaces.Routing;
+using Klacks.Api.Domain.Services.RouteOptimization;
 
 namespace Klacks.Api.Infrastructure.Services.Routing;
 
@@ -55,7 +56,8 @@ public class OsrmRouteGeometryService : IOsrmRouteGeometryService
         _logger = logger;
     }
 
-    public async Task<RouteGeometryResult> GetRouteGeometryAsync(IReadOnlyList<RoutePoint> waypoints, CancellationToken cancellationToken)
+    public async Task<RouteGeometryResult> GetRouteGeometryAsync(
+        IReadOnlyList<RoutePoint> waypoints, ContainerTransportMode transportMode, CancellationToken cancellationToken)
     {
         if (!_geoServicesPolicy.Routing.IsEnabled)
         {
@@ -64,7 +66,7 @@ public class OsrmRouteGeometryService : IOsrmRouteGeometryService
 
         try
         {
-            using var response = await _httpClient.GetAsync(BuildUrl(waypoints), cancellationToken);
+            using var response = await _httpClient.GetAsync(BuildUrl(waypoints, transportMode), cancellationToken);
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
             var code = TryReadCode(body);
 
@@ -102,7 +104,7 @@ public class OsrmRouteGeometryService : IOsrmRouteGeometryService
         }
     }
 
-    private string BuildUrl(IReadOnlyList<RoutePoint> waypoints)
+    private string BuildUrl(IReadOnlyList<RoutePoint> waypoints, ContainerTransportMode transportMode)
     {
         var coordinates = string.Join(
             WaypointSeparator,
@@ -111,7 +113,8 @@ public class OsrmRouteGeometryService : IOsrmRouteGeometryService
                 + CoordinateSeparator
                 + w.Lat.ToString(CoordinateFormat, CultureInfo.InvariantCulture)));
 
-        return $"{_geoServicesPolicy.Routing.BaseUrl}{GeoServicePaths.OsrmRouteDriving}/{coordinates}{GeometryQuery}";
+        var profile = RoutingProfile.FromContainerTransportMode(transportMode);
+        return $"{_geoServicesPolicy.Routing.BaseUrl}{GeoServicePaths.OsrmRoute}/{profile}/{coordinates}{GeometryQuery}";
     }
 
     private static string? TryReadCode(string body)

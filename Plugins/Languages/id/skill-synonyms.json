@@ -3965,5 +3965,21 @@
     "jalankan tinjauan pesanan yang sudah dikonfirmasi",
     "tulis nilai yang diputuskan ke pesanan terbuka",
     "potong pesanan menjadi layanan sekarang"
+  ],
+  "optimize_container_route": [
+    "optimalkan rute kontainer",
+    "optimalkan tur kontainer",
+    "rencanakan waktu kunjungan di kontainer",
+    "hitung waktu perjalanan di kontainer",
+    "rencanakan ulang tur hari senin dan isi waktu kunjungan",
+    "hitung ulang rute kontainer setelah istirahat makan siang"
+  ],
+  "add_container_template_break": [
+    "tambahkan istirahat ke kontainer",
+    "tambahkan istirahat makan siang ke templat kontainer",
+    "tambahkan istirahat ke tur kontainer",
+    "jadwalkan istirahat di tur kontainer",
+    "tambahkan istirahat makan siang pukul 12:00 ke kontainer pada hari kamis",
+    "masukkan istirahat setengah jam ke tur hari senin lalu optimalkan ulang rutenya"
   ]
 }

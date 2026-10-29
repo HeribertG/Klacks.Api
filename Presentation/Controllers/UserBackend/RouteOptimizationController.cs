@@ -9,6 +9,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.RouteOptimization;
+using Klacks.Api.Domain.Services.RouteOptimization.VisitScheduling;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -110,37 +111,7 @@ public class RouteOptimizationController : BaseController
             var result = await _routeOptimizationService.OptimizeRouteByShiftIdsAsync(
                 request.ShiftIds, startBase, endBase, transportMode, domainTimeBlocks, parsedContainerFromTime);
 
-            var routeSteps = new List<RouteStepDto>();
-
-            for (int i = 0; i < result.OptimizedRoute.Count; i++)
-            {
-                var location = result.OptimizedRoute[i];
-                double distanceToNext = 0;
-                TimeSpan travelTimeToNext = TimeSpan.Zero;
-
-                if (i < result.OptimizedRoute.Count - 1 && i < result.FullRouteIndices.Count && i + 1 < result.FullRouteIndices.Count)
-                {
-                    var currentIndex = result.FullRouteIndices[i];
-                    var nextIndex = result.FullRouteIndices[i + 1];
-                    var nextLocation = result.OptimizedRoute[i + 1];
-
-                    distanceToNext = result.DistanceMatrix[currentIndex, nextIndex];
-                    travelTimeToNext = GetSegmentTravelTime(result, currentIndex, nextIndex, nextLocation.TransportMode);
-                }
-
-                routeSteps.Add(new RouteStepDto
-                {
-                    Order = i + 1,
-                    Name = location.Name,
-                    Address = location.Address,
-                    Latitude = location.Latitude,
-                    Longitude = location.Longitude,
-                    ShiftId = location.ShiftId,
-                    TransportMode = location.TransportMode,
-                    DistanceToNextKm = distanceToNext,
-                    TravelTimeToNext = travelTimeToNext
-                });
-            }
+            var routeSteps = ToRouteStepDtos(RouteStepBuilder.FromOptimization(result));
 
             var response = new RouteOptimizationResponse
             {
@@ -209,34 +180,7 @@ public class RouteOptimizationController : BaseController
 
             var result = await _containerAutofillService.AutofillAsync(autofillRequest);
 
-            var routeSteps = new List<RouteStepDto>();
-            for (int i = 0; i < result.OptimizedRoute.Count; i++)
-            {
-                var location = result.OptimizedRoute[i];
-                double distanceToNext = 0;
-                TimeSpan travelTimeToNext = TimeSpan.Zero;
-
-                if (i < result.OptimizedRoute.Count - 1 && i < result.FullRouteIndices.Count && i + 1 < result.FullRouteIndices.Count)
-                {
-                    var currentIndex = result.FullRouteIndices[i];
-                    var nextIndex = result.FullRouteIndices[i + 1];
-                    distanceToNext = result.DistanceMatrix[currentIndex, nextIndex];
-                    travelTimeToNext = TimeSpan.FromSeconds(result.DurationMatrix[currentIndex, nextIndex]);
-                }
-
-                routeSteps.Add(new RouteStepDto
-                {
-                    Order = i + 1,
-                    Name = location.Name,
-                    Address = location.Address,
-                    Latitude = location.Latitude,
-                    Longitude = location.Longitude,
-                    ShiftId = location.ShiftId,
-                    TransportMode = location.TransportMode,
-                    DistanceToNextKm = distanceToNext,
-                    TravelTimeToNext = travelTimeToNext
-                });
-            }
+            var routeSteps = ToRouteStepDtos(RouteStepBuilder.FromAutofill(result));
 
             var response = new ContainerAutofillResponse
             {
@@ -334,27 +278,20 @@ public class RouteOptimizationController : BaseController
         return result;
     }
 
-    private TimeSpan GetSegmentTravelTime(RouteOptimizationResult result, int fromIndex, int toIndex, TransportMode segmentTransportMode)
+    private static List<RouteStepDto> ToRouteStepDtos(List<RouteStep> steps)
     {
-        if (result.TransportMode != ContainerTransportMode.Mix || result.DurationMatricesByProfile == null)
+        return steps.Select(step => new RouteStepDto
         {
-            return TimeSpan.FromSeconds(result.DurationMatrix[fromIndex, toIndex]);
-        }
-
-        var profile = segmentTransportMode switch
-        {
-            TransportMode.ByCar => "driving",
-            TransportMode.ByBicycle => "cycling",
-            TransportMode.ByFoot => "foot",
-            _ => "driving"
-        };
-
-        if (result.DurationMatricesByProfile.TryGetValue(profile, out var durationMatrix))
-        {
-            return TimeSpan.FromSeconds(durationMatrix[fromIndex, toIndex]);
-        }
-
-        return TimeSpan.FromSeconds(result.DurationMatrix[fromIndex, toIndex]);
+            Order = step.Order,
+            Name = step.Name,
+            Address = step.Address,
+            Latitude = step.Latitude,
+            Longitude = step.Longitude,
+            ShiftId = step.ShiftId,
+            TransportMode = step.TransportMode,
+            DistanceToNextKm = step.DistanceToNextKm,
+            TravelTimeToNext = step.TravelTimeToNext
+        }).ToList();
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]

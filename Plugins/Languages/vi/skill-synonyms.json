@@ -3984,5 +3984,21 @@
     "ghi các giá trị đã quyết vào đơn hàng đang mở",
     "chạy bản xem trước đã xác nhận của các đơn",
     "niêm phong đơn sau xác nhận và cắt thành các ca"
+  ],
+  "optimize_container_route": [
+    "tối ưu tuyến đường container",
+    "tối ưu vòng đi của container",
+    "lập kế hoạch giờ thăm trong container",
+    "tính thời gian di chuyển trong container",
+    "lập lại vòng đi thứ hai và ghi giờ thăm",
+    "tính lại tuyến đường container sau giờ nghỉ trưa"
+  ],
+  "add_container_template_break": [
+    "thêm giờ nghỉ vào container",
+    "thêm giờ nghỉ trưa vào mẫu container",
+    "thêm giờ nghỉ vào tuyến của container",
+    "lên lịch giờ nghỉ trong tuyến của container",
+    "thêm giờ nghỉ trưa lúc 12:00 vào container ngày thứ năm",
+    "chèn nửa giờ nghỉ vào tuyến thứ hai rồi tối ưu lại tuyến đường"
   ]
 }

@@ -13,6 +13,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
@@ -24,11 +25,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("list_container_template")]
 public class ListContainerTemplateSkill : BaseSkillImplementation
 {
-    private const int MinIsoWeekday = 1;
-    private const int MaxIsoWeekday = 7;
-    private const int IsoSunday = 7;
-    private const int StorageSunday = 0;
-
     private readonly IShiftRepository _shiftRepository;
     private readonly IMediator _mediator;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
@@ -63,12 +59,12 @@ public class ListContainerTemplateSkill : BaseSkillImplementation
         int? storageWeekday = null;
         if (isoWeekday.HasValue)
         {
-            if (isoWeekday.Value < MinIsoWeekday || isoWeekday.Value > MaxIsoWeekday)
+            if (!IsoWeekday.IsValid(isoWeekday.Value))
             {
-                return SkillResult.Error("weekday must be between 1 (Monday) and 7 (Sunday).");
+                return SkillResult.Error(IsoWeekday.RangeError);
             }
 
-            storageWeekday = isoWeekday.Value == IsoSunday ? StorageSunday : isoWeekday.Value;
+            storageWeekday = IsoWeekday.ToStorage(isoWeekday.Value);
         }
 
         var templates = await _mediator.Send(new GetContainerTemplatesQuery(containerId), cancellationToken);
@@ -83,7 +79,7 @@ public class ListContainerTemplateSkill : BaseSkillImplementation
         var projection = filtered.Select(t => new
         {
             t.Id,
-            Weekday = ToIsoWeekday(t.Weekday),
+            Weekday = IsoWeekday.FromStorage(t.Weekday),
             t.IsHoliday,
             t.IsWeekdayAndHoliday,
             t.FromTime,
@@ -97,9 +93,6 @@ public class ListContainerTemplateSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(projection, message);
     }
-
-    private static int ToIsoWeekday(int storageWeekday)
-        => storageWeekday == StorageSunday ? IsoSunday : storageWeekday;
 
     private static Dictionary<string, object?> ProjectItem(ContainerTemplateItemResource item)
     {

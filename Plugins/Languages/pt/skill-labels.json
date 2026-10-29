@@ -514,5 +514,7 @@
   "set_order_review_decision": "Registar uma resposta na revisão de encomendas",
   "preview_order_review": "Pré-visualizar a revisão de encomendas",
   "cancel_order_review": "Cancelar a revisão de encomendas",
-  "execute_order_review": "Executar a revisão de encomendas"
+  "execute_order_review": "Executar a revisão de encomendas",
+  "optimize_container_route": "Otimizar a rota de um contentor e registar as horas das visitas",
+  "add_container_template_break": "Adicionar uma pausa ao modelo de um contentor"
 }

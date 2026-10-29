@@ -514,5 +514,7 @@
   "set_order_review_decision": "Registrer et svar i bestillingsgjennomgangen",
   "preview_order_review": "Forhåndsvis bestillingsgjennomgangen",
   "cancel_order_review": "Avbryt bestillingsgjennomgangen",
-  "execute_order_review": "Utfør bestillingsgjennomgangen"
+  "execute_order_review": "Utfør bestillingsgjennomgangen",
+  "optimize_container_route": "Optimaliser ruten til en container og før inn besøkstidene",
+  "add_container_template_break": "Legg til en pause i en containers mal"
 }

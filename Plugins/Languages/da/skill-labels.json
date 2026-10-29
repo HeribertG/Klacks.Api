@@ -514,5 +514,7 @@
   "set_order_review_decision": "Registrér et svar i ordregennemgangen",
   "preview_order_review": "Forhåndsvis ordregennemgangen",
   "cancel_order_review": "Annullér ordregennemgangen",
-  "execute_order_review": "Udfør ordregennemgangen"
+  "execute_order_review": "Udfør ordregennemgangen",
+  "optimize_container_route": "Optimer en containers rute og skriv besøgstiderne ind",
+  "add_container_template_break": "Tilføj en pause til en containers skabelon"
 }

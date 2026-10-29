@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Resolves a driving route geometry through the server-side OSRM proxy. The status tells the UI whether to draw
+/// Resolves a route geometry through the server-side OSRM proxy with the profile of the requested transport mode. The status tells the UI whether to draw
 /// the route (Ok) or to fall back to straight lines (NoRoute, Disabled, Unavailable).
 /// </summary>
-/// <param name="request">Waypoints in visiting order; at least a start and a destination</param>
+/// <param name="request">Waypoints in visiting order (at least a start and a destination) and the transport mode</param>
 
 using Klacks.Api.Application.DTOs.Routing;
 using Klacks.Api.Application.Queries.Routing;
@@ -29,7 +29,7 @@ public class GetOsrmRouteQueryHandler : IRequestHandler<GetOsrmRouteQuery, Route
             .Select(c => new RoutePoint(c.Lat, c.Lon))
             .ToList();
 
-        var result = await _osrmRouteGeometryService.GetRouteGeometryAsync(waypoints, cancellationToken);
+        var result = await _osrmRouteGeometryService.GetRouteGeometryAsync(waypoints, request.TransportMode, cancellationToken);
 
         return new RouteGeometryResource
         {

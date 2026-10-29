@@ -4,7 +4,8 @@
 /// Handler for acquiring an exclusive edit lock on a container resource.
 /// If the resource is already locked by another user with a fresh heartbeat, the existing
 /// lock is returned with Acquired=false. Stale locks are removed first. Idempotent for the
-/// same user (refreshes heartbeat). Only the resource types of ContainerLockResourceTypes are accepted (400 otherwise).
+/// same user and instance (refreshes heartbeat and answers AlreadyHeld=true, so a caller that reuses the lock of the
+/// open container page knows it must not release it). Only the resource types of ContainerLockResourceTypes are accepted (400 otherwise).
 /// A lock keyed by a container needs an existing container the caller may see; a lock keyed by a work needs an existing
 /// work whose client and scenario the caller may see and whose shift the caller may touch. Missing and hidden resources
 /// are both answered with 404, and all of this is checked before stale locks are swept or the holder is revealed.
@@ -75,7 +76,7 @@ public class AcquireContainerLockCommandHandler : BaseHandler, IRequestHandler<A
         if (existing != null && (existing.UserId != currentUserId || existing.InstanceId != request.InstanceId))
         {
             var isSelf = existing.UserId == currentUserId;
-            return ToResource(existing, acquired: false, isSelfConflict: isSelf);
+            return ToResource(existing, acquired: false, isSelfConflict: isSelf, alreadyHeld: false);
         }
 
         if (existing != null)
@@ -83,7 +84,7 @@ public class AcquireContainerLockCommandHandler : BaseHandler, IRequestHandler<A
             existing.LastHeartbeatAt = now;
             await _repository.Update(existing, cancellationToken);
             await _unitOfWork.CompleteAsync();
-            return ToResource(existing, acquired: true, isSelfConflict: false);
+            return ToResource(existing, acquired: true, isSelfConflict: false, alreadyHeld: true);
         }
 
         var newLock = new ContainerLock
@@ -101,7 +102,7 @@ public class AcquireContainerLockCommandHandler : BaseHandler, IRequestHandler<A
         await _repository.Add(newLock, cancellationToken);
         await _unitOfWork.CompleteAsync();
 
-        return ToResource(newLock, acquired: true, isSelfConflict: false);
+        return ToResource(newLock, acquired: true, isSelfConflict: false, alreadyHeld: false);
     }
 
     private async Task EnsureResourceVisibleAsync(string? resourceType, Guid resourceId, CancellationToken cancellationToken)
@@ -136,7 +137,7 @@ public class AcquireContainerLockCommandHandler : BaseHandler, IRequestHandler<A
         }
     }
 
-    private static ContainerLockResource ToResource(ContainerLock l, bool acquired, bool isSelfConflict) => new()
+    private static ContainerLockResource ToResource(ContainerLock l, bool acquired, bool isSelfConflict, bool alreadyHeld) => new()
     {
         Id = l.Id,
         ResourceType = l.ResourceType,
@@ -148,5 +149,6 @@ public class AcquireContainerLockCommandHandler : BaseHandler, IRequestHandler<A
         LastHeartbeatAt = l.LastHeartbeatAt,
         Acquired = acquired,
         IsSelfConflict = isSelfConflict,
+        AlreadyHeld = alreadyHeld,
     };
 }

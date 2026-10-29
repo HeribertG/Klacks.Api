@@ -30,7 +30,7 @@ public static class TravelTimeCalculator
             var fromIndex = route[i];
             var toIndex = route[i + 1];
             var toLocation = distanceMatrix.Locations[toIndex];
-            var profile = GetOsrmProfileFromTransportMode(toLocation.TransportMode);
+            var profile = RoutingProfile.FromTransportMode(toLocation.TransportMode);
 
             if (distanceMatrix.DurationMatricesByProfile.TryGetValue(profile, out var durationMatrix))
             {
@@ -58,7 +58,7 @@ public static class TravelTimeCalculator
         }
 
         var toLocation = distanceMatrix.Locations[toIndex];
-        var profile = GetOsrmProfileFromTransportMode(toLocation.TransportMode);
+        var profile = RoutingProfile.FromTransportMode(toLocation.TransportMode);
 
         if (distanceMatrix.DurationMatricesByProfile.TryGetValue(profile, out var durationMatrix))
         {
@@ -117,16 +117,5 @@ public static class TravelTimeCalculator
             total += matrix[route[i], route[i + 1]];
         }
         return total;
-    }
-
-    private static string GetOsrmProfileFromTransportMode(TransportMode transportMode)
-    {
-        return transportMode switch
-        {
-            TransportMode.ByCar => "driving",
-            TransportMode.ByBicycle => "cycling",
-            TransportMode.ByFoot => "foot",
-            _ => "driving"
-        };
     }
 }

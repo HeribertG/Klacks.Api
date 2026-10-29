@@ -4061,5 +4061,21 @@
     "wykonaj potwierdzony przegląd zamówień",
     "zapisz ustalone wartości w otwartych zamówieniach",
     "chcę teraz pociąć zamówienia na usługi"
+  ],
+  "optimize_container_route": [
+    "optymalizuj trasę kontenera",
+    "optymalizuj objazd kontenera",
+    "zaplanuj godziny wizyt w kontenerze",
+    "oblicz czasy przejazdów w kontenerze",
+    "zaplanuj od nowa poniedziałkowy objazd i wpisz godziny wizyt",
+    "przelicz trasę kontenera po przerwie obiadowej"
+  ],
+  "add_container_template_break": [
+    "dodaj przerwę do kontenera",
+    "dodaj przerwę obiadową do szablonu kontenera",
+    "dodaj przerwę do objazdu kontenera",
+    "zaplanuj przerwę w objeździe kontenera",
+    "dodaj do kontenera w czwartek przerwę obiadową o 12:00",
+    "wstaw półgodzinną przerwę do poniedziałkowego objazdu i ponownie zoptymalizuj trasę"
   ]
 }

@@ -23,4 +23,6 @@ public class ContainerLockResource
     public bool Acquired { get; set; }
 
     public bool IsSelfConflict { get; set; }
+
+    public bool AlreadyHeld { get; set; }
 }

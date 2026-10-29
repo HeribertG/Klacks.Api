@@ -3,7 +3,8 @@
 /// <summary>
 /// Adds a task shift as a new item to a container's weekday template. The task is validated against
 /// IContainerAvailableTasksService before the container edit lock is taken, and the container's complete
-/// template list (all weekdays, all holiday variants) is submitted on write — a partial list would delete
+/// template list (all weekdays, all holiday variants) is submitted on write (the lock is held through
+/// ContainerTemplateLockScope, which never releases the lock of an open container page) — a partial list would delete
 /// every other weekday's template. Item order within a template has no backing position column, so the
 /// requested position is best-effort and only item presence, never its index, is verified after the write.
 /// </summary>
@@ -18,7 +19,9 @@ using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ContainerTemplates;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
@@ -34,10 +37,6 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("add_container_template_task")]
 public class AddContainerTemplateTaskSkill : BaseSkillImplementation
 {
-    private const int MinIsoWeekday = 1;
-    private const int MaxIsoWeekday = 7;
-    private const int IsoSunday = 7;
-    private const int StorageSunday = 0;
     private const int MaxSampleTasks = 10;
 
     private readonly IShiftRepository _shiftRepository;
@@ -70,12 +69,12 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
         var taskShiftId = GetRequiredGuid(parameters, "taskShiftId");
         var position = GetParameter<int?>(parameters, "position");
 
-        if (isoWeekday < MinIsoWeekday || isoWeekday > MaxIsoWeekday)
+        if (!IsoWeekday.IsValid(isoWeekday))
         {
-            return SkillResult.Error("weekday must be between 1 (Monday) and 7 (Sunday).");
+            return SkillResult.Error(IsoWeekday.RangeError);
         }
 
-        var storageWeekday = isoWeekday == IsoSunday ? StorageSunday : isoWeekday;
+        var storageWeekday = IsoWeekday.ToStorage(isoWeekday);
 
         var (taskShift, lookupError) = await LoadContainerAndTaskShiftAsync(containerId, taskShiftId, cancellationToken);
         if (lookupError is not null)
@@ -90,29 +89,16 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
         }
 
         var instanceId = _userService.GetInstanceId() ?? string.Empty;
-        var lockResult = await _mediator.Send(
-            new AcquireContainerLockCommand(ContainerLockResourceTypes.ContainerTemplate, containerId, instanceId), cancellationToken);
+        await using var lockScope = await ContainerTemplateLockScope.AcquireAsync(
+            _mediator, containerId, instanceId, cancellationToken);
 
-        if (!lockResult.Acquired)
+        if (!lockScope.Acquired)
         {
             return SkillResult.Error("The container is currently being edited by another user.");
         }
 
-        try
-        {
-            return await AddTaskToTemplateAsync(
-                containerId, isoWeekday, storageWeekday, taskShiftId, taskShift!, position, cancellationToken);
-        }
-        finally
-        {
-            try
-            {
-                await _mediator.Send(new ReleaseContainerLockCommand(lockResult.Id), cancellationToken);
-            }
-            catch (Exception)
-            {
-            }
-        }
+        return await AddTaskToTemplateAsync(
+            containerId, isoWeekday, storageWeekday, taskShiftId, taskShift!, position, cancellationToken);
     }
 
     private async Task<(Shift? TaskShift, SkillResult? Error)> LoadContainerAndTaskShiftAsync(
@@ -142,7 +128,7 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
         Guid containerId, int storageWeekday, Guid taskShiftId, CancellationToken cancellationToken)
     {
         var precheckTemplates = await _mediator.Send(new GetContainerTemplatesQuery(containerId), cancellationToken);
-        var precheckTemplate = SelectTemplateForWeekday(precheckTemplates, storageWeekday);
+        var precheckTemplate = ContainerTemplateSelection.ForWeekday(precheckTemplates, storageWeekday);
         if (precheckTemplate is null)
         {
             return SkillResult.Error(
@@ -176,7 +162,7 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
         CancellationToken cancellationToken)
     {
         var templates = await _mediator.Send(new GetContainerTemplatesQuery(containerId), cancellationToken);
-        var targetTemplate = SelectTemplateForWeekday(templates, storageWeekday);
+        var targetTemplate = ContainerTemplateSelection.ForWeekday(templates, storageWeekday);
         if (targetTemplate is null)
         {
             return SkillResult.Error(
@@ -252,11 +238,5 @@ public class AddContainerTemplateTaskSkill : BaseSkillImplementation
         items.Insert(insertIndex, newItem);
         targetTemplate.ContainerTemplateItems = items;
         return insertIndex;
-    }
-
-    private static ContainerTemplateResource? SelectTemplateForWeekday(List<ContainerTemplateResource> templates, int storageWeekday)
-    {
-        return templates.FirstOrDefault(t => t.Weekday == storageWeekday && !t.IsHoliday)
-            ?? templates.FirstOrDefault(t => t.Weekday == storageWeekday);
     }
 }
