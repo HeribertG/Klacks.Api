@@ -22,6 +22,12 @@ public class SkillToolsetResult
     public bool TurnIntentVetoesForcedToolCall { get; init; }
 
     /// <summary>
+    /// True when a planning-profile setup or an order review was open in the conversation while the toolset was
+    /// assembled (DraftLoopToolsetPolicy). The chat entry points copy it to LLMContext.DraftLoopOpen.
+    /// </summary>
+    public bool DraftLoopOpen { get; init; }
+
+    /// <summary>
     /// How this turn's skill retrieval was ordered (margin, reranked, explored); null when no skill pass ran. Carried
     /// into the trajectory for the skill rerank threshold tuner.
     /// </summary>

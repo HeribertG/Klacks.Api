@@ -62,6 +62,7 @@ public static class SkillEntityMap
         ["email_schedule_to_client"] = new[] { "Client" },
         ["evaluate_contract_templates"] = new[] { "Contract" },
         ["evaluate_scenario"] = new[] { "AnalyseScenario" },
+        ["execute_order_review"] = new[] { "Shift" },
         ["fill_group_by_criteria"] = new[] { "Client", "Group", "GroupItem" },
         ["find_replacement"] = new[] { "Shift" },
         ["generate_period_summary"] = new[] { "Client" },

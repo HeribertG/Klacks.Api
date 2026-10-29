@@ -130,6 +130,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             IsVoiceMode = request.IsVoiceMode,
             ToolsetAssemblyMs = toolset.AssemblyMs,
             TurnIntentVetoesForcedToolCall = toolset.TurnIntentVetoesForcedToolCall,
+            DraftLoopOpen = toolset.DraftLoopOpen,
             SkillRerank = toolset.SkillRerank,
             CorrectionNote = correction?.ContextNote,
             CorrectionClarificationReply = correction?.ClarificationReply,

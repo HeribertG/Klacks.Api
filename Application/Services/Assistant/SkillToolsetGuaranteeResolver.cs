@@ -84,17 +84,19 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
                 guaranteedSkills, guaranteedSources, permittedSkills, request.UserMessage, cancellationToken);
         }
 
+        // Draft-loop guarantee: while a planning-profile setup or an order review is open, keep its loop skills in
+        // the tool set (the answers that continue it carry no keyword) and keep out what would bypass the loop's
+        // own confirmed preview. See DraftLoopToolsetPolicy. Resolved before the recipe guarantee, which matches by
+        // keyword trigger only while a loop is open, the same as TurnPreparationService does for that turn.
+        var draftLoop = _draftLoopToolsetPolicy.Resolve(request.UserId, request.ConversationId);
+
         var engineRecipeNames = await ApplyEngineRecipeGuaranteeAsync(
-            guaranteedSkills, guaranteedSources, request, cancellationToken);
+            guaranteedSkills, guaranteedSources, request, allowSemanticFallback: !draftLoop.IsOpen, cancellationToken);
 
         var recipeMatched = forcingRecipeNames.Count > 0 || engineRecipeNames.Count > 0;
         SkillMessageGuarantees.ApplyPlanCandidateGuarantee(
             guaranteedSkills, guaranteedSources, permittedSkills, request.UserMessage, recipeMatched);
 
-        // Draft-loop guarantee: while a planning-profile setup or an order review is open, keep its loop skills in
-        // the tool set (the answers that continue it carry no keyword) and keep out what would bypass the loop's
-        // own confirmed preview. See DraftLoopToolsetPolicy.
-        var draftLoop = _draftLoopToolsetPolicy.Resolve(request.UserId, request.ConversationId);
         foreach (var loopSkillName in draftLoop.GuaranteedSkillNames)
         {
             SkillGuaranteeCollector.Add(
@@ -115,6 +117,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
             guaranteedSkills, guaranteedSources, permittedSkills, request.ContinuationSkillNames);
 
         OrderWorkflowSkillGuarantee.ApplyGroupAnswer(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
+        OrderReviewScheduleGuarantee.Apply(guaranteedSkills, guaranteedSources, request);
 
         await ApplyScenarioFollowUpGuaranteeAsync(
             guaranteedSkills, guaranteedSources, request, cancellationToken);
@@ -123,7 +126,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
         return new SkillToolsetGuaranteeResult(
             guaranteedSkills, guaranteedSources, lowestRankedNames, turnIntent.VetoesForcedToolCall,
-            draftLoop.ExcludedSkillNames);
+            draftLoop.ExcludedSkillNames, draftLoop.IsOpen);
     }
 
     /// <summary>
@@ -146,17 +149,20 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     /// Data-driven recipe guarantee: like the keyword guarantee, for an engine recipe that is engaging now (matched on
     /// this message) or resuming (paused on an ask in this conversation). Its step skills — e.g. search_employees and
     /// add_client_to_group, neither always-on — must be present so the forcing spine can narrow to them across the
-    /// multi-turn flow. Returns the engine's skill names, which the plan-candidate guarantee needs.
+    /// multi-turn flow. Returns the engine's skill names, which the plan-candidate guarantee needs. With
+    /// allowSemanticFallback false (an open draft loop) only the keyword trigger matches: the semantic fallback ranked the
+    /// loop's answers into unrelated recipes, whose RecipeStep guarantees would also slip past the loop's exclusions.
     /// </summary>
     private async Task<List<string>> ApplyEngineRecipeGuaranteeAsync(
         HashSet<AgentSkill> guaranteedSkills,
         IDictionary<string, ToolsetSkillSource> guaranteedSources,
         SkillToolsetGuaranteeRequest request,
+        bool allowSemanticFallback,
         CancellationToken cancellationToken)
     {
         var engineRecipeNames = (await _recipeEngine.GuaranteedSkillNamesAsync(
             request.UserId, request.ConversationId, request.UserMessage, request.Language, request.UserRights,
-            cancellationToken)).ToList();
+            allowSemanticFallback, cancellationToken)).ToList();
         foreach (var recipeSkillName in engineRecipeNames)
         {
             SkillGuaranteeCollector.Add(

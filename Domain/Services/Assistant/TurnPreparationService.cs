@@ -451,7 +451,9 @@ public class TurnPreparationService : ITurnPreparationService
 
     /// <summary>
     /// Matches a fresh recipe on the current message, remembers a rights denial on the context and, when a recipe
-    /// matched, pre-fills its slots from the message and advances past the satisfied steps.
+    /// matched, pre-fills its slots from the message and advances past the satisfied steps. Keyword trigger only after a
+    /// declined gate and while a draft loop (order review, planning-profile setup) is open: such a reply answers the
+    /// open question, and the semantic fallback ranked it into unrelated recipes.
     /// </summary>
     /// <param name="context">The turn context; receives the denial of a refused match</param>
     /// <param name="provider">The provider the slot extraction is put to</param>
@@ -467,7 +469,7 @@ public class TurnPreparationService : ITurnPreparationService
     {
         var resolution = await _recipeEngine.ResolveWithDenialAsync(
             context.Message, context.Language, context.UserRights, declinedRecipe,
-            allowSemanticFallback: !context.RecipeConfirmationDeclined, cancellationToken);
+            allowSemanticFallback: !context.RecipeConfirmationDeclined && !context.DraftLoopOpen, cancellationToken);
         context.RecipeDenial = resolution.Denial;
         var fresh = resolution.Plan;
         if (fresh != null)

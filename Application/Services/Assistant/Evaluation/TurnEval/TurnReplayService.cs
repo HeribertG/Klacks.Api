@@ -331,6 +331,7 @@ public class TurnReplayService : ITurnReplayService
             AvailableFunctions = toolset.Functions,
             HasDomainSkillContext = toolset.HasDomainSkillContext,
             TurnIntentVetoesForcedToolCall = toolset.TurnIntentVetoesForcedToolCall,
+            DraftLoopOpen = toolset.DraftLoopOpen,
             GracefulCorrectionApplied = correction != null,
 
             // A replay resolves the undo as data and never holds a token, so it must never claim to
