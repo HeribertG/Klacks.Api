@@ -6,10 +6,12 @@
 /// rules of the group members, the group, qualifications by name) and bundles them by pattern, outliers one by one. The
 /// review is stored as a draft (replacing one already in progress) and the overview is returned with the instruction
 /// to go through the review keys one at a time. Draft-only: nothing in the domain changes until execute_order_review
-/// runs as the confirmed replay of its preview.
+/// runs as the confirmed replay of its preview. A started review carries a top-level Route to the shift list with the
+/// open orders preselected (view=orders), which the chat opens after the turn; a scope without open orders does not.
 /// </summary>
 /// <param name="customerName">Optional. Restricts the review to the orders of customers whose name contains this text.</param>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Orders.Review;
 using Klacks.Api.Domain.Attributes;
@@ -42,7 +44,8 @@ public class StartOrderReviewSkill : BaseSkillImplementation
         "if the user asks, and when the rules allow a split only for some members, say so. (3) the group, with why " +
         "it is proposed. (4) the qualifications, if any are proposed. (5) always ask whether there are expenses " +
         "(every part of the cut carries them). Record each answer with set_order_review_decision, then show " +
-        "preview_order_review for the key and run execute_order_review only after the user confirms it.";
+        "preview_order_review for the key and run execute_order_review only after the user confirms it. The shift list " +
+        "is being opened on the open orders, so the user sees them while you go through them.";
 
     private const string ReplacedNote = ", replacing the review that was in progress";
 
@@ -87,6 +90,7 @@ public class StartOrderReviewSkill : BaseSkillImplementation
             SingleCount = items.Count(item => item.OutlierReason != null),
             MaxOrdersPerExecution = OrderReviewDefaults.MaxOrdersPerExecution,
             Keys = OrderReviewPresenter.DescribeKeys(items, MaxKeysInOverview),
+            Route = ShiftListViewRoutes.OrdersViewRoute,
         };
 
         return SkillResult.SuccessResult(

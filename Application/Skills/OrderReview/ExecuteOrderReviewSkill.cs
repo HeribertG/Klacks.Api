@@ -9,7 +9,10 @@
 /// OrderReview - a plan step, an accepted goal, MCP or any other path that bypasses the autonomy gate - it refuses before
 /// it reads anything, and when the orders or decisions differ from the confirmed preview it refuses with the binding
 /// mismatch text. The draft records what became of every order, so the review can be resumed; once no order of the
-/// review is left to do, the draft is cleared, which also ends the toolset exclusions of the open review.
+/// review is left to do, the draft is cleared, which also ends the toolset exclusions of the open review. When at least
+/// one order succeeded, Data carries a top-level Route to the shift list (view=plannable, from, until) that the chat opens
+/// after the turn, plus ScheduleGroupId, ScheduleGroupName and ScheduleDate for an open_schedule the user may ask for next.
+/// Nobody is assigned by this skill: the message says the shifts are ready for planning, never that they are staffed.
 /// </summary>
 /// <param name="target">Required. Review key(s) such as B1 or S2, order id(s), comma separated, or 'all'.</param>
 /// <param name="acknowledgedOrderChange">true when the user confirmed that the start of an order changes.</param>
@@ -36,6 +39,15 @@ public class ExecuteOrderReviewSkill : BaseSkillImplementation
         "Executed the order review for {0} order(s): {1} changed, sealed and cut and confirmed in the database (verified), " +
         "{2} failed and rolled back (reasons per order). {3} ready order(s) wait for the next confirmation, {4} still have " +
         "open questions. Relay the counts and every failure reason, then continue with the next review key.";
+
+    private const string NavigationFormat =
+        " The shift list is being opened so the new plannable shift(s) of the period {0} can be found there. They are " +
+        "ready for planning; nobody is assigned to them yet - never say they are planned or staffed. Ask the user " +
+        "whether to show them in the schedule as well; only on a yes call open_schedule with {1}date {2}.";
+
+    private const string PeriodFormat = "{0} to {1}";
+    private const string OpenEndedPeriodFormat = "from {0} (open-ended)";
+    private const string GroupArgumentFormat = "groupName '{0}' and ";
 
     private readonly IOrderReviewExecutionPlanner _planner;
     private readonly IOrderReviewExecutor _executor;
@@ -90,6 +102,8 @@ public class ExecuteOrderReviewSkill : BaseSkillImplementation
         }
 
         var succeeded = outcomes.Count(outcome => outcome.Succeeded);
+        var navigation = OrderReviewNavigation.For(
+            plan.Targets.Zip(outcomes).Where(pair => pair.Second.Succeeded).Select(pair => pair.First).ToList());
         var data = new
         {
             Executed = succeeded,
@@ -106,10 +120,26 @@ public class ExecuteOrderReviewSkill : BaseSkillImplementation
             }).ToList(),
             plan.MoreReady,
             NotReady = plan.NotReadyCount,
+            Route = navigation?.Route,
+            ScheduleGroupId = navigation?.GroupId,
+            ScheduleGroupName = navigation?.GroupName,
+            ScheduleDate = navigation?.FromDate,
         };
 
-        return SkillResult.SuccessResult(data, string.Format(
+        var message = string.Format(
             CultureInfo.InvariantCulture, ResultFormat, outcomes.Count, succeeded, outcomes.Count - succeeded,
-            plan.MoreReady, plan.NotReadyCount));
+            plan.MoreReady, plan.NotReadyCount);
+        return SkillResult.SuccessResult(data, navigation is null ? message : message + DescribeNavigation(navigation));
+    }
+
+    private static string DescribeNavigation(OrderReviewScheduleHint navigation)
+    {
+        var period = navigation.UntilDate is null
+            ? string.Format(CultureInfo.InvariantCulture, OpenEndedPeriodFormat, navigation.FromDate)
+            : string.Format(CultureInfo.InvariantCulture, PeriodFormat, navigation.FromDate, navigation.UntilDate);
+        var groupArgument = string.IsNullOrWhiteSpace(navigation.GroupName)
+            ? string.Empty
+            : string.Format(CultureInfo.InvariantCulture, GroupArgumentFormat, navigation.GroupName);
+        return string.Format(CultureInfo.InvariantCulture, NavigationFormat, period, groupArgument, navigation.FromDate);
     }
 }
