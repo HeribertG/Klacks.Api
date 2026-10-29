@@ -85,6 +85,14 @@ public interface IShiftReader
         AvailableTaskCandidateCriteria criteria, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The validity period (from date, until date) of the shift, read as an untracked projection; null when the shift
+    /// does not exist or is soft-deleted.
+    /// </summary>
+    /// <param name="shiftId">Shift whose period is read</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<ShiftValidityPeriod?> GetValidityPeriodAsync(Guid shiftId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// The given shifts that are tasks, whatever their status, sporadic flag or time, untracked, with their client and
     /// all the client's addresses, in the base order (original id, from date, start time). Unknown ids and non-task
     /// shifts are dropped; scenario rows are not excluded.
