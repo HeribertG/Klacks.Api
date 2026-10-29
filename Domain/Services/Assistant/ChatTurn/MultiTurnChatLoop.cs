@@ -266,7 +266,8 @@ internal sealed class MultiTurnChatLoop
             state.IterationsUsed, lastResponse.FunctionCalls.Count);
 
         state.AllFunctionCalls.AddRange(lastResponse.FunctionCalls);
-        ToolCallLoopSteps.ApplyRecipeInjections(recipe.Forcing, lastResponse.FunctionCalls);
+        ToolCallLoopSteps.ApplyRecipeInjections(
+            recipe.Forcing, lastResponse.FunctionCalls, ctx.Context.AvailableFunctions, _logger);
 
         var executableCalls = recipe.RejectWrites(RepeatedWriteCallGuard.RejectAndRecord(
             ToolCallLoopSteps.InToolset(lastResponse.FunctionCalls, ctx.Context, _logger), state.CalledFunctionNames, forceRecipe));

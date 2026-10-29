@@ -694,7 +694,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
                 ["type"] = NormalizeToJsonSchemaType(param.Type),
                 ["description"] = param.Description
             };
-            if (param.EnumValues is { Count: > 0 }) paramDict["enum"] = param.EnumValues;
+            if (param.EnumValues is { Count: > 0 }) paramDict[SkillParameterSchemaKeys.Enum] = param.EnumValues;
             if (param.DefaultValue != null) paramDict["default"] = param.DefaultValue;
             parameters[param.Name] = paramDict;
             if (param.Required) requiredParameters.Add(param.Name);

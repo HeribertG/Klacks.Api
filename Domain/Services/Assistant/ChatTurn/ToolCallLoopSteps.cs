@@ -31,10 +31,22 @@ internal static class ToolCallLoopSteps
         return ToolResultFormatter.Format(functionCalls, maxToolResultChars ?? LLMLoopConstants.DefaultMaxToolResultChars);
     }
 
-    // Recipe forcing data flow (shared by both loops): deterministically inject captured values (the
-    // resolved clientId from find_customer_candidates) into the next forced step's parameters before it
-    // executes — reliable in-code data flow between steps, not a fragile model-carries-the-id hop.
-    internal static void ApplyRecipeInjections(IRecipeForcingPlan? recipePlan, IEnumerable<LLMFunctionCall> functionCalls)
+    /// <summary>
+    /// Recipe forcing data flow (shared by both loops): deterministically inject captured values (the
+    /// resolved clientId from find_customer_candidates) into the next forced step's parameters before it
+    /// executes — reliable in-code data flow between steps, not a fragile model-carries-the-id hop.
+    /// An enum parameter is injected only as an allowed value; RecipeEnumInjectionResolver decides when the
+    /// model's own value stays instead of the user's raw answer.
+    /// </summary>
+    /// <param name="recipePlan">The forcing plan of the turn, or null when no recipe is forced</param>
+    /// <param name="functionCalls">The calls the model made in this iteration</param>
+    /// <param name="availableFunctions">The turn's toolset, read for the enum values the forced skill declares</param>
+    /// <param name="logger">The chat service's logger</param>
+    internal static void ApplyRecipeInjections(
+        IRecipeForcingPlan? recipePlan,
+        IEnumerable<LLMFunctionCall> functionCalls,
+        IReadOnlyList<LLMFunction> availableFunctions,
+        ILogger logger)
     {
         if (recipePlan == null)
         {
@@ -43,9 +55,21 @@ internal static class ToolCallLoopSteps
 
         foreach (var call in functionCalls)
         {
+            var function = availableFunctions.FirstOrDefault(f =>
+                string.Equals(f.Name, call.FunctionName, StringComparison.OrdinalIgnoreCase));
             foreach (var injection in recipePlan.GetParameterInjections(call.FunctionName))
             {
-                call.Parameters[injection.Key] = injection.Value;
+                call.Parameters.TryGetValue(injection.Key, out var modelValue);
+                var value = RecipeEnumInjectionResolver.Resolve(function, injection.Key, injection.Value, modelValue);
+                if (value == null)
+                {
+                    logger.LogInformation(
+                        "Recipe injection into {Skill}.{Parameter} skipped: the slot value is not an allowed enum value, " +
+                        "the model's own value is kept", call.FunctionName, injection.Key);
+                    continue;
+                }
+
+                call.Parameters[injection.Key] = value;
             }
         }
     }

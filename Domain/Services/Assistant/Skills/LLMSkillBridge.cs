@@ -123,7 +123,7 @@ public class LLMSkillBridge : ILLMSkillBridge
 
         if (param.EnumValues is { Count: > 0 })
         {
-            result["enum"] = param.EnumValues;
+            result[SkillParameterSchemaKeys.Enum] = param.EnumValues;
         }
 
         if (param.DefaultValue != null)

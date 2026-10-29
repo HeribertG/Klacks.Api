@@ -6,6 +6,7 @@
 /// <param name="descriptor">Skill whose parameters are converted into a JSON schema object</param>
 /// <param name="param">Single skill parameter translated into JSON schema fields (type, format, enum, default)</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -19,7 +20,7 @@ public static class SkillParameterSchemaBuilder
     private const string DescriptionKey = "description";
     private const string FormatKey = "format";
     private const string PatternKey = "pattern";
-    private const string EnumKey = "enum";
+    private const string EnumKey = SkillParameterSchemaKeys.Enum;
     private const string DefaultKey = "default";
     private const string ObjectTypeName = "object";
     private const string DateFormatName = "date";

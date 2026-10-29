@@ -236,7 +236,7 @@ internal sealed class StreamedChatTurn
 
         var functionCalls = accumulator.FunctionCalls.ToList();
         turn.RegisterCalls(functionCalls);
-        ToolCallLoopSteps.ApplyRecipeInjections(recipe.Forcing, functionCalls);
+        ToolCallLoopSteps.ApplyRecipeInjections(recipe.Forcing, functionCalls, context.AvailableFunctions, _logger);
 
         var executableCalls = recipe.RejectWrites(RepeatedWriteCallGuard.RejectAndRecord(
             ToolCallLoopSteps.InToolset(functionCalls, context, _logger), state.CalledFunctionNames, forceRecipe));
