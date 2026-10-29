@@ -6,7 +6,7 @@ namespace Klacks.Api.Application.Constants;
 /// The shift list with a view preselected, mirroring Klacks.Ui shift-list-view.constants.ts: "view=orders" opens the
 /// order intake (original orders not sealed yet), "view=plannable" the plannable shifts, optionally narrowed to the
 /// period given by "from" and "until" (ISO dates). A skill puts such a route into its result Data as top-level Route,
-/// which the chat navigates to after the turn.
+/// which the chat navigates to after the turn. ShiftListViewRoutesUiMirrorGuardTests (Klacks.UnitTest) keeps both sides equal.
 /// </summary>
 public static class ShiftListViewRoutes
 {

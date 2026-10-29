@@ -35,7 +35,7 @@ public static class OrderReviewNavigation
         return new OrderReviewScheduleHint(PlannableRoute(from, until), from, until, group?.Id, group?.Name);
     }
 
-    public static string PlannableRoute(string from, string? until)
+    private static string PlannableRoute(string from, string? until)
     {
         var route = $"{ShiftListViewRoutes.PlannableViewRoute}&{ShiftListViewRoutes.FromQueryParam}={from}";
         return until is null ? route : $"{route}&{ShiftListViewRoutes.UntilQueryParam}={until}";

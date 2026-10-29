@@ -12,12 +12,16 @@
 /// review is left to do, the draft is cleared, which also ends the toolset exclusions of the open review. When at least
 /// one order succeeded, Data carries a top-level Route to the shift list (view=plannable, from, until) that the chat opens
 /// after the turn, plus ScheduleGroupId, ScheduleGroupName and ScheduleDate for an open_schedule the user may ask for next.
+/// The group name goes into the model instruction as a JSON string literal, so a quote in an admin-chosen name cannot
+/// break the hint.
 /// Nobody is assigned by this skill: the message says the shifts are ready for planning, never that they are staffed.
 /// </summary>
 /// <param name="target">Required. Review key(s) such as B1 or S2, order id(s), comma separated, or 'all'.</param>
 /// <param name="acknowledgedOrderChange">true when the user confirmed that the start of an order changes.</param>
 
 using System.Globalization;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using Klacks.Api.Application.DTOs.Orders.Review;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Orders.Review;
@@ -48,7 +52,10 @@ public class ExecuteOrderReviewSkill : BaseSkillImplementation
 
     private const string PeriodFormat = "{0} to {1}";
     private const string OpenEndedPeriodFormat = "from {0} (open-ended)";
-    private const string GroupArgumentFormat = "groupName '{0}' and ";
+    private const string GroupArgumentFormat = "groupName {0} and ";
+
+    private static readonly JsonSerializerOptions GroupNameLiteralOptions =
+        new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
     private readonly IOrderReviewExecutionPlanner _planner;
     private readonly IOrderReviewExecutor _executor;
@@ -140,7 +147,9 @@ public class ExecuteOrderReviewSkill : BaseSkillImplementation
             : string.Format(CultureInfo.InvariantCulture, PeriodFormat, navigation.FromDate, navigation.UntilDate);
         var groupArgument = string.IsNullOrWhiteSpace(navigation.GroupName)
             ? string.Empty
-            : string.Format(CultureInfo.InvariantCulture, GroupArgumentFormat, navigation.GroupName);
+            : string.Format(
+                CultureInfo.InvariantCulture, GroupArgumentFormat,
+                JsonSerializer.Serialize(navigation.GroupName, GroupNameLiteralOptions));
         return string.Format(CultureInfo.InvariantCulture, NavigationFormat, period, groupArgument, navigation.FromDate);
     }
 }

@@ -8,7 +8,9 @@
 /// (found 2026-10-29 in the fr and it story takes). So when the immediately preceding turn ran execute_order_review
 /// (ContinuationSkillNames, a confirmed held action named by the skill it replayed) and the reply opens with an
 /// affirmation, open_schedule is kept as a hint. Visibility only: open_schedule is a read-only navigation and the model
-/// still decides whether to call it.
+/// still decides whether to call it. Accepted trade-off: the guarantee cannot tell which question the yes answers, so a
+/// yes to the next review question after a partial execute (the review stays open) keeps open_schedule as a hint too;
+/// the review's own loop skills stay guaranteed beside it.
 /// </summary>
 
 using Klacks.Api.Application.Skills;
