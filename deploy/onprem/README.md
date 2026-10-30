@@ -98,7 +98,7 @@ compatible), `GEO_ROUTING_BASE_URL` (OSRM), `GEO_OPENROUTESERVICE_BASE_URL` and
 `GEO_MAP_TILE_URL_TEMPLATE` (e.g. `https://tiles.example.local/{z}/{x}/{y}.png`, with
 `GEO_MAP_TILE_ATTRIBUTION`) at your own servers. With `GEO_NO_OUTBOUND_TRAFFIC=true`, the
 well-known public OpenStreetMap services (openstreetmap.org, project-osrm.org,
-openrouteservice.org and a few public tile hosts) are refused even when entered here. This is
+openrouteservice.org, heigit.org and a few public tile hosts) are refused even when entered here. This is
 a deny list of known hosts, not an allow list: any other host you enter is used, so only enter
 servers you operate. URLs with credentials (`user:password@host`) are rejected. The tile URL
 is sent to every browser, so `GEO_MAP_TILE_URL_TEMPLATE` must not contain credentials or API
