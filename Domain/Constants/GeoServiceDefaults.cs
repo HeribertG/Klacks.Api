@@ -12,7 +12,7 @@ public static class GeoServiceDefaults
 {
     public const string NominatimBaseUrl = "https://nominatim.openstreetmap.org";
     public const string OsrmBaseUrl = "https://router.project-osrm.org";
-    public const string OpenRouteServiceBaseUrl = "https://api.openrouteservice.org/v2";
+    public const string OpenRouteServiceBaseUrl = "https://api.heigit.org/openrouteservice/v2";
     public const string OsmTileUrlTemplate = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
     public const string OsmTileAttribution = "© OpenStreetMap contributors";
     public const int OsmTileMaxZoom = 19;
@@ -24,6 +24,7 @@ public static class GeoServiceDefaults
         "openstreetmap.de",
         "project-osrm.org",
         "openrouteservice.org",
+        "heigit.org",
         "basemaps.cartocdn.com",
         "opentopomap.org"
     ];
