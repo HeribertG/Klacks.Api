@@ -4064,5 +4064,29 @@
     "pauze in de ronde van de container plannen",
     "voeg op donderdag een lunchpauze om 12:00 toe aan de container",
     "zet een halfuur pauze in de ronde van maandag en optimaliseer de route opnieuw"
+  ],
+  "split_shifts_by_weekday": [
+    "diensten splitsen per weekdag",
+    "meerdaagse diensten opknippen in één dienst per weekdag",
+    "elke dienst van een groep die op meerdere weekdagen loopt splitsen",
+    "bezoeken op maandag, woensdag en vrijdag omzetten in aparte diensten per dag",
+    "alle diensten van de groep spitex winterthur per weekdag knippen",
+    "elk wekelijks bezoek afsplitsen als eigen dienst voor elke dag"
+  ],
+  "build_weekly_tours": [
+    "wekelijkse rondes opbouwen voor een groep",
+    "cliënten over meerdere rondes verdelen en de containers vullen",
+    "bouw drie rondes voor de groep spitex winterthur met vertrek vanuit winterthur",
+    "patiënten naar woonplaats over rondes verdelen voor de hele week",
+    "routegeoptimaliseerde weekrondes maken voor alle bezoeken van de groep",
+    "meerdere weekcontainers vormen uit de bezoeken van een groep"
+  ],
+  "assign_container_week": [
+    "een medewerker voor een hele week op een ronde inplannen",
+    "een ronde voor de hele week aan een medewerker toewijzen",
+    "plan anna volgende week in op ronde 1",
+    "de container aan een medewerker toewijzen voor een periode",
+    "bezet ronde 2 van 3 tot en met 7 november met lara",
+    "boek de medewerker op alle rondedagen van maandag tot vrijdag"
   ]
 }

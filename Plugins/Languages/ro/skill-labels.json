@@ -516,5 +516,8 @@
   "cancel_order_review": "Anulează revizuirea comenzilor",
   "execute_order_review": "Execută revizuirea comenzilor",
   "optimize_container_route": "Optimizează traseul unui container și completează orele vizitelor",
-  "add_container_template_break": "Adaugă o pauză în șablonul unui container"
+  "add_container_template_break": "Adaugă o pauză în șablonul unui container",
+  "split_shifts_by_weekday": "Împarte serviciile unui grup pe zilele săptămânii",
+  "build_weekly_tours": "Construiește trasee săptămânale pentru un grup",
+  "assign_container_week": "Programează un angajat pe un traseu pentru o perioadă"
 }

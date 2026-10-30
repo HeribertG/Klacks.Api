@@ -4014,5 +4014,29 @@
     "suunnittele tauko kontin kierrokseen",
     "lisää konttiin torstaina lounastauko klo 12:00",
     "lisää maanantain kierrokseen puolen tunnin tauko ja optimoi reitti uudelleen"
+  ],
+  "split_shifts_by_weekday": [
+    "jaa vuorot viikonpäivän mukaan",
+    "pilko usean päivän vuorot yhdeksi vuoroksi jokaiselle viikonpäivälle",
+    "jaa jokainen ryhmän vuoro, joka toistuu useana viikonpäivänä",
+    "tee maanantain, keskiviikon ja perjantain käynneistä erilliset vuorot päivää kohti",
+    "pilko ryhmän spitex winterthur kaikki vuorot viikonpäivän mukaan",
+    "erota jokainen viikoittainen käynti omaksi vuorokseen jokaiselle päivälle"
+  ],
+  "build_weekly_tours": [
+    "rakenna viikkokierrokset ryhmälle",
+    "jaa asiakkaat useille kierroksille ja täytä kontit",
+    "rakenna kolme kierrosta ryhmälle spitex winterthur winterthurista lähtien",
+    "jaa potilaat kierroksille paikan mukaan koko viikoksi",
+    "luo reittioptimoidut viikkokierrokset kaikille ryhmän käynneille",
+    "muodosta ryhmän käynneistä useita viikkokontteja"
+  ],
+  "assign_container_week": [
+    "varaa työntekijä kierrokselle koko viikoksi",
+    "määritä kierros työntekijälle koko viikoksi",
+    "ajoita anna kierrokselle 1 ensi viikoksi",
+    "määritä kontti työntekijälle aikavälille",
+    "miehitä kierros 2 3.-7. marraskuuta laralla",
+    "varaa työntekijä kaikille kierrospäiville maanantaista perjantaihin"
   ]
 }

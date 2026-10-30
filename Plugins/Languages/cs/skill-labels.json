@@ -516,5 +516,8 @@
   "cancel_order_review": "Zrušit revizi objednávek",
   "execute_order_review": "Provést revizi objednávek",
   "optimize_container_route": "Optimalizovat trasu kontejneru a zapsat časy návštěv",
-  "add_container_template_break": "Přidat pauzu do šablony kontejneru"
+  "add_container_template_break": "Přidat pauzu do šablony kontejneru",
+  "split_shifts_by_weekday": "Rozdělit služby skupiny podle dnů v týdnu",
+  "build_weekly_tours": "Sestavit týdenní okruhy pro skupinu",
+  "assign_container_week": "Obsadit zaměstnance na okruh na období"
 }

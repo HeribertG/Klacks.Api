@@ -4078,5 +4078,29 @@
     "zaplanuj przerwę w objeździe kontenera",
     "dodaj do kontenera w czwartek przerwę obiadową o 12:00",
     "wstaw półgodzinną przerwę do poniedziałkowego objazdu i ponownie zoptymalizuj trasę"
+  ],
+  "split_shifts_by_weekday": [
+    "podziel zmiany według dni tygodnia",
+    "potnij wielodniowe zmiany na jedną zmianę na każdy dzień tygodnia",
+    "podziel każdą zmianę grupy, która odbywa się w kilku dniach tygodnia",
+    "zamień wizyty w poniedziałek, środę i piątek na osobne zmiany dla każdego dnia",
+    "potnij wszystkie zmiany grupy spitex winterthur według dnia tygodnia",
+    "rozdziel każdą cotygodniową wizytę na osobną zmianę dla każdego dnia"
+  ],
+  "build_weekly_tours": [
+    "zbuduj tygodniowe trasy dla grupy",
+    "rozdziel podopiecznych na kilka tras i wypełnij kontenery",
+    "zbuduj trzy trasy dla grupy spitex winterthur z wyjazdem z winterthur",
+    "przypisz pacjentów do tras według miejscowości na cały tydzień",
+    "utwórz tygodniowe trasy ze zoptymalizowanym przebiegiem dla wszystkich wizyt grupy",
+    "utwórz kilka tygodniowych kontenerów z wizyt grupy"
+  ],
+  "assign_container_week": [
+    "zarezerwuj pracownika na trasę na cały tydzień",
+    "przypisz trasę pracownikowi na cały tydzień",
+    "zaplanuj anna na trasę 1 na przyszły tydzień",
+    "przypisz kontener pracownikowi na przedział dat",
+    "obsadź trasę 2 od 3 do 7 listopada pracownikiem lara",
+    "zarezerwuj pracownika na wszystkie dni trasy od poniedziałku do piątku"
   ]
 }

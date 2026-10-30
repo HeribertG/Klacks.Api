@@ -516,5 +516,8 @@
   "cancel_order_review": "Cancelar la revisión de pedidos",
   "execute_order_review": "Ejecutar la revisión de pedidos",
   "optimize_container_route": "Optimizar la ruta de un contenedor e introducir las horas de visita",
-  "add_container_template_break": "Añadir una pausa a la plantilla de un contenedor"
+  "add_container_template_break": "Añadir una pausa a la plantilla de un contenedor",
+  "split_shifts_by_weekday": "Dividir los servicios de un grupo por día de la semana",
+  "build_weekly_tours": "Crear rutas semanales para un grupo",
+  "assign_container_week": "Asignar un empleado a una ruta durante un período"
 }

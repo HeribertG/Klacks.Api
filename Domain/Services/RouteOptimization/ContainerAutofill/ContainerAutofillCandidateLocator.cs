@@ -22,7 +22,7 @@ using Klacks.Api.Domain.Services.Common;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization.ContainerAutofill;
 
-public sealed class ContainerAutofillCandidateLocator
+public sealed class ContainerAutofillCandidateLocator : IShiftLocationResolver
 {
     private readonly IGeocodingService _geocodingService;
     private readonly IAddressCoordinateWriter _coordinateWriter;
@@ -58,6 +58,27 @@ public sealed class ContainerAutofillCandidateLocator
         return locations;
     }
 
+    public async Task<IReadOnlyList<ShiftLocation>> LocateAsync(IReadOnlyList<Shift> shifts, CancellationToken cancellationToken)
+    {
+        var byAddress = shifts
+            .Select(shift => (Shift: shift, Key: AddressKey(shift)))
+            .Where(entry => entry.Key is not null)
+            .GroupBy(entry => entry.Key!)
+            .ToList();
+
+        var locations = await ExtractLocationsFromShiftsAsync(
+            byAddress.Select(group => group.First().Shift).ToList(), ContainerTransportMode.ByCar, cancellationToken);
+        var locationByRepresentative = locations.ToDictionary(location => location.ShiftId);
+
+        return byAddress
+            .Where(group => locationByRepresentative.ContainsKey(group.First().Shift.Id))
+            .SelectMany(group => group.Select(entry => new ShiftLocation(
+                entry.Shift.Id,
+                locationByRepresentative[group.First().Shift.Id].Latitude,
+                locationByRepresentative[group.First().Shift.Id].Longitude)))
+            .ToList();
+    }
+
     public async Task<Location?> GeocodeBaseAddressAsync(string address, string label, CancellationToken cancellationToken)
     {
         var country = await _countryResolver.ResolveDefaultGeocodingNameAsync(cancellationToken);
@@ -78,6 +99,14 @@ public sealed class ContainerAutofillCandidateLocator
         };
     }
 
+    private static string? AddressKey(Shift shift)
+    {
+        var address = shift.Client?.Addresses?.FirstOrDefault();
+        return address is null || string.IsNullOrEmpty(address.City)
+            ? null
+            : $"{address.City}_{address.Zip}_{address.Street}";
+    }
+
     private static (List<Location> locations, List<(Shift shift, Address address, string fullAddress)> needsGeocoding)
         CollectDistinctAddresses(List<Shift> shifts, ContainerTransportMode containerTransportMode)
     {
@@ -93,9 +122,9 @@ public sealed class ContainerAutofillCandidateLocator
             }
 
             var address = shift.Client.Addresses.First();
-            var addressKey = $"{address.City}_{address.Zip}_{address.Street}";
+            var addressKey = AddressKey(shift);
 
-            if (string.IsNullOrEmpty(address.City) || uniqueAddresses.Contains(addressKey))
+            if (addressKey is null || uniqueAddresses.Contains(addressKey))
             {
                 continue;
             }

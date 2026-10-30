@@ -3982,5 +3982,29 @@
     "jadwalkan istirahat di tur kontainer",
     "tambahkan istirahat makan siang pukul 12:00 ke kontainer pada hari kamis",
     "masukkan istirahat setengah jam ke tur hari senin lalu optimalkan ulang rutenya"
+  ],
+  "split_shifts_by_weekday": [
+    "pisahkan shift menurut hari dalam seminggu",
+    "potong shift multi-hari menjadi satu shift per hari",
+    "pisahkan setiap shift dalam grup yang berlangsung di beberapa hari kerja",
+    "ubah kunjungan senin rabu jumat menjadi shift terpisah per hari",
+    "potong semua shift grup spitex winterthur menurut hari",
+    "pisahkan setiap kunjungan mingguan menjadi shift tersendiri untuk tiap hari"
+  ],
+  "build_weekly_tours": [
+    "bangun tur mingguan untuk sebuah grup",
+    "bagikan pelanggan ke beberapa tur dan isi kontainer",
+    "buat tiga tur untuk grup spitex winterthur berangkat dari winterthur",
+    "tempatkan pasien ke dalam tur menurut lokasi untuk satu minggu penuh",
+    "buat tur mingguan dengan rute optimal untuk semua kunjungan grup",
+    "bentuk beberapa kontainer mingguan dari kunjungan sebuah grup"
+  ],
+  "assign_container_week": [
+    "jadwalkan karyawan pada sebuah tur selama seminggu penuh",
+    "tugaskan tur kepada karyawan untuk seminggu penuh",
+    "jadwalkan anna di tur 1 untuk minggu depan",
+    "tugaskan kontainer kepada karyawan untuk rentang tanggal",
+    "isi tur 2 dari tanggal 3 sampai 7 november dengan lara",
+    "pesan karyawan di setiap hari tur dari senin sampai jumat"
   ]
 }

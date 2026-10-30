@@ -4014,5 +4014,29 @@
     "planera en paus i containerns runda",
     "lägg till en lunchpaus kl. 12:00 i containern på torsdag",
     "lägg in en halvtimmes paus i måndagens runda och optimera rutten igen"
+  ],
+  "split_shifts_by_weekday": [
+    "dela upp pass efter veckodag",
+    "skär flerdagspass till ett pass per veckodag",
+    "dela upp varje pass i en grupp som går flera veckodagar",
+    "gör besöken måndag onsdag fredag till separata pass per dag",
+    "skär alla pass i gruppen spitex winterthur efter veckodag",
+    "dela ut varje veckobesök som ett eget pass för varje dag"
+  ],
+  "build_weekly_tours": [
+    "bygg veckorundor för en grupp",
+    "fördela kunderna på flera rundor och fyll containrarna",
+    "bygg tre rundor för gruppen spitex winterthur med start i winterthur",
+    "fördela patienterna på rundor efter plats för hela veckan",
+    "skapa ruttoptimerade veckorundor för alla besök i gruppen",
+    "bilda flera veckocontainrar av en grupps besök"
+  ],
+  "assign_container_week": [
+    "boka en medarbetare på en runda för en hel vecka",
+    "tilldela en medarbetare en runda för hela veckan",
+    "planera in anna på runda 1 nästa vecka",
+    "tilldela containern till en medarbetare för en period",
+    "bemanna runda 2 från 3 till 7 november med lara",
+    "boka medarbetaren på alla rundedagar från måndag till fredag"
   ]
 }

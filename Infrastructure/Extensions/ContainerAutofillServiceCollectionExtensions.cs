@@ -17,6 +17,7 @@ public static class ContainerAutofillServiceCollectionExtensions
     public static IServiceCollection AddContainerAutofillServices(this IServiceCollection services)
     {
         services.AddScoped<ContainerAutofillCandidateLocator>();
+        services.AddScoped<IShiftLocationResolver>(sp => sp.GetRequiredService<ContainerAutofillCandidateLocator>());
         services.AddScoped<ContainerAutofillTravelTimeFloor>();
         services.AddScoped<ContainerAutofillGreedySelector>();
         services.AddScoped<ContainerAutofillRouteSequencer>();

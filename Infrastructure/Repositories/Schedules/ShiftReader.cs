@@ -99,6 +99,32 @@ public class ShiftReader : IShiftReader
             .Select(s => new ShiftValidityPeriod(s.FromDate, s.UntilDate))
             .FirstOrDefaultAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<ShiftGroupLink>> GetGroupLinksByShiftIdsAsync(
+        IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var ids = shiftIds.ToList();
+        return await _context.GroupItem
+            .AsNoTracking()
+            .Where(gi => gi.ShiftId != null && ids.Contains(gi.ShiftId.Value) && !gi.IsDeleted && gi.AnalyseToken == null)
+            .OrderBy(gi => gi.ShiftId)
+            .ThenBy(gi => gi.GroupId)
+            .Select(gi => new ShiftGroupLink(gi.ShiftId!.Value, gi.GroupId, gi.ValidFrom, gi.ValidUntil))
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlySet<Guid>> GetShiftIdsWithWorksAsync(
+        IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var ids = shiftIds.ToList();
+        var found = await _context.Work
+            .AsNoTracking()
+            .Where(w => ids.Contains(w.ShiftId) && !w.IsDeleted && w.AnalyseToken == null)
+            .Select(w => w.ShiftId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        return found.ToHashSet();
+    }
+
     public async Task<IReadOnlyList<Shift>> GetTasksWithClientByIdsAsync(
         IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
     {

@@ -185,39 +185,14 @@ public class ShiftTimeCutPlanner : IShiftTimeCutPlanner
     private static ShiftResource BuildPartResource(
         Shift originalShift, Guid sealedOrderId, ShiftTimeCutPart part, List<SimpleGroupResource> groupResources)
     {
-        return new ShiftResource
-        {
-            Id = part.Id,
-            Name = part.Name,
-            Abbreviation = BuildAbbreviation(part.Name, part.Index),
-            Description = originalShift.Description,
-            Status = ShiftStatus.SplitShift,
-            ShiftType = originalShift.ShiftType,
-            OriginalId = sealedOrderId,
-            ClientId = originalShift.ClientId,
-            MacroId = originalShift.MacroId,
-            StartShift = part.Start,
-            EndShift = part.End,
-            FromDate = originalShift.FromDate,
-            UntilDate = originalShift.UntilDate,
-            WorkTime = part.WorkTime,
-            CuttingAfterMidnight = part.CuttingAfterMidnight,
-            SumEmployees = originalShift.SumEmployees,
-            Quantity = originalShift.Quantity,
-            IsMonday = originalShift.IsMonday,
-            IsTuesday = originalShift.IsTuesday,
-            IsWednesday = originalShift.IsWednesday,
-            IsThursday = originalShift.IsThursday,
-            IsFriday = originalShift.IsFriday,
-            IsSaturday = originalShift.IsSaturday,
-            IsSunday = originalShift.IsSunday,
-            IsHoliday = originalShift.IsHoliday,
-            IsWeekdayAndHoliday = originalShift.IsWeekdayAndHoliday,
-            IsTimeRange = originalShift.IsTimeRange,
-            IsSporadic = originalShift.IsSporadic,
-            SporadicScope = originalShift.SporadicScope,
-            Groups = groupResources
-        };
+        var resource = ShiftCutPartResourceFactory.CopyOf(originalShift, part.Id, sealedOrderId, groupResources);
+        resource.Name = part.Name;
+        resource.Abbreviation = BuildAbbreviation(part.Name, part.Index);
+        resource.StartShift = part.Start;
+        resource.EndShift = part.End;
+        resource.WorkTime = part.WorkTime;
+        resource.CuttingAfterMidnight = part.CuttingAfterMidnight;
+        return resource;
     }
 
     private static Guid? ResolveSealedOrderId(Shift shift)

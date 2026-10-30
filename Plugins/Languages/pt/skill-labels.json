@@ -516,5 +516,8 @@
   "cancel_order_review": "Cancelar a revisão de encomendas",
   "execute_order_review": "Executar a revisão de encomendas",
   "optimize_container_route": "Otimizar a rota de um contentor e registar as horas das visitas",
-  "add_container_template_break": "Adicionar uma pausa ao modelo de um contentor"
+  "add_container_template_break": "Adicionar uma pausa ao modelo de um contentor",
+  "split_shifts_by_weekday": "Dividir os serviços de um grupo por dia da semana",
+  "build_weekly_tours": "Criar rotas semanais para um grupo",
+  "assign_container_week": "Marcar um funcionário numa rota para um período"
 }

@@ -516,5 +516,8 @@
   "cancel_order_review": "Avbryt bestillingsgjennomgangen",
   "execute_order_review": "Utfør bestillingsgjennomgangen",
   "optimize_container_route": "Optimaliser ruten til en container og før inn besøkstidene",
-  "add_container_template_break": "Legg til en pause i en containers mal"
+  "add_container_template_break": "Legg til en pause i en containers mal",
+  "split_shifts_by_weekday": "Del opp en gruppes vakter etter ukedag",
+  "build_weekly_tours": "Bygg ukentlige turer for en gruppe",
+  "assign_container_week": "Book en ansatt på en tur for en periode"
 }

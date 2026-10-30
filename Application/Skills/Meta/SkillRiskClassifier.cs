@@ -319,6 +319,9 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // hides them from MCP, ScheduleRecurringTaskSkill cannot schedule them and a plan step pauses for approval.
         "cut_shift",
         "cut_shift_by_date",
+        // split_shifts_by_weekday is the bulk form of the weekday cut: same owner decision, so it is held at every level and
+        // runs only as the confirmed replay of its server preview (SplitShiftsByWeekdayConfirmationPreviewProvider).
+        "split_shifts_by_weekday",
         // Schedule day-to-day deletes that carry content or payroll weight (expenses, work changes, notes, planned
         // absences). delete_work is Reversible through its registered inverse restore_work (InverseSkillRegistry) and
         // delete_break stays Reversible (ReversibleExtras) without a registered inverse of its own: it is the inverse of
@@ -504,15 +507,24 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // add_shift_to_group.
         "assign_shifts_to_city_groups",
         // Shift and container structure: creates, updates and template additions. The cuts and the destructive
-        // counterparts (cut_shift, cut_shift_by_date, delete_shift, reset_shift_cuts, reset_container_day,
+        // counterparts (cut_shift, cut_shift_by_date, split_shifts_by_weekday, delete_shift, reset_shift_cuts, reset_container_day,
         // remove_container_template_task) are Sensitive. create_shift creates only an open, still editable order and
         // never seals (owner decision 2026-10-24); the one-way sealing step is seal_shift, which is Sensitive and bound
         // to a confirmed preview.
         "create_shift",
         "update_shift",
         "bundle_nearby_timerange_shifts_into_container",
+        // build_weekly_tours creates the sealed tour containers of a group and writes their weekday templates in one
+        // transaction that verifies by re-reading (all or nothing). Sealed containers cannot be taken back by a skill of
+        // its own; delete_shift (Sensitive) removes a container that has no works.
+        "build_weekly_tours",
         "add_container_template_task",
         "add_container_template_break",
+        // assign_container_week books one employee on a container for the dates of a range through the BulkAddWorks
+        // pipeline, like place_work, but it registers no inverse (it creates several works at once), so it is listed
+        // here as Irreversible; the works are removed one by one with delete_work or together with bulk_delete_works
+        // (Sensitive).
+        "assign_container_week",
         // optimize_container_route rewrites the visit and travel times of one weekday template (re-enterable, the next
         // optimization or the container page rewrites them again); it never adds or removes a visit.
         "optimize_container_route",

@@ -516,5 +516,8 @@
   "cancel_order_review": "ביטול סקירת ההזמנות",
   "execute_order_review": "ביצוע סקירת ההזמנות",
   "optimize_container_route": "אופטימיזציה של מסלול מכולה ורישום זמני הביקורים",
-  "add_container_template_break": "הוספת הפסקה לתבנית מכולה"
+  "add_container_template_break": "הוספת הפסקה לתבנית מכולה",
+  "split_shifts_by_weekday": "פיצול משמרות של קבוצה לפי ימות השבוע",
+  "build_weekly_tours": "בניית סבבים שבועיים לקבוצה",
+  "assign_container_week": "שיבוץ עובד לסבב לטווח תאריכים"
 }

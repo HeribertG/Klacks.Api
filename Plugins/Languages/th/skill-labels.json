@@ -516,5 +516,8 @@
   "cancel_order_review": "ยกเลิกการตรวจคำสั่งซื้อ",
   "execute_order_review": "ดำเนินการตรวจคำสั่งซื้อ",
   "optimize_container_route": "ปรับเส้นทางของคอนเทนเนอร์ให้เหมาะสมและบันทึกเวลาเยี่ยม",
-  "add_container_template_break": "เพิ่มช่วงพักในแม่แบบคอนเทนเนอร์"
+  "add_container_template_break": "เพิ่มช่วงพักในแม่แบบคอนเทนเนอร์",
+  "split_shifts_by_weekday": "แยกกะของกลุ่มตามวันในสัปดาห์",
+  "build_weekly_tours": "สร้างรอบประจำสัปดาห์ให้กลุ่ม",
+  "assign_container_week": "จองพนักงานเข้ารอบตามช่วงวันที่"
 }

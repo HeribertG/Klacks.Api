@@ -32,6 +32,7 @@ public static class PreviewApplySkillCalls
         "assign_orders_to_groups",
         "assign_shifts_to_city_groups",
         "seal_open_orders",
+        "split_shifts_by_weekday",
         "schedule_recurring_task",
     };
 

@@ -516,5 +516,8 @@
   "cancel_order_review": "取消订单审核",
   "execute_order_review": "执行订单审核",
   "optimize_container_route": "优化容器路线并写入访问时间",
-  "add_container_template_break": "在容器模板中添加休息"
+  "add_container_template_break": "在容器模板中添加休息",
+  "split_shifts_by_weekday": "按星期几拆分小组的班次",
+  "build_weekly_tours": "为小组建立每周巡回路线",
+  "assign_container_week": "按日期范围安排员工负责巡回路线"
 }

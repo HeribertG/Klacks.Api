@@ -4001,5 +4001,29 @@
     "planlegg en pause i containerens runde",
     "legg til en lunsjpause kl. 12:00 i containeren på torsdag",
     "sett inn en halvtimes pause i mandagens runde og optimaliser ruten på nytt"
+  ],
+  "split_shifts_by_weekday": [
+    "del opp vakter etter ukedag",
+    "skjær flerdagersvakter opp i én vakt per ukedag",
+    "del opp hver vakt i en gruppe som går på flere ukedager",
+    "gjør besøkene mandag onsdag fredag om til separate vakter per dag",
+    "skjær alle vakter i gruppen spitex winterthur etter ukedag",
+    "skill hvert ukentlige besøk ut som egen vakt for hver dag"
+  ],
+  "build_weekly_tours": [
+    "bygg ukentlige turer for en gruppe",
+    "fordel brukerne på flere turer og fyll containerne",
+    "bygg tre turer for gruppen spitex winterthur med start i winterthur",
+    "fordel pasientene på turer etter sted for hele uken",
+    "lag rute-optimaliserte uketurer for alle besøk i gruppen",
+    "lag flere ukecontainere av besøkene til en gruppe"
+  ],
+  "assign_container_week": [
+    "book en ansatt på en tur for en hel uke",
+    "tildel en tur til en ansatt for hele uken",
+    "planlegg anna på tur 1 neste uke",
+    "tildel containeren til en ansatt for en periode",
+    "bemann tur 2 fra 3. til 7. november med lara",
+    "book den ansatte på alle turdager fra mandag til fredag"
   ]
 }

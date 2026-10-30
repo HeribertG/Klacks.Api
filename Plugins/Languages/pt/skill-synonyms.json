@@ -4047,5 +4047,29 @@
     "planear uma pausa no percurso do contentor",
     "adiciona uma pausa de almoço às 12:00 ao contentor na quinta-feira",
     "põe meia hora de pausa no percurso de segunda-feira e volta a otimizar a rota"
+  ],
+  "split_shifts_by_weekday": [
+    "dividir os serviços por dia da semana",
+    "cortar serviços de vários dias num serviço por cada dia da semana",
+    "dividir cada serviço de um grupo que decorre em vários dias da semana",
+    "transformar as visitas de segunda, quarta e sexta em serviços separados por dia",
+    "cortar todos os serviços do grupo spitex winterthur por dia da semana",
+    "separar cada visita semanal num serviço próprio para cada dia"
+  ],
+  "build_weekly_tours": [
+    "criar rotas semanais para um grupo",
+    "distribuir os utentes por várias rotas e preencher os contentores",
+    "cria três rotas para o grupo spitex winterthur com partida em winterthur",
+    "atribuir os pacientes às rotas por localidade para a semana inteira",
+    "criar rotas semanais com percurso otimizado para todas as visitas do grupo",
+    "formar vários contentores semanais a partir das visitas de um grupo"
+  ],
+  "assign_container_week": [
+    "marcar um funcionário numa rota durante uma semana inteira",
+    "atribuir uma rota a um funcionário para a semana toda",
+    "planeia a anna na rota 1 para a próxima semana",
+    "atribuir o contentor a um funcionário para um intervalo de datas",
+    "ocupa a rota 2 de 3 a 7 de novembro com a lara",
+    "marca o funcionário em todos os dias da rota, de segunda a sexta"
   ]
 }

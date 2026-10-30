@@ -82,15 +82,13 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
 
         var templates = await _containerTemplateRepository.GetTemplatesForContainer(containerWork.ShiftId);
 
-        var dayOfWeek = (int)date.DayOfWeek;
-        var template = templates.FirstOrDefault(t => t.Weekday == dayOfWeek && !t.IsHoliday)
-            ?? templates.FirstOrDefault(t => t.Weekday == dayOfWeek);
+        var template = ContainerTemplateForDate.Pick(templates, date);
 
         if (template is null)
         {
             _logger.LogDebug(
                 "No ContainerTemplate found for containerId={ContainerId} on weekday={Weekday}",
-                containerWork.ShiftId, dayOfWeek);
+                containerWork.ShiftId, (int)date.DayOfWeek);
             return;
         }
 

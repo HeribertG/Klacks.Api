@@ -139,6 +139,12 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IShiftResetService, ShiftResetService>();
         services.AddScoped<IShiftCutFacade, ShiftCutFacade>();
         services.AddScoped<IShiftTimeCutPlanner, ShiftTimeCutPlanner>();
+        services.AddScoped<IShiftWeekdayCutPlanner, ShiftWeekdayCutPlanner>();
+        services.AddScoped<ContainerAutofillVisibilityFilter>();
+        services.AddScoped<ContainerTemplateWriter>();
+        services.AddScoped<WeeklyTourPlanner>();
+        services.AddScoped<WeeklyTourBuilder>();
+        services.AddScoped<WeeklyTourPlacementVerifier>();
         services.AddScoped<ISealedOrderFamilyDeletion, SealedOrderFamilyDeletion>();
         services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
         services.AddScoped<IShiftScheduleReader>(sp => sp.GetRequiredService<IShiftScheduleService>());
@@ -336,6 +342,8 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Application.Skills.SealOpenOrdersConfirmationPreviewProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
                            Klacks.Api.Application.Skills.SealShiftConfirmationPreviewProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
+                           Klacks.Api.Application.Skills.SplitShiftsByWeekdayConfirmationPreviewProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
                            Klacks.Api.Application.Skills.OrderReview.OrderReviewConfirmationPreviewProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IConfirmationPreviewCatalog,

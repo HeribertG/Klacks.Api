@@ -516,5 +516,8 @@
   "cancel_order_review": "Hủy buổi rà soát đơn hàng",
   "execute_order_review": "Thực hiện buổi rà soát đơn hàng",
   "optimize_container_route": "Tối ưu tuyến đường của container và ghi giờ thăm",
-  "add_container_template_break": "Thêm giờ nghỉ vào mẫu của container"
+  "add_container_template_break": "Thêm giờ nghỉ vào mẫu của container",
+  "split_shifts_by_weekday": "Tách các ca của một nhóm theo thứ trong tuần",
+  "build_weekly_tours": "Xây dựng các tuyến hằng tuần cho một nhóm",
+  "assign_container_week": "Xếp nhân viên vào tuyến trong một khoảng ngày"
 }

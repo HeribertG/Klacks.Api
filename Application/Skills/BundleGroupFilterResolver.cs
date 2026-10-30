@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Resolves the group filter of bundle_nearby_timerange_shifts_into_container from a group name and/or group ids.
+/// Resolves the group filter of the skills that work on the services of a group (bundle_nearby_timerange_shifts_into_container,
+/// build_weekly_tours, split_shifts_by_weekday) from a group name and/or group ids.
 /// The name goes through the shared GroupResolver under the strict policy (an exact name wins, an ambiguous name lists
 /// its candidates, an unknown name lists the available groups) over the groups the caller may see, so a hidden group is
 /// answered like a missing one. Every id must be a GUID of a visible group; a value that is no GUID is refused instead
@@ -75,8 +76,8 @@ public sealed class BundleGroupFilterResolver
         {
             return (null,
                 $"The group '{string.Join(GroupNameSeparator, distinct.Select(g => g.Name))}' has no services linked " +
-                "directly to it (services of its subgroups do not count), so there is nothing to bundle — no " +
-                "container was created. Ask the user which group holds the services.");
+                "directly to it (services of its subgroups do not count), so there is nothing to process — no " +
+                "container was created and nothing was changed. Ask the user which group holds the services.");
         }
 
         return (distinct, null);

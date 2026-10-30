@@ -45,8 +45,8 @@
       "hash": "A653B647F1D6B7198F12FE53AF8023D85D0FE7F805172A5E1DA2444237BCC586"
     },
     "add_container_template_break": {
-      "version": 1,
-      "hash": "E3832664BA155411942FDDA22FAFB97ABAE15126F69D39DD62D4A087A11E3E8F"
+      "version": 2,
+      "hash": "DB2819FC2B7D35CEA858E4EA8771E514D9AF63CF31AEE0F8F742676BD959B3D9"
     },
     "add_container_template_task": {
       "version": 5,
@@ -116,6 +116,10 @@
       "version": 9,
       "hash": "0C292CC63ED5A4315BC347A92BAECFA6430325A28685CB1EBC664848C38474E9"
     },
+    "assign_container_week": {
+      "version": 1,
+      "hash": "9F754488AE82C931EBAE3139D848309BB75D31843A17174E92FEC6AA8ACFE7E1"
+    },
     "assign_contract_by_name": {
       "version": 11,
       "hash": "7E9D1916E6523AF6BBF64BC76D7C57B54D8E201C400247E90DFB1183F5AE7F9C"
@@ -143,6 +147,10 @@
     "assign_user_permissions": {
       "version": 4,
       "hash": "A457BCC328AA258B40A0189E7C70E721D66FA2B37477ACBE015093EA42A7DD67"
+    },
+    "build_weekly_tours": {
+      "version": 1,
+      "hash": "71F84213717373F9A35EF9971C5B0D03A7C8B0F2D6005A8C2301C716B2A5A71E"
     },
     "bulk_add_absence_for_group": {
       "version": 7,
@@ -1739,6 +1747,10 @@
     "set_user_group_scope": {
       "version": 8,
       "hash": "9F8800441E67988053EDFC3A940C26B2CED991612BB822C3B554A727E0CBD06C"
+    },
+    "split_shifts_by_weekday": {
+      "version": 2,
+      "hash": "DCF4EF42192615D65519BCA96FEAD99027AE6819DCEE9892A150444D79937FB1"
     },
     "start_autowizard": {
       "version": 7,

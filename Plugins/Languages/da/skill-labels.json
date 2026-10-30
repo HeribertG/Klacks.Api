@@ -516,5 +516,8 @@
   "cancel_order_review": "Annullér ordregennemgangen",
   "execute_order_review": "Udfør ordregennemgangen",
   "optimize_container_route": "Optimer en containers rute og skriv besøgstiderne ind",
-  "add_container_template_break": "Tilføj en pause til en containers skabelon"
+  "add_container_template_break": "Tilføj en pause til en containers skabelon",
+  "split_shifts_by_weekday": "Opdel en gruppes vagter efter ugedag",
+  "build_weekly_tours": "Opbyg ugentlige ture til en gruppe",
+  "assign_container_week": "Book en medarbejder på en tur for en periode"
 }

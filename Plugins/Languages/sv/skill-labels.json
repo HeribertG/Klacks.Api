@@ -516,5 +516,8 @@
   "cancel_order_review": "Avbryt beställningsgenomgången",
   "execute_order_review": "Utför beställningsgenomgången",
   "optimize_container_route": "Optimera en containers rutt och för in besökstiderna",
-  "add_container_template_break": "Lägg till en paus i en containers mall"
+  "add_container_template_break": "Lägg till en paus i en containers mall",
+  "split_shifts_by_weekday": "Dela upp en grupps pass efter veckodag",
+  "build_weekly_tours": "Bygg veckorundor för en grupp",
+  "assign_container_week": "Boka en medarbetare på en runda för en period"
 }

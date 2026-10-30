@@ -4029,5 +4029,29 @@
     "planifică o pauză în turul containerului",
     "adaugă joi o pauză de prânz la 12:00 în container",
     "pune o pauză de jumătate de oră în turul de luni și optimizează din nou traseul"
+  ],
+  "split_shifts_by_weekday": [
+    "împarte serviciile pe zilele săptămânii",
+    "taie serviciile de mai multe zile într-un serviciu pentru fiecare zi a săptămânii",
+    "împarte fiecare serviciu al unui grup care se desfășoară în mai multe zile ale săptămânii",
+    "transformă vizitele de luni, miercuri și vineri în servicii separate pentru fiecare zi",
+    "taie toate serviciile grupului spitex winterthur pe zilele săptămânii",
+    "desparte fiecare vizită săptămânală într-un serviciu propriu pentru fiecare zi"
+  ],
+  "build_weekly_tours": [
+    "construiește trasee săptămânale pentru un grup",
+    "distribuie clienții pe mai multe trasee și umple containerele",
+    "construiește trei trasee pentru grupul spitex winterthur cu plecare din winterthur",
+    "repartizează pacienții pe trasee în funcție de localitate pentru toată săptămâna",
+    "creează trasee săptămânale cu ruta optimizată pentru toate vizitele grupului",
+    "formează mai multe containere săptămânale din vizitele unui grup"
+  ],
+  "assign_container_week": [
+    "programează un angajat pe un traseu pentru o săptămână întreagă",
+    "atribuie un traseu unui angajat pentru toată săptămâna",
+    "programează-o pe anna pe traseul 1 pentru săptămâna viitoare",
+    "atribuie containerul unui angajat pentru o perioadă",
+    "ocupă traseul 2 între 3 și 7 noiembrie cu lara",
+    "rezervă angajatul în toate zilele traseului de luni până vineri"
   ]
 }

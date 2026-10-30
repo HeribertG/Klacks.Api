@@ -8,11 +8,13 @@
 /// rolls back completely (no orphaned empty container) when nothing matches or the write cannot be
 /// confirmed. For other weekdays, call this skill again with a different weekday and the same location.
 /// The template is written the way the Ui container page saves an autofill result, without a second optimization:
-/// the autofill route becomes route steps (RouteStepBuilder.FromAutofill), ContainerVisitScheduler places the visit
-/// windows (TimeRangeStartItem/EndItem) and travel times before and after in route order, and the template stores the
-/// RouteInfo (ContainerRouteInfoBuilder). The verification requires the RouteInfo and every written visit and travel
-/// time. When the visibility guard drops picks, the route is narrowed to the visible picks first
-/// (ContainerAutofillRouteFilter), so nothing of a hidden task reaches the template, the stops or the map.
+/// the autofill route becomes route steps, ContainerVisitPlanner places the visit windows and travel times before and after
+/// in route order, and the template stores the RouteInfo. ContainerTemplateWriter writes it and the verification requires
+/// the RouteInfo and every written visit and travel time. When the visibility guard drops picks, the route is narrowed to
+/// the visible picks first (ContainerAutofillVisibilityFilter), so nothing of a hidden task reaches the template, the stops
+/// or the map. Container order, input parsing, transport mode check, planning, writing and the estimation note are shared
+/// with build_weekly_tours (ContainerShiftFactory, ContainerSkillInputParser, ContainerTransportModeResolver,
+/// ContainerVisitPlanner, ContainerTemplateWriter, ContainerTravelTimeNotes).
 /// Data carries the stops in route order and a top-level Route to the container page (ContainerTemplateRoutes).
 /// </summary>
 /// <param name="location">City/place/address used as both StartBase and EndBase of the route.</param>
@@ -41,31 +43,25 @@
 using System.Globalization;
 using Klacks.Api.Application.Commands.ContainerTemplates;
 using Klacks.Api.Application.Constants;
-using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
-using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
-using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces;
-using Klacks.Api.Domain.Interfaces.GeoServices;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Interfaces.GeoServices;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Services.RouteOptimization;
-using Klacks.Api.Domain.Services.RouteOptimization.ContainerAutofill;
-using Klacks.Api.Domain.Services.RouteOptimization.VisitScheduling;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Skills;
@@ -73,25 +69,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("bundle_nearby_timerange_shifts_into_container")]
 public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementation
 {
-    private const int IsoMonday = 1;
-    private const int IsoTuesday = 2;
-    private const int IsoWednesday = 3;
-    private const int IsoThursday = 4;
-    private const int IsoFriday = 5;
-    private const int IsoSaturday = 6;
-    private const int IsoSunday = IsoWeekday.Sunday;
-
     private const string SkillName = "bundle_nearby_timerange_shifts_into_container";
-    private const int DefaultSumEmployees = 1;
-    private const int DefaultQuantity = 1;
     private const double DefaultTimeRangeTolerance = 0.5;
-    private const string TransportModeCar = "car";
-    private const string TravelTimesEstimatedNote =
-        " The travel times are straight-line estimates: the routing service returned no travel times for the {0} " +
-        "candidate service(s) — it could not be reached or the request exceeded its size limit (too many locations). " +
-        "Tell the user explicitly that the travel times are only estimates.";
-    private const string NarrowWithGroupNote =
-        " With groupName the candidates can be narrowed to one group, so the routing service can compute real travel times.";
     private const string GroupFilterNote = " Only services of the group '{0}' were considered.";
     private const string NoGroupFilterNote = " No group filter was applied: services of all groups were considered.";
     private const string GroupNameSeparator = "', '";
@@ -103,13 +82,11 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserService _userService;
     private readonly IContainerAutofillService _containerAutofillService;
-    private readonly ISettingsReader _settingsReader;
-    private readonly ISettingsEncryptionService _encryptionService;
-    private readonly IGeoServicesPolicy _geoServicesPolicy;
     private readonly BundleGroupFilterResolver _groupFilterResolver;
-    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
-    private readonly ScheduleMapper _scheduleMapper;
+    private readonly ContainerTransportModeResolver _transportModes;
+    private readonly ContainerAutofillVisibilityFilter _visibilityFilter;
+    private readonly ContainerTemplateWriter _templateWriter;
 
     public BundleNearbyTimeRangeShiftsIntoContainerSkill(
         IShiftRepository shiftRepository,
@@ -127,50 +104,20 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         IDefaultShiftMacroResolver defaultShiftMacroResolver,
         ScheduleMapper scheduleMapper)
     {
-        _scheduleMapper = scheduleMapper;
-        _geoServicesPolicy = geoServicesPolicy;
         _shiftRepository = shiftRepository;
         _mediator = mediator;
         _unitOfWork = unitOfWork;
         _userService = userService;
         _containerAutofillService = containerAutofillService;
-        _settingsReader = settingsReader;
-        _encryptionService = encryptionService;
         _groupFilterResolver = new BundleGroupFilterResolver(groupRepository, groupVisibilityGuard, groupItemRepository);
-        _shiftVisibilityGuard = shiftVisibilityGuard;
         _defaultShiftMacroResolver = defaultShiftMacroResolver;
-    }
-
-    private async Task<SkillResult?> CheckTransportModeAvailableAsync(ContainerTransportMode transportMode, string? transportModeStr)
-    {
-        if (transportMode == ContainerTransportMode.ByCar)
-        {
-            return null;
-        }
-
-        if (!_geoServicesPolicy.OpenRouteService.IsEnabled)
-        {
-            return SkillResult.Error(
-                $"Cannot use transportMode '{transportModeStr}' — {GeoServiceMessages.OpenRouteServiceDisabled}, so only " +
-                "transportMode=car is available. Call this skill again with transportMode=car.");
-        }
-
-        var apiKey = await _settingsReader.GetOpenRouteServiceApiKeyAsync(_encryptionService);
-        if (string.IsNullOrWhiteSpace(apiKey))
-        {
-            return SkillResult.Error(
-                $"Cannot use transportMode '{transportModeStr}' — no OpenRouteService API key is configured, so only " +
-                "transportMode=car (driving times via OSRM/estimation) is available. Configure the OpenRouteService " +
-                "API key in Settings first, or call this skill again with transportMode=car.");
-        }
-
-        return null;
+        _transportModes = new ContainerTransportModeResolver(geoServicesPolicy, settingsReader, encryptionService);
+        _visibilityFilter = new ContainerAutofillVisibilityFilter(shiftVisibilityGuard);
+        _templateWriter = new ContainerTemplateWriter(mediator, scheduleMapper, shiftRepository);
     }
 
     internal sealed record BundleOutcome(
         Guid ContainerId, string ContainerName, ContainerAutofillResult AutofillResult, List<ContainerRouteStop> Stops);
-
-    private sealed record PlannedVisits(List<ContainerTemplateItemResource> Items, List<ContainerRouteStop> Stops, RouteInfo RouteInfo);
 
     private sealed record BundleRequest(
         string Location,
@@ -198,10 +145,10 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             return SkillResult.Error(requestError!);
         }
 
-        var unavailableTransportMode = await CheckTransportModeAvailableAsync(request.TransportMode, request.TransportModeText);
+        var unavailableTransportMode = await _transportModes.CheckAvailableAsync(request.TransportMode, request.TransportModeText);
         if (unavailableTransportMode != null)
         {
-            return unavailableTransportMode;
+            return SkillResult.Error(unavailableTransportMode);
         }
 
         var (groups, groupError) = await _groupFilterResolver.ResolveAsync(
@@ -211,10 +158,8 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             return SkillResult.Error(groupError!);
         }
 
-        var groupItems = BuildGroupItems(groups, request.FromDate);
-
         var defaultMacroId = await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync(cancellationToken);
-        var containerShift = BuildContainerShift(request, groupItems, defaultMacroId, context.UserName);
+        var spec = BuildContainerSpec(request, BuildGroupItems(groups, request.FromDate), defaultMacroId, context.UserName);
 
         var instanceId = _userService.GetInstanceId() ?? string.Empty;
 
@@ -222,7 +167,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         try
         {
             outcome = await _unitOfWork.ExecuteInTransactionAsync(
-                () => CreateAndFillContainerAsync(request, containerShift, instanceId, cancellationToken));
+                () => CreateAndFillContainerAsync(request, spec, instanceId, cancellationToken));
         }
         catch (SkillVerificationException ex)
         {
@@ -240,7 +185,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         var untilTimeStr = GetRequiredString(parameters, "untilTime");
         var fromDateStr = GetRequiredString(parameters, "fromDate");
         var untilDateStr = GetParameter<string>(parameters, "untilDate");
-        var transportModeStr = GetParameter<string>(parameters, "transportMode") ?? TransportModeCar;
+        var transportModeStr = GetParameter<string>(parameters, "transportMode") ?? ContainerTransportModeResolver.Car;
         var timeRangeTolerance = GetParameter<double>(parameters, "timeRangeTolerance", DefaultTimeRangeTolerance);
         var groupIdsRaw = GetParameter<string>(parameters, "groupIds");
         var groupName = GetParameter<string>(parameters, "groupName");
@@ -255,19 +200,19 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             return (null, IsoWeekday.RangeError);
         }
 
-        var (fromTime, untilTime, timeError) = ParseTimeBudget(fromTimeStr, untilTimeStr, language);
+        var (fromTime, untilTime, timeError) = ContainerSkillInputParser.ParseTimeBudget(fromTimeStr, untilTimeStr, language);
         if (timeError != null)
         {
             return (null, timeError);
         }
 
-        var (fromDate, untilDate, dateError) = ParseValidity(fromDateStr, untilDateStr, language);
+        var (fromDate, untilDate, dateError) = ContainerSkillInputParser.ParseValidity(fromDateStr, untilDateStr, language);
         if (dateError != null)
         {
             return (null, dateError);
         }
 
-        var (transportMode, transportModeError) = ParseTransportMode(transportModeStr);
+        var (transportMode, transportModeError) = ContainerTransportModeResolver.Parse(transportModeStr);
         if (transportMode is null)
         {
             return (null, transportModeError!);
@@ -280,54 +225,6 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             transportModeStr, transportMode.Value, timeRangeTolerance, groupIdsRaw, groupName, name), null);
     }
 
-    private static (TimeOnly FromTime, TimeOnly UntilTime, string? Error) ParseTimeBudget(
-        string fromTimeStr, string untilTimeStr, string? language)
-    {
-        if (!SkillCalendarStringParser.TryParseTimeOnly(fromTimeStr, language, out var fromTime))
-        {
-            return (default, default, $"Invalid fromTime format: {fromTimeStr}. Expected HH:mm");
-        }
-
-        if (!SkillCalendarStringParser.TryParseTimeOnly(untilTimeStr, language, out var untilTime))
-        {
-            return (default, default, $"Invalid untilTime format: {untilTimeStr}. Expected HH:mm");
-        }
-
-        if (untilTime.ToTimeSpan() <= fromTime.ToTimeSpan())
-        {
-            return (default, default, $"untilTime ({untilTimeStr}) must be after fromTime ({fromTimeStr}).");
-        }
-
-        return (fromTime, untilTime, null);
-    }
-
-    private static (DateOnly FromDate, DateOnly? UntilDate, string? Error) ParseValidity(
-        string fromDateStr, string? untilDateStr, string? language)
-    {
-        if (!SkillCalendarStringParser.TryParseDateOnly(fromDateStr, language, out var fromDate))
-        {
-            return (default, null, $"Invalid fromDate format: {fromDateStr}. Expected YYYY-MM-DD (e.g. 2026-06-01).");
-        }
-
-        DateOnly? untilDate = null;
-        if (!string.IsNullOrWhiteSpace(untilDateStr))
-        {
-            if (!SkillCalendarStringParser.TryParseDateOnly(untilDateStr, language, out var parsedUntilDate))
-            {
-                return (default, null, $"Invalid untilDate format: {untilDateStr}. Expected YYYY-MM-DD.");
-            }
-
-            untilDate = parsedUntilDate;
-            if (untilDate.Value < fromDate)
-            {
-                return (default, null,
-                    $"untilDate ({untilDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}) must not be before fromDate ({fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}).");
-            }
-        }
-
-        return (fromDate, untilDate, null);
-    }
-
     private static List<GroupItem> BuildGroupItems(List<Group> groups, DateOnly fromDate) =>
         groups.Select(group => new GroupItem
         {
@@ -335,54 +232,31 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             ValidFrom = fromDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
         }).ToList();
 
-    private static Shift BuildContainerShift(
-        BundleRequest request, List<GroupItem> groupItems, Guid? defaultMacroId, string userName)
-    {
-        var (name, fromTime, untilTime) = (request.Name, request.FromTime, request.UntilTime);
-        var (isMonday, isTuesday, isWednesday, isThursday, isFriday, isSaturday, isSunday) = BuildIsoWeekdayFlags(request.IsoWeekday);
-
-        return new Shift
-        {
-            Id = Guid.NewGuid(),
-            Name = name,
-            Abbreviation = GenerateAbbreviation(name),
-            Description = string.Empty,
-            ClientId = null,
-            MacroId = defaultMacroId,
-            Status = ShiftStatus.SealedOrder,
-            ShiftType = ShiftType.IsContainer,
-            IsTimeRange = false,
-            StartShift = fromTime,
-            EndShift = untilTime,
-            FromDate = request.FromDate,
-            UntilDate = request.UntilDate,
-            WorkTime = CalculateWorkTime(fromTime, untilTime),
-            SumEmployees = DefaultSumEmployees,
-            Quantity = DefaultQuantity,
-            IsMonday = isMonday,
-            IsTuesday = isTuesday,
-            IsWednesday = isWednesday,
-            IsThursday = isThursday,
-            IsFriday = isFriday,
-            IsSaturday = isSaturday,
-            IsSunday = isSunday,
-            GroupItems = groupItems,
-            CreateTime = DateTime.UtcNow,
-            CurrentUserCreated = userName
-        };
-    }
+    private static ContainerShiftSpec BuildContainerSpec(
+        BundleRequest request, List<GroupItem> groupItems, Guid? defaultMacroId, string userName) => new(
+            request.Name,
+            GenerateAbbreviation(request.Name),
+            request.FromTime,
+            request.UntilTime,
+            request.FromDate,
+            request.UntilDate,
+            CalculateWorkTime(request.FromTime, request.UntilTime),
+            defaultMacroId,
+            new HashSet<int> { request.IsoWeekday },
+            groupItems,
+            userName);
 
     /// <summary>
     /// Runs inside the transaction: persists the container, autofills it, and writes and confirms its weekday
     /// template while holding the container lock. Any SkillVerificationException rolls the whole operation back.
     /// </summary>
     /// <param name="request">Validated skill input</param>
-    /// <param name="containerShift">The sealed container order to persist</param>
+    /// <param name="spec">The sealed container order to build and persist</param>
     /// <param name="instanceId">Instance id the container lock is acquired under</param>
     private async Task<BundleOutcome> CreateAndFillContainerAsync(
-        BundleRequest request, Shift containerShift, string instanceId, CancellationToken cancellationToken)
+        BundleRequest request, ContainerShiftSpec spec, string instanceId, CancellationToken cancellationToken)
     {
-        var resultShift = await _shiftRepository.AddWithSealedOrderHandling(containerShift);
+        var resultShift = await _shiftRepository.AddWithSealedOrderHandling(ContainerShiftFactory.Build(spec));
         await _unitOfWork.CompleteAsync();
 
         var containerId = resultShift.Id;
@@ -390,7 +264,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         var autofillResult = await AutofillVisibleSelectionAsync(containerId, request, cancellationToken);
         if (autofillResult.SelectedShiftIds.Count == 0)
         {
-            throw new SkillVerificationException(SkillName, string.Format(NoMatchingServicesMessage, request.Location));
+            throw new SkillVerificationException(SkillName, string.Format(CultureInfo.InvariantCulture, NoMatchingServicesMessage, request.Location));
         }
 
         await using var lockScope = await ContainerTemplateLockScope.AcquireAsync(
@@ -411,153 +285,33 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private async Task<ContainerAutofillResult> AutofillVisibleSelectionAsync(
         Guid containerId, BundleRequest request, CancellationToken cancellationToken)
     {
-        var (storageWeekday, location) = (request.StorageWeekday, request.Location);
-        var (fromTime, untilTime, timeRangeTolerance) = (request.FromTime, request.UntilTime, request.TimeRangeTolerance);
-
         var rawAutofillResult = await _containerAutofillService.AutofillAsync(new ContainerAutofillRequest(
             ContainerId: containerId,
-            Weekday: storageWeekday,
+            Weekday: request.StorageWeekday,
             IsHoliday: false,
-            StartBase: location,
-            EndBase: location,
-            FromTime: fromTime,
-            UntilTime: untilTime,
+            StartBase: request.Location,
+            EndBase: request.Location,
+            FromTime: request.FromTime,
+            UntilTime: request.UntilTime,
             TransportMode: request.TransportMode,
-            TimeRangeTolerance: timeRangeTolerance,
+            TimeRangeTolerance: request.TimeRangeTolerance,
             CancellationToken: cancellationToken));
 
-        return await KeepVisibleSelectionAsync(rawAutofillResult, cancellationToken);
+        return await _visibilityFilter.KeepVisibleSelectionAsync(rawAutofillResult, cancellationToken);
     }
 
     private async Task<List<ContainerRouteStop>> WriteAndConfirmTemplateAsync(
         Guid containerId, BundleRequest request, ContainerAutofillResult autofillResult, CancellationToken cancellationToken)
     {
-        var (isoWeekday, storageWeekday, location) = (request.IsoWeekday, request.StorageWeekday, request.Location);
+        var taskShifts = await _templateWriter.LoadTaskShiftsAsync(SkillName, autofillResult.SelectedShiftIds);
+        var planned = ContainerVisitPlanner.Plan(SkillName, request.Location, request.FromTime, autofillResult, taskShifts);
 
-        var taskShifts = await LoadTaskShiftsAsync(autofillResult.SelectedShiftIds);
-        var planned = PlanVisits(request, autofillResult, taskShifts);
+        var template = _templateWriter.BuildTemplate(
+            containerId, request.StorageWeekday, request.FromTime, request.UntilTime, request.Location, request.TransportMode, planned);
 
-        var templateResource = new ContainerTemplateResource
-        {
-            Id = Guid.Empty,
-            ContainerId = containerId,
-            FromTime = request.FromTime,
-            UntilTime = request.UntilTime,
-            Weekday = storageWeekday,
-            IsHoliday = false,
-            IsWeekdayAndHoliday = false,
-            StartBase = location,
-            EndBase = location,
-            TransportMode = request.TransportMode,
-            ContainerTemplateItems = planned.Items,
-            RouteInfo = _scheduleMapper.ToRouteInfoResource(planned.RouteInfo)
-        };
-
-        await _mediator.Send(
-            new PostContainerTemplatesCommand(containerId, new List<ContainerTemplateResource> { templateResource }),
-            cancellationToken);
-
-        await ConfirmPersistedAsync(
-            SkillName,
-            () => _mediator.Send(new GetContainerTemplatesQuery(containerId), cancellationToken),
-            templates => IsTemplateFullyPersisted(templates, storageWeekday, templateResource),
-            $"the container template for weekday {isoWeekday} with its visit times, travel times and route info");
+        await _templateWriter.WriteAndConfirmAsync(SkillName, containerId, [template], cancellationToken);
 
         return planned.Stops;
-    }
-
-    private async Task<List<Shift>> LoadTaskShiftsAsync(List<Guid> selectedShiftIds)
-    {
-        var taskShifts = new List<Shift>();
-        foreach (var shiftId in selectedShiftIds)
-        {
-            var taskShift = await _shiftRepository.Get(shiftId);
-            if (taskShift is null)
-            {
-                throw new SkillVerificationException(
-                    SkillName,
-                    $"Selected task shift {shiftId} could not be re-read while building the container template.");
-            }
-
-            taskShifts.Add(taskShift);
-        }
-
-        return taskShifts;
-    }
-
-    /// <summary>
-    /// Places the visits on the autofill route exactly as the Ui does after an autofill and orders the items by the
-    /// route. Refuses (rolling the container back) when a picked visit cannot be placed or a travel time does not fit a
-    /// clock time, because the stored template would then not match the route.
-    /// </summary>
-    /// <param name="request">Validated skill input (container start and base)</param>
-    /// <param name="autofillResult">Visible autofill selection with its route</param>
-    /// <param name="taskShifts">Picked task shifts in selection order</param>
-    private static PlannedVisits PlanVisits(
-        BundleRequest request, ContainerAutofillResult autofillResult, List<Shift> taskShifts)
-    {
-        var itemByShiftId = taskShifts.ToDictionary(shift => shift.Id, BuildTemplateItem);
-        var steps = RouteStepBuilder.FromAutofill(autofillResult);
-        var scheduled = ContainerVisitScheduler.Schedule(new VisitScheduleInput(
-            ContainerVisitScheduler.ClockMinutes(request.FromTime),
-            steps,
-            autofillResult.TravelTimeFromStartBase,
-            autofillResult.TravelTimeToEndBase,
-            autofillResult.DistanceToEndBaseKm,
-            taskShifts.Select(ToVisitItem).ToList(),
-            Array.Empty<FixedTimeInterval>()));
-
-        if (scheduled.Count != taskShifts.Count)
-        {
-            throw new SkillVerificationException(
-                SkillName,
-                $"Only {scheduled.Count} of {taskShifts.Count} selected services could be placed on the route, so no " +
-                "visit times could be planned — no container was created.");
-        }
-
-        if (ContainerVisitPlacement.HasTravelOfADayOrMore(scheduled))
-        {
-            throw new SkillVerificationException(
-                SkillName,
-                "A computed travel time is 24 hours or longer and cannot be stored — no container was created.");
-        }
-
-        var items = scheduled.Select(visit =>
-        {
-            var item = itemByShiftId[visit.Item.ShiftId];
-            ContainerVisitPlacement.ApplyTimes(visit, item);
-            return item;
-        }).ToList();
-
-        var routeInfo = ContainerRouteInfoBuilder.Build(request.Location, request.Location, autofillResult, steps);
-        return new PlannedVisits(items, ContainerVisitPlacement.BuildStops(scheduled, steps), routeInfo);
-    }
-
-    private static VisitItem ToVisitItem(Shift taskShift) => new(
-        taskShift.Id,
-        true,
-        (double)taskShift.WorkTime,
-        taskShift.BriefingTime,
-        taskShift.DebriefingTime,
-        Klacks.Api.Domain.Enums.TransportMode.ByCar);
-
-    private static ContainerTemplateItemResource BuildTemplateItem(Shift taskShift)
-    {
-        return new ContainerTemplateItemResource
-        {
-            Id = Guid.Empty,
-            ShiftId = taskShift.Id,
-            AbsenceId = null,
-            StartItem = taskShift.StartShift,
-            EndItem = taskShift.EndShift,
-            BriefingTime = taskShift.BriefingTime,
-            DebriefingTime = taskShift.DebriefingTime,
-            TravelTimeAfter = taskShift.TravelTimeAfter,
-            TravelTimeBefore = taskShift.TravelTimeBefore,
-            TimeRangeStartItem = null,
-            TimeRangeEndItem = null,
-            TransportMode = Klacks.Api.Domain.Enums.TransportMode.ByCar
-        };
     }
 
     private static SkillResult BuildSuccessResult(BundleRequest request, BundleOutcome outcome, List<string> groupNames)
@@ -593,7 +347,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             $"Route: {autofill.TotalDistanceKm} km, {autofill.EstimatedTravelTime:hh\\:mm} travel+work time, " +
             $"{autofill.RemainingTime:hh\\:mm} of the time budget remaining." +
             BuildGroupNote(groupNames) +
-            BuildEstimationNote(autofill, groupNames) +
+            ContainerTravelTimeNotes.Estimation(autofill.IsEstimated, autofill.TotalAvailableShifts, groupNames.Count > 0) +
             " Candidates were not limited by a hard distance radius — only by the time budget and route " +
             "optimization. The chat opens the container page, where the user can check the tour on the map and change " +
             "it. To fill another weekday, call this skill again with a different weekday.";
@@ -604,75 +358,5 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private static string BuildGroupNote(List<string> groupNames) =>
         groupNames.Count == 0
             ? NoGroupFilterNote
-            : string.Format(GroupFilterNote, string.Join(GroupNameSeparator, groupNames));
-
-    private static string BuildEstimationNote(ContainerAutofillResult autofill, List<string> groupNames)
-    {
-        if (!autofill.IsEstimated)
-        {
-            return string.Empty;
-        }
-
-        var note = string.Format(TravelTimesEstimatedNote, autofill.TotalAvailableShifts);
-        return groupNames.Count == 0 ? note + NarrowWithGroupNote : note;
-    }
-
-    /// <summary>
-    /// The autofill service is a domain service without a caller, so its picks are narrowed to the task shifts the caller
-    /// may see before anything is written, together with the route through them; an unrestricted caller keeps every pick
-    /// and the route as optimized.
-    /// </summary>
-    /// <param name="autofillResult">Raw autofill result</param>
-    private async Task<ContainerAutofillResult> KeepVisibleSelectionAsync(
-        ContainerAutofillResult autofillResult, CancellationToken cancellationToken)
-    {
-        if (autofillResult.SelectedShiftIds.Count == 0)
-        {
-            return autofillResult;
-        }
-
-        var visibleIds = await _shiftVisibilityGuard.FilterVisibleAsync(autofillResult.SelectedShiftIds, cancellationToken);
-        if (visibleIds.Count == autofillResult.SelectedShiftIds.Distinct().Count())
-        {
-            return autofillResult;
-        }
-
-        return ContainerAutofillRouteFilter.KeepShifts(autofillResult, visibleIds);
-    }
-
-    private static bool IsTemplateFullyPersisted(
-        List<ContainerTemplateResource> templates, int storageWeekday, ContainerTemplateResource written)
-    {
-        var template = templates.FirstOrDefault(t => t.Weekday == storageWeekday && !t.IsHoliday)
-            ?? templates.FirstOrDefault(t => t.Weekday == storageWeekday);
-
-        return template != null && ContainerVisitPlacement.StoredVisitTimesMatch(written, template);
-    }
-
-    private static (ContainerTransportMode? mode, string? error) ParseTransportMode(string value)
-    {
-        return value.Trim().ToLowerInvariant() switch
-        {
-            "car" => (ContainerTransportMode.ByCar, null),
-            "bicycle" => (ContainerTransportMode.ByBicycle, null),
-            "foot" => (ContainerTransportMode.ByFoot, null),
-            "mix" => (ContainerTransportMode.Mix, null),
-            _ => (null, $"Invalid transportMode '{value}'. Expected one of: car, bicycle, foot, mix.")
-        };
-    }
-
-    private static (bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun) BuildIsoWeekdayFlags(int isoWeekday)
-    {
-        return isoWeekday switch
-        {
-            IsoMonday => (true, false, false, false, false, false, false),
-            IsoTuesday => (false, true, false, false, false, false, false),
-            IsoWednesday => (false, false, true, false, false, false, false),
-            IsoThursday => (false, false, false, true, false, false, false),
-            IsoFriday => (false, false, false, false, true, false, false),
-            IsoSaturday => (false, false, false, false, false, true, false),
-            IsoSunday => (false, false, false, false, false, false, true),
-            _ => (false, false, false, false, false, false, false)
-        };
-    }
+            : string.Format(CultureInfo.InvariantCulture, GroupFilterNote, string.Join(GroupNameSeparator, groupNames));
 }

@@ -63,6 +63,7 @@ public class ContainerAutofillService : IContainerAutofillService
             isHoliday: request.IsHoliday,
             isWeekdayAndHoliday: request.IsWeekdayAndHoliday,
             additionalAvailableWorkIds: request.AdditionalAvailableWorkIds,
+            restrictToShiftIds: request.RestrictToShiftIds,
             cancellationToken: request.CancellationToken);
 
         var timeRangeTasks = availableTasks.Where(s => s.IsTimeRange).ToList();

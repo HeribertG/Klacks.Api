@@ -516,5 +516,8 @@
   "cancel_order_review": "주문 검토 취소",
   "execute_order_review": "주문 검토 실행",
   "optimize_container_route": "컨테이너 경로를 최적화하고 방문 시간 기록",
-  "add_container_template_break": "컨테이너 템플릿에 휴식 추가"
+  "add_container_template_break": "컨테이너 템플릿에 휴식 추가",
+  "split_shifts_by_weekday": "그룹의 시프트를 요일별로 나누기",
+  "build_weekly_tours": "그룹의 주간 순회 경로 만들기",
+  "assign_container_week": "기간을 정해 직원을 순회 경로에 배정"
 }

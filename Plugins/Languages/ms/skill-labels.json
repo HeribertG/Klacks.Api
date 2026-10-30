@@ -516,5 +516,8 @@
   "cancel_order_review": "Batalkan semakan pesanan",
   "execute_order_review": "Laksanakan semakan pesanan",
   "optimize_container_route": "Optimumkan laluan kontena dan isikan masa lawatan",
-  "add_container_template_break": "Tambah rehat ke templat kontena"
+  "add_container_template_break": "Tambah rehat ke templat kontena",
+  "split_shifts_by_weekday": "Pisahkan syif kumpulan mengikut hari dalam minggu",
+  "build_weekly_tours": "Bina pusingan mingguan untuk sesebuah kumpulan",
+  "assign_container_week": "Tempah pekerja pada pusingan untuk julat tarikh"
 }

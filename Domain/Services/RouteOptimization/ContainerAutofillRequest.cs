@@ -21,6 +21,9 @@
 /// <param name="AdditionalAvailableWorkIds">Tasks that are candidates whatever the slot (locked or original children)</param>
 /// <param name="IsWeekdayAndHoliday">Only read with IsHoliday: true = the holiday slot of Weekday, false = the generic holiday
 /// slot of every public holiday</param>
+/// <param name="RestrictToShiftIds">Optional: only these tasks can be candidates. The restriction is intersected with the
+/// candidates the container's group yields and never widens them (an empty collection yields no candidate); null = no
+/// restriction. AdditionalAvailableWorkIds still adds tasks regardless, so a caller that restricts leaves it null</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -40,4 +43,5 @@ public record ContainerAutofillRequest(
     CancellationToken CancellationToken = default,
     List<TimeBlock>? TimeBlocks = null,
     IReadOnlyCollection<Guid>? AdditionalAvailableWorkIds = null,
-    bool IsWeekdayAndHoliday = false);
+    bool IsWeekdayAndHoliday = false,
+    IReadOnlyCollection<Guid>? RestrictToShiftIds = null);

@@ -3998,5 +3998,29 @@
     "jadualkan rehat dalam pusingan kontena",
     "tambah rehat makan tengah hari pada 12:00 ke kontena pada hari khamis",
     "masukkan rehat setengah jam ke pusingan hari isnin dan optimumkan semula laluan"
+  ],
+  "split_shifts_by_weekday": [
+    "pisahkan syif mengikut hari dalam minggu",
+    "potong syif berbilang hari kepada satu syif setiap hari",
+    "pisahkan setiap syif sesebuah kumpulan yang berlangsung pada beberapa hari dalam minggu",
+    "tukar lawatan isnin rabu jumaat kepada syif berasingan bagi setiap hari",
+    "potong semua syif kumpulan spitex winterthur mengikut hari",
+    "asingkan setiap lawatan mingguan kepada syif tersendiri untuk setiap hari"
+  ],
+  "build_weekly_tours": [
+    "bina pusingan mingguan untuk sesebuah kumpulan",
+    "agihkan pelanggan kepada beberapa pusingan dan isi kontena",
+    "bina tiga pusingan untuk kumpulan spitex winterthur bermula dari winterthur",
+    "tempatkan pesakit dalam pusingan mengikut lokasi untuk seminggu penuh",
+    "cipta pusingan mingguan dengan laluan optimum untuk semua lawatan kumpulan",
+    "bentuk beberapa kontena mingguan daripada lawatan sesebuah kumpulan"
+  ],
+  "assign_container_week": [
+    "tempah seorang pekerja pada satu pusingan untuk seminggu penuh",
+    "tugaskan satu pusingan kepada pekerja untuk seminggu penuh",
+    "jadualkan anna pada pusingan 1 untuk minggu depan",
+    "tugaskan kontena kepada pekerja untuk julat tarikh",
+    "isi pusingan 2 dari 3 hingga 7 november dengan lara",
+    "tempah pekerja pada setiap hari pusingan dari isnin hingga jumaat"
   ]
 }

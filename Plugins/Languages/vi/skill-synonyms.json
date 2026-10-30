@@ -4001,5 +4001,29 @@
     "lên lịch giờ nghỉ trong tuyến của container",
     "thêm giờ nghỉ trưa lúc 12:00 vào container ngày thứ năm",
     "chèn nửa giờ nghỉ vào tuyến thứ hai rồi tối ưu lại tuyến đường"
+  ],
+  "split_shifts_by_weekday": [
+    "tách các ca theo thứ trong tuần",
+    "cắt các ca nhiều ngày thành một ca cho mỗi thứ",
+    "tách từng ca của một nhóm diễn ra vào nhiều thứ trong tuần",
+    "biến các lượt thăm thứ hai thứ tư thứ sáu thành các ca riêng theo từng ngày",
+    "cắt tất cả ca của nhóm spitex winterthur theo thứ trong tuần",
+    "tách mỗi lượt thăm hằng tuần thành một ca riêng cho từng ngày"
+  ],
+  "build_weekly_tours": [
+    "xây dựng các tuyến hằng tuần cho một nhóm",
+    "chia khách hàng vào nhiều tuyến và điền đầy các container",
+    "xây dựng ba tuyến cho nhóm spitex winterthur xuất phát từ winterthur",
+    "xếp bệnh nhân vào các tuyến theo địa điểm cho cả tuần",
+    "tạo các tuyến hằng tuần đã tối ưu lộ trình cho mọi lượt thăm của nhóm",
+    "tạo nhiều container theo tuần từ các lượt thăm của một nhóm"
+  ],
+  "assign_container_week": [
+    "xếp một nhân viên vào một tuyến trong cả tuần",
+    "giao một tuyến cho nhân viên trong cả tuần",
+    "xếp anna vào tuyến 1 cho tuần sau",
+    "giao container cho một nhân viên trong một khoảng ngày",
+    "bố trí lara vào tuyến 2 từ ngày 3 đến ngày 7 tháng 11",
+    "đặt lịch nhân viên vào mọi ngày chạy tuyến từ thứ hai đến thứ sáu"
   ]
 }

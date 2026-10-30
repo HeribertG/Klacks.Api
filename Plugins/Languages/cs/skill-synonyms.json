@@ -4062,5 +4062,29 @@
     "naplánovat pauzu v okruhu kontejneru",
     "přidej do kontejneru ve čtvrtek polední pauzu ve 12:00",
     "vlož do pondělního okruhu půlhodinovou pauzu a znovu optimalizuj trasu"
+  ],
+  "split_shifts_by_weekday": [
+    "rozdělit služby podle dnů v týdnu",
+    "rozdělit vícedenní služby na jednu službu pro každý den v týdnu",
+    "rozdělit každou službu skupiny, která probíhá v několika dnech týdne",
+    "z návštěv v pondělí, ve středu a v pátek udělat samostatné služby pro každý den",
+    "rozděl všechny služby skupiny spitex winterthur podle dne v týdnu",
+    "oddělit každou týdenní návštěvu do vlastní služby pro každý den"
+  ],
+  "build_weekly_tours": [
+    "sestavit týdenní okruhy pro skupinu",
+    "rozdělit zákazníky na několik okruhů a naplnit kontejnery",
+    "sestav tři okruhy pro skupinu spitex winterthur s výchozím bodem winterthur",
+    "rozřadit pacienty do okruhů podle místa na celý týden",
+    "vytvořit trasově optimalizované týdenní okruhy pro všechny návštěvy skupiny",
+    "vytvořit z návštěv skupiny několik týdenních kontejnerů"
+  ],
+  "assign_container_week": [
+    "obsadit zaměstnance na okruh na celý týden",
+    "přiřadit okruh zaměstnanci na celý týden",
+    "naplánuj anna na okruh 1 na příští týden",
+    "přiřadit kontejner zaměstnanci na časové období",
+    "obsaď okruh 2 od 3. do 7. listopadu osobou lara",
+    "zarezervuj zaměstnance na všechny dny okruhu od pondělí do pátku"
   ]
 }

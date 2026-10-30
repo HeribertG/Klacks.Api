@@ -516,5 +516,8 @@
   "cancel_order_review": "De orderdoorloop annuleren",
   "execute_order_review": "De orderdoorloop uitvoeren",
   "optimize_container_route": "Route van een container optimaliseren en bezoektijden invullen",
-  "add_container_template_break": "Pauze toevoegen aan het sjabloon van een container"
+  "add_container_template_break": "Pauze toevoegen aan het sjabloon van een container",
+  "split_shifts_by_weekday": "Diensten van een groep per weekdag splitsen",
+  "build_weekly_tours": "Wekelijkse rondes voor een groep opbouwen",
+  "assign_container_week": "Een medewerker voor een periode op een ronde inplannen"
 }

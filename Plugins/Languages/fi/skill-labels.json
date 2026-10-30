@@ -516,5 +516,8 @@
   "cancel_order_review": "Peru tilausten läpikäynti",
   "execute_order_review": "Toteuta tilausten läpikäynti",
   "optimize_container_route": "Optimoi kontin reitti ja kirjaa käyntiajat",
-  "add_container_template_break": "Lisää tauko kontin pohjaan"
+  "add_container_template_break": "Lisää tauko kontin pohjaan",
+  "split_shifts_by_weekday": "Jaa ryhmän vuorot viikonpäivän mukaan",
+  "build_weekly_tours": "Rakenna viikkokierrokset ryhmälle",
+  "assign_container_week": "Varaa työntekijä kierrokselle aikavälille"
 }

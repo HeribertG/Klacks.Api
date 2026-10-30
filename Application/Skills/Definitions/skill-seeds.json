@@ -36478,7 +36478,7 @@
     {
       "name": "add_container_template_break",
       "area": "shift",
-      "description": "Adds a break (a container absence type, default the unpaid break) to a container's weekday template: with startTime a fixed break, without it a movable break whose duration route optimization reserves. Verifies by re-reading. Visit times stay unchanged unless reoptimizeRoute is true, so a visit may overlap the break until the route is re-optimized. Keeps the edit lock of an open container page. Not for an employee's absence in the schedule.",
+      "description": "Adds a break (a container absence type, default the unpaid break) to a container's weekday template, or with allWeekdays to the templates of all its weekdays in one call: with startTime a fixed break, without it a movable break whose duration route optimization reserves. Verifies by re-reading. Visit times stay unchanged unless reoptimizeRoute is true. A fixed break is skipped, and reported, on weekdays whose last visit ends before it. Not for an employee's absence.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36495,9 +36495,9 @@
         },
         {
           "name": "weekday",
-          "description": "ISO weekday (1=Monday..7=Sunday) of the template to add the break to",
+          "description": "ISO weekday (1=Monday..7=Sunday) of the template to add the break to; required unless allWeekdays is true",
           "type": "Integer",
-          "required": true,
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
@@ -36528,6 +36528,14 @@
         {
           "name": "reoptimizeRoute",
           "description": "True to re-optimize the route and visit times after adding the break; defaults to false",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "allWeekdays",
+          "description": "True adds the break to the template of every weekday of the container in one call; weekday is then not needed. Defaults to false.",
           "type": "Boolean",
           "required": false,
           "defaultValue": false,
@@ -36600,7 +36608,7 @@
         "fr": "Ajouter une pause au modèle d'un conteneur",
         "it": "Aggiungi una pausa al modello di un contenitore"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "create_container_template",
@@ -54627,6 +54635,348 @@
         "it": "Eseguire la revisione degli ordini"
       },
       "version": 3
+    },
+    {
+      "name": "split_shifts_by_weekday",
+      "area": "shift",
+      "pairedApplySkill": "split_shifts_by_weekday",
+      "description": "Cuts every plannable service of one group that runs on several weekdays (e.g. Monday, Wednesday, Friday) into one service per weekday, so each visit can go into its own tour. Customer, group, times and staff count stay the same. Call with apply=true as soon as the user asks for the cut; the server holds the call and cuts only after the user confirmed. apply=false (default) only reports. Single-weekday services, services with assignments and already split orders are skipped. All or nothing.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Name of the group whose services are cut, exactly as the user said it; an ambiguous or unknown name is answered with the candidates.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When false (default) only reports which services would be cut and into how many parts. When true the cut is held for the user's confirmation and runs only after the user confirmed it; set true as soon as the user asked for the cut.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "dienste nach wochentag aufteilen",
+          "pro wochentag schneiden",
+          "einzeldienste pro wochentag"
+        ],
+        "en": [
+          "split services by weekday",
+          "cut services by weekday",
+          "one service per weekday"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "dienste nach wochentagen aufteilen",
+          "mehrtägige dienste in einen dienst pro wochentag schneiden",
+          "jeden dienst einer gruppe auf die einzelnen wochentage aufteilen",
+          "aus montag mittwoch freitag drei einzelne dienste machen",
+          "schneide alle dienste der gruppe spitex winterthur nach wochentag",
+          "teile die wöchentlichen einsätze der gruppe in einen einsatz pro tag"
+        ],
+        "en": [
+          "split services by weekday",
+          "cut multi-day services into one service per weekday",
+          "split every service of a group that runs on several weekdays",
+          "turn monday wednesday friday visits into separate services per day",
+          "cut all services of the spitex winterthur group by weekday",
+          "separate each weekly visit into its own service for every day"
+        ],
+        "fr": [
+          "répartir les services par jour de la semaine",
+          "couper les services de plusieurs jours en un service par jour",
+          "diviser chaque service d'un groupe qui a lieu plusieurs jours de la semaine",
+          "transformer les visites du lundi mercredi vendredi en services séparés par jour",
+          "couper tous les services du groupe spitex winterthur par jour de la semaine",
+          "séparer chaque visite hebdomadaire en un service propre à chaque jour"
+        ],
+        "it": [
+          "dividere i turni per giorno della settimana",
+          "tagliare i turni di più giorni in un turno per ogni giorno",
+          "dividere ogni turno di un gruppo che si svolge in più giorni della settimana",
+          "trasformare le visite del lunedì mercoledì venerdì in turni separati per giorno",
+          "tagliare tutti i turni del gruppo spitex winterthur per giorno della settimana",
+          "separare ogni visita settimanale in un turno proprio per ogni giorno"
+        ]
+      },
+      "labels": {
+        "de": "Dienste einer Gruppe nach Wochentag aufteilen",
+        "en": "Split a group's services by weekday",
+        "fr": "Répartir les services d'un groupe par jour de la semaine",
+        "it": "Dividere i turni di un gruppo per giorno della settimana"
+      },
+      "version": 2
+    },
+    {
+      "name": "build_weekly_tours",
+      "area": "shift",
+      "description": "Builds a fixed number of weekly tours for one group in one call: distributes the customers over the tours by location around a base address so each customer stays in the same tour all week, creates one container per tour and fills its weekday templates in route order with visit and travel times. Reports per tour and weekday how many visits were placed and which did not fit the time budget. Needs services with one weekday each. One transaction, verified by re-reading.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "location",
+          "description": "City, town or address used as start and end base of every tour.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tourCount",
+          "description": "Number of tours to build, at least 2 and not more than the customers that can be located.",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Name of the group whose services are planned, exactly as the user said it (for example a Spitex region); an ambiguous or unknown name is answered with the candidates.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromTime",
+          "description": "Start of the day's time budget in HH:mm format; pass together with untilTime. Omitted: the earliest start of the services.",
+          "type": "Time",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilTime",
+          "description": "End of the day's time budget in HH:mm format; pass together with fromTime. Omitted: the latest end of the services.",
+          "type": "Time",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "First day of validity of the tours in YYYY-MM-DD format. Omitted: the earliest first day of the services.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last day of validity of the tours in YYYY-MM-DD format, needs fromDate. Omitted: open-ended.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "transportMode",
+          "description": "Transport mode of the routes. Without a configured OpenRouteService API key only 'car' works; the other modes are rejected with a clear error.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "car",
+          "enumValues": [
+            "car",
+            "bicycle",
+            "foot",
+            "mix"
+          ]
+        },
+        {
+          "name": "timeRangeTolerance",
+          "description": "How strictly each visit's own time window is enforced (0.0-1.0): 1.0 strict, lower values widen the window, 0 disables the check. Defaults to 0.5.",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": 0.5,
+          "enumValues": null
+        },
+        {
+          "name": "namePrefix",
+          "description": "Prefix of the tour names; the tour number follows. Defaults to 'Tour'.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "wochentouren bauen",
+          "touren für die woche",
+          "patienten auf touren verteilen"
+        ],
+        "en": [
+          "build weekly tours",
+          "distribute customers across tours"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wochentouren für eine gruppe aufbauen",
+          "kunden auf mehrere touren verteilen und die container füllen",
+          "baue drei touren für die gruppe spitex winterthur ab winterthur",
+          "verteile die patienten nach ort auf touren für die ganze woche",
+          "baue routenoptimierte wochentouren aus allen einsätzen der gruppe",
+          "aus den einsätzen einer gruppe mehrere wochencontainer bilden"
+        ],
+        "en": [
+          "build weekly tours for a group",
+          "distribute customers across several tours and fill the containers",
+          "build three tours for the spitex winterthur group starting from winterthur",
+          "assign patients to tours by location for the whole week",
+          "create route-optimized weekly tours for all visits of the group",
+          "form several weekly containers from the visits of a group"
+        ],
+        "fr": [
+          "construire des tournées hebdomadaires pour un groupe",
+          "répartir les clients sur plusieurs tournées et remplir les conteneurs",
+          "construis trois tournées pour le groupe spitex winterthour au départ de winterthour",
+          "répartir les patients par lieu sur des tournées pour toute la semaine",
+          "construire des tournées hebdomadaires optimisées pour toutes les interventions du groupe",
+          "former plusieurs conteneurs de la semaine à partir des interventions d'un groupe"
+        ],
+        "it": [
+          "costruire giri settimanali per un gruppo",
+          "distribuire i clienti su più giri e riempire i contenitori",
+          "costruisci tre giri per il gruppo spitex winterthur con partenza da winterthur",
+          "assegnare i pazienti ai giri in base al luogo per tutta la settimana",
+          "costruire giri settimanali ottimizzati per tutti gli interventi del gruppo",
+          "formare più contenitori settimanali dagli interventi di un gruppo"
+        ]
+      },
+      "labels": {
+        "de": "Wochentouren für eine Gruppe aufbauen",
+        "en": "Build weekly tours for a group",
+        "fr": "Construire des tournées hebdomadaires pour un groupe",
+        "it": "Costruire giri settimanali per un gruppo"
+      },
+      "version": 1
+    },
+    {
+      "name": "assign_container_week",
+      "area": "schedule",
+      "description": "Books one employee on a tour (container) for every day of a date range on which the tour runs and has a weekday template, in one call, so the visits of each day are created and the period hours stay correct. Days that cannot be booked (sealed day, outside the employee's planning period, already booked, blocking schedule conflict) are returned with the reason. Verified by re-reading the booked days.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSchedule"
+      ],
+      "parameters": [
+        {
+          "name": "containerId",
+          "description": "UUID of the tour container (ShiftType IsContainer).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clientId",
+          "description": "UUID of the employee to book.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "First day of the range, ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last day of the range, ISO yyyy-MM-dd; at most 92 days after fromDate.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "tour einem mitarbeiter zuweisen",
+          "mitarbeiter auf tour einplanen",
+          "tour für die woche besetzen"
+        ],
+        "en": [
+          "book employee on tour",
+          "assign tour to employee"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "mitarbeiter eine woche lang auf eine tour einplanen",
+          "tour für die ganze woche einem mitarbeiter zuweisen",
+          "plane anna für nächste woche auf tour 1 ein",
+          "container für einen zeitraum einer mitarbeiterin zuteilen",
+          "besetze die tour 2 vom 3. bis 7. november mit lara",
+          "buche den mitarbeiter an allen tourtagen von montag bis freitag"
+        ],
+        "en": [
+          "book an employee on a tour for a whole week",
+          "assign a tour to an employee for the whole week",
+          "schedule anna on tour 1 for next week",
+          "assign the container to an employee for a date range",
+          "staff tour 2 from 3 to 7 november with lara",
+          "book the employee on every tour day from monday to friday"
+        ],
+        "fr": [
+          "planifier un employé sur une tournée pour toute une semaine",
+          "attribuer une tournée à un employé pour toute la semaine",
+          "planifie anna sur la tournée 1 pour la semaine prochaine",
+          "affecter le conteneur à une employée pour une période",
+          "occupe la tournée 2 du 3 au 7 novembre avec lara",
+          "réserve l'employé sur tous les jours de tournée du lundi au vendredi"
+        ],
+        "it": [
+          "pianificare un dipendente su un giro per un'intera settimana",
+          "assegnare un giro a un dipendente per tutta la settimana",
+          "pianifica anna sul giro 1 per la prossima settimana",
+          "assegnare il contenitore a una dipendente per un periodo",
+          "occupa il giro 2 dal 3 al 7 novembre con lara",
+          "prenota il dipendente in tutti i giorni del giro da lunedì a venerdì"
+        ]
+      },
+      "labels": {
+        "de": "Mitarbeiter für einen Zeitraum auf eine Tour einplanen",
+        "en": "Book an employee on a tour for a date range",
+        "fr": "Planifier un employé sur une tournée pour une période",
+        "it": "Pianificare un dipendente su un giro per un periodo"
+      },
+      "version": 1
     }
   ]
 }

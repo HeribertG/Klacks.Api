@@ -93,6 +93,23 @@ public interface IShiftReader
     Task<ShiftValidityPeriod?> GetValidityPeriodAsync(Guid shiftId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The live group links of the given shifts (soft-deleted links and scenario links dropped), untracked, ordered by
+    /// shift id, then group id.
+    /// </summary>
+    /// <param name="shiftIds">Shifts whose links are read; unknown ids yield no link</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<IReadOnlyList<ShiftGroupLink>> GetGroupLinksByShiftIdsAsync(
+        IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The shifts among the given ones that hold at least one live work of the real plan (scenario works do not count).
+    /// </summary>
+    /// <param name="shiftIds">Shifts to check; unknown ids yield nothing</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<IReadOnlySet<Guid>> GetShiftIdsWithWorksAsync(
+        IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// The given shifts that are tasks, whatever their status, sporadic flag or time, untracked, with their client and
     /// all the client's addresses, in the base order (original id, from date, start time). Unknown ids and non-task
     /// shifts are dropped; scenario rows are not excluded.

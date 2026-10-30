@@ -516,5 +516,8 @@
   "cancel_order_review": "取消訂單審核",
   "execute_order_review": "執行訂單審核",
   "optimize_container_route": "最佳化容器路線並寫入訪視時間",
-  "add_container_template_break": "在容器範本中加入休息"
+  "add_container_template_break": "在容器範本中加入休息",
+  "split_shifts_by_weekday": "按星期幾拆分小組的班次",
+  "build_weekly_tours": "為小組建立每週巡迴路線",
+  "assign_container_week": "按日期範圍安排員工負責巡迴路線"
 }
