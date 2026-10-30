@@ -4038,5 +4038,87 @@
     "määritä kontti työntekijälle aikavälille",
     "miehitä kierros 2 3.-7. marraskuuta laralla",
     "varaa työntekijä kaikille kierrospäiville maanantaista perjantaihin"
+  ],
+  "explain_messenger_channels": [
+    "mikä viestipalvelu osaa vastata",
+    "viestipalvelut jotka vain ilmoittavat",
+    "voinko saada vastauksen signalin kautta",
+    "kuinka kauan viestipalvelun viestejä säilytetään",
+    "onko viestitoiminto valinnainen"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "miten liitän työntekijän telegramiin",
+    "miksi en voi lähettää viestiä itselleni",
+    "kuka näkee mitkä viestipalvelun viestit",
+    "miten yhdistän oman tilini viestipalveluun"
+  ],
+  "evaluate_user_role_change": [
+    "mitä muuttuu jos teen tästä tilistä järjestelmänvalvojan",
+    "mitä oikeuksia käyttäjä menettäisi roolilla user",
+    "mitä oikeuksia valvoja saa",
+    "onko ongelma alentaa viimeinen järjestelmänvalvoja",
+    "pääsisikö käyttäjä silloin asetuksiin"
+  ],
+  "evaluate_period_close_readiness": [
+    "onko ryhmä valmis kuukauden sulkemiseen",
+    "kannattaako kuukausi sulkea jo tänään",
+    "saanko jo sulkea ryhmän",
+    "pitäisikö kuukauden sulkemisen kanssa odottaa",
+    "mikä estää meitä sulkemasta ryhmää"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "mitä tapahtuu jos asetan lepoaikasäännön estäväksi",
+    "kuinka moni varoitus muuttuisi virheeksi jos tiukennan sääntöä",
+    "kannattaako enimmäistyöajassa hylätä pelkän varoituksen sijaan",
+    "voisivatko valvojat silti viedä hylätyn kohdistuksen läpi",
+    "hylkääkö tämä sääntö jo vai varoittaako se vain"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "mitkä lähettäjien verkkotunnukset päätyvät jatkuvasti roskapostiin ilman sääntöä",
+    "mitkä verkkotunnukset pitäisi suodattaa roskapostina",
+    "onko lähettäjiä jotka ilmestyvät jatkuvasti roskapostikansioon",
+    "minkä verkkotunnusten roskapostisuodatin vielä puuttuu",
+    "kannattaako tälle lähettäjän verkkotunnukselle tehdä uusi esto"
+  ],
+  "evaluate_employee_exit": [
+    "mitä tapahtuu jos työntekijän työsuhde päättyy kuun lopussa",
+    "mitä kaikkea tämän työntekijän lähtö koskee",
+    "onko viimeisen työpäivän jälkeen vielä jotain varattuna",
+    "onko henkilöllä vielä vuoroja lähtöpäivän jälkeen",
+    "mitä minun pitää selvittää ennen kuin työntekijä lähtee",
+    "jatkuvatko sopimukset lähtöpäivän jälkeen"
+  ],
+  "start_software_update": [
+    "asenna päivitys nyt",
+    "käynnistä ohjelmistopäivitys",
+    "päivitä klacks uuteen versioon",
+    "ota uusi julkaisu käyttöön heti",
+    "suorita klacks-päivitys"
+  ],
+  "evaluate_software_update": [
+    "pitäisikö minun päivittää nyt",
+    "onko nyt hyvä hetki päivittää",
+    "mikä puhuu päivitystä vastaan",
+    "onko meille saatavilla uudempi versio",
+    "onko käynnissä jotain minkä päivitys keskeyttäisi"
+  ],
+  "evaluate_container_bundling": [
+    "kannattaako nämä mobiilipalvelut niputtaa",
+    "mahtuvatko nämä käynnit yhteen kierrokseen",
+    "olisiko kontista hyötyä näille käynneille",
+    "kuinka paljon ajoaikaa vie kierros näiden käyntien kautta",
+    "riittääkö yksi päivä kaikille näille käynneille"
+  ],
+  "send_broadcast": [
+    "lähetä joukkoviesti",
+    "tiedote ryhmälle",
+    "kirjoita kaikille ryhmässä",
+    "massaviesti tiimille"
+  ],
+  "evaluate_messaging_reach": [
+    "ryhmän tavoitettavuus viestipalvelussa",
+    "keneen saan yhteyden viestipalvelun kautta",
+    "kuka puuttuu viestipalvelusta",
+    "kuka ei ole tavoitettavissa viestipalvelun kautta"
   ]
 }

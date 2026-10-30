@@ -4086,5 +4086,87 @@
     "přiřadit kontejner zaměstnanci na časové období",
     "obsaď okruh 2 od 3. do 7. listopadu osobou lara",
     "zarezervuj zaměstnance na všechny dny okruhu od pondělí do pátku"
+  ],
+  "explain_messenger_channels": [
+    "který messenger umí odpovídat",
+    "messengery které jen upozorňují",
+    "mohu dostat odpověď přes signal",
+    "jak dlouho se zprávy z messengerů uchovávají",
+    "je modul pro zprávy volitelný"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "jak propojím zaměstnance s telegramem",
+    "proč nemohu napsat zprávu sám sobě",
+    "kdo vidí které zprávy z messengerů",
+    "jak spáruji vlastní účet s messengerem"
+  ],
+  "evaluate_user_role_change": [
+    "co se změní když z tohoto účtu udělám správce",
+    "která práva by ztratil uživatel s rolí user",
+    "která práva dostane supervizor",
+    "je problém snížit roli posledního správce",
+    "měl by pak uživatel přístup k nastavení"
+  ],
+  "evaluate_period_close_readiness": [
+    "je skupina připravená na měsíční uzávěrku",
+    "vyplatí se uzávěrka měsíce už dnes",
+    "smím už skupinu uzavřít",
+    "máme s měsíční uzávěrkou ještě počkat",
+    "co nám brání v uzavření skupiny"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "co se stane když nastavím pravidlo doby odpočinku na blokovat",
+    "kolik varování by se změnilo na chyby při přísnějším nastavení",
+    "vyplatí se u maximální pracovní doby odmítat místo pouhého varování",
+    "mohli by supervizoři přesto prosadit odmítnuté přiřazení",
+    "odmítá toto pravidlo už nyní nebo jen varuje"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "které domény odesílatelů se stále objevují v nevyžádané poště a nemají zatím pravidlo",
+    "které domény bych měl nechat filtrovat jako spam",
+    "existují odesílatelé kteří se stále objevují ve složce nevyžádané pošty",
+    "pro které domény stále chybí spam filtr",
+    "vyplatí se nové blokování pro tuto doménu odesílatele"
+  ],
+  "evaluate_employee_exit": [
+    "co se stane když zaměstnanec odejde na konci měsíce",
+    "na čem všem závisí odchod tohoto zaměstnance",
+    "je po posledním pracovním dni ještě něco zarezervováno",
+    "má osoba po datu odchodu ještě směny",
+    "co musím vyřešit než zaměstnanec odejde",
+    "běží smlouvy i po datu odchodu"
+  ],
+  "start_software_update": [
+    "nainstaluj aktualizaci teď",
+    "spusť aktualizaci softwaru",
+    "aktualizuj klacks na novou verzi",
+    "nasaď nové vydání ihned",
+    "proveď aktualizaci klacks"
+  ],
+  "evaluate_software_update": [
+    "mám teď aktualizovat",
+    "je teď vhodná doba na aktualizaci",
+    "co mluví proti aktualizaci",
+    "je pro nás dostupná novější verze",
+    "běží něco co by aktualizace přerušila"
+  ],
+  "evaluate_container_bundling": [
+    "vyplatí se sdružit tyto mobilní služby",
+    "vejdou se tyto návštěvy do jednoho okruhu",
+    "dával by pro tyto návštěvy smysl kontejner",
+    "kolik času na cestě by zabral okruh přes tyto návštěvy",
+    "stačí jeden den na všechny tyto návštěvy"
+  ],
+  "send_broadcast": [
+    "pošli hromadnou zprávu",
+    "oběžník skupině",
+    "napiš všem ve skupině",
+    "hromadná zpráva pro tým"
+  ],
+  "evaluate_messaging_reach": [
+    "dosažitelnost skupiny přes messenger",
+    "koho mohu zastihnout přes messenger",
+    "kdo chybí v messengeru",
+    "kdo není dosažitelný přes messenger"
   ]
 }

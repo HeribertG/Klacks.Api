@@ -346,6 +346,10 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Application.Skills.SplitShiftsByWeekdayConfirmationPreviewProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
                            Klacks.Api.Application.Skills.OrderReview.OrderReviewConfirmationPreviewProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
+                           Klacks.Api.Application.Skills.StartSoftwareUpdateConfirmationPreviewProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
+                           Klacks.Api.Application.Skills.SendBroadcastConfirmationPreviewProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IConfirmationPreviewCatalog,
                            Klacks.Api.Application.Services.Assistant.Autonomy.ConfirmationPreviewCatalog>();
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();

@@ -519,5 +519,15 @@
   "add_container_template_break": "إضافة استراحة إلى قالب حاوية",
   "split_shifts_by_weekday": "تقسيم خدمات مجموعة حسب أيام الأسبوع",
   "build_weekly_tours": "بناء جولات أسبوعية لمجموعة",
-  "assign_container_week": "حجز موظف على جولة لفترة زمنية"
+  "assign_container_week": "حجز موظف على جولة لفترة زمنية",
+  "explain_messenger_channels": "شرح قنوات تطبيقات المراسلة",
+  "explain_messenger_pairing_and_scope": "شرح ربط تطبيق المراسلة ونطاق الصلاحيات",
+  "evaluate_user_role_change": "التحقق من آثار تغيير دور المستخدم",
+  "evaluate_period_close_readiness": "تقييم جاهزية الفترة للإغلاق",
+  "evaluate_compliance_enforcement_change": "التحقق من آثار تشديد قواعد ساعات العمل",
+  "evaluate_spam_rule_candidates": "البحث عن مرسلين مزعجين متكررين بلا قاعدة",
+  "evaluate_employee_exit": "تقييم تبعات مغادرة موظف",
+  "start_software_update": "تثبيت تحديث البرنامج",
+  "evaluate_software_update": "تقييم توقيت التحديث",
+  "evaluate_container_bundling": "تقييم جدوى التجميع في حاوية"
 }

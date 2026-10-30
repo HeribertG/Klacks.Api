@@ -519,5 +519,15 @@
   "add_container_template_break": "הוספת הפסקה לתבנית מכולה",
   "split_shifts_by_weekday": "פיצול משמרות של קבוצה לפי ימות השבוע",
   "build_weekly_tours": "בניית סבבים שבועיים לקבוצה",
-  "assign_container_week": "שיבוץ עובד לסבב לטווח תאריכים"
+  "assign_container_week": "שיבוץ עובד לסבב לטווח תאריכים",
+  "explain_messenger_channels": "הסבר על ערוצי ההודעות",
+  "explain_messenger_pairing_and_scope": "הסבר על קישור אפליקציית ההודעות וטווח ההרשאות",
+  "evaluate_user_role_change": "בדיקת ההשלכות של שינוי תפקיד משתמש",
+  "evaluate_period_close_readiness": "הערכת מוכנות התקופה לסגירה",
+  "evaluate_compliance_enforcement_change": "בדיקת ההשלכות של כללי שעות עבודה מחמירים יותר",
+  "evaluate_spam_rule_candidates": "איתור שולחי זבל חוזרים ללא כלל ספאם",
+  "evaluate_employee_exit": "הערכת ההשלכות של עזיבת עובד",
+  "start_software_update": "התקנת עדכון התוכנה",
+  "evaluate_software_update": "הערכת עיתוי העדכון",
+  "evaluate_container_bundling": "הערכת כדאיות איחוד למיכל"
 }

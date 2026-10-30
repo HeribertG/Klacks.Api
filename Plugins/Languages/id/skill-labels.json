@@ -519,5 +519,15 @@
   "add_container_template_break": "Tambahkan istirahat ke templat kontainer",
   "split_shifts_by_weekday": "Pisahkan shift grup menurut hari dalam seminggu",
   "build_weekly_tours": "Bangun tur mingguan untuk sebuah grup",
-  "assign_container_week": "Jadwalkan karyawan pada tur untuk rentang tanggal"
+  "assign_container_week": "Jadwalkan karyawan pada tur untuk rentang tanggal",
+  "explain_messenger_channels": "Jelaskan saluran messenger",
+  "explain_messenger_pairing_and_scope": "Jelaskan penautan dan cakupan messenger",
+  "evaluate_user_role_change": "Pratinjau dampak perubahan peran pengguna",
+  "evaluate_period_close_readiness": "Evaluasi apakah periode siap ditutup",
+  "evaluate_compliance_enforcement_change": "Pratinjau dampak aturan jam kerja yang lebih ketat",
+  "evaluate_spam_rule_candidates": "Temukan pengirim sampah berulang tanpa aturan spam",
+  "evaluate_employee_exit": "Evaluasi dampak keluarnya karyawan",
+  "start_software_update": "Pasang pembaruan perangkat lunak",
+  "evaluate_software_update": "Evaluasi perlu tidaknya memperbarui sekarang",
+  "evaluate_container_bundling": "Evaluasi penggabungan ke kontainer"
 }

@@ -519,5 +519,15 @@
   "add_container_template_break": "コンテナのテンプレートに休憩を追加する",
   "split_shifts_by_weekday": "グループのシフトを曜日ごとに分割する",
   "build_weekly_tours": "グループの週間巡回ルートを作成する",
-  "assign_container_week": "期間を指定して従業員を巡回ルートに割り当てる"
+  "assign_container_week": "期間を指定して従業員を巡回ルートに割り当てる",
+  "explain_messenger_channels": "メッセンジャーのチャネルを説明",
+  "explain_messenger_pairing_and_scope": "メッセンジャーの連携と権限範囲を説明",
+  "evaluate_user_role_change": "ユーザーロール変更の影響を確認",
+  "evaluate_period_close_readiness": "期間を締められる状態か評価",
+  "evaluate_compliance_enforcement_change": "厳格な勤務時間ルールの影響を確認",
+  "evaluate_spam_rule_candidates": "ルール未設定の迷惑メール送信元を探す",
+  "evaluate_employee_exit": "従業員の退職がもたらす影響を評価",
+  "start_software_update": "ソフトウェアアップデートをインストール",
+  "evaluate_software_update": "今アップデートすべきか評価",
+  "evaluate_container_bundling": "コンテナにまとめる価値を評価"
 }

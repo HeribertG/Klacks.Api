@@ -4074,5 +4074,87 @@
     "asignar el contenedor a un empleado durante un período",
     "cubre la ruta 2 del 3 al 7 de noviembre con lara",
     "reserva al empleado en todos los días de ruta de lunes a viernes"
+  ],
+  "explain_messenger_channels": [
+    "qué aplicación de mensajería puede responder",
+    "aplicaciones de mensajería que solo notifican",
+    "puedo recibir una respuesta por signal",
+    "cuánto tiempo se guardan los mensajes de mensajería",
+    "es opcional la mensajería"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "cómo vinculo a un empleado con telegram",
+    "por qué no puedo enviarme un mensaje a mí mismo",
+    "quién ve qué mensajes de mensajería",
+    "cómo vinculo mi propia cuenta con la mensajería"
+  ],
+  "evaluate_user_role_change": [
+    "qué cambia si convierto esta cuenta en admin",
+    "qué permisos perdería un usuario con el rol user",
+    "qué permisos obtiene un supervisor",
+    "es un problema degradar al último admin",
+    "tendría el usuario entonces acceso a la configuración"
+  ],
+  "evaluate_period_close_readiness": [
+    "está el grupo listo para el cierre mensual",
+    "merece la pena hacer ya hoy el cierre del mes",
+    "puedo cerrar ya el grupo",
+    "deberíamos esperar con el cierre mensual",
+    "qué nos impide cerrar el grupo"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "qué pasa si pongo la regla de descanso en bloquear",
+    "cuántos avisos pasarían a ser errores si endurezco la regla",
+    "merece la pena rechazar en lugar de solo avisar por las horas máximas",
+    "podrían los supervisores forzar igualmente una asignación rechazada",
+    "esta regla ya rechaza o solo avisa"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "qué dominios de remitente acaban siempre en correo no deseado sin tener regla",
+    "qué dominios debería filtrar como spam",
+    "hay remitentes que siguen apareciendo en la carpeta de correo no deseado",
+    "para qué dominios todavía falta un filtro de spam",
+    "merece la pena un nuevo bloqueo para este dominio de remitente"
+  ],
+  "evaluate_employee_exit": [
+    "qué ocurre con un empleado que se marcha a final de mes",
+    "qué está vinculado a la salida de este empleado",
+    "queda algo reservado después del último día de trabajo",
+    "tiene la persona todavía turnos después de la fecha de salida",
+    "qué tengo que aclarar antes de que se vaya el empleado",
+    "siguen vigentes los contratos después de la fecha de salida"
+  ],
+  "start_software_update": [
+    "instala la actualización ahora",
+    "inicia la actualización del software",
+    "actualiza klacks a la nueva versión",
+    "aplica la nueva versión ahora",
+    "ejecuta la actualización de klacks"
+  ],
+  "evaluate_software_update": [
+    "debo actualizar ahora",
+    "es buen momento para actualizar",
+    "qué se opone a actualizar",
+    "hay una versión más reciente para nosotros",
+    "hay algo en ejecución que una actualización interrumpiría"
+  ],
+  "evaluate_container_bundling": [
+    "merece la pena agrupar estos servicios móviles",
+    "caben estas visitas en una sola ruta",
+    "tendría sentido un contenedor para estas visitas",
+    "cuánto tiempo de viaje supondría una ruta por estas visitas",
+    "basta un día para todas estas visitas"
+  ],
+  "send_broadcast": [
+    "enviar una difusión",
+    "circular al grupo",
+    "escribir a todos los del grupo",
+    "mensaje masivo para el equipo"
+  ],
+  "evaluate_messaging_reach": [
+    "alcance del grupo por mensajería",
+    "a quién puedo contactar por mensajería",
+    "quién falta en la mensajería",
+    "a quién no se puede contactar por mensajería"
   ]
 }

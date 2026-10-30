@@ -519,5 +519,15 @@
   "add_container_template_break": "Přidat pauzu do šablony kontejneru",
   "split_shifts_by_weekday": "Rozdělit služby skupiny podle dnů v týdnu",
   "build_weekly_tours": "Sestavit týdenní okruhy pro skupinu",
-  "assign_container_week": "Obsadit zaměstnance na okruh na období"
+  "assign_container_week": "Obsadit zaměstnance na okruh na období",
+  "explain_messenger_channels": "Vysvětlit kanály messengerů",
+  "explain_messenger_pairing_and_scope": "Vysvětlit propojení messengeru a oprávnění",
+  "evaluate_user_role_change": "Zkontrolovat dopady změny role uživatele",
+  "evaluate_period_close_readiness": "Posoudit, zda je období připravené k uzavření",
+  "evaluate_compliance_enforcement_change": "Zkontrolovat dopady přísnějších pravidel pracovní doby",
+  "evaluate_spam_rule_candidates": "Najít opakující se odesílatele nevyžádané pošty bez pravidla",
+  "evaluate_employee_exit": "Posoudit důsledky odchodu zaměstnance",
+  "start_software_update": "Nainstalovat aktualizaci softwaru",
+  "evaluate_software_update": "Posoudit vhodný čas pro aktualizaci",
+  "evaluate_container_bundling": "Posoudit sdružení do kontejneru"
 }

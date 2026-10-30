@@ -519,5 +519,15 @@
   "add_container_template_break": "Adaugă o pauză în șablonul unui container",
   "split_shifts_by_weekday": "Împarte serviciile unui grup pe zilele săptămânii",
   "build_weekly_tours": "Construiește trasee săptămânale pentru un grup",
-  "assign_container_week": "Programează un angajat pe un traseu pentru o perioadă"
+  "assign_container_week": "Programează un angajat pe un traseu pentru o perioadă",
+  "explain_messenger_channels": "Explică canalele de messenger",
+  "explain_messenger_pairing_and_scope": "Explică asocierea cu messengerul și drepturile",
+  "evaluate_user_role_change": "Previzualizează efectul schimbării rolului unui utilizator",
+  "evaluate_period_close_readiness": "Evaluează dacă o perioadă este gata de închidere",
+  "evaluate_compliance_enforcement_change": "Previzualizează efectul unor reguli mai stricte de timp de lucru",
+  "evaluate_spam_rule_candidates": "Găsește expeditorii nedoriți recurenți fără regulă de spam",
+  "evaluate_employee_exit": "Evaluează consecințele plecării unui angajat",
+  "start_software_update": "Instalează actualizarea software",
+  "evaluate_software_update": "Evaluează dacă să actualizezi acum",
+  "evaluate_container_bundling": "Evaluează gruparea într-un container"
 }

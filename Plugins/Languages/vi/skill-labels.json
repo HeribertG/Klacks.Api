@@ -519,5 +519,15 @@
   "add_container_template_break": "Thêm giờ nghỉ vào mẫu của container",
   "split_shifts_by_weekday": "Tách các ca của một nhóm theo thứ trong tuần",
   "build_weekly_tours": "Xây dựng các tuyến hằng tuần cho một nhóm",
-  "assign_container_week": "Xếp nhân viên vào tuyến trong một khoảng ngày"
+  "assign_container_week": "Xếp nhân viên vào tuyến trong một khoảng ngày",
+  "explain_messenger_channels": "Giải thích các kênh nhắn tin",
+  "explain_messenger_pairing_and_scope": "Giải thích liên kết và quyền của ứng dụng nhắn tin",
+  "evaluate_user_role_change": "Xem trước tác động khi đổi vai trò người dùng",
+  "evaluate_period_close_readiness": "Đánh giá kỳ đã sẵn sàng để chốt chưa",
+  "evaluate_compliance_enforcement_change": "Xem trước tác động của quy tắc giờ làm nghiêm hơn",
+  "evaluate_spam_rule_candidates": "Tìm người gửi rác lặp lại chưa có quy tắc spam",
+  "evaluate_employee_exit": "Đánh giá hệ quả khi nhân viên nghỉ việc",
+  "start_software_update": "Cài đặt bản cập nhật phần mềm",
+  "evaluate_software_update": "Đánh giá có nên cập nhật ngay",
+  "evaluate_container_bundling": "Đánh giá việc gộp vào container"
 }

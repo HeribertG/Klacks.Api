@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
@@ -17,7 +18,7 @@ namespace Klacks.Api.Application.Handlers.PeriodClosing;
 /// The result is bounded by the caller's group visibility: a group outside it yields nothing, client-bound findings
 /// of hidden clients are dropped, and findings without a client (e.g. understaffing) are only kept when a visible
 /// group was selected. Unrestricted callers (admins, no calling user, installations without groups) see everything.
-/// Assumed callers are an Admin (endpoint and list_period_issues are Admin-only) or a user-less background service
+/// Assumed callers are an Admin (the endpoint, list_period_issues, evaluate_period_close_readiness and evaluate_compliance_enforcement_change are Admin-only) or a user-less background service
 /// (PeriodAutoCloseService); the visibility filter is defense in depth and must never run under a restricted ambient
 /// user for the auto-close error gate, which would then count fewer errors.
 /// </summary>
@@ -29,7 +30,6 @@ namespace Klacks.Api.Application.Handlers.PeriodClosing;
 public class GetPeriodIssuesQueryHandler : BaseHandler, IRequestHandler<GetPeriodIssuesQuery, List<PeriodIssueDto>>
 {
     private const int MaxNotes = 500;
-    private const string ScheduleNoteCode = "ScheduleNote";
     private const string ScheduleNoteMessageKey = "periodClosing.issues.code.scheduleNote";
 
     private readonly IPeriodClosingReadRepository _readRepository;
@@ -115,7 +115,7 @@ public class GetPeriodIssuesQueryHandler : BaseHandler, IRequestHandler<GetPerio
                 ? r.ClientName
                 : $"{r.ClientFirstName} {r.ClientName}",
             Severity = ScheduleValidationType.Info,
-            Code = ScheduleNoteCode,
+            Code = PeriodIssueLimits.ScheduleNoteCode,
             MessageKey = ScheduleNoteMessageKey,
             MessageParams = new Dictionary<string, string>
             {

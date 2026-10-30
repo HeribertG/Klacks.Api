@@ -30,6 +30,7 @@ public class FeaturePluginService : IFeaturePluginService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<FeaturePluginService> _logger;
+    private readonly FeaturePluginSkillLifecycle _skillLifecycle;
     private readonly string _pluginDirectory;
     private readonly ConcurrentDictionary<string, FeaturePluginManifest> _manifests = new();
     private readonly HashSet<string> _installedNames = new();
@@ -55,6 +56,7 @@ public class FeaturePluginService : IFeaturePluginService
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _skillLifecycle = new FeaturePluginSkillLifecycle(logger);
 
         var configuredDir = configuration.GetValue<string>("FeaturePlugins:Directory")
             ?? FeaturePluginConstants.PluginDirectory;
@@ -196,7 +198,7 @@ public class FeaturePluginService : IFeaturePluginService
         // The membership sets above are what the seed loader reads to decide which plugins to seed,
         // so this call has to come after them - and after CompleteAsync, or the catalogue refresh
         // that follows would rebuild the knowledge index from an uncommitted transaction.
-        await SeedPluginSkillsAsync(scope, name, $"installing feature plugin '{name}'");
+        await _skillLifecycle.SeedAsync(scope, name, $"installing feature plugin '{name}'");
 
         _logger.LogInformation("Feature plugin '{Name}' installed", name.ForLog());
         return true;
@@ -248,7 +250,7 @@ public class FeaturePluginService : IFeaturePluginService
         // Disabled, never deleted: the rows follow the soft-delete convention and the plugin may be
         // installed again. Without this the skills stayed in the catalogue and in the knowledge index
         // until the next application start, so the assistant kept offering tools it could not run.
-        await DisablePluginSkillsAsync(scope, name, $"uninstalling feature plugin '{name}'");
+        await _skillLifecycle.DisableAsync(scope, name, $"uninstalling feature plugin '{name}'");
 
         _logger.LogInformation("Feature plugin '{Name}' uninstalled", name.ForLog());
         return true;
@@ -294,7 +296,7 @@ public class FeaturePluginService : IFeaturePluginService
 
         InvalidateNavigationTargetCache(scope);
 
-        await SeedPluginSkillsAsync(scope, name, $"enabling feature plugin '{name}'");
+        await _skillLifecycle.SeedAsync(scope, name, $"enabling feature plugin '{name}'");
 
         _logger.LogInformation("Feature plugin '{Name}' enabled", name.ForLog());
         return true;
@@ -331,7 +333,7 @@ public class FeaturePluginService : IFeaturePluginService
 
         InvalidateNavigationTargetCache(scope);
 
-        await DisablePluginSkillsAsync(scope, name, $"disabling feature plugin '{name}'");
+        await _skillLifecycle.DisableAsync(scope, name, $"disabling feature plugin '{name}'");
 
         _logger.LogInformation("Feature plugin '{Name}' disabled", name.ForLog());
         return true;
@@ -541,84 +543,6 @@ public class FeaturePluginService : IFeaturePluginService
             _logger.LogError(ex, "Failed to load installed feature plugins from database");
         }
     }
-
-    /// <summary>
-    /// Seeds a plugin's skills and puts them into the catalogue and the knowledge index right away.
-    /// Enabling is a separate step from seeding on purpose: the seed loader only writes a definition
-    /// whose version is strictly greater than the stored one, so a plugin that is installed, removed
-    /// and installed again would otherwise come back with its skills still disabled.
-    /// </summary>
-    /// <param name="scope">The scope whose database work has already been committed</param>
-    /// <param name="name">Plugin name, used as the directory name under the plugin root</param>
-    /// <param name="reason">What triggered the refresh, for the log line</param>
-    private async Task SeedPluginSkillsAsync(IServiceScope scope, string name, string reason)
-    {
-        try
-        {
-            var seedLoader = scope.ServiceProvider.GetRequiredService<SkillSeedLoader>();
-            await seedLoader.SeedPluginSkillsAsync(name);
-            await seedLoader.SetPluginSkillsEnabledAsync(name, isEnabled: true);
-            await ApplyLanguagePackSynonymsAsync(scope, seedLoader, name);
-            await RefreshSkillCatalogAsync(scope, reason);
-        }
-        catch (Exception ex)
-        {
-            // Never fails the lifecycle operation: the plugin itself is installed and working at this
-            // point, and a restart re-runs the seed. Losing the assistant integration is a smaller
-            // failure than reporting an install that did happen as failed.
-            _logger.LogError(ex, "Failed to seed skills for feature plugin '{Name}'", name.ForLog());
-        }
-    }
-
-    /// <summary>
-    /// Takes a plugin's skills out of the assistant without deleting them, and rebuilds the catalogue
-    /// so the change is visible before the skill cache expires.
-    /// </summary>
-    /// <param name="scope">The scope whose database work has already been committed</param>
-    /// <param name="name">Plugin name, used as the directory name under the plugin root</param>
-    /// <param name="reason">What triggered the refresh, for the log line</param>
-    private async Task DisablePluginSkillsAsync(IServiceScope scope, string name, string reason)
-    {
-        try
-        {
-            var seedLoader = scope.ServiceProvider.GetRequiredService<SkillSeedLoader>();
-            await seedLoader.SetPluginSkillsEnabledAsync(name, isEnabled: false);
-            await RefreshSkillCatalogAsync(scope, reason);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to disable skills for feature plugin '{Name}'", name.ForLog());
-        }
-    }
-
-    /// <summary>
-    /// Gives the plugin's skills the synonyms of every installed language pack. A pack installed while
-    /// the plugin was off skipped these skills (it only reaches enabled skills), so without this step
-    /// the plugin-language synonyms only arrived after the pack was installed again. Runs before the
-    /// catalogue refresh so the knowledge index embeds the new phrases, and never blocks that refresh.
-    /// </summary>
-    /// <param name="scope">The scope whose database work has already been committed</param>
-    /// <param name="seedLoader">Seed loader that knows the plugin's skill names</param>
-    /// <param name="name">Plugin name, used as the directory name under the plugin root</param>
-    private async Task ApplyLanguagePackSynonymsAsync(IServiceScope scope, SkillSeedLoader seedLoader, string name)
-    {
-        try
-        {
-            var skillNames = await seedLoader.GetPluginSkillNamesAsync(name);
-            if (skillNames.Count == 0)
-                return;
-
-            await scope.ServiceProvider.GetRequiredService<ILanguagePluginService>()
-                .ApplyInstalledSkillSynonymsAsync(skillNames);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to apply language pack synonyms to feature plugin '{Name}'", name.ForLog());
-        }
-    }
-
-    private static async Task RefreshSkillCatalogAsync(IServiceScope scope, string reason) =>
-        await scope.ServiceProvider.GetRequiredService<ISkillCatalogRefresher>().RefreshAsync(reason);
 
     /// <summary>
     /// Re-registers the navigation route of every installed and enabled plugin. Registration used to

@@ -68,6 +68,18 @@ internal static class ReceivedEmailVisibility
         CancellationToken cancellationToken)
     {
         var communications = await emailQueryRepository.GetClientsWithEmailCommunicationsAsync(cancellationToken);
+        return await GetHiddenSenderAddressesAsync(communications, clientVisibilityGuard, cancellationToken);
+    }
+
+    /// <summary>
+    /// Same as above for communications the caller has loaded already, so the client e-mail table is read only once.
+    /// </summary>
+    /// <param name="communications">Every client e-mail address with its client</param>
+    public static async Task<List<string>?> GetHiddenSenderAddressesAsync(
+        List<ClientEmailInfo> communications,
+        IClientVisibilityGuard clientVisibilityGuard,
+        CancellationToken cancellationToken)
+    {
         if (communications.Count == 0)
         {
             return null;

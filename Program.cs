@@ -294,6 +294,8 @@ builder.Services.AddPlaygroundNavigationFeedbackLogger();
 builder.Services.AddScoped<INavigationMissDetector, NavigationMissDetector>();
 builder.Services.AddSingleton<LLMMapper>();
 builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
+builder.Services.AddSingleton<Klacks.Api.Application.Interfaces.Assistant.IConnectedUserIdReader>(
+    sp => sp.GetRequiredService<IAssistantConnectionTracker>());
 builder.Services.AddScoped<IAssistantNotificationService, AssistantNotificationService>();
 builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddSingleton<LLMModelSyncBackgroundService>();

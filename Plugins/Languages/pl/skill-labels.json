@@ -519,5 +519,15 @@
   "add_container_template_break": "Dodaj przerwę do szablonu kontenera",
   "split_shifts_by_weekday": "Podziel zmiany grupy według dni tygodnia",
   "build_weekly_tours": "Zbuduj tygodniowe trasy dla grupy",
-  "assign_container_week": "Zapisz pracownika na trasę na wybrany okres"
+  "assign_container_week": "Zapisz pracownika na trasę na wybrany okres",
+  "explain_messenger_channels": "Wyjaśnij kanały komunikatorów",
+  "explain_messenger_pairing_and_scope": "Wyjaśnij łączenie z komunikatorem i uprawnienia",
+  "evaluate_user_role_change": "Sprawdź skutki zmiany roli użytkownika",
+  "evaluate_period_close_readiness": "Oceń, czy okres jest gotowy do zamknięcia",
+  "evaluate_compliance_enforcement_change": "Sprawdź skutki surowszych reguł czasu pracy",
+  "evaluate_spam_rule_candidates": "Znajdź powracających nadawców bez reguły spamu",
+  "evaluate_employee_exit": "Oceń skutki odejścia pracownika",
+  "start_software_update": "Zainstaluj aktualizację oprogramowania",
+  "evaluate_software_update": "Oceń moment aktualizacji",
+  "evaluate_container_bundling": "Oceń połączenie w kontener"
 }

@@ -61,4 +61,21 @@ public interface IReceivedEmailRepository
     /// would hand back these now-stale instances instead of the current row.
     /// </summary>
     Task<List<ReceivedEmail>> GetUnprocessedAsync(int take);
+
+    /// <summary>
+    /// Counts the emails of one folder per exact sender address, most frequent first, in one grouped query. Soft-deleted
+    /// emails are left out, and so are senders listed in excludedFromAddresses (lower-case) like in
+    /// <see cref="GetFilteredListAsync"/>. At most maxSenders addresses are returned; the total counts all emails of the folder.
+    /// </summary>
+    Task<SenderMailCounts> GetSenderMailCountsAsync(
+        string folder, IReadOnlyCollection<string>? excludedFromAddresses, int maxSenders,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Counts the emails of the given folders per sender domain, restricted to the given lower-case domains, in one
+    /// grouped query. The domain is the text after the first at-sign of the stored address, in lower case.
+    /// </summary>
+    Task<List<SenderDomainMailCount>> GetMailCountsBySenderDomainAsync(
+        IReadOnlyCollection<string> folders, IReadOnlyCollection<string> domains,
+        CancellationToken cancellationToken = default);
 }

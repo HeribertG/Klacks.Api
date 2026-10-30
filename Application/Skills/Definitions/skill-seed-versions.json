@@ -576,9 +576,21 @@
       "version": 5,
       "hash": "849CDBCAE9C16C9CC53B38711C673D5FC56AA6C1F105CE42870F9F8E35EFEE78"
     },
+    "evaluate_compliance_enforcement_change": {
+      "version": 2,
+      "hash": "4FEAE76C093DAD7D02DEF3BF297B2CEDA60A303B99FCBDB23BD17E3514D21D6B"
+    },
+    "evaluate_container_bundling": {
+      "version": 1,
+      "hash": "E2CDD4860D59DCB77D7008D475F9AC4223EA133E6C38C31BD946BF15A96C3D40"
+    },
     "evaluate_contract_templates": {
       "version": 2,
       "hash": "C41B073FCA7DC5CB18840B53E90AD4833161E0958195BC966AECC1FCB54712CA"
+    },
+    "evaluate_employee_exit": {
+      "version": 1,
+      "hash": "CE694967FEBBA50740AE9FF05D92E21C5B716E87849F31A3469F3F332D79E276"
     },
     "evaluate_grouping_by_qualification": {
       "version": 6,
@@ -588,13 +600,33 @@
       "version": 5,
       "hash": "B14D703DA731802026C1F0A4E9A666E541FD21DAB084B6F9B3FFA20421A0CBEB"
     },
+    "evaluate_messaging_reach": {
+      "version": 1,
+      "hash": "6971D610681169489ADA6AE8D91A33EF55E2045DDABA6E30D1C17BB5502F3480"
+    },
+    "evaluate_period_close_readiness": {
+      "version": 2,
+      "hash": "E49AC944A98A9BBD9AE44C60B3277DCA4D858EDE9211955CD223BC4507C49294"
+    },
     "evaluate_scenario": {
       "version": 5,
       "hash": "4E867CD00AC0617D69AAC623DC9E172C6AF6EE2461DC6F069C48EC252E60B202"
     },
+    "evaluate_software_update": {
+      "version": 1,
+      "hash": "805FB9A8B44CC1F1F25DB61B22FD8DC66A928C8F1A6CB964E4E6A3889391AC70"
+    },
+    "evaluate_spam_rule_candidates": {
+      "version": 2,
+      "hash": "B2DA00CAC51016ACBFB6BAEAFE42FDC6747901CC7208F57CF937958D320E3F1A"
+    },
     "evaluate_target_hours_setup": {
       "version": 2,
       "hash": "191FAC0D570AF82F074523D69768F7748695599B21922DE7D17BCD216DDBADD4"
+    },
+    "evaluate_user_role_change": {
+      "version": 2,
+      "hash": "FEF13C682FA1164A0BD6730CE54FC0BBE6F9AE2769FC28728A257F1DB8A5C49D"
     },
     "execute_order_review": {
       "version": 3,
@@ -739,6 +771,14 @@
     "explain_membership_single_row": {
       "version": 6,
       "hash": "283907A89999A626A96DED76ABED8E10E462FC2FA9C7DE2F5E4C8156DEB49987"
+    },
+    "explain_messenger_channels": {
+      "version": 1,
+      "hash": "F3C1306C704291C9B209FAA8A4BAD6D17D26E4992DB5E394B99E9F9912253948"
+    },
+    "explain_messenger_pairing_and_scope": {
+      "version": 1,
+      "hash": "01AD8BB3B9C0AA3E6256C6D8F5071D9D4CF71B42A1A4D5B4388A1E45A9402D75"
     },
     "explain_navigation_learning": {
       "version": 4,
@@ -1389,8 +1429,8 @@
       "hash": "BD48460BC50E18ED052A2BD1A7835C121FEEC481D1C6C83E32A9CFFBA9AF991C"
     },
     "list_period_issues": {
-      "version": 7,
-      "hash": "1A80E1A8A154CC0DEF23A0D2A67ABD347102D3101DAD0E1429A6422FD1F6D816"
+      "version": 8,
+      "hash": "7419A213B5ED4C6B7E9D113668CA2FA53F64B213939D767FFCAD2991E5D31FDB"
     },
     "list_personal_access_tokens": {
       "version": 6,
@@ -1664,6 +1704,10 @@
       "version": 4,
       "hash": "248C39876C0C6A11EDDF3715BE71418827BFFEC598E20885377F99C8E9B3D0EF"
     },
+    "send_broadcast": {
+      "version": 1,
+      "hash": "24B068A256720FB70791B3D1DFBDD0602A4BD6C71C328F3E1DA3BF6E326EF781"
+    },
     "send_message": {
       "version": 19,
       "hash": "4EC84E03A20C5BA89D30C8ABCE4CA121152E684AA124FFCA885172E62721356B"
@@ -1771,6 +1815,10 @@
     "start_planning_profile_setup": {
       "version": 7,
       "hash": "44CFBF8776E8BE916AB90CF2E4AB0F085DB7C549D399ABD7D987A249792D574C"
+    },
+    "start_software_update": {
+      "version": 1,
+      "hash": "D9464A0A4BF748397EA4FB356E42E6F35EC628E0F4F3FB0E2A8358A8A1550A74"
     },
     "start_wizard1": {
       "version": 6,
@@ -1901,8 +1949,8 @@
       "hash": "D92033997CF7E4DF14AC56ADBEA708BC037717C4974006F913765EEFBD6FE38A"
     },
     "update_compliance_enforcement_settings": {
-      "version": 7,
-      "hash": "98E8E8C4F74F98416BFD94CA187E575AB23FF90F412CD9F6E99CB300EC967C72"
+      "version": 8,
+      "hash": "BECF58844EE103213123D8AF88A240EAA6CC29815B36A2031AB70238CA526D48"
     },
     "update_contract": {
       "version": 9,

@@ -49,7 +49,6 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Attributes;
-using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
@@ -67,10 +66,9 @@ using Klacks.Api.Infrastructure.Mediator;
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation("bundle_nearby_timerange_shifts_into_container")]
-public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementation
+public class BundleNearbyTimeRangeShiftsIntoContainerSkill : ContainerBundleSkillBase
 {
     private const string SkillName = "bundle_nearby_timerange_shifts_into_container";
-    private const double DefaultTimeRangeTolerance = 0.5;
     private const string GroupFilterNote = " Only services of the group '{0}' were considered.";
     private const string NoGroupFilterNote = " No group filter was applied: services of all groups were considered.";
     private const string GroupNameSeparator = "', '";
@@ -84,7 +82,6 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private readonly IContainerAutofillService _containerAutofillService;
     private readonly BundleGroupFilterResolver _groupFilterResolver;
     private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
-    private readonly ContainerTransportModeResolver _transportModes;
     private readonly ContainerAutofillVisibilityFilter _visibilityFilter;
     private readonly ContainerTemplateWriter _templateWriter;
 
@@ -103,6 +100,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         IShiftVisibilityGuard shiftVisibilityGuard,
         IDefaultShiftMacroResolver defaultShiftMacroResolver,
         ScheduleMapper scheduleMapper)
+        : base(settingsReader, encryptionService, geoServicesPolicy)
     {
         _shiftRepository = shiftRepository;
         _mediator = mediator;
@@ -111,7 +109,6 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         _containerAutofillService = containerAutofillService;
         _groupFilterResolver = new BundleGroupFilterResolver(groupRepository, groupVisibilityGuard, groupItemRepository);
         _defaultShiftMacroResolver = defaultShiftMacroResolver;
-        _transportModes = new ContainerTransportModeResolver(geoServicesPolicy, settingsReader, encryptionService);
         _visibilityFilter = new ContainerAutofillVisibilityFilter(shiftVisibilityGuard);
         _templateWriter = new ContainerTemplateWriter(mediator, scheduleMapper, shiftRepository);
     }
@@ -119,33 +116,18 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     internal sealed record BundleOutcome(
         Guid ContainerId, string ContainerName, ContainerAutofillResult AutofillResult, List<ContainerRouteStop> Stops);
 
-    private sealed record BundleRequest(
-        string Location,
-        int IsoWeekday,
-        int StorageWeekday,
-        TimeOnly FromTime,
-        TimeOnly UntilTime,
-        DateOnly FromDate,
-        DateOnly? UntilDate,
-        string TransportModeText,
-        ContainerTransportMode TransportMode,
-        double TimeRangeTolerance,
-        string? GroupIdsRaw,
-        string? GroupName,
-        string Name);
-
     public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var (request, requestError) = ParseRequest(parameters, context.UserLanguage);
+        var (request, requestError) = ParseBundleRequest(parameters, context.UserLanguage);
         if (request is null)
         {
             return SkillResult.Error(requestError!);
         }
 
-        var unavailableTransportMode = await _transportModes.CheckAvailableAsync(request.TransportMode, request.TransportModeText);
+        var unavailableTransportMode = await TransportModes.CheckAvailableAsync(request.TransportMode, request.TransportModeText);
         if (unavailableTransportMode != null)
         {
             return SkillResult.Error(unavailableTransportMode);
@@ -177,54 +159,6 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         return BuildSuccessResult(request, outcome, groups.Select(g => g.Name).ToList());
     }
 
-    private static (BundleRequest? Request, string? Error) ParseRequest(Dictionary<string, object> parameters, string? language)
-    {
-        var location = GetRequiredString(parameters, "location");
-        var isoWeekday = GetRequiredInt(parameters, "weekday");
-        var fromTimeStr = GetRequiredString(parameters, "fromTime");
-        var untilTimeStr = GetRequiredString(parameters, "untilTime");
-        var fromDateStr = GetRequiredString(parameters, "fromDate");
-        var untilDateStr = GetParameter<string>(parameters, "untilDate");
-        var transportModeStr = GetParameter<string>(parameters, "transportMode") ?? ContainerTransportModeResolver.Car;
-        var timeRangeTolerance = GetParameter<double>(parameters, "timeRangeTolerance", DefaultTimeRangeTolerance);
-        var groupIdsRaw = GetParameter<string>(parameters, "groupIds");
-        var groupName = GetParameter<string>(parameters, "groupName");
-        var name = GetParameter<string>(parameters, "name");
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            name = $"Mobile Dienste {location}";
-        }
-
-        if (!IsoWeekday.IsValid(isoWeekday))
-        {
-            return (null, IsoWeekday.RangeError);
-        }
-
-        var (fromTime, untilTime, timeError) = ContainerSkillInputParser.ParseTimeBudget(fromTimeStr, untilTimeStr, language);
-        if (timeError != null)
-        {
-            return (null, timeError);
-        }
-
-        var (fromDate, untilDate, dateError) = ContainerSkillInputParser.ParseValidity(fromDateStr, untilDateStr, language);
-        if (dateError != null)
-        {
-            return (null, dateError);
-        }
-
-        var (transportMode, transportModeError) = ContainerTransportModeResolver.Parse(transportModeStr);
-        if (transportMode is null)
-        {
-            return (null, transportModeError!);
-        }
-
-        var storageWeekday = IsoWeekday.ToStorage(isoWeekday);
-
-        return (new BundleRequest(
-            location, isoWeekday, storageWeekday, fromTime, untilTime, fromDate, untilDate,
-            transportModeStr, transportMode.Value, timeRangeTolerance, groupIdsRaw, groupName, name), null);
-    }
-
     private static List<GroupItem> BuildGroupItems(List<Group> groups, DateOnly fromDate) =>
         groups.Select(group => new GroupItem
         {
@@ -233,7 +167,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         }).ToList();
 
     private static ContainerShiftSpec BuildContainerSpec(
-        BundleRequest request, List<GroupItem> groupItems, Guid? defaultMacroId, string userName) => new(
+        ContainerBundleRequest request, List<GroupItem> groupItems, Guid? defaultMacroId, string userName) => new(
             request.Name,
             GenerateAbbreviation(request.Name),
             request.FromTime,
@@ -254,7 +188,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     /// <param name="spec">The sealed container order to build and persist</param>
     /// <param name="instanceId">Instance id the container lock is acquired under</param>
     private async Task<BundleOutcome> CreateAndFillContainerAsync(
-        BundleRequest request, ContainerShiftSpec spec, string instanceId, CancellationToken cancellationToken)
+        ContainerBundleRequest request, ContainerShiftSpec spec, string instanceId, CancellationToken cancellationToken)
     {
         var resultShift = await _shiftRepository.AddWithSealedOrderHandling(ContainerShiftFactory.Build(spec));
         await _unitOfWork.CompleteAsync();
@@ -283,7 +217,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     }
 
     private async Task<ContainerAutofillResult> AutofillVisibleSelectionAsync(
-        Guid containerId, BundleRequest request, CancellationToken cancellationToken)
+        Guid containerId, ContainerBundleRequest request, CancellationToken cancellationToken)
     {
         var rawAutofillResult = await _containerAutofillService.AutofillAsync(new ContainerAutofillRequest(
             ContainerId: containerId,
@@ -301,7 +235,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     }
 
     private async Task<List<ContainerRouteStop>> WriteAndConfirmTemplateAsync(
-        Guid containerId, BundleRequest request, ContainerAutofillResult autofillResult, CancellationToken cancellationToken)
+        Guid containerId, ContainerBundleRequest request, ContainerAutofillResult autofillResult, CancellationToken cancellationToken)
     {
         var taskShifts = await _templateWriter.LoadTaskShiftsAsync(SkillName, autofillResult.SelectedShiftIds);
         var planned = ContainerVisitPlanner.Plan(SkillName, request.Location, request.FromTime, autofillResult, taskShifts);
@@ -314,7 +248,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         return planned.Stops;
     }
 
-    private static SkillResult BuildSuccessResult(BundleRequest request, BundleOutcome outcome, List<string> groupNames)
+    private static SkillResult BuildSuccessResult(ContainerBundleRequest request, BundleOutcome outcome, List<string> groupNames)
     {
         var (isoWeekday, transportModeStr, location) = (request.IsoWeekday, request.TransportModeText, request.Location);
 

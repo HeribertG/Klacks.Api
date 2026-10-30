@@ -866,7 +866,7 @@
         "fr": "Enregistrer le départ d'un employé : fixer la date de fin de l'affiliation active — dès le lendemain, la personne n'est plus planifiable.",
         "it": "Registrare l'uscita di un dipendente: impostare la data di fine dell'appartenenza attiva — dal giorno successivo la persona non è più pianificabile."
       },
-      "version": 7,
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 8,
       "trigger": {
@@ -1079,6 +1079,78 @@
           {
             "anySubstring": [
               "leave date"
+            ]
+          },
+          {
+            "startsWith": [
+              "kann ich ",
+              "darf ich ",
+              "können wir ",
+              "dürfen wir ",
+              "can i ",
+              "can we ",
+              "may i ",
+              "am i allowed",
+              "puis-je",
+              "je peux ",
+              "peut-on",
+              "peut on ",
+              "posso ",
+              "possiamo ",
+              "wenn ",
+              "falls ",
+              "if ",
+              "should ",
+              "would ",
+              "will ",
+              "si ",
+              "se "
+            ]
+          },
+          {
+            "anySubstring": [
+              "prüf",
+              "beurteil",
+              "check",
+              "evaluat",
+              "assess",
+              "analys",
+              "vérifi",
+              "évalu",
+              "contrôl",
+              "verifica",
+              "valuta",
+              "controlla",
+              "was passiert",
+              "was muss",
+              "was bleibt",
+              "was hängt",
+              "was geschieht",
+              "noch gebucht",
+              "noch eingeplant",
+              "noch geplant",
+              "bleib",
+              "wissen",
+              "what happens",
+              "what hangs",
+              "what must",
+              "what remains",
+              "what is still",
+              "still booked",
+              "still planned",
+              "remain",
+              "to know",
+              "que se passe",
+              "que reste",
+              "ce qui est encore",
+              "encore planifié",
+              "savoir",
+              "cosa succede",
+              "cosa resta",
+              "cosa è ancora",
+              "ancora pianificat",
+              "restano",
+              "sapere"
             ]
           }
         ]
@@ -6666,7 +6738,7 @@
         "fr": "Clôture guidée de la période de paie : vérification préalable des problèmes, présentation des résultats, puis scellement de la période uniquement après confirmation explicite.",
         "it": "Chiusura guidata del periodo di paga: verifica preliminare dei problemi, presentazione dei risultati, poi sigillatura del periodo solo dopo conferma esplicita."
       },
-      "version": 7,
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 70,
       "trigger": {
@@ -6772,7 +6844,21 @@
               "est-ce",
               "c'est",
               "cos'è",
-              "è "
+              "è ",
+              "kann ich ",
+              "darf ich ",
+              "können wir ",
+              "dürfen wir ",
+              "can i ",
+              "can we ",
+              "may i ",
+              "am i allowed",
+              "puis-je",
+              "je peux ",
+              "peut-on",
+              "peut on ",
+              "posso ",
+              "possiamo "
             ]
           },
           {
@@ -6994,7 +7080,7 @@
         "fr": "Trouver les services-tâches TimeRange mobiles autour d'une ville ou d'une localité pour un jour de la semaine et les regrouper automatiquement dans un nouveau service conteneur optimisé par itinéraire avec son modèle hebdomadaire.",
         "it": "Trovare i servizi-attività TimeRange mobili attorno a una città o una località per un giorno della settimana e raggrupparli automaticamente in un nuovo servizio contenitore ottimizzato per il percorso con il relativo modello settimanale."
       },
-      "version": 6,
+      "version": 7,
       "isEnabled": true,
       "sortOrder": 47,
       "trigger": {
@@ -7102,7 +7188,35 @@
               "when ",
               "where ",
               "who ",
-              "whom "
+              "whom ",
+              "lohnt",
+              "lohnen",
+              "soll ",
+              "sollen ",
+              "sollte",
+              "würde",
+              "wäre",
+              "passt",
+              "passen",
+              "macht es sinn",
+              "ergibt es sinn",
+              "should ",
+              "would ",
+              "does ",
+              "do ",
+              "vaut",
+              "faut-il",
+              "dois-je",
+              "devrais",
+              "devons",
+              "serait",
+              "conviene",
+              "vale la",
+              "devo ",
+              "dovrei",
+              "dobbiamo",
+              "sarebbe",
+              "ha senso"
             ]
           }
         ]

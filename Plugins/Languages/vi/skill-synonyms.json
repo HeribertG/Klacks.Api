@@ -4025,5 +4025,87 @@
     "giao container cho một nhân viên trong một khoảng ngày",
     "bố trí lara vào tuyến 2 từ ngày 3 đến ngày 7 tháng 11",
     "đặt lịch nhân viên vào mọi ngày chạy tuyến từ thứ hai đến thứ sáu"
+  ],
+  "explain_messenger_channels": [
+    "ứng dụng nhắn tin nào có thể trả lời",
+    "những ứng dụng nhắn tin chỉ gửi thông báo",
+    "tôi có nhận được câu trả lời qua signal không",
+    "tin nhắn trong ứng dụng nhắn tin được lưu trong bao lâu",
+    "tính năng nhắn tin có phải tùy chọn không"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "làm sao liên kết nhân viên với telegram",
+    "tại sao tôi không thể viết tin nhắn tới chính mình",
+    "ai nhìn thấy những tin nhắn nào trong ứng dụng nhắn tin",
+    "làm sao ghép tài khoản của tôi với ứng dụng nhắn tin"
+  ],
+  "evaluate_user_role_change": [
+    "điều gì thay đổi nếu tôi đặt tài khoản này làm quản trị viên",
+    "người dùng sẽ mất quyền nào với vai trò người dùng",
+    "người giám sát có những quyền nào",
+    "hạ cấp quản trị viên cuối cùng có phải là vấn đề không",
+    "khi đó người dùng có truy cập được cài đặt không"
+  ],
+  "evaluate_period_close_readiness": [
+    "nhóm đã sẵn sàng để chốt cuối tháng chưa",
+    "có đáng để chốt tháng ngay hôm nay không",
+    "tôi đã được phép chốt nhóm chưa",
+    "chúng ta có nên đợi trước khi chốt cuối tháng không",
+    "điều gì đang cản trở việc chốt nhóm"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "chuyện gì xảy ra nếu tôi đặt quy tắc giờ nghỉ thành chặn",
+    "bao nhiêu cảnh báo sẽ thành lỗi nếu tôi siết chặt hơn",
+    "có đáng từ chối thay vì chỉ cảnh báo về giờ làm tối đa không",
+    "người giám sát vẫn có thể ép một phân công bị từ chối không",
+    "quy tắc này đã từ chối rồi hay chỉ cảnh báo"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "những tên miền người gửi nào cứ vào thư rác mà chưa có quy tắc",
+    "tôi nên lọc những tên miền nào là spam",
+    "có người gửi nào liên tục xuất hiện trong thư mục thư rác không",
+    "tên miền nào vẫn còn thiếu bộ lọc spam",
+    "có đáng chặn mới cho tên miền người gửi này không"
+  ],
+  "evaluate_employee_exit": [
+    "chuyện gì xảy ra nếu một nhân viên nghỉ việc vào cuối tháng",
+    "việc nghỉ việc của nhân viên này kéo theo những gì",
+    "sau ngày làm việc cuối cùng còn gì được đặt lịch không",
+    "người này còn ca nào sau ngày nghỉ việc không",
+    "tôi cần dọn dẹp gì trước khi nhân viên nghỉ việc",
+    "hợp đồng có còn chạy sau ngày nghỉ việc không"
+  ],
+  "start_software_update": [
+    "cài đặt bản cập nhật ngay bây giờ",
+    "bắt đầu cập nhật phần mềm",
+    "nâng cấp klacks lên phiên bản mới",
+    "áp dụng bản phát hành mới ngay",
+    "chạy bản cập nhật klacks"
+  ],
+  "evaluate_software_update": [
+    "tôi có nên cập nhật bây giờ không",
+    "bây giờ có phải lúc tốt để cập nhật không",
+    "có điều gì phản đối việc cập nhật không",
+    "có phiên bản mới hơn cho chúng tôi không",
+    "có gì đang chạy mà bản cập nhật sẽ làm gián đoạn không"
+  ],
+  "evaluate_container_bundling": [
+    "có đáng gộp các dịch vụ di động này không",
+    "những chuyến thăm này có vừa một vòng không",
+    "một container có hợp lý cho những chuyến thăm này không",
+    "một vòng qua những chuyến thăm này mất bao nhiêu thời gian di chuyển",
+    "một ngày có đủ cho tất cả chuyến thăm này không"
+  ],
+  "send_broadcast": [
+    "gửi một thông báo hàng loạt",
+    "thông tư gửi nhóm",
+    "viết cho mọi người trong nhóm",
+    "tin nhắn hàng loạt cho đội"
+  ],
+  "evaluate_messaging_reach": [
+    "khả năng liên lạc của nhóm qua ứng dụng nhắn tin",
+    "tôi liên lạc được với ai qua ứng dụng nhắn tin",
+    "ai còn thiếu trên ứng dụng nhắn tin",
+    "ai không liên lạc được qua ứng dụng nhắn tin"
   ]
 }

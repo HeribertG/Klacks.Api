@@ -4038,5 +4038,87 @@
     "tilldela containern till en medarbetare för en period",
     "bemanna runda 2 från 3 till 7 november med lara",
     "boka medarbetaren på alla rundedagar från måndag till fredag"
+  ],
+  "explain_messenger_channels": [
+    "vilken messenger kan svara",
+    "messengers som bara notifierar",
+    "kan jag få svar via signal",
+    "hur länge sparas messengermeddelanden",
+    "är meddelandemodulen valfri"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "hur kopplar jag en medarbetare till telegram",
+    "varför kan jag inte skicka ett meddelande till mig",
+    "vem ser vilka messengermeddelanden",
+    "hur kopplar jag mitt eget konto till messengern"
+  ],
+  "evaluate_user_role_change": [
+    "vad ändras om jag gör det här kontot till admin",
+    "vilka rättigheter förlorar en användare med rollen user",
+    "vilka rättigheter får en handledare",
+    "är det ett problem att nedgradera den sista administratören",
+    "skulle användaren då få tillgång till inställningarna"
+  ],
+  "evaluate_period_close_readiness": [
+    "är gruppen redo för månadsavslutet",
+    "lönar det sig att göra månadsavslutet redan i dag",
+    "får jag redan avsluta gruppen",
+    "ska vi vänta med månadsavslutet",
+    "vad hindrar oss från att avsluta gruppen"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "vad händer om jag sätter vilotidsregeln på blockera",
+    "hur många varningar skulle bli fel om jag skärper reglerna",
+    "lönar det sig att avvisa i stället för att bara varna för maximal arbetstid",
+    "kan handledare ändå driva igenom en avvisad tilldelning",
+    "avvisar den här regeln redan eller varnar den bara"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "vilka avsändardomäner hamnar hela tiden i skräpposten utan att ha en regel",
+    "vilka domäner bör jag låta filtrera som spam",
+    "finns det avsändare som hela tiden dyker upp i skräppostmappen",
+    "för vilka domäner saknas ett spamfilter fortfarande",
+    "lönar det sig med en ny spärr för den här avsändardomänen"
+  ],
+  "evaluate_employee_exit": [
+    "vad händer om en medarbetare slutar vid månadens slut",
+    "vad är beroende av den här medarbetarens avgång",
+    "finns det något inplanerat efter sista arbetsdagen",
+    "har personen fortfarande pass efter slutdatumet",
+    "vad behöver jag reda ut innan medarbetaren lämnar oss",
+    "löper avtalen vidare efter slutdatumet"
+  ],
+  "start_software_update": [
+    "installera uppdateringen nu",
+    "starta programuppdateringen",
+    "uppgradera klacks till den nya versionen",
+    "tillämpa den nya utgåvan nu",
+    "kör klacks-uppdateringen"
+  ],
+  "evaluate_software_update": [
+    "ska jag uppdatera nu",
+    "är det en bra tidpunkt att uppdatera",
+    "vad talar emot att uppdatera",
+    "finns det en nyare version för oss",
+    "pågår något som en uppdatering skulle avbryta"
+  ],
+  "evaluate_container_bundling": [
+    "lönar det sig att samla de här mobila tjänsterna",
+    "ryms de här besöken i en tur",
+    "skulle en container vara meningsfull för de här besöken",
+    "hur mycket restid skulle en tur genom de här besöken ta",
+    "räcker en dag till alla de här besöken"
+  ],
+  "send_broadcast": [
+    "skicka ett massutskick",
+    "cirkulär till gruppen",
+    "skriv till alla i gruppen",
+    "massmeddelande till teamet"
+  ],
+  "evaluate_messaging_reach": [
+    "nåbarhet för gruppen via messenger",
+    "vilka kan jag nå via messenger",
+    "vem saknas på messengern",
+    "vem går inte att nå via messenger"
   ]
 }

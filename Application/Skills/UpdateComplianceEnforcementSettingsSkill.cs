@@ -3,15 +3,16 @@
 /// <summary>
 /// Changes how strictly the working-time protections are applied. Only the supplied parameters are
 /// written; the rest keep their stored value. Every reaction (*Mode) must be warn or block and is stored in that
-/// spelling; any other value refuses the whole call without writing.
+/// spelling; any other value refuses the whole call without writing. The COMPLIANCE_ENFORCEMENT_* key of each rule
+/// holds only the reaction, so this skill takes no hour or day numbers.
 /// </summary>
 /// <param name="defaultMode">Reaction used where no specific mode is set.</param>
 /// <param name="allowSupervisorOverride">Whether a supervisor may push a rejected assignment through.</param>
-/// <param name="maxDailyHours">Hours a single day may reach.</param>
-/// <param name="maxWeeklyHours">Hours a single week may reach.</param>
-/// <param name="minRestHours">Hours of rest between two duties.</param>
-/// <param name="minRestDays">Rest days per week.</param>
-/// <param name="maxConsecutiveDays">Days in a row that may be worked.</param>
+/// <param name="maxDailyHoursMode">Reaction when the daily hours limit is passed.</param>
+/// <param name="maxWeeklyHoursMode">Reaction when the weekly hours limit is passed.</param>
+/// <param name="minRestHoursMode">Reaction when the rest between two duties is too short.</param>
+/// <param name="minRestDaysMode">Reaction when the weekly rest days are missing.</param>
+/// <param name="maxConsecutiveDaysMode">Reaction when too many days in a row are worked.</param>
 /// <param name="periodCapMode">Reaction when a period ceiling is passed.</param>
 /// <param name="rollingAverageMode">Reaction when a rolling weekly average is passed.</param>
 /// <param name="restDayRotationMode">Reaction when the rest day rotation is broken.</param>
@@ -38,6 +39,11 @@ public class UpdateComplianceEnforcementSettingsSkill : SettingsWriterSkillBase
     private static readonly (string Parameter, string Key)[] ModeParameters =
     [
         ("defaultMode", SettingKeys.ComplianceEnforcementDefaultMode),
+        ("maxDailyHoursMode", SettingKeys.ComplianceEnforcementMaxDailyHours),
+        ("maxWeeklyHoursMode", SettingKeys.ComplianceEnforcementMaxWeeklyHours),
+        ("minRestHoursMode", SettingKeys.ComplianceEnforcementMinRestHours),
+        ("minRestDaysMode", SettingKeys.ComplianceEnforcementMinRestDays),
+        ("maxConsecutiveDaysMode", SettingKeys.ComplianceEnforcementMaxConsecutiveDays),
         ("periodCapMode", SettingKeys.ComplianceEnforcementPeriodCap),
         ("rollingAverageMode", SettingKeys.ComplianceEnforcementRollingAverage),
         ("restDayRotationMode", SettingKeys.ComplianceEnforcementRestDayRotation),
@@ -82,11 +88,6 @@ public class UpdateComplianceEnforcementSettingsSkill : SettingsWriterSkillBase
         }
 
         CollectBoolean(pending, parameters, "allowSupervisorOverride", SettingKeys.ComplianceEnforcementAllowSupervisorOverride);
-        CollectDecimal(pending, parameters, "maxDailyHours", SettingKeys.ComplianceEnforcementMaxDailyHours);
-        CollectDecimal(pending, parameters, "maxWeeklyHours", SettingKeys.ComplianceEnforcementMaxWeeklyHours);
-        CollectDecimal(pending, parameters, "minRestHours", SettingKeys.ComplianceEnforcementMinRestHours);
-        CollectInteger(pending, parameters, "minRestDays", SettingKeys.ComplianceEnforcementMinRestDays);
-        CollectInteger(pending, parameters, "maxConsecutiveDays", SettingKeys.ComplianceEnforcementMaxConsecutiveDays);
         CollectInteger(pending, parameters, "rosterPublicationMinLeadDays", SettingKeys.ComplianceRosterPublicationMinLeadDays);
         CollectBoolean(pending, parameters, "rosterPublicationCountWorkdaysOnly", SettingKeys.ComplianceRosterPublicationCountWorkdaysOnly);
 

@@ -4071,5 +4071,87 @@
     "atribuir o contentor a um funcionário para um intervalo de datas",
     "ocupa a rota 2 de 3 a 7 de novembro com a lara",
     "marca o funcionário em todos os dias da rota, de segunda a sexta"
+  ],
+  "explain_messenger_channels": [
+    "qual messenger consegue responder",
+    "messengers que apenas notificam",
+    "posso receber uma resposta pelo signal",
+    "quanto tempo as mensagens do messenger ficam guardadas",
+    "o módulo de mensagens é opcional"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "como vinculo um funcionário ao telegram",
+    "por que não posso enviar uma mensagem para mim mesmo",
+    "quem vê quais mensagens do messenger",
+    "como vinculo a minha própria conta ao messenger"
+  ],
+  "evaluate_user_role_change": [
+    "o que muda se eu tornar esta conta admin",
+    "que permissões um usuário perderia com a função user",
+    "que permissões um supervisor recebe",
+    "é um problema rebaixar o último admin",
+    "o usuário passaria então a ter acesso às configurações"
+  ],
+  "evaluate_period_close_readiness": [
+    "o grupo está pronto para o fechamento mensal",
+    "já vale a pena fazer o fechamento do mês hoje",
+    "já posso fechar o grupo",
+    "devemos esperar com o fechamento mensal",
+    "o que nos impede de fechar o grupo"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "o que acontece se eu definir a regra de descanso como bloquear",
+    "quantos avisos virariam erros se eu endurecer a regra",
+    "vale a pena recusar em vez de apenas avisar sobre as horas máximas",
+    "os supervisores ainda poderiam forçar uma atribuição recusada",
+    "esta regra já recusa ou apenas avisa"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "que domínios de remetentes caem sempre na pasta de spam e ainda não têm regra",
+    "que domínios devo mandar filtrar como spam",
+    "há remetentes que continuam a aparecer na pasta de spam",
+    "para que domínios ainda falta um filtro de spam",
+    "vale a pena um novo bloqueio para este domínio de remetente"
+  ],
+  "evaluate_employee_exit": [
+    "o que acontece se um funcionário sair no fim do mês",
+    "o que depende da saída deste funcionário",
+    "ainda há algo agendado depois do último dia de trabalho",
+    "a pessoa ainda tem turnos depois da data de saída",
+    "o que preciso resolver antes de o funcionário sair",
+    "os contratos continuam em vigor depois da data de saída"
+  ],
+  "start_software_update": [
+    "instalar a atualização agora",
+    "iniciar a atualização do software",
+    "atualizar o klacks para a nova versão",
+    "aplicar a nova versão agora",
+    "executar a atualização do klacks"
+  ],
+  "evaluate_software_update": [
+    "devo atualizar agora",
+    "é uma boa altura para atualizar",
+    "o que fala contra uma atualização",
+    "existe uma versão mais recente para nós",
+    "há algo em execução que uma atualização interromperia"
+  ],
+  "evaluate_container_bundling": [
+    "vale a pena agrupar estes serviços móveis",
+    "estas visitas cabem numa só rota",
+    "um contêiner faria sentido para estas visitas",
+    "quanto tempo de deslocamento levaria uma rota por estas visitas",
+    "um dia chega para todas estas visitas"
+  ],
+  "send_broadcast": [
+    "enviar um comunicado geral",
+    "circular para o grupo",
+    "escrever a todos do grupo",
+    "mensagem em massa para a equipa"
+  ],
+  "evaluate_messaging_reach": [
+    "alcance do grupo pelo messenger",
+    "quem posso alcançar pelo messenger",
+    "quem falta no messenger",
+    "quem não consigo alcançar pelo messenger"
   ]
 }

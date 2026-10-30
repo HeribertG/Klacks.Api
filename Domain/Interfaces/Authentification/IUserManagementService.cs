@@ -44,9 +44,18 @@ public interface IUserManagementService
     Task<(bool Success, string Message)> ChangeUserRoleAsync(string userId, string roleName, bool isSelected);
 
     /// <summary>
+    /// Counts the active (not deactivated) accounts that hold the Admin role; the figure behind the last-administrator
+    /// protection of <see cref="ChangeUserRoleAsync"/> and <see cref="DeactivateUserAsync"/> and behind the advice on a
+    /// role change
+    /// </summary>
+    /// <returns>Number of active administrators</returns>
+    Task<int> CountActiveAdministratorsAsync();
+
+    /// <summary>
     /// Deactivates a user account: the account keeps all its data but must neither authenticate nor
     /// lend its permissions to background work. This is the system's only removal path - hard
-    /// deletion was removed system-wide (Owner decision, 17.08.).
+    /// deletion was removed system-wide (Owner decision, 17.08.). The only active administrator is refused, so the
+    /// installation always keeps one; callers take the administrator-role lock inside their transaction first.
     /// </summary>
     /// <param name="userId">User's ID</param>
     /// <param name="deactivatedBy">User ID (GUID string) of the account performing the deactivation</param>

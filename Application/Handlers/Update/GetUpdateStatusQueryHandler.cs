@@ -12,6 +12,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Update;
 using Klacks.Api.Application.Mappers.Update;
 using Klacks.Api.Application.Queries.Update;
+using Klacks.Api.Application.Services.Update;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Update;
 using Klacks.Api.Domain.Models.Update;
@@ -22,9 +23,6 @@ namespace Klacks.Api.Application.Handlers.Update;
 
 public class GetUpdateStatusQueryHandler : IRequestHandler<GetUpdateStatusQuery, UpdateStatusResult>
 {
-    private static readonly UpdateOperationType[] KlacksSelfUpdateTypes =
-        [UpdateOperationType.Update, UpdateOperationType.Rollback];
-
     private readonly IUpdateHistoryRepository _repository;
     private readonly IUpdateManifestReader _manifestReader;
     private readonly IUpdateAvailabilityEvaluator _evaluator;
@@ -50,12 +48,12 @@ public class GetUpdateStatusQueryHandler : IRequestHandler<GetUpdateStatusQuery,
         var currentVersion = new SemanticVersion(MyVersion.Major, MyVersion.Minor, MyVersion.Patch);
 
         var active = await _repository.GetActiveOperationAsync(cancellationToken);
-        if (active is not null && !KlacksSelfUpdateTypes.Contains(active.OperationType))
+        if (active is not null && !KlacksSelfUpdateTypes.All.Contains(active.OperationType))
         {
             active = null;
         }
 
-        var last = await _repository.GetLatestByTypesAsync(KlacksSelfUpdateTypes, cancellationToken);
+        var last = await _repository.GetLatestByTypesAsync(KlacksSelfUpdateTypes.All, cancellationToken);
 
         var channel = await ResolveChannelAsync();
         var manifest = await _manifestReader.GetManifestAsync(channel, cancellationToken);

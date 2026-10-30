@@ -4006,5 +4006,87 @@
     "tugaskan kontainer kepada karyawan untuk rentang tanggal",
     "isi tur 2 dari tanggal 3 sampai 7 november dengan lara",
     "pesan karyawan di setiap hari tur dari senin sampai jumat"
+  ],
+  "explain_messenger_channels": [
+    "messenger mana yang bisa membalas",
+    "messenger apa saja yang hanya memberi notifikasi",
+    "bisakah saya mendapat jawaban lewat signal",
+    "berapa lama pesan messenger disimpan",
+    "apakah fitur pesan itu opsional"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "bagaimana cara menautkan karyawan ke telegram",
+    "kenapa saya tidak bisa mengirim pesan ke diri sendiri",
+    "siapa yang melihat pesan messenger yang mana",
+    "bagaimana cara memasangkan akun saya dengan messenger"
+  ],
+  "evaluate_user_role_change": [
+    "apa yang berubah jika akun ini dijadikan admin",
+    "hak apa yang hilang dari user dengan peran user",
+    "hak apa yang didapat seorang supervisor",
+    "apakah menurunkan admin terakhir jadi masalah",
+    "apakah user itu lalu bisa mengakses pengaturan"
+  ],
+  "evaluate_period_close_readiness": [
+    "apakah grup sudah siap untuk penutupan akhir bulan",
+    "apakah sudah layak menutup bulan ini hari ini",
+    "apakah saya sudah boleh menutup grup",
+    "apakah sebaiknya kita tunda penutupan akhir bulan",
+    "apa yang menghalangi kita menutup grup"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "apa yang terjadi jika aturan waktu istirahat diatur ke blokir",
+    "berapa banyak peringatan yang jadi error jika dibuat lebih ketat",
+    "apakah layak menolak dan tidak sekadar memperingatkan soal jam maksimum",
+    "apakah supervisor tetap bisa memaksakan penugasan yang ditolak",
+    "apakah aturan ini sudah menolak atau hanya memperingatkan"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "domain pengirim mana yang terus masuk ke folder sampah dan belum punya aturan",
+    "domain mana yang sebaiknya saya filter sebagai spam",
+    "adakah pengirim yang terus muncul di folder sampah",
+    "domain mana yang masih belum punya filter spam",
+    "apakah layak memblokir domain pengirim ini"
+  ],
+  "evaluate_employee_exit": [
+    "apa yang terjadi jika karyawan keluar di akhir bulan",
+    "apa saja yang terkait dengan keluarnya karyawan ini",
+    "apakah masih ada yang terjadwal setelah hari kerja terakhir",
+    "apakah orang ini masih punya shift setelah tanggal keluar",
+    "apa yang perlu saya bereskan sebelum karyawan keluar",
+    "apakah kontrak masih berjalan setelah tanggal keluar"
+  ],
+  "start_software_update": [
+    "instal pembaruan sekarang",
+    "mulai pembaruan perangkat lunak",
+    "tingkatkan klacks ke versi baru",
+    "terapkan rilis baru sekarang",
+    "jalankan pembaruan klacks"
+  ],
+  "evaluate_software_update": [
+    "haruskah saya memperbarui sekarang",
+    "apakah sekarang waktu yang tepat untuk memperbarui",
+    "apa yang menjadi alasan untuk tidak memperbarui",
+    "apakah ada versi yang lebih baru untuk kami",
+    "apakah ada proses berjalan yang akan terganggu pembaruan"
+  ],
+  "evaluate_container_bundling": [
+    "apakah layak menggabungkan layanan mobile ini",
+    "apakah kunjungan ini muat dalam satu tur",
+    "apakah kontainer masuk akal untuk kunjungan ini",
+    "berapa lama waktu tempuh satu tur melewati kunjungan ini",
+    "apakah satu hari cukup untuk semua kunjungan ini"
+  ],
+  "send_broadcast": [
+    "kirim broadcast",
+    "surat edaran untuk grup",
+    "tulis ke semua orang di grup",
+    "pesan massal untuk tim"
+  ],
+  "evaluate_messaging_reach": [
+    "keterjangkauan messenger untuk grup",
+    "siapa yang bisa saya hubungi lewat messenger",
+    "siapa yang belum ada di messenger",
+    "siapa yang tidak terjangkau lewat messenger"
   ]
 }

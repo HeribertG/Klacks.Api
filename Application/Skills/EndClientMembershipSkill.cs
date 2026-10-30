@@ -15,6 +15,7 @@
 /// <param name="clientVisibilityGuard">Decides whether the calling user may see a client</param>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Clients;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
@@ -34,7 +35,6 @@ namespace Klacks.Api.Application.Skills;
 public class EndClientMembershipSkill : BaseSkillImplementation
 {
     private const string SkillName = "end_client_membership";
-    private const string OpenEndedLabel = "open-ended";
 
     private readonly IMembershipRepository _membershipRepository;
     private readonly IClientRepository _clientRepository;
@@ -86,12 +86,10 @@ public class EndClientMembershipSkill : BaseSkillImplementation
             return SkillResult.Error($"Client {clientId} not found.");
         }
 
-        var memberships = await _membershipRepository.List();
-
         Membership membership;
         if (membershipIdOverride.HasValue)
         {
-            var requested = memberships.FirstOrDefault(m => m.Id == membershipIdOverride.Value);
+            var requested = await _membershipRepository.GetNoTracking(membershipIdOverride.Value);
             if (requested == null
                 || (requested.ClientId != clientId
                     && !await _clientVisibilityGuard.IsVisibleAsync(requested.ClientId, cancellationToken)))
@@ -111,11 +109,8 @@ public class EndClientMembershipSkill : BaseSkillImplementation
         else
         {
             var today = await _companyClock.GetTodayAsync(cancellationToken);
-            var activeMemberships = memberships
-                .Where(m => m.ClientId == clientId)
-                .Where(m => m.ValidUntil == null || m.ValidUntil.Value.Date >= today.Date)
-                .OrderBy(m => m.ValidFrom)
-                .ToList();
+            var activeMemberships = MembershipExitRules.ActiveMemberships(
+                await _membershipRepository.ListByClientAsync(clientId, cancellationToken), clientId, today);
 
             if (activeMemberships.Count == 0)
             {
@@ -126,9 +121,7 @@ public class EndClientMembershipSkill : BaseSkillImplementation
 
             if (activeMemberships.Count > 1)
             {
-                var options = string.Join("; ", activeMemberships.Select(m =>
-                    $"id={m.Id}, validFrom={m.ValidFrom.ToString(DateTimeFormats.IsoDate)}, " +
-                    $"validUntil={FormatValidUntil(m.ValidUntil)}"));
+                var options = MembershipExitRules.DescribeOptions(activeMemberships);
                 return SkillResult.Error(
                     $"Client {clientId} has {activeMemberships.Count} active memberships — cannot decide which one to end. " +
                     $"Available memberships: {options}. Ask the user which membership applies, then call " +
@@ -139,7 +132,7 @@ public class EndClientMembershipSkill : BaseSkillImplementation
         }
 
         var exitDateTime = exitDate.ToDateTime(TimeOnly.MinValue);
-        if (exitDateTime < membership.ValidFrom.Date)
+        if (MembershipExitRules.ExitPrecedesStart(exitDateTime, membership))
         {
             return SkillResult.Error(
                 $"exitDate {exitDate.ToString(DateTimeFormats.IsoDate)} must not be before the membership's " +
@@ -181,7 +174,4 @@ public class EndClientMembershipSkill : BaseSkillImplementation
             $"day of employment, so the client can no longer be planned in the schedule from " +
             $"{firstUnplannableDay.ToString(DateTimeFormats.IsoDate)} on (membership boundary).");
     }
-
-    private static string FormatValidUntil(DateTime? validUntil)
-        => validUntil.HasValue ? validUntil.Value.ToString(DateTimeFormats.IsoDate) : OpenEndedLabel;
 }

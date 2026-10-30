@@ -13,4 +13,12 @@ namespace Klacks.Api.Domain.Interfaces.RouteOptimization;
 public interface IContainerAutofillService
 {
     Task<ContainerAutofillResult> AutofillAsync(ContainerAutofillRequest request);
+
+    /// <summary>
+    /// Dry run of the same planning on tasks the caller already loaded: nothing is stored (no coordinates) and no
+    /// turn-by-turn directions are requested. The ant colony step is randomized, so with more than two stops the route of
+    /// a later real run can differ.
+    /// </summary>
+    /// <param name="request">Tasks, bases, time frame and transport mode</param>
+    Task<ContainerAutofillPreview> PreviewAsync(ContainerAutofillPreviewRequest request);
 }

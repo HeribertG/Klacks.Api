@@ -16,7 +16,7 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public sealed class ComplianceEscalationService : IComplianceEscalationService
 {
-    private static readonly IReadOnlyDictionary<string, string> CommentToRuleName = new Dictionary<string, string>
+    internal static readonly IReadOnlyDictionary<string, string> CommentToRuleName = new Dictionary<string, string>
     {
         [ScheduleValidationKeys.RestViolation] = ComplianceRuleNames.MinRestHours,
         [ScheduleValidationKeys.Overtime] = ComplianceRuleNames.MaxDailyHours,

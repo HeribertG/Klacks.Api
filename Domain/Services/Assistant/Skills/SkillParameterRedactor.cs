@@ -1,12 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Produces a copy of a skill invocation argument set in which every secret-carrying value is
-/// replaced by a placeholder, so a password or API key typed into the chat never reaches the usage
-/// log. Tool-call arguments arrive as JsonElement and may carry objects and arrays, so the walk
+/// Produces a copy of a skill invocation argument set in which every secret-carrying value, and the
+/// values a skill lists as personal (SensitiveSkillParameters), is replaced by a placeholder, so a
+/// password or API key typed into the chat never reaches the usage log. Tool-call arguments arrive as JsonElement and may carry objects and arrays, so the walk
 /// recurses instead of only checking the top level. The caller's dictionary is never modified.
 /// </summary>
 /// <param name="parameters">Raw skill invocation arguments, or null when a skill takes none.</param>
+/// <param name="skillName">The invoked skill, for its personal parameters; null checks secrets only.</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -15,7 +16,7 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills;
 
 public static class SkillParameterRedactor
 {
-    public static Dictionary<string, object?> Redact(IReadOnlyDictionary<string, object>? parameters)
+    public static Dictionary<string, object?> Redact(IReadOnlyDictionary<string, object>? parameters, string? skillName = null)
     {
         if (parameters == null)
         {
@@ -31,7 +32,7 @@ public static class SkillParameterRedactor
                 continue;
             }
 
-            redacted[parameter.Key] = IsSensitiveName(parameter.Key)
+            redacted[parameter.Key] = IsSensitiveName(parameter.Key) || SensitiveSkillParameters.IsPersonalInSkill(skillName, parameter.Key)
                 ? SensitiveSkillParameters.RedactedValue
                 : RedactValue(parameter.Value);
         }

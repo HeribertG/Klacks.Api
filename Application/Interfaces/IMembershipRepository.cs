@@ -7,5 +7,10 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IMembershipRepository : IBaseRepository<Membership>
 {
-
+    /// <summary>
+    /// The memberships of one client, untracked and without soft-deleted rows.
+    /// </summary>
+    /// <param name="clientId">The client</param>
+    /// <param name="cancellationToken">Cancels the read</param>
+    Task<List<Membership>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken = default);
 }

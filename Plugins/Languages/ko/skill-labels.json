@@ -519,5 +519,15 @@
   "add_container_template_break": "컨테이너 템플릿에 휴식 추가",
   "split_shifts_by_weekday": "그룹의 시프트를 요일별로 나누기",
   "build_weekly_tours": "그룹의 주간 순회 경로 만들기",
-  "assign_container_week": "기간을 정해 직원을 순회 경로에 배정"
+  "assign_container_week": "기간을 정해 직원을 순회 경로에 배정",
+  "explain_messenger_channels": "메신저 채널 설명",
+  "explain_messenger_pairing_and_scope": "메신저 연결 및 권한 범위 설명",
+  "evaluate_user_role_change": "사용자 역할 변경 영향 미리보기",
+  "evaluate_period_close_readiness": "기간 마감 가능 여부 판단",
+  "evaluate_compliance_enforcement_change": "더 엄격한 근로시간 규칙의 영향 미리보기",
+  "evaluate_spam_rule_candidates": "규칙 없는 반복 정크 발신자 찾기",
+  "evaluate_employee_exit": "직원 퇴사의 영향 판단",
+  "start_software_update": "소프트웨어 업데이트 설치",
+  "evaluate_software_update": "지금 업데이트할지 판단",
+  "evaluate_container_bundling": "컨테이너 묶기 타당성 판단"
 }

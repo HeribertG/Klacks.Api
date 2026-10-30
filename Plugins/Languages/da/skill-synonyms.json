@@ -4031,5 +4031,87 @@
     "tildel containeren til en medarbejder for en periode",
     "bemand tur 2 fra den 3. til den 7. november med lara",
     "book medarbejderen på alle turdage fra mandag til fredag"
+  ],
+  "explain_messenger_channels": [
+    "hvilken messenger kan svare",
+    "messengere der kun sender notifikationer",
+    "kan jeg få et svar via signal",
+    "hvor længe gemmes messenger-beskeder",
+    "er messaging valgfrit"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "hvordan knytter jeg en medarbejder til telegram",
+    "hvorfor kan jeg ikke sende en besked til mig selv",
+    "hvem ser hvilke messenger-beskeder",
+    "hvordan kobler jeg min egen konto til messengeren"
+  ],
+  "evaluate_user_role_change": [
+    "hvad ændrer sig hvis jeg gør denne konto til admin",
+    "hvilke rettigheder mister en bruger med rollen user",
+    "hvilke rettigheder får en supervisor",
+    "er det et problem at nedgradere den sidste admin",
+    "ville brugeren så få adgang til indstillingerne"
+  ],
+  "evaluate_period_close_readiness": [
+    "er gruppen klar til månedsafslutningen",
+    "kan det allerede svare sig at afslutte måneden i dag",
+    "må jeg allerede afslutte gruppen",
+    "skal vi vente med månedsafslutningen",
+    "hvad forhindrer os i at afslutte gruppen"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "hvad sker der hvis jeg sætter hviletidsreglen til blokér",
+    "hvor mange advarsler ville blive til fejl hvis jeg strammer op",
+    "kan det svare sig at afvise i stedet for kun at advare om maksimal arbejdstid",
+    "kunne supervisorer stadig gennemtvinge en afvist tildeling",
+    "afviser denne regel allerede eller advarer den kun"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "hvilke afsenderdomæner havner hele tiden i junk uden en regel endnu",
+    "hvilke domæner burde jeg få filtreret som spam",
+    "er der afsendere der bliver ved med at dukke op i junk-mappen",
+    "for hvilke domæner mangler der stadig et spamfilter",
+    "kan det svare sig med en ny blokering af dette afsenderdomæne"
+  ],
+  "evaluate_employee_exit": [
+    "hvad sker der hvis en medarbejder går ved månedens udgang",
+    "hvad er knyttet til denne medarbejders fratrædelse",
+    "er der stadig noget planlagt efter den sidste arbejdsdag",
+    "har personen stadig vagter efter fratrædelsesdatoen",
+    "hvad skal jeg have ryddet op inden medarbejderen forlader os",
+    "løber kontrakterne videre efter fratrædelsesdatoen"
+  ],
+  "start_software_update": [
+    "installer opdateringen nu",
+    "start softwareopdateringen",
+    "opgrader klacks til den nye version",
+    "anvend den nye udgivelse nu",
+    "kør klacks-opdateringen"
+  ],
+  "evaluate_software_update": [
+    "skal jeg opdatere nu",
+    "er det et godt tidspunkt at opdatere",
+    "hvad taler imod at opdatere",
+    "findes der en nyere version til os",
+    "kører der noget som en opdatering ville afbryde"
+  ],
+  "evaluate_container_bundling": [
+    "kan det svare sig at samle disse mobile tjenester",
+    "passer disse besøg ind i én rute",
+    "ville en container give mening for disse besøg",
+    "hvor meget kørselstid ville en rute gennem disse besøg tage",
+    "er én dag nok til alle disse besøg"
+  ],
+  "send_broadcast": [
+    "send en fællesbesked",
+    "rundskrivelse til gruppen",
+    "skriv til alle i gruppen",
+    "massebesked til teamet"
+  ],
+  "evaluate_messaging_reach": [
+    "messenger-tilgængeligheden for gruppen",
+    "hvem kan jeg nå via messenger",
+    "hvem mangler på messengeren",
+    "hvem kan ikke nås via messenger"
   ]
 }

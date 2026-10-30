@@ -14,7 +14,8 @@ namespace Klacks.Api.Domain.Services.ContainerTemplates;
 /// valid during the container's validity period (AvailableTaskCandidateCriteria; no period filter when the container
 /// cannot be read, e.g. unknown or soft-deleted, as before the filter existed), minus the tasks used in another container, plus the extra task ids an override
 /// request names. GetAvailableTasksOfGroupsAsync reads the same candidates for given groups and validity before a container
-/// exists, through the same query.
+/// exists, through the same query. GetAvailableTasksForNewContainerAsync answers the same list for a container that does not
+/// exist yet, restricted to the direct tasks of its groups, so the all-groups fallback never applies to it.
 /// </summary>
 /// <param name="shiftReader">Reads the container's validity period, the candidate tasks and the override tasks</param>
 /// <param name="groupItemRepository">Resolves the container's groups and their shifts</param>
@@ -108,6 +109,28 @@ public class ContainerAvailableTasksService : IContainerAvailableTasksService
             groupIds, validity, weekday, fromTime, untilTime,
             searchString: null, excludeContainerId: null, isHoliday: false, isWeekdayAndHoliday: false,
             restrictToShiftIds, cancellationToken);
+
+    public async Task<List<Shift>> GetAvailableTasksForNewContainerAsync(
+        NewContainerTaskScope scope,
+        int weekday,
+        TimeOnly fromTime,
+        TimeOnly untilTime,
+        CancellationToken cancellationToken = default)
+    {
+        var groupIds = scope.GroupIds.ToList();
+        var directShiftIds = groupIds.Count > 0
+            ? await _groupItemRepository.GetShiftIdsByGroupIds(groupIds, cancellationToken)
+            : null;
+
+        return await GetAvailableTasksOfGroupsAsync(
+            groupIds,
+            new ShiftValidityPeriod(scope.ValidFrom, scope.ValidUntil),
+            weekday,
+            fromTime,
+            untilTime,
+            directShiftIds,
+            cancellationToken);
+    }
 
     private async Task<List<Shift>> FindCandidatesAsync(
         IReadOnlyCollection<Guid> groupIds,

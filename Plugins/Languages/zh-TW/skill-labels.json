@@ -519,5 +519,15 @@
   "add_container_template_break": "在容器範本中加入休息",
   "split_shifts_by_weekday": "按星期幾拆分小組的班次",
   "build_weekly_tours": "為小組建立每週巡迴路線",
-  "assign_container_week": "按日期範圍安排員工負責巡迴路線"
+  "assign_container_week": "按日期範圍安排員工負責巡迴路線",
+  "explain_messenger_channels": "說明通訊軟體管道",
+  "explain_messenger_pairing_and_scope": "說明通訊軟體綁定與權限範圍",
+  "evaluate_user_role_change": "預覽使用者角色變更的影響",
+  "evaluate_period_close_readiness": "評估期間是否可以結帳",
+  "evaluate_compliance_enforcement_change": "預覽更嚴格工時規則的影響",
+  "evaluate_spam_rule_candidates": "找出尚無規則的重複垃圾寄件者",
+  "evaluate_employee_exit": "評估員工離職的後果",
+  "start_software_update": "安裝軟體更新",
+  "evaluate_software_update": "評估現在是否更新",
+  "evaluate_container_bundling": "評估容器打包是否值得"
 }

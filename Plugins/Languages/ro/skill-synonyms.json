@@ -4053,5 +4053,87 @@
     "atribuie containerul unui angajat pentru o perioadă",
     "ocupă traseul 2 între 3 și 7 noiembrie cu lara",
     "rezervă angajatul în toate zilele traseului de luni până vineri"
+  ],
+  "explain_messenger_channels": [
+    "care messenger poate răspunde",
+    "messengere care doar notifică",
+    "pot primi un răspuns prin signal",
+    "cât timp sunt păstrate mesajele din messenger",
+    "este mesageria opțională"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "cum leg un angajat de telegram",
+    "de ce nu pot trimite un mesaj mie însumi",
+    "cine vede ce mesaje din messenger",
+    "cum asociez propriul cont cu messengerul"
+  ],
+  "evaluate_user_role_change": [
+    "ce se schimbă dacă fac din acest cont un administrator",
+    "ce drepturi ar pierde un utilizator cu rolul user",
+    "ce drepturi primește un supervizor",
+    "este o problemă să retrogradez ultimul administrator",
+    "ar avea atunci utilizatorul acces la setări"
+  ],
+  "evaluate_period_close_readiness": [
+    "este grupa pregătită pentru închiderea lunii",
+    "merită să închidem luna chiar de azi",
+    "am voie să închid deja grupa",
+    "ar trebui să așteptăm cu închiderea lunii",
+    "ce ne împiedică să închidem grupa"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "ce se întâmplă dacă setez regula timpului de odihnă pe blocare",
+    "câte avertismente ar deveni erori dacă devin mai strict",
+    "merită să refuz în loc să avertizez doar pentru orele maxime",
+    "ar putea supervizorii să forțeze totuși o repartizare refuzată",
+    "refuză această regulă deja sau doar avertizează"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "ce domenii de expeditori ajung mereu la junk și nu au încă o regulă",
+    "ce domenii ar trebui să filtrez ca spam",
+    "există expeditori care apar mereu în folderul junk",
+    "pentru ce domenii lipsește încă un filtru de spam",
+    "merită o nouă blocare pentru acest domeniu de expeditor"
+  ],
+  "evaluate_employee_exit": [
+    "ce se întâmplă cu un angajat care pleacă la sfârșitul lunii",
+    "de ce depinde plecarea acestui angajat",
+    "mai este ceva rezervat după ultima zi de lucru",
+    "mai are persoana ture după data plecării",
+    "ce trebuie să clarific înainte ca angajatul să plece",
+    "mai rulează contractele după data plecării"
+  ],
+  "start_software_update": [
+    "instalează actualizarea acum",
+    "pornește actualizarea software",
+    "actualizează klacks la versiunea nouă",
+    "aplică noua versiune acum",
+    "rulează actualizarea klacks"
+  ],
+  "evaluate_software_update": [
+    "ar trebui să actualizez acum",
+    "este acum un moment bun pentru actualizare",
+    "ce vorbește împotriva actualizării",
+    "există o versiune mai nouă pentru noi",
+    "rulează ceva ce ar fi întrerupt de o actualizare"
+  ],
+  "evaluate_container_bundling": [
+    "merită să grupăm aceste servicii mobile",
+    "încap aceste vizite într-o singură rundă",
+    "ar avea sens un container pentru aceste vizite",
+    "cât timp de deplasare ar dura o rundă prin aceste vizite",
+    "ajunge o zi pentru toate aceste vizite"
+  ],
+  "send_broadcast": [
+    "trimite un mesaj în masă",
+    "circulară pentru grupă",
+    "scrie tuturor din grupă",
+    "mesaj colectiv pentru echipă"
+  ],
+  "evaluate_messaging_reach": [
+    "accesibilitatea grupei prin messenger",
+    "pe cine pot contacta prin messenger",
+    "cine lipsește din messenger",
+    "cine nu poate fi contactat prin messenger"
   ]
 }

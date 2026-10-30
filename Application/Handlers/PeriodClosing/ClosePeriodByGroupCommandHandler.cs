@@ -12,6 +12,7 @@ using Klacks.Api.Application.Commands.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Assistant.Triggers;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Events;
@@ -269,7 +270,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
             request.StartDate, request.EndDate, request.GroupId, cancellationToken: cancellationToken);
         await _escalationService.EscalateBlockedIssuesAsync(issues);
 
-        var errorCount = issues.Count(i => i.Severity == ScheduleValidationType.Error);
+        var errorCount = PeriodCloseGates.CountErrors(issues);
         if (errorCount == 0 || errorCount <= acknowledgedErrorCount)
         {
             return;

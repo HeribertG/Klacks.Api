@@ -5,10 +5,13 @@
 /// register the new account, grant it the Admin role, then deactivate the seeded admin. The user name is always
 /// generated server-side from first and last name, the same convention the user administration uses; a user
 /// name sent by the client is ignored. A rejected registration is reported with Identity's reason codes (400);
-/// 409 is reserved for "already completed" and "not required in this environment".
+/// 409 is reserved for "already completed" and "not required in this environment". The administrator-role lock is taken
+/// before the seeded admin is deactivated, so the last-administrator count is read under the same lock every other
+/// deactivation uses.
 /// </summary>
 /// <param name="adminSetupGateService">Tells whether the setup is still required in this installation</param>
 /// <param name="userManagementService">Registers the account, grants the role and deactivates the seeded admin</param>
+/// <param name="administratorRoleLock">Serializes the deactivation of the seeded admin against other administrator changes</param>
 /// <param name="usernameGeneratorService">Derives the unique user name from first and last name</param>
 /// <param name="authMapper">Maps the registration form onto the new AppUser</param>
 /// <param name="unitOfWork">Wraps the three steps in one transaction, so the seeded admin stays active on any failure</param>
@@ -32,6 +35,7 @@ public class CompleteOwnAdminSetupCommandHandler : BaseHandler, IRequestHandler<
 {
     private readonly IAdminSetupGateService _adminSetupGateService;
     private readonly IUserManagementService _userManagementService;
+    private readonly IAdministratorRoleLock _administratorRoleLock;
     private readonly IUsernameGeneratorService _usernameGeneratorService;
     private readonly AuthMapper _authMapper;
     private readonly IUnitOfWork _unitOfWork;
@@ -39,6 +43,7 @@ public class CompleteOwnAdminSetupCommandHandler : BaseHandler, IRequestHandler<
     public CompleteOwnAdminSetupCommandHandler(
         IAdminSetupGateService adminSetupGateService,
         IUserManagementService userManagementService,
+        IAdministratorRoleLock administratorRoleLock,
         IUsernameGeneratorService usernameGeneratorService,
         AuthMapper authMapper,
         IUnitOfWork unitOfWork,
@@ -47,6 +52,7 @@ public class CompleteOwnAdminSetupCommandHandler : BaseHandler, IRequestHandler<
     {
         _adminSetupGateService = adminSetupGateService;
         _userManagementService = userManagementService;
+        _administratorRoleLock = administratorRoleLock;
         _usernameGeneratorService = usernameGeneratorService;
         _authMapper = authMapper;
         _unitOfWork = unitOfWork;
@@ -56,6 +62,8 @@ public class CompleteOwnAdminSetupCommandHandler : BaseHandler, IRequestHandler<
     {
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
+            await _administratorRoleLock.AcquireAsync(cancellationToken);
+
             if (await _adminSetupGateService.IsExemptAsync())
             {
                 throw new ConflictException(AdminSetupMessages.NotRequiredInEnvironment);

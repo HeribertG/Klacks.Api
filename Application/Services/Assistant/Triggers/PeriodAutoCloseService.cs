@@ -51,6 +51,8 @@
 /// A close that throws unexpectedly is re-read in another fresh scope (ResolveFailedCloseAsync): a concurrent
 /// close by a person is recognised and stays silent instead of being reported as a failure.
 /// A failure in one group is caught, logged and reported for that group and never stops the others.
+/// Candidate selection (1), the ordered state check (3) and the error count live in PeriodCloseGates, shared with
+/// the advice of evaluate_period_close_readiness.
 /// A reported close proves the seal (read back): the close handler dispatches the
 /// PeriodClosedEvent after its commit and only logs a failing hook.
 /// </summary>
@@ -144,19 +146,11 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
         var closeBudget = new PeriodAutoCloseBudget(PeriodAutoClose.MaxClosesPerTick);
         foreach (var group in groups)
         {
-            if (!NextPeriodBoundaries.HasDerivableCycle(group.PaymentInterval) || !staffing.IsStaffed(group.Id))
+            var candidate = PeriodCloseGates.FindCandidate(group, staffing, referenceDay, referenceWeekStart);
+            if (candidate == null)
             {
                 continue;
             }
-
-            var periodEnd = PeriodBoundaries.LastEndBefore(group, referenceDay, referenceWeekStart);
-            if (periodEnd < DateOnly.FromDateTime(group.ValidFrom))
-            {
-                continue;
-            }
-
-            var periodStart = PeriodBoundaries.StartFor(group.PaymentInterval, periodEnd);
-            var candidate = new Candidate(group, periodStart, periodEnd);
 
             var decision = await TryResolveAsync(candidate, cancellationToken);
             if (decision == null)
@@ -194,7 +188,7 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
     /// reported to the planners: whether automatic closing is switched on at all is unknown then, and a
     /// "could not close" message on an installation that never enabled it would be false.
     /// </summary>
-    private async Task<PeriodAutoCloseDecision?> TryResolveAsync(Candidate candidate, CancellationToken cancellationToken)
+    private async Task<PeriodAutoCloseDecision?> TryResolveAsync(PeriodCloseCandidate candidate, CancellationToken cancellationToken)
     {
         try
         {
@@ -238,7 +232,7 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
     };
 
     private async Task<IAgentTriggerEvent?> EvaluateArmedGroupAsync(
-        Candidate candidate,
+        PeriodCloseCandidate candidate,
         DateOnly today,
         int? lagDays,
         PeriodAutoCloseBlockReason? autonomyBlock,
@@ -264,7 +258,7 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
     }
 
     private async Task<IAgentTriggerEvent?> EvaluateCoreAsync(
-        Candidate candidate,
+        PeriodCloseCandidate candidate,
         DateOnly today,
         int? lagDays,
         PeriodAutoCloseBlockReason? autonomyBlock,
@@ -273,19 +267,15 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
     {
         var (group, periodStart, periodEnd) = candidate;
 
-        if (await IsLastDaySealedAsync(_sealedDayRepository, candidate, cancellationToken))
-        {
-            return null;
-        }
-
-        if (!await _activityProbe.HasDirectWorkInRangeAsync(group, periodStart, periodEnd, cancellationToken))
-        {
-            return null;
-        }
-
-        if (await HasReopenHistoryAsync(_auditLogRepository, candidate, cancellationToken))
+        var stop = await PeriodCloseGates.FirstStopAsync(
+            _sealedDayRepository, _activityProbe, _auditLogRepository, candidate, cancellationToken);
+        if (stop == PeriodCloseStop.ReopenedBefore)
         {
             LogReopenHistory(candidate);
+        }
+
+        if (stop != PeriodCloseStop.None)
+        {
             return null;
         }
 
@@ -322,7 +312,7 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
             return Blocked(candidate, autonomyReason);
         }
 
-        if (await HasAnySealedDayAsync(_sealedDayRepository, candidate, cancellationToken))
+        if (await PeriodCloseGates.HasAnySealedDayAsync(_sealedDayRepository, candidate, cancellationToken))
         {
             return Blocked(candidate, PeriodAutoCloseBlockReason.PartiallySealed);
         }
@@ -340,7 +330,7 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
     }
 
     private async Task<IAgentTriggerEvent?> CloseInFreshScopeAsync(
-        Candidate candidate, int lag, CancellationToken cancellationToken)
+        PeriodCloseCandidate candidate, int lag, CancellationToken cancellationToken)
     {
         var (group, periodStart, periodEnd) = candidate;
         using var scope = _scopeFactory.CreateScope();
@@ -357,17 +347,17 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
         }
 
         var sealedDays = scope.ServiceProvider.GetRequiredService<ISealedDayRepository>();
-        if (await IsLastDaySealedAsync(sealedDays, candidate, cancellationToken))
+        if (await PeriodCloseGates.IsLastDaySealedAsync(sealedDays, candidate, cancellationToken))
         {
             return null;
         }
 
-        if (await HasAnySealedDayAsync(sealedDays, candidate, cancellationToken))
+        if (await PeriodCloseGates.HasAnySealedDayAsync(sealedDays, candidate, cancellationToken))
         {
             return Blocked(candidate, PeriodAutoCloseBlockReason.PartiallySealed);
         }
 
-        if (await HasReopenHistoryAsync(
+        if (await PeriodCloseGates.HasReopenHistoryAsync(
                 scope.ServiceProvider.GetRequiredService<IPeriodAuditLogRepository>(), candidate, cancellationToken))
         {
             LogReopenHistory(candidate);
@@ -376,7 +366,7 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
 
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         var issues = await mediator.Send(new GetPeriodIssuesQuery(periodStart, periodEnd, group.Id), cancellationToken);
-        var errorCount = issues.Count(issue => issue.Severity == ScheduleValidationType.Error);
+        var errorCount = PeriodCloseGates.CountErrors(issues);
         if (errorCount > NoErrors)
         {
             _logger.LogInformation(
@@ -439,12 +429,12 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
     /// else, the period is closed and nothing is reported; otherwise the exception stands and becomes Failed.
     /// </summary>
     private async Task<IAgentTriggerEvent?> ResolveFailedCloseAsync(
-        Candidate candidate, int lag, Guid decidingAdmin, Exception failure, CancellationToken cancellationToken)
+        PeriodCloseCandidate candidate, int lag, Guid decidingAdmin, Exception failure, CancellationToken cancellationToken)
     {
         var (group, periodStart, periodEnd) = candidate;
         using var scope = _scopeFactory.CreateScope();
         var sealedDays = scope.ServiceProvider.GetRequiredService<ISealedDayRepository>();
-        if (!await IsLastDaySealedAsync(sealedDays, candidate, cancellationToken))
+        if (!await PeriodCloseGates.IsLastDaySealedAsync(sealedDays, candidate, cancellationToken))
         {
             throw new InvalidOperationException(
                 $"Closing period {periodStart:yyyy-MM-dd}..{periodEnd:yyyy-MM-dd} of group {group.Id} failed and the period is not sealed.",
@@ -476,47 +466,15 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
         return null;
     }
 
-    /// <summary>
-    /// Whether anybody ever REOPENED the period - an unseal entry of this group or installation-wide overlapping
-    /// it. The automatic path only performs the first close of a period: a reopened period was reopened on
-    /// purpose, typically to correct it, and sealing it again on the next scan would close it mid-edit. This is the one non-close that stays silent - the person decided, and
-    /// the overdue reminder remains. A seal entry alone does not count: a partial seal still holds its day locks
-    /// and is reported as PartiallySealed.
-    /// </summary>
-    private static async Task<bool> HasReopenHistoryAsync(
-        IPeriodAuditLogRepository repository, Candidate candidate, CancellationToken cancellationToken)
-    {
-        var entries = await repository.GetRangeAsync(candidate.PeriodStart, candidate.PeriodEnd, cancellationToken);
-        return entries.Any(entry =>
-            entry.Action == PeriodAuditAction.Unseal
-            && (entry.GroupId == null || entry.GroupId == candidate.Group.Id));
-    }
-
-    private void LogReopenHistory(Candidate candidate)
+    private void LogReopenHistory(PeriodCloseCandidate candidate)
     {
         _logger.LogInformation(
             "PeriodAutoClose: period {From}..{Until} of group {GroupName} was reopened before; only a person closes it again",
             candidate.PeriodStart, candidate.PeriodEnd, candidate.Group.Name);
     }
 
-    private static async Task<bool> IsLastDaySealedAsync(
-        ISealedDayRepository repository, Candidate candidate, CancellationToken cancellationToken)
-    {
-        var sealedDays = await repository.GetRangeAsync(
-            candidate.PeriodEnd, candidate.PeriodEnd, candidate.Group.Id, cancellationToken);
-        return sealedDays.Count > 0;
-    }
-
-    private static async Task<bool> HasAnySealedDayAsync(
-        ISealedDayRepository repository, Candidate candidate, CancellationToken cancellationToken)
-    {
-        var sealedDays = await repository.GetRangeAsync(
-            candidate.PeriodStart, candidate.PeriodEnd, candidate.Group.Id, cancellationToken);
-        return sealedDays.Count > 0;
-    }
-
     private static async Task<bool> IsWholePeriodSealedAsync(
-        ISealedDayRepository repository, Candidate candidate, CancellationToken cancellationToken)
+        ISealedDayRepository repository, PeriodCloseCandidate candidate, CancellationToken cancellationToken)
     {
         var sealedDays = await repository.GetRangeAsync(
             candidate.PeriodStart, candidate.PeriodEnd, candidate.Group.Id, cancellationToken);
@@ -533,8 +491,6 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
     }
 
     private static PeriodAutoCloseBlockedTriggerEvent Blocked(
-        Candidate candidate, PeriodAutoCloseBlockReason reason, int errorCount = NoErrors) =>
+        PeriodCloseCandidate candidate, PeriodAutoCloseBlockReason reason, int errorCount = NoErrors) =>
         new(candidate.Group.Id, candidate.Group.Name, candidate.PeriodStart, candidate.PeriodEnd, errorCount, reason);
-
-    private sealed record Candidate(Group Group, DateOnly PeriodStart, DateOnly PeriodEnd);
 }

@@ -159,7 +159,7 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
                 SessionId = sessionId,
                 UserId = context.UserId,
                 ToolName = call.FunctionName,
-                ParametersJson = JsonSerializer.Serialize(SkillParameterRedactor.Redact(call.Parameters)),
+                ParametersJson = JsonSerializer.Serialize(SkillParameterRedactor.Redact(call.Parameters, call.FunctionName)),
                 Success = call.Success,
                 ErrorMessage = errorMessage,
                 DurationMs = 0,

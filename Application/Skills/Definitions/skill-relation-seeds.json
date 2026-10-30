@@ -3690,6 +3690,136 @@
       "contradictionCount": 0,
       "provenance": "curated:seealso",
       "status": 1
+    },
+    {
+      "skillAName": "send_message",
+      "skillBName": "explain_messenger_channels",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "send_message",
+      "skillBName": "explain_messenger_pairing_and_scope",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "read_messages",
+      "skillBName": "explain_messenger_pairing_and_scope",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "diagnose_messaging_setup",
+      "skillBName": "explain_messenger_channels",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_messenger_channels",
+      "skillBName": "explain_messenger_pairing_and_scope",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_user_role_change",
+      "skillBName": "assign_user_permissions",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_period_close_readiness",
+      "skillBName": "close_period",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_compliance_enforcement_change",
+      "skillBName": "update_compliance_enforcement_settings",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_spam_rule_candidates",
+      "skillBName": "create_spam_rule",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_employee_exit",
+      "skillBName": "end_client_membership",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_software_update",
+      "skillBName": "start_software_update",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_messaging_reach",
+      "skillBName": "send_broadcast",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_container_bundling",
+      "skillBName": "bundle_nearby_timerange_shifts_into_container",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
     }
   ]
 }

@@ -16,6 +16,7 @@ public static class PlaygroundBlockedSkills
     public static readonly IReadOnlySet<string> Names = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "create_plan",
+        "send_broadcast",
         "translate_email",
         "test_imap_connection",
         "test_smtp_connection",
@@ -76,6 +77,7 @@ public static class PlaygroundBlockedSkills
         "uninstall_language_pack",
         "install_whisper_plugin",
         "uninstall_whisper_plugin",
+        "start_software_update",
     };
 
     public static bool IsBlocked(string? skillName) => !string.IsNullOrEmpty(skillName) && Names.Contains(skillName);

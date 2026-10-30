@@ -519,5 +519,15 @@
   "add_container_template_break": "เพิ่มช่วงพักในแม่แบบคอนเทนเนอร์",
   "split_shifts_by_weekday": "แยกกะของกลุ่มตามวันในสัปดาห์",
   "build_weekly_tours": "สร้างรอบประจำสัปดาห์ให้กลุ่ม",
-  "assign_container_week": "จองพนักงานเข้ารอบตามช่วงวันที่"
+  "assign_container_week": "จองพนักงานเข้ารอบตามช่วงวันที่",
+  "explain_messenger_channels": "อธิบายช่องทางแอปส่งข้อความ",
+  "explain_messenger_pairing_and_scope": "อธิบายการเชื่อมบัญชีแอปส่งข้อความและสิทธิ์",
+  "evaluate_user_role_change": "ดูตัวอย่างผลกระทบเมื่อเปลี่ยนบทบาทผู้ใช้",
+  "evaluate_period_close_readiness": "ประเมินความพร้อมในการปิดงวด",
+  "evaluate_compliance_enforcement_change": "ดูตัวอย่างผลกระทบของกฎเวลาทำงานที่เข้มงวดขึ้น",
+  "evaluate_spam_rule_candidates": "ค้นหาผู้ส่งขยะที่วนมาซ้ำโดยไม่มีกฎสแปม",
+  "evaluate_employee_exit": "ประเมินผลกระทบของการออกจากงานของพนักงาน",
+  "start_software_update": "ติดตั้งอัปเดตซอฟต์แวร์",
+  "evaluate_software_update": "ประเมินว่าควรอัปเดตตอนนี้หรือไม่",
+  "evaluate_container_bundling": "ประเมินการรวมเป็นคอนเทนเนอร์"
 }

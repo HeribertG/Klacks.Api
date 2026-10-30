@@ -169,5 +169,99 @@
       "it": "Verificare la messa in servizio del messenger"
     },
     "version": 1
+  },
+  {
+    "name": "send_broadcast",
+    "area": "messaging",
+    "description": "Sends one circular to everybody in a group or to a list of employee numbers through one messenger channel, for instance an announcement to the whole team of a branch. Call it once with the group or the numbers: the server finds the people, shows how many it reaches, the channel and the text verbatim, and goes out only after the user confirms exactly that. It works through the whole audience itself and reports delivered, failed and skipped. Non-admins reach only people they may see.",
+    "category": "Communication",
+    "executionType": "Skill",
+    "requiredPermissions": ["CanEditClients"],
+    "parameters": [
+      {
+        "name": "groupId",
+        "description": "ID (GUID) of the group; its subgroups belong to it. Use list_groups to find it. Give either this or idNumbers.",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "idNumbers",
+        "description": "Employee id numbers of the people to reach, instead of a group.",
+        "type": "Array",
+        "required": false
+      },
+      {
+        "name": "content",
+        "description": "The text of the circular, sent verbatim",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "provider",
+        "description": "The messaging provider name or type, such as telegram or whatsapp. Optional: the single enabled provider is used when it is omitted.",
+        "type": "String",
+        "required": false
+      }
+    ],
+    "handlerConfig": null,
+    "handlerType": null,
+    "effect": "Mutate",
+    "isEnabled": true,
+    "alwaysOn": false,
+    "triggerKeywords": { "de": ["rundsendung", "rundschreiben", "an alle in der gruppe"], "en": ["broadcast", "circular", "everyone in the group"], "fr": ["message collectif", "circulaire"], "it": ["messaggio collettivo", "circolare"] },
+    "synonyms": {
+      "de": ["rundsendung verschicken", "rundschreiben an die gruppe", "allen in der gruppe schreiben", "sammelnachricht an das team"],
+      "en": ["send a broadcast", "circular to the group", "write to everyone in the group", "mass message to the team"],
+      "fr": ["envoyer un message collectif", "circulaire au groupe", "écrire à tout le groupe", "message groupé à l'équipe"],
+      "it": ["inviare un messaggio collettivo", "circolare al gruppo", "scrivere a tutto il gruppo", "messaggio di massa al team"]
+    },
+    "labels": {
+      "de": "Rundsendung an eine Gruppe verschicken",
+      "en": "Send a circular to a group",
+      "fr": "Envoyer une circulaire à un groupe",
+      "it": "Invia una circolare a un gruppo"
+    },
+    "version": 1
+  },
+  {
+    "name": "evaluate_messaging_reach",
+    "area": "messaging",
+    "description": "Judges how well a group of employees can be contacted by messenger: how many people each channel reaches, who has no messenger at all, who sits only on a one-way channel without a way to answer, and which switched-off provider would help. Answers who is missing and over which channel the others are reachable. Returns counts, the names of the people without a channel and a computed recommendation, never phone numbers or chat ids. It only reads; relay the recommendation unchanged.",
+    "category": "Query",
+    "executionType": "Skill",
+    "requiredPermissions": ["CanEditClients"],
+    "parameters": [
+      {
+        "name": "groupId",
+        "description": "ID (GUID) of the group; its subgroups belong to it. Use list_groups to find it. Give either this or idNumbers.",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "idNumbers",
+        "description": "Employee id numbers to judge, instead of a group.",
+        "type": "Array",
+        "required": false
+      }
+    ],
+    "handlerConfig": null,
+    "handlerType": null,
+    "effect": "Advise",
+    "isEnabled": true,
+    "alwaysOn": false,
+    "triggerKeywords": { "de": ["erreichbarkeit", "wen erreiche ich"], "en": ["reachability", "who can i reach"], "fr": ["joignabilité", "qui puis-je joindre"], "it": ["raggiungibilità", "chi posso raggiungere"] },
+    "synonyms": {
+      "de": ["messenger-erreichbarkeit der gruppe", "wen erreiche ich per messenger", "wer fehlt im messenger", "wer ist per messenger nicht erreichbar"],
+      "en": ["messenger reachability of the group", "who can i reach by messenger", "who is missing on the messenger", "who is not reachable by messenger"],
+      "fr": ["joignabilité du groupe par messagerie", "qui puis-je joindre par messagerie", "qui manque sur la messagerie", "qui n'est pas joignable par messagerie"],
+      "it": ["raggiungibilità del gruppo via messenger", "chi posso raggiungere via messenger", "chi manca sul messenger", "chi non è raggiungibile via messenger"]
+    },
+    "labels": {
+      "de": "Messenger-Erreichbarkeit beurteilen",
+      "en": "Judge messenger reachability",
+      "fr": "Évaluer la joignabilité par messagerie",
+      "it": "Valutare la raggiungibilità via messenger"
+    },
+    "version": 1
   }
 ]

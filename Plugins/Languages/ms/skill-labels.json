@@ -519,5 +519,15 @@
   "add_container_template_break": "Tambah rehat ke templat kontena",
   "split_shifts_by_weekday": "Pisahkan syif kumpulan mengikut hari dalam minggu",
   "build_weekly_tours": "Bina pusingan mingguan untuk sesebuah kumpulan",
-  "assign_container_week": "Tempah pekerja pada pusingan untuk julat tarikh"
+  "assign_container_week": "Tempah pekerja pada pusingan untuk julat tarikh",
+  "explain_messenger_channels": "Jelaskan saluran aplikasi mesej",
+  "explain_messenger_pairing_and_scope": "Jelaskan pemautan dan skop aplikasi mesej",
+  "evaluate_user_role_change": "Pratonton kesan perubahan peranan pengguna",
+  "evaluate_period_close_readiness": "Nilai sama ada tempoh sedia ditutup",
+  "evaluate_compliance_enforcement_change": "Pratonton kesan peraturan waktu kerja yang lebih ketat",
+  "evaluate_spam_rule_candidates": "Cari penghantar sampah berulang tanpa peraturan spam",
+  "evaluate_employee_exit": "Nilai akibat pekerja berhenti",
+  "start_software_update": "Pasang kemas kini perisian",
+  "evaluate_software_update": "Nilai sama ada perlu mengemas kini sekarang",
+  "evaluate_container_bundling": "Nilai penggabungan ke dalam kontena"
 }

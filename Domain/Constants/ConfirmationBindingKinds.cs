@@ -8,7 +8,9 @@
 /// binds cut_shift to the plannable shift, the parts and the default expenses its preview showed. OrderReview binds
 /// execute_order_review to the orders its preview showed, each with its last update, start change, parts, group, required
 /// qualifications and expenses. WeekdayCut binds split_shifts_by_weekday to the group and the plannable shifts, each with its
-/// sealed order and weekdays, that its preview would cut.
+/// sealed order and weekdays, that its preview would cut. SoftwareUpdate binds start_software_update to the version its
+/// preview showed. Broadcast is the kind the messaging plugin binds send_broadcast with; a test pins it equal to the plugin's
+/// own constant.
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;
@@ -32,4 +34,8 @@ public static class ConfirmationBindingKinds
     public const string OrderReview = "order-review";
 
     public const string WeekdayCut = "weekday-cut";
+
+    public const string SoftwareUpdate = "software-update";
+
+    public const string Broadcast = "broadcast";
 }

@@ -11,6 +11,7 @@ public static class UpdateReasons
     public const string UpdateEnqueued = "Update enqueued.";
     public const string PreviousAttemptFailed = "The last automatic attempt at this version failed; start it manually to try again.";
     public const string NoArtifactForInstallation = "The release provides no signed artifact for this installation type and platform.";
+    public const string TargetVersionChanged = "The offered version changed after the confirmation; check again before starting it.";
     public const string NothingToRollback = "No successful update found to roll back.";
     public const string RollbackEnqueued = "Rollback enqueued.";
 }

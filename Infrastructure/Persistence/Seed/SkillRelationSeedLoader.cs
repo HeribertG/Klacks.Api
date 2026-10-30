@@ -4,7 +4,8 @@
 /// Loads experience-derived skill graph edges from skill-relation-seeds.json and inserts them for the
 /// default agent. Insert-only and idempotent: existing edges are never touched so that later
 /// experience-based learning is preserved; edges referencing skills that are not present (e.g. from
-/// uninstalled feature plugins) are skipped.
+/// uninstalled feature plugins) are skipped. Runs at startup after the skill seed and again after a feature plugin was installed
+/// or enabled at runtime, because an edge skipped at startup for a missing plugin skill would otherwise wait for the next restart.
 /// </summary>
 using System.Text.Json;
 using Klacks.Api.Application.Services.Assistant.SkillGraph;
@@ -44,7 +45,7 @@ public class SkillRelationSeedLoader
         _logger = logger;
     }
 
-    public async Task LoadAsync(CancellationToken cancellationToken = default)
+    public virtual async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         var filePath = Path.Combine(_environment.ContentRootPath, SeedFilePath);
 

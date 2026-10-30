@@ -252,6 +252,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Validation.Accounts.JwtValidator>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
+        services.AddScoped<IAdministratorRoleLock, Klacks.Api.Infrastructure.Services.Authentication.AdministratorRoleLock>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Authentification.IUserDataEraser,
             Klacks.Api.Infrastructure.Services.UserDataEraser>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Authentification.IUserDataErasureParticipant,

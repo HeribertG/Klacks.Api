@@ -14,6 +14,12 @@
 /// diagnose_work_booking is listed because its planner-floor gate reaches every signed-in user while its answer (seals,
 /// periods, occupying entries) depends on the client and shift visibility guards. diagnose_planning_period is listed for the
 /// same reason: it names an employee's group memberships and day seals and answers through the client visibility guard.
+/// evaluate_container_bundling is listed because its planner-floor gate reaches every signed-in user while it names the
+/// clients of the services the shift visibility guard lets through. evaluate_employee_exit is listed because its planner-floor
+/// gate reaches every signed-in user while it names an employee's bookings and contracts behind the client visibility guard.
+/// SkillRestParityGateTests also fails when a skill reachable from the planner floor injects a client or shift visibility guard
+/// and is not listed here, which is the reason for the second block of names: their answer or effect passes one of those guards,
+/// and a guard without a user answers as for a background job.
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;
@@ -26,6 +32,8 @@ public static class GroupVisibilityBoundSkills
     private static readonly HashSet<string> Names = new(StringComparer.OrdinalIgnoreCase)
     {
         "send_message",
+        "send_broadcast",
+        "evaluate_messaging_reach",
         "read_messages",
         "list_emails",
         "read_email",
@@ -42,7 +50,35 @@ public static class GroupVisibilityBoundSkills
         "close_clarification",
         "get_replacement_status",
         "diagnose_work_booking",
-        "diagnose_planning_period"
+        "diagnose_planning_period",
+        "evaluate_container_bundling",
+        "evaluate_employee_exit",
+        "add_break",
+        "add_break_placeholder",
+        "add_schedule_command",
+        "add_schedule_commands_range",
+        "add_workchange",
+        "assign_container_week",
+        "check_absence_conflicts",
+        "check_client_availability",
+        "delete_break_placeholder",
+        "detect_conflicts",
+        "diagnose_holiday_outcome",
+        "email_schedule_to_client",
+        "evaluate_absence_hours_setup",
+        "evaluate_target_hours_setup",
+        "geocode_addresses",
+        "get_absence_hours_calculation",
+        "get_client_absence_summary",
+        "get_client_details",
+        "get_target_hours_calculation",
+        "list_container_template",
+        "list_expiring_contracts",
+        "open_schedule",
+        "place_work",
+        "read_schedule_state",
+        "reassign_work",
+        "update_break_placeholder"
     };
 
     public static bool Contains(string? skillName) =>

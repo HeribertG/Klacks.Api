@@ -22,6 +22,7 @@
 /// <param name="periodCapEvaluator">Reports a K5 period-cap breach for the period being closed</param>
 /// <param name="compensatoryRestReconciler">Refreshes K12 obligation state before the load reads it</param>
 /// <param name="planningRuleEvaluator">Reports approved PlanningConstraint findings (sequence rules, team fairness) for the period</param>
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
@@ -40,8 +41,6 @@ namespace Klacks.Api.Infrastructure.Services.PeriodClosing;
 
 public class PeriodValidationLoader : IPeriodValidationLoader
 {
-    private const int MaxIssues = 500;
-
     private readonly DataBaseContext _context;
     private readonly ITimelineCalculationService _timelineCalculator;
     private readonly ISchedulingPolicyResolver _policyResolver;
@@ -88,7 +87,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         int? maxIssues = null,
         CancellationToken cancellationToken = default)
     {
-        var issueLimit = maxIssues ?? MaxIssues;
+        var issueLimit = maxIssues ?? PeriodIssueLimits.MaxValidationIssues;
         var clientIdsInGroup = groupId.HasValue
             ? await LoadClientIdsForGroupAsync(groupId.Value, cancellationToken)
             : null;

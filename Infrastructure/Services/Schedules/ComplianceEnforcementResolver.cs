@@ -6,7 +6,10 @@
 /// behavior) when neither is configured, so an installation that never touches this feature is
 /// unaffected. Only "warn" and "block" are recognized values: an unrecognized per-rule value (e.g.
 /// a typo like "bloc") falls back to the default mode instead of silently weakening to Warn, and an
-/// unrecognized override flag falls back to its default (enabled) — both are logged as warnings.
+/// unrecognized override flag falls back to its default (enabled) — both are logged as warnings. An earlier version of
+/// the settings skill wrote hour and day numbers into the five limit-rule keys (MAX_DAILY_HOURS, MAX_WEEKLY_HOURS,
+/// MIN_REST_HOURS, MIN_REST_DAYS, MAX_CONSECUTIVE_DAYS); such a stored number is not a mode and therefore counts as
+/// not set, so the rule follows the default mode until a reaction is written over it.
 /// </summary>
 /// <param name="settingsReader">Reads the per-rule and default enforcement-mode settings</param>
 /// <param name="logger">Logs unrecognized setting values so admins notice typos</param>

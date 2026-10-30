@@ -253,6 +253,11 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "uninstall_feature_plugin",
         "install_whisper_plugin",
         "uninstall_whisper_plugin",
+        // start_software_update replaces the running application: Klacks restarts, the chat is interrupted and everyone
+        // signed in is disconnected, and a release that changes the schema migrates the database. It is the target
+        // evaluate_software_update funnels toward. Sensitive is what keeps it to one human confirmation at every level
+        // and off every unattended path and MCP; its server preview binds the confirmation to the version shown.
+        "start_software_update",
         // update_user changes SOMEBODY ELSE's login name and email address - the same identity surface as
         // create_user and delete_system_user above, and the address every password reset is sent to.
         // update_my_account writes the SAME fields on the caller's own login: being the owner of the
@@ -287,6 +292,10 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // above, and the reason is the same: an assistant that can reach a client's phone unattended must
         // not be fail-open.
         "send_message",
+        // send_broadcast does the same to a whole audience in one call: every recipient gets a message that cannot be recalled,
+        // and it is the target evaluate_messaging_reach funnels toward. Sensitive keeps it to one human confirmation at every
+        // level and off every unattended path and MCP; its server preview binds the confirmation to recipients and text.
+        "send_broadcast",
         // Owner decision 2026-10-12 ("only deletes and resets ask"): the default autonomy level stays Autonomous, but
         // every delete_/remove_/reset_ skill that destroys business, personal, payroll, compliance or credential data is
         // confirmed at EVERY level - the assistant must not remove such data on its own say-so or a prompt injection.

@@ -519,5 +519,15 @@
   "add_container_template_break": "Tilføj en pause til en containers skabelon",
   "split_shifts_by_weekday": "Opdel en gruppes vagter efter ugedag",
   "build_weekly_tours": "Opbyg ugentlige ture til en gruppe",
-  "assign_container_week": "Book en medarbejder på en tur for en periode"
+  "assign_container_week": "Book en medarbejder på en tur for en periode",
+  "explain_messenger_channels": "Forklar messenger-kanaler",
+  "explain_messenger_pairing_and_scope": "Forklar messenger-kobling og rettigheder",
+  "evaluate_user_role_change": "Vurder effekten af en brugers rolleændring",
+  "evaluate_period_close_readiness": "Vurder om en periode er klar til afslutning",
+  "evaluate_compliance_enforcement_change": "Vurder effekten af strengere arbejdstidsregler",
+  "evaluate_spam_rule_candidates": "Find tilbagevendende junk-afsendere uden spamregel",
+  "evaluate_employee_exit": "Vurder konsekvenserne af en fratrædelse",
+  "start_software_update": "Installer softwareopdateringen",
+  "evaluate_software_update": "Vurder om der skal opdateres nu",
+  "evaluate_container_bundling": "Vurder en samling af besøg i en container"
 }

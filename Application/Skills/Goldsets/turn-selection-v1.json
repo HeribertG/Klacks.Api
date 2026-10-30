@@ -1583,6 +1583,46 @@
       "comment": null
     },
     {
+      "id": "w05-messaging-send-broadcast",
+      "message": "Mach eine Rundsendung an alle in der Gruppe Bern: morgen bleibt das Büro geschlossen",
+      "locale": "de",
+      "source": "w0.5-messaging",
+      "expectedTool": "send_broadcast",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "The group id comes from a list_groups step first; the expected tool is the one that acts."
+    },
+    {
+      "id": "w05-messaging-send-broadcast-en",
+      "message": "Broadcast to the whole Basel group that the office stays closed tomorrow",
+      "locale": "en",
+      "source": "w0.5-messaging",
+      "expectedTool": "send_broadcast",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "The group id comes from a list_groups step first; the expected tool is the one that acts."
+    },
+    {
+      "id": "w05-messaging-evaluate-messaging-reach",
+      "message": "Wen erreiche ich in der Gruppe Bern über welchen Kanal, und wer fehlt?",
+      "locale": "de",
+      "source": "w0.5-messaging",
+      "expectedTool": "evaluate_messaging_reach",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": null
+    },
+    {
+      "id": "w05-messaging-evaluate-messaging-reach-en",
+      "message": "Can everybody in the Basel group be reached by messenger, or is somebody missing?",
+      "locale": "en",
+      "source": "w0.5-messaging",
+      "expectedTool": "evaluate_messaging_reach",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": null
+    },
+    {
       "id": "w05-simulation-update-llm-model",
       "message": "Ändere das Modell auf Haiku",
       "locale": "de",

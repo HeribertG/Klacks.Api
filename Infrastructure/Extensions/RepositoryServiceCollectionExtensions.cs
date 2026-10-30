@@ -268,6 +268,7 @@ internal static class RepositoryServiceCollectionExtensions
     {
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateHistoryRepository, Klacks.Api.Infrastructure.Repositories.Update.UpdateHistoryRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateAvailabilityEvaluator, Klacks.Api.Application.Services.Update.UpdateAvailabilityEvaluator>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.IUpdateTriggerPreflight, Klacks.Api.Application.Services.Update.UpdateTriggerPreflight>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Update.IInstallationIdentityProvider, Klacks.Api.Infrastructure.Hosting.InstallationIdentityProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateManifestReader, Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader>();
         services.AddHttpClient(Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader.HttpClientName);

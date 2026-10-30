@@ -14,7 +14,9 @@
 /// own transaction per call, so nesting another transaction around it would attempt to begin a second
 /// transaction on the same DbContext and fail. Consequently a verification mismatch here cannot roll
 /// back already-committed grants/revokes automatically — each individual role change is durable on its
-/// own, only the combined end state is checked afterwards.
+/// own, only the combined end state is checked afterwards. Before anything is written, a demotion of the last active
+/// administrator is refused with <see cref="Klacks.Api.Application.Services.Authentication.LastAdministratorRule"/>, so no
+/// half-applied grant is left behind; the user management service enforces the same rule on every role removal.
 /// </summary>
 /// <param name="userId">Optional. The target user's id. Preferred over userName when known.</param>
 /// <param name="userName">Optional. Name, e-mail or login used to resolve the target user when userId is omitted.</param>
@@ -22,6 +24,7 @@
 
 using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Services.Authentication;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Authentification;
@@ -54,17 +57,24 @@ public class AssignUserPermissionsSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var roleInput = GetParameter<string>(parameters, "role");
-        var role = NormalizeRole(roleInput);
+        var role = AssignableRoleParser.Normalize(roleInput);
         if (role == null)
         {
-            return SkillResult.Error(
-                $"Invalid role '{roleInput}'. Allowed values are: {Roles.Admin}, {Roles.Authorised}, {Roles.User}.");
+            return SkillResult.Error(AssignableRoleParser.InvalidRoleMessage(roleInput));
         }
 
-        var (user, resolveError) = await ResolveUserAsync(parameters);
-        if (user == null)
+        var resolution = await SystemUserResolver.ResolveAsync(
+            _userManagementService, GetParameter<string>(parameters, "userId"), GetParameter<string>(parameters, "userName"));
+        if (resolution.User == null)
         {
-            return SkillResult.Error(resolveError!);
+            return SkillResult.Error(resolution.ErrorMessage(listCandidates: true));
+        }
+
+        var user = resolution.User;
+
+        if (role != Roles.Admin && await WouldRemoveLastActiveAdministratorAsync(user))
+        {
+            return SkillResult.Error(LastAdministratorRule.RefusalMessage);
         }
 
         var rolesToGrant = role == Roles.User
@@ -119,6 +129,14 @@ public class AssignUserPermissionsSkill : BaseSkillImplementation
             $"User '{fullName}' now has role '{role}' with {permissions.Count} permission(s), confirmed in the database (verified).");
     }
 
+    private async Task<bool> WouldRemoveLastActiveAdministratorAsync(AppUser user)
+    {
+        var holdsAdminRole = (await _userManagementService.GetUserRolesAsync(user)).Contains(Roles.Admin);
+
+        return holdsAdminRole && LastAdministratorRule.WouldRemoveLastActiveAdministrator(
+            true, user.DeactivatedAt is null, await _userManagementService.CountActiveAdministratorsAsync());
+    }
+
     private async Task ApplyRoleAsync(string userId, string roleName, bool isSelected, CancellationToken cancellationToken)
     {
         var changeRole = new ChangeRole
@@ -129,73 +147,5 @@ public class AssignUserPermissionsSkill : BaseSkillImplementation
         };
 
         await _mediator.Send(new ChangeRoleCommand(changeRole), cancellationToken);
-    }
-
-    private async Task<(AppUser? User, string? Error)> ResolveUserAsync(Dictionary<string, object> parameters)
-    {
-        var userId = GetParameter<string>(parameters, "userId");
-        if (!string.IsNullOrWhiteSpace(userId))
-        {
-            var byId = await _userManagementService.FindUserByIdAsync(userId);
-            return byId == null
-                ? (null, $"User with id '{userId}' not found.")
-                : (byId, null);
-        }
-
-        var userName = GetParameter<string>(parameters, "userName");
-        if (string.IsNullOrWhiteSpace(userName))
-        {
-            return (null, "Either userId or userName must be provided.");
-        }
-
-        var matches = (await _userManagementService.GetUserListAsync())
-            .Where(u =>
-                u.FirstName.Contains(userName, StringComparison.OrdinalIgnoreCase) ||
-                u.LastName.Contains(userName, StringComparison.OrdinalIgnoreCase) ||
-                u.Email.Contains(userName, StringComparison.OrdinalIgnoreCase) ||
-                u.UserName.Contains(userName, StringComparison.OrdinalIgnoreCase) ||
-                $"{u.FirstName} {u.LastName}".Contains(userName, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        if (matches.Count == 0)
-        {
-            return (null, $"No user found matching '{userName}'.");
-        }
-
-        if (matches.Count > 1)
-        {
-            var candidates = string.Join(", ", matches.Select(u => $"{u.FirstName} {u.LastName} ({u.Email})"));
-            return (null, $"'{userName}' is ambiguous. Matching users: {candidates}. Provide userId instead.");
-        }
-
-        var resolved = await _userManagementService.FindUserByIdAsync(matches[0].Id);
-        return resolved == null
-            ? (null, $"User '{userName}' could not be loaded.")
-            : (resolved, null);
-    }
-
-    private static string? NormalizeRole(string? role)
-    {
-        if (string.IsNullOrWhiteSpace(role))
-        {
-            return null;
-        }
-
-        if (role.Equals(Roles.Admin, StringComparison.OrdinalIgnoreCase))
-        {
-            return Roles.Admin;
-        }
-
-        if (role.Equals(Roles.Authorised, StringComparison.OrdinalIgnoreCase))
-        {
-            return Roles.Authorised;
-        }
-
-        if (role.Equals(Roles.User, StringComparison.OrdinalIgnoreCase))
-        {
-            return Roles.User;
-        }
-
-        return null;
     }
 }

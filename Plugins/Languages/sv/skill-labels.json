@@ -519,5 +519,15 @@
   "add_container_template_break": "Lägg till en paus i en containers mall",
   "split_shifts_by_weekday": "Dela upp en grupps pass efter veckodag",
   "build_weekly_tours": "Bygg veckorundor för en grupp",
-  "assign_container_week": "Boka en medarbetare på en runda för en period"
+  "assign_container_week": "Boka en medarbetare på en runda för en period",
+  "explain_messenger_channels": "Förklara messengerkanaler",
+  "explain_messenger_pairing_and_scope": "Förklara messengerkoppling och behörigheter",
+  "evaluate_user_role_change": "Bedöma effekten av en rolländring för en användare",
+  "evaluate_period_close_readiness": "Bedöma om en period är redo att avslutas",
+  "evaluate_compliance_enforcement_change": "Bedöma effekten av strängare arbetstidsregler",
+  "evaluate_spam_rule_candidates": "Hitta återkommande skräppostavsändare utan regel",
+  "evaluate_employee_exit": "Bedöma konsekvenserna av att någon slutar",
+  "start_software_update": "Installera programuppdateringen",
+  "evaluate_software_update": "Bedöma om det är dags att uppdatera",
+  "evaluate_container_bundling": "Bedöma om besök kan samlas i en container"
 }

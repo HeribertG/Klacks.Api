@@ -519,5 +519,15 @@
   "add_container_template_break": "在容器模板中添加休息",
   "split_shifts_by_weekday": "按星期几拆分小组的班次",
   "build_weekly_tours": "为小组建立每周巡回路线",
-  "assign_container_week": "按日期范围安排员工负责巡回路线"
+  "assign_container_week": "按日期范围安排员工负责巡回路线",
+  "explain_messenger_channels": "解释消息应用渠道",
+  "explain_messenger_pairing_and_scope": "解释消息应用绑定与权限范围",
+  "evaluate_user_role_change": "预览用户角色变更的影响",
+  "evaluate_period_close_readiness": "评估周期是否可以关账",
+  "evaluate_compliance_enforcement_change": "预览更严格工时规则的影响",
+  "evaluate_spam_rule_candidates": "查找尚无规则的重复垃圾发件人",
+  "evaluate_employee_exit": "评估员工离职的后果",
+  "start_software_update": "安装软件更新",
+  "evaluate_software_update": "评估现在是否更新",
+  "evaluate_container_bundling": "评估容器打包是否值得"
 }

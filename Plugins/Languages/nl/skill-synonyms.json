@@ -4088,5 +4088,87 @@
     "de container aan een medewerker toewijzen voor een periode",
     "bezet ronde 2 van 3 tot en met 7 november met lara",
     "boek de medewerker op alle rondedagen van maandag tot vrijdag"
+  ],
+  "explain_messenger_channels": [
+    "welke messenger kan antwoorden",
+    "messengers die alleen een melding sturen",
+    "kan ik via signal een antwoord krijgen",
+    "hoe lang worden messengerberichten bewaard",
+    "is messaging optioneel"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "hoe koppel ik een medewerker aan telegram",
+    "waarom kan ik geen bericht naar mezelf sturen",
+    "wie ziet welke messengerberichten",
+    "hoe koppel ik mijn eigen account aan de messenger"
+  ],
+  "evaluate_user_role_change": [
+    "wat verandert er als ik van dit account een admin maak",
+    "welke rechten verliest een gebruiker met de rol user",
+    "welke rechten krijgt een supervisor",
+    "is het een probleem om de laatste admin te degraderen",
+    "zou de gebruiker dan toegang krijgen tot de instellingen"
+  ],
+  "evaluate_period_close_readiness": [
+    "is de groep klaar voor de maandafsluiting",
+    "loont het om de maand vandaag al af te sluiten",
+    "mag ik de groep al afsluiten",
+    "moeten we met de maandafsluiting nog wachten",
+    "wat houdt ons tegen om de groep af te sluiten"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "wat gebeurt er als ik de rusttijdregel op blokkeren zet",
+    "hoeveel waarschuwingen zouden fouten worden als ik strenger word",
+    "loont het om te weigeren in plaats van alleen te waarschuwen bij het maximum aantal uren",
+    "kunnen supervisors een geweigerde toewijzing toch doorzetten",
+    "weigert deze regel al of waarschuwt hij alleen"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "welke afzenderdomeinen belanden steeds in de map met ongewenste e-mail zonder regel",
+    "welke domeinen moet ik als spam laten filteren",
+    "zijn er afzenders die steeds in de map met ongewenste e-mail opduiken",
+    "voor welke domeinen ontbreekt nog een spamfilter",
+    "loont een nieuwe blokkade voor dit afzenderdomein"
+  ],
+  "evaluate_employee_exit": [
+    "wat gebeurt er als een medewerker aan het einde van de maand weggaat",
+    "wat hangt er aan de uittreding van deze medewerker",
+    "staat er na de laatste werkdag nog iets ingepland",
+    "heeft de persoon na de vertrekdatum nog diensten",
+    "wat moet ik regelen voordat de medewerker weggaat",
+    "lopen contracten na de vertrekdatum nog door"
+  ],
+  "start_software_update": [
+    "installeer de update nu",
+    "start de software-update",
+    "upgrade klacks naar de nieuwe versie",
+    "pas de nieuwe release nu toe",
+    "voer de klacks-update uit"
+  ],
+  "evaluate_software_update": [
+    "moet ik nu updaten",
+    "is dit een goed moment om te updaten",
+    "wat pleit er tegen updaten",
+    "is er een nieuwere versie voor ons beschikbaar",
+    "draait er iets wat een update zou onderbreken"
+  ],
+  "evaluate_container_bundling": [
+    "loont het om deze mobiele diensten te bundelen",
+    "passen deze bezoeken in één ronde",
+    "zou een container zinvol zijn voor deze bezoeken",
+    "hoeveel reistijd kost een ronde langs deze bezoeken",
+    "is één dag genoeg voor al deze bezoeken"
+  ],
+  "send_broadcast": [
+    "stuur een rondzending",
+    "rondschrijven aan de groep",
+    "schrijf naar iedereen in de groep",
+    "massabericht aan het team"
+  ],
+  "evaluate_messaging_reach": [
+    "messenger-bereikbaarheid van de groep",
+    "wie kan ik bereiken via messenger",
+    "wie ontbreekt er op de messenger",
+    "wie is niet bereikbaar via messenger"
   ]
 }

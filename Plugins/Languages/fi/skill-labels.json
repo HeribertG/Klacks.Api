@@ -519,5 +519,15 @@
   "add_container_template_break": "Lisää tauko kontin pohjaan",
   "split_shifts_by_weekday": "Jaa ryhmän vuorot viikonpäivän mukaan",
   "build_weekly_tours": "Rakenna viikkokierrokset ryhmälle",
-  "assign_container_week": "Varaa työntekijä kierrokselle aikavälille"
+  "assign_container_week": "Varaa työntekijä kierrokselle aikavälille",
+  "explain_messenger_channels": "Selitä viestipalvelujen kanavat",
+  "explain_messenger_pairing_and_scope": "Selitä viestipalveluun liittäminen ja oikeudet",
+  "evaluate_user_role_change": "Käyttäjäroolin muutoksen vaikutusten tarkastelu",
+  "evaluate_period_close_readiness": "Arvioi, onko jakso valmis suljettavaksi",
+  "evaluate_compliance_enforcement_change": "Tiukempien työaikasääntöjen vaikutusten tarkastelu",
+  "evaluate_spam_rule_candidates": "Etsi toistuvat roskapostilähettäjät ilman sääntöä",
+  "evaluate_employee_exit": "Työntekijän lähdön seurausten arviointi",
+  "start_software_update": "Asenna ohjelmistopäivitys",
+  "evaluate_software_update": "Arvioi päivityksen ajankohta",
+  "evaluate_container_bundling": "Konttiin yhdistämisen arviointi"
 }

@@ -519,5 +519,15 @@
   "add_container_template_break": "Añadir una pausa a la plantilla de un contenedor",
   "split_shifts_by_weekday": "Dividir los servicios de un grupo por día de la semana",
   "build_weekly_tours": "Crear rutas semanales para un grupo",
-  "assign_container_week": "Asignar un empleado a una ruta durante un período"
+  "assign_container_week": "Asignar un empleado a una ruta durante un período",
+  "explain_messenger_channels": "Explicar los canales de mensajería",
+  "explain_messenger_pairing_and_scope": "Explicar la vinculación y el alcance de la mensajería",
+  "evaluate_user_role_change": "Evaluar el efecto de un cambio de rol de usuario",
+  "evaluate_period_close_readiness": "Evaluar si un período está listo para cerrarse",
+  "evaluate_compliance_enforcement_change": "Evaluar el efecto de reglas de jornada más estrictas",
+  "evaluate_spam_rule_candidates": "Encontrar remitentes de spam recurrentes sin regla",
+  "evaluate_employee_exit": "Evaluar las consecuencias de la salida de un empleado",
+  "start_software_update": "Instalar la actualización de software",
+  "evaluate_software_update": "Evaluar si conviene actualizar ahora",
+  "evaluate_container_bundling": "Evaluar la agrupación de visitas en un contenedor"
 }

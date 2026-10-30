@@ -15,10 +15,10 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Models.Email;
+using Klacks.Api.Domain.Services.Email;
 
 namespace Klacks.Api.Infrastructure.Email;
 
@@ -82,7 +82,7 @@ public class SpamFilterService : ISpamFilterService
 
         foreach (var rule in rules)
         {
-            if (MatchesRule(email, rule))
+            if (SpamRuleMatcher.Matches(email, rule))
             {
                 return new SpamFilterResult
                 {
@@ -101,49 +101,6 @@ public class SpamFilterService : ISpamFilterService
             Reason = "No rule matched",
             UsedLlm = false
         };
-    }
-
-    private static bool MatchesRule(ReceivedEmail email, SpamRule rule)
-    {
-        return rule.RuleType switch
-        {
-            SpamRuleType.SenderContains =>
-                ContainsIgnoreCase(email.FromAddress, rule.Pattern) ||
-                ContainsIgnoreCase(email.FromName, rule.Pattern),
-
-            SpamRuleType.SenderDomain =>
-                MatchesDomain(email.FromAddress, rule.Pattern),
-
-            SpamRuleType.SubjectContains =>
-                ContainsIgnoreCase(email.Subject, rule.Pattern),
-
-            SpamRuleType.BodyContains =>
-                ContainsIgnoreCase(email.BodyText, rule.Pattern) ||
-                ContainsIgnoreCase(email.BodyHtml, rule.Pattern),
-
-            _ => false
-        };
-    }
-
-    private static bool ContainsIgnoreCase(string? text, string pattern)
-    {
-        if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(pattern))
-            return false;
-
-        return text.Contains(pattern, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool MatchesDomain(string? emailAddress, string pattern)
-    {
-        if (string.IsNullOrEmpty(emailAddress) || string.IsNullOrEmpty(pattern))
-            return false;
-
-        var atIndex = emailAddress.IndexOf('@');
-        if (atIndex < 0 || atIndex >= emailAddress.Length - 1)
-            return false;
-
-        var domain = emailAddress[(atIndex + 1)..];
-        return string.Equals(domain, pattern, StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task<SpamFilterResult> ClassifyWithLlmAsync(

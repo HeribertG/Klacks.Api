@@ -6,7 +6,8 @@
 /// CanEditClients): without this list the cap alone would hand a physically exposed chat or an external agent the
 /// messenger store and the whole inbox of the installation. get_replacement_status is listed for a different reason:
 /// its escalation-chain part decides admin through the database role (the planning audience resolver), which a capped
-/// channel's reduced rights do not change, so a capped admin would see every chain. Skills the Supervisor already reached before B8
+/// channel's reduced rights do not change, so a capped admin would see every chain. send_broadcast and evaluate_messaging_reach
+/// reach the same messenger audience as send_message and read_messages. Skills the Supervisor already reached before B8
 /// (list_emails, read_email, get_email_analysis, list_emails_by_client) are deliberately not listed. The list is the
 /// one building block of both channels: McpSkillExposurePolicy adds it to its exclusions (catalog, call handler,
 /// delegated plan and schedule steps, read-only research) and SkillExecutorService, the toolset filter of the chat
@@ -26,6 +27,8 @@ public static class CappedChannelSkillExclusions
     private static readonly HashSet<string> Names = new(StringComparer.OrdinalIgnoreCase)
     {
         "send_message",
+        "send_broadcast",
+        "evaluate_messaging_reach",
         "read_messages",
         "list_email_folders",
         "mark_email_read",

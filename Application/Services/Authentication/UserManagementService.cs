@@ -17,7 +17,9 @@ namespace Klacks.Api.Application.Services.Authentication;
 /// Creates, lists and deactivates application users. Deactivating is the only removal path (Owner
 /// decision, 17.08.: hard delete was removed system-wide): the account keeps its data but is barred
 /// from signing in, from lending its permissions, and from appearing in GetUserListAsync - a soft
-/// delete, reversible only via ReactivateUserAsync.
+/// delete, reversible only via ReactivateUserAsync. Removing the Admin role from the last active administrator, and
+/// deactivating that account, are refused here, the one place every role removal and deactivation passes through
+/// (settings UI, Klacksy skills, own-admin setup).
 /// </summary>
 /// <param name="userManager">ASP.NET Identity store for AppUser.</param>
 /// <param name="userReader">Materialising reads over the same Identity user set (list, reset token, untracked id).</param>
@@ -30,6 +32,10 @@ public class UserManagementService : IUserManagementService
     private const string UserAlreadyDeactivatedMessage = "User is already deactivated.";
     private const string UserReactivatedMessage = "User reactivated successfully.";
     private const string UserNotDeactivatedMessage = "User is not deactivated.";
+    private const string LastAdministratorRefusedLog =
+        "Refused to remove the Admin role from {UserId}: it is the last active administrator";
+    private const string LastAdministratorDeactivationRefusedLog =
+        "Refused to deactivate {UserId}: it is the last active administrator";
     private readonly UserManager<AppUser> _userManager;
     private readonly IAppUserReader _userReader;
     private readonly ILogger<UserManagementService> _logger;
@@ -101,6 +107,12 @@ public class UserManagementService : IUserManagementService
         }
         else if (!isSelected && await _userManager.IsInRoleAsync(user, roleName))
         {
+            if (await WouldRemoveLastActiveAdministratorAsync(user, roleName))
+            {
+                _logger.LogInformation(LastAdministratorRefusedLog, userId);
+                return (false, LastAdministratorRule.RefusalMessage);
+            }
+
             result = await _userManager.RemoveFromRoleAsync(user, roleName);
         }
         else
@@ -115,6 +127,11 @@ public class UserManagementService : IUserManagementService
 
         var errorMessage = string.Join(Environment.NewLine, result.Errors.Select(e => e.Description));
         return (false, errorMessage);
+    }
+
+    public async Task<int> CountActiveAdministratorsAsync()
+    {
+        return (await _userManager.GetUsersInRoleAsync(Roles.Admin)).Count(user => user.DeactivatedAt == null);
     }
 
     /// <summary>
@@ -136,6 +153,13 @@ public class UserManagementService : IUserManagementService
         if (user.DeactivatedAt is not null)
         {
             return (false, UserAlreadyDeactivatedMessage);
+        }
+
+        if (await _userManager.IsInRoleAsync(user, Roles.Admin)
+            && await WouldRemoveLastActiveAdministratorAsync(user, Roles.Admin))
+        {
+            _logger.LogInformation(LastAdministratorDeactivationRefusedLog, userId);
+            return (false, LastAdministratorRule.DeactivationRefusalMessage);
         }
 
         user.DeactivatedAt = DateTime.UtcNow;
@@ -260,6 +284,17 @@ public class UserManagementService : IUserManagementService
     public async Task<IList<string>> GetUserRolesAsync(AppUser user)
     {
         return await _userManager.GetRolesAsync(user);
+    }
+
+    private async Task<bool> WouldRemoveLastActiveAdministratorAsync(AppUser user, string roleName)
+    {
+        if (!string.Equals(roleName, Roles.Admin, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return LastAdministratorRule.WouldRemoveLastActiveAdministrator(
+            true, user.DeactivatedAt is null, await CountActiveAdministratorsAsync());
     }
 
     private static (bool Success, IdentityResult? Result) Refused(IdentityError error) =>

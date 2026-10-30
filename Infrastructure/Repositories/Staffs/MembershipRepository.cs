@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories.Staffs;
 
@@ -13,4 +14,10 @@ public class MembershipRepository : BaseRepository<Membership>, IMembershipRepos
       : base(context, logger)
     {
     }
+
+    public Task<List<Membership>> ListByClientAsync(Guid clientId, CancellationToken cancellationToken = default) =>
+        QueryByClient(clientId).ToListAsync(cancellationToken);
+
+    internal IQueryable<Membership> QueryByClient(Guid clientId) =>
+        context.Set<Membership>().AsNoTracking().Where(membership => membership.ClientId == clientId);
 }

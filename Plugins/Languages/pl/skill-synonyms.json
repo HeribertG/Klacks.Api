@@ -4102,5 +4102,87 @@
     "przypisz kontener pracownikowi na przedział dat",
     "obsadź trasę 2 od 3 do 7 listopada pracownikiem lara",
     "zarezerwuj pracownika na wszystkie dni trasy od poniedziałku do piątku"
+  ],
+  "explain_messenger_channels": [
+    "który komunikator potrafi odpowiadać",
+    "komunikatory które tylko powiadamiają",
+    "czy mogę dostać odpowiedź przez signal",
+    "jak długo przechowywane są wiadomości z komunikatorów",
+    "czy obsługa komunikatorów jest opcjonalna"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "jak powiązać pracownika z telegramem",
+    "dlaczego nie mogę wysłać wiadomości do samego siebie",
+    "kto widzi które wiadomości z komunikatorów",
+    "jak sparować własne konto z komunikatorem"
+  ],
+  "evaluate_user_role_change": [
+    "co się zmieni jeśli zrobię z tego konta administratora",
+    "jakie uprawnienia straciłby użytkownik z rolą user",
+    "jakie uprawnienia dostaje supervisor",
+    "czy to problem zdegradować ostatniego administratora",
+    "czy użytkownik miałby wtedy dostęp do ustawień"
+  ],
+  "evaluate_period_close_readiness": [
+    "czy grupa jest gotowa na zamknięcie miesiąca",
+    "czy warto już dziś zamykać miesiąc",
+    "czy mogę już zamknąć grupę",
+    "czy powinniśmy poczekać z zamknięciem miesiąca",
+    "co nas powstrzymuje przed zamknięciem grupy"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "co się stanie jeśli ustawię regułę czasu odpoczynku na blokowanie",
+    "ile ostrzeżeń zamieniłoby się w błędy przy zaostrzeniu reguł",
+    "czy warto odrzucać zamiast tylko ostrzegać o maksymalnym czasie pracy",
+    "czy przełożeni mogliby mimo to przeforsować odrzucone przypisanie",
+    "czy ta reguła już odrzuca czy tylko ostrzega"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "które domeny nadawców ciągle lądują w spamie i nie mają jeszcze reguły",
+    "które domeny powinienem kazać filtrować jako spam",
+    "czy są nadawcy którzy ciągle pojawiają się w folderze spamu",
+    "dla jakich domen brakuje jeszcze filtra spamu",
+    "czy nowa blokada dla tej domeny nadawcy ma sens"
+  ],
+  "evaluate_employee_exit": [
+    "co się stanie jeśli pracownik odejdzie z końcem miesiąca",
+    "od czego zależy odejście tego pracownika",
+    "czy po ostatnim dniu pracy coś jest jeszcze zarezerwowane",
+    "czy osoba ma jeszcze zmiany po dacie odejścia",
+    "co muszę wyjaśnić zanim pracownik odejdzie",
+    "czy umowy trwają dalej po dacie odejścia"
+  ],
+  "start_software_update": [
+    "zainstaluj aktualizację teraz",
+    "uruchom aktualizację oprogramowania",
+    "zaktualizuj klacks do nowej wersji",
+    "wdróż nowe wydanie od razu",
+    "wykonaj aktualizację klacks"
+  ],
+  "evaluate_software_update": [
+    "czy powinienem teraz aktualizować",
+    "czy teraz jest dobry moment na aktualizację",
+    "co przemawia przeciwko aktualizacji",
+    "czy jest już nowsza wersja dla nas",
+    "czy działa coś co aktualizacja by przerwała"
+  ],
+  "evaluate_container_bundling": [
+    "czy warto połączyć te usługi mobilne",
+    "czy te wizyty zmieszczą się w jednej rundzie",
+    "czy kontener miałby sens dla tych wizyt",
+    "ile czasu jazdy zajęłaby runda przez te wizyty",
+    "czy jeden dzień wystarczy na wszystkie te wizyty"
+  ],
+  "send_broadcast": [
+    "wyślij wiadomość zbiorczą",
+    "okólnik do grupy",
+    "napisz do wszystkich w grupie",
+    "wiadomość masowa do zespołu"
+  ],
+  "evaluate_messaging_reach": [
+    "osiągalność grupy przez komunikator",
+    "do kogo mogę dotrzeć przez komunikator",
+    "kogo brakuje w komunikatorze",
+    "kto jest nieosiągalny przez komunikator"
   ]
 }

@@ -3,9 +3,10 @@
 /// <summary>
 /// Places the visits on an autofill route exactly as the Ui does after an autofill and orders the template items by the
 /// route: the autofill route becomes route steps (RouteStepBuilder.FromAutofill), ContainerVisitScheduler places the visit
-/// windows and the travel times before and after in route order, and the route info is built for the template. Refuses
-/// with a SkillVerificationException when a picked visit cannot be placed or a travel time does not fit a clock time,
-/// because the stored template would then not match the route.
+/// windows and the travel times before and after in route order, and the route info is built for the template. Refuses when
+/// a picked visit cannot be placed or a travel time does not fit a clock time, because the stored template would then not
+/// match the route: Plan throws a SkillVerificationException for the skills that write, TryPlan answers with the refusal text
+/// for the advice that writes nothing, so both judge a route by the same rules.
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Schedules;
@@ -26,6 +27,18 @@ public static class ContainerVisitPlanner
     public static PlannedContainerVisits Plan(
         string skillName, string location, TimeOnly fromTime, ContainerAutofillResult autofillResult, List<Shift> taskShifts)
     {
+        var (visits, refusal) = TryPlan(location, fromTime, autofillResult, taskShifts);
+        return visits ?? throw new SkillVerificationException(skillName, refusal!);
+    }
+
+    /// <param name="location">Base address the route starts and ends at</param>
+    /// <param name="fromTime">Start of the day's time budget</param>
+    /// <param name="autofillResult">Visible autofill selection with its route</param>
+    /// <param name="taskShifts">Picked task shifts in selection order</param>
+    /// <returns>The placed visits, or null and the reason the route would be refused</returns>
+    public static (PlannedContainerVisits? Visits, string? Refusal) TryPlan(
+        string location, TimeOnly fromTime, ContainerAutofillResult autofillResult, List<Shift> taskShifts)
+    {
         var itemByShiftId = taskShifts.ToDictionary(shift => shift.Id, BuildTemplateItem);
         var steps = RouteStepBuilder.FromAutofill(autofillResult);
         var scheduled = ContainerVisitScheduler.Schedule(new VisitScheduleInput(
@@ -39,17 +52,14 @@ public static class ContainerVisitPlanner
 
         if (scheduled.Count != taskShifts.Count)
         {
-            throw new SkillVerificationException(
-                skillName,
+            return (null,
                 $"Only {scheduled.Count} of {taskShifts.Count} selected services could be placed on the route, so no " +
                 "visit times could be planned — no container was created.");
         }
 
         if (ContainerVisitPlacement.HasTravelOfADayOrMore(scheduled))
         {
-            throw new SkillVerificationException(
-                skillName,
-                "A computed travel time is 24 hours or longer and cannot be stored — no container was created.");
+            return (null, "A computed travel time is 24 hours or longer and cannot be stored — no container was created.");
         }
 
         var items = scheduled.Select(visit =>
@@ -60,7 +70,7 @@ public static class ContainerVisitPlanner
         }).ToList();
 
         var routeInfo = ContainerRouteInfoBuilder.Build(location, location, autofillResult, steps);
-        return new PlannedContainerVisits(items, ContainerVisitPlacement.BuildStops(scheduled, steps), routeInfo);
+        return (new PlannedContainerVisits(items, ContainerVisitPlacement.BuildStops(scheduled, steps), routeInfo), null);
     }
 
     private static VisitItem ToVisitItem(Shift taskShift) => new(

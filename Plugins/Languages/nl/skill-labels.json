@@ -519,5 +519,15 @@
   "add_container_template_break": "Pauze toevoegen aan het sjabloon van een container",
   "split_shifts_by_weekday": "Diensten van een groep per weekdag splitsen",
   "build_weekly_tours": "Wekelijkse rondes voor een groep opbouwen",
-  "assign_container_week": "Een medewerker voor een periode op een ronde inplannen"
+  "assign_container_week": "Een medewerker voor een periode op een ronde inplannen",
+  "explain_messenger_channels": "De messengerkanalen uitleggen",
+  "explain_messenger_pairing_and_scope": "Messengerkoppeling en rechten uitleggen",
+  "evaluate_user_role_change": "Het effect van een rolwijziging voor een gebruiker beoordelen",
+  "evaluate_period_close_readiness": "Beoordelen of een periode klaar is om af te sluiten",
+  "evaluate_compliance_enforcement_change": "Het effect van strengere werktijdregels beoordelen",
+  "evaluate_spam_rule_candidates": "Terugkerende spamafzenders zonder regel vinden",
+  "evaluate_employee_exit": "De gevolgen van een uittreding beoordelen",
+  "start_software_update": "De software-update installeren",
+  "evaluate_software_update": "Beoordelen of nu updaten verstandig is",
+  "evaluate_container_bundling": "Beoordelen of bezoeken in een container passen"
 }

@@ -5,7 +5,8 @@
 /// stored coordinates first, then freshly geocoded ones whose coordinates are written back) and geocodes the bases.
 /// Addresses are geocoded with the name of their country (the company default country when they have none), the
 /// bases with the company default country. Country lookups and coordinate writes share the scoped DbContext, so they
-/// run one after another; only the geocoding requests themselves run in parallel.
+/// run one after another; only the geocoding requests themselves run in parallel. LocateAsync does everything except
+/// the coordinate write and says per task why it has no location; ExtractLocationsFromShiftsAsync adds the write.
 /// </summary>
 /// <param name="geocodingService">Geocodes addresses without stored coordinates and the base addresses</param>
 /// <param name="coordinateWriter">Persists freshly geocoded coordinates, awaited one by one on the request token</param>
@@ -44,18 +45,41 @@ public sealed class ContainerAutofillCandidateLocator : IShiftLocationResolver
     public async Task<List<Location>> ExtractLocationsFromShiftsAsync(
         List<Shift> shifts, ContainerTransportMode containerTransportMode, CancellationToken cancellationToken)
     {
-        var (locations, needsGeocoding) = CollectDistinctAddresses(shifts, containerTransportMode);
+        var located = await LocateAsync(shifts, containerTransportMode, null, cancellationToken);
+        await WriteCoordinatesAsync(located.CoordinateUpdates, cancellationToken);
+        return located.Locations;
+    }
+
+    /// <summary>
+    /// Finds the route candidates of the shifts without storing anything: stored coordinates first, then geocoded ones.
+    /// </summary>
+    /// <param name="shifts">TimeRange shifts to place</param>
+    /// <param name="containerTransportMode">Transport mode written onto the candidates</param>
+    /// <param name="maxGeocodedAddresses">Upper limit of addresses sent to the geocoder; null = all. Addresses beyond it
+    /// are reported as NotLookedUp.</param>
+    public async Task<ContainerAutofillLocatedCandidates> LocateAsync(
+        List<Shift> shifts,
+        ContainerTransportMode containerTransportMode,
+        int? maxGeocodedAddresses,
+        CancellationToken cancellationToken)
+    {
+        var (locations, needsGeocoding, unlocated) = CollectDistinctAddresses(shifts, containerTransportMode);
 
         _logger.LogInformation("ExtractLocations: {Stored} from DB, {NeedsGeocoding} need geocoding, from {Total} shifts",
             locations.Count, needsGeocoding.Count, shifts.Count);
 
-        if (needsGeocoding.Count > 0)
+        var toGeocode = maxGeocodedAddresses is { } limit ? needsGeocoding.Take(limit).ToList() : needsGeocoding;
+        unlocated.AddRange(needsGeocoding.Skip(toGeocode.Count).Select(request =>
+            new ContainerAutofillUnlocatedTask(request.shift.Id, ContainerAutofillUnlocatedReason.NotLookedUp)));
+
+        var coordinateUpdates = new List<ContainerAutofillCoordinateUpdate>();
+        if (toGeocode.Count > 0)
         {
-            await AddGeocodedLocationsAsync(locations, needsGeocoding, containerTransportMode, cancellationToken);
+            await AddGeocodedLocationsAsync(locations, toGeocode, containerTransportMode, coordinateUpdates, unlocated, cancellationToken);
         }
 
         _logger.LogInformation("Extracted {Count} candidate locations from {Total} shifts", locations.Count, shifts.Count);
-        return locations;
+        return new ContainerAutofillLocatedCandidates(locations, coordinateUpdates, unlocated);
     }
 
     public async Task<IReadOnlyList<ShiftLocation>> LocateAsync(IReadOnlyList<Shift> shifts, CancellationToken cancellationToken)
@@ -107,25 +131,34 @@ public sealed class ContainerAutofillCandidateLocator : IShiftLocationResolver
             : $"{address.City}_{address.Zip}_{address.Street}";
     }
 
-    private static (List<Location> locations, List<(Shift shift, Address address, string fullAddress)> needsGeocoding)
+    private static (List<Location> locations, List<(Shift shift, Address address, string fullAddress)> needsGeocoding, List<ContainerAutofillUnlocatedTask> unlocated)
         CollectDistinctAddresses(List<Shift> shifts, ContainerTransportMode containerTransportMode)
     {
         var locations = new List<Location>();
         var uniqueAddresses = new HashSet<string>();
         var needsGeocoding = new List<(Shift shift, Address address, string fullAddress)>();
+        var unlocated = new List<ContainerAutofillUnlocatedTask>();
 
         foreach (var shift in shifts)
         {
             if (shift.Client?.Addresses == null || !shift.Client.Addresses.Any())
             {
+                unlocated.Add(new ContainerAutofillUnlocatedTask(shift.Id, ContainerAutofillUnlocatedReason.NoAddress));
                 continue;
             }
 
             var address = shift.Client.Addresses.First();
             var addressKey = AddressKey(shift);
 
-            if (addressKey is null || uniqueAddresses.Contains(addressKey))
+            if (addressKey is null)
             {
+                unlocated.Add(new ContainerAutofillUnlocatedTask(shift.Id, ContainerAutofillUnlocatedReason.NoAddress));
+                continue;
+            }
+
+            if (uniqueAddresses.Contains(addressKey))
+            {
+                unlocated.Add(new ContainerAutofillUnlocatedTask(shift.Id, ContainerAutofillUnlocatedReason.SameAddress));
                 continue;
             }
 
@@ -142,13 +175,15 @@ public sealed class ContainerAutofillCandidateLocator : IShiftLocationResolver
             }
         }
 
-        return (locations, needsGeocoding);
+        return (locations, needsGeocoding, unlocated);
     }
 
     private async Task AddGeocodedLocationsAsync(
         List<Location> locations,
         List<(Shift shift, Address address, string fullAddress)> needsGeocoding,
         ContainerTransportMode containerTransportMode,
+        List<ContainerAutofillCoordinateUpdate> coordinateUpdates,
+        List<ContainerAutofillUnlocatedTask> unlocated,
         CancellationToken cancellationToken)
     {
         var countryNames = await ResolveCountryNamesAsync(needsGeocoding.Select(req => req.address.Country), cancellationToken);
@@ -160,18 +195,19 @@ public sealed class ContainerAutofillCandidateLocator : IShiftLocationResolver
         });
 
         var results = await Task.WhenAll(geocodeTasks);
-        var hits = new List<(Guid addressId, double latitude, double longitude)>();
 
         foreach (var (shift, address, fullAddress, coords) in results)
         {
             if (coords.Latitude.HasValue && coords.Longitude.HasValue)
             {
                 locations.Add(CreateLocationFromShift(shift, fullAddress, coords.Latitude.Value, coords.Longitude.Value, containerTransportMode));
-                hits.Add((address.Id, coords.Latitude.Value, coords.Longitude.Value));
+                coordinateUpdates.Add(new ContainerAutofillCoordinateUpdate(address.Id, coords.Latitude.Value, coords.Longitude.Value));
+            }
+            else
+            {
+                unlocated.Add(new ContainerAutofillUnlocatedTask(shift.Id, ContainerAutofillUnlocatedReason.NotLocated));
             }
         }
-
-        await WriteCoordinatesAsync(hits, cancellationToken);
     }
 
     private async Task<Dictionary<string, string>> ResolveCountryNamesAsync(
@@ -187,9 +223,9 @@ public sealed class ContainerAutofillCandidateLocator : IShiftLocationResolver
     }
 
     private async Task WriteCoordinatesAsync(
-        List<(Guid addressId, double latitude, double longitude)> hits, CancellationToken cancellationToken)
+        List<ContainerAutofillCoordinateUpdate> updates, CancellationToken cancellationToken)
     {
-        foreach (var (addressId, latitude, longitude) in hits)
+        foreach (var (addressId, latitude, longitude) in updates)
         {
             try
             {

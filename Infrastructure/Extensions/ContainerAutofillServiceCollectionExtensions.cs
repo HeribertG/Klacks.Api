@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Registers the container autofill: the IContainerAutofillService entry point and its collaborators (candidate
-/// locator, travel time floor, greedy selector, ant colony sequencer, route refiner, route planner). All scoped like
+/// locator, travel time floor, greedy selector, ant colony sequencer, route refiner, route planner, planning stage). All scoped like
 /// the entry point, because the locator writes coordinates and the travel time floor reads settings through scoped services.
 /// </summary>
 
@@ -23,6 +23,7 @@ public static class ContainerAutofillServiceCollectionExtensions
         services.AddScoped<ContainerAutofillRouteSequencer>();
         services.AddScoped<ContainerAutofillRouteRefiner>();
         services.AddScoped<ContainerAutofillRoutePlanner>();
+        services.AddScoped<ContainerAutofillPlanningStage>();
 
         services.AddScoped<IContainerAutofillService, ContainerAutofillService>();
 

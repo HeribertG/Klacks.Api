@@ -519,5 +519,15 @@
   "add_container_template_break": "Προσθήκη διαλείμματος στο πρότυπο κοντέινερ",
   "split_shifts_by_weekday": "Διαχωρισμός των βαρδιών μιας ομάδας ανά ημέρα της εβδομάδας",
   "build_weekly_tours": "Δημιουργία εβδομαδιαίων δρομολογίων για μια ομάδα",
-  "assign_container_week": "Κράτηση εργαζομένου σε δρομολόγιο για ένα χρονικό διάστημα"
+  "assign_container_week": "Κράτηση εργαζομένου σε δρομολόγιο για ένα χρονικό διάστημα",
+  "explain_messenger_channels": "Επεξήγηση των καναλιών messenger",
+  "explain_messenger_pairing_and_scope": "Επεξήγηση της σύνδεσης και των δικαιωμάτων στο messenger",
+  "evaluate_user_role_change": "Εξέταση των επιπτώσεων μιας αλλαγής ρόλου χρήστη",
+  "evaluate_period_close_readiness": "Αξιολόγηση της ετοιμότητας μιας περιόδου για κλείσιμο",
+  "evaluate_compliance_enforcement_change": "Εξέταση των επιπτώσεων αυστηρότερων κανόνων ωραρίου",
+  "evaluate_spam_rule_candidates": "Εύρεση επαναλαμβανόμενων αποστολέων ανεπιθύμητων χωρίς κανόνα",
+  "evaluate_employee_exit": "Αξιολόγηση των συνεπειών μιας αποχώρησης",
+  "start_software_update": "Εγκατάσταση της ενημέρωσης λογισμικού",
+  "evaluate_software_update": "Αξιολόγηση του χρόνου της ενημέρωσης",
+  "evaluate_container_bundling": "Αξιολόγηση ομαδοποίησης σε κοντέινερ"
 }

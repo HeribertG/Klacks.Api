@@ -4022,5 +4022,87 @@
     "tugaskan kontena kepada pekerja untuk julat tarikh",
     "isi pusingan 2 dari 3 hingga 7 november dengan lara",
     "tempah pekerja pada setiap hari pusingan dari isnin hingga jumaat"
+  ],
+  "explain_messenger_channels": [
+    "aplikasi mesej mana yang boleh membalas",
+    "aplikasi mesej yang hanya memberi notifikasi",
+    "bolehkah saya mendapat jawapan melalui signal",
+    "berapa lama mesej disimpan dalam aplikasi mesej",
+    "adakah pemesejan ini pilihan sahaja"
+  ],
+  "explain_messenger_pairing_and_scope": [
+    "bagaimana mahu memautkan pekerja kepada telegram",
+    "kenapa saya tidak boleh menghantar mesej kepada diri sendiri",
+    "siapa boleh melihat mesej yang mana dalam aplikasi mesej",
+    "bagaimana memadankan akaun saya sendiri dengan aplikasi mesej"
+  ],
+  "evaluate_user_role_change": [
+    "apa yang berubah jika akaun ini dijadikan admin",
+    "hak apa yang hilang daripada pengguna dengan peranan user",
+    "hak apa yang diperoleh seorang penyelia",
+    "adakah masalah jika admin terakhir diturunkan",
+    "adakah pengguna itu kemudian boleh mengakses tetapan"
+  ],
+  "evaluate_period_close_readiness": [
+    "adakah kumpulan sudah sedia untuk penutupan hujung bulan",
+    "berbaloikah menutup bulan ini hari ini",
+    "adakah saya sudah dibenarkan menutup kumpulan",
+    "patutkah kita tunggu dahulu sebelum penutupan hujung bulan",
+    "apa yang menghalang kita daripada menutup kumpulan"
+  ],
+  "evaluate_compliance_enforcement_change": [
+    "apa jadi jika peraturan waktu rehat ditetapkan kepada sekat",
+    "berapa banyak amaran akan jadi ralat jika lebih ketat",
+    "berbaloikah menolak dan bukan sekadar memberi amaran tentang jam maksimum",
+    "bolehkah penyelia tetap meneruskan tugasan yang ditolak",
+    "adakah peraturan ini sudah menolak atau hanya memberi amaran"
+  ],
+  "evaluate_spam_rule_candidates": [
+    "domain penghantar mana yang sentiasa masuk ke folder mel sampah tanpa peraturan",
+    "domain mana yang patut saya tapis sebagai spam",
+    "adakah penghantar yang sentiasa muncul dalam folder mel sampah",
+    "domain mana yang masih tiada penapis spam",
+    "berbaloikah sekatan baharu untuk domain penghantar ini"
+  ],
+  "evaluate_employee_exit": [
+    "apa jadi jika pekerja berhenti pada hujung bulan",
+    "apa saja yang berkaitan dengan pemergian pekerja ini",
+    "adakah ada yang masih ditempah selepas hari kerja terakhir",
+    "adakah orang ini masih ada syif selepas tarikh berhenti",
+    "apa yang perlu saya selesaikan sebelum pekerja berhenti",
+    "adakah kontrak masih berjalan selepas tarikh berhenti"
+  ],
+  "start_software_update": [
+    "pasang kemas kini sekarang",
+    "mulakan kemas kini perisian",
+    "naik taraf klacks kepada versi baharu",
+    "gunakan keluaran baharu sekarang",
+    "jalankan kemas kini klacks"
+  ],
+  "evaluate_software_update": [
+    "patutkah saya mengemas kini sekarang",
+    "adakah sekarang masa yang sesuai untuk mengemas kini",
+    "apa yang menghalang daripada mengemas kini",
+    "adakah versi yang lebih baharu tersedia untuk kami",
+    "adakah apa-apa sedang berjalan yang akan terganggu oleh kemas kini"
+  ],
+  "evaluate_container_bundling": [
+    "berbaloikah menggabungkan perkhidmatan mudah alih ini",
+    "adakah lawatan ini muat dalam satu pusingan",
+    "adakah kontena masuk akal untuk lawatan ini",
+    "berapa lama masa perjalanan satu pusingan melalui lawatan ini",
+    "cukupkah satu hari untuk semua lawatan ini"
+  ],
+  "send_broadcast": [
+    "hantar mesej siaran",
+    "surat pekeliling untuk kumpulan",
+    "tulis kepada semua orang dalam kumpulan",
+    "mesej pukal untuk pasukan"
+  ],
+  "evaluate_messaging_reach": [
+    "kebolehcapaian aplikasi mesej bagi kumpulan",
+    "siapa yang boleh saya hubungi melalui aplikasi mesej",
+    "siapa yang tiada dalam aplikasi mesej",
+    "siapa yang tidak dapat dihubungi melalui aplikasi mesej"
   ]
 }

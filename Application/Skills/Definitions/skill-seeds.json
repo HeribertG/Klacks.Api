@@ -15491,7 +15491,6 @@
         "de": [
           "probleme der periode anzeigen",
           "abschluss-vorprüfung",
-          "kann ich die periode abschliessen",
           "gibt es fehler oder warnungen in der abrechnungsperiode",
           "welche probleme blockieren den periodenabschluss",
           "warnungen pro tag und mitarbeiter in der periode",
@@ -15500,7 +15499,6 @@
         "en": [
           "show period issues",
           "pre-flight check before closing",
-          "can i close the period",
           "are there errors or warnings in the billing period",
           "which problems block the period closing",
           "warnings per day and employee in the period",
@@ -15529,7 +15527,7 @@
         "fr": "Lister les problèmes de validation d'une période",
         "it": "Elenca i problemi di validazione di un periodo"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "list_period_audit_log",
@@ -44930,44 +44928,59 @@
           "enumValues": null
         },
         {
-          "name": "maxDailyHours",
-          "description": "Hours a single day may reach",
-          "type": "Decimal",
+          "name": "maxDailyHoursMode",
+          "description": "Reaction when the daily hours limit is passed: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
-          "name": "maxWeeklyHours",
-          "description": "Hours a single week may reach",
-          "type": "Decimal",
+          "name": "maxWeeklyHoursMode",
+          "description": "Reaction when the weekly hours limit is passed: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
-          "name": "minRestHours",
-          "description": "Hours of rest between two duties",
-          "type": "Decimal",
+          "name": "minRestHoursMode",
+          "description": "Reaction when the rest between two duties is too short: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
-          "name": "minRestDays",
-          "description": "Rest days per week",
-          "type": "Integer",
+          "name": "minRestDaysMode",
+          "description": "Reaction when the weekly rest days are missing: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
-          "name": "maxConsecutiveDays",
-          "description": "Days in a row that may be worked",
-          "type": "Integer",
+          "name": "maxConsecutiveDaysMode",
+          "description": "Reaction when too many days in a row are worked: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
           "name": "periodCapMode",
@@ -45129,7 +45142,7 @@
         "fr": "Modifier les paramètres d'application de la conformité",
         "it": "Modifica le impostazioni di applicazione della conformità"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "get_compensatory_rest_settings",
@@ -54975,6 +54988,954 @@
         "en": "Book an employee on a tour for a date range",
         "fr": "Planifier un employé sur une tournée pour une période",
         "it": "Pianificare un dipendente su un giro per un periodo"
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_messenger_channels",
+      "area": "messaging",
+      "description": "Explains which of the twelve supported messengers can both send and receive (Telegram, WhatsApp, Slack, LINE, Viber) and which can only send (Signal, SMS, Threema, KakaoTalk, WeChat, Zalo, Microsoft Teams), why a reply or a choice question never arrives over a send-only channel, that messages from unknown senders are dropped, how long the history is kept and that messaging is an optional module. Use when somebody asks which messenger can answer, which one only notifies or how long messages stay.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "handlerConfig": {
+        "memoryKey": "explain_messenger_channels"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "welche messenger empfangen",
+          "messenger nur senden",
+          "antworten per messenger empfangen",
+          "wie lange bleiben messenger-nachrichten",
+          "welche messenger kann klacks"
+        ],
+        "en": [
+          "which messengers receive",
+          "messenger send only",
+          "receive replies by messenger",
+          "how long are messenger messages kept",
+          "which messengers can klacks use"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "welcher messenger kann antworten",
+          "messenger die nur benachrichtigen",
+          "kann ich per signal eine antwort bekommen",
+          "wie lange werden nachrichten aufbewahrt",
+          "ist messaging optional"
+        ],
+        "en": [
+          "which messenger can reply",
+          "messengers that only notify",
+          "can I get an answer over signal",
+          "how long are messages stored",
+          "is messaging optional"
+        ],
+        "fr": [
+          "quelle messagerie peut répondre",
+          "messageries qui notifient seulement",
+          "combien de temps les messages sont conservés"
+        ],
+        "it": [
+          "quale messenger può rispondere",
+          "messenger che solo notificano",
+          "per quanto tempo si conservano i messaggi"
+        ]
+      },
+      "labels": {
+        "de": "Messenger-Kanäle erklären",
+        "en": "Explain messenger channels",
+        "fr": "Expliquer les canaux de messagerie",
+        "it": "Spiega i canali di messaggistica"
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_messenger_pairing_and_scope",
+      "area": "messaging",
+      "description": "Explains how a person gets linked to a messenger and who may write to whom: the one-time Telegram invitation of an employee, the pairing code a logged-in user creates for their own account only, the \"to me\" address that means the Klacks owner, the administrator-only recipients and why a supervisor reaches only employees of visible groups. Use when somebody asks how to connect Telegram, why a message to me, to an employee or to a user is refused, or who sees which messages.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "handlerConfig": {
+        "memoryKey": "explain_messenger_pairing_and_scope"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "telegram verknüpfen",
+          "kopplungscode",
+          "wer darf wem schreiben",
+          "nachricht an mich per messenger",
+          "konto mit telegram koppeln"
+        ],
+        "en": [
+          "link telegram account",
+          "pairing code",
+          "who may message whom",
+          "message to me by messenger",
+          "pair my account with telegram"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wie verknüpfe ich einen mitarbeiter mit telegram",
+          "warum darf ich keine nachricht an mich senden",
+          "wer sieht welche messenger-nachrichten",
+          "eigenes konto mit dem messenger koppeln"
+        ],
+        "en": [
+          "how do I link an employee to telegram",
+          "why can I not send a message to myself",
+          "who sees which messenger messages",
+          "pair my own account with the messenger"
+        ],
+        "fr": [
+          "comment lier un employé à telegram",
+          "pourquoi ne puis-je pas m'écrire un message",
+          "qui voit quels messages",
+          "coupler mon compte à la messagerie"
+        ],
+        "it": [
+          "come collegare un dipendente a telegram",
+          "perché non posso scrivere a me stesso",
+          "chi vede quali messaggi",
+          "collegare il mio account al messenger"
+        ]
+      },
+      "labels": {
+        "de": "Messenger-Verknüpfung und Rechte erklären",
+        "en": "Explain messenger pairing and scope",
+        "fr": "Expliquer le couplage et les droits de messagerie",
+        "it": "Spiega il collegamento e i diritti del messenger"
+      },
+      "version": 1
+    },
+    {
+      "name": "evaluate_user_role_change",
+      "area": "security",
+      "description": "Explains what concretely changes for one login account when it is given the role Admin, Authorised or User: which rights it gains or loses, whether access to the settings comes or goes, whether it already holds that role and whether it is the only active administrator. Use it before anyone's access is raised or lowered, so the real effect is visible first. Nothing is changed; the role itself is set in a separate, confirmed step. Requires admin permissions.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "role",
+          "description": "The role level to evaluate.",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Admin",
+            "Authorised",
+            "User"
+          ]
+        },
+        {
+          "name": "userId",
+          "description": "The account's id. Preferred over userName when known.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "userName",
+          "description": "Name, e-mail or login used to find the account when userId is omitted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Advise",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "auswirkung rollenwechsel",
+          "was ändert sich mit der rolle"
+        ],
+        "en": [
+          "effect of role change",
+          "what changes with this role"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "was ändert sich wenn ich dieses konto zum admin mache",
+          "welche rechte verliert ein benutzer mit der rolle user",
+          "welche rechte bekommt jemand als supervisor",
+          "ist es ein problem den letzten admin herabzustufen",
+          "hat dieses konto die rolle schon",
+          "bekommt der benutzer dann zugriff auf die einstellungen",
+          "was bedeutet der rollenwechsel für dieses konto",
+          "was verliert ein admin wenn ich ihn auf authorised setze"
+        ],
+        "en": [
+          "what changes if I make this account an admin",
+          "which rights would a user lose with the role user",
+          "which rights does a supervisor get",
+          "is it a problem to demote the last admin",
+          "does this account already have the role",
+          "would the user then get access to the settings",
+          "what does the role change mean for this account",
+          "what does an admin lose if I set the role to authorised"
+        ],
+        "fr": [
+          "qu'est-ce qui change si je fais de ce compte un administrateur",
+          "quels droits perd un utilisateur avec le rôle utilisateur",
+          "quels droits reçoit un superviseur",
+          "est-ce un problème de rétrograder le dernier administrateur",
+          "ce compte a-t-il déjà ce rôle",
+          "l'utilisateur aurait-il alors accès aux paramètres",
+          "que signifie le changement de rôle pour ce compte"
+        ],
+        "it": [
+          "cosa cambia se rendo questo account amministratore",
+          "quali diritti perde un utente con il ruolo utente",
+          "quali diritti ottiene un supervisore",
+          "è un problema declassare l'ultimo amministratore",
+          "questo account ha già il ruolo",
+          "con questo ruolo si vedrebbero le impostazioni",
+          "cosa significa il cambio di ruolo per questo account"
+        ]
+      },
+      "labels": {
+        "de": "Auswirkungen eines Rollenwechsels prüfen",
+        "en": "Preview the effect of a user role change",
+        "fr": "Évaluer l'effet d'un changement de rôle utilisateur",
+        "it": "Valuta l'effetto di una modifica del ruolo utente"
+      },
+      "version": 2
+    },
+    {
+      "name": "evaluate_period_close_readiness",
+      "area": "period",
+      "description": "Gives a clear go or no-go on closing one group's pay period right now: ready to close, wait until a certain day, clear the open errors first, or nothing to seal because the group's own shifts are empty and its sub-groups close separately. Use when someone weighs up whether closing is worth it yet or whether to go ahead. It seals nothing; the close stays a separate step the system confirms once. Waiting is the automatic close's rule; a person can still close by hand. Requires admin permissions.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "groupId",
+          "description": "UUID of the group; takes precedence over groupName. A group is required.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Exact display name of the group, used when groupId is unknown.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startDate",
+          "description": "First day ISO yyyy-MM-dd; omit both dates to use the current period of the group.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endDate",
+          "description": "Last day ISO yyyy-MM-dd; omit both dates to use the current period of the group.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Advise",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "bereit zum abschluss",
+          "lohnt sich der abschluss"
+        ],
+        "en": [
+          "ready to finish",
+          "worth finishing yet"
+        ],
+        "fr": [
+          "prêt pour la fin de paie"
+        ],
+        "it": [
+          "pronti per la fine paga"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "ist die gruppe bereit zum abschluss",
+          "lohnt sich der abschluss heute schon",
+          "darf ich die gruppe schon abschliessen",
+          "sind wir so weit für den monatsabschluss",
+          "müssen wir mit dem abschluss noch warten",
+          "was hält uns vom abschluss der gruppe ab",
+          "können wir den abschluss jetzt machen"
+        ],
+        "en": [
+          "is the group ready to be finished",
+          "is it worth finishing the month today",
+          "am i allowed to finish the group already",
+          "are we good to go for the month end",
+          "should we hold off with the month end",
+          "what is holding us back from finishing the group",
+          "can we do the month end now"
+        ],
+        "fr": [
+          "le groupe est-il prêt pour la fin de paie",
+          "est-ce que ça vaut la peine de finir le mois aujourd'hui",
+          "ai-je déjà le droit de finir le groupe",
+          "devons-nous encore attendre pour la fin de mois",
+          "qu'est-ce qui nous empêche de finir le groupe"
+        ],
+        "it": [
+          "il gruppo è pronto per la fine paga",
+          "conviene finire il mese oggi",
+          "posso già finire il gruppo",
+          "dobbiamo ancora aspettare per la fine del mese",
+          "cosa ci impedisce di finire il gruppo"
+        ]
+      },
+      "labels": {
+        "de": "Abschlussreife einer Periode beurteilen",
+        "en": "Judge whether a period is ready to close",
+        "fr": "Évaluer si une période est prête à être clôturée",
+        "it": "Valuta se un periodo è pronto per la chiusura"
+      },
+      "version": 2
+    },
+    {
+      "name": "evaluate_compliance_enforcement_change",
+      "area": "settings",
+      "description": "Shows what changes if a working-time protection is switched from only warning to refusing: how many warnings open around today would turn into errors, whether the protection already refuses, and whether a supervisor could still push an assignment through. Covers maximum hours, rest times, days in a row, period ceilings, counting rules, owed time off, holiday work. Counts only, no names. Nothing is changed; the new reaction is a separate step the system confirms once. Requires admin permissions.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "rule",
+          "description": "The protection to evaluate; omit to evaluate all of them.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "maxDailyHours",
+            "maxWeeklyHours",
+            "minRestHours",
+            "minRestDays",
+            "maxConsecutiveDays",
+            "periodCap",
+            "rollingAverage",
+            "restDayRotation",
+            "counterRule",
+            "compensatoryRest",
+            "restrictedTimeWindow",
+            "holidayWork"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Advise",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "folgen strengerer regel",
+          "warnungen würden zu fehlern"
+        ],
+        "en": [
+          "effect of stricter rule",
+          "warnings would become errors"
+        ],
+        "fr": [
+          "effet d'une règle plus stricte",
+          "avertissements deviendraient erreurs"
+        ],
+        "it": [
+          "effetto di una regola più severa",
+          "avvisi diventerebbero errori"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "was passiert wenn ich die ruhezeit auf blockieren stelle",
+          "wie viele warnungen würden zu fehlern wenn ich strenger werde",
+          "lohnt es sich bei der höchstarbeitszeit nicht mehr nur zu warnen sondern abzulehnen",
+          "was würde sich ändern wenn feiertagsarbeit künftig abgelehnt wird",
+          "gäbe es probleme für die letzten wochen wenn überschreitungen abgelehnt werden",
+          "könnten vorgesetzte eine abgelehnte zuweisung trotzdem durchsetzen",
+          "lehnt diese regel schon ab oder warnt sie nur",
+          "folgen einer strengeren arbeitszeitregel vorab prüfen"
+        ],
+        "en": [
+          "what happens if I set the rest time rule to block",
+          "how many warnings would become errors if I get stricter",
+          "is it worth refusing instead of only warning about maximum hours",
+          "what would change if work on public holidays were refused",
+          "would refusing overruns cause trouble for the last few weeks",
+          "could supervisors still push a refused assignment through",
+          "does this rule already refuse or does it only warn",
+          "check the consequences of a stricter working time rule beforehand"
+        ],
+        "fr": [
+          "que se passe-t-il si je règle le temps de repos sur refuser",
+          "combien d'avertissements deviendraient des erreurs si je durcis la règle",
+          "vaut-il la peine de refuser au lieu de seulement avertir pour le maximum d'heures",
+          "qu'est-ce qui changerait si le travail les jours fériés était refusé",
+          "les supérieurs pourraient-ils quand même imposer une affectation refusée",
+          "cette règle refuse-t-elle déjà ou avertit-elle seulement",
+          "vérifier à l'avance les conséquences d'une règle de temps de travail plus stricte"
+        ],
+        "it": [
+          "cosa succede se imposto il riposo su rifiuta",
+          "quanti avvisi diventerebbero errori se rendo la regola più severa",
+          "conviene rifiutare invece di avvisare soltanto per le ore massime",
+          "cosa cambierebbe se il lavoro nei festivi fosse rifiutato",
+          "i superiori potrebbero comunque forzare un'assegnazione rifiutata",
+          "questa regola rifiuta già o avvisa soltanto",
+          "verificare in anticipo le conseguenze di una regola dell'orario più severa"
+        ]
+      },
+      "labels": {
+        "de": "Auswirkungen strengerer Arbeitszeitregeln prüfen",
+        "en": "Preview the effect of stricter working-time rules",
+        "fr": "Évaluer l'effet de règles de temps de travail plus strictes",
+        "it": "Valuta l'effetto di regole dell'orario di lavoro più severe"
+      },
+      "version": 2
+    },
+    {
+      "name": "evaluate_spam_rule_candidates",
+      "area": "inbox",
+      "description": "Looks through the junk folder for sender domains that keep turning up without being blocked: per domain the junk mails and senders, and any mail the same domain has in the inbox or client folders. Domains already caught by an active pattern, with a switched-off pattern, from the own mailbox or from known contacts are left out and counted. Too little data gives no recommendation. Nothing is changed; a blocking pattern is added in a separate, once-confirmed step. Requires admin permissions.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Advise",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "wiederkehrende junk absender",
+          "domains ohne spam regel"
+        ],
+        "en": [
+          "repeated junk senders",
+          "domains without spam rule"
+        ],
+        "fr": [
+          "expéditeurs indésirables récurrents",
+          "domaines sans règle anti-spam"
+        ],
+        "it": [
+          "mittenti indesiderati ricorrenti",
+          "domini senza regola antispam"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "welche absender-domains landen immer wieder im junk und haben noch keine regel",
+          "welche domains sollte ich als spam einstufen lassen",
+          "gibt es absender die ständig im junk-ordner auftauchen",
+          "für welche domains fehlt noch ein spam-filter",
+          "welche lästigen absender sind noch nicht ausgesperrt",
+          "wiederkehrende werbe-absender im junk finden",
+          "lohnt sich eine neue sperre für diese absender-domain",
+          "welche domain schickt mir am meisten junk"
+        ],
+        "en": [
+          "which sender domains keep landing in junk and have no rule yet",
+          "which domains should I have filtered as spam",
+          "are there senders that keep showing up in the junk folder",
+          "for which domains is a spam filter still missing",
+          "which annoying senders are not yet shut out",
+          "find recurring advertising senders in the junk folder",
+          "is a new block worth it for this sender domain",
+          "which domain sends me the most junk"
+        ],
+        "fr": [
+          "quels domaines d'expéditeurs reviennent sans cesse dans les indésirables sans règle",
+          "quels domaines devrais-je faire filtrer comme spam",
+          "y a-t-il des expéditeurs qui reviennent toujours dans le dossier des indésirables",
+          "pour quels domaines manque-t-il encore un filtre anti-spam",
+          "trouver les expéditeurs publicitaires récurrents dans les indésirables",
+          "vaut-il la peine de bloquer ce domaine d'expéditeur",
+          "quel domaine m'envoie le plus de courrier indésirable"
+        ],
+        "it": [
+          "quali domini mittenti finiscono sempre nella posta indesiderata senza una regola",
+          "quali domini dovrei far filtrare come spam",
+          "ci sono mittenti che ricompaiono sempre nella cartella della posta indesiderata",
+          "per quali domini manca ancora un filtro antispam",
+          "trova i mittenti pubblicitari ricorrenti nella posta indesiderata",
+          "vale la pena bloccare questo dominio mittente",
+          "quale dominio mi manda più posta indesiderata"
+        ]
+      },
+      "labels": {
+        "de": "Wiederkehrende Junk-Absender ohne Spam-Regel finden",
+        "en": "Find recurring junk senders without a spam rule",
+        "fr": "Trouver les expéditeurs indésirables récurrents sans règle anti-spam",
+        "it": "Trova i mittenti indesiderati ricorrenti senza regola antispam"
+      },
+      "version": 2
+    },
+    {
+      "name": "evaluate_employee_exit",
+      "area": "client",
+      "description": "Judges what hangs on an employee leaving on a given last working day: whether the exit can be entered at all, which shifts, absences and on-call duties are still booked after that day, whether some of them sit on approved or closed days, contracts that do not end on that date and the groups the person belongs to. Use when someone asks what a resignation or leaving date would mean before it is entered. Read-only, deterministic advice; entering the exit is a separate step the system confirms once.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients",
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "exitDate",
+          "description": "Last day of employment to evaluate (YYYY-MM-DD)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clientId",
+          "description": "UUID of the employee; takes precedence over the names",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "First name of the employee when the UUID is unknown",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the employee when the UUID is unknown",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Client number to tell apart several employees with the same name",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Advise",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "was hängt am austritt",
+          "folgen eines austritts",
+          "was ist nach dem letzten arbeitstag noch eingeplant",
+          "austritt vorab prüfen"
+        ],
+        "en": [
+          "what hangs on an exit",
+          "consequences of an employee leaving",
+          "still booked after the last working day",
+          "check the exit beforehand"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "was passiert wenn ein mitarbeiter zum monatsende austritt",
+          "was hängt am austritt von anna",
+          "was ist nach dem letzten arbeitstag noch eingeplant",
+          "hat die person nach dem austrittsdatum noch dienste",
+          "bleiben nach der kündigung noch absenzen oder pikett stehen",
+          "kann ich den austritt so eintragen oder ist noch etwas offen",
+          "was muss ich vor dem austritt noch klären",
+          "laufen nach dem austrittsdatum noch verträge weiter"
+        ],
+        "en": [
+          "what happens if an employee leaves at the end of the month",
+          "what hangs on the exit of this employee",
+          "is anything still booked after the last working day",
+          "does the person still have shifts after the leaving date",
+          "will absences or on-call duties remain after the termination date",
+          "can i enter the exit like this or is something still open",
+          "what do i need to clear before the employee leaves",
+          "do contracts keep running after the exit date"
+        ],
+        "fr": [
+          "que se passe-t-il si un employé part à la fin du mois",
+          "qu'est-ce qui dépend du départ de cet employé",
+          "y a-t-il encore des services planifiés après le dernier jour de travail",
+          "des absences ou des piquets restent-ils après la date de départ",
+          "que dois-je clarifier avant le départ de la personne",
+          "les contrats continuent-ils après la date de départ"
+        ],
+        "it": [
+          "cosa succede se un dipendente se ne va a fine mese",
+          "da cosa dipende l'uscita di questo dipendente",
+          "c'è ancora qualcosa di pianificato dopo l'ultimo giorno di lavoro",
+          "restano assenze o reperibilità dopo la data di uscita",
+          "cosa devo chiarire prima che la persona esca",
+          "i contratti continuano dopo la data di uscita"
+        ]
+      },
+      "labels": {
+        "de": "Folgen eines Austritts beurteilen",
+        "en": "Judge the consequences of an exit",
+        "fr": "Évaluer les conséquences d'un départ",
+        "it": "Valuta le conseguenze di un'uscita"
+      },
+      "version": 1
+    },
+    {
+      "name": "start_software_update",
+      "area": "system",
+      "description": "Installs the newest released Klacks version now, the same software update an administrator starts on the updates card. Only the version the release check offers for this installation can be installed, never one somebody names. The system shows that version and asks for one confirmation first. Klacks restarts during the update, this chat is interrupted and everyone signed in is disconnected; if the new version fails, the previous one comes back by itself. Requires admin permissions.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "update jetzt einspielen",
+          "klacks jetzt aktualisieren"
+        ],
+        "en": [
+          "install the update now",
+          "start the software update"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "spiel das update jetzt ein",
+          "installiere die neue klacks version",
+          "starte das software-update",
+          "aktualisiere klacks auf die neue version",
+          "update jetzt durchführen",
+          "neue version jetzt einspielen"
+        ],
+        "en": [
+          "install the update now",
+          "start the software update",
+          "upgrade klacks to the new version",
+          "apply the new release now",
+          "run the klacks update",
+          "update the installation now"
+        ],
+        "fr": [
+          "installe la mise à jour maintenant",
+          "lance la mise à jour logicielle",
+          "mets klacks à jour vers la nouvelle version",
+          "applique la nouvelle version maintenant"
+        ],
+        "it": [
+          "installa l'aggiornamento adesso",
+          "avvia l'aggiornamento software",
+          "aggiorna klacks alla nuova versione",
+          "applica la nuova versione adesso"
+        ]
+      },
+      "labels": {
+        "de": "Software-Update einspielen",
+        "en": "Install the software update",
+        "fr": "Installer la mise à jour logicielle",
+        "it": "Installa l'aggiornamento software"
+      },
+      "version": 1
+    },
+    {
+      "name": "evaluate_software_update",
+      "area": "system",
+      "description": "Judges whether now is a good moment to install a new Klacks version: the running and the newest version, the release stream, whether this installation can take it at all, whether the database structure changes, autofill and planning jobs still running, other people connected and whether the last attempt failed. Use when someone asks whether to update now or what speaks against it. Nothing is installed; installing is a separate step the system confirms once. Requires admin permissions.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Advise",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "soll ich jetzt updaten",
+          "spricht etwas gegen das update"
+        ],
+        "en": [
+          "should i update now",
+          "is it safe to update now"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "soll ich jetzt updaten",
+          "ist jetzt ein guter zeitpunkt für das update",
+          "spricht etwas gegen ein update",
+          "gibt es eine neuere version für uns",
+          "kann ich das update jetzt einspielen",
+          "läuft noch etwas das ein update stört",
+          "lohnt sich das update jetzt"
+        ],
+        "en": [
+          "should i update now",
+          "is now a good time to update",
+          "what speaks against updating",
+          "is a newer version available for us",
+          "can i install the update now",
+          "is anything running that an update would interrupt"
+        ],
+        "fr": [
+          "dois-je mettre à jour maintenant",
+          "est-ce le bon moment pour la mise à jour",
+          "qu'est-ce qui s'oppose à la mise à jour",
+          "puis-je installer la mise à jour maintenant"
+        ],
+        "it": [
+          "devo aggiornare adesso",
+          "è il momento giusto per l'aggiornamento",
+          "cosa impedisce l'aggiornamento",
+          "posso installare l'aggiornamento adesso"
+        ]
+      },
+      "labels": {
+        "de": "Update-Zeitpunkt beurteilen",
+        "en": "Judge whether to update now",
+        "fr": "Évaluer le moment de la mise à jour",
+        "it": "Valuta il momento dell'aggiornamento"
+      },
+      "version": 1
+    },
+    {
+      "name": "evaluate_container_bundling",
+      "area": "shift",
+      "description": "Judges in advance whether the mobile home-care visits around a town can share one daily round: which visits fit, which clash with their time windows or find no room, the travel minutes between stops, whether a break still fits and which client addresses lack coordinates. Use when someone wonders if grouping these visits into a container is worthwhile, before any exists. Stores nothing. Travel figures come from the routing service; when it is down the answer says they were not calculated.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "location",
+          "description": "City, town or address the round starts and ends at.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "weekday",
+          "description": "ISO weekday (1=Monday..7=Sunday) to look at.",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromTime",
+          "description": "Start of the day's time frame in HH:mm format (e.g. '07:00').",
+          "type": "Time",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilTime",
+          "description": "End of the day's time frame in HH:mm format (e.g. '18:00').",
+          "type": "Time",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "First day the round would run, YYYY-MM-DD. Leave empty for today.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Optional last day the round would run, YYYY-MM-DD.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "transportMode",
+          "description": "Transport mode of the round. Without a configured OpenRouteService API key only 'car' works.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "car",
+          "enumValues": [
+            "car",
+            "bicycle",
+            "foot",
+            "mix"
+          ]
+        },
+        {
+          "name": "timeRangeTolerance",
+          "description": "How strictly each visit's own time window is enforced (0.0-1.0): 1.0 = strict, lower values widen the window, 0 disables the check.",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": 0.5,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Optional name of the group whose visits are looked at, exactly as the user said it. Leave empty for all groups.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupIds",
+          "description": "Optional comma-separated group UUIDs; when the user names a group, pass groupName instead.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "breakMinutes",
+          "description": "Length of the break to look for, in minutes. Defaults to 30.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Advise",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "lohnt sich ein container",
+          "passen in eine tour"
+        ],
+        "en": [
+          "worth bundling",
+          "fit one round"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "lohnt es sich diese mobilen dienste zu bündeln",
+          "passen diese einsätze in eine tour",
+          "wäre ein container für die einsätze sinnvoll",
+          "wie viel fahrzeit hätte eine tour durch diese einsätze",
+          "reicht der tag für alle besuche rund um winterthur",
+          "welche einsätze bringe ich am donnerstag in eine runde"
+        ],
+        "en": [
+          "is it worth bundling these mobile services",
+          "do these visits fit one round",
+          "would a container make sense for these visits",
+          "how much travel time would a round through these visits take",
+          "is the day long enough for all visits around winterthur"
+        ],
+        "fr": [
+          "vaut-il la peine de regrouper ces services mobiles",
+          "ces interventions tiennent-elles dans une tournée",
+          "un conteneur serait-il utile pour ces interventions",
+          "combien de temps de trajet pour une tournée de ces visites"
+        ],
+        "it": [
+          "conviene raggruppare questi servizi mobili",
+          "questi interventi stanno in un giro",
+          "un contenitore avrebbe senso per questi interventi",
+          "quanto tempo di viaggio richiede un giro di queste visite"
+        ]
+      },
+      "labels": {
+        "de": "Container-Bündelung beurteilen",
+        "en": "Judge a container bundling",
+        "fr": "Évaluer le regroupement en conteneur",
+        "it": "Valuta il raggruppamento in contenitore"
       },
       "version": 1
     }

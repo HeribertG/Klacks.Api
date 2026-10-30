@@ -16,6 +16,8 @@ namespace Klacks.Api.Infrastructure.Repositories.Email;
 
 public class ReceivedEmailRepository : IReceivedEmailRepository
 {
+    private const string AtSign = "@";
+
     private readonly DataBaseContext _context;
     private readonly ILogger<ReceivedEmailRepository> _logger;
 
@@ -184,5 +186,52 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
             .OrderBy(e => e.ReceivedDate)
             .Take(take)
             .ToListAsync();
+    }
+
+    public async Task<SenderMailCounts> GetSenderMailCountsAsync(
+        string folder, IReadOnlyCollection<string>? excludedFromAddresses, int maxSenders,
+        CancellationToken cancellationToken = default)
+    {
+        var query = BuildFilteredQuery(folder, null, excludedFromAddresses);
+        var totalMailCount = await query.CountAsync(cancellationToken);
+
+        var rows = await query
+            .GroupBy(e => e.FromAddress)
+            .Select(g => new { Address = g.Key, Count = g.Count() })
+            .OrderByDescending(row => row.Count)
+            .ThenBy(row => row.Address)
+            .Take(maxSenders + 1)
+            .ToListAsync(cancellationToken);
+
+        var senders = rows
+            .Take(maxSenders)
+            .Select(row => new SenderMailCount(row.Address, row.Count))
+            .ToList();
+
+        return new SenderMailCounts(senders, totalMailCount, rows.Count > maxSenders);
+    }
+
+    public async Task<List<SenderDomainMailCount>> GetMailCountsBySenderDomainAsync(
+        IReadOnlyCollection<string> folders, IReadOnlyCollection<string> domains,
+        CancellationToken cancellationToken = default)
+    {
+        if (folders.Count == 0 || domains.Count == 0)
+        {
+            return [];
+        }
+
+        var folderList = folders.ToList();
+        var domainList = domains.Select(domain => domain.ToLowerInvariant()).Distinct().ToList();
+
+        var rows = await _context.ReceivedEmails
+            .Where(e => !e.IsDeleted && folderList.Contains(e.Folder) && e.FromAddress.Contains(AtSign))
+            .Select(e => e.FromAddress.ToLower().Substring(e.FromAddress.IndexOf(AtSign) + 1))
+            .Where(domain => domainList.Contains(domain))
+            .GroupBy(domain => domain)
+            .Select(g => new { Domain = g.Key, Count = g.Count() })
+            .OrderBy(row => row.Domain)
+            .ToListAsync(cancellationToken);
+
+        return rows.Select(row => new SenderDomainMailCount(row.Domain, row.Count)).ToList();
     }
 }
