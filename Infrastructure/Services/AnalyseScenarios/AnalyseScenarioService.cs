@@ -78,6 +78,9 @@ public sealed class AnalyseScenarioService : IAnalyseScenarioService
     public Task<IReadOnlySet<Guid>> GetScenarioShiftIdsWithRootsAsync(Guid token, CancellationToken cancellationToken)
         => _rowLookup.GetScenarioShiftIdsWithRootsAsync(token, cancellationToken);
 
+    public Task RemoveScenarioMembershipsAsync(Guid token, Guid clientId, DateOnly date, CancellationToken cancellationToken)
+        => _ownedRowStager.RemoveScenarioMembershipsAsync(token, clientId, date, cancellationToken);
+
     public Task AddScenarioMembershipAsync(Guid token, Guid clientId, Guid groupId, DateOnly validFrom, DateOnly validUntil, CancellationToken cancellationToken)
         => _ownedRowStager.AddScenarioMembershipAsync(token, clientId, groupId, validFrom, validUntil, cancellationToken);
 

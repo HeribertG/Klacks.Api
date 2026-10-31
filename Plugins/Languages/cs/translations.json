@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "Pohotovost",
   "recovery.dialog.conflicts": "Poznámky: {{count}}",
   "recovery.dialog.levelShortfall": "Příliš nízká úroveň",
-  "recovery.dialog.alternativeOutcomeHint": "Pouze zaznamená pokus o kontakt – návrh ve scénáři zůstane beze změny.",
+  "recovery.dialog.alternativeOutcomeHint": "Zaznamená odpověď. „Přijato“ učiní tuto osobu náhradou za tuto směnu ve scénáři. Nikdo není kontaktován automaticky.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Sestavu se nepodařilo vytvořit.",
   "report.quickPrint.noTemplate": "Pro tuto sestavu není nakonfigurována žádná výchozí šablona.",

@@ -114,8 +114,9 @@ public sealed class RecoveryController : ControllerBase
     }
 
     /// <summary>
-    /// Records the candidate's answer (Requested, Accepted, Declined, NotReached) on an existing request row. A
-    /// missing row and a row with a hidden candidate both answer 404.
+    /// Records the candidate's answer (Requested, Accepted, Declined, NotReached) on an existing request row;
+    /// Accepted makes the candidate the slot's replacement in the row's scenario. A missing row and a row with a hidden
+    /// candidate both answer 404, a candidate who can no longer take the slot 409.
     /// </summary>
     /// <param name="id">Row id</param>
     /// <param name="request">The answer</param>
@@ -125,14 +126,15 @@ public sealed class RecoveryController : ControllerBase
         [FromBody] SetReplacementOutcomeRequest request,
         CancellationToken ct)
     {
-        var row = await _mediator.Send(new SetReplacementRequestOutcomeCommand(id, request.Outcome), ct);
+        var row = await _mediator.Send(new SetReplacementRequestOutcomeCommand(id, request.Outcome, request.OverrideBlock), ct);
 
         return Ok(row);
     }
 
     /// <summary>
     /// Records a contact attempt with an alternative candidate for one slot (upsert on scenario token, candidate,
-    /// shift and date). Only the fact is stored; the proposal in the scenario stays unchanged.
+    /// shift and date). Accepted makes the candidate the slot's replacement in the scenario (409 when they can no longer
+    /// take the slot); every other answer only stores the fact. Nobody is contacted by this call.
     /// </summary>
     /// <param name="request">Slot, candidate, context and the answer</param>
     [HttpPost("Requests")]

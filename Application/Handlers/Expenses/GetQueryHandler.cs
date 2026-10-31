@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Reads a single expense entry by id. An expense whose parent Work is owned by a client outside the
-/// caller's group visibility is answered exactly like an expense that does not exist.
+/// Reads a single expense entry by id in whatever scope it is stored: the scope comes from the stored row and its parent
+/// Work, because the edit dialog of a scenario addresses the row by id only. An expense whose parent Work owner or
+/// scenario is hidden from the caller is answered exactly like an expense that does not exist.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may see the owning client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the scenario of the expense</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
@@ -17,18 +18,18 @@ namespace Klacks.Api.Application.Handlers.Expenses;
 public class GetQueryHandler : BaseHandler, IRequestHandler<GetQuery<ExpensesResource>, ExpensesResource>
 {
     private readonly IExpensesRepository _expensesRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
 
     public GetQueryHandler(
         IExpensesRepository expensesRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         ILogger<GetQueryHandler> logger)
         : base(logger)
     {
         _expensesRepository = expensesRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
     }
 
@@ -36,11 +37,13 @@ public class GetQueryHandler : BaseHandler, IRequestHandler<GetQuery<ExpensesRes
     {
         return await ExecuteAsync(async () =>
         {
-            var expenses = await _expensesRepository.Get(request.Id);
+            var expenses = await _expensesRepository.GetWithWorkInAnyScope(request.Id);
 
             if (expenses == null
-                || (expenses.Work != null
-                    && !await _clientVisibilityGuard.IsVisibleAsync(expenses.Work.ClientId, cancellationToken)))
+                || !await _rowAccessGuard.AreAllVisibleAsync(
+                    expenses.Work == null ? [] : [expenses.Work.ClientId],
+                    expenses.Work?.AnalyseToken ?? expenses.AnalyseToken,
+                    cancellationToken))
             {
                 throw new KeyNotFoundException($"Expenses with ID {request.Id} not found");
             }

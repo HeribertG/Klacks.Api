@@ -1,15 +1,17 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Reads a single WorkChange by id. A change whose parent Work is owned by a client outside the caller's
-/// group visibility is answered exactly like a change that does not exist.
+/// Reads a single WorkChange by id in whatever scope it is stored: the scope comes from the stored row and its parent
+/// Work, because the edit dialogs of a scenario address the row by id only. A change whose parent Work owner, replacement
+/// client or scenario is hidden from the caller is answered exactly like a change that does not exist.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may see the owning client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the touched clients and the scenario of the change</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.WorkChanges;
@@ -17,18 +19,18 @@ namespace Klacks.Api.Application.Handlers.WorkChanges;
 public class GetQueryHandler : BaseHandler, IRequestHandler<GetQuery<WorkChangeResource>, WorkChangeResource>
 {
     private readonly IWorkChangeRepository _workChangeRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
 
     public GetQueryHandler(
         IWorkChangeRepository workChangeRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         ILogger<GetQueryHandler> logger)
         : base(logger)
     {
         _workChangeRepository = workChangeRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
     }
 
@@ -36,11 +38,13 @@ public class GetQueryHandler : BaseHandler, IRequestHandler<GetQuery<WorkChangeR
     {
         return await ExecuteAsync(async () =>
         {
-            var workChange = await _workChangeRepository.Get(request.Id);
+            var workChange = await _workChangeRepository.GetWithWorkInAnyScope(request.Id);
 
             if (workChange == null
-                || (workChange.Work != null
-                    && !await _clientVisibilityGuard.IsVisibleAsync(workChange.Work.ClientId, cancellationToken)))
+                || !await _rowAccessGuard.AreAllVisibleAsync(
+                    WorkChangeTouchedClients.Of(workChange.Work, workChange.ReplaceClientId),
+                    workChange.Work?.AnalyseToken ?? workChange.AnalyseToken,
+                    cancellationToken))
             {
                 throw new KeyNotFoundException($"WorkChange with ID {request.Id} not found");
             }

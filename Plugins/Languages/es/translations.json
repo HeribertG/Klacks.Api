@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "De guardia",
   "recovery.dialog.conflicts": "{{count}} nota(s)",
   "recovery.dialog.levelShortfall": "Nivel demasiado bajo",
-  "recovery.dialog.alternativeOutcomeHint": "Solo registra el intento de contacto – la propuesta del escenario permanece sin cambios.",
+  "recovery.dialog.alternativeOutcomeHint": "Registra la respuesta. «Aceptado» convierte a esta persona en el sustituto de este turno en el escenario. No se contacta a nadie automáticamente.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "No se pudo generar el informe",
   "report.quickPrint.noTemplate": "No hay ninguna plantilla predeterminada configurada para este informe",

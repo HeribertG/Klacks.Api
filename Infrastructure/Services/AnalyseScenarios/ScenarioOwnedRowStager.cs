@@ -39,6 +39,21 @@ public sealed class ScenarioOwnedRowStager
         await _context.Set<GroupItem>().AddAsync(membership, cancellationToken);
     }
 
+    public async Task RemoveScenarioMembershipsAsync(
+        Guid token, Guid clientId, DateOnly date, CancellationToken cancellationToken)
+    {
+        var day = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var memberships = await _context.Set<GroupItem>()
+            .Where(gi => gi.AnalyseToken == token
+                && gi.ClientId == clientId
+                && gi.ShiftId == null
+                && gi.ValidFrom <= day
+                && gi.ValidUntil >= day)
+            .ToListAsync(cancellationToken);
+
+        _context.Set<GroupItem>().RemoveRange(memberships);
+    }
+
     public async Task SoftDeleteScenarioPlanningConstraintsAsync(Guid token, DateTime nowUtc, CancellationToken ct)
     {
         var constraints = await _context.PlanningConstraint

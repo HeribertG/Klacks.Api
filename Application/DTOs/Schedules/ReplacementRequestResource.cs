@@ -23,6 +23,7 @@
 /// <param name="WorkChangeId">Informative id of the replacement WorkChange</param>
 /// <param name="AppliedAtUtc">Instant the replacement reached the real plan</param>
 /// <param name="IsShortNotice">True when the report came less than REPLACEMENT_SHORT_NOTICE_HOURS before the slot</param>
+/// <param name="IsScenarioReplacement">True when this recorded acceptance leaves the candidate as the slot's replacement in the scenario; false on list reads</param>
 
 using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Enums;
@@ -48,4 +49,5 @@ public sealed record ReplacementRequestResource(
     Guid? AnalyseToken,
     Guid? WorkChangeId,
     DateTime? AppliedAtUtc,
-    bool IsShortNotice);
+    bool IsShortNotice,
+    bool IsScenarioReplacement = false);

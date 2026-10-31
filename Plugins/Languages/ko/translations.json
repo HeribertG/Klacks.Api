@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "대기 근무",
   "recovery.dialog.conflicts": "참고 사항 {{count}}건",
   "recovery.dialog.levelShortfall": "단계 부족",
-  "recovery.dialog.alternativeOutcomeHint": "연락 시도만 기록합니다. 시나리오의 제안은 변경되지 않습니다.",
+  "recovery.dialog.alternativeOutcomeHint": "답변을 기록합니다. \"수락\"을(를) 선택하면 이 사람이 시나리오에서 이 근무의 대체자가 됩니다. 자동으로 연락되지 않습니다.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "보고서 생성에 실패했습니다.",
   "report.quickPrint.noTemplate": "이 보고서에 대해 구성된 기본 템플릿이 없습니다.",

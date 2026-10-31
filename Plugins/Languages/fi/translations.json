@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "Varallaolo",
   "recovery.dialog.conflicts": "Huomautuksia: {{count}}",
   "recovery.dialog.levelShortfall": "Taso liian alhainen",
-  "recovery.dialog.alternativeOutcomeHint": "Kirjaa vain yhteydenottoyrityksen – skenaarion ehdotus pysyy ennallaan.",
+  "recovery.dialog.alternativeOutcomeHint": "Kirjaa vastauksen. \"Suostui\" tekee tästä henkilöstä tämän vuoron sijaisen skenaariossa. Ketään ei oteta yhteyttä automaattisesti.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Raporttia ei voitu luoda",
   "report.quickPrint.noTemplate": "Tälle raportille ei ole määritetty oletuspohjaa",

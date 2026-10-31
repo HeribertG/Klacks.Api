@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "Rådighedsvagt",
   "recovery.dialog.conflicts": "{{count}} bemærkning(er)",
   "recovery.dialog.levelShortfall": "Niveau for lavt",
-  "recovery.dialog.alternativeOutcomeHint": "Registrerer kun kontaktforsøget – forslaget i scenariet forbliver uændret.",
+  "recovery.dialog.alternativeOutcomeHint": "Registrerer svaret. \"Takket ja\" gør denne person til afløser for denne vagt i scenariet. Ingen kontaktes automatisk.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Rapporten kunne ikke oprettes",
   "report.quickPrint.noTemplate": "Ingen standardskabelon konfigureret for denne rapport",

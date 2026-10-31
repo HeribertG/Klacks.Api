@@ -7,7 +7,8 @@ namespace Klacks.Api.Application.Commands.Schedules;
 
 /// <summary>
 /// Records a contact attempt with an alternative candidate for one slot (upsert on scenario token, candidate,
-/// shift and date). Only the fact is stored; the proposal in the scenario is not changed.
+/// shift and date). Accepted makes the candidate the slot's replacement in the scenario; every other answer only stores
+/// the fact.
 /// </summary>
 /// <param name="Request">Slot, candidate, context and the recorded answer</param>
 public record RecordReplacementContactCommand(RecordReplacementContactRequest Request)

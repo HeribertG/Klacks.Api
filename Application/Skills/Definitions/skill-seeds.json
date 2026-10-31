@@ -19816,7 +19816,7 @@
     {
       "name": "cover_absence",
       "area": "absence",
-      "description": "Reactive disruption flow: an employee falls out on a day or a period — record the absence and propose rule-compliant cover, all as ONE isolated scenario for approval. Use when someone calls in sick or drops out and their shifts need covering. Needs the Absence type id (absenceId). Optional overrideBlock (supervisor emergency use) materialises a slot blocked only by a Block-mode compliance escalation instead of leaving it uncovered.",
+      "description": "Reactive disruption flow: an employee falls out on a day or a period — record the absence and propose rule-compliant cover, all as ONE isolated scenario for approval. Use when someone calls in sick or drops out and their shifts need covering. Needs the Absence type (absenceId: its id or its exact name). Optional overrideBlock (supervisor emergency use) materialises a slot blocked only by a Block-mode compliance escalation instead of leaving it uncovered.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19849,7 +19849,7 @@
         },
         {
           "name": "absenceId",
-          "description": "UUID of the Absence type (sick/vacation/...)",
+          "description": "UUID or name of the Absence type (sick/vacation/...)",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -19923,7 +19923,7 @@
         "fr": "Enregistrer une absence imprévue et proposer un remplacement",
         "it": "Registra un'assenza improvvisa e proponi una copertura"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "evaluate_scenario",

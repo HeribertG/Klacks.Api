@@ -14,12 +14,13 @@
 /// <param name="clientId">Required. UUID of the employee who is absent.</param>
 /// <param name="date">Required. First (or only) day of the absence in ISO yyyy-MM-dd.</param>
 /// <param name="groupId">Required. UUID of the group / planning blade.</param>
-/// <param name="absenceId">Required. UUID of the Absence type (sick/vacation/...).</param>
+/// <param name="absenceId">Required. UUID or name of the Absence type (sick/vacation/...); an unknown or ambiguous name answers with the real types instead of guessing.</param>
 /// <param name="untilDate">Optional. Last day of a multi-day absence in ISO yyyy-MM-dd; omit for one day.</param>
 /// <param name="overrideBlock">Optional. K1 supervisor override for a Block-mode compliance escalation (e.g. an emergency); default false.</param>
 /// <param name="notifyEscalationRoster">Optional. Start the planner call list for the affected days; default true (unattended callers need a human).</param>
 
 using Klacks.Api.Application.Commands.Schedules;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -33,10 +34,12 @@ namespace Klacks.Api.Application.Skills;
 public class CoverAbsenceSkill : BaseSkillImplementation
 {
     private readonly IMediator _mediator;
+    private readonly IAbsenceRepository _absenceRepository;
 
-    public CoverAbsenceSkill(IMediator mediator)
+    public CoverAbsenceSkill(IMediator mediator, IAbsenceRepository absenceRepository)
     {
         _mediator = mediator;
+        _absenceRepository = absenceRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -46,7 +49,17 @@ public class CoverAbsenceSkill : BaseSkillImplementation
     {
         var clientId = GetRequiredGuid(parameters, "clientId");
         var groupId = GetRequiredGuid(parameters, "groupId");
-        var absenceId = GetRequiredGuid(parameters, "absenceId");
+        var absenceInput = GetRequiredString(parameters, "absenceId");
+        var isAbsenceUuid = Guid.TryParse(absenceInput, out _);
+        var (absence, absenceError) = await AbsenceTypeResolver.ResolveAsync(
+            isAbsenceUuid ? absenceInput : null,
+            isAbsenceUuid ? null : absenceInput,
+            _absenceRepository);
+        if (absence is null)
+        {
+            return SkillResult.Error(absenceError!);
+        }
+
         var date = GetParameter<DateOnly?>(parameters, "date")
             ?? throw new ArgumentException("Required parameter 'date' is missing");
         var untilDate = GetParameter<DateOnly?>(parameters, "untilDate");
@@ -57,7 +70,7 @@ public class CoverAbsenceSkill : BaseSkillImplementation
 
         var outcome = await _mediator.Send(
             new CoverAbsenceCommand(
-                clientId, date, groupId, absenceId, untilDate, overrideBlock, context.UserLanguage, notifyEscalationRoster,
+                clientId, date, groupId, absence.Id, untilDate, overrideBlock, context.UserLanguage, notifyEscalationRoster,
                 reportedAtUtc, source),
             cancellationToken);
 

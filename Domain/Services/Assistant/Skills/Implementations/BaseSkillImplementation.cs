@@ -45,7 +45,13 @@ public abstract class BaseSkillImplementation : ISkillImplementation
             throw new ArgumentException($"Required parameter '{name}' is missing");
         }
 
-        return Guid.Parse(value);
+        if (!Guid.TryParse(value, out var id))
+        {
+            throw new InvalidRequestException(
+                $"Parameter '{name}' must be a UUID, got '{value}'. Look the id up first; do not pass a name.");
+        }
+
+        return id;
     }
 
     protected static string GenerateAbbreviation(string name) => SkillWriteSupport.GenerateAbbreviation(name);

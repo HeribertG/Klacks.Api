@@ -81,6 +81,12 @@ public interface IAnalyseScenarioService
     Task AddScenarioMembershipAsync(Guid token, Guid clientId, Guid groupId, DateOnly validFrom, DateOnly validUntil, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Soft-deletes (staged) the temporary memberships of a client under the scenario token whose window contains the
+    /// date: the client no longer stands in on that day, so promoting them would leave a foreign membership behind.
+    /// </summary>
+    Task RemoveScenarioMembershipsAsync(Guid token, Guid clientId, DateOnly date, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Soft-deletes the real-side schedule rows (works, work_changes, expenses,
     /// breaks, schedule_notes) in the date range so the scenario clones can
     /// be promoted into place. When <paramref name="groupId"/> is <c>null</c>

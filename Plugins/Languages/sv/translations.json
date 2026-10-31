@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "Beredskap",
   "recovery.dialog.conflicts": "{{count}} anmärkning(ar)",
   "recovery.dialog.levelShortfall": "För låg nivå",
-  "recovery.dialog.alternativeOutcomeHint": "Registrerar bara kontaktförsöket – förslaget i scenariot förblir oförändrat.",
+  "recovery.dialog.alternativeOutcomeHint": "Registrerar svaret. \"Tackade ja\" gör den här personen till ersättare för passet i scenariot. Ingen kontaktas automatiskt.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Rapporten kunde inte skapas.",
   "report.quickPrint.noTemplate": "Ingen standardmall konfigurerad för denna rapport",

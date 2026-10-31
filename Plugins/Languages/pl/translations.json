@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "Dyżur",
   "recovery.dialog.conflicts": "Uwagi: {{count}}",
   "recovery.dialog.levelShortfall": "Zbyt niski poziom",
-  "recovery.dialog.alternativeOutcomeHint": "Rejestruje tylko próbę kontaktu – propozycja w scenariuszu pozostaje bez zmian.",
+  "recovery.dialog.alternativeOutcomeHint": "Zapisuje odpowiedź. „Zgoda” czyni tę osobę zastępstwem na tę zmianę w scenariuszu. Nikt nie jest kontaktowany automatycznie.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Nie udało się wygenerować raportu.",
   "report.quickPrint.noTemplate": "Nie skonfigurowano domyślnego szablonu dla tego raportu.",

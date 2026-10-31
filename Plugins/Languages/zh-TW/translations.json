@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "值班",
   "recovery.dialog.conflicts": "{{count}} 則提示",
   "recovery.dialog.levelShortfall": "等級過低",
-  "recovery.dialog.alternativeOutcomeHint": "僅記錄聯絡嘗試——情境中的建議保持不變。",
+  "recovery.dialog.alternativeOutcomeHint": "記錄答覆。「同意」會使此人成為方案中該班次的替代人員。不會自動聯絡任何人。",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "無法產生報表。",
   "report.quickPrint.noTemplate": "此報表尚未設定預設模板。",

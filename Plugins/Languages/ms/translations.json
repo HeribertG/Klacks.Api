@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "Siap sedia",
   "recovery.dialog.conflicts": "{{count}} nota",
   "recovery.dialog.levelShortfall": "Tahap terlalu rendah",
-  "recovery.dialog.alternativeOutcomeHint": "Hanya merekodkan percubaan menghubungi – cadangan dalam senario kekal tidak berubah.",
+  "recovery.dialog.alternativeOutcomeHint": "Merekodkan jawapan. \"Bersetuju\" menjadikan orang ini pengganti bagi syif ini dalam senario. Tiada sesiapa dihubungi secara automatik.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Laporan gagal dijana.",
   "report.quickPrint.noTemplate": "Tiada templat lalai dikonfigurasikan untuk laporan ini.",

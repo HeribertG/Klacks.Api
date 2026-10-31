@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "Bereikbaarheidsdienst",
   "recovery.dialog.conflicts": "{{count}} opmerking(en)",
   "recovery.dialog.levelShortfall": "Niveau te laag",
-  "recovery.dialog.alternativeOutcomeHint": "Legt alleen de contactpoging vast – het voorstel in het scenario blijft ongewijzigd.",
+  "recovery.dialog.alternativeOutcomeHint": "Legt het antwoord vast. \"Toegezegd\" maakt deze persoon de vervanger voor deze dienst in het scenario. Niemand wordt automatisch benaderd.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Rapport genereren mislukt.",
   "report.quickPrint.noTemplate": "Geen standaardsjabloon geconfigureerd voor dit rapport.",

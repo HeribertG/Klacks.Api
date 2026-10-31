@@ -5,6 +5,7 @@
 /// </summary>
 /// <param name="row">Stored row</param>
 /// <param name="shortNoticeHours">REPLACEMENT_SHORT_NOTICE_HOURS</param>
+/// <param name="isScenarioReplacement">True when the recorded acceptance leaves the candidate as the slot's replacement in the scenario</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -14,7 +15,7 @@ namespace Klacks.Api.Application.Mappers;
 
 public static class ReplacementRequestResourceMapper
 {
-    public static ReplacementRequestResource ToResource(ReplacementRequest row, int shortNoticeHours)
+    public static ReplacementRequestResource ToResource(ReplacementRequest row, int shortNoticeHours, bool isScenarioReplacement = false)
         => new(
             row.Id,
             row.AbsentClientId,
@@ -34,5 +35,6 @@ public static class ReplacementRequestResourceMapper
             row.AnalyseToken,
             row.WorkChangeId,
             row.AppliedAtUtc,
-            ReplacementShortNoticePolicy.IsShortNotice(row.ReportedAtUtc, row.ShiftStartUtc, shortNoticeHours));
+            ReplacementShortNoticePolicy.IsShortNotice(row.ReportedAtUtc, row.ShiftStartUtc, shortNoticeHours),
+            isScenarioReplacement);
 }

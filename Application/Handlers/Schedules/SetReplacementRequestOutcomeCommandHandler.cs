@@ -3,9 +3,12 @@
 /// <summary>
 /// Handler for <see cref="SetReplacementRequestOutcomeCommand"/>: records who answered how and when on an
 /// existing replacement request row. Open to every authenticated user (owner decision 2026-10-07), but group
-/// visibility is a security boundary on BOTH people of the row: a missing row and a row whose candidate or
-/// absent employee the caller may not see are answered with the same not found, never with forbidden. A row
-/// whose replacement already reached the real plan (AppliedAtUtc set) is a closed fact and refuses a new answer.
+/// visibility is a security boundary on BOTH people of the row and on its scenario: a missing row and a row whose
+/// candidate, absent employee or scenario the caller may not see are answered with the same not found, never with
+/// forbidden. A row whose replacement already reached the real plan (AppliedAtUtc set) is a closed fact and refuses a
+/// new answer.
+/// The answer and the switch of the scenario's replacement (<see cref="IScenarioReplacementSwitcher"/>) commit in one
+/// transaction, so a refused switch records no answer.
 /// </summary>
 /// <param name="repository">Stage-only request book repository</param>
 /// <param name="clientVisibilityGuard">Decides whether the caller may see both employees</param>
@@ -13,16 +16,20 @@
 /// <param name="settingsReader">Short-notice threshold for the returned resource</param>
 /// <param name="timeProvider">Answer instant</param>
 /// <param name="httpContextAccessor">User the answer is recorded under</param>
+/// <param name="replacementSwitcher">Makes an accepting candidate the replacement in the row's scenario</param>
+/// <param name="scenarioTokenAccessGuard">Decides whether the caller may see the row's scenario</param>
 
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Services.Schedules.Recovery;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Http;
 
@@ -41,6 +48,8 @@ public sealed class SetReplacementRequestOutcomeCommandHandler
     private readonly ISettingsReader _settingsReader;
     private readonly TimeProvider _timeProvider;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScenarioReplacementSwitcher _replacementSwitcher;
+    private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
 
     public SetReplacementRequestOutcomeCommandHandler(
         IReplacementRequestRepository repository,
@@ -48,7 +57,9 @@ public sealed class SetReplacementRequestOutcomeCommandHandler
         IUnitOfWork unitOfWork,
         ISettingsReader settingsReader,
         TimeProvider timeProvider,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IScenarioReplacementSwitcher replacementSwitcher,
+        IScenarioTokenAccessGuard scenarioTokenAccessGuard)
     {
         _repository = repository;
         _clientVisibilityGuard = clientVisibilityGuard;
@@ -56,6 +67,8 @@ public sealed class SetReplacementRequestOutcomeCommandHandler
         _settingsReader = settingsReader;
         _timeProvider = timeProvider;
         _httpContextAccessor = httpContextAccessor;
+        _replacementSwitcher = replacementSwitcher;
+        _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
     }
 
     public async Task<ReplacementRequestResource> Handle(
@@ -66,8 +79,20 @@ public sealed class SetReplacementRequestOutcomeCommandHandler
             throw new InvalidRequestException(string.Format(NotAnAnswerMessage, request.Outcome));
         }
 
+        var written = await _unitOfWork.ExecuteInTransactionAsync(() => WriteAnswerAsync(request, cancellationToken));
+
+        var shortNoticeHours = await ReplacementRequestSettingsReader.ReadShortNoticeHoursAsync(_settingsReader);
+        return ReplacementRequestResourceMapper.ToResource(written.Row, shortNoticeHours, written.IsScenarioReplacement);
+    }
+
+    private async Task<(ReplacementRequest Row, bool IsScenarioReplacement)> WriteAnswerAsync(
+        SetReplacementRequestOutcomeCommand request, CancellationToken cancellationToken)
+    {
+        _unitOfWork.DiscardTrackedChanges();
+
         var row = await _repository.Get(request.Id);
         if (row is null || row.IsDeleted
+            || !await _scenarioTokenAccessGuard.IsVisibleAsync(row.AnalyseToken, cancellationToken)
             || !await _clientVisibilityGuard.AreAllVisibleAsync(
                 [row.CandidateClientId, row.AbsentClientId], cancellationToken))
         {
@@ -84,7 +109,7 @@ public sealed class SetReplacementRequestOutcomeCommandHandler
         row.OutcomeByUserId = ReplacementRequestActor.CurrentUserId(_httpContextAccessor);
         await _unitOfWork.CompleteAsync();
 
-        var shortNoticeHours = await ReplacementRequestSettingsReader.ReadShortNoticeHoursAsync(_settingsReader);
-        return ReplacementRequestResourceMapper.ToResource(row, shortNoticeHours);
+        var isScenarioReplacement = await _replacementSwitcher.ApplyAcceptedAsync(row, request.OverrideBlock, cancellationToken);
+        return (row, isScenarioReplacement);
     }
 }

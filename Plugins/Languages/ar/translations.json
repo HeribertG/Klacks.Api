@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "في المناوبة",
   "recovery.dialog.conflicts": "ملاحظات: {{count}}",
   "recovery.dialog.levelShortfall": "المستوى منخفض جدًا",
-  "recovery.dialog.alternativeOutcomeHint": "يسجّل محاولة الاتصال فقط – يبقى الاقتراح في السيناريو دون تغيير.",
+  "recovery.dialog.alternativeOutcomeHint": "يسجّل الإجابة. «وافق» يجعل هذا الشخص البديل لهذه المناوبة في السيناريو. لا يتم التواصل مع أي شخص تلقائيًا.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "تعذّر إنشاء التقرير.",
   "report.quickPrint.noTemplate": "لم يتم تكوين قالب افتراضي لهذا التقرير",

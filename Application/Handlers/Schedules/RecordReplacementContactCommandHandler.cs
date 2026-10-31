@@ -7,8 +7,9 @@
 /// PlannerDialog row whose report time is the one already recorded for this absence in the scenario (else now),
 /// an existing row only gets the new answer - unless it belongs to another absent employee, which is answered
 /// like a missing employee. When a parallel request inserted the same natural key first, the unique index
-/// refuses the insert and the handler re-reads the winner and records the answer on it. It never touches the
-/// proposal or the scenario's WorkChanges (swapping the replacement is a separate step).
+/// refuses the insert and the handler re-reads the winner and records the answer on it. The answer and the switch of
+/// the scenario's replacement (<see cref="IScenarioReplacementSwitcher"/>) commit in one transaction, so a refused
+/// switch records no answer.
 /// </summary>
 /// <param name="repository">Stage-only request book repository</param>
 /// <param name="validator">Existence, visibility and plausibility of the request</param>
@@ -17,6 +18,7 @@
 /// <param name="companyClock">Company time zone for the slot start</param>
 /// <param name="timeProvider">Answer instant</param>
 /// <param name="httpContextAccessor">User the answer is recorded under</param>
+/// <param name="replacementSwitcher">Makes an accepting candidate the replacement in the scenario</param>
 
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -50,6 +52,7 @@ public sealed class RecordReplacementContactCommandHandler
     private readonly ICompanyClock _companyClock;
     private readonly TimeProvider _timeProvider;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IScenarioReplacementSwitcher _replacementSwitcher;
 
     public RecordReplacementContactCommandHandler(
         IReplacementRequestRepository repository,
@@ -58,7 +61,8 @@ public sealed class RecordReplacementContactCommandHandler
         ISettingsReader settingsReader,
         ICompanyClock companyClock,
         TimeProvider timeProvider,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IScenarioReplacementSwitcher replacementSwitcher)
     {
         _repository = repository;
         _validator = validator;
@@ -67,6 +71,7 @@ public sealed class RecordReplacementContactCommandHandler
         _companyClock = companyClock;
         _timeProvider = timeProvider;
         _httpContextAccessor = httpContextAccessor;
+        _replacementSwitcher = replacementSwitcher;
     }
 
     public async Task<ReplacementRequestResource> Handle(
@@ -81,6 +86,25 @@ public sealed class RecordReplacementContactCommandHandler
         await _validator.ValidateAsync(request, cancellationToken);
 
         var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
+        (ReplacementRequest Row, bool IsScenarioReplacement) written;
+        try
+        {
+            written = await _unitOfWork.ExecuteInTransactionAsync(() => WriteAnswerAsync(request, nowUtc, cancellationToken));
+        }
+        catch (DatabaseUpdateException ex) when (ex.IsDuplicate)
+        {
+            written = await _unitOfWork.ExecuteInTransactionAsync(() => WriteAnswerAsync(request, nowUtc, cancellationToken));
+        }
+
+        var shortNoticeHours = await ReplacementRequestSettingsReader.ReadShortNoticeHoursAsync(_settingsReader);
+        return ReplacementRequestResourceMapper.ToResource(written.Row, shortNoticeHours, written.IsScenarioReplacement);
+    }
+
+    private async Task<(ReplacementRequest Row, bool IsScenarioReplacement)> WriteAnswerAsync(
+        RecordReplacementContactRequest request, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        _unitOfWork.DiscardTrackedChanges();
+
         var row = await FindOwnedRowAsync(request, cancellationToken);
         if (row?.AppliedAtUtc is not null)
         {
@@ -94,25 +118,10 @@ public sealed class RecordReplacementContactCommandHandler
         }
 
         Answer(row, request.Outcome, nowUtc);
-        try
-        {
-            await _unitOfWork.CompleteAsync();
-        }
-        catch (DatabaseUpdateException ex) when (ex.IsDuplicate)
-        {
-            _repository.Detach(row);
-            row = await FindOwnedRowAsync(request, cancellationToken);
-            if (row is null)
-            {
-                throw;
-            }
+        await _unitOfWork.CompleteAsync();
 
-            Answer(row, request.Outcome, nowUtc);
-            await _unitOfWork.CompleteAsync();
-        }
-
-        var shortNoticeHours = await ReplacementRequestSettingsReader.ReadShortNoticeHoursAsync(_settingsReader);
-        return ReplacementRequestResourceMapper.ToResource(row, shortNoticeHours);
+        var isScenarioReplacement = await _replacementSwitcher.ApplyAcceptedAsync(row, request.OverrideBlock, cancellationToken);
+        return (row, isScenarioReplacement);
     }
 
     private async Task<ReplacementRequest?> FindOwnedRowAsync(

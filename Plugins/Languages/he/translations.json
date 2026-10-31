@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "בכוננות",
   "recovery.dialog.conflicts": "הערות: {{count}}",
   "recovery.dialog.levelShortfall": "רמה נמוכה מדי",
-  "recovery.dialog.alternativeOutcomeHint": "מתעד רק את ניסיון הפנייה – ההצעה בתרחיש נשארת ללא שינוי.",
+  "recovery.dialog.alternativeOutcomeHint": "מתעד את התשובה. \"הסכים\" הופך את האדם הזה למחליף במשמרת זו בתרחיש. לא נוצר קשר עם אף אחד באופן אוטומטי.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "לא ניתן היה ליצור את הדוח",
   "report.quickPrint.noTemplate": "לא הוגדרה תבנית ברירת מחדל לדוח זה",

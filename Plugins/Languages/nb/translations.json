@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "Beredskap",
   "recovery.dialog.conflicts": "{{count}} merknad(er)",
   "recovery.dialog.levelShortfall": "For lavt nivå",
-  "recovery.dialog.alternativeOutcomeHint": "Registrerer bare kontaktforsøket – forslaget i scenarioet forblir uendret.",
+  "recovery.dialog.alternativeOutcomeHint": "Registrerer svaret. \"Takket ja\" gjør denne personen til vikar for denne vakten i scenarioet. Ingen kontaktes automatisk.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Rapportgenerering feilet.",
   "report.quickPrint.noTemplate": "Ingen standardmal konfigurert for denne rapporten.",

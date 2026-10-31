@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "Σε εφημερία",
   "recovery.dialog.conflicts": "Σημειώσεις: {{count}}",
   "recovery.dialog.levelShortfall": "Πολύ χαμηλό επίπεδο",
-  "recovery.dialog.alternativeOutcomeHint": "Καταγράφει μόνο την απόπειρα επικοινωνίας – η πρόταση στο σενάριο παραμένει αμετάβλητη.",
+  "recovery.dialog.alternativeOutcomeHint": "Καταγράφει την απάντηση. Το «Αποδέχθηκε» ορίζει αυτό το άτομο ως αντικαταστάτη για αυτή τη βάρδια στο σενάριο. Κανείς δεν ειδοποιείται αυτόματα.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Δεν ήταν δυνατή η δημιουργία της αναφοράς",
   "report.quickPrint.noTemplate": "Δεν έχει οριστεί προεπιλεγμένο πρότυπο για αυτή την αναφορά",

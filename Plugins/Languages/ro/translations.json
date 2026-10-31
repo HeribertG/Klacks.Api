@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "De gardă",
   "recovery.dialog.conflicts": "Note: {{count}}",
   "recovery.dialog.levelShortfall": "Nivel prea scăzut",
-  "recovery.dialog.alternativeOutcomeHint": "Înregistrează doar încercarea de contact – propunerea din scenariu rămâne neschimbată.",
+  "recovery.dialog.alternativeOutcomeHint": "Înregistrează răspunsul. „Acceptat” face din această persoană înlocuitorul pentru această tură în scenariu. Nimeni nu este contactat automat.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Raportul nu a putut fi generat.",
   "report.quickPrint.noTemplate": "Niciun șablon standard configurat pentru acest raport",

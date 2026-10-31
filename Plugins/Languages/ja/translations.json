@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "待機中",
   "recovery.dialog.conflicts": "注記 {{count}}件",
   "recovery.dialog.levelShortfall": "レベル不足",
-  "recovery.dialog.alternativeOutcomeHint": "連絡の試みを記録するだけです。シナリオ内の提案は変更されません。",
+  "recovery.dialog.alternativeOutcomeHint": "回答を記録します。「承諾」にすると、この人がシナリオ内でこのシフトの代替要員になります。自動的に連絡されることはありません。",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "レポートの作成に失敗しました。",
   "report.quickPrint.noTemplate": "このレポートにはデフォルトテンプレートが設定されていません。",

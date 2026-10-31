@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "Siaga",
   "recovery.dialog.conflicts": "{{count}} catatan",
   "recovery.dialog.levelShortfall": "Tingkat terlalu rendah",
-  "recovery.dialog.alternativeOutcomeHint": "Hanya mencatat upaya kontak – usulan dalam skenario tetap tidak berubah.",
+  "recovery.dialog.alternativeOutcomeHint": "Mencatat jawaban. \"Bersedia\" menjadikan orang ini pengganti untuk sif ini dalam skenario. Tidak ada yang dihubungi secara otomatis.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Laporan gagal dibuat.",
   "report.quickPrint.noTemplate": "Tidak ada template default yang dikonfigurasi untuk laporan ini.",

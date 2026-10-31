@@ -1951,7 +1951,7 @@
   "recovery.dialog.onCall": "Đang trực",
   "recovery.dialog.conflicts": "{{count}} ghi chú",
   "recovery.dialog.levelShortfall": "Cấp độ quá thấp",
-  "recovery.dialog.alternativeOutcomeHint": "Chỉ ghi nhận lần liên hệ – đề xuất trong kịch bản vẫn giữ nguyên.",
+  "recovery.dialog.alternativeOutcomeHint": "Ghi nhận câu trả lời. \"Đồng ý\" đưa người này thành người thay thế cho ca này trong kịch bản. Không ai được liên hệ tự động.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "report.quickPrint.failed": "Không thể tạo báo cáo.",
   "report.quickPrint.noTemplate": "Chưa cấu hình mẫu mặc định cho báo cáo này",
