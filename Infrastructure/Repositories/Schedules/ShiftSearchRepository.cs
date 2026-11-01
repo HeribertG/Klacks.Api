@@ -5,7 +5,8 @@
 /// search_and_navigate skill. Shifts without a client (group-only shifts) are searchable too.
 /// Only OriginalShift/SplitShift are matched — OriginalOrder/SealedOrder are order instances of
 /// a shift, not the shift definition itself, and would otherwise clutter results with ambiguous
-/// duplicates that share the same name/abbreviation as their originating shift.
+/// duplicates that share the same name/abbreviation as their originating shift. Only real rows are matched (no analyse
+/// token, no scenario source) and the caller's group restriction applies, both before the count and the cap.
 /// </summary>
 /// <param name="context">EF Core database context</param>
 using Klacks.Api.Application.Interfaces;
@@ -27,16 +28,22 @@ public class ShiftSearchRepository : IShiftSearchRepository
     }
 
     public async Task<ShiftSearchResult> SearchAsync(
+        IReadOnlyCollection<Guid>? visibleGroupIds,
         string? searchTerm = null,
         int limit = 10,
         CancellationToken cancellationToken = default)
     {
         if (limit > MaxLimit) limit = MaxLimit;
 
-        var query = _context.Shift
-            .Include(s => s.Client)
-            .Where(s => !s.IsDeleted && (s.Status == ShiftStatus.OriginalShift || s.Status == ShiftStatus.SplitShift))
-            .AsNoTracking();
+        var query = ShiftGroupVisibilityQuery.Apply(
+            _context.Shift
+                .Include(s => s.Client)
+                .Where(s => !s.IsDeleted
+                    && s.AnalyseToken == null
+                    && s.ScenarioSourceShiftId == null
+                    && (s.Status == ShiftStatus.OriginalShift || s.Status == ShiftStatus.SplitShift))
+                .AsNoTracking(),
+            visibleGroupIds);
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -56,6 +63,7 @@ public class ShiftSearchRepository : IShiftSearchRepository
 
         var items = await query
             .OrderByDescending(s => s.FromDate)
+            .ThenBy(s => s.Id)
             .Take(limit)
             .Select(s => new ShiftSearchItem
             {

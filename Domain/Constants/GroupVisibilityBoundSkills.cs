@@ -17,6 +17,8 @@
 /// evaluate_container_bundling is listed because its planner-floor gate reaches every signed-in user while it names the
 /// clients of the services the shift visibility guard lets through. evaluate_employee_exit is listed because its planner-floor
 /// gate reaches every signed-in user while it names an employee's bookings and contracts behind the client visibility guard.
+/// search_and_navigate is listed because its shift search filters by the group restriction of the caller, which a missing
+/// user would turn into none at all.
 /// SkillRestParityGateTests also fails when a skill reachable from the planner floor injects a client or shift visibility guard
 /// and is not listed here, which is the reason for the second block of names: their answer or effect passes one of those guards,
 /// and a guard without a user answers as for a background job.
@@ -78,6 +80,7 @@ public static class GroupVisibilityBoundSkills
         "place_work",
         "read_schedule_state",
         "reassign_work",
+        "search_and_navigate",
         "update_break_placeholder"
     };
 

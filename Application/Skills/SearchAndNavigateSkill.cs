@@ -4,11 +4,14 @@
 /// Skill that finds a client, group or shift by name/abbreviation and returns the navigation
 /// route to its editor. Single matches navigate directly (shifts additionally carry the
 /// sealed-order lock-guidance note); ambiguous matches return a candidate list instructing
-/// the model to let the user choose and then call navigate_to with the chosen GUID.
+/// the model to let the user choose and then call navigate_to with the chosen GUID. The shift search follows the caller's
+/// group restriction (a hidden shift reads like an unknown one) and covers the real plan only; this skill is listed in
+/// GroupVisibilityBoundSkills, so a non-admin call without any user is refused before it gets here.
 /// </summary>
 /// <param name="clientSearchRepository">Search repository for clients (name, IdNumber)</param>
 /// <param name="groupSearchRepository">Search repository for groups (name)</param>
 /// <param name="shiftSearchRepository">Search repository for shifts (name, abbreviation, client name)</param>
+/// <param name="shiftGroupFilterService">Resolves the caller's group restriction the shift search applies</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
@@ -17,6 +20,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Guidance;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.ShiftSchedule;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -33,15 +37,18 @@ public class SearchAndNavigateSkill : BaseSkillImplementation
     private readonly IClientSearchRepository _clientSearchRepository;
     private readonly IGroupSearchRepository _groupSearchRepository;
     private readonly IShiftSearchRepository _shiftSearchRepository;
+    private readonly IShiftGroupFilterService _shiftGroupFilterService;
 
     public SearchAndNavigateSkill(
         IClientSearchRepository clientSearchRepository,
         IGroupSearchRepository groupSearchRepository,
-        IShiftSearchRepository shiftSearchRepository)
+        IShiftSearchRepository shiftSearchRepository,
+        IShiftGroupFilterService shiftGroupFilterService)
     {
         _clientSearchRepository = clientSearchRepository;
         _groupSearchRepository = groupSearchRepository;
         _shiftSearchRepository = shiftSearchRepository;
+        _shiftGroupFilterService = shiftGroupFilterService;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -169,6 +176,7 @@ public class SearchAndNavigateSkill : BaseSkillImplementation
         CancellationToken cancellationToken)
     {
         var result = await _shiftSearchRepository.SearchAsync(
+            visibleGroupIds: await _shiftGroupFilterService.ResolveShiftListGroupIdsAsync(null),
             searchTerm: searchQuery,
             limit: PagingDefaults.DefaultSearchResultLimit,
             cancellationToken: cancellationToken);
