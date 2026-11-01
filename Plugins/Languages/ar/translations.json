@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "تغيير",
   "schedule.error-list.collision": "تعارض زمني: {{type1}} {{timeRange1}} و {{type2}} {{timeRange2}} متداخلان",
   "schedule.error-list.on-call-overlap": "استدعاء أثناء المناوبة: العمل {{workTimeRange}} يقع ضمن المناوبة {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "غياب غير مغطى: {{absence}}، المناوبة {{shifts}} ما زالت قائمة دون بديل",
   "schedule.error-list.column.client": "الموظف",
   "schedule.error-list.column.comment": "التعليق",
   "schedule.error-list.column.date": "التاريخ",

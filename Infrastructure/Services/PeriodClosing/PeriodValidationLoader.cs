@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Loads validation findings (rest, overtime, consecutive days, collisions) for a billing
+/// Loads validation findings (rest, overtime, consecutive days, collisions, uncovered absences) for a billing
 /// period by replaying the same timeline computation the SignalR background validator runs.
 /// Used by the period-closing Issues card so the user sees the real problems without
 /// having to subscribe to live notifications.
@@ -103,6 +103,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         var breaks = await LoadBreaksAsync(from, to, clientIdsInGroup, analyseToken, cancellationToken);
         var onCallBreakIds = OnCallAbsenceQuery.OnCallBreakIds(
             breaks, await OnCallAbsenceQuery.LoadIdsAsync(_context, cancellationToken));
+        var uncoveredAbsences = await UncoveredAbsenceLookupLoader.LoadAsync(
+            _context, works, workChanges, breaks, onCallBreakIds, cancellationToken);
 
         var clientNameLookup = BuildClientNameLookup(works, workChanges);
         var scheduleBlocks = _timelineCalculator.CalculateScheduleBlocks(works, workChanges, breaks);
@@ -130,7 +132,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
                 ? found
                 : await _policyResolver.GetForClientAsync(group.Key, from);
 
-            ScheduleValidationBuilder.AddCollisions(entries, timeline, clientName, onCallBreakIds);
+            ScheduleValidationBuilder.AddCollisionsExceptAbsenceOverlaps(entries, timeline, clientName, onCallBreakIds);
+            UncoveredAbsenceEntries.Add(entries, timeline, clientName, uncoveredAbsences);
             ScheduleValidationBuilder.AddRestViolations(entries, timeline, clientName, policy);
             ScheduleValidationBuilder.AddOvertime(entries, timeline, clientName, from, to, policy);
             ScheduleValidationBuilder.AddConsecutiveDays(entries, timeline, clientName, from, to, policy);
@@ -291,6 +294,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
     {
         ScheduleValidationKeys.Collision => "Collision",
         ScheduleValidationKeys.OnCallOverlap => "OnCallOverlap",
+        ScheduleValidationKeys.UncoveredAbsence => "UncoveredAbsence",
         ScheduleValidationKeys.RestViolation => "RestViolation",
         ScheduleValidationKeys.Overtime => "Overtime",
         ScheduleValidationKeys.ConsecutiveDays => "ConsecutiveDays",

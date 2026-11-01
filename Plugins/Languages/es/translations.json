@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Modificación",
   "schedule.error-list.collision": "Colisión de horarios: {{type1}} {{timeRange1}} y {{type2}} {{timeRange2}} se superponen",
   "schedule.error-list.on-call-overlap": "Llamada durante la guardia: el trabajo {{workTimeRange}} cae dentro de la guardia {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Ausencia sin cubrir: {{absence}}, el turno {{shifts}} sigue sin sustitución",
   "schedule.error-list.column.client": "Empleado",
   "schedule.error-list.column.comment": "Comentario",
   "schedule.error-list.column.date": "Fecha",

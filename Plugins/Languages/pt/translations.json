@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Alteração",
   "schedule.error-list.collision": "Colisão de tempo: {{type1}} {{timeRange1}} e {{type2}} {{timeRange2}} sobrepõem-se",
   "schedule.error-list.on-call-overlap": "Chamada durante o sobreaviso: o trabalho {{workTimeRange}} fica dentro do sobreaviso {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Ausência sem cobertura: {{absence}}, o turno {{shifts}} continua sem substituição",
   "schedule.error-list.column.client": "Colaborador",
   "schedule.error-list.column.comment": "Comentário",
   "schedule.error-list.column.date": "Data",

@@ -44,6 +44,44 @@ public static class ReplacementWindow
     }
 
     /// <summary>
+    /// The calendar interval a replacement really occupies. False when it hands nothing over: no hours after
+    /// <see cref="ClampHours"/>, or equal bounds, which <see cref="ToInterval"/> alone would read as a full day.
+    /// </summary>
+    /// <param name="type">Replacement type of the WorkChange</param>
+    /// <param name="workStart">Start time of the work</param>
+    /// <param name="workEnd">End time of the work</param>
+    /// <param name="workDate">Date of the work</param>
+    /// <param name="changeStart">Stored start of the WorkChange (used for ReplacementWithin)</param>
+    /// <param name="changeEnd">Stored end of the WorkChange (used for ReplacementWithin)</param>
+    /// <param name="changeTime">Hours handed to the substitute</param>
+    /// <param name="startAt">Start of the occupied interval</param>
+    /// <param name="endAt">End of the occupied interval</param>
+    public static bool TryGetInterval(
+        WorkChangeType type,
+        TimeOnly workStart,
+        TimeOnly workEnd,
+        DateOnly workDate,
+        TimeOnly changeStart,
+        TimeOnly changeEnd,
+        decimal changeTime,
+        out DateTime startAt,
+        out DateTime endAt)
+    {
+        startAt = default;
+        endAt = default;
+
+        var hours = ClampHours(workStart, workEnd, changeTime);
+        var (start, end) = Compute(type, workStart, workEnd, changeStart, changeEnd, hours);
+        if (hours <= 0m || start == end)
+        {
+            return false;
+        }
+
+        (startAt, endAt) = ToInterval(workDate, workStart, start, end);
+        return true;
+    }
+
+    /// <summary>
     /// Hours handed over, limited to the length of the work: a ChangeTime longer than the work would otherwise wrap
     /// the window past the work's start and block the substitute for more than the shift. Zero or less means the
     /// replacement hands nothing over and is no occupancy at all.

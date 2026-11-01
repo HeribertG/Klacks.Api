@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Perubahan",
   "schedule.error-list.collision": "Perlanggaran masa: {{type1}} {{timeRange1}} dan {{type2}} {{timeRange2}} bertindih",
   "schedule.error-list.on-call-overlap": "Panggilan semasa tugas siap sedia: kerja {{workTimeRange}} berada dalam tugas siap sedia {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Ketidakhadiran tanpa pengganti: {{absence}}, syif {{shifts}} masih kekal",
   "schedule.error-list.column.client": "Pekerja",
   "schedule.error-list.column.comment": "Komen",
   "schedule.error-list.column.date": "Tarikh",

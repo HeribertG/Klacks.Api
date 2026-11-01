@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Zmiana",
   "schedule.error-list.collision": "Kolizja czasowa: {{type1}} {{timeRange1}} i {{type2}} {{timeRange2}} nakładają się",
   "schedule.error-list.on-call-overlap": "Wezwanie podczas dyżuru: praca {{workTimeRange}} przypada w czasie dyżuru {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Niepokryta nieobecność: {{absence}}, zmiana {{shifts}} nadal bez zastępstwa",
   "schedule.error-list.column.client": "Pracownik",
   "schedule.error-list.column.comment": "Komentarz",
   "schedule.error-list.column.date": "Data",

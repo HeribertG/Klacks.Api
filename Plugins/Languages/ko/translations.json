@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "변경",
   "schedule.error-list.collision": "시간 충돌: {{type1}} {{timeRange1}}과 {{type2}} {{timeRange2}}가 겹칩니다",
   "schedule.error-list.on-call-overlap": "대기 중 호출: 근무 {{workTimeRange}}이(가) 대기 {{onCallTimeRange}} 시간에 포함됩니다",
+  "schedule.error-list.uncovered-absence": "대체되지 않은 결근: {{absence}}, 근무 {{shifts}}에 대체자가 없습니다",
   "schedule.error-list.column.client": "직원",
   "schedule.error-list.column.comment": "코멘트",
   "schedule.error-list.column.date": "날짜",

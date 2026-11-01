@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Αλλαγή",
   "schedule.error-list.collision": "Χρονική σύγκρουση: {{type1}} {{timeRange1}} και {{type2}} {{timeRange2}} επικαλύπτονται",
   "schedule.error-list.on-call-overlap": "Κλήση κατά την εφημερία: η εργασία {{workTimeRange}} εμπίπτει στην εφημερία {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Μη καλυμμένη απουσία: {{absence}}, η βάρδια {{shifts}} παραμένει χωρίς αντικατάσταση",
   "schedule.error-list.column.client": "Εργαζόμενος",
   "schedule.error-list.column.comment": "Σχόλιο",
   "schedule.error-list.column.date": "Ημερομηνία",

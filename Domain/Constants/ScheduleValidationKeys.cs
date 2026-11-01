@@ -18,6 +18,7 @@ public static class ScheduleValidationKeys
     public const string Collision = "schedule.error-list.collision";
     public const string DayDirective = "schedule.error-list.day-directive";
     public const string OnCallOverlap = "schedule.error-list.on-call-overlap";
+    public const string UncoveredAbsence = "schedule.error-list.uncovered-absence";
     public const string PeriodCap = "schedule.error-list.period-cap";
     public const string PeriodCapApproaching = "schedule.error-list.period-cap-approaching";
     public const string PeriodCapOvertime = "schedule.error-list.period-cap-overtime";

@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Thay đổi",
   "schedule.error-list.collision": "Trùng thời gian: {{type1}} {{timeRange1}} và {{type2}} {{timeRange2}} chồng chéo",
   "schedule.error-list.on-call-overlap": "Gọi đi làm khi trực: công việc {{workTimeRange}} nằm trong ca trực {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Vắng mặt chưa được thay thế: {{absence}}, ca {{shifts}} vẫn chưa có người thay",
   "schedule.error-list.column.client": "Nhân viên",
   "schedule.error-list.column.comment": "Bình luận",
   "schedule.error-list.column.date": "Ngày",

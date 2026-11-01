@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Endring",
   "schedule.error-list.collision": "Tidskollisjon: {{type1}} {{timeRange1}} og {{type2}} {{timeRange2}} overlapper",
   "schedule.error-list.on-call-overlap": "Utkalling under beredskap: arbeid {{workTimeRange}} faller innenfor beredskapen {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Fravær ikke dekket: {{absence}}, vakt {{shifts}} står fortsatt uten avløser",
   "schedule.error-list.column.client": "Medarbeider",
   "schedule.error-list.column.comment": "Kommentar",
   "schedule.error-list.column.date": "Dato",

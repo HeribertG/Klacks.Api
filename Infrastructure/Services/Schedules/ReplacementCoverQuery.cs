@@ -67,16 +67,16 @@ public static class ReplacementCoverQuery
         var covers = new List<ReplacementCover>(rows.Count);
         foreach (var r in rows)
         {
-            var hours = ReplacementWindow.ClampHours(r.WorkStart, r.WorkEnd, r.ChangeTime);
-            var (start, end) = ReplacementWindow.Compute(r.Type, r.WorkStart, r.WorkEnd, r.ChangeStart, r.ChangeEnd, hours);
-            if (hours <= 0m || start == end)
+            if (!ReplacementWindow.TryGetInterval(
+                    r.Type, r.WorkStart, r.WorkEnd, r.CurrentDate, r.ChangeStart, r.ChangeEnd, r.ChangeTime, out var startAt, out var endAt))
             {
                 continue;
             }
 
-            var (startAt, endAt) = ReplacementWindow.ToInterval(r.CurrentDate, r.WorkStart, start, end);
+            var hours = ReplacementWindow.ClampHours(r.WorkStart, r.WorkEnd, r.ChangeTime);
             covers.Add(new ReplacementCover(
-                r.WorkId, r.ClientId, r.SubstituteId, r.ShiftId, r.CurrentDate, start, end, startAt, endAt, hours));
+                r.WorkId, r.ClientId, r.SubstituteId, r.ShiftId, r.CurrentDate,
+                TimeOnly.FromDateTime(startAt), TimeOnly.FromDateTime(endAt), startAt, endAt, hours));
         }
 
         return covers;

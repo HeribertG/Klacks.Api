@@ -146,6 +146,7 @@ public sealed class ScheduleTimelineSingleCheck
         await AddTravelTimeEntriesAsync(entries, timeline, rows.Works, clientName, date, cancellationToken);
 
         ScheduleValidationBuilder.AddOnCallOverlaps(entries, timeline, clientName, rows.OnCallBreakIds);
+        UncoveredAbsenceEntries.Add(entries, timeline, clientName, await _loader.LoadUncoveredAbsenceLookupAsync(rows, cancellationToken));
         return entries;
     }
 

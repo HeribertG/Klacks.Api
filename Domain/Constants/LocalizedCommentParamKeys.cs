@@ -16,4 +16,8 @@ public static class LocalizedCommentParamKeys
     public const string Holiday = "holiday";
 
     public const string HolidayMultiLanguage = Holiday + MultiLanguageSuffix;
+
+    public const string Absence = "absence";
+
+    public const string AbsenceMultiLanguage = Absence + MultiLanguageSuffix;
 }

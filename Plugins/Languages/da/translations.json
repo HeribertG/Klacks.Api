@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Ændring",
   "schedule.error-list.collision": "Tidskollision: {{type1}} {{timeRange1}} og {{type2}} {{timeRange2}} overlapper",
   "schedule.error-list.on-call-overlap": "Udkald under rådighedsvagt: arbejde {{workTimeRange}} ligger inden for rådighedsvagten {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Fravær ikke dækket: {{absence}}, vagt {{shifts}} står stadig uden afløser",
   "schedule.error-list.column.client": "Medarbejder",
   "schedule.error-list.column.comment": "Kommentar",
   "schedule.error-list.column.date": "Dato",

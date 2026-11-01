@@ -86,6 +86,10 @@ public sealed class ScheduleTimelineCheckLoader
     public Task<HolidayWorkSpillIn> LoadHolidaySpillInAsync(DateOnly firstDate, Guid? analyseToken, CancellationToken cancellationToken)
         => HolidayWorkSpillInLoader.LoadAsync(_dbContext, _timelineCalculationService, firstDate, analyseToken, cancellationToken);
 
+    public Task<UncoveredAbsenceLookup> LoadUncoveredAbsenceLookupAsync(TimelineCheckRows rows, CancellationToken cancellationToken)
+        => UncoveredAbsenceLookupLoader.LoadAsync(
+            _dbContext, rows.Works, rows.WorkChanges, rows.Breaks, rows.OnCallBreakIds, cancellationToken);
+
     /// <summary>
     /// Loads the shift locations for a range check. The single check gets them through its work query's
     /// includes, but a range check spans every client of the period — including the shift/client/address

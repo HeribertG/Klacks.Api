@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Muutos",
   "schedule.error-list.collision": "Aikakollisio: {{type1}} {{timeRange1}} ja {{type2}} {{timeRange2}} ovat päällekkäin",
   "schedule.error-list.on-call-overlap": "Hälytys varallaolon aikana: työ {{workTimeRange}} osuu varallaoloon {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Kattamaton poissaolo: {{absence}}, vuoro {{shifts}} on yhä ilman sijaista",
   "schedule.error-list.column.client": "Työntekijä",
   "schedule.error-list.column.comment": "Kommentti",
   "schedule.error-list.column.date": "Päivämäärä",

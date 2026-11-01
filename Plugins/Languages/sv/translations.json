@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Ändring",
   "schedule.error-list.collision": "Tidskollision: {{type1}} {{timeRange1}} och {{type2}} {{timeRange2}} överlappar",
   "schedule.error-list.on-call-overlap": "Utryckning under beredskap: arbete {{workTimeRange}} infaller under beredskapen {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Frånvaro ej täckt: {{absence}}, pass {{shifts}} står kvar utan ersättare",
   "schedule.error-list.column.client": "Medarbetare",
   "schedule.error-list.column.comment": "Kommentar",
   "schedule.error-list.column.date": "Datum",

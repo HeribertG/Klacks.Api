@@ -2,8 +2,9 @@
 
 /// <summary>
 /// Builds the legacy collision notifications of the live schedule check from a client's timeline (moved out of
-/// ScheduleTimelineBackgroundService unchanged; used by its single and range checks). A work over an
-/// on-call break is not a collision here (it is reported as an on-call-overlap Warning in the validation list).
+/// ScheduleTimelineBackgroundService; used by its single and range checks). A work over an on-call break is not a
+/// collision here (it is reported as an on-call-overlap Warning in the validation list), and neither is a work over
+/// any other break (UncoveredAbsenceEntries reports it there, unless substitutes took the overlap over).
 /// </summary>
 /// <param name="onCallBreakIds">Source ids of the break blocks whose absence type is on-call</param>
 
@@ -40,7 +41,8 @@ public static class TimelineCollisionNotificationBuilder
         IReadOnlySet<Guid> onCallBreakIds)
     {
         var pairs = timeline.GetCollisions()
-            .Where(p => !OnCallOverlapDetector.TryGet(p.A, p.B, onCallBreakIds, out _, out _))
+            .Where(p => !OnCallOverlapDetector.TryGet(p.A, p.B, onCallBreakIds, out _, out _)
+                && !AbsenceOverlapDetector.TryGet(p.A, p.B, onCallBreakIds, out _, out _))
             .ToList();
         if (pairs.Count == 0) return [];
 

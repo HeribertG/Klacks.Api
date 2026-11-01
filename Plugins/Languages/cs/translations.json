@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Změna",
   "schedule.error-list.collision": "Časová kolize: {{type1}} {{timeRange1}} a {{type2}} {{timeRange2}} se překrývají",
   "schedule.error-list.on-call-overlap": "Výjezd během pohotovosti: práce {{workTimeRange}} spadá do pohotovosti {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Nepokrytá absence: {{absence}}, směna {{shifts}} zůstává bez náhrady",
   "schedule.error-list.column.client": "Zaměstnanec",
   "schedule.error-list.column.comment": "Komentář",
   "schedule.error-list.column.date": "Datum",

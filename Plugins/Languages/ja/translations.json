@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "変更",
   "schedule.error-list.collision": "時間の重複: {{type1}} {{timeRange1}} と {{type2}} {{timeRange2}} が重複しています",
   "schedule.error-list.on-call-overlap": "待機中の呼び出し: 勤務 {{workTimeRange}} は待機 {{onCallTimeRange}} の時間内です",
+  "schedule.error-list.uncovered-absence": "未対応の欠勤: {{absence}}、シフト {{shifts}} に代替者がいません",
   "schedule.error-list.column.client": "従業員",
   "schedule.error-list.column.comment": "コメント",
   "schedule.error-list.column.date": "日付",

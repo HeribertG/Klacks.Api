@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "การเปลี่ยนแปลง",
   "schedule.error-list.collision": "การชนกันของเวลา: {{type1}} {{timeRange1}} และ {{type2}} {{timeRange2}} ทับซ้อนกัน",
   "schedule.error-list.on-call-overlap": "ถูกเรียกระหว่างเวรสแตนด์บาย: งาน {{workTimeRange}} อยู่ในช่วงเวรสแตนด์บาย {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "การขาดงานที่ยังไม่มีผู้แทน: {{absence}} กะ {{shifts}} ยังไม่มีผู้ปฏิบัติแทน",
   "schedule.error-list.column.client": "พนักงาน",
   "schedule.error-list.column.comment": "ความคิดเห็น",
   "schedule.error-list.column.date": "วันที่",

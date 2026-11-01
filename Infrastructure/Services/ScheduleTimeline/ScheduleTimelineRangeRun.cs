@@ -35,6 +35,8 @@ public sealed class ScheduleTimelineRangeRun
 
     public required IReadOnlySet<Guid> OnCallBreakIds { get; init; }
 
+    public required UncoveredAbsenceLookup UncoveredAbsences { get; init; }
+
     public List<ScheduleValidationNotificationDto> Entries { get; } = [];
 
     public List<CollisionNotificationDto> Collisions { get; } = [];

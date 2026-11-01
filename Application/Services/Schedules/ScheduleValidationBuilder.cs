@@ -212,12 +212,37 @@ public static class ScheduleValidationBuilder
         ClientTimeline timeline,
         string clientName,
         IReadOnlySet<Guid> onCallBreakIds)
+        => AddCollisionEntries(entries, timeline, clientName, onCallBreakIds, includeAbsenceOverlaps: true);
+
+    /// <summary>
+    /// <see cref="AddCollisions"/> for the display paths, which report a work over an absence as an uncovered absence
+    /// instead. The booking checks stay on <see cref="AddCollisions"/>: there such a pair has to remain a collision.
+    /// </summary>
+    /// <param name="onCallBreakIds">Source ids of the break blocks whose absence type is on-call</param>
+    public static void AddCollisionsExceptAbsenceOverlaps(
+        List<ScheduleValidationNotificationDto> entries,
+        ClientTimeline timeline,
+        string clientName,
+        IReadOnlySet<Guid> onCallBreakIds)
+        => AddCollisionEntries(entries, timeline, clientName, onCallBreakIds, includeAbsenceOverlaps: false);
+
+    private static void AddCollisionEntries(
+        List<ScheduleValidationNotificationDto> entries,
+        ClientTimeline timeline,
+        string clientName,
+        IReadOnlySet<Guid> onCallBreakIds,
+        bool includeAbsenceOverlaps)
     {
         foreach (var pair in timeline.GetCollisions())
         {
             if (OnCallOverlapDetector.TryGet(pair.A, pair.B, onCallBreakIds, out var onCall, out var work))
             {
                 entries.Add(OnCallOverlapEntry(timeline, clientName, onCall, work));
+                continue;
+            }
+
+            if (!includeAbsenceOverlaps && AbsenceOverlapDetector.TryGet(pair.A, pair.B, onCallBreakIds, out _, out _))
+            {
                 continue;
             }
 

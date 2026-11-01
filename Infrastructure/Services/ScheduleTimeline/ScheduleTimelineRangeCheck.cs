@@ -95,6 +95,7 @@ public sealed class ScheduleTimelineRangeCheck
             TravelApiKeyConfigured = travelApiKeyConfigured,
             SpillIn = spillIn,
             OnCallBreakIds = rows.OnCallBreakIds,
+            UncoveredAbsences = await _loader.LoadUncoveredAbsenceLookupAsync(rows, cancellationToken),
             TravelLookupBudget = MaxTravelTimeLookupsPerRangeCheck,
         };
 
@@ -138,6 +139,7 @@ public sealed class ScheduleTimelineRangeCheck
         entries.AddRange(await _holidayWorkEvaluator.EvaluateAsync(group.Key, clientName, HolidayWorkTimelineCheck.RangeCandidates(timeline, run.StartDate, run.SpillIn), cancellationToken));
 
         ScheduleValidationBuilder.AddOnCallOverlaps(entries, timeline, clientName, run.OnCallBreakIds);
+        UncoveredAbsenceEntries.Add(entries, timeline, clientName, run.UncoveredAbsences);
         run.Collisions.AddRange(TimelineCollisionNotificationBuilder.BuildList(timeline, run.ClientNames, run.OnCallBreakIds));
     }
 

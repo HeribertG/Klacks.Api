@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Wijziging",
   "schedule.error-list.collision": "Tijdsbotsing: {{type1}} {{timeRange1}} en {{type2}} {{timeRange2}} overlappen",
   "schedule.error-list.on-call-overlap": "Oproep tijdens bereikbaarheidsdienst: werk {{workTimeRange}} valt binnen de bereikbaarheidsdienst {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Afwezigheid niet gedekt: {{absence}}, dienst {{shifts}} staat nog zonder vervanging",
   "schedule.error-list.column.client": "Medewerker",
   "schedule.error-list.column.comment": "Opmerking",
   "schedule.error-list.column.date": "Datum",

@@ -2032,6 +2032,7 @@
   "schedule.entryType.workChange": "Perubahan",
   "schedule.error-list.collision": "Bentrokan waktu: {{type1}} {{timeRange1}} dan {{type2}} {{timeRange2}} tumpang tindih",
   "schedule.error-list.on-call-overlap": "Panggilan saat siaga: pekerjaan {{workTimeRange}} berada dalam waktu siaga {{onCallTimeRange}}",
+  "schedule.error-list.uncovered-absence": "Ketidakhadiran belum tertutup: {{absence}}, shift {{shifts}} masih tanpa pengganti",
   "schedule.error-list.column.client": "Karyawan",
   "schedule.error-list.column.comment": "Komentar",
   "schedule.error-list.column.date": "Tanggal",
