@@ -417,7 +417,7 @@ public class PeriodHoursService : IPeriodHoursService
                         workChangeSurcharges += wc.Surcharges;
                     }
                 }
-                else if (wc.Type == WorkChangeType.ReplacementStart || wc.Type == WorkChangeType.ReplacementEnd)
+                else if (ReplacementWorkChangeTypes.IsReplacement(wc.Type))
                 {
                     if (isOriginalClient)
                     {

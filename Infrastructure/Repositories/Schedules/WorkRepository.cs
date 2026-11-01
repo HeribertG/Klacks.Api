@@ -200,7 +200,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .ToListAsync(cancellationToken);
 
         var workChanges = await context.WorkChange
-            .Where(wc => clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate && wc.Work.AnalyseToken == analyseToken)
+            .Where(wc => (clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) || (wc.ReplaceClientId.HasValue && clientIdsWithoutPeriodHours.Contains(wc.ReplaceClientId.Value))) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate && wc.Work.AnalyseToken == analyseToken)
             .Select(wc => new WorkChangeEntry(wc.Work!.ClientId, wc.ChangeTime, wc.Type, wc.ToInvoice, wc.ReplaceClientId, wc.Work.ClientId))
             .ToListAsync(cancellationToken);
 
@@ -348,13 +348,11 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             var isOriginalClient = wc.OriginalClientId == clientId;
             var isReplacementClient = wc.ReplaceClientId == clientId;
 
-            if (wc.Type == WorkChangeType.CorrectionEnd || wc.Type == WorkChangeType.CorrectionStart
-                || wc.Type == WorkChangeType.TravelStart || wc.Type == WorkChangeType.TravelEnd
-                || wc.Type == WorkChangeType.TravelWithin)
+            if (CorrectionWorkChangeTypes.IsHourBearing(wc.Type))
             {
                 if (isOriginalClient) hours += wc.ChangeTime;
             }
-            else if (wc.Type == WorkChangeType.ReplacementStart || wc.Type == WorkChangeType.ReplacementEnd)
+            else if (ReplacementWorkChangeTypes.IsReplacement(wc.Type))
             {
                 if (isOriginalClient) hours -= wc.ChangeTime;
                 if (isReplacementClient) hours += wc.ChangeTime;
