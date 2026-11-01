@@ -146,8 +146,35 @@ public sealed class ScheduleTimelineSingleCheck
         await AddTravelTimeEntriesAsync(entries, timeline, rows.Works, clientName, date, cancellationToken);
 
         ScheduleValidationBuilder.AddOnCallOverlaps(entries, timeline, clientName, rows.OnCallBreakIds);
-        UncoveredAbsenceEntries.Add(entries, timeline, clientName, await _loader.LoadUncoveredAbsenceLookupAsync(rows, cancellationToken));
+        await AddUncoveredAbsenceEntriesAsync(entries, rows, clientId, clientName, date, analyseToken, cancellationToken);
         return entries;
+    }
+
+    /// <summary>
+    /// A night shift reaches across midnight, so its absence can lie on the next day and a night shift of the day before
+    /// can end inside an absence of the checked day. This judges the checked day together with the works of the day before
+    /// and the breaks of the day before and after. A notice is dated on the day of its work, so it can fall on the day
+    /// before the checked day; the client takes back the notices of both days when this result arrives.
+    /// </summary>
+    private async Task AddUncoveredAbsenceEntriesAsync(
+        List<ScheduleValidationNotificationDto> entries,
+        TimelineCheckRows rows,
+        Guid clientId,
+        string clientName,
+        DateOnly date,
+        Guid? analyseToken,
+        CancellationToken cancellationToken)
+    {
+        var absenceRows = await _loader.LoadAbsenceNeighbourhoodAsync(clientId, date, rows, analyseToken, cancellationToken);
+
+        var absenceTimeline = new ClientTimeline(clientId);
+        absenceTimeline.AddBlocks(_timelineCalculationService
+            .CalculateScheduleBlocks(absenceRows.Works, absenceRows.WorkChanges, absenceRows.Breaks)
+            .Where(block => block.ClientId == clientId));
+        absenceTimeline.SortBlocks();
+
+        UncoveredAbsenceEntries.Add(
+            entries, absenceTimeline, clientName, await _loader.LoadUncoveredAbsenceLookupAsync(absenceRows, cancellationToken));
     }
 
     /// <summary>

@@ -16,6 +16,7 @@ namespace Klacks.Api.Domain.Models.Schedules;
 /// <param name="ShiftId">Optional shift ID for travel time validation</param>
 /// <param name="LocalStart">Company-local wall-clock start when <paramref name="Start"/> is UTC (DstAware); null when Start already is wall clock</param>
 /// <param name="LocalEnd">Company-local wall-clock end when <paramref name="End"/> is UTC (DstAware); null when End already is wall clock</param>
+/// <param name="ParentWorkId">Work a Correction block (correction, briefing, travel) belongs to; null for every other block</param>
 public record ScheduleBlock(
     Guid SourceId,
     ScheduleBlockType BlockType,
@@ -24,7 +25,8 @@ public record ScheduleBlock(
     DateTime End,
     Guid? ShiftId = null,
     DateTime? LocalStart = null,
-    DateTime? LocalEnd = null)
+    DateTime? LocalEnd = null,
+    Guid? ParentWorkId = null)
 {
     public TimeSpan Duration => End - Start;
 

@@ -164,6 +164,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     /// block-mode compliance escalation blocks unless an authorized supervisor overrides it. A schedule
     /// collision no longer blocks either path (owner decision 2026-08-22) — it is persisted and the
     /// async post-commit check surfaces it into the error list instead of refusing the write.
+    /// A replacement that hands no hours over is skipped as well, since it occupies the substitute for no time.
     /// Pure corrections (no ReplaceClientId) and scenario writes are skipped: a correction retimes the
     /// same client's own work and would only self-collide with the parent, and scenarios run in a
     /// sandbox that bypasses the hard write guards, mirroring the day-lock contract.
@@ -182,11 +183,27 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             return;
         }
 
+        // ReplacementStart and ReplacementEnd arrive without times of their own (00:00/00:00); the substitute works the
+        // first or last ChangeTime hours of the parent Work, so the window comes from ReplacementWindow.
+        if (!ReplacementWindow.TryGetInterval(
+                workChange.Type,
+                parentWork.StartTime,
+                parentWork.EndTime,
+                parentWork.CurrentDate,
+                workChange.StartTime,
+                workChange.EndTime,
+                workChange.ChangeTime,
+                out var windowStart,
+                out var windowEnd))
+        {
+            return;
+        }
+
         var plannedRow = new PlannedWorkRow(
             workChange.ReplaceClientId.Value,
-            parentWork.CurrentDate,
-            workChange.StartTime,
-            workChange.EndTime,
+            DateOnly.FromDateTime(windowStart),
+            TimeOnly.FromDateTime(windowStart),
+            TimeOnly.FromDateTime(windowEnd),
             parentWork.ShiftId);
 
         var conflictCheck = await _conflictChecker.CheckAsync([plannedRow], null, cancellationToken);

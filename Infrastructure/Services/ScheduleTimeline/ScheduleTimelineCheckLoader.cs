@@ -60,6 +60,45 @@ public sealed class ScheduleTimelineCheckLoader
         return new TimelineCheckRows(ownWorks, allWorks, workChanges, breaks, await LoadOnCallBreakIdsAsync(breaks, cancellationToken));
     }
 
+    /// <summary>
+    /// Adds to the rows of a single check what the uncovered-absence judgement needs from the neighbouring days: the
+    /// client's works of the day before (a night shift reaches into the checked day) and its breaks of the day before and
+    /// of the day after (a night shift of the checked day reaches into the latter), with the changes of those works. A notice
+    /// is dated on its work's day, and the client takes back the notices of the checked day and of the day before when
+    /// the partial result arrives, so both days are judged completely. The returned rows serve the uncovered-absence
+    /// notice only; the other findings of the check keep working on the checked day.
+    /// </summary>
+    /// <param name="clientId">The checked client</param>
+    /// <param name="date">The checked day</param>
+    /// <param name="rows">The rows of the checked day</param>
+    /// <param name="analyseToken">Scenario token of the check; null reads the real plan</param>
+    public async Task<TimelineCheckRows> LoadAbsenceNeighbourhoodAsync(
+        Guid clientId, DateOnly date, TimelineCheckRows rows, Guid? analyseToken, CancellationToken cancellationToken)
+    {
+        var previousDay = date.AddDays(-1);
+        var nextDay = date.AddDays(1);
+
+        var previousWorks = await _dbContext.Work
+            .AsNoTracking()
+            .Where(w => w.ClientId == clientId && w.CurrentDate == previousDay && !w.IsDeleted && w.ParentWorkId == null && w.AnalyseToken == analyseToken)
+            .ToListAsync(cancellationToken);
+
+        var neighbourBreaks = await _dbContext.Break
+            .AsNoTracking()
+            .Where(b => b.ClientId == clientId && (b.CurrentDate == previousDay || b.CurrentDate == nextDay) && !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
+            .ToListAsync(cancellationToken);
+
+        var previousChanges = await LoadWorkChangesAsync(previousWorks, cancellationToken);
+        var breaks = rows.Breaks.Concat(neighbourBreaks).ToList();
+
+        return new TimelineCheckRows(
+            rows.OwnWorks,
+            rows.Works.Concat(previousWorks).ToList(),
+            rows.WorkChanges.Concat(previousChanges).ToList(),
+            breaks,
+            await LoadOnCallBreakIdsAsync(breaks, cancellationToken));
+    }
+
     public async Task<TimelineCheckRows> LoadRangeAsync(DateOnly startDate, DateOnly endDate, Guid? analyseToken, CancellationToken cancellationToken)
     {
         var works = await _dbContext.Work

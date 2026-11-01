@@ -15,7 +15,7 @@
 
 using Klacks.Api.Domain.Enums;
 
-namespace Klacks.Api.Infrastructure.Services.Schedules;
+namespace Klacks.Api.Domain.Services.Schedules;
 
 public static class ReplacementWindow
 {
@@ -44,8 +44,11 @@ public static class ReplacementWindow
     }
 
     /// <summary>
-    /// The calendar interval a replacement really occupies. False when it hands nothing over: no hours after
-    /// <see cref="ClampHours"/>, or equal bounds, which <see cref="ToInterval"/> alone would read as a full day.
+    /// The calendar interval a replacement really occupies. False when it hands nothing over. ReplacementStart and
+    /// ReplacementEnd hand over <see cref="ClampHours"/> hours, so none left means nothing; a full-length work of 24 hours
+    /// gives equal bounds there, which <see cref="ToInterval"/> reads as the full day. Every other type carries its own
+    /// span, so equal bounds mean nothing was entered and its ChangeTime is not consulted: the repository derives it from
+    /// the span only when the change is stored, so a caller checking a change before that sees a raw value.
     /// </summary>
     /// <param name="type">Replacement type of the WorkChange</param>
     /// <param name="workStart">Start time of the work</param>
@@ -72,7 +75,10 @@ public static class ReplacementWindow
 
         var hours = ClampHours(workStart, workEnd, changeTime);
         var (start, end) = Compute(type, workStart, workEnd, changeStart, changeEnd, hours);
-        if (hours <= 0m || start == end)
+        var handsNothingOver = type is WorkChangeType.ReplacementStart or WorkChangeType.ReplacementEnd
+            ? hours <= 0m
+            : start == end;
+        if (handsNothingOver)
         {
             return false;
         }

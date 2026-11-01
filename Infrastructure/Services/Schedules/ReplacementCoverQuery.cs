@@ -15,6 +15,7 @@
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
