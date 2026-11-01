@@ -25,6 +25,8 @@
 /// Each wage-code column holds the total in that code's own unit: a day-based entry (on-call duty) adds its day count
 /// to the column of its mapped code, which must be a day-based Logo code. A day-based entry whose code also receives
 /// hour-based entries would mix days into an hours total; it is not written and counted in SkippedUnsupportedUnitCount.
+/// Ad (first name) and Soyad (last name) are split from PayrollEmployee.FullName, which has the "Last, First" format
+/// (ClientNameFormatter.LastFirst), on the first comma; a name without a comma is written to Ad as a whole.
 /// </remarks>
 using ClosedXML.Excel;
 using Klacks.Api.Application.Constants;
@@ -45,7 +47,7 @@ public class LogoBordroTrExportFormatter : IPayrollExportFormatter
     private const string HeaderSoyad = "Soyad";
     private const string SicilNoCode = "00001";
     private const string EmptyCode = "";
-    private const char NameSeparator = ' ';
+    private const char NameSeparator = ',';
 
     public string FormatKey => PayrollExportConstants.FormatKeyLogoBordroTr;
 
@@ -250,13 +252,7 @@ public class LogoBordroTrExportFormatter : IPayrollExportFormatter
             return (string.Empty, string.Empty);
         }
 
-        var trimmed = fullName.Trim();
-        var lastSpace = trimmed.LastIndexOf(NameSeparator);
-        if (lastSpace <= 0)
-        {
-            return (trimmed, string.Empty);
-        }
-
-        return (trimmed[..lastSpace].Trim(), trimmed[(lastSpace + 1)..].Trim());
+        var parts = fullName.Split(NameSeparator, 2, StringSplitOptions.TrimEntries);
+        return parts.Length == 2 ? (parts[1], parts[0]) : (parts[0], string.Empty);
     }
 }

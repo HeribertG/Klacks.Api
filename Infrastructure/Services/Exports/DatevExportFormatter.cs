@@ -1,14 +1,18 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Exports order data in DATEV Buchungsstapel format (CSV with DATEV header).
-/// Conforms to DATEV format specification for German tax consultants and accounting software.
-/// Header row contains metadata (format version, data category, creation date).
-/// Data rows contain booking entries mapped to DATEV field structure.
+/// Exports order data as a DATEV Buchungsstapel (EXTF, header version 700, data category 21, format version 13).
+/// Built against the DATEV developer portal format description (format version 13) and its sample data
+/// (EXTF_Buchungsstapel.csv): line 1 is the 31-field header, line 2 the 125 column names of the sample file,
+/// then one 125-field booking per work entry and per expense. Windows-1252, CRLF, semicolon separated,
+/// text fields quoted with doubled quotes, amounts positive with decimal comma and the sign in the S/H field.
+/// Berater and Mandant are mandatory in DATEV but not stored in Klacks, so they stay empty. The fiscal year
+/// start (WJ-Beginn) assumes a fiscal year equal to the calendar year of the export start date.
 /// </summary>
 using System.Globalization;
 using System.Text;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Exports;
 using Klacks.Api.Domain.Models.Exports;
 
@@ -16,17 +20,69 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class DatevExportFormatter : IExportFormatter
 {
-    private const string DatevFormatVersion = "700";
+    private const string Separator = ";";
+    private const int Windows1252CodePage = 1252;
+    private const string Quote = "\"";
+    private const string DoubledQuote = "\"\"";
+
+    private const string HeaderMarker = "EXTF";
+    private const int HeaderVersion = 700;
     private const int DataCategoryBookings = 21;
-    private const string DatevDateFormat = "ddMM";
-    private const string AccountLengthDefault = "4";
+    private const string FormatName = "Buchungsstapel";
+    private const int FormatVersion = 13;
+    private const string CreatedAtFormat = "yyyyMMddHHmmssfff";
+    private const string HeaderOrigin = "SV";
+    private const string FiscalYearStartMonthDay = "0101";
+    private const int AccountLength = 4;
+    private const string BatchName = "Klacks Export";
+    private const int BookingTypeFinancialAccounting = 1;
+    private const int AccountingPurposeIndependent = 0;
+    private const int NotFixed = 0;
+    private const string ChartOfAccountsSkr03 = "03";
+
+    private const int ColumnCount = 125;
+    private const int BeleginfoPairCount = 8;
+    private const int AdditionalInfoPairCount = 20;
+    private const int AmountIndex = 0;
+    private const int DebitCreditIndex = 1;
+    private const int CurrencyIndex = 2;
+    private const int AccountIndex = 6;
+    private const int CounterAccountIndex = 7;
+    private const int DocumentDateIndex = 9;
+    private const int DocumentField1Index = 10;
+    private const int BookingTextIndex = 13;
+    private const int AddressNumberIndex = 15;
     private const int BeleginfoType1Index = 20;
     private const int BeleginfoContent1Index = 21;
     private const int BeleginfoType2Index = 22;
     private const int BeleginfoContent2Index = 23;
+    private const int CostCenter1Index = 36;
+    private const int CostQuantityIndex = 38;
     private const int OrderNumberIndex = 94;
+    private const int FixationIndex = 113;
+
+    private const string DocumentDateFormat = "ddMM";
+    private const string AmountFormat = "F2";
+    private const string Debit = "S";
+    private const string Credit = "H";
+    private const string WorkCounterAccount = "1600";
+    private const string TaxableExpenseCounterAccount = "4100";
+    private const string NonTaxableExpenseCounterAccount = "4900";
     private const string BeleginfoSourceSystemLabel = "SourceSystem";
     private const string BeleginfoCustomerReferenceLabel = "ErpCustomerRef";
+
+    private const int DocumentField1MaxLength = 36;
+    private const int BookingTextMaxLength = 60;
+    private const int AddressNumberMaxLength = 9;
+    private const int BeleginfoContentMaxLength = 210;
+    private const int CostCenterMaxLength = 36;
+    private const int OrderNumberMaxLength = 30;
+    private const string DocumentField1SpecialChars = "_$&%*+-/";
+    private const string DocumentField1LeadingFormulaChars = "+-";
+
+    private static readonly NumberFormatInfo DecimalComma = new() { NumberDecimalSeparator = ",", NumberGroupSeparator = string.Empty };
+
+    private static readonly string[] ColumnNames = BuildColumnNames();
 
     public string FormatKey => ExportConstants.FormatDatev;
 
@@ -37,192 +93,188 @@ public class DatevExportFormatter : IExportFormatter
     public byte[] Format(OrderExportData data, ExportOptions options)
     {
         var sb = new StringBuilder();
-        var separator = ";";
 
-        WriteHeaderRow(sb, data, options, separator);
-        WriteColumnHeaders(sb, separator);
-        WriteDataRows(sb, data, options, separator);
+        AppendLine(sb, BuildHeaderRow(data, options));
+        AppendLine(sb, string.Join(Separator, ColumnNames));
+        WriteDataRows(sb, data, options);
 
-        return Encoding.GetEncoding(1252).GetBytes(sb.ToString());
+        return Encoding.GetEncoding(Windows1252CodePage).GetBytes(sb.ToString());
     }
 
-    private static void WriteHeaderRow(StringBuilder sb, OrderExportData data, ExportOptions options, string separator)
+    private static string BuildHeaderRow(OrderExportData data, ExportOptions options)
     {
-        var fields = new List<string>
+        var fields = new[]
         {
-            $"\"{DatevFormatVersion}\"",
-            $"{DataCategoryBookings}",
-            "\"Buchungsstapel\"",
-            "1",
-            $"{data.ExportDate:yyyyMMddHHmmss}000",
-            "",
-            "\"SV\"",
-            "",
-            "",
-            "",
-            $"\"{AccountLengthDefault}\"",
-            $"{data.StartDate.Year}0101",
-            $"{AccountLengthDefault}",
-            $"{data.StartDate:yyyyMMdd}",
-            $"{data.EndDate:yyyyMMdd}",
-            "\"Klacks Export\"",
-            "",
-            "1",
-            "0",
-            "0",
-            $"\"{options.CurrencyCode}\""
+            QuoteText(HeaderMarker),
+            HeaderVersion.ToString(CultureInfo.InvariantCulture),
+            DataCategoryBookings.ToString(CultureInfo.InvariantCulture),
+            QuoteText(FormatName),
+            FormatVersion.ToString(CultureInfo.InvariantCulture),
+            data.ExportDate.ToString(CreatedAtFormat, CultureInfo.InvariantCulture),
+            string.Empty,
+            QuoteText(HeaderOrigin),
+            QuoteText(string.Empty),
+            QuoteText(string.Empty),
+            string.Empty,
+            string.Empty,
+            string.Concat(data.StartDate.Year.ToString(CultureInfo.InvariantCulture), FiscalYearStartMonthDay),
+            AccountLength.ToString(CultureInfo.InvariantCulture),
+            data.StartDate.ToString(DateTimeFormats.CompactDate, CultureInfo.InvariantCulture),
+            data.EndDate.ToString(DateTimeFormats.CompactDate, CultureInfo.InvariantCulture),
+            QuoteText(BatchName),
+            QuoteText(string.Empty),
+            BookingTypeFinancialAccounting.ToString(CultureInfo.InvariantCulture),
+            AccountingPurposeIndependent.ToString(CultureInfo.InvariantCulture),
+            NotFixed.ToString(CultureInfo.InvariantCulture),
+            QuoteText(options.CurrencyCode),
+            string.Empty,
+            QuoteText(string.Empty),
+            string.Empty,
+            string.Empty,
+            QuoteText(ChartOfAccountsSkr03),
+            string.Empty,
+            string.Empty,
+            QuoteText(string.Empty),
+            QuoteText(string.Empty),
         };
 
-        AppendLine(sb, string.Join(separator, fields));
+        return string.Join(Separator, fields);
     }
 
-    private static void WriteColumnHeaders(StringBuilder sb, string separator)
+    private static string[] BuildColumnNames()
     {
-        var headers = new[]
+        var names = new List<string>
         {
-            "Umsatz (ohne Soll/Haben-Kz)", "Soll/Haben-Kennzeichen",
-            "WKZ Umsatz", "Kurs", "Basis-Umsatz", "WKZ Basis-Umsatz",
-            "Konto", "Gegenkonto (ohne BU-Schlüssel)", "BU-Schlüssel",
-            "Belegdatum", "Belegfeld 1", "Belegfeld 2",
-            "Skonto", "Buchungstext",
-            "Postensperre", "Diverse Adressnummer", "Geschäftspartnerbank",
-            "Sachverhalt", "Zinssperre",
-            "Beleglink", "Beleginfo - Art 1", "Beleginfo - Inhalt 1",
-            "Beleginfo - Art 2", "Beleginfo - Inhalt 2",
-            "Beleginfo - Art 3", "Beleginfo - Inhalt 3",
-            "Beleginfo - Art 4", "Beleginfo - Inhalt 4",
-            "Beleginfo - Art 5", "Beleginfo - Inhalt 5",
-            "Beleginfo - Art 6", "Beleginfo - Inhalt 6",
-            "Beleginfo - Art 7", "Beleginfo - Inhalt 7",
-            "Beleginfo - Art 8", "Beleginfo - Inhalt 8",
-            "KOST1 - Kostenstelle", "KOST2 - Kostenstelle", "Kost-Menge",
-            "EU-Land u. UStID", "EU-Steuersatz",
-            "Abw. Versteuerungsart", "Sachverhalt L+L", "Funktionsergänzung L+L",
-            "BU 49 Hauptfunktionstyp", "BU 49 Hauptfunktionsnummer",
-            "BU 49 Funktionsergänzung", "Zusatzinformation - Art 1",
-            "Zusatzinformation - Inhalt 1", "Zusatzinformation - Art 2",
-            "Zusatzinformation - Inhalt 2", "Zusatzinformation - Art 3",
-            "Zusatzinformation - Inhalt 3", "Zusatzinformation - Art 4",
-            "Zusatzinformation - Inhalt 4", "Zusatzinformation - Art 5",
-            "Zusatzinformation - Inhalt 5", "Zusatzinformation - Art 6",
-            "Zusatzinformation - Inhalt 6", "Zusatzinformation - Art 7",
-            "Zusatzinformation - Inhalt 7", "Zusatzinformation - Art 8",
-            "Zusatzinformation - Inhalt 8", "Zusatzinformation - Art 9",
-            "Zusatzinformation - Inhalt 9", "Zusatzinformation - Art 10",
-            "Zusatzinformation - Inhalt 10", "Zusatzinformation - Art 11",
-            "Zusatzinformation - Inhalt 11", "Zusatzinformation - Art 12",
-            "Zusatzinformation - Inhalt 12", "Zusatzinformation - Art 13",
-            "Zusatzinformation - Inhalt 13", "Zusatzinformation - Art 14",
-            "Zusatzinformation - Inhalt 14", "Zusatzinformation - Art 15",
-            "Zusatzinformation - Inhalt 15", "Zusatzinformation - Art 16",
-            "Zusatzinformation - Inhalt 16", "Zusatzinformation - Art 17",
-            "Zusatzinformation - Inhalt 17", "Zusatzinformation - Art 18",
-            "Zusatzinformation - Inhalt 18", "Zusatzinformation - Art 19",
-            "Zusatzinformation - Inhalt 19", "Zusatzinformation - Art 20",
-            "Zusatzinformation - Inhalt 20",
-            "Stück", "Gewicht",
-            "Zahlweise", "Forderungsart", "Veranlagungsjahr", "Zugeordnete Fälligkeit",
-            "Skontotyp", "Auftragsnummer", "Buchungstyp",
-            "USt-Schlüssel (Anzahlungen)", "EU-Land (Anzahlungen)",
-            "Sachverhalt L+L (Anzahlungen)", "EU-Steuersatz (Anzahlungen)",
-            "Erlöskonto (Anzahlungen)", "Herkunft-Kz",
-            "Buchungs GUID", "KOST-Datum", "SEPA-Mandatsreferenz",
-            "Skontosperre", "Gesellschaftername", "Beteiligtennummer",
-            "Identifikationsnummer", "Zeichnernummer",
-            "Postensperre bis", "Bezeichnung SoBil-Sachverhalt",
-            "Kennzeichen SoBil-Buchung", "Festschreibung",
-            "Leistungsdatum", "Datum Zuord. Steuerperiode"
+            "Umsatz (ohne Soll/Haben-Kz)", "Soll/Haben-Kennzeichen", "WKZ Umsatz", "Kurs", "Basis-Umsatz",
+            "WKZ Basis-Umsatz", "Konto", "Gegenkonto (ohne BU-Schlüssel)", "BU-Schlüssel", "Belegdatum",
+            "Belegfeld 1", "Belegfeld 2", "Skonto", "Buchungstext", "Postensperre", "Diverse Adressnummer",
+            "Geschäftspartnerbank", "Sachverhalt", "Zinssperre", "Beleglink",
         };
 
-        AppendLine(sb, string.Join(separator, headers));
+        for (var i = 1; i <= BeleginfoPairCount; i++)
+        {
+            names.Add($"Beleginfo - Art {i}");
+            names.Add($"Beleginfo - Inhalt {i}");
+        }
+
+        names.AddRange(
+        [
+            "KOST1 - Kostenstelle", "KOST2 - Kostenstelle", "Kost-Menge", "EU-Land u. UStID (Bestimmung)",
+            "EU-Steuersatz (Bestimmung)", "Abw. Versteuerungsart", "Sachverhalt L+L", "Funktionsergänzung L+L",
+            "BU 49 Hauptfunktionstyp", "BU 49 Hauptfunktionsnummer", "BU 49 Funktionsergänzung",
+        ]);
+
+        for (var i = 1; i <= AdditionalInfoPairCount; i++)
+        {
+            names.Add($"Zusatzinformation - Art {i}");
+            names.Add($"Zusatzinformation- Inhalt {i}");
+        }
+
+        names.AddRange(
+        [
+            "Stück", "Gewicht", "Zahlweise", "Forderungsart", "Veranlagungsjahr", "Zugeordnete Fälligkeit",
+            "Skontotyp", "Auftragsnummer", "Buchungstyp", "USt-Schlüssel (Anzahlungen)", "EU-Land (Anzahlungen)",
+            "Sachverhalt L+L (Anzahlungen)", "EU-Steuersatz (Anzahlungen)", "Erlöskonto (Anzahlungen)",
+            "Herkunft-Kz", "Buchungs GUID", "KOST-Datum", "SEPA-Mandatsreferenz", "Skontosperre",
+            "Gesellschaftername", "Beteiligtennummer", "Identifikationsnummer", "Zeichnernummer",
+            "Postensperre bis", "Bezeichnung SoBil-Sachverhalt", "Kennzeichen SoBil-Buchung", "Festschreibung",
+            "Leistungsdatum", "Datum Zuord. Steuerperiode", "Fälligkeit", "Generalumkehr (GU)", "Steuersatz",
+            "Land", "Abrechnungsreferenz", "BVV-Position", "EU-Land u. UStID (Ursprung)",
+            "EU-Steuersatz (Ursprung)", "Abw. Skontokonto",
+        ]);
+
+        return names.ToArray();
     }
 
-    private static void WriteDataRows(StringBuilder sb, OrderExportData data, ExportOptions options, string separator)
+    private static void WriteDataRows(StringBuilder sb, OrderExportData data, ExportOptions options)
     {
         foreach (var order in data.Orders)
         {
             foreach (var work in order.WorkEntries)
             {
-                WriteWorkBookingRow(sb, order, work, options, separator);
+                var totalHours = work.WorkTime + work.Changes.Sum(c => c.ChangeTime);
+                var amount = totalHours + work.Surcharges + work.Changes.Sum(c => c.Surcharges);
+                var workRow = BuildBookingRow(order, work, amount, WorkCounterAccount,
+                    BuildBookingText(work.EmployeeName, order), options);
+
+                if (workRow != null)
+                {
+                    if (totalHours > 0m)
+                    {
+                        workRow[CostQuantityIndex] = FormatAmount(totalHours);
+                    }
+
+                    AppendLine(sb, string.Join(Separator, workRow));
+                }
 
                 foreach (var expense in work.Expenses)
                 {
-                    WriteExpenseBookingRow(sb, order, work, expense, options, separator);
+                    var counterAccount = expense.Taxable ? TaxableExpenseCounterAccount : NonTaxableExpenseCounterAccount;
+                    var expenseRow = BuildBookingRow(order, work, expense.Amount, counterAccount,
+                        $"{expense.Description} - {work.EmployeeName}", options);
+
+                    if (expenseRow != null)
+                    {
+                        AppendLine(sb, string.Join(Separator, expenseRow));
+                    }
                 }
             }
         }
     }
 
-    private static void WriteWorkBookingRow(
-        StringBuilder sb, OrderGroup order, WorkExportEntry work, ExportOptions options, string separator)
+    private static string[]? BuildBookingRow(
+        OrderGroup order, WorkExportEntry work, decimal amount, string counterAccount, string bookingText, ExportOptions options)
     {
-        var totalHours = work.WorkTime + work.Changes.Sum(c => c.ChangeTime);
-        var amount = totalHours + work.Surcharges + work.Changes.Sum(c => c.Surcharges);
+        if (amount == 0m)
+        {
+            return null;
+        }
 
-        var fields = new string[116];
-        for (var i = 0; i < fields.Length; i++) fields[i] = "";
+        var fields = new string[ColumnCount];
+        Array.Fill(fields, string.Empty);
 
-        fields[0] = FormatDecimal(amount);
-        fields[1] = "S";
-        fields[2] = $"\"{options.CurrencyCode}\"";
-        fields[6] = $"\"{work.EmployeeIdNumber}\"";
-        fields[7] = $"\"1600\"";
-        fields[9] = work.WorkDate.ToString(DatevDateFormat);
-        fields[10] = $"\"{EscapeDatev(order.OrderAbbreviation)}\"";
-        fields[13] = $"\"{EscapeDatev(BuildBookingText(work.EmployeeName, order))}\"";
+        fields[AmountIndex] = FormatAmount(Math.Abs(amount));
+        fields[DebitCreditIndex] = QuoteText(amount > 0m ? Debit : Credit);
+        fields[CurrencyIndex] = QuoteText(options.CurrencyCode);
+        fields[AccountIndex] = work.EmployeeIdNumber.ToString(CultureInfo.InvariantCulture);
+        fields[CounterAccountIndex] = counterAccount;
+        fields[DocumentDateIndex] = work.WorkDate.ToString(DocumentDateFormat, CultureInfo.InvariantCulture);
+        fields[DocumentField1Index] = QuoteText(ToDocumentField1(order.OrderAbbreviation));
+        fields[BookingTextIndex] = QuoteText(Truncate(Clean(bookingText), BookingTextMaxLength));
+        fields[CostCenter1Index] = QuoteText(ToCostCenter(order.OrderName));
+        fields[FixationIndex] = NotFixed.ToString(CultureInfo.InvariantCulture);
+
         if (order.CustomerNumber.HasValue)
         {
-            fields[15] = $"\"{order.CustomerNumber.Value}\"";
+            var addressNumber = order.CustomerNumber.Value.ToString(CultureInfo.InvariantCulture);
+            if (addressNumber.Length <= AddressNumberMaxLength)
+            {
+                fields[AddressNumberIndex] = QuoteText(addressNumber);
+            }
         }
-        fields[36] = $"\"{EscapeDatev(order.OrderName)}\"";
-        fields[38] = FormatDecimal(totalHours);
-        fields[91] = $"\"{work.EmployeeIdNumber}\"";
+
         ApplyErpReferences(fields, order);
 
-        AppendLine(sb, string.Join(separator, fields));
-    }
-
-    private static void WriteExpenseBookingRow(
-        StringBuilder sb, OrderGroup order, WorkExportEntry work, ExpensesExportEntry expense, ExportOptions options, string separator)
-    {
-        var fields = new string[116];
-        for (var i = 0; i < fields.Length; i++) fields[i] = "";
-
-        fields[0] = FormatDecimal(expense.Amount);
-        fields[1] = "S";
-        fields[2] = $"\"{options.CurrencyCode}\"";
-        fields[6] = $"\"{work.EmployeeIdNumber}\"";
-        fields[7] = expense.Taxable ? "\"4100\"" : "\"4900\"";
-        fields[9] = work.WorkDate.ToString(DatevDateFormat);
-        fields[10] = $"\"{EscapeDatev(order.OrderAbbreviation)}\"";
-        fields[13] = $"\"{EscapeDatev($"{expense.Description} - {work.EmployeeName}")}\"";
-        if (order.CustomerNumber.HasValue)
-        {
-            fields[15] = $"\"{order.CustomerNumber.Value}\"";
-        }
-        fields[36] = $"\"{EscapeDatev(order.OrderName)}\"";
-        ApplyErpReferences(fields, order);
-
-        AppendLine(sb, string.Join(separator, fields));
+        return fields;
     }
 
     private static void ApplyErpReferences(string[] fields, OrderGroup order)
     {
         if (!string.IsNullOrEmpty(order.ExternalOrderReference))
         {
-            fields[OrderNumberIndex] = $"\"{EscapeDatev(order.ExternalOrderReference)}\"";
+            fields[OrderNumberIndex] = QuoteText(Truncate(Clean(order.ExternalOrderReference), OrderNumberMaxLength));
         }
 
         if (!string.IsNullOrEmpty(order.SourceSystemId))
         {
-            fields[BeleginfoType1Index] = $"\"{BeleginfoSourceSystemLabel}\"";
-            fields[BeleginfoContent1Index] = $"\"{EscapeDatev(order.SourceSystemId)}\"";
+            fields[BeleginfoType1Index] = QuoteText(BeleginfoSourceSystemLabel);
+            fields[BeleginfoContent1Index] = QuoteText(Truncate(Clean(order.SourceSystemId), BeleginfoContentMaxLength));
         }
 
         if (!string.IsNullOrEmpty(order.CustomerExternalReference))
         {
-            fields[BeleginfoType2Index] = $"\"{BeleginfoCustomerReferenceLabel}\"";
-            fields[BeleginfoContent2Index] = $"\"{EscapeDatev(order.CustomerExternalReference)}\"";
+            fields[BeleginfoType2Index] = QuoteText(BeleginfoCustomerReferenceLabel);
+            fields[BeleginfoContent2Index] = QuoteText(Truncate(Clean(order.CustomerExternalReference), BeleginfoContentMaxLength));
         }
     }
 
@@ -235,18 +287,42 @@ public class DatevExportFormatter : IExportFormatter
         return $"{employeeName} - {order.OrderName}";
     }
 
+    private static string ToDocumentField1(string value)
+    {
+        var allowed = value.Where(c => char.IsAsciiLetterOrDigit(c) || DocumentField1SpecialChars.Contains(c)).ToArray();
+        var trimmed = new string(allowed).TrimStart(DocumentField1LeadingFormulaChars.ToCharArray());
+        return Truncate(trimmed, DocumentField1MaxLength);
+    }
+
+    private static string ToCostCenter(string value)
+    {
+        var allowed = value.Where(c => char.IsLetterOrDigit(c) || c == '_' || c == ' ').ToArray();
+        return Truncate(new string(allowed).Trim(), CostCenterMaxLength);
+    }
+
+    private static string Clean(string value)
+    {
+        var withoutControlChars = new string(value.Where(c => !char.IsControl(c)).ToArray());
+        return CsvFormulaGuard.Neutralize(withoutControlChars);
+    }
+
+    private static string Truncate(string value, int maxLength)
+    {
+        return value.Length <= maxLength ? value : value[..maxLength];
+    }
+
+    private static string QuoteText(string value)
+    {
+        return string.Concat(Quote, value.Replace(Quote, DoubledQuote), Quote);
+    }
+
+    private static string FormatAmount(decimal value)
+    {
+        return value.ToString(AmountFormat, DecimalComma);
+    }
+
     private static void AppendLine(StringBuilder sb, string line)
     {
         sb.Append(line).Append(ExportConstants.LineEnding);
-    }
-
-    private static string FormatDecimal(decimal value)
-    {
-        return value.ToString("F2", CultureInfo.GetCultureInfo("de-DE")).Replace(".", "");
-    }
-
-    private static string EscapeDatev(string value)
-    {
-        return CsvFormulaGuard.Neutralize(value).Replace("\"", "\"\"");
     }
 }

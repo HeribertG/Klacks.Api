@@ -21,17 +21,14 @@
 /// field. jmeno/prijmeni are optional import-log-only fields (no effect on matching) derived from
 /// PayrollEmployee.FullName by splitting on the first comma ("Novakova, Jana" -> prijmeni "Novakova",
 /// jmeno "Jana"); matching itself always uses cislo_pracovniho_pomeru.
-/// rozvrh (the required, day-exhaustive planned-schedule section) has no equivalent source in Klacks:
-/// this formatter approximates the planned "uvazek" for each calendar day of the period with that day's
-/// actual WorkHours quantity (0:00 for days without one) — a documented approximation, not a true target
-/// schedule.
-/// pritomnost is scoped by the schema to overtime/over-quota hours (prescas_*, naduvazek_*) and has no
-/// generic per-day "hours worked" element, so there is no schema-valid way to carry WorkHours entries with
-/// day-level granularity there. As an MVP compromise the total WorkHours quantity for the period is summed
-/// into a single prescas_pracovni_den/hodiny element so the value is not silently dropped, at the cost of
-/// daily granularity and the regular/overtime distinction — to be revisited once real PAMICA integration
-/// guidance is available. Surcharge entries are summed the same way into a priplatek wage component under
-/// mzdy, and only emitted when config.SurchargeWageType is configured; otherwise they are skipped.
+/// rozvrh (the required, day-exhaustive schedule section; per the XSD it is imported as the calendar for an
+/// individual shift pattern and otherwise used for checking) is filled with each calendar day's planned
+/// WorkHours quantity from the Klacks schedule (0:00 for days without one); Klacks has no separate contractual
+/// target schedule in PayrollExportData.
+/// pritomnost is scoped by the schema to overtime/over-quota hours (prescas_*, naduvazek_*). PayrollDayEntry has
+/// no overtime distinction, so the element is written empty: WorkHours already appear once in rozvrh and are not
+/// repeated as overtime. Surcharge entries are summed into a priplatek wage component under mzdy, and only
+/// emitted when config.SurchargeWageType is configured; otherwise they are skipped.
 /// Absence entries are emitted as one single-day nepritomnost (od == do) each; consecutive days for the
 /// same absence are not merged into a single ranged entry. Unmapped absences are counted in
 /// SkippedAbsenceCount instead of being dropped silently or crashing the export.
@@ -81,7 +78,6 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
     private static readonly XName OdElement = Namespace + "od";
     private static readonly XName DoElement = Namespace + "do";
     private static readonly XName PritomnostElement = Namespace + "pritomnost";
-    private static readonly XName PrescasPracovniDenElement = Namespace + "prescas_pracovni_den";
     private static readonly XName HodinyElement = Namespace + "hodiny";
     private static readonly XName MzdyElement = Namespace + "mzdy";
     private static readonly XName PriplatekElement = Namespace + "priplatek";
@@ -127,7 +123,6 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
         Dictionary<string, PohodaAbsenceMapping> absenceMapping,
         PayrollExportSkipCounter counter)
     {
-        var totalWorkHours = 0m;
         var totalSurchargeHours = 0m;
         var nepritomnosti = new XElement(NepritomnostiElement);
 
@@ -141,7 +136,6 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
                     break;
 
                 case PayrollEntryKind.WorkHours:
-                    totalWorkHours += entry.Quantity;
                     counter.Emitted++;
                     break;
 
@@ -185,7 +179,7 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
             BuildHlavicka(data, employee),
             new XElement(RozvrhElement, BuildUvazekElements(data, employee)),
             nepritomnosti,
-            BuildPritomnost(totalWorkHours),
+            new XElement(PritomnostElement),
             BuildMzdy(config, totalSurchargeHours));
 
         return new XDocument(root);
@@ -262,20 +256,6 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
                 new XAttribute(DatumAttribute, date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)),
                 ToHhMm(hours));
         }
-    }
-
-    private static XElement BuildPritomnost(decimal totalWorkHours)
-    {
-        var pritomnost = new XElement(PritomnostElement);
-
-        if (totalWorkHours > 0)
-        {
-            pritomnost.Add(new XElement(
-                PrescasPracovniDenElement,
-                new XElement(HodinyElement, ToHhMm(totalWorkHours))));
-        }
-
-        return pritomnost;
     }
 
     private static XElement BuildMzdy(PayrollExportGroupConfig config, decimal totalSurchargeHours)

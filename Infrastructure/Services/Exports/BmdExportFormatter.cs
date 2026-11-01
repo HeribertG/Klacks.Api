@@ -1,11 +1,18 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Exports order data in BMD NTCS format for Austrian accounting systems.
-/// Generates CSV with BMD-specific field structure for booking import.
-/// Fields: Satzart, Buchungsdatum, Belegnummer, Kontonummer, Gegenkonto, Betrag, Text, Kostenstelle,
-/// plus trailing ERP reference columns (extbelegnr, quellsystem, extkundenref).
+/// Exports order data as a BMD NTCS FIBU booking import (Austria): semicolon-separated CSV whose first row
+/// carries the standard BMD column headings, so BMD maps the columns by name without a manual field assignment.
+/// Each work entry and each expense becomes one booking with Buchungssymbol ER, Buchungscode 2 (credit) and a
+/// negated amount, the pattern the FIBU04 interface description shows for ER bookings.
+/// After the standard columns follow Klacks reference columns (kost, auftragskuerzel, stunden, kundennr,
+/// kundenname, extbelegnr, quellsystem, extkundenref).
 /// </summary>
+/// <remarks>
+/// Source: EDV Hausleitner, "BMD NTCS Schnittstelle FIBU04", version 1.0-2 of 14.05.2020, chapter 3 (minimum
+/// column headings) and 3.2.2 (ER booking: Buchungscode fixed 2, amount multiplied by -1). Klacks has no tax
+/// data and no payment terms, so Steuercode, Prozent, Steuer, ZZiel, Skontopz and Skontotage stay empty.
+/// </remarks>
 using System.Globalization;
 using System.Text;
 using Klacks.Api.Application.Constants;
@@ -17,7 +24,24 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class BmdExportFormatter : IExportFormatter
 {
+    private const string Separator = ";";
+    private const int Windows1252CodePage = 1252;
+    private const string AmountFormat = "F2";
+    private const string AmountCultureName = "de-AT";
     private const string BmdSatzartBuchung = "0";
+    private const string BmdBuchsymbolIncomingInvoice = "ER";
+    private const string BmdBuchcodeCredit = "2";
+    private const string WorkCounterAccount = "3600";
+    private const string TaxableExpenseCounterAccount = "7600";
+    private const string NonTaxableExpenseCounterAccount = "7800";
+
+    private static readonly string[] HeaderColumns =
+    [
+        "satzart", "Konto", "Gkonto", "Belegnr", "Buchdatum", "Belegdatum", "Buchsymbol", "Buchcode",
+        "Steuercode", "Betrag", "Prozent", "Steuer", "Text", "ZZiel", "Skontopz", "Skontotage",
+        "kost", "auftragskuerzel", "stunden", "kundennr", "kundenname",
+        "extbelegnr", "quellsystem", "extkundenref",
+    ];
 
     public string FormatKey => ExportConstants.FormatBmd;
 
@@ -28,71 +52,95 @@ public class BmdExportFormatter : IExportFormatter
     public byte[] Format(OrderExportData data, ExportOptions options)
     {
         var sb = new StringBuilder();
-        var separator = ";";
 
-        AppendLine(sb, string.Join(separator,
-            "satzart", "konto", "gkonto", "belession", "buchdat",
-            "bession", "buchsymbol", "betrag", "steession",
-            "text", "kost", "mession", "kundennr", "kundenname",
-            "extbelegnr", "quellsystem", "extkundenref"));
+        AppendLine(sb, string.Join(Separator, HeaderColumns));
 
         var bookingNumber = 1;
 
         foreach (var order in data.Orders)
         {
-            var customerNumber = order.CustomerNumber?.ToString(CultureInfo.InvariantCulture) ?? "";
-            var customerName = EscapeBmd(order.CustomerName ?? "");
-            var externalOrderReference = EscapeBmd(order.ExternalOrderReference ?? "");
-            var sourceSystemId = EscapeBmd(order.SourceSystemId ?? "");
-            var customerExternalReference = EscapeBmd(order.CustomerExternalReference ?? "");
+            var orderColumns = string.Join(Separator,
+                EscapeBmd(order.OrderName),
+                EscapeBmd(order.OrderAbbreviation));
+            var customerColumns = string.Join(Separator,
+                order.CustomerNumber?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+                EscapeBmd(order.CustomerName ?? string.Empty),
+                EscapeBmd(order.ExternalOrderReference ?? string.Empty),
+                EscapeBmd(order.SourceSystemId ?? string.Empty),
+                EscapeBmd(order.CustomerExternalReference ?? string.Empty));
 
             foreach (var work in order.WorkEntries)
             {
                 var totalAmount = work.WorkTime + work.Surcharges
                     + work.Changes.Sum(c => c.ChangeTime + c.Surcharges);
 
-                AppendLine(sb, string.Join(separator,
-                    BmdSatzartBuchung,
-                    work.EmployeeIdNumber.ToString(),
-                    "3600",
-                    bookingNumber.ToString(),
-                    work.WorkDate.ToString(DateTimeFormats.DottedDate),
-                    EscapeBmd(order.OrderAbbreviation),
-                    "ER",
-                    FormatAmount(totalAmount),
-                    "",
+                AppendBooking(
+                    sb,
+                    work,
+                    WorkCounterAccount,
+                    bookingNumber,
+                    totalAmount,
                     EscapeBmd($"{work.EmployeeName} - {order.OrderName}"),
-                    EscapeBmd(order.OrderName),
-                    work.WorkTime.ToString("F2", CultureInfo.InvariantCulture),
-                    customerNumber, customerName,
-                    externalOrderReference, sourceSystemId, customerExternalReference));
+                    work.WorkTime.ToString(AmountFormat, CultureInfo.InvariantCulture),
+                    orderColumns,
+                    customerColumns);
 
                 bookingNumber++;
 
                 foreach (var expense in work.Expenses)
                 {
-                    AppendLine(sb, string.Join(separator,
-                        BmdSatzartBuchung,
-                        work.EmployeeIdNumber.ToString(),
-                        expense.Taxable ? "7600" : "7800",
-                        bookingNumber.ToString(),
-                        work.WorkDate.ToString(DateTimeFormats.DottedDate),
-                        EscapeBmd(order.OrderAbbreviation),
-                        "ER",
-                        FormatAmount(expense.Amount),
-                        "",
+                    AppendBooking(
+                        sb,
+                        work,
+                        expense.Taxable ? TaxableExpenseCounterAccount : NonTaxableExpenseCounterAccount,
+                        bookingNumber,
+                        expense.Amount,
                         EscapeBmd($"{expense.Description} - {work.EmployeeName}"),
-                        EscapeBmd(order.OrderName),
-                        "",
-                        customerNumber, customerName,
-                        externalOrderReference, sourceSystemId, customerExternalReference));
+                        string.Empty,
+                        orderColumns,
+                        customerColumns);
 
                     bookingNumber++;
                 }
             }
         }
 
-        return Encoding.GetEncoding(1252).GetBytes(sb.ToString());
+        return Encoding.GetEncoding(Windows1252CodePage).GetBytes(sb.ToString());
+    }
+
+    private static void AppendBooking(
+        StringBuilder sb,
+        WorkExportEntry work,
+        string counterAccount,
+        int bookingNumber,
+        decimal amount,
+        string text,
+        string hours,
+        string orderColumns,
+        string customerColumns)
+    {
+        var bookingDate = work.WorkDate.ToString(DateTimeFormats.DottedDate, CultureInfo.InvariantCulture);
+
+        AppendLine(sb, string.Join(Separator,
+            BmdSatzartBuchung,
+            work.EmployeeIdNumber.ToString(CultureInfo.InvariantCulture),
+            counterAccount,
+            bookingNumber.ToString(CultureInfo.InvariantCulture),
+            bookingDate,
+            bookingDate,
+            BmdBuchsymbolIncomingInvoice,
+            BmdBuchcodeCredit,
+            string.Empty,
+            FormatAmount(Negate(amount)),
+            string.Empty,
+            string.Empty,
+            text,
+            string.Empty,
+            string.Empty,
+            string.Empty,
+            orderColumns,
+            hours,
+            customerColumns));
     }
 
     private static void AppendLine(StringBuilder sb, string line)
@@ -100,9 +148,14 @@ public class BmdExportFormatter : IExportFormatter
         sb.Append(line).Append(ExportConstants.LineEnding);
     }
 
+    private static decimal Negate(decimal value)
+    {
+        return value == 0m ? 0m : -value;
+    }
+
     private static string FormatAmount(decimal value)
     {
-        return value.ToString("F2", CultureInfo.GetCultureInfo("de-AT"));
+        return value.ToString(AmountFormat, CultureInfo.GetCultureInfo(AmountCultureName));
     }
 
     private static string EscapeBmd(string value)
