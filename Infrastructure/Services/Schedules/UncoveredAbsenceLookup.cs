@@ -12,8 +12,10 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="ReplacementWindows">Handed-over intervals per work id</param>
 /// <param name="ShiftLabels">Abbreviation (or name when it has none) per shift id</param>
 /// <param name="AbsenceNames">Name of the absence type per break id</param>
+/// <param name="Works">Shift, day and service interval per work id of the clients with an absence</param>
 public sealed record UncoveredAbsenceLookup(
     IReadOnlySet<Guid> OnCallBreakIds,
     IReadOnlyDictionary<Guid, IReadOnlyList<ReplacementInterval>> ReplacementWindows,
     IReadOnlyDictionary<Guid, string> ShiftLabels,
-    IReadOnlyDictionary<Guid, MultiLanguage> AbsenceNames);
+    IReadOnlyDictionary<Guid, MultiLanguage> AbsenceNames,
+    IReadOnlyDictionary<Guid, UncoveredAbsenceWork> Works);

@@ -50,6 +50,7 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.Recovery;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -372,7 +373,8 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     /// group ROOT (<c>Group.Root ?? Group.Id</c>), so handing it a subgroup id matches nothing and returns
     /// an empty pool without any error - the same root resolution the recovery snapshot builder performs.
     /// The root-wide result is then narrowed back to the requested group's own subtree, because the query
-    /// asks for the members of THAT group, not for everyone under its root.
+    /// asks for the members of THAT group, not for everyone under its root. Only people who can take over a replacement
+    /// stay (<see cref="ReplacementPersonRule"/>), a customer is never a candidate.
     /// </summary>
     /// <param name="groupId">Group whose members form the candidate pool; may be a root or a subgroup</param>
     private async Task<List<Client>> ResolveGroupMembersAsync(Guid groupId, CancellationToken cancellationToken)
@@ -392,7 +394,7 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         }
 
         var memberIds = (await _groupClientService.GetAllClientIdsFromGroupAndSubgroups(groupId)).ToHashSet();
-        return underRoot.Where(c => memberIds.Contains(c.Id)).ToList();
+        return ReplacementPersonRule.EligibleOnly(underRoot).Where(c => memberIds.Contains(c.Id)).ToList();
     }
 
     /// <summary>

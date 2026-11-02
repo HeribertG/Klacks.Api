@@ -39,7 +39,8 @@ public static class UncoveredAbsenceLookupLoader
                 onCallBreakIds,
                 new Dictionary<Guid, IReadOnlyList<ReplacementInterval>>(),
                 new Dictionary<Guid, string>(),
-                new Dictionary<Guid, MultiLanguage>());
+                new Dictionary<Guid, MultiLanguage>(),
+                new Dictionary<Guid, UncoveredAbsenceWork>());
         }
 
         var shifts = await ShiftLabels(context, worksOfAbsentClients.Select(w => w.ShiftId).Distinct().ToList())
@@ -56,7 +57,8 @@ public static class UncoveredAbsenceLookupLoader
                 shift => string.IsNullOrEmpty(shift.Abbreviation) ? shift.Name : shift.Abbreviation),
             absenceBreaks
                 .Where(b => absenceNames.ContainsKey(b.AbsenceId))
-                .ToDictionary(b => b.Id, b => absenceNames[b.AbsenceId]));
+                .ToDictionary(b => b.Id, b => absenceNames[b.AbsenceId]),
+            worksOfAbsentClients.ToDictionary(work => work.Id, ToUncoveredAbsenceWork));
     }
 
     internal static IQueryable<Shift> ShiftLabels(DataBaseContext context, IReadOnlyCollection<Guid> shiftIds)
@@ -88,6 +90,12 @@ public static class UncoveredAbsenceLookupLoader
                     .Select(change => ToInterval(worksById[group.Key], change))
                     .OfType<ReplacementInterval>()
                     .ToList());
+    }
+
+    private static UncoveredAbsenceWork ToUncoveredAbsenceWork(Work work)
+    {
+        var (startAt, endAt) = ReplacementWindow.ToInterval(work.CurrentDate, work.StartTime, work.StartTime, work.EndTime);
+        return new UncoveredAbsenceWork(work.ShiftId, work.CurrentDate, new ReplacementInterval(startAt, endAt));
     }
 
     private static ReplacementInterval? ToInterval(Work work, WorkChange change)

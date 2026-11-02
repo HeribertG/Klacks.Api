@@ -84,7 +84,7 @@ public class TimelineCalculationService : ITimelineCalculationService
                     var duration = TimeSpan.FromHours((double)change.ChangeTime);
                     var blockEnd = workStartWall - beforeRunning;
                     result.Add(CreateBlockFromWall(change.Id, ScheduleBlockType.Correction,
-                        work.ClientId, blockEnd - duration, blockEnd));
+                        work.ClientId, blockEnd - duration, blockEnd, parentWorkId: work.Id));
                     beforeRunning += duration;
                 }
 
@@ -94,7 +94,7 @@ public class TimelineCalculationService : ITimelineCalculationService
                     var duration = TimeSpan.FromHours((double)change.ChangeTime);
                     var blockStart = workEndWall + afterRunning;
                     result.Add(CreateBlockFromWall(change.Id, ScheduleBlockType.Correction,
-                        work.ClientId, blockStart, blockStart + duration));
+                        work.ClientId, blockStart, blockStart + duration, parentWorkId: work.Id));
                     afterRunning += duration;
                 }
 
@@ -196,7 +196,8 @@ public class TimelineCalculationService : ITimelineCalculationService
         Guid clientId,
         DateTime startWall,
         DateTime endWall,
-        Guid? shiftId = null)
+        Guid? shiftId = null,
+        Guid? parentWorkId = null)
     {
         if (_options.DstAware && _timeZone is not null)
         {
@@ -216,7 +217,8 @@ public class TimelineCalculationService : ITimelineCalculationService
                 endUtc,
                 shiftId,
                 DateTime.SpecifyKind(startWall, DateTimeKind.Unspecified),
-                DateTime.SpecifyKind(endWall, DateTimeKind.Unspecified));
+                DateTime.SpecifyKind(endWall, DateTimeKind.Unspecified),
+                parentWorkId);
         }
 
         return new ScheduleBlock(
@@ -225,7 +227,8 @@ public class TimelineCalculationService : ITimelineCalculationService
             clientId,
             DateTime.SpecifyKind(startWall, DateTimeKind.Unspecified),
             DateTime.SpecifyKind(endWall, DateTimeKind.Unspecified),
-            shiftId);
+            shiftId,
+            ParentWorkId: parentWorkId);
     }
 
     private DateTime ConvertWallTimeToUtc(DateTime wallTime, TimeZoneInfo timeZone)

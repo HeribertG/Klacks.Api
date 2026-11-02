@@ -8,10 +8,13 @@
 /// a sub-work whose shift changes against the stored one must be on a shift the caller may book, otherwise the save is
 /// refused exactly like a save with a shift that does not exist; unchanged sub-works on hidden shifts stay saveable. Every
 /// sub-work shift must also lie in the world of the container's stored Work (IWorkWriteGuard), or it reads like a missing one.
+/// A new or changed replacement among the work changes of a sub-work passes IReplacementWriteGuard like a replacement
+/// saved on its own, with the stored row as comparison; a row that is the same as the stored one is not checked again.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="shiftVisibilityGuard">Decides which shifts of new or changed sub-works the calling user may book</param>
 /// <param name="workWriteGuard">Refuses a sub-work shift outside the world of the container's stored Work</param>
+/// <param name="replacementWriteGuard">Refuses a new or changed replacement without a valid person or with a blocking conflict for the substitute</param>
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -40,6 +43,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly IWorkWriteGuard _workWriteGuard;
+    private readonly IReplacementWriteGuard _replacementWriteGuard;
 
     public UpdateContainerWorkChildrenCommandHandler(
         IContainerWorkChildrenReadRepository childrenReadRepository,
@@ -53,6 +57,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         IOvertimeCascadeService overtimeCascadeService,
         IShiftVisibilityGuard shiftVisibilityGuard,
         IWorkWriteGuard workWriteGuard,
+        IReplacementWriteGuard replacementWriteGuard,
         ILogger<UpdateContainerWorkChildrenCommandHandler> logger)
         : base(logger)
     {
@@ -67,6 +72,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         _overtimeCascadeService = overtimeCascadeService;
         _shiftVisibilityGuard = shiftVisibilityGuard;
         _workWriteGuard = workWriteGuard;
+        _replacementWriteGuard = replacementWriteGuard;
     }
 
     public async Task<ContainerWorkChildrenResource> Handle(UpdateContainerWorkChildrenCommand request, CancellationToken cancellationToken)
@@ -79,7 +85,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             }
 
             await VerifyLockAsync(request.WorkId, cancellationToken);
-            var storedParent = await EnsureContainerVisibleAsync(request.WorkId, request.Resource, cancellationToken);
+            var container = await EnsureContainerVisibleAsync(request.WorkId, request.Resource, cancellationToken);
 
             var updatedWorks = request.Resource.SubWorks.Select(_scheduleMapper.ToWorkEntity).ToList();
             var updatedBreaks = request.Resource.SubBreaks.Select(_scheduleMapper.ToBreakEntity).ToList();
@@ -87,7 +93,8 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
 
             await EnsureSubWorkShiftsVisibleAsync(request.WorkId, updatedWorks, cancellationToken);
             await _workWriteGuard.EnsureShiftsInWorkWorldAsync(
-                updatedWorks.Select(w => (w.ShiftId, storedParent.AnalyseToken)).Distinct().ToList(), cancellationToken);
+                updatedWorks.Select(w => (w.ShiftId, container.AnalyseToken)).Distinct().ToList(), cancellationToken);
+            await EnsureReplacementsAllowedAsync(container, request.Resource, updatedWorks, cancellationToken);
 
             var parentWork = await _childrenManager.UpdateChildrenAsync(
                 request.WorkId,
@@ -161,6 +168,51 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
 
         return parentWork;
     }
+
+    /// <summary>
+    /// Every work change of the request that is new or differs from the stored row in what a replacement is made of (Work,
+    /// type, person, times) passes the replacement write guard against the sub-work it is attached to, the container
+    /// when the request names no such sub-work. The guard sees the scenario of the container and the stored row; it works
+    /// on a copy, so what is saved stays as the request carries it. Unchanged rows are skipped, so a stored row the guard
+    /// would refuse today does not block saving the rest of the container.
+    /// </summary>
+    private async Task EnsureReplacementsAllowedAsync(
+        Work container,
+        UpdateContainerWorkChildrenResource resource,
+        IReadOnlyCollection<Work> updatedWorks,
+        CancellationToken cancellationToken)
+    {
+        if (resource.SubWorkChanges.Count == 0)
+        {
+            return;
+        }
+
+        var storedSubWorkIds = (await _childrenReadRepository.GetChildWorkShiftIds(container.Id, cancellationToken)).Keys.ToList();
+        var storedChanges = (await _childrenReadRepository.GetWorkChangesForWorks(storedSubWorkIds, cancellationToken))
+            .ToDictionary(change => change.Id);
+
+        foreach (var requested in resource.SubWorkChanges)
+        {
+            var candidate = _scheduleMapper.ToWorkChangeEntity(requested);
+            storedChanges.TryGetValue(candidate.Id, out var stored);
+            if (stored != null && SameReplacement(stored, candidate))
+            {
+                continue;
+            }
+
+            candidate.AnalyseToken = container.AnalyseToken;
+            var subWork = updatedWorks.FirstOrDefault(work => work.Id == candidate.WorkId) ?? container;
+            await _replacementWriteGuard.EnsureAllowedAsync(candidate, subWork, requested.OverrideBlock, stored, cancellationToken);
+        }
+    }
+
+    private static bool SameReplacement(WorkChange stored, WorkChange requested)
+        => stored.WorkId == requested.WorkId
+            && stored.Type == requested.Type
+            && stored.ReplaceClientId == requested.ReplaceClientId
+            && stored.StartTime == requested.StartTime
+            && stored.EndTime == requested.EndTime
+            && stored.ChangeTime == requested.ChangeTime;
 
     /// <summary>
     /// One query decides which requested sub-work shifts the caller may book; only when some may not are the stored

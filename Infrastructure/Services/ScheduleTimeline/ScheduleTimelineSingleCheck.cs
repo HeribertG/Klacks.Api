@@ -145,9 +145,37 @@ public sealed class ScheduleTimelineSingleCheck
 
         await AddTravelTimeEntriesAsync(entries, timeline, rows.Works, clientName, date, cancellationToken);
 
-        ScheduleValidationBuilder.AddOnCallOverlaps(entries, timeline, clientName, rows.OnCallBreakIds);
-        UncoveredAbsenceEntries.Add(entries, timeline, clientName, await _loader.LoadUncoveredAbsenceLookupAsync(rows, cancellationToken));
+        await AddNeighbourhoodEntriesAsync(entries, rows, clientId, clientName, date, analyseToken, cancellationToken);
         return entries;
+    }
+
+    /// <summary>
+    /// A night shift reaches across midnight, so its absence or on-call duty can lie on the next day and a night shift of
+    /// the day before can end inside an absence or on-call duty of the checked day. This judges the checked day together
+    /// with the works of the day before and the breaks of the two days before and the day after. An entry is dated on the
+    /// day of its work, so it can fall on the day before the checked day; the client takes back the entries of both days
+    /// when this result arrives.
+    /// </summary>
+    private async Task AddNeighbourhoodEntriesAsync(
+        List<ScheduleValidationNotificationDto> entries,
+        TimelineCheckRows rows,
+        Guid clientId,
+        string clientName,
+        DateOnly date,
+        Guid? analyseToken,
+        CancellationToken cancellationToken)
+    {
+        var neighbourhood = await _loader.LoadNeighbourhoodAsync(clientId, date, rows, analyseToken, cancellationToken);
+
+        var neighbourhoodTimeline = new ClientTimeline(clientId);
+        neighbourhoodTimeline.AddBlocks(_timelineCalculationService
+            .CalculateScheduleBlocks(neighbourhood.Works, neighbourhood.WorkChanges, neighbourhood.Breaks)
+            .Where(block => block.ClientId == clientId));
+        neighbourhoodTimeline.SortBlocks();
+
+        ScheduleValidationBuilder.AddOnCallOverlaps(entries, neighbourhoodTimeline, clientName, neighbourhood.OnCallBreakIds);
+        UncoveredAbsenceEntries.Add(
+            entries, neighbourhoodTimeline, clientName, await _loader.LoadUncoveredAbsenceLookupAsync(neighbourhood, cancellationToken));
     }
 
     /// <summary>
