@@ -40,10 +40,10 @@ public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
             writer.WriteStartDocument();
             writer.WriteStartElement("ClientPeriodExport");
 
-            writer.WriteAttributeString("startDate", data.StartDate.ToString(DateTimeFormats.IsoDate));
-            writer.WriteAttributeString("endDate", data.EndDate.ToString(DateTimeFormats.IsoDate));
+            writer.WriteAttributeString("startDate", data.StartDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
+            writer.WriteAttributeString("endDate", data.EndDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
             writer.WriteAttributeString("exportDate", data.ExportDate.ToString("o"));
-            writer.WriteAttributeString("currency", options.CurrencyCode);
+            writer.WriteAttributeString("currency", XmlTextSanitizer.Clean(options.CurrencyCode));
 
             foreach (var client in data.Clients)
             {
@@ -62,7 +62,7 @@ public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
         writer.WriteStartElement("Client");
         writer.WriteAttributeString("id", client.ClientId.ToString());
         writer.WriteElementString("IdNumber", client.ClientIdNumber.ToString(CultureInfo.InvariantCulture));
-        writer.WriteElementString("Name", client.ClientName);
+        writer.WriteElementString("Name", XmlTextSanitizer.Clean(client.ClientName));
         writer.WriteElementString("Type", client.ClientType.ToString());
 
         writer.WriteStartElement("WorkEntries");
@@ -92,11 +92,11 @@ public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
         foreach (var period in periodHours)
         {
             writer.WriteStartElement("Period");
-            writer.WriteAttributeString("startDate", period.StartDate.ToString(DateTimeFormats.IsoDate));
-            writer.WriteAttributeString("endDate", period.EndDate.ToString(DateTimeFormats.IsoDate));
+            writer.WriteAttributeString("startDate", period.StartDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
+            writer.WriteAttributeString("endDate", period.EndDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
             writer.WriteElementString("Hours", period.Hours.ToString("F2", CultureInfo.InvariantCulture));
             writer.WriteElementString("Surcharges", period.Surcharges.ToString("F2", CultureInfo.InvariantCulture));
-            writer.WriteElementString("PaymentInterval", period.PaymentInterval);
+            writer.WriteElementString("PaymentInterval", XmlTextSanitizer.Clean(period.PaymentInterval));
             writer.WriteEndElement();
         }
 
@@ -108,14 +108,14 @@ public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
         writer.WriteStartElement("Work");
         writer.WriteAttributeString("id", work.WorkId.ToString());
 
-        writer.WriteElementString("Date", work.WorkDate.ToString(DateTimeFormats.IsoDate));
+        writer.WriteElementString("Date", work.WorkDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
         writer.WriteElementString("StartTime", work.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
         writer.WriteElementString("EndTime", work.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
         writer.WriteElementString("Hours", work.WorkTime.ToString("F2", CultureInfo.InvariantCulture));
         writer.WriteElementString("Surcharges", work.Surcharges.ToString("F2", CultureInfo.InvariantCulture));
 
         if (!string.IsNullOrEmpty(work.Information))
-            writer.WriteElementString("Information", work.Information);
+            writer.WriteElementString("Information", XmlTextSanitizer.Clean(work.Information));
 
         ExportXmlElementWriter.WriteChanges(writer, work.Changes);
         ExportXmlElementWriter.WriteExpenses(writer, work.Expenses);

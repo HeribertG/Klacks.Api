@@ -6,7 +6,8 @@
 /// (EXTF_Buchungsstapel.csv): line 1 is the 31-field header, line 2 the 125 column names of the sample file,
 /// then one 125-field booking per work entry and per expense. Windows-1252, CRLF, semicolon separated,
 /// text fields quoted with doubled quotes, amounts positive with decimal comma and the sign in the S/H field.
-/// The amounts are hours (work time plus surcharge time) and expense amounts, not monetary values. The accounts
+/// The amounts are hours (work time plus surcharge time, plus only the hour-bearing changes: corrections and travel,
+/// not replacements or briefing/debriefing) and expense amounts, not monetary values. The accounts
 /// (employee number) and counter accounts (fixed placeholders per booking kind) are placeholders that have to be
 /// mapped in DATEV; they are not derived from a chart of accounts. The 125-column count is derived from the
 /// column names.
@@ -218,8 +219,8 @@ public class DatevExportFormatter : IExportFormatter, IExportFileNameProvider
         {
             foreach (var work in order.WorkEntries)
             {
-                var totalHours = work.WorkTime + work.Changes.Sum(c => c.ChangeTime);
-                var amount = totalHours + work.Surcharges + work.Changes.Sum(c => c.Surcharges);
+                var totalHours = OrderWorkHours.WorkHours(work);
+                var amount = OrderWorkHours.BillableHours(work);
                 var workRow = BuildBookingRow(order, work, amount, WorkCounterAccount,
                     BuildBookingText(work.EmployeeName, order), options);
 

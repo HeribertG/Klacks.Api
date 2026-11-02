@@ -4,11 +4,11 @@
 /// Formats employee-centric payroll data as an Abacus AbaConnect "LOHN FlatPreEntry" XML import
 /// (one &lt;PreEntry&gt; element per work/surcharge/absence row, wrapped in the standard AbaConnect
 /// container/task/transaction envelope). Populated fields: EmployeeNumber, PeriodDate, PeriodNumber,
-/// PayrollType, Amount, Factor.
+/// PayrollType, Amount.
 /// </summary>
 /// <remarks>
 /// The container/parameter envelope (AbaConnectContainer/Task/Parameter/Transaction/PreEntry) and the
-/// field names (EmployeeNumber, PeriodDate, PeriodNumber, PayrollType, Amount, Factor) are confirmed
+/// field names (EmployeeNumber, PeriodDate, PeriodNumber, PayrollType, Amount) are confirmed
 /// from the official, publicly reachable Abacus documentation pages
 /// (downloads.abacus.ch/fileadmin/ablage/abaconnect/htmlfiles/lohn/LOHN__FlatPreEntry_2020.00_AbaDefault_DE.html
 /// and the 2014.00 revision) — this interface is not partner-portal-gated, contrary to the initial
@@ -20,12 +20,17 @@
 /// here: one &lt;Task&gt;/&lt;Transaction&gt; per export, with one repeated &lt;PreEntry&gt; element per
 /// row (rather than one &lt;Task&gt; per row). The &lt;Parameter&gt; block's Mandant (tenant number)
 /// element from the doc's example is omitted because PayrollExportGroupConfig has no field for it yet.
-/// Per the doc, the XML decimal separator must be a dot (W3C XML standard), so Amount and Factor use
-/// InvariantCulture, unlike the comma-separated DatevLug formatter. Factor is fixed at 1 for every entry
-/// kind because the task mapping only specifies it for WorkHours and the spec gives no other guidance.
-/// Surcharge rows are emitted only when a surcharge wage type is configured; absence rows are emitted
-/// only when the absence is mapped — unmapped absences are counted in SkippedAbsenceCount instead of
-/// being dropped silently, mirroring DatevLugBewegungsdatenFormatter.
+/// Per the doc, the XML decimal separator must be a dot (W3C XML standard), so Amount uses
+/// InvariantCulture, unlike the comma-separated DatevLug formatter.
+/// Factor (Ansatz) is optional in FlatPreEntry and deliberately NOT written: Klacks carries no rate, and a constant
+/// 1.000000 would override the rate Abacus takes from the employee master data (e.g. the hourly wage), so the
+/// Lohnart's own rate applies.
+/// PayrollType (Lohnart) is a numeric Abacus field: a configured or mapped value must consist of 1 to 8 ASCII digits
+/// (surrounding whitespace is trimmed). Every entry is emitted or counted exactly once: worked hours whose
+/// BaseWageType is empty or not 1-8 digits count as SkippedUnmappedBaseWageCount, surcharges whose SurchargeWageType
+/// is empty or not 1-8 digits as SkippedUnmappedSurchargeCount, absences without an id, without a mapping or with a
+/// mapped WageType that is empty or not 1-8 digits as SkippedAbsenceCount, day-based worked hours and surcharges as
+/// SkippedUnsupportedUnitCount, unknown entry kinds as SkippedUnsupportedKindCount.
 /// Amount is the quantity in the unit of the Lohnart (PayrollType): a day-based entry (on-call duty) is written as its
 /// day count under the mapped Lohnart, which must be a day-based Lohnart in Abacus - never as an hour equivalent.
 /// </remarks>
@@ -60,7 +65,6 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
     private const string PeriodNumberElement = "PeriodNumber";
     private const string PayrollTypeElement = "PayrollType";
     private const string AmountElement = "Amount";
-    private const string FactorElement = "Factor";
 
     private const string ApplicationValue = "LOHN";
     private const string IdValue = "FlatPreEntry";
@@ -70,7 +74,7 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
 
     private const string PeriodNumberFormat = "00";
     private const string AmountFormat = "F6";
-    private const decimal DefaultFactor = 1m;
+    private const int PayrollTypeMaxDigits = 8;
 
     public string FormatKey => PayrollExportConstants.FormatKeyAbaconnectCh;
 
@@ -101,30 +105,41 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
                         continue;
 
                     case PayrollEntryKind.WorkHours:
-                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, config.BaseWageType, entry.Quantity));
+                        var baseWageType = NormalizePayrollType(config.BaseWageType);
+                        if (baseWageType == null)
+                        {
+                            counter.UnmappedBaseWages++;
+                            continue;
+                        }
+
+                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, baseWageType, entry.Quantity));
                         counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Surcharge:
-                        if (string.IsNullOrEmpty(config.SurchargeWageType))
+                        var surchargeWageType = NormalizePayrollType(config.SurchargeWageType);
+                        if (surchargeWageType == null)
                         {
                             counter.UnmappedSurcharges++;
                             continue;
                         }
 
-                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, config.SurchargeWageType, entry.Quantity));
+                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, surchargeWageType, entry.Quantity));
                         counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Absence:
                         var key = entry.AbsenceId?.ToString();
-                        if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
+                        var absenceWageType = key != null && absenceMapping.TryGetValue(key, out var mapping)
+                            ? NormalizePayrollType(mapping?.WageType)
+                            : null;
+                        if (absenceWageType == null)
                         {
                             counter.UnmappedAbsences++;
                             continue;
                         }
 
-                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, mapping.WageType, entry.Quantity));
+                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, absenceWageType, entry.Quantity));
                         counter.Emitted++;
                         break;
 
@@ -149,8 +164,19 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
             new XElement(PeriodDateElement, periodDate),
             new XElement(PeriodNumberElement, periodNumber),
             new XElement(PayrollTypeElement, payrollType),
-            new XElement(AmountElement, quantity.ToString(AmountFormat, CultureInfo.InvariantCulture)),
-            new XElement(FactorElement, DefaultFactor.ToString(AmountFormat, CultureInfo.InvariantCulture)));
+            new XElement(AmountElement, quantity.ToString(AmountFormat, CultureInfo.InvariantCulture)));
+    }
+
+    /// <returns>The trimmed Lohnart when it is 1 to 8 ASCII digits, otherwise null (not exportable)</returns>
+    private static string? NormalizePayrollType(string? value)
+    {
+        var trimmed = value?.Trim();
+        if (string.IsNullOrEmpty(trimmed) || trimmed.Length > PayrollTypeMaxDigits || !trimmed.All(char.IsAsciiDigit))
+        {
+            return null;
+        }
+
+        return trimmed;
     }
 
     private static XDocument BuildDocument(List<XElement> preEntries)

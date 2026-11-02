@@ -4,19 +4,23 @@
 /// Loads the currently closed (LockLevel.Closed) Work and Break entries of a period and projects them into a
 /// person-based, day-granular payroll model. The export is not group-scoped: every Employee and ExternEmp with a
 /// closed, non-deleted, non-scenario entry in the period is exported exactly once, whatever groups the person
-/// belongs to (or none), optionally restricted to a set of client ids. Worked hours and the aggregated surcharge
-/// become separate day rows; each absence and day becomes an absence row - in hours (summed WorkTime) for ordinary absences, and as one day for an on-call
-/// absence (Absence.IsOnCall), whose WorkTime is zero by design.
+/// belongs to (or none), optionally restricted to a set of client ids. A soft-deleted person is still exported: global
+/// query filters are ignored and the entry's own soft-delete, scenario and lock conditions are applied explicitly.
+/// Worked hours and the aggregated surcharge become separate day rows. The WorkChanges of closed works are projected
+/// per day with the period-hours rules (PayrollWorkChangeProjection): hour-bearing corrections and travel (including
+/// the briefing/debriefing rows of the container expansion) add to the work's employee, a replacement moves its hours
+/// and surcharges from the work's employee to the replacing person, who gets them as WorkHours/Surcharge rows on that
+/// day. Break surcharges are added to the day's surcharge as in the period hours. Each absence and day becomes an
+/// absence row - in hours (summed WorkTime) for ordinary absences, and as one day for an on-call absence
+/// (Absence.IsOnCall), whose WorkTime is zero by design.
 /// @param fromDate - Lower bound (inclusive) for CurrentDate
 /// @param untilDate - Upper bound (inclusive) for CurrentDate
 /// @param clientIds - Optional restriction to these persons; null loads every person
 /// </summary>
 /// <remarks>
-/// Known MVP gaps (deliberate, documented): (1) surcharges are a single aggregated decimal on each entry —
-/// night vs. weekend surcharge types are NOT distinguished because the domain model does not carry them.
-/// (2) WorkChange adjustments (replacements that move hours between employees, corrections) are NOT projected
-/// here; PeriodHoursService.CalculatePeriodHoursForClientsAsync holds that reference logic and a later phase
-/// must project it per day. Both are export-fidelity limits, not silent omissions.
+/// Known MVP gap (deliberate, documented): surcharges are a single aggregated decimal on each entry - night vs.
+/// weekend surcharge types are NOT distinguished because the domain model does not carry them. This is an
+/// export-fidelity limit, not a silent omission.
 /// </remarks>
 using Klacks.Api.Application.Interfaces.Exports;
 using Klacks.Api.Domain.Enums;
@@ -49,6 +53,7 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
         var restrictedClientIds = clientIds?.ToList();
 
         IQueryable<Work> worksQuery = _context.Work
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(w => !w.IsDeleted
                 && w.AnalyseToken == null
@@ -56,10 +61,10 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
                 && w.CurrentDate >= fromDate
                 && w.CurrentDate <= untilDate
                 && w.Client != null
-                && (w.Client.Type == EntityTypeEnum.Employee || w.Client.Type == EntityTypeEnum.ExternEmp))
-            .Include(w => w.Client);
+                && (w.Client.Type == EntityTypeEnum.Employee || w.Client.Type == EntityTypeEnum.ExternEmp));
 
         IQueryable<Break> breaksQuery = _context.Break
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(b => !b.IsDeleted
                 && b.AnalyseToken == null
@@ -68,7 +73,6 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
                 && b.CurrentDate <= untilDate
                 && b.Client != null
                 && (b.Client.Type == EntityTypeEnum.Employee || b.Client.Type == EntityTypeEnum.ExternEmp))
-            .Include(b => b.Client)
             .Include(b => b.Absence);
 
         if (restrictedClientIds is not null)
@@ -79,45 +83,65 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
 
         var works = await worksQuery.ToListAsync(cancellationToken);
         var breaks = await breaksQuery.ToListAsync(cancellationToken);
+        var workChanges = await PayrollWorkChangeLoader.LoadAsync(
+            _context, fromDate, untilDate, restrictedClientIds, WorkLockLevel.Closed, cancellationToken);
+
+        var changeDeltas = PayrollWorkChangeProjection.ProjectDayDeltas(workChanges)
+            .Where(d => restrictedClientIds is null || restrictedClientIds.Contains(d.Key.ClientId))
+            .ToDictionary(d => d.Key, d => d.Value);
+
+        var days = new Dictionary<(Guid ClientId, DateOnly Date), (decimal Hours, decimal Surcharges)>();
+        foreach (var work in works)
+        {
+            AddToDay(days, work.ClientId, work.CurrentDate, work.WorkTime, work.Surcharges);
+        }
+
+        foreach (var breakEntry in breaks)
+        {
+            AddToDay(days, breakEntry.ClientId, breakEntry.CurrentDate, 0m, breakEntry.Surcharges);
+        }
+
+        foreach (var ((clientId, date), delta) in changeDeltas)
+        {
+            AddToDay(days, clientId, date, delta.Hours, delta.Surcharges);
+        }
+
+        var personIds = days.Keys.Select(k => k.ClientId)
+            .Concat(breaks.Select(b => b.ClientId))
+            .Distinct()
+            .ToList();
+        var clientsById = await LoadClientsAsync(personIds, cancellationToken);
 
         var employeesById = new Dictionary<Guid, PayrollEmployee>();
 
-        foreach (var group in works.GroupBy(w => w.ClientId))
+        foreach (var ((clientId, date), totals) in days)
         {
-            var client = group.First().Client;
-            var employee = GetOrCreateEmployee(employeesById, group.Key, client);
+            var employee = GetOrCreateEmployee(employeesById, clientId, clientsById.GetValueOrDefault(clientId));
 
-            foreach (var dayGroup in group.GroupBy(w => w.CurrentDate))
+            if (totals.Hours != 0m)
             {
-                var hours = dayGroup.Sum(w => w.WorkTime);
-                var surcharges = dayGroup.Sum(w => w.Surcharges);
-
-                if (hours != 0m)
+                employee.Entries.Add(new PayrollDayEntry
                 {
-                    employee.Entries.Add(new PayrollDayEntry
-                    {
-                        Date = dayGroup.Key,
-                        Kind = PayrollEntryKind.WorkHours,
-                        Quantity = hours,
-                    });
-                }
+                    Date = date,
+                    Kind = PayrollEntryKind.WorkHours,
+                    Quantity = totals.Hours,
+                });
+            }
 
-                if (surcharges != 0m)
+            if (totals.Surcharges != 0m)
+            {
+                employee.Entries.Add(new PayrollDayEntry
                 {
-                    employee.Entries.Add(new PayrollDayEntry
-                    {
-                        Date = dayGroup.Key,
-                        Kind = PayrollEntryKind.Surcharge,
-                        Quantity = surcharges,
-                    });
-                }
+                    Date = date,
+                    Kind = PayrollEntryKind.Surcharge,
+                    Quantity = totals.Surcharges,
+                });
             }
         }
 
         foreach (var group in breaks.GroupBy(b => b.ClientId))
         {
-            var client = group.First().Client;
-            var employee = GetOrCreateEmployee(employeesById, group.Key, client);
+            var employee = GetOrCreateEmployee(employeesById, group.Key, clientsById.GetValueOrDefault(group.Key));
 
             foreach (var dayAbsenceGroup in group.GroupBy(b => new { b.CurrentDate, b.AbsenceId }))
             {
@@ -154,6 +178,33 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
             EndDate = untilDate,
             Employees = employees,
         };
+    }
+
+    private async Task<Dictionary<Guid, Client>> LoadClientsAsync(
+        List<Guid> personIds,
+        CancellationToken cancellationToken)
+    {
+        if (personIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await _context.Client
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(c => personIds.Contains(c.Id))
+            .ToDictionaryAsync(c => c.Id, cancellationToken);
+    }
+
+    private static void AddToDay(
+        Dictionary<(Guid ClientId, DateOnly Date), (decimal Hours, decimal Surcharges)> days,
+        Guid clientId,
+        DateOnly date,
+        decimal hours,
+        decimal surcharges)
+    {
+        var current = days.GetValueOrDefault((clientId, date));
+        days[(clientId, date)] = (current.Hours + hours, current.Surcharges + surcharges);
     }
 
     private static PayrollEmployee GetOrCreateEmployee(

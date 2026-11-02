@@ -4,7 +4,7 @@
 /// Immutable lookup over pre-computed sets of globally closed dates and (client, date)
 /// pairs closed via group-scoped SealedDay rows.
 /// @param globallyClosedDates - Dates sealed for all clients (SealedDay.GroupId = null)
-/// @param closedClientDates - (client, date) pairs sealed via group membership
+/// @param closedClientDates - (client, date) pairs locked by a group-scoped seal (worked shift of the group or active membership)
 /// </summary>
 using Klacks.Api.Application.Interfaces.Exports;
 

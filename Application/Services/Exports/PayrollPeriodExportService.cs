@@ -70,6 +70,7 @@ public class PayrollPeriodExportService : IPayrollPeriodExportService
     private readonly IPayrollArtifactStorage _artifactStorage;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PayrollPeriodExportService> _logger;
+    private readonly ICompanyInfoLoader _companyInfoLoader;
 
     public PayrollPeriodExportService(
         IEnumerable<IPayrollExportFormatter> formatters,
@@ -82,8 +83,10 @@ public class PayrollPeriodExportService : IPayrollPeriodExportService
         IExportFormatOverrideApplier overrideApplier,
         IPayrollArtifactStorage artifactStorage,
         IUnitOfWork unitOfWork,
-        ILogger<PayrollPeriodExportService> logger)
+        ILogger<PayrollPeriodExportService> logger,
+        ICompanyInfoLoader companyInfoLoader)
     {
+        _companyInfoLoader = companyInfoLoader;
         _formatters = formatters;
         _exportFormatPolicy = exportFormatPolicy;
         _completenessGate = completenessGate;
@@ -160,11 +163,14 @@ public class PayrollPeriodExportService : IPayrollPeriodExportService
         var config = await _configRepository.GetAsync(cancellationToken);
         var overrideApplied = await _overrideApplier.ApplyAsync(format, config, cancellationToken);
 
+        var company = await _companyInfoLoader.LoadAsync(cancellationToken);
         var data = new PayrollExportData
         {
             StartDate = from,
             EndDate = until,
-            Employees = changed.Select(d => d.Employee).ToList()
+            Employees = changed.Select(d => d.Employee).ToList(),
+            DatevConsultantNumber = company.DatevConsultantNumber,
+            DatevClientNumber = company.DatevClientNumber
         };
         var result = formatter.Format(data, config);
 

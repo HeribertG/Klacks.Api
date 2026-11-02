@@ -22,15 +22,22 @@
 /// PayrollEmployee.FirstName and PayrollEmployee.LastName; matching itself always uses cislo_pracovniho_pomeru.
 /// rozvrh (the required, day-exhaustive schedule section; per the XSD it is imported as the calendar for an
 /// individual shift pattern and otherwise used for checking) is filled with each calendar day's planned
-/// WorkHours quantity from the Klacks schedule (0:00 for days without one); Klacks has no separate contractual
-/// target schedule in PayrollExportData.
+/// WorkHours quantity from the Klacks schedule plus the hours of that day's exported (mapped, hour-based) absences,
+/// 0:00 for days with neither. Absence hours are added because PAMICA values an absence day by that day's uvazek:
+/// without them every absence would be worth 0 hours. KNOWN LIMITATION: this is still not the contractual target
+/// schedule (úvazek) PAMICA expects - PayrollExportData carries no contractual target hours per day, so days off are
+/// 0:00 and a day's uvazek is whatever Klacks planned or booked as absence on it. Unmapped or skipped absences and
+/// day-based entries add nothing to rozvrh.
 /// pritomnost is scoped by the schema to overtime/over-quota hours (prescas_*, naduvazek_*). PayrollDayEntry has
 /// no overtime distinction, so the element is written empty: WorkHours already appear once in rozvrh and are not
 /// repeated as overtime. Surcharge entries are summed into a priplatek wage component under mzdy, and only
 /// emitted when config.SurchargeWageType is configured; otherwise they are skipped.
 /// Absence entries are emitted as one single-day nepritomnost (od == do) each; consecutive days for the
-/// same absence are not merged into a single ranged entry. Unmapped absences are counted in
-/// SkippedAbsenceCount instead of being dropped silently or crashing the export.
+/// same absence are not merged into a single ranged entry. The kod is read from config.AbsenceMappingJson in the
+/// common shape {"&lt;absenceId&gt;":{"WageType":"…"}} or the older POHODA shape {"&lt;absenceId&gt;":{"Kod":"…"}};
+/// Kod wins when both are set. Absences without an id, without a mapping or with an empty or whitespace code are
+/// counted in SkippedAbsenceCount instead of being dropped silently or crashing the export; a mapped day-based
+/// absence (on-call duty) is still written as nepritomnost but adds no hours to rozvrh.
 /// Output uses Windows-1250, the documented encoding convention for Czech Stormware imports;
 /// CodePagesEncodingProvider is already registered globally in Program.cs.
 /// hlavicka.mesic/rok are derived from PayrollExportData.StartDate only; this formatter assumes the
@@ -123,6 +130,7 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
     {
         var totalSurchargeHours = 0m;
         var nepritomnosti = new XElement(NepritomnostiElement);
+        var plannedHoursByDate = new Dictionary<DateOnly, decimal>();
 
         foreach (var entry in employee.Entries)
         {
@@ -134,6 +142,7 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
                     break;
 
                 case PayrollEntryKind.WorkHours:
+                    AddPlannedHours(plannedHoursByDate, entry);
                     counter.Emitted++;
                     break;
 
@@ -150,16 +159,24 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
 
                 case PayrollEntryKind.Absence:
                     var key = entry.AbsenceId?.ToString();
-                    if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
+                    var kod = key != null && absenceMapping.TryGetValue(key, out var mapping) && mapping != null
+                        ? mapping.ResolveCode()
+                        : string.Empty;
+                    if (kod.Length == 0)
                     {
                         counter.UnmappedAbsences++;
                         continue;
                     }
 
+                    if (entry.Unit == PayrollQuantityUnit.Hours)
+                    {
+                        AddPlannedHours(plannedHoursByDate, entry);
+                    }
+
                     var day = entry.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
                     nepritomnosti.Add(new XElement(
                         NepritomnostElement,
-                        new XElement(KodElement, mapping.Kod),
+                        new XElement(KodElement, kod),
                         new XElement(OdElement, day),
                         new XElement(DoElement, day)));
                     counter.Emitted++;
@@ -175,7 +192,7 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
             RootElement,
             new XAttribute(VersionAttribute, SchemaVersion),
             BuildHlavicka(data, employee),
-            new XElement(RozvrhElement, BuildUvazekElements(data, employee)),
+            new XElement(RozvrhElement, BuildUvazekElements(data, plannedHoursByDate)),
             nepritomnosti,
             new XElement(PritomnostElement),
             BuildMzdy(config, totalSurchargeHours));
@@ -237,16 +254,16 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
         return hlavicka;
     }
 
-    private static IEnumerable<XElement> BuildUvazekElements(PayrollExportData data, PayrollEmployee employee)
+    private static void AddPlannedHours(Dictionary<DateOnly, decimal> plannedHoursByDate, PayrollDayEntry entry)
     {
-        var workHoursByDate = employee.Entries
-            .Where(e => e.Kind == PayrollEntryKind.WorkHours)
-            .GroupBy(e => e.Date)
-            .ToDictionary(g => g.Key, g => g.Sum(e => e.Quantity));
+        plannedHoursByDate[entry.Date] = plannedHoursByDate.GetValueOrDefault(entry.Date) + entry.Quantity;
+    }
 
+    private static IEnumerable<XElement> BuildUvazekElements(PayrollExportData data, Dictionary<DateOnly, decimal> plannedHoursByDate)
+    {
         for (var date = data.StartDate; date <= data.EndDate; date = date.AddDays(1))
         {
-            var hours = workHoursByDate.TryGetValue(date, out var value) ? value : 0m;
+            var hours = plannedHoursByDate.GetValueOrDefault(date);
             yield return new XElement(
                 UvazekElement,
                 new XAttribute(DatumAttribute, date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)),

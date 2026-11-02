@@ -8,6 +8,8 @@
 /// @param EndDate - Upper bound (inclusive) of the closed period
 /// @param ExportDate - Timestamp when the export was generated
 /// @param Employees - One entry per employee with their day-granular payroll rows
+/// @param DatevConsultantNumber - DATEV Beraternummer from the settings (raw, unvalidated), used by DATEV LuG
+/// @param DatevClientNumber - DATEV Mandantennummer from the settings (raw, unvalidated), used by DATEV LuG
 /// </summary>
 namespace Klacks.Api.Domain.Models.Exports.Payroll;
 
@@ -20,4 +22,8 @@ public class PayrollExportData
     public DateTime ExportDate { get; set; } = DateTime.UtcNow;
 
     public List<PayrollEmployee> Employees { get; set; } = [];
+
+    public string? DatevConsultantNumber { get; set; }
+
+    public string? DatevClientNumber { get; set; }
 }
