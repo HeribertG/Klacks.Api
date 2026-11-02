@@ -303,7 +303,7 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
             }
 
             var entriesOfDay = entriesByDay.GetValueOrDefault((clientId, date)) ?? [];
-            if (IsLockedBySubstituteShiftSeal(entriesOfDay, date, shiftGroups, closedGroupSeals))
+            if (memberGroups.Count == 0 && IsLockedBySubstituteShiftSeal(entriesOfDay, date, shiftGroups, closedGroupSeals))
             {
                 continue;
             }
