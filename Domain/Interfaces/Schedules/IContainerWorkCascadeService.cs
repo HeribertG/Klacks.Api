@@ -22,9 +22,20 @@ public interface IContainerWorkCascadeService
     Task<ContainerChildIds> GetChildIdsAsync(
         IReadOnlyCollection<Guid> parentWorkIds, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Reads, without tracking and without changing anything, the live child Works and Breaks of the given container Works,
+    /// so a caller can check their lock levels before it stages a delete or a move of the children.
+    /// </summary>
+    Task<ContainerChildren> GetLiveChildrenAsync(
+        IReadOnlyCollection<Guid> parentWorkIds, CancellationToken cancellationToken = default);
+
     Task RestoreChildrenAsync(Guid parentWorkId, DateTime deletedTime, string? deletedBy);
 
     Task MoveChildrenAsync(Guid parentWorkId, DateOnly newDate, Guid newClientId);
 
+    /// <summary>
+    /// Mirrors a lock level the container has just been raised to onto its children. It only raises: a child sealed as high
+    /// or higher keeps its seal.
+    /// </summary>
     Task UpdateLockLevelAsync(Guid parentWorkId, WorkLockLevel lockLevel, string? sealedBy);
 }

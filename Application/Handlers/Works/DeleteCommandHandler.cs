@@ -5,7 +5,8 @@
 /// outside the caller's group visibility is refused exactly like a Work that does not exist; nothing is
 /// deleted. On top of DeleteWorkCommandValidator (non-admins may only delete unsealed Works), IParentWorkLockGuard
 /// refuses a Closed Work for everyone, admins included: deleting it would also drop its expenses and WorkChanges
-/// from a closed period.
+/// from a closed period. The container children are read and checked before anything is staged: a child Work by the same
+/// rule, a sealed child Break for a non-admin.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 /// <param name="workLockGuard">Refuses the delete when the Work's lock level forbids it for the caller</param>
@@ -95,6 +96,9 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             {
                 await _dayLockService.EnsureDeletableAsync([(work.CurrentDate, work.ClientId)], cancellationToken);
             }
+
+            var children = await _cascadeService.GetLiveChildrenAsync([work.Id], cancellationToken);
+            _workLockGuard.EnsureChildrenDeletableForCaller(children, _httpContextAccessor);
 
             var shiftId = work.ShiftId;
             var workDate = work.CurrentDate;

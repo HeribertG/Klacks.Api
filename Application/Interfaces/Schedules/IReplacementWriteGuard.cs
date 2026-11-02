@@ -18,7 +18,7 @@ public interface IReplacementWriteGuard
     /// <param name="workChange">The change about to be written (type, times and optional ReplaceClientId)</param>
     /// <param name="parentWork">The Work the change is attached to; supplies date, shift and scenario token</param>
     /// <param name="overrideBlockRequested">Whether the caller asked to override a block-mode escalation</param>
-    /// <param name="storedWorkChange">The change as stored before an update; null on create. An update that keeps the person and the occupied time skips the conflict check</param>
+    /// <param name="storedWorkChange">The change as stored before an update; null on create. An update of the same person and Work that stays within the stored window is not checked for conflicts; one that goes beyond it is checked with its whole window, and the stored window comes off the hours</param>
     Task EnsureAllowedAsync(
         WorkChange workChange,
         Work parentWork,

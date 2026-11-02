@@ -151,11 +151,7 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
 
         foreach (var b in updatedBreaks)
         {
-            b.ClientId = parentWork.ClientId;
-            if (b.CurrentDate == default)
-            {
-                b.CurrentDate = parentWork.CurrentDate;
-            }
+            ContainerBreakDefaults.Apply(b, parentWork);
         }
     }
 

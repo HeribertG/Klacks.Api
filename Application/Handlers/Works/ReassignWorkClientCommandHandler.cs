@@ -7,8 +7,10 @@
 /// visibility is refused exactly like a Work that does not exist; nothing is written. Like the Work PUT and DELETE,
 /// the stored Work must be writable for the caller under IParentWorkLockGuard: a Closed Work is refused for everyone,
 /// an Approved one needs Admin or Authorised. Like the grid's drop target, the target client must be plannable on the
-/// Work's day: a day outside its membership or group period is refused. A Work on a shift of another world reads like a
-/// missing shift (IWorkWriteGuard). A recalculation that fails for the new owner refuses the reassignment; nothing is written.
+/// Work's day: a day outside its membership or group period is refused. The container children it moves along must be
+/// writable for the caller too; that is checked before the first change is staged, so a refusal leaves nothing behind. A
+/// Work on a shift of another world reads like a missing shift (IWorkWriteGuard). A recalculation that fails for the new
+/// owner refuses the reassignment; nothing is written.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="httpContextAccessor">Source of the calling user's roles for the Work lock rule</param>
@@ -43,6 +45,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
+    private readonly IContainerWorkCascadeService _cascadeService;
     private readonly IWorkHandOverService _handOverService;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IDayLockService _dayLockService;
@@ -61,6 +64,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         IScheduleEntriesService scheduleEntriesService,
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
+        IContainerWorkCascadeService cascadeService,
         IWorkHandOverService handOverService,
         ISelectedGroupContextResolver groupContextResolver,
         IDayLockService dayLockService,
@@ -80,6 +84,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         _scheduleEntriesService = scheduleEntriesService;
         _completionService = completionService;
         _notificationFacade = notificationFacade;
+        _cascadeService = cascadeService;
         _handOverService = handOverService;
         _groupContextResolver = groupContextResolver;
         _dayLockService = dayLockService;
@@ -117,6 +122,9 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
                 [(request.TargetClientId, existingWork.CurrentDate)], cancellationToken);
 
             await EnsureNoHardBlockingConflictAsync(existingWork, request.TargetClientId, cancellationToken);
+
+            var children = await _cascadeService.GetLiveChildrenAsync([existingWork.Id], cancellationToken);
+            _workLockGuard.EnsureChildrenWritableForCaller(children, _httpContextAccessor);
 
             var work = await _workRepository.Get(request.Id);
             if (work == null)

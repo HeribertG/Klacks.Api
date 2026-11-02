@@ -6,7 +6,8 @@
 /// not deleted and count as failed. Like the single delete, the whole request is refused when any visible work
 /// lies on a sealed day (IDayLockService), whatever the caller's role, or when any visible Work's own lock level
 /// forbids the delete for the caller (IParentWorkLockGuard: Closed refuses everyone, Approved needs Admin or
-/// Authorised); nothing is deleted then. Like the single delete, every deleted Work takes its container children
+/// Authorised), or when a container child forbids it (a child Work by the same rule, a sealed child Break for a non-admin);
+/// the children are read and checked before the first delete is staged, so nothing is deleted then. Like the single delete, every deleted Work takes its container children
 /// (child Works and Breaks) with it, so no child stays behind under a soft-deleted parent. When the command carries
 /// ExpectedChildren (the confirmed bulk delete skill), the live children of the Works about to be deleted are read once
 /// before the first delete is staged and the request is refused when they are not exactly the expected ones, so a child
@@ -100,6 +101,10 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             {
                 _workLockGuard.EnsureWorkWritableForCaller(work, _httpContextAccessor);
             }
+
+            var children = await _cascadeService.GetLiveChildrenAsync(
+                deletedWorks.Select(w => w.Id).ToList(), cancellationToken);
+            _workLockGuard.EnsureChildrenDeletableForCaller(children, _httpContextAccessor);
 
             if (command.ExpectedChildren is { } expectedChildren)
             {
