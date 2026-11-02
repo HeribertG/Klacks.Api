@@ -7,6 +7,8 @@
 /// and returns the violations present only in the augmented run (the ones the placement introduces).
 /// Grouped per client so the timeline is loaded once per client even for batch placements. A placement
 /// over an on-call break is reported as an on-call-overlap Warning instead of a blocking collision.
+/// The lead and trail of a planned row enter the augmented timeline as briefing and debriefing work changes, its extra paid
+/// hours count towards the planned period hours.
 /// </summary>
 /// <param name="context">Read-only access to Work/WorkChange/Break for the affected clients</param>
 /// <param name="requirementRepository">Resolves the required qualifications that apply to each planned shift (inherited along the order tree)</param>
@@ -137,12 +139,16 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
             var remainingWorks = clientRemovals.Count == 0
                 ? works
                 : works.Where(w => !IsRemoved(w, clientRemovals)).ToList();
-            var augmentedWorks = remainingWorks.Concat(clientRows.Select(ToSyntheticWork)).ToList();
+            var syntheticWorks = clientRows.Select(row => (Row: row, Work: ToSyntheticWork(row))).ToList();
+            var augmentedWorks = remainingWorks.Concat(syntheticWorks.Select(s => s.Work)).ToList();
             var remainingWorkIds = remainingWorks.Select(w => w.Id).ToHashSet();
             // Work changes of a removed work would otherwise haunt the augmented timeline as orphans.
             var augmentedWorkChanges = clientRemovals.Count == 0
                 ? workChanges
                 : workChanges.Where(c => remainingWorkIds.Contains(c.WorkId)).ToList();
+            augmentedWorkChanges = augmentedWorkChanges
+                .Concat(syntheticWorks.SelectMany(s => PlannedWorkRowPadding.ToWorkChanges(s.Row, s.Work.Id)))
+                .ToList();
             var augmentedBlocks = _timelineCalculator.CalculateScheduleBlocks(augmentedWorks, augmentedWorkChanges, breaks);
 
             var onCallBreakIds = OnCallAbsenceQuery.OnCallBreakIds(breaks, onCallAbsenceIds);
@@ -374,7 +380,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
 
             if (addedByClient.TryGetValue(clientId, out var added))
             {
-                plannedHours.AddRange(added.Select(row => (row.Date, ComputePlannedHours(row.StartTime, row.EndTime))));
+                plannedHours.AddRange(added.Select(row => (row.Date, ComputePlannedHours(row.StartTime, row.EndTime) + row.ExtraPaidHours)));
             }
 
             // Hours the plan takes away count negatively, so a swap is judged on its net effect instead

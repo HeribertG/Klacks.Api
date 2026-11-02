@@ -12,12 +12,18 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="StartTime">Shift start (wraps past midnight when EndTime &lt;= StartTime)</param>
 /// <param name="EndTime">Shift end</param>
 /// <param name="ShiftId">Optional shift id (not required for conflict detection)</param>
+/// <param name="LeadHours">Briefing, start correction and start travel hours directly before the start; a TimeOnly cannot express a start before midnight</param>
+/// <param name="TrailHours">Debriefing, end correction and end travel hours directly after the end</param>
+/// <param name="ExtraPaidHours">Travel and correction hours on top of the shift's own hours; a briefing adds none</param>
 public sealed record PlannedWorkRow(
     Guid ClientId,
     DateOnly Date,
     TimeOnly StartTime,
     TimeOnly EndTime,
-    Guid? ShiftId = null)
+    Guid? ShiftId = null,
+    decimal LeadHours = 0m,
+    decimal TrailHours = 0m,
+    decimal ExtraPaidHours = 0m)
 {
     /// <summary>
     /// The row a Work occupies once it is written: its employee, day, times and shift.

@@ -363,6 +363,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             removedList.Add((rStart, rEnd));
         }
 
+        var paddings = RecoveryWorkPaddingReader.Collect(cells);
         foreach (var cell in cells)
         {
             var date = DateOnly.FromDateTime(cell.EntryDate);
@@ -404,12 +405,15 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                 segments = SubtractIntervals(startAt, endAt, removed);
             }
 
-            foreach (var (segStart, segEnd) in segments)
+            var padding = isWork && paddings.TryGetValue(cell.SourceId, out var found) ? found : RecoveryWorkPadding.None;
+            for (var index = 0; index < segments.Count; index++)
             {
+                var (segStart, segEnd) = segments[index];
                 if (segEnd <= segStart)
                 {
                     continue;
                 }
+                var (lead, trail, extraPaid) = padding.ForSegment(startAt, endAt, segments, index);
                 var work = new RecoveryWork(
                     CategoryOf(cell.StartTime, cell.EndTime),
                     cell.EntryId,
@@ -417,7 +421,10 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                     segStart,
                     segEnd,
                     (decimal)(segEnd - segStart).TotalHours,
-                    [cell.SourceId]);
+                    [cell.SourceId],
+                    lead,
+                    trail,
+                    extraPaid);
                 if (!works.TryGetValue(key, out var list))
                 {
                     list = [];

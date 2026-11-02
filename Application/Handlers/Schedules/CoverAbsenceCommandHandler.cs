@@ -439,7 +439,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         var options = groups
             .Select(group => new PlannedOption(
                 group.Select(d => new PlannedWorkRow(
-                    d.ToAgentId, d.Date, TimeOnly.FromDateTime(d.StartAt), TimeOnly.FromDateTime(d.EndAt), d.ShiftId))
+                    d.ToAgentId, d.Date, TimeOnly.FromDateTime(d.StartAt), TimeOnly.FromDateTime(d.EndAt), d.ShiftId,
+                    d.LeadHours, d.TrailHours, d.ExtraPaidHours))
                     .ToList(),
                 group
                     .Where(d => d.FromAgentId != absentClientId && d.SourceWorkIds.Count > 0)

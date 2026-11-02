@@ -175,7 +175,9 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             members.Select(m => m.Id).ToList(), periodFrom, periodUntil, request.AnalyseToken);
 
         var plannedRows = members
-            .Select(m => new PlannedWorkRow(m.Id, request.Date, request.StartTime, request.EndTime, request.ShiftId))
+            .Select(m => new PlannedWorkRow(
+                m.Id, request.Date, request.StartTime, request.EndTime, request.ShiftId,
+                request.LeadHours, request.TrailHours, request.ExtraPaidHours))
             .ToList();
         var check = await _conflictChecker.CheckAsync(plannedRows, request.AnalyseToken, cancellationToken);
         var conflictsByClient = check.NewConflicts

@@ -20,6 +20,9 @@ namespace Klacks.Api.Application.Queries.Schedules;
 /// excluded only by a Block-mode compliance escalation (never a structural exclusion such as a
 /// collision or a missing/insufficient mandatory qualification) stays eligible and is logged as an override.
 /// </param>
+/// <param name="LeadHours">Briefing, start correction and start travel hours the slot carries before its start</param>
+/// <param name="TrailHours">Debriefing, end correction and end travel hours the slot carries after its end</param>
+/// <param name="ExtraPaidHours">Travel and correction hours on top of the slot's own hours</param>
 public record FindReplacementQuery(
     Guid ShiftId,
     DateOnly Date,
@@ -27,4 +30,7 @@ public record FindReplacementQuery(
     TimeOnly EndTime,
     Guid GroupId,
     Guid? AnalyseToken,
-    bool OverrideBlock = false) : IRequest<ReplacementSearchResult>;
+    bool OverrideBlock = false,
+    decimal LeadHours = 0m,
+    decimal TrailHours = 0m,
+    decimal ExtraPaidHours = 0m) : IRequest<ReplacementSearchResult>;
