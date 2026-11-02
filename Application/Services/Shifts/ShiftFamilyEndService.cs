@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Ends a real shift family on one day. The head of the family is its sealed order, or the addressed row itself when that
-/// row stands alone without an order (OriginalId empty, like the seeded containers); a row whose OriginalId leads to no sealed
-/// order is refused. The head row is locked first, so two saves cannot both pass the set-once check, and everything is read
+/// Ends a real shift family on one day. The head of the family is its sealed order, or without an order the first shift:
+/// the addressed row itself (like the seeded containers) or, for a cut piece, the row its RootId names. A row whose OriginalId
+/// leads to no sealed order is refused. A stored end date of the head is the end of the family only on a sealed order; the
+/// first shift of a family without an order carries the end of its own cut there, so that family has ended once no row
+/// is open, on its latest end (ShiftFamilyRules). The head row is locked first, so two saves cannot both pass the set-once check, and everything is read
 /// after that lock. The tracker is emptied before each run of the transaction: on a database
 /// retry the tracked rows would otherwise still hold the unsaved end date of the failed run and pass the check. The first
 /// check is the group visibility of every family row, the order included, because the end date writes them all and the
@@ -58,7 +60,7 @@ public class ShiftFamilyEndService : IShiftFamilyEndService
 
     public async Task EndFamilyAsync(Shift entry, DateOnly untilDate, Func<Task>? saveEntry, CancellationToken cancellationToken)
     {
-        var headId = entry.OriginalId ?? entry.Id;
+        var headId = ShiftFamilyRules.HeadIdOf(entry);
 
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
@@ -86,7 +88,8 @@ public class ShiftFamilyEndService : IShiftFamilyEndService
             throw Refused(ShiftEndDateRefusedException.ForHiddenRows(), entry);
         }
 
-        var head = family.FirstOrDefault(row => row.Id == headId && (row.Status == ShiftStatus.SealedOrder || row.Id == entry.Id))
+        var head = family.FirstOrDefault(row => row.Id == headId
+                && (row.Status == ShiftStatus.SealedOrder || (entry.OriginalId == null && row.OriginalId == null)))
             ?? throw Refused(ShiftEndDateRefusedException.ForMissingOrder(), entry);
 
         var start = head.FromDate > entry.FromDate ? head.FromDate : entry.FromDate;
@@ -95,7 +98,8 @@ public class ShiftFamilyEndService : IShiftFamilyEndService
             throw Refused(ShiftEndDateRefusedException.ForBeforeStart(untilDate, start), entry);
         }
 
-        var storedEnd = head.UntilDate ?? family.FirstOrDefault(row => row.Id == entry.Id)?.UntilDate;
+        var familyEnd = head.Status == ShiftStatus.SealedOrder ? head.UntilDate : ShiftFamilyRules.StoredEndWithoutOrder(family);
+        var storedEnd = familyEnd ?? family.FirstOrDefault(row => row.Id == entry.Id)?.UntilDate;
         if (storedEnd is { } end && end != untilDate)
         {
             throw Refused(ShiftEndDateRefusedException.ForStoredEnd(untilDate, end), entry);

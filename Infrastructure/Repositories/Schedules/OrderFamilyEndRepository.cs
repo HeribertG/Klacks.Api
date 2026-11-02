@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Reads and locks a real shift family for setting its end date. A family row is the head row or is found through OriginalId and carries
-/// neither an analyse token nor a scenario source. The lock is a row lock of PostgreSQL; providers other than Npgsql (the
+/// Reads and locks a real shift family for setting its end date. A family row is the head row, is found through OriginalId,
+/// or without an order through RootId, and carries neither an analyse token nor a scenario source. The lock is a row lock of PostgreSQL; providers other than Npgsql (the
 /// in-memory test store) have none and do nothing.
 /// </summary>
 /// <param name="context">The scoped context whose current transaction owns the lock</param>
@@ -65,7 +65,7 @@ public class OrderFamilyEndRepository : IOrderFamilyEndRepository
         => OrderFamilyUsageQuery.ReadAsync(_context, shiftIds, cancellationToken);
 
     private IQueryable<Shift> FamilyRows(Guid headId)
-        => _context.Shift.Where(s => (s.Id == headId || s.OriginalId == headId)
-            && s.AnalyseToken == null
-            && s.ScenarioSourceShiftId == null);
+        => _context.Shift
+            .Where(ShiftFamilyRowsRule.Of(headId))
+            .Where(s => s.AnalyseToken == null && s.ScenarioSourceShiftId == null);
 }

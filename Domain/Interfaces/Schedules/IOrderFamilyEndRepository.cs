@@ -5,8 +5,8 @@ using Klacks.Api.Domain.Models.Schedules;
 namespace Klacks.Api.Domain.Interfaces.Schedules;
 
 /// <summary>
-/// Reads and locks a real shift family for setting its end date. Its head is the sealed order, or the row itself when it
-/// stands alone without an order. Writes nothing itself: the caller changes the tracked rows and commits through the unit
+/// Reads and locks a real shift family for setting its end date. Its head is the sealed order, or without an order the first
+/// shift, whose pieces carry it as RootId. Writes nothing itself: the caller changes the tracked rows and commits through the unit
 /// of work.
 /// </summary>
 public interface IOrderFamilyEndRepository
@@ -20,7 +20,9 @@ public interface IOrderFamilyEndRepository
     Task LockHeadAsync(Guid headId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// The live real rows of the family, tracked: the head and every row whose OriginalId points at it.
+    /// The live real rows of the family, tracked: the head, every row whose OriginalId points at it and, without an order,
+    /// every row whose RootId points at it. A family with an order is found through OriginalId alone, because its RootId
+    /// follows two conventions.
     /// </summary>
     /// <param name="headId">Id of the head row</param>
     /// <param name="cancellationToken">Cancels the query</param>

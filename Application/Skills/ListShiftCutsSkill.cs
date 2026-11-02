@@ -5,9 +5,11 @@
 /// Accepts the order id (Bestellung), its plannable shift id (OriginalShift), or any split part id
 /// (SplitShift) — the repository's CutList resolves all three to the same order before building the
 /// flat cut list, so the caller does not need to know which kind of id it has. The skill reads the real plan: a hidden
-/// shift and a shift of a variant or scenario are answered like a missing one, for every caller.
+/// shift and a shift of a variant or scenario are answered like a missing one, for every caller. A piece the caller may not see is left
+/// out of the list, as in the cut list of the page.
 /// </summary>
 /// <param name="shiftVisibilityGuard">Answers a hidden shift exactly like a missing one</param>
+/// <param name="shiftGroupFilterService">Resolves the caller's group restriction for the pieces</param>
 /// <param name="shiftId">UUID of the order, its plannable shift, or one of its split parts.</param>
 
 using Klacks.Api.Application.Interfaces;
@@ -17,6 +19,8 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.Shifts;
+using Klacks.Api.Domain.Services.ShiftSchedule;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -25,11 +29,16 @@ public class ListShiftCutsSkill : BaseSkillImplementation
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly IShiftGroupFilterService _shiftGroupFilterService;
 
-    public ListShiftCutsSkill(IShiftRepository shiftRepository, IShiftVisibilityGuard shiftVisibilityGuard)
+    public ListShiftCutsSkill(
+        IShiftRepository shiftRepository,
+        IShiftVisibilityGuard shiftVisibilityGuard,
+        IShiftGroupFilterService shiftGroupFilterService)
     {
         _shiftRepository = shiftRepository;
         _shiftVisibilityGuard = shiftVisibilityGuard;
+        _shiftGroupFilterService = shiftGroupFilterService;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -50,7 +59,8 @@ public class ListShiftCutsSkill : BaseSkillImplementation
         var orderName = await ResolveOrderName(loadedShift, cancellationToken);
 
         var cuts = await _shiftRepository.CutList(shiftId);
-        var pieces = cuts.Select(ToPieceSummary).ToList();
+        var visibleGroupIds = await _shiftGroupFilterService.ResolveShiftListGroupIdsAsync(null);
+        var pieces = cuts.Where(cut => ShiftGroupVisibilityFilter.IsVisible(cut, visibleGroupIds)).Select(ToPieceSummary).ToList();
 
         if (pieces.Count == 0)
         {

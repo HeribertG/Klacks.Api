@@ -5,8 +5,8 @@ using Klacks.Api.Domain.Models.Schedules;
 namespace Klacks.Api.Application.Interfaces;
 
 /// <summary>
-/// Ends a whole real shift family (sealed order, plannable copy and cut pieces, or one row that stands alone without an
-/// order) on one day. Used by the edit form and by the set_sealed_order_until_date skill.
+/// Ends a whole real shift family (sealed order, plannable copy and cut pieces, or without an order the first shift and
+/// its pieces) on one day. Used by the edit form and by the set_sealed_order_until_date skill.
 /// </summary>
 public interface IShiftFamilyEndService
 {
