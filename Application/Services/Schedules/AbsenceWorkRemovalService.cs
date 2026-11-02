@@ -2,7 +2,7 @@
 
 /// <summary>
 /// The one rule which works an entered absence takes away (the service does not happen, it is not billed, the open place
-/// shows the gap). On-call absences take none. A work stays when it is sealed, carries a replacement or a sealed child, or
+/// shows the gap). On-call absences take none. A work stays when it has started on the company clock, is sealed, carries a replacement or a sealed child, or
 /// lies on a shift outside the caller's groups; without a selected group nothing tells a foreign shift apart, so nothing
 /// is removed then. Deleting runs through the Work delete, so its guards, cascades and period hours apply.
 /// </summary>
@@ -13,6 +13,7 @@
 /// <param name="periodHoursService">Resolves the period the Work delete recalculates</param>
 /// <param name="unitOfWork">Holds the absence and the delete in one transaction</param>
 /// <param name="mediator">Runs the Work delete</param>
+/// <param name="companyClock">Tells whether a work has started</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
@@ -20,6 +21,7 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -35,6 +37,7 @@ public sealed class AbsenceWorkRemovalService : IAbsenceWorkRemovalService
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMediator _mediator;
+    private readonly ICompanyClock _companyClock;
 
     public AbsenceWorkRemovalService(
         IScheduleEntriesService scheduleEntries,
@@ -43,7 +46,8 @@ public sealed class AbsenceWorkRemovalService : IAbsenceWorkRemovalService
         ISelectedGroupContextResolver groupContextResolver,
         IPeriodHoursService periodHoursService,
         IUnitOfWork unitOfWork,
-        IMediator mediator)
+        IMediator mediator,
+        ICompanyClock companyClock)
     {
         _scheduleEntries = scheduleEntries;
         _factsReader = factsReader;
@@ -52,6 +56,7 @@ public sealed class AbsenceWorkRemovalService : IAbsenceWorkRemovalService
         _periodHoursService = periodHoursService;
         _unitOfWork = unitOfWork;
         _mediator = mediator;
+        _companyClock = companyClock;
     }
 
     public async Task<IReadOnlyList<RemovableWork>> FindAsync(
@@ -88,8 +93,10 @@ public sealed class AbsenceWorkRemovalService : IAbsenceWorkRemovalService
         }
 
         var facts = await _factsReader.LoadAsync(candidates.Select(work => work.WorkId).ToList(), analyseToken, cancellationToken);
+        var nowUtc = (await _companyClock.GetNowAsync(cancellationToken)).UtcDateTime;
+        var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
         return candidates
-            .Where(work => facts.TryGetValue(work.WorkId, out var fact) && CoverMoveDecision.IsUntouched(fact))
+            .Where(work => facts.TryGetValue(work.WorkId, out var fact) && CoverMoveDecision.MayFall(fact, nowUtc, companyTimeZone))
             .ToList();
     }
 

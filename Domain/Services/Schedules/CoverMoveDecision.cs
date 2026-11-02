@@ -30,8 +30,20 @@ public static class CoverMoveDecision
     public static bool MayMove(CoverMoveFacts facts, CoverReport report, TimeZoneInfo companyTimeZone)
         => IsUntouched(facts)
             && (report.Source == ReplacementRequestSource.PlannerDialog
-                || report.ReportedAtUtc < CompanyWallClockToUtcConverter.ConvertToUtc(
-                    facts.CurrentDate.ToDateTime(facts.StartTime), companyTimeZone));
+                || report.ReportedAtUtc < StartUtc(facts, companyTimeZone));
+
+    /// <summary>
+    /// A work an absence may remove without the planner dialog: nothing holds it in place and it has not started. A started
+    /// work stays with its error list entry, the planner shortens it.
+    /// </summary>
+    /// <param name="facts">The work as it stands</param>
+    /// <param name="nowUtc">Current instant of the company clock</param>
+    /// <param name="companyTimeZone">Zone the workday and its start time are written in</param>
+    public static bool MayFall(CoverMoveFacts facts, DateTime nowUtc, TimeZoneInfo companyTimeZone)
+        => IsUntouched(facts) && nowUtc < StartUtc(facts, companyTimeZone);
+
+    private static DateTime StartUtc(CoverMoveFacts facts, TimeZoneInfo companyTimeZone)
+        => CompanyWallClockToUtcConverter.ConvertToUtc(facts.CurrentDate.ToDateTime(facts.StartTime), companyTimeZone);
 
     /// <param name="facts">The work as it stands in the scenario</param>
     /// <param name="fromClientId">Person the cover takes the work from</param>
