@@ -267,7 +267,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return await context.Work
             .AsNoTracking()
             .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate == date && w.LockLevel < level)
-            .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
+            .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted && gi.AnalyseToken == null))
             .Where(WorkServiceEnd.NotEndedBy(endedBy))
             .AnyAsync(cancellationToken);
     }
