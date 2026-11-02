@@ -5,6 +5,7 @@
 /// export handlers so the settings keys are resolved in a single place.
 /// </summary>
 using Klacks.Api.Application.Interfaces.Exports;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Exports;
 
@@ -26,12 +27,17 @@ public class CompanyInfoLoader : ICompanyInfoLoader
         var vatIdSetting = await _settingsReader.GetSetting(Application.Constants.Settings.COMPANY_VAT_ID);
         var commercialRegisterSetting = await _settingsReader.GetSetting(Application.Constants.Settings.COMPANY_COMMERCIAL_REGISTER);
 
+        var datevConsultantSetting = await _settingsReader.GetSetting(SettingKeys.DatevConsultantNumber);
+        var datevClientSetting = await _settingsReader.GetSetting(SettingKeys.DatevClientNumber);
+
         return new CompanyInfo
         {
             Name = nameSetting?.Value ?? string.Empty,
             TaxId = taxIdSetting?.Value ?? string.Empty,
             VatId = vatIdSetting?.Value ?? string.Empty,
-            CommercialRegister = commercialRegisterSetting?.Value ?? string.Empty
+            CommercialRegister = commercialRegisterSetting?.Value ?? string.Empty,
+            DatevConsultantNumber = datevConsultantSetting?.Value,
+            DatevClientNumber = datevClientSetting?.Value
         };
     }
 }

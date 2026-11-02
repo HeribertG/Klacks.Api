@@ -15,6 +15,14 @@ public static class ShiftHierarchyMessages
     public const string DraftStatusChangeNotAllowed =
         "A draft order may only be saved as a draft (OriginalOrder) or sealed (SealedOrder); shift {0} was sent with status {1}";
 
+    public const string CutBeforeFamilyStart =
+        "A cut from {0} is before the first day of the shift ({1}).";
+
+    public const string CutBehindFamilyEnd =
+        "A cut from {0} until {1} is not inside the shift, which has ended on {2}.";
+
+    public const string CutOpenEnded = "open-ended";
+
     public const string CutUpdateStatusNotAllowed =
         "A cut update may only turn a plannable shift or a cut piece into a cut piece; shift {0} has status {1} and was sent with status {2}";
 }

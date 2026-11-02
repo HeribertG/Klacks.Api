@@ -240,6 +240,17 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     /// </summary>
     internal IQueryable<Shift> GetQuery() => ShiftBaseQueries.Ordered(context.Shift);
 
+    public async Task<Shift?> MakeOwnRootAsync(Guid id)
+    {
+        var shift = await context.Shift.FirstOrDefaultAsync(s => s.Id == id);
+        if (shift != null)
+        {
+            shift.RootId ??= shift.Id;
+        }
+
+        return shift;
+    }
+
     public Task<bool> HasChildrenAsync(Guid shiftId, CancellationToken cancellationToken = default)
         => context.Shift.AsNoTracking().AnyAsync(s => s.ParentId == shiftId, cancellationToken);
 
@@ -325,19 +336,16 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         // Be id-tolerant: if the caller passes an OriginalShift/SplitShift id instead, resolve it up to
         // its SealedOrder id so the page still populates rather than rendering an empty table for a
         // perfectly valid order.
-        var sealedOrderId = await context.Shift
+        var key = await context.Shift
             .Where(x => x.Id == id)
-            .Select(x => x.OriginalId ?? x.Id)
+            .Select(x => new { x.Status, x.OriginalId, x.RootId })
             .FirstOrDefaultAsync();
-        if (sealedOrderId == Guid.Empty)
-        {
-            sealedOrderId = id;
-        }
 
-        var query = context.Shift
-            .Where(x => x.OriginalId == sealedOrderId
-                && x.AnalyseToken == analyseToken
-                && x.ScenarioSourceShiftId == null);
+        var rows = key != null && ShiftFamilyRules.IsWithoutOrder(key.Status, key.OriginalId)
+            ? context.Shift.Where(ShiftFamilyRowsRule.Of(key.RootId ?? id))
+            : OrderCutRows(key?.OriginalId ?? id);
+
+        var query = rows.Where(x => x.AnalyseToken == analyseToken && x.ScenarioSourceShiftId == null);
 
         if (filterClosedBefore.HasValue)
         {
@@ -359,6 +367,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
         return await query.ToListAsync();
     }
+
+    private IQueryable<Shift> OrderCutRows(Guid sealedOrderId) => context.Shift.Where(x => x.OriginalId == sealedOrderId);
 
     public async Task<Shift?> GetSealedOrder(Guid originalId, Guid? analyseToken = null)
     {
@@ -724,18 +734,6 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return await query.AnyAsync(cancellationToken);
     }
 
-    public async Task<bool> HasWorksAfterDateForOrderTreeAsync(Guid sealedOrderId, DateOnly afterDate, CancellationToken cancellationToken = default)
-    {
-        var shiftIdsInTree = context.Shift
-            .Where(s => s.OriginalId == sealedOrderId && s.AnalyseToken == null && s.ScenarioSourceShiftId == null)
-            .Select(s => s.Id);
-
-        return await context.Work
-            .AsNoTracking()
-            .Where(w => !w.IsDeleted && w.AnalyseToken == null && shiftIdsInTree.Contains(w.ShiftId) && w.CurrentDate > afterDate)
-            .AnyAsync(cancellationToken);
-    }
-
     public async Task<OrderFamilyUsage> GetOrderFamilyUsageAsync(Guid sealedOrderId, CancellationToken cancellationToken = default)
     {
         var shiftIds = await context.Shift
@@ -746,27 +744,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .Select(s => s.Id)
             .ToListAsync(cancellationToken);
 
-        var hasWorks = await context.Work
-            .IgnoreQueryFilters()
-            .AsNoTracking()
-            .AnyAsync(w => !w.IsDeleted && shiftIds.Contains(w.ShiftId), cancellationToken);
-
-        var hasScenarioClones = await context.Shift
-            .IgnoreQueryFilters()
-            .AsNoTracking()
-            .AnyAsync(s => !s.IsDeleted && s.ScenarioSourceShiftId.HasValue && shiftIds.Contains(s.ScenarioSourceShiftId.Value), cancellationToken);
-
-        var hasContainerReferences =
-            await context.ContainerTemplateItem
-                .IgnoreQueryFilters()
-                .AsNoTracking()
-                .AnyAsync(i => !i.IsDeleted && i.ShiftId.HasValue && shiftIds.Contains(i.ShiftId.Value), cancellationToken)
-            || await context.ContainerShiftOverrideItems
-                .IgnoreQueryFilters()
-                .AsNoTracking()
-                .AnyAsync(i => !i.IsDeleted && i.ShiftId.HasValue && shiftIds.Contains(i.ShiftId.Value), cancellationToken);
-
-        return new OrderFamilyUsage(shiftIds, hasWorks, hasScenarioClones, hasContainerReferences);
+        return await OrderFamilyUsageQuery.ReadAsync(context, shiftIds, cancellationToken);
     }
 
     public async Task DeleteOrderFamilyAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)

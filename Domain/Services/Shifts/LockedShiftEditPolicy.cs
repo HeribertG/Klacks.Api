@@ -8,11 +8,11 @@
 /// work, scenario clone or container reference exists on it (IsOrderFamilyDeletable names the shifts that qualify; the
 /// service that deletes the family checks the usage and the caller checks the role). Still editable are the groups,
 /// default expenses, required qualifications, the macro
-/// and an end date that is still empty (set once). The cut hierarchy fields, the ERP and scenario reference fields and
+/// and an end date that is still empty (set once; on a real shift it ends the whole family, see SetsFamilyEnd and
+/// IShiftFamilyEndService). The cut hierarchy fields, the ERP and scenario reference fields and
 /// the audit fields are not compared: the repository preserves them on a form save. Time-of-day fields are compared at
 /// minute resolution and WorkTime within one minute, because the edit form rounds both to whole minutes on every save.
-/// Writers that must change a locked shift (cut editor, order supersession, sealing, set-end-date skill, scenario
-/// accept) write through the repository or the database context and never reach this policy.
+/// Writers that must change a locked shift (cut editor, order supersession, sealing, scenario accept) write through the repository or the database context and never reach this policy.
 /// The policy does not apply to a shift with an analyse token. That is wanted for a shift of a variant (key): it is a
 /// draft of a future order, so its content stays freely editable until the key is accepted; IVariantShiftWriteGuard holds
 /// the rules a key shift has instead, and scenario clones are refused by the repository.
@@ -65,6 +65,15 @@ public static class LockedShiftEditPolicy
 
     public static bool Applies(Shift stored) =>
         stored.AnalyseToken == null && stored.Status != ShiftStatus.OriginalOrder;
+
+    /// <summary>
+    /// Whether a save sets the still empty end date of a real locked shift, which ends its whole family. A key shift, a
+    /// scenario clone and a draft order keep their own single-row save.
+    /// </summary>
+    /// <param name="stored">Shift as saved</param>
+    /// <param name="incoming">Shift as mapped from the request</param>
+    public static bool SetsFamilyEnd(Shift stored, Shift incoming) =>
+        Applies(stored) && stored.ScenarioSourceShiftId == null && stored.UntilDate == null && incoming.UntilDate != null;
 
     public static IReadOnlyList<string> FindLockedChanges(Shift stored, Shift incoming)
     {

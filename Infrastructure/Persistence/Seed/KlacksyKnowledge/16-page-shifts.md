@@ -195,11 +195,11 @@ oben rechts einen Auf-/Zuklapp-Pfeil. Cards in dieser Reihenfolge:
    mindestens eine Gruppe, Anzahl Aufgaben > 0 und Anzahl Mitarbeiter > 0 gültig sind.
    Klick setzt den Status auf versiegelt — nach dem Speichern ist das nicht
    umkehrbar. In jedem anderen Status erscheint statt des Buttons ein geschlossenes Schloss
-   und alle Felder sind deaktiviert — einzige Ausnahme: das Feld **Bis Datum** bleibt auf
-   versiegelten Bestellungen editierbar, solange noch KEIN Bis-Datum gesetzt ist (offenes
-   Auftragsende, z. B. bei sich verlängernden Aufträgen); es darf dann nur so gesetzt
-   werden, dass ab diesem Datum keine Dienste verplant sind, und ist danach ebenfalls
-   gesperrt. Checkbox **Ist ein Container** (de: "Ist ein
+   und alle Felder sind deaktiviert — einzige Ausnahme: das Feld **Bis Datum** bleibt
+   editierbar, solange noch KEIN Bis-Datum gesetzt ist (offenes Auftragsende, z. B. bei
+   sich verlängernden Aufträgen); es darf dann nur so gesetzt werden, dass nach diesem
+   Tag keine Dienste verplant sind, beendet den ganzen Dienst samt Teilstücken und ist
+   danach ebenfalls gesperrt. Checkbox **Ist ein Container** (de: "Ist ein
    Container", en: "Is a container", fr: "Est un conteneur", it: "È un contenitore") — nur
    im Experten-Modus und nur im Status Bestellung sichtbar; aktivieren leert Kunde/Adresse
    und schaltet die Zeitrahmen-Option aus.

@@ -35606,7 +35606,7 @@
     {
       "name": "set_sealed_order_until_date",
       "area": "shift",
-      "description": "Sets the until-date on an already-sealed order (status SealedOrder) — the single permitted change to an otherwise immutable order, per explain_shift_lifecycle_order_to_shift. Only works once: the sealed order must not already have an until-date, and no work may exist after the requested date anywhere in the order's shift tree (its plannable shift and any split parts). Re-reads the order from the database to confirm the write before reporting success.",
+      "description": "Sets the until-date on a sealed order (status SealedOrder), the single permitted change to an otherwise immutable order (see explain_shift_lifecycle_order_to_shift). Only works once, and no work may exist after the requested date on its plannable shift or split parts. Ends the whole order: those rows get the same date and a part starting after it is removed. Re-reads the order from the database to confirm the write before reporting success.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35693,7 +35693,7 @@
         "fr": "Définir la date de fin d'une commande scellée",
         "it": "Imposta la data di fine di un ordine sigillato"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "list_shift_cuts",

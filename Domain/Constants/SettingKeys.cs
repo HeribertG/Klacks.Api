@@ -65,6 +65,8 @@ public static class SettingKeys
 
     public const string EnabledExportFormats = "ENABLED_EXPORT_FORMATS";
     public const string DefaultPayrollTargetSystem = "DEFAULT_PAYROLL_TARGET_SYSTEM";
+    public const string DatevConsultantNumber = "DATEV_CONSULTANT_NUMBER";
+    public const string DatevClientNumber = "DATEV_CLIENT_NUMBER";
     public const string DefaultLanguage = "DEFAULT_LANGUAGE";
 
     public const string RegionSetupApplied = "REGION_SETUP_APPLIED";

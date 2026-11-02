@@ -4,10 +4,13 @@
 /// Key-specific setting value validation for the generic settings key/value store. SettingKeys.
 /// ActiveIndustries accepts empty, the IndustrySlugs.Custom marker, a single known
 /// industry slug, or a legacy comma-separated list of known slugs (case-insensitive, trimmed);
-/// SettingKeys.KlacksyProactiveAutonomyLevel accepts an AutonomyLevel integer (0-3). New key-specific
+/// SettingKeys.KlacksyProactiveAutonomyLevel accepts an AutonomyLevel integer (0-3);
+/// SettingKeys.DatevConsultantNumber and SettingKeys.DatevClientNumber accept empty or a whole number inside
+/// the DatevNumberRanges (consultant 1001-9999999, client 1-99999). New key-specific
 /// rules are added by extending the dispatch in Validate, not by touching the settings handlers.
 /// </summary>
 
+using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
@@ -29,6 +32,41 @@ public class SettingValueValidator : ISettingValueValidator
         if (string.Equals(key, SettingKeys.KlacksyProactiveAutonomyLevel, StringComparison.Ordinal))
         {
             ValidateAutonomyLevel(value ?? string.Empty);
+        }
+
+        if (string.Equals(key, SettingKeys.DatevConsultantNumber, StringComparison.Ordinal))
+        {
+            ValidateOptionalWholeNumber(
+                SettingKeys.DatevConsultantNumber,
+                value,
+                DatevNumberRanges.ConsultantNumberMin,
+                DatevNumberRanges.ConsultantNumberMax);
+        }
+
+        if (string.Equals(key, SettingKeys.DatevClientNumber, StringComparison.Ordinal))
+        {
+            ValidateOptionalWholeNumber(
+                SettingKeys.DatevClientNumber,
+                value,
+                DatevNumberRanges.ClientNumberMin,
+                DatevNumberRanges.ClientNumberMax);
+        }
+    }
+
+    private static void ValidateOptionalWholeNumber(string key, string? value, int min, int max)
+    {
+        var trimmed = (value ?? string.Empty).Trim();
+        if (trimmed.Length == 0)
+        {
+            return;
+        }
+
+        if (!int.TryParse(trimmed, NumberStyles.None, CultureInfo.InvariantCulture, out var number)
+            || number < min
+            || number > max)
+        {
+            throw new InvalidRequestException(
+                $"Setting '{key}' must be empty or a whole number between {min} and {max}, got '{value}'.");
         }
     }
 
