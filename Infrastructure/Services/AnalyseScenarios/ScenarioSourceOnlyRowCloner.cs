@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Copies the rows only a source scenario has into a scenario built on it (scenario from scenario): its temporary
-/// cross-group memberships and its open replacement requests. Without a source scenario both do nothing.
+/// cross-group memberships and its open replacement requests, except the requests on shifts of a key the new scenario does
+/// not carry. Without a source scenario both do nothing.
 /// </summary>
 /// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
 
@@ -55,18 +56,26 @@ public sealed class ScenarioSourceOnlyRowCloner
 
     /// <summary>
     /// Copies the source scenario's not yet applied replacement requests (request book) into the new scenario, so
-    /// accepting the child stamps them applied. ShiftId is already the real root shift; WorkChangeId pointed at the source
-    /// scenario's clone and is left for accept to fill. The source's own rows stay untouched.
+    /// accepting the child stamps them applied. ShiftId is already the root shift, for a key that is the key shift itself, so
+    /// a request whose root carries a dropped token stays behind with its key. WorkChangeId pointed at the source scenario's
+    /// clone and is left for accept to fill. The source's own rows stay untouched.
     /// </summary>
-    internal async Task CloneOpenReplacementRequests(ScenarioCloneSource source, Guid token, CancellationToken ct)
+    /// <param name="source">The resolved clone source</param>
+    /// <param name="token">Token of the new scenario</param>
+    /// <param name="droppedTokens">Tokens of the source keys the new scenario does not carry</param>
+    /// <param name="ct">Cancellation token</param>
+    internal async Task CloneOpenReplacementRequests(ScenarioCloneSource source, Guid token, IReadOnlySet<Guid> droppedTokens, CancellationToken ct)
     {
         if (source.Token is not { } sourceToken)
         {
             return;
         }
 
+        var dropped = droppedTokens.ToList();
         var requests = await _context.ReplacementRequests
             .Where(r => r.AnalyseToken == sourceToken && r.AppliedAtUtc == null)
+            .Where(r => !_context.Shift.IgnoreQueryFilters()
+                .Any(s => s.Id == r.ShiftId && s.AnalyseToken != null && dropped.Contains(s.AnalyseToken.Value)))
             .AsNoTracking()
             .ToListAsync(ct);
 

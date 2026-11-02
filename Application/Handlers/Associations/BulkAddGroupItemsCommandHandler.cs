@@ -6,7 +6,9 @@
 /// group in a state nobody asked for. A caller doing it as N separate requests could not roll back what
 /// already succeeded, so the atomicity has to live here, on the server, rather than in the caller.
 /// Every target group, every linked client and every linked shift must be visible to the caller; one hidden group,
-/// client or shift refuses the whole batch like a missing one, before anything is written.
+/// client or shift refuses the whole batch like a missing one, before anything is written. A linked shift that carries an
+/// analyse token (shift of a variant or scenario clone) refuses the batch the same way for every caller, because the new
+/// links carry no token; the groups of such a shift are edited through the shift resource only.
 /// </summary>
 /// <param name="groupItemRepository">Persists the rows and confirms them by id</param>
 /// <param name="unitOfWork">Owns the transaction the whole batch runs in</param>
@@ -132,6 +134,12 @@ public class BulkAddGroupItemsCommandHandler
         if (hiddenShiftId.HasValue)
         {
             throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, hiddenShiftId.Value));
+        }
+
+        var tokenedShiftId = await _shiftVisibilityGuard.FindFirstTokenedAsync(shiftIds, cancellationToken);
+        if (tokenedShiftId.HasValue)
+        {
+            throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, tokenedShiftId.Value));
         }
     }
 }

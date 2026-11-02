@@ -17,10 +17,20 @@ public interface IContainerVisibilityGuard
     Task EnsureContainerVisibleAsync(Guid containerId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The check of every write to the templates and overrides of a container: EnsureContainerVisibleAsync, and the same
+    /// missing-shift answer for a container of a variant (key), for every caller. A key carries shifts only, so a real
+    /// template or override row on its container would get past the key freeze and outlive the key.
+    /// </summary>
+    /// <param name="containerId">Container shift the write is about</param>
+    Task EnsureContainerWritableAsync(Guid containerId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Throws KeyNotFoundException with the missing-shift text when a requested item references a task shift the
     /// caller may not touch and that the container does not reference yet. Task shifts already stored in the
-    /// container's templates or overrides are not checked, so a container mixing groups stays saveable; an
-    /// unrestricted caller is answered without a query.
+    /// container's templates or overrides are not checked, so a container mixing groups stays saveable. A task shift of
+    /// a variant (key) is refused with the same text for every caller, stored or not; scenario clones are left to the
+    /// expansion, which knows the token of the container work. An unrestricted caller is otherwise answered without
+    /// a visibility query.
     /// </summary>
     /// <param name="containerId">Container shift whose stored items form the baseline</param>
     /// <param name="requestedShiftIds">Task shift ids of the items the write will save (null for absence items)</param>

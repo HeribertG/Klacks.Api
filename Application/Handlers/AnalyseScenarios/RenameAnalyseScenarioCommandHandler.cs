@@ -6,12 +6,14 @@
 /// </summary>
 /// <param name="Id">ID of the scenario to rename</param>
 /// <param name="Name">New name for the scenario</param>
+/// <param name="variantRepository">Reads the variants (keys) the scenario carries</param>
 /// <param name="groupVisibilityGuard">Answers a scenario outside the caller's group visibility like a missing one</param>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Groups;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -20,17 +22,20 @@ namespace Klacks.Api.Application.Handlers.AnalyseScenarios;
 public class RenameAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<RenameAnalyseScenarioCommand, AnalyseScenarioResource>
 {
     private readonly IAnalyseScenarioRepository _repository;
+    private readonly IScenarioVariantRepository _variantRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public RenameAnalyseScenarioCommandHandler(
         IAnalyseScenarioRepository repository,
+        IScenarioVariantRepository variantRepository,
         IUnitOfWork unitOfWork,
         IGroupVisibilityGuard groupVisibilityGuard,
         ILogger<RenameAnalyseScenarioCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
+        _variantRepository = variantRepository;
         _unitOfWork = unitOfWork;
         _groupVisibilityGuard = groupVisibilityGuard;
     }
@@ -47,19 +52,9 @@ public class RenameAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             await _repository.Put(scenario);
             await _unitOfWork.CompleteAsync();
 
-            return new AnalyseScenarioResource
-            {
-                Id = scenario.Id,
-                Name = scenario.Name,
-                Description = scenario.Description,
-                GroupId = scenario.GroupId,
-                FromDate = scenario.FromDate,
-                UntilDate = scenario.UntilDate,
-                Token = scenario.Token,
-                RunGroupId = scenario.RunGroupId,
-                CreatedByUser = scenario.CreatedByUser,
-                Status = (int)scenario.Status
-            };
+            var variantIds = await _variantRepository.GetVariantIdsAsync(scenario.Token, cancellationToken);
+
+            return AnalyseScenarioResourceFactory.ToResource(scenario, variantIds);
         }, nameof(Handle), new { command.Id, command.Name });
     }
 }

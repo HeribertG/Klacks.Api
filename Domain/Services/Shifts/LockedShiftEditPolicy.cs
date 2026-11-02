@@ -13,6 +13,9 @@
 /// minute resolution and WorkTime within one minute, because the edit form rounds both to whole minutes on every save.
 /// Writers that must change a locked shift (cut editor, order supersession, sealing, set-end-date skill, scenario
 /// accept) write through the repository or the database context and never reach this policy.
+/// The policy does not apply to a shift with an analyse token. That is wanted for a shift of a variant (key): it is a
+/// draft of a future order, so its content stays freely editable until the key is accepted; IVariantShiftWriteGuard holds
+/// the rules a key shift has instead, and scenario clones are refused by the repository.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -86,6 +89,9 @@ public static class LockedShiftEditPolicy
     private static bool TextDiffers(string? stored, string? incoming) =>
         !string.Equals(stored ?? string.Empty, incoming ?? string.Empty, StringComparison.Ordinal);
 
-    private static bool TimeDiffers(TimeOnly stored, TimeOnly incoming) =>
+    internal static bool TimeDiffers(TimeOnly stored, TimeOnly incoming) =>
         stored.Hour != incoming.Hour || stored.Minute != incoming.Minute;
+
+    internal static bool WorkTimeDiffers(decimal stored, decimal incoming) =>
+        Math.Abs(stored - incoming) > WorkTimeToleranceHours;
 }

@@ -5,7 +5,10 @@
 /// changes and expenses, breaks with the pauses of its works, shifts with their required qualifications, notes,
 /// commands, softenings, client shift preferences, shift expenses and memberships (cloned-shift and temporary
 /// cross-group alike, so a rejected borrow never leaves a permanent membership behind) - plus the engine's untouched
-/// replacement proposals and the scenario's planning constraints. Everything is staged; the caller commits.
+/// replacement proposals and the scenario's planning constraints. The satellites of the swept shifts go by shift id as
+/// well, because those of a variant (key) carry no token, and a group item added to such a shift by id may lack one.
+/// The variant links of the scenario go too; the shifts of a variant it carried stay, they belong to the variant's own
+/// token. Everything is staged; the caller commits.
 /// </summary>
 /// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
 /// <param name="replacementRequestBook">Drops the engine's untouched replacement proposals</param>
@@ -38,6 +41,7 @@ public sealed class ScenarioDataDiscarder
         await SoftDeleteBreaksAsync(token, workIds, ct);
         await SoftDeleteShiftsAsync(token, ct);
         await SoftDeleteTokenRowsAsync(token, ct);
+        await SoftDeleteVariantLinksAsync(token, ct);
         await _replacementRequestBook.StageProposedReplacementRequestsDeletedAsync(token, DateTime.UtcNow, ct);
         await _ownedRowStager.SoftDeleteScenarioPlanningConstraintsAsync(token, DateTime.UtcNow, ct);
     }
@@ -103,7 +107,31 @@ public sealed class ScenarioDataDiscarder
             var requiredQualifications = await _context.ShiftRequiredQualification.IgnoreQueryFilters()
                 .Where(srq => !srq.IsDeleted && cloneShiftIds.Contains(srq.ShiftId)).ToListAsync(ct);
             foreach (var srq in requiredQualifications) { srq.IsDeleted = true; srq.DeletedTime = DateTime.UtcNow; }
+
+            await SoftDeleteTokenlessSatellitesAsync(cloneShiftIds, ct);
         }
+    }
+
+    private async Task SoftDeleteTokenlessSatellitesAsync(List<Guid> shiftIds, CancellationToken ct)
+    {
+        var shiftExpenses = await _context.Set<ShiftExpenses>().IgnoreQueryFilters()
+            .Where(e => !e.IsDeleted && shiftIds.Contains(e.ShiftId)).ToListAsync(ct);
+        foreach (var e in shiftExpenses) { e.IsDeleted = true; e.DeletedTime = DateTime.UtcNow; }
+
+        var preferences = await _context.Set<ClientShiftPreference>().IgnoreQueryFilters()
+            .Where(p => !p.IsDeleted && shiftIds.Contains(p.ShiftId)).ToListAsync(ct);
+        foreach (var p in preferences) { p.IsDeleted = true; p.DeletedTime = DateTime.UtcNow; }
+
+        var memberships = await _context.Set<GroupItem>().IgnoreQueryFilters()
+            .Where(gi => !gi.IsDeleted && gi.ShiftId != null && shiftIds.Contains(gi.ShiftId.Value)).ToListAsync(ct);
+        foreach (var gi in memberships) { gi.IsDeleted = true; gi.DeletedTime = DateTime.UtcNow; }
+    }
+
+    private async Task SoftDeleteVariantLinksAsync(Guid token, CancellationToken ct)
+    {
+        var links = await _context.Set<AnalyseScenarioVariant>().IgnoreQueryFilters()
+            .Where(link => link.ScenarioToken == token && !link.IsDeleted).ToListAsync(ct);
+        foreach (var link in links) { link.IsDeleted = true; link.DeletedTime = DateTime.UtcNow; }
     }
 
     private async Task SoftDeleteTokenRowsAsync(Guid token, CancellationToken ct)

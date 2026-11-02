@@ -12,7 +12,8 @@
 /// <param name="unitOfWork">Commits the change</param>
 /// <param name="shiftVisibilityGuard">Refuses a group-restricted caller a shift they may not see, exactly like a missing
 /// one (404 "Shift with ID ... not found"); for such a caller a missing shift now also answers 404 instead of a foreign-key
-/// error</param>
+/// error. A shift with an analyse token (of a variant or a scenario clone) gets the same answer for every caller, its
+/// requirements are written through the shift only</param>
 
 using Klacks.Api.Application.Commands.Qualifications;
 using Klacks.Api.Application.Interfaces;
@@ -43,7 +44,8 @@ public sealed class SetShiftRequiredQualificationCommandHandler : IRequestHandle
 
     public async Task<Guid> Handle(SetShiftRequiredQualificationCommand request, CancellationToken cancellationToken)
     {
-        if (!await _shiftVisibilityGuard.IsVisibleAsync(request.ShiftId, cancellationToken))
+        if (!await _shiftVisibilityGuard.IsVisibleAsync(request.ShiftId, cancellationToken)
+            || await _shiftVisibilityGuard.FindFirstTokenedAsync([request.ShiftId], cancellationToken) is not null)
         {
             throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, request.ShiftId));
         }

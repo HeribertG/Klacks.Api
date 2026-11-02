@@ -5,6 +5,8 @@
 /// planned, non-sporadic shift of the scenario needs Quantity x SumEmployees employees on each weekday it is active.
 /// Filled slots are the scenario works per (shift, day). Each open slot is classified from the contracts of the
 /// employees in the scenario group scope; a scenario without a group falls back to the employees who work in it.
+/// Clones of variant (key) services are additionally summed per variant (ScenarioSummaryDto.Variants), together with the
+/// orders of the variant that double a live real order after the accept.
 /// </summary>
 /// <param name="context">EF Core database context</param>
 /// <param name="scenarioRepository">Resolves the scenario by its token</param>
@@ -84,6 +86,8 @@ public sealed class ScenarioSummaryBuilder : IScenarioSummaryBuilder
         var agentIds = await LoadAgentIdsAsync(scenario.GroupId, token, from, until, ct);
         var reasons = await ClassifyAsync(openSlots, agentIds, from, until);
         var expensesWithChangedEmployee = await CountExpensesWithChangedEmployeeAsync(token, from, until, ct);
+        var keysByShift = await ScenarioVariantCoverageCalculator.LoadKeysByShiftAsync(_context, token, shifts, ct);
+        var copiedByVariant = await ScenarioVariantCoverageCalculator.LoadCopiedCountsAsync(_context, token, ct);
 
         return new ScenarioSummaryDto(
             token,
@@ -95,7 +99,8 @@ public sealed class ScenarioSummaryBuilder : IScenarioSummaryBuilder
             coverage.Sum(c => c.FilledSlots),
             coverage.OrderBy(c => c.ShiftName, StringComparer.CurrentCulture).ToList(),
             reasons,
-            expensesWithChangedEmployee);
+            expensesWithChangedEmployee,
+            ScenarioVariantCoverageCalculator.Summarize(keysByShift, coverage, openSlots, copiedByVariant));
     }
 
     /// <summary>

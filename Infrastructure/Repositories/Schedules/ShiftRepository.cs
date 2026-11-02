@@ -92,11 +92,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             return null;
         }
 
-        if (existingShift.AnalyseToken != null)
-        {
-            throw new InvalidOperationException(
-                $"Shift {existingShift.Id} cannot be edited while in scenario mode (AnalyseToken={existingShift.AnalyseToken}).");
-        }
+        await ShiftScenarioWriteGate.EnsureEditableAsync(context, existingShift);
 
         ShiftCreationOnlyFields.KeepStored(existingShift, shift);
 
@@ -106,12 +102,15 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
         _shiftValidator.EnsureUniqueGroupItems(shift.GroupItems);
 
-        _collectionUpdateService.UpdateCollection(
-            existingShift.GroupItems,
-            shift.GroupItems,
-            existingShift.Id,
-            (groupItem, shiftId) => groupItem.ShiftId = shiftId,
-            gi => gi.GroupId);
+        if (syncOwnedCollections || existingShift.AnalyseToken == null)
+        {
+            _collectionUpdateService.UpdateCollection(
+                existingShift.GroupItems,
+                shift.GroupItems,
+                existingShift.Id,
+                (groupItem, shiftId) => groupItem.ShiftId = shiftId,
+                gi => gi.GroupId);
+        }
 
         if (!syncOwnedCollections)
         {
@@ -148,11 +147,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             return null;
         }
 
-        if (existingShift.AnalyseToken != null)
-        {
-            throw new InvalidOperationException(
-                $"Shift {existingShift.Id} cannot be deleted while in scenario mode (AnalyseToken={existingShift.AnalyseToken}).");
-        }
+        await ShiftScenarioWriteGate.EnsureDeletableAsync(context, existingShift);
 
         var hasActiveScenarioClones = await context.Shift.IgnoreQueryFilters()
             .AnyAsync(s => s.ScenarioSourceShiftId == id && !s.IsDeleted);
@@ -245,11 +240,14 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     /// </summary>
     internal IQueryable<Shift> GetQuery() => ShiftBaseQueries.Ordered(context.Shift);
 
+    public Task<bool> HasChildrenAsync(Guid shiftId, CancellationToken cancellationToken = default)
+        => context.Shift.AsNoTracking().AnyAsync(s => s.ParentId == shiftId, cancellationToken);
+
     public async Task<List<Guid>> GetShiftIdsByClientAsync(Guid clientId, CancellationToken cancellationToken = default)
     {
         return await context.Shift
             .AsNoTracking()
-            .Where(s => s.ClientId == clientId)
+            .Where(s => s.ClientId == clientId && s.AnalyseToken == null)
             .Select(s => s.Id)
             .ToListAsync(cancellationToken);
     }
@@ -315,13 +313,13 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     private IQueryable<Shift> GetQueryWithClient() => ShiftBaseQueries.OrderedWithClient(context.Shift);
 
-    public Task<bool> HasOriginalShiftCopyAsync(Guid originalShiftId, CancellationToken cancellationToken = default) =>
-        GetQuery().AnyAsync(s => s.OriginalId == originalShiftId && s.Status == ShiftStatus.OriginalShift, cancellationToken);
+    public Task<bool> HasOriginalShiftCopyAsync(Guid originalShiftId, Guid? analyseToken = null, CancellationToken cancellationToken = default) =>
+        GetQuery().AnyAsync(s => s.OriginalId == originalShiftId && s.Status == ShiftStatus.OriginalShift && s.AnalyseToken == analyseToken, cancellationToken);
 
     public Task<List<Shift>> GetWithClientByIdsAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default) =>
         GetQueryWithClient().Where(s => shiftIds.Contains(s.Id)).ToListAsync(cancellationToken);
 
-    public async Task<List<Shift>> CutList(Guid id, DateOnly? filterClosedBefore = null, bool tracked = false)
+    public async Task<List<Shift>> CutList(Guid id, DateOnly? filterClosedBefore = null, bool tracked = false, Guid? analyseToken = null)
     {
         // The cut list is keyed by the SealedOrder id (children carry OriginalId = SealedOrder.Id).
         // Be id-tolerant: if the caller passes an OriginalShift/SplitShift id instead, resolve it up to
@@ -338,7 +336,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
         var query = context.Shift
             .Where(x => x.OriginalId == sealedOrderId
-                && x.AnalyseToken == null
+                && x.AnalyseToken == analyseToken
                 && x.ScenarioSourceShiftId == null);
 
         if (filterClosedBefore.HasValue)
@@ -362,12 +360,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return await query.ToListAsync();
     }
 
-    public async Task<Shift?> GetSealedOrder(Guid originalId)
+    public async Task<Shift?> GetSealedOrder(Guid originalId, Guid? analyseToken = null)
     {
         return await context.Shift
             .Where(x => x.Id == originalId
                 && x.Status == ShiftStatus.SealedOrder
-                && x.AnalyseToken == null
+                && x.AnalyseToken == analyseToken
                 && x.ScenarioSourceShiftId == null)
             .Include(x => x.GroupItems)
                 .ThenInclude(gi => gi.Group)
@@ -553,7 +551,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             "Creating OriginalShift from SealedOrder: SealedOrderId={SealedOrderId}",
             shift.Id);
 
-        await _shiftValidator.EnsureNoOriginalShiftCopyExists(shift.Id, this);
+        await _shiftValidator.EnsureNoOriginalShiftCopyExists(shift.Id, this, shift.AnalyseToken);
 
         var originalShift = _scheduleMapper.CloneShift(shift);
         originalShift.Status = ShiftStatus.OriginalShift;
@@ -615,6 +613,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             return null;
         }
 
+        await VariantShiftMirrorWriter.MirrorAsync(context, _collectionUpdateService, updatedShift);
+
         var isSealingTransition = updatedShift.Status == ShiftStatus.SealedOrder
             && previousStatus != ShiftStatus.SealedOrder;
 
@@ -627,7 +627,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             "Creating OriginalShift on sealing transition: SealedOrderId={SealedOrderId}, PreviousStatus={PreviousStatus}",
             updatedShift.Id, previousStatus);
 
-        await _shiftValidator.EnsureNoOriginalShiftCopyExists(updatedShift.Id, this);
+        await _shiftValidator.EnsureNoOriginalShiftCopyExists(updatedShift.Id, this, updatedShift.AnalyseToken);
 
         var originalShift = _scheduleMapper.CloneShift(updatedShift);
         originalShift.Status = ShiftStatus.OriginalShift;

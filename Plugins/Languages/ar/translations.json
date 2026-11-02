@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "هل تريد بالفعل حذف جميع السيناريوهات؟ لا يمكن التراجع عن هذا الإجراء.",
   "scenario.deleteAll.error": "تعذر حذف السيناريوهات (خطأ {{status}}): {{message}}",
   "scenario.description": "الوصف",
-  "scenario.error.createFailed": "تعذر إنشاء السيناريو (خطأ {{status}}): {{message}}",
+  "scenario.error.createFailed": "تعذر إنشاء السيناريو.",
   "scenario.error.noDateRange": "لم يتم تحميل جدول العمل بعد - يرجى فتح الجدول أولاً.",
   "scenario.error.renameFailed": "تعذرت إعادة تسمية السيناريو (خطأ {{status}}): {{message}}",
   "scenario.exit": "العودة إلى الخطة الحقيقية",

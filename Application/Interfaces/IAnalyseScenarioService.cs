@@ -52,15 +52,24 @@ public interface IAnalyseScenarioService
     /// unknown token throws <see cref="KeyNotFoundException"/>. Null keeps the real-plan clone unchanged.
     /// The source token is not checked for visibility here: the caller must have verified that the user may see the
     /// source scenario's group.
+    /// <paramref name="variantTokens"/> names the variants (keys) whose shifts are listed in
+    /// <paramref name="additionalShiftIds"/>: such a shift stands for itself, so its clone keeps it in
+    /// ScenarioSourceShiftId, and the child-count snapshot also counts the children that carry one of these tokens. Null
+    /// means none. With <paramref name="sourceToken"/> the variants of the source scenario count as well.
     /// </summary>
-    Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken cancellationToken);
+    Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken cancellationToken, IReadOnlySet<Guid>? variantTokens = null);
 
     /// <summary>
     /// Same as <see cref="CloneScenarioDataAsync"/> but also returns the work ID map
     /// (original work ID → cloned work ID), so the apply path can re-point the cloned works
     /// in place (preserving their WorkChange/Expense/sub-Break children) instead of delete+recreate.
     /// </summary>
-    Task<(Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CloneScenarioDataWithMapsAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken cancellationToken);
+    Task<(Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CloneScenarioDataWithMapsAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken cancellationToken, IReadOnlySet<Guid>? variantTokens = null);
+
+    /// <summary>
+    /// Ids of the live variants (keys) the scenario carries through live links, ordered by name then id.
+    /// </summary>
+    Task<List<Guid>> GetVariantIdsOfScenarioAsync(Guid token, CancellationToken cancellationToken);
 
     /// <summary>
     /// Maps every scenario clone among <paramref name="shiftIds"/> to the real root shift it stands for
@@ -110,11 +119,30 @@ public interface IAnalyseScenarioService
     Task<ScenarioStaleness?> FindRealPlanChangesSinceCreationAsync(AnalyseScenario scenario, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Accept rule for a scenario that carries variants (keys): throws <see cref="Klacks.Api.Application.Exceptions.ForbiddenException"/>
+    /// when the current caller lacks the right to edit shifts (a caller without a session holds only the planner floor and
+    /// is refused too), then <see cref="Klacks.Api.Application.Exceptions.ScenarioVariantConsumedException"/> when a
+    /// carried key is no longer Active. A scenario without keys passes without a rights query.
+    /// </summary>
+    Task EnsureVariantAcceptAllowedAsync(Guid scenarioId, Guid token, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Commits the staged accept of a scenario that carries variants (keys) and moves the keys to Accepted in one
+    /// transaction, so of two accepts that passed the gate only one gets a key. False for a scenario without keys: nothing
+    /// was committed and the caller commits through IUnitOfWork. Throws
+    /// <see cref="Klacks.Api.Application.Exceptions.ScenarioVariantConsumedException"/> when a key was taken in the meantime;
+    /// nothing is written then. Every exception leaves with an empty change tracker. A commit whose acknowledgement was lost
+    /// is verified against the stored scenario and counts as done.
+    /// </summary>
+    Task<bool> TryCommitVariantAcceptAsync(Guid token, CancellationToken ct);
+
+    /// <summary>
     /// Validates that no real-side conflict prevents accepting the scenario.
     /// Throws ConflictException when a source shift was deleted or its
     /// child-count subtree changed since the scenario was created (e.g. a
     /// concurrent cut by another user), or when scenario works sit on a scenario
-    /// shift that has no real root shift to be promoted onto.
+    /// shift that has no root shift to be promoted onto. The source of a clone of a variant
+    /// (key) shift is the key shift itself; the children of the keys linked to the scenario count like real children.
     /// </summary>
     Task ValidateNoAcceptConflictsAsync(Guid token, CancellationToken cancellationToken);
 
@@ -130,6 +158,8 @@ public interface IAnalyseScenarioService
     /// Locked days are left untouched: scenario works, breaks and notes on a locked day (sealed day, locked entry, or
     /// a work slot whose real origin, clone or pause is locked) are discarded instead of promoted, mirroring what
     /// <see cref="SoftDeleteRealScheduleDataAsync"/> keeps.
+    /// The variants (keys) the scenario carries are promoted in the same staged change: their live shifts and group items
+    /// lose the token and the keys go Accepted, so the works of a clone of a key shift land on a real shift. The links stay.
     /// </summary>
     /// <param name="token">Scenario isolation token.</param>
     /// <param name="fromDate">Period start (inclusive); entries with CurrentDate &lt; this are boundary.</param>
@@ -137,6 +167,22 @@ public interface IAnalyseScenarioService
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The discarded scenario entries on locked days that differ from what the real plan keeps.</returns>
     Task<ScenarioAcceptLockSkips> PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Roots of the shift trees of the variants (keys) the scenario carries; empty without keys. Must be read BEFORE
+    /// <see cref="PromoteScenarioWorksAsync"/>, which clears the key token that identifies those shifts.
+    /// </summary>
+    /// <param name="token">Scenario isolation token.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<IReadOnlyList<Guid>> GetVariantTreeRootIdsAsync(Guid token, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Stages the nested-set values of promoted key trees. Runs after the accept commit, because it reads the rows as
+    /// real shifts; the caller saves. Safe to repeat.
+    /// </summary>
+    /// <param name="rootIds">Result of <see cref="GetVariantTreeRootIdsAsync"/></param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task RecalculateVariantTreesAsync(IReadOnlyCollection<Guid> rootIds, CancellationToken cancellationToken);
 
     /// <summary>
     /// Ids of the live (not deleted) breaks that belong to the scenario. Must be read BEFORE

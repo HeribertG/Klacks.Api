@@ -7,7 +7,8 @@
 /// an until-date, and no work may exist after the requested date anywhere in the order's shift tree
 /// (its plannable shift and any split parts). This mirrors the plain save the edit-shift form performs
 /// on the sealed order row; the derived plannable shift/splits keep their own until-date unchanged,
-/// since they are never resynced from the order after the initial sealing clone.
+/// since they are never resynced from the order after the initial sealing clone. A shift with an analyse token is
+/// answered like a missing one: skills work on the real plan only, and a variant (key) has no skills.
 /// </summary>
 /// <param name="shiftId">UUID of the sealed order (status SealedOrder) to set the until-date on.</param>
 /// <param name="untilDate">ISO date (YYYY-MM-DD) the order ends on; must not be before fromDate.</param>
@@ -58,7 +59,9 @@ public class SetSealedOrderUntilDateSkill : BaseSkillImplementation
         }
 
         var shift = await _shiftRepository.Get(shiftId);
-        if (shift == null || !await _shiftVisibilityGuard.IsVisibleAsync(shift, cancellationToken))
+        if (shift == null
+            || shift.AnalyseToken != null
+            || !await _shiftVisibilityGuard.IsVisibleAsync(shift, cancellationToken))
         {
             return SkillResult.Error($"Order with ID {shiftId} not found.");
         }

@@ -28,7 +28,6 @@ public class GroupTreeService : IGroupTreeService
         _logger.LogInformation("Adding child node to parent {ParentId} for new group {GroupName}", parentId, newGroup.Name);
 
         var parent = await _context.Group
-            .Include(x => x.GroupItems)
             .Where(g => g.Id == parentId)
             .FirstOrDefaultAsync();
 

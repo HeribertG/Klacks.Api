@@ -48,7 +48,10 @@ public class PlanningConstraintReferenceReader : IPlanningConstraintReferenceRea
     public async Task<bool> ActiveScenarioExistsAsync(Guid analyseToken, CancellationToken cancellationToken = default)
     {
         return await _context.AnalyseScenarios.AnyAsync(
-            s => s.Token == analyseToken && !s.IsDeleted && s.Status == AnalyseScenarioStatus.Active,
+            s => s.Token == analyseToken
+                && !s.IsDeleted
+                && s.Kind == AnalyseScenarioKind.Scenario
+                && s.Status == AnalyseScenarioStatus.Active,
             cancellationToken);
     }
 }

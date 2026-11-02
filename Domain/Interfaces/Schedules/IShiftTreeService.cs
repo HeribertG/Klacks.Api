@@ -8,6 +8,7 @@ public interface IShiftTreeService
 {
     void SetHierarchyRelation(Shift shift, Guid? parentId, Guid? parentRootId);
     Task RecalculateNestedSetValuesAsync(Guid rootId);
+    Task RecalculateTreesAsync(IReadOnlyCollection<Guid> rootIds, CancellationToken cancellationToken);
     Task RecalculateAllAffectedTreesAsync(List<Shift> processedShifts);
     int CalculateTreeWidth(int leftValue, int rightValue);
 }

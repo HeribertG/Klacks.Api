@@ -45,7 +45,9 @@ public class SealedOrderDetailsLoader : ISealedOrderDetailsLoader
             .AsNoTracking()
             .Where(s => !s.IsDeleted
                 && s.Id == orderId
-                && s.Status == ShiftStatus.SealedOrder)
+                && s.Status == ShiftStatus.SealedOrder
+                && s.AnalyseToken == null
+                && s.ScenarioSourceShiftId == null)
             .Include(s => s.Client)
             .FirstOrDefaultAsync(cancellationToken);
 

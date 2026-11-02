@@ -38,7 +38,7 @@ public class DeleteContainerShiftOverrideCommandHandler : IRequestHandler<Delete
 
     public async Task<bool> Handle(DeleteContainerShiftOverrideCommand request, CancellationToken cancellationToken)
     {
-        await _containerVisibilityGuard.EnsureContainerVisibleAsync(request.ContainerId, cancellationToken);
+        await _containerVisibilityGuard.EnsureContainerWritableAsync(request.ContainerId, cancellationToken);
 
         var existing = await _repository.GetWithTracking(request.OverrideId, cancellationToken);
         if (existing is null || existing.ContainerId != request.ContainerId) return false;

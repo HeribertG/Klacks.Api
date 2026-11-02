@@ -45,6 +45,8 @@ public class ShiftDayAssignment
 
     public int PeriodBookedDays { get; set; }
 
+    public bool IsVariantShift { get; set; }
+
     [NotMapped]
     public List<ShiftRequiredQualification> RequiredQualifications { get; set; } = new();
 }

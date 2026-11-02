@@ -9,7 +9,8 @@
 /// pauses of every kept work. Such a change survives the accept, so the warning must not call it overwritten. Deleted
 /// rows are included (IgnoreQueryFilters), because a deletion after the snapshot is overwritten too: the accept brings
 /// the scenario's copy of the row back. A scenario built on another scenario carries rows of its source's snapshot, so
-/// the snapshot instant is the earliest creation along the SourceToken chain. The changed rows are filtered in memory,
+/// the snapshot instant is the earliest creation along the SourceToken chain. The accepted scenarios named in the warning
+/// are scenario rows only; a consumed variant (key) is not one. The changed rows are filtered in memory,
 /// because the locked (client, day) pairs do not translate into SQL.
 /// </summary>
 /// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
@@ -262,6 +263,7 @@ public sealed class ScenarioStalenessDetector
 
         return await _context.AnalyseScenarios
             .Where(s => s.Id != scenarioId
+                && s.Kind == AnalyseScenarioKind.Scenario
                 && s.Status == AnalyseScenarioStatus.Accepted
                 && s.UpdateTime > since
                 && s.GroupId == groupId

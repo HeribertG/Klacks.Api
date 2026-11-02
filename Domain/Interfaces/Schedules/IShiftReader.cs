@@ -55,9 +55,9 @@ public interface IShiftReader
     Task<bool> AnyByOriginalIdAsync(Guid originalId, ShiftStatus status, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Sealed orders, plannable shifts and split parts with a live link to the group, projected to the columns
-    /// find_split_shift_candidates reads, in the repository order (original id, from date, start time). Scenario rows
-    /// are not excluded.
+    /// Real sealed orders, plannable shifts and split parts with a live real link to the group, projected to the columns
+    /// find_split_shift_candidates reads, in the repository order (original id, from date, start time). Rows of a variant
+    /// or a scenario and links with a token are left out.
     /// </summary>
     /// <param name="groupId">Group the shifts must be linked to</param>
     /// <param name="nameFragment">Case-insensitive ILike fragment of the shift name (not escaped, so % and _ act as

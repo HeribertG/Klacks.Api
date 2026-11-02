@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "确定要删除所有场景吗？此操作无法撤销。",
   "scenario.deleteAll.error": "无法删除场景（错误 {{status}}）：{{message}}",
   "scenario.description": "描述",
-  "scenario.error.createFailed": "无法创建场景（错误 {{status}}）：{{message}}",
+  "scenario.error.createFailed": "无法创建场景。",
   "scenario.error.noDateRange": "排班计划尚未加载 - 请先打开排班计划。",
   "scenario.error.renameFailed": "无法重命名场景（错误 {{status}}）：{{message}}",
   "scenario.exit": "返回实际计划",

@@ -11,7 +11,9 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
+using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Services.ScenarioVariants;
 using Klacks.Api.Application.Services.Shifts;
 
 namespace Klacks.Api.Application.Services.Schedules;
@@ -23,10 +25,18 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// stored order reference, customer and tree fields, a new piece takes order reference and customer from its parent,
 /// whatever the request carries. The sealed order and a draft cannot be the target of a cut update. Every new piece starts
 /// with default expenses of its own (fresh rows): the rows the request carries, else copies of the rows of the shift it is
-/// cut from, so each part of a cut order carries the same expenses as the plannable shift.
+/// cut from, so each part of a cut order carries the same expenses as the plannable shift. An order inside a variant
+/// (key) is cut in its own world: the request carries no token, the stored token of the shift decides, every new piece and
+/// its group links take the token of the parent, and the cut dates are validated and the cuts reset against rows of that
+/// world only; every range of a cut and of a reset stays inside the variant's period and has an end, which the validation
+/// against the sealed order alone does not ensure. Groups in a variant follow the hierarchy, not the request: a new piece copies the live groups of its parent
+/// here, an updated piece keeps its stored ones in ShiftRepository.PutCutUpdate, so no piece can leave the variant's group.
+/// A shift of a scenario clone, of a hidden variant, of a consumed one or of one an Active scenario carries is refused. The nested-set values of
+/// real trees are recalculated; a tree inside a variant gets none (they are set when the variant is promoted).
 /// </summary>
 /// <param name="shiftVisibilityGuard">Decides whether the caller may touch a shift and the groups a piece changes</param>
 /// <param name="shiftExpensesRepository">Reads the stored default expenses a new piece copies</param>
+/// <param name="variantShiftWriteGuard">Decides whether the token a shift carries belongs to a visible variant open for writes, and whether a range lies inside its period</param>
 public class ShiftCutFacade : IShiftCutFacade
 {
     private readonly IShiftRepository _shiftRepository;
@@ -38,6 +48,7 @@ public class ShiftCutFacade : IShiftCutFacade
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly IVariantShiftWriteGuard _variantShiftWriteGuard;
     private readonly ILogger<ShiftCutFacade> _logger;
 
     public ShiftCutFacade(
@@ -50,8 +61,10 @@ public class ShiftCutFacade : IShiftCutFacade
         IUnitOfWork unitOfWork,
         IShiftVisibilityGuard shiftVisibilityGuard,
         IShiftExpensesRepository shiftExpensesRepository,
+        IVariantShiftWriteGuard variantShiftWriteGuard,
         ILogger<ShiftCutFacade> logger)
     {
+        _variantShiftWriteGuard = variantShiftWriteGuard;
         _shiftExpensesRepository = shiftExpensesRepository;
         _shiftVisibilityGuard = shiftVisibilityGuard;
         _shiftRepository = shiftRepository;
@@ -105,11 +118,15 @@ public class ShiftCutFacade : IShiftCutFacade
         _logger.LogInformation("=== PHASE 1 Complete: Saving to database ===");
         await _unitOfWork.CompleteAsync();
 
-        _logger.LogInformation("=== PHASE 2: Recalculating Nested Set values for all affected trees ===");
-        await _shiftTreeService.RecalculateAllAffectedTreesAsync(processedShifts);
+        var realPlanShifts = processedShifts.Where(shift => shift.AnalyseToken == null).ToList();
+        if (realPlanShifts.Count > 0)
+        {
+            _logger.LogInformation("=== PHASE 2: Recalculating Nested Set values for all affected trees ===");
+            await _shiftTreeService.RecalculateAllAffectedTreesAsync(realPlanShifts);
 
-        _logger.LogInformation("=== PHASE 2 Complete: Saving recalculated values ===");
-        await _unitOfWork.CompleteAsync();
+            _logger.LogInformation("=== PHASE 2 Complete: Saving recalculated values ===");
+            await _unitOfWork.CompleteAsync();
+        }
 
         _logger.LogInformation("=== ProcessBatchCuts END - Processed {Count} operations ===", processedShifts.Count);
         return processedShifts;
@@ -121,18 +138,24 @@ public class ShiftCutFacade : IShiftCutFacade
         _logger.LogInformation("OriginalId: {OriginalId}, NewStartDate: {NewStartDate}",
             originalId, newStartDate);
 
-        var sealedOrder = await _shiftRepository.GetSealedOrder(originalId);
+        var sealedOrder = await _shiftRepository.GetSealedOrder(originalId)
+            ?? await VariantSealedOrderLookup.FindAsync(_shiftRepository, _variantShiftWriteGuard, originalId);
 
         if (sealedOrder == null || !await _shiftVisibilityGuard.IsVisibleAsync(sealedOrder))
         {
             throw new InvalidOperationException(string.Format(ShiftVisibilityMessages.NoSealedOrderFound, originalId));
         }
 
-        EnsureNotInScenario(sealedOrder, "reset cuts on");
+        var analyseToken = sealedOrder.AnalyseToken;
+        if (analyseToken is { } variantToken)
+        {
+            await _variantShiftWriteGuard.EnsureOpenIfVariantAsync(variantToken, sealedOrder.Id);
+            await _variantShiftWriteGuard.EnsureInsideVariantPeriodAsync(variantToken, [(newStartDate, sealedOrder.UntilDate)]);
+        }
 
         _logger.LogInformation("Using SealedOrder as template: ID={Id}", sealedOrder.Id);
 
-        var allShifts = await _shiftRepository.CutList(originalId, newStartDate, tracked: true);
+        var allShifts = await _shiftRepository.CutList(originalId, newStartDate, tracked: true, analyseToken: analyseToken);
 
         _logger.LogInformation("Found {Count} shifts (filtered for cuts before {NewStartDate})",
             allShifts.Count, newStartDate);
@@ -150,7 +173,7 @@ public class ShiftCutFacade : IShiftCutFacade
 
         await _unitOfWork.CompleteAsync();
 
-        var updatedShifts = await _shiftRepository.CutList(originalId);
+        var updatedShifts = await _shiftRepository.CutList(originalId, analyseToken: analyseToken);
 
         _logger.LogInformation("=== ResetCuts END - Returned {Count} shifts ===", updatedShifts.Count);
         return updatedShifts;
@@ -251,7 +274,7 @@ public class ShiftCutFacade : IShiftCutFacade
             throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, op.Data.Id));
         }
 
-        EnsureNotInScenario(existingShift, "cut/update");
+        await EnsureCuttableAsync(existingShift, "cut/update");
 
         var isAllowedTransition = op.Data.Status == ShiftStatus.SplitShift
             && existingShift.Status is ShiftStatus.SplitShift or ShiftStatus.OriginalShift;
@@ -271,7 +294,8 @@ public class ShiftCutFacade : IShiftCutFacade
             existingShift.RootId,
             existingShift.Lft,
             existingShift.Rgt,
-            existingShift.Status);
+            existingShift.Status,
+            existingShift.AnalyseToken);
     }
 
     private async Task<CutOperationLineage> ResolveCreateLineageAsync(
@@ -282,7 +306,8 @@ public class ShiftCutFacade : IShiftCutFacade
 
         if (lineagesById.TryGetValue(parentId, out var parentInBatch))
         {
-            return new CutOperationLineage(parentInBatch.OriginalId, parentInBatch.ClientId, null, null, null, null, null);
+            return new CutOperationLineage(
+                parentInBatch.OriginalId, parentInBatch.ClientId, null, null, null, null, null, parentInBatch.AnalyseToken);
         }
 
         var parentShift = await _shiftRepository.GetTrackedOrFromDb(parentId);
@@ -291,8 +316,10 @@ public class ShiftCutFacade : IShiftCutFacade
             throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ParentShiftNotFound, parentId));
         }
 
+        await EnsureCuttableAsync(parentShift, "cut (create child of)");
+
         var originalId = parentShift.Status == ShiftStatus.SealedOrder ? parentShift.Id : parentShift.OriginalId;
-        return new CutOperationLineage(originalId, parentShift.ClientId, null, null, null, null, null);
+        return new CutOperationLineage(originalId, parentShift.ClientId, null, null, null, null, null, parentShift.AnalyseToken);
     }
 
     private async Task ValidateCutDates(
@@ -300,6 +327,12 @@ public class ShiftCutFacade : IShiftCutFacade
         Dictionary<CutOperation, CutOperationLineage> lineages)
     {
         _logger.LogInformation("=== Validating cut dates against allowed range ===");
+        foreach (var world in sortedOperations.Where(op => lineages[op].AnalyseToken.HasValue).GroupBy(op => lineages[op].AnalyseToken!.Value))
+        {
+            await _variantShiftWriteGuard.EnsureInsideVariantPeriodAsync(
+                world.Key, world.Select(op => (op.Data.FromDate, op.Data.UntilDate)).ToList());
+        }
+
         foreach (var op in sortedOperations)
         {
             var originalId = lineages[op].OriginalId;
@@ -312,7 +345,8 @@ public class ShiftCutFacade : IShiftCutFacade
                 originalId.Value,
                 op.Data.FromDate,
                 op.Data.UntilDate,
-                _shiftRepository);
+                _shiftRepository,
+                lineages[op].AnalyseToken);
 
             _logger.LogInformation(
                 "Validated cut dates for OriginalId={OriginalId}, FromDate={FromDate}, UntilDate={UntilDate}",
@@ -373,7 +407,11 @@ public class ShiftCutFacade : IShiftCutFacade
             throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ParentShiftNotFound, parentId));
         }
 
-        EnsureNotInScenario(parentShift, "cut (create child of)");
+        if (parentShift.AnalyseToken != lineage.AnalyseToken)
+        {
+            throw new InvalidOperationException(
+                $"Cannot cut (create child of) shift {parentShift.Id}: its world changed while the batch was processed.");
+        }
 
         _logger.LogInformation("Parent shift loaded: ID={Id}, Status={Status}",
             parentShift.Id, parentShift.Status);
@@ -383,6 +421,15 @@ public class ShiftCutFacade : IShiftCutFacade
         shift.Status = ShiftStatus.SplitShift;
         shift.OriginalId = lineage.OriginalId;
         shift.ClientId = lineage.ClientId;
+        shift.AnalyseToken = parentShift.AnalyseToken;
+        if (parentShift.AnalyseToken is { } variantToken)
+        {
+            shift.GroupItems = VariantShiftFamilyRules.CopyLiveGroupItems(parentShift, shift.Id, variantToken);
+            if (shift.GroupItems.Count == 0)
+            {
+                throw new BadRequestException(VariantShiftWriteGuard.GroupRequiredMessage);
+            }
+        }
 
         if (parentShift.Status == ShiftStatus.SealedOrder || parentShift.Status == ShiftStatus.OriginalShift)
         {
@@ -498,12 +545,17 @@ public class ShiftCutFacade : IShiftCutFacade
         throw new InvalidOperationException($"Invalid parent ID format: {parentId}. Frontend must send GUID!");
     }
 
-    private static void EnsureNotInScenario(Shift shift, string operation)
+    private async Task EnsureCuttableAsync(Shift shift, string operation)
     {
-        if (shift.AnalyseToken != null)
+        if (shift.AnalyseToken is not { } token)
+        {
+            return;
+        }
+
+        if (!await _variantShiftWriteGuard.EnsureOpenIfVariantAsync(token, shift.Id))
         {
             throw new InvalidOperationException(
-                $"Cannot {operation} shift {shift.Id} while in scenario mode (AnalyseToken={shift.AnalyseToken}).");
+                $"Cannot {operation} shift {shift.Id} while in scenario mode (AnalyseToken={token}).");
         }
     }
 

@@ -16,6 +16,7 @@ public class AnalyseScenarioConfiguration : IEntityTypeConfiguration<AnalyseScen
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => p.Token).IsUnique();
         builder.HasIndex(p => new { p.GroupId, p.Status });
+        builder.HasIndex(p => new { p.Kind, p.GroupId });
         builder.Property(p => p.RejectReasonText).HasMaxLength(2000);
     }
 }

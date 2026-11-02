@@ -44,6 +44,23 @@ public interface IShiftVisibilityGuard
     Task<Guid?> FindFirstHiddenAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Returns the first of the given shift ids that carries an analyse token (shift of a variant or scenario clone), or
+    /// null when none does. Unlike the visibility checks this asks the database for every caller, an unrestricted one
+    /// included, because a real row (a group link, a preference, a required qualification) on such a shift would pull it
+    /// into the real plan.
+    /// </summary>
+    /// <param name="shiftIds">Shift ids a real row is about to point at</param>
+    Task<Guid?> FindFirstTokenedAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns the first of the given shift ids a real row may not point at, or null when all may be used: a shift that
+    /// is missing, hidden from the caller or carries an analyse token. Unlike FindFirstHiddenAsync this asks the database
+    /// for every caller, so an unrestricted caller gets the same answer for a missing id instead of a foreign-key error.
+    /// </summary>
+    /// <param name="shiftIds">Shift ids a real row is about to point at</param>
+    Task<Guid?> FindFirstNotReferableAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Returns those of the given shift ids a write may touch: all of them (distinct) for an unrestricted caller without
     /// a query; for a restricted caller only the ids that exist and are visible, answered with one query, so a missing
     /// and a hidden id are both left out alike.

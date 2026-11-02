@@ -1,9 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Skill that lists existing orders (Bestellungen) and already-split shifts in a group, so the
+/// Skill that lists existing real orders (Bestellungen) and already-split shifts in a group, so the
 /// assistant can ask the user whether to reuse an existing (already-split) order or open a new one
-/// before building a multi-part service. Call this FIRST for any split/24h-rotation request.
+/// before building a multi-part service. Call this FIRST for any split/24h-rotation request. Only groups in the scope of
+/// the caller count, because the scope is a criterion of the group search: a hidden group is answered like one that does
+/// not exist, takes no place under the search cap and stays out of an ambiguous answer. When the search found more visible
+/// groups than it returned, the answer stays ambiguous even for one returned group.
 /// The count is by group membership only (sealed orders and their shifts linked directly to the group), never by
 /// address: every answer also reports how many orders have no group at all and, when the group name is also a city or
 /// state, how many orders lie there by customer address (OrderLocationAddressRule, through the visibility-scoped shift
@@ -12,6 +15,7 @@
 /// <param name="groupName">Name of the group to inspect (e.g. "Biel/Bienne").</param>
 /// <param name="searchString">Optional text filter on the order name.</param>
 /// <param name="mediator">Runs the visibility-scoped shift list for the address-based counts</param>
+/// <param name="groupScopeGuard">Limits the groups the skill may name and read to the scope of the caller</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Shifts;
@@ -35,15 +39,18 @@ public class FindSplitShiftCandidatesSkill : BaseSkillImplementation
     private readonly IShiftReader _shiftReader;
     private readonly IGroupSearchRepository _groupSearchRepository;
     private readonly IMediator _mediator;
+    private readonly IGroupScopeGuard _groupScopeGuard;
 
     public FindSplitShiftCandidatesSkill(
         IShiftReader shiftReader,
         IGroupSearchRepository groupSearchRepository,
-        IMediator mediator)
+        IMediator mediator,
+        IGroupScopeGuard groupScopeGuard)
     {
         _shiftReader = shiftReader;
         _groupSearchRepository = groupSearchRepository;
         _mediator = mediator;
+        _groupScopeGuard = groupScopeGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -59,25 +66,29 @@ public class FindSplitShiftCandidatesSkill : BaseSkillImplementation
             return SkillResult.Error("Parameter 'groupName' is required to inspect existing orders of a group.");
         }
 
-        var groupResult = await _groupSearchRepository.SearchAsync(
-            searchTerm: groupName,
-            limit: GroupSearchLimit,
-            cancellationToken: cancellationToken);
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var groupResult = await _groupSearchRepository.SearchWithinRootsAsync(
+            groupName,
+            GroupSearchLimit,
+            scope.IsUnrestricted ? null : scope.VisibleRootIds,
+            cancellationToken);
 
-        if (groupResult.TotalCount == 0)
+        var visibleGroups = groupResult.Items;
+
+        if (visibleGroups.Count == 0)
         {
             return SkillResult.Error($"No group found matching '{groupName}'.");
         }
 
-        if (groupResult.TotalCount > 1)
+        if (visibleGroups.Count > 1 || groupResult.TotalCount > groupResult.Items.Count)
         {
-            var matches = groupResult.Items.Select(g => new { g.Id, g.Name }).ToList();
+            var matches = visibleGroups.Select(g => new { g.Id, g.Name }).ToList();
             return SkillResult.SuccessResult(
                 new { EntityType = "group", Matches = matches, Count = matches.Count },
                 $"Multiple groups match '{groupName}'. Ask the user which one before inspecting its orders.");
         }
 
-        var group = groupResult.Items.First();
+        var group = visibleGroups[0];
 
         var shifts = await _shiftReader.GetOrderFamilyShiftsInGroupAsync(group.Id, searchString, cancellationToken);
 
@@ -129,7 +140,7 @@ public class FindSplitShiftCandidatesSkill : BaseSkillImplementation
                       ScopeNote(group.Name, orders.Count, ungrouped, inCity, inState) +
                       NextStep(orders.Count, inCity.Total > 0 || inState.Total > 0);
 
-        var scope = new
+        var countScope = new
         {
             CountedBy = "direct group membership of sealed orders and their shifts, not the customer address",
             UngroupedOpenOrders = ungrouped.OpenOrders,
@@ -139,7 +150,7 @@ public class FindSplitShiftCandidatesSkill : BaseSkillImplementation
         };
 
         return SkillResult.SuccessResult(
-            new { Group = new { group.Id, group.Name }, OrderCount = orders.Count, AlreadySplitCount = splitCount, Orders = orders, Scope = scope },
+            new { Group = new { group.Id, group.Name }, OrderCount = orders.Count, AlreadySplitCount = splitCount, Orders = orders, Scope = countScope },
             message);
     }
 

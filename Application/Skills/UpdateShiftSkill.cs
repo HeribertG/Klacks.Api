@@ -3,12 +3,13 @@
 /// <summary>
 /// Updates an existing shift by PATCHING only the supplied fields onto the current shift (loaded
 /// first, so unspecified fields — times, weekdays, groups, expenses — are preserved). Warns when the shift already has
-/// works, since changing its times/weekdays re-defines those works. Dispatches PutCommand&lt;ShiftResource&gt;.
+/// works, since changing its times/weekdays re-defines those works. Dispatches PutCommand&lt;ShiftResource&gt;. A shift with
+/// an analyse token is answered like a missing one: skills work on the real plan only, and a variant (key) has no skills.
 /// Only a draft order can be changed freely: for a sealed order, a plannable shift (the root of a cut group) and a cut piece
 /// the shift handler refuses every change to the locked content with ShiftLockedException (see LockedShiftEditPolicy), so
 /// the model gets a plain rejection that names the fields and, for plannable shifts and cut pieces, points to the cut
 /// editor. Nothing is propagated across a cut group: every member of a cut group has a locked status, so a propagation
-/// could never succeed and the name of a cut piece is not changed here. A shift with cuts also refuses an end date of its
+/// could never succeed and the name of a cut piece is not changed here. A shift with child rows also refuses an end date of its
 /// own (its pieces keep their dates, so the group would not end) and points to the cut editor's Reset.
 /// </summary>
 /// <param name="shiftId">Required. UUID of the shift to update.</param>
@@ -62,7 +63,9 @@ public class UpdateShiftSkill : BaseSkillImplementation
     {
         var shiftId = GetRequiredGuid(parameters, "shiftId");
         var existing = await _shiftRepository.Get(shiftId);
-        if (existing == null || !await _shiftVisibilityGuard.IsVisibleAsync(existing, cancellationToken))
+        if (existing == null
+            || existing.AnalyseToken != null
+            || !await _shiftVisibilityGuard.IsVisibleAsync(existing, cancellationToken))
         {
             return SkillResult.Error($"Shift {shiftId} not found.");
         }
@@ -99,7 +102,7 @@ public class UpdateShiftSkill : BaseSkillImplementation
         var untilDate = GetParameter<DateOnly?>(parameters, "untilDate");
         var weekdays = GetParameter<string>(parameters, "weekdays");
 
-        if (untilDate.HasValue && existing.Lft.HasValue && existing.Rgt.HasValue && existing.Rgt - existing.Lft > 1)
+        if (untilDate.HasValue && await _shiftRepository.HasChildrenAsync(shiftId, cancellationToken))
         {
             return SkillResult.Error("This shift has cuts (a sub-shift tree). An end date on the shift alone would leave its cut pieces running, because every piece keeps its own dates. End the whole group via the cut editor's 'Reset' instead.");
         }

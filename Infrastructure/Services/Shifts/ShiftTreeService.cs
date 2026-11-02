@@ -44,12 +44,31 @@ public class ShiftTreeService : IShiftTreeService
     {
         _logger.LogInformation("=== Recalculating Nested Set values for Root {RootId} ===", rootId);
 
-        var allShiftsInTree = await _context.Shift
-            .Where(s => s.RootId == rootId
-                && s.AnalyseToken == null
-                && s.ScenarioSourceShiftId == null)
+        var allShiftsInTree = await RealTreeRows()
+            .Where(s => s.RootId == rootId)
             .ToListAsync();
 
+        NumberTree(rootId, allShiftsInTree);
+    }
+
+    public async Task RecalculateTreesAsync(IReadOnlyCollection<Guid> rootIds, CancellationToken cancellationToken)
+    {
+        var ids = rootIds.ToList();
+        var rows = await RealTreeRows()
+            .Where(s => s.RootId != null && ids.Contains(s.RootId.Value))
+            .ToListAsync(cancellationToken);
+
+        foreach (var tree in rows.GroupBy(s => s.RootId!.Value))
+        {
+            NumberTree(tree.Key, tree.ToList());
+        }
+    }
+
+    private IQueryable<Shift> RealTreeRows()
+        => _context.Shift.Where(s => s.AnalyseToken == null && s.ScenarioSourceShiftId == null);
+
+    private void NumberTree(Guid rootId, List<Shift> allShiftsInTree)
+    {
         if (!allShiftsInTree.Any())
         {
             _logger.LogWarning("No shifts found for root {RootId}", rootId);

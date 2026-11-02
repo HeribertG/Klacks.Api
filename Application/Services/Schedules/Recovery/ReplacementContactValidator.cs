@@ -143,7 +143,7 @@ public sealed class ReplacementContactValidator : IReplacementContactValidator
     private async Task EnsureScenarioVisibleAsync(Guid token, CancellationToken cancellationToken)
     {
         var scenario = await _scenarioRepository.GetByTokenAsync(token, cancellationToken);
-        if (!await _groupVisibilityGuard.IsScenarioVisibleAsync(scenario, cancellationToken))
+        if (!await _groupVisibilityGuard.IsScenarioRowVisibleAsync(scenario, cancellationToken))
         {
             throw new KeyNotFoundException(ScenarioNotFoundMessage);
         }

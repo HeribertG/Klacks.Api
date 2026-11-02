@@ -76,6 +76,7 @@ public static class GroupVisibilityBoundSkills
         "get_target_hours_calculation",
         "list_container_template",
         "list_expiring_contracts",
+        "list_shift_cuts",
         "open_schedule",
         "place_work",
         "read_schedule_state",

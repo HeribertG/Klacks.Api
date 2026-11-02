@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Czy naprawdę usunąć wszystkie scenariusze? Tej akcji nie można cofnąć.",
   "scenario.deleteAll.error": "Nie udało się usunąć scenariuszy (błąd {{status}}): {{message}}",
   "scenario.description": "Opis",
-  "scenario.error.createFailed": "Nie udało się utworzyć scenariusza (błąd {{status}}): {{message}}",
+  "scenario.error.createFailed": "Nie udało się utworzyć scenariusza.",
   "scenario.error.noDateRange": "Plan pracy nie jest jeszcze załadowany - najpierw otwórz Schedule.",
   "scenario.error.renameFailed": "Nie udało się zmienić nazwy scenariusza (błąd {{status}}): {{message}}",
   "scenario.exit": "Powrót do rzeczywistego planu",

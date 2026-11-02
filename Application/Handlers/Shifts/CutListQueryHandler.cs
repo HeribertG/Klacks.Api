@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-﻿using Klacks.Api.Application.Mappers;
+using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.Queries.Shifts;
+using Klacks.Api.Application.Services.ScenarioVariants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -15,28 +16,34 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 
 /// <summary>
 /// Handler for the cut list of an order. Cuts of groups the caller may not see are dropped, exactly as if they
-/// did not exist; group-less cuts stay visible to everyone.
+/// did not exist; group-less cuts stay visible to everyone. When the real plan has no rows for the id, the order may live
+/// inside a visible variant (key): its rows are then read through the token stored on the shift, also while a scenario
+/// carries the key. A hidden variant yields an empty list, like an id that does not exist.
 /// </summary>
 /// <param name="shiftRepository">Loads the cuts with their group items</param>
 /// <param name="shiftGroupFilterService">Resolves the caller's group restriction (null = unrestricted)</param>
 /// <param name="scheduleMapper">Maps the cuts to the API resource</param>
+/// <param name="variantShiftWriteGuard">Decides whether the token stored on the shift belongs to a readable variant</param>
 /// <param name="logger">Diagnostics logging</param>
 public class CutListQueryHandler : IRequestHandler<CutListQuery, IEnumerable<ShiftResource>>
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftGroupFilterService _shiftGroupFilterService;
     private readonly ScheduleMapper _scheduleMapper;
+    private readonly IVariantShiftWriteGuard _variantShiftWriteGuard;
     private readonly ILogger<CutListQueryHandler> _logger;
 
     public CutListQueryHandler(
         IShiftRepository shiftRepository,
         IShiftGroupFilterService shiftGroupFilterService,
         ScheduleMapper scheduleMapper,
+        IVariantShiftWriteGuard variantShiftWriteGuard,
         ILogger<CutListQueryHandler> logger)
     {
         _shiftRepository = shiftRepository;
         _shiftGroupFilterService = shiftGroupFilterService;
         _scheduleMapper = scheduleMapper;
+        _variantShiftWriteGuard = variantShiftWriteGuard;
         _logger = logger;
     }
 
@@ -47,6 +54,13 @@ public class CutListQueryHandler : IRequestHandler<CutListQuery, IEnumerable<Shi
         try
         {
             var cuts = await _shiftRepository.CutList(request.Id);
+            if (cuts.Count == 0
+                && await VariantSealedOrderLookup.FindReadableVariantTokenAsync(
+                    _shiftRepository, _variantShiftWriteGuard, request.Id, cancellationToken) is { } analyseToken)
+            {
+                cuts = await _shiftRepository.CutList(request.Id, analyseToken: analyseToken);
+            }
+
             var visibleGroupIds = await _shiftGroupFilterService.ResolveShiftListGroupIdsAsync(null);
             var cutsList = cuts.Where(cut => ShiftGroupVisibilityFilter.IsVisible(cut, visibleGroupIds)).ToList();
 

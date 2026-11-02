@@ -52,7 +52,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
 
     public async Task<List<ContainerTemplateResource>> Handle(PutContainerTemplatesCommand request, CancellationToken cancellationToken)
     {
-        await _containerVisibilityGuard.EnsureContainerVisibleAsync(request.ContainerId, cancellationToken);
+        await _containerVisibilityGuard.EnsureContainerWritableAsync(request.ContainerId, cancellationToken);
 
         var userId = _userService.GetId() ?? Guid.Empty;
         var instanceId = _userService.GetInstanceId() ?? string.Empty;

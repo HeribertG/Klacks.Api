@@ -25,10 +25,17 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 /// customer the caller cannot see stays saveable. A stored draft order (OriginalOrder) may only be saved as a draft or
 /// sealed (SealedOrder); any other status is refused with 400, because the status is server-owned hierarchy. The lock
 /// check runs first, then the draft status check, then the customer check, so a locked shift answers 409 and a forbidden
-/// draft status 400 whatever customer was sent.
+/// draft status 400 whatever customer was sent. A stored shift of a variant (key) is checked by IVariantShiftWriteGuard
+/// from its stored token, so a body without a token gets the same answer. Such a shift is a pair of rows, the sealed order
+/// and its plannable copy: a PUT addressed at either row is saved on that row and the repository mirrors the mirrored
+/// fields (VariantShiftMirror), the group items, the expenses and the required qualifications onto the other row in the
+/// same save, so the answer is the addressed row. While the order has cuts, a change of its date, time, weekdays,
+/// staffing, customer, macro or type is refused with a conflict (the guard); name, abbreviation, description and groups
+/// stay changeable.
 /// </summary>
 /// <param name="shiftVisibilityGuard">Decides whether the caller may touch the shift and its changed groups</param>
 /// <param name="clientReferenceGuard">Decides whether a changed customer exists and is visible to the caller</param>
+/// <param name="variantShiftWriteGuard">Refuses an edit of a shift in a consumed or hidden variant and content a variant does not accept</param>
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftResource>, ShiftResource?>
 {
     private readonly IShiftRepository _shiftRepository;
@@ -37,6 +44,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
     private readonly IUnitOfWork _unitOfWork;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly IClientReferenceGuard _clientReferenceGuard;
+    private readonly IVariantShiftWriteGuard _variantShiftWriteGuard;
 
     public PutCommandHandler(
         IShiftRepository shiftRepository,
@@ -45,6 +53,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
         IUnitOfWork unitOfWork,
         IShiftVisibilityGuard shiftVisibilityGuard,
         IClientReferenceGuard clientReferenceGuard,
+        IVariantShiftWriteGuard variantShiftWriteGuard,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -54,6 +63,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
         _unitOfWork = unitOfWork;
         _shiftVisibilityGuard = shiftVisibilityGuard;
         _clientReferenceGuard = clientReferenceGuard;
+        _variantShiftWriteGuard = variantShiftWriteGuard;
     }
 
     public async Task<ShiftResource?> Handle(PutCommand<ShiftResource> request, CancellationToken cancellationToken)
@@ -70,6 +80,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
         var shift = _scheduleMapper.ToShiftEntity(request.Resource);
         await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync(shift.Id, shift.GroupItems, cancellationToken);
         var stored = await _shiftRepository.GetNoTracking(shift.Id);
+        if (stored != null)
+        {
+            await _variantShiftWriteGuard.EnsureEditableAsync(stored, shift, cancellationToken);
+        }
+
         EnsureNotLocked(stored, shift);
         EnsureDraftStatusTransitionAllowed(stored, shift);
         await EnsureChangedClientExistsVisibleAsync(stored, shift, cancellationToken);

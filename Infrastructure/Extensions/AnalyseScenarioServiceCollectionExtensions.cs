@@ -7,6 +7,8 @@
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.ScenarioVariants;
+using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 
 namespace Klacks.Api.Infrastructure.Extensions;
@@ -22,6 +24,7 @@ public static class AnalyseScenarioServiceCollectionExtensions
         services.AddScoped<ScenarioDayRowCloner>();
         services.AddScoped<ScenarioShiftSatelliteCloner>();
         services.AddScoped<ScenarioSourceOnlyRowCloner>();
+        services.AddScoped<ScenarioVariantLinkCloner>();
         services.AddScoped<ScenarioCloneCoordinator>();
 
         services.AddScoped<ScenarioRowLookup>();
@@ -36,10 +39,16 @@ public static class AnalyseScenarioServiceCollectionExtensions
         services.AddScoped<ScenarioAcceptConflictValidator>();
         services.AddScoped<ScenarioLockSkipCounter>();
         services.AddScoped<ScenarioDayRowPromoter>();
+        services.AddScoped<ScenarioVariantPromoter>();
         services.AddScoped<ScenarioPromoter>();
 
         services.AddScoped<ScenarioSlotReplacer>();
 
+        services.AddScoped<IScenarioVariantRepository, ScenarioVariantRepository>();
+        services.AddScoped<IVariantShiftWriteGuard, VariantShiftWriteGuard>();
+        services.AddScoped<IScenarioVariantShiftCopier, ScenarioVariantShiftCopier>();
+
+        services.AddScoped<ScenarioVariantAcceptGate>();
         services.AddScoped<IAnalyseScenarioService, AnalyseScenarioService>();
 
         return services;

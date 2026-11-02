@@ -50,7 +50,7 @@ public class PostContainerTemplatesCommandHandler : IRequestHandler<PostContaine
 
     public async Task<List<ContainerTemplateResource>> Handle(PostContainerTemplatesCommand request, CancellationToken cancellationToken)
     {
-        await _containerVisibilityGuard.EnsureContainerVisibleAsync(request.ContainerId, cancellationToken);
+        await _containerVisibilityGuard.EnsureContainerWritableAsync(request.ContainerId, cancellationToken);
 
         var userId = _userService.GetId() ?? Guid.Empty;
         var instanceId = _userService.GetInstanceId() ?? string.Empty;

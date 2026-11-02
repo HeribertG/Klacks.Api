@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "確定要刪除所有情境嗎？此操作無法復原。",
   "scenario.deleteAll.error": "無法刪除情境（錯誤 {{status}}）：{{message}}",
   "scenario.description": "描述",
-  "scenario.error.createFailed": "無法建立情境（錯誤 {{status}}）：{{message}}",
+  "scenario.error.createFailed": "無法建立情境。",
   "scenario.error.noDateRange": "值班計畫尚未載入 - 請先開啟排班表。",
   "scenario.error.renameFailed": "無法重新命名情境（錯誤 {{status}}）：{{message}}",
   "scenario.exit": "返回實際計劃",

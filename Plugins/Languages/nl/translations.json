@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Wilt u echt alle scenario's verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
   "scenario.deleteAll.error": "Scenario's konden niet worden verwijderd (fout {{status}}): {{message}}",
   "scenario.description": "Omschrijving",
-  "scenario.error.createFailed": "Scenario kon niet worden aangemaakt (fout {{status}}): {{message}}",
+  "scenario.error.createFailed": "Scenario kon niet worden aangemaakt.",
   "scenario.error.noDateRange": "Het inzetplan is nog niet geladen - open eerst het rooster.",
   "scenario.error.renameFailed": "Scenario kon niet worden hernoemd (fout {{status}}): {{message}}",
   "scenario.exit": "Terug naar het echte plan",

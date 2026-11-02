@@ -22,7 +22,7 @@ public class AnalyseScenarioRepository : BaseRepository<AnalyseScenario>, IAnaly
     public async Task<List<AnalyseScenario>> GetByGroupAsync(Guid? groupId, CancellationToken ct = default)
     {
         return await context.Set<AnalyseScenario>()
-            .Where(s => !s.IsDeleted && s.GroupId == groupId)
+            .Where(s => !s.IsDeleted && s.Kind == AnalyseScenarioKind.Scenario && s.GroupId == groupId)
             .OrderByDescending(s => s.CreateTime)
             .ToListAsync(ct);
     }
@@ -32,7 +32,7 @@ public class AnalyseScenarioRepository : BaseRepository<AnalyseScenario>, IAnaly
     {
         var query = context.Set<AnalyseScenario>()
             .Include(s => s.Group)
-            .Where(s => !s.IsDeleted);
+            .Where(s => !s.IsDeleted && s.Kind == AnalyseScenarioKind.Scenario);
 
         if (groupId.HasValue)
         {
@@ -60,6 +60,7 @@ public class AnalyseScenarioRepository : BaseRepository<AnalyseScenario>, IAnaly
     {
         var query = context.Set<AnalyseScenario>()
             .Where(s => !s.IsDeleted
+                && s.Kind == AnalyseScenarioKind.Scenario
                 && s.Status == AnalyseScenarioStatus.Active
                 && ((s.CreateTime != null && s.CreateTime > activeSinceUtc)
                     || (s.UpdateTime != null && s.UpdateTime > activeSinceUtc)));
@@ -79,6 +80,7 @@ public class AnalyseScenarioRepository : BaseRepository<AnalyseScenario>, IAnaly
         return await context.Set<AnalyseScenario>()
             .Include(s => s.Group)
             .Where(s => !s.IsDeleted
+                && s.Kind == AnalyseScenarioKind.Scenario
                 && s.Status == AnalyseScenarioStatus.Active
                 && s.CreateTime != null
                 && s.CreateTime > createdAfterUtc
@@ -92,6 +94,7 @@ public class AnalyseScenarioRepository : BaseRepository<AnalyseScenario>, IAnaly
     {
         return await context.Set<AnalyseScenario>()
             .Where(s => !s.IsDeleted
+                && s.Kind == AnalyseScenarioKind.Scenario
                 && s.Status == AnalyseScenarioStatus.Active
                 && s.CreatedByUser == createdByUser
                 && s.GroupId == groupId
@@ -106,6 +109,7 @@ public class AnalyseScenarioRepository : BaseRepository<AnalyseScenario>, IAnaly
     {
         return await context.Set<AnalyseScenario>()
             .Where(s => !s.IsDeleted
+                && s.Kind == AnalyseScenarioKind.Scenario
                 && s.Status == AnalyseScenarioStatus.Active
                 && s.CreatedByUser == createdByUser
                 && s.CreateTime != null

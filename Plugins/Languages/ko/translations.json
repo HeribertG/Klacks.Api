@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "정말로 모든 시나리오를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
   "scenario.deleteAll.error": "시나리오를 삭제할 수 없습니다 (오류 {{status}}): {{message}}",
   "scenario.description": "설명",
-  "scenario.error.createFailed": "시나리오를 생성할 수 없습니다 (오류 {{status}}): {{message}}",
+  "scenario.error.createFailed": "시나리오를 생성할 수 없습니다.",
   "scenario.error.noDateRange": "근무 일정이 아직 로드되지 않았습니다 - 먼저 일정을 열어 주세요.",
   "scenario.error.renameFailed": "시나리오 이름을 변경할 수 없습니다 (오류 {{status}}): {{message}}",
   "scenario.exit": "실제 계획으로 돌아가기",

@@ -8,16 +8,19 @@
 /// and the async post-commit check (ScheduleTimelineBackgroundService) surfaces it like any other finding.
 /// The Find methods only report a refusal; the Ensure methods throw exactly that refusal as a WorkWriteConflictException,
 /// so the 409 body carries an error code plus the names, counts and conflict items the client needs to explain it in the
-/// user's language, and a diagnosis reaches the same verdict as the write.
+/// user's language, and a diagnosis reaches the same verdict as the write. The world check keeps a Work off shifts of
+/// another world (ShiftWorld) and answers like a missing shift.
 /// </summary>
 /// <param name="shiftRepository">Source of the slim sporadic projection of the Work's shift</param>
 /// <param name="workRepository">Source of the sporadic capacity usage in the shift's range</param>
 /// <param name="conflictChecker">Replays the period validator with and without the planned row</param>
+/// <param name="shiftVisibilityReader">Reads the world of the shifts that carry an analyse token</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -35,15 +38,50 @@ public class WorkWriteGuardService : IWorkWriteGuard
     private readonly IShiftRepository _shiftRepository;
     private readonly IWorkRepository _workRepository;
     private readonly IPreCommitConflictChecker _conflictChecker;
+    private readonly IShiftVisibilityReader _shiftVisibilityReader;
 
     public WorkWriteGuardService(
         IShiftRepository shiftRepository,
         IWorkRepository workRepository,
-        IPreCommitConflictChecker conflictChecker)
+        IPreCommitConflictChecker conflictChecker,
+        IShiftVisibilityReader shiftVisibilityReader)
     {
         _shiftRepository = shiftRepository;
         _workRepository = workRepository;
         _conflictChecker = conflictChecker;
+        _shiftVisibilityReader = shiftVisibilityReader;
+    }
+
+    public async Task<Guid?> FindShiftOutsideWorkWorldAsync(
+        IReadOnlyCollection<(Guid ShiftId, Guid? AnalyseToken)> placements, CancellationToken cancellationToken)
+    {
+        var shiftIds = placements.Select(p => p.ShiftId).Where(id => id != Guid.Empty).Distinct().ToList();
+        if (shiftIds.Count == 0)
+        {
+            return null;
+        }
+
+        var worlds = (await _shiftVisibilityReader.GetTokenedShiftWorldsAsync(shiftIds, cancellationToken))
+            .ToDictionary(world => world.ShiftId);
+
+        foreach (var (shiftId, analyseToken) in placements)
+        {
+            if (worlds.TryGetValue(shiftId, out var world) && !world.Admits(analyseToken))
+            {
+                return shiftId;
+            }
+        }
+
+        return null;
+    }
+
+    public async Task EnsureShiftsInWorkWorldAsync(
+        IReadOnlyCollection<(Guid ShiftId, Guid? AnalyseToken)> placements, CancellationToken cancellationToken)
+    {
+        if (await FindShiftOutsideWorkWorldAsync(placements, cancellationToken) is { } outsideId)
+        {
+            throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, outsideId));
+        }
     }
 
     public async Task EnsureNoSporadicConflictAsync(Work work, CancellationToken cancellationToken)

@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Vill du verkligen ta bort alla scenarier? Denna åtgärd kan inte ångras.",
   "scenario.deleteAll.error": "Scenarierna kunde inte tas bort (fel {{status}}): {{message}}",
   "scenario.description": "Beskrivning",
-  "scenario.error.createFailed": "Scenariot kunde inte skapas (fel {{status}}): {{message}}",
+  "scenario.error.createFailed": "Scenariot kunde inte skapas.",
   "scenario.error.noDateRange": "Schemat är ännu inte laddat – öppna först schemat.",
   "scenario.error.renameFailed": "Scenariot kunde inte byta namn (fel {{status}}): {{message}}",
   "scenario.exit": "Till originalet",

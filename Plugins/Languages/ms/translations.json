@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Adakah anda pasti mahu memadam semua senario? Tindakan ini tidak boleh dibuat asal.",
   "scenario.deleteAll.error": "Senario tidak dapat dipadam (Ralat {{status}}): {{message}}",
   "scenario.description": "Penerangan",
-  "scenario.error.createFailed": "Senario tidak dapat dicipta (Ralat {{status}}): {{message}}",
+  "scenario.error.createFailed": "Senario tidak dapat dicipta.",
   "scenario.error.noDateRange": "Jadual tugasan belum dimuatkan - sila buka Jadual dahulu.",
   "scenario.error.renameFailed": "Senario tidak dapat dinamakan semula (Ralat {{status}}): {{message}}",
   "scenario.exit": "Kembali ke pelan sebenar",

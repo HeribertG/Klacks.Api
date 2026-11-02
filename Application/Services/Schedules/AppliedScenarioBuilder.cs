@@ -38,20 +38,11 @@ public static class AppliedScenarioBuilder
         };
 
     /// <summary>
-    /// Describes a freshly created scenario only; SubScoreJson, ChurnRatio and Stage0Violations are not set on the resource.
+    /// Describes a freshly created scenario; the apply services write no score values onto it, so SubScoreJson, ChurnRatio
+    /// and Stage0Violations stay empty here.
     /// </summary>
-    public static AnalyseScenarioResource ToAppliedResource(AnalyseScenario scenario)
-        => new()
-        {
-            Id = scenario.Id,
-            Name = scenario.Name,
-            Description = scenario.Description,
-            GroupId = scenario.GroupId,
-            FromDate = scenario.FromDate,
-            UntilDate = scenario.UntilDate,
-            Token = scenario.Token,
-            RunGroupId = scenario.RunGroupId,
-            CreatedByUser = scenario.CreatedByUser,
-            Status = (int)scenario.Status,
-        };
+    /// <param name="scenario">The scenario the apply wrote</param>
+    /// <param name="variantIds">Variants (keys) the scenario carries</param>
+    public static AnalyseScenarioResource ToAppliedResource(AnalyseScenario scenario, IReadOnlyList<Guid> variantIds)
+        => AnalyseScenarioResourceFactory.ToResource(scenario, variantIds);
 }

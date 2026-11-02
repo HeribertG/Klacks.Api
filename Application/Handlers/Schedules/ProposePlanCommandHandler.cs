@@ -11,7 +11,9 @@
 /// A placement on a day outside the employee's membership or group period (the grid's locked cells) is rejected up front
 /// as well, one by one, so the rest of the proposal is still written and the bulk write itself skips that check; the
 /// group period is that of the proposal's target group. A placement on a shift hidden from the caller is rejected exactly
-/// like one on a shift that does not exist, and a hidden shift is never cloned into the scenario.
+/// like one on a shift that does not exist, and a hidden shift is never cloned into the scenario. The same holds for a shift
+/// with an analyse token (a key shift or a clone of another scenario): a proposal is built on the real plan, and a Bulk
+/// refusal after the scenario commit would leave an orphan scenario behind.
 /// </summary>
 /// <param name="shiftRepository">Resolves shift start/end times for each placement</param>
 /// <param name="scenarioRepository">Persists the new AnalyseScenario</param>
@@ -100,7 +102,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         foreach (var shiftId in shiftIds.Where(visibleShiftIds.Contains))
         {
             var shift = await _shiftRepository.Get(shiftId);
-            if (shift != null)
+            if (shift is { AnalyseToken: null })
             {
                 shifts[shiftId] = shift;
             }

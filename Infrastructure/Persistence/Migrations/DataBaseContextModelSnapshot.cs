@@ -8791,6 +8791,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer")
+                        .HasColumnName("kind");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -8847,7 +8851,67 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.HasIndex("GroupId", "Status")
                         .HasDatabaseName("ix_analyse_scenarios_group_id_status");
 
+                    b.HasIndex("Kind", "GroupId")
+                        .HasDatabaseName("ix_analyse_scenarios_kind_group_id");
+
                     b.ToTable("analyse_scenarios", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.AnalyseScenarioVariant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid>("ScenarioToken")
+                        .HasColumnType("uuid")
+                        .HasColumnName("scenario_token");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<Guid>("VariantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("variant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_analyse_scenario_variants");
+
+                    b.HasIndex("VariantId")
+                        .HasDatabaseName("ix_analyse_scenario_variants_variant_id");
+
+                    b.HasIndex("ScenarioToken", "VariantId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_analyse_scenario_variants_scenario_token_variant_id")
+                        .HasFilter("\"is_deleted\" = false");
+
+                    b.ToTable("analyse_scenario_variants", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Break", b =>
@@ -10490,6 +10554,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("client_id");
 
+                    b.Property<Guid?>("CopiedFromShiftId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("copied_from_shift_id");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
@@ -10735,6 +10803,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsTimeRange")
                         .HasColumnType("boolean")
                         .HasColumnName("is_time_range");
+
+                    b.Property<bool>("IsVariantShift")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_variant_shift");
 
                     b.Property<int>("PeriodBookedDays")
                         .HasColumnType("integer")
@@ -15441,6 +15513,18 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_analyse_scenarios_group_group_id");
 
                     b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.AnalyseScenarioVariant", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Schedules.AnalyseScenario", "Variant")
+                        .WithMany()
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_analyse_scenario_variants_analyse_scenarios_variant_id");
+
+                    b.Navigation("Variant");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.Break", b =>

@@ -204,7 +204,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                     plan.PeriodFrom, plan.PeriodUntil, plan.GroupId, materialised.Token, ct);
             }
 
-            return (AppliedScenarioBuilder.ToAppliedResource(materialised.Scenario), materialised.Ids, complianceReport);
+            return (AppliedScenarioBuilder.ToAppliedResource(materialised.Scenario, materialised.VariantIds), materialised.Ids, complianceReport);
         }
         catch
         {
@@ -258,7 +258,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             ShiftIdsToClone: shiftIdsToClone);
     }
 
-    private async Task<(IReadOnlyList<Guid> Ids, Guid Token, AnalyseScenario Scenario)> MaterialiseScenarioAsync(HarmonizerScenarioApplyPlan plan, CancellationToken ct)
+    private async Task<(IReadOnlyList<Guid> Ids, Guid Token, AnalyseScenario Scenario, IReadOnlyList<Guid> VariantIds)> MaterialiseScenarioAsync(HarmonizerScenarioApplyPlan plan, CancellationToken ct)
     {
         // A transient retry replays this delegate; without clearing, the first attempt's entities
         // would still be tracked and inserted a second time.
@@ -283,7 +283,9 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 plan.JobId, plan.BestBitmap, plan.OriginalWorks, correlatedWorkIdMap, correlation.SupersededBitmapWorkIds, shiftIdMap, token, plan.SourceAnalyseToken, plan.PeriodFrom, plan.PeriodUntil, ct));
         }
 
-        return (ids, token, analyseScenario);
+        var variantIds = await _scenarioService.GetVariantIdsOfScenarioAsync(token, ct);
+
+        return (ids, token, analyseScenario, variantIds);
     }
 
     private async Task<(AnalyseScenario Scenario, Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CreateScenarioWithCloneAsync(

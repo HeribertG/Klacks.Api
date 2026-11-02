@@ -6,8 +6,10 @@
 /// </summary>
 /// <param name="context">EF Core context holding Shift, GroupItem and the container template and override items</param>
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +51,58 @@ public class ShiftVisibilityReadRepository : IShiftVisibilityReader
     public async Task<bool> ExistsAsync(Guid shiftId, CancellationToken cancellationToken = default)
     {
         return await _context.Shift.AsNoTracking().AnyAsync(s => s.Id == shiftId, cancellationToken);
+    }
+
+    public async Task<Guid?> FindFirstTokenedShiftIdAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var distinctIds = shiftIds.Distinct().ToList();
+        if (distinctIds.Count == 0)
+        {
+            return null;
+        }
+
+        return await _context.Shift
+            .AsNoTracking()
+            .Where(s => distinctIds.Contains(s.Id) && s.AnalyseToken != null)
+            .OrderBy(s => s.Id)
+            .Select(s => (Guid?)s.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<List<Guid>> FilterRealShiftIdsAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var distinctIds = shiftIds.Distinct().ToList();
+        if (distinctIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await _context.Shift
+            .AsNoTracking()
+            .Where(s => distinctIds.Contains(s.Id) && s.AnalyseToken == null)
+            .Select(s => s.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ShiftWorld>> GetTokenedShiftWorldsAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var distinctIds = shiftIds.Distinct().ToList();
+        if (distinctIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await _context.Shift
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(s => distinctIds.Contains(s.Id) && s.AnalyseToken != null)
+            .Select(s => new ShiftWorld(
+                s.Id,
+                s.AnalyseToken!.Value,
+                _context.Set<AnalyseScenario>()
+                    .IgnoreQueryFilters()
+                    .Any(row => row.Token == s.AnalyseToken && row.Kind == AnalyseScenarioKind.Variant)))
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<List<Guid>> GetContainerItemShiftIdsAsync(Guid containerId, CancellationToken cancellationToken = default)

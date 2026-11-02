@@ -27,9 +27,9 @@ public class ShiftValidator : IShiftValidator
         }
     }
 
-    public async Task EnsureNoOriginalShiftCopyExists(Guid originalShiftId, IShiftRepository shiftRepository)
+    public async Task EnsureNoOriginalShiftCopyExists(Guid originalShiftId, IShiftRepository shiftRepository, Guid? analyseToken = null)
     {
-        if (await shiftRepository.HasOriginalShiftCopyAsync(originalShiftId))
+        if (await shiftRepository.HasOriginalShiftCopyAsync(originalShiftId, analyseToken))
         {
             throw new InvalidOperationException(
                 $"An OriginalShift copy already exists for OriginalId={originalShiftId}. Cannot create duplicate copy.");
@@ -40,9 +40,10 @@ public class ShiftValidator : IShiftValidator
         Guid originalId,
         DateOnly fromDate,
         DateOnly? untilDate,
-        IShiftRepository shiftRepository)
+        IShiftRepository shiftRepository,
+        Guid? analyseToken = null)
     {
-        var sealedOrder = await shiftRepository.GetSealedOrder(originalId);
+        var sealedOrder = await shiftRepository.GetSealedOrder(originalId, analyseToken);
 
         if (sealedOrder == null)
         {

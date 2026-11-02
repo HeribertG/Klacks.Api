@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Bạn có thực sự muốn xóa tất cả kịch bản không? Hành động này không thể hoàn tác.",
   "scenario.deleteAll.error": "Không thể xóa kịch bản (lỗi {{status}}): {{message}}",
   "scenario.description": "Mô tả",
-  "scenario.error.createFailed": "Không thể tạo kịch bản (lỗi {{status}}): {{message}}",
+  "scenario.error.createFailed": "Không thể tạo kịch bản.",
   "scenario.error.noDateRange": "Kế hoạch làm việc chưa được tải - vui lòng mở Kế hoạch trước.",
   "scenario.error.renameFailed": "Không thể đổi tên kịch bản (lỗi {{status}}): {{message}}",
   "scenario.exit": "Quay lại kế hoạch thực",

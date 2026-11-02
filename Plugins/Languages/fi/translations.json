@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Haluatko varmasti poistaa kaikki skenaariot? Tätä toimintoa ei voi peruuttaa.",
   "scenario.deleteAll.error": "Skenaarioita ei voitu poistaa (virhe {{status}}): {{message}}",
   "scenario.description": "Kuvaus",
-  "scenario.error.createFailed": "Skenaariota ei voitu luoda (virhe {{status}}): {{message}}",
+  "scenario.error.createFailed": "Skenaariota ei voitu luoda.",
   "scenario.error.noDateRange": "Työvuorosuunnitelmaa ei ole vielä ladattu - avaa ensin aikataulu.",
   "scenario.error.renameFailed": "Skenaarion nimeäminen epäonnistui (virhe {{status}}): {{message}}",
   "scenario.exit": "Takaisin todelliseen suunnitelmaan",

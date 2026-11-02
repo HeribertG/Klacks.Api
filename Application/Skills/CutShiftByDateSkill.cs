@@ -61,7 +61,9 @@ public class CutShiftByDateSkill : BaseSkillImplementation
         var newAbbreviation = GetParameter<string>(parameters, "newAbbreviation");
 
         var loadedShift = await _shiftRepository.Get(shiftId);
-        if (loadedShift == null || !await _shiftVisibilityGuard.IsVisibleAsync(loadedShift, cancellationToken))
+        if (loadedShift == null
+            || loadedShift.AnalyseToken != null
+            || !await _shiftVisibilityGuard.IsVisibleAsync(loadedShift, cancellationToken))
         {
             return SkillResult.Error($"Shift with ID {shiftId} not found.");
         }

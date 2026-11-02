@@ -192,7 +192,7 @@ public class AssignContainerWeekSkill : BaseSkillImplementation
     private async Task<(Shift? Container, string? Error)> ResolveContainerAsync(Guid id, CancellationToken cancellationToken)
     {
         var shift = await _shiftRepository.Get(id);
-        if (shift is null || !await _shiftVisibilityGuard.IsVisibleAsync(id, cancellationToken))
+        if (shift is null || shift.AnalyseToken != null || !await _shiftVisibilityGuard.IsVisibleAsync(id, cancellationToken))
         {
             return (null, $"Shift/container not found: {id}");
         }

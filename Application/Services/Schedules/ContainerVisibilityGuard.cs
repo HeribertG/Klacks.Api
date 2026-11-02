@@ -2,8 +2,12 @@
 
 /// <summary>
 /// Applies the shift group-visibility rule to container templates and overrides: the container must exist and be
-/// visible, and new task shifts of a write must be visible. Unchanged task shifts the container already references stay
-/// allowed, so the stored baseline is read only when the requested set contains a hidden or missing shift.
+/// visible, a write must not target the container of a variant (key), and new task shifts of a write must be visible.
+/// Unchanged task shifts the container already references stay
+/// allowed, so the stored baseline is read only when the requested set contains a hidden or missing shift. A shift of a
+/// variant (key) is refused for every caller and even when stored: a key carries shifts only, so a template or override
+/// must never expand into a Work on it. Clones of a scenario stay allowed here; the expansion checks them against the
+/// token of the container work.
 /// </summary>
 /// <param name="shiftVisibilityGuard">Shared shift visibility rule (existence and visibility of shift ids)</param>
 /// <param name="shiftVisibilityReader">Reads the task shifts the container already references</param>
@@ -40,6 +44,18 @@ public class ContainerVisibilityGuard : IContainerVisibilityGuard
         }
     }
 
+    public async Task EnsureContainerWritableAsync(Guid containerId, CancellationToken cancellationToken = default)
+    {
+        await EnsureContainerVisibleAsync(containerId, cancellationToken);
+
+        var worlds = await _shiftVisibilityReader.GetTokenedShiftWorldsAsync([containerId], cancellationToken);
+        if (worlds.Any(world => world.IsVariant))
+        {
+            _logger.LogWarning("Container write refused: container {ContainerId} belongs to a variant", containerId);
+            throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, containerId));
+        }
+    }
+
     public async Task EnsureItemShiftsVisibleAsync(
         Guid containerId, IEnumerable<Guid?> requestedShiftIds, CancellationToken cancellationToken = default)
     {
@@ -52,6 +68,8 @@ public class ContainerVisibilityGuard : IContainerVisibilityGuard
         {
             return;
         }
+
+        await EnsureNoVariantShiftAsync(containerId, requested, cancellationToken);
 
         var visible = await _shiftVisibilityGuard.FilterVisibleAsync(requested, cancellationToken);
         var notVisible = requested.Where(id => !visible.Contains(id)).ToList();
@@ -70,5 +88,21 @@ public class ContainerVisibilityGuard : IContainerVisibilityGuard
         _logger.LogWarning(
             "Container write refused: task shift {ShiftId} is hidden or missing for container {ContainerId}", firstNew, containerId);
         throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, firstNew));
+    }
+
+    private async Task EnsureNoVariantShiftAsync(
+        Guid containerId, IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken)
+    {
+        var worlds = await _shiftVisibilityReader.GetTokenedShiftWorldsAsync(shiftIds, cancellationToken);
+        var variantShift = worlds.FirstOrDefault(world => world.IsVariant);
+        if (variantShift is null)
+        {
+            return;
+        }
+
+        _logger.LogWarning(
+            "Container write refused: task shift {ShiftId} belongs to a variant for container {ContainerId}",
+            variantShift.ShiftId, containerId);
+        throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, variantShift.ShiftId));
     }
 }

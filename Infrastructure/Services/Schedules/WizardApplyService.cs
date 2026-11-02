@@ -235,7 +235,7 @@ public sealed class WizardApplyService : IWizardApplyService
                 ct);
 
             return (
-                AppliedScenarioBuilder.ToAppliedResource(materialised.Scenario),
+                AppliedScenarioBuilder.ToAppliedResource(materialised.Scenario, materialised.VariantIds),
                 new WizardApplyOutcome(materialised.Ids, materialised.Partition.ReportableConflicts, materialised.Skipped, materialised.Partition.OverrideApplied));
         }
         catch
@@ -286,7 +286,7 @@ public sealed class WizardApplyService : IWizardApplyService
             ScenarioUntil: scenarioUntil);
     }
 
-    private async Task<(IReadOnlyList<Guid> Ids, CompliancePartitionResult Partition, IReadOnlyList<SkippedPlacementDto> Skipped, AnalyseScenario Scenario)> MaterialiseScenarioAsync(
+    private async Task<(IReadOnlyList<Guid> Ids, CompliancePartitionResult Partition, IReadOnlyList<SkippedPlacementDto> Skipped, AnalyseScenario Scenario, IReadOnlyList<Guid> VariantIds)> MaterialiseScenarioAsync(
         WizardScenarioApplyPlan plan,
         IReadOnlyList<WizardEscalationDto> escalations,
         Guid jobId,
@@ -309,7 +309,9 @@ public sealed class WizardApplyService : IWizardApplyService
         await ResolveDisplacedWorksAsync(plan, displacedWorkIds, createdIds, jobId, ct);
         await PersistEscalationsAsync(bulkItems, escalations, plan.Token, plan.PeriodFrom, plan.PeriodUntil, ct);
 
-        return (createdIds, partition, skipped, analyseScenario);
+        var variantIds = await _scenarioService.GetVariantIdsOfScenarioAsync(plan.Token, ct);
+
+        return (createdIds, partition, skipped, analyseScenario, variantIds);
     }
 
     private async Task<(AnalyseScenario Scenario, Dictionary<Guid, Guid> ShiftIdMap)> CreateScenarioWithCloneAsync(

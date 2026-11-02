@@ -23,7 +23,8 @@
 /// slot of every public holiday</param>
 /// <param name="RestrictToShiftIds">Optional: only these tasks can be candidates. The restriction is intersected with the
 /// candidates the container's group yields and never widens them (an empty collection yields no candidate); null = no
-/// restriction. AdditionalAvailableWorkIds still adds tasks regardless, so a caller that restricts leaves it null</param>
+/// restriction. AdditionalAvailableWorkIds still adds tasks regardless, so a caller that restricts leaves it null or passes only
+/// ids it has checked itself (ContainerAutofillRequestLimiter)</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;

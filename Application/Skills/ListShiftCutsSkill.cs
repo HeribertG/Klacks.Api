@@ -4,10 +4,13 @@
 /// Read-only skill that lists the cut tree (split parts) of a shift order in a compact projection.
 /// Accepts the order id (Bestellung), its plannable shift id (OriginalShift), or any split part id
 /// (SplitShift) — the repository's CutList resolves all three to the same order before building the
-/// flat cut list, so the caller does not need to know which kind of id it has.
+/// flat cut list, so the caller does not need to know which kind of id it has. The skill reads the real plan: a hidden
+/// shift and a shift of a variant or scenario are answered like a missing one, for every caller.
 /// </summary>
+/// <param name="shiftVisibilityGuard">Answers a hidden shift exactly like a missing one</param>
 /// <param name="shiftId">UUID of the order, its plannable shift, or one of its split parts.</param>
 
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -21,10 +24,12 @@ namespace Klacks.Api.Application.Skills;
 public class ListShiftCutsSkill : BaseSkillImplementation
 {
     private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
-    public ListShiftCutsSkill(IShiftRepository shiftRepository)
+    public ListShiftCutsSkill(IShiftRepository shiftRepository, IShiftVisibilityGuard shiftVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -35,7 +40,9 @@ public class ListShiftCutsSkill : BaseSkillImplementation
         var shiftId = GetRequiredGuid(parameters, "shiftId");
 
         var loadedShift = await _shiftRepository.Get(shiftId);
-        if (loadedShift == null)
+        if (loadedShift == null
+            || loadedShift.AnalyseToken != null
+            || !await _shiftVisibilityGuard.IsVisibleAsync(shiftId, cancellationToken))
         {
             return SkillResult.Error($"Shift with ID {shiftId} not found.");
         }

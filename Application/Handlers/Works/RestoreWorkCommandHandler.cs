@@ -8,7 +8,8 @@
 /// sequence: commit, overtime successors, period hours, created-notifications, and the same three-day
 /// WorkResource the delete answered with. A foreign delete (caller is neither Admin nor the deleting
 /// user) is answered exactly like "not found" so the endpoint reveals nothing about it, and so is a Work
-/// owned by a client outside the caller's group visibility.
+/// owned by a client outside the caller's group visibility. A Work on a shift of another world reads like a missing shift
+/// (IWorkWriteGuard).
 /// </summary>
 /// <param name="request">Carries the id of the soft-deleted Work</param>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
@@ -102,6 +103,8 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
 
             var deletedTime = work.DeletedTime.Value;
             var deletedBy = work.CurrentUserDeleted;
+
+            await _writeGuard.EnsureShiftsInWorkWorldAsync([(work.ShiftId, work.AnalyseToken)], cancellationToken);
 
             await _dayLockService.EnsureNotLockedAsync(
                 work.CurrentDate,

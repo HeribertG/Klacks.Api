@@ -5,7 +5,7 @@
 /// in the main schedule or in a named scenario. Delegates to the existing BulkAddWorks pipeline so all
 /// period-hour recalculation and validation logic stays in one place.
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id, and so is a
-/// shift hidden from the caller.
+/// shift hidden from the caller or a shift of another world (IWorkWriteGuard), before any later answer names the shift.
 /// A day that is sealed for the client is refused before anything is written, also for scenario placements (which
 /// the day lock itself lets through) - a sealed day is a fixed cell for every planner. A day outside the client's
 /// membership or group period is refused before anything is written, exactly like the grid's locked cells (the
@@ -22,6 +22,7 @@
 /// <param name="analyseToken">Optional scenario token; null = write to main schedule.</param>
 /// <param name="planningPeriodGuard">Names a day outside the client's membership or group period</param>
 /// <param name="shiftVisibilityGuard">Decides whether the calling user may book the shift</param>
+/// <param name="workWriteGuard">Decides whether the shift lies in the world of the placement</param>
 
 using System.Globalization;
 using Klacks.Api.Application.Helpers;
@@ -53,6 +54,7 @@ public class PlaceWorkSkill : BaseSkillImplementation
     private readonly ISealedDayRepository _sealedDayRepository;
     private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly IWorkWriteGuard _workWriteGuard;
 
     public PlaceWorkSkill(
         IMediator mediator,
@@ -62,10 +64,12 @@ public class PlaceWorkSkill : BaseSkillImplementation
         IClientVisibilityGuard clientVisibilityGuard,
         ISealedDayRepository sealedDayRepository,
         IClientPlanningPeriodGuard planningPeriodGuard,
-        IShiftVisibilityGuard shiftVisibilityGuard)
+        IShiftVisibilityGuard shiftVisibilityGuard,
+        IWorkWriteGuard workWriteGuard)
     {
         _planningPeriodGuard = planningPeriodGuard;
         _shiftVisibilityGuard = shiftVisibilityGuard;
+        _workWriteGuard = workWriteGuard;
         _mediator = mediator;
         _shiftRepository = shiftRepository;
         _conflictChecker = conflictChecker;
@@ -93,8 +97,15 @@ public class PlaceWorkSkill : BaseSkillImplementation
             return SkillResult.Error($"Client {clientId} not found.");
         }
 
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
+        {
+            return SkillResult.Error(scopeError!);
+        }
+
         var shift = await _shiftRepository.Get(shiftId);
-        if (shift == null || !await _shiftVisibilityGuard.IsVisibleAsync(shiftId, cancellationToken))
+        if (shift == null
+            || !await _shiftVisibilityGuard.IsVisibleAsync(shiftId, cancellationToken)
+            || await _workWriteGuard.FindShiftOutsideWorkWorldAsync([(shiftId, analyseToken)], cancellationToken) != null)
         {
             return SkillResult.Error($"Shift {shiftId} not found.");
         }
@@ -117,11 +128,6 @@ public class PlaceWorkSkill : BaseSkillImplementation
             ? eParsed
             : shift.EndShift;
         var workTime = workTimeRaw ?? CalculateWorkTime(startTime, endTime);
-
-        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
-        {
-            return SkillResult.Error(scopeError!);
-        }
 
         var plannedRow = new PlannedWorkRow(clientId, date, startTime, endTime, shiftId);
         var conflictCheck = await _conflictChecker.CheckAsync([plannedRow], analyseToken, cancellationToken);

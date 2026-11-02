@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "ต้องการลบสถานการณ์จำลองทั้งหมดจริงหรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้",
   "scenario.deleteAll.error": "ไม่สามารถลบสถานการณ์จำลองได้ (ข้อผิดพลาด {{status}}): {{message}}",
   "scenario.description": "คำอธิบาย",
-  "scenario.error.createFailed": "ไม่สามารถสร้างสถานการณ์จำลองได้ (ข้อผิดพลาด {{status}}): {{message}}",
+  "scenario.error.createFailed": "ไม่สามารถสร้างสถานการณ์จำลองได้",
   "scenario.error.noDateRange": "ยังไม่ได้โหลดแผนปฏิบัติงาน - กรุณาเปิดตารางเวรก่อน",
   "scenario.error.renameFailed": "ไม่สามารถเปลี่ยนชื่อสถานการณ์จำลองได้ (ข้อผิดพลาด {{status}}): {{message}}",
   "scenario.exit": "กลับไปแผนจริง",

@@ -3,14 +3,17 @@
 /// <summary>
 /// Handler for <see cref="SetShiftPreferenceCommand"/>. Upserts the single real (client, shift)
 /// preference in place — never wipes the client's other preferences. A client outside the caller's group
-/// visibility is refused exactly like a client that does not exist; nothing is written.
+/// visibility is refused exactly like a client that does not exist, a missing, hidden or tokened shift with the not-found
+/// text of a shift; nothing is written.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
+/// <param name="shiftVisibilityGuard">Finds a shift a real preference may not point at</param>
 /// <param name="repository">Resolves / adds the client-shift-preference row</param>
 /// <param name="unitOfWork">Commits the change</param>
 
 using Klacks.Api.Application.Commands.ClientShiftPreferences;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
@@ -22,15 +25,18 @@ public sealed class SetShiftPreferenceCommandHandler : IRequestHandler<SetShiftP
 {
     private readonly IClientShiftPreferenceRepository _repository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly IUnitOfWork _unitOfWork;
 
     public SetShiftPreferenceCommandHandler(
         IClientShiftPreferenceRepository repository,
         IClientVisibilityGuard clientVisibilityGuard,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         IUnitOfWork unitOfWork)
     {
         _repository = repository;
         _clientVisibilityGuard = clientVisibilityGuard;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
         _unitOfWork = unitOfWork;
     }
 
@@ -39,6 +45,11 @@ public sealed class SetShiftPreferenceCommandHandler : IRequestHandler<SetShiftP
         if (!await _clientVisibilityGuard.IsVisibleAsync(request.ClientId, cancellationToken))
         {
             throw new KeyNotFoundException($"Client with ID {request.ClientId} not found");
+        }
+
+        if (await _shiftVisibilityGuard.FindFirstNotReferableAsync([request.ShiftId], cancellationToken) is { } refusedShiftId)
+        {
+            throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, refusedShiftId));
         }
 
         var existing = await _repository.GetByClientAndShiftAsync(request.ClientId, request.ShiftId, cancellationToken);

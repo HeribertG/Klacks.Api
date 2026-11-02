@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Θέλετε πράγματι να διαγράψετε όλα τα σενάρια; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
   "scenario.deleteAll.error": "Δεν ήταν δυνατή η διαγραφή των σεναρίων (σφάλμα {{status}}): {{message}}",
   "scenario.description": "Περιγραφή",
-  "scenario.error.createFailed": "Δεν ήταν δυνατή η δημιουργία σεναρίου (σφάλμα {{status}}): {{message}}",
+  "scenario.error.createFailed": "Δεν ήταν δυνατή η δημιουργία σεναρίου.",
   "scenario.error.noDateRange": "Το πρόγραμμα υπηρεσιών δεν έχει φορτωθεί ακόμη - παρακαλώ ανοίξτε πρώτα το Schedule.",
   "scenario.error.renameFailed": "Δεν ήταν δυνατή η μετονομασία του σεναρίου (σφάλμα {{status}}): {{message}}",
   "scenario.exit": "Πίσω στο πραγματικό πρόγραμμα",

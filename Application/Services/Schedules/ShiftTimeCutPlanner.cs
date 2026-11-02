@@ -123,7 +123,9 @@ public class ShiftTimeCutPlanner : IShiftTimeCutPlanner
         Guid shiftId, CancellationToken cancellationToken)
     {
         var loadedShift = await _shiftRepository.Get(shiftId);
-        if (loadedShift == null || !await _shiftVisibilityGuard.IsVisibleAsync(loadedShift, cancellationToken))
+        if (loadedShift == null
+            || loadedShift.AnalyseToken != null
+            || !await _shiftVisibilityGuard.IsVisibleAsync(loadedShift, cancellationToken))
         {
             return (null, Guid.Empty, $"Shift with ID {shiftId} not found.");
         }

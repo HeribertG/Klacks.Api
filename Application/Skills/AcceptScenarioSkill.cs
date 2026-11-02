@@ -14,6 +14,10 @@
 /// plan changed further meanwhile. The token is marked as issued for a sensitive action this turn, so it cannot be
 /// redeemed in the same turn (as create_plan). Entries on locked days are not taken over by the accept; their number is
 /// reported in the success message so the model can tell the user.
+/// A scenario that carries variant keys (virtual shifts) is accepted only by a caller with a session and the right to edit
+/// shifts; the skill has no parameter for it. A refusal for a missing right or session (ForbiddenException) and a consumed
+/// key (ScenarioVariantConsumedException, a ConflictException) come back as an error result carrying the English message of
+/// the refusal, so the model can tell the user instead of the call failing unhandled.
 /// </summary>
 /// <param name="scenarioId">UUID of the scenario to accept.</param>
 /// <param name="confirmationStore">Mints the one-time token for the stale-scenario confirmation.</param>
@@ -79,6 +83,10 @@ public class AcceptScenarioSkill : BaseSkillImplementation
         catch (ScenarioStaleException ex)
         {
             return await RequireStaleConfirmationAsync(context, parameters, scenarioId, ex, cancellationToken);
+        }
+        catch (ForbiddenException ex)
+        {
+            return SkillResult.Error($"Failed to accept scenario {scenarioId}: {ex.Message}");
         }
         catch (ConflictException ex)
         {

@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Apakah Anda yakin ingin menghapus semua skenario? Tindakan ini tidak dapat dibatalkan.",
   "scenario.deleteAll.error": "Skenario tidak dapat dihapus (kesalahan {{status}}): {{message}}",
   "scenario.description": "Deskripsi",
-  "scenario.error.createFailed": "Skenario tidak dapat dibuat (kesalahan {{status}}): {{message}}",
+  "scenario.error.createFailed": "Skenario tidak dapat dibuat.",
   "scenario.error.noDateRange": "Jadwal penugasan belum dimuat - silakan buka jadwal terlebih dahulu.",
   "scenario.error.renameFailed": "Skenario tidak dapat diganti namanya (kesalahan {{status}}): {{message}}",
   "scenario.exit": "Kembali ke rencana asli",

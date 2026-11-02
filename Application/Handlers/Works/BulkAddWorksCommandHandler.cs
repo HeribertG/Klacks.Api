@@ -7,7 +7,9 @@
 /// nothing is written. Like the grid's locked cells, a Work on a day outside its employee's membership or group period
 /// refuses the whole request (unless the command comes from a planner that skips this check); container children follow
 /// their parent's cell and are not checked on their own. If any Work is on a shift outside the caller's group visibility,
-/// the whole request is refused exactly like a request with a shift that does not exist (one query for all shifts).
+/// the whole request is refused exactly like a request with a shift that does not exist (one query for all shifts), and so
+/// is a request with a Work on a shift of another world (IWorkWriteGuard). Every Bulk caller passes through here: the
+/// skills place_work and assign_container_week, propose_plan and the wizard and harmonizer apply paths.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client of the request</param>
 /// <param name="planningPeriodGuard">Refuses a Work whose employee is not plannable on its day (membership or group period)</param>
@@ -311,6 +313,9 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         {
             throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, hiddenShiftId.Value));
         }
+
+        await _workWriteGuard.EnsureShiftsInWorkWorldAsync(
+            items.Select(w => (w.ShiftId, w.AnalyseToken)).Distinct().ToList(), cancellationToken);
     }
 
     /// <summary>

@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Repository for managing client shift preferences with shift include support.
+/// Repository for managing client shift preferences with shift include support. The list of a client and its bulk delete
+/// see the real rows only: the preference clones of a scenario keep their token and stay with that scenario. The list also
+/// leaves out a real row on a shift with a token, which an older save could leave behind; a save removes such a row.
 /// </summary>
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
@@ -23,7 +25,7 @@ public class ClientShiftPreferenceRepository : BaseRepository<ClientShiftPrefere
     {
         return await context.ClientShiftPreference
             .Include(csp => csp.Shift)
-            .Where(csp => csp.ClientId == clientId)
+            .Where(csp => csp.ClientId == clientId && csp.AnalyseToken == null && csp.Shift!.AnalyseToken == null)
             .OrderBy(csp => csp.PreferenceType)
             .ThenBy(csp => csp.Shift!.Name)
             .ToListAsync(ct);
@@ -51,7 +53,7 @@ public class ClientShiftPreferenceRepository : BaseRepository<ClientShiftPrefere
     public async Task DeleteAllByClientIdAsync(Guid clientId, CancellationToken ct = default)
     {
         var existing = await context.ClientShiftPreference
-            .Where(csp => csp.ClientId == clientId)
+            .Where(csp => csp.ClientId == clientId && csp.AnalyseToken == null)
             .ToListAsync(ct);
 
         context.ClientShiftPreference.RemoveRange(existing);

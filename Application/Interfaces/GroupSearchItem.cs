@@ -6,4 +6,6 @@ public record GroupSearchItem
 {
     public Guid Id { get; init; }
     public string? Name { get; init; }
+
+    public Guid? Root { get; init; }
 }

@@ -7,7 +7,8 @@
 /// visibility is refused exactly like a Work that does not exist; nothing is written. Like the Work PUT and DELETE,
 /// the stored Work must be writable for the caller under IParentWorkLockGuard: a Closed Work is refused for everyone,
 /// an Approved one needs Admin or Authorised. Like the grid's drop target, the target client must be plannable on the
-/// Work's day: a day outside its membership or group period is refused.
+/// Work's day: a day outside its membership or group period is refused. A Work on a shift of another world reads like a
+/// missing shift (IWorkWriteGuard).
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="httpContextAccessor">Source of the calling user's roles for the Work lock rule</param>
@@ -97,6 +98,9 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
             {
                 throw new KeyNotFoundException($"Work with ID {request.Id} not found.");
             }
+
+            await _workWriteGuard.EnsureShiftsInWorkWorldAsync(
+                [(existingWork.ShiftId, existingWork.AnalyseToken)], cancellationToken);
 
             _workLockGuard.EnsureWorkWritableForCaller(existingWork, _httpContextAccessor);
 

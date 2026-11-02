@@ -2,13 +2,17 @@
 
 /// <summary>
 /// Loads the scenario behind an analyse token and applies the scenario visibility rule of ScenarioGroupVisibility to it.
-/// Unrestricted callers (admins, background jobs without a user) are allowed without a query, so their behaviour for
-/// unknown or just-deleted tokens stays as before - the same rule ClientVisibilityGuard follows.
+/// The token of a variant (key) is refused for every caller, unrestricted ones (admins, background jobs without a user)
+/// included, because a variant carries shifts only; IsVariantTokenVisibleAsync is the one door for actions marked with
+/// AllowVariantToken. For every other token unrestricted callers are allowed as before, including unknown or
+/// just-deleted tokens - the same rule ClientVisibilityGuard follows - but the token is now loaded once to tell a variant
+/// from a scenario.
 /// </summary>
 /// <param name="scenarioRepository">Resolves the (not deleted) scenario by its token</param>
 /// <param name="groupVisibilityGuard">Decides admin status and the caller's visible groups; no user means unrestricted</param>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Application.Services.Groups;
 
@@ -27,13 +31,33 @@ public class ScenarioTokenAccessGuard : IScenarioTokenAccessGuard
 
     public async Task<bool> IsVisibleAsync(Guid? analyseToken, CancellationToken cancellationToken = default)
     {
-        if (analyseToken is not { } token || await _groupVisibilityGuard.IsUnrestrictedAsync(cancellationToken))
+        if (analyseToken is not { } token)
         {
             return true;
         }
 
         var scenario = await _scenarioRepository.GetByTokenAsync(token, cancellationToken);
-        return await _groupVisibilityGuard.IsScenarioVisibleAsync(scenario, cancellationToken);
+        if (scenario?.Kind == AnalyseScenarioKind.Variant)
+        {
+            return false;
+        }
+
+        return await _groupVisibilityGuard.IsUnrestrictedAsync(cancellationToken)
+            || await _groupVisibilityGuard.IsScenarioVisibleAsync(scenario, cancellationToken);
+    }
+
+    public async Task<bool> IsVariantTokenVisibleAsync(Guid analyseToken, CancellationToken cancellationToken = default)
+    {
+        var scenario = await _scenarioRepository.GetByTokenAsync(analyseToken, cancellationToken);
+        return scenario?.Kind == AnalyseScenarioKind.Variant
+            && await _groupVisibilityGuard.IsScenarioVisibleAsync(scenario, cancellationToken);
+    }
+
+    public async Task<bool> IsHiddenVariantTokenAsync(Guid analyseToken, CancellationToken cancellationToken = default)
+    {
+        var scenario = await _scenarioRepository.GetByTokenAsync(analyseToken, cancellationToken);
+        return scenario?.Kind == AnalyseScenarioKind.Variant
+            && !await _groupVisibilityGuard.IsScenarioVisibleAsync(scenario, cancellationToken);
     }
 
     public async Task EnsureVisibleAsync(Guid? analyseToken, CancellationToken cancellationToken = default)

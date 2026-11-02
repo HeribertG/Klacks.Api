@@ -54,7 +54,8 @@ public class ShiftReader : IShiftReader
         Guid groupId, string? nameFragment, CancellationToken cancellationToken = default)
     {
         var query = Ordered()
-            .Where(s => s.GroupItems.Any(gi => gi.GroupId == groupId && !gi.IsDeleted))
+            .Where(s => s.AnalyseToken == null && s.ScenarioSourceShiftId == null)
+            .Where(s => s.GroupItems.Any(gi => gi.GroupId == groupId && !gi.IsDeleted && gi.AnalyseToken == null))
             .Where(s => s.Status == ShiftStatus.SealedOrder
                         || s.Status == ShiftStatus.OriginalShift
                         || s.Status == ShiftStatus.SplitShift);

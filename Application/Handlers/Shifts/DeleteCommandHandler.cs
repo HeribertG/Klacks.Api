@@ -8,9 +8,13 @@
 /// clone or container reference exists anywhere in the family (SealedOrderFamilyDeletion decides; the administrator role
 /// is read from the current HTTP principal, so a call outside a web request never qualifies).
 /// Caller-side guards (shift has cuts / active works) live in the delete_shift skill. A shift a group-restricted caller
-/// may not see is answered like a missing one (null) and not touched.
+/// may not see is answered like a missing one (null) and not touched. A shift of a variant (key) is outside the lock:
+/// it is removed with its whole family, whichever row was addressed, because a single row would leave the other rows of
+/// the order behind in the variant; IVariantShiftWriteGuard refuses that for a consumed or hidden variant and for a family
+/// a scenario cloned.
 /// </summary>
 /// <param name="request">Contains the id of the shift to delete</param>
+/// <param name="variantShiftWriteGuard">Names the family of a variant shift, or null for a shift outside a variant</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -33,6 +37,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
     private readonly ISealedOrderFamilyDeletion _familyDeletion;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly IVariantShiftWriteGuard _variantShiftWriteGuard;
 
     public DeleteCommandHandler(
         IShiftRepository shiftRepository,
@@ -41,10 +46,12 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
         ISealedOrderFamilyDeletion familyDeletion,
         IHttpContextAccessor httpContextAccessor,
         IShiftVisibilityGuard shiftVisibilityGuard,
+        IVariantShiftWriteGuard variantShiftWriteGuard,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _shiftVisibilityGuard = shiftVisibilityGuard;
+        _variantShiftWriteGuard = variantShiftWriteGuard;
         _shiftRepository = shiftRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
@@ -61,6 +68,14 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
         }
 
         var resource = _scheduleMapper.ToShiftResource(existing);
+
+        var variantFamily = await _variantShiftWriteGuard.ResolveDeletableFamilyAsync(existing, cancellationToken);
+        if (variantFamily != null)
+        {
+            await _shiftRepository.DeleteOrderFamilyAsync(variantFamily, cancellationToken);
+            await _unitOfWork.CompleteAsync();
+            return resource;
+        }
 
         if (LockedShiftEditPolicy.IsDeletionLocked(existing))
         {

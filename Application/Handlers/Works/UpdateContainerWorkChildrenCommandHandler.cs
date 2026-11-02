@@ -6,13 +6,16 @@
 /// A container whose owner, any client of its sub-works or any replacement client of its work changes is outside the
 /// caller's group visibility is refused exactly like a container that does not exist; nothing is written. A new sub-work or
 /// a sub-work whose shift changes against the stored one must be on a shift the caller may book, otherwise the save is
-/// refused exactly like a save with a shift that does not exist; unchanged sub-works on hidden shifts stay saveable.
+/// refused exactly like a save with a shift that does not exist; unchanged sub-works on hidden shifts stay saveable. Every
+/// sub-work shift must also lie in the world of the container's stored Work (IWorkWriteGuard), or it reads like a missing one.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="shiftVisibilityGuard">Decides which shifts of new or changed sub-works the calling user may book</param>
+/// <param name="workWriteGuard">Refuses a sub-work shift outside the world of the container's stored Work</param>
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Constants;
@@ -36,6 +39,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     private readonly IContainerWorkChildrenManager _childrenManager;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly IWorkWriteGuard _workWriteGuard;
 
     public UpdateContainerWorkChildrenCommandHandler(
         IContainerWorkChildrenReadRepository childrenReadRepository,
@@ -48,6 +52,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         IContainerWorkChildrenManager childrenManager,
         IOvertimeCascadeService overtimeCascadeService,
         IShiftVisibilityGuard shiftVisibilityGuard,
+        IWorkWriteGuard workWriteGuard,
         ILogger<UpdateContainerWorkChildrenCommandHandler> logger)
         : base(logger)
     {
@@ -61,6 +66,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         _childrenManager = childrenManager;
         _overtimeCascadeService = overtimeCascadeService;
         _shiftVisibilityGuard = shiftVisibilityGuard;
+        _workWriteGuard = workWriteGuard;
     }
 
     public async Task<ContainerWorkChildrenResource> Handle(UpdateContainerWorkChildrenCommand request, CancellationToken cancellationToken)
@@ -73,13 +79,15 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             }
 
             await VerifyLockAsync(request.WorkId, cancellationToken);
-            await EnsureContainerVisibleAsync(request.WorkId, request.Resource, cancellationToken);
+            var storedParent = await EnsureContainerVisibleAsync(request.WorkId, request.Resource, cancellationToken);
 
             var updatedWorks = request.Resource.SubWorks.Select(_scheduleMapper.ToWorkEntity).ToList();
             var updatedBreaks = request.Resource.SubBreaks.Select(_scheduleMapper.ToBreakEntity).ToList();
             var updatedWorkChanges = request.Resource.SubWorkChanges.Select(_scheduleMapper.ToWorkChangeEntity).ToList();
 
             await EnsureSubWorkShiftsVisibleAsync(request.WorkId, updatedWorks, cancellationToken);
+            await _workWriteGuard.EnsureShiftsInWorkWorldAsync(
+                updatedWorks.Select(w => (w.ShiftId, storedParent.AnalyseToken)).Distinct().ToList(), cancellationToken);
 
             var parentWork = await _childrenManager.UpdateChildrenAsync(
                 request.WorkId,
@@ -130,7 +138,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     /// together with the container owner and the replacement clients in one query. Sub-breaks are not:
     /// the children manager overwrites their client with the container owner.
     /// </summary>
-    private async Task EnsureContainerVisibleAsync(
+    private async Task<Work> EnsureContainerVisibleAsync(
         Guid workId, UpdateContainerWorkChildrenResource resource, CancellationToken cancellationToken)
     {
         var parentWork = await _childrenReadRepository.GetParentWorkNoTracking(workId, cancellationToken);
@@ -150,6 +158,8 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         {
             throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, workId));
         }
+
+        return parentWork;
     }
 
     /// <summary>

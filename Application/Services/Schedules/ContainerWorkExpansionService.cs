@@ -2,6 +2,8 @@
 
 /// <summary>
 /// Expands a container work into sub-works, sub-breaks, and work changes based on day-specific overrides or weekly ContainerTemplate items.
+/// Before anything is written, every task shift of the chosen override or template must lie in the world of the container work
+/// (ShiftWorld): a shift of a variant (key) or of another scenario is refused like a missing shift.
 /// </summary>
 /// <param name="containerTemplateRepository">Provides templates and items for a container shift</param>
 /// <param name="overrideRepository">Provides day-specific overrides that take priority over weekly templates</param>
@@ -9,8 +11,10 @@
 /// <param name="breakRepository">Used to persist newly created sub-breaks</param>
 /// <param name="workChangeRepository">Used to persist briefing, debriefing, and travel time entries</param>
 /// <param name="shiftRepository">Used to load and validate the container shift type</param>
+/// <param name="workWriteGuard">Refuses template and override items whose shift lies outside the world of the container work</param>
 /// <param name="logger">Logger for diagnostic output</param>
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -32,6 +36,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
     private readonly IBreakRepository _breakRepository;
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IShiftRepository _shiftRepository;
+    private readonly IWorkWriteGuard _workWriteGuard;
     private readonly ILogger<ContainerWorkExpansionService> _logger;
 
     public ContainerWorkExpansionService(
@@ -41,6 +46,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         IBreakRepository breakRepository,
         IWorkChangeRepository workChangeRepository,
         IShiftRepository shiftRepository,
+        IWorkWriteGuard workWriteGuard,
         ILogger<ContainerWorkExpansionService> logger)
     {
         _containerTemplateRepository = containerTemplateRepository;
@@ -49,6 +55,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         _breakRepository = breakRepository;
         _workChangeRepository = workChangeRepository;
         _shiftRepository = shiftRepository;
+        _workWriteGuard = workWriteGuard;
         _logger = logger;
     }
 
@@ -63,6 +70,9 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
 
         if (overrideEntity != null)
         {
+            await EnsureItemShiftsInWorldAsync(
+                containerWork, overrideEntity.ContainerShiftOverrideItems.Select(item => item.ShiftId));
+
             containerWork.StartBase = overrideEntity.StartBase;
             containerWork.EndBase = overrideEntity.EndBase;
 
@@ -92,6 +102,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
             return;
         }
 
+        await EnsureItemShiftsInWorldAsync(containerWork, template.ContainerTemplateItems.Select(item => item.ShiftId));
+
         containerWork.StartBase = template.StartBase;
         containerWork.EndBase = template.EndBase;
 
@@ -106,6 +118,16 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 await ExpandAbsenceItem(containerWork, date, item);
             }
         }
+    }
+
+    private async Task EnsureItemShiftsInWorldAsync(Work containerWork, IEnumerable<Guid?> itemShiftIds)
+    {
+        var placements = itemShiftIds
+            .Where(shiftId => shiftId.HasValue)
+            .Select(shiftId => (shiftId!.Value, containerWork.AnalyseToken))
+            .ToList();
+
+        await _workWriteGuard.EnsureShiftsInWorkWorldAsync(placements, CancellationToken.None);
     }
 
     private async Task ExpandShiftItemFromOverride(Work containerWork, DateOnly date, ContainerShiftOverrideItem item)

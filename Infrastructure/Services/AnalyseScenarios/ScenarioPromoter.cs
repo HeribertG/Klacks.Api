@@ -4,8 +4,10 @@
 /// Promote step of an accept: moves the scenario's works of the period (with their work changes and expenses) onto the
 /// real shifts, discards boundary works and the works the day-lock plan keeps out, stamps the applied replacement
 /// requests, promotes breaks and notes, discards the scenario shifts and their shift-scoped rows, turns temporary
-/// memberships into real ones and drops the scenario's planning constraints. Everything is staged on the shared context;
-/// the accept handler commits. Returns and logs what the day lock kept out.
+/// memberships into real ones and drops the scenario's planning constraints. The variants (keys) the scenario carries are
+/// promoted last, so the works that moved onto their shifts land on rows that turn real in the same commit. Everything is
+/// staged on the shared context; the accept handler commits, and the commit of an accept with keys moves the keys to
+/// Accepted (ScenarioVariantPromoter.TryCommitAcceptAsync). Returns and logs what the day lock kept out.
 /// </summary>
 /// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
 /// <param name="dayLockPlanBuilder">Builds the day-lock plan of the accept</param>
@@ -13,6 +15,7 @@
 /// <param name="lockSkipCounter">Counts the discarded rows the real plan does not keep</param>
 /// <param name="dayRowPromoter">Promotes the scenario breaks and schedule notes</param>
 /// <param name="ownedRowStager">Drops the scenario's planning constraints</param>
+/// <param name="variantPromoter">Turns the keys the scenario carries into real shifts</param>
 /// <param name="logger">Logs what the day lock kept out of the accept</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
@@ -34,6 +37,7 @@ public sealed class ScenarioPromoter
     private readonly ScenarioLockSkipCounter _lockSkipCounter;
     private readonly ScenarioDayRowPromoter _dayRowPromoter;
     private readonly ScenarioOwnedRowStager _ownedRowStager;
+    private readonly ScenarioVariantPromoter _variantPromoter;
     private readonly ILogger<ScenarioPromoter> _logger;
 
     public ScenarioPromoter(
@@ -43,6 +47,7 @@ public sealed class ScenarioPromoter
         ScenarioLockSkipCounter lockSkipCounter,
         ScenarioDayRowPromoter dayRowPromoter,
         ScenarioOwnedRowStager ownedRowStager,
+        ScenarioVariantPromoter variantPromoter,
         ILogger<ScenarioPromoter> logger)
     {
         _context = context;
@@ -51,6 +56,7 @@ public sealed class ScenarioPromoter
         _lockSkipCounter = lockSkipCounter;
         _dayRowPromoter = dayRowPromoter;
         _ownedRowStager = ownedRowStager;
+        _variantPromoter = variantPromoter;
         _logger = logger;
     }
 
@@ -83,6 +89,8 @@ public sealed class ScenarioPromoter
         await PromoteScenarioMembershipsAsync(token, now, ct);
 
         await _ownedRowStager.SoftDeleteScenarioPlanningConstraintsAsync(token, now, ct);
+
+        await _variantPromoter.PromoteAsync(token, ct);
 
         var skips = new ScenarioAcceptLockSkips(
             skippedWorks, skippedBreaks, skippedNotes, skippedWorkChanges, skippedExpenses);

@@ -15,6 +15,26 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 public interface IWorkWriteGuard
 {
     /// <summary>
+    /// The first shift a placement references outside the world of its Work, otherwise null. A shift with an analyse token
+    /// belongs to the Work only under exactly that token, and a shift of a variant (key) belongs to no Work at all; a real
+    /// shift belongs to every world, because scenario Works may reference shifts the scenario did not clone. A missing shift
+    /// is no finding: its existence is decided elsewhere. One query for all placements, whatever the caller's rights.
+    /// </summary>
+    /// <param name="placements">The shift and the analyse token of every Work about to be written or moved</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<Guid?> FindShiftOutsideWorkWorldAsync(
+        IReadOnlyCollection<(Guid ShiftId, Guid? AnalyseToken)> placements, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Throws the KeyNotFoundException of a missing shift when <see cref="FindShiftOutsideWorkWorldAsync"/> names one, so a
+    /// shift of another world reads exactly like a shift that does not exist.
+    /// </summary>
+    /// <param name="placements">The shift and the analyse token of every Work about to be written or moved</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task EnsureShiftsInWorkWorldAsync(
+        IReadOnlyCollection<(Guid ShiftId, Guid? AnalyseToken)> placements, CancellationToken cancellationToken);
+
+    /// <summary>
     /// The refusal when the Work's shift is sporadic and its day or range capacity is used up, otherwise null.
     /// </summary>
     /// <param name="work">The Work about to be written; its own id is excluded from the usage count</param>

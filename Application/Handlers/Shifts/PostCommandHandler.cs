@@ -6,6 +6,9 @@
 /// Enforces ClientlessOrderRules before anything is written: a draft
 /// without a customer is refused outright, and an order that deliberately has none must already meet
 /// the sealing requirements, because it is sealed on creation and sealing cannot be undone.
+/// A request with a token creates the shift in that variant (key): IVariantShiftWriteGuard refuses every other token, and
+/// the shift always starts as a sealed order that carries the token on itself and on its group items, so the repository
+/// derives the plannable copy with the same token. The token is set here, never mapped from the resource.
 /// </summary>
 /// <param name="shiftRepository">Persists the shift and derives the plannable shift when it is sealed.</param>
 /// <param name="scheduleMapper">Maps the incoming resource to the entity.</param>
@@ -15,6 +18,7 @@
 /// <param name="shiftVisibilityGuard">Refuses a group-restricted caller every group they cannot see, like a missing group.</param>
 /// <param name="clientReferenceGuard">Refuses a customer that is missing, soft-deleted or hidden from the caller with the
 /// same 404, before anything is written.</param>
+/// <param name="variantShiftWriteGuard">Refuses a token that is no Active, visible variant and content a variant does not accept.</param>
 /// <param name="logger">Structured log per creation.</param>
 
 using Klacks.Api.Application.Mappers;
@@ -26,6 +30,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -40,6 +45,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
     private readonly IOrderSealingService _orderSealingService;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly IClientReferenceGuard _clientReferenceGuard;
+    private readonly IVariantShiftWriteGuard _variantShiftWriteGuard;
 
     public PostCommandHandler(
         IShiftRepository shiftRepository,
@@ -49,11 +55,13 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
         IOrderSealingService orderSealingService,
         IShiftVisibilityGuard shiftVisibilityGuard,
         IClientReferenceGuard clientReferenceGuard,
+        IVariantShiftWriteGuard variantShiftWriteGuard,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _shiftVisibilityGuard = shiftVisibilityGuard;
         _clientReferenceGuard = clientReferenceGuard;
+        _variantShiftWriteGuard = variantShiftWriteGuard;
         _shiftRepository = shiftRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
@@ -69,6 +77,12 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
         var shift = _scheduleMapper.ToShiftEntity(request.Resource);
         GuardCreatableStatus(shift);
         ClearServerOwnedHierarchy(shift);
+        if (request.Resource.AnalyseToken is { } variantToken)
+        {
+            await _variantShiftWriteGuard.EnsureCreatableAsync(variantToken, shift, cancellationToken);
+            PlaceInVariant(shift, variantToken);
+        }
+
         await _shiftVisibilityGuard.EnsureGroupChangesVisibleAsync([], shift.GroupItems, cancellationToken);
         if (shift.ClientId.HasValue)
         {
@@ -91,6 +105,16 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
             resultShift.Id, resultShift.Name, resultShift.Status);
 
         return _scheduleMapper.ToShiftResource(freshShift ?? resultShift);
+    }
+
+    private static void PlaceInVariant(Shift shift, Guid variantToken)
+    {
+        shift.AnalyseToken = variantToken;
+        shift.Status = ShiftStatus.SealedOrder;
+        foreach (var groupItem in shift.GroupItems)
+        {
+            groupItem.AnalyseToken = variantToken;
+        }
     }
 
     private static void GuardCreatableStatus(Domain.Models.Schedules.Shift shift)

@@ -7,7 +7,8 @@
 --     restricts the result to shifts of those groups (includes subgroups); an empty array means "no group
 --     visible" (group visibility is a security boundary, fail-closed), never "everything".
 --   show_ungrouped_shifts: If TRUE, a restricted result also includes shifts not assigned to any group (default FALSE)
--- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status, sporadic_status, period_booked_days
+-- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status, sporadic_status, period_booked_days, is_variant_shift
+-- is_variant_shift: TRUE when the shift is a scenario clone whose source shift (scenario_source_shift_id) still carries the token of a live variant (key), FALSE for real shifts and after the variant was promoted
 -- sporadic_status: 0 = none, 1 = booked (per-day capacity reached: engaged_at_day >= sum_employees), 2 = blocked (no booking on this day AND distinct booked days in range >= quantity)
 -- period_booked_days: sporadic shifts only - distinct booked days within the whole sporadic period (week/month/...) containing the date,
 --   independent of the requested date range; 0 for non-sporadic shifts. Same count that drives sporadic_status = 2.
@@ -47,7 +48,8 @@ RETURNS TABLE (
     sporadic_scope INTEGER,
     engaged INTEGER,
     sporadic_status SMALLINT,
-    period_booked_days INTEGER
+    period_booked_days INTEGER,
+    is_variant_shift BOOLEAN
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -230,6 +232,17 @@ BEGIN
             ON src.shift_id = sr.shift_id
            AND src.range_from = sr.range_from
            AND src.range_until = sr.range_until
+    ),
+    variant_shift_ids AS MATERIALIZED (
+        SELECT s.id
+        FROM valid_shifts s
+        WHERE s.scenario_source_shift_id IS NOT NULL
+        AND EXISTS (
+            SELECT 1
+            FROM shift src
+            JOIN analyse_scenarios v ON v.token = src.analyse_token AND v.kind = 1 AND v.is_deleted = false  -- kind 1 = AnalyseScenarioKind.Variant
+            WHERE src.id = s.scenario_source_shift_id AND src.is_deleted = false
+        )
     )
     SELECT
         sd.shift_id,
@@ -250,11 +263,13 @@ BEGIN
         sd.sporadic_scope,
         COALESCE(wc.engaged_count, 0) AS engaged,
         COALESCE(ss.status, 0::SMALLINT) AS sporadic_status,
-        COALESCE(ss.period_booked_days, 0) AS period_booked_days
+        COALESCE(ss.period_booked_days, 0) AS period_booked_days,
+        (vsi.id IS NOT NULL) AS is_variant_shift
     FROM shift_dates sd
     LEFT JOIN container_lookup cl ON cl.shift_id = sd.shift_id AND cl.schedule_date = sd.schedule_date
     LEFT JOIN work_counts wc ON wc.shift_id = sd.shift_id AND wc.schedule_date = sd.schedule_date
     LEFT JOIN sporadic_status_per_cell ss ON ss.shift_id = sd.shift_id AND ss.schedule_date = sd.schedule_date
+    LEFT JOIN variant_shift_ids vsi ON vsi.id = sd.shift_id
     ORDER BY sd.schedule_date, sd.shift_name;
 END;
 $$ LANGUAGE plpgsql;
@@ -302,7 +317,8 @@ RETURNS TABLE (
     sporadic_scope INTEGER,
     engaged INTEGER,
     sporadic_status SMALLINT,
-    period_booked_days INTEGER
+    period_booked_days INTEGER,
+    is_variant_shift BOOLEAN
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -334,7 +350,8 @@ BEGIN
             s.status,
             s.sum_employees,
             s.quantity,
-            s.sporadic_scope
+            s.sporadic_scope,
+            s.scenario_source_shift_id
         FROM input_pairs ip
         JOIN shift s ON s.id = ip.shift_id
         WHERE s.is_deleted = false
@@ -441,6 +458,17 @@ BEGIN
             ON src.shift_id = sr.shift_id
            AND src.range_from = sr.range_from
            AND src.range_until = sr.range_until
+    ),
+    variant_shift_ids AS (
+        SELECT DISTINCT sd.shift_id AS id
+        FROM shift_data sd
+        WHERE sd.scenario_source_shift_id IS NOT NULL
+        AND EXISTS (
+            SELECT 1
+            FROM shift src
+            JOIN analyse_scenarios v ON v.token = src.analyse_token AND v.kind = 1 AND v.is_deleted = false  -- kind 1 = AnalyseScenarioKind.Variant
+            WHERE src.id = sd.scenario_source_shift_id AND src.is_deleted = false
+        )
     )
     SELECT
         sd.shift_id,
@@ -461,11 +489,13 @@ BEGIN
         sd.sporadic_scope,
         COALESCE(wc.engaged_count, 0) AS engaged,
         COALESCE(ss.status, 0::SMALLINT) AS sporadic_status,
-        COALESCE(ss.period_booked_days, 0) AS period_booked_days
+        COALESCE(ss.period_booked_days, 0) AS period_booked_days,
+        (vsi.id IS NOT NULL) AS is_variant_shift
     FROM shift_data sd
     LEFT JOIN container_lookup cl ON cl.shift_id = sd.shift_id AND cl.schedule_date = sd.schedule_date
     LEFT JOIN work_counts wc ON wc.shift_id = sd.shift_id AND wc.schedule_date = sd.schedule_date
     LEFT JOIN sporadic_status_per_cell ss ON ss.shift_id = sd.shift_id AND ss.schedule_date = sd.schedule_date
+    LEFT JOIN variant_shift_ids vsi ON vsi.id = sd.shift_id
     ORDER BY sd.schedule_date, sd.shift_name;
 END;
 $$ LANGUAGE plpgsql;

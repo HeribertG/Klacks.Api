@@ -4,7 +4,8 @@
 /// EF Core-backed implementation of AnalyseScenario data operations. A thin entry point over the scenario
 /// collaborators of this folder, so Create / Accept / Reject / Delete handlers and the wizard, harmonizer and cover
 /// paths share one source of truth for cloning, promoting, the accept checks and the soft-delete + orphan sweep. All
-/// collaborators share the scope's DataBaseContext and only stage changes; the caller commits.
+/// collaborators share the scope's DataBaseContext and only stage changes; the caller commits, except for an accept with
+/// keys, which commits through TryCommitVariantAcceptAsync.
 /// </summary>
 /// <param name="cloneCoordinator">Clones the real plan (or a source scenario) into a new scenario</param>
 /// <param name="groupScopeReader">Resolves group hierarchies</param>
@@ -16,9 +17,13 @@
 /// <param name="conflictValidator">Accept conflict checks</param>
 /// <param name="promoter">Accept promote step</param>
 /// <param name="slotReplacer">Wizard slot replacement in a scenario</param>
+/// <param name="variantRepository">Reads the variants (keys) a scenario carries</param>
+/// <param name="variantAcceptGate">Accept rule for scenarios that carry variants (keys)</param>
+/// <param name="variantPromoter">Roots and numbering of the promoted variant trees and the commit of an accept with keys</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.ScenarioVariants;
 using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
@@ -35,6 +40,9 @@ public sealed class AnalyseScenarioService : IAnalyseScenarioService
     private readonly ScenarioAcceptConflictValidator _conflictValidator;
     private readonly ScenarioPromoter _promoter;
     private readonly ScenarioSlotReplacer _slotReplacer;
+    private readonly IScenarioVariantRepository _variantRepository;
+    private readonly ScenarioVariantAcceptGate _variantAcceptGate;
+    private readonly ScenarioVariantPromoter _variantPromoter;
 
     public AnalyseScenarioService(
         ScenarioCloneCoordinator cloneCoordinator,
@@ -46,7 +54,10 @@ public sealed class AnalyseScenarioService : IAnalyseScenarioService
         ScenarioStalenessDetector stalenessDetector,
         ScenarioAcceptConflictValidator conflictValidator,
         ScenarioPromoter promoter,
-        ScenarioSlotReplacer slotReplacer)
+        ScenarioSlotReplacer slotReplacer,
+        IScenarioVariantRepository variantRepository,
+        ScenarioVariantAcceptGate variantAcceptGate,
+        ScenarioVariantPromoter variantPromoter)
     {
         _cloneCoordinator = cloneCoordinator;
         _groupScopeReader = groupScopeReader;
@@ -58,6 +69,9 @@ public sealed class AnalyseScenarioService : IAnalyseScenarioService
         _conflictValidator = conflictValidator;
         _promoter = promoter;
         _slotReplacer = slotReplacer;
+        _variantRepository = variantRepository;
+        _variantAcceptGate = variantAcceptGate;
+        _variantPromoter = variantPromoter;
     }
 
     public Task<List<Guid>> GetGroupHierarchyIdsAsync(Guid groupId, CancellationToken ct)
@@ -66,11 +80,14 @@ public sealed class AnalyseScenarioService : IAnalyseScenarioService
     public Task SoftDeleteScenarioDataAsync(Guid token, CancellationToken ct)
         => _dataDiscarder.SoftDeleteScenarioDataAsync(token, ct);
 
-    public async Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken ct)
-        => (await _cloneCoordinator.CloneScenarioDataWithMapsAsync(groupId, fromDate, untilDate, token, additionalShiftIds, sourceToken, ct)).ShiftIdMap;
+    public async Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken ct, IReadOnlySet<Guid>? variantTokens = null)
+        => (await _cloneCoordinator.CloneScenarioDataWithMapsAsync(groupId, fromDate, untilDate, token, additionalShiftIds, sourceToken, ct, variantTokens)).ShiftIdMap;
 
-    public Task<(Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CloneScenarioDataWithMapsAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken ct)
-        => _cloneCoordinator.CloneScenarioDataWithMapsAsync(groupId, fromDate, untilDate, token, additionalShiftIds, sourceToken, ct);
+    public Task<(Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CloneScenarioDataWithMapsAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken ct, IReadOnlySet<Guid>? variantTokens = null)
+        => _cloneCoordinator.CloneScenarioDataWithMapsAsync(groupId, fromDate, untilDate, token, additionalShiftIds, sourceToken, ct, variantTokens);
+
+    public Task<List<Guid>> GetVariantIdsOfScenarioAsync(Guid token, CancellationToken ct)
+        => _variantRepository.GetVariantIdsAsync(token, ct);
 
     public Task<IReadOnlyDictionary<Guid, Guid>> ResolveRootShiftIdsAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken)
         => _rowLookup.ResolveRootShiftIdsAsync(shiftIds, cancellationToken);
@@ -90,11 +107,23 @@ public sealed class AnalyseScenarioService : IAnalyseScenarioService
     public Task<ScenarioStaleness?> FindRealPlanChangesSinceCreationAsync(AnalyseScenario scenario, CancellationToken ct)
         => _stalenessDetector.FindRealPlanChangesSinceCreationAsync(scenario, ct);
 
+    public Task EnsureVariantAcceptAllowedAsync(Guid scenarioId, Guid token, CancellationToken ct)
+        => _variantAcceptGate.EnsureAcceptAllowedAsync(scenarioId, token, ct);
+
+    public Task<bool> TryCommitVariantAcceptAsync(Guid token, CancellationToken ct)
+        => _variantPromoter.TryCommitAcceptAsync(token, ct);
+
     public Task ValidateNoAcceptConflictsAsync(Guid token, CancellationToken ct)
         => _conflictValidator.ValidateNoAcceptConflictsAsync(token, ct);
 
     public Task<ScenarioAcceptLockSkips> PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
         => _promoter.PromoteScenarioWorksAsync(token, fromDate, untilDate, ct);
+
+    public Task<IReadOnlyList<Guid>> GetVariantTreeRootIdsAsync(Guid token, CancellationToken ct)
+        => _variantPromoter.GetTreeRootIdsAsync(token, ct);
+
+    public Task RecalculateVariantTreesAsync(IReadOnlyCollection<Guid> rootIds, CancellationToken ct)
+        => _variantPromoter.RecalculateTreesAsync(rootIds, ct);
 
     public Task<IReadOnlyList<Guid>> GetScenarioBreakIdsAsync(Guid token, CancellationToken ct)
         => _rowLookup.GetScenarioBreakIdsAsync(token, ct);

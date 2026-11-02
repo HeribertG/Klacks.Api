@@ -40,7 +40,7 @@ public class GetScenarioSummaryQueryHandler : BaseHandler, IRequestHandler<GetSc
         return await ExecuteAsync(async () =>
         {
             var scenario = await _repository.Get(request.Id);
-            if (scenario is null || !await _groupVisibilityGuard.IsScenarioVisibleAsync(scenario, cancellationToken))
+            if (scenario is null || !await _groupVisibilityGuard.IsScenarioRowVisibleAsync(scenario, cancellationToken))
             {
                 return null;
             }

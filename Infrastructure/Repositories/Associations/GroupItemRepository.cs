@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Linq.Expressions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Enums;
@@ -13,6 +14,13 @@ namespace Klacks.Api.Infrastructure.Repositories.Associations;
 public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemRepository
 {
     private const int IdChunkSize = 2000;
+
+    private static readonly Expression<Func<GroupItem, bool>> IsRealShiftLink = gi =>
+        gi.ShiftId != null
+        && gi.AnalyseToken == null
+        && gi.Shift != null
+        && gi.Shift.AnalyseToken == null
+        && gi.Shift.ScenarioSourceShiftId == null;
 
     public GroupItemRepository(DataBaseContext context, ILogger<GroupItem> logger)
         : base(context, logger)
@@ -129,8 +137,8 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
     {
         var groupIdList = groupIds.ToList();
         var shifts = await context.GroupItem
-            .Where(gi => groupIdList.Contains(gi.GroupId) && gi.ShiftId != null)
-            .Where(gi => gi.Shift != null)
+            .Where(gi => groupIdList.Contains(gi.GroupId))
+            .Where(IsRealShiftLink)
             .Select(gi => new { gi.Shift!.Id, gi.Shift.Name, gi.Shift.Abbreviation })
             .Distinct()
             .OrderBy(s => s.Name)
@@ -196,7 +204,8 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
     public async Task<List<Guid>> GetShiftIdsByGroupIds(List<Guid> groupIds, CancellationToken cancellationToken = default)
     {
         return await context.GroupItem
-            .Where(gi => groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
+            .Where(gi => groupIds.Contains(gi.GroupId))
+            .Where(IsRealShiftLink)
             .Select(gi => gi.ShiftId!.Value)
             .Distinct()
             .ToListAsync(cancellationToken);
@@ -205,7 +214,7 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
     public async Task<Dictionary<Guid, int>> GetShiftCountsPerGroupAsync(CancellationToken cancellationToken = default)
     {
         return await context.GroupItem
-            .Where(gi => gi.ShiftId.HasValue)
+            .Where(IsRealShiftLink)
             .GroupBy(gi => gi.GroupId)
             .Select(g => new { GroupId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);

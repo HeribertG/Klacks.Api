@@ -87,6 +87,11 @@ public sealed class WorkBookingDiagnosisService : IWorkBookingDiagnosisService
             return WorkBookingDiagnosis.NotFound;
         }
 
+        if (await _writeGuard.FindShiftOutsideWorkWorldAsync([(request.ShiftId, request.AnalyseToken)], cancellationToken) != null)
+        {
+            return WorkBookingDiagnosis.NotFound;
+        }
+
         var shift = await _shiftRepository.Get(request.ShiftId);
         if (shift == null)
         {

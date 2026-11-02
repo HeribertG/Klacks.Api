@@ -3,7 +3,8 @@
 /// <summary>
 /// Clones the works of a scenario run: the top-level works of the window (limited to the group's shifts), their
 /// sub-works, and the work changes and expenses of every cloned work. Each clone points at its cloned shift and parent
-/// and keeps its origin in ClonedFromWorkId.
+/// and keeps its origin in ClonedFromWorkId. A work on a shift the shift cloner left behind stays behind with it, or its
+/// clone would point at a shift of the source scenario.
 /// </summary>
 /// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
 /// <param name="groupScopeReader">Resolves the shifts of the group hierarchy in the world the clone copies from</param>
@@ -25,9 +26,9 @@ public sealed class ScenarioWorkCloner
         _groupScopeReader = groupScopeReader;
     }
 
-    internal async Task<Dictionary<Guid, Guid>> CloneWorks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> shiftIdMap, ScenarioCloneSource source, CancellationToken ct)
+    internal async Task<Dictionary<Guid, Guid>> CloneWorks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> shiftIdMap, IReadOnlySet<Guid> leftBehindShiftIds, ScenarioCloneSource source, CancellationToken ct)
     {
-        var works = await LoadWorksToCloneAsync(groupIds, fromDate, untilDate, source, ct);
+        var works = await LoadWorksToCloneAsync(groupIds, fromDate, untilDate, leftBehindShiftIds, source, ct);
 
         var workIdMap = new Dictionary<Guid, Guid>();
 
@@ -47,7 +48,7 @@ public sealed class ScenarioWorkCloner
         return workIdMap;
     }
 
-    private async Task<List<Work>> LoadWorksToCloneAsync(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, ScenarioCloneSource source, CancellationToken ct)
+    private async Task<List<Work>> LoadWorksToCloneAsync(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, IReadOnlySet<Guid> leftBehindShiftIds, ScenarioCloneSource source, CancellationToken ct)
     {
         IQueryable<Work> topLevelQuery = ScenarioSourceFilters.WhereFromSource(_context.Work
             .Where(w => !w.IsDeleted
@@ -63,6 +64,7 @@ public sealed class ScenarioWorkCloner
         }
 
         var topLevelWorks = await topLevelQuery.AsNoTracking().ToListAsync(ct);
+        topLevelWorks.RemoveAll(work => leftBehindShiftIds.Contains(work.ShiftId));
         var topLevelIds = topLevelWorks.Select(w => w.Id).ToList();
 
         var subWorks = topLevelIds.Count == 0
@@ -74,7 +76,7 @@ public sealed class ScenarioWorkCloner
                 .AsNoTracking()
                 .ToListAsync(ct);
 
-        return topLevelWorks.Concat(subWorks).ToList();
+        return topLevelWorks.Concat(subWorks.Where(work => !leftBehindShiftIds.Contains(work.ShiftId))).ToList();
     }
 
     private static Work BuildClone(Work work, Guid token, Dictionary<Guid, Guid> shiftIdMap, Dictionary<Guid, Guid> workIdMap)

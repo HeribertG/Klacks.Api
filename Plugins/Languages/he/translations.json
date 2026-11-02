@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "האם למחוק את כל התרחישים? לא ניתן לבטל פעולה זו.",
   "scenario.deleteAll.error": "לא ניתן היה למחוק את התרחישים (שגיאה {{status}}): {{message}}",
   "scenario.description": "תיאור",
-  "scenario.error.createFailed": "לא ניתן היה ליצור את התרחיש (שגיאה {{status}}): {{message}}",
+  "scenario.error.createFailed": "לא ניתן היה ליצור את התרחיש.",
   "scenario.error.noDateRange": "תוכנית המשמרות עדיין לא נטענה - יש לפתוח תחילה את לוח הזמנים.",
   "scenario.error.renameFailed": "לא ניתן היה לשנות את שם התרחיש (שגיאה {{status}}): {{message}}",
   "scenario.exit": "חזור לתוכנית האמיתית",

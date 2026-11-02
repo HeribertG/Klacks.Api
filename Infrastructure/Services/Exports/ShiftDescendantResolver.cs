@@ -3,7 +3,8 @@
 /// <summary>
 /// Walks the Shift.OriginalId chain downward in BFS order to find every
 /// descendant shift for the supplied roots. Bounded by ShiftConstants.MaxOriginalIdDescendantDepth
-/// to keep pathological graphs from looping; a visited-set provides cycle protection.
+/// to keep pathological graphs from looping; a visited-set provides cycle protection. Real shifts only: pieces of a
+/// variant (key) and scenario clones are no descendants of a real order.
 /// </summary>
 using Klacks.Api.Application.Interfaces.Exports;
 using Klacks.Api.Application.Constants;
@@ -39,7 +40,11 @@ public class ShiftDescendantResolver : IShiftDescendantResolver
             var parents = frontier.ToList();
             var children = await _context.Shift
                 .AsNoTracking()
-                .Where(s => !s.IsDeleted && s.OriginalId.HasValue && parents.Contains(s.OriginalId!.Value))
+                .Where(s => !s.IsDeleted
+                    && s.AnalyseToken == null
+                    && s.ScenarioSourceShiftId == null
+                    && s.OriginalId.HasValue
+                    && parents.Contains(s.OriginalId!.Value))
                 .Select(s => new { s.Id, ParentId = s.OriginalId!.Value })
                 .ToListAsync(cancellationToken);
 

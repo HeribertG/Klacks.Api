@@ -20,6 +20,19 @@
 /// taken over.
 /// A scenario outside the caller's group visibility is answered like a missing one, before the status check, so a
 /// hidden decided scenario does not reveal itself through a 409.
+/// Right after the status check, and before the conflict validation, a scenario that carries variant keys (virtual shifts)
+/// passes the variant accept rule: the caller needs the right to edit shifts (403 otherwise; a caller without a session
+/// such as the Slack bridge, plan steps, scheduled tasks or the automatic period commit is refused), must see the group of
+/// every key (a hidden key is answered like a missing scenario) and every key must still be Active (409 SCENARIO_VARIANT_CONSUMED otherwise, which neither OverrideStale nor OverrideBlock lifts).
+/// The promote turns those keys into real shifts in the same commit: an accept with keys commits through
+/// TryCommitVariantAcceptAsync, which moves the keys from Active to Accepted conditionally in the transaction of the save, so
+/// of two siblings that passed the rule above only one wins and the other gets the same 409 and writes nothing. Without keys
+/// the accept commits through IUnitOfWork as before. The trees of the promoted keys are numbered right after the accept
+/// commit in a second commit, before the steps that commit on their own; a failure there leaves the accept standing, drops
+/// the values and is logged, and the next cut numbers the tree it touches.
+/// A failure between the first staged change and the accept commit (a lost key, a database error, a cancellation) discards
+/// everything tracked before it leaves the handler: the callers go on saving on the same scoped context (skill usage,
+/// trigger events), which would otherwise write the refused accept.
 /// Before the compliance gate a staleness gate runs: when the original plan changed inside the accept scope after the
 /// scenario was created (another scenario accepted, edits, seals or a background recalculation), the accept would overwrite those changes and is refused
 /// with a SCENARIO_STALE conflict unless the caller acknowledged it with OverrideStale - independent of OverrideBlock.
@@ -74,6 +87,9 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
     private const string PeriodHoursRefreshFailedMessage =
         "Refreshing the real plan's period hours after accepting scenario {ScenarioId} failed; the scenario acceptance itself is stored";
+
+    private const string VariantTreesNotNumberedMessage =
+        "Numbering the promoted shift trees of accepted scenario {ScenarioId} failed; the scenario acceptance itself is stored";
 
     private readonly IAnalyseScenarioRepository _repository;
     private readonly IAnalyseScenarioService _scenarioService;
@@ -133,6 +149,8 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             AnalyseScenarioStatusGuard.EnsureActive(scenario);
 
+            await _scenarioService.EnsureVariantAcceptAllowedAsync(scenario.Id, scenario.Token, cancellationToken);
+
             await _scenarioService.ValidateNoAcceptConflictsAsync(scenario.Token, cancellationToken);
 
             await EnforceNotStaleAsync(scenario, command.OverrideStale, command.AcknowledgedStaleness, cancellationToken);
@@ -140,16 +158,11 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             await EnforceComplianceGateAsync(scenario.FromDate, scenario.UntilDate, scenario.GroupId, scenario.Token, command.OverrideBlock, cancellationToken);
 
             var scenarioBreakIds = await _scenarioService.GetScenarioBreakIdsAsync(scenario.Token, cancellationToken);
+            var variantRootIds = await _scenarioService.GetVariantTreeRootIdsAsync(scenario.Token, cancellationToken);
 
-            await _scenarioService.SoftDeleteRealScheduleDataAsync(scenario.GroupId, scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
-            var lockSkips = await _scenarioService.PromoteScenarioWorksAsync(scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
+            var lockSkips = await StageAndCommitAcceptAsync(scenario, cancellationToken);
 
-            await _softeningRepository.DeleteByAnalyseTokenAsync(scenario.Token, cancellationToken);
-            await _softeningRepository.DeleteByRangeAndTokenAsync(scenario.FromDate, scenario.UntilDate, null, cancellationToken);
-
-            scenario.Status = AnalyseScenarioStatus.Accepted;
-            await _repository.Put(scenario);
-            await _unitOfWork.CompleteAsync();
+            await NumberVariantTreesAsync(scenario.Id, variantRootIds);
 
             _timelineService.QueueRangeCheck(scenario.FromDate, scenario.UntilDate, null);
 
@@ -161,6 +174,63 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             return AcceptAnalyseScenarioResult.From(lockSkips);
         }, nameof(Handle), new { command.ScenarioId });
+    }
+
+    /// <summary>
+    /// Stages the replacement of the real plan and commits it. Staged rows must not outlive a failure: whatever throws
+    /// here, the tracker is emptied first, so a later save in the scope cannot write the half of an accept that was refused.
+    /// </summary>
+    private async Task<ScenarioAcceptLockSkips> StageAndCommitAcceptAsync(AnalyseScenario scenario, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _scenarioService.SoftDeleteRealScheduleDataAsync(scenario.GroupId, scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
+            var lockSkips = await _scenarioService.PromoteScenarioWorksAsync(scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
+
+            await _softeningRepository.DeleteByAnalyseTokenAsync(scenario.Token, cancellationToken);
+            await _softeningRepository.DeleteByRangeAndTokenAsync(scenario.FromDate, scenario.UntilDate, null, cancellationToken);
+
+            scenario.Status = AnalyseScenarioStatus.Accepted;
+            await _repository.Put(scenario);
+            if (!await _scenarioService.TryCommitVariantAcceptAsync(scenario.Token, cancellationToken))
+            {
+                await _unitOfWork.CompleteAsync();
+            }
+
+            return lockSkips;
+        }
+        catch
+        {
+            _unitOfWork.DiscardTrackedChanges();
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Numbers the shift trees of the promoted keys. Runs AFTER the accept commit because the numbering reads the rows as real
+    /// shifts, and BEFORE every step that commits on its own, because those save on this same context and would flush a
+    /// half-numbered tree. Best-effort: the accept is durable at this point, so a failure only drops the values from the
+    /// tracker and is logged. Until the next cut of a tree its rows stay without nested-set values; a scenario without keys
+    /// skips all of this and commits once. It does not follow the request's cancellation: a cancel after the durable accept
+    /// must not leave the promoted trees unnumbered.
+    /// </summary>
+    private async Task NumberVariantTreesAsync(Guid scenarioId, IReadOnlyList<Guid> rootIds)
+    {
+        if (rootIds.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            await _scenarioService.RecalculateVariantTreesAsync(rootIds, CancellationToken.None);
+            await _unitOfWork.CompleteAsync();
+        }
+        catch (Exception ex)
+        {
+            _unitOfWork.DiscardTrackedChanges();
+            _logger.LogWarning(ex, VariantTreesNotNumberedMessage, scenarioId);
+        }
     }
 
     /// <summary>

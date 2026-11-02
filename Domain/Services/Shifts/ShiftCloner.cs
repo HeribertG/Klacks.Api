@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Creates a deep, identity-free copy of a Shift aggregate including its group items and expenses.
+/// Creates a deep, identity-free copy of a Shift aggregate including its group items and expenses. The copy stays in the
+/// world of its source: the analyse token goes onto the shift and its group items. Default expenses never carry a
+/// variant token, so none is copied.
 /// </summary>
 
 using Klacks.Api.Domain.Models.Associations;
@@ -54,12 +56,14 @@ public static class ShiftCloner
             Lft = source.Lft,
             Rgt = source.Rgt,
             ClientId = source.ClientId,
+            AnalyseToken = source.AnalyseToken,
             GroupItems = source.GroupItems.Select(gi => new GroupItem
             {
                 Id = Guid.Empty,
                 GroupId = gi.GroupId,
                 ValidFrom = gi.ValidFrom,
                 ValidUntil = gi.ValidUntil,
+                AnalyseToken = gi.AnalyseToken,
                 ShiftId = Guid.Empty
             }).ToList(),
             ShiftExpenses = source.ShiftExpenses.Select(e => new ShiftExpenses

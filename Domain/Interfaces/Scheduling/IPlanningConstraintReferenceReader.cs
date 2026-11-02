@@ -15,6 +15,6 @@ public interface IPlanningConstraintReferenceReader
     /// <summary>True when the not deleted group, client or scheduling rule exists; Global has no target and is always true.</summary>
     Task<bool> ScopeTargetExistsAsync(PlanningConstraintScopeType scopeType, Guid? scopeId, CancellationToken cancellationToken = default);
 
-    /// <summary>True when an active (not accepted, rejected or superseded), not deleted scenario carries the token.</summary>
+    /// <summary>True when an active (not accepted, rejected or superseded), not deleted scenario of kind Scenario carries the token; a variant (key) token never counts.</summary>
     Task<bool> ActiveScenarioExistsAsync(Guid analyseToken, CancellationToken cancellationToken = default);
 }

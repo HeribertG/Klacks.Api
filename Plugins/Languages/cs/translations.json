@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Opravdu chcete smazat všechny scénáře? Tuto akci nelze vrátit zpět.",
   "scenario.deleteAll.error": "Scénáře se nepodařilo smazat (chyba {{status}}): {{message}}",
   "scenario.description": "Popis",
-  "scenario.error.createFailed": "Scénář se nepodařilo vytvořit (chyba {{status}}): {{message}}",
+  "scenario.error.createFailed": "Scénář se nepodařilo vytvořit.",
   "scenario.error.noDateRange": "Plán nasazení ještě nebyl načten - nejprve prosím otevřete rozvrh.",
   "scenario.error.renameFailed": "Scénář se nepodařilo přejmenovat (chyba {{status}}): {{message}}",
   "scenario.exit": "Zpět k reálnému plánu",

@@ -15,6 +15,7 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// <param name="Lft">Stored nested-set left value of an updated piece</param>
 /// <param name="Rgt">Stored nested-set right value of an updated piece</param>
 /// <param name="StoredStatus">Stored status of an updated shift; null for a new piece</param>
+/// <param name="AnalyseToken">World of the order: the stored token of an updated shift or of the parent of a new piece (null = real plan, a token = the variant the order lives in)</param>
 internal sealed record CutOperationLineage(
     Guid? OriginalId,
     Guid? ClientId,
@@ -22,4 +23,5 @@ internal sealed record CutOperationLineage(
     Guid? RootId,
     int? Lft,
     int? Rgt,
-    ShiftStatus? StoredStatus);
+    ShiftStatus? StoredStatus,
+    Guid? AnalyseToken = null);

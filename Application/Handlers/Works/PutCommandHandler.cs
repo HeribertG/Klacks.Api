@@ -12,7 +12,8 @@
 /// cells); an edit that keeps the stored cell is not checked, so a Work in a cell that has since been locked stays
 /// editable. A Work moved onto a shift outside the caller's group visibility is refused exactly like a move onto a shift
 /// that does not exist (404, same text), before any other check; a Work that keeps its stored shift is not checked, so
-/// a Work on a shift that has since become hidden stays editable.
+/// a Work on a shift that has since become hidden stays editable. The world check (IWorkWriteGuard) runs on every write,
+/// also for a kept shift: the token is the stored one, and a Work on a shift of another world reads like a missing shift.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 /// <param name="workLockGuard">Refuses the update when the stored Work's lock level forbids it for the caller</param>
@@ -122,6 +123,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             {
                 throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, work.ShiftId));
             }
+
+            await _workWriteGuard.EnsureShiftsInWorkWorldAsync([(work.ShiftId, work.AnalyseToken)], cancellationToken);
 
             if (existingWork != null)
             {

@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "本当にすべてのシナリオを削除しますか?この操作は元に戻せません。",
   "scenario.deleteAll.error": "シナリオを削除できませんでした(エラー {{status}}): {{message}}",
   "scenario.description": "説明",
-  "scenario.error.createFailed": "シナリオを作成できませんでした(エラー {{status}}): {{message}}",
+  "scenario.error.createFailed": "シナリオを作成できませんでした。",
   "scenario.error.noDateRange": "勤務計画がまだ読み込まれていません。先にスケジュールを開いてください。",
   "scenario.error.renameFailed": "シナリオの名前を変更できませんでした(エラー {{status}}): {{message}}",
   "scenario.exit": "実際のプランに戻る",

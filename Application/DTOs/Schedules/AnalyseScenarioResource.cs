@@ -39,4 +39,7 @@ public class AnalyseScenarioResource
 
     /// <summary>Hard-constraint violations the produced plan still carries.</summary>
     public int? Stage0Violations { get; set; }
+
+    /// <summary>Variants (keys) the scenario carries through live links; empty for a scenario without keys.</summary>
+    public IReadOnlyList<Guid> VariantIds { get; set; } = [];
 }

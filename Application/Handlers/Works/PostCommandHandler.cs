@@ -7,7 +7,8 @@
 /// refused exactly like a Work for a client that does not exist; nothing is written. Like the grid's locked cells, a
 /// Work on a day outside the client's membership or group period is refused; container children follow their parent's
 /// cell and are not checked on their own. A Work on a shift outside the caller's group visibility is refused exactly like a
-/// Work on a shift that does not exist (404, same text), before any other check reveals anything about the shift.
+/// Work on a shift that does not exist (404, same text), before any other check reveals anything about the shift, and so
+/// is a Work on a shift of another world (IWorkWriteGuard, a key shift or a clone of another scenario).
 /// </summary>
 /// <param name="request">Carries the WorkResource to persist</param>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
@@ -101,6 +102,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
             {
                 throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, work.ShiftId));
             }
+
+            await _writeGuard.EnsureShiftsInWorkWorldAsync([(work.ShiftId, work.AnalyseToken)], cancellationToken);
 
             await _dayLockService.EnsureNotLockedAsync(
                 work.CurrentDate,

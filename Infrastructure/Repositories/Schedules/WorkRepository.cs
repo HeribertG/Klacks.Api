@@ -406,10 +406,10 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                         join client in context.Client.AsNoTracking() on cph.ClientId equals client.Id
                         where !client.IsDeleted
                         from w in context.Work.AsNoTracking()
-                        where !w.IsDeleted && w.ClientId == cph.ClientId
+                        where !w.IsDeleted && w.AnalyseToken == null && w.ClientId == cph.ClientId
                               && w.CurrentDate >= cph.StartDate && w.CurrentDate <= cph.EndDate
                         join gi in context.GroupItem.AsNoTracking() on w.ShiftId equals gi.ShiftId
-                        where !gi.IsDeleted
+                        where !gi.IsDeleted && gi.AnalyseToken == null
                         join g in context.Group.AsNoTracking() on gi.GroupId equals g.Id
                         where !g.IsDeleted
                         select new { cph.StartDate, cph.EndDate, cph.PaymentInterval, GroupId = (Guid?)g.Id, GroupName = (string?)g.Name };

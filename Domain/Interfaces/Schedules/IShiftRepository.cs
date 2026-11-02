@@ -26,9 +26,13 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<Shift?> PutCutUpdate(Shift shift);
 
     /// <summary>
-    /// Whether a shift with status OriginalShift already carries <paramref name="originalShiftId"/> as its OriginalId.
+    /// Whether a shift with status OriginalShift already carries <paramref name="originalShiftId"/> as its OriginalId
+    /// inside the world <paramref name="analyseToken"/> (null = the real plan, a token = the variant that token belongs to).
     /// </summary>
-    Task<bool> HasOriginalShiftCopyAsync(Guid originalShiftId, CancellationToken cancellationToken = default);
+    /// <param name="originalShiftId">Id of the sealed order</param>
+    /// <param name="analyseToken">Analyse token the copy must carry; null for the real plan</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<bool> HasOriginalShiftCopyAsync(Guid originalShiftId, Guid? analyseToken = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Loads the given shifts untracked, with their client and the client's addresses.
@@ -49,9 +53,21 @@ public interface IShiftRepository : IBaseRepository<Shift>
     
     Task<List<Group>> GetGroupsForShift(Guid shiftId);
 
-    Task<List<Shift>> CutList(Guid id, DateOnly? filterClosedBefore = null, bool tracked = false);
+    /// <summary>
+    /// The live rows of one order (OriginalId = the sealed order) inside one world, ordered by tree position.
+    /// </summary>
+    /// <param name="id">Id of the sealed order, or of one of its plannable or cut rows</param>
+    /// <param name="filterClosedBefore">Leaves out rows that ended before this date</param>
+    /// <param name="tracked">Whether the rows are change-tracked</param>
+    /// <param name="analyseToken">Analyse token the rows must carry; null for the real plan</param>
+    Task<List<Shift>> CutList(Guid id, DateOnly? filterClosedBefore = null, bool tracked = false, Guid? analyseToken = null);
 
-    Task<Shift?> GetSealedOrder(Guid originalId);
+    /// <summary>
+    /// The sealed order with its group items, inside one world.
+    /// </summary>
+    /// <param name="originalId">Id of the sealed order</param>
+    /// <param name="analyseToken">Analyse token the sealed order must carry; null for the real plan</param>
+    Task<Shift?> GetSealedOrder(Guid originalId, Guid? analyseToken = null);
 
     Task<Shift> AddWithSealedOrderHandling(Shift shift);
 
@@ -92,7 +108,21 @@ public interface IShiftRepository : IBaseRepository<Shift>
         int limit,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Whether a real-plan work (not deleted, no analyse token) sits on the shift. Works never carry the token of a
+    /// variant (key), so the answer for a key shift is false.
+    /// </summary>
+    /// <param name="shiftId">Id of the shift</param>
+    /// <param name="cancellationToken">Cancels the query</param>
     Task<bool> HasActiveWorksAsync(Guid shiftId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Whether a not deleted shift has this shift as its parent. Reads the rows, not the nested-set values: a tree whose
+    /// numbering failed after a key was promoted has rows without Lft and Rgt.
+    /// </summary>
+    /// <param name="shiftId">Id of the shift</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<bool> HasChildrenAsync(Guid shiftId, CancellationToken cancellationToken = default);
 
     Task<bool> HasWorksForGroupAsync(Guid groupId, DateOnly? afterDate = null, CancellationToken cancellationToken = default);
 
@@ -107,7 +137,8 @@ public interface IShiftRepository : IBaseRepository<Shift>
     /// <summary>
     /// What the family of a sealed order (the order, its plannable copy and every cut piece, found by OriginalId, scenario
     /// clones excluded) is still used by: works of any kind that are not deleted, scenario clones of its shifts and
-    /// container references. Read-only.
+    /// container references. Read-only. Only rows without an analyse token are the family, so for a sealed order of a
+    /// variant (key) the family is empty; key families are deleted through IVariantShiftWriteGuard.ResolveDeletableFamilyAsync.
     /// </summary>
     /// <param name="sealedOrderId">Id of the sealed order</param>
     /// <param name="cancellationToken">Cancels the query</param>

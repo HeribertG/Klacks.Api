@@ -6,12 +6,14 @@
 /// the actionable cut and works refusals below come first. The one exception is an administrator deleting a sealed order:
 /// the whole order family (plannable copy and cut pieces included) is deleted, but only while no work, scenario copy or
 /// container reference exists anywhere in the family. The administrator role is read from the skill context, not from the
-/// web request, so the chat channels behave the same. Refuses when the shift has cuts (a nested-set sub-shift tree) — the
+/// web request, so the chat channels behave the same. Refuses when the shift has cuts (child rows, whatever its nested-set
+/// values say: a promoted tree whose numbering failed has none) — the
 /// product has no bulk-delete for a cut group; a cut group is ended via the cut editor's Reset (sets an end
 /// date), so the skill redirects there instead of inventing a cascade delete. Also refuses when the
 /// shift still has works: get_schedule_entries joins the shift table without a soft-delete filter, so
 /// a deleted shift with works would keep rendering against a dead definition. Both cases are reported
-/// as an actionable message. Dispatches DeleteCommand&lt;ShiftResource&gt;.
+/// as an actionable message. Dispatches DeleteCommand&lt;ShiftResource&gt;. A shift with an analyse token is answered like a
+/// missing one: skills work on the real plan only, and a variant (key) has no skills.
 /// </summary>
 /// <param name="shiftId">Required. UUID of the shift to delete.</param>
 
@@ -55,7 +57,9 @@ public class DeleteShiftSkill : BaseSkillImplementation
     {
         var shiftId = GetRequiredGuid(parameters, "shiftId");
         var existing = await _shiftRepository.Get(shiftId);
-        if (existing == null || !await _shiftVisibilityGuard.IsVisibleAsync(existing, cancellationToken))
+        if (existing == null
+            || existing.AnalyseToken != null
+            || !await _shiftVisibilityGuard.IsVisibleAsync(existing, cancellationToken))
         {
             return SkillResult.Error($"Shift {shiftId} not found.");
         }
@@ -68,7 +72,7 @@ public class DeleteShiftSkill : BaseSkillImplementation
                 $"Sealed order '{existing.Name}' deleted together with its {deleted - 1} piece(s).");
         }
 
-        if (existing.Lft.HasValue && existing.Rgt.HasValue && existing.Rgt - existing.Lft > 1)
+        if (await _shiftRepository.HasChildrenAsync(shiftId, cancellationToken))
         {
             return SkillResult.Error("This shift has cuts (a sub-shift tree) and cannot be deleted directly — the system has no bulk-delete for a cut group. Open the cut editor for this shift and end the group via 'Reset' (sets an end date) instead.");
         }

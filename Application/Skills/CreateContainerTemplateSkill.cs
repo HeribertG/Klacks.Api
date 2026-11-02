@@ -9,7 +9,7 @@
 /// checks it against the X-Instance-Id header, which KlacksSelfApiClient does not send — an empty
 /// value is the only one under which both ends agree on a self-call.
 /// </summary>
-/// <param name="shiftVisibilityGuard">Answers a hidden container (or task shift) exactly like a missing one</param>
+/// <param name="shiftVisibilityGuard">Answers a hidden container (or task shift) exactly like a missing one; a container with an analyse token is answered the same way</param>
 /// <param name="containerId">Required. UUID of the container's plannable shift (Status OriginalShift, ShiftType IsContainer).</param>
 /// <param name="weekday">Required. ISO weekday 1=Monday..7=Sunday the template applies to.</param>
 /// <param name="fromTime">Required. Start of the day's time budget (HH:mm).</param>
@@ -169,7 +169,9 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
         Guid containerId, CancellationToken cancellationToken)
     {
         var container = await _shiftRepository.Get(containerId);
-        if (container is null || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
+        if (container is null
+            || container.AnalyseToken != null
+            || !await _shiftVisibilityGuard.IsVisibleAsync(containerId, cancellationToken))
         {
             return (null, $"Shift/container not found: {containerId}");
         }

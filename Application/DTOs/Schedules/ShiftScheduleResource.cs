@@ -40,5 +40,7 @@ public class ShiftScheduleResource
 
     public int PeriodBookedDays { get; set; }
 
+    public bool IsVariantShift { get; set; }
+
     public List<ScheduleQualificationResource> Qualifications { get; set; } = new();
 }

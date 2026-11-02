@@ -212,7 +212,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     public async Task<IReadOnlyList<Guid>> GetGroupIdsWithMembersAsync(CancellationToken cancellationToken = default)
     {
         return await context.GroupItem
-            .Where(gi => gi.ClientId != null || gi.ShiftId != null)
+            .Where(gi => gi.AnalyseToken == null && (gi.ClientId != null || gi.ShiftId != null))
             .Select(gi => gi.GroupId)
             .Distinct()
             .ToListAsync(cancellationToken);
@@ -349,15 +349,8 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
         var today = await _companyClock.GetTodayDateAsync();
 
-        // Repository creates the base query
-        var baseQuery = context.Group
-            .Include(gr => gr.GroupItems)
-            .ThenInclude(gi => gi.Client)
-            .AsNoTracking()
-            .OrderBy(g => g.Root);
-
         // Apply filters first
-        var filteredQuery = groupServices.SearchService.ApplyFilters(baseQuery, filter, today);
+        var filteredQuery = groupServices.SearchService.ApplyFilters(GroupsWithRealItems(), filter, today);
 
         // Then apply pagination
         var result = await groupServices.SearchService.ApplyPaginationAsync(filteredQuery, filter);
@@ -376,18 +369,20 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         return result;
     }
 
+    private IQueryable<Group> GroupsWithRealItems() =>
+        context.Group
+            .Include(gr => gr.GroupItems.Where(gi => gi.AnalyseToken == null))
+            .ThenInclude(gi => gi.Client)
+            .AsNoTracking()
+            .OrderBy(g => g.Root);
+
     private async Task<TruncatedGroup?> TryFuzzySearchFallbackAsync(GroupFilter filter, DateOnly today)
     {
         var originalSearch = filter.SearchString;
         filter.SearchString = string.Empty;
         try
         {
-            var baseQuery = context.Group
-                .Include(gr => gr.GroupItems)
-                .ThenInclude(gi => gi.Client)
-                .AsNoTracking()
-                .OrderBy(g => g.Root);
-            var candidates = await groupServices.SearchService.ApplyFilters(baseQuery, filter, today)
+            var candidates = await groupServices.SearchService.ApplyFilters(GroupsWithRealItems(), filter, today)
                 .Take(FuzzySearchCandidateCap)
                 .ToListAsync();
 

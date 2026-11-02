@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Sigur doriți să ștergeți toate scenariile? Această acțiune nu poate fi anulată.",
   "scenario.deleteAll.error": "Scenariile nu au putut fi șterse (eroare {{status}}): {{message}}",
   "scenario.description": "Descriere",
-  "scenario.error.createFailed": "Scenariul nu a putut fi creat (eroare {{status}}): {{message}}",
+  "scenario.error.createFailed": "Scenariul nu a putut fi creat.",
   "scenario.error.noDateRange": "Planul de lucru nu este încă încărcat - vă rugăm să deschideți mai întâi programul.",
   "scenario.error.renameFailed": "Scenariul nu a putut fi redenumit (eroare {{status}}): {{message}}",
   "scenario.exit": "Înapoi la planul real",

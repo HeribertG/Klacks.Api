@@ -7,6 +7,7 @@
 /// <param name="GroupId">Group for which the scenario is created, or null to clone all groups in the date range</param>
 /// <param name="FromDate">Start date of the scenario period</param>
 /// <param name="UntilDate">End date of the scenario period</param>
+/// <param name="VariantIds">Variants (keys) the scenario carries; their shifts are cloned into it. Needs a group; null or empty means none</param>
 
 namespace Klacks.Api.Application.DTOs.Schedules;
 
@@ -21,4 +22,6 @@ public class CreateAnalyseScenarioRequest
     public DateOnly FromDate { get; set; }
 
     public DateOnly UntilDate { get; set; }
+
+    public IReadOnlyList<Guid>? VariantIds { get; set; }
 }

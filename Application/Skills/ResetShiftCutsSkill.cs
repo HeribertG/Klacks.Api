@@ -6,7 +6,8 @@
 /// fresh full-span plannable shift is created from the order's own template starting on that date. Cuts
 /// that already ended before the new date are left untouched. Wraps GetResetDateRangeQuery (to validate
 /// the requested date against the order's own validity range) and PostResetCutsCommand (to perform the
-/// merge), then re-reads the cut list to confirm the merge actually happened.
+/// merge), then re-reads the cut list to confirm the merge actually happened. A shift with an analyse token is answered
+/// like a missing one: skills work on the real plan only, and a variant (key) has no skills.
 /// </summary>
 /// <param name="shiftId">UUID of the order (Bestellung), its plannable shift, or one of its split parts — resolved to the order.</param>
 /// <param name="newStartDate">ISO date (yyyy-MM-dd) the merged plannable shift starts from; must lie within the order's own validity range.</param>
@@ -54,7 +55,9 @@ public class ResetShiftCutsSkill : BaseSkillImplementation
             ?? throw new ArgumentException("Required parameter 'newStartDate' is missing");
 
         var loadedShift = await _shiftRepository.Get(shiftId);
-        if (loadedShift == null || !await _shiftVisibilityGuard.IsVisibleAsync(loadedShift, cancellationToken))
+        if (loadedShift == null
+            || loadedShift.AnalyseToken != null
+            || !await _shiftVisibilityGuard.IsVisibleAsync(loadedShift, cancellationToken))
         {
             return SkillResult.Error($"Shift with ID {shiftId} not found.");
         }

@@ -9,6 +9,11 @@
 /// ScenarioSourceShiftId, and a link to a real shift that a listed clone stands in for resolves to that clone's clone.
 /// Every resolved id is a clone of THIS run, never a real or foreign-scenario shift, so order families of different worlds
 /// never mix (ShiftTreeQuery has no token filter). A target without a representative stays unlinked (null), as before.
+/// A listed shift of a variant (key) carries a token but is its own root: its clone points at the key shift, and the key
+/// children count in the snapshot like real children. A clone of the source scenario that stands for a shift of a key the
+/// new scenario does not carry, and any piece cut from such a clone, is left behind, on the group path and on the listed
+/// path; the caller keeps the works on those rows out as well. The cloner reads no scenario row; the tokens come from the
+/// caller.
 /// </summary>
 /// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
 /// <param name="groupScopeReader">Resolves the shifts of the group hierarchy in the world the clone copies from</param>
@@ -31,9 +36,11 @@ public sealed class ScenarioShiftCloner
         _groupScopeReader = groupScopeReader;
     }
 
-    internal async Task<(Dictionary<Guid, Guid> IdMap, List<Shift> Shifts)> CloneShifts(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, Guid token, ScenarioCloneSource source, CancellationToken ct)
+    internal async Task<(Dictionary<Guid, Guid> IdMap, List<Shift> Shifts, IReadOnlySet<Guid> LeftBehindShiftIds)> CloneShifts(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, Guid token, ScenarioCloneSource source, ScenarioCloneVariants variants, CancellationToken ct)
     {
         var shifts = await LoadShiftsToCloneAsync(groupIds, additionalShiftIds, source, ct);
+        var leftBehindShiftIds = await RemoveShiftsOfDroppedVariantsAsync(shifts, variants.DroppedTokens, ct);
+        var variantTokens = variants.CarriedTokens;
         var idMap = new Dictionary<Guid, Guid>();
 
         foreach (var shift in shifts)
@@ -41,23 +48,28 @@ public sealed class ScenarioShiftCloner
             idMap[shift.Id] = Guid.NewGuid();
         }
 
-        var childCountBySource = await LoadChildCountBySourceAsync(shifts, ct);
+        var childCountBySource = await LoadChildCountBySourceAsync(shifts, variantTokens, ct);
         var linkMap = await BuildCloneLinkMapAsync(shifts, idMap, ct);
 
         foreach (var shift in shifts)
         {
-            await _context.Shift.AddAsync(BuildClone(shift, idMap[shift.Id], token, childCountBySource, linkMap), ct);
+            await _context.Shift.AddAsync(BuildClone(shift, idMap[shift.Id], token, variantTokens, childCountBySource, linkMap), ct);
         }
 
-        return (idMap, shifts);
+        return (idMap, shifts, leftBehindShiftIds);
     }
 
     /// <summary>
-    /// The real root shift a cloned shift stands for: a real shift is its own root, a scenario shift carries its root in
-    /// ScenarioSourceShiftId (null only for a shift that exists in a scenario alone, which then has no root to land on).
+    /// The root shift a cloned shift stands for: a real shift and a shift of a variant (key) are their own root, a scenario
+    /// shift carries its root in ScenarioSourceShiftId (null only for a shift that exists in a scenario alone, which then
+    /// has no root to land on).
     /// </summary>
-    internal static Guid? RootShiftIdOf(Shift shift)
-        => shift.AnalyseToken is null ? shift.Id : shift.ScenarioSourceShiftId;
+    /// <param name="shift">The shift being cloned</param>
+    /// <param name="variantTokens">Tokens of the variants in this run; a shift carrying one of them is a key shift</param>
+    internal static Guid? RootShiftIdOf(Shift shift, IReadOnlySet<Guid> variantTokens)
+        => shift.AnalyseToken is null || variantTokens.Contains(shift.AnalyseToken.Value)
+            ? shift.Id
+            : shift.ScenarioSourceShiftId;
 
     /// <summary>
     /// Adds root aliases to the shift map of a scenario-sourced clone: a real work taken from outside the source range
@@ -83,23 +95,55 @@ public sealed class ScenarioShiftCloner
         return aliased;
     }
 
-    private async Task<Dictionary<Guid, int>> LoadChildCountBySourceAsync(IReadOnlyCollection<Shift> shifts, CancellationToken ct)
+    /// <summary>
+    /// Takes the clones of shifts of the dropped keys out of the list, with the pieces cut from them.
+    /// </summary>
+    /// <param name="shifts">Shifts of this run; the rows that stay behind are removed from it</param>
+    /// <param name="droppedTokens">Tokens of the keys the new scenario does not carry</param>
+    /// <returns>Ids of the removed rows</returns>
+    private async Task<IReadOnlySet<Guid>> RemoveShiftsOfDroppedVariantsAsync(
+        List<Shift> shifts, IReadOnlySet<Guid> droppedTokens, CancellationToken ct)
     {
-        var sourceIds = shifts.Select(RootShiftIdOf).OfType<Guid>().ToList();
-        return sourceIds.Count == 0
-            ? new Dictionary<Guid, int>()
-            : await _context.Shift.IgnoreQueryFilters()
-                .Where(s => !s.IsDeleted
-                    && s.AnalyseToken == null
-                    && s.ParentId.HasValue
-                    && sourceIds.Contains(s.ParentId.Value))
-                .GroupBy(s => s.ParentId!.Value)
-                .Select(g => new { ParentId = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.ParentId, x => x.Count, ct);
+        if (droppedTokens.Count == 0)
+        {
+            return new HashSet<Guid>();
+        }
+
+        var rootIds = shifts.Select(shift => shift.ScenarioSourceShiftId).OfType<Guid>().Distinct().ToList();
+        var droppedRootIds = (await _context.Shift.IgnoreQueryFilters()
+                .AsNoTracking()
+                .Where(s => rootIds.Contains(s.Id) && s.AnalyseToken != null && droppedTokens.Contains(s.AnalyseToken.Value))
+                .Select(s => s.Id)
+                .ToListAsync(ct))
+            .ToHashSet();
+
+        var leftBehindIds = shifts
+            .Where(shift => shift.ScenarioSourceShiftId is { } rootId && droppedRootIds.Contains(rootId))
+            .Select(shift => shift.Id)
+            .ToHashSet();
+        leftBehindIds.UnionWith(shifts
+            .Where(shift => shift.OriginalId is { } originalId && leftBehindIds.Contains(originalId))
+            .Select(shift => shift.Id)
+            .ToList());
+
+        shifts.RemoveAll(shift => leftBehindIds.Contains(shift.Id));
+        return leftBehindIds;
+    }
+
+    private Task<Dictionary<Guid, int>> LoadChildCountBySourceAsync(
+        IReadOnlyCollection<Shift> shifts, IReadOnlySet<Guid> variantTokens, CancellationToken ct)
+    {
+        var sourceIds = shifts.Select(shift => RootShiftIdOf(shift, variantTokens)).OfType<Guid>().ToList();
+        return ScenarioSourceChildCounter.CountAsync(_context, sourceIds, variantTokens, ct);
     }
 
     private static Shift BuildClone(
-        Shift shift, Guid cloneId, Guid token, IReadOnlyDictionary<Guid, int> childCountBySource, IReadOnlyDictionary<Guid, Guid> linkMap)
+        Shift shift,
+        Guid cloneId,
+        Guid token,
+        IReadOnlySet<Guid> variantTokens,
+        IReadOnlyDictionary<Guid, int> childCountBySource,
+        IReadOnlyDictionary<Guid, Guid> linkMap)
         => new()
         {
             Id = cloneId,
@@ -107,8 +151,8 @@ public sealed class ScenarioShiftCloner
             // Resolve to the real ROOT shift, not the immediate parent, so a clone-of-a-clone
             // (chained AutoWizard W1->W2->W3) still remaps to the real shift on accept. Keep source
             // and snapshot keyed on the same id, or ValidateNoAcceptConflictsAsync throws a false conflict.
-            ScenarioSourceShiftId = RootShiftIdOf(shift),
-            SourceChildCountSnapshot = RootShiftIdOf(shift) is { } rootId ? childCountBySource.GetValueOrDefault(rootId, 0) : 0,
+            ScenarioSourceShiftId = RootShiftIdOf(shift, variantTokens),
+            SourceChildCountSnapshot = RootShiftIdOf(shift, variantTokens) is { } rootId ? childCountBySource.GetValueOrDefault(rootId, 0) : 0,
             CuttingAfterMidnight = shift.CuttingAfterMidnight,
             Abbreviation = shift.Abbreviation,
             Description = shift.Description,
@@ -207,7 +251,7 @@ public sealed class ScenarioShiftCloner
     /// <summary>
     /// Map from every link target the clones need to the clone id of this run that represents it.
     /// </summary>
-    /// <param name="shifts">Shifts cloned in this run (real shifts and listed clones of an earlier scenario)</param>
+    /// <param name="shifts">Shifts cloned in this run (real shifts, listed key shifts and listed clones of an earlier scenario)</param>
     /// <param name="idMap">Shift id to its clone id in this run</param>
     private async Task<Dictionary<Guid, Guid>> BuildCloneLinkMapAsync(
         IReadOnlyCollection<Shift> shifts, IReadOnlyDictionary<Guid, Guid> idMap, CancellationToken ct)

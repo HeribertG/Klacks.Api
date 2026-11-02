@@ -51,7 +51,7 @@ public class PostContainerShiftOverrideCommandHandler : IRequestHandler<PostCont
 
     public async Task<ContainerShiftOverrideResource> Handle(PostContainerShiftOverrideCommand request, CancellationToken cancellationToken)
     {
-        await _containerVisibilityGuard.EnsureContainerVisibleAsync(request.ContainerId, cancellationToken);
+        await _containerVisibilityGuard.EnsureContainerWritableAsync(request.ContainerId, cancellationToken);
 
         var userId = _userService.GetId() ?? Guid.Empty;
         var instanceId = _userService.GetInstanceId() ?? string.Empty;

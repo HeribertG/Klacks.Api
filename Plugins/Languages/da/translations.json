@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Skal alle scenarier virkelig slettes? Denne handling kan ikke fortrydes.",
   "scenario.deleteAll.error": "Scenarier kunne ikke slettes (fejl {{status}}): {{message}}",
   "scenario.description": "Beskrivelse",
-  "scenario.error.createFailed": "Scenariet kunne ikke oprettes (fejl {{status}}): {{message}}",
+  "scenario.error.createFailed": "Scenariet kunne ikke oprettes.",
   "scenario.error.noDateRange": "Vagtplanen er endnu ikke indlæst - åbn venligst først skemaet.",
   "scenario.error.renameFailed": "Scenariet kunne ikke omdøbes (fejl {{status}}): {{message}}",
   "scenario.exit": "Tilbage til den rigtige plan",

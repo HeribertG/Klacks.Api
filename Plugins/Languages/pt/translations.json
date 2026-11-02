@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Tem a certeza de que pretende eliminar todos os cenários? Esta ação não pode ser anulada.",
   "scenario.deleteAll.error": "Não foi possível eliminar os cenários (erro {{status}}): {{message}}",
   "scenario.description": "Descrição",
-  "scenario.error.createFailed": "Não foi possível criar o cenário (erro {{status}}): {{message}}",
+  "scenario.error.createFailed": "Não foi possível criar o cenário.",
   "scenario.error.noDateRange": "O plano de serviço ainda não foi carregado - abra primeiro o Schedule.",
   "scenario.error.renameFailed": "Não foi possível renomear o cenário (erro {{status}}): {{message}}",
   "scenario.exit": "Voltar ao plano real",

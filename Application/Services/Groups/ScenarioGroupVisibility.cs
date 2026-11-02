@@ -4,7 +4,8 @@
 /// Group-visibility rules for AnalyseScenarios, built on IGroupVisibilityGuard so admins and background callers
 /// without a user stay unrestricted. A scenario bound to a group is visible when that group is; a group-less
 /// scenario clones and replaces the schedule of every group, so only an unrestricted caller may see or create one.
-/// A hidden scenario is answered exactly like a missing one (same KeyNotFoundException text, 404).
+/// A hidden scenario is answered exactly like a missing one (same KeyNotFoundException text, 404); so is a variant (key)
+/// row addressed by id.
 /// </summary>
 /// <param name="guard">Decides admin status and the caller's visible groups including subgroups</param>
 /// <param name="groupId">Group a scenario is bound to or created for; null means the scenario spans all groups</param>
@@ -12,6 +13,7 @@
 
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Services.Groups;
@@ -39,12 +41,25 @@ public static class ScenarioGroupVisibility
     }
 
     /// <summary>
-    /// Returns the scenario when the caller may see it; throws the not-found exception of a missing scenario otherwise.
+    /// Visibility of a scenario addressed by its row id: like IsScenarioVisibleAsync, but a variant (key) row is never
+    /// visible, so the id endpoints answer it like a missing scenario. IsScenarioVisibleAsync stays the group rule for
+    /// token checks.
+    /// </summary>
+    public static async Task<bool> IsScenarioRowVisibleAsync(
+        this IGroupVisibilityGuard guard, AnalyseScenario? scenario, CancellationToken cancellationToken = default)
+    {
+        return scenario?.Kind == AnalyseScenarioKind.Scenario
+            && await guard.IsScenarioVisibleAsync(scenario, cancellationToken);
+    }
+
+    /// <summary>
+    /// Returns the scenario when the caller may see it; throws the not-found exception of a missing scenario otherwise,
+    /// which also covers a variant (key) row.
     /// </summary>
     public static async Task<AnalyseScenario> EnsureScenarioVisibleAsync(
         this IGroupVisibilityGuard guard, AnalyseScenario? scenario, Guid scenarioId, CancellationToken cancellationToken = default)
     {
-        if (!await guard.IsScenarioVisibleAsync(scenario, cancellationToken))
+        if (!await guard.IsScenarioRowVisibleAsync(scenario, cancellationToken))
         {
             throw new KeyNotFoundException(string.Format(ScenarioNotFoundFormat, scenarioId));
         }

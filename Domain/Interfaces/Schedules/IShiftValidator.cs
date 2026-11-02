@@ -8,10 +8,11 @@ namespace Klacks.Api.Domain.Interfaces.Schedules;
 public interface IShiftValidator
 {
     void EnsureUniqueGroupItems(ICollection<GroupItem> groupItems);
-    Task EnsureNoOriginalShiftCopyExists(Guid originalShiftId, IShiftRepository shiftRepository);
+    Task EnsureNoOriginalShiftCopyExists(Guid originalShiftId, IShiftRepository shiftRepository, Guid? analyseToken = null);
     Task ValidateCutDatesWithinAllowedRange(
         Guid originalId,
         DateOnly fromDate,
         DateOnly? untilDate,
-        IShiftRepository shiftRepository);
+        IShiftRepository shiftRepository,
+        Guid? analyseToken = null);
 }

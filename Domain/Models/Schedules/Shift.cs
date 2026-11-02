@@ -130,6 +130,13 @@ public class Shift : BaseEntity
 
     #endregion Scenario clone tracking
 
+    #region Variant copy tracking
+
+    // Real SealedOrder a sealed order of a variant (key) was copied from. A soft reference without a foreign key.
+    public Guid? CopiedFromShiftId { get; set; }
+
+    #endregion Variant copy tracking
+
     #region Expenses
     public List<ShiftExpenses> ShiftExpenses { get; set; } = [];
 

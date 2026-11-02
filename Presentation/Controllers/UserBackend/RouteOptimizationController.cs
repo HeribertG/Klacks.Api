@@ -3,6 +3,8 @@
 using System.Globalization;
 using Klacks.Api.Application.Commands.Geocoding;
 using Klacks.Api.Application.DTOs.RouteOptimization;
+using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
@@ -21,17 +23,26 @@ public class RouteOptimizationController : BaseController
 {
     private readonly IRouteOptimizationService _routeOptimizationService;
     private readonly IContainerAutofillService _containerAutofillService;
+    private readonly IRouteShiftVisibilityFilter _routeShiftVisibilityFilter;
+    private readonly IContainerVisibilityGuard _containerVisibilityGuard;
+    private readonly ContainerAutofillRequestLimiter _autofillRequestLimiter;
     private readonly IMediator _mediator;
     private readonly ILogger<RouteOptimizationController> _logger;
 
     public RouteOptimizationController(
         IRouteOptimizationService routeOptimizationService,
         IContainerAutofillService containerAutofillService,
+        IRouteShiftVisibilityFilter routeShiftVisibilityFilter,
+        IContainerVisibilityGuard containerVisibilityGuard,
+        ContainerAutofillRequestLimiter autofillRequestLimiter,
         IMediator mediator,
         ILogger<RouteOptimizationController> logger)
     {
         _routeOptimizationService = routeOptimizationService;
         _containerAutofillService = containerAutofillService;
+        _routeShiftVisibilityFilter = routeShiftVisibilityFilter;
+        _containerVisibilityGuard = containerVisibilityGuard;
+        _autofillRequestLimiter = autofillRequestLimiter;
         _mediator = mediator;
         _logger = logger;
     }
@@ -41,11 +52,14 @@ public class RouteOptimizationController : BaseController
         [FromQuery] Guid containerId,
         [FromQuery] int weekday,
         [FromQuery] bool isHoliday = false,
-        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
+        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
+        CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
             "Getting distance matrix for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, TransportMode: {TransportMode}",
             containerId, weekday, isHoliday, transportMode);
+
+        await _containerVisibilityGuard.EnsureContainerVisibleAsync(containerId, cancellationToken);
 
         try
         {
@@ -80,7 +94,8 @@ public class RouteOptimizationController : BaseController
         [FromBody] OptimizeRouteRequestDto request,
         [FromQuery] string? startBase = null,
         [FromQuery] string? endBase = null,
-        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar)
+        [FromQuery] ContainerTransportMode transportMode = ContainerTransportMode.ByCar,
+        CancellationToken cancellationToken = default)
     {
         if (request == null)
         {
@@ -108,8 +123,9 @@ public class RouteOptimizationController : BaseController
                 parsedContainerFromTime = fromTime;
             }
 
+            var shiftIds = await _routeShiftVisibilityFilter.FilterAsync(request.ShiftIds, cancellationToken);
             var result = await _routeOptimizationService.OptimizeRouteByShiftIdsAsync(
-                request.ShiftIds, startBase, endBase, transportMode, domainTimeBlocks, parsedContainerFromTime);
+                shiftIds, startBase, endBase, transportMode, domainTimeBlocks, parsedContainerFromTime);
 
             var routeSteps = ToRouteStepDtos(RouteStepBuilder.FromOptimization(result));
 
@@ -170,6 +186,8 @@ public class RouteOptimizationController : BaseController
             "Autofill for Container: {ContainerId}, Weekday: {Weekday}, IsHoliday: {IsHoliday}, StartBase: {StartBase}, EndBase: {EndBase}, FromTime: {FromTime}, UntilTime: {UntilTime}, TimeBlocks: {BlockCount}",
             request.ContainerId, request.Weekday, request.IsHoliday, request.StartBase.ForLog(), request.EndBase.ForLog(), parsedFromTime, parsedUntilTime, request.TimeBlocks.Count);
 
+        await _containerVisibilityGuard.EnsureContainerVisibleAsync(request.ContainerId, cancellationToken);
+
         try
         {
             var domainTimeBlocks = ConvertTimeBlockDtos(request.TimeBlocks);
@@ -178,7 +196,8 @@ public class RouteOptimizationController : BaseController
                 parsedFromTime, parsedUntilTime, request.TransportMode, request.TimeRangeTolerance,
                 cancellationToken, domainTimeBlocks, request.AdditionalAvailableWorkIds, request.IsWeekdayAndHoliday);
 
-            var result = await _containerAutofillService.AutofillAsync(autofillRequest);
+            var result = await _containerAutofillService.AutofillAsync(
+                await _autofillRequestLimiter.LimitToReadableAsync(autofillRequest));
 
             var routeSteps = ToRouteStepDtos(RouteStepBuilder.FromAutofill(result));
 

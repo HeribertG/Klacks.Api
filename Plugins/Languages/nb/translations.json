@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "Vil du virkelig slette alle scenarier? Denne handlingen kan ikke angres.",
   "scenario.deleteAll.error": "Scenarier kunne ikke slettes (feil {{status}}): {{message}}",
   "scenario.description": "Beskrivelse",
-  "scenario.error.createFailed": "Scenario kunne ikke opprettes (feil {{status}}): {{message}}",
+  "scenario.error.createFailed": "Scenario kunne ikke opprettes.",
   "scenario.error.noDateRange": "Vaktplanen er ikke lastet ennå - åpne skjemaet først.",
   "scenario.error.renameFailed": "Scenario kunne ikke gis nytt navn (feil {{status}}): {{message}}",
   "scenario.exit": "Tilbake til ekte plan",

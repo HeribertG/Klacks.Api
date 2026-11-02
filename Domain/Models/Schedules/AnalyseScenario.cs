@@ -7,6 +7,7 @@
 /// <param name="GroupId">The group this scenario belongs to, or null for a group-unfiltered scenario</param>
 /// <param name="FromDate">Start of the scenario time range</param>
 /// <param name="UntilDate">End of the scenario time range</param>
+/// <param name="Kind">Scenario for a what-if copy of the plan, Variant for a key that only carries not yet active shifts</param>
 
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
@@ -29,6 +30,8 @@ public class AnalyseScenario : BaseEntity
     public DateOnly UntilDate { get; set; }
 
     public Guid Token { get; set; }
+
+    public AnalyseScenarioKind Kind { get; set; } = AnalyseScenarioKind.Scenario;
 
     /// <summary>
     /// Correlation id that groups all scenarios produced from the same wizard test run

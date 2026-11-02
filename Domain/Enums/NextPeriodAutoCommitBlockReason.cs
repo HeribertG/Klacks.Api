@@ -18,7 +18,7 @@ public enum NextPeriodAutoCommitBlockReason
     /// <summary>The accept pipeline returned false instead of accepting.</summary>
     Refused = 1,
 
-    /// <summary>The accept gate refused with a conflict (Block-mode compliance, concurrent changes).</summary>
+    /// <summary>The accept gate refused with a conflict or a missing right (Block-mode compliance, concurrent changes, variant keys).</summary>
     Conflict = 2,
 
     /// <summary>The watched wizard chain did not finish inside the watch window.</summary>

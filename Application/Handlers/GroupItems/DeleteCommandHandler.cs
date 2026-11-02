@@ -13,7 +13,9 @@ namespace Klacks.Api.Application.Handlers.GroupItems;
 
 /// <summary>
 /// Removes one group link by id. A link of a group the caller cannot see is answered like a missing one and
-/// is not removed.
+/// is not removed. A link of a shift that carries an analyse token (shift of a variant or scenario clone) is answered the
+/// same way for every caller, administrators included: the groups of such a shift are edited through the shift resource
+/// only, so a variant shift cannot lose its last group through this endpoint.
 /// </summary>
 /// <param name="request">Id of the link to remove</param>
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<GroupItemResource>, GroupItemResource?>
@@ -22,12 +24,14 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<G
     private readonly GroupMapper _groupMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
 
     public DeleteCommandHandler(
         IGroupItemRepository groupItemRepository,
         GroupMapper groupMapper,
         IUnitOfWork unitOfWork,
         IGroupVisibilityGuard groupVisibilityGuard,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -35,6 +39,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<G
         _groupMapper = groupMapper;
         _unitOfWork = unitOfWork;
         _groupVisibilityGuard = groupVisibilityGuard;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
     public async Task<GroupItemResource?> Handle(DeleteCommand<GroupItemResource> request, CancellationToken cancellationToken)
@@ -43,6 +48,12 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<G
         {
             var stored = await _groupItemRepository.Get(request.Id);
             if (stored != null && !await _groupVisibilityGuard.IsGroupVisibleAsync(stored.GroupId, cancellationToken))
+            {
+                return null;
+            }
+
+            if (stored?.ShiftId is { } shiftId
+                && await _shiftVisibilityGuard.FindFirstTokenedAsync([shiftId], cancellationToken) is not null)
             {
                 return null;
             }

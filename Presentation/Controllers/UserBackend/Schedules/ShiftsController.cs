@@ -10,17 +10,31 @@ using Klacks.Api.Application.Queries.Shifts;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 
+/// <summary>
+/// Shift endpoints. Post and Put are overridden for AllowVariantToken only, so a shift can be created and saved in a
+/// variant (key); route and roles stay those of InputBaseController, because an override inherits them and adds no
+/// Authorize of its own. Delete takes no token, so it needs no such marker. Cuts/Batch and Cuts/Reset carry
+/// AllowVariantToken as well, so the token a cut piece carries passes the token filter; both keep their roles
+/// (Admin, Authorised), and ShiftCutFacade decides from the stored token whether the variant is open and visible.
+/// </summary>
 public class ShiftsController : InputBaseController<ShiftResource>
 {
     public ShiftsController(IMediator Mediator, ILogger<ShiftsController> logger)
             : base(Mediator, logger)
     {
     }
+
+    [AllowVariantToken]
+    public override Task<ActionResult<ShiftResource>> Post([FromBody] ShiftResource resource) => base.Post(resource);
+
+    [AllowVariantToken]
+    public override Task<ActionResult<ShiftResource>> Put([FromBody] ShiftResource resource) => base.Put(resource);
 
     [HttpPost("GetSimpleList")]
     public async Task<ActionResult<TruncatedShiftResource>> GetSimpleList([FromBody] ShiftFilter filter)
@@ -37,6 +51,7 @@ public class ShiftsController : InputBaseController<ShiftResource>
     }
 
     [HttpPost("Cuts/Batch")]
+    [AllowVariantToken]
     [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<List<ShiftResource>>> PostBatchCuts([FromBody] PostBatchCutsRequest request)
     {
@@ -45,6 +60,7 @@ public class ShiftsController : InputBaseController<ShiftResource>
     }
 
     [HttpPost("Cuts/Reset")]
+    [AllowVariantToken]
     [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<List<ShiftResource>>> PostResetCuts([FromBody] PostResetCutsRequest request)
     {

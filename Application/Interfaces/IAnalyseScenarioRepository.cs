@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Repository interface for AnalyseScenario CRUD and query operations.
+/// Repository interface for AnalyseScenario CRUD and query operations. The group, list, existence, window and candidate
+/// queries return rows of kind Scenario only; variant (key) rows are left out of them.
 /// </summary>
 /// <param name="GetByGroupAsync">Returns the scenarios of exactly this group; null returns only the group-less scenarios.</param>
-/// <param name="GetByTokenAsync">Returns a scenario by its unique token</param>
+/// <param name="GetByTokenAsync">Returns a scenario by its unique token; also resolves variants, callers decide</param>
 
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -48,6 +49,10 @@ public interface IAnalyseScenarioRepository : IBaseRepository<AnalyseScenario>
     /// <param name="ct">Cancellation token.</param>
     Task<List<AnalyseScenario>> GetActiveCreatedBetweenAsync(
         DateTime createdAfterUtc, DateTime createdBeforeUtc, CancellationToken ct = default);
+
+    /// <summary>Row with this token, scenario or variant alike; callers decide whether a variant is acceptable.</summary>
+    /// <param name="token">Token of the scenario or variant.</param>
+    /// <param name="ct">Cancellation token.</param>
     Task<AnalyseScenario?> GetByTokenAsync(Guid token, CancellationToken ct = default);
 
     /// <summary>

@@ -1975,7 +1975,7 @@
   "scenario.deleteAll.confirm": "¿Realmente desea eliminar todos los escenarios? Esta acción no se puede deshacer.",
   "scenario.deleteAll.error": "No se pudieron eliminar los escenarios (error {{status}}): {{message}}",
   "scenario.description": "Descripción",
-  "scenario.error.createFailed": "No se pudo crear el escenario (error {{status}}): {{message}}",
+  "scenario.error.createFailed": "No se pudo crear el escenario.",
   "scenario.error.noDateRange": "El plan de asignaciones aún no está cargado. Primero abra el Schedule.",
   "scenario.error.renameFailed": "No se pudo renombrar el escenario (error {{status}}): {{message}}",
   "scenario.exit": "Volver al plan real",

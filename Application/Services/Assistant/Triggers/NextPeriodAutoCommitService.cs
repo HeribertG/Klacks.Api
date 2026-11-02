@@ -17,6 +17,9 @@
 /// watcher reads the decision's gate, it never re-checks any of those four inputs itself. The accept is
 /// not anonymous either: it is sent under the admin whose preference released the run, and the same id
 /// is recorded as the ledger row's approving user.
+/// The accept has no session: a scenario that carries variant keys (virtual shifts) is refused by the variant accept rule
+/// (ForbiddenException, or a ConflictException for a consumed key). Both are reported as a Conflict block and the scenario
+/// stays a draft, instead of ending in the watcher's catch-all without a visible outcome.
 /// A chain that completed without its holistic harmonization (HarmonizationSkipped) is never accepted
 /// automatically: it is reported with its own block reason and stays a draft for a human.
 /// EVERY way of not committing raises a NextPeriodAutoCommitBlockedTriggerEvent with its own reason.
@@ -272,7 +275,7 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
                 return;
             }
         }
-        catch (ConflictException ex)
+        catch (Exception ex) when (ex is ConflictException or ForbiddenException)
         {
             _logger.LogWarning(
                 "NextPeriodAutoCommit: accepting scenario {ScenarioId} for group {GroupName} was blocked by the accept gate ({Reason}); the scenario stays a draft",

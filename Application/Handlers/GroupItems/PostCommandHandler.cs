@@ -18,7 +18,9 @@ namespace Klacks.Api.Application.Handlers.GroupItems;
 /// a client they can see: a hidden group or client is answered like a missing one, so a supervisor cannot pull
 /// a foreign client into their own group and thereby make it visible. The same holds for a shift: linking a shift the
 /// caller cannot see (an id from the shift-stats broadcast) into their own group would make it visible and writable, so
-/// a hidden shift is answered like a missing one.
+/// a hidden shift is answered like a missing one. A shift with an analyse token (shift of a variant or scenario clone) is
+/// answered the same way for every caller, administrators included: the link would carry no token, and the groups of such
+/// a shift are edited through the shift resource only.
 /// </summary>
 /// <param name="request">The link to create</param>
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<GroupItemResource>, GroupItemResource?>
@@ -69,6 +71,12 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Group
             {
                 throw new KeyNotFoundException(
                     string.Format(ShiftVisibilityMessages.ShiftNotFound, request.Resource.ShiftId.Value));
+            }
+
+            if (request.Resource.ShiftId.HasValue
+                && await _shiftVisibilityGuard.FindFirstTokenedAsync([request.Resource.ShiftId.Value], cancellationToken) is { } tokenedShiftId)
+            {
+                throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, tokenedShiftId));
             }
 
             var groupItem = _groupMapper.ToGroupItemEntity(request.Resource);

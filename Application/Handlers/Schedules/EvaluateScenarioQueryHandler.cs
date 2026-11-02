@@ -7,8 +7,8 @@
 /// (2) the change-set by diffing the resolved schedule grid (real vs. scenario) returned by
 /// <see cref="IScheduleEntriesService"/>. The grid already folds works, replacements and breaks
 /// into effective cells, so the diff is clone-safe and producer-agnostic (propose_plan works,
-/// cover_absence replacements and absences all surface). A scenario outside the caller's group visibility is
-/// answered like a missing one.
+/// cover_absence replacements and absences all surface). A scenario outside the caller's group visibility and a
+/// variant (key), addressed by token or id, are answered like a missing one.
 /// </summary>
 /// <param name="scenarioRepository">Resolves the scenario by token or id</param>
 /// <param name="scheduleEntriesService">Reads the effective grid (real and scenario) for the diff</param>
@@ -56,7 +56,7 @@ public sealed class EvaluateScenarioQueryHandler
         CancellationToken cancellationToken)
     {
         var scenario = await ResolveScenarioAsync(request, cancellationToken);
-        if (scenario is null || !await _groupVisibilityGuard.IsScenarioVisibleAsync(scenario, cancellationToken))
+        if (scenario is null || !await _groupVisibilityGuard.IsScenarioRowVisibleAsync(scenario, cancellationToken))
         {
             return ScenarioEvaluationResult.NotFound();
         }

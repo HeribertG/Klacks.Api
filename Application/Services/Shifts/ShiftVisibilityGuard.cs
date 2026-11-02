@@ -82,6 +82,39 @@ public class ShiftVisibilityGuard : IShiftVisibilityGuard
         return null;
     }
 
+    public async Task<Guid?> FindFirstTokenedAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var tokenedId = await _shiftVisibilityReader.FindFirstTokenedShiftIdAsync(shiftIds, cancellationToken);
+        if (tokenedId.HasValue)
+        {
+            _logger.LogInformation("Real-plan reference refused on shift {ShiftId} that carries an analyse token", tokenedId.Value);
+        }
+
+        return tokenedId;
+    }
+
+    public async Task<Guid?> FindFirstNotReferableAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var distinctIds = shiftIds.Distinct().ToList();
+        if (distinctIds.Count == 0)
+        {
+            return null;
+        }
+
+        var realIds = (await _shiftVisibilityReader.FilterRealShiftIdsAsync(distinctIds, cancellationToken)).ToHashSet();
+        var visibleIds = await FilterVisibleAsync(distinctIds, cancellationToken);
+        foreach (var shiftId in distinctIds)
+        {
+            if (!realIds.Contains(shiftId) || !visibleIds.Contains(shiftId))
+            {
+                _logger.LogInformation("Real row refused on missing, hidden or tokened shift {ShiftId}", shiftId);
+                return shiftId;
+            }
+        }
+
+        return null;
+    }
+
     public async Task<IReadOnlySet<Guid>> FilterVisibleAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
     {
         var distinctIds = shiftIds.Distinct().ToList();

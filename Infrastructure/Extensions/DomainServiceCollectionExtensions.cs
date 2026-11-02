@@ -141,6 +141,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IShiftTimeCutPlanner, ShiftTimeCutPlanner>();
         services.AddScoped<IShiftWeekdayCutPlanner, ShiftWeekdayCutPlanner>();
         services.AddScoped<ContainerAutofillVisibilityFilter>();
+        services.AddScoped<ContainerAutofillRequestLimiter>();
         services.AddScoped<ContainerTemplateWriter>();
         services.AddScoped<WeeklyTourPlanner>();
         services.AddScoped<WeeklyTourBuilder>();
@@ -166,6 +167,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IGroupVisibilityGuard, GroupVisibilityGuard>();
         services.AddScoped<IShiftVisibilityGuard, ShiftVisibilityGuard>();
         services.AddScoped<IContainerVisibilityGuard, ContainerVisibilityGuard>();
+        services.AddScoped<IRouteShiftVisibilityFilter, RouteShiftVisibilityFilter>();
         services.AddScoped<IScenarioTokenAccessGuard, ScenarioTokenAccessGuard>();
         services.AddScoped<IScheduleRowAccessGuard, ScheduleRowAccessGuard>();
         services.AddScoped<ISkillScenarioScopeGuard, SkillScenarioScopeGuard>();
