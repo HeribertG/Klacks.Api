@@ -969,6 +969,7 @@
   "dialog.briefing.position": "Position",
   "dialog.briefing.startTime": "Från",
   "dialog.briefing.title": "Briefing/debriefing",
+  "dialog.briefing.toInvoice": "Fakturera",
   "dialog.containerShiftOverride.title": "Redigera pass",
   "dialog.containerSplit.clearClient": "Återställ",
   "dialog.containerSplit.client": "Medarbetare för kopia (valfritt)",

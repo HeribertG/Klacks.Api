@@ -15,6 +15,7 @@
 /// <param name="logger">Logger for diagnostic output</param>
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -202,7 +203,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = startTime,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -221,7 +222,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = debriefingEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -242,7 +243,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = briefingStart,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -263,7 +264,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = travelEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
     }
@@ -340,7 +341,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = startTime,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -359,7 +360,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = debriefingEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -380,7 +381,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = briefingStart,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -401,7 +402,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = travelEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
     }

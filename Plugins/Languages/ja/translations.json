@@ -969,6 +969,7 @@
   "dialog.briefing.position": "位置",
   "dialog.briefing.startTime": "開始",
   "dialog.briefing.title": "ブリーフィング／デブリーフィング",
+  "dialog.briefing.toInvoice": "請求書へ",
   "dialog.containerShiftOverride.title": "勤務を編集",
   "dialog.containerSplit.clearClient": "リセット",
   "dialog.containerSplit.client": "コピー用の従業員（任意）",

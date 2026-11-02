@@ -969,6 +969,7 @@
   "dialog.briefing.position": "Posisjon",
   "dialog.briefing.startTime": "Fra",
   "dialog.briefing.title": "Briefing / Debriefing",
+  "dialog.briefing.toInvoice": "Fakturere",
   "dialog.containerShiftOverride.title": "Rediger vakt",
   "dialog.containerSplit.clearClient": "Tilbakestill",
   "dialog.containerSplit.client": "Medarbeider for kopi (valgfritt)",

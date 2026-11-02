@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
 
@@ -28,7 +29,7 @@ public class WorkChange : BaseEntity
 
     public string Description { get; set; } = string.Empty;
 
-    public bool ToInvoice { get; set; }
+    public bool ToInvoice { get; set; } = WorkChangeDefaults.ToInvoice;
 
     public Guid? AnalyseToken { get; set; }
 

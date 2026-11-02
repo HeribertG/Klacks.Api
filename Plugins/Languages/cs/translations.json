@@ -969,6 +969,7 @@
   "dialog.briefing.position": "Pozice",
   "dialog.briefing.startTime": "Od",
   "dialog.briefing.title": "Briefing / Debriefing",
+  "dialog.briefing.toInvoice": "Fakturovat",
   "dialog.containerShiftOverride.title": "Upravit službu",
   "dialog.containerSplit.clearClient": "Obnovit",
   "dialog.containerSplit.client": "Zaměstnanec pro kopii (nepovinné)",

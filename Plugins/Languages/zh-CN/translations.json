@@ -969,6 +969,7 @@
   "dialog.briefing.position": "位置",
   "dialog.briefing.startTime": "从",
   "dialog.briefing.title": "简报 / 汇报",
+  "dialog.briefing.toInvoice": "计入账单",
   "dialog.containerShiftOverride.title": "编辑班次",
   "dialog.containerSplit.clearClient": "重置",
   "dialog.containerSplit.client": "复制的员工（可选）",

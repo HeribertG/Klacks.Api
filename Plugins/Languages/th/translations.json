@@ -969,6 +969,7 @@
   "dialog.briefing.position": "ตำแหน่ง",
   "dialog.briefing.startTime": "จาก",
   "dialog.briefing.title": "บรีฟฟิ่ง / ดีบรีฟฟิ่ง",
+  "dialog.briefing.toInvoice": "เรียกเก็บเงิน",
   "dialog.containerShiftOverride.title": "แก้ไขกะ",
   "dialog.containerSplit.clearClient": "รีเซ็ต",
   "dialog.containerSplit.client": "พนักงานสำหรับสำเนา (ไม่บังคับ)",
