@@ -30,7 +30,7 @@ namespace Klacks.Api.Application.Commands.Schedules;
 /// would only produce noise.
 /// </param>
 /// <param name="ReportedAtUtc">When the absence was reported (inbound receive time for the messenger); null means now</param>
-/// <param name="Source">Path that started the run; stored on every replacement request the run records</param>
+/// <param name="Source">Path that started the run, stored on every replacement request it records. PlannerDialog always moves a whole work; every other path moves it only when the absence was reported before its start</param>
 /// <param name="AnalyseToken">
 /// Scenario to build the cover on (scenario from scenario); null builds it on the real plan. The new scenario is a full
 /// copy of the source scenario inside its range and is accepted straight into the real plan like any other scenario.

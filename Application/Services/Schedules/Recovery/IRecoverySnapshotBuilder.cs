@@ -24,6 +24,7 @@ public interface IRecoverySnapshotBuilder
     /// <param name="absenceDates">The days the agent is unavailable</param>
     /// <param name="source">Scenario the cover is built on; null = the real plan</param>
     /// <param name="clonedWorkIds">The source works that have a clone in the scenario; any other work is immutable, it cannot be written</param>
+    /// <param name="untouchedWorkIds">The cloned works nothing holds in place; only these can move as a whole</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task<RecoverySnapshot> BuildAsync(
         Guid groupId,
@@ -31,5 +32,6 @@ public interface IRecoverySnapshotBuilder
         IReadOnlyList<DateOnly> absenceDates,
         ScenarioSourceScope? source,
         IReadOnlySet<Guid> clonedWorkIds,
+        IReadOnlySet<Guid> untouchedWorkIds,
         CancellationToken cancellationToken);
 }

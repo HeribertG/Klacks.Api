@@ -6,6 +6,7 @@
 /// <param name="WorkId">The scenario work</param>
 /// <param name="ClientId">Its current owner</param>
 /// <param name="ParentWorkId">Its container, null for a top-level work</param>
+/// <param name="CurrentDate">Workday</param>
 /// <param name="StartTime">Start of the work</param>
 /// <param name="EndTime">End of the work</param>
 /// <param name="LockLevel">Seal state of the work</param>
@@ -20,6 +21,7 @@ public sealed record CoverMoveFacts(
     Guid WorkId,
     Guid ClientId,
     Guid? ParentWorkId,
+    DateOnly CurrentDate,
     TimeOnly StartTime,
     TimeOnly EndTime,
     WorkLockLevel LockLevel,

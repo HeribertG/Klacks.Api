@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.Queries.Breaks;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Queries;
@@ -41,6 +43,12 @@ public class BreaksController : BaseController
     {
         var model = await _mediator.Send(new PostCommand<BreakResource>(resource));
         return Ok(model);
+    }
+
+    [HttpPost("Bulk/Preview")]
+    public async Task<ActionResult<IReadOnlyList<RemovableWork>>> PreviewBulkAdd([FromBody] BulkAddBreaksRequest request)
+    {
+        return Ok(await _mediator.Send(new PreviewTakenWorksQuery(request)));
     }
 
     [HttpPost("Bulk")]

@@ -5,7 +5,7 @@
 /// single date in one server-side round trip. With apply=false (default) it returns a read-only preview;
 /// with apply=true it creates one Break per member that does not already have that absence on that date,
 /// then re-reads the database (recount) to confirm how many were actually persisted. The break-creation
-/// path runs through BulkAddBreaksCommand which has no transaction, so verification is by recount, not by
+/// path runs through BulkAddBreaksCommand, whose writes are not rolled back on a partial result, so verification is by recount, not by
 /// rollback — a partial result is reported honestly rather than silently claimed as success. A hard cap
 /// limits one call to 100 affected members; larger requests are rejected with guidance to narrow the group.
 /// </summary>
@@ -16,6 +16,7 @@
 /// <param name="workTime">Optional hours counted toward target hours; defaults to 8.</param>
 /// <param name="information">Optional free-text note stored on every created absence.</param>
 
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -23,6 +24,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -39,6 +41,7 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
     private readonly IAbsenceRepository _absenceRepository;
     private readonly IGetAllClientIdsFromGroupAndSubgroups _memberService;
     private readonly IBreakRepository _breakRepository;
+    private readonly IAbsenceWorkRemovalService _workRemovalService;
     private readonly IMediator _mediator;
 
     public BulkAddAbsenceForGroupSkill(
@@ -47,6 +50,7 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
         IAbsenceRepository absenceRepository,
         IGetAllClientIdsFromGroupAndSubgroups memberService,
         IBreakRepository breakRepository,
+        IAbsenceWorkRemovalService workRemovalService,
         IMediator mediator)
     {
         _groupRepository = groupRepository;
@@ -54,6 +58,7 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
         _absenceRepository = absenceRepository;
         _memberService = memberService;
         _breakRepository = breakRepository;
+        _workRemovalService = workRemovalService;
         _mediator = mediator;
     }
 
@@ -135,10 +140,14 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
         if (!apply)
         {
             var skippedNote = skipped > 0 ? $" ({skipped} already have it)" : string.Empty;
+            var wouldFall = await _workRemovalService.FindAsync(
+                toAdd.Select(clientId => new AbsenceSpan(clientId, absence.Id, date, DayTimeConstants.Midnight, DayTimeConstants.LastMinuteOfDay)).ToList(),
+                null,
+                cancellationToken);
             return SkillResult.SuccessResult(
                 new { GroupName = group.Name, AbsenceType = typeLabel, Date = date, Attempted = toAdd.Count, AddedCount = 0, VerifiedCount = 0, SkippedCount = skipped },
                 $"Preview: '{typeLabel}' would be placed on {toAdd.Count} of {members.Count} member(s) of group " +
-                $"'{group.Name}' on {date}{skippedNote}. Nothing was changed yet. " +
+                $"'{group.Name}' on {date}{skippedNote}.{AbsenceTakenWorksNote.WouldRemove(wouldFall.Count)} Nothing was changed yet. " +
                 "Ask the user to confirm, then call again with apply=true.");
         }
 
@@ -159,7 +168,7 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
             }).ToList()
         };
 
-        await _mediator.Send(new BulkAddBreaksCommand(request), cancellationToken);
+        var response = await _mediator.Send(new BulkAddBreaksCommand(request), cancellationToken);
 
         var confirmed = (await _breakRepository
             .GetClientIdsWithBreakOnDate(toAdd, date, absence.Id, cancellationToken: cancellationToken)).Count;
@@ -172,7 +181,7 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(
             new { GroupName = group.Name, AbsenceType = typeLabel, Date = date, Attempted = toAdd.Count, AddedCount = toAdd.Count, VerifiedCount = confirmed, SkippedCount = skipped },
             $"Placed absence '{typeLabel}' on {toAdd.Count} member(s) of group '{group.Name}' on {date} " +
-            $"and confirmed {confirmed} in the database (verified){skippedNote2}.{verifyNote}");
+            $"and confirmed {confirmed} in the database (verified){skippedNote2}.{verifyNote}{AbsenceTakenWorksNote.Removed(response.TakenWorks.Count)}");
     }
 
     private static bool NameMatches(MultiLanguage name, string query) =>

@@ -3,11 +3,14 @@
 /// <summary>
 /// Creates a single break (absence entry) and notifies the schedule. A break for a client outside the
 /// caller's group visibility is refused exactly like a break for a client that does not exist; nothing is written.
+/// The credit is calculated first, then the absence takes away the works it leaves uncovered.
 /// </summary>
+/// <param name="workRemovalService">Takes away the works the absence leaves uncovered</param>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
@@ -25,6 +28,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
     private readonly IBreakRepository _breakRepository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IBreakMacroService _breakMacroService;
+    private readonly IAbsenceWorkRemovalService _workRemovalService;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
@@ -38,6 +42,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
         IBreakRepository breakRepository,
         IClientVisibilityGuard clientVisibilityGuard,
         IBreakMacroService breakMacroService,
+        IAbsenceWorkRemovalService workRemovalService,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
@@ -52,6 +57,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
         _breakRepository = breakRepository;
         _clientVisibilityGuard = clientVisibilityGuard;
         _breakMacroService = breakMacroService;
+        _workRemovalService = workRemovalService;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
@@ -82,7 +88,13 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(entity.CurrentDate);
 
             await _breakMacroService.ProcessBreakMacroAsync(entity, request.Resource.PaymentInterval);
-            await _breakRepository.Add(entity);
+            IReadOnlyList<RemovableWork> taken = entity.ParentWorkId is null
+                ? await _workRemovalService.FindAsync(
+                    [new AbsenceSpan(entity.ClientId, entity.AbsenceId, entity.CurrentDate, entity.StartTime, entity.EndTime)],
+                    entity.AnalyseToken,
+                    cancellationToken)
+                : [];
+            await _workRemovalService.WriteAndRemoveAsync(taken, () => _breakRepository.Add(entity), cancellationToken);
             var periodHours = await _completionService.SaveAndTrackAsync(
                 entity.ClientId, entity.CurrentDate, periodStart, periodEnd, entity.AnalyseToken);
 

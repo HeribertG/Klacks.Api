@@ -6,7 +6,9 @@
 /// <param name="Deltas">Accepted reassignments, swap relocations before their cover hop</param>
 /// <param name="WorkIdMap">Clone source work id to scenario clone id</param>
 /// <param name="AnalyseToken">Token of the scenario</param>
+/// <param name="Report">How the absence reached the run</param>
 
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.ScheduleRecovery.Model;
 
 namespace Klacks.Api.Application.DTOs.Schedules;
@@ -14,4 +16,5 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 public sealed record CoverMaterialisation(
     IReadOnlyList<CellDelta> Deltas,
     IReadOnlyDictionary<Guid, Guid> WorkIdMap,
-    Guid AnalyseToken);
+    Guid AnalyseToken,
+    CoverReport Report);

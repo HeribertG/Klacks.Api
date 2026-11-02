@@ -126,7 +126,7 @@ public class AddBreakSkill : BaseSkillImplementation
                 "check the schedule first to avoid creating a duplicate break.");
         }
 
-        var verifyNote = " Confirmed in the database (verified).";
+        var verifyNote = " Confirmed in the database (verified)." + AbsenceTakenWorksNote.Removed(response.TakenWorks.Count);
 
         return SkillResult.SuccessResult(
             new

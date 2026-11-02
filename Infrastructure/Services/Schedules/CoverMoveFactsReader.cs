@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Reads the facts of scenario works for the cover decision. Replacements come from ReplacementCoverQuery, the single
+/// Reads the facts of works for the cover decision. Replacements come from ReplacementCoverQuery, the single
 /// source of what counts as one.
 /// </summary>
 /// <param name="context">Database context of the caller (soft-delete filters apply)</param>
@@ -24,7 +24,7 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
     }
 
     public async Task<IReadOnlyDictionary<Guid, CoverMoveFacts>> LoadAsync(
-        IReadOnlyCollection<Guid> workIds, Guid analyseToken, CancellationToken cancellationToken)
+        IReadOnlyCollection<Guid> workIds, Guid? analyseToken, CancellationToken cancellationToken)
     {
         var ids = workIds.ToList();
         var works = await _context.Work.AsNoTracking()
@@ -60,7 +60,7 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
         return works.ToDictionary(
             w => w.Id,
             w => new CoverMoveFacts(
-                w.Id, w.ClientId, w.ParentWorkId, w.StartTime, w.EndTime, w.LockLevel,
+                w.Id, w.ClientId, w.ParentWorkId, w.CurrentDate, w.StartTime, w.EndTime, w.LockLevel,
                 replaced.Contains(w.Id) || parentsWithReplacement.Contains(w.Id),
                 parentsWithLockedChild.Contains(w.Id)));
     }

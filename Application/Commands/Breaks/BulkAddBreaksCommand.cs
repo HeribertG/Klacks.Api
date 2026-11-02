@@ -5,4 +5,6 @@ using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Commands.Breaks;
 
-public record BulkAddBreaksCommand(BulkAddBreaksRequest Request) : IRequest<BulkBreaksResponse>;
+/// <param name="Request">The absences to enter</param>
+/// <param name="RemoveTakenWorks">False leaves the works standing, for a cover that decides about them itself</param>
+public record BulkAddBreaksCommand(BulkAddBreaksRequest Request, bool RemoveTakenWorks = true) : IRequest<BulkBreaksResponse>;

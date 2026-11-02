@@ -41,6 +41,8 @@ public static class AnalyseScenarioServiceCollectionExtensions
         services.AddScoped<ScenarioDayRowPromoter>();
         services.AddScoped<ScenarioVariantPromoter>();
         services.AddScoped<ScenarioPromoter>();
+        services.AddScoped<ScenarioOpenSlotFinder>();
+        services.AddScoped<Application.Interfaces.Schedules.ICoverMoveFactsReader, Services.Schedules.CoverMoveFactsReader>();
 
         services.AddScoped<ScenarioSlotReplacer>();
 

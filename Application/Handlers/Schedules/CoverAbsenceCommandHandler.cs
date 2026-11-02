@@ -49,6 +49,7 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.Recovery;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -221,7 +222,10 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             groupId, scenarioFrom, scenarioUntil, token, additionalShiftIds: null, source?.Token, cancellationToken);
         await _unitOfWork.CompleteAsync();
 
-        var snapshot = await _snapshotBuilder.BuildAsync(groupId, clientId, dates, source, workIdMap.Keys.ToHashSet(), cancellationToken);
+        var report = await ResolveReportAsync(request, cancellationToken);
+        var snapshot = await _snapshotBuilder.BuildAsync(
+            groupId, clientId, dates, source, workIdMap.Keys.ToHashSet(),
+            await _coverMaterializer.FindMovableSourceWorksAsync(workIdMap, token, report, cancellationToken), cancellationToken);
         var proposal = _recoveryEngine.Repair(
             snapshot, new Rec.AbsenceEvent(clientId, dates), Rec.Ruleset.Default);
         var rootShiftIds = await ResolveRootShiftIdsAsync(proposal, source, cancellationToken);
@@ -238,12 +242,12 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         // otherwise leave an orphaned cross-group membership behind.
         var acceptedAgents = materializable.Select(d => d.ToAgentId).ToHashSet();
         await MaterialiseMembershipsAsync(proposal, acceptedAgents, token, cancellationToken);
-        var movedWorkIds = await _coverMaterializer.MaterialiseAsync(
-            new CoverMaterialisation(materializable, workIdMap, token), cancellationToken);
+        var materialised = await _coverMaterializer.MaterialiseAsync(
+            new CoverMaterialisation(materializable, workIdMap, token, report), cancellationToken);
 
         var covered = await _replacementRequestRecorder.RecordProposalsAsync(
             new ReplacementProposalContext(clientId, groupId, absenceId, token, request.Source, request.ReportedAtUtc),
-            BuildCovered(materializable, clientId, snapshot, workIdMap, rootShiftIds, movedWorkIds),
+            BuildCovered(materializable, clientId, snapshot, workIdMap, rootShiftIds, materialised.MovedWorkIds),
             cancellationToken);
         await _unitOfWork.CompleteAsync();
 
@@ -256,7 +260,9 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         int? harmonyDelta = materializable.Count == proposal.Deltas.Count ? proposal.HarmonyDelta : null;
 
         var outcome = new CoverAbsenceOutcome(
-            scenario.Id, token, name, covered, uncovered, complianceWarnings, highestTier, harmonyDelta);
+            scenario.Id, token, name, covered, uncovered,
+            [.. complianceWarnings, .. RelocationWarnings(materialised.RelocationsKeepingExtras, clientId, snapshot)],
+            highestTier, harmonyDelta);
         return (outcome, snapshot, absenceDays);
     }
 
@@ -492,6 +498,29 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private static Rec.EscalationTier HighestTierOf(IReadOnlyList<Rec.CellDelta> materializable, bool anyUncovered)
         => Rec.EscalationTierSeverity.Highest(materializable.Select(d => d.Tier), anyUncovered);
 
+    /// <summary>
+    /// A swap relocation that stayed a replacement against the plan: the cap check counted its extras as gone, they stay.
+    /// </summary>
+    private async Task<CoverReport> ResolveReportAsync(CoverAbsenceCommand request, CancellationToken cancellationToken)
+    {
+        var nowUtc = (await _companyClock.GetNowAsync(cancellationToken)).UtcDateTime;
+        var reportedAtUtc = request.ReportedAtUtc is { } reported && reported < nowUtc ? reported : nowUtc;
+        return new CoverReport(request.Source, reportedAtUtc);
+    }
+
+    private static IEnumerable<ScheduleValidationNotificationDto> RelocationWarnings(
+        IReadOnlyList<Rec.CellDelta> relocationsKeepingExtras, Guid absentClientId, Rec.RecoverySnapshot snapshot)
+        => relocationsKeepingExtras
+            .Where(delta => delta.FromAgentId != absentClientId)
+            .Select(delta => new ScheduleValidationNotificationDto
+            {
+                Type = ScheduleValidationType.Warning,
+                ClientId = delta.FromAgentId,
+                ClientName = snapshot.FindAgent(delta.FromAgentId)?.DisplayName ?? string.Empty,
+                Date = delta.Date,
+                Comment = ScheduleValidationKeys.CoverRelocationKeepsExtras
+            });
+
     private static IReadOnlyList<CoveredSlot> BuildCovered(
         IReadOnlyList<Rec.CellDelta> deltas,
         Guid absentClientId,
@@ -621,7 +650,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             PeriodStart = dates[0],
             PeriodEnd = dates[^1],
             Breaks = breaks
-        }), cancellationToken);
+        }, RemoveTakenWorks: false), cancellationToken);
 
         // CreatedIds is appended to in Breaks order and only skips an index on a per-item construction
         // failure (BulkAddBreaksCommandHandler's try/catch around a plain object initializer) - treated

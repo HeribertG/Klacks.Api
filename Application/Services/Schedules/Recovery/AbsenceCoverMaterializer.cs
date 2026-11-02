@@ -40,6 +40,7 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
 
     private readonly IMediator _mediator;
     private readonly ICoverMoveFactsReader _factsReader;
+    private readonly ICompanyClock _companyClock;
     private readonly IWorkRepository _workRepository;
     private readonly IWorkHandOverService _handOverService;
     private readonly IPeriodHoursService _periodHoursService;
@@ -51,6 +52,7 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
     public AbsenceCoverMaterializer(
         IMediator mediator,
         ICoverMoveFactsReader factsReader,
+        ICompanyClock companyClock,
         IWorkRepository workRepository,
         IWorkHandOverService handOverService,
         IPeriodHoursService periodHoursService,
@@ -61,6 +63,7 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
     {
         _mediator = mediator;
         _factsReader = factsReader;
+        _companyClock = companyClock;
         _workRepository = workRepository;
         _handOverService = handOverService;
         _periodHoursService = periodHoursService;
@@ -70,10 +73,22 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
         _logger = logger;
     }
 
-    public async Task<IReadOnlySet<Guid>> MaterialiseAsync(CoverMaterialisation materialisation, CancellationToken cancellationToken)
+    public async Task<IReadOnlySet<Guid>> FindMovableSourceWorksAsync(
+        IReadOnlyDictionary<Guid, Guid> workIdMap, Guid analyseToken, CoverReport report, CancellationToken cancellationToken)
+    {
+        var facts = await _factsReader.LoadAsync(workIdMap.Values.ToList(), analyseToken, cancellationToken);
+        var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
+        return workIdMap
+            .Where(work => facts.TryGetValue(work.Value, out var fact) && CoverMoveDecision.MayMove(fact, report, companyTimeZone))
+            .Select(work => work.Key)
+            .ToHashSet();
+    }
+
+    public async Task<CoverMaterialisationResult> MaterialiseAsync(CoverMaterialisation materialisation, CancellationToken cancellationToken)
     {
         var slots = ResolveSlots(materialisation);
         var moved = await SelectMovesAsync(slots, materialisation, cancellationToken);
+        var relocationsKeepingExtras = new List<CellDelta>();
 
         foreach (var (delta, clonedWorkId) in slots)
         {
@@ -84,9 +99,13 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
 
             moved.Remove(clonedWorkId);
             await ReplaceAsync(delta, clonedWorkId, cancellationToken);
+            if (delta.MovesAsWhole && delta.ExtraPaidHours > 0m)
+            {
+                relocationsKeepingExtras.Add(delta);
+            }
         }
 
-        return moved;
+        return new CoverMaterialisationResult(moved, relocationsKeepingExtras);
     }
 
     /// <summary>
@@ -135,9 +154,11 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
 
         var facts = await _factsReader.LoadAsync(
             candidates.Select(slot => slot.ClonedWorkId).ToList(), materialisation.AnalyseToken, cancellationToken);
+        var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
 
         return candidates
             .Where(slot => facts.TryGetValue(slot.ClonedWorkId, out var work)
+                && CoverMoveDecision.MayMove(work, materialisation.Report, companyTimeZone)
                 && CoverMoveDecision.CoversWholeWork(
                     work, slot.Delta.FromAgentId, TimeOnly.FromDateTime(slot.Delta.StartAt), TimeOnly.FromDateTime(slot.Delta.EndAt)))
             .Select(slot => slot.ClonedWorkId)
