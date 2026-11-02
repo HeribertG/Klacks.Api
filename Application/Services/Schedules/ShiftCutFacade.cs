@@ -19,7 +19,7 @@ using Klacks.Api.Application.Services.Shifts;
 namespace Klacks.Api.Application.Services.Schedules;
 
 /// <summary>
-/// Cuts shifts into pieces and resets the cuts of a sealed order. Every shift a batch touches (updated shift, stored
+/// Cuts shifts into pieces and resets the cuts of a sealed order (IShiftFamilyReset does the reset). Every shift a batch touches (updated shift, stored
 /// parent) and the reset order must be visible to a group-restricted caller; a hidden one is answered with exactly the
 /// error a missing one gets, before anything is validated or written. The hierarchy is server-owned: an update keeps the
 /// stored order reference, customer and tree fields, a new piece takes order reference and customer from its parent,
@@ -33,6 +33,8 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// here, an updated piece keeps its stored ones in ShiftRepository.PutCutUpdate, so no piece can leave the variant's group.
 /// A shift without an order has no OriginalId to hold its pieces together, so a piece cut from it is its child and takes it
 /// as RootId (a family without an order is found through RootId, see IOrderFamilyEndRepository).
+/// A container is a template without an order and cannot be cut or reset: a target, parent, sealed order or requested piece of
+/// that type is refused before anything is written.
 /// A shift of a scenario clone, of a hidden variant, of a consumed one or of one an Active scenario carries is refused. The nested-set values of
 /// real trees are recalculated; a tree inside a variant gets none (they are set when the variant is promoted).
 /// </summary>
@@ -45,7 +47,7 @@ public class ShiftCutFacade : IShiftCutFacade
     private readonly IShiftRequiredQualificationRepository _requirementRepository;
     private readonly IShiftExpensesRepository _shiftExpensesRepository;
     private readonly IShiftTreeService _shiftTreeService;
-    private readonly IShiftResetService _shiftResetService;
+    private readonly IShiftFamilyReset _shiftFamilyReset;
     private readonly IShiftValidator _shiftValidator;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
@@ -57,7 +59,7 @@ public class ShiftCutFacade : IShiftCutFacade
         IShiftRepository shiftRepository,
         IShiftRequiredQualificationRepository requirementRepository,
         IShiftTreeService shiftTreeService,
-        IShiftResetService shiftResetService,
+        IShiftFamilyReset shiftFamilyReset,
         IShiftValidator shiftValidator,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
@@ -72,7 +74,7 @@ public class ShiftCutFacade : IShiftCutFacade
         _shiftRepository = shiftRepository;
         _requirementRepository = requirementRepository;
         _shiftTreeService = shiftTreeService;
-        _shiftResetService = shiftResetService;
+        _shiftFamilyReset = shiftFamilyReset;
         _shiftValidator = shiftValidator;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
@@ -148,34 +150,16 @@ public class ShiftCutFacade : IShiftCutFacade
             throw new InvalidOperationException(string.Format(ShiftVisibilityMessages.NoSealedOrderFound, originalId));
         }
 
-        var analyseToken = sealedOrder.AnalyseToken;
-        if (analyseToken is { } variantToken)
+        EnsureNotContainer(sealedOrder);
+
+        if (sealedOrder.AnalyseToken is { } variantToken)
         {
             await _variantShiftWriteGuard.EnsureOpenIfVariantAsync(variantToken, sealedOrder.Id);
-            await _variantShiftWriteGuard.EnsureInsideVariantPeriodAsync(variantToken, [(newStartDate, sealedOrder.UntilDate)]);
+            await _variantShiftWriteGuard.EnsureInsideVariantPeriodAsync(
+                variantToken, [(newStartDate, sealedOrder.UntilDate), (sealedOrder.FromDate, sealedOrder.UntilDate)]);
         }
 
-        _logger.LogInformation("Using SealedOrder as template: ID={Id}", sealedOrder.Id);
-
-        var allShifts = await _shiftRepository.CutList(originalId, newStartDate, tracked: true, analyseToken: analyseToken);
-
-        _logger.LogInformation("Found {Count} shifts (filtered for cuts before {NewStartDate})",
-            allShifts.Count, newStartDate);
-
-        if (!allShifts.Any())
-        {
-            _logger.LogInformation("No shifts to update, returning empty list");
-            return new List<Shift>();
-        }
-
-        var closeDateObj = newStartDate.AddDays(-1);
-        _shiftResetService.CloseExistingSplitShifts(allShifts, closeDateObj);
-
-        await _shiftResetService.CreateNewOriginalShiftFromSealedOrderAsync(sealedOrder, newStartDate);
-
-        await _unitOfWork.CompleteAsync();
-
-        var updatedShifts = await _shiftRepository.CutList(originalId, analyseToken: analyseToken);
+        var updatedShifts = await _shiftFamilyReset.ResetAsync(sealedOrder, newStartDate);
 
         _logger.LogInformation("=== ResetCuts END - Returned {Count} shifts ===", updatedShifts.Count);
         return updatedShifts;
@@ -249,6 +233,11 @@ public class ShiftCutFacade : IShiftCutFacade
 
         foreach (var op in sortedOperations)
         {
+            if (op.Data.ShiftType == ShiftType.IsContainer)
+            {
+                throw ContainerRefusal(op.Data.Id);
+            }
+
             var lineage = op.Type switch
             {
                 CutOperation.UpdateType => await ResolveUpdateLineageAsync(op),
@@ -618,8 +607,21 @@ public class ShiftCutFacade : IShiftCutFacade
         throw new InvalidOperationException($"Invalid parent ID format: {parentId}. Frontend must send GUID!");
     }
 
+    private static void EnsureNotContainer(Shift shift)
+    {
+        if (shift.ShiftType == ShiftType.IsContainer)
+        {
+            throw ContainerRefusal(shift.Id);
+        }
+    }
+
+    private static BadRequestException ContainerRefusal(Guid shiftId) =>
+        new(string.Format(ShiftHierarchyMessages.ContainerCutNotAllowed, shiftId));
+
     private async Task EnsureCuttableAsync(Shift shift, string operation)
     {
+        EnsureNotContainer(shift);
+
         if (shift.AnalyseToken is not { } token)
         {
             return;

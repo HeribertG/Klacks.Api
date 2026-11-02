@@ -3,7 +3,8 @@
 /// <summary>
 /// Loads the detail preview of a sealed order: order metadata with ERP references, customer
 /// information, and all non-deleted production works (any lock level) of the order and its
-/// descendant shifts, each flagged with its period-closed state via IPeriodClosedEntryFilter.
+/// descendant shifts, each flagged with its period-closed state via IPeriodClosedEntryFilter. A shift without a customer
+/// (BillableOrderRule) has no billing preview and answers like a missing order.
 /// @param orderId - Identifier of the sealed order shift (Status = SealedOrder)
 /// @param fromDate - Optional lower bound for Work.CurrentDate
 /// @param untilDate - Optional upper bound for Work.CurrentDate
@@ -48,6 +49,7 @@ public class SealedOrderDetailsLoader : ISealedOrderDetailsLoader
                 && s.Status == ShiftStatus.SealedOrder
                 && s.AnalyseToken == null
                 && s.ScenarioSourceShiftId == null)
+            .Where(BillableOrderRule.HasCustomer)
             .Include(s => s.Client)
             .FirstOrDefaultAsync(cancellationToken);
 

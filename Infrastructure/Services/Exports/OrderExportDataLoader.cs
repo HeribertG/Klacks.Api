@@ -5,7 +5,7 @@
 /// resolves their descendant shifts (OriginalShift, SplitShift), and assembles
 /// the export data structure. Order metadata (name, abbreviation, period)
 /// always comes from the SealedOrder so renames in clones do not leak into
-/// exported documents.
+/// exported documents. A shift without a customer (BillableOrderRule) is left out.
 /// @param orderIds - Identifiers of sealed-order shifts to export
 /// </summary>
 using Klacks.Api.Application.Interfaces.Exports;
@@ -50,6 +50,7 @@ public class OrderExportDataLoader : IOrderExportDataLoader
                 && s.AnalyseToken == null
                 && orderIds.Contains(s.Id)
                 && s.Status == ShiftStatus.SealedOrder)
+            .Where(BillableOrderRule.HasCustomer)
             .Include(s => s.Client)
             .ToListAsync(cancellationToken);
 
