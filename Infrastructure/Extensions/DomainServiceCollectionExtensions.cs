@@ -147,6 +147,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<WeeklyTourBuilder>();
         services.AddScoped<WeeklyTourPlacementVerifier>();
         services.AddScoped<ISealedOrderFamilyDeletion, SealedOrderFamilyDeletion>();
+        services.AddScoped<IShiftFamilyEndService, ShiftFamilyEndService>();
         services.AddScoped<IShiftScheduleService, ShiftScheduleService>();
         services.AddScoped<IShiftScheduleReader>(sp => sp.GetRequiredService<IShiftScheduleService>());
         services.AddScoped<IShiftGroupFilterService, ShiftGroupFilterService>();

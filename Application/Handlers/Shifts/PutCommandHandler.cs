@@ -31,11 +31,13 @@ namespace Klacks.Api.Application.Handlers.Shifts;
 /// fields (VariantShiftMirror), the group items, the expenses and the required qualifications onto the other row in the
 /// same save, so the answer is the addressed row. While the order has cuts, a change of its date, time, weekdays,
 /// staffing, customer, macro or type is refused with a conflict (the guard); name, abbreviation, description and groups
-/// stay changeable.
+/// stay changeable. Setting the still empty end date of a real locked shift ends its whole family (IShiftFamilyEndService):
+/// the addressed row is saved inside that transaction, and a refusal answers 409 before anything is written.
 /// </summary>
 /// <param name="shiftVisibilityGuard">Decides whether the caller may touch the shift and its changed groups</param>
 /// <param name="clientReferenceGuard">Decides whether a changed customer exists and is visible to the caller</param>
 /// <param name="variantShiftWriteGuard">Refuses an edit of a shift in a consumed or hidden variant and content a variant does not accept</param>
+/// <param name="shiftFamilyEndService">Ends a whole family when the save sets the first end date of a real locked shift</param>
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftResource>, ShiftResource?>
 {
     private readonly IShiftRepository _shiftRepository;
@@ -45,6 +47,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly IClientReferenceGuard _clientReferenceGuard;
     private readonly IVariantShiftWriteGuard _variantShiftWriteGuard;
+    private readonly IShiftFamilyEndService _shiftFamilyEndService;
 
     public PutCommandHandler(
         IShiftRepository shiftRepository,
@@ -54,6 +57,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
         IShiftVisibilityGuard shiftVisibilityGuard,
         IClientReferenceGuard clientReferenceGuard,
         IVariantShiftWriteGuard variantShiftWriteGuard,
+        IShiftFamilyEndService shiftFamilyEndService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -64,6 +68,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
         _shiftVisibilityGuard = shiftVisibilityGuard;
         _clientReferenceGuard = clientReferenceGuard;
         _variantShiftWriteGuard = variantShiftWriteGuard;
+        _shiftFamilyEndService = shiftFamilyEndService;
     }
 
     public async Task<ShiftResource?> Handle(PutCommand<ShiftResource> request, CancellationToken cancellationToken)
@@ -90,7 +95,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
         await EnsureChangedClientExistsVisibleAsync(stored, shift, cancellationToken);
         await KeepInheritedRequirementsAsync(shift, cancellationToken);
 
-        var resultShift = await _shiftRepository.PutWithSealedOrderHandling(shift);
+        var resultShift = await SaveAsync(stored, shift, cancellationToken);
 
         if (resultShift == null)
         {
@@ -98,14 +103,40 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ShiftRe
             return null;
         }
 
-        await _unitOfWork.CompleteAsync();
-
         var freshShift = await _shiftRepository.Get(resultShift.Id);
 
         _logger.LogInformation("Shift updated successfully: Id={ShiftId}, Name={Name}, Status={Status}",
             resultShift.Id, resultShift.Name, resultShift.Status);
 
         return _scheduleMapper.ToShiftResource(freshShift ?? resultShift);
+    }
+
+    /// <summary>
+    /// Saves and commits the shift: a save that sets the first end date of a real locked shift together with its family,
+    /// any other save on the addressed row alone.
+    /// </summary>
+    /// <param name="stored">Shift as saved, or null when it does not exist</param>
+    /// <param name="shift">Shift as mapped from the request</param>
+    private async Task<Shift?> SaveAsync(Shift? stored, Shift shift, CancellationToken cancellationToken)
+    {
+        if (stored == null || !LockedShiftEditPolicy.SetsFamilyEnd(stored, shift))
+        {
+            var saved = await _shiftRepository.PutWithSealedOrderHandling(shift);
+            if (saved != null)
+            {
+                await _unitOfWork.CompleteAsync();
+            }
+
+            return saved;
+        }
+
+        Shift? savedEntry = null;
+        await _shiftFamilyEndService.EndFamilyAsync(
+            stored,
+            shift.UntilDate!.Value,
+            async () => savedEntry = await _shiftRepository.PutWithSealedOrderHandling(shift),
+            cancellationToken);
+        return savedEntry;
     }
 
     /// <summary>

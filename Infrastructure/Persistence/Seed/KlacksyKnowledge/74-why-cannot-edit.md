@@ -85,8 +85,8 @@ nur über einen Admin. Sag mir, was du ändern willst, dann finden wir den Grund
   offene Formular; wer es verwirft, behält die Bestellung.
 - **Kunde und Dienst-Typ** sind nach dem Versiegeln fest — ein kundenloser Dienst bekommt nachträglich keinen
   Kunden.
-- **Das leere Bis-Datum geht nur einmal.** Danach ist es gesperrt wie die anderen Felder. Über Klacksy wird
-  zusätzlich geprüft, dass nach dem Datum nichts verplant ist.
+- **Das leere Bis-Datum geht nur einmal.** Danach ist es gesperrt wie die anderen Felder. Es beendet den ganzen
+  Dienst samt Teilstücken und geht nur, wenn nach diesem Tag nichts verplant ist, auch nicht in einem Szenario.
 - **Bestätigen geht nur aus dem ungesperrten Zustand.** Ein freigegebener oder geschlossener Eintrag lässt sich
   nicht zurück auf bestätigt setzen.
 - **Aufheben setzt immer ganz auf offen.** Wer bei einem freigegebenen oder geschlossenen Eintrag die Sperre

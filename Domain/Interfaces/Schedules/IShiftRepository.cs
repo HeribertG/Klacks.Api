@@ -132,8 +132,6 @@ public interface IShiftRepository : IBaseRepository<Shift>
 
     Task<List<Guid>> GetShiftIdsByClientAsync(Guid clientId, CancellationToken cancellationToken = default);
 
-    Task<bool> HasWorksAfterDateForOrderTreeAsync(Guid sealedOrderId, DateOnly afterDate, CancellationToken cancellationToken = default);
-
     /// <summary>
     /// What the family of a sealed order (the order, its plannable copy and every cut piece, found by OriginalId, scenario
     /// clones excluded) is still used by: works of any kind that are not deleted, scenario clones of its shifts and

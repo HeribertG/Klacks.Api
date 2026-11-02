@@ -187,6 +187,7 @@ internal static class RepositoryServiceCollectionExtensions
     private static void RegisterShiftContainerAndGroupAbsenceRepositories(IServiceCollection services)
     {
         services.AddScoped<IShiftRepository, ShiftRepository>();
+        services.AddScoped<IOrderFamilyEndRepository, OrderFamilyEndRepository>();
         services.AddScoped<IShiftReader, ShiftReader>();
         services.AddScoped<IShiftVisibilityReader, Klacks.Api.Infrastructure.Repositories.Schedules.ShiftVisibilityReadRepository>();
         services.AddScoped<IShiftGroupScopeReader, Klacks.Api.Infrastructure.Repositories.Schedules.ShiftGroupScopeReadRepository>();
