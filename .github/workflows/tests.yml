@@ -99,7 +99,6 @@ jobs:
         with:
           repository: HeribertG/Klacks.UnitTest
           path: Klacks.UnitTest
-          ref: feat/exports-logo-winmentor
           token: ${{ secrets.GH_PAT || github.token }}
 
       - name: Checkout Klacks.Ui (permission constants and i18n catalogues for guard tests)
