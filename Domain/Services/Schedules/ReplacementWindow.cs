@@ -88,9 +88,10 @@ public static class ReplacementWindow
     }
 
     /// <summary>
-    /// Hours handed over, limited to the length of the work: a ChangeTime longer than the work would otherwise wrap
-    /// the window past the work's start and block the substitute for more than the shift. Zero or less means the
-    /// replacement hands nothing over and is no occupancy at all.
+    /// Hours a ReplacementStart or ReplacementEnd hands over, limited to the length of the work: a ChangeTime longer than
+    /// the work would otherwise wrap the window past the work's start and block the substitute for more than the shift.
+    /// Zero or less means such a replacement hands nothing over and is no occupancy at all; a ReplacementWithin is
+    /// decided by its own span and does not use this value.
     /// </summary>
     public static decimal ClampHours(TimeOnly workStart, TimeOnly workEnd, decimal changeTime) =>
         Math.Max(0m, Math.Min(changeTime, WorkLengthHours(workStart, workEnd)));

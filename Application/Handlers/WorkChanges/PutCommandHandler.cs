@@ -6,11 +6,14 @@
 /// outside the caller's group visibility, is answered exactly like a change that does not exist; nothing is written.
 /// A change whose old or new parent Work is missing or deleted is answered the same way. The AnalyseToken follows the
 /// parent Work (the request carries none), a change cannot be moved between a scenario and the main plan, and a sealed
-/// old or new parent Work refuses the write as decided by IParentWorkLockGuard (same rule as expenses).
+/// old or new parent Work refuses the write as decided by IParentWorkLockGuard (same rule as expenses). A replacement
+/// without a valid person, or one that gives the substitute a blocking conflict, is refused by IReplacementWriteGuard,
+/// the check the create handler uses.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the touched clients and the scenario of the parent Work</param>
 /// <param name="parentWorkLockGuard">Refuses the write when a parent Work's lock level forbids it for the caller</param>
 /// <param name="replacementRequestRecorder">Keeps the ManualReplacement row of the replacement request book in step with the change</param>
+/// <param name="replacementWriteGuard">Refuses a replacement without a valid person and one that gives the substitute a blocking conflict</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
@@ -43,6 +46,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     private readonly IReplacementRequestRecorder _replacementRequestRecorder;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IParentWorkLockGuard _parentWorkLockGuard;
+    private readonly IReplacementWriteGuard _replacementWriteGuard;
 
     public PutCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -57,6 +61,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         IReplacementRequestRecorder replacementRequestRecorder,
         IHttpContextAccessor httpContextAccessor,
         IParentWorkLockGuard parentWorkLockGuard,
+        IReplacementWriteGuard replacementWriteGuard,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -72,6 +77,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         _replacementRequestRecorder = replacementRequestRecorder;
         _httpContextAccessor = httpContextAccessor;
         _parentWorkLockGuard = parentWorkLockGuard;
+        _replacementWriteGuard = replacementWriteGuard;
     }
 
     public async Task<WorkChangeResource?> Handle(PutCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -118,6 +124,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             workChange.AnalyseToken = parentWork.AnalyseToken;
 
             await EnsureWritableAsync(parentWork, oldParentWork, isMoved, workChange, existingWorkChange, cancellationToken);
+
+            await _replacementWriteGuard.EnsureAllowedAsync(
+                workChange, parentWork, request.Resource.OverrideBlock, existingWorkChange, cancellationToken);
 
             var updatedWorkChange = await _workChangeRepository.Put(workChange);
 

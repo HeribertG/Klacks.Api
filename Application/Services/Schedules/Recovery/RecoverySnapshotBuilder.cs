@@ -11,6 +11,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.ScheduleOptimizer.Models;
 using Klacks.ScheduleRecovery.Model;
 using Microsoft.Extensions.Logging;
@@ -115,7 +116,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         var inGroupSet = (await _groupClientService.GetAllClientIdsFromGroupAndSubgroups(groupId)).ToHashSet();
 
         var underRoot = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync([rootGroupId], cancellationToken);
-        var members = SelectCandidatePool(underRoot, inGroupSet, groupId);
+        var members = SelectCandidatePool(underRoot, inGroupSet, groupId, _logger);
         var memberIds = members.Select(m => m.Id).ToList();
 
         var contracts = await _contractProvider.GetEffectiveContractDataForClientsAsync(memberIds, referenceDate);
@@ -273,14 +274,24 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         return group?.Root ?? groupId;
     }
 
-    private List<Client> SelectCandidatePool(IReadOnlyList<Client> underRoot, IReadOnlySet<Guid> inGroupSet, Guid groupId)
+    /// <summary>
+    /// The candidates of the recovery: the in-group clients and a bounded set of cross-group ones. Only people who can
+    /// take over a replacement count (<see cref="ReplacementPersonRule"/>), a customer under the root is neither a
+    /// candidate nor part of the cap.
+    /// </summary>
+    /// <param name="underRoot">Active clients under the root of the receiving group</param>
+    /// <param name="inGroupSet">Ids of the receiving group's own subtree</param>
+    /// <param name="groupId">The receiving group, named in the log when the cross-group candidates are capped</param>
+    internal static List<Client> SelectCandidatePool(
+        IReadOnlyList<Client> underRoot, IReadOnlySet<Guid> inGroupSet, Guid groupId, ILogger logger)
     {
-        var inGroup = underRoot.Where(c => inGroupSet.Contains(c.Id)).ToList();
-        var crossGroup = underRoot.Where(c => !inGroupSet.Contains(c.Id)).OrderBy(c => c.Id).ToList();
+        var people = ReplacementPersonRule.EligibleOnly(underRoot).ToList();
+        var inGroup = people.Where(c => inGroupSet.Contains(c.Id)).ToList();
+        var crossGroup = people.Where(c => !inGroupSet.Contains(c.Id)).OrderBy(c => c.Id).ToList();
 
         if (crossGroup.Count > RecoveryBuildConstants.CrossGroupPoolCap)
         {
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Recovery cross-group pool for group {GroupId} capped at {Cap} of {Total} candidates.",
                 groupId, RecoveryBuildConstants.CrossGroupPoolCap, crossGroup.Count);
             crossGroup = crossGroup.Take(RecoveryBuildConstants.CrossGroupPoolCap).ToList();
