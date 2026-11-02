@@ -2,14 +2,15 @@
 
 /// <summary>
 /// What the conflict check of a replacement write has to look at. A new replacement adds its whole window. An update
-/// that keeps person and Work already has the stored window in the substitute's period hours, so only the time it
-/// adds is checked and the time it gives up is taken off the hours; the time it keeps is neither checked nor counted
-/// again. The removals carry the id of the stored change, which no Work of the substitute has, so they only net the
-/// hours and never take a real Work out of the timeline.
+/// that keeps person and Work and only shortens the window, or leaves it as it is, adds nothing and is not checked. An
+/// update that goes beyond the stored window adds the whole new window and removes the whole stored one: the stored
+/// replacement is not in the substitute's timeline, so the day and week limits need the new window in one piece, and it
+/// already counts in the substitute's period hours, so the stored window has to come off them. The removal carries the id
+/// of the stored change, which no Work of the substitute has, so it only nets the hours and never takes a real Work out
+/// of the timeline.
 /// </summary>
 /// <param name="Added">Windows the substitute newly occupies</param>
 /// <param name="Removed">Windows the substitute no longer occupies after the update</param>
-/// <param name="NetsAgainstStored">True when the plan belongs to an update of a stored replacement of the same person and Work</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -19,8 +20,7 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public sealed record ReplacementConflictPlan(
     IReadOnlyList<PlannedWorkRow> Added,
-    IReadOnlyList<PlannedRemovalRow> Removed,
-    bool NetsAgainstStored)
+    IReadOnlyList<PlannedRemovalRow> Removed)
 {
     /// <param name="workChange">The change about to be written; names the substitute</param>
     /// <param name="storedWorkChange">The change as stored before an update; null on create</param>
@@ -35,6 +35,7 @@ public sealed record ReplacementConflictPlan(
         DateTime windowEnd)
     {
         var person = workChange.ReplaceClientId!.Value;
+        var whole = ToAddedRow(person, parentWork, windowStart, windowEnd);
 
         if (storedWorkChange == null
             || storedWorkChange.WorkId != workChange.WorkId
@@ -50,39 +51,15 @@ public sealed record ReplacementConflictPlan(
                 out var storedStart,
                 out var storedEnd))
         {
-            return new ReplacementConflictPlan([ToAddedRow(person, parentWork, windowStart, windowEnd)], [], false);
+            return new ReplacementConflictPlan([whole], []);
         }
 
-        var added = new List<PlannedWorkRow>();
-        var removed = new List<PlannedRemovalRow>();
-        if (windowEnd <= storedStart || windowStart >= storedEnd)
+        if (windowStart >= storedStart && windowEnd <= storedEnd)
         {
-            added.Add(ToAddedRow(person, parentWork, windowStart, windowEnd));
-            removed.Add(ToRemovedRow(person, storedWorkChange.Id, storedStart, storedEnd));
-            return new ReplacementConflictPlan(added, removed, true);
+            return new ReplacementConflictPlan([], []);
         }
 
-        if (windowStart < storedStart)
-        {
-            added.Add(ToAddedRow(person, parentWork, windowStart, storedStart));
-        }
-
-        if (windowEnd > storedEnd)
-        {
-            added.Add(ToAddedRow(person, parentWork, storedEnd, windowEnd));
-        }
-
-        if (storedStart < windowStart)
-        {
-            removed.Add(ToRemovedRow(person, storedWorkChange.Id, storedStart, windowStart));
-        }
-
-        if (windowEnd < storedEnd)
-        {
-            removed.Add(ToRemovedRow(person, storedWorkChange.Id, windowEnd, storedEnd));
-        }
-
-        return new ReplacementConflictPlan(added, removed, true);
+        return new ReplacementConflictPlan([whole], [ToRemovedRow(person, storedWorkChange.Id, storedStart, storedEnd)]);
     }
 
     private static PlannedWorkRow ToAddedRow(Guid person, Work parentWork, DateTime start, DateTime end)

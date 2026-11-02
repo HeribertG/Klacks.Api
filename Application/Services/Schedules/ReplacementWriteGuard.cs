@@ -7,9 +7,9 @@
 /// unconditionally, a block-mode compliance escalation blocks unless an authorized supervisor overrides it. A schedule
 /// collision alone does not block (owner decision 2026-08-22): it is persisted and the async post-commit check reports it.
 /// A replacement that hands no hours over is not checked, since it occupies the substitute for no time.
-/// An update that keeps person and Work is checked for the time it adds only: the stored replacement already counts in
-/// the substitute's period hours, so the time it keeps is neither checked nor counted a second time, and the time it
-/// gives up is taken off the hours.
+/// An update that keeps person and Work and does not go beyond the stored window is not checked; one that does is
+/// checked with its whole window, and the stored window is taken off the hours it would otherwise count a second time
+/// (see <see cref="ReplacementConflictPlan"/>).
 /// </summary>
 /// <param name="clientRepository">Reads the type of the replacement person; its query filter hides deleted clients</param>
 /// <param name="conflictChecker">Finds the conflicts the substitute would get in the handed-over time</param>
@@ -113,9 +113,7 @@ public class ReplacementWriteGuard : IReplacementWriteGuard
         ReplacementConflictPlan plan,
         CancellationToken cancellationToken)
     {
-        var conflictCheck = !plan.NetsAgainstStored
-            ? await _conflictChecker.CheckAsync(plan.Added, null, cancellationToken)
-            : await _conflictChecker.CheckAsync(plan.Added, plan.Removed, null, cancellationToken);
+        var conflictCheck = await _conflictChecker.CheckAsync(plan.Added, plan.Removed, null, cancellationToken);
         if (!conflictCheck.HasHardBlocking && !conflictCheck.HasOverridableBlocking)
         {
             return;
