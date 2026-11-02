@@ -17,8 +17,19 @@
 /// - Y (X=0): 1 Mesai, 2 Ek Mesai, 3 Sosyal Yardımlar, 4 Ek Ödemeler, 5 Ek Kesintiler. Y (X=9): 1 Firma.
 /// - ZT: 01-99, the record number of the mesai/hak line in the tenant's Logo definitions.
 /// - V: XY=00 → 1 Sicil No; X=0 → 2 Gün, 3 Saat, 4 Tutar; X=9 → 2 Ad, 3 Soyad; XY=91 → 1 Firma No.
-/// Accordingly Sicil No is "00001"; Ad and Soyad use X=9 with V=2/3 and Y=0 (the sicil block, since Y=1 is Firma),
-/// i.e. "90002"/"90003" — the document gives the X and V digits, the Y=0/ZT=00 fill is inferred from the scheme.
+/// Identity codes (re-read 2026-11-02): only Sicil No has a code the document pins down — "(XY=00) için 1 Sicil No",
+/// i.e. "00001" (ZT=00, the identity column is no mesai/hak record). For Ad and Soyad the document gives only
+/// "(X=9) için 2 Ad, 3 Soyad"; its Y list for X=9 defines solely "1 Firma Bilgileri", so the Y and ZT digits of the
+/// name codes are not documented. The sister document "Excel'den Ücret Aktarımı"
+/// (https://docs.logo.com.tr/download/attachments/50679955/Support%20Excelden%20%C3%9Ccret%20Aktar%C4%B1m%C4%B1.pdf?api=v2)
+/// does not settle it either: its reference row is six digits ("900001 900002 900003 910001 ..."), the codes are
+/// not explicitly assigned to the columns (Sicil/Ad/Soyad only by position), its own notes write the same fields
+/// with five digits (e.g. "90004" Ücret), and its positional reading would give Sicil No a 9-prefix that contradicts
+/// the puantaj document's explicit XY=00. Writing "90002"/"90003" would therefore be an inferred code that sits
+/// inconsistently next to the documented "00001". The Ad and Soyad code cells are left EMPTY instead (as the
+/// formatter did before): the names are still written as row-3+ data for the reader, and the customer completes the
+/// two cells from row 2 of the blank template their own Logo installation exports ("boş/format aktarım") if their
+/// version requires them. Sicil No is the import key; Logo matches the record by it.
 /// Klacks does not know a tenant's ZT record numbers, so wage-type columns take their code verbatim from the group
 /// config (BaseWageType, SurchargeWageType, each absence mapping's WageType) and the customer copies it from row 2 of
 /// the blank template Logo exports ("boş/format aktarım"). A configured code is only used when it is a valid puantaj
@@ -49,8 +60,6 @@ public class LogoBordroTrExportFormatter : IPayrollExportFormatter
     private const string HeaderAd = "Ad";
     private const string HeaderSoyad = "Soyad";
     private const string SicilNoCode = "00001";
-    private const string AdCode = "90002";
-    private const string SoyadCode = "90003";
     private const string EmptyCode = "";
     private const int ReferenceCodeLength = 5;
     private const char PuantajBlockDigit = '0';
@@ -139,8 +148,8 @@ public class LogoBordroTrExportFormatter : IPayrollExportFormatter
         sheet.Cell(HeaderRowNumber, SoyadColumn).Value = HeaderSoyad;
 
         WriteCode(sheet, SicilNoColumn, SicilNoCode);
-        WriteCode(sheet, AdColumn, AdCode);
-        WriteCode(sheet, SoyadColumn, SoyadCode);
+        WriteCode(sheet, AdColumn, EmptyCode);
+        WriteCode(sheet, SoyadColumn, EmptyCode);
 
         for (var i = 0; i < wageCodes.Count; i++)
         {

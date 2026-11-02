@@ -29,24 +29,32 @@
 /// columns left in months shorter than 31 days (e.g. February: AVANS at AH instead of AK).
 /// Everything else in this header (header texts, merges, numeric hour cells, code cells) is unchanged
 /// and still rests only on the earlier review.
-/// The accompanying spec PDFs are scanned images with no text layer, so the full absence-code
-/// catalogue (concediu/boala codes) could not be verified; AbsenceMappingJson.Ausfallschluessel is
-/// therefore treated as an opaque, tenant-supplied WinMENTOR code and written as-is.
+/// Absence codes: the sister specification for structure 1 ("Structura import pontaje zilnice 1_xls - martie 2021",
+/// https://download2.winmentor.ro/WinMentor/Documentatie/03_SALARII/2022/Structura%20import%20pontaje%20zilnice%201_xls%20-%20martie%202021.pdf,
+/// read 2026-11-02) types every day field as Numeric (max. 2 digits) holding either that day's hours or the
+/// numeric code of an interruption from its legend (codes 25..57, e.g. 33 = Co concediu odihnă, 57 = Tm telemuncă).
+/// AbsenceMappingJson.Ausfallschluessel is the tenant-supplied WinMENTOR code: when it parses as a plain
+/// non-negative integer (e.g. "33") it is written as a number cell, matching the numeric day field; any other
+/// value (e.g. a legacy symbol like "CO") is written as text unchanged, for backward compatibility with
+/// existing mappings. Tenants should map to the numeric legend codes.
 /// Known simplifications, all deliberate MVP scope cuts:
-/// (1) File is written as .xlsx via ClosedXML, not the vendor's original .xls (OLE2/BIFF) — modern
-/// WinMENTOR versions generally accept .xlsx, but this is an assumption, not a confirmed fact.
+/// (1) File is written as .xlsx via ClosedXML, which cannot write the legacy .xls (OLE2/BIFF) format. The
+/// structure-1 specification states the import file type as ".xls (Excel)"; whether a given WinMENTOR version
+/// also accepts .xlsx is not confirmed. If the import rejects the file, the customer has to open it in Excel and
+/// re-save it as "Excel 97-2003 Workbook (*.xls)" before importing.
 /// (2) "Simbol formatie" / "Identi ficator formatie" (department code) are left blank: Klacks'
 /// PayrollExportGroupConfig has no per-employee department-code field to source them from.
-/// (3) Surcharge entries are added into the same day's numeric quantity, exactly like the other
-/// Tier-A/Tier-B formatters do when the target has no dedicated slot; the AVANS/LICHIDARE
-/// "ore suplim.I" / "ore supllim.II" / "ore noapte" sub-columns are always left blank because
+/// (3) A day cell holds worked hours only. Surcharge quantities are premium time (a surcharge on hours
+/// already worked), not additional worked hours, so adding them to the day cell would overstate the worked
+/// time; they are not written and are counted in SkippedUnmappedSurchargeCount (whatever their unit). The
+/// AVANS/LICHIDARE "ore suplim.I" / "ore supllim.II" / "ore noapte" sub-columns are always left blank because
 /// PayrollDayEntry has no overtime-tier or night-hours distinction to source them from.
 /// (4) Klacks has no salary-advance information, so the AVANS block is left empty and the worked days of the
 /// whole month are written to LICHIDARE, following the vendor sample's OBSERVATII rule ("without an advance
 /// leave AVANS empty, month total in LICHIDARE").
 /// (5) A day with a mapped Absence entry writes the absence code instead of hours; an unmapped
 /// Absence is counted in SkippedAbsenceCount (never dropped silently) and the day cell falls back
-/// to that day's summed WorkHours/Surcharge quantity instead. The hours and further absences of a day whose cell
+/// to that day's summed WorkHours quantity instead. The hours and further absences of a day whose cell
 /// holds an absence code (e.g. on-call duty plus a call-out) cannot be written and are counted in
 /// SkippedSupersededCount.
 /// (6) RecordCount here counts emitted employee rows (one row = the whole period), not individual
@@ -56,6 +64,7 @@
 /// cells; they are not written and are counted in SkippedSupersededCount (the closest existing
 /// counter), so they are never dropped silently.
 /// </remarks>
+using System.Globalization;
 using ClosedXML.Excel;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Enums;
@@ -131,7 +140,7 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
 
                 if (absenceCode is not null)
                 {
-                    sheet.Cell(row, column).Value = absenceCode;
+                    WriteAbsenceCode(sheet.Cell(row, column), absenceCode);
                 }
                 else if (hours.HasValue)
                 {
@@ -198,9 +207,26 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
     }
 
     /// <summary>
+    /// Writes a mapped absence code: a plain non-negative integer (the numeric legend codes of the WinMENTOR
+    /// day fields, e.g. 33) as a number cell, anything else as text.
+    /// </summary>
+    private static void WriteAbsenceCode(IXLCell cell, string absenceCode)
+    {
+        if (int.TryParse(absenceCode, NumberStyles.None, CultureInfo.InvariantCulture, out var numericCode))
+        {
+            cell.Value = numericCode;
+        }
+        else
+        {
+            cell.Value = absenceCode;
+        }
+    }
+
+    /// <summary>
     /// Decides the one cell of a day and accounts for every entry of that day: a mapped absence code wins the cell
-    /// and supersedes all other entries of the day (they are counted, not dropped); without one, the hour entries
-    /// are summed into the cell. Unmapped absences, day-based hour entries and unknown kinds are counted.
+    /// and supersedes all other entries of the day (they are counted, not dropped); without one, the WorkHours
+    /// entries are summed into the cell. Surcharge entries are never written (premium time, not worked hours) and
+    /// are counted as unmapped surcharges. Unmapped absences, day-based hour entries and unknown kinds are counted.
     /// </summary>
     private static (string? AbsenceCode, decimal? Hours, bool IsWorkedDay) ResolveDayCell(
         List<PayrollDayEntry>? dayEntries,
@@ -221,11 +247,15 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
         {
             switch (entry.Kind)
             {
-                case PayrollEntryKind.WorkHours or PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                case PayrollEntryKind.Surcharge:
+                    counter.UnmappedSurcharges++;
+                    break;
+
+                case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
                     counter.UnsupportedUnits++;
                     break;
 
-                case PayrollEntryKind.WorkHours or PayrollEntryKind.Surcharge:
+                case PayrollEntryKind.WorkHours:
                     hourEntries.Add(entry);
                     break;
 
