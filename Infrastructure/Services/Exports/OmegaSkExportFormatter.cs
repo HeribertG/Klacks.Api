@@ -1,29 +1,22 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Exports order data as a KROS OMEGA accounting-journal import (Slovakia), a semicolon-delimited
-/// text format using three record types: R00 (format/version header, once), R01 (document header,
-/// one per order) and R02 (document item, one per work entry or expense). R01 fields: record type;
-/// document number; document date (dd.MM.yyyy); partner text; currency; total amount. R02 fields:
-/// record type; item type (0=accounting entry, 1=reimbursement, 2=reduction); worker internal number;
-/// item date (dd.MM.yyyy); text; amount.
+/// Exports order data as a KROS OMEGA text import of accounting documents (Slovakia, data type T00 "EUD").
+/// The file is tab-separated, Windows-1250 encoded, CRLF terminated and uses three record types:
+/// R00 (data type header, once: "R00", "T00"), R01 (document header, one per order) and R02 with item type 0
+/// (accounting entry, one per work entry and one per expense). Each record is written at the column positions
+/// of the KROS field specification; columns Klacks has no data for stay empty.
 /// </summary>
 /// <remarks>
-/// The source spec (docs/knowledge/export-samples/sk-kros-omega-import-fieldspec.xls) is a legacy
-/// binary Excel workbook; no spreadsheet-parsing tool was available in this environment, so its
-/// content was reconstructed from raw string extraction rather than reading the actual cell grid.
-/// That extraction confirms the three record types (R00/R01/R02), the item-type codes (0/1/2) and
-/// several field concepts (worker internal number, dd.MM.yyyy dates, center/order/operation codes),
-/// but NOT the exact column order, delimiter or field widths. The semicolon delimiter and field order
-/// below are a best-effort, clearly provisional reconstruction and must be verified against a real
-/// KROS OMEGA-exported sample before production use — this formatter has materially lower confidence
-/// than the project's other country-pack formatters. Klacks has no chart-of-accounts or Kros
-/// center/order/operation codes, so those fields are left empty; the worker internal number is the
-/// employee's personnel number, mirroring the placeholder-account approach used elsewhere.
-/// Expense mapping: a non-taxable expense (Spesen, reimbursement of advanced money) is written as item
-/// type 1 (reimbursement); a taxable allowance (Vergütung, wage supplement) is written as item type 0
-/// (accounting entry), like the work line. The spec notes define no dedicated item type for a taxable
-/// wage supplement, and the deduction type 2 is never written because neither kind is a deduction.
+/// Source: docs/knowledge/export-samples/sk-kros-omega-import-fieldspec.xls (KROS, Import_24_60.xls), sheet
+/// "Vseobecne - General description" (first row R00, TAB separator, CRLF, Windows ANSI, dates DD.MM.YYYY) and
+/// sheet "EUD" (column grid of R00/T00, R01 and R02 item type 0). R01 fills internal number (E), partner name (G),
+/// date of issue (J), currency (O) and total amount in domestic currency (T). R02 fills item type (B), amount in
+/// domestic currency (G), item text (I) and worker internal number (Y, the employee's personnel number).
+/// Document type (R01 B), tally and sequence codes (R01 C/D, which must exist in OMEGA), VAT fields and the
+/// MD/DAL accounts (R02 C-F) are not known to Klacks and stay empty, so OMEGA cannot book the file without
+/// completing them. Expenses are written as item type 0: item type 1 in the spec is a payment of the document
+/// (payment date, exchange rates, paying document), not an expense reimbursement.
 /// </remarks>
 using System.Globalization;
 using System.Text;
@@ -36,14 +29,27 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class OmegaSkExportFormatter : IExportFormatter
 {
-    private const string Delimiter = ";";
+    private const string Delimiter = "\t";
     private const int Windows1250CodePage = 1250;
-    private const string RecordTypeFormatHeader = "R00";
+    private const string AmountFormat = "F2";
+    private const string RecordTypeDataType = "R00";
     private const string RecordTypeDocumentHeader = "R01";
     private const string RecordTypeDocumentItem = "R02";
-    private const string OmegaFormatVersion = "1.0";
+    private const string DataTypeAccountingDocuments = "T00";
     private const string ItemTypeAccountingEntry = "0";
-    private const string ItemTypeReimbursement = "1";
+
+    private const int DocumentHeaderColumnCount = 29;
+    private const int DocumentHeaderInternalNumberIndex = 4;
+    private const int DocumentHeaderPartnerNameIndex = 6;
+    private const int DocumentHeaderIssueDateIndex = 9;
+    private const int DocumentHeaderCurrencyIndex = 14;
+    private const int DocumentHeaderTotalDomesticIndex = 19;
+
+    private const int ItemColumnCount = 25;
+    private const int ItemTypeIndex = 1;
+    private const int ItemAmountDomesticIndex = 6;
+    private const int ItemTextIndex = 8;
+    private const int ItemWorkerInternalNumberIndex = 24;
 
     public string FormatKey => ExportConstants.FormatOmegaSk;
 
@@ -57,8 +63,7 @@ public class OmegaSkExportFormatter : IExportFormatter
         var currencyCode = string.IsNullOrWhiteSpace(options.CurrencyCode) ? ExportConstants.DefaultCurrencyCode : options.CurrencyCode;
         var documentNumber = 1;
 
-        sb.Append(string.Join(Delimiter, RecordTypeFormatHeader, "OMEGA", OmegaFormatVersion));
-        sb.Append(ExportConstants.LineEnding);
+        AppendRecord(sb, [RecordTypeDataType, DataTypeAccountingDocuments]);
 
         foreach (var order in data.Orders)
         {
@@ -73,27 +78,24 @@ public class OmegaSkExportFormatter : IExportFormatter
                 + w.Changes.Sum(c => c.ChangeTime + c.Surcharges)
                 + w.Expenses.Sum(e => e.Amount));
 
-            sb.Append(string.Join(
-                Delimiter,
-                RecordTypeDocumentHeader,
-                documentNumber.ToString(CultureInfo.InvariantCulture),
-                documentDate.ToString(DateTimeFormats.DottedDate, CultureInfo.InvariantCulture),
-                Sanitize(order.CustomerName ?? order.OrderName),
-                currencyCode,
-                FormatAmount(totalAmount)));
-            sb.Append(ExportConstants.LineEnding);
+            var header = CreateRecord(DocumentHeaderColumnCount, RecordTypeDocumentHeader);
+            header[DocumentHeaderInternalNumberIndex] = documentNumber.ToString(CultureInfo.InvariantCulture);
+            header[DocumentHeaderPartnerNameIndex] = Sanitize(order.CustomerName ?? order.OrderName);
+            header[DocumentHeaderIssueDateIndex] = documentDate.ToString(DateTimeFormats.DottedDate, CultureInfo.InvariantCulture);
+            header[DocumentHeaderCurrencyIndex] = currencyCode;
+            header[DocumentHeaderTotalDomesticIndex] = FormatAmount(totalAmount);
+            AppendRecord(sb, header);
 
             foreach (var work in order.WorkEntries)
             {
                 var workAmount = work.WorkTime + work.Surcharges
                     + work.Changes.Sum(c => c.ChangeTime + c.Surcharges);
 
-                AppendItem(sb, ItemTypeAccountingEntry, work.EmployeeIdNumber, work.WorkDate, work.EmployeeName, workAmount);
+                AppendItem(sb, work.EmployeeIdNumber, work.EmployeeName, workAmount);
 
                 foreach (var expense in work.Expenses)
                 {
-                    var itemType = expense.Taxable ? ItemTypeAccountingEntry : ItemTypeReimbursement;
-                    AppendItem(sb, itemType, work.EmployeeIdNumber, work.WorkDate, expense.Description, expense.Amount);
+                    AppendItem(sb, work.EmployeeIdNumber, expense.Description, expense.Amount);
                 }
             }
 
@@ -103,28 +105,33 @@ public class OmegaSkExportFormatter : IExportFormatter
         return Encoding.GetEncoding(Windows1250CodePage).GetBytes(sb.ToString());
     }
 
-    private static void AppendItem(
-        StringBuilder sb,
-        string itemType,
-        int workerInternalNumber,
-        DateOnly itemDate,
-        string text,
-        decimal amount)
+    private static void AppendItem(StringBuilder sb, int workerInternalNumber, string text, decimal amount)
     {
-        sb.Append(string.Join(
-            Delimiter,
-            RecordTypeDocumentItem,
-            itemType,
-            workerInternalNumber.ToString(CultureInfo.InvariantCulture),
-            itemDate.ToString(DateTimeFormats.DottedDate, CultureInfo.InvariantCulture),
-            Sanitize(text),
-            FormatAmount(amount)));
+        var item = CreateRecord(ItemColumnCount, RecordTypeDocumentItem);
+        item[ItemTypeIndex] = ItemTypeAccountingEntry;
+        item[ItemAmountDomesticIndex] = FormatAmount(amount);
+        item[ItemTextIndex] = Sanitize(text);
+        item[ItemWorkerInternalNumberIndex] = workerInternalNumber.ToString(CultureInfo.InvariantCulture);
+        AppendRecord(sb, item);
+    }
+
+    private static string[] CreateRecord(int columnCount, string recordType)
+    {
+        var record = new string[columnCount];
+        Array.Fill(record, string.Empty);
+        record[0] = recordType;
+        return record;
+    }
+
+    private static void AppendRecord(StringBuilder sb, string[] fields)
+    {
+        sb.Append(string.Join(Delimiter, fields));
         sb.Append(ExportConstants.LineEnding);
     }
 
     private static string FormatAmount(decimal amount)
     {
-        return amount.ToString("F2", CultureInfo.InvariantCulture);
+        return amount.ToString(AmountFormat, CultureInfo.InvariantCulture);
     }
 
     private static string Sanitize(string value)

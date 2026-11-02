@@ -171,6 +171,8 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
             ClientId = clientId,
             IdNumber = client?.IdNumber ?? 0,
             FullName = ClientNameFormatter.LastFirst(client),
+            FirstName = client?.FirstName?.Trim() ?? string.Empty,
+            LastName = client?.Name?.Trim() ?? string.Empty,
         };
 
         employeesById[clientId] = employee;

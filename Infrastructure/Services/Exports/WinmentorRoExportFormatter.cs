@@ -29,9 +29,9 @@
 /// Tier-A/Tier-B formatters do when the target has no dedicated slot; the AVANS/LICHIDARE
 /// "ore suplim.I" / "ore supllim.II" / "ore noapte" sub-columns are always left blank because
 /// PayrollDayEntry has no overtime-tier or night-hours distinction to source them from.
-/// (4) The AVANS (first half) / LICHIDARE (second half) split point is a documented business-
-/// convention assumption (day-of-month &lt;= 15 vs &gt; 15, matching the common Romanian bi-monthly
-/// advance/settlement cycle), not something read from an authoritative WinMENTOR spec.
+/// (4) Klacks has no salary-advance information, so the AVANS block is left empty and the worked days of the
+/// whole month are written to LICHIDARE, following the vendor sample's OBSERVATII rule ("without an advance
+/// leave AVANS empty, month total in LICHIDARE").
 /// (5) A day with a mapped Absence entry writes the absence code instead of hours; an unmapped
 /// Absence is counted in SkippedAbsenceCount (never dropped silently) and the day cell falls back
 /// to that day's summed WorkHours/Surcharge quantity instead. The hours and further absences of a day whose cell
@@ -72,7 +72,6 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
     private const int HeaderRow = 1;
     private const int SubHeaderRow = 2;
     private const int FirstDataRow = 3;
-    private const int AvansHalfMonthLastDay = 15;
 
     public string FormatKey => PayrollExportConstants.FormatKeyWinmentorRo;
 
@@ -106,8 +105,7 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
             sheet.Cell(row, 2).Value = data.StartDate.Month;
             sheet.Cell(row, IdentityColumnCount).Value = employee.IdNumber;
 
-            var avansWorkedDays = 0;
-            var lichidareWorkedDays = 0;
+            var workedDays = 0;
 
             for (var i = 0; i < dates.Count; i++)
             {
@@ -128,19 +126,11 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
 
                 if (isWorkedDay)
                 {
-                    if (date.Day <= AvansHalfMonthLastDay)
-                    {
-                        avansWorkedDays++;
-                    }
-                    else
-                    {
-                        lichidareWorkedDays++;
-                    }
+                    workedDays++;
                 }
             }
 
-            sheet.Cell(row, avansStartColumn).Value = avansWorkedDays;
-            sheet.Cell(row, lichidareStartColumn).Value = lichidareWorkedDays;
+            sheet.Cell(row, lichidareStartColumn).Value = workedDays;
 
             recordCount++;
             row++;

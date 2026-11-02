@@ -9,6 +9,7 @@ using Klacks.Api.Application.DTOs.Exports;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Exports;
 using Klacks.Api.Application.Queries.Exports;
+using Klacks.Api.Application.Services.Exports;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Exports;
@@ -91,7 +92,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
             var overrideApplied = await _overrideApplier.ApplyAsync(filter.Format, options, cancellationToken);
 
             var fileContent = formatter.Format(exportData, options);
-            var fileName = BuildFileName(exportData, formatter.FileExtension);
+            var fileName = ExportFileNameDecorator.Apply(formatter, BuildFileName(exportData, formatter.FileExtension));
 
             var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
 

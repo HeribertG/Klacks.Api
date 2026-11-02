@@ -13,6 +13,7 @@ using Klacks.Api.Application.DTOs.Exports;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Exports;
 using Klacks.Api.Application.Queries.Exports;
+using Klacks.Api.Application.Services.Exports;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Exports;
@@ -267,7 +268,8 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
                     EndDate = filter.UntilDate,
                 };
 
-                var entryName = BuildOrderEntryName(order, formatter.FileExtension, usedEntryNames);
+                var entryName = ExportFileNameDecorator.Apply(
+                    formatter, BuildOrderEntryName(order, formatter.FileExtension, usedEntryNames));
                 WriteZipEntry(archive, entryName, formatter.Format(singleOrderData, options));
             }
 
