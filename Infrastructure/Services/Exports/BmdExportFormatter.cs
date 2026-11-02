@@ -5,8 +5,11 @@
 /// carries the standard BMD column headings, so BMD maps the columns by name without a manual field assignment.
 /// Each work entry and each expense becomes one booking with Buchungssymbol ER, Buchungscode 2 (credit) and a
 /// negated amount, the pattern the FIBU04 interface description shows for ER bookings.
-/// After the standard columns follow Klacks reference columns (kost, auftragskuerzel, stunden, kundennr,
-/// kundenname, extbelegnr, quellsystem, extkundenref).
+/// After the standard columns follow Klacks reference columns (auftragsname, auftragskuerzel, stunden, kundennr,
+/// kundenname, extbelegnr, quellsystem, extkundenref). The order name goes to auftragsname, not to the BMD field
+/// kost (numeric Kostenstelle), which stays out of the file. Text is cut to the BMD limit of 40 characters
+/// (employee name first, then the order name or expense description).
+/// Only hour-bearing changes (corrections, travel) add to the amount; replacements and briefing/debriefing do not.
 /// The amounts are hours (work time plus surcharge time) and expense amounts, not monetary values; the stunden
 /// column carries the plain work time. All numeric values, including stunden, use the de-AT decimal comma.
 /// Konto (employee number) and Gkonto (fixed counter accounts per booking kind) are placeholders that have to be
@@ -39,12 +42,13 @@ public class BmdExportFormatter : IExportFormatter
     private const string WorkCounterAccount = "3600";
     private const string TaxableExpenseCounterAccount = "7600";
     private const string NonTaxableExpenseCounterAccount = "7800";
+    private const int BmdTextMaxLength = 40;
 
     private static readonly string[] HeaderColumns =
     [
         "satzart", "Konto", "Gkonto", "Belegnr", "Buchdatum", "Belegdatum", "Buchsymbol", "Buchcode",
         "Steuercode", "Betrag", "Prozent", "Steuer", "Text", "ZZiel", "Skontopz", "Skontotage",
-        "kost", "auftragskuerzel", "stunden", "kundennr", "kundenname",
+        "auftragsname", "auftragskuerzel", "stunden", "kundennr", "kundenname",
         "extbelegnr", "quellsystem", "extkundenref",
     ];
 
@@ -76,8 +80,7 @@ public class BmdExportFormatter : IExportFormatter
 
             foreach (var work in order.WorkEntries)
             {
-                var totalAmount = work.WorkTime + work.Surcharges
-                    + work.Changes.Sum(c => c.ChangeTime + c.Surcharges);
+                var totalAmount = OrderWorkHours.BillableHours(work);
 
                 AppendBooking(
                     sb,
@@ -85,7 +88,7 @@ public class BmdExportFormatter : IExportFormatter
                     WorkCounterAccount,
                     bookingNumber,
                     totalAmount,
-                    EscapeBmd($"{work.EmployeeName} - {order.OrderName}"),
+                    EscapeBmdText($"{work.EmployeeName} - {order.OrderName}"),
                     FormatAmount(work.WorkTime),
                     orderColumns,
                     customerColumns);
@@ -100,7 +103,7 @@ public class BmdExportFormatter : IExportFormatter
                         expense.Taxable ? TaxableExpenseCounterAccount : NonTaxableExpenseCounterAccount,
                         bookingNumber,
                         expense.Amount,
-                        EscapeBmd($"{expense.Description} - {work.EmployeeName}"),
+                        EscapeBmdText($"{expense.Description} - {work.EmployeeName}"),
                         string.Empty,
                         orderColumns,
                         customerColumns);
@@ -163,9 +166,19 @@ public class BmdExportFormatter : IExportFormatter
         return value.ToString(AmountFormat, CultureInfo.GetCultureInfo(AmountCultureName));
     }
 
-    private static string EscapeBmd(string value)
+    private static string EscapeBmdText(string value)
+    {
+        return EscapeBmd(value, BmdTextMaxLength);
+    }
+
+    private static string EscapeBmd(string value, int? maxLength = null)
     {
         value = CsvFormulaGuard.Neutralize(value);
+
+        if (maxLength is int max && value.Length > max)
+        {
+            value = value[..max];
+        }
 
         if (value.Contains('"') || value.Contains(';') || value.Contains('\n'))
         {

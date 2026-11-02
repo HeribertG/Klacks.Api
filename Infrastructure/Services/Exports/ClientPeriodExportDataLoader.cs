@@ -5,7 +5,10 @@
 /// range, then groups them by client for the client period export. Customer clients are excluded. The export is
 /// not group-scoped: it covers every employee (the caller filters by client visibility). Each absence appears
 /// exactly once - under the earliest work of its client and day, or, on a day without any work, in the client's
-/// Absences list - and a client with only absences in the period is exported too.
+/// Absences list - and a client with only absences in the period is exported too. A soft-deleted employee is still
+/// exported: the Work and Break queries ignore the global query filters (so the Client, Absence and Shift soft-delete
+/// filters do not drop the entry) and apply the entry's own soft-delete, scenario and lock conditions explicitly; the
+/// ClientPeriodHours query likewise ignores its client soft-delete filter.
 /// @param fromDate - Lower bound (inclusive) for Work.CurrentDate
 /// @param untilDate - Upper bound (inclusive) for Work.CurrentDate
 /// </summary>
@@ -34,6 +37,7 @@ public class ClientPeriodExportDataLoader : IClientPeriodExportDataLoader
         CancellationToken cancellationToken = default)
     {
         var works = await _context.Work
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(w => !w.IsDeleted
                 && w.AnalyseToken == null
@@ -49,6 +53,7 @@ public class ClientPeriodExportDataLoader : IClientPeriodExportDataLoader
             .ToListAsync(cancellationToken);
 
         var breaks = await _context.Break
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(b => !b.IsDeleted
                 && b.AnalyseToken == null
@@ -130,6 +135,7 @@ public class ClientPeriodExportDataLoader : IClientPeriodExportDataLoader
         CancellationToken cancellationToken)
     {
         var periodHours = await _context.ClientPeriodHours
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(ph => !ph.IsDeleted
                 && ph.AnalyseToken == null
