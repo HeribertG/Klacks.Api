@@ -128,17 +128,15 @@ public class TimelineCalculationService : ITimelineCalculationService
                 foreach (var change in changes.Where(c =>
                     c.Type is WorkChangeType.ReplacementWithin or WorkChangeType.TravelWithin))
                 {
-                    if (change.Type == WorkChangeType.ReplacementWithin && change.ReplaceClientId.HasValue)
+                    if (change.Type == WorkChangeType.ReplacementWithin
+                        && change.ReplaceClientId.HasValue
+                        && ReplacementWindow.TryGetInterval(
+                            change.Type, work.StartTime, work.EndTime, work.CurrentDate,
+                            change.StartTime, change.EndTime, change.ChangeTime, out var startAt, out var endAt))
                     {
-                        result.Add(CreateBlock(change.Id, ScheduleBlockType.Replacement,
-                            change.ReplaceClientId.Value, work.CurrentDate, change.StartTime, change.EndTime));
-
-                        if (ReplacementWindow.TryGetInterval(
-                                change.Type, work.StartTime, work.EndTime, work.CurrentDate,
-                                change.StartTime, change.EndTime, change.ChangeTime, out var startAt, out var endAt))
-                        {
-                            handedOver.Add((startAt, endAt));
-                        }
+                        result.Add(CreateBlockFromWall(change.Id, ScheduleBlockType.Replacement,
+                            change.ReplaceClientId.Value, startAt, endAt));
+                        handedOver.Add((startAt, endAt));
                     }
                 }
             }

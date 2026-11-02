@@ -415,7 +415,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
                         TimeOnly.FromDateTime(d.StartAt),
                         TimeOnly.FromDateTime(d.EndAt),
                         // The partition runs under the scenario token, so it sees the cloned works.
-                        workIdMap.TryGetValue(d.SourceWorkIds[0], out var clonedId) ? clonedId : null))
+                        workIdMap.TryGetValue(d.SourceWorkIds[0], out var clonedId) ? clonedId : null,
+                        d.MovesAsWhole ? d.ExtraPaidHours : 0m))
                     .ToList()))
             .ToList();
 

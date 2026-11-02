@@ -412,6 +412,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                 segments = SubtractIntervals(startAt, endAt, removed);
             }
 
+            var movesAsWhole = isWork && !immutable && segments is [var whole] && whole == (startAt, endAt);
             var padding = isWork && paddings.TryGetValue(cell.SourceId, out var found) ? found : RecoveryWorkPadding.None;
             for (var index = 0; index < segments.Count; index++)
             {
@@ -431,7 +432,8 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                     [cell.SourceId],
                     lead,
                     trail,
-                    extraPaid);
+                    extraPaid,
+                    movesAsWhole);
                 if (!works.TryGetValue(key, out var list))
                 {
                     list = [];

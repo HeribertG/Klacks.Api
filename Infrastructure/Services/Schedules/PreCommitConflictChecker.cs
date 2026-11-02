@@ -389,7 +389,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
             // of looking like pure additional load on an agent who is also handing a shift away.
             if (removedByClient.TryGetValue(clientId, out var removed))
             {
-                plannedHours.AddRange(removed.Select(row => (row.Date, -ComputePlannedHours(row.StartTime, row.EndTime))));
+                plannedHours.AddRange(removed.Select(row => (row.Date, -ComputePlannedHours(row.StartTime, row.EndTime) - row.ExtraPaidHours)));
             }
 
             conflicts.AddRange(await _periodCapEvaluator.EvaluatePlannedAsync(
