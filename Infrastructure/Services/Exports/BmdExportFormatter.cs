@@ -7,6 +7,11 @@
 /// negated amount, the pattern the FIBU04 interface description shows for ER bookings.
 /// After the standard columns follow Klacks reference columns (kost, auftragskuerzel, stunden, kundennr,
 /// kundenname, extbelegnr, quellsystem, extkundenref).
+/// The amounts are hours (work time plus surcharge time) and expense amounts, not monetary values; the stunden
+/// column carries the plain work time. All numeric values, including stunden, use the de-AT decimal comma.
+/// Konto (employee number) and Gkonto (fixed counter accounts per booking kind) are placeholders that have to be
+/// mapped in BMD. The layout follows the FIBU04 interface description cited below and has not been confirmed
+/// against an official BMD import specification or a BMD test import.
 /// </summary>
 /// <remarks>
 /// Source: EDV Hausleitner, "BMD NTCS Schnittstelle FIBU04", version 1.0-2 of 14.05.2020, chapter 3 (minimum
@@ -81,7 +86,7 @@ public class BmdExportFormatter : IExportFormatter
                     bookingNumber,
                     totalAmount,
                     EscapeBmd($"{work.EmployeeName} - {order.OrderName}"),
-                    work.WorkTime.ToString(AmountFormat, CultureInfo.InvariantCulture),
+                    FormatAmount(work.WorkTime),
                     orderColumns,
                     customerColumns);
 

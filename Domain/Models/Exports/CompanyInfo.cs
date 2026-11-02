@@ -11,4 +11,8 @@ public class CompanyInfo
     public string VatId { get; set; } = string.Empty;
 
     public string CommercialRegister { get; set; } = string.Empty;
+
+    public string? DatevConsultantNumber { get; set; }
+
+    public string? DatevClientNumber { get; set; }
 }

@@ -98,6 +98,8 @@ public static class ExportSampleDataFactory
                     ClientId = EmployeeOneId,
                     IdNumber = 42,
                     FullName = "Æbelø, François",
+                    FirstName = "François",
+                    LastName = "Æbelø",
                     Entries =
                     [
                         new PayrollDayEntry { Date = new DateOnly(2026, 1, 15), Kind = PayrollEntryKind.WorkHours, Quantity = 8.5m },
@@ -110,6 +112,8 @@ public static class ExportSampleDataFactory
                     ClientId = EmployeeTwoId,
                     IdNumber = 77,
                     FullName = "Öhlund, Björn",
+                    FirstName = "Björn",
+                    LastName = "Öhlund",
                     Entries =
                     [
                         new PayrollDayEntry { Date = new DateOnly(2026, 1, 16), Kind = PayrollEntryKind.WorkHours, Quantity = 8m },
@@ -177,6 +181,8 @@ public static class ExportSampleDataFactory
                 TaxId = "99/999/99999",
                 VatId = "DE999999999",
                 CommercialRegister = "HRB 99999",
+                DatevConsultantNumber = "12345",
+                DatevClientNumber = "10001",
             },
         };
     }

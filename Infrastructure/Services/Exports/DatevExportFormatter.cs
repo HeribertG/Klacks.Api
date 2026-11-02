@@ -6,8 +6,14 @@
 /// (EXTF_Buchungsstapel.csv): line 1 is the 31-field header, line 2 the 125 column names of the sample file,
 /// then one 125-field booking per work entry and per expense. Windows-1252, CRLF, semicolon separated,
 /// text fields quoted with doubled quotes, amounts positive with decimal comma and the sign in the S/H field.
-/// Berater and Mandant are mandatory in DATEV but not stored in Klacks, so they stay empty. The fiscal year
-/// start (WJ-Beginn) assumes a fiscal year equal to the calendar year of the export start date.
+/// The amounts are hours (work time plus surcharge time) and expense amounts, not monetary values. The accounts
+/// (employee number) and counter accounts (fixed placeholders per booking kind) are placeholders that have to be
+/// mapped in DATEV; they are not derived from a chart of accounts. The 125-column count is derived from the
+/// column names.
+/// Berater and Mandant come from the DATEV_CONSULTANT_NUMBER and DATEV_CLIENT_NUMBER settings and are written
+/// only when numeric and inside the DATEV range (consultant 1001-9999999, client 1-99999); otherwise the fields
+/// stay empty and DATEV rejects the import until they are set. The fiscal year start (WJ-Beginn) assumes a
+/// fiscal year equal to the calendar year of the export start date. The file name gets the EXTF_ prefix.
 /// </summary>
 using System.Globalization;
 using System.Text;
@@ -18,7 +24,7 @@ using Klacks.Api.Domain.Models.Exports;
 
 namespace Klacks.Api.Infrastructure.Services.Exports;
 
-public class DatevExportFormatter : IExportFormatter
+public class DatevExportFormatter : IExportFormatter, IExportFileNameProvider
 {
     private const string Separator = ";";
     private const int Windows1252CodePage = 1252;
@@ -26,6 +32,7 @@ public class DatevExportFormatter : IExportFormatter
     private const string DoubledQuote = "\"\"";
 
     private const string HeaderMarker = "EXTF";
+    private const string FileNamePrefix = HeaderMarker + "_";
     private const int HeaderVersion = 700;
     private const int DataCategoryBookings = 21;
     private const string FormatName = "Buchungsstapel";
@@ -40,7 +47,6 @@ public class DatevExportFormatter : IExportFormatter
     private const int NotFixed = 0;
     private const string ChartOfAccountsSkr03 = "03";
 
-    private const int ColumnCount = 125;
     private const int BeleginfoPairCount = 8;
     private const int AdditionalInfoPairCount = 20;
     private const int AmountIndex = 0;
@@ -79,16 +85,24 @@ public class DatevExportFormatter : IExportFormatter
     private const int OrderNumberMaxLength = 30;
     private const string DocumentField1SpecialChars = "_$&%*+-/";
     private const string DocumentField1LeadingFormulaChars = "+-";
+    private const string CostCenterSpecialChars = "_ ";
 
     private static readonly NumberFormatInfo DecimalComma = new() { NumberDecimalSeparator = ",", NumberGroupSeparator = string.Empty };
 
     private static readonly string[] ColumnNames = BuildColumnNames();
+
+    private static readonly int ColumnCount = ColumnNames.Length;
 
     public string FormatKey => ExportConstants.FormatDatev;
 
     public string ContentType => ExportConstants.ContentTypeCsv;
 
     public string FileExtension => ".csv";
+
+    public string DecorateFileName(string baseName)
+    {
+        return string.Concat(FileNamePrefix, baseName);
+    }
 
     public byte[] Format(OrderExportData data, ExportOptions options)
     {
@@ -115,8 +129,8 @@ public class DatevExportFormatter : IExportFormatter
             QuoteText(HeaderOrigin),
             QuoteText(string.Empty),
             QuoteText(string.Empty),
-            string.Empty,
-            string.Empty,
+            ToDatevNumber(options.Company.DatevConsultantNumber, DatevNumberRanges.ConsultantNumberMin, DatevNumberRanges.ConsultantNumberMax),
+            ToDatevNumber(options.Company.DatevClientNumber, DatevNumberRanges.ClientNumberMin, DatevNumberRanges.ClientNumberMax),
             string.Concat(data.StartDate.Year.ToString(CultureInfo.InvariantCulture), FiscalYearStartMonthDay),
             AccountLength.ToString(CultureInfo.InvariantCulture),
             data.StartDate.ToString(DateTimeFormats.CompactDate, CultureInfo.InvariantCulture),
@@ -139,6 +153,18 @@ public class DatevExportFormatter : IExportFormatter
         };
 
         return string.Join(Separator, fields);
+    }
+
+    private static string ToDatevNumber(string? value, int min, int max)
+    {
+        if (!int.TryParse(value?.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var number)
+            || number < min
+            || number > max)
+        {
+            return string.Empty;
+        }
+
+        return number.ToString(CultureInfo.InvariantCulture);
     }
 
     private static string[] BuildColumnNames()
@@ -296,7 +322,7 @@ public class DatevExportFormatter : IExportFormatter
 
     private static string ToCostCenter(string value)
     {
-        var allowed = value.Where(c => char.IsLetterOrDigit(c) || c == '_' || c == ' ').ToArray();
+        var allowed = value.Where(c => char.IsLetterOrDigit(c) || CostCenterSpecialChars.Contains(c)).ToArray();
         return Truncate(new string(allowed).Trim(), CostCenterMaxLength);
     }
 
