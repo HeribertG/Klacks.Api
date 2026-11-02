@@ -2,36 +2,41 @@
 
 /// <summary>
 /// Formats employee-centric payroll data as a Merit Palk (Estonia) "Tasude import" CSV
-/// (12 fixed positional fields, semicolon delimiter, UTF-8 encoding, no header row).
-/// Field order: Employee personal ID or contract import code; Employee name (free text);
-/// Reserved free text; Wage/deduction import code; Rate or amount; Quantity (hours);
-/// Reserved (must stay empty); Department code; Cost center code; Project code;
-/// Standard hours; Standard days.
+/// (12 fixed positional columns A–L, semicolon delimiter, comma decimal separator, UTF-8 without BOM,
+/// one header row with the spec's column names, CRLF line endings).
+/// Column order: A employee personal ID or contract import code; B free text (employee name);
+/// C free text; D wage/deduction import code; E rate or amount; F quantity (hours);
+/// G mandatory empty column; H department code; I cost center code; J project code;
+/// K standard hours; L standard days.
+/// One row is written per employee and wage/deduction import code, carrying the hours summed over the period.
 /// </summary>
 /// <remarks>
-/// Source: "Tasude ja kinnipidamiste import failist Merit Palgas" (Merit Tarkvara, May 2023).
-/// The spec's 12 columns do NOT include a per-row date — Merit Palk's import targets a wage
-/// sheet for a period that is already selected in the UI, not a per-day booking. This formatter
-/// still emits one row per PayrollDayEntry (per the day-granular domain model) rather than
-/// aggregating per employee/wage-code across the period; whether Merit Palk sums duplicate
-/// wage-code rows correctly within a single import is not stated in the spec and is unverified.
-/// Fields 1 (employee code) and 4 (wage/deduction import code) are always mandatory; field 7 is
-/// mandatory-empty. The spec also marks fields 5 (rate/amount) and 6 (quantity) as required: Merit
-/// derives the amount for time-based wage types from the contract rate x quantity, so a filled
-/// field 6 alone is accepted for those, but fixed-amount wage types ("Summa x Kogus x Koefitsient")
-/// reject a row whose field 5 is empty. This formatter always fills field 6 (quantity/hours) and
-/// leaves field 5 empty because the domain model carries no monetary amount — a known limitation
-/// that is correct for time-based wage types and unsupported for fixed-amount ones. For
-/// deductions (kinnipidamised), the spec requires the import code to carry a leading minus sign
-/// in the file even though the wage-type card shows it as positive; this formatter does not add
-/// the sign itself — the value stored per absence in AbsenceMappingJson must already include the
-/// correct sign, consistent with how BaseWageType/SurchargeWageType are stored as literal
-/// tenant-specific values. Rows for worked hours are always emitted (base wage type may be an
-/// empty placeholder until configured); surcharge rows are emitted only when a surcharge wage
-/// type is configured; absence rows are emitted only when the absence is mapped — unmapped
-/// absences are counted in SkippedAbsenceCount instead of being dropped silently. Field 6 carries hours, so a
-/// day-based entry (PayrollQuantityUnit.Days, on-call duty) has no correct place in this layout: it is not emitted
-/// and counted in SkippedUnsupportedUnitCount, never written as one hour.
+/// Spec sources (verified 2026-11-02):
+/// "Tasude ja kinnipidamiste import failist Merit Palgas", Merit Tarkvara, May 2023,
+/// https://www.merit.ee/juhend/muud-palk/merit-palga-tasude-import-formaadi-kirjeldus.pdf, and the English help-center
+/// article https://support.merit.ee/en/articles/455154-salaries-and-withholdings-import-from-file-in-merit-palk.
+/// Verified against the spec: "Kodeering: UTF-8"; "Andmeväljade eraldaja: semikoolon" (the delimiter is therefore
+/// fixed and config.Delimiter / config.Encoding are ignored); "Murdosa eraldaja arvudes: koma"; the 12 columns and
+/// their order; A and D mandatory; G "kohustuslik tühi veerg"; at least one of E/F filled; F = hours for hourly and
+/// monthly wages; columns from M on are ignored. The spec requires column names in the first row "kui ei impordita
+/// korraga kõiki andmeid" (when not all columns are filled) — this formatter never fills E and H–L, so it always
+/// writes a header row; the spec prescribes no exact header text, so the spec's own Estonian column labels are used.
+/// The layout has no date column: the import targets the wage sheet of the period selected in the UI. The spec does
+/// not say whether repeated rows for the same employee and code are summed or replace each other, so entries are
+/// aggregated per employee and import code (summed exactly, then rounded once to 2 decimals, midpoint away from
+/// zero; the spec does not state a precision). Numbers are written with a fixed invariant-based format (comma
+/// decimal, ASCII minus, no grouping) instead of the et-EE culture, whose ICU data uses U+2212 as the minus sign
+/// and depends on ICU being present. Rows with an empty import code are never written because D is mandatory:
+/// worked hours without BaseWageType count as SkippedUnmappedBaseWageCount, surcharges without SurchargeWageType as
+/// SkippedUnmappedSurchargeCount, unmapped or empty-mapped absences as SkippedAbsenceCount. Day-based entries
+/// (PayrollQuantityUnit.Days) have no place in F (hours) — column L is the standard-days norm, not actual days — and
+/// are counted in SkippedUnsupportedUnitCount. Not covered by the spec and left as-is: BOM (none written), line
+/// endings (CRLF), quoting (none; CR/LF and ';' are stripped from values). Known limitations: column A carries the
+/// Klacks IdNumber, which Merit only matches if it was entered as the contract import code ("lepingu impordi kood")
+/// in Merit — the domain model carries no Estonian personal ID code; column E stays empty because the model carries
+/// no monetary amount, so fixed-amount wage types ("Summa x Kogus x Koefitsient") are not supported. Deduction codes
+/// must carry a leading minus in the file; the formatter does not add it, so the value stored in AbsenceMappingJson
+/// must already include the sign.
 /// </remarks>
 using System.Globalization;
 using System.Text;
@@ -44,9 +49,36 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class MeritPalkEeExportFormatter : IPayrollExportFormatter
 {
-    private const string QuantityFormat = "F2";
-    private const string EstonianCulture = "et-EE";
+    private const string Delimiter = ";";
+    private const string DecimalSeparator = ",";
+    private const string QuantityFormat = "0.00";
+    private const int QuantityDecimals = 2;
     private const string EmptyField = "";
+
+    private const int ColumnEmployeeCode = 0;
+    private const int ColumnEmployeeName = 1;
+    private const int ColumnImportCode = 3;
+    private const int ColumnQuantity = 5;
+
+    private static readonly string[] HeaderColumns =
+    [
+        "töötaja isikukood või lepingu impordi kood",
+        "vaba sisuga veerg",
+        "vaba sisuga veerg",
+        "tasuliigi või kinnipidamise impordi kood",
+        "määr või summa",
+        "kogus",
+        "kohustuslik tühi veerg",
+        "osakonna kood",
+        "kulukoha kood",
+        "projekti kood",
+        "normtundide arv",
+        "normpäevade arv",
+    ];
+
+    private static readonly NumberFormatInfo QuantityNumberFormat = CreateQuantityNumberFormat();
+
+    private static readonly UTF8Encoding Utf8WithoutBom = new(encoderShouldEmitUTF8Identifier: false);
 
     public string FormatKey => PayrollExportConstants.FormatKeyMeritPalkEe;
 
@@ -56,81 +88,108 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
 
     public PayrollExportResult Format(PayrollExportData data, PayrollExportGroupConfig config)
     {
-        var delimiter = string.IsNullOrEmpty(config.Delimiter)
-            ? PayrollExportConstants.DefaultDelimiter
-            : config.Delimiter;
-        var culture = CultureInfo.GetCultureInfo(EstonianCulture);
         var counter = new PayrollExportSkipCounter();
         var absenceMapping = PayrollAbsenceMappingParser.Parse<string>(config.AbsenceMappingJson, counter);
 
         var sb = new StringBuilder();
+        AppendFields(sb, HeaderColumns);
+        var recordCount = 0;
 
         foreach (var employee in data.Employees)
         {
-            var personnelCode = employee.IdNumber.ToString(CultureInfo.InvariantCulture);
-            var employeeName = employee.FullName;
+            var importCodeOrder = new List<string>();
+            var totals = new Dictionary<string, decimal>(StringComparer.Ordinal);
 
             foreach (var entry in employee.Entries)
             {
-                var quantity = entry.Quantity.ToString(QuantityFormat, culture);
-
-                switch (entry.Kind)
+                var importCode = ResolveImportCode(entry, config, absenceMapping, counter);
+                if (importCode == null)
                 {
-                    case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
-                    case PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
-                        counter.UnsupportedUnits++;
-                        continue;
-
-                    case PayrollEntryKind.WorkHours:
-                        AppendLine(sb, delimiter, personnelCode, employeeName, config.BaseWageType, quantity);
-                        counter.Emitted++;
-                        break;
-
-                    case PayrollEntryKind.Surcharge:
-                        if (string.IsNullOrEmpty(config.SurchargeWageType))
-                        {
-                            counter.UnmappedSurcharges++;
-                            continue;
-                        }
-
-                        AppendLine(sb, delimiter, personnelCode, employeeName, config.SurchargeWageType, quantity);
-                        counter.Emitted++;
-                        break;
-
-                    case PayrollEntryKind.Absence:
-                        var key = entry.AbsenceId?.ToString();
-                        if (key == null || !absenceMapping.TryGetValue(key, out var importCode))
-                        {
-                            counter.UnmappedAbsences++;
-                            continue;
-                        }
-
-                        if (entry.Unit != PayrollQuantityUnit.Hours)
-                        {
-                            counter.UnsupportedUnits++;
-                            continue;
-                        }
-
-                        AppendLine(sb, delimiter, personnelCode, employeeName, importCode, quantity);
-                        counter.Emitted++;
-                        break;
-
-                    default:
-                        counter.UnsupportedKinds++;
-                        continue;
+                    continue;
                 }
+
+                if (!totals.ContainsKey(importCode))
+                {
+                    importCodeOrder.Add(importCode);
+                    totals[importCode] = 0m;
+                }
+
+                totals[importCode] += entry.Quantity;
+                counter.Emitted++;
+            }
+
+            var personnelCode = employee.IdNumber.ToString(CultureInfo.InvariantCulture);
+
+            foreach (var importCode in importCodeOrder)
+            {
+                AppendLine(sb, personnelCode, employee.FullName, importCode, FormatQuantity(totals[importCode]));
+                recordCount++;
             }
         }
 
-        return counter.ToResult(Encoding.UTF8.GetBytes(sb.ToString()), counter.Emitted);
+        return counter.ToResult(Utf8WithoutBom.GetBytes(sb.ToString()), recordCount);
+    }
+
+    private static string? ResolveImportCode(
+        PayrollDayEntry entry,
+        PayrollExportGroupConfig config,
+        Dictionary<string, string> absenceMapping,
+        PayrollExportSkipCounter counter)
+    {
+        switch (entry.Kind)
+        {
+            case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
+            case PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                counter.UnsupportedUnits++;
+                return null;
+
+            case PayrollEntryKind.WorkHours:
+                if (string.IsNullOrEmpty(Sanitize(config.BaseWageType)))
+                {
+                    counter.UnmappedBaseWages++;
+                    return null;
+                }
+
+                return Sanitize(config.BaseWageType);
+
+            case PayrollEntryKind.Surcharge:
+                if (string.IsNullOrEmpty(Sanitize(config.SurchargeWageType)))
+                {
+                    counter.UnmappedSurcharges++;
+                    return null;
+                }
+
+                return Sanitize(config.SurchargeWageType);
+
+            case PayrollEntryKind.Absence:
+                var key = entry.AbsenceId?.ToString();
+                if (key == null
+                    || !absenceMapping.TryGetValue(key, out var importCode)
+                    || string.IsNullOrEmpty(Sanitize(importCode)))
+                {
+                    counter.UnmappedAbsences++;
+                    return null;
+                }
+
+                if (entry.Unit != PayrollQuantityUnit.Hours)
+                {
+                    counter.UnsupportedUnits++;
+                    return null;
+                }
+
+                return Sanitize(importCode);
+
+            default:
+                counter.UnsupportedKinds++;
+                return null;
+        }
     }
 
     private static void AppendLine(
         StringBuilder sb,
-        string delimiter,
         string personnelCode,
         string employeeName,
-        string wageImportCode,
+        string importCode,
         string quantity)
     {
         var fields = new string[PayrollExportConstants.MeritPalkFieldCount];
@@ -139,16 +198,35 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
             fields[i] = EmptyField;
         }
 
-        fields[0] = Sanitize(personnelCode, delimiter);
-        fields[1] = Sanitize(employeeName, delimiter);
-        fields[3] = Sanitize(wageImportCode, delimiter);
-        fields[5] = Sanitize(quantity, delimiter);
+        fields[ColumnEmployeeCode] = Sanitize(personnelCode);
+        fields[ColumnEmployeeName] = Sanitize(employeeName);
+        fields[ColumnImportCode] = importCode;
+        fields[ColumnQuantity] = quantity;
 
-        sb.Append(string.Join(delimiter, fields));
+        AppendFields(sb, fields);
+    }
+
+    private static void AppendFields(StringBuilder sb, string[] fields)
+    {
+        sb.Append(string.Join(Delimiter, fields));
         sb.Append(PayrollExportConstants.LineEnding);
     }
 
-    private static string Sanitize(string? value, string delimiter)
+    private static string FormatQuantity(decimal value)
+    {
+        var rounded = Math.Round(value, QuantityDecimals, MidpointRounding.AwayFromZero);
+        return rounded.ToString(QuantityFormat, QuantityNumberFormat);
+    }
+
+    private static NumberFormatInfo CreateQuantityNumberFormat()
+    {
+        var format = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+        format.NumberDecimalSeparator = DecimalSeparator;
+        format.NumberGroupSeparator = EmptyField;
+        return NumberFormatInfo.ReadOnly(format);
+    }
+
+    private static string Sanitize(string? value)
     {
         if (string.IsNullOrEmpty(value))
         {
@@ -158,6 +236,7 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
         return value
             .Replace("\r", EmptyField)
             .Replace("\n", EmptyField)
-            .Replace(delimiter, EmptyField);
+            .Replace(Delimiter, EmptyField)
+            .Trim();
     }
 }

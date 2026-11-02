@@ -1795,6 +1795,8 @@
   "periodClosing.form.searchPlaceholder": "缩写、姓名、客户、客户编号…",
   "periodClosing.form.startDate": "开始日期",
   "periodClosing.format.abaconnect-ch": "AbaConnect（瑞士）",
+  "periodClosing.format.banana-ch": "Banana (CH)",
+  "periodClosing.format.klara-ch": "KLARA (CH)",
   "periodClosing.format.bmd": "BMD NTCS",
   "periodClosing.format.brightpay-ie-uk": "BrightPay（爱尔兰/英国）",
   "periodClosing.format.brightpay-ie-uk-daily": "BrightPay（爱尔兰/英国） – 按日",

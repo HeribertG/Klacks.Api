@@ -14,6 +14,12 @@ namespace Klacks.Api.Application.Services.Exports;
 
 public static class ExportSampleDataFactory
 {
+    // Logo Bordro only accepts five-digit puantaj reference codes (0 + group 1-5 + record 01-99 + unit 2/3),
+    // so its sample config uses valid Saat codes instead of the generic wage types.
+    private const string LogoSampleBaseWageCode = "01013";
+    private const string LogoSampleSurchargeWageCode = "02013";
+    private const string LogoSampleAbsenceWageCode = "01023";
+
     public static readonly Guid SampleAbsenceId = Guid.Parse("a2000000-0000-4000-8000-000000000002");
 
     private static readonly Guid OrderShiftId = Guid.Parse("a3000000-0000-4000-8000-000000000003");
@@ -125,14 +131,16 @@ public static class ExportSampleDataFactory
 
     public static PayrollExportGroupConfig CreatePayrollSampleConfig(string targetSystem)
     {
+        var isLogoBordro = targetSystem == PayrollExportConstants.FormatKeyLogoBordroTr;
+
         return new PayrollExportGroupConfig
         {
             TargetSystem = targetSystem,
             Delimiter = PayrollExportConstants.DefaultDelimiter,
             Encoding = PayrollExportConstants.DefaultEncoding,
-            BaseWageType = "1000",
-            SurchargeWageType = "1010",
-            AbsenceMappingJson = "{\"" + SampleAbsenceId + "\":{\"WageType\":\"2000\",\"Ausfallschluessel\":\"K\"}}",
+            BaseWageType = isLogoBordro ? LogoSampleBaseWageCode : "1000",
+            SurchargeWageType = isLogoBordro ? LogoSampleSurchargeWageCode : "1010",
+            AbsenceMappingJson = "{\"" + SampleAbsenceId + "\":{\"WageType\":\"" + (isLogoBordro ? LogoSampleAbsenceWageCode : "2000") + "\",\"Ausfallschluessel\":\"K\"}}",
         };
     }
 

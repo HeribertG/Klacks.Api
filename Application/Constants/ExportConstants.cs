@@ -17,6 +17,7 @@ public static class ExportConstants
     public const string FormatOmegaSk = "omega-sk";
     public const string FormatTemeljnicaHrSi = "temeljnica-hr-si";
     public const string FormatZohoBooksAe = "zoho-books-ae";
+    public const string FormatBananaCh = "banana-ch";
     public const string RangeFormatPrefix = "range-";
 
     public static readonly IReadOnlyList<string> FixedFormatKeys = new[] { FormatCsv, FormatJson, FormatXml };

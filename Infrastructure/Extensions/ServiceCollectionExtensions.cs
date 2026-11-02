@@ -514,6 +514,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.Sie4bSeExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.TemeljnicaHrSiExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.ZohoBooksAeExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.BananaChExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.DatevLugBewegungsdatenFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.GenericDelimitedPayrollExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.GenericXlsxPayrollExportFormatter>();
@@ -525,6 +526,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.BrightpayIeUkExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.BrightpayIeUkDailyExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.LogoBordroTrExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.KlaraChExportFormatter>();
         services.AddScoped<Application.Interfaces.Imports.IOrderImportParser, Services.Imports.XmlOrderImportParser>();
     }
 }

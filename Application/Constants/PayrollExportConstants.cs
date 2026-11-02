@@ -18,6 +18,8 @@ public static class PayrollExportConstants
 
     public const string FormatKeyAbaconnectCh = "abaconnect-ch";
 
+    public const string FormatKeyKlaraCh = "klara-ch";
+
     public const string FormatKeyGenericPayrollCsv = "generic-payroll-csv";
 
     public const string FormatKeyGenericPayrollXlsx = "generic-payroll-xlsx";
