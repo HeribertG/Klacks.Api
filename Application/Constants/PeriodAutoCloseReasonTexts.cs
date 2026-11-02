@@ -15,7 +15,7 @@ namespace Klacks.Api.Application.Constants;
 public static class PeriodAutoCloseReasonTexts
 {
     public const string Allowed =
-        "Klacksy closes this group's periods on its own once the close date has been reached, provided the period then contains no errors.";
+        "Klacksy closes this group's periods on its own once the close date has been reached, provided the period then contains no errors and every service of it has been confirmed.";
 
     public const string KillSwitch =
         "The master off switch for self-directed action in Klacksy Scope of Action is on, so Klacksy only reminds.";

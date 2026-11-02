@@ -10,6 +10,8 @@
 /// from it the skill changes nothing and seals nothing. A group is required: a period cycle, the close date and the
 /// sealed state exist per group, and SealedDayRepository without a group returns the day locks of every group.
 /// The group is resolved with the Strict policy of close_period, so the advice is about the group a close would hit.
+/// The number of services of the period that are not sealed yet comes from IPeriodSealCompletenessGuard, the check the close
+/// handlers and the automatic close use, and makes the verdict ConfirmServicesFirst, because no acknowledgement lifts that refusal.
 /// GetSealingSummaryAsync counts container children, as the seal acts on them too, hence only days are reported here.
 /// </summary>
 /// <param name="startDate">Optional. Period start in ISO yyyy-MM-dd (inclusive); pass together with endDate.</param>
@@ -19,6 +21,7 @@
 
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.PeriodClosing;
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Application.Services.Assistant.Triggers;
@@ -59,6 +62,7 @@ public class EvaluatePeriodCloseReadinessSkill : BaseSkillImplementation
     private readonly IScheduleActivityProbe _activityProbe;
     private readonly IPeriodAuditLogRepository _auditLogRepository;
     private readonly IWorkRepository _workRepository;
+    private readonly IPeriodSealCompletenessGuard _sealCompletenessGuard;
 
     public EvaluatePeriodCloseReadinessSkill(
         IMediator mediator,
@@ -70,7 +74,8 @@ public class EvaluatePeriodCloseReadinessSkill : BaseSkillImplementation
         ISealedDayRepository sealedDayRepository,
         IScheduleActivityProbe activityProbe,
         IPeriodAuditLogRepository auditLogRepository,
-        IWorkRepository workRepository)
+        IWorkRepository workRepository,
+        IPeriodSealCompletenessGuard sealCompletenessGuard)
     {
         _mediator = mediator;
         _groupRepository = groupRepository;
@@ -82,6 +87,7 @@ public class EvaluatePeriodCloseReadinessSkill : BaseSkillImplementation
         _activityProbe = activityProbe;
         _auditLogRepository = auditLogRepository;
         _workRepository = workRepository;
+        _sealCompletenessGuard = sealCompletenessGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -181,6 +187,9 @@ public class EvaluatePeriodCloseReadinessSkill : BaseSkillImplementation
         var issues = isCheckable
             ? await _mediator.Send(new GetPeriodIssuesQuery(periodStart, periodEnd, group.Id), cancellationToken)
             : [];
+        var unsealedWorks = isCheckable
+            ? await _sealCompletenessGuard.CountUnsealedAsync(periodStart, periodEnd, group.Id, cancellationToken)
+            : 0;
 
         return new PeriodCloseReadinessFacts(
             group.Id,
@@ -194,6 +203,7 @@ public class EvaluatePeriodCloseReadinessSkill : BaseSkillImplementation
             PeriodCloseGates.CountErrors(issues),
             issues.Count(issue => issue.Severity == ScheduleValidationType.Warning),
             sealedDates.Count,
-            unsealedDays);
+            unsealedDays,
+            unsealedWorks);
     }
 }

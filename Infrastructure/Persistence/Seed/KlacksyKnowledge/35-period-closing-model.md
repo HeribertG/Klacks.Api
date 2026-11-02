@@ -52,6 +52,8 @@ The page is for administrators only (de: "Periodenabschluss", en: "Period Closin
 
 ### What happens at once
 
+Before anything is sealed the close checks that every service of the period is confirmed (a service can only be confirmed after it has ended). If one is not, the close is refused with the number and the first open services, and this cannot be confirmed away; with a group chosen only the services on that group's own shifts count. Absences need no confirmation first.
+
 1. The work entries and absences of the period are set to the highest lock stage (closed). Only the real plan is touched, never scenario drafts.
 2. A day lock is written for every day of the period. The day locks are the authoritative record of what was frozen.
 3. An audit entry is written in the same transaction: who, when, which period, which group, the reason and how many entries were affected.
@@ -64,7 +66,7 @@ On a locked day the server refuses to create, change or delete work entries, wor
 
 ### Approving is not closing
 
-An entry has four lock stages: open, confirmed, approved, closed. Confirming is the first step and needs no special role. Approving a day for a group needs a supervisor or an administrator; it also writes a day lock for that group, so the day is already locked for its members, and the approving group can withdraw it again. Closing covers a whole period, needs an administrator, and so does reopening; a reason is mandatory.
+An entry has four lock stages: open, confirmed, approved, closed. Confirming is the first step and needs no special role; a service can only be confirmed after it has ended, and the close needs every service of the period confirmed. Approving a day for a group needs a supervisor or an administrator; it also writes a day lock for that group, so the day is already locked for its members, and the approving group can withdraw it again. Closing covers a whole period, needs an administrator, and so does reopening; a reason is mandatory.
 
 ### Payroll
 

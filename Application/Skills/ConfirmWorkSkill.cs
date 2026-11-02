@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Skill that locks a Work entry at LockLevel=Confirmed (1). After this, the cell is immutable for
-/// Wizards 1+2+3. Wraps ConfirmWorkCommand so period-hour recalculation stays consistent.
+/// Wizards 1+2+3. Wraps ConfirmWorkCommand so period-hour recalculation stays consistent. The command refuses a service that
+/// has not ended yet on the company clock; the refusal reaches the caller as the skill result and nothing is locked.
 /// </summary>
 /// <param name="workId">UUID of the Work to confirm.</param>
 

@@ -435,14 +435,14 @@
     "aprobat, fă exact așa"
   ],
   "confirm_work": [
-    "confirmă work-ul",
-    "fixează asignarea",
-    "blochează tura",
-    "securizează programarea",
-    "confirmă tura lui yasmine",
-    "fă această alocare definitivă",
-    "protejează tura de wizarduri",
-    "pune alocarea de mâine pe confirmat"
+    "confirmă această tură",
+    "confirmă serviciul",
+    "serviciul a avut loc",
+    "marchează tura ca lucrată",
+    "confirmă asignarea de ieri",
+    "setează această intrare de lucru ca confirmată",
+    "confirmă că munca a fost făcută",
+    "confirmă tura de dimineață a lui yasmine"
   ],
   "cover_absence": [
     "acoperă absența",

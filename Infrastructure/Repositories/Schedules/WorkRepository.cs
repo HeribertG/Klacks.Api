@@ -248,17 +248,74 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
+    public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, ServiceEndCutoff endedBy, CancellationToken cancellationToken = default)
     {
         var stamp = BulkUpdateAuditStamp.Now(context);
         var sealedAt = stamp.At;
         return await context.Work
             .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate == date && w.LockLevel < level)
+            .Where(WorkServiceEnd.EndedBy(endedBy))
             .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
             .ExecuteUpdateAsync(s => stamp.ApplyTo(s
                 .SetProperty(w => w.LockLevel, level)
                 .SetProperty(w => w.SealedAt, sealedAt)
                 .SetProperty(w => w.SealedBy, sealedBy)), cancellationToken);
+    }
+
+    public async Task<bool> HasUnendedByDayAndGroupAsync(DateOnly date, Guid groupId, WorkLockLevel level, ServiceEndCutoff endedBy, CancellationToken cancellationToken = default)
+    {
+        return await context.Work
+            .AsNoTracking()
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate == date && w.LockLevel < level)
+            .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
+            .Where(WorkServiceEnd.NotEndedBy(endedBy))
+            .AnyAsync(cancellationToken);
+    }
+
+    public async Task<int> CountUnsealedForCloseAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, CancellationToken cancellationToken = default)
+    {
+        return await UnsealedParentWorksIn(startDate, endDate, groupId).CountAsync(cancellationToken);
+    }
+
+    public async Task<List<UnsealedWorkDto>> ListUnsealedForCloseAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, int limit, CancellationToken cancellationToken = default)
+    {
+        var rows = await UnsealedParentWorksIn(startDate, endDate, groupId)
+            .AsNoTracking()
+            .OrderBy(w => w.CurrentDate)
+            .ThenBy(w => w.StartTime)
+            .ThenBy(w => w.Id)
+            .Take(limit)
+            .Select(w => new
+            {
+                w.Id,
+                w.ClientId,
+                ClientFirstName = w.Client!.FirstName,
+                ClientName = w.Client.Name,
+                ClientCompany = w.Client.Company,
+                w.CurrentDate,
+                w.StartTime,
+                w.EndTime,
+                ShiftName = w.Shift!.Name
+            })
+            .ToListAsync(cancellationToken);
+
+        return rows
+            .Select(r => new UnsealedWorkDto(
+                r.Id, r.ClientId, UnsealedWorkClientName(r.ClientFirstName, r.ClientName, r.ClientCompany),
+                r.CurrentDate, r.StartTime, r.EndTime, r.ShiftName))
+            .ToList();
+    }
+
+    private IQueryable<Work> UnsealedParentWorksIn(DateOnly startDate, DateOnly endDate, Guid? groupId)
+    {
+        var works = groupId.HasValue ? GroupWorksIn(startDate, endDate, groupId.Value) : MainScheduleWorksIn(startDate, endDate);
+        return works.Where(w => w.ParentWorkId == null && w.LockLevel < WorkLockLevel.Confirmed && !w.Client!.IsDeleted);
+    }
+
+    private static string UnsealedWorkClientName(string? firstName, string name, string? company)
+    {
+        var person = string.Join(' ', new[] { firstName, name }.Where(part => !string.IsNullOrWhiteSpace(part)));
+        return person.Length > 0 ? person : company?.Trim() ?? string.Empty;
     }
 
     public async Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)

@@ -445,15 +445,14 @@
     "schváleno, udělej to přesně takhle"
   ],
   "confirm_work": [
-    "potvrď směnu",
-    "fixuj tuto směnu",
-    "uzamkni přiřazení",
-    "potvrď yasmine ranní směnu",
-    "zamkni směnu",
-    "schval přiřazení",
-    "označ toto přiřazení jako konečné",
-    "ochraň tuto směnu před wizardy",
-    "chci zamknout zítřejší službu"
+    "potvrď tuto směnu",
+    "potvrď službu",
+    "služba proběhla",
+    "označ směnu jako odpracovanou",
+    "potvrď včerejší přiřazení",
+    "nastav tento záznam práce na potvrzeno",
+    "potvrď, že práce byla vykonána",
+    "potvrď yasmine ranní směnu"
   ],
   "cover_absence": [
     "zajistit náhradu za absenci",

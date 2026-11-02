@@ -439,14 +439,14 @@
     "zgoda, wykonaj dokładnie tak"
   ],
   "confirm_work": [
-    "potwierdź zmianę",
-    "zablokuj przypisanie",
-    "ustal tę zmianę",
-    "zatwierdź pracę",
-    "zablokuj shift",
-    "zrób to przypisanie ostatecznym",
-    "zabezpiecz tę zmianę przed kreatorami",
-    "ustaw wpis pracy jako potwierdzony"
+    "potwierdź tę zmianę",
+    "potwierdź dyżur",
+    "dyżur się odbył",
+    "oznacz zmianę jako przepracowaną",
+    "potwierdź wczorajsze przypisanie",
+    "ustaw ten wpis pracy jako potwierdzony",
+    "potwierdź, że praca została wykonana",
+    "potwierdź poranną zmianę yasmine"
   ],
   "cover_absence": [
     "pokryj nieobecność pracownika",

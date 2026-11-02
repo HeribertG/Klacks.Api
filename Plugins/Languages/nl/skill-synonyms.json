@@ -437,14 +437,14 @@
     "goedgekeurd, precies zo uitvoeren"
   ],
   "confirm_work": [
-    "bevestig de shift van yasmine",
-    "lock deze dienst vast",
-    "fixeer de toewijzing",
-    "zet de werkentry op bevestigd",
-    "beveilig de vroege shift",
-    "maak deze toewijzing definitief",
-    "bescherm deze dienst tegen de wizards",
-    "ik wil de inzet van morgen vastzetten"
+    "bevestig deze shift",
+    "bevestig de dienst",
+    "de dienst heeft plaatsgevonden",
+    "markeer de shift als gewerkt",
+    "bevestig de toewijzing van gisteren",
+    "zet deze werkentry op bevestigd",
+    "bevestig dat het werk is gedaan",
+    "bevestig de vroege shift van yasmine"
   ],
   "cover_absence": [
     "organiseer vervanging bij afwezigheid",

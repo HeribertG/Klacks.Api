@@ -14379,7 +14379,7 @@
     {
       "name": "confirm_work",
       "area": "schedule",
-      "description": "Locks a Work entry at LockLevel=Confirmed (1) so Wizards 1+2+3 will no longer modify the cell. Use when the user says: 'fix this shift', 'lock the assignment', 'confirm Yasmines Frühschicht', 'bestätige diese Schicht'. Wraps ConfirmWorkCommand; period-hour recalc runs automatically.",
+      "description": "Confirms that a Work entry (a service) took place: locks it at LockLevel=Confirmed (1) so Wizards 1+2+3 no longer modify the cell. Use when the user says: 'confirm Yasmines Frühschicht', 'bestätige diese Schicht', 'der Dienst hat stattgefunden'. Wraps ConfirmWorkCommand; period-hour recalc runs automatically. Possible only after the service has ended.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14403,55 +14403,53 @@
       "triggerKeywords": {
         "de": [
           "bestätigen",
-          "schicht fixieren"
+          "dienst hat stattgefunden"
         ],
         "en": [
-          "lock work",
-          "fix shift"
+          "confirm service",
+          "service took place"
         ]
       },
       "synonyms": {
         "de": [
           "bestätigen",
-          "fixieren",
-          "sperren",
-          "schicht fixieren",
+          "dienst bestätigen",
           "arbeit bestätigen",
-          "diesen einsatz festschreiben",
-          "ich möchte die zuweisung gegen automatische änderungen schützen",
-          "schicht von morgen verbindlich machen",
-          "einsatz bestätigt setzen damit der wizard ihn nicht mehr anfasst"
+          "der dienst hat stattgefunden",
+          "einsatz als geleistet bestätigen",
+          "gestrigen dienst bestätigen",
+          "bestätige dass die schicht gearbeitet wurde",
+          "einsatz bestätigt setzen"
         ],
         "en": [
           "confirm",
-          "lock",
-          "fix",
-          "approve assignment",
-          "secure shift",
-          "make this assignment final",
-          "protect this shift from the wizards",
+          "confirm service",
+          "the service took place",
+          "mark the shift as worked",
+          "confirm yesterday's shift",
           "set this work entry to confirmed",
-          "i want to freeze tomorrow's assignment"
+          "confirm that the work was done",
+          "confirm the service"
         ],
         "fr": [
           "confirmer",
-          "verrouiller",
-          "fixer",
-          "valider l'affectation",
-          "rends cette affectation définitive",
-          "protège ce service contre les wizards",
+          "confirmer le service",
+          "le service a eu lieu",
+          "marquer l'intervention comme effectuée",
+          "confirmer le service d'hier",
           "passe cette intervention en confirmé",
-          "je veux figer l'affectation de demain"
+          "confirme que le travail a été fait",
+          "valider l'intervention effectuée"
         ],
         "it": [
           "confermare",
-          "bloccare",
-          "fissare",
-          "convalidare l'assegnazione",
-          "rendi definitiva questa assegnazione",
-          "proteggi questo turno dai wizard",
+          "confermare il turno",
+          "il turno è stato svolto",
+          "segna il turno come svolto",
+          "conferma il turno di ieri",
           "imposta questo turno come confermato",
-          "voglio bloccare l'assegnazione di domani"
+          "conferma che il lavoro è stato fatto",
+          "convalidare il servizio svolto"
         ]
       },
       "labels": {
@@ -14460,7 +14458,7 @@
         "fr": "Confirmer et verrouiller une affectation",
         "it": "Conferma e blocca un'assegnazione"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "unconfirm_work",
@@ -14915,7 +14913,7 @@
     {
       "name": "approve_day",
       "area": "schedule",
-      "description": "Approves all Work entries on a given day for a given group — sets LockLevel=Approved (2). Stronger than confirm: even Wizards on individual cells stop. Returns the number of affected works. Use when the user says: 'tag freigeben', 'approve Monday', 'freigeben am 15.05.'. Wraps ApproveDayCommand.",
+      "description": "Approves all Work entries on a given day for a given group — sets LockLevel=Approved (2). Stronger than confirm: even Wizards on individual cells stop. Returns the number of affected works; only services that have already ended are approved. Use when the user says: 'tag freigeben', 'approve Monday', 'freigeben am 15.05.'. Wraps ApproveDayCommand.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15000,7 +14998,7 @@
         "fr": "Approuver une journée pour un groupe",
         "it": "Approva una giornata per un gruppo"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "revoke_day_approval",
@@ -15089,7 +15087,7 @@
     {
       "name": "close_period",
       "area": "period",
-      "description": "Seals a payment period like the period-closing page: locks works/breaks (LockLevel Closed), creates the SealedDay day locks and writes the audit log. Without a group the seal is global; it starts no payroll export. A period that still holds unresolved errors is refused and nothing is sealed: show the user the errors and seal anyway only after the user explicitly chose to (acknowledgeViolations + acknowledgedErrorCount). Use for: 'Periode abschliessen', 'close May 2026'. The seal is verified.",
+      "description": "Seals a payment period like the period-closing page: locks works/breaks, creates the day locks and writes the audit log. Without a group the seal is global; it starts no payroll export. Refused, nothing sealed, while a service of the period is still unconfirmed (cannot be acknowledged) or while unresolved errors remain (seal anyway only after the user explicitly chose to: acknowledgeViolations + acknowledgedErrorCount). Use for: 'Periode abschliessen', 'close May 2026'. The seal is verified.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15215,7 +15213,7 @@
         "fr": "Clôturer une période de paie",
         "it": "Chiudi un periodo di pagamento"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "reopen_period",
