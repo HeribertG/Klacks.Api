@@ -967,6 +967,7 @@
   "dialog.briefing.position": "Sijainti",
   "dialog.briefing.startTime": "Alkaa",
   "dialog.briefing.title": "Briefing / Debriefing",
+  "dialog.briefing.toInvoice": "Laskuta",
   "dialog.containerShiftOverride.title": "Muokkaa vuoroa",
   "dialog.containerSplit.clearClient": "Nollaa",
   "dialog.containerSplit.client": "Työntekijä kopiolle (valinnainen)",

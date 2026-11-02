@@ -16401,10 +16401,10 @@
         },
         {
           "name": "toInvoice",
-          "description": "Whether this change is billable.",
+          "description": "Billable flag, on by default. Only true is accepted: false is refused, because only a planner, supervisor or admin may switch billing off in the schedule dialog.",
           "type": "Boolean",
           "required": false,
-          "defaultValue": false,
+          "defaultValue": true,
           "enumValues": null
         }
       ],
@@ -16475,7 +16475,7 @@
         "fr": "Ajouter une modification d'affectation",
         "it": "Aggiungi una modifica all'assegnazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "start_wizard1",
@@ -33354,7 +33354,7 @@
         },
         {
           "name": "toInvoice",
-          "description": "Whether this change is billable.",
+          "description": "Billable flag. Only true is accepted: false is refused, because only a planner, supervisor or admin may switch billing off in the schedule dialog.",
           "type": "Boolean",
           "required": false,
           "defaultValue": null,
@@ -33394,8 +33394,7 @@
           "reisezeit korrigieren",
           "die stundenkorrektur an der schicht ändern",
           "zuschläge einer vertretung nachträglich anpassen",
-          "start und ende der briefing-zeit korrigieren",
-          "den eintrag als nicht verrechenbar markieren"
+          "start und ende der briefing-zeit korrigieren"
         ],
         "en": [
           "update workchange",
@@ -33404,8 +33403,7 @@
           "adjust replacement",
           "change the hours correction on the shift",
           "adjust the surcharges of a replacement afterwards",
-          "correct the start and end of the briefing time",
-          "mark the entry as not billable"
+          "correct the start and end of the briefing time"
         ],
         "fr": [
           "modifier le changement de travail",
@@ -33413,8 +33411,7 @@
           "ajuster le remplacement",
           "modifier la correction d'heures sur le service",
           "ajuster après coup les majorations d'un remplacement",
-          "corriger le début et la fin du temps de briefing",
-          "marquer l'entrée comme non facturable"
+          "corriger le début et la fin du temps de briefing"
         ],
         "it": [
           "modificare la modifica di lavoro",
@@ -33422,8 +33419,7 @@
           "regolare la sostituzione",
           "modificare la correzione ore sul turno",
           "adeguare a posteriori le maggiorazioni di una sostituzione",
-          "correggere inizio e fine del tempo di briefing",
-          "segnare la voce come non fatturabile"
+          "correggere inizio e fine del tempo di briefing"
         ]
       },
       "labels": {
@@ -33432,7 +33428,7 @@
         "fr": "Mettre à jour une modification d'affectation",
         "it": "Aggiorna una modifica all'assegnazione"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "delete_workchange",

@@ -967,6 +967,7 @@
   "dialog.briefing.position": "Positie",
   "dialog.briefing.startTime": "Van",
   "dialog.briefing.title": "Briefing / debriefing",
+  "dialog.briefing.toInvoice": "Factureren",
   "dialog.containerShiftOverride.title": "Dienst bewerken",
   "dialog.containerSplit.clearClient": "Resetten",
   "dialog.containerSplit.client": "Medewerker voor kopie (optioneel)",

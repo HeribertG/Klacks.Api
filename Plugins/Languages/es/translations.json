@@ -967,6 +967,7 @@
   "dialog.briefing.position": "Posición",
   "dialog.briefing.startTime": "Desde",
   "dialog.briefing.title": "Briefing / Debriefing",
+  "dialog.briefing.toInvoice": "Facturar",
   "dialog.containerShiftOverride.title": "Editar turno",
   "dialog.containerSplit.clearClient": "Restablecer",
   "dialog.containerSplit.client": "Empleado para la copia (opcional)",

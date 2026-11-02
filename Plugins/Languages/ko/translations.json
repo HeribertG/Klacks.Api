@@ -967,6 +967,7 @@
   "dialog.briefing.position": "위치",
   "dialog.briefing.startTime": "시작",
   "dialog.briefing.title": "브리핑 / 디브리핑",
+  "dialog.briefing.toInvoice": "정산",
   "dialog.containerShiftOverride.title": "근무 편집",
   "dialog.containerSplit.clearClient": "초기화",
   "dialog.containerSplit.client": "복사본 담당 직원 (선택 사항)",

@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.DTOs.Staffs;
 
@@ -29,7 +30,7 @@ public class WorkChangeResource
 
     public string Description { get; set; } = string.Empty;
 
-    public bool ToInvoice { get; set; }
+    public bool ToInvoice { get; set; } = WorkChangeDefaults.ToInvoice;
 
     public DateOnly? PeriodStart { get; set; }
 

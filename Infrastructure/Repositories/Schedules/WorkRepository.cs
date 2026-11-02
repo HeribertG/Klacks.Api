@@ -196,16 +196,16 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var breaksHours = await context.Break
             .Where(b => clientIdsWithoutPeriodHours.Contains(b.ClientId) && b.CurrentDate >= startDate && b.CurrentDate <= endDate && b.AnalyseToken == analyseToken)
             .GroupBy(b => b.ClientId)
-            .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime) })
+            .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime), TotalBreakSurcharges = g.Sum(b => b.Surcharges) })
             .ToListAsync(cancellationToken);
 
         var workChanges = await context.WorkChange
             .Where(wc => (clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) || (wc.ReplaceClientId.HasValue && clientIdsWithoutPeriodHours.Contains(wc.ReplaceClientId.Value))) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate && wc.Work.AnalyseToken == analyseToken)
-            .Select(wc => new WorkChangeEntry(wc.Work!.ClientId, wc.ChangeTime, wc.Type, wc.ToInvoice, wc.ReplaceClientId, wc.Work.ClientId))
+            .Select(wc => new WorkChangeEntry(wc.Work!.ClientId, wc.ChangeTime, wc.Surcharges, wc.Type, wc.ReplaceClientId, wc.Work.ClientId))
             .ToListAsync(cancellationToken);
 
         var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalHours, Surcharges: x.TotalSurcharges));
-        var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => x.TotalBreaks);
+        var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalBreaks, Surcharges: x.TotalBreakSurcharges));
 
         var effectiveDataByClient = await _contractDataProvider.GetEffectiveContractDataForClientsAsync(clientIds, startDate);
         var membershipWindows = await MembershipWindowQuery.LoadAsync(context, clientIds, cancellationToken);
@@ -308,7 +308,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     private static Dictionary<Guid, PeriodHoursResource> BuildFallbackPeriodHours(
         List<Guid> clientIds,
         Dictionary<Guid, (decimal Hours, decimal Surcharges)> worksHoursDict,
-        Dictionary<Guid, decimal> breaksHoursDict,
+        Dictionary<Guid, (decimal Hours, decimal Surcharges)> breaksHoursDict,
         List<WorkChangeEntry> workChanges,
         Dictionary<Guid, decimal> targetByClient)
     {
@@ -317,14 +317,14 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         foreach (var clientId in clientIds)
         {
             var workData = worksHoursDict.TryGetValue(clientId, out var wd) ? wd : (Hours: 0m, Surcharges: 0m);
-            var breaks = breaksHoursDict.TryGetValue(clientId, out var b) ? b : 0m;
+            var breakData = breaksHoursDict.TryGetValue(clientId, out var b) ? b : (Hours: 0m, Surcharges: 0m);
 
             var (workChangeHours, workChangeSurcharges) = CalculateWorkChangeAdjustments(workChanges, clientId);
 
             result[clientId] = new PeriodHoursResource
             {
-                Hours = workData.Hours + breaks + workChangeHours,
-                Surcharges = workData.Surcharges + workChangeSurcharges,
+                Hours = workData.Hours + breakData.Hours + workChangeHours,
+                Surcharges = workData.Surcharges + breakData.Surcharges + workChangeSurcharges,
                 GuaranteedHours = targetByClient.GetValueOrDefault(clientId)
             };
         }
@@ -340,22 +340,29 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         foreach (var wc in workChanges)
         {
-            if (wc.ToInvoice == true && wc.OriginalClientId == clientId)
-            {
-                surcharges += wc.ChangeTime;
-            }
-
             var isOriginalClient = wc.OriginalClientId == clientId;
             var isReplacementClient = wc.ReplaceClientId == clientId;
 
             if (CorrectionWorkChangeTypes.IsHourBearing(wc.Type))
             {
-                if (isOriginalClient) hours += wc.ChangeTime;
+                if (isOriginalClient)
+                {
+                    hours += wc.ChangeTime;
+                    surcharges += wc.Surcharges;
+                }
             }
             else if (ReplacementWorkChangeTypes.IsReplacement(wc.Type))
             {
-                if (isOriginalClient) hours -= wc.ChangeTime;
-                if (isReplacementClient) hours += wc.ChangeTime;
+                if (isOriginalClient)
+                {
+                    hours -= wc.ChangeTime;
+                    surcharges -= wc.Surcharges;
+                }
+                if (isReplacementClient)
+                {
+                    hours += wc.ChangeTime;
+                    surcharges += wc.Surcharges;
+                }
             }
         }
 
@@ -483,5 +490,5 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return lastTouch.UpdateTime is not null ? lastTouch.CurrentUserUpdated : lastTouch.CurrentUserCreated;
     }
 
-    private record WorkChangeEntry(Guid ClientId, decimal ChangeTime, WorkChangeType Type, bool? ToInvoice, Guid? ReplaceClientId, Guid OriginalClientId);
+    private record WorkChangeEntry(Guid ClientId, decimal ChangeTime, decimal Surcharges, WorkChangeType Type, Guid? ReplaceClientId, Guid OriginalClientId);
 }

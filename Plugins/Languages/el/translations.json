@@ -967,6 +967,7 @@
   "dialog.briefing.position": "Θέση",
   "dialog.briefing.startTime": "Από",
   "dialog.briefing.title": "Ενημέρωση / Απολογισμός",
+  "dialog.briefing.toInvoice": "Τιμολόγηση",
   "dialog.containerShiftOverride.title": "Επεξεργασία υπηρεσίας",
   "dialog.containerSplit.clearClient": "Επαναφορά",
   "dialog.containerSplit.client": "Εργαζόμενος για αντίγραφο (προαιρετικό)",

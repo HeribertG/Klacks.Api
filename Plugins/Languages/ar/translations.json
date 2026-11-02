@@ -967,6 +967,7 @@
   "dialog.briefing.position": "الموضع",
   "dialog.briefing.startTime": "من",
   "dialog.briefing.title": "الإحاطة / الإحاطة الختامية",
+  "dialog.briefing.toInvoice": "فوترة",
   "dialog.containerShiftOverride.title": "تحرير الدوام",
   "dialog.containerSplit.clearClient": "إعادة تعيين",
   "dialog.containerSplit.client": "الموظف للنسخة (اختياري)",

@@ -967,6 +967,7 @@
   "dialog.briefing.position": "Pozycja",
   "dialog.briefing.startTime": "Od",
   "dialog.briefing.title": "Odprawa / Podsumowanie",
+  "dialog.briefing.toInvoice": "Do rozliczenia",
   "dialog.containerShiftOverride.title": "Edytuj dyżur",
   "dialog.containerSplit.clearClient": "Resetuj",
   "dialog.containerSplit.client": "Pracownik dla kopii (opcjonalnie)",

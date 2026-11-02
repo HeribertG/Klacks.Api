@@ -967,6 +967,7 @@
   "dialog.briefing.position": "位置",
   "dialog.briefing.startTime": "從",
   "dialog.briefing.title": "簡報 / 彙報",
+  "dialog.briefing.toInvoice": "計入賬單",
   "dialog.containerShiftOverride.title": "編輯班次",
   "dialog.containerSplit.clearClient": "重設",
   "dialog.containerSplit.client": "副本的員工（選填）",
