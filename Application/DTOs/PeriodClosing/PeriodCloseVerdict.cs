@@ -13,5 +13,6 @@ public enum PeriodCloseVerdict
     CloseNow = 0,
     FixErrorsFirst = 1,
     WaitUntilDue = 2,
-    NothingToSeal = 3
+    NothingToSeal = 3,
+    ConfirmServicesFirst = 4
 }

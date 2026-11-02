@@ -6,6 +6,7 @@
 /// does the command's ActingAdminUserId count, and only while that id still belongs to an admin; the seal and
 /// the audit entry are then recorded under that admin's id with AuditActorDefaults.AutonomousActorName.
 /// </summary>
+/// <param name="sealCompletenessGuard">Refuses the close while a service of the period (of the group's own shifts for a group close) is not sealed; not acknowledgeable</param>
 /// <param name="audienceResolver">Lists the current admins, to confirm a background acting admin still is one</param>
 
 using Klacks.Api.Application.Commands.PeriodClosing;
@@ -39,6 +40,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
     private readonly IDomainEventDispatcher _eventDispatcher;
     private readonly IPeriodValidationLoader _validationLoader;
     private readonly IComplianceEscalationService _escalationService;
+    private readonly IPeriodSealCompletenessGuard _sealCompletenessGuard;
     private readonly IUserService _userService;
     private readonly IPlanningAudienceResolver _audienceResolver;
 
@@ -52,6 +54,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         IDomainEventDispatcher eventDispatcher,
         IPeriodValidationLoader validationLoader,
         IComplianceEscalationService escalationService,
+        IPeriodSealCompletenessGuard sealCompletenessGuard,
         IUserService userService,
         IPlanningAudienceResolver audienceResolver,
         IUnitOfWork unitOfWork,
@@ -67,6 +70,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         _eventDispatcher = eventDispatcher;
         _validationLoader = validationLoader;
         _escalationService = escalationService;
+        _sealCompletenessGuard = sealCompletenessGuard;
         _userService = userService;
         _audienceResolver = audienceResolver;
     }
@@ -95,6 +99,8 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
 
             if (!_lockLevelService.CanSeal(WorkLockLevel.None, WorkLockLevel.Closed, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to close periods.");
+
+            await _sealCompletenessGuard.EnsureAllSealedAsync(request.StartDate, request.EndDate, request.GroupId, cancellationToken);
 
             await EnsureViolationsAcknowledgedAsync(request, cancellationToken);
 

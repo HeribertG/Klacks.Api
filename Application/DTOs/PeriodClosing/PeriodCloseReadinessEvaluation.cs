@@ -17,6 +17,7 @@ namespace Klacks.Api.Application.DTOs.PeriodClosing;
 /// <param name="SealedDayCount">Days of the period holding a day lock</param>
 /// <param name="UnsealedDayCount">Days without a day lock on which the group seal would act</param>
 /// <param name="UnsealedDays">The first of those days, at most PeriodCloseReadinessAdvisor.MaxListedUnsealedDays</param>
+/// <param name="UnsealedWorkCount">Services of the period that are not sealed yet; the close is refused while there are any</param>
 /// <param name="Verdict">The computed verdict</param>
 /// <param name="Findings">Every finding, blocking ones first</param>
 /// <param name="Recommendation">The computed recommendation</param>
@@ -32,6 +33,7 @@ public sealed record PeriodCloseReadinessEvaluation(
     int SealedDayCount,
     int UnsealedDayCount,
     IReadOnlyList<DateOnly> UnsealedDays,
+    int UnsealedWorkCount,
     PeriodCloseVerdict Verdict,
     IReadOnlyList<PeriodCloseFinding> Findings,
     string Recommendation);

@@ -490,6 +490,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Exports.IPayrollPeriodExportService, Application.Services.Exports.PayrollPeriodExportService>();
         services.AddScoped<Application.Interfaces.Exports.IExportFormatFamilyResolver, Application.Services.Exports.ExportFormatFamilyResolver>();
         services.AddScoped<Application.Interfaces.PeriodClosing.IPeriodValidationLoader, Services.PeriodClosing.PeriodValidationLoader>();
+        services.AddScoped<Application.Interfaces.PeriodClosing.IPeriodSealCompletenessGuard, Application.Services.PeriodClosing.PeriodSealCompletenessGuard>();
         services.AddScoped<Application.Interfaces.Schedules.IPreCommitConflictChecker, Services.Schedules.PreCommitConflictChecker>();
         services.AddScoped<Application.Interfaces.Schedules.IWorkWriteGuard, Application.Services.Schedules.WorkWriteGuardService>();
         services.AddScoped<Application.Interfaces.Schedules.IClientPlanningPeriodGuard, Application.Services.Schedules.ClientPlanningPeriodGuard>();

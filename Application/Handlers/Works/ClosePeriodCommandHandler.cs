@@ -5,6 +5,8 @@
 /// Runs inside a transaction for the same reason the group-aware close does: the acknowledgement check
 /// loads the period's findings, and that load deliberately reconciles the materialised K12 state before
 /// reading it. Without the transaction a REFUSED close would still leave those reconcile writes behind.
+/// A period can only be closed when every service of it is sealed; that refusal comes first and cannot be
+/// acknowledged away.
 /// </summary>
 
 using Klacks.Api.Application.Commands.Works;
@@ -29,6 +31,7 @@ public class ClosePeriodCommandHandler : BaseTransactionHandler, IRequestHandler
     private readonly IDomainEventDispatcher _eventDispatcher;
     private readonly IPeriodValidationLoader _validationLoader;
     private readonly IComplianceEscalationService _escalationService;
+    private readonly IPeriodSealCompletenessGuard _sealCompletenessGuard;
 
     public ClosePeriodCommandHandler(
         IWorkRepository workRepository,
@@ -38,6 +41,7 @@ public class ClosePeriodCommandHandler : BaseTransactionHandler, IRequestHandler
         IDomainEventDispatcher eventDispatcher,
         IPeriodValidationLoader validationLoader,
         IComplianceEscalationService escalationService,
+        IPeriodSealCompletenessGuard sealCompletenessGuard,
         IUnitOfWork unitOfWork,
         ILogger<ClosePeriodCommandHandler> logger)
         : base(unitOfWork, logger)
@@ -49,6 +53,7 @@ public class ClosePeriodCommandHandler : BaseTransactionHandler, IRequestHandler
         _eventDispatcher = eventDispatcher;
         _validationLoader = validationLoader;
         _escalationService = escalationService;
+        _sealCompletenessGuard = sealCompletenessGuard;
     }
 
     public async Task<int> Handle(ClosePeriodCommand request, CancellationToken cancellationToken)
@@ -64,6 +69,8 @@ public class ClosePeriodCommandHandler : BaseTransactionHandler, IRequestHandler
 
             if (!_lockLevelService.CanSeal(WorkLockLevel.None, WorkLockLevel.Closed, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to close periods.");
+
+            await _sealCompletenessGuard.EnsureAllSealedAsync(request.StartDate, request.EndDate, null, cancellationToken);
 
             await EnsureViolationsAcknowledgedAsync(request, cancellationToken);
 

@@ -437,14 +437,14 @@
     "disetujui, lakukan persis seperti itu"
   ],
   "confirm_work": [
-    "kunci assignment ini",
-    "konfirmasi shift yasmine",
-    "fix jadwal kerja",
-    "sahkan penempatan shift",
-    "setujui pekerjaan shift",
-    "jadikan penugasan ini final",
-    "lindungi shift ini dari wizard",
-    "saya mau membekukan penugasan besok"
+    "konfirmasi shift ini",
+    "konfirmasi dinas ini",
+    "dinas sudah berlangsung",
+    "tandai shift sebagai sudah dikerjakan",
+    "konfirmasi penugasan kemarin",
+    "ubah entri kerja ini menjadi terkonfirmasi",
+    "konfirmasi bahwa pekerjaan sudah dilakukan",
+    "konfirmasi shift pagi yasmine"
   ],
   "cover_absence": [
     "tutupi absensi karyawan",

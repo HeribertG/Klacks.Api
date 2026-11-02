@@ -432,14 +432,14 @@
     "hyväksytty, tee juuri noin"
   ],
   "confirm_work": [
-    "vahvista työvuoro",
-    "lukitse sijoitus",
-    "vahvista yasmine aamuvuoro",
-    "kiinnitä vuoro",
-    "lukitse työ",
-    "tee tästä sijoituksesta lopullinen",
-    "suojaa tämä vuoro wizardeilta",
-    "haluan jäädyttää huomisen sijoituksen"
+    "vahvista tämä vuoro",
+    "vahvista palvelu",
+    "palvelu on toteutunut",
+    "merkitse vuoro tehdyksi",
+    "vahvista eilinen sijoitus",
+    "aseta tämä työmerkintä vahvistetuksi",
+    "vahvista, että työ tehtiin",
+    "vahvista yasminen aamuvuoro"
   ],
   "cover_absence": [
     "hoida poissaolon korvaaminen",

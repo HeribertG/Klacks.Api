@@ -442,15 +442,14 @@
     "aprovado, faz exatamente assim"
   ],
   "confirm_work": [
-    "fixar este turno na escala",
-    "confirmar a atribuição da yasmine",
-    "travar o agendamento do agente",
-    "aprovar definitivamente este trabalho",
-    "confirmar a escala do dia",
-    "bloquear a colocação para não ser alterada",
-    "torna esta atribuição definitiva",
-    "protege este turno contra os wizards",
-    "quero congelar a atribuição de amanhã"
+    "confirmar este turno",
+    "confirmar o serviço",
+    "o serviço aconteceu",
+    "marcar o turno como trabalhado",
+    "confirmar a atribuição de ontem",
+    "definir esta entrada de trabalho como confirmada",
+    "confirmar que o trabalho foi feito",
+    "confirmar o turno da manhã da yasmine"
   ],
   "cover_absence": [
     "cobrir ausência",

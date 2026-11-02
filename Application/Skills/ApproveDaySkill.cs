@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Skill that approves all works for a given day and group — sets LockLevel to Approved (2) so the
-/// schedule cells become read-only beyond Confirmed. Returns the number of affected work entries.
+/// schedule cells become read-only beyond Confirmed. Only services that have ended are approved; the returned number of
+/// affected work entries can therefore be lower than the number of works of the day.
 /// Wraps ApproveDayCommand.
 /// </summary>
 /// <param name="date">Workday in ISO yyyy-MM-dd.</param>
@@ -37,6 +38,6 @@ public class ApproveDaySkill : BaseSkillImplementation
         var count = await _mediator.Send(new ApproveDayCommand(date, groupId), cancellationToken);
         return SkillResult.SuccessResult(
             new { Date = date, GroupId = groupId, AffectedWorks = count },
-            $"Approved {count} work(s) on {date} for group {groupId}. LockLevel raised to Approved.");
+            $"Approved {count} work(s) on {date} for group {groupId}. LockLevel raised to Approved. Only services that have already ended are approved; a service still to come or still running stays open, and the day is not locked while one remains.");
     }
 }

@@ -47,6 +47,11 @@
 ///    handler's own error check stays fail-closed as well. The fresh scope keeps a failed close - and the
 ///    issue loader, which refreshes materialised rest-obligation state - from leaving staged rows in the
 ///    tick's shared DbContext, where the next ledger write would flush them.
+///    Directly before an attempt is taken from the per-scan cap, a fresh scope counts the services of the period that
+///    are not sealed yet (IPeriodSealCompletenessGuard, the group's own shifts): a period holding any is reported as
+///    UnsealedWorks and not closed, and it does not use up the cap - a person has to confirm them first, and no
+///    acknowledgement exists for that. The close handler enforces the same rule and a refusal there (a race) is
+///    reported the same way.
 /// 9. The fresh read-back must show every day of the period sealed; only then is the close reported.
 /// A close that throws unexpectedly is re-read in another fresh scope (ResolveFailedCloseAsync): a concurrent
 /// close by a person is recognised and stays silent instead of being reported as a failure.
@@ -72,6 +77,7 @@ using Klacks.Api.Application.Commands.PeriodClosing;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Assistant;
+using Klacks.Api.Application.Interfaces.PeriodClosing;
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -89,6 +95,7 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
 {
     private const int NoErrors = 0;
+    private const int NoUnsealedWorks = 0;
 
     private readonly IGroupRepository _groupRepository;
     private readonly IWeekConfiguration _weekConfiguration;
@@ -317,6 +324,12 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
             return Blocked(candidate, PeriodAutoCloseBlockReason.PartiallySealed);
         }
 
+        var unsealedBlock = await BlockOnUnsealedWorksAsync(candidate, cancellationToken);
+        if (unsealedBlock != null)
+        {
+            return unsealedBlock;
+        }
+
         if (!closeBudget.TryTake())
         {
             _logger.LogInformation(
@@ -391,6 +404,14 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
 
             return Blocked(candidate, PeriodAutoCloseBlockReason.OpenErrors, ex.CurrentErrorCount);
         }
+        catch (UnsealedWorksException ex)
+        {
+            _logger.LogInformation(
+                "PeriodAutoClose: the close handler refused period {From}..{Until} of group {GroupName}: {Count} service(s) are not sealed",
+                periodStart, periodEnd, group.Name, ex.UnsealedCount);
+
+            return Blocked(candidate, PeriodAutoCloseBlockReason.UnsealedWorks, unsealedWorkCount: ex.UnsealedCount);
+        }
         catch (InvalidRequestException ex)
         {
             _logger.LogWarning(
@@ -418,6 +439,24 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
             periodStart, periodEnd, group.Name, decidingAdmin, lag);
 
         return new PeriodAutoClosedTriggerEvent(group.Id, group.Name, periodStart, periodEnd, lag, decidingAdmin);
+    }
+
+    private async Task<IAgentTriggerEvent?> BlockOnUnsealedWorksAsync(
+        PeriodCloseCandidate candidate, CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var unsealedWorks = await scope.ServiceProvider.GetRequiredService<IPeriodSealCompletenessGuard>()
+            .CountUnsealedAsync(candidate.PeriodStart, candidate.PeriodEnd, candidate.Group.Id, cancellationToken);
+        if (unsealedWorks == NoUnsealedWorks)
+        {
+            return null;
+        }
+
+        _logger.LogInformation(
+            "PeriodAutoClose: period {From}..{Until} of group {GroupName} still holds {Count} service(s) that are not sealed; not closed",
+            candidate.PeriodStart, candidate.PeriodEnd, candidate.Group.Name, unsealedWorks);
+
+        return Blocked(candidate, PeriodAutoCloseBlockReason.UnsealedWorks, unsealedWorkCount: unsealedWorks);
     }
 
     /// <summary>
@@ -491,6 +530,6 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
     }
 
     private static PeriodAutoCloseBlockedTriggerEvent Blocked(
-        PeriodCloseCandidate candidate, PeriodAutoCloseBlockReason reason, int errorCount = NoErrors) =>
-        new(candidate.Group.Id, candidate.Group.Name, candidate.PeriodStart, candidate.PeriodEnd, errorCount, reason);
+        PeriodCloseCandidate candidate, PeriodAutoCloseBlockReason reason, int errorCount = NoErrors, int unsealedWorkCount = NoUnsealedWorks) =>
+        new(candidate.Group.Id, candidate.Group.Name, candidate.PeriodStart, candidate.PeriodEnd, errorCount, reason, unsealedWorkCount);
 }

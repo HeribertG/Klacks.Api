@@ -18,7 +18,48 @@ public interface IWorkRepository : IBaseRepository<Work>
     Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter, CancellationToken cancellationToken = default);
     Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate, Guid? analyseToken = null, CancellationToken cancellationToken = default);
     Task<List<Work>> GetByClientAndDateRangeAsync(Guid clientId, DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default);
-    Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Raises the lock level of the day's works of the group, but only of those whose service has ended by the cutoff:
+    /// a service that is still to come or still running stays as it is.
+    /// </summary>
+    /// <param name="date">Workday</param>
+    /// <param name="groupId">Group whose shifts the works belong to</param>
+    /// <param name="level">Target lock level</param>
+    /// <param name="sealedBy">Actor stamped into SealedBy</param>
+    /// <param name="endedBy">Company-local now; only works ending at or before it are sealed</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, ServiceEndCutoff endedBy, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Whether the group still has a work on the day whose service has not ended by the cutoff and that is below the level.
+    /// </summary>
+    /// <param name="date">Workday</param>
+    /// <param name="groupId">Group whose shifts the works belong to</param>
+    /// <param name="level">Lock level the day is raised to</param>
+    /// <param name="endedBy">Company-local now</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<bool> HasUnendedByDayAndGroupAsync(DateOnly date, Guid groupId, WorkLockLevel level, ServiceEndCutoff endedBy, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Number of top-level works of the real plan in the period that are still below Confirmed. Works of a soft-deleted person do not count: nobody can confirm them any more, and the close seals them together with the rest. With a group only the
+    /// works on the group's own shifts count - the same population SealByPeriodAndGroup seals - so works of other
+    /// groups never block this group's close; without a group every work of the period counts.
+    /// </summary>
+    /// <param name="startDate">First day of the period</param>
+    /// <param name="endDate">Last day of the period</param>
+    /// <param name="groupId">Group of a group close, null for a whole-period close</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<int> CountUnsealedForCloseAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The first unsealed works counted by CountUnsealedForCloseAsync, ordered by day, start time and id.
+    /// </summary>
+    /// <param name="startDate">First day of the period</param>
+    /// <param name="endDate">Last day of the period</param>
+    /// <param name="groupId">Group of a group close, null for a whole-period close</param>
+    /// <param name="limit">Maximum number of rows returned</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<List<UnsealedWorkDto>> ListUnsealedForCloseAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, int limit, CancellationToken cancellationToken = default);
     Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default);
     Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default);
     Task<PeriodUnsealCounts> UnsealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, CancellationToken cancellationToken = default);

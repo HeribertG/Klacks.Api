@@ -45,5 +45,8 @@ public enum PeriodAutoCloseBlockReason
     AdminAutonomyMissing = 9,
 
     /// <summary>This scan already attempted PeriodAutoClose.MaxClosesPerTick closes; the next scan tries again.</summary>
-    TickLimitReached = 10
+    TickLimitReached = 10,
+
+    /// <summary>Services of the period are not sealed yet (not confirmed after they ended); a person has to confirm them first.</summary>
+    UnsealedWorks = 11
 }

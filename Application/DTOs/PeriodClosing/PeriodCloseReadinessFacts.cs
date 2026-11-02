@@ -19,6 +19,7 @@ namespace Klacks.Api.Application.DTOs.PeriodClosing;
 /// <param name="WarningCount">Findings of severity Warning, after the Block-rule escalation</param>
 /// <param name="SealedDayCount">Days of the period holding a day lock (group or installation-wide)</param>
 /// <param name="UnsealedDaysWithWork">Days without a day lock on which the group seal would act, in date order</param>
+/// <param name="UnsealedWorkCount">Services of the period on the group's own shifts that are not sealed yet (IPeriodSealCompletenessGuard); 0 when the period was not checked</param>
 public sealed record PeriodCloseReadinessFacts(
     Guid GroupId,
     string GroupName,
@@ -31,4 +32,5 @@ public sealed record PeriodCloseReadinessFacts(
     int ErrorCount,
     int WarningCount,
     int SealedDayCount,
-    IReadOnlyList<DateOnly> UnsealedDaysWithWork);
+    IReadOnlyList<DateOnly> UnsealedDaysWithWork,
+    int UnsealedWorkCount = 0);

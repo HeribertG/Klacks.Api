@@ -19,5 +19,6 @@ public enum PeriodCloseFindingCode
     UnsealedDaysWithWork = 6,
     PartiallySealed = 7,
     ReopenedBefore = 8,
-    NoCloseLagStored = 9
+    NoCloseLagStored = 9,
+    UnsealedWorks = 10
 }
