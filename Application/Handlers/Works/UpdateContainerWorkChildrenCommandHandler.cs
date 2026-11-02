@@ -87,7 +87,8 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             var updatedWorkChanges = request.Resource.SubWorkChanges.Select(_scheduleMapper.ToWorkChangeEntity).ToList();
 
             await EnsureSubWorkShiftsVisibleAsync(request.WorkId, updatedWorks, cancellationToken);
-            await EnsureReplacementsAllowedAsync(container, request.Resource, updatedWorks, cancellationToken);
+            var workChangeParents = await ResolveWorkChangeParentsAsync(container, request.Resource, updatedWorks, cancellationToken);
+            await EnsureReplacementsAllowedAsync(container, request.Resource, workChangeParents, cancellationToken);
 
             var parentWork = await _childrenManager.UpdateChildrenAsync(
                 request.WorkId,
@@ -163,16 +164,69 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     }
 
     /// <summary>
+    /// A work change is saved with the Work id the request carries, and a stored change takes that id over, so every Work id
+    /// has to be a sub-work of this container: one the request names or one that is stored under the container. Any other id
+    /// (a Work of another container, the container itself, an empty id) is answered exactly like a container that does not
+    /// exist, before anything is checked or written; otherwise a holder of this container's lock could hang a change on a
+    /// Work past the visibility, lock and day-lock checks of that Work. The sub-works that serve as parents of the changes
+    /// are returned by id; stored ones the request does not name are read once.
+    /// </summary>
+    private async Task<WorkChangeParents> ResolveWorkChangeParentsAsync(
+        Work container,
+        UpdateContainerWorkChildrenResource resource,
+        IReadOnlyCollection<Work> updatedWorks,
+        CancellationToken cancellationToken)
+    {
+        var parents = updatedWorks
+            .Where(work => work.Id != Guid.Empty)
+            .GroupBy(work => work.Id)
+            .ToDictionary(group => group.Key, group => group.First());
+        if (resource.SubWorkChanges.Count == 0)
+        {
+            return new WorkChangeParents(parents, []);
+        }
+
+        var storedSubWorkIds = (await _childrenReadRepository.GetChildWorkShiftIds(container.Id, cancellationToken)).Keys.ToList();
+        var storedOnly = resource.SubWorkChanges
+            .Select(change => change.WorkId)
+            .Where(id => !parents.ContainsKey(id))
+            .Distinct()
+            .ToList();
+        if (storedOnly.Any(id => !storedSubWorkIds.Contains(id)))
+        {
+            throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, container.Id));
+        }
+
+        if (storedOnly.Count > 0)
+        {
+            foreach (var stored in await _childrenReadRepository.GetChildWorksWithShiftClient(container.Id, cancellationToken))
+            {
+                if (storedOnly.Contains(stored.Id))
+                {
+                    parents[stored.Id] = stored;
+                }
+            }
+
+            if (storedOnly.Any(id => !parents.ContainsKey(id)))
+            {
+                throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, container.Id));
+            }
+        }
+
+        return new WorkChangeParents(parents, storedSubWorkIds);
+    }
+
+    /// <summary>
     /// Every work change of the request that is new or differs from the stored row in what a replacement is made of (Work,
-    /// type, person, times) passes the replacement write guard against the sub-work it is attached to, the container
-    /// when the request names no such sub-work. The guard sees the scenario of the container and the stored row; it works
-    /// on a copy, so what is saved stays as the request carries it. Unchanged rows are skipped, so a stored row the guard
-    /// would refuse today does not block saving the rest of the container.
+    /// type, person, times) passes the replacement write guard against the sub-work it is attached to. The guard sees the
+    /// scenario of the container and the stored row; it works on a copy, so what is saved stays as the request carries it.
+    /// Unchanged rows are skipped, so a stored row the guard would refuse today does not block saving the rest of the
+    /// container.
     /// </summary>
     private async Task EnsureReplacementsAllowedAsync(
         Work container,
         UpdateContainerWorkChildrenResource resource,
-        IReadOnlyCollection<Work> updatedWorks,
+        WorkChangeParents workChangeParents,
         CancellationToken cancellationToken)
     {
         if (resource.SubWorkChanges.Count == 0)
@@ -180,8 +234,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             return;
         }
 
-        var storedSubWorkIds = (await _childrenReadRepository.GetChildWorkShiftIds(container.Id, cancellationToken)).Keys.ToList();
-        var storedChanges = (await _childrenReadRepository.GetWorkChangesForWorks(storedSubWorkIds, cancellationToken))
+        var storedChanges = (await _childrenReadRepository.GetWorkChangesForWorks(workChangeParents.StoredSubWorkIds, cancellationToken))
             .ToDictionary(change => change.Id);
 
         foreach (var requested in resource.SubWorkChanges)
@@ -194,8 +247,8 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             }
 
             candidate.AnalyseToken = container.AnalyseToken;
-            var subWork = updatedWorks.FirstOrDefault(work => work.Id == candidate.WorkId) ?? container;
-            await _replacementWriteGuard.EnsureAllowedAsync(candidate, subWork, requested.OverrideBlock, stored, cancellationToken);
+            await _replacementWriteGuard.EnsureAllowedAsync(
+                candidate, workChangeParents.SubWorks[candidate.WorkId], requested.OverrideBlock, stored, cancellationToken);
         }
     }
 
