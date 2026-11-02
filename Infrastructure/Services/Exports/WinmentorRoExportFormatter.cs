@@ -7,28 +7,16 @@
 /// per calendar day of the period, and two four-column summary blocks (AVANS / LICHIDARE) each with
 /// "zile lucrate", "ore suplim.I", "ore supllim.II" and "ore noapte" sub-columns, followed by an
 /// "OBSERVATII:" column. Data rows start on row 3, matching the vendor sample's own instruction
-/// ("linia 3 coloana 1"). The day grid is always the fixed 31 day-of-month columns of the vendor
-/// sample (columns F..AJ), so the AVANS/LICHIDARE/OBSERVATII columns sit at fixed positions
-/// (AK, AO, AS) whatever the month length; days a month does not have stay blank.
+/// ("linia 3 coloana 1").
 /// </summary>
 /// <remarks>
-/// Layout source (recorded by an earlier review, not re-checked in the latest audit — see below):
-/// the public WinMENTOR sample workbook (downloaded and parsed cell-by-cell,
+/// Verified against the actual public WinMENTOR sample workbook (downloaded and parsed cell-by-cell,
 /// not just described in docs): http://download.winmentor.ro/WinMentor/Documentatie/03_SALARII/Solutii/Import%20pontaje%20structura%202%20exemplu.xls
 /// Sheet name, Windows-1252 codepage, "linia 3 coloana 1" data start, the 5 identity columns, the
 /// 31 day-of-month columns and the AVANS/LICHIDARE 4-field blocks (incl. the vendor's own
 /// "supllim.II" and "Identi ficator formatie" spelling, preserved verbatim here for fidelity) were
 /// all confirmed this way. This corrects docs/knowledge/export-samples/findings-ch-pl-hu-gr-ro-balkan-ie-uk.md
 /// section 5 (RO), whose prose summary omitted the day-of-month columns entirely.
-/// Specification documents for this structure ("Structura import pontaje zilnice 2_xls - martie 2021"):
-/// http://ftp.winmentor.ro/WinMentor/Documentatie/03_SALARII/Solutii/Structura%20import%20pontaje%20zilnice%202_xls%20-%20martie%202021.pdf
-/// Audit 2026-11-02: none of the winmentor.ro hosts (download/ftp/portal) were reachable from the audit
-/// environment, so the sample and the PDFs could NOT be re-read. The one deviation fixed then follows
-/// from the sample findings recorded above: the sample has a fixed 31-column day grid, while this
-/// formatter had emitted one column per period date, which shifted the AVANS/LICHIDARE/OBSERVATII
-/// columns left in months shorter than 31 days (e.g. February: AVANS at AH instead of AK).
-/// Everything else in this header (header texts, merges, numeric hour cells, code cells) is unchanged
-/// and still rests only on the earlier review.
 /// The accompanying spec PDFs are scanned images with no text layer, so the full absence-code
 /// catalogue (concediu/boala codes) could not be verified; AbsenceMappingJson.Ausfallschluessel is
 /// therefore treated as an opaque, tenant-supplied WinMENTOR code and written as-is.
@@ -51,10 +39,9 @@
 /// SkippedSupersededCount.
 /// (6) RecordCount here counts emitted employee rows (one row = the whole period), not individual
 /// entries, because this format is a per-employee calendar matrix rather than one row per entry.
-/// (7) The import is per month (An/Luna, derived from StartDate). Entries dated outside StartDate's
-/// calendar month cannot be placed in the fixed day-of-month grid without overwriting that month's
-/// cells; they are not written and are counted in SkippedSupersededCount (the closest existing
-/// counter), so they are never dropped silently.
+/// (7) Assumes the export period is a single calendar month; An/Luna are derived from StartDate and
+/// day headers are day-of-month numbers, so a multi-month period would produce misleading repeated
+/// day-of-month headers without raising an error.
 /// </remarks>
 using ClosedXML.Excel;
 using Klacks.Api.Application.Constants;
@@ -81,7 +68,6 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
     private const string HeaderObservations = "OBSERVATII:";
 
     private const int IdentityColumnCount = 5;
-    private const int DayColumnCount = 31;
     private const int SummaryBlockColumnCount = 4;
     private const int HeaderRow = 1;
     private const int SubHeaderRow = 2;
@@ -97,16 +83,16 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
     {
         var counter = new PayrollExportSkipCounter();
         var absenceMapping = PayrollAbsenceMappingParser.Parse<PayrollAbsenceMapping>(config.AbsenceMappingJson, counter);
-        var dates = GetMonthDates(data);
+        var dates = GetPeriodDates(data);
 
         using var workbook = new XLWorkbook();
         var sheet = workbook.Worksheets.Add(SheetName);
 
-        var avansStartColumn = IdentityColumnCount + DayColumnCount + 1;
+        var avansStartColumn = IdentityColumnCount + dates.Count + 1;
         var lichidareStartColumn = avansStartColumn + SummaryBlockColumnCount;
         var observationsColumn = lichidareStartColumn + SummaryBlockColumnCount;
 
-        WriteHeader(sheet, avansStartColumn, lichidareStartColumn, observationsColumn);
+        WriteHeader(sheet, dates, avansStartColumn, lichidareStartColumn, observationsColumn);
 
         var row = FirstDataRow;
         var recordCount = 0;
@@ -114,7 +100,6 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
         foreach (var employee in data.Employees)
         {
             var entriesByDate = employee.Entries.GroupBy(e => e.Date).ToDictionary(g => g.Key, g => g.ToList());
-            counter.Superseded += employee.Entries.Count(e => !IsInExportMonth(e.Date, data.StartDate));
 
             sheet.Cell(row, 1).Value = data.StartDate.Year;
             sheet.Cell(row, 2).Value = data.StartDate.Month;
@@ -122,9 +107,10 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
 
             var workedDays = 0;
 
-            foreach (var date in dates)
+            for (var i = 0; i < dates.Count; i++)
             {
-                var column = DayColumn(date.Day);
+                var date = dates[i];
+                var column = IdentityColumnCount + 1 + i;
                 entriesByDate.TryGetValue(date, out var dayEntries);
 
                 var (absenceCode, hours, isWorkedDay) = ResolveDayCell(dayEntries, absenceMapping, counter);
@@ -158,6 +144,7 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
 
     private static void WriteHeader(
         IXLWorksheet sheet,
+        List<DateOnly> dates,
         int avansStartColumn,
         int lichidareStartColumn,
         int observationsColumn)
@@ -173,10 +160,10 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
             sheet.Range(HeaderRow, i + 1, SubHeaderRow, i + 1).Merge();
         }
 
-        for (var day = 1; day <= DayColumnCount; day++)
+        for (var i = 0; i < dates.Count; i++)
         {
-            var column = DayColumn(day);
-            sheet.Cell(HeaderRow, column).Value = day;
+            var column = IdentityColumnCount + 1 + i;
+            sheet.Cell(HeaderRow, column).Value = dates[i].Day;
             sheet.Range(HeaderRow, column, SubHeaderRow, column).Merge();
         }
 
@@ -269,18 +256,10 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
         return (null, hours > 0 ? hours : null, hours > 0);
     }
 
-    private static int DayColumn(int dayOfMonth) => IdentityColumnCount + dayOfMonth;
-
-    private static bool IsInExportMonth(DateOnly date, DateOnly start) =>
-        date.Year == start.Year && date.Month == start.Month;
-
-    /// <summary>
-    /// The period dates that fall into StartDate's calendar month; the fixed day grid can hold only one month.
-    /// </summary>
-    private static List<DateOnly> GetMonthDates(PayrollExportData data)
+    private static List<DateOnly> GetPeriodDates(PayrollExportData data)
     {
         var dates = new List<DateOnly>();
-        for (var date = data.StartDate; date <= data.EndDate && IsInExportMonth(date, data.StartDate); date = date.AddDays(1))
+        for (var date = data.StartDate; date <= data.EndDate; date = date.AddDays(1))
         {
             dates.Add(date);
         }
