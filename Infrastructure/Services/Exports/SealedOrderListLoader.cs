@@ -4,7 +4,8 @@
 /// Loads SealedOrder shifts together with their customer data and the count of
 /// Work entries broken down by lock state. The Work counter recurses through
 /// the SealedOrder's descendant shifts (OriginalShift -> SplitShift) via
-/// IShiftDescendantResolver. Real orders only: shifts of a variant (key) and scenario clones are left out.
+/// IShiftDescendantResolver. Real orders only: shifts of a variant (key) and scenario clones are left out, and so is a
+/// shift without a customer (BillableOrderRule).
 /// </summary>
 using Klacks.Api.Application.DTOs.Exports;
 using Klacks.Api.Application.Interfaces.Exports;
@@ -41,7 +42,8 @@ public class SealedOrderListLoader : ISealedOrderListLoader
             .Where(s => !s.IsDeleted
                 && s.Status == ShiftStatus.SealedOrder
                 && s.AnalyseToken == null
-                && s.ScenarioSourceShiftId == null);
+                && s.ScenarioSourceShiftId == null)
+            .Where(BillableOrderRule.HasCustomer);
 
         query = ApplyPeriodAndCustomerFilters(query, fromDate, untilDate, customerId);
         query = await ApplySearchAsync(query, searchTerm, cancellationToken);

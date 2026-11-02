@@ -35788,7 +35788,7 @@
     {
       "name": "reset_shift_cuts",
       "area": "shift",
-      "description": "Merges all split parts of a shift order back into ONE plannable shift (OriginalShift) starting at a new date: split parts still open at/after that date are closed the day before, and a fresh full-span plannable shift is created from the order's own template starting on that date. Cuts entirely before the new date stay untouched. Use when the user wants to reset a value or state. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Puts a split shift order back to its state at creation: cut parts are removed and ONE plannable shift with the order's content remains, from the order's first day. With planned work the date must lie after the last work; parts with such work stay. Refused when work is planned from the date or a scenario still uses a part. Use when the user wants to reset a value or state. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35805,7 +35805,7 @@
         },
         {
           "name": "newStartDate",
-          "description": "ISO date (yyyy-MM-dd) the merged plannable shift starts from; must lie within the order's own validity range (fromDate..untilDate).",
+          "description": "ISO date (yyyy-MM-dd) from which the shift is whole again; it counts only when the order has planned work, and must lie after the last work and within the order's validity range (fromDate..untilDate).",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -35873,7 +35873,7 @@
         "fr": "Refusionner les parties découpées d'un service",
         "it": "Riunisci le parti tagliate di un turno"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "cut_shift_by_date",

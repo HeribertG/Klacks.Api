@@ -6,6 +6,12 @@ namespace Klacks.Api.Domain.Interfaces.Schedules;
 
 public interface IShiftResetService
 {
-    Task<Shift> CreateNewOriginalShiftFromSealedOrderAsync(Shift sealedOrder, DateOnly newStartDate);
-    void CloseExistingSplitShifts(List<Shift> shifts, DateOnly closeDate);
+    /// <summary>
+    /// Stages a new plannable shift with the content, groups and requirements of the sealed order and fresh copies of its
+    /// default expenses.
+    /// </summary>
+    /// <param name="sealedOrder">The sealed order with its group items</param>
+    /// <param name="newStartDate">First day of the new plannable shift</param>
+    /// <param name="defaultExpenses">The stored default expense rows of the sealed order</param>
+    Task<Shift> CreateNewOriginalShiftFromSealedOrderAsync(Shift sealedOrder, DateOnly newStartDate, IReadOnlyCollection<ShiftExpenses> defaultExpenses);
 }
