@@ -15,12 +15,12 @@ public interface IAbsenceCoverMaterializer
     Task<CoverMaterialisationResult> MaterialiseAsync(CoverMaterialisation materialisation, CancellationToken cancellationToken);
 
     /// <summary>
-    /// The clone source works this report may move, the ones a cover could move as a whole.
+    /// The clone source works this report may move as a whole, and the ones an earlier cover moved.
     /// </summary>
     /// <param name="workIdMap">Clone source work id to scenario clone id</param>
     /// <param name="analyseToken">Token of the scenario</param>
     /// <param name="report">How the absence reached the run</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    Task<IReadOnlySet<Guid>> FindMovableSourceWorksAsync(
+    Task<CoverSourceWorks> FindSourceWorksAsync(
         IReadOnlyDictionary<Guid, Guid> workIdMap, Guid analyseToken, CoverReport report, CancellationToken cancellationToken);
 }

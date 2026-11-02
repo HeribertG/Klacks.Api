@@ -25,6 +25,7 @@ public interface IRecoverySnapshotBuilder
     /// <param name="source">Scenario the cover is built on; null = the real plan</param>
     /// <param name="clonedWorkIds">The source works that have a clone in the scenario; any other work is immutable, it cannot be written</param>
     /// <param name="untouchedWorkIds">The cloned works nothing holds in place; only these can move as a whole</param>
+    /// <param name="swapLockedWorkIds">The works no swap may take from their person</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task<RecoverySnapshot> BuildAsync(
         Guid groupId,
@@ -33,5 +34,6 @@ public interface IRecoverySnapshotBuilder
         ScenarioSourceScope? source,
         IReadOnlySet<Guid> clonedWorkIds,
         IReadOnlySet<Guid> untouchedWorkIds,
+        IReadOnlySet<Guid> swapLockedWorkIds,
         CancellationToken cancellationToken);
 }

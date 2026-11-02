@@ -223,9 +223,9 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         await _unitOfWork.CompleteAsync();
 
         var report = await ResolveReportAsync(request, cancellationToken);
+        var sourceWorks = await _coverMaterializer.FindSourceWorksAsync(workIdMap, token, report, cancellationToken);
         var snapshot = await _snapshotBuilder.BuildAsync(
-            groupId, clientId, dates, source, workIdMap.Keys.ToHashSet(),
-            await _coverMaterializer.FindMovableSourceWorksAsync(workIdMap, token, report, cancellationToken), cancellationToken);
+            groupId, clientId, dates, source, workIdMap.Keys.ToHashSet(), sourceWorks.Movable, sourceWorks.Moved, cancellationToken);
         var proposal = _recoveryEngine.Repair(
             snapshot, new Rec.AbsenceEvent(clientId, dates), Rec.Ruleset.Default);
         var rootShiftIds = await ResolveRootShiftIdsAsync(proposal, source, cancellationToken);

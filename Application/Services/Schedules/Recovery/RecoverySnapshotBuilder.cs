@@ -98,6 +98,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         ScenarioSourceScope? source,
         IReadOnlySet<Guid> clonedWorkIds,
         IReadOnlySet<Guid> untouchedWorkIds,
+        IReadOnlySet<Guid> swapLockedWorkIds,
         CancellationToken cancellationToken)
     {
         var dates = absenceDates.OrderBy(d => d.DayNumber).ToList();
@@ -130,7 +131,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         var (cells, allCells) = await LoadCellsAsync(windowStart, windowEnd, rootGroupId, source, coveredClientIds, cancellationToken);
 
         var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
-        var works = BuildWorks(cells, onCallAbsenceIds, clonedWorkIds, out var breakDays, allCells, untouchedWorkIds);
+        var works = BuildWorks(cells, onCallAbsenceIds, clonedWorkIds, out var breakDays, allCells, untouchedWorkIds, swapLockedWorkIds);
         var sealedDays = await _sealedDayRepository.GetLockedClientDaysAsync(memberIds, windowStart, windowEnd, cancellationToken);
         breakDays.Blocking.UnionWith(sealedDays);
         breakDays.Sealed.UnionWith(sealedDays);
@@ -345,13 +346,15 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     /// <param name="breakDays">The classified break days</param>
     /// <param name="untouchedWorkIds">Works nothing holds in place (sealed child, replacement on a sub work); null means every cloned work</param>
     /// <param name="workChangeCells">Cells the work changes (replacements, lead, trail) are read from; the cells themselves when null</param>
+    /// <param name="swapLockedWorkIds">Works no swap may take from their person; null means none</param>
     internal static IReadOnlyDictionary<CellKey, IReadOnlyList<RecoveryWork>> BuildWorks(
         IReadOnlyList<Domain.Models.Schedules.ScheduleCell> cells,
         IReadOnlySet<Guid> onCallAbsenceIds,
         IReadOnlySet<Guid> clonedWorkIds,
         out RecoveryBreakDays breakDays,
         IReadOnlyList<Domain.Models.Schedules.ScheduleCell>? workChangeCells = null,
-        IReadOnlySet<Guid>? untouchedWorkIds = null)
+        IReadOnlySet<Guid>? untouchedWorkIds = null,
+        IReadOnlySet<Guid>? swapLockedWorkIds = null)
     {
         var works = new Dictionary<CellKey, List<RecoveryWork>>();
         breakDays = RecoveryBreakDays.Empty();
@@ -439,7 +442,8 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                     lead,
                     trail,
                     extraPaid,
-                    movesAsWhole);
+                    movesAsWhole,
+                    swapLockedWorkIds?.Contains(cell.SourceId) ?? false);
                 if (!works.TryGetValue(key, out var list))
                 {
                     list = [];

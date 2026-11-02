@@ -73,15 +73,15 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
         _logger = logger;
     }
 
-    public async Task<IReadOnlySet<Guid>> FindMovableSourceWorksAsync(
+    public async Task<CoverSourceWorks> FindSourceWorksAsync(
         IReadOnlyDictionary<Guid, Guid> workIdMap, Guid analyseToken, CoverReport report, CancellationToken cancellationToken)
     {
         var facts = await _factsReader.LoadAsync(workIdMap.Values.ToList(), analyseToken, cancellationToken);
         var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
-        return workIdMap
-            .Where(work => facts.TryGetValue(work.Value, out var fact) && CoverMoveDecision.MayMove(fact, report, companyTimeZone))
-            .Select(work => work.Key)
-            .ToHashSet();
+        var known = workIdMap.Where(work => facts.ContainsKey(work.Value)).ToList();
+        return new CoverSourceWorks(
+            known.Where(work => CoverMoveDecision.MayMove(facts[work.Value], report, companyTimeZone)).Select(work => work.Key).ToHashSet(),
+            known.Where(work => facts[work.Value].IsMoved).Select(work => work.Key).ToHashSet());
     }
 
     public async Task<CoverMaterialisationResult> MaterialiseAsync(CoverMaterialisation materialisation, CancellationToken cancellationToken)

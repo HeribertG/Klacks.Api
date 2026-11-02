@@ -3,14 +3,16 @@
 /// <summary>
 /// Finds the works an accept removes: an absence the scenario added to a work that stayed uncovered. The absence must be new
 /// against the real plan, so a work the planner left next to an older absence stays. On-call absences take no work, a sealed,
-/// replaced or sub work stays (CoverMoveDecision), and a scenario without a group finds nothing, because only a group's
-/// clones are known to be its own.
+/// replaced, started or sub work stays (CoverMoveDecision), from every path including the cover dialog, and a scenario without
+/// a group finds nothing, because only a group's clones are known to be its own.
 /// </summary>
 /// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
 /// <param name="factsReader">Tells which scenario works are untouched</param>
+/// <param name="companyClock">Tells which works have started</param>
 
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +23,13 @@ public sealed class ScenarioOpenSlotFinder
 {
     private readonly DataBaseContext _context;
     private readonly ICoverMoveFactsReader _factsReader;
+    private readonly ICompanyClock _companyClock;
 
-    public ScenarioOpenSlotFinder(DataBaseContext context, ICoverMoveFactsReader factsReader)
+    public ScenarioOpenSlotFinder(DataBaseContext context, ICoverMoveFactsReader factsReader, ICompanyClock companyClock)
     {
         _context = context;
         _factsReader = factsReader;
+        _companyClock = companyClock;
     }
 
     internal async Task<IReadOnlySet<Guid>> FindAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
@@ -78,6 +82,11 @@ public sealed class ScenarioOpenSlotFinder
         }
 
         var facts = await _factsReader.LoadAsync(taken, token, ct);
-        return facts.Values.Where(CoverMoveDecision.IsUntouched).Select(fact => fact.WorkId).ToHashSet();
+        var nowUtc = (await _companyClock.GetNowAsync(ct)).UtcDateTime;
+        var companyTimeZone = await _companyClock.GetTimeZoneAsync(ct);
+        return facts.Values
+            .Where(fact => CoverMoveDecision.MayFall(fact, nowUtc, companyTimeZone))
+            .Select(fact => fact.WorkId)
+            .ToHashSet();
     }
 }
