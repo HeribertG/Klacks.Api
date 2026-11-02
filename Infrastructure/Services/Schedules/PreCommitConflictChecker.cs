@@ -7,8 +7,10 @@
 /// and returns the violations present only in the augmented run (the ones the placement introduces).
 /// Grouped per client so the timeline is loaded once per client even for batch placements. A placement
 /// over an on-call break is reported as an on-call-overlap Warning instead of a blocking collision.
-/// The lead and trail of a planned row enter the augmented timeline as briefing and debriefing work changes, its extra paid
-/// hours count towards the planned period hours.
+/// The lead and trail of a planned row enter the augmented timeline as briefing and debriefing work changes and take part in
+/// the collision check only; the rest, overtime and consecutive-day checks count work blocks alone. The extra paid hours of
+/// a planned row count towards the planned period hours; a vacated row gives back only its own hours, the extras stay with
+/// the giver as long as no service moves with its extras.
 /// </summary>
 /// <param name="context">Read-only access to Work/WorkChange/Break for the affected clients</param>
 /// <param name="requirementRepository">Resolves the required qualifications that apply to each planned shift (inherited along the order tree)</param>

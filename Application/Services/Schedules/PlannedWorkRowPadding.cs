@@ -2,8 +2,8 @@
 
 /// <summary>
 /// Turns the lead and trail of a planned work row into the briefing and debriefing work changes the schedule timeline
-/// understands, so the pre-commit checks see the occupied time around a not-yet-written work (a TimeOnly cannot say
-/// that the lead starts before midnight).
+/// understands, so the pre-commit collision check sees the occupied time around a not-yet-written work (a TimeOnly cannot
+/// say that the lead starts before midnight). Only the collision check reads them; rest and overtime count work blocks.
 /// </summary>
 /// <param name="row">The planned row whose lead and trail are mapped</param>
 /// <param name="workId">Id of the synthetic work the work changes belong to</param>
