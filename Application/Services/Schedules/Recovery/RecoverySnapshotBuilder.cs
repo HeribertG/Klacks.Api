@@ -126,12 +126,13 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         var periodHours = await LoadPeriodHoursAsync(memberIds, periodFrom, periodUntil, source, coveredClientIds);
         var (preferred, blacklisted) = PreferenceSets(await LoadPreferencesAsync(memberIds, source, cancellationToken));
         var membershipWindows = await _membershipWindowReader.GetWindowsAsync(memberIds, cancellationToken);
-        var cells = await LoadCellsAsync(windowStart, windowEnd, rootGroupId, source, coveredClientIds, cancellationToken);
+        var (cells, allCells) = await LoadCellsAsync(windowStart, windowEnd, rootGroupId, source, coveredClientIds, cancellationToken);
 
         var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
-        var works = BuildWorks(cells, onCallAbsenceIds, clonedWorkIds, out var breakDays);
-        breakDays.Blocking.UnionWith(
-            await _sealedDayRepository.GetLockedClientDaysAsync(memberIds, windowStart, windowEnd, cancellationToken));
+        var works = BuildWorks(cells, onCallAbsenceIds, clonedWorkIds, out var breakDays, allCells);
+        var sealedDays = await _sealedDayRepository.GetLockedClientDaysAsync(memberIds, windowStart, windowEnd, cancellationToken);
+        breakDays.Blocking.UnionWith(sealedDays);
+        breakDays.Sealed.UnionWith(sealedDays);
         var keywordDays = await LoadKeywordDaysAsync(memberIds, windowStart, windowEnd, source, coveredClientIds, cancellationToken);
         var availability = BuildAvailability(memberIds, contracts, breakDays, keywordDays, windowStart, windowEnd, membershipWindows);
         var ineligible = await BuildIneligibleAsync(
@@ -156,7 +157,9 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
 
         return new RecoverySnapshot(
             EnumerateDays(windowStart, windowEnd), agents, works, availability, ineligible,
-            receivingGroupId: groupId);
+            receivingGroupId: groupId,
+            blockingAbsences: breakDays.BlockingWindows.ToDictionary(
+                entry => entry.Key, entry => (IReadOnlyList<AbsenceWindow>)entry.Value));
     }
 
     private async Task<IReadOnlyList<ScopedShiftPreference>> LoadPreferencesAsync(
@@ -177,7 +180,12 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             ? await _groupClientService.GetAllClientIdsFromGroupAndSubgroups(sourceGroupId)
             : null;
 
-    private async Task<IReadOnlyList<ScheduleCell>> LoadCellsAsync(
+    /// <summary>
+    /// The cells the engine reads and, next to them, every cell of both worlds. The merged cells drop the real rows of the days
+    /// a source scenario owns, so a debriefing or replacement that falls on the day after the last day of the scenario would be
+    /// lost with them; the work changes are therefore read from the unmerged cells, matched to their work by its id.
+    /// </summary>
+    private async Task<(IReadOnlyList<ScheduleCell> Cells, IReadOnlyList<ScheduleCell> AllCells)> LoadCellsAsync(
         DateOnly windowStart,
         DateOnly windowEnd,
         Guid rootGroupId,
@@ -190,15 +198,16 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             cancellationToken);
         if (source is null)
         {
-            return real;
+            return (real, real);
         }
 
         var scenario = await _scheduleEntriesService.GetScheduleEntriesAsync(
             new ScheduleEntriesCriteria(windowStart, windowEnd, [rootGroupId], source.Token),
             cancellationToken);
-        return ScenarioSourceRowMerger.Merge(
+        var merged = ScenarioSourceRowMerger.Merge(
             real, scenario, source, coveredClientIds, c => c.ClientId, c => DateOnly.FromDateTime(c.EntryDate),
             c => c.EntryType != (int)ScheduleEntryType.Break && source.OwnedShiftIds.Contains(c.EntryId));
+        return (merged, real.Concat(scenario).ToList());
     }
 
     /// <summary>
@@ -331,47 +340,41 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     /// </summary>
     /// <param name="cells">Schedule cells of the context window</param>
     /// <param name="onCallAbsenceIds">Ids of the absence types flagged as on-call</param>
+    /// <param name="clonedWorkIds">Works with a clone in the scenario; any other work is immutable</param>
     /// <param name="breakDays">The classified break days</param>
+    /// <param name="workChangeCells">Cells the work changes (replacements, lead, trail) are read from; the cells themselves when null</param>
     internal static IReadOnlyDictionary<CellKey, IReadOnlyList<RecoveryWork>> BuildWorks(
         IReadOnlyList<Domain.Models.Schedules.ScheduleCell> cells,
         IReadOnlySet<Guid> onCallAbsenceIds,
         IReadOnlySet<Guid> clonedWorkIds,
-        out RecoveryBreakDays breakDays)
+        out RecoveryBreakDays breakDays,
+        IReadOnlyList<Domain.Models.Schedules.ScheduleCell>? workChangeCells = null)
     {
         var works = new Dictionary<CellKey, List<RecoveryWork>>();
         breakDays = RecoveryBreakDays.Empty();
+        var changeCells = workChangeCells ?? cells;
 
-        // First pass: collect the portions an original work has already handed to a substitute. A genuine
-        // replacement (WorkChangeType ReplacementStart/End/Within) emits a row under the ORIGINAL client
-        // with is_replacement_entry = false and the replaced-away interval; corrections / travel / briefing
-        // (also is_replacement_entry = false) are different work-change types and must NOT trim the work.
-        var replacedAway = new Dictionary<CellKey, List<(DateTime Start, DateTime End)>>();
-        foreach (var cell in cells)
-        {
-            if (cell.EntryType != (int)ScheduleEntryType.WorkChange
-                || cell.IsReplacementEntry
-                || !ReplacementWorkChangeTypes.IsReplacement(cell.WorkChangeType))
-            {
-                continue;
-            }
-            var date = DateOnly.FromDateTime(cell.EntryDate);
-            var (rStart, rEnd) = Interval(date, cell.StartTime, cell.EndTime);
-            var key = new CellKey(cell.ClientId, date);
-            if (!replacedAway.TryGetValue(key, out var removedList))
-            {
-                removedList = [];
-                replacedAway[key] = removedList;
-            }
-            removedList.Add((rStart, rEnd));
-        }
-
+        var replacedAway = CollectReplacedAway(changeCells);
+        var paddings = RecoveryWorkPaddingReader.Collect(changeCells);
         foreach (var cell in cells)
         {
             var date = DateOnly.FromDateTime(cell.EntryDate);
             if (cell.EntryType == (int)ScheduleEntryType.Break)
             {
-                var target = onCallAbsenceIds.Contains(cell.EntryId) ? breakDays.OnCall : breakDays.Blocking;
-                target.Add((cell.ClientId, date));
+                if (onCallAbsenceIds.Contains(cell.EntryId))
+                {
+                    breakDays.OnCall.Add((cell.ClientId, date));
+                    continue;
+                }
+                breakDays.Blocking.Add((cell.ClientId, date));
+                var (absenceStart, absenceEnd) = Interval(date, cell.StartTime, cell.EndTime);
+                var absenceKey = new CellKey(cell.ClientId, date);
+                if (!breakDays.BlockingWindows.TryGetValue(absenceKey, out var windows))
+                {
+                    windows = [];
+                    breakDays.BlockingWindows[absenceKey] = windows;
+                }
+                windows.Add(new AbsenceWindow(absenceStart, absenceEnd));
                 continue;
             }
             var isWork = cell.EntryType == (int)ScheduleEntryType.Work;
@@ -404,17 +407,20 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             // portion the original still works: subtract the replaced-away intervals so an already-covered
             // slot is not re-covered. A replacement cover (the substitute's own portion) is never trimmed.
             List<(DateTime Start, DateTime End)> segments = [(startAt, endAt)];
-            if (!isReplacementCover && replacedAway.TryGetValue(key, out var removed))
+            if (!isReplacementCover && replacedAway.TryGetValue(cell.SourceId, out var removed))
             {
                 segments = SubtractIntervals(startAt, endAt, removed);
             }
 
-            foreach (var (segStart, segEnd) in segments)
+            var padding = isWork && paddings.TryGetValue(cell.SourceId, out var found) ? found : RecoveryWorkPadding.None;
+            for (var index = 0; index < segments.Count; index++)
             {
+                var (segStart, segEnd) = segments[index];
                 if (segEnd <= segStart)
                 {
                     continue;
                 }
+                var (lead, trail, extraPaid) = padding.ForSegment(startAt, endAt, segments, index);
                 var work = new RecoveryWork(
                     CategoryOf(cell.StartTime, cell.EndTime),
                     cell.EntryId,
@@ -422,7 +428,10 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                     segStart,
                     segEnd,
                     (decimal)(segEnd - segStart).TotalHours,
-                    [cell.SourceId]);
+                    [cell.SourceId],
+                    lead,
+                    trail,
+                    extraPaid);
                 if (!works.TryGetValue(key, out var list))
                 {
                     list = [];
@@ -433,6 +442,36 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         }
 
         return works.ToDictionary(kv => kv.Key, kv => (IReadOnlyList<RecoveryWork>)kv.Value);
+    }
+
+    /// <summary>
+    /// The portions an original work has already handed to a substitute, per work id. A genuine replacement
+    /// (WorkChangeType ReplacementStart/End/Within) emits a row under the ORIGINAL client with is_replacement_entry = false
+    /// and the replaced-away interval; corrections / travel / briefing (also is_replacement_entry = false) are different
+    /// work-change types and must NOT trim the work. The row of a part after midnight sits on the next day, so the work
+    /// is matched by its id (SourceId), not by client and day.
+    /// </summary>
+    private static Dictionary<Guid, List<(DateTime Start, DateTime End)>> CollectReplacedAway(
+        IReadOnlyList<Domain.Models.Schedules.ScheduleCell> cells)
+    {
+        var replacedAway = new Dictionary<Guid, List<(DateTime Start, DateTime End)>>();
+        foreach (var cell in cells)
+        {
+            if (cell.EntryType != (int)ScheduleEntryType.WorkChange
+                || cell.IsReplacementEntry
+                || !ReplacementWorkChangeTypes.IsReplacement(cell.WorkChangeType))
+            {
+                continue;
+            }
+            var (rStart, rEnd) = Interval(DateOnly.FromDateTime(cell.EntryDate), cell.StartTime, cell.EndTime);
+            if (!replacedAway.TryGetValue(cell.SourceId, out var removedList))
+            {
+                removedList = [];
+                replacedAway[cell.SourceId] = removedList;
+            }
+            removedList.Add((rStart, rEnd));
+        }
+        return replacedAway;
     }
 
     /// <summary>
@@ -507,7 +546,8 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                     hasBlockingBreak,
                     RequiredCategory: RequiredCategoryOf(keyword),
                     ForbiddenCategory: ForbiddenCategoryOf(keyword),
-                    IsOnCall: isOnCall);
+                    IsOnCall: isOnCall,
+                    IsSealed: breakDays.Sealed.Contains((id, date)));
             }
         }
         return availability;

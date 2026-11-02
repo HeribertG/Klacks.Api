@@ -26,6 +26,7 @@ using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Services.Schedules.Recovery;
@@ -84,7 +85,7 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
         }
 
         var (slotStart, slotEnd) = StoredWindowOf(slotChange);
-        await EnsureEligibleAsync(row, slotStart, slotEnd, scenario.GroupId ?? row.GroupId, token, overrideBlock, cancellationToken);
+        await EnsureEligibleAsync(row, slotChange, slotStart, slotEnd, scenario.GroupId ?? row.GroupId, token, overrideBlock, cancellationToken);
         if (await _workChangeRepository.HasOverlappingScenarioReplacementAsync(
                 token, row.CandidateClientId, row.Date, slotChange.Work!.StartTime, slotStart, slotEnd, cancellationToken))
         {
@@ -134,6 +135,7 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
 
     private async Task EnsureEligibleAsync(
         ReplacementRequest row,
+        WorkChange slotChange,
         TimeOnly slotStart,
         TimeOnly slotEnd,
         Guid? groupId,
@@ -146,13 +148,35 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
             throw new ConflictException(NoGroupMessage);
         }
 
+        var slot = ReplacementWindow.ToInterval(slotChange.Work!.CurrentDate, slotChange.Work.StartTime, slotStart, slotEnd);
+        var (lead, trail, extraPaid) = await PaddingOfSlotAsync(slotChange, slot, cancellationToken);
         var search = await _mediator.Send(
-            new FindReplacementQuery(row.ShiftId, row.Date, slotStart, slotEnd, searchGroupId, token, overrideBlock),
+            new FindReplacementQuery(
+                row.ShiftId, DateOnly.FromDateTime(slot.StartAt), slotStart, slotEnd, searchGroupId, token, overrideBlock,
+                lead, trail, extraPaid),
             cancellationToken);
         if (search.Eligible.All(candidate => candidate.ClientId != row.CandidateClientId))
         {
             throw new ConflictException(NotEligibleMessage);
         }
+    }
+
+    /// <summary>
+    /// The lead, trail and extra paid hours a stand-in takes over with the slot: the lead only when the slot begins at the
+    /// start of the work, the trail only when it ends at its end, the travel and correction hours of those sides with them.
+    /// </summary>
+    private async Task<(decimal LeadHours, decimal TrailHours, decimal ExtraPaidHours)> PaddingOfSlotAsync(
+        WorkChange slotChange, (DateTime StartAt, DateTime EndAt) slot, CancellationToken cancellationToken)
+    {
+        var work = slotChange.Work!;
+        var changes = await _workChangeRepository.ListNonReplacementChangesAsync(work.Id, cancellationToken);
+        var padding = RecoveryWorkPaddingReader.Collect(work, changes);
+        var insideSlot = padding with
+        {
+            WithinExtraPaidHours = padding.WithinExtraPaidHours.Where(t => t.At >= slot.StartAt && t.At < slot.EndAt).ToList(),
+        };
+        var (workStartAt, workEndAt) = ReplacementWindow.ToInterval(work.CurrentDate, work.StartTime, work.StartTime, work.EndTime);
+        return insideSlot.ForSegment(workStartAt, workEndAt, [(slot.StartAt, slot.EndAt)], 0);
     }
 
     private async Task ReplaceStandInAsync(Guid workChangeId, Guid token, Guid candidateId, CancellationToken cancellationToken)

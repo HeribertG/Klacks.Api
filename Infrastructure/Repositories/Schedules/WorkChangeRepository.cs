@@ -77,6 +77,18 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<WorkChange>> ListNonReplacementChangesAsync(
+        Guid workId, CancellationToken cancellationToken = default)
+    {
+        var replacementTypes = ReplacementWorkChangeTypes.All.ToList();
+
+        return await _context.WorkChange
+            .AsNoTracking()
+            .Where(wc => wc.WorkId == workId && !replacementTypes.Contains(wc.Type))
+            .OrderBy(wc => wc.Id)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<bool> HasOverlappingScenarioReplacementAsync(
         Guid analyseToken,
         Guid clientId,

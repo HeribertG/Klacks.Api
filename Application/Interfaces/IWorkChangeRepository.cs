@@ -26,6 +26,14 @@ public interface IWorkChangeRepository : IBaseRepository<WorkChange>
         Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The work changes of one work that do not hand it to someone else (corrections, travel, briefing, debriefing), untracked.
+    /// A work id belongs to one plan or scenario, so no token is needed.
+    /// </summary>
+    /// <param name="workId">Id of the work</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<List<WorkChange>> ListNonReplacementChangesAsync(Guid workId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// True when the employee still stands in on any work of the scenario.
     /// </summary>
     /// <param name="analyseToken">Scenario token</param>
