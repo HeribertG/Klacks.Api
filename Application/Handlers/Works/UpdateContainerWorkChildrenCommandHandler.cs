@@ -9,20 +9,26 @@
 /// refused exactly like a save with a shift that does not exist; unchanged sub-works on hidden shifts stay saveable.
 /// A new or changed replacement among the work changes of a sub-work passes IReplacementWriteGuard like a replacement
 /// saved on its own, with the stored row as comparison; a row that is the same as the stored one is not checked again.
+/// The children keep their server-owned state (seal state, scenario, clone link) from the stored rows and pass the lock level
+/// and day-lock checks of the update and delete handlers, a child left out of the request included (IContainerChildrenWriteGuard).
+/// The owners of the stored children and the persons of the stored work changes must be visible to the caller as well.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="shiftVisibilityGuard">Decides which shifts of new or changed sub-works the calling user may book</param>
 /// <param name="replacementWriteGuard">Refuses a new or changed replacement without a valid person or with a blocking conflict for the substitute</param>
+/// <param name="childrenWriteGuard">Keeps the server-owned state of the children and refuses writes the lock levels and sealed days forbid</param>
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -41,6 +47,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly IReplacementWriteGuard _replacementWriteGuard;
+    private readonly IContainerChildrenWriteGuard _childrenWriteGuard;
 
     public UpdateContainerWorkChildrenCommandHandler(
         IContainerWorkChildrenReadRepository childrenReadRepository,
@@ -54,6 +61,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         IOvertimeCascadeService overtimeCascadeService,
         IShiftVisibilityGuard shiftVisibilityGuard,
         IReplacementWriteGuard replacementWriteGuard,
+        IContainerChildrenWriteGuard childrenWriteGuard,
         ILogger<UpdateContainerWorkChildrenCommandHandler> logger)
         : base(logger)
     {
@@ -68,6 +76,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         _overtimeCascadeService = overtimeCascadeService;
         _shiftVisibilityGuard = shiftVisibilityGuard;
         _replacementWriteGuard = replacementWriteGuard;
+        _childrenWriteGuard = childrenWriteGuard;
     }
 
     public async Task<ContainerWorkChildrenResource> Handle(UpdateContainerWorkChildrenCommand request, CancellationToken cancellationToken)
@@ -80,15 +89,18 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             }
 
             await VerifyLockAsync(request.WorkId, cancellationToken);
-            var container = await EnsureContainerVisibleAsync(request.WorkId, request.Resource, cancellationToken);
+            var container = await ReadContainerAsync(request.WorkId, cancellationToken);
+            var stored = await LoadStoredChildrenAsync(container, cancellationToken);
+            await EnsureContainerVisibleAsync(container, stored, request.Resource, cancellationToken);
 
             var updatedWorks = request.Resource.SubWorks.Select(_scheduleMapper.ToWorkEntity).ToList();
             var updatedBreaks = request.Resource.SubBreaks.Select(_scheduleMapper.ToBreakEntity).ToList();
             var updatedWorkChanges = request.Resource.SubWorkChanges.Select(_scheduleMapper.ToWorkChangeEntity).ToList();
 
             await EnsureSubWorkShiftsVisibleAsync(request.WorkId, updatedWorks, cancellationToken);
-            var workChangeParents = await ResolveWorkChangeParentsAsync(container, request.Resource, updatedWorks, cancellationToken);
-            await EnsureReplacementsAllowedAsync(container, request.Resource, workChangeParents, cancellationToken);
+            var workChangeParents = ResolveWorkChangeParents(container, request.Resource, updatedWorks, stored);
+            await _childrenWriteGuard.PrepareAsync(container, stored, updatedWorks, updatedBreaks, updatedWorkChanges, cancellationToken);
+            await EnsureReplacementsAllowedAsync(container, request.Resource, workChangeParents, stored, cancellationToken);
 
             var parentWork = await _childrenManager.UpdateChildrenAsync(
                 request.WorkId,
@@ -134,33 +146,56 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         }
     }
 
-    /// <summary>
-    /// Sub-works are persisted with the client id the request carries, so every non-empty one is checked
-    /// together with the container owner and the replacement clients in one query. Sub-breaks are not:
-    /// the children manager overwrites their client with the container owner.
-    /// </summary>
-    private async Task<Work> EnsureContainerVisibleAsync(
-        Guid workId, UpdateContainerWorkChildrenResource resource, CancellationToken cancellationToken)
+    private async Task<Work> ReadContainerAsync(Guid workId, CancellationToken cancellationToken)
     {
-        var parentWork = await _childrenReadRepository.GetParentWorkNoTracking(workId, cancellationToken);
-        if (parentWork == null)
+        var container = await _childrenReadRepository.GetParentWorkNoTracking(workId, cancellationToken);
+        if (container == null)
         {
             throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, workId));
         }
 
+        return container;
+    }
+
+    private async Task<StoredContainerChildren> LoadStoredChildrenAsync(Work container, CancellationToken cancellationToken)
+    {
+        var works = (await _childrenReadRepository.GetChildWorksWithShiftClient(container.Id, cancellationToken))
+            .Where(work => !work.IsDeleted)
+            .ToList();
+        var breaks = (await _childrenReadRepository.GetChildBreaksWithAbsence(container.Id, cancellationToken))
+            .Where(entry => !entry.IsDeleted)
+            .ToList();
+        var workChanges = await _childrenReadRepository.GetWorkChangesForWorks(works.Select(work => work.Id).ToList(), cancellationToken);
+
+        return new StoredContainerChildren(works, breaks, workChanges);
+    }
+
+    /// <summary>
+    /// Sub-works are persisted with the client id the request carries, so every non-empty one is checked
+    /// together with the container owner and the replacement clients in one query. The owners of the stored children and the
+    /// persons of the stored work changes are checked with them, since the save rewrites or deletes those rows too.
+    /// Sub-breaks are not: the children manager overwrites their client with the container owner.
+    /// </summary>
+    private async Task EnsureContainerVisibleAsync(
+        Work container,
+        StoredContainerChildren stored,
+        UpdateContainerWorkChildrenResource resource,
+        CancellationToken cancellationToken)
+    {
         var clientIds = resource.SubWorkChanges
             .Where(wc => wc.ReplaceClientId.HasValue)
             .Select(wc => wc.ReplaceClientId!.Value)
             .Concat(resource.SubWorks.Select(w => w.ClientId).Where(id => id != Guid.Empty))
-            .Append(parentWork.ClientId)
+            .Concat(stored.Works.Select(w => w.ClientId))
+            .Concat(stored.Breaks.Select(b => b.ClientId))
+            .Concat(stored.WorkChanges.Where(wc => wc.ReplaceClientId.HasValue).Select(wc => wc.ReplaceClientId!.Value))
+            .Append(container.ClientId)
             .Distinct()
             .ToList();
-        if (!await _rowAccessGuard.AreAllVisibleAsync(clientIds, parentWork.AnalyseToken, cancellationToken))
+        if (!await _rowAccessGuard.AreAllVisibleAsync(clientIds, container.AnalyseToken, cancellationToken))
         {
-            throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, workId));
+            throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, container.Id));
         }
-
-        return parentWork;
     }
 
     /// <summary>
@@ -169,51 +204,26 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     /// (a Work of another container, the container itself, an empty id) is answered exactly like a container that does not
     /// exist, before anything is checked or written; otherwise a holder of this container's lock could hang a change on a
     /// Work past the visibility, lock and day-lock checks of that Work. The sub-works that serve as parents of the changes
-    /// are returned by id; stored ones the request does not name are read once.
+    /// are returned by id.
     /// </summary>
-    private async Task<WorkChangeParents> ResolveWorkChangeParentsAsync(
+    private static IReadOnlyDictionary<Guid, Work> ResolveWorkChangeParents(
         Work container,
         UpdateContainerWorkChildrenResource resource,
         IReadOnlyCollection<Work> updatedWorks,
-        CancellationToken cancellationToken)
+        StoredContainerChildren stored)
     {
-        var parents = updatedWorks
-            .Where(work => work.Id != Guid.Empty)
-            .GroupBy(work => work.Id)
-            .ToDictionary(group => group.Key, group => group.First());
-        if (resource.SubWorkChanges.Count == 0)
+        var parents = stored.Works.ToDictionary(work => work.Id);
+        foreach (var work in updatedWorks.Where(work => work.Id != Guid.Empty))
         {
-            return new WorkChangeParents(parents, []);
+            parents[work.Id] = work;
         }
 
-        var storedSubWorkIds = (await _childrenReadRepository.GetChildWorkShiftIds(container.Id, cancellationToken)).Keys.ToList();
-        var storedOnly = resource.SubWorkChanges
-            .Select(change => change.WorkId)
-            .Where(id => !parents.ContainsKey(id))
-            .Distinct()
-            .ToList();
-        if (storedOnly.Any(id => !storedSubWorkIds.Contains(id)))
+        if (resource.SubWorkChanges.Any(change => !parents.ContainsKey(change.WorkId)))
         {
             throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, container.Id));
         }
 
-        if (storedOnly.Count > 0)
-        {
-            foreach (var stored in await _childrenReadRepository.GetChildWorksWithShiftClient(container.Id, cancellationToken))
-            {
-                if (storedOnly.Contains(stored.Id))
-                {
-                    parents[stored.Id] = stored;
-                }
-            }
-
-            if (storedOnly.Any(id => !parents.ContainsKey(id)))
-            {
-                throw new KeyNotFoundException(string.Format(ContainerLockMessages.WorkNotFound, container.Id));
-            }
-        }
-
-        return new WorkChangeParents(parents, storedSubWorkIds);
+        return parents;
     }
 
     /// <summary>
@@ -226,39 +236,26 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     private async Task EnsureReplacementsAllowedAsync(
         Work container,
         UpdateContainerWorkChildrenResource resource,
-        WorkChangeParents workChangeParents,
+        IReadOnlyDictionary<Guid, Work> workChangeParents,
+        StoredContainerChildren stored,
         CancellationToken cancellationToken)
     {
-        if (resource.SubWorkChanges.Count == 0)
-        {
-            return;
-        }
-
-        var storedChanges = (await _childrenReadRepository.GetWorkChangesForWorks(workChangeParents.StoredSubWorkIds, cancellationToken))
-            .ToDictionary(change => change.Id);
+        var storedChanges = stored.WorkChanges.ToDictionary(change => change.Id);
 
         foreach (var requested in resource.SubWorkChanges)
         {
             var candidate = _scheduleMapper.ToWorkChangeEntity(requested);
-            storedChanges.TryGetValue(candidate.Id, out var stored);
-            if (stored != null && SameReplacement(stored, candidate))
+            storedChanges.TryGetValue(candidate.Id, out var storedChange);
+            if (storedChange != null && WorkChangeContent.AreSame(storedChange, candidate))
             {
                 continue;
             }
 
             candidate.AnalyseToken = container.AnalyseToken;
             await _replacementWriteGuard.EnsureAllowedAsync(
-                candidate, workChangeParents.SubWorks[candidate.WorkId], requested.OverrideBlock, stored, cancellationToken);
+                candidate, workChangeParents[candidate.WorkId], requested.OverrideBlock, storedChange, cancellationToken);
         }
     }
-
-    private static bool SameReplacement(WorkChange stored, WorkChange requested)
-        => stored.WorkId == requested.WorkId
-            && stored.Type == requested.Type
-            && stored.ReplaceClientId == requested.ReplaceClientId
-            && stored.StartTime == requested.StartTime
-            && stored.EndTime == requested.EndTime
-            && stored.ChangeTime == requested.ChangeTime;
 
     /// <summary>
     /// One query decides which requested sub-work shifts the caller may book; only when some may not are the stored
