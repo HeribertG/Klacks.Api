@@ -39,10 +39,10 @@ public class XmlExportFormatter : IExportFormatter
             writer.WriteStartDocument();
             writer.WriteStartElement("OrderExport");
 
-            writer.WriteAttributeString("startDate", data.StartDate.ToString(DateTimeFormats.IsoDate));
-            writer.WriteAttributeString("endDate", data.EndDate.ToString(DateTimeFormats.IsoDate));
+            writer.WriteAttributeString("startDate", data.StartDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
+            writer.WriteAttributeString("endDate", data.EndDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
             writer.WriteAttributeString("exportDate", data.ExportDate.ToString("o"));
-            writer.WriteAttributeString("currency", options.CurrencyCode);
+            writer.WriteAttributeString("currency", XmlTextSanitizer.Clean(options.CurrencyCode));
 
             foreach (var order in data.Orders)
             {
@@ -60,18 +60,18 @@ public class XmlExportFormatter : IExportFormatter
     {
         writer.WriteStartElement("Order");
         writer.WriteAttributeString("id", order.OrderShiftId.ToString());
-        writer.WriteElementString("Name", order.OrderName);
-        writer.WriteElementString("Abbreviation", order.OrderAbbreviation);
+        writer.WriteElementString("Name", XmlTextSanitizer.Clean(order.OrderName));
+        writer.WriteElementString("Abbreviation", XmlTextSanitizer.Clean(order.OrderAbbreviation));
 
         if (!string.IsNullOrEmpty(order.SourceSystemId))
-            writer.WriteElementString(SourceSystemIdElement, order.SourceSystemId);
+            writer.WriteElementString(SourceSystemIdElement, XmlTextSanitizer.Clean(order.SourceSystemId));
         if (!string.IsNullOrEmpty(order.ExternalOrderReference))
-            writer.WriteElementString(ErpImportXmlElements.ExternalOrderReference, order.ExternalOrderReference);
+            writer.WriteElementString(ErpImportXmlElements.ExternalOrderReference, XmlTextSanitizer.Clean(order.ExternalOrderReference));
 
         if (order.OrderFromDate.HasValue)
-            writer.WriteElementString("FromDate", order.OrderFromDate.Value.ToString(DateTimeFormats.IsoDate));
+            writer.WriteElementString("FromDate", order.OrderFromDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
         if (order.OrderUntilDate.HasValue)
-            writer.WriteElementString("UntilDate", order.OrderUntilDate.Value.ToString(DateTimeFormats.IsoDate));
+            writer.WriteElementString("UntilDate", order.OrderUntilDate.Value.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
         if (order.OrderStartShift.HasValue)
             writer.WriteElementString("StartShift", order.OrderStartShift.Value.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
         if (order.OrderEndShift.HasValue)
@@ -85,9 +85,9 @@ public class XmlExportFormatter : IExportFormatter
             if (order.CustomerNumber.HasValue)
                 writer.WriteElementString("Number", order.CustomerNumber.Value.ToString(CultureInfo.InvariantCulture));
             if (!string.IsNullOrEmpty(order.CustomerName))
-                writer.WriteElementString("Name", order.CustomerName);
+                writer.WriteElementString("Name", XmlTextSanitizer.Clean(order.CustomerName));
             if (!string.IsNullOrEmpty(order.CustomerExternalReference))
-                writer.WriteElementString(ErpImportXmlElements.ExternalCustomerReference, order.CustomerExternalReference);
+                writer.WriteElementString(ErpImportXmlElements.ExternalCustomerReference, XmlTextSanitizer.Clean(order.CustomerExternalReference));
             writer.WriteEndElement();
         }
 
@@ -108,16 +108,16 @@ public class XmlExportFormatter : IExportFormatter
         writer.WriteAttributeString("id", work.WorkId.ToString());
 
         writer.WriteElementString("EmployeeId", work.EmployeeId.ToString());
-        writer.WriteElementString("EmployeeName", work.EmployeeName);
+        writer.WriteElementString("EmployeeName", XmlTextSanitizer.Clean(work.EmployeeName));
         writer.WriteElementString("EmployeeIdNumber", work.EmployeeIdNumber.ToString());
-        writer.WriteElementString("Date", work.WorkDate.ToString(DateTimeFormats.IsoDate));
+        writer.WriteElementString("Date", work.WorkDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
         writer.WriteElementString("StartTime", work.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
         writer.WriteElementString("EndTime", work.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
         writer.WriteElementString("Hours", work.WorkTime.ToString("F2", CultureInfo.InvariantCulture));
         writer.WriteElementString("Surcharges", work.Surcharges.ToString("F2", CultureInfo.InvariantCulture));
 
         if (!string.IsNullOrEmpty(work.Information))
-            writer.WriteElementString("Information", work.Information);
+            writer.WriteElementString("Information", XmlTextSanitizer.Clean(work.Information));
 
         ExportXmlElementWriter.WriteChanges(writer, work.Changes);
         ExportXmlElementWriter.WriteExpenses(writer, work.Expenses);

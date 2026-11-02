@@ -74,8 +74,7 @@ public class OmegaSkExportFormatter : IExportFormatter
 
             var documentDate = order.WorkEntries[0].WorkDate;
             var totalAmount = order.WorkEntries.Sum(w =>
-                w.WorkTime + w.Surcharges
-                + w.Changes.Sum(c => c.ChangeTime + c.Surcharges)
+                OrderWorkHours.BillableHours(w)
                 + w.Expenses.Sum(e => e.Amount));
 
             var header = CreateRecord(DocumentHeaderColumnCount, RecordTypeDocumentHeader);
@@ -88,8 +87,7 @@ public class OmegaSkExportFormatter : IExportFormatter
 
             foreach (var work in order.WorkEntries)
             {
-                var workAmount = work.WorkTime + work.Surcharges
-                    + work.Changes.Sum(c => c.ChangeTime + c.Surcharges);
+                var workAmount = OrderWorkHours.BillableHours(work);
 
                 AppendItem(sb, work.EmployeeIdNumber, work.EmployeeName, workAmount);
 

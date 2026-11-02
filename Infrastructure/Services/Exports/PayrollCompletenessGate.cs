@@ -7,7 +7,13 @@
 /// that no period-close seal (SealedDay.Level Closed) locks for the person, resolved by DayLockAttribution so a
 /// global seal, a group seal with membership and a group seal with a worked shift mean the same as in the day lock;
 /// a day-approval row (Level Approved) never counts; (3) OverlappingExport - an export of the person for another
-/// period that overlaps this one. All data is loaded in a fixed number of set-based queries.
+/// period that overlaps this one. A replacement (WorkChange with ReplaceClientId) makes the replacing person part of
+/// the scope: the substitute gets a derived entry on the work's day with the work's lock level and shift, so an open
+/// replaced work raises EntryNotClosed for the substitute too, and the substitute's day must be locked - by a seal
+/// that locks the substitute (DayLockAttribution) or by a Closed group seal of the replaced work's shift. Entries of
+/// soft-deleted persons are checked as well (global query filters are ignored, the entry's own soft-delete and
+/// scenario conditions are applied explicitly), matching the payroll export. All data is loaded in a fixed number of
+/// set-based queries.
 /// </summary>
 /// <param name="context">EF Core context holding Work, Break, Client, GroupItem, Group, Membership and SealedDay</param>
 /// <param name="exportLogItems">Per-person export records, for the overlapping-period check</param>
@@ -83,6 +89,7 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
         var restricted = clientIds?.ToList();
 
         var worksQuery = _context.Work
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(w => !w.IsDeleted
                 && w.AnalyseToken == null
@@ -92,6 +99,7 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
                 && (w.Client.Type == EntityTypeEnum.Employee || w.Client.Type == EntityTypeEnum.ExternEmp));
 
         var breaksQuery = _context.Break
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(b => !b.IsDeleted
                 && b.AnalyseToken == null
@@ -113,9 +121,16 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
             .Select(b => new { b.ClientId, b.CurrentDate, b.LockLevel })
             .ToListAsync(cancellationToken);
 
+        var substituteEntries = (await PayrollWorkChangeLoader.LoadAsync(
+                _context, from, until, restricted, null, cancellationToken))
+            .Where(PayrollWorkChangeProjection.IsReplacementWithSubstitute)
+            .Where(wc => restricted is null || restricted.Contains(wc.ReplaceClientId!.Value))
+            .Select(wc => new DayEntry(wc.ReplaceClientId!.Value, wc.Date, wc.WorkLockLevel, wc.ShiftId, IsSubstitute: true));
+
         return works
             .Select(w => new DayEntry(w.ClientId, w.CurrentDate, w.LockLevel, w.ShiftId))
             .Concat(breaks.Select(b => new DayEntry(b.ClientId, b.CurrentDate, b.LockLevel, null)))
+            .Concat(substituteEntries)
             .ToList();
     }
 
@@ -124,6 +139,7 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
         CancellationToken cancellationToken)
     {
         var rows = await _context.Client
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(c => personIds.Contains(c.Id))
             .Select(c => new { c.Id, c.Name, c.FirstName, c.IdNumber })
@@ -277,6 +293,7 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
         var pairs = requiredDays.Keys.Select(k => (k.Date, k.ClientId)).ToList();
         var locking = await DayLockAttribution.LoadLockingSealsAsync(
             _context, pairs, null, cancellationToken, WorkLockLevel.Closed);
+        var closedGroupSeals = await LoadClosedGroupSealsAsync(entries, cancellationToken);
 
         foreach (var ((clientId, date), memberGroups) in requiredDays)
         {
@@ -286,6 +303,11 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
             }
 
             var entriesOfDay = entriesByDay.GetValueOrDefault((clientId, date)) ?? [];
+            if (IsLockedBySubstituteShiftSeal(entriesOfDay, date, shiftGroups, closedGroupSeals))
+            {
+                continue;
+            }
+
             var candidates = memberGroups.Concat(entriesOfDay
                 .Where(e => e.ShiftId.HasValue)
                 .SelectMany(e => shiftGroups.GetValueOrDefault(e.ShiftId!.Value) ?? []));
@@ -301,6 +323,47 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
                 requiresGlobalClose: groupId is null,
                 entriesOfDay.Count));
         }
+    }
+
+    private async Task<HashSet<(DateOnly Date, Guid GroupId)>> LoadClosedGroupSealsAsync(
+        List<DayEntry> entries,
+        CancellationToken cancellationToken)
+    {
+        var substituteDates = entries
+            .Where(e => e.IsSubstitute)
+            .Select(e => e.Date)
+            .Distinct()
+            .ToList();
+        if (substituteDates.Count == 0)
+        {
+            return [];
+        }
+
+        var rows = await _context.SealedDay
+            .AsNoTracking()
+            .Where(s => s.Level == WorkLockLevel.Closed
+                && s.GroupId != null
+                && substituteDates.Contains(s.Date))
+            .Select(s => new { s.Date, GroupId = s.GroupId!.Value })
+            .ToListAsync(cancellationToken);
+
+        return rows.Select(r => (r.Date, r.GroupId)).ToHashSet();
+    }
+
+    private static bool IsLockedBySubstituteShiftSeal(
+        List<DayEntry> entriesOfDay,
+        DateOnly date,
+        Dictionary<Guid, List<Guid>> shiftGroups,
+        HashSet<(DateOnly Date, Guid GroupId)> closedGroupSeals)
+    {
+        if (entriesOfDay.Count == 0 || entriesOfDay.Any(e => !e.IsSubstitute))
+        {
+            return false;
+        }
+
+        return entriesOfDay.All(e => e.ShiftId.HasValue
+            && (shiftGroups.GetValueOrDefault(e.ShiftId.Value) ?? [])
+                .Any(groupId => closedGroupSeals.Contains((date, groupId))));
     }
 
     private async Task AddOverlappingExportBlockersAsync(
@@ -381,7 +444,12 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
         };
     }
 
-    private sealed record DayEntry(Guid ClientId, DateOnly Date, WorkLockLevel LockLevel, Guid? ShiftId);
+    private sealed record DayEntry(
+        Guid ClientId,
+        DateOnly Date,
+        WorkLockLevel LockLevel,
+        Guid? ShiftId,
+        bool IsSubstitute = false);
 
     private sealed record PersonInfo(string Name, int IdNumber);
 }

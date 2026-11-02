@@ -12,11 +12,16 @@
 /// The MOVEIN.DAT primary spec (caspit.biz/images/Hash/MOVEIN.PDF) is a scanned, non-machine-readable
 /// document; this layout is reconstructed from a verified secondary source (Sumit help-center manual)
 /// and has not been checked against a real customer .DAT sample. Assumed conventions pending that
-/// verification: text/account fields are left-justified and space-padded; amount fields are zero-padded,
-/// unsigned, fixed-point with an implied 2 decimals (no decimal separator character), i.e. amount*100.
+/// verification: text/account fields are left-justified and space-padded. Amount fields are Decimal(9.2):
+/// written with a dot and two decimals, right-aligned and space-padded to 12 characters (e.g. "        9.75");
+/// unused amount fields carry "0.00" right-aligned rather than blanks. Amounts are unsigned; a negative
+/// booking swaps the debit and credit accounts and writes the absolute value, so the sign is kept.
 /// Klacks has no chart-of-accounts, so Soll-Konto (debit) uses the employee's personnel number and
 /// Haben-Konto (credit) is a placeholder wages-payable account, mirroring the same placeholder-account
 /// approach already used by BmdExportFormatter. Foreign-currency fields are always zero (not supported).
+/// The currency defaults to ILS when the export currency is empty or the global default (EUR).
+/// Only hour-bearing changes (corrections, travel) add to the work amount; replacements and
+/// briefing/debriefing do not.
 /// Encoding: Windows-1255 (Hebrew) per industry convention, not confirmed on the spec itself.
 /// </remarks>
 using System.Globalization;
@@ -34,6 +39,8 @@ public class MoveinIlExportFormatter : IExportFormatter
     private const string LineEnding = "\r\n";
     private const int Windows1255CodePage = 1255;
     private const string DefaultCurrencyCode = "ILS";
+    private const int AmountFieldWidth = 12;
+    private const string AmountFormat = "0.00";
     private const string PlaceholderCreditAccountWages = "3600";
     private const string PlaceholderCreditAccountTaxableExpense = "7600";
     private const string PlaceholderCreditAccountNonTaxableExpense = "7800";
@@ -47,15 +54,14 @@ public class MoveinIlExportFormatter : IExportFormatter
     public byte[] Format(OrderExportData data, ExportOptions options)
     {
         var sb = new StringBuilder();
-        var currencyCode = string.IsNullOrWhiteSpace(options.CurrencyCode) ? DefaultCurrencyCode : options.CurrencyCode;
+        var currencyCode = ResolveCurrencyCode(options.CurrencyCode);
         var referenceNumber = 1;
 
         foreach (var order in data.Orders)
         {
             foreach (var work in order.WorkEntries)
             {
-                var totalAmount = work.WorkTime + work.Surcharges
-                    + work.Changes.Sum(c => c.ChangeTime + c.Surcharges);
+                var totalAmount = OrderWorkHours.BillableHours(work);
 
                 AppendLine(
                     sb,
@@ -99,7 +105,13 @@ public class MoveinIlExportFormatter : IExportFormatter
     {
         var date = bookingDate.ToString(DateFormat, CultureInfo.InvariantCulture);
         var reference = PadNumeric(referenceNumber.ToString(CultureInfo.InvariantCulture), 5);
-        var amountField = FormatAmount(amount);
+
+        if (amount < 0m)
+        {
+            (debitAccount, creditAccount) = (creditAccount, debitAccount);
+        }
+
+        var amountField = FormatAmount(Math.Abs(amount));
         var zeroAmount = FormatAmount(0m);
 
         var line = string.Concat(
@@ -131,10 +143,22 @@ public class MoveinIlExportFormatter : IExportFormatter
             "MOVEIN.DAT detailed-method record must be exactly 180 characters including the CR/LF terminator.");
     }
 
+    private static string ResolveCurrencyCode(string? currencyCode)
+    {
+        if (string.IsNullOrWhiteSpace(currencyCode)
+            || string.Equals(currencyCode, ExportConstants.DefaultCurrencyCode, StringComparison.OrdinalIgnoreCase))
+        {
+            return DefaultCurrencyCode;
+        }
+
+        return currencyCode;
+    }
+
     private static string FormatAmount(decimal amount)
     {
-        var cents = (long)Math.Round(Math.Abs(amount) * 100m, MidpointRounding.AwayFromZero);
-        return PadNumeric(cents.ToString(CultureInfo.InvariantCulture), 12);
+        var rounded = Math.Round(amount, 2, MidpointRounding.AwayFromZero);
+        var text = rounded.ToString(AmountFormat, CultureInfo.InvariantCulture);
+        return text.Length >= AmountFieldWidth ? text[^AmountFieldWidth..] : text.PadLeft(AmountFieldWidth, ' ');
     }
 
     private static string PadNumeric(string value, int width)

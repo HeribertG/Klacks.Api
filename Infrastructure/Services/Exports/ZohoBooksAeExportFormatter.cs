@@ -78,8 +78,7 @@ public class ZohoBooksAeExportFormatter : IExportFormatter
 
             foreach (var work in order.WorkEntries)
             {
-                var amount = work.WorkTime + work.Surcharges
-                    + work.Changes.Sum(c => c.ChangeTime + c.Surcharges);
+                var amount = OrderWorkHours.BillableHours(work);
 
                 WriteJournal(
                     sb,
