@@ -4,7 +4,8 @@
 /// Stages replacement request book rows for cover_absence proposals and keeps the ManualReplacement row of a
 /// replacement WorkChange in step with that change (create, update, discard). Times are raw facts: the report
 /// instant (never in the future and never more than ReplacementRequestLimits.MaxReportLeadDays before the first
-/// covered slot) and the slot start converted from the company time zone. A manual ReplacementStart/End stores
+/// covered slot) and the slot start converted from the company time zone. A row names its work and whether the work
+/// moved as a whole. A manual ReplacementStart/End stores
 /// no own times, so its window comes from <see cref="ReplacementWindow"/> (hours clamped to the work's length,
 /// placed on the calendar - after midnight of a night shift means the next day). Lives in Infrastructure because
 /// that window calculation does.
@@ -100,7 +101,9 @@ public sealed class ReplacementRequestRecorder : IReplacementRequestRecorder
                     Outcome = ReplacementRequestOutcome.Proposed,
                     ReportedAtUtc = reportedAtUtc,
                     ShiftStartUtc = WallClockToUtc(slot.Date.ToDateTime(start), timeZone),
-                    AnalyseToken = context.AnalyseToken
+                    AnalyseToken = context.AnalyseToken,
+                    WorkId = slot.WorkId,
+                    Kind = slot.Kind
                 };
                 await _repository.Add(row);
                 existing[key] = row;
@@ -149,7 +152,8 @@ public sealed class ReplacementRequestRecorder : IReplacementRequestRecorder
             OutcomeByUserId = ReplacementRequestActor.CurrentUserId(_httpContextAccessor),
             AnalyseToken = parentWork.AnalyseToken,
             WorkChangeId = workChange.Id == Guid.Empty ? null : workChange.Id,
-            AppliedAtUtc = parentWork.AnalyseToken is null ? nowUtc : null
+            AppliedAtUtc = parentWork.AnalyseToken is null ? nowUtc : null,
+            WorkId = parentWork.Id
         });
     }
 
@@ -184,6 +188,7 @@ public sealed class ReplacementRequestRecorder : IReplacementRequestRecorder
         row.StartTime = slot.Start;
         row.EndTime = slot.End;
         row.ShiftStartUtc = slot.StartUtc;
+        row.WorkId = parentWork.Id;
     }
 
     public async Task DiscardManualReplacementAsync(Guid workChangeId, CancellationToken cancellationToken = default)

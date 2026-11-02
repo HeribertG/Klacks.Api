@@ -26,6 +26,11 @@ public class Work : ScheduleEntryBase
     /// </summary>
     public Guid? ClonedFromWorkId { get; set; }
 
+    /// <summary>
+    /// The person an absence cover moved this work away from; null for a work no cover moved.
+    /// </summary>
+    public Guid? MovedFromClientId { get; set; }
+
     public TransportMode? TransportMode { get; set; }
 
     public string? StartBase { get; set; }

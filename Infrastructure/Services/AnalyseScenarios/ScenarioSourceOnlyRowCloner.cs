@@ -58,13 +58,14 @@ public sealed class ScenarioSourceOnlyRowCloner
     /// Copies the source scenario's not yet applied replacement requests (request book) into the new scenario, so
     /// accepting the child stamps them applied. ShiftId is already the root shift, for a key that is the key shift itself, so
     /// a request whose root carries a dropped token stays behind with its key. WorkChangeId pointed at the source scenario's
-    /// clone and is left for accept to fill. The source's own rows stay untouched.
+    /// clone and is left for accept to fill; WorkId follows the clone of its work. The source's own rows stay untouched.
     /// </summary>
     /// <param name="source">The resolved clone source</param>
     /// <param name="token">Token of the new scenario</param>
     /// <param name="droppedTokens">Tokens of the source keys the new scenario does not carry</param>
+    /// <param name="workIdMap">Source work id to its clone in the new scenario</param>
     /// <param name="ct">Cancellation token</param>
-    internal async Task CloneOpenReplacementRequests(ScenarioCloneSource source, Guid token, IReadOnlySet<Guid> droppedTokens, CancellationToken ct)
+    internal async Task CloneOpenReplacementRequests(ScenarioCloneSource source, Guid token, IReadOnlySet<Guid> droppedTokens, IReadOnlyDictionary<Guid, Guid> workIdMap, CancellationToken ct)
     {
         if (source.Token is not { } sourceToken)
         {
@@ -98,7 +99,10 @@ public sealed class ScenarioSourceOnlyRowCloner
                 ShiftStartUtc = request.ShiftStartUtc,
                 OutcomeAtUtc = request.OutcomeAtUtc,
                 OutcomeByUserId = request.OutcomeByUserId,
-                AnalyseToken = token
+                AnalyseToken = token,
+                WorkId = request.WorkId is { } workId && workIdMap.TryGetValue(workId, out var clonedWorkId) ? clonedWorkId : null,
+                Kind = request.Kind,
+                ReversedAtUtc = request.ReversedAtUtc
             }, ct);
         }
     }

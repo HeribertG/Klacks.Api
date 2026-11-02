@@ -76,7 +76,7 @@ public sealed class ScenarioCloneCoordinator
         await _satelliteCloner.CloneShiftExpenses(shiftIdMap, token, source, ct);
         await _satelliteCloner.CloneShiftRequiredQualifications(shiftIdMap, token, ct);
         await _sourceOnlyRowCloner.CloneScenarioMemberships(source, token, ct);
-        await _sourceOnlyRowCloner.CloneOpenReplacementRequests(source, token, variants.DroppedTokens, ct);
+        await _sourceOnlyRowCloner.CloneOpenReplacementRequests(source, token, variants.DroppedTokens, workIdMap, ct);
         await _variantLinkCloner.CloneLinksAsync(token, variants, ct);
 
         return (workShiftIdMap, workIdMap);

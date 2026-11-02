@@ -6,6 +6,9 @@ namespace Klacks.Api.Domain.Interfaces.Macros;
 
 public interface IWorkMacroService
 {
-    Task ProcessWorkMacroAsync(Work work);
-    Task ProcessWorkChangeMacroAsync(WorkChange workChange);
+    /// <returns>False when the calculation failed and the stored values stay as they were</returns>
+    Task<bool> ProcessWorkMacroAsync(Work work);
+
+    /// <returns>False when the calculation failed and the stored values stay as they were</returns>
+    Task<bool> ProcessWorkChangeMacroAsync(WorkChange workChange);
 }

@@ -96,6 +96,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         Guid absentClientId,
         IReadOnlyList<DateOnly> absenceDates,
         ScenarioSourceScope? source,
+        IReadOnlySet<Guid> clonedWorkIds,
         CancellationToken cancellationToken)
     {
         var dates = absenceDates.OrderBy(d => d.DayNumber).ToList();
@@ -128,7 +129,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         var cells = await LoadCellsAsync(windowStart, windowEnd, rootGroupId, source, coveredClientIds, cancellationToken);
 
         var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
-        var works = BuildWorks(cells, onCallAbsenceIds, out var breakDays);
+        var works = BuildWorks(cells, onCallAbsenceIds, clonedWorkIds, out var breakDays);
         breakDays.Blocking.UnionWith(
             await _sealedDayRepository.GetLockedClientDaysAsync(memberIds, windowStart, windowEnd, cancellationToken));
         var keywordDays = await LoadKeywordDaysAsync(memberIds, windowStart, windowEnd, source, coveredClientIds, cancellationToken);
@@ -334,6 +335,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     internal static IReadOnlyDictionary<CellKey, IReadOnlyList<RecoveryWork>> BuildWorks(
         IReadOnlyList<Domain.Models.Schedules.ScheduleCell> cells,
         IReadOnlySet<Guid> onCallAbsenceIds,
+        IReadOnlySet<Guid> clonedWorkIds,
         out RecoveryBreakDays breakDays)
     {
         var works = new Dictionary<CellKey, List<RecoveryWork>>();
@@ -388,11 +390,14 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             // A group-restricted (sealed cross-group) work is immutable for the recovery engine, exactly
             // like a locked work (schedule.md / wizard-fixed-cells.md). get_schedule_entries returns such
             // works to this group flagged but with LockLevel=None, and they are NOT cloned into the
-            // scenario; treating them as movable would over-report coverage and half-apply swaps. A
-            // replacement cover is likewise immutable — the engine respects it but never moves it.
+            // scenario; treating them as movable would over-report coverage and half-apply swaps. The
+            // flag is computed against the root group alone, so a work on a shift of a sister group shows
+            // up unflagged; what has no clone in the scenario cannot be written and is immutable as well.
+            // A replacement cover is likewise immutable — the engine respects it but never moves it.
             var immutable = isReplacementCover
                 || cell.LockLevel != (int)WorkLockLevel.None
-                || cell.IsGroupRestricted;
+                || cell.IsGroupRestricted
+                || !clonedWorkIds.Contains(cell.SourceId);
             var key = new CellKey(cell.ClientId, date);
 
             // An original work already (partly) handed to a substitute is only occupancy/demand for the

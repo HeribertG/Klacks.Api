@@ -19,6 +19,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
@@ -31,19 +32,22 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
     private readonly IWorkMacroService _workMacroService;
     private readonly IMacroDataProvider _macroDataProvider;
     private readonly IMacroCompilationService _macroCompilationService;
+    private readonly ILogger<ContainerWorkChildrenManager> _logger;
 
     public ContainerWorkChildrenManager(
         DataBaseContext context,
         EntityCollectionUpdateService collectionUpdateService,
         IWorkMacroService workMacroService,
         IMacroDataProvider macroDataProvider,
-        IMacroCompilationService macroCompilationService)
+        IMacroCompilationService macroCompilationService,
+        ILogger<ContainerWorkChildrenManager> logger)
     {
         _context = context;
         _collectionUpdateService = collectionUpdateService;
         _workMacroService = workMacroService;
         _macroDataProvider = macroDataProvider;
         _macroCompilationService = macroCompilationService;
+        _logger = logger;
     }
 
     public async Task<Work?> UpdateChildrenAsync(
@@ -71,6 +75,26 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         await ProcessWorkChangeMacrosAsync(updatedWorkChanges);
 
         return parentWork;
+    }
+
+    public async Task<bool> RecalculateForNewOwnerAsync(Work parentWork, CancellationToken cancellationToken)
+    {
+        var subWorks = await _context.Work
+            .Where(w => w.ParentWorkId == parentWork.Id && !w.IsDeleted)
+            .ToListAsync(cancellationToken);
+        var subBreaks = await _context.Break
+            .Where(b => b.ParentWorkId == parentWork.Id && !b.IsDeleted)
+            .ToListAsync(cancellationToken);
+
+        var workIds = subWorks.Select(w => w.Id).Append(parentWork.Id).ToList();
+        var workChanges = await _context.WorkChange
+            .Where(wc => workIds.Contains(wc.WorkId) && !wc.IsDeleted)
+            .ToListAsync(cancellationToken);
+
+        var subWorksCalculated = await ProcessSubWorkMacrosAsync(subWorks);
+        var parentCalculated = await ProcessParentWorkCalculationsAsync(parentWork, subBreaks, cancellationToken);
+        var workChangesCalculated = await ProcessWorkChangeMacrosAsync(workChanges);
+        return subWorksCalculated && parentCalculated && workChangesCalculated;
     }
 
     private static void EnsureChildrenInsideMovedBounds(
@@ -192,20 +216,23 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         }
     }
 
-    private async Task ProcessSubWorkMacrosAsync(List<Work> updatedWorks)
+    private async Task<bool> ProcessSubWorkMacrosAsync(List<Work> updatedWorks)
     {
+        var allCalculated = true;
         foreach (var subWork in updatedWorks)
         {
-            await _workMacroService.ProcessWorkMacroAsync(subWork);
+            allCalculated &= await _workMacroService.ProcessWorkMacroAsync(subWork);
         }
+
+        return allCalculated;
     }
 
-    private async Task ProcessParentWorkCalculationsAsync(
+    private async Task<bool> ProcessParentWorkCalculationsAsync(
         Work? parentWork,
         List<Break> updatedBreaks,
         CancellationToken cancellationToken)
     {
-        if (parentWork == null) return;
+        if (parentWork == null) return true;
 
         var unpaidSet = await GetUnpaidAbsenceIdsAsync(updatedBreaks, cancellationToken);
 
@@ -217,7 +244,7 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         parentWork.WorkTime = ContainerWorkTimeCalculator.CalculatePaidHours(
             parentWork.StartTime, parentWork.EndTime, unpaidBreakSpans);
 
-        await _workMacroService.ProcessWorkMacroAsync(parentWork);
+        var allCalculated = await _workMacroService.ProcessWorkMacroAsync(parentWork);
         var parentSurcharges = parentWork.Surcharges;
 
         var parentShift = await _context.Shift
@@ -225,11 +252,12 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
 
         foreach (var subBreak in updatedBreaks.Where(b => unpaidSet.Contains(b.AbsenceId)))
         {
-            await ProcessUnpaidBreakSurchargesAsync(subBreak, parentWork, parentShift);
+            allCalculated &= await ProcessUnpaidBreakSurchargesAsync(subBreak, parentWork, parentShift);
             parentSurcharges += subBreak.Surcharges;
         }
 
         parentWork.Surcharges = parentSurcharges;
+        return allCalculated;
     }
 
     private async Task<HashSet<Guid>> GetUnpaidAbsenceIdsAsync(
@@ -252,7 +280,7 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         return unpaidAbsenceIds.ToHashSet();
     }
 
-    private async Task ProcessUnpaidBreakSurchargesAsync(Break subBreak, Work parentWork, Shift? parentShift)
+    private async Task<bool> ProcessUnpaidBreakSurchargesAsync(Break subBreak, Work parentWork, Shift? parentShift)
     {
         var breakDurationHours = CalculateBreakDurationHours(subBreak.StartTime, subBreak.EndTime);
         subBreak.WorkTime = -breakDurationHours;
@@ -260,7 +288,7 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
 
         if (parentShift?.MacroId == null || parentShift.MacroId.Value == Guid.Empty)
         {
-            return;
+            return true;
         }
 
         var tempWork = new Work
@@ -276,7 +304,14 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         var macroData = await _macroDataProvider.GetMacroDataAsync(tempWork);
         var result = await _macroCompilationService.CompileAndExecuteAsync(parentShift.MacroId.Value, macroData);
 
-        if (result.Success && result.ResultValue.HasValue)
+        if (!result.Success)
+        {
+            _logger.LogError(
+                "Macro {MacroId} failed for sub-break {BreakId}; its surcharges stay at zero", parentShift.MacroId.Value, subBreak.Id);
+            return false;
+        }
+
+        if (result.ResultValue.HasValue)
         {
             subBreak.Surcharges = -result.ResultValue.Value;
             await SurchargeItemSynchronizer.ReplaceAsync(
@@ -286,14 +321,19 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
                 result.Surcharges,
                 -1m);
         }
+
+        return true;
     }
 
-    private async Task ProcessWorkChangeMacrosAsync(List<WorkChange> updatedWorkChanges)
+    private async Task<bool> ProcessWorkChangeMacrosAsync(List<WorkChange> updatedWorkChanges)
     {
+        var allCalculated = true;
         foreach (var wc in updatedWorkChanges)
         {
-            await _workMacroService.ProcessWorkChangeMacroAsync(wc);
+            allCalculated &= await _workMacroService.ProcessWorkChangeMacroAsync(wc);
         }
+
+        return allCalculated;
     }
 
     private static decimal CalculateBreakDurationHours(TimeOnly start, TimeOnly end)

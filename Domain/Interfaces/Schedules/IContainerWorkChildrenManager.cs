@@ -21,4 +21,13 @@ public interface IContainerWorkChildrenManager
         List<Break> updatedBreaks,
         List<WorkChange> updatedWorkChanges,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Recalculates a work after its owner changed, in the order of a save: sub-work macros, then the work with its
+    /// unpaid sub-breaks, then the WorkChange macros of the work and its sub-works. Stages only.
+    /// </summary>
+    /// <param name="parentWork">The tracked work, already carrying the new owner</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>False when a calculation failed; the staged state then mixes both owners and must not be saved</returns>
+    Task<bool> RecalculateForNewOwnerAsync(Work parentWork, CancellationToken cancellationToken);
 }

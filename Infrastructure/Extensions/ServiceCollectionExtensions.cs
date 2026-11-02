@@ -502,6 +502,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Schedules.IScenarioNameGenerator, Application.Services.Schedules.ScenarioNameGenerator>();
         services.AddScoped<Application.Interfaces.Schedules.IReplacementContactPhoneResolver, Application.Services.Schedules.Recovery.ReplacementContactPhoneResolver>();
         services.AddScoped<Application.Interfaces.Schedules.IReplacementRequestRecorder, Infrastructure.Services.Schedules.ReplacementRequestRecorder>();
+        services.AddScoped<Application.Interfaces.Schedules.ICoverMoveFactsReader, Infrastructure.Services.Schedules.CoverMoveFactsReader>();
+        services.AddScoped<Application.Interfaces.Schedules.IAbsenceCoverMaterializer, Application.Services.Schedules.Recovery.AbsenceCoverMaterializer>();
         services.AddScoped<Application.Interfaces.Schedules.IScenarioReplacementSwitcher, Application.Services.Schedules.Recovery.ScenarioReplacementSwitcher>();
         services.AddScoped<Application.Interfaces.Schedules.IReplacementContactValidator, Application.Services.Schedules.Recovery.ReplacementContactValidator>();
         services.AddScoped<Application.Interfaces.Schedules.IScenarioComplianceService, Application.Services.Schedules.ScenarioComplianceService>();

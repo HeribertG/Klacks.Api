@@ -219,6 +219,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IWorkMacroService, WorkMacroService>();
         services.AddScoped<IBreakMacroService, BreakMacroService>();
         services.AddScoped<IContainerWorkChildrenManager, ContainerWorkChildrenManager>();
+        services.AddScoped<IWorkHandOverService, Application.Services.Schedules.WorkHandOverService>();
         services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
         services.AddScoped<IScheduleCompletionService, ScheduleCompletionService>();
         services.AddScoped<IOvertimeCascadeService, OvertimeCascadeService>();

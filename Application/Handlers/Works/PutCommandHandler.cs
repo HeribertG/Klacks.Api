@@ -109,6 +109,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             ScheduleEntrySealState.CarryOver(work, existingWork);
             work.AnalyseToken = existingWork?.AnalyseToken;
             work.ClonedFromWorkId = existingWork?.ClonedFromWorkId;
+            work.MovedFromClientId = existingWork?.MovedFromClientId;
 
             var ownerIds = existingWork != null
                 ? new[] { existingWork.ClientId, work.ClientId }

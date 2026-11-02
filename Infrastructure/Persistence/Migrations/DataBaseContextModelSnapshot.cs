@@ -10104,6 +10104,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer")
+                        .HasColumnName("kind");
+
                     b.Property<int>("Outcome")
                         .HasColumnType("integer")
                         .HasColumnName("outcome");
@@ -10119,6 +10123,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("ReportedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("reported_at_utc");
+
+                    b.Property<DateTime?>("ReversedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reversed_at_utc");
 
                     b.Property<Guid>("ShiftId")
                         .HasColumnType("uuid")
@@ -10144,6 +10152,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("work_change_id");
 
+                    b.Property<Guid?>("WorkId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("work_id");
+
                     b.HasKey("Id")
                         .HasName("pk_replacement_requests");
 
@@ -10152,6 +10164,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ReportedAtUtc")
                         .HasDatabaseName("ix_replacement_requests_reported_at_utc");
+
+                    b.HasIndex("WorkId")
+                        .HasDatabaseName("ix_replacement_requests_work_id");
 
                     b.HasIndex("AbsentClientId", "Date")
                         .HasDatabaseName("ix_replacement_requests_absent_client_id_date");
@@ -11305,6 +11320,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<int>("LockLevel")
                         .HasColumnType("integer")
                         .HasColumnName("lock_level");
+
+                    b.Property<Guid?>("MovedFromClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("moved_from_client_id");
 
                     b.Property<Guid?>("ParentWorkId")
                         .HasColumnType("uuid")

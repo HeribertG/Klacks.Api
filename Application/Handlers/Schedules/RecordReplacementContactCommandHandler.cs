@@ -144,6 +144,10 @@ public sealed class RecordReplacementContactCommandHandler
             ? await _repository.FindReportedAtAsync(token, request.AbsentClientId, cancellationToken) ?? nowUtc
             : nowUtc;
         var timeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
+        var slotRow = request.AnalyseToken is { } scenarioToken
+            ? (await _repository.ListLiveByTokenAsync(scenarioToken, cancellationToken)).FirstOrDefault(row =>
+                row.AbsentClientId == request.AbsentClientId && row.ShiftId == request.ShiftId && row.Date == request.Date)
+            : null;
 
         return new ReplacementRequest
         {
@@ -159,7 +163,9 @@ public sealed class RecordReplacementContactCommandHandler
             ReportedAtUtc = reportedAtUtc,
             ShiftStartUtc = CompanyWallClockToUtcConverter.ConvertToUtc(
                 request.Date.ToDateTime(request.StartTime), timeZone),
-            AnalyseToken = request.AnalyseToken
+            AnalyseToken = request.AnalyseToken,
+            WorkId = slotRow?.WorkId,
+            Kind = slotRow?.Kind ?? ReplacementRequestKind.Replacement
         };
     }
 

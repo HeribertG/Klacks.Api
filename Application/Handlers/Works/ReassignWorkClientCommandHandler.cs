@@ -1,14 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Hands a Work over to another client: day-lock and hard-blocking guards for both clients, the move
-/// including container children, commit, overtime successors, period hours and the schedule entries of
-/// source and target. A Work whose current owner or whose target client is outside the caller's group
+/// Hands a Work over to another client: day-lock and hard-blocking guards for both clients, the hand-over
+/// including container children and the recalculation for the new owner (IWorkHandOverService), commit, overtime
+/// successors, period hours and the schedule entries of source and target. A Work whose current owner or whose target client is outside the caller's group
 /// visibility is refused exactly like a Work that does not exist; nothing is written. Like the Work PUT and DELETE,
 /// the stored Work must be writable for the caller under IParentWorkLockGuard: a Closed Work is refused for everyone,
 /// an Approved one needs Admin or Authorised. Like the grid's drop target, the target client must be plannable on the
 /// Work's day: a day outside its membership or group period is refused. A Work on a shift of another world reads like a
-/// missing shift (IWorkWriteGuard).
+/// missing shift (IWorkWriteGuard). A recalculation that fails for the new owner refuses the reassignment; nothing is written.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="httpContextAccessor">Source of the calling user's roles for the Work lock rule</param>
@@ -23,6 +23,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -32,6 +33,9 @@ namespace Klacks.Api.Application.Handlers.Works;
 
 public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<ReassignWorkClientCommand, ReassignWorkClientResponse?>
 {
+    private const string RecalculationFailedMessage =
+        "The work could not be recalculated for the new owner, so it was not reassigned. Check the macro of its shift.";
+
     private readonly IWorkRepository _workRepository;
     private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
@@ -39,7 +43,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
-    private readonly IContainerWorkCascadeService _cascadeService;
+    private readonly IWorkHandOverService _handOverService;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IDayLockService _dayLockService;
     private readonly IUnitOfWork _unitOfWork;
@@ -57,7 +61,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         IScheduleEntriesService scheduleEntriesService,
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
-        IContainerWorkCascadeService cascadeService,
+        IWorkHandOverService handOverService,
         ISelectedGroupContextResolver groupContextResolver,
         IDayLockService dayLockService,
         IUnitOfWork unitOfWork,
@@ -76,7 +80,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         _scheduleEntriesService = scheduleEntriesService;
         _completionService = completionService;
         _notificationFacade = notificationFacade;
-        _cascadeService = cascadeService;
+        _handOverService = handOverService;
         _groupContextResolver = groupContextResolver;
         _dayLockService = dayLockService;
         _unitOfWork = unitOfWork;
@@ -119,9 +123,12 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
             {
                 throw new KeyNotFoundException($"Work with ID {request.Id} not found.");
             }
-            work.ClientId = request.TargetClientId;
 
-            await _cascadeService.MoveChildrenAsync(work.Id, work.CurrentDate, work.ClientId);
+            if (!await _handOverService.TransferAsync(work, request.TargetClientId, null, cancellationToken))
+            {
+                _unitOfWork.DiscardTrackedChanges();
+                throw new InvalidRequestException(RecalculationFailedMessage);
+            }
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 

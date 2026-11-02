@@ -36,6 +36,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Work.SealedAt))]
     [MapperIgnoreTarget(nameof(Work.SealedBy))]
     [MapperIgnoreTarget(nameof(Work.ClonedFromWorkId))]
+    [MapperIgnoreTarget(nameof(Work.MovedFromClientId))]
     [MapperIgnoreSource(nameof(WorkResource.LockLevel))]
     [MapperIgnoreSource(nameof(WorkResource.SealedAt))]
     [MapperIgnoreSource(nameof(WorkResource.SealedBy))]

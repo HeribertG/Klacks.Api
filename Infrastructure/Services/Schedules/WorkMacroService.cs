@@ -54,7 +54,7 @@ public class WorkMacroService : IWorkMacroService
         _logger = logger;
     }
 
-    public async Task ProcessWorkMacroAsync(Work work)
+    public async Task<bool> ProcessWorkMacroAsync(Work work)
     {
         try
         {
@@ -63,20 +63,26 @@ public class WorkMacroService : IWorkMacroService
             {
                 _logger.LogWarning("Shift with ID {ShiftId} not found for Work {WorkId}", work.ShiftId, work.Id);
                 CalculateWorkTime(work);
-                return;
+                return false;
             }
 
             CalculateWorkTime(work);
 
             if (!shift.MacroId.HasValue || shift.MacroId.Value == Guid.Empty)
             {
-                return;
+                return true;
             }
 
             var macroData = await _macroDataProvider.GetMacroDataAsync(work);
             var result = MacroRateModeAdjuster.Apply(
                 await _macroCompilationService.CompileAndExecuteAsync(shift.MacroId.Value, macroData),
                 macroData);
+
+            if (!result.Success)
+            {
+                _logger.LogError("Macro {MacroId} failed for Work {WorkId}; its surcharges stay as they were", shift.MacroId.Value, work.Id);
+                return false;
+            }
 
             var overtime = await _overtimeSurchargeCalculator.CalculateAsync(work);
             var stackingMode = await ResolveStackingModeAsync(shift.MacroId.Value);
@@ -91,14 +97,17 @@ public class WorkMacroService : IWorkMacroService
                     _context.SurchargeItem.Where(si => si.WorkId == work.Id),
                     result.Surcharges);
             }
+
+            return true;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error processing macro for Work {WorkId}", work.Id);
+            return false;
         }
     }
 
-    public async Task ProcessWorkChangeMacroAsync(WorkChange workChange)
+    public async Task<bool> ProcessWorkChangeMacroAsync(WorkChange workChange)
     {
         try
         {
@@ -108,19 +117,19 @@ public class WorkMacroService : IWorkMacroService
             if (work == null)
             {
                 _logger.LogWarning("Work with ID {WorkId} not found for WorkChange {WorkChangeId}", workChange.WorkId, workChange.Id);
-                return;
+                return false;
             }
 
             var shift = await _shiftRepository.Get(work.ShiftId);
             if (shift == null)
             {
                 _logger.LogWarning("Shift with ID {ShiftId} not found for WorkChange {WorkChangeId}", work.ShiftId, workChange.Id);
-                return;
+                return false;
             }
 
             if (!shift.MacroId.HasValue || shift.MacroId.Value == Guid.Empty)
             {
-                return;
+                return true;
             }
 
             var macroData = await _macroDataProvider.GetMacroDataForWorkChangeAsync(workChange, work);
@@ -128,7 +137,13 @@ public class WorkMacroService : IWorkMacroService
                 await _macroCompilationService.CompileAndExecuteAsync(shift.MacroId.Value, macroData),
                 macroData);
 
-            if (result.Success && result.ResultValue.HasValue)
+            if (!result.Success)
+            {
+                _logger.LogError("Macro {MacroId} failed for WorkChange {WorkChangeId}; its surcharges stay as they were", shift.MacroId.Value, workChange.Id);
+                return false;
+            }
+
+            if (result.ResultValue.HasValue)
             {
                 workChange.Surcharges = result.ResultValue.Value;
                 await SurchargeItemSynchronizer.ReplaceAsync(
@@ -137,10 +152,13 @@ public class WorkMacroService : IWorkMacroService
                     _context.SurchargeItem.Where(si => si.WorkChangeId == workChange.Id),
                     result.Surcharges);
             }
+
+            return true;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error processing macro for WorkChange {WorkChangeId}", workChange.Id);
+            return false;
         }
     }
 

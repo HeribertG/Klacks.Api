@@ -5,8 +5,8 @@
 /// scenario and clone the real schedule under its token, build an immutable recovery snapshot from the
 /// live plan, ask the pure <see cref="IRecoveryEngine"/> for the minimal-perturbation repair, record the
 /// absence (Break) for the employee in the scenario, then materialise every reassignment delta (direct
-/// covers and swap relocations) as a Replacement WorkChange on the corresponding cloned work (which
-/// inherits the scenario token through the WorkChange handler). Locked / uncoverable slots are reported.
+/// covers and swap relocations) through IAbsenceCoverMaterializer, as a move of the cloned work or as a
+/// Replacement WorkChange on it. Locked / uncoverable slots are reported.
 /// The proposal is partitioned via <see cref="ICompliancePartitionService"/> (pre-commit guardrail plus
 /// the K1 supervisor override); blocked deltas are reported as uncovered, and the non-blocking rule
 /// conflicts on the materialised set are surfaced in the outcome for supervised review.
@@ -29,7 +29,7 @@
 /// <param name="snapshotBuilder">Builds the immutable recovery snapshot from the live plan</param>
 /// <param name="recoveryEngine">The pure, deterministic re-rostering engine</param>
 /// <param name="partitionService">Shared accept/block partition incl. the K1 supervisor override</param>
-/// <param name="mediator">Dispatches the Break and Replacement-WorkChange commands</param>
+/// <param name="mediator">Dispatches the Break commands</param>
 /// <param name="unitOfWork">Flushes the scenario + clone before the slots are read</param>
 /// <param name="escalationChainService">Starts the messenger call-list for each day the absence leaves a shift needing a human decision (skipped when the command says the planner is handling it interactively)</param>
 /// <param name="companyClock">Resolves the company's time zone to DST-safely convert the absent employee's shift start to UTC</param>
@@ -37,8 +37,8 @@
 /// <param name="groupVisibilityGuard">Decides whether the calling user may plan the requested group at all</param>
 /// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
 /// <param name="replacementRequestRecorder">Stages one Proposed replacement request row per covered slot (request book)</param>
+/// <param name="coverMaterializer">Writes the accepted reassignments into the scenario</param>
 /// <param name="logger">Logs residual blocking conflicts for supervised review</param>
-using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Notifications;
@@ -49,7 +49,6 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.Recovery;
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -96,6 +95,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IScenarioNameGenerator _scenarioNameGenerator;
     private readonly IReplacementRequestRecorder _replacementRequestRecorder;
+    private readonly IAbsenceCoverMaterializer _coverMaterializer;
     private readonly ILogger<CoverAbsenceCommandHandler> _logger;
 
     public CoverAbsenceCommandHandler(
@@ -113,6 +113,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         IGroupVisibilityGuard groupVisibilityGuard,
         IScenarioNameGenerator scenarioNameGenerator,
         IReplacementRequestRecorder replacementRequestRecorder,
+        IAbsenceCoverMaterializer coverMaterializer,
         ILogger<CoverAbsenceCommandHandler> logger)
     {
         _scenarioRepository = scenarioRepository;
@@ -129,6 +130,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         _groupVisibilityGuard = groupVisibilityGuard;
         _scenarioNameGenerator = scenarioNameGenerator;
         _replacementRequestRecorder = replacementRequestRecorder;
+        _coverMaterializer = coverMaterializer;
         _logger = logger;
     }
 
@@ -219,7 +221,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             groupId, scenarioFrom, scenarioUntil, token, additionalShiftIds: null, source?.Token, cancellationToken);
         await _unitOfWork.CompleteAsync();
 
-        var snapshot = await _snapshotBuilder.BuildAsync(groupId, clientId, dates, source, cancellationToken);
+        var snapshot = await _snapshotBuilder.BuildAsync(groupId, clientId, dates, source, workIdMap.Keys.ToHashSet(), cancellationToken);
         var proposal = _recoveryEngine.Repair(
             snapshot, new Rec.AbsenceEvent(clientId, dates), Rec.Ruleset.Default);
         var rootShiftIds = await ResolveRootShiftIdsAsync(proposal, source, cancellationToken);
@@ -236,11 +238,12 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         // otherwise leave an orphaned cross-group membership behind.
         var acceptedAgents = materializable.Select(d => d.ToAgentId).ToHashSet();
         await MaterialiseMembershipsAsync(proposal, acceptedAgents, token, cancellationToken);
-        await MaterialiseAsync(materializable, workIdMap, cancellationToken);
+        var movedWorkIds = await _coverMaterializer.MaterialiseAsync(
+            new CoverMaterialisation(materializable, workIdMap, token), cancellationToken);
 
         var covered = await _replacementRequestRecorder.RecordProposalsAsync(
             new ReplacementProposalContext(clientId, groupId, absenceId, token, request.Source, request.ReportedAtUtc),
-            BuildCovered(materializable, clientId, snapshot, workIdMap, rootShiftIds),
+            BuildCovered(materializable, clientId, snapshot, workIdMap, rootShiftIds, movedWorkIds),
             cancellationToken);
         await _unitOfWork.CompleteAsync();
 
@@ -344,44 +347,6 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         var shiftStartWallClock = date.ToDateTime(TimeOnly.FromTimeSpan(earliest.StartTime));
         var shiftStartUtc = CompanyWallClockToUtcConverter.ConvertToUtc(shiftStartWallClock, companyTimeZone);
         return (hours, earliest.SourceId, shiftStartUtc);
-    }
-
-    private async Task MaterialiseAsync(
-        IReadOnlyList<Rec.CellDelta> deltas,
-        IReadOnlyDictionary<Guid, Guid> workIdMap,
-        CancellationToken cancellationToken)
-    {
-        foreach (var delta in deltas)
-        {
-            // In-group MVP invariant: a snapshot work is backed by exactly one top-level Work
-            // (get_schedule_entries returns parent_work_id IS NULL rows; the builder writes [SourceId]).
-            if (delta.SourceWorkIds.Count > 1)
-            {
-                _logger.LogWarning(
-                    "Recovery delta for shift {ShiftId} on {Date} is backed by {Count} works; only the first is materialised.",
-                    delta.ShiftId, delta.Date, delta.SourceWorkIds.Count);
-            }
-
-            var originalWorkId = delta.SourceWorkIds.Count > 0 ? delta.SourceWorkIds[0] : Guid.Empty;
-            if (originalWorkId == Guid.Empty || !workIdMap.TryGetValue(originalWorkId, out var clonedWorkId))
-            {
-                _logger.LogWarning(
-                    "Recovery delta for shift {ShiftId} on {Date} has no cloned work to attach to; skipping.",
-                    delta.ShiftId, delta.Date);
-                continue;
-            }
-
-            await _mediator.Send(new PostCommand<WorkChangeResource>(new WorkChangeResource
-            {
-                WorkId = clonedWorkId,
-                Type = WorkChangeType.ReplacementWithin,
-                StartTime = TimeOnly.FromDateTime(delta.StartAt),
-                EndTime = TimeOnly.FromDateTime(delta.EndAt),
-                ChangeTime = delta.Hours,
-                ReplaceClientId = delta.ToAgentId,
-                Description = RecoveryMarkers.WorkChangeSource
-            }), cancellationToken);
-        }
     }
 
     private async Task MaterialiseMembershipsAsync(
@@ -530,7 +495,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         Guid absentClientId,
         Rec.RecoverySnapshot snapshot,
         IReadOnlyDictionary<Guid, Guid> workIdMap,
-        IReadOnlyDictionary<Guid, Guid> rootShiftIds)
+        IReadOnlyDictionary<Guid, Guid> rootShiftIds,
+        IReadOnlySet<Guid> movedWorkIds)
     {
         var covered = new List<CoveredSlot>();
         foreach (var delta in deltas)
@@ -540,15 +506,19 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
                 continue;
             }
             var name = snapshot.FindAgent(delta.ToAgentId)?.DisplayName ?? string.Empty;
+            var clonedWorkId = ClonedWorkIdOf(delta.SourceWorkIds, workIdMap);
             covered.Add(new CoveredSlot(
                 RootShiftIdOf(delta.ShiftId, rootShiftIds),
                 delta.Date,
                 delta.ToAgentId,
                 name,
                 (int)delta.Tier,
-                ClonedWorkIdOf(delta.SourceWorkIds, workIdMap),
+                clonedWorkId,
                 TimeOnly.FromDateTime(delta.StartAt),
-                TimeOnly.FromDateTime(delta.EndAt)));
+                TimeOnly.FromDateTime(delta.EndAt),
+                Kind: clonedWorkId is { } workId && movedWorkIds.Contains(workId)
+                    ? ReplacementRequestKind.Move
+                    : ReplacementRequestKind.Replacement));
         }
         return covered;
     }

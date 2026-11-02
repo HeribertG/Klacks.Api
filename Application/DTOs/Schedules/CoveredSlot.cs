@@ -23,6 +23,7 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="RequestId">Row of the replacement request book recorded for this proposal; null when none was stored</param>
 /// <param name="Phone">Number to call the replacement on (mobile before fixed line); null when none is stored</param>
 /// <param name="Outcome">Current state of the request (Proposed right after the run)</param>
+/// <param name="Kind">Replacement, or Move when the whole work went to the replacement</param>
 public sealed record CoveredSlot(
     Guid ShiftId,
     DateOnly Date,
@@ -34,4 +35,5 @@ public sealed record CoveredSlot(
     TimeOnly? EndTime = null,
     Guid? RequestId = null,
     string? Phone = null,
-    [property: JsonConverter(typeof(JsonStringEnumConverter<ReplacementRequestOutcome>))] ReplacementRequestOutcome? Outcome = null);
+    [property: JsonConverter(typeof(JsonStringEnumConverter<ReplacementRequestOutcome>))] ReplacementRequestOutcome? Outcome = null,
+    [property: JsonConverter(typeof(JsonStringEnumConverter<ReplacementRequestKind>))] ReplacementRequestKind Kind = ReplacementRequestKind.Replacement);
