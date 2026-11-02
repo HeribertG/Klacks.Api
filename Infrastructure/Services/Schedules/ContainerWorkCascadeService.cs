@@ -5,7 +5,10 @@
 /// restore brings back only the children the same delete took away: same stamped user and a delete time
 /// within the sibling tolerance of the container's, so children removed earlier or by another actor
 /// (scenario cleanup, harmonizer) stay deleted. GetChildIdsAsync lists the live children with the same query the delete
-/// uses, so a caller can name exactly what a delete would take.
+/// uses, so a caller can name exactly what a delete would take. GetLiveChildrenAsync reads those children untracked so a
+/// handler can check their lock levels before it stages anything: this service does not check them, because a refusal
+/// raised after the first staged change could be caught further up and leave the container saved without its children.
+/// The lock-level change only raises: a child that is sealed higher than the container keeps its seal.
 /// </summary>
 /// <param name="context">The EF Core database context used for direct bulk queries on child entities</param>
 /// <param name="logger">Logger for diagnostic output</param>
@@ -62,6 +65,20 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
         var workIds = await LiveChildWorks(parentIds).Select(w => w.Id).ToListAsync(cancellationToken);
         var breakIds = await LiveChildBreaks(parentIds).Select(b => b.Id).ToListAsync(cancellationToken);
         return new ContainerChildIds(workIds, breakIds);
+    }
+
+    public async Task<ContainerChildren> GetLiveChildrenAsync(
+        IReadOnlyCollection<Guid> parentWorkIds, CancellationToken cancellationToken = default)
+    {
+        if (parentWorkIds.Count == 0)
+        {
+            return ContainerChildren.None;
+        }
+
+        var parentIds = parentWorkIds.ToArray();
+        var works = await LiveChildWorks(parentIds).AsNoTracking().ToListAsync(cancellationToken);
+        var breaks = await LiveChildBreaks(parentIds).AsNoTracking().ToListAsync(cancellationToken);
+        return new ContainerChildren(works, breaks);
     }
 
     private IQueryable<Work> LiveChildWorks(Guid[] parentWorkIds) =>
@@ -149,17 +166,16 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
             .Where(b => b.ParentWorkId == parentWorkId && !b.IsDeleted)
             .ToListAsync();
 
-        var sealedAt = lockLevel != WorkLockLevel.None ? (DateTime?)DateTime.UtcNow : null;
-        var resolvedSealedBy = lockLevel != WorkLockLevel.None ? sealedBy : null;
+        var sealedAt = DateTime.UtcNow;
 
         foreach (var work in childWorks)
         {
-            ApplyLockLevel(work, lockLevel, sealedAt, resolvedSealedBy);
+            ApplyLockLevel(work, lockLevel, sealedAt, sealedBy);
         }
 
         foreach (var breakEntry in childBreaks)
         {
-            ApplyLockLevel(breakEntry, lockLevel, sealedAt, resolvedSealedBy);
+            ApplyLockLevel(breakEntry, lockLevel, sealedAt, sealedBy);
         }
 
         _logger.LogDebug(
@@ -168,11 +184,17 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
     }
 
     /// <summary>
-    /// Mirrors the parent's single-entry lock change onto a child. Like WorkLockLevelService it drops the
-    /// pre-seal state a period seal recorded, because that state no longer describes the entry.
+    /// Mirrors the parent's single-entry lock change onto a child, but only upwards: a child sealed as high as the new level or
+    /// higher keeps its seal and its pre-seal state. Like WorkLockLevelService it drops the pre-seal state a period seal
+    /// recorded when it raises the child, because that state no longer describes the entry.
     /// </summary>
-    private static void ApplyLockLevel(ScheduleEntryBase entry, WorkLockLevel lockLevel, DateTime? sealedAt, string? sealedBy)
+    private static void ApplyLockLevel(ScheduleEntryBase entry, WorkLockLevel lockLevel, DateTime sealedAt, string? sealedBy)
     {
+        if (lockLevel <= entry.LockLevel)
+        {
+            return;
+        }
+
         entry.LockLevel = lockLevel;
         entry.SealedAt = sealedAt;
         entry.SealedBy = sealedBy;

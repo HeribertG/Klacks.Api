@@ -14,6 +14,7 @@
 /// <param name="lockGuard">Applies the lock level rule of a Work</param>
 /// <param name="dayLockService">Refuses writes on sealed days</param>
 /// <param name="httpContextAccessor">Source of the calling user's roles</param>
+/// <param name="shiftRepository">Reads the shift times of all sub-works at once, to place the work changes on their days</param>
 
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -30,13 +31,16 @@ public class ContainerChildrenWriteGuard : IContainerChildrenWriteGuard
     private readonly IParentWorkLockGuard _lockGuard;
     private readonly IDayLockService _dayLockService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IShiftRepository _shiftRepository;
 
     public ContainerChildrenWriteGuard(
         IContainerWorkChildrenReadRepository readRepository,
         IParentWorkLockGuard lockGuard,
         IDayLockService dayLockService,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IShiftRepository shiftRepository)
     {
+        _shiftRepository = shiftRepository;
         _readRepository = readRepository;
         _lockGuard = lockGuard;
         _dayLockService = dayLockService;
@@ -59,8 +63,7 @@ public class ContainerChildrenWriteGuard : IContainerChildrenWriteGuard
         TakeServerOwnedState(container, works, breaks, workChanges, storedWorks, storedBreaks);
 
         EnsureLockLevelsAllowWriting(container, stored);
-        await EnsureDaysAreOpenAsync(container, stored, works, breaks, cancellationToken);
-        await EnsureWorkChangeDaysAreOpenAsync(stored, works, workChanges, storedChanges, cancellationToken);
+        await EnsureDaysAreOpenAsync(container, stored, works, breaks, workChanges, storedChanges, cancellationToken);
     }
 
     private async Task EnsureNewIdsAreFreeAsync(
@@ -123,17 +126,7 @@ public class ContainerChildrenWriteGuard : IContainerChildrenWriteGuard
     private void EnsureLockLevelsAllowWriting(Work container, StoredContainerChildren stored)
     {
         _lockGuard.EnsureWorkWritableForCaller(container, _httpContextAccessor);
-
-        foreach (var work in stored.Works)
-        {
-            _lockGuard.EnsureWorkWritableForCaller(work, _httpContextAccessor);
-        }
-
-        var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
-        foreach (var entry in stored.Breaks)
-        {
-            BreakLockRule.EnsureWritable(entry, isAdmin);
-        }
+        _lockGuard.EnsureChildrenWritableForCaller(stored.Works, stored.Breaks, _httpContextAccessor);
     }
 
     private async Task EnsureDaysAreOpenAsync(
@@ -141,6 +134,8 @@ public class ContainerChildrenWriteGuard : IContainerChildrenWriteGuard
         StoredContainerChildren stored,
         IReadOnlyList<Work> works,
         IReadOnlyList<Break> breaks,
+        IReadOnlyList<WorkChange> workChanges,
+        IReadOnlyDictionary<Guid, WorkChange> storedChanges,
         CancellationToken cancellationToken)
     {
         var days = new HashSet<(DateOnly Date, Guid ClientId, Guid? AnalyseToken)>
@@ -151,6 +146,7 @@ public class ContainerChildrenWriteGuard : IContainerChildrenWriteGuard
         days.UnionWith(stored.Breaks.Select(entry => (entry.CurrentDate, entry.ClientId, entry.AnalyseToken)));
         days.UnionWith(works.Select(work => (work.CurrentDate, work.ClientId, work.AnalyseToken)));
         days.UnionWith(breaks.Select(entry => (entry.CurrentDate, entry.ClientId, entry.AnalyseToken)));
+        days.UnionWith(await WorkChangeDaysAsync(stored, works, workChanges, storedChanges, cancellationToken));
         await _dayLockService.EnsureNoneLockedAsync(days.ToList(), cancellationToken);
 
         var keptIds = works.Select(work => work.Id).ToHashSet();
@@ -165,7 +161,14 @@ public class ContainerChildrenWriteGuard : IContainerChildrenWriteGuard
         }
     }
 
-    private async Task EnsureWorkChangeDaysAreOpenAsync(
+    /// <summary>
+    /// The days the schedule shows the written or removed work changes on, for the employee of the sub-work and for the
+    /// replacement employee, as the single-change check of the day lock service resolves them: from the shift times read
+    /// once for all sub-works, with WorkChangeEntryDay. The sub-work is the stored one when there is one, so a request
+    /// cannot name another employee for a stored sub-work; scenario sub-works are not day-locked. A new or changed change
+    /// and one that is left out count, an unchanged one does not.
+    /// </summary>
+    private async Task<IReadOnlyList<(DateOnly Date, Guid ClientId, Guid? AnalyseToken)>> WorkChangeDaysAsync(
         StoredContainerChildren stored,
         IReadOnlyList<Work> works,
         IReadOnlyList<WorkChange> workChanges,
@@ -175,29 +178,38 @@ public class ContainerChildrenWriteGuard : IContainerChildrenWriteGuard
         var parents = stored.Works.ToDictionary(work => work.Id);
         foreach (var work in works.Where(work => work.Id != Guid.Empty))
         {
-            parents[work.Id] = work;
+            parents.TryAdd(work.Id, work);
         }
 
         var keptChangeIds = workChanges.Select(change => change.Id).ToHashSet();
-        foreach (var change in stored.WorkChanges.Where(change => !keptChangeIds.Contains(change.Id)))
+        var written = workChanges.Where(change =>
+            !storedChanges.TryGetValue(change.Id, out var storedChange) || !WorkChangeContent.AreSame(storedChange, change));
+        var checkedChanges = stored.WorkChanges.Where(change => !keptChangeIds.Contains(change.Id)).Concat(written)
+            .Where(change => parents.TryGetValue(change.WorkId, out var parent) && !parent.AnalyseToken.HasValue)
+            .ToList();
+        if (checkedChanges.Count == 0)
         {
-            if (parents.TryGetValue(change.WorkId, out var parent))
+            return [];
+        }
+
+        var shiftIds = checkedChanges.Select(change => parents[change.WorkId].ShiftId).Distinct().ToList();
+        var shifts = (await _shiftRepository.GetWithClientByIdsAsync(shiftIds, cancellationToken)).ToDictionary(shift => shift.Id);
+
+        var days = new List<(DateOnly Date, Guid ClientId, Guid? AnalyseToken)>();
+        foreach (var change in checkedChanges)
+        {
+            var parent = parents[change.WorkId];
+            var day = shifts.TryGetValue(parent.ShiftId, out var shift)
+                ? WorkChangeEntryDay.Of(
+                    change.Type, parent.CurrentDate, parent.EndTime, change.StartTime, change.ChangeTime, shift.StartShift, shift.EndShift)
+                : parent.CurrentDate;
+            days.Add((day, parent.ClientId, null));
+            if (change.ReplaceClientId is { } replaceClientId)
             {
-                await _dayLockService.EnsureWorkChangeNotLockedAsync(parent, change, cancellationToken);
+                days.Add((day, replaceClientId, null));
             }
         }
 
-        foreach (var change in workChanges)
-        {
-            if (storedChanges.TryGetValue(change.Id, out var storedChange) && WorkChangeContent.AreSame(storedChange, change))
-            {
-                continue;
-            }
-
-            if (parents.TryGetValue(change.WorkId, out var parent))
-            {
-                await _dayLockService.EnsureWorkChangeNotLockedAsync(parent, change, cancellationToken);
-            }
-        }
+        return days;
     }
 }

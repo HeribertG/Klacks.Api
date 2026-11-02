@@ -7,7 +7,8 @@
 /// visibility is refused exactly like a Work that does not exist; nothing is written. Like the Work PUT and DELETE,
 /// the stored Work must be writable for the caller under IParentWorkLockGuard: a Closed Work is refused for everyone,
 /// an Approved one needs Admin or Authorised. Like the grid's drop target, the target client must be plannable on the
-/// Work's day: a day outside its membership or group period is refused.
+/// Work's day: a day outside its membership or group period is refused. The container children it moves along must be
+/// writable for the caller too; that is checked before the first change is staged, so a refusal leaves nothing behind.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="httpContextAccessor">Source of the calling user's roles for the Work lock rule</param>
@@ -109,6 +110,9 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
                 [(request.TargetClientId, existingWork.CurrentDate)], cancellationToken);
 
             await EnsureNoHardBlockingConflictAsync(existingWork, request.TargetClientId, cancellationToken);
+
+            var children = await _cascadeService.GetLiveChildrenAsync([existingWork.Id], cancellationToken);
+            _workLockGuard.EnsureChildrenWritableForCaller(children, _httpContextAccessor);
 
             var work = await _workRepository.Get(request.Id);
             if (work == null)
