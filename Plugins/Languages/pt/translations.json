@@ -2055,6 +2055,7 @@
   "schedule.move-reversal.held": "O turno está confirmado ou substituído e já não pode mudar de pessoa.",
   "schedule.move-reversal.not-applied": "Só pode ser anulada uma transferência que chegou ao plano.",
   "schedule.move-reversal.already-reversed": "Esta transferência já foi anulada.",
+  "schedule.move-reversal.origin-busy": "A pessoa de quem veio este turno não está livre nesse horário: outro turno ou uma ausência impede.",
   "schedule.move-reversal.not-found": "O turno não foi encontrado.",
   "schedule.error-list.column.client": "Colaborador",
   "schedule.error-list.column.comment": "Comentário",

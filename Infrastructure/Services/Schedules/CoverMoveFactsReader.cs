@@ -25,7 +25,7 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
         _context = context;
     }
 
-    public async Task<bool> IsFreeAsync(Guid analyseToken, Guid clientId, Guid workId, CancellationToken cancellationToken)
+    public async Task<bool> IsFreeAsync(Guid? analyseToken, Guid clientId, Guid workId, CancellationToken cancellationToken)
     {
         var work = await _context.Work.AsNoTracking().SingleOrDefaultAsync(w => w.Id == workId, cancellationToken);
         if (work is null)
@@ -43,7 +43,8 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
                 && w.CurrentDate >= firstDay
                 && w.CurrentDate <= lastDay
                 && (w.AnalyseToken == analyseToken
-                    || (w.AnalyseToken == null
+                    || (analyseToken != null
+                        && w.AnalyseToken == null
                         && !_context.Work.IgnoreQueryFilters().Any(clone => clone.AnalyseToken == analyseToken && clone.ClonedFromWorkId == w.Id))))
             .OrderBy(w => w.Id)
             .ToListAsync(cancellationToken);

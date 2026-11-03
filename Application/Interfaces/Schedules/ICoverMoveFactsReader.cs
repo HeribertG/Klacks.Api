@@ -20,9 +20,9 @@ public interface ICoverMoveFactsReader
     /// included. It holds a work with its own lead and trail, or a blocking absence, as the scenario sees them: its own rows
     /// plus the real works it has no clone of. An on-call absence does not block.
     /// </summary>
-    /// <param name="analyseToken">Token of the scenario</param>
+    /// <param name="analyseToken">Token of the scenario; null is the real plan</param>
     /// <param name="clientId">The person</param>
     /// <param name="workId">The work the person would take</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    Task<bool> IsFreeAsync(Guid analyseToken, Guid clientId, Guid workId, CancellationToken cancellationToken);
+    Task<bool> IsFreeAsync(Guid? analyseToken, Guid clientId, Guid workId, CancellationToken cancellationToken);
 }

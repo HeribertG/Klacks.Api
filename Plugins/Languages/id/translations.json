@@ -2055,6 +2055,7 @@
   "schedule.move-reversal.held": "Layanan sudah dikonfirmasi atau digantikan dan tidak dapat berganti orang lagi.",
   "schedule.move-reversal.not-applied": "Hanya pemindahan yang sudah masuk ke rencana yang dapat dibatalkan.",
   "schedule.move-reversal.already-reversed": "Pemindahan ini sudah dibatalkan.",
+  "schedule.move-reversal.origin-busy": "Orang asal layanan ini tidak sedang luang pada waktu itu: ada layanan lain atau ketidakhadiran yang menghalangi.",
   "schedule.move-reversal.not-found": "Layanan tidak ditemukan.",
   "schedule.error-list.column.client": "Karyawan",
   "schedule.error-list.column.comment": "Komentar",

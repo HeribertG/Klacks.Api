@@ -2055,6 +2055,7 @@
   "schedule.move-reversal.held": "Η βάρδια είναι επιβεβαιωμένη ή αντικαταστάθηκε και δεν μπορεί πλέον να αλλάξει άτομο.",
   "schedule.move-reversal.not-applied": "Μόνο μια μετακίνηση που πέρασε στο πρόγραμμα μπορεί να αναιρεθεί.",
   "schedule.move-reversal.already-reversed": "Αυτή η μετακίνηση έχει ήδη αναιρεθεί.",
+  "schedule.move-reversal.origin-busy": "Το άτομο από το οποίο προήλθε η βάρδια δεν είναι διαθέσιμο εκείνη την ώρα: εμποδίζει άλλη βάρδια ή μια απουσία.",
   "schedule.move-reversal.not-found": "Η βάρδια δεν βρέθηκε.",
   "schedule.error-list.column.client": "Εργαζόμενος",
   "schedule.error-list.column.comment": "Σχόλιο",

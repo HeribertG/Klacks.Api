@@ -2055,6 +2055,7 @@
   "schedule.move-reversal.held": "該班次已確認或已被替代，無法再更換人員。",
   "schedule.move-reversal.not-applied": "只能撤銷已進入計畫的轉移。",
   "schedule.move-reversal.already-reversed": "此轉移已被撤銷。",
+  "schedule.move-reversal.origin-busy": "該班次原來的人員在該時間沒有空：有其他班次或缺勤衝突。",
   "schedule.move-reversal.not-found": "未找到該班次。",
   "schedule.error-list.column.client": "員工",
   "schedule.error-list.column.comment": "備註",

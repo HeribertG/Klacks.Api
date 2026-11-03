@@ -10,7 +10,7 @@
 /// <param name="clientVisibilityGuard">Refuses a row of a person outside the caller's visibility like a missing one</param>
 /// <param name="scenarioTokenAccessGuard">Refuses a row of a scenario still open and hidden from the caller like a missing one</param>
 /// <param name="workRepository">Loads the moved work</param>
-/// <param name="factsReader">Tells whether something holds the work in place</param>
+/// <param name="reversalCheck">The checks every way of taking a move back shares (held, busy origin)</param>
 /// <param name="mediator">Runs the Work reassignment</param>
 
 using Klacks.Api.Application.Commands.Schedules;
@@ -21,7 +21,6 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
-using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Schedules;
@@ -33,13 +32,12 @@ public sealed class ReverseMoveCommandHandler : IRequestHandler<ReverseMoveComma
     private const string AlreadyReversedMessage = "This move was already taken back.";
     private const string AlreadyBackMessage = "This service is already back with the person it came from.";
     private const string MovedOnMessage = "This service has moved on since; only its last move can be taken back.";
-    private const string HeldMessage = "This service is sealed or replaced and can no longer change person.";
 
     private readonly IReplacementRequestRepository _repository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
     private readonly IWorkRepository _workRepository;
-    private readonly ICoverMoveFactsReader _factsReader;
+    private readonly IMoveReversalCheck _reversalCheck;
     private readonly IMediator _mediator;
 
     public ReverseMoveCommandHandler(
@@ -47,14 +45,14 @@ public sealed class ReverseMoveCommandHandler : IRequestHandler<ReverseMoveComma
         IClientVisibilityGuard clientVisibilityGuard,
         IScenarioTokenAccessGuard scenarioTokenAccessGuard,
         IWorkRepository workRepository,
-        ICoverMoveFactsReader factsReader,
+        IMoveReversalCheck reversalCheck,
         IMediator mediator)
     {
         _repository = repository;
         _clientVisibilityGuard = clientVisibilityGuard;
         _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
         _workRepository = workRepository;
-        _factsReader = factsReader;
+        _reversalCheck = reversalCheck;
         _mediator = mediator;
     }
 
@@ -89,11 +87,7 @@ public sealed class ReverseMoveCommandHandler : IRequestHandler<ReverseMoveComma
             throw new MoveReversalRefusedException(MovedOnMessage, MoveReversalRefusalCodes.MovedOn);
         }
 
-        var facts = await _factsReader.LoadAsync([workId], work.AnalyseToken, cancellationToken);
-        if (!facts.TryGetValue(workId, out var fact) || !CoverMoveDecision.IsUntouched(fact))
-        {
-            throw new MoveReversalRefusedException(HeldMessage, MoveReversalRefusalCodes.Held);
-        }
+        await _reversalCheck.EnsureReversibleAsync(work, cancellationToken);
 
         return await _mediator.Send(new ReassignWorkClientCommand(workId, row.AbsentClientId), cancellationToken);
     }

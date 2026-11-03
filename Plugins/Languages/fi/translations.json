@@ -2055,6 +2055,7 @@
   "schedule.move-reversal.held": "Vuoro on vahvistettu tai korvattu, eikä sen henkilöä voi enää vaihtaa.",
   "schedule.move-reversal.not-applied": "Vain suunnitelmaan päätyneen siirron voi perua.",
   "schedule.move-reversal.already-reversed": "Tämä siirto on jo peruttu.",
+  "schedule.move-reversal.origin-busy": "Henkilö, jolta vuoro tuli, ei ole vapaa siihen aikaan: toinen vuoro tai poissaolo on esteenä.",
   "schedule.move-reversal.not-found": "Vuoroa ei löytynyt.",
   "schedule.error-list.column.client": "Työntekijä",
   "schedule.error-list.column.comment": "Kommentti",

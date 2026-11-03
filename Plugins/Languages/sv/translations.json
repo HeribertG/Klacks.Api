@@ -2055,6 +2055,7 @@
   "schedule.move-reversal.held": "Passet är bekräftat eller avlöst och kan inte längre byta person.",
   "schedule.move-reversal.not-applied": "Bara en flytt som har nått planen kan ångras.",
   "schedule.move-reversal.already-reversed": "Den här flytten är redan ångrad.",
+  "schedule.move-reversal.origin-busy": "Personen som passet kom från är inte ledig vid den tiden: ett annat pass eller en frånvaro står i vägen.",
   "schedule.move-reversal.not-found": "Passet hittades inte.",
   "schedule.error-list.column.client": "Medarbetare",
   "schedule.error-list.column.comment": "Kommentar",

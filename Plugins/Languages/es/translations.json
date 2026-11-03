@@ -2055,6 +2055,7 @@
   "schedule.move-reversal.held": "El turno está confirmado o sustituido y ya no puede cambiar de persona.",
   "schedule.move-reversal.not-applied": "Solo se puede deshacer un traslado que haya llegado al plan.",
   "schedule.move-reversal.already-reversed": "Este traslado ya se ha deshecho.",
+  "schedule.move-reversal.origin-busy": "La persona de la que procede este turno no está libre en ese momento: lo impide otro turno o una ausencia.",
   "schedule.move-reversal.not-found": "No se ha encontrado el turno.",
   "schedule.error-list.column.client": "Empleado",
   "schedule.error-list.column.comment": "Comentario",

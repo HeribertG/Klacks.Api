@@ -2055,6 +2055,7 @@
   "schedule.move-reversal.held": "De dienst is bevestigd of vervangen en kan niet meer van persoon wisselen.",
   "schedule.move-reversal.not-applied": "Alleen een verplaatsing die in het plan is opgenomen, kan worden teruggedraaid.",
   "schedule.move-reversal.already-reversed": "Deze verplaatsing is al teruggedraaid.",
+  "schedule.move-reversal.origin-busy": "De persoon van wie deze dienst kwam, is op dat moment niet vrij: een andere dienst of een afwezigheid zit in de weg.",
   "schedule.move-reversal.not-found": "De dienst is niet gevonden.",
   "schedule.error-list.column.client": "Medewerker",
   "schedule.error-list.column.comment": "Opmerking",

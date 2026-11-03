@@ -2055,6 +2055,7 @@
   "schedule.move-reversal.held": "המשמרת מאושרת או הוחלפה ואינה יכולה עוד להחליף אדם.",
   "schedule.move-reversal.not-applied": "ניתן לבטל רק העברה שהגיעה לתוכנית.",
   "schedule.move-reversal.already-reversed": "העברה זו כבר בוטלה.",
+  "schedule.move-reversal.origin-busy": "האדם שממנו הגיעה המשמרת אינו פנוי בזמן הזה: משמרת אחרת או היעדרות מונעות זאת.",
   "schedule.move-reversal.not-found": "המשמרת לא נמצאה.",
   "schedule.error-list.column.client": "עובד",
   "schedule.error-list.column.comment": "הערה",

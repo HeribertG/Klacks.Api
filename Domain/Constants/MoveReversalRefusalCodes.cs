@@ -17,6 +17,9 @@ public static class MoveReversalRefusalCodes
     /// <summary>Something holds the service in place: it is sealed or replaced.</summary>
     public const string Held = "MOVE_HELD";
 
+    /// <summary>The person the service came from is not free at its time: another service or a blocking absence.</summary>
+    public const string OriginBusy = "MOVE_ORIGIN_BUSY";
+
     /// <summary>The row is no move that reached the plan.</summary>
     public const string NotAnAppliedMove = "MOVE_NOT_APPLIED";
 

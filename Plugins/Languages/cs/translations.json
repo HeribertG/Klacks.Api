@@ -2055,6 +2055,7 @@
   "schedule.move-reversal.held": "Služba je potvrzená nebo nahrazená a už nemůže změnit osobu.",
   "schedule.move-reversal.not-applied": "Vrátit lze jen přesun, který se dostal do plánu.",
   "schedule.move-reversal.already-reversed": "Tento přesun už byl vrácen.",
+  "schedule.move-reversal.origin-busy": "Osoba, od které služba přišla, není v tu dobu volná: brání tomu jiná služba nebo nepřítomnost.",
   "schedule.move-reversal.not-found": "Služba nebyla nalezena.",
   "schedule.error-list.column.client": "Zaměstnanec",
   "schedule.error-list.column.comment": "Komentář",

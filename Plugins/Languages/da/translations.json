@@ -2055,6 +2055,7 @@
   "schedule.move-reversal.held": "Vagten er bekræftet eller afløst og kan ikke længere skifte person.",
   "schedule.move-reversal.not-applied": "Kun en flytning, der er nået ind i planen, kan fortrydes.",
   "schedule.move-reversal.already-reversed": "Denne flytning er allerede fortrudt.",
+  "schedule.move-reversal.origin-busy": "Personen, som vagten kom fra, er ikke ledig på det tidspunkt: en anden vagt eller et fravær er i vejen.",
   "schedule.move-reversal.not-found": "Vagten blev ikke fundet.",
   "schedule.error-list.column.client": "Medarbejder",
   "schedule.error-list.column.comment": "Kommentar",
