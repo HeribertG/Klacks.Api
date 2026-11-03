@@ -46,6 +46,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=Klacks;Username=admin;Password=${POSTGRES_PASSWORD:-admin}
+      # The store runs next to the API in this stack; appsettings.Production.json names its public address.
+      - LanguagePlugins__MarketplaceUrl=http://klacks-marketplace
     depends_on:
       - postgres
     networks:

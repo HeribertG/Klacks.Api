@@ -435,6 +435,11 @@ jobs:
           if ($status.passwordPolicy.requiredLength -lt 8) { throw 'Setup/Status publishes no password policy.' }
           Write-Host 'Login, UI and setup status OK.'
 
+      - name: Customer defaults (no Playground, public store, no demo data)
+        shell: powershell
+        run: |
+          & Klacks.Api/deploy/native/windows/Assert-KlacksCustomerDefaults.ps1 -BaseUrl "http://127.0.0.1:$env:HTTP_PORT"
+
       - name: Restart Klacks
         shell: powershell
         run: |
@@ -550,6 +555,17 @@ jobs:
             -Body (@{ email = $env:SEED_ADMIN_EMAIL; password = $env:SEED_ADMIN_PASSWORD } | ConvertTo-Json)
           if (-not $login.token) { throw 'Login with the seeded admin returned no token.' }
           Write-Host 'Services, health and login OK.'
+
+      - name: Checkout Klacks.Api (check scripts)
+        uses: actions/checkout@v4
+        with:
+          path: Klacks.Api
+          sparse-checkout: deploy/native
+
+      - name: Customer defaults (no Playground, public store, no demo data)
+        shell: powershell
+        run: |
+          & Klacks.Api/deploy/native/windows/Assert-KlacksCustomerDefaults.ps1 -BaseUrl "http://127.0.0.1:$env:HTTP_PORT"
 
       - name: Uninstall silently (unins000.exe)
         shell: powershell
