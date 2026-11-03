@@ -16,13 +16,13 @@ public interface ICoverMoveFactsReader
         IReadOnlyCollection<Guid> workIds, Guid? analyseToken, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Whether this person holds no work and no blocking absence in the window, as the scenario sees them: its own rows plus
-    /// the real works it has no clone of. An on-call absence does not block.
+    /// Whether this person can take the work: nothing of the person meets the time the work occupies, lead and trail
+    /// included. It holds a work with its own lead and trail, or a blocking absence, as the scenario sees them: its own rows
+    /// plus the real works it has no clone of. An on-call absence does not block.
     /// </summary>
     /// <param name="analyseToken">Token of the scenario</param>
     /// <param name="clientId">The person</param>
-    /// <param name="startAt">Start of the window</param>
-    /// <param name="endAt">End of the window</param>
+    /// <param name="workId">The work the person would take</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    Task<bool> IsFreeAsync(Guid analyseToken, Guid clientId, DateTime startAt, DateTime endAt, CancellationToken cancellationToken);
+    Task<bool> IsFreeAsync(Guid analyseToken, Guid clientId, Guid workId, CancellationToken cancellationToken);
 }

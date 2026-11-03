@@ -172,7 +172,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
             if (movesChildren)
             {
-                await _cascadeService.MoveChildrenAsync(updatedWork.Id, updatedWork.CurrentDate, updatedWork.ClientId);
+                await _cascadeService.MoveChildrenAsync(
+                    updatedWork.Id, updatedWork.CurrentDate, existingWork!.ClientId, updatedWork.ClientId);
             }
 
             // No lock-level cascade here any more: the seal state is server-owned and carried over

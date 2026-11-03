@@ -26,8 +26,9 @@ public interface IWorkChangeRepository : IBaseRepository<WorkChange>
         Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// The replacements of <see cref="ListScenarioReplacementsAsync"/> this scenario itself wrote. A replacement the clone
-    /// source of its work already carries was settled earlier, it is left out.
+    /// The replacements of <see cref="ListScenarioReplacementsAsync"/> this scenario or the open scenario it was built on
+    /// wrote. A replacement the real work at the end of its clone chain already carries was settled by an earlier accept, it is
+    /// left out.
     /// </summary>
     /// <param name="analyseToken">Scenario token</param>
     /// <param name="clientId">Employee who owns the works</param>

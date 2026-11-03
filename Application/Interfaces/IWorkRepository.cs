@@ -15,8 +15,9 @@ namespace Klacks.Api.Application.Interfaces;
 public interface IWorkRepository : IBaseRepository<Work>
 {
     /// <summary>
-    /// The top-level works this scenario itself moved away from this person on this day, untracked with a stable order. A
-    /// work whose clone source already carries the same origin was moved earlier, it is left out.
+    /// The top-level works moved away from this person on this day in this scenario or the open scenario it was built on,
+    /// untracked with a stable order. A work whose clone chain ends at a real-plan work with the same origin was moved by an
+    /// earlier accept, it is left out.
     /// </summary>
     /// <param name="analyseToken">Token of the scenario</param>
     /// <param name="movedFromClientId">The person the works came from</param>

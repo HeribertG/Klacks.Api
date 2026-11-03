@@ -60,6 +60,16 @@ public interface IReplacementRequestRepository : IBaseRepository<ReplacementRequ
         ReplacementRequestFilter filter, int maxRows, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The applied Move row of one step of a work that was not reversed yet, tracked; null when the step has no such row.
+    /// </summary>
+    /// <param name="workId">The work the row moved</param>
+    /// <param name="absentClientId">Person the work came from</param>
+    /// <param name="candidateClientId">Person it went to</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<ReplacementRequest?> FindAppliedMoveAsync(
+        Guid workId, Guid absentClientId, Guid candidateClientId, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Self-committing bulk HARD delete of every row (live or soft-deleted) reported before the cutoff
     /// (retention: the owner decided that 24 months really means deleted).
     /// </summary>

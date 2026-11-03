@@ -7,6 +7,7 @@
 /// <param name="context">Database context of the caller (soft-delete filters apply)</param>
 
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Schedules.Recovery;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
@@ -24,11 +25,17 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
         _context = context;
     }
 
-    public async Task<bool> IsFreeAsync(
-        Guid analyseToken, Guid clientId, DateTime startAt, DateTime endAt, CancellationToken cancellationToken)
+    public async Task<bool> IsFreeAsync(Guid analyseToken, Guid clientId, Guid workId, CancellationToken cancellationToken)
     {
+        var work = await _context.Work.AsNoTracking().SingleOrDefaultAsync(w => w.Id == workId, cancellationToken);
+        if (work is null)
+        {
+            return false;
+        }
+
+        var (startAt, endAt) = (await OccupiedAsync([work], cancellationToken)).Single();
         var firstDay = DateOnly.FromDateTime(startAt).AddDays(-1);
-        var lastDay = DateOnly.FromDateTime(endAt);
+        var lastDay = DateOnly.FromDateTime(endAt).AddDays(1);
 
         var works = await _context.Work.AsNoTracking()
             .Where(w => w.ClientId == clientId
@@ -38,13 +45,9 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
                 && (w.AnalyseToken == analyseToken
                     || (w.AnalyseToken == null
                         && !_context.Work.IgnoreQueryFilters().Any(clone => clone.AnalyseToken == analyseToken && clone.ClonedFromWorkId == w.Id))))
-            .Select(w => new { w.CurrentDate, w.StartTime, w.EndTime })
+            .OrderBy(w => w.Id)
             .ToListAsync(cancellationToken);
-        if (works.Any(w =>
-            {
-                var (workStart, workEnd) = ReplacementWindow.ToInterval(w.CurrentDate, w.StartTime, w.StartTime, w.EndTime);
-                return workStart < endAt && startAt < workEnd;
-            }))
+        if ((await OccupiedAsync(works, cancellationToken)).Any(held => held.StartAt < endAt && startAt < held.EndAt))
         {
             return false;
         }
@@ -65,6 +68,26 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
             var (absenceStart, absenceEnd) = AbsenceWorkCoverage.Window(b.CurrentDate, b.StartTime, b.EndTime);
             return absenceStart < endAt && startAt < absenceEnd;
         });
+    }
+
+    private async Task<List<(DateTime StartAt, DateTime EndAt)>> OccupiedAsync(
+        IReadOnlyList<Work> works, CancellationToken cancellationToken)
+    {
+        var ids = works.Select(w => w.Id).ToList();
+        var changes = await _context.WorkChange.AsNoTracking()
+            .Where(change => ids.Contains(change.WorkId))
+            .ToListAsync(cancellationToken);
+        var changesByWork = changes.ToLookup(change => change.WorkId);
+
+        return works
+            .Select(w =>
+            {
+                var (startAt, endAt) = ReplacementWindow.ToInterval(w.CurrentDate, w.StartTime, w.StartTime, w.EndTime);
+                var (lead, trail, _) = RecoveryWorkPaddingReader.Collect(w, changesByWork[w.Id])
+                    .ForSegment(startAt, endAt, [(startAt, endAt)], 0);
+                return (startAt - TimeSpan.FromHours((double)lead), endAt + TimeSpan.FromHours((double)trail));
+            })
+            .ToList();
     }
 
     public async Task<IReadOnlyDictionary<Guid, CoverMoveFacts>> LoadAsync(

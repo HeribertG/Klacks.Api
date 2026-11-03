@@ -129,7 +129,7 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
         entity.CurrentUserDeleted = null;
     }
 
-    public async Task MoveChildrenAsync(Guid parentWorkId, DateOnly newDate, Guid newClientId)
+    public async Task MoveChildrenAsync(Guid parentWorkId, DateOnly newDate, Guid previousClientId, Guid newClientId)
     {
         var childWorks = await _context.Work
             .Where(w => w.ParentWorkId == parentWorkId && !w.IsDeleted)
@@ -142,7 +142,10 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
         foreach (var work in childWorks)
         {
             work.CurrentDate = newDate;
-            work.ClientId = newClientId;
+            if (work.ClientId == previousClientId)
+            {
+                work.ClientId = newClientId;
+            }
         }
 
         foreach (var breakEntry in childBreaks)

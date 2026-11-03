@@ -132,6 +132,19 @@ public sealed class RecoveryController : ControllerBase
     }
 
     /// <summary>
+    /// Takes an applied move back, the service returns to the person it came from. Only the last move of a service qualifies;
+    /// any other row is refused with the reason.
+    /// </summary>
+    /// <param name="id">The Move row</param>
+    /// <param name="ct">Cancellation token</param>
+    [HttpPost("Requests/{id:guid}/Reverse")]
+    public async Task<ActionResult<ReassignWorkClientResponse>> ReverseMove(Guid id, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new ReverseMoveCommand(id), ct);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
     /// Records a contact attempt with an alternative candidate for one slot (upsert on scenario token, candidate,
     /// shift and date). Accepted makes the candidate the slot's replacement in the scenario (409 when they can no longer
     /// take the slot); every other answer only stores the fact. Nobody is contacted by this call.

@@ -10,12 +10,14 @@
 /// Work's day: a day outside its membership or group period is refused. The container children it moves along must be
 /// writable for the caller too; that is checked before the first change is staged, so a refusal leaves nothing behind. A
 /// Work on a shift of another world reads like a missing shift (IWorkWriteGuard). A recalculation that fails for the new
-/// owner refuses the reassignment; nothing is written.
+/// owner refuses the reassignment; nothing is written. A target equal to the origin of a moved Work takes the move back
+/// (IMovedWorkReversal).
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="httpContextAccessor">Source of the calling user's roles for the Work lock rule</param>
 /// <param name="workLockGuard">Refuses the reassignment when the Work's lock level forbids it for the caller</param>
 /// <param name="planningPeriodGuard">Refuses a target client whose membership or group period does not cover the Work's day</param>
+/// <param name="movedWorkReversal">Takes a move back when the target is the origin of the Work</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -35,6 +37,7 @@ namespace Klacks.Api.Application.Handlers.Works;
 
 public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<ReassignWorkClientCommand, ReassignWorkClientResponse?>
 {
+    private const string AlreadyWithTargetMessage = "This service is already with this person.";
     private const string RecalculationFailedMessage =
         "The work could not be recalculated for the new owner, so it was not reassigned. Check the macro of its shift.";
 
@@ -55,6 +58,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IParentWorkLockGuard _workLockGuard;
     private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
+    private readonly IMovedWorkReversal _movedWorkReversal;
 
     public ReassignWorkClientCommandHandler(
         IWorkRepository workRepository,
@@ -74,6 +78,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         IHttpContextAccessor httpContextAccessor,
         IParentWorkLockGuard workLockGuard,
         IClientPlanningPeriodGuard planningPeriodGuard,
+        IMovedWorkReversal movedWorkReversal,
         ILogger<ReassignWorkClientCommandHandler> logger)
         : base(logger)
     {
@@ -94,6 +99,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         _httpContextAccessor = httpContextAccessor;
         _workLockGuard = workLockGuard;
         _planningPeriodGuard = planningPeriodGuard;
+        _movedWorkReversal = movedWorkReversal;
     }
 
     public async Task<ReassignWorkClientResponse?> Handle(ReassignWorkClientCommand request, CancellationToken cancellationToken)
@@ -106,6 +112,11 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
                     new[] { existingWork.ClientId, request.TargetClientId }, existingWork.AnalyseToken, cancellationToken))
             {
                 throw new KeyNotFoundException($"Work with ID {request.Id} not found.");
+            }
+
+            if (existingWork.ClientId == request.TargetClientId)
+            {
+                throw new InvalidRequestException(AlreadyWithTargetMessage);
             }
 
             await _workWriteGuard.EnsureShiftsInWorkWorldAsync(
@@ -132,6 +143,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
                 throw new KeyNotFoundException($"Work with ID {request.Id} not found.");
             }
 
+            await _movedWorkReversal.StageAsync(work, request.TargetClientId, cancellationToken);
             if (!await _handOverService.TransferAsync(work, request.TargetClientId, null, cancellationToken))
             {
                 _unitOfWork.DiscardTrackedChanges();

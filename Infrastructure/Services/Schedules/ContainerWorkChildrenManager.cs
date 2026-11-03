@@ -79,9 +79,10 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
 
     public async Task<bool> RecalculateForNewOwnerAsync(Work parentWork, CancellationToken cancellationToken)
     {
-        var subWorks = await _context.Work
+        var allSubWorks = await _context.Work
             .Where(w => w.ParentWorkId == parentWork.Id && !w.IsDeleted)
             .ToListAsync(cancellationToken);
+        var subWorks = allSubWorks.Where(w => w.ClientId == parentWork.ClientId).ToList();
         var subBreaks = await _context.Break
             .Where(b => b.ParentWorkId == parentWork.Id && !b.IsDeleted)
             .ToListAsync(cancellationToken);
@@ -95,6 +96,18 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         var parentCalculated = await ProcessParentWorkCalculationsAsync(parentWork, subBreaks, cancellationToken);
         var workChangesCalculated = await ProcessWorkChangeMacrosAsync(workChanges);
         return subWorksCalculated && parentCalculated && workChangesCalculated;
+    }
+
+    public async Task<bool> CalculateNewSubBreakAsync(Break subBreak, Work parentWork, CancellationToken cancellationToken)
+    {
+        var unpaid = await GetUnpaidAbsenceIdsAsync([subBreak], cancellationToken);
+        if (!unpaid.Contains(subBreak.AbsenceId))
+        {
+            return true;
+        }
+
+        var parentShift = await _context.Shift.FirstOrDefaultAsync(s => s.Id == parentWork.ShiftId, cancellationToken);
+        return await ProcessUnpaidBreakSurchargesAsync(subBreak, parentWork, parentShift);
     }
 
     private static void EnsureChildrenInsideMovedBounds(

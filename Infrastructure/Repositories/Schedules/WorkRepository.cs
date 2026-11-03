@@ -12,6 +12,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
@@ -55,16 +56,20 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     public async Task<List<Work>> ListMovedByScenarioAsync(
         Guid analyseToken, Guid movedFromClientId, DateOnly date, CancellationToken cancellationToken)
     {
-        return await context.Work
+        var works = await context.Work
             .AsNoTracking()
             .Where(work => work.AnalyseToken == analyseToken
                 && work.MovedFromClientId == movedFromClientId
                 && work.CurrentDate == date
-                && work.ParentWorkId == null
-                && !context.Work.IgnoreQueryFilters().Any(origin =>
-                    origin.Id == work.ClonedFromWorkId && origin.MovedFromClientId == work.MovedFromClientId))
+                && work.ParentWorkId == null)
             .OrderBy(work => work.Id)
             .ToListAsync(cancellationToken);
+
+        var origins = await WorkCloneLineage.LoadRealOriginsAsync(
+            context, works.Select(work => (work.Id, work.ClonedFromWorkId)), cancellationToken);
+        return works
+            .Where(work => !origins.TryGetValue(work.Id, out var origin) || origin.MovedFromClientId != work.MovedFromClientId)
+            .ToList();
     }
 
     public override async Task Add(Work work)

@@ -180,13 +180,8 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
     public async Task<MovedWorkHandOverResult> ReturnMovedWorkAsync(
         Guid analyseToken, Guid workId, Guid ownerClientId, CancellationToken cancellationToken)
     {
-        if (await LoadUntouchedAsync(analyseToken, workId, cancellationToken) is not { } work)
-        {
-            return MovedWorkHandOverResult.Held;
-        }
-
-        var (startAt, endAt) = ReplacementWindow.ToInterval(work.CurrentDate, work.StartTime, work.StartTime, work.EndTime);
-        if (!await _factsReader.IsFreeAsync(analyseToken, ownerClientId, startAt, endAt, cancellationToken))
+        if (await LoadUntouchedAsync(analyseToken, workId, cancellationToken) is null
+            || !await _factsReader.IsFreeAsync(analyseToken, ownerClientId, workId, cancellationToken))
         {
             return MovedWorkHandOverResult.Held;
         }

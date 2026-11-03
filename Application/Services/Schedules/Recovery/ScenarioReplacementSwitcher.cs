@@ -13,8 +13,8 @@
 /// they are free at that time, their untouched proposal row and, after their last cover, their temporary membership. Recorded
 /// answers stay, they are facts. A later Declined or NotReached does not switch back; the latest acceptance wins. Works only
 /// on an active scenario and a slot that still has a replacement; anything else keeps just the answer. Only the planner's
-/// recorded answer triggers this, nobody is contacted. A slot moved by an earlier accept or a source scenario is not a slot of
-/// this run, its acceptance keeps just the answer. The person who took the swapped work is refused with a reason of their own.
+/// recorded answer triggers this, nobody is contacted. A slot moved by an earlier accept is settled, its acceptance keeps just
+/// the answer; a slot of an open source scenario still switches. The person who took the swapped work is refused with a reason of their own.
 /// </summary>
 /// <param name="workChangeRepository">Finds the slot's replacement and what else the old stand-in holds</param>
 /// <param name="workRepository">Finds the slot's moved work</param>
@@ -128,8 +128,6 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
         await EnsureCandidateFitsAsync(
             row, work, work.ClientId, work.StartTime, work.EndTime, groupId, token, overrideBlock, cancellationToken);
 
-        row.Kind = ReplacementRequestKind.Move;
-        row.WorkId = work.Id;
         switch (await _coverMaterializer.PassOnMovedWorkAsync(token, work.Id, row.CandidateClientId, cancellationToken))
         {
             case MovedWorkHandOverResult.Held:
@@ -137,6 +135,9 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
             case MovedWorkHandOverResult.RecalculationFailed:
                 throw new ConflictException(RecalculationFailedMessage);
         }
+
+        row.Kind = ReplacementRequestKind.Move;
+        row.WorkId = work.Id;
 
         await RemoveOldStandInRowsAsync(token, work.ClientId, row, cancellationToken);
         return true;

@@ -25,13 +25,14 @@ public sealed class WorkHandOverService : IWorkHandOverService
 
     public async Task<bool> TransferAsync(Work work, Guid targetClientId, Guid? movedFromClientId, CancellationToken cancellationToken)
     {
+        var previousClientId = work.ClientId;
         work.ClientId = targetClientId;
         if (movedFromClientId is { } movedFrom)
         {
             work.MovedFromClientId = movedFrom;
         }
 
-        await _cascadeService.MoveChildrenAsync(work.Id, work.CurrentDate, targetClientId);
+        await _cascadeService.MoveChildrenAsync(work.Id, work.CurrentDate, previousClientId, targetClientId);
         return await _childrenManager.RecalculateForNewOwnerAsync(work, cancellationToken);
     }
 }
