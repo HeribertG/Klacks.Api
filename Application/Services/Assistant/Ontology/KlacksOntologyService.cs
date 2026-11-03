@@ -176,13 +176,12 @@ public class KlacksOntologyService : IKlacksOntologyService
         ],
         ["Shift"] =
         [
-            "Shift.ShiftType: 0=IsTask (a single service), 1=IsContainer (a container bundling services via ContainerTemplate).",
+            "Shift.ShiftType: 0=IsTask (a single service), 1=IsContainer (template via ContainerTemplate; no order: one row, Status OriginalShift, OriginalId null; never cut, split only in the Schedule via Work children).",
             "Shift.Status lifecycle: 0=OriginalOrder (editable) -> seal -> 1=SealedOrder (immutable snapshot, the order/'Bestellung') -> clone -> 2=OriginalShift (plannable) -> cut -> N x 3=SplitShift.",
-            "End state is SealedOrder + exactly ONE OriginalShift, or SealedOrder + N SplitShifts — never both; an OriginalShift alongside its own splits double-books.",
-            "Exception: a container (ShiftType=IsContainer) is an internal template and never has an order. It is one row: Status OriginalShift, OriginalId null, no SealedOrder row, and it cannot be cut; it is split only in the Schedule through its Work children.",
-            "Cut tree: OriginalId always points at the SealedOrder; ParentId/RootId carry the cut hierarchy (RootId conventions differ between seeded and freshly cut trees — never rely on RootId alone).",
+            "End state: SealedOrder + ONE OriginalShift, or SealedOrder + N SplitShifts — never both (an OriginalShift beside its own splits double-books).",
+            "Cut tree: OriginalId points at the SealedOrder; ParentId/RootId carry the cut hierarchy (never rely on RootId alone).",
             "FromDate/UntilDate bound the planning period; IsMonday..IsSunday = ticked days, skipped on public holidays unless IsWeekdayAndHoliday; IsHoliday adds every public holiday.",
-            "For a sporadic Shift (IsSporadic) placing a Work is REJECTED twice over: when the employees engaged that day reach EffectiveSumEmployees (day capacity), and when the booked days inside the sporadic range reach EffectiveQuantity (range capacity). SporadicScope: 0=Week, 1=Month, 2=Quarter, 3=Semester, 4=Year, 5=ContractualTerm.",
+            "For a sporadic Shift (IsSporadic) placing a Work is REJECTED when the employees engaged that day reach EffectiveSumEmployees (day capacity) or the booked days in the sporadic range reach EffectiveQuantity (range capacity). SporadicScope: 0=Week, 1=Month, 2=Quarter, 3=Semester, 4=Year, 5=ContractualTerm.",
             "Deleting a Shift is blocked while ANY Work references it, including purely historical ones."
         ],
         ["ContainerTemplate"] =
