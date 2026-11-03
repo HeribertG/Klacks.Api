@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Este traslado ya se ha deshecho.",
   "schedule.move-reversal.origin-busy": "La persona de la que procede este turno no está libre en ese momento: lo impide otro turno o una ausencia.",
   "schedule.move-reversal.not-found": "No se ha encontrado el turno.",
+  "schedule.container-work-change.correction-refused": "Un contenedor no se corrige a sí mismo; corrige sus turnos internos.",
+  "schedule.container-work-change.replacement-refused": "Un contenedor no se sustituye a sí mismo; divídelo para pasar una parte a otra persona.",
   "schedule.error-list.column.client": "Empleado",
   "schedule.error-list.column.comment": "Comentario",
   "schedule.error-list.column.date": "Fecha",

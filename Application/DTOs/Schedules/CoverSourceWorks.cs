@@ -5,7 +5,8 @@
 /// </summary>
 /// <param name="Movable">Works this report may move as a whole</param>
 /// <param name="Moved">Works an earlier cover moved; no swap takes them from their person</param>
+/// <param name="HeldContainers">Containers this report may not move as a whole; a container never takes a replacement, so a cover leaves them uncovered</param>
 
 namespace Klacks.Api.Application.DTOs.Schedules;
 
-public sealed record CoverSourceWorks(IReadOnlySet<Guid> Movable, IReadOnlySet<Guid> Moved);
+public sealed record CoverSourceWorks(IReadOnlySet<Guid> Movable, IReadOnlySet<Guid> Moved, IReadOnlySet<Guid> HeldContainers);

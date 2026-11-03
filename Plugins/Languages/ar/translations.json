@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "تم التراجع عن هذا النقل بالفعل.",
   "schedule.move-reversal.origin-busy": "الشخص الذي جاءت منه هذه المناوبة غير متاح في ذلك الوقت: توجد مناوبة أخرى أو غياب يمنع ذلك.",
   "schedule.move-reversal.not-found": "لم يتم العثور على المناوبة.",
+  "schedule.container-work-change.correction-refused": "لا يتم تصحيح الحاوية نفسها؛ صحّح المناوبات الداخلية فيها بدلاً من ذلك.",
+  "schedule.container-work-change.replacement-refused": "لا يتم استبدال الحاوية نفسها؛ قسّمها لتسليم جزء منها إلى شخص آخر.",
   "schedule.error-list.column.client": "الموظف",
   "schedule.error-list.column.comment": "التعليق",
   "schedule.error-list.column.date": "التاريخ",

@@ -6,7 +6,8 @@
 /// hops of a swap included; every other one stays a Replacement WorkChange through PostCommand. After a move the overtime
 /// successors and the period hours of both people run in the order of the Work handlers: commit, successors, hours. When
 /// the recalculation for the new owner fails, the staged move is dropped and the work stays a replacement, so its
-/// surcharges stay with the person who owns it.
+/// surcharges stay with the person who owns it. A container never takes a replacement: when it cannot move, its cover
+/// is reported back as held and the slot stays uncovered.
 /// </summary>
 /// <param name="mediator">Dispatches the Replacement WorkChange commands</param>
 /// <param name="factsReader">Reads what the decision needs about the scenario works</param>
@@ -79,16 +80,20 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
         var facts = await _factsReader.LoadAsync(workIdMap.Values.ToList(), analyseToken, cancellationToken);
         var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
         var known = workIdMap.Where(work => facts.ContainsKey(work.Value)).ToList();
+        var movable = known.Where(work => CoverMoveDecision.MayMove(facts[work.Value], report, companyTimeZone)).Select(work => work.Key).ToHashSet();
         return new CoverSourceWorks(
-            known.Where(work => CoverMoveDecision.MayMove(facts[work.Value], report, companyTimeZone)).Select(work => work.Key).ToHashSet(),
-            known.Where(work => facts[work.Value].IsMoved).Select(work => work.Key).ToHashSet());
+            movable,
+            known.Where(work => facts[work.Value].IsMoved).Select(work => work.Key).ToHashSet(),
+            known.Where(work => facts[work.Value].IsContainer && !movable.Contains(work.Key)).Select(work => work.Key).ToHashSet());
     }
 
     public async Task<CoverMaterialisationResult> MaterialiseAsync(CoverMaterialisation materialisation, CancellationToken cancellationToken)
     {
         var slots = ResolveSlots(materialisation);
         var moved = await SelectMovesAsync(slots, materialisation, cancellationToken);
+        var containers = await LoadContainerIdsAsync(slots, materialisation.AnalyseToken, cancellationToken);
         var relocationsKeepingExtras = new List<CellDelta>();
+        var heldContainers = new List<CellDelta>();
 
         foreach (var (delta, clonedWorkId) in slots)
         {
@@ -99,6 +104,12 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
             }
 
             moved.Remove(clonedWorkId);
+            if (containers.Contains(clonedWorkId))
+            {
+                heldContainers.Add(delta);
+                continue;
+            }
+
             await ReplaceAsync(delta, clonedWorkId, cancellationToken);
             if (delta.MovesAsWhole && delta.ExtraPaidHours > 0m)
             {
@@ -106,7 +117,19 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
             }
         }
 
-        return new CoverMaterialisationResult(moved, relocationsKeepingExtras);
+        return new CoverMaterialisationResult(moved, relocationsKeepingExtras, heldContainers);
+    }
+
+    private async Task<HashSet<Guid>> LoadContainerIdsAsync(
+        List<(CellDelta Delta, Guid ClonedWorkId)> slots, Guid analyseToken, CancellationToken cancellationToken)
+    {
+        if (slots.Count == 0)
+        {
+            return [];
+        }
+
+        var facts = await _factsReader.LoadAsync(slots.Select(slot => slot.ClonedWorkId).ToList(), analyseToken, cancellationToken);
+        return facts.Values.Where(work => work.IsContainer).Select(work => work.WorkId).ToHashSet();
     }
 
     /// <summary>

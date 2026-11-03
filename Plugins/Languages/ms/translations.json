@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Pemindahan ini telah dibatalkan.",
   "schedule.move-reversal.origin-busy": "Orang asal syif ini tidak lapang pada masa itu: ada syif lain atau ketidakhadiran yang menghalang.",
   "schedule.move-reversal.not-found": "Syif tidak ditemui.",
+  "schedule.container-work-change.correction-refused": "Kontena tidak dibetulkan secara langsung; betulkan syif di dalamnya.",
+  "schedule.container-work-change.replacement-refused": "Kontena tidak diganti secara langsung; bahagikannya untuk menyerahkan sebahagian kepada orang lain.",
   "schedule.error-list.column.client": "Pekerja",
   "schedule.error-list.column.comment": "Komen",
   "schedule.error-list.column.date": "Tarikh",

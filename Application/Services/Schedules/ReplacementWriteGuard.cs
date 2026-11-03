@@ -14,6 +14,7 @@
 /// <param name="clientRepository">Reads the type of the replacement person; its query filter hides deleted clients</param>
 /// <param name="conflictChecker">Finds the conflicts the substitute would get in the handed-over time</param>
 /// <param name="overrideAuthorizer">Decides whether the caller may override a block-mode escalation</param>
+/// <param name="containerWorkChangeGuard">Refuses a replacement on a container work: a container is covered through a split</param>
 
 using System.Globalization;
 using Klacks.Api.Application.Constants;
@@ -34,15 +35,18 @@ public class ReplacementWriteGuard : IReplacementWriteGuard
     private readonly IClientRepository _clientRepository;
     private readonly IPreCommitConflictChecker _conflictChecker;
     private readonly ISupervisorOverrideAuthorizer _overrideAuthorizer;
+    private readonly IContainerWorkChangeGuard _containerWorkChangeGuard;
 
     public ReplacementWriteGuard(
         IClientRepository clientRepository,
         IPreCommitConflictChecker conflictChecker,
-        ISupervisorOverrideAuthorizer overrideAuthorizer)
+        ISupervisorOverrideAuthorizer overrideAuthorizer,
+        IContainerWorkChangeGuard containerWorkChangeGuard)
     {
         _clientRepository = clientRepository;
         _conflictChecker = conflictChecker;
         _overrideAuthorizer = overrideAuthorizer;
+        _containerWorkChangeGuard = containerWorkChangeGuard;
     }
 
     public async Task EnsureAllowedAsync(
@@ -52,6 +56,7 @@ public class ReplacementWriteGuard : IReplacementWriteGuard
         WorkChange? storedWorkChange,
         CancellationToken cancellationToken)
     {
+        await _containerWorkChangeGuard.EnsureNoReplacementAsync(workChange, parentWork);
         await EnsureValidPersonAsync(workChange, cancellationToken);
 
         if (workChange.AnalyseToken != null || !workChange.ReplaceClientId.HasValue)

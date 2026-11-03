@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Această mutare a fost deja anulată.",
   "schedule.move-reversal.origin-busy": "Persoana de la care a venit această tură nu este liberă la acea oră: o altă tură sau o absență împiedică acest lucru.",
   "schedule.move-reversal.not-found": "Tura nu a fost găsită.",
+  "schedule.container-work-change.correction-refused": "Un container nu se corectează direct; corectează turele din interiorul lui.",
+  "schedule.container-work-change.replacement-refused": "Un container nu se înlocuiește direct; împarte-l pentru a da o parte altei persoane.",
   "schedule.error-list.column.client": "Angajat",
   "schedule.error-list.column.comment": "Comentariu",
   "schedule.error-list.column.date": "Data",

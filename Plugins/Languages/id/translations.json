@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Pemindahan ini sudah dibatalkan.",
   "schedule.move-reversal.origin-busy": "Orang asal layanan ini tidak sedang luang pada waktu itu: ada layanan lain atau ketidakhadiran yang menghalangi.",
   "schedule.move-reversal.not-found": "Layanan tidak ditemukan.",
+  "schedule.container-work-change.correction-refused": "Kontainer tidak dikoreksi langsung; koreksi layanan di dalamnya.",
+  "schedule.container-work-change.replacement-refused": "Kontainer tidak digantikan langsung; bagi kontainer untuk menyerahkan sebagian kepada orang lain.",
   "schedule.error-list.column.client": "Karyawan",
   "schedule.error-list.column.comment": "Komentar",
   "schedule.error-list.column.date": "Tanggal",

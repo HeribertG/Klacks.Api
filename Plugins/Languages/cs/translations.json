@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Tento přesun už byl vrácen.",
   "schedule.move-reversal.origin-busy": "Osoba, od které služba přišla, není v tu dobu volná: brání tomu jiná služba nebo nepřítomnost.",
   "schedule.move-reversal.not-found": "Služba nebyla nalezena.",
+  "schedule.container-work-change.correction-refused": "Kontejner se neopravuje sám; oprav místo toho jeho vnitřní služby.",
+  "schedule.container-work-change.replacement-refused": "Kontejner se nenahrazuje sám; rozděl ho, abys část předal jiné osobě.",
   "schedule.error-list.column.client": "Zaměstnanec",
   "schedule.error-list.column.comment": "Komentář",
   "schedule.error-list.column.date": "Datum",

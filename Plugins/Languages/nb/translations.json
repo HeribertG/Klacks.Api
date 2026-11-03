@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Denne flyttingen er allerede angret.",
   "schedule.move-reversal.origin-busy": "Personen vakten kom fra, er ikke ledig på det tidspunktet: en annen vakt eller et fravær er i veien.",
   "schedule.move-reversal.not-found": "Vakten ble ikke funnet.",
+  "schedule.container-work-change.correction-refused": "En container korrigeres ikke selv; korriger heller vaktene i den.",
+  "schedule.container-work-change.replacement-refused": "En container avløses ikke selv; del den for å gi en del til en annen person.",
   "schedule.error-list.column.client": "Medarbeider",
   "schedule.error-list.column.comment": "Kommentar",
   "schedule.error-list.column.date": "Dato",

@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Esta transferência já foi anulada.",
   "schedule.move-reversal.origin-busy": "A pessoa de quem veio este turno não está livre nesse horário: outro turno ou uma ausência impede.",
   "schedule.move-reversal.not-found": "O turno não foi encontrado.",
+  "schedule.container-work-change.correction-refused": "Um contentor não é corrigido diretamente; corrige os turnos dentro dele.",
+  "schedule.container-work-change.replacement-refused": "Um contentor não é substituído diretamente; divide-o para passar uma parte a outra pessoa.",
   "schedule.error-list.column.client": "Colaborador",
   "schedule.error-list.column.comment": "Comentário",
   "schedule.error-list.column.date": "Data",

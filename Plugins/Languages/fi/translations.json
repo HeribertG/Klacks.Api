@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Tämä siirto on jo peruttu.",
   "schedule.move-reversal.origin-busy": "Henkilö, jolta vuoro tuli, ei ole vapaa siihen aikaan: toinen vuoro tai poissaolo on esteenä.",
   "schedule.move-reversal.not-found": "Vuoroa ei löytynyt.",
+  "schedule.container-work-change.correction-refused": "Konttia ei korjata itseään; korjaa sen sisäiset vuorot.",
+  "schedule.container-work-change.replacement-refused": "Konttia ei korvata itseään; jaa se antaaksesi osan toiselle henkilölle.",
   "schedule.error-list.column.client": "Työntekijä",
   "schedule.error-list.column.comment": "Kommentti",
   "schedule.error-list.column.date": "Päivämäärä",

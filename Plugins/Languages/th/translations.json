@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "การย้ายนี้ถูกยกเลิกไปแล้ว",
   "schedule.move-reversal.origin-busy": "บุคคลเดิมของกะงานนี้ไม่ว่างในเวลานั้น: มีกะงานอื่นหรือการขาดงานขวางอยู่",
   "schedule.move-reversal.not-found": "ไม่พบกะงาน",
+  "schedule.container-work-change.correction-refused": "ไม่สามารถแก้ไขคอนเทนเนอร์โดยตรงได้ ให้แก้ไขกะงานภายในแทน",
+  "schedule.container-work-change.replacement-refused": "ไม่สามารถแทนที่คอนเทนเนอร์โดยตรงได้ ให้แบ่งคอนเทนเนอร์เพื่อมอบบางส่วนให้บุคคลอื่น",
   "schedule.error-list.column.client": "พนักงาน",
   "schedule.error-list.column.comment": "ความคิดเห็น",
   "schedule.error-list.column.date": "วันที่",

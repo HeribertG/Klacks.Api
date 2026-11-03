@@ -97,7 +97,11 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
         var ids = workIds.ToList();
         var works = await _context.Work.AsNoTracking()
             .Where(w => ids.Contains(w.Id) && w.AnalyseToken == analyseToken)
-            .Select(w => new { w.Id, w.ClientId, w.ParentWorkId, w.CurrentDate, w.StartTime, w.EndTime, w.LockLevel, w.MovedFromClientId })
+            .Select(w => new
+            {
+                w.Id, w.ClientId, w.ParentWorkId, w.CurrentDate, w.StartTime, w.EndTime, w.LockLevel, w.MovedFromClientId,
+                IsContainer = w.Shift != null && w.Shift.ShiftType == ShiftType.IsContainer,
+            })
             .ToListAsync(cancellationToken);
         if (works.Count == 0)
         {
@@ -131,6 +135,7 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
                 w.Id, w.ClientId, w.ParentWorkId, w.CurrentDate, w.StartTime, w.EndTime, w.LockLevel,
                 replaced.Contains(w.Id) || parentsWithReplacement.Contains(w.Id),
                 parentsWithLockedChild.Contains(w.Id),
-                w.MovedFromClientId != null));
+                w.MovedFromClientId != null,
+                w.IsContainer));
     }
 }

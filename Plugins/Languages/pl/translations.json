@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "To przeniesienie zostało już cofnięte.",
   "schedule.move-reversal.origin-busy": "Osoba, od której pochodzi ten dyżur, nie jest wtedy wolna: przeszkadza inny dyżur lub nieobecność.",
   "schedule.move-reversal.not-found": "Nie znaleziono dyżuru.",
+  "schedule.container-work-change.correction-refused": "Kontenera nie koryguje się bezpośrednio; skoryguj jego wewnętrzne dyżury.",
+  "schedule.container-work-change.replacement-refused": "Kontenera nie zastępuje się bezpośrednio; podziel go, aby przekazać część innej osobie.",
   "schedule.error-list.column.client": "Pracownik",
   "schedule.error-list.column.comment": "Komentarz",
   "schedule.error-list.column.date": "Data",

@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Den här flytten är redan ångrad.",
   "schedule.move-reversal.origin-busy": "Personen som passet kom från är inte ledig vid den tiden: ett annat pass eller en frånvaro står i vägen.",
   "schedule.move-reversal.not-found": "Passet hittades inte.",
+  "schedule.container-work-change.correction-refused": "En container korrigeras inte själv; korrigera passen i den i stället.",
+  "schedule.container-work-change.replacement-refused": "En container avlöses inte själv; dela den för att ge en del till en annan person.",
   "schedule.error-list.column.client": "Medarbetare",
   "schedule.error-list.column.comment": "Kommentar",
   "schedule.error-list.column.date": "Datum",

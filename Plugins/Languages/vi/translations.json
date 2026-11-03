@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Lần chuyển này đã được hoàn tác.",
   "schedule.move-reversal.origin-busy": "Người ban đầu của ca này không rảnh vào thời điểm đó: có ca khác hoặc một lần vắng mặt cản trở.",
   "schedule.move-reversal.not-found": "Không tìm thấy ca.",
+  "schedule.container-work-change.correction-refused": "Không thể chỉnh sửa trực tiếp một container; hãy chỉnh sửa các ca bên trong.",
+  "schedule.container-work-change.replacement-refused": "Không thể thay thế trực tiếp một container; hãy chia nó để giao một phần cho người khác.",
   "schedule.error-list.column.client": "Nhân viên",
   "schedule.error-list.column.comment": "Bình luận",
   "schedule.error-list.column.date": "Ngày",

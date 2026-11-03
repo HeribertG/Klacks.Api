@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Αυτή η μετακίνηση έχει ήδη αναιρεθεί.",
   "schedule.move-reversal.origin-busy": "Το άτομο από το οποίο προήλθε η βάρδια δεν είναι διαθέσιμο εκείνη την ώρα: εμποδίζει άλλη βάρδια ή μια απουσία.",
   "schedule.move-reversal.not-found": "Η βάρδια δεν βρέθηκε.",
+  "schedule.container-work-change.correction-refused": "Ένα κοντέινερ δεν διορθώνεται το ίδιο· διόρθωσε τις εσωτερικές βάρδιές του.",
+  "schedule.container-work-change.replacement-refused": "Ένα κοντέινερ δεν αντικαθίσταται το ίδιο· χώρισέ το για να δώσεις ένα μέρος σε άλλο άτομο.",
   "schedule.error-list.column.client": "Εργαζόμενος",
   "schedule.error-list.column.comment": "Σχόλιο",
   "schedule.error-list.column.date": "Ημερομηνία",

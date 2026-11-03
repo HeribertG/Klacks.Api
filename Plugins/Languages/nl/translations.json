@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "Deze verplaatsing is al teruggedraaid.",
   "schedule.move-reversal.origin-busy": "De persoon van wie deze dienst kwam, is op dat moment niet vrij: een andere dienst of een afwezigheid zit in de weg.",
   "schedule.move-reversal.not-found": "De dienst is niet gevonden.",
+  "schedule.container-work-change.correction-refused": "Een container wordt niet zelf gecorrigeerd; corrigeer de diensten erin.",
+  "schedule.container-work-change.replacement-refused": "Een container wordt niet zelf vervangen; splits hem om een deel aan een andere persoon te geven.",
   "schedule.error-list.column.client": "Medewerker",
   "schedule.error-list.column.comment": "Opmerking",
   "schedule.error-list.column.date": "Datum",

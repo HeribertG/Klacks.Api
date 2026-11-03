@@ -2057,6 +2057,8 @@
   "schedule.move-reversal.already-reversed": "この移動はすでに取り消されています。",
   "schedule.move-reversal.origin-busy": "このシフトの移動元の人はその時間に空いていません。別のシフトまたは不在が重なっています。",
   "schedule.move-reversal.not-found": "シフトが見つかりません。",
+  "schedule.container-work-change.correction-refused": "コンテナ自体は修正できません。中のシフトを修正してください。",
+  "schedule.container-work-change.replacement-refused": "コンテナ自体は交代できません。分割して一部を別の人に渡してください。",
   "schedule.error-list.column.client": "従業員",
   "schedule.error-list.column.comment": "コメント",
   "schedule.error-list.column.date": "日付",
