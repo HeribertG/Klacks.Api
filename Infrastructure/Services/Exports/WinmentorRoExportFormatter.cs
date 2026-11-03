@@ -212,14 +212,9 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
     /// </summary>
     private static void WriteAbsenceCode(IXLCell cell, string absenceCode)
     {
-        if (int.TryParse(absenceCode, NumberStyles.None, CultureInfo.InvariantCulture, out var numericCode))
-        {
-            cell.Value = numericCode;
-        }
-        else
-        {
-            cell.Value = absenceCode;
-        }
+        cell.Value = int.TryParse(absenceCode, NumberStyles.None, CultureInfo.InvariantCulture, out var numericCode)
+            ? numericCode
+            : absenceCode;
     }
 
     /// <summary>
