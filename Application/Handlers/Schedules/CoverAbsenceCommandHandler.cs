@@ -245,7 +245,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         await MaterialiseMembershipsAsync(proposal, acceptedAgents, token, cancellationToken);
         var materialised = await _coverMaterializer.MaterialiseAsync(
             new CoverMaterialisation(materializable, workIdMap, token, report), cancellationToken);
-        var written = materializable.Except(materialised.HeldContainers).ToList();
+        var written = materializable.Except(materialised.HeldCovers).ToList();
 
         var covered = await _replacementRequestRecorder.RecordProposalsAsync(
             new ReplacementProposalContext(clientId, groupId, absenceId, token, request.Source, request.ReportedAtUtc),
@@ -254,7 +254,10 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         await _unitOfWork.CompleteAsync();
 
         var uncovered = BuildUncovered(proposal, blockedOptions, hiddenOptions, clientId, snapshot, workIdMap, rootShiftIds)
-            .Concat(materialised.HeldContainers.Select(held => UncoveredFromDelta(held, LockedReason, workIdMap, rootShiftIds)))
+            .Concat(materialised.HeldCovers
+                .GroupBy(held => held.OptionId)
+                .Select(option => option.FirstOrDefault(held => held.FromAgentId == clientId) ?? option.First())
+                .Select(held => UncoveredFromDelta(held, LockedReason, workIdMap, rootShiftIds)))
             .ToList();
 
         // Computed after the partition: a blocked swap must not be reported as a tier the result reached.
