@@ -2,7 +2,9 @@
 
 /// <summary>
 /// Manages updating container work children: collection sync, macro execution for sub-works/breaks/work-changes,
-/// unpaid break surcharge negation, and parent work time/surcharge recalculation. When a save moves the container
+/// unpaid break negation, and the parent's own macro run. The work keeps the hours and surcharges of its whole span from its
+/// own macro; an unpaid sub-break carries its negative hours and surcharges on the break row only, because the period sums
+/// add both rows (taking it off the work as well would count it twice). When a save moves the container
 /// bounds, all children must lie inside the new bounds (no overhang), so a container split can never cut through an item.
 /// </summary>
 /// <param name="workId">The parent container work ID</param>
@@ -244,17 +246,7 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         if (parentWork == null) return true;
 
         var unpaidSet = await GetUnpaidAbsenceIdsAsync(updatedBreaks, cancellationToken);
-
-        var unpaidBreakSpans = updatedBreaks
-            .Where(b => unpaidSet.Contains(b.AbsenceId))
-            .Select(b => (b.StartTime, b.EndTime))
-            .ToList();
-
-        parentWork.WorkTime = ContainerWorkTimeCalculator.CalculatePaidHours(
-            parentWork.StartTime, parentWork.EndTime, unpaidBreakSpans);
-
         var allCalculated = await _workMacroService.ProcessWorkMacroAsync(parentWork);
-        var parentSurcharges = parentWork.Surcharges;
 
         var parentShift = await _context.Shift
             .FirstOrDefaultAsync(s => s.Id == parentWork.ShiftId, cancellationToken);
@@ -262,10 +254,8 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         foreach (var subBreak in updatedBreaks.Where(b => unpaidSet.Contains(b.AbsenceId)))
         {
             allCalculated &= await ProcessUnpaidBreakSurchargesAsync(subBreak, parentWork, parentShift);
-            parentSurcharges += subBreak.Surcharges;
         }
 
-        parentWork.Surcharges = parentSurcharges;
         return allCalculated;
     }
 

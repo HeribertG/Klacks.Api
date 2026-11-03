@@ -2055,7 +2055,7 @@
   "schedule.move-reversal.held": "กะงานได้รับการยืนยันหรือถูกแทนแล้ว และไม่สามารถเปลี่ยนบุคคลได้อีก",
   "schedule.move-reversal.not-applied": "ยกเลิกได้เฉพาะการย้ายที่เข้าสู่แผนแล้วเท่านั้น",
   "schedule.move-reversal.already-reversed": "การย้ายนี้ถูกยกเลิกไปแล้ว",
-  "schedule.move-reversal.origin-busy": "บุคคลที่เป็นเจ้าของเวรนี้เดิมไม่ว่างในเวลานั้น: มีเวรอื่นหรือการลาขวางอยู่",
+  "schedule.move-reversal.origin-busy": "บุคคลเดิมของกะงานนี้ไม่ว่างในเวลานั้น: มีกะงานอื่นหรือการขาดงานขวางอยู่",
   "schedule.move-reversal.not-found": "ไม่พบกะงาน",
   "schedule.error-list.column.client": "พนักงาน",
   "schedule.error-list.column.comment": "ความคิดเห็น",

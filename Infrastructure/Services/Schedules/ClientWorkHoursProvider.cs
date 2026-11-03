@@ -3,12 +3,14 @@
 /// <summary>
 /// Default <see cref="IClientWorkHoursProvider"/>: groups a client's Work rows by CurrentDate and sums
 /// WorkTime. Uses the same AnalyseToken equality semantics as OvertimeSurchargeCalculator's period
-/// lookup (exact token match, null = real mode); soft-deleted rows are excluded by the EF query filter.
+/// lookup (exact token match, null = real mode); soft-deleted rows are excluded by the EF query filter. A container
+/// child of the container's own person adds nothing, because the container counts its time (WorkOwnHours).
 /// </summary>
 /// <param name="context">Database access for the client's Work rows</param>
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
@@ -32,6 +34,7 @@ public class ClientWorkHoursProvider : IClientWorkHoursProvider
                 && w.AnalyseToken == analyseToken
                 && w.CurrentDate >= start
                 && w.CurrentDate <= end)
+            .Where(WorkOwnHours.Counts)
             .GroupBy(w => w.CurrentDate)
             .Select(g => new { Date = g.Key, Hours = g.Sum(w => w.WorkTime) })
             .ToListAsync();

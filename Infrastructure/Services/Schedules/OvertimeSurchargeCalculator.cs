@@ -6,7 +6,8 @@
 /// the analogous K19 precedent this follows). Cumulates a client's other worked hours in the configured
 /// basis period (day or week) using a deterministic chronological order (see remarks), places this Work's
 /// own hours into the configured tier bands and returns the resulting typed Overtime1/2/3 surcharge
-/// portions.
+/// portions. A container child of the container's own person adds no prior hours, because the container counts its
+/// time (WorkOwnHours).
 /// </summary>
 /// <param name="context">Database access for the client's other Work rows in the basis period</param>
 /// <param name="configResolver">Resolves the system's single overtime definition (rule ladder / dated revision / OVERTIME_* settings / OvertimeThreshold fallback)</param>
@@ -38,6 +39,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
@@ -154,6 +156,7 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
                 && w.AnalyseToken == work.AnalyseToken
                 && w.CurrentDate >= start
                 && w.CurrentDate <= end)
+            .Where(WorkOwnHours.Counts)
             .ToListAsync();
     }
 

@@ -2055,7 +2055,7 @@
   "schedule.move-reversal.held": "المناوبة مؤكدة أو مستبدلة ولا يمكنها تغيير الشخص بعد الآن.",
   "schedule.move-reversal.not-applied": "لا يمكن التراجع إلا عن نقل وصل إلى الخطة.",
   "schedule.move-reversal.already-reversed": "تم التراجع عن هذا النقل بالفعل.",
-  "schedule.move-reversal.origin-busy": "الشخص الذي جاءت منه هذه الخدمة غير متاح في ذلك الوقت: توجد خدمة أخرى أو غياب يمنع ذلك.",
+  "schedule.move-reversal.origin-busy": "الشخص الذي جاءت منه هذه المناوبة غير متاح في ذلك الوقت: توجد مناوبة أخرى أو غياب يمنع ذلك.",
   "schedule.move-reversal.not-found": "لم يتم العثور على المناوبة.",
   "schedule.error-list.column.client": "الموظف",
   "schedule.error-list.column.comment": "التعليق",
