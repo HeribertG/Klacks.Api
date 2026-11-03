@@ -31,8 +31,6 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// world only; every range of a cut and of a reset stays inside the variant's period and has an end, which the validation
 /// against the sealed order alone does not ensure. Groups in a variant follow the hierarchy, not the request: a new piece copies the live groups of its parent
 /// here, an updated piece keeps its stored ones in ShiftRepository.PutCutUpdate, so no piece can leave the variant's group.
-/// A shift without an order has no OriginalId to hold its pieces together, so a piece cut from it is its child and takes it
-/// as RootId (a family without an order is found through RootId, see IOrderFamilyEndRepository).
 /// A container is a template without an order and cannot be cut or reset: a target, parent, sealed order or requested piece of
 /// that type is refused before anything is written.
 /// A shift of a scenario clone, of a hidden variant, of a consumed one or of one an Active scenario carries is refused. The nested-set values of
@@ -286,12 +284,8 @@ public class ShiftCutFacade : IShiftCutFacade
             existingShift.Lft,
             existingShift.Rgt,
             existingShift.Status,
-            existingShift.AnalyseToken,
-            HeadWithoutOrderOf(existingShift));
+            existingShift.AnalyseToken);
     }
-
-    private static Guid? HeadWithoutOrderOf(Shift shift) =>
-        ShiftFamilyRules.IsWithoutOrder(shift.Status, shift.OriginalId) ? ShiftFamilyRules.HeadIdOf(shift) : null;
 
     private async Task<CutOperationLineage> ResolveCreateLineageAsync(
         CutOperation op,
@@ -302,7 +296,7 @@ public class ShiftCutFacade : IShiftCutFacade
         if (lineagesById.TryGetValue(parentId, out var parentInBatch))
         {
             return new CutOperationLineage(
-                parentInBatch.OriginalId, parentInBatch.ClientId, null, null, null, null, null, parentInBatch.AnalyseToken, parentInBatch.HeadWithoutOrder);
+                parentInBatch.OriginalId, parentInBatch.ClientId, null, null, null, null, null, parentInBatch.AnalyseToken);
         }
 
         var parentShift = await _shiftRepository.GetTrackedOrFromDb(parentId);
@@ -314,8 +308,7 @@ public class ShiftCutFacade : IShiftCutFacade
         await EnsureCuttableAsync(parentShift, "cut (create child of)");
 
         var originalId = parentShift.Status == ShiftStatus.SealedOrder ? parentShift.Id : parentShift.OriginalId;
-        return new CutOperationLineage(
-            originalId, parentShift.ClientId, null, null, null, null, null, parentShift.AnalyseToken, HeadWithoutOrderOf(parentShift));
+        return new CutOperationLineage(originalId, parentShift.ClientId, null, null, null, null, null, parentShift.AnalyseToken);
     }
 
     private async Task ValidateCutDates(
@@ -329,17 +322,11 @@ public class ShiftCutFacade : IShiftCutFacade
                 world.Key, world.Select(op => (op.Data.FromDate, op.Data.UntilDate)).ToList());
         }
 
-        var familiesWithoutOrder = new Dictionary<Guid, List<Shift>>();
         foreach (var op in sortedOperations)
         {
             var originalId = lineages[op].OriginalId;
             if (!originalId.HasValue)
             {
-                if (lineages[op].AnalyseToken == null && lineages[op].HeadWithoutOrder is { } headId)
-                {
-                    await EnsureInsideFamilyWithoutOrderAsync(headId, op, familiesWithoutOrder);
-                }
-
                 continue;
             }
 
@@ -356,60 +343,6 @@ public class ShiftCutFacade : IShiftCutFacade
                 op.Data.FromDate,
                 op.Data.UntilDate);
         }
-    }
-
-    /// <summary>
-    /// The date rule of a family without an order: a cut stays at or after its first day and, once the family has ended
-    /// (no row open), inside its last day, so a cut can neither reach past the end date nor reopen the family. Reads the
-    /// stored family, once per head.
-    /// </summary>
-    /// <param name="headId">Head of the family</param>
-    /// <param name="op">The operation with the requested dates</param>
-    /// <param name="families">Families read so far in this batch</param>
-    private async Task EnsureInsideFamilyWithoutOrderAsync(Guid headId, CutOperation op, Dictionary<Guid, List<Shift>> families)
-    {
-        if (!families.TryGetValue(headId, out var family))
-        {
-            family = await _shiftRepository.CutList(headId);
-            await EnsureFamilyVisibleAsync(family, op);
-            families[headId] = family;
-        }
-
-        if (family.Count == 0)
-        {
-            return;
-        }
-
-        var start = family.Min(row => row.FromDate);
-        if (op.Data.FromDate < start)
-        {
-            throw new BadRequestException(string.Format(ShiftHierarchyMessages.CutBeforeFamilyStart, op.Data.FromDate, start));
-        }
-
-        if (ShiftFamilyRules.StoredEndWithoutOrder(family) is { } end
-            && (op.Data.FromDate > end || op.Data.UntilDate == null || op.Data.UntilDate > end))
-        {
-            var until = op.Data.UntilDate?.ToString() ?? ShiftHierarchyMessages.CutOpenEnded;
-            throw new BadRequestException(string.Format(ShiftHierarchyMessages.CutBehindFamilyEnd, op.Data.FromDate, until, end));
-        }
-    }
-
-    /// <summary>
-    /// The date rule tells the first and the last day of the whole family, so a caller who does not see all of it gets the
-    /// answer of a shift they may not see, before any date is compared.
-    /// </summary>
-    /// <param name="family">The stored rows of the family</param>
-    /// <param name="op">The operation, whose target is named in the answer</param>
-    private async Task EnsureFamilyVisibleAsync(List<Shift> family, CutOperation op)
-    {
-        if (await _shiftVisibilityGuard.FindFirstHiddenAsync(family.Select(row => row.Id).ToList()) == null)
-        {
-            return;
-        }
-
-        throw new KeyNotFoundException(op.Type == CutOperation.UpdateType
-            ? string.Format(ShiftVisibilityMessages.ShiftNotFound, op.Data.Id)
-            : string.Format(ShiftVisibilityMessages.ParentShiftNotFound, op.ParentId));
     }
 
     private async Task<Shift> ProcessUpdate(CutOperation op, CutOperationLineage lineage)
@@ -487,21 +420,15 @@ public class ShiftCutFacade : IShiftCutFacade
             }
         }
 
-        var isPlannableWithoutOrder = parentShift.Status == ShiftStatus.OriginalShift && parentShift.OriginalId == null;
-        if (parentShift.Status == ShiftStatus.SplitShift || isPlannableWithoutOrder)
-        {
-            _logger.LogInformation("Parent is a cut piece or a shift without an order, setting as child node");
-            if (isPlannableWithoutOrder && parentShift.RootId == null)
-            {
-                parentShift = await _shiftRepository.MakeOwnRootAsync(parentShift.Id) ?? parentShift;
-            }
-
-            _shiftTreeService.SetHierarchyRelation(shift, parentShift.Id, parentShift.RootId);
-        }
-        else if (parentShift.Status is ShiftStatus.SealedOrder or ShiftStatus.OriginalShift)
+        if (parentShift.Status is ShiftStatus.SealedOrder or ShiftStatus.OriginalShift)
         {
             _logger.LogInformation("Parent is SealedOrder/OriginalShift, setting as EBENE 0 root node");
             _shiftTreeService.SetHierarchyRelation(shift, null, null);
+        }
+        else if (parentShift.Status == ShiftStatus.SplitShift)
+        {
+            _logger.LogInformation("Parent is SplitShift, setting as child node");
+            _shiftTreeService.SetHierarchyRelation(shift, parentShift.Id, parentShift.RootId);
         }
         else
         {
@@ -621,6 +548,11 @@ public class ShiftCutFacade : IShiftCutFacade
     private async Task EnsureCuttableAsync(Shift shift, string operation)
     {
         EnsureNotContainer(shift);
+
+        if (shift.OriginalId == null && shift.Status != ShiftStatus.SealedOrder)
+        {
+            throw new BadRequestException(string.Format(ShiftHierarchyMessages.CutWithoutSealedOriginNotAllowed, shift.Id));
+        }
 
         if (shift.AnalyseToken is not { } token)
         {

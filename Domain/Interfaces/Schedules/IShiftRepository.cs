@@ -16,13 +16,6 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<Shift?> GetTrackedOrFromDb(Guid id);
 
     /// <summary>
-    /// Stages the shift as the root of its own tree when it has no root yet and returns it tracked, or null when it does not
-    /// exist. Stage-only: the caller commits through the unit of work.
-    /// </summary>
-    /// <param name="id">Id of the first shift of a family without an order</param>
-    Task<Shift?> MakeOwnRootAsync(Guid id);
-
-    /// <summary>
     /// Update from the cut dialog: scalars and group items only. The cut list hands the dialog no default
     /// expenses and no required qualifications, so a full update would delete both; this variant leaves them as
     /// stored. The edit form keeps using Put, which owns both lists. The returned shift carries both lists as
@@ -61,10 +54,10 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<List<Group>> GetGroupsForShift(Guid shiftId);
 
     /// <summary>
-    /// The live rows of one order (OriginalId = the sealed order) inside one world, ordered by tree position. For a shift
-    /// without an order: its first shift and every piece of it.
+    /// The live rows of one order (OriginalId = the sealed order) inside one world, ordered by tree position. A row without
+    /// an order (a container) has no rows pointing at it, so its list is empty.
     /// </summary>
-    /// <param name="id">Id of the sealed order, of one of its plannable or cut rows, or of a row of a family without an order</param>
+    /// <param name="id">Id of the sealed order, or of one of its plannable or cut rows</param>
     /// <param name="filterClosedBefore">Leaves out rows that ended before this date</param>
     /// <param name="tracked">Whether the rows are change-tracked</param>
     /// <param name="analyseToken">Analyse token the rows must carry; null for the real plan</param>

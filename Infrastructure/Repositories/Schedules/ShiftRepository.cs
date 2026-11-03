@@ -240,17 +240,6 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     /// </summary>
     internal IQueryable<Shift> GetQuery() => ShiftBaseQueries.Ordered(context.Shift);
 
-    public async Task<Shift?> MakeOwnRootAsync(Guid id)
-    {
-        var shift = await context.Shift.FirstOrDefaultAsync(s => s.Id == id);
-        if (shift != null)
-        {
-            shift.RootId ??= shift.Id;
-        }
-
-        return shift;
-    }
-
     public Task<bool> HasChildrenAsync(Guid shiftId, CancellationToken cancellationToken = default)
         => context.Shift.AsNoTracking().AnyAsync(s => s.ParentId == shiftId, cancellationToken);
 
@@ -336,16 +325,16 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         // Be id-tolerant: if the caller passes an OriginalShift/SplitShift id instead, resolve it up to
         // its SealedOrder id so the page still populates rather than rendering an empty table for a
         // perfectly valid order.
-        var key = await context.Shift
+        var originalId = await context.Shift
             .Where(x => x.Id == id)
-            .Select(x => new { x.Status, x.OriginalId, x.RootId })
+            .Select(x => x.OriginalId)
             .FirstOrDefaultAsync();
+        var sealedOrderId = originalId ?? id;
 
-        var rows = key != null && ShiftFamilyRules.IsWithoutOrder(key.Status, key.OriginalId)
-            ? context.Shift.Where(ShiftFamilyRowsRule.Of(key.RootId ?? id))
-            : OrderCutRows(key?.OriginalId ?? id);
-
-        var query = rows.Where(x => x.AnalyseToken == analyseToken && x.ScenarioSourceShiftId == null);
+        var query = context.Shift
+            .Where(x => x.OriginalId == sealedOrderId
+                && x.AnalyseToken == analyseToken
+                && x.ScenarioSourceShiftId == null);
 
         if (filterClosedBefore.HasValue)
         {
@@ -367,8 +356,6 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
         return await query.ToListAsync();
     }
-
-    private IQueryable<Shift> OrderCutRows(Guid sealedOrderId) => context.Shift.Where(x => x.OriginalId == sealedOrderId);
 
     public async Task<Shift?> GetSealedOrder(Guid originalId, Guid? analyseToken = null)
     {

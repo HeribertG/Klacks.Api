@@ -6,7 +6,7 @@
 /// never removed. Every remaining row without an end or with a later end gets the day; a row ending earlier stays as it is.
 /// </summary>
 /// <param name="family">The live rows of the family, head row included</param>
-/// <param name="headId">Id of the head row: the sealed order, or the first shift of a family without an order</param>
+/// <param name="headId">Id of the head row: the sealed order, or the container (a family without an order)</param>
 /// <param name="untilDate">The inclusive last day of the family</param>
 
 using Klacks.Api.Domain.Models.Schedules;

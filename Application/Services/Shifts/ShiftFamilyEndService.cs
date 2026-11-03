@@ -1,11 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Ends a real shift family on one day. The head of the family is its sealed order, or without an order the first shift:
-/// the addressed row itself (like the seeded containers) or, for a cut piece, the row its RootId names. A row whose OriginalId
-/// leads to no sealed order is refused. A stored end date of the head is the end of the family only on a sealed order; the
-/// first shift of a family without an order carries the end of its own cut there, so that family has ended once no row
-/// is open, on its latest end (ShiftFamilyRules). The head row is locked first, so two saves cannot both pass the set-once check, and everything is read
+/// Ends a real shift family on one day. The head of the family is its sealed order, or without an order the addressed row
+/// itself: a family without an order is a container, one row. A row whose OriginalId leads to no sealed order is refused.
+/// The stored end of a sealed order is the end of its family; a container has ended once its row has an end
+/// (ShiftFamilyRules). The head row is locked first, so two saves cannot both pass the set-once check, and everything is read
 /// after that lock. The tracker is emptied before each run of the transaction: on a database
 /// retry the tracked rows would otherwise still hold the unsaved end date of the failed run and pass the check. The first
 /// check is the group visibility of every family row, the order included, because the end date writes them all and the
