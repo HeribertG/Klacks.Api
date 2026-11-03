@@ -145,6 +145,19 @@ public sealed class RecoveryController : ControllerBase
     }
 
     /// <summary>
+    /// Takes the last move of a work back from the schedule: it returns to the person it came from. A refusal carries a
+    /// MoveReversalRefusalCodes code; a hidden or missing work answers 404.
+    /// </summary>
+    /// <param name="workId">The moved work</param>
+    /// <param name="ct">Cancellation token</param>
+    [HttpPost("Works/{workId:guid}/ReverseMove")]
+    public async Task<ActionResult<ReassignWorkClientResponse>> ReverseMovedWork(Guid workId, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new ReverseMovedWorkCommand(workId), ct);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
     /// Records a contact attempt with an alternative candidate for one slot (upsert on scenario token, candidate,
     /// shift and date). Accepted makes the candidate the slot's replacement in the scenario (409 when they can no longer
     /// take the slot); every other answer only stores the fact. Nobody is contacted by this call.

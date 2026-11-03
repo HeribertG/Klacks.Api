@@ -6,7 +6,8 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 
 /// <summary>
 /// Result of the cover_absence flow: the isolated scenario holding the recorded absence (Break) and
-/// the proposed replacements (Replacement WorkChanges), plus the slots that could not be covered.
+/// the proposed covers (a move of the whole work to the stand-in, or a Replacement WorkChange), plus the slots that could
+/// not be covered.
 /// The scenario is left for the user/agent to accept (accept_scenario) or discard (reject_scenario).
 /// </summary>
 /// <param name="ScenarioId">Id of the created AnalyseScenario</param>

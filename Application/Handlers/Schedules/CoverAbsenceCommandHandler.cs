@@ -499,7 +499,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         => Rec.EscalationTierSeverity.Highest(materializable.Select(d => d.Tier), anyUncovered);
 
     /// <summary>
-    /// A swap relocation that stayed a replacement against the plan: the cap check counted its extras as gone, they stay.
+    /// How the absence reached the run: its path and the report instant, a missing or future one read as now.
     /// </summary>
     private async Task<CoverReport> ResolveReportAsync(CoverAbsenceCommand request, CancellationToken cancellationToken)
     {
@@ -508,6 +508,9 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         return new CoverReport(request.Source, reportedAtUtc);
     }
 
+    /// <summary>
+    /// A swap relocation that stayed a replacement against the plan: the cap check counted its extras as gone, they stay.
+    /// </summary>
     private static IEnumerable<ScheduleValidationNotificationDto> RelocationWarnings(
         IReadOnlyList<Rec.CellDelta> relocationsKeepingExtras, Guid absentClientId, Rec.RecoverySnapshot snapshot)
         => relocationsKeepingExtras

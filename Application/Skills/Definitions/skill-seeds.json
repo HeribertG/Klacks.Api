@@ -13904,7 +13904,7 @@
     {
       "name": "reassign_work",
       "area": "schedule",
-      "description": "Hands one placed Work over to another employee on the same day, like dragging it onto another employee's row; date, shift and times stay. Name the work by workId or by its current holder and date, the new holder by name or targetClientId. Refused with reason: locked work, entry in a container, sealed day, day outside the new holder's membership or group period, missing qualification.",
+      "description": "Hands one placed Work over to another employee on the same day, like dragging it onto another employee's row; date, shift and times stay. Name the work by workId or by its current holder and date, the new holder by name or targetClientId. Refused with reason: locked work, entry in a container, sealed day, day outside the new holder's membership or group period, missing qualification. Handing a moved service back to its origin person takes the last move back.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14057,7 +14057,7 @@
         "fr": "Confier une affectation à un autre employé",
         "it": "Passa un'assegnazione a un altro dipendente"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "bulk_delete_works",
@@ -16064,7 +16064,7 @@
     {
       "name": "bulk_add_absence_for_group",
       "area": "absence",
-      "description": "Places the same absence (e.g. a training day / Schulung) on every member of a named group for a single date in one step. With apply=false (default) it returns a read-only preview of how many members would get the absence; with apply=true it creates one absence (Break) per member that does not already have it on that date, then re-reads the database to confirm how many were actually persisted (added/verified). Members who already have that absence on that date are skipped.",
+      "description": "Places the same absence (e.g. a training day / Schulung) as a whole day on every member of a named group for one date. apply=false (default) previews how many members would get it; apply=true creates one absence (Break) per member who lacks it on that date, then re-reads the database to confirm how many were persisted. Members who already have it are skipped. From the chat no service is removed (no group selected); it stays with a red notice.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16176,12 +16176,12 @@
         "fr": "Enregistrer une absence pour tout un groupe",
         "it": "Registra un'assenza per l'intero gruppo"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "add_break",
       "area": "absence",
-      "description": "Places a single absence (Break) on a client/date - vacation, sick day, training, parental leave. Wraps BulkAddBreaksCommand so the Break macro service computes work-time and period-hour recalc runs. Break hours count toward TargetHours but NOT toward MaxWeeklyHours; the cell becomes immutable for Wizards 1+2+3. Use list_absence_types first to find the right absenceId.",
+      "description": "Places a single absence (Break) on a client/date - vacation, sick day, training, parental leave. Hours count toward TargetHours, not MaxWeeklyHours; the cell becomes immutable for Wizards 1+2+3. Without start/end time it is a whole day, even when only hours are given. It removes an untouched, not yet started service of that day only when a group is selected; the chat selects none, so the service stays with a red notice. Use list_absence_types first to find the absenceId.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16310,7 +16310,7 @@
         "fr": "Enregistrer une absence pour une personne",
         "it": "Registra un'assenza per una persona"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "add_workchange",
@@ -19814,7 +19814,7 @@
     {
       "name": "cover_absence",
       "area": "absence",
-      "description": "Reactive disruption flow: an employee falls out on a day or a period — record the absence and propose rule-compliant cover, all as ONE isolated scenario for approval. Use when someone calls in sick or drops out and their shifts need covering. Needs the Absence type (absenceId: its id or its exact name). Optional overrideBlock (supervisor emergency use) materialises a slot blocked only by a Block-mode compliance escalation instead of leaving it uncovered.",
+      "description": "Someone calls in sick or drops out for a day or period: records the absence and proposes rule-compliant cover as ONE scenario for approval. absenceId: id or exact name of the type. A fully covered service reported before its start moves to the stand-in with all attachments; reported later it gets a replacement. Accepting removes an uncovered service only if it has not started; a started one stays with a red notice. Billing is never switched off. overrideBlock: supervisor emergency override.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19921,7 +19921,7 @@
         "fr": "Enregistrer une absence imprévue et proposer un remplacement",
         "it": "Registra un'assenza improvvisa e proponi una copertura"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "evaluate_scenario",
@@ -53199,7 +53199,7 @@
     {
       "name": "get_replacement_status",
       "area": "schedule",
-      "description": "Reports who was already asked to cover an absent employee and how it went: per affected shift and day the candidates with their recorded answer (only proposed, asked without answer, accepted, declined, not reached), whether a replacement reached the plan, the coverage status of the slot, plus the escalation chains woken for it (which planners, who took over). Only recorded contacts appear; proposed means NOT asked. Default period: 7 days back to 14 days ahead.",
+      "description": "Reports who was already asked to cover an absent employee and how it went: per affected shift and day the candidates with their recorded answer (only proposed, asked without answer, accepted, declined, not reached), whether the cover (move or replacement) reached the plan, the coverage status of the slot, plus the escalation chains woken for it (which planners, who took over). Only recorded contacts appear; proposed means NOT asked. Default period: 7 days back to 14 days ahead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -53341,7 +53341,7 @@
         "fr": "État de la recherche de remplaçant",
         "it": "Stato della ricerca del sostituto"
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_explain_depth",

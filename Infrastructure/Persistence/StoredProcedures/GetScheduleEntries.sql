@@ -41,7 +41,8 @@ RETURNS TABLE (
     replace_client_id UUID,
     is_replacement_entry BOOLEAN,
     lock_level INTEGER,
-    is_group_restricted BOOLEAN
+    is_group_restricted BOOLEAN,
+    moved_from_client_id UUID
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -153,7 +154,8 @@ BEGIN
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry,
             w.lock_level,
-            wgr.is_group_restricted
+            wgr.is_group_restricted,
+            w.moved_from_client_id
         FROM valid_works w
         JOIN shift s ON s.id = w.shift_id
         JOIN work_group_restricted wgr ON wgr.work_id = w.id
@@ -173,7 +175,8 @@ BEGIN
             wc.change_time, wc.surcharges, wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM after_shift_offsets aso
         JOIN work_change wc ON wc.id = aso.id
         JOIN valid_works w ON w.id = aso.work_id
@@ -191,7 +194,8 @@ BEGIN
             wc.change_time, wc.surcharges, wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM before_shift_offsets bso
         JOIN work_change wc ON wc.id = bso.id
         JOIN valid_works w ON w.id = bso.work_id
@@ -209,7 +213,8 @@ BEGIN
             wc.change_time, wc.surcharges, wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM before_shift_offsets bso
         JOIN work_change wc ON wc.id = bso.id
         JOIN valid_works w ON w.id = bso.work_id
@@ -232,7 +237,8 @@ BEGIN
             wc.change_time, wc.surcharges, wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM after_shift_offsets aso
         JOIN work_change wc ON wc.id = aso.id
         JOIN valid_works w ON w.id = aso.work_id
@@ -253,7 +259,8 @@ BEGIN
             wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
@@ -270,7 +277,8 @@ BEGIN
             wc.change_time, wc.surcharges, wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM before_shift_offsets bso
         JOIN work_change wc ON wc.id = bso.id
         JOIN valid_works w ON w.id = bso.work_id
@@ -293,7 +301,8 @@ BEGIN
             wc.change_time, wc.surcharges, wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM after_shift_offsets aso
         JOIN work_change wc ON wc.id = aso.id
         JOIN valid_works w ON w.id = aso.work_id
@@ -312,7 +321,8 @@ BEGIN
             wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
@@ -330,7 +340,8 @@ BEGIN
             wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            w.client_id AS replace_client_id, true AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            w.client_id AS replace_client_id, true AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
@@ -353,7 +364,8 @@ BEGIN
             wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
@@ -376,7 +388,8 @@ BEGIN
             wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            w.client_id AS replace_client_id, true AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            w.client_id AS replace_client_id, true AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
@@ -397,7 +410,8 @@ BEGIN
             wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
@@ -417,7 +431,8 @@ BEGIN
             wc.type AS work_change_type, wc.description,
             NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
             NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            w.client_id AS replace_client_id, true AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
+            w.client_id AS replace_client_id, true AS is_replacement_entry, w.lock_level, wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM work_change wc
         JOIN valid_works w ON w.id = wc.work_id
         JOIN shift s ON s.id = w.shift_id
@@ -448,7 +463,8 @@ BEGIN
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry,
             w.lock_level,
-            wgr.is_group_restricted
+            wgr.is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM expenses e
         JOIN valid_works w ON w.id = e.work_id
         JOIN shift s ON s.id = w.shift_id
@@ -480,7 +496,8 @@ BEGIN
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry,
             b.lock_level,
-            false AS is_group_restricted
+            false AS is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM break b
         WHERE b.is_deleted = false
         AND b.parent_work_id IS NULL
@@ -512,7 +529,8 @@ BEGIN
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry,
             0 AS lock_level,
-            false AS is_group_restricted
+            false AS is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM schedule_notes sn
         WHERE sn.is_deleted = false
         AND sn.workday::DATE >= start_date
@@ -543,7 +561,8 @@ BEGIN
             NULL::UUID AS replace_client_id,
             false AS is_replacement_entry,
             0 AS lock_level,
-            false AS is_group_restricted
+            false AS is_group_restricted,
+            NULL::UUID AS moved_from_client_id
         FROM schedule_commands sc
         WHERE sc.is_deleted = false
         AND sc.workday::DATE >= start_date

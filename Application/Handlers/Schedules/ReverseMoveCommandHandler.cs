@@ -18,6 +18,7 @@ using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Services.Schedules;
@@ -69,29 +70,29 @@ public sealed class ReverseMoveCommandHandler : IRequestHandler<ReverseMoveComma
 
         if (row.Kind != ReplacementRequestKind.Move || row.AppliedAtUtc is null || row.WorkId is not { } workId)
         {
-            throw new InvalidRequestException(NotAnAppliedMoveMessage);
+            throw new MoveReversalRefusedException(NotAnAppliedMoveMessage, MoveReversalRefusalCodes.NotAnAppliedMove);
         }
 
         if (row.ReversedAtUtc is not null)
         {
-            throw new InvalidRequestException(AlreadyReversedMessage);
+            throw new MoveReversalRefusedException(AlreadyReversedMessage, MoveReversalRefusalCodes.AlreadyReversed);
         }
 
         var work = await _workRepository.GetNoTracking(workId);
         if (work?.ClientId == row.AbsentClientId)
         {
-            throw new InvalidRequestException(AlreadyBackMessage);
+            throw new MoveReversalRefusedException(AlreadyBackMessage, MoveReversalRefusalCodes.AlreadyBack);
         }
 
         if (work is null || work.ClientId != row.CandidateClientId || work.MovedFromClientId != row.AbsentClientId)
         {
-            throw new InvalidRequestException(MovedOnMessage);
+            throw new MoveReversalRefusedException(MovedOnMessage, MoveReversalRefusalCodes.MovedOn);
         }
 
         var facts = await _factsReader.LoadAsync([workId], work.AnalyseToken, cancellationToken);
         if (!facts.TryGetValue(workId, out var fact) || !CoverMoveDecision.IsUntouched(fact))
         {
-            throw new InvalidRequestException(HeldMessage);
+            throw new MoveReversalRefusedException(HeldMessage, MoveReversalRefusalCodes.Held);
         }
 
         return await _mediator.Send(new ReassignWorkClientCommand(workId, row.AbsentClientId), cancellationToken);

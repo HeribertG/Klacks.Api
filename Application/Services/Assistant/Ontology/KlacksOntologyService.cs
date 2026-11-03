@@ -198,7 +198,8 @@ public class KlacksOntologyService : IKlacksOntologyService
         ["WorkChange"] =
         [
             "WorkChange modifies an existing Work (correction, briefing, travel, replacement) instead of recreating it.",
-            "A Replacement WorkChange (ReplaceClientId) covers a Work for another employee and inherits the parent Work's scenario token."
+            "A Replacement WorkChange (ReplaceClientId) covers a Work for another employee and inherits the parent Work's scenario token.",
+            "An absence cover that takes a whole Work moves it to the stand-in instead (Work.MovedFromClientId names the origin); a Replacement WorkChange stays for a partial cover or for a Klacksy/messenger report after the Work started."
         ],
         ["Break"] =
         [
