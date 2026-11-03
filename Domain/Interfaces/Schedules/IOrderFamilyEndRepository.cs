@@ -48,6 +48,13 @@ public interface IOrderFamilyEndRepository
     Task<DateOnly?> FindLastScenarioWorkDateAfterAsync(Guid headId, DateOnly afterDate, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The ids among the given shifts that carry a real work that is not deleted.
+    /// </summary>
+    /// <param name="shiftIds">Ids of the shifts</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<IReadOnlySet<Guid>> FindShiftIdsWithRealWorkAsync(IReadOnlyList<Guid> shiftIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// What the given shifts are still used by, with the same rule as the delete of a whole family.
     /// </summary>
     /// <param name="shiftIds">Ids of the shifts</param>

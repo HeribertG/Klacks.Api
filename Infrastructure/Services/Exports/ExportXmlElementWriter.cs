@@ -29,11 +29,11 @@ public static class ExportXmlElementWriter
                 writer.WriteElementString("ChangeTime", change.ChangeTime.ToString("F2", CultureInfo.InvariantCulture));
                 writer.WriteElementString("StartTime", change.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
                 writer.WriteElementString("EndTime", change.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
-                writer.WriteElementString("Description", change.Description);
+                writer.WriteElementString("Description", XmlTextSanitizer.Clean(change.Description));
                 writer.WriteElementString("Surcharges", change.Surcharges.ToString("F2", CultureInfo.InvariantCulture));
                 writer.WriteElementString("ToInvoice", change.ToInvoice.ToString().ToLowerInvariant());
                 if (!string.IsNullOrEmpty(change.ReplaceEmployeeName))
-                    writer.WriteElementString("ReplaceEmployee", change.ReplaceEmployeeName);
+                    writer.WriteElementString("ReplaceEmployee", XmlTextSanitizer.Clean(change.ReplaceEmployeeName));
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
@@ -49,7 +49,7 @@ public static class ExportXmlElementWriter
             {
                 writer.WriteStartElement("Expense");
                 writer.WriteElementString("Amount", expense.Amount.ToString("F2", CultureInfo.InvariantCulture));
-                writer.WriteElementString("Description", expense.Description);
+                writer.WriteElementString("Description", XmlTextSanitizer.Clean(expense.Description));
                 writer.WriteElementString("Taxable", expense.Taxable.ToString().ToLowerInvariant());
                 writer.WriteEndElement();
             }
@@ -65,8 +65,8 @@ public static class ExportXmlElementWriter
             foreach (var breakEntry in breaks)
             {
                 writer.WriteStartElement("Break");
-                writer.WriteElementString("AbsenceName", breakEntry.AbsenceName);
-                writer.WriteElementString("Date", breakEntry.BreakDate.ToString(DateTimeFormats.IsoDate));
+                writer.WriteElementString("AbsenceName", XmlTextSanitizer.Clean(breakEntry.AbsenceName));
+                writer.WriteElementString("Date", breakEntry.BreakDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture));
                 writer.WriteElementString("StartTime", breakEntry.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
                 writer.WriteElementString("EndTime", breakEntry.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture));
                 writer.WriteElementString("Hours", breakEntry.BreakTime.ToString("F2", CultureInfo.InvariantCulture));

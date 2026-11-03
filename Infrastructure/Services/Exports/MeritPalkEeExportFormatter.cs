@@ -37,9 +37,14 @@
 /// no monetary amount, so fixed-amount wage types ("Summa x Kogus x Koefitsient") are not supported. Deduction codes
 /// must carry a leading minus in the file; the formatter does not add it, so the value stored in AbsenceMappingJson
 /// must already include the sign.
+/// AbsenceMappingJson accepts both the Merit-specific plain-string shape {"&lt;absenceId&gt;":"PIK"} and the common
+/// payroll mapping shape {"&lt;absenceId&gt;":{"WageType":"PIK","Ausfallschluessel":"…"}} (WageType is matched
+/// case-insensitively, other properties are ignored); any other JSON value (number, array, null) or an empty or
+/// whitespace code counts the absence as SkippedAbsenceCount.
 /// </remarks>
 using System.Globalization;
 using System.Text;
+using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Exports;
@@ -54,6 +59,7 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
     private const string QuantityFormat = "0.00";
     private const int QuantityDecimals = 2;
     private const string EmptyField = "";
+    private const string MappingWageTypeProperty = "WageType";
 
     private const int ColumnEmployeeCode = 0;
     private const int ColumnEmployeeName = 1;
@@ -89,7 +95,7 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
     public PayrollExportResult Format(PayrollExportData data, PayrollExportGroupConfig config)
     {
         var counter = new PayrollExportSkipCounter();
-        var absenceMapping = PayrollAbsenceMappingParser.Parse<string>(config.AbsenceMappingJson, counter);
+        var absenceMapping = PayrollAbsenceMappingParser.Parse<JsonElement>(config.AbsenceMappingJson, counter);
 
         var sb = new StringBuilder();
         AppendFields(sb, HeaderColumns);
@@ -133,7 +139,7 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
     private static string? ResolveImportCode(
         PayrollDayEntry entry,
         PayrollExportGroupConfig config,
-        Dictionary<string, string> absenceMapping,
+        Dictionary<string, JsonElement> absenceMapping,
         PayrollExportSkipCounter counter)
     {
         switch (entry.Kind)
@@ -163,9 +169,10 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
 
             case PayrollEntryKind.Absence:
                 var key = entry.AbsenceId?.ToString();
-                if (key == null
-                    || !absenceMapping.TryGetValue(key, out var importCode)
-                    || string.IsNullOrEmpty(Sanitize(importCode)))
+                var importCode = key != null && absenceMapping.TryGetValue(key, out var mapping)
+                    ? Sanitize(ResolveMappedCode(mapping))
+                    : EmptyField;
+                if (string.IsNullOrEmpty(importCode))
                 {
                     counter.UnmappedAbsences++;
                     return null;
@@ -177,10 +184,34 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
                     return null;
                 }
 
-                return Sanitize(importCode);
+                return importCode;
 
             default:
                 counter.UnsupportedKinds++;
+                return null;
+        }
+    }
+
+    private static string? ResolveMappedCode(JsonElement mapping)
+    {
+        switch (mapping.ValueKind)
+        {
+            case JsonValueKind.String:
+                return mapping.GetString();
+
+            case JsonValueKind.Object:
+                foreach (var property in mapping.EnumerateObject())
+                {
+                    if (string.Equals(property.Name, MappingWageTypeProperty, StringComparison.OrdinalIgnoreCase)
+                        && property.Value.ValueKind == JsonValueKind.String)
+                    {
+                        return property.Value.GetString();
+                    }
+                }
+
+                return null;
+
+            default:
                 return null;
         }
     }

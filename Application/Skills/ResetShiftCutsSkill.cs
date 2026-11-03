@@ -1,20 +1,23 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Skill that merges every split part of a shift order back into one plannable shift (OriginalShift)
-/// starting at a new date: split parts still open at/after that date are closed the day before, and a
-/// fresh full-span plannable shift is created from the order's own template starting on that date. Cuts
-/// that already ended before the new date are left untouched. Wraps GetResetDateRangeQuery (to validate
-/// the requested date against the order's own validity range) and PostResetCutsCommand (to perform the
-/// merge), then re-reads the cut list to confirm the merge actually happened. A shift with an analyse token is answered
-/// like a missing one: skills work on the real plan only, and a variant (key) has no skills.
+/// Skill that puts a split shift order back to its state at creation: every cut piece is removed and one plannable shift
+/// (OriginalShift) with the content of the order remains. Without planned work it starts on the first day of the order,
+/// whatever date was asked for. With real work the date must lie after the last work: a piece with such work stays, ending the
+/// day before, and the plannable shift starts on the date. Wraps GetResetDateRangeQuery (to validate the requested date) and
+/// PostResetCutsCommand (to perform the reset) and relays a refusal as a skill error, then re-reads the cut list to confirm
+/// exactly one open plannable shift and no piece reaching into it. A shift with an analyse token is answered like a
+/// missing one: skills work on the real plan only, and a variant (key) has no skills.
 /// </summary>
 /// <param name="shiftId">UUID of the order (Bestellung), its plannable shift, or one of its split parts — resolved to the order.</param>
-/// <param name="newStartDate">ISO date (yyyy-MM-dd) the merged plannable shift starts from; must lie within the order's own validity range.</param>
+/// <param name="newStartDate">ISO date (yyyy-MM-dd) from which the shift is whole again; it counts only when the order has real work, and must lie after the last work and inside the order.</param>
 
 using Klacks.Api.Application.Commands.Shifts;
+using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Shifts;
+using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -87,12 +90,20 @@ public class ResetShiftCutsSkill : BaseSkillImplementation
                 $"Order '{orderName}' is not split into parts; there is nothing to reset. Use cut_shift or cut_shift_by_date first.");
         }
 
-        var range = await _mediator.Send(new GetResetDateRangeQuery(sealedOrderId.Value), cancellationToken);
+        ResetDateRangeResponse range;
+        try
+        {
+            range = await _mediator.Send(new GetResetDateRangeQuery(sealedOrderId.Value), cancellationToken);
+        }
+        catch (KeyNotFoundException)
+        {
+            return SkillResult.Error($"Shift with ID {shiftId} not found.");
+        }
 
         if (newStartDate < range.EarliestResetDate)
         {
             return SkillResult.Error(
-                $"newStartDate ({newStartDate}) cannot be earlier than the order's start ({range.EarliestResetDate}).");
+                $"newStartDate ({newStartDate}) cannot be earlier than the earliest allowed day ({range.EarliestResetDate}): the start of the order, or the day after the last planned work.");
         }
 
         if (range.UntilDate.HasValue && newStartDate > range.UntilDate.Value)
@@ -101,21 +112,38 @@ public class ResetShiftCutsSkill : BaseSkillImplementation
                 $"newStartDate ({newStartDate}) cannot be later than the order's end ({range.UntilDate.Value}).");
         }
 
-        await _mediator.Send(new PostResetCutsCommand(sealedOrderId.Value, newStartDate), cancellationToken);
+        try
+        {
+            await _mediator.Send(new PostResetCutsCommand(sealedOrderId.Value, newStartDate), cancellationToken);
+        }
+        catch (ShiftResetRefusedException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
+        catch (BadRequestException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+            when (ex.Message == string.Format(ShiftVisibilityMessages.NoSealedOrderFound, sealedOrderId.Value))
+        {
+            return SkillResult.Error($"Shift with ID {shiftId} not found.");
+        }
 
         var freshCuts = await _shiftRepository.CutList(sealedOrderId.Value);
 
-        var mergedShift = freshCuts.FirstOrDefault(
-            s => s.Status == ShiftStatus.OriginalShift && s.FromDate == newStartDate);
-        var staleOpenSplit = freshCuts.FirstOrDefault(
-            s => s.Status == ShiftStatus.SplitShift && (!s.UntilDate.HasValue || s.UntilDate.Value >= newStartDate));
+        var openPlannable = freshCuts
+            .Where(s => s.Status == ShiftStatus.OriginalShift && (!s.UntilDate.HasValue || s.UntilDate.Value >= newStartDate))
+            .ToList();
+        var mergedShift = openPlannable.Count == 1 ? openPlannable[0] : null;
+        var keptPieces = freshCuts.Where(s => s.Status == ShiftStatus.SplitShift).ToList();
+        var staleOpenSplit = mergedShift != null
+            && keptPieces.Any(s => !s.UntilDate.HasValue || s.UntilDate.Value >= mergedShift.FromDate);
 
-        var verified = mergedShift != null && staleOpenSplit == null;
-
-        if (!verified)
+        if (mergedShift == null || staleOpenSplit)
         {
             return SkillResult.Error(
-                $"Database verification failed: could not confirm the merge of order '{orderName}' from {newStartDate} " +
+                $"Database verification failed: could not confirm the reset of order '{orderName}' " +
                 "in the database after the write. The write may still have been applied (this skill does not roll back); " +
                 "check the cut list (list_shift_cuts) before retrying.");
         }
@@ -125,12 +153,13 @@ public class ResetShiftCutsSkill : BaseSkillImplementation
             {
                 SealedOrderId = sealedOrderId,
                 OrderName = orderName,
-                NewStartDate = newStartDate,
-                MergedShiftId = mergedShift!.Id,
-                RemainingPieceCount = freshCuts.Count,
+                NewStartDate = mergedShift.FromDate,
+                MergedShiftId = mergedShift.Id,
+                RemainingPieceCount = keptPieces.Count,
                 Verified = true
             },
-            $"Order '{orderName}' merged back into one plannable shift starting {newStartDate}. " +
-            "Cuts before this date are unchanged. Confirmed in the database (verified).");
+            $"Order '{orderName}' is back to one plannable shift starting {mergedShift.FromDate}, with the content of the order. " +
+            $"All cut pieces were removed except {keptPieces.Count} with planned work before that date, which end the day before. " +
+            "Confirmed in the database (verified).");
     }
 }

@@ -16,6 +16,10 @@
 /// Quantity is unit-neutral: its unit is the unit of the row's wage type in the target system. A day-based entry
 /// (PayrollQuantityUnit.Days, on-call duty) is written as its day count under the absence's mapped wage type, which
 /// must therefore be a day-based wage type in the target system - never as an hour equivalent.
+/// No row is written with an empty WageType column (empty after removing CR, LF and the delimiter, and trimming):
+/// worked hours with an empty BaseWageType count as SkippedUnmappedBaseWageCount, surcharges with an empty
+/// SurchargeWageType as SkippedUnmappedSurchargeCount, absences without an id, without a mapping or with an empty
+/// mapped WageType as SkippedAbsenceCount.
 /// </remarks>
 using System.Globalization;
 using System.Text;
@@ -71,30 +75,41 @@ public class GenericDelimitedPayrollExportFormatter : IPayrollExportFormatter
                         continue;
 
                     case PayrollEntryKind.WorkHours:
-                        AppendRow(sb, delimiter, personnelNumber, date, config.BaseWageType, quantity);
+                        var baseWageType = Sanitize(config.BaseWageType, delimiter).Trim();
+                        if (baseWageType.Length == 0)
+                        {
+                            counter.UnmappedBaseWages++;
+                            continue;
+                        }
+
+                        AppendRow(sb, delimiter, personnelNumber, date, baseWageType, quantity);
                         counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Surcharge:
-                        if (string.IsNullOrEmpty(config.SurchargeWageType))
+                        var surchargeWageType = Sanitize(config.SurchargeWageType, delimiter).Trim();
+                        if (surchargeWageType.Length == 0)
                         {
                             counter.UnmappedSurcharges++;
                             continue;
                         }
 
-                        AppendRow(sb, delimiter, personnelNumber, date, config.SurchargeWageType, quantity);
+                        AppendRow(sb, delimiter, personnelNumber, date, surchargeWageType, quantity);
                         counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Absence:
                         var key = entry.AbsenceId?.ToString();
-                        if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
+                        var absenceWageType = key != null && absenceMapping.TryGetValue(key, out var mapping)
+                            ? Sanitize(mapping?.WageType, delimiter).Trim()
+                            : string.Empty;
+                        if (absenceWageType.Length == 0)
                         {
                             counter.UnmappedAbsences++;
                             continue;
                         }
 
-                        AppendRow(sb, delimiter, personnelNumber, date, mapping.WageType, quantity);
+                        AppendRow(sb, delimiter, personnelNumber, date, absenceWageType, quantity);
                         counter.Emitted++;
                         break;
 

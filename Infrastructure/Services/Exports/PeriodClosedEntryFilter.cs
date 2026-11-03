@@ -1,16 +1,20 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Builds a period-closed lookup for a date range by bulk-loading SealedDay rows with
-/// Level=Closed and resolving group-scoped seals against non-deleted GroupItem memberships,
-/// so callers can evaluate (client, date) pairs in memory without further queries.
+/// Builds a period-closed lookup for a date range from SealedDay rows with Level=Closed. A global seal closes every
+/// client; a group seal closes a client exactly when DayLockAttribution says it locks them - the client worked a shift
+/// of that group on that day (the group close seals works by the shift's group) or is an active member of the group on
+/// that day (Membership and GroupItem validity windows). This is the same rule as the day lock and the payroll
+/// completeness gate, so a Closed work of a non-member who worked a group shift is exported after the group close.
+/// Callers evaluate (client, date) pairs in memory without further queries.
 /// @param fromDate - Lower bound (inclusive) for SealedDay.Date
 /// @param untilDate - Upper bound (inclusive) for SealedDay.Date
-/// @param clientIds - Clients whose group memberships are resolved for group-scoped seals
+/// @param clientIds - Clients for which group-scoped seals are resolved
 /// </summary>
 using Klacks.Api.Application.Interfaces.Exports;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Exports;
@@ -44,34 +48,26 @@ public class PeriodClosedEntryFilter : IPeriodClosedEntryFilter
             .Select(sd => sd.Date)
             .ToHashSet();
 
-        var groupScopedSeals = sealedDays
-            .Where(sd => sd.GroupId != null)
-            .GroupBy(sd => sd.GroupId!.Value)
-            .ToDictionary(g => g.Key, g => g.Select(sd => sd.Date).ToList());
+        var groupSealedDates = sealedDays
+            .Where(sd => sd.GroupId != null && !globallyClosedDates.Contains(sd.Date))
+            .Select(sd => sd.Date)
+            .Distinct()
+            .ToList();
 
         var closedClientDates = new HashSet<(Guid ClientId, DateOnly Date)>();
 
-        if (groupScopedSeals.Count > 0 && clientIds.Count > 0)
+        if (groupSealedDates.Count > 0 && clientIds.Count > 0)
         {
-            var sealedGroupIds = groupScopedSeals.Keys.ToList();
+            var pairs = groupSealedDates
+                .SelectMany(date => clientIds.Distinct().Select(clientId => (date, clientId)))
+                .ToList();
 
-            var memberships = await _context.GroupItem
-                .AsNoTracking()
-                .Where(gi => !gi.IsDeleted
-                    && gi.AnalyseToken == null
-                    && gi.ClientId != null
-                    && clientIds.Contains(gi.ClientId.Value)
-                    && sealedGroupIds.Contains(gi.GroupId))
-                .Select(gi => new { ClientId = gi.ClientId!.Value, gi.GroupId })
-                .Distinct()
-                .ToListAsync(cancellationToken);
+            var locking = await DayLockAttribution.LoadLockingSealsAsync(
+                _context, pairs, null, cancellationToken, WorkLockLevel.Closed);
 
-            foreach (var membership in memberships)
+            foreach (var (date, clientId) in locking.Keys)
             {
-                foreach (var date in groupScopedSeals[membership.GroupId])
-                {
-                    closedClientDates.Add((membership.ClientId, date));
-                }
+                closedClientDates.Add((clientId, date));
             }
         }
 

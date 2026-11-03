@@ -33,7 +33,7 @@ public class CsvExportFormatter : IExportFormatter
     public byte[] Format(OrderExportData data, ExportOptions options)
     {
         var sb = new StringBuilder();
-        var culture = CultureInfo.GetCultureInfo(options.Language);
+        var culture = CultureInfo.InvariantCulture;
 
         AppendLine(sb, string.Join(Separator,
             "OrderId", "OrderName", "OrderAbbreviation",
@@ -44,7 +44,7 @@ public class CsvExportFormatter : IExportFormatter
             "Date", "StartTime", "EndTime", "Hours", "Surcharges",
             "ChangeType", "Description", "ReplaceEmployee",
             "ExpenseAmount", "ExpenseTaxable",
-            "AbsenceName", "Information"));
+            "AbsenceName", "Information", "ToInvoice"));
 
         foreach (var order in data.Orders)
         {
@@ -96,9 +96,9 @@ public class CsvExportFormatter : IExportFormatter
             work.EndTime.ToString(options.TimeFormat, culture),
             work.WorkTime.ToString("F2", CultureInfo.InvariantCulture),
             work.Surcharges.ToString("F2", CultureInfo.InvariantCulture),
-            "", Escape(work.Information ?? ""), "",
+            "", "", "",
             "", "",
-            "", ""));
+            "", Escape(work.Information ?? ""), ""));
     }
 
     private static void AppendChangeRow(StringBuilder sb, string orderPrefix, WorkExportEntry work, WorkChangeExportEntry change, ExportOptions options, CultureInfo culture)
@@ -113,8 +113,8 @@ public class CsvExportFormatter : IExportFormatter
             change.ChangeTime.ToString("F2", CultureInfo.InvariantCulture),
             change.Surcharges.ToString("F2", CultureInfo.InvariantCulture),
             change.Type.ToString(), Escape(change.Description), Escape(change.ReplaceEmployeeName ?? ""),
-            "", change.ToInvoice ? "1" : "0",
-            "", ""));
+            "", "",
+            "", "", change.ToInvoice ? "1" : "0"));
     }
 
     private static void AppendExpenseRow(StringBuilder sb, string orderPrefix, WorkExportEntry work, ExpensesExportEntry expense, ExportOptions options, CultureInfo culture)
@@ -128,7 +128,7 @@ public class CsvExportFormatter : IExportFormatter
             "", "",
             "", Escape(expense.Description), "",
             expense.Amount.ToString("F2", CultureInfo.InvariantCulture), expense.Taxable ? "1" : "0",
-            "", ""));
+            "", "", ""));
     }
 
     private static void AppendBreakRow(StringBuilder sb, string orderPrefix, WorkExportEntry work, BreakExportEntry breakEntry, ExportOptions options, CultureInfo culture)
@@ -144,7 +144,7 @@ public class CsvExportFormatter : IExportFormatter
             "", "",
             "", "",
             "", "",
-            Escape(breakEntry.AbsenceName), ""));
+            Escape(breakEntry.AbsenceName), "", ""));
     }
 
     private static void AppendLine(StringBuilder sb, string line)
@@ -156,7 +156,7 @@ public class CsvExportFormatter : IExportFormatter
     {
         value = CsvFormulaGuard.Neutralize(value);
 
-        if (value.Contains('"') || value.Contains(';') || value.Contains('\n'))
+        if (value.Contains('"') || value.Contains(';') || value.Contains('\n') || value.Contains('\r'))
         {
             return $"\"{value.Replace("\"", "\"\"")}\"";
         }
@@ -166,6 +166,6 @@ public class CsvExportFormatter : IExportFormatter
 
     private static string FormatDate(DateOnly? date, ExportOptions options)
     {
-        return date?.ToString(options.DateFormat, CultureInfo.GetCultureInfo(options.Language)) ?? "";
+        return date?.ToString(options.DateFormat, CultureInfo.InvariantCulture) ?? "";
     }
 }

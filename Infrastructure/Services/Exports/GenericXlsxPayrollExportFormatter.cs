@@ -14,6 +14,9 @@
 /// wizard can apply its own locale-specific date parsing/formatting.
 /// Quantity is unit-neutral, as in the CSV counterpart: a day-based entry (on-call duty) is written as its day count
 /// under the absence's mapped wage type, which must be a day-based wage type in the target system.
+/// No row is written with an empty (or whitespace-only) WageType cell: worked hours with an empty BaseWageType count
+/// as SkippedUnmappedBaseWageCount, surcharges with an empty SurchargeWageType as SkippedUnmappedSurchargeCount,
+/// absences without an id, without a mapping or with an empty mapped WageType as SkippedAbsenceCount.
 /// </remarks>
 using System.Globalization;
 using ClosedXML.Excel;
@@ -67,11 +70,17 @@ public class GenericXlsxPayrollExportFormatter : IPayrollExportFormatter
                         continue;
 
                     case PayrollEntryKind.WorkHours:
+                        if (string.IsNullOrWhiteSpace(config.BaseWageType))
+                        {
+                            counter.UnmappedBaseWages++;
+                            continue;
+                        }
+
                         wageType = config.BaseWageType;
                         break;
 
                     case PayrollEntryKind.Surcharge:
-                        if (string.IsNullOrEmpty(config.SurchargeWageType))
+                        if (string.IsNullOrWhiteSpace(config.SurchargeWageType))
                         {
                             counter.UnmappedSurcharges++;
                             continue;
@@ -82,7 +91,9 @@ public class GenericXlsxPayrollExportFormatter : IPayrollExportFormatter
 
                     case PayrollEntryKind.Absence:
                         var key = entry.AbsenceId?.ToString();
-                        if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
+                        if (key == null
+                            || !absenceMapping.TryGetValue(key, out var mapping)
+                            || string.IsNullOrWhiteSpace(mapping?.WageType))
                         {
                             counter.UnmappedAbsences++;
                             continue;

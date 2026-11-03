@@ -4,6 +4,10 @@
 /// Deterministic sample datasets for export formatters, shared by the override preview endpoint and
 /// the golden regression tests. Every value (ids, dates, names with umlauts, quantities) is fixed so
 /// formatter output is byte-stable across runs; changing this factory invalidates all golden files.
+/// The payroll sample config uses the common absence mapping shape {"&lt;absenceId&gt;":{"WageType":"2000",
+/// "Ausfallschluessel":"K"}} that every payroll formatter accepts (Merit Palk, PAXml and POHODA read WageType when
+/// their format-specific value is absent), so every payroll golden file contains the sample absence row. "2000" is
+/// numeric (valid as an Abacus PayrollType) and not a PAXml tidkod, so PAXml writes it as a lonetrans.
 /// </summary>
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Enums;

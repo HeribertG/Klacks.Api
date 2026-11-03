@@ -92,8 +92,7 @@ public class Sie4bSeExportFormatter : IExportFormatter
         {
             foreach (var work in order.WorkEntries)
             {
-                var totalAmount = work.WorkTime + work.Surcharges
-                    + work.Changes.Sum(c => c.ChangeTime + c.Surcharges);
+                var totalAmount = OrderWorkHours.BillableHours(work);
 
                 AppendVerification(
                     sb,

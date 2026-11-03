@@ -32,7 +32,7 @@
 /// has not been checked against a real import in either version.
 /// Klacks holds a Leistungsnachweis (hours), not monetary values, and has no chart of accounts. Like
 /// Sie4bSeExportFormatter, ZohoBooksAeExportFormatter, MoveinIlExportFormatter and BmdExportFormatter,
-/// Amount therefore carries the time quantity (WorkTime + Surcharges + changes) for work rows and the
+/// Amount therefore carries the time quantity (WorkTime + Surcharges + hour-bearing changes) for work rows and the
 /// expense amount for expense rows, and the accounts are placeholders modelled on the Swiss
 /// KMU-Kontenrahmen that the customer must map to their own Banana chart before importing (the spec
 /// does not say how Banana treats an account missing from the chart): PlaceholderWagesAccount "5000"
@@ -99,8 +99,7 @@ public class BananaChExportFormatter : IExportFormatter
 
             foreach (var work in order.WorkEntries)
             {
-                var totalAmount = work.WorkTime + work.Surcharges
-                    + work.Changes.Sum(c => c.ChangeTime + c.Surcharges);
+                var totalAmount = OrderWorkHours.BillableHours(work);
 
                 AppendRow(
                     sb,

@@ -28,6 +28,7 @@ public static class WorkSubEntryLoader
         bool loadBreaks = true)
     {
         var workChanges = await context.WorkChange
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(wc => !wc.IsDeleted && wc.AnalyseToken == null && workIds.Contains(wc.WorkId))
             .Include(wc => wc.ReplaceClient)
