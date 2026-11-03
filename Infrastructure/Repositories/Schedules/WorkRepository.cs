@@ -43,6 +43,30 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         _contractDataProvider = contractDataProvider;
     }
 
+    public async Task<bool> HoldsMovedWorkInScenarioAsync(Guid analyseToken, Guid clientId, CancellationToken cancellationToken)
+    {
+        return await context.Work
+            .AsNoTracking()
+            .AnyAsync(
+                work => work.AnalyseToken == analyseToken && work.ClientId == clientId && work.MovedFromClientId != null,
+                cancellationToken);
+    }
+
+    public async Task<List<Work>> ListMovedByScenarioAsync(
+        Guid analyseToken, Guid movedFromClientId, DateOnly date, CancellationToken cancellationToken)
+    {
+        return await context.Work
+            .AsNoTracking()
+            .Where(work => work.AnalyseToken == analyseToken
+                && work.MovedFromClientId == movedFromClientId
+                && work.CurrentDate == date
+                && work.ParentWorkId == null
+                && !context.Work.IgnoreQueryFilters().Any(origin =>
+                    origin.Id == work.ClonedFromWorkId && origin.MovedFromClientId == work.MovedFromClientId))
+            .OrderBy(work => work.Id)
+            .ToListAsync(cancellationToken);
+    }
+
     public override async Task Add(Work work)
     {
         await _workMacroService.ProcessWorkMacroAsync(work);

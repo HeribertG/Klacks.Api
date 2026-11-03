@@ -7,7 +7,8 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 public interface IAbsenceWorkRemovalService
 {
     /// <summary>
-    /// The works these absences take away: an on-call absence takes none, and a sealed, replaced or foreign-group work stays.
+    /// The works these absences take away: an on-call absence takes none, and a sealed, replaced, started or foreign-group
+    /// work stays.
     /// </summary>
     /// <param name="absences">The absences</param>
     /// <param name="analyseToken">Scenario of the absences; null is the real plan</param>

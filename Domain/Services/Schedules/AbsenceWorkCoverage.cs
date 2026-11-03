@@ -19,12 +19,24 @@ public static class AbsenceWorkCoverage
     /// <param name="workEnd">End of the work; at or before the start it runs over midnight</param>
     public static bool CoversWork(TimeOnly absenceStart, TimeOnly absenceEnd, TimeOnly workStart, TimeOnly workEnd)
     {
-        if (absenceStart == DayTimeConstants.Midnight
-            && (absenceEnd >= DayTimeConstants.LastMinuteOfDay || absenceEnd == DayTimeConstants.Midnight))
+        if (IsWholeDay(absenceStart, absenceEnd))
         {
             return true;
         }
 
         return workEnd > workStart && absenceStart <= workStart && workEnd <= absenceEnd;
     }
+
+    /// <summary>The time an absence occupies on the calendar; a whole-day absence runs from midnight to midnight.</summary>
+    /// <param name="date">Day of the absence</param>
+    /// <param name="absenceStart">Start of the absence</param>
+    /// <param name="absenceEnd">End of the absence</param>
+    public static (DateTime StartAt, DateTime EndAt) Window(DateOnly date, TimeOnly absenceStart, TimeOnly absenceEnd)
+        => IsWholeDay(absenceStart, absenceEnd)
+            ? (date.ToDateTime(DayTimeConstants.Midnight), date.AddDays(1).ToDateTime(DayTimeConstants.Midnight))
+            : ReplacementWindow.ToInterval(date, absenceStart, absenceStart, absenceEnd);
+
+    private static bool IsWholeDay(TimeOnly absenceStart, TimeOnly absenceEnd)
+        => absenceStart == DayTimeConstants.Midnight
+            && (absenceEnd >= DayTimeConstants.LastMinuteOfDay || absenceEnd == DayTimeConstants.Midnight);
 }

@@ -33,8 +33,8 @@ public static class CoverMoveDecision
                 || report.ReportedAtUtc < StartUtc(facts, companyTimeZone));
 
     /// <summary>
-    /// A work an absence may remove without the planner dialog: nothing holds it in place and it has not started. A started
-    /// work stays with its error list entry, the planner shortens it.
+    /// A work an absence may remove, on every path including an accept from the cover dialog: nothing holds it in place and
+    /// it has not started. A started work stays with its error list entry, the planner shortens or deletes it.
     /// </summary>
     /// <param name="facts">The work as it stands</param>
     /// <param name="nowUtc">Current instant of the company clock</param>

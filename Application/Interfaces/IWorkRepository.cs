@@ -14,6 +14,25 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IWorkRepository : IBaseRepository<Work>
 {
+    /// <summary>
+    /// The top-level works this scenario itself moved away from this person on this day, untracked with a stable order. A
+    /// work whose clone source already carries the same origin was moved earlier, it is left out.
+    /// </summary>
+    /// <param name="analyseToken">Token of the scenario</param>
+    /// <param name="movedFromClientId">The person the works came from</param>
+    /// <param name="date">Workday</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<List<Work>> ListMovedByScenarioAsync(
+        Guid analyseToken, Guid movedFromClientId, DateOnly date, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Whether this person owns a work a cover moved in this scenario, on any day.
+    /// </summary>
+    /// <param name="analyseToken">Token of the scenario</param>
+    /// <param name="clientId">The person</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<bool> HoldsMovedWorkInScenarioAsync(Guid analyseToken, Guid clientId, CancellationToken cancellationToken);
+
     Task<List<Work>> GetByIdsAsync(IEnumerable<Guid> ids);
     Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter, CancellationToken cancellationToken = default);
     Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate, Guid? analyseToken = null, CancellationToken cancellationToken = default);

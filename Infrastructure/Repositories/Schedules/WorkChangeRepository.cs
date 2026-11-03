@@ -77,6 +77,29 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<WorkChange>> ListReplacementsWrittenByScenarioAsync(
+        Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken = default)
+    {
+        var replacementTypes = ReplacementWorkChangeTypes.All.ToList();
+
+        return await _context.WorkChange
+            .AsNoTracking()
+            .Include(wc => wc.Work)
+            .Where(wc => wc.Work!.AnalyseToken == analyseToken
+                && wc.Work.ClientId == clientId
+                && wc.Work.CurrentDate == date
+                && wc.Work.ParentWorkId == null
+                && wc.ReplaceClientId != null
+                && replacementTypes.Contains(wc.Type)
+                && !_context.WorkChange.IgnoreQueryFilters().Any(origin =>
+                    origin.WorkId == wc.Work.ClonedFromWorkId
+                    && origin.Type == wc.Type
+                    && origin.ReplaceClientId == wc.ReplaceClientId
+                    && origin.Description == wc.Description))
+            .OrderBy(wc => wc.Id)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<WorkChange>> ListNonReplacementChangesAsync(
         Guid workId, CancellationToken cancellationToken = default)
     {

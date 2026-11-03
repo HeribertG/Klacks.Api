@@ -92,7 +92,8 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
 
         foreach (var (delta, clonedWorkId) in slots)
         {
-            if (moved.Contains(clonedWorkId) && await TryMoveAsync(delta, clonedWorkId, cancellationToken))
+            if (moved.Contains(clonedWorkId)
+                && await TryHandOverAsync(clonedWorkId, delta.ToAgentId, delta.FromAgentId, false, cancellationToken))
             {
                 continue;
             }
@@ -165,7 +166,45 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
             .ToHashSet();
     }
 
-    private async Task<bool> TryMoveAsync(CellDelta delta, Guid clonedWorkId, CancellationToken cancellationToken)
+    public async Task<MovedWorkHandOverResult> PassOnMovedWorkAsync(
+        Guid analyseToken, Guid workId, Guid toClientId, CancellationToken cancellationToken)
+    {
+        if (await LoadUntouchedAsync(analyseToken, workId, cancellationToken) is null)
+        {
+            return MovedWorkHandOverResult.Held;
+        }
+
+        return ResultOf(await TryHandOverAsync(workId, toClientId, null, false, cancellationToken));
+    }
+
+    public async Task<MovedWorkHandOverResult> ReturnMovedWorkAsync(
+        Guid analyseToken, Guid workId, Guid ownerClientId, CancellationToken cancellationToken)
+    {
+        if (await LoadUntouchedAsync(analyseToken, workId, cancellationToken) is not { } work)
+        {
+            return MovedWorkHandOverResult.Held;
+        }
+
+        var (startAt, endAt) = ReplacementWindow.ToInterval(work.CurrentDate, work.StartTime, work.StartTime, work.EndTime);
+        if (!await _factsReader.IsFreeAsync(analyseToken, ownerClientId, startAt, endAt, cancellationToken))
+        {
+            return MovedWorkHandOverResult.Held;
+        }
+
+        return ResultOf(await TryHandOverAsync(workId, ownerClientId, null, true, cancellationToken));
+    }
+
+    private async Task<CoverMoveFacts?> LoadUntouchedAsync(Guid analyseToken, Guid workId, CancellationToken cancellationToken)
+    {
+        var facts = await _factsReader.LoadAsync([workId], analyseToken, cancellationToken);
+        return facts.TryGetValue(workId, out var work) && CoverMoveDecision.IsUntouched(work) ? work : null;
+    }
+
+    private static MovedWorkHandOverResult ResultOf(bool handedOver)
+        => handedOver ? MovedWorkHandOverResult.Done : MovedWorkHandOverResult.RecalculationFailed;
+
+    private async Task<bool> TryHandOverAsync(
+        Guid clonedWorkId, Guid toClientId, Guid? movedFromClientId, bool clearsOrigin, CancellationToken cancellationToken)
     {
         await _unitOfWork.CompleteAsync();
 
@@ -175,11 +214,16 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
             ?? throw new KeyNotFoundException(string.Format(WorkNotFoundMessage, clonedWorkId));
         var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
-        if (!await _handOverService.TransferAsync(work, delta.ToAgentId, delta.FromAgentId, cancellationToken))
+        if (clearsOrigin)
+        {
+            work.MovedFromClientId = null;
+        }
+
+        if (!await _handOverService.TransferAsync(work, toClientId, movedFromClientId, cancellationToken))
         {
             _unitOfWork.DiscardTrackedChanges();
             _logger.LogWarning(
-                "Moving work {WorkId} failed in the recalculation for the new owner; it stays a replacement.", clonedWorkId);
+                "Moving work {WorkId} failed in the recalculation for the new owner.", clonedWorkId);
             return false;
         }
 

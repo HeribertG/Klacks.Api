@@ -9,6 +9,7 @@
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,49 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
     public CoverMoveFactsReader(DataBaseContext context)
     {
         _context = context;
+    }
+
+    public async Task<bool> IsFreeAsync(
+        Guid analyseToken, Guid clientId, DateTime startAt, DateTime endAt, CancellationToken cancellationToken)
+    {
+        var firstDay = DateOnly.FromDateTime(startAt).AddDays(-1);
+        var lastDay = DateOnly.FromDateTime(endAt);
+
+        var works = await _context.Work.AsNoTracking()
+            .Where(w => w.ClientId == clientId
+                && w.ParentWorkId == null
+                && w.CurrentDate >= firstDay
+                && w.CurrentDate <= lastDay
+                && (w.AnalyseToken == analyseToken
+                    || (w.AnalyseToken == null
+                        && !_context.Work.IgnoreQueryFilters().Any(clone => clone.AnalyseToken == analyseToken && clone.ClonedFromWorkId == w.Id))))
+            .Select(w => new { w.CurrentDate, w.StartTime, w.EndTime })
+            .ToListAsync(cancellationToken);
+        if (works.Any(w =>
+            {
+                var (workStart, workEnd) = ReplacementWindow.ToInterval(w.CurrentDate, w.StartTime, w.StartTime, w.EndTime);
+                return workStart < endAt && startAt < workEnd;
+            }))
+        {
+            return false;
+        }
+
+        var absences = await (
+                from b in _context.Break.AsNoTracking()
+                join a in _context.Absence.AsNoTracking() on b.AbsenceId equals a.Id
+                where b.ClientId == clientId
+                    && b.ParentWorkId == null
+                    && !a.IsOnCall
+                    && b.CurrentDate >= firstDay
+                    && b.CurrentDate <= lastDay
+                    && (b.AnalyseToken == analyseToken || b.AnalyseToken == null)
+                select new { b.CurrentDate, b.StartTime, b.EndTime })
+            .ToListAsync(cancellationToken);
+        return !absences.Any(b =>
+        {
+            var (absenceStart, absenceEnd) = AbsenceWorkCoverage.Window(b.CurrentDate, b.StartTime, b.EndTime);
+            return absenceStart < endAt && startAt < absenceEnd;
+        });
     }
 
     public async Task<IReadOnlyDictionary<Guid, CoverMoveFacts>> LoadAsync(

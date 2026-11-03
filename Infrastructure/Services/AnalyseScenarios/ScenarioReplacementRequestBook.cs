@@ -3,7 +3,8 @@
 /// <summary>
 /// Replacement request book hooks of the scenario lifecycle. On accept, every row of the scenario that is not
 /// yet applied, still Proposed/Requested/Accepted and whose replacement WorkChange is actually promoted gets AppliedAtUtc and, where still empty,
-/// the WorkChange id; a row without a promoted change (an alternative that was only phoned, or a proposal the
+/// the WorkChange id; a Move row is stamped when its work is promoted and belongs to the row's candidate. A row without a
+/// promoted change or work (an alternative that was only phoned, or a proposal the
 /// planner removed) stays unapplied, a Declined/NotReached row whose person was applied anyway is logged instead of
 /// stamped (the recorded answer contradicts the plan and must not be overwritten), and a second run changes nothing. On reject/delete only the engine's
 /// untouched Proposed rows are soft-deleted; recorded answers are facts and stay. Both only stage changes, so
@@ -14,6 +15,7 @@
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -78,22 +80,42 @@ public sealed class ScenarioReplacementRequestBook
             .GroupBy(c => (c.CandidateId, ShiftId: cloneToSourceShift.TryGetValue(c.ShiftId, out var source) ? source : c.ShiftId, c.CurrentDate))
             .ToDictionary(g => g.Key, g => g.First().Id);
 
+        var promotedOwners = await _context.Work.IgnoreQueryFilters()
+            .Where(w => workIds.Contains(w.Id))
+            .Select(w => new { w.Id, w.ClientId })
+            .ToDictionaryAsync(w => w.Id, w => w.ClientId, ct);
+
         foreach (var row in rows)
         {
-            if (!changeBySlot.TryGetValue((row.CandidateClientId, row.ShiftId, row.Date), out var workChangeId))
+            if (row.Kind == ReplacementRequestKind.Move)
             {
+                if (row.WorkId is { } workId
+                    && promotedOwners.TryGetValue(workId, out var ownerId)
+                    && ownerId == row.CandidateClientId)
+                {
+                    Stamp(row, null, token, nowUtc);
+                }
+
                 continue;
             }
 
-            if (!StampableOutcomes.Contains(row.Outcome))
+            if (changeBySlot.TryGetValue((row.CandidateClientId, row.ShiftId, row.Date), out var workChangeId))
             {
-                _logger.LogWarning(DeclinedButAppliedMessage, row.Id, row.Outcome, token);
-                continue;
+                Stamp(row, workChangeId, token, nowUtc);
             }
-
-            row.AppliedAtUtc = nowUtc;
-            row.WorkChangeId ??= workChangeId;
         }
+    }
+
+    private void Stamp(ReplacementRequest row, Guid? workChangeId, Guid token, DateTime nowUtc)
+    {
+        if (!StampableOutcomes.Contains(row.Outcome))
+        {
+            _logger.LogWarning(DeclinedButAppliedMessage, row.Id, row.Outcome, token);
+            return;
+        }
+
+        row.AppliedAtUtc = nowUtc;
+        row.WorkChangeId ??= workChangeId;
     }
 
     public async Task StageProposedReplacementRequestsDeletedAsync(Guid token, DateTime nowUtc, CancellationToken ct)
