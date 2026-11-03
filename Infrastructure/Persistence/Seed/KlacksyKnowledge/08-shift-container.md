@@ -46,7 +46,7 @@ Ein Container ist ein Dienst, der selbst keine Arbeit beschreibt, sondern mehrer
 
 1. Auf **+ neue Bestellung** (de: "+ neue Bestellung", en: "+ New Order") klicken; der Button erscheint nur mit dem Recht, Dienste anzulegen (Administratoren und Supervisoren).
 2. In der Maske den Schalter **Experten Modus** (de: "Experten Modus", en: "Expert Mode") einschalten und das Häkchen **Ist ein Container** (de: "Ist ein Container", en: "Is a container") setzen. Das Häkchen gibt es nur, solange die Bestellung noch nicht versiegelt ist. Es leert Kunde und Adresse und schaltet die Zeitfenster-Option aus; ein Container hat nie einen Kunden.
-3. Gruppe, Wochentage und Gültigkeit wie bei jedem Dienst festlegen, dann versiegeln (Schloss-Button in der Karte "Allgemeines"). Danach erscheint der Container in der Sicht **Container** (de: "Container", en: "Container").
+3. Gruppe, Wochentage und Gültigkeit wie bei jedem Dienst festlegen, dann versiegeln (Schloss-Button in der Karte "Allgemeines"). Danach erscheint der Container in der Sicht **Container** (de: "Container", en: "Container"). Ein Container ist eine interne Vorlage und hat keine Bestellung: Beim Versiegeln entsteht weder eine versiegelte Bestellung noch eine Kopie, es bleibt eine einzige Zeile (Status `OriginalShift`, ohne `OriginalId`).
 
 **Vorlage pflegen:** In der Sicht "Container" öffnet das Box-Icon in der Zeile die **Schichtvorlage** (de: "Schichtvorlage", en: "Shift Template"). Dort:
 
@@ -110,7 +110,7 @@ Container-Shift  (ShiftType=IsContainer)         ← die Hülle, keine eigene T�
 
 ## Verwandte Skills
 
-- `explain_shift_lifecycle_order_to_shift` — ein Container durchläuft denselben Versiegelungs-Ablauf
+- `explain_shift_lifecycle_order_to_shift` — Bestellung und Versiegeln bei Aufgaben-Diensten; ein Container hat keine Bestellung und bleibt beim Versiegeln eine einzige Zeile
 - `explain_shift_sporadic` — Container können sporadisch sein
 - `explain_shift_time_range` — Zeitfenster-Dienste in Containern
 - `explain_page_shifts` — Vorlagenseite und Erfassungsmaske
@@ -134,5 +134,6 @@ Container-Shift  (ShiftType=IsContainer)         ← die Hülle, keine eigene T�
 - **Die Abweichung ist ein ganzer Stand, kein Delta.** Spätere Änderungen an der Vorlage erreichen Tage mit Abweichung nicht; ändere dort die Abweichung selbst oder setze sie zurück.
 - **Löschen, Verschieben und Bestätigen des Containers betreffen alles darunter.** Löschen (einzeln und gesammelt), Verschieben oder einer anderen Person zuweisen und Bestätigen am Eltern-Einsatz laufen über alle Unter-Einsätze; dabei wird auch die Sperrstufe übertragen. Wiederherstellen bringt nur zurück, was beim selben Löschen vom selben Benutzer mit-gelöscht wurde — früher oder von anderen entfernte Unter-Einsätze bleiben gelöscht.
 - **Unter-Einsätze zählen nicht als Belegung.** Ein Aufgaben-Dienst, der nur über einen Container gebucht wird, zeigt im Schicht-Bereich keine Belegung durch diese Buchungen. Das gilt auch für sporadische Aufgaben-Dienste: Ihre Grenzen werden nur von eigenständigen Einsätzen verbraucht.
-- **Nach dem Versiegeln ist die Container-Eigenschaft fest.** Dienst-Typ (Container oder Aufgabe) gehört zu den gesperrten Feldern; ein falsch angelegter Container lässt sich nur durch Löschen der versiegelten Bestellung (Administrator, über Klacksy oder die API, solange nichts darin verplant ist) und Neuanlegen ersetzen.
+- **Nach dem Versiegeln ist die Container-Eigenschaft fest.** Dienst-Typ (Container oder Aufgabe) gehört zu den gesperrten Feldern; ein falsch angelegter Container lässt sich nur durch Löschen des Containers (Administrator, über Klacksy oder die API, solange kein Einsatz an ihm hängt) und Neuanlegen ersetzen.
+- **Ein Container wird nicht geschnitten.** Schneiden und Zurücksetzen lehnt der Server ab; aufgeteilt wird er nur im Einsatzplan über seine Unter-Einsätze.
 - **Zwei Sitzungen, eine Vorlage.** Wer die Vorlage oder die Tagesabweichung schon geöffnet hat, sperrt sie für andere (auch für ein zweites eigenes Browser-Fenster); die Seite öffnet dann schreibgeschützt mit Hinweis auf den Benutzer.

@@ -77,6 +77,11 @@ public interface IShiftRepository : IBaseRepository<Shift>
     /// <param name="analyseToken">Analyse token the sealed order must carry; null for the real plan</param>
     Task<Shift?> GetSealedOrder(Guid originalId, Guid? analyseToken = null);
 
+    /// <summary>
+    /// Adds a shift. A sealed order gets its plannable copy, which is returned. A sealed container gets no copy: it is
+    /// stored as the one row of ContainerShiftRules and that row is returned.
+    /// </summary>
+    /// <param name="shift">The shift to add</param>
     Task<Shift> AddWithSealedOrderHandling(Shift shift);
 
     Task<List<Shift>> GetOpenOrdersAsync(OpenOrderFilter filter, CancellationToken cancellationToken = default);
@@ -93,6 +98,11 @@ public interface IShiftRepository : IBaseRepository<Shift>
 
     Task<Shift?> FindActiveByExternalReferenceAsync(string sourceSystemId, string externalOrderReference, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Saves a shift. The save that seals an order creates its plannable copy, which is returned. The save that seals a
+    /// container creates no copy: the row takes the shape of ContainerShiftRules and is returned itself.
+    /// </summary>
+    /// <param name="shift">The shift to save; a form save cannot change its cut hierarchy</param>
     Task<Shift?> PutWithSealedOrderHandling(Shift shift);
 
     Task CopyRequiredQualificationsAsync(Guid sourceShiftId, Guid targetShiftId, CancellationToken cancellationToken = default);

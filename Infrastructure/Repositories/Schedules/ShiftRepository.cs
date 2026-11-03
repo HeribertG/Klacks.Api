@@ -550,6 +550,11 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     public async Task<Shift> AddWithSealedOrderHandling(Shift shift)
     {
+        if (ContainerShiftRules.IsBeingSealed(shift))
+        {
+            ContainerShiftRules.ApplyOneRowShape(shift);
+        }
+
         await Add(shift);
 
         if (shift.Status != ShiftStatus.SealedOrder)
@@ -614,6 +619,11 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             shift.OriginalId = existing.OriginalId;
             shift.Lft = existing.Lft;
             shift.Rgt = existing.Rgt;
+        }
+
+        if (previousStatus != ShiftStatus.SealedOrder && ContainerShiftRules.IsBeingSealed(shift))
+        {
+            ContainerShiftRules.ApplyOneRowShape(shift);
         }
 
         var updatedShift = await Put(shift);

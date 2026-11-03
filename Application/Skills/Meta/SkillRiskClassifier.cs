@@ -523,8 +523,8 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "create_shift",
         "update_shift",
         "bundle_nearby_timerange_shifts_into_container",
-        // build_weekly_tours creates the sealed tour containers of a group and writes their weekday templates in one
-        // transaction that verifies by re-reading (all or nothing). Sealed containers cannot be taken back by a skill of
+        // build_weekly_tours creates the tour containers of a group and writes their weekday templates in one
+        // transaction that verifies by re-reading (all or nothing). The containers cannot be taken back by a skill of
         // its own; delete_shift (Sensitive) removes a container that has no works.
         "build_weekly_tours",
         "add_container_template_task",

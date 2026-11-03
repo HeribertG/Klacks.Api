@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Writes ONE planned tour: creates its sealed container order (active only on the weekdays that have services, linked to the
+/// Writes ONE planned tour: creates its container (active only on the weekdays that have services, linked to the
 /// groups), holds the container's template lock, and for every weekday runs the container autofill restricted to the
 /// services of that tour on that day (ContainerAutofillRequest.RestrictToShiftIds), so no service of another tour can be
 /// picked. The visible picks are placed on the route (ContainerVisitPlanner) and all weekday templates are written and
@@ -10,7 +10,7 @@
 /// service at all, a lock that cannot be taken or a template that cannot be confirmed throws a SkillVerificationException,
 /// which rolls the whole run back.
 /// </summary>
-/// <param name="shiftRepository">Persists the container order</param>
+/// <param name="shiftRepository">Persists the container</param>
 /// <param name="unitOfWork">Saves the container before it is autofilled</param>
 /// <param name="mediator">Takes the template lock</param>
 /// <param name="containerAutofillService">Selects and routes the services of a weekday</param>

@@ -179,6 +179,7 @@ public class KlacksOntologyService : IKlacksOntologyService
             "Shift.ShiftType: 0=IsTask (a single service), 1=IsContainer (a container bundling services via ContainerTemplate).",
             "Shift.Status lifecycle: 0=OriginalOrder (editable) -> seal -> 1=SealedOrder (immutable snapshot, the order/'Bestellung') -> clone -> 2=OriginalShift (plannable) -> cut -> N x 3=SplitShift.",
             "End state is SealedOrder + exactly ONE OriginalShift, or SealedOrder + N SplitShifts — never both; an OriginalShift alongside its own splits double-books.",
+            "Exception: a container (ShiftType=IsContainer) is an internal template and never has an order. It is one row: Status OriginalShift, OriginalId null, no SealedOrder row, and it cannot be cut; it is split only in the Schedule through its Work children.",
             "Cut tree: OriginalId always points at the SealedOrder; ParentId/RootId carry the cut hierarchy (RootId conventions differ between seeded and freshly cut trees — never rely on RootId alone).",
             "FromDate/UntilDate bound the planning period; IsMonday..IsSunday = ticked days, skipped on public holidays unless IsWeekdayAndHoliday; IsHoliday adds every public holiday.",
             "For a sporadic Shift (IsSporadic) placing a Work is REJECTED twice over: when the employees engaged that day reach EffectiveSumEmployees (day capacity), and when the booked days inside the sporadic range reach EffectiveQuantity (range capacity). SporadicScope: 0=Week, 1=Month, 2=Quarter, 3=Semester, 4=Year, 5=ContractualTerm.",

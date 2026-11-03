@@ -5,7 +5,8 @@
 /// order reference and cut-tree fields of the request are discarded and any other status is refused with 400.
 /// Enforces ClientlessOrderRules before anything is written: a draft
 /// without a customer is refused outright, and an order that deliberately has none must already meet
-/// the sealing requirements, because it is sealed on creation and sealing cannot be undone.
+/// the sealing requirements, because it is sealed on creation and sealing cannot be undone. A sealed container is none of
+/// these: the repository stores it as the one row of ContainerShiftRules, without an order.
 /// A request with a token creates the shift in that variant (key): IVariantShiftWriteGuard refuses every other token, and
 /// the shift always starts as a sealed order that carries the token on itself and on its group items, so the repository
 /// derives the plannable copy with the same token. The token is set here, never mapped from the resource.

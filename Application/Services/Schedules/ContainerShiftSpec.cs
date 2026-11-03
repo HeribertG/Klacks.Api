@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// What a skill decides about a container it creates; ContainerShiftFactory turns it into the sealed container order.
+/// What a skill decides about a container it creates; ContainerShiftFactory turns it into the one container row.
 /// </summary>
 /// <param name="Name">Name of the container</param>
 /// <param name="Abbreviation">Abbreviation of the container</param>

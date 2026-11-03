@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Skill that sets the until-date on an already-sealed order (status SealedOrder) — the single
+/// Skill that sets the until-date on an already-sealed order (status SealedOrder) or on a container, which has no order
+/// and is a family of one row (ContainerShiftRules) — the single
 /// permitted change to an otherwise immutable order, per the shift lifecycle documented by
 /// explain_shift_lifecycle_order_to_shift. Only allowed once: the sealed order must not already have
 /// an until-date. Through the same IShiftFamilyEndService as the edit form it ends the whole family: no work may exist
@@ -22,6 +23,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.Shifts;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -64,7 +66,7 @@ public class SetSealedOrderUntilDateSkill : BaseSkillImplementation
             return SkillResult.Error($"Order with ID {shiftId} not found.");
         }
 
-        if (shift.Status != ShiftStatus.SealedOrder)
+        if (shift.Status != ShiftStatus.SealedOrder && !ContainerShiftRules.HasOneRowShape(shift))
         {
             if (shift.Status == ShiftStatus.OriginalOrder)
             {

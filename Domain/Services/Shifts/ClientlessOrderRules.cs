@@ -49,7 +49,8 @@ public static class ClientlessOrderRules
 
     /// <summary>
     /// True when the shift is a draft order carrying no customer — the state rule 1 refuses.
-    /// Containers are exempt: they are templates rather than orders and never name a customer.
+    /// Containers are exempt: they are templates rather than orders and never name a customer. A container may still be a
+    /// draft while its form is being filled in; once sealed it is one row without an order (ContainerShiftRules).
     /// </summary>
     public static bool IsDraftWithoutCustomer(Shift shift) =>
         shift.ShiftType != ShiftType.IsContainer

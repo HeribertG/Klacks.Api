@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Self-verifying skill that bundles all nearby mobile TimeRange services around a location into ONE
-/// new container shift: it creates a sealed container order (ShiftType.IsContainer), runs
+/// new container shift: it creates the container (ShiftType.IsContainer, one row without an order), runs
 /// IContainerAutofillService to select and route-optimize the matching TimeRange shifts for exactly one
 /// weekday, and persists the resulting weekday template — all inside a single database transaction that
 /// rolls back completely (no orphaned empty container) when nothing matches or the write cannot be
@@ -21,7 +21,7 @@
 /// <param name="weekday">ISO weekday 1=Monday..7=Sunday to fill the template for.</param>
 /// <param name="fromTime">Start of the day's time budget (HH:mm).</param>
 /// <param name="untilTime">End of the day's time budget (HH:mm); must be after fromTime.</param>
-/// <param name="fromDate">Date from which the container order is valid (YYYY-MM-DD).</param>
+/// <param name="fromDate">Date from which the container is valid (YYYY-MM-DD).</param>
 /// <param name="untilDate">Optional end date of validity (YYYY-MM-DD).</param>
 /// <param name="transportMode">Optional: car|bicycle|foot|mix; defaults to car. Non-car modes require a
 /// configured OpenRouteService API key and OpenRouteService not being switched off by the operator.</param>
@@ -185,7 +185,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : ContainerBundleSkil
     /// template while holding the container lock. Any SkillVerificationException rolls the whole operation back.
     /// </summary>
     /// <param name="request">Validated skill input</param>
-    /// <param name="spec">The sealed container order to build and persist</param>
+    /// <param name="spec">The container to build and persist</param>
     /// <param name="instanceId">Instance id the container lock is acquired under</param>
     private async Task<BundleOutcome> CreateAndFillContainerAsync(
         ContainerBundleRequest request, ContainerShiftSpec spec, string instanceId, CancellationToken cancellationToken)

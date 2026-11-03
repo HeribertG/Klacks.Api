@@ -185,7 +185,7 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
         {
             return (null,
                 $"Container '{container.Name}' has status {container.Status}; a template belongs to the plannable " +
-                "container shift (status OriginalShift). Pass the plannable shift's id, not the order's — " +
+                "container shift (status OriginalShift), which a draft container becomes when it is sealed — " +
                 "get_shift_details or search_shifts with status=container return it.");
         }
 

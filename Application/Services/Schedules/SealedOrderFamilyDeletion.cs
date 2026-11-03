@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Deletes a sealed order together with its plannable copy and cut pieces, but only while nothing is planned on them:
+/// Deletes a sealed order together with its plannable copy and cut pieces, or a container, whose family is its own row,
+/// but only while nothing is planned on them:
 /// the usage check covers the whole family, so a work on a cut piece blocks the delete of the order. The shifts are
 /// soft-deleted through the existing repository mechanics, which also soft-deletes their group links, default expenses and
 /// required qualifications. The role of the caller is not checked here.

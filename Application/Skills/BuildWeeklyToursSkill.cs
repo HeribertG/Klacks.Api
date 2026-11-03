@@ -3,7 +3,7 @@
 /// <summary>
 /// Self-verifying skill that turns the unused TimeRange services of a group into a fixed number of weekly tours (containers) in
 /// one call: each customer is assigned to exactly one tour by a deterministic geographic clustering (GeographicClusterer, via
-/// WeeklyTourPlanner), so every weekday service of a customer lands in the same tour. It creates one sealed container per tour
+/// WeeklyTourPlanner), so every weekday service of a customer lands in the same tour. It creates one container per tour
 /// (ContainerShiftFactory, named "{namePrefix} {number}", active only on the weekdays that have services, linked to the group)
 /// and, for every weekday, writes the template that the container autofill builds restricted to the services of that tour on
 /// that day (WeeklyTourBuilder, ContainerAutofillRequest.RestrictToShiftIds). The whole run is ONE database transaction:

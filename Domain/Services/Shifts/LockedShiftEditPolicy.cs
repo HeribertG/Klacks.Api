@@ -5,8 +5,9 @@
 /// A shift with status SealedOrder, OriginalShift or SplitShift keeps its content: name, abbreviation, description,
 /// dates, times, weekdays, headcount, address and client, type flags and its status can no longer be changed, and the
 /// shift can no longer be deleted, with one exception: an administrator may delete a whole sealed order family while no
-/// work, scenario clone or container reference exists on it (IsOrderFamilyDeletable names the shifts that qualify; the
-/// service that deletes the family checks the usage and the caller checks the role). Still editable are the groups,
+/// work, scenario clone or container reference exists on it, and a container, which has no order and is a family of one
+/// row, under the same conditions (IsOrderFamilyDeletable names the shifts that qualify; the service that deletes the
+/// family checks the usage and the caller checks the role). Still editable are the groups,
 /// default expenses, required qualifications, the macro
 /// and an end date that is still empty (set once; on a real shift it ends the whole family, see SetsFamilyEnd and
 /// IShiftFamilyEndService). The cut hierarchy fields, the ERP and scenario reference fields and
@@ -93,7 +94,9 @@ public static class LockedShiftEditPolicy
     public static bool IsDeletionLocked(Shift stored) => Applies(stored);
 
     public static bool IsOrderFamilyDeletable(Shift stored) =>
-        stored.Status == ShiftStatus.SealedOrder && stored.AnalyseToken == null && stored.ScenarioSourceShiftId == null;
+        (stored.Status == ShiftStatus.SealedOrder || ContainerShiftRules.HasOneRowShape(stored))
+        && stored.AnalyseToken == null
+        && stored.ScenarioSourceShiftId == null;
 
     private static bool TextDiffers(string? stored, string? incoming) =>
         !string.Equals(stored ?? string.Empty, incoming ?? string.Empty, StringComparison.Ordinal);
