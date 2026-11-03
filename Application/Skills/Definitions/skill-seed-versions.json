@@ -165,8 +165,8 @@
       "hash": "7C25CD5D052C36071AC0139736FE065054599D9660A69CC273C91F7533DA68A7"
     },
     "bundle_nearby_timerange_shifts_into_container": {
-      "version": 8,
-      "hash": "F558181C9556AED1F8DB2D586893036EEFFECD0F8EB857BA5B0A0A4C22514110"
+      "version": 9,
+      "hash": "5074071926F53F61520F474B691E7B8957524F23BDE4E5131BD4858658C1A2BC"
     },
     "cancel_company_rule": {
       "version": 5,
@@ -505,8 +505,8 @@
       "hash": "5D99E36416D4125C13F6955CD239780972590211F805902F4D4263DEDF1C28B4"
     },
     "delete_shift": {
-      "version": 8,
-      "hash": "BE78B14DE7CFAED1CE88D5A3D9046F5E03EC6F19E0527CBFE7D8ACC414A8A121"
+      "version": 9,
+      "hash": "ED221F4C1B70FA4C20C56CB9F4510C1F55A340E128E8E1FA30CF054889E0CA6A"
     },
     "delete_spam_rule": {
       "version": 6,
@@ -1677,8 +1677,8 @@
       "hash": "7FEBD242EC95032B450DBBB457C924944046530A25B3078E708E0787A2EAF6D6"
     },
     "seal_shift": {
-      "version": 6,
-      "hash": "F52C536605535FDC10507F72B118EC424CD5C575E9A6FD1446BBA023CB8D7486"
+      "version": 7,
+      "hash": "80F58AFD61DE38F013DF3C695A7F87D3A68E93558ABA57A6C2D8BA8B3C38D2F7"
     },
     "search_and_navigate": {
       "version": 7,
@@ -1777,8 +1777,8 @@
       "hash": "9C3B03D49475EE17463E99BB0886A7ABFB186419916C8271700B338B0EEE092F"
     },
     "set_sealed_order_until_date": {
-      "version": 6,
-      "hash": "484D6F4A1CB3DB0F08425CE29CB5EBC5650868956C5F4200B4156978394690F9"
+      "version": 7,
+      "hash": "F8E4A15FCB107012B0CD066B0568BCF866F094C5D7323E50F1933019AEA085FA"
     },
     "set_shift_preferences": {
       "version": 5,

@@ -6,7 +6,8 @@
 /// moves OriginalOrder to SealedOrder, PutWithSealedOrderHandling clones the row into the plannable
 /// OriginalShift (carrying its group items and expenses, and copying its required qualifications), and
 /// both rows are re-read before the commit so a write that did not land rolls back instead of being
-/// reported as a success. SealWithinTransactionAsync is the same transition without a transaction of its own, for a
+/// reported as a success. A container has no order: sealing a draft container leaves its one row in the shape of
+/// ContainerShiftRules, without a copy, and the id of that row is the plannable id. SealWithinTransactionAsync is the same transition without a transaction of its own, for a
 /// caller that changes, seals and cuts an order in one transaction (execute_order_review). There is no counterpart
 /// operation: a sealed order can never be unsealed.
 /// seal_shift may hand over a group to attach (groupToAttach, the group derived from the customer's address for an order
@@ -27,6 +28,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Shifts;
 
 namespace Klacks.Api.Application.Services.Orders;
 
@@ -237,16 +239,8 @@ public sealed class OrderSealingService : IOrderSealingService
 
         await _unitOfWork.CompleteAsync();
 
-        await ConfirmPersistedAsync(
-            () => _shiftRepository.GetNoTracking(orderId),
-            persisted => persisted.Status == ShiftStatus.SealedOrder,
-            string.Format(SealedOrderDescriptionFormat, sealableOrder.Name));
-
         var plannableShiftId = sealedResult.Id;
-        await ConfirmPersistedAsync(
-            () => _shiftRepository.GetNoTracking(plannableShiftId),
-            persisted => persisted.Status == ShiftStatus.OriginalShift && persisted.OriginalId == orderId,
-            string.Format(PlannableShiftDescriptionFormat, sealableOrder.Name));
+        await ConfirmSealedRowsAsync(sealableOrder, plannableShiftId);
 
         if (groupToAttach.HasValue)
         {
@@ -254,6 +248,29 @@ public sealed class OrderSealingService : IOrderSealingService
         }
 
         return plannableShiftId;
+    }
+
+    private async Task ConfirmSealedRowsAsync(Shift sealableOrder, Guid plannableShiftId)
+    {
+        var orderId = sealableOrder.Id;
+        if (ContainerShiftRules.IsContainer(sealableOrder))
+        {
+            await ConfirmPersistedAsync(
+                () => _shiftRepository.GetNoTracking(orderId),
+                ContainerShiftRules.HasOneRowShape,
+                string.Format(SealedOrderDescriptionFormat, sealableOrder.Name));
+            return;
+        }
+
+        await ConfirmPersistedAsync(
+            () => _shiftRepository.GetNoTracking(orderId),
+            persisted => persisted.Status == ShiftStatus.SealedOrder,
+            string.Format(SealedOrderDescriptionFormat, sealableOrder.Name));
+
+        await ConfirmPersistedAsync(
+            () => _shiftRepository.GetNoTracking(plannableShiftId),
+            persisted => persisted.Status == ShiftStatus.OriginalShift && persisted.OriginalId == orderId,
+            string.Format(PlannableShiftDescriptionFormat, sealableOrder.Name));
     }
 
     private static OrderSealingOutcome Refused(

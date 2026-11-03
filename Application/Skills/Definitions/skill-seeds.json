@@ -20731,7 +20731,7 @@
     {
       "name": "delete_shift",
       "area": "shift",
-      "description": "Soft-deletes a draft order. A plannable shift and a cut piece cannot be deleted; a sealed order can only be deleted by an administrator, together with all its pieces, and only while no work exists anywhere in the order. Refuses if the shift has cuts (a sub-shift tree) or still has works assigned (those must be reassigned/removed first), reporting the manual action needed. Takes the shift id from a previous search result.",
+      "description": "Soft-deletes a draft order. A plannable shift and a cut piece cannot be deleted; a sealed order can only be deleted by an administrator, together with all its pieces, and only while no work exists anywhere in the order. A container has no order and is deleted under the same rule, by its own id. Refuses if the shift has cuts (a sub-shift tree) or still has works assigned (those must be reassigned/removed first), reporting the manual action needed. Takes the shift id from a previous search result.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20804,7 +20804,7 @@
         "fr": "Supprimer un service",
         "it": "Elimina un turno"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "email_schedule_to_client",
@@ -35517,7 +35517,7 @@
     {
       "name": "seal_shift",
       "area": "shift",
-      "description": "Seals ONE order (Bestellung, status OriginalOrder) into a permanently immutable SealedOrder — the one-time lifecycle transition from explain_shift_lifecycle_order_to_shift. Sealing simultaneously creates the plannable shift (OriginalShift) that get_shift_details, search_shifts and cut_shift then operate on.",
+      "description": "Seals ONE order (Bestellung, status OriginalOrder) into a permanently immutable SealedOrder — the one-time lifecycle transition from explain_shift_lifecycle_order_to_shift. Sealing simultaneously creates the plannable shift (OriginalShift) that get_shift_details, search_shifts and cut_shift then operate on. A draft container gets no sealed order and no copy: its one row becomes the plannable container.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35601,12 +35601,12 @@
         "fr": "Sceller une seule commande",
         "it": "Sigilla un singolo ordine"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "set_sealed_order_until_date",
       "area": "shift",
-      "description": "Sets the until-date on a sealed order (status SealedOrder), the single permitted change to an otherwise immutable order (see explain_shift_lifecycle_order_to_shift). Only works once, and no work may exist after the requested date on its plannable shift or split parts. Ends the whole order: those rows get the same date and a part starting after it is removed. Re-reads the order from the database to confirm the write before reporting success.",
+      "description": "Sets the until-date on a sealed order (status SealedOrder) or on a container, which has no order, the single permitted change to an otherwise immutable order (see explain_shift_lifecycle_order_to_shift). Only works once, and no work may exist after the requested date on its plannable shift or split parts. Ends the whole order: those rows get the same date and a part starting after it is removed. Re-reads the order from the database to confirm the write before reporting success.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35615,7 +35615,7 @@
       "parameters": [
         {
           "name": "shiftId",
-          "description": "The unique ID (GUID) of the sealed order (status SealedOrder) to set the until-date on",
+          "description": "The unique ID (GUID) of the sealed order (status SealedOrder) or of the container to set the until-date on",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -35693,7 +35693,7 @@
         "fr": "Définir la date de fin d'une commande scellée",
         "it": "Imposta la data di fine di un ordine sigillato"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "list_shift_cuts",
@@ -39131,7 +39131,7 @@
         },
         {
           "name": "fromDate",
-          "description": "Start date of the new container order's validity in YYYY-MM-DD format. REQUIRED — always ask the user, never silently assume today.",
+          "description": "Start date of the new container's validity in YYYY-MM-DD format. REQUIRED — always ask the user, never silently assume today.",
           "type": "Date",
           "required": true,
           "defaultValue": null,
@@ -39139,7 +39139,7 @@
         },
         {
           "name": "untilDate",
-          "description": "Optional end date of the container order's validity in YYYY-MM-DD format. Leave empty for an ongoing/unlimited container. Must be >= fromDate.",
+          "description": "Optional end date of the container's validity in YYYY-MM-DD format. Leave empty for an ongoing/unlimited container. Must be >= fromDate.",
           "type": "Date",
           "required": false,
           "defaultValue": null,
@@ -39258,7 +39258,7 @@
         "fr": "Regrouper des services à plage horaire proches dans un conteneur",
         "it": "Raggruppa turni a fascia oraria vicini in un contenitore"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "explain_klacksy_memory",

@@ -5,7 +5,8 @@
 /// Only a draft order (status OriginalOrder) can be deleted; a sealed order, a plannable shift and a cut piece are
 /// refused with ShiftLockedException (409), because deleting one would orphan the rest of its order family. The one
 /// exception is an administrator deleting a sealed order: the whole family goes with it, but only while no work, scenario
-/// clone or container reference exists anywhere in the family (SealedOrderFamilyDeletion decides; the administrator role
+/// clone or container reference exists anywhere in the family, and the same delete of a container, which is a family of
+/// one row (SealedOrderFamilyDeletion decides; the administrator role
 /// is read from the current HTTP principal, so a call outside a web request never qualifies).
 /// Caller-side guards (shift has cuts / active works) live in the delete_shift skill. A shift a group-restricted caller
 /// may not see is answered like a missing one (null) and not touched. A shift of a variant (key) is outside the lock:

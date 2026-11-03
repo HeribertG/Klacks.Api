@@ -4,7 +4,8 @@
 /// Implements the write rules for shifts in a variant (key). A hidden variant is answered like a missing shift (404, same
 /// text, the id of the variant row stays out of it), a consumed one and one an Active scenario carries with the conflicts of
 /// ScenarioVariantAccess (409), every content problem with a BadRequestException (400)
-/// like the shift handlers that call this guard. A shift in a variant needs at least one group, because a group-less
+/// like the shift handlers that call this guard. A container cannot lie in a variant, because a variant holds order
+/// families and a container has no order. A shift in a variant needs at least one group, because a group-less
 /// shift is visible to everyone (ShiftGroupVisibilityFilter), and a customer, although a sealed order may otherwise have
 /// none (ClientlessOrderRules), and it lies with start and end inside the variant's period, so no key shift can become
 /// retroactive or open-ended demand when it is accepted. An edit of the sealed order or its plannable copy that changes a cut-relevant field
@@ -36,6 +37,8 @@ namespace Klacks.Api.Application.Services.ScenarioVariants;
 public class VariantShiftWriteGuard : IVariantShiftWriteGuard
 {
     public const string NotAVariantMessage = "A shift can only be created with the token of a variant";
+
+    public const string ContainerNotAllowedMessage = "A container has no order and cannot lie in a variant";
 
     public const string CustomerRequiredMessage = "A shift in a variant needs a customer";
 
@@ -186,6 +189,11 @@ public class VariantShiftWriteGuard : IVariantShiftWriteGuard
 
     private async Task EnsureContentAsync(AnalyseScenario variant, Shift shift, CancellationToken cancellationToken)
     {
+        if (ContainerShiftRules.IsContainer(shift))
+        {
+            throw new BadRequestException(ContainerNotAllowedMessage);
+        }
+
         if (!shift.ClientId.HasValue)
         {
             throw new BadRequestException(CustomerRequiredMessage);

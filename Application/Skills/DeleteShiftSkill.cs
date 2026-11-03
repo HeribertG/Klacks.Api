@@ -69,7 +69,9 @@ public class DeleteShiftSkill : BaseSkillImplementation
             var deleted = await _familyDeletion.DeleteAsync(existing, cancellationToken);
             return SkillResult.SuccessResult(
                 new { existing.Id, existing.Name, DeletedShifts = deleted },
-                $"Sealed order '{existing.Name}' deleted together with its {deleted - 1} piece(s).");
+                ContainerShiftRules.IsContainer(existing)
+                    ? $"Container '{existing.Name}' deleted."
+                    : $"Sealed order '{existing.Name}' deleted together with its {deleted - 1} piece(s).");
         }
 
         if (await _shiftRepository.HasChildrenAsync(shiftId, cancellationToken))

@@ -7,42 +7,64 @@
 /// per calendar day of the period, and two four-column summary blocks (AVANS / LICHIDARE) each with
 /// "zile lucrate", "ore suplim.I", "ore supllim.II" and "ore noapte" sub-columns, followed by an
 /// "OBSERVATII:" column. Data rows start on row 3, matching the vendor sample's own instruction
-/// ("linia 3 coloana 1").
+/// ("linia 3 coloana 1"). The day grid is always the fixed 31 day-of-month columns of the vendor
+/// sample (columns F..AJ), so the AVANS/LICHIDARE/OBSERVATII columns sit at fixed positions
+/// (AK, AO, AS) whatever the month length; days a month does not have stay blank.
 /// </summary>
 /// <remarks>
-/// Verified against the actual public WinMENTOR sample workbook (downloaded and parsed cell-by-cell,
+/// Layout source (recorded by an earlier review, not re-checked in the latest audit — see below):
+/// the public WinMENTOR sample workbook (downloaded and parsed cell-by-cell,
 /// not just described in docs): http://download.winmentor.ro/WinMentor/Documentatie/03_SALARII/Solutii/Import%20pontaje%20structura%202%20exemplu.xls
 /// Sheet name, Windows-1252 codepage, "linia 3 coloana 1" data start, the 5 identity columns, the
 /// 31 day-of-month columns and the AVANS/LICHIDARE 4-field blocks (incl. the vendor's own
 /// "supllim.II" and "Identi ficator formatie" spelling, preserved verbatim here for fidelity) were
 /// all confirmed this way. This corrects docs/knowledge/export-samples/findings-ch-pl-hu-gr-ro-balkan-ie-uk.md
 /// section 5 (RO), whose prose summary omitted the day-of-month columns entirely.
-/// The accompanying spec PDFs are scanned images with no text layer, so the full absence-code
-/// catalogue (concediu/boala codes) could not be verified; AbsenceMappingJson.Ausfallschluessel is
-/// therefore treated as an opaque, tenant-supplied WinMENTOR code and written as-is.
+/// Specification documents for this structure ("Structura import pontaje zilnice 2_xls - martie 2021"):
+/// http://ftp.winmentor.ro/WinMentor/Documentatie/03_SALARII/Solutii/Structura%20import%20pontaje%20zilnice%202_xls%20-%20martie%202021.pdf
+/// Audit 2026-11-02: none of the winmentor.ro hosts (download/ftp/portal) were reachable from the audit
+/// environment, so the sample and the PDFs could NOT be re-read. The one deviation fixed then follows
+/// from the sample findings recorded above: the sample has a fixed 31-column day grid, while this
+/// formatter had emitted one column per period date, which shifted the AVANS/LICHIDARE/OBSERVATII
+/// columns left in months shorter than 31 days (e.g. February: AVANS at AH instead of AK).
+/// Everything else in this header (header texts, merges, numeric hour cells, code cells) is unchanged
+/// and still rests only on the earlier review.
+/// Absence codes: the sister specification for structure 1 ("Structura import pontaje zilnice 1_xls - martie 2021",
+/// https://download2.winmentor.ro/WinMentor/Documentatie/03_SALARII/2022/Structura%20import%20pontaje%20zilnice%201_xls%20-%20martie%202021.pdf,
+/// read 2026-11-02) types every day field as Numeric (max. 2 digits) holding either that day's hours or the
+/// numeric code of an interruption from its legend (codes 25..57, e.g. 33 = Co concediu odihnă, 57 = Tm telemuncă).
+/// AbsenceMappingJson.Ausfallschluessel is the tenant-supplied WinMENTOR code: when it parses as a plain
+/// non-negative integer (e.g. "33") it is written as a number cell, matching the numeric day field; any other
+/// value (e.g. a legacy symbol like "CO") is written as text unchanged, for backward compatibility with
+/// existing mappings. Tenants should map to the numeric legend codes.
 /// Known simplifications, all deliberate MVP scope cuts:
-/// (1) File is written as .xlsx via ClosedXML, not the vendor's original .xls (OLE2/BIFF) — modern
-/// WinMENTOR versions generally accept .xlsx, but this is an assumption, not a confirmed fact.
+/// (1) File is written as .xlsx via ClosedXML, which cannot write the legacy .xls (OLE2/BIFF) format. The
+/// structure-1 specification states the import file type as ".xls (Excel)"; whether a given WinMENTOR version
+/// also accepts .xlsx is not confirmed. If the import rejects the file, the customer has to open it in Excel and
+/// re-save it as "Excel 97-2003 Workbook (*.xls)" before importing.
 /// (2) "Simbol formatie" / "Identi ficator formatie" (department code) are left blank: Klacks'
 /// PayrollExportGroupConfig has no per-employee department-code field to source them from.
-/// (3) Surcharge entries are added into the same day's numeric quantity, exactly like the other
-/// Tier-A/Tier-B formatters do when the target has no dedicated slot; the AVANS/LICHIDARE
-/// "ore suplim.I" / "ore supllim.II" / "ore noapte" sub-columns are always left blank because
+/// (3) A day cell holds worked hours only. Surcharge quantities are premium time (a surcharge on hours
+/// already worked), not additional worked hours, so adding them to the day cell would overstate the worked
+/// time; they are not written and are counted in SkippedUnmappedSurchargeCount (whatever their unit). The
+/// AVANS/LICHIDARE "ore suplim.I" / "ore supllim.II" / "ore noapte" sub-columns are always left blank because
 /// PayrollDayEntry has no overtime-tier or night-hours distinction to source them from.
 /// (4) Klacks has no salary-advance information, so the AVANS block is left empty and the worked days of the
 /// whole month are written to LICHIDARE, following the vendor sample's OBSERVATII rule ("without an advance
 /// leave AVANS empty, month total in LICHIDARE").
 /// (5) A day with a mapped Absence entry writes the absence code instead of hours; an unmapped
 /// Absence is counted in SkippedAbsenceCount (never dropped silently) and the day cell falls back
-/// to that day's summed WorkHours/Surcharge quantity instead. The hours and further absences of a day whose cell
+/// to that day's summed WorkHours quantity instead. The hours and further absences of a day whose cell
 /// holds an absence code (e.g. on-call duty plus a call-out) cannot be written and are counted in
 /// SkippedSupersededCount.
 /// (6) RecordCount here counts emitted employee rows (one row = the whole period), not individual
 /// entries, because this format is a per-employee calendar matrix rather than one row per entry.
-/// (7) Assumes the export period is a single calendar month; An/Luna are derived from StartDate and
-/// day headers are day-of-month numbers, so a multi-month period would produce misleading repeated
-/// day-of-month headers without raising an error.
+/// (7) The import is per month (An/Luna, derived from StartDate). Entries dated outside StartDate's
+/// calendar month cannot be placed in the fixed day-of-month grid without overwriting that month's
+/// cells; they are not written and are counted in SkippedSupersededCount (the closest existing
+/// counter), so they are never dropped silently.
 /// </remarks>
+using System.Globalization;
 using ClosedXML.Excel;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Enums;
@@ -68,6 +90,7 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
     private const string HeaderObservations = "OBSERVATII:";
 
     private const int IdentityColumnCount = 5;
+    private const int DayColumnCount = 31;
     private const int SummaryBlockColumnCount = 4;
     private const int HeaderRow = 1;
     private const int SubHeaderRow = 2;
@@ -83,16 +106,16 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
     {
         var counter = new PayrollExportSkipCounter();
         var absenceMapping = PayrollAbsenceMappingParser.Parse<PayrollAbsenceMapping>(config.AbsenceMappingJson, counter);
-        var dates = GetPeriodDates(data);
+        var dates = GetMonthDates(data);
 
         using var workbook = new XLWorkbook();
         var sheet = workbook.Worksheets.Add(SheetName);
 
-        var avansStartColumn = IdentityColumnCount + dates.Count + 1;
+        var avansStartColumn = IdentityColumnCount + DayColumnCount + 1;
         var lichidareStartColumn = avansStartColumn + SummaryBlockColumnCount;
         var observationsColumn = lichidareStartColumn + SummaryBlockColumnCount;
 
-        WriteHeader(sheet, dates, avansStartColumn, lichidareStartColumn, observationsColumn);
+        WriteHeader(sheet, avansStartColumn, lichidareStartColumn, observationsColumn);
 
         var row = FirstDataRow;
         var recordCount = 0;
@@ -100,6 +123,7 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
         foreach (var employee in data.Employees)
         {
             var entriesByDate = employee.Entries.GroupBy(e => e.Date).ToDictionary(g => g.Key, g => g.ToList());
+            counter.Superseded += employee.Entries.Count(e => !IsInExportMonth(e.Date, data.StartDate));
 
             sheet.Cell(row, 1).Value = data.StartDate.Year;
             sheet.Cell(row, 2).Value = data.StartDate.Month;
@@ -107,17 +131,16 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
 
             var workedDays = 0;
 
-            for (var i = 0; i < dates.Count; i++)
+            foreach (var date in dates)
             {
-                var date = dates[i];
-                var column = IdentityColumnCount + 1 + i;
+                var column = DayColumn(date.Day);
                 entriesByDate.TryGetValue(date, out var dayEntries);
 
                 var (absenceCode, hours, isWorkedDay) = ResolveDayCell(dayEntries, absenceMapping, counter);
 
                 if (absenceCode is not null)
                 {
-                    sheet.Cell(row, column).Value = absenceCode;
+                    WriteAbsenceCode(sheet.Cell(row, column), absenceCode);
                 }
                 else if (hours.HasValue)
                 {
@@ -144,7 +167,6 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
 
     private static void WriteHeader(
         IXLWorksheet sheet,
-        List<DateOnly> dates,
         int avansStartColumn,
         int lichidareStartColumn,
         int observationsColumn)
@@ -160,10 +182,10 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
             sheet.Range(HeaderRow, i + 1, SubHeaderRow, i + 1).Merge();
         }
 
-        for (var i = 0; i < dates.Count; i++)
+        for (var day = 1; day <= DayColumnCount; day++)
         {
-            var column = IdentityColumnCount + 1 + i;
-            sheet.Cell(HeaderRow, column).Value = dates[i].Day;
+            var column = DayColumn(day);
+            sheet.Cell(HeaderRow, column).Value = day;
             sheet.Range(HeaderRow, column, SubHeaderRow, column).Merge();
         }
 
@@ -185,9 +207,21 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
     }
 
     /// <summary>
+    /// Writes a mapped absence code: a plain non-negative integer (the numeric legend codes of the WinMENTOR
+    /// day fields, e.g. 33) as a number cell, anything else as text.
+    /// </summary>
+    private static void WriteAbsenceCode(IXLCell cell, string absenceCode)
+    {
+        cell.Value = int.TryParse(absenceCode, NumberStyles.None, CultureInfo.InvariantCulture, out var numericCode)
+            ? numericCode
+            : absenceCode;
+    }
+
+    /// <summary>
     /// Decides the one cell of a day and accounts for every entry of that day: a mapped absence code wins the cell
-    /// and supersedes all other entries of the day (they are counted, not dropped); without one, the hour entries
-    /// are summed into the cell. Unmapped absences, day-based hour entries and unknown kinds are counted.
+    /// and supersedes all other entries of the day (they are counted, not dropped); without one, the WorkHours
+    /// entries are summed into the cell. Surcharge entries are never written (premium time, not worked hours) and
+    /// are counted as unmapped surcharges. Unmapped absences, day-based hour entries and unknown kinds are counted.
     /// </summary>
     private static (string? AbsenceCode, decimal? Hours, bool IsWorkedDay) ResolveDayCell(
         List<PayrollDayEntry>? dayEntries,
@@ -208,11 +242,15 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
         {
             switch (entry.Kind)
             {
-                case PayrollEntryKind.WorkHours or PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                case PayrollEntryKind.Surcharge:
+                    counter.UnmappedSurcharges++;
+                    break;
+
+                case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
                     counter.UnsupportedUnits++;
                     break;
 
-                case PayrollEntryKind.WorkHours or PayrollEntryKind.Surcharge:
+                case PayrollEntryKind.WorkHours:
                     hourEntries.Add(entry);
                     break;
 
@@ -256,10 +294,18 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
         return (null, hours > 0 ? hours : null, hours > 0);
     }
 
-    private static List<DateOnly> GetPeriodDates(PayrollExportData data)
+    private static int DayColumn(int dayOfMonth) => IdentityColumnCount + dayOfMonth;
+
+    private static bool IsInExportMonth(DateOnly date, DateOnly start) =>
+        date.Year == start.Year && date.Month == start.Month;
+
+    /// <summary>
+    /// The period dates that fall into StartDate's calendar month; the fixed day grid can hold only one month.
+    /// </summary>
+    private static List<DateOnly> GetMonthDates(PayrollExportData data)
     {
         var dates = new List<DateOnly>();
-        for (var date = data.StartDate; date <= data.EndDate; date = date.AddDays(1))
+        for (var date = data.StartDate; date <= data.EndDate && IsInExportMonth(date, data.StartDate); date = date.AddDays(1))
         {
             dates.Add(date);
         }

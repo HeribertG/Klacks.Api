@@ -7080,7 +7080,7 @@
         "fr": "Trouver les services-tâches TimeRange mobiles autour d'une ville ou d'une localité pour un jour de la semaine et les regrouper automatiquement dans un nouveau service conteneur optimisé par itinéraire avec son modèle hebdomadaire.",
         "it": "Trovare i servizi-attività TimeRange mobili attorno a una città o una località per un giorno della settimana e raggrupparli automaticamente in un nuovo servizio contenitore ottimizzato per il percorso con il relativo modello settimanale."
       },
-      "version": 7,
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 47,
       "trigger": {
@@ -7304,7 +7304,7 @@
             "fr": "À partir de quelle date le conteneur doit-il être valide (AAAA-MM-JJ) ?",
             "it": "Da quale data deve essere valido il contenitore (AAAA-MM-GG)?"
           },
-          "description": "the start date (YYYY-MM-DD) the new container order becomes valid"
+          "description": "the start date (YYYY-MM-DD) the new container becomes valid"
         },
         {
           "kind": "mutate",

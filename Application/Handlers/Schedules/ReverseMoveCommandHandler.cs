@@ -2,9 +2,9 @@
 
 /// <summary>
 /// Takes an applied move back: the work returns to the person it came from through the Work reassignment, with all its guards
-/// and a new macro run. Only the last move of a work can go back: when the work has moved on since, or something holds it in
-/// place, the planner is told why and nothing changes. The recorded answer stays, the absence stays too and shows in the error
-/// list as long as the work stands on it.
+/// and a new macro run. Only the last move of a work can go back: when the work has moved on since, something holds it in
+/// place, or the person it came from is not free at its time (another service, or the absence that caused the move is still
+/// running), the planner is told why and nothing changes. The recorded answer stays.
 /// </summary>
 /// <param name="repository">Finds the Move row</param>
 /// <param name="clientVisibilityGuard">Refuses a row of a person outside the caller's visibility like a missing one</param>

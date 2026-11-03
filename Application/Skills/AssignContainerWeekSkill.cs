@@ -6,7 +6,7 @@
 /// decided by ContainerWeekBookingPlanner (existing booking, sealed day, planning period, blocking schedule conflict);
 /// every date that is left out is returned with its reason. All remaining dates go through ONE BulkAddWorksCommand, the
 /// same pipeline as place_work, so ContainerWorkExpansionService expands the sub-works and sub-breaks of each day and the
-/// period hours are recalculated. A SealedOrder id is resolved to the plannable container copy the templates hang on.
+/// period hours are recalculated.
 /// Atomicity: the pipeline commits and notifies on its own (as place_work does), so this skill is not wrapped in a
 /// transaction and cannot roll the command back. What it guarantees instead: nothing is sent for a date that fails a
 /// check before the write, the command itself is all or nothing (a refusal is answered as an error and books nothing),
@@ -14,12 +14,11 @@
 /// and, where the template holds task visits, sub-works. A date that cannot be confirmed is returned as an error naming
 /// it and the dates that were confirmed, never as a success.
 /// </summary>
-/// <param name="containerId">Required. UUID of the container shift (ShiftType.IsContainer), or of its sealed order.</param>
+/// <param name="containerId">Required. UUID of the container shift (ShiftType.IsContainer).</param>
 /// <param name="clientId">Required. UUID of the employee to book.</param>
 /// <param name="fromDate">Required. First date of the range (ISO yyyy-MM-dd).</param>
 /// <param name="untilDate">Required. Last date of the range (ISO yyyy-MM-dd); at most MaxRangeDays days in total.</param>
 /// <param name="shiftRepository">Reads the container shift</param>
-/// <param name="shiftReader">Finds the plannable copy of a sealed container order</param>
 /// <param name="shiftVisibilityGuard">Answers a hidden container exactly like a missing one</param>
 /// <param name="childrenRepository">Reads the sub-works of a booked container work; they belong to the customer of each visit, not to the employee</param>
 /// <param name="clientVisibilityGuard">Answers a hidden employee exactly like an unknown one</param>
@@ -59,8 +58,6 @@ public class AssignContainerWeekSkill : BaseSkillImplementation
     private const string DateRequiredMessage = "{0} is required (ISO date yyyy-MM-dd).";
     private const string RangeOrderMessage = "untilDate ({0}) must not be before fromDate ({1}).";
     private const string RangeTooLongMessage = "The range may span at most {0} days; ask the user for a shorter range.";
-    private const string NoPlannableCopyMessage =
-        "The container order {0} has no plannable container shift to book on.";
     private const string NoTemplatesMessage =
         "The container '{0}' has no weekday template yet, so there is nothing to book — configure its template first.";
     private const string NothingToBookMessage = "Nothing was booked: {0}";
@@ -72,7 +69,6 @@ public class AssignContainerWeekSkill : BaseSkillImplementation
 
     private readonly IMediator _mediator;
     private readonly IShiftRepository _shiftRepository;
-    private readonly IShiftReader _shiftReader;
     private readonly IContainerTemplateRepository _containerTemplateRepository;
     private readonly IWorkRepository _workRepository;
     private readonly IContainerWorkChildrenReadRepository _childrenRepository;
@@ -84,7 +80,6 @@ public class AssignContainerWeekSkill : BaseSkillImplementation
     public AssignContainerWeekSkill(
         IMediator mediator,
         IShiftRepository shiftRepository,
-        IShiftReader shiftReader,
         IContainerTemplateRepository containerTemplateRepository,
         IWorkRepository workRepository,
         IContainerWorkChildrenReadRepository childrenRepository,
@@ -97,7 +92,6 @@ public class AssignContainerWeekSkill : BaseSkillImplementation
     {
         _mediator = mediator;
         _shiftRepository = shiftRepository;
-        _shiftReader = shiftReader;
         _containerTemplateRepository = containerTemplateRepository;
         _workRepository = workRepository;
         _childrenRepository = childrenRepository;
@@ -202,18 +196,7 @@ public class AssignContainerWeekSkill : BaseSkillImplementation
             return (null, $"Shift {id} is not a container shift (ShiftType must be IsContainer).");
         }
 
-        if (shift.Status != ShiftStatus.SealedOrder)
-        {
-            return (shift, null);
-        }
-
-        var plannable = await _shiftReader.FindFirstByOriginalIdAsync(shift.Id, ShiftStatus.OriginalShift, cancellationToken);
-        if (plannable is null || !await _shiftVisibilityGuard.IsVisibleAsync(plannable.Id, cancellationToken))
-        {
-            return (null, string.Format(NoPlannableCopyMessage, id));
-        }
-
-        return (await _shiftRepository.Get(plannable.Id) ?? plannable, null);
+        return (shift, null);
     }
 
     private async Task<(BulkWorksResponse? Response, string? Refusal)> BookAsync(

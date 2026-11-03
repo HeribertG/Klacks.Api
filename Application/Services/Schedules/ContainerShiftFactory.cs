@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Builds the sealed container order (ShiftType.IsContainer, SealedOrder) the container-building skills persist through
-/// IShiftRepository.AddWithSealedOrderHandling: a container order for a time frame, active on the given ISO weekdays, with
-/// one employee and quantity one, linked to the given groups. The id is minted here, so a skill calls it inside the
-/// transaction lambda and a retry builds a fresh container.
+/// Builds the container (ShiftType.IsContainer) the container-building skills persist through
+/// IShiftRepository.AddWithSealedOrderHandling: one row in the shape of ContainerShiftRules, status OriginalShift and no
+/// OriginalId, for a time frame, active on the given ISO weekdays, with one employee and quantity one, linked to the given
+/// groups. A container has no order, so the row carries the templates and the works itself. The id is minted here, so a
+/// skill calls it inside the transaction lambda and a retry builds a fresh container.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -30,7 +31,7 @@ public static class ContainerShiftFactory
             Description = string.Empty,
             ClientId = null,
             MacroId = spec.MacroId,
-            Status = ShiftStatus.SealedOrder,
+            Status = ShiftStatus.OriginalShift,
             ShiftType = ShiftType.IsContainer,
             IsTimeRange = false,
             StartShift = spec.FromTime,

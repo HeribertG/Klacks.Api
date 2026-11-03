@@ -148,7 +148,7 @@ In einem Spital, einem Restaurant oder einem Salon ist der kundenlose Dienst dam
 - Eine Bestellung im Status `OriginalOrder` **ohne** Kunde wird abgelehnt.
 - Ein kundenloser Dienst wird sofort versiegelt und muss deshalb schon beim Anlegen vollständig sein (Abkürzung, Name, Startdatum, mindestens ein Wochentag oder Feiertag, mindestens eine Gruppe, Anzahl Aufgaben > 0, Mitarbeiterzahl > 0).
 
-Container sind davon nicht betroffen: sie sind Vorlagen, keine Bestellungen, und tragen nie einen Kunden.
+Container sind davon nicht betroffen: sie sind Vorlagen, keine Bestellungen, und tragen nie einen Kunden. Beim Versiegeln entsteht bei einem Container deshalb weder eine versiegelte Bestellung noch eine Kopie: Er bleibt eine einzige Zeile mit Status `OriginalShift` ohne `OriginalId`.
 
 **Bestellungen über Klacksy anlegen und versiegeln:** Eine Bestellung, die Klacksy anlegt (`create_shift`), entsteht immer als offene **Bestellung** (`OriginalOrder`), nie direkt versiegelt. Versiegelt wird sie in einem eigenen Schritt mit `seal_shift`: Klacksy zeigt zuerst eine Vorschau der Bestellung, und versiegelt wird erst, wenn du diese Vorschau in deiner nächsten Antwort ausdrücklich bestätigst; erst danach entsteht der planbare Dienst, der gebucht und zugeschnitten werden kann. Klacksy versiegelt nie mehrere Bestellungen auf einmal. Weil eine Bestellung ohne Gruppe nicht versiegelbar ist, leitet der Skill `assign_orders_to_groups` die Gruppe jeder noch gruppenlosen Bestellung aus der Adresse ihres Kunden ab (Ort, sonst Kanton, sonst nächstgelegene Gruppe mit Koordinaten).
 
