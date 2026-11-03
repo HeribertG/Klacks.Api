@@ -2055,7 +2055,7 @@
   "schedule.move-reversal.held": "このシフトは確定済みまたは交代済みのため、担当者を変更できません。",
   "schedule.move-reversal.not-applied": "計画に反映された移動のみ取り消せます。",
   "schedule.move-reversal.already-reversed": "この移動はすでに取り消されています。",
-  "schedule.move-reversal.origin-busy": "この勤務の移動元の人はその時間に空いていません。別の勤務または不在が重なっています。",
+  "schedule.move-reversal.origin-busy": "このシフトの移動元の人はその時間に空いていません。別のシフトまたは不在が重なっています。",
   "schedule.move-reversal.not-found": "シフトが見つかりません。",
   "schedule.error-list.column.client": "従業員",
   "schedule.error-list.column.comment": "コメント",

@@ -358,6 +358,7 @@ public class PeriodHoursService : IPeriodHoursService
                 && w.CurrentDate >= startDate
                 && w.CurrentDate <= endDate
                 && w.AnalyseToken == analyseToken)
+            .Where(WorkOwnHours.Counts)
             .Select(w => new { w.ClientId, w.WorkTime, w.Surcharges, w.CurrentDate })
             .ToListAsync();
 

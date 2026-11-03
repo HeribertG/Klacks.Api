@@ -6,7 +6,8 @@
 /// closed, non-deleted, non-scenario entry in the period is exported exactly once, whatever groups the person
 /// belongs to (or none), optionally restricted to a set of client ids. A soft-deleted person is still exported: global
 /// query filters are ignored and the entry's own soft-delete, scenario and lock conditions are applied explicitly.
-/// Worked hours and the aggregated surcharge become separate day rows. The WorkChanges of closed works are projected
+/// Worked hours and the aggregated surcharge become separate day rows; a container child of the container's own person
+/// adds nothing of its own, because the container counts its time (WorkOwnHours, as in the period hours). The WorkChanges of closed works are projected
 /// per day with the period-hours rules (PayrollWorkChangeProjection): hour-bearing corrections and travel (including
 /// the briefing/debriefing rows of the container expansion) add to the work's employee, a replacement moves its hours
 /// and surcharges from the work's employee to the replacing person, who gets them as WorkHours/Surcharge rows on that
@@ -30,6 +31,7 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Infrastructure.Services.Exports;
 
@@ -61,7 +63,8 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
                 && w.CurrentDate >= fromDate
                 && w.CurrentDate <= untilDate
                 && w.Client != null
-                && (w.Client.Type == EntityTypeEnum.Employee || w.Client.Type == EntityTypeEnum.ExternEmp));
+                && (w.Client.Type == EntityTypeEnum.Employee || w.Client.Type == EntityTypeEnum.ExternEmp))
+            .Where(WorkOwnHours.Counts);
 
         IQueryable<Break> breaksQuery = _context.Break
             .IgnoreQueryFilters()

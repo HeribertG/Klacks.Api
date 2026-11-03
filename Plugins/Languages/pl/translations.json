@@ -2055,7 +2055,7 @@
   "schedule.move-reversal.held": "Dyżur jest potwierdzony lub zastąpiony i nie może już zmienić osoby.",
   "schedule.move-reversal.not-applied": "Cofnąć można tylko przeniesienie, które trafiło do planu.",
   "schedule.move-reversal.already-reversed": "To przeniesienie zostało już cofnięte.",
-  "schedule.move-reversal.origin-busy": "Osoba, od której pochodzi ta zmiana, nie jest wtedy wolna: przeszkadza inna zmiana lub nieobecność.",
+  "schedule.move-reversal.origin-busy": "Osoba, od której pochodzi ten dyżur, nie jest wtedy wolna: przeszkadza inny dyżur lub nieobecność.",
   "schedule.move-reversal.not-found": "Nie znaleziono dyżuru.",
   "schedule.error-list.column.client": "Pracownik",
   "schedule.error-list.column.comment": "Komentarz",

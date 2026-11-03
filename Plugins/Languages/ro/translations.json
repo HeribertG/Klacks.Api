@@ -2055,7 +2055,7 @@
   "schedule.move-reversal.held": "Tura este confirmată sau înlocuită și nu mai poate schimba persoana.",
   "schedule.move-reversal.not-applied": "Doar o mutare ajunsă în plan poate fi anulată.",
   "schedule.move-reversal.already-reversed": "Această mutare a fost deja anulată.",
-  "schedule.move-reversal.origin-busy": "Persoana de la care a venit acest serviciu nu este liberă la acea oră: un alt serviciu sau o absență împiedică acest lucru.",
+  "schedule.move-reversal.origin-busy": "Persoana de la care a venit această tură nu este liberă la acea oră: o altă tură sau o absență împiedică acest lucru.",
   "schedule.move-reversal.not-found": "Tura nu a fost găsită.",
   "schedule.error-list.column.client": "Angajat",
   "schedule.error-list.column.comment": "Comentariu",

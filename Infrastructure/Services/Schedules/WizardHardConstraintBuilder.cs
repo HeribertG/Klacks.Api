@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Klacks.ScheduleOptimizer.Models;
@@ -205,7 +206,8 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
     {
         // A work handed to a substitute (replacement WorkChange) is a committed cover, and a corrected work carries time
         // recorded for its own employee; both stay fixed like a sealed work, so the wizard neither plans the slot again
-        // nor deletes the work. A corrected work counts its correction hours like the period hours do.
+        // nor deletes the work. A corrected work counts its correction hours like the period hours do. A container child of
+        // the agent's own container stays locked but counts no hours: the container already counts its time (WorkOwnHours).
         var coveredWorkIds = covers.Select(c => c.WorkId).Concat(correctedWorkHours.Keys).ToList();
         var handedOverHours = covers.GroupBy(c => c.WorkId).ToDictionary(g => g.Key, g => g.Sum(c => c.Hours));
         // The frozen-prefix cut treats every work before replanFrom as locked regardless of its
@@ -223,6 +225,14 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
             .ToListAsync(ct);
 
         var locationContexts = await BuildLocationContextsAsync(rawWorks, ct);
+        var rawWorkIds = rawWorks.Select(w => w.Id).ToList();
+        var ownHourWorkIds = (await _context.Work
+                .AsNoTracking()
+                .Where(w => rawWorkIds.Contains(w.Id))
+                .Where(WorkOwnHours.Counts)
+                .Select(w => w.Id)
+                .ToListAsync(ct))
+            .ToHashSet();
 
         return rawWorks
             .Select(w =>
@@ -238,7 +248,9 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                     AgentId: w.ClientId.ToString(),
                     Date: w.CurrentDate,
                     ShiftTypeIndex: ShiftTypeInference.FromSpan(w.StartTime, w.EndTime),
-                    TotalHours: Math.Max(0m, w.WorkTime - handedOverHours.GetValueOrDefault(w.Id) + correctedWorkHours.GetValueOrDefault(w.Id)),
+                    TotalHours: ownHourWorkIds.Contains(w.Id)
+                        ? Math.Max(0m, w.WorkTime - handedOverHours.GetValueOrDefault(w.Id) + correctedWorkHours.GetValueOrDefault(w.Id))
+                        : 0m,
                     StartAt: startAt,
                     EndAt: endAt,
                     ShiftRefId: w.ShiftId,

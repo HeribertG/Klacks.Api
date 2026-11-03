@@ -218,6 +218,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         var worksHours = await context.Work
             .Where(w => clientIdsWithoutPeriodHours.Contains(w.ClientId) && w.CurrentDate >= startDate && w.CurrentDate <= endDate && w.AnalyseToken == analyseToken)
+            .Where(WorkOwnHours.Counts)
             .GroupBy(w => w.ClientId)
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })
             .ToListAsync(cancellationToken);
