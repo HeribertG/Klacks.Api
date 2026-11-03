@@ -20,5 +20,18 @@ public interface IContainerWorkChildrenReadRepository
 
     Task<List<WorkChange>> GetWorkChangesForWorks(IReadOnlyCollection<Guid> workIds, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Which of the given ids are taken in the work, break and work change tables, soft-deleted rows included, untracked.
+    /// A new child may only take an id nobody has taken.
+    /// </summary>
+    /// <param name="workIds">Ids a request wants to give new sub-works</param>
+    /// <param name="breakIds">Ids a request wants to give new sub-breaks</param>
+    /// <param name="workChangeIds">Ids a request wants to give new work changes</param>
+    Task<UsedEntryIds> GetUsedEntryIds(
+        IReadOnlyCollection<Guid> workIds,
+        IReadOnlyCollection<Guid> breakIds,
+        IReadOnlyCollection<Guid> workChangeIds,
+        CancellationToken cancellationToken);
+
     Task<ContainerTemplate?> GetContainerTemplate(Guid containerId, int weekday, bool isHoliday, CancellationToken cancellationToken);
 }

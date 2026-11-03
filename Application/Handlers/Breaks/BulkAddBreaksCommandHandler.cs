@@ -3,13 +3,16 @@
 /// <summary>
 /// Creates several breaks (absence entries) in one call after the day-lock and duplicate-absence guards
 /// have passed. If any break is for a client outside the caller's group visibility, the whole request is
-/// refused exactly like a request for a client that does not exist; nothing is written.
+/// refused exactly like a request for a client that does not exist; nothing is written. The credits are calculated first,
+/// then the absences take away the works they leave uncovered, unless the caller decides about those itself.
 /// </summary>
+/// <param name="workRemovalService">Takes away the works the absence leaves uncovered</param>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client of the request</param>
 
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -27,6 +30,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
     private readonly IBreakRepository _breakRepository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IBreakMacroService _breakMacroService;
+    private readonly IAbsenceWorkRemovalService _workRemovalService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IDayLockService _dayLockService;
@@ -35,6 +39,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
         IBreakRepository breakRepository,
         IClientVisibilityGuard clientVisibilityGuard,
         IBreakMacroService breakMacroService,
+        IAbsenceWorkRemovalService workRemovalService,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
         IDayLockService dayLockService,
@@ -44,6 +49,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
         _breakRepository = breakRepository;
         _clientVisibilityGuard = clientVisibilityGuard;
         _breakMacroService = breakMacroService;
+        _workRemovalService = workRemovalService;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
         _dayLockService = dayLockService;
@@ -97,8 +103,12 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
                 foreach (var b in breaks)
                 {
                     await _breakMacroService.ProcessBreakMacroAsync(b, paymentInterval);
-                    await _breakRepository.Add(b);
                 }
+
+                var taken = command.RemoveTakenWorks ? await FindTakenWorksAsync(breaks, cancellationToken) : [];
+                await _workRemovalService.WriteAndRemoveAsync(
+                    taken, () => AddAllAsync(breaks), cancellationToken);
+                response.TakenWorks = [.. taken];
 
                 var affected = breaks.Select(b => (b.ClientId, b.CurrentDate, b.AnalyseToken)).ToList();
                 await _completionService.SaveBulkAndTrackAsync(affected);
@@ -140,6 +150,28 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
 
             return response;
         }, "BulkAddBreaks", new { Count = command.Request.Breaks.Count });
+    }
+
+    private async Task<IReadOnlyList<RemovableWork>> FindTakenWorksAsync(List<Break> breaks, CancellationToken cancellationToken)
+    {
+        var taken = new List<RemovableWork>();
+        foreach (var scenario in breaks.GroupBy(b => b.AnalyseToken))
+        {
+            var absences = scenario
+                .Select(b => new AbsenceSpan(b.ClientId, b.AbsenceId, b.CurrentDate, b.StartTime, b.EndTime))
+                .ToList();
+            taken.AddRange(await _workRemovalService.FindAsync(absences, scenario.Key, cancellationToken));
+        }
+
+        return taken;
+    }
+
+    private async Task AddAllAsync(List<Break> breaks)
+    {
+        foreach (var b in breaks)
+        {
+            await _breakRepository.Add(b);
+        }
     }
 
     private async Task EnsureGuardsPassAsync(BulkAddBreaksCommand command, CancellationToken cancellationToken)

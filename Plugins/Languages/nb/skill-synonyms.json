@@ -431,14 +431,14 @@
     "godkjent, gjør det nøyaktig slik"
   ],
   "confirm_work": [
-    "bekreft denne vaktordren",
-    "lås vaktordren",
-    "fiks vaktordren",
-    "sikre vaktordren",
-    "godkjenn vaktordren",
-    "gjør denne tildelingen endelig",
-    "beskytt vakten mot veiviserne",
-    "sett vaktføringen til bekreftet"
+    "bekreft denne vakten",
+    "bekreft tjenesten",
+    "tjenesten fant sted",
+    "merk vakten som utført",
+    "bekreft gårsdagens tildeling",
+    "sett denne arbeidsoppføringen til bekreftet",
+    "bekreft at arbeidet ble utført",
+    "bekreft yasmines tidligvakt"
   ],
   "cover_absence": [
     "dekk et fravær",

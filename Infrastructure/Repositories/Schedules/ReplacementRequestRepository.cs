@@ -53,6 +53,20 @@ public class ReplacementRequestRepository : BaseRepository<ReplacementRequest>, 
             .ToList();
     }
 
+    public async Task<ReplacementRequest?> FindAppliedMoveAsync(
+        Guid workId, Guid absentClientId, Guid candidateClientId, CancellationToken cancellationToken)
+    {
+        return await context.ReplacementRequests
+            .Where(r => r.WorkId == workId
+                && r.AbsentClientId == absentClientId
+                && r.CandidateClientId == candidateClientId
+                && r.Kind == ReplacementRequestKind.Move
+                && r.AppliedAtUtc != null
+                && r.ReversedAtUtc == null)
+            .OrderBy(r => r.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<ReplacementRequest?> FindManualByWorkChangeIdAsync(Guid workChangeId, CancellationToken cancellationToken = default)
     {
         var staged = context.ReplacementRequests.Local.FirstOrDefault(r =>

@@ -387,7 +387,6 @@ public class PeriodHoursService : IPeriodHoursService
                 wc.ChangeTime,
                 wc.Surcharges,
                 wc.Type,
-                wc.ToInvoice,
                 wc.ReplaceClientId,
                 OriginalClientId = wc.Work.ClientId
             })

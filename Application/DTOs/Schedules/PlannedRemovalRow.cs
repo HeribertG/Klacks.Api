@@ -12,9 +12,11 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="StartTime">Start of the vacated interval.</param>
 /// <param name="EndTime">End of the vacated interval.</param>
 /// <param name="WorkId">Id of the work being vacated; matched by interval when null.</param>
+/// <param name="ExtraPaidHours">Travel and correction hours that leave with the work; none when they stay with the client.</param>
 public sealed record PlannedRemovalRow(
     Guid ClientId,
     DateOnly Date,
     TimeOnly StartTime,
     TimeOnly EndTime,
-    Guid? WorkId = null);
+    Guid? WorkId = null,
+    decimal ExtraPaidHours = 0m);

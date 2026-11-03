@@ -20,4 +20,15 @@ public static class LocalizedCommentParamKeys
     public const string Absence = "absence";
 
     public const string AbsenceMultiLanguage = Absence + MultiLanguageSuffix;
+
+    /// <summary>
+    /// Parameters the schedule error list shows to planners and that ForLanguage leaves out of skill results: the
+    /// absence type can reveal a health reason (illness, accident), so the uncovered-absence notice reaches the
+    /// language model with person, day and shift only. Skills that read absences directly are not covered.
+    /// </summary>
+    public static readonly IReadOnlySet<string> WithheldFromAssistant = new HashSet<string>(StringComparer.Ordinal)
+    {
+        Absence,
+        AbsenceMultiLanguage,
+    };
 }

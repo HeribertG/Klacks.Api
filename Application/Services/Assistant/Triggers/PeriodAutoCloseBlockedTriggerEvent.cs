@@ -12,6 +12,7 @@
 /// <param name="PeriodEndDate">Last day of the period that stays open; identifies it</param>
 /// <param name="ErrorCount">Open errors of the period; only meaningful for OpenErrors, zero otherwise</param>
 /// <param name="Reason">Why the period was not closed; TickLimitReached additionally carries the parameter limit</param>
+/// <param name="UnsealedWorkCount">Services of the period that are not sealed; only meaningful for UnsealedWorks, zero otherwise</param>
 
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
@@ -26,10 +27,12 @@ public sealed record PeriodAutoCloseBlockedTriggerEvent(
     DateOnly PeriodStartDate,
     DateOnly PeriodEndDate,
     int ErrorCount,
-    PeriodAutoCloseBlockReason Reason) : IAgentTriggerEvent
+    PeriodAutoCloseBlockReason Reason,
+    int UnsealedWorkCount = 0) : IAgentTriggerEvent
 {
     private const string BlockedDedupSegment = ":auto-close-blocked:";
     private const string LimitParameter = "limit";
+    private const string WorksParameter = "works";
 
     public string Kind => AgentTriggerKinds.PeriodAutoClose;
 
@@ -55,6 +58,11 @@ public sealed record PeriodAutoCloseBlockedTriggerEvent(
             if (Reason == PeriodAutoCloseBlockReason.TickLimitReached)
             {
                 summaryParams[LimitParameter] = PeriodAutoClose.MaxClosesPerTick.ToString(CultureInfo.InvariantCulture);
+            }
+
+            if (Reason == PeriodAutoCloseBlockReason.UnsealedWorks)
+            {
+                summaryParams[WorksParameter] = UnsealedWorkCount.ToString(CultureInfo.InvariantCulture);
             }
 
             return summaryParams;
@@ -83,6 +91,7 @@ public sealed record PeriodAutoCloseBlockedTriggerEvent(
         ["periodStartDate"] = PeriodStartDate,
         ["periodEndDate"] = PeriodEndDate,
         ["errorCount"] = ErrorCount,
+        ["unsealedWorkCount"] = UnsealedWorkCount,
         ["blockReason"] = Reason.ToString(),
         ["autoClosed"] = false
     };
@@ -100,6 +109,7 @@ public sealed record PeriodAutoCloseBlockedTriggerEvent(
         PeriodAutoCloseBlockReason.AutonomyBelowFull => ProactiveMessageI18nKeys.PeriodAutoCloseBlockedAutonomyBelowFull,
         PeriodAutoCloseBlockReason.AdminAutonomyMissing => ProactiveMessageI18nKeys.PeriodAutoCloseBlockedAdminAutonomyMissing,
         PeriodAutoCloseBlockReason.TickLimitReached => ProactiveMessageI18nKeys.PeriodAutoCloseBlockedTickLimit,
+        PeriodAutoCloseBlockReason.UnsealedWorks => ProactiveMessageI18nKeys.PeriodAutoCloseBlockedUnsealedWorks,
         _ => throw new ArgumentOutOfRangeException(nameof(reason), reason, "Unknown period auto-close block reason.")
     };
 }

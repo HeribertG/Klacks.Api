@@ -59,6 +59,10 @@ public static class ProactiveMessageI18nKeys
     /// The per-tick cap of the autonomous period close was reached; additionally carries the parameter limit.
     /// </summary>
     public const string PeriodAutoCloseBlockedTickLimit = "assistant.proactive.periodAutoCloseBlockedTickLimit";
+    /// <summary>
+    /// The automatic close found services that are not confirmed yet; additionally carries the parameter works.
+    /// </summary>
+    public const string PeriodAutoCloseBlockedUnsealedWorks = "assistant.proactive.periodAutoCloseBlockedUnsealedWorks";
     public const string UnstaffedShift = "assistant.proactive.unstaffedShift";
 
     /// <summary>

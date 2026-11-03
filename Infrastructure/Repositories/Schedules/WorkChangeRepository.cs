@@ -10,8 +10,10 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 using Klacks.Api.Infrastructure.Services.Schedules;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
@@ -72,6 +74,54 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
                 && wc.Work.ParentWorkId == null
                 && wc.ReplaceClientId != null
                 && replacementTypes.Contains(wc.Type))
+            .OrderBy(wc => wc.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<WorkChange>> ListReplacementsWrittenByScenarioAsync(
+        Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken = default)
+    {
+        var replacementTypes = ReplacementWorkChangeTypes.All.ToList();
+
+        var changes = await _context.WorkChange
+            .AsNoTracking()
+            .Include(wc => wc.Work)
+            .Where(wc => wc.Work!.AnalyseToken == analyseToken
+                && wc.Work.ClientId == clientId
+                && wc.Work.CurrentDate == date
+                && wc.Work.ParentWorkId == null
+                && wc.ReplaceClientId != null
+                && replacementTypes.Contains(wc.Type))
+            .OrderBy(wc => wc.Id)
+            .ToListAsync(cancellationToken);
+
+        var origins = await WorkCloneLineage.LoadRealOriginsAsync(
+            _context,
+            changes.Select(wc => wc.Work!).DistinctBy(work => work.Id).Select(work => (work.Id, work.ClonedFromWorkId)),
+            cancellationToken);
+        var realWorkIds = origins.Values.Select(origin => origin.WorkId).Distinct().ToList();
+        var settled = await _context.WorkChange.IgnoreQueryFilters().AsNoTracking()
+            .Where(wc => realWorkIds.Contains(wc.WorkId) && wc.ReplaceClientId != null)
+            .Select(wc => new { wc.WorkId, wc.Type, wc.ReplaceClientId, wc.Description })
+            .ToListAsync(cancellationToken);
+
+        return changes
+            .Where(wc => !origins.TryGetValue(wc.WorkId, out var origin)
+                || !settled.Any(real => real.WorkId == origin.WorkId
+                    && real.Type == wc.Type
+                    && real.ReplaceClientId == wc.ReplaceClientId
+                    && real.Description == wc.Description))
+            .ToList();
+    }
+
+    public async Task<List<WorkChange>> ListNonReplacementChangesAsync(
+        Guid workId, CancellationToken cancellationToken = default)
+    {
+        var replacementTypes = ReplacementWorkChangeTypes.All.ToList();
+
+        return await _context.WorkChange
+            .AsNoTracking()
+            .Where(wc => wc.WorkId == workId && !replacementTypes.Contains(wc.Type))
             .OrderBy(wc => wc.Id)
             .ToListAsync(cancellationToken);
     }

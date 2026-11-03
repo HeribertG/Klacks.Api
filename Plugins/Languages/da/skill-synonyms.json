@@ -437,14 +437,14 @@
     "godkendt, gør det præcis sådan"
   ],
   "confirm_work": [
-    "lås vagten for yasmine",
-    "bekræft morgenvagten den 15.",
-    "fastlæg denne vagt",
-    "godkend tildelingen",
-    "fixér arbejdet",
-    "gør denne tildeling endelig",
-    "beskyt vagten mod wizarderne",
-    "sæt vagten til bekræftet"
+    "bekræft denne vagt",
+    "bekræft tjenesten",
+    "tjenesten har fundet sted",
+    "markér vagten som arbejdet",
+    "bekræft gårsdagens tildeling",
+    "sæt denne arbejdspost til bekræftet",
+    "bekræft at arbejdet er udført",
+    "bekræft yasmines morgenvagt"
   ],
   "cover_absence": [
     "dæk et fravær med forslag",

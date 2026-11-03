@@ -90,7 +90,8 @@ public class ClientTimeline
     /// applies to a work day that stays on one company-local calendar day: a span across the night is no day or
     /// evening work, so an evening block and the next morning's block never merge beyond the default frame.
     /// The calendar day is a deliberate proxy: the legal day and evening window itself (CH: 06-23) is not checked.
-    /// Overlapping blocks belong to the same work day. Only Work blocks count.
+    /// Overlapping blocks belong to the same work day, and so do the parts of one work that a replacement within it left
+    /// below the minimum rest apart. Only Work blocks count.
     /// </summary>
     /// <param name="minRest">Required minimum daily rest (MinRestHours)</param>
     /// <param name="dailyWorkFrame">Maximum span of one work day from first start to last end, pauses included
@@ -118,7 +119,8 @@ public class ClientTimeline
             var gap = next.Start - latestEnding.End;
             var candidateLatest = next.End > latestEnding.End ? next : latestEnding;
             var isPauseWithinWorkDay = gap < minRest
-                && FitsDailyWorkFrame(workDayFirst, candidateLatest, dailyWorkFrame, defaultFrame);
+                && (next.SourceId == latestEnding.SourceId
+                    || FitsDailyWorkFrame(workDayFirst, candidateLatest, dailyWorkFrame, defaultFrame));
 
             if (gap < TimeSpan.Zero || isPauseWithinWorkDay)
             {

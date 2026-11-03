@@ -13,12 +13,13 @@
 /// <param name="surcharges">Optional surcharge value.</param>
 /// <param name="replaceClientId">Required only for Replacement* types — the client taking over.</param>
 /// <param name="description">Free-text description.</param>
-/// <param name="toInvoice">Whether this change is billable.</param>
+/// <param name="toInvoice">Optional. Defaults to true; false is refused because only a planner, supervisor or admin may switch billing off in the dialog.</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills;
@@ -52,6 +53,12 @@ public class AddWorkChangeSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        var refused = WorkChangeInvoiceRule.RefuseDisabling(parameters);
+        if (refused != null)
+        {
+            return refused;
+        }
+
         var workId = GetRequiredGuid(parameters, "workId");
         var typeStr = GetRequiredString(parameters, "type");
         var startTimeStr = GetRequiredString(parameters, "startTime");
@@ -60,7 +67,7 @@ public class AddWorkChangeSkill : BaseSkillImplementation
         var surcharges = GetParameter<decimal?>(parameters, "surcharges") ?? 0m;
         var replaceClientIdRaw = GetParameter<string>(parameters, "replaceClientId");
         var description = GetParameter<string>(parameters, "description") ?? string.Empty;
-        var toInvoice = GetParameter<bool?>(parameters, "toInvoice") ?? false;
+        var toInvoice = GetParameter<bool?>(parameters, WorkChangeInvoiceRule.ToInvoiceParameter) ?? WorkChangeDefaults.ToInvoice;
 
         if (!Enum.TryParse<WorkChangeType>(typeStr, ignoreCase: true, out var type))
         {

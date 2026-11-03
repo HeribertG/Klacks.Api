@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Promote step of an accept: moves the scenario's works of the period (with their work changes and expenses) onto the
-/// real shifts, discards boundary works and the works the day-lock plan keeps out, stamps the applied replacement
+/// real shifts, discards boundary works, the uncovered works of the scenario's new absences (a service that does not
+/// happen, the open place shows the gap) and the works the day-lock plan keeps out, stamps the applied replacement
 /// requests, promotes breaks and notes, discards the scenario shifts and their shift-scoped rows, turns temporary
 /// memberships into real ones and drops the scenario's planning constraints. The variants (keys) the scenario carries are
 /// promoted last, so the works that moved onto their shifts land on rows that turn real in the same commit. Everything is
@@ -16,6 +17,7 @@
 /// <param name="dayRowPromoter">Promotes the scenario breaks and schedule notes</param>
 /// <param name="ownedRowStager">Drops the scenario's planning constraints</param>
 /// <param name="variantPromoter">Turns the keys the scenario carries into real shifts</param>
+/// <param name="openSlotFinder">Finds the uncovered works of the scenario's new absences</param>
 /// <param name="logger">Logs what the day lock kept out of the accept</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
@@ -38,6 +40,7 @@ public sealed class ScenarioPromoter
     private readonly ScenarioDayRowPromoter _dayRowPromoter;
     private readonly ScenarioOwnedRowStager _ownedRowStager;
     private readonly ScenarioVariantPromoter _variantPromoter;
+    private readonly ScenarioOpenSlotFinder _openSlotFinder;
     private readonly ILogger<ScenarioPromoter> _logger;
 
     public ScenarioPromoter(
@@ -48,6 +51,7 @@ public sealed class ScenarioPromoter
         ScenarioDayRowPromoter dayRowPromoter,
         ScenarioOwnedRowStager ownedRowStager,
         ScenarioVariantPromoter variantPromoter,
+        ScenarioOpenSlotFinder openSlotFinder,
         ILogger<ScenarioPromoter> logger)
     {
         _context = context;
@@ -57,6 +61,7 @@ public sealed class ScenarioPromoter
         _dayRowPromoter = dayRowPromoter;
         _ownedRowStager = ownedRowStager;
         _variantPromoter = variantPromoter;
+        _openSlotFinder = openSlotFinder;
         _logger = logger;
     }
 
@@ -72,14 +77,16 @@ public sealed class ScenarioPromoter
         var cloneToSource = cloneShifts.ToDictionary(c => c.Id, c => c.SourceId);
         var now = DateTime.UtcNow;
 
+        var openSlots = await _openSlotFinder.FindAsync(token, fromDate, untilDate, ct);
         var scenarioWorks = await _context.Work.IgnoreQueryFilters()
             .Where(w => w.AnalyseToken == token && !w.IsDeleted).ToListAsync(ct);
         var (promotedWorkIds, boundaryWorkIds, discardedInPeriod, skippedWorks) =
-            ApplyToScenarioWorks(scenarioWorks, fromDate, untilDate, plan, cloneToSource, now);
+            ApplyToScenarioWorks(scenarioWorks, fromDate, untilDate, plan, cloneToSource, openSlots, now);
 
         await _replacementRequestBook.StageReplacementRequestsAppliedAsync(token, promotedWorkIds, cloneToSource, now, ct);
         await PromoteWorkChildrenAsync(token, promotedWorkIds, ct);
         await DiscardWorkChildrenAsync(token, boundaryWorkIds, now, ct);
+        await DiscardOpenSlotBreaksAsync(token, openSlots, now, ct);
 
         var (skippedWorkChanges, skippedExpenses) = await _lockSkipCounter.CountDiscardedChildChangesAsync(discardedInPeriod, plan, ct);
         var skippedBreaks = await _dayRowPromoter.PromoteScenarioBreaksAsync(token, fromDate, untilDate, plan, now, ct);
@@ -104,7 +111,7 @@ public sealed class ScenarioPromoter
     /// </summary>
     private static (List<Guid> Promoted, List<Guid> Boundary, List<Guid> DiscardedInPeriod, int SkippedWorks) ApplyToScenarioWorks(
         List<Work> scenarioWorks, DateOnly fromDate, DateOnly untilDate, AcceptDayLockPlan plan,
-        IReadOnlyDictionary<Guid, Guid> cloneToSource, DateTime now)
+        IReadOnlyDictionary<Guid, Guid> cloneToSource, IReadOnlySet<Guid> openSlots, DateTime now)
     {
         var promotedWorkIds = new List<Guid>();
         var boundaryWorkIds = new List<Guid>();
@@ -112,7 +119,9 @@ public sealed class ScenarioPromoter
         var discardedInPeriod = new List<Guid>();
         foreach (var w in scenarioWorks)
         {
-            if (w.CurrentDate < fromDate || w.CurrentDate > untilDate)
+            if (w.CurrentDate < fromDate || w.CurrentDate > untilDate
+                || openSlots.Contains(w.Id)
+                || (w.ParentWorkId is { } parentId && openSlots.Contains(parentId)))
             {
                 w.IsDeleted = true;
                 w.DeletedTime = now;
@@ -144,6 +153,20 @@ public sealed class ScenarioPromoter
         }
 
         return (promotedWorkIds, boundaryWorkIds, discardedInPeriod, skippedWorks);
+    }
+
+    private async Task DiscardOpenSlotBreaksAsync(Guid token, IReadOnlySet<Guid> openSlots, DateTime now, CancellationToken ct)
+    {
+        if (openSlots.Count == 0)
+        {
+            return;
+        }
+
+        var ids = openSlots.ToList();
+        var subBreaks = await _context.Break.IgnoreQueryFilters()
+            .Where(b => b.AnalyseToken == token && !b.IsDeleted && b.ParentWorkId != null && ids.Contains(b.ParentWorkId.Value))
+            .ToListAsync(ct);
+        foreach (var subBreak in subBreaks) { subBreak.IsDeleted = true; subBreak.DeletedTime = now; }
     }
 
     private async Task PromoteWorkChildrenAsync(Guid token, List<Guid> promotedWorkIds, CancellationToken ct)

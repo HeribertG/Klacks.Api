@@ -12,6 +12,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
@@ -41,6 +42,34 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         _baseQueryService = baseQueryService;
         _workMacroService = workMacroService;
         _contractDataProvider = contractDataProvider;
+    }
+
+    public async Task<bool> HoldsMovedWorkInScenarioAsync(Guid analyseToken, Guid clientId, CancellationToken cancellationToken)
+    {
+        return await context.Work
+            .AsNoTracking()
+            .AnyAsync(
+                work => work.AnalyseToken == analyseToken && work.ClientId == clientId && work.MovedFromClientId != null,
+                cancellationToken);
+    }
+
+    public async Task<List<Work>> ListMovedByScenarioAsync(
+        Guid analyseToken, Guid movedFromClientId, DateOnly date, CancellationToken cancellationToken)
+    {
+        var works = await context.Work
+            .AsNoTracking()
+            .Where(work => work.AnalyseToken == analyseToken
+                && work.MovedFromClientId == movedFromClientId
+                && work.CurrentDate == date
+                && work.ParentWorkId == null)
+            .OrderBy(work => work.Id)
+            .ToListAsync(cancellationToken);
+
+        var origins = await WorkCloneLineage.LoadRealOriginsAsync(
+            context, works.Select(work => (work.Id, work.ClonedFromWorkId)), cancellationToken);
+        return works
+            .Where(work => !origins.TryGetValue(work.Id, out var origin) || origin.MovedFromClientId != work.MovedFromClientId)
+            .ToList();
     }
 
     public override async Task Add(Work work)
@@ -196,16 +225,16 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var breaksHours = await context.Break
             .Where(b => clientIdsWithoutPeriodHours.Contains(b.ClientId) && b.CurrentDate >= startDate && b.CurrentDate <= endDate && b.AnalyseToken == analyseToken)
             .GroupBy(b => b.ClientId)
-            .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime) })
+            .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime), TotalBreakSurcharges = g.Sum(b => b.Surcharges) })
             .ToListAsync(cancellationToken);
 
         var workChanges = await context.WorkChange
             .Where(wc => (clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) || (wc.ReplaceClientId.HasValue && clientIdsWithoutPeriodHours.Contains(wc.ReplaceClientId.Value))) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate && wc.Work.AnalyseToken == analyseToken)
-            .Select(wc => new WorkChangeEntry(wc.Work!.ClientId, wc.ChangeTime, wc.Type, wc.ToInvoice, wc.ReplaceClientId, wc.Work.ClientId))
+            .Select(wc => new WorkChangeEntry(wc.Work!.ClientId, wc.ChangeTime, wc.Surcharges, wc.Type, wc.ReplaceClientId, wc.Work.ClientId))
             .ToListAsync(cancellationToken);
 
         var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalHours, Surcharges: x.TotalSurcharges));
-        var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => x.TotalBreaks);
+        var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalBreaks, Surcharges: x.TotalBreakSurcharges));
 
         var effectiveDataByClient = await _contractDataProvider.GetEffectiveContractDataForClientsAsync(clientIds, startDate);
         var membershipWindows = await MembershipWindowQuery.LoadAsync(context, clientIds, cancellationToken);
@@ -248,17 +277,74 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
+    public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, ServiceEndCutoff endedBy, CancellationToken cancellationToken = default)
     {
         var stamp = BulkUpdateAuditStamp.Now(context);
         var sealedAt = stamp.At;
         return await context.Work
             .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate == date && w.LockLevel < level)
+            .Where(WorkServiceEnd.EndedBy(endedBy))
             .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
             .ExecuteUpdateAsync(s => stamp.ApplyTo(s
                 .SetProperty(w => w.LockLevel, level)
                 .SetProperty(w => w.SealedAt, sealedAt)
                 .SetProperty(w => w.SealedBy, sealedBy)), cancellationToken);
+    }
+
+    public async Task<bool> HasUnendedByDayAndGroupAsync(DateOnly date, Guid groupId, WorkLockLevel level, ServiceEndCutoff endedBy, CancellationToken cancellationToken = default)
+    {
+        return await context.Work
+            .AsNoTracking()
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate == date && w.LockLevel < level)
+            .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted && gi.AnalyseToken == null))
+            .Where(WorkServiceEnd.NotEndedBy(endedBy))
+            .AnyAsync(cancellationToken);
+    }
+
+    public async Task<int> CountUnsealedForCloseAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, CancellationToken cancellationToken = default)
+    {
+        return await UnsealedParentWorksIn(startDate, endDate, groupId).CountAsync(cancellationToken);
+    }
+
+    public async Task<List<UnsealedWorkDto>> ListUnsealedForCloseAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, int limit, CancellationToken cancellationToken = default)
+    {
+        var rows = await UnsealedParentWorksIn(startDate, endDate, groupId)
+            .AsNoTracking()
+            .OrderBy(w => w.CurrentDate)
+            .ThenBy(w => w.StartTime)
+            .ThenBy(w => w.Id)
+            .Take(limit)
+            .Select(w => new
+            {
+                w.Id,
+                w.ClientId,
+                ClientFirstName = w.Client!.FirstName,
+                ClientName = w.Client.Name,
+                ClientCompany = w.Client.Company,
+                w.CurrentDate,
+                w.StartTime,
+                w.EndTime,
+                ShiftName = w.Shift!.Name
+            })
+            .ToListAsync(cancellationToken);
+
+        return rows
+            .Select(r => new UnsealedWorkDto(
+                r.Id, r.ClientId, UnsealedWorkClientName(r.ClientFirstName, r.ClientName, r.ClientCompany),
+                r.CurrentDate, r.StartTime, r.EndTime, r.ShiftName))
+            .ToList();
+    }
+
+    private IQueryable<Work> UnsealedParentWorksIn(DateOnly startDate, DateOnly endDate, Guid? groupId)
+    {
+        var works = groupId.HasValue ? GroupWorksIn(startDate, endDate, groupId.Value) : MainScheduleWorksIn(startDate, endDate);
+        return works.Where(w => w.ParentWorkId == null && w.LockLevel < WorkLockLevel.Confirmed && !w.Client!.IsDeleted);
+    }
+
+    private static string UnsealedWorkClientName(string? firstName, string name, string? company)
+    {
+        var person = string.Join(' ', new[] { firstName, name }.Where(part => !string.IsNullOrWhiteSpace(part)));
+        return person.Length > 0 ? person : company?.Trim() ?? string.Empty;
     }
 
     public async Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
@@ -308,7 +394,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     private static Dictionary<Guid, PeriodHoursResource> BuildFallbackPeriodHours(
         List<Guid> clientIds,
         Dictionary<Guid, (decimal Hours, decimal Surcharges)> worksHoursDict,
-        Dictionary<Guid, decimal> breaksHoursDict,
+        Dictionary<Guid, (decimal Hours, decimal Surcharges)> breaksHoursDict,
         List<WorkChangeEntry> workChanges,
         Dictionary<Guid, decimal> targetByClient)
     {
@@ -317,14 +403,14 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         foreach (var clientId in clientIds)
         {
             var workData = worksHoursDict.TryGetValue(clientId, out var wd) ? wd : (Hours: 0m, Surcharges: 0m);
-            var breaks = breaksHoursDict.TryGetValue(clientId, out var b) ? b : 0m;
+            var breakData = breaksHoursDict.TryGetValue(clientId, out var b) ? b : (Hours: 0m, Surcharges: 0m);
 
             var (workChangeHours, workChangeSurcharges) = CalculateWorkChangeAdjustments(workChanges, clientId);
 
             result[clientId] = new PeriodHoursResource
             {
-                Hours = workData.Hours + breaks + workChangeHours,
-                Surcharges = workData.Surcharges + workChangeSurcharges,
+                Hours = workData.Hours + breakData.Hours + workChangeHours,
+                Surcharges = workData.Surcharges + breakData.Surcharges + workChangeSurcharges,
                 GuaranteedHours = targetByClient.GetValueOrDefault(clientId)
             };
         }
@@ -340,22 +426,29 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         foreach (var wc in workChanges)
         {
-            if (wc.ToInvoice == true && wc.OriginalClientId == clientId)
-            {
-                surcharges += wc.ChangeTime;
-            }
-
             var isOriginalClient = wc.OriginalClientId == clientId;
             var isReplacementClient = wc.ReplaceClientId == clientId;
 
             if (CorrectionWorkChangeTypes.IsHourBearing(wc.Type))
             {
-                if (isOriginalClient) hours += wc.ChangeTime;
+                if (isOriginalClient)
+                {
+                    hours += wc.ChangeTime;
+                    surcharges += wc.Surcharges;
+                }
             }
             else if (ReplacementWorkChangeTypes.IsReplacement(wc.Type))
             {
-                if (isOriginalClient) hours -= wc.ChangeTime;
-                if (isReplacementClient) hours += wc.ChangeTime;
+                if (isOriginalClient)
+                {
+                    hours -= wc.ChangeTime;
+                    surcharges -= wc.Surcharges;
+                }
+                if (isReplacementClient)
+                {
+                    hours += wc.ChangeTime;
+                    surcharges += wc.Surcharges;
+                }
             }
         }
 
@@ -483,5 +576,5 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return lastTouch.UpdateTime is not null ? lastTouch.CurrentUserUpdated : lastTouch.CurrentUserCreated;
     }
 
-    private record WorkChangeEntry(Guid ClientId, decimal ChangeTime, WorkChangeType Type, bool? ToInvoice, Guid? ReplaceClientId, Guid OriginalClientId);
+    private record WorkChangeEntry(Guid ClientId, decimal ChangeTime, decimal Surcharges, WorkChangeType Type, Guid? ReplaceClientId, Guid OriginalClientId);
 }

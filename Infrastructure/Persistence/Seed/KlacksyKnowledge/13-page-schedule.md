@@ -268,7 +268,13 @@ verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder ni
   die zeigt, ob der Mitarbeiter an diesem Tag und zu welcher Zeit verfügbar ist.
 - **Locks/Versiegelung**: Einträge mit LockLevel **Confirmed** (grüner Haken), **Approved**
   (gelbes Prüf-Symbol) oder **Closed** (rotes Schloss) sowie gruppenfremde (versiegelte)
-  Einträge sind nicht editierbar. Bestätigen geht nur aus dem ungesperrten Zustand;
+  Einträge sind nicht editierbar. Bestätigen geht nur aus dem ungesperrten Zustand, und ein
+  Dienst lässt sich erst **nach seinem Dienstende** bestätigen (gemessen in der Firmenzeitzone, eine
+  Nachtschicht endet am Folgetag): Bestätigen heisst, dass der Dienst stattgefunden hat. Vorher steht
+  "Bestätigen" im Kontextmenü ausgegraut mit dem Hinweis "Erst nach Dienstende möglich". Wer einen
+  künftigen Dienst festhalten will, nutzt Bevorzugung oder Stichworte, nicht das Bestätigen. Absenzen
+  sind davon nicht betroffen. Tagesfreigabe (`approve_day`) versiegelt nur bereits beendete Dienste;
+  ein noch offener Dienst bleibt offen, und solange einer übrig ist, wird auch das Tagessiegel nicht gesetzt.
   Aufheben von Confirmed darf jeder Planer, von Approved nur Berechtigte/Admins, von
   Closed nur Admins. Auf versiegelten Tagesspalten und vor dem Eintrittsdatum eines
   Mitarbeiters (Beginn der Mitgliedschaft) bleibt das Kontextmenü leer — keine neuen
@@ -434,7 +440,7 @@ sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planba
   verhindern den ganzen Aufruf) — Skill `bulk_delete_works`
 - Stundensaldo eines Mitarbeiters (Ist vs. Soll, Zuschläge) für eine Periode — Skill
   `get_period_hours` (szenariofähig via `analyseToken`)
-- Einsätze bestätigen / Bestätigung aufheben — Skills `confirm_work`, `unconfirm_work`; gebuchte
+- Einsätze bestätigen (erst nach Dienstende) / Bestätigung aufheben — Skills `confirm_work`, `unconfirm_work`; gebuchte
   Absenz-Einträge — Skills `confirm_break`, `unconfirm_break` (Schutz vor dem Löschen durch
   Nicht-Administratoren, kein Eingriff in die Wizards)
 - Automatisch planen lassen — Skills `start_autowizard`, `start_wizard1`, `start_wizard2`,

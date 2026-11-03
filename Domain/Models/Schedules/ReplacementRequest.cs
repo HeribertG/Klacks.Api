@@ -18,6 +18,9 @@
 /// <param name="ShiftStartUtc">Slot start converted from the company time zone</param>
 /// <param name="AnalyseToken">Scenario the proposal lives in; null for a replacement on the real plan</param>
 /// <param name="AppliedAtUtc">Instant the replacement reached the real plan (scenario accept or a direct manual replacement)</param>
+/// <param name="WorkId">The work of the slot. A scenario work keeps its id through accept, unlike the WorkChange of a clone</param>
+/// <param name="Kind">Whether the row stands for a replacement or for a work moved as a whole</param>
+/// <param name="ReversedAtUtc">Instant the applied row was undone; the recorded answer stays a fact</param>
 
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
@@ -59,4 +62,10 @@ public class ReplacementRequest : BaseEntity
     public Guid? WorkChangeId { get; set; }
 
     public DateTime? AppliedAtUtc { get; set; }
+
+    public Guid? WorkId { get; set; }
+
+    public ReplacementRequestKind Kind { get; set; }
+
+    public DateTime? ReversedAtUtc { get; set; }
 }

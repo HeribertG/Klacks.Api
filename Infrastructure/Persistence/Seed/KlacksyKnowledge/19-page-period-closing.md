@@ -266,6 +266,14 @@ Anker der Unter-Tabs (`...-tab-single`, `...-tab-employee`, `...-tab-range`) sin
 
 ## Stufe 3 — Wirkungen & Zusammenspiel mit anderen Seiten
 
+- **Voraussetzung für den Abschluss**: Eine Periode lässt sich erst abschliessen, wenn **alle Dienste** der
+  Periode bestätigt (versiegelt) sind; ein Dienst lässt sich erst nach seinem Dienstende bestätigen. Sonst lehnt
+  das Backend den Abschluss ab, nennt die Anzahl offener Dienste und listet die ersten davon (Datum, Zeit, Dienst,
+  Person). Diese Sperre lässt sich **nicht** mit "Trotzdem abschliessen" übergehen. Beim Gruppenabschluss zählen nur
+  Dienste auf den **eigenen** Schichten der Gruppe; Dienste anderer Gruppen blockieren nicht. Absenzen müssen vorher
+  nicht bestätigt sein, sie werden beim Abschluss mitversiegelt. Dienste von gelöschten Mitarbeitenden zählen nicht und blockieren nie; sie
+  werden beim Abschluss mitversiegelt. Die Abschlussberatung (`evaluate_period_close_readiness`) nennt
+  offene Dienste als blockierenden Befund (Verdikt: erst Dienste bestätigen), noch vor offenen Fehlern.
 - **Was Versiegeln tut**: Das Versiegeln setzt alle Dienst- und Absenz-Einträge
   des Zeitraums auf die höchste der vier Sperrstufen (Offen → Bestätigt → Freigegeben →
   **Geschlossen**) und legt zusätzlich pro Kalendertag ein **Tagessiegel** an — mit Gruppenbezug,
@@ -347,7 +355,8 @@ erfüllt sind (Standard: keine davon ist eingeschaltet, also schliesst Klacksy n
   falls nicht) zeigt `get_period_close_schedule`.
 - Die Periode ist vollständig vorbei, der Abschluss-Termin erreicht (höchstens 3 Tage zurück),
   die Gruppe hat in ihren **eigenen** Schichten Arbeit im Zeitraum, noch kein Tag ist versiegelt,
-  die Periode wurde nie wieder geöffnet und in der Problemliste steht kein **Fehler**.
+  die Periode wurde nie wieder geöffnet, alle Dienste der Gruppe in der Periode sind bestätigt
+  und in der Problemliste steht kein **Fehler**.
   Abgeschlossen wird immer pro Gruppe, nie global. Bei Gruppen mit Zahlungsintervall
   "Individuell" gibt es keinen festen Zyklus — dort schliesst Klacksy nie automatisch.
 
@@ -357,7 +366,7 @@ es kommen nur die üblichen Erinnerungen ("Periode endet bald" / "Periode überf
 nach dem Abschluss-Termin richten. Ist er eingeschaltet, ist die Erinnerung drei Tage vorher
 zugleich die **Vorankündigung** — bis dahin kann der Admin widersprechen. Scheitert dann eine
 der übrigen Bedingungen, schliesst Klacksy nicht und meldet den Grund (z. B. kein
-Abschluss-Zeitpunkt gespeichert, offene Fehler, teilweise versiegelt, Termin zu lange her).
+Abschluss-Zeitpunkt gespeichert, offene Fehler, noch nicht bestätigte Dienste, teilweise versiegelt, Termin zu lange her).
 Eine Periode, die jemand wieder geöffnet hat, schliesst Klacksy nie erneut selbst ab. Jeder
 automatische Abschluss steht mit dem entscheidenden Admin und dem Handelnden "Klacksy
 (autonom)" im Protokoll (Aktion **Versiegelt**) und wird gemeldet. Wieder öffnen stellt

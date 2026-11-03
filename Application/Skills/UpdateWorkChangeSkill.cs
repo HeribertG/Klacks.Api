@@ -15,7 +15,7 @@
 /// <param name="changeTime">Optional. New hours delta.</param>
 /// <param name="surcharges">Optional. New surcharge value.</param>
 /// <param name="description">Optional. New free-text description.</param>
-/// <param name="toInvoice">Optional. Whether this change is billable.</param>
+/// <param name="toInvoice">Optional. Only true is accepted; false is refused because only a planner, supervisor or admin may switch billing off in the dialog.</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -44,6 +44,12 @@ public class UpdateWorkChangeSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        var refused = WorkChangeInvoiceRule.RefuseDisabling(parameters);
+        if (refused != null)
+        {
+            return refused;
+        }
+
         var workChangeId = GetRequiredGuid(parameters, "workChangeId");
         if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {
@@ -127,7 +133,7 @@ public class UpdateWorkChangeSkill : BaseSkillImplementation
             changed.Add("description");
         }
 
-        var toInvoice = GetParameter<bool?>(parameters, "toInvoice");
+        var toInvoice = GetParameter<bool?>(parameters, WorkChangeInvoiceRule.ToInvoiceParameter);
         if (toInvoice.HasValue && toInvoice.Value != workChange.ToInvoice)
         {
             workChange.ToInvoice = toInvoice.Value;

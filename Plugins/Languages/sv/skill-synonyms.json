@@ -433,14 +433,14 @@
     "godkänt, gör precis så"
   ],
   "confirm_work": [
-    "lås arbetspasset",
-    "bekräfta skiftet",
-    "fixera skiftet",
-    "lås tilldelningen",
-    "bekräfta yasmines morgonskift",
-    "gör den här tilldelningen slutgiltig",
-    "skydda passet från wizarderna",
-    "jag vill frysa morgondagens tilldelning"
+    "bekräfta det här skiftet",
+    "bekräfta arbetspasset",
+    "arbetspasset ägde rum",
+    "markera skiftet som arbetat",
+    "bekräfta gårdagens tilldelning",
+    "sätt den här arbetsposten till bekräftad",
+    "bekräfta att arbetet utfördes",
+    "bekräfta yasmines morgonskift"
   ],
   "cover_absence": [
     "täck frånvaro",

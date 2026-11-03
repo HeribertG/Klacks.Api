@@ -2,8 +2,8 @@
 
 /// <summary>
 /// Handler for <see cref="FindReplacementQuery"/>. Candidates are the active members of the requested
-/// group and its subgroups; a candidate is hard-excluded when absent that day (a Break on the date whose
-/// absence type is not on-call; an on-call Break whose window overlaps the slot makes the candidate rank first,
+/// group and its subgroups; a candidate is hard-excluded when absent while the slot is occupied (a Break on the date
+/// whose absence type is not on-call and whose real span overlaps the slot with its lead and trail; an on-call Break whose window overlaps the slot makes the candidate rank first,
 /// IsOnCall, while a non-overlapping one neither excludes nor prefers),
 /// when explicitly unavailable for an hour the shift occupies (an opt-in availability window), when
 /// assigning them would introduce ANY new Error-level conflict (collision, missing or expired mandatory
@@ -50,6 +50,7 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.Recovery;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -174,7 +175,9 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             members.Select(m => m.Id).ToList(), periodFrom, periodUntil, request.AnalyseToken);
 
         var plannedRows = members
-            .Select(m => new PlannedWorkRow(m.Id, request.Date, request.StartTime, request.EndTime, request.ShiftId))
+            .Select(m => new PlannedWorkRow(
+                m.Id, request.Date, request.StartTime, request.EndTime, request.ShiftId,
+                request.LeadHours, request.TrailHours, request.ExtraPaidHours))
             .ToList();
         var check = await _conflictChecker.CheckAsync(plannedRows, request.AnalyseToken, cancellationToken);
         var conflictsByClient = check.NewConflicts
@@ -212,7 +215,8 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             cancellationToken);
         var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
         var onLeaveClientIds = onLeaveCells
-            .Where(c => !onCallAbsenceIds.Contains(c.EntryId))
+            .Where(c => !onCallAbsenceIds.Contains(c.EntryId)
+                && OverlapsOccupiedTime(c, request))
             .Select(c => c.ClientId)
             .ToHashSet();
         var onCallClientIds = onLeaveCells
@@ -372,7 +376,8 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     /// group ROOT (<c>Group.Root ?? Group.Id</c>), so handing it a subgroup id matches nothing and returns
     /// an empty pool without any error - the same root resolution the recovery snapshot builder performs.
     /// The root-wide result is then narrowed back to the requested group's own subtree, because the query
-    /// asks for the members of THAT group, not for everyone under its root.
+    /// asks for the members of THAT group, not for everyone under its root. Only people who can take over a replacement
+    /// stay (<see cref="ReplacementPersonRule"/>), a customer is never a candidate.
     /// </summary>
     /// <param name="groupId">Group whose members form the candidate pool; may be a root or a subgroup</param>
     private async Task<List<Client>> ResolveGroupMembersAsync(Guid groupId, CancellationToken cancellationToken)
@@ -392,7 +397,22 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         }
 
         var memberIds = (await _groupClientService.GetAllClientIdsFromGroupAndSubgroups(groupId)).ToHashSet();
-        return underRoot.Where(c => memberIds.Contains(c.Id)).ToList();
+        return ReplacementPersonRule.EligibleOnly(underRoot).Where(c => memberIds.Contains(c.Id)).ToList();
+    }
+
+    /// <summary>
+    /// True when the absence's real span overlaps the time the slot occupies: the slot with its lead before and its trail
+    /// after. An absence on the requested day that lies outside it, an appointment in the morning before a night slot,
+    /// does not make the candidate absent.
+    /// </summary>
+    private static bool OverlapsOccupiedTime(ScheduleCell cell, FindReplacementQuery request)
+    {
+        var (absenceStart, absenceEnd) = WallInterval(
+            request.Date, TimeOnly.FromTimeSpan(cell.StartTime), TimeOnly.FromTimeSpan(cell.EndTime));
+        var (slotStart, slotEnd) = WallInterval(request.Date, request.StartTime, request.EndTime);
+        var occupiedStart = slotStart - TimeSpan.FromTicks((long)(request.LeadHours * TimeSpan.TicksPerHour));
+        var occupiedEnd = slotEnd + TimeSpan.FromTicks((long)(request.TrailHours * TimeSpan.TicksPerHour));
+        return absenceStart < occupiedEnd && occupiedStart < absenceEnd;
     }
 
     /// <summary>

@@ -26,6 +26,26 @@ public interface IWorkChangeRepository : IBaseRepository<WorkChange>
         Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The replacements of <see cref="ListScenarioReplacementsAsync"/> this scenario or the open scenario it was built on
+    /// wrote. A replacement the real work at the end of its clone chain already carries was settled by an earlier accept, it is
+    /// left out.
+    /// </summary>
+    /// <param name="analyseToken">Scenario token</param>
+    /// <param name="clientId">Employee who owns the works</param>
+    /// <param name="date">Workday</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<List<WorkChange>> ListReplacementsWrittenByScenarioAsync(
+        Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The work changes of one work that do not hand it to someone else (corrections, travel, briefing, debriefing), untracked.
+    /// A work id belongs to one plan or scenario, so no token is needed.
+    /// </summary>
+    /// <param name="workId">Id of the work</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<List<WorkChange>> ListNonReplacementChangesAsync(Guid workId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// True when the employee still stands in on any work of the scenario.
     /// </summary>
     /// <param name="analyseToken">Scenario token</param>

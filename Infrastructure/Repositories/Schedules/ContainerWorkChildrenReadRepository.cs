@@ -67,6 +67,32 @@ public class ContainerWorkChildrenReadRepository : IContainerWorkChildrenReadRep
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<UsedEntryIds> GetUsedEntryIds(
+        IReadOnlyCollection<Guid> workIds,
+        IReadOnlyCollection<Guid> breakIds,
+        IReadOnlyCollection<Guid> workChangeIds,
+        CancellationToken cancellationToken)
+    {
+        var works = workIds.ToList();
+        var breaks = breakIds.ToList();
+        var workChanges = workChangeIds.ToList();
+
+        var usedWorks = works.Count == 0
+            ? []
+            : await _context.Work.IgnoreQueryFilters().AsNoTracking()
+                .Where(w => works.Contains(w.Id)).Select(w => w.Id).ToListAsync(cancellationToken);
+        var usedBreaks = breaks.Count == 0
+            ? []
+            : await _context.Break.IgnoreQueryFilters().AsNoTracking()
+                .Where(b => breaks.Contains(b.Id)).Select(b => b.Id).ToListAsync(cancellationToken);
+        var usedWorkChanges = workChanges.Count == 0
+            ? []
+            : await _context.WorkChange.IgnoreQueryFilters().AsNoTracking()
+                .Where(wc => workChanges.Contains(wc.Id)).Select(wc => wc.Id).ToListAsync(cancellationToken);
+
+        return new UsedEntryIds(usedWorks.ToHashSet(), usedBreaks.ToHashSet(), usedWorkChanges.ToHashSet());
+    }
+
     public Task<ContainerTemplate?> GetContainerTemplate(Guid containerId, int weekday, bool isHoliday, CancellationToken cancellationToken)
     {
         return _context.ContainerTemplate

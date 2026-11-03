@@ -36,5 +36,7 @@ public static class ReplacementRequestResourceMapper
             row.WorkChangeId,
             row.AppliedAtUtc,
             ReplacementShortNoticePolicy.IsShortNotice(row.ReportedAtUtc, row.ShiftStartUtc, shortNoticeHours),
-            isScenarioReplacement);
+            isScenarioReplacement,
+            row.Kind,
+            row.ReversedAtUtc);
 }

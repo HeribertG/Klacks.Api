@@ -28,4 +28,5 @@ public class WorkScheduleResource
     public bool IsReplacementEntry { get; set; }
     public int LockLevel { get; set; }
     public bool IsGroupRestricted { get; set; }
+    public Guid? MovedFromClientId { get; set; }
 }

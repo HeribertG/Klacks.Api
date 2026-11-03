@@ -430,14 +430,14 @@
     "đã duyệt, làm đúng như vậy"
   ],
   "confirm_work": [
-    "khóa ca này lại",
-    "xác nhận ca sáng của yasmine",
-    "fix cứng ca cho linh",
-    "chốt phân công ngày 15/5",
-    "giữ nguyên ca đó, đừng thay đổi",
-    "chốt phân công này, không cho đổi nữa",
-    "bảo vệ ca này khỏi các wizard",
-    "tôi muốn cố định ca ngày mai"
+    "xác nhận ca này",
+    "xác nhận ca làm việc",
+    "ca làm việc đã diễn ra",
+    "đánh dấu ca này là đã làm",
+    "xác nhận phân công hôm qua",
+    "đặt mục công việc này thành đã xác nhận",
+    "xác nhận rằng công việc đã được thực hiện",
+    "xác nhận ca sáng sớm của yasmine"
   ],
   "cover_absence": [
     "xử lý vắng mặt đột xuất",

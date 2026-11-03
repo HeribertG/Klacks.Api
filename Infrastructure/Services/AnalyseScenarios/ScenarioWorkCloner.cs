@@ -99,6 +99,7 @@ public sealed class ScenarioWorkCloner
                 ? newParentId
                 : null,
             ClonedFromWorkId = work.Id,
+            MovedFromClientId = work.MovedFromClientId,
             TransportMode = work.TransportMode
         };
 

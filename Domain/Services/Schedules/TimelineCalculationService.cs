@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Calculates ScheduleBlocks from Work, WorkChange and Break entries.
-/// Uses absolute DateTime intervals - no midnight splitting required.
+/// Uses absolute DateTime intervals - no midnight splitting required. A ReplacementWithin takes its span out of the
+/// work block of the owner, so a work handed over mid-service can leave two blocks.
 /// SubWorks and SubBreaks (ParentWorkId != null) are filtered out as a defensive
 /// guard so the collision pipeline never operates on container children.
 /// When ScheduleTimeOptions.DstAware is enabled, intervals are converted from
@@ -65,6 +66,7 @@ public class TimelineCalculationService : ITimelineCalculationService
             var workEndWall = ToEndWall(work.CurrentDate, work.StartTime, work.EndTime);
             var effectiveStartWall = workStartWall;
             var effectiveEndWall = workEndWall;
+            var handedOver = new List<(DateTime Start, DateTime End)>();
 
             if (changesByWorkId.TryGetValue(work.Id, out var changes))
             {
@@ -84,7 +86,7 @@ public class TimelineCalculationService : ITimelineCalculationService
                     var duration = TimeSpan.FromHours((double)change.ChangeTime);
                     var blockEnd = workStartWall - beforeRunning;
                     result.Add(CreateBlockFromWall(change.Id, ScheduleBlockType.Correction,
-                        work.ClientId, blockEnd - duration, blockEnd));
+                        work.ClientId, blockEnd - duration, blockEnd, parentWorkId: work.Id));
                     beforeRunning += duration;
                 }
 
@@ -94,7 +96,7 @@ public class TimelineCalculationService : ITimelineCalculationService
                     var duration = TimeSpan.FromHours((double)change.ChangeTime);
                     var blockStart = workEndWall + afterRunning;
                     result.Add(CreateBlockFromWall(change.Id, ScheduleBlockType.Correction,
-                        work.ClientId, blockStart, blockStart + duration));
+                        work.ClientId, blockStart, blockStart + duration, parentWorkId: work.Id));
                     afterRunning += duration;
                 }
 
@@ -126,18 +128,22 @@ public class TimelineCalculationService : ITimelineCalculationService
                 foreach (var change in changes.Where(c =>
                     c.Type is WorkChangeType.ReplacementWithin or WorkChangeType.TravelWithin))
                 {
-                    if (change.Type == WorkChangeType.ReplacementWithin && change.ReplaceClientId.HasValue)
+                    if (change.Type == WorkChangeType.ReplacementWithin
+                        && change.ReplaceClientId.HasValue
+                        && ReplacementWindow.TryGetInterval(
+                            change.Type, work.StartTime, work.EndTime, work.CurrentDate,
+                            change.StartTime, change.EndTime, change.ChangeTime, out var startAt, out var endAt))
                     {
-                        result.Add(CreateBlock(change.Id, ScheduleBlockType.Replacement,
-                            change.ReplaceClientId.Value, work.CurrentDate, change.StartTime, change.EndTime));
+                        result.Add(CreateBlockFromWall(change.Id, ScheduleBlockType.Replacement,
+                            change.ReplaceClientId.Value, startAt, endAt));
+                        handedOver.Add((startAt, endAt));
                     }
                 }
             }
 
-            if (effectiveEndWall > effectiveStartWall)
+            foreach (var (start, end) in RemainingSpans(effectiveStartWall, effectiveEndWall, handedOver))
             {
-                result.Add(CreateBlockFromWall(work.Id, ScheduleBlockType.Work,
-                    work.ClientId, effectiveStartWall, effectiveEndWall, work.ShiftId));
+                result.Add(CreateBlockFromWall(work.Id, ScheduleBlockType.Work, work.ClientId, start, end, work.ShiftId));
             }
         }
 
@@ -148,6 +154,35 @@ public class TimelineCalculationService : ITimelineCalculationService
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// What is left of a work for its owner once the spans handed over by a ReplacementWithin are taken out.
+    /// </summary>
+    private static List<(DateTime Start, DateTime End)> RemainingSpans(
+        DateTime start, DateTime end, List<(DateTime Start, DateTime End)> handedOver)
+    {
+        var remaining = new List<(DateTime Start, DateTime End)>();
+        var cursor = start;
+        foreach (var span in handedOver.OrderBy(span => span.Start))
+        {
+            if (span.Start > cursor && cursor < end)
+            {
+                remaining.Add((cursor, span.Start < end ? span.Start : end));
+            }
+
+            if (span.End > cursor)
+            {
+                cursor = span.End;
+            }
+        }
+
+        if (cursor < end)
+        {
+            remaining.Add((cursor, end));
+        }
+
+        return remaining;
     }
 
     private static int GetBeforePriority(WorkChangeType type) => type switch
@@ -196,7 +231,8 @@ public class TimelineCalculationService : ITimelineCalculationService
         Guid clientId,
         DateTime startWall,
         DateTime endWall,
-        Guid? shiftId = null)
+        Guid? shiftId = null,
+        Guid? parentWorkId = null)
     {
         if (_options.DstAware && _timeZone is not null)
         {
@@ -216,7 +252,8 @@ public class TimelineCalculationService : ITimelineCalculationService
                 endUtc,
                 shiftId,
                 DateTime.SpecifyKind(startWall, DateTimeKind.Unspecified),
-                DateTime.SpecifyKind(endWall, DateTimeKind.Unspecified));
+                DateTime.SpecifyKind(endWall, DateTimeKind.Unspecified),
+                parentWorkId);
         }
 
         return new ScheduleBlock(
@@ -225,7 +262,8 @@ public class TimelineCalculationService : ITimelineCalculationService
             clientId,
             DateTime.SpecifyKind(startWall, DateTimeKind.Unspecified),
             DateTime.SpecifyKind(endWall, DateTimeKind.Unspecified),
-            shiftId);
+            shiftId,
+            ParentWorkId: parentWorkId);
     }
 
     private DateTime ConvertWallTimeToUtc(DateTime wallTime, TimeZoneInfo timeZone)

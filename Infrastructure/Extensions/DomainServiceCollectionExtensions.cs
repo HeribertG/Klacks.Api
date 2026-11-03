@@ -221,6 +221,9 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IWorkMacroService, WorkMacroService>();
         services.AddScoped<IBreakMacroService, BreakMacroService>();
         services.AddScoped<IContainerWorkChildrenManager, ContainerWorkChildrenManager>();
+        services.AddScoped<IMovedWorkReversal, Application.Services.Schedules.MovedWorkReversal>();
+        services.AddScoped<IMoveReversalCheck, Application.Services.Schedules.MoveReversalCheck>();
+        services.AddScoped<IWorkHandOverService, Application.Services.Schedules.WorkHandOverService>();
         services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
         services.AddScoped<IScheduleCompletionService, ScheduleCompletionService>();
         services.AddScoped<IOvertimeCascadeService, OvertimeCascadeService>();
@@ -373,6 +376,10 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Services.Schedules.ComplianceEnforcementResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ISupervisorOverrideAuthorizer,
                            Klacks.Api.Infrastructure.Services.Schedules.SupervisorOverrideAuthorizer>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IReplacementWriteGuard,
+                           Klacks.Api.Application.Services.Schedules.ReplacementWriteGuard>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IContainerChildrenWriteGuard,
+                           Klacks.Api.Application.Services.Schedules.ContainerChildrenWriteGuard>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IPeriodCapRuleRepository,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.PeriodCapRuleRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IRestDayRotationRuleRepository,

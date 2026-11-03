@@ -31,8 +31,10 @@ public sealed class ScenarioDayRowPromoter
     internal async Task<int> PromoteScenarioBreaksAsync(
         Guid token, DateOnly fromDate, DateOnly untilDate, AcceptDayLockPlan plan, DateTime now, CancellationToken ct)
     {
-        var scenarioBreaks = await _context.Break.IgnoreQueryFilters()
-            .Where(b => b.AnalyseToken == token && !b.IsDeleted).ToListAsync(ct);
+        var scenarioBreaks = (await _context.Break.IgnoreQueryFilters()
+            .Where(b => b.AnalyseToken == token && !b.IsDeleted).ToListAsync(ct))
+            .Where(b => !b.IsDeleted)
+            .ToList();
 
         var clientIds = scenarioBreaks.Select(b => b.ClientId).Distinct().ToList();
         var realBreaks = clientIds.Count == 0

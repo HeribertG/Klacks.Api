@@ -4,7 +4,8 @@
 /// Writes and resolves translation parameters that carry a multilingual name (see LocalizedCommentParamKeys).
 /// Add stores the name under its key as readable text and, under the key plus the MultiLanguage suffix, as the
 /// serialized MultiLanguage; ForLanguage turns such a parameter set into plain parameters for one known reader
-/// (an assistant answer), so the model sees one name in the user's language instead of every translation.
+/// (an assistant answer), so the model sees one name in the user's language instead of every translation, and
+/// leaves out the parameters listed in LocalizedCommentParamKeys.WithheldFromAssistant.
 /// </summary>
 
 using System.Text.Json;
@@ -29,7 +30,9 @@ public static class LocalizedCommentParams
 
     /// <summary>
     /// Returns a copy of the parameters in which every multilingual parameter is resolved to the given language
-    /// and its serialized companion is dropped. Parameters without a companion are copied unchanged.
+    /// and its serialized companion is dropped. Parameters without a companion are copied unchanged, except those
+    /// listed in <see cref="LocalizedCommentParamKeys.WithheldFromAssistant"/>, which are left out together with their
+    /// companion because the model must not see them.
     /// </summary>
     /// <param name="parameters">Parameter set of the finding</param>
     /// <param name="language">The reader's language (e.g. "ja", "zh-CN")</param>
@@ -38,6 +41,11 @@ public static class LocalizedCommentParams
         var result = new Dictionary<string, string>();
         foreach (var (key, value) in parameters)
         {
+            if (LocalizedCommentParamKeys.WithheldFromAssistant.Contains(key))
+            {
+                continue;
+            }
+
             if (!key.EndsWith(LocalizedCommentParamKeys.MultiLanguageSuffix, StringComparison.Ordinal))
             {
                 result.TryAdd(key, value);

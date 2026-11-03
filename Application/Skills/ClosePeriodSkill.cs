@@ -6,7 +6,8 @@
 /// day locks and writes the period audit log. Without a group the seal is global. A seal
 /// starts no payroll export; the person-based payroll export is run separately on the
 /// period-closing page once every day of the period is locked. The group can be addressed
-/// by UUID or by name. The seal is verified by re-reading the day-lock state afterwards.
+/// by UUID or by name. The seal is verified by re-reading the day-lock state afterwards. A period in which a service is
+/// not confirmed yet is refused with the list and nothing is sealed; that refusal cannot be acknowledged.
 /// </summary>
 /// <param name="startDate">Period start in ISO yyyy-MM-dd (inclusive).</param>
 /// <param name="endDate">Period end in ISO yyyy-MM-dd (inclusive).</param>
@@ -16,11 +17,14 @@
 /// <param name="acknowledgeViolations">Optional, default false. True only after the user was shown the open errors and chose to seal anyway; without it a period that still holds errors is refused.</param>
 /// <param name="acknowledgedErrorCount">Required when acknowledgeViolations is true. Number of errors the user was shown; the seal is refused again if the period holds more by now.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Commands.PeriodClosing;
+using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -96,6 +100,10 @@ public class ClosePeriodSkill : BaseSkillImplementation
         {
             return SkillResult.Error(BuildViolationsRefusal(ex, acknowledgeViolations));
         }
+        catch (UnsealedWorksException ex)
+        {
+            return SkillResult.Error(BuildUnsealedWorksRefusal(ex));
+        }
 
         var days = await _mediator.Send(
             new GetSealedPeriodsQuery(startDate, endDate, groupId), cancellationToken);
@@ -123,6 +131,22 @@ public class ClosePeriodSkill : BaseSkillImplementation
             $"Sealed period {startDate}..{endDate} for {scopeLabel}: {count} item(s) locked, {sealedDays} day lock(s) " +
             "confirmed in the database (verified).");
     }
+
+    private static string BuildUnsealedWorksRefusal(UnsealedWorksException ex)
+    {
+        var fact = $"Nothing was sealed: {ex.UnsealedCount} service(s) of the period are not confirmed yet.";
+        var listed = string.Join("; ", ex.Listed.Select(DescribeUnsealedWork));
+        var more = ex.UnsealedCount > ex.Listed.Count ? "; and more" : string.Empty;
+        var named = ex.Listed.Count == 0 ? string.Empty : $" Open: {listed}{more}.";
+        return $"{fact}{named} This cannot be acknowledged away with {AcknowledgeViolationsParameter}: a period is only " +
+               "closed when every service is confirmed, and a service can only be confirmed after it has ended " +
+               "(confirm_work). Tell the user which services are open; close the period again once they are confirmed.";
+    }
+
+    private static string DescribeUnsealedWork(UnsealedWorkDto work) =>
+        $"{work.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} " +
+        $"{work.StartTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-" +
+        $"{work.EndTime.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)} {work.ShiftName} ({work.ClientName})";
 
     private static string BuildViolationsRefusal(PeriodValidationConflictException ex, bool wasAcknowledged)
     {

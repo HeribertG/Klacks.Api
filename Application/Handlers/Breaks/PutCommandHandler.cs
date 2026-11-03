@@ -88,11 +88,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
                 throw new KeyNotFoundException($"Break with ID {request.Resource.Id} not found");
             }
 
-            if (existing?.LockLevel == WorkLockLevel.Closed
-                && _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) != true)
-            {
-                throw new InvalidRequestException("Cannot modify a closed break entry.");
-            }
+            BreakLockRule.EnsureWritable(existing, _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true);
 
             if (existing != null)
             {

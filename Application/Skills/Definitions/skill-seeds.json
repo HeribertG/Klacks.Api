@@ -13904,7 +13904,7 @@
     {
       "name": "reassign_work",
       "area": "schedule",
-      "description": "Hands one placed Work over to another employee on the same day, like dragging it onto another employee's row; date, shift and times stay. Name the work by workId or by its current holder and date, the new holder by name or targetClientId. Refused with reason: locked work, entry in a container, sealed day, day outside the new holder's membership or group period, missing qualification.",
+      "description": "Hands one placed Work over to another employee on the same day, like dragging it onto another employee's row; date, shift and times stay. Name the work by workId or by its current holder and date, the new holder by name or targetClientId. Refused with reason: locked work, entry in a container, sealed day, day outside the new holder's membership or group period, missing qualification. Handing a moved service back to its origin person takes the last move back.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14057,7 +14057,7 @@
         "fr": "Confier une affectation à un autre employé",
         "it": "Passa un'assegnazione a un altro dipendente"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "bulk_delete_works",
@@ -14379,7 +14379,7 @@
     {
       "name": "confirm_work",
       "area": "schedule",
-      "description": "Locks a Work entry at LockLevel=Confirmed (1) so Wizards 1+2+3 will no longer modify the cell. Use when the user says: 'fix this shift', 'lock the assignment', 'confirm Yasmines Frühschicht', 'bestätige diese Schicht'. Wraps ConfirmWorkCommand; period-hour recalc runs automatically.",
+      "description": "Confirms that a Work entry (a service) took place: locks it at LockLevel=Confirmed (1) so Wizards 1+2+3 no longer modify the cell. Use when the user says: 'confirm Yasmines Frühschicht', 'bestätige diese Schicht', 'der Dienst hat stattgefunden'. Wraps ConfirmWorkCommand; period-hour recalc runs automatically. Possible only after the service has ended.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14403,55 +14403,53 @@
       "triggerKeywords": {
         "de": [
           "bestätigen",
-          "schicht fixieren"
+          "dienst hat stattgefunden"
         ],
         "en": [
-          "lock work",
-          "fix shift"
+          "confirm service",
+          "service took place"
         ]
       },
       "synonyms": {
         "de": [
           "bestätigen",
-          "fixieren",
-          "sperren",
-          "schicht fixieren",
+          "dienst bestätigen",
           "arbeit bestätigen",
-          "diesen einsatz festschreiben",
-          "ich möchte die zuweisung gegen automatische änderungen schützen",
-          "schicht von morgen verbindlich machen",
-          "einsatz bestätigt setzen damit der wizard ihn nicht mehr anfasst"
+          "der dienst hat stattgefunden",
+          "einsatz als geleistet bestätigen",
+          "gestrigen dienst bestätigen",
+          "bestätige dass die schicht gearbeitet wurde",
+          "einsatz bestätigt setzen"
         ],
         "en": [
           "confirm",
-          "lock",
-          "fix",
-          "approve assignment",
-          "secure shift",
-          "make this assignment final",
-          "protect this shift from the wizards",
+          "confirm service",
+          "the service took place",
+          "mark the shift as worked",
+          "confirm yesterday's shift",
           "set this work entry to confirmed",
-          "i want to freeze tomorrow's assignment"
+          "confirm that the work was done",
+          "confirm the service"
         ],
         "fr": [
           "confirmer",
-          "verrouiller",
-          "fixer",
-          "valider l'affectation",
-          "rends cette affectation définitive",
-          "protège ce service contre les wizards",
+          "confirmer le service",
+          "le service a eu lieu",
+          "marquer l'intervention comme effectuée",
+          "confirmer le service d'hier",
           "passe cette intervention en confirmé",
-          "je veux figer l'affectation de demain"
+          "confirme que le travail a été fait",
+          "valider l'intervention effectuée"
         ],
         "it": [
           "confermare",
-          "bloccare",
-          "fissare",
-          "convalidare l'assegnazione",
-          "rendi definitiva questa assegnazione",
-          "proteggi questo turno dai wizard",
+          "confermare il turno",
+          "il turno è stato svolto",
+          "segna il turno come svolto",
+          "conferma il turno di ieri",
           "imposta questo turno come confermato",
-          "voglio bloccare l'assegnazione di domani"
+          "conferma che il lavoro è stato fatto",
+          "convalidare il servizio svolto"
         ]
       },
       "labels": {
@@ -14460,7 +14458,7 @@
         "fr": "Confirmer et verrouiller une affectation",
         "it": "Conferma e blocca un'assegnazione"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "unconfirm_work",
@@ -14915,7 +14913,7 @@
     {
       "name": "approve_day",
       "area": "schedule",
-      "description": "Approves all Work entries on a given day for a given group — sets LockLevel=Approved (2). Stronger than confirm: even Wizards on individual cells stop. Returns the number of affected works. Use when the user says: 'tag freigeben', 'approve Monday', 'freigeben am 15.05.'. Wraps ApproveDayCommand.",
+      "description": "Approves all Work entries on a given day for a given group — sets LockLevel=Approved (2). Stronger than confirm: even Wizards on individual cells stop. Returns the number of affected works; only services that have already ended are approved. Use when the user says: 'tag freigeben', 'approve Monday', 'freigeben am 15.05.'. Wraps ApproveDayCommand.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15000,7 +14998,7 @@
         "fr": "Approuver une journée pour un groupe",
         "it": "Approva una giornata per un gruppo"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "revoke_day_approval",
@@ -15089,7 +15087,7 @@
     {
       "name": "close_period",
       "area": "period",
-      "description": "Seals a payment period like the period-closing page: locks works/breaks (LockLevel Closed), creates the SealedDay day locks and writes the audit log. Without a group the seal is global; it starts no payroll export. A period that still holds unresolved errors is refused and nothing is sealed: show the user the errors and seal anyway only after the user explicitly chose to (acknowledgeViolations + acknowledgedErrorCount). Use for: 'Periode abschliessen', 'close May 2026'. The seal is verified.",
+      "description": "Seals a payment period like the period-closing page: locks works/breaks, creates the day locks and writes the audit log. Without a group the seal is global; it starts no payroll export. Refused, nothing sealed, while a service of the period is still unconfirmed (cannot be acknowledged) or while unresolved errors remain (seal anyway only after the user explicitly chose to: acknowledgeViolations + acknowledgedErrorCount). Use for: 'Periode abschliessen', 'close May 2026'. The seal is verified.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15215,7 +15213,7 @@
         "fr": "Clôturer une période de paie",
         "it": "Chiudi un periodo di pagamento"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "reopen_period",
@@ -16066,7 +16064,7 @@
     {
       "name": "bulk_add_absence_for_group",
       "area": "absence",
-      "description": "Places the same absence (e.g. a training day / Schulung) on every member of a named group for a single date in one step. With apply=false (default) it returns a read-only preview of how many members would get the absence; with apply=true it creates one absence (Break) per member that does not already have it on that date, then re-reads the database to confirm how many were actually persisted (added/verified). Members who already have that absence on that date are skipped.",
+      "description": "Places the same absence (e.g. a training day / Schulung) as a whole day on every member of a named group for one date. apply=false (default) previews how many members would get it; apply=true creates one absence (Break) per member who lacks it on that date, then re-reads the database to confirm how many were persisted. Members who already have it are skipped. From the chat no service is removed (no group selected); it stays with a red notice.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16178,12 +16176,12 @@
         "fr": "Enregistrer une absence pour tout un groupe",
         "it": "Registra un'assenza per l'intero gruppo"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "add_break",
       "area": "absence",
-      "description": "Places a single absence (Break) on a client/date - vacation, sick day, training, parental leave. Wraps BulkAddBreaksCommand so the Break macro service computes work-time and period-hour recalc runs. Break hours count toward TargetHours but NOT toward MaxWeeklyHours; the cell becomes immutable for Wizards 1+2+3. Use list_absence_types first to find the right absenceId.",
+      "description": "Places a single absence (Break) on a client/date - vacation, sick day, training, parental leave. Hours count toward TargetHours, not MaxWeeklyHours; the cell becomes immutable for Wizards 1+2+3. Without start/end time it is a whole day, even when only hours are given. It removes an untouched, not yet started service of that day only when a group is selected; the chat selects none, so the service stays with a red notice. Use list_absence_types first to find the absenceId.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16312,7 +16310,7 @@
         "fr": "Enregistrer une absence pour une personne",
         "it": "Registra un'assenza per una persona"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "add_workchange",
@@ -16401,10 +16399,10 @@
         },
         {
           "name": "toInvoice",
-          "description": "Whether this change is billable.",
+          "description": "Billable flag, on by default. Only true is accepted: false is refused, because only a planner, supervisor or admin may switch billing off in the schedule dialog.",
           "type": "Boolean",
           "required": false,
-          "defaultValue": false,
+          "defaultValue": true,
           "enumValues": null
         }
       ],
@@ -16475,7 +16473,7 @@
         "fr": "Ajouter une modification d'affectation",
         "it": "Aggiungi una modifica all'assegnazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "start_wizard1",
@@ -19816,7 +19814,7 @@
     {
       "name": "cover_absence",
       "area": "absence",
-      "description": "Reactive disruption flow: an employee falls out on a day or a period — record the absence and propose rule-compliant cover, all as ONE isolated scenario for approval. Use when someone calls in sick or drops out and their shifts need covering. Needs the Absence type (absenceId: its id or its exact name). Optional overrideBlock (supervisor emergency use) materialises a slot blocked only by a Block-mode compliance escalation instead of leaving it uncovered.",
+      "description": "Someone calls in sick or drops out for a day or period: records the absence and proposes rule-compliant cover as ONE scenario for approval. absenceId: id or exact name of the type. A fully covered service reported before its start moves to the stand-in with all attachments; reported later it gets a replacement. Accepting removes an uncovered service only if it has not started; a started one stays with a red notice. Billing is never switched off. overrideBlock: supervisor emergency override.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19923,7 +19921,7 @@
         "fr": "Enregistrer une absence imprévue et proposer un remplacement",
         "it": "Registra un'assenza improvvisa e proponi una copertura"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "evaluate_scenario",
@@ -33354,7 +33352,7 @@
         },
         {
           "name": "toInvoice",
-          "description": "Whether this change is billable.",
+          "description": "Billable flag. Only true is accepted: false is refused, because only a planner, supervisor or admin may switch billing off in the schedule dialog.",
           "type": "Boolean",
           "required": false,
           "defaultValue": null,
@@ -33394,8 +33392,7 @@
           "reisezeit korrigieren",
           "die stundenkorrektur an der schicht ändern",
           "zuschläge einer vertretung nachträglich anpassen",
-          "start und ende der briefing-zeit korrigieren",
-          "den eintrag als nicht verrechenbar markieren"
+          "start und ende der briefing-zeit korrigieren"
         ],
         "en": [
           "update workchange",
@@ -33404,8 +33401,7 @@
           "adjust replacement",
           "change the hours correction on the shift",
           "adjust the surcharges of a replacement afterwards",
-          "correct the start and end of the briefing time",
-          "mark the entry as not billable"
+          "correct the start and end of the briefing time"
         ],
         "fr": [
           "modifier le changement de travail",
@@ -33413,8 +33409,7 @@
           "ajuster le remplacement",
           "modifier la correction d'heures sur le service",
           "ajuster après coup les majorations d'un remplacement",
-          "corriger le début et la fin du temps de briefing",
-          "marquer l'entrée comme non facturable"
+          "corriger le début et la fin du temps de briefing"
         ],
         "it": [
           "modificare la modifica di lavoro",
@@ -33422,8 +33417,7 @@
           "regolare la sostituzione",
           "modificare la correzione ore sul turno",
           "adeguare a posteriori le maggiorazioni di una sostituzione",
-          "correggere inizio e fine del tempo di briefing",
-          "segnare la voce come non fatturabile"
+          "correggere inizio e fine del tempo di briefing"
         ]
       },
       "labels": {
@@ -33432,7 +33426,7 @@
         "fr": "Mettre à jour une modification d'affectation",
         "it": "Aggiorna una modifica all'assegnazione"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "delete_workchange",
@@ -53205,7 +53199,7 @@
     {
       "name": "get_replacement_status",
       "area": "schedule",
-      "description": "Reports who was already asked to cover an absent employee and how it went: per affected shift and day the candidates with their recorded answer (only proposed, asked without answer, accepted, declined, not reached), whether a replacement reached the plan, the coverage status of the slot, plus the escalation chains woken for it (which planners, who took over). Only recorded contacts appear; proposed means NOT asked. Default period: 7 days back to 14 days ahead.",
+      "description": "Reports who was already asked to cover an absent employee and how it went: per affected shift and day the candidates with their recorded answer (only proposed, asked without answer, accepted, declined, not reached), whether the cover (move or replacement) reached the plan, the coverage status of the slot, plus the escalation chains woken for it (which planners, who took over). Only recorded contacts appear; proposed means NOT asked. Default period: 7 days back to 14 days ahead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -53347,7 +53341,7 @@
         "fr": "État de la recherche de remplaçant",
         "it": "Stato della ricerca del sostituto"
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_explain_depth",

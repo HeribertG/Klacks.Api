@@ -30,5 +30,6 @@ public class ReplacementRequestConfiguration : IEntityTypeConfiguration<Replacem
         builder.HasIndex(r => new { r.AbsentClientId, r.Date });
         builder.HasIndex(r => r.CandidateClientId);
         builder.HasIndex(r => r.ReportedAtUtc);
+        builder.HasIndex(r => r.WorkId);
     }
 }

@@ -75,7 +75,8 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         "nobody was called.";
 
     private const string RowsMessage =
-        "{0}: {1} slot(s) in the replacement request book in the search window {2} to {3} ({4} covered); {5} escalation " +
+        "{0}: {1} slot(s) in the replacement request book in the search window {2} to {3} ({4} covered; {6} of them moved whole, " +
+        "the others kept with a replacement); {5} escalation " +
         "chain(s) visible to you. Proposed means the candidate was NOT asked; only recorded answers count.";
 
     private const string SearchWindowNote =
@@ -201,7 +202,8 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
             ? string.Format(NoRowsMessage, absentName, fromDate.ToString(DateTimeFormats.IsoDate), untilDate.ToString(DateTimeFormats.IsoDate))
             : string.Format(
                 RowsMessage, absentName, slots.Count, fromDate.ToString(DateTimeFormats.IsoDate), untilDate.ToString(DateTimeFormats.IsoDate),
-                slots.Count(s => s.Status == nameof(ReplacementSlotStatus.Covered)), chains.Count);
+                slots.Count(s => s.Status == nameof(ReplacementSlotStatus.Covered)), chains.Count,
+                slots.Count(s => s.Status == nameof(ReplacementSlotStatus.Covered) && s.Kind == nameof(ReplacementRequestKind.Move)));
 
         return SkillResult.SuccessResult(data, message);
     }
@@ -309,6 +311,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
             status.ToString(),
             hiddenEntries,
             group.Any(r => r.AppliedAtUtc.HasValue),
+            (group.Any(r => r.Kind == ReplacementRequestKind.Move) ? ReplacementRequestKind.Move : ReplacementRequestKind.Replacement).ToString(),
             group.OrderBy(r => r.ReportedAtUtc).Select(r => new CandidateView(
                 r.CandidateClientId,
                 candidateNames.GetValueOrDefault(r.CandidateClientId),
@@ -317,7 +320,8 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
                 r.Outcome.ToString(),
                 ToCompanyTime(r.OutcomeAtUtc, timeZone),
                 r.AppliedAtUtc.HasValue,
-                r.IsShortNotice)).ToList());
+                r.IsShortNotice,
+                r.Kind.ToString())).ToList());
     }
 
     private static string ContactOf(ReplacementRequestOutcome outcome) => outcome switch
@@ -422,6 +426,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         string Status,
         int HiddenEntries,
         bool AppliedToPlan,
+        string Kind,
         List<CandidateView> Candidates);
 
     public sealed record CandidateView(
@@ -432,7 +437,8 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         string Outcome,
         string? AnsweredAt,
         bool AppliedToPlan,
-        bool IsShortNotice);
+        bool IsShortNotice,
+        string Kind);
 
     public sealed record ChainView(
         Guid Id,

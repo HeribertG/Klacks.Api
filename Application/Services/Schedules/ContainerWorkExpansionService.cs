@@ -11,10 +11,12 @@
 /// <param name="breakRepository">Used to persist newly created sub-breaks</param>
 /// <param name="workChangeRepository">Used to persist briefing, debriefing, and travel time entries</param>
 /// <param name="shiftRepository">Used to load and validate the container shift type</param>
+/// <param name="childrenManager">Calculates a new sub-break like the recalculation of its container</param>
 /// <param name="workWriteGuard">Refuses template and override items whose shift lies outside the world of the container work</param>
 /// <param name="logger">Logger for diagnostic output</param>
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -37,6 +39,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IShiftRepository _shiftRepository;
     private readonly IWorkWriteGuard _workWriteGuard;
+    private readonly IContainerWorkChildrenManager _childrenManager;
     private readonly ILogger<ContainerWorkExpansionService> _logger;
 
     public ContainerWorkExpansionService(
@@ -47,6 +50,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         IWorkChangeRepository workChangeRepository,
         IShiftRepository shiftRepository,
         IWorkWriteGuard workWriteGuard,
+        IContainerWorkChildrenManager childrenManager,
         ILogger<ContainerWorkExpansionService> logger)
     {
         _containerTemplateRepository = containerTemplateRepository;
@@ -56,6 +60,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         _workChangeRepository = workChangeRepository;
         _shiftRepository = shiftRepository;
         _workWriteGuard = workWriteGuard;
+        _childrenManager = childrenManager;
         _logger = logger;
     }
 
@@ -182,6 +187,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
             AnalyseToken = containerWork.AnalyseToken
         };
 
+        await _childrenManager.CalculateNewSubBreakAsync(subBreak, containerWork, CancellationToken.None);
         await _breakRepository.Add(subBreak);
     }
 
@@ -202,7 +208,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = startTime,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -221,7 +227,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = debriefingEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -242,7 +248,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = briefingStart,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -263,7 +269,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = travelEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
     }
@@ -320,6 +326,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
             AnalyseToken = containerWork.AnalyseToken
         };
 
+        await _childrenManager.CalculateNewSubBreakAsync(subBreak, containerWork, CancellationToken.None);
         await _breakRepository.Add(subBreak);
     }
 
@@ -340,7 +347,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = startTime,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -359,7 +366,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = debriefingEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -380,7 +387,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = briefingStart,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
 
@@ -401,7 +408,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = travelEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = false
+                ToInvoice = WorkChangeDefaults.ToInvoice
             });
         }
     }

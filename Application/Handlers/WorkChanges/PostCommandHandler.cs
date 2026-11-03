@@ -9,11 +9,11 @@
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the touched clients and the scenario of the parent Work</param>
 /// <param name="parentWorkLockGuard">Refuses the change when the parent Work's lock level forbids it for the caller</param>
+/// <param name="replacementWriteGuard">Refuses a replacement without a valid person and one that gives the substitute a blocking conflict</param>
 /// <param name="replacementRequestRecorder">Records a manual replacement as an Accepted entry of the replacement request book, staged with the change</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Constants;
-using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -23,8 +23,6 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
-
-using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Application.Handlers.WorkChanges;
 
@@ -40,10 +38,9 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     private readonly IWorkChangeResultService _resultService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IDayLockService _dayLockService;
-    private readonly IPreCommitConflictChecker _conflictChecker;
-    private readonly ISupervisorOverrideAuthorizer _overrideAuthorizer;
     private readonly IReplacementRequestRecorder _replacementRequestRecorder;
     private readonly IParentWorkLockGuard _parentWorkLockGuard;
+    private readonly IReplacementWriteGuard _replacementWriteGuard;
 
     public PostCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -56,10 +53,9 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         IWorkChangeResultService resultService,
         IHttpContextAccessor httpContextAccessor,
         IDayLockService dayLockService,
-        IPreCommitConflictChecker conflictChecker,
-        ISupervisorOverrideAuthorizer overrideAuthorizer,
         IReplacementRequestRecorder replacementRequestRecorder,
         IParentWorkLockGuard parentWorkLockGuard,
+        IReplacementWriteGuard replacementWriteGuard,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -73,10 +69,9 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         _resultService = resultService;
         _httpContextAccessor = httpContextAccessor;
         _dayLockService = dayLockService;
-        _conflictChecker = conflictChecker;
-        _overrideAuthorizer = overrideAuthorizer;
         _replacementRequestRecorder = replacementRequestRecorder;
         _parentWorkLockGuard = parentWorkLockGuard;
+        _replacementWriteGuard = replacementWriteGuard;
     }
 
     public async Task<WorkChangeResource?> Handle(PostCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -106,7 +101,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
 
             await _dayLockService.EnsureWorkChangeNotLockedAsync(parentWork, workChange, cancellationToken);
 
-            await EnsureNoReplacementCollisionAsync(workChange, parentWork, request.Resource.OverrideBlock, cancellationToken);
+            await _replacementWriteGuard.EnsureAllowedAsync(
+                workChange, parentWork, request.Resource.OverrideBlock, null, cancellationToken);
 
             await _workChangeRepository.Add(workChange);
             await _replacementRequestRecorder.RecordManualReplacementAsync(parentWork, workChange, cancellationToken);
@@ -154,62 +150,5 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     {
         return _rowAccessGuard.AreAllVisibleAsync(
             WorkChangeTouchedClients.Of(parentWork, workChange.ReplaceClientId), parentWork.AnalyseToken, cancellationToken);
-    }
-
-    /// <summary>
-    /// Pre-commit guard for replacement work changes: when a change moves a different client into the
-    /// parent shift (ReplaceClientId set) on the real schedule (AnalyseToken null), it rejects the
-    /// change if that client would end up with a blocking conflict on the same day. It applies the same
-    /// severity rule as place_work: a missing mandatory qualification blocks unconditionally, a
-    /// block-mode compliance escalation blocks unless an authorized supervisor overrides it. A schedule
-    /// collision no longer blocks either path (owner decision 2026-08-22) — it is persisted and the
-    /// async post-commit check surfaces it into the error list instead of refusing the write.
-    /// Pure corrections (no ReplaceClientId) and scenario writes are skipped: a correction retimes the
-    /// same client's own work and would only self-collide with the parent, and scenarios run in a
-    /// sandbox that bypasses the hard write guards, mirroring the day-lock contract.
-    /// </summary>
-    /// <param name="workChange">The change about to be persisted (times and optional ReplaceClientId)</param>
-    /// <param name="parentWork">The Work the change is attached to; supplies date, shift and scenario token</param>
-    /// <param name="overrideBlockRequested">Whether the caller asked to override a block-mode escalation</param>
-    private async Task EnsureNoReplacementCollisionAsync(
-        Domain.Models.Schedules.WorkChange workChange,
-        Domain.Models.Schedules.Work parentWork,
-        bool overrideBlockRequested,
-        CancellationToken cancellationToken)
-    {
-        if (workChange.AnalyseToken != null || !workChange.ReplaceClientId.HasValue)
-        {
-            return;
-        }
-
-        var plannedRow = new PlannedWorkRow(
-            workChange.ReplaceClientId.Value,
-            parentWork.CurrentDate,
-            workChange.StartTime,
-            workChange.EndTime,
-            parentWork.ShiftId);
-
-        var conflictCheck = await _conflictChecker.CheckAsync([plannedRow], null, cancellationToken);
-        if (!conflictCheck.HasHardBlocking && !conflictCheck.HasOverridableBlocking)
-        {
-            // Nothing but a schedule collision (or nothing at all): a collision alone never blocks the
-            // write, it is reported into the error list by the async post-commit check instead.
-            return;
-        }
-
-        // A missing mandatory qualification blocks unconditionally, a block-mode compliance escalation
-        // blocks unless an authorized supervisor is overriding. Before this the replacement path only
-        // looked at structural errors, so a rule configured as Block stopped one path and waved the
-        // other through.
-        var authorized = await _overrideAuthorizer.IsAuthorizedAsync(overrideBlockRequested);
-        if (authorized && !conflictCheck.HasHardBlocking)
-        {
-            return;
-        }
-
-        throw new ConflictException(
-            $"Replacement blocked: client {workChange.ReplaceClientId.Value} would introduce " +
-            $"{conflictCheck.NewConflicts.Count(c => c.Type == ScheduleValidationType.Error)} blocking " +
-            $"conflict(s) on {parentWork.CurrentDate:yyyy-MM-dd}. Not committed.");
     }
 }

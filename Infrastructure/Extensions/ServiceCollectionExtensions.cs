@@ -490,6 +490,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Exports.IPayrollPeriodExportService, Application.Services.Exports.PayrollPeriodExportService>();
         services.AddScoped<Application.Interfaces.Exports.IExportFormatFamilyResolver, Application.Services.Exports.ExportFormatFamilyResolver>();
         services.AddScoped<Application.Interfaces.PeriodClosing.IPeriodValidationLoader, Services.PeriodClosing.PeriodValidationLoader>();
+        services.AddScoped<Application.Interfaces.PeriodClosing.IPeriodSealCompletenessGuard, Application.Services.PeriodClosing.PeriodSealCompletenessGuard>();
         services.AddScoped<Application.Interfaces.Schedules.IPreCommitConflictChecker, Services.Schedules.PreCommitConflictChecker>();
         services.AddScoped<Application.Interfaces.Schedules.IWorkWriteGuard, Application.Services.Schedules.WorkWriteGuardService>();
         services.AddScoped<Application.Interfaces.Schedules.IClientPlanningPeriodGuard, Application.Services.Schedules.ClientPlanningPeriodGuard>();
@@ -501,6 +502,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Schedules.IScenarioNameGenerator, Application.Services.Schedules.ScenarioNameGenerator>();
         services.AddScoped<Application.Interfaces.Schedules.IReplacementContactPhoneResolver, Application.Services.Schedules.Recovery.ReplacementContactPhoneResolver>();
         services.AddScoped<Application.Interfaces.Schedules.IReplacementRequestRecorder, Infrastructure.Services.Schedules.ReplacementRequestRecorder>();
+        services.AddScoped<Application.Interfaces.Schedules.IAbsenceWorkRemovalService, Application.Services.Schedules.AbsenceWorkRemovalService>();
+        services.AddScoped<Application.Interfaces.Schedules.IAbsenceCoverMaterializer, Application.Services.Schedules.Recovery.AbsenceCoverMaterializer>();
         services.AddScoped<Application.Interfaces.Schedules.IScenarioReplacementSwitcher, Application.Services.Schedules.Recovery.ScenarioReplacementSwitcher>();
         services.AddScoped<Application.Interfaces.Schedules.IReplacementContactValidator, Application.Services.Schedules.Recovery.ReplacementContactValidator>();
         services.AddScoped<Application.Interfaces.Schedules.IScenarioComplianceService, Application.Services.Schedules.ScenarioComplianceService>();

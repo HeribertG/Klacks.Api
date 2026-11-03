@@ -3,10 +3,11 @@
 /// <summary>
 /// Reactive disruption flow: an employee falls out on a day — record the absence and propose
 /// rule-compliant cover, all as one isolated scenario for approval (accept_scenario / reject_scenario).
-/// Thin wrapper that dispatches <see cref="Klacks.Api.Application.Commands.Schedules.CoverAbsenceCommand"/>; the absence (Break) and a Replacement
-/// WorkChange per slot land in the scenario (nothing touches the real schedule until accept). Locked
-/// slots of the absent employee are reported for manual review; slots without an eligible candidate as
-/// under-coverage. Use this when someone calls in sick / drops out and their shifts need covering.
+/// Thin wrapper that dispatches <see cref="Klacks.Api.Application.Commands.Schedules.CoverAbsenceCommand"/>; the absence (Break) and,
+/// per covered slot, either a move of the whole work to the stand-in or a Replacement WorkChange land in the scenario
+/// (nothing touches the real schedule until accept). Which one is decided by CoverMoveDecision from the report time
+/// against the work start. Locked slots of the absent employee are reported for manual review; slots without an
+/// eligible candidate as under-coverage. The answer counts moved and replaced slots separately.
 /// Report time and source of the replacement request book never come from the parameter dictionary: a set
 /// SkillExecutionContext.InboundReceivedAtUtc (only the inbound orchestrator sets it) means Messenger at that
 /// instant, everything else is RecoveryEngine reported now.
@@ -74,6 +75,9 @@ public class CoverAbsenceSkill : BaseSkillImplementation
                 reportedAtUtc, source),
             cancellationToken);
 
+        var movedCount = outcome.Covered.Count(c => c.Kind == ReplacementRequestKind.Move);
+        var replacedCount = outcome.Covered.Count - movedCount;
+
         var data = new
         {
             outcome.ScenarioId,
@@ -84,13 +88,16 @@ public class CoverAbsenceSkill : BaseSkillImplementation
             UntilDate = untilDate?.ToString(DateTimeFormats.IsoDate),
             GroupId = groupId,
             CoveredCount = outcome.Covered.Count,
+            MovedCount = movedCount,
+            ReplacedCount = replacedCount,
             UncoveredCount = outcome.Uncovered.Count,
             Covered = outcome.Covered.Select(c => new
             {
                 c.ShiftId,
                 Date = c.Date.ToString(DateTimeFormats.IsoDate),
                 c.ReplacementClientId,
-                c.ReplacementName
+                c.ReplacementName,
+                Kind = c.Kind.ToString()
             }),
             Uncovered = outcome.Uncovered.Select(u => new
             {
@@ -102,8 +109,9 @@ public class CoverAbsenceSkill : BaseSkillImplementation
 
         var message =
             $"Absence cover scenario '{outcome.ScenarioName}' ({outcome.ScenarioId}): " +
-            $"{outcome.Covered.Count} slot(s) covered, {outcome.Uncovered.Count} uncovered " +
-            "(locked / no eligible candidate). Review, then accept_scenario or reject_scenario.";
+            $"{outcome.Covered.Count} slot(s) covered ({movedCount} moved whole to the stand-in, {replacedCount} kept with a replacement), " +
+            $"{outcome.Uncovered.Count} uncovered (locked / no eligible candidate). Accepting removes an uncovered service only " +
+            "if it has not started; a started one stays with a red notice. Review, then accept_scenario or reject_scenario.";
 
         return SkillResult.SuccessResult(data, message);
     }

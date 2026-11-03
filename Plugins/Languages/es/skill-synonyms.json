@@ -439,14 +439,14 @@
     "me parece bien, ejecuta lo que estaba retenido"
   ],
   "confirm_work": [
-    "fijar este turno para que no se modifique",
-    "bloquear la asignación de yasmine",
-    "confirmar el turno de la mañana",
-    "asegurar que no se toque esta celda",
-    "aprobar y fijar la asignación actual",
-    "deja esta asignación como definitiva",
-    "protege este turno de los wizards",
-    "congela la asignación de mañana"
+    "confirmar este turno",
+    "confirmar el servicio",
+    "el servicio tuvo lugar",
+    "marcar el turno como trabajado",
+    "confirmar la asignación de ayer",
+    "poner esta entrada de trabajo como confirmada",
+    "confirmar que el trabajo se realizó",
+    "confirmar el turno de la mañana de yasmine"
   ],
   "cover_absence": [
     "cubrir una ausencia",

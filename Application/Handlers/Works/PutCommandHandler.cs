@@ -109,6 +109,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             ScheduleEntrySealState.CarryOver(work, existingWork);
             work.AnalyseToken = existingWork?.AnalyseToken;
             work.ClonedFromWorkId = existingWork?.ClonedFromWorkId;
+            work.MovedFromClientId = existingWork?.MovedFromClientId;
 
             var ownerIds = existingWork != null
                 ? new[] { existingWork.ClientId, work.ClientId }
@@ -157,14 +158,22 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
+            var dateChanged = existingWork != null && existingWork.CurrentDate != work.CurrentDate;
+            var clientChanged = existingWork != null && existingWork.ClientId != work.ClientId;
+            var movesChildren = dateChanged || clientChanged;
+            if (movesChildren)
+            {
+                var children = await _cascadeService.GetLiveChildrenAsync([work.Id], cancellationToken);
+                _workLockGuard.EnsureChildrenWritableForCaller(children, _httpContextAccessor);
+            }
+
             var updatedWork = await _workRepository.Put(work);
             if (updatedWork == null) return null;
 
-            var dateChanged = oldDate.HasValue && oldDate.Value != updatedWork.CurrentDate;
-            var clientChanged = existingWork != null && existingWork.ClientId != updatedWork.ClientId;
-            if (dateChanged || clientChanged)
+            if (movesChildren)
             {
-                await _cascadeService.MoveChildrenAsync(updatedWork.Id, updatedWork.CurrentDate, updatedWork.ClientId);
+                await _cascadeService.MoveChildrenAsync(
+                    updatedWork.Id, updatedWork.CurrentDate, existingWork!.ClientId, updatedWork.ClientId);
             }
 
             // No lock-level cascade here any more: the seal state is server-owned and carried over

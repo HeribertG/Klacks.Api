@@ -8,8 +8,10 @@
 /// checks neither the close date nor whether work is left, so a person can close by hand and the text says so, and those
 /// findings are not blocking. A reopened or partially sealed period stops Klacksy but not a person (the close handler
 /// skips existing day locks), so both are findings and not stops here. Without a stored lag the advice counts from the
-/// day after the period end. Open errors are the one real refusal: the close fails while they are open, unless the user
-/// saw them and explicitly decides to seal anyway; warnings never gate the close.
+/// day after the period end. Two things are real refusals. Services of the period that are not sealed yet stop the close
+/// for good: no acknowledgement lifts that, they have to be confirmed after they ended (verdict ConfirmServicesFirst, which
+/// comes before the errors, as in the automatic close). Open errors stop it unless the user saw them and explicitly decides
+/// to seal anyway; warnings never gate the close.
 /// </summary>
 /// <param name="facts">The gathered facts about the period</param>
 
@@ -49,6 +51,7 @@ public static class PeriodCloseReadinessAdvisor
             facts.SealedDayCount,
             facts.UnsealedDaysWithWork.Count,
             facts.UnsealedDaysWithWork.Take(MaxListedUnsealedDays).ToList(),
+            facts.UnsealedWorkCount,
             verdict,
             findings,
             BuildRecommendation(facts, verdict, findings));
@@ -64,6 +67,11 @@ public static class PeriodCloseReadinessAdvisor
         if (!isDue)
         {
             return PeriodCloseVerdict.WaitUntilDue;
+        }
+
+        if (facts.UnsealedWorkCount > 0)
+        {
+            return PeriodCloseVerdict.ConfirmServicesFirst;
         }
 
         return facts.ErrorCount > 0 ? PeriodCloseVerdict.FixErrorsFirst : PeriodCloseVerdict.CloseNow;
@@ -104,6 +112,14 @@ public static class PeriodCloseReadinessAdvisor
 
     private static void AddCountFindings(PeriodCloseReadinessFacts facts, List<PeriodCloseFinding> findings)
     {
+        if (facts.UnsealedWorkCount > 0)
+        {
+            findings.Add(new PeriodCloseFinding(
+                PeriodCloseFindingCode.UnsealedWorks,
+                $"{facts.UnsealedWorkCount} service(s) of the period are not confirmed yet; the close is refused until they are confirmed, and no acknowledgement lifts that. A service can only be confirmed after it has ended.",
+                true));
+        }
+
         if (facts.ErrorCount > 0)
         {
             findings.Add(new PeriodCloseFinding(
@@ -158,7 +174,8 @@ public static class PeriodCloseReadinessAdvisor
         var advice = verdict switch
         {
             PeriodCloseVerdict.NothingToSeal => NothingToSealAdvice(facts, lead),
-            PeriodCloseVerdict.WaitUntilDue => $"Wait: {lead}{OpenErrorsHint(facts)} {AutomaticClosePolicyNotice}",
+            PeriodCloseVerdict.WaitUntilDue => $"Wait: {lead}{UnsealedWorksHint(facts)}{OpenErrorsHint(facts)} {AutomaticClosePolicyNotice}",
+            PeriodCloseVerdict.ConfirmServicesFirst => $"Do not close yet, {facts.UnsealedWorkCount} service(s) of {PeriodLabel(facts)} are not confirmed. {lead}",
             PeriodCloseVerdict.FixErrorsFirst => $"Do not close yet, fix the {facts.ErrorCount} open error(s) of {PeriodLabel(facts)} first. {lead}",
             _ => $"{PeriodLabel(facts)} is ready to be closed now.{WarningsHint(facts)}"
         };
@@ -170,6 +187,9 @@ public static class PeriodCloseReadinessAdvisor
         facts.Stop == PeriodCloseStop.LastDaySealed && facts.UnsealedDaysWithWork.Count > 0
             ? $"Nothing to seal as a period: {lead} However, {facts.UnsealedDaysWithWork.Count} earlier day(s) with assignments are still unsealed; a close would seal them. {AutomaticClosePolicyNotice}"
             : $"Nothing to seal: {lead} {AutomaticClosePolicyNotice}";
+
+    private static string UnsealedWorksHint(PeriodCloseReadinessFacts facts) =>
+        facts.UnsealedWorkCount > 0 ? $" {facts.UnsealedWorkCount} service(s) are not confirmed yet and have to be confirmed after they ended before any close can run." : string.Empty;
 
     private static string OpenErrorsHint(PeriodCloseReadinessFacts facts) =>
         facts.ErrorCount > 0 ? $" {facts.ErrorCount} error(s) are already open and can be fixed until then." : string.Empty;
