@@ -9,4 +9,5 @@ public enum ReplacementSlotStatus
     NobodyAvailable = 2,
     NotYetAsked = 3,
     PartlyDeclined = 4,
+    MoveReversed = 5,
 }
