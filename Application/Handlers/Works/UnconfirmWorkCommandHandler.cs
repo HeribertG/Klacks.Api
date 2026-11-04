@@ -10,6 +10,7 @@
 /// </summary>
 /// <param name="request">Carries the id of the work entry to unseal</param>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
+/// <param name="cascadeService">Lifts the seal of a container's children with the container, so it can be edited again</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Exceptions;
@@ -19,6 +20,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -37,6 +39,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
     private readonly IWorkLockLevelService _lockLevelService;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IContainerWorkCascadeService _cascadeService;
 
     public UnconfirmWorkCommandHandler(
         IWorkRepository workRepository,
@@ -45,6 +48,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
         IWorkLockLevelService lockLevelService,
         ScheduleMapper scheduleMapper,
         IHttpContextAccessor httpContextAccessor,
+        IContainerWorkCascadeService cascadeService,
         ILogger<UnconfirmWorkCommandHandler> logger)
         : base(logger)
     {
@@ -54,6 +58,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
         _lockLevelService = lockLevelService;
         _scheduleMapper = scheduleMapper;
         _httpContextAccessor = httpContextAccessor;
+        _cascadeService = cascadeService;
     }
 
     public async Task<WorkResource?> Handle(UnconfirmWorkCommand request, CancellationToken cancellationToken)
@@ -77,9 +82,11 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
                 throw new ForbiddenException(InsufficientRoleMessage);
             }
 
+            var previousLockLevel = work.LockLevel;
             _lockLevelService.Unseal(work, isAdmin, isAuthorised);
 
             await _workRepository.Put(work);
+            await _cascadeService.ReleaseLockLevelAsync(work.Id, previousLockLevel);
             await _unitOfWork.CompleteAsync();
 
             return _scheduleMapper.ToWorkResource(work);

@@ -46,4 +46,12 @@ public interface IContainerWorkCascadeService
     /// or higher keeps its seal.
     /// </summary>
     Task UpdateLockLevelAsync(Guid parentWorkId, WorkLockLevel lockLevel, string? sealedBy);
+
+    /// <summary>
+    /// Lifts the seal of the children after the container was unsealed: a child sealed no higher than the container was
+    /// loses its seal with it, so the container can be edited again. A child sealed higher (a period seal) keeps it.
+    /// </summary>
+    /// <param name="parentWorkId">The container work</param>
+    /// <param name="previousLockLevel">The lock level the container had before it was unsealed</param>
+    Task ReleaseLockLevelAsync(Guid parentWorkId, WorkLockLevel previousLockLevel);
 }
