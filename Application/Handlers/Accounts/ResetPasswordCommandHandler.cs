@@ -34,8 +34,7 @@ public class ResetPasswordCommandHandler : BaseTransactionHandler, IRequestHandl
             }
 
             return result;
-        }, 
-        "resetting password", 
-        new { Token = request.ResetPassword.Token });
+        },
+        "resetting password");
     }
 }

@@ -7,7 +7,7 @@ namespace Klacks.Api.Domain.Interfaces.Accounts;
 
 public interface IAccountPasswordService
 {
-    Task<AuthenticatedResult> ChangePasswordAsync(ChangePasswordResource model);
+    Task<AuthenticatedResult> ChangePasswordAsync(string userId, ChangePasswordResource model);
 
     Task<AuthenticatedResult> ResetPasswordAsync(ResetPasswordResource data);
 

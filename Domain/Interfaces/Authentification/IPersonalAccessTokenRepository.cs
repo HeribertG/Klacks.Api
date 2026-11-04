@@ -14,5 +14,16 @@ public interface IPersonalAccessTokenRepository
 
     Task<PersonalAccessToken?> RevokeAsync(Guid id, string userId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Soft-deletes every personal access token of the user, including the OAuth access tokens issued as
+    /// personal access tokens. Self-committing: calls SaveChangesAsync on the shared context, so it also flushes
+    /// changes other repositories staged before; run it inside IUnitOfWork.ExecuteInTransactionAsync when it must
+    /// be atomic with them.
+    /// </summary>
+    /// <param name="userId">Owner of the tokens</param>
+    /// <param name="cancellationToken">Cancels the write</param>
+    /// <returns>Number of tokens revoked</returns>
+    Task<int> RevokeAllByUserAsync(string userId, CancellationToken cancellationToken = default);
+
     Task UpdateLastUsedAsync(Guid id, DateTime lastUsedAt, CancellationToken cancellationToken = default);
 }

@@ -4,7 +4,8 @@
 /// Shared helper for sending password change notification emails.
 /// </summary>
 /// <param name="result">Authentication result to attach mail success status to</param>
-/// <param name="resource">Password change resource with email template and recipient</param>
+/// <param name="recipientEmail">Stored e-mail address of the account whose password changed, never the address from the request body</param>
+/// <param name="resource">Password change resource with the mail title and template</param>
 using Klacks.Api.Domain.Interfaces.Accounts;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.DTOs.Registrations;
@@ -18,6 +19,7 @@ public static class PasswordChangeEmailHelper
 
     public static async Task<AuthenticatedResult> SendPasswordChangeEmailAsync(
         AuthenticatedResult result,
+        string recipientEmail,
         ChangePasswordResource resource,
         IAccountNotificationService notificationService,
         IAccountAuthenticationService authService)
@@ -28,7 +30,7 @@ public static class PasswordChangeEmailHelper
 
         var mailResult = await notificationService.SendEmailAsync(
             resource.Title,
-            resource.Email,
+            recipientEmail,
             message);
 
         result.MailSuccess = false;

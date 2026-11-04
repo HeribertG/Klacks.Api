@@ -157,11 +157,29 @@ public class AuthenticationService : IAuthenticationService
         return null;
     }
 
+    /// <summary>
+    /// Changes the password and feeds the lockout counter like a login: a wrong old password counts as a failed access,
+    /// a successful change resets the counter. A new password that only fails the password policy is not counted.
+    /// The caller checks beforehand that the account is neither locked out nor deactivated.
+    /// </summary>
+    /// <param name="user">Account whose password changes</param>
+    /// <param name="oldPassword">Current password as typed by the caller</param>
+    /// <param name="newPassword">Requested new password</param>
     public async Task<(bool Success, IdentityResult? Result)> ChangePasswordAsync(AppUser user, string oldPassword, string newPassword)
     {
         try
         {
             var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+            if (result.Succeeded)
+            {
+                await _userManager.ResetAccessFailedCountAsync(user);
+            }
+            else if (result.Errors.Any(e => e.Code == nameof(IdentityErrorDescriber.PasswordMismatch)))
+            {
+                await _userManager.AccessFailedAsync(user);
+                _logger.LogWarning("Password change failed (invalid old password) for user {UserId}", user.Id);
+            }
+
             return (result.Succeeded, result);
         }
         catch
@@ -218,7 +236,9 @@ public class AuthenticationService : IAuthenticationService
         {
             var passwordHasher = new PasswordHasher<AppUser>();
             user.PasswordHash = passwordHasher.HashPassword(user, newPassword);
-            
+            user.AccessFailedCount = 0;
+            user.LockoutEnd = null;
+
             var result = await _userManager.UpdateAsync(user);
             return (result.Succeeded, result);
         }

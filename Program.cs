@@ -43,8 +43,6 @@ using System.Text.Json;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.RateLimiting;
 
 var myAllowSpecificOrigins = "CorsPolicy";
 string[] headers =["X-Operation", "X-Resource", "X-Total-Count", Klacks.Api.Application.Constants.ExportResponseHeaders.SkippedEntries, Klacks.Api.Application.Constants.ExportResponseHeaders.AbsenceMappingInvalid, Klacks.Api.Application.Constants.ExportResponseHeaders.Persons, Klacks.Api.Application.Constants.ExportResponseHeaders.Supplementary];
@@ -344,100 +342,7 @@ builder.Services.AddMemoryCache(options =>
 builder.Services.AddHealthChecks()
     .AddCheck<PlatformDependencyHealthCheck>("platform-dependencies", tags: ["deep"]);
 
-builder.Services.AddRateLimiter(options =>
-{
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-
-    options.AddPolicy(RateLimitingPolicies.Login, httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = RateLimitingPolicies.LoginPermitLimit,
-                Window = RateLimitingPolicies.DefaultWindow
-            }));
-
-    options.AddPolicy(RateLimitingPolicies.Upload, httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = RateLimitingPolicies.UploadPermitLimit,
-                Window = RateLimitingPolicies.DefaultWindow
-            }));
-
-    options.AddPolicy(RateLimitingPolicies.RefreshToken, httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = RateLimitingPolicies.RefreshTokenPermitLimit,
-                Window = RateLimitingPolicies.DefaultWindow
-            }));
-
-    options.AddPolicy(RateLimitingPolicies.PasswordReset, httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = RateLimitingPolicies.PasswordResetPermitLimit,
-                Window = RateLimitingPolicies.DefaultWindow
-            }));
-
-    options.AddPolicy(RateLimitingPolicies.LlmChat, httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: RateLimitPartitionKeys.ForUserOrVisitor(httpContext),
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = RateLimitingPolicies.LlmChatPermitLimit,
-                Window = RateLimitingPolicies.DefaultWindow
-            }));
-
-    options.AddPolicy(RateLimitingPolicies.PlaygroundStatus, httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: RateLimitPartitionKeys.ForNetworkAddress(httpContext),
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = RateLimitingPolicies.PlaygroundStatusPermitLimit,
-                Window = RateLimitingPolicies.DefaultWindow
-            }));
-
-    options.AddPolicy(RateLimitingPolicies.BotQuery, httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = RateLimitingPolicies.BotQueryPermitLimit,
-                Window = RateLimitingPolicies.DefaultWindow
-            }));
-
-    options.AddPolicy(RateLimitingPolicies.ConnectionTest, httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: RateLimitPartitionKeys.ForUserOrVisitor(httpContext),
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = RateLimitingPolicies.ConnectionTestPermitLimit,
-                Window = RateLimitingPolicies.DefaultWindow
-            }));
-
-    options.AddPolicy(RateLimitingPolicies.ClientImport, httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: RateLimitPartitionKeys.ForUserOrVisitor(httpContext),
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = RateLimitingPolicies.ClientImportPermitLimit,
-                Window = RateLimitingPolicies.DefaultWindow
-            }));
-
-    options.AddPolicy(RateLimitingPolicies.GeoProxy, httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: RateLimitPartitionKeys.ForUserOrVisitor(httpContext),
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = RateLimitingPolicies.GeoProxyPermitLimit,
-                Window = RateLimitingPolicies.DefaultWindow
-            }));
-});
+builder.Services.AddKlacksRateLimiting();
 
 builder.Services.AddPipelineBehavior(typeof(CancellationBehavior<,>));
 builder.Services.AddPipelineBehavior(typeof(ValidationBehavior<,>));

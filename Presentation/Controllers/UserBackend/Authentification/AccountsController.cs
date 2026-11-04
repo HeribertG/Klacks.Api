@@ -39,25 +39,19 @@ public class AccountsController : BaseController
     [BlockedOnPlayground]
     [Authorize]
     [ExemptFromAdminSetupGate]
-    [HttpPut("ChangePassword")]
-    public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordResource model)
-    {
-        _logger.LogInformation("ChangePassword requested for user: {Email}", model.Email.MaskEmail());
-
-        var result = await _mediator.Send(new ChangePasswordCommand(model));
-
-        return Ok(result);
-    }
-
-    [BlockedOnPlayground]
-    [Authorize]
-    [ExemptFromAdminSetupGate]
+    [EnableRateLimiting(RateLimitingPolicies.PasswordChange)]
     [HttpPost("ChangePasswordUser")]
     public async Task<ActionResult> ChangePasswordUser([FromBody] ChangePasswordResource model)
     {
-        _logger.LogInformation("ChangePasswordUser requested for user: {Email}", model.Email.MaskEmail());
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
 
-        var result = await _mediator.Send(new ChangePasswordUserCommand(model));
+        _logger.LogInformation("ChangePasswordUser requested for user: {UserId}", userId);
+
+        var result = await _mediator.Send(new ChangePasswordUserCommand(userId, model));
 
         return Ok(result);
     }

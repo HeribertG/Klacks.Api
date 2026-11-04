@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Repository for personal access tokens with hash lookup, per-user listing,
-/// owner-scoped soft-delete revocation and last-used tracking.
+/// owner-scoped soft-delete revocation (single token or all tokens of a user) and last-used tracking.
 /// </summary>
 using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Models.Authentification;
@@ -55,6 +55,22 @@ public class PersonalAccessTokenRepository : IPersonalAccessTokenRepository
         _context.PersonalAccessTokens.Remove(token);
         await _context.SaveChangesAsync(cancellationToken);
         return token;
+    }
+
+    public async Task<int> RevokeAllByUserAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        var tokens = await _context.PersonalAccessTokens
+            .Where(t => t.UserId == userId)
+            .ToListAsync(cancellationToken);
+
+        if (tokens.Count == 0)
+        {
+            return 0;
+        }
+
+        _context.PersonalAccessTokens.RemoveRange(tokens);
+        await _context.SaveChangesAsync(cancellationToken);
+        return tokens.Count;
     }
 
     public async Task UpdateLastUsedAsync(Guid id, DateTime lastUsedAt, CancellationToken cancellationToken = default)
