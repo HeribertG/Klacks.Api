@@ -5,7 +5,7 @@
 /// is owned by a client outside the caller's group visibility is answered exactly like an expense that does
 /// not exist; nothing is written, and so is one whose old or new parent Work is missing or deleted. The AnalyseToken follows the parent Work (the request carries none), and an expense
 /// cannot be moved between a scenario and the main plan. A sealed old or new parent Work refuses the write as
-/// decided by IParentWorkLockGuard.
+/// decided by IParentWorkLockGuard. A service inside a container takes no expense (coded 400); the container does.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the touched clients and the scenario of the parent Work</param>
 /// <param name="parentWorkLockGuard">Refuses the write when a parent Work's lock level forbids it for the caller</param>
@@ -110,6 +110,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
             if (oldParentWork.AnalyseToken != parentWork.AnalyseToken)
             {
                 throw new InvalidRequestException(CrossScopeMoveMessage);
+            }
+
+            if (parentWork.ParentWorkId != null)
+            {
+                throw new ContainerServiceExpenseRefusedException();
             }
 
             expenses.AnalyseToken = parentWork.AnalyseToken;

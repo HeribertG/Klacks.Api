@@ -235,6 +235,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<ITravelTimeCalculationService, TravelTimeCalculationService>();
         services.AddScoped<IContainerWorkExpansionService, ContainerWorkExpansionService>();
         services.AddScoped<IContainerWorkCascadeService, ContainerWorkCascadeService>();
+        services.AddScoped<IContainerSplitWriter, ContainerSplitWriter>();
     }
 
     private static void AddSettingsServices(this IServiceCollection services, IConfiguration configuration)

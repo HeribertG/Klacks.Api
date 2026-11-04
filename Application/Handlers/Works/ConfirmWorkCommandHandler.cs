@@ -5,7 +5,8 @@
 /// on which an identity is actually read is no longer the only unprotocolled one. A Work owned by a client
 /// outside the caller's group visibility is refused exactly like a Work that does not exist; nothing is sealed.
 /// Confirming states that the service took place, so a service is only confirmed from its end on (company clock, a night
-/// shift ends on the following day); this holds for a scenario Work as well.
+/// shift ends on the following day); this holds for a scenario Work as well. A service inside a container is never confirmed
+/// on its own: the container confirms it with its children (IContainerWorkCascadeService).
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="companyClock">The company-local now the end of the service is measured against</param>
@@ -76,6 +77,11 @@ public class ConfirmWorkCommandHandler : BaseHandler, IRequestHandler<ConfirmWor
             var work = await _workRepository.Get(request.WorkId);
             if (work == null || !await _rowAccessGuard.IsVisibleAsync(work.ClientId, work.AnalyseToken, cancellationToken))
                 throw new KeyNotFoundException($"Work with ID {request.WorkId} not found.");
+
+            if (work.ParentWorkId != null)
+            {
+                throw new ContainerChildConfirmRefusedException();
+            }
 
             var companyNow = (await _companyClock.GetNowAsync(cancellationToken)).DateTime;
             if (!WorkServiceEnd.HasEnded(work, companyNow))

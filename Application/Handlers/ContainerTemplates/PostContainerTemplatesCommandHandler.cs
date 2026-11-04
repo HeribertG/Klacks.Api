@@ -3,7 +3,8 @@
 /// <summary>
 /// Creates templates of a container under the container template lock. A missing or hidden container, or an item
 /// with a task shift the caller may not see and the container does not reference yet, is answered with 404 before
-/// anything is written.
+/// anything is written. A template whose item, with its travel, briefing or debriefing time, reaches outside the template
+/// window is refused with the ContainerFitRefusal code before anything is written (ContainerFitCheck).
 /// </summary>
 /// <param name="containerVisibilityGuard">Refuses missing and hidden containers and new hidden task shifts</param>
 
@@ -14,6 +15,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces;
@@ -65,6 +67,8 @@ public class PostContainerTemplatesCommandHandler : IRequestHandler<PostContaine
             request.Resources.SelectMany(r => r.ContainerTemplateItems).Select(i => i.ShiftId),
             cancellationToken);
 
+        EnsureTemplatesFit(request.Resources);
+
         _logger.LogInformation("Creating {Count} ContainerTemplates for Container: {ContainerId}",
             request.Resources.Count, request.ContainerId);
 
@@ -92,5 +96,13 @@ public class PostContainerTemplatesCommandHandler : IRequestHandler<PostContaine
 
         var result = createdTemplates.Select(t => _scheduleMapper.ToContainerTemplateResource(t)).ToList();
         return result;
+    }
+
+    private void EnsureTemplatesFit(IEnumerable<ContainerTemplateResource> resources)
+    {
+        foreach (var resource in resources)
+        {
+            ContainerFitCheck.EnsureTemplateFits(_scheduleMapper.ToContainerTemplateEntity(resource));
+        }
     }
 }

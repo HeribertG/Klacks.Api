@@ -111,6 +111,18 @@ public class WorksController : BaseController
         return Ok(result);
     }
 
+    [HttpPost("{id}/Split")]
+    public async Task<ActionResult<SplitContainerWorkResponse>> Split([FromRoute] Guid id, [FromBody] SplitContainerWorkRequest? request)
+    {
+        if (request is null)
+        {
+            return BadRequest();
+        }
+
+        var result = await _mediator.Send(new SplitContainerWorkCommand(id, request.SplitTime, request.TargetClientId));
+        return Ok(result);
+    }
+
     [HttpPost("{id}/Confirm")]
     public async Task<ActionResult<WorkResource>> Confirm([FromRoute] Guid id)
     {

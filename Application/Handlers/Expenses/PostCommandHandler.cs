@@ -5,7 +5,7 @@
 /// a client outside the caller's group visibility is refused exactly like an expense on a missing or deleted
 /// Work (KeyNotFoundException, 404), without revealing the owner; nothing is written. The expense always belongs to the scope (main plan or scenario) of its parent
 /// Work: the AnalyseToken is taken from the Work, never from the request. A sealed parent Work refuses the write
-/// as decided by IParentWorkLockGuard.
+/// as decided by IParentWorkLockGuard. A service inside a container takes no expense (coded 400); the container does.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the touched clients and the scenario of the parent Work</param>
 /// <param name="parentWorkLockGuard">Refuses the write when the parent Work's lock level forbids it for the caller</param>
@@ -15,6 +15,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -81,6 +82,11 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
             if (parentWork == null || !await _rowAccessGuard.IsVisibleAsync(parentWork.ClientId, parentWork.AnalyseToken, cancellationToken))
             {
                 throw new KeyNotFoundException($"Work with ID {expenses.WorkId} not found");
+            }
+
+            if (parentWork.ParentWorkId != null)
+            {
+                throw new ContainerServiceExpenseRefusedException();
             }
 
             expenses.AnalyseToken = parentWork.AnalyseToken;

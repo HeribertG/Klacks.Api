@@ -100,6 +100,9 @@ public sealed class ScenarioWorkCloner
                 : null,
             ClonedFromWorkId = work.Id,
             MovedFromClientId = work.MovedFromClientId,
+            SplitFromWorkId = work.SplitFromWorkId.HasValue && workIdMap.TryGetValue(work.SplitFromWorkId.Value, out var newSplitRootId)
+                ? newSplitRootId
+                : null,
             TransportMode = work.TransportMode
         };
 

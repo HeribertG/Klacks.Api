@@ -31,6 +31,12 @@ public class Work : ScheduleEntryBase
     /// </summary>
     public Guid? MovedFromClientId { get; set; }
 
+    /// <summary>
+    /// Second and later parts of a split container only: the first part of the split family (the container the first split
+    /// started from). The shift grid counts a split family as one planned container; null for a work that is no split part.
+    /// </summary>
+    public Guid? SplitFromWorkId { get; set; }
+
     public TransportMode? TransportMode { get; set; }
 
     public string? StartBase { get; set; }

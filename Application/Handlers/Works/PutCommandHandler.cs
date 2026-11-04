@@ -110,6 +110,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             work.AnalyseToken = existingWork?.AnalyseToken;
             work.ClonedFromWorkId = existingWork?.ClonedFromWorkId;
             work.MovedFromClientId = existingWork?.MovedFromClientId;
+            work.SplitFromWorkId = existingWork?.SplitFromWorkId;
 
             var ownerIds = existingWork != null
                 ? new[] { existingWork.ClientId, work.ClientId }

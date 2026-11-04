@@ -13,6 +13,7 @@
 -- period_booked_days: sporadic shifts only - distinct booked days within the whole sporadic period (week/month/...) containing the date,
 --   independent of the requested date range; 0 for non-sporadic shifts. Same count that drives sporadic_status = 2.
 -- Note: Only returns shifts with status >= 2 (OriginalShift or SplitShift)
+-- engaged: planned top-level works of the shift on the day; the parts of a split container count as one, on the day of the first part
 
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[]);
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[], UUID);
@@ -155,9 +156,10 @@ BEGIN
         SELECT
             w.shift_id,
             d.schedule_date,
-            COUNT(*)::INTEGER AS engaged_count
+            COUNT(DISTINCT COALESCE(w.split_from_work_id, w.id))::INTEGER AS engaged_count
         FROM work w
-        JOIN date_series d ON d.schedule_date = w.workday::DATE
+        LEFT JOIN work split_root ON split_root.id = w.split_from_work_id AND split_root.is_deleted = false
+        JOIN date_series d ON d.schedule_date = COALESCE(split_root.workday, w.workday)::DATE
         WHERE w.is_deleted = false
         AND w.parent_work_id IS NULL
         AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
@@ -381,14 +383,15 @@ BEGIN
     work_counts AS (
         SELECT
             w.shift_id,
-            w.workday::DATE AS schedule_date,
-            COUNT(*)::INTEGER AS engaged_count
+            COALESCE(split_root.workday, w.workday)::DATE AS schedule_date,
+            COUNT(DISTINCT COALESCE(w.split_from_work_id, w.id))::INTEGER AS engaged_count
         FROM work w
-        JOIN input_pairs ip ON ip.shift_id = w.shift_id AND ip.schedule_date = w.workday::DATE
+        LEFT JOIN work split_root ON split_root.id = w.split_from_work_id AND split_root.is_deleted = false
+        JOIN input_pairs ip ON ip.shift_id = w.shift_id AND ip.schedule_date = COALESCE(split_root.workday, w.workday)::DATE
         WHERE w.is_deleted = false
         AND w.parent_work_id IS NULL
         AND w.analyse_token IS NOT DISTINCT FROM p_analyse_token
-        GROUP BY w.shift_id, w.workday::DATE
+        GROUP BY w.shift_id, COALESCE(split_root.workday, w.workday)::DATE
     ),
     sporadic_ranges AS (
         SELECT

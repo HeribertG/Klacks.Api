@@ -20,6 +20,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Services.Schedules;
@@ -137,7 +138,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
 
     private async Task ExpandShiftItemFromOverride(Work containerWork, DateOnly date, ContainerShiftOverrideItem item)
     {
-        var clientId = item.Shift?.ClientId ?? containerWork.ClientId;
+        var clientId = ContainerChildOwner.Of(item.Shift?.ClientId, containerWork.ClientId);
         var isTimeRange = item.Shift?.IsTimeRange ?? false;
 
         var startTime = isTimeRange && item.TimeRangeStartItem.HasValue
@@ -276,7 +277,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
 
     private async Task ExpandShiftItem(Work containerWork, DateOnly date, ContainerTemplateItem item)
     {
-        var clientId = item.Shift?.ClientId ?? containerWork.ClientId;
+        var clientId = ContainerChildOwner.Of(item.Shift?.ClientId, containerWork.ClientId);
         var isTimeRange = item.Shift?.IsTimeRange ?? false;
 
         var startTime = isTimeRange && item.TimeRangeStartItem.HasValue

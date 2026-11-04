@@ -4,17 +4,15 @@
 /// Manages updating container work children: collection sync, macro execution for sub-works/breaks/work-changes,
 /// unpaid break negation, and the parent's own macro run. The work keeps the hours and surcharges of its whole span from its
 /// own macro; an unpaid sub-break carries its negative hours and surcharges on the break row only, because the period sums
-/// add both rows (taking it off the work as well would count it twice). When a save moves the container
-/// bounds, all children must lie inside the new bounds (no overhang), so a container split can never cut through an item.
+/// add both rows (taking it off the work as well would count it twice). Every save checks that the container holds all of
+/// its children, their travel, briefing and debriefing times included (ContainerFitCheck), with the bounds the save leaves.
 /// </summary>
 /// <param name="workId">The parent container work ID</param>
 /// <param name="updatedWorks">Sub-work entities to sync</param>
 /// <param name="updatedBreaks">Sub-break entities to sync</param>
 /// <param name="updatedWorkChanges">Work change entities to sync</param>
 
-using System.Globalization;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -27,8 +25,6 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
 {
-    private const string OverhangListSeparator = ", ";
-
     private readonly DataBaseContext _context;
     private readonly EntityCollectionUpdateService _collectionUpdateService;
     private readonly IWorkMacroService _workMacroService;
@@ -66,7 +62,7 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         var parentWork = await _context.Work
             .FirstOrDefaultAsync(w => w.Id == workId && !w.IsDeleted, cancellationToken);
 
-        EnsureChildrenInsideMovedBounds(parentWork, parentStartTime, parentEndTime, updatedWorks, updatedBreaks);
+        EnsureChildrenInsideBounds(parentWork, parentStartTime, parentEndTime, updatedWorks, updatedBreaks, updatedWorkChanges);
         UpdateParentProperties(parentWork, parentStartBase, parentEndBase, parentStartTime, parentEndTime);
         InheritParentDefaults(parentWork, updatedBreaks);
 
@@ -112,30 +108,23 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         return await ProcessUnpaidBreakSurchargesAsync(subBreak, parentWork, parentShift);
     }
 
-    private static void EnsureChildrenInsideMovedBounds(
+    private static void EnsureChildrenInsideBounds(
         Work? parentWork,
         TimeOnly? startTime,
         TimeOnly? endTime,
         List<Work> updatedWorks,
-        List<Break> updatedBreaks)
+        List<Break> updatedBreaks,
+        List<WorkChange> updatedWorkChanges)
     {
-        if (parentWork == null || (!startTime.HasValue && !endTime.HasValue)) return;
+        if (parentWork == null) return;
 
-        var envelopeStart = startTime ?? parentWork.StartTime;
-        var envelopeEnd = endTime ?? parentWork.EndTime;
-        var items = updatedWorks.Select(w => (w.StartTime, w.EndTime))
-            .Concat(updatedBreaks.Select(b => (b.StartTime, b.EndTime)));
-
-        var overhangs = ContainerChildrenEnvelopeValidator.FindOverhangs(envelopeStart, envelopeEnd, items);
-        if (overhangs.Count == 0) return;
-
-        var listed = string.Join(OverhangListSeparator, overhangs.Select(o => FormatSpan(o.Start, o.End)));
-        throw new InvalidRequestException(
-            $"The container {FormatSpan(envelopeStart, envelopeEnd)} must cover all of its tasks and absences without overhang; outside: {listed}.");
+        ContainerFitCheck.EnsureChildrenFit(
+            startTime ?? parentWork.StartTime,
+            endTime ?? parentWork.EndTime,
+            updatedWorks,
+            updatedBreaks,
+            updatedWorkChanges);
     }
-
-    private static string FormatSpan(TimeOnly start, TimeOnly end)
-        => $"{start.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}-{end.ToString(DateTimeFormats.HourMinute, CultureInfo.InvariantCulture)}";
 
     private static void UpdateParentProperties(
         Work? parentWork,

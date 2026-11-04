@@ -3,7 +3,8 @@
 /// <summary>
 /// Handler for creating a container shift override. A missing or hidden container is answered with 404 before the lock
 /// is checked; an item with a task shift the caller may not see that the container does not reference yet (in its
-/// templates or overrides) is answered with 404 before anything is written.
+/// templates or overrides) is answered with 404 before anything is written. An override must hold all of its items with their
+/// travel, briefing and debriefing times (ContainerFitCheck, coded 400).
 /// </summary>
 /// <param name="containerId">The container shift to override</param>
 /// <param name="resource">The override data with items</param>
@@ -16,6 +17,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 
@@ -68,6 +70,7 @@ public class PostContainerShiftOverrideCommandHandler : IRequestHandler<PostCont
 
         request.Resource.ContainerId = request.ContainerId;
         var entity = _mapper.ToContainerShiftOverrideEntity(request.Resource);
+        ContainerFitCheck.EnsureOverrideFits(entity);
 
         foreach (var item in entity.ContainerShiftOverrideItems)
         {

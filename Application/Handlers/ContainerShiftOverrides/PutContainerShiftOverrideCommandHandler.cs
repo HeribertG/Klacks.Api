@@ -4,7 +4,8 @@
 /// Handler for updating a container shift override. Validates lock and checks no work exists. A missing or hidden
 /// container is answered with 404 before the lock is checked; an override of another container is answered exactly
 /// like a missing override, before the work check; an item with a task shift the caller may not see that the container
-/// does not reference yet is answered with 404 before anything is written.
+/// does not reference yet is answered with 404 before anything is written. The override must hold all of its items with
+/// their travel, briefing and debriefing times (ContainerFitCheck, coded 400), checked before the work check.
 /// </summary>
 /// <param name="overrideId">The override to update</param>
 /// <param name="resource">Updated override data with items</param>
@@ -18,6 +19,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 
@@ -73,6 +75,8 @@ public class PutContainerShiftOverrideCommandHandler : IRequestHandler<PutContai
             request.ContainerId,
             request.Resource.ContainerShiftOverrideItems.Select(i => i.ShiftId),
             cancellationToken);
+
+        ContainerFitCheck.EnsureOverrideFits(_mapper.ToContainerShiftOverrideEntity(request.Resource));
 
         var hasWork = await _repository.HasWorkForOverride(existing.ContainerId, existing.Date, cancellationToken);
         if (hasWork)

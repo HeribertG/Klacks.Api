@@ -11353,6 +11353,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("shift_id");
 
+                    b.Property<Guid?>("SplitFromWorkId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("split_from_work_id");
+
                     b.Property<string>("StartBase")
                         .HasColumnType("text")
                         .HasColumnName("start_base");

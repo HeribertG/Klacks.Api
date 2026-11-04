@@ -5,7 +5,8 @@
 /// deleted). Everything is validated before the first write, because the item update commits per template: a missing
 /// or hidden container, an item id that does not belong to the matched stored template, and a task shift the caller
 /// may not see that the container does not reference yet are all answered with 404. Unchanged hidden task shifts of a
-/// container mixing groups stay saveable.
+/// container mixing groups stay saveable. A template whose item, with its travel, briefing or debriefing time, reaches
+/// outside the template window is refused with the ContainerFitRefusal code before anything is written (ContainerFitCheck).
 /// </summary>
 /// <param name="containerVisibilityGuard">Refuses missing and hidden containers and new hidden task shifts</param>
 
@@ -16,6 +17,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces;
@@ -71,6 +73,8 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
             request.ContainerId,
             request.Resources.SelectMany(r => r.ContainerTemplateItems).Select(i => i.ShiftId),
             cancellationToken);
+
+        EnsureTemplatesFit(request.Resources);
 
         var resultTemplates = new List<ContainerTemplate>();
 
@@ -201,5 +205,13 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
             t.Weekday == resource.Weekday &&
             t.IsHoliday == resource.IsHoliday &&
             t.IsWeekdayAndHoliday == resource.IsWeekdayAndHoliday);
+    }
+
+    private void EnsureTemplatesFit(IEnumerable<ContainerTemplateResource> resources)
+    {
+        foreach (var resource in resources)
+        {
+            ContainerFitCheck.EnsureTemplateFits(_scheduleMapper.ToContainerTemplateEntity(resource));
+        }
     }
 }
