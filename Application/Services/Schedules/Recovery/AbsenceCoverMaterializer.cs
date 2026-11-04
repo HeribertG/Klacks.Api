@@ -6,7 +6,8 @@
 /// hops of a swap included; every other one stays a Replacement WorkChange through PostCommand. After a move the overtime
 /// successors and the period hours of both people run in the order of the Work handlers: commit, successors, hours. When
 /// the recalculation for the new owner fails, the staged move is dropped and the work stays a replacement, so its
-/// surcharges stay with the person who owns it.
+/// surcharges stay with the person who owns it. A container never takes a replacement: when it cannot move, it and every
+/// other hop of its repair option are reported back as held, unwritten, and the slot stays uncovered.
 /// </summary>
 /// <param name="mediator">Dispatches the Replacement WorkChange commands</param>
 /// <param name="factsReader">Reads what the decision needs about the scenario works</param>
@@ -79,19 +80,34 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
         var facts = await _factsReader.LoadAsync(workIdMap.Values.ToList(), analyseToken, cancellationToken);
         var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
         var known = workIdMap.Where(work => facts.ContainsKey(work.Value)).ToList();
+        var movable = known.Where(work => CoverMoveDecision.MayMove(facts[work.Value], report, companyTimeZone)).Select(work => work.Key).ToHashSet();
         return new CoverSourceWorks(
-            known.Where(work => CoverMoveDecision.MayMove(facts[work.Value], report, companyTimeZone)).Select(work => work.Key).ToHashSet(),
-            known.Where(work => facts[work.Value].IsMoved).Select(work => work.Key).ToHashSet());
+            movable,
+            known.Where(work => facts[work.Value].IsMoved).Select(work => work.Key).ToHashSet(),
+            known.Where(work => facts[work.Value].IsContainer && !movable.Contains(work.Key)).Select(work => work.Key).ToHashSet());
     }
 
     public async Task<CoverMaterialisationResult> MaterialiseAsync(CoverMaterialisation materialisation, CancellationToken cancellationToken)
     {
         var slots = ResolveSlots(materialisation);
-        var moved = await SelectMovesAsync(slots, materialisation, cancellationToken);
+        var facts = slots.Count == 0
+            ? new Dictionary<Guid, CoverMoveFacts>()
+            : await _factsReader.LoadAsync(
+                slots.Select(slot => slot.ClonedWorkId).Distinct().ToList(), materialisation.AnalyseToken, cancellationToken);
+        var moved = await SelectMovesAsync(slots, facts, materialisation, cancellationToken);
         var relocationsKeepingExtras = new List<CellDelta>();
+        var heldCovers = new List<CellDelta>();
+        var heldOptions = new HashSet<int>();
 
-        foreach (var (delta, clonedWorkId) in slots)
+        foreach (var (delta, clonedWorkId) in ContainerHopsFirst(slots, facts))
         {
+            if (heldOptions.Contains(delta.OptionId))
+            {
+                moved.Remove(clonedWorkId);
+                heldCovers.Add(delta);
+                continue;
+            }
+
             if (moved.Contains(clonedWorkId)
                 && await TryHandOverAsync(clonedWorkId, delta.ToAgentId, delta.FromAgentId, false, cancellationToken))
             {
@@ -99,6 +115,13 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
             }
 
             moved.Remove(clonedWorkId);
+            if (facts.TryGetValue(clonedWorkId, out var work) && work.IsContainer)
+            {
+                heldOptions.Add(delta.OptionId);
+                heldCovers.Add(delta);
+                continue;
+            }
+
             await ReplaceAsync(delta, clonedWorkId, cancellationToken);
             if (delta.MovesAsWhole && delta.ExtraPaidHours > 0m)
             {
@@ -106,8 +129,20 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
             }
         }
 
-        return new CoverMaterialisationResult(moved, relocationsKeepingExtras);
+        return new CoverMaterialisationResult(moved, relocationsKeepingExtras, heldCovers);
     }
+
+    /// <summary>
+    /// The hops of one repair option are written together; a container hop goes first, so that when it cannot move the
+    /// other hops of its option are not written either and nobody is booked twice.
+    /// </summary>
+    private static IEnumerable<(CellDelta Delta, Guid ClonedWorkId)> ContainerHopsFirst(
+        List<(CellDelta Delta, Guid ClonedWorkId)> slots, IReadOnlyDictionary<Guid, CoverMoveFacts> facts)
+        => slots
+            .Select((slot, index) => (Slot: slot, Index: index))
+            .OrderBy(entry => facts.TryGetValue(entry.Slot.ClonedWorkId, out var work) && work.IsContainer ? 0 : 1)
+            .ThenBy(entry => entry.Index)
+            .Select(entry => entry.Slot);
 
     /// <summary>
     /// In-group MVP invariant: a snapshot work is backed by exactly one top-level Work (get_schedule_entries returns
@@ -141,7 +176,10 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
     }
 
     private async Task<HashSet<Guid>> SelectMovesAsync(
-        List<(CellDelta Delta, Guid ClonedWorkId)> slots, CoverMaterialisation materialisation, CancellationToken cancellationToken)
+        List<(CellDelta Delta, Guid ClonedWorkId)> slots,
+        IReadOnlyDictionary<Guid, CoverMoveFacts> facts,
+        CoverMaterialisation materialisation,
+        CancellationToken cancellationToken)
     {
         var candidates = slots
             .GroupBy(slot => slot.ClonedWorkId)
@@ -153,8 +191,6 @@ public sealed class AbsenceCoverMaterializer : IAbsenceCoverMaterializer
             return [];
         }
 
-        var facts = await _factsReader.LoadAsync(
-            candidates.Select(slot => slot.ClonedWorkId).ToList(), materialisation.AnalyseToken, cancellationToken);
         var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
 
         return candidates

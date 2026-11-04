@@ -13,6 +13,7 @@
 /// <param name="HasReplacement">A live replacement sits on the work or on one of its sub-works</param>
 /// <param name="HasLockedChild">A sub-work or sub-break of the work is sealed</param>
 /// <param name="IsMoved">An earlier cover moved the work to its owner</param>
+/// <param name="IsContainer">The work is a container; it changes person only as a whole</param>
 
 using Klacks.Api.Domain.Enums;
 
@@ -28,4 +29,5 @@ public sealed record CoverMoveFacts(
     WorkLockLevel LockLevel,
     bool HasReplacement,
     bool HasLockedChild,
-    bool IsMoved = false);
+    bool IsMoved = false,
+    bool IsContainer = false);

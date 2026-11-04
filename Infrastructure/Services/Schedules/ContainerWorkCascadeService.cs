@@ -16,6 +16,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -186,6 +187,24 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
             lockLevel, childWorks.Count, childBreaks.Count, parentWorkId);
     }
 
+    public async Task ReleaseLockLevelAsync(Guid parentWorkId, WorkLockLevel previousLockLevel)
+    {
+        var childWorks = await _context.Work
+            .Where(w => w.ParentWorkId == parentWorkId && !w.IsDeleted
+                && w.LockLevel != WorkLockLevel.None && w.LockLevel <= previousLockLevel)
+            .ToListAsync();
+
+        var childBreaks = await _context.Break
+            .Where(b => b.ParentWorkId == parentWorkId && !b.IsDeleted
+                && b.LockLevel != WorkLockLevel.None && b.LockLevel <= previousLockLevel)
+            .ToListAsync();
+
+        foreach (var entry in childWorks.Cast<ScheduleEntryBase>().Concat(childBreaks))
+        {
+            ScheduleEntrySealState.ClearSeal(entry);
+        }
+    }
+
     /// <summary>
     /// Mirrors the parent's single-entry lock change onto a child, but only upwards: a child sealed as high as the new level or
     /// higher keeps its seal and its pre-seal state. Like WorkLockLevelService it drops the pre-seal state a period seal
@@ -201,8 +220,6 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
         entry.LockLevel = lockLevel;
         entry.SealedAt = sealedAt;
         entry.SealedBy = sealedBy;
-        entry.PreSealLockLevel = null;
-        entry.PreSealSealedAt = null;
-        entry.PreSealSealedBy = null;
+        ScheduleEntrySealState.ClearPreSealState(entry);
     }
 }

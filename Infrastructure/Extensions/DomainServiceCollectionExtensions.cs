@@ -376,6 +376,8 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Services.Schedules.ComplianceEnforcementResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ISupervisorOverrideAuthorizer,
                            Klacks.Api.Infrastructure.Services.Schedules.SupervisorOverrideAuthorizer>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IContainerWorkChangeGuard,
+            Klacks.Api.Application.Services.Schedules.ContainerWorkChangeGuard>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IReplacementWriteGuard,
                            Klacks.Api.Application.Services.Schedules.ReplacementWriteGuard>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IContainerChildrenWriteGuard,

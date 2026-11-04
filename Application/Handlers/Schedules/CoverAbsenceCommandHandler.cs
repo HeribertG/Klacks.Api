@@ -67,6 +67,7 @@ namespace Klacks.Api.Application.Handlers.Schedules;
 public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCommand, CoverAbsenceOutcome>
 {
     private const string LockedReason = "locked";
+    private const string RecalculationFailedReason = "recalculation failed";
     private const string NoCandidateReason = "no eligible candidate";
     private const string NonCriticalReason = "non-critical";
     private const string BlockedReason = "blocked";
@@ -224,8 +225,9 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
 
         var report = await ResolveReportAsync(request, cancellationToken);
         var sourceWorks = await _coverMaterializer.FindSourceWorksAsync(workIdMap, token, report, cancellationToken);
+        var writableWorkIds = workIdMap.Keys.Where(workId => !sourceWorks.HeldContainers.Contains(workId)).ToHashSet();
         var snapshot = await _snapshotBuilder.BuildAsync(
-            groupId, clientId, dates, source, workIdMap.Keys.ToHashSet(), sourceWorks.Movable, sourceWorks.Moved, cancellationToken);
+            groupId, clientId, dates, source, writableWorkIds, sourceWorks.Movable, sourceWorks.Moved, cancellationToken);
         var proposal = _recoveryEngine.Repair(
             snapshot, new Rec.AbsenceEvent(clientId, dates), Rec.Ruleset.Default);
         var rootShiftIds = await ResolveRootShiftIdsAsync(proposal, source, cancellationToken);
@@ -244,20 +246,26 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         await MaterialiseMembershipsAsync(proposal, acceptedAgents, token, cancellationToken);
         var materialised = await _coverMaterializer.MaterialiseAsync(
             new CoverMaterialisation(materializable, workIdMap, token, report), cancellationToken);
+        var written = materializable.Except(materialised.HeldCovers).ToList();
 
         var covered = await _replacementRequestRecorder.RecordProposalsAsync(
             new ReplacementProposalContext(clientId, groupId, absenceId, token, request.Source, request.ReportedAtUtc),
-            BuildCovered(materializable, clientId, snapshot, workIdMap, rootShiftIds, materialised.MovedWorkIds),
+            BuildCovered(written, clientId, snapshot, workIdMap, rootShiftIds, materialised.MovedWorkIds),
             cancellationToken);
         await _unitOfWork.CompleteAsync();
 
-        var uncovered = BuildUncovered(proposal, blockedOptions, hiddenOptions, clientId, snapshot, workIdMap, rootShiftIds);
+        var uncovered = BuildUncovered(proposal, blockedOptions, hiddenOptions, clientId, snapshot, workIdMap, rootShiftIds)
+            .Concat(materialised.HeldCovers
+                .GroupBy(held => held.OptionId)
+                .Select(option => option.FirstOrDefault(held => held.FromAgentId == clientId) ?? option.First())
+                .Select(held => UncoveredFromDelta(held, RecalculationFailedReason, workIdMap, rootShiftIds)))
+            .ToList();
 
         // Computed after the partition: a blocked swap must not be reported as a tier the result reached.
-        var highestTier = (int)HighestTierOf(materializable, uncovered.Count > 0);
+        var highestTier = (int)HighestTierOf(written, uncovered.Count > 0);
 
         // The engine's rhythm value is only true for the result when every proposed cover was materialised.
-        int? harmonyDelta = materializable.Count == proposal.Deltas.Count ? proposal.HarmonyDelta : null;
+        int? harmonyDelta = written.Count == proposal.Deltas.Count ? proposal.HarmonyDelta : null;
 
         var outcome = new CoverAbsenceOutcome(
             scenario.Id, token, name, covered, uncovered,

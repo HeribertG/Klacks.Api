@@ -11,6 +11,7 @@
 /// <param name="parentWorkLockGuard">Refuses the change when the parent Work's lock level forbids it for the caller</param>
 /// <param name="replacementWriteGuard">Refuses a replacement without a valid person and one that gives the substitute a blocking conflict</param>
 /// <param name="replacementRequestRecorder">Records a manual replacement as an Accepted entry of the replacement request book, staged with the change</param>
+/// <param name="containerWorkChangeGuard">Refuses a correction on a container work: a container is corrected through its inner services</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Constants;
@@ -41,6 +42,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     private readonly IReplacementRequestRecorder _replacementRequestRecorder;
     private readonly IParentWorkLockGuard _parentWorkLockGuard;
     private readonly IReplacementWriteGuard _replacementWriteGuard;
+    private readonly IContainerWorkChangeGuard _containerWorkChangeGuard;
 
     public PostCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -56,6 +58,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         IReplacementRequestRecorder replacementRequestRecorder,
         IParentWorkLockGuard parentWorkLockGuard,
         IReplacementWriteGuard replacementWriteGuard,
+        IContainerWorkChangeGuard containerWorkChangeGuard,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -72,6 +75,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         _replacementRequestRecorder = replacementRequestRecorder;
         _parentWorkLockGuard = parentWorkLockGuard;
         _replacementWriteGuard = replacementWriteGuard;
+        _containerWorkChangeGuard = containerWorkChangeGuard;
     }
 
     public async Task<WorkChangeResource?> Handle(PostCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -101,6 +105,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
 
             await _dayLockService.EnsureWorkChangeNotLockedAsync(parentWork, workChange, cancellationToken);
 
+            await _containerWorkChangeGuard.EnsureNoCorrectionAsync(workChange, parentWork);
             await _replacementWriteGuard.EnsureAllowedAsync(
                 workChange, parentWork, request.Resource.OverrideBlock, null, cancellationToken);
 

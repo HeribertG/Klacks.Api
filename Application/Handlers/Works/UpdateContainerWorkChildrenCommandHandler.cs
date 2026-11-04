@@ -18,6 +18,7 @@
 /// <param name="shiftVisibilityGuard">Decides which shifts of new or changed sub-works the calling user may book</param>
 /// <param name="workWriteGuard">Refuses a sub-work shift outside the world of the container's stored Work</param>
 /// <param name="replacementWriteGuard">Refuses a new or changed replacement without a valid person or with a blocking conflict for the substitute</param>
+/// <param name="containerWorkChangeGuard">Refuses a new or changed correction on the container itself</param>
 /// <param name="childrenWriteGuard">Keeps the server-owned state of the children and refuses writes the lock levels and sealed days forbid</param>
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -50,6 +51,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly IWorkWriteGuard _workWriteGuard;
     private readonly IReplacementWriteGuard _replacementWriteGuard;
+    private readonly IContainerWorkChangeGuard _containerWorkChangeGuard;
     private readonly IContainerChildrenWriteGuard _childrenWriteGuard;
 
     public UpdateContainerWorkChildrenCommandHandler(
@@ -65,6 +67,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         IShiftVisibilityGuard shiftVisibilityGuard,
         IWorkWriteGuard workWriteGuard,
         IReplacementWriteGuard replacementWriteGuard,
+        IContainerWorkChangeGuard containerWorkChangeGuard,
         IContainerChildrenWriteGuard childrenWriteGuard,
         ILogger<UpdateContainerWorkChildrenCommandHandler> logger)
         : base(logger)
@@ -81,6 +84,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         _shiftVisibilityGuard = shiftVisibilityGuard;
         _workWriteGuard = workWriteGuard;
         _replacementWriteGuard = replacementWriteGuard;
+        _containerWorkChangeGuard = containerWorkChangeGuard;
         _childrenWriteGuard = childrenWriteGuard;
     }
 
@@ -235,7 +239,8 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
 
     /// <summary>
     /// Every work change of the request that is new or differs from the stored row in what a replacement is made of (Work,
-    /// type, person, times) passes the replacement write guard against the sub-work it is attached to. The guard sees the
+    /// type, person, times) passes the container guard (no correction on the container itself) and the replacement write
+    /// guard against the work it is attached to. The replacement guard sees the
     /// scenario of the container and the stored row; it works on a copy, so what is saved stays as the request carries it.
     /// Unchanged rows are skipped, so a stored row the guard would refuse today does not block saving the rest of the
     /// container.
@@ -259,6 +264,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             }
 
             candidate.AnalyseToken = container.AnalyseToken;
+            await _containerWorkChangeGuard.EnsureNoCorrectionAsync(candidate, workChangeParents[candidate.WorkId]);
             await _replacementWriteGuard.EnsureAllowedAsync(
                 candidate, workChangeParents[candidate.WorkId], requested.OverrideBlock, storedChange, cancellationToken);
         }

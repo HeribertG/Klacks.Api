@@ -49,7 +49,7 @@ public class WorkLockLevelService : IWorkLockLevelService
         entity.LockLevel = targetLevel;
         entity.SealedAt = DateTime.UtcNow;
         entity.SealedBy = userName;
-        ClearPreSealState(entity);
+        ScheduleEntrySealState.ClearPreSealState(entity);
     }
 
     public void Unseal(ScheduleEntryBase entity, bool isAdmin, bool isAuthorised)
@@ -57,26 +57,6 @@ public class WorkLockLevelService : IWorkLockLevelService
         if (!CanUnseal(entity.LockLevel, isAdmin, isAuthorised))
             throw new InvalidRequestException("Entry cannot be unsealed in its current state.");
 
-        entity.LockLevel = WorkLockLevel.None;
-        entity.SealedAt = null;
-        entity.SealedBy = null;
-        ClearPreSealState(entity);
-    }
-
-    /// <summary>
-    /// A lock change on the single entry supersedes whatever a period seal recorded as its previous state,
-    /// so a later period unseal must not write that stale state back.
-    /// </summary>
-    private static void ClearPreSealState(ScheduleEntryBase entity)
-    {
-        entity.PreSealLockLevel = null;
-        entity.PreSealSealedAt = null;
-        entity.PreSealSealedBy = null;
-
-        if (entity is Break absence)
-        {
-            absence.SealedByGroupId = null;
-            absence.PreSealSealedByGroupId = null;
-        }
+        ScheduleEntrySealState.ClearSeal(entity);
     }
 }

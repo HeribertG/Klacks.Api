@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Services.Shifts;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
@@ -104,6 +105,12 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
             return new Dictionary<Guid, CoverMoveFacts>();
         }
 
+        var containerIds = (await _context.Work.AsNoTracking()
+                .Where(w => ids.Contains(w.Id) && w.AnalyseToken == analyseToken)
+                .Where(ContainerShiftRules.IsContainerWork)
+                .Select(w => w.Id)
+                .ToListAsync(cancellationToken))
+            .ToHashSet();
         var subWorks = await _context.Work.AsNoTracking()
             .Where(w => w.ParentWorkId != null && ids.Contains(w.ParentWorkId.Value))
             .Select(w => new { w.Id, ParentId = w.ParentWorkId!.Value, w.LockLevel })
@@ -131,6 +138,7 @@ public sealed class CoverMoveFactsReader : ICoverMoveFactsReader
                 w.Id, w.ClientId, w.ParentWorkId, w.CurrentDate, w.StartTime, w.EndTime, w.LockLevel,
                 replaced.Contains(w.Id) || parentsWithReplacement.Contains(w.Id),
                 parentsWithLockedChild.Contains(w.Id),
-                w.MovedFromClientId != null));
+                w.MovedFromClientId != null,
+                containerIds.Contains(w.Id)));
     }
 }
