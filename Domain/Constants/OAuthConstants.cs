@@ -86,6 +86,9 @@ public static class OAuthConstants
 
     public const string ErrorInvalidClientMetadata = "invalid_client_metadata";
 
+    public const string SetupRequiredErrorDescription =
+        "The seeded admin account must be replaced with your own admin account before an external client can be connected.";
+
     public const int AuthorizationCodeByteLength = 32;
 
     public const int AccessTokenExpiresInDays = 30;

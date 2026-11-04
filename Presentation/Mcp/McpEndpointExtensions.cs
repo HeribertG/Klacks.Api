@@ -13,6 +13,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Presentation.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using ModelContextProtocol;
@@ -33,6 +34,7 @@ public static class McpEndpointExtensions
         services.AddSingleton<IMcpResourceCatalog, McpResourceCatalog>();
         services.AddScoped<IMcpPromptCatalog, McpPromptCatalog>();
         services.AddScoped<IMcpSkillCallHandler, McpSkillCallHandler>();
+        services.AddScoped<IAuthorizationHandler, SeedAdminSetupGateAuthorizationHandler>();
 
         services.AddOptions<McpPublicEndpointOptions>()
             .BindConfiguration(McpPublicEndpointOptions.SectionName);
@@ -88,15 +90,27 @@ public static class McpEndpointExtensions
     public static IEndpointConventionBuilder MapKlacksMcp(this IEndpointRouteBuilder endpoints)
     {
         return endpoints.MapMcp(McpServerConstants.RoutePattern)
-            .RequireAuthorization(policy => policy
-                .AddAuthenticationSchemes(
-                    JwtBearerDefaults.AuthenticationScheme,
-                    PatConstants.SchemeName,
-                    McpAuthenticationDefaults.AuthenticationScheme)
-                .RequireAuthenticatedUser()
-                .RequireAssistantAccess())
+            .RequireAuthorization(ConfigureMcpPolicy)
             .RequireRateLimiting(RateLimitingPolicies.Mcp)
             .WithMetadata(McpPermissionCapMetadata.Instance);
+    }
+
+    /// <summary>
+    /// Builds the /mcp endpoint policy: the pinned JWT, personal access token and OAuth schemes, an
+    /// authenticated caller with assistant access, and the seeded admin denied while its own-admin setup
+    /// gate is active (the MVC AdminSetupGateFilter does not run for /mcp).
+    /// </summary>
+    /// <param name="policy">The policy under construction</param>
+    public static void ConfigureMcpPolicy(AuthorizationPolicyBuilder policy)
+    {
+        policy
+            .AddAuthenticationSchemes(
+                JwtBearerDefaults.AuthenticationScheme,
+                PatConstants.SchemeName,
+                McpAuthenticationDefaults.AuthenticationScheme)
+            .RequireAuthenticatedUser()
+            .RequireAssistantAccess()
+            .AddRequirements(SeedAdminSetupGateRequirement.Instance);
     }
 
     /// <summary>
