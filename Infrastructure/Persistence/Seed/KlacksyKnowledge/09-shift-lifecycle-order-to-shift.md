@@ -60,16 +60,16 @@ Eine Bestellung ist ein Auftrag, der noch ausgearbeitet wird: Ein Kunde möchte 
 
 ## Stufe 2 — So gehst du in der Oberfläche vor
 
-**Die vier Sichten der Dienste-Seite** (Navi-Icon "Alle Dienste", Radio-Auswahl in der Filter-Card rechts) zeigen die Arten von Diensten:
+**Die vier Sichten der Seite Dienstverwaltung** (de: "Dienstverwaltung", en: "Shift management"; Navi-Icon mit demselben Tooltip, Radio-Auswahl in der Filter-Card rechts) zeigen die Arten von Diensten:
 
 | Sicht | Zeigt | Wofür |
 |---|---|---|
 | **Bestellungen** (de: "Bestellungen", en: "Orders") | Bestellungen, die noch bearbeitbar sind; mit dem Häkchen **Nur versiegelte Bestellungen anzeigen** (de: "Nur versiegelte Bestellungen anzeigen", en: "Show Only Sealed Orders") die versiegelten Bestellungen | Aufträge erfassen und ausarbeiten |
 | **Planbare Dienste** (de: "Planbare Dienste", en: "Plannable Services") | planbare Dienste und ihre zugeschnittenen Teilstücke (Unterfilter **Zeitbereich** und **Sporadisch**) | das, was im Einsatzplan gebucht wird; Schere = Zuschnitt |
-| **Container** (de: "Container", en: "Container") | Container-Dienste | mehrere Aufgaben zu einem Tagespaket bündeln |
+| **Container** (de: "Container", en: "Container") | Container-Dienste | mehrere Aufgaben zu einem Tagespaket bündeln; neue Container nur hier über **+ neuer Container** (de: "+ neuer Container", en: "+ New Container") |
 | **Abwesenheit** (de: "Abwesenheit", en: "Absence") | derzeit nichts | Platzhalter-Sicht |
 
-Wer Dienste nicht bearbeiten darf (ohne Rolle), sieht fest nur die Sicht "Planbare Dienste".
+Wer Dienste nicht bearbeiten darf (ohne Rolle), sieht fest nur die Sicht "Planbare Dienste". Der Titel der Listen-Card über der Tabelle folgt der gewählten Sicht (Bestellungen, Planbare Dienste, Container, Abwesenheit).
 
 **Eine Bestellung mit Kunde erfassen:**
 
@@ -182,7 +182,7 @@ Daraus folgt: Geschnitten wird nie die versiegelte Zeile selbst, sondern nur, wa
 
 **Orthogonales Locking:** Einzelne `Work`/`Break`-Einträge tragen ein separates `LockLevel` (None / Confirmed / Approved / Closed). Das ist **NICHT** zu verwechseln mit `ShiftStatus.SealedOrder`. Sealing eines Works ist Entry-Level, Sealing eines Shifts ist Lifecycle-Level.
 
-**Die Erfassungsmaske** (`/workplace/new-shift`, bearbeiten via `/workplace/edit-shift/:id`): Dienste mit Kunde entstehen über den Button **+ neue Bestellung** als Bestellung; der Button **+ neuer Dienst** (Sicht "Planbare Dienste") legt einen Dienst ohne Kunde an, der direkt als versiegelte Bestellung entsteht. Details der Erfassungsmaske (alle Cards, Felder, Lock-Button, Experten-Modus, Filter-Spalte): Skill `explain_page_shifts`.
+**Die Erfassungsmaske** (`/workplace/new-shift`, bearbeiten via `/workplace/edit-shift/:id`): Dienste mit Kunde entstehen über den Button **+ neue Bestellung** als Bestellung (Überschrift "Neue Bestellung"); der Button **+ neuer Dienst** (Sicht "Planbare Dienste") legt einen Dienst ohne Kunde an, der direkt als versiegelte Bestellung entsteht (Überschrift "neuer Dienst"); der Button **+ neuer Container** (Sicht "Container") öffnet die Maske als Container-Entwurf ohne Kunde (Überschrift "Neuer Container"). Details der Erfassungsmaske (alle Cards, Felder, Lock-Button, Experten-Modus, Filter-Spalte): Skill `explain_page_shifts`.
 
 ## Verwandte Skills
 

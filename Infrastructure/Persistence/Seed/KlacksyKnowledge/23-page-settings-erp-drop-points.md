@@ -158,7 +158,7 @@ vollständig und minimal).
 - **Zeitplan wirkt global**, nicht pro Datei: ein ungültiger Cron-Ausdruck lässt den
   Import komplett stillstehen (kein automatischer Lauf mehr), deshalb validiert die
   Oberfläche den Ausdruck sofort.
-- **Zielort der importierten Bestellungen**: Bestellungseingang / Alle Dienste (nicht
+- **Zielort der importierten Bestellungen**: Bestellungseingang / Dienstverwaltung (nicht
   diese Settings-Seite) — dort erscheinen sie als **Entwurf ohne Gruppe**. Erst wenn der
   Planer von Hand eine Gruppe zuweist und die Bestellung versiegelt, existiert daraus ein
   planbarer Dienst.
@@ -186,7 +186,7 @@ vollständig und minimal).
 
 - **Einstellungen-Übersicht** (`/workplace/settings`) — siehe
   `explain_page_settings_overview` für die anderen zwölf Sektionen.
-- **Bestellungseingang / Alle Dienste** — hier landen die importierten Bestellungen
+- **Bestellungseingang / Dienstverwaltung** — hier landen die importierten Bestellungen
   als Entwurf ohne Gruppe; Gruppen-Zuweisung und Versiegeln erfolgen von Hand.
 
 ### Trigger-Phrasen

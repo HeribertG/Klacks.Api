@@ -42,11 +42,11 @@ Ein Container ist ein Dienst, der selbst keine Arbeit beschreibt, sondern mehrer
 
 ## Stufe 2 — So gehst du vor
 
-**Container anlegen** (Dienste-Seite, Navi-Icon "Alle Dienste"):
+**Container anlegen** (Seite **Dienstverwaltung**, de: "Dienstverwaltung", en: "Shift management"; Navi-Icon mit demselben Tooltip):
 
-1. Auf **+ neue Bestellung** (de: "+ neue Bestellung", en: "+ New Order") klicken; der Button erscheint nur mit dem Recht, Dienste anzulegen (Administratoren und Supervisoren).
-2. In der Maske den Schalter **Experten Modus** (de: "Experten Modus", en: "Expert Mode") einschalten und das Häkchen **Ist ein Container** (de: "Ist ein Container", en: "Is a container") setzen. Das Häkchen gibt es nur, solange die Bestellung noch nicht versiegelt ist. Es leert Kunde und Adresse und schaltet die Zeitfenster-Option aus; ein Container hat nie einen Kunden.
-3. Gruppe, Wochentage und Gültigkeit wie bei jedem Dienst festlegen, dann versiegeln (Schloss-Button in der Karte "Allgemeines"). Danach erscheint der Container in der Sicht **Container** (de: "Container", en: "Container"). Ein Container ist eine interne Vorlage und hat keine Bestellung: Beim Versiegeln entsteht weder eine versiegelte Bestellung noch eine Kopie, es bleibt eine einzige Zeile (Status `OriginalShift`, ohne `OriginalId`).
+1. In der Filter-Card rechts die Sicht **Container** (de: "Container", en: "Container") wählen. Nur in dieser Sicht erscheint oben in der Liste der Button **+ neuer Container** (de: "+ neuer Container", en: "+ New Container", fr: "+ Nouveau conteneur", it: "+ Nuovo contenitore"), und nur mit dem Recht, Dienste anzulegen (Administratoren und Supervisoren). Über eine neue Bestellung entsteht kein Container mehr.
+2. Der Button öffnet die Maske direkt als Container-Entwurf mit der Überschrift **Neuer Container** (de: "Neuer Container", en: "New container"). Die Maske hat keinen Kunden, keine Karte Adresse, keine Standard-Spesen und keine Zeitfenster-Option; die Karte **Spezielle Merkmale** (de: "Spezielle Merkmale", en: "Special Features") zeigt nur die Sporadisch-Option **sporadischer Einsatz** (de: "sporadischer Einsatz", en: "Sporadic use"). Ein Container hat nie einen Kunden.
+3. Gruppe, Wochentage und Gültigkeit wie bei jedem Dienst festlegen, dann versiegeln (Schloss-Button in der Karte "Allgemeines"). Danach erscheint der Container in der Sicht "Container"; öffnest du ihn wieder, heisst die Maske **Container bearbeiten** (de: "Container bearbeiten", en: "Edit container"). Ein Container ist eine interne Vorlage und hat keine Bestellung: Beim Versiegeln entsteht weder eine versiegelte Bestellung noch eine Kopie, es bleibt eine einzige Zeile (Status `OriginalShift`, ohne `OriginalId`).
 
 **Vorlage pflegen:** In der Sicht "Container" öffnet das Box-Icon in der Zeile die **Schichtvorlage** (de: "Schichtvorlage", en: "Shift Template"). Dort:
 

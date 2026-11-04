@@ -1,7 +1,7 @@
 ---
 name: explain_page_shifts
 description: |
-  Explains the Services page (Dienste / All Services) at /workplace/shift and its sub-pages
+  Explains the Shift management page (Dienstverwaltung, formerly "All Services") at /workplace/shift and its sub-pages
   edit-shift (/workplace/edit-shift/:id, /workplace/new-shift), shift cutting
   (/workplace/cut-shift/:id) and the container template (/workplace/container-template/:id).
   Covers the service list card with its filter views Orders (incl. the sealed-orders checkbox),
@@ -50,14 +50,16 @@ triggerKeywords:
   - expert mode
   - services page
   - alle dienste
+  - dienstverwaltung
+  - shift management
   - dienst erfassen
   - create shift
   - anzahl mitarbeiter pro schicht
 synonyms:
-  de: [was sehe ich hier, erkläre diese seite, was bedeutet diese karte, was bedeutet diese tabelle, dienste-seite, alle dienste, dienstliste, schichtliste, was bedeuten die icons, wie schneide ich einen dienst zu, wozu ist die schere, dienst versiegeln, was ist eine versiegelte bestellung, was ist ein container, sporadischer einsatz, dienst im zeitrahmen, warum kann ich den dienst nicht bearbeiten]
-  en: [what do i see here, explain this page, what does this card mean, what does this table mean, services page, all services, shift list, shifts overview, what do the icons mean, how do i cut a shift, what is the scissors for, seal an order, what is a sealed order, what is a container, sporadic shift, time range shift, why can't i edit this shift]
-  fr: [que vois-je ici, explique cette page, que signifie cette carte, page services, tous les services, liste des services, que signifient les icônes, comment découper un service, à quoi sert le ciseau, commande scellée, qu'est-ce qu'un conteneur, service sporadique, plage horaire, pourquoi je ne peux pas modifier ce service]
-  it: [cosa vedo qui, spiega questa pagina, cosa significa questa scheda, pagina servizi, tutti i servizi, elenco dei servizi, cosa significano le icone, come suddivido un servizio, a cosa servono le forbici, ordine sigillato, cos'è un contenitore, servizio sporadico, fascia oraria, perché non posso modificare questo servizio]
+  de: [was sehe ich hier, erkläre diese seite, was bedeutet diese karte, was bedeutet diese tabelle, dienste-seite, alle dienste, dienstverwaltung, dienstliste, schichtliste, was bedeuten die icons, wie schneide ich einen dienst zu, wozu ist die schere, dienst versiegeln, was ist eine versiegelte bestellung, was ist ein container, sporadischer einsatz, dienst im zeitrahmen, warum kann ich den dienst nicht bearbeiten]
+  en: [what do i see here, explain this page, what does this card mean, what does this table mean, services page, all services, shift management, shift list, shifts overview, what do the icons mean, how do i cut a shift, what is the scissors for, seal an order, what is a sealed order, what is a container, sporadic shift, time range shift, why can't i edit this shift]
+  fr: [que vois-je ici, explique cette page, que signifie cette carte, page services, tous les services, gestion des services, liste des services, que signifient les icônes, comment découper un service, à quoi sert le ciseau, commande scellée, qu'est-ce qu'un conteneur, service sporadique, plage horaire, pourquoi je ne peux pas modifier ce service]
+  it: [cosa vedo qui, spiega questa pagina, cosa significa questa scheda, pagina servizi, tutti i servizi, gestione servizi, elenco dei servizi, cosa significano le icone, come suddivido un servizio, a cosa servono le forbici, ordine sigillato, cos'è un contenitore, servizio sporadico, fascia oraria, perché non posso modificare questo servizio]
 ---
 
 # Dienste-Seite — /workplace/shift mit edit-shift, cut-shift und container-template
@@ -66,12 +68,12 @@ synonyms:
 
 ## Stufe 1 — Wofür ist diese Seite?
 
-Die Dienste-Seite mit der Überschrift **Alle Dienste** (de: "Alle Dienste", en: "All
-Services", fr: "Tous les services", it: "Tutti i servizi") ist die zentrale Liste aller
+Die Dienste-Seite mit der Überschrift **Dienstverwaltung** (de: "Dienstverwaltung", en: "Shift
+management", fr: "Gestion des services", it: "Gestione servizi"; früher "Alle Dienste") ist die zentrale Liste aller
 Dienste — Bestellungen, planbare Dienste und Container. Von hier aus werden Dienste als
 Bestellung erfasst, bearbeitet, versiegelt, zugeschnitten (Shift-Cutting) und
 Container-Vorlagen gepflegt. Erreichbar über das Navi-Icon `open-shifts` in der linken
-Leiste (Tooltip "Alle Dienste", Alt+4) oder direkt über die Route `/workplace/shift`;
+Leiste (Tooltip "Dienstverwaltung", Alt+4) oder direkt über die Route `/workplace/shift`;
 Unterseiten sind `/workplace/edit-shift/:id` (neu: `/workplace/new-shift`),
 `/workplace/cut-shift/:id` (Zuschnitt) und `/workplace/container-template/:id`
 (Schichtvorlage).
@@ -95,10 +97,14 @@ Unterseiten sind `/workplace/edit-shift/:id` (neu: `/workplace/new-shift`),
   angewendet; in den anderen Sichten zeigt er die Dienste der gewählten Gruppe und
   zusätzlich alle Dienste ganz ohne Gruppenzuordnung.
 
-### Card **Dienste** (de: "Dienste", en: "Services", fr: "Services", it: "Servizi") — die Hauptliste links
+### Listen-Card — die Hauptliste links
+
+Der Titel der Card folgt der gewählten Sicht: **Bestellungen**, **Planbare Dienste**,
+**Container** oder **Abwesenheit** (dieselben Texte wie die Radio-Auswahl der Filter-Card;
+früher hiess die Card immer "Dienste").
 
 Oben rechts je nach Sicht ein Erfassen-Button (sichtbar nur mit dem Recht, Dienste anzulegen —
-Admin und Supervisor, nicht ohne Rolle); beide öffnen `/workplace/new-shift`:
+Admin und Supervisor, nicht ohne Rolle); alle drei öffnen `/workplace/new-shift`:
 
 - In der Sicht "Bestellungen" (filterType 0) der Button `shift-create-btn` **+ neue
   Bestellung** (de: "+ neue Bestellung", en: "+ New Order", fr: "+ Nouvelle commande", it:
@@ -108,7 +114,13 @@ Admin und Supervisor, nicht ohne Rolle); beide öffnen `/workplace/new-shift`:
   it: "+ Nuovo servizio") — legt einen Dienst OHNE Kunde an (allgemeine, nicht
   kundenspezifische Arbeit); er entsteht direkt als versiegelte Bestellung, ohne
   Bestellungs-Entwurfsphase.
-- In den Sichten Container und Abwesenheit gibt es keinen Erfassen-Button.
+- In der Sicht "Container" (filterType 2) der Button `shift-create-container-btn` **+ neuer
+  Container** (de: "+ neuer Container", en: "+ New Container", fr: "+ Nouveau conteneur", it:
+  "+ Nuovo contenitore"; Tooltip: de: "Ein Container ist eine interne Vorlage ohne Kunden und
+  ohne Bestellung. Er bündelt Dienste und wird nur im Dienstplan geteilt.") — öffnet die Maske
+  direkt als Container-Entwurf. Nur so entsteht ein Container; über "+ neue Bestellung" geht es
+  nicht mehr.
+- In der Sicht Abwesenheit gibt es keinen Erfassen-Button.
 
 Je nach gewählter Sicht (Filter-Card rechts) zeigt die Card eine andere Tabelle:
 
@@ -175,8 +187,23 @@ mit wählbarer Zeilenzahl inkl. Automatik (passt die Zeilenzahl an die Fensterh�
 
 ### Unterseite **Dienst bearbeiten** (`/workplace/edit-shift/:id`, neu `/workplace/new-shift`)
 
-Seiten-Überschrift **neuer Dienst** (de: "neuer Dienst", en: "New shift", fr: "Nouveau
-service", it: "Nuovo turno"). Die Kopfleisten-Suche ist auf dieser Unterseite ausgeblendet;
+Die Seiten-Überschrift richtet sich nach dem, was bearbeitet wird:
+
+- neu über "+ neue Bestellung": **Neue Bestellung** (de: "Neue Bestellung", en: "New order",
+  fr: "Nouvelle commande", it: "Nuovo ordine");
+- neu über "+ neuer Container": **Neuer Container** (de: "Neuer Container", en: "New
+  container", fr: "Nouveau conteneur", it: "Nuovo contenitore");
+- neu über "+ neuer Dienst" (Dienst ohne Kunde): **neuer Dienst** (de: "neuer Dienst", en:
+  "New shift", fr: "Nouveau service", it: "Nuovo turno");
+- bestehender Container: **Container bearbeiten** (de: "Container bearbeiten", en: "Edit
+  container", fr: "Modifier le conteneur", it: "Modifica contenitore");
+- bestehende Bestellung (Entwurf oder versiegelt mit Kunde): **Bestellung bearbeiten** (de:
+  "Bestellung bearbeiten", en: "Edit order", fr: "Modifier la commande", it: "Modifica ordine");
+- alles andere Bestehende (planbare Dienste, Teilstücke, Dienste ohne Kunde): **Dienst
+  bearbeiten** (de: "Dienst bearbeiten", en: "Edit shift", fr: "Modifier le service", it:
+  "Modifica servizio").
+
+Die Kopfleisten-Suche ist auf dieser Unterseite ausgeblendet;
 Speichern/Verwerfen läuft über die Fusszeile des Arbeitsbereichs (mit Query-Parameter
 `readonly=true` ist sie ausgeblendet und alle Felder sind schreibgeschützt). Jede Card hat
 oben rechts einen Auf-/Zuklapp-Pfeil. Cards in dieser Reihenfolge:
@@ -199,10 +226,10 @@ oben rechts einen Auf-/Zuklapp-Pfeil. Cards in dieser Reihenfolge:
    editierbar, solange noch KEIN Bis-Datum gesetzt ist (offenes Auftragsende, z. B. bei
    sich verlängernden Aufträgen); es darf dann nur so gesetzt werden, dass nach diesem
    Tag keine Dienste verplant sind, beendet den ganzen Dienst samt Teilstücken und ist
-   danach ebenfalls gesperrt. Checkbox **Ist ein Container** (de: "Ist ein
-   Container", en: "Is a container", fr: "Est un conteneur", it: "È un contenitore") — nur
-   im Experten-Modus und nur im Status Bestellung sichtbar; aktivieren leert Kunde/Adresse
-   und schaltet die Zeitrahmen-Option aus.
+   danach ebenfalls gesperrt. Ob der Dienst ein Container ist, wählt man in der Maske nicht
+   (mehr): Ein Container entsteht nur über den Button "+ neuer Container" in der Sicht
+   Container; die Maske zeigt dann weder Kunde noch Adresse, Standard-Spesen oder
+   Zeitrahmen-Option.
 2. **Gruppe** (de: "Gruppe", en: "Group", fr: "Groupe", it: "Gruppo") — Zuordnung des
    Dienstes zu Gruppen; Card erscheint nur, wenn Gruppen existieren. Eine Info-Box mahnt
    **Bitte wählen Sie mindestens eine Gruppe aus** (de: "Bitte wählen Sie mindestens eine
@@ -386,7 +413,7 @@ schreibgeschützt.
   Versiegelt-Häkchen) ignoriert den Gruppenfilter ganz.
 - **Berechtigungen**: Wer Dienste nicht bearbeiten darf (ohne Rolle), sieht nur die Sicht
   "Planbare Dienste" (Radios und Versiegelt-Checkbox deaktiviert, beim Laden erzwungen); die
-  Erfassen-Buttons "+ neue Bestellung" / "+ neuer Dienst" erscheinen nur mit dem Recht, Dienste
+  Erfassen-Buttons "+ neue Bestellung" / "+ neuer Dienst" / "+ neuer Container" erscheinen nur mit dem Recht, Dienste
   anzulegen (Admin und Supervisor, nicht ohne Rolle).
 - **Stammdaten-Wirkung**: Gruppen-Zuordnung, erforderliche Qualifikationen, Anzahl
   Mitarbeiter/Aufgaben pro Schicht und Macros am Dienst steuern die Vorschläge und
@@ -433,7 +460,7 @@ schreibgeschützt.
 - **Löschen hängt vom Status ab.** Der Papierkorb in der Sicht "Bestellungen" gilt nur für noch bearbeitbare Bestellungen. Planbare Schichten und Teilstücke sind nie direkt löschbar (Konflikt). Eine versiegelte Bestellung löscht nur ein Administrator über Klacksy oder die API, dann samt planbarer Schicht und Teilstücken und nur, solange in der Familie nichts verplant ist: keine Einsätze, keine Szenario-Kopien, keine Container-Verweise.
 - **Eine Schnittgruppe endet über Zurücksetzen, nicht über Löschen.** Die Schaltfläche "Zurücksetzen" im Zuschnitt schließt die noch offenen Teilstücke am Tag vor dem neuen Startdatum und legt ab diesem Datum eine frische, ungeteilte planbare Schicht an; früher beendete Schnitte bleiben unberührt. Im Szenario ist der Zuschnitt gesperrt.
 - **Dienst ohne Kunde: nur vollständig und nur mit Absicht.** "+ neuer Dienst" legt sofort versiegelt an; fehlt eine Pflichtangabe (Abkürzung, Name, Von-Datum, ein Wochentag oder Feiertag, eine Gruppe, Aufgaben und Mitarbeiter größer null), wird nicht gespeichert. Ein Kunde lässt sich nach dem Versiegeln nicht mehr ändern, also auch nicht nachtragen. Beim Anlegen lehnt der Server außerdem einen Entwurf ohne Kunde ab; ausgenommen sind Container.
-- **Die Container-Eigenschaft ist früh festgelegt.** Das Häkchen "Ist ein Container" gibt es nur im Experten-Modus und nur, solange die Bestellung noch nicht versiegelt ist; danach ist der Dienst-Typ gesperrt.
+- **Die Container-Eigenschaft ist von Anfang an festgelegt.** Ein Container entsteht nur über "+ neuer Container" in der Sicht Container; eine Bestellung lässt sich in der Maske nicht in einen Container umwandeln und umgekehrt. Nach dem Versiegeln ist der Dienst-Typ ohnehin gesperrt.
 - **Sporadisch und Zeitbereich lassen sich nachträglich nicht umstellen.** Wer sie braucht, muss es vor dem Versiegeln setzen; Wirkung und Grenzen: `explain_shift_sporadic` und `explain_shift_time_range`.
 - **Der Dienste-Balken im Dashboard zählt weniger, als die Liste zeigt.** Neben sporadischen Diensten, Zeitbereich-Diensten, versiegelten Bestellungen und Szenario-Zeilen fehlen dort auch Aufgaben-Dienste, die in der Vorlage eines Containers stehen; der Container selbst zählt als 1.
 - **Die Sicht "Abwesenheit" ist leer.** Das ist kein Fehler: Das Backend liefert für diese Sicht derzeit nichts.
