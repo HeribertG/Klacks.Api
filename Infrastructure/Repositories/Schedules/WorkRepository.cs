@@ -231,6 +231,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
         var workChanges = await context.WorkChange
             .Where(wc => (clientIdsWithoutPeriodHours.Contains(wc.Work!.ClientId) || (wc.ReplaceClientId.HasValue && clientIdsWithoutPeriodHours.Contains(wc.ReplaceClientId.Value))) && wc.Work.CurrentDate >= startDate && wc.Work.CurrentDate <= endDate && wc.Work.AnalyseToken == analyseToken)
+            .Where(WorkChangeOwnHours.Counts)
             .Select(wc => new WorkChangeEntry(wc.Work!.ClientId, wc.ChangeTime, wc.Surcharges, wc.Type, wc.ReplaceClientId, wc.Work.ClientId))
             .ToListAsync(cancellationToken);
 

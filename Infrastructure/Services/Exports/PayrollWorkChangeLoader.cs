@@ -5,7 +5,8 @@
 /// (PayrollCompletenessGate): non-deleted, non-scenario changes on non-deleted, non-scenario works of an Employee or
 /// ExternEmp in the period. Global query filters are ignored so a change on the work of a soft-deleted person (or naming
 /// a soft-deleted substitute) is not lost; the soft-delete and scenario conditions of WorkChange and Work are applied
-/// explicitly instead.
+/// explicitly instead. Travel time, briefing and debriefing on an inner service of a container are left out
+/// (WorkChangeOwnHours): the container counts that time.
 /// @param context - Database context holding WorkChange, Work and Client
 /// @param fromDate - Lower bound (inclusive) for Work.CurrentDate
 /// @param untilDate - Upper bound (inclusive) for Work.CurrentDate
@@ -15,6 +16,7 @@
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Infrastructure.Services.Exports;
 
@@ -40,7 +42,8 @@ public static class PayrollWorkChangeLoader
                 && wc.Work.CurrentDate >= fromDate
                 && wc.Work.CurrentDate <= untilDate
                 && wc.Work.Client != null
-                && (wc.Work.Client.Type == EntityTypeEnum.Employee || wc.Work.Client.Type == EntityTypeEnum.ExternEmp));
+                && (wc.Work.Client.Type == EntityTypeEnum.Employee || wc.Work.Client.Type == EntityTypeEnum.ExternEmp))
+            .Where(WorkChangeOwnHours.Counts);
 
         if (clientIds is not null)
         {

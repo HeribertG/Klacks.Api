@@ -382,6 +382,7 @@ public class PeriodHoursService : IPeriodHoursService
                 && wc.Work.CurrentDate >= startDate
                 && wc.Work.CurrentDate <= endDate
                 && wc.Work.AnalyseToken == analyseToken)
+            .Where(WorkChangeOwnHours.Counts)
             .Select(wc => new
             {
                 wc.Work!.ClientId,

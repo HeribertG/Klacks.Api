@@ -67,6 +67,7 @@ namespace Klacks.Api.Application.Handlers.Schedules;
 public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCommand, CoverAbsenceOutcome>
 {
     private const string LockedReason = "locked";
+    private const string RecalculationFailedReason = "recalculation failed";
     private const string NoCandidateReason = "no eligible candidate";
     private const string NonCriticalReason = "non-critical";
     private const string BlockedReason = "blocked";
@@ -257,7 +258,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             .Concat(materialised.HeldCovers
                 .GroupBy(held => held.OptionId)
                 .Select(option => option.FirstOrDefault(held => held.FromAgentId == clientId) ?? option.First())
-                .Select(held => UncoveredFromDelta(held, LockedReason, workIdMap, rootShiftIds)))
+                .Select(held => UncoveredFromDelta(held, RecalculationFailedReason, workIdMap, rootShiftIds)))
             .ToList();
 
         // Computed after the partition: a blocked swap must not be reported as a tier the result reached.
