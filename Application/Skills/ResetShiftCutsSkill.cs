@@ -1,16 +1,16 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Skill that puts a split shift order back to its state at creation: every cut piece is removed and one plannable shift
-/// (OriginalShift) with the content of the order remains. Without planned work it starts on the first day of the order,
-/// whatever date was asked for. With real work the date must lie after the last work: a piece with such work stays, ending the
-/// day before, and the plannable shift starts on the date. Wraps GetResetDateRangeQuery (to validate the requested date) and
+/// Skill that puts a split shift back to its sealed origin row from a date on: every part that begins on or after the date is
+/// removed, every part that begins before it stays (with or without work) and ends at the latest the day before, and one
+/// plannable shift (OriginalShift) with the content of the sealed origin row starts on the date. The date must not lie before the
+/// sealed origin row; with real work the date must lie after the last work. Wraps GetResetDateRangeQuery (to validate the requested date) and
 /// PostResetCutsCommand (to perform the reset) and relays a refusal as a skill error, then re-reads the cut list to confirm
 /// exactly one open plannable shift and no piece reaching into it. A shift with an analyse token is answered like a
 /// missing one: skills work on the real plan only, and a variant (key) has no skills.
 /// </summary>
 /// <param name="shiftId">UUID of the order (Bestellung), its plannable shift, or one of its split parts — resolved to the order.</param>
-/// <param name="newStartDate">ISO date (yyyy-MM-dd) from which the shift is whole again; it counts only when the order has real work, and must lie after the last work and inside the order.</param>
+/// <param name="newStartDate">ISO date (yyyy-MM-dd) from which the shift is whole again; it must lie after the last work and inside the sealed origin row.</param>
 
 using Klacks.Api.Application.Commands.Shifts;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -158,8 +158,8 @@ public class ResetShiftCutsSkill : BaseSkillImplementation
                 RemainingPieceCount = keptPieces.Count,
                 Verified = true
             },
-            $"Order '{orderName}' is back to one plannable shift starting {mergedShift.FromDate}, with the content of the order. " +
-            $"All cut pieces were removed except {keptPieces.Count} with planned work before that date, which end the day before. " +
+            $"Order '{orderName}' is back to one plannable shift starting {mergedShift.FromDate}, with the content of its sealed origin row. " +
+            $"Parts from that date on were removed; {keptPieces.Count} part(s) beginning before it stay and end at the latest the day before. " +
             "Confirmed in the database (verified).");
     }
 }

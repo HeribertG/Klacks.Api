@@ -9,9 +9,10 @@ using Klacks.Api.Domain.Services.Schedules;
 namespace Klacks.Api.Domain.Services.Shifts;
 
 /// <summary>
-/// Stages the plannable shift a reset ends with: the sealed order as it is, starting on the given day. ShiftCloner takes the
-/// fields and groups, the requirements are copied from the sealed order, and the default expenses are fresh rows of the new
-/// shift. What the planner changed on the plannable copy or on cut pieces does not survive.
+/// Stages the plannable shift a reset ends with: the sealed origin row as it is, starting on the given day. ShiftCloner takes
+/// the fields and groups, the requirements are copied from the sealed origin row, and the default expenses are fresh rows of
+/// the new shift. What the planner changed on the plannable copy or on cut pieces does not reach the new shift; the rows that
+/// begin before that day keep their content up to the day before.
 /// </summary>
 /// <param name="shiftRepository">Stages the new shift and its requirements</param>
 /// <param name="logger">Logs the new shift</param>
