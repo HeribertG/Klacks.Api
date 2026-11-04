@@ -14,6 +14,9 @@
 /// subgroups, so the two checks can differ for a group below a visible root. The skill is withheld on the capped
 /// channels (Slack owner bridge, MCP) because the chain check reads the database role, not the capped rights. A name that matches several employees is answered
 /// with the candidate list, a hidden or unknown employee with the same not-found answer.
+/// A move the planner took back leaves its row with the recorded answer; the row is listed with MoveReversedAt and
+/// AppliedToPlan false, and the slot is reported as MoveReversed (not covered) unless another candidate covers it or a
+/// newer request is still unanswered.
 /// A slot's status is classified over every recorded row, including rows of candidates outside the caller's group
 /// visibility (so a slot covered by a hidden colleague is not reported as open); those rows are only counted, never named.
 /// Every instant is rendered in the company time zone, and the date range is reported as the search window, not as the
@@ -92,6 +95,11 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
 
     private const string MessengerSourceNote =
         "Source Messenger only says the absence was reported through a messenger; it is not a contact with the candidate.";
+
+    private const string MoveReversedNote =
+        "Status MoveReversed: the shift was moved to a candidate who accepted, and the planner took the move back. The shift " +
+        "is NOT covered; say so plainly. The acceptance stays in the history (Contact Accepted, MoveReversedAt), so name it " +
+        "as taken back, never as the current replacement.";
 
     private const string AnswerNote =
         "A candidate without a recorded answer may still have been called; the book only knows what was entered.";
@@ -217,6 +225,11 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
             notes.Add(HiddenEntriesNote);
         }
 
+        if (slots.Any(s => s.Status == nameof(ReplacementSlotStatus.MoveReversed)))
+        {
+            notes.Add(MoveReversedNote);
+        }
+
         if (rows.Any(r => r.Source == ReplacementRequestSource.Messenger))
         {
             notes.Add(MessengerSourceNote);
@@ -253,7 +266,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
             .ToDictionary(
                 group => group.Key,
                 group => new SlotOutcome(
-                    ReplacementSlotStatusPolicy.Classify(group.Select(r => (r.Outcome, r.AppliedAtUtc.HasValue)).ToList()),
+                    ReplacementSlotStatusPolicy.Classify(group.Select(r => (r.Outcome, r.AppliedAtUtc.HasValue, r.ReversedAtUtc.HasValue)).ToList()),
                     group.Count()));
     }
 
@@ -292,7 +305,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
     {
         var first = group[0];
         var visibleStatus = ReplacementSlotStatusPolicy.Classify(
-            group.Select(r => (r.Outcome, r.AppliedAtUtc.HasValue)).ToList());
+            group.Select(r => (r.Outcome, r.AppliedAtUtc.HasValue, r.ReversedAtUtc.HasValue)).ToList());
         var hasOutcome = outcomes.TryGetValue(new SlotKey(first.AnalyseToken, first.Date, first.ShiftId), out var outcome);
         var status = hasOutcome ? outcome!.Status : visibleStatus;
         var hiddenEntries = hasOutcome ? Math.Max(0, outcome!.TotalEntries - group.Count) : 0;
@@ -310,7 +323,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
             absenceId.HasValue ? absenceNames.GetValueOrDefault(absenceId.Value) : null,
             status.ToString(),
             hiddenEntries,
-            group.Any(r => r.AppliedAtUtc.HasValue),
+            group.Any(IsInPlan),
             (group.Any(r => r.Kind == ReplacementRequestKind.Move) ? ReplacementRequestKind.Move : ReplacementRequestKind.Replacement).ToString(),
             group.OrderBy(r => r.ReportedAtUtc).Select(r => new CandidateView(
                 r.CandidateClientId,
@@ -319,10 +332,13 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
                 ContactOf(r.Outcome),
                 r.Outcome.ToString(),
                 ToCompanyTime(r.OutcomeAtUtc, timeZone),
-                r.AppliedAtUtc.HasValue,
+                IsInPlan(r),
+                ToCompanyTime(r.ReversedAtUtc, timeZone),
                 r.IsShortNotice,
                 r.Kind.ToString())).ToList());
     }
+
+    private static bool IsInPlan(ReplacementRequestResource row) => row.AppliedAtUtc.HasValue && !row.ReversedAtUtc.HasValue;
 
     private static string ContactOf(ReplacementRequestOutcome outcome) => outcome switch
     {
@@ -437,6 +453,7 @@ public class GetReplacementStatusSkill : BaseSkillImplementation
         string Outcome,
         string? AnsweredAt,
         bool AppliedToPlan,
+        string? MoveReversedAt,
         bool IsShortNotice,
         string Kind);
 
