@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "Sebuah layanan, ketidakhadiran, atau waktu perjalanan, briefing, atau debriefing berada di luar kontainer. Sesuaikan waktunya, lalu dapat disimpan.",
   "schedule.container-expense.refused": "Biaya hanya dicatat pada kontainer, bukan pada layanan di dalamnya.",
   "schedule.container-child.confirm-refused": "Layanan di dalam kontainer dikonfirmasi bersama kontainernya, tidak sendiri. Konfirmasikan kontainernya.",
+  "schedule.container-split.sealed-refused": "Kontainer yang sudah dikonfirmasi tidak dapat dibagi. Batalkan konfirmasi terlebih dahulu; setelah itu setiap bagian dapat dikonfirmasi secara terpisah.",
   "schedule.move-reversal.not-applied": "Hanya pemindahan yang sudah masuk ke rencana yang dapat dibatalkan.",
   "schedule.move-reversal.already-reversed": "Pemindahan ini sudah dibatalkan.",
   "schedule.move-reversal.origin-busy": "Orang asal layanan ini tidak sedang luang pada waktu itu: ada layanan lain atau ketidakhadiran yang menghalangi.",

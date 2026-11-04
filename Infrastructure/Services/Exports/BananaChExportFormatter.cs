@@ -6,7 +6,8 @@
 /// accounting &gt; Transactions). Tab-separated, one header row of English NameXml column
 /// names followed by one row per booking: Date; Doc; DocOriginal; Description; AccountDebit;
 /// AccountCredit; Amount (German UI labels: Datum, Beleg, Originalbeleg, Beschreibung, KtSoll, KtHaben,
-/// Betrag). One row per WorkExportEntry and one further row per ExpensesExportEntry.
+/// Betrag). One row per WorkExportEntry. Expenses and allowances belong to the employee, not the customer,
+/// and are therefore not part of the order export.
 /// </summary>
 /// <remarks>
 /// Spec source: Banana developer guide "Importing Data into Banana Accounting", sections "Text file
@@ -32,14 +33,11 @@
 /// has not been checked against a real import in either version.
 /// Klacks holds a Leistungsnachweis (hours), not monetary values, and has no chart of accounts. Like
 /// Sie4bSeExportFormatter, ZohoBooksAeExportFormatter, MoveinIlExportFormatter and BmdExportFormatter,
-/// Amount therefore carries the time quantity (WorkTime + Surcharges + hour-bearing changes) for work rows and the
-/// expense amount for expense rows, and the accounts are placeholders modelled on the Swiss
-/// KMU-Kontenrahmen that the customer must map to their own Banana chart before importing (the spec
-/// does not say how Banana treats an account missing from the chart): PlaceholderWagesAccount "5000"
-/// (Lohnaufwand, debit for worked time), PlaceholderPayablesAccount "2210" (Sonstige kurzfristige
-/// Verbindlichkeiten, credit for every row), PlaceholderTaxableExpenseAccount "5800" (Uebriger
-/// Personalaufwand, debit for taxable allowances) and PlaceholderNonTaxableExpenseAccount "5820"
-/// (Spesenentschaedigungen effektiv, debit for non-taxable expense reimbursements). VatCode and
+/// Amount therefore carries the time quantity (WorkTime + Surcharges + hour-bearing changes), and the
+/// accounts are placeholders modelled on the Swiss KMU-Kontenrahmen that the customer must map to their own
+/// Banana chart before importing (the spec does not say how Banana treats an account missing from the chart):
+/// PlaceholderWagesAccount "5000" (Lohnaufwand, debit for worked time) and PlaceholderPayablesAccount "2210"
+/// (Sonstige kurzfristige Verbindlichkeiten, credit for every row). VatCode and
 /// AmountCurrency are not written (no VAT model, single accounting currency). Doc is a running
 /// booking number across all orders, starting at 1.
 /// </remarks>
@@ -63,8 +61,6 @@ public class BananaChExportFormatter : IExportFormatter
     private const string SingleQuote = "'";
     private const string PlaceholderWagesAccount = "5000";
     private const string PlaceholderPayablesAccount = "2210";
-    private const string PlaceholderTaxableExpenseAccount = "5800";
-    private const string PlaceholderNonTaxableExpenseAccount = "5820";
 
     private static readonly UTF8Encoding Utf8WithoutBom = new(encoderShouldEmitUTF8Identifier: false);
 
@@ -111,24 +107,6 @@ public class BananaChExportFormatter : IExportFormatter
                     PlaceholderPayablesAccount,
                     totalAmount);
                 documentNumber++;
-
-                foreach (var expense in work.Expenses)
-                {
-                    var debitAccount = expense.Taxable
-                        ? PlaceholderTaxableExpenseAccount
-                        : PlaceholderNonTaxableExpenseAccount;
-
-                    AppendRow(
-                        sb,
-                        work.WorkDate,
-                        documentNumber,
-                        reference,
-                        $"{expense.Description} - {work.EmployeeName}",
-                        debitAccount,
-                        PlaceholderPayablesAccount,
-                        expense.Amount);
-                    documentNumber++;
-                }
             }
         }
 

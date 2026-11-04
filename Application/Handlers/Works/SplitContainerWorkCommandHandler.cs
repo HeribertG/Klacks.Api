@@ -3,13 +3,15 @@
 /// <summary>
 /// Splits a container into two containers in one transaction: the container ends at the split time, a second container
 /// starts there for the target person and takes over the children after the split (same ids, nothing is deleted).
-/// Nothing is expanded from the container template and no default expenses are added, so the second part carries exactly
-/// the moved children and the bases of the container. All checks run before anything is staged: the caller holds the
-/// container lock; the container, its children's present and future owners, their replacements and the target are visible; the container is a top-level container
-/// that the caller may write, with writable children; the split time is in whole minutes and lies between two children with a task on each side; the
-/// days of both persons are open; a service counts with its travel, briefing and debriefing times; the target is plannable
-/// on the day of the second part and has no hard-blocking conflict.
-/// A failing recalculation rolls the whole split back.
+/// Nothing is expanded from the container template and no default expenses are added, so the second part carries
+/// exactly the moved children and the bases of the container. All checks run before anything is staged: the caller
+/// holds the container lock; the container, its children's present and future owners, their replacements and the target
+/// are visible; the container is a top-level container that is not sealed (a sealed container is not split, each part
+/// is sealed on its own) and that the caller may write, with writable children; the split time is in whole minutes and
+/// lies between two children with a task on each side; the days of both persons are open; a service counts with its
+/// travel, briefing and debriefing times; the target exists, is an employee, is plannable on the day of the second part
+/// and has no hard-blocking conflict. Period hours are recalculated in the period of each part, so a night split into a
+/// new period updates both periods. A failing recalculation rolls the whole split back.
 /// </summary>
 /// <param name="splitWriter">Stages the shortened container, the second part and the moved children</param>
 /// <param name="childrenManager">Recalculates both parts after the structural save</param>
@@ -132,6 +134,11 @@ public class SplitContainerWorkCommandHandler : BaseHandler, IRequestHandler<Spl
                 throw new InvalidRequestException(ContainerSplitMessages.NotAContainer);
             }
 
+            if (container.LockLevel != WorkLockLevel.None)
+            {
+                throw new ContainerSplitSealedRefusedException();
+            }
+
             _workLockGuard.EnsureWorkWritableForCaller(container, _httpContextAccessor);
             _workLockGuard.EnsureChildrenWritableForCaller(children, _httpContextAccessor);
 
@@ -140,6 +147,7 @@ public class SplitContainerWorkCommandHandler : BaseHandler, IRequestHandler<Spl
             var secondPartDate = ContainerSplitPartition.SecondPartDate(container.CurrentDate, container.StartTime, request.SplitTime);
 
             await EnsureDaysOpenAsync(container, children, movedIds, secondPartDate, request.TargetClientId, childShiftClients, cancellationToken);
+            await _planningPeriodGuard.EnsurePlannablePersonsAsync([request.TargetClientId], cancellationToken);
             await _planningPeriodGuard.EnsureWithinPeriodsAsync([(request.TargetClientId, secondPartDate)], cancellationToken);
             await _workWriteGuard.EnsureNoHardBlockingConflictAsync(
                 new Work
@@ -187,20 +195,27 @@ public class SplitContainerWorkCommandHandler : BaseHandler, IRequestHandler<Spl
         await _overtimeCascadeService.ReprocessSuccessorsAsync(firstPart, before);
         await _overtimeCascadeService.ReprocessSuccessorsAsync(secondPart);
 
-        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(firstPart.CurrentDate);
-        var (secondHours, firstHours) = await _completionService.SaveAndTrackMoveAsync(
-            secondPart.ClientId, secondPart.CurrentDate, periodStart, periodEnd,
+        var firstPeriod = await _periodHoursService.GetPeriodBoundariesAsync(firstPart.CurrentDate);
+        var secondPeriod = secondPart.CurrentDate == firstPart.CurrentDate
+            ? firstPeriod
+            : await _periodHoursService.GetPeriodBoundariesAsync(secondPart.CurrentDate);
+        var (secondHours, firstHoursInSecondPeriod) = await _completionService.SaveAndTrackMoveAsync(
+            secondPart.ClientId, secondPart.CurrentDate, secondPeriod.StartDate, secondPeriod.EndDate,
             firstPart.ClientId, firstPart.CurrentDate, firstPart.AnalyseToken);
+        var firstHours = firstPeriod == secondPeriod
+            ? firstHoursInSecondPeriod
+            : await _completionService.SaveAndTrackAsync(
+                firstPart.ClientId, firstPart.CurrentDate, firstPeriod.StartDate, firstPeriod.EndDate, firstPart.AnalyseToken);
 
         var connectionId = _notificationFacade.GetConnectionId();
-        await _notificationFacade.NotifyWorkUpdatedAsync(firstPart, connectionId, periodStart, periodEnd);
-        await _notificationFacade.NotifyWorkCreatedAsync(secondPart, connectionId, periodStart, periodEnd);
+        await _notificationFacade.NotifyWorkUpdatedAsync(firstPart, connectionId, firstPeriod.StartDate, firstPeriod.EndDate);
+        await _notificationFacade.NotifyWorkCreatedAsync(secondPart, connectionId, secondPeriod.StartDate, secondPeriod.EndDate);
         await _notificationFacade.NotifyPeriodHoursUpdatedAsync(
-            secondPart.ClientId, periodStart, periodEnd, secondHours, connectionId, secondPart.AnalyseToken);
+            secondPart.ClientId, secondPeriod.StartDate, secondPeriod.EndDate, secondHours, connectionId, secondPart.AnalyseToken);
         if (firstHours != null)
         {
             await _notificationFacade.NotifyPeriodHoursUpdatedAsync(
-                firstPart.ClientId, periodStart, periodEnd, firstHours, connectionId, firstPart.AnalyseToken);
+                firstPart.ClientId, firstPeriod.StartDate, firstPeriod.EndDate, firstHours, connectionId, firstPart.AnalyseToken);
         }
 
         var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>

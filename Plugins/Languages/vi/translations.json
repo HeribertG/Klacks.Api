@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "Một dịch vụ, một lần vắng mặt hoặc thời gian di chuyển, giao ban hay tổng kết nằm ngoài container. Hãy điều chỉnh thời gian rồi mới lưu được.",
   "schedule.container-expense.refused": "Chi phí chỉ được ghi nhận trên container, không phải trên một dịch vụ bên trong nó.",
   "schedule.container-child.confirm-refused": "Một ca bên trong container được xác nhận cùng với container, không xác nhận riêng. Hãy xác nhận container.",
+  "schedule.container-split.sealed-refused": "Không thể chia một container đã xác nhận. Hãy hủy xác nhận trước; sau đó có thể xác nhận từng phần riêng.",
   "schedule.move-reversal.not-applied": "Chỉ có thể hoàn tác một lần chuyển đã vào kế hoạch.",
   "schedule.move-reversal.already-reversed": "Lần chuyển này đã được hoàn tác.",
   "schedule.move-reversal.origin-busy": "Người ban đầu của ca này không rảnh vào thời điểm đó: có ca khác hoặc một lần vắng mặt cản trở.",

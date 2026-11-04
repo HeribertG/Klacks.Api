@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "Un serviciu, o absență sau un timp de deplasare, briefing ori debriefing se află în afara containerului. Ajustați orele, apoi se poate salva.",
   "schedule.container-expense.refused": "Cheltuielile se înregistrează doar pe container, nu pe un serviciu din interiorul lui.",
   "schedule.container-child.confirm-refused": "Un serviciu din interiorul unui container se confirmă împreună cu containerul, nu separat. Confirmați containerul.",
+  "schedule.container-split.sealed-refused": "Un container confirmat nu poate fi împărțit. Anulați mai întâi confirmarea; apoi fiecare parte poate fi confirmată separat.",
   "schedule.move-reversal.not-applied": "Doar o mutare ajunsă în plan poate fi anulată.",
   "schedule.move-reversal.already-reversed": "Această mutare a fost deja anulată.",
   "schedule.move-reversal.origin-busy": "Persoana de la care a venit această tură nu este liberă la acea oră: o altă tură sau o absență împiedică acest lucru.",

@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "Satu perkhidmatan, ketidakhadiran atau masa perjalanan, taklimat atau taklimat semula berada di luar kontena. Laraskan masa, kemudian ia boleh disimpan.",
   "schedule.container-expense.refused": "Perbelanjaan hanya direkodkan pada kontena, bukan pada perkhidmatan di dalamnya.",
   "schedule.container-child.confirm-refused": "Perkhidmatan di dalam kontena disahkan bersama kontena, bukan secara berasingan. Sahkan kontena.",
+  "schedule.container-split.sealed-refused": "Kontena yang telah disahkan tidak boleh dibahagikan. Batalkan pengesahan dahulu; selepas itu setiap bahagian boleh disahkan secara berasingan.",
   "schedule.move-reversal.not-applied": "Hanya pemindahan yang telah masuk ke dalam pelan boleh dibatalkan.",
   "schedule.move-reversal.already-reversed": "Pemindahan ini telah dibatalkan.",
   "schedule.move-reversal.origin-busy": "Orang asal syif ini tidak lapang pada masa itu: ada syif lain atau ketidakhadiran yang menghalang.",

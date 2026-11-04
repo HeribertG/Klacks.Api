@@ -3,7 +3,8 @@
 /// <summary>
 /// Maps WorkChange/Expenses/Break lookups (loaded once per export via WorkSubEntryLoader) onto
 /// the export-entry DTOs for a single Work. Shared by OrderExportDataLoader and
-/// ClientPeriodExportDataLoader to avoid duplicating the mapping logic.
+/// ClientPeriodExportDataLoader to avoid duplicating the mapping logic; MapExpenses is used only by the
+/// employee-based ClientPeriodExportDataLoader, because expenses never go into a customer (order) export.
 /// @param workId - Identifier of the Work whose changes/expenses are being mapped
 /// @param clientId - Client identifier used together with date to key Break lookups
 /// @param date - Work date used together with clientId to key Break lookups

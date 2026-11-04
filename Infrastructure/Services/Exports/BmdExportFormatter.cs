@@ -3,16 +3,17 @@
 /// <summary>
 /// Exports order data as a BMD NTCS FIBU booking import (Austria): semicolon-separated CSV whose first row
 /// carries the standard BMD column headings, so BMD maps the columns by name without a manual field assignment.
-/// Each work entry and each expense becomes one booking with Buchungssymbol ER, Buchungscode 2 (credit) and a
-/// negated amount, the pattern the FIBU04 interface description shows for ER bookings.
+/// Each work entry becomes one booking with Buchungssymbol ER, Buchungscode 2 (credit) and a negated amount, the
+/// pattern the FIBU04 interface description shows for ER bookings. Expenses and allowances belong to the employee,
+/// not the customer, and are therefore not part of the order export.
 /// After the standard columns follow Klacks reference columns (auftragsname, auftragskuerzel, stunden, kundennr,
 /// kundenname, extbelegnr, quellsystem, extkundenref). The order name goes to auftragsname, not to the BMD field
 /// kost (numeric Kostenstelle), which stays out of the file. Text is cut to the BMD limit of 40 characters
-/// (employee name first, then the order name or expense description).
+/// (employee name first, then the order name).
 /// Only hour-bearing changes (corrections, travel) add to the amount; replacements and briefing/debriefing do not.
-/// The amounts are hours (work time plus surcharge time) and expense amounts, not monetary values; the stunden
+/// The amounts are hours (work time plus surcharge time), not monetary values; the stunden
 /// column carries the plain work time. All numeric values, including stunden, use the de-AT decimal comma.
-/// Konto (employee number) and Gkonto (fixed counter accounts per booking kind) are placeholders that have to be
+/// Konto (employee number) and Gkonto (fixed counter account) are placeholders that have to be
 /// mapped in BMD. The layout follows the FIBU04 interface description cited below and has not been confirmed
 /// against an official BMD import specification or a BMD test import.
 /// </summary>
@@ -40,8 +41,6 @@ public class BmdExportFormatter : IExportFormatter
     private const string BmdBuchsymbolIncomingInvoice = "ER";
     private const string BmdBuchcodeCredit = "2";
     private const string WorkCounterAccount = "3600";
-    private const string TaxableExpenseCounterAccount = "7600";
-    private const string NonTaxableExpenseCounterAccount = "7800";
     private const int BmdTextMaxLength = 40;
 
     private static readonly string[] HeaderColumns =
@@ -85,31 +84,13 @@ public class BmdExportFormatter : IExportFormatter
                 AppendBooking(
                     sb,
                     work,
-                    WorkCounterAccount,
                     bookingNumber,
                     totalAmount,
                     EscapeBmdText($"{work.EmployeeName} - {order.OrderName}"),
-                    FormatAmount(work.WorkTime),
                     orderColumns,
                     customerColumns);
 
                 bookingNumber++;
-
-                foreach (var expense in work.Expenses)
-                {
-                    AppendBooking(
-                        sb,
-                        work,
-                        expense.Taxable ? TaxableExpenseCounterAccount : NonTaxableExpenseCounterAccount,
-                        bookingNumber,
-                        expense.Amount,
-                        EscapeBmdText($"{expense.Description} - {work.EmployeeName}"),
-                        string.Empty,
-                        orderColumns,
-                        customerColumns);
-
-                    bookingNumber++;
-                }
             }
         }
 
@@ -119,11 +100,9 @@ public class BmdExportFormatter : IExportFormatter
     private static void AppendBooking(
         StringBuilder sb,
         WorkExportEntry work,
-        string counterAccount,
         int bookingNumber,
         decimal amount,
         string text,
-        string hours,
         string orderColumns,
         string customerColumns)
     {
@@ -132,7 +111,7 @@ public class BmdExportFormatter : IExportFormatter
         AppendLine(sb, string.Join(Separator,
             BmdSatzartBuchung,
             work.EmployeeIdNumber.ToString(CultureInfo.InvariantCulture),
-            counterAccount,
+            WorkCounterAccount,
             bookingNumber.ToString(CultureInfo.InvariantCulture),
             bookingDate,
             bookingDate,
@@ -147,7 +126,7 @@ public class BmdExportFormatter : IExportFormatter
             string.Empty,
             string.Empty,
             orderColumns,
-            hours,
+            FormatAmount(work.WorkTime),
             customerColumns));
     }
 

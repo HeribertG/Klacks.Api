@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Exports order data as CSV with semicolon separator for ERP compatibility.
-/// Flat structure: one row per work entry, work changes and expenses as additional rows.
+/// Flat structure: one row per work entry, work changes and breaks as additional rows. Expenses and
+/// allowances belong to the employee, not the customer, and are therefore not part of the order export.
 /// </summary>
 using System.Globalization;
 using System.Text;
@@ -20,7 +21,6 @@ public class CsvExportFormatter : IExportFormatter
     {
         public const string Work = "Work";
         public const string WorkChange = "WorkChange";
-        public const string Expenses = "Expenses";
         public const string Break = "Break";
     }
 
@@ -43,7 +43,6 @@ public class CsvExportFormatter : IExportFormatter
             "EntryType", "EmployeeId", "EmployeeName", "EmployeeIdNumber",
             "Date", "StartTime", "EndTime", "Hours", "Surcharges",
             "ChangeType", "Description", "ReplaceEmployee",
-            "ExpenseAmount", "ExpenseTaxable",
             "AbsenceName", "Information", "ToInvoice"));
 
         foreach (var order in data.Orders)
@@ -57,11 +56,6 @@ public class CsvExportFormatter : IExportFormatter
                 foreach (var change in work.Changes)
                 {
                     AppendChangeRow(sb, orderPrefix, work, change, options, culture);
-                }
-
-                foreach (var expense in work.Expenses)
-                {
-                    AppendExpenseRow(sb, orderPrefix, work, expense, options, culture);
                 }
 
                 foreach (var breakEntry in work.Breaks)
@@ -97,7 +91,6 @@ public class CsvExportFormatter : IExportFormatter
             work.WorkTime.ToString("F2", CultureInfo.InvariantCulture),
             work.Surcharges.ToString("F2", CultureInfo.InvariantCulture),
             "", "", "",
-            "", "",
             "", Escape(work.Information ?? ""), ""));
     }
 
@@ -113,22 +106,7 @@ public class CsvExportFormatter : IExportFormatter
             change.ChangeTime.ToString("F2", CultureInfo.InvariantCulture),
             change.Surcharges.ToString("F2", CultureInfo.InvariantCulture),
             change.Type.ToString(), Escape(change.Description), Escape(change.ReplaceEmployeeName ?? ""),
-            "", "",
             "", "", change.ToInvoice ? "1" : "0"));
-    }
-
-    private static void AppendExpenseRow(StringBuilder sb, string orderPrefix, WorkExportEntry work, ExpensesExportEntry expense, ExportOptions options, CultureInfo culture)
-    {
-        AppendLine(sb, string.Join(Separator,
-            orderPrefix,
-            EntryType.Expenses,
-            work.EmployeeId, Escape(work.EmployeeName), work.EmployeeIdNumber,
-            work.WorkDate.ToString(options.DateFormat, culture),
-            "", "",
-            "", "",
-            "", Escape(expense.Description), "",
-            expense.Amount.ToString("F2", CultureInfo.InvariantCulture), expense.Taxable ? "1" : "0",
-            "", "", ""));
     }
 
     private static void AppendBreakRow(StringBuilder sb, string orderPrefix, WorkExportEntry work, BreakExportEntry breakEntry, ExportOptions options, CultureInfo culture)
@@ -141,7 +119,6 @@ public class CsvExportFormatter : IExportFormatter
             breakEntry.StartTime.ToString(options.TimeFormat, culture),
             breakEntry.EndTime.ToString(options.TimeFormat, culture),
             breakEntry.BreakTime.ToString("F2", CultureInfo.InvariantCulture),
-            "", "",
             "", "",
             "", "",
             Escape(breakEntry.AbsenceName), "", ""));

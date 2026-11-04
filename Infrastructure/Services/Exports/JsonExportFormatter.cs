@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Exports order data as structured JSON for API integration and ERP import.
-/// Preserves the hierarchical structure: Orders -> WorkEntries -> Changes/Expenses/Breaks.
+/// Preserves the hierarchical structure: Orders -> WorkEntries -> Changes/Breaks. Expenses and allowances
+/// belong to the employee, not the customer, and are therefore not part of the order export.
 /// </summary>
 using System.Text.Json;
 using System.Text.Json.Serialization;

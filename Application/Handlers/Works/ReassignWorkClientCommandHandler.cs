@@ -1,16 +1,17 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Hands a Work over to another client: day-lock and hard-blocking guards for both clients, the hand-over
-/// including container children and the recalculation for the new owner (IWorkHandOverService), commit, overtime
-/// successors, period hours and the schedule entries of source and target. A Work whose current owner or whose target client is outside the caller's group
-/// visibility is refused exactly like a Work that does not exist; nothing is written. Like the Work PUT and DELETE,
-/// the stored Work must be writable for the caller under IParentWorkLockGuard: a Closed Work is refused for everyone,
-/// an Approved one needs Admin or Authorised. Like the grid's drop target, the target client must be plannable on the
-/// Work's day: a day outside its membership or group period is refused. The container children it moves along must be
-/// writable for the caller too; that is checked before the first change is staged, so a refusal leaves nothing behind. A
-/// Work on a shift of another world reads like a missing shift (IWorkWriteGuard). A recalculation that fails for the new
-/// owner refuses the reassignment; nothing is written. A target equal to the origin of a moved Work takes the move back
+/// Hands a Work over to another client: day-lock and hard-blocking guards for both clients, the hand-over including
+/// container children and the recalculation for the new owner (IWorkHandOverService), commit, overtime successors,
+/// period hours and the schedule entries of source and target. A Work whose current owner or whose target client is
+/// outside the caller's group visibility is refused exactly like a Work that does not exist; nothing is written. Like
+/// the Work PUT and DELETE, the stored Work must be writable for the caller under IParentWorkLockGuard: a Closed Work
+/// is refused for everyone, an Approved one needs Admin or Authorised. Like the grid's drop target, the target client
+/// must be plannable on the Work's day: a day outside its membership or group period is refused, and a missing or
+/// deleted target or a customer is refused. The container children it moves along must be writable for the caller too;
+/// that is checked before the first change is staged, so a refusal leaves nothing behind. A Work on a shift of another
+/// world reads like a missing shift (IWorkWriteGuard). A recalculation that fails for the new owner refuses the
+/// reassignment; nothing is written. A target equal to the origin of a moved Work takes the move back
 /// (IMovedWorkReversal).
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
@@ -118,6 +119,8 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
             {
                 throw new InvalidRequestException(AlreadyWithTargetMessage);
             }
+
+            await _planningPeriodGuard.EnsurePlannablePersonsAsync([request.TargetClientId], cancellationToken);
 
             await _workWriteGuard.EnsureShiftsInWorkWorldAsync(
                 [(existingWork.ShiftId, existingWork.AnalyseToken)], cancellationToken);

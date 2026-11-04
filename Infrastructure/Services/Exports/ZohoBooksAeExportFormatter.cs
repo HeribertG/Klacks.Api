@@ -5,7 +5,8 @@
 /// for each booking it emits a balanced two-line journal (a debit line plus an offsetting credit line
 /// sharing one Journal#), so every journal satisfies Zoho's sum(Debit) == sum(Credit) rule. Columns
 /// (positional, with a header row): Journal Date; Journal#; Reference#; Notes; Account Name;
-/// Description; Debit; Credit; Currency Code; Tax Name; Tax Percentage.
+/// Description; Debit; Credit; Currency Code; Tax Name; Tax Percentage. One journal per work entry; expenses
+/// and allowances belong to the employee, not the customer, and are therefore not part of the order export.
 /// </summary>
 /// <remarks>
 /// - Debit and Credit are two separate columns (Zoho does not use a signed single column); the
@@ -36,7 +37,6 @@ public class ZohoBooksAeExportFormatter : IExportFormatter
     private const int AmountDecimalPlaces = 2;
     private const string PlaceholderDebitAccount = "Salaries and Employee Wages";
     private const string PlaceholderCreditAccount = "Accounts Payable";
-    private const string PlaceholderExpenseDebitAccount = "Other Expenses";
     private const string NotePrefix = "Klacks hours export";
 
     private static readonly string[] ColumnHeaders =
@@ -92,22 +92,6 @@ public class ZohoBooksAeExportFormatter : IExportFormatter
                     PlaceholderCreditAccount,
                     currencyCode);
                 journalNumber++;
-
-                foreach (var expense in work.Expenses)
-                {
-                    WriteJournal(
-                        sb,
-                        journalNumber,
-                        work.WorkDate,
-                        reference,
-                        $"{NotePrefix} - {order.OrderName}",
-                        $"{expense.Description} - {work.EmployeeName}",
-                        expense.Amount,
-                        PlaceholderExpenseDebitAccount,
-                        PlaceholderCreditAccount,
-                        currencyCode);
-                    journalNumber++;
-                }
             }
         }
 

@@ -4,11 +4,12 @@
 /// Exports order data as a DATEV Buchungsstapel (EXTF, header version 700, data category 21, format version 13).
 /// Built against the DATEV developer portal format description (format version 13) and its sample data
 /// (EXTF_Buchungsstapel.csv): line 1 is the 31-field header, line 2 the 125 column names of the sample file,
-/// then one 125-field booking per work entry and per expense. Windows-1252, CRLF, semicolon separated,
+/// then one 125-field booking per work entry. Windows-1252, CRLF, semicolon separated,
 /// text fields quoted with doubled quotes, amounts positive with decimal comma and the sign in the S/H field.
 /// The amounts are hours (work time plus surcharge time, plus only the hour-bearing changes: corrections and travel,
-/// not replacements or briefing/debriefing) and expense amounts, not monetary values. The accounts
-/// (employee number) and counter accounts (fixed placeholders per booking kind) are placeholders that have to be
+/// not replacements or briefing/debriefing), not monetary values. Expenses and allowances belong to the employee,
+/// not the customer, and are therefore not part of the order export. The account (employee number) and the
+/// counter account (fixed placeholder) are placeholders that have to be
 /// mapped in DATEV; they are not derived from a chart of accounts. The 125-column count is derived from the
 /// column names.
 /// Berater and Mandant come from the DATEV_CONSULTANT_NUMBER and DATEV_CLIENT_NUMBER settings and are written
@@ -73,8 +74,6 @@ public class DatevExportFormatter : IExportFormatter, IExportFileNameProvider
     private const string Debit = "S";
     private const string Credit = "H";
     private const string WorkCounterAccount = "1600";
-    private const string TaxableExpenseCounterAccount = "4100";
-    private const string NonTaxableExpenseCounterAccount = "4900";
     private const string BeleginfoSourceSystemLabel = "SourceSystem";
     private const string BeleginfoCustomerReferenceLabel = "ErpCustomerRef";
 
@@ -221,8 +220,7 @@ public class DatevExportFormatter : IExportFormatter, IExportFileNameProvider
             {
                 var totalHours = OrderWorkHours.WorkHours(work);
                 var amount = OrderWorkHours.BillableHours(work);
-                var workRow = BuildBookingRow(order, work, amount, WorkCounterAccount,
-                    BuildBookingText(work.EmployeeName, order), options);
+                var workRow = BuildBookingRow(order, work, amount, BuildBookingText(work.EmployeeName, order), options);
 
                 if (workRow != null)
                 {
@@ -233,24 +231,12 @@ public class DatevExportFormatter : IExportFormatter, IExportFileNameProvider
 
                     AppendLine(sb, string.Join(Separator, workRow));
                 }
-
-                foreach (var expense in work.Expenses)
-                {
-                    var counterAccount = expense.Taxable ? TaxableExpenseCounterAccount : NonTaxableExpenseCounterAccount;
-                    var expenseRow = BuildBookingRow(order, work, expense.Amount, counterAccount,
-                        $"{expense.Description} - {work.EmployeeName}", options);
-
-                    if (expenseRow != null)
-                    {
-                        AppendLine(sb, string.Join(Separator, expenseRow));
-                    }
-                }
             }
         }
     }
 
     private static string[]? BuildBookingRow(
-        OrderGroup order, WorkExportEntry work, decimal amount, string counterAccount, string bookingText, ExportOptions options)
+        OrderGroup order, WorkExportEntry work, decimal amount, string bookingText, ExportOptions options)
     {
         if (amount == 0m)
         {
@@ -264,7 +250,7 @@ public class DatevExportFormatter : IExportFormatter, IExportFileNameProvider
         fields[DebitCreditIndex] = QuoteText(amount > 0m ? Debit : Credit);
         fields[CurrencyIndex] = QuoteText(options.CurrencyCode);
         fields[AccountIndex] = work.EmployeeIdNumber.ToString(CultureInfo.InvariantCulture);
-        fields[CounterAccountIndex] = counterAccount;
+        fields[CounterAccountIndex] = WorkCounterAccount;
         fields[DocumentDateIndex] = work.WorkDate.ToString(DocumentDateFormat, CultureInfo.InvariantCulture);
         fields[DocumentField1Index] = QuoteText(ToDocumentField1(order.OrderAbbreviation));
         fields[BookingTextIndex] = QuoteText(Truncate(Clean(bookingText), BookingTextMaxLength));

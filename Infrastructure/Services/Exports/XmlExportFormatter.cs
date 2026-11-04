@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Exports order data as XML for ERP system integration.
-/// Uses standard XML serialization with hierarchical structure.
+/// Uses standard XML serialization with hierarchical structure (Order -> Work -> Changes/Breaks). Expenses and
+/// allowances belong to the employee, not the customer, and are therefore not part of the order export.
 /// </summary>
 using System.Globalization;
 using System.Text;
@@ -120,7 +121,6 @@ public class XmlExportFormatter : IExportFormatter
             writer.WriteElementString("Information", XmlTextSanitizer.Clean(work.Information));
 
         ExportXmlElementWriter.WriteChanges(writer, work.Changes);
-        ExportXmlElementWriter.WriteExpenses(writer, work.Expenses);
         ExportXmlElementWriter.WriteBreaks(writer, work.Breaks);
 
         writer.WriteEndElement();

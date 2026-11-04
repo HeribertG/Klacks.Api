@@ -5,7 +5,8 @@
 /// resolves their descendant shifts (OriginalShift, SplitShift), and assembles
 /// the export data structure. Order metadata (name, abbreviation, period)
 /// always comes from the SealedOrder so renames in clones do not leak into
-/// exported documents. A shift without a customer (BillableOrderRule) is left out.
+/// exported documents. A shift without a customer (BillableOrderRule) is left out. Expenses and
+/// allowances belong to the employee, never to the customer, so they are neither loaded nor exported here.
 /// @param orderIds - Identifiers of sealed-order shifts to export
 /// </summary>
 using Klacks.Api.Application.Interfaces.Exports;
@@ -105,7 +106,8 @@ public class OrderExportDataLoader : IOrderExportDataLoader
         var clientIds = works.Select(w => w.ClientId).Distinct().ToList();
         var workDates = works.Select(w => w.CurrentDate).Distinct().ToList();
 
-        var lookups = await WorkSubEntryLoader.LoadAsync(_context, workIds, clientIds, workDates, cancellationToken) with
+        var lookups = await WorkSubEntryLoader.LoadAsync(
+            _context, workIds, clientIds, workDates, cancellationToken, loadExpenses: false) with
         {
             BreakCarrierWorkIds = WorkSubEntryMapper.SelectBreakCarrierWorkIds(works),
         };
@@ -216,7 +218,6 @@ public class OrderExportDataLoader : IOrderExportDataLoader
             Surcharges = work.Surcharges,
             Information = work.Information,
             Changes = WorkSubEntryMapper.MapChanges(work.Id, lookups),
-            Expenses = WorkSubEntryMapper.MapExpenses(work.Id, lookups),
             Breaks = WorkSubEntryMapper.MapBreaks(work.Id, work.ClientId, work.CurrentDate, lookups),
         };
     }

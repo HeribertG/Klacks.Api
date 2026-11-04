@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "Um serviço, uma ausência ou um tempo de deslocação, briefing ou debriefing fica fora do contentor. Ajuste os horários e depois poderá guardar.",
   "schedule.container-expense.refused": "As despesas só são registadas no contentor, não num serviço dentro dele.",
   "schedule.container-child.confirm-refused": "Um serviço dentro de um contêiner é confirmado junto com o contêiner, não isoladamente. Confirme o contêiner.",
+  "schedule.container-split.sealed-refused": "Um contentor confirmado não pode ser dividido. Anule primeiro a confirmação; depois, cada parte pode ser confirmada separadamente.",
   "schedule.move-reversal.not-applied": "Só pode ser anulada uma transferência que chegou ao plano.",
   "schedule.move-reversal.already-reversed": "Esta transferência já foi anulada.",
   "schedule.move-reversal.origin-busy": "A pessoa de quem veio este turno não está livre nesse horário: outro turno ou uma ausência impede.",

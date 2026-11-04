@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Shared XmlWriter helpers for writing WorkChange/Expenses/Break elements, reused by both
-/// the order-based and client-period-based XML export formatters.
+/// Shared XmlWriter helpers for writing WorkChange/Expenses/Break elements. WriteChanges and WriteBreaks are
+/// reused by the order-based and the client-period-based XML export formatters; WriteExpenses is used only by
+/// the employee-based client-period formatter, because expenses never go into a customer (order) export.
 /// </summary>
 using System.Globalization;
 using System.Xml;

@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "サービス、不在、または移動・ブリーフィング・デブリーフィングの時間がコンテナの外にあります。時間を調整すると保存できます。",
   "schedule.container-expense.refused": "経費はコンテナにのみ記録でき、その中のサービスには記録できません。",
   "schedule.container-child.confirm-refused": "コンテナ内のサービスは単独ではなく、コンテナと一緒に確定されます。コンテナを確定してください。",
+  "schedule.container-split.sealed-refused": "確定済みのコンテナーは分割できません。先に確定を解除してください。その後、各部分を個別に確定できます。",
   "schedule.move-reversal.not-applied": "計画に反映された移動のみ取り消せます。",
   "schedule.move-reversal.already-reversed": "この移動はすでに取り消されています。",
   "schedule.move-reversal.origin-busy": "このシフトの移動元の人はその時間に空いていません。別のシフトまたは不在が重なっています。",

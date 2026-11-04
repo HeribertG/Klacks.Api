@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "En tjänst, en frånvaro eller en res-, briefing- eller debriefingtid ligger utanför containern. Justera tiderna, så kan det sparas.",
   "schedule.container-expense.refused": "Utgifter registreras bara på containern, inte på en tjänst i den.",
   "schedule.container-child.confirm-refused": "En tjänst i en container bekräftas tillsammans med containern, inte för sig. Bekräfta containern.",
+  "schedule.container-split.sealed-refused": "En bekräftad container kan inte delas. Ta först bort bekräftelsen; därefter kan varje del bekräftas för sig.",
   "schedule.move-reversal.not-applied": "Bara en flytt som har nått planen kan ångras.",
   "schedule.move-reversal.already-reversed": "Den här flytten är redan ångrad.",
   "schedule.move-reversal.origin-busy": "Personen som passet kom från är inte ledig vid den tiden: ett annat pass eller en frånvaro står i vägen.",

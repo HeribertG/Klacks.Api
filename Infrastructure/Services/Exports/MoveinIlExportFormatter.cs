@@ -20,6 +20,8 @@
 /// Haben-Konto (credit) is a placeholder wages-payable account, mirroring the same placeholder-account
 /// approach already used by BmdExportFormatter. Foreign-currency fields are always zero (not supported).
 /// The currency defaults to ILS when the export currency is empty or the global default (EUR).
+/// One line per work entry; expenses and allowances belong to the employee, not the customer, and are therefore
+/// not part of the order export.
 /// Only hour-bearing changes (corrections, travel) add to the work amount; replacements and
 /// briefing/debriefing do not.
 /// Encoding: Windows-1255 (Hebrew) per industry convention, not confirmed on the spec itself.
@@ -42,8 +44,6 @@ public class MoveinIlExportFormatter : IExportFormatter
     private const int AmountFieldWidth = 12;
     private const string AmountFormat = "0.00";
     private const string PlaceholderCreditAccountWages = "3600";
-    private const string PlaceholderCreditAccountTaxableExpense = "7600";
-    private const string PlaceholderCreditAccountNonTaxableExpense = "7800";
 
     public string FormatKey => ExportConstants.FormatMoveinIl;
 
@@ -73,20 +73,6 @@ public class MoveinIlExportFormatter : IExportFormatter
                     PlaceholderCreditAccountWages,
                     totalAmount);
                 referenceNumber++;
-
-                foreach (var expense in work.Expenses)
-                {
-                    AppendLine(
-                        sb,
-                        referenceNumber,
-                        work.WorkDate,
-                        currencyCode,
-                        $"{expense.Description} - {work.EmployeeName}",
-                        work.EmployeeIdNumber.ToString(CultureInfo.InvariantCulture),
-                        expense.Taxable ? PlaceholderCreditAccountTaxableExpense : PlaceholderCreditAccountNonTaxableExpense,
-                        expense.Amount);
-                    referenceNumber++;
-                }
             }
         }
 

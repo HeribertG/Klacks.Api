@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "某項服務、缺勤或路程、簡報、匯報時間超出了容器範圍。請調整時間後再儲存。",
   "schedule.container-expense.refused": "費用只能記錄在容器上，不能記錄在容器內的服務上。",
   "schedule.container-child.confirm-refused": "容器內的服務與容器一起確認，不能單獨確認。請確認該容器。",
+  "schedule.container-split.sealed-refused": "已確認的容器無法拆分。請先取消確認；之後可分別確認每個部分。",
   "schedule.move-reversal.not-applied": "只能撤銷已進入計畫的轉移。",
   "schedule.move-reversal.already-reversed": "此轉移已被撤銷。",
   "schedule.move-reversal.origin-busy": "該班次原來的人員在該時間沒有空：有其他班次或缺勤衝突。",

@@ -8,6 +8,8 @@
 /// @param clientIds - Client identifiers used together with workDates to look up Break rows
 /// @param workDates - Work dates used together with clientIds to look up Break rows
 /// @param loadBreaks - False when the caller loads the breaks itself (client period export); Breaks is then empty
+/// @param loadExpenses - False for the order export, which never carries expenses (they belong to the employee,
+/// not the customer); Expenses is then empty
 /// </summary>
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
@@ -25,7 +27,8 @@ public static class WorkSubEntryLoader
         IReadOnlyCollection<Guid> clientIds,
         IReadOnlyCollection<DateOnly> workDates,
         CancellationToken cancellationToken,
-        bool loadBreaks = true)
+        bool loadBreaks = true,
+        bool loadExpenses = true)
     {
         var workChanges = await context.WorkChange
             .IgnoreQueryFilters()
@@ -34,7 +37,7 @@ public static class WorkSubEntryLoader
             .Include(wc => wc.ReplaceClient)
             .ToListAsync(cancellationToken);
 
-        var expenses = await context.Expenses
+        List<Expenses> expenses = !loadExpenses ? [] : await context.Expenses
             .AsNoTracking()
             .Where(e => !e.IsDeleted && e.AnalyseToken == null && workIds.Contains(e.WorkId))
             .ToListAsync(cancellationToken);

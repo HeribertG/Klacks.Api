@@ -5,8 +5,9 @@
 /// #SIETYP 4 - the transaction import/export variant consumed by Fortnox Bokforing and
 /// Visma eEkonomi). Header block: #FLAGGA, #PROGRAM, #FORMAT PC8, #GEN, #SIETYP 4, #FNAMN,
 /// followed by #KONTO chart-of-accounts declarations, followed by one #VER verification per
-/// WorkExportEntry (and one further #VER per ExpensesExportEntry), each wrapped in braces and
-/// containing exactly two #TRANS lines (debit/credit) with an empty object list "{}".
+/// WorkExportEntry, each wrapped in braces and containing exactly two #TRANS lines (debit/credit) with an
+/// empty object list "{}". Expenses and allowances belong to the employee, not the customer, and are
+/// therefore not part of the order export.
 /// </summary>
 /// <remarks>
 /// Reconstructed from the official English "SIE file format Version 4B - 30 Sept. 2008" PDF
@@ -24,11 +25,8 @@
 /// BmdExportFormatter - the accounts below are placeholders only and have not been verified
 /// against a real BAS95/BAS96/EUBAS97 chart or an actual Fortnox/Visma test import:
 /// PlaceholderWagesAccount "7010" (personnel cost, debited for worked time), PlaceholderPayablesAccount
-/// "2890" (other short-term liabilities, credited - the amount owed to the employee),
-/// PlaceholderTaxableExpenseAccount "7690" (other taxable staff costs) and
-/// PlaceholderNonTaxableExpenseAccount "7389" (non-taxable expense reimbursement), both debited
-/// against the same PlaceholderPayablesAccount credit. The optional #KSUMMA control-summation
-/// (CRC-32 over the file body, spec section 10) is not implemented. #KPTYP (chart-of-accounts
+/// "2890" (other short-term liabilities, credited - the amount owed to the employee). The optional
+/// #KSUMMA control-summation (CRC-32 over the file body, spec section 10) is not implemented. #KPTYP (chart-of-accounts
 /// type) is left unspecified, so an importing program is to assume BAS95 per the spec's own
 /// default rule. Text fields (#PROGRAM name, #FNAMN, #VER vertext) are always quoted;
 /// numeric/identifier fields (account numbers, series, dates, amounts) are left unquoted, which
@@ -59,10 +57,6 @@ public class Sie4bSeExportFormatter : IExportFormatter
     private const string PlaceholderWagesAccountName = "Salaries and wages (placeholder)";
     private const string PlaceholderPayablesAccount = "2890";
     private const string PlaceholderPayablesAccountName = "Other short-term liabilities (placeholder)";
-    private const string PlaceholderTaxableExpenseAccount = "7690";
-    private const string PlaceholderTaxableExpenseAccountName = "Other taxable staff costs (placeholder)";
-    private const string PlaceholderNonTaxableExpenseAccount = "7389";
-    private const string PlaceholderNonTaxableExpenseAccountName = "Non-taxable expense reimbursement (placeholder)";
 
     public string FormatKey => ExportConstants.FormatSie4bSe;
 
@@ -83,8 +77,6 @@ public class Sie4bSeExportFormatter : IExportFormatter
 
         AppendLine(sb, $"#KONTO {PlaceholderWagesAccount} {Quote(PlaceholderWagesAccountName)}");
         AppendLine(sb, $"#KONTO {PlaceholderPayablesAccount} {Quote(PlaceholderPayablesAccountName)}");
-        AppendLine(sb, $"#KONTO {PlaceholderTaxableExpenseAccount} {Quote(PlaceholderTaxableExpenseAccountName)}");
-        AppendLine(sb, $"#KONTO {PlaceholderNonTaxableExpenseAccount} {Quote(PlaceholderNonTaxableExpenseAccountName)}");
 
         var verificationNumber = 1;
 
@@ -103,23 +95,6 @@ public class Sie4bSeExportFormatter : IExportFormatter
                     PlaceholderPayablesAccount,
                     totalAmount);
                 verificationNumber++;
-
-                foreach (var expense in work.Expenses)
-                {
-                    var debitAccount = expense.Taxable
-                        ? PlaceholderTaxableExpenseAccount
-                        : PlaceholderNonTaxableExpenseAccount;
-
-                    AppendVerification(
-                        sb,
-                        verificationNumber,
-                        work.WorkDate,
-                        $"{expense.Description} - {work.EmployeeName}",
-                        debitAccount,
-                        PlaceholderPayablesAccount,
-                        expense.Amount);
-                    verificationNumber++;
-                }
             }
         }
 

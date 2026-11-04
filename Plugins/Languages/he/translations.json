@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "שירות, היעדרות או זמן נסיעה, תדריך או תחקיר נמצאים מחוץ למכולה. התאם את הזמנים ואז ניתן יהיה לשמור.",
   "schedule.container-expense.refused": "הוצאות נרשמות רק על המכולה, לא על שירות שבתוכה.",
   "schedule.container-child.confirm-refused": "שירות בתוך מכולה מאושר יחד עם המכולה, לא בנפרד. אשר את המכולה.",
+  "schedule.container-split.sealed-refused": "לא ניתן לפצל מכולה מאושרת. בטל קודם את האישור; לאחר מכן ניתן לאשר כל חלק בנפרד.",
   "schedule.move-reversal.not-applied": "ניתן לבטל רק העברה שהגיעה לתוכנית.",
   "schedule.move-reversal.already-reversed": "העברה זו כבר בוטלה.",
   "schedule.move-reversal.origin-busy": "האדם שממנו הגיעה המשמרת אינו פנוי בזמן הזה: משמרת אחרת או היעדרות מונעות זאת.",

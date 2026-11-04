@@ -3,8 +3,9 @@
 /// <summary>
 /// Exports order data as a PANTHEON (Datalab) "Uvoz temeljnice iz Excela" booking-journal import
 /// for Croatia/Slovenia bookkeeping (Fibu/Order family, not payroll): a single-sheet .xlsx workbook
-/// with one header row followed by one booking line per WorkExportEntry plus one additional
-/// booking line per ExpensesExportEntry. Column order (22 columns, strictly positional): Stevilka
+/// with one header row followed by one booking line per WorkExportEntry. Expenses and allowances belong to
+/// the employee, not the customer, and are therefore not part of the order export. Column order
+/// (22 columns, strictly positional): Stevilka
 /// temeljnice; Datum obdobja za temeljnico; Konto; Subjekt; Debet; Kredit; Dokument; Vezni dokument;
 /// Datum dokumenta; Datum zapadlosti; Valuta; Tecaj; Oddelek; Stroskovni nosilec; Opomba; Protikonto;
 /// Datum DDV; Tuj dokument; Status; Naziv statusa; Vrednost Debet; Vrednost Kredit.
@@ -28,8 +29,8 @@
 ///   the offsetting (credited) account, the amount is written into Debet, and Kredit is left empty.
 ///   Whether PANTHEON instead expects two half-rows (one per side) per booking could not be verified.
 /// - Klacks has no chart-of-accounts for Croatia/Slovenia, so Konto uses the employee's personnel
-///   number as a placeholder debit account, and Protikonto uses a placeholder wages-payable /
-///   taxable-expense / non-taxable-expense account, mirroring the placeholder-account approach
+///   number as a placeholder debit account, and Protikonto uses a placeholder wages-payable
+///   account, mirroring the placeholder-account approach
 ///   already used by BmdExportFormatter and MoveinIlExportFormatter.
 /// - The amount posted is WorkTime + Surcharges (hours), the same unit BmdExportFormatter and
 ///   MoveinIlExportFormatter post, not a currency amount, since Klacks has no rate/pricing model for
@@ -57,8 +58,6 @@ public class TemeljnicaHrSiExportFormatter : IExportFormatter
     private const string DateCellFormat = "yyyy-mm-dd";
     private const int HeaderRowNumber = 1;
     private const string PlaceholderDebitAccountWages = "3600";
-    private const string PlaceholderCreditAccountTaxableExpense = "7600";
-    private const string PlaceholderCreditAccountNonTaxableExpense = "7800";
     private const decimal IdentityExchangeRate = 1m;
     private const int AmountDecimalPlaces = 2;
 
@@ -136,30 +135,6 @@ public class TemeljnicaHrSiExportFormatter : IExportFormatter
                     PlaceholderDebitAccountWages);
                 row++;
                 journalNumber++;
-
-                foreach (var expense in work.Expenses)
-                {
-                    var counterAccount = expense.Taxable ? PlaceholderCreditAccountTaxableExpense : PlaceholderCreditAccountNonTaxableExpense;
-
-                    WriteRow(
-                        sheet,
-                        row,
-                        journalNumber,
-                        work.WorkDate,
-                        work.EmployeeIdNumber.ToString(CultureInfo.InvariantCulture),
-                        subject,
-                        expense.Amount,
-                        order.ExternalOrderReference ?? journalNumber.ToString(CultureInfo.InvariantCulture),
-                        linkedDocument,
-                        work.WorkDate,
-                        currencyCode,
-                        order.OrderAbbreviation,
-                        order.OrderName,
-                        $"{expense.Description} - {work.EmployeeName}",
-                        counterAccount);
-                    row++;
-                    journalNumber++;
-                }
             }
         }
 

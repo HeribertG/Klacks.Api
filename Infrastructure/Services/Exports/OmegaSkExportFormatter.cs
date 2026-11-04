@@ -4,8 +4,9 @@
 /// Exports order data as a KROS OMEGA text import of accounting documents (Slovakia, data type T00 "EUD").
 /// The file is tab-separated, Windows-1250 encoded, CRLF terminated and uses three record types:
 /// R00 (data type header, once: "R00", "T00"), R01 (document header, one per order) and R02 with item type 0
-/// (accounting entry, one per work entry and one per expense). Each record is written at the column positions
-/// of the KROS field specification; columns Klacks has no data for stay empty.
+/// (accounting entry, one per work entry). Each record is written at the column positions
+/// of the KROS field specification; columns Klacks has no data for stay empty. Expenses and allowances belong to
+/// the employee, not the customer, and are therefore neither written as items nor added to the document total.
 /// </summary>
 /// <remarks>
 /// Source: docs/knowledge/export-samples/sk-kros-omega-import-fieldspec.xls (KROS, Import_24_60.xls), sheet
@@ -15,8 +16,7 @@
 /// domestic currency (G), item text (I) and worker internal number (Y, the employee's personnel number).
 /// Document type (R01 B), tally and sequence codes (R01 C/D, which must exist in OMEGA), VAT fields and the
 /// MD/DAL accounts (R02 C-F) are not known to Klacks and stay empty, so OMEGA cannot book the file without
-/// completing them. Expenses are written as item type 0: item type 1 in the spec is a payment of the document
-/// (payment date, exchange rates, paying document), not an expense reimbursement.
+/// completing them.
 /// </remarks>
 using System.Globalization;
 using System.Text;
@@ -73,9 +73,7 @@ public class OmegaSkExportFormatter : IExportFormatter
             }
 
             var documentDate = order.WorkEntries[0].WorkDate;
-            var totalAmount = order.WorkEntries.Sum(w =>
-                OrderWorkHours.BillableHours(w)
-                + w.Expenses.Sum(e => e.Amount));
+            var totalAmount = order.WorkEntries.Sum(w => OrderWorkHours.BillableHours(w));
 
             var header = CreateRecord(DocumentHeaderColumnCount, RecordTypeDocumentHeader);
             header[DocumentHeaderInternalNumberIndex] = documentNumber.ToString(CultureInfo.InvariantCulture);
@@ -90,11 +88,6 @@ public class OmegaSkExportFormatter : IExportFormatter
                 var workAmount = OrderWorkHours.BillableHours(work);
 
                 AppendItem(sb, work.EmployeeIdNumber, work.EmployeeName, workAmount);
-
-                foreach (var expense in work.Expenses)
-                {
-                    AppendItem(sb, work.EmployeeIdNumber, expense.Description, expense.Amount);
-                }
             }
 
             documentNumber++;

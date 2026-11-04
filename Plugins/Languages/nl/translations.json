@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "Een dienst, een afwezigheid of een reis-, briefing- of debriefingtijd ligt buiten de container. Pas de tijden aan, dan kan er worden opgeslagen.",
   "schedule.container-expense.refused": "Onkosten worden alleen op de container vastgelegd, niet op een dienst daarin.",
   "schedule.container-child.confirm-refused": "Een dienst in een container wordt samen met de container bevestigd, niet afzonderlijk. Bevestig de container.",
+  "schedule.container-split.sealed-refused": "Een bevestigde container kan niet worden gesplitst. Hef eerst de bevestiging op; daarna kan elk deel afzonderlijk worden bevestigd.",
   "schedule.move-reversal.not-applied": "Alleen een verplaatsing die in het plan is opgenomen, kan worden teruggedraaid.",
   "schedule.move-reversal.already-reversed": "Deze verplaatsing is al teruggedraaid.",
   "schedule.move-reversal.origin-busy": "De persoon van wie deze dienst kwam, is op dat moment niet vrij: een andere dienst of een afwezigheid zit in de weg.",

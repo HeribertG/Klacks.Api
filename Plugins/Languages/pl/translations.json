@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "Usługa, nieobecność lub czas dojazdu, odprawy albo podsumowania leży poza kontenerem. Dostosuj godziny, a wtedy będzie można zapisać.",
   "schedule.container-expense.refused": "Wydatki rejestruje się tylko na kontenerze, a nie na usłudze w jego wnętrzu.",
   "schedule.container-child.confirm-refused": "Usługa wewnątrz kontenera jest potwierdzana razem z kontenerem, a nie osobno. Potwierdź kontener.",
+  "schedule.container-split.sealed-refused": "Potwierdzonego kontenera nie można podzielić. Najpierw cofnij potwierdzenie; potem każdą część można potwierdzić osobno.",
   "schedule.move-reversal.not-applied": "Cofnąć można tylko przeniesienie, które trafiło do planu.",
   "schedule.move-reversal.already-reversed": "To przeniesienie zostało już cofnięte.",
   "schedule.move-reversal.origin-busy": "Osoba, od której pochodzi ten dyżur, nie jest wtedy wolna: przeszkadza inny dyżur lub nieobecność.",

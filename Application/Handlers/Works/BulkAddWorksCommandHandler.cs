@@ -12,7 +12,7 @@
 /// skills place_work and assign_container_week, propose_plan and the wizard and harmonizer apply paths.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client of the request</param>
-/// <param name="planningPeriodGuard">Refuses a Work whose employee is not plannable on its day (membership or group period)</param>
+/// <param name="planningPeriodGuard">Refuses a Work whose employee is not plannable on its day (membership or group period), and any Work for a missing client or a customer</param>
 /// <param name="defaultExpensesApplier">Stages the shifts' default expenses on the new top-level Works before the single bulk save</param>
 /// <param name="shiftVisibilityGuard">Names the first shift of the request the calling user may not book</param>
 
@@ -148,6 +148,9 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 .Distinct()
                 .ToList(),
             cancellationToken);
+
+        await _planningPeriodGuard.EnsurePlannablePersonsAsync(
+            command.Request.Works.Select(w => w.ClientId).Distinct().ToList(), cancellationToken);
 
         if (command.PeriodCheck == PlanningPeriodCheck.Enforce)
         {

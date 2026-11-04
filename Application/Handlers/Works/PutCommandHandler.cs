@@ -17,7 +17,7 @@
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 /// <param name="workLockGuard">Refuses the update when the stored Work's lock level forbids it for the caller</param>
-/// <param name="planningPeriodGuard">Refuses a move onto a day or client outside the membership or group period</param>
+/// <param name="planningPeriodGuard">Refuses a move onto a day or client outside the membership or group period, and a top-level Work given to a missing client or a customer</param>
 /// <param name="shiftVisibilityGuard">Decides whether the calling user may book a changed shift</param>
 
 using Klacks.Api.Application.Mappers;
@@ -147,6 +147,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
                 work.ClientId,
                 work.AnalyseToken,
                 cancellationToken);
+
+            if (work.ParentWorkId == null && (existingWork == null || existingWork.ClientId != work.ClientId))
+            {
+                await _planningPeriodGuard.EnsurePlannablePersonsAsync([work.ClientId], cancellationToken);
+            }
 
             if (existingWork == null
                 || existingWork.ClientId != work.ClientId

@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "Palvelu, poissaolo tai matka-, briefing- tai debriefing-aika on kontin ulkopuolella. Säädä ajat, niin tallennus onnistuu.",
   "schedule.container-expense.refused": "Kulut kirjataan vain konttiin, ei sen sisällä olevaan palveluun.",
   "schedule.container-child.confirm-refused": "Kontin sisällä oleva vuoro vahvistetaan yhdessä kontin kanssa, ei erikseen. Vahvista kontti.",
+  "schedule.container-split.sealed-refused": "Vahvistettua konttia ei voi jakaa. Poista ensin vahvistus; sen jälkeen kumpikin osa voidaan vahvistaa erikseen.",
   "schedule.move-reversal.not-applied": "Vain suunnitelmaan päätyneen siirron voi perua.",
   "schedule.move-reversal.already-reversed": "Tämä siirto on jo peruttu.",
   "schedule.move-reversal.origin-busy": "Henkilö, jolta vuoro tuli, ei ole vapaa siihen aikaan: toinen vuoro tai poissaolo on esteenä.",

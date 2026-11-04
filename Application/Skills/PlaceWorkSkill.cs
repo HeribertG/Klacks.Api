@@ -20,7 +20,7 @@
 /// <param name="workTime">Optional work time in hours; defaults to (endTime - startTime) wrapping past midnight.</param>
 /// <param name="information">Free-text note.</param>
 /// <param name="analyseToken">Optional scenario token; null = write to main schedule.</param>
-/// <param name="planningPeriodGuard">Names a day outside the client's membership or group period</param>
+/// <param name="planningPeriodGuard">Names a day outside the client's membership or group period and refuses a customer as the client</param>
 /// <param name="shiftVisibilityGuard">Decides whether the calling user may book the shift</param>
 /// <param name="workWriteGuard">Decides whether the shift lies in the world of the placement</param>
 
@@ -113,6 +113,15 @@ public class PlaceWorkSkill : BaseSkillImplementation
         if (await _sealedDayRepository.IsDayLockedAsync(date, clientId, cancellationToken))
         {
             return SkillResult.Error($"Day {date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} is sealed for client {clientId}; nothing was placed.");
+        }
+
+        try
+        {
+            await _planningPeriodGuard.EnsurePlannablePersonsAsync([clientId], cancellationToken);
+        }
+        catch (InvalidRequestException ex)
+        {
+            return SkillResult.Error($"{ex.Message} Nothing was placed.");
         }
 
         var periodViolations = await _planningPeriodGuard.FindViolationsAsync([(clientId, date)], cancellationToken);

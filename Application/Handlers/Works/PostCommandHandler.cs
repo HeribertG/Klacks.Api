@@ -13,7 +13,7 @@
 /// <param name="request">Carries the WorkResource to persist</param>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
 /// <param name="defaultExpensesApplier">Stages the shift's default expenses on the new Work (same scope, same save)</param>
-/// <param name="planningPeriodGuard">Refuses a Work whose client is not plannable on its day (membership or group period)</param>
+/// <param name="planningPeriodGuard">Refuses a Work whose client is not plannable on its day (membership or group period), and a top-level Work for a missing client or a customer</param>
 /// <param name="shiftVisibilityGuard">Decides whether the calling user may book the Work's shift</param>
 
 using Klacks.Api.Application.Mappers;
@@ -110,6 +110,11 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
                 work.ClientId,
                 work.AnalyseToken,
                 cancellationToken);
+
+            if (work.ParentWorkId == null)
+            {
+                await _planningPeriodGuard.EnsurePlannablePersonsAsync([work.ClientId], cancellationToken);
+            }
 
             await _planningPeriodGuard.EnsureWithinPeriodsAsync([(work.ClientId, work.CurrentDate)], cancellationToken);
 

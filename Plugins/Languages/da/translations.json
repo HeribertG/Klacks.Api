@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "En tjeneste, et fravær eller en rejse-, briefing- eller debriefingtid ligger uden for containeren. Juster tiderne, så kan der gemmes.",
   "schedule.container-expense.refused": "Udgifter registreres kun på containeren, ikke på en tjeneste i den.",
   "schedule.container-child.confirm-refused": "En tjeneste i en container bekræftes sammen med containeren, ikke alene. Bekræft containeren.",
+  "schedule.container-split.sealed-refused": "En bekræftet container kan ikke deles. Fjern først bekræftelsen; bagefter kan hver del bekræftes for sig.",
   "schedule.move-reversal.not-applied": "Kun en flytning, der er nået ind i planen, kan fortrydes.",
   "schedule.move-reversal.already-reversed": "Denne flytning er allerede fortrudt.",
   "schedule.move-reversal.origin-busy": "Personen, som vagten kom fra, er ikke ledig på det tidspunkt: en anden vagt eller et fravær er i vejen.",

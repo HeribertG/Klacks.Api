@@ -2059,6 +2059,7 @@
   "schedule.container-fit.outside": "تقع خدمة أو غياب أو وقت تنقل أو إحاطة أو استخلاص خارج الحاوية. عدّل الأوقات، ثم يمكن الحفظ.",
   "schedule.container-expense.refused": "تُسجَّل المصاريف على الحاوية فقط، وليس على خدمة بداخلها.",
   "schedule.container-child.confirm-refused": "تُؤكَّد الخدمة داخل الحاوية مع الحاوية نفسها، وليس بمفردها. أكِّد الحاوية.",
+  "schedule.container-split.sealed-refused": "لا يمكن تقسيم حاوية مؤكَّدة. ألغِ التأكيد أولاً؛ بعد ذلك يمكن تأكيد كل جزء على حدة.",
   "schedule.move-reversal.not-applied": "لا يمكن التراجع إلا عن نقل وصل إلى الخطة.",
   "schedule.move-reversal.already-reversed": "تم التراجع عن هذا النقل بالفعل.",
   "schedule.move-reversal.origin-busy": "الشخص الذي جاءت منه هذه المناوبة غير متاح في ذلك الوقت: توجد مناوبة أخرى أو غياب يمنع ذلك.",
