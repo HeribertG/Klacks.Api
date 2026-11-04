@@ -6,7 +6,9 @@
 /// ScheduleMapper deliberately does not map these fields, so a mapped entity carries the defaults; since the
 /// repositories persist with a full-row update, saving it unchanged would silently unseal the entry or drop
 /// the state a period unseal restores. Only the seal paths that enforce
-/// <see cref="IWorkLockLevelService.CanSeal"/> may change the values, never a PUT payload.
+/// <see cref="IWorkLockLevelService.CanSeal"/> may change the values, never a PUT payload. It also holds the one way to
+/// clear a seal, so a single-entry unseal and the container cascade drop the same fields, the group of a sealed sub-break
+/// included.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -36,6 +38,34 @@ public static class ScheduleEntrySealState
         {
             targetBreak.SealedByGroupId = (stored as Break)?.SealedByGroupId;
             targetBreak.PreSealSealedByGroupId = (stored as Break)?.PreSealSealedByGroupId;
+        }
+    }
+
+    /// <summary>Lifts the seal of an entry completely: level None, no sealer, no pre-seal state.</summary>
+    /// <param name="entry">The entry to unseal</param>
+    public static void ClearSeal(ScheduleEntryBase entry)
+    {
+        entry.LockLevel = WorkLockLevel.None;
+        entry.SealedAt = null;
+        entry.SealedBy = null;
+        ClearPreSealState(entry);
+    }
+
+    /// <summary>
+    /// Drops what a period seal recorded and the group a break was sealed for: a lock change on the single entry supersedes
+    /// it, so a later period unseal must not write that stale state back.
+    /// </summary>
+    /// <param name="entry">The entry whose lock changed on its own</param>
+    public static void ClearPreSealState(ScheduleEntryBase entry)
+    {
+        entry.PreSealLockLevel = null;
+        entry.PreSealSealedAt = null;
+        entry.PreSealSealedBy = null;
+
+        if (entry is Break absence)
+        {
+            absence.SealedByGroupId = null;
+            absence.PreSealSealedByGroupId = null;
         }
     }
 }

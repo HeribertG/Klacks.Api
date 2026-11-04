@@ -16,6 +16,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -200,12 +201,7 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
 
         foreach (var entry in childWorks.Cast<ScheduleEntryBase>().Concat(childBreaks))
         {
-            entry.LockLevel = WorkLockLevel.None;
-            entry.SealedAt = null;
-            entry.SealedBy = null;
-            entry.PreSealLockLevel = null;
-            entry.PreSealSealedAt = null;
-            entry.PreSealSealedBy = null;
+            ScheduleEntrySealState.ClearSeal(entry);
         }
     }
 
@@ -224,8 +220,6 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
         entry.LockLevel = lockLevel;
         entry.SealedAt = sealedAt;
         entry.SealedBy = sealedBy;
-        entry.PreSealLockLevel = null;
-        entry.PreSealSealedAt = null;
-        entry.PreSealSealedBy = null;
+        ScheduleEntrySealState.ClearPreSealState(entry);
     }
 }

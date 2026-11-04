@@ -273,6 +273,8 @@ public class ShiftCutFacade : IShiftCutFacade
                 ShiftHierarchyMessages.CutUpdateStatusNotAllowed, existingShift.Id, existingShift.Status, op.Data.Status));
         }
 
+        EnsureHasSealedOrigin(existingShift);
+
         _logger.LogInformation("Existing shift loaded: ID={Id}, Status={Status}",
             existingShift.Id, existingShift.Status);
 
@@ -306,6 +308,7 @@ public class ShiftCutFacade : IShiftCutFacade
         }
 
         await EnsureCuttableAsync(parentShift, "cut (create child of)");
+        EnsureHasSealedOrigin(parentShift);
 
         var originalId = parentShift.Status == ShiftStatus.SealedOrder ? parentShift.Id : parentShift.OriginalId;
         return new CutOperationLineage(originalId, parentShift.ClientId, null, null, null, null, null, parentShift.AnalyseToken);
@@ -542,17 +545,20 @@ public class ShiftCutFacade : IShiftCutFacade
         }
     }
 
+    private static void EnsureHasSealedOrigin(Shift shift)
+    {
+        if (shift.OriginalId == null && shift.Status != ShiftStatus.SealedOrder)
+        {
+            throw new BadRequestException(string.Format(ShiftHierarchyMessages.CutWithoutSealedOriginNotAllowed, shift.Id));
+        }
+    }
+
     private static BadRequestException ContainerRefusal(Guid shiftId) =>
         new(string.Format(ShiftHierarchyMessages.ContainerCutNotAllowed, shiftId));
 
     private async Task EnsureCuttableAsync(Shift shift, string operation)
     {
         EnsureNotContainer(shift);
-
-        if (shift.OriginalId == null && shift.Status != ShiftStatus.SealedOrder)
-        {
-            throw new BadRequestException(string.Format(ShiftHierarchyMessages.CutWithoutSealedOriginNotAllowed, shift.Id));
-        }
 
         if (shift.AnalyseToken is not { } token)
         {
