@@ -3,6 +3,8 @@
 /// <summary>
 /// Handler that authenticates the resource owner with email and password and issues a
 /// short-lived single-use authorization code bound to client, redirect URI and PKCE challenge.
+/// Refuses the seeded admin account while its own-admin setup gate is active, so no MCP token can be
+/// minted for the publicly known seed credentials before setup.
 /// </summary>
 /// <param name="request">Contains the user credentials and the validated OAuth request parameters</param>
 
@@ -23,15 +25,18 @@ public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOA
     private readonly IOAuthClientRepository _clientRepository;
     private readonly IAuthenticationService _authenticationService;
     private readonly IOAuthAuthorizationCodeStore _codeStore;
+    private readonly IAdminSetupGateService _adminSetupGateService;
 
     public IssueOAuthAuthorizationCodeCommandHandler(
         IOAuthClientRepository clientRepository,
         IAuthenticationService authenticationService,
-        IOAuthAuthorizationCodeStore codeStore)
+        IOAuthAuthorizationCodeStore codeStore,
+        IAdminSetupGateService adminSetupGateService)
     {
         _clientRepository = clientRepository;
         _authenticationService = authenticationService;
         _codeStore = codeStore;
+        _adminSetupGateService = adminSetupGateService;
     }
 
     public async Task<OAuthAuthorizationCodeResult> Handle(IssueOAuthAuthorizationCodeCommand request, CancellationToken cancellationToken)
@@ -54,6 +59,11 @@ public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOA
         if (!isValid || user == null)
         {
             return OAuthAuthorizationCodeResult.Rejected(OAuthConstants.ErrorAccessDenied, "Invalid email or password.");
+        }
+
+        if (user.Id == SystemAccounts.SeedAdminUserId && await _adminSetupGateService.IsGateActiveAsync())
+        {
+            return OAuthAuthorizationCodeResult.SetupRequired();
         }
 
         var code = Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(OAuthConstants.AuthorizationCodeByteLength));

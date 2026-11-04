@@ -116,6 +116,11 @@ public class OAuthAuthorizationServerController : ControllerBase
         var issueResult = await _mediator.Send(new IssueOAuthAuthorizationCodeCommand(
             email, password, clientId!, validation.EffectiveRedirectUri!, codeChallenge!, scope));
 
+        if (issueResult.IsSetupRequired)
+        {
+            return RenderLoginPage(validation.ClientName!, clientId!, validation.EffectiveRedirectUri!, responseType!, codeChallenge!, codeChallengeMethod!, scope, state, issueResult.ErrorDescription);
+        }
+
         if (issueResult.Error == OAuthConstants.ErrorAccessDenied)
         {
             return RenderLoginPage(validation.ClientName!, clientId!, validation.EffectiveRedirectUri!, responseType!, codeChallenge!, codeChallengeMethod!, scope, state, "Invalid email or password.");
