@@ -434,19 +434,6 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>(c => c.Timeout = llmHttpTimeout)
             .ConfigurePrimaryHttpMessageHandler(sp => new SocketsHttpHandler
             {
-                SslOptions = new System.Net.Security.SslClientAuthenticationOptions
-                {
-                    RemoteCertificateValidationCallback = (sender, cert, chain, errors) =>
-                    {
-                        if (errors == System.Net.Security.SslPolicyErrors.None)
-                            return true;
-
-                        const string trustedDomain = "apertus.ai";
-                        var host = (sender as System.Net.Security.SslStream)?.TargetHostName ?? string.Empty;
-                        return host.Equals(trustedDomain, StringComparison.OrdinalIgnoreCase)
-                            || host.EndsWith("." + trustedDomain, StringComparison.OrdinalIgnoreCase);
-                    }
-                },
                 ConnectCallback = new Klacks.Api.Infrastructure.Security.CloudMetadataBlockingConnectCallback(
                     sp.GetRequiredService<Klacks.Api.Infrastructure.Security.IHostAddressResolver>()).ConnectAsync
             });
