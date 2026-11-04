@@ -247,7 +247,8 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IFeaturePluginAssistantSetupHintService, Klacks.Api.Application.Services.Plugins.FeaturePluginAssistantSetupHintService>();
         services.AddRegionSetupServices();
         services.AddScoped<IRegionPackageUpdateRunner, RegionPackageUpdateRunner>();
-        services.AddSingleton<IRegionPackageSignatureVerifier, RegionPackageSignatureVerifier>();
+        services.AddSingleton<IPackageSignatureVerifier, PackageSignatureVerifier>();
+        services.AddSingleton<MarketplacePackageDownloader>();
 
         var marketplaceBaseUrl = configuration.GetValue<string>("Marketplace:BaseUrl")
             ?? configuration.GetValue<string>("LanguagePlugins:MarketplaceUrl");
@@ -258,6 +259,7 @@ internal static class DomainServiceCollectionExtensions
                 client.BaseAddress = new Uri(marketplaceBaseUrl.TrimEnd('/') + "/");
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
+            services.AddScoped<IMarketplacePluginInstaller, MarketplacePluginInstaller>();
         }
         AddKlacksSelfApiClient(services, configuration);
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IInternalTokenIssuer, Services.Assistant.InternalTokenIssuer>();

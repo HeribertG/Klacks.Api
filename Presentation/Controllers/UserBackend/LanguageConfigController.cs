@@ -10,6 +10,7 @@ using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Klacks.Api.KnowledgeIndex.Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -232,19 +233,37 @@ public class LanguageConfigController : ControllerBase
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [BlockedOnPlayground]
     [HttpPost("marketplace/packages/{code}/download-and-install")]
-    public async Task<ActionResult> DownloadAndInstallPackage(string code)
+    public async Task<ActionResult> DownloadAndInstallPackage(string code, CancellationToken cancellationToken)
     {
-        var bundle = await _marketplaceClient.DownloadPackageAsync(code);
-        if (bundle == null)
-            return StatusCode(503, "Marketplace service unavailable");
-
         if (!TryResolvePackageDir(code, out var packageDir))
             return BadRequest("Invalid language code");
 
+        var download = await _marketplaceClient.DownloadPackageAsync(code, cancellationToken);
+        switch (download.Status)
+        {
+            case MarketplaceDownloadStatus.Unavailable:
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, "Marketplace service unavailable");
+            case MarketplaceDownloadStatus.TooLarge:
+                return BadRequest("Language package exceeds the size limit");
+            case MarketplaceDownloadStatus.SignatureRejected:
+                return BadRequest("Language package signature could not be verified");
+        }
+
+        JsonDocument jsonDoc;
+        try
+        {
+            jsonDoc = JsonDocument.Parse(download.Content);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Marketplace language package '{Code}' is not valid JSON", code.ForLog());
+            return BadRequest("Language package is not valid JSON");
+        }
+
+        using var bundleDocument = jsonDoc;
         Directory.CreateDirectory(packageDir);
 
-        using var jsonDoc = JsonDocument.Parse(bundle);
-        var root = jsonDoc.RootElement;
+        var root = bundleDocument.RootElement;
 
         var jsonWriteOptions = new JsonWriterOptions { Indented = true };
 

@@ -1,12 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// REST API controller for feature plugin management: listing, installation, enable/disable.
+/// REST API controller for feature plugin management: listing, installation, enable/disable. Listing
+/// requires an authenticated user (the navigation of every signed-in user reads it); all changes are
+/// admin-only.
 /// </summary>
 /// <param name="featurePluginService">Service handling feature plugin lifecycle operations</param>
+/// <param name="marketplaceClient">Marketplace search client; null when no marketplace is configured</param>
+/// <param name="marketplacePluginInstaller">Verified marketplace installation; null when no marketplace is configured</param>
 
-using System.IO.Compression;
-using System.Text.RegularExpressions;
 using Klacks.Api.Application.DTOs.Plugins;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Domain.Constants;
@@ -21,29 +23,30 @@ namespace Klacks.Api.Presentation.Controllers.Plugins;
 [Route("api/plugins/features")]
 public class FeaturePluginController : ControllerBase
 {
-    private const string PluginNamePattern = "^[A-Za-z0-9_-]+$";
-    private const string FeaturePluginsRootDirectory = "Plugins";
-    private const string FeaturePluginsFeaturesDirectory = "Features";
-
-    private static readonly Regex PluginNameRegex = new(PluginNamePattern, RegexOptions.Compiled);
+    private const string MarketplaceNotConfiguredMessage = "Marketplace integration not configured";
 
     private readonly IFeaturePluginService _featurePluginService;
     private readonly IMarketplaceClient? _marketplaceClient;
+    private readonly IMarketplacePluginInstaller? _marketplacePluginInstaller;
 
     public FeaturePluginController(
         IFeaturePluginService featurePluginService,
-        IMarketplaceClient? marketplaceClient = null)
+        IMarketplaceClient? marketplaceClient = null,
+        IMarketplacePluginInstaller? marketplacePluginInstaller = null)
     {
         _featurePluginService = featurePluginService;
         _marketplaceClient = marketplaceClient;
+        _marketplacePluginInstaller = marketplacePluginInstaller;
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<FeaturePluginInfo>>> GetAllPlugins()
     {
         return Ok(await _featurePluginService.GetAllPluginsAsync());
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet("{name}")]
     public async Task<ActionResult<FeaturePluginInfo>> GetPlugin(string name)
     {
@@ -109,7 +112,7 @@ public class FeaturePluginController : ControllerBase
         [FromQuery] string? category)
     {
         if (_marketplaceClient is null)
-            return BadRequest("Marketplace integration not configured");
+            return BadRequest(MarketplaceNotConfiguredMessage);
 
         var plugins = await _marketplaceClient.SearchPluginsAsync(search, category);
         return Ok(plugins);
@@ -118,60 +121,23 @@ public class FeaturePluginController : ControllerBase
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [BlockedOnPlayground]
     [HttpPost("{name}/install-from-marketplace")]
-    public async Task<ActionResult> InstallFromMarketplace(string name)
+    public async Task<ActionResult> InstallFromMarketplace(string name, CancellationToken cancellationToken)
     {
-        if (_marketplaceClient is null)
-            return BadRequest("Marketplace integration not configured");
+        if (_marketplacePluginInstaller is null)
+            return BadRequest(MarketplaceNotConfiguredMessage);
 
-        if (!TryResolvePluginDir(name, out var pluginDir))
-            return BadRequest("Invalid plugin name");
+        var status = await _marketplacePluginInstaller.InstallAsync(name, cancellationToken);
 
-        byte[] zipData;
-        try
+        return status switch
         {
-            zipData = await _marketplaceClient.DownloadPluginAsync(name);
-        }
-        catch (HttpRequestException ex)
-        {
-            return BadRequest($"Failed to download plugin from marketplace: {ex.Message}");
-        }
-
-        Directory.CreateDirectory(pluginDir);
-
-        using var stream = new MemoryStream(zipData);
-        System.IO.Compression.ZipFile.ExtractToDirectory(stream, pluginDir, overwriteFiles: true);
-
-        await _featurePluginService.RefreshPluginsAsync();
-
-        var installResult = await _featurePluginService.InstallAsync(name);
-        if (!installResult)
-            return BadRequest("Plugin downloaded but installation failed — version may be incompatible");
-
-        return Ok(new { message = $"Plugin '{name}' installed from marketplace" });
-    }
-
-    private static bool TryResolvePluginDir(string name, out string pluginDir)
-    {
-        pluginDir = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(name) || !PluginNameRegex.IsMatch(name))
-            return false;
-
-        var safeName = Path.GetFileName(name);
-        if (string.IsNullOrEmpty(safeName) || !PluginNameRegex.IsMatch(safeName))
-            return false;
-
-        var basePath = Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory, FeaturePluginsRootDirectory, FeaturePluginsFeaturesDirectory));
-        var baseWithSeparator = basePath.EndsWith(Path.DirectorySeparatorChar)
-            ? basePath
-            : basePath + Path.DirectorySeparatorChar;
-
-        var candidate = Path.GetFullPath(Path.Combine(basePath, safeName));
-        if (!candidate.StartsWith(baseWithSeparator, StringComparison.Ordinal))
-            return false;
-
-        pluginDir = candidate;
-        return true;
+            MarketplacePluginInstallStatus.Installed => Ok(new { message = $"Plugin '{name}' installed from marketplace" }),
+            MarketplacePluginInstallStatus.InvalidName => BadRequest("Invalid plugin name"),
+            MarketplacePluginInstallStatus.Unavailable => BadRequest("Failed to download plugin from marketplace"),
+            MarketplacePluginInstallStatus.TooLarge => BadRequest("Plugin package exceeds the size limit"),
+            MarketplacePluginInstallStatus.SignatureRejected => BadRequest("Plugin package signature could not be verified"),
+            MarketplacePluginInstallStatus.InvalidArchive => BadRequest("Plugin package is not a valid archive or exceeds the archive limits"),
+            MarketplacePluginInstallStatus.ManifestMismatch => BadRequest("Plugin package manifest does not match the requested plugin"),
+            _ => BadRequest("Plugin downloaded but installation failed — version may be incompatible")
+        };
     }
 }

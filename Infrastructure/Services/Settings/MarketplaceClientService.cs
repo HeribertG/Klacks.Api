@@ -1,12 +1,15 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// HttpClient-based service for communication with the Klacks Marketplace.
+/// HttpClient-based service for communication with the Klacks Marketplace. Language pack downloads go
+/// through <see cref="MarketplacePackageDownloader"/> (byte cap + vendor signature check).
 /// </summary>
 /// <param name="baseUrl">Base URL of the Marketplace server from configuration</param>
 /// <param name="apiKey">API key for upload authentication</param>
+/// <param name="packageDownloader">Size-capped, signature-verifying package download shared with feature plugins</param>
 using System.Net.Http.Json;
 using System.Text.Json;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Domain.Logging;
@@ -23,13 +26,16 @@ public class MarketplaceClientService : IMarketplaceClientService
     private readonly HttpClient _httpClient;
     private readonly string _baseUrl;
     private readonly string _apiKey;
+    private readonly MarketplacePackageDownloader _packageDownloader;
     private readonly ILogger<MarketplaceClientService> _logger;
 
     public MarketplaceClientService(
         HttpClient httpClient,
         IConfiguration configuration,
+        MarketplacePackageDownloader packageDownloader,
         ILogger<MarketplaceClientService> logger)
     {
+        _packageDownloader = packageDownloader;
         _httpClient = httpClient;
         _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _baseUrl = configuration.GetValue<string>("LanguagePlugins:MarketplaceUrl") ?? string.Empty;
@@ -83,26 +89,17 @@ public class MarketplaceClientService : IMarketplaceClientService
         }
     }
 
-    public async Task<byte[]?> DownloadPackageAsync(string code)
+    public Task<MarketplacePackageDownload> DownloadPackageAsync(string code, CancellationToken cancellationToken)
     {
-        try
-        {
-            var url = $"{_baseUrl}/api/packages/{Uri.EscapeDataString(code)}/download";
-            var response = await _httpClient.GetAsync(url);
+        var url = $"{_baseUrl}/api/packages/{Uri.EscapeDataString(code)}/download";
 
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogWarning("Marketplace download package '{Code}' failed with status {StatusCode}", code.ForLog(), response.StatusCode);
-                return null;
-            }
-
-            return await response.Content.ReadAsByteArrayAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to download marketplace package '{Code}'", code.ForLog());
-            return null;
-        }
+        return _packageDownloader.DownloadAsync(
+            _httpClient,
+            url,
+            MarketplaceArtifactTypes.LanguagePack,
+            code,
+            MarketplacePackageLimits.MaxLanguagePackDownloadBytes,
+            cancellationToken);
     }
 
     public async Task<bool> UploadPackageAsync(string manifestJson, string translationsJson, string? docsJson, string? countriesJson, string? statesJson, string? calendarRulesJson)

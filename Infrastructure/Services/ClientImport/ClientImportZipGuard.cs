@@ -1,60 +1,36 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Zip-bomb check for xlsx uploads, run before ClosedXML opens the file. The declared entry sizes of a
-/// zip archive can lie, so every entry is actually decompressed into a counting sink and the total is
-/// capped; the number of entries is capped as well.
+/// Zip-bomb check for xlsx uploads, run before ClosedXML opens the file. Delegates the counting to the
+/// shared <see cref="ZipArchiveLimitGuard"/> (no ratio check: xlsx XML compresses very well) and maps its
+/// verdict onto the employee-import error codes.
 /// </summary>
 
-using System.IO.Compression;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Infrastructure.Services.Archives;
 
 namespace Klacks.Api.Infrastructure.Services.ClientImport;
 
 public static class ClientImportZipGuard
 {
-    private const int BufferSize = 81920;
-
     public static void EnsureWithinLimits(byte[] content, long maxUnpackedBytes, int maxEntries)
     {
-        try
-        {
-            using var stream = new MemoryStream(content, writable: false);
-            using var archive = new ZipArchive(stream, ZipArchiveMode.Read);
+        var check = ZipArchiveLimitGuard.Check(content, new ZipArchiveLimits(maxUnpackedBytes, maxEntries));
 
-            if (archive.Entries.Count > maxEntries)
-            {
-                throw Reject($"The archive has {archive.Entries.Count} entries, more than {maxEntries}.");
-            }
-
-            var buffer = new byte[BufferSize];
-            long total = 0;
-
-            foreach (var entry in archive.Entries)
-            {
-                using var entryStream = entry.Open();
-                int read;
-                while ((read = entryStream.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    total += read;
-                    if (total > maxUnpackedBytes)
-                    {
-                        throw Reject($"The unpacked content exceeds {maxUnpackedBytes} bytes.");
-                    }
-                }
-            }
-        }
-        catch (ClientImportRejectedException)
+        if (check.IsWithinLimits)
         {
-            throw;
+            return;
         }
-        catch (Exception ex) when (ex is InvalidDataException or IOException or NotSupportedException)
+
+        if (check.Violation == ZipArchiveLimitViolation.Unreadable)
         {
-            throw new ClientImportRejectedException(ClientImportErrorCodes.FileUnsupported, "The file is not a readable xlsx archive.", ex);
+            throw new ClientImportRejectedException(
+                ClientImportErrorCodes.FileUnsupported,
+                "The file is not a readable xlsx archive.",
+                check.Cause!);
         }
+
+        throw new ClientImportRejectedException(ClientImportErrorCodes.UnpackedSizeExceeded, check.Message);
     }
-
-    private static ClientImportRejectedException Reject(string message) =>
-        new(ClientImportErrorCodes.UnpackedSizeExceeded, message);
 }

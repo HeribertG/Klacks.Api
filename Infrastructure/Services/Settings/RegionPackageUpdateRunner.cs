@@ -12,7 +12,7 @@
 /// standard-holder conflict raised by the import as "conflict", any other failure as "error", and
 /// no failure ever escapes to the caller as an unhandled exception path beyond logging. Before a
 /// downloaded profile is parsed its vendor signature is checked via
-/// <see cref="IRegionPackageSignatureVerifier"/>; a rejected download is reported as
+/// <see cref="IPackageSignatureVerifier"/>; a rejected download is reported as
 /// "signatureRejected" and never applied.
 /// </summary>
 /// <param name="settingsRepository">Reads the package identity and writes version/status settings</param>
@@ -50,7 +50,7 @@ public class RegionPackageUpdateRunner : IRegionPackageUpdateRunner
 
     private readonly ISettingsRepository _settingsRepository;
     private readonly IRegionPackageMarketplaceClient _marketplaceClient;
-    private readonly IRegionPackageSignatureVerifier _signatureVerifier;
+    private readonly IPackageSignatureVerifier _signatureVerifier;
     private readonly IRegionEntityImportService _entityImportService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly TimeProvider _timeProvider;
@@ -59,7 +59,7 @@ public class RegionPackageUpdateRunner : IRegionPackageUpdateRunner
     public RegionPackageUpdateRunner(
         ISettingsRepository settingsRepository,
         IRegionPackageMarketplaceClient marketplaceClient,
-        IRegionPackageSignatureVerifier signatureVerifier,
+        IPackageSignatureVerifier signatureVerifier,
         IRegionEntityImportService entityImportService,
         IUnitOfWork unitOfWork,
         TimeProvider timeProvider,
