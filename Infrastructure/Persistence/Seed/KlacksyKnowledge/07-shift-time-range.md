@@ -39,7 +39,7 @@ Ein Zeitfenster-Dienst ist ein Dienst ohne feste Uhrzeit: Du gibst nur an, in we
 
 ## Stufe 2 — So legst du ihn an und planst ihn ein
 
-**Anlegen** (Dienste-Seite, Navi-Icon "Alle Dienste"):
+**Anlegen** (Seite **Dienstverwaltung**, de: "Dienstverwaltung", en: "Shift management"; Navi-Icon mit demselben Tooltip):
 
 1. In der Sicht "Bestellungen" (de: "Bestellungen", en: "Orders") auf **+ neue Bestellung** (de: "+ neue Bestellung", en: "+ New Order") klicken. Der Button erscheint nur mit dem Recht, Dienste anzulegen (Administratoren und Supervisoren).
 2. In der Maske den Schalter **Experten Modus** (de: "Experten Modus", en: "Expert Mode") einschalten.
