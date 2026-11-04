@@ -11,6 +11,8 @@
 /// the column) is adopted once: behind its seed it is updated in full as before, otherwise only its
 /// description, Version and SeedVersion follow the seed, so an administrator's enabled flag, keywords or
 /// handler config survive the adoption.
+/// A plugin's seed file only reaches the skills the plugin owns (listed in its manifest's providedSkills and
+/// not a core skill name, see <see cref="PluginSkillSeedOwnership"/>); a plugin can never rewrite a core skill.
 /// </summary>
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -36,6 +38,7 @@ public class SkillSeedLoader
     private readonly IFeaturePluginService _featurePluginService;
     private readonly IWebHostEnvironment _environment;
     private readonly ILogger<SkillSeedLoader> _logger;
+    private IReadOnlySet<string>? _coreSkillNames;
 
     private static readonly JsonSerializerOptions JsonReadOptions = new()
     {
@@ -289,25 +292,58 @@ public class SkillSeedLoader
         }
     }
 
+    /// <summary>
+    /// Reads the skill definitions a feature plugin may write: only those its manifest lists in
+    /// providedSkills and whose name is not a core skill (<see cref="PluginSkillSeedOwnership"/>). The single
+    /// read path for seeding, enabling/disabling and the language-pack synonym step, so all three apply
+    /// the same ownership rule.
+    /// </summary>
+    /// <param name="pluginName">Directory name of the plugin under the plugin root</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     private async Task<List<SkillSeedDefinition>> ReadPluginDefinitionsAsync(
         string pluginName, CancellationToken cancellationToken)
     {
-        var pluginSeedPath = Path.Combine(
+        var pluginDirectory = Path.Combine(
             _environment.ContentRootPath,
             FeaturePluginConstants.PluginDirectory,
-            pluginName,
-            FeaturePluginConstants.SkillSeedsFileName);
+            pluginName);
+        var pluginSeedPath = Path.Combine(pluginDirectory, FeaturePluginConstants.SkillSeedsFileName);
 
         if (!File.Exists(pluginSeedPath))
         {
             return [];
         }
 
-        await using var stream = File.OpenRead(pluginSeedPath);
-        var definitions = await JsonSerializer.DeserializeAsync<List<SkillSeedDefinition>>(
-            stream, JsonReadOptions, cancellationToken);
+        List<SkillSeedDefinition>? definitions;
+        await using (var stream = File.OpenRead(pluginSeedPath))
+        {
+            definitions = await JsonSerializer.DeserializeAsync<List<SkillSeedDefinition>>(
+                stream, JsonReadOptions, cancellationToken);
+        }
 
-        return definitions ?? [];
+        if (definitions == null || definitions.Count == 0)
+        {
+            return [];
+        }
+
+        var coreSkillNames = await GetCoreSkillNamesAsync(cancellationToken);
+        if (coreSkillNames == null)
+        {
+            return [];
+        }
+
+        var providedSkills = await PluginSkillSeedOwnership.ReadProvidedSkillsAsync(
+            Path.Combine(pluginDirectory, FeaturePluginConstants.ManifestFileName), _logger, cancellationToken);
+
+        return PluginSkillSeedOwnership.SelectOwned(pluginName, definitions, providedSkills, coreSkillNames, _logger);
+    }
+
+    private async Task<IReadOnlySet<string>?> GetCoreSkillNamesAsync(CancellationToken cancellationToken)
+    {
+        _coreSkillNames ??= await PluginSkillSeedOwnership.ReadCoreSkillNamesAsync(
+            Path.Combine(_environment.ContentRootPath, SeedFilePath), _logger, cancellationToken);
+
+        return _coreSkillNames;
     }
 
     private void LogEmptyPluginList()

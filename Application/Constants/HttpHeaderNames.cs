@@ -13,4 +13,10 @@ public static class HttpHeaderNames
     /// returned entries keep their is_group_restricted (sealed) flag.
     /// </summary>
     public const string SelectedGroup = "X-Selected-Group";
+
+    /// <summary>
+    /// Base64 RSA-SHA256 vendor signature over the exact response bytes of a Klacks Marketplace package
+    /// download (region package, language pack, feature plugin).
+    /// </summary>
+    public const string KlacksSignature = "X-Klacks-Signature";
 }

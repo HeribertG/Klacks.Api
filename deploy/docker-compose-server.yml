@@ -104,6 +104,15 @@ services:
       # routes /mcp, /.well-known/oauth-* and /oauth/ to klacks-api.
       - Mcp__PublicBaseUrl=${MCP_PUBLIC_BASE_URL:-https://play.klacks-software.ch}
       - Update__ManifestBaseUrl=${UPDATE_MANIFEST_BASE_URL:-}
+      # Vendor trust root for marketplace downloads (region packages, language packs, feature plugins).
+      # With a key configured, a missing or invalid X-Klacks-Signature is always rejected. The store this
+      # API talks to is NOT the klacks-marketplace service of this file: the Klacks.Marketplace deploy
+      # workflow builds it from /root/apps/Klacks.Api/docker-compose.yml with env_file
+      # /root/apps/marketplace.env (RegionSigning__PrivateKeyPem). That store build must sign language
+      # packs and plugins before an API release carrying this line goes out.
+      - Update__SignaturePublicKey=${UPDATE_SIGNATURE_PUBLIC_KEY:-}
+      # Server stacks always carry the key, so an accidentally empty key must reject instead of accept.
+      - Update__RequireSignedPackages=${UPDATE_REQUIRE_SIGNED_PACKAGES:-true}
       # The store runs next to the API in this stack; appsettings.Production.json names its public address.
       - LanguagePlugins__MarketplaceUrl=http://klacks-marketplace
       - RegionSetup__File=${REGION_SETUP_FILE:-}

@@ -12,6 +12,7 @@
 /// <param name="logger">Logger instance for diagnostic output</param>
 using System.Net;
 using System.Text.Json;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Domain.Logging;
@@ -22,7 +23,7 @@ public class RegionPackageMarketplaceClient : IRegionPackageMarketplaceClient
 {
     public const string MarketplaceUrlConfigKey = "LanguagePlugins:MarketplaceUrl";
 
-    public const string SignatureHeaderName = "X-Klacks-Signature";
+    public const string SignatureHeaderName = HttpHeaderNames.KlacksSignature;
 
     private const string RegionsPathSegment = "api/regions";
     private const string DownloadPathSegment = "download";
