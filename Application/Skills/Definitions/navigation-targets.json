@@ -6076,22 +6076,26 @@
         "dienste",
         "alle dienste",
         "dienstliste",
-        "dienste-seite"
+        "dienste-seite",
+        "dienstverwaltung"
       ],
       "en": [
         "all services",
-        "staff shifts"
+        "staff shifts",
+        "shift management"
       ],
       "fr": [
         "tous les services",
         "services planifiés",
         "postes",
-        "quarts"
+        "quarts",
+        "gestion des services"
       ],
       "it": [
         "servizi",
         "tutti i servizi",
-        "lista turni"
+        "lista turni",
+        "gestione servizi"
       ]
     },
     "synonymStatus": "generated",

@@ -31103,7 +31103,7 @@
     {
       "name": "explain_page_shifts",
       "area": "shift",
-      "description": "Explains the Services page (Dienste / All Services) at /workplace/shift and its sub-pages edit-shift (/workplace/edit-shift/:id, /workplace/new-shift), shift cutting (/workplace/cut-shift/:id) and the container template (/workplace/container-template/:id). Covers the service list card with its filter views Orders (incl. the sealed-orders checkbox), Plannable Services (with Time Range and Sporadic sub-filters), Container and Absence, the table columns (abbreviation, name, description, validity dates, times, weekday/holiday checkboxes), the type icons, the row action icons (pencil, trash, scissors, box), the edit mask cards (General with expert mode and the lock/seal button, Group, Required Qualifications, Hours and Weekdays incl.",
+      "description": "Explains the Services page (Dienstverwaltung / Shift management, formerly Dienste / All Services) at /workplace/shift and its sub-pages edit-shift (/workplace/edit-shift/:id, /workplace/new-shift), shift cutting (/workplace/cut-shift/:id) and the container template (/workplace/container-template/:id). Covers the service list card with its filter views Orders (incl. the sealed-orders checkbox), Plannable Services (with Time Range and Sporadic sub-filters), Container and Absence, the table columns (abbreviation, name, description, validity dates, times, weekday/holiday checkboxes), the type icons, the row action icons (pencil, trash, scissors, box), the edit mask cards (General with expert mode and the lock/seal button, Group, Required Qualifications, Hours and Weekdays incl.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31145,6 +31145,8 @@
           "zeitbereich",
           "experten modus",
           "alle dienste",
+          "dienstverwaltung",
+          "neuer container",
           "dienst erfassen",
           "anzahl mitarbeiter pro schicht"
         ],
@@ -31164,6 +31166,8 @@
           "time range",
           "expert mode",
           "services page",
+          "shift management",
+          "new container",
           "create shift"
         ]
       },
@@ -31245,7 +31249,7 @@
         "fr": "Expliquer la page Services",
         "it": "Spiega la pagina Servizi"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "explain_page_employees",
