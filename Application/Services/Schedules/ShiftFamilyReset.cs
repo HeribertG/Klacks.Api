@@ -1,21 +1,23 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Puts a cut family back to the state at creation: the sealed row as it is. The head row is locked first and everything,
-/// the sealed row included, is read after that lock; the tracker is emptied before each run of the transaction, so a database retry does not see the
-/// unsaved changes of the failed run. A caller who does not see every row of the family gets the answer of a missing order,
-/// before any date is compared. Refused before anything is written: a real work on or after the start, a start behind the end of the sealed order, a work on or after the
-/// start on a live scenario clone of a family row (an accept would turn it real), a family that has its plannable shift and
-/// no cut piece from the start on, a kept row that starts on or after the start, and a row to remove that is still used by a
-/// work, a scenario clone or a container. A scenario clone of a kept row without such a work does not block. Then the kept rows
-/// end the day before the start, a new plannable shift takes content, groups, requirements and fresh copies of the default
-/// expenses of the sealed order, and every other row is soft-deleted with its subtree. The trees are numbered in a second
-/// save, because the numbering reads the database and must no longer see the removed rows. A tree inside a variant gets
-/// no numbers: they are set when the variant is promoted. A variant has no works, so it always goes back to its start.
+/// Puts a cut family back to the sealed origin row from a start day on. The head row is locked first and everything, the
+/// sealed row included, is read after that lock; the tracker is emptied before each run of the transaction, so a database
+/// retry does not see the unsaved changes of the failed run. A caller who does not see every row of the family gets the
+/// answer of a missing origin row, before any date is compared. The asked day counts with or without work; a day before the
+/// sealed row is moved to its first day. Refused before anything is written: a real work on or after the asked day, a start
+/// behind the end of the sealed row, a work on or after the start on a live scenario clone of a family row (an accept would
+/// turn it real), a family that has its plannable shift and no cut piece from the start on, a kept ancestor that begins on
+/// or after the start, and a row to remove that is still used by a work, a scenario clone or a container. A scenario clone
+/// of a kept row without such a work does not block. Then every row that begins before the start stays, with or without
+/// work, and the ones reaching the start end the day before; a new plannable shift takes content, groups, requirements and
+/// fresh copies of the default expenses of the sealed row; every row that begins on or after the start is soft-deleted. The
+/// trees are numbered in a second save, because the numbering reads the database and must no longer see the removed rows.
+/// A tree inside a variant gets no numbers: they are set when the variant is promoted.
 /// </summary>
 /// <param name="shiftRepository">Reads the rows below the order and stages the removal</param>
-/// <param name="orderFamilyEndRepository">Locks the head and finds works and the usage of rows</param>
-/// <param name="shiftExpensesRepository">Reads the stored default expenses of the sealed order</param>
+/// <param name="orderFamilyEndRepository">Locks the head and finds the last works and the usage of rows</param>
+/// <param name="shiftExpensesRepository">Reads the stored default expenses of the sealed origin row</param>
 /// <param name="shiftResetService">Stages the new plannable shift</param>
 /// <param name="shiftTreeService">Numbers the trees that lost a row</param>
 /// <param name="shiftVisibilityGuard">Decides whether the caller sees every row of the family</param>
@@ -99,7 +101,7 @@ public class ShiftFamilyReset : IShiftFamilyReset
             throw Refused(ShiftResetRefusedException.ForWorksOnOrAfter(requestedStart, lastWorkDate), sealedOrder.Id);
         }
 
-        var start = ShiftResetRules.EffectiveStart(sealedOrder.FromDate, lastWork, requestedStart);
+        var start = ShiftResetRules.EffectiveStart(sealedOrder.FromDate, requestedStart);
         if (sealedOrder.UntilDate is { } orderEnd && start > orderEnd)
         {
             throw new BadRequestException(string.Format(
@@ -125,8 +127,7 @@ public class ShiftFamilyReset : IShiftFamilyReset
 
     private async Task<ShiftResetPlan> CheckAndPlanAsync(Guid headId, List<Shift> rows, DateOnly start)
     {
-        var idsWithWork = await _orderFamilyEndRepository.FindShiftIdsWithRealWorkAsync(rows.Select(row => row.Id).ToList());
-        var plan = ShiftResetRules.Plan(rows, idsWithWork, start);
+        var plan = ShiftResetRules.Plan(rows, start);
 
         if (plan.HasKeptRowFromStart)
         {

@@ -61,18 +61,6 @@ public class OrderFamilyEndRepository : IOrderFamilyEndRepository
             .MaxAsync(w => (DateOnly?)w.CurrentDate, cancellationToken);
     }
 
-    public async Task<IReadOnlySet<Guid>> FindShiftIdsWithRealWorkAsync(IReadOnlyList<Guid> shiftIds, CancellationToken cancellationToken = default)
-    {
-        var ids = await _context.Work
-            .AsNoTracking()
-            .Where(w => !w.IsDeleted && w.AnalyseToken == null && shiftIds.Contains(w.ShiftId))
-            .Select(w => w.ShiftId)
-            .Distinct()
-            .ToListAsync(cancellationToken);
-
-        return ids.ToHashSet();
-    }
-
     public Task<OrderFamilyUsage> GetUsageAsync(IReadOnlyList<Guid> shiftIds, CancellationToken cancellationToken = default)
         => OrderFamilyUsageQuery.ReadAsync(_context, shiftIds, cancellationToken);
 

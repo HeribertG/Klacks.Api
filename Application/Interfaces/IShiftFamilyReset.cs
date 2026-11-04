@@ -5,7 +5,7 @@ using Klacks.Api.Domain.Models.Schedules;
 namespace Klacks.Api.Application.Interfaces;
 
 /// <summary>
-/// Puts a cut family back to the content of its sealed order. Called by IShiftCutFacade after it has answered visibility,
+/// Puts a cut family back to the content of its sealed origin row from a start day on. Called by IShiftCutFacade after it has answered visibility,
 /// container and variant rules.
 /// </summary>
 public interface IShiftFamilyReset
@@ -15,8 +15,8 @@ public interface IShiftFamilyReset
     /// the change tracker first, so the caller must not stage anything before, and must not call it inside
     /// IUnitOfWork.ExecuteInTransactionAsync.
     /// </summary>
-    /// <param name="order">The sealed order, visible to the caller, with its group items</param>
-    /// <param name="requestedStart">The day that was asked for; it counts only when the family has real work</param>
-    /// <returns>The rows below the order after the reset, empty when the order has none</returns>
+    /// <param name="order">The sealed origin row, visible to the caller, with its group items</param>
+    /// <param name="requestedStart">The day that was asked for; it counts with or without real work, a day before the origin row is moved to its first day</param>
+    /// <returns>The rows below the origin row after the reset, empty when it has none</returns>
     Task<List<Shift>> ResetAsync(Shift order, DateOnly requestedStart);
 }
