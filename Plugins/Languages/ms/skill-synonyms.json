@@ -371,7 +371,7 @@
   "check_erp_drop_point_folder_health": [
     "semak kesihatan folder titik serahan",
     "adakah folder bertahan selepas but semula",
-    "cipta folder processed dan error",
+    "adakah erp mempunyai kebenaran menulis ke folder serahan",
     "adakah folder erp boleh ditulis",
     "semak folder serahan erp wujud dan cipta jika tiada",
     "kenapa fail pesanan tidak diambil, uji folder"
@@ -1531,7 +1531,8 @@
     "apa itu drop point",
     "cara import pesanan automatik",
     "muat naik xml erp",
-    "token akses erp"
+    "token akses erp",
+    "bagaimana pesanan dari erp masuk ke Klacks"
   ],
   "explain_page_settings_overview": [
     "terangkan halaman tetapan",

@@ -34587,7 +34587,9 @@
           "erp zugriffstoken",
           "wie funktioniert der bestellungsimport",
           "wo lege ich die xml datei physisch ab",
-          "welcher server-ordner fuer den erp import"
+          "welcher server-ordner fuer den erp import",
+          "wie kommen bestellungen aus dem erp nach klacks",
+          "welche wege gibt es damit ein erp bestellungen liefert"
         ],
         "en": [
           "how do i set up erp import",
@@ -34596,19 +34598,23 @@
           "upload xml file erp",
           "erp access token",
           "how does the order import work",
-          "which server folder receives the erp xml"
+          "which server folder receives the erp xml",
+          "how do orders get from the erp into klacks",
+          "which ways can an erp deliver orders"
         ],
         "fr": [
           "comment configurer l'import erp",
           "qu'est-ce qu'un drop point",
           "importer des commandes automatiquement",
-          "jeton d'accès erp"
+          "jeton d'accès erp",
+          "comment les commandes de l'erp arrivent dans klacks"
         ],
         "it": [
           "come configuro l'import erp",
           "cos'è un drop point",
           "importare ordini automaticamente",
-          "token di accesso erp"
+          "token di accesso erp",
+          "come arrivano gli ordini dall'erp in klacks"
         ]
       },
       "labels": {
@@ -34617,7 +34623,7 @@
         "fr": "Explication des paramètres des points de dépôt ERP",
         "it": "Spiegazione delle impostazioni dei punti di consegna ERP"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "explain_page_import_employees",
@@ -43552,7 +43558,9 @@
           "welcher ordner wird überwacht",
           "wohin kopiere ich die xml",
           "wo lege ich die bestell-xml ab",
-          "wo kopiere ich die importdatei hin"
+          "wo kopiere ich die importdatei hin",
+          "auf welchem weg liefert das erp seine bestellungen ab",
+          "wie landen die erp bestellungen im ordner"
         ],
         "en": [
           "handover point settings",
@@ -43560,19 +43568,23 @@
           "pickup folder for deliveries",
           "which folder is watched",
           "where do i copy the xml file to",
-          "where should i put the order xml"
+          "where should i put the order xml",
+          "which way does the erp hand over its orders",
+          "how do the erp orders end up in the folder"
         ],
         "fr": [
           "point de remise",
           "ou les fichiers sont deposes",
           "dossier de recuperation",
-          "ou copier le fichier xml de commande"
+          "ou copier le fichier xml de commande",
+          "par quelle voie l'erp remet ses commandes"
         ],
         "it": [
           "punto di consegna",
           "dove vengono depositati i file",
           "cartella di prelievo",
-          "dove copio il file xml dell'ordine"
+          "dove copio il file xml dell'ordine",
+          "in che modo l'erp consegna i suoi ordini"
         ]
       },
       "labels": {
@@ -43581,7 +43593,7 @@
         "fr": "Paramètres du point de dépôt ERP",
         "it": "Impostazioni del punto di consegna ERP"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "update_erp_drop_point_settings",
@@ -52072,7 +52084,7 @@
           "übergabeordner health check",
           "funktioniert der ablageordner",
           "ordner setup prüfen",
-          "processed und error ordner anlegen",
+          "erp übergabeordner anlegen und zugriffsrechte prüfen",
           "übersteht der ordner einen neustart",
           "ist der erp-ordner beschreibbar",
           "prüfe ob der erp-übergabeordner existiert und fehlende ordner angelegt werden",
@@ -52083,7 +52095,7 @@
           "drop point folder health check",
           "verify the pickup folder works",
           "check folder setup",
-          "create processed and error folders",
+          "create the erp drop folder and check its access rights",
           "does the folder survive a restart",
           "is the erp folder writable",
           "check that the erp handover folder exists and create it if missing",
@@ -52115,7 +52127,7 @@
         "fr": "Vérifier l'état du dossier de dépôt ERP",
         "it": "Verifica lo stato della cartella di consegna ERP"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_plugin_architecture",

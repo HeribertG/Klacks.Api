@@ -383,7 +383,7 @@
   "check_erp_drop_point_folder_health": [
     "comprobar el estado de la carpeta de entrega",
     "la carpeta sobrevive a un reinicio",
-    "crear carpetas processed y error",
+    "tiene el erp permiso de escritura en la carpeta de entrega",
     "comprueba si la carpeta del erp tiene permiso de escritura",
     "mira si existe la carpeta de entrega del erp y créala si falta",
     "por qué no se recogen los archivos de pedidos, prueba la carpeta"
@@ -1564,7 +1564,8 @@
     "qué es un drop point",
     "cómo subir archivos xml al erp",
     "cómo funciona la importación de pedidos",
-    "para qué sirven los tokens de acceso erp"
+    "para qué sirven los tokens de acceso erp",
+    "cómo llegan los pedidos del erp a Klacks"
   ],
   "explain_page_settings_overview": [
     "explícame la página de configuración",

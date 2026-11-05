@@ -378,7 +378,7 @@
   "check_erp_drop_point_folder_health": [
     "tarkista pudotuspisteen kansion kunto",
     "selviääkö kansio uudelleenkäynnistyksestä",
-    "luo processed ja error kansiot",
+    "saako erp kirjoittaa pudotuskansioon",
     "onko erp-kansioon kirjoitusoikeus",
     "tarkista että erp-kansio on olemassa ja luo se jos puuttuu",
     "miksi tilaustiedostoja ei noudeta, testaa kansio"
@@ -1547,7 +1547,8 @@
     "mitä on drop point",
     "miten tilaukset tuodaan xml-tiedostoista",
     "mikä on erp-pääsytunnus",
-    "kuinka lataan xml-tiedoston erp-tuontiin"
+    "kuinka lataan xml-tiedoston erp-tuontiin",
+    "miten tilaukset siirtyvät erp-järjestelmästä Klacksiin"
   ],
   "explain_page_settings_overview": [
     "mitä tällä asetussivulla on?",

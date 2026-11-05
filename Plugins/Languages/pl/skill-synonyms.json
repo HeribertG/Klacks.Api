@@ -383,7 +383,7 @@
   "check_erp_drop_point_folder_health": [
     "sprawdź stan folderu punktu odbioru",
     "czy folder przetrwa restart",
-    "utwórz foldery processed i error",
+    "czy erp ma prawo zapisu do folderu przekazania",
     "czy do folderu erp można zapisywać",
     "sprawdź, czy folder przekazania erp istnieje, i utwórz go, jeśli brakuje",
     "czemu pliki zamówień nie są pobierane, przetestuj folder"
@@ -1568,7 +1568,8 @@
     "co to jest drop point w erp",
     "wyjaśnij działanie importu plików xml",
     "jak przesłać plik xml do erp",
-    "opisz proces importu zamówień z erp"
+    "opisz proces importu zamówień z erp",
+    "jak zamówienia z erp trafiają do Klacks"
   ],
   "explain_page_settings_overview": [
     "co to jest strona ustawień",

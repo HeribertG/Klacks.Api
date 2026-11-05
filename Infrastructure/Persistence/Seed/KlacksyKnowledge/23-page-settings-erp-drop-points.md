@@ -28,10 +28,10 @@ triggerKeywords:
   - import ordner
   - where to put the xml
 synonyms:
-  de: [wie richte ich den erp import ein, was ist ein drop point, bestellungen automatisch importieren, xml datei hochladen erp, erp zugriffstoken, wie funktioniert der bestellungsimport, wo lege ich die xml datei physisch ab, welcher server-ordner fuer den erp import]
-  en: [how do i set up erp import, what is a drop point, automatically import orders, upload xml file erp, erp access token, how does the order import work, which server folder receives the erp xml]
-  fr: [comment configurer l'import erp, qu'est-ce qu'un drop point, importer des commandes automatiquement, jeton d'accès erp]
-  it: [come configuro l'import erp, cos'è un drop point, importare ordini automaticamente, token di accesso erp]
+  de: [wie richte ich den erp import ein, was ist ein drop point, bestellungen automatisch importieren, xml datei hochladen erp, erp zugriffstoken, wie funktioniert der bestellungsimport, wo lege ich die xml datei physisch ab, welcher server-ordner fuer den erp import, wie kommen bestellungen aus dem erp nach klacks, welche wege gibt es damit ein erp bestellungen liefert]
+  en: [how do i set up erp import, what is a drop point, automatically import orders, upload xml file erp, erp access token, how does the order import work, which server folder receives the erp xml, how do orders get from the erp into klacks, which ways can an erp deliver orders]
+  fr: [comment configurer l'import erp, qu'est-ce qu'un drop point, importer des commandes automatiquement, jeton d'accès erp, comment les commandes de l'erp arrivent dans klacks]
+  it: [come configuro l'import erp, cos'è un drop point, importare ordini automaticamente, token di accesso erp, come arrivano gli ordini dall'erp in klacks]
 ---
 
 # ERP-Bestellungsimport — Sektion "Import" in den Einstellungen
@@ -64,6 +64,19 @@ Pfad NICHT raten, sondern per Skill `get_erp_drop_point_settings` abfragen (lief
 aufgelösten Pfad auf der Platte und den Zeitplan; Unterordner gibt es keine — die Dateien
 bleiben im Drop-Point-Ordner selbst); bei Zweifel, ob der Ordner wirklich beschreibbar ist und ob er einen Neustart
 übersteht, zusätzlich `check_erp_drop_point_folder_health`.
+
+**Drei Wege, wie ein ERP Bestellungen an Klacks übergibt:**
+
+1. **Ordner-Ablage:** das ERP kopiert XML-Dateien in den Drop-Point-Ordner auf dem Klacks-Server;
+   der Zeitplan (Standard stündlich) holt sie ab, sobald eine Datei 10 Sekunden unverändert ist.
+2. **Manueller Upload:** ein Administrator lädt die XML-Datei auf der Karte hoch (Einstellungen >
+   Import, Expertenmodus); der Import startet sofort, der Knopf **Jetzt importieren** löst ihn erneut aus.
+3. **HTTPS-Push:** das ERP sendet die Datei per `POST /api/erp-import/upload` mit einem
+   Zugriffstoken (`klacks_erp_...`); das Token wird nur in der Oberfläche erzeugt.
+
+Es gibt kein SFTP, und es werden nur XML-Dateien im Format `<ErpOrderImport schemaVersion="1">`
+importiert; sie werden als unversiegelte Entwürfe angelegt, die ein Planer versiegelt. Welcher der drei
+Wege zur Installation passt, steht in Stufe 2 unter "Welcher Weg für welche Installation".
 
 <!-- level:elements -->
 
@@ -129,6 +142,30 @@ XML-Referenztabelle, sowie den Knopf **Beispieldatei herunterladen**
 (`erp-drop-points-download-sample-btn`) mit einer Beispiel-XML (zwei Bestellungen:
 vollständig und minimal).
 
+### Welcher Weg für welche Installation
+
+Den Weg und den Pfad nie raten oder aus diesem Text übernehmen: Skill `get_erp_drop_point_settings`
+liefert den aufgelösten Ordnerpfad, die Installationsart (`native` = Büro-PC, `docker`) und die passenden
+Wege in der Reihenfolge ihrer Eignung. Danach anbieten, zur Karte zu navigieren (Seite Einstellungen,
+Ziel `erp-drop-points`; die Navigation schaltet den Expertenmodus selbst ein).
+
+- **Büro-PC (native Windows-Installation):** die Ordner-Ablage ist der naheliegende Weg. Standardpfad
+  `C:\ProgramData\Klacks\ErpImport\erp\orders` (massgeblich ist der Pfad aus dem Skill). Der Installer
+  schützt den Datenordner: nur SYSTEM und Administratoren dürfen dort schreiben. Ein ERP-Export unter einem
+  normalen Benutzer- oder Dienstkonto kann deshalb nicht in den Ordner schreiben, bis ein Administrator diesem
+  Konto das Recht "Ändern" (Modify) genau auf den Ordner `erp\orders` gibt - nicht auf den ganzen Ordner
+  `ProgramData\Klacks`. Fehlt der Ordner noch, legt ihn der erste Importlauf bzw.
+  `check_erp_drop_point_folder_health` an.
+- **Eigener Docker-Server:** der Ordner (`/app/ErpImport/erp/orders`) liegt im Container in einem benannten
+  Volume (`api-erp-import`); ein ERP auf dem Host-Rechner erreicht ihn nicht. Entweder bindet der
+  Administrator in der Compose-Datei einen Host-Ordner nach `/app/ErpImport` ein, oder das ERP liefert per
+  Push mit Token, oder ein Administrator lädt manuell hoch.
+- **Von uns gehostete Installation:** kein Zugriff auf Ordner des Servers - Push mit Token oder manueller
+  Upload. Eine gehostete Installation ist technisch nicht von einem eigenen Docker-Server zu unterscheiden:
+  im Zweifel fragen, wer den Server betreibt.
+- **Token:** Zugriffstoken für den Push entstehen nur in der Oberfläche (Karte "ERP-Anbindung per Push");
+  dafür gibt es bewusst keinen Klacksy-Skill.
+
 <!-- level:effects -->
 
 ## Stufe 3 — Wirkungen & Zusammenspiel mit anderen Seiten
@@ -168,8 +205,9 @@ vollständig und minimal).
 
 ### Typische Aufgaben
 
-- Physischen Ablage-Pfad für die ERP-XML erfragen ("Wo kopiere ich die XML hin?") —
-  Skill `get_erp_drop_point_settings` (aufgelöster absoluter Pfad, Zeitplan)
+- Physischen Ablage-Pfad für die ERP-XML erfragen ("Wo kopiere ich die XML hin?") oder wissen, auf welchem
+  Weg das ERP liefern soll — Skill `get_erp_drop_point_settings` (aufgelöster absoluter Pfad, Zeitplan,
+  Installationsart und passende Wege)
 - Prüfen, ob der Ablage-Ordner selbst erreichbar/beschreibbar ist (fehlt er, wird er
   angelegt; Unterordner gibt es keine) — Skill `check_erp_drop_point_folder_health`
 - Status abfragen (aktiv, Zeitplan, nächster Lauf, Anzahl Dateien im Eingang / im Import /

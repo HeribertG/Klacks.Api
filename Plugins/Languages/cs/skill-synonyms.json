@@ -389,7 +389,7 @@
   "check_erp_drop_point_folder_health": [
     "zkontrolovat funkčnost složky pro předání",
     "přežije složka restart",
-    "vytvořit složky processed a error",
+    "má erp oprávnění zapisovat do předávací složky",
     "je erp složka zapisovatelná",
     "zkontroluj, jestli předávací složka erp existuje, a případně ji vytvoř",
     "proč se soubory objednávek nevyzvedávají, otestuj složku"
@@ -1568,7 +1568,8 @@
     "co je drop point",
     "jak nahrát xml soubor",
     "automatický import objednávek",
-    "erp přístupový token"
+    "erp přístupový token",
+    "jak se dostanou objednávky z erp do Klacks"
   ],
   "explain_page_settings_overview": [
     "vysvětli mi nastavení",

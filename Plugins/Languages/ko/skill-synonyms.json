@@ -376,7 +376,7 @@
   "check_erp_drop_point_folder_health": [
     "드롭포인트 폴더 상태 점검",
     "폴더가 재시작 후에도 유지되는지",
-    "processed와 error 폴더 생성",
+    "ERP에 전달 폴더 쓰기 권한이 있는지",
     "ERP 폴더에 쓰기 가능한지 알려 줘",
     "ERP 전달 폴더가 있는지 확인하고 없으면 만들어",
     "주문 파일이 안 읽히는 이유가 뭐야, 폴더를 테스트해 줘"
@@ -1521,7 +1521,8 @@
     "주문 xml 수입 방법",
     "erp 액세스 토큰 설명",
     "자동 가져오기 기능 안내",
-    "sealed order 수입 설정"
+    "sealed order 수입 설정",
+    "ERP의 주문을 Klacks로 가져오는 방법"
   ],
   "explain_page_settings_overview": [
     "설정 페이지 개요를 보여 줘",

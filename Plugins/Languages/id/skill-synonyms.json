@@ -382,7 +382,7 @@
   "check_erp_drop_point_folder_health": [
     "periksa kesehatan folder titik penyerahan",
     "apakah folder bertahan setelah mulai ulang",
-    "buat folder processed dan error",
+    "apakah erp punya izin menulis ke folder serah terima",
     "apakah folder erp bisa ditulis",
     "cek folder serah terima erp ada dan buat jika belum ada",
     "kenapa file order tidak terambil, tes foldernya"
@@ -1534,7 +1534,8 @@
     "panduan upload xml erp",
     "apa itu akses token erp",
     "bagaimana import order bekerja",
-    "fungsi menu erp di pengaturan"
+    "fungsi menu erp di pengaturan",
+    "bagaimana order dari erp masuk ke Klacks"
   ],
   "explain_page_settings_overview": [
     "jelaskan halaman pengaturan",

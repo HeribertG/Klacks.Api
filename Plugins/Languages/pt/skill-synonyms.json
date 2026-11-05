@@ -385,7 +385,7 @@
   "check_erp_drop_point_folder_health": [
     "verificar a saúde da pasta de entrega",
     "a pasta sobrevive a um reinício",
-    "criar pastas processed e error",
+    "o erp tem permissão de escrita na pasta de entrega",
     "a pasta do erp tem permissão de escrita",
     "verifica se a pasta de entrega do erp existe e cria-a se faltar",
     "por que razão os ficheiros de encomendas ficam por ler, testa a pasta"
@@ -1567,7 +1567,8 @@
     "o que é drop point",
     "como subir xml de pedidos",
     "token de acesso erp",
-    "explicar importação automática de pedidos"
+    "explicar importação automática de pedidos",
+    "como chegam as encomendas do erp ao Klacks"
   ],
   "explain_page_settings_overview": [
     "o que tem na página de configurações",

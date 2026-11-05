@@ -6,7 +6,9 @@
 /// absolute on-disk folder path files must be copied to, and the import's poll schedule. Files stay in
 /// that folder after their import (no sub-folders); their state lives in the erp_import_file ledger and is
 /// reported by get_erp_import_status. The path is resolved through the same object storage
-/// resolver the runner and the folder-health check use, so the answer always matches reality.
+/// resolver the runner and the folder-health check use, so the answer always matches reality. The result also
+/// carries the installation kind (native or docker) and the hand-over channels that fit it, so the assistant
+/// advises how an ERP gets files to Klacks without guessing: ErpHandoverAdvisor decides, the skill only reports.
 /// </summary>
 
 using Klacks.Api.Application.Queries.ErpDropPoints;
@@ -15,6 +17,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Imports;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Interfaces.Update;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Services.Imports;
@@ -32,6 +35,7 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
     private readonly ICompanyClock _companyClock;
     private readonly ILogger<GetErpDropPointSettingsSkill> _logger;
     private readonly ErpCronTimeZoneDriftNotifier _driftNotifier;
+    private readonly IInstallationIdentityProvider _installationIdentityProvider;
 
     public GetErpDropPointSettingsSkill(
         IMediator mediator,
@@ -39,7 +43,8 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
         ISettingsReader settingsReader,
         ICompanyClock companyClock,
         ILogger<GetErpDropPointSettingsSkill> logger,
-        ErpCronTimeZoneDriftNotifier driftNotifier)
+        ErpCronTimeZoneDriftNotifier driftNotifier,
+        IInstallationIdentityProvider installationIdentityProvider)
     {
         _mediator = mediator;
         _objectStorageService = objectStorageService;
@@ -47,6 +52,7 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
         _logger = logger;
         _driftNotifier = driftNotifier;
         _companyClock = companyClock;
+        _installationIdentityProvider = installationIdentityProvider;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -68,6 +74,9 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
             ?? ErpImportSettingsTypes.DefaultCronExpression;
         var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, _logger, _driftNotifier, cancellationToken);
 
+        var guidance = ErpHandoverAdvisor.Advise(_installationIdentityProvider.Get(), absolutePath);
+        var stabilitySeconds = (int)ErpImportStorageTiming.WriteStabilityWindow.TotalSeconds;
+
         var data = new
         {
             dropPoint.Id,
@@ -79,15 +88,20 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
             dropPoint.LastError,
             AbsolutePath = absolutePath,
             CronExpression = cronExpression,
-            TimeZone = timeZoneId
+            TimeZone = timeZoneId,
+            guidance.Installation,
+            guidance.RecommendedChannels,
+            guidance.FolderDropRequirement
         };
 
         var enabledState = dropPoint.IsEnabled ? "switched on" : "switched off";
-        var message = $"Default drop point '{dropPoint.Name}' ({enabledState}). Copy ERP order XML files to " +
-            $"'{absolutePath}' -- they are picked up at the next scheduled run (cron [{cronExpression}] " +
-            $"{timeZoneId}, or trigger it now with trigger_erp_import_run). The files stay in that folder; " +
-            "each one's import state (waiting, importing, processed, failed) is tracked per file -- use " +
-            "get_erp_import_status for the current counts.";
+        var message = $"Default drop point '{dropPoint.Name}' ({enabledState}). Folder as the Klacks server sees it: " +
+            $"'{absolutePath}' -- files placed there are picked up at the next scheduled run (cron [{cronExpression}] " +
+            $"{timeZoneId}, or trigger it now with trigger_erp_import_run) once they have been unchanged for " +
+            $"{stabilitySeconds} seconds. Only XML in the ErpOrderImport format is imported, as unsealed order drafts " +
+            "that a planner seals. The files stay in that folder; each one's import state (waiting, importing, " +
+            "processed, failed) is tracked per file -- use get_erp_import_status for the current counts. " +
+            guidance.Advice;
 
         return SkillResult.SuccessResult(data, message);
     }

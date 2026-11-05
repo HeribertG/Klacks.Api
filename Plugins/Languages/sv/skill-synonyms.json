@@ -378,7 +378,7 @@
   "check_erp_drop_point_folder_health": [
     "kolla mapphälsan för avlämningspunkten",
     "överlever mappen en omstart",
-    "skapa processed- och error-mappar",
+    "får erp skriva i överlämningsmappen",
     "går det att skriva i erp-mappen",
     "kontrollera att erp-överlämningsmappen finns och skapa den om den saknas",
     "varför hämtas inte orderfilerna, testa mappen"
@@ -1556,7 +1556,8 @@
     "hur ställer jag in erp-import",
     "förklara fliken för erp-import",
     "hur laddar jag upp xml-filer för order",
-    "vad är erp-åtkomsttoken"
+    "vad är erp-åtkomsttoken",
+    "hur kommer beställningar från erp in i Klacks"
   ],
   "explain_page_settings_overview": [
     "förklara inställningssidan",

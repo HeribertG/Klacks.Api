@@ -53,8 +53,14 @@ docker cp order.xml klacks-api:/app/ErpImport/erp/orders/order.xml
 The `mkdir -p` step is only needed once — the sub-folder does not exist until either this
 command, an upload through the settings UI, or `check_erp_drop_point_folder_health`
 creates it. The file is picked up at the next scheduled run (hourly by default; ask
-Klacksy to trigger one immediately with `trigger_erp_import_run`) and ends up in the
-`processed/` or `error/` sub-folder next to it.
+Klacksy to trigger one immediately with `trigger_erp_import_run`). The file stays in
+the folder; its import state (waiting, importing, processed, failed) is tracked per file
+and shown in Settings > Import (expert mode).
+
+The named volume lives inside Docker, so an ERP running on the host cannot write into it
+unless you mount a host folder onto `/app/ErpImport` in the compose file. Without a
+mount, let the ERP push over HTTPS with an ERP import token (created in Settings >
+Import) or upload the file there.
 
 ## Geo services and privacy
 Out of the box, maps, address geocoding and routing use public services: Nominatim

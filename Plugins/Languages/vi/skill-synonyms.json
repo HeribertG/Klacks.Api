@@ -376,7 +376,7 @@
   "check_erp_drop_point_folder_health": [
     "kiểm tra tình trạng thư mục điểm giao nhận",
     "thư mục có còn tồn tại sau khi khởi động lại không",
-    "tạo thư mục processed và error",
+    "erp có quyền ghi vào thư mục giao nhận không",
     "thư mục erp có ghi được không",
     "kiểm tra thư mục giao nhận erp tồn tại và tạo nếu thiếu",
     "tại sao file đơn hàng không được lấy, thử thư mục"
@@ -1529,7 +1529,8 @@
     "cách thiết lập drop point",
     "import đơn hàng từ xml",
     "tài liệu tính năng nhập erp",
-    "cách dùng access token erp"
+    "cách dùng access token erp",
+    "đơn hàng từ erp vào Klacks bằng cách nào"
   ],
   "explain_page_settings_overview": [
     "trang cài đặt có những phần nào?",

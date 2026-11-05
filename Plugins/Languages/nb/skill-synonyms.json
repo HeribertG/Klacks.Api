@@ -377,7 +377,7 @@
   "check_erp_drop_point_folder_health": [
     "sjekk mappehelsen for leveringspunktet",
     "overlever mappen en omstart",
-    "opprett processed og error mapper",
+    "har erp skrivetilgang til overleveringsmappen",
     "kan det skrives til erp-mappen",
     "sjekk at erp-overleveringsmappen finnes og opprett den hvis den mangler",
     "hvorfor hentes ikke bestillingsfilene, test mappen"
@@ -1539,7 +1539,8 @@
     "automatisk import av bestillinger",
     "laste opp xml-fil for erp",
     "erp-tilgangstoken",
-    "hvordan fungerer bestillingsimport"
+    "hvordan fungerer bestillingsimport",
+    "hvordan kommer bestillinger fra erp inn i Klacks"
   ],
   "explain_page_settings_overview": [
     "forklar innstillingssiden",

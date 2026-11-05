@@ -380,7 +380,7 @@
   "check_erp_drop_point_folder_health": [
     "verifică starea folderului punctului de livrare",
     "folderul supraviețuiește unei reporniri",
-    "creează folderele processed și error",
+    "are erp drept de scriere în dosarul de predare",
     "este dosarul erp scriptibil",
     "verifică dacă dosarul de predare erp există și creează-l dacă lipsește",
     "de ce nu sunt preluate fișierele de comenzi, testează dosarul"
@@ -1552,7 +1552,8 @@
     "cum se importă automat comenzile",
     "explică setările de import xml",
     "cum încarc un fișier xml pentru comenzi",
-    "de unde iau token-ul de access erp"
+    "de unde iau token-ul de access erp",
+    "cum ajung comenzile din erp în Klacks"
   ],
   "explain_page_settings_overview": [
     "ce vezi pe pagina de setări",

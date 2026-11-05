@@ -382,7 +382,7 @@
   "check_erp_drop_point_folder_health": [
     "check de status van de afleverpuntmap",
     "overleeft de map een herstart",
-    "maak processed en error mappen aan",
+    "mag het erp schrijven in de overdrachtsmap",
     "is de erp-map beschrijfbaar",
     "controleer of de erp-overdrachtsmap bestaat en maak hem aan als hij ontbreekt",
     "waarom worden orderbestanden niet opgepikt, test de map"
@@ -1568,7 +1568,8 @@
     "hoe werkt de automatische import",
     "hoe upload ik een xml-bestand voor erp",
     "wat is de erp-toegangstoken",
-    "hoe worden bestellingen omgezet in diensten"
+    "hoe worden bestellingen omgezet in diensten",
+    "hoe komen bestellingen uit het erp in Klacks"
   ],
   "explain_page_settings_overview": [
     "wat zie ik op de instellingenpagina",

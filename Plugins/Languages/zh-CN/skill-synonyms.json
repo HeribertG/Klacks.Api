@@ -374,7 +374,7 @@
   "check_erp_drop_point_folder_health": [
     "检查投递点文件夹的健康状态",
     "文件夹在重启后是否还在",
-    "创建processed和error文件夹",
+    "ERP对交接文件夹有写入权限吗",
     "ERP文件夹能写入吗",
     "检查ERP交接文件夹是否存在，缺了就创建",
     "测试ERP文件夹是否可读写，用于导入排错"
@@ -1527,7 +1527,8 @@
     "什么是投递点",
     "自动导入订单的方法",
     "erp访问令牌作用",
-    "上传xml文件功能"
+    "上传xml文件功能",
+    "ERP的订单怎样进入Klacks"
   ],
   "explain_page_settings_overview": [
     "设置页面总览有什么内容",

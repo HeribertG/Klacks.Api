@@ -382,7 +382,7 @@
   "check_erp_drop_point_folder_health": [
     "tjek mappe-sundhed for afleveringspunktet",
     "overlever mappen en genstart",
-    "opret processed og error mapper",
+    "må erp skrive i afleveringsmappen",
     "kan der skrives til erp-mappen",
     "tjek at erp-afleveringsmappen findes, og opret den hvis den mangler",
     "hvorfor bliver ordrefilerne ikke hentet, test mappen"
@@ -1558,7 +1558,8 @@
     "automatisk ordreimport",
     "upload xml fil til erp",
     "erp adgangstoken",
-    "hvordan fungerer ordreimport"
+    "hvordan fungerer ordreimport",
+    "hvordan kommer ordrer fra erp ind i Klacks"
   ],
   "explain_page_settings_overview": [
     "forklar indstillingssiden",
