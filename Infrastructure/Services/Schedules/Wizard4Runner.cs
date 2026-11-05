@@ -98,7 +98,10 @@ public sealed class Wizard4Runner : IWizard4Runner
 
         var seed = RowSorter.Sort(BitmapBuilder.Build(bitmapInput));
         var validator = new DomainAwareReplaceValidator(
-            bitmapInput.Availability, bitmapInput.BoundaryAssignments, bitmapInput.IneligibleAssignments);
+            bitmapInput.Availability,
+            bitmapInput.BoundaryAssignments,
+            bitmapInput.IneligibleAssignments,
+            keywordMode: bitmapInput.KeywordMode);
         var config = new HarmonizerEvolutionConfig(MaxRuntime: budget);
 
         // Fingerprint of the plan this pass optimises; apply rejects the candidate if it moved meanwhile.

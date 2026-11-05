@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules.KeywordWishes;
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Schedules;
@@ -34,6 +35,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// A placement on a day outside its employee's membership or group period (the grid's locked cells) is not written but
 /// reported as skipped; the rest of the run is applied. The group period is that of the scenario's group when it has one,
 /// otherwise the request's group context; the bulk write itself then skips its own period check.
+/// A run produced in Soft keyword mode (CoreScenario.KeywordMode) partitions day-directive conflicts as warnings, so the
+/// placements that break a wish on purpose are written and reported instead of skipped.
 /// </summary>
 /// <param name="resultCache">Cache populated by the wizard runner</param>
 /// <param name="mediator">Mediator used to dispatch BulkAddWorksCommand</param>
@@ -48,6 +51,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="planningPeriodGuard">Names the placements outside their employee's membership or group period; they are
 /// reported as skipped instead of written (the planner models the membership per day, but not the group period)</param>
 /// <param name="logger">Logger used for best-effort capture warnings</param>
+/// <param name="keywordWishCounter">Counts the schedule-command wishes the written plan misses, for the outcome. The
+/// employees counted are those holding a token of the run; an employee without any token is not counted.</param>
 public sealed class WizardApplyService : IWizardApplyService
 {
     private const string ShiftNotInScenarioReasonKey = "schedule.error-list.shift-not-in-scenario";
@@ -68,6 +73,7 @@ public sealed class WizardApplyService : IWizardApplyService
     private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
     private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
     private readonly ILogger<WizardApplyService> _logger;
+    private readonly IKeywordWishCountService _keywordWishCounter;
 
     public WizardApplyService(
         WizardResultCache resultCache,
@@ -84,8 +90,10 @@ public sealed class WizardApplyService : IWizardApplyService
         IScenarioNameGenerator scenarioNameGenerator,
         IScenarioTokenAccessGuard scenarioTokenAccessGuard,
         IClientPlanningPeriodGuard planningPeriodGuard,
-        ILogger<WizardApplyService> logger)
+        ILogger<WizardApplyService> logger,
+        IKeywordWishCountService keywordWishCounter)
     {
+        _keywordWishCounter = keywordWishCounter;
         _planningPeriodGuard = planningPeriodGuard;
         _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
         _resultCache = resultCache;
@@ -129,7 +137,7 @@ public sealed class WizardApplyService : IWizardApplyService
             var rows = items
                 .Select(i => new PlannedWorkRow(i.ClientId, i.CurrentDate, i.StartTime, i.EndTime, i.ShiftId))
                 .ToList();
-            var partition = await _partitionService.PartitionAsync(rows, analyseToken, overrideBlock, ct);
+            var partition = await _partitionService.PartitionAsync(rows, analyseToken, overrideBlock, ct, scenario.KeywordMode);
             var outsidePeriod = await FindOutsidePeriodIndexesAsync(rows, partition.AcceptedIndexes, groupId: null, jobId, ct);
 
             var acceptedItems = partition.AcceptedIndexes.Except(outsidePeriod).Select(i => items[i]).ToList();
@@ -186,7 +194,10 @@ public sealed class WizardApplyService : IWizardApplyService
                 createdIds,
                 ct);
 
-            return new WizardApplyOutcome(createdIds, partition.ReportableConflicts, skipped, partition.OverrideApplied);
+            var keywordWishes = await TryCountKeywordWishesAsync(
+                RunAgentIds(scenario.Tokens), periodStart, periodEnd, analyseToken, jobId, ct);
+
+            return new WizardApplyOutcome(createdIds, partition.ReportableConflicts, skipped, partition.OverrideApplied, keywordWishes);
         }
         catch
         {
@@ -234,9 +245,17 @@ public sealed class WizardApplyService : IWizardApplyService
                 materialised.Ids,
                 ct);
 
+            var keywordWishes = await TryCountKeywordWishesAsync(
+                RunAgentIds(cachedScenario.Tokens), plan.PeriodFrom, plan.PeriodUntil, plan.Token, jobId, ct);
+
             return (
                 AppliedScenarioBuilder.ToAppliedResource(materialised.Scenario, materialised.VariantIds),
-                new WizardApplyOutcome(materialised.Ids, materialised.Partition.ReportableConflicts, materialised.Skipped, materialised.Partition.OverrideApplied));
+                new WizardApplyOutcome(
+                    materialised.Ids,
+                    materialised.Partition.ReportableConflicts,
+                    materialised.Skipped,
+                    materialised.Partition.OverrideApplied,
+                    keywordWishes));
         }
         catch
         {
@@ -244,6 +263,35 @@ public sealed class WizardApplyService : IWizardApplyService
             throw;
         }
     }
+
+    /// <summary>
+    /// Best-effort count after the commit: the plan is already written, so a failing read must neither fail the apply
+    /// nor put the consumed result back into the cache (a retry would write the plan twice). Null when not counted.
+    /// </summary>
+    private async Task<KeywordWishesDto?> TryCountKeywordWishesAsync(
+        IReadOnlyCollection<Guid> clientIds, DateOnly from, DateOnly until, Guid? analyseToken, Guid jobId, CancellationToken ct)
+    {
+        try
+        {
+            return await _keywordWishCounter.CountAsync(clientIds, from, until, analyseToken, ct);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Wizard apply {JobId}: the keyword wishes of the written plan could not be counted.", jobId);
+            return null;
+        }
+    }
+
+    private static List<Guid> RunAgentIds(IEnumerable<CoreToken> tokens)
+        => tokens
+            .Select(t => Guid.TryParse(t.AgentId, out var id) ? id : Guid.Empty)
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToList();
 
     private async Task<WizardScenarioApplyPlan> BuildScenarioPlanAsync(
         CoreScenario cachedScenario,
@@ -283,7 +331,8 @@ public sealed class WizardApplyService : IWizardApplyService
             PeriodFrom: periodFrom,
             PeriodUntil: periodUntil,
             ScenarioFrom: scenarioFrom,
-            ScenarioUntil: scenarioUntil);
+            ScenarioUntil: scenarioUntil,
+            KeywordMode: cachedScenario.KeywordMode);
     }
 
     private async Task<(IReadOnlyList<Guid> Ids, CompliancePartitionResult Partition, IReadOnlyList<SkippedPlacementDto> Skipped, AnalyseScenario Scenario, IReadOnlyList<Guid> VariantIds)> MaterialiseScenarioAsync(
@@ -373,7 +422,7 @@ public sealed class WizardApplyService : IWizardApplyService
                 TimeOnly.FromDateTime(t.EndAt),
                 t.ShiftRefId))
             .ToList();
-        var partition = await _partitionService.PartitionAsync(rows, plan.Token, overrideBlock, ct);
+        var partition = await _partitionService.PartitionAsync(rows, plan.Token, overrideBlock, ct, plan.KeywordMode);
 
         var unplaceable = FindPlacementsWithoutClone(items, partition.AcceptedIndexes, shiftIdMap, plan.SourceAnalyseToken, jobId);
         var outsidePeriod = await FindOutsidePeriodIndexesAsync(

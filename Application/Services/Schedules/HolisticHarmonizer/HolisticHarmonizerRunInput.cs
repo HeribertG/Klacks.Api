@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.Constants;
+using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
@@ -14,6 +15,7 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 /// The bitmap stays sized to the period; boundary works/breaks land in BitmapInput.BoundaryAssignments. Default 14.
 /// </param>
 /// <param name="ContextDaysAfter">Same as <paramref name="ContextDaysBefore"/>, after <paramref name="PeriodUntil"/>.</param>
+/// <param name="KeywordMode">Hard (default) vetoes the restricting schedule commands; Soft treats them as wishes.</param>
 public sealed record HolisticHarmonizerRunInput(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -21,4 +23,5 @@ public sealed record HolisticHarmonizerRunInput(
     Guid? AnalyseToken,
     string? Language,
     int ContextDaysBefore = ScenarioConstants.BoundaryDays,
-    int ContextDaysAfter = ScenarioConstants.BoundaryDays);
+    int ContextDaysAfter = ScenarioConstants.BoundaryDays,
+    KeywordMode KeywordMode = KeywordMode.Hard);

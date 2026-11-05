@@ -14,6 +14,7 @@
 /// <param name="scenarioRepository">Resolves the scenario by its token</param>
 /// <param name="scenarioService">Resolves the group hierarchy of the scenario group</param>
 /// <param name="contractProvider">Effective contract data of the employees per day</param>
+/// <param name="keywordWishCounter">Counts the schedule-command wishes the scenario misses for the considered employees</param>
 
 using Klacks.Api.Application.DTOs.Schedules.Summary;
 using Klacks.Api.Application.Interfaces;
@@ -37,13 +38,16 @@ public sealed class ScenarioSummaryBuilder : IScenarioSummaryBuilder
     private readonly IAnalyseScenarioRepository _scenarioRepository;
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IClientContractDataProvider _contractProvider;
+    private readonly IKeywordWishCountService _keywordWishCounter;
 
     public ScenarioSummaryBuilder(
         DataBaseContext context,
         IAnalyseScenarioRepository scenarioRepository,
         IAnalyseScenarioService scenarioService,
-        IClientContractDataProvider contractProvider)
+        IClientContractDataProvider contractProvider,
+        IKeywordWishCountService keywordWishCounter)
     {
+        _keywordWishCounter = keywordWishCounter;
         _context = context;
         _scenarioRepository = scenarioRepository;
         _scenarioService = scenarioService;
@@ -91,6 +95,7 @@ public sealed class ScenarioSummaryBuilder : IScenarioSummaryBuilder
         var expensesWithChangedEmployee = await CountExpensesWithChangedEmployeeAsync(token, from, until, ct);
         var keysByShift = await ScenarioVariantCoverageCalculator.LoadKeysByShiftAsync(_context, token, shifts, ct);
         var copiedByVariant = await ScenarioVariantCoverageCalculator.LoadCopiedCountsAsync(_context, token, ct);
+        var keywordWishes = await _keywordWishCounter.CountAsync(agentIds, from, until, token, ct);
 
         return new ScenarioSummaryDto(
             token,
@@ -103,7 +108,8 @@ public sealed class ScenarioSummaryBuilder : IScenarioSummaryBuilder
             coverage.OrderBy(c => c.ShiftName, StringComparer.CurrentCulture).ToList(),
             reasons,
             expensesWithChangedEmployee,
-            ScenarioVariantCoverageCalculator.Summarize(keysByShift, coverage, openSlots, copiedByVariant));
+            ScenarioVariantCoverageCalculator.Summarize(keysByShift, coverage, openSlots, copiedByVariant),
+            keywordWishes);
     }
 
     /// <summary>

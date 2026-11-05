@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.Constants;
+using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
@@ -16,6 +17,7 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 /// <param name="Language">UI language, used so swap reasons come back in the operator's locale.</param>
 /// <param name="ContextDaysBefore">Boundary context days before <paramref name="PeriodFrom"/> for boundary-aware validators. Default 14.</param>
 /// <param name="ContextDaysAfter">Boundary context days after <paramref name="PeriodUntil"/>. Default 14.</param>
+/// <param name="KeywordMode">Hard (default) vetoes the restricting schedule commands; Soft treats them as wishes.</param>
 public sealed record HolisticHarmonizerEngineRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -24,4 +26,5 @@ public sealed record HolisticHarmonizerEngineRequest(
     string LlmModelId,
     string? Language,
     int ContextDaysBefore = ScenarioConstants.BoundaryDays,
-    int ContextDaysAfter = ScenarioConstants.BoundaryDays);
+    int ContextDaysAfter = ScenarioConstants.BoundaryDays,
+    KeywordMode KeywordMode = KeywordMode.Hard);

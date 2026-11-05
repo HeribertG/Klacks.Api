@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.ScheduleOptimizer.Constraints.Keywords;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
@@ -9,6 +10,9 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// </summary>
 /// <param name="FreeDates">Days closed by a FREE command or by directives no shift kind satisfies</param>
 /// <param name="Restrictions">Required or forbidden shift kind of every other day carrying a directive</param>
+/// <param name="Days">Every day carrying a recognized command as a keyword-wish day (restriction tier and positive wish,
+/// -FREE included); null when the caller does not supply them</param>
 public sealed record HarmonizerKeywordDays(
     IReadOnlySet<(Guid AgentId, DateOnly Date)> FreeDates,
-    IReadOnlyDictionary<(Guid AgentId, DateOnly Date), (CellSymbol? Required, CellSymbol? Forbidden)> Restrictions);
+    IReadOnlyDictionary<(Guid AgentId, DateOnly Date), (CellSymbol? Required, CellSymbol? Forbidden)> Restrictions,
+    IReadOnlyDictionary<(Guid AgentId, DateOnly Date), KeywordDay>? Days = null);

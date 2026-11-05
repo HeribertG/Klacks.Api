@@ -18,6 +18,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.ScheduleOptimizer.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -48,14 +49,16 @@ public sealed class CompliancePartitionService : ICompliancePartitionService
         IReadOnlyList<PlannedWorkRow> rows,
         Guid? analyseToken,
         bool overrideBlockRequested,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        KeywordMode keywordMode = KeywordMode.Hard)
     {
         if (rows.Count == 0)
         {
             return new CompliancePartitionResult([], [], [], OverrideApplied: false);
         }
 
-        var batch = await _conflictChecker.CheckAsync(rows, analyseToken, cancellationToken);
+        var batch = DayDirectiveWishSeverity.Apply(
+            await _conflictChecker.CheckAsync(rows, analyseToken, cancellationToken), keywordMode);
         if (!batch.HasBlocking)
         {
             return new CompliancePartitionResult(AllIndexes(rows.Count), [], Reportable(batch), OverrideApplied: false);
@@ -68,7 +71,7 @@ public sealed class CompliancePartitionService : ICompliancePartitionService
             return new CompliancePartitionResult(AllIndexes(rows.Count), [], Reportable(batch), OverrideApplied: true);
         }
 
-        return await PartitionGreedilyAsync(rows, batch, analyseToken, authorized, cancellationToken);
+        return await PartitionGreedilyAsync(rows, batch, analyseToken, authorized, keywordMode, cancellationToken);
     }
 
     public async Task<OptionPartitionResult> PartitionOptionsAsync(
@@ -182,6 +185,7 @@ public sealed class CompliancePartitionService : ICompliancePartitionService
         PreCommitCheckResult batch,
         Guid? analyseToken,
         bool authorized,
+        KeywordMode keywordMode,
         CancellationToken cancellationToken)
     {
         var violatingClients = batch.NewConflicts
@@ -214,7 +218,8 @@ public sealed class CompliancePartitionService : ICompliancePartitionService
             }
 
             var trial = new List<PlannedWorkRow>(clientRows) { row };
-            var check = await _conflictChecker.CheckAsync(trial, analyseToken, cancellationToken);
+            var check = DayDirectiveWishSeverity.Apply(
+                await _conflictChecker.CheckAsync(trial, analyseToken, cancellationToken), keywordMode);
             if (check.HasBlocking && !CanOverride(check, authorized))
             {
                 var reason = check.NewConflicts.First(c => c.Type == ScheduleValidationType.Error).Comment;

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.Constants;
+using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Services.Schedules;
 
@@ -28,6 +29,8 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// True (default) loads the approved planning rules (CounterRule + PlanningConstraint) into BitmapInput.Rules, so
 /// Wizard 2/3 respect them. Wizard 4 passes false until its own rule hooks exist (constraint schema stage 6).
 /// </param>
+/// <param name="KeywordMode">Hard (default) vetoes the restricting schedule commands; Soft lets a move through as long
+/// as the row's keyword-wish penalty does not rise.</param>
 public sealed record HarmonizerContextRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -36,4 +39,5 @@ public sealed record HarmonizerContextRequest(
     int ContextDaysBefore = ScenarioConstants.BoundaryDays,
     int ContextDaysAfter = ScenarioConstants.BoundaryDays,
     int? Seed = null,
-    bool LoadPlanningRules = true);
+    bool LoadPlanningRules = true,
+    KeywordMode KeywordMode = KeywordMode.Hard);

@@ -88,14 +88,14 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             request.AgentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct, replanFrom);
 
         // C2: union the qualification-ineligible set with availability-ineligible (agent unavailable
-        // during a shift's hours). Availability is the WEAKEST scheduling layer: on any (agent, date)
-        // governed by a Keyword command or a Break, the availability block is dropped so the higher layer
-        // rules the day. Qualification ineligibility is independent and never suppressed.
+        // during a shift's hours). Availability stays hard on keyword days (owner decision 2026-11-05: a wish never
+        // overrides an availability block); only the days of a Break drop it, the break vetoes those days anyway.
+        // Qualification ineligibility is independent and never suppressed.
         var availabilityIneligible = await _availabilityService.GetAsync(
             request.AgentIds, AvailabilitySlotsFromShifts(shifts), ct);
         availabilityIneligible = AvailabilitySuppression.RemoveGovernedDays(
             availabilityIneligible,
-            CollectGovernedDays(periodConstraints.ScheduleCommands, periodConstraints.BreakBlockers));
+            CollectGovernedDays(periodConstraints.BreakBlockers));
         var ineligible = MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
 
         // Boundary context: load the same constraint set for the wider window, then keep only the entries
@@ -166,6 +166,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             SchedulingMaxDailyHours = defaults.MaxDailyHours > 0 ? (double)defaults.MaxDailyHours : WizardSchedulingDefaults.MaxDailyHours,
             SchedulingMaxWeeklyHours = defaults.MaxWeeklyHours > 0 ? (double)defaults.MaxWeeklyHours : WizardSchedulingDefaults.MaxWeeklyHours,
             AnalyseToken = request.AnalyseToken,
+            KeywordMode = request.KeywordMode,
         };
     }
 
@@ -220,19 +221,14 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
     }
 
     /// <summary>
-    /// Collects every (agent, date) ruled by a higher scheduling layer — a Keyword command (FREE / EARLY /
-    /// LATE / NIGHT and their negations) or a Break — so <see cref="AvailabilitySuppression"/> can drop the
-    /// weakest-layer availability blocks on those days. Break ranges are expanded per day.
+    /// Collects every (agent, date) ruled by a Break so <see cref="AvailabilitySuppression"/> can drop the availability
+    /// blocks on those days. Keyword commands are not collected: availability stays hard on keyword days.
+    /// Break ranges are expanded per day.
     /// </summary>
     private static IReadOnlySet<(string AgentId, DateOnly Date)> CollectGovernedDays(
-        IReadOnlyList<CoreScheduleCommand> scheduleCommands,
         IReadOnlyList<CoreBreakBlocker> breakBlockers)
     {
         var governedDays = new HashSet<(string AgentId, DateOnly Date)>();
-        foreach (var command in scheduleCommands)
-        {
-            governedDays.Add((command.AgentId, command.Date));
-        }
         foreach (var blocker in breakBlockers)
         {
             for (var date = blocker.FromInclusive; date <= blocker.UntilInclusive; date = date.AddDays(1))

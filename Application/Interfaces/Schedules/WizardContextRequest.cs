@@ -22,6 +22,7 @@
 /// only plans from this day on. Outside (PeriodFrom, PeriodUntil] the cut freezes nothing and the run
 /// degrades to a full plan. Null = plan the whole period.
 /// </param>
+/// <param name="KeywordMode">Hard (default) vetoes the restricting schedule commands; Soft ranks them as wishes.</param>
 /// <param name="AgentOrderIsUserDefined">
 /// True when <paramref name="AgentIds"/> reflects an individual roster order the user arranged by hand —
 /// that order is then used as the top-down priority order unchanged. False (default) means the order is the
@@ -29,6 +30,7 @@
 /// </param>
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Services.Schedules;
+using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Interfaces.Schedules;
 
@@ -42,4 +44,5 @@ public sealed record WizardContextRequest(
     int ContextDaysBefore = ScenarioConstants.BoundaryDays,
     int ContextDaysAfter = ScenarioConstants.BoundaryDays,
     bool AgentOrderIsUserDefined = false,
-    DateOnly? ReplanFrom = null);
+    DateOnly? ReplanFrom = null,
+    KeywordMode KeywordMode = KeywordMode.Hard);

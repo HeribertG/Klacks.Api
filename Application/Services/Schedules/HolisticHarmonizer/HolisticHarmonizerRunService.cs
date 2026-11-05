@@ -132,5 +132,6 @@ public sealed class HolisticHarmonizerRunService
             LlmModelId: modelId,
             Language: input.Language,
             ContextDaysBefore: input.ContextDaysBefore,
-            ContextDaysAfter: input.ContextDaysAfter);
+            ContextDaysAfter: input.ContextDaysAfter,
+            KeywordMode: input.KeywordMode);
 }

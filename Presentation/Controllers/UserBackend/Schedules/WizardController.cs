@@ -88,7 +88,8 @@ public sealed class WizardController : BaseController
                 AnalyseToken: request.AnalyseToken,
                 TrainingOverrides: request.TrainingOverrides,
                 AgentOrderIsUserDefined: request.AgentOrderIsUserDefined,
-                ReplanFrom: request.ReplanFrom),
+                ReplanFrom: request.ReplanFrom,
+                KeywordMode: request.KeywordMode),
             CancellationToken.None);
 
         return Ok(new StartWizardResponse(jobId));
@@ -148,7 +149,8 @@ public sealed class WizardController : BaseController
                 outcome.CreatedWorkIds,
                 outcome.ComplianceViolations,
                 outcome.SkippedPlacements,
-                outcome.OverrideApplied));
+                outcome.OverrideApplied,
+                outcome.KeywordWishes));
         }
         catch (InvalidOperationException ex)
         {
@@ -173,7 +175,8 @@ public sealed class WizardController : BaseController
                 outcome.CreatedWorkIds,
                 outcome.ComplianceViolations,
                 outcome.SkippedPlacements,
-                outcome.OverrideApplied));
+                outcome.OverrideApplied,
+                outcome.KeywordWishes));
         }
         catch (InvalidOperationException ex)
         {

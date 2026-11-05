@@ -372,7 +372,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 TrainingOverrides: null,
                 ContextDaysBefore: request.ContextDaysBefore,
                 ContextDaysAfter: request.ContextDaysAfter,
-                AgentOrderIsUserDefined: request.AgentOrderIsUserDefined),
+                AgentOrderIsUserDefined: request.AgentOrderIsUserDefined,
+                KeywordMode: request.KeywordMode),
             ct);
 
         await WaitForStageAsync(_wizardRegistry.IsRunning, stageJobId, "Wizard", ct);
@@ -418,7 +419,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 AgentIds: request.AgentIds,
                 AnalyseToken: wizardScenarioToken,
                 ContextDaysBefore: request.ContextDaysBefore,
-                ContextDaysAfter: request.ContextDaysAfter),
+                ContextDaysAfter: request.ContextDaysAfter,
+                KeywordMode: request.KeywordMode),
             ct);
 
         await WaitForStageAsync(_harmonizerRegistry.IsRunning, stageJobId, "Harmonizer", ct);
@@ -503,7 +505,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 AnalyseToken: harmonizerScenarioToken,
                 Language: request.Language,
                 ContextDaysBefore: request.ContextDaysBefore,
-                ContextDaysAfter: request.ContextDaysAfter),
+                ContextDaysAfter: request.ContextDaysAfter,
+                KeywordMode: request.KeywordMode),
             ct);
 
         try

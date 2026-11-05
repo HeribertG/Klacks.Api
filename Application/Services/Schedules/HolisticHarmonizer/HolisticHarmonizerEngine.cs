@@ -121,7 +121,8 @@ public sealed class HolisticHarmonizerEngine
             request.AgentIds,
             request.AnalyseToken,
             request.ContextDaysBefore,
-            request.ContextDaysAfter);
+            request.ContextDaysAfter,
+            KeywordMode: request.KeywordMode);
 
     private static HolisticHarmonizerRunResult BuildPreflightFailedResult(
         HolisticHarmonizerEngineRequest request,

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.Services.Schedules;
+using Klacks.ScheduleOptimizer.Constraints.Keywords;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Models;
 
@@ -9,7 +10,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <summary>
 /// Turns the recognized schedule commands of a Wizard 2 run into its day availability inputs. Several commands of
 /// one (agent, day) restrict cumulatively through <see cref="ScheduleCommandKeywordCombiner"/>, exactly as Wizard 1
-/// reads them; a combination no shift kind satisfies closes the day like FREE. A NotFree-only day restricts nothing.
+/// reads them; a combination no shift kind satisfies closes the day like FREE. A NotFree-only day restricts nothing, but
+/// it is kept as a keyword-wish day (<see cref="KeywordDay"/>) like every other commanded day, for the move guard.
 /// </summary>
 public static class HarmonizerKeywordDayResolver
 {
@@ -21,9 +23,15 @@ public static class HarmonizerKeywordDayResolver
     {
         var freeDates = new HashSet<(Guid AgentId, DateOnly Date)>();
         var restrictions = new Dictionary<(Guid AgentId, DateOnly Date), (CellSymbol? Required, CellSymbol? Forbidden)>();
+        var wishDays = new Dictionary<(Guid AgentId, DateOnly Date), KeywordDay>();
 
         foreach (var day in commands.GroupBy(c => (c.AgentId, c.Date)))
         {
+            if (KeywordDay.From(day.Select(c => c.Keyword)) is { } wishDay)
+            {
+                wishDays[day.Key] = wishDay;
+            }
+
             var combined = ScheduleCommandKeywordCombiner.Combine(day.Select(c => c.Keyword));
             switch (combined)
             {
@@ -51,6 +59,6 @@ public static class HarmonizerKeywordDayResolver
             }
         }
 
-        return new HarmonizerKeywordDays(freeDates, restrictions);
+        return new HarmonizerKeywordDays(freeDates, restrictions, wishDays);
     }
 }

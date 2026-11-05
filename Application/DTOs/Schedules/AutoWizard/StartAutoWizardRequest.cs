@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.Constants;
+using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 
@@ -17,6 +18,8 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// </param>
 /// <param name="ContextDaysAfter">Same as <paramref name="ContextDaysBefore"/>, after <paramref name="PeriodUntil"/>.</param>
 /// <param name="AgentOrderIsUserDefined">True when AgentIds reflects an individual roster order arranged by the user; stage 1 then uses it as the top-down priority order verbatim instead of reshaping by guaranteed hours.</param>
+/// <param name="KeywordMode">Keyword mode of the Wizard and Harmonizer stages; Hard (default) vetoes the restricting
+/// schedule commands, Soft ranks them as wishes.</param>
 public sealed record StartAutoWizardRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -27,4 +30,5 @@ public sealed record StartAutoWizardRequest(
     string? Language,
     int ContextDaysBefore = ScenarioConstants.BoundaryDays,
     int ContextDaysAfter = ScenarioConstants.BoundaryDays,
-    bool AgentOrderIsUserDefined = false);
+    bool AgentOrderIsUserDefined = false,
+    KeywordMode KeywordMode = KeywordMode.Hard);

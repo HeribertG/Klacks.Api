@@ -15,6 +15,7 @@ using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Repositories.Associations;
 using Klacks.Api.Infrastructure.Repositories.Schedules;
+using Klacks.ScheduleOptimizer.Constraints.Keywords;
 using Klacks.ScheduleOptimizer.Constraints.Rules;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Models;
@@ -96,15 +97,14 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
 
         var planningBasis = PlanningContractBasis.Select(agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, membershipWindows);
         var agents = BuildAgents(agentIds, firstDayContracts, planningBasis, periodTargetHours, clients, preferredSymbols, blacklistByAgent);
-        var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions);
+        var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions, keywordDays.Days);
         var agentIdSet = agentIds.ToHashSet();
         var covers = await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
         var correctedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
         var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays, correctedWorkHours);
         var hints = BuildSofteningHints(softenings);
 
-        var ineligible = await BuildIneligibleAsync(
-            agentIds, assignments, works, freeCommandDates, keywordRestrictions, breakDates, ct);
+        var ineligible = await BuildIneligibleAsync(agentIds, assignments, works, breakDates, ct);
 
         var contextDaysBefore = Math.Max(0, request.ContextDaysBefore);
         var contextDaysAfter = Math.Max(0, request.ContextDaysAfter);
@@ -144,15 +144,14 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             boundaryAssignments,
             ineligible,
             restrictedTimeWindows,
-            planningRules);
+            planningRules,
+            request.KeywordMode);
     }
 
     private async Task<IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)>> BuildIneligibleAsync(
         List<Guid> agentIds,
         List<BitmapAssignment> assignments,
         List<Work> works,
-        IReadOnlySet<(Guid AgentId, DateOnly Date)> freeCommandDates,
-        IReadOnlyDictionary<(Guid AgentId, DateOnly Date), (CellSymbol? Required, CellSymbol? Forbidden)> keywordRestrictions,
         IReadOnlySet<(Guid AgentId, DateOnly Date)> breakDates,
         CancellationToken ct)
     {
@@ -174,9 +173,9 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
 
         // C2: union qualification-ineligibility with availability-ineligibility (agent unavailable during
         // a shift's hours). The slots carry the existing works' time windows; any agent could be swapped
-        // onto them, so all are checked. Availability is the WEAKEST scheduling layer: on any (agent, date)
-        // governed by a Keyword command (FREE / OnlyEarly… / NoEarly…) or a Break, the availability block
-        // is dropped so the higher layer rules the day. Qualification ineligibility is never suppressed.
+        // onto them, so all are checked. Availability stays hard on keyword days (owner decision 2026-11-05);
+        // only the days of a Break drop it, the break vetoes those days anyway. Qualification ineligibility is
+        // never suppressed.
         var availabilitySlots = works
             .Select(w => new AvailabilityShiftSlot(w.ShiftId, w.CurrentDate, w.StartTime, w.EndTime))
             .Distinct()
@@ -184,7 +183,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var availabilityIneligible = await _availabilityService.GetAsync(agentIds, availabilitySlots, ct);
         availabilityIneligible = AvailabilitySuppression.RemoveGovernedDays(
             availabilityIneligible,
-            CollectGovernedDays(freeCommandDates, keywordRestrictions.Keys, breakDates));
+            CollectGovernedDays(breakDates));
         return MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
     }
 
@@ -317,11 +316,9 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     }
 
     /// <summary>
-    /// Collects every (agent, date) ruled by a higher scheduling layer so <see cref="AvailabilitySuppression"/>
-    /// can drop the weakest-layer availability blocks on those days. The sources are disjoint by construction:
-    /// closed days (FREE, or directives no shift kind satisfies) arrive via the freeCommandDates set, the remaining
-    /// EARLY/LATE/NIGHT (and negation) restrictions via the keywordRestrictions keys (HarmonizerKeywordDayResolver), and
-    /// breaks via the breakDates set. AgentId is normalised to the ClientId string used by the triples.
+    /// Collects every (agent, date) of a Break so <see cref="AvailabilitySuppression"/> can drop the availability
+    /// blocks on those days. Keyword days are not passed: availability stays hard there. AgentId is normalised to the
+    /// ClientId string used by the triples.
     /// </summary>
     private static IReadOnlySet<(string AgentId, DateOnly Date)> CollectGovernedDays(
         params IEnumerable<(Guid AgentId, DateOnly Date)>[] governedSources)
@@ -628,7 +625,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         IReadOnlyDictionary<(Guid AgentId, DateOnly Date), bool> contractDays,
         IReadOnlySet<(Guid AgentId, DateOnly Date)> freeCommandDates,
         IReadOnlySet<(Guid AgentId, DateOnly Date)> breakDates,
-        IReadOnlyDictionary<(Guid AgentId, DateOnly Date), (CellSymbol? Required, CellSymbol? Forbidden)> keywordRestrictions)
+        IReadOnlyDictionary<(Guid AgentId, DateOnly Date), (CellSymbol? Required, CellSymbol? Forbidden)> keywordRestrictions,
+        IReadOnlyDictionary<(Guid AgentId, DateOnly Date), KeywordDay>? wishDays)
     {
         var result = new Dictionary<(string, DateOnly), DayAvailability>();
         foreach (var agentId in agentIds)
@@ -645,7 +643,13 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                     required = restriction.Required;
                     forbidden = restriction.Forbidden;
                 }
-                result[(agentId.ToString(), date)] = new DayAvailability(worksOnDay, hasFree, hasBreak, required, forbidden);
+                var wishDay = wishDays is not null && wishDays.TryGetValue((agentId, date), out var day) ? day : null;
+                if (wishDay is not null && (hasBreak || !worksOnDay))
+                {
+                    wishDay = wishDay.WithoutPositiveWish();
+                }
+
+                result[(agentId.ToString(), date)] = new DayAvailability(worksOnDay, hasFree, hasBreak, required, forbidden, wishDay);
             }
         }
         return result;

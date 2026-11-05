@@ -17,6 +17,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="PeriodUntil">Last day the planner placed a token on</param>
 /// <param name="ScenarioFrom">First day of the new scenario, widened to the source scenario's range</param>
 /// <param name="ScenarioUntil">Last day of the new scenario, widened to the source scenario's range</param>
+/// <param name="KeywordMode">Keyword mode of the run; Soft writes day-directive conflicts as warnings</param>
 public sealed record WizardScenarioApplyPlan(
     IReadOnlyList<CoreToken> Items,
     Guid? GroupId,
@@ -27,4 +28,5 @@ public sealed record WizardScenarioApplyPlan(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
     DateOnly ScenarioFrom,
-    DateOnly ScenarioUntil);
+    DateOnly ScenarioUntil,
+    KeywordMode KeywordMode = KeywordMode.Hard);

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules.KeywordWishes;
 
 namespace Klacks.Api.Application.DTOs.Schedules.Wizard;
 
@@ -11,8 +12,10 @@ namespace Klacks.Api.Application.DTOs.Schedules.Wizard;
 /// <param name="ComplianceViolations">Warnings plus any Error entry a supervisor override let through.</param>
 /// <param name="SkippedPlacements">Placements the compliance partition blocked.</param>
 /// <param name="OverrideApplied">True when a supervisor override let blocked placements through.</param>
+/// <param name="KeywordWishes">Schedule-command wishes the written plan misses; null when nothing was written.</param>
 public sealed record ApplyWizardResponse(
     IReadOnlyList<Guid> CreatedWorkIds,
     IReadOnlyList<ScheduleValidationNotificationDto> ComplianceViolations,
     IReadOnlyList<SkippedPlacementDto> SkippedPlacements,
-    bool OverrideApplied);
+    bool OverrideApplied,
+    KeywordWishesDto? KeywordWishes = null);

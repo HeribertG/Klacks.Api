@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Shared filter that enforces the scheduling precedence (Break / Keyword over Availability): it removes
-/// availability-ineligible (agent, shift, date) triples on any (agent, date) ruled by a higher layer, so
-/// availability — the weakest layer — never overrides a Break or a Keyword command. Qualification
+/// Shared filter that enforces the scheduling precedence of a Break over Availability: it removes
+/// availability-ineligible (agent, shift, date) triples on any (agent, date) the caller passes (the days of a Break).
+/// Keyword days are not passed since 2026-11-05: availability stays hard there, a keyword is only a wish. Qualification
 /// ineligibility is merged separately by the context builders and must never be passed here.
 /// </summary>
 

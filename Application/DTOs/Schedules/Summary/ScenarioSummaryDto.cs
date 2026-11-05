@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.DTOs.Schedules.KeywordWishes;
+
 namespace Klacks.Api.Application.DTOs.Schedules.Summary;
 
 /// <summary>
@@ -19,6 +21,8 @@ namespace Klacks.Api.Application.DTOs.Schedules.Summary;
 /// <param name="Variants">Coverage per variant (key) the scenario carries, ordered by name; null when the scenario carries
 /// none, or none of their shifts is planned and none holds a copy of a live real order (e.g. after the scenario was
 /// accepted), so a plain scenario keeps its former shape.</param>
+/// <param name="KeywordWishes">Schedule-command wishes the scenario misses for the considered employees (broken FREE /
+/// OnlyX / NoX, unfulfilled -FREE / OnlyX); null only when a caller builds the summary without counting.</param>
 public sealed record ScenarioSummaryDto(
     Guid Token,
     DateOnly FromDate,
@@ -30,7 +34,8 @@ public sealed record ScenarioSummaryDto(
     IReadOnlyList<ScenarioShiftCoverageDto> Shifts,
     IReadOnlyList<ScenarioOpenSlotReasonDto> OpenSlotReasons,
     int ExpensesWithChangedEmployee = 0,
-    IReadOnlyList<ScenarioVariantCoverageDto>? Variants = null)
+    IReadOnlyList<ScenarioVariantCoverageDto>? Variants = null,
+    KeywordWishesDto? KeywordWishes = null)
 {
     public int OpenSlots => DemandedSlots - FilledSlots;
 }
