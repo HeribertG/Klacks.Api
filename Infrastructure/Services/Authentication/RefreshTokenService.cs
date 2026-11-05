@@ -21,7 +21,6 @@ namespace Klacks.Api.Infrastructure.Services.Authentication;
 public class RefreshTokenService : IRefreshTokenService
 {
     private const int MaxRefreshTokensPerUser = 20;
-    private const int AccessTokenLifetimeMinutes = 15;
 
     private readonly DataBaseContext _context;
     private readonly TimeProvider _timeProvider;
@@ -171,6 +170,6 @@ public class RefreshTokenService : IRefreshTokenService
 
     public DateTime CalculateTokenExpiryTime()
     {
-        return UtcNow.AddMinutes(AccessTokenLifetimeMinutes);
+        return UtcNow.Add(AccessTokenLifetime.Duration);
     }
 }

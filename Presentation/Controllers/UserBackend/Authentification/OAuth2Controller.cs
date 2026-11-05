@@ -19,12 +19,14 @@ public class OAuth2Controller : ControllerBase
     private readonly IMediator _mediator;
     private readonly ILogger<OAuth2Controller> _logger;
     private readonly IRefreshTokenCookieService _refreshTokenCookie;
+    private readonly IAccessTokenCookieService _accessTokenCookie;
 
-    public OAuth2Controller(IMediator mediator, ILogger<OAuth2Controller> logger, IRefreshTokenCookieService refreshTokenCookie)
+    public OAuth2Controller(IMediator mediator, ILogger<OAuth2Controller> logger, IRefreshTokenCookieService refreshTokenCookie, IAccessTokenCookieService accessTokenCookie)
     {
         _mediator = mediator;
         _logger = logger;
         _refreshTokenCookie = refreshTokenCookie;
+        _accessTokenCookie = accessTokenCookie;
     }
 
     [AllowAnonymous]
@@ -59,6 +61,7 @@ public class OAuth2Controller : ControllerBase
     {
         var result = await _mediator.Send(new OAuth2CallbackCommand(request));
         _refreshTokenCookie.Write(HttpContext, result.RefreshToken);
+        _accessTokenCookie.Write(HttpContext, result.Token);
         return Ok(result);
     }
 }

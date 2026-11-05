@@ -30,17 +30,20 @@ public class AccountsController : BaseController
     private readonly IMediator _mediator;
     private readonly IUsernameGeneratorService _usernameGeneratorService;
     private readonly IRefreshTokenCookieService _refreshTokenCookie;
+    private readonly IAccessTokenCookieService _accessTokenCookie;
 
     public AccountsController(
         IMediator mediator,
         ILogger<AccountsController> logger,
         IUsernameGeneratorService usernameGeneratorService,
-        IRefreshTokenCookieService refreshTokenCookie)
+        IRefreshTokenCookieService refreshTokenCookie,
+        IAccessTokenCookieService accessTokenCookie)
     {
         _mediator = mediator;
         _logger = logger;
         _usernameGeneratorService = usernameGeneratorService;
         _refreshTokenCookie = refreshTokenCookie;
+        _accessTokenCookie = accessTokenCookie;
     }
 
     [BlockedOnPlayground]
@@ -61,6 +64,7 @@ public class AccountsController : BaseController
 
         var result = await _mediator.Send(new ChangePasswordUserCommand(userId, model));
         _refreshTokenCookie.Write(HttpContext, result.RefreshToken);
+        _accessTokenCookie.Write(HttpContext, result.Token);
 
         return Ok(result);
     }
@@ -156,6 +160,7 @@ public class AccountsController : BaseController
 
         var result = await _mediator.Send(new LoginUserQuery(model.Email, model.Password));
         _refreshTokenCookie.Write(HttpContext, result.RefreshToken);
+        _accessTokenCookie.Write(HttpContext, result.Token);
         return Ok(result);
     }
 
@@ -185,6 +190,7 @@ public class AccountsController : BaseController
         }
 
         _refreshTokenCookie.Write(HttpContext, result.RefreshToken);
+        _accessTokenCookie.Write(HttpContext, result.Token);
         return Ok(result);
     }
 
@@ -200,6 +206,7 @@ public class AccountsController : BaseController
         var refreshToken = _refreshTokenCookie.Read(Request) ?? NullIfEmpty(model?.RefreshToken);
         await _mediator.Send(new LogoutCommand(refreshToken));
         _refreshTokenCookie.Delete(HttpContext);
+        _accessTokenCookie.Delete(HttpContext);
 
         return Ok();
     }
@@ -252,6 +259,7 @@ public class AccountsController : BaseController
         if (result.Success)
         {
             _refreshTokenCookie.Delete(HttpContext);
+            _accessTokenCookie.Delete(HttpContext);
         }
 
         return Ok(result);

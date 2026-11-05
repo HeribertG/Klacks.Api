@@ -9,6 +9,7 @@
 /// <param name="uiRoot">Absolute directory containing index.html of the production UI build</param>
 
 using Klacks.Api.Application.Configuration;
+using Klacks.Api.Application.Constants;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
 
@@ -24,7 +25,7 @@ public static class NativeUiHostingExtensions
     private static readonly string[] ServerOnlyPrefixes =
     [
         "/api",
-        "/hubs",
+        HubRouteConstants.HubPathPrefix,
         "/mcp",
         "/oauth",
         "/.well-known",

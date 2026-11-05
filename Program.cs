@@ -6,7 +6,6 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Validation;
 using Klacks.Api.Data.Seed;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Converters;
 using Klacks.Api.Infrastructure.Exceptions;
@@ -29,6 +28,7 @@ using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Infrastructure.Repositories.Klacksy;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Presentation.Authentication;
 using Klacks.Api.Presentation.Extensions;
 using Klacks.Api.Presentation.Mcp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -110,62 +110,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidAudience = jwtSettings.ValidAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
     };
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var path = context.HttpContext.Request.Path;
-            var accessToken = context.Request.Query["access_token"];
-            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
-
-            var isSttPath = path.StartsWithSegments("/api/backend/assistant/stt/stream");
-            logger.LogDebug("OnMessageReceived: Path={Path}, IsHubPath={IsHubPath}, IsSttPath={IsSttPath}", path.ToString().ForLog(), path.StartsWithSegments("/hubs"), isSttPath);
-
-            if (path.StartsWithSegments("/hubs"))
-            {
-                if (context.HttpContext.Items.TryGetValue("SignalRToken", out var signalRToken) && signalRToken is string tokenFromItems)
-                {
-                    context.Token = tokenFromItems;
-                    logger.LogDebug("Token set from SignalR middleware (length: {TokenLength})", context.Token?.Length);
-                }
-                else if (!string.IsNullOrEmpty(accessToken))
-                {
-                    context.Token = Uri.UnescapeDataString(accessToken.ToString());
-                    logger.LogDebug("Token set from query string (length: {TokenLength})", context.Token?.Length);
-                }
-                else if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
-                {
-                    context.Token = authHeader.Substring("Bearer ".Length).Trim();
-                    logger.LogDebug("Token set from Authorization header (length: {TokenLength})", context.Token?.Length);
-                }
-                else
-                {
-                    logger.LogWarning("No token found for hub path. QueryToken={HasQueryToken}, AuthHeader={HasAuthHeader}",
-                        !string.IsNullOrEmpty(accessToken), !string.IsNullOrEmpty(authHeader));
-                }
-            }
-            else if (isSttPath && !string.IsNullOrEmpty(accessToken))
-            {
-                context.Token = Uri.UnescapeDataString(accessToken.ToString());
-                logger.LogDebug("Token set from query string for STT WebSocket (length: {TokenLength})", context.Token?.Length);
-            }
-            return Task.CompletedTask;
-        },
-        OnAuthenticationFailed = context =>
-        {
-            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
-            logger.LogWarning("Authentication failed: Path={Path}, Error={Error}", context.HttpContext.Request.Path.ToString().ForLog(), context.Exception.Message.ForLog());
-            return Task.CompletedTask;
-        },
-        OnChallenge = context =>
-        {
-            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
-            logger.LogDebug("OnChallenge: Path={Path}, Error={Error}, ErrorDescription={ErrorDescription}",
-                context.HttpContext.Request.Path.ToString().ForLog(), context.Error.ForLog(), context.ErrorDescription.ForLog());
-            return Task.CompletedTask;
-        }
-    };
+    options.EventsType = typeof(KlacksJwtBearerEvents);
 });
 
 builder.Services.AddAuthorization(options => options.AddKlacksPolicies());
@@ -335,7 +280,7 @@ builder.Services.AddHealthChecks()
     .AddCheck<PlatformDependencyHealthCheck>("platform-dependencies", tags: ["deep"]);
 
 builder.Services.AddKlacksRateLimiting();
-builder.Services.AddKlacksRefreshTokenCookie(builder.Configuration);
+builder.Services.AddKlacksSessionCookies(builder.Configuration);
 
 builder.Services.AddPipelineBehavior(typeof(CancellationBehavior<,>));
 builder.Services.AddPipelineBehavior(typeof(ValidationBehavior<,>));
@@ -542,6 +487,10 @@ app.UseNativeUi(NativeUiHostingExtensions.GetUiRoot(builder.Configuration));
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+// Right after UseAuthorization: JwtBearer (and with it the klacks_access cookie fallback) only runs inside the
+// authorization middleware, so only from here on is it known whether the access token came from the cookie.
+app.UseMiddleware<AccessCookieRequestGuardMiddleware>();
 
 // After UseAuthorization: only the authorization middleware establishes the final principal of the /mcp
 // policy schemes (the default authenticate scheme is the Identity cookie), so capping earlier has no effect.

@@ -3,6 +3,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Models.Authentification;
 
 namespace Klacks.Api.Infrastructure.Middleware;
@@ -29,7 +30,7 @@ public class SignalRQueryStringAuthMiddleware
         var path = context.Request.Path;
 
         // Only process SignalR hub requests
-        if (path.StartsWithSegments("/hubs"))
+        if (path.StartsWithSegments(HubRouteConstants.HubPathPrefix))
         {
             var accessToken = context.Request.Query["access_token"].FirstOrDefault();
 
