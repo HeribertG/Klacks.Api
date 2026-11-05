@@ -14,9 +14,10 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// effective contract data. Handles mid-period contract switches by querying the provider per date.
 /// The agent master data comes from the FIRST day inside the period that has an active contract —
 /// a contract starting mid-period must not leave the agent stuck on the contract-less defaults of
-/// day one. Days without an active contract, and days outside the agent's company membership
-/// (Membership.ValidFrom / ValidUntil, inclusive), are marked WorksOnDay=false; agents without any active
-/// contract day inside their membership in the whole period are excluded. An agent without a membership
+/// day one; a member without any active contract day in the period is planned with the settings defaults of its first
+/// member day (small companies keep no contracts). Member days without an active contract use those settings defaults
+/// (their weekday flags); only days outside the agent's company membership (Membership.ValidFrom / ValidUntil,
+/// inclusive) are marked WorksOnDay=false, and an agent without any member day in the period is excluded. An agent without a membership
 /// row is unrestricted, like in the schedule view. When the membership starts or ends inside the target period, the
 /// targets are prorated by member days (<see cref="MembershipTargetProration"/>); MaximumHours is not. The target period
 /// is the pay period the targets refer to (CurrentHours carries the hours before the planning range), so planning only
@@ -48,6 +49,7 @@ public sealed class WizardAgentSnapshotBuilder
     {
         var contractDays = new List<CoreContractDay>();
         var contractBasis = new Dictionary<Guid, EffectiveContractData>();
+        var defaultsBasis = new Dictionary<Guid, EffectiveContractData>();
 
         var contractDataByDate = await _contractProvider.GetEffectiveContractDataForClientsRangeAsync(
             agentIds.ToList(), from, until);
@@ -60,7 +62,7 @@ public sealed class WizardAgentSnapshotBuilder
 
             foreach (var agentId in agentIds)
             {
-                var isMember = !membershipWindows.TryGetValue(agentId, out var window) || window.Contains(date);
+                var isMember = MembershipWindows.IsMemberOn(membershipWindows, agentId, date);
                 if (!perDay.TryGetValue(agentId, out var data))
                 {
                     // Outside the membership the day is explicitly closed: without a contract day the engine would
@@ -78,9 +80,14 @@ public sealed class WizardAgentSnapshotBuilder
                     contractBasis[agentId] = data;
                 }
 
-                // Days before/after the agent's contract or membership are hard non-working days regardless
-                // of the weekday flags — the fallback data must never make them plannable.
-                var worksOnDay = isMember && data.HasActiveContract && GetWorkOnDayFlag(data, date.DayOfWeek);
+                if (isMember && !data.HasActiveContract && !defaultsBasis.ContainsKey(agentId))
+                {
+                    defaultsBasis[agentId] = data;
+                }
+
+                // A member day without an active contract is planned with the settings defaults (small companies
+                // keep no contracts); only days outside the membership are hard non-working days.
+                var worksOnDay = isMember && GetWorkOnDayFlag(data, date.DayOfWeek);
                 contractDays.Add(new CoreContractDay(
                     AgentId: agentId.ToString(),
                     Date: date,
@@ -90,6 +97,11 @@ public sealed class WizardAgentSnapshotBuilder
                     MaximumHoursPerDay: (double)data.MaxDailyHours,
                     ContractId: data.ContractId ?? Guid.Empty));
             }
+        }
+
+        foreach (var (agentId, defaults) in defaultsBasis)
+        {
+            contractBasis.TryAdd(agentId, defaults);
         }
 
         // Preserve the caller's roster order: it is the user's base ordering and downstream

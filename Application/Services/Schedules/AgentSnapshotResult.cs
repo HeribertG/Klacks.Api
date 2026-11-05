@@ -3,8 +3,8 @@
 /// <summary>
 /// Result of <see cref="WizardAgentSnapshotBuilder.BuildAsync"/>.
 /// </summary>
-/// <param name="Agents">One CoreAgent per agent id that has an active contract on at least one day of the period, based on the first active day</param>
-/// <param name="ContractDays">One CoreContractDay per (agent, date) pair within the period; WorksOnDay is false on days without an active contract</param>
+/// <param name="Agents">One CoreAgent per agent id with at least one member day in the period; master data from the first active-contract day, otherwise from the first member day (settings defaults)</param>
+/// <param name="ContractDays">One CoreContractDay per (agent, date) pair within the period; WorksOnDay is false outside the membership; member days without an active contract follow the settings defaults</param>
 using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Services.Schedules;

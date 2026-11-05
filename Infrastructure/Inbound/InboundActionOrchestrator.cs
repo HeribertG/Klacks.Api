@@ -7,13 +7,13 @@
 /// request: FullyAutonomous executes everything; Autonomous executes only the cover-absence scenario
 /// (propose-only by design) and suggests the rest; Assisted/Propose only suggests. The three
 /// schedule-writing actions (FREE commands, EARLY/LATE/NIGHT shift-slot commands, availability
-/// slots) additionally require the employee to hold a zero-hour contract — for guaranteed-hours
-/// contracts they are always suggested, never executed. The shift-slot commands further require a
-/// contract that performs shift work: for a day worker a negative slot command (-EARLY) would
-/// silently block the only slot they can be planned in, so without shift work they are only
-/// suggested, with a pointer to set_client_availability as the likely intended action. Both contract
-/// gates run before the already-planned check because they are the cheaper, more fundamental
-/// tests. The effective level is the MINIMUM over
+/// slots) additionally require zero guaranteed hours in the employee's effective contract data (the
+/// contract or, without one, the settings defaults) — with guaranteed hours they are always suggested,
+/// never executed. The shift-slot commands further require that the same effective data performs
+/// shift work: for a day worker a negative slot command (-EARLY) would silently block the only slot
+/// they can be planned in, so without shift work they are only suggested, with a pointer to
+/// set_client_availability as the likely intended action. Both contract-data gates run before the
+/// already-planned check because they are the cheaper, more fundamental tests. The effective level is the MINIMUM over
 /// all admin users via IAdminAutonomyLevelAggregator (no admins = suggest only), additionally capped
 /// by the global proactive autonomy level (KLACKSY_PROACTIVE_AUTONOMY_LEVEL), so from a global level
 /// below Autonomous nothing here executes automatically no matter what the admins chose. Before any
@@ -70,6 +70,8 @@ public partial class InboundActionOrchestrator : IInboundActionOrchestrator
     private const int MaxSealCheckRangeDays = 92;
     private const double DefaultAbsenceDailyValue = 1.0;
     private const string ScheduleCommandsRangeSkill = "add_schedule_commands_range";
+    private const string ContractDataFromContract = "from the contract";
+    private const string ContractDataFromSettingsDefaults = "from the settings defaults, no contract";
 
     private readonly IAdminAutonomyLevelAggregator _adminAutonomy;
     private readonly ISkillExecutor _skillExecutor;
@@ -573,25 +575,25 @@ public partial class InboundActionOrchestrator : IInboundActionOrchestrator
 
     private static string? DescribeZeroHourContractIssue(EffectiveContractData contract)
     {
-        if (contract.HasActiveContract && contract.GuaranteedHours == 0)
+        if (contract.GuaranteedHours == 0)
         {
             return null;
         }
 
-        return contract.HasActiveContract
-            ? $"The employee has a contract with {contract.GuaranteedHours} guaranteed hours — this action " +
-              "is only executed automatically for zero-hour contracts. "
-            : "The employee has no active contract for the announced period. ";
+        var source = contract.HasActiveContract ? ContractDataFromContract : ContractDataFromSettingsDefaults;
+        return $"The employee has {contract.GuaranteedHours} guaranteed hours ({source}) — this action " +
+               "is only executed automatically for employees with zero guaranteed hours. ";
     }
 
     private static string? DescribeNoShiftWorkContractIssue(EffectiveContractData contract)
     {
-        if (!contract.HasActiveContract || contract.PerformsShiftWork)
+        if (contract.PerformsShiftWork)
         {
             return null;
         }
 
-        return "The employee's contract does not include shift work (early/late/night services), so a " +
+        var source = contract.HasActiveContract ? ContractDataFromContract : ContractDataFromSettingsDefaults;
+        return $"The employee does not perform shift work (early/late/night services; {source}), so a " +
                "shift-slot command would block the only slot a day worker can be planned in — it was not " +
                "placed automatically. If the employee meant a time of day rather than a shift category, " +
                "record it as an availability window via set_client_availability instead. ";

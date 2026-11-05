@@ -2,9 +2,9 @@
 
 /// <summary>
 /// Summarises every planning unit of one analysis so the report can state root causes instead of only
-/// proposals. Scope, uncovered duties (F2), employees without an active contract and the dominant blocking
-/// reason are read from the real memberships before any proposal; globally unfillable duties (F1) and the
-/// capacity shortfalls (F7, which count the proposed changes) are taken from the findings. The dominant
+/// proposals. Scope, uncovered duties (F2), employees without an active contract (informational only: they are
+/// evaluated with the settings defaults like everyone else) and the dominant blocking reason are read from the
+/// real memberships before any proposal; globally unfillable duties (F1) and the capacity shortfalls (F7, which count the proposed changes) are taken from the findings. The dominant
 /// reason is the most frequent per-employee reason among the employees who can take none of the unit's
 /// duties (per employee: the reason blocking most of the unit's duties, a tie going to the lower enum value),
 /// reported only when it covers more than half of the unit's employees. Units are the groups with a direct
@@ -110,11 +110,6 @@ public static class GroupingUnitSummaryBuilder
     private static GroupingIneligibilityReason BlockingReasonOf(
         Guid client, IReadOnlySet<Guid> shifts, IGroupingEligibilityOracle eligibility)
     {
-        if (!eligibility.HasActiveContractInPeriod(client))
-        {
-            return GroupingIneligibilityReason.NoActiveContract;
-        }
-
         return shifts
             .Select(shift => eligibility.Evaluate(client, shift).Reason ?? GroupingIneligibilityReason.NoActiveContract)
             .GroupBy(reason => reason)

@@ -11,4 +11,5 @@ public enum GroupingIneligibilityReason
     MandatoryQualificationLevelTooLow = 4,
     Blacklisted = 5,
     Unavailable = 6,
+    OutsideMembership = 7,
 }

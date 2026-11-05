@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Stable codes naming why a demanded shift slot of a scenario is still open. The UI translates them; the order of
-/// the constants is the order in which the classifier checks them, from the most fundamental cause to the least.
+/// Stable codes naming why a demanded shift slot of a scenario is still open. The UI translates them; apart from
+/// NoActiveContract the order of the constants is the order in which the classifier checks them, from the most
+/// fundamental cause to the least. NoActiveContract is no longer produced by the classifier (employees without a
+/// contract are candidates with the settings defaults); it stays because stored job results and the UI still carry it.
 /// </summary>
 
 namespace Klacks.Api.Application.Constants;

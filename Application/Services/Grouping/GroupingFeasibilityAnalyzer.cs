@@ -3,16 +3,18 @@
 /// <summary>
 /// Runs one grouping feasibility analysis: loads the snapshot, derives the run days of every plannable
 /// shift with the wizard's own shift builder (so analysis and autofill see the same days), loads the
-/// effective contract data for the whole period in one range call, reads the expired-mandatory-blocks
+/// effective contract data for the whole period in one range call, loads the company membership window of every
+/// client (days outside it are ineligible), reads the expired-mandatory-blocks
 /// setting, evaluates eligibility, builds the plan (F1-F6), estimates capacity (F7) and fingerprints the
 /// result. Shifts without a single run day in the period are not analysed; this includes sporadic shifts,
 /// which the shift builder skips because they carry no daily demand and the wizard does not plan them.
 /// Finally every planning unit is summarised (GroupingUnitSummaryBuilder) against the real memberships, so the report can name root causes
-/// such as missing contracts; the duration of that step is logged separately.
+/// such as missing qualifications or weekday flags; the duration of that step is logged separately.
 /// </summary>
 /// <param name="dataSource">Snapshot loader.</param>
 /// <param name="shiftBuilder">Wizard shift expansion (weekday flags and validity, no holiday rule).</param>
 /// <param name="contractProvider">Effective contract data per day and client.</param>
+/// <param name="membershipWindowReader">Company membership window (entry and exit) per client.</param>
 /// <param name="settingsReader">Reads QUALIFICATION_EXPIRED_MANDATORY_BLOCKS.</param>
 /// <param name="companyClock">Company "today" for upcoming works and addresses.</param>
 /// <param name="logger">Duration of the planning-unit summary step.</param>
@@ -38,6 +40,7 @@ public sealed class GroupingFeasibilityAnalyzer : IGroupingFeasibilityAnalyzer
     private readonly IGroupingFeasibilityDataSource _dataSource;
     private readonly IWizardShiftBuilder _shiftBuilder;
     private readonly IClientContractDataProvider _contractProvider;
+    private readonly IMembershipWindowReader _membershipWindowReader;
     private readonly ISettingsReader _settingsReader;
     private readonly ICompanyClock _companyClock;
     private readonly ILogger<GroupingFeasibilityAnalyzer> _logger;
@@ -46,6 +49,7 @@ public sealed class GroupingFeasibilityAnalyzer : IGroupingFeasibilityAnalyzer
         IGroupingFeasibilityDataSource dataSource,
         IWizardShiftBuilder shiftBuilder,
         IClientContractDataProvider contractProvider,
+        IMembershipWindowReader membershipWindowReader,
         ISettingsReader settingsReader,
         ICompanyClock companyClock,
         ILogger<GroupingFeasibilityAnalyzer> logger)
@@ -53,6 +57,7 @@ public sealed class GroupingFeasibilityAnalyzer : IGroupingFeasibilityAnalyzer
         _dataSource = dataSource;
         _shiftBuilder = shiftBuilder;
         _contractProvider = contractProvider;
+        _membershipWindowReader = membershipWindowReader;
         _settingsReader = settingsReader;
         _companyClock = companyClock;
         _logger = logger;
@@ -82,7 +87,8 @@ public sealed class GroupingFeasibilityAnalyzer : IGroupingFeasibilityAnalyzer
             snapshot.Availability
                 .GroupBy(entry => (entry.ClientId, entry.Date))
                 .ToDictionary(group => (group.Key.ClientId, group.Key.Date), group => (IReadOnlyList<ClientAvailability>)group.ToList()),
-            await IsExpiredMandatoryBlockingAsync());
+            await IsExpiredMandatoryBlockingAsync(),
+            await _membershipWindowReader.GetWindowsAsync(clients.Select(client => client.Id).ToList(), cancellationToken));
         var eligibility = new StaticEligibilityEvaluator(context);
 
         var tree = new GroupingGroupTree(snapshot.Groups);

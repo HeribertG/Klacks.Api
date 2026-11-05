@@ -59,6 +59,18 @@ stage three fails, the chain keeps the plan of stage two.
 
 Run one after another, the three form the chain behind the autofill button in the schedule header.
 
+## Who gets planned, and on which days
+
+Every stage plans a person only between their entry and exit date (de: "Eintrittsdatum" /
+"Austrittsdatum"). On those days the working weekdays and the hours aimed for come from the person's
+active contract or, on a day without one, from the company-wide defaults in the settings. The
+shift-work flag from the same source (whether duties other than early ones may go to the person) is applied
+by stage one and by the replacement search, not by stages two and three. An employee without any contract is therefore planned like everyone else; small companies
+often keep no contracts at all. A booked absence, an availability that leaves no usable hours and a
+missing mandatory qualification keep a person off a day. When somebody stays unplanned, check in this
+order: entry and exit dates, the ticked weekdays of the contract or the defaults, availability,
+absences, qualifications.
+
 ## Running one stage alone
 
 Each stage can be started on its own, which is worth knowing:

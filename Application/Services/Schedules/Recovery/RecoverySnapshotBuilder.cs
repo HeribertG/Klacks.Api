@@ -523,8 +523,8 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     /// Builds the per-cell availability. The keyword fields used to stay unset, so a FREE day or an
     /// ONLY-LATE restriction was invisible to recovery and it could offer a replacement the planner would
     /// have been refused - the very rule the wizards enforce. An on-call day without a blocking break is
-    /// open and marked <see cref="DayAvailability.IsOnCall"/>, and it overrides the contract's day-of-week
-    /// calendar for that day only (on-call duty commonly falls on weekends and holidays); a FREE keyword
+    /// open and marked <see cref="DayAvailability.IsOnCall"/>, and it overrides the day-of-week calendar of the
+    /// effective contract data (contract or settings defaults) for that day only (on-call duty commonly falls on weekends and holidays); a FREE keyword
     /// still closes it. A blocking break on the same day wins over the on-call break.
     /// </summary>
     internal static Dictionary<CellKey, DayAvailability> BuildAvailability(
@@ -542,14 +542,13 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             var contract = ContractOf(contracts, id);
             for (var date = windowStart; date <= windowEnd; date = date.AddDays(1))
             {
-                // Intentional, stricter-than-find_replacement gate: an active contract's calendar bars its
-                // off-days (mirroring the Wizard-2 WorksOnDay rule), so recovery will not place a candidate
-                // on a contractual day off. find_replacement has no day-of-week gate; members without an
-                // active contract are not gated here either, matching it for that case.
-                var isMember = membershipWindows is null || !membershipWindows.TryGetValue(id, out var window) || window.Contains(date);
+                // Stricter than find_replacement, which has no day-of-week gate: the weekday flags of the
+                // effective contract data (the contract or, without one, the settings defaults) bar the off-days,
+                // like the wizards, so recovery will not place a candidate on a day off.
+                var isMember = membershipWindows is null || MembershipWindows.IsMemberOn(membershipWindows, id, date);
                 var hasBlockingBreak = breakDays.Blocking.Contains((id, date));
                 var isOnCall = isMember && !hasBlockingBreak && breakDays.OnCall.Contains((id, date));
-                var worksOnDay = isMember && (isOnCall || !contract.HasActiveContract || WorksOnDay(contract, date.DayOfWeek));
+                var worksOnDay = isMember && (isOnCall || WorksOnDay(contract, date.DayOfWeek));
                 var keyword = keywordDays.TryGetValue((id, date), out var found) ? found : (ScheduleCommandKeyword?)null;
 
                 availability[new CellKey(id, date)] = new DayAvailability(

@@ -157,14 +157,14 @@ public class KlacksOntologyService : IKlacksOntologyService
         ],
         ["Membership"] =
         [
-            "Membership.ValidFrom is the planning horizon: a Client is plannable from ValidFrom on, NOT from a contract date (a Client may hold several contracts).",
+            "Membership.ValidFrom..ValidUntil is the employment period (entry/exit) and the planning horizon: plannable only inside it, never bounded by contract dates (a Client may hold several contracts).",
             "Without an active Membership a Client is not plannable."
         ],
         ["Contract"] =
         [
             "Contract carries working conditions and the holiday calendar (Feiertagsregelung) for holiday-work warning and holiday time surcharge.",
             "Contracts apply ONLY to employees (Employee/ExternEmp), assigned via client_contract.",
-            "Without a client_contract the settings default contract is used — acceptable only for simple plans, otherwise discouraged."
+            "A member day without an active client_contract uses the settings defaults and stays plannable — enough for small companies."
         ],
         ["ClientContract"] =
         [

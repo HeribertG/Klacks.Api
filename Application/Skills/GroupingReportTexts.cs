@@ -5,7 +5,8 @@
 /// phrase the report in the user's language without ever seeing or repeating an enum name. The only codes
 /// are the blocking-cause data lines, which carry the reason's meaning next to the code. Per planning unit
 /// the text states the gaps, and whenever a gap needs master data (unfillable duties, capacity shortfalls, a
-/// dominant blocking reason such as missing contracts) it says explicitly that group changes do not fix it.
+/// dominant blocking reason such as a missing qualification) it says explicitly that group changes do not fix it.
+/// Employees without a contract are counted for information only: they are planned with the settings defaults.
 /// </summary>
 /// <param name="view">Report view whose counts, period, per-kind proposal counts, plan code and planning units the summary states.</param>
 /// <param name="recomputed">Report view recomputed after an apply, whose remaining gaps the apply result states.</param>
@@ -21,11 +22,12 @@ internal static class GroupingReportTexts
     public const string NewGroup = "(new group, name still to be chosen)";
 
     public const string MasterDataSentence =
-        " The proposed group changes do NOT resolve duties no employee can take, capacity shortfalls or missing contracts "
-        + "and qualifications; these must be fixed in the master data (contracts, qualifications) before planning can start.";
+        " The proposed group changes do NOT resolve duties no employee can take, capacity shortfalls, weekday or shift-work "
+        + "restrictions or missing qualifications; these must be fixed in the master data (contracts or settings defaults, "
+        + "qualifications) before planning can start.";
     public const string RemainingGapsSentence =
-        " These remaining gaps are not solved by the group changes: they require master-data changes (contracts, qualifications), "
-        + "so do not tell the user that the duties can now be planned.";
+        " These remaining gaps are not solved by the group changes: they require master-data changes "
+        + "(contracts or settings defaults, qualifications), so do not tell the user that the duties can now be planned.";
     public const string NoRemainingGapsSentence =
         " The recomputed check finds no uncovered or unfillable duty and no capacity shortfall in the planning units "
         + "(capacity is checked arithmetically only: hours, rest days and absences are not considered).";
@@ -37,7 +39,8 @@ internal static class GroupingReportTexts
     private const string UnitsNotListedTemplate = " {0} further planning units with gaps are not listed.";
     private const string UnitTemplate =
         " Planning unit \"{0}\": {1} duties analysed, {2} duties nobody in the unit can take with the current group memberships, "
-        + "{3} duties no employee in the company can take; {4} employees in the unit, {5} of them without an active contract in the period.";
+        + "{3} duties no employee in the company can take; {4} employees in the unit, {5} of them without a contract in the period "
+        + "(planned with the settings defaults).";
     private const string UnitCapacityTemplate =
         " Arithmetically too few suitable employees in \"{0}\" (counting the proposed group changes) on {1}.";
     private const string CapacityGapTemplate = "{0} (demand {1}, available {2})";
@@ -75,13 +78,14 @@ internal static class GroupingReportTexts
     public static readonly IReadOnlyDictionary<GroupingIneligibilityReason, string> Reasons =
         new Dictionary<GroupingIneligibilityReason, string>
         {
-            [GroupingIneligibilityReason.NoActiveContract] = "no active contract on the days the duty runs",
-            [GroupingIneligibilityReason.WeekdayNotAllowed] = "the contract does not allow the weekdays on which the duty runs",
+            [GroupingIneligibilityReason.NoActiveContract] = "no contract data (neither a contract nor the settings defaults) on the days the duty runs",
+            [GroupingIneligibilityReason.WeekdayNotAllowed] = "the contract or the settings defaults do not allow the weekdays on which the duty runs",
             [GroupingIneligibilityReason.NotShiftWorker] = "does not do shift work and the duty is not an early duty",
             [GroupingIneligibilityReason.MandatoryQualificationMissing] = "a mandatory qualification is missing or has expired",
             [GroupingIneligibilityReason.MandatoryQualificationLevelTooLow] = "a mandatory qualification is held below the binding minimum level of the duty",
             [GroupingIneligibilityReason.Blacklisted] = "has excluded this duty",
             [GroupingIneligibilityReason.Unavailable] = "marked as unavailable during the duty's hours",
+            [GroupingIneligibilityReason.OutsideMembership] = "not yet employed or no longer employed (outside the entry and exit dates) on the days the duty runs",
         };
 
     public static readonly IReadOnlyDictionary<GroupingProposalKind, string> Actions =

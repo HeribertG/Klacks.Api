@@ -3,8 +3,10 @@
 /// <summary>
 /// Default implementation of <see cref="IScenarioSummaryBuilder"/>. Demand is derived like the wizard derives it: every
 /// planned, non-sporadic shift of the scenario needs Quantity x SumEmployees employees on each weekday it is active.
-/// Filled slots are the scenario works per (shift, day). Each open slot is classified from the contracts of the
-/// employees in the scenario group scope; a scenario without a group falls back to the employees who work in it.
+/// Filled slots are the scenario works per (shift, day). Each open slot is classified from the effective contract data
+/// (contract or settings defaults) of the employees in the scenario group scope who are company members on the slot's
+/// date (MembershipWindowQuery, entry and exit inclusive; no membership row = unrestricted); a scenario without a group
+/// falls back to the employees who work in it.
 /// Clones of variant (key) services are additionally summed per variant (ScenarioSummaryDto.Variants), together with the
 /// orders of the variant that double a live real order after the accept.
 /// </summary>
@@ -23,6 +25,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Repositories.Associations;
 using Klacks.ScheduleOptimizer.TokenEvolution.Initialization;
 using Microsoft.EntityFrameworkCore;
 
@@ -84,7 +87,7 @@ public sealed class ScenarioSummaryBuilder : IScenarioSummaryBuilder
         }
 
         var agentIds = await LoadAgentIdsAsync(scenario.GroupId, token, from, until, ct);
-        var reasons = await ClassifyAsync(openSlots, agentIds, from, until);
+        var reasons = await ClassifyAsync(openSlots, agentIds, from, until, ct);
         var expensesWithChangedEmployee = await CountExpensesWithChangedEmployeeAsync(token, from, until, ct);
         var keysByShift = await ScenarioVariantCoverageCalculator.LoadKeysByShiftAsync(_context, token, shifts, ct);
         var copiedByVariant = await ScenarioVariantCoverageCalculator.LoadCopiedCountsAsync(_context, token, ct);
@@ -184,7 +187,8 @@ public sealed class ScenarioSummaryBuilder : IScenarioSummaryBuilder
         List<(Shift Shift, DateOnly Date, int Open)> openSlots,
         List<Guid> agentIds,
         DateOnly from,
-        DateOnly until)
+        DateOnly until,
+        CancellationToken ct)
     {
         if (openSlots.Count == 0)
         {
@@ -194,13 +198,17 @@ public sealed class ScenarioSummaryBuilder : IScenarioSummaryBuilder
         var contractsByDate = agentIds.Count == 0
             ? new Dictionary<DateOnly, Dictionary<Guid, EffectiveContractData>>()
             : await _contractProvider.GetEffectiveContractDataForClientsRangeAsync(agentIds, from, until);
+        var membershipWindows = await MembershipWindowQuery.LoadAsync(_context, agentIds, ct);
 
         var countByReason = new Dictionary<string, int>();
         var shiftNamesByReason = new Dictionary<string, SortedSet<string>>();
         foreach (var (shift, date, open) in openSlots)
         {
             IReadOnlyCollection<EffectiveContractData> contracts = contractsByDate.TryGetValue(date, out var perDay)
-                ? perDay.Values
+                ? perDay
+                    .Where(entry => MembershipWindows.IsMemberOn(membershipWindows, entry.Key, date))
+                    .Select(entry => entry.Value)
+                    .ToList()
                 : [];
             var isEarly = ShiftTypeInference.FromSpan(shift.StartShift, shift.EndShift) == ShiftTypeInference.EarlyIndex;
             var reason = OpenSlotReasonClassifier.Classify(contracts, date.DayOfWeek, isEarly);

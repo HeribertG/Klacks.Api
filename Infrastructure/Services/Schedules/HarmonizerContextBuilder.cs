@@ -480,7 +480,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             foreach (var agentId in agentIds)
             {
                 // A day outside the company membership is closed like a day without contract (M6).
-                var isMember = !membershipWindows.TryGetValue(agentId, out var window) || window.Contains(date);
+                var isMember = MembershipWindows.IsMemberOn(membershipWindows, agentId, date);
                 if (!isMember || !perDay.TryGetValue(agentId, out var data))
                 {
                     result[(agentId, date)] = false;
@@ -521,8 +521,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             {
                 if (!perDay.TryGetValue(agentId, out var data)
                     || (membershipWindows is not null
-                        && membershipWindows.TryGetValue(agentId, out var window)
-                        && !window.Contains(date)))
+                        && !MembershipWindows.IsMemberOn(membershipWindows, agentId, date)))
                 {
                     continue;
                 }

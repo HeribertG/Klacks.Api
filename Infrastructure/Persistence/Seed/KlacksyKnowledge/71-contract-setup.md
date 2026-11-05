@@ -40,6 +40,8 @@ A new contract is almost never built from nothing: every existing contract is a 
 
 Setting up a contract in Klacks means writing down the working conditions of a kind of employment, for example "part time 80 %, Zurich, shift work". Klacksy does not start from a blank page: it looks for the existing contract that is closest and makes a copy, changing only what is different. It asks only for what you have not said yet, such as the name, the start date and the hours or the workload percent. Before anything is saved you get a confirmation. The new contract is only a template; it applies to a person once it has been given to them in a separate step.
 
+A contract is not required for planning. A person without one works under the company-wide defaults in the settings (weekdays, hours, limits) and is planned by hand and by the autofill like everyone else, between their entry and exit dates. Small companies can work entirely without contracts; suggest contracts once people differ in workload, working weekdays, shift work or time credits.
+
 <!-- level:elements -->
 
 ## Stage 2 — The interview step by step

@@ -53,7 +53,7 @@ just summarized** — it never triggers a planning action, regardless of anythin
 This flow's autonomy mapping is stricter than everyday chat actions; the **effective level is the
 minimum across every admin account** — none set up means suggestion-only.
 
-| Intent | Min. autonomy | High confidence | Zero-hour contract | Blocked by existing shifts | Blocked by sealed period |
+| Intent | Min. autonomy | High confidence | Zero guaranteed hours | Blocked by existing shifts | Blocked by sealed period |
 |---|---|---|---|---|---|
 | Work cancellation (sick) | Autonomous | yes | no | no | **yes** |
 | Vacation request | Fully autonomous | yes | no | **yes** | no |
@@ -63,7 +63,8 @@ minimum across every admin account** — none set up means suggestion-only.
 
 A sickness report is expected in an already-planned period, so it is only refused once that period
 is sealed. The other four are future wishes: they execute only into unplanned periods, and only for
-contracts without guaranteed hours. Everywhere: no identifiable date, a self-contradicting wish
+employees with zero guaranteed hours — taken from their contract, or from the company-wide defaults
+when they have no contract. Everywhere: no identifiable date, a self-contradicting wish
 ("only nights" and "no nights" together), or a very long span (roughly three months+) falls back to
 a suggestion.
 

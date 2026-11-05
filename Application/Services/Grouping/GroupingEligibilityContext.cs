@@ -12,6 +12,7 @@
 /// <param name="Blacklist">(client, shift) pairs the client refuses.</param>
 /// <param name="AvailabilityByClientAndDay">Hourly availability entries per client and day.</param>
 /// <param name="ExpiredMandatoryBlocks">Value of QUALIFICATION_EXPIRED_MANDATORY_BLOCKS.</param>
+/// <param name="MembershipWindows">Company membership window per client (entry and exit, inclusive); a client without an entry is unrestricted.</param>
 
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Models.Associations;
@@ -27,4 +28,5 @@ public sealed record GroupingEligibilityContext(
     IReadOnlyDictionary<Guid, IReadOnlyList<ClientQualification>> QualificationsByClient,
     IReadOnlySet<GroupingEntityPair> Blacklist,
     IReadOnlyDictionary<(Guid ClientId, DateOnly Day), IReadOnlyList<ClientAvailability>> AvailabilityByClientAndDay,
-    bool ExpiredMandatoryBlocks);
+    bool ExpiredMandatoryBlocks,
+    IReadOnlyDictionary<Guid, MembershipWindow> MembershipWindows);
