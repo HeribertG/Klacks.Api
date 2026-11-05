@@ -90,7 +90,7 @@ public class GroupsController : InputBaseController<GroupResource>
         return Ok(movedGroup);
     }
 
-    [HttpGet("refresh")]
+    [HttpPost("refresh")]
     public async Task<ActionResult> Refresh()
     {
         await Mediator.Send(new RefreshTreeCommand());
