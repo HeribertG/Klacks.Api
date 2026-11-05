@@ -254,7 +254,7 @@ public sealed class StaticEligibilityEvaluator : IGroupingEligibilityOracle
 
         foreach (var (shiftId, shift) in _context.Shifts)
         {
-            if (ShiftTypeInference.FromSpan(shift.Start, shift.End) != ShiftTypeInference.EarlyIndex)
+            if (ShiftWorkRule.RequiresShiftWork(ShiftTypeInference.FromSpan(shift.Start, shift.End)))
             {
                 _nonEarlyShifts.Add(shiftId);
             }

@@ -12,7 +12,7 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// <summary>
 /// Builds CoreAgents (one per agent) and CoreContractDays (one per agent-date pair) from
 /// effective contract data. Handles mid-period contract switches by querying the provider per date.
-/// The agent master data comes from the FIRST day inside the period that has an active contract —
+/// The agent master data comes from <see cref="PlanningContractBasis"/>: the FIRST day inside the period that has an active contract —
 /// a contract starting mid-period must not leave the agent stuck on the contract-less defaults of
 /// day one; a member without any active contract day in the period is planned with the settings defaults of its first
 /// member day (small companies keep no contracts). Member days without an active contract use those settings defaults
@@ -48,8 +48,6 @@ public sealed class WizardAgentSnapshotBuilder
         CancellationToken ct)
     {
         var contractDays = new List<CoreContractDay>();
-        var contractBasis = new Dictionary<Guid, EffectiveContractData>();
-        var defaultsBasis = new Dictionary<Guid, EffectiveContractData>();
 
         var contractDataByDate = await _contractProvider.GetEffectiveContractDataForClientsRangeAsync(
             agentIds.ToList(), from, until);
@@ -75,16 +73,6 @@ public sealed class WizardAgentSnapshotBuilder
                     continue;
                 }
 
-                if (isMember && data.HasActiveContract && !contractBasis.ContainsKey(agentId))
-                {
-                    contractBasis[agentId] = data;
-                }
-
-                if (isMember && !data.HasActiveContract && !defaultsBasis.ContainsKey(agentId))
-                {
-                    defaultsBasis[agentId] = data;
-                }
-
                 // A member day without an active contract is planned with the settings defaults (small companies
                 // keep no contracts); only days outside the membership are hard non-working days.
                 var worksOnDay = isMember && GetWorkOnDayFlag(data, date.DayOfWeek);
@@ -99,10 +87,7 @@ public sealed class WizardAgentSnapshotBuilder
             }
         }
 
-        foreach (var (agentId, defaults) in defaultsBasis)
-        {
-            contractBasis.TryAdd(agentId, defaults);
-        }
+        var contractBasis = PlanningContractBasis.Select(agentIds, from, until, contractDataByDate, membershipWindows);
 
         // Preserve the caller's roster order: it is the user's base ordering and downstream
         // consumers (auction IndexBonus, fitness Stage2 decay, repair top-bias) treat the

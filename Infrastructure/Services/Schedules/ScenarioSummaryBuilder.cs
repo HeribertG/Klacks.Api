@@ -210,8 +210,8 @@ public sealed class ScenarioSummaryBuilder : IScenarioSummaryBuilder
                     .Select(entry => entry.Value)
                     .ToList()
                 : [];
-            var isEarly = ShiftTypeInference.FromSpan(shift.StartShift, shift.EndShift) == ShiftTypeInference.EarlyIndex;
-            var reason = OpenSlotReasonClassifier.Classify(contracts, date.DayOfWeek, isEarly);
+            var shiftTypeIndex = ShiftTypeInference.FromSpan(shift.StartShift, shift.EndShift);
+            var reason = OpenSlotReasonClassifier.Classify(contracts, date.DayOfWeek, shiftTypeIndex);
 
             countByReason[reason] = countByReason.GetValueOrDefault(reason) + open;
             if (!shiftNamesByReason.TryGetValue(reason, out var names))

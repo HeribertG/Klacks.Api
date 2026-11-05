@@ -295,7 +295,7 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
         }
 
         var shiftTypeIndex = ShiftTypeInference.FromSpanString(slot.StartTime, slot.EndTime);
-        return shiftTypeIndex == 0 || agentsShiftCapable > 0;
+        return !ShiftWorkRule.RequiresShiftWork(shiftTypeIndex) || agentsShiftCapable > 0;
     }
 
     private static WizardTrainingRun BuildTrainingRun(

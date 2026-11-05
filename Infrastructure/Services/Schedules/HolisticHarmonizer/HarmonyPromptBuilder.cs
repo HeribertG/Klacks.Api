@@ -62,6 +62,7 @@ internal static class HarmonyPromptBuilder
         sb.AppendLine("      a swap that gives a row another working day in a week already at its minimum is rejected");
         sb.AppendLine("- The receiving employee must be available that day, qualified for the shift, not blacklisted for it,");
         sb.AppendLine("  and the day's schedule commands (only/no early, late, night) and restricted time windows must allow it.");
+        sb.AppendLine("- An employee with shiftWork=no may only receive early shifts (E); a step giving such a row L, N or O is rejected.");
         sb.AppendLine("- target is the employee's contractual target scaled to the planned date range, not a monthly figure.");
         sb.AppendLine();
         sb.AppendLine("BATCH SEMANTICS:");
@@ -92,7 +93,7 @@ internal static class HarmonyPromptBuilder
             sb.AppendLine("CANDIDATE MOVES (a list is attached below in the user message):");
             sb.AppendLine("The host has pre-computed a list of structurally promising swaps for the focused");
             sb.AppendLine("intent. Every listed candidate has already passed the hard-constraint validator");
-            sb.AppendLine("as a single swap (locks, bounds, availability, qualification, max-weekly, max-consecutive,");
+            sb.AppendLine("as a single swap (locks, bounds, availability, shift work, qualification, max-weekly, max-consecutive,");
             sb.AppendLine("min-pause, weekly rest days, coverage). Combining several candidates in one batch can still");
             sb.AppendLine("break a limit, because each later step is checked against the plan after the earlier ones.");
             sb.AppendLine();

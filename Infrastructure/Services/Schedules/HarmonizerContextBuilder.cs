@@ -25,7 +25,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 /// <summary>
 /// Loads the saved schedule plus everything the domain-aware validator needs: per-agent
-/// contract caps, the contractual target prorated to the bitmap date range, per-(agent, date) availability (WorksOnDay flag closed outside the company membership, FREE keywords, break
+/// contract caps, the shift-work flag (<see cref="PlanningContractBasis"/>, same choice as Wizard 1), the contractual
+/// target prorated to the bitmap date range, per-(agent, date) availability (WorksOnDay flag closed outside the company membership, FREE keywords, break
 /// blockers), and ClientShiftPreference Blacklist sets handed down the order tree (ShiftPreferenceScopeQuery). Uses the same data sources as
 /// Wizard 1 and the same scenario-isolation semantics for the AnalyseToken.
 /// </summary>
@@ -93,7 +94,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, individualPeriods, membershipWindows);
         var softenings = await _softeningRepository.LoadAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
 
-        var agents = BuildAgents(agentIds, firstDayContracts, periodTargetHours, clients, preferredSymbols, blacklistByAgent);
+        var planningBasis = PlanningContractBasis.Select(agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, membershipWindows);
+        var agents = BuildAgents(agentIds, firstDayContracts, planningBasis, periodTargetHours, clients, preferredSymbols, blacklistByAgent);
         var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions);
         var agentIdSet = agentIds.ToHashSet();
         var covers = await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
@@ -578,9 +580,15 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         _ => false,
     };
 
+    /// <summary>
+    /// The bitmap agents. The caps come from the contract data of the first period day; the shift-work flag comes
+    /// from <paramref name="planningBasis"/> (<see cref="PlanningContractBasis"/>, the same choice as Wizard 1), and an
+    /// employee without any member day with contract data gets no shift work.
+    /// </summary>
     private static List<BitmapAgent> BuildAgents(
         List<Guid> agentIds,
         IReadOnlyDictionary<Guid, EffectiveContractData> contracts,
+        IReadOnlyDictionary<Guid, EffectiveContractData> planningBasis,
         IReadOnlyDictionary<Guid, decimal> periodTargetHours,
         IReadOnlyDictionary<Guid, Client> clients,
         IReadOnlyDictionary<Guid, HashSet<CellSymbol>> preferences,
@@ -607,7 +615,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 MaxConsecutiveDays: maxConsec,
                 MinPauseHours: minPause,
                 BlacklistedShiftIds: blacklist,
-                MinRestDays: (int)Math.Ceiling(minRestDays)));
+                MinRestDays: (int)Math.Ceiling(minRestDays),
+                PerformsShiftWork: planningBasis.TryGetValue(id, out var basis) && basis.PerformsShiftWork));
         }
         return result;
     }

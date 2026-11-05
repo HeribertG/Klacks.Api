@@ -10,6 +10,7 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.ScheduleOptimizer.TokenEvolution.Initialization;
 
 namespace Klacks.Api.Application.Services.Schedules;
 
@@ -20,8 +21,8 @@ public static class OpenSlotReasonClassifier
     /// </summary>
     /// <param name="contractsOnDate">Effective contract data (contract or settings defaults) of every employee in scope who is a member on the slot's date.</param>
     /// <param name="weekday">Weekday of the slot.</param>
-    /// <param name="isEarlyShift">True when the shift is an early shift; only those may go to employees without shift work.</param>
-    public static string Classify(IReadOnlyCollection<EffectiveContractData> contractsOnDate, DayOfWeek weekday, bool isEarlyShift)
+    /// <param name="shiftTypeIndex">Shift type of the slot (ShiftTypeInference); <see cref="ShiftWorkRule"/> decides who may take it.</param>
+    public static string Classify(IReadOnlyCollection<EffectiveContractData> contractsOnDate, DayOfWeek weekday, int shiftTypeIndex)
     {
         if (contractsOnDate.Count == 0)
         {
@@ -34,7 +35,7 @@ public static class OpenSlotReasonClassifier
             return ScenarioSummaryReasonCodes.NoAgentWorksOnWeekday;
         }
 
-        if (!isEarlyShift && working.All(c => !c.PerformsShiftWork))
+        if (!working.Any(c => ShiftWorkRule.Permits(c.PerformsShiftWork, shiftTypeIndex)))
         {
             return ScenarioSummaryReasonCodes.NoAgentPerformsShiftWork;
         }

@@ -53,6 +53,10 @@ public sealed class HolisticHarmonizerEngine
     private const string EmptyLogValue = "-";
     private const string SwapListSeparator = ",";
     private const string SwapLogFormat = "r{0}d{1}<->r{2}d{3}";
+    private const string AgentSummaryFormat =
+        "r{0:D2} {1}: target={2:0.#}h maxWeekly={3}h maxConsec={4} minPause={5}h minRestDaysPerWeek={6} shiftWork={7} preferred=[{8}]";
+    private const string ShiftWorkYes = "yes";
+    private const string ShiftWorkNo = "no";
     private static readonly TimeSpan InnerLoopTimeBudget = TimeSpan.FromSeconds(90);
 
     private readonly IHarmonizerContextBuilder _contextBuilder;
@@ -522,7 +526,7 @@ public sealed class HolisticHarmonizerEngine
             var agent = bitmap.Rows[r];
             var preferred = string.Join(",", agent.PreferredShiftSymbols);
             sb.Append(string.Format(CultureInfo.InvariantCulture,
-                "r{0:D2} {1}: target={2:0.#}h maxWeekly={3}h maxConsec={4} minPause={5}h minRestDaysPerWeek={6} preferred=[{7}]",
+                AgentSummaryFormat,
                 r,
                 agent.DisplayName,
                 agent.TargetHours,
@@ -530,6 +534,7 @@ public sealed class HolisticHarmonizerEngine
                 agent.MaxConsecutiveDays,
                 agent.MinPauseHours,
                 agent.MinRestDays,
+                agent.PerformsShiftWork ? ShiftWorkYes : ShiftWorkNo,
                 preferred));
             sb.AppendLine();
         }
