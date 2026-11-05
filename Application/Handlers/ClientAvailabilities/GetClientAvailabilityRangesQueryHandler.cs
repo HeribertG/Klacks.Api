@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Handler for loading aggregated availability ranges per client and day.
-/// Delegates to the SQL-function-backed schedule service, no own aggregation logic.
+/// Delegates to the SQL-function-backed schedule service, no own aggregation logic; days that carry only
+/// blocked hours (no available hour) are left out, so the result lists available ranges only.
 /// Requested clients outside the caller's group visibility are dropped like unknown ids.
 /// </summary>
 /// <param name="request">Query with date range and client IDs</param>
@@ -43,7 +44,10 @@ public class GetClientAvailabilityRangesQueryHandler : BaseHandler, IRequestHand
             var entries = await _scheduleService.GetClientAvailabilityAsync(
                 request.StartDate, request.EndDate, visibleClientIds, cancellationToken);
 
-            return entries.Select(MapToResource).ToList();
+            return entries
+                .Where(entry => !string.IsNullOrEmpty(entry.AvailabilityRanges))
+                .Select(MapToResource)
+                .ToList();
         }, "GetClientAvailabilityRanges", new { request.StartDate, request.EndDate });
     }
 

@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Upserts hourly availability entries for one or more clients. When any affected client is outside the
-/// caller's group visibility the whole request is refused exactly like an unknown client; nothing is written.
+/// Applies hourly availability entries for one or more clients: IsAvailable true/false upserts the slot, null
+/// removes the stored row of the slot (back to "no entry"); a slot listed twice keeps its last item. When any
+/// affected client, including one that only receives removals, is outside the caller's group visibility the whole
+/// request is refused exactly like an unknown client; nothing is written.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every affected client</param>
 
@@ -10,6 +12,7 @@ using Klacks.Api.Application.Commands.ClientAvailabilities;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.ClientAvailabilities;
@@ -41,11 +44,9 @@ public class BulkUpdateCommandHandler : BaseHandler, IRequestHandler<BulkUpdateC
     {
         return await ExecuteAsync(async () =>
         {
-            var entities = command.Request.Items
-                .Select(_mapper.ToEntity)
-                .ToList();
+            var items = command.Request.Items;
 
-            var clientIds = entities.Select(e => e.ClientId).Distinct().ToList();
+            var clientIds = items.Select(i => i.ClientId).Distinct().ToList();
             var visibleClientIds = await _clientVisibilityGuard.FilterVisibleAsync(
                 clientIds, id => id, cancellationToken);
             var hiddenClientId = clientIds.Except(visibleClientIds).Select(id => (Guid?)id).FirstOrDefault();
@@ -54,10 +55,33 @@ public class BulkUpdateCommandHandler : BaseHandler, IRequestHandler<BulkUpdateC
                 throw new KeyNotFoundException($"Client with ID {hiddenClientId.Value} not found");
             }
 
-            await _repository.BulkUpsert(entities);
+            var lastItemPerSlot = items
+                .GroupBy(i => new ClientAvailabilitySlot(i.ClientId, i.Date, i.Hour))
+                .Select(g => (Slot: g.Key, Item: g.Last()))
+                .ToList();
+
+            var removals = lastItemPerSlot
+                .Where(x => !x.Item.IsAvailable.HasValue)
+                .Select(x => x.Slot)
+                .ToList();
+            var upserts = lastItemPerSlot
+                .Where(x => x.Item.IsAvailable.HasValue)
+                .Select(x => _mapper.ToEntity(x.Item))
+                .ToList();
+
+            if (removals.Count > 0)
+            {
+                await _repository.BulkRemove(removals);
+            }
+
+            if (upserts.Count > 0)
+            {
+                await _repository.BulkUpsert(upserts);
+            }
+
             await _unitOfWork.CompleteAsync();
 
-            return entities.Count;
+            return lastItemPerSlot.Count;
         }, "BulkUpdateClientAvailability", new { Count = command.Request.Items.Count });
     }
 }

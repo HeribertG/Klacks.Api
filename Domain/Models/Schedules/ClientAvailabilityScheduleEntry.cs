@@ -7,4 +7,5 @@ public class ClientAvailabilityScheduleEntry
     public Guid ClientId { get; set; }
     public DateTime AvailabilityDate { get; set; }
     public string AvailabilityRanges { get; set; } = string.Empty;
+    public string BlockedRanges { get; set; } = string.Empty;
 }
