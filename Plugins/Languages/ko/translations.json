@@ -3707,7 +3707,7 @@
   "settings.erp-drop-points.files.toast.completed": "\"{{name}}\" 가져오기 완료: {{summary}}",
   "settings.erp-drop-points.files.toast.completed-with-warnings": "\"{{name}}\" 가져오기 완료, 일부 주문이 거부되었습니다: {{summary}}",
   "settings.erp-drop-points.files.toast.failed": "\"{{name}}\"을(를) 가져올 수 없습니다: {{reason}}",
-  "settings.erp-drop-points.headline": "ERP Drop Points",
+  "settings.erp-drop-points.headline": "ERP 드롭 포인트",
   "settings.erp-drop-points.is-enabled": "가져오기 활성화",
   "settings.erp-drop-points.last-error": "마지막 오류",
   "settings.erp-drop-points.last-polled-at": "마지막 조회",

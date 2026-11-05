@@ -3707,7 +3707,7 @@
   "settings.erp-drop-points.files.toast.completed": "Đã nhập \"{{name}}\": {{summary}}",
   "settings.erp-drop-points.files.toast.completed-with-warnings": "Đã nhập \"{{name}}\", một số đơn hàng bị từ chối: {{summary}}",
   "settings.erp-drop-points.files.toast.failed": "Không thể nhập \"{{name}}\": {{reason}}",
-  "settings.erp-drop-points.headline": "ERP Drop Points",
+  "settings.erp-drop-points.headline": "Điểm nhận ERP",
   "settings.erp-drop-points.is-enabled": "Nhập dữ liệu đang hoạt động",
   "settings.erp-drop-points.last-error": "Lỗi cuối cùng",
   "settings.erp-drop-points.last-polled-at": "Lần truy vấn cuối",

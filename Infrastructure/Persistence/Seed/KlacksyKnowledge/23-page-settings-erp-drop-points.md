@@ -9,7 +9,7 @@ description: |
   (Inbox/Processed/Failed tabs with import progress, per-file summary and status icon, uploader,
   retry and delete) and the ERP push access tokens for
   HTTPS delivery. Also covers the manual/handbook tab with the sample XML download. Use this
-  when the user asks how to set up or use the ERP order import. Supports a level parameter:
+  when the user wants the cards and buttons of this page explained. Supports a level parameter:
   short (purpose only), elements (every card explained), effects (data flow, how orders
   become shifts, how tokens and the drop-zone relate).
 category: Query
@@ -28,10 +28,10 @@ triggerKeywords:
   - import ordner
   - where to put the xml
 synonyms:
-  de: [wie richte ich den erp import ein, was ist ein drop point, bestellungen automatisch importieren, xml datei hochladen erp, erp zugriffstoken, wie funktioniert der bestellungsimport, wo lege ich die xml datei physisch ab, welcher server-ordner fuer den erp import, wie kommen bestellungen aus dem erp nach klacks, welche wege gibt es damit ein erp bestellungen liefert]
-  en: [how do i set up erp import, what is a drop point, automatically import orders, upload xml file erp, erp access token, how does the order import work, which server folder receives the erp xml, how do orders get from the erp into klacks, which ways can an erp deliver orders]
-  fr: [comment configurer l'import erp, qu'est-ce qu'un drop point, importer des commandes automatiquement, jeton d'accès erp, comment les commandes de l'erp arrivent dans klacks]
-  it: [come configuro l'import erp, cos'è un drop point, importare ordini automaticamente, token di accesso erp, come arrivano gli ordini dall'erp in klacks]
+  de: [wie richte ich den erp import ein, was ist ein drop point, bestellungen automatisch importieren, xml datei hochladen erp, erp zugriffstoken, wie funktioniert der bestellungsimport, wo lege ich die xml datei physisch ab, welcher server-ordner fuer den erp import]
+  en: [how do i set up erp import, what is a drop point, automatically import orders, upload xml file erp, erp access token, how does the order import work, which server folder receives the erp xml]
+  fr: [comment configurer l'import erp, qu'est-ce qu'un drop point, importer des commandes automatiquement, jeton d'accès erp]
+  it: [come configuro l'import erp, cos'è un drop point, importare ordini automaticamente, token di accesso erp]
 ---
 
 # ERP-Bestellungsimport — Sektion "Import" in den Einstellungen
@@ -40,7 +40,7 @@ synonyms:
 
 ## Stufe 1 — Wofür ist diese Karte?
 
-Die Karte **ERP Drop Points** (Anker-ID `erp-drop-points`) liegt unter
+Die Karte **ERP-Übergabepunkte** (de; en: "ERP drop points", Anker-ID `erp-drop-points`) liegt unter
 `/workplace/settings` in der Sektion **Import** (de/en: "Import", fr: "Importation",
 it: "Importazione"), zwischen "Externe Dienste" und "Plugins", direkt unter der Karte
 "Mitarbeitende importieren" (`client-import`, siehe `explain_page_import_employees`). Die
@@ -82,7 +82,16 @@ Wege zur Installation passt, steht in Stufe 2 unter "Welcher Weg für welche Ins
 
 ## Stufe 2 — Die Elemente im Detail
 
-Die Karte `app-erp-drop-points` (Kopftitel de: "ERP Drop Points") hat zwei Reiter:
+**Frage "Wie kommen die Bestellungen aus dem ERP nach Klacks?" (oder ähnlich):** Das ist keine Frage nach den
+Karten der Seite. Zuerst den Skill `get_erp_drop_point_settings` aufrufen (er kennt den Ordner dieser Installation),
+dann kurz und vollständig in der Sprache des Nutzers antworten, höchstens sechs Sätze, keine Rundgang-Aufzählung der
+Karten, keine Überschriften: (1) die drei Wege nennen: Ordner-Ablage, HTTPS-Push mit Zugriffstoken, Upload durch einen
+Administrator unter Einstellungen > Import; (2) sagen, welcher Weg zu DIESER Installation passt, mit dem Ordnerpfad;
+(3) darauf hinweisen, dass das Konto, unter dem der ERP-Export läuft, Schreibrecht auf genau diesen Ordner braucht;
+(4) anbieten, Einstellungen > Import zu öffnen. Die Installation als "Windows-Büro-PC" oder "Docker-Server" bezeichnen,
+nicht mit den technischen Wörtern aus den Skill-Daten.
+
+Die Karte `app-erp-drop-points` (Kopftitel de: "ERP-Übergabepunkte") hat zwei Reiter:
 
 ### Reiter "Import" (de: "Import", en: "Import", fr: "Importation", it: "Importazione")
 
@@ -151,8 +160,8 @@ vollständig und minimal).
 ### Welcher Weg für welche Installation
 
 Den Weg und den Pfad nie raten oder aus diesem Text übernehmen: Skill `get_erp_drop_point_settings`
-liefert den aufgelösten Ordnerpfad, die Installationsart (`native` = Büro-PC, `docker`) und die passenden
-Wege in der Reihenfolge ihrer Eignung. Danach anbieten, zur Karte zu navigieren (Seite Einstellungen,
+liefert den aufgelösten Ordnerpfad, die Installationsart (`InstallationLabel`: Windows-Büro-PC oder Docker-Server)
+und die passenden Wege in der Reihenfolge ihrer Eignung. Danach anbieten, zur Karte zu navigieren (Seite Einstellungen,
 Ziel `erp-drop-points`; die Navigation schaltet den Expertenmodus selbst ein).
 
 - **Büro-PC (native Windows-Installation):** die Ordner-Ablage ist der naheliegende Weg. Standardpfad

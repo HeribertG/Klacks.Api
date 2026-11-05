@@ -2,6 +2,9 @@
 
 namespace Klacks.Api.Domain.Constants;
 
+/// <summary>
+/// Canonical names of all Klacksy skills, shared by seeds, routing and tests.
+/// </summary>
 public static class SkillNames
 {
     public const string NavigateTo = "navigate_to";
@@ -19,4 +22,6 @@ public static class SkillNames
     public const string DiagnosePlanningPeriod = "diagnose_planning_period";
     public const string ExplainWhyCannotBook = "explain_why_cannot_book";
     public const string ExplainPageSchedule = "explain_page_schedule";
+    public const string GetErpDropPointSettings = "get_erp_drop_point_settings";
+    public const string ExplainPageSettingsErpDropPoints = "explain_page_settings_erp_drop_points";
 }

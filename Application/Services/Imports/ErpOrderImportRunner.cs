@@ -11,7 +11,8 @@
 /// expired files of every drop point (ErpImportRetentionService: Completed/CompletedWithWarnings files and
 /// soft-deleted rows older than ErpImportFileTiming.RetentionPeriod, bounded per run; Failed/Interrupted rows are
 /// never removed), (2) registers new inbox files of every enabled drop point as Received rows, before anything else is staged
-/// and outside every per-order transaction, and (3) hands
+/// and outside every per-order transaction, records that drop point's poll time (LastPolledAt, own untracked update, a failure
+/// is only logged) and (3) hands
 /// each Received row of every enabled drop point, oldest first, to ErpImportFileImporter, which claims it
 /// through a conditional ledger update (multi-instance safe; a lost claim skips the file), imports it and
 /// finishes the row. Files are never moved by the import: the raw XML stays at its inbox key. Inbox files get
@@ -124,6 +125,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             foreach (var dropPoint in dropPoints)
             {
                 await RegisterInboxFilesAsync(dropPoint, cancellationToken);
+                await MarkPolledAsync(dropPoint, cancellationToken);
             }
 
             var completedFiles = 0;
@@ -267,6 +269,18 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         {
             _unitOfWork.DiscardTrackedChanges();
             _logger.LogError(ex, "ERP import: inbox of drop point {DropPointId} could not be registered; the import continues", dropPoint.Id);
+        }
+    }
+
+    private async Task MarkPolledAsync(ErpDropPoint dropPoint, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _dropPointRepository.MarkPolledAsync(dropPoint.Id, _timeProvider.GetUtcNow().UtcDateTime, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogWarning(ex, "ERP import: the poll time of drop point {DropPointId} could not be recorded; the import continues", dropPoint.Id);
         }
     }
 

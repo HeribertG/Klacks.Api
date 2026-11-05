@@ -3707,7 +3707,7 @@
   "settings.erp-drop-points.files.toast.completed": "\"{{name}}\" tuotu ({{summary}})",
   "settings.erp-drop-points.files.toast.completed-with-warnings": "\"{{name}}\" tuotu, osa tilauksista hylättiin ({{summary}})",
   "settings.erp-drop-points.files.toast.failed": "Tiedostoa \"{{name}}\" ei voitu tuoda: {{reason}}",
-  "settings.erp-drop-points.headline": "ERP Drop Points",
+  "settings.erp-drop-points.headline": "ERP-pudotuspisteet",
   "settings.erp-drop-points.is-enabled": "Tuonti käytössä",
   "settings.erp-drop-points.last-error": "Viimeisin virhe",
   "settings.erp-drop-points.last-polled-at": "Viimeisin kysely",

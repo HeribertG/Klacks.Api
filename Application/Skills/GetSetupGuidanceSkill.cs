@@ -311,7 +311,7 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
         }
 
         var normalizedPrefix = ErpImportStorageKeys.NormalizePrefix(dropPoint.BucketPrefix);
-        var absolutePath = _objectStorageService.ResolvePath(normalizedPrefix);
+        var absolutePath = ErpFolderDisplayPath.WithoutTrailingSeparator(_objectStorageService.ResolvePath(normalizedPrefix));
 
         var cronExpression = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
