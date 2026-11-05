@@ -12,4 +12,5 @@ public class WorkScheduleResponse
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
     public Dictionary<Guid, Dictionary<DateOnly, string>> ClientAvailabilities { get; set; } = new();
+    public Dictionary<Guid, Dictionary<DateOnly, string>> BlockedRanges { get; set; } = new();
 }

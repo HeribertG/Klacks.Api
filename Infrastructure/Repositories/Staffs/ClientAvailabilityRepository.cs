@@ -38,28 +38,79 @@ public class ClientAvailabilityRepository : BaseRepository<ClientAvailability>, 
 
     public async Task BulkUpsert(List<ClientAvailability> items)
     {
+        if (items.Count == 0)
+        {
+            return;
+        }
+
+        var storedBySlot = await LoadStoredRowsIncludingDeleted(
+            items.Select(i => new ClientAvailabilitySlot(i.ClientId, i.Date, i.Hour)).ToList());
+
         foreach (var item in items)
         {
-            var existing = await _context.ClientAvailability
-                .FirstOrDefaultAsync(ca =>
-                    ca.ClientId == item.ClientId &&
-                    ca.Date == item.Date &&
-                    ca.Hour == item.Hour);
-
-            if (existing != null)
+            if (storedBySlot.TryGetValue(new ClientAvailabilitySlot(item.ClientId, item.Date, item.Hour), out var existing))
             {
-                existing.IsAvailable = item.IsAvailable;
-            }
-            else
-            {
-                if (item.Id == Guid.Empty)
+                if (existing.IsDeleted)
                 {
-                    item.Id = Guid.NewGuid();
+                    Restore(existing);
                 }
 
-                await _context.ClientAvailability.AddAsync(item);
+                existing.IsAvailable = item.IsAvailable;
+                continue;
+            }
+
+            if (item.Id == Guid.Empty)
+            {
+                item.Id = Guid.NewGuid();
+            }
+
+            await _context.ClientAvailability.AddAsync(item);
+        }
+    }
+
+    public async Task BulkRemove(IReadOnlyCollection<ClientAvailabilitySlot> slots)
+    {
+        if (slots.Count == 0)
+        {
+            return;
+        }
+
+        var storedBySlot = await LoadStoredRowsIncludingDeleted(slots);
+
+        foreach (var slot in slots)
+        {
+            if (storedBySlot.TryGetValue(slot, out var existing) && !existing.IsDeleted)
+            {
+                _context.ClientAvailability.Remove(existing);
             }
         }
+    }
+
+    private async Task<Dictionary<ClientAvailabilitySlot, ClientAvailability>> LoadStoredRowsIncludingDeleted(
+        IReadOnlyCollection<ClientAvailabilitySlot> slots)
+    {
+        var clientIds = slots.Select(s => s.ClientId).Distinct().ToList();
+        var firstDate = slots.Min(s => s.Date);
+        var lastDate = slots.Max(s => s.Date);
+        var requested = slots.ToHashSet();
+
+        var candidates = await _context.ClientAvailability
+            .IgnoreQueryFilters()
+            .Where(ca => clientIds.Contains(ca.ClientId) && ca.Date >= firstDate && ca.Date <= lastDate)
+            .ToListAsync();
+
+        return candidates
+            .Select(ca => (Slot: new ClientAvailabilitySlot(ca.ClientId, ca.Date, ca.Hour), Row: ca))
+            .Where(x => requested.Contains(x.Slot))
+            .GroupBy(x => x.Slot)
+            .ToDictionary(g => g.Key, g => g.First().Row);
+    }
+
+    private static void Restore(ClientAvailability row)
+    {
+        row.IsDeleted = false;
+        row.DeletedTime = null;
+        row.CurrentUserDeleted = null;
     }
 
     public async Task<List<ClientAvailabilityTotalResource>> GetTotalsByClientsAndDateRange(

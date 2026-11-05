@@ -97,13 +97,8 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
         var availabilityEntries = await _clientAvailabilityScheduleService.GetClientAvailabilityAsync(
             startDate, endDate, clientIds, cancellationToken);
 
-        var clientAvailabilities = availabilityEntries
-            .GroupBy(a => a.ClientId)
-            .ToDictionary(
-                g => g.Key,
-                g => g.ToDictionary(
-                    a => DateOnly.FromDateTime(a.AvailabilityDate),
-                    a => a.AvailabilityRanges));
+        var clientAvailabilities = ToRangesByClientAndDay(availabilityEntries, a => a.AvailabilityRanges);
+        var blockedRanges = ToRangesByClientAndDay(availabilityEntries, a => a.BlockedRanges);
 
         var periodHoursStart = request.Filter.PeriodStartDate ?? startDate;
         var periodHoursEnd = request.Filter.PeriodEndDate ?? endDate;
@@ -129,8 +124,23 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             TotalClientCount = totalClientCount,
             StartDate = startDate,
             EndDate = endDate,
-            ClientAvailabilities = clientAvailabilities
+            ClientAvailabilities = clientAvailabilities,
+            BlockedRanges = blockedRanges
         };
+    }
+
+    internal static Dictionary<Guid, Dictionary<DateOnly, string>> ToRangesByClientAndDay(
+        IEnumerable<ClientAvailabilityScheduleEntry> entries,
+        Func<ClientAvailabilityScheduleEntry, string> rangesSelector)
+    {
+        return entries
+            .Where(a => !string.IsNullOrEmpty(rangesSelector(a)))
+            .GroupBy(a => a.ClientId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.ToDictionary(
+                    a => DateOnly.FromDateTime(a.AvailabilityDate),
+                    rangesSelector));
     }
 
     internal static WorkFilter CreateWorkFilter(

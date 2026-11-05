@@ -12,7 +12,11 @@ public interface IClientAvailabilityRepository : IBaseRepository<ClientAvailabil
 
     Task<List<ClientAvailability>> GetByClientAndDateRange(Guid clientId, DateOnly start, DateOnly end);
 
+    /// <summary>Stages insert or update per slot; a soft-deleted row of the same slot is revived (the slot key is unique).</summary>
     Task BulkUpsert(List<ClientAvailability> items);
+
+    /// <summary>Stages a soft delete of the stored row of each slot; a slot without a row is skipped.</summary>
+    Task BulkRemove(IReadOnlyCollection<ClientAvailabilitySlot> slots);
 
     Task<List<ClientAvailabilityTotalResource>> GetTotalsByClientsAndDateRange(List<Guid> clientIds, DateOnly start, DateOnly end);
 }
