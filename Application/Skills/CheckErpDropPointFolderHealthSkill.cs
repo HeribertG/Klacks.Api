@@ -4,18 +4,18 @@
 /// Verifies that the configured ERP drop point (inbox) folder is reachable and writable, ensures it
 /// exists (created if missing; there are no sub-folders -- files stay in the inbox and their import
 /// state lives in the erp_import_file ledger). On a Docker installation it explains -- transparently, since
-/// this check runs inside the container and cannot see the host's docker-compose.yml -- what is
-/// needed for the folder to survive a container restart; on a native installation the folder is an ordinary
+/// this check runs inside the container and cannot see the host's docker-compose.yml -- the host folder that must be
+/// bound onto the storage root (named when the compose file reports it); on a native installation the folder is an ordinary
 /// folder of the data root and the container remark is left out.
 /// </summary>
 
 using Klacks.Api.Application.Queries.ErpDropPoints;
+using Klacks.Api.Application.Services.Imports;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Imports;
-using Klacks.Api.Domain.Interfaces.Update;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Imports;
-using Klacks.Api.Domain.Models.Update;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Services.Imports;
 using Klacks.Api.Infrastructure.Mediator;
@@ -25,23 +25,23 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("check_erp_drop_point_folder_health")]
 public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
 {
-    private const string VolumeExample = "api-erp-import:/app/ErpImport";
+    private const string HostFolderMountExample = "${KLACKS_ERP_IMPORT_HOST_DIR:-./erp-import}:/app/ErpImport";
     private const string ServerComposeFileName = "docker-compose-server.yml";
     private const string OnPremComposeFileName = "deploy/onprem/docker-compose.yml";
     private const string LocalComposeFileName = "Klacks.Api/docker-compose.yml";
 
     private readonly IMediator _mediator;
     private readonly IObjectStorageService _objectStorageService;
-    private readonly IInstallationIdentityProvider _installationIdentityProvider;
+    private readonly ErpDropFolderResolver _folderResolver;
 
     public CheckErpDropPointFolderHealthSkill(
         IMediator mediator,
         IObjectStorageService objectStorageService,
-        IInstallationIdentityProvider installationIdentityProvider)
+        ErpDropFolderResolver folderResolver)
     {
         _mediator = mediator;
         _objectStorageService = objectStorageService;
-        _installationIdentityProvider = installationIdentityProvider;
+        _folderResolver = folderResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -56,7 +56,8 @@ public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
         }
 
         var normalizedPrefix = ErpImportStorageKeys.NormalizePrefix(dropPoint.BucketPrefix);
-        var dropPointPath = _objectStorageService.ResolvePath(normalizedPrefix);
+        var folder = _folderResolver.Resolve(dropPoint.BucketPrefix);
+        var dropPointPath = folder.FolderPath;
         var requiredPrefixes = new[] { normalizedPrefix };
 
         var health = await _objectStorageService.CheckHealthAsync(requiredPrefixes, cancellationToken);
@@ -66,6 +67,7 @@ public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
         {
             health.RootPath,
             DropPointPath = dropPointPath,
+            folder.HostFolderPath,
             health.RootDirectoryExisted,
             health.RootDirectoryReady,
             health.IsWritable,
@@ -74,11 +76,12 @@ public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
             IsHealthy = isHealthy,
         };
 
-        return SkillResult.SuccessResult(data, BuildMessage(health, dropPointPath, _installationIdentityProvider.Get().Kind));
+        return SkillResult.SuccessResult(data, BuildMessage(health, folder));
     }
 
-    private static string BuildMessage(ObjectStorageHealthResult health, string dropPointPath, InstallationKind installationKind)
+    private static string BuildMessage(ObjectStorageHealthResult health, ErpDropFolder folder)
     {
+        var dropPointPath = folder.FolderPath;
         if (!health.RootDirectoryReady)
         {
             return $"Drop point folder '{dropPointPath}' does not exist and could not be created. " +
@@ -109,19 +112,22 @@ public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
             "their import state is tracked per file (use get_erp_import_status)." +
             justCreatedWarning;
 
-        if (installationKind == InstallationKind.Native)
+        if (folder.Guidance.Installation == ErpHandoverInstallations.Native)
         {
             return baseMessage +
                    " This check only proves that Klacks itself can write there; the account the ERP export runs under " +
                    "needs its own write access to exactly this folder (get_erp_drop_point_settings explains how).";
         }
 
-        return baseMessage +
-               " This check runs inside the running container and cannot inspect the host's docker-compose.yml volume " +
-               $"configuration. For files to survive a container restart, RootPath must be mounted as a named volume " +
-               $"in docker-compose.yml -- example: `{VolumeExample}`. The production compose files " +
-               $"({ServerComposeFileName}, {OnPremComposeFileName}) already configure this correctly; only the simple " +
-               $"local {LocalComposeFileName} (not for production use) has no volume for it. An ERP on the host can only " +
-               "write into the folder if a host folder is mounted onto it.";
+        var hostFolder = folder.HostFolderPath == null
+            ? " This installation does not report which host folder is mounted there (ErpObjectStorage__HostPathHint is not set)."
+            : $" On the host this is the folder '{folder.HostFolderPath}'.";
+
+        return baseMessage + hostFolder +
+               " This check runs inside the running container and cannot inspect the host's docker-compose.yml. For files to " +
+               "survive a container restart and for an ERP on the host to reach them, a host folder must be bound onto the " +
+               $"storage root -- the standard compose files ({ServerComposeFileName}, {OnPremComposeFileName}) bind " +
+               $"`{HostFolderMountExample}`; only the simple local {LocalComposeFileName} (not for production use) has no " +
+               "mount for it. The account the ERP export runs under needs write access to exactly that host folder.";
     }
 }

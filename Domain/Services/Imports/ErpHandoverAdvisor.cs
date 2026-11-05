@@ -3,12 +3,14 @@
 /// <summary>
 /// Decides which hand-over channels fit an installation. A native installation (office PC) keeps its data folder
 /// readable and writable for SYSTEM and Administrators only, so an ERP export needs an explicit grant on exactly the
-/// drop point folder. A Docker installation keeps the folder inside the container (named volume), out of reach for an
-/// ERP on the host unless a host folder is mounted. Docker cannot tell an own server from one hosted by the vendor, so
-/// the advice names both cases.
+/// drop point folder. A Docker installation binds a host folder onto the storage root (standard compose files:
+/// ./erp-import next to docker-compose.yml). When the compose file reports that host folder, the advice names it and
+/// the folder drop comes first; otherwise the advice names the container path and asks to check the mount. Docker
+/// cannot tell an own server from one hosted by the vendor, so the Docker advice names both cases.
 /// </summary>
 /// <param name="identity">Installation kind and runtime identifier of the running process</param>
-/// <param name="folderPath">Absolute drop point folder as the Klacks server sees it</param>
+/// <param name="folderPath">Absolute drop point folder as the Klacks server sees it (inside the container on Docker)</param>
+/// <param name="hostFolderPath">Docker only: the same folder as seen on the host, null when the compose file does not report it</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Imports;
@@ -18,19 +20,25 @@ namespace Klacks.Api.Domain.Services.Imports;
 
 public static class ErpHandoverAdvisor
 {
-    private const string NativeInstallation = "native";
-    private const string DockerInstallation = "docker";
     private const string WindowsRuntimePrefix = "win";
     private const string DockerMountPoint = "/app/ErpImport";
-    private const string DockerVolumeName = "api-erp-import";
+    private const string DefaultHostFolder = "./erp-import";
+    private const string HostFolderVariable = "KLACKS_ERP_IMPORT_HOST_DIR";
     private const string ImportSettingsPage = "Settings > Import (expert mode, administrators)";
     private const string TokenSentence = "an ERP import token created on that page (tokens exist only there)";
+    private const string VendorHostedSentence =
+        "If the vendor hosts this installation there is no access to server folders at all: use the push token or the upload.";
 
-    public static ErpHandoverGuidance Advise(InstallationIdentity identity, string folderPath)
+    public static ErpHandoverGuidance Advise(InstallationIdentity identity, string folderPath, string? hostFolderPath = null)
     {
-        return identity.Kind == InstallationKind.Native
-            ? AdviseNative(identity, folderPath)
-            : AdviseDocker(folderPath);
+        if (identity.Kind == InstallationKind.Native)
+        {
+            return AdviseNative(identity, folderPath);
+        }
+
+        return string.IsNullOrWhiteSpace(hostFolderPath)
+            ? AdviseDockerWithoutHostFolder(folderPath)
+            : AdviseDockerWithHostFolder(folderPath, hostFolderPath);
     }
 
     private static ErpHandoverGuidance AdviseNative(InstallationIdentity identity, string folderPath)
@@ -49,23 +57,41 @@ public static class ErpHandoverAdvisor
             $"over HTTPS with {TokenSentence}.";
 
         return new ErpHandoverGuidance(
-            NativeInstallation,
+            ErpHandoverInstallations.Native,
             [ErpHandoverChannels.FolderDrop, ErpHandoverChannels.HttpsPush, ErpHandoverChannels.AdminUpload],
             ErpFolderDropRequirements.GrantWriteAccessOnFolder,
             advice);
     }
 
-    private static ErpHandoverGuidance AdviseDocker(string folderPath)
+    private static ErpHandoverGuidance AdviseDockerWithHostFolder(string folderPath, string hostFolderPath)
     {
         var advice =
-            $"Docker installation. The folder '{folderPath}' lies inside the Klacks container (named volume {DockerVolumeName} " +
-            $"on {DockerMountPoint}), so an ERP running on the host or elsewhere cannot write into it unless an administrator " +
-            $"mounts a host folder onto {DockerMountPoint} in the compose file. On an own server: mount a host folder, or let " +
-            $"the ERP push over HTTPS with {TokenSentence}, or upload on {ImportSettingsPage}. If the vendor hosts this " +
-            "installation there is no access to server folders at all: use the push token or the upload.";
+            $"Docker installation. The drop point folder is the server (host) folder '{hostFolderPath}'; inside the Klacks " +
+            $"container it appears as '{folderPath}'. An ERP running on the server writes its XML files into the host folder; " +
+            "an administrator must make sure the account the ERP export runs under can write into exactly that folder " +
+            "(Klacks itself writes there as the container user appuser). " +
+            $"Alternatives: the ERP pushes over HTTPS with {TokenSentence}, or an administrator uploads on {ImportSettingsPage}. " +
+            VendorHostedSentence;
 
         return new ErpHandoverGuidance(
-            DockerInstallation,
+            ErpHandoverInstallations.Docker,
+            [ErpHandoverChannels.FolderDrop, ErpHandoverChannels.HttpsPush, ErpHandoverChannels.AdminUpload],
+            ErpFolderDropRequirements.GrantWriteAccessOnHostFolder,
+            advice);
+    }
+
+    private static ErpHandoverGuidance AdviseDockerWithoutHostFolder(string folderPath)
+    {
+        var advice =
+            $"Docker installation. The folder '{folderPath}' is the path inside the Klacks container; this installation does " +
+            $"not report which server (host) folder is mounted onto {DockerMountPoint}. The standard compose files bind the " +
+            $"host folder {DefaultHostFolder} next to docker-compose.yml (overridable with {HostFolderVariable}); an ERP on " +
+            $"the server can only write into the drop point folder through such a mounted host folder. On an own server: check " +
+            $"the mount in the compose file, or let the ERP push over HTTPS with {TokenSentence}, or upload on " +
+            $"{ImportSettingsPage}. {VendorHostedSentence}";
+
+        return new ErpHandoverGuidance(
+            ErpHandoverInstallations.Docker,
             [ErpHandoverChannels.HttpsPush, ErpHandoverChannels.AdminUpload, ErpHandoverChannels.FolderDrop],
             ErpFolderDropRequirements.MountHostFolder,
             advice);

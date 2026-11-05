@@ -127,6 +127,11 @@ services:
       - GeoServices__OpenRouteService__BaseUrl=${GEO_OPENROUTESERVICE_BASE_URL:-}
       - GeoServices__MapTiles__UrlTemplate=${GEO_MAP_TILE_URL_TEMPLATE:-}
       - GeoServices__MapTiles__Attribution=${GEO_MAP_TILE_ATTRIBUTION:-}
+      # Host folder of the ERP drop point as Klacks shows it to administrators (Settings > Import). Only a
+      # display hint: compose does not resolve relative paths in environment values, so it defaults to
+      # KLACKS_INSTALL_DIR/erp-import (set by install.sh/install.ps1). Set KLACKS_ERP_IMPORT_HOST_PATH to the
+      # same absolute path whenever KLACKS_ERP_IMPORT_HOST_DIR moves the folder.
+      - ErpObjectStorage__HostPathHint=${KLACKS_ERP_IMPORT_HOST_PATH:-${KLACKS_INSTALL_DIR:+${KLACKS_INSTALL_DIR}/erp-import}}
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
@@ -134,7 +139,11 @@ services:
       # Without it every recreate (auto-update) re-downloads embedder + reranker (~800 MB) from
       # Hugging Face.
       - api-models:/app/Cache/Models
-      - api-erp-import:/app/ErpImport
+      # ERP drop point folder: a normal folder on the server (default ./erp-import next to this file), so
+      # an ERP on the server writes its XML files straight into it. Keep the default relative path on
+      # Windows hosts: klacks-updater runs compose from its Linux container and cannot resolve a Windows
+      # path. Ownership and the write access of the ERP account: see README.md, "ERP order import".
+      - ${KLACKS_ERP_IMPORT_HOST_DIR:-./erp-import}:/app/ErpImport
       - api-payroll-exports:/app/PayrollExports
       - ./regions:/app/regions:ro
     depends_on:
@@ -350,8 +359,6 @@ volumes:
   api-dataprotection:
     driver: local
   api-models:
-    driver: local
-  api-erp-import:
     driver: local
   api-payroll-exports:
     driver: local

@@ -23,6 +23,13 @@ public class FileSystemObjectStorageService : IObjectStorageService
     private const string HealthCheckMarkerFileName = ".klacksy-health-check";
     private const char KeySeparator = '/';
 
+    private static readonly EnumerationOptions RecursiveWithoutLinks = new()
+    {
+        RecurseSubdirectories = true,
+        AttributesToSkip = FileAttributes.ReparsePoint,
+        IgnoreInaccessible = false,
+    };
+
     private readonly string _rootPath;
 
     public FileSystemObjectStorageService(IOptions<ErpObjectStorageOptions> options)
@@ -196,7 +203,7 @@ public class FileSystemObjectStorageService : IObjectStorageService
         }
 
         var cutoff = DateTime.UtcNow - ErpImportStorageTiming.WriteStabilityWindow;
-        foreach (var path in Directory.EnumerateFiles(_rootPath, "*", SearchOption.AllDirectories))
+        foreach (var path in Directory.EnumerateFiles(_rootPath, "*", RecursiveWithoutLinks))
         {
             if (path.EndsWith(UploadTempSuffix, StringComparison.Ordinal) || (onlyStable && File.GetLastWriteTimeUtc(path) > cutoff))
             {

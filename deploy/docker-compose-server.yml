@@ -194,12 +194,18 @@ services:
       # up. Zero is the documented off switch (KnowledgeIndexConstants.IdleUnloadDisabled); the
       # five-minute lower bound applies only to values above zero.
       - KnowledgeIndex__IdleUnloadMinutes=0
+      # Host folder of the ERP drop point as Klacks shows it to administrators. Deliberately empty here:
+      # on the vendor-hosted servers customers cannot reach server folders, so Klacks shows the container
+      # path and recommends push or upload. Set it only on a server where an ERP really writes into the folder.
+      - ErpObjectStorage__HostPathHint=${KLACKS_ERP_IMPORT_HOST_PATH:-}
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
       - api-dataprotection:/app/DataProtection-Keys
       - api-models:/app/Cache/Models
-      - api-erp-import:/app/ErpImport
+      # ERP drop point folder as a normal host folder (default /root/apps/erp-import); Docker creates it as
+      # root on first start and deploy/entrypoint.sh hands it to appuser without touching its contents.
+      - ${KLACKS_ERP_IMPORT_HOST_DIR:-./erp-import}:/app/ErpImport
       - api-payroll-exports:/app/PayrollExports
       - ./regions:/app/regions:ro
     depends_on:
@@ -679,8 +685,6 @@ volumes:
   api-dataprotection:
     driver: local
   api-models:
-    driver: local
-  api-erp-import:
     driver: local
   api-payroll-exports:
     driver: local

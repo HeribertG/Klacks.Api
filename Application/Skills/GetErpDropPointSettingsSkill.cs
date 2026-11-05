@@ -3,10 +3,11 @@
 /// <summary>
 /// Reads the default ERP drop point via GetDefaultQuery: name, source system, bucket prefix, whether
 /// it is switched on, when it was last polled and the last error it reported -- plus the resolved
-/// absolute on-disk folder path files must be copied to, and the import's poll schedule. Files stay in
+/// absolute on-disk folder path files must be copied to (on Docker also the host folder bound onto it, when the compose
+/// file reports it), and the import's poll schedule. Files stay in
 /// that folder after their import (no sub-folders); their state lives in the erp_import_file ledger and is
 /// reported by get_erp_import_status. The path is resolved through the same object storage
-/// resolver the runner and the folder-health check use, so the answer always matches reality. The result also
+/// resolver the runner and the folder-health check use (ErpDropFolderResolver, shared with the Import settings card). The result also
 /// carries the installation kind (native or docker) and the hand-over channels that fit it, so the assistant
 /// advises how an ERP gets files to Klacks without guessing: ErpHandoverAdvisor decides, the skill only reports.
 /// </summary>
@@ -15,9 +16,7 @@ using Klacks.Api.Application.Queries.ErpDropPoints;
 using Klacks.Api.Application.Services.Imports;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Interfaces.Imports;
 using Klacks.Api.Domain.Interfaces.Settings;
-using Klacks.Api.Domain.Interfaces.Update;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Services.Imports;
@@ -30,29 +29,26 @@ namespace Klacks.Api.Application.Skills;
 public class GetErpDropPointSettingsSkill : BaseSkillImplementation
 {
     private readonly IMediator _mediator;
-    private readonly IObjectStorageService _objectStorageService;
     private readonly ISettingsReader _settingsReader;
     private readonly ICompanyClock _companyClock;
     private readonly ILogger<GetErpDropPointSettingsSkill> _logger;
     private readonly ErpCronTimeZoneDriftNotifier _driftNotifier;
-    private readonly IInstallationIdentityProvider _installationIdentityProvider;
+    private readonly ErpDropFolderResolver _folderResolver;
 
     public GetErpDropPointSettingsSkill(
         IMediator mediator,
-        IObjectStorageService objectStorageService,
         ISettingsReader settingsReader,
         ICompanyClock companyClock,
         ILogger<GetErpDropPointSettingsSkill> logger,
         ErpCronTimeZoneDriftNotifier driftNotifier,
-        IInstallationIdentityProvider installationIdentityProvider)
+        ErpDropFolderResolver folderResolver)
     {
         _mediator = mediator;
-        _objectStorageService = objectStorageService;
         _settingsReader = settingsReader;
         _logger = logger;
         _driftNotifier = driftNotifier;
         _companyClock = companyClock;
-        _installationIdentityProvider = installationIdentityProvider;
+        _folderResolver = folderResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -67,14 +63,14 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
             return SkillResult.Error("No default drop point is configured.");
         }
 
-        var normalizedPrefix = ErpImportStorageKeys.NormalizePrefix(dropPoint.BucketPrefix);
-        var absolutePath = _objectStorageService.ResolvePath(normalizedPrefix);
+        var folder = _folderResolver.Resolve(dropPoint.BucketPrefix);
+        var absolutePath = folder.FolderPath;
 
         var cronExpression = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
         var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, _logger, _driftNotifier, cancellationToken);
 
-        var guidance = ErpHandoverAdvisor.Advise(_installationIdentityProvider.Get(), absolutePath);
+        var guidance = folder.Guidance;
         var stabilitySeconds = (int)ErpImportStorageTiming.WriteStabilityWindow.TotalSeconds;
 
         var data = new
@@ -87,6 +83,7 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
             dropPoint.LastPolledAt,
             dropPoint.LastError,
             AbsolutePath = absolutePath,
+            folder.HostFolderPath,
             CronExpression = cronExpression,
             TimeZone = timeZoneId,
             guidance.Installation,

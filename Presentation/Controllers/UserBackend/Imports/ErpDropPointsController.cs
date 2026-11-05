@@ -41,6 +41,13 @@ public class ErpDropPointsController : BaseController
         return await _mediator.Send(new GetDefaultQuery());
     }
 
+    [HttpGet("default/folder")]
+    public async Task<ActionResult<ErpDropFolderResource>> GetDefaultErpDropPointFolder(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("[ERP-DROP-POINT-API] GET ErpDropPoints/default/folder");
+        return await _mediator.Send(new GetDefaultFolderQuery(), cancellationToken);
+    }
+
     [HttpGet("files")]
     public async Task<ActionResult<ErpDropPointFilesResource>> GetDefaultErpDropPointFiles(CancellationToken cancellationToken)
     {

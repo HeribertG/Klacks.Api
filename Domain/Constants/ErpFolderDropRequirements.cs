@@ -8,5 +8,6 @@ namespace Klacks.Api.Domain.Constants;
 public static class ErpFolderDropRequirements
 {
     public const string GrantWriteAccessOnFolder = "grant_write_access_on_folder";
+    public const string GrantWriteAccessOnHostFolder = "grant_write_access_on_host_folder";
     public const string MountHostFolder = "mount_host_folder";
 }

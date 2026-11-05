@@ -43524,7 +43524,7 @@
     {
       "name": "get_erp_drop_point_settings",
       "area": "settings",
-      "description": "Shows where an outside system hands its files in: the name of that handover point, which system delivers there, the resolved absolute folder path on disk files must be copied to (files stay there; their import state is tracked per file), whether pickup happens at all, the poll schedule, when it last looked and what went wrong the last time. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows where an outside system hands its files in: the name of that handover point, which system delivers there, the resolved absolute folder path on disk files must be copied to, on Docker also the host folder (files stay there; their import state is tracked per file), whether pickup happens at all, the poll schedule, when it last looked and what went wrong the last time. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -43593,7 +43593,7 @@
         "fr": "Paramètres du point de dépôt ERP",
         "it": "Impostazioni del punto di consegna ERP"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "update_erp_drop_point_settings",
@@ -52055,7 +52055,7 @@
     {
       "name": "check_erp_drop_point_folder_health",
       "area": "settings",
-      "description": "Checks whether the ERP drop point's configured folder actually exists and is writable, creating it if it is missing. Reports write errors and reminds that persistence across a container restart depends on the folder being mounted as a docker volume. Use when order files silently fail to be picked up or before trusting a freshly configured handover point.",
+      "description": "Checks whether the ERP drop point's configured folder actually exists and is writable, creating it if it is missing. Reports write errors and, on Docker, the host folder bound onto it, which keeps the files across a container restart and is where an ERP on the server writes. Use when order files silently fail to be picked up or before trusting a freshly configured handover point.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -52127,7 +52127,7 @@
         "fr": "Vérifier l'état du dossier de dépôt ERP",
         "it": "Verifica lo stato della cartella di consegna ERP"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_plugin_architecture",

@@ -39,6 +39,7 @@ public static class ErpImportServiceCollectionExtensions
         services.AddScoped<OrderSupersessionService>();
         services.AddScoped<ImportedOrderProcessor>();
         services.AddScoped<IErpDefaultDropPointProvider, ErpDefaultDropPointProvider>();
+        services.AddScoped<ErpDropFolderResolver>();
         services.AddScoped<IErpImportExceptionRepository, Repositories.Imports.ErpImportExceptionRepository>();
         services.AddScoped<IErpImportFileRepository, Repositories.Imports.ErpImportFileRepository>();
         services.AddSingleton<ErpImportInstanceIdentity>();

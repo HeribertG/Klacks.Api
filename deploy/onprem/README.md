@@ -42,25 +42,48 @@ list of supported country codes.
 mail/SMTP settings in the admin UI.
 
 ## ERP order import drop point
-Order XML files can be picked up automatically from a folder inside the `klacks-api`
-container, without going through the UI. The folder is a named Docker volume
-(`api-erp-import:/app/ErpImport`) so it survives container restarts and updates. Ask
-Klacksy (`get_erp_drop_point_settings`) for the exact resolved path, or use the default:
-```bash
-docker exec klacks-api mkdir -p /app/ErpImport/erp/orders
-docker cp order.xml klacks-api:/app/ErpImport/erp/orders/order.xml
-```
-The `mkdir -p` step is only needed once — the sub-folder does not exist until either this
-command, an upload through the settings UI, or `check_erp_drop_point_folder_health`
-creates it. The file is picked up at the next scheduled run (hourly by default; ask
+Order XML files can be picked up automatically from a folder, without going through the UI.
+The folder is a normal folder on the server: `erp-import` next to `docker-compose.yml`
+(bound onto `/app/ErpImport` in the `klacks-api` container), so an ERP running on the
+server writes straight into it and the files survive container restarts and updates.
+The drop point itself is the sub-folder `erp-import/erp/orders`; Settings > Import (expert
+mode) shows its full path with a copy button, Klacksy (`get_erp_drop_point_settings`)
+names it as well. The file is picked up at the next scheduled run (hourly by default; ask
 Klacksy to trigger one immediately with `trigger_erp_import_run`). The file stays in
 the folder; its import state (waiting, importing, processed, failed) is tracked per file
-and shown in Settings > Import (expert mode).
+and shown in Settings > Import.
 
-The named volume lives inside Docker, so an ERP running on the host cannot write into it
-unless you mount a host folder onto `/app/ErpImport` in the compose file. Without a
-mount, let the ERP push over HTTPS with an ERP import token (created in Settings >
-Import) or upload the file there.
+**Another location:** set `KLACKS_ERP_IMPORT_HOST_DIR` in `.env` to an absolute Linux path
+(e.g. `/srv/erp-import`) and `KLACKS_ERP_IMPORT_HOST_PATH` to the same value, so Settings >
+Import shows the right path. On Windows keep the default: the auto-updater runs compose from
+a Linux container and cannot resolve a Windows path.
+
+**Write access for the ERP (Linux):** Docker creates the folder as `root` on the first start;
+the API then hands the top folder to its container user `appuser` (non-recursive, mode 2770, no access for other host users); a folder you prepared yourself (other owner or group) is left untouched
+and never changes the ownership of the files inside. Give the account the ERP export runs
+under write access through a shared group, for example:
+```bash
+docker compose exec klacks-api id -u appuser      # numeric uid of appuser in the image
+sudo mkdir -p erp-import/erp/orders
+sudo chown -R <uid>:<erp-group> erp-import
+sudo chmod -R g+rwX,o-rwx erp-import              # group-writable, closed to other users
+sudo find erp-import -type d -exec chmod g+s {} +  # new folders keep the group
+```
+Without an ERP on the server, let the ERP push over HTTPS with an ERP import token (created
+in Settings > Import) or upload the file there.
+
+**Upgrading from a named volume:** installations set up before this change kept the folder in
+the Docker volume `<project>_api-erp-import`. The compose file of a current bundle no longer
+mounts it, so copy its contents into the new folder once, then remove the old volume:
+```bash
+docker volume ls --filter name=api-erp-import      # e.g. klacks_api-erp-import
+docker compose stop klacks-api
+docker run --rm -v klacks_api-erp-import:/from -v "$(pwd)/erp-import":/to alpine cp -a /from/. /to/
+docker compose up -d klacks-api
+docker volume rm klacks_api-erp-import             # only after Settings > Import shows the files
+```
+On Windows (PowerShell) use `-v "${PWD}\erp-import:/to"`. Skipping the copy loses no orders
+already imported, but files still waiting in the old volume are not picked up.
 
 ## Geo services and privacy
 Out of the box, maps, address geocoding and routing use public services: Nominatim

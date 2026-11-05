@@ -97,6 +97,12 @@ Vier auf-/zuklappbare Karten:
      Drop-Point ein/aus — deaktiviert werden keine Dateien mehr abgeholt.
    - **Status-Zeile**: "Letzte Abfrage" (`last-polled-at`, oder "Noch nie abgefragt")
      und, falls vorhanden, "Letzter Fehler" (`last-error`) in Rot.
+   - **Ordner für ERP-Dateien** (`erp-drop-points-folder-path`, nur lesbar, Monospace): der Ordner, in den
+     das ERP seine XML-Dateien schreibt - Büro-PC: der Windows-Pfad; Docker: der Server-Ordner, falls die
+     Installation ihn meldet (darunter der Pfad im Container), sonst der Container-Pfad. Knopf
+     **Pfad kopieren** (`erp-drop-points-copy-path-btn`) legt ihn in die Zwischenablage; darunter ein
+     Einzeiler, was das ERP-Konto braucht (Schreibrecht auf genau diesen Ordner bzw. eingebundener
+     Server-Ordner). Gleiche Quelle wie der Skill `get_erp_drop_point_settings`.
    - **Jetzt importieren** (`erp-drop-points-run-import-btn`): löst sofort einen
      Import-Lauf aus, statt auf den nächsten Zeitplan-Tick zu warten (Skill
      `trigger_erp_import_run`).
@@ -156,10 +162,13 @@ Ziel `erp-drop-points`; die Navigation schaltet den Expertenmodus selbst ein).
   Konto das Recht "Ändern" (Modify) genau auf den Ordner `erp\orders` gibt - nicht auf den ganzen Ordner
   `ProgramData\Klacks`. Fehlt der Ordner noch, legt ihn der erste Importlauf bzw.
   `check_erp_drop_point_folder_health` an.
-- **Eigener Docker-Server:** der Ordner (`/app/ErpImport/erp/orders`) liegt im Container in einem benannten
-  Volume (`api-erp-import`); ein ERP auf dem Host-Rechner erreicht ihn nicht. Entweder bindet der
-  Administrator in der Compose-Datei einen Host-Ordner nach `/app/ErpImport` ein, oder das ERP liefert per
-  Push mit Token, oder ein Administrator lädt manuell hoch.
+- **Eigener Docker-Server:** der Ordner ist ein normaler Ordner des Servers: die Compose-Datei bindet
+  `erp-import` neben `docker-compose.yml` (änderbar über `KLACKS_ERP_IMPORT_HOST_DIR`) nach `/app/ErpImport`;
+  im Container heisst der Ablageordner `/app/ErpImport/erp/orders`. Meldet die Installation den Server-Pfad
+  (`ErpObjectStorage__HostPathHint`, setzt der Installer), liefert der Skill ihn als `HostFolderPath` und die
+  Karte zeigt ihn mit Kopier-Knopf; das ERP-Konto braucht Schreibrecht auf genau diesen Ordner. Fehlt der
+  Hinweis, zeigt die Karte den Container-Pfad. Alternativ Push mit Token oder manueller Upload. Ältere
+  Installationen hatten ein benanntes Volume (`api-erp-import`); das Umkopieren beschreibt das On-Prem-README.
 - **Von uns gehostete Installation:** kein Zugriff auf Ordner des Servers - Push mit Token oder manueller
   Upload. Eine gehostete Installation ist technisch nicht von einem eigenen Docker-Server zu unterscheiden:
   im Zweifel fragen, wer den Server betreibt.
