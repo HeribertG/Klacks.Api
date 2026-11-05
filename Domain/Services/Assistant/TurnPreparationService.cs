@@ -76,7 +76,10 @@ public class TurnPreparationService : ITurnPreparationService
         var cutContinuation = force ? ResolveCutContinuation(request.Context, request.ConversationId, redeemedSkill) : null;
 
         return new TurnPreparation(
-            plan, force, confirmFunction, note ?? BuildRecipeDeniedNote(plan, request.Context.RecipeDenial), cutContinuation);
+            plan, force, confirmFunction,
+            note ?? BuildRecipeDeniedNote(plan, request.Context.RecipeDenial)
+                ?? MailApplyTurnProbe.NoteFor(_lastActionStore, request.Context, request.ConversationId, plan, _logger),
+            cutContinuation);
     }
 
     /// <summary>
@@ -314,6 +317,14 @@ public class TurnPreparationService : ITurnPreparationService
         {
             _logger.LogInformation(
                 "Recipe matching skipped for this turn: the message redeems an outstanding confirmation");
+            return null;
+        }
+
+        // A request to enter what the e-mails contain is served by the entry skills the toolset guarantees for the same
+        // decision (MailApplyGuarantee); a guided recipe would ask for data the conversation already holds (live 2026-11-04).
+        if (MailApplyTurnProbe.IsMailApplyTurn(_lastActionStore, userGuid, conversationId, context.Message, _logger))
+        {
+            _logger.LogInformation("Fresh recipe matching skipped for this turn: the message asks to enter the contents of e-mails");
             return null;
         }
 

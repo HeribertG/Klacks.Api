@@ -7,7 +7,10 @@
 /// list of single days or a date range, plus an optional hour window (defaults to the whole day).
 /// The write is verified by re-reading the affected range and recounting the persisted slots.
 /// </summary>
-/// <param name="clientId">UUID of the client (required).</param>
+/// <param name="clientId">UUID of the client; optional when firstName and lastName name the person.</param>
+/// <param name="firstName">Optional first name of the person, used together with lastName when no clientId is known.</param>
+/// <param name="lastName">Optional last name of the person; several people with the same name are reported with their client numbers.</param>
+/// <param name="idNumber">Optional client number that picks one person when first and last name match several.</param>
 /// <param name="dates">Optional comma-separated single days in ISO yyyy-MM-dd; takes precedence over startDate/endDate.</param>
 /// <param name="startDate">Range start in ISO yyyy-MM-dd (required when 'dates' is not given).</param>
 /// <param name="endDate">Optional range end in ISO yyyy-MM-dd; defaults to startDate.</param>
@@ -36,11 +39,22 @@ public class SetClientAvailabilitySkill : BaseSkillImplementation
 
     private readonly IMediator _mediator;
     private readonly IClientAvailabilityRepository _availabilityRepository;
+    private readonly IClientRepository _clientRepository;
+    private readonly IClientSearchRepository _clientSearchRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
-    public SetClientAvailabilitySkill(IMediator mediator, IClientAvailabilityRepository availabilityRepository)
+    public SetClientAvailabilitySkill(
+        IMediator mediator,
+        IClientAvailabilityRepository availabilityRepository,
+        IClientRepository clientRepository,
+        IClientSearchRepository clientSearchRepository,
+        IClientVisibilityGuard clientVisibilityGuard)
     {
         _mediator = mediator;
         _availabilityRepository = availabilityRepository;
+        _clientRepository = clientRepository;
+        _clientSearchRepository = clientSearchRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -48,7 +62,6 @@ public class SetClientAvailabilitySkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var clientId = GetRequiredGuid(parameters, "clientId");
         var isAvailable = GetParameter<bool?>(parameters, "isAvailable")
             ?? throw new ArgumentException("Required parameter 'isAvailable' is missing");
         var startHour = GetParameter<int?>(parameters, "startHour") ?? MinHour;
@@ -103,6 +116,20 @@ public class SetClientAvailabilitySkill : BaseSkillImplementation
         {
             return SkillResult.Error("No valid days supplied — provide 'dates' or 'startDate'/'endDate'.");
         }
+
+        var (resolvedClientId, clientError) = await ClientResolver.ResolveIdByIdOrNameAsync(
+            _clientSearchRepository, _clientRepository, _clientVisibilityGuard,
+            GetParameter<string>(parameters, ClientResolver.ClientIdParameterName),
+            GetParameter<string>(parameters, ClientResolver.FirstNameParameterName),
+            GetParameter<string>(parameters, ClientResolver.LastNameParameterName),
+            GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName),
+            cancellationToken);
+        if (resolvedClientId == null)
+        {
+            return SkillResult.Error(clientError!);
+        }
+
+        var clientId = resolvedClientId.Value;
 
         var items = days
             .SelectMany(day => Enumerable.Range(startHour, endHour - startHour + 1)

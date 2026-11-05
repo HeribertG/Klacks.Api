@@ -4886,7 +4886,7 @@
     {
       "name": "open_schedule",
       "area": "schedule",
-      "description": "Open the schedule (Dienstplan / Einsatzplan / shift planner) page, optionally filtered to a group, scoped to one person (clientId or first and last name) and opened on the week or month of a given date. Pass groupName whenever the user just edited a person that was added to a group, so the right team is shown. A person scope replaces the group filter. If the group cannot be resolved, the schedule opens without a group filter rather than failing.",
+      "description": "Open the schedule (Dienstplan / Einsatzplan / shift planner), optionally filtered to a group, scoped to one person (clientId or first and last name) and on the week or month of a date. Pass groupName when the user just edited a person added to a group. A person scope replaces the group filter; an unresolved group opens without a filter. showAvailability / showCommands switch on the availabilities and the planning commands (keywords) in the opened schedule.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -4937,6 +4937,22 @@
           "name": "idNumber",
           "description": "Optional client number that picks one person when first and last name match several.",
           "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "showAvailability",
+          "description": "Optional. true switches on the availability overlay of the schedule, so the availabilities of the employees are visible in the opened period.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "showCommands",
+          "description": "Optional. true shows the planning commands (keywords such as FREE, EARLY, LATE, NIGHT) in the cells of the opened schedule.",
+          "type": "Boolean",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -5010,7 +5026,7 @@
         "fr": "Ouvrir le planning",
         "it": "Apri il planning"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "search_and_navigate",
@@ -14708,7 +14724,7 @@
     {
       "name": "add_schedule_command",
       "area": "schedule",
-      "description": "Places a key command (default tokens FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT — admins can rename these in Settings; the skill accepts whichever tokens are currently configured and its error message lists the exact live set) on a client/date. These are seeds the wizards must respect — e.g. Use when the user says: 'Yasmine am 15.05. frei', 'Coline muss am 11.05. Früh arbeiten', 'set free day', 'lock early'.",
+      "description": "Places a key command (default tokens FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT — admins can rename these in Settings; the skill accepts whichever tokens are currently configured and its error message lists the exact live set) on a client/date. These are seeds the wizards must respect — e.g. Use when the user says: 'Yasmine am 15.05. frei', 'Coline muss am 11.05. Früh arbeiten', 'set free day', 'lock early'. Several wishes: one call each, all in the SAME batch of tool calls.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14717,9 +14733,33 @@
       "parameters": [
         {
           "name": "clientId",
-          "description": "UUID of the client.",
+          "description": "UUID of the client (not the client number). Optional when firstName and lastName name the person.",
           "type": "String",
-          "required": true,
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "Optional first name of the person, used together with lastName when no clientId is known. Prefer the name over a lookup: pass it directly.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Optional last name of the person. Several people with the same name are reported with their client numbers instead of one being picked.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Optional client NUMBER (not the UUID) that picks one person when first and last name match several.",
+          "type": "Integer",
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
@@ -14816,7 +14856,7 @@
         "fr": "Définir une consigne de planification pour un jour",
         "it": "Imposta un vincolo di pianificazione per un giorno"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "list_scenarios",
@@ -25594,7 +25634,7 @@
     {
       "name": "set_client_availability",
       "area": "availability",
-      "description": "Sets a client's availability (available/unavailable) per day and hour; the backend upserts on (clientId, date, hour) and the skill verifies the written slots by re-reading them. IMPORTANT semantics: availability is opt-in PER DATE — a day without records is fully open; as soon as a day has at least one available-hour record, ONLY those hours are usable for planning.",
+      "description": "Sets a client's availability (available/unavailable) per day and hour; the backend upserts on (clientId, date, hour) and the skill verifies the written slots by re-reading them. IMPORTANT semantics: availability is opt-in PER DATE — a day without records is fully open; as soon as a day has at least one available-hour record, ONLY those hours are usable for planning. Several people or periods: one call each, all in the SAME batch of tool calls (the same skill cannot run again in a later round).",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -25603,9 +25643,33 @@
       "parameters": [
         {
           "name": "clientId",
-          "description": "UUID of the client.",
+          "description": "UUID of the client (not the client number). Optional when firstName and lastName name the person.",
           "type": "String",
-          "required": true,
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "Optional first name of the person, used together with lastName when no clientId is known. Prefer the name over a lookup: pass it directly.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Optional last name of the person. Several people with the same name are reported with their client numbers instead of one being picked.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Optional client NUMBER (not the UUID) that picks one person when first and last name match several.",
+          "type": "Integer",
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
@@ -25643,7 +25707,7 @@
         },
         {
           "name": "endHour",
-          "description": "Optional last hour of day (0-23, inclusive); defaults to 23.",
+          "description": "Optional last hour slot of the day (0-23, INCLUSIVE): the slot of that hour is written too. A window from 7 to 15 o clock is startHour 7, endHour 14. Defaults to 23.",
           "type": "Integer",
           "required": false,
           "defaultValue": 23,
@@ -25712,7 +25776,7 @@
         "fr": "Définir la disponibilité d'un employé",
         "it": "Imposta la disponibilità di un dipendente"
       },
-      "version": 7
+      "version": 9
     },
     {
       "name": "list_expenses",
@@ -34755,7 +34819,7 @@
     {
       "name": "add_schedule_commands_range",
       "area": "schedule",
-      "description": "Places the same key command (default tokens FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT — admins can rename these in Settings; the skill accepts whichever tokens are currently configured and its error message lists the exact live set) on a client for EVERY day of a date range — the range variant of add_schedule_command (max 92 days, existing identical commands are skipped). Use for period wishes: 'Yasmine vom 10.-20.5. frei', 'keep the first week of June free', 'nur Frühdienst im Juli'.",
+      "description": "Places the same key command (default tokens FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT — admins can rename these in Settings; the skill accepts whichever tokens are currently configured and its error message lists the exact live set) on a client for EVERY day of a date range — the range variant of add_schedule_command (max 92 days, duplicates skipped). Use for period wishes: 'Yasmine vom 10.-20.5. frei', 'keep the first week of June free', 'nur Frühdienst im Juli'.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34764,9 +34828,33 @@
       "parameters": [
         {
           "name": "clientId",
-          "description": "UUID of the client.",
+          "description": "UUID of the client (not the client number). Optional when firstName and lastName name the person.",
           "type": "String",
-          "required": true,
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "Optional first name of the person, used together with lastName when no clientId is known. Prefer the name over a lookup: pass it directly.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Optional last name of the person. Several people with the same name are reported with their client numbers instead of one being picked.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Optional client NUMBER (not the UUID) that picks one person when first and last name match several.",
+          "type": "Integer",
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
@@ -34874,7 +34962,7 @@
         "fr": "Définir une consigne de planification pour une période",
         "it": "Imposta un vincolo di pianificazione per un periodo"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "update_break_placeholder",

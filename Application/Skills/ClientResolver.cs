@@ -31,6 +31,9 @@ namespace Klacks.Api.Application.Skills;
 internal static class ClientResolver
 {
     public const string IdNumberParameterName = "idNumber";
+    public const string ClientIdParameterName = "clientId";
+    public const string FirstNameParameterName = "firstName";
+    public const string LastNameParameterName = "lastName";
 
     private const int SearchResultLimit = 10;
     private const int StrictSearchResultLimit = 100;
@@ -142,6 +145,46 @@ internal static class ClientResolver
 
         var client = await LoadVisibleByIdAsync(clientRepository, visibilityGuard, clientId, cancellationToken);
         return client == null ? (null, $"Client {clientId} not found.") : (client, null);
+    }
+
+    /// <summary>
+    /// Resolves the id of the client a write skill names, either by a client UUID or by first/last name (optionally with the
+    /// visible client number). A UUID is only checked for existence and visibility, without loading the client; a
+    /// name goes through the strict resolution, so a write never runs on a name the user did not say. A client number
+    /// passed as clientId is refused with a message that names the number parameter, because the model confuses the two.
+    /// </summary>
+    /// <param name="clientIdRaw">Client UUID as the model supplied it; when present the names are ignored</param>
+    /// <param name="firstName">First name as the caller supplied it</param>
+    /// <param name="lastName">Last name as the caller supplied it</param>
+    /// <param name="idNumber">Visible client number that disambiguates duplicate names</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    public static async Task<(Guid? ClientId, string? Error)> ResolveIdByIdOrNameAsync(
+        IClientSearchRepository searchRepository,
+        IClientRepository clientRepository,
+        IClientVisibilityGuard visibilityGuard,
+        string? clientIdRaw,
+        string? firstName,
+        string? lastName,
+        int? idNumber,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(clientIdRaw))
+        {
+            var (client, error) = await ResolveByNameAsync(
+                searchRepository, clientRepository, firstName, lastName, idNumber, cancellationToken);
+            return client == null ? (null, error) : (client.Id, null);
+        }
+
+        if (!Guid.TryParse(clientIdRaw, out var clientId))
+        {
+            return (null,
+                $"Invalid client id '{clientIdRaw}'. Expected a UUID; a client number belongs in '{IdNumberParameterName}'. " +
+                "Give the first and last name instead.");
+        }
+
+        return await ExistsVisibleAsync(clientRepository, visibilityGuard, clientId, cancellationToken)
+            ? (clientId, null)
+            : (null, $"Client {clientId} not found.");
     }
 
     /// <summary>

@@ -12,6 +12,9 @@
 /// A client hidden from the caller by group visibility is answered like an unknown client. The page narrows the
 /// schedule to a person through the client's ID number, so a client without one opens the schedule unfiltered and
 /// the answer says so.
+/// showAvailability and showCommands switch on the availability overlay and the planning commands (keywords) of the
+/// schedule through the showAvailability / showCommands query parameters, the same switches as the two buttons of the
+/// schedule header; they travel with every route the skill builds.
 /// </summary>
 /// <param name="groupSearchRepository">Resolves group name to id via the same search index used elsewhere</param>
 /// <param name="clientRepository">Loads the client behind a clientId or a resolved name</param>
@@ -40,6 +43,9 @@ public class OpenScheduleSkill : BaseSkillImplementation
     private const string GroupIdQueryParam = "groupId";
     private const string ClientIdQueryParam = "clientId";
     private const string DateQueryParam = "date";
+    private const string ShowAvailabilityParam = "showAvailability";
+    private const string ShowCommandsParam = "showCommands";
+    private const string DisplayOnValue = "true";
     private const int GroupSearchLimit = 10;
 
     private readonly IGroupSearchRepository _groupSearchRepository;
@@ -78,6 +84,7 @@ public class OpenScheduleSkill : BaseSkillImplementation
         }
 
         var dateText = date?.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture);
+        var displays = ReadDisplays(parameters);
 
         var (client, clientError) = await ResolveClientAsync(parameters, cancellationToken);
         if (clientError != null)
@@ -88,14 +95,14 @@ public class OpenScheduleSkill : BaseSkillImplementation
         if (client != null)
         {
             return client.IdNumber > 0
-                ? OpenForClient(client, dateText)
-                : OpenWithoutPersonFilter(client, dateText);
+                ? OpenForClient(client, dateText, displays)
+                : OpenWithoutPersonFilter(client, dateText, displays);
         }
 
         var groupName = GetParameter<string>(parameters, "groupName");
         if (string.IsNullOrWhiteSpace(groupName))
         {
-            return OpenWithoutGroup(dateText, "Open schedule");
+            return OpenWithoutGroup(dateText, displays, "Open schedule");
         }
 
         var result = await _groupSearchRepository.SearchAsync(
@@ -106,7 +113,7 @@ public class OpenScheduleSkill : BaseSkillImplementation
         if (result.TotalCount == 0)
         {
             return OpenWithoutGroup(
-                dateText, $"No group found matching '{groupName}'. Opening schedule without group filter.");
+                dateText, displays, $"No group found matching '{groupName}'. Opening schedule without group filter.");
         }
 
         var exactMatches = result.Items
@@ -129,11 +136,11 @@ public class OpenScheduleSkill : BaseSkillImplementation
         }
 
         var group = exactMatches.Count == 1 ? exactMatches[0] : result.Items.First();
-        var route = BuildRoute((GroupIdQueryParam, group.Id.ToString()), (DateQueryParam, dateText));
+        var route = BuildRoute(displays, (GroupIdQueryParam, group.Id.ToString()), (DateQueryParam, dateText));
 
         return SkillResult.Navigation(
             new { Route = route, GroupId = group.Id, GroupName = group.Name, Date = dateText },
-            $"Open schedule for group '{group.Name}'" + DayNote(dateText));
+            $"Open schedule for group '{group.Name}'" + DayNote(dateText) + DisplayNote(displays));
     }
 
     private async Task<(Client? Client, string? Error)> ResolveClientAsync(
@@ -164,46 +171,67 @@ public class OpenScheduleSkill : BaseSkillImplementation
             _searchRepository, _clientRepository, firstName, lastName, idNumber, cancellationToken);
     }
 
-    private static SkillResult OpenForClient(Client client, string? dateText)
+    private static SkillResult OpenForClient(Client client, string? dateText, ScheduleDisplays displays)
     {
-        var route = BuildRoute((ClientIdQueryParam, client.Id.ToString()), (DateQueryParam, dateText));
+        var route = BuildRoute(displays, (ClientIdQueryParam, client.Id.ToString()), (DateQueryParam, dateText));
         var name = $"{client.FirstName} {client.Name}".Trim();
 
         return SkillResult.Navigation(
             new { Route = route, ClientId = client.Id, ClientName = name, Date = dateText },
-            $"Open schedule for '{name}'" + DayNote(dateText));
+            $"Open schedule for '{name}'" + DayNote(dateText) + DisplayNote(displays));
     }
 
-    private static SkillResult OpenWithoutPersonFilter(Client client, string? dateText)
+    private static SkillResult OpenWithoutPersonFilter(Client client, string? dateText, ScheduleDisplays displays)
     {
-        var route = BuildRoute((DateQueryParam, dateText));
+        var route = BuildRoute(displays, (DateQueryParam, dateText));
         var name = $"{client.FirstName} {client.Name}".Trim();
 
         return SkillResult.Navigation(
             new { Route = route, ClientId = client.Id, ClientName = name, Date = dateText, PersonFilterApplied = false },
             $"'{name}' has no ID number, so the schedule cannot be narrowed to this person. " +
-            "Opening the schedule without a person filter" + DayNote(dateText));
+            "Opening the schedule without a person filter" + DayNote(dateText) + DisplayNote(displays));
     }
 
-    private static SkillResult OpenWithoutGroup(string? dateText, string message)
+    private static SkillResult OpenWithoutGroup(string? dateText, ScheduleDisplays displays, string message)
     {
-        var route = BuildRoute((DateQueryParam, dateText));
+        var route = BuildRoute(displays, (DateQueryParam, dateText));
 
         return SkillResult.Navigation(
             new { Route = route, GroupId = (Guid?)null, GroupName = (string?)null, Date = dateText },
-            message + DayNote(dateText));
+            message + DayNote(dateText) + DisplayNote(displays));
     }
 
-    private static string BuildRoute(params (string Name, string? Value)[] queryParts)
+    private static ScheduleDisplays ReadDisplays(Dictionary<string, object> parameters) => new(
+        GetParameter<bool>(parameters, ShowAvailabilityParam, false),
+        GetParameter<bool>(parameters, ShowCommandsParam, false));
+
+    private static string BuildRoute(ScheduleDisplays displays, params (string Name, string? Value)[] queryParts)
     {
         var parts = queryParts
             .Where(p => !string.IsNullOrEmpty(p.Value))
             .Select(p => $"{p.Name}={Uri.EscapeDataString(p.Value!)}")
             .ToList();
+        if (displays.Availability)
+        {
+            parts.Add($"{ShowAvailabilityParam}={DisplayOnValue}");
+        }
+
+        if (displays.Commands)
+        {
+            parts.Add($"{ShowCommandsParam}={DisplayOnValue}");
+        }
 
         return parts.Count == 0 ? ScheduleRoute : $"{ScheduleRoute}?{string.Join('&', parts)}";
     }
 
     private static string DayNote(string? dateText) =>
         dateText == null ? string.Empty : $", on the period containing {dateText}";
+
+    private static string DisplayNote(ScheduleDisplays displays) => (displays.Availability, displays.Commands) switch
+    {
+        (true, true) => ", with the availabilities and the planning commands shown",
+        (true, false) => ", with the availabilities shown",
+        (false, true) => ", with the planning commands shown",
+        _ => string.Empty
+    };
 }

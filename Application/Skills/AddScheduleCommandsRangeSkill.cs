@@ -9,7 +9,10 @@
 /// refused with an error result and nothing is written, like the bulk work/break handlers; scenario writes are exempt.
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
-/// <param name="clientId">UUID of the client.</param>
+/// <param name="clientId">UUID of the client; optional when firstName and lastName name the person.</param>
+/// <param name="firstName">Optional first name of the person, used together with lastName when no clientId is known.</param>
+/// <param name="lastName">Optional last name of the person; several people with the same name are reported with their client numbers.</param>
+/// <param name="idNumber">Optional client number that picks one person when first and last name match several.</param>
 /// <param name="fromDate">First day of the range in ISO yyyy-MM-dd.</param>
 /// <param name="untilDate">Last day of the range in ISO yyyy-MM-dd (equal to fromDate for one day).</param>
 /// <param name="commandKeyword">One of the currently configured planning-command tokens (English defaults: FREE / -FREE / EARLY / -EARLY / LATE / -LATE / NIGHT / -NIGHT).</param>
@@ -33,6 +36,7 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
 
     private readonly IScheduleCommandRepository _scheduleCommandRepository;
     private readonly IClientRepository _clientRepository;
+    private readonly IClientSearchRepository _clientSearchRepository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
@@ -41,6 +45,7 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
     public AddScheduleCommandsRangeSkill(
         IScheduleCommandRepository scheduleCommandRepository,
         IClientRepository clientRepository,
+        IClientSearchRepository clientSearchRepository,
         IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork,
         IScheduleCommandKeywordProvider keywordProvider,
@@ -48,6 +53,7 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
     {
         _scheduleCommandRepository = scheduleCommandRepository;
         _clientRepository = clientRepository;
+        _clientSearchRepository = clientSearchRepository;
         _clientVisibilityGuard = clientVisibilityGuard;
         _unitOfWork = unitOfWork;
         _keywordProvider = keywordProvider;
@@ -59,7 +65,6 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var clientId = GetRequiredGuid(parameters, "clientId");
         var fromDate = GetParameter<DateOnly?>(parameters, "fromDate")
             ?? throw new ArgumentException("Required parameter 'fromDate' is missing");
         var untilDate = GetParameter<DateOnly?>(parameters, "untilDate")
@@ -85,10 +90,19 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
                 $"Range spans {totalDays} days; the maximum is {MaxRangeDays}. Split the request into smaller ranges.");
         }
 
-        if (!await ClientResolver.ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken))
+        var (resolvedClientId, clientError) = await ClientResolver.ResolveIdByIdOrNameAsync(
+            _clientSearchRepository, _clientRepository, _clientVisibilityGuard,
+            GetParameter<string>(parameters, ClientResolver.ClientIdParameterName),
+            GetParameter<string>(parameters, ClientResolver.FirstNameParameterName),
+            GetParameter<string>(parameters, ClientResolver.LastNameParameterName),
+            GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName),
+            cancellationToken);
+        if (resolvedClientId == null)
         {
-            return SkillResult.Error($"Client {clientId} not found.");
+            return SkillResult.Error(clientError!);
         }
+
+        var clientId = resolvedClientId.Value;
 
         if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {

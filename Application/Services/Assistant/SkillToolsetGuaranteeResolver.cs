@@ -90,8 +90,15 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         // keyword trigger only while a loop is open, the same as TurnPreparationService does for that turn.
         var draftLoop = _draftLoopToolsetPolicy.Resolve(request.UserId, request.ConversationId);
 
+        // Mail-driven entry: the contents of e-mails the user wants entered are already in the conversation, so no
+        // fresh guided recipe is offered for it (TurnPreparationService reads the same decision). Without a message the
+        // engine guarantees only the steps of a recipe already paused in this conversation and matches nothing new, by
+        // keyword trigger or by meaning.
+        var mailApply = MailApplyGuarantee.Apply(guaranteedSkills, guaranteedSources, request);
+
         var engineRecipeNames = await ApplyEngineRecipeGuaranteeAsync(
-            guaranteedSkills, guaranteedSources, request, allowSemanticFallback: !draftLoop.IsOpen, cancellationToken);
+            guaranteedSkills, guaranteedSources, request, mailApply ? null : request.UserMessage,
+            allowSemanticFallback: !draftLoop.IsOpen, cancellationToken);
 
         var recipeMatched = forcingRecipeNames.Count > 0 || engineRecipeNames.Count > 0;
         SkillMessageGuarantees.ApplyPlanCandidateGuarantee(
@@ -118,6 +125,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
 
         OrderWorkflowSkillGuarantee.ApplyGroupAnswer(guaranteedSkills, guaranteedSources, lowestRankedNames, request);
         OrderReviewScheduleGuarantee.Apply(guaranteedSkills, guaranteedSources, request);
+        ScheduleOverlayGuarantee.Apply(guaranteedSkills, guaranteedSources, request);
 
         await ApplyScenarioFollowUpGuaranteeAsync(
             guaranteedSkills, guaranteedSources, request, cancellationToken);
@@ -152,16 +160,18 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     /// multi-turn flow. Returns the engine's skill names, which the plan-candidate guarantee needs. With
     /// allowSemanticFallback false (an open draft loop) only the keyword trigger matches: the semantic fallback ranked the
     /// loop's answers into unrelated recipes, whose RecipeStep guarantees would also slip past the loop's exclusions.
+    /// A null recipeMessage matches no fresh recipe at all and keeps only the steps of a recipe already paused (mail-driven entry).
     /// </summary>
     private async Task<List<string>> ApplyEngineRecipeGuaranteeAsync(
         HashSet<AgentSkill> guaranteedSkills,
         IDictionary<string, ToolsetSkillSource> guaranteedSources,
         SkillToolsetGuaranteeRequest request,
+        string? recipeMessage,
         bool allowSemanticFallback,
         CancellationToken cancellationToken)
     {
         var engineRecipeNames = (await _recipeEngine.GuaranteedSkillNamesAsync(
-            request.UserId, request.ConversationId, request.UserMessage, request.Language, request.UserRights,
+            request.UserId, request.ConversationId, recipeMessage, request.Language, request.UserRights,
             allowSemanticFallback, cancellationToken)).ToList();
         foreach (var recipeSkillName in engineRecipeNames)
         {
