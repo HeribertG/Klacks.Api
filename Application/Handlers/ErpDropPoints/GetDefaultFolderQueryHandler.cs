@@ -3,8 +3,8 @@
 /// <summary>
 /// Handler that tells the Import settings card where the ERP writes its files: on a native installation the absolute
 /// folder, on Docker the host folder when the compose file reports it (with the container path alongside), otherwise
-/// the container path. Installation kind, folder-drop requirement and recommended channels come from the same
-/// ErpHandoverAdvisor the assistant skills use, so the card and Klacksy give the same answer.
+/// the container path. The installation kind comes from the same ErpHandoverAdvisor the assistant skills use, so the
+/// card and Klacksy give the same answer.
 /// </summary>
 using Klacks.Api.Application.DTOs.ErpDropPoints;
 using Klacks.Api.Application.Queries.ErpDropPoints;
@@ -44,8 +44,6 @@ public class GetDefaultFolderQueryHandler : IRequestHandler<GetDefaultFolderQuer
             FolderPath = folder.HostFolderPath ?? folder.FolderPath,
             ContainerPath = isDocker ? folder.FolderPath : null,
             IsHostPath = isHostPath,
-            FolderDropRequirement = folder.Guidance.FolderDropRequirement,
-            RecommendedChannels = [.. folder.Guidance.RecommendedChannels],
         };
     }
 }

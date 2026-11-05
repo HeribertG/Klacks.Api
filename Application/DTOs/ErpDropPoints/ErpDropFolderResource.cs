@@ -11,8 +11,4 @@ public class ErpDropFolderResource
     public string? ContainerPath { get; set; }
 
     public bool IsHostPath { get; set; }
-
-    public string FolderDropRequirement { get; set; } = string.Empty;
-
-    public List<string> RecommendedChannels { get; set; } = [];
 }
