@@ -139,13 +139,10 @@ public class KlacksOntologyService : IKlacksOntologyService
         [
             "Client.EntityType: 0=Employee, 1=ExternEmp (external employee), 2=Customer.",
             "Plans are created for Employee/ExternEmp on behalf of a Customer.",
-            "A Client is never created alone: minimum is Client + Address + Communication + Membership.",
-            "No Client without an Address and a Membership — both are mandatory.",
-            "Communication (phone + email) is strongly recommended: no email => no planning via email, and email lets the client write to Klacks directly."
+            "A Client is never created alone: Address and Membership are mandatory; Communication (phone + email) is strongly recommended."
         ],
         ["Address"] =
         [
-            "Address always belongs to exactly one Client (clientId).",
             "Address requires street, zip, city, state and country; state+country must be filled (ADDRESS_COMPLETENESS).",
             "Address.Type (AddressTypeEnum): 0=Employee (main address, Hauptadresse), 1=Workplace (business address, Geschäftsadresse), 2=InvoicingAddress (Rechnungsadresse).",
             "Allowed Address.Type by Client.Type (enforced on save): Employee only 0; ExternEmp 0 and 1; Customer 0, 1 and 2. Other combinations are rejected, and a Client.Type change is blocked while addresses of a no-longer-allowed type exist.",
@@ -154,9 +151,9 @@ public class KlacksOntologyService : IKlacksOntologyService
         ],
         ["Communication"] =
         [
-            "Communication is one contact channel of exactly one Client: Type + Prefix + Value (max 100 chars).",
+            "Communication is one contact channel: Type + Prefix + Value (max 100 chars).",
             "CommunicationTypeEnum is NOT contiguous — 0=PrivateFixPhone, 1=PrivateCellPhone, 2=OfficeFixPhone, 3=OfficeCellPhone, 4=PrivateMail, 5=OfficeMail, 6=Others, 7=EmergencyPhone. Never infer a number.",
-            "Email lives in types 4/5 only; a Client without one is unreachable for the email pipeline."
+            "Email lives in types 4/5 only; without one there is no planning via email and the client cannot write to Klacks."
         ],
         ["Membership"] =
         [
@@ -171,7 +168,7 @@ public class KlacksOntologyService : IKlacksOntologyService
         ],
         ["ClientContract"] =
         [
-            "ClientContract assigns one Contract to one Client for [FromDate..UntilDate]; UntilDate NULL means open-ended.",
+            "ClientContract is valid for [FromDate..UntilDate]; UntilDate NULL means open-ended.",
             "IsActive marks the assignment currently in force; a Client may hold several assignments over time."
         ],
         ["Shift"] =
@@ -193,7 +190,7 @@ public class KlacksOntologyService : IKlacksOntologyService
         [
             "Work with LockLevel != None is immutable for Wizards 1+2+3.",
             "Work with IsGroupRestricted=true (cross-group sealed) is read-only in the current view but must remain visible to prevent double-bookings.",
-            "Work.Workday must lie within Client.Contract.[StartDate..EndDate]."
+            "Work.MovedFromClientId marks a Work moved to a replacement. Only the latest move can be reversed, not while the work is sealed or replaced, nor while the origin is busy or absent; a reversed move leaves the slot NOT covered; the acceptance stays in the history."
         ],
         ["WorkChange"] =
         [
@@ -202,7 +199,7 @@ public class KlacksOntologyService : IKlacksOntologyService
         ],
         ["Break"] =
         [
-            "Break is the actual absence EVENT on a client's day; it always references an Absence type (AbsenceId).",
+            "Break is the actual absence EVENT on a client's day, typed by an Absence (AbsenceId).",
             "Break.Description is MultiLanguage (stored as one jsonb column, unlike the other MultiLanguage fields).",
             "Break is always immutable for Wizards (semantic, regardless of LockLevel).",
             "Break.WorkTime counts toward TargetHours but NOT toward MaxWeeklyHours.",
@@ -222,7 +219,7 @@ public class KlacksOntologyService : IKlacksOntologyService
         ],
         ["GroupItem"] =
         [
-            "GroupItem is the membership join to a Group (GroupId mandatory); it links either a Client or a Shift, ClientId/ShiftId are optional.",
+            "GroupItem links either a Client or a Shift to a Group.",
             "ValidFrom/ValidUntil bound the membership window — schedule cells outside it are not plannable, on top of the Membership limit.",
             "Deleting a membership is strict (blocked by any work, even historical); closing it via ValidUntil is future-relative (blocked only by works after that date)."
         ],
