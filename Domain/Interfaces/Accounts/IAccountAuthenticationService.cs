@@ -11,11 +11,11 @@ public interface IAccountAuthenticationService
 
     Task<AuthenticatedResult> RefreshTokenAsync(RefreshRequestResource model);
 
-    Task<AuthenticatedResult> GenerateAuthenticationAsync(AppUser user, bool withRefreshToken = true, string? oldRefreshToken = null);
+    Task<AuthenticatedResult> MigrateRefreshTokenAsync(RefreshRequestResource model);
+
+    Task<AuthenticatedResult> GenerateAuthenticationAsync(AppUser user, bool withRefreshToken = true, string? existingRefreshToken = null);
 
     Task<AuthenticatedResult> SetAuthenticatedResultAsync(AuthenticatedResult authenticatedResult, AppUser user, DateTime expires);
-
-    Task<bool> ValidateRefreshTokenAsync(AppUser user, string refreshToken);
 
     void SetModelError(AuthenticatedResult model, string key, string message);
 }

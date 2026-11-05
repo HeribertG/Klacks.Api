@@ -257,6 +257,7 @@ public static class ServiceCollectionExtensions
             Klacks.Api.Infrastructure.Services.UserDataEraser>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Authentification.IUserDataErasureParticipant,
             Klacks.Api.Infrastructure.Plugins.MessagingPluginUserContactEraser>();
+        services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<IRefreshTokenService, Services.Authentication.RefreshTokenService>();
         services.AddScoped<IAccountAuthenticationService, AccountAuthenticationService>();
         services.AddScoped<IAccountPasswordService, AccountPasswordService>();

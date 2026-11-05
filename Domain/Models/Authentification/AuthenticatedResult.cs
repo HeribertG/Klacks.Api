@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Klacks.Api.Domain.Models.Authentification;
@@ -30,6 +31,7 @@ public class AuthenticatedResult
 
     public List<string> Permissions { get; set; } = new();
 
+    [JsonIgnore]
     public string RefreshToken { get; set; } = string.Empty;
 
     public bool Success { get; set; }

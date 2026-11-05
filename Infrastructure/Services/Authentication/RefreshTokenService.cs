@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
@@ -9,19 +10,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Authentication;
 
+/// <summary>
+/// Stores the session refresh tokens (hashed). A refresh does not rotate: the token keeps its value and its expiry slides
+/// (ExtendRefreshTokenAsync). Only the migration of a token from local storage issues a new token and leaves the old one
+/// valid for a short grace (ReplaceRefreshTokenAsync).
+/// </summary>
+/// <param name="context">Database context holding the refresh_token table</param>
+/// <param name="timeProvider">Clock for expiry stamps and checks</param>
+/// <param name="logger">Records lookup failures</param>
 public class RefreshTokenService : IRefreshTokenService
 {
-    private const int RefreshTokenLifetimeDays = 30;
     private const int MaxRefreshTokensPerUser = 20;
+    private const int AccessTokenLifetimeMinutes = 15;
 
     private readonly DataBaseContext _context;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<RefreshTokenService> _logger;
 
-    public RefreshTokenService(DataBaseContext context, ILogger<RefreshTokenService> logger)
+    public RefreshTokenService(DataBaseContext context, TimeProvider timeProvider, ILogger<RefreshTokenService> logger)
     {
         _context = context;
+        _timeProvider = timeProvider;
         _logger = logger;
     }
+
+    private DateTime UtcNow => _timeProvider.GetUtcNow().UtcDateTime;
 
     public async Task<string> CreateRefreshTokenAsync(string userId)
     {
@@ -35,35 +48,42 @@ public class RefreshTokenService : IRefreshTokenService
         return rawToken;
     }
 
-    public async Task<string> RotateRefreshTokenAsync(string userId, string oldToken)
+    public async Task<bool> ExtendRefreshTokenAsync(string userId, string refreshToken)
     {
-        var hashedOldToken = RefreshTokenHasher.Hash(oldToken);
-        var now = DateTime.UtcNow;
-
-        // Consuming the old token is a single atomic DELETE so two concurrent callers
-        // presenting the same token (e.g. the HTTP interceptor and SignalR racing on
-        // token expiry, or two browser tabs) cannot both pass a separate read-then-write
-        // check: only the DELETE that actually removes the row "wins" the rotation.
-        var consumedCount = await _context.RefreshToken
-            .Where(rt => rt.AspNetUsersId == userId && rt.Token == hashedOldToken && rt.ExpiryDate > now)
-            .ExecuteDeleteAsync();
-
-        if (consumedCount == 0)
+        if (string.IsNullOrEmpty(refreshToken))
         {
-            // Defense-in-depth: never issue a token for an unknown, expired, or
-            // already-consumed old token. The caller validates first, so this also
-            // catches the loser of a concurrent-rotation race.
-            throw new InvalidOperationException("Refresh token not found for rotation.");
+            return false;
         }
 
-        var survivors = await LoadUserTokensAsync(userId);
-        _context.RefreshToken.RemoveRange(ExpiredAndOverflow(survivors));
+        var hashedToken = RefreshTokenHasher.Hash(refreshToken);
+        var now = UtcNow;
+        var newExpiry = now.Add(RefreshTokenLifetime.Duration);
 
-        var (entity, rawToken) = BuildRefreshToken(userId);
-        _context.RefreshToken.Add(entity);
-        await _context.SaveChangesAsync();
+        var extendedCount = await _context.RefreshToken
+            .Where(rt => rt.AspNetUsersId == userId && rt.Token == hashedToken && rt.ExpiryDate > now)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(rt => rt.ExpiryDate, newExpiry));
 
-        return rawToken;
+        return extendedCount > 0;
+    }
+
+    public async Task<string?> ReplaceRefreshTokenAsync(string userId, string legacyToken)
+    {
+        if (string.IsNullOrEmpty(legacyToken))
+        {
+            return null;
+        }
+
+        var hashedToken = RefreshTokenHasher.Hash(legacyToken);
+        var now = UtcNow;
+        var graceEnd = now.Add(RefreshTokenLifetime.LegacyTokenGrace);
+
+        var shortenedCount = await _context.RefreshToken
+            .Where(rt => rt.AspNetUsersId == userId && rt.Token == hashedToken && rt.ExpiryDate > now)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(
+                rt => rt.ExpiryDate,
+                rt => rt.ExpiryDate < graceEnd ? rt.ExpiryDate : graceEnd));
+
+        return shortenedCount > 0 ? await CreateRefreshTokenAsync(userId) : null;
     }
 
     private async Task<List<RefreshToken>> LoadUserTokensAsync(string userId)
@@ -73,28 +93,28 @@ public class RefreshTokenService : IRefreshTokenService
             .ToListAsync();
     }
 
-    private static (RefreshToken Entity, string RawToken) BuildRefreshToken(string userId)
+    private (RefreshToken Entity, string RawToken) BuildRefreshToken(string userId)
     {
         var rawToken = new RefreshTokenGenerator().GenerateRefreshToken();
         var entity = new RefreshToken
         {
             AspNetUsersId = userId,
             Token = RefreshTokenHasher.Hash(rawToken),
-            ExpiryDate = DateTime.UtcNow.AddDays(RefreshTokenLifetimeDays),
+            ExpiryDate = UtcNow.Add(RefreshTokenLifetime.Duration),
         };
 
         return (entity, rawToken);
     }
 
-    private static IEnumerable<RefreshToken> ExpiredAndOverflow(IEnumerable<RefreshToken> tokens)
+    private IEnumerable<RefreshToken> ExpiredAndOverflow(IEnumerable<RefreshToken> tokens)
     {
-        var now = DateTime.UtcNow;
+        var now = UtcNow;
         var all = tokens.ToList();
         var expired = all.Where(rt => rt.ExpiryDate <= now).ToList();
 
-        // ExpiryDate doubles as creation order because every token is issued with a
-        // fixed RefreshTokenLifetimeDays window, so the latest ExpiryDate is the
-        // newest token. Keep room for the one token about to be added.
+        // ExpiryDate slides to now + RefreshTokenLifetime on every refresh, so it orders
+        // the sessions by last use: the overflow drops the least recently used ones.
+        // Keep room for the one token about to be added.
         var overflow = all
             .Except(expired)
             .OrderByDescending(rt => rt.ExpiryDate)
@@ -104,24 +124,13 @@ public class RefreshTokenService : IRefreshTokenService
         return expired.Concat(overflow);
     }
 
-    public async Task<bool> ValidateRefreshTokenAsync(string userId, string refreshToken)
-    {
-        var hashedToken = RefreshTokenHasher.Hash(refreshToken);
-        var storedRefreshToken = await _context.RefreshToken
-            .Where(x => x.Token == hashedToken && x.AspNetUsersId == userId)
-            .OrderByDescending(x => x.ExpiryDate)
-            .FirstOrDefaultAsync();
-
-        return storedRefreshToken?.ExpiryDate > DateTime.UtcNow;
-    }
-
     public async Task<AppUser?> GetUserFromRefreshTokenAsync(string refreshToken)
     {
         try
         {
             var hashedToken = RefreshTokenHasher.Hash(refreshToken);
             var storedRefreshToken = await _context.RefreshToken
-                .Where(x => x.Token == hashedToken && x.ExpiryDate > DateTime.UtcNow)
+                .Where(x => x.Token == hashedToken && x.ExpiryDate > UtcNow)
                 .OrderByDescending(x => x.ExpiryDate)
                 .FirstOrDefaultAsync();
 
@@ -147,13 +156,21 @@ public class RefreshTokenService : IRefreshTokenService
         await _context.SaveChangesAsync();
     }
 
-    public DateTime CalculateTokenExpiryTime()
+    public async Task RemoveRefreshTokenAsync(string refreshToken)
     {
-        return DateTime.UtcNow.AddMinutes(15);
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            return;
+        }
+
+        var hashedToken = RefreshTokenHasher.Hash(refreshToken);
+        await _context.RefreshToken
+            .Where(rt => rt.Token == hashedToken)
+            .ExecuteDeleteAsync();
     }
 
-    public DateTime CalculateRefreshTokenExpiryTime()
+    public DateTime CalculateTokenExpiryTime()
     {
-        return DateTime.UtcNow.AddDays(RefreshTokenLifetimeDays);
+        return UtcNow.AddMinutes(AccessTokenLifetimeMinutes);
     }
 }

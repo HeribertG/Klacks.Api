@@ -19,21 +19,24 @@ public interface IRefreshTokenService
     Task<string> CreateRefreshTokenAsync(string userId);
 
     /// <summary>
-    /// Rotates a refresh token: removes only the presented token and issues a new
-    /// one, leaving the user's other sessions untouched.
+    /// Renews a session without rotating its token: the presented token keeps its value and its expiry slides to
+    /// now + the refresh token lifetime. One conditional UPDATE, so concurrent refreshes of the same session (tabs,
+    /// interceptor, SignalR) all succeed. There is no absolute cap: the entity has no creation timestamp.
     /// </summary>
     /// <param name="userId">User's ID</param>
-    /// <param name="oldToken">The refresh token being consumed</param>
-    /// <returns>New refresh token</returns>
-    Task<string> RotateRefreshTokenAsync(string userId, string oldToken);
+    /// <param name="refreshToken">Raw refresh token of the session</param>
+    /// <returns>True when an unexpired token of this user was extended; false for an unknown, revoked or expired one</returns>
+    Task<bool> ExtendRefreshTokenAsync(string userId, string refreshToken);
 
     /// <summary>
-    /// Validates a refresh token for a user
+    /// Migrates a refresh token that the client held in local storage: issues a new token for the cookie and shortens the
+    /// old one to RefreshTokenLifetime.LegacyTokenGrace (never lengthens it), so concurrent migrations with the same old
+    /// token all succeed within the grace.
     /// </summary>
     /// <param name="userId">User's ID</param>
-    /// <param name="refreshToken">Token to validate</param>
-    /// <returns>True if token is valid</returns>
-    Task<bool> ValidateRefreshTokenAsync(string userId, string refreshToken);
+    /// <param name="legacyToken">Raw refresh token from the request body</param>
+    /// <returns>The new refresh token, or null when the old one is unknown, expired or of another user</returns>
+    Task<string?> ReplaceRefreshTokenAsync(string userId, string legacyToken);
 
     /// <summary>
     /// Gets user from refresh token
@@ -49,14 +52,15 @@ public interface IRefreshTokenService
     Task RemoveAllUserRefreshTokensAsync(string userId);
 
     /// <summary>
+    /// Removes the one refresh token presented, leaving the user's other sessions untouched. An unknown or empty
+    /// token removes nothing.
+    /// </summary>
+    /// <param name="refreshToken">Raw refresh token as the client holds it</param>
+    Task RemoveRefreshTokenAsync(string refreshToken);
+
+    /// <summary>
     /// Calculates expiry time for access tokens
     /// </summary>
     /// <returns>Token expiry time</returns>
     DateTime CalculateTokenExpiryTime();
-
-    /// <summary>
-    /// Calculates expiry time for refresh tokens
-    /// </summary>
-    /// <returns>Refresh token expiry time</returns>
-    DateTime CalculateRefreshTokenExpiryTime();
 }

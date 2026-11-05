@@ -5,8 +5,8 @@ using Klacks.Api.Infrastructure.Mediator;
 namespace Klacks.Api.Application.Commands.Accounts;
 
 /// <summary>
-/// Invalidates all server-side refresh tokens of the given user, so a stolen refresh token
-/// cannot be used to obtain new access tokens after the user has logged out.
+/// Logs out this device: removes only the presented refresh token. The user's other devices stay signed in; signing out
+/// everywhere happens through a password change, a password reset or a deactivation.
 /// </summary>
-/// <param name="UserId">Id of the currently authenticated user (read from the JWT claims)</param>
-public record LogoutCommand(string UserId) : IRequest;
+/// <param name="RefreshToken">Raw refresh token of this device (cookie, else body), or null when the request carried none</param>
+public record LogoutCommand(string? RefreshToken) : IRequest;

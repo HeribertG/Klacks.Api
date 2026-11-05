@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Handler for <see cref="LogoutCommand"/>. Removes all refresh tokens of the requesting user so
-/// a copy of the refresh token (e.g. stolen via XSS or a lost device) can no longer be redeemed.
+/// Handler for <see cref="LogoutCommand"/>. Removes only the presented refresh token, so logging out ends this device's
+/// session and leaves the user's other devices signed in. Without a token it does nothing.
 /// </summary>
-/// <param name="request">Contains the id of the user to log out</param>
+/// <param name="request">Contains the refresh token of this device, optional</param>
 
 using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Domain.Interfaces.Authentification;
@@ -23,7 +23,11 @@ public sealed class LogoutCommandHandler : IRequestHandler<LogoutCommand>
 
     public async Task<Unit> Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
-        await _refreshTokenService.RemoveAllUserRefreshTokensAsync(request.UserId);
+        if (!string.IsNullOrEmpty(request.RefreshToken))
+        {
+            await _refreshTokenService.RemoveRefreshTokenAsync(request.RefreshToken);
+        }
+
         return Unit.Value;
     }
 }

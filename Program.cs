@@ -44,7 +44,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-var myAllowSpecificOrigins = "CorsPolicy";
 string[] headers =["X-Operation", "X-Resource", "X-Total-Count", Klacks.Api.Application.Constants.ExportResponseHeaders.SkippedEntries, Klacks.Api.Application.Constants.ExportResponseHeaders.AbsenceMappingInvalid, Klacks.Api.Application.Constants.ExportResponseHeaders.Persons, Klacks.Api.Application.Constants.ExportResponseHeaders.Supplementary];
 
 // Enable Windows-1252 and other code-page encodings (required by the DATEV/BMD/payroll export formatters).
@@ -58,9 +57,7 @@ Regex.CacheSize = RegexDefaults.CacheSize;
 
 var builder = KlacksWebApplicationBuilder.Create(args);
 
-var corsHost = builder.Configuration["Cors:Host"];
-var corsHome = builder.Configuration["Cors:Home"];
-var corsAdditional = builder.Configuration["Cors:Additional"];
+var corsOrigins = builder.Configuration.GetSection(CorsOriginsOptions.SectionName).Get<CorsOriginsOptions>() ?? new CorsOriginsOptions();
 FakeSettings.ClientsNumber = builder.Configuration["Fake:ClientNumber"] ?? string.Empty;
 FakeSettings.MaxBreaksPerClientPerYear = builder.Configuration["Fake:MaxBreaksPerClientPerYear"] ?? "30";
 FakeSettings.UseDumpFile = builder.Configuration.GetValue("Fake:UseDumpFile", true);
@@ -178,15 +175,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
-                      name: myAllowSpecificOrigins,
+                      name: CorsOriginsOptions.PolicyName,
                       cors =>
                       {
-                          var origins = new List<string> { corsHost!, corsHome! };
-                          if (!string.IsNullOrEmpty(corsAdditional))
-                          {
-                              origins.AddRange(corsAdditional.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
-                          }
-                          cors.WithOrigins(origins.ToArray())
+                          cors.WithOrigins(corsOrigins.AllowedOrigins())
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .WithExposedHeaders(headers)
@@ -343,6 +335,7 @@ builder.Services.AddHealthChecks()
     .AddCheck<PlatformDependencyHealthCheck>("platform-dependencies", tags: ["deep"]);
 
 builder.Services.AddKlacksRateLimiting();
+builder.Services.AddKlacksRefreshTokenCookie(builder.Configuration);
 
 builder.Services.AddPipelineBehavior(typeof(CancellationBehavior<,>));
 builder.Services.AddPipelineBehavior(typeof(ValidationBehavior<,>));
@@ -530,7 +523,7 @@ app.UseMiddleware<PlaygroundVisitorMiddleware>();
 if (DataRootPaths.GetDataRoot(app.Configuration) is not null) app.UseMiddleware<NativeHostingSecurityMiddleware>();
 
 // global cors policy
-app.UseCors(myAllowSpecificOrigins);
+app.UseCors(CorsOriginsOptions.PolicyName);
 
 app.UseHttpsRedirection();
 
@@ -589,7 +582,7 @@ app.UseEndpoints(endpoints =>
         {
             Predicate = check => check.Tags.Contains("deep"),
             ResponseWriter = WriteDeepHealthResponse
-        }).RequireAuthorization();
+        }).RequireAuthorization(new Microsoft.AspNetCore.Authorization.AuthorizeAttribute { AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme });
         // Unauthenticated deep health check for the out-of-process updater. Reachable only
         // container-to-container: port 5000 is expose-only (not published) and the reverse proxy
         // routes only /api/* to the API, never /internal/*.

@@ -5,6 +5,7 @@ using Klacks.Api.Application.Queries.OAuth2;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.OAuth2;
+using Klacks.Api.Presentation.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -17,11 +18,13 @@ public class OAuth2Controller : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<OAuth2Controller> _logger;
+    private readonly IRefreshTokenCookieService _refreshTokenCookie;
 
-    public OAuth2Controller(IMediator mediator, ILogger<OAuth2Controller> logger)
+    public OAuth2Controller(IMediator mediator, ILogger<OAuth2Controller> logger, IRefreshTokenCookieService refreshTokenCookie)
     {
         _mediator = mediator;
         _logger = logger;
+        _refreshTokenCookie = refreshTokenCookie;
     }
 
     [AllowAnonymous]
@@ -55,6 +58,7 @@ public class OAuth2Controller : ControllerBase
     public async Task<IActionResult> Callback([FromBody] OAuth2CallbackRequest request)
     {
         var result = await _mediator.Send(new OAuth2CallbackCommand(request));
+        _refreshTokenCookie.Write(HttpContext, result.RefreshToken);
         return Ok(result);
     }
 }

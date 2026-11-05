@@ -61,7 +61,24 @@ public class AccountAuthenticationService : IAccountAuthenticationService
         }
     }
 
-    public async Task<AuthenticatedResult> RefreshTokenAsync(RefreshRequestResource model)
+    public Task<AuthenticatedResult> RefreshTokenAsync(RefreshRequestResource model)
+    {
+        return RenewSessionAsync(model, async (userId, token) =>
+            await _refreshTokenService.ExtendRefreshTokenAsync(userId, token) ? token : null);
+    }
+
+    public Task<AuthenticatedResult> MigrateRefreshTokenAsync(RefreshRequestResource model)
+    {
+        return RenewSessionAsync(model, _refreshTokenService.ReplaceRefreshTokenAsync);
+    }
+
+    /// <summary>
+    /// Shared path of refresh and migration: resolves the user (access token, else refresh token), refuses blocked
+    /// accounts, then lets <paramref name="renew"/> decide which refresh token the session carries from now on.
+    /// </summary>
+    /// <param name="model">Access token and refresh token of the request</param>
+    /// <param name="renew">Returns the session's refresh token after renewal, or null when the presented one is not valid</param>
+    private async Task<AuthenticatedResult> RenewSessionAsync(RefreshRequestResource model, Func<string, string, Task<string?>> renew)
     {
         var authenticatedResult = new AuthenticatedResult { Success = false };
 
@@ -98,9 +115,10 @@ public class AccountAuthenticationService : IAccountAuthenticationService
 
         try
         {
-            if (await _refreshTokenService.ValidateRefreshTokenAsync(user.Id, model.RefreshToken))
+            var sessionToken = await renew(user.Id, model.RefreshToken);
+            if (sessionToken != null)
             {
-                return await GenerateAuthenticationAsync(user, true, model.RefreshToken);
+                return await GenerateAuthenticationAsync(user, true, sessionToken);
             }
         }
         catch (Exception ex)
@@ -114,16 +132,16 @@ public class AccountAuthenticationService : IAccountAuthenticationService
         return authenticatedResult;
     }
 
-    public async Task<AuthenticatedResult> GenerateAuthenticationAsync(AppUser user, bool withRefreshToken = true, string? oldRefreshToken = null)
+    public async Task<AuthenticatedResult> GenerateAuthenticationAsync(AppUser user, bool withRefreshToken = true, string? existingRefreshToken = null)
     {
         var authenticatedResult = new AuthenticatedResult { Success = false };
         var expires = _refreshTokenService.CalculateTokenExpiryTime();
 
         if (withRefreshToken)
         {
-            var refreshToken = string.IsNullOrEmpty(oldRefreshToken)
+            var refreshToken = string.IsNullOrEmpty(existingRefreshToken)
                 ? await _refreshTokenService.CreateRefreshTokenAsync(user.Id)
-                : await _refreshTokenService.RotateRefreshTokenAsync(user.Id, oldRefreshToken);
+                : existingRefreshToken;
             authenticatedResult.RefreshToken = refreshToken;
         }
 
@@ -159,11 +177,6 @@ public class AccountAuthenticationService : IAccountAuthenticationService
     /// <param name="role">The role to look for</param>
     private static bool HasRole(IEnumerable<string> roles, string role)
         => roles.Contains(role, StringComparer.OrdinalIgnoreCase);
-
-    public async Task<bool> ValidateRefreshTokenAsync(AppUser user, string refreshToken)
-    {
-        return await _refreshTokenService.ValidateRefreshTokenAsync(user.Id, refreshToken);
-    }
 
     public void SetModelError(AuthenticatedResult model, string key, string message)
     {

@@ -22,7 +22,13 @@ public static class RateLimitingPolicies
 
     public const int LoginPermitLimit = 20;
     public const int UploadPermitLimit = 30;
-    public const int RefreshTokenPermitLimit = 30;
+    /// <summary>
+    /// Refresh requests per IP and window. Raised from 30 to 120 with the refresh token cookie: after the rollout every
+    /// open tab performs a one-time migration refresh on its next load, and an office behind one NAT address reaches a
+    /// cloud instance as a single IP, so a reload wave of more than 30 tabs within a minute would otherwise answer 429.
+    /// Guessing a 256-bit refresh token is not feasible at any rate; the limit only caps load.
+    /// </summary>
+    public const int RefreshTokenPermitLimit = 120;
     public const int PasswordResetPermitLimit = 5;
     public const int PasswordChangePermitLimit = 5;
     public const int LlmChatPermitLimit = 30;

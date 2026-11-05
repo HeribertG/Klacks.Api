@@ -12,34 +12,42 @@ using Klacks.Api.Application.DTOs.Registrations;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Authentication;
 using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Authentification;
 
 public class AccountsController : BaseController
 {
+    private const string InvalidRefreshTokenMessage = "Invalid or expired refresh token";
+
     private readonly ILogger<AccountsController> _logger;
     private readonly IMediator _mediator;
     private readonly IUsernameGeneratorService _usernameGeneratorService;
+    private readonly IRefreshTokenCookieService _refreshTokenCookie;
 
     public AccountsController(
         IMediator mediator,
         ILogger<AccountsController> logger,
-        IUsernameGeneratorService usernameGeneratorService)
+        IUsernameGeneratorService usernameGeneratorService,
+        IRefreshTokenCookieService refreshTokenCookie)
     {
         _mediator = mediator;
         _logger = logger;
         _usernameGeneratorService = usernameGeneratorService;
+        _refreshTokenCookie = refreshTokenCookie;
     }
 
     [BlockedOnPlayground]
     [Authorize]
     [ExemptFromAdminSetupGate]
     [EnableRateLimiting(RateLimitingPolicies.PasswordChange)]
+    [RefreshCookieRequestGuard]
     [HttpPost("ChangePasswordUser")]
     public async Task<ActionResult> ChangePasswordUser([FromBody] ChangePasswordResource model)
     {
@@ -52,6 +60,7 @@ public class AccountsController : BaseController
         _logger.LogInformation("ChangePasswordUser requested for user: {UserId}", userId);
 
         var result = await _mediator.Send(new ChangePasswordUserCommand(userId, model));
+        _refreshTokenCookie.Write(HttpContext, result.RefreshToken);
 
         return Ok(result);
     }
@@ -146,47 +155,51 @@ public class AccountsController : BaseController
         _logger.LogInformation("Login attempt for user: {Email}", model.Email.MaskEmail());
 
         var result = await _mediator.Send(new LoginUserQuery(model.Email, model.Password));
+        _refreshTokenCookie.Write(HttpContext, result.RefreshToken);
         return Ok(result);
     }
 
     [AllowAnonymous]
     [ExemptFromAdminSetupGate]
     [EnableRateLimiting(RateLimitingPolicies.RefreshToken)]
+    [RefreshCookieRequestGuard]
     [HttpPost("RefreshToken")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshRequestResource model)
+    public async Task<IActionResult> RefreshToken([FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] RefreshRequestResource? model)
     {
         _logger.LogInformation("RefreshToken requested.");
 
-        if (model == null || !ModelState.IsValid)
+        var body = model ?? new RefreshRequestResource();
+        var cookieToken = _refreshTokenCookie.Read(Request);
+        if (string.IsNullOrEmpty(body.RefreshToken) && string.IsNullOrEmpty(cookieToken))
         {
-            _logger.LogWarning("Invalid refresh token request received.");
-            return BadRequest("Invalid data for token update.");
+            _logger.LogWarning("Token refresh without a refresh token in body or cookie");
+            return Unauthorized(InvalidRefreshTokenMessage);
         }
 
-        var result = await _mediator.Send(new RefreshTokenQuery(model));
-        
+        var result = await _mediator.Send(new RefreshTokenQuery(body, cookieToken));
+
         if (result == null)
         {
             _logger.LogWarning("Token refresh failed - invalid or expired refresh token");
-            return Unauthorized("Invalid or expired refresh token");
+            return Unauthorized(InvalidRefreshTokenMessage);
         }
-        
+
+        _refreshTokenCookie.Write(HttpContext, result.RefreshToken);
         return Ok(result);
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [AllowAnonymous]
     [ExemptFromAdminSetupGate]
+    [EnableRateLimiting(RateLimitingPolicies.RefreshToken)]
+    [RefreshCookieRequestGuard]
     [HttpPost("Logout")]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout([FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] RefreshRequestResource? model)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
+        _logger.LogInformation("Logout requested.");
 
-        _logger.LogInformation("Logout requested for user: {UserId}", userId);
-        await _mediator.Send(new LogoutCommand(userId));
+        var refreshToken = _refreshTokenCookie.Read(Request) ?? NullIfEmpty(model?.RefreshToken);
+        await _mediator.Send(new LogoutCommand(refreshToken));
+        _refreshTokenCookie.Delete(HttpContext);
 
         return Ok();
     }
@@ -236,7 +249,11 @@ public class AccountsController : BaseController
         _logger.LogInformation("Password reset confirmation requested");
         
         var result = await _mediator.Send(new ResetPasswordCommand(model));
-        
+        if (result.Success)
+        {
+            _refreshTokenCookie.Delete(HttpContext);
+        }
+
         return Ok(result);
     }
 
@@ -258,4 +275,6 @@ public class AccountsController : BaseController
         _logger.LogInformation("Token validation result: {IsValid}", isValid);
         return Ok(isValid);
     }
+
+    private static string? NullIfEmpty(string? value) => string.IsNullOrEmpty(value) ? null : value;
 }
