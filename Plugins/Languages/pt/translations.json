@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Ordenação individual",
   "schedule.moveBreak.moveFailed": "Falha ao mover a ausência",
   "schedule.moveWork.moveFailed": "Falha ao mover o turno",
+  "schedule.shiftDrop.rejected": "Turno não planeado: a célula de destino está ocupada (p. ex., por FREE, um turno ou uma nota) ou está fora do período de grupo ou de emprego. Largue o turno numa célula vazia.",
   "schedule.moveWork.shiftNotFound": "Mover turno: turno de origem não encontrado nos planos de serviço",
   "schedule.pdf.schedule": "Plano de trabalho PDF",
   "schedule.pdf.shifts": "Plano de turnos PDF",

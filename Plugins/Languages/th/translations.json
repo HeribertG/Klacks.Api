@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "การเรียงลำดับส่วนตัว",
   "schedule.moveBreak.moveFailed": "ย้ายการลาล้มเหลว",
   "schedule.moveWork.moveFailed": "ย้ายงานล้มเหลว",
+  "schedule.shiftDrop.rejected": "ไม่ได้วางแผนกะ: เซลล์เป้าหมายถูกใช้งานแล้ว (เช่น FREE กะ หรือบันทึก) หรืออยู่นอกช่วงเวลาของกลุ่มหรือการจ้างงาน วางกะในเซลล์ว่าง",
   "schedule.moveWork.shiftNotFound": "ย้ายงาน: ไม่พบงานต้นทางในตารางงาน",
   "schedule.pdf.schedule": "ตารางงาน PDF",
   "schedule.pdf.shifts": "ตารางกะ PDF",

@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Susunan individu",
   "schedule.moveBreak.moveFailed": "Gagal mengalihkan ketidakhadiran",
   "schedule.moveWork.moveFailed": "Gagal mengalihkan syif",
+  "schedule.shiftDrop.rejected": "Syif tidak dirancang: sel sasaran sudah diisi (cth. oleh FREE, syif atau nota) atau berada di luar tempoh kumpulan atau pekerjaan. Lepaskan syif pada sel kosong.",
   "schedule.moveWork.shiftNotFound": "Alih syif: Syif sumber tidak dijumpai dalam jadual kerja",
   "schedule.pdf.schedule": "PDF pelan tugas",
   "schedule.pdf.shifts": "PDF jadual syif",

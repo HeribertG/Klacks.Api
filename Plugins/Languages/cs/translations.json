@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Individuální řazení",
   "schedule.moveBreak.moveFailed": "Přesun nepřítomnosti se nezdařil",
   "schedule.moveWork.moveFailed": "Přesun služby se nezdařil",
+  "schedule.shiftDrop.rejected": "Směna nebyla naplánována: cílová buňka je obsazená (např. FREE, směnou nebo poznámkou) nebo leží mimo období skupiny či zaměstnání. Přetáhněte směnu do prázdné buňky.",
   "schedule.moveWork.shiftNotFound": "Přesun služby: zdrojová služba nebyla nalezena v rozvrzích služeb",
   "schedule.pdf.schedule": "Plán nasazení PDF",
   "schedule.pdf.shifts": "Rozpis směn PDF",

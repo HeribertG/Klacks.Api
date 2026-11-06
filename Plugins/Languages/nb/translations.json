@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Individuell sortering",
   "schedule.moveBreak.moveFailed": "Flytting av fravær mislyktes",
   "schedule.moveWork.moveFailed": "Flytting av vakt mislyktes",
+  "schedule.shiftDrop.rejected": "Vakten ble ikke planlagt: målcellen er opptatt (f.eks. av FREE, en vakt eller et notat) eller ligger utenfor gruppe- eller ansettelsesperioden. Slipp vakten i en tom celle.",
   "schedule.moveWork.shiftNotFound": "Flytt vakt: kilde-vakt ikke funnet i arbeidsplaner",
   "schedule.pdf.schedule": "Arbeidsplan PDF",
   "schedule.pdf.shifts": "Skiftplan PDF",

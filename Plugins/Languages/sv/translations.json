@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Individuell sortering",
   "schedule.moveBreak.moveFailed": "Det gick inte att flytta frånvaron",
   "schedule.moveWork.moveFailed": "Det gick inte att flytta passet",
+  "schedule.shiftDrop.rejected": "Passet planerades inte: målcellen är upptagen (t.ex. av FREE, ett pass eller en anteckning) eller ligger utanför grupp- eller anställningsperioden. Släpp passet i en tom cell.",
   "schedule.moveWork.shiftNotFound": "Flytta pass: käll-passet hittades inte i scheman",
   "schedule.pdf.schedule": "Schema PDF",
   "schedule.pdf.shifts": "Skiftschema PDF",

@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Individuele sortering",
   "schedule.moveBreak.moveFailed": "Afwezigheid verplaatsen mislukt",
   "schedule.moveWork.moveFailed": "Dienst verplaatsen mislukt",
+  "schedule.shiftDrop.rejected": "Dienst niet ingepland: de doelcel is bezet (bijv. door FREE, een dienst of een notitie) of ligt buiten de groeps- of dienstverbandperiode. Zet de dienst neer in een lege cel.",
   "schedule.moveWork.shiftNotFound": "Dienst verplaatsen: bron-dienst niet gevonden in dienstroosters",
   "schedule.pdf.schedule": "Inzetplan PDF",
   "schedule.pdf.shifts": "Dienstplan PDF",

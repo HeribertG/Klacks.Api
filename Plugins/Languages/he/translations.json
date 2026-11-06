@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "מיון אישי",
   "schedule.moveBreak.moveFailed": "העברת ההיעדרות נכשלה",
   "schedule.moveWork.moveFailed": "העברת המשמרת נכשלה",
+  "schedule.shiftDrop.rejected": "המשמרת לא שובצה: תא היעד תפוס (למשל על ידי FREE, משמרת או הערה) או נמצא מחוץ לתקופת הקבוצה או ההעסקה. שחרר את המשמרת בתא ריק.",
   "schedule.moveWork.shiftNotFound": "העברת משמרת: משמרת המקור לא נמצאה בלוחות המשמרות",
   "schedule.pdf.schedule": "תוכנית עבודה PDF",
   "schedule.pdf.shifts": "תוכנית משמרות PDF",

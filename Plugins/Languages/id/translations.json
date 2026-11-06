@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Urutan individu",
   "schedule.moveBreak.moveFailed": "Pemindahan ketidakhadiran gagal",
   "schedule.moveWork.moveFailed": "Pemindahan dinas gagal",
+  "schedule.shiftDrop.rejected": "Shift tidak direncanakan: sel tujuan sudah terisi (mis. oleh FREE, shift, atau catatan) atau berada di luar periode grup atau kerja. Letakkan shift di sel kosong.",
   "schedule.moveWork.shiftNotFound": "Pindahkan dinas: dinas sumber tidak ditemukan dalam jadwal dinas",
   "schedule.pdf.schedule": "Jadwal penugasan PDF",
   "schedule.pdf.shifts": "Jadwal shift PDF",

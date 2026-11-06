@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "개별 정렬",
   "schedule.moveBreak.moveFailed": "부재 이동에 실패했습니다",
   "schedule.moveWork.moveFailed": "근무 이동에 실패했습니다",
+  "schedule.shiftDrop.rejected": "근무가 계획되지 않았습니다: 대상 셀이 이미 사용 중이거나(예: FREE, 근무, 메모) 그룹 또는 고용 기간을 벗어났습니다. 빈 셀에 근무를 놓으세요.",
   "schedule.moveWork.shiftNotFound": "근무 이동: 원본 근무를 근무표에서 찾을 수 없습니다",
   "schedule.pdf.schedule": "배치 계획 PDF",
   "schedule.pdf.shifts": "교대 계획 PDF",

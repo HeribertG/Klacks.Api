@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "個人ソート",
   "schedule.moveBreak.moveFailed": "不在の移動に失敗しました",
   "schedule.moveWork.moveFailed": "勤務の移動に失敗しました",
+  "schedule.shiftDrop.rejected": "シフトは計画されませんでした：対象のセルは使用中（例：FREE、シフト、メモ）か、グループ期間または雇用期間外です。空のセルにシフトをドロップしてください。",
   "schedule.moveWork.shiftNotFound": "勤務の移動: 移動元の勤務が勤務計画内に見つかりません",
   "schedule.pdf.schedule": "スケジュール PDF",
   "schedule.pdf.shifts": "シフトスケジュール PDF",

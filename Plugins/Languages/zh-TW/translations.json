@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "個人排序",
   "schedule.moveBreak.moveFailed": "移動缺勤失敗",
   "schedule.moveWork.moveFailed": "移動班次失敗",
+  "schedule.shiftDrop.rejected": "班次未排入：目標儲存格已被占用（例如 FREE、班次或備註），或不在小組或僱用期間內。請將班次放到空白儲存格中。",
   "schedule.moveWork.shiftNotFound": "移動班次：在值班計畫中找不到來源班次",
   "schedule.pdf.schedule": "排程計劃PDF",
   "schedule.pdf.shifts": "排班表PDF",

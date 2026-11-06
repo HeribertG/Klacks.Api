@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "ترتيب فردي",
   "schedule.moveBreak.moveFailed": "فشل نقل الغياب",
   "schedule.moveWork.moveFailed": "فشل نقل الدوام",
+  "schedule.shiftDrop.rejected": "لم يتم تخطيط المناوبة: الخلية المستهدفة مشغولة (مثلاً بـ FREE أو مناوبة أو ملاحظة) أو تقع خارج فترة المجموعة أو التوظيف. أفلت المناوبة في خلية فارغة.",
   "schedule.moveWork.shiftNotFound": "نقل الدوام: لم يتم العثور على الدوام المصدر في جداول الدوام",
   "schedule.pdf.schedule": "خطة العمل PDF",
   "schedule.pdf.shifts": "جدول المناوبات PDF",

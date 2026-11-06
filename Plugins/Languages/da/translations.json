@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Individuel sortering",
   "schedule.moveBreak.moveFailed": "Kunne ikke flytte fravær",
   "schedule.moveWork.moveFailed": "Kunne ikke flytte vagt",
+  "schedule.shiftDrop.rejected": "Vagten blev ikke planlagt: målcellen er optaget (f.eks. af FREE, en vagt eller en note) eller ligger uden for gruppe- eller ansættelsesperioden. Slip vagten i en tom celle.",
   "schedule.moveWork.shiftNotFound": "Flyt vagt: kilde-vagt ikke fundet i vagtplaner",
   "schedule.pdf.schedule": "Tjenestplan PDF",
   "schedule.pdf.shifts": "Vagtplan PDF",

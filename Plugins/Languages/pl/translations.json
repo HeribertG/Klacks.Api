@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Sortowanie indywidualne",
   "schedule.moveBreak.moveFailed": "Przenoszenie nieobecności nie powiodło się",
   "schedule.moveWork.moveFailed": "Przenoszenie dyżuru nie powiodło się",
+  "schedule.shiftDrop.rejected": "Zmiana nie została zaplanowana: komórka docelowa jest zajęta (np. przez FREE, zmianę lub notatkę) albo leży poza okresem grupy lub zatrudnienia. Upuść zmianę w pustej komórce.",
   "schedule.moveWork.shiftNotFound": "Przenoszenie dyżuru: dyżur źródłowy nie znaleziony w planach pracy",
   "schedule.pdf.schedule": "Plan pracy PDF",
   "schedule.pdf.shifts": "Grafik zmian PDF",

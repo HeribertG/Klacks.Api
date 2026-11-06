@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Ατομική ταξινόμηση",
   "schedule.moveBreak.moveFailed": "Η μετακίνηση της απουσίας απέτυχε",
   "schedule.moveWork.moveFailed": "Η μετακίνηση της υπηρεσίας απέτυχε",
+  "schedule.shiftDrop.rejected": "Η βάρδια δεν προγραμματίστηκε: το κελί προορισμού είναι κατειλημμένο (π.χ. από FREE, βάρδια ή σημείωση) ή βρίσκεται εκτός της περιόδου ομάδας ή απασχόλησης. Αφήστε τη βάρδια σε ένα κενό κελί.",
   "schedule.moveWork.shiftNotFound": "Μετακίνηση υπηρεσίας: η υπηρεσία προέλευσης δεν βρέθηκε στα προγράμματα υπηρεσιών",
   "schedule.pdf.schedule": "Πρόγραμμα PDF",
   "schedule.pdf.shifts": "Πρόγραμμα βαρδιών PDF",

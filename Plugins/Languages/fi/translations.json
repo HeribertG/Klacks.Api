@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Yksilöllinen lajittelu",
   "schedule.moveBreak.moveFailed": "Poissaolon siirto epäonnistui",
   "schedule.moveWork.moveFailed": "Vuoron siirto epäonnistui",
+  "schedule.shiftDrop.rejected": "Vuoroa ei suunniteltu: kohdesolu on varattu (esim. FREE, vuoro tai muistiinpano) tai se on ryhmä- tai työsuhdejakson ulkopuolella. Pudota vuoro tyhjään soluun.",
   "schedule.moveWork.shiftNotFound": "Vuoron siirto: lähdevuoroa ei löytynyt työvuorolistoista",
   "schedule.pdf.schedule": "Aikataulu PDF",
   "schedule.pdf.shifts": "Vuorolista PDF",

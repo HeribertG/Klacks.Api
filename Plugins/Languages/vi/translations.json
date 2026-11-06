@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Sắp xếp cá nhân",
   "schedule.moveBreak.moveFailed": "Di chuyển vắng mặt thất bại",
   "schedule.moveWork.moveFailed": "Di chuyển ca làm việc thất bại",
+  "schedule.shiftDrop.rejected": "Ca làm chưa được xếp: ô đích đã có nội dung (ví dụ FREE, một ca hoặc ghi chú) hoặc nằm ngoài thời gian nhóm hoặc thời gian làm việc. Hãy thả ca vào một ô trống.",
   "schedule.moveWork.shiftNotFound": "Di chuyển ca làm việc: không tìm thấy ca nguồn trong kế hoạch làm việc",
   "schedule.pdf.schedule": "PDF lịch công",
   "schedule.pdf.shifts": "PDF lịch ca",

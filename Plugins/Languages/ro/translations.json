@@ -2133,6 +2133,7 @@
   "schedule.filter.individual": "Sortare individuală",
   "schedule.moveBreak.moveFailed": "Mutarea absenței a eșuat",
   "schedule.moveWork.moveFailed": "Mutarea turei a eșuat",
+  "schedule.shiftDrop.rejected": "Tura nu a fost planificată: celula țintă este ocupată (de ex. de FREE, o tură sau o notă) sau se află în afara perioadei de grup ori de angajare. Plasează tura într-o celulă goală.",
   "schedule.moveWork.shiftNotFound": "Mutare tură: tura sursă nu a fost găsită în planurile de ture",
   "schedule.pdf.schedule": "Plan de lucru PDF",
   "schedule.pdf.shifts": "Plan de ture PDF",
