@@ -5,7 +5,6 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
-using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -164,33 +163,11 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
             .Select(gi => (Guid?)gi.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<Dictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)>> GetValidityRangesAsync(
+    public Task<Dictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)>> GetValidityRangesAsync(
         IReadOnlyCollection<Guid> clientIds,
         IReadOnlyCollection<Guid> groupIds,
         CancellationToken cancellationToken = default)
-    {
-        if (clientIds.Count == 0 || groupIds.Count == 0)
-        {
-            return new Dictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)>();
-        }
-
-        var clientIdList = clientIds.ToList();
-        var groupIdList = groupIds.ToList();
-        var items = await context.GroupItem
-            .AsNoTracking()
-            .Where(gi => !gi.IsDeleted
-                         && gi.ClientId.HasValue
-                         && clientIdList.Contains(gi.ClientId.Value)
-                         && groupIdList.Contains(gi.GroupId))
-            .Select(gi => new { gi.ClientId, gi.ValidFrom, gi.ValidUntil })
-            .ToListAsync(cancellationToken);
-
-        return items
-            .GroupBy(gi => gi.ClientId!.Value)
-            .ToDictionary(
-                group => group.Key,
-                group => GroupItemValidityRange.Combine(group.Select(gi => (gi.ValidFrom, gi.ValidUntil)).ToList()));
-    }
+        => GroupPeriodRangeQuery.LoadAsync(context, clientIds, groupIds, cancellationToken);
 
     public async Task<List<Guid>> GetGroupIdsByShiftId(Guid shiftId, CancellationToken cancellationToken = default)
     {

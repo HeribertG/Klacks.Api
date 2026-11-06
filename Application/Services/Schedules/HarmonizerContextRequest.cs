@@ -31,6 +31,9 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// </param>
 /// <param name="KeywordMode">Hard (default) vetoes the restricting schedule commands; Soft lets a move through as long
 /// as the row's keyword-wish penalty does not rise.</param>
+/// <param name="GroupId">Group the run harmonises for; null = no group. With a group, a day outside an agent's group period in
+/// exactly that group (GroupItem validity) is closed like a day outside the company membership, so no move hands the agent
+/// work there.</param>
 public sealed record HarmonizerContextRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -40,4 +43,5 @@ public sealed record HarmonizerContextRequest(
     int ContextDaysAfter = ScenarioConstants.BoundaryDays,
     int? Seed = null,
     bool LoadPlanningRules = true,
-    KeywordMode KeywordMode = KeywordMode.Hard);
+    KeywordMode KeywordMode = KeywordMode.Hard,
+    Guid? GroupId = null);

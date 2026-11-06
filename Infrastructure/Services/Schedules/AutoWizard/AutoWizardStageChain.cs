@@ -136,7 +136,8 @@ internal sealed class AutoWizardStageChain
                 ContextDaysBefore: request.ContextDaysBefore,
                 ContextDaysAfter: request.ContextDaysAfter,
                 AgentOrderIsUserDefined: request.AgentOrderIsUserDefined,
-                KeywordMode: request.KeywordMode),
+                KeywordMode: request.KeywordMode,
+                GroupId: request.GroupId),
             ct);
 
         await WaitForStageAsync(_wizardRegistry.IsRunning, stageJobId, "Wizard", ct);
@@ -183,7 +184,8 @@ internal sealed class AutoWizardStageChain
                 AnalyseToken: wizardScenarioToken,
                 ContextDaysBefore: request.ContextDaysBefore,
                 ContextDaysAfter: request.ContextDaysAfter,
-                KeywordMode: request.KeywordMode),
+                KeywordMode: request.KeywordMode,
+                GroupId: request.GroupId),
             ct);
 
         await WaitForStageAsync(_harmonizerRegistry.IsRunning, stageJobId, "Harmonizer", ct);
@@ -269,7 +271,8 @@ internal sealed class AutoWizardStageChain
                 Language: request.Language,
                 ContextDaysBefore: request.ContextDaysBefore,
                 ContextDaysAfter: request.ContextDaysAfter,
-                KeywordMode: request.KeywordMode),
+                KeywordMode: request.KeywordMode,
+                GroupId: request.GroupId),
             ct);
 
         try

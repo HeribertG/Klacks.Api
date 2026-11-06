@@ -64,7 +64,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         var targetFrom = payPeriodStart < request.PeriodFrom ? payPeriodStart : request.PeriodFrom;
         var targetUntil = payPeriodEnd > request.PeriodUntil ? payPeriodEnd : request.PeriodUntil;
         var agentSnapshot = await _agentBuilder.BuildAsync(
-            request.AgentIds, request.PeriodFrom, request.PeriodUntil, targetFrom, targetUntil, currentHours, ct);
+            request.AgentIds, request.PeriodFrom, request.PeriodUntil, targetFrom, targetUntil, currentHours, request.GroupId, ct);
 
         var shifts = await _shiftBuilder.BuildAsync(
             request.ShiftIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);

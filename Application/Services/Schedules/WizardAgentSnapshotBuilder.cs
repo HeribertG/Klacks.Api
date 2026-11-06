@@ -18,13 +18,15 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// member day (small companies keep no contracts). Member days without an active contract use those settings defaults
 /// (their weekday flags); only days outside the agent's company membership (Membership.ValidFrom / ValidUntil,
 /// inclusive) are marked WorksOnDay=false, and an agent without any member day in the period is excluded. An agent without a membership
-/// row is unrestricted, like in the schedule view. When the membership starts or ends inside the target period, the
+/// row is unrestricted, like in the schedule view. A run for a group also marks the days outside the agent's period in exactly that
+/// group WorksOnDay=false (<see cref="GroupPeriodRanges"/>, the rule the apply's planning period filter uses), so the planner does not
+/// place work there that the apply would drop again; the group period neither excludes an agent nor prorates its targets. When the membership starts or ends inside the target period, the
 /// targets are prorated by member days (<see cref="MembershipTargetProration"/>); MaximumHours is not. The target period
 /// is the pay period the targets refer to (CurrentHours carries the hours before the planning range), so planning only
 /// the last week of a month still prorates against the whole month.
 /// </summary>
 /// <param name="contractProvider">Source of effective contract data per client and date</param>
-/// <param name="membershipWindowReader">Source of the company membership window per client</param>
+/// <param name="membershipWindowReader">Source of the company membership window and of the group period per client</param>
 public sealed class WizardAgentSnapshotBuilder
 {
     private readonly IClientContractDataProvider _contractProvider;
@@ -45,6 +47,7 @@ public sealed class WizardAgentSnapshotBuilder
         DateOnly targetFrom,
         DateOnly targetUntil,
         IReadOnlyDictionary<Guid, double> currentHoursPerAgent,
+        Guid? groupId,
         CancellationToken ct)
     {
         var contractDays = new List<CoreContractDay>();
@@ -52,6 +55,9 @@ public sealed class WizardAgentSnapshotBuilder
         var contractDataByDate = await _contractProvider.GetEffectiveContractDataForClientsRangeAsync(
             agentIds.ToList(), from, until);
         var membershipWindows = await _membershipWindowReader.GetWindowsAsync(agentIds, ct);
+        var groupPeriods = groupId is { } planningGroupId
+            ? await _membershipWindowReader.GetGroupPeriodRangesAsync(agentIds, planningGroupId, ct)
+            : new Dictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)>();
 
         for (var date = from; date <= until; date = date.AddDays(1))
         {
@@ -60,12 +66,13 @@ public sealed class WizardAgentSnapshotBuilder
 
             foreach (var agentId in agentIds)
             {
-                var isMember = MembershipWindows.IsMemberOn(membershipWindows, agentId, date);
+                var isPlannable = MembershipWindows.IsMemberOn(membershipWindows, agentId, date)
+                    && GroupPeriodRanges.IsInsideOn(groupPeriods, agentId, date);
                 if (!perDay.TryGetValue(agentId, out var data))
                 {
-                    // Outside the membership the day is explicitly closed: without a contract day the engine would
-                    // fall back to the static weekday flags and could plan the agent there.
-                    if (!isMember)
+                    // Outside the membership or the group period the day is explicitly closed: without a contract day
+                    // the engine would fall back to the static weekday flags and could plan the agent there.
+                    if (!isPlannable)
                     {
                         contractDays.Add(ClosedDay(agentId, date));
                     }
@@ -74,8 +81,8 @@ public sealed class WizardAgentSnapshotBuilder
                 }
 
                 // A member day without an active contract is planned with the settings defaults (small companies
-                // keep no contracts); only days outside the membership are hard non-working days.
-                var worksOnDay = isMember && GetWorkOnDayFlag(data, date.DayOfWeek);
+                // keep no contracts); only days outside the membership or the group period are hard non-working days.
+                var worksOnDay = isPlannable && GetWorkOnDayFlag(data, date.DayOfWeek);
                 contractDays.Add(new CoreContractDay(
                     AgentId: agentId.ToString(),
                     Date: date,

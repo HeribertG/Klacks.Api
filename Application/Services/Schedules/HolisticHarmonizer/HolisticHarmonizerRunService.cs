@@ -133,5 +133,6 @@ public sealed class HolisticHarmonizerRunService
             Language: input.Language,
             ContextDaysBefore: input.ContextDaysBefore,
             ContextDaysAfter: input.ContextDaysAfter,
-            KeywordMode: input.KeywordMode);
+            KeywordMode: input.KeywordMode,
+            GroupId: input.GroupId);
 }

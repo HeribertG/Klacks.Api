@@ -60,7 +60,8 @@ public class StartWizard2Skill : BaseSkillImplementation
             PeriodFrom: periodFrom,
             PeriodUntil: periodUntil,
             AgentIds: agentIds,
-            AnalyseToken: analyseToken);
+            AnalyseToken: analyseToken,
+            GroupId: groupId);
 
         Guid jobId;
         try

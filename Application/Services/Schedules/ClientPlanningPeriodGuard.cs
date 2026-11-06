@@ -23,6 +23,7 @@ using Klacks.Api.Application.Services.Clients;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Domain.Services.ShiftSchedule;
@@ -174,7 +175,7 @@ public sealed class ClientPlanningPeriodGuard : IClientPlanningPeriodGuard
         }
 
         if (groupRanges.TryGetValue(client.Id, out var range)
-            && IsOutside(date, ToDate(range.ValidFrom), ToDate(range.ValidUntil)))
+            && !GroupPeriodRanges.Covers(range, date))
         {
             var message = string.Format(
                 OutsideGroupPeriodMessage,

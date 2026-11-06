@@ -61,7 +61,8 @@ public class StartWizard3Skill : BaseSkillImplementation
             PeriodUntil: periodUntil,
             AgentIds: agentIds,
             AnalyseToken: analyseToken,
-            Language: language);
+            Language: language,
+            GroupId: groupId);
 
         Guid jobId;
         try

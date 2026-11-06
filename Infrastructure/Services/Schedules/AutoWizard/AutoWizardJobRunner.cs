@@ -439,7 +439,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 AgentIds: request.AgentIds,
                 AnalyseToken: analyseToken,
                 ContextDaysBefore: request.ContextDaysBefore,
-                ContextDaysAfter: request.ContextDaysAfter),
+                ContextDaysAfter: request.ContextDaysAfter,
+                GroupId: request.GroupId),
             ct);
         return BitmapRuleRuntime.TryCreate(input)?.Evaluate(BitmapBuilder.Build(input)).HardCount;
     }
@@ -464,7 +465,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 AnalyseToken: finalScenarioToken.Value,
                 ContextDaysBefore: request.ContextDaysBefore,
                 ContextDaysAfter: request.ContextDaysAfter,
-                LoadPlanningRules: false),
+                LoadPlanningRules: false,
+                GroupId: request.GroupId),
             ct);
 
         var nameById = finalContext.Agents.ToDictionary(a => a.Id, a => a.DisplayName);

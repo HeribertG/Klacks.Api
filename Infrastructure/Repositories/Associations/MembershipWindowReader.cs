@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Default <see cref="IMembershipWindowReader"/>, backed by <see cref="MembershipWindowQuery"/>.
+/// Default <see cref="IMembershipWindowReader"/>, backed by <see cref="MembershipWindowQuery"/> and <see cref="GroupPeriodRangeQuery"/>.
 /// </summary>
 /// <param name="context">EF Core context holding the memberships</param>
 
@@ -24,4 +24,10 @@ public sealed class MembershipWindowReader : IMembershipWindowReader
         IReadOnlyCollection<Guid> clientIds,
         CancellationToken cancellationToken)
         => MembershipWindowQuery.LoadAsync(_context, clientIds, cancellationToken);
+
+    public Task<Dictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)>> GetGroupPeriodRangesAsync(
+        IReadOnlyCollection<Guid> clientIds,
+        Guid groupId,
+        CancellationToken cancellationToken)
+        => GroupPeriodRangeQuery.LoadAsync(_context, clientIds, [groupId], cancellationToken);
 }

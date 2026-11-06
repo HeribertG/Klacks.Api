@@ -12,9 +12,11 @@ namespace Klacks.Api.Application.Commands.Works;
 /// <param name="Request">The Works to create; bound from the REST body, so it can never switch the period check off</param>
 /// <param name="PeriodCheck">Enforce for REST and chat (the whole request is refused). SkipForPlannerOutput only for
 /// callers that filter their placements one by one before they write, so one bad cell does not void a whole run: the
-/// wizard apply and propose_plan (the planner models the membership per day but not the group period, so the apply
-/// filters both against the scenario's group), and the harmonizer's recreation of uncorrelated Works - which may put a
-/// Work on another employee or day and is NOT filtered (open gap, see IClientPlanningPeriodGuard)</param>
+/// wizard apply and propose_plan (the planner models the membership per day and, only when its request names a group as
+/// the AutoWizard's and the start_wizard skills' do, the group period; the apply filters both against the scenario's group),
+/// and the harmonizer's re-point and recreation of Works - which may put a Work on another employee or day and is NOT
+/// filtered; the harmonizers close the group period's days only when their request names a group, a run started from
+/// their controllers does not (open gap, see IClientPlanningPeriodGuard)</param>
 public record BulkAddWorksCommand(
     BulkAddWorksRequest Request,
     PlanningPeriodCheck PeriodCheck = PlanningPeriodCheck.Enforce) : IRequest<BulkWorksResponse>;

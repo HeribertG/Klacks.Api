@@ -28,6 +28,11 @@
 /// that order is then used as the top-down priority order unchanged. False (default) means the order is the
 /// regular list sort and the builder reshapes it by contractually guaranteed hours (descending, stable).
 /// </param>
+/// <param name="GroupId">
+/// Group the run plans for; null = no group. With a group, a day outside an agent's group period in exactly that group
+/// (GroupItem validity, the rule of the schedule grid and of the apply's planning period filter) is closed like a day
+/// outside the company membership, so the planner does not place work the apply would drop again.
+/// </param>
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.ScheduleOptimizer.Models;
@@ -45,4 +50,5 @@ public sealed record WizardContextRequest(
     int ContextDaysAfter = ScenarioConstants.BoundaryDays,
     bool AgentOrderIsUserDefined = false,
     DateOnly? ReplanFrom = null,
-    KeywordMode KeywordMode = KeywordMode.Hard);
+    KeywordMode KeywordMode = KeywordMode.Hard,
+    Guid? GroupId = null);

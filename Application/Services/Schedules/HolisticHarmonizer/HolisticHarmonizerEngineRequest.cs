@@ -18,6 +18,7 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 /// <param name="ContextDaysBefore">Boundary context days before <paramref name="PeriodFrom"/> for boundary-aware validators. Default 14.</param>
 /// <param name="ContextDaysAfter">Boundary context days after <paramref name="PeriodUntil"/>. Default 14.</param>
 /// <param name="KeywordMode">Hard (default) vetoes the restricting schedule commands; Soft treats them as wishes.</param>
+/// <param name="GroupId">Group the run harmonises for; null = no group (see HarmonizerContextRequest.GroupId).</param>
 public sealed record HolisticHarmonizerEngineRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -27,4 +28,5 @@ public sealed record HolisticHarmonizerEngineRequest(
     string? Language,
     int ContextDaysBefore = ScenarioConstants.BoundaryDays,
     int ContextDaysAfter = ScenarioConstants.BoundaryDays,
-    KeywordMode KeywordMode = KeywordMode.Hard);
+    KeywordMode KeywordMode = KeywordMode.Hard,
+    Guid? GroupId = null);

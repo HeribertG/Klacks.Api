@@ -57,7 +57,8 @@ public sealed class HolisticHarmonizerDeterministicEngine
                 input.AnalyseToken,
                 input.ContextDaysBefore,
                 input.ContextDaysAfter,
-                KeywordMode: input.KeywordMode),
+                KeywordMode: input.KeywordMode,
+                GroupId: input.GroupId),
             cancellationToken);
 
         var sorted = RowSorter.Sort(BitmapBuilder.Build(context));

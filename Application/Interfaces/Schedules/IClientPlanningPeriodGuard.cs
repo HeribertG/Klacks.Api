@@ -14,8 +14,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 /// the promotion of an accepted scenario into the real plan, whose cells were filtered only when the scenario was
 /// written by a guarded path. Known open gap, not an exception by design: the harmonizer (and the recovery engine) move
 /// Works onto other employees and days - by re-pointing cloned Works and by recreating uncorrelated ones from the
-/// bitmap - and their models know neither the membership nor the group period, so a harmonized scenario can hold, and
-/// on accept promote, Works outside an employee's planning period.
+/// bitmap - without this check. The harmonizer models the membership and, when its request names a group (the
+/// AutoWizard chain and the start_wizard skills), the period in that group; a run started from the harmonizer
+/// controllers has no group, and the recovery engine was not part of that change. Such runs can still leave, and on accept promote, Works outside an employee's group period.
 /// </summary>
 public interface IClientPlanningPeriodGuard
 {
