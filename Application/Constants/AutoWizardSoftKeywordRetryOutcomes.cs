@@ -26,6 +26,9 @@ public static class AutoWizardSoftKeywordRetryOutcomes
     /// <summary>The soft scenario fills no more slots than the strict one and was discarded.</summary>
     public const string NotBetter = "NotBetter";
 
-    /// <summary>The soft chain failed, timed out or was cancelled; the strict scenario is the only result.</summary>
+    /// <summary>
+    /// The soft chain failed, timed out or was cancelled, or the reports of a promoted soft scenario failed (the promoted
+    /// scenario is then removed); the strict scenario is the only result.
+    /// </summary>
     public const string Failed = "Failed";
 }

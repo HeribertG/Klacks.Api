@@ -18,7 +18,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// scenario is offered only when it fills strictly more slots than the strict one; otherwise every scenario it produced
 /// is removed. A better soft scenario that breaks no restricting wish is as valid as a strict plan and is promoted: the
 /// job runner makes it the final result and removes the strict one. Otherwise it is marked Soft and offered as the
-/// alternative. A failure, timeout or cancellation of the retry never touches the strict result.
+/// alternative. A failure, timeout or cancellation of the retry never touches the strict result; neither does a failure
+/// of the promoted chain's reports, after which the job runner removes the promoted scenario and reports Failed.
 /// </summary>
 /// <param name="scopeFactory">Creates the scope of the restricting-command check.</param>
 /// <param name="stageChain">Runs the three stages in Soft mode.</param>

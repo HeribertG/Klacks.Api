@@ -183,9 +183,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
             var requested = await RunRequestedChainAsync(jobId, request, produced, ct);
             var softRetry = await _softKeywordRetry.RunAsync(jobId, request, requested.Chain.FinalScenario, requested.Summary, ct);
-            var result = softRetry.PromotedChain is { } promotedChain
-                ? await BuildRunReportsAsync(jobId, request, promotedChain, ct)
-                : requested;
+            var (result, softRetryOutcome) = await AdoptSoftRetryAsync(jobId, request, requested, softRetry, ct);
             var finalScenario = result.Chain.FinalScenario;
 
             stopwatch.Stop();
@@ -206,11 +204,11 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 Summary: result.Summary,
                 KeywordMode: request.KeywordMode,
                 SoftAlternative: softRetry.Alternative,
-                SoftKeywordRetryOutcome: softRetry.Outcome);
+                SoftKeywordRetryOutcome: softRetryOutcome);
 
             _logger.LogInformation(
                 "AutoWizard job {JobId} completed in {ElapsedMs}ms (final scenario {ScenarioId}/{ScenarioName}, soft-keyword retry {SoftRetryOutcome})",
-                jobId, stopwatch.ElapsedMilliseconds, finalScenario.ScenarioId, finalScenario.Name, softRetry.Outcome);
+                jobId, stopwatch.ElapsedMilliseconds, finalScenario.ScenarioId, finalScenario.Name, softRetryOutcome);
 
             // CancellationToken.None: the chain is already finished. The total time budget may fire while
             // the outcome is being recorded, and a cancelled store would drop it and report the finished
@@ -230,7 +228,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             await _maintenance.DeleteAsync(
                 jobId,
                 AutoWizardSoftKeywordRetryPlanner.StrictScenariosToDelete(
-                    produced, softRetry.Outcome == AutoWizardSoftKeywordRetryOutcomes.Promoted));
+                    produced, softRetryOutcome == AutoWizardSoftKeywordRetryOutcomes.Promoted));
         }
         catch (OperationCanceledException)
         {
@@ -271,6 +269,40 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         }
 
         return await BuildRunReportsAsync(jobId, request, chain, requestedCt);
+    }
+
+    /// <summary>
+    /// The run's result after the soft-keyword retry and the retry outcome it reports: the promoted soft chain with its
+    /// own reports, otherwise the requested run. When the reports of a promoted chain fail, or the run is cancelled or
+    /// reaches its total budget while they are built, the promotion ends like any failed retry (a cancel during the retry
+    /// completes with the strict result as well): the promoted scenario is removed and the requested run
+    /// stays the result with outcome Failed, so the strict scenario is not deleted with the intermediates.
+    /// </summary>
+    private async Task<(AutoWizardRequestedRun Run, string SoftRetryOutcome)> AdoptSoftRetryAsync(
+        Guid jobId,
+        StartAutoWizardRequest request,
+        AutoWizardRequestedRun requested,
+        AutoWizardSoftKeywordRetryResult softRetry,
+        CancellationToken ct)
+    {
+        if (softRetry.PromotedChain is not { } promotedChain)
+        {
+            return (requested, softRetry.Outcome);
+        }
+
+        try
+        {
+            return (await BuildRunReportsAsync(jobId, request, promotedChain, ct), softRetry.Outcome);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "AutoWizard job {JobId} - the reports of the promoted soft-keyword scenario {ScenarioId} failed or the run reached its budget; the promotion is dropped and the strict scenario {StrictScenarioId} stays the result",
+                jobId, promotedChain.FinalScenario.ScenarioId, requested.Chain.FinalScenario.ScenarioId);
+            await _maintenance.DeleteAsync(jobId, [promotedChain.FinalScenario.ScenarioId]);
+            return (requested, AutoWizardSoftKeywordRetryOutcomes.Failed);
+        }
     }
 
     /// <summary>
