@@ -26,7 +26,6 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-
 using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Handlers.Schedules;
@@ -169,6 +168,7 @@ public sealed class EvaluateScenarioQueryHandler
             .ToDictionary(g => g.Key, g => g.Count());
 
         var changesTruncated = added.Count > MaxChangeEntries || removed.Count > MaxChangeEntries;
+        var keywordMode = AnalyseScenarioKeywordMode.Of(scenario);
         var ruleCompliant = errors == 0;
 
         return new ScenarioEvaluationResult(
@@ -199,8 +199,8 @@ public sealed class EvaluateScenarioQueryHandler
             AddedEntries: added.Take(MaxChangeEntries).Select(ToChangeEntry).ToList(),
             RemovedEntries: removed.Take(MaxChangeEntries).Select(ToChangeEntry).ToList(),
             ChangesTruncated: changesTruncated,
-            Recommendation: BuildRecommendation(errors, warnings, added.Count) + KeywordModeNote(AnalyseScenarioKeywordMode.Of(scenario)),
-            KeywordMode: AnalyseScenarioKeywordMode.Of(scenario));
+            Recommendation: BuildRecommendation(errors, warnings, added.Count) + KeywordModeNote(keywordMode),
+            KeywordMode: keywordMode);
     }
 
     private static string KeywordModeNote(KeywordMode keywordMode)

@@ -260,7 +260,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         var chain = await _stageChain.RunAsync(jobId, request, produced, requestedCt);
         if (request.KeywordMode == KeywordMode.Soft)
         {
-            await _maintenance.MarkKeywordModeAsync(chain.FinalScenario.ScenarioId, KeywordMode.Soft, note: null, requestedCt);
+            await _maintenance.MarkKeywordModeAsync(chain.FinalScenario.ScenarioId, KeywordMode.Soft, note: null);
         }
 
         var finalToken = chain.FinalScenario.Token;
@@ -285,7 +285,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
         try
         {
-            await _maintenance.MarkKeywordModeAsync(partialScenarioId, KeywordMode.Soft, note: null, CancellationToken.None);
+            await _maintenance.MarkKeywordModeAsync(partialScenarioId, KeywordMode.Soft, note: null);
         }
         catch (Exception ex)
         {

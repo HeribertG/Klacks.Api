@@ -79,6 +79,14 @@ internal sealed class AutoWizardSoftKeywordRetry
             softCts.CancelAfter(Budget);
             return await RunSoftChainAsync(jobId, request, strictFinal, strictSummary!, softProduced, softCts.Token);
         }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            _logger.LogInformation(
+                "AutoWizard job {JobId} - the run was cancelled or reached its total budget during the soft-keyword retry; the strict scenario {ScenarioId} stays the only result",
+                jobId, strictFinal.ScenarioId);
+            await _maintenance.DeleteAsync(jobId, softProduced.Select(s => s.ScenarioId).ToList());
+            return AutoWizardSoftKeywordRetryResult.Of(AutoWizardSoftKeywordRetryOutcomes.Failed);
+        }
         catch (Exception ex)
         {
             _logger.LogWarning(
@@ -121,8 +129,7 @@ internal sealed class AutoWizardSoftKeywordRetry
             softFinal.ScenarioId,
             KeywordMode.Soft,
             AutoWizardSoftKeywordRetryPlanner.BuildSoftScenarioNote(
-                alternative.AdditionalFilledSlots, softSummary!.KeywordWishes, strictFinal.Name),
-            softCt);
+                alternative.AdditionalFilledSlots, softSummary!.KeywordWishes, strictFinal.Name));
 
         await _maintenance.DeleteAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnSuccess(softProduced));
 

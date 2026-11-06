@@ -66,7 +66,7 @@ internal sealed class AutoWizardScenarioMaintenance
     /// Persists the keyword mode of the run on the scenario, optionally with a note. Throws when the scenario is gone or
     /// the write fails, so the caller never offers a soft plan that is not recognisable as one.
     /// </summary>
-    public async Task MarkKeywordModeAsync(Guid scenarioId, KeywordMode keywordMode, string? note, CancellationToken ct)
+    public async Task MarkKeywordModeAsync(Guid scenarioId, KeywordMode keywordMode, string? note)
     {
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IAnalyseScenarioRepository>();

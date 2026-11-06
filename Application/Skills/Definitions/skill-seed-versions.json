@@ -197,8 +197,8 @@
       "hash": "FCC3D5FE75A6BAB4CEAB3218E9BCAD1BFFB800C82632DD30AAED4430A3756CF0"
     },
     "check_client_availability": {
-      "version": 7,
-      "hash": "614309125B0CA77189A1EA5C0DD10E44EF764AC7EF793500010F28A366FCFEEB"
+      "version": 8,
+      "hash": "001D8B16AAC84C71E6982B63F738BF4B7AC67A81EA68559934AA3A2873DCDFAE"
     },
     "check_erp_drop_point_folder_health": {
       "version": 6,

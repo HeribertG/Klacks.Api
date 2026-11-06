@@ -37136,7 +37136,7 @@
     {
       "name": "check_client_availability",
       "area": "availability",
-      "description": "Advisory check whether a client is deployable on a given day / hour window, applying the REAL planning hierarchy: a booked absence (Break) overrides everything, a schedule keyword (FREE/EARLY/...) overrides availability, and availability itself is opt-in per date (no record = fully open; a positively marked day restricts work to exactly the marked hours; an only-false day blocks just those hours). Use for: 'ist Anna am Montag verfügbar?', 'kann Max am 12.8. arbeiten?'.",
+      "description": "Advisory check whether a client is deployable on a given day / hour window: a booked absence (Break) overrides everything; availability applies on every other day, also with a schedule keyword (FREE keeps the day free, EARLY/-NIGHT/... only narrow the shift kinds); availability is opt-in per date (no record = open; a positively marked day allows only the marked hours). Use for: 'ist Anna am Montag verfügbar?', 'kann Max am 12.8. arbeiten?'.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -37237,7 +37237,7 @@
         "fr": "Vérifier si un employé est mobilisable",
         "it": "Verifica se un dipendente è impiegabile"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "get_availability_overview",

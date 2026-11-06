@@ -71,9 +71,9 @@ public class AnalyseScenario : BaseEntity
     public string? RejectReasonText { get; set; }
 
     /// <summary>
-    /// True when the run that produced the scenario planned with the schedule keywords as wishes (Soft keyword mode, e.g.
-    /// the AutoWizard's soft-keyword retry): the plan may break FREE / only-kind / no-kind keywords on purpose and is never
-    /// accepted automatically. False for every other scenario.
+    /// True when an AutoWizard run produced the scenario with the schedule keywords as wishes (a run started in Soft
+    /// keyword mode, or its soft-keyword retry): the plan may break FREE / only-kind / no-kind keywords on purpose and is
+    /// never accepted automatically. A single Wizard or Harmonizer run started in Soft mode does not set it yet.
     /// </summary>
     public bool SoftKeywordPlan { get; set; }
 }
