@@ -48,7 +48,7 @@ Needs the right to create persons (Admin and Supervisor); an account without a r
 2. The empty mask opens with defaults: type Employee, entry date today, the next ID number and a main address valid from today.
 3. Fill in the salutation (de: "Anrede", en: "Salutation"), first name (de: "Vorname", en: "First Name") and last name (de: "Nachname", en: "Last Name"). For a legal entity tick (de: "Juristische Person", en: "Legal Entity") and fill (de: "Firma", en: "Company") instead; a legal entity can only be saved as a customer.
 4. Fill the address: (de: "Strasse", en: "Street"), (de: "PLZ", en: "ZIP"), (de: "Ort", en: "City") and (de: "Nation", en: "Country"). ZIP, city and country are required; for a Swiss postal code town and canton are suggested automatically.
-5. In the card (de: "Registration", en: "Registration") choose the kind of person in (de: "Typ", en: "Type") and check (de: "Eintrittsdatum", en: "Entry Date"), which is required.
+5. In the card (de: "Mitgliedschaft", en: "Membership") choose the kind of person in (de: "Typ", en: "Type") and check (de: "Eintrittsdatum", en: "Entry Date"), which is required.
 6. Add phone and email on the right, then save with (de: "Eingaben speichern", en: "Save entries"). The mask only accepts the save when the required fields are filled in.
 
 While you type, similar existing persons appear in the right-hand list (de: "Gefunden", en: "Found") as a duplicate hint.
@@ -66,7 +66,7 @@ Edit the address shown in the card directly and save: that fixes the existing en
 
 ### Change the kind of person, record an exit, remove an address
 
-- Kind of person: dropdown (de: "Typ", en: "Type") in the card (de: "Registration", en: "Registration").
+- Kind of person: dropdown (de: "Typ", en: "Type") in the card (de: "Mitgliedschaft", en: "Membership").
 - Exit: fill (de: "Austrittsdatum", en: "Exit Date") in the same card and save.
 - Remove an address version: options menu entry (de: "Adresse deaktivieren", en: "Deactivate Address").
 

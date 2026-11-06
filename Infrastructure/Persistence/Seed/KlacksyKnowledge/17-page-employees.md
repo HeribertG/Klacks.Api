@@ -223,8 +223,8 @@ Cards plus einer rechten Navigationsspalte:
     Hauptadresse und Geschäftsadresse, Kunden alle drei. Der Typ lässt sich nicht
     wechseln, solange Adressen einer nicht mehr erlaubten Art existieren. Die neue Adresse
     wird zusätzlich angehängt; die alte bleibt als Historie erhalten.
-- **Registration-Card** (`membership-form`, de: "Registration", en: "Registration", fr:
-  "Inscription", it: "Registrazione") — die Mitgliedschaft:
+- **Mitgliedschaft-Card** (`membership-form`, de: "Mitgliedschaft", en: "Membership", fr:
+  "Adhésion", it: "Adesione") — die Mitgliedschaft:
   - **Typ** (`client-type`, Dropdown Mitarbeiter / Externer / Kunde).
   - **Eintrittsdatum** (`membership-entry-date`, Pflichtfeld, de: "Eintrittsdatum", en:
     "Entry Date", fr: "Date d'entrée", it: "Data di ingresso") — das ist die
@@ -388,7 +388,7 @@ Löschen darf nur der Admin. Es ist ein Soft-Delete: die Person verschwindet aus
 
 ### Typ ändern
 
-Das Dropdown (de: "Typ", en: "Type") in der Card (de: "Registration", en: "Registration") übernimmt den neuen Wert ohne Prüfung; erst das Speichern wird abgelehnt, wenn die Person noch eine Adressart hat, die der neue Typ nicht erlaubt (etwa eine Geschäftsadresse bei einem Mitarbeiter). Diese Adressen zuerst entfernen, dann erneut speichern. Eine juristische Person darf nur Kunde sein. Bei Typ Kunde verschwinden die Cards (de: "Verträge", en: "Contracts") und (de: "Qualifikationen", en: "Qualifications"); was mit bereits gespeicherten Verträgen passiert, ist nicht geprüft.
+Das Dropdown (de: "Typ", en: "Type") in der Card (de: "Mitgliedschaft", en: "Membership") übernimmt den neuen Wert ohne Prüfung; erst das Speichern wird abgelehnt, wenn die Person noch eine Adressart hat, die der neue Typ nicht erlaubt (etwa eine Geschäftsadresse bei einem Mitarbeiter). Diese Adressen zuerst entfernen, dann erneut speichern. Eine juristische Person darf nur Kunde sein. Bei Typ Kunde verschwinden die Cards (de: "Verträge", en: "Contracts") und (de: "Qualifikationen", en: "Qualifications"); was mit bereits gespeicherten Verträgen passiert, ist nicht geprüft.
 
 ### Adresse: Tippfehler, Umzug, Entfernen
 

@@ -35,7 +35,7 @@ a group.
 
 ## One entry and one exit per person
 
-A person has one "registration" with an entry date and, once they have left, an exit date. There is
+A person has one membership with an entry date and, once they have left, an exit date. There is
 only ever one such pair: if somebody leaves and later comes back, the same entry is changed — the new
 entry date replaces the old one. Example: Anna joins on 1 March 2023, leaves on 30 June 2024 and rejoins
 on 1 September 2025. Afterwards her entry date reads 1 September 2025; the March 2023 date is gone. So
@@ -45,8 +45,8 @@ if the exact first period matters later, write it down somewhere else before the
 
 ## Where to see and change it
 
-1. Open the person's own page and find the card (de: "Registration", en: "Registration", fr: "Inscription",
-   it: "Registrazione").
+1. Open the person's own page and find the card (de: "Mitgliedschaft", en: "Membership", fr: "Adhésion",
+   it: "Adesione").
 2. The dates are the fields (de: "Eintrittsdatum", en: "Entry Date", fr: "Date d'entrée", it: "Data di
    ingresso") and (de: "Austrittsdatum", en: "Exit Date", fr: "Date de sortie", it: "Data di uscita").
    Recording an exit means filling the exit date of this one record.
@@ -79,9 +79,9 @@ customer is the person's own classification, a separate field.
 ### Trigger phrases
 
 - "Wenn jemand wieder eintritt, sehe ich dann noch das alte Eintrittsdatum?"
-- "Was ändert das Feld Typ in der Karte Registrierung?"
+- "Was ändert das Feld Typ in der Karte Mitgliedschaft?"
 - "Does re-joining keep the previous membership period?"
-- "Does the Type dropdown in the registration card change the membership?"
+- "Does the Type dropdown in the membership card change the membership?"
 
 <!-- level:pitfalls -->
 

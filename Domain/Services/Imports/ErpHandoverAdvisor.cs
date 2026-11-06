@@ -6,7 +6,8 @@
 /// drop point folder. A Docker installation binds a host folder onto the storage root (standard compose files:
 /// ./erp-import next to docker-compose.yml). When the compose file reports that host folder, the advice names it and
 /// the folder drop comes first; otherwise the advice names the container path and asks to check the mount. Docker
-/// cannot tell an own server from one hosted by the vendor, so the Docker advice names both cases.
+/// cannot tell an own server from one hosted by the vendor, so the Docker advice names both cases. AnswerGuide tells the
+/// assistant how to shape the reply to a hand-over question; the skills append it to their message.
 /// </summary>
 /// <param name="identity">Installation kind and runtime identifier of the running process</param>
 /// <param name="folderPath">Absolute drop point folder as the Klacks server sees it (inside the container on Docker)</param>
@@ -21,6 +22,9 @@ namespace Klacks.Api.Domain.Services.Imports;
 public static class ErpHandoverAdvisor
 {
     private const string WindowsRuntimePrefix = "win";
+    private const string WindowsOfficePcLabel = "Windows office PC";
+    private const string OfficePcLabel = "office PC";
+    private const string DockerServerLabel = "Docker server";
     private const string DockerMountPoint = "/app/ErpImport";
     private const string DefaultHostFolder = "./erp-import";
     private const string HostFolderVariable = "KLACKS_ERP_IMPORT_HOST_DIR";
@@ -28,6 +32,13 @@ public static class ErpHandoverAdvisor
     private const string TokenSentence = "an ERP import token created on that page (tokens exist only there)";
     private const string VendorHostedSentence =
         "If the vendor hosts this installation there is no access to server folders at all: use the push token or the upload.";
+
+    public const string AnswerGuide =
+        "How to answer: reply in the user's language in at most six short, complete sentences, without headings and without " +
+        "repeating a sentence. Say (1) that an ERP can hand orders over in three ways: a folder drop, an HTTPS push with an ERP " +
+        "import token, or an upload by an administrator under Settings > Import; (2) which of them fits THIS installation and " +
+        "why, naming the folder path above; (3) that the account the ERP export runs under needs write permission on exactly " +
+        "that folder; (4) offer to open Settings > Import. Call the installation by the label given in InstallationLabel.";
 
     public static ErpHandoverGuidance Advise(InstallationIdentity identity, string folderPath, string? hostFolderPath = null)
     {
@@ -51,13 +62,14 @@ public static class ErpHandoverAdvisor
             : "An administrator must make sure the account the ERP export runs under can write into exactly this folder.";
 
         var advice =
-            $"Native installation (office PC). Preferred: the ERP export writes its XML files into '{folderPath}'. {access} " +
+            $"{(isWindows ? WindowsOfficePcLabel : OfficePcLabel)} installation (no Docker). Preferred: the ERP export writes its XML files into '{folderPath}'. {access} " +
             "The folder is created by the first import run or by check_erp_drop_point_folder_health if it does not exist yet. " +
             $"Alternatives: an administrator uploads the file on {ImportSettingsPage} (imports at once), or the ERP pushes " +
             $"over HTTPS with {TokenSentence}.";
 
         return new ErpHandoverGuidance(
             ErpHandoverInstallations.Native,
+            isWindows ? WindowsOfficePcLabel : OfficePcLabel,
             [ErpHandoverChannels.FolderDrop, ErpHandoverChannels.HttpsPush, ErpHandoverChannels.AdminUpload],
             ErpFolderDropRequirements.GrantWriteAccessOnFolder,
             advice);
@@ -66,7 +78,7 @@ public static class ErpHandoverAdvisor
     private static ErpHandoverGuidance AdviseDockerWithHostFolder(string folderPath, string hostFolderPath)
     {
         var advice =
-            $"Docker installation. The drop point folder is the server (host) folder '{hostFolderPath}'; inside the Klacks " +
+            $"Docker server installation. The drop point folder is the server (host) folder '{hostFolderPath}'; inside the Klacks " +
             $"container it appears as '{folderPath}'. An ERP running on the server writes its XML files into the host folder; " +
             "an administrator must make sure the account the ERP export runs under can write into exactly that folder " +
             "(Klacks itself writes there as the container user appuser). " +
@@ -75,6 +87,7 @@ public static class ErpHandoverAdvisor
 
         return new ErpHandoverGuidance(
             ErpHandoverInstallations.Docker,
+            DockerServerLabel,
             [ErpHandoverChannels.FolderDrop, ErpHandoverChannels.HttpsPush, ErpHandoverChannels.AdminUpload],
             ErpFolderDropRequirements.GrantWriteAccessOnHostFolder,
             advice);
@@ -83,7 +96,7 @@ public static class ErpHandoverAdvisor
     private static ErpHandoverGuidance AdviseDockerWithoutHostFolder(string folderPath)
     {
         var advice =
-            $"Docker installation. The folder '{folderPath}' is the path inside the Klacks container; this installation does " +
+            $"Docker server installation. The folder '{folderPath}' is the path inside the Klacks container; this installation does " +
             $"not report which server (host) folder is mounted onto {DockerMountPoint}. The standard compose files bind the " +
             $"host folder {DefaultHostFolder} next to docker-compose.yml (overridable with {HostFolderVariable}); an ERP on " +
             $"the server can only write into the drop point folder through such a mounted host folder. On an own server: check " +
@@ -92,6 +105,7 @@ public static class ErpHandoverAdvisor
 
         return new ErpHandoverGuidance(
             ErpHandoverInstallations.Docker,
+            DockerServerLabel,
             [ErpHandoverChannels.HttpsPush, ErpHandoverChannels.AdminUpload, ErpHandoverChannels.FolderDrop],
             ErpFolderDropRequirements.MountHostFolder,
             advice);

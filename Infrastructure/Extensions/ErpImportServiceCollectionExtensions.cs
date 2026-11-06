@@ -40,6 +40,7 @@ public static class ErpImportServiceCollectionExtensions
         services.AddScoped<ImportedOrderProcessor>();
         services.AddScoped<IErpDefaultDropPointProvider, ErpDefaultDropPointProvider>();
         services.AddScoped<ErpDropFolderResolver>();
+        services.AddScoped<ErpDropFolderInitializer>();
         services.AddScoped<IErpImportExceptionRepository, Repositories.Imports.ErpImportExceptionRepository>();
         services.AddScoped<IErpImportFileRepository, Repositories.Imports.ErpImportFileRepository>();
         services.AddSingleton<ErpImportInstanceIdentity>();
@@ -56,6 +57,9 @@ public static class ErpImportServiceCollectionExtensions
         var bgOptions = configuration
             .GetSection(BackgroundServiceOptions.SectionName)
             .Get<BackgroundServiceOptions>() ?? new BackgroundServiceOptions();
+
+        if (bgOptions.ErpDropFolderStartup)
+            services.AddHostedService<Klacks.Api.Infrastructure.Services.Imports.ErpDropFolderStartupService>();
 
         if (bgOptions.ErpOrderImport)
             services.AddHostedService<Klacks.Api.Infrastructure.Services.Imports.ErpOrderImportBackgroundService>();

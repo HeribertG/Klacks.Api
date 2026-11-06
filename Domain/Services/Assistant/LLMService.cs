@@ -191,7 +191,7 @@ public class LLMService : ILLMService
         if (prepared!.Error != null)
         {
             _turnState.TrySetOutcome(TurnOutcome.Errored);
-            yield return SseChunk.Error(prepared.Error);
+            yield return SseChunk.Error(prepared.Error, prepared.ErrorCode);
             yield break;
         }
 

@@ -13,6 +13,7 @@
 /// <param name="VolatilePrompt">The volatile (per-turn) system-prompt segment.</param>
 /// <param name="History">The conversation history truncated into the turn's history budget.</param>
 /// <param name="BudgetProfile">Per-turn budget caps derived from the model's effective input limit.</param>
+/// <param name="ErrorCode">Machine-readable code of the failure (AssistantChatErrorCodes); null when it has none.</param>
 
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -27,7 +28,9 @@ internal sealed record PreparedChatTurn(
     string? SystemPrompt,
     string? VolatilePrompt,
     List<Providers.LLMMessage>? History,
-    ContextBudgetProfile? BudgetProfile)
+    ContextBudgetProfile? BudgetProfile,
+    string? ErrorCode = null)
 {
-    internal static PreparedChatTurn Failed(string error) => new(null, null, error, null, null, null, null, null);
+    internal static PreparedChatTurn Failed(string error, string? errorCode = null) =>
+        new(null, null, error, null, null, null, null, null, errorCode);
 }

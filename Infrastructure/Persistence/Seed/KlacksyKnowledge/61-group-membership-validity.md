@@ -67,8 +67,8 @@ are locked for that person, so nobody plans them by mistake. If you leave both d
 While a group is selected in the schedule, the days outside a person's membership window in that group are locked: no
 shift or absence can be placed there by menu, text entry, drag and drop, fill handle or paste. The schedule draws
 these days blue and darkened (often called dark blue); days outside the employment are drawn dark without the blue.
-This is separate from the person's entry and exit dates (card de: "Registration", en: "Registration", fr:
-"Inscription", it: "Registrazione"), which lock days in the same way.
+This is separate from the person's entry and exit dates (card de: "Mitgliedschaft", en: "Membership", fr:
+"Adhésion", it: "Adesione"), which lock days in the same way.
 
 ### The group's numbers
 

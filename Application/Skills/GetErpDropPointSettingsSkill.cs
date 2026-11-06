@@ -87,6 +87,7 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
             CronExpression = cronExpression,
             TimeZone = timeZoneId,
             guidance.Installation,
+            guidance.InstallationLabel,
             guidance.RecommendedChannels,
             guidance.FolderDropRequirement
         };
@@ -98,7 +99,7 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
             $"{stabilitySeconds} seconds. Only XML in the ErpOrderImport format is imported, as unsealed order drafts " +
             "that a planner seals. The files stay in that folder; each one's import state (waiting, importing, " +
             "processed, failed) is tracked per file -- use get_erp_import_status for the current counts. " +
-            guidance.Advice;
+            $"{guidance.Advice} {ErpHandoverAdvisor.AnswerGuide}";
 
         return SkillResult.SuccessResult(data, message);
     }

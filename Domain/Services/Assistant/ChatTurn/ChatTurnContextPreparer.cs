@@ -56,8 +56,10 @@ internal sealed class ChatTurnContextPreparer
     {
         var stageWatch = Stopwatch.StartNew();
 
-        var (model, provider, error) = await _providerOrchestrator.GetModelAndProviderAsync(context.ModelId);
-        if (error != null) return PreparedChatTurn.Failed(error);
+        var resolution = await _providerOrchestrator.ResolveAsync(context.ModelId);
+        if (resolution.Error != null) return PreparedChatTurn.Failed(resolution.Error, resolution.ErrorCode);
+        var model = resolution.Model;
+        var provider = resolution.Provider;
 
         var budgetProfile = _contextBudgetPolicy.Resolve(provider!, model!);
 

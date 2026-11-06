@@ -1,0 +1,654 @@
+{
+  "version": 2,
+  "kind": "turn-selection",
+  "items": [
+    {
+      "id": "erp-handover-01-de",
+      "message": "Wie bringe ich Bestellungen aus unserem ERP in Klacks?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ]
+    },
+    {
+      "id": "erp-handover-01-de-route",
+      "message": "Wie bringe ich Bestellungen aus unserem ERP in Klacks?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-02-de",
+      "message": "Unser ERP soll die Bestellungen an Klacks übergeben. Welcher Weg passt bei uns?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ]
+    },
+    {
+      "id": "erp-handover-02-de-route",
+      "message": "Unser ERP soll die Bestellungen an Klacks übergeben. Welcher Weg passt bei uns?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-03-de",
+      "message": "Wir wollen unser ERP an Klacks anbinden.",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-03-de-route",
+      "message": "Wir wollen unser ERP an Klacks anbinden.",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-04-de",
+      "message": "Kann ich Bestellungen aus dem ERP importieren?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-04-de-route",
+      "message": "Kann ich Bestellungen aus dem ERP importieren?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-05-de",
+      "message": "Wie kommen Aufträge aus SAP in Klacks?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-05-de-route",
+      "message": "Wie kommen Aufträge aus SAP in Klacks?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-06-de",
+      "message": "Wie landen die Aufträge aus Abacus bei uns in Klacks?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-06-de-route",
+      "message": "Wie landen die Aufträge aus Abacus bei uns in Klacks?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-07-de",
+      "message": "Gibt es eine ERP-Schnittstelle?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-07-de-route",
+      "message": "Gibt es eine ERP-Schnittstelle?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-08-de",
+      "message": "Wohin muss unser ERP die Bestelldatei schreiben, damit Klacks sie sieht?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-08-de-route",
+      "message": "Wohin muss unser ERP die Bestelldatei schreiben, damit Klacks sie sieht?",
+      "locale": "de",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-09-en",
+      "message": "How do I get orders from our ERP into Klacks?",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ]
+    },
+    {
+      "id": "erp-handover-09-en-route",
+      "message": "How do I get orders from our ERP into Klacks?",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-10-en",
+      "message": "Our ERP should hand the orders over to Klacks. Which way fits our setup?",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ]
+    },
+    {
+      "id": "erp-handover-10-en-route",
+      "message": "Our ERP should hand the orders over to Klacks. Which way fits our setup?",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-11-en",
+      "message": "We want to connect our ERP to Klacks.",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-11-en-route",
+      "message": "We want to connect our ERP to Klacks.",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-12-en",
+      "message": "Can I import orders from the ERP?",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-12-en-route",
+      "message": "Can I import orders from the ERP?",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-13-en",
+      "message": "How do orders from SAP end up in Klacks?",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-13-en-route",
+      "message": "How do orders from SAP end up in Klacks?",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-14-en",
+      "message": "Is there an ERP interface?",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-14-en-route",
+      "message": "Is there an ERP interface?",
+      "locale": "en",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-15-fr",
+      "message": "Comment importer les commandes de notre ERP dans Klacks ?",
+      "locale": "fr",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ]
+    },
+    {
+      "id": "erp-handover-15-fr-route",
+      "message": "Comment importer les commandes de notre ERP dans Klacks ?",
+      "locale": "fr",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-16-fr",
+      "message": "Notre ERP doit transmettre les commandes à Klacks. Quelle voie convient chez nous ?",
+      "locale": "fr",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ]
+    },
+    {
+      "id": "erp-handover-16-fr-route",
+      "message": "Notre ERP doit transmettre les commandes à Klacks. Quelle voie convient chez nous ?",
+      "locale": "fr",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-17-fr",
+      "message": "Nous voulons connecter notre ERP à Klacks.",
+      "locale": "fr",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-17-fr-route",
+      "message": "Nous voulons connecter notre ERP à Klacks.",
+      "locale": "fr",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-18-fr",
+      "message": "Comment les commandes de SAP arrivent-elles dans Klacks ?",
+      "locale": "fr",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-18-fr-route",
+      "message": "Comment les commandes de SAP arrivent-elles dans Klacks ?",
+      "locale": "fr",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-19-fr",
+      "message": "Existe-t-il une interface ERP ?",
+      "locale": "fr",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-19-fr-route",
+      "message": "Existe-t-il une interface ERP ?",
+      "locale": "fr",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-20-it",
+      "message": "Come porto gli ordini dal nostro ERP in Klacks?",
+      "locale": "it",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ]
+    },
+    {
+      "id": "erp-handover-20-it-route",
+      "message": "Come porto gli ordini dal nostro ERP in Klacks?",
+      "locale": "it",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-21-it",
+      "message": "Il nostro ERP deve consegnare gli ordini a Klacks. Quale via è adatta alla nostra installazione?",
+      "locale": "it",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ]
+    },
+    {
+      "id": "erp-handover-21-it-route",
+      "message": "Il nostro ERP deve consegnare gli ordini a Klacks. Quale via è adatta alla nostra installazione?",
+      "locale": "it",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "owner"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-22-it",
+      "message": "Vogliamo collegare il nostro ERP a Klacks.",
+      "locale": "it",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-22-it-route",
+      "message": "Vogliamo collegare il nostro ERP a Klacks.",
+      "locale": "it",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-23-it",
+      "message": "Come arrivano gli ordini da SAP in Klacks?",
+      "locale": "it",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-23-it-route",
+      "message": "Come arrivano gli ordini da SAP in Klacks?",
+      "locale": "it",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    },
+    {
+      "id": "erp-handover-24-it",
+      "message": "Esiste un'interfaccia ERP?",
+      "locale": "it",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ]
+    },
+    {
+      "id": "erp-handover-24-it-route",
+      "message": "Esiste un'interfaccia ERP?",
+      "locale": "it",
+      "expectedTool": "get_erp_drop_point_settings",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "erp-handover-routing-2026-11-05",
+      "comment": "natural ERP handover question; first call should be the installation-aware settings read",
+      "tags": [
+        "heldout"
+      ],
+      "currentRoute": "/workplace/settings"
+    }
+  ]
+}

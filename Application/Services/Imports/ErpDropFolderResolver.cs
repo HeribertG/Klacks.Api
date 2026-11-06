@@ -37,7 +37,7 @@ public class ErpDropFolderResolver
     public ErpDropFolder Resolve(string bucketPrefix)
     {
         var normalizedPrefix = ErpImportStorageKeys.NormalizePrefix(bucketPrefix);
-        var folderPath = _objectStorageService.ResolvePath(normalizedPrefix);
+        var folderPath = ErpFolderDisplayPath.WithoutTrailingSeparator(_objectStorageService.ResolvePath(normalizedPrefix));
         var identity = _installationIdentityProvider.Get();
         var hostFolderPath = identity.Kind == InstallationKind.Docker
             ? ErpHostFolderPath.Combine(_options.Value.HostPathHint, normalizedPrefix)

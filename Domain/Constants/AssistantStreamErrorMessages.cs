@@ -13,4 +13,6 @@ public static class AssistantStreamErrorMessages
     public const string ContextPreparationFailure = "The assistant could not prepare this conversation. Please try again.";
 
     public const string ProviderFailure = "The language model did not answer. Please try again.";
+
+    public const string ProviderUnavailable = "The provider for the selected model is not available.";
 }

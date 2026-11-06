@@ -6,15 +6,35 @@
 /// guaranteed in the LLM tool list independent of vector retrieval quality — also when the
 /// user asks about a DIFFERENT page than the one they are on (the route guarantee only
 /// covers the current page) and despite typos (keywords are tolerant prefixes like "dashb").
+/// Short acronyms (erp, sap) are matched as whole Latin words only: as substrings they sit inside ordinary words
+/// (verpflichtet) and would guarantee skills for messages that have nothing to do with them.
 /// </summary>
 /// <param name="userMessage">The current user chat message; matched case-insensitively</param>
 
+using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class ConceptExplainSkillKeywords
 {
+    private const string LatinWordBoundaryBefore = "(?<![0-9A-Za-zÀ-ɏ])";
+    private const string LatinWordBoundaryAfter = "(?![0-9A-Za-zÀ-ɏ])";
+    private static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(100);
+
+    private static readonly IReadOnlyList<string> ErpHandoverSkills =
+    [
+        SkillNames.GetErpDropPointSettings,
+        SkillNames.ExplainPageSettingsErpDropPoints,
+    ];
+
+    private static readonly IReadOnlyList<(Regex Word, IReadOnlyList<string> SkillNames)> WholeWordToSkills =
+    [
+        (WholeWord("erp"), ErpHandoverSkills),
+        (WholeWord("sap"), ErpHandoverSkills),
+        (WholeWord("abacus"), ErpHandoverSkills),
+    ];
+
     private static readonly IReadOnlyList<(string Keyword, string SkillName)> KeywordToSkill =
     [
         ("bestellung", SkillNames.ExplainShiftLifecycle),
@@ -182,10 +202,19 @@ public static class ConceptExplainSkillKeywords
             return [];
         }
 
-        return KeywordToSkill
+        var substringMatches = KeywordToSkill
             .Where(m => userMessage.Contains(m.Keyword, StringComparison.OrdinalIgnoreCase))
-            .Select(m => m.SkillName)
+            .Select(m => m.SkillName);
+        var wholeWordMatches = WholeWordToSkills
+            .Where(m => m.Word.IsMatch(userMessage))
+            .SelectMany(m => m.SkillNames);
+
+        return substringMatches
+            .Concat(wholeWordMatches)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
+
+    private static Regex WholeWord(string word) =>
+        new($"{LatinWordBoundaryBefore}{Regex.Escape(word)}{LatinWordBoundaryAfter}", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, MatchTimeout);
 }

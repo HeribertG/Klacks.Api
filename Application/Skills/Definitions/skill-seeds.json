@@ -34531,7 +34531,7 @@
     {
       "name": "explain_page_settings_erp_drop_points",
       "area": "settings",
-      "description": "Explains the ERP order & customer import feature in Klacks settings (section Import, only visible in expert mode) — the single-drop-point ('one mailbox') model for automatically importing orders (as unsealed, group-less OriginalOrder draft shifts that planners review and seal by hand) from XML files delivered by an external ERP system. Covers the four cards: import schedule (cron expression, time zone, enable toggle, run-now button, last-polled/last-error status), manual upload (drag & drop an XML file), the file list (Inbox/Processed/Failed tabs with import progress, per-file summary and status icon, uploader, retry and delete) and the ERP push access tokens for HTTPS delivery. Also covers the manual/handbook tab with the sample XML download. Use this when the user asks how to set up or use the ERP order import. Supports a level parameter: short (purpose only), elements (every card explained), effects (data flow, how orders become shifts, how tokens and the drop-zone relate).",
+      "description": "Explains the ERP order & customer import feature in Klacks settings (section Import, only visible in expert mode) — the single-drop-point ('one mailbox') model for automatically importing orders (as unsealed, group-less OriginalOrder draft shifts that planners review and seal by hand) from XML files delivered by an external ERP system. Covers the four cards: import schedule (cron expression, time zone, enable toggle, run-now button, last-polled/last-error status), manual upload (drag & drop an XML file), the file list (Inbox/Processed/Failed tabs with import progress, per-file summary and status icon, uploader, retry and delete) and the ERP push access tokens for HTTPS delivery. Also covers the manual/handbook tab with the sample XML download. Use this when the user wants the cards and buttons of this page explained. Supports a level parameter: short (purpose only), elements (every card explained), effects (data flow, how orders become shifts, how tokens and the drop-zone relate).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -34587,9 +34587,7 @@
           "erp zugriffstoken",
           "wie funktioniert der bestellungsimport",
           "wo lege ich die xml datei physisch ab",
-          "welcher server-ordner fuer den erp import",
-          "wie kommen bestellungen aus dem erp nach klacks",
-          "welche wege gibt es damit ein erp bestellungen liefert"
+          "welcher server-ordner fuer den erp import"
         ],
         "en": [
           "how do i set up erp import",
@@ -34598,23 +34596,19 @@
           "upload xml file erp",
           "erp access token",
           "how does the order import work",
-          "which server folder receives the erp xml",
-          "how do orders get from the erp into klacks",
-          "which ways can an erp deliver orders"
+          "which server folder receives the erp xml"
         ],
         "fr": [
           "comment configurer l'import erp",
           "qu'est-ce qu'un drop point",
           "importer des commandes automatiquement",
-          "jeton d'accès erp",
-          "comment les commandes de l'erp arrivent dans klacks"
+          "jeton d'accès erp"
         ],
         "it": [
           "come configuro l'import erp",
           "cos'è un drop point",
           "importare ordini automaticamente",
-          "token di accesso erp",
-          "come arrivano gli ordini dall'erp in klacks"
+          "token di accesso erp"
         ]
       },
       "labels": {
@@ -34623,7 +34617,7 @@
         "fr": "Explication des paramètres des points de dépôt ERP",
         "it": "Spiegazione delle impostazioni dei punti di consegna ERP"
       },
-      "version": 11
+      "version": 12
     },
     {
       "name": "explain_page_import_employees",
@@ -43524,7 +43518,7 @@
     {
       "name": "get_erp_drop_point_settings",
       "area": "settings",
-      "description": "Shows where an outside system hands its files in: the name of that handover point, which system delivers there, the resolved absolute folder path on disk files must be copied to, on Docker also the host folder (files stay there; their import state is tracked per file), whether pickup happens at all, the poll schedule, when it last looked and what went wrong the last time. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Explains how an ERP or other outside system hands its orders to Klacks and which way fits this installation: write the export file into the folder (path shown), push it over HTTPS with an access token, or upload it in the import settings. Also reports the handover point name, delivering system, whether pickup is on, the poll schedule, the last poll and the last error. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -43560,7 +43554,12 @@
           "wo lege ich die bestell-xml ab",
           "wo kopiere ich die importdatei hin",
           "auf welchem weg liefert das erp seine bestellungen ab",
-          "wie landen die erp bestellungen im ordner"
+          "wie landen die erp bestellungen im ordner",
+          "wie kommen bestellungen aus dem erp nach klacks",
+          "welche wege gibt es damit ein erp bestellungen liefert",
+          "welcher übergabeweg passt zu unserer installation",
+          "das erp soll seine exportdatei an klacks liefern",
+          "aufträge aus dem erp übernehmen"
         ],
         "en": [
           "handover point settings",
@@ -43570,21 +43569,34 @@
           "where do i copy the xml file to",
           "where should i put the order xml",
           "which way does the erp hand over its orders",
-          "how do the erp orders end up in the folder"
+          "how do the erp orders end up in the folder",
+          "how do orders get from the erp into klacks",
+          "which ways can an erp deliver orders",
+          "which handover way fits our installation",
+          "the erp should deliver its export file to klacks",
+          "take over orders from the erp"
         ],
         "fr": [
           "point de remise",
           "ou les fichiers sont deposes",
           "dossier de recuperation",
           "ou copier le fichier xml de commande",
-          "par quelle voie l'erp remet ses commandes"
+          "par quelle voie l'erp remet ses commandes",
+          "comment les commandes de l'erp arrivent dans klacks",
+          "quelle voie de remise convient à notre installation",
+          "l'erp doit livrer son fichier d'export à klacks",
+          "reprendre les commandes de l'erp"
         ],
         "it": [
           "punto di consegna",
           "dove vengono depositati i file",
           "cartella di prelievo",
           "dove copio il file xml dell'ordine",
-          "in che modo l'erp consegna i suoi ordini"
+          "in che modo l'erp consegna i suoi ordini",
+          "come arrivano gli ordini dall'erp in klacks",
+          "quale via di consegna è adatta alla nostra installazione",
+          "l'erp deve consegnare il suo file di esportazione a klacks",
+          "riprendere gli ordini dall'erp"
         ]
       },
       "labels": {
@@ -43593,7 +43605,7 @@
         "fr": "Paramètres du point de dépôt ERP",
         "it": "Impostazioni del punto di consegna ERP"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "update_erp_drop_point_settings",

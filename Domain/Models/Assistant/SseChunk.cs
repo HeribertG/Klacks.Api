@@ -118,10 +118,13 @@ public class SseChunk
         ExecutedCount = executedCount
     };
 
-    public static SseChunk Error(string message) => new()
+    /// <param name="message">English summary of the failure; never an exception message</param>
+    /// <param name="errorCode">Machine-readable code the client translates (AssistantChatErrorCodes); null for a generic failure</param>
+    public static SseChunk Error(string message, string? errorCode = null) => new()
     {
         Type = SseChunkType.Error,
-        ErrorMessage = message
+        ErrorMessage = message,
+        ErrorCode = errorCode
     };
 
     /// <summary>
