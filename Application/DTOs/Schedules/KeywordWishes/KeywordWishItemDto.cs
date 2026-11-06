@@ -9,4 +9,6 @@ namespace Klacks.Api.Application.DTOs.Schedules.KeywordWishes;
 /// <param name="Date">The day.</param>
 /// <param name="Keyword">Keyword name (ScheduleCommandKeyword): the combined restriction that was broken, or the unfulfilled positive wish.</param>
 /// <param name="Outcome">How the wish was missed (KeywordWishOutcome name: BrokenFree, BrokenOnly, BrokenNo, Unfulfilled).</param>
-public sealed record KeywordWishItemDto(Guid ClientId, DateOnly Date, string Keyword, string Outcome);
+/// <param name="ClientName">Display name of the employee (IClientRepository.GetDisplayNamesAsync); the id as text when the
+/// employee is not found.</param>
+public sealed record KeywordWishItemDto(Guid ClientId, DateOnly Date, string Keyword, string Outcome, string ClientName);

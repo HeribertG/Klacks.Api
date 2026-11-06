@@ -5,11 +5,13 @@
 /// absences (breaks without a parent work) of the plan, keys every work on its start day and shift kind
 /// (<see cref="ShiftTypeInference.FromSpan"/>, as the day-directive check does) and hands them to
 /// <see cref="KeywordWishCalculator"/>. A positive wish on an absence day is dropped, no plan can fulfil it. The same
-/// keyword days answer whether a range has any restricting command (the AutoWizard's soft-retry gate).
+/// keyword days answer whether a range has any restricting command (the AutoWizard's soft-retry gate). Every missed wish
+/// carries the employee's display name, read in one batch.
 /// </summary>
 /// <param name="context">EF Core database context (works and breaks of the plan)</param>
 /// <param name="scheduleCommandRepository">Reads the schedule commands of the employees and days</param>
 /// <param name="keywordProvider">Admin-configured directive tokens</param>
+/// <param name="clientRepository">Display names of the employees with a missed wish</param>
 
 using Klacks.Api.Application.DTOs.Schedules.KeywordWishes;
 using Klacks.Api.Application.Interfaces;
@@ -28,15 +30,18 @@ public sealed class KeywordWishCountService : IKeywordWishCountService
     private readonly DataBaseContext _context;
     private readonly IScheduleCommandRepository _scheduleCommandRepository;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
+    private readonly IClientRepository _clientRepository;
 
     public KeywordWishCountService(
         DataBaseContext context,
         IScheduleCommandRepository scheduleCommandRepository,
-        IScheduleCommandKeywordProvider keywordProvider)
+        IScheduleCommandKeywordProvider keywordProvider,
+        IClientRepository clientRepository)
     {
         _context = context;
         _scheduleCommandRepository = scheduleCommandRepository;
         _keywordProvider = keywordProvider;
+        _clientRepository = clientRepository;
     }
 
     public async Task<KeywordWishesDto> CountAsync(
@@ -60,7 +65,7 @@ public sealed class KeywordWishCountService : IKeywordWishCountService
 
         await DropPositiveWishOnAbsenceDaysAsync(days, ids, from, until, analyseToken, cancellationToken);
         var worked = await LoadWorkedKindsAsync(ids, from, until, analyseToken, cancellationToken);
-        return ToDto(KeywordWishCalculator.Evaluate(days, worked, collectItems: true));
+        return await ToDtoAsync(KeywordWishCalculator.Evaluate(days, worked, collectItems: true), cancellationToken);
     }
 
     public async Task<bool> HasRestrictingWishesAsync(
@@ -161,13 +166,29 @@ public sealed class KeywordWishCountService : IKeywordWishCountService
         return worked;
     }
 
-    private static KeywordWishesDto ToDto(KeywordWishResult result)
-        => new(
+    private async Task<KeywordWishesDto> ToDtoAsync(KeywordWishResult result, CancellationToken cancellationToken)
+    {
+        var clientIds = result.Items.Select(i => Guid.Parse(i.AgentId)).Distinct().ToList();
+        var names = clientIds.Count == 0
+            ? new Dictionary<Guid, string>()
+            : await _clientRepository.GetDisplayNamesAsync(clientIds, cancellationToken);
+
+        return new KeywordWishesDto(
             result.Tally.BrokenFree,
             result.Tally.BrokenOnly,
             result.Tally.BrokenNo,
             result.Tally.Unfulfilled,
             result.Items
-                .Select(i => new KeywordWishItemDto(Guid.Parse(i.AgentId), i.Date, i.Keyword.ToString(), i.Outcome.ToString()))
+                .Select(i =>
+                {
+                    var clientId = Guid.Parse(i.AgentId);
+                    return new KeywordWishItemDto(
+                        clientId,
+                        i.Date,
+                        i.Keyword.ToString(),
+                        i.Outcome.ToString(),
+                        names.GetValueOrDefault(clientId) ?? clientId.ToString());
+                })
                 .ToList());
+    }
 }

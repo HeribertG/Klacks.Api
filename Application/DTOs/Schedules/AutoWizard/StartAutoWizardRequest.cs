@@ -23,7 +23,7 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="SoftKeywordRetry">True to run the chain a second time in Soft keyword mode when the strict (Hard) run
 /// leaves slots open and the employees have restricting schedule commands (FREE, OnlyX, NoX) in the period; the soft
 /// scenario is kept and offered only when it fills more slots. Ignored when <paramref name="KeywordMode"/> is Soft.
-/// Default false (the UI has no view for the second scenario yet); Klacksy and the next-period detector set it.</param>
+/// Default false for callers that do not ask for it; the UI, Klacksy and the next-period detector send true.</param>
 public sealed record StartAutoWizardRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,

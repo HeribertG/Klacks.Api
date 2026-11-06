@@ -40,13 +40,11 @@ public static class AutoWizardSoftKeywordRetryPlanner
     /// </summary>
     /// <param name="scenario">The soft final scenario.</param>
     /// <param name="strictSummary">Summary of the strict final scenario.</param>
-    /// <param name="softSummary">Summary of the soft final scenario.</param>
-    /// <param name="namesById">Display names of the employees; a missing one is shown as its id.</param>
+    /// <param name="softSummary">Summary of the soft final scenario; its wish items carry the employees' names.</param>
     public static AutoWizardSoftAlternativeDto BuildAlternative(
         AutoWizardStageScenario scenario,
         ScenarioSummaryDto strictSummary,
-        ScenarioSummaryDto softSummary,
-        IReadOnlyDictionary<Guid, string> namesById)
+        ScenarioSummaryDto softSummary)
         => new(
             scenario.ScenarioId,
             scenario.Token,
@@ -57,19 +55,22 @@ public static class AutoWizardSoftKeywordRetryPlanner
             SoftOnlyMisses(strictSummary, softSummary)
                 .Select(item => new AutoWizardBrokenWishDto(
                     item.ClientId,
-                    namesById.GetValueOrDefault(item.ClientId) ?? item.ClientId.ToString(),
+                    item.ClientName,
                     item.Date,
                     item.Keyword,
                     item.Outcome))
                 .ToList());
 
-    /// <summary>The wishes the soft scenario misses and the strict one does not, in the soft summary's order.</summary>
+    /// <summary>
+    /// The wishes the soft scenario misses and the strict one does not, in the soft summary's order. A wish is the same
+    /// when employee, day, keyword and outcome match; the display name takes no part.
+    /// </summary>
     /// <param name="strictSummary">Summary of the strict final scenario.</param>
     /// <param name="softSummary">Summary of the soft final scenario.</param>
     public static IReadOnlyList<KeywordWishItemDto> SoftOnlyMisses(ScenarioSummaryDto strictSummary, ScenarioSummaryDto softSummary)
     {
-        var strictMisses = (strictSummary.KeywordWishes?.Items ?? []).ToHashSet();
-        return (softSummary.KeywordWishes?.Items ?? []).Where(item => !strictMisses.Contains(item)).ToList();
+        var strictMisses = (strictSummary.KeywordWishes?.Items ?? []).Select(WishKey).ToHashSet();
+        return (softSummary.KeywordWishes?.Items ?? []).Where(item => !strictMisses.Contains(WishKey(item))).ToList();
     }
 
     /// <summary>
@@ -83,4 +84,7 @@ public static class AutoWizardSoftKeywordRetryPlanner
         => $"AutoWizard soft-keyword alternative to '{strictScenarioName}': fills {additionalFilledSlots} more slot(s) " +
            $"by breaking schedule-command wishes (missed in total: FREE {wishes?.BrokenFree ?? 0}, only-kind {wishes?.BrokenOnly ?? 0}, " +
            $"excluded kind {wishes?.BrokenNo ?? 0}, unfulfilled {wishes?.Unfulfilled ?? 0})";
+
+    private static (Guid ClientId, DateOnly Date, string Keyword, string Outcome) WishKey(KeywordWishItemDto item)
+        => (item.ClientId, item.Date, item.Keyword, item.Outcome);
 }

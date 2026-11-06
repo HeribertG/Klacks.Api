@@ -24,8 +24,11 @@
 /// automatically: it is reported with its own block reason and stays a draft for a human.
 /// A scenario planned in Soft keyword mode (it may break schedule-command wishes on purpose) is never accepted
 /// automatically either: the result's KeywordMode and the scenario's persisted KeywordMode must both be Hard, else the
-/// run is reported as NotCommittable. Only the chain's final scenario is ever a candidate; the soft-keyword alternative
-/// (SoftAlternative) is never read here.
+/// run is reported as NotCommittable. Only the chain's final scenario is ever a candidate for the accept; the soft-keyword
+/// alternative (SoftAlternative) is never accepted. Once the strict scenario is accepted the alternative is planned against
+/// a real schedule that no longer exists, so it is deleted (DeleteAnalyseScenarioCommand, as the AutoWizard discards the
+/// soft scenarios it does not offer), best-effort: a failed delete leaves a stale draft, never an uncommitted plan. On
+/// every blocked outcome the alternative stays for the human who decides between the two.
 /// EVERY way of not committing raises a NextPeriodAutoCommitBlockedTriggerEvent with its own reason.
 /// A silent failure is the one outcome this branch must never produce - the planners would keep
 /// believing the period was committed while it is still a draft.
@@ -208,7 +211,8 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
         }
 
         await CommitCompletedChainAsync(
-            scenarioId, scenarioToken, groupId, groupName, periodStart, periodEnd, cancellationToken);
+            scenarioId, scenarioToken, groupId, groupName, periodStart, periodEnd,
+            terminal.Result.SoftAlternative?.ScenarioId, cancellationToken);
     }
 
     internal async Task CommitCompletedChainAsync(
@@ -218,6 +222,7 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
         string groupName,
         DateOnly periodStart,
         DateOnly periodEnd,
+        Guid? softAlternativeScenarioId,
         CancellationToken cancellationToken = default)
     {
         using var scope = _scopeFactory.CreateScope();
@@ -342,6 +347,39 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
             new NextPeriodPlanCommittedTriggerEvent(groupId, groupName, periodStart, periodEnd, scenarioId),
             cancellationToken,
             autonomy.DecidingAdminUserId);
+
+        await DiscardSoftAlternativeAsync(mediator, softAlternativeScenarioId, scenarioId, groupName);
+    }
+
+    /// <summary>
+    /// Deletes the soft-keyword alternative of a chain whose strict scenario was just accepted. Best-effort and on
+    /// CancellationToken.None: the accept is done and reported, a failed delete only leaves a stale draft behind.
+    /// </summary>
+    /// <param name="mediator">Mediator of the commit scope.</param>
+    /// <param name="softAlternativeScenarioId">The alternative's scenario; null = the run kept none.</param>
+    /// <param name="acceptedScenarioId">The accepted strict scenario, for the log.</param>
+    /// <param name="groupName">Group of the run, for the log.</param>
+    private async Task DiscardSoftAlternativeAsync(
+        IMediator mediator, Guid? softAlternativeScenarioId, Guid acceptedScenarioId, string groupName)
+    {
+        if (softAlternativeScenarioId is not Guid softScenarioId)
+        {
+            return;
+        }
+
+        try
+        {
+            await mediator.Send(new DeleteAnalyseScenarioCommand(softScenarioId), CancellationToken.None);
+            _logger.LogInformation(
+                "NextPeriodAutoCommit: soft-keyword alternative {SoftScenarioId} of the accepted scenario {ScenarioId}, group {GroupName}, deleted",
+                softScenarioId, acceptedScenarioId, groupName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "NextPeriodAutoCommit: the soft-keyword alternative {SoftScenarioId} of the accepted scenario {ScenarioId}, group {GroupName}, could not be deleted; it stays as a stale draft",
+                softScenarioId, acceptedScenarioId, groupName);
+        }
     }
 
     private static NextPeriodAutoCommitBlockedTriggerEvent BlockedEvent(

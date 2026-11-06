@@ -3,7 +3,6 @@
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.DTOs.Schedules.Summary;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules.AutoWizard;
 using Klacks.Api.Domain.Constants;
@@ -19,7 +18,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// scenario is marked Soft and offered only when it fills strictly more slots than the strict one; otherwise every
 /// scenario it produced is removed. A failure, timeout or cancellation of the retry never touches the strict result.
 /// </summary>
-/// <param name="scopeFactory">Creates the scope of the restricting-command check and the name lookup.</param>
+/// <param name="scopeFactory">Creates the scope of the restricting-command check.</param>
 /// <param name="stageChain">Runs the three stages in Soft mode.</param>
 /// <param name="maintenance">Summary, keyword-mode mark and removal of the retry's scenarios.</param>
 /// <param name="logger">Logger of the orchestrator.</param>
@@ -123,8 +122,7 @@ internal sealed class AutoWizardSoftKeywordRetry
             return AutoWizardSoftKeywordRetryResult.Of(AutoWizardSoftKeywordRetryOutcomes.NotBetter);
         }
 
-        var names = await LoadNamesAsync(strictSummary, softSummary!, softCt);
-        var alternative = AutoWizardSoftKeywordRetryPlanner.BuildAlternative(softFinal, strictSummary, softSummary!, names);
+        var alternative = AutoWizardSoftKeywordRetryPlanner.BuildAlternative(softFinal, strictSummary, softSummary!);
         await _maintenance.MarkKeywordModeAsync(
             softFinal.ScenarioId,
             KeywordMode.Soft,
@@ -154,18 +152,5 @@ internal sealed class AutoWizardSoftKeywordRetry
             _logger.LogWarning(ex, "AutoWizard job {JobId} - the restricting schedule commands could not be read; no soft-keyword retry", jobId);
             return false;
         }
-    }
-
-    private async Task<IReadOnlyDictionary<Guid, string>> LoadNamesAsync(
-        ScenarioSummaryDto strictSummary, ScenarioSummaryDto softSummary, CancellationToken ct)
-    {
-        var ids = AutoWizardSoftKeywordRetryPlanner.SoftOnlyMisses(strictSummary, softSummary).Select(item => item.ClientId).Distinct().ToList();
-        if (ids.Count == 0)
-        {
-            return new Dictionary<Guid, string>();
-        }
-
-        using var scope = _scopeFactory.CreateScope();
-        return await scope.ServiceProvider.GetRequiredService<IClientRepository>().GetDisplayNamesAsync(ids, ct);
     }
 }
