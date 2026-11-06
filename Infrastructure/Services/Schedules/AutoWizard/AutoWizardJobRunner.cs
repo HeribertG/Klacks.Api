@@ -24,6 +24,7 @@ using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Logging;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Harmonizer.Rules;
+using Klacks.ScheduleOptimizer.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -39,6 +40,10 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// stage progress is intentionally not forwarded. The third stage is optional: when its
 /// prerequisite is missing (no model configured, or a model known to be text-only) it is skipped
 /// and the chain completes with the Harmonizer scenario, flagged as not harmonized.
+/// The chain in the requested keyword mode is the run's result and runs under its own budget
+/// (AutoWizardTimeBudget.StrictChainMinutes). When the start asks for it, a soft-keyword retry
+/// (AutoWizardSoftKeywordRetry) follows under a budget of its own; its scenario travels as SoftAlternative
+/// next to the final scenario and never replaces it. The whole run is bounded by AutoWizardTimeBudget.TotalMinutes.
 /// </summary>
 /// <param name="scopeFactory">DI scope factory for resolving scoped apply services per stage.</param>
 /// <param name="hubNotifier">Sends SignalR OnCompleted/OnFailed events to the job's client group.</param>
@@ -58,24 +63,17 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 {
     private const int ClientJoinDelayMs = 500;
-    private const int PollIntervalMs = 250;
-    private static readonly TimeSpan StageTimeout = TimeSpan.FromMinutes(5);
-    private static readonly TimeSpan TotalTimeBudget = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan StrictChainBudget = TimeSpan.FromMinutes(AutoWizardTimeBudget.StrictChainMinutes);
+    private static readonly TimeSpan TotalTimeBudget = TimeSpan.FromMinutes(AutoWizardTimeBudget.TotalMinutes);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IAutoWizardHubNotifier _hubNotifier;
     private readonly AutoWizardJobRegistry _registry;
     private readonly IAutofillRunPresenceTracker _presenceTracker;
     private readonly AutofillStartGuard _startGuard;
-    private readonly IWizardJobRunner _wizardRunner;
-    private readonly WizardJobRegistry _wizardRegistry;
-    private readonly WizardResultCache _wizardResultCache;
-    private readonly IHarmonizerJobRunner _harmonizerRunner;
-    private readonly HarmonizerJobRegistry _harmonizerRegistry;
-    private readonly HarmonizerResultCache _harmonizerResultCache;
-    private readonly IHolisticHarmonizerJobRunner _holisticRunner;
-    private readonly HolisticHarmonizerJobRegistry _holisticRegistry;
-    private readonly JobTerminalStateCache<HolisticHarmonizerRunResponse> _holisticStateCache;
+    private readonly AutoWizardStageChain _stageChain;
+    private readonly AutoWizardScenarioMaintenance _maintenance;
+    private readonly AutoWizardSoftKeywordRetry _softKeywordRetry;
     private readonly JobTerminalStateCache<AutoWizardJobResultDto> _stateCache;
     private readonly ILogger<AutoWizardJobRunner> _logger;
     private readonly IHostApplicationLifetime _lifetime;
@@ -104,15 +102,20 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         _registry = registry;
         _presenceTracker = presenceTracker;
         _startGuard = startGuard;
-        _wizardRunner = wizardRunner;
-        _wizardRegistry = wizardRegistry;
-        _wizardResultCache = wizardResultCache;
-        _harmonizerRunner = harmonizerRunner;
-        _harmonizerRegistry = harmonizerRegistry;
-        _harmonizerResultCache = harmonizerResultCache;
-        _holisticRunner = holisticRunner;
-        _holisticRegistry = holisticRegistry;
-        _holisticStateCache = holisticStateCache;
+        _stageChain = new AutoWizardStageChain(
+            scopeFactory,
+            wizardRunner,
+            wizardRegistry,
+            wizardResultCache,
+            harmonizerRunner,
+            harmonizerRegistry,
+            harmonizerResultCache,
+            holisticRunner,
+            holisticRegistry,
+            holisticStateCache,
+            logger);
+        _maintenance = new AutoWizardScenarioMaintenance(scopeFactory, logger);
+        _softKeywordRetry = new AutoWizardSoftKeywordRetry(scopeFactory, _stageChain, _maintenance, logger);
         _stateCache = stateCache;
         _lifetime = lifetime;
         _logger = logger;
@@ -171,29 +174,15 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         try
         {
             _logger.LogInformation(
-                "AutoWizard job {JobId} starting (period {From} - {Until}, {AgentCount} agents, sourceToken {SourceToken})",
-                jobId, request.PeriodFrom, request.PeriodUntil, request.AgentIds.Count, request.AnalyseToken);
+                "AutoWizard job {JobId} starting (period {From} - {Until}, {AgentCount} agents, sourceToken {SourceToken}, keyword mode {KeywordMode}, soft retry {SoftRetry})",
+                jobId, request.PeriodFrom, request.PeriodUntil, request.AgentIds.Count, request.AnalyseToken,
+                request.KeywordMode, request.SoftKeywordRetry);
 
             await Task.Delay(ClientJoinDelayMs, ct);
 
-            var (wizardScenario, wizardOutcome) = await RunWizardStageAsync(jobId, request, ct);
-            produced.Add(wizardScenario);
-
-            var harmonizerScenario = await RunHarmonizerStageAsync(jobId, request, wizardScenario.Token, ct);
-            produced.Add(harmonizerScenario);
-
-            var holisticStage = await RunHolisticStageOrSkipAsync(jobId, request, harmonizerScenario.Token, ct);
-            if (holisticStage.Scenario is not null)
-            {
-                produced.Add(holisticStage.Scenario);
-            }
-
-            var finalScenario = produced[^1];
-
-            var qualificationGaps = await BuildQualificationGapsAsync(request, finalScenario.Token, ct);
-            var skippedRuleWarnings = await LoadSkippedPlanningRuleWarningsAsync(request, finalScenario.Token, ct);
-            var planningRuleRemaining = await CountPlanningRuleHardFindingsAsync(jobId, request, finalScenario.Token, ct);
-            var summary = await BuildSummaryAsync(jobId, finalScenario.Token, ct);
+            var requested = await RunRequestedChainAsync(jobId, request, produced, ct);
+            var finalScenario = requested.Chain.FinalScenario;
+            var softRetry = await _softKeywordRetry.RunAsync(jobId, request, finalScenario, requested.Summary, ct);
 
             stopwatch.Stop();
 
@@ -203,47 +192,50 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 FinalScenarioToken: finalScenario.Token,
                 FinalScenarioName: finalScenario.Name,
                 ElapsedMs: stopwatch.ElapsedMilliseconds,
-                QualificationGaps: qualificationGaps,
-                ComplianceViolations: wizardOutcome.ComplianceViolations,
-                ComplianceSkippedPlacements: wizardOutcome.SkippedPlacements,
-                HarmonizationSkipped: holisticStage.SkippedReason is not null,
-                HarmonizationSkippedReason: holisticStage.SkippedReason,
-                PlanningRuleWarnings: skippedRuleWarnings,
-                PlanningRuleRemaining: planningRuleRemaining,
-                Summary: summary);
+                QualificationGaps: requested.QualificationGaps,
+                ComplianceViolations: requested.Chain.WizardOutcome.ComplianceViolations,
+                ComplianceSkippedPlacements: requested.Chain.WizardOutcome.SkippedPlacements,
+                HarmonizationSkipped: requested.Chain.HarmonizationSkippedReason is not null,
+                HarmonizationSkippedReason: requested.Chain.HarmonizationSkippedReason,
+                PlanningRuleWarnings: requested.PlanningRuleWarnings,
+                PlanningRuleRemaining: requested.PlanningRuleRemaining,
+                Summary: requested.Summary,
+                KeywordMode: request.KeywordMode,
+                SoftAlternative: softRetry.Alternative,
+                SoftKeywordRetryOutcome: softRetry.Outcome);
 
             _logger.LogInformation(
-                "AutoWizard job {JobId} completed in {ElapsedMs}ms (final scenario {ScenarioId}/{ScenarioName})",
-                jobId, stopwatch.ElapsedMilliseconds, finalScenario.ScenarioId, finalScenario.Name);
+                "AutoWizard job {JobId} completed in {ElapsedMs}ms (final scenario {ScenarioId}/{ScenarioName}, soft-keyword retry {SoftRetryOutcome})",
+                jobId, stopwatch.ElapsedMilliseconds, finalScenario.ScenarioId, finalScenario.Name, softRetry.Outcome);
 
             // CancellationToken.None: the chain is already finished. The total time budget may fire while
             // the outcome is being recorded, and a cancelled store would drop it and report the finished
             // chain as cancelled instead.
             await _stateCache.StoreCompletedAsync(jobId, dto, CancellationToken.None);
-            if (holisticStage.SkippedReason is not null)
+            if (requested.Chain.HarmonizationSkippedReason is { } skippedReason)
             {
-                await AnnotateScenarioAsync(
-                    jobId, finalScenario.ScenarioId,
-                    AutoWizardStageOutcomePlanner.BuildHarmonizationSkippedNote(holisticStage.SkippedReason));
+                await _maintenance.AnnotateAsync(
+                    jobId, finalScenario.ScenarioId, AutoWizardStageOutcomePlanner.BuildHarmonizationSkippedNote(skippedReason));
             }
 
             await _hubNotifier.NotifyCompletedAsync(jobId, dto);
 
             // Only the final scenario is a result; the intermediates would otherwise pile up in the
-            // scenario list with no way for the operator to tell which one is the real one.
-            await DeleteScenariosAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnSuccess(produced));
+            // scenario list with no way for the operator to tell which one is the real one. The soft-keyword
+            // retry has already cleaned up its own scenarios.
+            await _maintenance.DeleteAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnSuccess(produced));
         }
         catch (OperationCanceledException)
         {
             stopwatch.Stop();
             _logger.LogWarning("AutoWizard job {JobId} cancelled after {ElapsedMs}ms", jobId, stopwatch.ElapsedMilliseconds);
-            await ReportFailureAsync(jobId, produced, "AutoWizard run was cancelled or timed out.", stopwatch.ElapsedMilliseconds);
+            await ReportFailureAsync(jobId, request, produced, "AutoWizard run was cancelled or timed out.", stopwatch.ElapsedMilliseconds);
         }
         catch (Exception ex)
         {
             stopwatch.Stop();
             _logger.LogError(ex, "AutoWizard job {JobId} failed after {ElapsedMs}ms", jobId, stopwatch.ElapsedMilliseconds);
-            await ReportFailureAsync(jobId, produced, ex.Message, stopwatch.ElapsedMilliseconds);
+            await ReportFailureAsync(jobId, request, produced, ex.Message, stopwatch.ElapsedMilliseconds);
         }
         finally
         {
@@ -254,15 +246,51 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     }
 
     /// <summary>
-    /// Stage names in chain order; used to name the stage a failure stopped in.
+    /// The chain in the requested keyword mode and the reports on its final scenario, under the strict chain's own
+    /// budget: the soft-keyword retry that may follow has a budget of its own, so it can never shorten this run. A run
+    /// requested in Soft mode marks its final scenario Soft before anything is reported.
     /// </summary>
-    private static class StageNames
+    private async Task<AutoWizardRequestedRun> RunRequestedChainAsync(
+        Guid jobId, StartAutoWizardRequest request, List<AutoWizardStageScenario> produced, CancellationToken ct)
     {
-        public const string Wizard = "Wizard";
-        public const string Harmonizer = "Harmonizer";
-        public const string HolisticHarmonizer = "HolisticHarmonizer";
+        using var requestedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        requestedCts.CancelAfter(StrictChainBudget);
+        var requestedCt = requestedCts.Token;
 
-        public static readonly string[] InOrder = [Wizard, Harmonizer, HolisticHarmonizer];
+        var chain = await _stageChain.RunAsync(jobId, request, produced, requestedCt);
+        if (request.KeywordMode == KeywordMode.Soft)
+        {
+            await _maintenance.MarkKeywordModeAsync(chain.FinalScenario.ScenarioId, KeywordMode.Soft, note: null, requestedCt);
+        }
+
+        var finalToken = chain.FinalScenario.Token;
+        var qualificationGaps = await BuildQualificationGapsAsync(request, finalToken, requestedCt);
+        var skippedRuleWarnings = await LoadSkippedPlanningRuleWarningsAsync(request, finalToken, requestedCt);
+        var planningRuleRemaining = await CountPlanningRuleHardFindingsAsync(jobId, request, finalToken, requestedCt);
+        var summary = await _maintenance.BuildSummaryAsync(jobId, finalToken, requestedCt);
+
+        return new AutoWizardRequestedRun(chain, qualificationGaps, skippedRuleWarnings, planningRuleRemaining, summary);
+    }
+
+    /// <summary>
+    /// A partial result of a run requested in Soft mode is a soft plan as well; best-effort, the failure is reported
+    /// either way.
+    /// </summary>
+    private async Task MarkPartialKeywordModeAsync(Guid jobId, StartAutoWizardRequest request, Guid partialScenarioId)
+    {
+        if (request.KeywordMode != KeywordMode.Soft)
+        {
+            return;
+        }
+
+        try
+        {
+            await _maintenance.MarkKeywordModeAsync(partialScenarioId, KeywordMode.Soft, note: null, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "AutoWizard job {JobId} could not mark the partial scenario {ScenarioId} as Soft", jobId, partialScenarioId);
+        }
     }
 
     /// <summary>
@@ -271,11 +299,12 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     /// </summary>
     private async Task ReportFailureAsync(
         Guid jobId,
+        StartAutoWizardRequest request,
         IReadOnlyList<AutoWizardStageScenario> produced,
         string reason,
         long elapsedMs)
     {
-        var failure = AutoWizardStageOutcomePlanner.BuildFailure(jobId, produced, StageNames.InOrder, reason);
+        var failure = AutoWizardStageOutcomePlanner.BuildFailure(jobId, produced, AutoWizardStageChain.StageNames.InOrder, reason);
         var statusReason = AutoWizardStageOutcomePlanner.BuildStatusReason(failure);
 
         // CancellationToken.None: this runs from the cancellation catch as well, where the orchestrator
@@ -284,266 +313,19 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         await _stateCache.StoreFailedAsync(
             jobId,
             statusReason,
-            AutoWizardStageOutcomePlanner.BuildPartialResult(failure, elapsedMs),
+            AutoWizardStageOutcomePlanner.BuildPartialResult(failure, elapsedMs) is { } partial
+                ? partial with { KeywordMode = request.KeywordMode }
+                : null,
             CancellationToken.None);
         if (failure.PartialScenarioId is { } partialScenarioId)
         {
-            await AnnotateScenarioAsync(jobId, partialScenarioId, statusReason);
+            await MarkPartialKeywordModeAsync(jobId, request, partialScenarioId);
+            await _maintenance.AnnotateAsync(jobId, partialScenarioId, statusReason);
         }
 
         await _hubNotifier.NotifyFailedAsync(failure);
 
-        await DeleteScenariosAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnFailure(produced));
-    }
-
-    /// <summary>
-    /// Appends the chain outcome to the scenario's description, best-effort. The terminal state expires after
-    /// minutes and the chat history carries no job id, so the scenario is the durable place where the assistant
-    /// and the operator read that a run failed or skipped its holistic harmonization.
-    /// </summary>
-    private async Task AnnotateScenarioAsync(Guid jobId, Guid scenarioId, string note)
-    {
-        try
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var repository = scope.ServiceProvider.GetRequiredService<IAnalyseScenarioRepository>();
-            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
-            var scenario = await repository.Get(scenarioId);
-            if (scenario == null)
-            {
-                return;
-            }
-
-            scenario.Description = string.IsNullOrWhiteSpace(scenario.Description)
-                ? note
-                : $"{scenario.Description} | {note}";
-            await repository.Put(scenario);
-            await unitOfWork.CompleteAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "AutoWizard job {JobId} could not note its outcome on scenario {ScenarioId}", jobId, scenarioId);
-        }
-    }
-
-    /// <summary>
-    /// Removes intermediate scenarios best-effort - a cleanup failure must never turn a finished or already
-    /// reported run into something else. Runs with CancellationToken.None: after a cancel or the time budget the
-    /// orchestrator token has fired, and a cancelled delete would leave the intermediates in every viewer's scenario list.
-    /// </summary>
-    private async Task DeleteScenariosAsync(Guid jobId, IReadOnlyList<Guid> scenarioIds)
-    {
-        if (scenarioIds.Count == 0)
-        {
-            return;
-        }
-
-        try
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            foreach (var scenarioId in scenarioIds)
-            {
-                await mediator.Send(new DeleteAnalyseScenarioCommand(scenarioId), CancellationToken.None);
-            }
-
-            _logger.LogInformation(
-                "AutoWizard job {JobId} removed {Count} intermediate scenario(s)", jobId, scenarioIds.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "AutoWizard job {JobId} could not remove its intermediate scenarios", jobId);
-        }
-    }
-
-    private async Task<(AutoWizardStageScenario Scenario, WizardApplyOutcome Outcome)> RunWizardStageAsync(
-        Guid orchestratorJobId, StartAutoWizardRequest request, CancellationToken ct)
-    {
-        _logger.LogInformation("AutoWizard {JobId} - stage 1 (Wizard) starting", orchestratorJobId);
-
-        var stageJobId = await _wizardRunner.StartAsync(
-            new WizardContextRequest(
-                PeriodFrom: request.PeriodFrom,
-                PeriodUntil: request.PeriodUntil,
-                AgentIds: request.AgentIds,
-                ShiftIds: request.ShiftIds,
-                AnalyseToken: request.AnalyseToken,
-                TrainingOverrides: null,
-                ContextDaysBefore: request.ContextDaysBefore,
-                ContextDaysAfter: request.ContextDaysAfter,
-                AgentOrderIsUserDefined: request.AgentOrderIsUserDefined,
-                KeywordMode: request.KeywordMode),
-            ct);
-
-        await WaitForStageAsync(_wizardRegistry.IsRunning, stageJobId, "Wizard", ct);
-
-        if (!_wizardResultCache.TryGet(stageJobId, out _, out _, out _, out _, out _))
-        {
-            throw new InvalidOperationException("Wizard stage did not produce a result.");
-        }
-
-        using var scope = _scopeFactory.CreateScope();
-        var apply = scope.ServiceProvider.GetRequiredService<IWizardApplyService>();
-        var (scenario, outcome) = await apply.ApplyAsScenarioAsync(
-            stageJobId, request.GroupId, overrideBlock: false, ct, nameKind: ScenarioNameKind.AutoPlan, language: request.Language);
-
-        if (outcome.SkippedPlacements.Count > 0)
-        {
-            _logger.LogWarning(
-                "AutoWizard {JobId} - stage 1 (Wizard) compliance partition blocked {BlockedCount} placement(s); they are excluded from scenario {ScenarioId}",
-                orchestratorJobId, outcome.SkippedPlacements.Count, scenario.Id);
-        }
-
-        _logger.LogInformation(
-            "AutoWizard {JobId} - stage 1 (Wizard) applied as scenario {ScenarioId} (token {ScenarioToken}, {Count} works)",
-            orchestratorJobId, scenario.Id, scenario.Token, outcome.CreatedWorkIds.Count);
-
-        return (
-            new AutoWizardStageScenario(StageNames.Wizard, scenario.Id, scenario.Token, scenario.Name),
-            outcome);
-    }
-
-    private async Task<AutoWizardStageScenario> RunHarmonizerStageAsync(
-        Guid orchestratorJobId,
-        StartAutoWizardRequest request,
-        Guid wizardScenarioToken,
-        CancellationToken ct)
-    {
-        _logger.LogInformation("AutoWizard {JobId} - stage 2 (Harmonizer) starting", orchestratorJobId);
-
-        var stageJobId = await _harmonizerRunner.StartAsync(
-            new HarmonizerContextRequest(
-                PeriodFrom: request.PeriodFrom,
-                PeriodUntil: request.PeriodUntil,
-                AgentIds: request.AgentIds,
-                AnalyseToken: wizardScenarioToken,
-                ContextDaysBefore: request.ContextDaysBefore,
-                ContextDaysAfter: request.ContextDaysAfter,
-                KeywordMode: request.KeywordMode),
-            ct);
-
-        await WaitForStageAsync(_harmonizerRegistry.IsRunning, stageJobId, "Harmonizer", ct);
-
-        if (!_harmonizerResultCache.TryGet(stageJobId, out _, out _, out _, out _, out _, out _))
-        {
-            throw new InvalidOperationException("Harmonizer stage did not produce a result.");
-        }
-
-        using var scope = _scopeFactory.CreateScope();
-        var apply = scope.ServiceProvider.GetRequiredService<IHarmonizerApplyService>();
-        // evaluateCompliance: false — the intermediate stage result has no reader for the report;
-        // the accept gate protects the real plan when the final scenario is promoted.
-        var (scenario, _, _) = await apply.ApplyAsScenarioAsync(
-            stageJobId, request.GroupId, ct, nameKind: ScenarioNameKind.AutoHarmonizer, language: request.Language, captureRun: true, evaluateCompliance: false);
-
-        _logger.LogInformation(
-            "AutoWizard {JobId} - stage 2 (Harmonizer) applied as scenario {ScenarioId} (token {ScenarioToken})",
-            orchestratorJobId, scenario.Id, scenario.Token);
-
-        return new AutoWizardStageScenario(StageNames.Harmonizer, scenario.Id, scenario.Token, scenario.Name);
-    }
-
-    /// <summary>
-    /// Runs the Holistic Harmonizer stage when its prerequisite is met and skips it otherwise. Stage 3 only
-    /// polishes the complete stage-2 plan, so a failure of the stage never fails the chain: it falls back to
-    /// the stage-2 scenario and reports the reason as a skipped harmonization (warning in the log, reason in
-    /// the run result and on the kept scenario). Cancellation still ends the chain.
-    /// </summary>
-    private async Task<(AutoWizardStageScenario? Scenario, string? SkippedReason)> RunHolisticStageOrSkipAsync(
-        Guid orchestratorJobId,
-        StartAutoWizardRequest request,
-        Guid harmonizerScenarioToken,
-        CancellationToken ct)
-    {
-        var readiness = await CheckHolisticReadinessAsync(ct);
-        if (!readiness.IsReady)
-        {
-            _logger.LogWarning(
-                "AutoWizard {JobId} - stage 3 (Holistic Harmonizer) skipped: {Reason}",
-                orchestratorJobId, readiness.Reason);
-            return (null, readiness.Reason);
-        }
-
-        try
-        {
-            return (await RunHolisticStageAsync(orchestratorJobId, request, harmonizerScenarioToken, ct), null);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            var readinessAfterFailure = await CheckHolisticReadinessAsync(ct);
-            var reason = AutoWizardStageOutcomePlanner.HolisticStageFallbackReason(readinessAfterFailure, ex.Message);
-
-            _logger.LogWarning(
-                ex,
-                "AutoWizard {JobId} - stage 3 (Holistic Harmonizer) failed; falling back to the stage-2 result: {Reason}",
-                orchestratorJobId, reason);
-            return (null, reason);
-        }
-    }
-
-    private async Task<HolisticHarmonizerReadiness> CheckHolisticReadinessAsync(CancellationToken ct)
-    {
-        using var scope = _scopeFactory.CreateScope();
-        var readinessCheck = scope.ServiceProvider.GetRequiredService<IHolisticHarmonizerReadinessCheck>();
-        return await readinessCheck.CheckAsync(ct);
-    }
-
-    private async Task<AutoWizardStageScenario> RunHolisticStageAsync(
-        Guid orchestratorJobId,
-        StartAutoWizardRequest request,
-        Guid harmonizerScenarioToken,
-        CancellationToken ct)
-    {
-        _logger.LogInformation("AutoWizard {JobId} - stage 3 (Holistic Harmonizer) starting", orchestratorJobId);
-
-        var stageJobId = await _holisticRunner.StartAsync(
-            new HolisticHarmonizerRunInput(
-                PeriodFrom: request.PeriodFrom,
-                PeriodUntil: request.PeriodUntil,
-                AgentIds: request.AgentIds,
-                AnalyseToken: harmonizerScenarioToken,
-                Language: request.Language,
-                ContextDaysBefore: request.ContextDaysBefore,
-                ContextDaysAfter: request.ContextDaysAfter,
-                KeywordMode: request.KeywordMode),
-            ct);
-
-        try
-        {
-            await WaitForStageAsync(_holisticRegistry.IsRunning, stageJobId, "Holistic Harmonizer", ct);
-        }
-        catch (TimeoutException)
-        {
-            _holisticRunner.TryCancel(stageJobId);
-            throw;
-        }
-
-        using var scope = _scopeFactory.CreateScope();
-        var apply = scope.ServiceProvider.GetRequiredService<IHolisticHarmonizerApplyService>();
-
-        AnalyseScenarioResource scenario;
-        try
-        {
-            // evaluateCompliance: false — the AutoWizard completion payload carries the Wizard-1 stage
-            // report; the final scenario is protected at the accept gate when the user promotes it.
-            (scenario, _, _) = await apply.ApplyAsScenarioAsync(
-                stageJobId, request.GroupId, ct, nameKind: ScenarioNameKind.Auto, language: request.Language, captureRun: true, evaluateCompliance: false);
-        }
-        catch (InvalidOperationException ex)
-        {
-            var stageState = await _holisticStateCache.TryGetAsync(stageJobId, CancellationToken.None);
-            var stageReason = stageState.Found && !string.IsNullOrWhiteSpace(stageState.Reason)
-                ? $" {stageState.Reason}"
-                : string.Empty;
-            throw new InvalidOperationException($"Holistic Harmonizer stage did not produce a result.{stageReason}", ex);
-        }
-
-        _logger.LogInformation(
-            "AutoWizard {JobId} - stage 3 (Holistic Harmonizer) applied as scenario {ScenarioId} (token {ScenarioToken})",
-            orchestratorJobId, scenario.Id, scenario.Token);
-
-        return new AutoWizardStageScenario(StageNames.HolisticHarmonizer, scenario.Id, scenario.Token, scenario.Name);
+        await _maintenance.DeleteAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnFailure(produced));
     }
 
     /// <summary>
@@ -613,29 +395,6 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         return BitmapRuleRuntime.TryCreate(input)?.Evaluate(BitmapBuilder.Build(input)).HardCount;
     }
 
-    /// <summary>
-    /// Live summary of the final scenario for the completion payload. A failure here only drops the summary, never the finished chain.
-    /// </summary>
-    private async Task<ScenarioSummaryDto?> BuildSummaryAsync(Guid jobId, Guid? finalScenarioToken, CancellationToken ct)
-    {
-        if (finalScenarioToken is null)
-        {
-            return null;
-        }
-
-        try
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var builder = scope.ServiceProvider.GetRequiredService<IScenarioSummaryBuilder>();
-            return await builder.BuildAsync(finalScenarioToken.Value, ct);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogWarning(ex, "AutoWizard {JobId} - building the scenario summary failed", jobId);
-            return null;
-        }
-    }
-
     private async Task<IReadOnlyList<QualificationGapDetail>> BuildQualificationGapsAsync(
         StartAutoWizardRequest request, Guid? finalScenarioToken, CancellationToken ct)
     {
@@ -677,27 +436,4 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
         return QualificationGapReportBuilder.BuildAssignedUnqualified(matrix, assignments);
     }
-
-    private static async Task WaitForStageAsync(
-        Func<Guid, bool> isRunning,
-        Guid stageJobId,
-        string stageName,
-        CancellationToken ct)
-    {
-        using var stageCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        stageCts.CancelAfter(StageTimeout);
-
-        try
-        {
-            while (isRunning(stageJobId))
-            {
-                await Task.Delay(PollIntervalMs, stageCts.Token);
-            }
-        }
-        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
-        {
-            throw new TimeoutException($"{stageName} stage did not finish within {StageTimeout.TotalMinutes} minutes.");
-        }
-    }
-
 }

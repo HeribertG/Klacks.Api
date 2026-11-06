@@ -2,10 +2,11 @@
 
 /// <summary>
 /// Read-only advisory skill that answers "is this client deployable on that day / in that hour
-/// window?" by applying the REAL planning semantics: booked absences (Breaks) override schedule
-/// keywords, keywords override availability, and availability itself is opt-in per date (no record
-/// = fully open; a day with available-hour records restricts work to exactly those hours; an
-/// only-false day blocks just those hours — legacy negative data).
+/// window?" by applying the REAL planning semantics: booked absences (Breaks) override everything; availability
+/// applies on every other day, also on a day with a schedule keyword (owner decision 2026-11-05: a keyword is a wish
+/// and never lifts availability); a FREE keyword keeps the day free in a normal plan, the other keywords only narrow
+/// the shift kinds. Availability itself is opt-in per date (no record = fully open; a day with available-hour records
+/// restricts work to exactly those hours; an only-false day blocks just those hours — legacy negative data).
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client to check</param>
@@ -112,20 +113,28 @@ public class CheckClientAvailabilitySkill : BaseSkillImplementation
             deployable = false;
             verdictText = $"{clientName} has a booked absence on {date:yyyy-MM-dd} — not deployable; availability records are irrelevant that day.";
         }
-        else if (keywords.Count > 0)
-        {
-            governingLayer = "keyword";
-            deployable = !keywords.Contains(configuredKeywords.FreeToken, StringComparer.OrdinalIgnoreCase);
-            verdictText = $"{clientName}'s {date:yyyy-MM-dd} is governed by schedule keyword(s) {string.Join(", ", keywords)} — " +
-                          "keywords override availability records entirely; deployability follows the keyword.";
-        }
         else if (availabilityBlocks)
         {
             governingLayer = "availability";
             deployable = false;
-            verdictText = dayMode == "positive"
+            verdictText = (dayMode == "positive"
                 ? $"{clientName} is NOT deployable for {window}: the day is positively marked, only hours {string.Join(",", availableHours)} are usable."
-                : $"{clientName} is NOT deployable for {window}: hours {string.Join(",", unavailableHours)} are explicitly blocked.";
+                : $"{clientName} is NOT deployable for {window}: hours {string.Join(",", unavailableHours)} are explicitly blocked.")
+                + KeywordSuffix(keywords);
+        }
+        else if (keywords.Contains(configuredKeywords.FreeToken, StringComparer.OrdinalIgnoreCase))
+        {
+            governingLayer = "keyword";
+            deployable = false;
+            verdictText = $"{clientName} wants {date:yyyy-MM-dd} free (schedule keyword(s) {string.Join(", ", keywords)}) — not deployable in a " +
+                          "normal plan; a keyword is a strong wish, so only a plan that treats keywords as wishes may still use the day.";
+        }
+        else if (keywords.Count > 0)
+        {
+            governingLayer = "keyword";
+            deployable = true;
+            verdictText = $"{clientName} is deployable for {window} within the declared availability; schedule keyword(s) " +
+                          $"{string.Join(", ", keywords)} narrow which shift kinds fit that day.";
         }
         else
         {
@@ -154,4 +163,9 @@ public class CheckClientAvailabilitySkill : BaseSkillImplementation
             },
             verdictText);
     }
+
+    private static string KeywordSuffix(IReadOnlyCollection<string> keywords)
+        => keywords.Count == 0
+            ? string.Empty
+            : $" The schedule keyword(s) {string.Join(", ", keywords)} do not lift the availability.";
 }

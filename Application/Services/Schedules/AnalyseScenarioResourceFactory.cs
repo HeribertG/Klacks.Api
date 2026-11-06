@@ -31,5 +31,6 @@ public static class AnalyseScenarioResourceFactory
             ChurnRatio = scenario.ChurnRatio,
             Stage0Violations = scenario.Stage0Violations,
             VariantIds = variantIds,
+            KeywordMode = AnalyseScenarioKeywordMode.Of(scenario),
         };
 }

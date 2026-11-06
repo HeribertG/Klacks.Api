@@ -22,6 +22,10 @@
 /// stays a draft, instead of ending in the watcher's catch-all without a visible outcome.
 /// A chain that completed without its holistic harmonization (HarmonizationSkipped) is never accepted
 /// automatically: it is reported with its own block reason and stays a draft for a human.
+/// A scenario planned in Soft keyword mode (it may break schedule-command wishes on purpose) is never accepted
+/// automatically either: the result's KeywordMode and the scenario's persisted KeywordMode must both be Hard, else the
+/// run is reported as NotCommittable. Only the chain's final scenario is ever a candidate; the soft-keyword alternative
+/// (SoftAlternative) is never read here.
 /// EVERY way of not committing raises a NextPeriodAutoCommitBlockedTriggerEvent with its own reason.
 /// A silent failure is the one outcome this branch must never produce - the planners would keep
 /// believing the period was committed while it is still a draft.
@@ -40,6 +44,7 @@ using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
@@ -50,6 +55,7 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
@@ -165,6 +171,24 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
             return;
         }
 
+        if (terminal.Result.KeywordMode != KeywordMode.Hard)
+        {
+            // Owner decision 2026-11-06: a plan that may break schedule-command wishes on purpose is a proposal for a
+            // human, never accepted automatically. The chain's final scenario is the strict run by construction; this
+            // guards a run that was started in Soft mode.
+            _logger.LogWarning(
+                "NextPeriodAutoCommit: job {JobId} for group {GroupName} produced scenario {ScenarioId} in {KeywordMode} keyword mode; it stays a draft",
+                jobId, groupName, scenarioId, terminal.Result.KeywordMode);
+
+            await PublishBlockedAsync(
+                BlockedEvent(
+                    groupId, groupName, periodStart, periodEnd, scenarioId, NoNewIssues,
+                    NextPeriodAutoCommitBlockReason.NotCommittable),
+                cancellationToken);
+
+            return;
+        }
+
         if (terminal.Result.HarmonizationSkipped)
         {
             // Owner decision: the autonomy consent covers the full chain. A plan whose holistic harmonization
@@ -211,6 +235,24 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
                 BlockedEvent(
                     groupId, groupName, periodStart, periodEnd, scenarioId, NoNewIssues,
                     NextPeriodAutoCommitBlockReason.KillSwitch),
+                cancellationToken);
+
+            return;
+        }
+
+        var scenarioRepository = scope.ServiceProvider.GetRequiredService<IAnalyseScenarioRepository>();
+        var scenario = await scenarioRepository.Get(scenarioId);
+        if (scenario is null || AnalyseScenarioKeywordMode.Of(scenario) != KeywordMode.Hard)
+        {
+            _logger.LogWarning(
+                "NextPeriodAutoCommit: scenario {ScenarioId} for group {GroupName} is missing or was planned in {KeywordMode} keyword mode; withholding auto-accept, it stays a draft",
+                scenarioId, groupName, scenario is null ? null : AnalyseScenarioKeywordMode.Of(scenario));
+
+            await PublishAsync(
+                scope,
+                BlockedEvent(
+                    groupId, groupName, periodStart, periodEnd, scenarioId, NoNewIssues,
+                    NextPeriodAutoCommitBlockReason.NotCommittable),
                 cancellationToken);
 
             return;

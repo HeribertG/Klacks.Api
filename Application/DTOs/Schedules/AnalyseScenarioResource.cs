@@ -4,6 +4,8 @@
 /// DTO for displaying an AnalyseScenario in the frontend.
 /// </summary>
 
+using Klacks.ScheduleOptimizer.Models;
+
 namespace Klacks.Api.Application.DTOs.Schedules;
 
 public class AnalyseScenarioResource
@@ -42,4 +44,7 @@ public class AnalyseScenarioResource
 
     /// <summary>Variants (keys) the scenario carries through live links; empty for a scenario without keys.</summary>
     public IReadOnlyList<Guid> VariantIds { get; set; } = [];
+
+    /// <summary>Keyword mode of the run that produced the scenario; Soft = schedule-command wishes may be broken.</summary>
+    public KeywordMode KeywordMode { get; set; } = KeywordMode.Hard;
 }

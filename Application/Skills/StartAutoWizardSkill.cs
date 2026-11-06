@@ -8,7 +8,9 @@
 /// visible-shift SP. Returns the orchestrator jobId; the chain runs in the background and ends in a
 /// proposal scenario. Stage 3 runs the deterministic local search by default; only when it is switched to an AI
 /// model and that model is missing or cannot read the plan image does the result message say up front that the
-/// chain will stop after the harmonizer stage.
+/// chain will stop after the harmonizer stage. The run asks for the soft-keyword retry (SoftKeywordRetry): when the strict
+/// plan leaves slots open and the employees have restricting schedule commands, a second chain plans with the keywords as
+/// wishes and is offered next to the strict scenario only when it covers more slots.
 /// </summary>
 /// <param name="groupId">Optional group UUID (the "selectedGroup" of the schedule view); takes precedence over groupName.</param>
 /// <param name="groupName">Optional group display name, resolved with fuzzy matching inside the caller's group scope.</param>
@@ -29,6 +31,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -150,7 +153,8 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             AnalyseToken: analyseToken,
             Language: language,
             ContextDaysBefore: ScenarioConstants.BoundaryDays,
-            ContextDaysAfter: ScenarioConstants.BoundaryDays);
+            ContextDaysAfter: ScenarioConstants.BoundaryDays,
+            SoftKeywordRetry: true);
 
         var holisticReadiness = await _holisticReadinessCheck.CheckAsync(cancellationToken);
 
@@ -189,6 +193,8 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             SourceAnalyseToken = analyseToken,
             HolisticHarmonizationWillRun = holisticReadiness.IsReady,
             HolisticHarmonizationSkipReason = holisticReadiness.Reason,
+            SoftKeywordRetry = request.SoftKeywordRetry,
+            MaxRunMinutes = AutoWizardTimeBudget.TotalMinutes,
             Hint = "The run takes a few minutes. Check the job status with this jobId to learn the outcome and the scenario to accept."
         };
 
@@ -196,7 +202,10 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             result,
             $"AutoWizard job {jobId} started for '{group.Name}' covering {periodFrom:yyyy-MM-dd}..{periodUntil:yyyy-MM-dd} " +
             $"({agentIds.Count} agents, {shiftIds.Count} shifts). It runs in the background and ends in a proposal " +
-            $"scenario; the real schedule only changes once the user accepts it. {stageNote}");
+            $"scenario; the real schedule only changes once the user accepts it. {stageNote} " +
+            "If the plan leaves shifts open and employees have restricting schedule keywords (FREE, only/no early, late, night), " +
+            "a second run treats those keywords as wishes and is offered only if it covers more shifts, so the whole run can take " +
+            $"up to {AutoWizardTimeBudget.TotalMinutes} minutes.");
     }
 
     /// <summary>

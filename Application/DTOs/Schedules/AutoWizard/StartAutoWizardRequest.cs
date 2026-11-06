@@ -20,6 +20,10 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="AgentOrderIsUserDefined">True when AgentIds reflects an individual roster order arranged by the user; stage 1 then uses it as the top-down priority order verbatim instead of reshaping by guaranteed hours.</param>
 /// <param name="KeywordMode">Keyword mode of the Wizard and Harmonizer stages; Hard (default) vetoes the restricting
 /// schedule commands, Soft ranks them as wishes.</param>
+/// <param name="SoftKeywordRetry">True to run the chain a second time in Soft keyword mode when the strict (Hard) run
+/// leaves slots open and the employees have restricting schedule commands (FREE, OnlyX, NoX) in the period; the soft
+/// scenario is kept and offered only when it fills more slots. Ignored when <paramref name="KeywordMode"/> is Soft.
+/// Default false (the UI has no view for the second scenario yet); Klacksy and the next-period detector set it.</param>
 public sealed record StartAutoWizardRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -31,4 +35,5 @@ public sealed record StartAutoWizardRequest(
     int ContextDaysBefore = ScenarioConstants.BoundaryDays,
     int ContextDaysAfter = ScenarioConstants.BoundaryDays,
     bool AgentOrderIsUserDefined = false,
-    KeywordMode KeywordMode = KeywordMode.Hard);
+    KeywordMode KeywordMode = KeywordMode.Hard,
+    bool SoftKeywordRetry = false);

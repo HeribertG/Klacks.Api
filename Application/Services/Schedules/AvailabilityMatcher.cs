@@ -2,9 +2,9 @@
 
 /// <summary>
 /// Positive, per-date availability match of a client's hour-granular records against a shift's window on
-/// a given date. Availability is the WEAKEST scheduling layer (Breaks and Keywords override it — the
-/// context builders drop availability on those days before this result is consumed) and is opt-in PER
-/// DATE. Semantics for the requested date:
+/// a given date. A Break overrides it (the context builders drop availability on break days before this result is
+/// consumed); a schedule keyword does not - availability stays hard on keyword days (owner decision 2026-11-05: a
+/// keyword is a wish). Availability is opt-in PER DATE. Semantics for the requested date:
 /// <list type="bullet">
 /// <item>No record for the date: no restriction — the day is open for work.</item>
 /// <item>At least one <see cref="ClientAvailability.IsAvailable"/>=true record: the day is configured

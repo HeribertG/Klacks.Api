@@ -20,11 +20,14 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
 using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Application.Services.Groups;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
+
+using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Handlers.Schedules;
 
@@ -196,8 +199,15 @@ public sealed class EvaluateScenarioQueryHandler
             AddedEntries: added.Take(MaxChangeEntries).Select(ToChangeEntry).ToList(),
             RemovedEntries: removed.Take(MaxChangeEntries).Select(ToChangeEntry).ToList(),
             ChangesTruncated: changesTruncated,
-            Recommendation: BuildRecommendation(errors, warnings, added.Count));
+            Recommendation: BuildRecommendation(errors, warnings, added.Count) + KeywordModeNote(AnalyseScenarioKeywordMode.Of(scenario)),
+            KeywordMode: AnalyseScenarioKeywordMode.Of(scenario));
     }
+
+    private static string KeywordModeNote(KeywordMode keywordMode)
+        => keywordMode == KeywordMode.Soft
+            ? " This scenario was planned with the schedule keywords as wishes (soft keyword mode): it may break FREE / " +
+              "only-kind / no-kind keywords to cover more shifts; name the broken wishes before the user accepts it."
+            : string.Empty;
 
     private static ScenarioChangeEntry ToChangeEntry(ScheduleCell cell) => new(
         EntryType: EntryTypeName(cell.EntryType),

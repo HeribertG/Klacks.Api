@@ -4,7 +4,9 @@
 /// Skill that reports the status of a wizard job. A job that still runs is found in the live registries
 /// (AutoWizard / Wizard 1 / Wizard 2 / Wizard 3); a finished AutoWizard job is answered from its stored
 /// terminal state, so the assistant can tell the user whether the run completed, completed without the
-/// holistic harmonization, failed or was cancelled - and which scenario is ready to be accepted.
+/// holistic harmonization, failed or was cancelled - and which scenario is ready to be accepted. When the run's
+/// soft-keyword retry kept a second scenario, the result names it with the slots it fills beyond the strict one and the
+/// wishes it breaks (employee, day, keyword), so the assistant can offer both.
 /// </summary>
 /// <param name="jobId">UUID of the job returned when the wizard was started.</param>
 
@@ -23,6 +25,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("list_open_wizard_jobs")]
 public class ListOpenWizardJobsSkill : BaseSkillImplementation
 {
+    private const int MaxWishesInMessage = 20;
+
     private readonly IWizardJobRunner _wizard;
     private readonly IHarmonizerJobRunner _harmonizer;
     private readonly IHolisticHarmonizerJobRunner _holistic;
@@ -104,7 +108,22 @@ public class ListOpenWizardJobsSkill : BaseSkillImplementation
             ScenarioToken = state.Result?.FinalScenarioToken,
             ScenarioName = state.Result?.FinalScenarioName,
             HarmonizationSkipped = state.Result?.HarmonizationSkipped ?? false,
-            HarmonizationSkippedReason = state.Result?.HarmonizationSkippedReason
+            HarmonizationSkippedReason = state.Result?.HarmonizationSkippedReason,
+            KeywordMode = state.Result?.KeywordMode,
+            OpenSlots = state.Result?.Summary?.OpenSlots,
+            SoftKeywordRetryOutcome = state.Result?.SoftKeywordRetryOutcome,
+            SoftAlternative = state.Result?.SoftAlternative is { } soft
+                ? new
+                {
+                    soft.ScenarioId,
+                    soft.ScenarioToken,
+                    soft.ScenarioName,
+                    soft.KeywordMode,
+                    soft.AdditionalFilledSlots,
+                    soft.Summary.OpenSlots,
+                    soft.BrokenWishes
+                }
+                : null
         };
 
         return SkillResult.SuccessResult(payload, BuildMessage(jobId, state.Status, state.Reason, state.Result));
@@ -116,6 +135,12 @@ public class ListOpenWizardJobsSkill : BaseSkillImplementation
             ? $" Scenario '{result.FinalScenarioName}' (id {scenarioId}) is ready to be reviewed and accepted or rejected."
             : string.Empty;
 
+        return BuildStatusMessage(jobId, status, reason, result, scenarioNote) + BuildSoftKeywordNote(result);
+    }
+
+    private static string BuildStatusMessage(
+        Guid jobId, string status, string? reason, AutoWizardJobResultDto? result, string scenarioNote)
+    {
         return status switch
         {
             WizardJobStatusValues.Completed when result is { HarmonizationSkipped: true } =>
@@ -128,6 +153,42 @@ public class ListOpenWizardJobsSkill : BaseSkillImplementation
             WizardJobStatusValues.Cancelled =>
                 $"AutoWizard job {jobId} was cancelled." + scenarioNote,
             _ => $"AutoWizard job {jobId} ended with status '{status}'." + scenarioNote
+        };
+    }
+
+    /// <summary>
+    /// Plain account of the soft-keyword retry for the assistant: how many more slots the soft scenario fills and which
+    /// wishes it breaks, so the planner can choose between the two proposals. Empty when there is nothing to say.
+    /// </summary>
+    private static string BuildSoftKeywordNote(AutoWizardJobResultDto? result)
+    {
+        if (result is null)
+        {
+            return string.Empty;
+        }
+
+        if (result.SoftAlternative is { } soft)
+        {
+            var listed = soft.BrokenWishes
+                .Take(MaxWishesInMessage)
+                .Select(w => $"{w.ClientName} on {w.Date:yyyy-MM-dd} ({w.Keyword}, {w.Outcome})");
+            var more = soft.BrokenWishes.Count > MaxWishesInMessage
+                ? $" and {soft.BrokenWishes.Count - MaxWishesInMessage} more (see SoftAlternative.BrokenWishes)"
+                : string.Empty;
+            return $" The strict plan above respects every schedule keyword but leaves {result.Summary?.OpenSlots} slot(s) open. " +
+                   $"A second proposal '{soft.ScenarioName}' (id {soft.ScenarioId}) treats the keywords as wishes: it fills " +
+                   $"{soft.AdditionalFilledSlots} more slot(s) and misses {soft.BrokenWishes.Count} wish(es): " +
+                   $"{string.Join("; ", listed)}{more}. Offer both scenarios to the user with these facts; never accept the " +
+                   "soft one without the user's explicit choice.";
+        }
+
+        return result.SoftKeywordRetryOutcome switch
+        {
+            AutoWizardSoftKeywordRetryOutcomes.NotBetter =>
+                " A second run that treated the schedule keywords as wishes covered no more slots, so it was discarded.",
+            AutoWizardSoftKeywordRetryOutcomes.Failed =>
+                " A second run that would treat the schedule keywords as wishes did not finish; only the strict scenario is offered.",
+            _ => string.Empty
         };
     }
 }

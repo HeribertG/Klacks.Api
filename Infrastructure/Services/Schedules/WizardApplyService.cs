@@ -51,8 +51,9 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="planningPeriodGuard">Names the placements outside their employee's membership or group period; they are
 /// reported as skipped instead of written (the planner models the membership per day, but not the group period)</param>
 /// <param name="logger">Logger used for best-effort capture warnings</param>
-/// <param name="keywordWishCounter">Counts the schedule-command wishes the written plan misses, for the outcome. The
-/// employees counted are those holding a token of the run; an employee without any token is not counted.</param>
+/// <param name="keywordWishCounter">Counts the schedule-command wishes the written plan misses, for the outcome, over every
+/// employee the run planned (CoreScenario.PlannedAgentIds), so an unfulfilled wish of an employee without a shift counts
+/// too; a cached result without that list falls back to the employees holding a token.</param>
 public sealed class WizardApplyService : IWizardApplyService
 {
     private const string ShiftNotInScenarioReasonKey = "schedule.error-list.shift-not-in-scenario";
@@ -195,7 +196,7 @@ public sealed class WizardApplyService : IWizardApplyService
                 ct);
 
             var keywordWishes = await TryCountKeywordWishesAsync(
-                RunAgentIds(scenario.Tokens), periodStart, periodEnd, analyseToken, jobId, ct);
+                RunAgentIds(scenario), periodStart, periodEnd, analyseToken, jobId, ct);
 
             return new WizardApplyOutcome(createdIds, partition.ReportableConflicts, skipped, partition.OverrideApplied, keywordWishes);
         }
@@ -246,7 +247,7 @@ public sealed class WizardApplyService : IWizardApplyService
                 ct);
 
             var keywordWishes = await TryCountKeywordWishesAsync(
-                RunAgentIds(cachedScenario.Tokens), plan.PeriodFrom, plan.PeriodUntil, plan.Token, jobId, ct);
+                RunAgentIds(cachedScenario), plan.PeriodFrom, plan.PeriodUntil, plan.Token, jobId, ct);
 
             return (
                 AppliedScenarioBuilder.ToAppliedResource(materialised.Scenario, materialised.VariantIds),
@@ -286,9 +287,9 @@ public sealed class WizardApplyService : IWizardApplyService
         }
     }
 
-    private static List<Guid> RunAgentIds(IEnumerable<CoreToken> tokens)
-        => tokens
-            .Select(t => Guid.TryParse(t.AgentId, out var id) ? id : Guid.Empty)
+    private static List<Guid> RunAgentIds(CoreScenario scenario)
+        => (scenario.PlannedAgentIds.Count > 0 ? scenario.PlannedAgentIds : scenario.Tokens.Select(t => t.AgentId))
+            .Select(agentId => Guid.TryParse(agentId, out var id) ? id : Guid.Empty)
             .Where(id => id != Guid.Empty)
             .Distinct()
             .ToList();

@@ -69,4 +69,11 @@ public class AnalyseScenario : BaseEntity
 
     /// <summary>Optional free-text rejection note.</summary>
     public string? RejectReasonText { get; set; }
+
+    /// <summary>
+    /// True when the run that produced the scenario planned with the schedule keywords as wishes (Soft keyword mode, e.g.
+    /// the AutoWizard's soft-keyword retry): the plan may break FREE / only-kind / no-kind keywords on purpose and is never
+    /// accepted automatically. False for every other scenario.
+    /// </summary>
+    public bool SoftKeywordPlan { get; set; }
 }

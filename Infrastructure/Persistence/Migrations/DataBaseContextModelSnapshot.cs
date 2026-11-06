@@ -8813,6 +8813,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("run_group_id");
 
+                    b.Property<bool>("SoftKeywordPlan")
+                        .HasColumnType("boolean")
+                        .HasColumnName("soft_keyword_plan");
+
                     b.Property<Guid?>("SourceToken")
                         .HasColumnType("uuid")
                         .HasColumnName("source_token");

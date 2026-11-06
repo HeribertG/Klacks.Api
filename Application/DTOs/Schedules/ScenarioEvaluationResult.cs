@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.ScheduleOptimizer.Models;
+
 namespace Klacks.Api.Application.DTOs.Schedules;
 
 /// <summary>
@@ -37,6 +39,7 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="RemovedEntries">The removed entries (capped for payload size)</param>
 /// <param name="ChangesTruncated">True when the added/removed lists were capped</param>
 /// <param name="Recommendation">Conservative, advisory accept/reject guidance (never auto-acts)</param>
+/// <param name="KeywordMode">Keyword mode the scenario was planned in; Soft = it may break schedule-command wishes on purpose</param>
 public sealed record ScenarioEvaluationResult(
     bool Found,
     Guid ScenarioId,
@@ -65,7 +68,8 @@ public sealed record ScenarioEvaluationResult(
     IReadOnlyList<ScenarioChangeEntry> AddedEntries,
     IReadOnlyList<ScenarioChangeEntry> RemovedEntries,
     bool ChangesTruncated,
-    string Recommendation)
+    string Recommendation,
+    KeywordMode KeywordMode = KeywordMode.Hard)
 {
     public static ScenarioEvaluationResult NotFound() => new(
         Found: false,

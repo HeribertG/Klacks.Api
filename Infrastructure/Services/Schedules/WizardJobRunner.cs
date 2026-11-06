@@ -160,6 +160,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
         var (subScoreJson, stage0Violations) = CaptureScore(jobId, wizardContext, config, best);
 
         best.KeywordMode = wizardContext.KeywordMode;
+        best.PlannedAgentIds = wizardContext.Agents.Select(a => a.Id).ToList();
         _resultCache.Store(jobId, best, request.AnalyseToken, escalations, subScoreJson, stage0Violations);
 
         var qualificationGaps = await BuildQualificationGapsAsync(scope.ServiceProvider, request, wizardContext, best.Tokens, ct);

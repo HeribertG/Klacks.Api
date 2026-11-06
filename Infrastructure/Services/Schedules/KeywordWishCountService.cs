@@ -4,7 +4,8 @@
 /// Default <see cref="IKeywordWishCountService"/>. Loads the recognized schedule commands, the top-level works and the
 /// absences (breaks without a parent work) of the plan, keys every work on its start day and shift kind
 /// (<see cref="ShiftTypeInference.FromSpan"/>, as the day-directive check does) and hands them to
-/// <see cref="KeywordWishCalculator"/>. A positive wish on an absence day is dropped, no plan can fulfil it.
+/// <see cref="KeywordWishCalculator"/>. A positive wish on an absence day is dropped, no plan can fulfil it. The same
+/// keyword days answer whether a range has any restricting command (the AutoWizard's soft-retry gate).
 /// </summary>
 /// <param name="context">EF Core database context (works and breaks of the plan)</param>
 /// <param name="scheduleCommandRepository">Reads the schedule commands of the employees and days</param>
@@ -51,10 +52,44 @@ public sealed class KeywordWishCountService : IKeywordWishCountService
         }
 
         var ids = clientIds.Distinct().ToList();
-        var commands = await _scheduleCommandRepository.GetByClientsAndDateRangeAsync(ids, from, until, analyseToken, cancellationToken);
-        if (commands.Count == 0)
+        var days = await LoadKeywordDaysAsync(ids, from, until, analyseToken, cancellationToken);
+        if (days.Count == 0)
         {
             return KeywordWishesDto.Empty;
+        }
+
+        await DropPositiveWishOnAbsenceDaysAsync(days, ids, from, until, analyseToken, cancellationToken);
+        var worked = await LoadWorkedKindsAsync(ids, from, until, analyseToken, cancellationToken);
+        return ToDto(KeywordWishCalculator.Evaluate(days, worked, collectItems: true));
+    }
+
+    public async Task<bool> HasRestrictingWishesAsync(
+        IReadOnlyCollection<Guid> clientIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken,
+        CancellationToken cancellationToken)
+    {
+        if (clientIds.Count == 0 || from > until)
+        {
+            return false;
+        }
+
+        var days = await LoadKeywordDaysAsync(clientIds.Distinct().ToList(), from, until, analyseToken, cancellationToken);
+        return days.Values.Any(day => day.RestrictionOutcome is not null);
+    }
+
+    private async Task<Dictionary<(string AgentId, DateOnly Date), KeywordDay>> LoadKeywordDaysAsync(
+        List<Guid> clientIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken,
+        CancellationToken cancellationToken)
+    {
+        var commands = await _scheduleCommandRepository.GetByClientsAndDateRangeAsync(clientIds, from, until, analyseToken, cancellationToken);
+        if (commands.Count == 0)
+        {
+            return [];
         }
 
         var keywordMap = ScheduleCommandKeywordMapper.BuildMap(await _keywordProvider.GetAsync(cancellationToken));
@@ -67,15 +102,7 @@ public sealed class KeywordWishCountService : IKeywordWishCountService
             }
         }
 
-        var days = KeywordWishCalculator.BuildDays(recognized);
-        if (days.Count == 0)
-        {
-            return KeywordWishesDto.Empty;
-        }
-
-        await DropPositiveWishOnAbsenceDaysAsync(days, ids, from, until, analyseToken, cancellationToken);
-        var worked = await LoadWorkedKindsAsync(ids, from, until, analyseToken, cancellationToken);
-        return ToDto(KeywordWishCalculator.Evaluate(days, worked, collectItems: true));
+        return KeywordWishCalculator.BuildDays(recognized);
     }
 
     private async Task DropPositiveWishOnAbsenceDaysAsync(

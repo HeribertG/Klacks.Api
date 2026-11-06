@@ -18,8 +18,17 @@ public static class NextPeriodScheduling
     /// </summary>
     public const int PlanningWindowDays = 7;
 
-    /// <summary>Minutes the auto-commit watcher waits for the wizard chain before it gives up.</summary>
-    public const int AutoCommitWatchTimeoutMinutes = 20;
+    /// <summary>Margin the auto-commit watcher waits beyond the AutoWizard's own total budget.</summary>
+    public const int AutoCommitWatchMarginMinutes = 5;
+
+    /// <summary>
+    /// Minutes the auto-commit watcher waits for the wizard chain before it gives up: the whole AutoWizard budget
+    /// (strict chain plus soft-keyword retry) and a margin, so a finished strict plan is never reported as timed out.
+    /// </summary>
+    public const int AutoCommitWatchTimeoutMinutes = AutoWizardTimeBudget.TotalMinutes + AutoCommitWatchMarginMinutes;
+
+    /// <summary>How much longer than the watch window the interrupted check waits.</summary>
+    public const int AutoCommitInterruptedGraceMarginMinutes = 10;
 
     /// <summary>
     /// How old an automatic autofill run has to be before a still-unaccepted draft with no running
@@ -27,5 +36,5 @@ public static class NextPeriodScheduling
     /// window a watcher on another API instance may legitimately still be working on the same chain,
     /// and this instance cannot see its in-memory job registry.
     /// </summary>
-    public const int AutoCommitInterruptedGraceMinutes = 30;
+    public const int AutoCommitInterruptedGraceMinutes = AutoCommitWatchTimeoutMinutes + AutoCommitInterruptedGraceMarginMinutes;
 }

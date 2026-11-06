@@ -411,7 +411,8 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
             ShiftIds: shiftIds,
             GroupId: group.Id,
             AnalyseToken: null,
-            Language: null);
+            Language: null,
+            SoftKeywordRetry: true);
 
         try
         {

@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.Summary;
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
+using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 
@@ -29,6 +31,11 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// when no planning rule applies. Wizard 1 does not honour planning rules yet, so the chain can add violations; the
 /// UI therefore only reports both counts and says so explicitly when the count rose.</param>
 /// <param name="Summary">Live summary of the final scenario (coverage per shift, open slots and why); null when it could not be built.</param>
+/// <param name="KeywordMode">Keyword mode the final scenario was planned in; Hard unless the start asked for Soft. The final
+/// scenario is always the run in the requested mode, never the soft-keyword retry.</param>
+/// <param name="SoftAlternative">The soft-keyword retry's scenario when it fills more slots than the final one; null
+/// otherwise. It is a second proposal for the planner and is never accepted automatically.</param>
+/// <param name="SoftKeywordRetryOutcome">What became of the soft-keyword retry (AutoWizardSoftKeywordRetryOutcomes).</param>
 public sealed record AutoWizardJobResultDto(
     Guid JobId,
     Guid? FinalScenarioId,
@@ -42,4 +49,7 @@ public sealed record AutoWizardJobResultDto(
     string? HarmonizationSkippedReason = null,
     IReadOnlyList<ScheduleValidationNotificationDto>? PlanningRuleWarnings = null,
     PlanningRuleRemainingDto? PlanningRuleRemaining = null,
-    ScenarioSummaryDto? Summary = null);
+    ScenarioSummaryDto? Summary = null,
+    KeywordMode KeywordMode = KeywordMode.Hard,
+    AutoWizardSoftAlternativeDto? SoftAlternative = null,
+    string SoftKeywordRetryOutcome = AutoWizardSoftKeywordRetryOutcomes.NotRequested);
