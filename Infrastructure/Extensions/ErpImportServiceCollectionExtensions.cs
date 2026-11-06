@@ -58,7 +58,8 @@ public static class ErpImportServiceCollectionExtensions
             .GetSection(BackgroundServiceOptions.SectionName)
             .Get<BackgroundServiceOptions>() ?? new BackgroundServiceOptions();
 
-        services.AddHostedService<Klacks.Api.Infrastructure.Services.Imports.ErpDropFolderStartupService>();
+        if (bgOptions.ErpDropFolderStartup)
+            services.AddHostedService<Klacks.Api.Infrastructure.Services.Imports.ErpDropFolderStartupService>();
 
         if (bgOptions.ErpOrderImport)
             services.AddHostedService<Klacks.Api.Infrastructure.Services.Imports.ErpOrderImportBackgroundService>();

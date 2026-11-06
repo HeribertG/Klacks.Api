@@ -322,6 +322,15 @@ public class BackgroundServiceOptions
     public bool ErpOrderImport { get; set; } = true;
 
     /// <summary>
+    /// Enables the one-off ERP drop folder check at startup, which creates the drop folder root and the
+    /// inbox folder of every drop point when they are missing, so the path shown on the Import card and by
+    /// Klacksy exists before the first import run. Default ON. It only creates folders and never changes
+    /// permissions; it runs independently of <see cref="ErpOrderImport"/>. Test hosts switch it off.
+    /// Override via env <c>BackgroundServices__ErpDropFolderStartup=false</c>.
+    /// </summary>
+    public bool ErpDropFolderStartup { get; set; } = true;
+
+    /// <summary>
     /// Enables the knowledge-index startup sync, which brings the shared skill index up to date once
     /// per process start and reports which retrieval stack the process resolved. Default ON: it is the
     /// behaviour every installation runs today, and at least one instance must keep it on or the index
