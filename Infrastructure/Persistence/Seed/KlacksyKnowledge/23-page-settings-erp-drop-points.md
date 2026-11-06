@@ -119,7 +119,7 @@ Vier auf-/zuklappbare Karten:
    (`erp-drop-points-upload-zone`) — XML-Datei hierher ziehen oder klicken, um die
    Dateiauswahl zu öffnen. Der Import startet danach automatisch (kein separater
    Auslöse-Klick nötig).
-3. **Dateien im Drop-Point** (de: "Dateien im Drop-Point"): drei Reiter mit
+3. **Dateien im Übergabepunkt** (de: "Dateien im Übergabepunkt"): drei Reiter mit
    Live-Zählern. Der Dateistatus steht nur in der Datenbank; die Roh-XML bleibt im
    Drop-Point-Ordner (Audit und Wiederholung).
    - **Eingang**: empfangene Dateien und Dateien, die gerade importiert werden, mit
