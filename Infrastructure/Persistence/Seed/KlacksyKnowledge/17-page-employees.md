@@ -224,7 +224,7 @@ Cards plus einer rechten Navigationsspalte:
     wechseln, solange Adressen einer nicht mehr erlaubten Art existieren. Die neue Adresse
     wird zusätzlich angehängt; die alte bleibt als Historie erhalten.
 - **Mitgliedschaft-Card** (`membership-form`, de: "Mitgliedschaft", en: "Membership", fr:
-  "Adhésion", it: "Appartenenza") — die Mitgliedschaft:
+  "Adhésion", it: "Adesione") — die Mitgliedschaft:
   - **Typ** (`client-type`, Dropdown Mitarbeiter / Externer / Kunde).
   - **Eintrittsdatum** (`membership-entry-date`, Pflichtfeld, de: "Eintrittsdatum", en:
     "Entry Date", fr: "Date d'entrée", it: "Data di ingresso") — das ist die

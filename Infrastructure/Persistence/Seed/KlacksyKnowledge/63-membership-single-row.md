@@ -46,7 +46,7 @@ if the exact first period matters later, write it down somewhere else before the
 ## Where to see and change it
 
 1. Open the person's own page and find the card (de: "Mitgliedschaft", en: "Membership", fr: "Adhésion",
-   it: "Appartenenza").
+   it: "Adesione").
 2. The dates are the fields (de: "Eintrittsdatum", en: "Entry Date", fr: "Date d'entrée", it: "Data di
    ingresso") and (de: "Austrittsdatum", en: "Exit Date", fr: "Date de sortie", it: "Data di uscita").
    Recording an exit means filling the exit date of this one record.
