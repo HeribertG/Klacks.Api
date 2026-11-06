@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "Ο βοηθός αρχικοποιείται...",
   "assistant-chat.initializing.title": "Αρχικοποίηση",
   "assistant-chat.no-api-key.admin-link": "Στις ρυθμίσεις",
+  "assistant-chat.error.provider-unavailable": "Δεν έχει ρυθμιστεί πάροχος AI για το επιλεγμένο μοντέλο. Ρυθμίστε έναν με κλειδί API στις Ρυθμίσεις > Πάροχος LLM ή επικοινωνήστε με τον διαχειριστή σας.",
   "assistant-chat.no-api-key.message": "Δεν έχει ρυθμιστεί κλειδί API για πάροχο LLM. Επικοινωνήστε με τον διαχειριστή για εγκατάσταση κλειδιού API.",
   "assistant-chat.no-api-key.title": "Δεν υπάρχει κλειδί API",
   "assistant-chat.onboarding.ask.address-country": "Χώρα; (κωδικός χώρας, π.χ. CH, DE, AT)",

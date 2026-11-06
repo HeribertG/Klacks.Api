@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "Avustajaa alustetaan...",
   "assistant-chat.initializing.title": "Alustaminen",
   "assistant-chat.no-api-key.admin-link": "Asetuksiin",
+  "assistant-chat.error.provider-unavailable": "Valitulle mallille ei ole määritetty tekoälypalveluntarjoajaa. Määritä palveluntarjoaja API-avaimella kohdassa Asetukset > LLM-palveluntarjoaja tai ota yhteyttä ylläpitäjään.",
   "assistant-chat.no-api-key.message": "LLM-tarjoajalle ei ole määritetty API-avainta. Ota yhteyttä ylläpitäjään API-avaimen asennusta varten.",
   "assistant-chat.no-api-key.title": "API-avainta ei ole määritetty",
   "assistant-chat.onboarding.ask.address-country": "Maa? (maakoodi, esim. CH, DE, AT)",

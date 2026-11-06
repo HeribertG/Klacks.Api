@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "어시스턴트 초기화 중...",
   "assistant-chat.initializing.title": "초기화",
   "assistant-chat.no-api-key.admin-link": "설정으로 이동",
+  "assistant-chat.error.provider-unavailable": "선택한 모델에 설정된 AI 공급자가 없습니다. 설정 > LLM 공급자에서 API 키로 공급자를 설정하거나 관리자에게 문의하세요.",
   "assistant-chat.no-api-key.message": "LLM 제공자에 API 키가 구성되지 않았습니다. API 키를 설치하려면 관리자에게 문의하세요.",
   "assistant-chat.no-api-key.title": "API 키가 구성되지 않았습니다",
   "assistant-chat.onboarding.ask.address-country": "국가는 어디입니까? (국가 코드, 예: CH, DE, AT)",

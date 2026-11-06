@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "Asistent se inicializuje...",
   "assistant-chat.initializing.title": "Inicializace",
   "assistant-chat.no-api-key.admin-link": "Do nastavení",
+  "assistant-chat.error.provider-unavailable": "Pro vybraný model není nastaven žádný poskytovatel AI. Nastavte ho s klíčem API v části Nastavení > Poskytovatelé LLM, nebo se obraťte na správce.",
   "assistant-chat.no-api-key.message": "Není nakonfigurován žádný API klíč pro LLM poskytovatele. Prosím kontaktujte administrátora pro instalaci API klíče.",
   "assistant-chat.no-api-key.title": "Žádný API klíč nakonfigurován",
   "assistant-chat.onboarding.ask.address-country": "Země? (kód země, např. CH, DE, AT)",

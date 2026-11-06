@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "正在初始化助手...",
   "assistant-chat.initializing.title": "初始化",
   "assistant-chat.no-api-key.admin-link": "前往設定",
+  "assistant-chat.error.provider-unavailable": "所選模型尚未設定 AI 提供者。請在 設定 > LLM 提供者 中以 API 金鑰設定一個提供者，或聯絡管理員。",
   "assistant-chat.no-api-key.message": "未配置LLM提供商的API金鑰。請聯絡管理員安裝API金鑰。",
   "assistant-chat.no-api-key.title": "未配置API金鑰",
   "assistant-chat.onboarding.ask.address-country": "國家？（國家代碼，例如 CH、DE、AT）",

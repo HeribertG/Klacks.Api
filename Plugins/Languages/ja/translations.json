@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "アシスタントを初期化中...",
   "assistant-chat.initializing.title": "初期化中",
   "assistant-chat.no-api-key.admin-link": "設定へ移動",
+  "assistant-chat.error.provider-unavailable": "選択したモデルにAIプロバイダーが設定されていません。設定 > LLMプロバイダー でAPIキー付きのプロバイダーを設定するか、管理者にお問い合わせください。",
   "assistant-chat.no-api-key.message": "LLMプロバイダーのAPIキーが設定されていません。管理者に連絡してAPIキーをインストールしてください。",
   "assistant-chat.no-api-key.title": "APIキーが設定されていません",
   "assistant-chat.onboarding.ask.address-country": "国は?(国コード、例: CH、DE、AT)",

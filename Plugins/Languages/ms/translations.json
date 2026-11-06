@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "Pembantu sedang dimulakan...",
   "assistant-chat.initializing.title": "Permulaan",
   "assistant-chat.no-api-key.admin-link": "Ke tetapan",
+  "assistant-chat.error.provider-unavailable": "Tiada penyedia AI ditetapkan untuk model yang dipilih. Tetapkan satu dengan kunci API di Tetapan > Penyedia LLM, atau hubungi pentadbir anda.",
   "assistant-chat.no-api-key.message": "Tiada kunci API untuk pembekal LLM dikonfigurasikan. Sila hubungi pentadbir untuk memasang kunci API.",
   "assistant-chat.no-api-key.title": "Tiada Kunci API dikonfigurasikan",
   "assistant-chat.onboarding.ask.address-country": "Negara? (Kod negara, cth. CH, DE, AT)",

@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "جاري تهيئة المساعد...",
   "assistant-chat.initializing.title": "التهيئة",
   "assistant-chat.no-api-key.admin-link": "إلى الإعدادات",
+  "assistant-chat.error.provider-unavailable": "لم يتم إعداد أي مزود ذكاء اصطناعي للنموذج المحدد. قم بإعداد مزود بمفتاح API ضمن الإعدادات > مزودو نماذج الذكاء الاصطناعي (LLM) أو تواصل مع المسؤول.",
   "assistant-chat.no-api-key.message": "لا يوجد مفتاح API مكوّن لمزود LLM. يرجى الاتصال بالمسؤول لتثبيت مفتاح API.",
   "assistant-chat.no-api-key.title": "لا يوجد مفتاح API مكوّن",
   "assistant-chat.onboarding.ask.address-country": "الدولة؟ (رمز الدولة، مثلاً CH، DE، AT)",

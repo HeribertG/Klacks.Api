@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "Assistenten initialiseras...",
   "assistant-chat.initializing.title": "Initialisering",
   "assistant-chat.no-api-key.admin-link": "Till inställningarna",
+  "assistant-chat.error.provider-unavailable": "Ingen AI-leverantör är konfigurerad för den valda modellen. Konfigurera en med en API-nyckel under Inställningar > LLM-leverantör, eller kontakta din administratör.",
   "assistant-chat.no-api-key.message": "Ingen API-nyckel för LLM-leverantörer är konfigurerad. Kontakta administratören för att installera en API-nyckel.",
   "assistant-chat.no-api-key.title": "Ingen API-nyckel konfigurerad",
   "assistant-chat.onboarding.ask.address-country": "Land? (landskod, t.ex. CH, DE, AT)",

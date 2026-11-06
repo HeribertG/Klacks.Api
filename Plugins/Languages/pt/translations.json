@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "A inicializar o assistente...",
   "assistant-chat.initializing.title": "Inicialização",
   "assistant-chat.no-api-key.admin-link": "Ir para as configurações",
+  "assistant-chat.error.provider-unavailable": "Não está configurado nenhum fornecedor de IA para o modelo selecionado. Configure um com uma chave de API em Configurações > Fornecedores de LLM ou contacte o seu administrador.",
   "assistant-chat.no-api-key.message": "Não há chave API configurada para fornecedores LLM. Por favor, contacte o administrador para instalar uma chave API.",
   "assistant-chat.no-api-key.title": "Nenhuma chave API configurada",
   "assistant-chat.onboarding.ask.address-country": "País? (código do país, por exemplo CH, DE, AT)",

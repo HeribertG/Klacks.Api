@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "กำลังเริ่มต้นผู้ช่วย...",
   "assistant-chat.initializing.title": "กำลังเริ่มต้น",
   "assistant-chat.no-api-key.admin-link": "ไปที่การตั้งค่า",
+  "assistant-chat.error.provider-unavailable": "ยังไม่ได้ตั้งค่าผู้ให้บริการ AI สำหรับโมเดลที่เลือก ตั้งค่าผู้ให้บริการพร้อมคีย์ API ได้ที่ การตั้งค่า > ผู้ให้บริการ LLM หรือติดต่อผู้ดูแลระบบ",
   "assistant-chat.no-api-key.message": "ไม่ได้ตั้งค่า API Key สำหรับผู้ให้บริการ LLM กรุณาติดต่อผู้ดูแลระบบเพื่อติดตั้ง API Key",
   "assistant-chat.no-api-key.title": "ไม่ได้ตั้งค่า API Key",
   "assistant-chat.onboarding.ask.address-country": "ประเทศคะ? (รหัสประเทศ เช่น CH, DE, AT)",

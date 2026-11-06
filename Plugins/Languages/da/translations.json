@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "Assistenten initialiseres...",
   "assistant-chat.initializing.title": "Initialisering",
   "assistant-chat.no-api-key.admin-link": "Til indstillinger",
+  "assistant-chat.error.provider-unavailable": "Der er ikke opsat nogen AI-udbyder til den valgte model. Opsæt en med en API-nøgle under Indstillinger > LLM-udbyder, eller kontakt din administrator.",
   "assistant-chat.no-api-key.message": "Der er ingen API-nøgle konfigureret for LLM-udbyder. Kontakt venligst administratoren for at installere en API-nøgle.",
   "assistant-chat.no-api-key.title": "Ingen API-nøgle konfigureret",
   "assistant-chat.onboarding.ask.address-country": "Land? (landekode, f.eks. CH, DE, AT)",

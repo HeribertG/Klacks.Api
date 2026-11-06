@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "העוזר מתאתחל...",
   "assistant-chat.initializing.title": "אתחול",
   "assistant-chat.no-api-key.admin-link": "להגדרות",
+  "assistant-chat.error.provider-unavailable": "לא הוגדר ספק בינה מלאכותית עבור המודל שנבחר. הגדר ספק עם מפתח API בהגדרות > ספקי LLM או פנה למנהל המערכת.",
   "assistant-chat.no-api-key.message": "לא מוגדר מפתח API לספק LLM. אנא פנה למנהל המערכת להתקנת מפתח API.",
   "assistant-chat.no-api-key.title": "לא מוגדר מפתח API",
   "assistant-chat.onboarding.ask.address-country": "מדינה? (קיצור מדינה, למשל CH, DE, AT)",

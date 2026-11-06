@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "Asisten sedang diinisialisasi...",
   "assistant-chat.initializing.title": "Inisialisasi",
   "assistant-chat.no-api-key.admin-link": "Ke pengaturan",
+  "assistant-chat.error.provider-unavailable": "Belum ada penyedia AI yang diatur untuk model yang dipilih. Atur penyedia dengan kunci API di Pengaturan > Penyedia LLM, atau hubungi administrator Anda.",
   "assistant-chat.no-api-key.message": "Tidak ada API-Key untuk penyedia LLM yang dikonfigurasi. Silakan hubungi administrator untuk menginstal API-Key.",
   "assistant-chat.no-api-key.title": "Tidak ada API-Key yang dikonfigurasi",
   "assistant-chat.onboarding.ask.address-country": "Negara? (kode negara, misalnya CH, DE, AT)",

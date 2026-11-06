@@ -36,6 +36,17 @@ public class LLMProviderOrchestrator
 
     public async Task<(LLMModel? model, ILLMProvider? provider, string? error)> GetModelAndProviderAsync(string? modelId)
     {
+        var resolution = await ResolveAsync(modelId);
+        return (resolution.Model, resolution.Provider, resolution.Error);
+    }
+
+    /// <summary>
+    /// Same resolution as GetModelAndProviderAsync, plus the machine-readable code of a known failure, which the
+    /// chat stream forwards so the client can show a translated message.
+    /// </summary>
+    /// <param name="modelId">The requested model; null or blank resolves the default model</param>
+    public async Task<LLMModelResolution> ResolveAsync(string? modelId)
+    {
         var pinned = _playgroundModelPin.IsPinned;
         if (pinned)
         {
@@ -45,7 +56,7 @@ public class LLMProviderOrchestrator
         var cacheKey = modelId ?? string.Empty;
         if (_resolved.TryGetValue(cacheKey, out var hit))
         {
-            return (hit.Model, hit.Provider, null);
+            return new LLMModelResolution(hit.Model, hit.Provider, null);
         }
 
         try
@@ -56,7 +67,7 @@ public class LLMProviderOrchestrator
             if (model == null || !model.IsEnabled)
             {
                 _logger.LogWarning("Model {ModelId} not found or not enabled", effectiveModelId.ForLog());
-                return (null, null, pinned
+                return new LLMModelResolution(null, null, pinned
                     ? string.Format(PlaygroundHardeningConstants.ChatModelUnavailableMessageFormat, effectiveModelId)
                     : "The selected model is not available.");
             }
@@ -65,19 +76,20 @@ public class LLMProviderOrchestrator
             if (provider == null)
             {
                 _logger.LogWarning("Provider for model {ModelId} not found", effectiveModelId.ForLog());
-                return (null, null, "The provider for the selected model is not available.");
+                return new LLMModelResolution(
+                    null, null, AssistantStreamErrorMessages.ProviderUnavailable, AssistantChatErrorCodes.ProviderUnavailable);
             }
 
             // Also key it by the resolved id: the early call passes null (or the request's id) and pins
             // the result, so the second call arrives with the concrete id and would otherwise miss.
             _resolved[cacheKey] = (model, provider);
             _resolved[model.ModelId] = (model, provider);
-            return (model, provider, null);
+            return new LLMModelResolution(model, provider, null);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting model and provider");
-            return (null, null, "An error occurred while loading the model.");
+            return new LLMModelResolution(null, null, "An error occurred while loading the model.");
         }
     }
 

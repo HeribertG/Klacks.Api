@@ -536,6 +536,7 @@
   "assistant-chat.initializing.message": "Assistent wordt geïnitialiseerd...",
   "assistant-chat.initializing.title": "Initialisatie",
   "assistant-chat.no-api-key.admin-link": "Naar de instellingen",
+  "assistant-chat.error.provider-unavailable": "Er is geen AI-provider ingesteld voor het geselecteerde model. Stel er een in met een API-sleutel onder Instellingen > LLM-provider of neem contact op met je beheerder.",
   "assistant-chat.no-api-key.message": "Er is geen API-sleutel voor de LLM-provider geconfigureerd. Neem contact op met de beheerder om een API-sleutel te installeren.",
   "assistant-chat.no-api-key.title": "Geen API-sleutel geconfigureerd",
   "assistant-chat.onboarding.ask.address-country": "Land? (landcode, bijvoorbeeld CH, DE, AT)",
