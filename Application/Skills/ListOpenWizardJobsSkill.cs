@@ -175,9 +175,9 @@ public class ListOpenWizardJobsSkill : BaseSkillImplementation
             var more = soft.BrokenWishes.Count > MaxWishesInMessage
                 ? $" and {soft.BrokenWishes.Count - MaxWishesInMessage} more (see SoftAlternative.BrokenWishes)"
                 : string.Empty;
-            return $" The strict plan above respects every schedule keyword but leaves {result.Summary?.OpenSlots} slot(s) open. " +
+            return $" The plan above treats the restricting schedule keywords as vetoes and leaves {result.Summary?.OpenSlots} slot(s) open. " +
                    $"A second proposal '{soft.ScenarioName}' (id {soft.ScenarioId}) treats the keywords as wishes: it fills " +
-                   $"{soft.AdditionalFilledSlots} more slot(s) and misses {soft.BrokenWishes.Count} wish(es): " +
+                   $"{soft.AdditionalFilledSlots} more slot(s) and misses {soft.BrokenWishes.Count} wish(es) the first plan keeps: " +
                    $"{string.Join("; ", listed)}{more}. Offer both scenarios to the user with these facts; never accept the " +
                    "soft one without the user's explicit choice.";
         }

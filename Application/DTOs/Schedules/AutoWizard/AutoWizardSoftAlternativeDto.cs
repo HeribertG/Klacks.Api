@@ -15,7 +15,8 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="KeywordMode">Always Soft; carried so a consumer never has to infer it.</param>
 /// <param name="AdditionalFilledSlots">Slots the soft scenario fills beyond the strict one (always above 0).</param>
 /// <param name="Summary">Live summary of the soft scenario (coverage, open slots, KeywordWishes).</param>
-/// <param name="BrokenWishes">The missed wishes of the soft scenario with the employees' names, ordered by employee and day.</param>
+/// <param name="BrokenWishes">The wishes the soft scenario misses and the strict one does not, with the employees' names,
+/// ordered by employee and day; the full count of both plans is in their summaries' KeywordWishes.</param>
 public sealed record AutoWizardSoftAlternativeDto(
     Guid ScenarioId,
     Guid ScenarioToken,

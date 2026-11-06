@@ -123,7 +123,7 @@ internal sealed class AutoWizardSoftKeywordRetry
             return AutoWizardSoftKeywordRetryResult.Of(AutoWizardSoftKeywordRetryOutcomes.NotBetter);
         }
 
-        var names = await LoadNamesAsync(softSummary!, softCt);
+        var names = await LoadNamesAsync(strictSummary, softSummary!, softCt);
         var alternative = AutoWizardSoftKeywordRetryPlanner.BuildAlternative(softFinal, strictSummary, softSummary!, names);
         await _maintenance.MarkKeywordModeAsync(
             softFinal.ScenarioId,
@@ -156,9 +156,10 @@ internal sealed class AutoWizardSoftKeywordRetry
         }
     }
 
-    private async Task<IReadOnlyDictionary<Guid, string>> LoadNamesAsync(ScenarioSummaryDto softSummary, CancellationToken ct)
+    private async Task<IReadOnlyDictionary<Guid, string>> LoadNamesAsync(
+        ScenarioSummaryDto strictSummary, ScenarioSummaryDto softSummary, CancellationToken ct)
     {
-        var ids = AutoWizardSoftKeywordRetryPlanner.MissedWishes(softSummary).Select(item => item.ClientId).Distinct().ToList();
+        var ids = AutoWizardSoftKeywordRetryPlanner.SoftOnlyMisses(strictSummary, softSummary).Select(item => item.ClientId).Distinct().ToList();
         if (ids.Count == 0)
         {
             return new Dictionary<Guid, string>();
