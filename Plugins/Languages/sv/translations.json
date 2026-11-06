@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Behåll strikt plan",
   "autoWizard.softAlternative.openAlternative": "Öppna alternativet",
   "autoWizard.softAlternative.notBetter": "En körning med lättade önskemål bemannade inte fler skift. Den strikta planen gäller.",
+  "autoWizard.softAlternative.promoted": "En andra körning bemannade fler skift utan att bryta något önskemål. Den visas som resultat.",
   "autoWizard.softAlternative.failed": "Körningen med lättade önskemål kunde inte slutföras. Den strikta planen gäller.",
   "autoWizard.softAlternative.keptForGroup": "För grupp {{group}} finns även alternativet {{scenario}}: det bemannar {{count}} skift till och bryter i gengäld önskemål. Så snart du öppnar den gruppen visar Klacks dig båda planerna sida vid sida.",
   "scenarioVariant.menu": "Hantera nycklar",

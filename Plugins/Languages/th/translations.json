@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "คงแผนแบบเข้มงวดไว้",
   "autoWizard.softAlternative.openAlternative": "เปิดทางเลือกอื่น",
   "autoWizard.softAlternative.notBetter": "การลองโดยผ่อนปรนความต้องการไม่ได้จัดคนเข้ากะได้มากขึ้น จะใช้แผนแบบเข้มงวดต่อไป",
+  "autoWizard.softAlternative.promoted": "การลองครั้งที่สองจัดคนเข้ากะได้มากขึ้นโดยไม่ละเมิดความต้องการใดเลย จึงแสดงเป็นผลลัพธ์",
   "autoWizard.softAlternative.failed": "การลองโดยผ่อนปรนความต้องการไม่สามารถดำเนินการให้เสร็จได้ จะใช้แผนแบบเข้มงวดต่อไป",
   "autoWizard.softAlternative.keptForGroup": "สำหรับกลุ่ม {{group}} ยังมีทางเลือก {{scenario}} อีกด้วย: จัดคนเข้ากะได้เพิ่มอีก {{count}} กะ แต่ต้องละเมิดความต้องการบางส่วน เมื่อคุณเปิดกลุ่มนั้น Klacks จะแสดงแผนทั้งสองแบบเคียงข้างกันให้คุณเปรียบเทียบ",
   "scenarioVariant.menu": "จัดการคีย์",

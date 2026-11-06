@@ -42,7 +42,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// and the chain completes with the Harmonizer scenario, flagged as not harmonized.
 /// The chain in the requested keyword mode is the run's result and runs under its own budget
 /// (AutoWizardTimeBudget.StrictChainMinutes). When the start asks for it, a soft-keyword retry
-/// (AutoWizardSoftKeywordRetry) follows under a budget of its own; its scenario travels as SoftAlternative
+/// (AutoWizardSoftKeywordRetry) follows under a budget of its own; a better soft scenario that breaks no restricting wish
+/// is promoted to the final result (the strict scenario is removed), any other kept one travels as SoftAlternative
 /// next to the final scenario and never replaces it. The whole run is bounded by AutoWizardTimeBudget.TotalMinutes.
 /// </summary>
 /// <param name="scopeFactory">DI scope factory for resolving scoped apply services per stage.</param>
@@ -181,8 +182,11 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             await Task.Delay(ClientJoinDelayMs, ct);
 
             var requested = await RunRequestedChainAsync(jobId, request, produced, ct);
-            var finalScenario = requested.Chain.FinalScenario;
-            var softRetry = await _softKeywordRetry.RunAsync(jobId, request, finalScenario, requested.Summary, ct);
+            var softRetry = await _softKeywordRetry.RunAsync(jobId, request, requested.Chain.FinalScenario, requested.Summary, ct);
+            var result = softRetry.PromotedChain is { } promotedChain
+                ? await BuildRunReportsAsync(jobId, request, promotedChain, ct)
+                : requested;
+            var finalScenario = result.Chain.FinalScenario;
 
             stopwatch.Stop();
 
@@ -192,14 +196,14 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 FinalScenarioToken: finalScenario.Token,
                 FinalScenarioName: finalScenario.Name,
                 ElapsedMs: stopwatch.ElapsedMilliseconds,
-                QualificationGaps: requested.QualificationGaps,
-                ComplianceViolations: requested.Chain.WizardOutcome.ComplianceViolations,
-                ComplianceSkippedPlacements: requested.Chain.WizardOutcome.SkippedPlacements,
-                HarmonizationSkipped: requested.Chain.HarmonizationSkippedReason is not null,
-                HarmonizationSkippedReason: requested.Chain.HarmonizationSkippedReason,
-                PlanningRuleWarnings: requested.PlanningRuleWarnings,
-                PlanningRuleRemaining: requested.PlanningRuleRemaining,
-                Summary: requested.Summary,
+                QualificationGaps: result.QualificationGaps,
+                ComplianceViolations: result.Chain.WizardOutcome.ComplianceViolations,
+                ComplianceSkippedPlacements: result.Chain.WizardOutcome.SkippedPlacements,
+                HarmonizationSkipped: result.Chain.HarmonizationSkippedReason is not null,
+                HarmonizationSkippedReason: result.Chain.HarmonizationSkippedReason,
+                PlanningRuleWarnings: result.PlanningRuleWarnings,
+                PlanningRuleRemaining: result.PlanningRuleRemaining,
+                Summary: result.Summary,
                 KeywordMode: request.KeywordMode,
                 SoftAlternative: softRetry.Alternative,
                 SoftKeywordRetryOutcome: softRetry.Outcome);
@@ -212,7 +216,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             // the outcome is being recorded, and a cancelled store would drop it and report the finished
             // chain as cancelled instead.
             await _stateCache.StoreCompletedAsync(jobId, dto, CancellationToken.None);
-            if (requested.Chain.HarmonizationSkippedReason is { } skippedReason)
+            if (result.Chain.HarmonizationSkippedReason is { } skippedReason)
             {
                 await _maintenance.AnnotateAsync(
                     jobId, finalScenario.ScenarioId, AutoWizardStageOutcomePlanner.BuildHarmonizationSkippedNote(skippedReason));
@@ -223,7 +227,10 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             // Only the final scenario is a result; the intermediates would otherwise pile up in the
             // scenario list with no way for the operator to tell which one is the real one. The soft-keyword
             // retry has already cleaned up its own scenarios.
-            await _maintenance.DeleteAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnSuccess(produced));
+            await _maintenance.DeleteAsync(
+                jobId,
+                AutoWizardSoftKeywordRetryPlanner.StrictScenariosToDelete(
+                    produced, softRetry.Outcome == AutoWizardSoftKeywordRetryOutcomes.Promoted));
         }
         catch (OperationCanceledException)
         {
@@ -263,11 +270,21 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             await _maintenance.MarkKeywordModeAsync(chain.FinalScenario.ScenarioId, KeywordMode.Soft, note: null);
         }
 
+        return await BuildRunReportsAsync(jobId, request, chain, requestedCt);
+    }
+
+    /// <summary>
+    /// The reports on a chain's final scenario: qualification gaps, skipped planning rules, planning-rule findings and the
+    /// live summary. Built for the requested chain, and again for a promoted soft-keyword chain that replaces it.
+    /// </summary>
+    private async Task<AutoWizardRequestedRun> BuildRunReportsAsync(
+        Guid jobId, StartAutoWizardRequest request, AutoWizardChainOutcome chain, CancellationToken ct)
+    {
         var finalToken = chain.FinalScenario.Token;
-        var qualificationGaps = await BuildQualificationGapsAsync(request, finalToken, requestedCt);
-        var skippedRuleWarnings = await LoadSkippedPlanningRuleWarningsAsync(request, finalToken, requestedCt);
-        var planningRuleRemaining = await CountPlanningRuleHardFindingsAsync(jobId, request, finalToken, requestedCt);
-        var summary = await _maintenance.BuildSummaryAsync(jobId, finalToken, requestedCt);
+        var qualificationGaps = await BuildQualificationGapsAsync(request, finalToken, ct);
+        var skippedRuleWarnings = await LoadSkippedPlanningRuleWarningsAsync(request, finalToken, ct);
+        var planningRuleRemaining = await CountPlanningRuleHardFindingsAsync(jobId, request, finalToken, ct);
+        var summary = await _maintenance.BuildSummaryAsync(jobId, finalToken, ct);
 
         return new AutoWizardRequestedRun(chain, qualificationGaps, skippedRuleWarnings, planningRuleRemaining, summary);
     }

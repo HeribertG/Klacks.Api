@@ -271,7 +271,8 @@ public class KlacksOntologyService : IKlacksOntologyService
         [
             "ClientAvailability is POSITIVE and resolved PER DAY: (ClientId, Date, Hour 0-23, IsAvailable). No record on a day = the whole day is open.",
             "As soon as one IsAvailable=true record exists for a day, ONLY those hours are usable — the unmarked hours are blocked.",
-            "Precedence: a Break overrides availability; a keyword never lifts it. Availability is a hard veto for all autofill wizards."
+            "Precedence: a Break overrides availability; a keyword never lifts it. Availability is a hard veto for all autofill wizards.",
+            "A shift across midnight is checked on both dates: its hours after midnight against the next day's records."
         ],
         ["ClientShiftPreference"] =
         [

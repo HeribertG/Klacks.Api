@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Giữ kế hoạch nghiêm ngặt",
   "autoWizard.softAlternative.openAlternative": "Mở phương án thay thế",
   "autoWizard.softAlternative.notBetter": "Lần chạy với mong muốn được nới lỏng không lấp thêm được ca nào. Kế hoạch nghiêm ngặt được giữ nguyên.",
+  "autoWizard.softAlternative.promoted": "Lần chạy thứ hai đã lấp thêm ca mà không vi phạm mong muốn nào. Kế hoạch này được hiển thị làm kết quả.",
   "autoWizard.softAlternative.failed": "Lần chạy với mong muốn được nới lỏng không thể hoàn tất. Kế hoạch nghiêm ngặt được giữ nguyên.",
   "autoWizard.softAlternative.keptForGroup": "Với nhóm {{group}} còn có phương án thay thế {{scenario}}: phương án này lấp thêm {{count}} ca nhưng phải vi phạm một số mong muốn. Ngay khi bạn mở nhóm đó, Klacks sẽ hiển thị cả hai kế hoạch cạnh nhau để bạn so sánh.",
   "scenarioVariant.menu": "Quản lý khóa",

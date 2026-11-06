@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Mantener el plan estricto",
   "autoWizard.softAlternative.openAlternative": "Abrir la alternativa",
   "autoWizard.softAlternative.notBetter": "Un intento con deseos flexibilizados no cubrió más turnos. Se mantiene el plan estricto.",
+  "autoWizard.softAlternative.promoted": "Un segundo intento cubrió más turnos sin incumplir ningún deseo. Se muestra como resultado.",
   "autoWizard.softAlternative.failed": "El intento con deseos flexibilizados no se pudo completar. Se mantiene el plan estricto.",
   "autoWizard.softAlternative.keptForGroup": "Para el grupo {{group}} existe además la alternativa {{scenario}}: cubre {{count}} turno(s) más, pero a cambio no respeta algunos deseos. En cuanto abras ese grupo, Klacks te mostrará ambos planes uno al lado del otro.",
   "scenarioVariant.menu": "Gestionar claves",

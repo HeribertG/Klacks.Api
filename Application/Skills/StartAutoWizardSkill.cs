@@ -10,7 +10,8 @@
 /// model and that model is missing or cannot read the plan image does the result message say up front that the
 /// chain will stop after the harmonizer stage. The run asks for the soft-keyword retry (SoftKeywordRetry): when the strict
 /// plan leaves slots open and the employees have restricting schedule commands, a second chain plans with the keywords as
-/// wishes and is offered next to the strict scenario only when it covers more slots.
+/// wishes and is used only when it covers more slots: it replaces the strict scenario when it breaks no keyword, otherwise
+/// it is offered next to it.
 /// </summary>
 /// <param name="groupId">Optional group UUID (the "selectedGroup" of the schedule view); takes precedence over groupName.</param>
 /// <param name="groupName">Optional group display name, resolved with fuzzy matching inside the caller's group scope.</param>
@@ -204,7 +205,8 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             $"({agentIds.Count} agents, {shiftIds.Count} shifts). It runs in the background and ends in a proposal " +
             $"scenario; the real schedule only changes once the user accepts it. {stageNote} " +
             "If the plan leaves shifts open and employees have restricting schedule keywords (FREE, only/no early, late, night), " +
-            "a second run treats those keywords as wishes and is offered only if it covers more shifts, so the whole run can take " +
+            "a second run treats those keywords as wishes and is used only if it covers more shifts: when it breaks no keyword it " +
+            "replaces the first plan, otherwise it is offered next to it. The whole run can take " +
             $"up to {AutoWizardTimeBudget.TotalMinutes} minutes.");
     }
 

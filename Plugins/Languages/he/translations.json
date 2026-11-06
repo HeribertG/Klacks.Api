@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "השאר את התוכנית המחמירה",
   "autoWizard.softAlternative.openAlternative": "פתח את החלופה",
   "autoWizard.softAlternative.notBetter": "ניסיון עם בקשות מרוככות לא אייש יותר משמרות. התוכנית המחמירה נשארת.",
+  "autoWizard.softAlternative.promoted": "ניסיון שני אייש יותר משמרות בלי להפר אף בקשה. הוא מוצג כתוצאה.",
   "autoWizard.softAlternative.failed": "לא ניתן היה להשלים את הניסיון עם בקשות מרוככות. התוכנית המחמירה נשארת.",
   "autoWizard.softAlternative.keptForGroup": "עבור הקבוצה {{group}} קיימת גם החלופה {{scenario}}: היא מאיישת {{count}} משמרת/ות נוספות, אך לשם כך אינה מכבדת חלק מהבקשות. ברגע שתפתח את הקבוצה הזו, Klacks יציג לך את שתי התוכניות זו לצד זו להשוואה.",
   "scenarioVariant.menu": "ניהול מפתחות",

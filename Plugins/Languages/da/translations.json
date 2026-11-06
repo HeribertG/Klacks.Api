@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Behold striks plan",
   "autoWizard.softAlternative.openAlternative": "Åbn alternativ",
   "autoWizard.softAlternative.notBetter": "Et forsøg med lempede ønsker besatte ikke flere vagter. Den strikse plan bevares.",
+  "autoWizard.softAlternative.promoted": "Et andet forsøg besatte flere vagter uden at bryde noget ønske. Det vises som resultatet.",
   "autoWizard.softAlternative.failed": "Forsøget med lempede ønsker kunne ikke gennemføres. Den strikse plan bevares.",
   "autoWizard.softAlternative.keptForGroup": "For gruppe {{group}} findes der desuden alternativet {{scenario}}: det besætter {{count}} vagt(er) mere og bryder til gengæld ønsker. Så snart du åbner denne gruppe, viser Klacks dig begge planer side om side.",
   "scenarioVariant.menu": "Administrer nøgler",

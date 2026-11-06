@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Păstrează planul strict",
   "autoWizard.softAlternative.openAlternative": "Deschide alternativa",
   "autoWizard.softAlternative.notBetter": "O încercare cu dorințe relaxate nu a ocupat mai multe ture. Rămâne planul strict.",
+  "autoWizard.softAlternative.promoted": "O a doua încercare a ocupat mai multe ture fără să încalce vreo dorință. Este afișată ca rezultat.",
   "autoWizard.softAlternative.failed": "Încercarea cu dorințe relaxate nu a putut fi finalizată. Rămâne planul strict.",
   "autoWizard.softAlternative.keptForGroup": "Pentru grupul {{group}} există și alternativa {{scenario}}: ocupă încă {{count}} tură/ture, dar nu respectă unele dorințe. De îndată ce deschizi acest grup, Klacks îți afișează ambele planuri unul lângă altul.",
   "scenarioVariant.menu": "Gestionează cheile",

@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Zachowaj ścisły plan",
   "autoWizard.softAlternative.openAlternative": "Otwórz alternatywę",
   "autoWizard.softAlternative.notBetter": "Próba ze złagodzonymi życzeniami nie obsadziła więcej dyżurów. Pozostaje ścisły plan.",
+  "autoWizard.softAlternative.promoted": "Druga próba obsadziła więcej dyżurów bez naruszenia żadnego życzenia. Jest wyświetlana jako wynik.",
   "autoWizard.softAlternative.failed": "Próby ze złagodzonymi życzeniami nie udało się zakończyć. Pozostaje ścisły plan.",
   "autoWizard.softAlternative.keptForGroup": "Dla grupy {{group}} istnieje też alternatywa {{scenario}}: obsadza dodatkowe dyżury ({{count}}), ale kosztem naruszenia życzeń. Gdy tylko otworzysz tę grupę, Klacks pokaże ci oba plany obok siebie do porównania.",
   "scenarioVariant.menu": "Zarządzaj kluczami",

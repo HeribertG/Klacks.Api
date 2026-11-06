@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Strikt plan behouden",
   "autoWizard.softAlternative.openAlternative": "Alternatief openen",
   "autoWizard.softAlternative.notBetter": "Een poging met versoepelde wensen heeft niet meer diensten bezet. Het strikte plan blijft.",
+  "autoWizard.softAlternative.promoted": "Een tweede poging heeft meer diensten bezet zonder een wens te schenden. Die wordt als resultaat getoond.",
   "autoWizard.softAlternative.failed": "De poging met versoepelde wensen kon niet worden voltooid. Het strikte plan blijft.",
   "autoWizard.softAlternative.keptForGroup": "Voor groep {{group}} is er ook het alternatief {{scenario}}: het bezet {{count}} dienst(en) meer en schendt daarvoor wensen. Zodra je die groep opent, toont Klacks je beide plannen naast elkaar.",
   "scenarioVariant.menu": "Sleutels beheren",

@@ -7,7 +7,8 @@
 /// day without one) whose weekday flags allow the weekday, the shift-work rule of the wizard holds,
 /// no mandatory qualification gap of severity Error exists (MandatoryQualificationLevelTooLow when every such gap is
 /// only a held level below a binding minimum, otherwise MandatoryQualificationMissing), the shift is not blacklisted and the client
-/// is not marked unavailable for the shift's hours. A run day outside the membership is OutsideMembership (checked
+/// is not marked unavailable for the shift's hours (the hours of a night shift after midnight against the next day's
+/// records). A run day outside the membership is OutsideMembership (checked
 /// first), a member day without any contract data is NoActiveContract. The scan stops at the first eligible day.
 /// Per run day the first violated condition is the day's reason; for an ineligible pair the reason that blocks on
 /// the most run days is kept, a tie going to the lower enum value (OutsideMembership, appended last, loses ties).
@@ -200,13 +201,20 @@ public sealed class StaticEligibilityEvaluator : IGroupingEligibilityOracle
         }
 
         var shift = _context.Shifts[shiftId];
-        var availability = _context.AvailabilityByClientAndDay.GetValueOrDefault((clientId, day), NoAvailability);
+        var availability = AvailabilityOfDayAndNext(clientId, day);
         if (AvailabilityMatcher.IsUnavailable(availability, day, shift.Start, shift.End))
         {
             return GroupingIneligibilityReason.Unavailable;
         }
 
         return null;
+    }
+
+    private IReadOnlyList<ClientAvailability> AvailabilityOfDayAndNext(Guid clientId, DateOnly day)
+    {
+        var sameDay = _context.AvailabilityByClientAndDay.GetValueOrDefault((clientId, day), NoAvailability);
+        var nextDay = _context.AvailabilityByClientAndDay.GetValueOrDefault((clientId, day.AddDays(1)), NoAvailability);
+        return nextDay.Count == 0 ? sameDay : [.. sameDay, .. nextDay];
     }
 
     private void IndexContracts()

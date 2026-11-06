@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Behold streng plan",
   "autoWizard.softAlternative.openAlternative": "Åpne alternativ",
   "autoWizard.softAlternative.notBetter": "Et forsøk med lempede ønsker besatte ikke flere vakter. Den strenge planen blir stående.",
+  "autoWizard.softAlternative.promoted": "Et nytt forsøk besatte flere vakter uten å bryte noe ønske. Det vises som resultatet.",
   "autoWizard.softAlternative.failed": "Forsøket med lempede ønsker kunne ikke fullføres. Den strenge planen blir stående.",
   "autoWizard.softAlternative.keptForGroup": "For gruppe {{group}} finnes også alternativet {{scenario}}: det besetter {{count}} vakt(er) mer og bryter ønsker for å få det til. Så snart du åpner denne gruppen, viser Klacks deg begge planene side om side.",
   "scenarioVariant.menu": "Administrer nøkler",

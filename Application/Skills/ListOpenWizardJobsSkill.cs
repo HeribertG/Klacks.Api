@@ -13,6 +13,7 @@
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Application.Services.Schedules.AutoWizard;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
@@ -121,6 +122,10 @@ public class ListOpenWizardJobsSkill : BaseSkillImplementation
                     soft.KeywordMode,
                     soft.AdditionalFilledSlots,
                     soft.Summary.OpenSlots,
+                    BrokenRestrictions = soft.Summary.KeywordWishes is { } softWishes
+                        ? AutoWizardSoftKeywordRetryPlanner.BrokenRestrictions(softWishes)
+                        : 0,
+                    UnfulfilledPositiveWishes = soft.Summary.KeywordWishes?.Unfulfilled ?? 0,
                     soft.BrokenWishes
                 }
                 : null
@@ -175,15 +180,23 @@ public class ListOpenWizardJobsSkill : BaseSkillImplementation
             var more = soft.BrokenWishes.Count > MaxWishesInMessage
                 ? $" and {soft.BrokenWishes.Count - MaxWishesInMessage} more (see SoftAlternative.BrokenWishes)"
                 : string.Empty;
+            var softWishes = soft.Summary.KeywordWishes;
+            var broken = softWishes is null ? 0 : AutoWizardSoftKeywordRetryPlanner.BrokenRestrictions(softWishes);
             return $" The plan above treats the restricting schedule keywords as vetoes and leaves {result.Summary?.OpenSlots} slot(s) open. " +
                    $"A second proposal '{soft.ScenarioName}' (id {soft.ScenarioId}) treats the keywords as wishes: it fills " +
-                   $"{soft.AdditionalFilledSlots} more slot(s) and misses {soft.BrokenWishes.Count} wish(es) the first plan keeps: " +
+                   $"{soft.AdditionalFilledSlots} more slot(s), breaks {broken} restricting wish(es) (FREE {softWishes?.BrokenFree ?? 0}, " +
+                   $"only-kind {softWishes?.BrokenOnly ?? 0}, excluded kind {softWishes?.BrokenNo ?? 0}) and leaves " +
+                   $"{softWishes?.Unfulfilled ?? 0} positive wish(es) unfulfilled. Missed by it and kept by the first plan: " +
                    $"{string.Join("; ", listed)}{more}. Offer both scenarios to the user with these facts; never accept the " +
                    "soft one without the user's explicit choice.";
         }
 
         return result.SoftKeywordRetryOutcome switch
         {
+            AutoWizardSoftKeywordRetryOutcomes.Promoted =>
+                " A second run that treated the schedule keywords as wishes found a better plan without breaking any wish: it " +
+                $"covers more slots and is the scenario named above; the first plan was discarded. It leaves " +
+                $"{result.Summary?.KeywordWishes?.Unfulfilled ?? 0} positive wish(es) unfulfilled.",
             AutoWizardSoftKeywordRetryOutcomes.NotBetter =>
                 " A second run that treated the schedule keywords as wishes covered no more slots, so it was discarded.",
             AutoWizardSoftKeywordRetryOutcomes.Failed =>

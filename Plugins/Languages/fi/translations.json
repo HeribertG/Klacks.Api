@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Säilytä tiukka suunnitelma",
   "autoWizard.softAlternative.openAlternative": "Avaa vaihtoehto",
   "autoWizard.softAlternative.notBetter": "Yritys joustavammilla toiveilla ei täyttänyt enempää vuoroja. Tiukka suunnitelma säilyy.",
+  "autoWizard.softAlternative.promoted": "Toinen yritys täytti enemmän vuoroja rikkomatta yhtään toivetta. Se näytetään tuloksena.",
   "autoWizard.softAlternative.failed": "Yritystä joustavammilla toiveilla ei voitu suorittaa loppuun. Tiukka suunnitelma säilyy.",
   "autoWizard.softAlternative.keptForGroup": "Ryhmälle {{group}} on lisäksi vaihtoehto {{scenario}}: se täyttää {{count}} vuoro(a) enemmän, mutta rikkoo sen vuoksi toiveita. Heti kun avaat tämän ryhmän, Klacks näyttää sinulle molemmat suunnitelmat rinnakkain.",
   "scenarioVariant.menu": "Hallitse avaimia",

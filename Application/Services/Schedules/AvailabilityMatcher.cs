@@ -13,9 +13,10 @@
 /// <item>Only IsAvailable=false records (no available hour): legacy negative semantics — only those
 /// explicit unavailable hours block (preserves existing opt-out data).</item>
 /// </list>
-/// No data access — the caller loads the rows; this is a side-effect-free function. Cross-midnight shifts
-/// are evaluated for the portion on the given date only (the next-day hours are a documented v1
-/// limitation, since records are keyed by date + hour).
+/// No data access — the caller loads the rows; this is a side-effect-free function. A shift that crosses midnight is
+/// checked on both dates: the hours up to midnight against the start date, the hours after midnight against the next
+/// date, each with that date's own semantics (availability is hard, owner rule 2026-11-06). The caller therefore loads
+/// the rows of the day after the last shift date as well.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -32,6 +33,21 @@ public static class AvailabilityMatcher
         TimeOnly end)
     {
         if (entries.Count == 0)
+        {
+            return false;
+        }
+
+        if (IsUnavailableOnDate(entries, date, SameDayHours(start, end)))
+        {
+            return true;
+        }
+
+        return end <= start && IsUnavailableOnDate(entries, date.AddDays(1), NextDayHours(end));
+    }
+
+    private static bool IsUnavailableOnDate(IReadOnlyList<ClientAvailability> entries, DateOnly date, IReadOnlyList<int> occupiedHours)
+    {
+        if (occupiedHours.Count == 0)
         {
             return false;
         }
@@ -54,36 +70,26 @@ public static class AvailabilityMatcher
             }
         }
 
-        if (availableHours.Count == 0 && unavailableHours.Count == 0)
-        {
-            return false;
-        }
-
         if (availableHours.Count > 0)
         {
-            return OccupiedHours(start, end).Any(hour => !availableHours.Contains(hour));
+            return occupiedHours.Any(hour => !availableHours.Contains(hour));
         }
 
-        return OccupiedHours(start, end).Any(unavailableHours.Contains);
+        return occupiedHours.Any(unavailableHours.Contains);
     }
 
-    private static IEnumerable<int> OccupiedHours(TimeOnly start, TimeOnly end)
+    private static IReadOnlyList<int> SameDayHours(TimeOnly start, TimeOnly end)
     {
-        var firstHour = start.Hour;
-        int lastHour;
-
-        if (end > start)
-        {
-            lastHour = end.Minute == 0 && end.Second == 0 ? end.Hour - 1 : end.Hour;
-        }
-        else
-        {
-            lastHour = DayTimeConstants.LastHourOfDay;
-        }
-
-        for (var hour = firstHour; hour <= lastHour; hour++)
-        {
-            yield return hour;
-        }
+        var lastHour = end > start ? LastOccupiedHour(end) : DayTimeConstants.LastHourOfDay;
+        return HourRange(start.Hour, lastHour);
     }
+
+    private static IReadOnlyList<int> NextDayHours(TimeOnly end)
+        => HourRange(0, LastOccupiedHour(end));
+
+    private static int LastOccupiedHour(TimeOnly end)
+        => end.Minute == 0 && end.Second == 0 ? end.Hour - 1 : end.Hour;
+
+    private static IReadOnlyList<int> HourRange(int firstHour, int lastHour)
+        => lastHour < firstHour ? [] : Enumerable.Range(firstHour, lastHour - firstHour + 1).ToList();
 }

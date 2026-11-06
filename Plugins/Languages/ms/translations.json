@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Kekalkan pelan ketat",
   "autoWizard.softAlternative.openAlternative": "Buka alternatif",
   "autoWizard.softAlternative.notBetter": "Cubaan dengan keinginan yang dilonggarkan tidak mengisi lebih banyak syif. Pelan ketat dikekalkan.",
+  "autoWizard.softAlternative.promoted": "Cubaan kedua mengisi lebih banyak syif tanpa melanggar sebarang keinginan. Ia dipaparkan sebagai hasil.",
   "autoWizard.softAlternative.failed": "Cubaan dengan keinginan yang dilonggarkan tidak dapat diselesaikan. Pelan ketat dikekalkan.",
   "autoWizard.softAlternative.keptForGroup": "Untuk kumpulan {{group}} terdapat juga alternatif {{scenario}}: ia mengisi {{count}} syif lagi dan melanggar keinginan untuk berbuat demikian. Sebaik sahaja anda membuka kumpulan itu, Klacks memaparkan kedua-dua pelan bersebelahan untuk dibandingkan.",
   "scenarioVariant.menu": "Urus kunci",

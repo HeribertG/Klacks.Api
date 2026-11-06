@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "保留嚴格方案",
   "autoWizard.softAlternative.openAlternative": "開啟替代方案",
   "autoWizard.softAlternative.notBetter": "放寬意願後的嘗試未能填補更多班次。保留嚴格方案。",
+  "autoWizard.softAlternative.promoted": "第二次嘗試在不違背任何意願的情況下填補了更多班次，現作為結果顯示。",
   "autoWizard.softAlternative.failed": "放寬意願後的嘗試未能完成。保留嚴格方案。",
   "autoWizard.softAlternative.keptForGroup": "群組 {{group}} 還有替代方案 {{scenario}}：它多填補 {{count}} 個班次，但會違背部分意願。只要你開啟該群組，Klacks 就會將兩個方案並排顯示供你比較。",
   "scenarioVariant.menu": "管理變體",

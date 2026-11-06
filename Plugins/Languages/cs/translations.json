@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Ponechat striktní plán",
   "autoWizard.softAlternative.openAlternative": "Otevřít alternativu",
   "autoWizard.softAlternative.notBetter": "Pokus se zmírněnými přáními neobsadil více směn. Zůstává striktní plán.",
+  "autoWizard.softAlternative.promoted": "Druhý pokus obsadil více směn, aniž by porušil jakékoli přání. Zobrazuje se jako výsledek.",
   "autoWizard.softAlternative.failed": "Pokus se zmírněnými přáními se nepodařilo dokončit. Zůstává striktní plán.",
   "autoWizard.softAlternative.keptForGroup": "Pro skupinu {{group}} existuje navíc alternativa {{scenario}}: obsadí o {{count}} směn(u) více, ale nedodrží některá přání. Jakmile tuto skupinu otevřete, Klacks vám zobrazí oba plány vedle sebe k porovnání.",
   "scenarioVariant.menu": "Správa klíčů",

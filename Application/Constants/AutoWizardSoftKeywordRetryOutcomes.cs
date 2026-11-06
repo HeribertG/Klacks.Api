@@ -17,6 +17,12 @@ public static class AutoWizardSoftKeywordRetryOutcomes
     /// <summary>The soft scenario fills more slots; it is offered as SoftAlternative.</summary>
     public const string Kept = "Kept";
 
+    /// <summary>
+    /// The soft scenario fills more slots and breaks no restricting wish (FREE, OnlyX and NoX all 0), so it is as valid as
+    /// a strict plan: it replaces the strict scenario as the run's final result and the strict scenario is removed.
+    /// </summary>
+    public const string Promoted = "Promoted";
+
     /// <summary>The soft scenario fills no more slots than the strict one and was discarded.</summary>
     public const string NotBetter = "NotBetter";
 

@@ -8,8 +8,9 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 /// <summary>
 /// Default <see cref="IAvailabilityIneligibilityService"/>: loads the availability rows for the slots'
-/// date span once (date-keyed, so no timestamptz/UTC concerns), keeps only the requested agents, and
-/// delegates the time-overlap matching to <see cref="AvailabilityMatrixBuilder"/>.
+/// date span once (date-keyed, so no timestamptz/UTC concerns) plus the day after the last slot, whose rows govern the
+/// part of a night shift after midnight, keeps only the requested agents, and delegates the time-overlap matching to
+/// <see cref="AvailabilityMatrixBuilder"/>.
 /// </summary>
 /// <param name="availabilityRepository">Source of hour-granular client availability</param>
 public sealed class AvailabilityIneligibilityService : IAvailabilityIneligibilityService
@@ -32,7 +33,7 @@ public sealed class AvailabilityIneligibilityService : IAvailabilityIneligibilit
         }
 
         var from = slots.Min(s => s.Date);
-        var until = slots.Max(s => s.Date);
+        var until = slots.Max(s => s.Date).AddDays(1);
         var rows = await _availabilityRepository.GetByDateRange(from, until);
 
         var agentSet = agentIds.ToHashSet();

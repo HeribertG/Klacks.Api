@@ -15,8 +15,10 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// <summary>
 /// The AutoWizard's soft-keyword retry: after the strict run left slots open and the employees have restricting schedule
 /// commands, the whole chain runs again from the same source in Soft keyword mode, under a budget of its own. Its final
-/// scenario is marked Soft and offered only when it fills strictly more slots than the strict one; otherwise every
-/// scenario it produced is removed. A failure, timeout or cancellation of the retry never touches the strict result.
+/// scenario is offered only when it fills strictly more slots than the strict one; otherwise every scenario it produced
+/// is removed. A better soft scenario that breaks no restricting wish is as valid as a strict plan and is promoted: the
+/// job runner makes it the final result and removes the strict one. Otherwise it is marked Soft and offered as the
+/// alternative. A failure, timeout or cancellation of the retry never touches the strict result.
 /// </summary>
 /// <param name="scopeFactory">Creates the scope of the restricting-command check.</param>
 /// <param name="stageChain">Runs the three stages in Soft mode.</param>
@@ -122,18 +124,36 @@ internal sealed class AutoWizardSoftKeywordRetry
             return AutoWizardSoftKeywordRetryResult.Of(AutoWizardSoftKeywordRetryOutcomes.NotBetter);
         }
 
-        var alternative = AutoWizardSoftKeywordRetryPlanner.BuildAlternative(softFinal, strictSummary, softSummary!);
+        var additional = softSummary!.FilledSlots - strictSummary.FilledSlots;
+        var wishes = softSummary.KeywordWishes;
+        if (AutoWizardSoftKeywordRetryPlanner.BreaksNoRestriction(softSummary))
+        {
+            await _maintenance.DeleteAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnSuccess(softProduced));
+            await _maintenance.AnnotateAsync(
+                jobId, softFinal.ScenarioId, AutoWizardSoftKeywordRetryPlanner.BuildPromotedScenarioNote(additional, strictFinal.Name));
+
+            _logger.LogInformation(
+                "AutoWizard job {JobId} - soft-keyword scenario {ScenarioId} promoted: {Additional} more slot(s), 0 broken restriction(s), {Unfulfilled} unfulfilled positive wish(es); it replaces the strict scenario {StrictScenarioId}",
+                jobId, softFinal.ScenarioId, additional, wishes?.Unfulfilled ?? 0, strictFinal.ScenarioId);
+
+            return AutoWizardSoftKeywordRetryResult.Promoted(chain);
+        }
+
+        var alternative = AutoWizardSoftKeywordRetryPlanner.BuildAlternative(softFinal, strictSummary, softSummary);
         await _maintenance.MarkKeywordModeAsync(
             softFinal.ScenarioId,
             KeywordMode.Soft,
             AutoWizardSoftKeywordRetryPlanner.BuildSoftScenarioNote(
-                alternative.AdditionalFilledSlots, softSummary!.KeywordWishes, strictFinal.Name));
+                alternative.AdditionalFilledSlots, wishes, strictFinal.Name));
 
         await _maintenance.DeleteAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnSuccess(softProduced));
 
         _logger.LogInformation(
-            "AutoWizard job {JobId} - soft-keyword scenario {ScenarioId} kept: {Additional} more slot(s), {Missed} missed wish(es)",
-            jobId, softFinal.ScenarioId, alternative.AdditionalFilledSlots, alternative.BrokenWishes.Count);
+            "AutoWizard job {JobId} - soft-keyword scenario {ScenarioId} kept: {Additional} more slot(s), {Broken} broken restriction(s) (FREE {BrokenFree}, only-kind {BrokenOnly}, excluded kind {BrokenNo}), {Unfulfilled} unfulfilled positive wish(es), {SoftOnly} miss(es) beyond the strict scenario",
+            jobId, softFinal.ScenarioId, alternative.AdditionalFilledSlots,
+            wishes is null ? 0 : AutoWizardSoftKeywordRetryPlanner.BrokenRestrictions(wishes),
+            wishes?.BrokenFree ?? 0, wishes?.BrokenOnly ?? 0, wishes?.BrokenNo ?? 0, wishes?.Unfulfilled ?? 0,
+            alternative.BrokenWishes.Count);
 
         return new AutoWizardSoftKeywordRetryResult(AutoWizardSoftKeywordRetryOutcomes.Kept, alternative);
     }

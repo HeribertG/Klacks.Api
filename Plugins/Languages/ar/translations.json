@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "الاحتفاظ بالخطة الصارمة",
   "autoWizard.softAlternative.openAlternative": "فتح البديل",
   "autoWizard.softAlternative.notBetter": "لم تغطِّ محاولة بتخفيف الرغبات مناوبات أكثر. تبقى الخطة الصارمة.",
+  "autoWizard.softAlternative.promoted": "غطّت محاولة ثانية مناوبات أكثر دون انتهاك أي رغبة، وتُعرض كنتيجة.",
   "autoWizard.softAlternative.failed": "تعذر إكمال المحاولة بتخفيف الرغبات. تبقى الخطة الصارمة.",
   "autoWizard.softAlternative.keptForGroup": "للمجموعة {{group}} يوجد أيضًا البديل {{scenario}}: يغطي {{count}} مناوبة (مناوبات) إضافية، لكنه في المقابل لا يحترم بعض الرغبات. بمجرد أن تفتح هذه المجموعة، يعرض لك Klacks الخطتين جنبًا إلى جنب للمقارنة.",
   "scenarioVariant.menu": "إدارة المفاتيح",

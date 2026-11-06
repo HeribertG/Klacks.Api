@@ -56,7 +56,7 @@ public sealed class GroupingFeasibilityDataSource : IGroupingFeasibilityDataSour
         var requirements = await RequirementsQuery(shiftIds).ToListAsync(cancellationToken);
         var qualifications = await QualificationsQuery(clientIds).ToListAsync(cancellationToken);
         var blacklist = await BlacklistQuery(clientIds).ToListAsync(cancellationToken);
-        var availability = await AvailabilityQuery(clientIds, from, until).ToListAsync(cancellationToken);
+        var availability = await AvailabilityQuery(clientIds, from, until.AddDays(1)).ToListAsync(cancellationToken);
         var futureWorks = await FutureWorksQuery(clientIds, today).ToListAsync(cancellationToken);
 
         var locationByClient = LatestLocations(addresses);

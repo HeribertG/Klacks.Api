@@ -160,7 +160,7 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     {
         var (onLeaveClientIds, onCallClientIds) = await ResolveAbsencesAsync(request, cancellationToken);
 
-        var availabilityEntries = await _availabilityRepository.GetByDateRange(request.Date, request.Date);
+        var availabilityEntries = await _availabilityRepository.GetByDateRange(request.Date, request.Date.AddDays(1));
         var availabilityByClient = availabilityEntries
             .GroupBy(a => a.ClientId)
             .ToDictionary(g => g.Key, g => (IReadOnlyList<ClientAvailability>)g.ToList());

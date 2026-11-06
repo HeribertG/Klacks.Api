@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "厳格なプランを維持",
   "autoWizard.softAlternative.openAlternative": "代替案を開く",
   "autoWizard.softAlternative.notBetter": "希望を緩めた試行では、より多くのシフトを埋められませんでした。厳格なプランのままです。",
+  "autoWizard.softAlternative.promoted": "2回目の試行で、希望を一つも破らずにより多くのシフトを埋められました。これを結果として表示します。",
   "autoWizard.softAlternative.failed": "希望を緩めた試行を完了できませんでした。厳格なプランのままです。",
   "autoWizard.softAlternative.keptForGroup": "グループ{{group}}には代替案{{scenario}}もあります。シフトを{{count}}件多く埋めますが、その分希望を破ります。このグループを開くと、Klacksが両方のプランを並べて比較表示します。",
   "scenarioVariant.menu": "キーを管理",

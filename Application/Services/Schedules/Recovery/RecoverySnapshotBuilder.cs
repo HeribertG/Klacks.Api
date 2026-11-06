@@ -619,7 +619,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         // A missing availability row means "open"; positive rows restrict to the marked hours (see
         // AvailabilityMatcher). It applies on keyword days as well.
         var availabilityIneligible = new HashSet<IneligibleKey>();
-        var availabilities = await _availabilityRepository.GetByDateRange(windowStart, windowEnd);
+        var availabilities = await _availabilityRepository.GetByDateRange(windowStart, windowEnd.AddDays(1));
         var availabilityByClient = availabilities
             .GroupBy(a => a.ClientId)
             .ToDictionary(g => g.Key, g => (IReadOnlyList<ClientAvailability>)g.ToList());

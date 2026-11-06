@@ -4946,6 +4946,7 @@
   "autoWizard.softAlternative.keepStrict": "Pertahankan rencana ketat",
   "autoWizard.softAlternative.openAlternative": "Buka alternatif",
   "autoWizard.softAlternative.notBetter": "Percobaan dengan keinginan yang dilonggarkan tidak mengisi lebih banyak shift. Rencana ketat tetap dipakai.",
+  "autoWizard.softAlternative.promoted": "Percobaan kedua mengisi lebih banyak shift tanpa melanggar satu keinginan pun. Rencana ini ditampilkan sebagai hasil.",
   "autoWizard.softAlternative.failed": "Percobaan dengan keinginan yang dilonggarkan tidak dapat diselesaikan. Rencana ketat tetap dipakai.",
   "autoWizard.softAlternative.keptForGroup": "Untuk grup {{group}} juga tersedia alternatif {{scenario}}: alternatif ini mengisi {{count}} shift lebih banyak dengan melanggar keinginan. Begitu Anda membuka grup tersebut, Klacks menampilkan kedua rencana berdampingan untuk dibandingkan.",
   "scenarioVariant.menu": "Kelola kunci",
