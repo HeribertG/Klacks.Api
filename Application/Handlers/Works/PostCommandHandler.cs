@@ -2,8 +2,8 @@
 
 /// <summary>
 /// Creates a Work: day-lock and write guards first, then the Work with its container expansion and
-/// default expenses, commit, overtime successors, period hours, notifications and the three-day
-/// WorkResource the client repaints from. A Work for a client outside the caller's group visibility is
+/// default expenses, commit, completion (overtime successors and period hours, IScheduleCompletionService.CompleteWorkWriteAsync;
+/// a failure there is logged and repaired by a queued recalculation instead of failing the committed create), notifications and the three-day WorkResource the client repaints from. A Work for a client outside the caller's group visibility is
 /// refused exactly like a Work for a client that does not exist; nothing is written. Like the grid's locked cells, a
 /// Work on a day outside the client's membership or group period is refused; container children follow their parent's
 /// cell and are not checked on their own. A Work on a shift outside the caller's group visibility is refused exactly like a
@@ -44,7 +44,6 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IDayLockService _dayLockService;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IWorkWriteGuard _writeGuard;
     private readonly IClientPlanningPeriodGuard _planningPeriodGuard;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
@@ -62,7 +61,6 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         ISelectedGroupContextResolver groupContextResolver,
         IDayLockService dayLockService,
         IUnitOfWork unitOfWork,
-        IOvertimeCascadeService overtimeCascadeService,
         IWorkWriteGuard writeGuard,
         IClientPlanningPeriodGuard planningPeriodGuard,
         IShiftVisibilityGuard shiftVisibilityGuard,
@@ -81,7 +79,6 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _groupContextResolver = groupContextResolver;
         _dayLockService = dayLockService;
         _unitOfWork = unitOfWork;
-        _overtimeCascadeService = overtimeCascadeService;
         _writeGuard = writeGuard;
         _planningPeriodGuard = planningPeriodGuard;
         _shiftVisibilityGuard = shiftVisibilityGuard;
@@ -129,15 +126,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
 
             await _defaultExpensesApplier.ApplyAsync([work], cancellationToken);
 
-            // K3/K4 cascade: commit the new Work first, then reprocess the successor Works in its
-            // overtime basis period (their prior-hours sums read committed database state, never the
-            // change tracker) BEFORE the completion service recalculates period hours, so the stored
-            // ClientPeriodHours already include the successors' adjusted surcharges.
             await _unitOfWork.CompleteAsync();
-            await _overtimeCascadeService.ReprocessSuccessorsAsync(work);
-
-            var periodHours = await _completionService.SaveAndTrackAsync(
-                work.ClientId, work.CurrentDate, periodStart, periodEnd, work.AnalyseToken);
+            var completion = await _completionService.CompleteWorkWriteAsync(work, null, periodStart, periodEnd);
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkCreatedAsync(work, connectionId, periodStart, periodEnd);
@@ -150,7 +140,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
                 cancellationToken);
 
             var workResource = _scheduleMapper.ToWorkResource(work);
-            workResource.PeriodHours = periodHours;
+            workResource.PeriodHours = completion.PeriodHours;
             workResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
 
             return workResource;

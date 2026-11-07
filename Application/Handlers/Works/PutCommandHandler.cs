@@ -2,7 +2,9 @@
 
 /// <summary>
 /// Updates a Work: day-lock and hard-blocking guards first, then the write, container-children move,
-/// commit, overtime successors, period hours, notifications and the three-day WorkResource. A Work whose
+/// commit, completion of the new and the stored position (overtime successors and period hours,
+/// IScheduleCompletionService.CompleteWorkWriteAsync; a failure there is logged and repaired by a queued recalculation
+/// instead of failing the committed edit), notifications and the three-day WorkResource. A Work whose
 /// stored owner or whose new owner is outside the caller's group visibility is answered exactly like a
 /// Work that does not exist; nothing is written. The AnalyseToken is server-owned like the seal state: it is
 /// taken from the stored row, never from the payload, so a PUT cannot flip a main-plan Work into a scenario and
@@ -50,7 +52,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IDayLockService _dayLockService;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IWorkWriteGuard _workWriteGuard;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IParentWorkLockGuard _workLockGuard;
@@ -69,7 +70,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         ISelectedGroupContextResolver groupContextResolver,
         IDayLockService dayLockService,
         IUnitOfWork unitOfWork,
-        IOvertimeCascadeService overtimeCascadeService,
         IWorkWriteGuard workWriteGuard,
         IHttpContextAccessor httpContextAccessor,
         IParentWorkLockGuard workLockGuard,
@@ -89,7 +89,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _groupContextResolver = groupContextResolver;
         _dayLockService = dayLockService;
         _unitOfWork = unitOfWork;
-        _overtimeCascadeService = overtimeCascadeService;
         _workWriteGuard = workWriteGuard;
         _httpContextAccessor = httpContextAccessor;
         _workLockGuard = workLockGuard;
@@ -186,15 +185,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             // unchanged above, so an edit can never change it. Seal changes cascade from the handlers that
             // enforce CanSeal (ConfirmWorkCommandHandler) or write the whole range in bulk.
 
-            // K3/K4 cascade: commit the edit first, then reprocess the successor Works of both the new
-            // position and (when client/date/start time/scenario changed) the old position — their
-            // prior-hours sums read committed database state — BEFORE period hours are recalculated.
             await _unitOfWork.CompleteAsync();
-            await _overtimeCascadeService.ReprocessSuccessorsAsync(updatedWork, existingWork);
-
-            var (periodHours, _) = await _completionService.SaveAndTrackMoveAsync(
-                updatedWork.ClientId, updatedWork.CurrentDate, periodStart, periodEnd,
-                existingWork?.ClientId, existingWork?.CurrentDate, updatedWork.AnalyseToken);
+            var completion = await _completionService.CompleteWorkWriteAsync(
+                updatedWork, existingWork, periodStart, periodEnd);
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkUpdatedAsync(updatedWork, connectionId, periodStart, periodEnd);
@@ -219,7 +212,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
                 cancellationToken);
 
             var workResource = _scheduleMapper.ToWorkResource(updatedWork);
-            workResource.PeriodHours = periodHours;
+            workResource.PeriodHours = completion.PeriodHours;
             workResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
 
             return workResource;

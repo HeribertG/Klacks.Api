@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Soft-deletes a Work with its container children and notifies the schedule. A Work owned by a client
+/// Soft-deletes a Work with its container children, commits, completes the write (overtime successors and period hours,
+/// IScheduleCompletionService.CompleteWorkWriteAsync; a failure there is logged and repaired by a queued recalculation
+/// instead of failing the committed delete) and notifies the schedule. A Work owned by a client
 /// outside the caller's group visibility is refused exactly like a Work that does not exist; nothing is
 /// deleted. On top of DeleteWorkCommandValidator (non-admins may only delete unsealed Works), IParentWorkLockGuard
 /// refuses a Closed Work for everyone, admins included: deleting it would also drop its expenses and WorkChanges
@@ -36,7 +38,6 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IDayLockService _dayLockService;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IParentWorkLockGuard _workLockGuard;
 
@@ -52,7 +53,6 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         ISelectedGroupContextResolver groupContextResolver,
         IDayLockService dayLockService,
         IUnitOfWork unitOfWork,
-        IOvertimeCascadeService overtimeCascadeService,
         IHttpContextAccessor httpContextAccessor,
         IParentWorkLockGuard workLockGuard,
         ILogger<DeleteCommandHandler> logger)
@@ -69,7 +69,6 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         _groupContextResolver = groupContextResolver;
         _dayLockService = dayLockService;
         _unitOfWork = unitOfWork;
-        _overtimeCascadeService = overtimeCascadeService;
         _httpContextAccessor = httpContextAccessor;
         _workLockGuard = workLockGuard;
     }
@@ -108,15 +107,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             await _cascadeService.DeleteChildrenAsync(request.Id);
             await _workRepository.Delete(request.Id);
 
-            // K3/K4 cascade: commit the soft-delete first, then reprocess the successor Works in the
-            // deleted Work's overtime basis period (its former prior-hours contribution is gone; the
-            // detached entity still carries the client/date/start time that identify the period and
-            // ordering position) BEFORE period hours are recalculated.
             await _unitOfWork.CompleteAsync();
-            await _overtimeCascadeService.ReprocessSuccessorsAsync(work);
-
-            var periodHours = await _completionService.SaveAndTrackAsync(
-                work.ClientId, work.CurrentDate, periodStart, periodEnd, work.AnalyseToken);
+            var completion = await _completionService.CompleteWorkWriteAsync(work, null, periodStart, periodEnd);
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkDeletedAsync(work, connectionId, periodStart, periodEnd);
@@ -129,7 +121,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
                 cancellationToken);
 
             var workResource = _scheduleMapper.ToWorkResource(work);
-            workResource.PeriodHours = periodHours;
+            workResource.PeriodHours = completion.PeriodHours;
             workResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
 
             return workResource;

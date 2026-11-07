@@ -10,8 +10,11 @@
 /// is sealed on its own) and that the caller may write, with writable children; the split time is in whole minutes and
 /// lies between two children with a task on each side; the days of both persons are open; a service counts with its
 /// travel, briefing and debriefing times; the target exists, is an employee, is plannable on the day of the second part
-/// and has no hard-blocking conflict. Period hours are recalculated in the period of each part, so a night split into a
-/// new period updates both periods. A failing recalculation rolls the whole split back.
+/// and has no hard-blocking conflict. A failing recalculation of the parts rolls the whole split back. After the
+/// transaction each part is completed on its own (IScheduleCompletionService.CompleteWorkWriteAsync: the first part against
+/// the container before the split, the second part as new), so the overtime successors and the period hours of each part's
+/// client are handled in that part's period and a night split into a new period updates both periods; a failure there is
+/// logged and repaired by a queued recalculation instead of failing the committed split.
 /// </summary>
 /// <param name="splitWriter">Stages the shortened container, the second part and the moved children</param>
 /// <param name="childrenManager">Recalculates both parts after the structural save</param>
@@ -50,7 +53,6 @@ public class SplitContainerWorkCommandHandler : BaseHandler, IRequestHandler<Spl
     private readonly IContainerSplitWriter _splitWriter;
     private readonly IContainerWorkChildrenManager _childrenManager;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
@@ -72,7 +74,6 @@ public class SplitContainerWorkCommandHandler : BaseHandler, IRequestHandler<Spl
         IContainerSplitWriter splitWriter,
         IContainerWorkChildrenManager childrenManager,
         IUnitOfWork unitOfWork,
-        IOvertimeCascadeService overtimeCascadeService,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
@@ -95,7 +96,6 @@ public class SplitContainerWorkCommandHandler : BaseHandler, IRequestHandler<Spl
         _splitWriter = splitWriter;
         _childrenManager = childrenManager;
         _unitOfWork = unitOfWork;
-        _overtimeCascadeService = overtimeCascadeService;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
         _notificationFacade = notificationFacade;
@@ -192,21 +192,12 @@ public class SplitContainerWorkCommandHandler : BaseHandler, IRequestHandler<Spl
     private async Task<SplitContainerWorkResponse> CompleteAsync(
         Work before, Work firstPart, Work secondPart, CancellationToken cancellationToken)
     {
-        await _overtimeCascadeService.ReprocessSuccessorsAsync(firstPart, before);
-        await _overtimeCascadeService.ReprocessSuccessorsAsync(secondPart);
-
         var firstPeriod = await _periodHoursService.GetPeriodBoundariesAsync(firstPart.CurrentDate);
         var secondPeriod = secondPart.CurrentDate == firstPart.CurrentDate
             ? firstPeriod
             : await _periodHoursService.GetPeriodBoundariesAsync(secondPart.CurrentDate);
-        await _completionService.SaveAndTrackMoveAsync(
-            secondPart.ClientId, secondPart.CurrentDate, secondPeriod.StartDate, secondPeriod.EndDate,
-            firstPart.ClientId, firstPart.CurrentDate, firstPart.AnalyseToken);
-        if (firstPeriod != secondPeriod)
-        {
-            await _completionService.SaveAndTrackAsync(
-                firstPart.ClientId, firstPart.CurrentDate, firstPeriod.StartDate, firstPeriod.EndDate, firstPart.AnalyseToken);
-        }
+        await _completionService.CompleteWorkWriteAsync(firstPart, before, firstPeriod.StartDate, firstPeriod.EndDate);
+        await _completionService.CompleteWorkWriteAsync(secondPart, null, secondPeriod.StartDate, secondPeriod.EndDate);
 
         var connectionId = _notificationFacade.GetConnectionId();
         await _notificationFacade.NotifyWorkUpdatedAsync(firstPart, connectionId, firstPeriod.StartDate, firstPeriod.EndDate);

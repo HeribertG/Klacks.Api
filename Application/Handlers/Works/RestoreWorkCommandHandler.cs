@@ -5,7 +5,9 @@
 /// seal resolved via the shift's group because the deleted Work no longer binds its client to a group;
 /// sporadic capacity; hard-blocking conflicts), brings back the container children and the softening
 /// rows the same delete cascaded away, clears the delete stamp, then replays the create-side commit
-/// sequence: commit, overtime successors, period hours, created-notifications, and the same three-day
+/// sequence: commit, completion (overtime successors and period hours, IScheduleCompletionService.CompleteWorkWriteAsync;
+/// a failure there is logged and repaired by a queued recalculation instead of failing the committed restore),
+/// created-notifications, and the same three-day
 /// WorkResource the delete answered with. A foreign delete (caller is neither Admin nor the deleting
 /// user) is answered exactly like "not found" so the endpoint reveals nothing about it, and so is a Work
 /// owned by a client outside the caller's group visibility. A Work on a shift of another world reads like a missing shift
@@ -46,7 +48,6 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
     private readonly IWorkWriteGuard _writeGuard;
     private readonly IWorkRestoreAuthorizer _authorizer;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IOvertimeCascadeService _overtimeCascadeService;
 
     public RestoreWorkCommandHandler(
         IWorkRepository workRepository,
@@ -63,7 +64,6 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
         IWorkWriteGuard writeGuard,
         IWorkRestoreAuthorizer authorizer,
         IUnitOfWork unitOfWork,
-        IOvertimeCascadeService overtimeCascadeService,
         ILogger<RestoreWorkCommandHandler> logger)
         : base(logger)
     {
@@ -81,7 +81,6 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
         _writeGuard = writeGuard;
         _authorizer = authorizer;
         _unitOfWork = unitOfWork;
-        _overtimeCascadeService = overtimeCascadeService;
     }
 
     public async Task<WorkResource?> Handle(RestoreWorkCommand request, CancellationToken cancellationToken)
@@ -129,10 +128,7 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
             await _workRepository.RestoreAsync(work);
 
             await _unitOfWork.CompleteAsync();
-            await _overtimeCascadeService.ReprocessSuccessorsAsync(work);
-
-            var periodHours = await _completionService.SaveAndTrackAsync(
-                work.ClientId, work.CurrentDate, periodStart, periodEnd, work.AnalyseToken);
+            var completion = await _completionService.CompleteWorkWriteAsync(work, null, periodStart, periodEnd);
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkCreatedAsync(work, connectionId, periodStart, periodEnd);
@@ -145,7 +141,7 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
                 cancellationToken);
 
             var workResource = _scheduleMapper.ToWorkResource(work);
-            workResource.PeriodHours = periodHours;
+            workResource.PeriodHours = completion.PeriodHours;
             workResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
 
             return workResource;

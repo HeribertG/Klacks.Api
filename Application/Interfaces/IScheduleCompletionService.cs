@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Interfaces;
 
@@ -26,6 +27,24 @@ public interface IScheduleCompletionService
         DateOnly periodStart, DateOnly periodEnd,
         Guid? previousClientId, DateOnly? previousDate,
         Guid? analyseToken);
+
+    /// <summary>
+    /// Completes a single-Work write the caller has already committed. Queues the timeline check of the Work's
+    /// position (and of the previous position when client or date differ) first, then reprocesses the overtime
+    /// successors (K3/K4: their prior-hours sums read committed state, so this runs after the commit and before the
+    /// period hours), tracks the change and recalculates and pushes the period hours of the Work's client and, when
+    /// the client changed, of the previous client. When any of these steps throws, the Work stays committed and the
+    /// write still succeeds: the failure is logged, tracked changes are discarded, a thorough recalculation of the
+    /// pay period (plus the following one when successors can reach into it) is queued to repair surcharges and
+    /// period hours, the cached period-hours rows of the affected days are dropped and the live period hours are
+    /// returned instead, without a PeriodHoursUpdated push.
+    /// </summary>
+    /// <param name="work">The Work as committed (added, edited, soft-deleted or restored)</param>
+    /// <param name="previous">The pre-write state for an edit or move; null for create, delete and restore</param>
+    /// <param name="periodStart">First day of the Work's pay period</param>
+    /// <param name="periodEnd">Last day of the Work's pay period</param>
+    Task<WorkWriteCompletion> CompleteWorkWriteAsync(
+        Work work, Work? previous, DateOnly periodStart, DateOnly periodEnd);
 
     Task SaveBulkAndTrackAsync(
         List<(Guid ClientId, DateOnly CurrentDate, Guid? AnalyseToken)> affectedEntries);

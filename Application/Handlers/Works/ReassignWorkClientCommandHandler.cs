@@ -2,8 +2,10 @@
 
 /// <summary>
 /// Hands a Work over to another client: day-lock and hard-blocking guards for both clients, the hand-over including
-/// container children and the recalculation for the new owner (IWorkHandOverService), commit, overtime successors,
-/// period hours and the schedule entries of source and target. A Work whose current owner or whose target client is
+/// container children and the recalculation for the new owner (IWorkHandOverService), commit, completion of both
+/// positions (overtime successors and period hours of target and source, IScheduleCompletionService.CompleteWorkWriteAsync;
+/// a failure there is logged and repaired by a queued recalculation instead of failing the committed hand-over) and the
+/// schedule entries of source and target. A Work whose current owner or whose target client is
 /// outside the caller's group visibility is refused exactly like a Work that does not exist; nothing is written. Like
 /// the Work PUT and DELETE, the stored Work must be writable for the caller under IParentWorkLockGuard: a Closed Work
 /// is refused for everyone, an Approved one needs Admin or Authorised. Like the grid's drop target, the target client
@@ -54,7 +56,6 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IDayLockService _dayLockService;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IWorkWriteGuard _workWriteGuard;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IParentWorkLockGuard _workLockGuard;
@@ -74,7 +75,6 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         ISelectedGroupContextResolver groupContextResolver,
         IDayLockService dayLockService,
         IUnitOfWork unitOfWork,
-        IOvertimeCascadeService overtimeCascadeService,
         IWorkWriteGuard workWriteGuard,
         IHttpContextAccessor httpContextAccessor,
         IParentWorkLockGuard workLockGuard,
@@ -95,7 +95,6 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         _groupContextResolver = groupContextResolver;
         _dayLockService = dayLockService;
         _unitOfWork = unitOfWork;
-        _overtimeCascadeService = overtimeCascadeService;
         _workWriteGuard = workWriteGuard;
         _httpContextAccessor = httpContextAccessor;
         _workLockGuard = workLockGuard;
@@ -155,15 +154,8 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
-            // K3/K4 cascade: commit the reassignment first, then reprocess successors of both the old and
-            // new client position (their prior-hours sums read committed database state) BEFORE period
-            // hours are recalculated — same ordering contract as PutCommandHandler.
             await _unitOfWork.CompleteAsync();
-            await _overtimeCascadeService.ReprocessSuccessorsAsync(work, existingWork);
-
-            var (periodHours, previousPeriodHours) = await _completionService.SaveAndTrackMoveAsync(
-                work.ClientId, work.CurrentDate, periodStart, periodEnd,
-                existingWork.ClientId, existingWork.CurrentDate, work.AnalyseToken);
+            var completion = await _completionService.CompleteWorkWriteAsync(work, existingWork, periodStart, periodEnd);
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkUpdatedAsync(work, connectionId, periodStart, periodEnd);
@@ -179,7 +171,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
                 cancellationToken);
 
             var workResource = _scheduleMapper.ToWorkResource(work);
-            workResource.PeriodHours = periodHours;
+            workResource.PeriodHours = completion.PeriodHours;
             workResource.ScheduleEntries = allEntries
                 .Where(e => e.ClientId == work.ClientId)
                 .Select(_scheduleMapper.ToWorkScheduleResource)
@@ -192,7 +184,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
                     .Where(e => e.ClientId == existingWork.ClientId)
                     .Select(_scheduleMapper.ToWorkScheduleResource)
                     .ToList(),
-                SourcePeriodHours = previousPeriodHours,
+                SourcePeriodHours = completion.PreviousPeriodHours,
             };
         },
         "reassigning work to another client",
