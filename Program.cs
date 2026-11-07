@@ -278,6 +278,7 @@ builder.Services.AddHealthChecks()
 
 builder.Services.AddKlacksRateLimiting();
 builder.Services.AddKlacksSessionCookies(builder.Configuration);
+builder.Services.AddKlacksIdempotentRequests();
 
 builder.Services.AddPipelineBehavior(typeof(CancellationBehavior<,>));
 builder.Services.AddPipelineBehavior(typeof(ValidationBehavior<,>));

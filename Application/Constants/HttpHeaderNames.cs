@@ -19,4 +19,10 @@ public static class HttpHeaderNames
     /// download (region package, language pack, feature plugin).
     /// </summary>
     public const string KlacksSignature = "X-Klacks-Signature";
+
+    /// <summary>
+    /// Client-chosen GUID that marks one user action on a creating endpoint, so a repeated request of the same action
+    /// (automatic retry after a lost answer) is answered from the first execution instead of creating a second entry.
+    /// </summary>
+    public const string IdempotencyKey = "Idempotency-Key";
 }

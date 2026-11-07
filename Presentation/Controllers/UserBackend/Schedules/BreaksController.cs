@@ -7,6 +7,7 @@ using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
@@ -39,6 +40,7 @@ public class BreaksController : BaseController
     }
 
     [HttpPost]
+    [IdempotentRequest]
     public async Task<ActionResult<BreakResource>> Post([FromBody] BreakResource resource)
     {
         var model = await _mediator.Send(new PostCommand<BreakResource>(resource));
@@ -52,6 +54,7 @@ public class BreaksController : BaseController
     }
 
     [HttpPost("Bulk")]
+    [IdempotentRequest]
     public async Task<ActionResult<BulkBreaksResponse>> BulkAdd([FromBody] BulkAddBreaksRequest request)
     {
         var response = await _mediator.Send(new BulkAddBreaksCommand(request));

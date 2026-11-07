@@ -5,16 +5,17 @@
 /// </summary>
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Works;
+using Klacks.Api.Application.DTOs.Filter;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.PeriodHours;
 using Klacks.Api.Application.Queries.ScheduleEntries;
 using Klacks.Api.Application.Queries.Works;
-using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Domain.DTOs.Filter;
-using Klacks.Api.Application.DTOs.Filter;
-using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.DTOs.Schedules;
+using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,6 +42,7 @@ public class WorksController : BaseController
     }
 
     [HttpPost]
+    [IdempotentRequest]
     public async Task<ActionResult<WorkResource>> Post([FromBody] WorkResource resource)
     {
         var model = await _mediator.Send(new PostCommand<WorkResource>(resource));
@@ -73,6 +75,7 @@ public class WorksController : BaseController
     }
 
     [HttpPost("Bulk")]
+    [IdempotentRequest]
     public async Task<ActionResult<BulkWorksResponse>> BulkAdd([FromBody] BulkAddWorksRequest request)
     {
         var response = await _mediator.Send(new BulkAddWorksCommand(request));

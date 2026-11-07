@@ -7,6 +7,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
@@ -40,6 +41,7 @@ public class WorkChangesController : BaseController
     }
 
     [HttpPost("Changes")]
+    [IdempotentRequest]
     public async Task<ActionResult<WorkChangeResource>> PostChange([FromBody] WorkChangeResource resource)
     {
         var model = await _mediator.Send(new PostCommand<WorkChangeResource>(resource));

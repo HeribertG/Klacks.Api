@@ -17,6 +17,7 @@ using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.BreakPlaceholders;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -68,6 +69,7 @@ public class BreakPlaceholdersController : BaseController, ICrudResourceControll
 
     [HttpPost]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [IdempotentRequest]
     public async Task<ActionResult<BreakPlaceholderResource>> Post([FromBody] BreakPlaceholderResource resource)
     {
         var model = await _mediator.Send(new PostCommand<BreakPlaceholderResource>(resource));

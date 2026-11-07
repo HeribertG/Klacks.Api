@@ -14,6 +14,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
@@ -48,6 +49,7 @@ public class ExpensesController : BaseController, ICrudResourceController<Expens
     }
 
     [HttpPost]
+    [IdempotentRequest]
     public async Task<ActionResult<ExpensesResource>> Post([FromBody] ExpensesResource resource)
     {
         var model = await _mediator.Send(new PostCommand<ExpensesResource>(resource));
