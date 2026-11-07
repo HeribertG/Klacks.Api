@@ -147,6 +147,8 @@
   "explain_absence_hours": "解释缺勤小时数",
   "explain_absence_model": "解释缺勤数据模型",
   "explain_absence_overlap_not_blocked": "解释未检查的缺勤重叠",
+  "explain_absence_cover_move": "解释缺勤顶替",
+  "explain_scenario_variant_keys": "解释场景的键",
   "explain_absence_type_flags": "解释缺勤类型的各项开关",
   "explain_absence_value_vs_hours": "解释缺勤数值与缺勤小时的区别",
   "explain_active_industries": "说明已启用的行业",

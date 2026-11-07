@@ -2,7 +2,7 @@
 name: explain_roles_and_permissions
 description: |
   Explains the two permission levels a login account can be given — Supervisor and Admin — what each
-  one may do, and that an account without either can only look. Covers the boundary that settings,
+  one may do, and that an account without either is a planner: it reads and plans. Covers the boundary that settings,
   user administration and closing a period are administrator-only, that a login account is separate
   from a person's staff record, and what a personal access token is for. Use this when the user asks
   who may do what, why an action is refused, or how to give somebody more rights.
@@ -42,17 +42,26 @@ itself, closing and reopening payroll periods, and the specially protected areas
 providers, reports and calendar rules.
 
 An account with **neither** is a planner: it can read everything it is allowed to see and can still
-plan — place, change and remove entries in the schedule, record absences, write client notes and
-work with Klacksy. It cannot create or edit master data (addresses, groups, contracts, shifts) and
-has no settings. Confirming individual working times needs no particular level either.
+plan — place, change and remove entries in the schedule, record absences, record, change and delete
+expenses, plan notes and planning commands (the day keywords such as FREE or EARLY), write client
+notes and work with Klacksy. It cannot create or edit master data (addresses, groups, contracts,
+shifts) and has no settings. Confirming individual working times needs no particular level either.
 
 Both are granted in user administration and take effect immediately, without a separate save.
 
-## "Planner" is not a level
+## The planner is the level without a role
 
-In daily work it is usually a Supervisor account that does the actual planning — starting automatic
-planning, adjusting the grid, submitting days for approval. That is not a third permission level,
-just what a Supervisor account can do anyway.
+There is no separate "planner" role to grant: an account without Supervisor or Admin is the planner
+level described above — it reads and plans. Supervisor and Admin add master data, approvals and
+settings on top.
+
+## Only Supervisor and Admin
+
+Klacksy does the following only for a Supervisor or Admin, never for a planner account: changing its
+autonomy level, recurring tasks, multi-step plans, and creating or revoking personal access tokens.
+The inbox (received e-mails) is also for Supervisor and Admin only; deleting e-mails for good, mail
+folders and spam rules are for the Admin alone. Proactive governance is Admin-only, and the messaging
+page needs Supervisor or Admin and an active messaging add-on.
 
 ## Where the boundary sits
 

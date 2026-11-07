@@ -636,6 +636,10 @@
       "version": 5,
       "hash": "FA2545A22E2EA761C358808A0B8584DE8E0D9F0735FD4C7732BD1444751CEB93"
     },
+    "explain_absence_cover_move": {
+      "version": 1,
+      "hash": "E9C6CE1941A5BDE2853EC886FA39F6E91A9B73F1213273EE71523F1010D40152"
+    },
     "explain_absence_hours": {
       "version": 1,
       "hash": "CCB0747268EEBB56A84B3B4E8AC87B41AE283508C06A79A5FBD9B5AB8E0A2758"
@@ -649,8 +653,8 @@
       "hash": "525862F2222832A3FAEA416F62C3A1D7C53DB7D84DB9B76C90AABAB14817BAC2"
     },
     "explain_absence_type_flags": {
-      "version": 6,
-      "hash": "1AAFAEA9B8FF3DBFA079DAA559F1F58D8CF001C29BDA96EAEF9D12CDB7951318"
+      "version": 7,
+      "hash": "E1EA75EC934A486024A41FF602F55451DB93BBD2E0475013F1620B147EF2B812"
     },
     "explain_absence_value_vs_hours": {
       "version": 5,
@@ -765,8 +769,8 @@
       "hash": "B10C2294AF0F3C528BA1C1BAE7A10BBB594FF32AF595130E9A5D07C9B1DA635E"
     },
     "explain_macro_editor": {
-      "version": 5,
-      "hash": "DAD0E871982DC137ED4508AB4AA6C034013D29659089FAEAA6AD21EE10FBAD6E"
+      "version": 6,
+      "hash": "DF040F8B96AB63E77535328EFA369C60153262D8CFB154050AD9B2ABB0A5035D"
     },
     "explain_membership_single_row": {
       "version": 6,
@@ -785,8 +789,8 @@
       "hash": "92D6511A0298DB81AE980F9A6E43BD720997E26096CE45E2613E374E8253CA96"
     },
     "explain_overtime_model": {
-      "version": 7,
-      "hash": "3BBB6CF519F9724BD177E2672C21B7D240E86A9C0AF3DBA1C8DEAD5222DBB797"
+      "version": 8,
+      "hash": "C699445B2267968CC3EA115D3612F726448961860869A69E4519B0F812EB6FBB"
     },
     "explain_page_absence": {
       "version": 9,
@@ -805,8 +809,8 @@
       "hash": "AAB00F0DEDF9AE6D4AC42044307C9765780B2B3A87EBA46FF86CA37B0D5952BF"
     },
     "explain_page_groups": {
-      "version": 10,
-      "hash": "9B9F7551E8434CC9D8571D641EDCFA65CFF1A258259E8DB3188BF897F569B4CA"
+      "version": 11,
+      "hash": "6598746E0F42113591FA94177BA48A97DE73173E3E02E94DAA44D943E6852D7A"
     },
     "explain_page_import_employees": {
       "version": 2,
@@ -881,8 +885,12 @@
       "hash": "38E8CB8FE811311546CA4ED459D7791A54549D6CE9009BC24C3AABA86D696716"
     },
     "explain_roles_and_permissions": {
-      "version": 4,
-      "hash": "50FD7D984BE76635F8E8FDB601F828D65A097E48655C984494241213F154ECE5"
+      "version": 5,
+      "hash": "3C43EE174A04ED7FA52552CE9DF729F2F32D0C2B45B1F904A8B998B2A9A1C65A"
+    },
+    "explain_scenario_variant_keys": {
+      "version": 1,
+      "hash": "04A3792281CF7B493F821A09D28E6080B777EDF4B51F2B94BEBF4A7E659F1B85"
     },
     "explain_scheduling_rules_model": {
       "version": 6,
@@ -913,8 +921,8 @@
       "hash": "DAB622B34C717E2DB082E78DBAC736727F9F783A1604892102074CCA1B170854"
     },
     "explain_shift_type_preferences": {
-      "version": 8,
-      "hash": "08F6C402FA7F068E3FCD5F93F7E98AE7BDD822A20521035C7B4F4EE56EA2E619"
+      "version": 9,
+      "hash": "266BEE3ED34958EDAB3244801A4BD6EB649A9FA8C505ED9C7FCA9780A22CFC8C"
     },
     "explain_software_updates": {
       "version": 6,

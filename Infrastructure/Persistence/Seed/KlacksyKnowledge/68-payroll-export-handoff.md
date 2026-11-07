@@ -54,6 +54,19 @@ period and format. After reopening, correcting and sealing again, the next expor
 changed persons and is marked as a **supplementary export**; if nothing changed, the page says that
 nothing is new. Earlier exports stay in the export history and can be downloaded again at any time.
 
+## Replacements in the payroll export
+
+When somebody takes over part of a shift (a replacement), the hours and time credits of that part are
+exported for the replacement, not for the person the shift belongs to. Corrections and travel time stay
+with the person of the shift. The credit to the replacement only happens when that person is an employee
+or an external employee; otherwise the hours are taken off the shift owner and appear in no payroll export.
+
+## What a payroll format contains
+
+Klacks plans; it does not calculate wages. A payroll format carries hours, time credits (night, weekend,
+holiday and overtime uplifts, all in hours, never money) and absences. It carries **no expenses**: those
+appear only in the generic XML, JSON and CSV exports of the employee hours.
+
 ## Practical guidance
 
 After reopening and correcting a period, seal it again, open the employee export on the

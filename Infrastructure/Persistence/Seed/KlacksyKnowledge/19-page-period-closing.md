@@ -202,8 +202,10 @@ erste. Welche Formate in den Dropdowns stehen, hängt von der Einstellung "Expor
      der Server legt nach erfolgreichem Download automatisch einen Eintrag im Export-Protokoll an.
 2. **Mitarbeiterstunden** (de: "Mitarbeiterstunden", en: "Employee Hours", fr: "Heures des
    employés", it: "Ore dipendenti"; Anker `period-closing-export-tab-employee`) — Stunden, Spesen
-   und Pausen aller Mitarbeitenden (intern und extern) für einen Zeitraum, unabhängig von
-   einzelnen Bestellungen; Titel "Stunden/Spesen/Pausen pro Mitarbeiter":
+   und Absenzen aller Mitarbeitenden (intern und extern) für einen Zeitraum, unabhängig von
+   einzelnen Bestellungen; Titel "Stunden/Spesen/Pausen pro Mitarbeiter". Spesen stehen nur in
+   den generischen Formaten XML/JSON/CSV; die Lohn-Formate enthalten Stunden, Zeitgutschriften
+   und Absenzen, aber keine Spesen:
    - Zeile mit **Von / Bis** (DOM-IDs `clientExportFrom`/`clientExportUntil`), **Format** und
      Export-Button (Anker der Zeile `period-closing-export-employee-form`).
    - Dropdown **Format** (Anker `period-closing-export-employee-format`, DOM-ID

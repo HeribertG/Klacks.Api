@@ -1260,13 +1260,24 @@
     "controleert klacks op overlappende afwezigheden",
     "twee afwezigheden op dezelfde dag voor dezelfde persoon"
   ],
+  "explain_absence_cover_move": [
+    "wat gebeurt er met de dienst bij ziekte",
+    "waarom is de dienst verwijderd na de afwezigheid",
+    "de dienst gaat naar de vervanger"
+  ],
+  "explain_scenario_variant_keys": [
+    "wat is een sleutel in een scenario",
+    "niet-bindende diensten plannen",
+    "varianten van een opdracht met open details plannen"
+  ],
   "explain_absence_type_flags": [
     "wat doet zaterdag wordt berekend eigenlijk",
     "heeft de feestdagenschakelaar effect",
     "waarom vinkt onbetaald zichzelf weer uit",
     "waar is ook van toepassing op container voor bedoeld",
     "wat betekent de schakelaar onbetaald bij een afwezigheidssoort",
-    "trekt een onbetaalde afwezigheid uren van een dienst af"
+    "trekt een onbetaalde afwezigheid uren van een dienst af",
+    "telt consignatiedienst mee in mijn uren"
   ],
   "explain_absence_value_vs_hours": [
     "de waarde kolom klopt niet met de uren",

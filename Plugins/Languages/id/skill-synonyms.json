@@ -1244,12 +1244,23 @@
     "sakit dan liburan di hari yang sama, bisa?",
     "kenapa dua absensi di hari yang sama bisa masuk?"
   ],
+  "explain_absence_cover_move": [
+    "apa yang terjadi pada shift jika karyawan sakit",
+    "mengapa shift dihapus setelah absen dicatat",
+    "shift pindah ke pengganti"
+  ],
+  "explain_scenario_variant_keys": [
+    "apa itu kunci dalam skenario",
+    "merencanakan shift yang tidak mengikat",
+    "merencanakan varian pesanan yang detailnya belum jelas"
+  ],
   "explain_absence_type_flags": [
     "apa yang dilakukan saklar sabtu dihitung?",
     "apakah saklar liburan punya efek?",
     "kenapa saklar tidak dibayar berubah kembali?",
     "apa fungsi dari juga berlaku untuk kontainer?",
-    "apakah absensi tidak dibayar mengurangi jam kerja?"
+    "apakah absensi tidak dibayar mengurangi jam kerja?",
+    "apakah siaga dihitung ke jam kerja saya"
   ],
   "explain_absence_value_vs_hours": [
     "kenapa nilai di daftar tidak sesuai dengan jam?",

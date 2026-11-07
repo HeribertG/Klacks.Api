@@ -144,7 +144,7 @@ verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder ni
 - Toggle **Befehle anzeigen** (de: "Befehle anzeigen", en: "Show Commands", fr: "Afficher
   les commandes", it: "Mostra comandi", `schedule-commands-toggle`, nur Tabellenmodus):
   blendet die Planungs-Befehle (Schedule-Commands wie FREI/FRÜH/SPÄT/NACHT-Vorgaben, die
-  die Wizards respektieren müssen) im Raster ein/aus.
+  die Wizards als starke Wünsche behandeln, siehe `explain_shift_type_preferences`) im Raster ein/aus.
 - Toggle **Verfügbarkeit ein-/ausblenden** (de: "Verfügbarkeit ein-/ausblenden", en:
   "Show/hide availability", fr: "Afficher/masquer la disponibilité", it: "Mostra/nascondi
   disponibilità", `schedule-availability-check-btn`): nur sichtbar, wenn
@@ -360,8 +360,9 @@ sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planba
 - **Verfügbarkeit**: Die Verfügbarkeitsdaten stammen aus der Verfügbarkeits-Seite
   (`/workplace/client-availability`). Der Toggle ist nur sichtbar, wenn für die gewählte
   Gruppe und Periode Verfügbarkeitsdaten existieren. Die Überlagerung ist rein informativ;
-  sie sperrt keine Zelle und beeinflusst keine automatischen Planungsläufe. Die Wizards
-  lesen Verfügbarkeit als Soft-Constraint (bevorzugen verfügbare Zeiten, erzwingen es nicht).
+  sie sperrt keine Zelle. Die Wizards lesen die Verfügbarkeit dagegen selbst als harten
+  Ausschluss: Sie planen niemanden ausserhalb seiner verfügbaren Stunden, auch nicht an Tagen
+  mit Planungsbefehl; nur ein Absenztag hebt die Verfügbarkeit auf.
 - **Qualifikationen und Qualifikations-Bubbles**: Die Bubbles im Mitarbeiter-Zeilenkopf
   zeigen, welche Qualifikationen dieser Mitarbeiter besitzt; die Bubbles im Schicht-Zeilenkopf
   zeigen, welche Qualifikationen für die jeweilige Schicht erforderlich sind. Die Bubbles
@@ -395,7 +396,9 @@ sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planba
   **Übernehmen** schreibt die Szenario-Einträge in den echten Plan, **Verwerfen** löscht
   sie. Im Szenario-Modus wird die Tagessperren-Prüfung übersprungen (Sandbox), die
   Bearbeitung von **Schicht-Stammdaten** (Schicht bearbeiten/zuschneiden) ist dagegen
-  blockiert, bis das Szenario übernommen oder verworfen ist.
+  blockiert, bis das Szenario übernommen oder verworfen ist. Nicht scharfe Dienste für einen
+  Auftrag mit offenen Details liegen in Keys, die im Szenario-Menü verwaltet und beim Anlegen
+  eines Szenarios gewählt werden (siehe `explain_scenario_variant_keys`).
 - **Periodenabschluss (`/workplace/period-closing`)**: Versiegelte Tage lehnt das Backend
   bei Neuanlage und Änderung ab ("Day ... is sealed"); im Raster bleiben die Spalten
   gesperrt. Zusätzlich sperren die Eintrag-LockLevel (Confirmed/Approved/Closed) einzelne

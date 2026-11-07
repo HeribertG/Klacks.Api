@@ -1253,13 +1253,24 @@
     "kan jeg få to fravær samme dag?",
     "blokerer systemet for samtidige fraværsperioder?"
   ],
+  "explain_absence_cover_move": [
+    "hvad sker der med vagten ved sygdom",
+    "hvorfor blev vagten slettet efter fraværet",
+    "vagten flytter til afløseren"
+  ],
+  "explain_scenario_variant_keys": [
+    "hvad er en nøgle i et scenarie",
+    "planlæg ikke-bindende vagter",
+    "planlæg varianter af en ordre med åbne detaljer"
+  ],
   "explain_absence_type_flags": [
     "hvad gør knappen 'lørdag beregnes'?",
     "har ferieknappen nogen effekt?",
     "hvorfor slår 'ubetalt' fra igen?",
     "hvad betyder 'gælder også for container'?",
     "hvad gør knappen for ubetalt fravær?",
-    "trækker ubetalt fravær timer fra en vagt?"
+    "trækker ubetalt fravær timer fra en vagt?",
+    "tæller rådighedsvagt med i mine timer"
   ],
   "explain_absence_value_vs_hours": [
     "hvorfor viser listen en anden værdi end timerne?",

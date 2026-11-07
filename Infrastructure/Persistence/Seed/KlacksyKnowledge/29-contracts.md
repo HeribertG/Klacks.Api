@@ -64,7 +64,7 @@ The templates themselves are maintained in the contract settings page.
 
 **Working weekdays** — which days this contract generally foresees work on. Monday to Friday are preset, Saturday and Sunday are not.
 
-**Shift work** — a flag marking contracts for people on early, late or night duty.
+**Shift work** — a flag marking contracts for people on early, late or night duty. It has three states: yes, no, or empty. Empty means "standard": the attached planning rule, then the company default, which is "yes" out of the box. While it is effectively "no", the person is only eligible for early shifts (a shift lying completely inside 06:00 – 14:59), and the contract's own night, holiday and weekend rates are ignored in favour of the standard rates.
 
 **Validity** — valid from is mandatory, valid until is optional, so a contract can be open-ended or time-limited; the end must lie after the start.
 

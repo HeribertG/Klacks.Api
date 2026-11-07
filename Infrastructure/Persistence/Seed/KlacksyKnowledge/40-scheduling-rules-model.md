@@ -116,9 +116,11 @@ differs by field group. This is the part people get wrong most often.
 
 | Field group | Chain |
 |---|---|
-| Maximum, minimum, full-time hours, guaranteed hours, all rates, the night window | rule → working conditions → company defaults |
+| Maximum, minimum, full-time hours, guaranteed hours, the night window | rule → working conditions → company defaults |
+| Night, holiday and weekend rates | working conditions first (an explicit value, also 0, wins, but only while shift work is effectively on) → a dated revision of the rule, else the rule → company defaults |
+| Shift-work marker | working conditions → rule → company default ("yes" out of the box) |
 | Daily working hours, overtime threshold, and every time limit from Stage 2 | rule → company defaults (working conditions are skipped) |
-| Working weekdays, shift-work marker | rule → working conditions. With active working conditions the company setting is unreachable. |
+| Working weekdays | rule → working conditions. With active working conditions the company setting is unreachable. |
 | How rates combine, and any minimum time credit per hour | company only — a rule can never override these |
 
 Two exceptions:

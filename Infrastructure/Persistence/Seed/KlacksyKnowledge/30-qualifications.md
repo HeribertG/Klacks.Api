@@ -50,7 +50,7 @@ Qualifications keep untrained people off shifts that need training. A shift can 
 qualification and mark it as mandatory. If a person does not hold a mandatory qualification at all,
 Klacks refuses the assignment. If the person holds it but **below the required minimum level**, it
 depends on whether that level is **binding**: binding means refused, exactly like missing; not
-binding (the default) means the assignment is allowed with a warning that names the held and the required level
+binding (the default for qualifications created after the update) means the assignment is allowed with a warning that names the held and the required level
 (for example Basic instead of at least Proficient).
 
 <!-- level:elements -->
@@ -168,13 +168,13 @@ planner and the wizard consider fully qualified.
   booking and the error list show a warning naming level 2 (Basic) instead of at least level 3 (Proficient), and the wizard prefers level-3
   people when that costs no planned hours.
 
-### Existing data: too-low levels now only warn
+### Existing data: the earlier block stays
 
-When this rule was introduced, every qualification started with the binding checkbox off and every
-shift row at "like the qualification". So a too-low level is a warning everywhere until someone
-decides otherwise — before, a manual booking below the level was refused. Tick the checkbox on the
-qualifications that must stay strict (typically regulated care or safety certificates), or set the
-shift row to "binding".
+When this rule was introduced, the update switched the binding checkbox **on** for every qualification
+that already existed, so a too-low level stays a block there, as it was before. Every shift row started
+at "like the qualification". Only qualifications created afterwards start with the checkbox off, so for
+them a too-low level is only a warning. Untick the checkbox on an existing qualification where a hint is
+enough, or tick it on a new one that must stay strict (typically regulated care or safety certificates).
 
 ### The shift row wins
 

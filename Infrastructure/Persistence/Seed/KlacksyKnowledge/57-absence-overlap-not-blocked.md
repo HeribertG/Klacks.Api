@@ -59,11 +59,15 @@ Several routes book through one common route that bundles the days of a request:
 
 ### Booking a single entry: no check
 
-Typing an abbreviation into one cell, using the cell's right-click menu, dragging a booked absence to another person and changing an existing entry go through the single-entry route. It only checks that the day is not sealed, so two absences of the same kind on the same day are both saved.
+Typing an abbreviation into one cell, using the cell's right-click menu, dragging a booked absence to another person and changing an existing entry go through the single-entry route. It checks that the day is not sealed, but not other absences, so two absences of the same kind on the same day are both saved.
 
 ### What the guard lets through
 
-A different kind on the same day (sickness during an already booked holiday) is booked without objection, and so is an absence over a day that already has a shift.
+A different kind on the same day (sickness during an already booked holiday) is booked without objection.
+
+### An absence over a planned shift
+
+An absence on a day with a planned shift is not refused, but it is not ignored either: with a selected group, a shift of that group that has not started and is not locked or replaced is deleted after a preview; it moves to another person only through covering the absence or accepting a scenario. Without a selected group (for example through Klacksy's chat) nothing is deleted and the error list reports the uncovered absence. Details: `explain_absence_cover_move`.
 
 ### The advisory check
 

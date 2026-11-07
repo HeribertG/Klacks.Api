@@ -147,6 +147,8 @@
   "explain_absence_hours": "Jelaskan jam ketidakhadiran",
   "explain_absence_model": "Jelaskan model data ketidakhadiran",
   "explain_absence_overlap_not_blocked": "Jelaskan tumpang tindih absen yang tidak diperiksa",
+  "explain_absence_cover_move": "Jelaskan penggantian saat absen",
+  "explain_scenario_variant_keys": "Jelaskan kunci untuk skenario",
   "explain_absence_type_flags": "Jelaskan penanda jenis absen",
   "explain_absence_value_vs_hours": "Jelaskan nilai absen versus jam absen",
   "explain_active_industries": "Jelaskan industri aktif",

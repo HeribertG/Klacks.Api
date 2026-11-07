@@ -179,12 +179,13 @@ verfügbar erfasst sind.
   Nicht-verfügbar-Einträgen blockt nur genau diese Stunden (Alt-Daten-Semantik). Um
   einen Tag wieder komplett zu öffnen, müssen seine Datensätze gelöscht werden
   (Skill `clear_client_availability`), nicht nur auf verfügbar umgestellt.
-- **Hierarchie**: Verfügbarkeit ist die schwächste Planungs-Schicht. Eine gebuchte
-  Abwesenheit (Break) oder ein Tages-Keyword im Einsatzplan (FREE, EARLY, …) übersteuert
-  die Verfügbarkeit an diesem Tag vollständig.
+- **Hierarchie**: Eine gebuchte Abwesenheit (Break) übersteuert die Verfügbarkeit an diesem
+  Tag vollständig. Ein Tages-Keyword im Einsatzplan (FREE, EARLY, …) tut das nicht: Auch an
+  einem Keyword-Tag bleibt die Verfügbarkeit für die Wizards hart.
 - **Ersatzsuche (`find_replacement`) und Wizards**: prüfen die Verfügbarkeit mit genau
   dieser Positiv-pro-Tag-Semantik als harten Ausschluss. Bei Schichten über Mitternacht
-  wird nur der Anteil am Starttag geprüft (dokumentierte v1-Grenze).
+  werden die Stunden nach Mitternacht gegen den Folgetag geprüft; ein Dienst, der genau um
+  00:00 endet, berührt den Folgetag nicht.
 - **Einsatzplanung (`/workplace/schedule`)**: Die explizit verfügbaren Stunden werden zu
   zusammenhängenden Zeitbereichen gruppiert und in den Zellen des Schichtplans als
   hinterlegte Verfügbarkeits-Bereiche eingezeichnet — der Planer sieht dort direkt, wann

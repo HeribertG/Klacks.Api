@@ -30111,7 +30111,7 @@
     {
       "name": "explain_macro_editor",
       "area": "settings",
-      "description": "Explains the Macro Editor — scripting tool that backs shifts, employments and wage components with formulas. Default macros for vacation/illness/accident/general shifts; custom macros compute exact hours proportional to employment percentage and surcharges for night/weekend/holiday work.",
+      "description": "Explains the Macro Editor — scripting tool behind the hours of shifts and absences. Default macros for vacation/illness/accident/general shifts; custom macros compute exact hours proportional to employment percentage and the time credits in hours (never money) for night/weekend/holiday/overtime work. A shift without a macro gets no time credit.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -30145,9 +30145,9 @@
           "skript",
           "berechnung",
           "zuschlag",
-          "lohn",
           "rechengrundlage",
-          "lohnformel"
+          "zeitgutschrift",
+          "stundenformel"
         ],
         "en": [
           "macro",
@@ -30155,8 +30155,8 @@
           "formula",
           "calculation",
           "surcharge",
-          "payroll",
-          "allowance"
+          "time credit",
+          "hours formula"
         ],
         "fr": [
           "macro",
@@ -30164,7 +30164,7 @@
           "formule",
           "calcul",
           "supplément",
-          "salaire"
+          "crédit de temps"
         ],
         "it": [
           "macro",
@@ -30172,7 +30172,7 @@
           "formula",
           "calcolo",
           "supplemento",
-          "stipendio"
+          "credito di tempo"
         ]
       },
       "labels": {
@@ -30181,12 +30181,12 @@
         "fr": "Explication de l'éditeur de macros",
         "it": "Spiegazione dell'editor di macro"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_shift_type_preferences",
       "area": "shift",
-      "description": "Explains Diensttypwünsche (planning commands): per-day alias keywords FREE / EARLY / LATE / NIGHT and their negations -EARLY / -LATE / -NIGHT; these are the English defaults, admins can rename them in Settings. The automatic planning treats them as a hard limit with no fallback to FREE: a shift nobody else may take stays open. -FREE (prefer work) restricts nothing. Use this when the user asks how to steer the automatic planning or what -EARLY etc. means.",
+      "description": "Explains Diensttypwünsche (planning commands): per-day alias keywords FREE / EARLY / LATE / NIGHT and their negations -FREE / -EARLY / -LATE / -NIGHT; English defaults, admins can rename them in Settings. They are strong wishes: the automatic planning plans strictly first and breaks a wish only to fill otherwise open shifts (FREE before only-X before no-X). Use this when the user asks how to steer the automatic planning or what -EARLY etc. means.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -30275,7 +30275,7 @@
         "fr": "Expliquer les préférences de type de service",
         "it": "Spiega le preferenze del tipo di turno"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "explain_shift_sporadic",
@@ -31496,7 +31496,7 @@
     {
       "name": "explain_page_groups",
       "area": "group",
-      "description": "Explains the Groups pages — /workplace/group, the admin page for managing groups (teams, locations, organisational units) with two switchable views: a sortable, filterable table (with validity filter column) and a hierarchical tree with X|Y member badges, expand/collapse/refresh, subgroup creation and drag & drop re-parenting. Also covers the group editor at /workplace/edit-group/:id (master data with name, validity, payment interval, calendar selection and notes; parent structure with current path; participant list with person search and filter column), the group visibility configuration (which root groups each user account may see, reached via Settings), optional group coordinates (latitude/longitude) for geographic evaluations, and how the global group selection affects all other workspace pages. Use this when the user asks what they see on the Groups page, what the cards/columns/tree badges mean, or how to work with it.",
+      "description": "Explains the Groups pages — /workplace/group, the page for managing groups (teams, locations, organisational units) with two switchable views: a sortable, filterable table (with validity filter column) and a hierarchical tree with X|Y member badges, expand/collapse/refresh, subgroup creation and drag & drop re-parenting. Also covers the group editor at /workplace/edit-group/:id (master data with name, validity, payment interval, calendar selection and notes; parent structure with current path; participant list with person search and filter column), the group visibility configuration (which root groups each user account may see, an admin-only card in Settings), optional group coordinates (latitude/longitude) for geographic evaluations, and how the global group selection affects all other workspace pages. Use this when the user asks what they see on the Groups page, what the cards/columns/tree badges mean, or how to work with it.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31642,7 +31642,7 @@
         "fr": "Expliquer la page Groupes",
         "it": "Spiega la pagina Gruppi"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "explain_page_period_closing",
@@ -40609,7 +40609,7 @@
     {
       "name": "explain_roles_and_permissions",
       "area": "security",
-      "description": "Explains the two permission levels a login account can be granted, Supervisor and Admin, what each may do, and that an account with neither can only look. Explains that settings, user administration and closing a payroll period are administrator-only, that a login account is separate from a person's staff record, and what a personal access token is. Use this when the user asks who may do what, why an action is refused, or how to grant somebody more rights. Assistant agent setup is Admin-only.",
+      "description": "Explains the two permission levels a login account can be granted, Supervisor and Admin, what each may do, and that an account with neither is the planner level that reads and plans. Settings, user administration, closing a payroll period and assistant agent setup are administrator-only. Also covers that a login account is not a staff record and what a personal access token is. Use this when the user asks who may do what, why an action is refused, or how to grant somebody more rights.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -40695,7 +40695,7 @@
         "fr": "Rôles et autorisations expliqués",
         "it": "Ruoli e permessi spiegati"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_guided_tour",
@@ -48038,7 +48038,7 @@
           "overtime",
           "overtime surcharge",
           "overtime tier",
-          "from which hour is overtime paid",
+          "from which hour does overtime count",
           "extra hours",
           "why was no overtime calculated"
         ],
@@ -48063,7 +48063,7 @@
         "fr": "Expliquer le modèle d'heures supplémentaires",
         "it": "Spiega il modello degli straordinari"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "explain_identity_providers",
@@ -50290,9 +50290,165 @@
       }
     },
     {
+      "name": "explain_absence_cover_move",
+      "area": "absence",
+      "description": "Explains what happens to a planned shift when its person becomes absent: a shift covered completely by one person moves to that person with all attachments and recalculated time credits; an uncovered shift that has not started is deleted. Covers which shifts are never deleted, why nothing is deleted without a selected group, and partial absences. Use this when the user asks why a shift was deleted or moved after an absence, or what \"taken over from\" means.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "handlerConfig": {
+        "memoryKey": "explain_absence_cover_move",
+        "pageKey": "schedule"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "übernommen von",
+          "dienst wandert zur ersatzperson",
+          "absenz nicht gedeckt"
+        ],
+        "en": [
+          "taken over from",
+          "shift moves to the replacement",
+          "absence not covered"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "was passiert mit dem dienst bei krankheit",
+          "warum wurde der dienst gelöscht",
+          "dienst wandert zur ersatzperson",
+          "absenz über einem geplanten dienst",
+          "was heisst übernommen von",
+          "absenz nicht gedeckt"
+        ],
+        "en": [
+          "what happens to the shift when someone is sick",
+          "why was the shift deleted",
+          "shift moves to the replacement",
+          "absence over a planned shift",
+          "what does taken over from mean",
+          "absence not covered"
+        ],
+        "fr": [
+          "que devient le service en cas de maladie",
+          "pourquoi le service a-t-il été supprimé",
+          "le service passe au remplaçant",
+          "absence sur un service planifié"
+        ],
+        "it": [
+          "cosa succede al turno in caso di malattia",
+          "perché il turno è stato eliminato",
+          "il turno passa al sostituto",
+          "assenza su un turno pianificato"
+        ]
+      },
+      "labels": {
+        "de": "Ausfall decken erklären",
+        "en": "Explain covering an absence",
+        "fr": "Expliquer la couverture d'une absence",
+        "it": "Spiega la copertura di un'assenza"
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_scenario_variant_keys",
+      "area": "schedule",
+      "description": "Explains keys for scenarios: a key is a named set of non-binding shifts for a group and a period, one key per variant of an announced order whose details are still open. Key shifts appear only in scenarios that carry the key; accepting such a scenario turns them into real sealed orders and uses the key up. Use this when the user asks how to plan an order whose details are open, what a key in the scenario menu is, or why a key is locked.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "handlerConfig": {
+        "memoryKey": "explain_scenario_variant_keys",
+        "pageKey": "schedule"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "keys verwalten",
+          "nicht scharfe dienste"
+        ],
+        "en": [
+          "manage keys",
+          "non-binding shifts"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "was ist ein key im szenario",
+          "keys verwalten",
+          "nicht scharfe dienste planen",
+          "auftrag mit offenen details planen",
+          "varianten eines auftrags planen",
+          "warum ist der key gesperrt"
+        ],
+        "en": [
+          "what is a key in a scenario",
+          "manage keys",
+          "plan non-binding shifts",
+          "plan an order whose details are open",
+          "plan variants of an order",
+          "why is the key locked"
+        ],
+        "fr": [
+          "qu'est-ce qu'une clé de scénario",
+          "gérer les clés",
+          "planifier des services non contraignants",
+          "planifier des variantes d'une commande"
+        ],
+        "it": [
+          "cos'è una chiave dello scenario",
+          "gestire le chiavi",
+          "pianificare turni non vincolanti",
+          "pianificare varianti di un ordine"
+        ]
+      },
+      "labels": {
+        "de": "Keys für Szenarien erklären",
+        "en": "Explain keys for scenarios",
+        "fr": "Expliquer les clés des scénarios",
+        "it": "Spiega le chiavi degli scenari"
+      },
+      "version": 1
+    },
+    {
       "name": "explain_absence_type_flags",
       "area": "absence",
-      "description": "Explains what the switches on an absence kind actually do today. The Saturday, Sunday and public-holiday switches are stored but read by no calculation, so toggling them changes nothing. The unpaid switch can only be turned on together with two other switches; saving the kind on the settings page resets it otherwise. Once on, it deducts its span from the paid duration of the container service it sits inside. Use this when a counting switch has no visible effect or unpaid keeps unchecking.",
+      "description": "Explains what the switches on an absence kind do today. The Saturday, Sunday and public-holiday switches are stored but read by no calculation. The unpaid switch only sticks together with two other switches and then deducts its span from the paid duration of its container service. An on-call absence counts no hours toward the target; only the call-out, planned as a shift, counts. Use this when a switch has no visible effect, unpaid keeps unchecking, or on-call hours are asked about.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -50324,14 +50480,17 @@
         ],
         "de": [
           "samstag wird berechnet wirkung",
-          "unbezahlt lässt sich nicht ankreuzen"
+          "unbezahlt lässt sich nicht ankreuzen",
+          "pikett stunden",
+          "pikettstunden"
         ],
         "en": [
           "saturday is calculated has no effect",
-          "unpaid keeps unchecking"
+          "unpaid keeps unchecking",
+          "on-call hours"
         ]
       },
-      "version": 6,
+      "version": 7,
       "synonyms": {
         "de": [
           "was bewirkt samstag wird berechnet",
@@ -50339,7 +50498,9 @@
           "warum hakt sich unbezahlt wieder ab",
           "wofür ist gilt auch für container gut",
           "was bedeutet der schalter unbezahlt bei einer absenzart",
-          "zieht eine unbezahlte absenz stunden vom dienst ab"
+          "zieht eine unbezahlte absenz stunden vom dienst ab",
+          "zählt pikett an meine stunden",
+          "zählt bereitschaft zum soll"
         ],
         "en": [
           "what does saturday is calculated actually do",
@@ -50347,19 +50508,23 @@
           "why does unpaid uncheck itself again",
           "what is also applies to container for",
           "what does the unpaid switch on an absence kind do",
-          "does an unpaid absence reduce the paid hours of a shift"
+          "does an unpaid absence reduce the paid hours of a shift",
+          "does on-call count toward my hours",
+          "does standby count toward the target hours"
         ],
         "fr": [
           "que fait vraiment le samedi est calculé",
           "l interrupteur jour férié a-t-il un effet",
           "pourquoi non payé se décoche-t-il tout seul",
-          "à quoi sert s applique aussi au container"
+          "à quoi sert s applique aussi au container",
+          "le piquet compte-t-il dans mes heures"
         ],
         "it": [
           "cosa fa realmente il sabato è calcolato",
           "l interruttore festività ha un effetto",
           "perché non pagato si deseleziona da solo",
-          "a cosa serve si applica anche al container"
+          "a cosa serve si applica anche al container",
+          "il picchetto conta nelle mie ore"
         ]
       },
       "labels": {

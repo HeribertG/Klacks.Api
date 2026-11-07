@@ -147,6 +147,8 @@
   "explain_absence_hours": "부재 시간 설명",
   "explain_absence_model": "부재 데이터 모델 설명",
   "explain_absence_overlap_not_blocked": "검사되지 않은 결근 중복 설명",
+  "explain_absence_cover_move": "결근 대체 설명",
+  "explain_scenario_variant_keys": "시나리오 키 설명",
   "explain_absence_type_flags": "결근 유형 플래그 설명",
   "explain_absence_value_vs_hours": "결근 값과 결근 시간 차이 설명",
   "explain_active_industries": "활성 업종 설명",

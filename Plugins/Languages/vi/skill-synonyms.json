@@ -1236,13 +1236,24 @@
     "nghỉ trùng ngày có bị chặn không",
     "tạo nghỉ ốm và nghỉ phép cùng lúc được không"
   ],
+  "explain_absence_cover_move": [
+    "ca làm sẽ ra sao khi nhân viên bị ốm",
+    "tại sao ca làm bị xóa sau khi ghi vắng mặt",
+    "ca làm chuyển sang người thay thế"
+  ],
+  "explain_scenario_variant_keys": [
+    "khóa trong kịch bản là gì",
+    "lập kế hoạch ca làm chưa ràng buộc",
+    "lập kế hoạch các phương án cho đơn hàng chưa rõ chi tiết"
+  ],
   "explain_absence_type_flags": [
     "công tắc 'thứ bảy được tính' có tác dụng gì",
     "công tắc ngày lễ có ảnh hưởng gì không",
     "tại sao 'không lương' lại tự bỏ chọn",
     "'áp dụng cho container' nghĩa là gì",
     "công tắc không lương của loại nghỉ có ý nghĩa gì",
-    "nghỉ không lương có làm giảm giờ làm của ca không"
+    "nghỉ không lương có làm giảm giờ làm của ca không",
+    "trực chờ có được tính vào giờ làm của tôi không"
   ],
   "explain_absence_value_vs_hours": [
     "số hiển thị trong danh sách không khớp với số giờ",

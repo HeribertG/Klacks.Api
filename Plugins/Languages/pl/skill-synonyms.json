@@ -1268,13 +1268,24 @@
     "czy klacks sprawdza nakładające się absencje",
     "dwie absencje tego samego dnia dla tej samej osoby"
   ],
+  "explain_absence_cover_move": [
+    "co dzieje się ze zmianą w razie choroby",
+    "dlaczego zmiana została usunięta po wpisaniu nieobecności",
+    "zmiana przechodzi na zastępcę"
+  ],
+  "explain_scenario_variant_keys": [
+    "czym jest klucz w scenariuszu",
+    "planowanie niewiążących zmian",
+    "planowanie wariantów zlecenia z otwartymi szczegółami"
+  ],
   "explain_absence_type_flags": [
     "co właściwie robi przełącznik sobota liczona",
     "czy przełącznik święta ma jakikolwiek efekt",
     "dlaczego przełącznik niepłatne sam się odznacza",
     "do czego służy pole dotyczy również kontenera",
     "co robi przełącznik niepłatne w typie absencji",
-    "czy niepłatna absencja zmniejsza płatne godziny zmiany"
+    "czy niepłatna absencja zmniejsza płatne godziny zmiany",
+    "czy dyżur pod telefonem liczy się do moich godzin"
   ],
   "explain_absence_value_vs_hours": [
     "wartość w kolumnie nie zgadza się z godzinami",

@@ -1240,13 +1240,24 @@
     "tarkistaako klacks päällekkäiset poissaolot?",
     "kaksi poissaoloa samalle päivälle samalla henkilölle"
   ],
+  "explain_absence_cover_move": [
+    "mitä vuorolle tapahtuu sairastuessa",
+    "miksi vuoro poistettiin poissaolon jälkeen",
+    "vuoro siirtyy sijaiselle"
+  ],
+  "explain_scenario_variant_keys": [
+    "mikä on avain skenaariossa",
+    "suunnittele ei-sitovia vuoroja",
+    "suunnittele tilauksen vaihtoehtoja"
+  ],
   "explain_absence_type_flags": [
     "mitä lauantai lasketaan -kytkin oikeastaan tekee?",
     "onko pyhäkytkimellä vaikutusta?",
     "miksi palkaton-kytkin itsestään pois?",
     "mitä tarkoittaa koskee myös säiliötä?",
     "mitä palkaton-kytkin tekee poissaolotyypillä?",
-    "vähentääkö palkaton poissaolo työvuoron tunteja?"
+    "vähentääkö palkaton poissaolo työvuoron tunteja?",
+    "lasketaanko varallaolo tunteihini"
   ],
   "explain_absence_value_vs_hours": [
     "miksi listan arvo ei täsmää tuntien kanssa?",

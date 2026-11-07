@@ -43,9 +43,9 @@ the staff of the Zurich group. Administrators are never restricted: they always 
 
 ## Setting who sees which groups
 
-1. Open the page `/workplace/group-structure`, headed (de: "Sichtbarkeit von Gruppen pro Benutzer", en:
+1. Open the settings (`/workplace/settings`, administrators only) and the card (de: "Sichtbarkeit von Gruppen pro Benutzer", en:
    "Visibility of Groups per User", fr: "Visibilité des groupes par utilisateur", it: "Visibilità dei
-   gruppi per utente"). There is one row per user account.
+   gruppi per utente"); Klacksy reaches it with the navigation target `group-scope`. There is one row per user account.
 2. Click the counter button of the user in the column (de: "Anzahl", en: "Number"). For an administrator
    account the button is disabled.
 3. In the dialog (de: "Sichtbare Rootgruppe", en: "Visible Root Group", fr: "Groupe racine visible", it:

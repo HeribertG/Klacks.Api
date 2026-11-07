@@ -1264,13 +1264,24 @@
     "¿klacks comprueba las ausencias solapadas?",
     "¿dos ausencias el mismo día para la misma persona?"
   ],
+  "explain_absence_cover_move": [
+    "qué pasa con el turno si alguien se enferma",
+    "por qué se borró el turno al registrar la ausencia",
+    "el turno pasa al sustituto"
+  ],
+  "explain_scenario_variant_keys": [
+    "qué es una clave en el escenario",
+    "planificar turnos no vinculantes",
+    "planificar variantes de un pedido con detalles abiertos"
+  ],
   "explain_absence_type_flags": [
     "¿qué hace realmente 'sábado se calcula'?",
     "¿tiene algún efecto el interruptor de festivos?",
     "¿por qué se desmarca solo lo de no pagado?",
     "¿para qué sirve 'también se aplica a contenedor'?",
     "¿qué significa el interruptor 'no pagado' en un tipo de ausencia?",
-    "¿una ausencia no pagada descuenta horas de un turno?"
+    "¿una ausencia no pagada descuenta horas de un turno?",
+    "cuenta la guardia localizable en mis horas"
   ],
   "explain_absence_value_vs_hours": [
     "¿por qué el valor mostrado no coincide con las horas?",

@@ -147,6 +147,8 @@
   "explain_absence_hours": "說明缺勤時數",
   "explain_absence_model": "說明缺勤資料模型",
   "explain_absence_overlap_not_blocked": "說明未檢查的請假重疊",
+  "explain_absence_cover_move": "說明缺勤頂替",
+  "explain_scenario_variant_keys": "說明情境的鍵",
   "explain_absence_type_flags": "說明請假類型的設定旗標",
   "explain_absence_value_vs_hours": "說明請假數值與請假時數的差異",
   "explain_active_industries": "說明啟用中的產業",

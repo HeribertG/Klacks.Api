@@ -1239,13 +1239,24 @@
     "klarer klacks å oppdage overlappende fravær?",
     "to fravær på samme dag for samme person"
   ],
+  "explain_absence_cover_move": [
+    "hva skjer med vakten ved sykdom",
+    "hvorfor ble vakten slettet etter fraværet",
+    "vakten flyttes til vikaren"
+  ],
+  "explain_scenario_variant_keys": [
+    "hva er en nøkkel i et scenario",
+    "planlegg ikke-bindende vakter",
+    "planlegg varianter av en ordre med åpne detaljer"
+  ],
   "explain_absence_type_flags": [
     "hva gjør bryteren 'lørdag beregnes'?",
     "har helligdag-bryteren noen effekt?",
     "hvorfor slår ubetalte fravær seg av igjen?",
     "hva brukes 'gjelder også for container' til?",
     "hva betyr bryter for ubetalte fravær?",
-    "trekker ubetalte fravær fra betalte timer?"
+    "trekker ubetalte fravær fra betalte timer?",
+    "teller beredskapsvakt med i timene mine"
   ],
   "explain_absence_value_vs_hours": [
     "hvorfor stemmer ikke verdien med timene som teller?",

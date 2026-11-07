@@ -1233,13 +1233,24 @@
     "adakah klacks semak cuti yang bertindih?",
     "dua cuti pada hari yang sama untuk orang yang sama, dibenarkan?"
   ],
+  "explain_absence_cover_move": [
+    "apa jadi pada syif bila pekerja sakit",
+    "kenapa syif dipadam selepas ketidakhadiran direkod",
+    "syif berpindah kepada pengganti"
+  ],
+  "explain_scenario_variant_keys": [
+    "apa itu kunci dalam senario",
+    "merancang syif yang tidak mengikat",
+    "merancang varian pesanan yang butirannya belum pasti"
+  ],
   "explain_absence_type_flags": [
     "apa fungsi suis sabtu dikira?",
     "adakah suis cuti umum ada kesan?",
     "kenapa suis tidak bergaji tercabut sendiri?",
     "apa maksud 'terpakai juga untuk kontena'?",
     "apa fungsi suis tidak bergaji pada jenis cuti?",
-    "adakah cuti tidak bergaji mengurangkan jam kerja?"
+    "adakah cuti tidak bergaji mengurangkan jam kerja?",
+    "adakah tugas siap sedia dikira dalam jam saya"
   ],
   "explain_absence_value_vs_hours": [
     "nilai yang dipaparkan tidak sepadan dengan jam, kenapa?",

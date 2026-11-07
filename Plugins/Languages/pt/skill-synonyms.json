@@ -1266,13 +1266,24 @@
     "o klacks verifica ausências sobrepostas?",
     "duas ausências no mesmo dia para a mesma pessoa"
   ],
+  "explain_absence_cover_move": [
+    "o que acontece ao turno quando alguém fica doente",
+    "porque é que o turno foi apagado depois da ausência",
+    "o turno passa para o substituto"
+  ],
+  "explain_scenario_variant_keys": [
+    "o que é uma chave no cenário",
+    "planear turnos não vinculativos",
+    "planear variantes de uma encomenda com detalhes em aberto"
+  ],
   "explain_absence_type_flags": [
     "o que realmente faz 'sábado é calculado'?",
     "o interruptor de feriado tem algum efeito?",
     "por que 'não remunerado' se desmarca sozinho?",
     "para que serve 'também se aplica ao contêiner'?",
     "o que faz o interruptor de não remunerado em um tipo de ausência?",
-    "uma ausência não remunerada reduz as horas pagas de um turno?"
+    "uma ausência não remunerada reduz as horas pagas de um turno?",
+    "o regime de prevenção conta nas minhas horas"
   ],
   "explain_absence_value_vs_hours": [
     "o valor da coluna não bate com as horas",

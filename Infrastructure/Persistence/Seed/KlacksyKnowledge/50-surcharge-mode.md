@@ -121,6 +121,13 @@ kinds:
 A second, separate question is what happens when an uplift meets extra hours. That too follows the
 shift's own calculation, not this card.
 
+**No calculation macro, no uplift.** Every uplift — night, holiday, weekend and overtime — comes from the
+calculation macro attached to the shift. A shift without a macro only gets its working time; no time
+credit is calculated for it (a new entry gets none, an existing entry keeps the credits it already had). A new shift receives the default macro automatically, so a shift without
+one usually had it removed on purpose. When a macro fails, the error is only written to the server log
+and the previous time credits stay as they were; nothing in the screen warns. So "why is there no night
+credit?" is first answered by checking the shift's macro.
+
 ## What belongs here and what does not
 
 Rates and the night window can be set per person through their working conditions or the rule

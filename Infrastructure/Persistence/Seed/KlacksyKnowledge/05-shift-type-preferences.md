@@ -3,9 +3,10 @@ name: explain_shift_type_preferences
 description: |
   Explains Diensttypwünsche (planning commands): per-day alias keywords FREE / EARLY / LATE / NIGHT
   and their negations -EARLY / -LATE / -NIGHT; these are the English defaults, admins can rename
-  them in Settings. The automatic planning treats them as a hard limit with no fallback to FREE: a
-  shift nobody else may take stays open. -FREE (prefer work) restricts nothing. Use this when the
-  user asks how to steer the automatic planning or what -EARLY etc. means.
+  them in Settings. They are strong wishes: the automatic planning first plans strictly; if shifts
+  stay open, a second run may break a wish to fill them (FREE before only-X before no-X). -FREE and
+  EARLY/LATE/NIGHT also attract a shift. Use this when the user asks how to steer the automatic
+  planning or what -EARLY etc. means.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -31,13 +32,13 @@ synonyms:
 
 # Diensttypwünsche (Planungsbefehle) — die automatische Planung lenken
 
-Ein Diensttypwunsch ist eine kurze Vorgabe pro Tag und Mitarbeiter, die der automatischen Planung verbindlich sagt, welche Dienstarten diese Person an dem Tag bekommen darf; in der Oberfläche heisst er „Planungsbefehl“.
+Ein Diensttypwunsch ist eine kurze Vorgabe pro Tag und Mitarbeiter, die der automatischen Planung als starker Wunsch sagt, welche Dienstarten diese Person an dem Tag bekommen soll; in der Oberfläche heisst er „Planungsbefehl“.
 
 <!-- level:short -->
 
 ## Wozu es Diensttypwünsche gibt
 
-Manchmal soll jemand an einem bestimmten Tag gar nicht arbeiten oder nur eine bestimmte Art von Dienst bekommen, zum Beispiel nur Frühdienst, weil die Person abends Kinder betreut. Für solche Fälle schreibt der Planer eine kurze Vorgabe für diese Person und diesen Tag direkt in den Einsatzplan. Die automatische Planung hält sich daran und setzt die Person an dem Tag nur so ein, wie es die Vorgabe erlaubt. Von Hand kannst du trotzdem anders planen; Klacks meldet dann einen Konflikt, verbietet es aber nicht. Beispiel: Steht bei Anna am Mittwoch „nur Frühdienst“, schlägt die automatische Planung ihr an diesem Tag keinen Spät- und keinen Nachtdienst vor.
+Manchmal soll jemand an einem bestimmten Tag gar nicht arbeiten oder nur eine bestimmte Art von Dienst bekommen, zum Beispiel nur Frühdienst, weil die Person abends Kinder betreut. Für solche Fälle schreibt der Planer eine kurze Vorgabe für diese Person und diesen Tag direkt in den Einsatzplan. Die automatische Planung hält sich zuerst streng daran. Nur wenn sonst Dienste offen blieben, darf ein zweiter Lauf einen Wunsch brechen, um diese Dienste zu besetzen. Von Hand kannst du trotzdem anders planen; Klacks meldet dann einen Konflikt, verbietet es aber nicht. Beispiel: Steht bei Anna am Mittwoch „nur Frühdienst“, schlägt die automatische Planung ihr an diesem Tag keinen Spät- und keinen Nachtdienst vor.
 
 <!-- level:elements -->
 
@@ -46,7 +47,7 @@ Manchmal soll jemand an einem bestimmten Tag gar nicht arbeiten oder nur eine be
 1. **Befehle sichtbar machen.** Öffne den Einsatzplan (de: "Alle Planungen", en: "All Schedules", fr: "Tous les plannings", it: "Tutte le pianificazioni") in der Tabellenansicht und schalte in der Werkzeugleiste (de: "Befehle anzeigen", en: "Show Commands", fr: "Afficher les commandes", it: "Mostra comandi") ein. Ausgeschaltet bleiben die Zellen mit einer Vorgabe leer, die Vorgabe gilt aber trotzdem.
 2. **Eintragen.** Tippe das Kürzel direkt in die Zelle der Person und des Tages und bestätige mit Enter. Welche Kürzel es gibt, steht in den Einstellungen: Abschnitt (de: "Arbeitszeit & Planung", en: "Work & Scheduling"), Karte (de: "Planungsregeln (Standardwerte)", en: "Scheduling Rules (Defaults)"), Gruppe (de: "Planungsbefehle (Keywords)", en: "Schedule Command Keywords").
 3. **Ändern oder löschen.** Tippe in die Zelle mit der Vorgabe ein anderes Kürzel, oder öffne das Kontextmenü der Zelle mit (de: "Bearbeiten...", en: "Edit...") und (de: "Löschen", en: "Delete").
-4. **Planen lassen.** Die automatische Planung (der Wizard-Knopf der Werkzeugleiste, nur für Administratoren sichtbar) schreibt ihr Ergebnis als Szenario; darin sind die Vorgaben eingehalten.
+4. **Planen lassen.** Die automatische Planung (der Wizard-Knopf der Werkzeugleiste, nur für Administratoren sichtbar) schreibt ihr Ergebnis als Szenario. Im strengen Plan sind die Vorgaben eingehalten; bietet sie zusätzlich einen zweiten Plan an, zeigt dessen Zusammenfassung, welche Wünsche er bricht.
 
 <!-- level:effects -->
 
@@ -62,7 +63,7 @@ Die Kürzel sind in den Einstellungen umbenennbar; die Bedeutung bleibt gleich. 
 | `EARLY` | (de: "Nur Frühdienste (EARLY)", en: "Early shift only (EARLY)") | nur Frühdienste |
 | `LATE` | (de: "Nur Spätdienste (LATE)", en: "Late shift only (LATE)") | nur Spätdienste |
 | `NIGHT` | (de: "Nur Nachtdienste (NIGHT)", en: "Night shift only (NIGHT)") | nur Nachtdienste |
-| `-FREE` | (de: "Möglichst Arbeit (-FREE)", en: "Prefer work (-FREE)") | schränkt keine Dienstart ein (siehe Folgen und Grenzfälle) |
+| `-FREE` | (de: "Möglichst Arbeit (-FREE)", en: "Prefer work (-FREE)") | schränkt keine Dienstart ein, wünscht aber einen Dienst |
 | `-EARLY` | (de: "Keine Frühdienste (-EARLY)", en: "No early shift (-EARLY)") | alles ausser Frühdienst |
 | `-LATE` | (de: "Keine Spätdienste (-LATE)", en: "No late shift (-LATE)") | alles ausser Spätdienst |
 | `-NIGHT` | (de: "Keine Nachtdienste (-NIGHT)", en: "No night shift (-NIGHT)") | alles ausser Nachtdienst |
@@ -73,14 +74,14 @@ Die Dienstart bestimmt Klacks aus der ganzen Zeitspanne des Dienstes: Früh 06:0
 
 ### Wer die Vorgabe beachtet
 
-- Die automatische Planung (Wizard und Harmonizer) behandelt sie als harte Grenze.
+- Die automatische Planung behandelt sie als starke Wünsche: Der strenge Lauf hält sie ein, ein zweiter Lauf darf sie nur brechen, um sonst offene Dienste zu besetzen. Die Verbesserungsstufen (Harmonizer) brechen nie einen Wunsch.
 - Die Ersatzsuche schliesst einen Kandidaten aus, dessen Tag den Dienst nicht erlaubt.
 - Klacksy lehnt das Platzieren eines Dienstes gegen die Vorgabe ab.
 - Planst du von Hand im Raster gegen die Vorgabe, wird der Dienst gespeichert und als Fehler gemeldet.
 
-### Vorrang vor der Verfügbarkeit
+### Verfügbarkeit bleibt hart
 
-Ein Tag mit Vorgabe oder mit gebuchter Absenz überstimmt die Verfügbarkeit der Person. Qualifikationsgrenzen bleiben bestehen.
+Eine Vorgabe überstimmt die Verfügbarkeit der Person nicht: Auch an einem Tag mit Vorgabe plant die automatische Planung nur in den verfügbaren Stunden. Nur ein Tag mit gebuchter Absenz hebt die Verfügbarkeit auf. Qualifikationsgrenzen bleiben bestehen.
 
 ### Datenfluss
 
@@ -105,9 +106,11 @@ Die Vorgabe wird mit Person und Tag (und im Szenario mit dem Szenario) gespeiche
 
 ## Folgen und Grenzfälle
 
-**Es ist eine harte Grenze, kein Wunsch.** Die automatische Planung setzt die Person an dem Tag nicht gegen die Vorgabe ein. Einen Rückfall auf `FREE` gibt es nicht: Findet sich für den Dienst sonst niemand, bleibt er unbesetzt.
+**Ein starker Wunsch, kein Verbot (seit v1.0.60).** Die automatische Planung plant zuerst streng: Niemand wird gegen seine Vorgabe eingesetzt. Bleiben danach Dienste offen und gibt es einschränkende Vorgaben, rechnet ein zweiter Lauf, in dem die Vorgaben nur Wünsche sind. Sein Plan zählt nur, wenn er mehr Dienste besetzt. Bricht er dabei keinen Wunsch, ersetzt er den strengen Plan. Bricht er Wünsche, wird er als zweites Szenario angeboten, und die Zusammenfassung nennt die gebrochenen Wünsche mit Namen; die automatische Übernahme der Folgeperiode nimmt einen solchen Plan nie.
 
-**`-FREE` tut in der Planung nichts.** Die Beschriftung „Möglichst Arbeit“ verspricht mehr. Das Kürzel schränkt keine Dienstart ein; seine einzige Wirkung ist, dass der Tag wie jeder Tag mit Vorgabe die Verfügbarkeit der Person überstimmt.
+**Ein Wunsch bricht nur für einen sonst offenen Dienst, nie für Stunden.** Die Rangfolge ist strikt: `FREE` vor „nur X“ vor „kein X“. Ein gebrochenes `FREE` wiegt schwerer als beliebig viele gebrochene „nur X“, ein „nur X“ schwerer als beliebig viele „kein X“. Muss ein Wunsch brechen, trifft es den leichtesten. Die Einschränkungen gehen den garantierten Stunden vor; nur die anziehenden Wünsche (siehe unten) weichen den garantierten Stunden.
+
+**`-FREE`, `EARLY`, `LATE` und `NIGHT` ziehen an.** `-FREE` ohne Dienst und `EARLY`/`LATE`/`NIGHT` ohne Dienst dieser Art zählen als unerfüllter Wunsch; die automatische Planung versucht, sie zu erfüllen, ohne dafür bereits erreichte garantierte Stunden zu opfern. Erzwungen wird kein Dienst: `NIGHT` heisst „wenn ein Dienst, dann Nacht“.
 
 **Mehrere Vorgaben an einem Tag wirken zusammen.** Beim Tippen hält eine Zelle nur eine Vorgabe, Klacksy kann aber mehrere für einen Tag speichern. Die Erlaubnisse werden dann geschnitten: `EARLY` und `LATE` zusammen erlauben nichts mehr und wirken wie `FREE`.
 

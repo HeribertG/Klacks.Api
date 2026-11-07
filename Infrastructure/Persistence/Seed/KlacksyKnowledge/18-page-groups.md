@@ -1,15 +1,15 @@
 ---
 name: explain_page_groups
 description: |
-  Explains the Groups pages — /workplace/group, the admin page for managing groups
+  Explains the Groups pages — /workplace/group, the page for managing groups
   (teams, locations, organisational units) with two switchable views: a sortable,
   filterable table (with validity filter column) and a hierarchical tree with X|Y
   member badges, expand/collapse/refresh, subgroup creation and drag & drop
   re-parenting. Also covers the group editor at /workplace/edit-group/:id (master
   data with name, validity, payment interval, calendar selection and notes; parent
   structure with current path; participant list with person search and filter
-  column), the page /workplace/group-structure (visibility of root groups per
-  user), optional group coordinates (latitude/longitude) for geographic
+  column), the settings card for the visibility of root groups per
+  user, optional group coordinates (latitude/longitude) for geographic
   evaluations, and how the global group selection affects all other workspace
   pages. Use this when the user asks what they see on the Groups page, what the
   cards/columns/tree badges mean, or how to work with it. Supports a level
@@ -56,7 +56,7 @@ synonyms:
   it: [cosa vedo qui, spiega questa pagina, cosa significa questa scheda, gruppi, tutti i gruppi, struttura del gruppo, albero dei gruppi, elenco dei partecipanti, creare un gruppo, creare un sottogruppo, spostare un gruppo, aggiungere un membro, rimuovere un membro, intervallo di pagamento del gruppo, visibilità dei gruppi]
 ---
 
-# Gruppen — die Seiten /workplace/group, /workplace/edit-group und /workplace/group-structure
+# Gruppen — die Seiten /workplace/group und /workplace/edit-group
 
 <!-- level:short -->
 
@@ -67,10 +67,12 @@ Klacks — wahlweise als sortierbare Tabelle oder als hierarchischer Baum mit Un
 und führt in den Gruppen-Editor mit Stammdaten, Eltern-Struktur und Mitgliederliste.
 Gruppen sind das zentrale Ordnungsmittel der App: Die globale Gruppen-Auswahl in der
 Kopfleiste filtert Mitarbeitende, Absenzen, Einsatzplanung, Dienste und Verfügbarkeit.
-Erreichbar über das Navi-Icon `open-groups` (Tooltip "Alle Gruppen", Alt+6, nur für Admins)
-oder die Route `/workplace/group`; der Editor liegt unter `/workplace/edit-group` (neu) bzw.
-`/workplace/edit-group/:id` (bestehend), die Gruppen-Sichtbarkeit pro Benutzer unter
-`/workplace/group-structure`. Alle drei Routen sind mit AdminGuard geschützt.
+Erreichbar über das Navi-Icon `open-groups` (Tooltip "Alle Gruppen", Alt+6) oder die Route
+`/workplace/group`; der Editor liegt unter `/workplace/edit-group` (neu) bzw.
+`/workplace/edit-group/:id` (bestehend). Lesen dürfen alle Angemeldeten (Recht `CanViewGroups`);
+Gruppen anlegen, bearbeiten und umhängen dürfen Supervisor und Admin, löschen nur der Admin.
+Die Gruppen-Sichtbarkeit pro Benutzer ist eine Karte in den Einstellungen (`/workplace/settings`,
+Navigationsziel `group-scope`, nur Admin).
 
 <!-- level:elements -->
 
@@ -198,7 +200,7 @@ Standort-Gruppen; sie haben KEIN Eingabefeld auf dieser Seite, sondern werden pe
 Klacksy-Skill gesetzt (`set_group_location` für eine Gruppe, `geocode_location_groups` für
 alle Standort-Gruppen automatisch per Geocoding).
 
-### Seite /workplace/group-structure — Sichtbarkeit von Gruppen pro Benutzer
+### Einstellungskarte — Sichtbarkeit von Gruppen pro Benutzer (nur Admin)
 
 Überschrift: **Sichtbarkeit von Gruppen pro Benutzer** (de: "Sichtbarkeit von Gruppen pro
 Benutzer", en: "Visibility of Groups per User", fr: "Visibilité des groupes par
@@ -239,12 +241,13 @@ Admin-Konten ist der Button deaktiviert — Admins sehen immer alles.
   den anderen Seiten erscheinen. Eine Person kann in mehreren Gruppen Mitglied sein.
   Gruppen-Zuordnungen verknüpfen daneben auch Dienste mit Gruppen — das geschieht aber in
   der Dienst-Bearbeitung, nicht hier.
-- **Sichtbarkeit pro Benutzer** (`/workplace/group-structure`): Die dort gesetzten
+- **Sichtbarkeit pro Benutzer** (Einstellungskarte, Ziel `group-scope`): Die dort gesetzten
   Wurzelgruppen begrenzen für NICHT-Admin-Benutzer serverseitig, welche Daten sie überhaupt
   sehen — im Schichtplan, bei den Mitarbeitenden und in den Dashboard-Widgets (z. B.
   Standorte, Abdeckungs-Statistik) werden nur Daten der sichtbaren Wurzelgruppen geliefert.
-  Admins sehen immer alles; die Gruppen-Verwaltungsseiten selbst sind ohnehin Admin-only
-  (AdminGuard, Navi-Icon nur für Admins sichtbar).
+  Admins sehen immer alles. Die Gruppenseiten selbst sieht jeder Angemeldete; die Mitglieder
+  einer Gruppe ausserhalb seiner sichtbaren Gruppen bleiben für ihn leer (siehe
+  `explain_group_visibility_blind_spots`). Die Sichtbarkeits-Karte in den Einstellungen sieht nur der Admin.
 - **Geo-Koordinaten**: Die optionalen Latitude/Longitude-Werte von Standort-Gruppen sind
   die Grundlage für die geografische Kunden-Zuordnung (Klacksy-Skills
   `propose_customer_grouping` / `apply_customer_grouping`) und Standort-Auswertungen.
@@ -277,7 +280,7 @@ Admin-Konten ist der Button deaktiviert — Admins sehen immer alles.
 
 ### Verwandte Seiten
 
-- `/workplace/group-structure` — Gruppen-Sichtbarkeit pro Benutzer (oben in Stufe 2 erklärt).
+- `/workplace/settings`, Karte Gruppen-Sichtbarkeit pro Benutzer (Ziel `group-scope`, oben in Stufe 2 erklärt).
 - `/workplace/address` (Mitarbeitende) — dort zeigt die Card "Gruppen" die Mitgliedschaften
   einer einzelnen Person; die Liste wird vom globalen Gruppen-Scope gefiltert.
 - `/workplace/schedule` (Einsatzplanung) und `/workplace/shift` (Dienste) — beide werden vom

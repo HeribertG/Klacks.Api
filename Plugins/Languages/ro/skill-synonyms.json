@@ -1245,13 +1245,24 @@
     "klacks verifică suprapunerile de absențe?",
     "două absențe în aceeași zi pentru aceeași persoană"
   ],
+  "explain_absence_cover_move": [
+    "ce se întâmplă cu tura când cineva e bolnav",
+    "de ce a fost ștearsă tura după absență",
+    "tura trece la înlocuitor"
+  ],
+  "explain_scenario_variant_keys": [
+    "ce este o cheie în scenariu",
+    "planificarea turelor neobligatorii",
+    "planificarea variantelor unei comenzi cu detalii deschise"
+  ],
   "explain_absence_type_flags": [
     "ce face efectiv comutatorul sâmbătă se calculează?",
     "comutatorul de sărbători are vreun efect?",
     "de ce se debifează singur neplătitul?",
     "la ce servește se aplică și containerului?",
     "ce înseamnă comutatorul neplătit pentru un tip de absență?",
-    "o absență neplătită reduce orele plătite dintr-un schimb?"
+    "o absență neplătită reduce orele plătite dintr-un schimb?",
+    "se numără permanența la domiciliu în orele mele"
   ],
   "explain_absence_value_vs_hours": [
     "valoarea afișată nu corespunde cu orele",

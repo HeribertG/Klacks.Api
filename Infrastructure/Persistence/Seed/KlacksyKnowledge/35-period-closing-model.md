@@ -78,7 +78,7 @@ The row of a person in the schedule shows three figures, each with a tooltip: de
 
 ### Expenses
 
-Expenses are recorded per person and day and go into the same payroll hand-off. A locked day refuses expense changes, so enter them before closing.
+Expenses are recorded per person and day. They are not part of any payroll format (those carry hours, time credits and absences only); they appear in the generic XML, JSON and CSV exports of the employee hours. A locked day refuses expense changes, so enter them before closing.
 
 ### Related skills
 

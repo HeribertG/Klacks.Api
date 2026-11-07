@@ -130,7 +130,7 @@ An exemption suppresses it, either for everybody or only for people whose contra
 scheduling rule (care, security and similar operations).
 
 **The time surcharge** needs the day to be official and marked for the time surcharge, and the
-contract's holiday rate to be above zero. When only the highest uplift is paid, a higher night,
+contract's holiday rate to be above zero. It is a time credit in hours, never money. When only the highest uplift is credited, a higher night,
 Saturday or Sunday rate wins over the holiday rate. Absences are judged differently: for them an
 official holiday counts whether or not it is marked for the time surcharge (a vacation day on an
 official holiday, for example, books no hours). New holiday rules start marked for the time

@@ -147,6 +147,8 @@
   "explain_absence_hours": "Forklar fraværstimer",
   "explain_absence_model": "Forklare datamodellen for fravær",
   "explain_absence_overlap_not_blocked": "Forklare uverifiserte overlappinger i fravær",
+  "explain_absence_cover_move": "Forklar dekning av fravær",
+  "explain_scenario_variant_keys": "Forklar nøkler for scenarier",
   "explain_absence_type_flags": "Forklare innstillinger for en fraværstype",
   "explain_absence_value_vs_hours": "Forklare forholdet mellom fraværsverdi og fraværstimer",
   "explain_active_industries": "Oversikt over de aktive bransjene",

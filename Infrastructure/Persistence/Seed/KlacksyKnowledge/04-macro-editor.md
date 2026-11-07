@@ -1,12 +1,13 @@
 ---
 name: explain_macro_editor
 description: |
-  Explains the Macro Editor in Klacks — a scripting tool that backs shifts,
-  employments and wage components with formulas. Default macros are shipped
-  for vacation, illness, accident and general shifts; custom macros compute
-  exact hours (e.g. proportional to part-time percentage) and surcharges for
-  night/weekend/holiday work. Use this when the user asks how Klacks computes
-  hours/costs, how to override the default formula, or what "Macro" means.
+  Explains the Macro Editor in Klacks — a scripting tool that backs shifts
+  and absences with formulas. Default macros are shipped for vacation,
+  illness, accident and general shifts; custom macros compute exact hours
+  (e.g. proportional to part-time percentage) and time credits in hours for
+  night/weekend/holiday work, never money. Use this when the user asks how
+  Klacks computes hours or time credits, how to override the default formula,
+  or what "Macro" means.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -20,30 +21,32 @@ triggerKeywords:
   - ferien
   - formel
 synonyms:
-  de: [makro, formel, skript, berechnung, zuschlag, lohn, rechengrundlage, lohnformel]
-  en: [macro, script, formula, calculation, surcharge, payroll, allowance]
-  fr: [macro, script, formule, calcul, supplément, salaire]
-  it: [macro, script, formula, calcolo, supplemento, stipendio]
+  de: [makro, formel, skript, berechnung, zuschlag, zeitgutschrift, rechengrundlage, stundenformel]
+  en: [macro, script, formula, calculation, surcharge, time credit, hours formula]
+  fr: [macro, script, formule, calcul, supplément, crédit de temps]
+  it: [macro, script, formula, calcolo, supplemento, credito di tempo]
 ---
 
-# Macro Editor — Rechengrundlage für Dienste, Beschäftigung und Lohn
+# Macro Editor — Rechengrundlage für Stunden und Zeitgutschriften
 
 ## Kern-Idee (1 Satz)
 
 Mit dem **Macro Editor** schreibt der Anwender Skripte, die Klacks als
 Rechengrundlage verwendet — sie liefern die **exakte Dauer** (z.B. anteilig
-zum Beschäftigungsgrad) oder die **exakten Kosten** (z.B. Nacht-, Wochenend-
-und Feiertags-Zuschläge) pro Dienst, Beschäftigung oder Lohnkomponente.
+zum Beschäftigungsgrad) und die **Zeitgutschriften** (Nacht-, Wochenend-,
+Feiertags- und Überstunden-Zuschläge) pro Dienst oder Absenz. Zuschläge sind in
+Klacks immer Zeitgutschriften in Stunden, nie Geld: Klacks plant und rechnet
+keinen Lohn.
 
 ## Wofür Macros gut sind
 
 | Bereich | Beispiel |
 |---|---|
 | **Ferien** | Std. = Vertragspensum × Tages-Soll, NICHT pauschal 8h. |
-| **Krankheit / Unfall** | Pensum-anteilige Lohnfortzahlung. |
+| **Krankheit / Unfall** | Stunden pro Ausfalltag anteilig zum Pensum. |
 | **Militär / Zivildienst** | Kalenderspezifische Stunden-Berechnung. |
 | **Allgemeine Dienste** | Standard-Berechnung der Arbeitszeit. |
-| **Zuschläge** | Nacht, Sa, So, Feiertag, Überstunden — exakt nach Vertrag. |
+| **Zuschläge** | Zeitgutschrift für Nacht, Sa, So, Feiertag, Überstunden — exakt nach Vertrag. |
 
 ## Default-Skripte
 
@@ -86,7 +89,8 @@ Speichern eines `Work` läuft `WorkMacroService.ProcessWorkMacroAsync(work)`:
 ## Verwandte Skills
 
 - `explain_planning_assistant` — der Assistent nutzt Macro-Resultate als Soll.
-- `explain_shift_lifecycle` — Macros greifen erst ab der planbaren Schicht.
+- `explain_shift_lifecycle_order_to_shift` — Macros greifen erst ab der planbaren Schicht.
+- `explain_surcharge_mode` — ohne Macro am Dienst entsteht keine Zeitgutschrift.
 
 ## Trigger-Phrasen
 

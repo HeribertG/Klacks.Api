@@ -147,6 +147,8 @@
   "explain_absence_hours": "Afwezigheidsuren uitleggen",
   "explain_absence_model": "Het afwezigheidsgegevensmodel uitleggen",
   "explain_absence_overlap_not_blocked": "Uitleg over niet-gecontroleerde overlappingen van afwezigheden",
+  "explain_absence_cover_move": "Uitleg over het opvangen van afwezigheid",
+  "explain_scenario_variant_keys": "Uitleg over sleutels voor scenario's",
   "explain_absence_type_flags": "Een afwezigheidstype toelichten",
   "explain_absence_value_vs_hours": "Verschil tussen verzuimwaarde en verzuimuren uitleggen",
   "explain_active_industries": "Toelichting bij de actieve sectoren",
