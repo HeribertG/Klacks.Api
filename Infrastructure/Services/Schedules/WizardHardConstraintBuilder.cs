@@ -20,7 +20,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// All four constraint sets are filtered by agent ids, period and the scenario AnalyseToken
 /// (using IS NOT DISTINCT FROM semantics to propagate null as "main scenario"). A day sealed for an agent (global,
 /// or by a group the agent belongs to or worked for that day) becomes a zero-hour break blocker: no placement, no
-/// hours, like Free for consecutive days - so an apply never runs into the day lock.
+/// hours, like Free for consecutive days - so an apply never runs into the day lock. An on-call absence stays a break
+/// blocker but carries zero hours toward the target (BreakOwnHours).
 /// </summary>
 /// <param name="context">EF Core database context</param>
 /// <param name="keywordProvider">Source of the currently effective (admin-configurable) command keyword tokens</param>
@@ -115,6 +116,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                         && b.CurrentDate <= until
                         && (b.AnalyseToken == analyseToken || (b.AnalyseToken == null && analyseToken == null)))
             .ToListAsync(ct);
+        var countedHours = BreakOwnHours.CountedHours(await OnCallAbsenceQuery.LoadIdsAsync(_context, ct));
 
         return rawBreaks
             .Select(b => new CoreBreakBlocker(
@@ -122,7 +124,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                 b.CurrentDate,
                 b.CurrentDate,
                 b.Absence?.Name?.De ?? "Break",
-                b.WorkTime))
+                countedHours(b)))
             .ToList();
     }
 

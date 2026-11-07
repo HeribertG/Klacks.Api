@@ -11,9 +11,9 @@
 /// per day with the period-hours rules (PayrollWorkChangeProjection): hour-bearing corrections and travel (including
 /// the briefing/debriefing rows of the container expansion) add to the work's employee, a replacement moves its hours
 /// and surcharges from the work's employee to the replacing person, who gets them as WorkHours/Surcharge rows on that
-/// day. Break surcharges are added to the day's surcharge as in the period hours. Each absence and day becomes an
-/// absence row - in hours (summed WorkTime) for ordinary absences, and as one day for an on-call absence
-/// (Absence.IsOnCall), whose WorkTime is zero by design.
+/// day. Break surcharges are added to the day's surcharge, including those of an on-call absence, which the period
+/// hours leave out (BreakOwnHours). Each absence and day becomes an absence row - in hours (summed WorkTime) for
+/// ordinary absences, and as one day for an on-call absence (Absence.IsOnCall), whose WorkTime is not exported.
 /// @param fromDate - Lower bound (inclusive) for CurrentDate
 /// @param untilDate - Upper bound (inclusive) for CurrentDate
 /// @param clientIds - Optional restriction to these persons; null loads every person

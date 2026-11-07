@@ -18,6 +18,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 using Klacks.Api.Infrastructure.Services.Clients;
+using Klacks.Api.Infrastructure.Services.Schedules;
 
 namespace Klacks.Api.Infrastructure.Services.PeriodHours;
 
@@ -93,7 +94,8 @@ public class PeriodHoursService : IPeriodHoursService
                 clientIdsWithoutCache,
                 startDate,
                 endDate,
-                analyseToken);
+                analyseToken,
+                await LoadOnCallAbsenceIdsAsync());
 
             foreach (var (clientId, hours) in calculatedHours)
             {
@@ -119,7 +121,8 @@ public class PeriodHoursService : IPeriodHoursService
             new List<Guid> { clientId },
             startDate,
             endDate,
-            analyseToken);
+            analyseToken,
+            await LoadOnCallAbsenceIdsAsync());
 
         var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, startDate);
         var membershipWindows = await MembershipWindowQuery.LoadAsync(_context, [clientId], CancellationToken.None);
@@ -270,7 +273,8 @@ public class PeriodHoursService : IPeriodHoursService
             clientIds,
             startDate,
             endDate,
-            analyseToken);
+            analyseToken,
+            await LoadOnCallAbsenceIdsAsync());
 
         await StageMiscutRowRemovalAsync(clientIds, startDate, endDate, analyseToken);
         var paymentInterval = await GetGlobalPaymentIntervalAsync();
@@ -334,6 +338,7 @@ public class PeriodHoursService : IPeriodHoursService
 
         var now = DateTime.UtcNow;
         var paymentInterval = await GetGlobalPaymentIntervalAsync();
+        var onCallAbsenceIds = await LoadOnCallAbsenceIdsAsync();
 
         foreach (var period in cachedRows.GroupBy(p => (p.StartDate, p.EndDate)))
         {
@@ -342,7 +347,8 @@ public class PeriodHoursService : IPeriodHoursService
                 clientIds,
                 period.Key.StartDate,
                 period.Key.EndDate,
-                analyseToken);
+                analyseToken,
+                onCallAbsenceIds);
 
             foreach (var row in period)
             {
@@ -389,11 +395,21 @@ public class PeriodHoursService : IPeriodHoursService
         }
     }
 
+    /// <summary>
+    /// Sums the period hours and surcharges of the clients live: own works (WorkOwnHours), the breaks that count
+    /// (BreakOwnHours, so an on-call absence adds nothing) and the work changes that count (WorkChangeOwnHours).
+    /// </summary>
+    /// <param name="clientIds">The clients to sum</param>
+    /// <param name="startDate">First day of the range</param>
+    /// <param name="endDate">Last day of the range</param>
+    /// <param name="analyseToken">Scenario token of the rows, null for the real plan</param>
+    /// <param name="onCallAbsenceIds">Ids of the on-call absence types, loaded once per caller</param>
     private async Task<Dictionary<Guid, PeriodHoursResource>> CalculatePeriodHoursForClientsAsync(
         List<Guid> clientIds,
         DateOnly startDate,
         DateOnly endDate,
-        Guid? analyseToken = null)
+        Guid? analyseToken,
+        IReadOnlyCollection<Guid> onCallAbsenceIds)
     {
         var result = new Dictionary<Guid, PeriodHoursResource>();
 
@@ -421,6 +437,7 @@ public class PeriodHoursService : IPeriodHoursService
                 && b.CurrentDate >= startDate
                 && b.CurrentDate <= endDate
                 && b.AnalyseToken == analyseToken)
+            .Where(BreakOwnHours.Counts(onCallAbsenceIds))
             .GroupBy(b => b.ClientId)
             .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime), TotalBreakSurcharges = g.Sum(b => b.Surcharges) })
             .ToListAsync();
@@ -577,6 +594,9 @@ public class PeriodHoursService : IPeriodHoursService
             date,
             contract.IndividualPeriod.Name);
     }
+
+    private Task<IReadOnlySet<Guid>> LoadOnCallAbsenceIdsAsync()
+        => OnCallAbsenceQuery.LoadIdsAsync(_context, CancellationToken.None);
 
     private async Task<PaymentInterval> GetGlobalPaymentIntervalAsync()
     {

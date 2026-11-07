@@ -16146,7 +16146,7 @@
         },
         {
           "name": "workTime",
-          "description": "Hours counted toward target hours for each created absence; defaults to 8",
+          "description": "Hours counted toward target hours for each created absence (an on-call absence type counts none); defaults to 8",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -16216,12 +16216,12 @@
         "fr": "Enregistrer une absence pour tout un groupe",
         "it": "Registra un'assenza per l'intero gruppo"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "add_break",
       "area": "absence",
-      "description": "Places a single absence (Break) on a client/date - vacation, sick day, training, parental leave. Hours count toward TargetHours, not MaxWeeklyHours; the cell becomes immutable for Wizards 1+2+3. Without start/end time it is a whole day, even when only hours are given. It removes an untouched, not yet started service of that day only when a group is selected; the chat selects none, so the service stays with a red notice. Use list_absence_types first to find the absenceId.",
+      "description": "Places a single absence (Break) on a client/date - vacation, sick day, training, parental leave. Hours count toward TargetHours (not on-call types), not MaxWeeklyHours; the cell becomes immutable for Wizards 1+2+3. Without start/end time it is a whole day, even when only hours are given. It removes an untouched, not yet started service of that day only when a group is selected; the chat selects none, so the service stays with a red notice. Use list_absence_types first to find the absenceId.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16350,7 +16350,7 @@
         "fr": "Enregistrer une absence pour une personne",
         "it": "Registra un'assenza per una persona"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "add_workchange",
@@ -33265,7 +33265,7 @@
         },
         {
           "name": "workTime",
-          "description": "New counted hours (counts toward TargetHours, not toward MaxWeeklyHours).",
+          "description": "New counted hours (counts toward TargetHours unless the absence type is on-call, never toward MaxWeeklyHours).",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -33350,7 +33350,7 @@
         "fr": "Modifier une entrée d'absence",
         "it": "Modifica una voce di assenza"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "update_workchange",

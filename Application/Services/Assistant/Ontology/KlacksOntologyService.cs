@@ -202,7 +202,7 @@ public class KlacksOntologyService : IKlacksOntologyService
             "Break is the actual absence EVENT on a client's day, typed by an Absence (AbsenceId).",
             "Break.Description is MultiLanguage (stored as one jsonb column, unlike the other MultiLanguage fields).",
             "Break is always immutable for Wizards (semantic, regardless of LockLevel).",
-            "Break.WorkTime counts toward TargetHours but NOT toward MaxWeeklyHours.",
+            "Break.WorkTime counts for TargetHours (on-call alone: 0), NOT MaxWeeklyHours.",
             "A Break interrupts a MaxConsecutiveDays sequence like a free day."
         ],
         ["Absence"] =
@@ -210,7 +210,7 @@ public class KlacksOntologyService : IKlacksOntologyService
             "Absence is the CATALOG of absence types (holiday, sickness, ...), not an absence itself — the event is Break.",
             "Name, Description and Abbreviation are MultiLanguage — an absence type is looked up by its text in the user's language, never by a single hard-coded string.",
             "WithHoliday/WithSaturday/WithSunday are stored on the type but no calculation reads them today — toggling them changes nothing. IsUnpaid only sticks together with HideInGantt and AppliesToContainer, and then deducts the span from the paid time of the surrounding container shift.",
-            "IsOnCall marks on-call duty (seeded: Pikett): a Break of such a type does NOT make the employee absent for replacement search and recovery — they are offered FIRST as a replacement (even on a contractual day off; a FREE keyword or any other absence the same day still blocks). The wizards still treat the day as occupied, and a work over it is an on-call-overlap warning, not a collision."
+            "IsOnCall marks on-call duty (seeded: Pikett): a Break of such a type does NOT make the employee absent for replacement search and recovery — they are offered FIRST as a replacement (even on a contractual day off; a FREE keyword or any other absence the same day still blocks). Wizards treat the day as occupied; a work over it is an on-call-overlap warning, no collision. Adds no hours alone."
         ],
         ["Group"] =
         [

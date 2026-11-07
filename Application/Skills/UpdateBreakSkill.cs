@@ -9,7 +9,7 @@
 /// <param name="absenceId">Optional. New UUID of the Absence type (vacation/sick/etc.).</param>
 /// <param name="startTime">Optional. New start time HH:mm.</param>
 /// <param name="endTime">Optional. New end time HH:mm.</param>
-/// <param name="workTime">Optional. New counted hours; counts toward TargetHours but not toward MaxWeeklyHours.</param>
+/// <param name="workTime">Optional. New counted hours; counts toward TargetHours but not toward MaxWeeklyHours, and not at all for an on-call absence type.</param>
 /// <param name="surcharges">Optional. New surcharge value.</param>
 /// <param name="information">Optional. New free-text note.</param>
 

@@ -42,7 +42,7 @@ The target hours of a month come from **one of four ways** — no contract, fixe
 
 ## Stage 1 — What it is and what it is for
 
-Every employee has a target for each pay period (usually the calendar month); the schedule shows it in the row header (de: "Garantierte Stunden", en: "Guaranteed Hours") and compares it with the worked and absence hours. Where the target comes from depends on the contract: a fixed number of hours, or the company's month value scaled by a percent, or - without a contract - the company value at 100 %. The monthly value (de: "Monatliche Sollstunden", en: "Monthly target hours") is the target time of a 100 % position for this month; it applies to employees without a contract (at 100 %) and to contracts on the interval (de: "Monatlich (Sollstunden-Tabelle)", en: "Monthly (target hours table)") or without guaranteed hours - there as monthly value × percent. Contracts with fixed guaranteed hours are not affected by it.
+Every employee has a target for each pay period (usually the calendar month); the schedule shows it in the row header (de: "Garantierte Stunden", en: "Guaranteed Hours") and compares it with the worked and absence hours. On-call absences on their own (not inside a container service) are the exception: they never count toward the target, only the actual assignment on an on-call day does. Where the target comes from depends on the contract: a fixed number of hours, or the company's month value scaled by a percent, or - without a contract - the company value at 100 %. The monthly value (de: "Monatliche Sollstunden", en: "Monthly target hours") is the target time of a 100 % position for this month; it applies to employees without a contract (at 100 %) and to contracts on the interval (de: "Monatlich (Sollstunden-Tabelle)", en: "Monthly (target hours table)") or without guaranteed hours - there as monthly value × percent. Contracts with fixed guaranteed hours are not affected by it.
 
 <!-- level:elements -->
 
@@ -89,6 +89,7 @@ Weg 1 and Weg 2 give the same result in months with a row; they differ in months
 - **A partly filled table switches the basis** from month to month for everybody without a contract and for Weg 1 and Weg 2.
 - **A month value far from workdays × daily hours** means a full month of vacation does not reach the target of that month.
 - **Changing a contract template changes every employee assigned to it**; for one person, assign a different contract.
+- **An on-call absence fulfils no target.** On its own (not inside a container service), neither its hours nor its surcharges count toward the period hours; only the call-out, entered as its own shift, does. An on-call absence means on-call duty outside the company; on-call duty inside the company is planned as a normal shift, because in Switzerland all of that time is working time (ArGV 1 Art. 15). Hospitals and clinics owe a 10 percent time credit for response times under 30 minutes (ArGV 2 Art. 8a), recorded as its own entry. Other countries may have different rules; `explain_absence_type_flags` has the details.
 - **Changes queue a recalculation of open entries**: contract, assignment, scheduling-rule and monthly-table changes, and changes of the company guaranteed hours, full time or daily hours (within the span of unlocked work entries). Sealed days are never touched.
 
 ### Trigger phrases

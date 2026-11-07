@@ -105,7 +105,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var agentIdSet = agentIds.ToHashSet();
         var covers = await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
         var correctedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
-        var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays, correctedWorkHours);
+        var onCallAbsenceIds = await OnCallAbsenceQuery.LoadIdsAsync(_context, ct);
+        var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays, correctedWorkHours, onCallAbsenceIds);
         var hints = BuildSofteningHints(softenings);
 
         var ineligible = await BuildIneligibleAsync(agentIds, assignments, works, breakDates, ct);
@@ -119,7 +120,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         List<Work> boundaryWorks = [];
         if (contextFrom < request.PeriodFrom || contextUntil > request.PeriodUntil)
         {
-            (boundaryAssignments, boundaryWorks) = await LoadBoundaryAsync(request, agentIds, agentIdSet, contextFrom, contextUntil, ct);
+            (boundaryAssignments, boundaryWorks) = await LoadBoundaryAsync(request, agentIds, agentIdSet, contextFrom, contextUntil, onCallAbsenceIds, ct);
         }
 
         var restrictedTimeWindows = await BuildRestrictedTimeWindowsAsync(assignments, request, ct);
@@ -203,6 +204,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         IReadOnlySet<Guid> agentIdSet,
         DateOnly contextFrom,
         DateOnly contextUntil,
+        IReadOnlySet<Guid> onCallAbsenceIds,
         CancellationToken ct)
     {
         var boundaryWorks = (await LoadWorksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
@@ -215,7 +217,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             .Where(c => c.Date < request.PeriodFrom || c.Date > request.PeriodUntil)
             .ToList();
         var boundaryCorrectedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct);
-        var boundaryAssignments = BuildAssignments(boundaryWorks, boundaryBreaks, boundaryCovers, agentIdSet, correctedWorkHours: boundaryCorrectedWorkHours);
+        var boundaryAssignments = BuildAssignments(
+            boundaryWorks, boundaryBreaks, boundaryCovers, agentIdSet, correctedWorkHours: boundaryCorrectedWorkHours, onCallAbsenceIds: onCallAbsenceIds);
         return (boundaryAssignments, boundaryWorks);
     }
 
@@ -677,7 +680,9 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     /// cover, count its hours twice and see the substitute as free that day. A day sealed for an agent (sealedDays) is a
     /// locked zero-hour cell; it is appended last so BitmapBuilder.Merge keeps the lock over an incoming Free cell, and
     /// works on that day are locked too. A corrected work (correctedWorkHours) is locked like a sealed work and adds its
-    /// correction hours, so the time recorded for its employee is never moved to someone else.
+    /// correction hours, so the time recorded for its employee is never moved to someone else. A break stays a locked
+    /// Break cell and carries the hours BreakOwnHours counts: an on-call absence (onCallAbsenceIds) occupies the day with
+    /// zero hours toward the target, so only a call-out on that day counts.
     /// </summary>
     internal static List<BitmapAssignment> BuildAssignments(
         IReadOnlyList<Work> works,
@@ -685,10 +690,12 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         IReadOnlyList<ReplacementCover> covers,
         IReadOnlySet<Guid> agentIds,
         IReadOnlySet<(Guid ClientId, DateOnly Date)>? sealedDays = null,
-        IReadOnlyDictionary<Guid, decimal>? correctedWorkHours = null)
+        IReadOnlyDictionary<Guid, decimal>? correctedWorkHours = null,
+        IReadOnlySet<Guid>? onCallAbsenceIds = null)
     {
         sealedDays ??= new HashSet<(Guid ClientId, DateOnly Date)>();
         correctedWorkHours ??= new Dictionary<Guid, decimal>();
+        var breakHours = BreakOwnHours.CountedHours(onCallAbsenceIds ?? new HashSet<Guid>());
         var handedOverHours = covers
             .GroupBy(c => c.WorkId)
             .ToDictionary(g => g.Key, g => g.Sum(c => c.Hours));
@@ -719,7 +726,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             IsLocked: true,
             StartAt: default,
             EndAt: default,
-            Hours: b.WorkTime));
+            Hours: breakHours(b)));
 
         var substituteAssignments = covers
             .Where(c => agentIds.Contains(c.SubstituteClientId))

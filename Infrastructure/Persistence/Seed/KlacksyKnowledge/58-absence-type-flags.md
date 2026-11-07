@@ -34,7 +34,7 @@ A kind of absence carries several switches that look similar but behave differen
 
 ## What the switches of a kind of absence do
 
-Every kind of absence, such as holiday or sick leave, has a few switches in the settings. Some of them look as if they decide which days count, but the three for Saturday, Sunday and public holidays are only stored and change nothing. Other switches do work: one marks a kind as only for internal use, one makes it available inside container services, one marks it as unpaid there, and one marks on-call duty so that the person is suggested first as a replacement. Example: with the unpaid switch on, a two-hour unpaid absence inside an eight-hour container service leaves six paid hours.
+Every kind of absence, such as holiday or sick leave, has a few switches in the settings. Some of them look as if they decide which days count, but the three for Saturday, Sunday and public holidays are only stored and change nothing. Other switches do work: one marks a kind as only for internal use, one makes it available inside container services, one marks it as unpaid there, and one marks on-call duty so that the person is suggested first as a replacement and such an absence on its own (not inside a container service) counts no hours toward the period or the target. Example: with the unpaid switch on, a two-hour unpaid absence inside an eight-hour container service leaves six paid hours.
 
 <!-- level:elements -->
 
@@ -66,7 +66,9 @@ Every kind of absence, such as holiday or sick leave, has a few switches in the 
 
 ### On call
 
-The on-call switch changes the replacement search and the checks: a person who holds such an absence is not treated as absent, is offered first as a replacement, and a shift on top of the on-call day is reported as an on-call overlap warning instead of a collision. The payroll export counts an on-call absence in days, not in hours.
+The on-call switch changes the replacement search, the checks and the hours: a person who holds such an absence is not treated as absent, is offered first as a replacement, and a shift on top of the on-call day is reported as an on-call overlap warning instead of a collision. An on-call absence on its own (not as part of a container service) does not count toward the period hours or the target, neither its hours nor its surcharges; only the actual assignment on that day counts, entered as its own shift. The payroll export counts an on-call absence in days, not in hours.
+
+An on-call absence stands for on-call duty outside the company. On-call duty inside the company is planned as a normal shift, because all of that time is working time. This follows the Swiss rule (ArGV 1 Art. 15): on-call duty inside the company is working time in full; on-call duty outside the company counts only as far as the person is actually called out to work, and then the travel to and from work counts too, so record that travel on the call-out. Hospitals and clinics have a special rule in Switzerland (ArGV 2 Art. 8a): if, for compelling reasons, the person must be at work in less than 30 minutes, at most seven on-call days in four weeks are allowed and a time credit of 10 percent of the inactive on-call time is owed and may not be paid out in money; Klacks does not add it on its own, so record it as its own entry. If the short response time forces the on-call duty to be spent at work, all of it is working time, so plan it as a shift. Other countries may have different rules.
 
 ### Related skills
 
@@ -89,6 +91,8 @@ The on-call switch changes the replacement search and the checks: a person who h
 
 **The deduction is computed when the container is saved.** Switching "Unpaid" on later does not change the paid time of containers that are already saved until their entries are saved again.
 
-**The on-call day stays occupied for the wizards.** The wizards still keep the person out of that day, and an on-call absence carries no hours by design, so it does not add to the worked hours.
+**The on-call day stays occupied for the wizards.** The wizards still keep the person out of that day, but an on-call absence on its own (not inside a container service) adds nothing to the hours they balance against the target, whatever hours it carries. A call-out counts only when it is entered as a shift.
+
+**Switching on-call on or off later.** The hours of an absence kind that is already booked change in the period hours shown only once those period hours are recalculated, for example by the next change of that person in that period.
 
 **Retiring a kind.** To take a kind out of use without deleting it, tick (de: "Nur für den internen Gebrauch", en: "For internal use only"); deleting is refused while bookings or wishes use it.

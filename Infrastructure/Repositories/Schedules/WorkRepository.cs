@@ -23,6 +23,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Infrastructure.Services.Clients;
+using Klacks.Api.Infrastructure.Services.Schedules;
 namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
 public class WorkRepository : BaseRepository<Work>, IWorkRepository
@@ -195,6 +196,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     /// <summary>
     /// Returns each client's period hours, reading the persisted period-hours cache where present and falling back to a live sum over Work/Break/WorkChange for cache misses.
+    /// The live sum counts breaks by BreakOwnHours like PeriodHoursService, so an on-call absence adds nothing.
     /// GuaranteedHours is the pay-period target prorated by member days (<see cref="MembershipTargetProration.ProratedTarget"/>), like PeriodHoursService.
     /// </summary>
     public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate, Guid? analyseToken = null, CancellationToken cancellationToken = default)
@@ -223,8 +225,10 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })
             .ToListAsync(cancellationToken);
 
+        var onCallAbsenceIds = await OnCallAbsenceQuery.LoadIdsAsync(context, cancellationToken);
         var breaksHours = await context.Break
             .Where(b => clientIdsWithoutPeriodHours.Contains(b.ClientId) && b.CurrentDate >= startDate && b.CurrentDate <= endDate && b.AnalyseToken == analyseToken)
+            .Where(BreakOwnHours.Counts(onCallAbsenceIds))
             .GroupBy(b => b.ClientId)
             .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime), TotalBreakSurcharges = g.Sum(b => b.Surcharges) })
             .ToListAsync(cancellationToken);
