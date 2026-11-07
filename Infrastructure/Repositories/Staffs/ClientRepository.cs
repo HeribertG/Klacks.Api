@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services;
@@ -385,24 +386,42 @@ public class ClientRepository : IClientRepository
         this.context.Entry(client).State = EntityState.Detached;
     }
 
-    public async Task<IReadOnlyList<ClientNameParts>> GetNonCustomerClientNamesAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ClientNameParts>> GetHeadcountClientNamesAsync(CancellationToken cancellationToken = default)
     {
-        var rows = await NonCustomerClients()
+        var rows = await HeadcountClients()
             .Select(c => new { c.Id, c.FirstName, c.Name })
             .ToListAsync(cancellationToken);
 
         return rows.Select(c => new ClientNameParts(c.Id, c.FirstName, c.Name)).ToList();
     }
 
-    public async Task<IReadOnlyList<Guid>> GetNonCustomerClientIdsAsync(CancellationToken cancellationToken = default) =>
-        await NonCustomerClients()
+    public async Task<IReadOnlyList<Guid>> GetHeadcountClientIdsAsync(CancellationToken cancellationToken = default) =>
+        await HeadcountClients()
             .Select(c => c.Id)
             .ToListAsync(cancellationToken);
 
-    private IQueryable<Client> NonCustomerClients() =>
-        context.Client
+    public async Task<HashSet<Guid>> GetStandInIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        if (ids.Count == 0)
+        {
+            return [];
+        }
+
+        var standInTypes = ClientTypeRules.StandInTypes.ToList();
+        return await context.Client
             .AsNoTracking()
-            .Where(c => !c.IsDeleted && c.Type != EntityTypeEnum.Customer);
+            .Where(c => ids.Contains(c.Id) && standInTypes.Contains(c.Type))
+            .Select(c => c.Id)
+            .ToHashSetAsync(cancellationToken);
+    }
+
+    private IQueryable<Client> HeadcountClients()
+    {
+        var headcountTypes = ClientTypeRules.HeadcountTypes.ToList();
+        return context.Client
+            .AsNoTracking()
+            .Where(c => !c.IsDeleted && headcountTypes.Contains(c.Type));
+    }
 
     public async Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default)
     {

@@ -23,6 +23,12 @@ public interface IResourceMonitorReadRepository
         IReadOnlyCollection<Guid>? clientIds,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// The ids of the clients that count as a head (ClientTypeRules.HeadcountTypes: employees and external employees, no
+    /// customer, no stand-in), among the given ids or among all clients when no ids are given.
+    /// </summary>
+    /// <param name="clientIds">Clients to classify, or null for all clients</param>
+    /// <param name="cancellationToken">Cancels the query</param>
     Task<HashSet<Guid>> GetEmployeeClientIds(IReadOnlyCollection<Guid>? clientIds, CancellationToken cancellationToken);
 
     Task<HashSet<Guid>> GetContainedShiftIds(CancellationToken cancellationToken);

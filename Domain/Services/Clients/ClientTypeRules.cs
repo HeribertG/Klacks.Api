@@ -3,8 +3,9 @@
 /// <summary>
 /// What a client may take part in, decided by its type in one place. A stand-in is a placeholder for a person who is
 /// not in the system yet: it can be planned like an employee, but it never takes over a replacement, it has no
-/// target hours, the client import does not create it, it carries a display name only (no first name, gender, address,
-/// communication or contract) and no client changes its type to or from a stand-in in place.
+/// target hours, it is no head (HeadcountTypes) and receives no message, the client import does not create it, it carries
+/// a display name only (no first name, gender, address, communication or contract) and no client changes its type to or
+/// from a stand-in in place.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -43,6 +44,19 @@ public static class ClientTypeRules
         EntityTypeEnum.StandIn,
     ];
 
+    public static readonly IReadOnlyList<EntityTypeEnum> HeadcountTypes =
+    [
+        EntityTypeEnum.Employee,
+        EntityTypeEnum.ExternEmp,
+    ];
+
+    public static readonly IReadOnlyList<EntityTypeEnum> MessageableTypes =
+    [
+        EntityTypeEnum.Employee,
+        EntityTypeEnum.ExternEmp,
+        EntityTypeEnum.Customer,
+    ];
+
     public static readonly IReadOnlyList<EntityTypeEnum> MasterDataTypes =
     [
         EntityTypeEnum.Employee,
@@ -57,6 +71,10 @@ public static class ClientTypeRules
     /// <summary>True when a client of this type can take over a replacement.</summary>
     /// <param name="type">Type of the client</param>
     public static bool IsReplacementCandidate(EntityTypeEnum type) => ReplacementCandidateTypes.Contains(type);
+
+    /// <summary>True when a client of this type can receive a message or a broadcast.</summary>
+    /// <param name="type">Type of the client</param>
+    public static bool IsMessageable(EntityTypeEnum type) => MessageableTypes.Contains(type);
 
     /// <summary>True when the client import may create a client of this type.</summary>
     /// <param name="type">Type of the client</param>

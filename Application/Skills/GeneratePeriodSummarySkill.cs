@@ -4,13 +4,15 @@
 /// Generates a textual period summary (employee count, total target hours, computed hours
 /// and drift) for a given group + period. Klacksy uses this for chat answers like
 /// "give me the May summary for Bern" or before triggering email_schedule_to_client.
-/// A group outside the caller's group scope is answered exactly like a missing one.
+/// A group outside the caller's group scope is answered exactly like a missing one. Stand-ins are planned in the group
+/// but are no employees, so they are left out of the employee count and list.
 /// </summary>
 /// <param name="groupId">Required. UUID of the group / location.</param>
 /// <param name="fromDate">Required. ISO date yyyy-MM-dd (period start).</param>
 /// <param name="untilDate">Required. ISO date yyyy-MM-dd (period end, inclusive).</param>
 /// <param name="planningAgentRepository">Resolves the employees planned in the group for the period</param>
 /// <param name="groupRepository">Loads the requested group for the scope check</param>
+/// <param name="clientRepository">Tells which of the planned clients are stand-ins</param>
 /// <param name="groupScopeGuard">Resolves the executing user's group scope</param>
 
 using System.Globalization;
@@ -29,15 +31,18 @@ public class GeneratePeriodSummarySkill : BaseSkillImplementation
     private readonly IGroupPlanningAgentRepository _planningAgentRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
+    private readonly IClientRepository _clientRepository;
 
     public GeneratePeriodSummarySkill(
         IGroupPlanningAgentRepository planningAgentRepository,
         IGroupRepository groupRepository,
-        IGroupScopeGuard groupScopeGuard)
+        IGroupScopeGuard groupScopeGuard,
+        IClientRepository clientRepository)
     {
         _planningAgentRepository = planningAgentRepository;
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
+        _clientRepository = clientRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -72,7 +77,9 @@ public class GeneratePeriodSummarySkill : BaseSkillImplementation
             }
         }
 
-        var employeeIds = await _planningAgentRepository.GetAgentIdsAsync(groupId, fromDate, untilDate, cancellationToken);
+        var agentIds = await _planningAgentRepository.GetAgentIdsAsync(groupId, fromDate, untilDate, cancellationToken);
+        var standInIds = await _clientRepository.GetStandInIdsAsync(agentIds, cancellationToken);
+        var employeeIds = agentIds.Where(id => !standInIds.Contains(id)).ToList();
 
         var summary = new
         {

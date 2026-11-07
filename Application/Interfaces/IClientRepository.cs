@@ -14,17 +14,25 @@ public interface IClientRepository : IBaseRepository<Client>
     Task<LastChangeMetaData> LastChangeMetaData();
 
     /// <summary>
-    /// Id, first name and name of every client that is neither deleted nor a customer (employees and external
-    /// employees), untracked and in no particular order.
+    /// Id, first name and name of every client that is not deleted and counts as a head (ClientTypeRules.HeadcountTypes:
+    /// employees and external employees, no customer, no stand-in), untracked and in no particular order.
     /// </summary>
     /// <param name="cancellationToken">Cancels the query</param>
-    Task<IReadOnlyList<ClientNameParts>> GetNonCustomerClientNamesAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ClientNameParts>> GetHeadcountClientNamesAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Ids of the same clients as GetNonCustomerClientNamesAsync, in no particular order.
+    /// Ids of the same clients as GetHeadcountClientNamesAsync, in no particular order.
     /// </summary>
     /// <param name="cancellationToken">Cancels the query</param>
-    Task<IReadOnlyList<Guid>> GetNonCustomerClientIdsAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Guid>> GetHeadcountClientIdsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The ids among the given ones that belong to a stand-in that is not deleted (ClientTypeRules.StandInTypes), with
+    /// one query.
+    /// </summary>
+    /// <param name="ids">Client ids to classify</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<HashSet<Guid>> GetStandInIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default);
 
     Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default);
     Task<List<Client>> GetByTypeWithAddressesAndGroupItemsAsync(EntityTypeEnum type, CancellationToken cancellationToken = default);

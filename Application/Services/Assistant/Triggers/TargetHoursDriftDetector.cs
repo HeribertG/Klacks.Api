@@ -5,14 +5,15 @@
 /// guaranteed hours by more than DriftThresholdHours. Emits ONE aggregated TargetHoursDriftTriggerEvent
 /// listing every affected client, never one event per client; severity is set from the largest absolute
 /// drift in the event record itself.
-/// Uses IClientRepository.GetNonCustomerClientNamesAsync to enumerate the workforce and
+/// Uses IClientRepository.GetHeadcountClientNamesAsync to enumerate the workforce and
 /// IWorkRepository.GetPeriodHoursForClients for the bulk hours read. Customers are excluded: a customer is never
 /// scheduled and ClientBaseQueryService keeps them out of the schedule entirely, so a drift message about one leads to
-/// a page that cannot show them. Unlike its sibling detectors this one carries no cap - the roster it scans is the
-/// entire active, non-customer client base, so GetActiveFingerprintsAsync reads the same roster
-/// (GetNonCustomerClientIdsAsync, only the client id) and repeats the threshold check instead of lifting a cap.
+/// a page that cannot show them. Stand-ins are excluded too: a stand-in has no target hours, so it has no drift. Unlike
+/// its sibling detectors this one carries no cap - the roster it scans is every active employee and external employee,
+/// so GetActiveFingerprintsAsync reads the same roster (GetHeadcountClientIdsAsync, only the client id) and repeats the
+/// threshold check instead of lifting a cap.
 /// </summary>
-/// <param name="clientRepository">Roster of the clients that are neither deleted nor customers.</param>
+/// <param name="clientRepository">Roster of the active employees and external employees.</param>
 /// <param name="workRepository">Bulk period-hours read with GuaranteedHours per client.</param>
 /// <param name="activityProbe">Answers whether the scanned period was ever planned at all.</param>
 /// <param name="logger">Structured log per tick.</param>
@@ -62,7 +63,7 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
             return Array.Empty<IAgentTriggerEvent>();
         }
 
-        var clients = await _clientRepository.GetNonCustomerClientNamesAsync(cancellationToken);
+        var clients = await _clientRepository.GetHeadcountClientNamesAsync(cancellationToken);
         if (clients.Count == 0)
         {
             return Array.Empty<IAgentTriggerEvent>();
@@ -102,7 +103,7 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
             return new HashSet<string>(StringComparer.Ordinal);
         }
 
-        var clientIds = (await _clientRepository.GetNonCustomerClientIdsAsync(cancellationToken)).ToList();
+        var clientIds = (await _clientRepository.GetHeadcountClientIdsAsync(cancellationToken)).ToList();
         if (clientIds.Count == 0)
         {
             return new HashSet<string>(StringComparer.Ordinal);

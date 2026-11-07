@@ -8,6 +8,7 @@ using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -78,8 +79,9 @@ public class ResourceMonitorReadRepository : IResourceMonitorReadRepository
 
     public async Task<HashSet<Guid>> GetEmployeeClientIds(IReadOnlyCollection<Guid>? clientIds, CancellationToken cancellationToken)
     {
+        var headcountTypes = ClientTypeRules.HeadcountTypes.ToList();
         var query = _context.Client
-            .Where(c => c.Type != EntityTypeEnum.Customer);
+            .Where(c => headcountTypes.Contains(c.Type));
 
         if (clientIds != null)
         {
