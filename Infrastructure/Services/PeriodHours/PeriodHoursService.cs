@@ -158,10 +158,42 @@ public class PeriodHoursService : IPeriodHoursService
     }
 
     /// <summary>
+    /// Stages the removal of the clients' cached rows that overlap the pay period with other boundaries (rows left behind
+    /// by an earlier, differently cut window). Rows of other, non-overlapping pay periods stay. Saved by the caller.
+    /// </summary>
+    /// <param name="clientIds">The clients whose rows of this pay period are about to be written</param>
+    /// <param name="startDate">First day of the real pay period</param>
+    /// <param name="endDate">Last day of the real pay period</param>
+    /// <param name="analyseToken">Scenario token of the rows, null for the real plan</param>
+    private async Task StageMiscutRowRemovalAsync(
+        IReadOnlyCollection<Guid> clientIds,
+        DateOnly startDate,
+        DateOnly endDate,
+        Guid? analyseToken)
+    {
+        var miscutRows = await _context.ClientPeriodHours
+            .Where(p => clientIds.Contains(p.ClientId)
+                && p.AnalyseToken == analyseToken
+                && p.StartDate <= endDate
+                && p.EndDate >= startDate
+                && (p.StartDate != startDate || p.EndDate != endDate))
+            .ToListAsync();
+
+        if (miscutRows.Count > 0)
+        {
+            _context.ClientPeriodHours.RemoveRange(miscutRows);
+        }
+    }
+
+    /// <summary>
     /// Upserts the cached row of exactly this pay period and removes only the client's rows that overlap it with other
     /// boundaries (left behind by an earlier, differently cut period). Rows of other, non-overlapping pay periods stay,
     /// because the payroll export reads closed periods only from this cache.
     /// </summary>
+    /// <param name="clientId">The client whose row is written</param>
+    /// <param name="startDate">First day of the real pay period</param>
+    /// <param name="endDate">Last day of the real pay period</param>
+    /// <param name="analyseToken">Scenario token of the row, null for the real plan</param>
     /// <param name="calculated">The freshly calculated hours and surcharges of the period</param>
     private async Task StoreCalculatedPeriodHoursAsync(
         Guid clientId,
@@ -170,18 +202,7 @@ public class PeriodHoursService : IPeriodHoursService
         Guid? analyseToken,
         PeriodHoursResource calculated)
     {
-        var overlappingMiscutEntries = await _context.ClientPeriodHours
-            .Where(p => p.ClientId == clientId
-                && p.AnalyseToken == analyseToken
-                && p.StartDate <= endDate
-                && p.EndDate >= startDate
-                && (p.StartDate != startDate || p.EndDate != endDate))
-            .ToListAsync();
-
-        if (overlappingMiscutEntries.Count > 0)
-        {
-            _context.ClientPeriodHours.RemoveRange(overlappingMiscutEntries);
-        }
+        await StageMiscutRowRemovalAsync([clientId], startDate, endDate, analyseToken);
 
         var existing = await _context.ClientPeriodHours
             .FirstOrDefaultAsync(p =>
@@ -246,6 +267,8 @@ public class PeriodHoursService : IPeriodHoursService
             startDate,
             endDate,
             analyseToken);
+
+        await StageMiscutRowRemovalAsync(clientIds, startDate, endDate, analyseToken);
 
         var existingEntries = await _context.ClientPeriodHours
             .Where(p => clientIds.Contains(p.ClientId)
@@ -472,6 +495,37 @@ public class PeriodHoursService : IPeriodHoursService
     {
         var paymentInterval = await GetGlobalPaymentIntervalAsync();
         return await CalculatePeriodBoundariesAsync(date, paymentInterval);
+    }
+
+    public async Task<IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)>> GetPeriodsInRangeAsync(
+        DateOnly fromDate,
+        DateOnly untilDate)
+    {
+        var periods = new List<(DateOnly StartDate, DateOnly EndDate)>();
+        if (fromDate > untilDate)
+        {
+            return periods;
+        }
+
+        var paymentInterval = await GetGlobalPaymentIntervalAsync();
+        var cursor = fromDate;
+        while (true)
+        {
+            var period = await CalculatePeriodBoundariesAsync(cursor, paymentInterval);
+            if (period.EndDate < cursor)
+            {
+                throw new InvalidOperationException(
+                    $"The pay period {period.StartDate}..{period.EndDate} resolved for {cursor} ends before that day.");
+            }
+
+            periods.Add(period);
+            if (period.EndDate >= untilDate)
+            {
+                return periods;
+            }
+
+            cursor = period.EndDate.AddDays(1);
+        }
     }
 
     public async Task<(DateOnly StartDate, DateOnly EndDate)> GetPeriodBoundariesForContractAsync(

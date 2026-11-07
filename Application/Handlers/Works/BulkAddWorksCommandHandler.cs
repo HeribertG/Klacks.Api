@@ -9,7 +9,8 @@
 /// their parent's cell and are not checked on their own. If any Work is on a shift outside the caller's group visibility,
 /// the whole request is refused exactly like a request with a shift that does not exist (one query for all shifts), and so
 /// is a request with a Work on a shift of another world (IWorkWriteGuard). Every Bulk caller passes through here: the
-/// skills place_work and assign_container_week, propose_plan and the wizard and harmonizer apply paths.
+/// skills place_work and assign_container_week, propose_plan and the wizard and harmonizer apply paths. The period hours
+/// are stored and pushed once per affected client and real pay period, never over a range merged across periods.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client of the request</param>
 /// <param name="planningPeriodGuard">Refuses a Work whose employee is not plannable on its day (membership or group period), and any Work for a missing client or a customer</param>
@@ -104,10 +105,9 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 var bulkToken = works.Select(w => w.AnalyseToken).Distinct().Count() == 1 ? works[0].AnalyseToken : null;
 
                 var periodBoundariesByDate = await ResolvePeriodBoundariesByDateAsync(works);
-                var clientPeriods = MergeClientPeriods(works, periodBoundariesByDate);
 
-                var rangeStart = clientPeriods.Values.Min(p => p.Start);
-                var rangeEnd = clientPeriods.Values.Max(p => p.End);
+                var rangeStart = periodBoundariesByDate.Values.Min(p => p.Start);
+                var rangeEnd = periodBoundariesByDate.Values.Max(p => p.End);
 
                 await _completionService.SaveBulkAndTrackRangeAsync(affected, rangeStart, rangeEnd, bulkToken);
 
@@ -119,11 +119,9 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
                 var connectionId = _notificationFacade.GetConnectionId();
 
-                var affectedClients = works.Select(w => w.ClientId).Distinct().ToList();
-
                 await _notificationFacade.NotifyWorksBulkCreatedAsync(works, connectionId, periodBoundariesByDate);
 
-                await RecalculatePeriodHoursAsync(works, affectedClients, clientPeriods, connectionId, response);
+                await RecalculatePeriodHoursAsync(works, periodBoundariesByDate, connectionId, response);
 
                 await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, bulkToken, cancellationToken);
             }
@@ -240,61 +238,61 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     }
 
     /// <summary>
-    /// Per client, the union range from the earliest period start to the latest period end over all its new Works.
-    /// </summary>
-    private static Dictionary<Guid, (DateOnly Start, DateOnly End)> MergeClientPeriods(
-        List<Work> works,
-        Dictionary<DateOnly, (DateOnly Start, DateOnly End)> periodBoundariesByDate)
-    {
-        var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
-        foreach (var work in works)
-        {
-            var (start, end) = periodBoundariesByDate[work.CurrentDate];
-            if (!clientPeriods.TryGetValue(work.ClientId, out var existing))
-            {
-                clientPeriods[work.ClientId] = (start, end);
-            }
-            else
-            {
-                clientPeriods[work.ClientId] = (
-                    start < existing.Start ? start : existing.Start,
-                    end > existing.End ? end : existing.End);
-            }
-        }
-
-        return clientPeriods;
-    }
-
-    /// <summary>
-    /// Recalculates and broadcasts the period hours of every affected client over its merged range and puts them into
-    /// the response; a client's scenario token is passed only when all its new Works share it.
+    /// Recalculates, stores and broadcasts the period hours once per affected client and real pay period of its new Works,
+    /// because the cached row is keyed by its pay period and the payroll export reads it. The response carries per client
+    /// the hours of one pay period, the one holding most of its new Works (the earliest on a tie): the Ui writes them into
+    /// the hours of its visible period. A client's scenario token is passed only when all its new Works share it.
     /// </summary>
     private async Task RecalculatePeriodHoursAsync(
         List<Work> works,
-        List<Guid> affectedClients,
-        Dictionary<Guid, (DateOnly Start, DateOnly End)> clientPeriods,
+        Dictionary<DateOnly, (DateOnly Start, DateOnly End)> periodBoundariesByDate,
         string connectionId,
         BulkWorksResponse response)
     {
-        if (affectedClients.Count > 0)
+        response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
+
+        foreach (var clientWorks in works.GroupBy(w => w.ClientId))
         {
-            response.PeriodHours = new Dictionary<Guid, PeriodHoursResource>();
+            var clientTokens = clientWorks.Select(w => w.AnalyseToken).Distinct().ToList();
+            var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
 
-            foreach (var clientId in affectedClients)
+            foreach (var (periodStart, periodEnd) in OrderWithResponsePeriodLast(clientWorks, periodBoundariesByDate))
             {
-                var clientTokens = works.Where(w => w.ClientId == clientId).Select(w => w.AnalyseToken).Distinct().ToList();
-                var clientToken = clientTokens.Count == 1 ? clientTokens[0] : null;
-                var (clientStart, clientEnd) = clientPeriods[clientId];
-
-                var periodHours = await _periodHoursService.RecalculateAndNotifyAsync(
-                    clientId,
-                    clientStart,
-                    clientEnd,
+                response.PeriodHours[clientWorks.Key] = await _periodHoursService.RecalculateAndNotifyAsync(
+                    clientWorks.Key,
+                    periodStart,
+                    periodEnd,
                     clientToken,
                     connectionId);
-                response.PeriodHours[clientId] = periodHours;
             }
         }
+    }
+
+    /// <summary>
+    /// The client's distinct pay periods in date order, except that the period holding most of its new Works (the earliest
+    /// on a tie) comes last, so its hours are the ones left in the response and pushed last to other open schedules.
+    /// </summary>
+    private static List<(DateOnly Start, DateOnly End)> OrderWithResponsePeriodLast(
+        IEnumerable<Work> clientWorks,
+        Dictionary<DateOnly, (DateOnly Start, DateOnly End)> periodBoundariesByDate)
+    {
+        var worksPerPeriod = clientWorks
+            .GroupBy(w => periodBoundariesByDate[w.CurrentDate])
+            .Select(g => (Period: g.Key, WorkCount: g.Count()))
+            .OrderBy(p => p.Period.Start)
+            .ToList();
+
+        var responsePeriod = worksPerPeriod
+            .OrderByDescending(p => p.WorkCount)
+            .ThenBy(p => p.Period.Start)
+            .First()
+            .Period;
+
+        return worksPerPeriod
+            .Select(p => p.Period)
+            .Where(period => period != responsePeriod)
+            .Append(responsePeriod)
+            .ToList();
     }
 
     /// <summary>

@@ -2,7 +2,9 @@
 
 /// <summary>
 /// Background service that performs a thorough recalculation of schedule entries in a date range.
-/// Reprocesses Work, WorkChange and Break macros, then recalculates all client period hours.
+/// Reprocesses Work, WorkChange and Break macros inside the request window, then recalculates the client period hours
+/// once per real pay period the window touches (IPeriodHoursService.GetPeriodsInRangeAsync), because a cached period-hours
+/// row is keyed by its pay period and the payroll export reads it; an event window is never stored as a row of its own.
 /// Sealed entries (LockLevel != None) are never overwritten and are reported via warning log.
 /// A request may carry an optional client scope (null/empty = all clients); scoped requests
 /// reprocess only the works, work changes and breaks of those clients and pull the period hours
@@ -321,26 +323,7 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
         await breakMacroService.ReprocessAllBreaksAsync(request.StartDate, request.EndDate, clientIdFilter);
         var breakCount = await CountBreaksAsync(context, request, clientIdFilter, cancellationToken);
 
-        if (request.ClientIds.Count > 0 && clientIdFilter is not null)
-        {
-            foreach (var clientId in clientIdFilter)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                await periodHoursService.RecalculatePeriodHoursAsync(
-                    clientId,
-                    request.StartDate,
-                    request.EndDate,
-                    request.AnalyseToken);
-            }
-        }
-        else
-        {
-            await periodHoursService.RecalculateAllClientsAsync(
-                request.StartDate,
-                request.EndDate,
-                request.SelectedGroup,
-                request.AnalyseToken);
-        }
+        await RecalculatePeriodHoursPerPayPeriodAsync(periodHoursService, request, clientIdFilter, cancellationToken);
 
         _logger.LogInformation(
             "Completed thorough recalculation for {Start} - {End} (works={Works}, workChanges={WorkChanges}, breaks={Breaks})",
@@ -356,6 +339,45 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
         }
 
         return new RecalculationCounts(works.Count, workChanges.Count, breakCount);
+    }
+
+    /// <summary>
+    /// Persists the period hours once per real pay period the request window touches (the cached row is keyed by its pay
+    /// period and the payroll export reads it), for the scoped clients one by one or, without explicit client ids, for all
+    /// clients of the selected group.
+    /// </summary>
+    private static async Task RecalculatePeriodHoursPerPayPeriodAsync(
+        IPeriodHoursService periodHoursService,
+        ThoroughRecalculationRequest request,
+        List<Guid>? clientIdFilter,
+        CancellationToken cancellationToken)
+    {
+        var payPeriods = await periodHoursService.GetPeriodsInRangeAsync(request.StartDate, request.EndDate);
+
+        foreach (var (periodStart, periodEnd) in payPeriods)
+        {
+            if (request.ClientIds.Count > 0 && clientIdFilter is not null)
+            {
+                foreach (var clientId in clientIdFilter)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await periodHoursService.RecalculatePeriodHoursAsync(
+                        clientId,
+                        periodStart,
+                        periodEnd,
+                        request.AnalyseToken);
+                }
+            }
+            else
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await periodHoursService.RecalculateAllClientsAsync(
+                    periodStart,
+                    periodEnd,
+                    request.SelectedGroup,
+                    request.AnalyseToken);
+            }
+        }
     }
 
     private static Task<List<Domain.Models.Schedules.Work>> LoadWorksAsync(
