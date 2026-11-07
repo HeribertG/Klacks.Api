@@ -35,15 +35,23 @@ Automatic planning is not one step but three; by default none of them needs a la
 **Stage one — filling.** Builds the initial plan and decides who works which shift. It runs a
 **genetic algorithm**: thousands of plan variants are generated, scored and recombined until a
 balanced one stands. Hard rules always win — working-time law, rest periods, qualifications and
-availability are not negotiable — and only then does coverage count. For qualifications the hard part
-is a missing mandatory qualification and a level below the minimum where that level is binding; a
-level below a non-binding minimum is allowed but penalised by the size of the gap, so people at the
-required level are preferred (see `explain_qualifications`). That penalty exists **only in this
-stage**: stages two and three respect the same hard qualification rules, but they do not weigh a gap
-below a non-binding minimum, so a swap there can put a less qualified person on a duty. An assignment
-that already exists is not blocked afterwards because a level was later made binding; it counts as a
-gap below a non-binding minimum. **No language model is
-involved**, so this stage costs nothing beyond computing time.
+availability are not negotiable — and only then does coverage count.
+
+Duties that already exist in the planned range, unlocked ones included, count as working days for the
+limit on days in a row (de: "Max. aufeinanderfolgende Arbeitstage", en: "Max. Consecutive Work Days",
+fr: "Max. jours de travail consécutifs", it: "Max. giorni lavorativi consecutivi"), just as they count
+for overlaps, the hours off between two working days and the weekly rest days. A second run over a
+range that is already partly filled therefore plans more cautiously: it may leave a slot open rather
+than push somebody past that limit.
+
+For qualifications the hard part is a missing mandatory qualification and a level below the minimum
+where that level is binding; a level below a non-binding minimum is allowed but penalised by the size of
+the gap, so people at the required level are preferred (see `explain_qualifications`). That penalty
+exists **only in this stage**: stages two and three respect the same hard qualification rules, but they
+do not weigh a gap below a non-binding minimum, so a swap there can put a less qualified person on a
+duty. An assignment that already exists is not blocked afterwards because a level was later made
+binding; it counts as a gap below a non-binding minimum. **No language model is involved**, so this
+stage costs nothing beyond computing time.
 
 **Stage two — smoothing.** Takes an existing plan and evens it out: fairer distribution, fewer
 awkward sequences. It deliberately **does not touch coverage decisions** — who works at all was
