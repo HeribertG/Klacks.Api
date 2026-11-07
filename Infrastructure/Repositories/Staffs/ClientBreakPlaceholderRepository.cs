@@ -46,6 +46,7 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
             SelectedGroup = filter.SelectedGroup,
             ShowEmployees = filter.ShowEmployees,
             ShowExtern = filter.ShowExtern,
+            ShowStandIns = false,
             OrderBy = filter.OrderBy,
             SortOrder = filter.SortOrder,
             IndividualSort = filter.IndividualSort,

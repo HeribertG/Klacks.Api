@@ -41,6 +41,7 @@ public class ListClientsQueryHandler : BaseHandler, IRequestHandler<ListClientAv
                 SelectedGroup = request.Filter.SelectedGroup,
                 ShowEmployees = request.Filter.ShowEmployees,
                 ShowExtern = request.Filter.ShowExtern,
+                ShowStandIns = false,
                 OrderBy = request.Filter.OrderBy,
                 SortOrder = request.Filter.SortOrder,
                 IndividualSort = request.Filter.IndividualSort,

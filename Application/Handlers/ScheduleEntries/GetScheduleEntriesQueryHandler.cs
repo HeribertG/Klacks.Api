@@ -158,6 +158,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             SortOrder = filter.SortOrder,
             ShowEmployees = filter.ShowEmployees,
             ShowExtern = filter.ShowExtern,
+            ShowStandIns = filter.ShowStandIns,
             IndividualSort = filter.IndividualSort,
             StartRow = filter.StartRow,
             RowCount = filter.RowCount,

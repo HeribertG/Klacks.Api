@@ -23,6 +23,8 @@ public class ClientBaseFilter
 
     public bool ShowExtern { get; set; } = true;
 
+    public bool ShowStandIns { get; set; } = true;
+
     public string OrderBy { get; set; } = "name";
 
     public string SortOrder { get; set; } = "asc";

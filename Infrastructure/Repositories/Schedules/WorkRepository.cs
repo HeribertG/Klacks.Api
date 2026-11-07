@@ -148,6 +148,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             SelectedGroup = filter.SelectedGroup,
             ShowEmployees = filter.ShowEmployees,
             ShowExtern = filter.ShowExtern,
+            ShowStandIns = filter.ShowStandIns,
             OrderBy = filter.OrderBy,
             SortOrder = filter.SortOrder,
             IndividualSort = filter.IndividualSort,

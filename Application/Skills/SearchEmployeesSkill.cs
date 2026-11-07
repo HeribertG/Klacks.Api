@@ -17,7 +17,7 @@
 /// <param name="searchTerm">Optional name, company or client number</param>
 /// <param name="canton">Optional state of any of the person's addresses - canton, Bundesland, département, ... - as
 /// code or as name in any installed language; resolved to the stored code (IAddressLocationResolver)</param>
-/// <param name="entityType">Optional Employee, ExternEmp or Customer</param>
+/// <param name="entityType">Optional Employee, ExternEmp or Customer; any other value is refused, none searches every type</param>
 /// <param name="limit">Optional maximum number of rows (default 10)</param>
 
 using Klacks.Api.Application.Interfaces;
@@ -27,6 +27,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
@@ -58,13 +59,17 @@ public class SearchEmployeesSkill : BaseSkillImplementation
         var entityTypeValue = GetParameter<string>(parameters, "entityType");
         var limit = GetParameter<int?>(parameters, "limit") ?? DefaultLimit;
 
-        EntityTypeEnum? entityType = entityTypeValue switch
+        EntityTypeEnum? entityType = null;
+        if (!string.IsNullOrWhiteSpace(entityTypeValue))
         {
-            "Employee" => EntityTypeEnum.Employee,
-            "ExternEmp" => EntityTypeEnum.ExternEmp,
-            "Customer" => EntityTypeEnum.Customer,
-            _ => null
-        };
+            if (!ClientTypeRules.TryParseMasterDataType(entityTypeValue, out var parsedType))
+            {
+                return SkillResult.Error(
+                    $"'{entityTypeValue}' is not a valid entityType. Valid values: {string.Join(", ", ClientTypeRules.MasterDataTypes)}.");
+            }
+
+            entityType = parsedType;
+        }
 
         var result = await _searchRepository.SearchAsync(
             searchTerm,

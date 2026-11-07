@@ -34,6 +34,8 @@ public class ClientFilter
 
     public bool Customer { get; set; } = true;
 
+    public bool StandIn { get; set; } = true;
+
     public bool ShowDeleteEntries { get; set; }
 
     public Guid? SelectedGroup { get; set; }

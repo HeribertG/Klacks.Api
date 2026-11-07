@@ -149,7 +149,7 @@ public class ClientFilterService : IClientFilterService
         return tmp.ToArray();
     }
 
-    public int[] CreateClientTypeList(bool? employee, bool? customer, bool? externEmp)
+    public int[] CreateClientTypeList(bool? employee, bool? customer, bool? externEmp, bool? standIn)
     {
         var tmp = new List<int>();
 
@@ -168,17 +168,17 @@ public class ClientFilterService : IClientFilterService
             tmp.Add((int)EntityTypeEnum.ExternEmp);
         }
 
+        if (standIn != null && standIn.Value)
+        {
+            tmp.Add((int)EntityTypeEnum.StandIn);
+        }
+
         return tmp.ToArray();
     }
 
-    public IQueryable<Client> ApplyEntityTypeFilter(IQueryable<Client> query, bool employee, bool externEmp, bool customer)
+    public IQueryable<Client> ApplyEntityTypeFilter(IQueryable<Client> query, bool employee, bool externEmp, bool customer, bool standIn)
     {
-        if (employee && externEmp && customer)
-        {
-            return query;
-        }
-
-        if (!employee && !externEmp && !customer)
+        if (!employee && !externEmp && !customer && !standIn)
         {
             return query.Where(x => false);
         }
@@ -198,6 +198,11 @@ public class ClientFilterService : IClientFilterService
         if (customer)
         {
             selectedTypes.Add((int)EntityTypeEnum.Customer);
+        }
+
+        if (standIn)
+        {
+            selectedTypes.Add((int)EntityTypeEnum.StandIn);
         }
 
         return query.Where(x => selectedTypes.Contains((int)x.Type));

@@ -21,7 +21,7 @@ public interface IClientFilterService
 
     int[] CreateGenderList(bool? male, bool? female, bool? legalEntity, bool? intersexuality);
 
-    int[] CreateClientTypeList(bool? employee, bool? customer, bool? externEmp);
+    int[] CreateClientTypeList(bool? employee, bool? customer, bool? externEmp, bool? standIn);
 
-    IQueryable<Client> ApplyEntityTypeFilter(IQueryable<Client> query, bool employee, bool externEmp, bool customer);
+    IQueryable<Client> ApplyEntityTypeFilter(IQueryable<Client> query, bool employee, bool externEmp, bool customer, bool standIn);
 }

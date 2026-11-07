@@ -62,7 +62,7 @@ public class ClientBaseQueryService : IClientBaseQueryService
 
         query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
         query = await ApplySearchWithFuzzyFallback(query, filter.SearchString);
-        query = ApplyTypeFilter(query, filter.ShowEmployees, filter.ShowExtern);
+        query = ApplyTypeFilter(query, filter.ShowEmployees, filter.ShowExtern, filter.ShowStandIns);
         query = ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.IndividualSort, filter.StartDate);
 
         return query;
@@ -109,18 +109,19 @@ public class ClientBaseQueryService : IClientBaseQueryService
                && !_searchService.IsMultipleNumericSearch(searchString);
     }
 
-    private static IQueryable<Client> ApplyTypeFilter(IQueryable<Client> query, bool showEmployees, bool showExtern)
+    private static IQueryable<Client> ApplyTypeFilter(IQueryable<Client> query, bool showEmployees, bool showExtern, bool showStandIns)
     {
-        if (showEmployees && showExtern)
-            return query;
+        var shownTypes = new List<EntityTypeEnum>();
+        if (showEmployees)
+            shownTypes.Add(EntityTypeEnum.Employee);
 
-        if (!showEmployees && !showExtern)
-            return query.Where(c => false);
+        if (showExtern)
+            shownTypes.Add(EntityTypeEnum.ExternEmp);
 
-        if (!showEmployees)
-            return query.Where(c => c.Type == EntityTypeEnum.ExternEmp);
+        if (showStandIns)
+            shownTypes.Add(EntityTypeEnum.StandIn);
 
-        return query.Where(c => c.Type == EntityTypeEnum.Employee);
+        return query.Where(c => shownTypes.Contains(c.Type));
     }
 
     private static IQueryable<Client> ApplySorting(

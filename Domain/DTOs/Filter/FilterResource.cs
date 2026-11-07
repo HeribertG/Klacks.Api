@@ -65,6 +65,8 @@ public class FilterResource : BaseFilter
     public bool ExternEmp { get; set; } = true;
     
     public bool Customer { get; set; } = true;
+
+    public bool StandIn { get; set; } = true;
     
     public bool Intersexuality { get; set; } = true;
 }

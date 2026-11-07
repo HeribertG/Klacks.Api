@@ -68,6 +68,7 @@ public partial class FilterMapper
             Employee = filter.Employee,
             ExternEmp = filter.ExternEmp,
             Customer = filter.Customer,
+            StandIn = filter.StandIn,
             ShowDeleteEntries = filter.ShowDeleteEntries,
             SelectedGroup = filter.SelectedGroup,
             WithoutGroup = filter.WithoutGroup,

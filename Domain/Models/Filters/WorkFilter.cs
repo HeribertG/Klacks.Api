@@ -24,6 +24,8 @@ public class WorkFilter
 
     public bool ShowExtern { get; set; } = true;
 
+    public bool ShowStandIns { get; set; } = true;
+
     public bool IndividualSort { get; set; }
 
     public int StartRow { get; set; } = 0;
