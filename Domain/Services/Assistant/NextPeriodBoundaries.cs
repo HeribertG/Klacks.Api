@@ -3,22 +3,24 @@
 /// <summary>
 /// Boundaries of a group's NEXT pay-period, derived from its PaymentInterval. Shared by the next-period
 /// detector and the planning-deadline skill so both always talk about the same period. Individual has no
-/// derivable cycle and is rejected: callers filter it with HasDerivableCycle first.
+/// derivable cycle and is rejected: callers filter it with HasDerivableCycle first. Biweekly periods are the
+/// installation-wide pay periods of BiweeklyPayPeriod (fixed anchor, configured week start), the same ones
+/// PeriodHoursService uses; until 2026-11 they were anchored on group.ValidFrom, the group's validity date.
 /// </summary>
-/// <param name="group">Supplies the PaymentInterval and, for biweekly cycles, the ValidFrom anchor</param>
+/// <param name="group">Supplies the PaymentInterval</param>
 /// <param name="today">The company's own local day</param>
 /// <param name="nextWeekStart">First day of the week after the current one, per the configured week start</param>
 /// <param name="periodStart">Start of the period whose end is wanted</param>
 
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class NextPeriodBoundaries
 {
     public const int WeeklyPeriodDays = 7;
-    public const int BiweeklyCycleDays = 14;
 
     public static bool HasDerivableCycle(PaymentInterval interval)
     {
@@ -30,7 +32,7 @@ public static class NextPeriodBoundaries
         return group.PaymentInterval switch
         {
             PaymentInterval.Weekly => nextWeekStart,
-            PaymentInterval.Biweekly => EndOfBiweekly(today, group.ValidFrom).AddDays(1),
+            PaymentInterval.Biweekly => BiweeklyPayPeriod.Containing(today, nextWeekStart.DayOfWeek).End.AddDays(1),
             PaymentInterval.Monthly => FirstOfNextMonth(today),
             PaymentInterval.MonthlyTargetHours => FirstOfNextMonth(today),
             _ => throw new ArgumentOutOfRangeException(nameof(group),
@@ -43,7 +45,7 @@ public static class NextPeriodBoundaries
         return group.PaymentInterval switch
         {
             PaymentInterval.Weekly => periodStart.AddDays(WeeklyPeriodDays - 1),
-            PaymentInterval.Biweekly => periodStart.AddDays(BiweeklyCycleDays - 1),
+            PaymentInterval.Biweekly => periodStart.AddDays(BiweeklyPayPeriod.CycleDays - 1),
             PaymentInterval.Monthly => EndOfMonth(periodStart),
             PaymentInterval.MonthlyTargetHours => EndOfMonth(periodStart),
             _ => throw new ArgumentOutOfRangeException(nameof(group),
@@ -60,13 +62,5 @@ public static class NextPeriodBoundaries
     {
         var daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);
         return new DateOnly(date.Year, date.Month, daysInMonth);
-    }
-
-    private static DateOnly EndOfBiweekly(DateOnly today, DateTime groupAnchor)
-    {
-        var anchor = DateOnly.FromDateTime(groupAnchor);
-        var daysSinceAnchor = today.DayNumber - anchor.DayNumber;
-        var positionInCycle = ((daysSinceAnchor % BiweeklyCycleDays) + BiweeklyCycleDays) % BiweeklyCycleDays;
-        return today.AddDays(BiweeklyCycleDays - 1 - positionInCycle);
     }
 }

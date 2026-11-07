@@ -594,11 +594,8 @@ public class PeriodHoursService : IPeriodHoursService
                 return (weekStart, weekStart.AddDays(6));
 
             case PaymentInterval.Biweekly:
-                var biweekStart = await _weekConfiguration.GetWeekStartAsync(date);
-                var weekNumber = System.Globalization.ISOWeek.GetWeekOfYear(date.ToDateTime(TimeOnly.MinValue));
-                if (weekNumber % 2 == 0)
-                    biweekStart = biweekStart.AddDays(-7);
-                return (biweekStart, biweekStart.AddDays(13));
+                var biweeklyWeekStart = await _weekConfiguration.GetWeekStartAsync(date);
+                return BiweeklyPayPeriod.Containing(date, biweeklyWeekStart.DayOfWeek);
 
             case PaymentInterval.Individual:
                 // The global setting cannot name an IndividualPeriod, so no custom boundaries exist

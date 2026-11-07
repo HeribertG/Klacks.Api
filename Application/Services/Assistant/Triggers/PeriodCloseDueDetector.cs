@@ -6,7 +6,8 @@
 /// PERIOD_CLOSE_LAG_DAYS setting (0 when unset, in which case it IS the period end and the behaviour is
 /// exactly the one from before the setting existed); with a lag the relevant period may already have ended.
 /// Period end is computed from the group's PaymentInterval:
-/// Weekly = end of the configured business week, Biweekly = end of 14-day window, Monthly and
+/// Weekly = end of the configured business week, Biweekly = end of the BiweeklyPayPeriod that contains the reference
+/// day (fixed anchor, configured week start; until 2026-11 a 14-day window anchored on group.ValidFrom), Monthly and
 /// MonthlyTargetHours = end of calendar month. Individual is skipped (custom, no fixed cycle), as are groups without any
 /// clients or shifts in themselves or in a descendant group. Emits one PeriodCloseDueTriggerEvent per match.
 ///
@@ -37,7 +38,7 @@
 /// </summary>
 /// <param name="groupRepository">Lists all groups (filters out deleted via query filter).</param>
 /// <param name="sealedDayRepository">Used to check whether the end date is already sealed.</param>
-/// <param name="weekConfiguration">Resolves the configured week start for weekly period ends.</param>
+/// <param name="weekConfiguration">Resolves the configured week start for weekly and biweekly period ends.</param>
 /// <param name="activityProbe">Answers whether the period holds any real work assignment at all.</param>
 /// <param name="logger">Structured log per tick.</param>
 /// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
@@ -53,6 +54,7 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Assistant;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
@@ -213,7 +215,6 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
         var lagDays = storedLagDays ?? 0;
         var referenceDay = today.AddDays(-lagDays);
         var weekStart = await _weekConfiguration.GetWeekStartAsync(referenceDay, cancellationToken);
-        var endOfConfiguredWeek = weekStart.AddDays(CalendarConstants.DaysPerWeek - 1);
         var staffing = GroupStaffingLookup.Build(
             groups,
             await _groupRepository.GetGroupIdsWithMembersAsync(cancellationToken));
@@ -224,7 +225,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
             if (group.PaymentInterval == PaymentInterval.Individual) continue;
             if (!staffing.IsStaffed(group.Id)) continue;
 
-            var periodEnd = ComputePeriodEnd(group, referenceDay, endOfConfiguredWeek);
+            var periodEnd = ComputePeriodEnd(group, referenceDay, weekStart);
             var daysUntil = periodEnd.DayNumber - referenceDay.DayNumber;
             if (daysUntil < 0 || daysUntil > WarnWithinDays) continue;
 
@@ -245,12 +246,12 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
     private sealed record GroupPeriodEndMatch(
         Group Group, DateOnly PeriodEnd, int DaysUntilDue, int LagDays, int? StoredLagDays);
 
-    private static DateOnly ComputePeriodEnd(Group group, DateOnly today, DateOnly endOfConfiguredWeek)
+    private static DateOnly ComputePeriodEnd(Group group, DateOnly today, DateOnly weekStart)
     {
         return group.PaymentInterval switch
         {
-            PaymentInterval.Weekly => endOfConfiguredWeek,
-            PaymentInterval.Biweekly => EndOfBiweekly(today, group.ValidFrom),
+            PaymentInterval.Weekly => weekStart.AddDays(CalendarConstants.DaysPerWeek - 1),
+            PaymentInterval.Biweekly => BiweeklyPayPeriod.Containing(today, weekStart.DayOfWeek).End,
             PaymentInterval.Monthly => EndOfMonth(today),
             PaymentInterval.MonthlyTargetHours => EndOfMonth(today),
             _ => throw new ArgumentOutOfRangeException(nameof(group),
@@ -262,13 +263,5 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
     {
         var daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
         return new DateOnly(today.Year, today.Month, daysInMonth);
-    }
-
-    private static DateOnly EndOfBiweekly(DateOnly today, DateTime groupAnchor)
-    {
-        var anchor = DateOnly.FromDateTime(groupAnchor);
-        var daysSinceAnchor = today.DayNumber - anchor.DayNumber;
-        var positionInCycle = ((daysSinceAnchor % CalendarConstants.DaysPerFortnight) + CalendarConstants.DaysPerFortnight) % CalendarConstants.DaysPerFortnight;
-        return today.AddDays(CalendarConstants.DaysPerFortnight - 1 - positionInCycle);
     }
 }
