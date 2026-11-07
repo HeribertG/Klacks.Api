@@ -154,7 +154,7 @@ verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder ni
   ore") oder **Stunden berechnen und zusammenzählen** (de: "Stunden berechnen und
   zusammenzählen", en: "Calculate and sum hours", fr: "Calculer et totaliser les heures",
   it: "Calcola e somma ore") — die gründliche Variante fragt vor dem Start per
-  Bestätigungs-Dialog nach.
+  Bestätigungs-Dialog nach. Nur für Administratoren sichtbar.
 - **Szenario-Auswahl** (`scenario-selector-btn`, Tooltip de: "Szenario auswählen", en:
   "Select scenario"): Button zeigt **Original** (de/en/fr: "Original", it: "Originale")
   oder den Namen des aktiven Szenarios. Menü im Szenario-Modus: **Zum Original** (de: "Zum
@@ -489,6 +489,24 @@ sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planba
   nötig, nachdem ein Makro oder seine Zuweisung geändert wurde — dafür gibt es keinen automatischen
   Anstoss. Änderungen an Verträgen, Planungsregeln oder Zuschlags-Einstellungen stossen die gründliche
   Neuberechnung selbst an. Das Soll wird beim Anzeigen immer frisch aus dem Vertrag gelesen.
+- **Nur Administratoren rechnen von Hand nach.** Beide Varianten sind nur für Administratoren sichtbar
+  und erlaubt (Owner-Entscheid 2026-11-07); die automatische Nachführung nach einer Änderung läuft für
+  alle Schreibenden weiter.
+- **Neu gerechnet wird nur im offenen Fenster.** Jede Neuberechnung, von Hand oder automatisch, schreibt
+  die gespeicherten Periodenstunden nur für offene Perioden und für die Perioden der letzten zwei
+  Lohnexporte der Person (Nachträge zum selben Zeitraum zählen einmal). Eine ältere Periode, die
+  versiegelt und exportiert ist, ist eingefroren: ihre Stunden bleiben so, wie sie exportiert wurden.
+  Wird eine Periode nach dem Export wieder geöffnet, ist sie nicht mehr eingefroren. Szenarien frieren
+  nie ein. Die gründliche Variante verarbeitet offene Einträge einer eingefrorenen Periode zwar mit den
+  Makros neu, ihre Periodensumme bleibt aber eingefroren.
+- **Eingefrorene Perioden trotzdem neu berechnen.** Nach einer Neuberechnung meldet Klacks, wie viele
+  Personen-Perioden eingefroren übersprungen wurden (de: "Exportierte Perioden", en: "Exported
+  periods", fr: "Périodes exportées", it: "Periodi esportati"), und bietet (de: "Trotzdem neu
+  berechnen", en: "Recalculate anyway", fr: "Recalculer quand même", it: "Ricalcola comunque") an. Das
+  verlangt eine Begründung und wird im Periodenprotokoll als (de: "Exportierte Periode neu berechnet",
+  en: "Exported period recalculated") mit Begründung, Zeitraum, Gruppe, Anzahl Personen und Person des
+  Administrators vermerkt. Der Lohnexport liest abgeschlossene Perioden aus diesen gespeicherten
+  Stunden; nach einem solchen Nachrechnen gehören die geänderten Personen in den nächsten Export.
 - **Blau ist kein Fehler der Farbeinstellung:** Ein blau abgedunkelter Tag heisst, dass die Gruppenmitgliedschaft der
   Person an diesem Tag noch nicht oder nicht mehr gilt. Gesperrt ist er trotzdem — auch dann, wenn die Person schon
   lange angestellt ist. Wer die Ursache rät (Rasterfarben, Wochenende, Periodenabschluss), liegt oft falsch: erst die

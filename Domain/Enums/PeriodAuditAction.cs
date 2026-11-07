@@ -8,5 +8,6 @@ public enum PeriodAuditAction
     Unseal = 1,
     ApproveDay = 2,
     ConfirmWork = 3,
-    ConfirmBreak = 4
+    ConfirmBreak = 4,
+    RecalculateExportedPeriod = 5
 }

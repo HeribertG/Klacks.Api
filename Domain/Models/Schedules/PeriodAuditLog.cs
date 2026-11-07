@@ -2,6 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Schedules;
@@ -26,7 +27,7 @@ public class PeriodAuditLog : BaseEntity
 
     public Guid? GroupId { get; set; }
 
-    [MaxLength(2000)]
+    [MaxLength(PeriodAuditLimits.ReasonMaxLength)]
     public string? Reason { get; set; }
 
     public int AffectedCount { get; set; }

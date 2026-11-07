@@ -30,6 +30,7 @@ public class PeriodHoursService : IPeriodHoursService
     private readonly IClientGroupFilterService _clientGroupFilterService;
     private readonly IClientContractDataProvider _contractDataProvider;
     private readonly IWeekConfiguration _weekConfiguration;
+    private readonly IFrozenPeriodPolicy _frozenPeriodPolicy;
 
     public PeriodHoursService(
         DataBaseContext context,
@@ -37,7 +38,8 @@ public class PeriodHoursService : IPeriodHoursService
         IWorkNotificationService notificationService,
         IClientGroupFilterService clientGroupFilterService,
         IClientContractDataProvider contractDataProvider,
-        IWeekConfiguration weekConfiguration)
+        IWeekConfiguration weekConfiguration,
+        IFrozenPeriodPolicy frozenPeriodPolicy)
     {
         _context = context;
         _logger = logger;
@@ -45,6 +47,7 @@ public class PeriodHoursService : IPeriodHoursService
         _clientGroupFilterService = clientGroupFilterService;
         _contractDataProvider = contractDataProvider;
         _weekConfiguration = weekConfiguration;
+        _frozenPeriodPolicy = frozenPeriodPolicy;
     }
 
     public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursAsync(
@@ -147,7 +150,8 @@ public class PeriodHoursService : IPeriodHoursService
         Guid clientId,
         DateOnly startDate,
         DateOnly endDate,
-        Guid? analyseToken = null)
+        Guid? analyseToken = null,
+        bool includeFrozen = false)
     {
         _logger.LogDebug(
             "Recalculating period hours for client {ClientId} from {StartDate} to {EndDate} (scenario={Token})",
@@ -156,24 +160,48 @@ public class PeriodHoursService : IPeriodHoursService
             endDate,
             analyseToken);
 
+        if (!includeFrozen && await IsFrozenAsync(clientId, startDate, endDate, analyseToken))
+        {
+            return;
+        }
+
         var calculated = await CalculatePeriodHoursAsync(clientId, startDate, endDate, analyseToken);
 
-        await StoreCalculatedPeriodHoursAsync(clientId, startDate, endDate, analyseToken, calculated);
+        await StoreCalculatedPeriodHoursAsync(clientId, startDate, endDate, analyseToken, calculated, includeFrozen);
+    }
+
+    private async Task<bool> IsFrozenAsync(Guid clientId, DateOnly startDate, DateOnly endDate, Guid? analyseToken)
+    {
+        var frozen = await _frozenPeriodPolicy.GetFrozenClientIdsAsync([clientId], startDate, endDate, analyseToken);
+        if (frozen.Contains(clientId))
+        {
+            _logger.LogDebug(
+                "Period {StartDate} to {EndDate} of client {ClientId} is frozen (sealed and exported); cache left unchanged",
+                startDate,
+                endDate,
+                clientId);
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
     /// Stages the removal of the clients' cached rows that overlap the pay period with other boundaries (rows left behind
-    /// by an earlier, differently cut window). Rows of other, non-overlapping pay periods stay. Saved by the caller.
+    /// by an earlier, differently cut window). Rows of other, non-overlapping pay periods stay, and so do frozen rows
+    /// unless <paramref name="includeFrozen"/> is set. Saved by the caller.
     /// </summary>
     /// <param name="clientIds">The clients whose rows of this pay period are about to be written</param>
     /// <param name="startDate">First day of the real pay period</param>
     /// <param name="endDate">Last day of the real pay period</param>
     /// <param name="analyseToken">Scenario token of the rows, null for the real plan</param>
+    /// <param name="includeFrozen">Admin override: frozen rows are removed as well</param>
     private async Task StageMiscutRowRemovalAsync(
         IReadOnlyCollection<Guid> clientIds,
         DateOnly startDate,
         DateOnly endDate,
-        Guid? analyseToken)
+        Guid? analyseToken,
+        bool includeFrozen)
     {
         var miscutRows = await _context.ClientPeriodHours
             .Where(p => clientIds.Contains(p.ClientId)
@@ -183,30 +211,34 @@ public class PeriodHoursService : IPeriodHoursService
                 && (p.StartDate != startDate || p.EndDate != endDate))
             .ToListAsync();
 
-        if (miscutRows.Count > 0)
+        IReadOnlyList<ClientPeriodHours> removable = includeFrozen ? miscutRows : await _frozenPeriodPolicy.ExcludeFrozenRowsAsync(miscutRows);
+        if (removable.Count > 0)
         {
-            _context.ClientPeriodHours.RemoveRange(miscutRows);
+            _context.ClientPeriodHours.RemoveRange(removable);
         }
     }
 
     /// <summary>
     /// Upserts the cached row of exactly this pay period and removes only the client's rows that overlap it with other
     /// boundaries (left behind by an earlier, differently cut period). Rows of other, non-overlapping pay periods stay,
-    /// because the payroll export reads closed periods only from this cache.
+    /// because the payroll export reads closed periods only from this cache. The callers check before that this period
+    /// itself is not frozen (or the admin override is set).
     /// </summary>
     /// <param name="clientId">The client whose row is written</param>
     /// <param name="startDate">First day of the real pay period</param>
     /// <param name="endDate">Last day of the real pay period</param>
     /// <param name="analyseToken">Scenario token of the row, null for the real plan</param>
     /// <param name="calculated">The freshly calculated hours and surcharges of the period</param>
+    /// <param name="includeFrozen">Admin override: overlapping frozen rows are removed as well</param>
     private async Task StoreCalculatedPeriodHoursAsync(
         Guid clientId,
         DateOnly startDate,
         DateOnly endDate,
         Guid? analyseToken,
-        PeriodHoursResource calculated)
+        PeriodHoursResource calculated,
+        bool includeFrozen)
     {
-        await StageMiscutRowRemovalAsync([clientId], startDate, endDate, analyseToken);
+        await StageMiscutRowRemovalAsync([clientId], startDate, endDate, analyseToken, includeFrozen);
         var paymentInterval = await GetGlobalPaymentIntervalAsync();
 
         var existing = await _context.ClientPeriodHours
@@ -242,11 +274,12 @@ public class PeriodHoursService : IPeriodHoursService
         await _context.SaveChangesAsync();
     }
 
-    public async Task RecalculateAllClientsAsync(
+    public async Task<IReadOnlySet<Guid>> RecalculateAllClientsAsync(
         DateOnly startDate,
         DateOnly endDate,
         Guid? groupId = null,
-        Guid? analyseToken = null)
+        Guid? analyseToken = null,
+        bool includeFrozen = false)
     {
         _logger.LogInformation(
             "Recalculating period hours for {Scope} from {StartDate} to {EndDate}",
@@ -254,20 +287,15 @@ public class PeriodHoursService : IPeriodHoursService
             startDate,
             endDate);
 
-        var query = _context.Client
-            .Include(c => c.GroupItems)
-            .Where(c => c.Type != EntityTypeEnum.Customer)
-            .Where(c => c.Membership != null
-                && c.Membership.ValidFrom <= endDate.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc)
-                && (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)));
+        var memberIds = await LoadMemberIdsAsync(startDate, endDate, groupId);
+        var frozenIds = await _frozenPeriodPolicy.GetFrozenClientIdsAsync(memberIds, startDate, endDate, analyseToken);
+        var clientIds = includeFrozen ? memberIds : memberIds.Where(id => !frozenIds.Contains(id)).ToList();
 
-        query = await _clientGroupFilterService.FilterClientsByGroupId(groupId, query);
-
-        var clientIds = await query
-            .Select(c => c.Id)
-            .ToListAsync();
-
-        _logger.LogInformation("Found {ClientCount} clients to recalculate", clientIds.Count);
+        _logger.LogInformation(
+            "Found {ClientCount} clients to recalculate ({FrozenCount} with a frozen period, included={IncludeFrozen})",
+            clientIds.Count,
+            frozenIds.Count,
+            includeFrozen);
 
         var calculatedHours = await CalculatePeriodHoursForClientsAsync(
             clientIds,
@@ -276,7 +304,7 @@ public class PeriodHoursService : IPeriodHoursService
             analyseToken,
             await LoadOnCallAbsenceIdsAsync());
 
-        await StageMiscutRowRemovalAsync(clientIds, startDate, endDate, analyseToken);
+        await StageMiscutRowRemovalAsync(clientIds, startDate, endDate, analyseToken, includeFrozen);
         var paymentInterval = await GetGlobalPaymentIntervalAsync();
 
         var existingEntries = await _context.ClientPeriodHours
@@ -318,6 +346,38 @@ public class PeriodHoursService : IPeriodHoursService
         _logger.LogInformation(
             "Completed recalculation for {ClientCount} clients",
             calculatedHours.Count);
+
+        return frozenIds;
+    }
+
+    public async Task<IReadOnlySet<Guid>> GetFrozenClientIdsAsync(
+        DateOnly startDate,
+        DateOnly endDate,
+        Guid? groupId = null,
+        Guid? analyseToken = null)
+    {
+        var memberIds = await LoadMemberIdsAsync(startDate, endDate, groupId);
+        return await _frozenPeriodPolicy.GetFrozenClientIdsAsync(memberIds, startDate, endDate, analyseToken);
+    }
+
+    /// <summary>
+    /// The non-customer clients (of the group and its subgroups) whose membership overlaps the pay period: the population
+    /// of RecalculateAllClientsAsync and GetFrozenClientIdsAsync.
+    /// </summary>
+    private async Task<List<Guid>> LoadMemberIdsAsync(DateOnly startDate, DateOnly endDate, Guid? groupId)
+    {
+        var query = _context.Client
+            .Include(c => c.GroupItems)
+            .Where(c => c.Type != EntityTypeEnum.Customer)
+            .Where(c => c.Membership != null
+                && c.Membership.ValidFrom <= endDate.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc)
+                && (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)));
+
+        query = await _clientGroupFilterService.FilterClientsByGroupId(groupId, query);
+
+        return await query
+            .Select(c => c.Id)
+            .ToListAsync();
     }
 
     public async Task RefreshCachedPeriodHoursAsync(
@@ -325,11 +385,12 @@ public class PeriodHoursService : IPeriodHoursService
         DateOnly untilDate,
         Guid? analyseToken = null)
     {
-        var cachedRows = await _context.ClientPeriodHours
+        var overlappingRows = await _context.ClientPeriodHours
             .Where(p => p.AnalyseToken == analyseToken
                 && p.StartDate <= untilDate
                 && p.EndDate >= fromDate)
             .ToListAsync();
+        var cachedRows = await _frozenPeriodPolicy.ExcludeFrozenRowsAsync(overlappingRows);
 
         if (cachedRows.Count == 0)
         {
@@ -375,12 +436,13 @@ public class PeriodHoursService : IPeriodHoursService
         DateOnly date,
         Guid? analyseToken = null)
     {
-        var affectedEntries = await _context.ClientPeriodHours
+        var overlappingEntries = await _context.ClientPeriodHours
             .Where(p => p.ClientId == clientId
                 && p.AnalyseToken == analyseToken
                 && p.StartDate <= date
                 && p.EndDate >= date)
             .ToListAsync();
+        var affectedEntries = await _frozenPeriodPolicy.ExcludeFrozenRowsAsync(overlappingEntries);
 
         if (affectedEntries.Count > 0)
         {
@@ -661,9 +723,15 @@ public class PeriodHoursService : IPeriodHoursService
             endDate,
             analyseToken);
 
+        if (await IsFrozenAsync(clientId, startDate, endDate, analyseToken))
+        {
+            var cached = await GetPeriodHoursAsync([clientId], startDate, endDate, analyseToken);
+            return cached[clientId];
+        }
+
         var calculated = await CalculatePeriodHoursAsync(clientId, startDate, endDate, analyseToken);
 
-        await StoreCalculatedPeriodHoursAsync(clientId, startDate, endDate, analyseToken, calculated);
+        await StoreCalculatedPeriodHoursAsync(clientId, startDate, endDate, analyseToken, calculated, includeFrozen: false);
 
         var notification = new PeriodHoursNotificationDto
         {

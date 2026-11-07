@@ -189,17 +189,19 @@ public class WorksController : BaseController
     }
 
     [HttpPost("RecalculatePeriodHours")]
-    public async Task<ActionResult<bool>> RecalculatePeriodHours([FromBody] RecalculatePeriodHoursCommand command)
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<PeriodHoursRecalculationResult>> RecalculatePeriodHours([FromBody] RecalculatePeriodHoursCommand command)
     {
         var result = await _mediator.Send(command);
         return Ok(result);
     }
 
     [HttpPost("RecalculatePeriodHoursThorough")]
-    public async Task<ActionResult<bool>> RecalculatePeriodHoursThorough([FromBody] RecalculatePeriodHoursThoroughCommand command)
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<PeriodHoursRecalculationResult>> RecalculatePeriodHoursThorough([FromBody] RecalculatePeriodHoursThoroughCommand command)
     {
-        var queued = await _mediator.Send(command);
-        return Accepted(new { queued });
+        var result = await _mediator.Send(command);
+        return Accepted(result);
     }
 
     [HttpPost("RecalculateAllUnsealed")]

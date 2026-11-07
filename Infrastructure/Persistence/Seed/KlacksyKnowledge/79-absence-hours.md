@@ -114,5 +114,5 @@ An extended absence entered as a duration carries its hours directly (equal star
 - **A scheduling rule silently overrides the contract.** If the rule sets full time or daily hours, those win; its guaranteed hours win on a contract with fixed hours (an inheriting contract keeps the company value). The contract page shows the rule under (de: "Planungsregeln", en: "Scheduling Rules").
 - **0 guaranteed hours means 0 absence hours by design.** This is the on-call case, not an error.
 - **The payment interval of the view decides whether the contract is seen.** Monthly and monthly-target-hours contracts are both seen by a monthly view; a weekly, two-weekly or individual contract is ignored by it at booking time.
-- **Old entries do not follow new master data by themselves.** Recalculate the period, and reopen sealed days first.
+- **Old entries do not follow new master data by themselves.** Recalculate the period, and reopen sealed days first. The manual recalculation is for administrators; a closed period exported before the person's last two exports is frozen and needs the administrator's confirmation with a reason.
 - **Surcharges and absence hours are time, never money.** Klacks plans time; payroll is somewhere else.

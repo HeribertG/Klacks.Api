@@ -19,13 +19,35 @@ public interface IPeriodHoursService
         DateOnly endDate,
         Guid? analyseToken = null);
 
+    /// <summary>
+    /// Recalculates and stores the client's row of this pay period. A frozen period (IFrozenPeriodPolicy) is left
+    /// unchanged unless <paramref name="includeFrozen"/> is set (admin override, which also lifts the guard for the
+    /// removal of overlapping rows with other boundaries).
+    /// </summary>
     Task RecalculatePeriodHoursAsync(
         Guid clientId,
         DateOnly startDate,
         DateOnly endDate,
-        Guid? analyseToken = null);
+        Guid? analyseToken = null,
+        bool includeFrozen = false);
 
-    Task RecalculateAllClientsAsync(
+    /// <summary>
+    /// Recalculates and stores the rows of this pay period for every member (of the group) whose membership overlaps it.
+    /// Clients whose period is frozen are skipped unless <paramref name="includeFrozen"/> is set (admin override, which
+    /// lifts the guard for the whole call). Returns the frozen clients of the period, skipped or included.
+    /// </summary>
+    Task<IReadOnlySet<Guid>> RecalculateAllClientsAsync(
+        DateOnly startDate,
+        DateOnly endDate,
+        Guid? groupId = null,
+        Guid? analyseToken = null,
+        bool includeFrozen = false);
+
+    /// <summary>
+    /// The clients RecalculateAllClientsAsync would consider for this pay period (same population) whose period is frozen,
+    /// without writing anything.
+    /// </summary>
+    Task<IReadOnlySet<Guid>> GetFrozenClientIdsAsync(
         DateOnly startDate,
         DateOnly endDate,
         Guid? groupId = null,
@@ -34,18 +56,27 @@ public interface IPeriodHoursService
     /// <summary>
     /// Recomputes, in place, every cached period-hours row of the given plan (real plan when
     /// <paramref name="analyseToken"/> is null) whose pay period overlaps <paramref name="fromDate"/>..<paramref name="untilDate"/>,
-    /// and commits. For bulk writers that bypass the per-work recalculation hooks, e.g. accepting a scenario.
+    /// and commits. Frozen rows stay unchanged. For bulk writers that bypass the per-work recalculation hooks, e.g.
+    /// accepting a scenario.
     /// </summary>
     Task RefreshCachedPeriodHoursAsync(
         DateOnly fromDate,
         DateOnly untilDate,
         Guid? analyseToken = null);
 
+    /// <summary>
+    /// Removes the client's cached rows whose period contains <paramref name="date"/>, except frozen rows: the payroll
+    /// export reads closed periods only from this cache.
+    /// </summary>
     Task InvalidateCacheAsync(
         Guid clientId,
         DateOnly date,
         Guid? analyseToken = null);
 
+    /// <summary>
+    /// Recalculates, stores and pushes the client's period hours. For a frozen period nothing is written or pushed and
+    /// the cached value is returned (GetPeriodHoursAsync, which calculates without storing when no row exists).
+    /// </summary>
     Task<PeriodHoursResource> RecalculateAndNotifyAsync(
         Guid clientId,
         DateOnly startDate,

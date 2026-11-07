@@ -250,7 +250,9 @@ Anker der Unter-Tabs (`...-tab-single`, `...-tab-employee`, `...-tab-range`) sin
   **DATUM | AKTION | BENUTZER | BETROFFENE EINTRÄGE** (en: DATE | ACTION | USER | AFFECTED
   ENTRIES); die Aktion ist ein Badge: **Versiegelt** (en: "Sealed"), **Wieder geöffnet** (en:
   "Reopened"), **Tag genehmigt** (en: "Day approved"), **Arbeitszeit bestätigt** (en: "Work
-  confirmed"), **Pause bestätigt** (en: "Break confirmed"); eine nicht zuordenbare Aktion heisst
+  confirmed"), **Pause bestätigt** (en: "Break confirmed"), **Exportierte Periode neu berechnet** (en:
+  "Exported period recalculated"; ein Administrator hat eingefrorene, schon exportierte Perioden mit
+  Begründung nachgerechnet, die Zahl zählt die betroffenen Personen); eine nicht zuordenbare Aktion heisst
   **Unbekannte Aktion**. Klick (oder Enter) auf eine Zeile öffnet das Modal **Protokoll-Eintrag** (de:
   "Protokoll-Eintrag", en: "Audit Entry") mit Aktion, Ausgeführt am/von, Zeitraum, Gruppe
   (oder **Alle Gruppen**, en: "All groups"), Betroffene Einträge und Begründung.

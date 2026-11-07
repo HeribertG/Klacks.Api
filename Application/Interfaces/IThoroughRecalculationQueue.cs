@@ -15,12 +15,15 @@ public interface IThoroughRecalculationQueue
     /// <param name="selectedGroup">Optional group whose clients (including subgroups) limit the recalculation</param>
     /// <param name="analyseToken">Scenario token; null recalculates real-mode entries</param>
     /// <param name="clientIds">Optional client scope; null or empty recalculates all clients in the window</param>
+    /// <param name="includeFrozen">Admin override: the cached period hours of frozen periods are recalculated too;
+    /// without it they stay unchanged</param>
     bool QueueRecalculation(
         DateOnly startDate,
         DateOnly endDate,
         Guid? selectedGroup,
         Guid? analyseToken,
-        IReadOnlyCollection<Guid>? clientIds = null);
+        IReadOnlyCollection<Guid>? clientIds = null,
+        bool includeFrozen = false);
 
     /// <summary>
     /// Enqueues a thorough recalculation of every unsealed real-mode work and every unsealed break, whatever its date.

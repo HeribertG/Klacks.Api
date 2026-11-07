@@ -6,6 +6,9 @@
 /// once per real pay period the window touches (IPeriodHoursService.GetPeriodsInRangeAsync), because a cached period-hours
 /// row is keyed by its pay period and the payroll export reads it; an event window is never stored as a row of its own.
 /// Sealed entries (LockLevel != None) are never overwritten and are reported via warning log.
+/// The cached period hours of frozen periods (IFrozenPeriodPolicy) stay unchanged unless the request carries the admin
+/// override (IncludeFrozen), which is part of the request identity, so an override request never coalesces into a
+/// waiting request without it.
 /// A request may carry an optional client scope (null/empty = all clients); scoped requests
 /// reprocess only the works, work changes and breaks of those clients and pull the period hours
 /// of exactly those clients afterwards. The scoped period-hours path calls
@@ -77,9 +80,13 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
         DateOnly endDate,
         Guid? selectedGroup,
         Guid? analyseToken,
-        IReadOnlyCollection<Guid>? clientIds = null)
+        IReadOnlyCollection<Guid>? clientIds = null,
+        bool includeFrozen = false)
     {
-        return Enqueue(new ThoroughRecalculationRequest(startDate, endDate, selectedGroup, analyseToken, clientIds));
+        return Enqueue(new ThoroughRecalculationRequest(startDate, endDate, selectedGroup, analyseToken, clientIds)
+        {
+            IncludeFrozen = includeFrozen
+        });
     }
 
     public bool QueueRecalculationOfAllUnsealed()
@@ -376,7 +383,8 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
                         clientId,
                         periodStart,
                         periodEnd,
-                        request.AnalyseToken);
+                        request.AnalyseToken,
+                        request.IncludeFrozen);
                 }
             }
             else
@@ -386,7 +394,8 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
                     periodStart,
                     periodEnd,
                     request.SelectedGroup,
-                    request.AnalyseToken);
+                    request.AnalyseToken,
+                    request.IncludeFrozen);
             }
         }
     }
@@ -531,6 +540,7 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
             new(DateOnly.MinValue, DateOnly.MaxValue, null, null, null) { AllUnsealed = true };
 
         public bool AllUnsealed { get; private init; }
+        public bool IncludeFrozen { get; init; }
         public DateOnly StartDate { get; }
         public DateOnly EndDate { get; }
         public Guid? SelectedGroup { get; }
@@ -541,6 +551,7 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
         {
             return other is not null
                 && AllUnsealed == other.AllUnsealed
+                && IncludeFrozen == other.IncludeFrozen
                 && StartDate == other.StartDate
                 && EndDate == other.EndDate
                 && SelectedGroup == other.SelectedGroup
@@ -552,6 +563,7 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
         {
             var hash = default(HashCode);
             hash.Add(AllUnsealed);
+            hash.Add(IncludeFrozen);
             hash.Add(StartDate);
             hash.Add(EndDate);
             hash.Add(SelectedGroup);

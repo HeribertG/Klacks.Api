@@ -72,7 +72,9 @@ nur über einen Admin. Sag mir, was du ändern willst, dann finden wir den Grund
 - **Die Gruppeneinschränkung gilt nur bei gewählter Gruppe.** Welcher Gruppe eine Buchung gehört, bestimmt die
   Gruppe ihres Dienstes, nicht die der Person; Dienste ganz ohne Gruppe werden so nie gesperrt.
 - **Sperren und Neuberechnung**: Bestätigte, freigegebene und geschlossene Einträge verändert keine der beiden
-  Stunden-Neuberechnungen.
+  Stunden-Neuberechnungen. Die gespeicherten Periodenstunden einer eingefrorenen Periode (abgeschlossen und vor den
+  letzten zwei Lohnexporten der Person exportiert) bleiben ebenfalls, ausser ein Administrator bestätigt mit
+  Begründung (`explain_period_closing_model`).
 - **Auch Admins bearbeiten gesperrte Einträge nicht direkt.** Im Schichtplan und über Klacksy ist jeder Eintrag mit
   Sperrstufe für alle schreibgeschützt; erst die Sperre aufheben, dann ändern. Geschlossene Einträge und gesperrte
   Tage lehnt das System für jeden ab, auch für Admins.

@@ -207,6 +207,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IWorkLockLevelService, WorkLockLevelService>();
         services.AddScoped<IDayLockService, DayLockService>();
         services.AddScoped<IParentWorkLockGuard, ParentWorkLockGuard>();
+        services.AddScoped<IFrozenPeriodPolicy, FrozenPeriodPolicy>();
         services.AddScoped<IPeriodHoursService, PeriodHoursService>();
         services.AddScoped<IScheduleChangeTracker, ScheduleChangeTracker>();
         services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();
@@ -226,6 +227,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IWorkHandOverService, Application.Services.Schedules.WorkHandOverService>();
         services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
         services.AddScoped<IScheduleCompletionService, ScheduleCompletionService>();
+        services.AddScoped<IFrozenPeriodOverrideAudit, FrozenPeriodOverrideAudit>();
         services.AddScoped<IOvertimeCascadeService, OvertimeCascadeService>();
         services.AddScoped<ContainerTemplateService>();
         services.AddScoped<IWorkChangeResultService, WorkChangeResultService>();

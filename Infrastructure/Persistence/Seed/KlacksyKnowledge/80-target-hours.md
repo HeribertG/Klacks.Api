@@ -90,7 +90,7 @@ Weg 1 and Weg 2 give the same result in months with a row; they differ in months
 - **A month value far from workdays × daily hours** means a full month of vacation does not reach the target of that month.
 - **Changing a contract template changes every employee assigned to it**; for one person, assign a different contract.
 - **An on-call absence fulfils no target.** On its own (not inside a container service), neither its hours nor its surcharges count toward the period hours; only the call-out, entered as its own shift, does. An on-call absence means on-call duty outside the company; on-call duty inside the company is planned as a normal shift, because in Switzerland all of that time is working time (ArGV 1 Art. 15). Hospitals and clinics owe a 10 percent time credit for response times under 30 minutes (ArGV 2 Art. 8a), recorded as its own entry. Other countries may have different rules; `explain_absence_type_flags` has the details.
-- **Changes queue a recalculation of open entries**: contract, assignment, scheduling-rule and monthly-table changes, and changes of the company guaranteed hours, full time or daily hours (within the span of unlocked work entries). Sealed days are never touched.
+- **Changes queue a recalculation of open entries**: contract, assignment, scheduling-rule and monthly-table changes, and changes of the company guaranteed hours, full time or daily hours (within the span of unlocked work entries). Sealed days are never touched, and the stored period hours of a frozen period (closed and exported before the person's last two exports) stay as exported.
 
 ### Trigger phrases
 
