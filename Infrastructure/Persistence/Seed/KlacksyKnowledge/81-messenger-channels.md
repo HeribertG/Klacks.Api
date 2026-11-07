@@ -78,6 +78,8 @@ Reading and sending themselves are done with `read_messages` and `send_message`;
 - **A phone number is accepted as recipient only on WhatsApp, Signal and SMS.** On every other channel the person needs a stored messenger identity first.
 - **Deleting by count means an unread answer can vanish.** On a busy channel an answer nobody opened can be pushed out by newer messages.
 - **A sender unknown today stays invisible.** Messages dropped earlier are not recovered when the sender is linked later.
+- **On the public demo (Playground) plugin settings are read-only.** Messaging providers cannot be set up or changed and
+  no message can be sent there; reading still works. On an installation of your own this limit does not exist.
 
 ### Trigger phrases
 

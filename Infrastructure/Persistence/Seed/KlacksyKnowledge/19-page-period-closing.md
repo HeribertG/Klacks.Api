@@ -308,6 +308,9 @@ Anker der Unter-Tabs (`...-tab-single`, `...-tab-employee`, `...-tab-range`) sin
   Zwischenstufen (Bestätigt/Freigegeben) werden nicht hier, sondern im Schichtplan bzw. über
   die Skills `approve_day`/`revoke_day_approval` verwaltet — Freigeben braucht das
   "berechtigt"-Recht oder Admin.
+- **Sealed order list (Admin only)**: the list of sealed orders behind the order search and the "Orders in Range"
+  tab can be loaded by administrators only. Through Klacksy, a user who is not an administrator gets only the sealed
+  orders of the groups they may see, plus orders that belong to no group.
 - **Problemliste**: aggregiert manuelle Planungs-Notizen aus dem Schichtplan (max. 500) plus
   die Live-Befunde des Schedule-Validators (Kollisionen, Ruhezeiten, Überstunden,
   Konsekutivtage) über den Zeitraum; gelöschte Mitarbeitende und gelöschte Notizen sind

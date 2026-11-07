@@ -66,6 +66,15 @@ exist. The group selection at the top of the application works inside the scope,
 
 Administrators are unrestricted, and so is everybody on an installation that has no group at all.
 
+### Groups themselves versus their members
+
+The group list page and a single opened group still show every group row; the group pickers (the
+group tree) stay limited to the visible groups. What is narrowed on the group list page is the
+**member list** of a group, because member lists are personal data. For a group outside the user's
+visible groups the members are not shown and the member count reads 0 — the same in the group list,
+when a single group is opened and in the member lookups. Members of the visible groups appear as
+usual, and administrators see every member of every group.
+
 ### Related skills
 
 - `set_user_group_scope` / `get_user_group_scope`

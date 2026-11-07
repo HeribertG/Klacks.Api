@@ -101,6 +101,12 @@ capitalisation; longer variants are tried before shorter ones.
 
 Changes take effect within a few minutes, without restarting anything.
 
+### Request limits
+
+Dictation and voice output are limited to **120 requests per minute per user**. The text tidying step
+that follows dictation counts toward the chat limit of **30 requests per minute** instead. Beyond a
+limit Klacks answers with "too many requests" until the minute is over.
+
 ## Related skills
 
 - `get_speech_settings`, `update_speech_settings`

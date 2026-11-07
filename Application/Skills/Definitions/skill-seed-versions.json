@@ -717,8 +717,8 @@
       "hash": "9663EAFD716FD507AFE06BBA872D9BF2AC6D6AD7F01B0FE6AA8C3F5EC3CC752E"
     },
     "explain_group_visibility_blind_spots": {
-      "version": 5,
-      "hash": "460A391C0D8DED10AFD4F6DB209D9F71AE4BA316723DBB28061F2A27196A3FD6"
+      "version": 6,
+      "hash": "99A7F0C8D48DF3671D7F23140A68CA934C40A5D459981B0BA3E14BF888C06203"
     },
     "explain_guided_tour": {
       "version": 6,
@@ -733,8 +733,8 @@
       "hash": "CA9F10C9ECB3D7271ABD39BC0001DBF0F28264DF48A0387AD4988EB472F49783"
     },
     "explain_klacksy_autonomy": {
-      "version": 4,
-      "hash": "8394F3157434B78A76DA9807251A07F04AF874B58D601E42B5DC9B2D16CAF455"
+      "version": 5,
+      "hash": "8882D350370CCA028E0C367EEC2727B91523C70E8D71915B72406A869C9A14ED"
     },
     "explain_klacksy_learning": {
       "version": 8,
@@ -757,8 +757,8 @@
       "hash": "35E658953BCF5E5A01A1548BEF219BAF066F77F2C6D96B68832C68B640626B40"
     },
     "explain_klacksy_speech_setup": {
-      "version": 6,
-      "hash": "D33C4878189D2871F09B16CCA4A9F8D896556A6A07FCFA1E844EBFCC896368A6"
+      "version": 7,
+      "hash": "997BF9949480ACB22F60E667A963DB4135D0622B287F0B610DA968C702F927C8"
     },
     "explain_legal_entity_rule": {
       "version": 5,
@@ -773,8 +773,8 @@
       "hash": "283907A89999A626A96DED76ABED8E10E462FC2FA9C7DE2F5E4C8156DEB49987"
     },
     "explain_messenger_channels": {
-      "version": 1,
-      "hash": "F3C1306C704291C9B209FAA8A4BAD6D17D26E4992DB5E394B99E9F9912253948"
+      "version": 2,
+      "hash": "2838F65D1D8B4CC4D7572F600BFB9F0F6AE1682E0BC32F662FC8711976EEFA34"
     },
     "explain_messenger_pairing_and_scope": {
       "version": 1,
@@ -817,8 +817,8 @@
       "hash": "0D55EDD0A1A0125C1CA72DF3CE86762781E347370EDD090153D5D44A37CCFB98"
     },
     "explain_page_period_closing": {
-      "version": 10,
-      "hash": "13894ED8C6FE059526309D1EE7F57AA19F8AAA016CAE621CFA7B051F4FEB1209"
+      "version": 11,
+      "hash": "F99E8A4E7CC38EBABB44B9882FD6CF02EA520B2A56E7CE99A67707B9EFE00FE2"
     },
     "explain_page_profile": {
       "version": 9,
@@ -881,8 +881,8 @@
       "hash": "38E8CB8FE811311546CA4ED459D7791A54549D6CE9009BC24C3AABA86D696716"
     },
     "explain_roles_and_permissions": {
-      "version": 3,
-      "hash": "D6993C489DDFDDDAB56CE540C17ED6A0456A04807971DBB025576842A3A23F8C"
+      "version": 4,
+      "hash": "50FD7D984BE76635F8E8FDB601F828D65A097E48655C984494241213F154ECE5"
     },
     "explain_scheduling_rules_model": {
       "version": 6,

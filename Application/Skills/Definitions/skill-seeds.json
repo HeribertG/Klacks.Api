@@ -31647,7 +31647,7 @@
     {
       "name": "explain_page_period_closing",
       "area": "period",
-      "description": "Explains the Period Closing page (Periodenabschluss) at /workplace/period-closing — the admin-only page for sealing billing periods day by day. Covers the Periods card (period dropdown grouped by payment interval, sealed/partial/empty day badges, the day table with seal checkboxes, the mandatory-reason unseal dialog, the collapsible issues card with error/warning/info badges and the unstaffed-shift counter, bulk seal/unseal), the Exports card (date filter, sealed-order search, CSV/JSON/XML/DATEV/BMD formats, proof-of-service download with partial-close warning), and the Audit Log card (seal/unseal actions and export history with detail modals). Use this when the user asks what they see on the Period Closing page, what the cards/columns/badges mean, how to seal or reopen a period, why a sealed day rejects changes, or who sealed/exported what.",
+      "description": "Explains the Period Closing page (Periodenabschluss) at /workplace/period-closing — the admin-only page for sealing billing periods day by day. Covers the Periods card (period dropdown grouped by payment interval, sealed/partial/empty day badges, the day table with seal checkboxes, the mandatory-reason unseal dialog, the collapsible issues card with error/warning/info badges and the unstaffed-shift counter, bulk seal/unseal), the Exports card (date filter, sealed-order search, CSV/JSON/XML/DATEV/BMD formats, proof-of-service download with partial-close warning), and the Audit Log card (seal/unseal actions and export history with detail modals). Use this when the user asks what they see on the Period Closing page, what the cards/columns/badges mean, how to seal or reopen a period, why a sealed day rejects changes, or who sealed/exported what. The sealed-order list is Admin-only; through Klacksy others see only their groups' orders.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31737,7 +31737,9 @@
           "unverplante schichten",
           "exportprotokoll",
           "wer hat versiegelt",
-          "abschluss-seite"
+          "abschluss-seite",
+          "wer darf versiegelte bestellungen sehen",
+          "versiegelte bestellungen nur für admins"
         ],
         "en": [
           "period closing",
@@ -31757,7 +31759,9 @@
           "unstaffed shifts",
           "export log",
           "audit log",
-          "who sealed the period"
+          "who sealed the period",
+          "who may see sealed orders",
+          "sealed orders admin only"
         ],
         "fr": [
           "clôture de période",
@@ -31774,7 +31778,8 @@
           "journal d'audit",
           "journal des exports",
           "qui a scellé la période",
-          "exporter le justificatif"
+          "exporter le justificatif",
+          "qui peut voir les commandes scellées"
         ],
         "it": [
           "chiusura periodo",
@@ -31791,7 +31796,8 @@
           "registro di controllo",
           "registro esportazioni",
           "chi ha sigillato il periodo",
-          "esportare il giustificativo"
+          "esportare il giustificativo",
+          "chi può vedere gli ordini sigillati"
         ]
       },
       "labels": {
@@ -31800,7 +31806,7 @@
         "fr": "Expliquer la page de clôture de période",
         "it": "Spiega la pagina di chiusura del periodo"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "explain_page_inbox",
@@ -39431,7 +39437,7 @@
     {
       "name": "explain_klacksy_autonomy",
       "area": "klacksy",
-      "description": "Explains the four autonomy levels that decide when Klacksy asks before writing anything, how an action's risk is classified, and how a held action is released only by the user's explicit agreement. Also covers undoing the last change and proactive monitoring. Use this when the user asks why Klacksy keeps asking for confirmation, why it acted without asking, or how to take back what it just did.",
+      "description": "Explains the four autonomy levels that decide when Klacksy asks before writing anything, how an action's risk is classified, and how a held action is released only by the user's explicit agreement. Also covers undoing the last change and proactive monitoring. Use this when the user asks why Klacksy keeps asking for confirmation, why it acted without asking, or how to take back what it just did. Creating, changing or deleting Klacksy's own skills always asks.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -39469,7 +39475,10 @@
           "freigabe",
           "selbständig",
           "rückgängig machen",
-          "warum fragst du"
+          "warum fragst du",
+          "eigene fähigkeiten ändern fragt immer nach",
+          "skill anlegen bestätigung",
+          "fähigkeit löschen bestätigung"
         ],
         "en": [
           "autonomy",
@@ -39479,21 +39488,26 @@
           "act on its own",
           "undo",
           "roll back",
-          "approval"
+          "approval",
+          "changing your own skills always asks",
+          "create a skill confirmation",
+          "delete a skill confirmation"
         ],
         "fr": [
           "autonomie",
           "niveau autonomie",
           "confirmation",
           "demander avant",
-          "annuler"
+          "annuler",
+          "modifier ses propres compétences demande toujours confirmation"
         ],
         "it": [
           "autonomia",
           "livello autonomia",
           "conferma",
           "chiedere prima",
-          "annullare"
+          "annullare",
+          "modificare le proprie competenze chiede sempre conferma"
         ]
       },
       "labels": {
@@ -39502,7 +39516,7 @@
         "fr": "Expliquer les niveaux d'autonomie de Klacksy",
         "it": "Spiega i livelli di autonomia di Klacksy"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_klacksy_personality",
@@ -40595,7 +40609,7 @@
     {
       "name": "explain_roles_and_permissions",
       "area": "security",
-      "description": "Explains the two permission levels a login account can be granted, Supervisor and Admin, what each may do, and that an account with neither can only look. Explains that settings, user administration and closing a payroll period are administrator-only, that a login account is separate from a person's staff record, and what a personal access token is. Use this when the user asks who may do what, why an action is refused, or how to grant somebody more rights.",
+      "description": "Explains the two permission levels a login account can be granted, Supervisor and Admin, what each may do, and that an account with neither can only look. Explains that settings, user administration and closing a payroll period are administrator-only, that a login account is separate from a person's staff record, and what a personal access token is. Use this when the user asks who may do what, why an action is refused, or how to grant somebody more rights. Assistant agent setup is Admin-only.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -40633,7 +40647,9 @@
           "benutzer anlegen",
           "mehr rechte geben",
           "zugriffstoken",
-          "benutzerkonto"
+          "benutzerkonto",
+          "wer darf den assistenten konfigurieren",
+          "agent anlegen nur admin"
         ],
         "en": [
           "permissions",
@@ -40646,7 +40662,9 @@
           "create a user",
           "grant more rights",
           "access token",
-          "login account"
+          "login account",
+          "who may configure the assistant",
+          "create an agent admin only"
         ],
         "fr": [
           "droits",
@@ -40656,7 +40674,8 @@
           "administrateur",
           "non autorisé",
           "créer un utilisateur",
-          "jeton d accès"
+          "jeton d accès",
+          "qui peut configurer l assistant"
         ],
         "it": [
           "diritti",
@@ -40666,7 +40685,8 @@
           "amministratore",
           "non autorizzato",
           "creare un utente",
-          "token di accesso"
+          "token di accesso",
+          "chi può configurare l assistente"
         ]
       },
       "labels": {
@@ -40675,7 +40695,7 @@
         "fr": "Rôles et autorisations expliqués",
         "it": "Ruoli e permessi spiegati"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_guided_tour",
@@ -48684,7 +48704,10 @@
           "unterbrechen beim sprechen",
           "wörterbuch für spracherkennung",
           "name wird falsch verstanden",
-          "mikrofon"
+          "mikrofon",
+          "limit für diktieren",
+          "zu viele anfragen beim diktieren",
+          "wie oft pro minute darf ich diktieren"
         ],
         "en": [
           "speech recognition",
@@ -48695,7 +48718,10 @@
           "speech pause",
           "interrupt while speaking",
           "transcription dictionary",
-          "name transcribed wrongly"
+          "name transcribed wrongly",
+          "dictation rate limit",
+          "too many requests while dictating",
+          "how many dictation requests per minute"
         ],
         "fr": [
           "reconnaissance vocale",
@@ -48703,7 +48729,9 @@
           "dicter",
           "lire à voix haute",
           "pause de parole",
-          "dictionnaire de transcription"
+          "dictionnaire de transcription",
+          "limite de dictée",
+          "trop de requêtes en dictant"
         ],
         "it": [
           "riconoscimento vocale",
@@ -48711,7 +48739,9 @@
           "dettare",
           "lettura ad alta voce",
           "pausa vocale",
-          "dizionario di trascrizione"
+          "dizionario di trascrizione",
+          "limite di dettatura",
+          "troppe richieste durante la dettatura"
         ]
       },
       "labels": {
@@ -48720,7 +48750,7 @@
         "fr": "Expliquer la configuration vocale de Klacksy",
         "it": "Spiega la configurazione vocale di Klacksy"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_whisper_setup",
@@ -50462,7 +50492,7 @@
           "group-less still visible"
         ]
       },
-      "version": 5,
+      "version": 6,
       "synonyms": {
         "de": [
           "was sieht ein benutzer ohne sichtbarkeitsbereich",
@@ -50470,7 +50500,10 @@
           "warum sehe ich personen ohne gruppe trotzdem",
           "bleiben gruppenlose mitarbeiter für eingeschränkte benutzer sichtbar",
           "was passiert wenn ich keine sichtbarkeit für einen benutzer einstelle",
-          "warum sieht ein neuer benutzer fast niemanden"
+          "warum sieht ein neuer benutzer fast niemanden",
+          "sehe ich alle gruppen aber keine mitglieder",
+          "warum zeigt die gruppe 0 mitglieder",
+          "mitglieder einer gruppe ausserhalb meiner sichtbarkeit"
         ],
         "en": [
           "what does a user see with no visibility scope configured",
@@ -50478,19 +50511,26 @@
           "why can i still see people who are in no group at all",
           "do group-less employees stay visible to restricted users",
           "what happens if i never set a visibility scope for a user",
-          "why does a new user see almost nobody"
+          "why does a new user see almost nobody",
+          "can i see all groups but not their members",
+          "why does the group show 0 members",
+          "members of a group outside my visibility"
         ],
         "fr": [
           "que voit un utilisateur sans portée de visibilité configurée",
           "les employés sans groupe restent-ils visibles",
           "que se passe-t-il si je ne configure aucune visibilité",
-          "pourquoi un nouvel utilisateur ne voit presque personne"
+          "pourquoi un nouvel utilisateur ne voit presque personne",
+          "pourquoi le groupe affiche 0 membre",
+          "membres d un groupe hors de ma visibilité"
         ],
         "it": [
           "cosa vede un utente senza ambito di visibilità configurato",
           "i dipendenti senza gruppo restano visibili",
           "cosa succede se non configuro alcuna visibilità",
-          "perché un nuovo utente non vede quasi nessuno"
+          "perché un nuovo utente non vede quasi nessuno",
+          "perché il gruppo mostra 0 membri",
+          "membri di un gruppo fuori dalla mia visibilità"
         ]
       },
       "labels": {
@@ -55151,24 +55191,30 @@
           "messenger die nur benachrichtigen",
           "kann ich per signal eine antwort bekommen",
           "wie lange werden nachrichten aufbewahrt",
-          "ist messaging optional"
+          "ist messaging optional",
+          "messenger in der demo einrichten",
+          "nachricht senden im playground"
         ],
         "en": [
           "which messenger can reply",
           "messengers that only notify",
           "can I get an answer over signal",
           "how long are messages stored",
-          "is messaging optional"
+          "is messaging optional",
+          "set up messenger in the demo",
+          "send a message in the playground"
         ],
         "fr": [
           "quelle messagerie peut répondre",
           "messageries qui notifient seulement",
-          "combien de temps les messages sont conservés"
+          "combien de temps les messages sont conservés",
+          "configurer la messagerie dans la démo"
         ],
         "it": [
           "quale messenger può rispondere",
           "messenger che solo notificano",
-          "per quanto tempo si conservano i messaggi"
+          "per quanto tempo si conservano i messaggi",
+          "configurare il messenger nella demo"
         ]
       },
       "labels": {
@@ -55177,7 +55223,7 @@
         "fr": "Expliquer les canaux de messagerie",
         "it": "Spiega i canali di messaggistica"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_messenger_pairing_and_scope",

@@ -56,8 +56,10 @@ Every action Klacksy can perform carries a risk classification:
   administration, permission changes, changing the autonomy setting itself, every delete or reset that
   destroys business, personal, payroll or compliance data (client master data and links, shifts and
   their structure, work changes, expenses, notes, absences, compliance rules, report templates), and
-  every setting that takes a secret such as an API key or a mail password. Only Klacksy's own
-  bookkeeping (its memories, its own skills, dictionary entries) is removed without that question.
+  every setting that takes a secret such as an API key or a mail password. **Creating, changing or
+  deleting Klacksy's own skills (capabilities) also always asks**, at every level, and cannot run
+  unattended or as a scheduled task. Only the rest of Klacksy's own bookkeeping (its memories,
+  dictionary entries) is removed without that question.
 
 So a higher level never means "Klacksy stops asking altogether".
 

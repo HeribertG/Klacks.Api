@@ -61,6 +61,11 @@ administrator-only.** A Supervisor can approve every day of a month and still no
 it. If an action is refused despite the person "being allowed to plan", this boundary is almost
 always the reason.
 
+## The assistant's own configuration
+
+Creating or changing an assistant agent (its name, display name and description) is **Admin-only**. Everybody
+may use the assistant; only an administrator may change how it is configured.
+
 ## Login account and staff record are separate
 
 A login account does not have to be linked to a person's staff record, and a member of staff does not
