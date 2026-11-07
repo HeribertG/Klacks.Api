@@ -62,6 +62,7 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant;
+using Klacks.Api.Domain.Services.Clients;
 using AppSettings = Klacks.Api.Application.Constants.Settings;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
@@ -374,7 +375,11 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
     {
         var clients = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(
             new List<Guid> { group.Id }, cancellationToken);
-        var agentIds = clients.Select(client => client.Id).Distinct().ToList();
+        var agentIds = clients
+            .Where(client => ClientTypeRules.IsPlannable(client.Type))
+            .Select(client => client.Id)
+            .Distinct()
+            .ToList();
         if (agentIds.Count == 0)
         {
             _logger.LogInformation(

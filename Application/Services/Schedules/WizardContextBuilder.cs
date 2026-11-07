@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.Globalization;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -22,6 +23,7 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// <param name="periodHoursService">Provider for the hours already worked in the active period</param>
 /// <param name="contractProvider">Source of effective contract data; supplies system-wide defaults via empty client lookup</param>
 /// <param name="warmStartBuilder">Builder that maps the previous accepted plan onto the current period for the GA warm-start</param>
+/// <param name="clientRepository">Tells which agents are stand-ins, so they rank after every real person</param>
 public sealed class WizardContextBuilder : IWizardContextBuilder
 {
     private readonly WizardAgentSnapshotBuilder _agentBuilder;
@@ -33,6 +35,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
     private readonly IAvailabilityIneligibilityService _availabilityService;
     private readonly IWizardWarmStartBuilder _warmStartBuilder;
     private readonly IWizardRestrictedWindowBuilder _restrictedWindowBuilder;
+    private readonly IClientRepository _clientRepository;
 
     public WizardContextBuilder(
         WizardAgentSnapshotBuilder agentBuilder,
@@ -43,7 +46,8 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         IEligibilityMatrixBuilder eligibilityMatrixBuilder,
         IAvailabilityIneligibilityService availabilityService,
         IWizardWarmStartBuilder warmStartBuilder,
-        IWizardRestrictedWindowBuilder restrictedWindowBuilder)
+        IWizardRestrictedWindowBuilder restrictedWindowBuilder,
+        IClientRepository clientRepository)
     {
         _agentBuilder = agentBuilder;
         _shiftBuilder = shiftBuilder;
@@ -54,6 +58,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         _availabilityService = availabilityService;
         _warmStartBuilder = warmStartBuilder;
         _restrictedWindowBuilder = restrictedWindowBuilder;
+        _clientRepository = clientRepository;
     }
 
     public async Task<CoreWizardContext> BuildContextAsync(WizardContextRequest request, CancellationToken ct)
@@ -141,11 +146,13 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         var restrictedTimeWindows = await _restrictedWindowBuilder.BuildAsync(
             periodShiftIds, request.PeriodFrom, request.PeriodUntil, ct);
 
+        var standInIds = await _clientRepository.GetStandInIdsAsync(request.AgentIds, ct);
+
         return new CoreWizardContext
         {
             PeriodFrom = request.PeriodFrom,
             PeriodUntil = request.PeriodUntil,
-            Agents = BuildRosterPriorityOrder(agentSnapshot.Agents, request.AgentOrderIsUserDefined),
+            Agents = BuildRosterPriorityOrder(agentSnapshot.Agents, request.AgentOrderIsUserDefined, standInIds),
             Shifts = shifts,
             ContractDays = agentSnapshot.ContractDays,
             ScheduleCommands = periodConstraints.ScheduleCommands,
@@ -174,18 +181,19 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
     /// Establishes the canonical top-down roster priority order consumed by the optimizer:
     /// position 0 gets the most accurate plan, the bottom takes what is left. A hand-arranged
     /// user order is kept verbatim; the regular list order is reshaped by contractually
-    /// guaranteed hours (descending). The sort is stable, so ties keep the incoming order.
+    /// guaranteed hours (descending). In both cases the stand-ins move behind every real person,
+    /// so the wizard fills them only where real people are not enough. The sorts are stable, so
+    /// ties keep the incoming order.
     /// </summary>
     private static IReadOnlyList<CoreAgent> BuildRosterPriorityOrder(
-        IReadOnlyList<CoreAgent> agentsInBaseOrder, bool agentOrderIsUserDefined)
+        IReadOnlyList<CoreAgent> agentsInBaseOrder, bool agentOrderIsUserDefined, IReadOnlySet<Guid> standInIds)
     {
-        if (agentOrderIsUserDefined)
-        {
-            return agentsInBaseOrder;
-        }
+        IEnumerable<CoreAgent> personOrder = agentOrderIsUserDefined
+            ? agentsInBaseOrder
+            : agentsInBaseOrder.OrderByDescending(a => a.GuaranteedHours);
 
-        return agentsInBaseOrder
-            .OrderByDescending(a => a.GuaranteedHours)
+        return personOrder
+            .OrderBy(a => Guid.TryParse(a.Id, out var agentId) && standInIds.Contains(agentId))
             .ToList();
     }
 
