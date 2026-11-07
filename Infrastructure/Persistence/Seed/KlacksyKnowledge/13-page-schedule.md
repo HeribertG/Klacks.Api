@@ -154,7 +154,7 @@ verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder ni
   ore") oder **Stunden berechnen und zusammenzählen** (de: "Stunden berechnen und
   zusammenzählen", en: "Calculate and sum hours", fr: "Calculer et totaliser les heures",
   it: "Calcola e somma ore") — die gründliche Variante fragt vor dem Start per
-  Bestätigungs-Dialog nach. Nur für Administratoren sichtbar.
+  Bestätigungs-Dialog nach. Sichtbar für alle, die den Plan bearbeiten dürfen, auch für Planer.
 - **Szenario-Auswahl** (`scenario-selector-btn`, Tooltip de: "Szenario auswählen", en:
   "Select scenario"): Button zeigt **Original** (de/en/fr: "Original", it: "Originale")
   oder den Namen des aktiven Szenarios. Menü im Szenario-Modus: **Zum Original** (de: "Zum
@@ -492,9 +492,13 @@ sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planba
   nötig, nachdem ein Makro oder seine Zuweisung geändert wurde — dafür gibt es keinen automatischen
   Anstoss. Änderungen an Verträgen, Planungsregeln oder Zuschlags-Einstellungen stossen die gründliche
   Neuberechnung selbst an. Das Soll wird beim Anzeigen immer frisch aus dem Vertrag gelesen.
-- **Nur Administratoren rechnen von Hand nach.** Beide Varianten sind nur für Administratoren sichtbar
-  und erlaubt (Owner-Entscheid 2026-11-07); die automatische Nachführung nach einer Änderung läuft für
-  alle Schreibenden weiter.
+- **Wer von Hand nachrechnet:** Offene Perioden nachrechnen ist Planungspflege und gehört dem Planer:
+  jedes angemeldete Konto darf beide Varianten starten, auch ohne Rolle (Owner-Entscheid 2026-11-07).
+  Gerechnet werden nur die Personen, die der Aufrufer in seinen Gruppen sehen darf; ein Administrator
+  rechnet alle. Ohne Administratorrolle umfasst eine Neuberechnung höchstens 12 Lohnperioden auf einmal;
+  ein grösserer Zeitraum wird abgelehnt und lässt sich in Teilen rechnen. Eingefrorene Perioden darf nur ein Administrator nachrechnen, mit Bestätigung und
+  Begründung (siehe unten). Die automatische Nachführung nach einer Änderung läuft für alle Schreibenden
+  weiter.
 - **Neu gerechnet wird nur im offenen Fenster.** Jede Neuberechnung, von Hand oder automatisch, schreibt
   die gespeicherten Periodenstunden nur für offene Perioden und für die Perioden der letzten zwei
   Lohnexporte der Person (Nachträge zum selben Zeitraum zählen einmal). Eine ältere Periode, die
@@ -502,10 +506,13 @@ sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planba
   Wird eine Periode nach dem Export wieder geöffnet, ist sie nicht mehr eingefroren. Szenarien frieren
   nie ein. Die gründliche Variante verarbeitet offene Einträge einer eingefrorenen Periode zwar mit den
   Makros neu, ihre Periodensumme bleibt aber eingefroren.
-- **Eingefrorene Perioden trotzdem neu berechnen.** Nach einer Neuberechnung meldet Klacks, wie viele
-  Personen-Perioden eingefroren übersprungen wurden (de: "Exportierte Perioden", en: "Exported
-  periods", fr: "Périodes exportées", it: "Periodi esportati"), und bietet (de: "Trotzdem neu
-  berechnen", en: "Recalculate anyway", fr: "Recalculer quand même", it: "Ricalcola comunque") an. Das
+- **Eingefrorene Perioden trotzdem neu berechnen (nur Administrator).** Nach einer Neuberechnung meldet
+  Klacks, wie viele Personen-Perioden eingefroren übersprungen wurden. Ein Planer oder Supervisor erhält
+  nur diesen Hinweis mit dem Zusatz, dass nur ein Administrator sie trotzdem neu berechnen kann; er
+  wendet sich dafür an einen Administrator. Einem Administrator zeigt Klacks den Dialog (de:
+  "Exportierte Perioden", en: "Exported periods", fr: "Périodes exportées", it: "Periodi esportati")
+  und bietet (de: "Trotzdem neu berechnen", en: "Recalculate anyway", fr: "Recalculer quand même",
+  it: "Ricalcola comunque") an. Das
   verlangt eine Begründung und wird im Periodenprotokoll als (de: "Exportierte Periode neu berechnet",
   en: "Exported period recalculated") mit Begründung, Zeitraum, Gruppe, Anzahl Personen und Person des
   Administrators vermerkt. Der Lohnexport liest abgeschlossene Perioden aus diesen gespeicherten

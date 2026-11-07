@@ -360,6 +360,25 @@ public class PeriodHoursService : IPeriodHoursService
         return await _frozenPeriodPolicy.GetFrozenClientIdsAsync(memberIds, startDate, endDate, analyseToken);
     }
 
+    public async Task<IReadOnlyList<Guid>?> GetRestrictedCallerClientIdsAsync(
+        DateOnly startDate,
+        DateOnly endDate,
+        Guid? groupId = null)
+    {
+        if (await _clientGroupFilterService.IsCallerUnrestrictedAsync())
+        {
+            return null;
+        }
+
+        var clientIds = new HashSet<Guid>();
+        foreach (var (periodStart, periodEnd) in await GetPeriodsInRangeAsync(startDate, endDate))
+        {
+            clientIds.UnionWith(await LoadMemberIdsAsync(periodStart, periodEnd, groupId));
+        }
+
+        return clientIds.ToList();
+    }
+
     /// <summary>
     /// The non-customer clients (of the group and its subgroups) whose membership overlaps the pay period: the population
     /// of RecalculateAllClientsAsync and GetFrozenClientIdsAsync.
@@ -367,7 +386,6 @@ public class PeriodHoursService : IPeriodHoursService
     private async Task<List<Guid>> LoadMemberIdsAsync(DateOnly startDate, DateOnly endDate, Guid? groupId)
     {
         var query = _context.Client
-            .Include(c => c.GroupItems)
             .Where(c => c.Type != EntityTypeEnum.Customer)
             .Where(c => c.Membership != null
                 && c.Membership.ValidFrom <= endDate.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc)

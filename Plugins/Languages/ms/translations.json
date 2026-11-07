@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} tempoh gaji telah dimeterai dan sudah dieksport. Jamnya tidak dikira semula. Kira semula juga? Tindakan ini direkodkan bersama sebabnya dalam log tempoh.",
   "schedule.recalculate.frozen.include": "Kira semula juga",
   "schedule.recalculate.frozen.reason": "Sebab mengira semula tempoh yang dieksport",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} tempoh gaji telah dimeterai dan sudah dieksport. Jamnya tidak dikira semula. Hanya pentadbir boleh mengiranya semula juga.",
   "schedule.recalculate.tooltip": "Kira semula jam",
   "schedule.row-header.dirty.tooltip": "Perubahan belum dihantar",
   "schedule.row-header.client-order-save-error": "Susunan pekerja tidak dapat disimpan. Sila cuba lagi.",

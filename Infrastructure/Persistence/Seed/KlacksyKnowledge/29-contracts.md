@@ -101,7 +101,7 @@ The target hours of a pay period are **not stored**: the schedule recalculates t
 
 ### Changes are propagated
 
-The displayed target hours are computed on read and need no step. The stored hours of work and absence entries are recalculated when a change is saved — an assignment added, removed, re-dated or re-bound, a contract template's hours or rates, a scheduling rule, a row of the monthly table, or the company guaranteed hours, full time or daily hours — over the span of the unlocked entries of the affected people; sealed days are never touched, and frozen periods (closed and exported before the person's last two exports) keep their stored period hours. A change without any work entries in that span queues nothing; the recalculation in the schedule toolbar (de: "Stunden berechnen und zusammenzählen", en: "Calculate and sum hours", administrators only) does it on demand.
+The displayed target hours are computed on read and need no step. The stored hours of work and absence entries are recalculated when a change is saved — an assignment added, removed, re-dated or re-bound, a contract template's hours or rates, a scheduling rule, a row of the monthly table, or the company guaranteed hours, full time or daily hours — over the span of the unlocked entries of the affected people; sealed days are never touched, and frozen periods (closed and exported before the person's last two exports) keep their stored period hours. A change without any work entries in that span queues nothing; the recalculation in the schedule toolbar (de: "Stunden berechnen und zusammenzählen", en: "Calculate and sum hours", open to every planner for the persons they may see) does it on demand.
 
 ### Related skills
 

@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} 个工资期间已封存并已导出，其工时未重新计算。仍要重新计算吗？此操作将连同理由记录在期间日志中。",
   "schedule.recalculate.frozen.include": "仍然重新计算",
   "schedule.recalculate.frozen.reason": "重新计算已导出期间的理由",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} 个工资期间已封存并已导出，其工时未重新计算。只有管理员才能仍然重新计算它们。",
   "schedule.recalculate.tooltip": "重新计算工时",
   "schedule.row-header.dirty.tooltip": "更改尚未发送",
   "schedule.row-header.client-order-save-error": "无法保存员工顺序。请重试。",

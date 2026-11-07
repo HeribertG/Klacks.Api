@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} perioade de salarizare sunt sigilate și deja exportate. Orele lor nu au fost recalculate. Le recalculați totuși? Acțiunea este înregistrată cu motivul în jurnalul perioadelor.",
   "schedule.recalculate.frozen.include": "Recalculează totuși",
   "schedule.recalculate.frozen.reason": "Motivul recalculării perioadelor exportate",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} perioade de salarizare sunt sigilate și deja exportate. Orele lor nu au fost recalculate. Doar un administrator le poate recalcula totuși.",
   "schedule.recalculate.tooltip": "Recalculare ore",
   "schedule.row-header.dirty.tooltip": "Modificările nu au fost încă trimise",
   "schedule.row-header.client-order-save-error": "Ordinea angajaților nu a putut fi salvată. Încercați din nou.",

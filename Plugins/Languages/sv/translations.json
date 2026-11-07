@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} löneperioder är förseglade och redan exporterade. Deras timmar räknades inte om. Räkna om dem ändå? Detta registreras med motivering i periodloggen.",
   "schedule.recalculate.frozen.include": "Räkna om ändå",
   "schedule.recalculate.frozen.reason": "Motivering för omräkning av exporterade perioder",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} löneperioder är förseglade och redan exporterade. Deras timmar räknades inte om. Endast en administratör kan ändå räkna om dem.",
   "schedule.recalculate.tooltip": "Beräkna om timmar",
   "schedule.row-header.dirty.tooltip": "Ändringarna har inte skickats ännu",
   "schedule.row-header.client-order-save-error": "Ordningen på de anställda kunde inte sparas. Försök igen.",

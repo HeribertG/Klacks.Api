@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} okresów rozliczeniowych jest zapieczętowanych i już wyeksportowanych. Ich godziny nie zostały przeliczone. Mimo to przeliczyć? Zostanie to zapisane wraz z uzasadnieniem w dzienniku okresów.",
   "schedule.recalculate.frozen.include": "Przelicz mimo to",
   "schedule.recalculate.frozen.reason": "Uzasadnienie przeliczenia wyeksportowanych okresów",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} okresów rozliczeniowych jest zapieczętowanych i już wyeksportowanych. Ich godziny nie zostały przeliczone. Mimo to przeliczyć je może tylko administrator.",
   "schedule.recalculate.tooltip": "Przelicz godziny",
   "schedule.row-header.dirty.tooltip": "Zmiany nie zostały jeszcze wysłane",
   "schedule.row-header.client-order-save-error": "Nie udało się zapisać kolejności pracowników. Spróbuj ponownie.",

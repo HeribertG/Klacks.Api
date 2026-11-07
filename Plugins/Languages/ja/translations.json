@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} 件の給与期間は封印済みで、すでにエクスポートされています。これらの時間は再計算されませんでした。それでも再計算しますか？理由とともに期間ログに記録されます。",
   "schedule.recalculate.frozen.include": "それでも再計算",
   "schedule.recalculate.frozen.reason": "エクスポート済み期間を再計算する理由",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} 件の給与期間は封印済みで、すでにエクスポートされています。これらの時間は再計算されませんでした。それでも再計算できるのは管理者だけです。",
   "schedule.recalculate.tooltip": "時間を再計算",
   "schedule.row-header.dirty.tooltip": "変更がまだ送信されていません",
   "schedule.row-header.client-order-save-error": "従業員の並び順を保存できませんでした。もう一度お試しください。",

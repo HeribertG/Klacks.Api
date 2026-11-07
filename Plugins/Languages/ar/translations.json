@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} من فترات الرواتب مختومة وتم تصديرها بالفعل. لم تتم إعادة حساب ساعاتها. هل تريد إعادة حسابها على أي حال؟ يتم تسجيل ذلك مع السبب في سجل الفترات.",
   "schedule.recalculate.frozen.include": "إعادة الحساب على أي حال",
   "schedule.recalculate.frozen.reason": "سبب إعادة حساب الفترات المصدّرة",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} من فترات الرواتب مختومة وتم تصديرها بالفعل. لم تتم إعادة حساب ساعاتها. يمكن للمسؤول فقط إعادة حسابها على أي حال.",
   "schedule.recalculate.tooltip": "إعادة حساب الساعات",
   "schedule.row-header.dirty.tooltip": "لم يتم إرسال التغييرات بعد",
   "schedule.row-header.client-order-save-error": "تعذّر حفظ ترتيب الموظفين. يرجى المحاولة مرة أخرى.",

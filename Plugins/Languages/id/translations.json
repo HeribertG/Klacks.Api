@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} periode gaji telah disegel dan sudah diekspor. Jamnya tidak dihitung ulang. Tetap hitung ulang? Tindakan ini dicatat beserta alasannya di log periode.",
   "schedule.recalculate.frozen.include": "Tetap hitung ulang",
   "schedule.recalculate.frozen.reason": "Alasan menghitung ulang periode yang diekspor",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} periode gaji telah disegel dan sudah diekspor. Jamnya tidak dihitung ulang. Hanya administrator yang tetap dapat menghitungnya ulang.",
   "schedule.recalculate.tooltip": "Hitung ulang jam",
   "schedule.row-header.dirty.tooltip": "Perubahan belum dikirim",
   "schedule.row-header.client-order-save-error": "Urutan karyawan tidak dapat disimpan. Silakan coba lagi.",

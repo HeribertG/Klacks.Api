@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} períodos de pagamento estão selados e já foram exportados. As suas horas não foram recalculadas. Recalcular mesmo assim? Isto é registado com a justificação no registo de períodos.",
   "schedule.recalculate.frozen.include": "Recalcular mesmo assim",
   "schedule.recalculate.frozen.reason": "Justificação para recalcular períodos exportados",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} períodos de pagamento estão selados e já foram exportados. As suas horas não foram recalculadas. Apenas um administrador pode recalculá-los mesmo assim.",
   "schedule.recalculate.tooltip": "Recalcular horas",
   "schedule.row-header.dirty.tooltip": "As alterações ainda não foram enviadas",
   "schedule.row-header.client-order-save-error": "Não foi possível guardar a ordem dos colaboradores. Tente novamente.",

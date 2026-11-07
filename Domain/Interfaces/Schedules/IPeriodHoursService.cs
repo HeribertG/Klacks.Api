@@ -54,6 +54,18 @@ public interface IPeriodHoursService
         Guid? analyseToken = null);
 
     /// <summary>
+    /// The clients a group-restricted caller may recalculate in the window: the population of RecalculateAllClientsAsync
+    /// (members of the group whose membership overlaps the pay period, within the caller's group visibility), united over
+    /// the real pay periods the window touches. Null when the caller is unrestricted (admin, installation without groups,
+    /// background job without a user), so the recalculation needs no client scope. An empty list means the caller may
+    /// recalculate nobody; callers must not pass it on as "no scope".
+    /// </summary>
+    Task<IReadOnlyList<Guid>?> GetRestrictedCallerClientIdsAsync(
+        DateOnly startDate,
+        DateOnly endDate,
+        Guid? groupId = null);
+
+    /// <summary>
     /// Recomputes, in place, every cached period-hours row of the given plan (real plan when
     /// <paramref name="analyseToken"/> is null) whose pay period overlaps <paramref name="fromDate"/>..<paramref name="untilDate"/>,
     /// and commits. Frozen rows stay unchanged. For bulk writers that bypass the per-work recalculation hooks, e.g.

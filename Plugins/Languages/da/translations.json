@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} lønperioder er forseglet og allerede eksporteret. Deres timer blev ikke genberegnet. Genberegn dem alligevel? Det registreres med begrundelse i periodeloggen.",
   "schedule.recalculate.frozen.include": "Genberegn alligevel",
   "schedule.recalculate.frozen.reason": "Begrundelse for genberegning af eksporterede perioder",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} lønperioder er forseglet og allerede eksporteret. Deres timer blev ikke genberegnet. Kun en administrator kan genberegne dem alligevel.",
   "schedule.recalculate.tooltip": "Genberegn timer",
   "schedule.row-header.dirty.tooltip": "Ændringer er endnu ikke sendt",
   "schedule.row-header.client-order-save-error": "Rækkefølgen af medarbejdere kunne ikke gemmes. Prøv igen.",

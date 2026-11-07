@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} palkkajaksoa on sinetöity ja jo viety. Niiden tunteja ei laskettu uudelleen. Lasketaanko ne silti uudelleen? Toiminto kirjataan perusteluineen jaksolokiin.",
   "schedule.recalculate.frozen.include": "Laske silti uudelleen",
   "schedule.recalculate.frozen.reason": "Peruste viettyjen jaksojen uudelleenlaskennalle",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} palkkajaksoa on sinetöity ja jo viety. Niiden tunteja ei laskettu uudelleen. Vain ylläpitäjä voi silti laskea ne uudelleen.",
   "schedule.recalculate.tooltip": "Laske tunnit uudelleen",
   "schedule.row-header.dirty.tooltip": "Muutoksia ei ole vielä lähetetty",
   "schedule.row-header.client-order-save-error": "Työntekijöiden järjestystä ei voitu tallentaa. Yritä uudelleen.",

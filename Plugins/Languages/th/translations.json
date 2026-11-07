@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "งวดเงินเดือน {{count}} งวดถูกปิดผนึกและส่งออกแล้ว ชั่วโมงของงวดเหล่านี้ไม่ได้ถูกคำนวณใหม่ ต้องการคำนวณใหม่อยู่ดีหรือไม่ การดำเนินการนี้จะถูกบันทึกพร้อมเหตุผลในบันทึกงวด",
   "schedule.recalculate.frozen.include": "คำนวณใหม่อยู่ดี",
   "schedule.recalculate.frozen.reason": "เหตุผลในการคำนวณงวดที่ส่งออกแล้วใหม่",
+  "schedule.recalculate.frozen.adminOnly": "งวดเงินเดือน {{count}} งวดถูกปิดผนึกและส่งออกแล้ว ชั่วโมงของงวดเหล่านี้ไม่ได้ถูกคำนวณใหม่ มีเพียงผู้ดูแลระบบเท่านั้นที่คำนวณใหม่ได้",
   "schedule.recalculate.tooltip": "คำนวณชั่วโมงใหม่",
   "schedule.row-header.dirty.tooltip": "การเปลี่ยนแปลงยังไม่ได้ส่ง",
   "schedule.row-header.client-order-save-error": "ไม่สามารถบันทึกลำดับพนักงานได้ โปรดลองอีกครั้ง",

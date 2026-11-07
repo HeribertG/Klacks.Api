@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Controller for work management (CRUD, bulk operations, scheduling, period closing).
+/// Controller for work management (CRUD, bulk operations, scheduling, period closing). The manual period-hours
+/// recalculations are open to every planner (open periods are planning upkeep); recalculating frozen periods
+/// (ConfirmFrozen) is the admin override and answers 403 to everybody else.
 /// </summary>
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Works;
@@ -16,6 +18,7 @@ using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.Filters;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -192,17 +195,25 @@ public class WorksController : BaseController
     }
 
     [HttpPost("RecalculatePeriodHours")]
-    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<PeriodHoursRecalculationResult>> RecalculatePeriodHours([FromBody] RecalculatePeriodHoursCommand command)
     {
+        if (command is { ConfirmFrozen: true } && !User.IsInRole(Roles.Admin))
+        {
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
+        }
+
         var result = await _mediator.Send(command);
         return Ok(result);
     }
 
     [HttpPost("RecalculatePeriodHoursThorough")]
-    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<PeriodHoursRecalculationResult>> RecalculatePeriodHoursThorough([FromBody] RecalculatePeriodHoursThoroughCommand command)
     {
+        if (command is { ConfirmFrozen: true } && !User.IsInRole(Roles.Admin))
+        {
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
+        }
+
         var result = await _mediator.Send(command);
         return Accepted(result);
     }

@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} תקופות שכר חתומות וכבר יוצאו. השעות שלהן לא חושבו מחדש. לחשב אותן מחדש בכל זאת? הפעולה נרשמת עם הנימוק ביומן התקופות.",
   "schedule.recalculate.frozen.include": "לחשב מחדש בכל זאת",
   "schedule.recalculate.frozen.reason": "נימוק לחישוב מחדש של תקופות שיוצאו",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} תקופות שכר חתומות וכבר יוצאו. השעות שלהן לא חושבו מחדש. רק מנהל מערכת יכול לחשב אותן מחדש בכל זאת.",
   "schedule.recalculate.tooltip": "חשב שעות מחדש",
   "schedule.row-header.dirty.tooltip": "השינויים טרם נשלחו",
   "schedule.row-header.client-order-save-error": "לא ניתן היה לשמור את סדר העובדים. נסו שוב.",

@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}}개의 급여 기간이 봉인되었고 이미 내보내졌습니다. 해당 시간은 다시 계산되지 않았습니다. 그래도 다시 계산하시겠습니까? 사유와 함께 기간 로그에 기록됩니다.",
   "schedule.recalculate.frozen.include": "그래도 다시 계산",
   "schedule.recalculate.frozen.reason": "내보낸 기간을 다시 계산하는 사유",
+  "schedule.recalculate.frozen.adminOnly": "{{count}}개의 급여 기간이 봉인되었고 이미 내보내졌습니다. 해당 시간은 다시 계산되지 않았습니다. 그래도 다시 계산할 수 있는 사람은 관리자뿐입니다.",
   "schedule.recalculate.tooltip": "시간 재계산",
   "schedule.row-header.dirty.tooltip": "변경 사항이 아직 전송되지 않았습니다",
   "schedule.row-header.client-order-save-error": "직원 순서를 저장할 수 없습니다. 다시 시도해 주세요.",

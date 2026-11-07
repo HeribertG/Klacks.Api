@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} 個薪資期間已封存並已匯出，其工時未重新計算。仍要重新計算嗎？此操作將連同理由記錄在期間日誌中。",
   "schedule.recalculate.frozen.include": "仍然重新計算",
   "schedule.recalculate.frozen.reason": "重新計算已匯出期間的理由",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} 個薪資期間已封存並已匯出，其工時未重新計算。只有管理員才能仍然重新計算它們。",
   "schedule.recalculate.tooltip": "重新計算工時",
   "schedule.row-header.dirty.tooltip": "更改尚未傳送",
   "schedule.row-header.client-order-save-error": "無法儲存員工順序。請再試一次。",

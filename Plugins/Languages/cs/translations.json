@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} mzdových období je zapečetěno a již exportováno. Jejich hodiny nebyly přepočítány. Přesto je přepočítat? Bude to zaznamenáno s odůvodněním v protokolu období.",
   "schedule.recalculate.frozen.include": "Přesto přepočítat",
   "schedule.recalculate.frozen.reason": "Důvod přepočtu exportovaných období",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} mzdových období je zapečetěno a již exportováno. Jejich hodiny nebyly přepočítány. Přesto je může přepočítat pouze administrátor.",
   "schedule.recalculate.tooltip": "Přepočítat hodiny",
   "schedule.row-header.dirty.tooltip": "Změny ještě nebyly odeslány",
   "schedule.row-header.client-order-save-error": "Pořadí zaměstnanců se nepodařilo uložit. Zkuste to prosím znovu.",

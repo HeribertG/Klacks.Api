@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} kỳ lương đã được niêm phong và đã xuất. Số giờ của chúng không được tính lại. Vẫn tính lại? Thao tác này được ghi kèm lý do vào nhật ký kỳ.",
   "schedule.recalculate.frozen.include": "Vẫn tính lại",
   "schedule.recalculate.frozen.reason": "Lý do tính lại các kỳ đã xuất",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} kỳ lương đã được niêm phong và đã xuất. Số giờ của chúng không được tính lại. Chỉ quản trị viên mới có thể vẫn tính lại chúng.",
   "schedule.recalculate.tooltip": "Tính lại giờ",
   "schedule.row-header.dirty.tooltip": "Thay đổi chưa được gửi",
   "schedule.row-header.client-order-save-error": "Không thể lưu thứ tự nhân viên. Vui lòng thử lại.",

@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} períodos de pago están sellados y ya exportados. Sus horas no se recalcularon. ¿Recalcularlos de todos modos? Se registra con su justificación en el registro de períodos.",
   "schedule.recalculate.frozen.include": "Recalcular de todos modos",
   "schedule.recalculate.frozen.reason": "Justificación para recalcular períodos exportados",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} períodos de pago están sellados y ya exportados. Sus horas no se recalcularon. Solo un administrador puede recalcularlos de todos modos.",
   "schedule.recalculate.tooltip": "Recalcular horas",
   "schedule.row-header.dirty.tooltip": "Los cambios aún no han sido enviados",
   "schedule.row-header.client-order-save-error": "No se pudo guardar el orden de los empleados. Inténtelo de nuevo.",

@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} loonperioden zijn verzegeld en al geëxporteerd. Hun uren zijn niet opnieuw berekend. Toch opnieuw berekenen? Dit wordt met reden vastgelegd in het periodelogboek.",
   "schedule.recalculate.frozen.include": "Toch opnieuw berekenen",
   "schedule.recalculate.frozen.reason": "Reden voor het opnieuw berekenen van geëxporteerde perioden",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} loonperioden zijn verzegeld en al geëxporteerd. Hun uren zijn niet opnieuw berekend. Alleen een beheerder kan ze toch opnieuw berekenen.",
   "schedule.recalculate.tooltip": "Uren opnieuw berekenen",
   "schedule.row-header.dirty.tooltip": "Wijzigingen zijn nog niet verzonden",
   "schedule.row-header.client-order-save-error": "De volgorde van de medewerkers kon niet worden opgeslagen. Probeer het opnieuw.",

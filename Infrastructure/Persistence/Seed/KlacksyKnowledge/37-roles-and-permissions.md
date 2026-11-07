@@ -70,7 +70,8 @@ page needs Supervisor or Admin and an active messaging add-on.
 The dividing line that matters in practice: **settings, user administration and closing a period are
 administrator-only.** A Supervisor can approve every day of a month and still not be able to close
 it. If an action is refused despite the person "being allowed to plan", this boundary is almost
-always the reason.
+always the reason. Example: a planner may recalculate the hours of open periods, but recalculating a frozen (closed
+and exported) period is administrator-only and needs a reason.
 
 ## The assistant's own configuration
 

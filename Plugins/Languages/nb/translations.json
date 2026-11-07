@@ -2164,6 +2164,7 @@
   "schedule.recalculate.frozen.message": "{{count}} lønnsperioder er forseglet og allerede eksportert. Timene deres ble ikke beregnet på nytt. Beregne dem på nytt likevel? Dette registreres med begrunnelse i periodeloggen.",
   "schedule.recalculate.frozen.include": "Beregn på nytt likevel",
   "schedule.recalculate.frozen.reason": "Begrunnelse for ny beregning av eksporterte perioder",
+  "schedule.recalculate.frozen.adminOnly": "{{count}} lønnsperioder er forseglet og allerede eksportert. Timene deres ble ikke beregnet på nytt. Bare en administrator kan likevel beregne dem på nytt.",
   "schedule.recalculate.tooltip": "Beregn timer på nytt",
   "schedule.row-header.dirty.tooltip": "Endringer er ennå ikke sendt",
   "schedule.row-header.client-order-save-error": "Rekkefølgen på de ansatte kunne ikke lagres. Prøv igjen.",
