@@ -352,6 +352,13 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .CountAsync(cancellationToken);
     }
 
+    public async Task<int> CountRealPlanWorksOfClientAsync(Guid clientId, CancellationToken cancellationToken = default)
+    {
+        return await context.Work
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.ClientId == clientId)
+            .CountAsync(cancellationToken);
+    }
+
     private IQueryable<Work> UnsealedParentWorksIn(DateOnly startDate, DateOnly endDate, Guid? groupId)
     {
         var works = groupId.HasValue ? GroupWorksIn(startDate, endDate, groupId.Value) : MainScheduleWorksIn(startDate, endDate);
