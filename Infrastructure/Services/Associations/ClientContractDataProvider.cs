@@ -9,6 +9,7 @@ using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Associations;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,8 @@ namespace Klacks.Api.Infrastructure.Services.Associations;
 /// <summary>
 /// Single choke point translating contracts, scheduling rules, rate revisions, the company-wide
 /// monthly target hours table and default settings into effective contract data. Clients without a
-/// contract resolve to the monthly value for that month when a row exists, otherwise to the settings.
+/// contract resolve to the monthly value for that month when a row exists, otherwise to the settings; a stand-in without
+/// a contract (ClientTypeRules.WithoutTargetHoursTypes) has guaranteed and minimum hours 0 and every other default.
 /// Surcharge rates and PerformsShiftWork resolve contract first; null on the contract means "standard".
 /// </summary>
 public class ClientContractDataProvider : IClientContractDataProvider
@@ -58,8 +60,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
     public async Task<EffectiveContractData> GetEffectiveContractDataAsync(Guid clientId, DateOnly date, int? paymentInterval = null)
     {
         var result = await GetEffectiveContractDataForClientsAsync(new List<Guid> { clientId }, date, paymentInterval);
-        return result.GetValueOrDefault(clientId)
-            ?? BuildFromDefaults(await LoadDefaultSettingsAsync(), await LoadMonthlyTargetHoursAsync(date));
+        return result[clientId];
     }
 
     public async Task<Dictionary<Guid, EffectiveContractData>> GetEffectiveContractDataForClientsAsync(
@@ -69,6 +70,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
         var defaults = await LoadDefaultSettingsAsync();
         var rateSnapshotByRuleId = await LoadApplicableRateSnapshotsAsync(contracts.Values, date);
         var monthlyTargetHours = await LoadMonthlyTargetHoursAsync(date);
+        var withoutTargetHoursIds = await LoadWithoutTargetHoursIdsAsync(clientIds.Where(id => !contracts.ContainsKey(id)));
 
         // The contract path keeps its gate: only a winning contract that actually uses the company-wide
         // monthly value (MonthlyTargetHours interval, or inheriting via GuaranteedHours = null) sees the
@@ -84,7 +86,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
         {
             result[clientId] = contracts.TryGetValue(clientId, out var contract)
                 ? BuildEffectiveData(contract, defaults, ResolveRateSnapshot(contract, rateSnapshotByRuleId), contractMonthlyTargetHours)
-                : BuildFromDefaults(defaults, monthlyTargetHours);
+                : BuildFromDefaults(defaults, monthlyTargetHours, withoutTargetHoursIds.Contains(clientId));
         }
 
         return result;
@@ -103,6 +105,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
         var contractsByClient = await LoadOverlappingContractsByClientAsync(clientIds, from, until, paymentInterval);
         var revisionsByRule = await LoadRateRevisionsUpToAsync(contractsByClient, until);
         var monthlyTargetHoursByMonth = await LoadMonthlyTargetHoursForRangeAsync(from, until);
+        var withoutTargetHoursIds = await LoadWithoutTargetHoursIdsAsync(clientIds);
 
         for (var date = from; date <= until; date = date.AddDays(1))
         {
@@ -132,7 +135,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
             {
                 if (!winners.TryGetValue(clientId, out var contract))
                 {
-                    perDay[clientId] = BuildFromDefaults(defaults, monthlyRowOfMonth);
+                    perDay[clientId] = BuildFromDefaults(defaults, monthlyRowOfMonth, withoutTargetHoursIds.Contains(clientId));
                     continue;
                 }
 
@@ -631,21 +634,43 @@ public class ClientContractDataProvider : IClientContractDataProvider
             WorkloadPercentCalculator.MaximumPlausiblePercent);
     }
 
-    private static EffectiveContractData BuildFromDefaults(ContractDefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours)
+    /// <summary>
+    /// The clients among the given ids whose type has no target hours, in one query; no query without ids.
+    /// </summary>
+    private async Task<HashSet<Guid>> LoadWithoutTargetHoursIdsAsync(IEnumerable<Guid> clientIds)
     {
-        var workload = ResolveDefaultWorkloadPercent(monthlyTargetHours);
+        var ids = clientIds.Distinct().ToList();
+        if (ids.Count == 0)
+        {
+            return [];
+        }
+
+        var types = ClientTypeRules.WithoutTargetHoursTypes.ToList();
+        var matches = await _context.Client
+            .AsNoTracking()
+            .Where(client => ids.Contains(client.Id) && types.Contains(client.Type))
+            .Select(client => client.Id)
+            .ToListAsync();
+        return matches.ToHashSet();
+    }
+
+    private static EffectiveContractData BuildFromDefaults(
+        ContractDefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours, bool withoutTargetHours)
+    {
+        var monthlyRow = withoutTargetHours ? null : monthlyTargetHours;
+        var workload = ResolveDefaultWorkloadPercent(monthlyRow);
 
         return new EffectiveContractData
         {
-            GuaranteedHours = monthlyTargetHours?.Hours ?? defaults.GuaranteedHours,
-            GuaranteedHoursBasisInterval = monthlyTargetHours != null ? (int)PaymentInterval.MonthlyTargetHours : null,
-            GuaranteedHoursSource = monthlyTargetHours != null ? ContractValueSource.MonthlyTargetHours : ContractValueSource.Settings,
+            GuaranteedHours = withoutTargetHours ? 0m : monthlyRow?.Hours ?? defaults.GuaranteedHours,
+            GuaranteedHoursBasisInterval = monthlyRow != null ? (int)PaymentInterval.MonthlyTargetHours : null,
+            GuaranteedHoursSource = monthlyRow != null ? ContractValueSource.MonthlyTargetHours : ContractValueSource.Settings,
             WorkloadPercent = workload.Percent,
             WorkloadPercentSource = workload.Source,
             WorkloadRatioBasis = workload.RatioBasis,
             DefaultWorkingHoursSource = ContractValueSource.Settings,
             MaximumHours = defaults.MaximumHours,
-            MinimumHours = defaults.MinimumHours,
+            MinimumHours = withoutTargetHours ? 0m : defaults.MinimumHours,
             FullTime = defaults.FullTime,
             NightRate = defaults.NightRate,
             HolidayRate = defaults.HolidayRate,
