@@ -124,8 +124,9 @@ dieser Seite (Präfix `period-closing`); die Kartenanker sind `period-closing-pe
   die tatsächlich nicht gelöschte Arbeits- oder Absenz-Einträge enthalten — gruppiert nach
   Zahlungsintervall: **Wöchentlich** (de: "Wöchentlich", en: "Weekly", fr: "Hebdomadaire",
   it: "Settimanale"), **Zweiwöchentlich** (en: "Biweekly"), **Monatlich** (en: "Monthly"),
-  **Individuell** (en: "Individual"). Das Label zeigt den Zeitraum plus ggf. den Gruppennamen;
-  monatliche Perioden werden auf den vollen Kalendermonat normalisiert. Daneben ein
+  **Individuell** (en: "Individual"). Das Label zeigt den Zeitraum plus ggf. den Gruppennamen.
+  Versiegelt, geprüft und exportiert wird genau dieser Zeitraum, ohne Ausdehnung auf den
+  Kalendermonat; das Intervall jeder Periode kommt aus der Einstellung Zahlungsintervall. Daneben ein
   Aktualisieren-Button. Ohne Daten: **Keine verbuchten Perioden vorhanden.** (en: "No booked
   periods available.").
 - Badge-Zeile über der Tabelle: Anzahl **versiegelter Tage** (z. B. "12/31 ✓"), Anzahl

@@ -204,6 +204,7 @@ public class PeriodHoursService : IPeriodHoursService
         PeriodHoursResource calculated)
     {
         await StageMiscutRowRemovalAsync([clientId], startDate, endDate, analyseToken);
+        var paymentInterval = await GetGlobalPaymentIntervalAsync();
 
         var existing = await _context.ClientPeriodHours
             .FirstOrDefaultAsync(p =>
@@ -216,6 +217,7 @@ public class PeriodHoursService : IPeriodHoursService
         {
             existing.Hours = calculated.Hours;
             existing.Surcharges = calculated.Surcharges;
+            existing.PaymentInterval = paymentInterval;
             existing.CalculatedAt = DateTime.UtcNow;
         }
         else
@@ -228,6 +230,7 @@ public class PeriodHoursService : IPeriodHoursService
                 EndDate = endDate,
                 Hours = calculated.Hours,
                 Surcharges = calculated.Surcharges,
+                PaymentInterval = paymentInterval,
                 AnalyseToken = analyseToken,
                 CalculatedAt = DateTime.UtcNow
             });
@@ -270,6 +273,7 @@ public class PeriodHoursService : IPeriodHoursService
             analyseToken);
 
         await StageMiscutRowRemovalAsync(clientIds, startDate, endDate, analyseToken);
+        var paymentInterval = await GetGlobalPaymentIntervalAsync();
 
         var existingEntries = await _context.ClientPeriodHours
             .Where(p => clientIds.Contains(p.ClientId)
@@ -284,6 +288,7 @@ public class PeriodHoursService : IPeriodHoursService
             {
                 existing.Hours = hours.Hours;
                 existing.Surcharges = hours.Surcharges;
+                existing.PaymentInterval = paymentInterval;
                 existing.CalculatedAt = DateTime.UtcNow;
             }
             else
@@ -296,6 +301,7 @@ public class PeriodHoursService : IPeriodHoursService
                     EndDate = endDate,
                     Hours = hours.Hours,
                     Surcharges = hours.Surcharges,
+                    PaymentInterval = paymentInterval,
                     AnalyseToken = analyseToken,
                     CalculatedAt = DateTime.UtcNow
                 };
