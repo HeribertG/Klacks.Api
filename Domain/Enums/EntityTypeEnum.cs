@@ -6,5 +6,6 @@ public enum EntityTypeEnum
 {
     Employee = 0,
     ExternEmp = 1,
-    Customer = 2
+    Customer = 2,
+    StandIn = 3
 }

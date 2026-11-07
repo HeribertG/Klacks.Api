@@ -24,6 +24,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Services.Clients;
 
 namespace Klacks.Api.Application.Services.ClientImport;
 
@@ -196,7 +197,8 @@ public class ClientImportSynonymCatalog
     public EntityTypeEnum? ResolveType(string? value)
     {
         if (int.TryParse(value?.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var code)
-            && Enum.IsDefined(typeof(EntityTypeEnum), code))
+            && Enum.IsDefined(typeof(EntityTypeEnum), code)
+            && ClientTypeRules.IsImportable((EntityTypeEnum)code))
         {
             return (EntityTypeEnum)code;
         }
