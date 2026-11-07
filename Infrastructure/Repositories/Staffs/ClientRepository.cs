@@ -400,6 +400,15 @@ public class ClientRepository : IClientRepository
             .Select(c => c.Id)
             .ToListAsync(cancellationToken);
 
+    public async Task<List<string>> ListNamesInFrameAsync(string prefix, string suffix, CancellationToken cancellationToken = default)
+    {
+        return await context.Client
+            .AsNoTracking()
+            .Where(c => c.Name.StartsWith(prefix) && c.Name.EndsWith(suffix))
+            .Select(c => c.Name)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<HashSet<Guid>> GetStandInIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
     {
         if (ids.Count == 0)

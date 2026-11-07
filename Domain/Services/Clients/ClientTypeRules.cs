@@ -5,7 +5,8 @@
 /// not in the system yet: it can be planned like an employee, but it never takes over a replacement, it has no
 /// target hours, it is no head (HeadcountTypes) and receives no message, the client import does not create it, it carries
 /// a display name only (no first name, gender, address, communication or contract) and no client changes its type to or
-/// from a stand-in in place.
+/// from a stand-in through an update. The one way out is the conversion (CanConvert): a stand-in becomes an employee or an
+/// external employee and keeps its id, works, membership, group items and qualifications; nothing becomes a stand-in.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -42,6 +43,12 @@ public static class ClientTypeRules
     public static readonly IReadOnlyList<EntityTypeEnum> StandInTypes =
     [
         EntityTypeEnum.StandIn,
+    ];
+
+    public static readonly IReadOnlyList<EntityTypeEnum> ConversionTargetTypes =
+    [
+        EntityTypeEnum.Employee,
+        EntityTypeEnum.ExternEmp,
     ];
 
     public static readonly IReadOnlyList<EntityTypeEnum> HeadcountTypes =
@@ -92,6 +99,15 @@ public static class ClientTypeRules
     /// <param name="to">Requested type of the client</param>
     public static bool CanChangeType(EntityTypeEnum from, EntityTypeEnum to) =>
         from == to || (MasterDataTypes.Contains(from) && MasterDataTypes.Contains(to));
+
+    /// <summary>
+    /// True when a client of type <paramref name="from"/> may be converted to <paramref name="to"/>: only a stand-in, and only
+    /// into an employee or an external employee. Never into a stand-in, never back.
+    /// </summary>
+    /// <param name="from">Stored type of the client</param>
+    /// <param name="to">Requested type after the conversion</param>
+    public static bool CanConvert(EntityTypeEnum from, EntityTypeEnum to) =>
+        IsStandIn(from) && ConversionTargetTypes.Contains(to);
 
     /// <summary>
     /// Reads a master data type from its exact name (case-insensitive). A number, a combined value or a stand-in is not

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
@@ -56,7 +57,7 @@ public class Client : BaseEntity
     [StringLength(100)]
     public string? Company { get; set; } = string.Empty;
 
-    [StringLength(100)]
+    [StringLength(ClientFieldLimits.NameMaxLength)]
     public string? FirstName { get; set; } = string.Empty;
 
     [Required]
@@ -71,7 +72,7 @@ public class Client : BaseEntity
 
     public Membership? Membership { get; set; }
 
-    [StringLength(100)]
+    [StringLength(ClientFieldLimits.NameMaxLength)]
     public string Name { get; set; } = string.Empty;
 
     public string? PasswortResetToken { get; set; } = string.Empty;

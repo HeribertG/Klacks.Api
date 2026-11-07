@@ -34,6 +34,16 @@ public interface IClientRepository : IBaseRepository<Client>
     /// <param name="cancellationToken">Cancels the query</param>
     Task<HashSet<Guid>> GetStandInIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Names of the clients that are not deleted whose name starts with <paramref name="prefix"/> and ends with
+    /// <paramref name="suffix"/> (ordinal, case-sensitive), untracked and in no particular order. It applies no visibility
+    /// rule: the names only serve to find the next free index of a stand-in name pattern.
+    /// </summary>
+    /// <param name="prefix">Text the name starts with</param>
+    /// <param name="suffix">Text the name ends with</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<List<string>> ListNamesInFrameAsync(string prefix, string suffix, CancellationToken cancellationToken = default);
+
     Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default);
     Task<List<Client>> GetByTypeWithAddressesAndGroupItemsAsync(EntityTypeEnum type, CancellationToken cancellationToken = default);
     Task<List<Client>> GetByTypeWithQualificationsAsync(EntityTypeEnum type, CancellationToken cancellationToken = default);

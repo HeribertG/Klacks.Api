@@ -91,6 +91,12 @@ public partial class ClientMapper
     [MapperIgnoreTarget(nameof(Annotation.Client))]
     public partial Annotation ToAnnotationEntity(AnnotationResource resource);
 
+    [MapperIgnoreTarget(nameof(Address.Client))]
+    public partial Address ToAddressEntity(AddressResource resource);
+
+    [MapperIgnoreTarget(nameof(Communication.Client))]
+    public partial Communication ToCommunicationEntity(CommunicationResource resource);
+
     public partial AddressResource ToAddressResource(Address address);
     public partial CommunicationResource ToCommunicationResource(Communication communication);
     public partial WorkResource ToWorkResource(Work work);

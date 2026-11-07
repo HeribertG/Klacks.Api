@@ -16,6 +16,11 @@
 /// actually protects the client here is the branch it guards — the note-only command can write nothing
 /// but the notes, whoever reaches it. The permission check starts separating callers the moment the
 /// right leaves the floor; it is the written decision, not today's barrier.
+///
+/// Stand-ins (placeholders for persons not yet hired) are person master data: creating several at once (POST StandIns)
+/// requires CanCreateClients and converting one into an employee or an external employee (POST StandIns/{id}/Convert)
+/// requires CanEditClients, so both are Admin and Authorised work and refused (403) for a caller without a role. Both
+/// honour an Idempotency-Key, so an automatic retry neither creates nor converts twice.
 /// </summary>
 /// <param name="mediator">Dispatches the client queries and commands</param>
 
@@ -30,6 +35,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.Extensions;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -65,6 +71,36 @@ public class ClientsController : BaseController, ICrudResourceController<ClientR
     public async Task<ActionResult<ClientResource>> Post([FromBody] ClientResource resource)
     {
         var model = await _mediator.Send(new PostCommand<ClientResource>(resource));
+        return Ok(model);
+    }
+
+    [HttpPost("StandIns")]
+    [IdempotentRequest]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<ActionResult<List<CreatedStandInResource>>> CreateStandIns(
+        [FromBody] CreateStandInsResource resource, CancellationToken cancellationToken)
+    {
+        if (!Permissions.HasPermission(User.GetUserRights(), Permissions.CanCreateClients))
+        {
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
+        }
+
+        var created = await _mediator.Send(new CreateStandInsCommand(resource), cancellationToken);
+        return Ok(created);
+    }
+
+    [HttpPost("StandIns/{id}/Convert")]
+    [IdempotentRequest]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<ActionResult<ClientResource>> ConvertStandIn(
+        [FromRoute] Guid id, [FromBody] ConvertStandInResource resource, CancellationToken cancellationToken)
+    {
+        if (!Permissions.HasPermission(User.GetUserRights(), Permissions.CanEditClients))
+        {
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
+        }
+
+        var model = await _mediator.Send(new ConvertStandInCommand(id, resource), cancellationToken);
         return Ok(model);
     }
 
