@@ -5,7 +5,6 @@
 /// Allows targeted control per API instance during horizontal scaling.
 /// </summary>
 /// <param name="ScheduleTimeline">Enables the ScheduleTimeline service</param>
-/// <param name="PeriodHours">Enables the PeriodHours service</param>
 /// <param name="MemoryCleanup">Enables the MemoryCleanup service</param>
 /// <param name="Embedding">Enables the Embedding service</param>
 /// <param name="KlacksyLearning">Enables the Klacksy learning maintenance service</param>
@@ -31,7 +30,6 @@ public class BackgroundServiceOptions
     public const string SectionName = "BackgroundServices";
 
     public bool ScheduleTimeline { get; set; } = true;
-    public bool PeriodHours { get; set; } = true;
     public bool ThoroughRecalculation { get; set; } = true;
     public bool MemoryCleanup { get; set; } = true;
     public bool Embedding { get; set; } = true;

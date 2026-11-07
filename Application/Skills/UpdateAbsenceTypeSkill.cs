@@ -19,8 +19,11 @@
 /// <param name="isUnpaid">Optional. Absence is unpaid.</param>
 /// <param name="isOnCall">Optional. Absence is on-call duty: the employee stays reachable and is offered first as a replacement.</param>
 /// <param name="hideInGantt">Optional. Hide the type in the absence Gantt.</param>
+/// <remarks>When isOnCall changes, the cached period hours over the type's absences are recomputed after the commit
+/// (IOnCallSwitchPeriodHoursRefresher), because an on-call absence counts no hours.</remarks>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Exceptions;
@@ -35,14 +38,20 @@ namespace Klacks.Api.Application.Skills;
 public class UpdateAbsenceTypeSkill : BaseSkillImplementation
 {
     private const string SkillName = "update_absence_type";
+    private const string IsOnCallParameter = "isOnCall";
 
     private readonly IAbsenceRepository _absenceRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IOnCallSwitchPeriodHoursRefresher _onCallSwitchRefresher;
 
-    public UpdateAbsenceTypeSkill(IAbsenceRepository absenceRepository, IUnitOfWork unitOfWork)
+    public UpdateAbsenceTypeSkill(
+        IAbsenceRepository absenceRepository,
+        IUnitOfWork unitOfWork,
+        IOnCallSwitchPeriodHoursRefresher onCallSwitchRefresher)
     {
         _absenceRepository = absenceRepository;
         _unitOfWork = unitOfWork;
+        _onCallSwitchRefresher = onCallSwitchRefresher;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -102,6 +111,11 @@ public class UpdateAbsenceTypeSkill : BaseSkillImplementation
             return SkillResult.Error(ex.Message);
         }
 
+        if (changed.Contains(IsOnCallParameter))
+        {
+            await _onCallSwitchRefresher.RefreshAsync(absence.Id, cancellationToken);
+        }
+
         return SkillResult.SuccessResult(
             new
             {
@@ -112,7 +126,11 @@ public class UpdateAbsenceTypeSkill : BaseSkillImplementation
                 absence.Color
             },
             $"Absence type '{absence.Name.De}' updated ({string.Join(", ", changed)}) and confirmed in the " +
-            "database (verified). The change affects future bookings; existing bookings keep their values.");
+            "database (verified). The change affects future bookings; existing bookings keep their values." +
+            (changed.Contains(IsOnCallParameter)
+                ? " The on-call switch also recalculated the stored period hours over the existing absences of this type, " +
+                  "except frozen (sealed and exported) periods."
+                : string.Empty));
     }
 
     private static void ApplyTextFields(
@@ -199,7 +217,7 @@ public class UpdateAbsenceTypeSkill : BaseSkillImplementation
             a => a.WithHoliday, (a, v) => a.WithHoliday = v, p => p.WithHoliday);
         ApplyFlag(parameters, "isUnpaid", absence, changed, verifications,
             a => a.IsUnpaid, (a, v) => a.IsUnpaid = v, p => p.IsUnpaid);
-        ApplyFlag(parameters, "isOnCall", absence, changed, verifications,
+        ApplyFlag(parameters, IsOnCallParameter, absence, changed, verifications,
             a => a.IsOnCall, (a, v) => a.IsOnCall = v, p => p.IsOnCall);
         ApplyFlag(parameters, "hideInGantt", absence, changed, verifications,
             a => a.HideInGantt, (a, v) => a.HideInGantt = v, p => p.HideInGantt);

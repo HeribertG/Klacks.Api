@@ -46,7 +46,7 @@ Every kind of absence, such as holiday or sick leave, has a few switches in the 
 4. (de: "Nur für den internen Gebrauch", en: "For internal use only", fr: "Uniquement pour usage interne", it: "Solo per uso interno") hides the kind from the absence calendar.
 5. (de: "Unbezahlt", en: "Unpaid", fr: "Non payé", it: "Non pagato") appears only after both of the two switches above are ticked.
 6. (de: "Pikett / Bereitschaft (bevorzugt beim Ausfall decken)", en: "On call / standby (preferred cover for short-notice absences)") marks on-call duty.
-7. Save. The change applies to future bookings; existing bookings keep their values.
+7. Save. The change applies to future bookings; existing bookings keep their values. Only the on-call switch also reaches back: right after saving, Klacks recalculates the stored period hours over the days that already carry absences of this kind.
 
 <!-- level:effects -->
 
@@ -93,6 +93,6 @@ An on-call absence stands for on-call duty outside the company. On-call duty ins
 
 **The on-call day stays occupied for the wizards.** The wizards still keep the person out of that day, but an on-call absence on its own (not inside a container service) adds nothing to the hours they balance against the target, whatever hours it carries. A call-out counts only when it is entered as a shift.
 
-**Switching on-call on or off later.** The hours of an absence kind that is already booked change in the period hours shown only once those period hours are recalculated, for example by the next change of that person in that period. A period that is closed and was exported before the person's last two exports is frozen and keeps its exported hours; only an administrator can recalculate it, with a reason (`explain_period_closing_model`).
+**Switching on-call on or off later.** Saving the kind (on the settings page or through Klacksy) recalculates the stored period hours of the real plan from the first to the last day that carries an absence of this kind, so the shown hours follow at once. A period that is closed and was exported before the person's last two exports is frozen and keeps its exported hours; only an administrator can recalculate it, with a reason (`explain_period_closing_model`). Scenarios keep their stored hours until they are recalculated or rebuilt.
 
 **Retiring a kind.** To take a kind out of use without deleting it, tick (de: "Nur für den internen Gebrauch", en: "For internal use only"); deleting is refused while bookings or wishes use it.

@@ -10,7 +10,8 @@
 /// the whole request is refused exactly like a request with a shift that does not exist (one query for all shifts), and so
 /// is a request with a Work on a shift of another world (IWorkWriteGuard). Every Bulk caller passes through here: the
 /// skills place_work and assign_container_week, propose_plan and the wizard and harmonizer apply paths. The period hours
-/// are stored and pushed once per affected client and real pay period, never over a range merged across periods.
+/// are stored and pushed once per affected client and real pay period, never over a range merged across periods. After
+/// the overtime cascade the following pay period a new Work's week reaches is stored as well, without a push.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client of the request</param>
 /// <param name="planningPeriodGuard">Refuses a Work whose employee is not plannable on its day (membership or group period), and any Work for a missing client or a customer</param>
@@ -22,6 +23,7 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
@@ -122,6 +124,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 await _notificationFacade.NotifyWorksBulkCreatedAsync(works, connectionId, periodBoundariesByDate);
 
                 await RecalculatePeriodHoursAsync(works, periodBoundariesByDate, connectionId, response);
+                await BulkPeriodHoursRecalculation.RecalculateFollowingPeriodsAsync(
+                    _periodHoursService, works.Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken)), periodBoundariesByDate);
 
                 await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, bulkToken, cancellationToken);
             }

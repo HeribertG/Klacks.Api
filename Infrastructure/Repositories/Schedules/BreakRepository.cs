@@ -62,6 +62,16 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<(DateOnly First, DateOnly Last)?> GetRealPlanSpanOfAbsenceTypeAsync(Guid absenceId, CancellationToken cancellationToken = default)
+    {
+        var breaks = _context.Break
+            .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.ParentWorkId == null && b.AbsenceId == absenceId);
+        var first = await breaks.MinAsync(b => (DateOnly?)b.CurrentDate, cancellationToken);
+        var last = await breaks.MaxAsync(b => (DateOnly?)b.CurrentDate, cancellationToken);
+
+        return first.HasValue && last.HasValue ? (first.Value, last.Value) : null;
+    }
+
     public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
         var stamp = BulkUpdateAuditStamp.Now(_context);

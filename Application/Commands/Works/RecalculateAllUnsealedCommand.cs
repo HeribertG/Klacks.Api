@@ -3,7 +3,9 @@
 /// <summary>
 /// Queues a thorough recalculation of every unsealed real-mode work, work change and break, whatever its date: the
 /// macros run again for each of them and the period hours of all clients are recalculated. Sealed entries stay untouched.
-/// ThoroughRecalculationBackgroundService finds the covered span itself and works month by month.
+/// ThoroughRecalculationBackgroundService finds the covered span itself (unsealed entries and cached real-plan period-hours
+/// rows, so the rows of members whose membership overlaps the period are rewritten in the real pay periods, frozen ones
+/// excepted) and works month by month.
 /// </summary>
 
 using Klacks.Api.Infrastructure.Mediator;

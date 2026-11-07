@@ -12,18 +12,16 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules;
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Application.Services.Schedules;
 
 public class ScheduleCompletionService : IScheduleCompletionService
 {
-    private const int SuccessorLookAheadDays = CalendarConstants.DaysPerWeek;
-
     private readonly IUnitOfWork _unitOfWork;
     private readonly IScheduleChangeTracker _scheduleChangeTracker;
     private readonly IScheduleTimelineService _timelineService;
@@ -83,10 +81,8 @@ public class ScheduleCompletionService : IScheduleCompletionService
 
         var periodHours = await RecalculateAndGetPeriodHoursAsync(clientId, periodStart, periodEnd, analyseToken);
 
-        // Recalculated separately only when the CLIENT actually changed: a same-client date move within
-        // the same period has no separate "previous client" row to fix up. A cross-period move (old and
-        // new date fall in different periodStart/periodEnd) is a pre-existing, separate gap - callers
-        // resolve boundaries once from the new date before calling this method.
+        // Recalculated separately only when the CLIENT changed. The only caller (AbsenceCoverMaterializer) moves a
+        // work to another person on the same day, so the previous owner's row lies in the same pay period.
         PeriodHoursResource? previousPeriodHours = previousClientId.HasValue && previousClientId.Value != clientId
             ? await RecalculateAndGetPeriodHoursAsync(previousClientId.Value, periodStart, periodEnd, analyseToken)
             : null;
@@ -125,6 +121,7 @@ public class ScheduleCompletionService : IScheduleCompletionService
             var previousPeriodHours = previousClientId.HasValue
                 ? await RecalculateAndGetPeriodHoursAsync(previousClientId.Value, periodStart, periodEnd, work.AnalyseToken)
                 : null;
+            await RecalculateOtherPeriodsAsync(work, previousPosition, previousClientId, periodStart, periodEnd);
 
             return new WorkWriteCompletion(periodHours, previousPeriodHours);
         }
@@ -132,6 +129,60 @@ public class ScheduleCompletionService : IScheduleCompletionService
         {
             return await RecoverFromFailedCompletionAsync(
                 exception, work, previousPosition, previousClientId, periodStart, periodEnd);
+        }
+    }
+
+    /// <summary>
+    /// Stores, without a push, the rows of the pay periods a single-Work write reaches beyond the Work's own period: the
+    /// previous owner's row of the period the Work left when it moved to a day outside its new period (that row would
+    /// otherwise keep the moved Work's hours), and the row of the following period of every position whose day plus a
+    /// week passes its period end (OvertimeSuccessorReach: the cascade changed the surcharges of successors there). No
+    /// push, because the Ui writes a pushed value into the hours of its visible period whatever period it belongs to.
+    /// A period already recalculated for that person is not recalculated again.
+    /// </summary>
+    /// <param name="work">The Work as committed</param>
+    /// <param name="previousPosition">The pre-write state when client or date changed, otherwise null</param>
+    /// <param name="previousClientId">The previous client when the write moved the Work to another client, otherwise null</param>
+    /// <param name="periodStart">First day of the Work's new pay period</param>
+    /// <param name="periodEnd">Last day of the Work's new pay period</param>
+    private async Task RecalculateOtherPeriodsAsync(
+        Work work, Work? previousPosition, Guid? previousClientId, DateOnly periodStart, DateOnly periodEnd)
+    {
+        var recalculated = new HashSet<(Guid ClientId, DateOnly Start)> { (work.ClientId, periodStart) };
+        if (previousClientId.HasValue)
+        {
+            recalculated.Add((previousClientId.Value, periodStart));
+        }
+
+        var positions = new List<(Guid ClientId, DateOnly Day, DateOnly PeriodEnd)> { (work.ClientId, work.CurrentDate, periodEnd) };
+        if (previousPosition != null)
+        {
+            (DateOnly Start, DateOnly End) leftPeriod = previousPosition.CurrentDate >= periodStart && previousPosition.CurrentDate <= periodEnd
+                ? (periodStart, periodEnd)
+                : await _periodHoursService.GetPeriodBoundariesAsync(previousPosition.CurrentDate);
+            await StoreOnceAsync(previousPosition.ClientId, leftPeriod, work.AnalyseToken, recalculated);
+            positions.Add((previousPosition.ClientId, previousPosition.CurrentDate, leftPeriod.End));
+        }
+
+        foreach (var (clientId, day, ownPeriodEnd) in positions)
+        {
+            if (OvertimeSuccessorReach.ReachesFollowingPeriod(day, ownPeriodEnd))
+            {
+                var following = await _periodHoursService.GetPeriodBoundariesAsync(ownPeriodEnd.AddDays(1));
+                await StoreOnceAsync(clientId, following, work.AnalyseToken, recalculated);
+            }
+        }
+    }
+
+    private async Task StoreOnceAsync(
+        Guid clientId,
+        (DateOnly Start, DateOnly End) period,
+        Guid? analyseToken,
+        HashSet<(Guid ClientId, DateOnly Start)> recalculated)
+    {
+        if (recalculated.Add((clientId, period.Start)))
+        {
+            await _periodHoursService.RecalculatePeriodHoursAsync(clientId, period.Start, period.End, analyseToken);
         }
     }
 
@@ -244,7 +295,7 @@ public class ScheduleCompletionService : IScheduleCompletionService
 
         Guid[] clientIds = previousClientId.HasValue ? [work.ClientId, previousClientId.Value] : [work.ClientId];
 
-        if (work.CurrentDate.AddDays(SuccessorLookAheadDays) > periodEnd)
+        if (OvertimeSuccessorReach.ReachesFollowingPeriod(work.CurrentDate, periodEnd))
         {
             await QueueFollowingPeriodAsync(work, periodEnd, clientIds);
         }

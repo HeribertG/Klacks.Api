@@ -12,6 +12,13 @@ public interface IBreakRepository : IBaseRepository<Break>
     Task<List<Guid>> GetClientIdsWithBreakOnDate(IReadOnlyCollection<Guid> clientIds, DateOnly date, Guid absenceId, Guid? analyseToken = null, CancellationToken cancellationToken = default);
     Task<bool> HasOverlappingAbsenceOfSameTypeAsync(Guid clientId, DateOnly date, Guid absenceId, TimeOnly startTime, TimeOnly endTime, Guid? analyseToken, CancellationToken cancellationToken = default);
     Task<List<Break>> GetByClientAndDateRangeAsync(Guid clientId, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// First and last day of the real-plan absences of this type that stand on their own (no container sub-breaks, which
+    /// count whatever their type); null when there is none.
+    /// </summary>
+    Task<(DateOnly First, DateOnly Last)?> GetRealPlanSpanOfAbsenceTypeAsync(Guid absenceId, CancellationToken cancellationToken = default);
+
     Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default);
     Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default);
     Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default);

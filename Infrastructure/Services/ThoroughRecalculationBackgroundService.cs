@@ -21,7 +21,8 @@
 /// full a new request is rejected visibly (return value false plus warning log) instead of
 /// silently dropping an older one. Notifies clients via SignalR when finished.
 /// A request for all unsealed entries carries no window: it finds the first and last day of every unsealed real-mode
-/// work and every unsealed break itself, recalculates them month by month (each month in its own scope, so memory stays
+/// work, every unsealed break and every cached real-plan period-hours row itself (so the rows of fully sealed periods
+/// and rows cut by an earlier pay-period setting are rewritten as well, except frozen ones), recalculates them month by month (each month in its own scope, so memory stays
 /// bounded) and sends one completion notification for the whole span.
 /// </summary>
 /// <param name="serviceProvider">Root service provider for scoped resolution per queued recalculation request</param>
@@ -37,6 +38,7 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services;
@@ -228,23 +230,8 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
-
-        var works = context.Work.Where(w => !w.IsDeleted && w.LockLevel == WorkLockLevel.None && w.AnalyseToken == null);
-        var breaks = context.Break.Where(b => !b.IsDeleted && b.LockLevel == WorkLockLevel.None);
-
-        var firstWork = await works.MinAsync(w => (DateOnly?)w.CurrentDate, cancellationToken);
-        var lastWork = await works.MaxAsync(w => (DateOnly?)w.CurrentDate, cancellationToken);
-        var firstBreak = await breaks.MinAsync(b => (DateOnly?)b.CurrentDate, cancellationToken);
-        var lastBreak = await breaks.MaxAsync(b => (DateOnly?)b.CurrentDate, cancellationToken);
-
-        return (EarlierOf(firstWork, firstBreak), LaterOf(lastWork, lastBreak));
+        return await AllUnsealedSpanQuery.LoadAsync(context, cancellationToken);
     }
-
-    private static DateOnly? EarlierOf(DateOnly? left, DateOnly? right) =>
-        left is null ? right : right is null ? left : left < right ? left : right;
-
-    private static DateOnly? LaterOf(DateOnly? left, DateOnly? right) =>
-        left is null ? right : right is null ? left : left > right ? left : right;
 
     private static DateOnly EndOfMonth(DateOnly day) =>
         new(day.Year, day.Month, DateTime.DaysInMonth(day.Year, day.Month));

@@ -13,6 +13,9 @@
 /// The children keep their server-owned state (seal state, scenario, clone link) from the stored rows and pass the lock level
 /// and day-lock checks of the update and delete handlers, a child left out of the request included (IContainerChildrenWriteGuard).
 /// The owners of the stored children and the persons of the stored work changes must be visible to the caller as well.
+/// After the commit and the overtime cascade the period hours of the container's real pay period are recalculated, stored
+/// and pushed for the owner, the sub-work persons and the replacement persons, plus their following pay period when the
+/// cascade can reach it.
 /// </summary>
 /// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="shiftVisibilityGuard">Decides which shifts of new or changed sub-works the calling user may book</param>
@@ -20,6 +23,7 @@
 /// <param name="replacementWriteGuard">Refuses a new or changed replacement without a valid person or with a blocking conflict for the substitute</param>
 /// <param name="containerWorkChangeGuard">Refuses a new or changed correction on the container itself</param>
 /// <param name="childrenWriteGuard">Keeps the server-owned state of the children and refuses writes the lock levels and sealed days forbid</param>
+/// <param name="periodHoursService">Recalculates, stores and pushes the period hours of everyone the save touches, after the cascade</param>
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -53,6 +57,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     private readonly IReplacementWriteGuard _replacementWriteGuard;
     private readonly IContainerWorkChangeGuard _containerWorkChangeGuard;
     private readonly IContainerChildrenWriteGuard _childrenWriteGuard;
+    private readonly IPeriodHoursService _periodHoursService;
 
     public UpdateContainerWorkChildrenCommandHandler(
         IContainerWorkChildrenReadRepository childrenReadRepository,
@@ -69,6 +74,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         IReplacementWriteGuard replacementWriteGuard,
         IContainerWorkChangeGuard containerWorkChangeGuard,
         IContainerChildrenWriteGuard childrenWriteGuard,
+        IPeriodHoursService periodHoursService,
         ILogger<UpdateContainerWorkChildrenCommandHandler> logger)
         : base(logger)
     {
@@ -86,6 +92,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         _replacementWriteGuard = replacementWriteGuard;
         _containerWorkChangeGuard = containerWorkChangeGuard;
         _childrenWriteGuard = childrenWriteGuard;
+        _periodHoursService = periodHoursService;
     }
 
     public async Task<ContainerWorkChildrenResource> Handle(UpdateContainerWorkChildrenCommand request, CancellationToken cancellationToken)
@@ -139,6 +146,8 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             {
                 await _overtimeCascadeService.ReprocessSuccessorsAsync(cascadeAnchors);
             }
+
+            await RecalculatePeriodHoursAsync(container, stored, updatedWorks, updatedWorkChanges);
 
             await NotifyAffectedShiftsAsync(parentWork, cancellationToken);
 
@@ -309,6 +318,41 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
                 throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, subWork.ShiftId));
             }
         }
+    }
+
+    /// <summary>
+    /// Recalculates, stores and pushes the period hours of the container's real pay period for its owner, the persons of
+    /// its sub-works and the replacement persons of its work changes, stored and saved, because the save changes the
+    /// container's own hours, its sub-breaks and what each of them counts. When the container's day plus a week passes the
+    /// period end, the same persons' following pay period is stored as well, without a push (BulkPeriodHoursRecalculation).
+    /// Frozen periods stay unchanged.
+    /// </summary>
+    private async Task RecalculatePeriodHoursAsync(
+        Work container,
+        StoredContainerChildren stored,
+        IEnumerable<Work> updatedWorks,
+        IEnumerable<WorkChange> updatedWorkChanges)
+    {
+        var clientIds = updatedWorks.Select(w => w.ClientId)
+            .Concat(stored.Works.Select(w => w.ClientId))
+            .Concat(updatedWorkChanges.Concat(stored.WorkChanges)
+                .Where(wc => wc.ReplaceClientId.HasValue)
+                .Select(wc => wc.ReplaceClientId!.Value))
+            .Prepend(container.ClientId)
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToList();
+
+        var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(container.CurrentDate);
+        var connectionId = _notificationFacade.GetConnectionId();
+        foreach (var clientId in clientIds)
+        {
+            await _periodHoursService.RecalculateAndNotifyAsync(
+                clientId, periodStart, periodEnd, container.AnalyseToken, connectionId);
+        }
+
+        await BulkPeriodHoursRecalculation.RecalculateFollowingPeriodsAsync(
+            _periodHoursService, clientIds.Select(clientId => (clientId, container.CurrentDate, container.AnalyseToken)));
     }
 
     private async Task NotifyAffectedShiftsAsync(Work? parentWork, CancellationToken cancellationToken)

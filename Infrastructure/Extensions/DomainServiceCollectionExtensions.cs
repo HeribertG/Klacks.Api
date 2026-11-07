@@ -229,6 +229,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IScheduleCompletionService, ScheduleCompletionService>();
         services.AddScoped<IFrozenPeriodOverrideAudit, FrozenPeriodOverrideAudit>();
         services.AddScoped<IOvertimeCascadeService, OvertimeCascadeService>();
+        services.AddScoped<IOnCallSwitchPeriodHoursRefresher, OnCallSwitchPeriodHoursRefresher>();
         services.AddScoped<ContainerTemplateService>();
         services.AddScoped<IWorkChangeResultService, WorkChangeResultService>();
         services.AddScoped<IWorkNotificationFacade, WorkNotificationFacade>();

@@ -178,9 +178,6 @@ if (!string.IsNullOrWhiteSpace(signalRBackplaneOptions.ConnectionString))
 builder.Services.AddSingleton<IConnectionDateRangeTracker, ConnectionDateRangeTracker>();
 builder.Services.AddScoped<IWorkNotificationService, WorkNotificationService>();
 builder.Services.AddScoped<IShiftStatsNotificationService, ShiftStatsNotificationService>();
-builder.Services.AddSingleton<PeriodHoursBackgroundService>();
-if (bgOptions.PeriodHours)
-    builder.Services.AddHostedService(sp => sp.GetRequiredService<PeriodHoursBackgroundService>());
 builder.Services.AddSingleton<ThoroughRecalculationBackgroundService>();
 builder.Services.AddSingleton<Klacks.Api.Application.Interfaces.IThoroughRecalculationQueue>(
     sp => sp.GetRequiredService<ThoroughRecalculationBackgroundService>());

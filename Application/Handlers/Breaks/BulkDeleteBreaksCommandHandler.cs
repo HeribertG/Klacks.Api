@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Deletes several breaks (absence entries) in one call and recalculates the affected period hours. Breaks
+/// Deletes several breaks (absence entries) in one call and recalculates the affected period hours: after the commit the
+/// cached rows are recalculated once per client, scenario and real pay period (BulkPeriodHoursRecalculation), the state
+/// single deletes leave; the response keeps the live hours over the client's span. Breaks
 /// owned by clients outside the caller's group visibility are treated exactly like ids that do not exist:
 /// they are not deleted and count as failed. Like the single delete, the whole request is refused when any
 /// visible break lies on a sealed day (IDayLockService), whatever the caller's role.
@@ -12,6 +14,7 @@
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -69,6 +72,7 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
 
             var affected = deletedBreaks.Select(b => (b.ClientId, b.CurrentDate, b.AnalyseToken)).ToList();
             await _completionService.SaveBulkAndTrackAsync(affected);
+            await BulkPeriodHoursRecalculation.RecalculateAsync(_periodHoursService, affected, includeSuccessorPeriod: false);
 
             foreach (var breakEntry in deletedBreaks)
             {

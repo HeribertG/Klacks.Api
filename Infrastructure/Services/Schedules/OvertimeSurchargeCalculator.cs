@@ -31,6 +31,7 @@
 /// successor lookup read committed database state, not the EF change tracker — can reprocess them and
 /// keep the partition consistent.
 /// </remarks>
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -45,7 +46,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
 {
-    private const int DaysInWeek = 7;
+    private const int DaysInWeek = CalendarConstants.DaysPerWeek;
 
     private readonly DataBaseContext _context;
     private readonly IOvertimeConfigResolver _configResolver;

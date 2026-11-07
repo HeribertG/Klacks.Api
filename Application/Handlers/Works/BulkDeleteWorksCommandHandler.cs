@@ -4,7 +4,8 @@
 /// Soft-deletes several Works in one call and recalculates the affected period hours. After the overtime cascade the
 /// period hours of each deleted Work's client, scenario and pay period are recalculated and persisted once, the state a
 /// single delete leaves: readers prefer a cached row over the live sum, and the payroll export reads only the cached
-/// rows. Works owned by
+/// rows. The following pay period is recalculated as well when the deleted Work's day plus a week passes its period end,
+/// because the cascade changed the surcharges of successors there (BulkPeriodHoursRecalculation). Works owned by
 /// clients outside the caller's group visibility are treated exactly like ids that do not exist: they are
 /// not deleted and count as failed. Like the single delete, the whole request is refused when any visible work
 /// lies on a sealed day (IDayLockService), whatever the caller's role, or when any visible Work's own lock level
@@ -26,6 +27,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
@@ -134,7 +136,10 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             // per-client period-hours calculation below then already includes the cascade's adjustments.
             await _overtimeCascadeService.ReprocessSuccessorsAsync(deletedWorks);
 
-            await RecalculateCachedPeriodHoursAsync(deletedWorks);
+            await BulkPeriodHoursRecalculation.RecalculateAsync(
+                _periodHoursService,
+                deletedWorks.Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken)),
+                includeSuccessorPeriod: true);
 
             foreach (var work in deletedWorks)
             {
@@ -205,30 +210,5 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
 
             return response;
         }, "BulkDeleteWorks", new { Count = command.Request.WorkIds.Count });
-    }
-
-    /// <summary>
-    /// Persists the period hours of every deleted Work's client, scenario and pay period once; when one client's Works
-    /// span two pay periods, both rows are recalculated and both stay.
-    /// </summary>
-    /// <param name="deletedWorks">The Works just soft-deleted and committed</param>
-    private async Task RecalculateCachedPeriodHoursAsync(IReadOnlyList<Work> deletedWorks)
-    {
-        var periodsByDate = new Dictionary<DateOnly, (DateOnly Start, DateOnly End)>();
-        var recalculated = new HashSet<(Guid ClientId, Guid? AnalyseToken, DateOnly Start, DateOnly End)>();
-        foreach (var work in deletedWorks)
-        {
-            if (!periodsByDate.TryGetValue(work.CurrentDate, out var period))
-            {
-                period = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
-                periodsByDate[work.CurrentDate] = period;
-            }
-
-            var (start, end) = period;
-            if (recalculated.Add((work.ClientId, work.AnalyseToken, start, end)))
-            {
-                await _periodHoursService.RecalculatePeriodHoursAsync(work.ClientId, start, end, work.AnalyseToken);
-            }
-        }
     }
 }

@@ -4,7 +4,9 @@
 /// Creates several breaks (absence entries) in one call after the day-lock and duplicate-absence guards
 /// have passed. If any break is for a client outside the caller's group visibility, the whole request is
 /// refused exactly like a request for a client that does not exist; nothing is written. The credits are calculated first,
-/// then the absences take away the works they leave uncovered, unless the caller decides about those itself.
+/// then the absences take away the works they leave uncovered, unless the caller decides about those itself. After the
+/// commit the cached period hours are recalculated once per client, scenario and real pay period
+/// (BulkPeriodHoursRecalculation), the state single writes leave; the response keeps the live hours over the client's span.
 /// </summary>
 /// <param name="workRemovalService">Takes away the works the absence leaves uncovered</param>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client of the request</param>
@@ -13,6 +15,7 @@ using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -112,6 +115,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
 
                 var affected = breaks.Select(b => (b.ClientId, b.CurrentDate, b.AnalyseToken)).ToList();
                 await _completionService.SaveBulkAndTrackAsync(affected);
+                await BulkPeriodHoursRecalculation.RecalculateAsync(_periodHoursService, affected, includeSuccessorPeriod: false);
 
                 var clientPeriods = new Dictionary<Guid, (DateOnly Start, DateOnly End)>();
                 foreach (var b in breaks)

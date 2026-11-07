@@ -106,6 +106,10 @@ The names available to a computation are **not** the same list as the names you 
 For the work schedule the computations see totals such as the number of rows, total hours, total
 surcharges, total working days and total expenses.
 
+**On-call absences count 0 hours in a report.** In the work schedule source, the row of an absence of an on-call
+kind shows 0 hours, a computation reading its `hours` gets 0, and the sums leave it out, the same rule as the
+period hours (`explain_absence_type_flags`). Only the call-out, entered as its own shift, adds hours.
+
 Available operations include the usual arithmetic plus worded operators such as `DIV`, `MOD`, `AND`,
 `OR`, `NOT`, and functions including `IIF`, `ROUND`, `ABS`, `LEN`, `LEFT`, `RIGHT`, `MID`, `TRIM`,
 `UCASE`, `LCASE`, `REPLACE`, `INSTR`, `SQR`, `LOG`, `EXP`, `TIMETOHOURS` and `TIMEOVERLAP`. Loops and
