@@ -333,6 +333,7 @@ public class PeriodHoursService : IPeriodHoursService
         }
 
         var now = DateTime.UtcNow;
+        var paymentInterval = await GetGlobalPaymentIntervalAsync();
 
         foreach (var period in cachedRows.GroupBy(p => (p.StartDate, p.EndDate)))
         {
@@ -348,6 +349,7 @@ public class PeriodHoursService : IPeriodHoursService
                 var hours = calculated[row.ClientId];
                 row.Hours = hours.Hours;
                 row.Surcharges = hours.Surcharges;
+                row.PaymentInterval = paymentInterval;
                 row.CalculatedAt = now;
             }
         }
