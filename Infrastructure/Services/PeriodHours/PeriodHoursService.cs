@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
@@ -522,6 +523,14 @@ public class PeriodHoursService : IPeriodHoursService
             if (period.EndDate >= untilDate)
             {
                 return periods;
+            }
+
+            if (periods.Count >= PayPeriodLimits.MaxPeriodsInRange)
+            {
+                throw new InvalidRequestException(
+                    $"The range {fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)}.." +
+                    $"{untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture)} spans more than " +
+                    $"{PayPeriodLimits.MaxPeriodsInRange} pay periods.");
             }
 
             cursor = period.EndDate.AddDays(1);

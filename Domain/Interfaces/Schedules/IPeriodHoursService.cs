@@ -62,8 +62,9 @@ public interface IPeriodHoursService
     /// touches, in date order: the period of <paramref name="fromDate"/> first, then each following period from the day after
     /// the previous period's end, until a period ends on or after <paramref name="untilDate"/>. The first period may start
     /// before <paramref name="fromDate"/> and the last may end after <paramref name="untilDate"/>. Empty when
-    /// <paramref name="fromDate"/> is after <paramref name="untilDate"/>. A cached period-hours row must be keyed by one of
-    /// these periods, never by an event or merged window.
+    /// <paramref name="fromDate"/> is after <paramref name="untilDate"/>. Throws InvalidRequestException when the range spans
+    /// more than PayPeriodLimits.MaxPeriodsInRange periods. A cached period-hours row must be keyed by one of these periods,
+    /// never by an event or merged window.
     /// </summary>
     Task<IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)>> GetPeriodsInRangeAsync(DateOnly fromDate, DateOnly untilDate);
 

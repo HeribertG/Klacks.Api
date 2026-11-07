@@ -28,6 +28,7 @@ using System.Threading.Channels;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Macros;
@@ -133,6 +134,12 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
                 try
                 {
                     await ProcessRequestAsync(request, stoppingToken);
+                }
+                catch (InvalidRequestException ex)
+                {
+                    _logger.LogWarning(
+                        "Thorough recalculation request for {Start} - {End} refused before any write: {Reason}",
+                        request.StartDate, request.EndDate, ex.Message);
                 }
                 catch (Exception ex)
                 {
@@ -268,6 +275,8 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
             request.SelectedGroup,
             request.AnalyseToken);
 
+        var payPeriods = await periodHoursService.GetPeriodsInRangeAsync(request.StartDate, request.EndDate);
+
         List<Guid>? clientIdFilter = request.ClientIds.Count > 0 ? request.ClientIds.ToList() : null;
         if (request.SelectedGroup.HasValue)
         {
@@ -323,7 +332,8 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
         await breakMacroService.ReprocessAllBreaksAsync(request.StartDate, request.EndDate, clientIdFilter);
         var breakCount = await CountBreaksAsync(context, request, clientIdFilter, cancellationToken);
 
-        await RecalculatePeriodHoursPerPayPeriodAsync(periodHoursService, request, clientIdFilter, cancellationToken);
+        await RecalculatePeriodHoursPerPayPeriodAsync(
+            periodHoursService, request, payPeriods, clientIdFilter, cancellationToken);
 
         _logger.LogInformation(
             "Completed thorough recalculation for {Start} - {End} (works={Works}, workChanges={WorkChanges}, breaks={Breaks})",
@@ -346,14 +356,15 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
     /// period and the payroll export reads it), for the scoped clients one by one or, without explicit client ids, for all
     /// clients of the selected group.
     /// </summary>
+    /// <param name="payPeriods">The pay periods of the request window, resolved before the first write so an oversized
+    /// window is refused before any macro is reprocessed</param>
     private static async Task RecalculatePeriodHoursPerPayPeriodAsync(
         IPeriodHoursService periodHoursService,
         ThoroughRecalculationRequest request,
+        IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)> payPeriods,
         List<Guid>? clientIdFilter,
         CancellationToken cancellationToken)
     {
-        var payPeriods = await periodHoursService.GetPeriodsInRangeAsync(request.StartDate, request.EndDate);
-
         foreach (var (periodStart, periodEnd) in payPeriods)
         {
             if (request.ClientIds.Count > 0 && clientIdFilter is not null)

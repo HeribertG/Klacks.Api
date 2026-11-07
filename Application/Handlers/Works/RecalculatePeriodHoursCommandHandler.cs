@@ -36,8 +36,8 @@ public class RecalculatePeriodHoursCommandHandler : BaseHandler, IRequestHandler
     {
         return await ExecuteAsync(async () =>
         {
-            await _breakMacroService.ReprocessAllBreaksAsync(request.StartDate, request.EndDate);
             var payPeriods = await _periodHoursService.GetPeriodsInRangeAsync(request.StartDate, request.EndDate);
+            await _breakMacroService.ReprocessAllBreaksAsync(request.StartDate, request.EndDate);
             foreach (var (periodStart, periodEnd) in payPeriods)
             {
                 await _periodHoursService.RecalculateAllClientsAsync(periodStart, periodEnd, request.SelectedGroup);
