@@ -28,6 +28,10 @@ public interface IClientSearchRepository
 
     Task<string> FindStatePostCode(string zip);
 
+    /// <summary>
+    /// The people the caller may pick as a replacement, scoped to the caller's visible groups: only the client types
+    /// the replacement write guard accepts (ClientTypeRules.ReplacementCandidateTypes), ordered by IdNumber.
+    /// </summary>
     Task<List<ClientForReplacementResource>> GetClientsForReplacement();
 
     /// <summary>

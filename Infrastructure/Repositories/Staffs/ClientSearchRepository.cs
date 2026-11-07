@@ -34,6 +34,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Geo;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Domain.Services.Geo;
 using Klacks.Api.Infrastructure.Persistence;
@@ -144,9 +145,10 @@ public class ClientSearchRepository : IClientSearchRepository
 
     public async Task<List<ClientForReplacementResource>> GetClientsForReplacement()
     {
+        var candidateTypes = ClientTypeRules.ReplacementCandidateTypes.ToList();
         var query = this.context.Client
             .Include(c => c.GroupItems)
-            .Where(c => c.Type != EntityTypeEnum.Customer)
+            .Where(c => candidateTypes.Contains(c.Type))
             .AsNoTracking();
 
         query = await _groupFilterService.FilterClientsByGroupId(null, query);

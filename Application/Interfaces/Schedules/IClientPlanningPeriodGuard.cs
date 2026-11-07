@@ -57,7 +57,8 @@ public interface IClientPlanningPeriodGuard
     /// <summary>
     /// Refuses targets that cannot take over a top-level Work at all, whatever the day, in one query: a client that does
     /// not exist or is deleted reads like a missing client (KeyNotFoundException); a customer is refused
-    /// (InvalidRequestException), only an employee or an external employee can be planned (ReplacementPersonRule).
+    /// (InvalidRequestException), only an employee, an external employee or a stand-in can be planned
+    /// (ClientTypeRules.IsPlannable).
     /// Visibility stays the caller's check. Services inside a container may belong to a customer and are not checked here.
     /// </summary>
     /// <param name="clientIds">The clients Works are about to be given to</param>

@@ -9,7 +9,8 @@
 /// blocked, exactly like the grid. The earliest offending day is reported; FindViolationsAsync lists every offending cell
 /// without throwing, so a batch planner can reject single placements instead of the whole batch;
 /// FindViolationsInGroupsAsync reads the group period of explicitly named groups (the target group of a planner run)
-/// instead of the request's group context. EnsurePlannablePersonsAsync refuses a missing or deleted target and a customer.
+/// instead of the request's group context. EnsurePlannablePersonsAsync refuses a missing or deleted target and every
+/// client that is not plannable by ClientTypeRules (a customer).
 /// </summary>
 /// <param name="clientRepository">Loads the employees with their membership</param>
 /// <param name="groupItemRepository">Reads the group period bounds of the employees</param>
@@ -25,7 +26,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Domain.Services.Schedules;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 
 namespace Klacks.Api.Application.Services.Schedules;
@@ -41,7 +42,7 @@ public sealed class ClientPlanningPeriodGuard : IClientPlanningPeriodGuard
         "{0} cannot be planned on {1}: the day is outside the group period of the employee ({2} to {3}).";
 
     private const string NotAPlannablePersonMessage =
-        "{0} cannot be planned: only an employee or an external employee can take over a service.";
+        "{0} cannot be planned: only an employee, an external employee or a stand-in can take over a service.";
 
     private readonly IClientRepository _clientRepository;
     private readonly IGroupItemRepository _groupItemRepository;
@@ -112,7 +113,7 @@ public sealed class ClientPlanningPeriodGuard : IClientPlanningPeriodGuard
                 throw new KeyNotFoundException(string.Format(ClientVisibilityMessages.ClientNotFound, id));
             }
 
-            if (!ReplacementPersonRule.IsEligible(client.Type))
+            if (!ClientTypeRules.IsPlannable(client.Type))
             {
                 throw new InvalidRequestException(string.Format(NotAPlannablePersonMessage, DisplayName(client)));
             }

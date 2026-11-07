@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,8 +12,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// Resolves a group's schedulable employees from <c>GroupItem</c> (the client→group membership),
 /// restricted to memberships whose validity window overlaps the planning period. The soft-delete
 /// query filter on GroupItem is honoured (no IgnoreQueryFilters), so retired memberships are excluded.
-/// Only employees are returned: a group may mix staff and customers, and a customer must never end up
-/// as a plannable bitmap row.
+/// Only plannable clients are returned (ClientTypeRules.PlannableTypes: employees, external employees and stand-ins): a
+/// group may mix staff and customers, and a customer must never end up as a plannable bitmap row.
 /// </summary>
 /// <param name="context">EF context for the membership query</param>
 public sealed class Wizard4AgentResolver : IWizard4AgentResolver
@@ -30,6 +30,7 @@ public sealed class Wizard4AgentResolver : IWizard4AgentResolver
         // ValidFrom/ValidUntil are timestamptz; Npgsql requires UTC-kind DateTimes for them.
         var fromDt = periodFrom.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
         var untilDt = periodUntil.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
+        var plannableTypes = ClientTypeRules.PlannableTypes.ToList();
 
         return await _context.GroupItem
             .AsNoTracking()
@@ -37,8 +38,7 @@ public sealed class Wizard4AgentResolver : IWizard4AgentResolver
                 && gi.ClientId.HasValue
                 && (gi.ValidFrom == null || gi.ValidFrom <= untilDt)
                 && (gi.ValidUntil == null || gi.ValidUntil >= fromDt)
-                && _context.Client.Any(c => c.Id == gi.ClientId
-                    && (c.Type == EntityTypeEnum.Employee || c.Type == EntityTypeEnum.ExternEmp)))
+                && _context.Client.Any(c => c.Id == gi.ClientId && plannableTypes.Contains(c.Type)))
             .Select(gi => gi.ClientId!.Value)
             .Distinct()
             .ToListAsync(ct);
