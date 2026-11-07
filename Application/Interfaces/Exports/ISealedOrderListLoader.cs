@@ -4,6 +4,8 @@
 /// Loads the list of sealed orders available for export, joined with customer
 /// data and Work-locking statistics. Used by the export selection dropdown.
 /// </summary>
+/// <param name="visibleGroupIds">Shift group restriction of the caller from IShiftGroupFilterService.ResolveShiftListGroupIdsAsync,
+/// applied before the result cap; null = unrestricted</param>
 using Klacks.Api.Application.DTOs.Exports;
 
 namespace Klacks.Api.Application.Interfaces.Exports;
@@ -15,5 +17,6 @@ public interface ISealedOrderListLoader
         DateOnly? untilDate,
         Guid? customerId,
         string? searchTerm,
+        IReadOnlyCollection<Guid>? visibleGroupIds,
         CancellationToken cancellationToken = default);
 }

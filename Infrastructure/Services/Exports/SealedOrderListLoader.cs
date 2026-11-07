@@ -5,7 +5,8 @@
 /// Work entries broken down by lock state. The Work counter recurses through
 /// the SealedOrder's descendant shifts (OriginalShift -> SplitShift) via
 /// IShiftDescendantResolver. Real orders only: shifts of a variant (key) and scenario clones are left out, and so is a
-/// shift without a customer (BillableOrderRule).
+/// shift without a customer (BillableOrderRule). The caller's shift group restriction (ShiftGroupVisibilityQuery) is applied
+/// in the database before the result cap.
 /// </summary>
 using Klacks.Api.Application.DTOs.Exports;
 using Klacks.Api.Application.Interfaces.Exports;
@@ -13,6 +14,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Exports;
@@ -35,6 +37,7 @@ public class SealedOrderListLoader : ISealedOrderListLoader
         DateOnly? untilDate,
         Guid? customerId,
         string? searchTerm,
+        IReadOnlyCollection<Guid>? visibleGroupIds,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Shift
@@ -45,6 +48,7 @@ public class SealedOrderListLoader : ISealedOrderListLoader
                 && s.ScenarioSourceShiftId == null)
             .Where(BillableOrderRule.HasCustomer);
 
+        query = ShiftGroupVisibilityQuery.Apply(query, visibleGroupIds);
         query = ApplyPeriodAndCustomerFilters(query, fromDate, untilDate, customerId);
         query = await ApplySearchAsync(query, searchTerm, cancellationToken);
 

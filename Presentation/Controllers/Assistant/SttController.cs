@@ -28,10 +28,12 @@ using Klacks.Api.Presentation.DTOs.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 [ApiController]
 [Route("api/backend/assistant/stt")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[EnableRateLimiting(RateLimitingPolicies.Speech)]
 public class SttController : ControllerBase
 {
     private const string DefaultLocale = "de";

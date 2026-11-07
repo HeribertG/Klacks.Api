@@ -7,6 +7,7 @@
 /// <param name="transcriptionEnhancerService">Service that performs the LLM-based transcription cleanup</param>
 /// <param name="logger">Logger for diagnostic output</param>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Presentation.DTOs.Assistant;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
 
@@ -34,6 +36,7 @@ public class TranscriptionController : ControllerBase
     }
 
     [HttpPost("enhance")]
+    [EnableRateLimiting(RateLimitingPolicies.LlmChat)]
     [PlaygroundPromptLimit]
     public async Task<ActionResult<TranscriptionEnhanceResponse>> Enhance(
         [FromBody] TranscriptionEnhanceRequest request,

@@ -12,6 +12,7 @@ using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using System.Security.Claims;
 using Klacks.Api.Presentation.Filters;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
 
@@ -46,6 +47,7 @@ public class AgentsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> Create([FromBody] CreateAgentRequest request, CancellationToken ct)
     {
         var result = await _mediator.Send(new CreateAgentCommand
@@ -58,6 +60,7 @@ public class AgentsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAgentRequest request, CancellationToken ct)
     {
         var result = await _mediator.Send(new UpdateAgentCommand

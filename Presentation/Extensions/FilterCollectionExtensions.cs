@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Single registration point for the global MVC action filters: the admin setup gate and the scenario token access
-/// check that every controller request passes.
+/// Single registration point for the global MVC action filters: the admin setup gate, the scenario token access
+/// check and the Playground block on plugin write endpoints, which every controller request passes.
 /// </summary>
 
 using Klacks.Api.Presentation.Filters;
@@ -17,6 +17,7 @@ public static class FilterCollectionExtensions
     {
         filters.Add<AdminSetupGateFilter>();
         filters.Add<ScenarioTokenAccessFilter>();
+        filters.Add<PluginWriteBlockedOnPlaygroundFilter>();
 
         return filters;
     }

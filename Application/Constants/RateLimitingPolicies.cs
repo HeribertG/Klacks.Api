@@ -19,6 +19,7 @@ public static class RateLimitingPolicies
     public const string ClientImport = "client-import";
     public const string GeoProxy = "geo-proxy";
     public const string PlaygroundStatus = "playground-status";
+    public const string Speech = "speech";
 
     public const int LoginPermitLimit = 20;
     public const int UploadPermitLimit = 30;
@@ -38,6 +39,13 @@ public static class RateLimitingPolicies
     public const int ClientImportPermitLimit = 120;
     public const int GeoProxyPermitLimit = 20;
     public const int PlaygroundStatusPermitLimit = 120;
+    /// <summary>
+    /// Speech requests (STT transcription and stream start, TTS synthesis and voices) per user and window. Voice mode
+    /// sends at most one interim transcription every 2 seconds (one in flight, at most 30 per minute) plus one final
+    /// upload per utterance, and synthesizes the spoken answer sentence by sentence, so the LLM chat limit of 30 would
+    /// cut it off.
+    /// </summary>
+    public const int SpeechPermitLimit = 120;
 
     public const string AnonymousPartitionKey = "anonymous";
     public const string PlaygroundPartitionPrefix = "playground:";

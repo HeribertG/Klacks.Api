@@ -17,6 +17,7 @@ public static class PlaygroundBlockedSkills
     {
         "create_plan",
         "send_broadcast",
+        "send_message",
         "translate_email",
         "test_imap_connection",
         "test_smtp_connection",

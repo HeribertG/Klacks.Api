@@ -6,7 +6,10 @@
 /// </summary>
 using Klacks.Api.Application.DTOs.Exports;
 using Klacks.Api.Application.Queries.Exports;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Exports;
@@ -35,6 +38,7 @@ public class OrderExportController : BaseController
     }
 
     [HttpGet("orders")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult<List<SealedOrderListItem>>> Orders(
         [FromQuery] DateOnly? from,
         [FromQuery] DateOnly? until,

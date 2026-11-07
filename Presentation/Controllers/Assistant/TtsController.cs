@@ -15,12 +15,14 @@ using Klacks.Api.Presentation.DTOs.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
 
 [ApiController]
 [Route("api/backend/assistant/tts")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[EnableRateLimiting(RateLimitingPolicies.Speech)]
 public class TtsController : ControllerBase
 {
     private readonly ILogger<TtsController> _logger;

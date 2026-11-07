@@ -232,6 +232,12 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "update_ai_guidelines",
         "update_ai_soul",
         "update_compliance_enforcement_settings",
+        // The same rule for the skills Klacksy can do: create_agent_skill and update_agent_skill write model-generated
+        // descriptions and steps into the shared skill catalog (UntrustedSkillOutputs lists the reader for that reason),
+        // and delete_agent_skill disables one that update_agent_skill cannot bring back, as it only finds enabled skills.
+        "create_agent_skill",
+        "update_agent_skill",
+        "delete_agent_skill",
         // The planning deadline lead decides how many days before a period starts the next-period detector
         // reports it and, when the autonomy brakes allow, starts the automatic autofill: raising it moves
         // the autopilot's start earlier, onto less complete availability input. The guided recipe only
@@ -299,7 +305,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Owner decision 2026-10-12 ("only deletes and resets ask"): the default autonomy level stays Autonomous, but
         // every delete_/remove_/reset_ skill that destroys business, personal, payroll, compliance or credential data is
         // confirmed at EVERY level - the assistant must not remove such data on its own say-so or a prompt injection.
-        // What stays Irreversible is assistant-internal bookkeeping only (delete_ai_memory, delete_agent_skill,
+        // What stays Irreversible is assistant-internal bookkeeping only (delete_ai_memory,
         // delete_transcription_dictionary_entry, see DestructiveSkillRiskDecisionGuardTests). Price, stated plainly:
         // UnattendedSkillPolicy refuses these on every background path, McpSkillExposurePolicy hides them from MCP and
         // ScheduleRecurringTaskSkill cannot schedule them.
@@ -600,7 +606,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "update_spam_filter_settings",
         "set_my_theme",
         "set_my_display_language",
-        // The assistant's own bookkeeping: memories, notes, user-created UiAction skills, skill
+        // The assistant's own bookkeeping: memories, notes, skill
         // relations, navigation synonyms, the transcription dictionary, scheduled tasks and the feature-plugin
         // on/off toggle. confirm_pending_action is listed for completeness only - AutonomyGateService
         // short-circuits it by name before any classification is read.
@@ -609,9 +615,6 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "update_ai_memory",
         "delete_ai_memory",
         "manage_pending_notes",
-        "create_agent_skill",
-        "update_agent_skill",
-        "delete_agent_skill",
         "accept_skill_relation",
         "dismiss_skill_relation",
         "close_clarification",
