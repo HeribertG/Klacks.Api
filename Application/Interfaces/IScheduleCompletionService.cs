@@ -7,11 +7,20 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IScheduleCompletionService
 {
+    /// <summary>
+    /// Commits, tracks the change, queues the timeline check, then recalculates the period hours through
+    /// IPeriodHoursService.RecalculateAndNotifyAsync, which also sends the PeriodHoursUpdated push. Callers
+    /// therefore do not push the returned period hours a second time.
+    /// </summary>
     Task<PeriodHoursResource> SaveAndTrackAsync(
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,
         Guid? analyseToken);
 
+    /// <summary>
+    /// Same as SaveAndTrackAsync for a move; recalculates and pushes the period hours of the new owner and,
+    /// when the client changed, of the previous owner.
+    /// </summary>
     Task<(PeriodHoursResource PeriodHours, PeriodHoursResource? PreviousPeriodHours)> SaveAndTrackMoveAsync(
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,

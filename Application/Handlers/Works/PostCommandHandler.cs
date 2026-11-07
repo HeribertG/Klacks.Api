@@ -141,7 +141,6 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkCreatedAsync(work, connectionId, periodStart, periodEnd);
-            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(work.ClientId, periodStart, periodEnd, periodHours, connectionId, work.AnalyseToken);
             await _notificationFacade.NotifyShiftStatsAsync(work.ShiftId, work.CurrentDate, connectionId, work.AnalyseToken, cancellationToken);
 
             var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();

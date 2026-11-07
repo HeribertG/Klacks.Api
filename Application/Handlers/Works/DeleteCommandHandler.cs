@@ -120,7 +120,6 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkDeletedAsync(work, connectionId, periodStart, periodEnd);
-            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(work.ClientId, periodStart, periodEnd, periodHours, connectionId, work.AnalyseToken);
             await _notificationFacade.NotifyShiftStatsAsync(shiftId, workDate, connectionId, work.AnalyseToken, cancellationToken);
 
             var visibleGroupIds = await _groupContextResolver.ResolveVisibleGroupIdsAsync();

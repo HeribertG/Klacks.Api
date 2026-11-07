@@ -199,24 +199,18 @@ public class SplitContainerWorkCommandHandler : BaseHandler, IRequestHandler<Spl
         var secondPeriod = secondPart.CurrentDate == firstPart.CurrentDate
             ? firstPeriod
             : await _periodHoursService.GetPeriodBoundariesAsync(secondPart.CurrentDate);
-        var (secondHours, firstHoursInSecondPeriod) = await _completionService.SaveAndTrackMoveAsync(
+        await _completionService.SaveAndTrackMoveAsync(
             secondPart.ClientId, secondPart.CurrentDate, secondPeriod.StartDate, secondPeriod.EndDate,
             firstPart.ClientId, firstPart.CurrentDate, firstPart.AnalyseToken);
-        var firstHours = firstPeriod == secondPeriod
-            ? firstHoursInSecondPeriod
-            : await _completionService.SaveAndTrackAsync(
+        if (firstPeriod != secondPeriod)
+        {
+            await _completionService.SaveAndTrackAsync(
                 firstPart.ClientId, firstPart.CurrentDate, firstPeriod.StartDate, firstPeriod.EndDate, firstPart.AnalyseToken);
+        }
 
         var connectionId = _notificationFacade.GetConnectionId();
         await _notificationFacade.NotifyWorkUpdatedAsync(firstPart, connectionId, firstPeriod.StartDate, firstPeriod.EndDate);
         await _notificationFacade.NotifyWorkCreatedAsync(secondPart, connectionId, secondPeriod.StartDate, secondPeriod.EndDate);
-        await _notificationFacade.NotifyPeriodHoursUpdatedAsync(
-            secondPart.ClientId, secondPeriod.StartDate, secondPeriod.EndDate, secondHours, connectionId, secondPart.AnalyseToken);
-        if (firstHours != null)
-        {
-            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(
-                firstPart.ClientId, firstPeriod.StartDate, firstPeriod.EndDate, firstHours, connectionId, firstPart.AnalyseToken);
-        }
 
         var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>
         {

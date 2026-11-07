@@ -192,18 +192,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             await _unitOfWork.CompleteAsync();
             await _overtimeCascadeService.ReprocessSuccessorsAsync(updatedWork, existingWork);
 
-            var (periodHours, previousPeriodHours) = await _completionService.SaveAndTrackMoveAsync(
+            var (periodHours, _) = await _completionService.SaveAndTrackMoveAsync(
                 updatedWork.ClientId, updatedWork.CurrentDate, periodStart, periodEnd,
                 existingWork?.ClientId, existingWork?.CurrentDate, updatedWork.AnalyseToken);
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkUpdatedAsync(updatedWork, connectionId, periodStart, periodEnd);
-            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(updatedWork.ClientId, periodStart, periodEnd, periodHours, connectionId, updatedWork.AnalyseToken);
-            if (previousPeriodHours != null && existingWork != null)
-            {
-                await _notificationFacade.NotifyPeriodHoursUpdatedAsync(
-                    existingWork.ClientId, periodStart, periodEnd, previousPeriodHours, connectionId, updatedWork.AnalyseToken);
-            }
 
             var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>
             {

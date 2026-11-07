@@ -167,12 +167,6 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkUpdatedAsync(work, connectionId, periodStart, periodEnd);
-            await _notificationFacade.NotifyPeriodHoursUpdatedAsync(work.ClientId, periodStart, periodEnd, periodHours, connectionId, work.AnalyseToken);
-            if (previousPeriodHours != null)
-            {
-                await _notificationFacade.NotifyPeriodHoursUpdatedAsync(
-                    existingWork.ClientId, periodStart, periodEnd, previousPeriodHours, connectionId, work.AnalyseToken);
-            }
 
             var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)> { (work.ShiftId, work.CurrentDate) };
             await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, work.AnalyseToken, cancellationToken);
