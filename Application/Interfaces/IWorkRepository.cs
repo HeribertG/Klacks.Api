@@ -83,8 +83,9 @@ public interface IWorkRepository : IBaseRepository<Work>
 
     /// <summary>
     /// Number of top-level works of the real plan in the period that lie on a stand-in (ClientTypeRules.StandInTypes),
-    /// whatever their lock level, over the same population as CountUnsealedForCloseAsync (with a group only the works on
-    /// the group's own shifts; works of a soft-deleted client do not count).
+    /// whatever their lock level, over the population the close seals (with a group only the works on the group's own
+    /// shifts). Unlike CountUnsealedForCloseAsync, the works of a soft-deleted stand-in count too: the close would seal
+    /// them as well.
     /// </summary>
     /// <param name="startDate">First day of the period</param>
     /// <param name="endDate">Last day of the period</param>

@@ -22,8 +22,8 @@ public interface IPeriodSealCompletenessGuard
     Task<int> CountUnsealedAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Number of top-level works of the real plan in the period that lie on a stand-in, over the same population as
-    /// CountUnsealedAsync.
+    /// Number of top-level works of the real plan in the period that lie on a stand-in, over the population the close
+    /// seals (a group close only the group's own shifts), including the works of a soft-deleted stand-in.
     /// </summary>
     /// <param name="startDate">First day of the period</param>
     /// <param name="endDate">Last day of the period</param>
