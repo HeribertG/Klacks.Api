@@ -16,5 +16,8 @@ public enum PayrollExportBlockReason
     DayNotLocked = 1,
 
     /// <summary>The person was already exported for a different period that overlaps the requested one.</summary>
-    OverlappingExport = 2
+    OverlappingExport = 2,
+
+    /// <summary>A Work of the period lies on a stand-in, which is no person and has no payroll.</summary>
+    StandInAssigned = 3
 }

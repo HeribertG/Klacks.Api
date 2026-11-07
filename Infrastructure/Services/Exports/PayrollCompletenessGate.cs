@@ -2,18 +2,20 @@
 
 /// <summary>
 /// Completeness gate of the person-based payroll export. A person is in scope when they have a non-deleted,
-/// non-scenario Work or Break of any lock level in the period. Three blocker kinds: (1) EntryNotClosed - an entry
-/// below LockLevel.Closed (per person and day); (2) DayNotLocked - a day with an entry or an active group membership
-/// that no period-close seal (SealedDay.Level Closed) locks for the person, resolved by DayLockAttribution so a
-/// global seal, a group seal with membership and a group seal with a worked shift mean the same as in the day lock;
-/// a day-approval row (Level Approved) never counts; (3) OverlappingExport - an export of the person for another
-/// period that overlaps this one. A replacement (WorkChange with ReplaceClientId) makes the replacing person part of
-/// the scope: the substitute gets a derived entry on the work's day with the work's lock level and shift, so an open
-/// replaced work raises EntryNotClosed for the substitute too, and the substitute's day must be locked - by a seal
-/// that locks the substitute (DayLockAttribution) or by a Closed group seal of the replaced work's shift. Entries of
-/// soft-deleted persons are checked as well (global query filters are ignored, the entry's own soft-delete and
-/// scenario conditions are applied explicitly), matching the payroll export. All data is loaded in a fixed number of
-/// set-based queries.
+/// non-scenario Work or Break of any lock level in the period. Four blocker kinds: (1) EntryNotClosed - an entry below
+/// LockLevel.Closed (per person and day); (2) DayNotLocked - a day with an entry or an active group membership that no
+/// period-close seal (SealedDay.Level Closed) locks for the person, resolved by DayLockAttribution so a global seal, a
+/// group seal with membership and a group seal with a worked shift mean the same as in the day lock; a day-approval row
+/// (Level Approved) never counts; (3) OverlappingExport - an export of the person for another period that overlaps this
+/// one; (4) StandInAssigned - a Work of the period on a stand-in (ClientTypeRules.StandInTypes), one blocker per
+/// stand-in and day; a restricted check also counts a stand-in Work that one of the requested persons replaces, and a
+/// period holding only stand-in Works is blocked as well. A replacement (WorkChange with ReplaceClientId) makes the
+/// replacing person part of the scope: the substitute gets a derived entry on the work's day with the work's lock level
+/// and shift, so an open replaced work raises EntryNotClosed for the substitute too, and the substitute's day must be
+/// locked - by a seal that locks the substitute (DayLockAttribution) or by a Closed group seal of the replaced work's
+/// shift. Entries of soft-deleted persons are checked as well (global query filters are ignored, the entry's own
+/// soft-delete and scenario conditions are applied explicitly), matching the payroll export. All data is loaded in a
+/// fixed number of set-based queries.
 /// </summary>
 /// <param name="context">EF Core context holding Work, Break, Client, GroupItem, Group, Membership and SealedDay</param>
 /// <param name="exportLogItems">Per-person export records, for the overlapping-period check</param>
@@ -23,6 +25,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Exports;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Repositories.Schedules;
@@ -47,11 +50,12 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
         IReadOnlyCollection<Guid>? clientIds,
         CancellationToken cancellationToken = default)
     {
+        var blockers = await LoadStandInBlockersAsync(from, until, clientIds, cancellationToken);
         var entries = await LoadEntriesAsync(from, until, clientIds, cancellationToken);
         var personIds = entries.Select(e => e.ClientId).Distinct().ToList();
         if (personIds.Count == 0)
         {
-            return new PayrollCompletenessResult();
+            return ToResult(blockers);
         }
 
         var persons = await LoadPersonsAsync(personIds, cancellationToken);
@@ -60,12 +64,16 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
         var groupNames = await LoadGroupNamesAsync(
             shiftGroups.Values.SelectMany(g => g).Concat(memberGroupIds).ToHashSet(), cancellationToken);
 
-        var blockers = new List<PayrollExportBlockerDto>();
         AddEntryNotClosedBlockers(blockers, entries, persons, shiftGroups, groupNames);
         await AddDayNotLockedBlockersAsync(
             blockers, entries, persons, shiftGroups, memberGroupIds, groupNames, from, until, cancellationToken);
         await AddOverlappingExportBlockersAsync(blockers, personIds, persons, from, until, cancellationToken);
 
+        return ToResult(blockers);
+    }
+
+    private static PayrollCompletenessResult ToResult(List<PayrollExportBlockerDto> blockers)
+    {
         var ordered = blockers
             .OrderBy(b => b.ClientName, StringComparer.OrdinalIgnoreCase)
             .ThenBy(b => b.ClientId)
@@ -78,6 +86,59 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
             Blockers = ordered.Take(PayrollExportConstants.MaxReportedBlockers).ToList(),
             BlockerTotal = ordered.Count,
         };
+    }
+
+    private async Task<List<PayrollExportBlockerDto>> LoadStandInBlockersAsync(
+        DateOnly from,
+        DateOnly until,
+        IReadOnlyCollection<Guid>? clientIds,
+        CancellationToken cancellationToken)
+    {
+        var standInTypes = ClientTypeRules.StandInTypes.ToList();
+        var restricted = clientIds?.ToList();
+
+        var query = _context.Work
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(w => !w.IsDeleted
+                && w.AnalyseToken == null
+                && w.CurrentDate >= from
+                && w.CurrentDate <= until
+                && w.Client != null
+                && standInTypes.Contains(w.Client.Type));
+
+        if (restricted is not null)
+        {
+            query = query.Where(w => restricted.Contains(w.ClientId)
+                || _context.WorkChange.Any(wc => wc.WorkId == w.Id
+                    && !wc.IsDeleted
+                    && wc.AnalyseToken == null
+                    && wc.ReplaceClientId != null
+                    && restricted.Contains(wc.ReplaceClientId.Value)));
+        }
+
+        var days = await query
+            .GroupBy(w => new { w.ClientId, w.CurrentDate })
+            .Select(g => new { g.Key.ClientId, g.Key.CurrentDate, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+        if (days.Count == 0)
+        {
+            return [];
+        }
+
+        var standIns = await LoadPersonsAsync(days.Select(d => d.ClientId).Distinct().ToList(), cancellationToken);
+
+        return days
+            .Select(d => CreateBlocker(
+                d.ClientId,
+                standIns,
+                d.CurrentDate,
+                PayrollExportBlockReason.StandInAssigned,
+                null,
+                [],
+                requiresGlobalClose: false,
+                d.Count))
+            .ToList();
     }
 
     private async Task<List<DayEntry>> LoadEntriesAsync(

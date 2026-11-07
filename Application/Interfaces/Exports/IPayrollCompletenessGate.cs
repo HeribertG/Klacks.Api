@@ -3,7 +3,7 @@
 /// <summary>
 /// Decides whether the period of a payroll export is complete: every Work and Break of each person is Closed, every
 /// day of the person with an entry or an active group membership is locked by a period-close seal, and no export of
-/// another overlapping period exists for the person.
+/// another overlapping period exists for the person, and no Work of the period lies on a stand-in.
 /// @param from - First day of the period (inclusive)
 /// @param until - Last day of the period (inclusive)
 /// @param clientIds - Optional restriction to these persons (supplementary export); null checks every person
