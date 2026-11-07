@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Globalization;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.PeriodClosing;
@@ -13,7 +14,10 @@ namespace Klacks.Api.Application.Handlers.PeriodClosing;
 
 /// <summary>
 /// Aggregates ScheduleNote entries plus the live validation findings (collisions,
-/// rest, overtime, consecutive-days) within a billing period into PeriodIssueDto.
+/// rest, overtime, consecutive-days) within a billing period into PeriodIssueDto, plus one Error entry when services of
+/// the period lie on stand-ins (IPeriodSealCompletenessGuard.CountStandInWorksAsync, the count the close refuses with), so
+/// the automatic close and the close advice, which count the Errors of this list, stop on it too. That entry carries no
+/// client and is therefore kept for a restricted caller only when a visible group was selected.
 /// Group filter joins via Client → GroupItem. Limited to 500 issues per source for performance.
 /// The result is bounded by the caller's group visibility: a group outside it yields nothing, client-bound findings
 /// of hidden clients are dropped, and findings without a client (e.g. understaffing) are only kept when a visible
@@ -27,16 +31,21 @@ namespace Klacks.Api.Application.Handlers.PeriodClosing;
 /// <param name="escalationService">Raises Warning to Error for rules configured as Block</param>
 /// <param name="groupVisibilityGuard">Tells whether the caller is restricted and may see the selected group</param>
 /// <param name="clientVisibilityGuard">Keeps only the findings of clients the caller may see</param>
+/// <param name="sealCompletenessGuard">Counts the services of the period on stand-ins</param>
 public class GetPeriodIssuesQueryHandler : BaseHandler, IRequestHandler<GetPeriodIssuesQuery, List<PeriodIssueDto>>
 {
     private const int MaxNotes = 500;
     private const string ScheduleNoteMessageKey = "periodClosing.issues.code.scheduleNote";
+    private const string StandInWorksMessageKey = "periodClosing.issues.code.standInWorks";
+    private const string StandInWorkCountParam = "count";
+    private const int NoStandInWorks = 0;
 
     private readonly IPeriodClosingReadRepository _readRepository;
     private readonly IPeriodValidationLoader _validationLoader;
     private readonly IComplianceEscalationService _escalationService;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IPeriodSealCompletenessGuard _sealCompletenessGuard;
 
     public GetPeriodIssuesQueryHandler(
         IPeriodClosingReadRepository readRepository,
@@ -44,6 +53,7 @@ public class GetPeriodIssuesQueryHandler : BaseHandler, IRequestHandler<GetPerio
         IComplianceEscalationService escalationService,
         IGroupVisibilityGuard groupVisibilityGuard,
         IClientVisibilityGuard clientVisibilityGuard,
+        IPeriodSealCompletenessGuard sealCompletenessGuard,
         ILogger<GetPeriodIssuesQueryHandler> logger)
         : base(logger)
     {
@@ -52,6 +62,7 @@ public class GetPeriodIssuesQueryHandler : BaseHandler, IRequestHandler<GetPerio
         _escalationService = escalationService;
         _groupVisibilityGuard = groupVisibilityGuard;
         _clientVisibilityGuard = clientVisibilityGuard;
+        _sealCompletenessGuard = sealCompletenessGuard;
     }
 
     public async Task<List<PeriodIssueDto>> Handle(GetPeriodIssuesQuery request, CancellationToken cancellationToken)
@@ -72,8 +83,11 @@ public class GetPeriodIssuesQueryHandler : BaseHandler, IRequestHandler<GetPerio
             // Must run before the sort: escalation rewrites Severity, which the ordering keys on.
             await _escalationService.EscalateBlockedIssuesAsync(validationIssues);
 
+            var standInIssues = await LoadStandInIssuesAsync(request, cancellationToken);
+
             var issues = noteIssues
                 .Concat(validationIssues)
+                .Concat(standInIssues)
                 .OrderBy(i => i.Date)
                 .ThenBy(i => i.Severity)
                 .ThenBy(i => i.ClientName)
@@ -98,6 +112,34 @@ public class GetPeriodIssuesQueryHandler : BaseHandler, IRequestHandler<GetPerio
         return issues
             .Where(i => i.ClientId == Guid.Empty ? visibleGroupSelected : visibleClientIds.Contains(i.ClientId))
             .ToList();
+    }
+
+    private async Task<List<PeriodIssueDto>> LoadStandInIssuesAsync(
+        GetPeriodIssuesQuery request,
+        CancellationToken cancellationToken)
+    {
+        var standInWorks = await _sealCompletenessGuard.CountStandInWorksAsync(
+            request.From, request.To, request.GroupId, cancellationToken);
+        if (standInWorks == NoStandInWorks)
+        {
+            return [];
+        }
+
+        return
+        [
+            new PeriodIssueDto
+            {
+                Date = request.From,
+                ClientId = Guid.Empty,
+                Severity = ScheduleValidationType.Error,
+                Code = PeriodIssueLimits.StandInWorksCode,
+                MessageKey = StandInWorksMessageKey,
+                MessageParams = new Dictionary<string, string>
+                {
+                    [StandInWorkCountParam] = standInWorks.ToString(CultureInfo.InvariantCulture)
+                }
+            }
+        ];
     }
 
     private async Task<List<PeriodIssueDto>> LoadScheduleNoteIssuesAsync(

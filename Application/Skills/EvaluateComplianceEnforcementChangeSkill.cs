@@ -76,7 +76,9 @@ public class EvaluateComplianceEnforcementChangeSkill : BaseSkillImplementation
         var windowEnd = today.AddDays(WindowWeeksEachSide * DaysPerWeek);
 
         var issues = await _mediator.Send(new GetPeriodIssuesQuery(windowStart, windowEnd, null), cancellationToken);
-        var validationIssues = issues.Where(issue => issue.Code != PeriodIssueLimits.ScheduleNoteCode).ToList();
+        var validationIssues = issues
+            .Where(issue => issue.Code is not (PeriodIssueLimits.ScheduleNoteCode or PeriodIssueLimits.StandInWorksCode))
+            .ToList();
         var capReached = validationIssues.Count >= PeriodIssueLimits.MaxValidationIssues;
 
         var ruleFacts = new List<ComplianceRuleFacts>();

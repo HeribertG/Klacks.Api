@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services.AnalyseScenarios;
@@ -341,10 +342,23 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .ToList();
     }
 
+    public async Task<int> CountStandInWorksForCloseAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, CancellationToken cancellationToken = default)
+    {
+        var standInTypes = ClientTypeRules.StandInTypes.ToList();
+        return await CloseParentWorksIn(startDate, endDate, groupId)
+            .Where(w => standInTypes.Contains(w.Client!.Type))
+            .CountAsync(cancellationToken);
+    }
+
     private IQueryable<Work> UnsealedParentWorksIn(DateOnly startDate, DateOnly endDate, Guid? groupId)
     {
+        return CloseParentWorksIn(startDate, endDate, groupId).Where(w => w.LockLevel < WorkLockLevel.Confirmed);
+    }
+
+    private IQueryable<Work> CloseParentWorksIn(DateOnly startDate, DateOnly endDate, Guid? groupId)
+    {
         var works = groupId.HasValue ? GroupWorksIn(startDate, endDate, groupId.Value) : MainScheduleWorksIn(startDate, endDate);
-        return works.Where(w => w.ParentWorkId == null && w.LockLevel < WorkLockLevel.Confirmed && !w.Client!.IsDeleted);
+        return works.Where(w => w.ParentWorkId == null && !w.Client!.IsDeleted);
     }
 
     private static string UnsealedWorkClientName(string? firstName, string name, string? company)

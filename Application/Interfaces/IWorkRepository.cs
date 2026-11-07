@@ -80,6 +80,17 @@ public interface IWorkRepository : IBaseRepository<Work>
     /// <param name="limit">Maximum number of rows returned</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task<List<UnsealedWorkDto>> ListUnsealedForCloseAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, int limit, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Number of top-level works of the real plan in the period that lie on a stand-in (ClientTypeRules.StandInTypes),
+    /// whatever their lock level, over the same population as CountUnsealedForCloseAsync (with a group only the works on
+    /// the group's own shifts; works of a soft-deleted client do not count).
+    /// </summary>
+    /// <param name="startDate">First day of the period</param>
+    /// <param name="endDate">Last day of the period</param>
+    /// <param name="groupId">Group of a group close, null for a whole-period close</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<int> CountStandInWorksForCloseAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, CancellationToken cancellationToken = default);
     Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default);
     Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default);
     Task<PeriodUnsealCounts> UnsealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, CancellationToken cancellationToken = default);
