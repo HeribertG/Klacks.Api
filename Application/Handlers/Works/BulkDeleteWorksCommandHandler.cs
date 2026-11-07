@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Soft-deletes several Works in one call and recalculates the affected period hours. Works owned by
+/// Soft-deletes several Works in one call and recalculates the affected period hours. The cached period-hours rows
+/// covering each deleted Work's day are dropped, because the recalculation below is not persisted and readers prefer a
+/// cached row over the live sum. Works owned by
 /// clients outside the caller's group visibility are treated exactly like ids that do not exist: they are
 /// not deleted and count as failed. Like the single delete, the whole request is refused when any visible work
 /// lies on a sealed day (IDayLockService), whatever the caller's role, or when any visible Work's own lock level
@@ -130,6 +132,11 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             // carry the client/date/start time that identify each period and ordering position, and the
             // per-client period-hours calculation below then already includes the cascade's adjustments.
             await _overtimeCascadeService.ReprocessSuccessorsAsync(deletedWorks);
+
+            foreach (var (clientId, date, analyseToken) in affected.Distinct())
+            {
+                await _periodHoursService.InvalidateCacheAsync(clientId, date, analyseToken);
+            }
 
             foreach (var work in deletedWorks)
             {
