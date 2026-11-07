@@ -218,9 +218,9 @@ public class ScheduleCompletionService : IScheduleCompletionService
 
     /// <summary>
     /// Repairs what a failed single-Work completion left behind without failing the committed write. The tracked
-    /// changes are discarded first, so no later save flushes a half-staged step. The following pay period is queued
-    /// before the Work's own period: the thorough recalculation keeps one cached row per client and token, and the row
-    /// of the Work's period is the one the payroll export reads. Every step that can reach the database is guarded on
+    /// changes are discarded first, so no later save flushes a half-staged step. Every queued window is a real pay
+    /// period (the following one first), because the window is also the key of the cached period-hours row the payroll
+    /// export reads. Every step that can reach the database is guarded on
     /// its own and only logged when it fails.
     /// </summary>
     /// <param name="previousPosition">The pre-write state when client or date changed, otherwise null</param>

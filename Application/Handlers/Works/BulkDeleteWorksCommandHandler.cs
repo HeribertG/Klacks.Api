@@ -208,9 +208,8 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
     }
 
     /// <summary>
-    /// Persists the period hours of every deleted Work's client, scenario and pay period once, in the order the Works
-    /// were found. The recalculation keeps one cached row per client and scenario, so when one client's Works span two
-    /// pay periods the row of the period recalculated last stays.
+    /// Persists the period hours of every deleted Work's client, scenario and pay period once; when one client's Works
+    /// span two pay periods, both rows are recalculated and both stay.
     /// </summary>
     /// <param name="deletedWorks">The Works just soft-deleted and committed</param>
     private async Task RecalculateCachedPeriodHoursAsync(IReadOnlyList<Work> deletedWorks)

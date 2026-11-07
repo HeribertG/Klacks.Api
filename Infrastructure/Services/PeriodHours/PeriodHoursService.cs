@@ -154,15 +154,33 @@ public class PeriodHoursService : IPeriodHoursService
 
         var calculated = await CalculatePeriodHoursAsync(clientId, startDate, endDate, analyseToken);
 
-        var otherCacheEntries = await _context.ClientPeriodHours
+        await StoreCalculatedPeriodHoursAsync(clientId, startDate, endDate, analyseToken, calculated);
+    }
+
+    /// <summary>
+    /// Upserts the cached row of exactly this pay period and removes only the client's rows that overlap it with other
+    /// boundaries (left behind by an earlier, differently cut period). Rows of other, non-overlapping pay periods stay,
+    /// because the payroll export reads closed periods only from this cache.
+    /// </summary>
+    /// <param name="calculated">The freshly calculated hours and surcharges of the period</param>
+    private async Task StoreCalculatedPeriodHoursAsync(
+        Guid clientId,
+        DateOnly startDate,
+        DateOnly endDate,
+        Guid? analyseToken,
+        PeriodHoursResource calculated)
+    {
+        var overlappingMiscutEntries = await _context.ClientPeriodHours
             .Where(p => p.ClientId == clientId
                 && p.AnalyseToken == analyseToken
+                && p.StartDate <= endDate
+                && p.EndDate >= startDate
                 && (p.StartDate != startDate || p.EndDate != endDate))
             .ToListAsync();
 
-        if (otherCacheEntries.Count > 0)
+        if (overlappingMiscutEntries.Count > 0)
         {
-            _context.ClientPeriodHours.RemoveRange(otherCacheEntries);
+            _context.ClientPeriodHours.RemoveRange(overlappingMiscutEntries);
         }
 
         var existing = await _context.ClientPeriodHours
@@ -180,7 +198,7 @@ public class PeriodHoursService : IPeriodHoursService
         }
         else
         {
-            var newEntry = new ClientPeriodHours
+            _context.ClientPeriodHours.Add(new ClientPeriodHours
             {
                 Id = Guid.NewGuid(),
                 ClientId = clientId,
@@ -190,8 +208,7 @@ public class PeriodHoursService : IPeriodHoursService
                 Surcharges = calculated.Surcharges,
                 AnalyseToken = analyseToken,
                 CalculatedAt = DateTime.UtcNow
-            };
-            _context.ClientPeriodHours.Add(newEntry);
+            });
         }
 
         await _context.SaveChangesAsync();
@@ -558,47 +575,7 @@ public class PeriodHoursService : IPeriodHoursService
 
         var calculated = await CalculatePeriodHoursAsync(clientId, startDate, endDate, analyseToken);
 
-        var otherCacheEntries = await _context.ClientPeriodHours
-            .Where(p => p.ClientId == clientId
-                && p.AnalyseToken == analyseToken
-                && (p.StartDate != startDate || p.EndDate != endDate))
-            .ToListAsync();
-
-        if (otherCacheEntries.Count > 0)
-        {
-            _context.ClientPeriodHours.RemoveRange(otherCacheEntries);
-        }
-
-        var existing = await _context.ClientPeriodHours
-            .FirstOrDefaultAsync(p =>
-                p.ClientId == clientId
-                && p.StartDate == startDate
-                && p.EndDate == endDate
-                && p.AnalyseToken == analyseToken);
-
-        if (existing != null)
-        {
-            existing.Hours = calculated.Hours;
-            existing.Surcharges = calculated.Surcharges;
-            existing.CalculatedAt = DateTime.UtcNow;
-        }
-        else
-        {
-            var newEntry = new ClientPeriodHours
-            {
-                Id = Guid.NewGuid(),
-                ClientId = clientId,
-                StartDate = startDate,
-                EndDate = endDate,
-                Hours = calculated.Hours,
-                Surcharges = calculated.Surcharges,
-                AnalyseToken = analyseToken,
-                CalculatedAt = DateTime.UtcNow
-            };
-            _context.ClientPeriodHours.Add(newEntry);
-        }
-
-        await _context.SaveChangesAsync();
+        await StoreCalculatedPeriodHoursAsync(clientId, startDate, endDate, analyseToken, calculated);
 
         var notification = new PeriodHoursNotificationDto
         {
