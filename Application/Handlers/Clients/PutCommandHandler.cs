@@ -22,6 +22,9 @@
 /// rights stop travelling together.
 ///
 /// A client outside the caller's group visibility is refused exactly like a client that does not exist.
+///
+/// The stored type changes only where ClientTypeRules.CanChangeType allows it: an update never turns a client into a
+/// stand-in and never turns a stand-in into another type.
 /// </summary>
 /// <param name="request">Contains the client resource with the new values</param>
 
@@ -38,6 +41,7 @@ using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
+using Klacks.Api.Domain.Services.Clients;
 
 namespace Klacks.Api.Application.Handlers.Clients;
 
@@ -47,6 +51,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
         "Changing client contract assignments requires the right to edit contracts.";
 
     private const string GroupNotFoundMessage = "Group with ID {0} not found";
+
+    private const string TypeChangeRefusedMessage =
+        "A client of type {0} cannot be saved as type {1}: no client becomes a stand-in, and a stand-in does not change its type through an update.";
 
     private readonly IClientRepository _clientRepository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
@@ -94,6 +101,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
             if (existingClient == null)
             {
                 throw new KeyNotFoundException($"Client with ID {request.Resource.Id} not found");
+            }
+
+            var requestedType = (EntityTypeEnum)request.Resource.Type;
+            if (!ClientTypeRules.CanChangeType(existingClient.Type, requestedType))
+            {
+                throw new InvalidRequestException(string.Format(TypeChangeRefusedMessage, existingClient.Type, requestedType));
             }
 
             var isAdmin = await _groupVisibilityService.IsAdmin();

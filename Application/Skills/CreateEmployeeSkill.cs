@@ -3,7 +3,8 @@
 /// <summary>
 /// Skill that creates a new client (employee, external employee or customer) with the mandatory
 /// onboarding data: client master record + membership, plus optional address and communication
-/// (email/phone). The id_number is left at its CLR default so the database sequence assigns it.
+/// (email/phone). The id_number is left at its CLR default so the database sequence assigns it. The entity type is
+/// read by its exact name and never creates a stand-in.
 /// </summary>
 /// <param name="clientRepository">Persists the client and its cascaded child entities</param>
 /// <param name="unitOfWork">Commits the unit of work</param>
@@ -22,6 +23,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.Clients;
 
 using Klacks.Api.Application.DTOs.Staffs;
 
@@ -142,10 +144,10 @@ public class CreateEmployeeSkill : BaseSkillImplementation
         var entityTypeStr = GetParameter<string>(parameters, "entityType");
         var entityType = EntityTypeEnum.Employee;
         if (!string.IsNullOrWhiteSpace(entityTypeStr)
-            && !Enum.TryParse(entityTypeStr, true, out entityType))
+            && !ClientTypeRules.TryParseMasterDataType(entityTypeStr, out entityType))
         {
             return (null,
-                $"Invalid entityType value: {entityTypeStr}. Valid values: Employee, ExternEmp, Customer.");
+                $"Invalid entityType value: {entityTypeStr}. Valid values: {string.Join(", ", ClientTypeRules.MasterDataTypes)}.");
         }
 
         return (new EmployeeInput(

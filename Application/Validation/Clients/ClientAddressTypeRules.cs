@@ -2,9 +2,10 @@
 
 /// <summary>
 /// Which address types a client may carry depending on its entity type: an employee has only the main
-/// address, an external employee additionally a business address and a customer also an invoicing
-/// address. Shared by the client POST/PUT validators and the address POST/PUT validators; the Ui mirrors
-/// the table in its address type rules constants.
+/// address, an external employee additionally a business address, a customer also an invoicing address and a
+/// stand-in none. Every entity type has its own arm and there is no fallback: an undefined value throws. Shared by
+/// the client POST/PUT validators and the address POST/PUT validators; the Ui mirrors the table in its address type
+/// rules constants.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -38,7 +39,7 @@ public static class ClientAddressTypeRules
         EntityTypeEnum.Employee => EmployeeTypes,
         EntityTypeEnum.ExternEmp => ExternEmpTypes,
         EntityTypeEnum.Customer => CustomerTypes,
-        _ => CustomerTypes,
+        EntityTypeEnum.StandIn => [],
     };
 
     public static bool IsAllowed(EntityTypeEnum clientType, AddressTypeEnum addressType) =>

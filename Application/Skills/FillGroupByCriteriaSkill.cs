@@ -12,7 +12,7 @@
 /// <param name="zipPrefix">Optional prefix the client's address zip code must start with.</param>
 /// <param name="contractName">Optional name (or partial name) of an active contract the client must hold.</param>
 /// <param name="qualificationName">Optional name (or partial name) of a qualification the client must currently hold.</param>
-/// <param name="entityType">Optional client type (Employee, ExternEmp, Customer); defaults to Employee.</param>
+/// <param name="entityType">Optional client type (Employee, ExternEmp, Customer); defaults to Employee, any other value is refused.</param>
 /// <param name="count">Optional maximum number of clients to add.</param>
 /// <param name="random">When true, count clients are drawn at random instead of the first ones by name. The draw is
 /// seeded from the user, group, criteria, count and the company date, so the apply adds exactly the previewed clients.</param>
@@ -33,6 +33,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Skills;
@@ -156,7 +157,11 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
             return (null, qualificationError);
         }
 
-        var entityType = ParseEntityType(entityTypeValue);
+        if (ParseEntityType(entityTypeValue) is not { } entityType)
+        {
+            return (null, SkillResult.Error(
+                $"'{entityTypeValue}' is not a valid entityType. Valid values: {string.Join(", ", ClientTypeRules.MasterDataTypes)}."));
+        }
 
         var resolvedCanton = await _locationResolver.ResolveStateCodeAsync(canton, cancellationToken);
         var trimmedCity = string.IsNullOrWhiteSpace(city) ? null : city.Trim();
@@ -264,14 +269,14 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
         return (qualificationId, null);
     }
 
-    private static EntityTypeEnum ParseEntityType(string? entityTypeValue)
+    private static EntityTypeEnum? ParseEntityType(string? entityTypeValue)
     {
-        return entityTypeValue switch
+        if (string.IsNullOrWhiteSpace(entityTypeValue))
         {
-            "ExternEmp" => EntityTypeEnum.ExternEmp,
-            "Customer" => EntityTypeEnum.Customer,
-            _ => EntityTypeEnum.Employee
-        };
+            return EntityTypeEnum.Employee;
+        }
+
+        return ClientTypeRules.TryParseMasterDataType(entityTypeValue, out var entityType) ? entityType : null;
     }
 
     private static int BuildRandomSeed(

@@ -4,7 +4,8 @@
 /// Rejects client addresses whose type is not allowed for the client's entity type. An address that is
 /// already stored with the same type stays acceptable while the client's entity type is unchanged, so
 /// legacy addresses never block unrelated edits; new or retyped addresses, and every address after an
-/// entity type change, must satisfy ClientAddressTypeRules.
+/// entity type change, must satisfy ClientAddressTypeRules. An undefined entity type is refused by ClientTypeValidator,
+/// not here.
 /// </summary>
 /// <param name="clientRepository">Loads the stored entity type of the client being updated</param>
 /// <param name="addressRepository">Loads the stored type of an existing address</param>
@@ -28,7 +29,7 @@ public class ClientAddressTypeValidator : AbstractValidator<ClientResource>
 
         RuleFor(client => client)
             .MustAsync(HasOnlyAcceptableAddressTypesAsync)
-            .When(client => client.Addresses != null && client.Addresses.Any())
+            .When(client => client.Addresses != null && client.Addresses.Any() && Enum.IsDefined((EntityTypeEnum)client.Type))
             .WithMessage(ClientAddressTypeRules.NotAllowedMessage);
     }
 

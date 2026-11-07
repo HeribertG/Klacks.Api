@@ -9,7 +9,7 @@
 /// naming a concrete criterion — the result instructs the model to ask a concrete follow-up
 /// question naming the dominant hypothesis instead of guessing.
 /// </summary>
-/// <param name="entityType">Optional client type the ungrouped count is computed for; defaults to Employee.</param>
+/// <param name="entityType">Optional client type the ungrouped count is computed for; defaults to Employee, any other value than Employee, ExternEmp or Customer is refused.</param>
 
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.DTOs.Settings;
@@ -22,6 +22,7 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Skills;
@@ -66,7 +67,12 @@ public class AnalyzeGroupSemanticsSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var entityType = ParseEntityType(GetParameter<string>(parameters, EntityTypeParameter));
+        var entityTypeValue = GetParameter<string>(parameters, EntityTypeParameter);
+        if (ParseEntityType(entityTypeValue) is not { } entityType)
+        {
+            return SkillResult.Error(
+                $"'{entityTypeValue}' is not a valid entityType. Valid values: {string.Join(", ", ClientTypeRules.MasterDataTypes)}.");
+        }
 
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
         var groups = scope.Filter(await _groupRepository.List())
@@ -215,12 +221,15 @@ public class AnalyzeGroupSemanticsSkill : BaseSkillImplementation
             .ToList();
     }
 
-    private static EntityTypeEnum ParseEntityType(string? value) => value switch
+    private static EntityTypeEnum? ParseEntityType(string? value)
     {
-        "ExternEmp" => EntityTypeEnum.ExternEmp,
-        "Customer" => EntityTypeEnum.Customer,
-        _ => EntityTypeEnum.Employee
-    };
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return EntityTypeEnum.Employee;
+        }
+
+        return ClientTypeRules.TryParseMasterDataType(value, out var entityType) ? entityType : null;
+    }
 
     private static string BuildMessage(AnalyzeGroupSemanticsResult result)
     {

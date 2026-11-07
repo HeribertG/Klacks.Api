@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Changes which category a client is classified as (Employee, ExternEmp or Customer) and verifies
-/// the new value against the database after saving.
+/// the new value against the database after saving. The type is read by its exact name; no client becomes a stand-in
+/// and a stand-in keeps its type (ClientTypeRules.CanChangeType).
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">Optional. UUID of the client to update.</param>
@@ -17,6 +18,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Microsoft.Extensions.Logging;
 
@@ -65,9 +67,9 @@ public class UpdateClientTypeSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var targetTypeRaw = GetRequiredString(parameters, "targetType");
-        if (!Enum.TryParse<EntityTypeEnum>(targetTypeRaw, true, out var targetType) || !Enum.IsDefined(targetType))
+        if (!ClientTypeRules.TryParseMasterDataType(targetTypeRaw, out var targetType))
         {
-            var validValues = string.Join(", ", Enum.GetNames<EntityTypeEnum>());
+            var validValues = string.Join(", ", ClientTypeRules.MasterDataTypes);
             return SkillResult.Error($"'{targetTypeRaw}' is not a valid client type. Available types: {validValues}.");
         }
 
@@ -84,6 +86,13 @@ public class UpdateClientTypeSkill : BaseSkillImplementation
             return SkillResult.SuccessResult(
                 new { ClientId = clientId, client.FirstName, LastName = client.Name, EntityType = client.Type.ToString() },
                 $"{client.FirstName} {client.Name} is already classified as {targetType}.");
+        }
+
+        if (!ClientTypeRules.CanChangeType(client.Type, targetType))
+        {
+            return SkillResult.Error(
+                $"{client.Name} is a stand-in and keeps its type here. A stand-in is not changed into another client type " +
+                "by this skill.");
         }
 
         if (client.LegalEntity && targetType != EntityTypeEnum.Customer)

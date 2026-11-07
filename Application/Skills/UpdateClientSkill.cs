@@ -10,6 +10,7 @@
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// Without a clientId the client is found by name through ClientResolver with the Strict policy, so a similar
 /// name ("Meier" for "Mayer") is answered with the name ask-back instead of being updated.
+/// A stand-in gets no address and no email or phone: such a request is refused before anything is changed.
 /// </summary>
 /// <param name="clientId">Required. UUID of the client to update.</param>
 /// <param name="firstName">Optional. New first name.</param>
@@ -32,6 +33,7 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.Clients;
 using Microsoft.Extensions.Logging;
 
 using Klacks.Api.Application.DTOs.Staffs;
@@ -46,6 +48,11 @@ namespace Klacks.Api.Application.Skills;
 public class UpdateClientSkill : BaseSkillImplementation
 {
     private const string SkillName = "update_client";
+
+    private static readonly string[] AddressAndContactParameters = ["street", "zip", "city", "email", "phone"];
+
+    private const string StandInContactRefusal =
+        "Nothing was changed: a stand-in has no address, email or phone. Only its name can be updated here.";
 
     private readonly IClientRepository _clientRepository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
@@ -118,6 +125,11 @@ public class UpdateClientSkill : BaseSkillImplementation
             return SkillResult.Error(genderError);
         }
 
+        if (ClientTypeRules.IsStandIn(client.Type) && HasAddressOrContact(parameters))
+        {
+            return SkillResult.Error(StandInContactRefusal);
+        }
+
         var now = DateTime.UtcNow;
 
         await AddAddressAsync(parameters, client, changes, now, context, cancellationToken);
@@ -132,6 +144,9 @@ public class UpdateClientSkill : BaseSkillImplementation
 
         return await PutClientAsync(client, clientId, changes.Fields, context, cancellationToken);
     }
+
+    private static bool HasAddressOrContact(Dictionary<string, object> parameters) =>
+        AddressAndContactParameters.Any(name => !string.IsNullOrWhiteSpace(GetParameter<string>(parameters, name)));
 
     private static void ApplyMasterFields(Dictionary<string, object> parameters, Client client, ClientChanges changes)
     {

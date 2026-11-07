@@ -24,6 +24,9 @@ public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
         RuleFor(x => x.Resource)
             .SetValidator(new ClientAddressTypeValidator(clientRepository, addressRepository));
 
+        RuleFor(x => x.Resource)
+            .SetValidator(new ClientTypeValidator());
+
         When(x => x.Resource.LegalEntity, () =>
         {
             RuleFor(x => x.Resource.Company)
@@ -44,6 +47,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
         {
             RuleFor(x => x.Resource.FirstName)
                 .Must(ClientPersonRules.HasName)
+                .When(x => ClientPersonRules.RequiresFirstNameAndGender(x.Resource.Type))
                 .WithMessage(ClientPersonRules.FirstNameRequiredMessage);
 
             RuleFor(x => x.Resource.Name)
@@ -52,6 +56,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
 
             RuleFor(x => x.Resource.Gender)
                 .Must(ClientPersonRules.IsPersonGender)
+                .When(x => ClientPersonRules.RequiresFirstNameAndGender(x.Resource.Type))
                 .WithMessage(ClientPersonRules.GenderRequiredMessage);
         });
 
