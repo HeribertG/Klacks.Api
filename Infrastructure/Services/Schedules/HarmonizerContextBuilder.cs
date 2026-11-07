@@ -11,6 +11,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Repositories.Associations;
@@ -590,7 +591,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     /// <summary>
     /// The bitmap agents. The caps come from the contract data of the first period day; the shift-work flag comes
     /// from <paramref name="planningBasis"/> (<see cref="PlanningContractBasis"/>, the same choice as Wizard 1), and an
-    /// employee without any member day with contract data gets no shift work.
+    /// employee without any member day with contract data gets no shift work. A stand-in is flagged, so the row sorter ranks
+    /// it after every real person.
     /// </summary>
     private static List<BitmapAgent> BuildAgents(
         List<Guid> agentIds,
@@ -623,7 +625,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 MinPauseHours: minPause,
                 BlacklistedShiftIds: blacklist,
                 MinRestDays: (int)Math.Ceiling(minRestDays),
-                PerformsShiftWork: planningBasis.TryGetValue(id, out var basis) && basis.PerformsShiftWork));
+                PerformsShiftWork: planningBasis.TryGetValue(id, out var basis) && basis.PerformsShiftWork,
+                IsStandIn: c is not null && ClientTypeRules.IsStandIn(c.Type)));
         }
         return result;
     }
