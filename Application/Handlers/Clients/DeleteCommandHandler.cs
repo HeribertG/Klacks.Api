@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Soft-deletes a client and reassigns its mails. A stand-in that still holds works in the real plan is refused: its
-/// services would stay planned on a client nobody sees, and the period close would still count them.
+/// Soft-deletes a client and reassigns its mails. A stand-in that still holds works in the real plan or in an open
+/// scenario is refused: its services would stay planned on a client nobody sees, the period close would still count
+/// them, and accepting the scenario would write its works into the real plan on the deleted stand-in.
 /// </summary>
 /// <param name="request">Carries the id of the client to delete</param>
 
@@ -55,7 +56,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
 
             if (ClientTypeRules.IsStandIn(client.Type))
             {
-                var workCount = await _workRepository.CountRealPlanWorksOfClientAsync(client.Id, cancellationToken);
+                var workCount = await _workRepository.CountWorksOfClientAsync(client.Id, cancellationToken);
                 if (workCount > 0)
                 {
                     throw new StandInHasWorksException(client.Name, workCount);

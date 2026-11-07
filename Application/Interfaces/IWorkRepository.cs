@@ -94,12 +94,13 @@ public interface IWorkRepository : IBaseRepository<Work>
     Task<int> CountStandInWorksForCloseAsync(DateOnly startDate, DateOnly endDate, Guid? groupId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Number of works of the real plan on the client (container children included), on any date and whatever their
-    /// lock level.
+    /// Number of works on the client in the real plan and in the open scenarios (container children included), on any
+    /// date and whatever their lock level. A decided scenario leaves no work with its token: the accept moves its works
+    /// into the real plan (where they still count) or deletes them, a reject or delete soft-deletes them.
     /// </summary>
     /// <param name="clientId">Client whose works are counted</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    Task<int> CountRealPlanWorksOfClientAsync(Guid clientId, CancellationToken cancellationToken = default);
+    Task<int> CountWorksOfClientAsync(Guid clientId, CancellationToken cancellationToken = default);
 
     Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default);
     Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default);

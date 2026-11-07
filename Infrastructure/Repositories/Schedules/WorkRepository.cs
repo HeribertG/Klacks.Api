@@ -353,10 +353,10 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .CountAsync(cancellationToken);
     }
 
-    public async Task<int> CountRealPlanWorksOfClientAsync(Guid clientId, CancellationToken cancellationToken = default)
+    public async Task<int> CountWorksOfClientAsync(Guid clientId, CancellationToken cancellationToken = default)
     {
         return await context.Work
-            .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.ClientId == clientId)
+            .Where(w => !w.IsDeleted && w.ClientId == clientId)
             .CountAsync(cancellationToken);
     }
 
