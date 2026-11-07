@@ -123,7 +123,7 @@ public class OAuthAuthorizationServerController : ControllerBase
 
         if (issueResult.Error == OAuthConstants.ErrorAccessDenied)
         {
-            return RenderLoginPage(validation.ClientName!, clientId!, validation.EffectiveRedirectUri!, responseType!, codeChallenge!, codeChallengeMethod!, scope, state, "Invalid email or password.");
+            return RenderLoginPage(validation.ClientName!, clientId!, validation.EffectiveRedirectUri!, responseType!, codeChallenge!, codeChallengeMethod!, scope, state, issueResult.ErrorDescription);
         }
 
         if (issueResult.Error != null)

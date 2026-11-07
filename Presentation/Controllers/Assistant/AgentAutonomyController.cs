@@ -21,7 +21,7 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 
 [ApiController]
 [Route("api/backend/assistant/autonomy-level")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AuthorizationPolicies.RequireAutomationManagement)]
 public class AgentAutonomyController : ControllerBase
 {
     private readonly IMediator _mediator;

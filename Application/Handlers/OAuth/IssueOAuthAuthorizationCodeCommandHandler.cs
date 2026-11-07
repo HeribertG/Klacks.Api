@@ -4,7 +4,8 @@
 /// Handler that authenticates the resource owner with email and password and issues a
 /// short-lived single-use authorization code bound to client, redirect URI and PKCE challenge.
 /// Refuses the seeded admin account while its own-admin setup gate is active, so no MCP token can be
-/// minted for the publicly known seed credentials before setup.
+/// minted for the publicly known seed credentials before setup, and refuses accounts without
+/// CanManageAccessTokens (planners), because the code is exchanged for a personal access token.
 /// </summary>
 /// <param name="request">Contains the user credentials and the validated OAuth request parameters</param>
 
@@ -26,17 +27,20 @@ public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOA
     private readonly IAuthenticationService _authenticationService;
     private readonly IOAuthAuthorizationCodeStore _codeStore;
     private readonly IAdminSetupGateService _adminSetupGateService;
+    private readonly IUserManagementService _userManagementService;
 
     public IssueOAuthAuthorizationCodeCommandHandler(
         IOAuthClientRepository clientRepository,
         IAuthenticationService authenticationService,
         IOAuthAuthorizationCodeStore codeStore,
-        IAdminSetupGateService adminSetupGateService)
+        IAdminSetupGateService adminSetupGateService,
+        IUserManagementService userManagementService)
     {
         _clientRepository = clientRepository;
         _authenticationService = authenticationService;
         _codeStore = codeStore;
         _adminSetupGateService = adminSetupGateService;
+        _userManagementService = userManagementService;
     }
 
     public async Task<OAuthAuthorizationCodeResult> Handle(IssueOAuthAuthorizationCodeCommand request, CancellationToken cancellationToken)
@@ -64,6 +68,14 @@ public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOA
         if (user.Id == SystemAccounts.SeedAdminUserId && await _adminSetupGateService.IsGateActiveAsync())
         {
             return OAuthAuthorizationCodeResult.SetupRequired();
+        }
+
+        var roles = await _userManagementService.GetUserRolesAsync(user);
+        if (!Permissions.HasPermission(Permissions.ExpandRoles(roles), Permissions.CanManageAccessTokens))
+        {
+            return OAuthAuthorizationCodeResult.Rejected(
+                OAuthConstants.ErrorAccessDenied,
+                "This account may not connect external applications. A supervisor or administrator account is required.");
         }
 
         var code = Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(OAuthConstants.AuthorizationCodeByteLength));

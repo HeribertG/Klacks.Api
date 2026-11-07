@@ -20,6 +20,10 @@ public static class AuthorizationOptionsExtensions
     public static AuthorizationOptions AddKlacksPolicies(this AuthorizationOptions options)
     {
         options.AddPolicy(AuthorizationPolicies.RequireAssistant, policy => policy.RequireAssistantAccess());
+        options.AddPolicy(AuthorizationPolicies.RequireAutomationManagement,
+            policy => policy.RequirePermission(Permissions.CanManageAutomation));
+        options.AddPolicy(AuthorizationPolicies.RequireAccessTokenManagement,
+            policy => policy.RequirePermission(Permissions.CanManageAccessTokens));
 
         return options;
     }

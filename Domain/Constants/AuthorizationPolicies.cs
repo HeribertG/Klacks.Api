@@ -10,4 +10,15 @@ public static class AuthorizationPolicies
     /// is a one-line change in the permission matrix instead of a new gate on every entry point.
     /// </summary>
     public const string RequireAssistant = "RequireAssistant";
+
+    /// <summary>
+    /// Requires <see cref="Permissions.CanManageAutomation"/>: the autonomy level and starting or approving
+    /// multi-step agent plans. Mirrors the gate of the Klacksy skills so the REST endpoints cannot bypass it.
+    /// </summary>
+    public const string RequireAutomationManagement = "RequireAutomationManagement";
+
+    /// <summary>
+    /// Requires <see cref="Permissions.CanManageAccessTokens"/>: minting a personal access token.
+    /// </summary>
+    public const string RequireAccessTokenManagement = "RequireAccessTokenManagement";
 }

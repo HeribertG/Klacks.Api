@@ -2,13 +2,16 @@
 
 /// <summary>
 /// Manages the personal access tokens of the authenticated user. Deliberately restricted to
-/// the JWT bearer scheme so that a personal access token can never manage tokens itself.
+/// the JWT bearer scheme so that a personal access token can never manage tokens itself. Minting needs
+/// CanManageAccessTokens (Supervisor, Admin); listing and revoking one's own tokens stays open, so an account
+/// that was downgraded or still holds older tokens can clean them up (such tokens are refused at sign-in anyway).
 /// </summary>
 
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Authentification;
 using Klacks.Api.Application.DTOs.Authentification;
 using Klacks.Api.Application.Queries.Authentification;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -33,6 +36,7 @@ public class PersonalAccessTokensController : ControllerBase
 
     [BlockedOnPlayground]
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AuthorizationPolicies.RequireAccessTokenManagement)]
     public async Task<ActionResult<PersonalAccessTokenCreatedDto>> Create([FromBody] CreatePersonalAccessTokenRequest request)
     {
         var userId = GetCurrentUserId();

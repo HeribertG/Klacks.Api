@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Shared building block for the assistant gate. The named RequireAssistant policy and the MCP
-/// endpoint's inline policy (which additionally pins its own authentication schemes) must apply the
-/// same check, so both call this instead of repeating the assertion.
+/// Shared building block for the permission gates. Every named policy that asserts a permission (RequireAssistant,
+/// RequireAutomationManagement, RequireAccessTokenManagement) and the MCP endpoint's inline policy (which
+/// additionally pins its own authentication schemes) go through RequirePermission instead of repeating the assertion.
 ///
 /// Authentication is required before the permission is asserted. A policy named on an [Authorize]
 /// attribute REPLACES the default policy rather than adding to it — AuthorizationPolicy.CombineAsync
@@ -25,9 +25,16 @@ public static class AuthorizationPolicyBuilderExtensions
     /// <param name="policy">The policy under construction</param>
     public static AuthorizationPolicyBuilder RequireAssistantAccess(this AuthorizationPolicyBuilder policy)
     {
+        return policy.RequirePermission(Permissions.CanUseAssistant);
+    }
+
+    /// <param name="policy">The policy under construction</param>
+    /// <param name="permission">A constant from <see cref="Permissions"/> the authenticated caller must hold</param>
+    public static AuthorizationPolicyBuilder RequirePermission(this AuthorizationPolicyBuilder policy, string permission)
+    {
         return policy
             .RequireAuthenticatedUser()
             .RequireAssertion(context =>
-                Permissions.HasPermission(context.User.GetUserRights(), Permissions.CanUseAssistant));
+                Permissions.HasPermission(context.User.GetUserRights(), permission));
     }
 }

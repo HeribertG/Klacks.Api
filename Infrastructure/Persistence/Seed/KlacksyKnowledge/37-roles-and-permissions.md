@@ -57,8 +57,10 @@ settings on top.
 
 ## Only Supervisor and Admin
 
-Klacksy does the following only for a Supervisor or Admin, never for a planner account: changing its
-autonomy level, recurring tasks, multi-step plans, and creating or revoking personal access tokens.
+The following belong to Supervisor and Admin only, never to a planner account: changing Klacksy's
+autonomy level, recurring tasks, starting or approving multi-step plans, and creating
+personal access tokens in the token settings or through Klacksy. A planner may still look at the
+multi-step plans of their own account and abort one that is still running.
 The inbox (received e-mails) is also for Supervisor and Admin only; deleting e-mails for good, mail
 folders and spam rules are for the Admin alone. Proactive governance is Admin-only, and the messaging
 page needs Supervisor or Admin and an active messaging add-on.

@@ -4,7 +4,9 @@
 /// Authentication handler for personal access tokens. Validates bearer tokens carrying the
 /// well-known PAT prefix via hash lookup, mirrors the login JWT claims for the token owner
 /// and throttles last-used tracking; all other tokens fall through to the JWT handler. The principal
-/// also carries the token id and its access mode (Read/Write), which the MCP surface enforces.
+/// also carries the token id and its access mode (Read/Write), which the MCP surface enforces. A token only
+/// works while its owner holds CanManageAccessTokens, so tokens of planner accounts (manual, OAuth or older
+/// ones) are refused like an invalid token.
 /// </summary>
 /// <param name="tokenRepository">Repository used for hash lookup and last-used updates</param>
 /// <param name="userManager">Identity user manager used to load the token owner and roles</param>
@@ -80,9 +82,16 @@ public class PatAuthenticationHandler : AuthenticationHandler<AuthenticationSche
             return AuthenticateResult.Fail(InvalidTokenMessage);
         }
 
+        var roles = await _userManager.GetRolesAsync(user);
+        if (!Permissions.HasPermission(Permissions.ExpandRoles(roles), Permissions.CanManageAccessTokens))
+        {
+            Logger.LogWarning("Refused a personal access token of account {UserId} without token permission", user.Id);
+            return AuthenticateResult.Fail(InvalidTokenMessage);
+        }
+
         await UpdateLastUsedIfStaleAsync(token, utcNow);
 
-        var principal = await BuildPrincipalAsync(user, token, utcNow);
+        var principal = BuildPrincipal(user, roles, token, utcNow);
 
         return AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name));
     }
@@ -118,7 +127,7 @@ public class PatAuthenticationHandler : AuthenticationHandler<AuthenticationSche
         await _tokenRepository.UpdateLastUsedAsync(token.Id, utcNow, Context.RequestAborted);
     }
 
-    private async Task<ClaimsPrincipal> BuildPrincipalAsync(AppUser user, PersonalAccessToken token, DateTime utcNow)
+    private ClaimsPrincipal BuildPrincipal(AppUser user, IList<string> roles, PersonalAccessToken token, DateTime utcNow)
     {
         var claims = new List<Claim>
         {
@@ -133,7 +142,6 @@ public class PatAuthenticationHandler : AuthenticationHandler<AuthenticationSche
             new Claim(PatConstants.AccessModeClaimType, token.AccessMode.ToString())
         };
 
-        var roles = await _userManager.GetRolesAsync(user);
         foreach (var role in roles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));

@@ -58,6 +58,7 @@ public class AgentPlansController : ControllerBase
 
     [BlockedOnPlayground]
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AuthorizationPolicies.RequireAutomationManagement)]
     public async Task<IActionResult> CreateAndStartPlan([FromBody] CreatePlanRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Goal))
@@ -89,6 +90,7 @@ public class AgentPlansController : ControllerBase
     }
 
     [HttpPost("{id:guid}/approve")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AuthorizationPolicies.RequireAutomationManagement)]
     public async Task<IActionResult> ApproveAndContinue(Guid id, CancellationToken cancellationToken)
     {
         var plan = await _planRepository.GetByIdAsync(id, cancellationToken);

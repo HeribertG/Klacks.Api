@@ -47,6 +47,12 @@ single leaked one could multiply itself indefinitely, and revoking the original 
 contain the damage. Requiring a real sign-in for this one step puts a hard ceiling on what a stolen
 token can do.
 
+## Who may have tokens
+
+Only Supervisor and Admin accounts can have working personal access tokens. A planner account (no
+role) cannot create one, cannot connect an external application such as an AI assistant through
+its sign-in page either, and any token it still holds is refused when used.
+
 ## How long a token lasts
 
 A newly created token is valid for 365 days unless a different length is chosen, and the chosen
