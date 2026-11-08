@@ -78,6 +78,11 @@ nur über einen Admin. Sag mir, was du ändern willst, dann finden wir den Grund
   en: "Plannable Services", fr: "Services planifiables", it: "Servizi Pianificabili") wählbar.
 - **Die Gruppeneinschränkung gilt nur bei gewählter Gruppe.** Welcher Gruppe eine Buchung gehört, bestimmt die
   Gruppe ihres Dienstes, nicht die der Person; Dienste ganz ohne Gruppe werden so nie gesperrt.
+- **Gruppe "nicht gefunden" beim Speichern der Gruppenmaske**: Speicherst du in der Gruppenmaske (Name, Beschreibung,
+  Gültigkeit, Mitglieder) eine Gruppe ausserhalb deiner sichtbaren Gruppen, antwortet der Server wie bei einer Gruppe,
+  die es nicht gibt. Klacksy antwortet ebenso beim Ändern einer Gruppe (`update_group`) und beim Anlegen einer
+  Untergruppe unter einer solchen Eltern-Gruppe (`create_group`). Abhilfe: einen Admin bitten, dir die Gruppe
+  freizugeben.
 - **Sperren und Neuberechnung**: Bestätigte, freigegebene und geschlossene Einträge verändert keine der beiden
   Stunden-Neuberechnungen. Die gespeicherten Periodenstunden einer eingefrorenen Periode (abgeschlossen und vor den
   letzten zwei Lohnexporten der Person exportiert) bleiben ebenfalls, ausser ein Administrator bestätigt mit

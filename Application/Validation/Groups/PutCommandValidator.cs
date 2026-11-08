@@ -3,7 +3,10 @@
 /**
  * Validates update commands for groups: name, date ranges, duplicate members,
  * and guards against setting ValidUntil while planned works exist after that date
- * or removing a member who still has planned works in the group.
+ * or removing a member who still has planned works in the group. The two planned-works rules read the stored group
+ * and run only for a group the caller can see; for a hidden group they are skipped, so the handler answers it with
+ * the same not-found error as a missing group instead of a validation error that would confirm its existence.
+ * @param groupVisibilityGuard - Decides whether the caller can see the group being updated
  */
 
 using FluentValidation;
@@ -17,7 +20,8 @@ namespace Klacks.Api.Application.Validation.Groups;
 
 public class PutCommandValidator : AbstractValidator<PutCommand<GroupResource>>
 {
-    public PutCommandValidator(IShiftRepository shiftRepository, IGroupRepository groupRepository)
+    public PutCommandValidator(
+        IShiftRepository shiftRepository, IGroupRepository groupRepository, IGroupVisibilityGuard groupVisibilityGuard)
     {
         ClassLevelCascadeMode = CascadeMode.Stop;
 
@@ -41,7 +45,8 @@ public class PutCommandValidator : AbstractValidator<PutCommand<GroupResource>>
                 var afterDate = DateOnly.FromDateTime(command.Resource.ValidUntil.Value);
                 return !await shiftRepository.HasWorksForGroupAsync(command.Resource.Id, afterDate, ct);
             })
-            .WithMessage("group.validation.works-exist-after-valid-until");
+            .WithMessage("group.validation.works-exist-after-valid-until")
+            .WhenAsync((command, ct) => groupVisibilityGuard.IsGroupVisibleAsync(command.Resource.Id, ct));
 
         RuleFor(x => x)
             .MustAsync(async (command, ct) =>
@@ -73,6 +78,7 @@ public class PutCommandValidator : AbstractValidator<PutCommand<GroupResource>>
                 }
                 return true;
             })
-            .WithMessage("group.validation.member-has-planned-works");
+            .WithMessage("group.validation.member-has-planned-works")
+            .WhenAsync((command, ct) => groupVisibilityGuard.IsGroupVisibleAsync(command.Resource.Id, ct));
     }
 }

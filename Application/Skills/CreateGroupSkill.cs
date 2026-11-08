@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Creates a new group (location, branch, organisational unit) with optional parent for
-/// the nested-set hierarchy. ValidFrom defaults to today if not given.
+/// the nested-set hierarchy. ValidFrom defaults to today if not given. A parent outside the caller's group scope is
+/// answered with the same not-found text as a missing parent, so its existence and name stay hidden.
 /// </summary>
 /// <param name="name">Required. Display name of the group.</param>
 /// <param name="description">Optional. Free-text description.</param>
@@ -153,15 +154,10 @@ public class CreateGroupSkill : BaseSkillImplementation
                 return (null, SkillResult.Error($"Invalid parentId UUID: {parentIdStr}"));
             }
 
-            var parent = await _groupRepository.Get(parsedParent);
-            if (parent == null)
+            var parent = await FindGroupAsync(parsedParent);
+            if (parent == null || !scope.IsInScope(parent))
             {
                 return (null, SkillResult.Error($"Parent group '{parsedParent}' not found."));
-            }
-
-            if (!scope.IsInScope(parent))
-            {
-                return (null, SkillResult.Error(scope.BuildOutOfScopeError(parent.Name)));
             }
             parentId = parsedParent;
         }
@@ -171,6 +167,18 @@ public class CreateGroupSkill : BaseSkillImplementation
         }
 
         return (parentId, null);
+    }
+
+    private async Task<Group?> FindGroupAsync(Guid groupId)
+    {
+        try
+        {
+            return await _groupRepository.Get(groupId);
+        }
+        catch (KeyNotFoundException)
+        {
+            return null;
+        }
     }
 
     private async Task<(Guid? CalendarSelectionId, SkillResult? Error)> ResolveCalendarAsync(string? calendarIdStr)

@@ -4,7 +4,8 @@
 /// Updates an existing group's name, description, validity dates, payment interval and
 /// holiday-calendar assignment. The write runs in a transaction and is verified by
 /// re-reading the group from the database; a mismatch rolls the update back. Reparenting
-/// is NOT done here — use move_group, which keeps the nested-set invariants intact.
+/// is NOT done here — use move_group, which keeps the nested-set invariants intact. A group outside the caller's
+/// group scope is answered with the same not-found text as a missing one, so its existence and name stay hidden.
 /// </summary>
 /// <param name="groupId">Required. UUID of the group to update.</param>
 /// <param name="name">Optional. New display name.</param>
@@ -69,16 +70,11 @@ public class UpdateGroupSkill : BaseSkillImplementation
     {
         var groupId = GetRequiredGuid(parameters, "groupId");
 
-        var group = await _groupRepository.Get(groupId);
-        if (group == null)
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var group = await FindGroupAsync(groupId);
+        if (group == null || !scope.IsInScope(group))
         {
             return SkillResult.Error($"Group with ID '{groupId}' not found.");
-        }
-
-        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
-        if (!scope.IsInScope(group))
-        {
-            return SkillResult.Error(scope.BuildOutOfScopeError(group.Name));
         }
 
         var changed = new List<string>();
@@ -132,6 +128,18 @@ public class UpdateGroupSkill : BaseSkillImplementation
         }
 
         return BuildUpdatedResult(groupId, group, changed);
+    }
+
+    private async Task<Group?> FindGroupAsync(Guid groupId)
+    {
+        try
+        {
+            return await _groupRepository.Get(groupId);
+        }
+        catch (KeyNotFoundException)
+        {
+            return null;
+        }
     }
 
     private static SkillResult BuildUpdatedResult(Guid groupId, Group group, List<string> changed)
