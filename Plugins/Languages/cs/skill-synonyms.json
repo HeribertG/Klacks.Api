@@ -1276,7 +1276,9 @@
   "explain_scenario_variant_keys": [
     "co je klíč ve scénáři",
     "plánovat nezávazné směny",
-    "plánovat varianty zakázky s otevřenými detaily"
+    "plánovat varianty zakázky s otevřenými detaily",
+    "co jsou předběžné služby",
+    "spravovat předběžné služby"
   ],
   "explain_placeholder_employees": [
     "vytvořit fiktivní zaměstnance",

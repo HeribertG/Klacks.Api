@@ -148,7 +148,7 @@
   "explain_absence_model": "Forklaring af fraværsdatamodellen",
   "explain_absence_overlap_not_blocked": "Forklar uoverensstemmelser i uafklarede fraværsperioder",
   "explain_absence_cover_move": "Forklar dækning af fravær",
-  "explain_scenario_variant_keys": "Forklar nøgler til scenarier",
+  "explain_scenario_variant_keys": "Forklar foreløbige vagter",
   "explain_placeholder_employees": "Forklar pladsholdere",
   "explain_absence_type_flags": "Forklaring af en fraværstype",
   "explain_absence_value_vs_hours": "Forklar forskellen mellem fraværsværdi og fraværstimer",

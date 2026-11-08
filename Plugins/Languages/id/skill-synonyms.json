@@ -1252,7 +1252,9 @@
   "explain_scenario_variant_keys": [
     "apa itu kunci dalam skenario",
     "merencanakan shift yang tidak mengikat",
-    "merencanakan varian pesanan yang detailnya belum jelas"
+    "merencanakan varian pesanan yang detailnya belum jelas",
+    "apa itu shift sementara",
+    "kelola shift sementara"
   ],
   "explain_placeholder_employees": [
     "buat karyawan virtual",

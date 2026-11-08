@@ -1,5 +1,5 @@
 {
-  "version": 25,
+  "version": 26,
   "skills": [
     {
       "name": "get_current_time",
@@ -50371,7 +50371,7 @@
     {
       "name": "explain_scenario_variant_keys",
       "area": "schedule",
-      "description": "Explains keys for scenarios: a key is a named set of non-binding shifts for a group and a period, one key per variant of an announced order whose details are still open. Key shifts appear only in scenarios that carry the key; accepting such a scenario turns them into real sealed orders and uses the key up. Use this when the user asks how to plan an order whose details are open, what a key in the scenario menu is, or why a key is locked.",
+      "description": "Explains provisional shifts (formerly called keys): a named set of non-binding shifts for a group and a period, one set per variant of an announced order whose details are still open. Provisional shifts appear only in scenarios that carry them; accepting such a scenario turns them into real sealed orders and uses the set up. Use this when the user asks how to plan an order whose details are open, what provisional shifts or a key in a scenario are, where to manage them, or why they are locked.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -50400,11 +50400,13 @@
       "triggerKeywords": {
         "de": [
           "keys verwalten",
-          "nicht scharfe dienste"
+          "nicht scharfe dienste",
+          "vorläufige dienste"
         ],
         "en": [
           "manage keys",
-          "non-binding shifts"
+          "non-binding shifts",
+          "provisional shifts"
         ]
       },
       "synonyms": {
@@ -50416,7 +50418,9 @@
           "varianten eines auftrags planen",
           "warum ist der key gesperrt",
           "dienste die noch nicht sicher sind",
-          "grossanlass mit unsicheren diensten"
+          "grossanlass mit unsicheren diensten",
+          "was sind vorläufige dienste",
+          "vorläufige dienste verwalten"
         ],
         "en": [
           "what is a key in a scenario",
@@ -50426,28 +50430,34 @@
           "plan variants of an order",
           "why is the key locked",
           "shifts that are not certain yet",
-          "large event with uncertain shifts"
+          "large event with uncertain shifts",
+          "what are provisional shifts",
+          "manage provisional shifts"
         ],
         "fr": [
           "qu'est-ce qu'une clé de scénario",
           "gérer les clés",
           "planifier des services non contraignants",
-          "planifier des variantes d'une commande"
+          "planifier des variantes d'une commande",
+          "que sont les services provisoires",
+          "gérer les services provisoires"
         ],
         "it": [
           "cos'è una chiave dello scenario",
           "gestire le chiavi",
           "pianificare turni non vincolanti",
-          "pianificare varianti di un ordine"
+          "pianificare varianti di un ordine",
+          "cosa sono i turni provvisori",
+          "gestire i turni provvisori"
         ]
       },
       "labels": {
-        "de": "Keys für Szenarien erklären",
-        "en": "Explain keys for scenarios",
-        "fr": "Expliquer les clés des scénarios",
-        "it": "Spiega le chiavi degli scenari"
+        "de": "Vorläufige Dienste erklären",
+        "en": "Explain provisional shifts",
+        "fr": "Expliquer les services provisoires",
+        "it": "Spiega i turni provvisori"
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_placeholder_employees",

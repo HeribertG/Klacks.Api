@@ -1253,7 +1253,9 @@
   "explain_scenario_variant_keys": [
     "ce este o cheie în scenariu",
     "planificarea turelor neobligatorii",
-    "planificarea variantelor unei comenzi cu detalii deschise"
+    "planificarea variantelor unei comenzi cu detalii deschise",
+    "ce sunt turele provizorii",
+    "gestionează turele provizorii"
   ],
   "explain_placeholder_employees": [
     "creează angajați fictivi",

@@ -1241,7 +1241,9 @@
   "explain_scenario_variant_keys": [
     "场景中的键是什么",
     "规划非约束性班次",
-    "规划细节未定订单的不同方案"
+    "规划细节未定订单的不同方案",
+    "什么是暂定班次",
+    "管理暂定班次"
   ],
   "explain_placeholder_employees": [
     "创建占位员工",

@@ -1268,7 +1268,9 @@
   "explain_scenario_variant_keys": [
     "wat is een sleutel in een scenario",
     "niet-bindende diensten plannen",
-    "varianten van een opdracht met open details plannen"
+    "varianten van een opdracht met open details plannen",
+    "wat zijn voorlopige diensten",
+    "voorlopige diensten beheren"
   ],
   "explain_placeholder_employees": [
     "fictieve medewerkers aanmaken",

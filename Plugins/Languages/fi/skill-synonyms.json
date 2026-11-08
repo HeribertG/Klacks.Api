@@ -1248,7 +1248,9 @@
   "explain_scenario_variant_keys": [
     "mikä on avain skenaariossa",
     "suunnittele ei-sitovia vuoroja",
-    "suunnittele tilauksen vaihtoehtoja"
+    "suunnittele tilauksen vaihtoehtoja",
+    "mitä ovat alustavat vuorot",
+    "hallitse alustavia vuoroja"
   ],
   "explain_placeholder_employees": [
     "luo paikanvaraajia",

@@ -1272,7 +1272,9 @@
   "explain_scenario_variant_keys": [
     "qué es una clave en el escenario",
     "planificar turnos no vinculantes",
-    "planificar variantes de un pedido con detalles abiertos"
+    "planificar variantes de un pedido con detalles abiertos",
+    "qué son los turnos provisionales",
+    "gestionar turnos provisionales"
   ],
   "explain_placeholder_employees": [
     "crear empleados ficticios",

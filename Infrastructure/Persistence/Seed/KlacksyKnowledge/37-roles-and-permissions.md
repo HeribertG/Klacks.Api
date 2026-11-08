@@ -94,11 +94,18 @@ The inbox (received e-mails) is also for Supervisor and Admin only; deleting e-m
 folders and spam rules are for the Admin alone. Proactive governance is Admin-only, and the messaging
 page needs Supervisor or Admin and an active messaging add-on.
 
-## Placeholders
+## Placeholders and provisional shifts
 
 Creating placeholders (rows for people who are not in the system yet) and converting one into an employee
 or an external employee are Supervisor and Admin work, like creating and editing any staff record. A
 planner plans on the placeholders that exist; deleting one is Admin-only (`explain_placeholder_employees`).
+
+Placeholders and provisional shifts (`explain_scenario_variant_keys`, formerly called keys) are prepared in the
+menu ⋮ (de: "Weitere Aktionen", en: "More actions") of the schedule toolbar, which only a Supervisor or an Admin
+sees. Each entry needs its own right: (de: "Platzhalter anlegen", en: "Create placeholders") the right to create
+employees, (de: "Vorläufige Dienste verwalten", en: "Manage provisional shifts") the right to edit shifts. An account
+without either right sees no menu. A planner without a role still chooses existing provisional shifts when creating
+a scenario.
 
 ## Where the boundary sits
 

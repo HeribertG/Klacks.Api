@@ -1261,7 +1261,9 @@
   "explain_scenario_variant_keys": [
     "hvad er en nøgle i et scenarie",
     "planlæg ikke-bindende vagter",
-    "planlæg varianter af en ordre med åbne detaljer"
+    "planlæg varianter af en ordre med åbne detaljer",
+    "hvad er foreløbige vagter",
+    "administrer foreløbige vagter"
   ],
   "explain_placeholder_employees": [
     "opret pladsholdere",

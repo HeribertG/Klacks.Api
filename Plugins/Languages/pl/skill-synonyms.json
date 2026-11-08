@@ -1276,7 +1276,9 @@
   "explain_scenario_variant_keys": [
     "czym jest klucz w scenariuszu",
     "planowanie niewiążących zmian",
-    "planowanie wariantów zlecenia z otwartymi szczegółami"
+    "planowanie wariantów zlecenia z otwartymi szczegółami",
+    "czym są wstępne dyżury",
+    "zarządzaj wstępnymi dyżurami"
   ],
   "explain_placeholder_employees": [
     "utwórz pracowników wirtualnych",

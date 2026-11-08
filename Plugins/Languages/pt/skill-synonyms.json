@@ -1274,7 +1274,9 @@
   "explain_scenario_variant_keys": [
     "o que é uma chave no cenário",
     "planear turnos não vinculativos",
-    "planear variantes de uma encomenda com detalhes em aberto"
+    "planear variantes de uma encomenda com detalhes em aberto",
+    "o que são turnos provisórios",
+    "gerir turnos provisórios"
   ],
   "explain_placeholder_employees": [
     "criar colaboradores fictícios",

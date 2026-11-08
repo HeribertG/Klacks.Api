@@ -1244,7 +1244,9 @@
   "explain_scenario_variant_keys": [
     "khóa trong kịch bản là gì",
     "lập kế hoạch ca làm chưa ràng buộc",
-    "lập kế hoạch các phương án cho đơn hàng chưa rõ chi tiết"
+    "lập kế hoạch các phương án cho đơn hàng chưa rõ chi tiết",
+    "ca tạm thời là gì",
+    "quản lý ca tạm thời"
   ],
   "explain_placeholder_employees": [
     "tạo nhân viên giả định",

@@ -1247,7 +1247,9 @@
   "explain_scenario_variant_keys": [
     "hva er en nøkkel i et scenario",
     "planlegg ikke-bindende vakter",
-    "planlegg varianter av en ordre med åpne detaljer"
+    "planlegg varianter av en ordre med åpne detaljer",
+    "hva er foreløpige vakter",
+    "administrer foreløpige vakter"
   ],
   "explain_placeholder_employees": [
     "opprett plassholdere",

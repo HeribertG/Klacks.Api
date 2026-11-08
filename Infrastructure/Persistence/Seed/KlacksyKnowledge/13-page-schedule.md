@@ -165,6 +165,15 @@ verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder ni
   Bestätigung rechnet es im Hintergrund jeden nicht versiegelten Eintrag des echten Plans gründlich neu,
   unabhängig von Periode und Gruppe, Monat für Monat; das kann lange dauern, am Ende kommt eine
   Benachrichtigung. Eingefrorene Perioden behalten ihre exportierten Stunden.
+- **Weitere Aktionen** (Symbol ⋮, `schedule-more-actions-btn`, Tooltip de: "Weitere Aktionen", en: "More actions",
+  fr: "Plus d'actions", it: "Altre azioni"): Menü mit selten gebrauchter Vorbereitungsarbeit für einen Grossanlass,
+  direkt nach dem Neuberechnen-Dropdown. Nur Supervisor und Admin sehen es, und jeder Eintrag nur mit seinem Recht:
+  **Platzhalter anlegen** (`schedule-more-create-stand-ins`, de: "Platzhalter anlegen", en: "Create placeholders",
+  Recht Mitarbeiter anlegen; siehe `explain_placeholder_employees`) und **Vorläufige Dienste verwalten**
+  (`schedule-more-manage-keys`, de: "Vorläufige Dienste verwalten", en: "Manage provisional shifts", Recht Dienste
+  bearbeiten; siehe `explain_scenario_variant_keys`). Hat das Konto keines der beiden Rechte (so der Planer ohne
+  Rolle), ist der Knopf nicht da. Beide Einträge arbeiten auf der gewählten Gruppe: Ist keine einzelne Gruppe gewählt, sind sie
+  deaktiviert, und das Menü zeigt den Hinweis (de: "Wähle zuerst eine Gruppe", en: "Select a group first").
 - **Szenario-Auswahl** (`scenario-selector-btn`, Tooltip de: "Szenario auswählen", en:
   "Select scenario"): Button zeigt **Original** (de/en/fr: "Original", it: "Originale")
   oder den Namen des aktiven Szenarios. Menü im Szenario-Modus: **Zum Original** (de: "Zum
@@ -407,8 +416,9 @@ sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planba
   sie. Im Szenario-Modus wird die Tagessperren-Prüfung übersprungen (Sandbox), die
   Bearbeitung von **Schicht-Stammdaten** (Schicht bearbeiten/zuschneiden) ist dagegen
   blockiert, bis das Szenario übernommen oder verworfen ist. Nicht scharfe Dienste für einen
-  Auftrag mit offenen Details liegen in Keys, die im Szenario-Menü verwaltet und beim Anlegen
-  eines Szenarios gewählt werden (siehe `explain_scenario_variant_keys`).
+  Auftrag mit offenen Details liegen in vorläufigen Diensten (früher "Keys"), die Supervisor und Admin über das
+  Menü ⋮ der Werkzeugleiste verwalten und die jeder Planer beim Anlegen eines Szenarios wählt (siehe
+  `explain_scenario_variant_keys`).
 - **Periodenabschluss (`/workplace/period-closing`)**: Versiegelte Tage lehnt das Backend
   bei Neuanlage und Änderung ab ("Day ... is sealed"); im Raster bleiben die Spalten
   gesperrt. Zusätzlich sperren die Eintrag-LockLevel (Confirmed/Approved/Closed) einzelne

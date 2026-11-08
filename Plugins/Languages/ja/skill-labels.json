@@ -148,7 +148,7 @@
   "explain_absence_model": "欠勤データモデルを説明",
   "explain_absence_overlap_not_blocked": "未確認の欠勤重複を説明",
   "explain_absence_cover_move": "欠勤のカバーを説明",
-  "explain_scenario_variant_keys": "シナリオのキーを説明",
+  "explain_scenario_variant_keys": "暫定シフトを説明",
   "explain_placeholder_employees": "仮従業員の説明",
   "explain_absence_type_flags": "欠勤種別のフラグを説明",
   "explain_absence_value_vs_hours": "欠勤値と欠勤時間の違いを説明",

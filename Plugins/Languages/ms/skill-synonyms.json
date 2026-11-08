@@ -1241,7 +1241,9 @@
   "explain_scenario_variant_keys": [
     "apa itu kunci dalam senario",
     "merancang syif yang tidak mengikat",
-    "merancang varian pesanan yang butirannya belum pasti"
+    "merancang varian pesanan yang butirannya belum pasti",
+    "apa itu syif sementara",
+    "urus syif sementara"
   ],
   "explain_placeholder_employees": [
     "cipta pekerja maya",

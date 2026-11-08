@@ -1236,7 +1236,9 @@
   "explain_scenario_variant_keys": [
     "情境中的鍵是什麼",
     "規劃非約束性班次",
-    "規劃細節未定訂單的不同方案"
+    "規劃細節未定訂單的不同方案",
+    "什麼是暫定班次",
+    "管理暫定班次"
   ],
   "explain_placeholder_employees": [
     "建立佔位員工",

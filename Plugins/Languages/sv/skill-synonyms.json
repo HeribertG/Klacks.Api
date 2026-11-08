@@ -1257,7 +1257,9 @@
   "explain_scenario_variant_keys": [
     "vad är en nyckel i ett scenario",
     "planera icke-bindande pass",
-    "planera varianter av en order med öppna detaljer"
+    "planera varianter av en order med öppna detaljer",
+    "vad är preliminära skift",
+    "hantera preliminära skift"
   ],
   "explain_placeholder_employees": [
     "skapa platshållare",

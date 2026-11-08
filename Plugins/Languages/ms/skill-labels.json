@@ -148,7 +148,7 @@
   "explain_absence_model": "Terangkan model data ketidakhadiran",
   "explain_absence_overlap_not_blocked": "Jelaskan pertindihan ketidakhadiran yang tidak diperiksa",
   "explain_absence_cover_move": "Terangkan penggantian ketidakhadiran",
-  "explain_scenario_variant_keys": "Terangkan kunci untuk senario",
+  "explain_scenario_variant_keys": "Terangkan syif sementara",
   "explain_placeholder_employees": "Terangkan pekerja maya",
   "explain_absence_type_flags": "Jelaskan bendera jenis ketidakhadiran",
   "explain_absence_value_vs_hours": "Jelaskan nilai ketidakhadiran berbanding jam ketidakhadiran",

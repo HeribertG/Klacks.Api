@@ -12,7 +12,7 @@ A placeholder (de: "Platzhalter", en: "Placeholder", fr: "Employé fictif", it: 
 
 Sometimes the work is known but the people are not: a large order needs extra staff that is still being recruited, or an agency will send the names later. Placeholders let the planner staff the shifts now and put the real names in afterwards. A placeholder is **not** an external employee; employee and external employee are the two things a placeholder can become.
 
-Placeholders are for **uncertain people**; keys are for **uncertain shifts** (`explain_scenario_variant_keys`). Both together let a scenario for an announced large order be fully staffed before anything is confirmed.
+Placeholders are for **uncertain people**; provisional shifts (de: "Vorläufige Dienste", en: "Provisional shifts", fr: "Services provisoires", it: "Turni provvisori") are for **uncertain shifts** (`explain_scenario_variant_keys`). Both together let a scenario for an announced large order be fully staffed before anything is confirmed.
 
 Do not mix it up with two other things:
 - The **stand-in** in a replacement (German "Ablöser") is the real person who takes over part of somebody's shift (`explain_overtime_model`, `explain_payroll_export_handoff`). A placeholder is never a stand-in.
@@ -22,12 +22,12 @@ Do not mix it up with two other things:
 
 ## Creating placeholders
 
-Only a Supervisor or an Admin creates placeholders (the right to create employees); an account without a role cannot and does not see the button. The button (de: "Platzhalter anlegen", en: "Create placeholders", fr: "Créer des employés fictifs", it: "Crea segnaposto") sits at the top of the employee list next to (de: "+ Adresse erfassen", en: "+ Add Address", fr: "Ajouter une adresse", it: "Aggiungi indirizzo"), and in the toolbar of the schedule (person with a plus sign); opened from the schedule, the dialog starts with the chosen group and the shown period filled in. One request creates 1 to 50 placeholders, all of them or none:
+Only a Supervisor or an Admin creates placeholders (the right to create employees); an account without a role cannot and does not see the entry. Placeholders are created only in the schedule: in its toolbar, right after the hours recalculation, open the menu ⋮ (de: "Weitere Aktionen", en: "More actions", fr: "Plus d'actions", it: "Altre azioni") and choose (de: "Platzhalter anlegen", en: "Create placeholders", fr: "Créer des employés fictifs", it: "Crea segnaposto"). The menu appears only for a Supervisor or an Admin and shows only the entries the account may use; the employee list has no such button. The dialog creates the placeholders in the group currently selected in the schedule and starts with the shown period. One request creates 1 to 50 placeholders, all of them or none:
 - **Count** (de: "Anzahl", en: "Number", fr: "Nombre", it: "Numero") — 1 to 50.
 - **Name pattern** (de: "Namensmuster", en: "Name pattern", fr: "Modèle de nom", it: "Modello del nome") — must contain `{n}` exactly once, e.g. "Fair {n}" gives "Fair 1", "Fair 2" …; numbering continues above the highest number an existing name with the same pattern already has.
-- **Group** — required, and it must be a group the user can see.
+- **Group** — the group currently selected in the schedule; the dialog has no group field and shows the group's name read-only in its title, e.g. "Create placeholders – Bern Objektschutz". While no single group is selected (all groups), the entry is disabled with the hint (de: "Wähle zuerst eine Gruppe", en: "Select a group first", fr: "Sélectionne d'abord un groupe", it: "Seleziona prima un gruppo"); choose a group in the group selection first.
 - **Period** (de: "Mitglied ab", en: "Member from", fr: "Membre dès le", it: "Membro dal" and de: "Mitglied bis", en: "Member until", fr: "Membre jusqu'au", it: "Membro fino al") — required start, optional end. It becomes the placeholder's membership and its group membership, so the placeholder can only be planned inside it.
-- **Qualifications** — optional; every given qualification is held at the highest level, Expert, so the placeholder can take every shift that requires it.
+- **Qualifications** — optional, chosen in a pull-down (de: "Qualifikationen wählen", en: "Choose qualifications", fr: "Choisir des qualifications", it: "Scegli le qualifiche"): open, each row shows a checkbox, the qualification's symbol and its name; closed, it shows only the symbols of the chosen ones (a qualification without a symbol shows its name), at most five followed by "+n", and the names as tooltip. Every given qualification is held at the highest level, Expert, so the placeholder can take every shift that requires it.
 
 A placeholder has only a display name: no first name, no gender, no address, no e-mail or phone and no contract. Its staff form shows the display name (de: "Anzeigename", en: "Display name", fr: "Nom affiché", it: "Nome visualizzato") instead of the person fields, the membership with a read-only type (entry and exit date stay editable; to change the planning period, change them together with the period of the group membership in the groups card), the groups, the qualifications, the note and the picture; it has no address list, no contract and no messenger contact. The client import never creates placeholders. Klacksy has no skill for creating or converting placeholders; it explains the fields and the rules.
 
@@ -64,11 +64,11 @@ Only a Supervisor or an Admin converts (the right to edit employees) and sees th
 
 <!-- level:pitfalls -->
 
-## Typical course with keys, and what to watch
+## Typical course with provisional shifts, and what to watch
 
-1. Put the uncertain shifts of the announced order into a key (`explain_scenario_variant_keys`).
-2. Create a scenario that carries the key.
-3. Create placeholders for the missing people: the group of the shifts, the period of the order, the qualifications the shifts need.
+1. Put the uncertain shifts of the announced order into provisional shifts (`explain_scenario_variant_keys`).
+2. Create a scenario that carries them.
+3. Create placeholders for the missing people (menu ⋮ in the schedule toolbar): the group of the shifts, the period of the order, the qualifications the shifts need.
 4. Plan the scenario automatically: real people first, placeholders fill the rest.
 5. When the customer confirms, accept the scenario (Supervisor or Admin); its services, including those on placeholders, become the real plan.
 6. As names arrive, convert each placeholder, or move its services to an existing person one by one (drag and drop); the move checks membership, group period and mandatory qualifications. A transfer of all services at once does not exist.
