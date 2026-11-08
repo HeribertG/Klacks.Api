@@ -89,7 +89,8 @@ public class RecalculatePeriodHoursThoroughCommandHandler
                 request.SelectedGroup,
                 request.AnalyseToken,
                 visibleClientIds,
-                request.ConfirmFrozen);
+                request.ConfirmFrozen,
+                ownWorkChangesOnly: visibleClientIds is not null);
 
             if (!request.ConfirmFrozen)
             {

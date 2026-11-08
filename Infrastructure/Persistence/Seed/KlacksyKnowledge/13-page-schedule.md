@@ -159,6 +159,12 @@ verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder ni
   zusammenzählen", en: "Calculate and sum hours", fr: "Calculer et totaliser les heures",
   it: "Calcola e somma ore") — die gründliche Variante fragt vor dem Start per
   Bestätigungs-Dialog nach. Sichtbar für alle, die den Plan bearbeiten dürfen, auch für Planer.
+  Nur für Administratoren und nur im Original (nicht im Szenario) gibt es zusätzlich **Alle offenen
+  Perioden nachrechnen** (de: "Alle offenen Perioden nachrechnen", en: "Recalculate all open periods",
+  fr: "Recalculer toutes les périodes ouvertes", it: "Ricalcola tutti i periodi aperti"): nach einer
+  Bestätigung rechnet es im Hintergrund jeden nicht versiegelten Eintrag des echten Plans gründlich neu,
+  unabhängig von Periode und Gruppe, Monat für Monat; das kann lange dauern, am Ende kommt eine
+  Benachrichtigung. Eingefrorene Perioden behalten ihre exportierten Stunden.
 - **Szenario-Auswahl** (`scenario-selector-btn`, Tooltip de: "Szenario auswählen", en:
   "Select scenario"): Button zeigt **Original** (de/en/fr: "Original", it: "Originale")
   oder den Namen des aktiven Szenarios. Menü im Szenario-Modus: **Zum Original** (de: "Zum
@@ -504,7 +510,10 @@ sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planba
   rechnet alle. Ohne Administratorrolle umfasst eine Neuberechnung höchstens 12 Lohnperioden auf einmal;
   ein grösserer Zeitraum wird abgelehnt und lässt sich in Teilen rechnen. Eingefrorene Perioden darf nur ein Administrator nachrechnen, mit Bestätigung und
   Begründung (siehe unten). Die automatische Nachführung nach einer Änderung läuft für alle Schreibenden
-  weiter.
+  weiter. Bei der gründlichen Variante eines Planers werden Korrekturen und Ablösungen nur auf Diensten
+  der Personen neu verarbeitet, die er sieht; springt eine sichtbare Person bei jemandem ein, den er nicht
+  sieht, bleibt diese Ablösung unverändert (Owner-Entscheid 2026-11-08), bis ein Administrator oder ein
+  Planer jener Gruppe nachrechnet.
 - **Neu gerechnet wird nur im offenen Fenster.** Jede Neuberechnung, von Hand oder automatisch, schreibt
   die gespeicherten Periodenstunden nur für offene Perioden und für die Perioden der letzten zwei
   Lohnexporte der Person (Nachträge zum selben Zeitraum zählen einmal). Eine ältere Periode, die

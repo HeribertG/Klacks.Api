@@ -83,11 +83,13 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
         Guid? selectedGroup,
         Guid? analyseToken,
         IReadOnlyCollection<Guid>? clientIds = null,
-        bool includeFrozen = false)
+        bool includeFrozen = false,
+        bool ownWorkChangesOnly = false)
     {
         return Enqueue(new ThoroughRecalculationRequest(startDate, endDate, selectedGroup, analyseToken, clientIds)
         {
-            IncludeFrozen = includeFrozen
+            IncludeFrozen = includeFrozen,
+            OwnWorkChangesOnly = ownWorkChangesOnly
         });
     }
 
@@ -445,9 +447,11 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
 
         if (clientIdFilter is { Count: > 0 })
         {
-            query = query.Where(wc =>
-                clientIdFilter.Contains(wc.Work!.ClientId) ||
-                (wc.ReplaceClientId.HasValue && clientIdFilter.Contains(wc.ReplaceClientId.Value)));
+            query = request.OwnWorkChangesOnly
+                ? query.Where(wc => clientIdFilter.Contains(wc.Work!.ClientId))
+                : query.Where(wc =>
+                    clientIdFilter.Contains(wc.Work!.ClientId) ||
+                    (wc.ReplaceClientId.HasValue && clientIdFilter.Contains(wc.ReplaceClientId.Value)));
         }
 
         return await query.ToListAsync(cancellationToken);
@@ -528,6 +532,7 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
 
         public bool AllUnsealed { get; private init; }
         public bool IncludeFrozen { get; init; }
+        public bool OwnWorkChangesOnly { get; init; }
         public DateOnly StartDate { get; }
         public DateOnly EndDate { get; }
         public Guid? SelectedGroup { get; }
@@ -539,6 +544,7 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
             return other is not null
                 && AllUnsealed == other.AllUnsealed
                 && IncludeFrozen == other.IncludeFrozen
+                && OwnWorkChangesOnly == other.OwnWorkChangesOnly
                 && StartDate == other.StartDate
                 && EndDate == other.EndDate
                 && SelectedGroup == other.SelectedGroup
@@ -551,6 +557,7 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
             var hash = default(HashCode);
             hash.Add(AllUnsealed);
             hash.Add(IncludeFrozen);
+            hash.Add(OwnWorkChangesOnly);
             hash.Add(StartDate);
             hash.Add(EndDate);
             hash.Add(SelectedGroup);

@@ -17,13 +17,16 @@ public interface IThoroughRecalculationQueue
     /// <param name="clientIds">Optional client scope; null or empty recalculates all clients in the window</param>
     /// <param name="includeFrozen">Admin override: the cached period hours of frozen periods are recalculated too;
     /// without it they stay unchanged</param>
+    /// <param name="ownWorkChangesOnly">Restricted caller (planner): only work changes on works of the scoped clients are
+    /// reprocessed, not those where a scoped client merely replaces a person outside the scope (owner decision 2026-11-08)</param>
     bool QueueRecalculation(
         DateOnly startDate,
         DateOnly endDate,
         Guid? selectedGroup,
         Guid? analyseToken,
         IReadOnlyCollection<Guid>? clientIds = null,
-        bool includeFrozen = false);
+        bool includeFrozen = false,
+        bool ownWorkChangesOnly = false);
 
     /// <summary>
     /// Enqueues a thorough recalculation of every unsealed real-mode work and every unsealed break, whatever its date.
