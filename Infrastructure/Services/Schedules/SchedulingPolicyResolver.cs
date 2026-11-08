@@ -11,8 +11,12 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <summary>
 /// Default implementation of <see cref="ISchedulingPolicyResolver"/>. Delegates to
 /// <see cref="IClientContractDataProvider"/> which already merges global settings, contract values
-/// and scheduling-rule overrides into <see cref="EffectiveContractData"/>. Zero or missing values
-/// fall back to <see cref="SchedulingPolicyDefaults"/> so the validator never compares against zero.
+/// and scheduling-rule overrides into <see cref="EffectiveContractData"/>. Minimums (rest hours, rest days)
+/// are taken as they are, so 0 means no requirement; a missing setting is already replaced by
+/// <see cref="SchedulingPolicyDefaults"/> when the settings are read. Caps (daily hours, weekly hours,
+/// consecutive days) below 1 are rejected on input in scheduling rules, company settings and planning profiles;
+/// a stored 0 (legacy data, region import) is never read as a 0-hour cap and falls back to
+/// <see cref="SchedulingPolicyDefaults"/>.
 /// </summary>
 /// <param name="contractProvider">Underlying provider that walks settings → contract → scheduling-rule</param>
 public sealed class SchedulingPolicyResolver : ISchedulingPolicyResolver
@@ -49,9 +53,6 @@ public sealed class SchedulingPolicyResolver : ISchedulingPolicyResolver
 
     private static SchedulingPolicy MapToPolicy(EffectiveContractData data)
     {
-        var minRestHours = data.MinPauseHours > 0
-            ? (double)data.MinPauseHours
-            : SchedulingPolicyDefaults.MinRestHours;
         var maxDailyHours = data.MaxDailyHours > 0
             ? (double)data.MaxDailyHours
             : SchedulingPolicyDefaults.MaxDailyHours;
@@ -61,16 +62,13 @@ public sealed class SchedulingPolicyResolver : ISchedulingPolicyResolver
         var maxWeeklyHours = data.MaxWeeklyHours > 0
             ? (double)data.MaxWeeklyHours
             : SchedulingPolicyDefaults.MaxWeeklyHours;
-        var minRestDays = data.MinRestDays > 0
-            ? data.MinRestDays
-            : SchedulingPolicyDefaults.MinRestDays;
 
         return new SchedulingPolicy(
-            MinRestHours: TimeSpan.FromHours(minRestHours),
+            MinRestHours: TimeSpan.FromHours((double)data.MinPauseHours),
             MaxDailyHours: TimeSpan.FromHours(maxDailyHours),
             MaxConsecutiveDays: maxConsecutiveDays,
             MaxWeeklyHours: TimeSpan.FromHours(maxWeeklyHours),
-            MinRestDays: minRestDays,
+            MinRestDays: data.MinRestDays,
             MaxDailySpan: data.MaxDailySpanHours > 0 ? TimeSpan.FromHours((double)data.MaxDailySpanHours) : null);
     }
 }

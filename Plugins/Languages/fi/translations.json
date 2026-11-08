@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "Lomapäivät vuodessa",
   "setting.schedulingRule.validation.nameRequired": "Nimi on pakollinen.",
   "setting.schedulingRule.validation.valuesPositive": "Arvojen on oltava 0 tai suurempia.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Enimmäisarvojen on oltava tyhjiä tai vähintään 1. Tyhjä käyttää oletusarvoa.",
   "setting.schedulingRule.validation.dailySpanRange": "Työpäivän kehyksen on oltava 0–24 tuntia.",
   "setting.schedulingRule.we1Rate": "WE1-lisä",
   "setting.schedulingRule.we2Rate": "WE2-lisä",

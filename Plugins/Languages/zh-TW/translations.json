@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "年假天數",
   "setting.schedulingRule.validation.nameRequired": "名稱是必填項。",
   "setting.schedulingRule.validation.valuesPositive": "值必須大於或等於0。",
+  "setting.schedulingRule.validation.capAtLeastOne": "最大值必須為空或至少為1。為空時使用預設值。",
   "setting.schedulingRule.validation.dailySpanRange": "每日工作時段必須介於0到24小時之間。",
   "setting.schedulingRule.we1Rate": "WE1 工時加成",
   "setting.schedulingRule.we2Rate": "WE2 工時加成",

@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "Dnů dovolené za rok",
   "setting.schedulingRule.validation.nameRequired": "Název je povinný.",
   "setting.schedulingRule.validation.valuesPositive": "Hodnoty musí být 0 nebo větší.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Maximální hodnoty musí být prázdné nebo alespoň 1. Prázdné pole použije výchozí hodnotu.",
   "setting.schedulingRule.validation.dailySpanRange": "Denní pracovní rámec musí být mezi 0 a 24 hodinami.",
   "setting.schedulingRule.we1Rate": "Příplatek WE1",
   "setting.schedulingRule.we2Rate": "Příplatek WE2",

@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "Semesterdagar per år",
   "setting.schedulingRule.validation.nameRequired": "Namn krävs.",
   "setting.schedulingRule.validation.valuesPositive": "Värden måste vara 0 eller större.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Maxvärden måste vara tomma eller minst 1. Tomt använder standardvärdet.",
   "setting.schedulingRule.validation.dailySpanRange": "Arbetsdagsramen måste ligga mellan 0 och 24 timmar.",
   "setting.schedulingRule.we1Rate": "WE1-tillägg",
   "setting.schedulingRule.we2Rate": "WE2-tillägg",

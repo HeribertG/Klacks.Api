@@ -123,7 +123,7 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
             return [];
         }
 
-        var minimumRestDays = effectiveData.MinRestDays > 0 ? effectiveData.MinRestDays : SchedulingPolicyDefaults.MinRestDays;
+        var minimumRestDays = effectiveData.MinRestDays;
         var minimumFreeBlock = CalendarWeekRestDays.MinimumFreeBlock(minimumRestDays);
         var lookAheadDays = (int)Math.Ceiling(minimumFreeBlock.TotalDays) + LookAheadPaddingDays;
 

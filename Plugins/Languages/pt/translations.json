@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "Dias de férias por ano",
   "setting.schedulingRule.validation.nameRequired": "Nome é obrigatório.",
   "setting.schedulingRule.validation.valuesPositive": "Os valores devem ser 0 ou superiores.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Os valores máximos devem estar vazios ou ser pelo menos 1. Vazio usa o valor predefinido.",
   "setting.schedulingRule.validation.dailySpanRange": "O enquadramento diário de trabalho tem de estar entre 0 e 24 horas.",
   "setting.schedulingRule.we1Rate": "Suplemento WE1",
   "setting.schedulingRule.we2Rate": "Suplemento WE2",

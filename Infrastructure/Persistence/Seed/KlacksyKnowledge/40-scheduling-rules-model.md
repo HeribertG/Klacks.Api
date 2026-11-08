@@ -4,7 +4,8 @@ description: |
   Explains the limits a roster has to respect: the longest working day, the ceiling on hours per
   week, how many days in a row somebody may work, the minimum hours off between two working days
   and the minimum rest days between two blocks of work. Covers where a limit that is left empty
-  takes its value from, what an entered zero actually does, and whether exceeding a limit only
+  takes its value from, what an entered zero actually does (maximums must be at least 1, a zero
+  minimum means no requirement), and whether exceeding a limit only
   warns the planner or refuses the assignment. Use this when the user asks why the planner objects
   to a shift, which limit applies to whom, or how strictly a limit is enforced.
 category: Query
@@ -103,9 +104,12 @@ several rates combine is decided company-wide and cannot be changed per rule.
 early/late/night duty.
 
 **The only checks when saving:** the name must not be empty (de: "Name ist erforderlich."),
-and no value may be negative (de: "Werte müssen 0 oder grösser sein."). Nothing checks a limit
-against another limit — a minimum above the maximum, or a daily figure that cannot add up to the
-weekly one, is accepted.
+no value may be negative (de: "Werte müssen 0 oder grösser sein."), and the three maximums —
+longest working day, hours per week, days in a row — must be empty or at least 1
+(de: "Höchstwerte müssen leer oder mindestens 1 sein. Leer übernimmt den Standardwert.").
+The company-wide defaults card does not accept a maximum below 1 either; it raises the field to 1.
+Nothing checks a limit against another limit — a minimum above the maximum, or a daily figure that
+cannot add up to the weekly one, is accepted.
 
 <!-- level:effects -->
 
@@ -130,11 +134,20 @@ Two exceptions:
 - A dated revision of the rates replaces the rule's rate fields as a block. A value left empty in
   the revision does not fall back to the rule.
 
-**A zero is not the same as an empty field.** For the five limits that can refuse an assignment —
-longest working day, hours per week, days in a row, hours off between working days, rest days —
-a value of zero or less is treated as "not configured" and a built-in figure applies instead:
-11 hours off, 10 hours a day, 6 days in a row, 50 hours a week, 2 rest days. These exist so an
-empty database cannot switch every check off.
+**A zero is not the same as an empty field** (owner decision 2026-11-07: empty inherits, 0 is a value).
+
+- **Maximums are never 0.** Longest working day, hours per week and days in a row can only be left
+  empty (inherit) or set to 1 or more. A 0 stored before this rule existed never turns into
+  "0 hours allowed": the check uses the built-in figure instead (10 hours a day, 50 hours a week,
+  6 days in a row), and the next save of that rule asks for an empty field or a value of 1 or more.
+  Klacksy's planning profile also refuses a maximum below 1.
+- **Minimums take 0 at its word.** Hours off between working days and rest days set to 0 mean
+  "deliberately no requirement": the schedule check then raises no rest objection, and with 0 hours
+  off and no daily work frame the working day may span all 24 hours. Only when the company value is missing entirely does a
+  built-in figure apply (11 hours off, 2 rest days), so an empty database cannot switch the checks off.
+- **Known gap:** the planning assistant (wizard) still plans with the company-wide hours off when a
+  named rule sets them to 0 while the company value is above 0. It then plans more cautiously than the
+  check requires; it never plans less rest than required.
 
 ## What happens when a limit is exceeded
 
@@ -169,4 +182,6 @@ qualification level is binding is configurable, but once it blocks, nobody can o
 - "How many days in a row may somebody work?"
 - "Wie viele Stunden Pause müssen zwischen zwei Diensten liegen?"
 - "Ich habe das Feld leer gelassen — was gilt dann?"
+- "Warum kann ich bei den maximalen Tagesstunden keine 0 eintragen?"
+- "What does a rest time of 0 mean?"
 - "Is that a warning or does it really stop me?"

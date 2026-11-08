@@ -2,8 +2,10 @@
 
 /// <summary>
 /// Translates the raw settings rows (key -> string value) into <see cref="ContractDefaultSettings"/>.
-/// Missing or unparsable numbers fall back to 0, missing weekday/shift-work flags to true and a missing
-/// rate mode to Multiplier.
+/// Missing or unparsable numbers fall back to 0, except the two rest minimums (minimum pause hours and
+/// minimum rest days): they fall back to <see cref="SchedulingPolicyDefaults"/>, because a stored 0 there
+/// means "no requirement" and must stay distinguishable from a missing row. Missing weekday/shift-work flags
+/// fall back to true and a missing rate mode to Multiplier.
 /// </summary>
 /// <param name="settings">Settings rows keyed by SettingKeys, restricted to <see cref="Keys"/></param>
 
@@ -70,8 +72,8 @@ internal static class ContractDefaultSettingsReader
             PaymentInterval = ParseInt(Value(SettingKeys.PaymentInterval)),
             VacationDaysPerYear = ParseInt(Value(SettingKeys.VacationDaysPerYear)),
             MaxWorkDays = ParseInt(Value(SettingKeys.SchedulingMaxWorkDays)),
-            MinRestDays = ParseDecimal(Value(SettingKeys.SchedulingMinRestDays)),
-            MinPauseHours = ParseDecimal(Value(SettingKeys.SchedulingMinPauseHours)),
+            MinRestDays = ParseNullableDecimal(Value(SettingKeys.SchedulingMinRestDays)) ?? SchedulingPolicyDefaults.MinRestDays,
+            MinPauseHours = ParseNullableDecimal(Value(SettingKeys.SchedulingMinPauseHours)) ?? (decimal)SchedulingPolicyDefaults.MinRestHours,
             MaxDailySpanHours = ParseDecimal(Value(SettingKeys.SchedulingMaxDailySpanHours)),
             MaxOptimalGap = ParseDecimal(Value(SettingKeys.SchedulingMaxOptimalGap)),
             MaxDailyHours = ParseDecimal(Value(SettingKeys.SchedulingMaxDailyHours)),

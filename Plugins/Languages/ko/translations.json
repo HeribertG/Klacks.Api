@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "연간 휴가 일수",
   "setting.schedulingRule.validation.nameRequired": "이름은 필수입니다.",
   "setting.schedulingRule.validation.valuesPositive": "값은 0 이상이어야 합니다.",
+  "setting.schedulingRule.validation.capAtLeastOne": "최대값은 비워 두거나 1 이상이어야 합니다. 비워 두면 기본값이 사용됩니다.",
   "setting.schedulingRule.validation.dailySpanRange": "일일 근무 범위는 0~24시간이어야 합니다.",
   "setting.schedulingRule.we1Rate": "WE1 할증",
   "setting.schedulingRule.we2Rate": "WE2 할증",

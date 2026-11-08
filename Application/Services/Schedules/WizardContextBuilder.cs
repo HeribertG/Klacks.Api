@@ -168,7 +168,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             IneligibleAssignments = ineligible,
             LevelShortfall = eligibilityMatrix.LevelShortfall,
             SchedulingMaxConsecutiveDays = defaults.MaxConsecutiveDays > 0 ? defaults.MaxConsecutiveDays : WizardSchedulingDefaults.MaxConsecutiveDays,
-            SchedulingMinPauseHours = defaults.MinPauseHours > 0 ? (double)defaults.MinPauseHours : WizardSchedulingDefaults.MinRestHours,
+            SchedulingMinPauseHours = (double)defaults.MinPauseHours,
             SchedulingMaxOptimalGap = defaults.MaxOptimalGap > 0 ? (double)defaults.MaxOptimalGap : WizardSchedulingDefaults.MaxOptimalGap,
             SchedulingMaxDailyHours = defaults.MaxDailyHours > 0 ? (double)defaults.MaxDailyHours : WizardSchedulingDefaults.MaxDailyHours,
             SchedulingMaxWeeklyHours = defaults.MaxWeeklyHours > 0 ? (double)defaults.MaxWeeklyHours : WizardSchedulingDefaults.MaxWeeklyHours,

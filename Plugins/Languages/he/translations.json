@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "ימי חופשה בשנה",
   "setting.schedulingRule.validation.nameRequired": "שם נדרש.",
   "setting.schedulingRule.validation.valuesPositive": "הערכים חייבים להיות 0 או יותר.",
+  "setting.schedulingRule.validation.capAtLeastOne": "ערכים מרביים חייבים להיות ריקים או לפחות 1. שדה ריק משתמש בערך ברירת המחדל.",
   "setting.schedulingRule.validation.dailySpanRange": "מסגרת יום העבודה חייבת להיות בין 0 ל-24 שעות.",
   "setting.schedulingRule.we1Rate": "תוספת WE1",
   "setting.schedulingRule.we2Rate": "תוספת WE2",

@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "Vakantiedagen per jaar",
   "setting.schedulingRule.validation.nameRequired": "Naam is verplicht.",
   "setting.schedulingRule.validation.valuesPositive": "Waarden moeten 0 of groter zijn.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Maximumwaarden moeten leeg zijn of minstens 1. Leeg gebruikt de standaardwaarde.",
   "setting.schedulingRule.validation.dailySpanRange": "Het dagelijkse werkkader moet tussen 0 en 24 uur liggen.",
   "setting.schedulingRule.we1Rate": "WE1-toeslag",
   "setting.schedulingRule.we2Rate": "WE2-toeslag",

@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "Zile concediu pe an",
   "setting.schedulingRule.validation.nameRequired": "Numele este obligatoriu.",
   "setting.schedulingRule.validation.valuesPositive": "Valorile trebuie să fie 0 sau mai mari.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Valorile maxime trebuie să fie goale sau cel puțin 1. Gol folosește valoarea implicită.",
   "setting.schedulingRule.validation.dailySpanRange": "Cadrul zilnic de lucru trebuie să fie între 0 și 24 de ore.",
   "setting.schedulingRule.we1Rate": "Spor WE1",
   "setting.schedulingRule.we2Rate": "Spor WE2",

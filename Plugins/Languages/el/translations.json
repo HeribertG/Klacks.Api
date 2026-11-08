@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "Ημέρες αδείας ανά έτος",
   "setting.schedulingRule.validation.nameRequired": "Το όνομα είναι υποχρεωτικό.",
   "setting.schedulingRule.validation.valuesPositive": "Οι τιμές πρέπει να είναι 0 ή μεγαλύτερες.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Οι μέγιστες τιμές πρέπει να είναι κενές ή τουλάχιστον 1. Το κενό χρησιμοποιεί την προεπιλεγμένη τιμή.",
   "setting.schedulingRule.validation.dailySpanRange": "Το ημερήσιο πλαίσιο εργασίας πρέπει να είναι μεταξύ 0 και 24 ωρών.",
   "setting.schedulingRule.we1Rate": "Προσαύξηση WE1",
   "setting.schedulingRule.we2Rate": "Προσαύξηση WE2",

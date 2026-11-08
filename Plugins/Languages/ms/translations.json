@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "Hari cuti setahun",
   "setting.schedulingRule.validation.nameRequired": "Nama diperlukan.",
   "setting.schedulingRule.validation.valuesPositive": "Nilai mesti 0 atau lebih besar.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Nilai maksimum mesti kosong atau sekurang-kurangnya 1. Kosong menggunakan nilai lalai.",
   "setting.schedulingRule.validation.dailySpanRange": "Bingkai kerja harian mesti antara 0 dan 24 jam.",
   "setting.schedulingRule.we1Rate": "Kredit Masa Tambahan WE1",
   "setting.schedulingRule.we2Rate": "Kredit Masa Tambahan WE2",

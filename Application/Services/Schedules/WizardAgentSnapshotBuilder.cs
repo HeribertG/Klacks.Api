@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
@@ -148,7 +147,7 @@ public sealed class WizardAgentSnapshotBuilder
             CurrentHours: currentHours,
             GuaranteedHours: Prorate(data.GuaranteedHours, membershipFactor),
             MaxConsecutiveDays: data.MaxConsecutiveDays > 0 ? data.MaxConsecutiveDays : WizardSchedulingDefaults.MaxConsecutiveDays,
-            MinRestHours: data.MinPauseHours > 0 ? (double)data.MinPauseHours : WizardSchedulingDefaults.MinRestHours,
+            MinRestHours: (double)data.MinPauseHours,
             Motivation: WizardSchedulingDefaults.DefaultMotivation,
             MaxDailyHours: data.MaxDailyHours > 0 ? (double)data.MaxDailyHours : WizardSchedulingDefaults.MaxDailyHours,
             MaxWeeklyHours: data.MaxWeeklyHours > 0 ? (double)data.MaxWeeklyHours : WizardSchedulingDefaults.MaxWeeklyHours,
@@ -161,7 +160,7 @@ public sealed class WizardAgentSnapshotBuilder
             // CoreAgent plans whole calendar days; a fractional legal minimum (e.g. Spain's 1.5/week)
             // is rounded UP so the optimizer never targets fewer rest days than required - the exact
             // decimal threshold is still what ScheduleValidationBuilder checks post-hoc.
-            MinRestDays = (int)Math.Ceiling(data.MinRestDays > 0 ? data.MinRestDays : SchedulingPolicyDefaults.MinRestDays),
+            MinRestDays = (int)Math.Ceiling(data.MinRestDays),
             PerformsShiftWork = data.PerformsShiftWork,
             WorkOnMonday = data.WorkOnMonday,
             WorkOnTuesday = data.WorkOnTuesday,

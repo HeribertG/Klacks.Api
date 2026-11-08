@@ -6,7 +6,9 @@
 /// industry slug, or a legacy comma-separated list of known slugs (case-insensitive, trimmed);
 /// SettingKeys.KlacksyProactiveAutonomyLevel accepts an AutonomyLevel integer (0-3);
 /// SettingKeys.DatevConsultantNumber and SettingKeys.DatevClientNumber accept empty or a whole number inside
-/// the DatevNumberRanges (consultant 1001-9999999, client 1-99999). New key-specific
+/// the DatevNumberRanges (consultant 1001-9999999, client 1-99999); the scheduling caps SettingKeys.SchedulingMaxDailyHours,
+/// SettingKeys.SchedulingMaxWeeklyHours and SettingKeys.SchedulingMaxConsecutiveDays accept empty or a number of at
+/// least SchedulingCapLimits.MinValue (a cap is never 0). New key-specific
 /// rules are added by extending the dispatch in Validate, not by touching the settings handlers.
 /// </summary>
 
@@ -21,6 +23,13 @@ namespace Klacks.Api.Domain.Services.Settings;
 public class SettingValueValidator : ISettingValueValidator
 {
     private const char SlugSeparator = ',';
+
+    private static readonly string[] SchedulingCapKeys =
+    [
+        SettingKeys.SchedulingMaxDailyHours,
+        SettingKeys.SchedulingMaxWeeklyHours,
+        SettingKeys.SchedulingMaxConsecutiveDays
+    ];
 
     public void Validate(string key, string value)
     {
@@ -50,6 +59,27 @@ public class SettingValueValidator : ISettingValueValidator
                 value,
                 DatevNumberRanges.ClientNumberMin,
                 DatevNumberRanges.ClientNumberMax);
+        }
+
+        if (SchedulingCapKeys.Contains(key, StringComparer.Ordinal))
+        {
+            ValidateSchedulingCap(key, value);
+        }
+    }
+
+    private static void ValidateSchedulingCap(string key, string? value)
+    {
+        var trimmed = (value ?? string.Empty).Trim();
+        if (trimmed.Length == 0)
+        {
+            return;
+        }
+
+        if (!decimal.TryParse(trimmed, NumberStyles.Number, CultureInfo.InvariantCulture, out var number)
+            || !SchedulingCapLimits.IsValid(number))
+        {
+            throw new InvalidRequestException(
+                $"Setting '{key}' must be empty or a number of at least {SchedulingCapLimits.MinValue}, got '{value}'.");
         }
     }
 

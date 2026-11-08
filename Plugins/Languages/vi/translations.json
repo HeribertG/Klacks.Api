@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "Ngày phép/năm",
   "setting.schedulingRule.validation.nameRequired": "Tên là bắt buộc.",
   "setting.schedulingRule.validation.valuesPositive": "Giá trị phải từ 0 trở lên.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Giá trị tối đa phải để trống hoặc ít nhất là 1. Để trống sẽ dùng giá trị mặc định.",
   "setting.schedulingRule.validation.dailySpanRange": "Khung làm việc trong ngày phải nằm trong khoảng từ 0 đến 24 giờ.",
   "setting.schedulingRule.we1Rate": "Giờ phụ trội cuối tuần WE1",
   "setting.schedulingRule.we2Rate": "Giờ phụ trội cuối tuần WE2",

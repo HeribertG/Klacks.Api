@@ -611,8 +611,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             var targetHours = periodTargetHours.GetValueOrDefault(id);
             var maxWeekly = contract?.MaxWeeklyHours ?? 0m;
             var maxConsec = contract?.MaxConsecutiveDays > 0 ? contract.MaxConsecutiveDays : 6;
-            var minPause = contract?.MinPauseHours ?? 0m;
-            var minRestDays = contract?.MinRestDays > 0 ? contract.MinRestDays : SchedulingPolicyDefaults.MinRestDays;
+            var minPause = contract?.MinPauseHours ?? (decimal)SchedulingPolicyDefaults.MinRestHours;
+            var minRestDays = contract?.MinRestDays ?? SchedulingPolicyDefaults.MinRestDays;
             var prefs = preferences.TryGetValue(id, out var p) ? p : [];
             var blacklist = blacklists.TryGetValue(id, out var b) ? (IReadOnlySet<Guid>)b : null;
             result.Add(new BitmapAgent(

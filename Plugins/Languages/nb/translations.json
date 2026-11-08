@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "Feriedager per år",
   "setting.schedulingRule.validation.nameRequired": "Navn er påkrevd.",
   "setting.schedulingRule.validation.valuesPositive": "Verdier må være 0 eller større.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Maksimumsverdier må være tomme eller minst 1. Tomt bruker standardverdien.",
   "setting.schedulingRule.validation.dailySpanRange": "Arbeidsdagsrammen må være mellom 0 og 24 timer.",
   "setting.schedulingRule.we1Rate": "WE1-tillegg",
   "setting.schedulingRule.we2Rate": "WE2-tillegg",

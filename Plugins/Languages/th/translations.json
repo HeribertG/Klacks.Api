@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "วันหยุดพักร้อนต่อปี",
   "setting.schedulingRule.validation.nameRequired": "จำเป็นต้องมีชื่อ",
   "setting.schedulingRule.validation.valuesPositive": "ค่าต้องเป็น 0 หรือมากกว่า",
+  "setting.schedulingRule.validation.capAtLeastOne": "ค่าสูงสุดต้องว่างไว้หรือมีค่าอย่างน้อย 1 หากว่างไว้จะใช้ค่าเริ่มต้น",
   "setting.schedulingRule.validation.dailySpanRange": "กรอบเวลาทำงานรายวันต้องอยู่ระหว่าง 0 ถึง 24 ชั่วโมง",
   "setting.schedulingRule.we1Rate": "เครดิตเวลาพิเศษ WE1",
   "setting.schedulingRule.we2Rate": "เครดิตเวลาพิเศษ WE2",

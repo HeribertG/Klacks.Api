@@ -108,6 +108,14 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Schedul
         {
             throw new InvalidRequestException($"MaxDailySpanHours must be between 0 and {DailyWorkFrameLimits.MaxHours} hours.");
         }
+
+        if (!SchedulingCapLimits.IsValid(resource.MaxDailyHours)
+            || !SchedulingCapLimits.IsValid(resource.MaxWeeklyHours)
+            || !SchedulingCapLimits.IsValid(resource.MaxConsecutiveDays))
+        {
+            throw new InvalidRequestException(
+                $"MaxDailyHours, MaxWeeklyHours and MaxConsecutiveDays must be empty or at least {SchedulingCapLimits.MinValue}.");
+        }
     }
 
     private sealed record SurchargeSnapshot(

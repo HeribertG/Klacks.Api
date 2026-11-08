@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "Hari cuti per tahun",
   "setting.schedulingRule.validation.nameRequired": "Nama wajib diisi.",
   "setting.schedulingRule.validation.valuesPositive": "Nilai harus 0 atau lebih besar.",
+  "setting.schedulingRule.validation.capAtLeastOne": "Nilai maksimum harus kosong atau minimal 1. Kosong menggunakan nilai default.",
   "setting.schedulingRule.validation.dailySpanRange": "Kerangka kerja harian harus antara 0 dan 24 jam.",
   "setting.schedulingRule.we1Rate": "Tambahan Waktu Akhir Pekan WE1",
   "setting.schedulingRule.we2Rate": "Tambahan Waktu Akhir Pekan WE2",

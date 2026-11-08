@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "أيام الإجازة السنوية",
   "setting.schedulingRule.validation.nameRequired": "الاسم مطلوب.",
   "setting.schedulingRule.validation.valuesPositive": "القيم يجب أن تكون 0 أو أكبر.",
+  "setting.schedulingRule.validation.capAtLeastOne": "يجب أن تكون القيم القصوى فارغة أو 1 على الأقل. الحقل الفارغ يستخدم القيمة الافتراضية.",
   "setting.schedulingRule.validation.dailySpanRange": "يجب أن يكون الإطار اليومي للعمل بين 0 و24 ساعة.",
   "setting.schedulingRule.we1Rate": "إضافة WE1",
   "setting.schedulingRule.we2Rate": "إضافة WE2",

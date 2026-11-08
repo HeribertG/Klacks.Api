@@ -3371,6 +3371,7 @@
   "setting.schedulingRule.vacationDaysPerYear": "年間休暇日数",
   "setting.schedulingRule.validation.nameRequired": "名称は必須です。",
   "setting.schedulingRule.validation.valuesPositive": "値は0以上である必要があります。",
+  "setting.schedulingRule.validation.capAtLeastOne": "上限値は空欄または1以上である必要があります。空欄の場合は既定値が使われます。",
   "setting.schedulingRule.validation.dailySpanRange": "1日の勤務枠は0〜24時間の範囲で指定してください。",
   "setting.schedulingRule.we1Rate": "WE1割増",
   "setting.schedulingRule.we2Rate": "WE2割増",
