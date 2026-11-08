@@ -73,6 +73,9 @@ function New-RegionsInclude([string]$BundlePath, [string]$TargetPath) {
     finally {
         $zip.Dispose()
     }
+    foreach ($code in $codes) {
+        if ($code -cnotmatch '^[A-Z]{2}$') { throw "Region profile '$code' is not an ISO country code; it would be compiled into the setup script." }
+    }
     $regions = foreach ($code in ($codes | Sort-Object -Unique)) {
         $label = $code
         try { $label = (New-Object Globalization.RegionInfo($code)).EnglishName } catch { }

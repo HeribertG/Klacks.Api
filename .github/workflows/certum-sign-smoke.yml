@@ -6,9 +6,10 @@
 # signature and tears the SimplySign session down. It does not touch the release pipeline; it proves that login, TOTP
 # and timestamping work before signing moves into native-windows.yml.
 # Secrets: CERTUM_USERNAME (SimplySign account e-mail) and CERTUM_TOTP_SECRET (Base32 seed of the SimplySign token),
-# both in the environment certum-signing (deployment branch: main only). SimplySign Desktop is installed by this workflow
-# from Certum's MSI after a SHA-256 and Authenticode check; the action then finds it installed and skips its own
-# unverified download. The first step uses Windows PowerShell 5.1 because only it compiles an EXE with Add-Type.
+# both in the environment certum-signing (deployment: main and v* tags); repo variables CERTUM_CERT_SHA1 and
+# CERTUM_TIMESTAMP_URL. SimplySign Desktop is installed by deploy/native/windows/signing/Install-SimplySignDesktop.ps1
+# from Certum's MSI after a SHA-256 and publisher check; the action then finds it installed and skips its own download.
+# The throwaway EXE is built with Windows PowerShell 5.1 because only it compiles an EXE with Add-Type.
 # Never set the action's debug input to true: its screenshots show the username and one-time password and are uploaded.
 
 name: Certum signing smoke test
@@ -16,18 +17,16 @@ name: Certum signing smoke test
 on:
   workflow_dispatch:
 
-permissions: {}
+permissions:
+  contents: read
 
 concurrency:
   group: certum-signing
   cancel-in-progress: false
 
 env:
-  CERTUM_CERT_SHA1: 'AE4D97F2819A879D98A6656951E2141246CFD239'
-  CERTUM_TIMESTAMP_URL: 'http://time.certum.pl'
-  SIMPLYSIGN_MSI_URL: 'https://files.certum.eu/software/SimplySignDesktop/Windows/9.4.4.92/SimplySignDesktop-9.4.4.92-64-bit-en.msi'
-  SIMPLYSIGN_MSI_SHA256: '8ec420fc27798b86078b7bd02fe7152097e1b3005bab51820eaca8e57df84da3'
-  SIMPLYSIGN_MSI_PUBLISHER: 'O=Asseco Data Systems S.A.'
+  CERTUM_CERT_SHA1: ${{ vars.CERTUM_CERT_SHA1 }}
+  CERTUM_TIMESTAMP_URL: ${{ vars.CERTUM_TIMESTAMP_URL }}
 
 jobs:
   sign:
@@ -36,22 +35,14 @@ jobs:
     environment: certum-signing
     timeout-minutes: 20
     steps:
+      - name: Checkout Klacks.Api (signing scripts)
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: deploy/native/windows/signing
+
       - name: Install verified SimplySign Desktop
         shell: pwsh
-        run: |
-          $msi = Join-Path $env:RUNNER_TEMP 'SimplySignDesktop.msi'
-          Invoke-WebRequest -UseBasicParsing -Uri $env:SIMPLYSIGN_MSI_URL -OutFile $msi
-          $hash = (Get-FileHash -Algorithm SHA256 $msi).Hash
-          if ($hash -ne $env:SIMPLYSIGN_MSI_SHA256) { throw "SimplySign MSI hash mismatch ($hash)." }
-          $signature = Get-AuthenticodeSignature $msi
-          if ($signature.Status -ne 'Valid') { throw "SimplySign MSI signature is '$($signature.Status)'." }
-          if ($signature.SignerCertificate.Subject -notlike "*$env:SIMPLYSIGN_MSI_PUBLISHER*") {
-            throw "SimplySign MSI is signed by an unexpected publisher: $($signature.SignerCertificate.Subject)"
-          }
-          $process = Start-Process msiexec.exe -ArgumentList @('/i', "`"$msi`"", '/qn', '/norestart') -Wait -PassThru
-          if ($process.ExitCode -notin 0, 3010) { throw "msiexec failed with exit code $($process.ExitCode)." }
-          $app = Join-Path $env:ProgramFiles 'Certum\SimplySign Desktop\SimplySignDesktop.exe'
-          if (-not (Test-Path $app)) { throw "SimplySign Desktop is not at $app, the action would download it unverified." }
+        run: '& deploy/native/windows/signing/Install-SimplySignDesktop.ps1'
 
       - name: Build unsigned throwaway EXE
         shell: powershell
@@ -85,17 +76,9 @@ jobs:
         env:
           SIGNTOOL: ${{ steps.certum.outputs.signtool-path }}
         run: |
-          $verifyOutput = & $env:SIGNTOOL verify /pa /v $env:SMOKE_EXE 2>&1 | Out-String
-          Write-Host $verifyOutput
-          if ($LASTEXITCODE -ne 0) { throw "signtool verify failed with exit code $LASTEXITCODE." }
-          if ($verifyOutput -notmatch 'The signature is timestamped') { throw 'The signature carries no timestamp.' }
-          $signature = Get-AuthenticodeSignature $env:SMOKE_EXE
-          if ($signature.Status -ne 'Valid') { throw "Authenticode status is '$($signature.Status)': $($signature.StatusMessage)" }
-          if ($signature.SignerCertificate.Thumbprint -ne $env:CERTUM_CERT_SHA1) {
-            throw "Signed with an unexpected certificate ($($signature.SignerCertificate.Thumbprint))."
-          }
-          Write-Host "Signer: $($signature.SignerCertificate.Subject)"
-          Write-Host "Valid until: $($signature.SignerCertificate.NotAfter.ToString('yyyy-MM-dd'))"
+          & deploy/native/windows/signing/Assert-CodeSignature.ps1 -Path $env:SMOKE_EXE -Thumbprint $env:CERTUM_CERT_SHA1 `
+            -SignToolPath $env:SIGNTOOL
+
       - name: Tear down SimplySign session
         if: always()
         uses: jay0lee/certum-cloud-code-sign/teardown@a3324503499c49090869856eeeecfe95fb613d87 # v1

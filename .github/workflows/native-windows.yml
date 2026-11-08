@@ -5,6 +5,10 @@
 # package klacks-office-pc-win-x64.zip once, installs exactly that package through Installieren.cmd on clean runners
 # (service mode, Windows PowerShell 5.1, path with space and umlaut; x64 with and without region, and Windows 11 on
 # ARM64 where the x64 package runs through emulation) and checks start, UI, login, setup status, restart and uninstall.
+# The job installer-build turns that package into Klacks-Setup-win-x64.exe and signs setup and uninstaller with the
+# Certum cloud certificate (environment certum-signing, see certum-sign-smoke.yml); installer-build verifies the setup
+# signature before upload and the installer jobs check setup and installed uninstaller, so an unsigned EXE never
+# reaches publish.
 #   gate             stops after the checks
 #   release-dry-run  additionally rehearses the publish on draft releases (tags native-dryrun-<run id> and
 #                    office-pc-dryrun-<run id>, deleted after)
@@ -276,24 +280,6 @@ jobs:
             -Version $env:VERSION -PostgresDirectory postgresql -VcRedistPath vc_redist.x64.exe `
             -PublicKeyPath (Join-Path $env:RUNNER_TEMP 'update-public-key.pem') -OutputDirectory package
 
-      # Builds Klacks-Setup-win-x64.exe from the same inputs into its own folder (the ZIP it also writes there is
-      # discarded). Fail-soft: a failure or timeout here leaves the ZIP release intact; the EXE is then simply not
-      # published (the installer job and the publish step below look for the artifact).
-      - name: Build setup installer (Inno Setup)
-        continue-on-error: true
-        timeout-minutes: 25
-        shell: pwsh
-        run: |
-          $iscc = Get-Command ISCC.exe -ErrorAction SilentlyContinue
-          if (-not $iscc -and -not (Test-Path (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'))) {
-            choco install innosetup --version 6.7.3 --no-progress -y
-            if ($LASTEXITCODE -ne 0) { throw "choco install innosetup failed with $LASTEXITCODE." }
-          }
-          & Klacks.Api/deploy/native/windows/New-KlacksOfficePackage.ps1 `
-            -BundleZip "bundle/klacks-$env:VERSION-win-x64.zip" -BundleEntry "bundle/klacks-$env:VERSION-win-x64.json" `
-            -Version $env:VERSION -PostgresDirectory postgresql -VcRedistPath vc_redist.x64.exe `
-            -PublicKeyPath (Join-Path $env:RUNNER_TEMP 'update-public-key.pem') -OutputDirectory installer-out -BuildInstaller
-
       - name: Runtime identifier (proxy check)
         shell: pwsh
         run: |
@@ -312,12 +298,104 @@ jobs:
             package/${{ env.PACKAGE_FILE }}
           retention-days: 14
 
+  # Builds Klacks-Setup-win-x64.exe from the office-PC package that package built (the one install tests) and has Inno Setup
+  # sign the setup and its uninstaller with the Certum cloud certificate. A job of its own: the SimplySign seed of the
+  # environment certum-signing never shares a runner with the build tools of package. Fail-soft for the ZIP release: a
+  # red job only means that no setup EXE reaches the installer checks and publish.
+  installer-build:
+    name: installer (build and sign)
+    needs: [ui, package]
+    runs-on: windows-2025
+    environment: certum-signing
+    permissions:
+      contents: read
+    concurrency:
+      group: certum-signing
+      cancel-in-progress: false
+    timeout-minutes: 45
+    env:
+      VERSION: ${{ needs.ui.outputs.version }}
+      CERTUM_CERT_SHA1: ${{ vars.CERTUM_CERT_SHA1 }}
+      CERTUM_TIMESTAMP_URL: ${{ vars.CERTUM_TIMESTAMP_URL }}
+    steps:
+      - name: Checkout Klacks.Api (packaging scripts)
+        uses: actions/checkout@v4
+        with:
+          path: Klacks.Api
+          sparse-checkout: deploy/native
+          persist-credentials: false
+
+      - name: Download release payload
+        uses: actions/download-artifact@v4
+        with:
+          name: native-release-payload
+          path: payload
+
+      # Unpacked outside the workspace so that no entry can overwrite the checked-out scripts; the redistributable is
+      # the one input that runs elevated on every customer PC, so its Microsoft signature is checked before signing.
+      - name: Unpack office-PC package
+        shell: pwsh
+        run: |
+          $officePc = Join-Path $env:RUNNER_TEMP 'office-pc'
+          Expand-Archive "payload/package/$env:PACKAGE_FILE" -DestinationPath $officePc
+          $redist = Get-AuthenticodeSignature (Join-Path $officePc 'vc_redist.x64.exe')
+          if ($redist.Status -ne 'Valid' -or $redist.SignerCertificate.Subject -notlike '*O=Microsoft Corporation*') {
+            throw "vc_redist.x64.exe is not signed by Microsoft ($($redist.Status))."
+          }
+          Add-Content -Path $env:GITHUB_ENV -Value "OFFICE_PC=$officePc"
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          $iscc = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+          if (-not $iscc -and -not (Test-Path (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'))) {
+            choco install innosetup --version 6.7.3 --no-progress -y
+            if ($LASTEXITCODE -ne 0) { throw "choco install innosetup failed with $LASTEXITCODE." }
+          }
+
+      - name: Install verified SimplySign Desktop
+        shell: pwsh
+        run: '& Klacks.Api/deploy/native/windows/signing/Install-SimplySignDesktop.ps1'
+
+      - name: Set up Certum SimplySign
+        id: certum
+        uses: jay0lee/certum-cloud-code-sign@a3324503499c49090869856eeeecfe95fb613d87 # v1
+        with:
+          username: ${{ secrets.CERTUM_USERNAME }}
+          totp_secret: ${{ secrets.CERTUM_TOTP_SECRET }}
+          cert_sha1: ${{ vars.CERTUM_CERT_SHA1 }}
+
+      # Inno Setup runs the sign tool for the setup and the uninstaller it embeds; $q and $f are Inno placeholders
+      # (quote, file), hence the single quotes.
+      - name: Build and sign setup installer
+        shell: pwsh
+        env:
+          SIGNTOOL: ${{ steps.certum.outputs.signtool-path }}
+        run: |
+          $sign = '$q' + $env:SIGNTOOL + '$q sign /sha1 ' + $env:CERTUM_CERT_SHA1 + ' /fd sha256 /tr ' + $env:CERTUM_TIMESTAMP_URL + ' /td sha256 $f'
+          & Klacks.Api/deploy/native/windows/New-KlacksOfficePackage.ps1 `
+            -BundleZip "$env:OFFICE_PC/klacks-$env:VERSION-win-x64.zip" -BundleEntry "payload/bundle/klacks-$env:VERSION-win-x64.json" `
+            -Version $env:VERSION -PostgresDirectory "$env:OFFICE_PC/pgsql" -VcRedistPath "$env:OFFICE_PC/vc_redist.x64.exe" `
+            -PublicKeyPath "$env:OFFICE_PC/update-public-key.pem" -OutputDirectory installer-out -BuildInstaller -SignToolCommand $sign
+
+      - name: Verify setup signature
+        shell: pwsh
+        env:
+          SIGNTOOL: ${{ steps.certum.outputs.signtool-path }}
+        run: |
+          & Klacks.Api/deploy/native/windows/signing/Assert-CodeSignature.ps1 -Path "installer-out/$env:INSTALLER_FILE" `
+            -Thumbprint $env:CERTUM_CERT_SHA1 -SignToolPath $env:SIGNTOOL
+
+      - name: Tear down SimplySign session
+        if: always()
+        uses: jay0lee/certum-cloud-code-sign/teardown@a3324503499c49090869856eeeecfe95fb613d87 # v1
+
       - name: Upload setup installer
         uses: actions/upload-artifact@v4
         with:
           name: native-installer
           path: installer-out/${{ env.INSTALLER_FILE }}
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 14
 
   install:
@@ -488,7 +566,7 @@ jobs:
   # releases the EXE (next to the ZIP) only when every leg is green; a red leg never blocks the ZIP release.
   installer:
     name: installer (${{ matrix.label }})
-    needs: [ui, package]
+    needs: [ui, installer-build]
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
     strategy:
@@ -561,6 +639,14 @@ jobs:
         with:
           path: Klacks.Api
           sparse-checkout: deploy/native
+
+      - name: Setup and uninstaller are signed
+        shell: powershell
+        env:
+          CERTUM_CERT_SHA1: ${{ vars.CERTUM_CERT_SHA1 }}
+        run: |
+          & Klacks.Api/deploy/native/windows/signing/Assert-CodeSignature.ps1 -Thumbprint $env:CERTUM_CERT_SHA1 `
+            -Path "payload\$env:INSTALLER_FILE", "$env:ProgramFiles\Klacks Setup\unins000.exe"
 
       - name: Customer defaults (no Playground, public store, no demo data)
         shell: powershell
