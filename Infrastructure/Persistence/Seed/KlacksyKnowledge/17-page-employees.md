@@ -113,6 +113,9 @@ Verträge, Gruppen, Qualifikationen, Notizen und Bild.
 - **Kopfzeile**: Button **+ Adresse erfassen** (`new-address-button`, de: "+ Adresse
   erfassen", en: "+ Add Address", fr: "Ajouter une adresse", it: "Aggiungi indirizzo") —
   nur sichtbar mit dem Recht, Personen anzulegen (Admin und Supervisor), öffnet die leere Erfassungsmaske `/workplace/edit-address`.
+  Daneben, mit demselben Recht, **Platzhalter anlegen** (`new-stand-ins-button`, de: "Platzhalter anlegen", en: "Create
+  placeholders", fr: "Créer des employés fictifs", it: "Crea segnaposto"): legt mehrere Platzhalter auf einmal an
+  (`explain_placeholder_employees`).
   Daneben ein **Excel-Export-Icon**: ausgegraut, solange keine Zeile angehakt ist; sobald
   die Kopf-Checkbox oder einzelne Zeilen-Checkboxen gesetzt sind, exportiert ein Klick die
   selektierten Adressen als Excel.

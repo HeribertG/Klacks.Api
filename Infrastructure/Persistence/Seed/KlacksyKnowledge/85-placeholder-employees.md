@@ -22,14 +22,14 @@ Do not mix it up with two other things:
 
 ## Creating placeholders
 
-Only a Supervisor or an Admin creates placeholders (the right to create employees); an account without a role cannot. One request creates 1 to 50 placeholders, all of them or none:
-- **Count** — 1 to 50.
-- **Name pattern** — must contain `{n}` exactly once, e.g. "Fair {n}" gives "Fair 1", "Fair 2" …; numbering continues above the highest number an existing name with the same pattern already has.
+Only a Supervisor or an Admin creates placeholders (the right to create employees); an account without a role cannot and does not see the button. The button (de: "Platzhalter anlegen", en: "Create placeholders", fr: "Créer des employés fictifs", it: "Crea segnaposto") sits at the top of the employee list next to (de: "+ Adresse erfassen", en: "+ Add Address", fr: "Ajouter une adresse", it: "Aggiungi indirizzo"), and in the toolbar of the schedule (person with a plus sign); opened from the schedule, the dialog starts with the chosen group and the shown period filled in. One request creates 1 to 50 placeholders, all of them or none:
+- **Count** (de: "Anzahl", en: "Number", fr: "Nombre", it: "Numero") — 1 to 50.
+- **Name pattern** (de: "Namensmuster", en: "Name pattern", fr: "Modèle de nom", it: "Modello del nome") — must contain `{n}` exactly once, e.g. "Fair {n}" gives "Fair 1", "Fair 2" …; numbering continues above the highest number an existing name with the same pattern already has.
 - **Group** — required, and it must be a group the user can see.
-- **Period** — required start, optional end. It becomes the placeholder's membership and its group membership, so the placeholder can only be planned inside it.
+- **Period** (de: "Mitglied ab", en: "Member from", fr: "Membre dès le", it: "Membro dal" and de: "Mitglied bis", en: "Member until", fr: "Membre jusqu'au", it: "Membro fino al") — required start, optional end. It becomes the placeholder's membership and its group membership, so the placeholder can only be planned inside it.
 - **Qualifications** — optional; every given qualification is held at the highest level, Expert, so the placeholder can take every shift that requires it.
 
-A placeholder has only a display name: no first name, no gender, no address, no e-mail or phone and no contract. The client import never creates placeholders. Klacksy has no skill for creating or converting placeholders; it explains the fields and the rules.
+A placeholder has only a display name: no first name, no gender, no address, no e-mail or phone and no contract. Its staff form shows the display name (de: "Anzeigename", en: "Display name", fr: "Nom affiché", it: "Nome visualizzato") instead of the person fields, the membership with a read-only type (entry and exit date stay editable; to change the planning period, change them together with the period of the group membership in the groups card), the groups, the qualifications, the note and the picture; it has no address list, no contract and no messenger contact. The client import never creates placeholders. Klacksy has no skill for creating or converting placeholders; it explains the fields and the rules.
 
 ## Finding placeholders
 
@@ -37,6 +37,7 @@ A placeholder has only a display name: no first name, no gender, no address, no 
 - Schedule and timeline: the filter checkbox (de: "Platzhalter", en: "Placeholders", fr: "Employés fictifs", it: "Segnaposto") next to the employee and external checkboxes.
 - The row header marks a placeholder with the symbol ◌ and the tooltip (de: "Platzhalter: steht für eine Person, die noch nicht erfasst ist", en: "Placeholder: stands for a person who is not in the system yet").
 - The search field in the header does not find placeholders; tick the checkbox in the employee list instead.
+- The right-click menu of a placeholder's row header offers no shift preferences.
 
 ## Planning on placeholders
 
@@ -44,9 +45,9 @@ A planner plans on existing placeholders like on any person: place, move and rem
 
 ## Converting a placeholder into a person
 
-Only a Supervisor or an Admin converts (the right to edit employees). The same record becomes an employee or an external employee; the other way round is impossible, and no person can be turned into a placeholder, neither in the employee form nor through Klacksy.
-- **Required:** target type (de: "Mitarbeiter", en: "Employee", fr: "Employé", it: "Dipendente") or (de: "Externer", en: "External", fr: "Externe", it: "Esterno"), first name, name (it replaces the display name) and gender.
-- **Optional:** an address (of a kind the target type allows) and e-mail or phone; both can also be added later in the normal employee form, like a contract.
+Only a Supervisor or an Admin converts (the right to edit employees) and sees the button (de: "In Mitarbeiter umwandeln", en: "Convert into employee", fr: "Convertir en employé", it: "Trasforma in dipendente"). It sits in the header of the person card of the placeholder's staff form (disabled while the form has unsaved changes) and in the right-click menu of the placeholder's row header in the schedule, in the table and in the timeline. The same record becomes an employee or an external employee; the other way round is impossible, and no person can be turned into a placeholder, neither in the employee form nor through Klacksy.
+- **Required:** (de: "Wird zu", en: "Becomes", fr: "Devient", it: "Diventa") (de: "Mitarbeiter", en: "Employee", fr: "Employé", it: "Dipendente") or (de: "Externer", en: "External", fr: "Externe", it: "Esterno"), (de: "Anrede", en: "Salutation", fr: "Salutation", it: "Titolo"), (de: "Vorname", en: "First Name", fr: "Prénom", it: "Nome") and (de: "Nachname", en: "Last Name", fr: "Nom de famille", it: "Cognome"); the last name replaces the display name.
+- **Optional:** an address, either complete (street, postcode, town and country) or left empty; the server checks it against the map service and only accepts a match, so if it is refused, convert without the address and add it afterwards in the staff form. Phone and e-mail are optional too, and the contract is set afterwards in the staff form.
 - **Kept:** the id and staff number, every service, the membership, the group memberships and the qualifications.
 - **Afterwards** the person's target hours come from the contract or the company defaults, all placeholder locks are gone, and the hours and time credits of the person's services in the real plan are recalculated in the background (scenarios are not).
 
