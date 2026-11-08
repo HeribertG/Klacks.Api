@@ -80,7 +80,10 @@ by all three stages and by the replacement search: a person without shift work o
 night duties such a person already holds are not cleared away; the planners only prevent new ones. An employee without any contract is therefore planned like everyone else; small companies
 often keep no contracts at all. A placeholder (a row for a person who is not in the system yet) follows
 the same company defaults but has target hours 0, and every stage puts every placeholder behind every real
-person, also behind one with 0 target hours, so real people are planned first (`explain_placeholder_employees`). A booked absence, an availability that leaves no usable hours and a
+person, also behind one with 0 target hours: the filling stage ranks every real person who can legally take a
+service before a placeholder, and no later stage gives a placeholder a service a real person may legally keep in
+exchange for a free day (swapping one service for another stays possible); only a service that breaks a rule for that
+person may go to a placeholder for a free day (`explain_placeholder_employees`). A booked absence, an availability that leaves no usable hours and a
 missing mandatory qualification keep a person off a day. When somebody stays unplanned, check in this
 order: entry and exit dates, the ticked weekdays of the contract or the defaults, availability,
 absences, qualifications.

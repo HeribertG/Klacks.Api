@@ -181,9 +181,10 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
     /// Establishes the canonical top-down roster priority order consumed by the optimizer:
     /// position 0 gets the most accurate plan, the bottom takes what is left. A hand-arranged
     /// user order is kept verbatim; the regular list order is reshaped by contractually
-    /// guaranteed hours (descending). In both cases the stand-ins move behind every real person,
-    /// so the wizard fills them only where real people are not enough. The sorts are stable, so
-    /// ties keep the incoming order.
+    /// guaranteed hours (descending). In both cases the stand-ins are marked
+    /// (<see cref="CoreAgent.IsStandIn"/>, which the fitness ranks right after legality, coverage and, in Soft keyword mode, the broken wishes) and move
+    /// behind every real person, so the wizard fills them only where real people are not enough.
+    /// The sorts are stable, so ties keep the incoming order.
     /// </summary>
     private static IReadOnlyList<CoreAgent> BuildRosterPriorityOrder(
         IReadOnlyList<CoreAgent> agentsInBaseOrder, bool agentOrderIsUserDefined, IReadOnlySet<Guid> standInIds)
@@ -193,7 +194,8 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             : agentsInBaseOrder.OrderByDescending(a => a.GuaranteedHours);
 
         return personOrder
-            .OrderBy(a => Guid.TryParse(a.Id, out var agentId) && standInIds.Contains(agentId))
+            .Select(a => Guid.TryParse(a.Id, out var agentId) && standInIds.Contains(agentId) ? a with { IsStandIn = true } : a)
+            .OrderBy(a => a.IsStandIn)
             .ToList();
     }
 
