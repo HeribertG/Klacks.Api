@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "일부 날짜가 이미 잠겨 있어 {{group}} 그룹의 기간 {{from}} – {{until}}이(가) 자동으로 마감되지 않았습니다. 수동으로 확인하세요.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "{{group}} 그룹의 기간 {{from}} – {{until}}이(가) 아직 자동으로 마감되지 않았습니다. Klacksy는 실행 1회당 최대 {{limit}}개의 기간을 마감하며, 다음 시간별 실행에서 다시 시도합니다.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "{{group}} 그룹의 기간 {{from}} – {{until}}이(가) 자동으로 마감되지 않았습니다. 아직 확인되지 않은 근무가 {{works}}건 있습니다. 근무가 끝난 후 확인하면 기간을 마감할 수 있습니다.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "{{group}} 그룹의 기간 {{from}} – {{until}}이(가) 자동으로 마감되지 않았습니다. 가상 직원에게 배정된 근무가 {{works}}건 있습니다. 실제 직원에게 배정하거나 가상 직원을 전환하면 기간을 마감할 수 있습니다.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "마감일이 너무 오래 지나 {{group}} 그룹의 기간 {{from}} – {{until}}이(가) 자동으로 마감되지 않았습니다. 확인 후 수동으로 마감하세요.",
   "assistant.proactive.periodAutoClosed": "Klacksy가 {{group}} 그룹의 기간 {{from}} – {{until}}을(를) 자동으로 마감했습니다(완전 자율).",
   "assistant.proactive.periodCloseDue": "{{group}}의 정산 기간이 {{date}}({{days}}일 후)에 종료되며 아직 마감되지 않았습니다.",

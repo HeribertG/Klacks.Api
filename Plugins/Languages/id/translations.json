@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "Periode {{from}} – {{until}} grup {{group}} tidak ditutup otomatis karena sebagian hari sudah dikunci. Periksa secara manual.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "Periode {{from}} – {{until}} grup {{group}} belum ditutup otomatis: Klacksy menutup paling banyak {{limit}} periode per putaran dan akan mencoba lagi pada putaran per jam berikutnya.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "Periode {{from}} – {{until}} grup {{group}} belum ditutup otomatis: jumlah dinas yang belum dikonfirmasi adalah {{works}}. Konfirmasikan setelah selesai, lalu periode dapat ditutup.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "Periode {{from}} – {{until}} grup {{group}} belum ditutup otomatis: jumlah dinas yang ditugaskan ke karyawan virtual adalah {{works}}. Tugaskan ke orang yang sebenarnya atau konversi karyawan virtual tersebut, lalu periode dapat ditutup.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "Periode {{from}} – {{until}} grup {{group}} tidak ditutup otomatis karena tanggal penutupan sudah terlalu lama lewat. Periksa dan tutup secara manual.",
   "assistant.proactive.periodAutoClosed": "Klacksy telah menutup periode {{from}} – {{until}} grup {{group}} secara otomatis (otonomi penuh).",
   "assistant.proactive.periodCloseDue": "Periode penggajian untuk {{group}} berakhir pada {{date}} (dalam {{days}} hari) dan masih terbuka.",

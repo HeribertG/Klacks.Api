@@ -13,6 +13,7 @@
 /// <param name="referenceWeekStart">First day of the configured week that contains the reference day</param>
 /// <param name="candidate">The period under evaluation</param>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
@@ -98,6 +99,12 @@ public static class PeriodCloseGates
         return sealedDays.Count > 0;
     }
 
+    /// <summary>
+    /// The errors a person can decide to seal over. The stand-in entry of the issue list is left out: it is a refusal of its
+    /// own (IPeriodSealCompletenessGuard) that no acknowledgement lifts, and every caller checks it before the errors: the
+    /// close handler through EnsureAllSealedAsync, the automatic close and evaluate_period_close_readiness through
+    /// CountStandInWorksAsync.
+    /// </summary>
     public static int CountErrors(IEnumerable<PeriodIssueDto> issues) =>
-        issues.Count(issue => issue.Severity == ScheduleValidationType.Error);
+        issues.Count(issue => issue.Severity == ScheduleValidationType.Error && issue.Code != PeriodIssueLimits.StandInWorksCode);
 }

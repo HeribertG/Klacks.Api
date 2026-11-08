@@ -283,7 +283,9 @@ Anker der Unter-Tabs (`...-tab-single`, `...-tab-employee`, `...-tab-range`) sin
   Platzhalter (Planungszeile für eine noch nicht erfasste Person), lehnt das Backend den Abschluss ebenfalls ab,
   global wie für eine Gruppe, und auch das lässt sich nicht mit "Trotzdem abschliessen" übergehen. Die Karte (de:
   "Probleme dieser Periode", en: "Issues in this period") nennt die Anzahl. Abhilfe: Platzhalter umwandeln oder
-  ihre Dienste einer Person zuweisen (`explain_placeholder_employees`). Im Lohnexport erscheint dafür der Blocker
+  ihre Dienste einer Person zuweisen (`explain_placeholder_employees`). Die Abschlussberatung
+  (`evaluate_period_close_readiness`) nennt die Anzahl als blockierenden Befund (Verdikt: erst Platzhalter-Dienste
+  umlegen), nach offenen Diensten und vor offenen Fehlern. Im Lohnexport erscheint dafür der Blocker
   (de: "Dienst liegt auf einem Platzhalter", en: "Service assigned to a placeholder").
 - **Was Versiegeln tut**: Das Versiegeln setzt alle Dienst- und Absenz-Einträge
   des Zeitraums auf die höchste der vier Sperrstufen (Offen → Bestätigt → Freigegeben →
@@ -369,8 +371,8 @@ erfüllt sind (Standard: keine davon ist eingeschaltet, also schliesst Klacksy n
   falls nicht) zeigt `get_period_close_schedule`.
 - Die Periode ist vollständig vorbei, der Abschluss-Termin erreicht (höchstens 3 Tage zurück),
   die Gruppe hat in ihren **eigenen** Schichten Arbeit im Zeitraum, noch kein Tag ist versiegelt,
-  die Periode wurde nie wieder geöffnet, alle Dienste der Gruppe in der Periode sind bestätigt
-  und in der Problemliste steht kein **Fehler**.
+  die Periode wurde nie wieder geöffnet, alle Dienste der Gruppe in der Periode sind bestätigt,
+  keiner davon liegt auf einem Platzhalter, und in der Problemliste steht kein **Fehler**.
   Abgeschlossen wird immer pro Gruppe, nie global. Bei Gruppen mit Zahlungsintervall
   "Individuell" gibt es keinen festen Zyklus — dort schliesst Klacksy nie automatisch.
 
@@ -380,7 +382,7 @@ es kommen nur die üblichen Erinnerungen ("Periode endet bald" / "Periode überf
 nach dem Abschluss-Termin richten. Ist er eingeschaltet, ist die Erinnerung drei Tage vorher
 zugleich die **Vorankündigung** — bis dahin kann der Admin widersprechen. Scheitert dann eine
 der übrigen Bedingungen, schliesst Klacksy nicht und meldet den Grund (z. B. kein
-Abschluss-Zeitpunkt gespeichert, offene Fehler, noch nicht bestätigte Dienste, teilweise versiegelt, Termin zu lange her).
+Abschluss-Zeitpunkt gespeichert, offene Fehler, noch nicht bestätigte Dienste, Dienste auf Platzhaltern, teilweise versiegelt, Termin zu lange her).
 Eine Periode, die jemand wieder geöffnet hat, schliesst Klacksy nie erneut selbst ab. Jeder
 automatische Abschluss steht mit dem entscheidenden Admin und dem Handelnden "Klacksy
 (autonom)" im Protokoll (Aktion **Versiegelt**) und wird gemeldet. Wieder öffnen stellt

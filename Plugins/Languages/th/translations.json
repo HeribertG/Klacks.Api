@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "งวด {{from}} – {{until}} ของกลุ่ม {{group}} ไม่ได้ถูกปิดอัตโนมัติ เนื่องจากบางวันถูกล็อกไว้แล้ว โปรดตรวจสอบด้วยตนเอง",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "งวด {{from}} – {{until}} ของกลุ่ม {{group}} ยังไม่ได้ถูกปิดอัตโนมัติ: Klacksy ปิดงวดได้สูงสุด {{limit}} งวดต่อรอบ และจะลองใหม่ในรอบรายชั่วโมงถัดไป",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "งวด {{from}} – {{until}} ของกลุ่ม {{group}} ยังไม่ได้ถูกปิดอัตโนมัติ: มีกะที่ยังไม่ได้ยืนยัน {{works}} กะ ให้ยืนยันหลังกะสิ้นสุดแล้ว จากนั้นจึงจะปิดงวดได้",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "งวด {{from}} – {{until}} ของกลุ่ม {{group}} ยังไม่ได้ถูกปิดอัตโนมัติ: มีกะที่มอบหมายให้พนักงานสมมติ {{works}} กะ ให้มอบหมายกะเหล่านั้นให้บุคคลจริงหรือแปลงพนักงานสมมติ จากนั้นจึงจะปิดงวดได้",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "งวด {{from}} – {{until}} ของกลุ่ม {{group}} ไม่ได้ถูกปิดอัตโนมัติ เนื่องจากวันปิดงวดผ่านมานานเกินไป โปรดตรวจสอบและปิดด้วยตนเอง",
   "assistant.proactive.periodAutoClosed": "Klacksy ปิดงวด {{from}} – {{until}} ของกลุ่ม {{group}} โดยอัตโนมัติแล้ว (อิสระเต็มที่)",
   "assistant.proactive.periodCloseDue": "งวดบัญชีของ {{group}} จะสิ้นสุดวันที่ {{date}} (อีก {{days}} วัน) และยังไม่ได้ปิดงวด",

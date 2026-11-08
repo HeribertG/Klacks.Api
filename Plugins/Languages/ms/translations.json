@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "Tempoh {{from}} – {{until}} kumpulan {{group}} tidak ditutup secara automatik kerana sebahagian hari sudah dikunci. Semak secara manual.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "Tempoh {{from}} – {{until}} kumpulan {{group}} belum ditutup secara automatik: Klacksy menutup paling banyak {{limit}} tempoh bagi setiap larian dan akan mencuba semula pada larian setiap jam yang seterusnya.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "Tempoh {{from}} – {{until}} kumpulan {{group}} belum ditutup secara automatik: bilangan syif yang belum disahkan ialah {{works}}. Sahkan syif selepas tamat, kemudian tempoh boleh ditutup.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "Tempoh {{from}} – {{until}} kumpulan {{group}} belum ditutup secara automatik: bilangan syif yang diberikan kepada pekerja maya ialah {{works}}. Berikan syif itu kepada orang sebenar atau tukar pekerja maya, kemudian tempoh boleh ditutup.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "Tempoh {{from}} – {{until}} kumpulan {{group}} tidak ditutup secara automatik kerana tarikh penutupan sudah terlalu lama berlalu. Semak dan tutup secara manual.",
   "assistant.proactive.periodAutoClosed": "Klacksy telah menutup tempoh {{from}} – {{until}} kumpulan {{group}} secara automatik (autonomi penuh).",
   "assistant.proactive.periodCloseDue": "Tempoh gaji bagi {{group}} berakhir pada {{date}} (dalam {{days}} hari) dan masih terbuka.",

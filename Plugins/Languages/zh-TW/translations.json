@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "由於部分日期已被鎖定，分組 {{group}} 的期間 {{from}} – {{until}} 未被自動關閉。請手動檢查。",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "分組 {{group}} 的期間 {{from}} – {{until}} 尚未被自動關閉：Klacksy 每次執行最多關閉 {{limit}} 個期間，並將在下一次每小時執行時重試。",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "分組 {{group}} 的期間 {{from}} – {{until}} 尚未被自動關閉：還有 {{works}} 個班次未確認。請在班次結束後確認，之後即可關閉該期間。",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "分組 {{group}} 的期間 {{from}} – {{until}} 尚未被自動關閉：還有 {{works}} 個班次分配給了佔位員工。請將其分配給真實人員或轉換佔位員工，之後即可關閉該期間。",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "由於關閉日期已過去太久，分組 {{group}} 的期間 {{from}} – {{until}} 未被自動關閉。請檢查並手動關閉。",
   "assistant.proactive.periodAutoClosed": "Klacksy 已自動關閉分組 {{group}} 的期間 {{from}} – {{until}}（完全自主）。",
   "assistant.proactive.periodCloseDue": "{{group}} 的結算期間將於 {{date}}（{{days}} 天後）結束，但目前仍未關閉。",

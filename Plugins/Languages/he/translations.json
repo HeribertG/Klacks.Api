@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "התקופה {{from}} – {{until}} של הקבוצה {{group}} לא נסגרה אוטומטית כי חלק מהימים כבר נעולים. יש לבדוק ידנית.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "התקופה {{from}} – {{until}} של הקבוצה {{group}} עדיין לא נסגרה אוטומטית: Klacksy סוגר לכל היותר {{limit}} תקופות בכל הרצה, וינסה שוב בהרצה השעתית הבאה.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "התקופה {{from}} – {{until}} של הקבוצה {{group}} לא נסגרה אוטומטית: מספר המשמרות שטרם אושרו הוא {{works}}. אשר אותן לאחר שהסתיימו, ואז ניתן יהיה לסגור את התקופה.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "התקופה {{from}} – {{until}} של הקבוצה {{group}} לא נסגרה אוטומטית: מספר המשמרות המשויכות לעובדים וירטואליים הוא {{works}}. שייך אותן לאנשים אמיתיים או המר את העובדים הווירטואליים, ואז ניתן יהיה לסגור את התקופה.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "התקופה {{from}} – {{until}} של הקבוצה {{group}} לא נסגרה אוטומטית כי מועד הסגירה חלף מזמן. יש לבדוק ולסגור ידנית.",
   "assistant.proactive.periodAutoClosed": "Klacksy סגר אוטומטית את התקופה {{from}} – {{until}} של הקבוצה {{group}} (אוטונומיה מלאה).",
   "assistant.proactive.periodCloseDue": "תקופת השכר עבור {{group}} מסתיימת ב-{{date}} (בעוד {{days}} ימים) והיא עדיין פתוחה.",

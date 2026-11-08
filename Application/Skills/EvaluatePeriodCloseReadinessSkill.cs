@@ -12,6 +12,8 @@
 /// The group is resolved with the Strict policy of close_period, so the advice is about the group a close would hit.
 /// The number of services of the period that are not sealed yet comes from IPeriodSealCompletenessGuard, the check the close
 /// handlers and the automatic close use, and makes the verdict ConfirmServicesFirst, because no acknowledgement lifts that refusal.
+/// The number of services of the period on stand-ins comes from the same guard and makes the verdict AssignStandInWorksFirst,
+/// for the same reason; the stand-in entry of the issue list is therefore not counted as an error (PeriodCloseGates.CountErrors).
 /// GetSealingSummaryAsync counts container children, as the seal acts on them too, hence only days are reported here.
 /// </summary>
 /// <param name="startDate">Optional. Period start in ISO yyyy-MM-dd (inclusive); pass together with endDate.</param>
@@ -190,6 +192,9 @@ public class EvaluatePeriodCloseReadinessSkill : BaseSkillImplementation
         var unsealedWorks = isCheckable
             ? await _sealCompletenessGuard.CountUnsealedAsync(periodStart, periodEnd, group.Id, cancellationToken)
             : 0;
+        var standInWorks = isCheckable
+            ? await _sealCompletenessGuard.CountStandInWorksAsync(periodStart, periodEnd, group.Id, cancellationToken)
+            : 0;
 
         return new PeriodCloseReadinessFacts(
             group.Id,
@@ -204,6 +209,7 @@ public class EvaluatePeriodCloseReadinessSkill : BaseSkillImplementation
             issues.Count(issue => issue.Severity == ScheduleValidationType.Warning),
             sealedDates.Count,
             unsealedDays,
-            unsealedWorks);
+            unsealedWorks,
+            standInWorks);
     }
 }

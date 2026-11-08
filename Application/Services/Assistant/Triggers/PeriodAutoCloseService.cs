@@ -50,8 +50,10 @@
 ///    Directly before an attempt is taken from the per-scan cap, a fresh scope counts the services of the period that
 ///    are not sealed yet (IPeriodSealCompletenessGuard, the group's own shifts): a period holding any is reported as
 ///    UnsealedWorks and not closed, and it does not use up the cap - a person has to confirm them first, and no
-///    acknowledgement exists for that. The close handler enforces the same rule and a refusal there (a race) is
-///    reported the same way.
+///    acknowledgement exists for that. When all are sealed, the same scope counts the services of the period on stand-ins
+///    (placeholders): a period holding any is reported as StandInWorks, does not use up the cap either and waits until a
+///    person moves those services to real people or converts the stand-ins. The close handler enforces both rules and a
+///    refusal there (a race) is reported the same way.
 /// 9. The fresh read-back must show every day of the period sealed; only then is the close reported.
 /// A close that throws unexpectedly is re-read in another fresh scope (ResolveFailedCloseAsync): a concurrent
 /// close by a person is recognised and stays silent instead of being reported as a failure.
@@ -96,6 +98,7 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
 {
     private const int NoErrors = 0;
     private const int NoUnsealedWorks = 0;
+    private const int NoStandInWorks = 0;
 
     private readonly IGroupRepository _groupRepository;
     private readonly IWeekConfiguration _weekConfiguration;
@@ -324,10 +327,10 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
             return Blocked(candidate, PeriodAutoCloseBlockReason.PartiallySealed);
         }
 
-        var unsealedBlock = await BlockOnUnsealedWorksAsync(candidate, cancellationToken);
-        if (unsealedBlock != null)
+        var completenessBlock = await BlockOnIncompleteSealAsync(candidate, cancellationToken);
+        if (completenessBlock != null)
         {
-            return unsealedBlock;
+            return completenessBlock;
         }
 
         if (!closeBudget.TryTake())
@@ -412,6 +415,14 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
 
             return Blocked(candidate, PeriodAutoCloseBlockReason.UnsealedWorks, unsealedWorkCount: ex.UnsealedCount);
         }
+        catch (StandInWorksPresentException ex)
+        {
+            _logger.LogInformation(
+                "PeriodAutoClose: the close handler refused period {From}..{Until} of group {GroupName}: {Count} service(s) lie on stand-ins",
+                periodStart, periodEnd, group.Name, ex.StandInWorkCount);
+
+            return Blocked(candidate, PeriodAutoCloseBlockReason.StandInWorks, standInWorkCount: ex.StandInWorkCount);
+        }
         catch (InvalidRequestException ex)
         {
             _logger.LogWarning(
@@ -441,22 +452,34 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
         return new PeriodAutoClosedTriggerEvent(group.Id, group.Name, periodStart, periodEnd, lag, decidingAdmin);
     }
 
-    private async Task<IAgentTriggerEvent?> BlockOnUnsealedWorksAsync(
+    private async Task<IAgentTriggerEvent?> BlockOnIncompleteSealAsync(
         PeriodCloseCandidate candidate, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
-        var unsealedWorks = await scope.ServiceProvider.GetRequiredService<IPeriodSealCompletenessGuard>()
-            .CountUnsealedAsync(candidate.PeriodStart, candidate.PeriodEnd, candidate.Group.Id, cancellationToken);
-        if (unsealedWorks == NoUnsealedWorks)
+        var guard = scope.ServiceProvider.GetRequiredService<IPeriodSealCompletenessGuard>();
+        var unsealedWorks = await guard.CountUnsealedAsync(
+            candidate.PeriodStart, candidate.PeriodEnd, candidate.Group.Id, cancellationToken);
+        if (unsealedWorks != NoUnsealedWorks)
+        {
+            _logger.LogInformation(
+                "PeriodAutoClose: period {From}..{Until} of group {GroupName} still holds {Count} service(s) that are not sealed; not closed",
+                candidate.PeriodStart, candidate.PeriodEnd, candidate.Group.Name, unsealedWorks);
+
+            return Blocked(candidate, PeriodAutoCloseBlockReason.UnsealedWorks, unsealedWorkCount: unsealedWorks);
+        }
+
+        var standInWorks = await guard.CountStandInWorksAsync(
+            candidate.PeriodStart, candidate.PeriodEnd, candidate.Group.Id, cancellationToken);
+        if (standInWorks == NoStandInWorks)
         {
             return null;
         }
 
         _logger.LogInformation(
-            "PeriodAutoClose: period {From}..{Until} of group {GroupName} still holds {Count} service(s) that are not sealed; not closed",
-            candidate.PeriodStart, candidate.PeriodEnd, candidate.Group.Name, unsealedWorks);
+            "PeriodAutoClose: period {From}..{Until} of group {GroupName} still holds {Count} service(s) on stand-ins; not closed",
+            candidate.PeriodStart, candidate.PeriodEnd, candidate.Group.Name, standInWorks);
 
-        return Blocked(candidate, PeriodAutoCloseBlockReason.UnsealedWorks, unsealedWorkCount: unsealedWorks);
+        return Blocked(candidate, PeriodAutoCloseBlockReason.StandInWorks, standInWorkCount: standInWorks);
     }
 
     /// <summary>
@@ -530,6 +553,10 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
     }
 
     private static PeriodAutoCloseBlockedTriggerEvent Blocked(
-        PeriodCloseCandidate candidate, PeriodAutoCloseBlockReason reason, int errorCount = NoErrors, int unsealedWorkCount = NoUnsealedWorks) =>
-        new(candidate.Group.Id, candidate.Group.Name, candidate.PeriodStart, candidate.PeriodEnd, errorCount, reason, unsealedWorkCount);
+        PeriodCloseCandidate candidate,
+        PeriodAutoCloseBlockReason reason,
+        int errorCount = NoErrors,
+        int unsealedWorkCount = NoUnsealedWorks,
+        int standInWorkCount = NoStandInWorks) =>
+        new(candidate.Group.Id, candidate.Group.Name, candidate.PeriodStart, candidate.PeriodEnd, errorCount, reason, unsealedWorkCount, standInWorkCount);
 }

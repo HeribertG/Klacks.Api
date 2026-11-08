@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "一部の日がすでにロックされているため、グループ{{group}}の期間{{from}}～{{until}}は自動的に締められませんでした。手動で確認してください。",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "グループ{{group}}の期間{{from}}～{{until}}はまだ自動的に締められていません。Klacksyは1回の実行で最大{{limit}}期間まで締め、次の1時間ごとの実行で再試行します。",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "グループ{{group}}の期間{{from}}～{{until}}は自動的に締められませんでした。未確認のシフトが{{works}}件あります。シフト終了後に確認すると、期間を締められるようになります。",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "グループ{{group}}の期間{{from}}～{{until}}は自動的に締められませんでした。仮従業員に割り当てられたシフトが{{works}}件あります。実在の従業員に割り当てるか仮従業員を変換すると、期間を締められるようになります。",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "締め日から時間が経ちすぎているため、グループ{{group}}の期間{{from}}～{{until}}は自動的に締められませんでした。確認のうえ手動で締めてください。",
   "assistant.proactive.periodAutoClosed": "Klacksyがグループ{{group}}の期間{{from}}～{{until}}を自動的に締めました（完全自律）。",
   "assistant.proactive.periodCloseDue": "{{group}}の精算期間は{{date}}({{days}}日後)に終了しますが、まだ未締めです。",

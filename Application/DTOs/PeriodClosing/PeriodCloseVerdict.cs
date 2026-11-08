@@ -14,5 +14,6 @@ public enum PeriodCloseVerdict
     FixErrorsFirst = 1,
     WaitUntilDue = 2,
     NothingToSeal = 3,
-    ConfirmServicesFirst = 4
+    ConfirmServicesFirst = 4,
+    AssignStandInWorksFirst = 5
 }

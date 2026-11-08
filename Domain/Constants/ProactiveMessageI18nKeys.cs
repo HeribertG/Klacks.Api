@@ -63,6 +63,10 @@ public static class ProactiveMessageI18nKeys
     /// The automatic close found services that are not confirmed yet; additionally carries the parameter works.
     /// </summary>
     public const string PeriodAutoCloseBlockedUnsealedWorks = "assistant.proactive.periodAutoCloseBlockedUnsealedWorks";
+    /// <summary>
+    /// The automatic close found services on stand-ins (placeholders); additionally carries the parameter works.
+    /// </summary>
+    public const string PeriodAutoCloseBlockedStandInWorks = "assistant.proactive.periodAutoCloseBlockedStandInWorks";
     public const string UnstaffedShift = "assistant.proactive.unstaffedShift";
 
     /// <summary>

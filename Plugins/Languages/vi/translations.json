@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "Kỳ {{from}} – {{until}} của nhóm {{group}} không được tự động đóng vì một số ngày đã bị khóa. Vui lòng kiểm tra thủ công.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "Kỳ {{from}} – {{until}} của nhóm {{group}} chưa được tự động đóng: mỗi lượt chạy Klacksy chỉ đóng tối đa {{limit}} kỳ và sẽ thử lại ở lượt chạy hằng giờ tiếp theo.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "Kỳ {{from}} – {{until}} của nhóm {{group}} chưa được tự động đóng: số ca làm chưa được xác nhận là {{works}}. Hãy xác nhận sau khi ca làm kết thúc, sau đó kỳ có thể được đóng.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "Kỳ {{from}} – {{until}} của nhóm {{group}} chưa được tự động đóng: số ca làm được giao cho nhân viên giả định là {{works}}. Hãy giao các ca này cho người thật hoặc chuyển đổi nhân viên giả định, sau đó kỳ có thể được đóng.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "Kỳ {{from}} – {{until}} của nhóm {{group}} không được tự động chốt vì ngày chốt kỳ đã qua quá lâu. Vui lòng kiểm tra và chốt thủ công.",
   "assistant.proactive.periodAutoClosed": "Klacksy đã tự động chốt kỳ {{from}} – {{until}} của nhóm {{group}} (tự chủ hoàn toàn).",
   "assistant.proactive.periodCloseDue": "Kỳ thanh toán cho {{group}} kết thúc vào {{date}} (còn {{days}} ngày) và vẫn chưa đóng.",

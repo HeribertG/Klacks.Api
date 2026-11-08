@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "Okres {{from}} – {{until}} grupy {{group}} nie został zamknięty automatycznie, ponieważ część dni jest już zablokowana. Sprawdź ręcznie.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "Okres {{from}} – {{until}} grupy {{group}} nie został jeszcze zamknięty automatycznie: Klacksy zamyka co najwyżej {{limit}} okresów na przebieg i ponowi próbę w następnym przebiegu godzinowym.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "Okres {{from}} – {{until}} grupy {{group}} nie został zamknięty automatycznie: liczba niepotwierdzonych dyżurów to {{works}}. Potwierdź je po zakończeniu, a wtedy okres będzie można zamknąć.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "Okres {{from}} – {{until}} grupy {{group}} nie został zamknięty automatycznie: liczba dyżurów przypisanych do pracowników wirtualnych to {{works}}. Przypisz je do rzeczywistych osób lub przekształć pracowników wirtualnych, a wtedy okres będzie można zamknąć.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "Okres {{from}} – {{until}} grupy {{group}} nie został zamknięty automatycznie, ponieważ termin zamknięcia minął zbyt dawno. Sprawdź i zamknij ręcznie.",
   "assistant.proactive.periodAutoClosed": "Klacksy automatycznie zamknął okres {{from}} – {{until}} grupy {{group}} (pełna autonomia).",
   "assistant.proactive.periodCloseDue": "Okres rozliczeniowy dla {{group}} kończy się {{date}} (za {{days}} dni) i jest wciąż otwarty.",

@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "Období {{from}} – {{until}} skupiny {{group}} nebylo uzavřeno automaticky, protože část dnů je již uzamčena. Zkontrolujte ručně.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "Období {{from}} – {{until}} skupiny {{group}} zatím nebylo uzavřeno automaticky: Klacksy uzavře v jednom průchodu nejvýše {{limit}} období a při dalším hodinovém průchodu to zkusí znovu.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "Období {{from}} – {{until}} skupiny {{group}} nebylo uzavřeno automaticky: počet dosud nepotvrzených služeb je {{works}}. Potvrďte je po jejich skončení, poté bude možné období uzavřít.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "Období {{from}} – {{until}} skupiny {{group}} nebylo uzavřeno automaticky: počet služeb přiřazených fiktivním zaměstnancům je {{works}}. Přiřaďte je skutečným osobám nebo fiktivní zaměstnance převeďte, poté bude možné období uzavřít.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "Období {{from}} – {{until}} skupiny {{group}} nebylo uzavřeno automaticky, protože od termínu uzávěrky uplynula příliš dlouhá doba. Zkontrolujte a uzavřete ručně.",
   "assistant.proactive.periodAutoClosed": "Klacksy automaticky uzavřel období {{from}} – {{until}} skupiny {{group}} (plná autonomie).",
   "assistant.proactive.periodCloseDue": "Zúčtovací období pro {{group}} končí {{date}} (za {{days}} dní) a stále je otevřené.",

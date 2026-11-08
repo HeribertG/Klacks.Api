@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "لم تُقفل الفترة {{from}} – {{until}} للمجموعة {{group}} تلقائيًا لأن بعض أيامها مقفلة بالفعل. يُرجى المراجعة يدويًا.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "لم تُقفل الفترة {{from}} – {{until}} للمجموعة {{group}} تلقائيًا بعد: يقفل Klacksy في كل دورة ما لا يزيد على {{limit}} فترة ويحاول مجددًا في الدورة الساعية التالية.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "لم تُغلق الفترة {{from}} – {{until}} للمجموعة {{group}} تلقائيًا: عدد المناوبات التي لم تُؤكَّد بعد هو {{works}}. أكّد المناوبات بعد انتهائها، وبعدها يمكن إغلاق الفترة.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "لم تُغلق الفترة {{from}} – {{until}} للمجموعة {{group}} تلقائيًا: عدد المناوبات المسندة إلى موظفين وهميين هو {{works}}. أسند هذه المناوبات إلى أشخاص حقيقيين أو حوّل الموظفين الوهميين، وبعدها يمكن إغلاق الفترة.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "لم تُقفل الفترة {{from}} – {{until}} للمجموعة {{group}} تلقائيًا لأن موعد الإقفال مضى عليه وقت طويل. يُرجى المراجعة والإقفال يدويًا.",
   "assistant.proactive.periodAutoClosed": "أقفل Klacksy تلقائيًا الفترة {{from}} – {{until}} للمجموعة {{group}} (استقلالية كاملة).",
   "assistant.proactive.periodCloseDue": "تنتهي فترة المحاسبة الخاصة بـ {{group}} في {{date}} (خلال {{days}} يوم/أيام) وهي لا تزال مفتوحة.",

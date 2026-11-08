@@ -16,7 +16,8 @@ namespace Klacks.Api.Application.Handlers.PeriodClosing;
 /// Aggregates ScheduleNote entries plus the live validation findings (collisions,
 /// rest, overtime, consecutive-days) within a billing period into PeriodIssueDto, plus one Error entry when services of
 /// the period lie on stand-ins (IPeriodSealCompletenessGuard.CountStandInWorksAsync, the count the close refuses with), so
-/// the automatic close and the close advice, which count the Errors of this list, stop on it too. That entry carries no
+/// the issues card shows it; PeriodCloseGates.CountErrors leaves it out, because every close path refuses on stand-ins on
+/// its own before the errors. That entry carries no
 /// client and is therefore kept for a restricted caller only when a visible group was selected.
 /// Group filter joins via Client → GroupItem. Limited to 500 issues per source for performance.
 /// The result is bounded by the caller's group visibility: a group outside it yields nothing, client-bound findings

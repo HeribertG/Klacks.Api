@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "El periodo {{from}} – {{until}} del grupo {{group}} no se cerró automáticamente porque algunos días ya están bloqueados. Revíselo manualmente.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "El periodo {{from}} – {{until}} del grupo {{group}} aún no se ha cerrado automáticamente: Klacksy cierra como máximo {{limit}} periodos por ejecución y lo intentará de nuevo en la siguiente ejecución horaria.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "El periodo {{from}} – {{until}} del grupo {{group}} no se ha cerrado automáticamente. Turnos pendientes de confirmar: {{works}}. Confírmelos cuando hayan terminado; después se podrá cerrar el periodo.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "El periodo {{from}} – {{until}} del grupo {{group}} no se ha cerrado automáticamente. Turnos asignados a empleados ficticios: {{works}}. Asígnelos a una persona o convierta los empleados ficticios; después se podrá cerrar el periodo.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "El periodo {{from}} – {{until}} del grupo {{group}} no se cerró automáticamente porque su fecha de cierre quedó demasiado atrás. Revíselo y ciérrelo manualmente.",
   "assistant.proactive.periodAutoClosed": "Klacksy cerró automáticamente el periodo {{from}} – {{until}} del grupo {{group}} (autonomía total).",
   "assistant.proactive.periodCloseDue": "El periodo de liquidación de {{group}} finaliza el {{date}} (en {{days}} día(s)) y sigue abierto.",

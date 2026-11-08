@@ -734,6 +734,7 @@
   "assistant.proactive.periodAutoCloseBlockedPartiallySealed": "Perioden {{from}} – {{until}} för gruppen {{group}} avslutades inte automatiskt eftersom några av dagarna redan är låsta. Kontrollera manuellt.",
   "assistant.proactive.periodAutoCloseBlockedTickLimit": "Perioden {{from}} – {{until}} för gruppen {{group}} har ännu inte avslutats automatiskt: Klacksy avslutar högst {{limit}} perioder per körning och försöker igen vid nästa timkörning.",
   "assistant.proactive.periodAutoCloseBlockedUnsealedWorks": "Perioden {{from}} – {{until}} för gruppen {{group}} har inte avslutats automatiskt: antalet tjänster som ännu inte är bekräftade är {{works}}. Bekräfta dem när de har slutat, så kan perioden avslutas.",
+  "assistant.proactive.periodAutoCloseBlockedStandInWorks": "Perioden {{from}} – {{until}} för gruppen {{group}} har inte avslutats automatiskt: antalet tjänster som ligger på platshållare är {{works}}. Tilldela dem till en person eller konvertera platshållarna, så kan perioden avslutas.",
   "assistant.proactive.periodAutoCloseBlockedWindowMissed": "Perioden {{from}} – {{until}} för gruppen {{group}} avslutades inte automatiskt eftersom avslutsdatumet ligger för långt tillbaka. Kontrollera och avsluta manuellt.",
   "assistant.proactive.periodAutoClosed": "Klacksy har automatiskt avslutat perioden {{from}} – {{until}} för gruppen {{group}} (full autonomi).",
   "assistant.proactive.periodCloseDue": "Avräkningsperioden för {{group}} slutar den {{date}} (om {{days}} dag(ar)) och är fortfarande öppen.",

@@ -8,10 +8,12 @@
 /// checks neither the close date nor whether work is left, so a person can close by hand and the text says so, and those
 /// findings are not blocking. A reopened or partially sealed period stops Klacksy but not a person (the close handler
 /// skips existing day locks), so both are findings and not stops here. Without a stored lag the advice counts from the
-/// day after the period end. Two things are real refusals. Services of the period that are not sealed yet stop the close
+/// day after the period end. Three things are real refusals. Services of the period that are not sealed yet stop the close
 /// for good: no acknowledgement lifts that, they have to be confirmed after they ended (verdict ConfirmServicesFirst, which
-/// comes before the errors, as in the automatic close). Open errors stop it unless the user saw them and explicitly decides
-/// to seal anyway; warnings never gate the close.
+/// comes before the errors, as in the automatic close). Once every service is confirmed, services on stand-ins (placeholders)
+/// stop it for good as well: they have to be moved to real people or the stand-ins converted (verdict AssignStandInWorksFirst,
+/// again before the errors). Open errors stop it unless the user saw them and explicitly decides to seal anyway; warnings
+/// never gate the close.
 /// </summary>
 /// <param name="facts">The gathered facts about the period</param>
 
@@ -52,6 +54,7 @@ public static class PeriodCloseReadinessAdvisor
             facts.UnsealedDaysWithWork.Count,
             facts.UnsealedDaysWithWork.Take(MaxListedUnsealedDays).ToList(),
             facts.UnsealedWorkCount,
+            facts.StandInWorkCount,
             verdict,
             findings,
             BuildRecommendation(facts, verdict, findings));
@@ -72,6 +75,11 @@ public static class PeriodCloseReadinessAdvisor
         if (facts.UnsealedWorkCount > 0)
         {
             return PeriodCloseVerdict.ConfirmServicesFirst;
+        }
+
+        if (facts.StandInWorkCount > 0)
+        {
+            return PeriodCloseVerdict.AssignStandInWorksFirst;
         }
 
         return facts.ErrorCount > 0 ? PeriodCloseVerdict.FixErrorsFirst : PeriodCloseVerdict.CloseNow;
@@ -117,6 +125,14 @@ public static class PeriodCloseReadinessAdvisor
             findings.Add(new PeriodCloseFinding(
                 PeriodCloseFindingCode.UnsealedWorks,
                 $"{facts.UnsealedWorkCount} service(s) of the period are not confirmed yet; the close is refused until they are confirmed, and no acknowledgement lifts that. A service can only be confirmed after it has ended.",
+                true));
+        }
+
+        if (facts.StandInWorkCount > 0)
+        {
+            findings.Add(new PeriodCloseFinding(
+                PeriodCloseFindingCode.StandInWorks,
+                $"{facts.StandInWorkCount} service(s) of the period lie on placeholders; the close is refused until they are moved to real people or the placeholders are converted, and no acknowledgement lifts that.",
                 true));
         }
 
@@ -174,8 +190,9 @@ public static class PeriodCloseReadinessAdvisor
         var advice = verdict switch
         {
             PeriodCloseVerdict.NothingToSeal => NothingToSealAdvice(facts, lead),
-            PeriodCloseVerdict.WaitUntilDue => $"Wait: {lead}{UnsealedWorksHint(facts)}{OpenErrorsHint(facts)} {AutomaticClosePolicyNotice}",
-            PeriodCloseVerdict.ConfirmServicesFirst => $"Do not close yet, {facts.UnsealedWorkCount} service(s) of {PeriodLabel(facts)} are not confirmed. {lead}",
+            PeriodCloseVerdict.WaitUntilDue => $"Wait: {lead}{UnsealedWorksHint(facts)}{StandInWorksHint(facts)}{OpenErrorsHint(facts)} {AutomaticClosePolicyNotice}",
+            PeriodCloseVerdict.ConfirmServicesFirst => $"Do not close yet, {facts.UnsealedWorkCount} service(s) of {PeriodLabel(facts)} are not confirmed. {lead}{StandInWorksHint(facts)}",
+            PeriodCloseVerdict.AssignStandInWorksFirst => $"Do not close yet, {facts.StandInWorkCount} service(s) of {PeriodLabel(facts)} lie on placeholders. {lead}",
             PeriodCloseVerdict.FixErrorsFirst => $"Do not close yet, fix the {facts.ErrorCount} open error(s) of {PeriodLabel(facts)} first. {lead}",
             _ => $"{PeriodLabel(facts)} is ready to be closed now.{WarningsHint(facts)}"
         };
@@ -190,6 +207,9 @@ public static class PeriodCloseReadinessAdvisor
 
     private static string UnsealedWorksHint(PeriodCloseReadinessFacts facts) =>
         facts.UnsealedWorkCount > 0 ? $" {facts.UnsealedWorkCount} service(s) are not confirmed yet and have to be confirmed after they ended before any close can run." : string.Empty;
+
+    private static string StandInWorksHint(PeriodCloseReadinessFacts facts) =>
+        facts.StandInWorkCount > 0 ? $" {facts.StandInWorkCount} service(s) lie on placeholders and have to be moved to real people, or the placeholders converted, before any close can run." : string.Empty;
 
     private static string OpenErrorsHint(PeriodCloseReadinessFacts facts) =>
         facts.ErrorCount > 0 ? $" {facts.ErrorCount} error(s) are already open and can be fixed until then." : string.Empty;

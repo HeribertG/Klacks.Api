@@ -48,5 +48,8 @@ public enum PeriodAutoCloseBlockReason
     TickLimitReached = 10,
 
     /// <summary>Services of the period are not sealed yet (not confirmed after they ended); a person has to confirm them first.</summary>
-    UnsealedWorks = 11
+    UnsealedWorks = 11,
+
+    /// <summary>Services of the period lie on stand-ins (placeholders); they have to be moved to real people or the stand-ins converted first.</summary>
+    StandInWorks = 12
 }
