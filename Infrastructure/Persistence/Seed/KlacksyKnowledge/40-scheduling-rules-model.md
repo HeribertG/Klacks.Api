@@ -171,6 +171,15 @@ scheduling limit can be overridden, and only by somebody with the right to do so
 qualification level is binding is configurable, but once it blocks, nobody can override it; see
 `explain_qualifications`.)
 
+How the error list counts the limits does not depend on the part of the schedule that is visible. A
+run of consecutive work days is counted in full, also when it began before the loaded period or
+before the week of a booking (looking back up to two weeks); it is listed on the day it starts, or
+on the first day of the loaded period when it started earlier. After a booking or a move, the check
+covers the daily hours of the edited day and of the next day (a night shift adds hours to the next
+day), the weekly hours and rest days of the edited day's week and the full run of consecutive days
+that reaches into that week. Reloading the period checks all of it again for the whole period; the
+rest days of a week that the loaded period cuts are only judged after a booking in that week.
+
 ## Related skills
 
 - `list_scheduling_rules`, `create_scheduling_rule`, `update_scheduling_rule`, `delete_scheduling_rule`

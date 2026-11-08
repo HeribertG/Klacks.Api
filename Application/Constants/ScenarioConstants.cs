@@ -10,9 +10,11 @@ public static class ScenarioConstants
 {
     /// <summary>
     /// Number of days extending the period on each side for boundary context.
-    /// Used by both clone operations (so cross-period shifts/works are visible
-    /// in scenario mode) and wizard validators (so MaxConsecutive / MinRest
-    /// runs crossing the period boundary are detected).
+    /// Used by clone operations (so cross-period shifts/works are visible
+    /// in scenario mode), wizard validators (so MaxConsecutive / MinRest
+    /// runs crossing the period boundary are detected) and the schedule
+    /// error list checks (so a run, a night or a week cut by the checked
+    /// window is judged in full).
     /// </summary>
     public const int BoundaryDays = 14;
 }

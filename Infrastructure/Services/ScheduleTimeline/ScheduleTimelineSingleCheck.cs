@@ -9,6 +9,7 @@
 /// <param name="timelineStore">Singleton cache of the latest timeline per client</param>
 /// <param name="complianceRules">Configurable rule evaluators (period caps, rotation, counters, windows, compensatory rest)</param>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -130,7 +131,7 @@ public sealed class ScheduleTimelineSingleCheck
         var windowTimeline = await _loader.LoadClientTimelineAsync(
             clientId, date.AddDays(-RestWindowLoadDays), date.AddDays(RestWindowLoadDays), analyseToken, cancellationToken);
         ScheduleValidationBuilder.AddRestViolations(entries, windowTimeline, clientName, policy, date.AddDays(-RestReportDaysBefore), date);
-        ScheduleValidationBuilder.AddOvertime(entries, windowTimeline, clientName, date, date, policy);
+        ScheduleValidationBuilder.AddOvertime(entries, windowTimeline, clientName, date, date.AddDays(1), policy);
         await TimelineQualificationEntries.AddAsync(entries, rows.OwnWorks, clientNameLookup, _eligibilityMatrixBuilder, cancellationToken);
         await _complianceRules.AddDayEntriesAsync(entries, clientId, clientName, date, analyseToken, cancellationToken);
 
@@ -179,18 +180,15 @@ public sealed class ScheduleTimelineSingleCheck
     }
 
     /// <summary>
-    /// Runs the checks that need more than the edited day. The surrounding single check loads the edited
-    /// day (plus a few days around it for rest and daily overtime only), which is too narrow for a weekly
-    /// cap, a weekly rest-day quota or a run of consecutive days, so this loads the full ISO week separately.
-    /// All three report inside the edited day's ISO week, which is the window the client retracts when
-    /// that week is re-evaluated: the two weekly checks anchor on the week's Monday exactly like the
-    /// range check, the consecutive-day check anchors on the day its run starts. GetConsecutiveWorkDays
-    /// counts forward, so a run reaching into the week from before Monday is under-counted here — never
-    /// over-counted — and the range check, which sees the whole loaded period, reports it in full.
-    /// Breaks are loaded over the same window: a break day counts as a rest day, so a narrower break load
-    /// would make AddMinRestDays under-count rest days and report false positives.
+    /// Runs the checks that need more than the edited day, on the edited day's ISO week loaded together with
+    /// <see cref="ScenarioConstants.BoundaryDays"/> on each side: the weekly cap and the weekly rest-day quota anchor on
+    /// the week's Monday like the range check; a run of consecutive days that reaches into the week from before Monday
+    /// is counted in full and dated on its first day, as the range check dates it. Only runs that touch the week are
+    /// reported, because the client retracts this key per ISO week. Breaks are loaded over the same window: a break day
+    /// counts as a rest day, so a narrower break load would make AddMinRestDays under-count rest days and report false
+    /// positives.
     /// </summary>
-    /// <param name="date">The edited day; its ISO week defines the load window</param>
+    /// <param name="date">The edited day; its ISO week defines the reported window</param>
     /// <param name="policy">Supplies MaxWeeklyHours, MinRestDays and MaxConsecutiveDays for the client</param>
     private async Task AddWeekAwareEntriesAsync(
         List<ScheduleValidationNotificationDto> entries,
@@ -203,11 +201,19 @@ public sealed class ScheduleTimelineSingleCheck
     {
         var (weekStart, weekEnd) = ScheduleValidationBuilder.IsoWeekOf(date);
 
-        var weekTimeline = await _loader.LoadClientTimelineAsync(clientId, weekStart, weekEnd, analyseToken, cancellationToken);
+        var weekTimeline = await _loader.LoadClientTimelineAsync(
+            clientId,
+            weekStart.AddDays(-ScenarioConstants.BoundaryDays),
+            weekEnd.AddDays(ScenarioConstants.BoundaryDays),
+            analyseToken,
+            cancellationToken);
+        var runReportStart = weekTimeline.HasWorkAnchoredOn(weekStart)
+            ? weekStart.AddDays(-weekTimeline.GetConsecutiveWorkDaysBackward(weekStart.AddDays(-1)))
+            : weekStart;
 
         ScheduleValidationBuilder.AddWeeklyOvertime(entries, weekTimeline, clientName, weekStart, weekEnd, policy);
         ScheduleValidationBuilder.AddMinRestDays(entries, weekTimeline, clientName, weekStart, weekEnd, policy);
-        ScheduleValidationBuilder.AddConsecutiveDays(entries, weekTimeline, clientName, weekStart, weekEnd, policy);
+        ScheduleValidationBuilder.AddConsecutiveDays(entries, weekTimeline, clientName, runReportStart, weekEnd, policy);
     }
 
     private async Task AddTravelTimeEntriesAsync(

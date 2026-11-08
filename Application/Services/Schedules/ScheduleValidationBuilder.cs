@@ -98,6 +98,12 @@ public static class ScheduleValidationBuilder
         }
     }
 
+    /// <summary>
+    /// Reports every run of consecutive work days longer than the policy allows that overlaps
+    /// [<paramref name="startDate"/>, <paramref name="endDate"/>], with its full length as far as the timeline reaches.
+    /// A run is dated on the day it starts; a run that started before <paramref name="startDate"/> is dated on
+    /// <paramref name="startDate"/>, because the error list shows only entries inside the window it loaded.
+    /// </summary>
     public static void AddConsecutiveDays(
         List<ScheduleValidationNotificationDto> entries,
         ClientTimeline timeline,
@@ -109,7 +115,10 @@ public static class ScheduleValidationBuilder
         var date = startDate;
         while (date <= endDate)
         {
-            var consecutive = timeline.GetConsecutiveWorkDays(date);
+            var forward = timeline.GetConsecutiveWorkDays(date);
+            var consecutive = date == startDate && forward > 0
+                ? forward + timeline.GetConsecutiveWorkDaysBackward(date.AddDays(-1))
+                : forward;
             if (consecutive > policy.MaxConsecutiveDays)
             {
                 entries.Add(new ScheduleValidationNotificationDto
@@ -125,7 +134,7 @@ public static class ScheduleValidationBuilder
                         ["maxDays"] = policy.MaxConsecutiveDays.ToString()
                     }
                 });
-                date = date.AddDays(consecutive);
+                date = date.AddDays(forward);
             }
             else
             {

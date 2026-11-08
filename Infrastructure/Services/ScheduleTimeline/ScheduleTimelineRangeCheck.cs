@@ -9,6 +9,7 @@
 /// <param name="timelineStore">Singleton cache of the latest timeline per client</param>
 /// <param name="complianceRules">Configurable rule evaluators (period caps, rotation, counters, windows, compensatory rest)</param>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -72,10 +73,18 @@ public sealed class ScheduleTimelineRangeCheck
 
     public async Task RunAsync(DateOnly startDate, DateOnly endDate, Guid? analyseToken, CancellationToken cancellationToken)
     {
-        var rows = await _loader.LoadRangeAsync(startDate, endDate, analyseToken, cancellationToken);
+        var ruleRows = await _loader.LoadRangeAsync(
+            startDate.AddDays(-ScenarioConstants.BoundaryDays),
+            endDate.AddDays(ScenarioConstants.BoundaryDays),
+            analyseToken,
+            cancellationToken);
+        var rows = ruleRows.Within(startDate, endDate);
 
         var clientNameLookup = ScheduleClientNames.Build(rows.Works, rows.WorkChanges);
         var scheduleBlocks = _timelineCalculationService.CalculateScheduleBlocks(rows.Works, rows.WorkChanges, rows.Breaks);
+        var ruleBlocks = _timelineCalculationService
+            .CalculateScheduleBlocks(ruleRows.Works, ruleRows.WorkChanges, ruleRows.Breaks)
+            .ToLookup(b => b.ClientId);
         var spillIn = await _loader.LoadHolidaySpillInAsync(startDate, analyseToken, cancellationToken);
 
         var groupedByClient = scheduleBlocks.GroupBy(b => b.ClientId).ToList();
@@ -96,6 +105,7 @@ public sealed class ScheduleTimelineRangeCheck
             SpillIn = spillIn,
             OnCallBreakIds = rows.OnCallBreakIds,
             UncoveredAbsences = await _loader.LoadUncoveredAbsenceLookupAsync(rows, cancellationToken),
+            RuleBlocks = ruleBlocks,
             TravelLookupBudget = MaxTravelTimeLookupsPerRangeCheck,
         };
 
@@ -127,11 +137,14 @@ public sealed class ScheduleTimelineRangeCheck
             : await _policyResolver.GetForClientAsync(group.Key, run.StartDate);
 
         var entries = run.Entries;
-        ScheduleValidationBuilder.AddRestViolations(entries, timeline, clientName, policy);
-        ScheduleValidationBuilder.AddOvertime(entries, timeline, clientName, run.StartDate, run.EndDate, policy);
-        ScheduleValidationBuilder.AddConsecutiveDays(entries, timeline, clientName, run.StartDate, run.EndDate, policy);
-        ScheduleValidationBuilder.AddWeeklyOvertime(entries, timeline, clientName, run.StartDate, run.EndDate, policy);
-        ScheduleValidationBuilder.AddMinRestDays(entries, timeline, clientName, run.StartDate, run.EndDate, policy);
+        var ruleTimeline = new ClientTimeline(group.Key);
+        ruleTimeline.AddBlocks(run.RuleBlocks[group.Key]);
+        ruleTimeline.SortBlocks();
+        ScheduleValidationBuilder.AddRestViolations(entries, ruleTimeline, clientName, policy, run.StartDate, run.EndDate);
+        ScheduleValidationBuilder.AddOvertime(entries, ruleTimeline, clientName, run.StartDate, run.EndDate, policy);
+        ScheduleValidationBuilder.AddConsecutiveDays(entries, ruleTimeline, clientName, run.StartDate, run.EndDate, policy);
+        ScheduleValidationBuilder.AddWeeklyOvertime(entries, ruleTimeline, clientName, run.StartDate, run.EndDate, policy);
+        ScheduleValidationBuilder.AddMinRestDays(entries, ruleTimeline, clientName, run.StartDate, run.EndDate, policy);
         await _complianceRules.AddRangeEntriesAsync(entries, group.Key, clientName, run.StartDate, run.EndDate, run.AnalyseToken, cancellationToken);
 
         await AddTravelTimeEntriesAsync(run, timeline, clientName, cancellationToken);

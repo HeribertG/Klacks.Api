@@ -17,4 +17,21 @@ public sealed record TimelineCheckRows(
     List<Work> Works,
     List<WorkChange> WorkChanges,
     List<Break> Breaks,
-    IReadOnlySet<Guid> OnCallBreakIds);
+    IReadOnlySet<Guid> OnCallBreakIds)
+{
+    /// <summary>
+    /// The rows of a range check restricted to the works and breaks dated within [<paramref name="from"/>,
+    /// <paramref name="to"/>], with the changes of those works. The on-call ids stay as loaded: they are a lookup.
+    /// </summary>
+    public TimelineCheckRows Within(DateOnly from, DateOnly to)
+    {
+        var works = Works.Where(w => w.CurrentDate >= from && w.CurrentDate <= to).ToList();
+        var workIds = works.Select(w => w.Id).ToHashSet();
+        return new TimelineCheckRows(
+            works,
+            works,
+            WorkChanges.Where(wc => workIds.Contains(wc.WorkId)).ToList(),
+            Breaks.Where(b => b.CurrentDate >= from && b.CurrentDate <= to).ToList(),
+            OnCallBreakIds);
+    }
+}

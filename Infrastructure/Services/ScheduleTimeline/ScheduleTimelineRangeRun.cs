@@ -7,8 +7,10 @@
 /// <param name="ShiftAddresses">Location per shift id, loaded once for the distinct shifts of the range</param>
 /// <param name="TravelLookupBudget">Routing lookups the remaining clients may still spend</param>
 /// <param name="ClientsWithoutTravelCheck">Clients skipped because the budget was exhausted before them</param>
+/// <param name="RuleBlocks">Blocks per client including the boundary days around the range, for the work-time rules</param>
 
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Services.Schedules;
@@ -36,6 +38,8 @@ public sealed class ScheduleTimelineRangeRun
     public required IReadOnlySet<Guid> OnCallBreakIds { get; init; }
 
     public required UncoveredAbsenceLookup UncoveredAbsences { get; init; }
+
+    public required ILookup<Guid, ScheduleBlock> RuleBlocks { get; init; }
 
     public List<ScheduleValidationNotificationDto> Entries { get; } = [];
 
