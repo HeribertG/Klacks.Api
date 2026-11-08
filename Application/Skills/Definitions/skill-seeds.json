@@ -1171,7 +1171,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditContracts"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -1285,7 +1285,7 @@
         "fr": "Attribuer un contrat à un employé",
         "it": "Assegna un contratto a un dipendente"
       },
-      "version": 11
+      "version": 12
     },
     {
       "name": "create_branch",
@@ -17869,7 +17869,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditSettings"
+        "CanDeleteGroups"
       ],
       "parameters": [
         {
@@ -17953,7 +17953,7 @@
         "fr": "Supprimer un groupe",
         "it": "Elimina un gruppo"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "create_calendar_selection",
@@ -20771,7 +20771,7 @@
     {
       "name": "delete_shift",
       "area": "shift",
-      "description": "Soft-deletes a draft order. A plannable shift and a cut piece cannot be deleted; a sealed order can only be deleted by an administrator, together with all its pieces, and only while no work exists anywhere in the order. A container has no order and is deleted under the same rule, by its own id. Refuses if the shift has cuts (a sub-shift tree) or still has works assigned (those must be reassigned/removed first), reporting the manual action needed. Takes the shift id from a previous search result.",
+      "description": "Soft-deletes a draft order. A plannable shift and a cut piece cannot be deleted; a sealed order is deleted with all its pieces (administrator or supervisor), and only while no work exists anywhere in the order. A container has no order and is deleted under the same rule, by its own id. Refuses if the shift has cuts (a sub-shift tree) or still has works assigned (those must be reassigned/removed first), reporting the manual action needed. Takes the shift id from a previous search result.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20844,7 +20844,7 @@
         "fr": "Supprimer un service",
         "it": "Elimina un turno"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "email_schedule_to_client",
@@ -22857,7 +22857,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditContracts"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -22967,7 +22967,7 @@
         "fr": "Attribuer un contrat par nom",
         "it": "Assegna un contratto per nome"
       },
-      "version": 11
+      "version": 12
     },
     {
       "name": "set_group_location",
@@ -49861,7 +49861,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditContracts"
+        "CanEditClients"
       ],
       "parameters": [
         {
@@ -49904,7 +49904,7 @@
           "unassign contract"
         ]
       },
-      "version": 6,
+      "version": 7,
       "synonyms": {
         "de": [
           "vertrag beim mitarbeiter aufheben",

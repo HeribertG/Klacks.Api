@@ -43,7 +43,7 @@ small and keeps staff data away from people who do not need it.
 
 ## Working with groups, step by step
 
-Every signed-in user can read the Groups pages; the members of groups outside their visible groups stay hidden. Supervisor and Admin create, edit and re-parent groups; only the Admin deletes. Who sees which groups is set by the Admin in the settings.
+Every signed-in user can read the Groups pages; the members of groups outside their visible groups stay hidden. Creating, editing, re-parenting and deleting groups is Admin-only, because the group structure is a setting; putting a person into a group or taking them out is employee maintenance, which the Supervisor may do too (the person's Groups card or Klacksy). Who sees which groups is set by the Admin in the settings.
 
 1. **Create a group:** open the Groups page and click the button (de: "+ Gruppe erfassen", en: "+ Create
    Group", fr: "+ Créer un groupe", it: "+ Crea gruppo"). In the editor give the group a name; the card

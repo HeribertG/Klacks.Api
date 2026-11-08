@@ -45,7 +45,7 @@ A contract says under which working conditions a person works: how many hours th
 
 ### Give a person a contract
 
-Contracts exist for own and external staff; customers have no contract card. Changing assignments needs the right to edit contracts (Admin and Supervisor); an account without a role can look but not change.
+Contracts exist for own and external staff; customers have no contract card. Changing assignments is employee maintenance and needs the right to edit employees (Admin and Supervisor); an account without a role can look but not change. The contract templates themselves are settings: only the Admin creates, edits or deletes them.
 
 1. Open the person (list de: "Alle Adressen", en: "All Addresses", pencil in the row) and go to the card (de: "Verträge", en: "Contracts").
 2. Click (de: "Vertrag hinzufügen", en: "Add Contract"): a new row appears.

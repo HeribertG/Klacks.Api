@@ -17,13 +17,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 
 /// <summary>
-/// Shift endpoints. Post and Put are overridden for AllowVariantToken only, so a shift can be created and saved in a
-/// variant (key); route and roles stay those of InputBaseController, because an override inherits them and adds no
-/// Authorize of its own. Delete takes no token, so it needs no such marker. Cuts/Batch and Cuts/Reset carry
+/// Shift endpoints. Orders and shifts are the supervisor's work area (owner decision 2026-11-07), so the controller derives
+/// from SupervisorDeletableController: DELETE is open to Admin and Authorised (CanDeleteShifts), and which row may really
+/// go is decided by the delete handler (draft orders; a sealed order family only with CanDeleteShifts and without work).
+/// Post and Put are overridden for AllowVariantToken only, so a shift can be created and saved in a variant (key); route
+/// and roles stay those of the base, because an override inherits them and adds no Authorize of its own. Delete takes no
+/// token, so it needs no such marker. Cuts/Batch and Cuts/Reset carry
 /// AllowVariantToken as well, so the token a cut piece carries passes the token filter; both keep their roles
 /// (Admin, Authorised), and ShiftCutFacade decides from the stored token whether the variant is open and visible.
 /// </summary>
-public class ShiftsController : InputBaseController<ShiftResource>
+public class ShiftsController : SupervisorDeletableController<ShiftResource>
 {
     public ShiftsController(IMediator Mediator, ILogger<ShiftsController> logger)
             : base(Mediator, logger)

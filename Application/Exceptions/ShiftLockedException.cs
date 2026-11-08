@@ -3,7 +3,7 @@
 /// <summary>
 /// A write was refused because the shift is no longer a draft order: a sealed order, a plannable shift or a cut piece
 /// keeps its content (see LockedShiftEditPolicy). Raised for an edit that changes a locked field, for a delete, and for
-/// the administrator delete of a sealed order family that is still in use (works, scenario copies, container references).
+/// the delete of a sealed order family that is still in use (works, scenario copies, container references).
 /// It is a 409 whose "errorCode" is SHIFT_LOCKED, so the client can tell it apart from other conflicts, and the skill
 /// executor answers it with a plain rejection.
 /// </summary>
@@ -28,7 +28,7 @@ public sealed class ShiftLockedException : ConflictException
 
     private const string DeleteMessageFormat =
         "Shift '{0}' has status {1} and cannot be deleted. Only a draft order (status OriginalOrder) can be deleted; " +
-        "an administrator can also delete a whole sealed order while no work exists on it or its pieces.";
+        "an administrator or supervisor can also delete a whole sealed order while no work exists on it or its pieces.";
 
     private const string FamilyInUseMessageFormat =
         "Sealed order '{0}' cannot be deleted while its order family is still in use: {1}. " +

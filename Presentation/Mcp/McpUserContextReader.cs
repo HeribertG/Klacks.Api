@@ -21,8 +21,9 @@ public static class McpUserContextReader
     private const string UnknownUserName = "Unknown";
 
     // MCP is an external-agent channel: even an Admin's personal access token must never grant
-    // more than Supervisor (Authorised) rights over MCP, so Admin-only permissions (deletes,
-    // settings, user/identity-provider management) can never reach an external LLM through it.
+    // more than Supervisor (Authorised) rights over MCP, so Admin-only permissions (master-data deletes,
+    // settings, user/identity-provider management) can never reach an external LLM through it. Deleting
+    // orders and shifts is supervisor work (CanDeleteShifts) and therefore inside the ceiling.
     private static readonly HashSet<string> McpPermissionCeiling =
         new(Permissions.GetPermissionsForRole(Roles.Authorised), StringComparer.Ordinal) { Roles.Authorised };
 

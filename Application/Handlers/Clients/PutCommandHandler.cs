@@ -7,19 +7,18 @@
 /// assignment date. A request without client-contract data never triggers a recalculation.
 ///
 /// Two write surfaces of the aggregate are gated separately, and deliberately not by the same rule.
-/// Client-contract assignments (which contract a person holds, from when, until when) are supervisor
-/// work: a caller holding CanEditContracts may change them, which is Admin and Authorised but not the
-/// Planer floor (Permissions.PlannerFloor carries CanViewContracts only). Group memberships may be changed
+/// Client-contract assignments (which contract a person holds, from when, until when) are employee
+/// maintenance and therefore supervisor work (owner decision 2026-11-07: roles are work areas): a caller
+/// holding CanEditClients may change them, which is Admin and Authorised but not the Planer floor. The
+/// contract templates themselves (CanCreateContracts/CanEditContracts) are settings and Admin-only. Group memberships may be changed
 /// by a non-admin only within the groups they can see: every added, removed or re-dated group must be visible,
 /// otherwise the request is refused like a missing group. That is the same rule as creating a client and as
 /// the GroupItems endpoints (owner decision 2026-10-01; before, PUT refused every membership change by a
 /// non-admin while GroupItems allowed it).
 ///
-/// Stated honestly: over HTTP this contract check refuses nobody who can reach it. ClientsController.Put
-/// already routes every caller without CanEditClients into the notes-only command, and every role that
-/// holds CanEditClients holds CanEditContracts too. The check is the written decision and the barrier for
-/// callers that reach the handler on another path; it starts separating HTTP callers the moment the two
-/// rights stop travelling together.
+/// Stated honestly: over HTTP this contract check refuses nobody who can reach it, because
+/// ClientsController.Put already routes every caller without CanEditClients into the notes-only command.
+/// The check is the written decision and the barrier for callers that reach the handler on another path.
 ///
 /// A client outside the caller's group visibility is refused exactly like a client that does not exist.
 ///
@@ -48,7 +47,7 @@ namespace Klacks.Api.Application.Handlers.Clients;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientResource>, ClientResource?>
 {
     private const string ContractsDeniedMessage =
-        "Changing client contract assignments requires the right to edit contracts.";
+        "Changing client contract assignments requires the right to edit employees.";
 
     private const string GroupNotFoundMessage = "Group with ID {0} not found";
 
@@ -113,11 +112,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
             if (!isAdmin)
             {
                 if (HasClientContractsChanged(existingClient.ClientContracts, request.Resource.ClientContracts)
-                    && !Permissions.HasPermission(_userService.GetRights(), Permissions.CanEditContracts))
+                    && !Permissions.HasPermission(_userService.GetRights(), Permissions.CanEditClients))
                 {
                     _logger.LogWarning(
                         "User without {Permission} attempted to modify ClientContracts for client {ClientId}",
-                        Permissions.CanEditContracts,
+                        Permissions.CanEditClients,
                         request.Resource.Id);
                     throw new InvalidRequestException(ContractsDeniedMessage);
                 }

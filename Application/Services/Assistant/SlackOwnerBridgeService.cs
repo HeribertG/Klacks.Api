@@ -12,9 +12,11 @@
 /// than an occasional silently dropped one.
 /// Deliberately dispatches with Roles.Authorised rights rather than the admin's full Roles.Admin set:
 /// AutonomyDefaults.DefaultLevel is Autonomous, so the autonomy gate alone would not stop a
-/// delete-capable or settings-mutating skill from running immediately off a message from this new,
+/// master-data-deleting or settings-mutating skill from running immediately off a message from this new,
 /// physically-exposed channel. UserRights is the one lever that always applies regardless of autonomy
-/// level.
+/// level. The cap follows the Authorised role, so it includes the supervisor's own deletes (orders and
+/// shifts, CanDeleteShifts, since 2026-11-07); delete_shift is a sensitive skill and still needs a
+/// confirmation at every autonomy level.
 /// Every message runs in its OWN service scope: the scoped per-turn state (TurnConfirmationScope remembers the
 /// confirmation tokens a turn issued) must start empty for each message, otherwise a token held by one message is
 /// "issued this turn" for the owner's "ja" in the next message of the same cycle and the redemption is refused.

@@ -4,9 +4,18 @@ using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Klacks.Api.Domain.Constants;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Scheduling;
 
+/// <summary>
+/// CRUD for restricted time window rules. Writing is Admin-only, because these rules are settings (owner decision 2026-11-07: roles are work
+/// areas, Admin holds every setting; the skills already required CanEditSettings). The Post and Put overrides only add
+/// the Admin restriction: an [Authorize] on an override is AND-combined with the base Admin/Authorised attribute, so the
+/// effective rule is Admin. DELETE is Admin-only in the base already; reads stay open.
+/// </summary>
 public class RestrictedTimeWindowRulesController : InputBaseController<RestrictedTimeWindowRuleResource>
 {
     private readonly ILogger<RestrictedTimeWindowRulesController> _logger;
@@ -16,6 +25,14 @@ public class RestrictedTimeWindowRulesController : InputBaseController<Restricte
     {
         _logger = logger;
     }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    public override Task<ActionResult<RestrictedTimeWindowRuleResource>> Post([FromBody] RestrictedTimeWindowRuleResource resource) =>
+        base.Post(resource);
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    public override Task<ActionResult<RestrictedTimeWindowRuleResource>> Put([FromBody] RestrictedTimeWindowRuleResource resource) =>
+        base.Put(resource);
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<RestrictedTimeWindowRuleResource>>> GetAll()

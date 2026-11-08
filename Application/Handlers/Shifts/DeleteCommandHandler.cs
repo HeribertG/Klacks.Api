@@ -4,10 +4,11 @@
 /// Handler for soft-deleting a Shift. Returns the deleted shift's resource, or null when not found.
 /// Only a draft order (status OriginalOrder) can be deleted; a sealed order, a plannable shift and a cut piece are
 /// refused with ShiftLockedException (409), because deleting one would orphan the rest of its order family. The one
-/// exception is an administrator deleting a sealed order: the whole family goes with it, but only while no work, scenario
+/// exception is a caller holding CanDeleteShifts (Admin and supervisor: orders and shifts are the supervisor's work area,
+/// owner decision 2026-11-07) deleting a sealed order: the whole family goes with it, but only while no work, scenario
 /// clone or container reference exists anywhere in the family, and the same delete of a container, which is a family of
-/// one row (SealedOrderFamilyDeletion decides; the administrator role
-/// is read from the current HTTP principal, so a call outside a web request never qualifies).
+/// one row (SealedOrderFamilyDeletion decides; the right is read from the roles of the current HTTP principal, so a call
+/// outside a web request, which falls back to the Planer floor, never qualifies).
 /// Caller-side guards (shift has cuts / active works) live in the delete_shift skill. A shift a group-restricted caller
 /// may not see is answered like a missing one (null) and not touched. A shift of a variant (key) is outside the lock:
 /// it is removed with its whole family, whichever row was addressed, because a single row would leave the other rows of
@@ -36,7 +37,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISealedOrderFamilyDeletion _familyDeletion;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IUserService _userService;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly IVariantShiftWriteGuard _variantShiftWriteGuard;
 
@@ -45,7 +46,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ISealedOrderFamilyDeletion familyDeletion,
-        IHttpContextAccessor httpContextAccessor,
+        IUserService userService,
         IShiftVisibilityGuard shiftVisibilityGuard,
         IVariantShiftWriteGuard variantShiftWriteGuard,
         ILogger<DeleteCommandHandler> logger)
@@ -57,7 +58,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _familyDeletion = familyDeletion;
-        _httpContextAccessor = httpContextAccessor;
+        _userService = userService;
     }
 
     public async Task<ShiftResource?> Handle(DeleteCommand<ShiftResource> request, CancellationToken cancellationToken)
@@ -80,7 +81,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
 
         if (LockedShiftEditPolicy.IsDeletionLocked(existing))
         {
-            if (!LockedShiftEditPolicy.IsOrderFamilyDeletable(existing) || !IsAdministrator())
+            if (!LockedShiftEditPolicy.IsOrderFamilyDeletable(existing) || !MayDeleteOrderFamilies())
             {
                 _logger.LogWarning("Shift delete refused: Id={ShiftId}, Status={Status}", existing.Id, existing.Status);
                 throw ShiftLockedException.ForDelete(existing);
@@ -96,6 +97,6 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
         return resource;
     }
 
-    private bool IsAdministrator() =>
-        _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
+    private bool MayDeleteOrderFamilies() =>
+        Permissions.HasPermission(_userService.GetRights(), Permissions.CanDeleteShifts);
 }

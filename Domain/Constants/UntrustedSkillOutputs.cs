@@ -76,7 +76,7 @@ public static class UntrustedSkillOutputs
         "list_navigation_feedback",
         // Shift descriptions are free text written by supervisors with the shift-editing right.
         "get_shift_details",
-        // Group descriptions are free text written by supervisors with the group-editing right.
+        // Group descriptions are free text written by whoever holds the group-editing right.
         "get_group_details",
         // Scenario names and descriptions are free text typed in by whoever creates a scenario.
         "list_scenarios",

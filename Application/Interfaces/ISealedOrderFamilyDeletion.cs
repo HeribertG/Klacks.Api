@@ -5,9 +5,9 @@ using Klacks.Api.Domain.Models.Schedules;
 namespace Klacks.Api.Application.Interfaces;
 
 /// <summary>
-/// Deletes a whole sealed order family (the order, its plannable copy and every cut piece) for an administrator. It does
-/// not check the role: the caller (the shift delete handler, which only the administrator reaches through REST, or the
-/// delete_shift skill) must have established that the user is an administrator.
+/// Deletes a whole sealed order family (the order, its plannable copy and every cut piece) for a caller holding
+/// CanDeleteShifts (Admin and supervisor). It does not check the right: the caller (the shift delete handler or the
+/// delete_shift skill) must have established that the user holds CanDeleteShifts.
 /// </summary>
 public interface ISealedOrderFamilyDeletion
 {

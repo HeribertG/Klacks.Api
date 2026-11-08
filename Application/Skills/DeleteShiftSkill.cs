@@ -3,10 +3,10 @@
 /// <summary>
 /// Soft-deletes a draft order. Every shift that is no longer a draft order (sealed order, plannable shift, cut piece) is
 /// refused by the shift delete handler with ShiftLockedException, because the edit form offers no delete for them either;
-/// the actionable cut and works refusals below come first. The one exception is an administrator deleting a sealed order:
-/// the whole order family (plannable copy and cut pieces included) is deleted, but only while no work, scenario copy or
-/// container reference exists anywhere in the family. The administrator role is read from the skill context, not from the
-/// web request, so the chat channels behave the same. Refuses when the shift has cuts (child rows, whatever its nested-set
+/// the actionable cut and works refusals below come first. The one exception is a caller holding CanDeleteShifts (Admin and
+/// supervisor, whose work area orders and shifts are) deleting a sealed order: the whole order family (plannable copy and
+/// cut pieces included) is deleted, but only while no work, scenario copy or container reference exists anywhere in the
+/// family. The right is read from the skill context, not from the web request, so the chat channels behave the same. Refuses when the shift has cuts (child rows, whatever its nested-set
 /// values say: a promoted tree whose numbering failed has none) — the
 /// product has no bulk-delete for a cut group; a cut group is ended via the cut editor's Reset (sets an end
 /// date), so the skill redirects there instead of inventing a cascade delete. Also refuses when the
@@ -64,7 +64,8 @@ public class DeleteShiftSkill : BaseSkillImplementation
             return SkillResult.Error($"Shift {shiftId} not found.");
         }
 
-        if (LockedShiftEditPolicy.IsOrderFamilyDeletable(existing) && context.UserPermissions.Contains(Roles.Admin))
+        if (LockedShiftEditPolicy.IsOrderFamilyDeletable(existing)
+            && Permissions.HasPermission(context.UserPermissions, Permissions.CanDeleteShifts))
         {
             var deleted = await _familyDeletion.DeleteAsync(existing, cancellationToken);
             return SkillResult.SuccessResult(

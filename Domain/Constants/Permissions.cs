@@ -64,6 +64,14 @@ public static class Permissions
     /// </summary>
     public static IReadOnlyList<string> PlannerFloor => PlannerFloorPermissions;
 
+    /// <summary>
+    /// The rights a role expands to. Roles are work areas (owner decision 2026-11-07): the Planer floor creates
+    /// and maintains the plan; the supervisor (Authorised) additionally owns orders and shifts, deleting them
+    /// included, and creates and maintains employees, which covers assigning their contracts and group
+    /// memberships (both gated by CanEditClients); Admin additionally holds every setting, which includes the
+    /// contract templates (Can*Contracts) and the group structure (Can*Groups), and deletes employees.
+    /// </summary>
+    /// <param name="role">The role name, typically one role claim of the caller</param>
     public static IReadOnlyList<string> GetPermissionsForRole(string role)
     {
         return role switch
@@ -82,9 +90,9 @@ public static class Permissions
             Roles.Authorised => new[]
             {
                 CanViewClients, CanCreateClients, CanEditClients,
-                CanViewGroups, CanCreateGroups, CanEditGroups,
-                CanViewContracts, CanCreateContracts, CanEditContracts,
-                CanViewShifts, CanCreateShifts, CanEditShifts,
+                CanViewGroups,
+                CanViewContracts,
+                CanViewShifts, CanCreateShifts, CanEditShifts, CanDeleteShifts,
                 CanViewSchedule, CanEditSchedule, CanPlan,
                 CanUseAssistant, CanEditClientNotes,
                 CanManageAutomation, CanManageAccessTokens

@@ -80,25 +80,31 @@ public class GetUserPermissionsSkill : BaseSkillImplementation
             actions.Add("Create new employees/clients");
 
         if (permissions.Contains(Permissions.CanEditClients))
-            actions.Add("Edit existing employees/clients");
+            actions.Add("Edit existing employees/clients, assign their contracts and group memberships");
 
         if (permissions.Contains(Permissions.CanViewGroups))
             actions.Add("View groups and organizational units");
 
         if (permissions.Contains(Permissions.CanCreateGroups))
-            actions.Add("Create new groups and organizational units");
+            actions.Add("Create new groups in the group structure");
 
         if (permissions.Contains(Permissions.CanEditGroups))
-            actions.Add("Edit groups and manage group memberships");
+            actions.Add("Edit, move and locate groups in the group structure");
 
         if (permissions.Contains(Permissions.CanViewContracts))
             actions.Add("View contracts");
 
         if (permissions.Contains(Permissions.CanCreateContracts) || permissions.Contains(Permissions.CanEditContracts))
-            actions.Add("Assign and manage contracts");
+            actions.Add("Create and edit contract templates");
 
         if (permissions.Contains(Permissions.CanViewShifts))
             actions.Add("View shifts");
+
+        if (permissions.Contains(Permissions.CanEditShifts))
+            actions.Add("Create and edit orders and shifts");
+
+        if (permissions.Contains(Permissions.CanDeleteShifts))
+            actions.Add("Delete orders and shifts");
 
         if (permissions.Contains(Permissions.CanViewSchedule))
             actions.Add("View schedule");

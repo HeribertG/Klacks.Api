@@ -4,7 +4,7 @@
 /// Read-only diagnosis for one employee on one date: does a public holiday earn the holiday time surcharge, does it
 /// raise the "work on a statutory holiday" warning, and which step decided it (contract of the day, holiday calendar
 /// and where it comes from, official or reminder only, marked for the time surcharge, rate, exemption). Admins and
-/// supervisors (granted contract editing) see rates, the warn/block reaction and the exemption; everybody else gets the verdicts and reasons
+/// supervisors (who maintain employees and assign their contracts, CanEditClients) see rates, the warn/block reaction and the exemption; everybody else gets the verdicts and reasons
 /// only. A person hidden by group visibility is answered like an unknown one.
 /// </summary>
 /// <param name="firstName">First name of the employee</param>
@@ -117,7 +117,7 @@ public class DiagnoseHolidayOutcomeSkill : BaseSkillImplementation
     }
 
     private static bool MaySeeRatesAndEnforcement(IReadOnlyList<string> permissions) =>
-        Permissions.HasAnyPermission(permissions, Permissions.CanEditContracts);
+        Permissions.HasPermission(permissions, Permissions.CanEditClients);
 
     private static string BuildMessage(
         string clientName,

@@ -11,7 +11,9 @@
 /// Membership of this base is not a convenience. A controller belongs here only with a flow that was
 /// found in the code: GroupItems is removed by remove_client_from_group (CanEditClients) and
 /// remove_shift_from_group (CanEditShifts) through the self API under the caller's own token, and its
-/// sibling action RemoveByClientAndGroup is pinned as a supervisor action by spec 2.3. Expenses, ScheduleNotes
+/// sibling action RemoveByClientAndGroup is pinned as a supervisor action by spec 2.3. Shifts is here because orders
+/// and shifts are the supervisor's work area (owner decision 2026-11-07): delete_shift requires CanDeleteShifts, which
+/// Authorised holds. Expenses, ScheduleNotes
 /// and ScheduleCommands left this base when all their verbs, delete included, were opened to the planner floor
 /// (owner decisions 2026-10-12).
 /// </summary>

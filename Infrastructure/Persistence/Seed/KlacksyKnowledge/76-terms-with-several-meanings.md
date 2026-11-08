@@ -62,7 +62,7 @@ Nenn mir das Wort und wo du es gesehen hast, dann sage ich dir, was dort gemeint
 ## Stufe 3 — Warum die Unterschiede zählen
 
 - **Löschen hängt an der Dienst-Stufe**: Eine Bestellung hat einen Papierkorb; planbare Dienste und Teilstücke sind
-  nie direkt löschbar; eine versiegelte Bestellung löscht nur ein Admin über Klacksy oder die API, samt planbarem
+  nie direkt löschbar; eine versiegelte Bestellung löschen nur Supervisor und Admin über Klacksy oder die API, samt planbarem
   Dienst und Teilstücken, und nur solange in dieser Familie nichts verplant ist.
 - **Die drei Sperren wirken verschieden**: Das Tagessiegel lehnt jede Neuanlage, Änderung und Löschung am Tag ab
   (für alle oder nur für die Mitglieder der versiegelten Gruppe); die Sperrstufe schützt einen einzelnen Eintrag;

@@ -11,11 +11,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
 
 /// <summary>
-/// The generic CRUD controller. DELETE is Admin-only: under the granular rights model the Authorised
-/// (supervisor) role holds CanCreate*/CanEdit* but no CanDelete* right at all, while the
-/// Roles.Admin,Roles.Authorised gate this verb used to carry predates that model and was inherited
-/// unchanged by every derived controller. Post and Put keep Admin/Authorised, which is the supervisor
-/// write surface.
+/// The generic CRUD controller. DELETE is Admin-only: under the granular rights model the only delete
+/// right the Authorised (supervisor) role holds is CanDeleteShifts, for its own work area of orders and
+/// shifts, while the Roles.Admin,Roles.Authorised gate this verb used to carry predates that model and
+/// was inherited unchanged by every derived controller. Post and Put keep Admin/Authorised, which is the
+/// supervisor write surface; a controller whose resource is a setting narrows them to Admin with an
+/// override.
 ///
 /// A resource whose DELETE genuinely is a supervisor action derives from SupervisorDeletableController
 /// instead; an [Authorize] on an override is AND-combined with the base one and can never widen it.

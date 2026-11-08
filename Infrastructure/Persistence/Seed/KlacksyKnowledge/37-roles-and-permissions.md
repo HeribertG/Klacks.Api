@@ -31,30 +31,49 @@ synonyms:
 There are exactly two permission levels that can be granted to a login account, and everything else
 that sounds like a role is a job description, not a permission.
 
+## Roles are work areas
+
+Each level stands for a work area, and every right follows from it:
+
+- **Planner** (no role): creates and maintains the plan — placing, changing and removing entries,
+  autofill, recording absences.
+- **Supervisor**: orders and shifts (create, edit, seal, cut and delete them, containers included),
+  creating and maintaining employees (their contract assignments and group memberships included), plus
+  all planner work.
+- **Admin**: all settings — among them the contract templates and the group structure (creating,
+  editing, moving and deleting groups), the scheduling rules and user administration — plus deleting
+  employees and other master data, plus everything a Supervisor and a planner may do.
+
+So assigning a contract to a person or putting a person into a group is employee maintenance
+(Supervisor), while creating or changing the contract template or the group itself is a setting (Admin).
+
 ## The two levels
 
-**Supervisor** may create and edit addresses, groups, contracts and shifts, but may not delete
-them (deleting addresses, groups, contracts and shifts is reserved for Admin), and
-may approve a day or a group in the schedule as well as withdraw that approval again.
+**Supervisor** may create and edit employees and addresses — assigning their contracts and putting
+them into groups or taking them out included — and may create, edit and delete orders and shifts
+(a sealed order only while nothing is planned on it), but may not delete employees. Contract
+templates, the group structure and the scheduling rules are settings and stay with Admin. A
+Supervisor may approve a day or a group in the schedule as well as withdraw that approval again.
 
 **Admin** may do everything a Supervisor may, plus: all settings including user administration
-itself, closing and reopening payroll periods, and the specially protected areas such as identity
-providers, reports and calendar rules.
+itself, the contract templates, the group structure and the scheduling rules, deleting employees,
+groups and contracts, closing and reopening payroll periods, and the specially protected areas such
+as identity providers, reports and calendar rules.
 
 An account with **neither** is a planner: it can read everything it is allowed to see and can still
 plan — place, change and remove entries in the schedule, let the automatic planning (autofill) fill a
 group it sees and accept or reject the resulting scenario, record absences, record, change and delete
 expenses, plan notes and planning commands (the day keywords such as FREE or EARLY), write client
-notes and work with Klacksy. It cannot create or edit master data (addresses, groups, contracts,
-shifts) and has no settings. Confirming individual working times needs no particular level either.
+notes and work with Klacksy. It cannot create or edit master data (employees, orders and
+shifts, contract templates, groups) and has no settings. Confirming individual working times needs no particular level either.
 
 Both are granted in user administration and take effect immediately, without a separate save.
 
 ## The planner is the level without a role
 
 There is no separate "planner" role to grant: an account without Supervisor or Admin is the planner
-level described above — it reads and plans. Supervisor and Admin add master data, approvals and
-settings on top.
+level described above — it reads and plans. Supervisor adds orders, shifts, employees and
+approvals on top; Admin adds the settings.
 
 ## Only Supervisor and Admin
 

@@ -70,7 +70,10 @@ Kopfleiste filtert Mitarbeitende, Absenzen, Einsatzplanung, Dienste und Verfügb
 Erreichbar über das Navi-Icon `open-groups` (Tooltip "Alle Gruppen", Alt+6) oder die Route
 `/workplace/group`; der Editor liegt unter `/workplace/edit-group` (neu) bzw.
 `/workplace/edit-group/:id` (bestehend). Lesen dürfen alle Angemeldeten (Recht `CanViewGroups`);
-Gruppen anlegen, bearbeiten und umhängen dürfen Supervisor und Admin, löschen nur der Admin.
+Gruppen anlegen, bearbeiten, umhängen und löschen darf nur der Admin, denn die Gruppenstruktur ist eine
+Einstellung; damit ist auch die Mitgliederliste im Gruppen-Editor eine Admin-Maske. Personen in eine Gruppe
+aufnehmen oder aus ihr entfernen darf auch der Supervisor (Mitarbeiterpflege): über die Card "Gruppen" der Person
+oder über Klacksy.
 Die Gruppen-Sichtbarkeit pro Benutzer ist eine Karte in den Einstellungen (`/workplace/settings`,
 Navigationsziel `group-scope`, nur Admin).
 

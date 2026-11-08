@@ -3,7 +3,7 @@
 /// <summary>
 /// Lists available groups with optional canton filter via CalendarSelection and an optional
 /// validity filter (active / former / future). The group description is deliberately not part of the result: it is free text
-/// written by supervisors, and this list runs on nearly every group turn, so the description is read where it is flagged as
+/// written by whoever edits the group, and this list runs on nearly every group turn, so the description is read where it is flagged as
 /// untrusted content (get_group_details).
 /// Recipes capture the lone row of Groups and inject its id into a writing step, so a search term selects groups with
 /// the Strict name policy (NameResolution.Partition with the group label words): equal words win, otherwise a forward

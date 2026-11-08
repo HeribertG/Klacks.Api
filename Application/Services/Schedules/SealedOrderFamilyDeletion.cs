@@ -5,10 +5,14 @@
 /// but only while nothing is planned on them:
 /// the usage check covers the whole family, so a work on a cut piece blocks the delete of the order. The shifts are
 /// soft-deleted through the existing repository mechanics, which also soft-deletes their group links, default expenses and
-/// required qualifications. The role of the caller is not checked here.
+/// required qualifications. The right of the caller is not checked here, but its group visibility is, over the whole
+/// family: since a supervisor may delete order families (owner decision 2026-11-07), a group-restricted caller who sees
+/// the addressed order must not take a plannable copy or cut piece of another group with it, so a family with a hidden
+/// row is refused like one still in use. An unrestricted caller (Admin) is not affected.
 /// </summary>
 /// <param name="shiftRepository">Reads the family usage and stages the delete</param>
 /// <param name="unitOfWork">Commits the staged delete in one transaction</param>
+/// <param name="shiftVisibilityGuard">Refuses a family with a row the caller may not touch</param>
 /// <param name="logger">Logs the refusal and the delete</param>
 
 using Klacks.Api.Application.Exceptions;
@@ -23,15 +27,18 @@ public class SealedOrderFamilyDeletion : ISealedOrderFamilyDeletion
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
     private readonly ILogger<SealedOrderFamilyDeletion> _logger;
 
     public SealedOrderFamilyDeletion(
         IShiftRepository shiftRepository,
         IUnitOfWork unitOfWork,
+        IShiftVisibilityGuard shiftVisibilityGuard,
         ILogger<SealedOrderFamilyDeletion> logger)
     {
         _shiftRepository = shiftRepository;
         _unitOfWork = unitOfWork;
+        _shiftVisibilityGuard = shiftVisibilityGuard;
         _logger = logger;
     }
 
@@ -44,6 +51,15 @@ public class SealedOrderFamilyDeletion : ISealedOrderFamilyDeletion
                 "Sealed order family delete refused: Id={ShiftId}, Works={HasWorks}, ScenarioClones={HasScenarioClones}, Containers={HasContainers}",
                 sealedOrder.Id, usage.HasWorks, usage.HasScenarioClones, usage.HasContainerReferences);
             throw ShiftLockedException.ForOrderFamilyInUse(sealedOrder, usage);
+        }
+
+        var hiddenShiftId = await _shiftVisibilityGuard.FindFirstHiddenAsync(usage.ShiftIds, cancellationToken);
+        if (hiddenShiftId != null)
+        {
+            _logger.LogWarning(
+                "Sealed order family delete refused: Id={ShiftId}, a family row outside the caller's groups ({HiddenShiftId})",
+                sealedOrder.Id, hiddenShiftId);
+            throw ShiftLockedException.ForDelete(sealedOrder);
         }
 
         await _shiftRepository.DeleteOrderFamilyAsync(usage.ShiftIds, cancellationToken);

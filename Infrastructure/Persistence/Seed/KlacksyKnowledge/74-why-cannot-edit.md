@@ -45,7 +45,7 @@ nur über einen Admin. Sag mir, was du ändern willst, dann finden wir den Grund
 
 | Grund | Woran erkennbar | Abhilfe | Details |
 |---|---|---|---|
-| **Versiegelte Bestellung** | Geschlossenes Schloss in der Maske, die meisten Felder gesperrt | Änderbar bleiben die Karten (de: "Zugeordnete Gruppen", en: "Assigned Groups", fr: "Groupes attribués", it: "Gruppi assegnati"), (de: "Erforderliche Qualifikationen", en: "Required Qualifications", fr: "Qualifications requises", it: "Qualifiche richieste"), (de: "Standard-Spesen", en: "Default Expenses", fr: "Frais par défaut", it: "Spese predefinite") und (de/en/fr/it: "Macro") sowie ein noch leeres Bis-Datum (einmalig). Löschen kann nur ein Admin über Klacksy (die Liste zeigt keinen Papierkorb), und nur solange auf der Bestellung nichts verplant ist und keine Szenario-Kopie oder Container-Verwendung besteht | `explain_shift_lifecycle_order_to_shift` |
+| **Versiegelte Bestellung** | Geschlossenes Schloss in der Maske, die meisten Felder gesperrt | Änderbar bleiben die Karten (de: "Zugeordnete Gruppen", en: "Assigned Groups", fr: "Groupes attribués", it: "Gruppi assegnati"), (de: "Erforderliche Qualifikationen", en: "Required Qualifications", fr: "Qualifications requises", it: "Qualifiche richieste"), (de: "Standard-Spesen", en: "Default Expenses", fr: "Frais par défaut", it: "Spese predefinite") und (de/en/fr/it: "Macro") sowie ein noch leeres Bis-Datum (einmalig). Löschen können Supervisor und Admin über Klacksy (die Liste zeigt keinen Papierkorb), und nur solange auf der Bestellung nichts verplant ist und keine Szenario-Kopie oder Container-Verwendung besteht | `explain_shift_lifecycle_order_to_shift` |
 | **Planbare Schicht / Teilstück** | Kein Papierkorb, Felder gesperrt wie bei der Bestellung | Nie direkt löschbar; eine Schnittgruppe endet über (de: "Zurücksetzen", en: "Reset", fr: "Réinitialiser", it: "Ripristina") im Zuschnitt | `explain_page_shifts` |
 | **Tag gesperrt** | Spaltenkopf als gesperrt markiert, leere Zellen ohne Kontextmenü; Änderungen an dem Tag werden abgelehnt | Freigegebener Tag: Supervisor oder Admin nimmt die Freigabe über Klacksy zurück. Abgeschlossene Periode: Admin öffnet sie mit Begründung wieder | `explain_page_period_closing` |
 | **Dunkle oder blaue Zelle im Einsatzplan** | Die Zelle ist abgedunkelt (dunkel) oder blau abgedunkelt (dunkelblau), das Kontextmenü bleibt leer | Dunkel: die Person ist an dem Tag nicht angestellt, Eintritts- und Austrittsdatum prüfen. Blau: der Tag liegt ausserhalb der Gruppenmitgliedschaft, deren Beginn oder Ende anpassen | `explain_why_cannot_book` |
@@ -63,8 +63,11 @@ nur über einen Admin. Sag mir, was du ändern willst, dann finden wir den Grund
 
 ## Stufe 3 — Zusammenspiel
 
-- **Rechte in kurz**: Admin darf alles. Supervisor darf Personen, Gruppen, Verträge und Dienste anlegen und
-  bearbeiten, aber nicht löschen; er darf Tage freigeben und Freigaben zurücknehmen (über Klacksy). Ein Konto ohne
+- **Rechte in kurz** (Rollen = Arbeitsbereiche, `explain_roles_and_permissions`): Admin darf alles, dazu gehören
+  alle Einstellungen samt Vertragsvorlagen, Gruppenstruktur und Planungsregeln sowie das Löschen von Personen.
+  Supervisor darf Bestellungen und Dienste anlegen, bearbeiten und löschen und Personen anlegen und pflegen, auch
+  ihre Verträge zuweisen und sie in Gruppen aufnehmen, aber keine Personen löschen und keine Vorlagen oder Gruppen
+  ändern; er darf Tage freigeben und Freigaben zurücknehmen (über Klacksy). Ein Konto ohne
   Rolle liest, plant (Einträge setzen, ändern, entfernen, Absenzen erfassen, Autofill für sichtbare Gruppen starten), erfasst, ändert und löscht Spesen,
   Plan-Notizen und Planungsbefehle (FREE, EARLY …) und schreibt Notizen, ändert aber keine Stammdaten. Einstellungen, Benutzerverwaltung und Periodenabschluss sind Admin-only.
 - **Ohne Bearbeitungsrecht für Dienste** ist auf der Dienste-Seite nur die Sicht (de: "Planbare Dienste",
