@@ -66,6 +66,9 @@ picture**; only then does it consume model usage, and it needs a model that can 
 stage three fails, the chain keeps the plan of stage two.
 
 Run one after another, the three form the chain behind the autofill button in the schedule header.
+Autofill is planning work: everyone who may edit the schedule may start it, follow it and cancel it, a
+planner without a role included. A planner who sees only some groups plans only a group they see and
+only the people and shifts they see, and does not see or cancel the runs of other groups.
 
 ## Who gets planned, and on which days
 
@@ -82,7 +85,8 @@ absences, qualifications.
 
 ## Running one stage alone
 
-Each stage can be started on its own, which is worth knowing:
+Each stage can be started on its own, which is worth knowing. Starting a single stage is for
+administrators only; everybody else uses the whole chain:
 
 - Only stage one when a first plan is needed and neither smoothing nor a language model is wanted.
 - Only stage two on an existing plan that is complete but uneven.

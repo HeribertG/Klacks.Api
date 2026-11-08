@@ -9,6 +9,7 @@
 /// harmonizer blocks rather than in a group of their own.
 /// </summary>
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services;
 using Klacks.Api.Application.Skills;
@@ -597,6 +598,10 @@ internal static class DomainServiceCollectionExtensions
     private static void AddAutoWizardServices(this IServiceCollection services)
     {
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutoWizard.AutoWizardJobRegistry>();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutoWizard.AutoWizardJobScopes>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.AutoWizard.IAutoWizardJobAccessGuard,
+                           Klacks.Api.Application.Services.Schedules.AutoWizard.AutoWizardJobAccessGuard>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules
             .JobTerminalStateCache<Klacks.Api.Application.DTOs.Schedules.AutoWizard.AutoWizardJobResultDto>>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.AutoWizard.IAutoWizardHubNotifier,

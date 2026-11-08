@@ -185,8 +185,8 @@
       "hash": "92BB8BF0C89886C5A213BD47C55BE202679D783C2133C0819E560B306F0A82A6"
     },
     "cancel_wizard_job": {
-      "version": 5,
-      "hash": "E05E02216BCAA6D1518D0DB41D1C863B58288AEE05EF5F2A8E76766B891E6E7B"
+      "version": 6,
+      "hash": "E5C9DBE00EA71130DEE182EDF36E1510C36D197202F5B30D9F5DB1A88F2577CD"
     },
     "check_absence_capacity_reserve": {
       "version": 4,
@@ -1425,8 +1425,8 @@
       "hash": "6BD0E26482142B4C333AEF175810F1A4709939918FC8AF75872984F99296602B"
     },
     "list_open_wizard_jobs": {
-      "version": 5,
-      "hash": "ACE6F111E43F679423ADCE769E1D6148906A57ACC48FB5145ED4EDED7AF4B5F3"
+      "version": 6,
+      "hash": "74A19724792A3CA0EAFDE69C417A3180257EF53EAC7580855EBF251C8F96A523"
     },
     "list_period_audit_log": {
       "version": 6,
@@ -1805,8 +1805,8 @@
       "hash": "DCF4EF42192615D65519BCA96FEAD99027AE6819DCEE9892A150444D79937FB1"
     },
     "start_autowizard": {
-      "version": 7,
-      "hash": "C8B2D10CBC08C008E613FCE6693F1DE9EC85769BC6737B35B697D153901C47BD"
+      "version": 8,
+      "hash": "206788124E1D1A5942563613E2244BC61DF6A5721C14C300B64A902B06CDD169"
     },
     "start_company_rule": {
       "version": 5,

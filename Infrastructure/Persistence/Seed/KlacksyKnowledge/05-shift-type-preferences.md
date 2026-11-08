@@ -47,7 +47,7 @@ Manchmal soll jemand an einem bestimmten Tag gar nicht arbeiten oder nur eine be
 1. **Befehle sichtbar machen.** Öffne den Einsatzplan (de: "Alle Planungen", en: "All Schedules", fr: "Tous les plannings", it: "Tutte le pianificazioni") in der Tabellenansicht und schalte in der Werkzeugleiste (de: "Befehle anzeigen", en: "Show Commands", fr: "Afficher les commandes", it: "Mostra comandi") ein. Ausgeschaltet bleiben die Zellen mit einer Vorgabe leer, die Vorgabe gilt aber trotzdem.
 2. **Eintragen.** Tippe das Kürzel direkt in die Zelle der Person und des Tages und bestätige mit Enter. Welche Kürzel es gibt, steht in den Einstellungen: Abschnitt (de: "Arbeitszeit & Planung", en: "Work & Scheduling"), Karte (de: "Planungsregeln (Standardwerte)", en: "Scheduling Rules (Defaults)"), Gruppe (de: "Planungsbefehle (Keywords)", en: "Schedule Command Keywords").
 3. **Ändern oder löschen.** Tippe in die Zelle mit der Vorgabe ein anderes Kürzel, oder öffne das Kontextmenü der Zelle mit (de: "Bearbeiten...", en: "Edit...") und (de: "Löschen", en: "Delete").
-4. **Planen lassen.** Die automatische Planung (der Wizard-Knopf der Werkzeugleiste, nur für Administratoren sichtbar) schreibt ihr Ergebnis als Szenario. Im strengen Plan sind die Vorgaben eingehalten; bietet sie zusätzlich einen zweiten Plan an, zeigt dessen Zusammenfassung, welche Wünsche er bricht.
+4. **Planen lassen.** Die automatische Planung (der Wizard-Knopf der Werkzeugleiste; ihn darf jeder benutzen, der den Plan bearbeiten darf, also auch ein Planer ohne Rolle) schreibt ihr Ergebnis als Szenario. Im strengen Plan sind die Vorgaben eingehalten; bietet sie zusätzlich einen zweiten Plan an, zeigt dessen Zusammenfassung, welche Wünsche er bricht.
 
 <!-- level:effects -->
 

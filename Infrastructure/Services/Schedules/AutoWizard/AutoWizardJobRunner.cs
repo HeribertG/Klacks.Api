@@ -11,8 +11,10 @@ using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.DTOs.Schedules.Summary;
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Groups;
+using Klacks.Api.Application.Services.Shifts;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -49,6 +51,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// <param name="scopeFactory">DI scope factory for resolving scoped apply services per stage.</param>
 /// <param name="hubNotifier">Sends SignalR OnCompleted/OnFailed events to the job's client group.</param>
 /// <param name="registry">Singleton registry that tracks the orchestrator's own cancellation token.</param>
+/// <param name="jobScopes">Records the planning group and employees of each started job for the job access rule.</param>
 /// <param name="presenceTracker">Records the run under its own presence id for every viewer of its group, from before
 /// the start returns until the chain has finished (after its intermediate scenarios are deleted).</param>
 /// <param name="wizardRunner">Background runner for the Wizard 1 (Planner) stage.</param>
@@ -64,12 +67,14 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 {
     private const int ClientJoinDelayMs = 500;
+    private const string ShiftSelectionRequiredMessage = "Select the shifts to fill: a group-restricted caller cannot fill every shift.";
     private static readonly TimeSpan StrictChainBudget = TimeSpan.FromMinutes(AutoWizardTimeBudget.StrictChainMinutes);
     private static readonly TimeSpan TotalTimeBudget = TimeSpan.FromMinutes(AutoWizardTimeBudget.TotalMinutes);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IAutoWizardHubNotifier _hubNotifier;
     private readonly AutoWizardJobRegistry _registry;
+    private readonly AutoWizardJobScopes _jobScopes;
     private readonly IAutofillRunPresenceTracker _presenceTracker;
     private readonly AutofillStartGuard _startGuard;
     private readonly AutoWizardStageChain _stageChain;
@@ -83,6 +88,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         IServiceScopeFactory scopeFactory,
         IAutoWizardHubNotifier hubNotifier,
         AutoWizardJobRegistry registry,
+        AutoWizardJobScopes jobScopes,
         IAutofillRunPresenceTracker presenceTracker,
         AutofillStartGuard startGuard,
         IWizardJobRunner wizardRunner,
@@ -101,6 +107,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         _scopeFactory = scopeFactory;
         _hubNotifier = hubNotifier;
         _registry = registry;
+        _jobScopes = jobScopes;
         _presenceTracker = presenceTracker;
         _startGuard = startGuard;
         _stageChain = new AutoWizardStageChain(
@@ -122,9 +129,9 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         _logger = logger;
     }
 
-    public async Task<Guid> StartAsync(StartAutoWizardRequest request, CancellationToken chainCt)
+    public async Task<Guid> StartAsync(StartAutoWizardRequest requested, CancellationToken chainCt)
     {
-        var scenarioGroupId = await ResolveStartScopeAsync(request, chainCt);
+        var (request, scenarioGroupId) = await ResolveStartScopeAsync(requested, chainCt);
 
         _startGuard.EnsureWithinLimits(
             AutofillFamily.AutoWizard, request.AgentIds.Count, request.ShiftIds?.Count ?? 0,
@@ -135,6 +142,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             AutofillFamily.AutoWizard, request.PeriodFrom, request.PeriodUntil,
             request.AnalyseToken, request.AgentIds, jobId);
 
+        _jobScopes.Record(jobId, scenarioGroupId, request.AgentIds);
         var cts = _registry.Register(jobId, _lifetime.ApplicationStopping, chainCt);
         cts.CancelAfter(TotalTimeBudget);
 
@@ -148,19 +156,51 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     /// <summary>
     /// Refuses a start the caller may not see: a hidden source scenario like a missing one, a hidden target group like a
     /// missing one and - for a restricted caller - a run without a group, whose stage scenarios would be group-less and
-    /// therefore refused by the next stage's own scenario check part-way through the chain. Returns the group the run's
-    /// scenarios will belong to (ScenarioGroupInheritance, the rule the apply uses).
+    /// therefore refused by the next stage's own scenario check part-way through the chain, and shifts the caller may not
+    /// see (EnsureShiftsVisibleAsync). Agents the caller may not see
+    /// are dropped from the selection like unknown ids, keeping the order of the rest, because the chain itself runs
+    /// without a user. Returns the request to run and the group the run's scenarios will belong to
+    /// (ScenarioGroupInheritance, the rule the apply uses).
     /// </summary>
-    private async Task<Guid?> ResolveStartScopeAsync(StartAutoWizardRequest request, CancellationToken ct)
+    private async Task<(StartAutoWizardRequest Request, Guid? ScenarioGroupId)> ResolveStartScopeAsync(
+        StartAutoWizardRequest request, CancellationToken ct)
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<IScenarioTokenAccessGuard>().EnsureVisibleAsync(request.AnalyseToken, ct);
         await scope.ServiceProvider.GetRequiredService<IGroupVisibilityGuard>().EnsureScenarioScopeWritableAsync(request.GroupId, ct);
 
+        await EnsureShiftsVisibleAsync(scope.ServiceProvider, request.ShiftIds, ct);
+
+        var visibleAgentIds = await scope.ServiceProvider.GetRequiredService<IClientVisibilityGuard>()
+            .FilterVisibleAsync(request.AgentIds, agentId => agentId, ct);
+
         var sourceScenario = request.AnalyseToken is Guid sourceToken
             ? await scope.ServiceProvider.GetRequiredService<IAnalyseScenarioRepository>().GetByTokenAsync(sourceToken, ct)
             : null;
-        return ScenarioGroupInheritance.Resolve(request.GroupId, sourceScenario);
+        return (request with { AgentIds = visibleAgentIds }, ScenarioGroupInheritance.Resolve(request.GroupId, sourceScenario));
+    }
+
+    /// <summary>
+    /// A restricted caller must name the shifts to fill (an empty selection means every shift of the installation) and may
+    /// name only shifts they may see; a hidden shift is answered like a missing one. Unrestricted callers keep the
+    /// all-shifts fallback.
+    /// </summary>
+    private static async Task EnsureShiftsVisibleAsync(IServiceProvider services, IReadOnlyList<Guid>? shiftIds, CancellationToken ct)
+    {
+        if (shiftIds is not { Count: > 0 })
+        {
+            if (!await services.GetRequiredService<IGroupVisibilityGuard>().IsUnrestrictedAsync(ct))
+            {
+                throw new BadRequestException(ShiftSelectionRequiredMessage);
+            }
+
+            return;
+        }
+
+        if (await services.GetRequiredService<IShiftVisibilityGuard>().FindFirstHiddenAsync(shiftIds, ct) is { } hiddenShiftId)
+        {
+            throw new KeyNotFoundException(string.Format(ShiftVisibilityMessages.ShiftNotFound, hiddenShiftId));
+        }
     }
 
     public bool TryCancel(Guid jobId) => _registry.TryCancel(jobId);

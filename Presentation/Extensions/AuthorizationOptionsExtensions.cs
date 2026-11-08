@@ -24,6 +24,8 @@ public static class AuthorizationOptionsExtensions
             policy => policy.RequirePermission(Permissions.CanManageAutomation));
         options.AddPolicy(AuthorizationPolicies.RequireAccessTokenManagement,
             policy => policy.RequirePermission(Permissions.CanManageAccessTokens));
+        options.AddPolicy(AuthorizationPolicies.RequireScheduleEditing,
+            policy => policy.RequirePermission(Permissions.CanEditSchedule));
 
         return options;
     }

@@ -40,7 +40,7 @@ The automatic planning (the wizards that propose a schedule) never moves or dele
 ## Making the planning respect an absence, step by step
 
 1. **Book it.** A wish in the absence calendar is not enough. In the schedule right-click the wish bar and choose (de: "Absenz übernehmen", en: "Adopt absence", fr: "Reprendre l'absence", it: "Riprendere l'assenza"), or type the abbreviation of the kind into the person's cell. The bars of the wishes are shown with the toolbar switch (de: "Gewünschte Absenzen ein-/ausblenden", en: "Show/hide absence bars").
-2. **Run the planning.** The wizard button in the schedule toolbar is visible for administrators only. Every run writes its result as a scenario, a draft next to the real plan.
+2. **Run the planning.** Use the wizard button in the schedule toolbar. Everyone who may edit the schedule may use it, a planner without a role included. Every run writes its result as a scenario, a draft next to the real plan.
 3. **Check the draft.** The booked absences are unchanged in it, and the person has no shift on those days.
 4. **Accept or reject.** In the scenario menu choose (de: "Szenario übernehmen", en: "Accept scenario") or (de: "Szenario verwerfen", en: "Reject scenario").
 5. **To free the person for planning again,** delete the booked absence in the schedule; deleting only the wish changes nothing.

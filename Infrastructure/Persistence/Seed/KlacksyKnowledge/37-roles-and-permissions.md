@@ -42,7 +42,8 @@ itself, closing and reopening payroll periods, and the specially protected areas
 providers, reports and calendar rules.
 
 An account with **neither** is a planner: it can read everything it is allowed to see and can still
-plan — place, change and remove entries in the schedule, record absences, record, change and delete
+plan — place, change and remove entries in the schedule, let the automatic planning (autofill) fill a
+group it sees and accept or reject the resulting scenario, record absences, record, change and delete
 expenses, plan notes and planning commands (the day keywords such as FREE or EARLY), write client
 notes and work with Klacksy. It cannot create or edit master data (addresses, groups, contracts,
 shifts) and has no settings. Confirming individual working times needs no particular level either.

@@ -131,8 +131,12 @@ verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder ni
   gibt. Ergebnis-Toast: "{x} gesendet, {y} fehlgeschlagen, {z} ohne E-Mail".
 - **Wizard-Button** (`schedule-wizard-btn`): standardmäßig Ein-Klick-**AutoWizard**
   (Tooltip de: "AutoWizard - Plan + Harmonizer + Holistic Harmonizer ausführen"). Der
-  Wizard-Button ist nur für Admins sichtbar. Ein zusätzliches Einzelschritt-Menü existiert nur
-  für den internen Entwicklungsgebrauch und wird Nutzern nicht erklärt. Jeder Lauf schreibt sein Ergebnis als Szenario, das aktiviert wird und das
+  Wizard-Button sieht jeder, der den Plan bearbeiten darf (Recht `CanEditSchedule`), also Planer
+  ohne Rolle, Supervisoren und Admins: Autofill ist Planungsarbeit. Ein Planer mit eingeschränkter
+  Gruppen-Sichtbarkeit plant nur eine Gruppe, die er sieht, und nur die Mitarbeitenden und Dienste, die er sieht;
+  Status und Ergebnis eines Laufs einer fremden Gruppe sieht er nicht, und er kann ihn nicht abbrechen.
+  Ein zusätzliches Einzelschritt-Menü existiert nur für den internen Entwicklungsgebrauch
+  (nur Admins) und wird Nutzern nicht erklärt. Jeder Lauf schreibt sein Ergebnis als Szenario, das aktiviert wird und das
   der Planer übernehmen oder verwerfen muss.
 - **Einsatzplan PDF** (de: "Einsatzplan PDF", en: "Schedule PDF", fr: "Planning PDF",
   it: "Pianificazione PDF", `schedule-pdf-export-btn`): exportiert die sichtbare Plantafel
@@ -416,7 +420,8 @@ sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planba
   sporadische Dienste, Zeitfenster-Dienste (TimeRange), versiegelte Aufträge und
   Szenario-Einträge; Container zählen als 1. Der Absenzen-Balken umfasst vorgeplante
   Platzhalter UND gebuchte Absenz-Dienste.
-- **Berechtigungen**: Der Wizard-Button ist Admins vorbehalten;
+- **Berechtigungen**: Den Wizard-Button (Autofill) darf jeder benutzen, der den Plan bearbeiten darf
+  (auch Planer ohne Rolle), begrenzt auf die eigenen sichtbaren Gruppen; das Einzelschritt-Menü bleibt Admins vorbehalten;
   Admins dürfen jede Sperrstufe aufheben, auch Closed; einen Eintrag mit Stufe Closed
   ändert aber auch ein Admin erst, nachdem die Sperre aufgehoben bzw. die Periode wieder geöffnet ist.
 
@@ -446,8 +451,9 @@ sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planba
 - Einsätze bestätigen (erst nach Dienstende) / Bestätigung aufheben — Skills `confirm_work`, `unconfirm_work`; gebuchte
   Absenz-Einträge — Skills `confirm_break`, `unconfirm_break` (Schutz vor dem Löschen durch
   Nicht-Administratoren, kein Eingriff in die Wizards)
-- Automatisch planen lassen — Skills `start_autowizard`, `start_wizard1`, `start_wizard2`,
-  `start_wizard3`
+- Automatisch planen lassen (Autofill, für jeden mit Planungsrecht) — Skill `start_autowizard`; Status
+  und Abbruch eines Laufs — Skills `list_open_wizard_jobs`, `cancel_wizard_job`; die Einzelschritte
+  `start_wizard1`, `start_wizard2`, `start_wizard3` nur für Admins
 - Szenarien verwalten — Skills `list_scenarios`, `accept_scenario`, `reject_scenario`,
   `evaluate_scenario`
 - Konflikte prüfen, Ersatz finden, Plan versenden — Skills `detect_conflicts`,

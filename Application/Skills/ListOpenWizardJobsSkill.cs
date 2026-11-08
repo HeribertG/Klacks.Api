@@ -6,7 +6,9 @@
 /// terminal state, so the assistant can tell the user whether the run completed, completed without the
 /// holistic harmonization, failed or was cancelled - and which scenario is ready to be accepted. When the run's
 /// soft-keyword retry kept a second scenario, the result names it with the slots it fills beyond the strict one and the
-/// wishes it breaks (employee, day, keyword), so the assistant can offer both.
+/// wishes it breaks (employee, day, keyword), so the assistant can offer both. A job the caller may not address
+/// (IAutoWizardJobAccessGuard: a restricted caller only reaches AutoWizard jobs of visible groups and employees) is
+/// answered like an unknown one; the single-stage wizards of the developer dropdown are reported to admins only.
 /// </summary>
 /// <param name="jobId">UUID of the job returned when the wizard was started.</param>
 
@@ -18,6 +20,7 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -33,19 +36,22 @@ public class ListOpenWizardJobsSkill : BaseSkillImplementation
     private readonly IHolisticHarmonizerJobRunner _holistic;
     private readonly IAutoWizardJobRunner _autoWizard;
     private readonly JobTerminalStateCache<AutoWizardJobResultDto> _autoWizardStates;
+    private readonly IAutoWizardJobAccessGuard _jobAccessGuard;
 
     public ListOpenWizardJobsSkill(
         IWizardJobRunner wizard,
         IHarmonizerJobRunner harmonizer,
         IHolisticHarmonizerJobRunner holistic,
         IAutoWizardJobRunner autoWizard,
-        JobTerminalStateCache<AutoWizardJobResultDto> autoWizardStates)
+        JobTerminalStateCache<AutoWizardJobResultDto> autoWizardStates,
+        IAutoWizardJobAccessGuard jobAccessGuard)
     {
         _wizard = wizard;
         _harmonizer = harmonizer;
         _holistic = holistic;
         _autoWizard = autoWizard;
         _autoWizardStates = autoWizardStates;
+        _jobAccessGuard = jobAccessGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -71,10 +77,16 @@ public class ListOpenWizardJobsSkill : BaseSkillImplementation
             return SkillResult.Error($"Invalid jobId '{jobIdRaw}'. Expected UUID.");
         }
 
+        if (!await _jobAccessGuard.CanAccessAsync(jobId, cancellationToken))
+        {
+            return UnknownJob(jobId);
+        }
+
+        var isAdmin = context.UserPermissions.Contains(Roles.Admin);
         var isAutoWizard = _autoWizard.IsRunning(jobId);
-        var isWizard1Planner = _wizard.IsRunning(jobId);
-        var isWizard2Harmonizer = _harmonizer.IsRunning(jobId);
-        var isWizard3Holistic = _holistic.IsRunning(jobId);
+        var isWizard1Planner = isAdmin && _wizard.IsRunning(jobId);
+        var isWizard2Harmonizer = isAdmin && _harmonizer.IsRunning(jobId);
+        var isWizard3Holistic = isAdmin && _holistic.IsRunning(jobId);
 
         if (isAutoWizard || isWizard1Planner || isWizard2Harmonizer || isWizard3Holistic)
         {
@@ -94,10 +106,7 @@ public class ListOpenWizardJobsSkill : BaseSkillImplementation
         var state = await _autoWizardStates.TryGetAsync(jobId, cancellationToken);
         if (!state.Found)
         {
-            return SkillResult.SuccessResult(
-                new { JobId = jobId, Status = WizardJobStatusValues.Unknown },
-                $"Job {jobId} is not running and no outcome is stored for it any more — it finished some time ago or was never started here. " +
-                "Look at the open scenarios: a result waiting for acceptance is listed there, and its description notes a failed run or a skipped holistic harmonization.");
+            return UnknownJob(jobId);
         }
 
         var payload = new
@@ -133,6 +142,12 @@ public class ListOpenWizardJobsSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(payload, BuildMessage(jobId, state.Status, state.Reason, state.Result));
     }
+
+    private static SkillResult UnknownJob(Guid jobId) =>
+        SkillResult.SuccessResult(
+            new { JobId = jobId, Status = WizardJobStatusValues.Unknown },
+            $"Job {jobId} is not running and no outcome is stored for it any more — it finished some time ago or was never started here. " +
+            "Look at the open scenarios: a result waiting for acceptance is listed there, and its description notes a failed run or a skipped holistic harmonization.");
 
     private static string BuildMessage(Guid jobId, string status, string? reason, AutoWizardJobResultDto? result)
     {

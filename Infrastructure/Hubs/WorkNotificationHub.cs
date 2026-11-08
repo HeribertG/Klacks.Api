@@ -11,12 +11,10 @@
 /// <param name="groupClients">Maps the caller's visible group trees to their clients for that cache</param>
 
 using Klacks.Api.Application.Interfaces;
-using Klacks.Api.Domain.Common;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Globalization;
-using System.Security.Claims;
 
 namespace Klacks.Api.Infrastructure.Hubs;
 
@@ -260,14 +258,13 @@ public class WorkNotificationHub : Hub<IScheduleClient>
     /// </summary>
     private IDisposable? BeginCallerPrincipal()
     {
-        var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!Guid.TryParse(userId, out var callerId) || callerId == Guid.Empty)
+        var caller = HubCallerPrincipal.Begin(Context);
+        if (caller is null)
         {
             _logger.LogWarning("SignalR call refused: {ConnectionId} carries no user id", Context.ConnectionId);
-            return null;
         }
 
-        return ExecutionPrincipal.Begin(callerId);
+        return caller;
     }
 
     /// <summary>

@@ -9,8 +9,8 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 
 /// <summary>
 /// Read-only presence of the autofill runs in progress, for the progress line every viewer of a group sees. Open to
-/// every signed-in user; the handler filters by group visibility. Starting and cancelling a run stay on the
-/// admin-only AutoWizardController.
+/// every signed-in user; the handler filters by group visibility. Starting and cancelling a run stay on
+/// AutoWizardController.
 /// </summary>
 /// <param name="mediator">Dispatches the query</param>
 public class AutofillRunsController : BaseController

@@ -65,7 +65,7 @@ nur über einen Admin. Sag mir, was du ändern willst, dann finden wir den Grund
 
 - **Rechte in kurz**: Admin darf alles. Supervisor darf Personen, Gruppen, Verträge und Dienste anlegen und
   bearbeiten, aber nicht löschen; er darf Tage freigeben und Freigaben zurücknehmen (über Klacksy). Ein Konto ohne
-  Rolle liest, plant (Einträge setzen, ändern, entfernen, Absenzen erfassen), erfasst, ändert und löscht Spesen,
+  Rolle liest, plant (Einträge setzen, ändern, entfernen, Absenzen erfassen, Autofill für sichtbare Gruppen starten), erfasst, ändert und löscht Spesen,
   Plan-Notizen und Planungsbefehle (FREE, EARLY …) und schreibt Notizen, ändert aber keine Stammdaten. Einstellungen, Benutzerverwaltung und Periodenabschluss sind Admin-only.
 - **Ohne Bearbeitungsrecht für Dienste** ist auf der Dienste-Seite nur die Sicht (de: "Planbare Dienste",
   en: "Plannable Services", fr: "Services planifiables", it: "Servizi Pianificabili") wählbar.

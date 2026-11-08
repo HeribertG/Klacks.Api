@@ -13,31 +13,43 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 
 /// <summary>
-/// REST entry point for the AutoWizard orchestrator. Start launches a single background job
-/// that runs Wizard 1, Harmonizer (Wizard 2) and Holistic Harmonizer (Wizard 3) sequentially
-/// and emits one final SignalR event when the chain finishes. Admin role is required because
-/// the chain mutates the schedule and may consume LLM credits.
+/// REST entry point for the AutoWizard orchestrator (the autofill of the schedule). Start launches a single background
+/// job that runs Wizard 1, Harmonizer (Wizard 2) and Holistic Harmonizer (Wizard 3) sequentially and emits one final
+/// SignalR event when the chain finishes. Autofill is planning work, so it needs the planning right CanEditSchedule
+/// (policy RequireScheduleEditing, the same right as its skills), which every role including the role-less planner floor holds.
+/// Group visibility bounds it: the runner refuses a start for a group the caller may not see, and Status and Cancel answer
+/// a job the caller may not address (IAutoWizardJobAccessGuard) exactly like an unknown one.
 /// </summary>
 /// <param name="runner">Background orchestrator that drives the three sequential stages.</param>
+/// <param name="stateCache">Terminal outcomes of finished jobs.</param>
+/// <param name="jobAccessGuard">Decides whether the caller may address a job.</param>
 [ApiController]
 [Route("api/backend/[controller]")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AuthorizationPolicies.RequireScheduleEditing)]
 public sealed class AutoWizardController : ControllerBase
 {
     private readonly IAutoWizardJobRunner _runner;
     private readonly JobTerminalStateCache<AutoWizardJobResultDto> _stateCache;
+    private readonly IAutoWizardJobAccessGuard _jobAccessGuard;
 
     public AutoWizardController(
         IAutoWizardJobRunner runner,
-        JobTerminalStateCache<AutoWizardJobResultDto> stateCache)
+        JobTerminalStateCache<AutoWizardJobResultDto> stateCache,
+        IAutoWizardJobAccessGuard jobAccessGuard)
     {
         _runner = runner;
         _stateCache = stateCache;
+        _jobAccessGuard = jobAccessGuard;
     }
 
     [HttpGet("Status/{jobId:guid}")]
     public async Task<ActionResult<AutoWizardJobStatusResponse>> Status(Guid jobId, CancellationToken ct)
     {
+        if (!await _jobAccessGuard.CanAccessAsync(jobId, ct))
+        {
+            return Ok(new AutoWizardJobStatusResponse(WizardJobStatusValues.Unknown, null, null));
+        }
+
         if (_runner.IsRunning(jobId))
         {
             return Ok(new AutoWizardJobStatusResponse(WizardJobStatusValues.Running, null, null));
@@ -63,9 +75,10 @@ public sealed class AutoWizardController : ControllerBase
     }
 
     [HttpPost("Cancel")]
-    public ActionResult<CancelAutoWizardResponse> Cancel([FromBody] CancelAutoWizardRequest request)
+    public async Task<ActionResult<CancelAutoWizardResponse>> Cancel(
+        [FromBody] CancelAutoWizardRequest request, CancellationToken ct)
     {
-        var cancelled = _runner.TryCancel(request.JobId);
+        var cancelled = await _jobAccessGuard.CanAccessAsync(request.JobId, ct) && _runner.TryCancel(request.JobId);
         return Ok(new CancelAutoWizardResponse(cancelled));
     }
 }

@@ -13300,7 +13300,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "Admin"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -13501,7 +13501,7 @@
         "fr": "Démarrer l'assistant de remplissage automatique",
         "it": "Avvia l'assistente di riempimento automatico"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "place_work",
@@ -16040,7 +16040,7 @@
       "category": "Read",
       "executionType": "Skill",
       "requiredPermissions": [
-        "Admin"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -16099,7 +16099,7 @@
         "fr": "Vérifier le statut d'un job d'assistant",
         "it": "Verifica lo stato di un job wizard"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "bulk_add_absence_for_group",
@@ -16859,7 +16859,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "Admin"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -16932,7 +16932,7 @@
         "fr": "Annuler un job d'assistant en cours",
         "it": "Annulla un job wizard in corso"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "reject_scenario",

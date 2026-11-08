@@ -21,4 +21,10 @@ public static class AuthorizationPolicies
     /// Requires <see cref="Permissions.CanManageAccessTokens"/>: minting a personal access token.
     /// </summary>
     public const string RequireAccessTokenManagement = "RequireAccessTokenManagement";
+
+    /// <summary>
+    /// Requires <see cref="Permissions.CanEditSchedule"/>, the planning right: the normal autofill (AutoWizard start, status,
+    /// cancel and its job hub). Mirrors the gate of the skills start_autowizard, list_open_wizard_jobs and cancel_wizard_job.
+    /// </summary>
+    public const string RequireScheduleEditing = "RequireScheduleEditing";
 }
