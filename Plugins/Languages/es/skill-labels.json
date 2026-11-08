@@ -149,6 +149,7 @@
   "explain_absence_overlap_not_blocked": "Explicar los solapamientos de ausencias no comprobados",
   "explain_absence_cover_move": "Explicar la cobertura de una ausencia",
   "explain_scenario_variant_keys": "Explicar las claves de los escenarios",
+  "explain_placeholder_employees": "Explicar los empleados ficticios",
   "explain_absence_type_flags": "Explicar el selector de un tipo de ausencia",
   "explain_absence_value_vs_hours": "Explicar la diferencia entre el índice de absentismo y las horas de ausencia",
   "explain_active_industries": "Explicación de los sectores activos",

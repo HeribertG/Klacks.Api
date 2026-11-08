@@ -1274,6 +1274,11 @@
     "planificar turnos no vinculantes",
     "planificar variantes de un pedido con detalles abiertos"
   ],
+  "explain_placeholder_employees": [
+    "crear empleados ficticios",
+    "convertir un empleado ficticio en empleado",
+    "todavía faltan personas para los turnos"
+  ],
   "explain_absence_type_flags": [
     "¿qué hace realmente 'sábado se calcula'?",
     "¿tiene algún efecto el interruptor de festivos?",

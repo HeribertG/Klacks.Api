@@ -1246,6 +1246,11 @@
     "lập kế hoạch ca làm chưa ràng buộc",
     "lập kế hoạch các phương án cho đơn hàng chưa rõ chi tiết"
   ],
+  "explain_placeholder_employees": [
+    "tạo nhân viên giả định",
+    "chuyển nhân viên giả định thành nhân viên",
+    "vẫn còn thiếu người cho ca làm"
+  ],
   "explain_absence_type_flags": [
     "công tắc 'thứ bảy được tính' có tác dụng gì",
     "công tắc ngày lễ có ảnh hưởng gì không",

@@ -50414,7 +50414,9 @@
           "nicht scharfe dienste planen",
           "auftrag mit offenen details planen",
           "varianten eines auftrags planen",
-          "warum ist der key gesperrt"
+          "warum ist der key gesperrt",
+          "dienste die noch nicht sicher sind",
+          "grossanlass mit unsicheren diensten"
         ],
         "en": [
           "what is a key in a scenario",
@@ -50422,7 +50424,9 @@
           "plan non-binding shifts",
           "plan an order whose details are open",
           "plan variants of an order",
-          "why is the key locked"
+          "why is the key locked",
+          "shifts that are not certain yet",
+          "large event with uncertain shifts"
         ],
         "fr": [
           "qu'est-ce qu'une clé de scénario",
@@ -50442,6 +50446,85 @@
         "en": "Explain keys for scenarios",
         "fr": "Expliquer les clés des scénarios",
         "it": "Spiega le chiavi degli scenari"
+      },
+      "version": 2
+    },
+    {
+      "name": "explain_placeholder_employees",
+      "area": "client",
+      "description": "Explains placeholders: planning rows for people who are not in the system yet, such as staff still being recruited or names an agency sends later. Covers creating several at once (Supervisor and Admin), planning on them with target hours 0 after the real people, the locks on period close, payroll export, deletion and messages, and converting a placeholder into an employee or an external employee. Use this when shifts must be staffed before the people are known.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "handlerConfig": {
+        "memoryKey": "explain_placeholder_employees",
+        "pageKey": "client-list"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "platzhalter anlegen",
+          "platzhalter umwandeln"
+        ],
+        "en": [
+          "create placeholders",
+          "convert a placeholder"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "was ist ein platzhalter mitarbeiter",
+          "platzhalter anlegen",
+          "platzhalter in mitarbeiter umwandeln",
+          "dienste besetzen bevor die leute feststehen",
+          "die leute für die dienste sind noch nicht bekannt",
+          "agentur schickt die namen später",
+          "warum lässt sich die periode wegen platzhaltern nicht abschliessen"
+        ],
+        "en": [
+          "what is a placeholder employee",
+          "create placeholders",
+          "convert a placeholder into an employee",
+          "staff shifts before the people are known",
+          "the people for the shifts are not known yet",
+          "the agency sends the names later",
+          "why do placeholders block the period close"
+        ],
+        "fr": [
+          "qu'est-ce qu'un employé fictif",
+          "à quoi servent les employés fictifs",
+          "convertir un employé fictif en employé",
+          "il manque encore des personnes"
+        ],
+        "it": [
+          "cos'è un segnaposto per un dipendente",
+          "creare segnaposto per i turni",
+          "convertire un segnaposto in dipendente",
+          "mancano ancora delle persone"
+        ]
+      },
+      "labels": {
+        "de": "Platzhalter erklären",
+        "en": "Explain placeholders",
+        "fr": "Expliquer les employés fictifs",
+        "it": "Spiega i segnaposto"
       },
       "version": 1
     },

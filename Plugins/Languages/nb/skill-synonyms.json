@@ -1249,6 +1249,11 @@
     "planlegg ikke-bindende vakter",
     "planlegg varianter av en ordre med åpne detaljer"
   ],
+  "explain_placeholder_employees": [
+    "opprett plassholdere",
+    "gjør en plassholder om til ansatt",
+    "folk til vaktene mangler fortsatt"
+  ],
   "explain_absence_type_flags": [
     "hva gjør bryteren 'lørdag beregnes'?",
     "har helligdag-bryteren noen effekt?",

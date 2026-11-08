@@ -279,6 +279,12 @@ Anker der Unter-Tabs (`...-tab-single`, `...-tab-employee`, `...-tab-range`) sin
   nicht bestätigt sein, sie werden beim Abschluss mitversiegelt. Dienste von gelöschten Mitarbeitenden zählen nicht und blockieren nie; sie
   werden beim Abschluss mitversiegelt. Die Abschlussberatung (`evaluate_period_close_readiness`) nennt
   offene Dienste als blockierenden Befund (Verdikt: erst Dienste bestätigen), noch vor offenen Fehlern.
+- **Dienste auf Platzhaltern**: Sind alle Dienste bestätigt, liegt aber noch ein Dienst der Periode auf einem
+  Platzhalter (Planungszeile für eine noch nicht erfasste Person), lehnt das Backend den Abschluss ebenfalls ab,
+  global wie für eine Gruppe, und auch das lässt sich nicht mit "Trotzdem abschliessen" übergehen. Die Karte (de:
+  "Probleme dieser Periode", en: "Issues in this period") nennt die Anzahl. Abhilfe: Platzhalter umwandeln oder
+  ihre Dienste einer Person zuweisen (`explain_placeholder_employees`). Im Lohnexport erscheint dafür der Blocker
+  (de: "Dienst liegt auf einem Platzhalter", en: "Service assigned to a placeholder").
 - **Was Versiegeln tut**: Das Versiegeln setzt alle Dienst- und Absenz-Einträge
   des Zeitraums auf die höchste der vier Sperrstufen (Offen → Bestätigt → Freigegeben →
   **Geschlossen**) und legt zusätzlich pro Kalendertag ein **Tagessiegel** an — mit Gruppenbezug,

@@ -1278,6 +1278,11 @@
     "planowanie niewiążących zmian",
     "planowanie wariantów zlecenia z otwartymi szczegółami"
   ],
+  "explain_placeholder_employees": [
+    "utwórz pracowników wirtualnych",
+    "zamień pracownika wirtualnego na pracownika",
+    "wciąż brakuje ludzi na zmiany"
+  ],
   "explain_absence_type_flags": [
     "co właściwie robi przełącznik sobota liczona",
     "czy przełącznik święta ma jakikolwiek efekt",

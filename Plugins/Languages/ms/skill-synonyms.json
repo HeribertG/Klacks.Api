@@ -1243,6 +1243,11 @@
     "merancang syif yang tidak mengikat",
     "merancang varian pesanan yang butirannya belum pasti"
   ],
+  "explain_placeholder_employees": [
+    "cipta pekerja maya",
+    "tukar pekerja maya kepada pekerja",
+    "orang untuk syif masih belum cukup"
+  ],
   "explain_absence_type_flags": [
     "apa fungsi suis sabtu dikira?",
     "adakah suis cuti umum ada kesan?",

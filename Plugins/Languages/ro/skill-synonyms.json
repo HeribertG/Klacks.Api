@@ -1255,6 +1255,11 @@
     "planificarea turelor neobligatorii",
     "planificarea variantelor unei comenzi cu detalii deschise"
   ],
+  "explain_placeholder_employees": [
+    "creează angajați fictivi",
+    "transformă un angajat fictiv în angajat",
+    "încă lipsesc oameni pentru ture"
+  ],
   "explain_absence_type_flags": [
     "ce face efectiv comutatorul sâmbătă se calculează?",
     "comutatorul de sărbători are vreun efect?",

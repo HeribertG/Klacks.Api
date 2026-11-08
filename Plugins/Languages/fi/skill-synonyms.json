@@ -1250,6 +1250,11 @@
     "suunnittele ei-sitovia vuoroja",
     "suunnittele tilauksen vaihtoehtoja"
   ],
+  "explain_placeholder_employees": [
+    "luo paikanvaraajia",
+    "muuta paikanvaraaja työntekijäksi",
+    "vuoroihin puuttuu vielä ihmisiä"
+  ],
   "explain_absence_type_flags": [
     "mitä lauantai lasketaan -kytkin oikeastaan tekee?",
     "onko pyhäkytkimellä vaikutusta?",

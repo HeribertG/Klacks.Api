@@ -52,7 +52,7 @@ The page is for administrators only (de: "Periodenabschluss", en: "Period Closin
 
 ### What happens at once
 
-Before anything is sealed the close checks that every service of the period is confirmed (a service can only be confirmed after it has ended). If one is not, the close is refused with the number and the first open services, and this cannot be confirmed away; with a group chosen only the services on that group's own shifts count. Absences need no confirmation first.
+Before anything is sealed the close checks that every service of the period is confirmed (a service can only be confirmed after it has ended). If one is not, the close is refused with the number and the first open services, and this cannot be confirmed away; with a group chosen only the services on that group's own shifts count. Absences need no confirmation first. Once everything is confirmed, a service of the period that still lies on a placeholder (a row for a person who is not in the system yet) refuses the close as well, and this cannot be confirmed away either (`explain_placeholder_employees`).
 
 1. The work entries and absences of the period are set to the highest lock stage (closed). Only the real plan is touched, never scenario drafts.
 2. A day lock is written for every day of the period. The day locks are the authoritative record of what was frozen.

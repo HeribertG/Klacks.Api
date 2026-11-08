@@ -149,6 +149,7 @@
   "explain_absence_overlap_not_blocked": "อธิบายการลาทับซ้อนที่ยังไม่ตรวจสอบ",
   "explain_absence_cover_move": "อธิบายการทดแทนเมื่อขาดงาน",
   "explain_scenario_variant_keys": "อธิบายคีย์สำหรับสถานการณ์จำลอง",
+  "explain_placeholder_employees": "อธิบายพนักงานสมมติ",
   "explain_absence_type_flags": "อธิบายแฟล็กของประเภทการลา",
   "explain_absence_value_vs_hours": "อธิบายมูลค่าการลาเทียบกับชั่วโมงการลา",
   "explain_active_industries": "อธิบายอุตสาหกรรมที่เปิดใช้งาน",

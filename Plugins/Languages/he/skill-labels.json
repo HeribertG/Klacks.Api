@@ -149,6 +149,7 @@
   "explain_absence_overlap_not_blocked": "הסבר על חפיפות היעדרויות שלא נבדקו",
   "explain_absence_cover_move": "הסבר כיסוי היעדרות",
   "explain_scenario_variant_keys": "הסבר מפתחות לתרחישים",
+  "explain_placeholder_employees": "הסבר על עובדים וירטואליים",
   "explain_absence_type_flags": "הסבר על מתג של סוג היעדרות",
   "explain_absence_value_vs_hours": "הסבר על ההבדל בין \"ערך ההיעדרות\" ל\"שעות היעדרות",
   "explain_active_industries": "הסבר על הענפים הפעילים",

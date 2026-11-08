@@ -16,7 +16,7 @@ Sometimes a large order is announced but its details are still open: how many pe
 
 ## Working with keys, step by step
 
-1. **Create a key.** In the schedule open the scenario selection and choose (de: "Keys verwalten", en: "Manage keys", fr: "Gérer les clés", it: "Gestisci le chiavi"). The dialog (de: "Keys für nicht scharfe Dienste", en: "Keys for non-binding shifts", fr: "Clés pour services non contraignants", it: "Chiavi per turni non vincolanti") lists the keys of the selected group. Use (de: "Neuen Key anlegen", en: "Create new key", fr: "Créer une nouvelle clé", it: "Crea nuova chiave"); a key needs a name, a group and a period. The group cannot be changed afterwards.
+1. **Create a key.** In the schedule open the scenario selection and choose (de: "Keys verwalten", en: "Manage keys", fr: "Gérer les clés", it: "Gestisci le chiavi"). The dialog (de: "Keys für nicht scharfe Dienste", en: "Keys for non-binding shifts", fr: "Clés pour services non contraignants", it: "Chiavi per turni non vincolanti") lists the keys of the selected group and its subgroups. Use (de: "Neuen Key anlegen", en: "Create new key", fr: "Créer une nouvelle clé", it: "Crea nuova chiave"); a key needs a name, a group and a period. The group cannot be changed afterwards.
 2. **Add shifts.** Either create them with (de: "Neuer Dienst", en: "New shift", fr: "Nouveau service", it: "Nuovo turno") or change them with (de: "Dienste bearbeiten", en: "Edit shifts", fr: "Modifier les services", it: "Modifica turni"): the shift form then shows the key name in a bar at the top, and everything saved there belongs to the key. Or copy existing sealed orders with (de: "Dienste kopieren", en: "Copy shifts", fr: "Copier les services", it: "Copia turni"). Every key shift needs a customer and a group inside the key's group, and must lie completely inside the key's period.
 3. **Plan a variant.** Create a new scenario and tick the keys in the section (de: "Keys für dieses Szenario", en: "Keys for this scenario", fr: "Clés pour ce scénario", it: "Chiavi per questo scenario"). Several keys can be combined. This only works for a scenario with a group, and only keys of that group or its subgroups are offered.
 4. **Accept the fitting scenario.** The key's shifts become real, sealed orders, and the key is marked (de: "Übernommen", en: "Accepted", fr: "Adoptée", it: "Accettata").
@@ -43,7 +43,11 @@ A copied shift is a template, not a replacement of the original. After the accep
 
 ### Discarding and deleting
 
-Discarding a scenario keeps the key and its shifts for the next attempt. A key is deleted only by hand, and not while an active scenario carries it. A key whose period lies in the past stays selectable; the screen only warns.
+Discarding a scenario keeps the key and its shifts for the next attempt. A key is deleted only by hand, and not while an active scenario carries it. A key whose period lies in the past stays selectable; the selection only shows a hint. An accepted key can no longer be deleted.
+
+### Keys and placeholders
+
+Keys handle uncertain shifts. When the people are missing as well, placeholders (`explain_placeholder_employees`) take the key shifts in the scenario: the first stage of automatic planning puts real people first and leaves the rest to the placeholders. After the acceptance, services on placeholders are part of the real plan; they block the period close and the payroll export until each placeholder is converted into a person or its services are moved to one.
 
 ### Related skills
 

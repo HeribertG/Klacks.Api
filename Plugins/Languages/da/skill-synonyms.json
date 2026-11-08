@@ -1263,6 +1263,11 @@
     "planlæg ikke-bindende vagter",
     "planlæg varianter af en ordre med åbne detaljer"
   ],
+  "explain_placeholder_employees": [
+    "opret pladsholdere",
+    "omdan en pladsholder til medarbejder",
+    "folkene til vagterne mangler endnu"
+  ],
   "explain_absence_type_flags": [
     "hvad gør knappen 'lørdag beregnes'?",
     "har ferieknappen nogen effekt?",

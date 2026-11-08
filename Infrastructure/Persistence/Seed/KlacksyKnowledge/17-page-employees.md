@@ -154,8 +154,10 @@ Verträge, Gruppen, Qualifikationen, Notizen und Bild.
   neutrale"), **Juristische Person** (de: "Juristische Person", en: "Legal Entity", fr:
   "Personne morale", it: "Persona Giuridica").
 - Dropdown **Typ** (`dropdownForm-0`, de: "Typ", en: "Type", fr: "Type", it: "Tipo") —
-  Checkboxen `filter-type-employee` / `filter-type-extern-emp` / `filter-type-customer`
-  für Mitarbeiter / Externer / Kunde; `close-type-dropdown` schliesst das Menü.
+  Checkboxen `filter-type-employee` / `filter-type-extern-emp` / `filter-type-customer` /
+  `filter-type-stand-in` für Mitarbeiter / Externer / Kunde / Platzhalter (de: "Platzhalter", en: "Placeholder",
+  fr: "Employé fictif", it: "Segnaposto"; Planungszeilen für Personen, die noch nicht erfasst sind, siehe
+  `explain_placeholder_employees`); `close-type-dropdown` schliesst das Menü.
 - Dropdown **Gültigkeit** (`dropdownForm-1`, de: "Gültigkeit", en: "Validity", fr:
   "Validité", it: "Validità") — Membership-Status relativ zu heute: **Aktive**
   (`filter-active-membership`, de: "Aktive", en: "Active", fr: "Actifs", it: "Attivi"),
@@ -384,11 +386,11 @@ Admin darf alles. Supervisor darf Personen ansehen, anlegen und bearbeiten, aber
 
 ### Löschen
 
-Löschen darf nur der Admin. Es ist ein Soft-Delete: die Person verschwindet aus der Standardliste, bleibt in der Datenbank und ist nur über (de: "Gelöschte Adressen", en: "Deleted Addresses") sichtbar; dort öffnet sie sich schreibgeschützt (alle Cards gesperrt). Eine Wiederherstellen-Funktion gibt es in der App nicht — das Löschen ist aus Sicht der App endgültig. Wenn jemand nur das Unternehmen verlässt, ist das Austrittsdatum der richtige Weg, denn es lässt sich ändern oder wieder leeren.
+Löschen darf nur der Admin. Es ist ein Soft-Delete: die Person verschwindet aus der Standardliste, bleibt in der Datenbank und ist nur über (de: "Gelöschte Adressen", en: "Deleted Addresses") sichtbar; dort öffnet sie sich schreibgeschützt (alle Cards gesperrt). Eine Wiederherstellen-Funktion gibt es in der App nicht — das Löschen ist aus Sicht der App endgültig. Wenn jemand nur das Unternehmen verlässt, ist das Austrittsdatum der richtige Weg, denn es lässt sich ändern oder wieder leeren. Ein Platzhalter, auf dem noch Dienste des echten Plans liegen, lässt sich nicht löschen; die Meldung nennt seinen Namen und die Anzahl der Dienste.
 
 ### Typ ändern
 
-Das Dropdown (de: "Typ", en: "Type") in der Card (de: "Mitgliedschaft", en: "Membership") übernimmt den neuen Wert ohne Prüfung; erst das Speichern wird abgelehnt, wenn die Person noch eine Adressart hat, die der neue Typ nicht erlaubt (etwa eine Geschäftsadresse bei einem Mitarbeiter). Diese Adressen zuerst entfernen, dann erneut speichern. Eine juristische Person darf nur Kunde sein. Bei Typ Kunde verschwinden die Cards (de: "Verträge", en: "Contracts") und (de: "Qualifikationen", en: "Qualifications"); was mit bereits gespeicherten Verträgen passiert, ist nicht geprüft.
+Das Dropdown (de: "Typ", en: "Type") in der Card (de: "Mitgliedschaft", en: "Membership") übernimmt den neuen Wert ohne Prüfung; erst das Speichern wird abgelehnt, wenn die Person noch eine Adressart hat, die der neue Typ nicht erlaubt (etwa eine Geschäftsadresse bei einem Mitarbeiter). Diese Adressen zuerst entfernen, dann erneut speichern. Eine juristische Person darf nur Kunde sein. Zum Platzhalter oder vom Platzhalter weg führt kein Typwechsel beim Speichern: ein Platzhalter wird nur durch Umwandeln zum Mitarbeiter oder Externen, und keine Person wird zum Platzhalter. Bei Typ Kunde verschwinden die Cards (de: "Verträge", en: "Contracts") und (de: "Qualifikationen", en: "Qualifications"); was mit bereits gespeicherten Verträgen passiert, ist nicht geprüft.
 
 ### Adresse: Tippfehler, Umzug, Entfernen
 

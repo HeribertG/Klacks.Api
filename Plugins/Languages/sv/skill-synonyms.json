@@ -1259,6 +1259,11 @@
     "planera icke-bindande pass",
     "planera varianter av en order med öppna detaljer"
   ],
+  "explain_placeholder_employees": [
+    "skapa platshållare",
+    "gör om en platshållare till anställd",
+    "det saknas fortfarande folk till passen"
+  ],
   "explain_absence_type_flags": [
     "vad gör lördag räknas",
     "har helgdagsswitschen någon effekt",

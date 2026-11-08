@@ -149,6 +149,7 @@
   "explain_absence_overlap_not_blocked": "Giải thích chồng chéo vắng mặt chưa kiểm tra",
   "explain_absence_cover_move": "Giải thích việc thay thế khi vắng mặt",
   "explain_scenario_variant_keys": "Giải thích khóa cho kịch bản",
+  "explain_placeholder_employees": "Giải thích nhân viên giả định",
   "explain_absence_type_flags": "Giải thích các nút bật tắt của loại vắng mặt",
   "explain_absence_value_vs_hours": "Giải thích giá trị vắng mặt so với giờ vắng mặt",
   "explain_active_industries": "Giải thích các ngành đang hoạt động",

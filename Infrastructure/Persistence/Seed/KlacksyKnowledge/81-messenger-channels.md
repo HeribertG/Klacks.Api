@@ -39,7 +39,7 @@ Messaging is an **optional module**; of its twelve channels **five carry a conve
 
 ## Stage 1 — What it is and what it is for
 
-Klacks can send messages to employees, to the owner and to login accounts through external messengers, and can store what comes back. Messaging is not part of the core: it is a feature plugin an administrator installs and switches on per installation. Without it there are no messaging skills and no messaging page, so never promise a message before the module is on (the plugin list shows whether it is installed and enabled).
+Klacks can send messages to employees, to the owner and to login accounts through external messengers, and can store what comes back. Messaging is not part of the core: it is a feature plugin an administrator installs and switches on per installation. Without it there are no messaging skills and no messaging page, so never promise a message before the module is on (the plugin list shows whether it is installed and enabled). A placeholder (a row for a person who is not in the system yet) has no phone number or e-mail and is left out of every broadcast; message the real person once the placeholder is converted (`explain_placeholder_employees`).
 
 | Channel | Receives replies | Sends | Recipient is addressed by |
 |---|---|---|---|

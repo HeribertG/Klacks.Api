@@ -46,6 +46,10 @@ figures afterwards, per employee, from the period-closing page.
    because no group covers the day.
 4. **An earlier export of the same person blocks an overlapping period.** A person exported for
    another period that overlaps the chosen one has to be handled first.
+5. **A service on a placeholder blocks the export** (de: "Dienst liegt auf einem Platzhalter", en:
+   "Service assigned to a placeholder"), one blocker per placeholder and day. A placeholder is no
+   person and has no payroll; convert it into an employee or move its services to a person first
+   (`explain_placeholder_employees`).
 
 ## Corrected figures after a reopen
 

@@ -1270,6 +1270,11 @@
     "niet-bindende diensten plannen",
     "varianten van een opdracht met open details plannen"
   ],
+  "explain_placeholder_employees": [
+    "fictieve medewerkers aanmaken",
+    "fictieve medewerker omzetten naar medewerker",
+    "er ontbreken nog mensen voor de diensten"
+  ],
   "explain_absence_type_flags": [
     "wat doet zaterdag wordt berekend eigenlijk",
     "heeft de feestdagenschakelaar effect",

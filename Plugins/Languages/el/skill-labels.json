@@ -149,6 +149,7 @@
   "explain_absence_overlap_not_blocked": "Επεξήγηση των μη ελεγμένων αλληλεπικαλύψεων απουσιών",
   "explain_absence_cover_move": "Εξήγηση κάλυψης απουσίας",
   "explain_scenario_variant_keys": "Εξήγηση κλειδιών για σενάρια",
+  "explain_placeholder_employees": "Εξήγηση των εικονικών εργαζομένων",
   "explain_absence_type_flags": "Επεξήγηση των επιλογών ενός τύπου απουσίας",
   "explain_absence_value_vs_hours": "Επεξήγηση της τιμής απουσίας σε σχέση με τις ώρες απουσίας",
   "explain_active_industries": "Επεξήγηση των ενεργών κλάδων",

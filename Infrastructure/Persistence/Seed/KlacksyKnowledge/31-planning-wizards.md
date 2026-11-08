@@ -78,7 +78,9 @@ active contract or, on a day without one, from the company-wide defaults in the 
 shift-work flag from the same source (whether duties other than early ones may go to the person) is applied
 by all three stages and by the replacement search: a person without shift work only gets early duties. Late or
 night duties such a person already holds are not cleared away; the planners only prevent new ones. An employee without any contract is therefore planned like everyone else; small companies
-often keep no contracts at all. A booked absence, an availability that leaves no usable hours and a
+often keep no contracts at all. A placeholder (a row for a person who is not in the system yet) follows
+the same company defaults but has target hours 0, and stage one puts every placeholder behind every real
+person, so real people are planned first (`explain_placeholder_employees`). A booked absence, an availability that leaves no usable hours and a
 missing mandatory qualification keep a person off a day. When somebody stays unplanned, check in this
 order: entry and exit dates, the ticked weekdays of the contract or the defaults, availability,
 absences, qualifications.

@@ -66,6 +66,12 @@ The inbox (received e-mails) is also for Supervisor and Admin only; deleting e-m
 folders and spam rules are for the Admin alone. Proactive governance is Admin-only, and the messaging
 page needs Supervisor or Admin and an active messaging add-on.
 
+## Placeholders
+
+Creating placeholders (rows for people who are not in the system yet) and converting one into an employee
+or an external employee are Supervisor and Admin work, like creating and editing any staff record. A
+planner plans on the placeholders that exist; deleting one is Admin-only (`explain_placeholder_employees`).
+
 ## Where the boundary sits
 
 The dividing line that matters in practice: **settings, user administration and closing a period are

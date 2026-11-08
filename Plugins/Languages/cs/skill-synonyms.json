@@ -1278,6 +1278,11 @@
     "plánovat nezávazné směny",
     "plánovat varianty zakázky s otevřenými detaily"
   ],
+  "explain_placeholder_employees": [
+    "vytvořit fiktivní zaměstnance",
+    "převést fiktivního zaměstnance na zaměstnance",
+    "lidé na směny ještě chybí"
+  ],
   "explain_absence_type_flags": [
     "co dělá přepínač sobota se počítá",
     "má přepínač svátek nějaký účinek",

@@ -1254,6 +1254,11 @@
     "merencanakan shift yang tidak mengikat",
     "merencanakan varian pesanan yang detailnya belum jelas"
   ],
+  "explain_placeholder_employees": [
+    "buat karyawan virtual",
+    "ubah karyawan virtual menjadi karyawan",
+    "orang untuk shift masih kurang"
+  ],
   "explain_absence_type_flags": [
     "apa yang dilakukan saklar sabtu dihitung?",
     "apakah saklar liburan punya efek?",

@@ -856,6 +856,10 @@
       "version": 4,
       "hash": "6A52D235795707E3315AB02FFE57E471C1DF5EF6E863D31D6B8B3F368FD0312E"
     },
+    "explain_placeholder_employees": {
+      "version": 1,
+      "hash": "4223C95376ED5864AD1500E962CCB16EB4AFAF47152EBCBFB611C0C4B8D801CD"
+    },
     "explain_planning_assistant": {
       "version": 5,
       "hash": "A7270C599242D15ABFE6C2EB429C03E6DC8D7464C73DD1E452C05828CF53BF9A"
@@ -889,8 +893,8 @@
       "hash": "3C43EE174A04ED7FA52552CE9DF729F2F32D0C2B45B1F904A8B998B2A9A1C65A"
     },
     "explain_scenario_variant_keys": {
-      "version": 1,
-      "hash": "04A3792281CF7B493F821A09D28E6080B777EDF4B51F2B94BEBF4A7E659F1B85"
+      "version": 2,
+      "hash": "C6F814D2474F1E4ADC161B481A2C8761DBC6DE26FDB997CF7CE6760C5AF1169C"
     },
     "explain_scheduling_rules_model": {
       "version": 6,
