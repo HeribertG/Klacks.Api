@@ -69,7 +69,9 @@ public static class Permissions
     /// and maintains the plan; the supervisor (Authorised) additionally owns orders and shifts, deleting them
     /// included, and creates and maintains employees, which covers assigning their contracts and group
     /// memberships (both gated by CanEditClients); Admin additionally holds every setting, which includes the
-    /// contract templates (Can*Contracts) and the group structure (Can*Groups), and deletes employees.
+    /// contract templates (Can*Contracts) and the group structure (Can*Groups), and deletes employees. Since the
+    /// owner decision of 2026-11-08 every settings write is Admin work, including absence types, monthly target
+    /// hours, individual periods, countries and states, whose generic CRUD Post/Put overrides demand Roles.Admin.
     /// </summary>
     /// <param name="role">The role name, typically one role claim of the caller</param>
     public static IReadOnlyList<string> GetPermissionsForRole(string role)

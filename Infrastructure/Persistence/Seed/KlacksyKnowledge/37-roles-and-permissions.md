@@ -41,8 +41,11 @@ Each level stands for a work area, and every right follows from it:
   creating and maintaining employees (their contract assignments and group memberships included), plus
   all planner work.
 - **Admin**: all settings — among them the contract templates and the group structure (creating,
-  editing, moving and deleting groups), the scheduling rules and user administration — plus deleting
-  employees and other master data, plus everything a Supervisor and a planner may do.
+  editing, moving and deleting groups), the scheduling rules, the absence types with their extended
+  absences, the monthly target hours, the individual periods, the countries and states, and user
+  administration — plus deleting employees and other master data, plus everything a Supervisor and a
+  planner may do. Everybody still sees the absence types, countries and states, because planning and
+  addresses need them.
 
 So assigning a contract to a person or putting a person into a group is employee maintenance
 (Supervisor), while creating or changing the contract template or the group itself is a setting (Admin).
@@ -52,11 +55,17 @@ So assigning a contract to a person or putting a person into a group is employee
 **Supervisor** may create and edit employees and addresses — assigning their contracts and putting
 them into groups or taking them out included — and may create, edit and delete orders and shifts
 (a sealed order only while nothing is planned on it), but may not delete employees. Contract
-templates, the group structure and the scheduling rules are settings and stay with Admin. A
+templates, the group structure, the scheduling rules, the absence types and their extended absences,
+the monthly target hours, the individual periods and the countries and states are settings and stay
+with Admin (owner decision 2026-11-08: all settings are Admin work); a Supervisor cannot create,
+change or delete them, neither on a page nor through Klacksy. He still sees the absence types (to book
+absences) and the countries and states (in addresses). A
 Supervisor may approve a day or a group in the schedule as well as withdraw that approval again.
 
 **Admin** may do everything a Supervisor may, plus: all settings including user administration
-itself, the contract templates, the group structure and the scheduling rules, deleting employees,
+itself, the contract templates, the group structure, the scheduling rules, the absence types and
+their extended absences, the monthly target hours, the individual periods, the countries and states,
+deleting employees,
 groups and contracts, closing and reopening payroll periods, and the specially protected areas such
 as identity providers, reports and calendar rules.
 

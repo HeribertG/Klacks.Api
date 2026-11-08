@@ -38,6 +38,9 @@ Working conditions carry a settlement rhythm. Besides weekly, fortnightly, month
 monthly-target-hours table, there is an **individual** rhythm; only that one offers a named period
 definition to pick.
 
+Individual periods are a setting: only an administrator sees, creates, changes or deletes them, on
+the settings page or through Klacksy (owner decision 2026-11-08).
+
 ## The fields
 
 Card anchor: `individual-periods-card`.

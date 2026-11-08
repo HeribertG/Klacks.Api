@@ -64,10 +64,12 @@ nur über einen Admin. Sag mir, was du ändern willst, dann finden wir den Grund
 ## Stufe 3 — Zusammenspiel
 
 - **Rechte in kurz** (Rollen = Arbeitsbereiche, `explain_roles_and_permissions`): Admin darf alles, dazu gehören
-  alle Einstellungen samt Vertragsvorlagen, Gruppenstruktur und Planungsregeln sowie das Löschen von Personen.
+  alle Einstellungen samt Vertragsvorlagen, Gruppenstruktur, Planungsregeln, Absenzarten mit ihren erweiterten
+  Absenzen, monatlichen Sollstunden, individuellen Perioden, Ländern und Kantonen/Regionen sowie das Löschen von
+  Personen.
   Supervisor darf Bestellungen und Dienste anlegen, bearbeiten und löschen und Personen anlegen und pflegen, auch
-  ihre Verträge zuweisen und sie in Gruppen aufnehmen, aber keine Personen löschen und keine Vorlagen oder Gruppen
-  ändern; er darf Tage freigeben und Freigaben zurücknehmen (über Klacksy). Ein Konto ohne
+  ihre Verträge zuweisen und sie in Gruppen aufnehmen, aber keine Personen löschen und keine Einstellungen ändern
+  (Vorlagen, Gruppen, Absenzarten, Sollstunden, Perioden, Länder; Absenzarten und Länder sieht er weiterhin); er darf Tage freigeben und Freigaben zurücknehmen (über Klacksy). Ein Konto ohne
   Rolle liest, plant (Einträge setzen, ändern, entfernen, Absenzen erfassen, Autofill für sichtbare Gruppen starten), erfasst, ändert und löscht Spesen,
   Plan-Notizen und Planungsbefehle (FREE, EARLY …) und schreibt Notizen, ändert aber keine Stammdaten. Einstellungen, Benutzerverwaltung und Periodenabschluss sind Admin-only.
 - **Ohne Bearbeitungsrecht für Dienste** ist auf der Dienste-Seite nur die Sicht (de: "Planbare Dienste",

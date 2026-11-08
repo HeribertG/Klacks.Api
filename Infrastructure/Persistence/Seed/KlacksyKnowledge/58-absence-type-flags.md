@@ -40,6 +40,8 @@ Every kind of absence, such as holiday or sick leave, has a few switches in the 
 
 ## The switches, step by step
 
+Only an administrator can create, change or delete absence kinds and their extended absences, because they are settings (owner decision 2026-11-08); planners and supervisors book absences with them but cannot edit the kinds.
+
 1. Open the settings, section (de: "Abwesenheit & Kalender", en: "Absence & Calendar", fr: "Absences & Calendrier", it: "Assenze & Calendario"), card (de: "Absenzen", en: "Absences", fr: "Absences", it: "Assenze"). Click a kind to edit it, or (de: "+ Absenz hinzufügen", en: "+ Add Absence", fr: "+ Ajouter une absence", it: "+ Aggiungi assenza") for a new one.
 2. The counting switches are (de: "Samstag wird berechnet", en: "Saturday is calculated"), (de: "Sonntag wird berechnet", en: "Sunday is calculated") and (de: "Feiertage werden berechnet", en: "Holidays are calculated"). Ticking them changes nothing today.
 3. (de: "Gilt auch für Container", en: "Also applies to container", fr: "S'applique aussi au container", it: "Si applica anche al container") offers the kind inside container services.
