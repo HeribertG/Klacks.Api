@@ -248,7 +248,7 @@ jobs:
   integration-tests:
     name: integration-tests (Klacks.IntegrationTest)
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     services:
       postgres:
         image: pgvector/pgvector:pg17
