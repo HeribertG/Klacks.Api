@@ -47,7 +47,7 @@ Discarding a scenario keeps the key and its shifts for the next attempt. A key i
 
 ### Keys and placeholders
 
-Keys handle uncertain shifts. When the people are missing as well, placeholders (`explain_placeholder_employees`) take the key shifts in the scenario: the first stage of automatic planning puts real people first and leaves the rest to the placeholders. After the acceptance, services on placeholders are part of the real plan; they block the period close and the payroll export until each placeholder is converted into a person or its services are moved to one.
+Keys handle uncertain shifts. When the people are missing as well, placeholders (`explain_placeholder_employees`) take the key shifts in the scenario: automatic planning puts real people first and leaves the rest to the placeholders. After the acceptance, services on placeholders are part of the real plan; they block the period close and the payroll export until each placeholder is converted into a person or its services are moved to one.
 
 ### Related skills
 

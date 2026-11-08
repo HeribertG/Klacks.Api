@@ -389,7 +389,7 @@ Admin darf alles. Supervisor darf Personen ansehen, anlegen und bearbeiten, aber
 
 ### Löschen
 
-Löschen darf nur der Admin. Es ist ein Soft-Delete: die Person verschwindet aus der Standardliste, bleibt in der Datenbank und ist nur über (de: "Gelöschte Adressen", en: "Deleted Addresses") sichtbar; dort öffnet sie sich schreibgeschützt (alle Cards gesperrt). Eine Wiederherstellen-Funktion gibt es in der App nicht — das Löschen ist aus Sicht der App endgültig. Wenn jemand nur das Unternehmen verlässt, ist das Austrittsdatum der richtige Weg, denn es lässt sich ändern oder wieder leeren. Ein Platzhalter, auf dem noch Dienste des echten Plans liegen, lässt sich nicht löschen; die Meldung nennt seinen Namen und die Anzahl der Dienste.
+Löschen darf nur der Admin. Es ist ein Soft-Delete: die Person verschwindet aus der Standardliste, bleibt in der Datenbank und ist nur über (de: "Gelöschte Adressen", en: "Deleted Addresses") sichtbar; dort öffnet sie sich schreibgeschützt (alle Cards gesperrt). Eine Wiederherstellen-Funktion gibt es in der App nicht — das Löschen ist aus Sicht der App endgültig. Wenn jemand nur das Unternehmen verlässt, ist das Austrittsdatum der richtige Weg, denn es lässt sich ändern oder wieder leeren. Ein Platzhalter, auf dem noch Dienste im echten Plan oder in einem offenen Szenario liegen (auch in einem Vorschlag von Wizard 4), lässt sich nicht löschen; die Meldung nennt seinen Namen und die Anzahl der Dienste. Zuerst die Dienste einer Person zuweisen oder das Szenario verwerfen.
 
 ### Typ ändern
 

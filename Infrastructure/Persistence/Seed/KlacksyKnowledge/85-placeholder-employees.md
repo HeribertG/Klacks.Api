@@ -41,7 +41,7 @@ A placeholder has only a display name: no first name, no gender, no address, no 
 
 ## Planning on placeholders
 
-A planner plans on existing placeholders like on any person: place, move and remove services, also by drag and drop; automatic planning treats them as planning rows as well. A placeholder follows the company defaults of an employee without a contract (rest time, maximum hours, days in a row), but its **target hours are 0**. The first stage of automatic planning (Wizard 1, also as the first stage of autofill) puts every placeholder behind every real person, so real people are planned first and placeholders take what is left.
+A planner plans on existing placeholders like on any person: place, move and remove services, also by drag and drop; automatic planning treats them as planning rows as well. A placeholder follows the company defaults of an employee without a contract (rest time, maximum hours, days in a row), but its **target hours are 0**. Every automatic planner ranks placeholders last: the filling stage (Wizard 1), the Harmonizer (Wizard 2), the Holistic Harmonizer (Wizard 3), Wizard 4 (Background Optimizer) and every stage of autofill. "Last" means each placeholder comes after every real person, also after a real person with 0 target hours. Real people therefore get the services first and placeholders take what is left.
 
 ## Converting a placeholder into a person
 
@@ -57,7 +57,7 @@ Only a Supervisor or an Admin converts (the right to edit employees) and sees th
 
 - **Period close:** a period (global or for a group) cannot be closed while one of its services lies on a placeholder. This check comes once every service is confirmed, it cannot be confirmed away with (de: "Trotzdem abschliessen", en: "Close anyway"), and (de: "Probleme dieser Periode", en: "Issues in this period", fr: "Problèmes de cette période", it: "Problemi di questo periodo") lists it. Klacksy's automatic close does not close such a period either.
 - **Payroll export:** blocked with the reason (de: "Dienst liegt auf einem Platzhalter", en: "Service assigned to a placeholder", fr: "Service attribué à un employé fictif", it: "Turno assegnato a un segnaposto"), one per placeholder and day, also when a real person replaces part of such a service.
-- **Deleting:** only an Admin deletes, and a placeholder that still holds services of the real plan cannot be deleted; the message names the placeholder and the number of services. Services that exist only in scenarios do not block the deletion.
+- **Deleting:** only an Admin deletes, and a placeholder that still holds services in the real plan or in an open scenario (also a Wizard 4 proposal) cannot be deleted; the message names the placeholder and the number of services. First move the services to a person or discard the scenario that holds them.
 - **No contact:** no address, no e-mail or phone, no (de: "Dienstplan versenden", en: "Send Staff Schedule", fr: "Envoyer le planning du personnel", it: "Invia piano turni") and no place in a broadcast.
 - **No replacement:** a placeholder is never offered or accepted as a replacement or cover, and its row has no (de: "Ausfall decken...", en: "Cover absence...", fr: "Couvrir l'absence...", it: "Copri assenza...").
 - **Not a head:** the employee count of the period summary, the resource monitor and the target-hours drift leave placeholders out. The absence calendar and the availability page do not list them.
@@ -69,7 +69,7 @@ Only a Supervisor or an Admin converts (the right to edit employees) and sees th
 1. Put the uncertain shifts of the announced order into a key (`explain_scenario_variant_keys`).
 2. Create a scenario that carries the key.
 3. Create placeholders for the missing people: the group of the shifts, the period of the order, the qualifications the shifts need.
-4. Plan the scenario automatically: its first stage plans real people first, placeholders fill the rest.
+4. Plan the scenario automatically: real people first, placeholders fill the rest.
 5. When the customer confirms, accept the scenario (Supervisor or Admin); its services, including those on placeholders, become the real plan.
 6. As names arrive, convert each placeholder, or move its services to an existing person one by one (drag and drop); the move checks membership, group period and mandatory qualifications. A transfer of all services at once does not exist.
 7. Before the period close no service may be left on a placeholder.
