@@ -10,17 +10,16 @@ using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Associations;
 
 /// <summary>
-/// The group structure: create, edit, move, locate and delete groups. Every structural write is Admin-only, because the
-/// group structure is a setting (owner decision 2026-11-07: roles are work areas, Admin holds every setting). Putting an
-/// employee into a group is employee maintenance and stays with the supervisor through the client aggregate and
-/// GroupItemsController; PUT here also carries the member list of the group page, which is therefore an Admin page. The
-/// Post and Put overrides only add the Admin restriction: an [Authorize] on an override is AND-combined with the base
-/// Admin/Authorised attribute, so the effective rule is Admin. Reads stay open.
+/// The group structure: create, edit, move, locate and delete groups. Moving, locating and deleting are Admin-only,
+/// because the group structure is a setting (owner decision 2026-11-07: roles are work areas, Admin holds every
+/// setting). Post and Put keep the inherited Admin/Authorised gate (owner decision 2026-11-08): a supervisor creates
+/// subgroups under a visible group and edits name, description, validity and members of a visible group that has a
+/// parent. The Groups PostCommandHandler and PutCommandHandler hold that boundary for every caller without the Admin
+/// role, so the assistant skills that call these endpoints with the caller's token meet the same rule. Reads stay open.
 /// </summary>
 public class GroupsController : InputBaseController<GroupResource>
 {
@@ -28,14 +27,6 @@ public class GroupsController : InputBaseController<GroupResource>
       : base(Mediator, logger)
     {
     }
-
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
-    public override Task<ActionResult<GroupResource>> Post([FromBody] GroupResource resource) =>
-        base.Post(resource);
-
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
-    public override Task<ActionResult<GroupResource>> Put([FromBody] GroupResource resource) =>
-        base.Put(resource);
 
     /// <summary>
     /// Soft-deletes a group together with its children in one transaction. Exists because the plain

@@ -12,8 +12,9 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Staffs;
 
 /// <summary>
 /// The groups a client is assigned to (read) on the generic group CRUD. Post and Put write a group itself, the same
-/// commands as GroupsController, so they are Admin-only like there: the group structure is a setting (owner decision
-/// 2026-11-07). The overrides only add the Admin restriction to the inherited Admin/Authorised attribute.
+/// commands as GroupsController, and stay Admin-only here: the group structure is a setting (owner decision
+/// 2026-11-07), and the supervisor's subgroup writes (owner decision 2026-11-08) go through GroupsController only. The
+/// overrides only add the Admin restriction to the inherited Admin/Authorised attribute.
 /// </summary>
 public class AssignedGroupsController(IMediator mediator, ILogger<AssignedGroupsController> logger) : InputBaseController<GroupResource>(mediator, logger)
 {

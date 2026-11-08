@@ -2259,7 +2259,7 @@
     "route": "/workplace/edit-group",
     "labelKey": "nav.edit-group",
     "category": "page",
-    "requiredPermission": "CanEditGroups",
+    "requiredPermission": "CanEditSubgroups",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
     "lastScannedAt": "2026-09-12T11:33:05.360Z",
     "synonyms": {

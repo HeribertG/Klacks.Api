@@ -21,6 +21,8 @@
 /// user would turn into none at all.
 /// start_autowizard, list_open_wizard_jobs and cancel_wizard_job are listed because their planner-floor gate reaches every
 /// signed-in user while the AutoWizard job access guard behind them treats a missing user as unrestricted.
+/// create_group and update_group are listed because CanEditSubgroups reaches the Supervisor (owner decision 2026-11-08)
+/// while the Groups Post and Put handlers behind them decide subgroup writes through the group visibility guard.
 /// SkillRestParityGateTests also fails when a skill reachable from the planner floor injects a client or shift visibility guard
 /// and is not listed here, which is the reason for the second block of names: their answer or effect passes one of those guards,
 /// and a guard without a user answers as for a background job.
@@ -87,7 +89,9 @@ public static class GroupVisibilityBoundSkills
         "update_break_placeholder",
         "start_autowizard",
         "list_open_wizard_jobs",
-        "cancel_wizard_job"
+        "cancel_wizard_job",
+        "create_group",
+        "update_group"
     };
 
     public static bool Contains(string? skillName) =>

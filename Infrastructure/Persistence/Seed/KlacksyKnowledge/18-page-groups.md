@@ -70,10 +70,15 @@ Kopfleiste filtert Mitarbeitende, Absenzen, Einsatzplanung, Dienste und Verfügb
 Erreichbar über das Navi-Icon `open-groups` (Tooltip "Alle Gruppen", Alt+6) oder die Route
 `/workplace/group`; der Editor liegt unter `/workplace/edit-group` (neu) bzw.
 `/workplace/edit-group/:id` (bestehend). Lesen dürfen alle Angemeldeten (Recht `CanViewGroups`);
-Gruppen anlegen, bearbeiten, umhängen und löschen darf nur der Admin, denn die Gruppenstruktur ist eine
-Einstellung; damit ist auch die Mitgliederliste im Gruppen-Editor eine Admin-Maske. Personen in eine Gruppe
-aufnehmen oder aus ihr entfernen darf auch der Supervisor (Mitarbeiterpflege): über die Card "Gruppen" der Person
-oder über Klacksy.
+Die Gruppenstruktur ist eine Einstellung und gehört dem Admin: Wurzelgruppen anlegen, Gruppen umhängen,
+kopieren, verorten und löschen sowie Zahlungsintervall und Feiertagskalender ändern. Ausnahme (Owner-Entscheid
+2026-11-08): Der Supervisor legt Untergruppen unter jeder Gruppe an, die er sieht (das **+** am Knoten), etwa
+eine Untergruppe nur mit Platzhaltern und vorläufigen Diensten für einen Grossanlass, und ändert Name,
+Beschreibung, Gültigkeit und Mitglieder der Gruppen unterhalb seiner Wurzelgruppe. Seine eigene Wurzelgruppe
+bleibt für ihn schreibgeschützt (Auge statt Stift). Eine neue Untergruppe übernimmt Zahlungsintervall und
+Feiertagskalender der Elterngruppe; beim Supervisor erzwingt das der Server, der Admin kann die vorbelegten
+Werte ändern. Personen in eine Gruppe aufnehmen oder aus ihr entfernen darf der Supervisor ausserdem über die
+Card "Gruppen" der Person oder über Klacksy (Mitarbeiterpflege).
 Die Gruppen-Sichtbarkeit pro Benutzer ist eine Karte in den Einstellungen (`/workplace/settings`,
 Navigationsziel `group-scope`, nur Admin).
 
@@ -140,14 +145,13 @@ ist Standard, die zuletzt gewählte Ansicht wird im Browser gemerkt (LocalStorag
   Untergruppen (`tree-node-toggle-{id}`), den Gruppennamen (Tooltip = Beschreibung) und ein
   Zahlen-Badge im Format `X | Y`: **X** = Mitglieder inklusive aller Untergruppen (rekursiv
   summiert), **Y** = direkte Mitglieder nur dieser Gruppe.
-- Knoten-Aktionen (mit Schreibrecht): Stift (`tree-node-edit-btn-{id}`, bearbeiten),
-  Kopieren (`tree-node-copy-btn-{id}`, dupliziert als "<Name>-copy"), **+**
-  (`tree-node-add-btn-{id}`, legt eine Untergruppe direkt unter diesem Knoten an) und
-  Papierkorb (`tree-node-delete-btn-{id}`) mit Bestätigungsdialog **"Möchten Sie diese
-  Gruppe und alle Untergruppen wirklich löschen?"** — Löschen entfernt die Gruppe MIT allen
-  Untergruppen. Ohne Schreibrecht erscheint stattdessen ein Auge (`tree-node-view-btn-{id}`,
-  nur ansehen).
-- **Drag & Drop:** Ein Knoten lässt sich auf einen anderen ziehen und wird unter den
+- Knoten-Aktionen: Stift (`tree-node-edit-btn-{id}`, bearbeiten; Admin bei jeder Gruppe, Supervisor nur
+  bei Gruppen mit Elterngruppe), Kopieren (`tree-node-copy-btn-{id}`, dupliziert als "<Name>-copy"; nur
+  Admin), **+** (`tree-node-add-btn-{id}`, legt eine Untergruppe direkt unter diesem Knoten an; Admin und
+  Supervisor) und Papierkorb (`tree-node-delete-btn-{id}`, nur Admin) mit Bestätigungsdialog **"Möchten
+  Sie diese Gruppe und alle Untergruppen wirklich löschen?"** — Löschen entfernt die Gruppe MIT allen
+  Untergruppen. Wo der Stift fehlt, erscheint ein Auge (`tree-node-view-btn-{id}`, nur ansehen).
+- **Drag & Drop (nur Admin):** Ein Knoten lässt sich auf einen anderen ziehen und wird unter den
   Zielknoten umgehängt (Re-Parenting). Beim Ziehen an den oberen/unteren Rand scrollt die
   Ansicht automatisch.
 - Die Baumansicht zeigt nur die HEUTE gültigen Gruppen (Gültig-Von ≤ heute ≤ Gültig-Bis);
@@ -269,7 +273,9 @@ Admin-Konten ist der Button deaktiviert — Admins sehen immer alles.
   Anzahl Kinder/Mitglieder) — Skill `get_group_details`
 - Wer ist in der Gruppe? Mitglieder inkl. Mitgliedschafts-Gültigkeit — Skill `list_group_members`
 - Gruppe anlegen / umbenennen / löschen — Skills `create_group`, `update_group`, `delete_group`
-  (`update_group` ändert auch Zahlungsintervall und Feiertags-Kalender; verifiziert gegen die DB)
+  (`update_group` ändert auch Zahlungsintervall und Feiertags-Kalender; verifiziert gegen die DB). Der
+  Supervisor legt mit `create_group` nur Untergruppen einer sichtbaren Gruppe an und ändert mit
+  `update_group` nur Name, Beschreibung und Gültigkeit einer Untergruppe.
 - Gruppe im Baum verschieben (neuer Elternknoten, wie Drag-and-drop) — Skill `move_group`
   (verweigert Verschieben unter eigene Nachfahren; verifiziert gegen die DB)
 - Person in Gruppe aufnehmen/entfernen — Skills `add_client_to_group_by_name`,
@@ -349,8 +355,9 @@ Admin-Konten ist der Button deaktiviert — Admins sehen immer alles.
 
 ### Was sich nicht vererbt
 
-- Zahlungsintervall und Standort sind Werte genau dieser Gruppe; Untergruppen übernehmen sie nicht vom
-  Elternknoten. Der Feiertagskalender im Einsatzplan ist der Kalender der gewählten Gruppe, sonst der
+- Zahlungsintervall und Standort sind Werte genau dieser Gruppe; spätere Änderungen an der Elterngruppe
+  erreichen die Untergruppen nicht. Nur beim Anlegen startet eine Untergruppe mit Zahlungsintervall und
+  Feiertagskalender ihrer Elterngruppe. Der Feiertagskalender im Einsatzplan ist der Kalender der gewählten Gruppe, sonst der
   Firmenkalender — nie der der Elterngruppe.
 - Die Stundenbilanz einer Gruppe zählt nur Mitarbeitende, die direkt in genau dieser Gruppe sind; die
   Absenz-Überschneidung bezieht die Untergruppen mit ein.

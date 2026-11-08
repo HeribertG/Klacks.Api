@@ -43,7 +43,7 @@ small and keeps staff data away from people who do not need it.
 
 ## Working with groups, step by step
 
-Every signed-in user can read the Groups pages; the members of groups outside their visible groups stay hidden. Creating, editing, re-parenting and deleting groups is Admin-only, because the group structure is a setting; putting a person into a group or taking them out is employee maintenance, which the Supervisor may do too (the person's Groups card or Klacksy). Who sees which groups is set by the Admin in the settings.
+Every signed-in user can read the Groups pages; the members of groups outside their visible groups stay hidden. Creating root groups, re-parenting, locating and deleting groups and changing a group's payment interval or holiday calendar is Admin-only, because the group structure is a setting. The one exception (owner decision 2026-11-08): a Supervisor creates subgroups under the groups he sees and changes name, description, validity and members of the groups below his root group; a new subgroup takes payment interval and holiday calendar from its parent. putting a person into a group or taking them out is employee maintenance, which the Supervisor may do too (the person's Groups card or Klacksy). Who sees which groups is set by the Admin in the settings.
 
 1. **Create a group:** open the Groups page and click the button (de: "+ Gruppe erfassen", en: "+ Create
    Group", fr: "+ Créer un groupe", it: "+ Crea gruppo"). In the editor give the group a name; the card
@@ -197,7 +197,8 @@ air-line, not by road; and a person without a geocoded address is left where the
 moves people can end their other memberships — the proposal states how many before anything is applied.
 
 **Settings do not cascade down the tree.** Payment interval and location are values of that one group;
-subgroups do not inherit them from their parent.
+a later change on the parent does not reach its subgroups. Only when a subgroup is created does it start
+with the payment interval and holiday calendar of its parent.
 
 **Evaluations differ.** A group's hours balance counts only the employees directly assigned to that
 exact group (and only those whose membership overlaps the period), while the absence overlap also

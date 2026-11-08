@@ -2,7 +2,8 @@
 name: explain_group_hierarchy_inheritance
 description: |
   Explains what carries down a group hierarchy: payment interval, calendar selection and location
-  are per-group fields with no parent fallback, while visibility and filtering reach every subgroup.
+  are per-group fields with no parent fallback (a new subgroup only starts with its parent's payment
+  interval and calendar), while visibility and filtering reach every subgroup.
   The schedule uses the group's own or the company calendar; only the proactive unstaffed-shift
   check falls back to the parent's. Covers why the hours balance (direct members) and the absence
   overlap (whole subtree) disagree. Use this when asked whether a setting cascades to subgroups.
@@ -28,16 +29,18 @@ synonyms:
 
 # Group hierarchy — what carries down and what does not
 
-Almost nothing about a group's own configuration passes down to its subgroups automatically — only
-visibility and filtering follow the tree.
+Almost nothing about a group's own configuration passes down to its subgroups automatically — a new
+subgroup starts with its parent's payment interval and holiday calendar, and after that only visibility
+and filtering follow the tree.
 
 <!-- level:short -->
 
-## Subgroups do not copy their parent
+## Subgroups do not follow their parent
 
-Groups can sit inside other groups, like a region with teams below it. What you set on the region — for
-example its payment interval — is not handed down to the teams: each team keeps its own value until you
-change it there. What does follow the tree is who can see what: allowing a user to see a region also
+Groups can sit inside other groups, like a region with teams below it. A new team starts with the payment
+interval and holiday calendar of the region it is created in (for a Supervisor that is fixed; an Admin
+can change the pre-filled values). Later changes on the region are not handed down to the teams: each
+team keeps its own value until you change it there. What does follow the tree is who can see what: allowing a user to see a region also
 shows every team inside it, and choosing a region at the top of the app shows all its teams together.
 Example: you set the region to "Biweekly", but a team below it still says "Monthly" until you change the
 team itself.
@@ -52,7 +55,8 @@ team itself.
    "Informazioni sul Gruppo") set the dropdown (de: "Zahlungsintervall", en: "Payment Interval", fr:
    "Intervalle de paiement", it: "Intervallo di pagamento") and the dropdown (de: "Kalenderauswahl", en:
    "Calendar Selection", fr: "Sélection du calendrier", it: "Selezione calendario").
-3. Repeat for every subgroup that should have the same value — nothing is copied for you.
+3. Repeat for every existing subgroup that should have the same value — a later change is not copied for
+   you. Payment interval and calendar can only be changed by an Admin.
 4. A group's location has no input field there; it is set through Klacksy (`set_group_location`).
 5. To make a user see a whole region, tick only its top-level group on the page (de: "Sichtbarkeit von
    Gruppen pro Benutzer", en: "Visibility of Groups per User", fr: "Visibilité des groupes par

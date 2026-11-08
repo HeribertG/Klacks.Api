@@ -90,6 +90,8 @@ public class GetUserPermissionsSkill : BaseSkillImplementation
 
         if (permissions.Contains(Permissions.CanEditGroups))
             actions.Add("Edit, move and locate groups in the group structure");
+        else if (permissions.Contains(Permissions.CanEditSubgroups))
+            actions.Add("Create subgroups under visible groups and edit name, description and validity of subgroups");
 
         if (permissions.Contains(Permissions.CanViewContracts))
             actions.Add("View contracts");

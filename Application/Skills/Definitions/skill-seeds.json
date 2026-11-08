@@ -1,5 +1,5 @@
 {
-  "version": 26,
+  "version": 27,
   "skills": [
     {
       "name": "get_current_time",
@@ -17301,11 +17301,11 @@
     {
       "name": "create_group",
       "area": "group",
-      "description": "Creates a new group (location, organisational unit or team) with optional parent for the nested-set hierarchy. ValidFrom defaults to today if not given. Use for splitting a team or adding a scheduling unit. Not for a branch office record (Filiale) with its postal address. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Creates a new group (location, organisational unit or team) with optional parent for the nested-set hierarchy. ValidFrom defaults to today. Use for splitting a team or adding a scheduling unit. A supervisor creates subgroups only: parentId must name a visible group, and payment interval and holiday calendar come from the parent. Not for a branch office record (Filiale). Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanCreateGroups"
+        "CanEditSubgroups"
       ],
       "parameters": [
         {
@@ -17440,16 +17440,16 @@
         "fr": "Créer un nouveau groupe",
         "it": "Crea un nuovo gruppo"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "update_group",
       "area": "group",
-      "description": "Updates an existing group's name, description, validity dates, payment interval (the period grid of the schedule) and holiday-calendar assignment. The write is verified against the database and rolled back on mismatch. Reparenting (moving the group under a different parent) is NOT handled here — use move_group so the nested-set invariants stay intact. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Updates an existing group's name, description, validity dates, payment interval (the period grid of the schedule) and holiday-calendar assignment. A supervisor changes only name, description and validity of a subgroup. Reparenting is NOT handled here — use move_group so the nested-set invariants stay intact. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditGroups"
+        "CanEditSubgroups"
       ],
       "parameters": [
         {
@@ -17576,7 +17576,7 @@
         "fr": "Modifier un groupe",
         "it": "Modifica un gruppo"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "get_group_details",

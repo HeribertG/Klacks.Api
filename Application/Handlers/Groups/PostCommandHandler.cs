@@ -7,28 +7,36 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Associations;
 
 namespace Klacks.Api.Application.Handlers.Groups;
 
 /// <summary>
-/// Creates a group, optionally under a parent and with initial client members, and queues it for geocoding.
-/// A group-restricted caller may only create groups under a visible parent (a hidden parent is answered like
-/// a missing one) and may not add clients they cannot see. Creating a root group stays open to every caller
-/// allowed on the endpoint: an empty root makes nobody visible.
+/// Creates a group, optionally under a parent and with initial client members, and queues it for geocoding. Nobody
+/// may create a group under a hidden parent or add clients they cannot see. A caller without the Admin role (the
+/// supervisor, owner decision 2026-11-08) may only create a subgroup: the parent is required and shift assignments are
+/// not accepted (they go through GroupItems with their own shift checks), otherwise the write is forbidden (403); the
+/// subgroup takes payment interval and holiday calendar from its parent whatever the request carries, so it is
+/// plannable at once and the settings stay with the Admin. The Admin creates root groups and chooses the settings
+/// freely. Skills reach this handler through the REST endpoint with the caller's token.
 /// </summary>
-/// <param name="groupRepository">Self-committing nested-set aware group store</param>
+/// <param name="groupRepository">Self-committing nested-set aware group store; also supplies the parent's settings</param>
 /// <param name="groupVisibilityGuard">Decides whether the caller may write under the requested parent</param>
 /// <param name="clientVisibilityGuard">Decides whether the caller may see the initial members</param>
+/// <param name="userService">Tells whether the caller holds the Admin role (role claim, like the endpoint gate)</param>
 public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCommand<GroupResource>, GroupResource?>
 {
-    private const string ParentNotFoundMessage = "Parent group with ID {0} not found";
+    private const string SubgroupParentRequiredMessage =
+        "Only an administrator may create a root group, a group outside the visible group tree or a group with shift assignments; create the group as a subgroup of a visible group.";
 
     private readonly IGroupRepository _groupRepository;
     private readonly GroupMapper _groupMapper;
     private readonly IGroupGeocodingQueue _groupGeocodingQueue;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IUserService _userService;
 
     public PostCommandHandler(
         IGroupRepository groupRepository,
@@ -36,6 +44,7 @@ public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCo
         IGroupGeocodingQueue groupGeocodingQueue,
         IGroupVisibilityGuard groupVisibilityGuard,
         IClientVisibilityGuard clientVisibilityGuard,
+        IUserService userService,
         IUnitOfWork unitOfWork,
         ILogger<PostCommandHandler> logger)
         : base(unitOfWork, logger)
@@ -45,16 +54,22 @@ public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCo
         _groupGeocodingQueue = groupGeocodingQueue;
         _groupVisibilityGuard = groupVisibilityGuard;
         _clientVisibilityGuard = clientVisibilityGuard;
+        _userService = userService;
     }
 
     public async Task<GroupResource?> Handle(PostCommand<GroupResource> request, CancellationToken cancellationToken)
     {
         var created = await ExecuteWithTransactionAsync(async () =>
         {
-            await EnsureCallerMayCreateAsync(request.Resource, cancellationToken);
+            var inheritedSettingsSource = await EnsureCallerMayCreateAsync(request.Resource, cancellationToken);
 
             var group = _groupMapper.ToGroupEntity(request.Resource);
             group.Id = Guid.NewGuid();
+            if (inheritedSettingsSource != null)
+            {
+                group.PaymentInterval = inheritedSettingsSource.PaymentInterval;
+                group.CalendarSelectionId = inheritedSettingsSource.CalendarSelectionId;
+            }
             await _groupRepository.Add(group);
             await _unitOfWork.CompleteAsync();
             return _groupMapper.ToGroupResource(group);
@@ -70,15 +85,20 @@ public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCo
         return created;
     }
 
-    private async Task EnsureCallerMayCreateAsync(GroupResource resource, CancellationToken cancellationToken)
+    private async Task<Group?> EnsureCallerMayCreateAsync(GroupResource resource, CancellationToken cancellationToken)
     {
-        if (resource.Parent.HasValue)
+        var isAdmin = _userService.GetRights().Contains(Roles.Admin);
+        var parentHidden = resource.Parent.HasValue
+            && !await _groupVisibilityGuard.IsGroupVisibleAsync(resource.Parent.Value, cancellationToken);
+        var subgroupRuleBroken = !isAdmin
+            && (!resource.Parent.HasValue || (resource.GroupItems ?? []).Any(item => item.ShiftId.HasValue));
+
+        if (parentHidden || subgroupRuleBroken)
         {
-            if (!await _groupVisibilityGuard.IsGroupVisibleAsync(resource.Parent.Value, cancellationToken))
-            {
-                throw new KeyNotFoundException(string.Format(ParentNotFoundMessage, resource.Parent.Value));
-            }
+            throw new ForbiddenException(SubgroupParentRequiredMessage);
         }
+
+        var inheritedSettingsSource = isAdmin ? null : await _groupRepository.Get(resource.Parent!.Value);
 
         var memberClientIds = (resource.GroupItems ?? [])
             .Where(item => item.ClientId.HasValue)
@@ -87,5 +107,7 @@ public class PostCommandHandler : BaseTransactionHandler, IRequestHandler<PostCo
 
         await GroupMemberVisibilityCheck.EnsureAddedClientsVisibleAsync(
             _clientVisibilityGuard, memberClientIds, cancellationToken);
+
+        return inheritedSettingsSource;
     }
 }

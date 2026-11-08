@@ -139,7 +139,8 @@ public class CreateGroupSkill : BaseSkillImplementation
         }
 
         return BuildCreatedResult(
-            result.Value.Id, group, name, parentId, paymentInterval, calendarSelectionId, usersKeepingFullVisibility);
+            result.Value.Id, group, name, parentId, result.Value.PaymentInterval, result.Value.CalendarSelectionId,
+            usersKeepingFullVisibility);
     }
 
     private async Task<(Guid? ParentId, SkillResult? Error)> ResolveParentAsync(string? parentIdStr, GroupScopeAccess scope)

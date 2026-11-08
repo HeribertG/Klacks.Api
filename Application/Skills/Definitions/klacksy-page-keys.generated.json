@@ -81,7 +81,7 @@
       "pageKey": "edit-group",
       "route": "/workplace/edit-group",
       "requiredPermission": "CanViewGroups",
-      "actionPermission": "CanEditGroups",
+      "actionPermission": "CanEditSubgroups",
       "hasEntityParam": true,
       "llmHint": "edit existing group"
     },

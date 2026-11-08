@@ -38,24 +38,30 @@ Each level stands for a work area, and every right follows from it:
 - **Planner** (no role): creates and maintains the plan — placing, changing and removing entries,
   autofill, recording absences.
 - **Supervisor**: orders and shifts (create, edit, seal, cut and delete them, containers included),
-  creating and maintaining employees (their contract assignments and group memberships included), plus
-  all planner work.
-- **Admin**: all settings — among them the contract templates and the group structure (creating,
-  editing, moving and deleting groups), the scheduling rules, the absence types with their extended
+  creating and maintaining employees (their contract assignments and group memberships included),
+  creating subgroups inside the groups he sees, plus all planner work.
+- **Admin**: all settings — among them the contract templates and the group structure (creating root
+  groups, moving, locating and deleting groups, and each group's payment interval and holiday calendar), the scheduling rules, the absence types with their extended
   absences, the monthly target hours, the individual periods, the countries and states, and user
   administration — plus deleting employees and other master data, plus everything a Supervisor and a
   planner may do. Everybody still sees the absence types, countries and states, because planning and
   addresses need them.
 
 So assigning a contract to a person or putting a person into a group is employee maintenance
-(Supervisor), while creating or changing the contract template or the group itself is a setting (Admin).
+(Supervisor), while creating or changing the contract template or the group structure is a setting (Admin).
+The one exception (owner decision 2026-11-08): a Supervisor may create a subgroup under any group he
+sees — for example one subgroup only with placeholders and provisional shifts for a large event — and
+may change name, description and validity of the groups below his root group, and their members. He may
+not create a new root group, not rename or end his own root group, not move, locate or delete a group,
+and not change payment interval or holiday calendar: a subgroup he creates takes both from its parent
+group, so it can be planned at once (an Admin gets them pre-filled and may change them).
 
 ## The two levels
 
 **Supervisor** may create and edit employees and addresses — assigning their contracts and putting
 them into groups or taking them out included — and may create, edit and delete orders and shifts
 (a sealed order only while nothing is planned on it), but may not delete employees. Contract
-templates, the group structure, the scheduling rules, the absence types and their extended absences,
+templates, the group structure (apart from creating and editing subgroups, see above), the scheduling rules, the absence types and their extended absences,
 the monthly target hours, the individual periods and the countries and states are settings and stay
 with Admin (owner decision 2026-11-08: all settings are Admin work); a Supervisor cannot create,
 change or delete them, neither on a page nor through Klacksy. He still sees the absence types (to book

@@ -14,6 +14,14 @@ public static class Permissions
     public const string CanEditGroups = "CanEditGroups";
     public const string CanDeleteGroups = "CanDeleteGroups";
 
+    /// <summary>
+    /// Creates a subgroup under a visible group and edits name, description and validity of a visible group that has a
+    /// parent (owner decision 2026-11-08). Narrower than CanCreateGroups/CanEditGroups: root groups, moving, location,
+    /// payment interval and holiday calendar stay with those Admin rights. The Groups Post and Put handlers enforce the
+    /// boundary for every caller without the Admin role.
+    /// </summary>
+    public const string CanEditSubgroups = "CanEditSubgroups";
+
     public const string CanViewContracts = "CanViewContracts";
     public const string CanCreateContracts = "CanCreateContracts";
     public const string CanEditContracts = "CanEditContracts";
@@ -72,6 +80,8 @@ public static class Permissions
     /// contract templates (Can*Contracts) and the group structure (Can*Groups), and deletes employees. Since the
     /// owner decision of 2026-11-08 every settings write is Admin work, including absence types, monthly target
     /// hours, individual periods, countries and states, whose generic CRUD Post/Put overrides demand Roles.Admin.
+    /// The one exception in the group structure (owner decision 2026-11-08): the supervisor creates subgroups and
+    /// changes name, description and validity of the groups below the roots of the visible subtree (CanEditSubgroups).
     /// </summary>
     /// <param name="role">The role name, typically one role claim of the caller</param>
     public static IReadOnlyList<string> GetPermissionsForRole(string role)
@@ -81,7 +91,7 @@ public static class Permissions
             Roles.Admin => new[]
             {
                 CanViewClients, CanCreateClients, CanEditClients, CanDeleteClients,
-                CanViewGroups, CanCreateGroups, CanEditGroups, CanDeleteGroups,
+                CanViewGroups, CanCreateGroups, CanEditGroups, CanDeleteGroups, CanEditSubgroups,
                 CanViewContracts, CanCreateContracts, CanEditContracts, CanDeleteContracts,
                 CanViewShifts, CanCreateShifts, CanEditShifts, CanDeleteShifts,
                 CanViewSchedule, CanEditSchedule, CanPlan,
@@ -92,7 +102,7 @@ public static class Permissions
             Roles.Authorised => new[]
             {
                 CanViewClients, CanCreateClients, CanEditClients,
-                CanViewGroups,
+                CanViewGroups, CanEditSubgroups,
                 CanViewContracts,
                 CanViewShifts, CanCreateShifts, CanEditShifts, CanDeleteShifts,
                 CanViewSchedule, CanEditSchedule, CanPlan,
