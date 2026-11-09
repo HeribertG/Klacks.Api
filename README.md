@@ -10,7 +10,7 @@ This repository contains the backend (`Klacks.Api`, .NET). The web interface liv
 - Documentation: <https://klacks-software.ch/docs/>
 - Playground (public instance with sample data, no installation, no registration): <https://play.klacks-software.ch>
 - Installation page: <https://klacks-software.ch/en/land-gb/installation>
-- Download: [klacks-onprem.zip](https://github.com/HeribertG/Klacks.Api/releases/latest/download/klacks-onprem.zip) from the [latest GitHub release](https://github.com/HeribertG/Klacks.Api/releases/latest)
+- Download: only from the [Klacks Store](https://klacks-software.ch/store/?culture=en) (country packages for your own server or Docker Compose, and the Windows installer for an office PC)
 
 ## What Klacks does
 
@@ -40,7 +40,7 @@ Requirements, as stated in the bundled installation guide:
 - Outbound access to `ghcr.io` and `github.com` (images and updates).
 - Ports 80 and 443 free (configurable).
 
-Download [klacks-onprem.zip](https://github.com/HeribertG/Klacks.Api/releases/latest/download/klacks-onprem.zip), extract it, and run the installer from the extracted `onprem` folder.
+Download the installation package for your country from the [Klacks Store](https://klacks-software.ch/store/?culture=en), extract it into a folder that stays where it is (the automatic updates work with this folder), and run the installer from that folder. The package already contains its country's profile and the wrappers `install-<country>.ps1` / `install-<country>.sh`, which preset `-Region` / `REGION`.
 
 Windows (PowerShell):
 
