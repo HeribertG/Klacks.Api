@@ -46,6 +46,8 @@ $SttPort = 5091
 $SttThreads = 2
 $SttModelDirectoryName = 'stt-models'
 $PostgresServiceName = 'KlacksPostgres'
+# A new cluster takes the first free port from -PostgresPort upwards; an existing cluster keeps the port in its postgresql.conf.
+$PostgresPortSearchCount = 100
 # Windows event log sources of the API and the updater (their ApplicationName). Registered at install time, while
 # elevated, so the services never have to create them on their first log write.
 $EventLogSources = @('Klacks.Api', 'Klacks.Updater')
@@ -174,6 +176,30 @@ function Register-SttService($serviceName, $executable, $dataRoot) {
     New-ItemProperty -Path $key -Name 'Environment' -PropertyType MultiString -Value $sttEnvironment -Force | Out-Null
 }
 
+function Get-ClusterPort([string]$dataDirectory) {
+    $conf = Join-Path $dataDirectory 'postgresql.conf'
+    if (-not (Test-Path -LiteralPath $conf)) { return $null }
+    $port = $null
+    foreach ($line in Get-Content -LiteralPath $conf) {
+        if ($line -match '^\s*port\s*=\s*(\d+)') { $port = [int]$Matches[1] }
+    }
+    return $port
+}
+
+# Free = nobody listens on it and it can be bound (Hyper-V/WSL excluded port ranges refuse the bind without a listener).
+function Test-PortFree([int]$port) {
+    if (Get-NetTCPConnection -State Listen -LocalPort $port -ErrorAction SilentlyContinue) { return $false }
+    $listener = New-Object System.Net.Sockets.TcpListener([System.Net.IPAddress]::Loopback, $port)
+    try { $listener.Start(); return $true } catch { return $false } finally { $listener.Stop() }
+}
+
+function Select-FreePort([int]$firstPort, [int]$count) {
+    for ($port = $firstPort; $port -lt $firstPort + $count; $port++) {
+        if (Test-PortFree $port) { return $port }
+    }
+    throw "No free port for PostgreSQL between $firstPort and $($firstPort + $count - 1)."
+}
+
 function Test-VcRuntime {
     foreach ($key in $VcRuntimeKeys) {
         $entry = Get-ItemProperty -Path $key -ErrorAction SilentlyContinue
@@ -211,6 +237,16 @@ $logDirectory = Join-Path $DataRoot 'logs'
 $backupDirectory = Join-Path $DataRoot 'backups'
 $secretsFile = Join-Path $configDirectory $SecretsFileName
 $configFile = Join-Path $configDirectory $ConfigFileName
+
+# Switching "current" to another version is the updater's job (backup, migration, health gate, rollback); installing over
+# a different active version would leave "current" on the old one and silently keep running it.
+if (Test-Path -LiteralPath $currentLink) {
+    $activeTarget = [string](Get-Item -LiteralPath $currentLink -Force).Target
+    $activeVersion = if ($activeTarget) { Split-Path -Leaf $activeTarget.TrimEnd('\') } else { '' }
+    if ($activeVersion -and $activeVersion -ne $Version) {
+        throw "Klacks $activeVersion is already installed in $ProgramRoot; this package contains $Version. Update Klacks from within Klacks (Settings > Software Updates) instead of installing over it."
+    }
+}
 
 # --- 1. Directories -----------------------------------------------------------------------------------------------
 Write-Step "Preparing $ProgramRoot and $DataRoot"
@@ -274,7 +310,18 @@ if (-not (Test-Path (Join-Path $postgresBin 'pg_ctl.exe'))) {
 if (-not (Test-Path (Join-Path $postgresRoot 'lib\vector.dll'))) { throw 'pgvector (lib\vector.dll) is missing from the PostgreSQL payload.' }
 
 $postgresDataSids = @($LocalSystemSid, $AdministratorsSid, $NetworkServiceSid)
-if (-not (Test-Path (Join-Path $pgData 'PG_VERSION'))) {
+$clusterExists = Test-Path (Join-Path $pgData 'PG_VERSION')
+$clusterPort = if ($clusterExists) { Get-ClusterPort $pgData } else { $null }
+if ($clusterPort) {
+    if ($clusterPort -ne $PostgresPort) { Write-Step "The existing database keeps its port $clusterPort" }
+    $PostgresPort = $clusterPort
+}
+else {
+    $requestedPort = $PostgresPort
+    $PostgresPort = Select-FreePort $requestedPort $PostgresPortSearchCount
+    if ($PostgresPort -ne $requestedPort) { Write-Step "Port $requestedPort is in use; PostgreSQL uses port $PostgresPort" }
+}
+if (-not $clusterExists) {
     Write-Step 'Initialising the database cluster'
     if (-not $NoServices) {
         # initdb drops the Administrators group from its token, so the installing account itself needs access while
@@ -293,6 +340,9 @@ if (-not (Test-Path (Join-Path $pgData 'PG_VERSION'))) {
     finally {
         Remove-Item -Force -ErrorAction SilentlyContinue $passwordFile
     }
+}
+# Also after a run that stopped between initdb and this block: without it PostgreSQL would listen on its default port.
+if (-not $clusterPort) {
     Add-Content -Path (Join-Path $pgData 'postgresql.conf') -Value @(
         '', '# Klacks native installation', "port = $PostgresPort", "listen_addresses = 'localhost'",
         "timezone = '$PostgresTimeZone'", "log_timezone = '$PostgresTimeZone'")

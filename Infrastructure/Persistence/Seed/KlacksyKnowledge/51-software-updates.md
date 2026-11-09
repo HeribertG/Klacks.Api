@@ -102,6 +102,15 @@ surprised.
 
 Only an administrator can reach any of this.
 
+**On the office PC (Windows package), this card is the only way to a newer version.** Running a newer
+Windows setup (Klacks-Setup-win-x64.exe) over an existing installation is refused with the message
+that Klacks is already installed and should be updated under Software Updates. Running the setup of
+the version that is already installed is allowed and repairs the installation. Reason: only this card
+backs up the database, checks the new version and returns to the old one if it fails. New
+installations come from the Klacks Store; Edge may warn that the setup file "is not commonly
+downloaded" because the file is new, not because it is unsafe, and the file can be kept via the
+download list ("…" > "Keep" > "Show more" > "Keep anyway").
+
 ## Related skills
 
 - `get_update_status`, `get_update_config`, `update_update_config`
@@ -113,3 +122,5 @@ Only an administrator can reach any of this.
 - "Was passiert mit den Leuten, die gerade arbeiten?"
 - "Es wird keine neue Version angezeigt."
 - "Läuft das Update auch ausserhalb des Wartungsfensters?"
+- "Das Setup sagt, Klacks sei bereits installiert."
+- "Edge sagt, die Datei werde selten heruntergeladen."

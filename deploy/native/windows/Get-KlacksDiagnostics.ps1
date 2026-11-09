@@ -38,6 +38,13 @@ $DatabaseName = 'Klacks'
 $reportFile = Join-Path $ReportDirectory ('Klacks-Diagnose-{0:yyyyMMdd-HHmmss}.txt' -f (Get-Date))
 $baseUrl = "http://localhost:$HttpPort"
 $configFile = Join-Path $DataRoot 'config\klacks.native.json'
+# Install-Klacks.ps1 moves PostgreSQL to the next free port when the default is taken; the cluster's own config knows which.
+$postgresConf = Join-Path $DataRoot 'pgdata\postgresql.conf'
+if (-not $PSBoundParameters.ContainsKey('PostgresPort') -and (Test-Path -LiteralPath $postgresConf)) {
+    foreach ($line in Get-Content -LiteralPath $postgresConf) {
+        if ($line -match '^\s*port\s*=\s*(\d+)') { $PostgresPort = [int]$Matches[1] }
+    }
+}
 $secretsFile = Join-Path $DataRoot 'config\secrets.json'
 
 function Write-Report([string]$text) { Add-Content -Path $reportFile -Value $text -Encoding UTF8 }

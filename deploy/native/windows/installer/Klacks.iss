@@ -12,7 +12,8 @@
 ;
 ; Silent use:  Klacks-Setup-win-x64.exe /VERYSILENT /SUPPRESSMSGBOXES /REGION=CH /PORT=5180 /LOG=setup.log
 ;              unins000.exe /VERYSILENT [/REMOVEDATA]
-; Exit code 0 = Klacks installed (it may still be starting), 1 = installation failed (report path in the log).
+; Exit code 0 = Klacks installed (it may still be starting), 1 = installation failed (report path in the log) or refused
+; because another version is already installed (updates go through the updater; reason in the /LOG).
 ; Uninstaller exit code 0 = Klacks removed, non-zero = not removed (Klacks stays registered; see the uninstall report).
 
 #ifndef Version
@@ -35,6 +36,7 @@
 #define FailedMarker "FAILED"
 #define ReportTimestampFormat "yyyymmdd-hhnnss"
 #define UninstallReportPrefix "Deinstallationsbericht-"
+#define InstalledSizeBytes "1841299456"
 #ifdef TestStub
   #define PowerShellExe "{sysnative}\WindowsPowerShell\v1.0\powershell.exe"
 #else
@@ -72,6 +74,7 @@ Compression=lzma2/fast
 SolidCompression=no
 WizardStyle=modern
 UninstallDisplayName=Klacks
+UninstallDisplaySize={#InstalledSizeBytes}
 SetupLogging=yes
 CloseApplications=no
 RestartApplications=no
@@ -93,7 +96,8 @@ english.FinishReady=Klacks is running. The first login is admin@test.com / P@ssw
 english.FinishStarting=Klacks is installed and still starting (the first start downloads about 700 MB of AI models). Open Klacks from the Start menu in a few minutes. The first login is admin@test.com / P@ssw0rt1.
 english.FinishFailed=The installation did not finish. Please send the installation report to your contact person:
 english.AskRemoveData=Also delete the database, settings and backups of Klacks?%n%nChoose No to keep your data for a later installation.
-english.NewerInstalled=Klacks %1 is already installed (it updated itself). This setup contains the older version %2 and will not replace it.
+english.NewerInstalled=Klacks %1 is already on this computer. This setup contains the older version %2 and will not replace it.
+english.OlderInstalled=Klacks %1 is already installed on this computer. This setup contains the newer version %2 and does not install it over the existing one.%n%nPlease update Klacks from within Klacks: Settings > Software Updates > Update now. Your data is backed up before the update.
 english.InvalidParameter=Invalid value for /%1.
 english.UninstallFailed=Klacks could not be removed completely. It stays in the list of installed apps so that you can start the uninstallation again from there.%n%nPlease restart the computer and then start the uninstallation again.
 english.UninstallFailedReport=If it fails again, please send the uninstallation report to your contact person:
@@ -109,7 +113,8 @@ german.FinishReady=Klacks läuft. Erste Anmeldung: admin@test.com / P@ssw0rt1; K
 german.FinishStarting=Klacks ist installiert und startet noch (der erste Start lädt ca. 700 MB KI-Modelle). Öffnen Sie Klacks in einigen Minuten über das Startmenü. Erste Anmeldung: admin@test.com / P@ssw0rt1.
 german.FinishFailed=Die Installation wurde nicht abgeschlossen. Bitte senden Sie den Installationsbericht an Ihre Ansprechperson:
 german.AskRemoveData=Sollen auch die Datenbank, die Einstellungen und die Sicherungen von Klacks gelöscht werden?%n%nMit Nein bleiben Ihre Daten für eine spätere Installation erhalten.
-german.NewerInstalled=Klacks %1 ist bereits installiert (es hat sich selbst aktualisiert). Dieses Setup enthält die ältere Version %2 und ersetzt sie nicht.
+german.NewerInstalled=Klacks %1 liegt bereits auf diesem Computer. Dieses Setup enthält die ältere Version %2 und ersetzt sie nicht.
+german.OlderInstalled=Klacks %1 ist auf diesem Computer bereits installiert. Dieses Setup enthält die neuere Version %2 und installiert sie nicht darüber.%n%nBitte aktualisieren Sie Klacks in Klacks selbst: Einstellungen > Software-Updates > Jetzt aktualisieren. Vor dem Update werden Ihre Daten gesichert.
 german.InvalidParameter=Ungültiger Wert für /%1.
 german.UninstallFailed=Klacks konnte nicht vollständig entfernt werden. Klacks bleibt in der Liste der installierten Apps, damit Sie die Deinstallation dort erneut starten können.%n%nBitte starten Sie den Computer neu und starten Sie die Deinstallation danach noch einmal.
 german.UninstallFailedReport=Falls es wieder nicht klappt, senden Sie bitte den Deinstallationsbericht an Ihre Ansprechperson:
@@ -131,6 +136,7 @@ Name: "{autoprograms}\Klacks"; Filename: "{app}\Klacks.url"
 Name: "{autodesktop}\Klacks"; Filename: "{app}\Klacks.url"; Tasks: desktopicon
 
 [UninstallDelete]
+Type: files; Name: "{app}\Klacks.url"
 Type: files; Name: "{app}\Installationsbericht-*.txt"
 Type: files; Name: "{app}\{#UninstallReportPrefix}*.txt"
 
@@ -259,6 +265,25 @@ begin
   end;
 end;
 
+function IsVersionName(const Name: String): Boolean;
+var
+  I, Dots: Integer;
+begin
+  Dots := 0;
+  Result := (Length(Name) > 0) and (Name[1] <> '.') and (Name[Length(Name)] <> '.');
+  for I := 1 to Length(Name) do
+    if Name[I] = '.' then
+    begin
+      Dots := Dots + 1;
+      if (I > 1) and (Name[I - 1] = '.') then
+        Result := False;
+    end
+    else if (Name[I] < '0') or (Name[I] > '9') then
+      Result := False;
+  if Dots <> 2 then
+    Result := False;
+end;
+
 function HighestInstalledVersion: String;
 var
   Find: TFindRec;
@@ -269,7 +294,7 @@ begin
   if FindFirst(Root + '*', Find) then
   try
     repeat
-      if ((Find.Attributes and FILE_ATTRIBUTE_DIRECTORY) <> 0) and (Find.Name <> '.') and (Find.Name <> '..') then
+      if ((Find.Attributes and FILE_ATTRIBUTE_DIRECTORY) <> 0) and IsVersionName(Find.Name) then
         if (Result = '') or (CompareVersions(Find.Name, Result) > 0) then
           Result := Find.Name;
     until not FindNext(Find);
@@ -284,9 +309,16 @@ var
 begin
   Result := True;
   Installed := HighestInstalledVersion;
-  if (Installed <> '') and (CompareVersions(Installed, '{#VersionCore}') > 0) then
+  if Installed = '' then
+    Exit;
+  if CompareVersions(Installed, '{#VersionCore}') > 0 then
   begin
     SuppressibleMsgBox(FmtMessage(CustomMessage('NewerInstalled'), [Installed, '{#Version}']), mbError, MB_OK, IDOK);
+    Result := False;
+  end
+  else if CompareVersions(Installed, '{#VersionCore}') < 0 then
+  begin
+    SuppressibleMsgBox(FmtMessage(CustomMessage('OlderInstalled'), [Installed, '{#Version}']), mbError, MB_OK, IDOK);
     Result := False;
   end;
 end;

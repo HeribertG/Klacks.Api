@@ -9,7 +9,7 @@
 #   BaseUrl       Loopback address of the installed Klacks, e.g. http://127.0.0.1:5180
 #   ProgramRoot   Program folder of the installation (holds pgsql\bin\psql.exe)
 #   DataRoot      Data folder of the installation (holds config\klacks.native.json and config\secrets.json)
-#   PostgresPort  Port of the bundled PostgreSQL service
+#   PostgresPort  Port of the bundled PostgreSQL service (default: the port in klacks.native.json)
 #
 # Example:
 #   .\Assert-KlacksCustomerDefaults.ps1 -BaseUrl http://127.0.0.1:5180
@@ -35,6 +35,11 @@ $DemoOnlyTables = @('client', 'address', 'membership', 'annotation', 'client_con
 $configFile = Join-Path $DataRoot 'config\klacks.native.json'
 $secretsFile = Join-Path $DataRoot 'config\secrets.json'
 $config = Get-Content -Raw $configFile | ConvertFrom-Json
+# Install-Klacks.ps1 moves PostgreSQL to the next free port when the default is taken; the connection string has the real one.
+if (-not $PSBoundParameters.ContainsKey('PostgresPort') -and
+    [string]$config.ConnectionStrings.DefaultConnection -match '(?i)(^|;)\s*Port\s*=\s*(\d+)') {
+    $PostgresPort = [int]$Matches[2]
+}
 
 if ($config.Deployment.IsPlayground -ne $false) {
     throw "klacks.native.json does not pin Deployment.IsPlayground to false (found '$($config.Deployment.IsPlayground)')."
