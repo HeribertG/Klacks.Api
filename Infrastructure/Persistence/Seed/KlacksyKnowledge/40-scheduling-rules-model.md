@@ -178,7 +178,9 @@ on the first day of the loaded period when it started earlier. After a booking o
 covers the daily hours of the edited day and of the next day (a night shift adds hours to the next
 day), the weekly hours and rest days of the edited day's week and the full run of consecutive days
 that reaches into that week. Reloading the period checks all of it again for the whole period; the
-rest days of a week that the loaded period cuts are only judged after a booking in that week.
+rest days of a week that the loaded period cuts are only judged after a booking in that week. The
+issue list of the period close counts runs, nights and weekly hours across the period start and end the
+same way.
 
 ## Related skills
 

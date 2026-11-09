@@ -15,6 +15,9 @@
 /// So this loader reconciles each client's obligations for [from, to] BEFORE evaluating
 /// them, guaranteeing the compensatory-rest state is fresh at close time. The reconcile is real-mode
 /// only (it no-ops on a non-null analyseToken), so scenario loads stay side-effect-free.
+/// The work-time rules (rest, daily and weekly hours, consecutive days, rest days) read the schedule with
+/// ScenarioConstants.BoundaryDays on each side, like the live range check, so a run that crosses the period
+/// start is counted in full; every other finding stays on the period's own rows.
 /// </summary>
 /// <param name="context">Read-only access to Work/WorkChange/Break/GroupItem for the period</param>
 /// <param name="timelineCalculator">Shared schedule-block builder used by the live validator</param>
@@ -92,15 +95,21 @@ public class PeriodValidationLoader : IPeriodValidationLoader
             ? await LoadClientIdsForGroupAsync(groupId.Value, cancellationToken)
             : null;
 
-        var works = await LoadWorksAsync(from, to, clientIdsInGroup, analyseToken, cancellationToken);
+        var ruleFrom = from.AddDays(-ScenarioConstants.BoundaryDays);
+        var ruleTo = to.AddDays(ScenarioConstants.BoundaryDays);
+        var ruleWorks = await LoadWorksAsync(ruleFrom, ruleTo, clientIdsInGroup, analyseToken, cancellationToken);
+        var works = ruleWorks.Where(w => w.CurrentDate >= from && w.CurrentDate <= to).ToList();
         if (works.Count == 0)
         {
             return [];
         }
 
-        var workIds = works.Select(w => w.Id).ToList();
-        var workChanges = await LoadWorkChangesAsync(workIds, cancellationToken);
-        var breaks = await LoadBreaksAsync(from, to, clientIdsInGroup, analyseToken, cancellationToken);
+        var ruleWorkChanges = await LoadWorkChangesAsync(ruleWorks.Select(w => w.Id).ToList(), cancellationToken);
+        var workIds = works.Select(w => w.Id).ToHashSet();
+        var workChanges = ruleWorkChanges.Where(wc => workIds.Contains(wc.WorkId)).ToList();
+        var ruleBreaks = await LoadBreaksAsync(ruleFrom, ruleTo, clientIdsInGroup, analyseToken, cancellationToken);
+        var breaks = ruleBreaks.Where(b => b.CurrentDate >= from && b.CurrentDate <= to).ToList();
+        var ruleBlocks = _timelineCalculator.CalculateScheduleBlocks(ruleWorks, ruleWorkChanges, ruleBreaks).ToLookup(b => b.ClientId);
         var onCallBreakIds = OnCallAbsenceQuery.OnCallBreakIds(
             breaks, await OnCallAbsenceQuery.LoadIdsAsync(_context, cancellationToken));
         var uncoveredAbsences = await UncoveredAbsenceLookupLoader.LoadAsync(
@@ -134,11 +143,14 @@ public class PeriodValidationLoader : IPeriodValidationLoader
 
             ScheduleValidationBuilder.AddCollisionsExceptAbsenceOverlaps(entries, timeline, clientName, onCallBreakIds);
             UncoveredAbsenceEntries.Add(entries, timeline, clientName, uncoveredAbsences);
-            ScheduleValidationBuilder.AddRestViolations(entries, timeline, clientName, policy);
-            ScheduleValidationBuilder.AddOvertime(entries, timeline, clientName, from, to, policy);
-            ScheduleValidationBuilder.AddConsecutiveDays(entries, timeline, clientName, from, to, policy);
-            ScheduleValidationBuilder.AddWeeklyOvertime(entries, timeline, clientName, from, to, policy);
-            ScheduleValidationBuilder.AddMinRestDays(entries, timeline, clientName, from, to, policy);
+            var ruleTimeline = new ClientTimeline(group.Key);
+            ruleTimeline.AddBlocks(ruleBlocks[group.Key]);
+            ruleTimeline.SortBlocks();
+            ScheduleValidationBuilder.AddRestViolations(entries, ruleTimeline, clientName, policy, from, to);
+            ScheduleValidationBuilder.AddOvertime(entries, ruleTimeline, clientName, from, to, policy);
+            ScheduleValidationBuilder.AddConsecutiveDays(entries, ruleTimeline, clientName, from, to, policy);
+            ScheduleValidationBuilder.AddWeeklyOvertime(entries, ruleTimeline, clientName, from, to, policy);
+            ScheduleValidationBuilder.AddMinRestDays(entries, ruleTimeline, clientName, from, to, policy);
 
             entries.AddRange(await _periodCapEvaluator.EvaluateAsync(group.Key, clientName, from, analyseToken, cancellationToken));
             entries.AddRange(await _restDayRotationEvaluator.EvaluateAsync(group.Key, clientName, to, analyseToken, cancellationToken));
