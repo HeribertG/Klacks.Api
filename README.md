@@ -9,7 +9,6 @@ This repository contains the backend (`Klacks.Api`, .NET). The web interface liv
 - Website: <https://klacks-software.ch>
 - Documentation: <https://klacks-software.ch/docs/>
 - Playground (public instance with sample data, no installation, no registration): <https://play.klacks-software.ch>
-- Installation page: <https://klacks-software.ch/en/land-gb/installation>
 - Download: only from the [Klacks Store](https://klacks-software.ch/store/?culture=en) (country packages for your own server or Docker Compose, and the Windows installer for an office PC)
 
 ## What Klacks does
