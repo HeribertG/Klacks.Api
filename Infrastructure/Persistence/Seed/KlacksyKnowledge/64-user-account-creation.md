@@ -4,8 +4,10 @@ description: |
   Explains that a login account can come from two different sources with different outcomes: one
   immediately emails a time-limited password-reset link, the other only creates the account and
   sends no mail. Also covers how someone who forgot their password gets back in on their own,
-  through the same kind of reset link requested from the login page. Use this when a new colleague
-  never received a welcome mail or nobody knows how their first password gets set.
+  through the same kind of reset link requested from the login page, and how the very first
+  administrator of a new installation is created on the first visit, before anyone signs in. Use this
+  when a new colleague never received a welcome mail, nobody knows how their first password gets set,
+  or someone asks why a fresh installation opens with "create your own admin account".
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -19,8 +21,8 @@ triggerKeywords:
     - where does the password come from
     - receive password
 synonyms:
-  de: [neuer benutzer bekommt keine mail, konto ohne willkommensmail von klacksy, wie bekommt jemand sein erstes passwort, assistent legt konto an ohne mailversand, eigenes passwort selbst zurücksetzen]
-  en: [new user never got a password email, account created without a welcome mail, how does someone get their first password, assistant creates account without sending mail, reset your own forgotten password]
+  de: [neuer benutzer bekommt keine mail, konto ohne willkommensmail von klacksy, wie bekommt jemand sein erstes passwort, assistent legt konto an ohne mailversand, eigenes passwort selbst zurücksetzen, eigenes admin-konto einrichten, erster start nach der installation]
+  en: [new user never got a password email, account created without a welcome mail, how does someone get their first password, assistant creates account without sending mail, reset your own forgotten password, create your own admin account, first start after installation]
   fr: [nouveau compte sans e-mail de bienvenue, comment obtenir son premier mot de passe, réinitialiser soi-même son mot de passe oublié]
   it: [nuovo account senza email di benvenuto, come ottenere la prima password, reimpostare da soli la password dimenticata]
 ---
@@ -60,6 +62,22 @@ Anyone with an account can request a password reset themselves at any time from 
 without needing an administrator. It produces the same kind of 24-hour link as the automatic
 welcome mail — following it lets the person choose a new password directly.
 
+## The first administrator of a new installation
+
+A new installation ships with a built-in test administrator whose password is public. On the very first
+visit Klacks therefore opens the page "Create your own admin account" (de: "Eigenes Admin-Konto
+einrichten") directly, before any sign-in: first and last name, email, password (typed twice, the
+password rules are listed live). The email is the sign-in name afterwards. Saving creates the new
+administrator, switches the built-in test administrator off for good and signs the new administrator in.
+Next comes the page "Country and industry" (de: "Land und Branche"), see `explain_active_industries`.
+
+- This works only once and only while nobody has used the built-in account yet: when its password was
+  changed, it was already used to sign in, or another administrator exists, the normal sign-in page
+  appears instead. Signing in with the built-in account then still leads to the same setup page.
+- If two people submit at the same moment, only the first one becomes administrator; the second gets
+  "already completed" and goes to the sign-in page.
+- The public test environment and developer installations keep the built-in account and never show the page.
+
 ## Related skills
 
 - `create_user` — creates an account through the assistant (no mail sent)
@@ -70,3 +88,5 @@ welcome mail — following it lets the person choose a new password directly.
 - "Wie bekommt ein neu angelegtes Benutzerkonto sein erstes Passwort?"
 - "I created a user with the assistant, why didn't they get an email?"
 - "How does someone reset a forgotten password themselves?"
+- "Warum zeigt Klacks nach der Installation zuerst 'Eigenes Admin-Konto einrichten'?"
+- "I installed Klacks, how do I get the first administrator account?"

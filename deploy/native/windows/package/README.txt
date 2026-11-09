@@ -7,7 +7,8 @@ Klacks for the office PC (Windows 10/11, 64-bit) — preview
    country of this PC, "0" sets up no region profile.
 3. The installation takes a few minutes; the first start also downloads about 700 MB of AI models.
 4. Then open http://localhost:5180 in the browser.
-   First sign-in: admin@test.com / P@ssw0rt1 — Klacks then asks you to create your own admin account.
+   On the first visit you create your own admin account and then choose your industry.
+   If Klacks shows the sign-in page instead: admin@test.com / P@ssw0rt1 — Klacks then asks for your own admin account.
 
 Report: "Klacks-Installationsbericht-<date>.txt" is written next to "Installieren.cmd" (or to the desktop when the
 folder is read-only). Please send this file if something goes wrong.

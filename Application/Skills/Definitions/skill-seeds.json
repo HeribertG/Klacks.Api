@@ -47903,7 +47903,7 @@
     {
       "name": "explain_active_industries",
       "area": "settings",
-      "description": "Explains the setting that narrows the pick lists offered when staffing: choosing a sector such as home care, healthcare, security, facility services or logistics shortens the choices of working qualifications on a shift and on a person, and of the rule preset attached to working conditions. Covers what the free choice does, that entries without a sector always stay available, and that nothing is ever deleted or hidden from the administration lists.",
+      "description": "Explains the sector setting (home care, healthcare, security, facility services, logistics, hospitality or a custom rule) that shortens the pick lists of working qualifications on shifts and people and of rule presets on working conditions. Covers that entries without a sector stay available, that nothing is deleted or hidden in the administration lists, and the first-start page \"Country and industry\" where a new administrator sees the installed country and picks the sector.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -47979,7 +47979,7 @@
         "fr": "Explication des secteurs actifs",
         "it": "Spiegazione dei settori attivi"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_overtime_model",
@@ -51036,7 +51036,7 @@
     {
       "name": "explain_user_account_creation",
       "area": "security",
-      "description": "Explains that a login account can come from two different sources with different outcomes: one immediately emails a time-limited password-reset link, the other only creates the account and sends no mail. Also covers how someone who forgot their password gets back in on their own, through the same kind of reset link requested from the login page. Use this when a new colleague never received a welcome mail or nobody knows how their first password gets set.",
+      "description": "Explains the two ways a login account is created: one emails a time-limited password-reset link, the other sends no mail. Covers resetting a forgotten password from the login page, and how the first administrator of a new installation is created on the first visit before anyone signs in. Use this when a new colleague got no welcome mail, nobody knows how a first password is set, or a fresh installation opens with \"create your own admin account\".",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -51061,7 +51061,7 @@
           "receive password"
         ]
       },
-      "version": 3,
+      "version": 4,
       "synonyms": {
         "de": [
           "neuer benutzer bekommt keine mail",

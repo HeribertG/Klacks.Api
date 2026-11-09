@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Registers the named rate-limit policies the controllers refer to with [EnableRateLimiting] (login, upload, refresh
-/// token, password reset and change, LLM chat, connection test, client import, geo proxy, Playground status, speech). The MCP
+/// token, password reset and change, LLM chat, connection test, client import, geo proxy, Playground status, first-start
+/// setup status, speech). The MCP
 /// policy is registered by AddKlacksMcpServer. Rejected requests are answered with 429.
 /// </summary>
 /// <param name="services">Service collection of the host</param>
@@ -81,6 +82,15 @@ public static class RateLimitingServiceCollectionExtensions
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = RateLimitingPolicies.PlaygroundStatusPermitLimit,
+                        Window = RateLimitingPolicies.DefaultWindow
+                    }));
+
+            options.AddPolicy(RateLimitingPolicies.SetupStatus, httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: RateLimitPartitionKeys.ForNetworkAddress(httpContext),
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = RateLimitingPolicies.SetupStatusPermitLimit,
                         Window = RateLimitingPolicies.DefaultWindow
                     }));
 

@@ -7,7 +7,10 @@
 /// name sent by the client is ignored. A rejected registration is reported with Identity's reason codes (400);
 /// 409 is reserved for "already completed" and "not required in this environment". The administrator-role lock is taken
 /// before the seeded admin is deactivated, so the last-administrator count is read under the same lock every other
-/// deactivation uses.
+/// deactivation uses. The anonymous first-start path answers 409 before the transaction once the installation can no
+/// longer be claimed, so late anonymous calls never take the lock, and re-checks its eligibility under that lock, so of
+/// two parallel requests exactly one creates the admin and the other gets the same 409 as every caller once the setup
+/// is done.
 /// </summary>
 /// <param name="adminSetupGateService">Tells whether the setup is still required in this installation</param>
 /// <param name="userManagementService">Registers the account, grants the role and deactivates the seeded admin</param>
@@ -60,19 +63,15 @@ public class CompleteOwnAdminSetupCommandHandler : BaseHandler, IRequestHandler<
 
     public async Task<bool> Handle(CompleteOwnAdminSetupCommand request, CancellationToken cancellationToken)
     {
+        if (request.IsFirstStart && !await _adminSetupGateService.IsFirstStartSetupOpenAsync())
+        {
+            throw new ConflictException(AdminSetupMessages.FirstStartUnavailable);
+        }
+
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             await _administratorRoleLock.AcquireAsync(cancellationToken);
-
-            if (await _adminSetupGateService.IsExemptAsync())
-            {
-                throw new ConflictException(AdminSetupMessages.NotRequiredInEnvironment);
-            }
-
-            if (!await _adminSetupGateService.IsGateActiveAsync())
-            {
-                throw new ConflictException(AdminSetupMessages.AlreadyCompleted);
-            }
+            await EnsureSetupStillOpenAsync(request.IsFirstStart);
 
             var registration = request.NewAdmin
                 ?? throw new InvalidRequestException(AccountRegistrationMessages.RegistrationRequired);
@@ -120,6 +119,29 @@ public class CompleteOwnAdminSetupCommandHandler : BaseHandler, IRequestHandler<
             _logger.LogInformation("Own-admin setup completed: {Email} is now admin, seed admin deactivated", email.MaskEmail());
             return true;
         });
+    }
+
+    private async Task EnsureSetupStillOpenAsync(bool isFirstStart)
+    {
+        if (isFirstStart)
+        {
+            if (!await _adminSetupGateService.IsFirstStartSetupOpenAsync())
+            {
+                throw new ConflictException(AdminSetupMessages.FirstStartUnavailable);
+            }
+
+            return;
+        }
+
+        if (await _adminSetupGateService.IsExemptAsync())
+        {
+            throw new ConflictException(AdminSetupMessages.NotRequiredInEnvironment);
+        }
+
+        if (!await _adminSetupGateService.IsGateActiveAsync())
+        {
+            throw new ConflictException(AdminSetupMessages.AlreadyCompleted);
+        }
     }
 
     private static string RequireName(string? value, string missingMessage)

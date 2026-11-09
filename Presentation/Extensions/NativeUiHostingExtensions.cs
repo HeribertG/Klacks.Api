@@ -4,7 +4,10 @@
 /// Serves the built Angular UI from Hosting:UiRoot on native installations, where no nginx and no UI container
 /// exist. Mirrors the routing of deploy/onprem/nginx: server-side prefixes stay with the API (an unknown API route
 /// answers 404), every other unknown GET route without a file extension gets index.html so deep links reach the
-/// SPA router. index.html is never cached, so a browser picks up the new bundle names right after an update.
+/// SPA router. Files whose name does not change with a build are revalidated on every request, mirroring the nginx
+/// config of the UI image: index.html (new bundle names) and everything under assets/ (translations, manuals, icons)
+/// get "no-cache", which still allows a 304 via ETag/Last-Modified; version.json gets "no-store". Without a
+/// Cache-Control header a browser may reuse such a file from a previous installation at the same address.
 /// </summary>
 /// <param name="uiRoot">Absolute directory containing index.html of the production UI build</param>
 
@@ -20,6 +23,9 @@ public static class NativeUiHostingExtensions
     private const string IndexFileName = "index.html";
     private const string HtmlContentType = "text/html; charset=utf-8";
     private const string NoCache = "no-cache";
+    private const string NoStore = "no-store";
+    private const string VersionFilePath = "/version.json";
+    private const string AssetsPathPrefix = "/assets/";
     private const char PathSeparator = '/';
 
     private static readonly string[] ServerOnlyPrefixes =
@@ -59,9 +65,10 @@ public static class NativeUiHostingExtensions
             FileProvider = fileProvider,
             OnPrepareResponse = context =>
             {
-                if (string.Equals(context.File.Name, IndexFileName, StringComparison.OrdinalIgnoreCase))
+                var cacheControl = GetCacheControl(context.File.Name, context.Context.Request.Path);
+                if (cacheControl is not null)
                 {
-                    context.Context.Response.Headers[HeaderNames.CacheControl] = NoCache;
+                    context.Context.Response.Headers[HeaderNames.CacheControl] = cacheControl;
                 }
             },
         });
@@ -101,6 +108,28 @@ public static class NativeUiHostingExtensions
         }
 
         await context.Response.SendFileAsync(indexPath);
+    }
+
+    /// <summary>
+    /// Cache-Control value for a static UI file, or null for the content-hashed bundle files, whose names change with
+    /// every build.
+    /// </summary>
+    /// <param name="fileName">Name of the served file (index.html also when the request path is "/")</param>
+    /// <param name="requestPath">Request path the file is served for</param>
+    public static string? GetCacheControl(string fileName, PathString requestPath)
+    {
+        if (string.Equals(fileName, IndexFileName, StringComparison.OrdinalIgnoreCase))
+        {
+            return NoCache;
+        }
+
+        var path = requestPath.Value ?? string.Empty;
+        if (string.Equals(path, VersionFilePath, StringComparison.OrdinalIgnoreCase))
+        {
+            return NoStore;
+        }
+
+        return path.StartsWith(AssetsPathPrefix, StringComparison.OrdinalIgnoreCase) ? NoCache : null;
     }
 
     public static bool IsServerOnlyPath(PathString path)

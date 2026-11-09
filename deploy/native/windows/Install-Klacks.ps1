@@ -511,4 +511,4 @@ if (Wait-Healthy "$loopbackUrl/internal/health/deep" $HealthTimeoutSeconds $apiP
 else {
     Write-Warning "Klacks is still starting after $HealthTimeoutSeconds seconds (the first start downloads about 700 MB of AI models). Open $baseUrl later; logs: $logDirectory"
 }
-Write-Host "Default login:  admin@test.com  /  P@ssw0rt1  (Klacks then asks you to create your own admin account)" -ForegroundColor Green
+Write-Host "First visit:  Klacks asks you to create your own admin account (if it shows the sign-in page instead: admin@test.com  /  P@ssw0rt1)" -ForegroundColor Green

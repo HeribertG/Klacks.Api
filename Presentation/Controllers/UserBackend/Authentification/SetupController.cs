@@ -1,6 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Own-admin setup of a freshly deployed instance. Two ways lead to it: the seeded admin signed in (Status,
+/// CompleteOwnAdmin) and the anonymous first start (FirstStartStatus, CompleteFirstStart), which only works while the
+/// installation can still be claimed and otherwise answers "not available" without saying why.
+/// </summary>
+/// <param name="mediator">Dispatches the setup status query and the completion command</param>
+
 using Klacks.Api.Application.Commands.Accounts;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Registrations;
 using Klacks.Api.Application.DTOs.Setup;
 using Klacks.Api.Application.Queries.Accounts;
@@ -10,6 +18,7 @@ using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Authentification;
@@ -42,6 +51,23 @@ public class SetupController : BaseController
         }
 
         await _mediator.Send(new CompleteOwnAdminSetupCommand(model));
+        return Ok();
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingPolicies.SetupStatus)]
+    [HttpGet("FirstStartStatus")]
+    public async Task<ActionResult<SetupStatusResource>> GetFirstStartStatus()
+    {
+        return Ok(await _mediator.Send(new GetSetupStatusQuery(IsFirstStart: true)));
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingPolicies.Login)]
+    [HttpPost("CompleteFirstStart")]
+    public async Task<ActionResult> CompleteFirstStart([FromBody] RegistrationResource model)
+    {
+        await _mediator.Send(new CompleteOwnAdminSetupCommand(model, IsFirstStart: true));
         return Ok();
     }
 }

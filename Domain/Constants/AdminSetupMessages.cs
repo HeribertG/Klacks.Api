@@ -10,5 +10,7 @@ public static class AdminSetupMessages
 
     public const string SeedAdminNotDeactivated = "Own admin account setup could not deactivate the seeded admin account.";
 
+    public const string FirstStartUnavailable = "Own admin account setup without signing in is not available.";
+
     public const string NotRequiredInEnvironment = "Own admin account setup is not required in this environment (Development or Playground); the seeded admin account stays active.";
 }

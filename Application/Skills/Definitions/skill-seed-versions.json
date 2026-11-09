@@ -661,8 +661,8 @@
       "hash": "A2408A1CE201067C3DD46BD587788AFE46BBE46885DC004C090E939D81DBDC5D"
     },
     "explain_active_industries": {
-      "version": 4,
-      "hash": "A60363CB437EEA60FB6FC7CF55B98AD216F2742CB5A10B0B015E6598D16077DF"
+      "version": 5,
+      "hash": "21F79B860B44809E8136E8C3F9338A022E37407928DE0DC825F804D48350AD61"
     },
     "explain_address_management": {
       "version": 5,
@@ -953,8 +953,8 @@
       "hash": "3ECB47E428157146D731EBED0200BC8BDDC4CBA5AF0B788EFBD9EB7ED8F918BE"
     },
     "explain_user_account_creation": {
-      "version": 3,
-      "hash": "EDA9773EE7EB0490577A5CE140803EDCF5FAC6ED05439501C1E68D315458453C"
+      "version": 4,
+      "hash": "54A5D4076D0E2AF4CA7BBA52A0E80067A1852445A97A7445F0B7049B24B73435"
     },
     "explain_whisper_setup": {
       "version": 5,

@@ -6,5 +6,5 @@ public class SetupStatusResource
 {
     public bool RequiresOwnAdmin { get; set; }
 
-    public PasswordPolicyResource PasswordPolicy { get; set; } = new();
+    public PasswordPolicyResource? PasswordPolicy { get; set; }
 }
