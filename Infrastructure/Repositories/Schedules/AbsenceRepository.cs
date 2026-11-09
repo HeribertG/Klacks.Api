@@ -18,17 +18,14 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
 {
     private readonly IAbsenceSortingService _sortingService;
     private readonly IAbsencePaginationService _paginationService;
-    private readonly IAbsenceExportService _exportService;
 
     public AbsenceRepository(DataBaseContext context, ILogger<Absence> logger,
         IAbsenceSortingService sortingService,
-        IAbsencePaginationService paginationService,
-        IAbsenceExportService exportService)
+        IAbsencePaginationService paginationService)
         : base(context, logger)
     {
         _sortingService = sortingService;
         _paginationService = paginationService;
-        _exportService = exportService;
     }
 
     public override async Task<Absence?> Delete(Guid id)
@@ -66,11 +63,6 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
             result.Absences.Count, result.MaxItems);
         
         return result;
-    }
-
-    public HttpResultResource CreateExcelFile(string language)
-    {
-        return _exportService.CreateExcelFile(language);
     }
 
     public async Task<int> CountActiveBreaksByAbsenceAsync(Guid absenceId, CancellationToken cancellationToken = default)
