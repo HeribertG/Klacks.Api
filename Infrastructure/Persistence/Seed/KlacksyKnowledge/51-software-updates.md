@@ -109,7 +109,8 @@ the version that is already installed is allowed and repairs the installation. R
 backs up the database, checks the new version and returns to the old one if it fails. New
 installations come from the Klacks Store; Edge may warn that the setup file "is not commonly
 downloaded" because the file is new, not because it is unsafe, and the file can be kept via the
-download list ("…" > "Keep" > "Show more" > "Keep anyway").
+download list ("…" > "Keep" > "Show more" > "Keep anyway"). If Edge still does not let the file
+through, download it with another browser, for example Google Chrome.
 
 ## Related skills
 
